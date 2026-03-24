@@ -157,8 +157,9 @@ func NewHttpServer(
 	if webFS, subErr := fs.Sub(assets.WebAssets, "web"); subErr == nil {
 		webHandler := stdhttp.FileServer(stdhttp.FS(webFS))
 		srv.HandlePrefix("/web/", stdhttp.StripPrefix("/web/", webHandler))
-		srv.HandlePrefix("/assets/", webHandler)
-		srv.HandlePrefix("/static/", webHandler)
+		srv.HandlePrefix("/js/", webHandler)
+		srv.HandlePrefix("/css/", webHandler)
+		srv.HandlePrefix("/img/", webHandler)
 		srv.Handle("/favicon.ico", webHandler)
 		srv.HandleFunc("/", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 			if r.URL.Path == "/" {
