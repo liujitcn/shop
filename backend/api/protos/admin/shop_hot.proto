@@ -1,0 +1,313 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+import "common/enum.proto";
+
+// Admin商城热门推荐服务
+service ShopHotService {
+  // 查询商城热门推荐分页列表
+  rpc PageShopHot (PageShopHotRequest) returns (PageShopHotResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/hot"
+    };
+  }
+
+  // 查询商城热门推荐
+  rpc GetShopHot (google.protobuf.Int64Value) returns (ShopHotForm) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/hot/{value}"
+    };
+  }
+
+  // 创建商城热门推荐
+  rpc CreateShopHot (ShopHotForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/shop/hot"
+      body: "*"
+    };
+  }
+
+  // 更新商城热门推荐
+  rpc UpdateShopHot (ShopHotForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/hot/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除商城热门推荐
+  rpc DeleteShopHot (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/shop/hot/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetShopHotStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/hot/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 查询商城热门推荐属性分页列表
+  rpc PageShopHotItem (PageShopHotItemRequest) returns (PageShopHotItemResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/hot-item"
+    };
+  }
+
+  // 查询商城热门推荐属性
+  rpc GetShopHotItem (google.protobuf.Int64Value) returns (ShopHotItemForm) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/hot-item/{value}"
+    };
+  }
+
+  // 创建商城热门推荐属性
+  rpc CreateShopHotItem (ShopHotItemForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/shop/hot-item"
+      body: "*"
+    };
+  }
+
+  // 更新商城热门推荐属性
+  rpc UpdateShopHotItem (ShopHotItemForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/hot-item/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除商城热门推荐属性
+  rpc DeleteShopHotItem (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/shop/hot-item/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetShopHotItemStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/hot-item/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+message PageShopHotRequest{
+  // 商城热门推荐标题
+  string title = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "商城热门推荐标题",
+    }
+  ];
+  // 商城热门推荐描述
+  string desc = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "商城热门推荐描述",
+    }
+  ];
+
+  // 状态
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态",
+      default: {number: 0}
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageShopHotResponse{
+  // 分页数据
+  repeated ShopHot list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message PageShopHotItemRequest{
+  // 商城热门推荐id
+  int64 hotId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "商城热门推荐id",
+    }
+  ];
+  // 商城热门推荐属性标题
+  string title = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "商城热门推荐属性标题",
+    }
+  ];
+
+  // 状态
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageShopHotItemResponse{
+  // 分页数据
+  repeated ShopHotItem list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+// 商城热门推荐
+message ShopHot {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
+  ];  // 商城热门推荐ID
+
+  string title = 2 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐标题"}
+  ];  // 商城热门推荐标题
+
+  string desc = 3 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐描述"}
+  ];  // 商城热门推荐名称
+
+  int32 sort = 6 [
+    (gnostic.openapi.v3.property) = { description: "排序" }
+  ]; // 排序
+
+  common.Status status = 51 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+// 商城热门推荐
+message ShopHotForm {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
+  ];  // 商城热门推荐ID
+
+  string title = 2 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐标题"}
+  ];  // 商城热门推荐标题
+
+  string desc = 3 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐描述"}
+  ];  // 商城热门推荐名称
+
+  string banner = 4 [
+    (gnostic.openapi.v3.property) = {description: "轮播图"}
+  ];  // 轮播图
+
+  repeated string picture = 5 [
+    (gnostic.openapi.v3.property) = {description: "图片"}
+  ];  // 图片
+
+  int32 sort = 6 [
+    (gnostic.openapi.v3.property) = { description: "排序" }
+  ]; // 排序
+
+  optional common.Status status = 51 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+}
+
+message ShopHotItem {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
+  ];  // 商城热门推荐ID
+
+  int64 hot_id = 2 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
+  ];  // 商城热门推荐ID
+
+  string title = 3 [
+    (gnostic.openapi.v3.property) = {description: "标题"}
+  ];  // 商城热门推荐值
+
+  int32 sort = 4 [
+    (gnostic.openapi.v3.property) = { description: "排序"}
+  ]; // 排序
+
+  common.Status status = 101 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+message ShopHotItemForm {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
+  ];  // 商城热门推荐ID
+
+  int64 hotId = 2 [
+    (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
+  ];  // 商城热门推荐ID
+
+  string title = 3 [
+    (gnostic.openapi.v3.property) = {description: "标题"}
+  ];  // 标题
+
+  int32 sort = 4 [
+    (gnostic.openapi.v3.property) = { description: "排序"}
+  ]; // 排序
+
+  repeated int64 goodsIds = 5 [
+    (gnostic.openapi.v3.property) = { description: "商品Id"}
+  ]; // 商品
+
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}
+  ]; // 状态：枚举【Status】
+}

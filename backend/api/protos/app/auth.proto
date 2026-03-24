@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/wrappers.proto";
+
+// App用户登录认证服务
+service AuthService {
+  // 微信登录
+  rpc WxLogin (WxLoginRequest) returns (WxLoginResponse) {
+    option (google.api.http) = {
+      post: "/api/app/auth/login/wx"
+      body: "*"
+    };
+  }
+
+  // 获取已经登录的用户的数据
+  rpc GetUserInfo (google.protobuf.Empty) returns (UserInfo) {
+    option (google.api.http) = {
+      get: "/api/app/auth/userInfo"
+    };
+  }
+
+  // 修改个人中心用户信息
+  rpc UpdateUserInfo (UpdateUserInfoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/app/auth/userInfo"
+      body: "*"
+    };
+  }
+
+  // 手机号授权
+  rpc PhoneAuth (PhoneAuthRequest) returns (PhoneAuthResponse) {
+    option (google.api.http) = {
+      put: "/api/app/auth/userInfo/phone"
+      body: "*"
+    };
+  }
+}
+
+message UserInfo {
+  string userName = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户账号"}
+  ]; // 用户账号
+
+  string nickName = 2 [
+    (gnostic.openapi.v3.property) = {description: "用户昵称"}
+  ]; // 用户昵称
+
+  int32 gender = 3 [
+    (gnostic.openapi.v3.property) = {description: "性别"}
+  ]; // 性别
+
+  string phone = 4 [
+    (gnostic.openapi.v3.property) = {description: "手机号"}
+  ]; // 手机号
+
+  string avatar = 5 [
+    (gnostic.openapi.v3.property) = {description: "头像"}
+  ]; // 头像
+}
+
+// 微信后台登录 - 请求
+message WxLoginRequest {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户登录凭据"}
+  ]; // 用户登录凭据
+}
+
+// 微信后台登录 - 回应
+message WxLoginResponse {
+  string accessToken = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"
+    }
+  ]; // 访问令牌，必选项。
+
+  string refreshToken = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"
+    }
+  ]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string tokenType = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。",
+      default: {string: "Bearer"}
+    }
+  ]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expiresIn = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"
+    }
+  ]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+}
+
+
+message UpdateUserInfoRequest {
+  string nickName = 1 [
+    (gnostic.openapi.v3.property) = {description: "昵称"}
+  ]; // 昵称
+  string avatar = 2 [
+    (gnostic.openapi.v3.property) = {description: "头像URL"}
+  ]; // 头像URL
+  int32 gender = 3 [
+    (gnostic.openapi.v3.property) = {description: "性别"}
+  ]; // 性别
+}
+
+
+message PhoneAuthRequest {
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "授权信息"}
+  ]; // 授权信息
+}
+
+message PhoneAuthResponse {
+  string phone = 1 [
+    (gnostic.openapi.v3.property) = {description: "手机号"}
+  ]; // 手机号
+}

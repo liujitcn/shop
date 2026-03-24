@@ -1,0 +1,22 @@
+authn:
+  jwt:
+    secret: Shop@Server
+    accessTokenExpires: 3600000s
+    refreshTokenExpires: 36000s
+    whiteList:
+      prefix:
+      regex:
+      path:
+      match:
+        - "/base.ConfigService/GetConfig"
+        - "/base.LoginService/Captcha"
+        - "/base.LoginService/Login"
+        - "/app.AuthService/WxLogin"
+        - "/app.GoodsCategoryService/ListGoodsCategory"
+        - "/app.GoodsService/PageGoods"
+        - "/app.GoodsService/GetGoods"
+        - "/app.ShopBannerService/ListShopBanner"
+        - "/app.ShopHotService/ListShopHot"
+        - "/app.ShopHotService/ListShopHotItem"
+        - "/app.ShopServiceService/ListShopService"
+        - "/app.ShopHotService/PageShopHotGoods"

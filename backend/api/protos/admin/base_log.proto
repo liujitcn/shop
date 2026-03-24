@@ -1,0 +1,227 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+
+// Admin日志服务
+service BaseLogService {
+  // 查询日志分页列表
+  rpc PageBaseLog (PageBaseLogRequest) returns (PageBaseLogResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/log"
+    };
+  }
+
+  // 查询日志
+  rpc GetBaseLog (google.protobuf.Int64Value) returns (BaseLog) {
+    option (google.api.http) = {
+      get: "/api/admin/base/log/{value}"
+    };
+  }
+}
+
+message PageBaseLogRequest {
+  repeated string requestTime = 3 [
+    (gnostic.openapi.v3.property) = {description: "请求时间"}
+  ];// 请求时间
+
+  string operation = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作方法"
+    }
+  ]; // 操作方法
+  // 状态码
+  optional int32 statusCode = 14 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态码"
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageBaseLogResponse {
+  // 分页数据
+  repeated BaseLog list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+// 日志
+message BaseLog {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "日志ID"
+    }
+  ]; // 日志ID
+
+  string requestId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求ID"
+    }
+  ]; // 请求ID
+
+  string requestTime = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求时间"
+    }
+  ]; // 请求ID
+
+  string method = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求方法"
+    }
+  ]; // 请求方法
+
+  string operation = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作方法"
+    }
+  ]; // 操作方法
+
+  string path = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求路径"
+    }
+  ]; // 请求路径
+
+  string referer = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求源"
+    }
+  ]; // 请求源
+
+  string requestUri = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求URI"
+    }
+  ]; // 请求URI
+
+  string requestHeader = 9[
+    (gnostic.openapi.v3.property) = {
+      description: "请求头"
+    }
+  ]; // 请求头
+
+  string requestBody = 10 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求体"
+    }
+  ]; // 请求体
+
+  string response = 11 [
+    (gnostic.openapi.v3.property) = {
+      description: "响应信息"
+    }
+  ]; // 响应信息
+
+  string costTime = 12[
+    (gnostic.openapi.v3.property) = {
+      description: "操作耗时"
+    }
+  ]; // 操作耗时
+
+  bool success = 13 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作是否成功"
+    }
+  ]; // 操作是否成功
+
+  int32 statusCode = 14 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态码"
+    }
+  ]; // 状态码
+
+  string reason = 15 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作失败原因"
+    }
+  ]; // 操作失败原因
+
+  string location = 16 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作地理位置"
+    }
+  ]; // 操作地理位置
+
+  int64 userId = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作者用户ID"
+    }
+  ]; // 操作者用户ID
+
+  string userName = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作者账号名"
+    }
+  ]; // 操作者账号名
+
+  string clientIp = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作者IP"
+    }
+  ]; // 操作者IP
+
+  string userAgent = 200 [
+    (gnostic.openapi.v3.property) = {
+      description: "浏览器的用户代理信息"
+    }
+  ]; // 浏览器的用户代理信息
+
+  string browserName = 201 [
+    (gnostic.openapi.v3.property) = {
+      description: "浏览器名称"
+    }
+  ]; // 浏览器名称
+
+  string browserVersion = 202 [
+    (gnostic.openapi.v3.property) = {
+      description: "浏览器版本"
+    }
+  ]; // 浏览器版本
+
+  string clientId = 300 [
+    (gnostic.openapi.v3.property) = {
+      description: "客户端ID"
+    }
+  ]; // 客户端ID
+
+  string clientName = 301 [
+    (gnostic.openapi.v3.property) = {
+      description: "客户端名称"
+    }
+  ]; // 客户端名称
+
+  string osName = 302 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作系统名称"
+    }
+  ]; // 操作系统名称
+
+  string osVersion = 303 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作系统版本"
+    }
+  ]; // 操作系统版本
+}

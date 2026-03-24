@@ -1,0 +1,20 @@
+data:
+  database:
+    # 数据库类型 mysql，sqlite3， postgres
+    driver: mysql
+    # 数据库连接字符串 mysql 缺省信息 charset=utf8&parseTime=True&loc=Local&timeout=1000ms
+    source: root:112233@tcp(127.0.0.1:3306)/shop_test?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms
+    debug: true
+    enable_migrate: true
+    enable_trace: false
+    enable_metrics: false
+    max_idle_connections: 25
+    max_open_connections: 25
+    connection_max_lifetime: 300s
+
+#  redis:
+#    addr: "redis:6379"
+#    password: "*Abcd123456"
+#    dial_timeout: 10s
+#    read_timeout: 0.4s
+#    write_timeout: 0.6s

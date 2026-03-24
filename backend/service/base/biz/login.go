@@ -1,0 +1,160 @@
+package biz
+
+import (
+	"context"
+	"errors"
+
+	"shop/pkg/biz"
+
+	"shop/api/gen/go/base"
+	"shop/api/gen/go/common"
+	"shop/pkg/gen/models"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/kratos-kit/auth/authn/engine"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/captcha"
+)
+
+type LoginCase struct {
+	*biz.BaseCase
+	userToken    *authData.UserToken
+	baseDeptCase *BaseDeptCase
+	baseRoleCase *BaseRoleCase
+	baseUserCase *BaseUserCase
+}
+
+// NewLoginCase new a Login use case.
+func NewLoginCase(
+	baseCase *biz.BaseCase,
+	userToken *authData.UserToken,
+	baseDeptRepo *BaseDeptCase,
+	baseRoleRepo *BaseRoleCase,
+	baseUserRepo *BaseUserCase,
+) *LoginCase {
+	return &LoginCase{
+		BaseCase:     baseCase,
+		userToken:    userToken,
+		baseDeptCase: baseDeptRepo,
+		baseRoleCase: baseRoleRepo,
+		baseUserCase: baseUserRepo,
+	}
+}
+
+// Captcha 验证码
+func (c *LoginCase) Captcha(ctx context.Context) (*base.CaptchaResponse, error) {
+	id, b64s, _, err := captcha.DriverDigitFunc()
+	if err != nil {
+		return nil, err
+	}
+	return &base.CaptchaResponse{
+		CaptchaId:     id,
+		CaptchaBase64: b64s,
+	}, err
+}
+
+// Logout 登出
+func (c *LoginCase) Logout(ctx context.Context) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	err = c.userToken.RemoveToken(authInfo.UserId)
+	if err != nil {
+		return errors.New("退出登录失败")
+	}
+	return nil
+}
+
+// RefreshToken 刷新认证令牌
+func (c *LoginCase) RefreshToken(ctx context.Context, req *base.RefreshTokenRequest) (*base.RefreshTokenResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 校验刷新令牌
+	refreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
+	if refreshToken != req.GetRefreshToken() {
+		return nil, common.ErrorIncorrectRefreshToken("invalid refresh token")
+	}
+
+	// 生成新的访问令牌
+	var accessToken string
+	accessToken, err = c.userToken.GenerateAccessToken(authInfo)
+	if err != nil {
+		return nil, common.ErrorIncorrectRefreshToken("invalid refresh token")
+	}
+	// Token 有效期
+	expiresIn := c.userToken.GetAccessTokenExpires()
+
+	return &base.RefreshTokenResponse{
+		TokenType:    engine.BearerWord,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    expiresIn,
+	}, nil
+}
+
+// Login 登录
+func (c *LoginCase) Login(ctx context.Context, req *base.LoginRequest) (*base.LoginResponse, error) {
+	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
+		return nil, errors.New("验证码不存在")
+	}
+	if !captcha.Verify(req.GetCaptchaId(), req.GetCaptchaCode(), true) {
+		return nil, errors.New("验证码错误")
+	}
+
+	user, err := c.baseUserCase.FindByUserName(ctx, req.GetUserName())
+	if err != nil {
+		return nil, errors.New("用户不存在")
+	}
+	if user.Status != 1 {
+		return nil, errors.New("用户状态错误")
+	}
+	err = crypto.Verify(req.GetPassword(), user.Password)
+	if err != nil {
+		log.Errorf("verify pwd err: %s", err.Error())
+		return nil, errors.New("密码错误")
+	}
+
+	// 查询角色信息
+	var role *models.BaseRole
+	role, err = c.baseRoleCase.FindById(ctx, user.RoleID)
+	if err != nil {
+		return nil, errors.New("角色不存在")
+	}
+
+	// 查询部门信息
+	var dept *models.BaseDept
+	dept, err = c.baseDeptCase.FindById(ctx, user.DeptID)
+	if err != nil {
+		return nil, errors.New("部门不存在")
+	}
+
+	// 生成访问令牌
+	var accessToken, refreshToken string
+	accessToken, refreshToken, err = c.userToken.GenerateToken(&authData.UserTokenPayload{
+		UserId:   user.ID,
+		UserName: user.UserName,
+		RoleId:   user.RoleID,
+		RoleCode: role.Code,
+		RoleName: role.Name,
+		DeptId:   user.DeptID,
+		DeptName: dept.Name,
+	})
+	if err != nil {
+		return nil, errors.New("登录失败")
+	}
+
+	// Token 有效期
+	expiresIn := c.userToken.GetAccessTokenExpires()
+
+	return &base.LoginResponse{
+		TokenType:    engine.BearerWord,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		ExpiresIn:    expiresIn,
+	}, nil
+}

@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+
+// Admin商品SKU服务
+service GoodsSkuService {
+  // 查询商品SKU分页列表
+  rpc PageGoodsSku (PageGoodsSkuRequest) returns (PageGoodsSkuResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/goods/sku"
+    };
+  }
+
+  // 查询商品SKU
+  rpc GetGoodsSku (google.protobuf.Int64Value) returns (GoodsSku) {
+    option (google.api.http) = {
+      get: "/api/admin/goods/sku/{value}"
+    };
+  }
+
+  // 更新商品SKU
+  rpc UpdateGoodsSku (GoodsSku) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/goods/sku/{id}"
+      body: "*"
+    };
+  }
+}
+
+message PageGoodsSkuRequest{
+  // 商品id
+  int64 goodsId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品id",
+    }
+  ];
+  string skuCode = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品SKU编号",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageGoodsSkuResponse{
+  // 分页数据
+  repeated GoodsSku list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message GoodsSku {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品SKUID"}
+  ];  // 商品SKUID
+
+  // 商品id
+  int64 goodsId = 2 [
+    (gnostic.openapi.v3.property) = { description: "商品id" }
+  ];
+
+  string picture = 3 [
+    (gnostic.openapi.v3.property) = {description: "商品图片"}
+  ]; // 商品图片
+
+  // SKU SKU组成，需要与 goods_spec 数组顺序对应
+  repeated string specItem = 4 [
+    (gnostic.openapi.v3.property) = {description: "SKU SKU组成，注意：需要与 goods_spec 数组顺序对应"
+  }];
+
+  // SKU编码
+  string skuCode = 5 [
+    (gnostic.openapi.v3.property) = { description: "SKU编码" }
+  ];
+
+  // 当前价格(分)
+  int64 price = 6 [
+    (gnostic.openapi.v3.property) = { description: "当前价格(分)" }
+  ];
+
+  // 折扣价格（分）
+  int64 discountPrice = 7 [
+    (gnostic.openapi.v3.property) = { description: "折扣价格（分）" }
+  ];
+
+  // 初始销量
+  int64 initSaleNum = 8 [
+    (gnostic.openapi.v3.property) = { description: "初始销量" }
+  ];
+
+  // 真实销售数量
+  int64 realSaleNum = 9 [
+    (gnostic.openapi.v3.property) = { description: "真实销售数量" }
+  ];
+
+  // 库存数量
+  int64 inventory = 10 [
+    (gnostic.openapi.v3.property) = { description: "库存数量" }
+  ];
+}
+

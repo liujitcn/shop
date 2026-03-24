@@ -1,0 +1,339 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+import "common/enum.proto";
+
+// Admin字典服务
+service BaseDictService {
+  // 查询字典列表
+  rpc ListBaseDict (google.protobuf.Empty) returns (ListBaseDictResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/dict/list"
+    };
+  }
+
+  // 查询字典分页列表
+  rpc PageBaseDict (PageBaseDictRequest) returns (PageBaseDictResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/dict"
+    };
+  }
+
+  // 查询字典
+  rpc GetBaseDict (google.protobuf.Int64Value) returns (BaseDictForm) {
+    option (google.api.http) = {
+      get: "/api/admin/base/dict/{value}"
+    };
+  }
+
+  // 创建字典
+  rpc CreateBaseDict (BaseDictForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/base/dict"
+      body: "*"
+    };
+  }
+
+  // 更新字典
+  rpc UpdateBaseDict (BaseDictForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/dict/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除字典
+  rpc DeleteBaseDict (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/base/dict/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetBaseDictStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/dict/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 查询字典属性分页列表
+  rpc PageBaseDictItem (PageBaseDictItemRequest) returns (PageBaseDictItemResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/dict-item"
+    };
+  }
+
+  // 查询字典属性
+  rpc GetBaseDictItem (google.protobuf.Int64Value) returns (BaseDictItemForm) {
+    option (google.api.http) = {
+      get: "/api/admin/base/dict-item/{value}"
+    };
+  }
+
+  // 创建字典属性
+  rpc CreateBaseDictItem (BaseDictItemForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/base/dict-item"
+      body: "*"
+    };
+  }
+
+  // 更新字典属性
+  rpc UpdateBaseDictItem (BaseDictItemForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/dict-item/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除字典属性
+  rpc DeleteBaseDictItem (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/base/dict-item/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetBaseDictItemStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/dict-item/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+message PageBaseDictRequest{
+
+  string code = 2 [
+    (gnostic.openapi.v3.property) = {description: "字典编号"}
+  ];  // 字典编号
+
+  string name = 3 [
+    (gnostic.openapi.v3.property) = {description: "字典名称"}
+  ];  // 字典名称
+
+  optional common.Status status = 51 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageBaseDictResponse{
+  // 分页数据
+  repeated BaseDict list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+// 字典
+message BaseDict {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "字典ID"}
+  ];  // 字典ID
+
+  string code = 2 [
+    (gnostic.openapi.v3.property) = {description: "字典编号"}
+  ];  // 字典编号
+
+  string name = 3 [
+    (gnostic.openapi.v3.property) = {description: "字典名称"}
+  ];  // 字典名称
+
+  common.Status status = 101 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+// 字典
+message BaseDictForm {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "字典ID"}
+  ];  // 字典ID
+
+  string code = 2 [
+    (gnostic.openapi.v3.property) = {description: "字典编号"}
+  ];  // 字典编号
+
+  string name = 3 [
+    (gnostic.openapi.v3.property) = {description: "字典名称"}
+  ];  // 字典名称
+
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+}
+
+message PageBaseDictItemRequest{
+  // 字典id
+  int64 dictId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "字典id",
+    }
+  ];
+  // 字典属性名称
+  string label = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "字典属性名称",
+    }
+  ];
+
+  // 状态
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageBaseDictItemResponse{
+  // 分页数据
+  repeated BaseDictItem list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message ListBaseDictResponse{
+  message BaseDictItem {
+    string value = 3 [
+      (gnostic.openapi.v3.property) = {description: "字典项值"}
+    ];  // 字典值
+
+    string label = 4 [
+      (gnostic.openapi.v3.property) = {description: "字典项标签"}
+    ];  // 字典项标签
+
+    string tagType = 5 [
+      (gnostic.openapi.v3.property) = {description: "标签类型，用于前端样式展示（如success、warning等）"}
+    ];  // 标签类型，用于前端样式展示（如success、warning等）
+  }
+  message BaseDict {
+
+    string code = 2 [
+      (gnostic.openapi.v3.property) = {description: "字典编号"}
+    ];  // 字典编号
+
+    string name = 3 [
+      (gnostic.openapi.v3.property) = {description: "字典名称"}
+    ];  // 字典名称
+    repeated BaseDictItem items = 300 [
+      (gnostic.openapi.v3.property) = {description: "字典属性"}
+    ]; // 字典属性
+  }
+  // 分页数据
+  repeated BaseDict list = 1;
+}
+
+message BaseDictItem {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "字典ID"}
+  ];  // 字典ID
+
+  int64 dict_id = 2 [
+    (gnostic.openapi.v3.property) = {description: "字典ID"}
+  ];  // 字典ID
+
+  string value = 3 [
+    (gnostic.openapi.v3.property) = {description: "字典项值"}
+  ];  // 字典值
+
+  string label = 4 [
+    (gnostic.openapi.v3.property) = {description: "字典项标签"}
+  ];  // 字典项标签
+
+  string tagType = 5 [
+    (gnostic.openapi.v3.property) = {description: "标签类型，用于前端样式展示（如success、warning等）"}
+  ];  // 标签类型，用于前端样式展示（如success、warning等）
+
+  int32 sort = 6 [
+    (gnostic.openapi.v3.property) = { description: "排序"}
+  ]; // 排序
+
+  common.Status status = 100 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+message BaseDictItemForm {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "字典ID"}
+  ];  // 字典ID
+
+  int64 dictId = 2 [
+    (gnostic.openapi.v3.property) = {description: "字典ID"}
+  ];  // 字典ID
+
+  string value = 3 [
+    (gnostic.openapi.v3.property) = {description: "字典项值"}
+  ];  // 字典值
+
+  string label = 4 [
+    (gnostic.openapi.v3.property) = {description: "字典项标签"}
+  ];  // 字典项标签
+
+  string tagType = 5 [
+    (gnostic.openapi.v3.property) = {description: "标签类型，用于前端样式展示（如success、warning等）"}
+  ];  // 标签类型，用于前端样式展示（如success、warning等）
+
+  int32 sort = 6 [
+    (gnostic.openapi.v3.property) = { description: "排序"}
+  ]; // 排序
+
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ]; // 状态
+}

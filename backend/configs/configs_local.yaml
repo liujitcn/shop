@@ -1,0 +1,11 @@
+shop:
+  wxMiniApp:
+    appid: wx80073bcc341e31fb
+    secret: 3d3e9b5189ae7f585cc85875eade88e6
+  wxPay:
+    appid: wx80073bcc341e31fb
+    mchId: '1712499957'
+    notifyUrl: https://296dd13.r23.cpolar.top
+    mchCertSn: 2982E87ACED7C699480DE498D3CFA6F5B04ED9EB
+    mchCertPath: certs/apiclient_key.pem
+    mchAPIv3Key: Dv7Dq9Zx4nR2fL8sK3pYw6Tg1HbJ5mNc

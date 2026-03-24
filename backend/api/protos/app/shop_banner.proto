@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+import "common/enum.proto";
+
+// App轮播图服务
+service ShopBannerService {
+  // 查询轮播图列表
+  rpc ListShopBanner (ListShopBannerRequest) returns (ListShopBannerResponse) {
+    option (google.api.http) = {
+      get: "/api/app/shop/banner"
+    };
+  }
+}
+
+message ListShopBannerRequest{
+  //位置：枚举【ShopBannerSite】
+  int32 site = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "位置：枚举【ShopBannerSite】",
+    }
+  ];
+}
+
+message ListShopBannerResponse{
+  // 分页数据
+  repeated ShopBanner list = 1;
+}
+
+message ShopBanner {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "主键id"}
+  ];  // 主键id
+
+  // 位置：枚举【ShopBannerSite】
+  common.ShopBannerSite site = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "位置：枚举【ShopBannerSite】",
+    }
+  ];
+  // 图片链接
+  string picture = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "图片链接",
+    }
+  ];
+  // 跳转类型：枚举【ShopBannerType】
+  common.ShopBannerType type = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转类型：枚举【ShopBannerType】",
+    }
+  ];
+  // 跳转地址
+  string href = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转地址",
+    }
+  ];
+}

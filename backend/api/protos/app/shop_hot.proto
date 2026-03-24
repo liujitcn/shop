@@ -1,0 +1,133 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+import "app/goods.proto";
+
+// App热门推荐服务
+service ShopHotService {
+  // 查询热门推荐列表
+  rpc ListShopHot (google.protobuf.Empty) returns (ListShopHotResponse) {
+    option (google.api.http) = {
+      get: "/api/app/shop/hot"
+    };
+  }
+  // 查询热门推荐选项
+  rpc ListShopHotItem (google.protobuf.Int64Value) returns (ListShopHotItemResponse) {
+    option (google.api.http) = {
+      get: "/api/app/shop/hot/item"
+    };
+  }
+
+  // 查询热门推荐商品
+  rpc PageShopHotGoods (PageShopHotGoodsRequest) returns (PageShopHotGoodsResponse) {
+    option (google.api.http) = {
+      get: "/api/app/shop/hot/goods"
+    };
+  }
+}
+
+message ListShopHotResponse{
+  // 分页数据
+  repeated ShopHot list = 1;
+}
+
+message PageShopHotGoodsRequest{
+  // 选项id
+  int64 hotItemId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "选项id",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageShopHotGoodsResponse{
+  // 分页数据
+  repeated app.Goods list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message ShopHot {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "主键id"}
+  ];
+  // 主键id
+  // 标题
+  string title = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "标题",
+    }
+  ];
+  // 描述
+  string desc = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "描述",
+    }
+  ];
+  // 图片链接
+  repeated string picture = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "图片链接",
+    }
+  ];
+}
+
+message ListShopHotItemResponse {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "主键id"}
+  ];
+  // 主键id
+  // 标题
+  string title = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "标题",
+    }
+  ];
+  // 轮播图
+  string banner = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "轮播图",
+    }
+  ];
+  // 选项
+  repeated ShopHotItem list = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "选项",
+    }
+  ];
+}
+
+message ShopHotItem {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "主键id"}
+  ];
+  // 主键id
+  // 标题
+  string title = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "标题",
+    }
+  ];
+}

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "common/enum.proto";
+
+// App商城服务
+service ShopServiceService {
+  // 查询商城服务列表
+  rpc ListShopService (google.protobuf.Empty) returns (ListShopServiceResponse) {
+    option (google.api.http) = {
+      get: "/api/app/shop/service"
+    };
+  }
+}
+
+message ListShopServiceResponse{
+  // 列表数据
+  repeated ShopService list = 1;
+}
+
+message ShopService {
+
+  // 标签
+  string label = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "标签",
+    }
+  ];
+  // 值
+  string value = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "值",
+    }
+  ];
+} 

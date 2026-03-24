@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+
+// App用户地址管理服务
+service UserAddressService {
+  // 查询用户地址列表
+  rpc ListUserAddress (google.protobuf.Empty) returns (ListUserAddressResponse) {
+    option (google.api.http) = {
+      get: "/api/app/user/address"
+    };
+  }
+
+  // 查询用户地址
+  rpc GetUserAddress (google.protobuf.Int64Value) returns (UserAddressForm) {
+    option (google.api.http) = {
+      get: "/api/app/user/address/{value}"
+    };
+  }
+
+  // 创建用户地址
+  rpc CreateUserAddress (UserAddressForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/app/user/address"
+      body: "*"
+    };
+  }
+
+  // 更新用户地址
+  rpc UpdateUserAddress (UserAddressForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/app/user/address/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除用户地址
+  rpc DeleteUserAddress (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/app/user/address/{value}"
+    };
+  }
+}
+
+message ListUserAddressResponse {
+  // 数据
+  repeated UserAddress list = 1;
+}
+
+// 用户地址
+message UserAddress {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户地址ID"}
+  ];  // 用户地址ID
+
+  string receiver = 2 [
+    (gnostic.openapi.v3.property) = {description: "联系人"}
+  ];  // 联系人
+  string contact = 3 [
+    (gnostic.openapi.v3.property) = {description: "联系方式"}
+  ];  // 联系方式
+  repeated string address = 4 [
+    (gnostic.openapi.v3.property) = {description: "省市区名称"}
+  ];  // 省市区名称
+  string detail = 5 [
+    (gnostic.openapi.v3.property) = {description: "详细地址"}
+  ];  // 详细地址
+
+  bool isDefault = 51 [
+    (gnostic.openapi.v3.property) = {description: "是否默认"}
+  ];  // 是否默认
+}
+
+// 用户地址
+message UserAddressForm {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户地址ID"}
+  ];  // 用户地址ID
+
+  string receiver = 2 [
+    (gnostic.openapi.v3.property) = {description: "联系人"}
+  ];  // 联系人
+  string contact = 3 [
+    (gnostic.openapi.v3.property) = {description: "联系方式"}
+  ];  // 联系方式
+  repeated string address = 4 [
+    (gnostic.openapi.v3.property) = {description: "省市区"}
+  ];  // 省市区
+  string detail = 5 [
+    (gnostic.openapi.v3.property) = {description: "详细地址"}
+  ];  // 详细地址
+  repeated string addressName = 10 [
+    (gnostic.openapi.v3.property) = {description: "省市区"}
+  ];  // 省市区
+
+  bool isDefault = 51 [
+    (gnostic.openapi.v3.property) = {description: "是否默认"}
+  ];  // 是否默认
+}

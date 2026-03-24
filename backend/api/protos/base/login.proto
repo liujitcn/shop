@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package base;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Base登录公共服务
+service LoginService {
+  // 验证码
+  rpc Captcha (google.protobuf.Empty) returns (CaptchaResponse) {
+    option (google.api.http) = {
+      get: "/api/login/captcha"
+    };
+  }
+
+  // 登出
+  rpc Logout (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/login/logout"
+    };
+  }
+
+  // 刷新认证令牌
+  rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/login/refreshToken"
+      body: "*"
+    };
+  }
+
+  // 登录
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/api/login"
+      body: "*"
+    };
+  }
+}
+
+message CaptchaResponse {
+  string captchaId = 1 [
+    (gnostic.openapi.v3.property) = {description: "验证码ID"}
+  ]; // 验证码ID。
+
+  string captchaBase64 = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "验证码base64"
+    }
+  ]; // 验证码base64
+}
+
+// 用户刷新令牌 - 请求
+message RefreshTokenRequest {
+  string refreshToken = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"
+    }
+  ]; // 更新令牌，用来获取下一次的访问令牌，必选项。
+}
+
+// 用户刷新令牌 - 回应
+message RefreshTokenResponse {
+  string accessToken = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"
+    }
+  ]; // 访问令牌，必选项。
+
+  string refreshToken = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"
+    }
+  ]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string tokenType = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。",
+      default: {string: "Bearer"}
+    }
+  ]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expiresIn = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"
+    }
+  ]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+}
+
+// 用户后台登录 - 请求
+message LoginRequest {
+  string userName = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户名"}
+  ]; // 用户名，必选项。
+
+  string password = 2 [
+    (gnostic.openapi.v3.property) = {description: "用户密码"}
+  ]; // 用户的密码，必选项。
+
+  string captchaCode = 3 [
+    (gnostic.openapi.v3.property) = {description: "验证码"}
+  ]; // 验证码
+
+  string captchaId = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "验证码Id",
+    }
+  ]; // 验证码Id
+}
+
+// 用户后台登录 - 回应
+message LoginResponse {
+  string accessToken = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "访问令牌，必选项。授权服务器颁发的访问令牌字符串。"
+    }
+  ]; // 访问令牌，必选项。
+
+  string refreshToken = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。"
+    }
+  ]; // 更新令牌，用来获取下一次的访问令牌，可选项。
+
+  string tokenType = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。",
+      default: {string: "Bearer"}
+    }
+  ]; // 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。
+
+  int64 expiresIn = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。"
+    }
+  ]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+}

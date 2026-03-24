@@ -1,0 +1,215 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+// Admin首页服务
+service DashboardService {
+  // 查询汇总数据（用户）
+  rpc DashboardCountUser (DashboardCountRequest) returns (DashboardCountResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/count/user"
+    };
+  }
+  // 查询汇总数据（商品）
+  rpc DashboardCountGoods (DashboardCountRequest) returns (DashboardCountResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/count/goods"
+    };
+  }
+  // 查询汇总数据（订单）
+  rpc DashboardCountOrder (DashboardCountRequest) returns (DashboardCountResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/count/order"
+    };
+  }
+  // 查询汇总数据（销量）
+  rpc DashboardCountSale (DashboardCountRequest) returns (DashboardCountResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/count/sale"
+    };
+  }
+  // 查询订单销量（柱状图）
+  rpc DashboardBarOrder (DashboardBarOrderRequest) returns (DashboardBarResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/bar/order"
+    };
+  }
+  // 查询商品销量（柱状图）
+  rpc DashboardBarGoods (DashboardBarGoodsRequest) returns (DashboardBarResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/bar/goods"
+    };
+  }
+  // 查询商品分类（饼状图）
+  rpc DashboardPieGoods (DashboardPieGoodsRequest) returns (DashboardPieResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/pie/goods"
+    };
+  }
+  // 查询商品订单销量状态（雷达图）
+  rpc DashboardRadarOrder (DashboardRadarOrderRequest) returns (DashboardRadarResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/dashboard/radar/order"
+    };
+  }
+}
+
+// 时间类型
+enum DashboardTimeType{
+  DAY  = 0; // 日
+  WEEK  = 1; // 周
+  MONTH = 2; // 月
+}
+
+// 汇总数据请求参数
+message DashboardCountRequest {
+  DashboardTimeType timeType = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "时间类型",
+    }
+  ]; // 时间类型
+}
+
+// 汇总数据返回结果
+message DashboardCountResponse {
+  int64 newNum = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "新增数量",
+    }
+  ]; // 新增数量
+  int64 totalNum = 11 [
+    (gnostic.openapi.v3.property) = {
+      description: "总数量",
+    }
+  ]; // 总数量
+}
+
+// 订单销量（柱状图）请求参数
+message DashboardBarOrderRequest {
+  DashboardTimeType timeType = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "时间类型",
+    }
+  ]; // 时间类型
+}
+
+// 商品销量（柱状图）请求参数
+message DashboardBarGoodsRequest {
+  DashboardTimeType timeType = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "时间类型",
+    }
+  ]; // 时间类型
+  int64 top = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "top",
+    }
+  ]; // top
+}
+
+// 商品分类（饼状图）请求参数
+message DashboardPieGoodsRequest {
+  DashboardTimeType timeType = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "时间类型",
+    }
+  ]; // 时间类型
+}
+
+// 商品订单销量状态（雷达图）请求参数
+message DashboardRadarOrderRequest {
+  DashboardTimeType timeType = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "时间类型",
+    }
+  ]; // 时间类型
+}
+
+//（柱状图）请求参数
+message DashboardBarResponse {
+  message SeriesData {
+    repeated int64 value = 1 [
+      (gnostic.openapi.v3.property) = {
+        description: "数量",
+      }
+    ]; // 数量
+  }
+
+  repeated string axisData = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "X,Y轴数据数组",
+    }
+  ]; // 图例的数据数组
+
+  repeated SeriesData seriesData = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "数据内容数组",
+    }
+  ]; // 数据内容数组
+}
+
+//（饼状图）返回结果
+message DashboardPieResponse {
+  message SeriesData {
+    int64 value = 1 [
+      (gnostic.openapi.v3.property) = {
+        description: "数值",
+      }
+    ]; // 数值
+    string name = 2 [
+      (gnostic.openapi.v3.property) = {
+        description: "系列名称",
+      }
+    ]; // 系列名称
+  }
+
+  repeated SeriesData seriesData = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "数据内容数组",
+    }
+  ]; // 数据内容数组
+}
+
+// （雷达图）返回结果
+message DashboardRadarResponse {
+  message RadarIndicator {
+    string name = 1 [
+      (gnostic.openapi.v3.property) = {
+        description: "指示器名称",
+      }
+    ]; // 指示器名称
+  }
+  message SeriesData {
+    string name = 1 [
+      (gnostic.openapi.v3.property) = {
+        description: "数据项名称",
+      }
+    ]; // 数据项名称
+    repeated int64 value = 2 [
+      (gnostic.openapi.v3.property) = {
+        description: "单个数据项的数值",
+      }
+    ]; // 单个数据项的数值
+  }
+
+  repeated string legendData = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "图例的数据数组",
+    }
+  ]; // 图例的数据数组
+  repeated RadarIndicator radarIndicator = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "指示器",
+    }
+  ]; // 指示器
+  repeated SeriesData seriesData = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "数据",
+    }
+  ]; // 数据
+}

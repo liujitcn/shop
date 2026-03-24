@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+// App字典服务
+service BaseDictService {
+  // 查询字典列表
+  rpc ListBaseDict (google.protobuf.StringValue) returns (ListBaseDictResponse) {
+    option (google.api.http) = {
+      get: "/api/app/base/dict/list"
+    };
+  }
+}
+
+message ListBaseDictResponse{
+  message DictItem {
+    string value = 1 [
+      (gnostic.openapi.v3.property) = {description: "字典项值"}
+    ];  // 字典值
+
+    string label = 2 [
+      (gnostic.openapi.v3.property) = {description: "字典项标签"}
+    ];  // 字典项标签
+  }
+  message Dict {
+    string code = 1 [
+      (gnostic.openapi.v3.property) = {description: "字典编号"}
+    ];  // 字典编号
+
+    string name = 2 [
+      (gnostic.openapi.v3.property) = {description: "字典名称"}
+    ];  // 字典名称
+    repeated DictItem items = 3 [
+      (gnostic.openapi.v3.property) = {description: "字典属性"}
+    ]; // 字典属性
+  }
+  // 分页数据
+  repeated Dict list = 1;
+}

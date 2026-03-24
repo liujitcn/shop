@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package common;
+
+import "gnostic/openapi/v3/annotations.proto";
+
+message SetStatusRequest {
+    int64 id = 1 [
+        (gnostic.openapi.v3.property) = {description: "主键id"}
+    ];  // 主键id
+
+    int32 status = 2 [
+        (gnostic.openapi.v3.property) = {description: "状态"}
+    ]; // 状态
+}
+
+message TreeOptionResponse {
+    message Option {
+        string label = 1 [
+            (gnostic.openapi.v3.property) = {description: "选项名"}
+        ]; // 选项名
+        int64 value = 2 [
+            (gnostic.openapi.v3.property) = {description: "选项值"}
+        ]; // 选项值
+        bool disabled = 3 [
+            (gnostic.openapi.v3.property) = {description: "是否禁用"}
+        ]; // 是否禁用
+        repeated Option children = 101 [
+            (gnostic.openapi.v3.property) = {description: "子节点树"}
+        ]; // 子节点树
+    }
+    repeated Option list = 1;
+}
+
+message SelectOptionResponse {
+    message Option {
+        string label = 1 [
+            (gnostic.openapi.v3.property) = {description: "选项名"}
+        ]; // 选项名
+        int64 value = 2 [
+            (gnostic.openapi.v3.property) = {description: "选项值"}
+        ]; // 选项值
+        bool disabled = 3 [
+            (gnostic.openapi.v3.property) = {description: "是否禁用"}
+        ]; // 是否禁用
+    }
+    repeated Option list = 1;
+}
+
+message AppTreeOptionResponse {
+    message Option {
+        // 值。必填
+        string value = 1 [
+            (gnostic.openapi.v3.property) = {
+                description: "值。必填",
+            }
+        ];
+        string text = 2 [
+            (gnostic.openapi.v3.property) = {description: "显示文字。必填"}
+        ];  // 显示文字。必填
+
+        bool selected = 3 [
+            (gnostic.openapi.v3.property) = {description: "是否默认选中。默认值false"}
+        ];  // 是否默认选中。默认值false
+
+        bool disable = 4 [
+            (gnostic.openapi.v3.property) = {description: "是否禁用。默认值false"}
+        ];  // 是否禁用。默认值false
+
+        repeated Option children = 101 [
+            (gnostic.openapi.v3.property) = {description: "子节点树"}
+        ];  // 子节点树
+    }
+    repeated Option list = 1;
+}

@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+
+// Admin商品属性服务
+service GoodsPropService {
+
+  // 查询商品属性分页列表
+  rpc PageGoodsProp (PageGoodsPropRequest) returns (PageGoodsPropResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/goods/prop"
+    };
+  }
+
+  // 查询商品属性
+  rpc GetGoodsProp (google.protobuf.Int64Value) returns (GoodsProp) {
+    option (google.api.http) = {
+      get: "/api/admin/goods/prop/{value}"
+    };
+  }
+
+  // 创建商品属性
+  rpc CreateGoodsProp (GoodsProp) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/goods/prop"
+      body: "*"
+    };
+  }
+
+  // 更新商品属性
+  rpc UpdateGoodsProp (GoodsProp) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/goods/prop/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除商品属性
+  rpc DeleteGoodsProp (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/goods/prop/{value}"
+    };
+  }
+}
+
+message PageGoodsPropRequest{
+  // 商品id
+  int64 goodsId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品id",
+    }
+  ];
+  // 商品属性名称
+  string label = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品属性名称",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageGoodsPropResponse{
+  // 分页数据
+  repeated GoodsProp list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message GoodsProp {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品属性ID"}
+  ];  // 商品属性ID
+
+  // 商品id
+  int64 goodsId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品规格名称",
+    }
+  ];
+
+  // 商品属性名称
+  string label = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品属性名称",
+    }
+  ];
+
+  string value = 4 [
+    (gnostic.openapi.v3.property) = {description: "商品属性value"}
+  ];  // 商品属性value
+
+  int32 sort = 5 [
+    (gnostic.openapi.v3.property) = { description: "排序" }
+  ]; // 排序
+}

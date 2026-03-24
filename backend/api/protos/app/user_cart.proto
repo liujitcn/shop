@@ -1,0 +1,163 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+
+// App用户购物车管理服务
+service UserCartService {
+  // 查询用户购物车数量
+  rpc CountUserCart (google.protobuf.Empty) returns (google.protobuf.Int32Value) {
+    option (google.api.http) = {
+      get: "/api/app/user/cart/count"
+    };
+  }
+  // 查询用户购物车列表
+  rpc ListUserCart (google.protobuf.Empty) returns (ListUserCartResponse) {
+    option (google.api.http) = {
+      get: "/api/app/user/cart/list"
+    };
+  }
+
+  // 创建用户购物车
+  rpc CreateUserCart (CreateUserCartRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/app/user/cart"
+      body: "*"
+    };
+  }
+
+  // 更新用户购物车
+  rpc UpdateUserCart (UpdateUserCartRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/app/user/cart"
+      body: "*"
+    };
+  }
+
+  // 删除用户购物车
+  rpc DeleteUserCart (google.protobuf.Int64Value) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/app/user/cart/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetUserCartStatus (SetUserCartStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/app/user/cart/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 设置全选
+  rpc SelectedUserCart (SelectedUserCartRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/app/user/cart/selected"
+      body: "*"
+    };
+  }
+}
+
+message ListUserCartResponse {
+  // 数据
+  repeated UserCart list = 1;
+}
+
+// 用户购物车
+message UserCart {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户购物车ID"}
+  ];  // 用户购物车ID
+
+  int64 goodsId = 2 [
+    (gnostic.openapi.v3.property) = {description: "商品ID"}
+  ];  // 商品ID
+
+  string skuCode = 3 [
+    (gnostic.openapi.v3.property) = {description: "规格编号"}
+  ];  // 规格编号
+
+  string picture = 4 [
+    (gnostic.openapi.v3.property) = {description: "商品图片"}
+  ];  // 商品图片
+
+  string name = 5 [
+    (gnostic.openapi.v3.property) = {description: "名称"}
+  ];  // 名称
+
+  int64 num = 6 [
+    (gnostic.openapi.v3.property) = {description: "数量"}
+  ]; // 数量
+
+  repeated string specItem = 7 [
+    (gnostic.openapi.v3.property) = {description: "规格描述"}
+  ]; // 规格描述
+
+  // 库存数量
+  int64 inventory = 8 [
+    (gnostic.openapi.v3.property) = { description: "库存数量" }
+  ];
+
+  // 价格
+  int64 price = 41 [
+    (gnostic.openapi.v3.property) = { description: "价格" }
+  ];
+
+  // 加入时价格
+  int64 joinPrice = 40 [
+    (gnostic.openapi.v3.property) = { description: "加入时价格" }
+  ];
+
+  bool isChecked = 51 [
+    (gnostic.openapi.v3.property) = {description: "是否选中"}
+  ];  // 是否选中
+}
+
+// 用户购物车
+message CreateUserCartRequest {
+  int64 goodsId = 1 [
+    (gnostic.openapi.v3.property) = {description: "规格id"}
+  ];  // 规格id
+
+  string skuCode = 2 [
+    (gnostic.openapi.v3.property) = {description: "规格编号"}
+  ];  // 规格编号
+
+  int64 num = 3 [
+    (gnostic.openapi.v3.property) = {description: "数量"}
+  ]; // 数量
+}
+
+// 用户购物车
+message UpdateUserCartRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "购物车id"}
+  ];  // 购物车id
+
+  int64 num = 2 [
+    (gnostic.openapi.v3.property) = {description: "数量"}
+  ]; // 数量
+}
+
+message SetUserCartStatusRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "购物车id"}
+  ];  // 购物车id
+
+  bool isChecked = 2 [
+    (gnostic.openapi.v3.property) = {description: "是否选中"}
+  ];  // 是否选中
+}
+
+message SelectedUserCartRequest {
+  bool isChecked = 1 [
+    (gnostic.openapi.v3.property) = {description: "是否选中"}
+  ];  // 是否选中
+}

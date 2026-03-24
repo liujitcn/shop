@@ -1,0 +1,11 @@
+shop:
+  wxMiniApp:
+    appid: xxx
+    secret: xxx
+  wxPay:
+    appid: xxx
+    mchId: 'xxxx'
+    notifyUrl: xxxx
+    mchCertSn: xxxx
+    mchCertPath: xxxx
+    mchAPIv3Key: xxxx

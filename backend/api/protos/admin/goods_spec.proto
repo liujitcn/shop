@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+
+// Admin商品规格服务
+service GoodsSpecService {
+  // 查询商品规格列表
+  rpc ListGoodsSpec (ListGoodsSpecRequest) returns (ListGoodsSpecResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/goods/spec/list"
+    };
+  }
+}
+
+message ListGoodsSpecRequest{
+  // 商品id
+  int64 goodsId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品id",
+    }
+  ];
+}
+
+message ListGoodsSpecResponse{
+  // 分页数据
+  repeated GoodsSpec list = 1;
+}
+
+message GoodsSpec {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品规格ID"}
+  ];  // 商品规格ID
+
+  // 商品id
+  int64 goodsId = 2 [
+    (gnostic.openapi.v3.property) = { description: "商品id" }
+  ];
+
+  string name = 3 [
+    (gnostic.openapi.v3.property) = {description: "商品规格名称"}
+  ];  // 商品规格名称
+
+  repeated string item = 4 [
+    (gnostic.openapi.v3.property) = {description: "商品规格内容"}
+  ];  // 商品规格内容
+
+  int32 sort = 5 [
+    (gnostic.openapi.v3.property) = { description: "排序" }
+  ]; // 排序
+}

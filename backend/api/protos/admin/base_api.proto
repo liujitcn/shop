@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// AdminAPI服务
+service BaseApiService {
+  // 查询API列表
+  rpc ListBaseApi (google.protobuf.Empty) returns (ListBaseApiResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/api/list"
+    };
+  }
+}
+
+message ListBaseApiResponse {
+  // 分页数据
+  repeated BaseApi list = 1;
+}
+
+// 日志
+message BaseApi {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "API ID"
+    }
+  ]; // API ID
+
+  string serviceName = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "服务名"
+    }
+  ]; // 服务名
+
+  string serviceDesc = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "服务描述"
+    }
+  ]; // 服务描述
+
+  string desc = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "描述"
+    }
+  ]; // 描述
+
+  string operation = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "操作方法"
+    }
+  ]; // 操作方法
+
+  string method = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求方式"
+    }
+  ]; // 请求方法
+
+  string path = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求地址"
+    }
+  ]; // 请求地址
+}

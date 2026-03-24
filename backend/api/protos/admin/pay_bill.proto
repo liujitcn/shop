@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+import "common/enum.proto";
+
+// Admin支付账单服务
+service PayBillService {
+  // 查询支付账单分页列表
+  rpc PagePayBill (PagePayBillRequest) returns (PagePayBillResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/pay/bill"
+    };
+  }
+}
+
+message PagePayBillRequest {
+  string billDate = 3 [
+    (gnostic.openapi.v3.property) = {description: "账单日期"}
+  ];// 账单日期
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PagePayBillResponse {
+  // 分页数据
+  repeated PayBill list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+// 支付账单
+message PayBill {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "主键id"
+    }
+  ]; // 主键id
+
+  string billDate = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "格式YYYY-MM-DD。仅支持三个月内的账单下载申请"
+    }
+  ]; // 格式YYYY-MM-DD。仅支持三个月内的账单下载申请
+
+  string billType = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "账单类型：ALL: 返回当日所有订单信息（不含充值退款订单）SUCCESS:返回当日成功支付的订单（不含充值退款订单）REFUND: 返回当日退款订单（不含充值退款订单）"
+    }
+  ]; // 账单类型：ALL: 返回当日所有订单信息（不含充值退款订单）SUCCESS:返回当日成功支付的订单（不含充值退款订单）REFUND: 返回当日退款订单（不含充值退款订单）
+
+  string filePath = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "文件路径"
+    }
+  ]; // 文件路径
+
+  string hashType = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "哈希类型，固定为SHA1"
+    }
+  ]; // 哈希类型，固定为SHA1
+
+  string hashValue = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "账单文件的SHA1摘要值，用于商户侧校验文件的一致性。"
+    }
+  ]; // 账单文件的SHA1摘要值，用于商户侧校验文件的一致性。
+
+  int64 totalCount = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "总笔数"
+    }
+  ]; // 总笔数
+
+  int64 totalAmount = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "总金额,单位：分"
+    }
+  ]; // 总金额,单位：分
+
+  int64 thirdTotalCount = 9[
+    (gnostic.openapi.v3.property) = {
+      description: "对账文件总笔数"
+    }
+  ]; // 对账文件总笔数
+
+  int64 thirdTotalAmount = 10 [
+    (gnostic.openapi.v3.property) = {
+      description: "对账文件总金额，单位：分"
+    }
+  ]; // 对账文件总金额，单位：分
+
+  common.PayBillStatus status = 11 [
+    (gnostic.openapi.v3.property) = {
+      description: "对账状态：枚举【PayBillStatus】"
+    }
+  ]; // 对账状态：枚举【PayBillStatus】
+}

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+import "common/common.proto";
+
+// App行政区域服务
+service BaseAreaService {
+  // 查询行政区域树形列表
+  rpc TreeBaseArea (google.protobuf.Empty) returns (common.AppTreeOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/app/base/area/tree"
+    };
+  }
+}

@@ -1,0 +1,199 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+import "common/enum.proto";
+
+// Admin轮播图服务
+service ShopBannerService {
+
+  // 查询轮播图分页列表
+  rpc PageShopBanner (PageShopBannerRequest) returns (PageShopBannerResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/banner"
+    };
+  }
+
+  // 查询轮播图
+  rpc GetShopBanner (google.protobuf.Int64Value) returns (ShopBannerForm) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/banner/{value}"
+    };
+  }
+
+  // 创建轮播图
+  rpc CreateShopBanner (ShopBannerForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/shop/banner"
+      body: "*"
+    };
+  }
+
+  // 更新轮播图
+  rpc UpdateShopBanner (ShopBannerForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/banner/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除轮播图
+  rpc DeleteShopBanner (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/shop/banner/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetShopBannerStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/banner/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+message PageShopBannerRequest{
+  //位置：枚举【ShopBannerSite】
+  optional common.ShopBannerSite site = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "位置：枚举【ShopBannerSite】",
+    }
+  ];
+  // 跳转类型：枚举【ShopBannerType】
+  optional common.ShopBannerType type = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转类型：枚举【ShopBannerType】",
+    }
+  ];
+
+  // 状态
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageShopBannerResponse{
+  // 分页数据
+  repeated ShopBanner list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message ShopBanner {
+  // 主键id
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "主键id"}
+  ];
+
+  // 位置：枚举【ShopBannerSite】
+  common.ShopBannerSite site = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "位置：枚举【ShopBannerSite】",
+    }
+  ];
+  // 图片链接
+  string picture = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "图片链接",
+    }
+  ];
+  // 跳转类型：枚举【ShopBannerType】
+  common.ShopBannerType type = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转类型：枚举【ShopBannerType】",
+    }
+  ];
+  // 跳转地址
+  string href = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转地址",
+    }
+  ];
+  // 排序
+  int32 sort = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "排序",
+    }
+  ];
+
+  // 状态
+  common.Status status = 100 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ];
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+message ShopBannerForm {
+  // 主键id
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "主键id"}
+  ];
+
+  // 位置：枚举【ShopBannerSite】
+  optional common.ShopBannerSite site = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "位置：枚举【ShopBannerSite】",
+    }
+  ];
+  // 图片链接
+  string picture = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "图片链接",
+    }
+  ];
+  // 跳转类型：枚举【ShopBannerType】
+  optional common.ShopBannerType type = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转类型：枚举【ShopBannerType】",
+    }
+  ];
+  // 跳转地址
+  string href = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "跳转地址",
+    }
+  ];
+  // 排序
+  int32 sort = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "排序",
+    }
+  ];
+
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}
+  ]; // 状态：枚举【Status】
+}

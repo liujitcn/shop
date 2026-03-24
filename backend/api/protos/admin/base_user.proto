@@ -1,0 +1,255 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+import "common/common.proto";
+import "common/enum.proto";
+
+// Admin用户管理服务
+service BaseUserService {
+  // 查询用户下拉选择
+  rpc OptionBaseUser (OptionBaseUserRequest) returns (common.SelectOptionResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/user/option"
+    };
+  }
+  // 查询用户分页列表
+  rpc PageBaseUser (PageBaseUserRequest) returns (PageBaseUserResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/base/user"
+    };
+  }
+
+  // 查询用户
+  rpc GetBaseUser (google.protobuf.Int64Value) returns (BaseUserForm) {
+    option (google.api.http) = {
+      get: "/api/admin/base/user/{value}"
+    };
+  }
+
+  // 创建用户
+  rpc CreateBaseUser (BaseUserForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/base/user"
+      body: "*"
+    };
+  }
+
+  // 更新用户
+  rpc UpdateBaseUser (BaseUserForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/user/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除用户
+  rpc DeleteBaseUser (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/base/user/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetBaseUserStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/user/{id}/status"
+      body: "*"
+    };
+  }
+
+  // 重置密码
+  rpc ResetBaseUserPwd (ResetBaseUserPwdRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/base/user/{id}/pwd"
+      body: "*"
+    };
+  }
+}
+
+message OptionBaseUserRequest {
+  // 关键字
+  string keyword = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "关键字",
+    }
+  ];
+}
+
+message PageBaseUserRequest {
+  // 用户账号
+  string userName = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "用户账号",
+    }
+  ];
+  // 用户昵称
+  string nickName = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "用户昵称",
+    }
+  ];
+
+  // 部门ID
+  optional int64 deptId = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "部门ID"
+    }
+  ];
+  // 手机号
+  string phone = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "手机号",
+    }
+  ];
+
+  // 状态
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageBaseUserResponse {
+  // 分页数据
+  repeated BaseUser list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+// 用户
+message BaseUser {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户ID"}
+  ];  // 用户ID
+
+  string userName = 2 [
+    (gnostic.openapi.v3.property) = {description: "用户账号"}
+  ]; // 用户账号
+
+  string nickName = 3 [
+    (gnostic.openapi.v3.property) = {description: "用户昵称"}
+  ]; // 用户昵称
+
+  int64 roleId = 4 [
+    (gnostic.openapi.v3.property) = {description: "角色ID"}
+  ];  // 角色ID
+
+  int64 deptId = 5 [
+    (gnostic.openapi.v3.property) = {description: "部门ID"}
+  ];  // 部门ID
+
+  string phone = 6 [
+    (gnostic.openapi.v3.property) = {description: "手机号"}
+  ]; // 手机号
+
+  common.BaseUserGender gender = 7 [
+    (gnostic.openapi.v3.property) = {description: "性别"}
+  ]; // 性别
+
+  string avatar = 8 [
+    (gnostic.openapi.v3.property) = {description: "头像"}
+  ]; // 头像
+
+  common.Status status = 101 [
+    (gnostic.openapi.v3.property) = {description: "用户状态"}
+  ]; // 用户状态
+
+  string remark = 102 [
+    (gnostic.openapi.v3.property) = {description: "备注名"}
+  ]; // 备注名
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+// 用户
+message BaseUserForm {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户ID"}
+  ];  // 用户ID
+
+  string userName = 2 [
+    (gnostic.openapi.v3.property) = {description: "用户账号"}
+  ]; // 用户账号
+
+  string nickName = 3 [
+    (gnostic.openapi.v3.property) = {description: "用户昵称"}
+  ]; // 用户昵称
+
+  optional int64 roleId = 4 [
+    (gnostic.openapi.v3.property) = {description: "角色ID"}
+  ];  // 角色ID
+
+  optional int64 deptId = 5 [
+    (gnostic.openapi.v3.property) = {description: "部门ID"}
+  ];  // 部门ID
+
+  string phone = 6 [
+    (gnostic.openapi.v3.property) = {description: "手机号"}
+  ]; // 手机号
+
+  string pwd = 7 [
+    (gnostic.openapi.v3.property) = {description: "密码"}
+  ]; // 密码
+
+  optional common.BaseUserGender gender = 8 [
+    (gnostic.openapi.v3.property) = {description: "性别"}
+  ]; // 性别
+
+  string avatar = 9 [
+    (gnostic.openapi.v3.property) = {description: "头像"}
+  ]; // 头像
+
+  optional common.Status status = 101 [
+    (gnostic.openapi.v3.property) = {description: "用户状态"}
+  ]; // 用户状态
+
+  string remark = 102 [
+    (gnostic.openapi.v3.property) = {description: "备注名"}
+  ]; // 备注名
+}
+
+message ResetBaseUserPwdRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "用户ID"}
+  ];  // 用户ID
+
+  string pwd =2 [
+    (gnostic.openapi.v3.property) = {description: "密码"}
+  ]; // 密码
+}
+
+// 用户编号
+enum BaseUserName{
+  USER_NAME_UNSPECIFIED = 0;
+  super = 1; // 超级管理员
+}
+

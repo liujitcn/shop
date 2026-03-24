@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package conf;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/struct.proto";
+
+message ShopConfigWrapper {
+  ShopConfig shop = 1;
+}
+
+// ShopServerConfig
+message ShopConfig {
+  WxMiniApp wxMiniApp = 1; // 小程序登录参数
+  WxPay wxPay = 2; // 微信支付参数
+}
+
+message WxMiniApp {
+  string appid = 1;
+  string secret = 2;
+}
+
+message WxPay {
+  string appid = 1;
+  string mchId = 2; // 商户id
+  string notifyUrl = 3; // 通知地址
+
+  string mchCertSn = 80; // 商户证书序列号
+  string mchCertPath = 81; // 商户证书路径
+  string mchAPIv3Key = 82; // api 密钥
+}

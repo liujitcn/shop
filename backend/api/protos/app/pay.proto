@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+package app;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+// App支付服务
+service PayService {
+  // 小程序支付
+  rpc JsapiPay (PayRequest) returns (JsapiPayResponse) {
+    option (google.api.http) = {
+      post: "/api/app/pay/{orderId}/jsapi"
+      body: "*"
+    };
+  }
+  // H5支付
+  rpc H5Pay (PayRequest) returns (H5PayResponse) {
+    option (google.api.http) = {
+      post: "/api/app/pay/{orderId}/h5"
+      body: "*"
+    };
+  }
+  // 支付通知
+  rpc PayNotify (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/app/pay/notify"
+      body: "*"
+    };
+  }
+}
+
+message PayRequest{
+  int64 orderId = 1 [
+    (gnostic.openapi.v3.property) = {description: "订单id"}
+  ];  // 订单id
+}
+
+message JsapiPayResponse{
+  // 填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。
+  string appId = 1;
+  // Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。
+  string timeStamp = 2;
+  // 随机字符串，不长于32位。该值建议使用随机数算法生成。
+  string nonceStr = 3;
+  // 订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。
+  string package = 4;
+  // 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
+  string paySign = 5;
+}
+
+message H5PayResponse{
+  // 支付url
+  string h5Url = 1;
+}
+
+enum ResourceType {
+  TRANSACTION = 0; // 支付
+  REFUND = 1; // 退款
+}
+
+// 支付资源数据
+message PaymentResource {
+  // 【微信支付订单号】微信支付侧订单的唯一标识
+  string transaction_id = 1;
+
+  // 订单金额信息，当支付成功时返回该字段
+  message Amount {
+    // 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
+    int64 payer_total = 1;
+    // 【总金额】订单总金额，单位为分，整型
+    int64 total = 2;
+    // 【货币类型】固定返回：CNY，代表人民币
+    string currency = 3;
+    // 【用户支付币种】 固定返回：CNY，代表人民币。
+    string payer_currency = 4;
+  }
+  Amount amount = 2;
+
+  // 【商户号】商户下单时传入的商户号
+  string mchid = 3;
+
+  // 【交易状态】交易状态枚举
+  enum TradeState {
+    TRADE_STATE_UNSPECIFIED = 0;
+    SUCCESS = 1;     // 支付成功
+    REFUND = 2;      // 转入退款
+    NOTPAY = 3;      // 未支付
+    CLOSED = 4;      // 已关闭
+    REVOKED = 5;     // 已撤销（仅付款码支付会返回）
+    USERPAYING = 6;  // 用户支付中（仅付款码支付会返回）
+    PAYERROR = 7;    // 支付失败（仅付款码支付会返回）
+  }
+  TradeState trade_state = 4;
+
+  // 【银行类型】用户支付方式说明
+  string bank_type = 5;
+
+  // 【支付完成时间】用户完成支付的时间
+  google.protobuf.Timestamp success_time = 6;
+
+  // 支付者信息
+  message Payer {
+    // 【用户标识】用户在商户appid下的唯一标识
+    string openid = 1;
+  }
+  Payer payer = 8;
+  // 【商户订单号】商户系统内部订单号
+  string out_trade_no = 9;
+  // 【公众账号ID】下单时传入的公众账号ID
+  string appid = 10;
+  // 【交易状态描述】状态详细说明
+  string trade_state_desc = 11;
+  // 交易类型枚举
+  enum TradeType {
+    TRADE_TYPE_UNSPECIFIED = 0;
+    JSAPI = 1;    // 公众号/小程序支付
+    NATIVE = 2;   // Native支付
+    APP = 3;      // APP支付
+    MICROPAY = 4; // 付款码支付
+    MWEB = 5;     // H5支付
+    FACEPAY = 6;  // 刷脸支付
+  }
+  TradeType trade_type = 12;
+
+  // 【商户数据包】自定义数据包（<=128字符）
+  string attach = 13;
+
+  // 场景信息
+  message SceneInfo {
+    // 【商户端设备号】门店号/收银设备ID
+    string device_id = 1;
+  }
+  SceneInfo scene_info = 14;
+}
+
+message RefundResource {
+  //【商户号】商户下单时传入的商户号
+  string mchid = 1;
+
+  //【微信支付订单号】微信支付侧订单的唯一标识
+  string transaction_id = 2;
+
+  //【商户订单号】商户系统内部订单号
+  string out_trade_no = 3;
+
+  //【微信支付退款单号】微信侧生成的唯一退款标识
+  string refund_id = 4;
+
+  //【商户退款单号】商户系统内部退款单号
+  string out_refund_no = 5;
+
+  //【退款状态】
+  enum RefundStatus {
+    REFUND_STATUS_UNSPECIFIED = 0;
+    SUCCESS = 1;    // 退款成功
+    CLOSED = 2;      // 退款关闭
+    PROCESSING = 3;  // 退款处理中
+    ABNORMAL = 4;    // 退款异常
+  }
+  RefundStatus refund_status = 6;
+
+  //【退款成功时间】
+  google.protobuf.Timestamp success_time = 7;
+
+  //【退款入账账户】
+  string user_received_account = 8;
+
+  //【金额信息】
+  message Amount {
+    //【原订单金额】单位：分
+    int32 total = 1;
+
+    //【退款金额】单位：分
+    int32 refund = 2;
+
+    //【用户实际支付金额】单位：分
+    int32 payer_total = 3;
+
+    //【用户退款金额】单位：分
+    int32 payer_refund = 4;
+  }
+  Amount amount = 9;
+}

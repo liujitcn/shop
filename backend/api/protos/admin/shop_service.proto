@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/common.proto";
+import "common/enum.proto";
+
+// Admin商城服务
+service ShopServiceService {
+
+  // 查询商城服务分页列表
+  rpc PageShopService (PageShopServiceRequest) returns (PageShopServiceResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/service"
+    };
+  }
+
+  // 查询商城服务
+  rpc GetShopService (google.protobuf.Int64Value) returns (ShopServiceForm) {
+    option (google.api.http) = {
+      get: "/api/admin/shop/service/{value}"
+    };
+  }
+
+  // 创建商城服务
+  rpc CreateShopService (ShopServiceForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/shop/service"
+      body: "*"
+    };
+  }
+
+  // 更新商城服务
+  rpc UpdateShopService (ShopServiceForm) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/service/{id}"
+      body: "*"
+    };
+  }
+
+  // 删除商城服务
+  rpc DeleteShopService (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/admin/shop/service/{value}"
+    };
+  }
+
+  // 设置状态
+  rpc SetShopServiceStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/admin/shop/service/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+message PageShopServiceRequest{
+  // 标签
+  string label = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "标签",
+    }
+  ];
+
+  // 状态
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "状态",
+    }
+  ];
+
+  // 当前页码
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  // 每一页的行数
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ];
+}
+
+message PageShopServiceResponse{
+  // 分页数据
+  repeated ShopService list = 1;
+  // 总数
+  int32 total = 2;
+}
+
+message ShopService {
+  // 服务ID
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "服务ID"}
+  ];
+
+  // 标签
+  string label = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "标签",
+    }
+  ];
+  // 值
+  string value = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "值",
+    }
+  ];
+  // 排序
+  int32 sort = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "排序",
+    }
+  ];
+
+  // 状态
+  common.Status status = 100 [
+    (gnostic.openapi.v3.property) = { description: "状态" }
+  ];
+
+  string createdAt = 200 [
+    (gnostic.openapi.v3.property) = {description: "创建时间"}
+  ];// 创建时间
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
+}
+
+message ShopServiceForm {
+  // 服务ID
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {description: "服务ID"}
+  ];
+
+  // 标签
+  string label = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "标签",
+    }
+  ];
+  // 值
+  string value = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "值",
+    }
+  ];
+  // 排序
+  int32 sort = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "排序",
+    }
+  ];
+
+  optional common.Status status = 100 [
+    (gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}
+  ]; // 状态：枚举【Status】
+}
