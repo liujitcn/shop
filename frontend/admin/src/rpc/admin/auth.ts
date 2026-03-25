@@ -20,6 +20,10 @@ export interface UserInfo {
   permission: string[];
   /** 角色编号 */
   roleCode: string;
+  /** 角色名称 */
+  roleName: string;
+  /** 部门名称 */
+  deptName: string;
 }
 
 export interface TreeRouteResponse {
