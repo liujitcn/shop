@@ -34,6 +34,8 @@ type UserInfo struct {
 	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`          // 头像
 	Permission    []string               `protobuf:"bytes,80,rep,name=permission,proto3" json:"permission,omitempty"` //权限
 	RoleCode      string                 `protobuf:"bytes,100,opt,name=roleCode,proto3" json:"roleCode,omitempty"`    // 角色编号
+	RoleName      string                 `protobuf:"bytes,101,opt,name=roleName,proto3" json:"roleName,omitempty"`    // 角色名称
+	DeptName      string                 `protobuf:"bytes,102,opt,name=deptName,proto3" json:"deptName,omitempty"`    // 部门名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -106,6 +108,20 @@ func (x *UserInfo) GetPermission() []string {
 func (x *UserInfo) GetRoleCode() string {
 	if x != nil {
 		return x.RoleCode
+	}
+	return ""
+}
+
+func (x *UserInfo) GetRoleName() string {
+	if x != nil {
+		return x.RoleName
+	}
+	return ""
+}
+
+func (x *UserInfo) GetDeptName() string {
+	if x != nil {
+		return x.DeptName
 	}
 	return ""
 }
@@ -638,7 +654,7 @@ var File_admin_auth_proto protoreflect.FileDescriptor
 
 const file_admin_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x10admin/auth.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x95\x02\n" +
+	"\x10admin/auth.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xf5\x02\n" +
 	"\bUserInfo\x12.\n" +
 	"\buserName\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12.\n" +
 	"\bnickName\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12%\n" +
@@ -647,7 +663,9 @@ const file_admin_auth_proto_rawDesc = "" +
 	"\n" +
 	"permission\x18P \x03(\tB\f\xbaG\t\x92\x02\x06权限R\n" +
 	"permission\x12.\n" +
-	"\broleCode\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\broleCode\"9\n" +
+	"\broleCode\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\broleCode\x12.\n" +
+	"\broleName\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\broleName\x12.\n" +
+	"\bdeptName\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\bdeptName\"9\n" +
 	"\x11TreeRouteResponse\x12$\n" +
 	"\x04list\x18\x01 \x03(\v2\x10.admin.RouteItemR\x04list\"\xe9\x03\n" +
 	"\tRouteItem\x12+\n" +

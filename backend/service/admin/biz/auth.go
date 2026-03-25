@@ -81,6 +81,13 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
 		return nil, errors.New("角色不存在")
 	}
 
+	// 查询部门信息
+	var baseDept *models.BaseDept
+	baseDept, err = c.baseDeptCase.FindById(ctx, baseUser.DeptID)
+	if err != nil {
+		return nil, errors.New("部门不存在")
+	}
+
 	query := c.baseMenuCase.Query(ctx).BaseMenu
 
 	opts := make([]repo.QueryOption, 0, 4)
@@ -97,6 +104,8 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
 				Avatar:     baseUser.Avatar,
 				Permission: []string{},
 				RoleCode:   baseRole.Code,
+				RoleName:   baseRole.Name,
+				DeptName:   baseDept.Name,
 			}, nil
 		}
 		opts = append(opts, repo.Where(query.ID.In(ids...)))
@@ -120,6 +129,8 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
 		Avatar:     baseUser.Avatar,
 		Permission: permission,
 		RoleCode:   baseRole.Code,
+		RoleName:   baseRole.Name,
+		DeptName:   baseDept.Name,
 	}, nil
 }
 

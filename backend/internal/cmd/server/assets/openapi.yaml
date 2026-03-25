@@ -7194,6 +7194,12 @@ components:
                 roleCode:
                     type: string
                     description: 角色编号
+                roleName:
+                    type: string
+                    description: 角色名称
+                deptName:
+                    type: string
+                    description: 部门名称
         UserProfileForm:
             type: object
             properties:

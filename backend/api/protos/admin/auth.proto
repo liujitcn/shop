@@ -90,6 +90,14 @@ message UserInfo {
   string roleCode = 100 [
     (gnostic.openapi.v3.property) = {description: "角色编号"}
   ];  // 角色编号
+
+  string roleName = 101 [
+    (gnostic.openapi.v3.property) = {description: "角色名称"}
+  ];  // 角色名称
+
+  string deptName = 102 [
+    (gnostic.openapi.v3.property) = {description: "部门名称"}
+  ];  // 部门名称
 }
 
 message TreeRouteResponse {
