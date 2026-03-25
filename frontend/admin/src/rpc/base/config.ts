@@ -34,7 +34,7 @@ export interface ConfigResponse_Data {
   value: string;
 }
 
-/** 系统配置公共服务 */
+/** Base系统配置公共服务 */
 export interface ConfigService {
   /** 获取系统配置 */
   GetConfig(request: ConfigRequest): Promise<ConfigResponse>;

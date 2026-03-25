@@ -56,7 +56,7 @@ export interface LoginResponse {
   expiresIn: number;
 }
 
-/** 登录公共服务 */
+/** Base登录公共服务 */
 export interface LoginService {
   /** 验证码 */
   Captcha(request: Empty): Promise<CaptchaResponse>;

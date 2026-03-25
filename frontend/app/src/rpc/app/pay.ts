@@ -173,7 +173,7 @@ export interface RefundResource_Amount {
   payerRefund: number;
 }
 
-/** 支付服务 */
+/** App支付服务 */
 export interface PayService {
   /** 小程序支付 */
   JsapiPay(request: PayRequest): Promise<JsapiPayResponse>;

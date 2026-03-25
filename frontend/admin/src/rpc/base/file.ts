@@ -44,7 +44,7 @@ export interface FileInfo {
   extname: string;
 }
 
-/** 文件服务 */
+/** Base文件服务 */
 export interface FileService {
   /** 多个文件上传 */
   MultiUploadFile(request: MultiUploadFileRequest): Promise<MultiUploadFileResponse>;
