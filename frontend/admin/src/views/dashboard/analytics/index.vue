@@ -1,26 +1,9 @@
 <template>
   <div class="dashboard-container">
-    <el-card shadow="never">
-      <el-row justify="space-between">
-        <el-col :span="18" :xs="24">
-          <div class="flex h-full items-center">
-            <img
-              class="w-20 h-20 mr-5 rounded-full"
-              :src="userStore.userInfo.avatar + '?imageView2/1/w/80/h/80'"
-            />
-            <div>
-              <p>{{ greetings }}</p>
-              <p class="text-sm text-gray">今日天气晴朗，气温在15℃至25℃之间，东南风。</p>
-            </div>
-          </div>
-        </el-col>
-      </el-row>
-    </el-card>
-
     <!-- 数据卡片 -->
     <el-row :gutter="10" class="mt-3">
       <!-- 用户 -->
-      <el-col v-if="useUserStore().hasPerm('dashboard:count:user')" :xs="24" :sm="12" :lg="6">
+      <el-col :xs="24" :sm="12" :lg="6">
         <el-card shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
@@ -46,7 +29,7 @@
       </el-col>
 
       <!--商品-->
-      <el-col v-if="useUserStore().hasPerm('dashboard:count:goods')" :xs="24" :sm="12" :lg="6">
+      <el-col :xs="24" :sm="12" :lg="6">
         <el-card shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
@@ -72,7 +55,7 @@
       </el-col>
 
       <!--订单量-->
-      <el-col v-if="useUserStore().hasPerm('dashboard:count:order')" :xs="24" :sm="12" :lg="6">
+      <el-col :xs="24" :sm="12" :lg="6">
         <el-card shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
@@ -98,7 +81,7 @@
       </el-col>
 
       <!--销售额-->
-      <el-col v-if="useUserStore().hasPerm('dashboard:count:sale')" :xs="24" :sm="12" :lg="6">
+      <el-col :xs="24" :sm="12" :lg="6">
         <el-card shadow="never">
           <template #header>
             <div class="flex items-center justify-between">
@@ -126,19 +109,19 @@
 
     <!-- Echarts 图表 -->
     <el-row :gutter="10" class="mt-3">
-      <el-col v-if="useUserStore().hasPerm('dashboard:bar:order')" :sm="24" :lg="12" class="mb-2">
+      <el-col :sm="24" :lg="12" class="mb-2">
         <OrderBarChart class="bg-[var(--el-bg-color-overlay)]" />
       </el-col>
 
-      <el-col v-if="useUserStore().hasPerm('dashboard:bar:goods')" :sm="24" :lg="12" class="mb-2">
+      <el-col :sm="24" :lg="12" class="mb-2">
         <GoodsBarChart class="bg-[var(--el-bg-color-overlay)]" />
       </el-col>
 
-      <el-col v-if="useUserStore().hasPerm('dashboard:pie:goods')" :sm="24" :lg="12" class="mb-2">
+      <el-col :sm="24" :lg="12" class="mb-2">
         <GoodsPieChart class="bg-[var(--el-bg-color-overlay)]" />
       </el-col>
 
-      <el-col v-if="useUserStore().hasPerm('dashboard:radar:order')" :sm="24" :lg="12" class="mb-2">
+      <el-col :sm="24" :lg="12" class="mb-2">
         <OrderRadarChart class="bg-[var(--el-bg-color-overlay)]" />
       </el-col>
     </el-row>
@@ -157,26 +140,8 @@ import { DashboardTimeType } from "@/rpc/admin/dashboard";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
-  name: "Dashboard",
+  name: "Analytics",
   inheritAttrs: false,
-});
-
-const userStore = useUserStore();
-const date: Date = new Date();
-
-const greetings = computed(() => {
-  const hours = date.getHours();
-  if (hours >= 6 && hours < 8) {
-    return "晨起披衣出草堂，轩窗已自喜微凉🌅！";
-  } else if (hours >= 8 && hours < 12) {
-    return "上午好，" + useUserStore().userInfo.nickName + "！";
-  } else if (hours >= 12 && hours < 18) {
-    return "下午好，" + useUserStore().userInfo.nickName + "！";
-  } else if (hours >= 18 && hours < 24) {
-    return "晚上好，" + useUserStore().userInfo.nickName + "！";
-  } else if (hours >= 0 && hours < 6) {
-    return "偷偷向银河要了一把碎星，只等你闭上眼睛撒入你的梦中，晚安🌛！";
-  }
 });
 
 const dashboardCountUser = reactive<DashboardCountResponse>({
@@ -205,32 +170,25 @@ const dashboardCountSale = reactive<DashboardCountResponse>({
 });
 
 async function handleQuery() {
-  if (useUserStore().hasPerm("dashboard:count:user")) {
-    const user = await defDashboardService.DashboardCountUser({
-      timeType: DashboardTimeType.DAY,
-    });
-    Object.assign(dashboardCountUser, user);
-  }
+  const user = await defDashboardService.DashboardCountUser({
+    timeType: DashboardTimeType.DAY,
+  });
+  Object.assign(dashboardCountUser, user);
 
-  if (useUserStore().hasPerm("dashboard:count:goods")) {
-    const goods = await defDashboardService.DashboardCountGoods({
-      timeType: DashboardTimeType.DAY,
-    });
-    Object.assign(dashboardCountGoods, goods);
-  }
-  if (useUserStore().hasPerm("dashboard:count:order")) {
-    const order = await defDashboardService.DashboardCountOrder({
-      timeType: DashboardTimeType.DAY,
-    });
-    Object.assign(dashboardCountOrder, order);
-  }
+  const goods = await defDashboardService.DashboardCountGoods({
+    timeType: DashboardTimeType.DAY,
+  });
+  Object.assign(dashboardCountGoods, goods);
 
-  if (useUserStore().hasPerm("dashboard:count:sale")) {
-    const sale = await defDashboardService.DashboardCountSale({
-      timeType: DashboardTimeType.DAY,
-    });
-    Object.assign(dashboardCountSale, sale);
-  }
+  const order = await defDashboardService.DashboardCountOrder({
+    timeType: DashboardTimeType.DAY,
+  });
+  Object.assign(dashboardCountOrder, order);
+
+  const sale = await defDashboardService.DashboardCountSale({
+    timeType: DashboardTimeType.DAY,
+  });
+  Object.assign(dashboardCountSale, sale);
 }
 
 onMounted(() => {

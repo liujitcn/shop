@@ -19,7 +19,6 @@ import * as echarts from "echarts";
 import { defDashboardService } from "@/api/admin/dashboard";
 import type { DashboardBarResponse } from "@/rpc/admin/dashboard";
 import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { useUserStore } from "@/store";
 
 const props = defineProps({
   id: {
@@ -176,12 +175,10 @@ const chart = ref<any>("");
 onMounted(async () => {
   // 图表初始化
   chart.value = markRaw(echarts.init(document.getElementById(props.id) as HTMLDivElement));
-  if (useUserStore().hasPerm("dashboard:bar:order")) {
-    const res = await defDashboardService.DashboardBarOrder({
-      timeType: DashboardTimeType.DAY,
-    });
-    Object.assign(sourceData, res);
-  }
+  const res = await defDashboardService.DashboardBarOrder({
+    timeType: DashboardTimeType.DAY,
+  });
+  Object.assign(sourceData, res);
 
   chart.value.setOption(getChartOption());
 

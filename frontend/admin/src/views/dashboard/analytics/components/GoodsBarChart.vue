@@ -10,7 +10,6 @@
 import * as echarts from "echarts";
 import type { DashboardBarResponse } from "@/rpc/admin/dashboard";
 import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { useUserStore } from "@/store";
 import { defDashboardService } from "@/api/admin/dashboard";
 
 const props = defineProps({
@@ -87,13 +86,11 @@ const getChartOption = () => {
 
 onMounted(async () => {
   const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  if (useUserStore().hasPerm("dashboard:bar:goods")) {
-    const res = await defDashboardService.DashboardBarGoods({
-      timeType: DashboardTimeType.DAY,
-      top: 15,
-    });
-    Object.assign(sourceData, res);
-  }
+  const res = await defDashboardService.DashboardBarGoods({
+    timeType: DashboardTimeType.DAY,
+    top: 15,
+  });
+  Object.assign(sourceData, res);
   console.log(getChartOption());
   chart.setOption(getChartOption());
 
