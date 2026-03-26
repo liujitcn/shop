@@ -230,12 +230,48 @@ make openapi   # 生成 OpenAPI 文档
 make ts        # 生成前端 TypeScript RPC 代码
 make gen       # 一键生成 Go/OpenAPI/TS 产物
 make wire      # 生成依赖注入代码
+make docker-build # 构建后端 Docker 镜像，默认镜像名 backend:latest
 ```
 
 说明：
 
 - `backend/Makefile` 中的 `run` 目标仍指向 `./cmd/server`，和当前代码入口不一致。
 - 当前仓库实际可用的后端启动命令是 `go run ./internal/cmd/server -conf ./configs`。
+
+## Docker 打包
+
+后端目录已提供多阶段 `Dockerfile`，默认可直接在 `backend` 目录构建镜像：
+
+```bash
+cd backend
+make docker-build
+```
+
+如需自定义镜像名和标签：
+
+```bash
+cd backend
+make docker-build IMAGE=your-registry/backend TAG=v1.0.0
+```
+
+容器运行时建议将以下目录从宿主机挂载出来，便于修改配置、更新证书以及持久化日志和本地上传文件：
+
+- `data` -> `/app/data`
+- `configs` -> `/app/configs`
+- `certs` -> `/app/certs`
+
+示例：
+
+```bash
+cd backend
+docker run -d \
+  -p 7001:7001 \
+  -p 6001:6001 \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/configs:/app/configs \
+  -v $(pwd)/certs:/app/certs \
+  backend:latest
+```
 
 ## 前端构建与嵌入发布
 
