@@ -8,7 +8,6 @@ ALTER TABLE `base_job_log` COMMENT '定时任务日志信息';
 ALTER TABLE `base_dept` COMMENT '部门信息';
 ALTER TABLE `base_log` COMMENT '系统日志信息';
 ALTER TABLE `base_menu` COMMENT '菜单信息';
-ALTER TABLE `base_migration` COMMENT '迁移信息';
 ALTER TABLE `base_role` COMMENT '角色信息';
 ALTER TABLE `base_user` COMMENT '用户信息';
 ALTER TABLE `goods_category` COMMENT '商品分类信息';
