@@ -151,7 +151,7 @@ func convertUploadFileInfo(multipartFile multipart.File, basePath, fileType, con
 	defer func(multipartFile multipart.File) {
 		err := multipartFile.Close()
 		if err != nil {
-			log.Error("form file close err: %v", err)
+			log.Errorf("form file close err: %v", err)
 		}
 	}(multipartFile)
 

@@ -91,8 +91,6 @@ CREATE DATABASE shop_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 项目当前配置 `enable_migrate: true`，建议先启动一次后端，让 GORM 自动创建表结构：
 
-- 如果还没有构建前端，请先参考下文“启动后端”小节，确保 `backend/internal/cmd/server/assets/web` 下至少存在一个文件。
-
 ```bash
 cd backend
 go run ./internal/cmd/server -conf ./configs
@@ -129,13 +127,6 @@ mysql -uroot -p shop_test < sql/shop.sql
 
 ### 启动后端
 
-首次本地启动前，需要确保 `backend/internal/cmd/server/assets/web` 目录下至少存在一个文件；否则 `assets.go` 中的 `embed all:web/*` 会在编译阶段失败。
-
-可选做法：
-
-- 先构建一次 `frontend/admin` 或 `frontend/app`，生成嵌入式前端产物。
-- 或者临时在 `backend/internal/cmd/server/assets/web` 下放一个占位 `index.html`。
-
 ```bash
 cd backend
 go run ./internal/cmd/server -conf ./configs
@@ -150,7 +141,8 @@ go run ./internal/cmd/server -conf ./configs
 
 说明：
 
-- 在未构建前端产物前，即使后端能启动，根路径也不会有可用的正式前端页面。
+- 后端会扫描 `backend/data` 下包含 `index.html` 的一级子目录，并自动按目录名挂载单页应用，例如 `backend/data/admin/index.html` 会对应 `http://localhost:7001/admin`。
+- 本地文件上传目录仍然是 `backend/data/shop`，通过 `http://localhost:7001/shop/*` 访问。
 
 ### 启动管理后台
 
@@ -285,7 +277,7 @@ pnpm build
 
 管理台构建产物默认输出到：
 
-- `backend/internal/cmd/server/assets/web`
+- `backend/data/admin`
 
 ### 商城 H5 构建
 
@@ -297,13 +289,13 @@ pnpm build:h5
 
 商城 H5 构建产物同样默认输出到：
 
-- `backend/internal/cmd/server/assets/web`
+- 自定义 `UNI_OUTPUT_DIR` 后可输出到 `backend/data/app`
 
 ### 注意事项
 
-- 管理台和商城 H5 当前默认会写入同一个目录，后构建的产物会覆盖前一个。
-- 如果需要同时发布两个 Web 端，建议分别走独立静态站点，或者改造输出目录和后端挂载路由。
-- 后端使用 `embed` 打包 `assets/web`，前端重新构建后需要重新启动或重新编译后端，新的静态资源才会进入二进制。
+- 后端会自动扫描 `backend/data` 下的一级子目录，只有目录内存在 `index.html` 时才会注册对应路由。
+- 如果需要同时发布多个 Web 端，请分别输出到不同目录，例如 `backend/data/admin`、`backend/data/app`。
+- 前端静态资源走本地文件系统，重新构建前端后重启后端即可加载新的目录内容。
 
 ## 接口与静态资源
 
@@ -313,7 +305,7 @@ pnpm build:h5
 - `/docs/`：Swagger UI
 - `/docs/openapi.yaml`：OpenAPI 文档
 - `/shop/*`：本地文件上传后的静态资源
-- `/`、`/web/`、`/assets/`、`/static/`：嵌入式前端静态资源
+- `/{目录名}`：`backend/data/{目录名}/index.html` 对应的单页应用入口，例如 `/admin`、`/app`
 
 已注册的服务分组：
 

@@ -3,6 +3,7 @@ package server
 import (
 	"io/fs"
 	stdhttp "net/http"
+	"os"
 	"path/filepath"
 	adminApi "shop/api/gen/go/admin"
 	appApi "shop/api/gen/go/app"
@@ -149,26 +150,13 @@ func NewHttpServer(
 	if cfg.GetOss() != nil && cfg.GetOss().GetRootDirectory() != "" {
 		ossRootDirectory = cfg.GetOss().GetRootDirectory()
 	}
-	ossRootDirectory = filepath.Join(ossRootDirectory, "shop")
+	var shopStaticDirectory = filepath.Join(ossRootDirectory, "shop")
 	// 将本地 OSS 目录暴露为静态资源目录 访问 /shop/* 时直接映射到 ./data/shop/*
-	staticHandler := stdhttp.StripPrefix("/shop/", stdhttp.FileServer(stdhttp.Dir(ossRootDirectory)))
+	staticHandler := stdhttp.StripPrefix("/shop/", stdhttp.FileServer(stdhttp.Dir(shopStaticDirectory)))
 	srv.HandlePrefix("/shop/", staticHandler)
 
-	if webFS, subErr := fs.Sub(assets.WebAssets, "web"); subErr == nil {
-		webHandler := stdhttp.FileServer(stdhttp.FS(webFS))
-		srv.HandlePrefix("/web/", stdhttp.StripPrefix("/web/", webHandler))
-		srv.HandlePrefix("/js/", webHandler)
-		srv.HandlePrefix("/css/", webHandler)
-		srv.HandlePrefix("/img/", webHandler)
-		srv.Handle("/favicon.ico", webHandler)
-		srv.HandleFunc("/", func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-			if r.URL.Path == "/" {
-				stdhttp.ServeFileFS(w, r, webFS, "index.html")
-				return
-			}
-			stdhttp.NotFound(w, r)
-		})
-	}
+	// 自动发现本地 OSS 根目录下的前端入口，按子目录名称挂载为 SPA 路由。
+	registerLocalSPARoutes(srv, ossRootDirectory)
 
 	if cfg.GetServer().GetHttp().GetEnableSwagger() {
 		swaggerUI.RegisterSwaggerUIServerWithOption(
@@ -181,8 +169,30 @@ func NewHttpServer(
 	return srv, nil
 }
 
-// newEmbeddedSPAHandler 创建基于嵌入式文件系统的单页应用处理器。
-func newEmbeddedSPAHandler(webFS fs.FS, urlPrefix string) stdhttp.Handler {
+// registerLocalSPARoutes 扫描根目录下包含 index.html 的子目录，并按目录名注册单页应用路由。
+func registerLocalSPARoutes(srv *kratosHTTP.Server, rootDirectory string) {
+	entries, err := os.ReadDir(rootDirectory)
+	if err != nil {
+		return
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		var directoryName = entry.Name()
+		var indexPath = filepath.Join(rootDirectory, directoryName, "index.html")
+		if _, err = os.Stat(indexPath); err != nil {
+			continue
+		}
+		var routePrefix = "/" + directoryName
+		var spaHandler = newSPAHandler(os.DirFS(filepath.Join(rootDirectory, directoryName)), routePrefix)
+		srv.Handle(routePrefix, spaHandler)
+		srv.HandlePrefix(routePrefix+"/", spaHandler)
+	}
+}
+
+// newSPAHandler 创建基于文件系统的单页应用处理器。
+func newSPAHandler(webFS fs.FS, urlPrefix string) stdhttp.Handler {
 	var fileHandler = stdhttp.StripPrefix(urlPrefix, stdhttp.FileServer(stdhttp.FS(webFS)))
 	return stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		var relativePath = strings.TrimPrefix(r.URL.Path, urlPrefix)
