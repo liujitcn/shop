@@ -387,9 +387,9 @@ type BaseMenuMeta struct {
 	Icon          *string                `protobuf:"bytes,2,opt,name=icon,proto3,oneof" json:"icon,omitempty"`              //菜单图标
 	AlwaysShow    *bool                  `protobuf:"varint,4,opt,name=alwaysShow,proto3,oneof" json:"alwaysShow,omitempty"` //【目录】只有一个子路由是否始终显示
 	Hidden        *bool                  `protobuf:"varint,5,opt,name=hidden,proto3,oneof" json:"hidden,omitempty"`         // 是否隐藏(true-是 false-否)
-	KeepAlive     *bool                  `protobuf:"varint,6,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`   //参数
-	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`             //参数
-	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`           //参数
+	KeepAlive     *bool                  `protobuf:"varint,6,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`   //【菜单】是否开启页面缓存
+	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`             //【菜单】是否全屏(示例：数据大屏页面)
+	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`           //【菜单】是否固定在标签页中(首页通常是固定项)
 	Params        []*BaseMenuParams      `protobuf:"bytes,9,rep,name=params,proto3" json:"params,omitempty"`                // 参数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
