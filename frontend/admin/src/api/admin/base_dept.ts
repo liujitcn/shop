@@ -53,7 +53,7 @@ export class BaseDeptServiceImpl implements BaseDeptService {
   }
   /** 删除部门 */
   DeleteBaseDept(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${BASE_DEPT_URL}/${request.value}`,
       method: "delete",
     });

@@ -41,7 +41,7 @@ export class OrderServiceImpl implements OrderService {
   }
   /** 订单退款 */
   RefundOrder(request: RefundOrderRequest): Promise<Empty> {
-    return service<Int64Value, Order>({
+    return service<RefundOrderRequest, Empty>({
       url: `${ORDER_URL}/${request.orderId}/refund`,
       method: 'put',
       data: request,
@@ -56,7 +56,7 @@ export class OrderServiceImpl implements OrderService {
   }
   /** 订单发货 */
   ShippedOrder(request: ShippedOrderRequest): Promise<Empty> {
-    return service<Int64Value, Order>({
+    return service<ShippedOrderRequest, Empty>({
       url: `${ORDER_URL}/${request.orderId}/shipped`,
       method: 'put',
       data: request,

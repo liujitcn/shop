@@ -68,7 +68,7 @@ export class BaseJobServiceImpl implements BaseJobService {
   }
   /** 启动任务 */
   StartBaseJob(request: StartBaseJobRequest): Promise<Empty> {
-    return service<SetStatusRequest, Empty>({
+    return service<StartBaseJobRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/start`,
       method: "put",
       data: request,
@@ -76,7 +76,7 @@ export class BaseJobServiceImpl implements BaseJobService {
   }
   /** 停止任务 */
   StopBaseJob(request: StopBaseJobRequest): Promise<Empty> {
-    return service<SetStatusRequest, Empty>({
+    return service<StopBaseJobRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/stop`,
       method: "put",
       data: request,
@@ -84,7 +84,7 @@ export class BaseJobServiceImpl implements BaseJobService {
   }
   /** 执行任务 */
   ExecBaseJob(request: ExecBaseJobRequest): Promise<Empty> {
-    return service<SetStatusRequest, Empty>({
+    return service<ExecBaseJobRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/exec`,
       method: "put",
       data: request,

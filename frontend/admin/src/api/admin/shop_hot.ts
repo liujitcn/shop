@@ -51,7 +51,7 @@ export class ShopHotServiceImpl implements ShopHotService {
   }
   /** 删除商城热门推荐 */
   DeleteShopHot(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${SHOP_HOT_URL}/${request.value}`,
       method: "delete",
     });
@@ -97,7 +97,7 @@ export class ShopHotServiceImpl implements ShopHotService {
   }
   /** 删除商城热门推荐属性 */
   DeleteShopHotItem(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${SHOP_HOT_ITEM_URL}/${request.value}`,
       method: "delete",
     });

@@ -23,7 +23,7 @@ export class GoodsCategoryServiceImpl implements GoodsCategoryService {
   }
   /** 查询分类树形选择 */
   OptionGoodsCategory(request: OptionGoodsCategoryRequest): Promise<TreeOptionResponse> {
-    return service<Empty, TreeOptionResponse>({
+    return service<OptionGoodsCategoryRequest, TreeOptionResponse>({
       url: `${GOODS_CATEGORY_URL}/option`,
       method: "get",
       params: request,
@@ -54,7 +54,7 @@ export class GoodsCategoryServiceImpl implements GoodsCategoryService {
   }
   /** 删除分类 */
   DeleteGoodsCategory(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${GOODS_CATEGORY_URL}/${request.value}`,
       method: "delete",
     });

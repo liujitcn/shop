@@ -46,7 +46,7 @@ export class ShopServiceServiceImpl implements ShopServiceService {
   }
   /** 删除商城服务 */
   DeleteShopService(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${SHOP_SERVICE_URL}/${request.value}`,
       method: "delete",
     });
