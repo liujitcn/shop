@@ -103,6 +103,14 @@ export interface BaseMenuMeta {
     | boolean
     | undefined;
   /** 参数 */
+  full?:
+    | boolean
+    | undefined;
+  /** 参数 */
+  affix?:
+    | boolean
+    | undefined;
+  /** 参数 */
   params: BaseMenuParams[];
 }
 
