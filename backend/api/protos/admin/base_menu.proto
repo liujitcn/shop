@@ -231,7 +231,17 @@ message BaseMenuMeta {
       description: "【菜单】是否开启页面缓存"
     }
   ]; //参数
-  repeated BaseMenuParams params = 7 [
+  optional bool full = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "【菜单】是否全屏(示例：数据大屏页面)"
+    }
+  ]; //参数
+  optional bool affix = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "【菜单】是否固定在标签页中(首页通常是固定项)"
+    }
+  ]; //参数
+  repeated BaseMenuParams params = 9 [
     (gnostic.openapi.v3.property) = {
       description: "参数"
     }

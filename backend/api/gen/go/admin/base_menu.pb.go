@@ -388,7 +388,9 @@ type BaseMenuMeta struct {
 	AlwaysShow    *bool                  `protobuf:"varint,4,opt,name=alwaysShow,proto3,oneof" json:"alwaysShow,omitempty"` //【目录】只有一个子路由是否始终显示
 	Hidden        *bool                  `protobuf:"varint,5,opt,name=hidden,proto3,oneof" json:"hidden,omitempty"`         // 是否隐藏(true-是 false-否)
 	KeepAlive     *bool                  `protobuf:"varint,6,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`   //参数
-	Params        []*BaseMenuParams      `protobuf:"bytes,7,rep,name=params,proto3" json:"params,omitempty"`                // 参数
+	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`             //参数
+	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`           //参数
+	Params        []*BaseMenuParams      `protobuf:"bytes,9,rep,name=params,proto3" json:"params,omitempty"`                // 参数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -454,6 +456,20 @@ func (x *BaseMenuMeta) GetHidden() bool {
 func (x *BaseMenuMeta) GetKeepAlive() bool {
 	if x != nil && x.KeepAlive != nil {
 		return *x.KeepAlive
+	}
+	return false
+}
+
+func (x *BaseMenuMeta) GetFull() bool {
+	if x != nil && x.Full != nil {
+		return *x.Full
+	}
+	return false
+}
+
+func (x *BaseMenuMeta) GetAffix() bool {
+	if x != nil && x.Affix != nil {
+		return *x.Affix
 	}
 	return false
 }
@@ -555,7 +571,7 @@ const file_admin_base_menu_proto_rawDesc = "" +
 	"\x06status\x18e \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\v\n" +
 	"\t_parentIdB\a\n" +
 	"\x05_typeB\t\n" +
-	"\a_status\"\xc7\x03\n" +
+	"\a_status\"\x94\x05\n" +
 	"\fBaseMenuMeta\x12(\n" +
 	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题R\x05title\x12+\n" +
 	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x00R\x04icon\x88\x01\x01\x12^\n" +
@@ -563,13 +579,17 @@ const file_admin_base_menu_proto_rawDesc = "" +
 	"alwaysShow\x18\x04 \x01(\bB9\xbaG6\x92\x023【目录】只有一个子路由是否始终显示H\x01R\n" +
 	"alwaysShow\x88\x01\x01\x12C\n" +
 	"\x06hidden\x18\x05 \x01(\bB&\xbaG#\x92\x02 是否隐藏(true-是 false-否)H\x02R\x06hidden\x88\x01\x01\x12M\n" +
-	"\tkeepAlive\x18\x06 \x01(\bB*\xbaG'\x92\x02$【菜单】是否开启页面缓存H\x03R\tkeepAlive\x88\x01\x01\x12;\n" +
-	"\x06params\x18\a \x03(\v2\x15.admin.BaseMenuParamsB\f\xbaG\t\x92\x02\x06参数R\x06paramsB\a\n" +
+	"\tkeepAlive\x18\x06 \x01(\bB*\xbaG'\x92\x02$【菜单】是否开启页面缓存H\x03R\tkeepAlive\x88\x01\x01\x12T\n" +
+	"\x04full\x18\a \x01(\bB;\xbaG8\x92\x025【菜单】是否全屏(示例：数据大屏页面)H\x04R\x04full\x88\x01\x01\x12b\n" +
+	"\x05affix\x18\b \x01(\bBG\xbaGD\x92\x02A【菜单】是否固定在标签页中(首页通常是固定项)H\x05R\x05affix\x88\x01\x01\x12;\n" +
+	"\x06params\x18\t \x03(\v2\x15.admin.BaseMenuParamsB\f\xbaG\t\x92\x02\x06参数R\x06paramsB\a\n" +
 	"\x05_iconB\r\n" +
 	"\v_alwaysShowB\t\n" +
 	"\a_hiddenB\f\n" +
 	"\n" +
-	"_keepAlive\"\\\n" +
+	"_keepAliveB\a\n" +
+	"\x05_fullB\b\n" +
+	"\x06_affix\"\\\n" +
 	"\x0eBaseMenuParams\x12!\n" +
 	"\x03key\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t参数keyR\x03key\x12'\n" +
 	"\x05value\x18\x02 \x01(\tB\x11\xbaG\x0e\x92\x02\v参数valueR\x05value2\xf8\x05\n" +
