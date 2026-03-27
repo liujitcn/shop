@@ -20,9 +20,9 @@
         >
           <div class="menu-lf">
             <el-icon class="menu-icon">
-              <component :is="item.meta.icon"></component>
+              <component :is="getRouteMetaIcon(item.meta)"></component>
             </el-icon>
-            <span class="menu-title">{{ item.meta.title }}</span>
+            <span class="menu-title">{{ getRouteMetaTitle(item.meta) }}</span>
           </div>
           <i :class="'iconfont icon-huiche'" class="menu-enter" @click="handleOpen"></i>
         </div>
@@ -39,13 +39,23 @@ import { Search } from "@element-plus/icons-vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useRouter } from "vue-router";
 import { useDebounceFn } from "@vueuse/core";
+import type { RouteItem } from "@/rpc/admin/auth";
+import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
+
+interface SearchRouteItem extends RouteItem {
+  path: string;
+}
 
 const router = useRouter();
 const authStore = useAuthStore();
-const menuList = computed(() => authStore.flatMenuListGet.filter(item => !item.meta.hide));
+const menuList = computed<SearchRouteItem[]>(() => {
+  return authStore.flatMenuListGet.filter((item): item is SearchRouteItem => {
+    return Boolean(item.path) && !getRouteMetaHidden(item.meta);
+  });
+});
 
 const activePath = ref("");
-const mouseoverMenuItem = (menu: Menu.MenuOptions) => {
+const mouseoverMenuItem = (menu: SearchRouteItem) => {
   activePath.value = menu.path;
 };
 
@@ -70,14 +80,14 @@ const handleOpen = () => {
   });
 };
 
-const searchList = ref<Menu.MenuOptions[]>([]);
+const searchList = ref<SearchRouteItem[]>([]);
 const updateSearchList = () => {
   searchList.value = searchMenu.value
     ? menuList.value.filter(
         item =>
           (item.path.toLowerCase().includes(searchMenu.value.toLowerCase()) ||
-            item.meta.title.toLowerCase().includes(searchMenu.value.toLowerCase())) &&
-          !item.meta?.hide
+            getRouteMetaTitle(item.meta).toLowerCase().includes(searchMenu.value.toLowerCase())) &&
+          !getRouteMetaHidden(item.meta)
       )
     : [];
   activePath.value = searchList.value.length ? searchList.value[0].path : "";
@@ -117,8 +127,7 @@ const keyboardOperation = (event: KeyboardEvent) => {
 const handleClickMenu = () => {
   const menu = searchList.value.find(item => item.path === activePath.value);
   if (!menu) return;
-  if (menu.meta?.link) window.open(menu.meta.link, "_blank");
-  else router.push(menu.path);
+  router.push(menu.path);
   searchMenu.value = "";
   isShowSearch.value = false;
 };

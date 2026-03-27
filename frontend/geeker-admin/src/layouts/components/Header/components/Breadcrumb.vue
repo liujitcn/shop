@@ -5,13 +5,13 @@
         <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="item.path">
           <div
             class="el-breadcrumb__inner is-link"
-            :class="{ 'item-no-icon': !item.meta.icon }"
+            :class="{ 'item-no-icon': !getRouteMetaIcon(item.meta) }"
             @click="onBreadcrumbClick(item, index)"
           >
-            <el-icon v-if="item.meta.icon && globalStore.breadcrumbIcon" class="breadcrumb-icon">
-              <component :is="item.meta.icon"></component>
+            <el-icon v-if="getRouteMetaIcon(item.meta) && globalStore.breadcrumbIcon" class="breadcrumb-icon">
+              <component :is="getRouteMetaIcon(item.meta)"></component>
             </el-icon>
-            <span class="breadcrumb-title">{{ item.meta.title }}</span>
+            <span class="breadcrumb-title">{{ getRouteMetaTitle(item.meta) }}</span>
           </div>
         </el-breadcrumb-item>
       </transition-group>
@@ -26,6 +26,8 @@ import { useRoute, useRouter } from "vue-router";
 import { ArrowRight } from "@element-plus/icons-vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useGlobalStore } from "@/stores/modules/global";
+import type { RouteItem } from "@/rpc/admin/auth";
+import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
 
 const route = useRoute();
 const router = useRouter();
@@ -36,14 +38,17 @@ const breadcrumbList = computed(() => {
   let breadcrumbData = authStore.breadcrumbListGet[route.matched[route.matched.length - 1].path] ?? [];
   // 🙅‍♀️不需要首页面包屑可删除以下判断
   if (breadcrumbData[0].path !== HOME_URL) {
-    breadcrumbData = [{ path: HOME_URL, meta: { icon: "HomeFilled", title: "首页" } }, ...breadcrumbData];
+    breadcrumbData = [
+      { path: HOME_URL, name: "home", meta: { icon: "HomeFilled", title: "首页", params: [] }, children: [] },
+      ...breadcrumbData
+    ];
   }
   return breadcrumbData;
 });
 
 // Click Breadcrumb
-const onBreadcrumbClick = (item: Menu.MenuOptions, index: number) => {
-  if (index !== breadcrumbList.value.length - 1) router.push(item.path);
+const onBreadcrumbClick = (item: RouteItem, index: number) => {
+  if (index !== breadcrumbList.value.length - 1 && item.path) router.push(item.path);
 };
 </script>
 

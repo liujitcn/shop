@@ -24,6 +24,7 @@ import { useGlobalStore } from "@/stores/modules/global";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useAuthStore } from "@/stores/modules/auth";
 import { TabsPaneContext, TabPaneName } from "element-plus";
+import { getRouteMetaAffix, getRouteMetaFull, getRouteMetaIcon, getRouteMetaKeepAlive, getRouteMetaTitle } from "@/utils";
 import MoreButton from "./components/MoreButton.vue";
 
 const route = useRoute();
@@ -60,17 +61,17 @@ watch(
   { immediate: true }
 );
 
-// 初始化需要固定的 tabs
+// 初始化固定标签
 const initTabs = () => {
   authStore.flatMenuListGet.forEach(item => {
-    if (item.meta.affix && !item.meta.hide && !item.meta.full) {
+    if (item.path && item.name && getRouteMetaAffix(item.meta) && !getRouteMetaFull(item.meta)) {
       const tabsParams = {
-        icon: item.meta.icon,
-        title: item.meta.title,
+        icon: getRouteMetaIcon(item.meta),
+        title: getRouteMetaTitle(item.meta),
         path: item.path,
         name: item.name,
-        close: !item.meta.affix,
-        isKeepAlive: item.meta.keepAlive
+        close: !getRouteMetaAffix(item.meta),
+        isKeepAlive: getRouteMetaKeepAlive(item.meta)
       };
       tabStore.addTabs(tabsParams);
     }

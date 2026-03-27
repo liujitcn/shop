@@ -27,7 +27,6 @@
 import { ref } from "vue";
 import { LOGIN_URL } from "@/config";
 import { useRouter } from "vue-router";
-import { logoutApi } from "@/api/modules/login";
 import { useUserStore } from "@/stores/modules/user";
 import { ElMessageBox, ElMessage } from "element-plus";
 import InfoDialog from "./InfoDialog.vue";
@@ -43,13 +42,10 @@ const logout = () => {
     cancelButtonText: "取消",
     type: "warning"
   }).then(async () => {
-    // 1.执行退出登录接口
-    await logoutApi();
+    // 1.执行退出登录接口并清理本地状态
+    await userStore.logout();
 
-    // 2.清除 Token
-    userStore.setToken("");
-
-    // 3.重定向到登陆页
+    // 2.重定向到登录页
     router.replace(LOGIN_URL);
     ElMessage.success("退出登录成功！");
   });

@@ -1,7 +1,9 @@
 import { defineStore } from "pinia";
+import { defAuthService } from "@/api/admin/auth";
 import { AuthState } from "@/stores/interface";
-import { getAuthButtonListApi, getAuthMenuListApi } from "@/api/modules/login";
 import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList } from "@/utils";
+
+const GLOBAL_AUTH_BUTTON_KEY = "__global__";
 
 export const useAuthStore = defineStore({
   id: "geeker-auth",
@@ -26,17 +28,19 @@ export const useAuthStore = defineStore({
     breadcrumbListGet: state => getAllBreadcrumbList(state.authMenuList)
   },
   actions: {
-    // Get AuthButtonList
+    /** 获取按钮权限列表 */
     async getAuthButtonList() {
-      const { data } = await getAuthButtonListApi();
-      this.authButtonList = data;
+      const data = await defAuthService.GetUserButton({});
+      this.authButtonList = {
+        [GLOBAL_AUTH_BUTTON_KEY]: data.value ?? []
+      };
     },
-    // Get AuthMenuList
+    /** 获取菜单权限列表 */
     async getAuthMenuList() {
-      const { data } = await getAuthMenuListApi();
-      this.authMenuList = data;
+      const data = await defAuthService.GetUserMenu({});
+      this.authMenuList = data.list ?? [];
     },
-    // Set RouteName
+    /** 设置当前路由名称 */
     async setRouteName(name: string) {
       this.routeName = name;
     }

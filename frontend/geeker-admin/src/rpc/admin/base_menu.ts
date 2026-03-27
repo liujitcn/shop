@@ -98,8 +98,16 @@ export interface BaseMenuMeta {
   hidden?:
     | boolean
     | undefined;
-  /** 参数 */
+  /** 【菜单】是否开启页面缓存 */
   keepAlive?:
+    | boolean
+    | undefined;
+  /** 【菜单】是否全屏(示例：数据大屏页面) */
+  full?:
+    | boolean
+    | undefined;
+  /** 【菜单】是否固定在标签页中(首页通常是固定项) */
+  affix?:
     | boolean
     | undefined;
   /** 参数 */

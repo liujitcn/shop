@@ -1,20 +1,20 @@
 <template>
   <template v-for="subItem in menuList" :key="subItem.path">
-    <el-sub-menu v-if="subItem.children?.length" :index="subItem.path">
+    <el-sub-menu v-if="isSubMenu(subItem)" :index="getMenuItem(subItem).path">
       <template #title>
-        <el-icon v-if="subItem.meta.icon">
-          <component :is="subItem.meta.icon"></component>
+        <el-icon v-if="getRouteMetaIcon(subItem.meta)">
+          <component :is="getRouteMetaIcon(subItem.meta)"></component>
         </el-icon>
-        <span class="sle">{{ subItem.meta.title }}</span>
+        <span class="sle">{{ getRouteMetaTitle(subItem.meta) }}</span>
       </template>
-      <SubMenu :menu-list="subItem.children" />
+      <SubMenu :menu-list="getSubMenuChildren(subItem)" />
     </el-sub-menu>
-    <el-menu-item v-else :index="subItem.path" @click="handleClickMenu(subItem)">
-      <el-icon v-if="subItem.meta.icon">
-        <component :is="subItem.meta.icon"></component>
+    <el-menu-item v-else :index="getMenuItem(subItem).path" @click="handleClickMenu(getMenuItem(subItem))">
+      <el-icon v-if="getRouteMetaIcon(getMenuItem(subItem).meta)">
+        <component :is="getRouteMetaIcon(getMenuItem(subItem).meta)"></component>
       </el-icon>
       <template #title>
-        <span class="sle">{{ subItem.meta.title }}</span>
+        <span class="sle">{{ getRouteMetaTitle(getMenuItem(subItem).meta) }}</span>
       </template>
     </el-menu-item>
   </template>
@@ -22,13 +22,42 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
+import type { RouteItem } from "@/rpc/admin/auth";
+import { getRouteMetaAlwaysShow, getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
 
-defineProps<{ menuList: Menu.MenuOptions[] }>();
+defineProps<{ menuList: RouteItem[] }>();
 
 const router = useRouter();
-const handleClickMenu = (subItem: Menu.MenuOptions) => {
-  if (subItem.meta.link) return window.open(subItem.meta.link, "_blank");
-  router.push(subItem.path);
+type VisibleRouteItem = RouteItem & { path: string };
+
+const ensureRoutePath = (subItem: RouteItem): VisibleRouteItem => {
+  return {
+    ...subItem,
+    path: subItem.path ?? ""
+  };
+};
+
+const getSubMenuChildren = (subItem: RouteItem) => {
+  const visibleChildren = (subItem.children ?? []).filter(item => !getRouteMetaHidden(item.meta));
+  if (getRouteMetaAlwaysShow(subItem.meta) || visibleChildren.length !== 1) return visibleChildren;
+  return visibleChildren[0].children ?? [];
+};
+
+const getMenuItem = (subItem: RouteItem): VisibleRouteItem => {
+  const visibleChildren = (subItem.children ?? []).filter(item => !getRouteMetaHidden(item.meta));
+  if (getRouteMetaAlwaysShow(subItem.meta) || visibleChildren.length !== 1) return ensureRoutePath(subItem);
+  return ensureRoutePath(visibleChildren[0]);
+};
+
+const isSubMenu = (subItem: RouteItem) => {
+  const visibleChildren = (subItem.children ?? []).filter(item => !getRouteMetaHidden(item.meta));
+  if (!visibleChildren.length) return false;
+  return getRouteMetaAlwaysShow(subItem.meta) || visibleChildren.length > 1;
+};
+
+const handleClickMenu = (subItem: RouteItem) => {
+  const menuItem = getMenuItem(subItem);
+  router.push(menuItem.path);
 };
 </script>
 

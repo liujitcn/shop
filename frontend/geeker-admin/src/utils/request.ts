@@ -53,7 +53,10 @@ class RequestHttp {
         config.loading ??= true;
         config.loading && showFullScreenLoading();
         if (config.headers && typeof config.headers.set === "function") {
-          config.headers.set("x-access-token", userStore.token);
+          if (userStore.token) {
+            config.headers.set("Authorization", userStore.token);
+            config.headers.set("x-access-token", userStore.token);
+          }
         }
         return config;
       },
@@ -73,19 +76,32 @@ class RequestHttp {
         const userStore = useUserStore();
         axiosCanceler.removePending(config);
         config.loading && tryHideFullScreenLoading();
-        // 登录失效
-        if (data.code == ResultEnum.OVERDUE) {
-          userStore.setToken("");
-          router.replace(LOGIN_URL);
-          ElMessage.error(data.msg);
-          return Promise.reject(data);
+
+        // 下载等二进制流直接返回原始响应。
+        if (response.config.responseType === "blob") {
+          return response as unknown as any;
         }
-        // 全局错误信息拦截（防止下载文件的时候返回数据流，没有 code 直接报错）
-        if (data.code && data.code !== ResultEnum.SUCCESS) {
-          ElMessage.error(data.msg);
-          return Promise.reject(data);
+
+        // 当前后端成功场景直接返回业务对象，失败场景返回错误对象，这里兼容两种结构。
+        if (data && typeof data === "object" && "code" in data) {
+          const responseCode = Number(data.code);
+          const responseMessage = data.msg || data.message || "请求失败";
+
+          // 登录失效
+          if (responseCode === ResultEnum.OVERDUE || responseCode === 403) {
+            userStore.clearAuthData();
+            router.replace(LOGIN_URL);
+            ElMessage.error(responseMessage);
+            return Promise.reject(data);
+          }
+
+          if (responseCode !== ResultEnum.SUCCESS) {
+            ElMessage.error(responseMessage);
+            return Promise.reject(data);
+          }
         }
-        // 成功请求（在页面上除非特殊情况，否则不用处理失败逻辑）
+
+        // 成功请求直接返回业务数据。
         return data;
       },
       async (error: AxiosError) => {

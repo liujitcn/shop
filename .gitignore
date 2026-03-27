@@ -10,7 +10,6 @@
 
 # Go build output
 bin/
-build/
 dist/
 
 # Go workspace file

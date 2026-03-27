@@ -1,7 +1,62 @@
 import { isArray } from "@/utils/is";
-import { FieldNamesProps } from "@/components/ProTable/interface";
+import type { RouteItem, RouteMeta } from "@/rpc/admin/auth";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
+
+type FieldNamesProps = {
+  label?: string;
+  value?: string;
+  children?: string;
+};
+
+/**
+ * 获取菜单图标。
+ */
+export function getRouteMetaIcon(meta?: RouteMeta) {
+  return meta?.icon ?? "";
+}
+
+/**
+ * 获取菜单标题。
+ */
+export function getRouteMetaTitle(meta?: RouteMeta) {
+  return meta?.title ?? "未命名菜单";
+}
+
+/**
+ * 判断菜单是否隐藏。
+ */
+export function getRouteMetaHidden(meta?: RouteMeta) {
+  return meta?.hidden ?? false;
+}
+
+/**
+ * 判断目录是否始终显示。
+ */
+export function getRouteMetaAlwaysShow(meta?: RouteMeta) {
+  return meta?.alwaysShow ?? false;
+}
+
+/**
+ * 判断菜单是否全屏。
+ */
+export function getRouteMetaFull(meta?: RouteMeta) {
+  return meta?.full ?? false;
+}
+
+/**
+ * 判断菜单是否固定标签。
+ */
+export function getRouteMetaAffix(meta?: RouteMeta) {
+  return meta?.affix ?? false;
+}
+
+/**
+ * 判断菜单是否缓存。
+ */
+export function getRouteMetaKeepAlive(meta?: RouteMeta) {
+  return meta?.keepAlive ?? false;
+}
 
 /**
  * @description 获取localStorage
@@ -136,8 +191,8 @@ export function getUrlWithParams() {
  * @param {Array} menuList 菜单列表
  * @returns {Array}
  */
-export function getFlatMenuList(menuList: Menu.MenuOptions[]): Menu.MenuOptions[] {
-  let newMenuList: Menu.MenuOptions[] = JSON.parse(JSON.stringify(menuList));
+export function getFlatMenuList(menuList: RouteItem[]): RouteItem[] {
+  let newMenuList: RouteItem[] = JSON.parse(JSON.stringify(menuList));
   return newMenuList.flatMap(item => [item, ...(item.children ? getFlatMenuList(item.children) : [])]);
 }
 
@@ -146,11 +201,11 @@ export function getFlatMenuList(menuList: Menu.MenuOptions[]): Menu.MenuOptions[
  * @param {Array} menuList 菜单列表
  * @returns {Array}
  * */
-export function getShowMenuList(menuList: Menu.MenuOptions[]) {
-  let newMenuList: Menu.MenuOptions[] = JSON.parse(JSON.stringify(menuList));
+export function getShowMenuList(menuList: RouteItem[]) {
+  let newMenuList: RouteItem[] = JSON.parse(JSON.stringify(menuList));
   return newMenuList.filter(item => {
     item.children?.length && (item.children = getShowMenuList(item.children));
-    return !item.meta?.hide;
+    return !getRouteMetaHidden(item.meta);
   });
 }
 
@@ -161,10 +216,11 @@ export function getShowMenuList(menuList: Menu.MenuOptions[]) {
  * @param {Object} result 处理后的结果
  * @returns {Object}
  */
-export const getAllBreadcrumbList = (menuList: Menu.MenuOptions[], parent = [], result: { [key: string]: any } = {}) => {
+export const getAllBreadcrumbList = (menuList: RouteItem[], parent = [], result: { [key: string]: any } = {}) => {
   for (const item of menuList) {
-    result[item.path] = [...parent, item];
-    if (item.children) getAllBreadcrumbList(item.children, result[item.path], result);
+    const routePath = item.path ?? "";
+    result[routePath] = [...parent, item];
+    if (item.children) getAllBreadcrumbList(item.children, result[routePath], result);
   }
   return result;
 };
@@ -175,7 +231,7 @@ export const getAllBreadcrumbList = (menuList: Menu.MenuOptions[], parent = [], 
  * @param {Array} menuPathArr 菜单地址的一维数组 ['**','**']
  * @returns {Array}
  */
-export function getMenuListPath(menuList: Menu.MenuOptions[], menuPathArr: string[] = []): string[] {
+export function getMenuListPath(menuList: RouteItem[], menuPathArr: string[] = []): string[] {
   for (const item of menuList) {
     if (typeof item === "object" && item.path) menuPathArr.push(item.path);
     if (item.children?.length) getMenuListPath(item.children, menuPathArr);
@@ -189,7 +245,7 @@ export function getMenuListPath(menuList: Menu.MenuOptions[], menuPathArr: strin
  * @param {String} path 当前访问地址
  * @returns {Object | null}
  */
-export function findMenuByPath(menuList: Menu.MenuOptions[], path: string): Menu.MenuOptions | null {
+export function findMenuByPath(menuList: RouteItem[], path: string): RouteItem | null {
   for (const item of menuList) {
     if (item.path === path) return item;
     if (item.children) {
@@ -206,9 +262,9 @@ export function findMenuByPath(menuList: Menu.MenuOptions[], path: string): Menu
  * @param {Array} keepAliveNameArr 缓存的菜单 name ['**','**']
  * @returns {Array}
  * */
-export function getKeepAliveRouterName(menuList: Menu.MenuOptions[], keepAliveNameArr: string[] = []) {
+export function getKeepAliveRouterName(menuList: RouteItem[], keepAliveNameArr: string[] = []) {
   menuList.forEach(item => {
-    item.meta.keepAlive && item.name && keepAliveNameArr.push(item.name);
+    getRouteMetaKeepAlive(item.meta) && item.name && keepAliveNameArr.push(item.name);
     item.children?.length && getKeepAliveRouterName(item.children, keepAliveNameArr);
   });
   return keepAliveNameArr;

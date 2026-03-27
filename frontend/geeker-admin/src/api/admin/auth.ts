@@ -6,7 +6,7 @@ import {
   type UserProfileForm,
   type SendUpdatePhoneCodeForm,
   type UpdatePhoneForm,
-  type UpdatePwdForm,
+  type UpdatePwdForm
 } from "@/rpc/admin/auth";
 import type { StringValues } from "@/rpc/common/types";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -20,7 +20,7 @@ export class AuthServiceImpl implements AuthService {
     return service<Empty, UserInfo>({
       url: `${AUTH_URL}/userInfo`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 获取已经登录的用户菜单 */
@@ -28,7 +28,7 @@ export class AuthServiceImpl implements AuthService {
     return service<Empty, TreeRouteResponse>({
       url: `${AUTH_URL}/menu`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 获取已经登录的用户按钮权限 */
@@ -36,7 +36,7 @@ export class AuthServiceImpl implements AuthService {
     return service<Empty, StringValues>({
       url: `${AUTH_URL}/button`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 获取个人中心用户信息 */
@@ -44,7 +44,7 @@ export class AuthServiceImpl implements AuthService {
     return service<Empty, UserProfileForm>({
       url: `${AUTH_URL}/userProfile`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 修改个人中心用户信息 */
@@ -52,7 +52,7 @@ export class AuthServiceImpl implements AuthService {
     return service<UserProfileForm, Empty>({
       url: `${AUTH_URL}/update/userProfile`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 发送手机号验证码 */
@@ -60,7 +60,7 @@ export class AuthServiceImpl implements AuthService {
     return service<SendUpdatePhoneCodeForm, Empty>({
       url: `${AUTH_URL}/send/update/phone`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 修改个人中心手机号 */
@@ -68,7 +68,7 @@ export class AuthServiceImpl implements AuthService {
     return service<UpdatePhoneForm, Empty>({
       url: `${AUTH_URL}/update/phone`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 修改个人中心密码 */
@@ -76,7 +76,7 @@ export class AuthServiceImpl implements AuthService {
     return service<UpdatePwdForm, Empty>({
       url: `${AUTH_URL}/update/pwd`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

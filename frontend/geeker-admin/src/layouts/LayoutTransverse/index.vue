@@ -12,18 +12,18 @@
           <el-sub-menu v-if="subItem.children?.length" :key="subItem.path" :index="subItem.path + 'el-sub-menu'">
             <template #title>
               <el-icon>
-                <component :is="subItem.meta.icon"></component>
+                <component :is="getRouteMetaIcon(subItem.meta)"></component>
               </el-icon>
-              <span>{{ subItem.meta.title }}</span>
+              <span>{{ getRouteMetaTitle(subItem.meta) }}</span>
             </template>
             <SubMenu :menu-list="subItem.children" />
           </el-sub-menu>
           <el-menu-item v-else :key="subItem.path + 'el-menu-item'" :index="subItem.path" @click="handleClickMenu(subItem)">
             <el-icon>
-              <component :is="subItem.meta.icon"></component>
+              <component :is="getRouteMetaIcon(subItem.meta)"></component>
             </el-icon>
             <template #title>
-              <span>{{ subItem.meta.title }}</span>
+              <span>{{ getRouteMetaTitle(subItem.meta) }}</span>
             </template>
           </el-menu-item>
         </template>
@@ -38,6 +38,8 @@
 import { computed } from "vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useRoute, useRouter } from "vue-router";
+import type { RouteItem } from "@/rpc/admin/auth";
+import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
@@ -48,11 +50,10 @@ const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const menuList = computed(() => authStore.showMenuListGet);
-const activeMenu = computed(() => (route.meta.activeMenu ? route.meta.activeMenu : route.path) as string);
+const activeMenu = computed(() => route.path as string);
 
-const handleClickMenu = (subItem: Menu.MenuOptions) => {
-  if (subItem.meta.link) return window.open(subItem.meta.link, "_blank");
-  router.push(subItem.path);
+const handleClickMenu = (subItem: RouteItem) => {
+  if (subItem.path) router.push(subItem.path);
 };
 </script>
 

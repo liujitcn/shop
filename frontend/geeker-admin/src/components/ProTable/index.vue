@@ -196,10 +196,10 @@ const processTableData = computed(() => {
 watch(() => props.initParam, getTableList, { deep: true });
 
 // 接收 columns 并设置为响应式
-const tableColumns = reactive<ColumnProps[]>(props.columns);
+const tableColumns = ref<ColumnProps[]>(props.columns as ColumnProps[]);
 
 // 扁平化 columns
-const flatColumns = computed(() => flatColumnsFunc(tableColumns));
+const flatColumns = computed(() => flatColumnsFunc(tableColumns.value as any) as ColumnProps[]);
 
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
 const enumMap = ref(new Map<string, { [key: string]: any }[]>());
@@ -260,7 +260,7 @@ searchColumns.value?.forEach((column, index) => {
 
 // 列设置 ==> 需要过滤掉不需要设置的列
 const colRef = ref();
-const colSetting = tableColumns!.filter(item => {
+const colSetting = (tableColumns.value as ColumnProps[]).filter(item => {
   const { type, prop, isSetting } = item;
   return !columnTypes.includes(type!) && prop !== "operation" && isSetting;
 });

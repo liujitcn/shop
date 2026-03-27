@@ -4,6 +4,8 @@ import { TableColumnCtx } from "element-plus/es/components/table/src/table-colum
 import { ProTableProps } from "@/components/ProTable/index.vue";
 import ProTable from "@/components/ProTable/index.vue";
 
+type DefaultRow = Record<string, any>;
+
 export interface EnumProps {
   label?: string; // 选项框显示的文字
   value?: string | number | boolean | any[]; // 选项框值
@@ -55,20 +57,20 @@ export type FieldNamesProps = {
   children?: string;
 };
 
-export type RenderScope<T> = {
+export type RenderScope<T extends DefaultRow = DefaultRow> = {
   row: T;
   $index: number;
   column: TableColumnCtx<T>;
   [key: string]: any;
 };
 
-export type HeaderRenderScope<T> = {
+export type HeaderRenderScope<T extends DefaultRow = DefaultRow> = {
   $index: number;
   column: TableColumnCtx<T>;
   [key: string]: any;
 };
 
-export interface ColumnProps<T = any>
+export interface ColumnProps<T extends DefaultRow = DefaultRow>
   extends Partial<Omit<TableColumnCtx<T>, "type" | "children" | "renderCell" | "renderHeader">> {
   type?: TypeProps; // 列类型
   tag?: boolean | Ref<boolean>; // 是否是标签展示

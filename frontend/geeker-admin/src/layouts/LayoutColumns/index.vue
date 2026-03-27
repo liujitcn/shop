@@ -15,9 +15,9 @@
             @click="changeSubMenu(item)"
           >
             <el-icon>
-              <component :is="item.meta.icon"></component>
+              <component :is="getRouteMetaIcon(item.meta)"></component>
             </el-icon>
-            <span class="title">{{ item.meta.title }}</span>
+            <span class="title">{{ getRouteMetaTitle(item.meta) }}</span>
           </div>
         </div>
       </el-scrollbar>
@@ -53,10 +53,16 @@ import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useGlobalStore } from "@/stores/modules/global";
+import type { RouteItem } from "@/rpc/admin/auth";
+import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
+
+interface MenuRouteItem extends RouteItem {
+  path: string;
+}
 
 const title = import.meta.env.VITE_GLOB_APP_TITLE;
 
@@ -66,10 +72,12 @@ const authStore = useAuthStore();
 const globalStore = useGlobalStore();
 const accordion = computed(() => globalStore.accordion);
 const isCollapse = computed(() => globalStore.isCollapse);
-const menuList = computed(() => authStore.showMenuListGet);
-const activeMenu = computed(() => (route.meta.activeMenu ? route.meta.activeMenu : route.path) as string);
+const menuList = computed<MenuRouteItem[]>(() => {
+  return authStore.showMenuListGet.filter((item): item is MenuRouteItem => Boolean(item.path));
+});
+const activeMenu = computed(() => route.path as string);
 
-const subMenuList = ref<Menu.MenuOptions[]>([]);
+const subMenuList = ref<RouteItem[]>([]);
 const splitActive = ref("");
 watch(
   () => [menuList, route],
@@ -77,7 +85,7 @@ watch(
     // 当前菜单没有数据直接 return
     if (!menuList.value.length) return;
     splitActive.value = route.path;
-    const menuItem = menuList.value.filter((item: Menu.MenuOptions) => {
+    const menuItem = menuList.value.filter((item: RouteItem) => {
       return route.path === item.path || `/${route.path.split("/")[1]}` === item.path;
     });
     if (menuItem[0].children?.length) return (subMenuList.value = menuItem[0].children);
@@ -90,11 +98,11 @@ watch(
 );
 
 // change SubMenu
-const changeSubMenu = (item: Menu.MenuOptions) => {
-  splitActive.value = item.path;
+const changeSubMenu = (item: RouteItem) => {
+  splitActive.value = item.path ?? "";
   if (item.children?.length) return (subMenuList.value = item.children);
   subMenuList.value = [];
-  router.push(item.path);
+  if (item.path) router.push(item.path);
 };
 </script>
 

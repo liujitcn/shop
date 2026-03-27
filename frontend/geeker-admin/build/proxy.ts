@@ -16,12 +16,11 @@ export function createProxy(list: ProxyList = []) {
     const httpsRE = /^https:\/\//;
     const isHttps = httpsRE.test(target);
 
-    // https://github.com/http-party/node-http-proxy#options
+    // 当前后端接口本身就带 /api、/shop 前缀，开发代理不能再做路径裁剪。
     ret[prefix] = {
       target: target,
       changeOrigin: true,
       ws: true,
-      rewrite: path => path.replace(new RegExp(`^${prefix}`), ""),
       // https is require secure=false
       ...(isHttps ? { secure: false } : {})
     };
