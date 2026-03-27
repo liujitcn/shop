@@ -27,10 +27,20 @@ const resolveEnv = (mode: string) => {
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const { env } = resolveEnv(mode)
   const devH5ProxyEnv = mode === 'development-h5' ? loadEnv('development', process.cwd(), '') : env
+  /**
+   * H5 生产环境默认发布到 /app/ 路径，开发环境保持根路径访问。
+   */
+  const appBasePath =
+    env.VITE_APP_BASE_PATH || (mode === 'production-h5' ? '/app/' : '/')
 
   return {
+    base: appBasePath,
     define: {
+      // 兼容 uni-h5 运行时代码对全局 process/global 的访问，避免浏览器环境报错。
+      process: JSON.stringify({ env: {} }),
+      global: 'globalThis',
       'import.meta.env.VITE_APP_PORT': JSON.stringify(env.VITE_APP_PORT || ''),
+      'import.meta.env.VITE_APP_BASE_PATH': JSON.stringify(appBasePath),
       'import.meta.env.VITE_APP_BASE_API': JSON.stringify(env.VITE_APP_BASE_API || ''),
       'import.meta.env.VITE_APP_API_URL': JSON.stringify(env.VITE_APP_API_URL || ''),
       'import.meta.env.VITE_APP_STATIC_API': JSON.stringify(env.VITE_APP_STATIC_API || ''),

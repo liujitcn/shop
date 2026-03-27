@@ -173,6 +173,11 @@ pnpm dev:h5
 - `frontend/app/.env.development`
 - `frontend/app/.env.development-h5`
 
+补充说明：
+
+- `frontend/app/.env.development-h5` 中的 `VITE_APP_BASE_PATH` 默认为 `/`，便于本地直接访问开发服务。
+- H5 页面中返回 `/shop/...` 这类静态资源路径时，会自动按当前站点根域名补全，避免在 `/app` 子路径部署后被解析成 `/app/shop/...`。
+
 ### 启动微信小程序
 
 ```bash
@@ -290,6 +295,11 @@ pnpm build:h5
 商城 H5 构建产物同样默认输出到：
 
 - 自定义 `UNI_OUTPUT_DIR` 后可输出到 `backend/data/app`
+
+补充说明：
+
+- `frontend/app/.env.production-h5` 中的 `VITE_APP_BASE_PATH` 默认为 `/app/`，对应后端自动挂载出的 `http://localhost:7001/app` 路径。
+- 如需把静态资源明确指向独立域名或端口，可在 `frontend/app/.env.production-h5` 中设置 `VITE_APP_STATIC_URL`，例如 `http://localhost:7001`。
 
 ### 注意事项
 

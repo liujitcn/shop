@@ -21,8 +21,12 @@ const pathSrc = resolve(__dirname, 'src')
 // Vite配置  https://cn.vitejs.dev/config
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   const env = loadEnv(mode, process.cwd())
+  /**
+   * 生产环境默认将管理台发布到 /admin/ 路径下，开发环境保持根路径访问。
+   */
+  const appBasePath = env.VITE_APP_BASE_PATH || (mode === 'production' ? '/admin/' : '/')
   return {
-    base: env.VITE_APP_BASE_PATH,
+    base: appBasePath,
     resolve: {
       alias: {
         '@': pathSrc,

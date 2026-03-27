@@ -1,4 +1,18 @@
 const baseURL = import.meta.env.VITE_APP_STATIC_URL
+
+/**
+ * 解析静态资源访问前缀
+ * @returns 静态资源访问前缀
+ */
+const resolveStaticOrigin = () => {
+  if (baseURL) {
+    return baseURL.replace(/\/$/, '')
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin
+  }
+  return ''
+}
 /**
  * 日期格式化函数
  * @param date 日期对象
@@ -42,9 +56,20 @@ export const formatSrc = (src: string) => {
   if (!src) {
     return src
   }
-  if (!src.startsWith('http') && !src.startsWith('https')) {
-    return baseURL + src
-  } else {
+  // 已经是绝对地址时直接返回，避免重复拼接。
+  if (/^https?:\/\//.test(src)) {
     return src
   }
+
+  const staticOrigin = resolveStaticOrigin()
+  if (!staticOrigin) {
+    return src
+  }
+
+  // 以 / 开头的后端静态资源路径需要固定挂到站点根路径，不能受 /app base 影响。
+  if (src.startsWith('/')) {
+    return `${staticOrigin}${src}`
+  }
+
+  return `${staticOrigin}/${src.replace(/^\/+/, '')}`
 }
