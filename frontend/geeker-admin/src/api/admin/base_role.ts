@@ -70,7 +70,7 @@ export class BaseRoleServiceImpl implements BaseRoleService {
   }
   /** 设置角色菜单权限 */
   SetBaseRoleMenus(request: SetMenusRequest): Promise<Empty> {
-    return service<SetStatusRequest, Empty>({
+    return service<SetMenusRequest, Empty>({
       url: `${BASE_ROLE_URL}/` + request.id + "/menus",
       method: "put",
       data: request,

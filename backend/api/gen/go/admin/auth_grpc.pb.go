@@ -12,6 +12,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	AuthService_GetUserInfo_FullMethodName         = "/admin.AuthService/GetUserInfo"
 	AuthService_GetUserMenu_FullMethodName         = "/admin.AuthService/GetUserMenu"
+	AuthService_GetUserButton_FullMethodName       = "/admin.AuthService/GetUserButton"
 	AuthService_GetUserProfile_FullMethodName      = "/admin.AuthService/GetUserProfile"
 	AuthService_UpdateUserProfile_FullMethodName   = "/admin.AuthService/UpdateUserProfile"
 	AuthService_SendUpdatePhoneCode_FullMethodName = "/admin.AuthService/SendUpdatePhoneCode"
@@ -39,6 +41,8 @@ type AuthServiceClient interface {
 	GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfo, error)
 	// 获取已经登录的用户菜单
 	GetUserMenu(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TreeRouteResponse, error)
+	// 获取已经登录的用户按钮
+	GetUserButton(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*common.StringValues, error)
 	// 获取个人中心用户信息
 	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserProfileForm, error)
 	// 修改个人中心用户信息
@@ -73,6 +77,16 @@ func (c *authServiceClient) GetUserMenu(ctx context.Context, in *emptypb.Empty, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(TreeRouteResponse)
 	err := c.cc.Invoke(ctx, AuthService_GetUserMenu_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) GetUserButton(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*common.StringValues, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.StringValues)
+	err := c.cc.Invoke(ctx, AuthService_GetUserButton_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +153,8 @@ type AuthServiceServer interface {
 	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error)
 	// 获取已经登录的用户菜单
 	GetUserMenu(context.Context, *emptypb.Empty) (*TreeRouteResponse, error)
+	// 获取已经登录的用户按钮
+	GetUserButton(context.Context, *emptypb.Empty) (*common.StringValues, error)
 	// 获取个人中心用户信息
 	GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileForm, error)
 	// 修改个人中心用户信息
@@ -164,6 +180,9 @@ func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *emptypb.Empt
 }
 func (UnimplementedAuthServiceServer) GetUserMenu(context.Context, *emptypb.Empty) (*TreeRouteResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserMenu not implemented")
+}
+func (UnimplementedAuthServiceServer) GetUserButton(context.Context, *emptypb.Empty) (*common.StringValues, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserButton not implemented")
 }
 func (UnimplementedAuthServiceServer) GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserProfile not implemented")
@@ -233,6 +252,24 @@ func _AuthService_GetUserMenu_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AuthServiceServer).GetUserMenu(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_GetUserButton_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).GetUserButton(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_GetUserButton_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).GetUserButton(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -341,6 +378,10 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserMenu",
 			Handler:    _AuthService_GetUserMenu_Handler,
+		},
+		{
+			MethodName: "GetUserButton",
+			Handler:    _AuthService_GetUserButton_Handler,
 		},
 		{
 			MethodName: "GetUserProfile",

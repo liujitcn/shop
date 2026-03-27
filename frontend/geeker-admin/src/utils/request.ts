@@ -2,7 +2,6 @@ import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, InternalAxiosRequ
 import { showFullScreenLoading, tryHideFullScreenLoading } from "@/components/Loading/fullScreen";
 import { LOGIN_URL } from "@/config";
 import { ElMessage } from "element-plus";
-import { ResultData } from "@/api/interface";
 import { ResultEnum } from "@/enums/httpEnum";
 import { checkStatus } from "./helper/checkStatus";
 import { AxiosCanceler } from "./helper/axiosCancel";
@@ -14,11 +13,19 @@ export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   cancel?: boolean;
 }
 
+/**
+ * 通用请求配置
+ */
+export interface ServiceRequestConfig<TRequest = unknown> extends AxiosRequestConfig<TRequest> {
+  loading?: boolean;
+  cancel?: boolean;
+}
+
 const config = {
   // 默认地址请求地址，可在 .env.** 文件中修改
   baseURL: import.meta.env.VITE_API_URL as string,
   // 设置超时时间
-  timeout: ResultEnum.TIMEOUT as number,
+  timeout: 50000,
   // 跨域时候允许携带凭证
   withCredentials: true
 };
@@ -95,25 +102,19 @@ class RequestHttp {
       }
     );
   }
-
-  /**
-   * @description 常用请求方法封装
-   */
-  get<T>(url: string, params?: object, _object = {}): Promise<ResultData<T>> {
-    return this.service.get(url, { params, ..._object });
-  }
-  post<T>(url: string, params?: object | string, _object = {}): Promise<ResultData<T>> {
-    return this.service.post(url, params, _object);
-  }
-  put<T>(url: string, params?: object, _object = {}): Promise<ResultData<T>> {
-    return this.service.put(url, params, _object);
-  }
-  delete<T>(url: string, params?: any, _object = {}): Promise<ResultData<T>> {
-    return this.service.delete(url, { params, ..._object });
-  }
-  download(url: string, params?: object, _object = {}): Promise<BlobPart> {
-    return this.service.post(url, params, { ..._object, responseType: "blob" });
-  }
 }
 
-export default new RequestHttp(config);
+const requestHttp = new RequestHttp(config);
+
+/**
+ * 兼容 proto 生成的 service<Req, Res>({ ... }) 调用方式
+ * @param requestConfig 请求配置
+ * @returns 响应结果
+ */
+const service = <TRequest = unknown, TResponse = unknown>(requestConfig: ServiceRequestConfig<TRequest>): Promise<TResponse> => {
+  return requestHttp.service.request<any, TResponse>(requestConfig);
+};
+
+service.service = requestHttp.service;
+
+export default service;

@@ -88,49 +88,14 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
 		return nil, errors.New("部门不存在")
 	}
 
-	query := c.baseMenuCase.Query(ctx).BaseMenu
-
-	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
-	opts = append(opts, repo.Where(query.Type.In(int32(common.BaseMenuType_BUTTON))))
-	//是否超级管理员
-	if baseRole.Code != _const.BaseRoleCode_Super {
-		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
-		if len(ids) == 0 {
-			return &admin.UserInfo{
-				UserName:   baseUser.UserName,
-				NickName:   baseUser.NickName,
-				Phone:      baseUser.Phone,
-				Avatar:     baseUser.Avatar,
-				Permission: []string{},
-				RoleCode:   baseRole.Code,
-				RoleName:   baseRole.Name,
-				DeptName:   baseDept.Name,
-			}, nil
-		}
-		opts = append(opts, repo.Where(query.ID.In(ids...)))
-	}
-
-	var baseMenus []*models.BaseMenu
-	baseMenus, err = c.baseMenuCase.List(ctx, opts...)
-	if err != nil {
-		return nil, common.ErrorAccessForbidden("用户权限不存在")
-	}
-
-	permission := make([]string, 0, len(baseMenus))
-	for _, item := range baseMenus {
-		permission = append(permission, item.Path)
-	}
-
 	return &admin.UserInfo{
-		UserName:   baseUser.UserName,
-		NickName:   baseUser.NickName,
-		Phone:      baseUser.Phone,
-		Avatar:     baseUser.Avatar,
-		Permission: permission,
-		RoleCode:   baseRole.Code,
-		RoleName:   baseRole.Name,
-		DeptName:   baseDept.Name,
+		UserName: baseUser.UserName,
+		NickName: baseUser.NickName,
+		Phone:    baseUser.Phone,
+		Avatar:   baseUser.Avatar,
+		RoleCode: baseRole.Code,
+		RoleName: baseRole.Name,
+		DeptName: baseDept.Name,
 	}, nil
 }
 
@@ -174,6 +139,59 @@ func (c *AuthCase) GetUserMenu(ctx context.Context) (*admin.TreeRouteResponse, e
 
 	list := c.baseMenuCase.buildRouteTree(menuList, 0)
 	return &admin.TreeRouteResponse{List: list}, nil
+}
+
+// GetUserButton 获取用户按钮
+func (c *AuthCase) GetUserButton(ctx context.Context) (*common.StringValues, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errors.New("用户不存在")
+	}
+	if baseUser.Status != int32(common.Status_ENABLE) {
+		return nil, errors.New("用户状态错误")
+	}
+
+	// 查询角色信息
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindById(ctx, baseUser.RoleID)
+	if err != nil {
+		return nil, errors.New("角色不存在")
+	}
+
+	query := c.baseMenuCase.Query(ctx).BaseMenu
+
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	opts = append(opts, repo.Where(query.Type.In(int32(common.BaseMenuType_BUTTON))))
+	//是否超级管理员
+	if baseRole.Code != _const.BaseRoleCode_Super {
+		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
+		if len(ids) == 0 {
+			return &common.StringValues{}, nil
+		}
+		opts = append(opts, repo.Where(query.ID.In(ids...)))
+	}
+
+	var baseMenus []*models.BaseMenu
+	baseMenus, err = c.baseMenuCase.List(ctx, opts...)
+	if err != nil {
+		return nil, common.ErrorAccessForbidden("用户权限不存在")
+	}
+
+	permission := make([]string, 0, len(baseMenus))
+	for _, item := range baseMenus {
+		permission = append(permission, item.Path)
+	}
+
+	return &common.StringValues{
+		Value: permission,
+	}, nil
 }
 
 // GetUserProfile 获取用户资料

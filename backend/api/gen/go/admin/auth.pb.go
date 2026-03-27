@@ -15,6 +15,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/wrapperspb"
 	reflect "reflect"
+	common "shop/api/gen/go/common"
 	sync "sync"
 	unsafe "unsafe"
 )
@@ -28,14 +29,13 @@ const (
 
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`      // 用户账号
-	NickName      string                 `protobuf:"bytes,2,opt,name=nickName,proto3" json:"nickName,omitempty"`      // 用户昵称
-	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`            // 手机号
-	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`          // 头像
-	Permission    []string               `protobuf:"bytes,80,rep,name=permission,proto3" json:"permission,omitempty"` //权限
-	RoleCode      string                 `protobuf:"bytes,100,opt,name=roleCode,proto3" json:"roleCode,omitempty"`    // 角色编号
-	RoleName      string                 `protobuf:"bytes,101,opt,name=roleName,proto3" json:"roleName,omitempty"`    // 角色名称
-	DeptName      string                 `protobuf:"bytes,102,opt,name=deptName,proto3" json:"deptName,omitempty"`    // 部门名称
+	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`   // 用户账号
+	NickName      string                 `protobuf:"bytes,2,opt,name=nickName,proto3" json:"nickName,omitempty"`   // 用户昵称
+	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`         // 手机号
+	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`       // 头像
+	RoleCode      string                 `protobuf:"bytes,100,opt,name=roleCode,proto3" json:"roleCode,omitempty"` // 角色编号
+	RoleName      string                 `protobuf:"bytes,101,opt,name=roleName,proto3" json:"roleName,omitempty"` // 角色名称
+	DeptName      string                 `protobuf:"bytes,102,opt,name=deptName,proto3" json:"deptName,omitempty"` // 部门名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -96,13 +96,6 @@ func (x *UserInfo) GetAvatar() string {
 		return x.Avatar
 	}
 	return ""
-}
-
-func (x *UserInfo) GetPermission() []string {
-	if x != nil {
-		return x.Permission
-	}
-	return nil
 }
 
 func (x *UserInfo) GetRoleCode() string {
@@ -654,15 +647,12 @@ var File_admin_auth_proto protoreflect.FileDescriptor
 
 const file_admin_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x10admin/auth.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xf5\x02\n" +
+	"\x10admin/auth.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/api/field_behavior.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x12common/types.proto\"\xc7\x02\n" +
 	"\bUserInfo\x12.\n" +
 	"\buserName\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12.\n" +
 	"\bnickName\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12%\n" +
 	"\x05phone\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12$\n" +
-	"\x06avatar\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12,\n" +
-	"\n" +
-	"permission\x18P \x03(\tB\f\xbaG\t\x92\x02\x06权限R\n" +
-	"permission\x12.\n" +
+	"\x06avatar\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12.\n" +
 	"\broleCode\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\broleCode\x12.\n" +
 	"\broleName\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\broleName\x12.\n" +
 	"\bdeptName\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\bdeptName\"9\n" +
@@ -721,10 +711,11 @@ const file_admin_auth_proto_rawDesc = "" +
 	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\"]\n" +
 	"\x0fUpdatePhoneForm\x12%\n" +
 	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12#\n" +
-	"\x04code\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\x04code2\xf0\x05\n" +
+	"\x04code\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\x04code2\xcf\x06\n" +
 	"\vAuthService\x12X\n" +
 	"\vGetUserInfo\x12\x16.google.protobuf.Empty\x1a\x0f.admin.UserInfo\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/admin/auth/userInfo\x12]\n" +
-	"\vGetUserMenu\x12\x16.google.protobuf.Empty\x1a\x18.admin.TreeRouteResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/admin/auth/menu\x12e\n" +
+	"\vGetUserMenu\x12\x16.google.protobuf.Empty\x1a\x18.admin.TreeRouteResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/admin/auth/menu\x12]\n" +
+	"\rGetUserButton\x12\x16.google.protobuf.Empty\x1a\x14.common.StringValues\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/admin/auth/button\x12e\n" +
 	"\x0eGetUserProfile\x12\x16.google.protobuf.Empty\x1a\x16.admin.UserProfileForm\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/admin/auth/userProfile\x12r\n" +
 	"\x11UpdateUserProfile\x12\x16.admin.UserProfileForm\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/admin/auth/update/userProfile\x12{\n" +
 	"\x13SendUpdatePhoneCode\x12\x1e.admin.SendUpdatePhoneCodeForm\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/admin/auth/send/update/phone\x12j\n" +
@@ -756,6 +747,7 @@ var file_admin_auth_proto_goTypes = []any{
 	(*SendUpdatePhoneCodeForm)(nil), // 7: admin.SendUpdatePhoneCodeForm
 	(*UpdatePhoneForm)(nil),         // 8: admin.UpdatePhoneForm
 	(*emptypb.Empty)(nil),           // 9: google.protobuf.Empty
+	(*common.StringValues)(nil),     // 10: common.StringValues
 }
 var file_admin_auth_proto_depIdxs = []int32{
 	2,  // 0: admin.TreeRouteResponse.list:type_name -> admin.RouteItem
@@ -764,20 +756,22 @@ var file_admin_auth_proto_depIdxs = []int32{
 	4,  // 3: admin.RouteMeta.params:type_name -> admin.RouteParams
 	9,  // 4: admin.AuthService.GetUserInfo:input_type -> google.protobuf.Empty
 	9,  // 5: admin.AuthService.GetUserMenu:input_type -> google.protobuf.Empty
-	9,  // 6: admin.AuthService.GetUserProfile:input_type -> google.protobuf.Empty
-	5,  // 7: admin.AuthService.UpdateUserProfile:input_type -> admin.UserProfileForm
-	7,  // 8: admin.AuthService.SendUpdatePhoneCode:input_type -> admin.SendUpdatePhoneCodeForm
-	8,  // 9: admin.AuthService.UpdateUserPhone:input_type -> admin.UpdatePhoneForm
-	6,  // 10: admin.AuthService.UpdateUserPwd:input_type -> admin.UpdatePwdForm
-	0,  // 11: admin.AuthService.GetUserInfo:output_type -> admin.UserInfo
-	1,  // 12: admin.AuthService.GetUserMenu:output_type -> admin.TreeRouteResponse
-	5,  // 13: admin.AuthService.GetUserProfile:output_type -> admin.UserProfileForm
-	9,  // 14: admin.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
-	9,  // 15: admin.AuthService.SendUpdatePhoneCode:output_type -> google.protobuf.Empty
-	9,  // 16: admin.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
-	9,  // 17: admin.AuthService.UpdateUserPwd:output_type -> google.protobuf.Empty
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
+	9,  // 6: admin.AuthService.GetUserButton:input_type -> google.protobuf.Empty
+	9,  // 7: admin.AuthService.GetUserProfile:input_type -> google.protobuf.Empty
+	5,  // 8: admin.AuthService.UpdateUserProfile:input_type -> admin.UserProfileForm
+	7,  // 9: admin.AuthService.SendUpdatePhoneCode:input_type -> admin.SendUpdatePhoneCodeForm
+	8,  // 10: admin.AuthService.UpdateUserPhone:input_type -> admin.UpdatePhoneForm
+	6,  // 11: admin.AuthService.UpdateUserPwd:input_type -> admin.UpdatePwdForm
+	0,  // 12: admin.AuthService.GetUserInfo:output_type -> admin.UserInfo
+	1,  // 13: admin.AuthService.GetUserMenu:output_type -> admin.TreeRouteResponse
+	10, // 14: admin.AuthService.GetUserButton:output_type -> common.StringValues
+	5,  // 15: admin.AuthService.GetUserProfile:output_type -> admin.UserProfileForm
+	9,  // 16: admin.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	9,  // 17: admin.AuthService.SendUpdatePhoneCode:output_type -> google.protobuf.Empty
+	9,  // 18: admin.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
+	9,  // 19: admin.AuthService.UpdateUserPwd:output_type -> google.protobuf.Empty
+	12, // [12:20] is the sub-list for method output_type
+	4,  // [4:12] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name

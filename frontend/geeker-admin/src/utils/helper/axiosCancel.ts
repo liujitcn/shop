@@ -1,4 +1,4 @@
-import { CustomAxiosRequestConfig } from "../index";
+import { CustomAxiosRequestConfig } from "../request";
 import qs from "qs";
 
 // 声明一个 Map 用于存储每个请求的标识和取消函数

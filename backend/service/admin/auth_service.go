@@ -9,6 +9,7 @@ package admin
 import (
 	"context"
 	"errors"
+	"shop/api/gen/go/common"
 
 	"shop/api/gen/go/admin"
 	"shop/service/admin/biz"
@@ -50,6 +51,16 @@ func (s *AuthService) GetUserMenu(ctx context.Context, req *emptypb.Empty) (*adm
 	res, err := s.authCase.GetUserMenu(ctx)
 	if err != nil {
 		log.Error("GetUserMenu err:", err.Error())
+		return nil, err
+	}
+	return res, nil
+}
+
+// GetUserButton 获取已经登录的用户按钮
+func (s *AuthService) GetUserButton(ctx context.Context, req *emptypb.Empty) (*common.StringValues, error) {
+	res, err := s.authCase.GetUserButton(ctx)
+	if err != nil {
+		log.Error("GetUserButton err:", err.Error())
 		return nil, err
 	}
 	return res, nil

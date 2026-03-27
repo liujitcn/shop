@@ -60,7 +60,7 @@ export class BaseDictServiceImpl implements BaseDictService {
   }
   /** 删除字典 */
   DeleteBaseDict(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${BASE_DICT_URL}/${request.value}`,
       method: "delete",
     });
@@ -106,7 +106,7 @@ export class BaseDictServiceImpl implements BaseDictService {
   }
   /** 删除字典属性 */
   DeleteBaseDictItem(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${BASE_DICT_ITEM_URL}/${request.value}`,
       method: "delete",
     });

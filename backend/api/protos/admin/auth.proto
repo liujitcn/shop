@@ -9,6 +9,8 @@ import "google/protobuf/any.proto";
 import "google/api/field_behavior.proto";
 import "google/protobuf/wrappers.proto";
 
+import "common/types.proto";
+
 // Admin用户登录认证服务
 service AuthService {
 
@@ -23,6 +25,13 @@ service AuthService {
   rpc GetUserMenu (google.protobuf.Empty) returns (TreeRouteResponse) {
     option (google.api.http) = {
       get: "/api/admin/auth/menu"
+    };
+  }
+
+  // 获取已经登录的用户按钮
+  rpc GetUserButton (google.protobuf.Empty) returns (common.StringValues) {
+    option (google.api.http) = {
+      get: "/api/admin/auth/button"
     };
   }
 
@@ -82,10 +91,6 @@ message UserInfo {
   string avatar = 4 [
     (gnostic.openapi.v3.property) = {description: "头像"}
   ]; // 头像
-
-  repeated string permission = 80 [
-    (gnostic.openapi.v3.property) = {description: "权限"}
-  ]; //权限
 
   string roleCode = 100 [
     (gnostic.openapi.v3.property) = {description: "角色编号"}

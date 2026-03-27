@@ -11,6 +11,7 @@ import (
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,6 +21,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationAuthServiceGetUserButton = "/admin.AuthService/GetUserButton"
 const OperationAuthServiceGetUserInfo = "/admin.AuthService/GetUserInfo"
 const OperationAuthServiceGetUserMenu = "/admin.AuthService/GetUserMenu"
 const OperationAuthServiceGetUserProfile = "/admin.AuthService/GetUserProfile"
@@ -29,6 +31,8 @@ const OperationAuthServiceUpdateUserProfile = "/admin.AuthService/UpdateUserProf
 const OperationAuthServiceUpdateUserPwd = "/admin.AuthService/UpdateUserPwd"
 
 type AuthServiceHTTPServer interface {
+	// GetUserButton 获取已经登录的用户按钮
+	GetUserButton(context.Context, *emptypb.Empty) (*common.StringValues, error)
 	// GetUserInfo 获取已经登录的用户的数据
 	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error)
 	// GetUserMenu 获取已经登录的用户菜单
@@ -49,6 +53,7 @@ func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/admin/auth/userInfo", _AuthService_GetUserInfo0_HTTP_Handler(srv))
 	r.GET("/api/admin/auth/menu", _AuthService_GetUserMenu0_HTTP_Handler(srv))
+	r.GET("/api/admin/auth/button", _AuthService_GetUserButton0_HTTP_Handler(srv))
 	r.GET("/api/admin/auth/userProfile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
 	r.PUT("/api/admin/auth/update/userProfile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
 	r.POST("/api/admin/auth/send/update/phone", _AuthService_SendUpdatePhoneCode0_HTTP_Handler(srv))
@@ -90,6 +95,25 @@ func _AuthService_GetUserMenu0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx 
 			return err
 		}
 		reply := out.(*TreeRouteResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AuthService_GetUserButton0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAuthServiceGetUserButton)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetUserButton(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*common.StringValues)
 		return ctx.Result(200, reply)
 	}
 }
@@ -202,6 +226,8 @@ func _AuthService_UpdateUserPwd0_HTTP_Handler(srv AuthServiceHTTPServer) func(ct
 }
 
 type AuthServiceHTTPClient interface {
+	// GetUserButton 获取已经登录的用户按钮
+	GetUserButton(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *common.StringValues, err error)
 	// GetUserInfo 获取已经登录的用户的数据
 	GetUserInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UserInfo, err error)
 	// GetUserMenu 获取已经登录的用户菜单
@@ -224,6 +250,20 @@ type AuthServiceHTTPClientImpl struct {
 
 func NewAuthServiceHTTPClient(client *http.Client) AuthServiceHTTPClient {
 	return &AuthServiceHTTPClientImpl{client}
+}
+
+// GetUserButton 获取已经登录的用户按钮
+func (c *AuthServiceHTTPClientImpl) GetUserButton(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*common.StringValues, error) {
+	var out common.StringValues
+	pattern := "/api/admin/auth/button"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAuthServiceGetUserButton))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // GetUserInfo 获取已经登录的用户的数据

@@ -133,6 +133,16 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(req jsapi.QueryOrderByOutTradeNoReque
 	svc := jsapi.JsapiApiService{Client: c.client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(c.ctx, req)
 	if err != nil {
+		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
+			if apiErr.Code == "ORDER_NOT_EXIST" {
+				return &app.PaymentResource{
+					OutTradeNo:     trans.StringValue(req.OutTradeNo),
+					Mchid:          c.wxPay.GetMchId(),
+					TradeState:     app.PaymentResource_NOTPAY,
+					TradeStateDesc: apiErr.Message,
+				}, nil
+			}
+		}
 		log.Errorf("查询支付失败[%s]", err.Error())
 		return nil, errors.New("查询支付失败")
 	}

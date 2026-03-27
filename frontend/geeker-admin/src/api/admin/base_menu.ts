@@ -53,7 +53,7 @@ export class BaseMenuServiceImpl implements BaseMenuService {
   }
   /** 删除部门 */
   DeleteBaseMenu(request: StringValue): Promise<Empty> {
-    return service<Int64Value, Empty>({
+    return service<StringValue, Empty>({
       url: `${BASE_MENU_URL}/${request.value}`,
       method: "delete",
     });

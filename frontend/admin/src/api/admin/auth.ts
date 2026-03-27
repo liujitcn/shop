@@ -8,6 +8,7 @@ import {
   type UpdatePhoneForm,
   type UpdatePwdForm,
 } from "@/rpc/admin/auth";
+import type { StringValues } from "@/rpc/common/types";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const AUTH_URL = "/admin/auth";
@@ -26,6 +27,14 @@ export class AuthServiceImpl implements AuthService {
   GetUserMenu(request: Empty): Promise<TreeRouteResponse> {
     return service<Empty, TreeRouteResponse>({
       url: `${AUTH_URL}/menu`,
+      method: "get",
+      params: request,
+    });
+  }
+  /** 获取已经登录的用户按钮权限 */
+  GetUserButton(request: Empty): Promise<StringValues> {
+    return service<Empty, StringValues>({
+      url: `${AUTH_URL}/button`,
       method: "get",
       params: request,
     });

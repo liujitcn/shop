@@ -6,6 +6,19 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/admin/auth/button:
+        get:
+            tags:
+                - AuthService
+            description: 获取已经登录的用户按钮
+            operationId: AuthService_GetUserButton
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/StringValues'
     /api/admin/auth/menu:
         get:
             tags:
@@ -6928,6 +6941,18 @@ components:
                 id:
                     type: string
                     description: 主键id
+        StringValues:
+            type: object
+            properties:
+                value:
+                    type: array
+                    items:
+                        type: string
+                    description: 值
+            description: |-
+                `string` 类型数组包装消息。
+
+                 `StringValues` 的 JSON 表示为字符串数组。
         TreeBaseDeptResponse:
             type: object
             properties:
@@ -7186,11 +7211,6 @@ components:
                 avatar:
                     type: string
                     description: 头像
-                permission:
-                    type: array
-                    items:
-                        type: string
-                    description: 权限
                 roleCode:
                     type: string
                     description: 角色编号

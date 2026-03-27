@@ -40,7 +40,7 @@ export class BaseUserServiceImpl implements BaseUserService {
   }
   /** 创建用户 */
   CreateBaseUser(request: BaseUserForm): Promise<Empty> {
-    return service<BaseUserForm, StringValue>({
+    return service<BaseUserForm, Empty>({
       url: `${BASE_USER_URL}`,
       method: "post",
       data: request,
@@ -71,7 +71,7 @@ export class BaseUserServiceImpl implements BaseUserService {
   }
   /** 重置密码 */
   ResetBaseUserPwd(request: ResetBaseUserPwdRequest): Promise<Empty> {
-    return service<StringValue, StringValue>({
+    return service<ResetBaseUserPwdRequest, Empty>({
       url: `${BASE_USER_URL}/` + request.id + "/pwd",
       method: "put",
       data: request,

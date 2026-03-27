@@ -5,6 +5,7 @@ import { useDictStoreHook } from "@/store/modules/dict";
 import { defAuthService } from "@/api/admin/auth";
 import { defLoginService } from "@/api/base/login";
 import { type UserInfo } from "@/rpc/admin/auth";
+import type { StringValues } from "@/rpc/common/types";
 import {  LoginRequest } from "@/rpc/base/login";
 
 import {
@@ -17,6 +18,7 @@ import {
 
 export const useUserStore = defineStore("user", () => {
   const userInfo = useStorage<UserInfo>("userInfo", {} as UserInfo);
+  const userButtons = useStorage<string[]>("userButtons", []);
 
   /**
    * 登录
@@ -49,12 +51,14 @@ export const useUserStore = defineStore("user", () => {
     return new Promise<UserInfo>((resolve, reject) => {
       defAuthService
         .GetUserInfo({})
-        .then((data) => {
+        .then(async (data) => {
           if (!data) {
             reject("Verification failed, please Login again.");
             return;
           }
+          const buttonData: StringValues = await defAuthService.GetUserButton({});
           Object.assign(userInfo.value, { ...data });
+          userButtons.value = buttonData.value || [];
           resolve(data);
         })
         .catch((error) => {
@@ -113,6 +117,7 @@ export const useUserStore = defineStore("user", () => {
   function clearUserData() {
     return new Promise<void>((resolve) => {
       clearToken();
+      userButtons.value = [];
       usePermissionStoreHook().resetRouter();
       useDictStoreHook().clearDictionaryCache();
       resolve();
@@ -125,7 +130,7 @@ export const useUserStore = defineStore("user", () => {
    * @returns
    */
   function hasPerm(requiredPerms: any) {
-    const { permission } = useUserStore().userInfo;
+    const permission = useUserStore().userButtons;
     // 检查权限
     return Array.isArray(requiredPerms)
       ? requiredPerms.some((perm) => permission.includes(perm))
@@ -134,6 +139,7 @@ export const useUserStore = defineStore("user", () => {
 
   return {
     userInfo,
+    userButtons,
     getUserInfo,
     login,
     logout,
