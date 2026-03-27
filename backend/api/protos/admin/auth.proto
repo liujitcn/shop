@@ -152,7 +152,9 @@ message RouteMeta {
   optional bool alwaysShow = 4;//【目录】只有一个子路由是否始终显示
   optional bool hidden = 5; // 是否隐藏(true-是 false-否)
   optional bool keepAlive = 6; //【菜单】是否开启页面缓存
-  repeated RouteParams params = 7; // 参数
+  optional bool full = 7; //【菜单】是否全屏(示例：数据大屏页面)
+  optional bool affix = 8; //【菜单】是否固定在标签页中(首页通常是固定项)
+  repeated RouteParams params = 9; // 参数
 }
 
 message RouteParams {
