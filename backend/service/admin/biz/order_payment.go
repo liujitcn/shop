@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"shop/api/gen/go/admin"
@@ -24,10 +23,14 @@ type OrderPaymentCase struct {
 
 // NewOrderPaymentCase 创建订单支付业务实例
 func NewOrderPaymentCase(baseCase *biz.BaseCase, orderPaymentRepo *data.OrderPaymentRepo) *OrderPaymentCase {
+	orderPaymentMapper := mapper.NewCopierMapper[admin.OrderPayment, models.OrderPayment]()
+	orderPaymentMapper.AppendConverters(mapper.NewJSONTypeConverter[*admin.OrderPayment_Payer]().NewConverterPair())
+	orderPaymentMapper.AppendConverters(mapper.NewJSONTypeConverter[*admin.OrderPayment_Amount]().NewConverterPair())
+	orderPaymentMapper.AppendConverters(mapper.NewJSONTypeConverter[*admin.OrderPayment_SceneInfo]().NewConverterPair())
 	return &OrderPaymentCase{
 		BaseCase:         baseCase,
 		OrderPaymentRepo: orderPaymentRepo,
-		mapper:           mapper.NewCopierMapper[admin.OrderPayment, models.OrderPayment](),
+		mapper:           orderPaymentMapper,
 	}
 }
 
@@ -42,16 +45,5 @@ func (c *OrderPaymentCase) FindFromByOrderId(ctx context.Context, orderId int64)
 		return nil, err
 	}
 
-	var payer admin.OrderPayment_Payer
-	var amount admin.OrderPayment_Amount
-	var sceneInfo admin.OrderPayment_SceneInfo
-	_ = json.Unmarshal([]byte(item.Payer), &payer)
-	_ = json.Unmarshal([]byte(item.Amount), &amount)
-	_ = json.Unmarshal([]byte(item.SceneInfo), &sceneInfo)
-
-	orderPayment := c.mapper.ToDTO(item)
-	orderPayment.Payer = &payer
-	orderPayment.Amount = &amount
-	orderPayment.SceneInfo = &sceneInfo
-	return orderPayment, nil
+	return c.mapper.ToDTO(item), nil
 }

@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"shop/api/gen/go/admin"
@@ -24,10 +23,12 @@ type OrderLogisticsCase struct {
 
 // NewOrderLogisticsCase 创建订单物流业务实例
 func NewOrderLogisticsCase(baseCase *biz.BaseCase, orderLogisticsRepo *data.OrderLogisticsRepo) *OrderLogisticsCase {
+	orderLogisticsMapper := mapper.NewCopierMapper[admin.OrderLogistics, models.OrderLogistics]()
+	orderLogisticsMapper.AppendConverters(mapper.NewJSONTypeConverter[[]*admin.OrderLogistics_Detail]().NewConverterPair())
 	return &OrderLogisticsCase{
 		BaseCase:           baseCase,
 		OrderLogisticsRepo: orderLogisticsRepo,
-		mapper:             mapper.NewCopierMapper[admin.OrderLogistics, models.OrderLogistics](),
+		mapper:             orderLogisticsMapper,
 	}
 }
 
@@ -42,9 +43,5 @@ func (c *OrderLogisticsCase) FindFromByOrderId(ctx context.Context, orderId int6
 		return nil, err
 	}
 
-	detail := make([]*admin.OrderLogistics_Detail, 0)
-	_ = json.Unmarshal([]byte(item.Detail), &detail)
-	orderLogistics := c.mapper.ToDTO(item)
-	orderLogistics.Detail = detail
-	return orderLogistics, nil
+	return c.mapper.ToDTO(item), nil
 }

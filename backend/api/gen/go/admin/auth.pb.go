@@ -255,7 +255,9 @@ type RouteMeta struct {
 	AlwaysShow    *bool                  `protobuf:"varint,4,opt,name=alwaysShow,proto3,oneof" json:"alwaysShow,omitempty"` //【目录】只有一个子路由是否始终显示
 	Hidden        *bool                  `protobuf:"varint,5,opt,name=hidden,proto3,oneof" json:"hidden,omitempty"`         // 是否隐藏(true-是 false-否)
 	KeepAlive     *bool                  `protobuf:"varint,6,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`   //【菜单】是否开启页面缓存
-	Params        []*RouteParams         `protobuf:"bytes,7,rep,name=params,proto3" json:"params,omitempty"`                // 参数
+	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`             //【菜单】是否全屏(示例：数据大屏页面)
+	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`           //【菜单】是否固定在标签页中(首页通常是固定项)
+	Params        []*RouteParams         `protobuf:"bytes,9,rep,name=params,proto3" json:"params,omitempty"`                // 参数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -321,6 +323,20 @@ func (x *RouteMeta) GetHidden() bool {
 func (x *RouteMeta) GetKeepAlive() bool {
 	if x != nil && x.KeepAlive != nil {
 		return *x.KeepAlive
+	}
+	return false
+}
+
+func (x *RouteMeta) GetFull() bool {
+	if x != nil && x.Full != nil {
+		return *x.Full
+	}
+	return false
+}
+
+func (x *RouteMeta) GetAffix() bool {
+	if x != nil && x.Affix != nil {
+		return *x.Affix
 	}
 	return false
 }
@@ -670,7 +686,7 @@ const file_admin_auth_proto_rawDesc = "" +
 	"\x05_nameB\f\n" +
 	"\n" +
 	"_componentB\a\n" +
-	"\x05_meta\"\x8b\x02\n" +
+	"\x05_meta\"\xd2\x02\n" +
 	"\tRouteMeta\x12\x19\n" +
 	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x17\n" +
 	"\x04icon\x18\x02 \x01(\tH\x01R\x04icon\x88\x01\x01\x12#\n" +
@@ -678,14 +694,18 @@ const file_admin_auth_proto_rawDesc = "" +
 	"alwaysShow\x18\x04 \x01(\bH\x02R\n" +
 	"alwaysShow\x88\x01\x01\x12\x1b\n" +
 	"\x06hidden\x18\x05 \x01(\bH\x03R\x06hidden\x88\x01\x01\x12!\n" +
-	"\tkeepAlive\x18\x06 \x01(\bH\x04R\tkeepAlive\x88\x01\x01\x12*\n" +
-	"\x06params\x18\a \x03(\v2\x12.admin.RouteParamsR\x06paramsB\b\n" +
+	"\tkeepAlive\x18\x06 \x01(\bH\x04R\tkeepAlive\x88\x01\x01\x12\x17\n" +
+	"\x04full\x18\a \x01(\bH\x05R\x04full\x88\x01\x01\x12\x19\n" +
+	"\x05affix\x18\b \x01(\bH\x06R\x05affix\x88\x01\x01\x12*\n" +
+	"\x06params\x18\t \x03(\v2\x12.admin.RouteParamsR\x06paramsB\b\n" +
 	"\x06_titleB\a\n" +
 	"\x05_iconB\r\n" +
 	"\v_alwaysShowB\t\n" +
 	"\a_hiddenB\f\n" +
 	"\n" +
-	"_keepAlive\"Q\n" +
+	"_keepAliveB\a\n" +
+	"\x05_fullB\b\n" +
+	"\x06_affix\"Q\n" +
 	"\vRouteParams\x12\x15\n" +
 	"\x03key\x18\x01 \x01(\tH\x00R\x03key\x88\x01\x01\x12\x19\n" +
 	"\x05value\x18\x02 \x01(\tH\x01R\x05value\x88\x01\x01B\x06\n" +

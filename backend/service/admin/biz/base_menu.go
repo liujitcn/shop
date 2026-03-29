@@ -2,20 +2,15 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"strings"
-
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/log"
+	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
-	_time "github.com/liujitcn/go-utils/time"
-	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -25,15 +20,27 @@ type BaseMenuCase struct {
 	tx data.Transaction
 	*data.BaseMenuRepo
 	casbinRuleCase *CasbinRuleCase
+	formMapper     *_mapper.CopierMapper[admin.BaseMenuForm, models.BaseMenu]
+	mapper         *_mapper.CopierMapper[admin.BaseMenu, models.BaseMenu]
+	routerMapper   *_mapper.CopierMapper[admin.RouteItem, models.BaseMenu]
 }
 
 // NewBaseMenuCase 创建菜单业务实例
 func NewBaseMenuCase(baseCase *biz.BaseCase, tx data.Transaction, baseMenuRepo *data.BaseMenuRepo, casbinRuleCase *CasbinRuleCase) *BaseMenuCase {
+	formMapper := _mapper.NewCopierMapper[admin.BaseMenuForm, models.BaseMenu]()
+	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[*admin.BaseMenuMeta]().NewConverterPair())
+	mapper := _mapper.NewCopierMapper[admin.BaseMenu, models.BaseMenu]()
+	mapper.AppendConverters(_mapper.NewJSONTypeConverter[*admin.BaseMenuMeta]().NewConverterPair())
+	routerMapper := _mapper.NewCopierMapper[admin.RouteItem, models.BaseMenu]()
+	routerMapper.AppendConverters(_mapper.NewJSONTypeConverter[*admin.RouteMeta]().NewConverterPair())
 	return &BaseMenuCase{
 		BaseCase:       baseCase,
 		tx:             tx,
 		BaseMenuRepo:   baseMenuRepo,
 		casbinRuleCase: casbinRuleCase,
+		formMapper:     formMapper,
+		mapper:         mapper,
+		routerMapper:   routerMapper,
 	}
 }
 
@@ -61,17 +68,18 @@ func (c *BaseMenuCase) GetBaseMenu(ctx context.Context, id int64) (*admin.BaseMe
 	if err != nil {
 		return nil, err
 	}
-	return c.toBaseMenuForm(baseMenu), nil
+	return c.formMapper.ToDTO(baseMenu), nil
 }
 
 // CreateBaseMenu 创建菜单
 func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *admin.BaseMenuForm) error {
-	return c.Create(ctx, c.toBaseMenuModel(req))
+	baseMenu := c.formMapper.ToEntity(req)
+	return c.Create(ctx, baseMenu)
 }
 
 // UpdateBaseMenu 更新菜单
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *admin.BaseMenuForm) error {
-	baseMenu := c.toBaseMenuModel(req)
+	baseMenu := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		var err error
 		err = c.UpdateById(ctx, baseMenu)
@@ -121,21 +129,7 @@ func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentId int6
 			continue
 		}
 
-		route := &admin.RouteItem{
-			Path:      &menu.Path,
-			Redirect:  &menu.Redirect,
-			Name:      &menu.Name,
-			Component: &menu.Component,
-		}
-
-		var meta admin.RouteMeta
-		if strings.TrimSpace(menu.Meta) != "" {
-			if err := json.Unmarshal([]byte(menu.Meta), &meta); err != nil {
-				log.Errorf("解析菜单路由元信息失败[%s]", err.Error())
-				continue
-			}
-			route.Meta = &meta
-		}
+		route := c.routerMapper.ToDTO(menu)
 
 		route.Children = c.buildRouteTree(menuList, menu.ID)
 		list = append(list, route)
@@ -150,27 +144,7 @@ func (c *BaseMenuCase) buildBaseMenuTree(menuList []*models.BaseMenu, parentId i
 		if item.ParentID != parentId {
 			continue
 		}
-
-		var meta admin.BaseMenuMeta
-		if err := json.Unmarshal([]byte(item.Meta), &meta); err != nil {
-			log.Errorf("解析菜单元信息失败[%s]", err.Error())
-			continue
-		}
-
-		menu := &admin.BaseMenu{
-			Id:        item.ID,
-			ParentId:  item.ParentID,
-			Type:      common.BaseMenuType(item.Type),
-			Path:      item.Path,
-			Name:      item.Name,
-			Component: item.Component,
-			Redirect:  item.Redirect,
-			Meta:      &meta,
-			Sort:      item.Sort,
-			Status:    common.Status(item.Status),
-			CreatedAt: _time.TimeToTimeString(item.CreatedAt),
-			UpdatedAt: _time.TimeToTimeString(item.UpdatedAt),
-		}
+		menu := c.mapper.ToDTO(item)
 		menu.Children = c.buildBaseMenuTree(menuList, item.ID)
 		res = append(res, menu)
 	}
@@ -185,15 +159,10 @@ func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentId
 			continue
 		}
 
-		var meta admin.RouteMeta
-		if err := json.Unmarshal([]byte(item.Meta), &meta); err != nil {
-			log.Errorf("解析菜单选项元信息失败[%s]", err.Error())
-			continue
-		}
-
 		label := item.Name
-		if meta.Title != nil && *meta.Title != "" {
-			label = *meta.Title
+		route := c.routerMapper.ToDTO(item)
+		if route != nil && route.GetMeta() != nil && route.GetMeta().GetTitle() != "" {
+			label = route.GetMeta().GetTitle()
 		}
 
 		menu := &common.TreeOptionResponse_Option{
@@ -204,46 +173,4 @@ func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentId
 		res = append(res, menu)
 	}
 	return res
-}
-
-// toBaseMenuForm 转换菜单表单数据
-func (c *BaseMenuCase) toBaseMenuForm(item *models.BaseMenu) *admin.BaseMenuForm {
-	var meta admin.BaseMenuMeta
-	if err := json.Unmarshal([]byte(item.Meta), &meta); err != nil {
-		log.Errorf("解析菜单表单元信息失败[%s]", err.Error())
-	}
-	return &admin.BaseMenuForm{
-		Id:        item.ID,
-		ParentId:  trans.Int64(item.ParentID),
-		Type:      trans.Enum(common.BaseMenuType(item.Type)),
-		Path:      item.Path,
-		Name:      item.Name,
-		Component: item.Component,
-		Redirect:  item.Redirect,
-		Meta:      &meta,
-		Apis:      _string.ConvertJsonStringToStringArray(item.Apis),
-		Sort:      item.Sort,
-		Status:    trans.Enum(common.Status(item.Status)),
-	}
-}
-
-// toBaseMenuModel 转换菜单模型数据
-func (c *BaseMenuCase) toBaseMenuModel(item *admin.BaseMenuForm) *models.BaseMenu {
-	metaBytes, err := json.Marshal(item.GetMeta())
-	if err != nil {
-		log.Errorf("序列化菜单元信息失败[%s]", err.Error())
-	}
-	return &models.BaseMenu{
-		ID:        item.GetId(),
-		ParentID:  item.GetParentId(),
-		Type:      int32(item.GetType()),
-		Path:      item.GetPath(),
-		Name:      item.GetName(),
-		Component: item.GetComponent(),
-		Redirect:  item.GetRedirect(),
-		Meta:      string(metaBytes),
-		Apis:      _string.ConvertStringArrayToString(item.GetApis()),
-		Sort:      item.GetSort(),
-		Status:    int32(item.GetStatus()),
-	}
 }

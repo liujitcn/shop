@@ -8,7 +8,7 @@ require (
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/liujitcn/go-utils v0.0.18
+	github.com/liujitcn/go-utils v0.0.19
 	github.com/liujitcn/go-utils/crypto v0.0.6
 	github.com/liujitcn/go-utils/geoip v0.0.1
 	github.com/liujitcn/go-utils/http v0.0.1

@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 
 	"shop/api/gen/go/admin"
 	"shop/pkg/biz"
@@ -22,10 +21,12 @@ type OrderRefundCase struct {
 
 // NewOrderRefundCase 创建订单退款业务实例
 func NewOrderRefundCase(baseCase *biz.BaseCase, orderRefundRepo *data.OrderRefundRepo) *OrderRefundCase {
+	orderRefundMapper := mapper.NewCopierMapper[admin.OrderRefund, models.OrderRefund]()
+	orderRefundMapper.AppendConverters(mapper.NewJSONTypeConverter[*admin.OrderRefund_Amount]().NewConverterPair())
 	return &OrderRefundCase{
 		BaseCase:        baseCase,
 		OrderRefundRepo: orderRefundRepo,
-		mapper:          mapper.NewCopierMapper[admin.OrderRefund, models.OrderRefund](),
+		mapper:          orderRefundMapper,
 	}
 }
 
@@ -39,11 +40,7 @@ func (c *OrderRefundCase) FindFromByOrderId(ctx context.Context, orderId int64) 
 
 	res := make([]*admin.OrderRefund, 0, len(list))
 	for _, item := range list {
-		var amount admin.OrderRefund_Amount
-		_ = json.Unmarshal([]byte(item.Amount), &amount)
-		orderRefund := c.mapper.ToDTO(item)
-		orderRefund.Amount = &amount
-		res = append(res, orderRefund)
+		res = append(res, c.mapper.ToDTO(item))
 	}
 	return res, nil
 }

@@ -6574,6 +6574,10 @@ components:
                     type: boolean
                 keepAlive:
                     type: boolean
+                full:
+                    type: boolean
+                affix:
+                    type: boolean
                 params:
                     type: array
                     items:
