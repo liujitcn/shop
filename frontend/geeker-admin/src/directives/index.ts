@@ -8,7 +8,7 @@ import throttle from "./modules/throttle";
 import longpress from "./modules/longpress";
 
 const directivesList: { [key: string]: Directive } = {
-  auth,
+  hasPerm: auth,
   copy,
   waterMarker,
   draggable,

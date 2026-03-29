@@ -3,7 +3,7 @@ import {
   type ShopServiceForm,
   type ShopServiceService,
   type PageShopServiceRequest,
-  type PageShopServiceResponse,
+  type PageShopServiceResponse
 } from "@/rpc/admin/shop_service";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -18,14 +18,14 @@ export class ShopServiceServiceImpl implements ShopServiceService {
     return service<PageShopServiceRequest, PageShopServiceResponse>({
       url: `${SHOP_SERVICE_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询商城服务 */
   GetShopService(request: Int64Value): Promise<ShopServiceForm> {
     return service<Int64Value, ShopServiceForm>({
       url: `${SHOP_SERVICE_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建商城服务 */
@@ -33,7 +33,7 @@ export class ShopServiceServiceImpl implements ShopServiceService {
     return service<ShopServiceForm, Empty>({
       url: `${SHOP_SERVICE_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新商城服务 */
@@ -41,14 +41,14 @@ export class ShopServiceServiceImpl implements ShopServiceService {
     return service<ShopServiceForm, Empty>({
       url: `${SHOP_SERVICE_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除商城服务 */
   DeleteShopService(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${SHOP_SERVICE_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -56,9 +56,9 @@ export class ShopServiceServiceImpl implements ShopServiceService {
     return service<SetStatusRequest, Empty>({
       url: `${SHOP_SERVICE_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }
 
-export const defShopServiceService = new ShopServiceServiceImpl(); 
+export const defShopServiceService = new ShopServiceServiceImpl();

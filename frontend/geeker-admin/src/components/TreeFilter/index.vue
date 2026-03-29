@@ -9,6 +9,7 @@
         <el-icon size="20"><More /></el-icon>
         <template #dropdown>
           <el-dropdown-menu>
+            <el-dropdown-item v-if="!multiple" @click="resetSelected">重置选择</el-dropdown-item>
             <el-dropdown-item @click="toggleTreeNodes(true)">展开全部</el-dropdown-item>
             <el-dropdown-item @click="toggleTreeNodes(false)">折叠全部</el-dropdown-item>
           </el-dropdown-menu>
@@ -20,10 +21,10 @@
         ref="treeRef"
         default-expand-all
         :node-key="id"
-        :data="multiple ? treeData : treeAllData"
+        :data="multiple || !showAll ? treeData : treeAllData"
         :show-checkbox="multiple"
         :check-strictly="false"
-        :current-node-key="!multiple ? selected : ''"
+        :current-node-key="!multiple ? selected : undefined"
         :highlight-current="!multiple"
         :expand-on-click-node="false"
         :check-on-click-node="multiple"
@@ -58,11 +59,13 @@ interface TreeFilterProps {
   label?: string; // 显示的label ==> 非必传，默认为 “label”
   multiple?: boolean; // 是否为多选 ==> 非必传，默认为 false
   defaultValue?: any; // 默认选中的值 ==> 非必传
+  showAll?: boolean; // 单选模式下是否展示“全部”节点 ==> 非必传，默认为 true
 }
 const props = withDefaults(defineProps<TreeFilterProps>(), {
   id: "id",
   label: "label",
-  multiple: false
+  multiple: false,
+  showAll: true
 });
 
 const defaultProps = {
@@ -77,7 +80,7 @@ const treeAllData = ref<{ [key: string]: any }[]>([]);
 const selected = ref();
 const setSelected = () => {
   if (props.multiple) selected.value = Array.isArray(props.defaultValue) ? props.defaultValue : [props.defaultValue];
-  else selected.value = typeof props.defaultValue === "string" ? props.defaultValue : "";
+  else selected.value = typeof props.defaultValue === "string" && props.defaultValue ? props.defaultValue : undefined;
 };
 
 onBeforeMount(async () => {
@@ -85,7 +88,7 @@ onBeforeMount(async () => {
   if (props.requestApi) {
     const { data } = await props.requestApi!();
     treeData.value = data;
-    treeAllData.value = [{ id: "", [props.label]: "全部" }, ...data];
+    treeAllData.value = props.showAll ? [{ id: "", [props.label]: "全部" }, ...data] : data;
   }
 });
 
@@ -101,7 +104,7 @@ watch(
   () => {
     if (props.data?.length) {
       treeData.value = props.data;
-      treeAllData.value = [{ id: "", [props.label]: "全部" }, ...props.data];
+      treeAllData.value = props.showAll ? [{ id: "", [props.label]: "全部" }, ...props.data] : props.data;
     }
   },
   { deep: true, immediate: true }
@@ -145,12 +148,23 @@ const emit = defineEmits<{
 // 单选
 const handleNodeClick = (data: { [key: string]: any }) => {
   if (props.multiple) return;
+  selected.value = data[props.id];
   emit("change", data[props.id]);
 };
 
 // 多选
 const handleCheckChange = () => {
   emit("change", treeRef.value?.getCheckedKeys());
+};
+
+// 重置当前单选树筛选
+const resetSelected = () => {
+  if (props.multiple) return;
+  selected.value = undefined;
+  nextTick(() => {
+    treeRef.value?.setCurrentKey(null);
+  });
+  emit("change", "");
 };
 
 // 暴露给父组件使用

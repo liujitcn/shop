@@ -1,5 +1,15 @@
 <template>
+  <Dict
+    v-if="shouldUseDictComponent"
+    v-model="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
+    :code="column.dictCode!"
+    :code-type="column.dictValueType ?? 'number'"
+    :placeholder="placeholder.placeholder"
+    v-bind="handleSearchProps"
+    :style="handleSearchStyle"
+  />
   <component
+    v-else
     :is="column.search?.render ?? `el-${column.search?.el}`"
     v-bind="{ ...handleSearchProps, ...placeholder, searchParam: _searchParam, clearable }"
     v-model.trim="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
@@ -24,6 +34,7 @@
 
 <script setup lang="ts" name="SearchFormItem">
 import { computed, inject, ref } from "vue";
+import Dict from "@/components/Dict/index.vue";
 import { handleProp } from "@/utils";
 import { ColumnProps } from "@/components/ProTable/interface";
 
@@ -35,6 +46,13 @@ const props = defineProps<SearchFormItem>();
 
 // Re receive SearchParam
 const _searchParam = computed(() => props.searchParam);
+
+/**
+ * 判断当前搜索项是否应直接使用字典组件渲染。
+ */
+const shouldUseDictComponent = computed(() => {
+  return !!props.column.dictCode && props.column.search?.el === "select" && !props.column.search?.render;
+});
 
 // 判断 fieldNames 设置 label && value && children 的 key 值
 const fieldNames = computed(() => {
@@ -56,6 +74,13 @@ const columnEnum = computed(() => {
     });
   }
   return enumData;
+});
+
+/**
+ * 统一处理 Dict 搜索组件的宽度透传，避免覆盖组件默认宽度。
+ */
+const handleSearchStyle = computed(() => {
+  return props.column.search?.props?.style ?? { width: "100%" };
 });
 
 // 处理透传的 searchProps (el 为 tree-select、cascader 的时候需要给下默认 label && value && children)

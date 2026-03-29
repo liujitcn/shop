@@ -48,7 +48,7 @@ import { defLoginService } from "@/api/base/login";
 import { ElNotification } from "element-plus";
 import type { LoginRequest } from "@/rpc/base/login";
 import { useUserStore } from "@/stores/modules/user";
-import { useAuthStore } from "@/stores/modules/auth";
+import { useDictStore } from "@/stores/modules/dict";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
@@ -57,7 +57,7 @@ import type { ElForm } from "element-plus";
 
 const router = useRouter();
 const userStore = useUserStore();
-const authStore = useAuthStore();
+const dictStore = useDictStore();
 const tabsStore = useTabsStore();
 const keepAliveStore = useKeepAliveStore();
 
@@ -80,7 +80,14 @@ const loginForm = reactive<LoginRequest>({
 
 /** 获取登录后的首个可访问路由 */
 const getFirstAccessibleRoutePath = () => {
-  const firstRoute = authStore.flatMenuListGet.find(item => item.path && item.component && !item.meta?.hidden);
+  // 首页路由存在时优先跳转，保证登录后路径与系统默认首页保持一致。
+  if (router.resolve(HOME_URL).matched.length) return HOME_URL;
+
+  const systemRouteSet = new Set(["/", "/layout", "/login", "/403", "/404", "/500"]);
+  const firstRoute = router.getRoutes().find(item => {
+    if (!item.path || systemRouteSet.has(item.path) || item.path.includes(":pathMatch")) return false;
+    return item.meta?.hidden !== true;
+  });
   return firstRoute?.path ?? HOME_URL;
 };
 
@@ -105,14 +112,17 @@ const handleLogin = (formEl: FormInstance | undefined) => {
       // 2.获取用户信息
       await userStore.getUserInfo();
 
-      // 3.添加动态路由
+      // 3.预加载字典缓存，避免页面首次渲染时字典值为空
+      await dictStore.loadDictionaries();
+
+      // 4.添加动态路由
       await initDynamicRouter();
 
-      // 4.清空 tabs、keepAlive 数据
+      // 5.清空 tabs、keepAlive 数据
       tabsStore.setTabs([]);
       keepAliveStore.setKeepAliveName([]);
 
-      // 5.跳转到首个可访问页面
+      // 6.跳转到首个可访问页面
       router.push(getFirstAccessibleRoutePath());
       ElNotification({
         title: getTimeState(),

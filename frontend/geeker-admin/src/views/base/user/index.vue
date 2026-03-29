@@ -276,8 +276,9 @@ function refreshTable() {
 async function handleBeforeSetStatus(row: BaseUser) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const userName = row.nickName || row.userName || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}用户为：${row.nickName}?`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}用户：${userName}？`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -401,7 +402,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = userList.length
     ? userList.length === 1
-      ? `确认删除用户【${userList[0].nickName || "--"}】（账号：${userList[0].userName || "--"}）吗？`
+      ? `是否确定删除用户：${userList[0].nickName || userList[0].userName || `ID:${userList[0].id}`}？`
       : `确认删除已选中的 ${userList.length} 个用户吗？`
     : "确认删除已选中的用户吗？";
 

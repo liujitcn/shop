@@ -1,136 +1,154 @@
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import { showFullScreenLoading, tryHideFullScreenLoading } from "@/components/Loading/fullScreen";
-import { LOGIN_URL } from "@/config";
-import { ElMessage } from "element-plus";
-import { ResultEnum } from "@/enums/httpEnum";
-import { checkStatus } from "./helper/checkStatus";
-import { AxiosCanceler } from "./helper/axiosCancel";
+import axios, { type InternalAxiosRequestConfig, type AxiosResponse } from "axios";
+import qs from "qs";
+import { ElMessage, ElMessageBox } from "element-plus";
+import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
-import router from "@/routers";
 
-export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
-  loading?: boolean;
-  cancel?: boolean;
-}
+const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
+const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
+const baseURL = `${apiTargetUrl}${apiBasePath}`;
+const REFRESH_TOKEN_URL = "/login/refreshToken";
+const NO_AUTH_URL_SET = new Set(["/login", "/login/captcha", REFRESH_TOKEN_URL]);
 
-/**
- * 通用请求配置
- */
-export interface ServiceRequestConfig<TRequest = unknown> extends AxiosRequestConfig<TRequest> {
-  loading?: boolean;
-  cancel?: boolean;
-}
-
-const config = {
-  // 默认地址请求地址，可在 .env.** 文件中修改
-  baseURL: import.meta.env.VITE_API_URL as string,
-  // 设置超时时间
+// 创建 axios 实例
+const service = axios.create({
+  baseURL: baseURL,
   timeout: 50000,
-  // 跨域时候允许携带凭证
-  withCredentials: true
-};
+  headers: { "Content-Type": "application/json;charset=utf-8" },
+  paramsSerializer: params => qs.stringify(params)
+});
 
-const axiosCanceler = new AxiosCanceler();
+// 刷新令牌请求使用独立实例，避免与主请求拦截器互相递归。
+const refreshService = axios.create({
+  baseURL: baseURL,
+  timeout: 50000,
+  headers: { "Content-Type": "application/json;charset=utf-8" }
+});
 
-class RequestHttp {
-  service: AxiosInstance;
-  public constructor(config: AxiosRequestConfig) {
-    // instantiation
-    this.service = axios.create(config);
+/** 获取用户状态仓库 */
+function getUserStore() {
+  return useUserStore(pinia);
+}
 
-    /**
-     * @description 请求拦截器
-     * 客户端发送请求 -> [请求拦截器] -> 服务器
-     * token校验(JWT) : 接受服务器返回的 token,存储到 vuex/pinia/本地储存当中
-     */
-    this.service.interceptors.request.use(
-      (config: CustomAxiosRequestConfig) => {
-        const userStore = useUserStore();
-        // 重复请求不需要取消，在 api 服务中通过指定的第三个参数: { cancel: false } 来控制
-        config.cancel ??= true;
-        config.cancel && axiosCanceler.addPending(config);
-        // 当前请求不需要显示 loading，在 api 服务中通过指定的第三个参数: { loading: false } 来控制
-        config.loading ??= true;
-        config.loading && showFullScreenLoading();
-        if (config.headers && typeof config.headers.set === "function") {
-          if (userStore.token) {
-            config.headers.set("Authorization", userStore.token);
-            config.headers.set("x-access-token", userStore.token);
-          }
-        }
-        return config;
-      },
-      (error: AxiosError) => {
-        return Promise.reject(error);
+/** 判断当前请求是否需要跳过认证头 */
+function shouldSkipAuth(config: InternalAxiosRequestConfig) {
+  if (config.headers.Authorization === "no-auth") return true;
+
+  const requestUrl = config.url ?? "";
+  return NO_AUTH_URL_SET.has(requestUrl);
+}
+
+/** 读取访问令牌过期时间 */
+function getTokenExpiresAt() {
+  return getUserStore().tokenExpiresAt;
+}
+
+/** 统一处理认证失效 */
+function handleAuthExpired() {
+  ElMessageBox.confirm("当前页面已失效，请重新登录", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning"
+  }).then(() => {
+    const userStore = getUserStore();
+    userStore.clearAuthData();
+    location.reload();
+  });
+}
+
+// 请求拦截器
+service.interceptors.request.use(
+  async (config: InternalAxiosRequestConfig) => {
+    const now = new Date().getTime();
+    const expiresAt = getTokenExpiresAt();
+    const remainingTime = expiresAt - now;
+    if (!shouldSkipAuth(config) && expiresAt && remainingTime <= 5 * 60 * 1000) {
+      await handleTokenRefresh();
+    }
+
+    const accessToken = getUserStore().token;
+    // 登录、验证码、刷新令牌接口不携带旧 token，避免请求头污染。
+    if (!shouldSkipAuth(config) && accessToken) {
+      config.headers.Authorization = accessToken;
+    } else {
+      delete config.headers.Authorization;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+// 响应拦截器
+service.interceptors.response.use(
+  (response: AxiosResponse) => {
+    // 如果响应是二进制流，则直接返回，用于下载文件、Excel 导出等
+    if (response.config.responseType === "blob") {
+      return response;
+    }
+
+    const { code, message, reason, metadata } = response.data;
+    if (code === undefined || message === undefined || reason === undefined || metadata === undefined) {
+      return response.data;
+    }
+
+    ElMessage.error(message || "系统出错");
+    return Promise.reject(new Error(message || "Error"));
+  },
+  (error: any) => {
+    if (error.response?.data) {
+      const { code, message } = error.response.data;
+      // token 过期,重新登录
+      if (code === 401 || code === 403) {
+        handleAuthExpired();
+      } else {
+        ElMessage.error(message || "系统出错");
       }
-    );
+    } else {
+      ElMessage.error(error.message || "系统出错");
+    }
+    return Promise.reject(error.message);
+  }
+);
 
-    /**
-     * @description 响应拦截器
-     *  服务器换返回信息 -> [拦截统一处理] -> 客户端JS获取到信息
-     */
-    this.service.interceptors.response.use(
-      (response: AxiosResponse & { config: CustomAxiosRequestConfig }) => {
-        const { data, config } = response;
+export default service;
 
-        const userStore = useUserStore();
-        axiosCanceler.removePending(config);
-        config.loading && tryHideFullScreenLoading();
+// 刷新 Token 的锁
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
 
-        // 下载等二进制流直接返回原始响应。
-        if (response.config.responseType === "blob") {
-          return response as unknown as any;
-        }
+/** 刷新 Token 处理 */
+async function handleTokenRefresh() {
+  if (!isRefreshing) {
+    isRefreshing = true;
+    refreshPromise = refreshAccessToken()
+      .catch(error => {
+        console.log("token 刷新失败", error);
+        handleAuthExpired();
+        throw error;
+      })
+      .finally(() => {
+        isRefreshing = false;
+        refreshPromise = null;
+      });
+  }
 
-        // 当前后端成功场景直接返回业务对象，失败场景返回错误对象，这里兼容两种结构。
-        if (data && typeof data === "object" && "code" in data) {
-          const responseCode = Number(data.code);
-          const responseMessage = data.msg || data.message || "请求失败";
-
-          // 登录失效
-          if (responseCode === ResultEnum.OVERDUE || responseCode === 403) {
-            userStore.clearAuthData();
-            router.replace(LOGIN_URL);
-            ElMessage.error(responseMessage);
-            return Promise.reject(data);
-          }
-
-          if (responseCode !== ResultEnum.SUCCESS) {
-            ElMessage.error(responseMessage);
-            return Promise.reject(data);
-          }
-        }
-
-        // 成功请求直接返回业务数据。
-        return data;
-      },
-      async (error: AxiosError) => {
-        const { response } = error;
-        tryHideFullScreenLoading();
-        // 请求超时 && 网络错误单独判断，没有 response
-        if (error.message.indexOf("timeout") !== -1) ElMessage.error("请求超时！请您稍后重试");
-        if (error.message.indexOf("Network Error") !== -1) ElMessage.error("网络错误！请您稍后重试");
-        // 根据服务器响应的错误状态码，做不同的处理
-        if (response) checkStatus(response.status);
-        // 服务器结果都没有返回(可能服务器错误可能客户端断网)，断网处理:可以跳转到断网页面
-        if (!window.navigator.onLine) router.replace("/500");
-        return Promise.reject(error);
-      }
-    );
+  if (refreshPromise) {
+    await refreshPromise;
   }
 }
 
-const requestHttp = new RequestHttp(config);
+/** 调用刷新令牌接口并回写最新认证信息 */
+async function refreshAccessToken() {
+  const userStore = getUserStore();
+  if (!userStore.refreshToken) {
+    return Promise.reject(new Error("refresh token 不存在"));
+  }
 
-/**
- * 兼容 proto 生成的 service<Req, Res>({ ... }) 调用方式
- * @param requestConfig 请求配置
- * @returns 响应结果
- */
-const service = <TRequest = unknown, TResponse = unknown>(requestConfig: ServiceRequestConfig<TRequest>): Promise<TResponse> => {
-  return requestHttp.service.request<any, TResponse>(requestConfig);
-};
-
-service.service = requestHttp.service;
-
-export default service;
+  const response = await refreshService.post(
+    REFRESH_TOKEN_URL,
+    { refreshToken: userStore.refreshToken },
+    { headers: { Authorization: "no-auth" } }
+  );
+  const data = response.data;
+  userStore.updateTokenAuth(data.accessToken, data.refreshToken ?? userStore.refreshToken, data.tokenType ?? "", data.expiresIn);
+}

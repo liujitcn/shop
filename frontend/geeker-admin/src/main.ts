@@ -28,6 +28,10 @@ import directives from "@/directives/index";
 import router from "@/routers";
 // pinia store
 import pinia from "@/stores";
+// 字典组件
+import Dict from "@/components/Dict/index.vue";
+import DictLabel from "@/components/Dict/DictLabel.vue";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 // errorHandler
 import errorHandler from "@/utils/errorHandler";
 
@@ -39,5 +43,10 @@ app.config.errorHandler = errorHandler;
 Object.keys(Icons).forEach(key => {
   app.component(key, Icons[key as keyof typeof Icons]);
 });
+
+// 注册字典相关全局组件
+app.component("Dict", Dict);
+app.component("DictLabel", DictLabel);
+app.component("SvgIcon", SvgIcon);
 
 app.use(ElementPlus).use(directives).use(router).use(pinia).mount("#app");

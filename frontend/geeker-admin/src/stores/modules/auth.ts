@@ -2,8 +2,33 @@ import { defineStore } from "pinia";
 import { defAuthService } from "@/api/admin/auth";
 import { AuthState } from "@/stores/interface";
 import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList } from "@/utils";
+import type { RouteItem } from "@/rpc/admin/auth";
 
 const GLOBAL_AUTH_BUTTON_KEY = "__global__";
+
+/** 规范化路由路径，统一转换为绝对路径。 */
+function normalizeRoutePath(path?: string, parentPath = "") {
+  if (!path) return "";
+  if (path === "/") return "/";
+  if (path.startsWith("/")) return path;
+
+  const normalizedParentPath = parentPath && parentPath !== "/" ? parentPath.replace(/\/+$/, "") : "";
+  const normalizedCurrentPath = path.replace(/^\/+/, "");
+  const pathSegments = [normalizedParentPath.replace(/^\/+/, ""), normalizedCurrentPath].filter(Boolean);
+  return `/${pathSegments.join("/")}`;
+}
+
+/** 递归规范化菜单树，避免菜单点击时发生相对路径拼接。 */
+function normalizeRouteTree(menuList: RouteItem[], parentPath = ""): RouteItem[] {
+  return menuList.map(item => {
+    const currentPath = normalizeRoutePath(item.path, parentPath);
+    return {
+      ...item,
+      path: currentPath,
+      children: normalizeRouteTree(item.children ?? [], currentPath)
+    };
+  });
+}
 
 export const useAuthStore = defineStore({
   id: "geeker-auth",
@@ -38,7 +63,7 @@ export const useAuthStore = defineStore({
     /** 获取菜单权限列表 */
     async getAuthMenuList() {
       const data = await defAuthService.GetUserMenu({});
-      this.authMenuList = data.list ?? [];
+      this.authMenuList = normalizeRouteTree(data.list ?? []);
     },
     /** 设置当前路由名称 */
     async setRouteName(name: string) {

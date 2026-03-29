@@ -8,15 +8,27 @@
 import { computed, CSSProperties } from "vue";
 
 interface SvgProps {
-  name: string; // 图标的名称 ==> 必传
+  iconClass: string; // 图标名称
   prefix?: string; // 图标的前缀 ==> 非必传（默认为"icon"）
+  size?: string | number; // 图标尺寸 ==> 非必传
   iconStyle?: CSSProperties; // 图标的样式 ==> 非必传
 }
 
 const props = withDefaults(defineProps<SvgProps>(), {
   prefix: "icon",
-  iconStyle: () => ({ width: "100px", height: "100px" })
+  size: "",
+  iconStyle: () => ({})
 });
 
-const symbolId = computed(() => `#${props.prefix}-${props.name}`);
+const iconStyle = computed<CSSProperties>(() => {
+  const style: CSSProperties = { ...props.iconStyle };
+  if (props.size !== "" && props.size !== undefined) {
+    const sizeValue = typeof props.size === "number" ? `${props.size}px` : props.size;
+    style.width = sizeValue;
+    style.height = sizeValue;
+  }
+  return style;
+});
+
+const symbolId = computed(() => `#${props.prefix}-${props.iconClass}`);
 </script>

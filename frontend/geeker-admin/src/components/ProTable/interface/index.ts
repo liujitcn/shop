@@ -30,6 +30,8 @@ export type SearchType =
   | "switch"
   | "slider";
 
+export type DictValueType = "string" | "number";
+
 export type SearchRenderScope = {
   searchParam: { [key: string]: any };
   placeholder: string;
@@ -70,13 +72,16 @@ export type HeaderRenderScope<T extends DefaultRow = DefaultRow> = {
   [key: string]: any;
 };
 
-export interface ColumnProps<T extends DefaultRow = DefaultRow>
-  extends Partial<Omit<TableColumnCtx<T>, "type" | "children" | "renderCell" | "renderHeader">> {
+export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
+  Omit<TableColumnCtx<T>, "type" | "children" | "renderCell" | "renderHeader">
+> {
   type?: TypeProps; // 列类型
   tag?: boolean | Ref<boolean>; // 是否是标签展示
   isShow?: boolean | Ref<boolean>; // 是否显示在表格当中
   isSetting?: boolean | Ref<boolean>; // 是否在 ColSetting 中可配置
   search?: SearchProps | undefined; // 搜索项配置
+  dictCode?: string; // 字典编码，配置后优先使用 Dict / DictLabel 组件
+  dictValueType?: DictValueType; // 字典值类型
   enum?: EnumProps[] | Ref<EnumProps[]> | ((params?: any) => Promise<any>); // 枚举字典
   isFilterEnum?: boolean | Ref<boolean>; // 当前单元格值是否根据 enum 格式化（示例：enum 只作为搜索项数据）
   fieldNames?: FieldNamesProps; // 指定 label && value && children 的 key 值

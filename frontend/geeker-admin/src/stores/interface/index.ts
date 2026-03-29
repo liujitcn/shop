@@ -1,4 +1,5 @@
 import type { RouteItem, UserInfo } from "@/rpc/admin/auth";
+import type { ListBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
 
 export type LayoutType = "vertical" | "classic" | "transverse" | "columns";
 
@@ -30,6 +31,7 @@ export interface UserState {
   token: string;
   refreshToken: string;
   tokenType: string;
+  tokenExpiresAt: number;
   userInfo: UserInfo;
 }
 
@@ -60,4 +62,9 @@ export interface AuthState {
 /* KeepAliveState */
 export interface KeepAliveState {
   keepAliveName: string[];
+}
+
+/* DictState */
+export interface DictState {
+  dictionary: Record<string, ListBaseDictResponse_BaseDictItem[]>;
 }

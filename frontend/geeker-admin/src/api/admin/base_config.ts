@@ -3,7 +3,7 @@ import {
   type BaseConfigForm,
   type BaseConfigService,
   type PageBaseConfigRequest,
-  type PageBaseConfigResponse,
+  type PageBaseConfigResponse
 } from "@/rpc/admin/base_config";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -18,7 +18,7 @@ export class BaseConfigServiceImpl implements BaseConfigService {
     return service<Empty, Empty>({
       url: `${BASE_CONFIG_URL}/refresh`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 查询系统配置分页列表 */
@@ -26,14 +26,14 @@ export class BaseConfigServiceImpl implements BaseConfigService {
     return service<PageBaseConfigRequest, PageBaseConfigResponse>({
       url: `${BASE_CONFIG_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询系统配置 */
   GetBaseConfig(request: Int64Value): Promise<BaseConfigForm> {
     return service<Int64Value, BaseConfigForm>({
       url: `${BASE_CONFIG_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建系统配置 */
@@ -41,7 +41,7 @@ export class BaseConfigServiceImpl implements BaseConfigService {
     return service<BaseConfigForm, Empty>({
       url: `${BASE_CONFIG_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新系统配置 */
@@ -49,14 +49,14 @@ export class BaseConfigServiceImpl implements BaseConfigService {
     return service<BaseConfigForm, Empty>({
       url: `${BASE_CONFIG_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除系统配置 */
   DeleteBaseConfig(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_CONFIG_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -64,7 +64,7 @@ export class BaseConfigServiceImpl implements BaseConfigService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_CONFIG_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

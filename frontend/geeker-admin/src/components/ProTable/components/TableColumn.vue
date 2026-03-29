@@ -4,6 +4,7 @@
 
 <script setup lang="tsx" name="TableColumn">
 import { inject, ref, useSlots } from "vue";
+import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, RenderScope, HeaderRenderScope } from "@/components/ProTable/interface";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
 
@@ -27,6 +28,14 @@ const getTagType = (item: ColumnProps, scope: RenderScope<any>) => {
   );
 };
 
+/**
+ * 渲染字典列内容，统一复用 DictLabel 组件处理标签与文本展示。
+ */
+const renderDictCellData = (item: ColumnProps, scope: RenderScope<any>) => {
+  if (!item.dictCode || !item.prop) return null;
+  return <DictLabel code={item.dictCode} modelValue={handleRowAccordingToProp(scope.row, item.prop)} />;
+};
+
 const RenderTableColumn = (item: ColumnProps) => {
   return (
     <>
@@ -41,6 +50,7 @@ const RenderTableColumn = (item: ColumnProps) => {
               if (item._children) return item._children.map(child => RenderTableColumn(child));
               if (item.render) return item.render(scope);
               if (item.prop && slots[handleProp(item.prop)]) return slots[handleProp(item.prop)]!(scope);
+              if (item.dictCode) return renderDictCellData(item, scope);
               if (item.tag) return <el-tag type={getTagType(item, scope)}>{renderCellData(item, scope)}</el-tag>;
               return renderCellData(item, scope);
             },

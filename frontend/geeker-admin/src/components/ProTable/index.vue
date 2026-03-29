@@ -20,14 +20,22 @@
       </div>
       <div v-if="toolButton" class="header-button-ri">
         <slot name="toolButton">
-          <el-button v-if="showToolButton('refresh')" :icon="Refresh" circle @click="getTableList" />
-          <el-button v-if="showToolButton('setting') && columns.length" :icon="Operation" circle @click="openColSetting" />
-          <el-button
+          <el-tooltip v-if="showTreeToggleButton" :content="isTreeExpanded ? '折叠全部' : '展开全部'" placement="top">
+            <el-button class="tool-button" :icon="isTreeExpanded ? Fold : Expand" circle @click="toggleTreeExpand" />
+          </el-tooltip>
+          <el-tooltip v-if="showToolButton('refresh')" content="刷新数据" placement="top">
+            <el-button class="tool-button" :icon="Refresh" circle @click="getTableList" />
+          </el-tooltip>
+          <el-tooltip v-if="showToolButton('setting') && columns.length" content="列设置" placement="top">
+            <el-button class="tool-button" :icon="Operation" circle @click="openColSetting" />
+          </el-tooltip>
+          <el-tooltip
             v-if="showToolButton('search') && searchColumns?.length"
-            :icon="Search"
-            circle
-            @click="isShowSearch = !isShowSearch"
-          />
+            :content="isShowSearch ? '隐藏搜索' : '显示搜索'"
+            placement="top"
+          >
+            <el-button class="tool-button" :icon="Search" circle @click="isShowSearch = !isShowSearch" />
+          </el-tooltip>
         </slot>
       </div>
     </div>
@@ -39,6 +47,7 @@
       :data="processTableData"
       :border="border"
       :row-key="rowKey"
+      :expand-row-keys="expandRowKeys"
       @selection-change="selectionChange"
     >
       <!-- 默认插槽 -->
@@ -103,13 +112,13 @@
 </template>
 
 <script setup lang="ts" name="ProTable">
-import { ref, watch, provide, onMounted, unref, computed, reactive } from "vue";
+import { ref, watch, provide, onMounted, unref, computed, nextTick, useAttrs } from "vue";
 import { ElTable } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
 import { BreakPoint } from "@/components/Grid/interface";
 import { ColumnProps, TypeProps } from "@/components/ProTable/interface";
-import { Refresh, Operation, Search } from "@element-plus/icons-vue";
+import { Expand, Fold, Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { generateUUID, handleProp } from "@/utils";
 import SearchForm from "@/components/SearchForm/index.vue";
 import Pagination from "./components/Pagination.vue";
@@ -147,6 +156,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 
 // table 实例
 const tableRef = ref<InstanceType<typeof ElTable>>();
+const attrs = useAttrs();
 
 // 生成组件唯一id
 const uuid = ref("id-" + generateUUID());
@@ -156,6 +166,15 @@ const columnTypes: TypeProps[] = ["selection", "radio", "index", "expand", "sort
 
 // 是否显示搜索模块
 const isShowSearch = ref(true);
+const isTreeExpanded = ref(false);
+const expandRowKeys = ref<Array<string | number>>([]);
+
+// 判断当前表格是否为树形表格
+const treeProps = computed(() => {
+  return (attrs.treeProps ?? attrs["tree-props"]) as Record<string, any> | undefined;
+});
+
+const showTreeToggleButton = computed(() => !!treeProps.value);
 
 // 控制 ToolButton 显示
 const showToolButton = (key: "refresh" | "setting" | "search") => {
@@ -177,7 +196,11 @@ const clearSelection = () => tableRef.value!.clearSelection();
 
 // 初始化表格数据 && 拖拽排序
 onMounted(() => {
-  dragSort();
+  if (tableColumns.value.some(item => item.type === "sort")) {
+    nextTick(() => {
+      dragSort();
+    });
+  }
   props.requestAuto && getTableList();
   props.data && (pageable.value.total = props.data.length);
 });
@@ -191,6 +214,21 @@ const processTableData = computed(() => {
     pageable.value.pageSize * pageable.value.pageNum
   );
 });
+
+// 树形表格默认折叠，并在数据变化时根据当前展开状态同步展开项
+watch(
+  [processTableData, treeProps, () => props.rowKey, isTreeExpanded],
+  () => {
+    if (!treeProps.value) {
+      expandRowKeys.value = [];
+      return;
+    }
+    expandRowKeys.value = isTreeExpanded.value
+      ? collectTreeRowKeys(processTableData.value, props.rowKey, treeProps.value.children ?? "children")
+      : [];
+  },
+  { deep: true, immediate: true }
+);
 
 // 监听页面 initParam 改化，重新获取表格数据
 watch(() => props.initParam, getTableList, { deep: true });
@@ -283,9 +321,36 @@ const _reset = () => {
   emit("reset");
 };
 
+// 切换树形表格展开状态
+const toggleTreeExpand = () => {
+  isTreeExpanded.value = !isTreeExpanded.value;
+};
+
+// 递归收集树形表格的所有行 key
+const collectTreeRowKeys = (rows: Record<string, any>[], rowKey: string, childrenKey: string) => {
+  const keys: Array<string | number> = [];
+
+  const travel = (list: Record<string, any>[]) => {
+    list.forEach(item => {
+      const key = item[rowKey];
+      if (key !== undefined && key !== null && key !== "") {
+        keys.push(key);
+      }
+      const children = item[childrenKey];
+      if (Array.isArray(children) && children.length) {
+        travel(children);
+      }
+    });
+  };
+
+  travel(rows);
+  return keys;
+};
+
 // 表格拖拽排序
 const dragSort = () => {
   const tbody = document.querySelector(`#${uuid.value} tbody`) as HTMLElement;
+  if (!tbody) return;
   Sortable.create(tbody, {
     handle: ".move",
     animation: 300,
@@ -319,3 +384,13 @@ defineExpose({
   enumMap
 });
 </script>
+
+<style scoped lang="scss">
+.tool-button {
+  cursor: pointer;
+}
+
+.tool-button :deep(.el-icon) {
+  cursor: pointer;
+}
+</style>

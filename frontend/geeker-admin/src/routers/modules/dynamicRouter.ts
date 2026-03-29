@@ -11,6 +11,74 @@ import { getRouteMetaFull } from "@/utils";
 const modules = import.meta.glob("@/views/**/*.vue");
 const pendingComponent = modules["/src/views/migration/pending/index.vue"];
 
+type ResolvedRouteItem = {
+  item: RouteItem;
+  path: string;
+  redirect?: string;
+};
+
+/**
+ * 判断是否为外链路径。
+ */
+function isExternalPath(path: string) {
+  return /^(https?:|mailto:|tel:)/.test(path);
+}
+
+/**
+ * 规范化绝对路由路径，统一前导斜杠并移除重复/尾部斜杠。
+ */
+function normalizeAbsolutePath(path: string) {
+  if (!path) return "";
+  const pathWithSlash = path.startsWith("/") ? path : `/${path}`;
+  const normalizedPath = pathWithSlash.replace(/\/{2,}/g, "/");
+  if (normalizedPath === "/") return normalizedPath;
+  return normalizedPath.replace(/\/+$/, "");
+}
+
+/**
+ * 结合父级路径解析当前路由路径。
+ */
+function resolveRoutePath(rawPath: string | undefined, parentPath = "") {
+  if (!rawPath) return "";
+  const trimmedPath = rawPath.trim();
+  if (!trimmedPath) return "";
+  if (isExternalPath(trimmedPath)) return trimmedPath;
+  if (trimmedPath.startsWith("/")) return normalizeAbsolutePath(trimmedPath);
+
+  const normalizedParentPath = normalizeAbsolutePath(parentPath);
+  if (!normalizedParentPath || normalizedParentPath === "/") {
+    return normalizeAbsolutePath(trimmedPath);
+  }
+  return normalizeAbsolutePath(`${normalizedParentPath}/${trimmedPath}`);
+}
+
+/**
+ * 递归解析菜单的完整路径，兼容子菜单相对路径。
+ */
+function buildResolvedRouteItems(menuList: RouteItem[], parentPath = ""): ResolvedRouteItem[] {
+  const resolvedRouteItems: ResolvedRouteItem[] = [];
+
+  menuList.forEach(item => {
+    const currentPath = resolveRoutePath(item.path, parentPath);
+    const redirectBasePath = currentPath || parentPath;
+    const currentRedirect = resolveRoutePath(item.redirect, redirectBasePath);
+
+    resolvedRouteItems.push({
+      item,
+      path: currentPath,
+      redirect: currentRedirect || undefined
+    });
+
+    if (!item.children?.length) return;
+
+    // 子路由优先基于当前节点路径进行拼接，保证目录 + 菜单路径可还原为完整地址。
+    const childParentPath = currentPath || parentPath;
+    resolvedRouteItems.push(...buildResolvedRouteItems(item.children, childParentPath));
+  });
+
+  return resolvedRouteItems;
+}
+
 /**
  * 规范化组件路径，兼容不同返回形式。
  */
@@ -47,10 +115,10 @@ function resolveRouteComponent(component?: string) {
 /**
  * 将后端路由项转换为前端路由记录。
  */
-function createRouteRecord(item: RouteItem) {
+function createRouteRecord(item: RouteItem, path: string, redirect?: string) {
   return {
-    path: item.path ?? "",
-    redirect: item.redirect ?? undefined,
+    path,
+    redirect,
     name: item.name ?? undefined,
     component: item.component ?? undefined,
     meta: item.meta ?? undefined
@@ -85,8 +153,9 @@ export const initDynamicRouter = async () => {
     }
 
     // 3.添加动态路由
-    authStore.flatMenuListGet.forEach(item => {
-      const routeRecord = createRouteRecord(item);
+    const resolvedRouteItems = buildResolvedRouteItems(authStore.authMenuListGet);
+    resolvedRouteItems.forEach(({ item, path, redirect }) => {
+      const routeRecord = createRouteRecord(item, path, redirect);
 
       if (typeof routeRecord.component === "string") {
         const resolvedComponent = resolveRouteComponent(routeRecord.component);
@@ -94,6 +163,7 @@ export const initDynamicRouter = async () => {
         routeRecord.component = resolvedComponent;
       }
       if (!routeRecord.component) return;
+      if (!routeRecord.path) return;
       if (routeRecord.name && router.hasRoute(routeRecord.name)) return;
       if (getRouteMetaFull(item.meta)) {
         router.addRoute(routeRecord);

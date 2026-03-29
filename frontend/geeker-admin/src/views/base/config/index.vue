@@ -1,8 +1,8 @@
 <!-- 系统配置 -->
 <template>
-  <div class="app-container">
+  <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseConfigTable">
-      <template #tableHeader="{ selectedListIds }">
+      <template #tableHeader="{ selectedList }">
         <el-button v-hasPerm="['base:config:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
           新增
         </el-button>
@@ -10,8 +10,8 @@
           v-hasPerm="['base:config:delete']"
           type="danger"
           :icon="Delete"
-          :disabled="!selectedListIds.length"
-          @click="handleDelete(selectedListIds)"
+          :disabled="!selectedList.length"
+          @click="handleDelete(selectedList)"
         >
           删除
         </el-button>
@@ -37,7 +37,7 @@
         <el-button v-hasPerm="['base:config:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
           编辑
         </el-button>
-        <el-button v-hasPerm="['base:config:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row.id)">
+        <el-button v-hasPerm="['base:config:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
           删除
         </el-button>
       </template>
@@ -243,8 +243,9 @@ function handleCloseDialog() {
 async function handleBeforeSetStatus(row: BaseConfig) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const configName = row.name || row.key || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}配置为：${row.name}?`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}配置：${configName}？`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -261,14 +262,29 @@ async function handleBeforeSetStatus(row: BaseConfig) {
 /**
  * 删除系统配置，兼容单项删除与多选删除。
  */
-function handleDelete(selected?: number | string | Array<number | string>) {
-  const configIds = normalizeSelectedIds(selected).join(",");
+function handleDelete(selected?: number | string | Array<number | string> | BaseConfig | BaseConfig[]) {
+  const configList = Array.isArray(selected)
+    ? (selected.filter(item => typeof item === "object") as BaseConfig[])
+    : selected && typeof selected === "object"
+      ? [selected as BaseConfig]
+      : [];
+  const configIds = (
+    configList.length
+      ? configList.map(item => item.id)
+      : normalizeSelectedIds(selected as number | string | Array<number | string>)
+  ).join(",");
   if (!configIds) {
     ElMessage.warning("请勾选删除项");
     return;
   }
 
-  ElMessageBox.confirm("确认删除已选中的数据项?", "警告", {
+  const confirmMessage = configList.length
+    ? configList.length === 1
+      ? `是否确定删除配置：${configList[0].name || configList[0].key || `ID:${configList[0].id}`}？`
+      : `确认删除已选中的 ${configList.length} 项系统配置吗？`
+    : "确认删除已选中的系统配置吗？";
+
+  ElMessageBox.confirm(confirmMessage, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"

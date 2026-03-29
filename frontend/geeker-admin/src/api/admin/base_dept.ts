@@ -1,9 +1,5 @@
 import service from "@/utils/request";
-import {
-  type BaseDeptForm,
-  type BaseDeptService,
-  type TreeBaseDeptResponse,
-} from "@/rpc/admin/base_dept";
+import { type BaseDeptForm, type BaseDeptService, type TreeBaseDeptResponse } from "@/rpc/admin/base_dept";
 import { type Empty } from "@/rpc/google/protobuf/empty";
 import { type Int64Value, type StringValue } from "@/rpc/google/protobuf/wrappers";
 import { type SetStatusRequest, type TreeOptionResponse } from "@/rpc/common/common";
@@ -17,7 +13,7 @@ export class BaseDeptServiceImpl implements BaseDeptService {
     return service<Empty, TreeBaseDeptResponse>({
       url: `${BASE_DEPT_URL}/tree`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询部门树形选择 */
@@ -25,14 +21,14 @@ export class BaseDeptServiceImpl implements BaseDeptService {
     return service<Empty, TreeOptionResponse>({
       url: `${BASE_DEPT_URL}/option`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询部门 */
   GetBaseDept(request: Int64Value): Promise<BaseDeptForm> {
     return service<Int64Value, BaseDeptForm>({
       url: `${BASE_DEPT_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建部门 */
@@ -40,7 +36,7 @@ export class BaseDeptServiceImpl implements BaseDeptService {
     return service<BaseDeptForm, Empty>({
       url: `${BASE_DEPT_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新部门 */
@@ -48,14 +44,14 @@ export class BaseDeptServiceImpl implements BaseDeptService {
     return service<BaseDeptForm, Empty>({
       url: `${BASE_DEPT_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除部门 */
   DeleteBaseDept(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_DEPT_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -63,7 +59,7 @@ export class BaseDeptServiceImpl implements BaseDeptService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_DEPT_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

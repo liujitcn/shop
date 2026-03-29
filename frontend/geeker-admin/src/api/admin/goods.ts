@@ -5,7 +5,7 @@ import {
   type PageGoodsRequest,
   type PageGoodsResponse,
   type ListGoodsRequest,
-  type ListGoodsResponse,
+  type ListGoodsResponse
 } from "@/rpc/admin/goods";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -20,7 +20,7 @@ export class GoodsServiceImpl implements GoodsService {
     return service<ListGoodsRequest, ListGoodsResponse>({
       url: `${GOODS_URL}/list`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询商品分页列表 */
@@ -28,14 +28,14 @@ export class GoodsServiceImpl implements GoodsService {
     return service<PageGoodsRequest, PageGoodsResponse>({
       url: `${GOODS_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询商品 */
   GetGoods(request: Int64Value): Promise<GoodsForm> {
     return service<Int64Value, GoodsForm>({
       url: `${GOODS_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建商品 */
@@ -43,7 +43,7 @@ export class GoodsServiceImpl implements GoodsService {
     return service<GoodsForm, Empty>({
       url: `${GOODS_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新商品 */
@@ -51,14 +51,14 @@ export class GoodsServiceImpl implements GoodsService {
     return service<GoodsForm, Empty>({
       url: `${GOODS_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除商品 */
   DeleteGoods(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${GOODS_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -66,7 +66,7 @@ export class GoodsServiceImpl implements GoodsService {
     return service<SetStatusRequest, Empty>({
       url: `${GOODS_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

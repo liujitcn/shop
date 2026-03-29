@@ -11,7 +11,7 @@
       :default-expand-all="false"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <template #tableHeader="{ selectedListIds }">
+      <template #tableHeader="{ selectedList }">
         <el-button v-hasPerm="['base:menu:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog(0)">
           新增
         </el-button>
@@ -19,8 +19,8 @@
           v-hasPerm="['base:menu:delete']"
           type="danger"
           :icon="Delete"
-          :disabled="!selectedListIds.length"
-          @click="handleDeleteMenu(selectedListIds)"
+          :disabled="!selectedList.length"
+          @click="handleDeleteMenu(selectedList)"
         >
           删除
         </el-button>
@@ -71,13 +71,7 @@
         >
           编辑
         </el-button>
-        <el-button
-          v-hasPerm="['base:menu:delete']"
-          type="danger"
-          link
-          :icon="Delete"
-          @click.stop="handleDeleteMenu(scope.row.id)"
-        >
+        <el-button v-hasPerm="['base:menu:delete']" type="danger" link :icon="Delete" @click.stop="handleDeleteMenu(scope.row)">
           删除
         </el-button>
       </template>
@@ -715,7 +709,7 @@ async function handleBeforeSetStatus(row: BaseMenu) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const menuName = row.meta?.title || row.name || row.path || String(row.id);
   try {
-    await ElMessageBox.confirm(`是否确定${text}菜单为：${menuName}?`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}菜单：${menuName}？`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -732,14 +726,27 @@ async function handleBeforeSetStatus(row: BaseMenu) {
 /**
  * 删除菜单，兼容单条删除与批量删除。
  */
-function handleDeleteMenu(selected?: number | string | Array<number | string>) {
-  const menuIds = normalizeSelectedIds(selected).join(",");
+function handleDeleteMenu(selected?: number | string | Array<number | string> | BaseMenu | BaseMenu[]) {
+  const menuList = Array.isArray(selected)
+    ? (selected.filter(item => typeof item === "object") as BaseMenu[])
+    : selected && typeof selected === "object"
+      ? [selected as BaseMenu]
+      : [];
+  const menuIds = (
+    menuList.length ? menuList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
+  ).join(",");
   if (!menuIds) {
     ElMessage.warning("请勾选删除项");
     return;
   }
 
-  ElMessageBox.confirm("确认删除已选中的菜单项吗？", "警告", {
+  const confirmMessage = menuList.length
+    ? menuList.length === 1
+      ? `是否确定删除菜单：${menuList[0].meta?.title || menuList[0].name || menuList[0].path || `ID:${menuList[0].id}`}？`
+      : `确认删除已选中的 ${menuList.length} 个菜单项吗？`
+    : "确认删除已选中的菜单项吗？";
+
+  ElMessageBox.confirm(confirmMessage, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"

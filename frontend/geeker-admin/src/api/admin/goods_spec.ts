@@ -1,9 +1,5 @@
 import service from "@/utils/request";
-import {
-  type GoodsSpecService,
-  type ListGoodsSpecRequest,
-  type ListGoodsSpecResponse,
-} from "@/rpc/admin/goods_spec";
+import { type GoodsSpecService, type ListGoodsSpecRequest, type ListGoodsSpecResponse } from "@/rpc/admin/goods_spec";
 
 const GOODS_SPEC_URL = "/admin/goods/spec";
 
@@ -14,7 +10,7 @@ export class GoodsSpecServiceImpl implements GoodsSpecService {
     return service<ListGoodsSpecRequest, ListGoodsSpecResponse>({
       url: `${GOODS_SPEC_URL}/list`,
       method: "get",
-      params: request,
+      params: request
     });
   }
 }

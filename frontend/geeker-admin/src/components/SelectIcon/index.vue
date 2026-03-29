@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts" name="SelectIcon">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import * as Icons from "@element-plus/icons-vue";
 
 interface SelectIconProps {
@@ -48,6 +48,17 @@ const props = withDefaults(defineProps<SelectIconProps>(), {
 
 // 重新接收一下，防止打包后 clearable 报错
 const valueIcon = ref(props.iconValue);
+
+/**
+ * 同步外部图标值到组件内部输入框，避免父组件重置后仍显示上次选择结果。
+ */
+watch(
+  () => props.iconValue,
+  value => {
+    valueIcon.value = value ?? "";
+  },
+  { immediate: true }
+);
 
 // open Dialog
 const dialogVisible = ref(false);
