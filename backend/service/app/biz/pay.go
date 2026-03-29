@@ -130,7 +130,12 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 			// 订单已支付
 			if apiErr.Code == "ORDERPAID" {
 				// 调用查询订单接口
-				err = c.Paid(ctx, order)
+				var paymentResource *app.PaymentResource
+				paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(order.OrderNo)
+				if err != nil {
+					return nil, err
+				}
+				err = c.PaySuccess(ctx, order, paymentResource)
 				if err != nil {
 					return nil, err
 				}
@@ -217,15 +222,6 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 		return nil, err
 	}
 	return h5PayResponse, nil
-}
-
-// Paid 订单已支付查询订单，然后支付通知
-func (c *PayCase) Paid(ctx context.Context, order *models.Order) error {
-	paymentResource, err := c.wxPayCase.QueryOrderByOutTradeNo(order.OrderNo)
-	if err != nil {
-		return err
-	}
-	return c.PaySuccess(ctx, order, paymentResource)
 }
 
 // PayNotify 处理支付通知

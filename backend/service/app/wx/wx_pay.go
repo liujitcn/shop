@@ -81,7 +81,7 @@ func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*app.JsapiPayResponse, er
 	resp, result, err := svc.Prepay(c.ctx, req)
 	if err != nil {
 		log.Errorf("支付失败[%s]", err.Error())
-		return nil, errors.New("支付失败")
+		return nil, err
 	}
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
@@ -115,7 +115,7 @@ func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*app.H5PayResponse, error) {
 	resp, result, err := svc.Prepay(c.ctx, req)
 	if err != nil {
 		log.Errorf("支付失败[%s]", err.Error())
-		return nil, errors.New("支付失败")
+		return nil, err
 	}
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
@@ -130,8 +130,8 @@ func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*app.H5PayResponse, error) {
 // QueryOrderByOutTradeNo 根据商户订单号查询支付订单并转换为项目内支付资源结构
 func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource, error) {
 	req := jsapi.QueryOrderByOutTradeNoRequest{
-		OutTradeNo: trans.String(orderNo),
-		Mchid:      trans.String(c.wxPay.GetMchId()),
+		OutTradeNo: wxPayCore.String(orderNo),
+		Mchid:      wxPayCore.String(c.wxPay.GetMchId()),
 	}
 	svc := jsapi.JsapiApiService{Client: c.client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(c.ctx, req)
@@ -242,7 +242,7 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 	resp, result, err := svc.Create(c.ctx, req)
 	if err != nil {
 		log.Errorf("支付失败[%s]", err.Error())
-		return nil, errors.New("支付失败")
+		return nil, err
 	}
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
@@ -253,9 +253,9 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 }
 
 // QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构
-func (c *WxPayCase) QueryByOutRefundNo(orderNo string) (*app.RefundResource, error) {
+func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*app.RefundResource, error) {
 	req := refunddomestic.QueryByOutRefundNoRequest{
-		OutRefundNo: trans.String(orderNo),
+		OutRefundNo: wxPayCore.String(refundOrderNo),
 	}
 	// 拼接公共参数
 	svc := refunddomestic.RefundsApiService{Client: c.client}

@@ -20,3 +20,4 @@ authn:
         - "/app.ShopHotService/ListShopHotItem"
         - "/app.ShopServiceService/ListShopService"
         - "/app.ShopHotService/PageShopHotGoods"
+        - "/app.PayService/PayNotify"

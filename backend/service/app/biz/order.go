@@ -23,6 +23,7 @@ import (
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repo"
+	wxPayCore "github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/refunddomestic"
 )
 
@@ -505,7 +506,7 @@ func (c *OrderCase) RefundOrder(ctx context.Context, req *app.RefundOrderRequest
 
 	orderRefund := &models.OrderRefund{
 		OrderID:  req.GetOrderId(),
-		RefundNo: strconv.FormatInt(id.GenSnowflakeID(), 10),
+		RefundNo: order.OrderNo, // 退款单号，和订单号使用一个方便查询退款
 		Reason:   int32(req.GetReason()),
 	}
 	// 只有在线支付订单才会走退款单和微信退款流程
@@ -531,6 +532,22 @@ func (c *OrderCase) RefundOrder(ctx context.Context, req *app.RefundOrderRequest
 				},
 			})
 			if err != nil {
+				if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
+					// 订单已支付
+					if apiErr.Code == "INVALID_REQUEST" && apiErr.Message == "订单已全额退款" {
+						// 调用查询退款接口
+						var refundResource *app.RefundResource
+						refundResource, err = c.wxPayCase.QueryByOutRefundNo(orderRefund.RefundNo)
+						if err != nil {
+							return err
+						}
+						err = c.payCase.RefundSuccess(ctx, order, refundResource)
+						if err != nil {
+							return err
+						}
+						return errors.New("订单已退款，不能重复退款")
+					}
+				}
 				return err
 			}
 			orderRefund.OrderNo = trans.StringValue(refund.OutTradeNo)
