@@ -10,7 +10,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/liujitcn/go-utils/mapper"
+	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 )
@@ -24,12 +24,15 @@ type GoodsCase struct {
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSkuCase      *GoodsSkuCase
-	formMapper        *mapper.CopierMapper[admin.GoodsForm, models.Goods]
-	mapper            *mapper.CopierMapper[admin.Goods, models.Goods]
+	formMapper        *_mapper.CopierMapper[admin.GoodsForm, models.Goods]
+	mapper            *_mapper.CopierMapper[admin.Goods, models.Goods]
 }
 
 // NewGoodsCase 创建商品业务实例
 func NewGoodsCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.GoodsRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsCase {
+	formMapper := _mapper.NewCopierMapper[admin.GoodsForm, models.Goods]()
+	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+	mapper := _mapper.NewCopierMapper[admin.Goods, models.Goods]()
 	return &GoodsCase{
 		BaseCase:          baseCase,
 		tx:                tx,
@@ -38,8 +41,8 @@ func NewGoodsCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.G
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
 		goodsSkuCase:      goodsSkuCase,
-		formMapper:        mapper.NewCopierMapper[admin.GoodsForm, models.Goods](),
-		mapper:            mapper.NewCopierMapper[admin.Goods, models.Goods](),
+		formMapper:        formMapper,
+		mapper:            mapper,
 	}
 }
 
@@ -138,8 +141,6 @@ func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*admin.GoodsForm, e
 	}
 
 	goodsForm := c.formMapper.ToDTO(goods)
-	goodsForm.Banner = _string.ConvertJsonStringToStringArray(goods.Banner)
-	goodsForm.Detail = _string.ConvertJsonStringToStringArray(goods.Detail)
 
 	var category *models.GoodsCategory
 	category, err = c.goodsCategoryCase.FindById(ctx, goods.CategoryID)
@@ -175,8 +176,6 @@ func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*admin.GoodsForm, e
 func (c *GoodsCase) CreateGoods(ctx context.Context, req *admin.GoodsForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		goods := c.formMapper.ToEntity(req)
-		goods.Banner = _string.ConvertStringArrayToString(req.GetBanner())
-		goods.Detail = _string.ConvertStringArrayToString(req.GetDetail())
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			if idx == 0 {
@@ -208,8 +207,6 @@ func (c *GoodsCase) CreateGoods(ctx context.Context, req *admin.GoodsForm) error
 func (c *GoodsCase) UpdateGoods(ctx context.Context, req *admin.GoodsForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		goods := c.formMapper.ToEntity(req)
-		goods.Banner = _string.ConvertStringArrayToString(req.GetBanner())
-		goods.Detail = _string.ConvertStringArrayToString(req.GetDetail())
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			if idx == 0 {
@@ -279,21 +276,23 @@ func (c *GoodsCase) GoodsSkuCaseList(ctx context.Context, goodsId int64) ([]*adm
 
 // deleteGoodsChildren 删除商品子表数据
 func (c *GoodsCase) deleteGoodsChildren(ctx context.Context, ids []int64) error {
+	query := c.Query(ctx)
 	for _, goodsId := range ids {
-		propQuery := c.goodsPropCase.Query(ctx).GoodsProp
-		err := c.goodsPropCase.Delete(ctx, repo.Where(propQuery.GoodsID.Eq(goodsId)))
+		// 商品编辑会按“删旧建新”重建子表数据，这里必须物理删除，否则唯一索引会与软删除数据冲突。
+		propQuery := query.GoodsProp
+		_, err := propQuery.WithContext(ctx).Unscoped().Where(propQuery.GoodsID.Eq(goodsId)).Delete()
 		if err != nil {
 			return err
 		}
 
-		specQuery := c.goodsSpecCase.Query(ctx).GoodsSpec
-		err = c.goodsSpecCase.Delete(ctx, repo.Where(specQuery.GoodsID.Eq(goodsId)))
+		specQuery := query.GoodsSpec
+		_, err = specQuery.WithContext(ctx).Unscoped().Where(specQuery.GoodsID.Eq(goodsId)).Delete()
 		if err != nil {
 			return err
 		}
 
-		skuQuery := c.goodsSkuCase.Query(ctx).GoodsSku
-		err = c.goodsSkuCase.Delete(ctx, repo.Where(skuQuery.GoodsID.Eq(goodsId)))
+		skuQuery := query.GoodsSku
+		_, err = skuQuery.WithContext(ctx).Unscoped().Where(skuQuery.GoodsID.Eq(goodsId)).Delete()
 		if err != nil {
 			return err
 		}

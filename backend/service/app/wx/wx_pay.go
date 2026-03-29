@@ -128,8 +128,11 @@ func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*app.H5PayResponse, error) {
 }
 
 // QueryOrderByOutTradeNo 根据商户订单号查询支付订单并转换为项目内支付资源结构
-func (c *WxPayCase) QueryOrderByOutTradeNo(req jsapi.QueryOrderByOutTradeNoRequest) (*app.PaymentResource, error) {
-	req.Mchid = trans.String(c.wxPay.GetMchId())
+func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource, error) {
+	req := jsapi.QueryOrderByOutTradeNoRequest{
+		OutTradeNo: trans.String(orderNo),
+		Mchid:      trans.String(c.wxPay.GetMchId()),
+	}
 	svc := jsapi.JsapiApiService{Client: c.client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(c.ctx, req)
 	if err != nil {
@@ -250,7 +253,10 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 }
 
 // QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构
-func (c *WxPayCase) QueryByOutRefundNo(req refunddomestic.QueryByOutRefundNoRequest) (*app.RefundResource, error) {
+func (c *WxPayCase) QueryByOutRefundNo(orderNo string) (*app.RefundResource, error) {
+	req := refunddomestic.QueryByOutRefundNoRequest{
+		OutRefundNo: trans.String(orderNo),
+	}
 	// 拼接公共参数
 	svc := refunddomestic.RefundsApiService{Client: c.client}
 	resp, result, err := svc.QueryByOutRefundNo(c.ctx, req)

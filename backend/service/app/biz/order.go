@@ -23,7 +23,6 @@ import (
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repo"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/refunddomestic"
 )
 
@@ -110,7 +109,7 @@ func NewOrderCase(
 				OrderId: item.ID,
 			})
 			if err != nil {
-				return nil, err
+				log.Errorf("CancelOrder order %d failed: %v", item.ID, err)
 			}
 		} else {
 			// 添加自动取消定时任务
@@ -645,9 +644,7 @@ func (c *OrderCase) cancelOrder(ctx context.Context, userId int64, req *app.Canc
 	if common.OrderPayType(order.PayType) == common.OrderPayType_ONLINE_PAY &&
 		common.OrderPayChannel(order.PayChannel) == common.OrderPayChannel_WX_PAY {
 		var paymentResource *app.PaymentResource
-		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(jsapi.QueryOrderByOutTradeNoRequest{
-			OutTradeNo: trans.String(order.OrderNo),
-		})
+		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(order.OrderNo)
 		if err != nil {
 			return err
 		}

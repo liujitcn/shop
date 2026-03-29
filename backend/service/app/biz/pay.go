@@ -24,6 +24,7 @@ import (
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repo"
+	wxPayCore "github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/h5"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -109,7 +110,8 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 		description = trans.StringValue(goodsDetail[0].GoodsName)
 	}
 
-	return c.wxPayCase.JsapiPay(jsapi.PrepayRequest{
+	var jsapiPayResponse *app.JsapiPayResponse
+	jsapiPayResponse, err = c.wxPayCase.JsapiPay(jsapi.PrepayRequest{
 		Description: &description,
 		OutTradeNo:  &order.OrderNo,
 		TimeExpire:  new(order.CreatedAt.Add(payTimeout)),
@@ -123,6 +125,21 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 			GoodsDetail: goodsDetail,
 		},
 	})
+	if err != nil {
+		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
+			// 订单已支付
+			if apiErr.Code == "ORDERPAID" {
+				// 调用查询订单接口
+				err = c.Paid(ctx, order)
+				if err != nil {
+					return nil, err
+				}
+				return nil, errors.New("订单已支付，不能重复支付")
+			}
+		}
+		return nil, err
+	}
+	return jsapiPayResponse, nil
 }
 
 // H5Pay 创建 H5 支付预下单信息
@@ -175,7 +192,9 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 	if payerClientIp == "" {
 		return nil, errors.New("获取客户端IP失败")
 	}
-	return c.wxPayCase.H5Pay(h5.PrepayRequest{
+
+	var h5PayResponse *app.H5PayResponse
+	h5PayResponse, err = c.wxPayCase.H5Pay(h5.PrepayRequest{
 		Description: trans.String(description),
 		OutTradeNo:  trans.String(order.OrderNo),
 		TimeExpire:  trans.Time(createdAt),
@@ -194,6 +213,19 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 			GoodsDetail: goodsDetail,
 		},
 	})
+	if err != nil {
+		return nil, err
+	}
+	return h5PayResponse, nil
+}
+
+// Paid 订单已支付查询订单，然后支付通知
+func (c *PayCase) Paid(ctx context.Context, order *models.Order) error {
+	paymentResource, err := c.wxPayCase.QueryOrderByOutTradeNo(order.OrderNo)
+	if err != nil {
+		return err
+	}
+	return c.PaySuccess(ctx, order, paymentResource)
 }
 
 // PayNotify 处理支付通知
