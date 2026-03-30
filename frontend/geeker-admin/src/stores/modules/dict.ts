@@ -6,7 +6,7 @@ import piniaPersistConfig from "@/stores/helper/persist";
 import type { ListBaseDictResponse_BaseDict, ListBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
 
 export const useDictStore = defineStore({
-  id: "geeker-dict",
+  id: "shop-dict",
   state: (): DictState => ({
     dictionary: {}
   }),
@@ -46,7 +46,7 @@ export const useDictStore = defineStore({
       await this.loadDictionaries(true);
     }
   },
-  persist: piniaPersistConfig("geeker-dict")
+  persist: piniaPersistConfig("shop-dict")
 });
 
 /**

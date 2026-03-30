@@ -30,7 +30,9 @@
       }
     }
     .login-form {
+      box-sizing: border-box;
       width: 420px;
+      max-width: 100%;
       padding: 50px 40px 45px;
       background-color: var(--el-bg-color);
       border-radius: 10px;
@@ -39,15 +41,26 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        max-width: 100%;
         margin-bottom: 45px;
+        overflow: hidden;
         .login-icon {
-          width: 60px;
-          height: 52px;
+          /* Logo 图标允许按容器收缩，避免与长标题叠加后撑出表单区域。 */
+          flex: 0 1 60px;
+          width: clamp(40px, 14%, 60px);
+          max-width: 60px;
+          height: auto;
+          aspect-ratio: 60 / 52;
+          object-fit: contain;
         }
         .logo-text {
-          padding: 0 0 0 25px;
+          /* 标题始终保持单行，字号由脚本按容器宽度动态缩放。 */
+          flex: 1 1 auto;
+          min-width: 0;
+          padding: 0 0 0 16px;
           margin: 0;
-          font-size: 42px;
+          line-height: 1.2;
           font-weight: bold;
           color: #34495e;
           white-space: nowrap;
@@ -79,5 +92,12 @@
 @media screen and (width <= 600px) {
   .login-form {
     width: 97% !important;
+    padding: 40px 24px 32px !important;
+    .login-logo {
+      margin-bottom: 32px !important;
+      .logo-text {
+        padding-left: 12px !important;
+      }
+    }
   }
 }

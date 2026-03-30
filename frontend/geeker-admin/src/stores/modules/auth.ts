@@ -31,7 +31,7 @@ function normalizeRouteTree(menuList: RouteItem[], parentPath = ""): RouteItem[]
 }
 
 export const useAuthStore = defineStore({
-  id: "geeker-auth",
+  id: "shop-auth",
   state: (): AuthState => ({
     // 按钮权限列表
     authButtonList: {},

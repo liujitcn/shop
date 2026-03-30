@@ -34,19 +34,35 @@ import DictLabel from "@/components/Dict/DictLabel.vue";
 import SvgIcon from "@/components/SvgIcon/index.vue";
 // errorHandler
 import errorHandler from "@/utils/errorHandler";
+import { useConfigStore } from "@/stores/modules/config";
 
-const app = createApp(App);
+/**
+ * 启动前先完成全局配置初始化，确保首屏展示尽量使用最新站点配置。
+ */
+async function bootstrap() {
+  const app = createApp(App);
 
-app.config.errorHandler = errorHandler;
+  app.config.errorHandler = errorHandler;
 
-// register the element Icons component
-Object.keys(Icons).forEach(key => {
-  app.component(key, Icons[key as keyof typeof Icons]);
-});
+  // register the element Icons component
+  Object.keys(Icons).forEach(key => {
+    app.component(key, Icons[key as keyof typeof Icons]);
+  });
 
-// 注册字典相关全局组件
-app.component("Dict", Dict);
-app.component("DictLabel", DictLabel);
-app.component("SvgIcon", SvgIcon);
+  // 注册字典相关全局组件
+  app.component("Dict", Dict);
+  app.component("DictLabel", DictLabel);
+  app.component("SvgIcon", SvgIcon);
 
-app.use(ElementPlus).use(directives).use(router).use(pinia).mount("#app");
+  app.use(ElementPlus).use(directives).use(router).use(pinia);
+
+  try {
+    await useConfigStore().loadDisplayConfig();
+  } catch {
+    // 配置接口失败时继续使用本地默认配置，避免阻断应用启动。
+  }
+
+  app.mount("#app");
+}
+
+bootstrap();

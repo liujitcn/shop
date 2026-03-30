@@ -18,7 +18,7 @@ const defaultUserInfo: UserInfo = {
 };
 
 export const useUserStore = defineStore({
-  id: "geeker-user",
+  id: "shop-user",
   state: (): UserState => ({
     token: "",
     refreshToken: "",
@@ -95,5 +95,5 @@ export const useUserStore = defineStore({
       this.clearAuthData();
     }
   },
-  persist: piniaPersistConfig("geeker-user")
+  persist: piniaPersistConfig("shop-user")
 });

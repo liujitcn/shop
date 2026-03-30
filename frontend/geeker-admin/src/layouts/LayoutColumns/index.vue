@@ -3,7 +3,7 @@
   <el-container class="layout">
     <div class="aside-split">
       <div class="logo flx-center">
-        <img class="logo-img" src="@/assets/images/logo.svg" alt="logo" />
+        <img class="logo-img" :src="logoUrl" alt="logo" />
       </div>
       <el-scrollbar>
         <div class="split-list">
@@ -24,7 +24,7 @@
     </div>
     <el-aside :class="{ 'not-aside': !subMenuList.length }" :style="{ width: isCollapse ? '65px' : '210px' }">
       <div class="logo flx-center">
-        <span v-show="subMenuList.length" class="logo-text">{{ isCollapse ? "G" : title }}</span>
+        <span v-show="subMenuList.length" class="logo-text">{{ isCollapse ? collapseTitle : title }}</span>
       </div>
       <el-scrollbar>
         <el-menu
@@ -52,6 +52,7 @@
 import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/modules/auth";
+import { useConfigStore } from "@/stores/modules/config";
 import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/admin/auth";
 import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
@@ -60,15 +61,15 @@ import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
 
+/** 具备必填路径字段的菜单项。 */
 interface MenuRouteItem extends RouteItem {
   path: string;
 }
 
-const title = import.meta.env.VITE_GLOB_APP_TITLE;
-
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const configStore = useConfigStore();
 const globalStore = useGlobalStore();
 const accordion = computed(() => globalStore.accordion);
 const isCollapse = computed(() => globalStore.isCollapse);
@@ -76,6 +77,9 @@ const menuList = computed<MenuRouteItem[]>(() => {
   return authStore.showMenuListGet.filter((item): item is MenuRouteItem => Boolean(item.path));
 });
 const activeMenu = computed(() => route.path as string);
+const title = computed(() => configStore.display.sysName || import.meta.env.VITE_GLOB_APP_TITLE);
+const collapseTitle = computed(() => title.value.slice(0, 1).toUpperCase() || "S");
+const logoUrl = computed(() => configStore.display.adminLogo);
 
 const subMenuList = ref<RouteItem[]>([]);
 const splitActive = ref("");
@@ -97,7 +101,7 @@ watch(
   }
 );
 
-// change SubMenu
+/** 切换分栏布局的二级菜单。 */
 const changeSubMenu = (item: RouteItem) => {
   splitActive.value = item.path ?? "";
   if (item.children?.length) return (subMenuList.value = item.children);
