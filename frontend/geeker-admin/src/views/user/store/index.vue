@@ -2,18 +2,6 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestUserStoreTable">
       <template #address="scope"> {{ formatAddress(scope.row.address, scope.row.detail) }} </template>
-
-      <template #operation="scope">
-        <el-button
-          v-if="BUTTONS['user:store:audit']"
-          type="primary"
-          link
-          :icon="CircleCheck"
-          @click="handleOpenDialog(scope.row.id)"
-        >
-          审核
-        </el-button>
-      </template>
     </ProTable>
 
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
@@ -178,7 +166,24 @@ const columns: ColumnProps[] = [
   { prop: "address", label: "门店地址" },
   { prop: "status", label: "状态", width: 120, dictCode: "user_store_status", search: { el: "select" } },
   { prop: "remark", label: "备注" },
-  { prop: "operation", label: "操作", width: 100, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 100,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "审核",
+        type: "primary",
+        link: true,
+        icon: CircleCheck,
+        hidden: () => !BUTTONS.value["user:store:audit"],
+        params: scope => ({ storeId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.storeId as number | undefined) ?? (scope.row as UserStore).id)
+      }
+    ]
+  }
 ];
 
 /**

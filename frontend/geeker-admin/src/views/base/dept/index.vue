@@ -5,114 +5,36 @@
       row-key="id"
       :indent="20"
       :columns="columns"
+      :header-actions="headerActions"
       :request-api="requestBaseDeptTable"
       :pagination="false"
       :default-expand-all="false"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    >
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['base:dept:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog(0)">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['base:dept:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    />
 
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['base:dept:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-hasPerm="['base:dept:create']"
-          type="primary"
-          link
-          :icon="CirclePlus"
-          @click.stop="handleOpenDialog(scope.row.id)"
-        >
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['base:dept:update']"
-          type="primary"
-          link
-          :icon="EditPen"
-          @click.stop="handleOpenDialog(scope.row.parentId, scope.row.id)"
-        >
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['base:dept:delete']" type="danger" link :icon="Delete" @click.stop="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="600px" @closed="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="80px">
-        <el-form-item label="上级部门" prop="parentId">
-          <el-tree-select
-            v-model="formData.parentId"
-            placeholder="选择上级部门"
-            :data="deptOptions"
-            filterable
-            check-strictly
-            :render-after-expand="false"
-          />
-        </el-form-item>
-        <el-form-item label="部门名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入部门名称" />
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="formData.sort" controls-position="right" :min="1" :precision="0" :step="1" />
-        </el-form-item>
-
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="formData.remark" placeholder="请输入备注" type="textarea" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="启用"
-            inactive-text="禁用"
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="600px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="90px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDeptService } from "@/api/admin/base_dept";
 import type { BaseDept, BaseDeptForm } from "@/rpc/admin/base_dept";
@@ -127,7 +49,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -135,12 +57,16 @@ const dialog = reactive({
 });
 
 const deptOptions = ref<TreeOptionResponse_Option[]>([]);
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
 
 const formData = reactive<BaseDeptForm>({
   /** 部门ID */
   id: 0,
   /** 父节点ID */
-  parentId: undefined,
+  parentId: 0,
   /** 部门名称 */
   name: "",
   /** 排序 */
@@ -155,8 +81,34 @@ const rules = reactive({
   parentId: [{ required: true, message: "上级部门不能为空", trigger: "change" }],
   name: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
   sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 });
+
+/** 部门表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "parentId",
+    label: "上级部门",
+    component: "tree-select",
+    options: deptOptions.value,
+    props: {
+      placeholder: "选择上级部门",
+      filterable: true,
+      checkStrictly: true,
+      renderAfterExpand: false,
+      style: { width: "100%" }
+    }
+  },
+  { prop: "name", label: "部门名称", component: "input", props: { placeholder: "请输入部门名称" } },
+  {
+    prop: "sort",
+    label: "排序",
+    component: "input-number",
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
+  },
+  { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+]);
 
 /** 部门树表格列配置。 */
 const columns: ColumnProps[] = [
@@ -164,10 +116,81 @@ const columns: ColumnProps[] = [
   { prop: "name", label: "部门名称", align: "left", search: { el: "input" } },
   { prop: "remark", label: "备注", search: { el: "input" } },
   { prop: "sort", label: "排序", align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:dept:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDept)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 200, fixed: "right", align: "left" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 200,
+    fixed: "right",
+    align: "left",
+    cellType: "actions",
+    actions: [
+      {
+        label: "新增",
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: () => !BUTTONS.value["base:dept:create"],
+        params: scope => ({ parentId: scope.row.id }),
+        onClick: (_, params) => handleOpenDialog((params?.parentId as number | undefined) ?? 0)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:dept:update"],
+        params: scope => ({
+          parentId: scope.row.parentId,
+          deptId: scope.row.id
+        }),
+        onClick: (_, params) => handleOpenDialog(params?.parentId as number | undefined, params?.deptId as number | undefined)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:dept:delete"],
+        onClick: scope => handleDelete(scope.row as BaseDept)
+      }
+    ]
+  }
+];
+
+/** 部门顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:dept:create"],
+    onClick: () => handleOpenDialog(0)
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:dept:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseDept[])
+  }
 ];
 
 /**
@@ -234,34 +257,48 @@ async function loadDeptOptions() {
 }
 
 /**
+ * 重置部门表单。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.parentId = 0;
+  formData.name = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
+  formData.remark = "";
+}
+
+/**
  * 打开部门弹窗。
  */
 async function handleOpenDialog(parentId?: number, deptId?: number) {
+  resetForm();
   await loadDeptOptions();
+  dialog.title = deptId ? "修改部门" : "新增部门";
   dialog.visible = true;
   if (deptId) {
-    dialog.title = "修改部门";
     defBaseDeptService.GetBaseDept({ value: deptId }).then(data => {
       Object.assign(formData, data);
     });
     return;
   }
 
-  dialog.title = "新增部门";
-  resetForm();
-  formData.parentId = parentId;
+  formData.parentId = parentId ?? 0;
 }
 
 /**
  * 提交部门表单。
  */
 function handleSubmit() {
-  dataFormRef.value?.validate((valid: boolean) => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const request = formData.id ? defBaseDeptService.UpdateBaseDept(formData) : defBaseDeptService.CreateBaseDept(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseDeptForm;
+    const request = submitData.id ? defBaseDeptService.UpdateBaseDept(submitData) : defBaseDeptService.CreateBaseDept(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -291,7 +328,7 @@ async function handleBeforeSetStatus(row: BaseDept) {
 }
 
 /**
- * 删除部门，兼容单条删除与批量删除。
+ * 删除部门，兼容单项删除与批量删除。
  */
 function handleDelete(selected?: number | string | Array<number | string> | BaseDept | BaseDept[]) {
   const deptList = Array.isArray(selected)
@@ -331,21 +368,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 }
 
 /**
- * 重置部门表单，避免新增与编辑之间互相污染。
- */
-function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
-  formData.id = 0;
-  formData.parentId = undefined;
-  formData.name = "";
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
-  formData.remark = "";
-}
-
-/**
- * 关闭部门弹窗并恢复默认值。
+ * 关闭部门弹窗。
  */
 function handleCloseDialog() {
   dialog.visible = false;

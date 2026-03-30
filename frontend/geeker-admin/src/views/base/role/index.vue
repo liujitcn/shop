@@ -1,97 +1,25 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseRoleTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="'base:role:create'" type="success" :icon="CirclePlus" @click="handleOpenDialog()">新增</el-button>
-        <el-button
-          v-hasPerm="'base:role:delete'"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestBaseRoleTable"
+    />
 
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['base:role:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-hasPerm="'base:role:menus'"
-          type="primary"
-          link
-          :icon="Position"
-          @click="handleOpenAssignPermDialog(scope.row)"
-        >
-          分配权限
-        </el-button>
-        <el-button v-hasPerm="'base:role:update'" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-          编辑
-        </el-button>
-        <el-button v-hasPerm="'base:role:delete'" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" @close="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="100px">
-        <el-form-item label="角色名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入角色名称" />
-        </el-form-item>
-
-        <el-form-item label="角色编码" prop="code">
-          <el-input v-model="formData.code" placeholder="请输入角色编码" />
-        </el-form-item>
-
-        <el-form-item label="数据权限" prop="dataScope">
-          <Dict v-model="formData.dataScope" code="base_role_data_scope" />
-        </el-form-item>
-        <el-form-item label="菜单权限" prop="menus">
-          <el-tree-select
-            v-model="formData.menus"
-            node-key="value"
-            :data="menuPermOptions"
-            multiple
-            show-checkbox
-            @check="handleCheck"
-          />
-        </el-form-item>
-
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="formData.remark" placeholder="请输入备注" type="textarea" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="启用"
-            inactive-text="禁用"
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="500px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="100px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
 
     <el-drawer v-model="assignPermDialogVisible" :title="`【${checkedBaseRole.name}】权限分配`" size="500">
       <div class="flex-x-between">
@@ -145,12 +73,14 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, reactive, ref, watch } from "vue";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, ElTree } from "element-plus";
 import type { CheckboxValueType } from "element-plus";
 import { CirclePlus, Delete, EditPen, Position, QuestionFilled, Search, Switch } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseRoleService } from "@/api/admin/base_role";
 import type { BaseRole, BaseRoleForm, PageBaseRoleRequest } from "@/rpc/admin/base_role";
@@ -171,7 +101,7 @@ interface CheckedBaseRole {
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const permTreeRef = ref<InstanceType<typeof ElTree>>();
 
 const dialog = reactive({
@@ -180,6 +110,10 @@ const dialog = reactive({
 });
 
 const menuPermOptions = ref<TreeOptionResponse_Option[]>([]);
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
 
 const formData = reactive<BaseRoleForm>({
   /** 角色ID */
@@ -201,9 +135,9 @@ const formData = reactive<BaseRoleForm>({
 const rules = reactive({
   name: [{ required: true, message: "请输入角色名称", trigger: "blur" }],
   code: [{ required: true, message: "请输入角色编码", trigger: "blur" }],
-  dataScope: [{ required: true, message: "请选择数据权限", trigger: "blur" }],
-  menus: [{ required: true, message: "请选择菜单权限", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "blur" }]
+  dataScope: [{ required: true, message: "请选择数据权限", trigger: "change" }],
+  menus: [{ required: true, message: "请选择菜单权限", trigger: "change" }],
+  status: [{ required: true, message: "请选择状态", trigger: "change" }]
 });
 
 const checkedBaseRole = ref<CheckedBaseRole>({});
@@ -212,6 +146,30 @@ const permKeywords = ref("");
 const isExpanded = ref(true);
 const parentChildLinked = ref(true);
 
+/** 角色表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  { prop: "name", label: "角色名称", component: "input", props: { placeholder: "请输入角色名称" } },
+  { prop: "code", label: "角色编码", component: "input", props: { placeholder: "请输入角色编码" } },
+  { prop: "dataScope", label: "数据权限", component: "dict", props: { code: "base_role_data_scope" } },
+  {
+    prop: "menus",
+    label: "菜单权限",
+    component: "tree-select",
+    options: menuPermOptions.value as unknown as ProFormOption[],
+    props: {
+      nodeKey: "value",
+      props: { label: "label", children: "children" },
+      multiple: true,
+      showCheckbox: true,
+      checkStrictly: true,
+      style: { width: "100%" },
+      onCheck: handleCheck
+    }
+  },
+  { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+]);
+
 /** 角色表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
@@ -219,10 +177,76 @@ const columns: ColumnProps[] = [
   { prop: "code", label: "角色编码", search: { el: "input" } },
   { prop: "dataScope", label: "数据权限", dictCode: "base_role_data_scope", search: { el: "select" } },
   { prop: "remark", label: "备注" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:role:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 220, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 220,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "分配权限",
+        type: "primary",
+        link: true,
+        icon: Position,
+        hidden: () => !BUTTONS.value["base:role:menus"],
+        onClick: scope => handleOpenAssignPermDialog(scope.row as BaseRole)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:role:update"],
+        params: scope => ({ roleId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.roleId as number | undefined) ?? (scope.row as BaseRole).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:role:delete"],
+        onClick: scope => handleDelete(scope.row as BaseRole)
+      }
+    ]
+  }
+];
+
+/** 角色顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:role:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:role:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseRole[])
+  }
 ];
 
 /**
@@ -252,18 +276,15 @@ async function loadMenuPermOptions() {
  * 打开角色弹窗。
  */
 async function handleOpenDialog(roleId?: number) {
-  dialog.visible = true;
-  await loadMenuPermOptions();
-  if (roleId) {
-    dialog.title = "修改角色";
-    defBaseRoleService.GetBaseRole({ value: roleId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增角色";
   resetForm();
+  await loadMenuPermOptions();
+  dialog.title = roleId ? "修改角色" : "新增角色";
+  dialog.visible = true;
+  if (!roleId) return;
+
+  defBaseRoleService.GetBaseRole({ value: roleId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -277,12 +298,13 @@ function handleCheck(currentNode: unknown, { checkedNodes }: { checkedNodes: Arr
  * 提交角色表单。
  */
 function handleSubmit() {
-  dataFormRef.value?.validate((valid: boolean) => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const request = formData.id ? defBaseRoleService.UpdateBaseRole(formData) : defBaseRoleService.CreateBaseRole(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseRoleForm;
+    const request = submitData.id ? defBaseRoleService.UpdateBaseRole(submitData) : defBaseRoleService.CreateBaseRole(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -301,8 +323,8 @@ function handleCloseDialog() {
  * 重置角色表单，避免新增与编辑之间互相污染。
  */
 function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.name = "";
   formData.code = "";

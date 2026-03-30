@@ -4,125 +4,37 @@
       ref="proTable"
       row-key="id"
       :columns="columns"
+      :header-actions="headerActions"
       :request-api="requestGoodsCategoryTable"
       :pagination="false"
       :default-expand-all="false"
       :indent="20"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-    >
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['goods:category:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog(0)">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['goods:category:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    />
 
-      <template #picture="scope">
-        <el-popover placement="right" :width="400" trigger="hover">
-          <img :src="scope.row.picture" width="400" height="400" />
-          <template #reference>
-            <img :src="scope.row.picture" style="max-width: 60px; max-height: 60px" />
-          </template>
-        </el-popover>
-      </template>
-
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['goods:category:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-if="!scope.row.parentId"
-          v-hasPerm="['goods:category:create']"
-          type="primary"
-          link
-          :icon="CirclePlus"
-          @click.stop="handleOpenDialog(scope.row.id)"
-        >
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['goods:category:update']"
-          type="primary"
-          link
-          :icon="EditPen"
-          @click.stop="handleOpenDialog(scope.row.parentId, scope.row.id)"
-        >
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['goods:category:delete']" type="danger" link :icon="Delete" @click.stop="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="600px" @closed="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="80px">
-        <el-form-item label="上级分类" prop="parentId">
-          <el-tree-select
-            v-model="formData.parentId"
-            placeholder="选择上级分类"
-            :data="categoryOptions"
-            filterable
-            check-strictly
-            :render-after-expand="false"
-          />
-        </el-form-item>
-        <el-form-item label="分类名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入分类名称" />
-        </el-form-item>
-        <el-form-item label="照片" prop="picture">
-          <UploadImg v-model:image-url="formData.picture" />
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="formData.sort" controls-position="right" :min="1" :precision="0" :step="1" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="启用"
-            inactive-text="禁用"
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="600px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="90px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import UploadImg from "@/components/Upload/Img.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
 import type { GoodsCategory, GoodsCategoryForm } from "@/rpc/admin/goods_category";
@@ -137,7 +49,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -145,12 +57,16 @@ const dialog = reactive({
 });
 
 const categoryOptions = ref<TreeOptionResponse_Option[]>([]);
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
 
 const formData = reactive<GoodsCategoryForm>({
   /** 分类ID */
   id: 0,
   /** 父节点ID */
-  parentId: undefined,
+  parentId: 0,
   /** 分类名称 */
   name: "",
   /** 分类图片 */
@@ -165,19 +81,127 @@ const rules = reactive({
   parentId: [{ required: true, message: "上级分类不能为空", trigger: "change" }],
   name: [{ required: true, message: "分类名称不能为空", trigger: "blur" }],
   sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 });
+
+/** 分类表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "parentId",
+    label: "上级分类",
+    component: "tree-select",
+    options: categoryOptions.value,
+    props: {
+      placeholder: "选择上级分类",
+      filterable: true,
+      checkStrictly: true,
+      renderAfterExpand: false,
+      style: { width: "100%" }
+    }
+  },
+  { prop: "name", label: "分类名称", component: "input", props: { placeholder: "请输入分类名称" } },
+  { prop: "picture", label: "照片", component: "image-upload" },
+  {
+    prop: "sort",
+    label: "排序",
+    component: "input-number",
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
+  },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+]);
 
 /** 分类表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
   { prop: "name", label: "分类名称", align: "left", search: { el: "input" } },
-  { prop: "picture", label: "图片", minWidth: 150 },
+  {
+    prop: "picture",
+    label: "图片",
+    minWidth: 150,
+    cellType: "image",
+    imageProps: {
+      previewWidth: 400,
+      previewHeight: 400,
+      width: 60,
+      height: 60
+    }
+  },
   { prop: "sort", label: "排序", align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["goods:category:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as GoodsCategory)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 200, fixed: "right", align: "left" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 200,
+    fixed: "right",
+    align: "left",
+    cellType: "actions",
+    actions: [
+      {
+        label: "新增",
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: scope => !BUTTONS.value["goods:category:create"] || Boolean((scope.row as GoodsCategory).parentId),
+        params: scope => ({ parentId: scope.row.id }),
+        onClick: (_, params) => handleOpenDialog((params?.parentId as number | undefined) ?? 0)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["goods:category:update"],
+        params: scope => ({
+          parentId: scope.row.parentId,
+          categoryId: scope.row.id
+        }),
+        onClick: (_, params) => handleOpenDialog(params?.parentId as number | undefined, params?.categoryId as number | undefined)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["goods:category:delete"],
+        onClick: scope => handleDelete(scope.row as GoodsCategory)
+      }
+    ]
+  }
+];
+
+/** 分类顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["goods:category:create"],
+    onClick: () => handleOpenDialog(0)
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["goods:category:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as GoodsCategory[])
+  }
 ];
 
 /**
@@ -238,36 +262,51 @@ async function loadCategoryOptions() {
 }
 
 /**
+ * 重置分类表单，避免上次编辑残留到下一次新增。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.parentId = 0;
+  formData.name = "";
+  formData.picture = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
+}
+
+/**
  * 打开分类弹窗。
  */
 async function handleOpenDialog(parentId?: number, categoryId?: number) {
+  resetForm();
   await loadCategoryOptions();
+  dialog.title = categoryId ? "修改分类" : "新增分类";
   dialog.visible = true;
+
   if (categoryId) {
-    dialog.title = "修改分类";
     defGoodsCategoryService.GetGoodsCategory({ value: categoryId }).then(data => {
       Object.assign(formData, data);
     });
     return;
   }
 
-  dialog.title = "新增分类";
-  resetForm();
-  formData.parentId = parentId;
+  formData.parentId = parentId ?? 0;
 }
 
 /**
  * 提交分类表单。
  */
 function handleSubmit() {
-  dataFormRef.value?.validate((valid: boolean) => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const request = formData.id
-      ? defGoodsCategoryService.UpdateGoodsCategory(formData)
-      : defGoodsCategoryService.CreateGoodsCategory(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as GoodsCategoryForm;
+    const request = submitData.id
+      ? defGoodsCategoryService.UpdateGoodsCategory(submitData)
+      : defGoodsCategoryService.CreateGoodsCategory(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -336,20 +375,6 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
       ElMessage.info("已取消删除");
     }
   );
-}
-
-/**
- * 重置分类表单，避免上次编辑残留到下一次新增。
- */
-function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
-  formData.id = 0;
-  formData.parentId = undefined;
-  formData.name = "";
-  formData.picture = "";
-  formData.sort = 1;
-  formData.status = Status.ENABLE;
 }
 
 /**

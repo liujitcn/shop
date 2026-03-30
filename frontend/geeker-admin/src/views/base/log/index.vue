@@ -1,12 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseLogTable">
-      <template #detailAction="scope">
-        <el-button v-hasPerm="['base:log:info']" type="primary" link :icon="InfoFilled" @click="handleOpenDialog(scope.row.id)">
-          详情
-        </el-button>
-      </template>
-    </ProTable>
+    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseLogTable" />
 
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
       <div class="detail-container">
@@ -185,7 +179,22 @@ const columns: ColumnProps[] = [
   { prop: "browserName", label: "浏览器" },
   { prop: "osName", label: "终端系统", width: 200 },
   { prop: "costTime", label: "执行时间(ms)", align: "right" },
-  { prop: "detailAction", label: "操作", width: 100, fixed: "right" }
+  {
+    prop: "detailAction",
+    label: "操作",
+    width: 100,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "详情",
+        type: "primary",
+        link: true,
+        icon: InfoFilled,
+        onClick: scope => handleOpenDialog((scope.row as BaseLog).id)
+      }
+    ]
+  }
 ];
 
 /**

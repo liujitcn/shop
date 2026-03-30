@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
-    <el-tabs tab-position="left">
+    <el-tabs v-model="activeTab" tab-position="left" @tab-change="handleTabChange">
       <!-- 基本设置 Tab Pane -->
-      <el-tab-pane label="账号信息">
+      <el-tab-pane label="账号信息" name="account">
         <div class="w-full">
           <el-card>
             <!-- 头像和昵称部分 -->
@@ -75,7 +75,7 @@
       </el-tab-pane>
 
       <!-- 安全设置  -->
-      <el-tab-pane label="安全设置">
+      <el-tab-pane label="安全设置" name="security">
         <el-card>
           <!-- 账户密码 -->
           <el-row>
@@ -115,7 +115,7 @@
     </el-tabs>
 
     <!-- 弹窗 -->
-    <el-dialog v-model="dialog.visible" :title="dialog.title" :width="500">
+    <el-dialog v-model="dialog.visible" :title="dialog.title" :width="500" @closed="handleDialogClose">
       <!-- 账号资料 -->
       <ProForm
         v-if="dialog.type === DialogType.ACCOUNT"
@@ -168,7 +168,7 @@ defineOptions({
   name: "Profile",
   inheritAttrs: false
 });
-import { nextTick, onMounted, reactive, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { defAuthService } from "@/api/admin/auth";
 import { UpdatePhoneForm, UpdatePwdForm, UserProfileForm } from "@/rpc/admin/auth";
 import ProForm from "@/components/ProForm/index.vue";
@@ -176,6 +176,7 @@ import type { ProFormField, ProFormInstance } from "@/components/ProForm/interfa
 import { ElMessage } from "element-plus";
 import { Camera, Edit, Female, Male, Phone, Timer, User } from "@element-plus/icons-vue";
 import { defFileService } from "@/api/base/file";
+import { useRoute, useRouter } from "vue-router";
 
 enum DialogType {
   ACCOUNT = "account",
@@ -183,11 +184,16 @@ enum DialogType {
   MOBILE = "phone"
 }
 
+type ProfileTab = "account" | "security";
+
 const dialog = reactive({
   visible: false,
   title: "",
   type: "" as DialogType // 修改账号资料,修改密码、绑定手机、绑定邮箱
 });
+const route = useRoute();
+const router = useRouter();
+const activeTab = ref<ProfileTab>("account");
 
 const accountFormRef = ref<ProFormInstance>();
 const passwordFormRef = ref<ProFormInstance>();
@@ -265,6 +271,42 @@ const mobileFormFields: ProFormField[] = [
   { prop: "code", label: "验证码", component: "slot", slotName: "mobileCodeInput" }
 ];
 
+const tabDialogMap: Record<string, { tab: ProfileTab; dialog?: DialogType }> = {
+  account: { tab: "account", dialog: DialogType.ACCOUNT },
+  password: { tab: "security", dialog: DialogType.PASSWORD },
+  phone: { tab: "security", dialog: DialogType.MOBILE },
+  security: { tab: "security" }
+};
+
+const syncRouteQuery = (tab: ProfileTab, dialogType?: DialogType | "") => {
+  const nextQuery: Record<string, string> = { ...route.query } as Record<string, string>;
+  nextQuery.tab = tab;
+  if (dialogType) {
+    nextQuery.dialog = dialogType;
+  } else {
+    delete nextQuery.dialog;
+  }
+  router.replace({ path: route.path, query: nextQuery });
+};
+
+const applyRouteState = async () => {
+  const tabQuery = Array.isArray(route.query.tab) ? route.query.tab[0] : route.query.tab;
+  const dialogQuery = Array.isArray(route.query.dialog) ? route.query.dialog[0] : route.query.dialog;
+  const matchedState = tabDialogMap[dialogQuery || ""] ?? tabDialogMap[tabQuery || ""];
+
+  activeTab.value = matchedState?.tab ?? (tabQuery === "security" ? "security" : "account");
+
+  if (!matchedState?.dialog) return;
+
+  await nextTick();
+  handleOpenDialog(matchedState.dialog);
+};
+
+const handleDialogClose = () => {
+  dialog.type = "" as DialogType;
+  syncRouteQuery(activeTab.value);
+};
+
 /**
  * 打开弹窗
  * @param type 弹窗类型 ACCOUNT: 账号资料 PASSWORD: 修改密码 MOBILE: 绑定手机 EMAIL: 绑定邮箱
@@ -288,6 +330,7 @@ const handleOpenDialog = (type: DialogType) => {
     passwordFormRef.value?.clearValidate();
     mobileFormRef.value?.clearValidate();
   });
+  syncRouteQuery(activeTab.value, type);
 };
 
 /**
@@ -380,11 +423,31 @@ const loadUserProfile = async () => {
   Object.assign(userProfileForm, data);
 };
 
+const handleTabChange = (name: string | number) => {
+  activeTab.value = name === "security" ? "security" : "account";
+  dialog.visible = false;
+  syncRouteQuery(activeTab.value);
+};
+
+watch(
+  () => [route.query.tab, route.query.dialog],
+  () => {
+    applyRouteState();
+  }
+);
+
 onMounted(async () => {
   if (mobileTimer.value) {
     clearInterval(mobileTimer.value);
   }
   await loadUserProfile();
+  await applyRouteState();
+});
+
+onBeforeUnmount(() => {
+  if (mobileTimer.value) {
+    clearInterval(mobileTimer.value);
+  }
 });
 </script>
 

@@ -250,6 +250,13 @@ geeker-admin
 - 接口请求统一走 `src/utils/request.ts`，并在其中处理鉴权头、错误提示和令牌刷新。
 - 类型定义与接口描述主要位于 `src/rpc`。
 
+### 列表页约定
+
+- 后台列表页优先参考 [`src/views/shop/banner/index.vue`](./src/views/shop/banner/index.vue) 的实现方式，统一采用 `ProTable + FormDialog + ProForm` 结构。
+- 顶部按钮优先通过 `headerActions` 配置，行内操作优先通过 `actions` 配置；只有基础配置无法覆盖时，才保留必要的页面 slot。
+- 状态列优先使用 `cellType: "status"`，图片列优先使用 `cellType: "image"`，避免在页面模板中重复手写通用展示逻辑。
+- 弹窗关闭时必须显式重置表单与校验状态；编辑态回填、选项预加载、提交成功后刷新表格都应在页面方法内明确处理。
+
 ## 维护建议
 
 - 新增页面时，优先保持与后端菜单配置中的组件路径一致，避免动态路由无法命中组件文件。

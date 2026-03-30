@@ -1,103 +1,49 @@
 <!-- 字典数据 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseDictItemTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['base:dict-item:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['base:dict-item:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
-
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestBaseDictItemTable"
+    >
       <template #tagType="scope">
         <el-tag v-if="scope.row.tagType" :type="formatTagType(scope.row.tagType)" effect="plain">
           {{ scope.row.label }}
         </el-tag>
         <span v-else>无</span>
       </template>
-
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['base:dict-item:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-hasPerm="['base:dict-item:update']"
-          type="primary"
-          link
-          :icon="EditPen"
-          @click="handleOpenDialog(scope.row.id)"
-        >
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['base:dict-item:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
     </ProTable>
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="820px" @close="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="100px">
-        <el-card shadow="never">
-          <el-form-item label="字典标签" prop="label">
-            <el-input v-model="formData.label" placeholder="请输入字典标签" />
-          </el-form-item>
-          <el-form-item label="字典值" prop="value">
-            <el-input v-model="formData.value" placeholder="请输入字典值" />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-switch
-              v-model="formData.status"
-              inline-prompt
-              active-text="启用"
-              inactive-text="禁用"
-              :active-value="Status.ENABLE"
-              :inactive-value="Status.DISABLE"
-            />
-          </el-form-item>
-          <el-form-item label="排序" prop="sort">
-            <el-input-number v-model="formData.sort" controls-position="right" :min="1" :precision="0" :step="1" />
-          </el-form-item>
-          <el-form-item label="标签类型" prop="tagType">
-            <el-tag v-if="formData.tagType" :type="formatTagType(formData.tagType)" class="mr-2">
-              {{ formData.label || "标签预览" }}
-            </el-tag>
-            <el-radio-group v-model="formData.tagType">
-              <el-radio value="success" border size="small">success</el-radio>
-              <el-radio value="warning" border size="small">warning</el-radio>
-              <el-radio value="info" border size="small">info</el-radio>
-              <el-radio value="primary" border size="small">primary</el-radio>
-              <el-radio value="danger" border size="small">danger</el-radio>
-              <el-radio value="" border size="small">清空</el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-card>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmitClick">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="820px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="100px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    >
+      <template #tagTypeField>
+        <div class="dict-item-tag-type">
+          <el-tag v-if="formData.tagType" :type="formatTagType(formData.tagType)" class="mr-2">
+            {{ formData.label || "标签预览" }}
+          </el-tag>
+          <el-radio-group v-model="formData.tagType">
+            <el-radio value="success" border size="small">success</el-radio>
+            <el-radio value="warning" border size="small">warning</el-radio>
+            <el-radio value="info" border size="small">info</el-radio>
+            <el-radio value="primary" border size="small">primary</el-radio>
+            <el-radio value="danger" border size="small">danger</el-radio>
+            <el-radio value="" border size="small">清空</el-radio>
+          </el-radio-group>
         </div>
       </template>
-    </el-dialog>
+    </FormDialog>
   </div>
 </template>
 
@@ -106,8 +52,10 @@ import { computed, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDictService } from "@/api/admin/base_dict";
 import type { BaseDictItem, BaseDictItemForm, PageBaseDictItemRequest } from "@/rpc/admin/base_dict";
@@ -122,7 +70,7 @@ defineOptions({
 const route = useRoute();
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dictId = ref(Number(route.query.dictId ?? 0));
 
@@ -152,8 +100,27 @@ const rules = computed(() => ({
   value: [{ required: true, message: "请输入字典值", trigger: "blur" }],
   label: [{ required: true, message: "请输入字典标签", trigger: "blur" }],
   sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 }));
+
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
+
+/** 字典项表单字段配置。 */
+const formFields: ProFormField[] = [
+  { prop: "label", label: "字典标签", component: "input", props: { placeholder: "请输入字典标签" } },
+  { prop: "value", label: "字典值", component: "input", props: { placeholder: "请输入字典值" } },
+  {
+    prop: "sort",
+    label: "排序",
+    component: "input-number",
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
+  },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions },
+  { prop: "tagType", label: "标签类型", component: "slot", slotName: "tagTypeField", colSpan: 24 }
+];
 
 /**
  * 规范化标签类型，兼容 Element Plus Tag 的可选值。
@@ -172,10 +139,68 @@ const columns: ColumnProps[] = [
   { prop: "value", label: "字典值" },
   { prop: "sort", label: "排序", align: "right" },
   { prop: "tagType", label: "标签类型", width: 120 },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:dict-item:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDictItem)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 180, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 180,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:dict-item:update"],
+        params: scope => ({ dictItemId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.dictItemId as number | undefined) ?? (scope.row as BaseDictItem).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:dict-item:delete"],
+        onClick: scope => handleDelete(scope.row as BaseDictItem)
+      }
+    ]
+  }
+];
+
+/** 字典项顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:dict-item:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:dict-item:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseDictItem[])
+  }
 ];
 
 watch(
@@ -211,8 +236,8 @@ function refreshTable() {
  * 重置字典项表单，避免弹窗之间相互污染。
  */
 function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.dictId = dictId.value;
   formData.value = "";
@@ -226,17 +251,14 @@ function resetForm() {
  * 打开字典项编辑弹窗。
  */
 function handleOpenDialog(dictItemId?: number) {
-  dialog.visible = true;
-  if (dictItemId) {
-    dialog.title = "修改字典数据";
-    defBaseDictService.GetBaseDictItem({ value: dictItemId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增字典数据";
   resetForm();
+  dialog.title = dictItemId ? "修改字典数据" : "新增字典数据";
+  dialog.visible = true;
+  if (!dictItemId) return;
+
+  defBaseDictService.GetBaseDictItem({ value: dictItemId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -250,16 +272,17 @@ function handleCloseDialog() {
 /**
  * 提交字典项表单。
  */
-function handleSubmitClick() {
-  dataFormRef.value?.validate((isValid: boolean) => {
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(isValid => {
     if (!isValid) return;
 
     formData.dictId = dictId.value;
-    const request = formData.id
-      ? defBaseDictService.UpdateBaseDictItem(formData)
-      : defBaseDictService.CreateBaseDictItem(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictItemForm;
+    const request = submitData.id
+      ? defBaseDictService.UpdateBaseDictItem(submitData)
+      : defBaseDictService.CreateBaseDictItem(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -272,9 +295,9 @@ function handleSubmitClick() {
 async function handleBeforeSetStatus(row: BaseDictItem) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
-  const dictItemName = row.label || row.value || `ID:${row.id}`;
+  const itemName = row.label || row.value || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}字典项：${dictItemName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}字典数据：${itemName}？`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -289,7 +312,7 @@ async function handleBeforeSetStatus(row: BaseDictItem) {
 }
 
 /**
- * 删除字典项，兼容单条删除与批量删除。
+ * 删除字典项，兼容单项删除与批量删除。
  */
 function handleDelete(selected?: number | string | Array<number | string> | BaseDictItem | BaseDictItem[]) {
   const dictItemList = Array.isArray(selected)
@@ -309,9 +332,9 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = dictItemList.length
     ? dictItemList.length === 1
-      ? `是否确定删除字典项：${dictItemList[0].label || dictItemList[0].value || `ID:${dictItemList[0].id}`}？`
-      : `确认删除已选中的 ${dictItemList.length} 个字典项吗？`
-    : "确认删除已选中的字典项吗？";
+      ? `是否确定删除字典数据：${dictItemList[0].label || dictItemList[0].value || `ID:${dictItemList[0].id}`}？`
+      : `确认删除已选中的 ${dictItemList.length} 项字典数据吗？`
+    : "确认删除已选中的字典数据吗？";
 
   ElMessageBox.confirm(confirmMessage, "警告", {
     confirmButtonText: "确定",
@@ -330,3 +353,11 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   );
 }
 </script>
+
+<style scoped>
+.dict-item-tag-type {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+</style>

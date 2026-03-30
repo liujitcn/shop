@@ -5,10 +5,10 @@
     </div>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item @click="openDialog('infoRef')">
+        <el-dropdown-item @click="goToProfile('account', 'account')">
           <el-icon><User /></el-icon>个人信息
         </el-dropdown-item>
-        <el-dropdown-item @click="openDialog('passwordRef')">
+        <el-dropdown-item @click="goToProfile('security', 'password')">
           <el-icon><Edit /></el-icon>修改密码
         </el-dropdown-item>
         <el-dropdown-item divided @click="logout">
@@ -17,20 +17,13 @@
       </el-dropdown-menu>
     </template>
   </el-dropdown>
-  <!-- infoDialog -->
-  <InfoDialog ref="infoRef"></InfoDialog>
-  <!-- passwordDialog -->
-  <PasswordDialog ref="passwordRef"></PasswordDialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { LOGIN_URL } from "@/config";
 import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/modules/user";
 import { ElMessageBox, ElMessage } from "element-plus";
-import InfoDialog from "./InfoDialog.vue";
-import PasswordDialog from "./PasswordDialog.vue";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -51,12 +44,12 @@ const logout = () => {
   });
 };
 
-// 打开修改密码和个人信息弹窗
-const infoRef = ref<InstanceType<typeof InfoDialog> | null>(null);
-const passwordRef = ref<InstanceType<typeof PasswordDialog> | null>(null);
-const openDialog = (ref: string) => {
-  if (ref == "infoRef") infoRef.value?.openDialog();
-  if (ref == "passwordRef") passwordRef.value?.openDialog();
+// 跳转到个人中心页，并根据入口定位对应 tab / 弹窗。
+const goToProfile = (tab: "account" | "security", dialog: "account" | "password") => {
+  router.push({
+    path: "/profile",
+    query: { tab, dialog }
+  });
 };
 </script>
 

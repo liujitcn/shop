@@ -1,42 +1,27 @@
 <!-- 商品属性 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestGoodsPropTable" :init-param="initParam">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['goods:prop:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['goods:prop:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestGoodsPropTable"
+      :init-param="initParam"
+    />
 
-      <template #operation="scope">
-        <el-button v-hasPerm="['goods:prop:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['goods:prop:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="820px" @close="handleCloseDialog">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="120px" />
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmitClick">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="820px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="120px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
@@ -45,10 +30,10 @@ import { computed, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField } from "@/components/ProForm/interface";
 import { defGoodsPropService } from "@/api/admin/goods_prop";
 import type { GoodsProp, PageGoodsPropRequest } from "@/rpc/admin/goods_prop";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -60,7 +45,7 @@ defineOptions({
 
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
-const proFormRef = ref<ProFormInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const goodsId = computed(() => Number(route.query.goodsId ?? 0));
 const initParam = computed(() => ({
@@ -124,7 +109,47 @@ const columns: ColumnProps[] = [
   { prop: "label", label: "商品属性标签", search: { el: "input" } },
   { prop: "value", label: "商品属性值" },
   { prop: "sort", label: "排序", align: "right" },
-  { prop: "operation", label: "操作", width: 180, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 180,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        params: scope => ({ propId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.propId as number | undefined) ?? (scope.row as GoodsProp).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        onClick: scope => handleDelete(scope.row as GoodsProp)
+      }
+    ]
+  }
+];
+
+/** 商品属性顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as GoodsProp[])
+  }
 ];
 
 /**
@@ -146,8 +171,8 @@ function refreshTable() {
  * 重置商品属性表单，确保切换商品后不会带入旧数据。
  */
 function resetForm() {
-  proFormRef.value?.resetFields();
-  proFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.goodsId = goodsId.value;
   formData.value = "";
@@ -159,30 +184,30 @@ function resetForm() {
  * 打开商品属性弹窗。
  */
 function handleOpenDialog(propId?: number) {
-  dialog.visible = true;
-  if (propId) {
-    dialog.title = "修改商品属性";
-    defGoodsPropService.GetGoodsProp({ value: propId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增商品属性";
   resetForm();
+  dialog.title = propId ? "修改商品属性" : "新增商品属性";
+  dialog.visible = true;
+  if (!propId) return;
+
+  defGoodsPropService.GetGoodsProp({ value: propId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
  * 提交商品属性表单。
  */
-function handleSubmitClick() {
-  proFormRef.value?.validate()?.then(isValid => {
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(isValid => {
     if (!isValid) return;
 
     formData.goodsId = goodsId.value;
-    const request = formData.id ? defGoodsPropService.UpdateGoodsProp(formData) : defGoodsPropService.CreateGoodsProp(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as GoodsProp;
+    const request = submitData.id
+      ? defGoodsPropService.UpdateGoodsProp(submitData)
+      : defGoodsPropService.CreateGoodsProp(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });

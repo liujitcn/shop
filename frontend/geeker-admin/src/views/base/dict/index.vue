@@ -1,77 +1,26 @@
 <!-- 字典 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseDictTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['base:dict:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">新增</el-button>
-        <el-button
-          v-hasPerm="['base:dict:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestBaseDictTable"
+    />
 
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['base:dict:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button v-hasPerm="['base:dict:items']" type="primary" link :icon="List" @click="handleOpenBaseDictItem(scope.row)">
-          字典数据
-        </el-button>
-        <el-button v-hasPerm="['base:dict:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['base:dict:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" @close="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="100px">
-        <el-card shadow="never">
-          <el-form-item label="字典名称" prop="name">
-            <el-input v-model="formData.name" placeholder="请输入字典名称" />
-          </el-form-item>
-
-          <el-form-item label="字典编码" prop="code">
-            <el-input v-model="formData.code" placeholder="请输入字典编码" />
-          </el-form-item>
-
-          <el-form-item label="状态" prop="status">
-            <el-switch
-              v-model="formData.status"
-              inline-prompt
-              active-text="启用"
-              inactive-text="禁用"
-              :active-value="Status.ENABLE"
-              :inactive-value="Status.DISABLE"
-            />
-          </el-form-item>
-        </el-card>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmitClick">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="500px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="100px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
@@ -79,8 +28,10 @@
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, List } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDictService } from "@/api/admin/base_dict";
 import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@/rpc/admin/base_dict";
@@ -95,7 +46,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -116,18 +67,96 @@ const formData = reactive<BaseDictForm>({
 const rules = computed(() => ({
   name: [{ required: true, message: "请输入字典名称", trigger: "blur" }],
   code: [{ required: true, message: "请输入字典编码", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 }));
+
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
+
+/** 字典表单字段配置。 */
+const formFields: ProFormField[] = [
+  { prop: "name", label: "字典名称", component: "input", props: { placeholder: "请输入字典名称" } },
+  { prop: "code", label: "字典编码", component: "input", props: { placeholder: "请输入字典编码" } },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+];
 
 /** 字典表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
   { prop: "name", label: "字典名称", search: { el: "input" } },
   { prop: "code", label: "字典编码", search: { el: "input" } },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:dict:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDict)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 240, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 240,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "字典数据",
+        type: "primary",
+        link: true,
+        icon: List,
+        hidden: () => !BUTTONS.value["base:dict:items"],
+        onClick: scope => handleOpenBaseDictItem(scope.row as BaseDict)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:dict:update"],
+        params: scope => ({ dictId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.dictId as number | undefined) ?? (scope.row as BaseDict).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:dict:delete"],
+        onClick: scope => handleDelete(scope.row as BaseDict)
+      }
+    ]
+  }
+];
+
+/** 字典顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:dict:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:dict:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseDict[])
+  }
 ];
 
 /**
@@ -149,8 +178,8 @@ function refreshTable() {
  * 重置字典表单，避免新增时带入上次编辑结果。
  */
 function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.code = "";
   formData.name = "";
@@ -161,17 +190,14 @@ function resetForm() {
  * 打开字典编辑弹窗。
  */
 function handleOpenDialog(dictId?: number) {
-  dialog.visible = true;
-  if (dictId) {
-    dialog.title = "修改字典";
-    defBaseDictService.GetBaseDict({ value: dictId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增字典";
   resetForm();
+  dialog.title = dictId ? "修改字典" : "新增字典";
+  dialog.visible = true;
+  if (!dictId) return;
+
+  defBaseDictService.GetBaseDict({ value: dictId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -185,13 +211,14 @@ function handleCloseDialog() {
 /**
  * 提交字典表单。
  */
-function handleSubmitClick() {
-  dataFormRef.value?.validate((isValid: boolean) => {
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(isValid => {
     if (!isValid) return;
 
-    const request = formData.id ? defBaseDictService.UpdateBaseDict(formData) : defBaseDictService.CreateBaseDict(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictForm;
+    const request = submitData.id ? defBaseDictService.UpdateBaseDict(submitData) : defBaseDictService.CreateBaseDict(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -265,7 +292,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  */
 function handleOpenBaseDictItem(row: BaseDict) {
   router.push({
-    path: "/base/dict-item",
+    path: "/base/dict/item",
     query: { dictId: row.id, title: `【${row.name}】字典数据` }
   });
 }

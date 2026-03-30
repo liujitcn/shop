@@ -1,99 +1,48 @@
 <!-- 系统配置 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseConfigTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['base:config:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['base:config:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-        <el-button v-hasPerm="['base:config:refresh']" color="#626aef" :icon="RefreshLeft" @click="handleRefreshCache">
-          刷新缓存
-        </el-button>
-      </template>
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestBaseConfigTable"
+    />
 
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['base:config:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="1200px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="100px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    >
+      <template #textValue>
+        <el-input v-model="formData.value" placeholder="请输入配置值" />
       </template>
-
-      <template #operation="scope">
-        <el-button v-hasPerm="['base:config:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['base:config:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
+      <template #imageValue>
+        <UploadImg v-model:image-url="formData.value" />
       </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-suffix=":" label-width="100px">
-        <el-form-item label="配置名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入配置名称" :disabled="formData.id > 0" />
-        </el-form-item>
-        <el-form-item label="配置位置" prop="site">
-          <Dict v-model="formData.site" code="base_config_site" :disabled="formData.id > 0" />
-        </el-form-item>
-        <el-form-item label="配置键" prop="key">
-          <el-input v-model="formData.key" placeholder="请输入配置键" :disabled="formData.id > 0" />
-        </el-form-item>
-        <el-form-item label="配置类型" prop="type">
-          <Dict v-model="formData.type" code="base_config_type" :disabled="formData.id > 0" />
-        </el-form-item>
-        <el-form-item v-if="formData.type == BaseConfigType.TEXT" label="配置值" prop="value">
-          <el-input v-model="formData.value" placeholder="请输入配置值" />
-        </el-form-item>
-        <el-form-item v-if="formData.type == BaseConfigType.IMAGE" label="配置值" prop="value">
-          <UploadImg v-model:image-url="formData.value" />
-        </el-form-item>
-        <el-form-item v-if="formData.type == BaseConfigType.RICH_TEXT" label="配置值" prop="value">
-          <WangEditor v-model:value="formData.value" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="启用"
-            inactive-text="禁用"
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确定</el-button>
-          <el-button @click="handleCloseDialog">取消</el-button>
-        </div>
+      <template #richTextValue>
+        <WangEditor v-model:value="formData.value" />
       </template>
-    </el-dialog>
+    </FormDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import UploadImg from "@/components/Upload/Img.vue";
 import WangEditor from "@/components/WangEditor/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
@@ -109,7 +58,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -134,13 +83,69 @@ const formData = reactive<BaseConfigForm>({
 });
 
 const rules = reactive({
-  site: [{ required: true, message: "请选择系统配置位置", trigger: "blur" }],
+  site: [{ required: true, message: "请选择系统配置位置", trigger: "change" }],
   name: [{ required: true, message: "请输入系统配置名称", trigger: "blur" }],
-  type: [{ required: true, message: "请选择系统配置类型", trigger: "blur" }],
+  type: [{ required: true, message: "请选择系统配置类型", trigger: "change" }],
   key: [{ required: true, message: "请输入系统配置编码", trigger: "blur" }],
   value: [{ required: true, message: "配置值不能为空", trigger: "blur" }],
-  status: [{ required: true, message: "请选择状态", trigger: "blur" }]
+  status: [{ required: true, message: "请选择状态", trigger: "change" }]
 });
+
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
+
+/** 系统配置表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "name",
+    label: "配置名称",
+    component: "input",
+    props: { placeholder: "请输入配置名称", disabled: formData.id > 0 }
+  },
+  {
+    prop: "site",
+    label: "配置位置",
+    component: "dict",
+    props: { code: "base_config_site", disabled: formData.id > 0 }
+  },
+  {
+    prop: "key",
+    label: "配置键",
+    component: "input",
+    props: { placeholder: "请输入配置键", disabled: formData.id > 0 }
+  },
+  {
+    prop: "type",
+    label: "配置类型",
+    component: "dict",
+    props: { code: "base_config_type", disabled: formData.id > 0 }
+  },
+  {
+    prop: "value",
+    label: "配置值",
+    component: "slot",
+    slotName: "textValue",
+    visible: model => model.type == BaseConfigType.TEXT
+  },
+  {
+    prop: "value",
+    label: "配置值",
+    component: "slot",
+    slotName: "imageValue",
+    visible: model => model.type == BaseConfigType.IMAGE
+  },
+  {
+    prop: "value",
+    label: "配置值",
+    component: "slot",
+    slotName: "richTextValue",
+    visible: model => model.type == BaseConfigType.RICH_TEXT,
+    colSpan: 24
+  },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+]);
 
 /** 系统配置表格列配置。 */
 const columns: ColumnProps[] = [
@@ -149,10 +154,75 @@ const columns: ColumnProps[] = [
   { prop: "name", label: "配置名称", search: { el: "input" } },
   { prop: "type", label: "配置类型", dictCode: "base_config_type", search: { el: "select" } },
   { prop: "key", label: "配置键", search: { el: "input" } },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:config:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseConfig)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 150, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 150,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:config:update"],
+        params: scope => ({ configId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.configId as number | undefined) ?? (scope.row as BaseConfig).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:config:delete"],
+        onClick: scope => handleDelete(scope.row as BaseConfig)
+      }
+    ]
+  }
+];
+
+/** 系统配置顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:config:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:config:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseConfig[])
+  },
+  {
+    label: "刷新缓存",
+    type: "primary",
+    icon: RefreshLeft,
+    hidden: () => !BUTTONS.value["base:config:refresh"],
+    onClick: () => handleRefreshCache()
+  }
 ];
 
 /**
@@ -174,8 +244,8 @@ function refreshTable() {
  * 重置系统配置表单，避免新增时保留旧值。
  */
 function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.site = undefined;
   formData.name = "";
@@ -189,17 +259,14 @@ function resetForm() {
  * 打开系统配置弹窗。
  */
 function handleOpenDialog(configId?: number) {
-  dialog.visible = true;
-  if (configId) {
-    dialog.title = "修改系统配置";
-    defBaseConfigService.GetBaseConfig({ value: configId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增系统配置";
   resetForm();
+  dialog.title = configId ? "修改系统配置" : "新增系统配置";
+  dialog.visible = true;
+  if (!configId) return;
+
+  defBaseConfigService.GetBaseConfig({ value: configId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -215,14 +282,15 @@ const handleRefreshCache = useDebounceFn(() => {
  * 提交系统配置表单。
  */
 function handleSubmit() {
-  dataFormRef.value?.validate((valid: boolean) => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const request = formData.id
-      ? defBaseConfigService.UpdateBaseConfig(formData)
-      : defBaseConfigService.CreateBaseConfig(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseConfigForm;
+    const request = submitData.id
+      ? defBaseConfigService.UpdateBaseConfig(submitData)
+      : defBaseConfigService.CreateBaseConfig(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });

@@ -11,120 +11,40 @@
     />
 
     <div class="table-box">
-      <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseUserTable" :init-param="initParam">
-        <template #tableHeader="{ selectedList, selectedListIds }">
-          <el-button v-hasPerm="['base:user:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-            新增
-          </el-button>
-          <el-button
-            v-hasPerm="'base:user:delete'"
-            type="danger"
-            :icon="Delete"
-            :disabled="!selectedListIds.length"
-            @click="handleDelete(selectedList)"
-          >
-            删除
-          </el-button>
-        </template>
-
-        <template #status="scope">
-          <el-switch
-            v-model="scope.row.status"
-            inline-prompt
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-            active-text="启用"
-            inactive-text="禁用"
-            :disabled="!BUTTONS['base:user:status']"
-            :before-change="() => handleBeforeSetStatus(scope.row)"
-          />
-        </template>
-
-        <template #operation="scope">
-          <el-button v-hasPerm="'base:user:pwd'" type="primary" link :icon="RefreshLeft" @click="handleResetPassword(scope.row)">
-            重置密码
-          </el-button>
-          <el-button v-hasPerm="'base:user:update'" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-            编辑
-          </el-button>
-          <el-button v-hasPerm="'base:user:delete'" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-            删除
-          </el-button>
-        </template>
-      </ProTable>
+      <ProTable
+        ref="proTable"
+        row-key="id"
+        :columns="columns"
+        :header-actions="headerActions"
+        :request-api="requestBaseUserTable"
+        :init-param="initParam"
+      />
     </div>
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="800px" @closed="handleCloseDialog">
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="80px">
-        <el-form-item label="用户账号" prop="userName">
-          <el-input v-model="formData.userName" :readonly="!!formData.id" placeholder="请输入用户账号" />
-        </el-form-item>
-
-        <el-form-item label="用户昵称" prop="nickName">
-          <el-input v-model="formData.nickName" placeholder="请输入用户昵称" />
-        </el-form-item>
-
-        <el-form-item label="角色" prop="roleId">
-          <el-select v-model="formData.roleId" placeholder="请选择">
-            <el-option v-for="item in baseRoleOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="用户部门" prop="deptId">
-          <el-tree-select
-            v-model="formData.deptId"
-            placeholder="请选择用户部门"
-            :data="basedDeptOptions"
-            filterable
-            check-strictly
-            :render-after-expand="false"
-          />
-        </el-form-item>
-
-        <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="formData.phone" placeholder="请输入手机号码" />
-        </el-form-item>
-
-        <el-form-item v-if="!formData.id" label="密码" prop="pwd">
-          <el-input v-model="formData.pwd" placeholder="请输入密码" type="password" show-password />
-        </el-form-item>
-
-        <el-form-item label="性别" prop="gender">
-          <Dict v-model="formData.gender" code="base_user_gender" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="启用"
-            inactive-text="禁用"
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-          />
-        </el-form-item>
-
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="formData.remark" placeholder="请输入备注" type="textarea" />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="800px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="90px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useDebounceFn } from "@vueuse/core";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseUserService } from "@/api/admin/base_user";
@@ -148,7 +68,7 @@ type DeptFilterNode = {
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRef = ref();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const initParam = reactive({
   deptId: undefined as number | undefined
@@ -188,8 +108,8 @@ const formData = reactive<BaseUserForm>({
 const rules = reactive({
   userName: [{ required: true, message: "用户账号不能为空", trigger: "blur" }],
   nickName: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
-  deptId: [{ required: true, message: "用户部门不能为空", trigger: "blur" }],
-  roleId: [{ required: true, message: "用户角色不能为空", trigger: "blur" }],
+  deptId: [{ required: true, message: "用户部门不能为空", trigger: "change" }],
+  roleId: [{ required: true, message: "用户角色不能为空", trigger: "change" }],
   phone: [
     {
       pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
@@ -198,11 +118,57 @@ const rules = reactive({
     }
   ],
   pwd: [{ pattern: /^(?=.*[0-9])(.{6,18})$/, message: "请输入6-18位密码", trigger: "blur" }],
-  status: [{ required: true, message: "用户状态不能为空", trigger: "blur" }]
+  status: [{ required: true, message: "用户状态不能为空", trigger: "change" }]
 });
 
 const basedDeptOptions = ref<TreeOptionResponse_Option[]>([]);
 const baseRoleOptions = ref<SelectOptionResponse_Option[]>([]);
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
+
+/** 用户表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "userName",
+    label: "用户账号",
+    component: "input",
+    props: { placeholder: "请输入用户账号", readonly: !!formData.id }
+  },
+  { prop: "nickName", label: "用户昵称", component: "input", props: { placeholder: "请输入用户昵称" } },
+  {
+    prop: "roleId",
+    label: "角色",
+    component: "select",
+    options: baseRoleOptions.value.map(item => ({ label: item.label, value: item.value })),
+    props: { placeholder: "请选择" }
+  },
+  {
+    prop: "deptId",
+    label: "用户部门",
+    component: "tree-select",
+    options: basedDeptOptions.value as unknown as ProFormOption[],
+    props: {
+      placeholder: "请选择用户部门",
+      filterable: true,
+      checkStrictly: true,
+      renderAfterExpand: false,
+      style: { width: "100%" }
+    }
+  },
+  { prop: "phone", label: "手机号码", component: "input", props: { placeholder: "请输入手机号码" } },
+  {
+    prop: "pwd",
+    label: "密码",
+    component: "password",
+    props: { placeholder: "请输入密码", showPassword: true },
+    visible: model => !model.id
+  },
+  { prop: "gender", label: "性别", component: "dict", props: { code: "base_user_gender" } },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions },
+  { prop: "remark", label: "备注", component: "textarea", props: { placeholder: "请输入备注" } }
+]);
 
 /** 用户表格列配置。 */
 const columns: ColumnProps[] = [
@@ -211,11 +177,77 @@ const columns: ColumnProps[] = [
   { prop: "nickName", label: "昵称", search: { el: "input" } },
   { prop: "phone", label: "手机号码", align: "center", search: { el: "input" } },
   { prop: "gender", label: "性别", align: "center", dictCode: "base_user_gender", search: { el: "select" } },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:user:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseUser)
+    }
+  },
   { prop: "remark", label: "备注" },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 220, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 220,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "重置密码",
+        type: "primary",
+        link: true,
+        icon: RefreshLeft,
+        hidden: () => !BUTTONS.value["base:user:pwd"],
+        onClick: scope => handleResetPassword(scope.row as BaseUser)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:user:update"],
+        params: scope => ({ userId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.userId as number | undefined) ?? (scope.row as BaseUser).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:user:delete"],
+        onClick: scope => handleDelete(scope.row as BaseUser)
+      }
+    ]
+  }
+];
+
+/** 用户顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:user:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:user:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseUser[])
+  }
 ];
 
 /**
@@ -320,7 +352,7 @@ function handleResetPassword(row: BaseUser) {
  * 打开用户弹窗，并加载角色和部门下拉选项。
  */
 async function handleOpenDialog(id?: number) {
-  dialog.visible = true;
+  resetForm();
   const [optionBaseRoleResponse, optionBaseDeptResponse] = await Promise.all([
     defBaseRoleService.OptionBaseRole({}),
     defBaseDeptService.OptionBaseDept({})
@@ -328,16 +360,13 @@ async function handleOpenDialog(id?: number) {
   baseRoleOptions.value = optionBaseRoleResponse.list || [];
   basedDeptOptions.value = optionBaseDeptResponse.list || [];
 
-  if (id) {
-    dialog.title = "修改用户";
-    defBaseUserService.GetBaseUser({ value: id }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
+  dialog.title = id ? "修改用户" : "新增用户";
+  dialog.visible = true;
+  if (!id) return;
 
-  dialog.title = "新增用户";
-  resetForm();
+  defBaseUserService.GetBaseUser({ value: id }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -352,8 +381,8 @@ function handleCloseDialog() {
  * 重置用户表单，避免新增与编辑之间互相污染。
  */
 function resetForm() {
-  dataFormRef.value?.resetFields();
-  dataFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.userName = "";
   formData.nickName = "";
@@ -371,12 +400,13 @@ function resetForm() {
  * 提交用户表单，使用防抖避免重复提交。
  */
 const handleSubmit = useDebounceFn(() => {
-  dataFormRef.value?.validate((valid: boolean) => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    const request = formData.id ? defBaseUserService.UpdateBaseUser(formData) : defBaseUserService.CreateBaseUser(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseUserForm;
+    const request = submitData.id ? defBaseUserService.UpdateBaseUser(submitData) : defBaseUserService.CreateBaseUser(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改用户成功" : "新增用户成功");
+      ElMessage.success(submitData.id ? "修改用户成功" : "新增用户成功");
       handleCloseDialog();
       refreshTable();
     });

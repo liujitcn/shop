@@ -1,60 +1,24 @@
 <!-- 热门推荐 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestShopHotTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['shop:hot:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">新增</el-button>
-        <el-button
-          v-hasPerm="['shop:hot:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestShopHotTable" />
 
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['shop:hot:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="1000px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="150px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    >
+      <template #pictureUpload>
+        <UploadImgs v-model:file-list="pictureFileList" :limit="2" />
       </template>
-
-      <template #operation="scope">
-        <el-button v-hasPerm="['shop:hot:items']" type="primary" link :icon="List" @click="handleOpenShopHotItem(scope.row)">
-          推荐选项
-        </el-button>
-        <el-button v-hasPerm="['shop:hot:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['shop:hot:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="1000px" @close="handleCloseDialog">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="150px">
-        <template #pictureUpload>
-          <UploadImgs v-model:file-list="pictureFileList" :limit="2" />
-        </template>
-      </ProForm>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmitClick">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    </FormDialog>
   </div>
 </template>
 
@@ -63,10 +27,10 @@ import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import type { UploadUserFile } from "element-plus";
 import { CirclePlus, Delete, EditPen, List } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance, ProFormOption } from "@/components/ProForm/interface";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import UploadImgs from "@/components/Upload/Imgs.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/admin/shop_hot";
@@ -82,7 +46,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const proFormRef = ref<ProFormInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -148,10 +112,76 @@ const columns: ColumnProps[] = [
   { prop: "title", label: "热门推荐标题", search: { el: "input" } },
   { prop: "desc", label: "热门推荐描述", search: { el: "input" } },
   { prop: "sort", label: "排序", align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["shop:hot:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as ShopHot)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 240, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 240,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "推荐选项",
+        type: "primary",
+        link: true,
+        icon: List,
+        hidden: () => !BUTTONS.value["shop:hot:items"],
+        onClick: scope => handleOpenShopHotItem(scope.row as ShopHot)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["shop:hot:update"],
+        params: scope => ({ hotId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.hotId as number | undefined) ?? (scope.row as ShopHot).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["shop:hot:delete"],
+        onClick: scope => handleDelete(scope.row as ShopHot)
+      }
+    ]
+  }
+];
+
+/** 热门推荐顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["shop:hot:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["shop:hot:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as ShopHot[])
+  }
 ];
 
 /**
@@ -173,8 +203,8 @@ function refreshTable() {
  * 重置热门推荐表单，清理上次编辑残留。
  */
 function resetForm() {
-  proFormRef.value?.resetFields();
-  proFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.title = "";
   formData.desc = "";
@@ -188,17 +218,14 @@ function resetForm() {
  * 打开热门推荐弹窗。
  */
 function handleOpenDialog(hotId?: number) {
-  dialog.visible = true;
-  if (hotId) {
-    dialog.title = "修改热门推荐";
-    defShopHotService.GetShopHot({ value: hotId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增热门推荐";
   resetForm();
+  dialog.title = hotId ? "修改热门推荐" : "新增热门推荐";
+  dialog.visible = true;
+  if (!hotId) return;
+
+  defShopHotService.GetShopHot({ value: hotId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -212,13 +239,14 @@ function handleCloseDialog() {
 /**
  * 提交热门推荐表单。
  */
-function handleSubmitClick() {
-  proFormRef.value?.validate()?.then(isValid => {
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(isValid => {
     if (!isValid) return;
 
-    const request = formData.id ? defShopHotService.UpdateShopHot(formData) : defShopHotService.CreateShopHot(formData);
+    const submitData = JSON.parse(JSON.stringify(formData)) as ShopHotForm;
+    const request = submitData.id ? defShopHotService.UpdateShopHot(submitData) : defShopHotService.CreateShopHot(submitData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
       handleCloseDialog();
       refreshTable();
     });

@@ -11,22 +11,14 @@
     />
 
     <div class="table-box">
-      <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestGoodsTable" :init-param="initParam">
-        <template #tableHeader="{ selectedList }">
-          <el-button v-if="BUTTONS['goods:info:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-            新增
-          </el-button>
-          <el-button
-            v-if="BUTTONS['goods:info:delete']"
-            type="danger"
-            :icon="Delete"
-            :disabled="!selectedList.length"
-            @click="handleDelete(selectedList)"
-          >
-            删除
-          </el-button>
-        </template>
-
+      <ProTable
+        ref="proTable"
+        row-key="id"
+        :columns="columns"
+        :header-actions="headerActions"
+        :request-api="requestGoodsTable"
+        :init-param="initParam"
+      >
         <template #picture="scope">
           <el-popover placement="right" :width="400" trigger="hover">
             <img :src="formatSrc(scope.row.picture)" width="400" height="400" />
@@ -50,40 +42,6 @@
         <template #discountPrice="scope">
           {{ formatPrice(scope.row.discountPrice) }}
         </template>
-
-        <template #status="scope">
-          <el-switch
-            v-model="scope.row.status"
-            inline-prompt
-            :active-value="GoodsStatus.PUT_ON"
-            :inactive-value="GoodsStatus.PULL_OFF"
-            active-text="上架"
-            inactive-text="下架"
-            :disabled="!BUTTONS['goods:info:status']"
-            :before-change="() => handleBeforeSetStatus(scope.row)"
-          />
-        </template>
-
-        <template #operation="scope">
-          <el-button v-if="BUTTONS['goods:info:sku']" type="primary" link :icon="List" @click.stop="handleOpenSku(scope.row)">
-            库存
-          </el-button>
-          <el-button v-if="BUTTONS['goods:info:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row)">
-            编辑
-          </el-button>
-          <el-button v-if="BUTTONS['goods:info:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-            删除
-          </el-button>
-          <el-button
-            v-if="BUTTONS['goods:info:prop']"
-            type="primary"
-            link
-            :icon="Tickets"
-            @click.stop="handleOpenProp(scope.row)"
-          >
-            属性
-          </el-button>
-        </template>
       </ProTable>
     </div>
   </div>
@@ -93,7 +51,7 @@
 import { reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, List, Tickets } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
@@ -136,10 +94,83 @@ const columns: ColumnProps[] = [
   { prop: "realSaleNum", label: "真实销量", align: "right" },
   { prop: "price", label: "价格（元）", align: "right" },
   { prop: "discountPrice", label: "折扣价格（元）", align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "goods_status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: GoodsStatus.PUT_ON,
+      inactiveValue: GoodsStatus.PULL_OFF,
+      activeText: "上架",
+      inactiveText: "下架",
+      disabled: () => !BUTTONS.value["goods:info:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as Goods)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 260, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 260,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "库存",
+        type: "primary",
+        link: true,
+        icon: List,
+        hidden: () => !BUTTONS.value["goods:info:sku"],
+        onClick: scope => handleOpenSku(scope.row as Goods)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["goods:info:update"],
+        onClick: scope => handleOpenDialog(scope.row as Goods)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["goods:info:delete"],
+        onClick: scope => handleDelete(scope.row as Goods)
+      },
+      {
+        label: "属性",
+        type: "primary",
+        link: true,
+        icon: Tickets,
+        hidden: () => !BUTTONS.value["goods:info:prop"],
+        onClick: scope => handleOpenProp(scope.row as Goods)
+      }
+    ]
+  }
+];
+
+/** 商品顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["goods:info:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["goods:info:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as Goods[])
+  }
 ];
 
 /**

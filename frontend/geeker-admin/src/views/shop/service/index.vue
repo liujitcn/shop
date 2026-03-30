@@ -1,60 +1,26 @@
 <!-- 商城服务 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestShopServiceTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['shop:service:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['shop:service:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestShopServiceTable"
+    />
 
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['shop:service:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-hasPerm="['shop:service:update']"
-          type="primary"
-          link
-          :icon="EditPen"
-          @click="handleOpenDialog(scope.row.id)"
-        >
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['shop:service:delete']" type="danger" link :icon="Delete" @click="handleDelete(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" @close="handleCloseDialog">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="100px" />
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确定</el-button>
-          <el-button @click="handleCloseDialog">取消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="500px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="100px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
@@ -62,10 +28,10 @@
 import { reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance, ProFormOption } from "@/components/ProForm/interface";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopServiceService } from "@/api/admin/shop_service";
 import type { PageShopServiceRequest, ShopService, ShopServiceForm } from "@/rpc/admin/shop_service";
@@ -79,7 +45,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const proFormRef = ref<ProFormInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -128,10 +94,68 @@ const columns: ColumnProps[] = [
   { prop: "label", label: "标签", search: { el: "input" } },
   { prop: "value", label: "值" },
   { prop: "sort", label: "排序", align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["shop:service:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as ShopService)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 150, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 150,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["shop:service:update"],
+        params: scope => ({ serviceId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.serviceId as number | undefined) ?? (scope.row as ShopService).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["shop:service:delete"],
+        onClick: scope => handleDelete(scope.row as ShopService)
+      }
+    ]
+  }
+];
+
+/** 商城服务顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["shop:service:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["shop:service:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as ShopService[])
+  }
 ];
 
 /**
@@ -153,8 +177,8 @@ function refreshTable() {
  * 重置商城服务表单，避免编辑残留污染下次新增。
  */
 function resetForm() {
-  proFormRef.value?.resetFields();
-  proFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.label = "";
   formData.value = "";
@@ -163,20 +187,17 @@ function resetForm() {
 }
 
 /**
- * 打开商城服务弹窗。
+ * 打开商城服务弹窗，编辑前先清理旧表单避免闪烁旧数据。
  */
 function handleOpenDialog(serviceId?: number) {
-  dialog.visible = true;
-  if (serviceId) {
-    dialog.title = "修改商城服务";
-    defShopServiceService.GetShopService({ value: serviceId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增商城服务";
   resetForm();
+  dialog.title = serviceId ? "修改商城服务" : "新增商城服务";
+  dialog.visible = true;
+  if (!serviceId) return;
+
+  defShopServiceService.GetShopService({ value: serviceId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -191,9 +212,10 @@ function handleCloseDialog() {
  * 提交商城服务表单。
  */
 function handleSubmit() {
-  proFormRef.value?.validate()?.then(valid => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
+    // 提交前复制一份表单数据，避免请求期间继续编辑导致引用污染。
     const submitData = JSON.parse(JSON.stringify(formData)) as ShopServiceForm;
     const request = submitData.id
       ? defShopServiceService.UpdateShopService(submitData)

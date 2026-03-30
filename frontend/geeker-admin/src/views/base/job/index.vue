@@ -1,37 +1,9 @@
 <!-- 定时任务 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseJobTable">
-      <template #tableHeader="{ selectedList }">
-        <el-button v-if="BUTTONS['base:job:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog()">
-          新增
-        </el-button>
-        <el-button
-          v-if="BUTTONS['base:job:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDelete(selectedList)"
-        >
-          删除
-        </el-button>
-      </template>
-
+    <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestBaseJobTable">
       <template #args="scope">
         <el-tag v-for="(arg, index) in scope.row.args" :key="index" class="mr-5">{{ arg.key }}={{ arg.value }}</el-tag>
-      </template>
-
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="scope.row.entryId == 0 || !BUTTONS['base:job:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
       </template>
 
       <template #operation="scope">
@@ -78,16 +50,18 @@
       </template>
     </ProTable>
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="1000px" @close="handleCloseDialog">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="150px" />
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="1000px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="150px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
@@ -95,9 +69,9 @@
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { ArrowDown, CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
-import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance, ProFormOption } from "@/components/ProForm/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseJobService } from "@/api/admin/base_job";
@@ -113,7 +87,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const proFormRef = ref<ProFormInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
@@ -180,10 +154,43 @@ const columns: ColumnProps[] = [
   { prop: "args", label: "参数" },
   { prop: "cronExpression", label: "cron表达式", align: "center" },
   { prop: "entryId", label: "任务id", align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status", search: { el: "select" } },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: scope => (scope.row as BaseJob).entryId === 0 || !BUTTONS.value["base:job:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseJob)
+    }
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
   { prop: "operation", label: "操作", width: 240, fixed: "right" }
+];
+
+/** 定时任务顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:job:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:job:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as BaseJob[])
+  }
 ];
 
 /**
@@ -231,17 +238,14 @@ function refreshTable() {
  * 打开定时任务弹窗。
  */
 function handleOpenDialog(jobId?: number) {
-  dialog.visible = true;
-  if (jobId) {
-    dialog.title = "修改定时任务";
-    defBaseJobService.GetBaseJob({ value: jobId }).then(data => {
-      Object.assign(formData, data);
-    });
-    return;
-  }
-
-  dialog.title = "新增定时任务";
   resetForm();
+  dialog.title = jobId ? "修改定时任务" : "新增定时任务";
+  dialog.visible = true;
+  if (!jobId) return;
+
+  defBaseJobService.GetBaseJob({ value: jobId }).then(data => {
+    Object.assign(formData, data);
+  });
 }
 
 /**
@@ -256,8 +260,8 @@ function handleCloseDialog() {
  * 重置定时任务表单。
  */
 function resetForm() {
-  proFormRef.value?.resetFields();
-  proFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.name = "";
   formData.invokeTarget = "";
@@ -270,7 +274,7 @@ function resetForm() {
  * 提交定时任务表单。
  */
 function handleSubmit() {
-  proFormRef.value?.validate()?.then(valid => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseJobForm;

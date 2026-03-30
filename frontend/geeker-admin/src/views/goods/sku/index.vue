@@ -21,28 +21,25 @@
       <template #discountPrice="scope">
         {{ formatPrice(scope.row.discountPrice) }}
       </template>
-
-      <template #operation="scope">
-        <el-button v-hasPerm="['goods:sku:update']" type="primary" link :icon="EditPen" @click="handleOpenDialog(scope.row.id)">
-          编辑
-        </el-button>
-      </template>
     </ProTable>
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="700px" @close="handleCloseDialog">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="180px">
-        <template #skuCodeText>{{ formData.skuCode || "-" }}</template>
-        <template #specItemText>{{ formData.specItem.join(" / ") || "-" }}</template>
-        <template #initSaleNumText>{{ formData.initSaleNum }}</template>
-        <template #realSaleNumText>{{ formData.realSaleNum }}</template>
-      </ProForm>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确定</el-button>
-          <el-button @click="handleCloseDialog">取消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="700px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="180px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    >
+      <template #skuCodeText>{{ formData.skuCode || "-" }}</template>
+      <template #specItemText>{{ formData.specItem.join(" / ") || "-" }}</template>
+      <template #initSaleNumText>{{ formData.initSaleNum }}</template>
+      <template #realSaleNumText>{{ formData.realSaleNum }}</template>
+    </FormDialog>
   </div>
 </template>
 
@@ -53,8 +50,8 @@ import { ElMessage } from "element-plus";
 import { EditPen } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField } from "@/components/ProForm/interface";
 import { defGoodsSkuService } from "@/api/admin/goods_sku";
 import { defGoodsSpecService } from "@/api/admin/goods_spec";
 import type { GoodsSku, PageGoodsSkuRequest } from "@/rpc/admin/goods_sku";
@@ -69,7 +66,7 @@ defineOptions({
 
 const route = useRoute();
 const proTable = ref<ProTableInstance>();
-const proFormRef = ref<ProFormInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const goodsId = computed(() => Number(route.query.goodsId ?? 0));
 const initParam = computed(() => ({
@@ -164,7 +161,23 @@ const columns = computed<ColumnProps[]>(() => {
     { prop: "price", label: "价格（元）", align: "right" },
     { prop: "discountPrice", label: "折扣价格（元）", align: "right" },
     { prop: "inventory", label: "库存", align: "right" },
-    { prop: "operation", label: "操作", width: 100, fixed: "right" }
+    {
+      prop: "operation",
+      label: "操作",
+      width: 100,
+      fixed: "right",
+      cellType: "actions",
+      actions: [
+        {
+          label: "编辑",
+          type: "primary",
+          link: true,
+          icon: EditPen,
+          params: scope => ({ skuId: scope.row.id }),
+          onClick: (scope, params) => handleOpenDialog((params?.skuId as number | undefined) ?? (scope.row as GoodsSku).id)
+        }
+      ]
+    }
   ];
 });
 
@@ -212,6 +225,7 @@ function refreshTable() {
  * 打开规格编辑弹窗。
  */
 function handleOpenDialog(skuId: number) {
+  resetForm();
   dialog.visible = true;
   dialog.title = "修改规格";
   defGoodsSkuService.GetGoodsSku({ value: skuId }).then(data => {
@@ -225,7 +239,7 @@ function handleOpenDialog(skuId: number) {
  * 提交 SKU 表单，仅允许更新现有规格。
  */
 function handleSubmit() {
-  proFormRef.value?.validate()?.then(valid => {
+  formDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
     const submitData = JSON.parse(JSON.stringify(formData)) as GoodsSku;
@@ -243,8 +257,8 @@ function handleSubmit() {
  * 重置 SKU 表单，避免弹窗之间数据串用。
  */
 function resetForm() {
-  proFormRef.value?.resetFields();
-  proFormRef.value?.clearValidate();
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   formData.id = 0;
   formData.goodsId = 0;
   formData.picture = "";
