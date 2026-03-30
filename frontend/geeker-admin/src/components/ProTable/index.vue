@@ -16,7 +16,18 @@
     <!-- 表格头部 操作按钮 -->
     <div class="table-header">
       <div class="header-button-lf">
-        <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds" :is-selected="isSelected" />
+        <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds" :is-selected="isSelected">
+          <el-button
+            v-for="action in visibleHeaderActions"
+            :key="action.label"
+            :type="action.type ?? 'primary'"
+            :icon="action.icon"
+            :disabled="getHeaderActionDisabled(action)"
+            @click="handleHeaderActionClick(action)"
+          >
+            {{ action.label }}
+          </el-button>
+        </slot>
       </div>
       <div v-if="toolButton" class="header-button-ri">
         <slot name="toolButton">
@@ -117,7 +128,7 @@ import { ElTable } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
 import { BreakPoint } from "@/components/Grid/interface";
-import { ColumnProps, TypeProps } from "@/components/ProTable/interface";
+import { ColumnProps, HeaderActionProps, HeaderActionScope, TypeProps } from "@/components/ProTable/interface";
 import { Expand, Fold, Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { generateUUID, handleProp } from "@/utils";
 import SearchForm from "@/components/SearchForm/index.vue";
@@ -128,6 +139,7 @@ import Sortable from "sortablejs";
 
 export interface ProTableProps {
   columns: ColumnProps[]; // 列配置项  ==> 必传
+  headerActions?: HeaderActionProps[]; // 顶部操作按钮配置 ==> 非必传
   data?: any[]; // 静态 table data 数据，若存在则不会使用 requestApi 返回的 data ==> 非必传
   requestApi?: (params: any) => Promise<any>; // 请求表格数据的 api ==> 非必传
   requestAuto?: boolean; // 是否自动执行请求 api ==> 非必传（默认为true）
@@ -145,6 +157,7 @@ export interface ProTableProps {
 // 接受父组件参数，配置默认值
 const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
+  headerActions: () => [],
   requestAuto: true,
   pagination: true,
   initParam: {},
@@ -167,7 +180,7 @@ const columnTypes: TypeProps[] = ["selection", "radio", "index", "expand", "sort
 // 是否显示搜索模块
 const isShowSearch = ref(true);
 const isTreeExpanded = ref(false);
-const expandRowKeys = ref<Array<string | number>>([]);
+const expandRowKeys = ref<string[]>([]);
 
 // 判断当前表格是否为树形表格
 const treeProps = computed(() => {
@@ -186,6 +199,15 @@ const radio = ref("");
 
 // 表格多选 Hooks
 const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection(props.rowKey);
+
+/**
+ * 构建顶部按钮回调上下文，统一透出勾选状态给业务层。
+ */
+const headerActionScope = computed<HeaderActionScope>(() => ({
+  selectedList: selectedList.value,
+  selectedListIds: selectedListIds.value,
+  isSelected: isSelected.value
+}));
 
 // 表格操作 Hooks
 const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } =
@@ -304,6 +326,42 @@ const colSetting = (tableColumns.value as ColumnProps[]).filter(item => {
 });
 const openColSetting = () => colRef.value.openColSetting();
 
+/**
+ * 解析顶部按钮透传参数，兼容静态对象与函数返回值。
+ */
+const resolveHeaderActionParams = (params: HeaderActionProps["params"]) => {
+  if (!params) return undefined;
+  return typeof params === "function" ? params(headerActionScope.value) : params;
+};
+
+/**
+ * 统一解析顶部按钮的显隐状态。
+ */
+const getHeaderActionHidden = (action: HeaderActionProps) => {
+  return typeof action.hidden === "function" ? action.hidden(headerActionScope.value) : Boolean(action.hidden);
+};
+
+/**
+ * 统一解析顶部按钮的禁用状态。
+ */
+const getHeaderActionDisabled = (action: HeaderActionProps) => {
+  return typeof action.disabled === "function" ? action.disabled(headerActionScope.value) : Boolean(action.disabled);
+};
+
+/**
+ * 过滤顶部可见按钮，避免模板层重复执行显隐判断。
+ */
+const visibleHeaderActions = computed(() => {
+  return props.headerActions.filter(action => !getHeaderActionHidden(action));
+});
+
+/**
+ * 执行顶部按钮回调，并透传当前选中数据与附加参数。
+ */
+const handleHeaderActionClick = (action: HeaderActionProps) => {
+  action.onClick(headerActionScope.value, resolveHeaderActionParams(action.params));
+};
+
 // 定义 emit 事件
 const emit = defineEmits<{
   search: [];
@@ -328,13 +386,13 @@ const toggleTreeExpand = () => {
 
 // 递归收集树形表格的所有行 key
 const collectTreeRowKeys = (rows: Record<string, any>[], rowKey: string, childrenKey: string) => {
-  const keys: Array<string | number> = [];
+  const keys: string[] = [];
 
   const travel = (list: Record<string, any>[]) => {
     list.forEach(item => {
       const key = item[rowKey];
       if (key !== undefined && key !== null && key !== "") {
-        keys.push(key);
+        keys.push(String(key));
       }
       const children = item[childrenKey];
       if (Array.isArray(children) && children.length) {

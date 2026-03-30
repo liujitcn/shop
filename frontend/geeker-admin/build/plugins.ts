@@ -7,6 +7,7 @@ import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
 import eslintPlugin from "vite-plugin-eslint";
+import AutoImport from "unplugin-auto-import/vite";
 import viteCompression from "vite-plugin-compression";
 import vueSetupExtend from "unplugin-vue-setup-extend-plus/vite";
 import NextDevTools from "vite-plugin-vue-devtools";
@@ -22,6 +23,71 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     vue(),
     // vue 可以使用 jsx/tsx 语法
     vueJsx(),
+    // 自动导入 Vue、Element Plus API 与图标，减少页面重复 import
+    AutoImport({
+      dts: "types/generated/auto-imports.d.ts",
+      eslintrc: {
+        enabled: true,
+        filepath: "./types/generated/eslint-auto-import.json",
+        globalsPropValue: true
+      },
+      imports: [
+        "vue",
+        "vue-router",
+        {
+          "element-plus": [
+            "ElConfigProvider",
+            "ElLoading",
+            "ElMessage",
+            "ElMessageBox",
+            "ElNotification",
+            "ElTable",
+            "ElTree",
+            "formContextKey",
+            "formItemContextKey"
+          ]
+        },
+        {
+          "@element-plus/icons-vue": [
+            "ArrowDown",
+            "ArrowRight",
+            "ArrowUp",
+            "Camera",
+            "CircleCheck",
+            "CircleClose",
+            "CirclePlus",
+            "Delete",
+            "Document",
+            "Download",
+            "Edit",
+            "EditPen",
+            "Expand",
+            "Female",
+            "Fold",
+            "InfoFilled",
+            "List",
+            "Male",
+            "Moon",
+            "Operation",
+            "Phone",
+            "Plus",
+            "Position",
+            "QuestionFilled",
+            "Refresh",
+            "RefreshLeft",
+            "Search",
+            "Sunny",
+            "Switch",
+            "Tickets",
+            "Timer",
+            "User",
+            "UserFilled",
+            "Van",
+            "View"
+          ]
+        }
+      ]
+    }),
     // devTools
     VITE_DEVTOOLS && NextDevTools({ launchEditor: "code" }),
     // esLint 报错信息显示在浏览器界面上

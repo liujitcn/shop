@@ -62,6 +62,17 @@ const emit = defineEmits<{
 
 const formContext = inject(formContextKey, void 0);
 const formItemContext = inject(formItemContextKey, void 0);
+type UploadRequestError = Parameters<NonNullable<UploadRequestOptions["onError"]>>[0];
+
+/** 兼容 Element Plus 上传组件要求的错误对象结构。 */
+function buildUploadError(error: unknown): UploadRequestError {
+  const uploadError = error instanceof Error ? error : new Error("文件上传失败");
+  return Object.assign(uploadError, {
+    status: 500,
+    method: "POST",
+    url: "#"
+  }) as UploadRequestError;
+}
 
 /** 计算当前组件是否禁用。 */
 const selfDisabled = computed(() => {
@@ -99,7 +110,7 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
     const data = await api(options.file);
     options.onSuccess(data);
   } catch (error) {
-    options.onError(error as Error);
+    options.onError(buildUploadError(error));
   }
 };
 

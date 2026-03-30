@@ -1,4 +1,4 @@
-import { VNode, ComponentPublicInstance, Ref } from "vue";
+import { ComponentPublicInstance, Ref, VNode } from "vue";
 import { BreakPoint, Responsive } from "@/components/Grid/interface";
 import { TableColumnCtx } from "element-plus/es/components/table/src/table-column/defaults";
 import { ProTableProps } from "@/components/ProTable/index.vue";
@@ -72,10 +72,68 @@ export type HeaderRenderScope<T extends DefaultRow = DefaultRow> = {
   [key: string]: any;
 };
 
+export type CellType = "image" | "status" | "actions";
+
+export type ColumnActionParams<T extends DefaultRow = DefaultRow> =
+  | Record<string, any>
+  | ((scope: RenderScope<T>) => Record<string, any>);
+
+export type HeaderActionScope<T extends DefaultRow = DefaultRow> = {
+  selectedList: T[];
+  selectedListIds: Array<string | number>;
+  isSelected: boolean;
+};
+
+export type HeaderActionParams<T extends DefaultRow = DefaultRow> =
+  | Record<string, any>
+  | ((scope: HeaderActionScope<T>) => Record<string, any>);
+
+export interface ImageCellProps<T extends DefaultRow = DefaultRow> {
+  src?: string | ((scope: RenderScope<T>) => string);
+  previewSrc?: string | ((scope: RenderScope<T>) => string);
+  width?: number | string;
+  height?: number | string;
+  previewWidth?: number | string;
+  previewHeight?: number | string;
+}
+
+export interface StatusCellProps<T extends DefaultRow = DefaultRow> {
+  activeValue: string | number | boolean;
+  inactiveValue: string | number | boolean;
+  activeText?: string;
+  inactiveText?: string;
+  disabled?: boolean | ((scope: RenderScope<T>) => boolean);
+  beforeChange?: (scope: RenderScope<T>, params?: Record<string, any>) => boolean | Promise<boolean>;
+  onChange?: (value: string | number | boolean, scope: RenderScope<T>, params?: Record<string, any>) => void | Promise<void>;
+  params?: ColumnActionParams<T>;
+}
+
+export interface TableActionProps<T extends DefaultRow = DefaultRow> {
+  label: string;
+  icon?: any;
+  type?: "primary" | "success" | "warning" | "danger" | "info";
+  link?: boolean;
+  disabled?: boolean | ((scope: RenderScope<T>) => boolean);
+  hidden?: boolean | ((scope: RenderScope<T>) => boolean);
+  params?: ColumnActionParams<T>;
+  onClick: (scope: RenderScope<T>, params?: Record<string, any>) => void | Promise<void>;
+}
+
+export interface HeaderActionProps<T extends DefaultRow = DefaultRow> {
+  label: string;
+  icon?: any;
+  type?: "primary" | "success" | "warning" | "danger" | "info";
+  disabled?: boolean | ((scope: HeaderActionScope<T>) => boolean);
+  hidden?: boolean | ((scope: HeaderActionScope<T>) => boolean);
+  params?: HeaderActionParams<T>;
+  onClick: (scope: HeaderActionScope<T>, params?: Record<string, any>) => void | Promise<void>;
+}
+
 export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
   Omit<TableColumnCtx<T>, "type" | "children" | "renderCell" | "renderHeader">
 > {
   type?: TypeProps; // 列类型
+  cellType?: CellType; // 预置单元格类型
   tag?: boolean | Ref<boolean>; // 是否是标签展示
   isShow?: boolean | Ref<boolean>; // 是否显示在表格当中
   isSetting?: boolean | Ref<boolean>; // 是否在 ColSetting 中可配置
@@ -87,6 +145,9 @@ export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
   fieldNames?: FieldNamesProps; // 指定 label && value && children 的 key 值
   headerRender?: (scope: HeaderRenderScope<T>) => VNode; // 自定义表头内容渲染（tsx语法）
   render?: (scope: RenderScope<T>) => VNode | string; // 自定义单元格内容渲染（tsx语法）
+  imageProps?: ImageCellProps<T>; // 图片列配置
+  statusProps?: StatusCellProps<T>; // 状态列配置
+  actions?: TableActionProps<T>[]; // 操作按钮配置
   _children?: ColumnProps<T>[]; // 多级表头
 }
 

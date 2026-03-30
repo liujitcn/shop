@@ -1,212 +1,257 @@
-# Geeker-Admin
+# geeker-admin
 
-### 介绍 📖
+`geeker-admin` 是 `shop` 项目的后台管理前端，基于 `Vue 3 + Vite + TypeScript + Element Plus + Pinia` 构建，负责商城后台的登录认证、权限菜单、基础数据维护、商品管理、订单管理、店铺运营和支付账单等功能。
 
-Geeker-Admin 一款基于 Vue3.4、TypeScript、Vite5、Pinia、Element-Plus 开源的后台管理框架，使用目前最新技术栈开发。项目提供强大的 [ProTable](https://juejin.cn/post/7166068828202336263) 组件，在一定程度上提高您的开发效率。另外本项目还封装了一些常用组件、Hooks、指令、动态路由、按钮级别权限控制等功能。
+项目当前采用后端动态菜单驱动路由，前端按接口返回的菜单树动态注册页面组件；认证链路使用 `access token + refresh token`，在令牌即将过期时自动刷新，适配当前商城后台的权限体系。
 
-### React 版本 🔥
+## 技术栈
 
-- 有需要请加底部微信了解、购买
+- `Vue 3`
+- `Vite 5`
+- `TypeScript 5`
+- `Element Plus`
+- `Pinia`
+- `Vue Router`
+- `Axios`
+- `ECharts`
+- `WangEditor`
+- `pnpm`
 
-- Link：https://pro.spicyboy.cn
+## 运行要求
 
-### 在线预览 👀
+- `Node.js >= 16.18.0`
+- `pnpm`
 
-- Link：https://admin.spicyboy.cn
+建议直接使用仓库内已经约定的 `pnpm` 作为包管理器。
 
-### 代码仓库 ⭐
+## 快速开始
 
-- Gitee：https://gitee.com/HalseySpicy/Geeker-Admin
-- GitHub：https://github.com/HalseySpicy/Geeker-Admin
+### 1. 安装依赖
 
-### 项目文档 📚
-
-- 项目更新日志：[CHANGELOG.md](./CHANGELOG.md)
-
-- 项目文档地址：https://docs.spicyboy.cn
-
-### 项目功能 🔨
-
-- 使用 Vue3.4 + TypeScript 开发，单文件组件**＜script setup＞**
-- 采用 Vite5 作为项目开发、打包工具（配置 gzip/brotli 打包、tsx 语法、跨域代理…）
-- 使用 Pinia 替代 Vuex，轻量、简单、易用，集成 Pinia 持久化插件
-- 使用 TypeScript 对 Axios 整个二次封装（请求拦截、取消、常用请求封装…）
-- 基于 Element 二次封装 [ProTable](https://juejin.cn/post/7166068828202336263) 组件，表格页面全部为配置项 Columns
-- 支持 Element 组件大小切换、多主题布局、暗黑模式、i18n 国际化
-- 使用 VueRouter 配置动态路由权限拦截、路由懒加载，支持页面按钮权限控制
-- 使用 KeepAlive 对页面进行缓存，支持多级嵌套路由缓存
-- 常用自定义指令开发（权限、复制、水印、拖拽、节流、防抖、长按…）
-- 使用 Prettier 统一格式化代码，集成 ESLint、Stylelint 代码校验规范
-- 使用 husky、lint-staged、commitlint、czg、cz-git 规范提交信息
-
-### 安装使用步骤 📔
-
-- **Clone：**
-
-```text
-# Gitee
-git clone https://gitee.com/HalseySpicy/Geeker-Admin.git
-# GitHub
-git clone https://github.com/HalseySpicy/Geeker-Admin.git
-```
-
-- **Install：**
-
-```text
+```bash
 pnpm install
 ```
 
-- **Run：**
+### 2. 启动开发环境
 
-```text
+```bash
 pnpm dev
-pnpm serve
 ```
 
-- **Build：**
+默认行为：
 
-```text
-# 开发环境
-pnpm build:dev
+- 本地端口：`8848`
+- 自动打开浏览器：`true`
+- 开发路由模式：`hash`
+- 开发接口前缀：`/api`
 
-# 测试环境
-pnpm build:test
+### 3. 代码检查
 
-# 生产环境
-pnpm build:pro
-```
-
-- **Lint：**
-
-```text
-# eslint 检测代码
+```bash
 pnpm lint:eslint
+pnpm type:check
+```
 
-# prettier 格式化代码
+如需补充格式化与样式检查，可执行：
+
+```bash
 pnpm lint:prettier
-
-# stylelint 格式化样式
 pnpm lint:stylelint
 ```
 
-- **commit：**
+## 构建与预览
 
-```text
-# 提交代码（提交前会自动执行 lint:lint-staged 命令）
-pnpm commit
+### 开发环境构建
+
+```bash
+pnpm build:dev
 ```
 
-### 项目截图 📷
+### 测试环境构建
 
-- 登录页：
-
-![login_light](https://i.imgtg.com/2023/04/13/8tknp.png)
-
-![login_dark](https://i.imgtg.com/2023/04/13/8tmpP.png)
-
-- 首页：
-
-![home_light](https://i.imgtg.com/2023/04/13/8tl1j.png)
-
-![home_dark](https://i.imgtg.com/2023/04/13/8tpfb.png)
-
-- 表格页：
-
-![table_light](https://i.imgtg.com/2023/04/13/8tfMx.png)
-
-![table_dark](https://i.imgtg.com/2023/04/13/8tv8F.png)
-
-- 数据可视化
-
-![dashboard](https://i.imgtg.com/2023/04/14/82Grx.png)
-
-- 数据大屏：
-
-![dataScreen](https://i.imgtg.com/2023/01/16/QP8HF.png)
-
-### 文件资源目录 📚
-
-```text
-Geeker-Admin
-├─ .husky                  # husky 配置文件
-├─ .vscode                 # VSCode 推荐配置
-├─ build                   # Vite 配置项
-├─ public                  # 静态资源文件（该文件夹不会被打包）
-├─ src
-│  ├─ api                  # API 接口管理
-│  ├─ assets               # 静态资源文件
-│  ├─ components           # 全局组件
-│  ├─ config               # 全局配置项
-│  ├─ directives           # 全局指令文件
-│  ├─ enums                # 项目常用枚举
-│  ├─ hooks                # 常用 Hooks 封装
-│  ├─ languages            # 语言国际化 i18n
-│  ├─ layouts              # 框架布局模块
-│  ├─ routers              # 路由管理
-│  ├─ stores               # pinia store
-│  ├─ styles               # 全局样式文件
-│  ├─ typings              # 全局 ts 声明
-│  ├─ utils                # 常用工具库
-│  ├─ views                # 项目所有页面
-│  ├─ App.vue              # 项目主组件
-│  ├─ main.ts              # 项目入口文件
-│  └─ vite-env.d.ts        # 指定 ts 识别 vue
-├─ .editorconfig           # 统一不同编辑器的编码风格
-├─ .env                    # vite 常用配置
-├─ .env.development        # 开发环境配置
-├─ .env.production         # 生产环境配置
-├─ .env.test               # 测试环境配置
-├─ .eslintignore           # 忽略 Eslint 校验
-├─ .eslintrc.cjs           # Eslint 校验配置文件
-├─ .gitignore              # 忽略 git 提交
-├─ .prettierignore         # 忽略 Prettier 格式化
-├─ .prettierrc.cjs         # Prettier 格式化配置
-├─ .stylelintignore        # 忽略 stylelint 格式化
-├─ .stylelintrc.cjs        # stylelint 样式格式化配置
-├─ CHANGELOG.md            # 项目更新日志
-├─ commitlint.config.cjs   # git 提交规范配置
-├─ index.html              # 入口 html
-├─ LICENSE                 # 开源协议文件
-├─ lint-staged.config.cjs  # lint-staged 配置文件
-├─ package-lock.json       # 依赖包包版本锁
-├─ package.json            # 依赖包管理
-├─ postcss.config.cjs      # postcss 配置
-├─ README.md               # README 介绍
-├─ tsconfig.json           # typescript 全局配置
-└─ vite.config.ts          # vite 全局配置文件
+```bash
+pnpm build:test
 ```
 
-### 浏览器支持 🌎
+### 生产环境构建
 
-- 本地开发推荐使用 Chrome 最新版浏览器 [Download](https://www.google.com/intl/zh-CN/chrome/)。
-- 生产环境支持现代浏览器，不再支持 IE 浏览器，更多浏览器可以查看 [Can I Use Es Module](https://caniuse.com/?search=ESModule)。
+```bash
+pnpm build:pro
+```
 
-| ![IE](https://i.imgtg.com/2023/04/11/8z7ot.png) | ![Edge](https://i.imgtg.com/2023/04/11/8zr3p.png) | ![Firefox](https://i.imgtg.com/2023/04/11/8zKiU.png) | ![Chrome](https://i.imgtg.com/2023/04/11/8zNrx.png) | ![Safari](https://i.imgtg.com/2023/04/11/8zeGj.png) |
-| :---------------------------------------------: | :-----------------------------------------------: | :--------------------------------------------------: | :-------------------------------------------------: | :-------------------------------------------------: |
-|                   not support                   |                  last 2 versions                  |                   last 2 versions                    |                   last 2 versions                   |                   last 2 versions                   |
+### 本地预览
 
-### 项目后台接口 🧩
+```bash
+pnpm preview
+```
 
-项目后台接口完全采用 Mock 数据，感谢以下 Mock 平台支持：
+## 构建产物说明
 
-- FastMock： https://www.fastmock.site
-- EasyMock：https://mock.mengxuegu.com
+当前 `vite.config.ts` 已将构建输出目录固定为：
 
-### 微信交流群 👨‍👨‍👦‍👦
+```text
+../../backend/data/geeker
+```
 
-微信一群、二群、三群、四群已满，加作者微信进入五群（支持知识付费）🤪
+这意味着前端打包结果会直接写入 `shop` 仓库下的后端静态资源目录，而不是当前前端目录内的 `dist`。在联调或发布时，需要同时关注后端目录中的静态文件是否已被正确覆盖。
 
-|                                               微信二维码                                                |
-| :-----------------------------------------------------------------------------------------------------: |
-| <img src="https://pic.ziyuan.wang/user/guest/2024/02/WX20240228-162952@2x_d164375fc0c16.png" width=170> |
+生产环境公共访问前缀当前配置为：
 
-### 捐赠 🍵
+```text
+/geeker/
+```
 
-如果你正在使用这个项目或者喜欢这个项目的，可以通过以下方式支持我：
+如果后端静态资源挂载路径调整，需要同步修改 `.env.production` 中的 `VITE_PUBLIC_PATH`。
 
-- Star、Fork、Watch 一键三连 🚀
-- 通过微信、支付宝一次性捐款 ❤
+## 环境变量
 
-|                                        微信                                        |                                       支付宝                                       |
-| :--------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
-| <img src="https://i.imgtg.com/2023/01/16/QRzBX.png" alt="Alipay QRcode" width=170> | <img src="https://i.imgtg.com/2023/01/16/QRFZt.png" alt="Wechat QRcode" width=170> |
+项目使用 `.env`、`.env.development`、`.env.production` 管理环境配置。
+
+### 通用变量
+
+| 变量名 | 说明 | 当前值 |
+| --- | --- | --- |
+| `VITE_GLOB_APP_TITLE` | 应用标题 | `Geeker Admin` |
+| `VITE_PORT` | 本地开发端口 | `8848` |
+| `VITE_OPEN` | 启动时自动打开浏览器 | `true` |
+| `VITE_DEVTOOLS` | 是否开启 Vue DevTools | `false` |
+| `VITE_REPORT` | 是否生成打包分析报告 | `false` |
+| `VITE_CODEINSPECTOR` | 是否开启 Code Inspector | `false` |
+
+### 开发环境变量
+
+| 变量名 | 说明 | 当前值 |
+| --- | --- | --- |
+| `VITE_USER_NODE_ENV` | 环境标识 | `development` |
+| `VITE_PUBLIC_PATH` | 公共访问路径 | `/` |
+| `VITE_ROUTER_MODE` | 路由模式 | `hash` |
+| `VITE_DROP_CONSOLE` | 构建时移除 `console` | `true` |
+| `VITE_PWA` | 是否启用 PWA | `false` |
+| `VITE_API_URL` | 开发接口基础地址 | `/api` |
+| `VITE_PROXY` | 开发代理配置 | `[["/api","http://localhost:7001"],["/shop","http://localhost:7001"]]` |
+
+### 生产环境变量
+
+| 变量名 | 说明 | 当前值 |
+| --- | --- | --- |
+| `VITE_USER_NODE_ENV` | 环境标识 | `production` |
+| `VITE_PUBLIC_PATH` | 公共访问路径 | `/geeker/` |
+| `VITE_ROUTER_MODE` | 路由模式 | `hash` |
+| `VITE_BUILD_COMPRESS` | 构建压缩方式 | `none` |
+| `VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE` | 压缩后是否删除源文件 | `false` |
+| `VITE_DROP_CONSOLE` | 构建时移除 `console` | `true` |
+| `VITE_PWA` | 是否启用 PWA | `true` |
+| `VITE_API_URL` | 生产接口基础地址 | `/api` |
+
+## 开发代理说明
+
+开发环境下，Vite 会将下列请求代理到本地后端：
+
+- `/api -> http://localhost:7001`
+- `/shop -> http://localhost:7001`
+
+如果后端联调端口变化，优先修改 `.env.development` 中的 `VITE_PROXY`。
+
+## 目录结构
+
+```text
+geeker-admin
+├── build                  Vite 构建扩展配置
+├── public                 静态资源
+├── src
+│   ├── api                基于 axios 的业务接口封装
+│   ├── assets             图片、字体、svg 图标等静态资源
+│   ├── components         通用业务组件
+│   ├── config             全局配置
+│   ├── directives         自定义指令
+│   ├── enums              枚举定义
+│   ├── hooks              组合式 hooks
+│   ├── layouts            多布局容器与头部/标签栏等框架组件
+│   ├── routers            静态路由与动态路由初始化
+│   ├── rpc                接口类型与生成代码
+│   ├── stores             Pinia 状态管理
+│   ├── styles             全局样式与主题变量
+│   ├── utils              请求封装、工具函数、权限辅助等
+│   └── views              页面级业务模块
+├── .env*                  环境变量配置
+├── package.json           脚本与依赖声明
+└── vite.config.ts         Vite 主配置
+```
+
+## 业务模块
+
+当前仓库内已经落地的页面模块主要包括：
+
+- 登录与个人中心
+- 工作台、数据看板
+- 用户、角色、菜单、部门、岗位、日志、字典、系统配置
+- 门店管理
+- 商品分类、商品信息、规格、属性、SKU
+- 订单管理、发货处理
+- 店铺轮播图、热门推荐、服务配置
+- 支付账单
+
+首页默认路由为：
+
+```text
+/dashboard/workspace
+```
+
+## 权限与路由
+
+- 静态路由仅保留登录页、布局页和错误页。
+- 业务页面路由主要由后端接口动态返回。
+- 前端启动后会拉取用户菜单和按钮权限，再按菜单配置动态注册路由。
+- 菜单组件路径通过 `src/views` 下的页面文件自动匹配，未匹配到的页面会回退到待迁移页面占位逻辑。
+
+相关接口：
+
+- `GET /admin/auth/userInfo`
+- `GET /admin/auth/menu`
+- `GET /admin/auth/button`
+
+## 认证机制
+
+登录相关接口位于 `/login` 命名空间下，主要包括：
+
+- `GET /login/captcha`
+- `POST /login`
+- `POST /login/refreshToken`
+- `DELETE /login/logout`
+
+当前前端认证处理策略：
+
+- 登录成功后缓存 `access token`、`refresh token`、`tokenType` 和过期时间。
+- 请求发送前，如果令牌剩余有效期小于 5 分钟，会自动调用刷新接口。
+- 遇到 `401` 或 `403` 响应时，会提示重新登录并清理本地认证信息。
+
+## 常用脚本
+
+| 命令 | 说明 |
+| --- | --- |
+| `pnpm dev` | 启动开发服务器 |
+| `pnpm serve` | 启动开发服务器，等同于 `pnpm dev` |
+| `pnpm build` | 执行生产构建，等同于 `pnpm build:pro` |
+| `pnpm build:dev` | 开发环境构建 |
+| `pnpm build:test` | 测试环境构建 |
+| `pnpm build:pro` | 生产环境构建 |
+| `pnpm preview` | 构建后本地预览 |
+| `pnpm type:check` | TypeScript 类型检查 |
+| `pnpm lint:eslint` | ESLint 检查并自动修复 `src` 下代码 |
+| `pnpm lint:prettier` | Prettier 格式化 |
+| `pnpm lint:stylelint` | Stylelint 检查并自动修复样式 |
+
+## 开发约定
+
+- 包管理器使用 `pnpm`。
+- 路径别名 `@` 默认指向 `src`。
+- 路由模式当前统一使用 `hash`。
+- 所有页面组件集中放在 `src/views`，动态菜单的组件路径也依赖该目录结构。
+- 接口请求统一走 `src/utils/request.ts`，并在其中处理鉴权头、错误提示和令牌刷新。
+- 类型定义与接口描述主要位于 `src/rpc`。
+
+## 维护建议
+
+- 新增页面时，优先保持与后端菜单配置中的组件路径一致，避免动态路由无法命中组件文件。
+- 修改部署路径、代理地址或接口前缀时，同时检查 `.env*`、`vite.config.ts` 和后端静态资源挂载配置。
+- 如果后端输出的菜单路径采用相对路径，当前前端已内置路径规范化逻辑，但仍建议后端保持路径定义风格统一。

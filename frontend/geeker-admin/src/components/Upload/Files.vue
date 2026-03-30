@@ -39,7 +39,7 @@
 import { computed, inject, ref, watch } from "vue";
 import { Delete, Document, Download } from "@element-plus/icons-vue";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
-import type { UploadFile, UploadProps, UploadRequestOptions, UploadUserFile } from "element-plus";
+import type { UploadProps, UploadRequestOptions, UploadUserFile } from "element-plus";
 import { defFileService } from "@/api/base/file";
 import type { FileInfo } from "@/rpc/base/file";
 
@@ -69,6 +69,17 @@ const emit = defineEmits<{
 const formContext = inject(formContextKey, void 0);
 const formItemContext = inject(formItemContextKey, void 0);
 const _fileList = ref<UploadUserFile[]>(props.fileList);
+type UploadRequestError = Parameters<NonNullable<UploadRequestOptions["onError"]>>[0];
+
+/** 兼容 Element Plus 上传组件要求的错误对象结构。 */
+function buildUploadError(error: unknown): UploadRequestError {
+  const uploadError = error instanceof Error ? error : new Error("文件上传失败");
+  return Object.assign(uploadError, {
+    status: 500,
+    method: "POST",
+    url: "#"
+  }) as UploadRequestError;
+}
 
 watch(
   () => props.fileList,
@@ -113,7 +124,7 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
     const data = await api(options.file);
     options.onSuccess(data);
   } catch (error) {
-    options.onError(error as Error);
+    options.onError(buildUploadError(error));
   }
 };
 
@@ -155,7 +166,7 @@ function handleExceed() {
 }
 
 /** 删除指定文件。 */
-function handleRemove(file: UploadFile) {
+function handleRemove(file: UploadUserFile) {
   _fileList.value = _fileList.value.filter(item => item.url !== file.url || item.name !== file.name);
   emit("update:fileList", _fileList.value);
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
