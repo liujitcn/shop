@@ -30,29 +30,29 @@
               <span class="goods-meta-item__label">商品分类</span>
               <span class="goods-meta-item__value">{{ formData.categoryName || "-" }}</span>
             </div>
-            <div class="goods-meta-item">
+            <button type="button" class="goods-meta-item goods-meta-item--action" @click="handleNavigateSection('banner')">
               <span class="goods-meta-item__label">轮播图</span>
               <span class="goods-meta-item__value">{{ bannerCount }} 张</span>
-            </div>
-            <div class="goods-meta-item">
+            </button>
+            <button type="button" class="goods-meta-item goods-meta-item--action" @click="handleNavigateSection('detail')">
               <span class="goods-meta-item__label">详情图</span>
               <span class="goods-meta-item__value">{{ detailCount }} 张</span>
-            </div>
-            <div class="goods-meta-item">
+            </button>
+            <button type="button" class="goods-meta-item goods-meta-item--action" @click="handleNavigateSection('sku')">
               <span class="goods-meta-item__label">SKU 数量</span>
               <span class="goods-meta-item__value">{{ skuCount }} 个</span>
-            </div>
+            </button>
           </div>
 
           <div class="goods-metric-list">
-            <div class="goods-metric-card">
+            <button type="button" class="goods-metric-card goods-metric-card--action" @click="handleNavigateSection('prop')">
               <span class="goods-metric-card__label">商品属性</span>
               <strong class="goods-metric-card__value">{{ propCount }}</strong>
-            </div>
-            <div class="goods-metric-card">
+            </button>
+            <button type="button" class="goods-metric-card goods-metric-card--action" @click="handleNavigateSection('spec')">
               <span class="goods-metric-card__label">商品规格</span>
               <strong class="goods-metric-card__value">{{ specCount }}</strong>
-            </div>
+            </button>
             <div class="goods-metric-card">
               <span class="goods-metric-card__label">库存总量</span>
               <strong class="goods-metric-card__value">{{ totalInventory }}</strong>
@@ -62,50 +62,30 @@
       </div>
     </el-card>
 
-    <el-tabs class="goods-detail-tabs">
-      <el-tab-pane label="基本信息">
-        <div class="detail-panel-grid">
-          <el-card class="detail-section-card" shadow="never">
-            <template #header>
-              <div class="detail-section-card__header">
-                <span>商品信息</span>
-              </div>
-            </template>
-
-            <el-descriptions :column="2" border class="goods-descriptions">
-              <el-descriptions-item label="商品分类">{{ formData.categoryName || "-" }}</el-descriptions-item>
-              <el-descriptions-item label="状态">
-                <el-tag :type="statusTagType" effect="light" round>{{ statusText }}</el-tag>
-              </el-descriptions-item>
-              <el-descriptions-item label="商品名称" :span="2">{{ formData.name || "-" }}</el-descriptions-item>
-              <el-descriptions-item label="商品描述" :span="2">{{ formData.desc || "-" }}</el-descriptions-item>
-            </el-descriptions>
-          </el-card>
-
-          <el-card class="detail-section-card" shadow="never">
-            <template #header>
-              <div class="detail-section-card__header">
-                <span>商品主图</span>
-              </div>
-            </template>
-
-            <div class="cover-preview-panel">
-              <el-image
-                class="cover-preview-panel__image"
-                :src="formData.picture"
-                :preview-src-list="coverPreviewList"
-                fit="cover"
-                preview-teleported
-              >
-                <template #error>
-                  <div class="image-placeholder image-placeholder--large">暂无主图</div>
-                </template>
-              </el-image>
-            </div>
-          </el-card>
-        </div>
-
+    <el-tabs v-model="activeTabName" class="goods-detail-tabs">
+      <el-tab-pane label="基本信息" name="basic">
         <el-card class="detail-section-card" shadow="never">
+          <template #header>
+            <div class="detail-section-card__header">
+              <span>商品信息</span>
+            </div>
+          </template>
+
+          <el-descriptions :column="2" border class="goods-descriptions">
+            <el-descriptions-item label="商品分类">{{ formData.categoryName || "-" }}</el-descriptions-item>
+            <el-descriptions-item label="状态">
+              <el-tag :type="statusTagType" effect="light" round>{{ statusText }}</el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="商品名称" :span="2">{{ formData.name || "-" }}</el-descriptions-item>
+            <el-descriptions-item label="商品描述" :span="2">{{ formData.desc || "-" }}</el-descriptions-item>
+            <el-descriptions-item label="轮播图数量">{{ bannerCount }} 张</el-descriptions-item>
+            <el-descriptions-item label="详情图数量">{{ detailCount }} 张</el-descriptions-item>
+            <el-descriptions-item label="SKU 数量">{{ skuCount }} 个</el-descriptions-item>
+            <el-descriptions-item label="库存总量">{{ totalInventory }}</el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+
+        <el-card ref="bannerSectionRef" class="detail-section-card" shadow="never">
           <template #header>
             <div class="detail-section-card__header">
               <span>轮播图</span>
@@ -128,7 +108,7 @@
           <el-empty v-else description="暂无轮播图" :image-size="90" />
         </el-card>
 
-        <el-card class="detail-section-card" shadow="never">
+        <el-card ref="detailSectionRef" class="detail-section-card" shadow="never">
           <template #header>
             <div class="detail-section-card__header">
               <span>商品详情图</span>
@@ -152,8 +132,8 @@
         </el-card>
       </el-tab-pane>
 
-      <el-tab-pane label="库存信息">
-        <el-card class="detail-table-card" shadow="never">
+      <el-tab-pane label="库存信息" name="sku">
+        <el-card ref="skuSectionRef" class="detail-table-card" shadow="never">
           <template #header>
             <div class="detail-section-card__header">
               <span>SKU 库存明细</span>
@@ -176,8 +156,8 @@
         </el-card>
       </el-tab-pane>
 
-      <el-tab-pane label="规格信息">
-        <el-card class="detail-table-card" shadow="never">
+      <el-tab-pane label="规格信息" name="spec">
+        <el-card ref="specSectionRef" class="detail-table-card" shadow="never">
           <template #header>
             <div class="detail-section-card__header">
               <span>商品规格</span>
@@ -189,8 +169,8 @@
         </el-card>
       </el-tab-pane>
 
-      <el-tab-pane label="属性信息">
-        <el-card class="detail-table-card" shadow="never">
+      <el-tab-pane label="属性信息" name="prop">
+        <el-card ref="propSectionRef" class="detail-table-card" shadow="never">
           <template #header>
             <div class="detail-section-card__header">
               <span>商品属性</span>
@@ -206,7 +186,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
@@ -224,10 +204,18 @@ defineOptions({
 
 /** 扩展 SKU 行数据，兼容详情页动态规格列渲染。 */
 type GoodsSkuTableRow = GoodsSku & Record<string, string | number | string[] | undefined>;
+type GoodsDetailTabName = "basic" | "sku" | "spec" | "prop";
+type GoodsDetailSectionKey = "banner" | "detail" | "sku" | "spec" | "prop";
 
 const route = useRoute();
 const loading = ref(false);
 const goodsId = ref(route.query.goodsId as unknown as number);
+const activeTabName = ref<GoodsDetailTabName>("basic");
+const bannerSectionRef = ref();
+const detailSectionRef = ref();
+const skuSectionRef = ref();
+const specSectionRef = ref();
+const propSectionRef = ref();
 
 const propList = reactive<GoodsProp[]>([]);
 const skuList = reactive<GoodsSkuTableRow[]>([]);
@@ -289,6 +277,15 @@ const skuCount = computed(() => formData.skuList.length);
 /** 汇总全部 SKU 的库存，便于首屏快速查看商品备货情况。 */
 const totalInventory = computed(() => formData.skuList.reduce((total, item) => total + Number(item.inventory ?? 0), 0));
 
+/** 页面分区和标签页映射，统一控制概览卡跳转行为。 */
+const detailSectionMap: Record<GoodsDetailSectionKey, { tab: GoodsDetailTabName; targetRef: typeof bannerSectionRef }> = {
+  banner: { tab: "basic", targetRef: bannerSectionRef },
+  detail: { tab: "basic", targetRef: detailSectionRef },
+  sku: { tab: "sku", targetRef: skuSectionRef },
+  spec: { tab: "spec", targetRef: specSectionRef },
+  prop: { tab: "prop", targetRef: propSectionRef }
+};
+
 /** 商品属性明细表格列配置。 */
 const propColumns: ColumnProps[] = [
   { prop: "label", label: "商品属性标签", minWidth: 180 },
@@ -315,6 +312,12 @@ const skuColumns = computed<ColumnProps[]>(() => {
 
   return [
     ...dynamicSpecColumns,
+    {
+      prop: "specItem",
+      label: "规格描述",
+      minWidth: 180,
+      render: scope => ((scope.row.specItem as string[] | undefined) ?? []).join(" / ")
+    },
     { prop: "picture", label: "规格图片", minWidth: 110, align: "center" },
     { prop: "skuCode", label: "规格编号", minWidth: 160 },
     { prop: "initSaleNum", label: "初始销量", align: "right", minWidth: 100 },
@@ -360,6 +363,16 @@ function handleQuery() {
     });
 }
 
+/**
+ * 从顶部统计卡跳转到对应分区，先切换标签页，再滚动到目标区域。
+ */
+async function handleNavigateSection(sectionKey: GoodsDetailSectionKey) {
+  const sectionConfig = detailSectionMap[sectionKey];
+  activeTabName.value = sectionConfig.tab;
+  await nextTick();
+  sectionConfig.targetRef.value?.$el?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 onMounted(() => {
   handleQuery();
 });
@@ -398,8 +411,7 @@ onMounted(() => {
   position: relative;
 }
 
-.goods-cover-image,
-.cover-preview-panel__image {
+.goods-cover-image {
   width: 100%;
   height: 100%;
   min-height: 320px;
@@ -467,6 +479,32 @@ onMounted(() => {
   gap: 8px;
 }
 
+.goods-meta-item--action,
+.goods-metric-card--action {
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.goods-meta-item--action {
+  width: 100%;
+  text-align: left;
+}
+
+.goods-metric-card--action {
+  width: 100%;
+  text-align: left;
+}
+
+.goods-meta-item--action:hover,
+.goods-metric-card--action:hover {
+  border-color: #bfd2ea;
+  box-shadow: 0 12px 28px rgb(59 130 246 / 10%);
+  transform: translateY(-1px);
+}
+
 .goods-meta-item__label,
 .goods-metric-card__label {
   font-size: 13px;
@@ -501,13 +539,6 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.detail-panel-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-  gap: 18px;
-  margin-bottom: 18px;
-}
-
 .detail-section-card {
   margin-bottom: 18px;
 }
@@ -535,10 +566,6 @@ onMounted(() => {
 .goods-descriptions :deep(.el-descriptions__label) {
   width: 120px;
   font-weight: 600;
-}
-
-.cover-preview-panel {
-  height: 100%;
 }
 
 .image-gallery {
@@ -616,13 +643,11 @@ onMounted(() => {
 }
 
 @media (width <= 992px) {
-  .goods-hero,
-  .detail-panel-grid {
+  .goods-hero {
     grid-template-columns: 1fr;
   }
 
-  .goods-cover-image,
-  .cover-preview-panel__image {
+  .goods-cover-image {
     min-height: 280px;
   }
 }

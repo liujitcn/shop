@@ -5,15 +5,6 @@
     <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1200px" @close="handleCloseShippedDialog">
       <el-card class="shipped-hero-card" shadow="never">
         <div class="shipped-hero">
-          <div class="shipped-hero__main">
-            <div class="shipped-hero__eyebrow">订单发货</div>
-            <div class="shipped-hero__title-row">
-              <h2 class="shipped-hero__title">{{ dialogShipped.title }}</h2>
-              <span class="shipped-hero__badge">{{ shippedDialogModeText }}</span>
-            </div>
-            <p class="shipped-hero__desc">商品数量：{{ dataShipped.goods.length }} 件</p>
-          </div>
-
           <div class="shipped-metrics">
             <div class="shipped-metric-card">
               <span class="shipped-metric-card__label">联系人</span>
@@ -124,44 +115,76 @@
     </ProDialog>
 
     <ProDialog v-model="dialogRefund.visible" :title="dialogRefund.title" width="1200px" @close="handleCloseRefundDialog">
-      <el-card v-if="dataRefund.payment" class="box-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <span>支付信息</span>
+      <el-card class="refund-hero-card" shadow="never">
+        <div class="refund-hero">
+          <div class="refund-metrics">
+            <div class="refund-metric-card">
+              <span class="refund-metric-card__label">支付金额</span>
+              <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.payerTotal) }} 元</strong>
+            </div>
+            <div class="refund-metric-card">
+              <span class="refund-metric-card__label">订单总额</span>
+              <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</strong>
+            </div>
+            <div class="refund-metric-card">
+              <span class="refund-metric-card__label">支付状态</span>
+              <strong class="refund-metric-card__value">{{
+                dataRefund.payment?.tradeStateDesc || dataRefund.payment?.tradeState || "-"
+              }}</strong>
+            </div>
+            <div class="refund-metric-card">
+              <span class="refund-metric-card__label">对帐状态</span>
+              <strong class="refund-metric-card__value">{{ dataRefund.payment ? "已获取" : "-" }}</strong>
+            </div>
           </div>
-        </template>
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="三方订单号" align="center">
-            {{ dataRefund.payment.thirdOrderNo }}
-          </el-descriptions-item>
-          <el-descriptions-item label="交易类型" align="center">
-            {{ dataRefund.payment.tradeType }}
-          </el-descriptions-item>
-          <el-descriptions-item label="支付状态" align="center">
-            {{ dataRefund.payment.tradeState }}
-          </el-descriptions-item>
-          <el-descriptions-item label="支付状态描述" align="center">
-            {{ dataRefund.payment.tradeStateDesc }}
-          </el-descriptions-item>
-          <el-descriptions-item label="支付时间" align="center">
-            {{ dataRefund.payment.successTime }}
-          </el-descriptions-item>
-          <el-descriptions-item label="支付金额" align="right">
-            {{ formatPrice(dataRefund.payment.amount?.payerTotal) }} 元
-          </el-descriptions-item>
-          <el-descriptions-item label="总金额" align="right">
-            {{ formatPrice(dataRefund.payment.amount?.total) }} 元
-          </el-descriptions-item>
-          <el-descriptions-item label="对帐状态" align="right">
-            <DictLabel v-model="dataRefund.payment.status" code="order_bill_status" />
-          </el-descriptions-item>
-        </el-descriptions>
+        </div>
       </el-card>
 
-      <el-card v-if="dataRefund.refund.length" class="box-card" shadow="never">
+      <div class="refund-detail-grid">
+        <el-card v-if="hasRefundPaymentSection" class="refund-section-card" shadow="never">
+          <template #header>
+            <div class="refund-section-card__header">
+              <span>支付信息</span>
+            </div>
+          </template>
+          <el-descriptions :column="2" border class="refund-descriptions">
+            <el-descriptions-item label="三方订单号">{{ dataRefund.payment?.thirdOrderNo }}</el-descriptions-item>
+            <el-descriptions-item label="交易类型">{{ dataRefund.payment?.tradeType }}</el-descriptions-item>
+            <el-descriptions-item label="支付状态">{{ dataRefund.payment?.tradeState }}</el-descriptions-item>
+            <el-descriptions-item label="支付状态描述">{{ dataRefund.payment?.tradeStateDesc }}</el-descriptions-item>
+            <el-descriptions-item label="支付时间">{{ dataRefund.payment?.successTime }}</el-descriptions-item>
+            <el-descriptions-item label="支付金额">
+              {{ formatPrice(dataRefund.payment?.amount?.payerTotal) }} 元
+            </el-descriptions-item>
+            <el-descriptions-item label="总金额">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</el-descriptions-item>
+            <el-descriptions-item label="对帐状态" :span="2">
+              <DictLabel v-model="dataRefund.payment!.status" code="order_bill_status" />
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </div>
+
+      <el-card v-if="isRefundEditable" class="refund-section-card refund-section-card--full" shadow="never">
         <template #header>
-          <div class="card-header">
+          <div class="refund-section-card__header">
+            <span>填写退款信息</span>
+          </div>
+        </template>
+
+        <ProForm
+          ref="dataFormRefRefund"
+          :model="formDataRefund"
+          :fields="refundFormFields"
+          :rules="rulesRefund"
+          label-width="150px"
+        />
+      </el-card>
+
+      <el-card v-if="dataRefund.refund.length" class="refund-section-card refund-section-card--full" shadow="never">
+        <template #header>
+          <div class="refund-section-card__header">
             <span>退款信息</span>
+            <span class="refund-section-card__extra">{{ dataRefund.refund.length }} 条</span>
           </div>
         </template>
         <ProTable
@@ -170,16 +193,6 @@
           :columns="refundColumns"
           :pagination="false"
           :tool-button="false"
-        />
-      </el-card>
-
-      <el-card v-if="isRefundEditable" shadow="never">
-        <ProForm
-          ref="dataFormRefRefund"
-          :model="formDataRefund"
-          :fields="refundFormFields"
-          :rules="rulesRefund"
-          label-width="150px"
         />
       </el-card>
 
@@ -273,19 +286,18 @@ const rulesShipped = computed(() => ({
 /** 当前发货弹窗是否处于可编辑发货态。 */
 const isShippedEditable = computed(() => dialogShipped.title === "发货");
 
-/** 发货弹窗顶部模式文案。 */
-const shippedDialogModeText = computed(() => (isShippedEditable.value ? "待发货" : "已发货"));
-
 /** 收货地址存在有效内容时才展示地址模块。 */
 const hasShippedAddressSection = computed(() => {
-  return Boolean(dataShipped.address && (dataShipped.address.receiver || dataShipped.address.contact || dataShipped.address.detail));
+  return Boolean(
+    dataShipped.address && (dataShipped.address.receiver || dataShipped.address.contact || dataShipped.address.detail)
+  );
 });
 
 /** 物流信息存在有效内容时才展示物流模块。 */
 const hasShippedLogisticsSection = computed(() => {
   return Boolean(
     dataShipped.logistics &&
-      (dataShipped.logistics.name || dataShipped.logistics.no || dataShipped.logistics.contact || dataShipped.logistics.createdAt)
+    (dataShipped.logistics.name || dataShipped.logistics.no || dataShipped.logistics.contact || dataShipped.logistics.createdAt)
   );
 });
 
@@ -376,6 +388,17 @@ const refundFormFields = computed<ProFormField[]>(() => [
 ]);
 
 const isRefundEditable = computed(() => dialogRefund.title === "退款");
+/** 支付信息存在有效内容时才展示支付模块。 */
+const hasRefundPaymentSection = computed(() => {
+  return Boolean(
+    dataRefund.payment &&
+    (dataRefund.payment.thirdOrderNo ||
+      dataRefund.payment.tradeType ||
+      dataRefund.payment.tradeStateDesc ||
+      dataRefund.payment.successTime)
+  );
+});
+
 const maxRefundMoney = computed(() => Number(((dataRefund.payment?.amount?.payerTotal ?? 0) / 100).toFixed(2)));
 
 const shippedGoodsColumns: ColumnProps[] = [
@@ -830,6 +853,175 @@ loadUserOptions();
 </script>
 
 <style scoped lang="scss">
+.shipped-hero-card,
+.shipped-section-card {
+  border: 1px solid #e5eaf1;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+}
+
+.shipped-hero-card {
+  margin-bottom: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(241 247 255 / 95%) 100%);
+}
+
+.shipped-hero {
+  display: block;
+}
+
+.shipped-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.shipped-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid #e5eaf1;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 84%);
+}
+
+.shipped-metric-card__label {
+  font-size: 13px;
+  color: #718096;
+}
+
+.shipped-metric-card__value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.shipped-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.shipped-section-card {
+  overflow: hidden;
+}
+
+.shipped-section-card--full {
+  margin-bottom: 18px;
+}
+
+.shipped-section-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.shipped-section-card__extra {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7c8aa0;
+}
+
+.shipped-descriptions :deep(.el-descriptions__label) {
+  width: 120px;
+  font-weight: 600;
+}
+
+.shipped-timeline {
+  margin-top: 20px;
+  padding: 18px 18px 0;
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.refund-hero-card,
+.refund-section-card {
+  border: 1px solid #e5eaf1;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+}
+
+.refund-hero-card {
+  margin-bottom: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(255 246 244 / 95%) 100%);
+}
+
+.refund-hero {
+  display: block;
+}
+
+.refund-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.refund-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid #f2dfdb;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 84%);
+}
+
+.refund-metric-card__label {
+  font-size: 13px;
+  color: #8b7a73;
+}
+
+.refund-metric-card__value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  word-break: break-all;
+}
+
+.refund-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.refund-section-card {
+  overflow: hidden;
+}
+
+.refund-section-card--full {
+  margin-bottom: 18px;
+}
+
+.refund-section-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.refund-section-card__extra {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8b7a73;
+}
+
+.refund-descriptions :deep(.el-descriptions__label) {
+  width: 120px;
+  font-weight: 600;
+}
+
 /* 发货相关弹窗中的商品清单按实际行数撑开，避免继承通用表格的固定最小高度。 */
 .goods-list-table {
   :deep(.table-main) {
@@ -847,6 +1039,27 @@ loadUserOptions();
   :deep(.el-scrollbar__wrap),
   :deep(.el-scrollbar__view) {
     height: auto;
+  }
+}
+
+@media (width <= 992px) {
+  .shipped-detail-grid,
+  .refund-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 768px) {
+  .shipped-metrics,
+  .refund-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 520px) {
+  .shipped-metrics,
+  .refund-metrics {
+    grid-template-columns: 1fr;
   }
 }
 </style>

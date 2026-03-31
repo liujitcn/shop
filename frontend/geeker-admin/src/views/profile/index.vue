@@ -279,7 +279,32 @@ const tabDialogMap: Record<string, { tab: ProfileTab; dialog?: DialogType }> = {
   security: { tab: "security" }
 };
 
+/**
+ * 读取当前路由中的 tab / dialog 查询参数，统一兼容数组场景。
+ */
+const getRouteState = () => {
+  const tabQuery = Array.isArray(route.query.tab) ? route.query.tab[0] : route.query.tab;
+  const dialogQuery = Array.isArray(route.query.dialog) ? route.query.dialog[0] : route.query.dialog;
+  return {
+    tab: tabQuery === "security" ? "security" : "account",
+    dialog: dialogQuery as DialogType | undefined
+  };
+};
+
+/**
+ * 判断目标查询参数是否与当前路由一致，避免 replace 自触发 watch 死循环。
+ */
+const isSameRouteState = (tab: ProfileTab, dialogType?: DialogType | "") => {
+  const currentState = getRouteState();
+  return currentState.tab === tab && (currentState.dialog || "") === (dialogType || "");
+};
+
+/**
+ * 同步个人中心路由状态，仅在查询参数实际变化时才更新地址栏。
+ */
 const syncRouteQuery = (tab: ProfileTab, dialogType?: DialogType | "") => {
+  if (isSameRouteState(tab, dialogType)) return;
+
   const nextQuery: Record<string, string> = { ...route.query } as Record<string, string>;
   nextQuery.tab = tab;
   if (dialogType) {
@@ -290,19 +315,33 @@ const syncRouteQuery = (tab: ProfileTab, dialogType?: DialogType | "") => {
   router.replace({ path: route.path, query: nextQuery });
 };
 
+/**
+ * 按路由中的查询参数恢复当前标签页和弹窗状态。
+ */
 const applyRouteState = async () => {
-  const tabQuery = Array.isArray(route.query.tab) ? route.query.tab[0] : route.query.tab;
-  const dialogQuery = Array.isArray(route.query.dialog) ? route.query.dialog[0] : route.query.dialog;
+  const { tab: tabQuery, dialog: dialogQuery } = getRouteState();
   const matchedState = tabDialogMap[dialogQuery || ""] ?? tabDialogMap[tabQuery || ""];
 
   activeTab.value = matchedState?.tab ?? (tabQuery === "security" ? "security" : "account");
 
-  if (!matchedState?.dialog) return;
+  if (!matchedState?.dialog) {
+    if (dialog.visible) {
+      dialog.visible = false;
+      dialog.type = "" as DialogType;
+      resetDialogForms();
+    }
+    return;
+  }
+
+  if (dialog.visible && dialog.type === matchedState.dialog) return;
 
   await nextTick();
   handleOpenDialog(matchedState.dialog);
 };
 
+/**
+ * 弹窗关闭后同步清理路由参数，避免刷新页面后再次自动打开旧弹窗。
+ */
 const handleDialogClose = () => {
   resetDialogForms();
   dialog.type = "" as DialogType;
@@ -330,6 +369,12 @@ const resetDialogForms = () => {
  * @param type 弹窗类型 ACCOUNT: 账号资料 PASSWORD: 修改密码 MOBILE: 绑定手机 EMAIL: 绑定邮箱
  */
 const handleOpenDialog = (type: DialogType) => {
+  // 同一个弹窗已打开时仅确保路由状态正确，避免重复触发弹窗联动。
+  if (dialog.visible && dialog.type === type) {
+    syncRouteQuery(activeTab.value, type);
+    return;
+  }
+
   dialog.type = type;
   dialog.visible = true;
   switch (type) {
@@ -444,6 +489,7 @@ const loadUserProfile = async () => {
 const handleTabChange = (name: string | number) => {
   activeTab.value = name === "security" ? "security" : "account";
   dialog.visible = false;
+  dialog.type = "" as DialogType;
   resetDialogForms();
   syncRouteQuery(activeTab.value);
 };

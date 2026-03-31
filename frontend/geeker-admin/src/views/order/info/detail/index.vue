@@ -3,18 +3,6 @@
   <div v-loading="loading" class="app-container order-detail-page">
     <el-card v-if="formData.order" class="detail-hero-card" shadow="never">
       <div class="detail-hero">
-        <div class="detail-hero__main">
-          <div class="detail-hero__eyebrow">订单详情</div>
-          <div class="detail-hero__title-row">
-            <h1 class="detail-hero__title">{{ formData.order.orderNo }}</h1>
-            <div class="detail-hero__status">
-              <DictLabel v-model="formData.order.status" code="order_status" />
-            </div>
-          </div>
-          <p class="detail-hero__desc">用户：{{ formData.order.nickName || "-" }}</p>
-          <p v-if="formData.order.remark" class="detail-hero__remark">备注：{{ formData.order.remark }}</p>
-        </div>
-
         <div class="detail-metrics">
           <div class="detail-metric-card">
             <span class="detail-metric-card__label">支付金额</span>
@@ -45,7 +33,12 @@
         </template>
 
         <el-descriptions :column="2" border class="detail-descriptions">
-          <el-descriptions-item label="订单编号">{{ formData.order.orderNo }}</el-descriptions-item>
+          <el-descriptions-item label="订单编号">
+            <div class="order-no-field">
+              <span>{{ formData.order.orderNo }}</span>
+              <el-button link type="primary" @click="handleCopyOrderNo(formData.order.orderNo)">复制</el-button>
+            </div>
+          </el-descriptions-item>
           <el-descriptions-item label="用户">{{ formData.order.nickName }}</el-descriptions-item>
           <el-descriptions-item label="支付方式">
             <DictLabel v-model="formData.order.payType" code="order_pay_type" />
@@ -73,10 +66,10 @@
         </template>
 
         <el-descriptions :column="1" border class="detail-descriptions">
-          <el-descriptions-item label="联系人">{{ formData.address.receiver }}</el-descriptions-item>
-          <el-descriptions-item label="联系方式">{{ formData.address.contact }}</el-descriptions-item>
-          <el-descriptions-item label="地区">{{ formData.address.address.join(" / ") }}</el-descriptions-item>
-          <el-descriptions-item label="详细地址">{{ formData.address.detail }}</el-descriptions-item>
+          <el-descriptions-item label="联系人">{{ formData.address?.receiver }}</el-descriptions-item>
+          <el-descriptions-item label="联系方式">{{ formData.address?.contact }}</el-descriptions-item>
+          <el-descriptions-item label="地区">{{ formData.address?.address?.join(" / ") }}</el-descriptions-item>
+          <el-descriptions-item label="详细地址">{{ formData.address?.detail }}</el-descriptions-item>
         </el-descriptions>
       </el-card>
     </div>
@@ -105,14 +98,14 @@
         </template>
 
         <el-descriptions :column="2" border class="detail-descriptions">
-          <el-descriptions-item label="三方订单号">{{ formData.payment.thirdOrderNo }}</el-descriptions-item>
-          <el-descriptions-item label="交易类型">{{ formData.payment.tradeType }}</el-descriptions-item>
-          <el-descriptions-item label="支付状态">{{ formData.payment.tradeStateDesc }}</el-descriptions-item>
-          <el-descriptions-item label="支付时间">{{ formData.payment.successTime }}</el-descriptions-item>
-          <el-descriptions-item label="支付金额">{{ formatPrice(formData.payment.amount?.payerTotal) }} 元</el-descriptions-item>
-          <el-descriptions-item label="总金额">{{ formatPrice(formData.payment.amount?.total) }} 元</el-descriptions-item>
+          <el-descriptions-item label="三方订单号">{{ formData.payment?.thirdOrderNo }}</el-descriptions-item>
+          <el-descriptions-item label="交易类型">{{ formData.payment?.tradeType }}</el-descriptions-item>
+          <el-descriptions-item label="支付状态">{{ formData.payment?.tradeStateDesc }}</el-descriptions-item>
+          <el-descriptions-item label="支付时间">{{ formData.payment?.successTime }}</el-descriptions-item>
+          <el-descriptions-item label="支付金额">{{ formatPrice(formData.payment?.amount?.payerTotal) }} 元</el-descriptions-item>
+          <el-descriptions-item label="总金额">{{ formatPrice(formData.payment?.amount?.total) }} 元</el-descriptions-item>
           <el-descriptions-item label="对帐状态" :span="2">
-            <DictLabel v-model="formData.payment.status" code="order_bill_status" />
+            <DictLabel :model-value="formData.payment?.status" code="order_bill_status" />
           </el-descriptions-item>
         </el-descriptions>
       </el-card>
@@ -125,15 +118,15 @@
         </template>
 
         <el-descriptions :column="2" border class="detail-descriptions">
-          <el-descriptions-item label="物流公司">{{ formData.logistics.name }}</el-descriptions-item>
-          <el-descriptions-item label="物流单号">{{ formData.logistics.no }}</el-descriptions-item>
-          <el-descriptions-item label="联系方式">{{ formData.logistics.contact }}</el-descriptions-item>
-          <el-descriptions-item label="发货时间">{{ formData.logistics.createdAt }}</el-descriptions-item>
+          <el-descriptions-item label="物流公司">{{ formData.logistics?.name }}</el-descriptions-item>
+          <el-descriptions-item label="物流单号">{{ formData.logistics?.no }}</el-descriptions-item>
+          <el-descriptions-item label="联系方式">{{ formData.logistics?.contact }}</el-descriptions-item>
+          <el-descriptions-item label="发货时间">{{ formData.logistics?.createdAt }}</el-descriptions-item>
         </el-descriptions>
 
         <el-timeline class="detail-timeline">
           <el-timeline-item
-            v-for="(detail, index) in formData.logistics.detail"
+            v-for="(detail, index) in formData.logistics?.detail ?? []"
             :key="index"
             :timestamp="detail.time"
             placement="top"
@@ -284,6 +277,23 @@ function handleQuery() {
     });
 }
 
+/**
+ * 复制订单编号，便于客服或运营快速粘贴查询。
+ */
+async function handleCopyOrderNo(orderNo: string) {
+  if (!orderNo) {
+    ElMessage.warning("订单编号为空，无法复制");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(orderNo);
+    ElMessage.success("订单编号已复制");
+  } catch {
+    ElMessage.error("复制失败，请手动复制");
+  }
+}
+
 onMounted(() => {
   handleQuery();
 });
@@ -311,67 +321,12 @@ onMounted(() => {
 }
 
 .detail-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-  gap: 24px;
-  align-items: stretch;
-}
-
-.detail-hero__main {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  justify-content: center;
-  min-width: 0;
-}
-
-.detail-hero__eyebrow {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #6a7890;
-  text-transform: uppercase;
-}
-
-.detail-hero__title-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-}
-
-.detail-hero__title {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: #1f2937;
-  word-break: break-all;
-}
-
-.detail-hero__status {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  border: 1px solid #d9e4f1;
-  border-radius: 999px;
-  background: rgb(255 255 255 / 82%);
-  font-size: 14px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.detail-hero__desc,
-.detail-hero__remark {
-  margin: 0;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #526071;
+  display: block;
 }
 
 .detail-metrics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -432,6 +387,13 @@ onMounted(() => {
   font-weight: 600;
 }
 
+.order-no-field {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  word-break: break-all;
+}
+
 .detail-timeline {
   margin-top: 20px;
   padding: 18px 18px 0;
@@ -460,7 +422,6 @@ onMounted(() => {
 }
 
 @media (width <= 992px) {
-  .detail-hero,
   .detail-grid {
     grid-template-columns: 1fr;
   }
@@ -471,10 +432,12 @@ onMounted(() => {
     padding-bottom: 12px;
   }
 
-  .detail-hero__title {
-    font-size: 24px;
+  .detail-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
 
+@media (width <= 520px) {
   .detail-metrics {
     grid-template-columns: 1fr;
   }

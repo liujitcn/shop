@@ -1,9 +1,44 @@
 <template>
-  <div class="app-container">
-    <el-card shadow="never">
-      <div class="mb-10px">
-        <el-button type="success" icon="plus" @click="handleOpenGoodsSpecDialog()">添加</el-button>
+  <div class="goods-edit-sku">
+    <el-card class="goods-edit-sku__hero" shadow="never">
+      <div class="goods-edit-sku__hero-content">
+        <div>
+          <div class="goods-edit-sku__eyebrow">第三步</div>
+          <h2 class="goods-edit-sku__title">设置商品库存</h2>
+          <p class="goods-edit-sku__desc">先维护规格定义，再为自动生成的 SKU 组合填写编号、价格、库存、规格图片和初始销量。</p>
+        </div>
+
+        <div class="goods-edit-sku__summary">
+          <div class="goods-edit-sku__summary-item">
+            <span>规格数</span>
+            <strong>{{ formData.specList?.length ?? 0 }}</strong>
+          </div>
+          <div class="goods-edit-sku__summary-item">
+            <span>SKU 数量</span>
+            <strong>{{ formData.skuList?.length ?? 0 }}</strong>
+          </div>
+          <div class="goods-edit-sku__summary-item">
+            <span>库存总量</span>
+            <strong>{{ totalInventory }}</strong>
+          </div>
+          <div class="goods-edit-sku__summary-item">
+            <span>价格区间</span>
+            <strong>{{ priceRangeText }}</strong>
+          </div>
+        </div>
       </div>
+    </el-card>
+
+    <el-card class="goods-edit-sku__card" shadow="never">
+      <template #header>
+        <div class="goods-edit-sku__card-header">
+          <span>商品规格</span>
+          <el-button type="success" icon="plus" @click="handleOpenGoodsSpecDialog()">添加</el-button>
+        </div>
+      </template>
+
+      <div class="goods-edit-sku__tip">先维护规格名称和规格项，系统会根据所有规格项组合自动生成下方的 SKU 行。</div>
+
       <ProTable :data="formData.specList" :columns="specColumns" :pagination="false" :tool-button="false">
         <template #operation="scope">
           <el-button type="primary" size="small" link icon="edit" @click="handleOpenGoodsSpecDialog(scope.$index, scope.row)">
@@ -14,10 +49,14 @@
       </ProTable>
     </el-card>
 
-    <el-card shadow="never">
+    <el-card class="goods-edit-sku__card" shadow="never">
       <template #header>
-        <span>商品库存</span>
+        <div class="goods-edit-sku__card-header">
+          <span>商品库存</span>
+        </div>
       </template>
+
+      <div class="goods-edit-sku__tip">请逐行补齐 SKU 编号、价格、折扣价、库存、规格图片和初始销量，提交前会统一校验。</div>
       <el-form ref="skuFormRef" :model="formData" size="small">
         <ProTable :key="skuTableKey" :data="formData.skuList" :columns="skuColumns" :pagination="false" :tool-button="false">
           <template #skuCode="scope">
@@ -58,8 +97,10 @@
         </ProTable>
       </el-form>
       <template #footer>
-        <el-button @click="handlePrev">上一步，设置商品属性</el-button>
-        <el-button type="primary" @click="submitForm">提交</el-button>
+        <div class="goods-edit-sku__footer">
+          <el-button @click="handlePrev">上一步，设置商品属性</el-button>
+          <el-button type="primary" @click="submitForm">提交</el-button>
+        </div>
       </template>
     </el-card>
 
@@ -150,6 +191,20 @@ const state = reactive({
 });
 
 const { rules } = toRefs(state);
+
+/** 汇总当前全部 SKU 的库存数量。 */
+const totalInventory = computed(() => {
+  return (formData.value.skuList ?? []).reduce((total: number, item: SkuItem) => total + Number(item.inventory ?? 0), 0);
+});
+
+/** 汇总当前 SKU 价格区间，便于运营快速核对价格梯度。 */
+const priceRangeText = computed(() => {
+  const priceList = (formData.value.skuList ?? []).map((item: SkuItem) => Number(item.price ?? 0)).filter(price => price > 0);
+  if (!priceList.length) return "-";
+  const minPrice = Math.min(...priceList);
+  const maxPrice = Math.max(...priceList);
+  return minPrice === maxPrice ? `${minPrice.toFixed(2)} 元` : `${minPrice.toFixed(2)} ~ ${maxPrice.toFixed(2)} 元`;
+});
 
 /** 商品规格编辑表格列配置。 */
 const specColumns: ColumnProps[] = [
@@ -510,22 +565,137 @@ async function submitForm() {
   }
 }
 </script>
-<style scoped>
-/* 新增样式 */
+<style scoped lang="scss">
+.goods-edit-sku {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.goods-edit-sku__hero,
+.goods-edit-sku__card {
+  border: 1px solid #e6ebf2;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+}
+
+.goods-edit-sku__hero {
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(244 249 255 / 95%) 100%);
+}
+
+.goods-edit-sku__hero-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.goods-edit-sku__eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #5b6b83;
+  text-transform: uppercase;
+}
+
+.goods-edit-sku__title {
+  margin: 10px 0 12px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2a37;
+}
+
+.goods-edit-sku__desc {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #526071;
+}
+
+.goods-edit-sku__summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.goods-edit-sku__summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid #e6ebf2;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.goods-edit-sku__summary-item span {
+  font-size: 13px;
+  color: #6b7a90;
+}
+
+.goods-edit-sku__summary-item strong {
+  font-size: 22px;
+  color: #1f2a37;
+}
+
+.goods-edit-sku__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2a37;
+}
+
+.goods-edit-sku__tip {
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #526071;
+  background: #f8fbff;
+  border: 1px solid #e2edf8;
+  border-radius: 16px;
+}
+
+.goods-edit-sku__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .flex-items {
   display: flex;
   align-items: center;
-  gap: 8px; /* 元素间距 */
+  gap: 8px;
 }
 
-/* 让输入框自动填充剩余空间 */
 .flex-items :deep(.el-input) {
   flex: 1;
 }
 
-/* 调整表单内容区域布局 */
 :deep(.el-form-item__content) {
   display: flex;
-  overflow: visible; /* 解决布局溢出问题 */
+  overflow: visible;
+}
+
+@media (width <= 992px) {
+  .goods-edit-sku__hero-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 768px) {
+  .goods-edit-sku__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .goods-edit-sku__card-header,
+  .goods-edit-sku__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>

@@ -1,9 +1,51 @@
 <template>
-  <div class="app-container">
-    <el-card shadow="never">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="120px" />
+  <div class="goods-edit-info">
+    <el-card class="goods-edit-info__hero" shadow="never">
+      <div class="goods-edit-info__hero-content">
+        <div>
+          <div class="goods-edit-info__eyebrow">第一步</div>
+          <h2 class="goods-edit-info__title">填写商品信息</h2>
+          <p class="goods-edit-info__desc">
+            先完成分类、标题、描述、主图、轮播图、详情图和上下架状态，后续属性与库存都会基于这里的数据继续编辑。
+          </p>
+        </div>
+
+        <div class="goods-edit-info__summary">
+          <div class="goods-edit-info__summary-item">
+            <span>轮播图</span>
+            <strong>{{ formData.banner?.length ?? 0 }} 张</strong>
+          </div>
+          <div class="goods-edit-info__summary-item">
+            <span>详情图</span>
+            <strong>{{ formData.detail?.length ?? 0 }} 张</strong>
+          </div>
+        </div>
+      </div>
+    </el-card>
+
+    <el-card class="goods-edit-info__card" shadow="never">
+      <template #header>
+        <div class="goods-edit-info__card-header">
+          <span>基础信息</span>
+        </div>
+      </template>
+
+      <ProForm ref="baseFormRef" :model="formData" :fields="baseFormFields" :rules="rules" label-width="120px" />
+    </el-card>
+
+    <el-card class="goods-edit-info__card" shadow="never">
+      <template #header>
+        <div class="goods-edit-info__card-header">
+          <span>图片与详情</span>
+        </div>
+      </template>
+
+      <ProForm ref="mediaFormRef" :model="formData" :fields="mediaFormFields" :rules="rules" label-width="120px" />
+
       <template #footer>
-        <el-button type="primary" @click="handleNext">下一步，设置商品属性</el-button>
+        <div class="goods-edit-info__footer">
+          <el-button type="primary" @click="handleNext">下一步，设置商品属性</el-button>
+        </div>
       </template>
     </el-card>
   </div>
@@ -21,7 +63,8 @@ defineOptions({
 const emit = defineEmits(["next", "update:modelValue"]);
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
 import { GoodsStatus } from "@/rpc/common/enum";
-const proFormRef = ref<ProFormInstance>();
+const baseFormRef = ref<ProFormInstance>();
+const mediaFormRef = ref<ProFormInstance>();
 
 const props = defineProps({
   modelValue: {
@@ -51,23 +94,22 @@ const state = reactive({
 
 const { goodsCategoryOptions, rules } = toRefs(state);
 
-const formFields = computed<ProFormField[]>(() => [
+/** 基础信息字段配置。 */
+const baseFormFields = computed<ProFormField[]>(() => [
   {
     prop: "categoryId",
     label: "商品分类",
     component: "tree-select",
     options: goodsCategoryOptions.value as unknown as Array<{ label: string; value: string | number; children?: any[] }>,
-    props: { placeholder: "请选择商品分类", filterable: true }
+    colSpan: 12,
+    props: { placeholder: "请选择商品分类", filterable: true, style: { width: "100%" } }
   },
-  { prop: "name", label: "商品名称", component: "input", props: { placeholder: "请输入商品名称" } },
-  { prop: "desc", label: "商品描述", component: "textarea", props: { placeholder: "请输入商品描述" } },
-  { prop: "picture", label: "商品主图", component: "image-upload" },
-  { prop: "banner", label: "商品轮播图", component: "images-upload" },
-  { prop: "detail", label: "商品详情", component: "images-upload" },
+  { prop: "name", label: "商品名称", component: "input", colSpan: 12, props: { placeholder: "请输入商品名称" } },
   {
     prop: "status",
     label: "状态",
     component: "switch",
+    colSpan: 12,
     props: {
       inlinePrompt: true,
       activeText: "上架",
@@ -75,13 +117,28 @@ const formFields = computed<ProFormField[]>(() => [
       activeValue: GoodsStatus.PUT_ON,
       inactiveValue: GoodsStatus.PULL_OFF
     }
+  },
+  {
+    prop: "desc",
+    label: "商品描述",
+    component: "textarea",
+    colSpan: 24,
+    props: { placeholder: "请输入商品描述", rows: 4 }
   }
+]);
+
+/** 图片与详情字段配置。 */
+const mediaFormFields = computed<ProFormField[]>(() => [
+  { prop: "picture", label: "商品主图", component: "image-upload", colSpan: 24 },
+  { prop: "banner", label: "商品轮播图", component: "images-upload", colSpan: 24 },
+  { prop: "detail", label: "商品详情", component: "images-upload", colSpan: 24 }
 ]);
 
 async function handleNext() {
   try {
-    const valid = await proFormRef.value?.validate();
-    if (!valid) return;
+    const baseValid = await baseFormRef.value?.validate();
+    const mediaValid = await mediaFormRef.value?.validate();
+    if (!baseValid || !mediaValid) return;
     emit("next");
   } catch {
     ElMessage.warning("请完善商品信息后再设置商品属性");
@@ -100,3 +157,101 @@ onMounted(() => {
   handleQuery();
 });
 </script>
+
+<style scoped lang="scss">
+.goods-edit-info {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.goods-edit-info__hero,
+.goods-edit-info__card {
+  border: 1px solid #e6ebf2;
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+}
+
+.goods-edit-info__hero {
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(244 248 255 / 95%) 100%);
+}
+
+.goods-edit-info__hero-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.goods-edit-info__eyebrow {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #5b6b83;
+  text-transform: uppercase;
+}
+
+.goods-edit-info__title {
+  margin: 10px 0 12px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2a37;
+}
+
+.goods-edit-info__desc {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #526071;
+}
+
+.goods-edit-info__summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.goods-edit-info__summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid #e6ebf2;
+  border-radius: 18px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.goods-edit-info__summary-item span {
+  font-size: 13px;
+  color: #6b7a90;
+}
+
+.goods-edit-info__summary-item strong {
+  font-size: 22px;
+  color: #1f2a37;
+}
+
+.goods-edit-info__card-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2a37;
+}
+
+.goods-edit-info__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (width <= 992px) {
+  .goods-edit-info__hero-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 768px) {
+  .goods-edit-info__summary {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
