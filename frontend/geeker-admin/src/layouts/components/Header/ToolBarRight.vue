@@ -6,42 +6,37 @@
       <ThemeSetting id="themeSetting" />
       <Fullscreen id="fullscreen" />
     </div>
-    <span class="username">{{ username }}</span>
     <Avatar />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useUserStore } from "@/stores/modules/user";
 import AssemblySize from "./components/AssemblySize.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import ThemeSetting from "./components/ThemeSetting.vue";
 import Fullscreen from "./components/Fullscreen.vue";
 import Avatar from "./components/Avatar.vue";
-
-const userStore = useUserStore();
-const username = computed(() => userStore.userInfo.nickName || userStore.userInfo.userName || "管理员");
 </script>
 
 <style scoped lang="scss">
 .tool-bar-ri {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding-right: 25px;
+  justify-content: flex-end;
+
   .header-icon {
     display: flex;
     align-items: center;
+
     & > * {
       margin-left: 21px;
       color: var(--el-header-text-color);
     }
   }
-  .username {
-    margin: 0 20px;
-    font-size: 15px;
-    color: var(--el-header-text-color);
+
+  // 头像入口与工具组之间保留呼吸感，避免顶部右侧元素粘连。
+  :deep(.el-dropdown) {
+    margin-left: 18px;
   }
 }
 </style>

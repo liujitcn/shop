@@ -1,535 +1,208 @@
 <template>
-  <div class="app-container">
-    <el-tabs v-model="activeTab" tab-position="left" @tab-change="handleTabChange">
-      <!-- 基本设置 Tab Pane -->
-      <el-tab-pane label="账号信息" name="account">
-        <div class="w-full">
-          <el-card>
-            <!-- 头像和昵称部分 -->
-            <div class="relative w-100px h-100px flex-center">
-              <el-avatar :src="userProfileForm.avatar" :size="100" />
-              <el-button
-                type="info"
-                class="absolute bottom-0 right-0 cursor-pointer"
-                circle
-                :icon="Camera"
-                size="small"
-                @click="triggerFileUpload"
-              />
-              <input ref="fileInput" type="file" style="display: none" @change="handleFileChange" />
-            </div>
-            <div class="mt-5">
-              {{ userProfileForm.nickName }}
-              <el-icon class="align-middle cursor-pointer" @click="handleOpenDialog(DialogType.ACCOUNT)">
-                <Edit />
-              </el-icon>
-            </div>
-            <!-- 用户信息描述 -->
-            <el-descriptions :column="1" class="mt-10">
-              <!-- 用户名 -->
-              <el-descriptions-item>
-                <template #label>
-                  <el-icon class="align-middle"><User /></el-icon>
-                  用户名
-                </template>
-                {{ userProfileForm.userName }}
-                <el-icon v-if="userProfileForm.gender === 1" class="align-middle color-blue">
-                  <Male />
-                </el-icon>
-                <el-icon v-else class="align-middle color-pink">
-                  <Female />
-                </el-icon>
-              </el-descriptions-item>
-              <el-descriptions-item>
-                <template #label>
-                  <el-icon class="align-middle"><Phone /></el-icon>
-                  手机号码
-                </template>
-                {{ userProfileForm.phone }}
-              </el-descriptions-item>
-              <el-descriptions-item>
-                <template #label>
-                  <SvgIcon icon-class="tree" />
-                  部门
-                </template>
-                {{ userProfileForm.deptName }}
-              </el-descriptions-item>
-              <el-descriptions-item>
-                <template #label>
-                  <SvgIcon icon-class="role" />
-                  角色
-                </template>
-                {{ userProfileForm.roleName }}
-              </el-descriptions-item>
-
-              <el-descriptions-item>
-                <template #label>
-                  <el-icon class="align-middle"><Timer /></el-icon>
-                  创建日期
-                </template>
-                {{ userProfileForm.createdAt }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </el-card>
-        </div>
-      </el-tab-pane>
-
-      <!-- 安全设置  -->
-      <el-tab-pane label="安全设置" name="security">
-        <el-card>
-          <!-- 账户密码 -->
-          <el-row>
-            <el-col :span="16">
-              <div class="font-bold">账户密码</div>
-              <div class="text-14px mt-2">
-                定期修改密码有助于保护账户安全
-                <el-button type="primary" plain size="small" class="ml-5" @click="() => handleOpenDialog(DialogType.PASSWORD)">
-                  修改
-                </el-button>
-              </div>
-            </el-col>
-          </el-row>
-          <!-- 绑定手机 -->
-          <div class="mt-5">
-            <div class="font-bold">绑定手机</div>
-            <div class="text-14px mt-2">
-              <span v-if="userProfileForm.phone">已绑定手机号：{{ userProfileForm.phone }}</span>
-              <span v-else>未绑定手机</span>
-              <el-button
-                v-if="userProfileForm.phone"
-                type="primary"
-                plain
-                size="small"
-                class="ml-5"
-                @click="() => handleOpenDialog(DialogType.MOBILE)"
-              >
-                更换
-              </el-button>
-              <el-button v-else type="primary" plain size="small" class="ml-5" @click="() => handleOpenDialog(DialogType.MOBILE)">
-                绑定
-              </el-button>
-            </div>
+  <div class="profile-page">
+    <section class="profile-shell">
+      <aside class="profile-nav card-panel">
+        <button
+          v-for="tab in profileTabs"
+          :key="tab.value"
+          type="button"
+          class="nav-item"
+          :class="{ 'nav-item--active': activeTab === tab.value }"
+          @click="handleTabChange(tab.value)"
+        >
+          <div>
+            <strong>{{ tab.label }}</strong>
           </div>
-        </el-card>
-      </el-tab-pane>
-    </el-tabs>
+          <el-icon><ArrowRight /></el-icon>
+        </button>
+      </aside>
 
-    <!-- 弹窗 -->
-    <ProDialog v-model="dialog.visible" :title="dialog.title" :width="500" @closed="handleDialogClose">
-      <!-- 账号资料 -->
-      <ProForm
-        v-if="dialog.type === DialogType.ACCOUNT"
-        ref="accountFormRef"
-        :model="userProfileForm"
-        :fields="accountFormFields"
-        label-width="100px"
-      />
-
-      <!-- 修改密码 -->
-      <ProForm
-        v-if="dialog.type === DialogType.PASSWORD"
-        ref="passwordFormRef"
-        :model="updatePwdForm"
-        :fields="passwordFormFields"
-        :rules="updatePwdFormRules"
-        label-width="100px"
-      />
-      <!-- 绑定手机 -->
-      <ProForm
-        v-else-if="dialog.type === DialogType.MOBILE"
-        ref="mobileFormRef"
-        :model="updatePhoneForm"
-        :fields="mobileFormFields"
-        :rules="updatePhoneFormRules"
-        label-width="100px"
-      >
-        <template #mobileCodeInput>
-          <el-input v-model="updatePhoneForm.code" style="width: 250px">
-            <template #append>
-              <el-button class="ml-5" :disabled="mobileCountdown > 0" @click="handleSendVerificationCode()">
-                {{ mobileCountdown > 0 ? `${mobileCountdown}s后重新发送` : "发送验证码" }}
-              </el-button>
-            </template>
-          </el-input>
-        </template>
-      </ProForm>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialog.visible = false">取消</el-button>
-          <el-button type="primary" @click="handleSubmit">确定</el-button>
-        </span>
-      </template>
-    </ProDialog>
+      <main class="profile-content">
+        <ProfileBase v-if="activeTab === 'account'" :profile="userProfileForm" @refreshed="loadUserProfile" />
+        <ProfileSecurity
+          v-else-if="activeTab === 'security'"
+          :profile="userProfileForm"
+          @refreshed="loadUserProfile"
+          @switch-tab="handleTabChange"
+        />
+        <ProfilePassword v-else />
+      </main>
+    </section>
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 defineOptions({
   name: "Profile",
   inheritAttrs: false
 });
-import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { defAuthService } from "@/api/admin/auth";
-import { UpdatePhoneForm, UpdatePwdForm, UserProfileForm } from "@/rpc/admin/auth";
-import ProForm from "@/components/ProForm/index.vue";
-import ProDialog from "@/components/Dialog/ProDialog.vue";
-import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
-import { ElMessage } from "element-plus";
-import { Camera, Edit, Female, Male, Phone, Timer, User } from "@element-plus/icons-vue";
-import { defFileService } from "@/api/base/file";
-import { useRoute, useRouter } from "vue-router";
 
-enum DialogType {
-  ACCOUNT = "account",
-  PASSWORD = "password",
-  MOBILE = "phone"
+import { onMounted, reactive, ref } from "vue";
+import { defAuthService } from "@/api/admin/auth";
+import type { UserProfileForm } from "@/rpc/admin/auth";
+import { useUserStore } from "@/stores/modules/user";
+import ProfileBase from "./components/base.vue";
+import ProfileSecurity from "./components/security.vue";
+import ProfilePassword from "./components/password.vue";
+import { ArrowRight } from "@element-plus/icons-vue";
+
+/** 个人中心标签页。 */
+type ProfileTab = "account" | "security" | "password";
+
+/** 左侧导航项结构。 */
+interface ProfileTabOption {
+  /** 标签值。 */
+  value: ProfileTab;
+  /** 导航标题。 */
+  label: string;
+  /** 导航描述。 */
+  description: string;
 }
 
-type ProfileTab = "account" | "security";
-
-const dialog = reactive({
-  visible: false,
-  title: "",
-  type: "" as DialogType // 修改账号资料,修改密码、绑定手机、绑定邮箱
-});
-const route = useRoute();
-const router = useRouter();
+const userStore = useUserStore();
 const activeTab = ref<ProfileTab>("account");
-
-const accountFormRef = ref<ProFormInstance>();
-const passwordFormRef = ref<ProFormInstance>();
-const mobileFormRef = ref<ProFormInstance>();
-
+const profileTabs: ProfileTabOption[] = [
+  {
+    value: "account",
+    label: "账号信息",
+    description: "维护头像和资料"
+  },
+  {
+    value: "security",
+    label: "安全设置",
+    description: "管理验证与安全"
+  },
+  {
+    value: "password",
+    label: "修改密码",
+    description: "更新登录密码"
+  }
+];
 const userProfileForm = reactive<UserProfileForm>({
-  /** 用户名 */
   userName: "",
-  /** 昵称 */
   nickName: "",
-  /** 头像URL */
   avatar: "",
-  /** 性别 */
   gender: 3,
-  /** 手机号 */
   phone: "",
-  /** 角色名 */
   roleName: "",
-  /** 部门名 */
   deptName: "",
-  /** 创建时间 */
   createdAt: ""
 });
-const updatePwdForm = reactive<UpdatePwdForm>({
-  /** 原密码 */
-  oldPwd: "",
-  /** 新密码 */
-  newPwd: "",
-  /** 确认密码 */
-  confirmPwd: ""
-});
-const updatePhoneForm = reactive<UpdatePhoneForm>({
-  /** 手机号 */
-  phone: "",
-  /** 验证码 */
-  code: ""
-});
 
-const mobileCountdown = ref(0);
-const mobileTimer = ref<NodeJS.Timeout | null>(null);
+/** 切换当前显示标签，仅更新本地视图状态，不触发路由变化。 */
+function handleTabChange(tab: ProfileTab) {
+  activeTab.value = tab;
+}
 
-// 修改密码校验规则
-const updatePwdFormRules = {
-  oldPwd: [{ required: true, message: "请输入原密码", trigger: "blur" }],
-  newPwd: [{ required: true, message: "请输入新密码", trigger: "blur" }],
-  confirmPwd: [{ required: true, message: "请再次输入新密码", trigger: "blur" }]
-};
-
-// 手机号校验规则
-const updatePhoneFormRules = {
-  phone: [
-    { required: true, message: "请输入手机号", trigger: "blur" },
-    {
-      pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-      message: "请输入正确的手机号码",
-      trigger: "blur"
-    }
-  ],
-  code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
-};
-
-const accountFormFields: ProFormField[] = [
-  { prop: "nickName", label: "昵称", component: "input" },
-  { prop: "gender", label: "性别", component: "dict", props: { code: "base_user_gender" } }
-];
-
-const passwordFormFields: ProFormField[] = [
-  { prop: "oldPwd", label: "原密码", component: "password" },
-  { prop: "newPwd", label: "新密码", component: "password" },
-  { prop: "confirmPwd", label: "确认密码", component: "password" }
-];
-
-const mobileFormFields: ProFormField[] = [
-  { prop: "phone", label: "手机号码", component: "input", props: { style: { width: "250px" } } },
-  { prop: "code", label: "验证码", component: "slot", slotName: "mobileCodeInput" }
-];
-
-const tabDialogMap: Record<string, { tab: ProfileTab; dialog?: DialogType }> = {
-  account: { tab: "account", dialog: DialogType.ACCOUNT },
-  password: { tab: "security", dialog: DialogType.PASSWORD },
-  phone: { tab: "security", dialog: DialogType.MOBILE },
-  security: { tab: "security" }
-};
-
-/**
- * 读取当前路由中的 tab / dialog 查询参数，统一兼容数组场景。
- */
-const getRouteState = () => {
-  const tabQuery = Array.isArray(route.query.tab) ? route.query.tab[0] : route.query.tab;
-  const dialogQuery = Array.isArray(route.query.dialog) ? route.query.dialog[0] : route.query.dialog;
-  return {
-    tab: tabQuery === "security" ? "security" : "account",
-    dialog: dialogQuery as DialogType | undefined
-  };
-};
-
-/**
- * 判断目标查询参数是否与当前路由一致，避免 replace 自触发 watch 死循环。
- */
-const isSameRouteState = (tab: ProfileTab, dialogType?: DialogType | "") => {
-  const currentState = getRouteState();
-  return currentState.tab === tab && (currentState.dialog || "") === (dialogType || "");
-};
-
-/**
- * 同步个人中心路由状态，仅在查询参数实际变化时才更新地址栏。
- */
-const syncRouteQuery = (tab: ProfileTab, dialogType?: DialogType | "") => {
-  if (isSameRouteState(tab, dialogType)) return;
-
-  const nextQuery: Record<string, string> = { ...route.query } as Record<string, string>;
-  nextQuery.tab = tab;
-  if (dialogType) {
-    nextQuery.dialog = dialogType;
-  } else {
-    delete nextQuery.dialog;
-  }
-  router.replace({ path: route.path, query: nextQuery });
-};
-
-/**
- * 按路由中的查询参数恢复当前标签页和弹窗状态。
- */
-const applyRouteState = async () => {
-  const { tab: tabQuery, dialog: dialogQuery } = getRouteState();
-  const matchedState = tabDialogMap[dialogQuery || ""] ?? tabDialogMap[tabQuery || ""];
-
-  activeTab.value = matchedState?.tab ?? (tabQuery === "security" ? "security" : "account");
-
-  if (!matchedState?.dialog) {
-    if (dialog.visible) {
-      dialog.visible = false;
-      dialog.type = "" as DialogType;
-      resetDialogForms();
-    }
-    return;
-  }
-
-  if (dialog.visible && dialog.type === matchedState.dialog) return;
-
-  await nextTick();
-  handleOpenDialog(matchedState.dialog);
-};
-
-/**
- * 弹窗关闭后同步清理路由参数，避免刷新页面后再次自动打开旧弹窗。
- */
-const handleDialogClose = () => {
-  resetDialogForms();
-  dialog.type = "" as DialogType;
-  syncRouteQuery(activeTab.value);
-};
-
-/**
- * 重置弹窗表单校验与临时输入，避免不同弹窗类型之间串值。
- */
-const resetDialogForms = () => {
-  accountFormRef.value?.clearValidate();
-  passwordFormRef.value?.resetFields();
-  passwordFormRef.value?.clearValidate();
-  mobileFormRef.value?.resetFields();
-  mobileFormRef.value?.clearValidate();
-  updatePwdForm.oldPwd = "";
-  updatePwdForm.newPwd = "";
-  updatePwdForm.confirmPwd = "";
-  updatePhoneForm.phone = "";
-  updatePhoneForm.code = "";
-};
-
-/**
- * 打开弹窗
- * @param type 弹窗类型 ACCOUNT: 账号资料 PASSWORD: 修改密码 MOBILE: 绑定手机 EMAIL: 绑定邮箱
- */
-const handleOpenDialog = (type: DialogType) => {
-  // 同一个弹窗已打开时仅确保路由状态正确，避免重复触发弹窗联动。
-  if (dialog.visible && dialog.type === type) {
-    syncRouteQuery(activeTab.value, type);
-    return;
-  }
-
-  dialog.type = type;
-  dialog.visible = true;
-  switch (type) {
-    case DialogType.ACCOUNT:
-      dialog.title = "账号资料";
-      break;
-    case DialogType.PASSWORD:
-      dialog.title = "修改密码";
-      break;
-    case DialogType.MOBILE:
-      dialog.title = "绑定手机";
-      break;
-  }
-  nextTick(() => {
-    accountFormRef.value?.clearValidate();
-    passwordFormRef.value?.clearValidate();
-    mobileFormRef.value?.clearValidate();
+/** 拉取当前登录用户的个人中心资料。 */
+async function loadUserProfile() {
+  const profile = await defAuthService.GetUserProfile({});
+  Object.assign(userProfileForm, profile);
+  // 个人中心资料更新后，同步刷新头部头像和昵称展示，避免页面内外信息不一致。
+  userStore.setUserInfo({
+    ...userStore.userInfo,
+    userName: profile.userName,
+    nickName: profile.nickName,
+    phone: profile.phone,
+    avatar: profile.avatar,
+    roleName: profile.roleName,
+    deptName: profile.deptName
   });
-  syncRouteQuery(activeTab.value, type);
-};
-
-/**
- *  发送验证码
- */
-const handleSendVerificationCode = async () => {
-  if (!updatePhoneForm.phone) {
-    ElMessage.error("请输入手机号");
-    return;
-  }
-  // 验证手机号格式
-  const reg = /^1[3-9]\d{9}$/;
-  if (!reg.test(updatePhoneForm.phone)) {
-    ElMessage.error("手机号格式不正确");
-    return;
-  }
-  await defAuthService.SendUpdatePhoneCode({
-    phone: updatePhoneForm.phone
-  });
-
-  mobileCountdown.value = 60;
-  mobileTimer.value = setInterval(() => {
-    if (mobileCountdown.value > 0) {
-      mobileCountdown.value -= 1;
-    } else {
-      clearInterval(mobileTimer.value!);
-    }
-  }, 1000);
-};
-
-/**
- * 提交表单
- */
-const handleSubmit = async () => {
-  switch (dialog.type) {
-    case DialogType.ACCOUNT:
-      defAuthService.UpdateUserProfile(userProfileForm).then(() => {
-        ElMessage.success("账号资料修改成功");
-        dialog.visible = false;
-        loadUserProfile();
-      });
-      break;
-    case DialogType.PASSWORD:
-      if (!(await passwordFormRef.value?.validate())) return;
-      if (updatePwdForm.newPwd !== updatePwdForm.confirmPwd) {
-        ElMessage.error("两次输入的密码不一致");
-        return;
-      }
-      defAuthService.UpdateUserPwd(updatePwdForm).then(() => {
-        ElMessage.success("密码修改成功");
-        dialog.visible = false;
-      });
-      break;
-    case DialogType.MOBILE:
-      if (!(await mobileFormRef.value?.validate())) return;
-      defAuthService.UpdateUserPhone(updatePhoneForm).then(() => {
-        ElMessage.success("手机号修改成功");
-        dialog.visible = false;
-        loadUserProfile();
-      });
-      break;
-  }
-};
-
-const fileInput = ref<HTMLInputElement | null>(null);
-
-const triggerFileUpload = () => {
-  fileInput.value?.click();
-};
-
-const handleFileChange = async (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files ? target.files[0] : null;
-  if (file) {
-    try {
-      const data = await defFileService.UploadFile(file, "avatar");
-      // 更新用户头像
-      userProfileForm.avatar = data.url;
-      // 更新用户信息
-      await defAuthService.UpdateUserProfile(userProfileForm);
-    } catch (error) {
-      ElMessage.error("头像上传失败");
-    }
-  }
-};
-
-/** 加载用户信息 */
-const loadUserProfile = async () => {
-  const data = await defAuthService.GetUserProfile({});
-  Object.assign(userProfileForm, data);
-};
-
-const handleTabChange = (name: string | number) => {
-  activeTab.value = name === "security" ? "security" : "account";
-  dialog.visible = false;
-  dialog.type = "" as DialogType;
-  resetDialogForms();
-  syncRouteQuery(activeTab.value);
-};
-
-watch(
-  () => [route.query.tab, route.query.dialog],
-  () => {
-    applyRouteState();
-  }
-);
+  // 无论从哪个入口进入个人中心，默认都展示账号信息模块。
+  activeTab.value = "account";
+}
 
 onMounted(async () => {
-  if (mobileTimer.value) {
-    clearInterval(mobileTimer.value);
-  }
   await loadUserProfile();
-  await applyRouteState();
-});
-
-onBeforeUnmount(() => {
-  if (mobileTimer.value) {
-    clearInterval(mobileTimer.value);
-  }
-  resetDialogForms();
 });
 </script>
 
-<style lang="scss" scoped>
-/** 关闭tag标签  */
-.app-container {
-  /* 50px = navbar = 50px */
-  height: calc(100vh - 50px);
-  background: var(--el-fill-color-blank);
+<style scoped lang="scss">
+.profile-page {
+  min-height: calc(100vh - 50px);
+  padding: 24px;
+  background:
+    radial-gradient(circle at top left, rgb(230 239 255 / 88%), transparent 28%),
+    radial-gradient(circle at bottom right, rgb(255 236 221 / 72%), transparent 24%),
+    linear-gradient(180deg, #f6f9fd 0%, #f3f7fc 100%);
 }
 
-/** 开启tag标签  */
-.hasTagsView {
-  .app-container {
-    /* 84px = navbar + tags-view = 50px + 34px */
-    height: calc(100vh - 84px);
+.card-panel {
+  border: 1px solid #e7eef7;
+  border-radius: 26px;
+  background: rgb(255 255 255 / 88%);
+  box-shadow: 0 22px 48px rgb(34 64 102 / 8%);
+  backdrop-filter: blur(10px);
+}
+
+.profile-shell {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.profile-nav {
+  position: sticky;
+  top: 24px;
+  padding: 14px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 16px;
+  color: #31445f;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 18px;
+  transition: all 0.2s ease;
+}
+
+.nav-item + .nav-item {
+  margin-top: 8px;
+}
+
+.nav-item strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.nav-item p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #71839d;
+}
+
+.nav-item:hover,
+.nav-item--active {
+  color: #1d4ed8;
+  background: linear-gradient(135deg, #edf4ff 0%, #fff3ea 100%);
+}
+
+.profile-content {
+  min-width: 0;
+}
+
+@media screen and (width <= 1080px) {
+  .profile-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-nav {
+    position: static;
+  }
+}
+
+@media screen and (width <= 640px) {
+  .profile-page {
+    padding: 16px;
   }
 }
 </style>

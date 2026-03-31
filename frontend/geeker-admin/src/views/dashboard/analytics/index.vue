@@ -3,7 +3,6 @@
     <section class="hero-card">
       <div class="hero-card__head">
         <div>
-          <p class="hero-card__eyebrow">经营概览</p>
           <h2 class="hero-card__title">{{ activeTimeLabel }}经营数据</h2>
           <p class="hero-card__desc">展示用户、商品、订单和销售额汇总，以及对应的趋势和分布情况。</p>
         </div>
@@ -18,7 +17,9 @@
           <div class="summary-card__meta">
             <span class="summary-card__label">{{ item.label }}</span>
             <div class="summary-card__icon">
-              <svg-icon :icon-class="item.icon" size="1.3em" />
+              <el-icon :size="20">
+                <component :is="item.icon" />
+              </el-icon>
             </div>
           </div>
           <div class="summary-card__value">{{ item.value }}</div>
@@ -41,6 +42,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
+import { Document, Goods, User, Wallet } from "@element-plus/icons-vue";
 import OrderBarChart from "./components/OrderBarChart.vue";
 import GoodsBarChart from "./components/GoodsBarChart.vue";
 import GoodsPieChart from "./components/GoodsPieChart.vue";
@@ -55,10 +57,11 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 时间维度选项，需与后端枚举定义保持一致。 */
 const timeOptions = [
   { label: "今日", value: DashboardTimeTypeEnum.DAY },
-  { label: "近一周", value: DashboardTimeTypeEnum.WEEK },
-  { label: "近一月", value: DashboardTimeTypeEnum.MONTH }
+  { label: "本周", value: DashboardTimeTypeEnum.WEEK },
+  { label: "本月", value: DashboardTimeTypeEnum.MONTH }
 ];
 
 const activeTimeType = ref<DashboardTimeType>(DashboardTimeTypeEnum.DAY);
@@ -95,15 +98,33 @@ const dashboardCountSale = reactive<DashboardCountResponse>({
   totalNum: 0
 });
 
+/** 顶部概览卡片配置项。 */
+interface SummaryCardItem {
+  /** 唯一键。 */
+  key: string;
+  /** 卡片标题。 */
+  label: string;
+  /** 主值。 */
+  value: string;
+  /** 辅助值。 */
+  newValue: string;
+  /** 底部说明。 */
+  footLabel: string;
+  /** 对应图标组件。 */
+  icon: any;
+  /** 强调色。 */
+  color: string;
+}
+
 /** 顶部概览卡片配置。 */
-const summaryCards = computed(() => [
+const summaryCards = computed<SummaryCardItem[]>(() => [
   {
     key: "user",
     label: "用户总数",
     value: String(dashboardCountUser.totalNum),
     newValue: String(dashboardCountUser.newNum),
     footLabel: `${activeTimeLabel.value}新增`,
-    icon: "visit",
+    icon: User,
     color: "#2d6cdf"
   },
   {
@@ -112,7 +133,7 @@ const summaryCards = computed(() => [
     value: String(dashboardCountGoods.totalNum),
     newValue: String(dashboardCountGoods.newNum),
     footLabel: `${activeTimeLabel.value}新增`,
-    icon: "ip",
+    icon: Goods,
     color: "#15a87b"
   },
   {
@@ -121,7 +142,7 @@ const summaryCards = computed(() => [
     value: String(dashboardCountOrder.totalNum),
     newValue: String(dashboardCountOrder.newNum),
     footLabel: `${activeTimeLabel.value}新增`,
-    icon: "order",
+    icon: Document,
     color: "#f08c2e"
   },
   {
@@ -130,7 +151,7 @@ const summaryCards = computed(() => [
     value: formatPrice(dashboardCountSale.totalNum),
     newValue: formatPrice(dashboardCountSale.newNum),
     footLabel: activeTimeLabel.value,
-    icon: "money",
+    icon: Wallet,
     color: "#d9485f"
   }
 ]);
@@ -182,14 +203,6 @@ watch(
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 24px;
-}
-
-.hero-card__eyebrow {
-  margin: 0 0 8px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #6b7a90;
 }
 
 .hero-card__title {

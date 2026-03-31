@@ -2,7 +2,6 @@
   <article class="chart-card">
     <div class="chart-card__header">
       <div>
-        <p class="chart-card__eyebrow">分类分析</p>
         <h3 class="chart-card__title">商品分类占比</h3>
       </div>
     </div>
@@ -92,14 +91,6 @@ watch(
 
 .chart-card__header {
   margin-bottom: 12px;
-}
-
-.chart-card__eyebrow {
-  margin: 0 0 6px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #7f8ea3;
 }
 
 .chart-card__title {

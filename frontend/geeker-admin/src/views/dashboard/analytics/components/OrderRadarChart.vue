@@ -2,8 +2,7 @@
   <article class="chart-card">
     <div class="chart-card__header">
       <div>
-        <p class="chart-card__eyebrow">订单状态</p>
-        <h3 class="chart-card__title">订单状态对比</h3>
+        <h3 class="chart-card__title">商品分类订单状态</h3>
       </div>
     </div>
     <ECharts :option="option" :height="360" />
@@ -27,7 +26,7 @@ const sourceData = reactive<DashboardRadarResponse>({
   seriesData: []
 });
 
-/** 订单状态雷达图配置。 */
+/** 商品分类订单状态雷达图配置。 */
 const option = computed<ECOption>(() => ({
   color: ["#2d6cdf", "#d9485f", "#15a87b"],
   tooltip: {
@@ -66,7 +65,7 @@ const option = computed<ECOption>(() => ({
   },
   series: [
     {
-      name: "订单状态",
+      name: "商品分类订单状态",
       type: "radar",
       data: sourceData.seriesData,
       areaStyle: {
@@ -77,7 +76,7 @@ const option = computed<ECOption>(() => ({
 }));
 
 /**
- * 根据时间维度加载订单状态雷达图数据。
+ * 根据时间维度加载商品分类订单状态雷达图数据。
  */
 async function loadChartData(timeType: DashboardTimeType) {
   const data = await defDashboardService.DashboardRadarOrder({ timeType });
@@ -104,14 +103,6 @@ watch(
 
 .chart-card__header {
   margin-bottom: 12px;
-}
-
-.chart-card__eyebrow {
-  margin: 0 0 6px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #7f8ea3;
 }
 
 .chart-card__title {

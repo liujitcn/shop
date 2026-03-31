@@ -2,8 +2,7 @@
   <article class="chart-card">
     <div class="chart-card__header">
       <div>
-        <p class="chart-card__eyebrow">订单分析</p>
-        <h3 class="chart-card__title">订单与销售趋势</h3>
+        <h3 class="chart-card__title">订单销量趋势</h3>
       </div>
     </div>
     <ECharts :option="option" :height="360" />
@@ -28,6 +27,14 @@ const sourceData = reactive<DashboardBarResponse>({
   seriesData: []
 });
 
+/** 订单趋势图的系列名称，顺序需和后端返回保持一致。 */
+const seriesNames = {
+  orderCount: "订单量",
+  saleAmount: "销售额",
+  orderGrowth: "订单量增长率",
+  saleGrowth: "销售额增长率"
+};
+
 /** 订单趋势图表配置。 */
 const option = computed<ECOption>(() => ({
   color: ["#2d6cdf", "#15a87b", "#f08c2e", "#d9485f"],
@@ -42,7 +49,7 @@ const option = computed<ECOption>(() => ({
     textStyle: {
       color: "#7f8ea3"
     },
-    data: ["订单量", "销售额", "订单增长率", "销售增长率"]
+    data: Object.values(seriesNames)
   },
   toolbox: {
     right: 8,
@@ -72,7 +79,7 @@ const option = computed<ECOption>(() => ({
   yAxis: [
     {
       type: "value",
-      name: "订单量",
+      name: seriesNames.orderCount,
       axisLabel: {
         color: "#7f8ea3"
       },
@@ -84,7 +91,7 @@ const option = computed<ECOption>(() => ({
     },
     {
       type: "value",
-      name: "销售额",
+      name: seriesNames.saleAmount,
       axisLabel: {
         color: "#7f8ea3",
         formatter: "{value} 元"
@@ -101,7 +108,7 @@ const option = computed<ECOption>(() => ({
   ],
   series: [
     {
-      name: "订单量",
+      name: seriesNames.orderCount,
       type: "bar",
       barMaxWidth: 18,
       data: sourceData.seriesData[0]?.value ?? [],
@@ -110,7 +117,7 @@ const option = computed<ECOption>(() => ({
       }
     },
     {
-      name: "销售额",
+      name: seriesNames.saleAmount,
       type: "bar",
       yAxisIndex: 1,
       barMaxWidth: 18,
@@ -120,14 +127,14 @@ const option = computed<ECOption>(() => ({
       }
     },
     {
-      name: "订单增长率",
+      name: seriesNames.orderGrowth,
       type: "line",
       yAxisIndex: 2,
       smooth: true,
       data: (sourceData.seriesData[2]?.value ?? []).map(item => item / 100)
     },
     {
-      name: "销售增长率",
+      name: seriesNames.saleGrowth,
       type: "line",
       yAxisIndex: 2,
       smooth: true,
@@ -167,14 +174,6 @@ watch(
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
-}
-
-.chart-card__eyebrow {
-  margin: 0 0 6px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #7f8ea3;
 }
 
 .chart-card__title {

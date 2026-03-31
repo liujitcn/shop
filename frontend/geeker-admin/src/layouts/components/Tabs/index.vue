@@ -37,6 +37,14 @@ const tabsMenuValue = ref(route.fullPath);
 const tabsMenuList = computed(() => tabStore.tabsMenuList);
 const tabsIcon = computed(() => globalStore.tabsIcon);
 
+/**
+ * 统一生成页签唯一标识。
+ * 个人中心通过 query 切换子模块，但标签栏只保留一个“个人中心”页签，避免出现多个同名标签。
+ */
+const getTabPath = () => {
+  return route.path === "/profile" ? route.path : route.fullPath;
+};
+
 onMounted(() => {
   tabsDrop();
   initTabs();
@@ -47,11 +55,12 @@ watch(
   () => route.fullPath,
   () => {
     if (route.meta.full) return;
-    tabsMenuValue.value = route.fullPath;
+    const tabPath = getTabPath();
+    tabsMenuValue.value = tabPath;
     const tabsParams = {
       icon: route.meta.icon as string,
       title: route.meta.title as string,
-      path: route.fullPath,
+      path: tabPath,
       name: route.name as string,
       close: !route.meta.affix,
       isKeepAlive: route.meta.keepAlive as boolean
