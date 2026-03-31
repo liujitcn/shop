@@ -163,7 +163,7 @@ onLoad(async () => {
 <template>
   <view class="viewport">
     <view class="logo">
-      <image :src="settingStore.getData('sysLogo') || defaultLogo" />
+      <image :src="settingStore.getData('appLogo') || defaultLogo" />
     </view>
     <view class="login">
       <!-- 网页端表单登录 -->
