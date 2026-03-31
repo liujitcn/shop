@@ -31,7 +31,8 @@ func NewPayBillCase(baseCase *biz.BaseCase, payBillRepo *data.PayBillRepo) *PayB
 // PagePayBill 分页查询支付账单
 func (c *PayBillCase) PagePayBill(ctx context.Context, req *admin.PagePayBillRequest) (*admin.PagePayBillResponse, error) {
 	query := c.Query(ctx).PayBill
-	opts := make([]repo.QueryOption, 0, 1)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.BillDate.Asc()))
 	if req.GetBillDate() != "" {
 		opts = append(opts, repo.Where(query.BillDate.Eq(req.GetBillDate())))
 	}

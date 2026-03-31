@@ -159,16 +159,17 @@ const formFields = computed<ProFormField[]>(() => [
 
 /** 用户门店表格列配置。 */
 const columns: ColumnProps[] = [
-  { prop: "name", label: "门店名称", search: { el: "input" } },
-  { prop: "nickName", label: "联系人" },
-  { prop: "phone", label: "电话" },
+  { prop: "name", label: "门店名称", minWidth: 140, search: { el: "input" } },
+  { prop: "nickName", label: "联系人", minWidth: 100 },
+  { prop: "phone", label: "电话", minWidth: 130 },
   {
     prop: "address",
     label: "门店地址",
+    minWidth: 220,
     render: scope => formatAddress((scope.row as UserStore).address, (scope.row as UserStore).detail)
   },
-  { prop: "status", label: "状态", width: 120, dictCode: "user_store_status", search: { el: "select" } },
-  { prop: "remark", label: "备注" },
+  { prop: "status", label: "状态", minWidth: 120, dictCode: "user_store_status", search: { el: "select" } },
+  { prop: "remark", label: "备注", minWidth: 160 },
   {
     prop: "operation",
     label: "操作",

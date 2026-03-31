@@ -38,13 +38,20 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo, ba
 
 // ListBaseDict 查询字典列表
 func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictResponse, error) {
-	baseDictList, err := c.List(ctx)
+	query := c.Query(ctx).BaseDict
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	baseDictList, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
+	baseDictItemQuery := c.baseDictItemCase.Query(ctx).BaseDictItem
 	baseDictItemList := make([]*models.BaseDictItem, 0)
-	baseDictItemList, err = c.baseDictItemCase.List(ctx)
+	itemOpts := make([]repo.QueryOption, 0, 2)
+	itemOpts = append(itemOpts, repo.Order(baseDictItemQuery.Sort.Asc()))
+	itemOpts = append(itemOpts, repo.Order(baseDictItemQuery.UpdatedAt.Desc()))
+	baseDictItemList, err = c.baseDictItemCase.List(ctx, itemOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +89,8 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictRes
 // PageBaseDict 分页查询字典
 func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *admin.PageBaseDictRequest) (*admin.PageBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}

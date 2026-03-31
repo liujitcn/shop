@@ -203,6 +203,8 @@ geeker-admin
 - 业务页面路由主要由后端接口动态返回。
 - 前端启动后会拉取用户菜单和按钮权限，再按菜单配置动态注册路由。
 - 菜单组件路径通过 `src/views` 下的页面文件自动匹配，未匹配到的页面会回退到待迁移页面占位逻辑。
+- 隐藏业务页跳转统一复用 `src/utils/router.ts` 中的 `navigateTo`，避免各页面重复维护 `router.push + resolve` 降级逻辑。
+- 列表页跳转到隐藏业务页时，前端应优先按完整 `path` 跳转，并与 `/Users/liujun/workspace/shop/shop/sql/geeker-admin.sql` 中 `base_menu` 的父子菜单路径保持一致；当前已校验的隐藏页包括 `/base/dict-item`、`/base/job-log`、`/goods/edit`、`/order/detail/:orderId`、`/shop/hot-item`。
 
 相关接口：
 
@@ -255,6 +257,7 @@ geeker-admin
 - 后台列表页优先参考 [`src/views/shop/banner/index.vue`](./src/views/shop/banner/index.vue) 的实现方式，统一采用 `ProTable + FormDialog + ProForm` 结构。
 - `src/views/base/menu/index.vue` 这类树形列表页也按上述结构收敛，顶部按钮使用 `headerActions`，状态列和操作列优先使用 `cellType` 与 `actions` 配置，仅保留图标选择、穿梭项展示等必要插槽。
 - 详情查看类弹窗若明显不属于表单场景，优先使用 `ProDialog`，不要直接回退到原生 `el-dialog`。
+- 弹窗内若同时包含详情展示和少量编辑字段，保留 `ProDialog` 承载展示区，表单部分优先改用 `ProForm`；当前订单发货/退款弹窗已按该模式收敛，纯表单弹窗则继续优先使用 `FormDialog`。
 - 顶部按钮优先通过 `headerActions` 配置，行内操作优先通过 `actions` 配置；只有基础配置无法覆盖时，才保留必要的页面 slot。
 - 状态列优先使用 `cellType: "status"`，图片列优先使用 `cellType: "image"`，避免在页面模板中重复手写通用展示逻辑。
 - 弹窗关闭时必须显式重置表单与校验状态；编辑态回填、选项预加载、提交成功后刷新表格都应在页面方法内明确处理。

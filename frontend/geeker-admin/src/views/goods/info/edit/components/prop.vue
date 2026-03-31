@@ -79,11 +79,12 @@ const state = reactive({
 
 const { rules } = toRefs(state);
 
+/** 商品属性编辑表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "index", width: 50 },
-  { prop: "label", label: "属性名称" },
-  { prop: "value", label: "属性值" },
-  { prop: "sort", label: "排序", width: 220 },
+  { prop: "label", label: "属性名称", minWidth: 140 },
+  { prop: "value", label: "属性值", minWidth: 160 },
+  { prop: "sort", label: "排序", minWidth: 220 },
   { prop: "operation", label: "操作", width: 150, align: "center" }
 ];
 

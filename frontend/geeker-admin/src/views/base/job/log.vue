@@ -94,14 +94,14 @@ const columns: ColumnProps[] = [
   {
     prop: "status",
     label: "状态",
-    width: 120,
+    minWidth: 120,
     dictCode: "base_job_log_status",
     search: { el: "select" }
   },
   {
     prop: "executeTime",
     label: "执行时间",
-    width: 180,
+    minWidth: 180,
     search: {
       el: "date-picker",
       props: {
@@ -115,7 +115,7 @@ const columns: ColumnProps[] = [
       }
     }
   },
-  { prop: "processTime", label: "消耗时间(ms)", align: "right" },
+  { prop: "processTime", label: "消耗时间(ms)", minWidth: 130, align: "right" },
   {
     prop: "detailAction",
     label: "操作",

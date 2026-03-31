@@ -143,19 +143,19 @@ function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
 /** 字典项表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "label", label: "字典标签", search: { el: "input" } },
-  { prop: "value", label: "字典值" },
-  { prop: "sort", label: "排序", align: "right" },
+  { prop: "label", label: "字典标签", minWidth: 140, search: { el: "input" } },
+  { prop: "value", label: "字典值", minWidth: 140 },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {
     prop: "tagType",
     label: "标签类型",
-    width: 120,
+    minWidth: 120,
     render: scope => renderTagTypeCell(scope as unknown as RenderScope<BaseDictItem>)
   },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -167,8 +167,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDictItem)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

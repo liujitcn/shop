@@ -99,7 +99,8 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *app.PageGoodsRequest) (*
 	member := util.IsMember(ctx)
 	query := c.Query(ctx)
 	goodsQuery := query.Goods
-	opts := make([]repo.QueryOption, 0, 4)
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Order(goodsQuery.UpdatedAt.Desc()))
 	opts = append(opts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
 
 	if req.GetName() != "" {
@@ -124,7 +125,6 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *app.PageGoodsRequest) (*
 			opts = append(opts, repo.Where(goodsQuery.CategoryID.Eq(req.GetCategoryId())))
 		}
 	}
-
 	page, count, err := c.GoodsRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err

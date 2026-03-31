@@ -32,6 +32,7 @@ import type { BaseJob, BaseJobArgs, BaseJobForm, PageBaseJobRequest } from "@/rp
 import router from "@/routers";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { navigateTo } from "@/utils/router";
 
 defineOptions({
   name: "BaseJob",
@@ -242,15 +243,15 @@ const formFields: ProFormField[] = [
 /** 定时任务表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "name", label: "任务名称", search: { el: "input" } },
-  { prop: "invokeTarget", label: "调用目标", search: { el: "input" } },
-  { prop: "args", label: "参数", render: scope => renderArgsCell(scope as unknown as RenderScope<BaseJob>) },
-  { prop: "cronExpression", label: "cron表达式", align: "center" },
-  { prop: "entryId", label: "任务id", align: "right" },
+  { prop: "name", label: "任务名称", minWidth: 140, search: { el: "input" } },
+  { prop: "invokeTarget", label: "调用目标", minWidth: 180, search: { el: "input" } },
+  { prop: "args", label: "参数", minWidth: 140, render: scope => renderArgsCell(scope as unknown as RenderScope<BaseJob>) },
+  { prop: "cronExpression", label: "cron表达式", minWidth: 150, align: "center" },
+  { prop: "entryId", label: "任务id", minWidth: 100, align: "right" },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -262,8 +263,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseJob)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",
@@ -490,10 +491,7 @@ function handleExec(id: number, name: string) {
  * 打开定时任务日志页面。
  */
 function handleOpenBaseJob(id: number, name: string) {
-  router.push({
-    path: "/base/job-log",
-    query: { jobId: id, title: `【${name}】定时任务日志` }
-  });
+  navigateTo(router, "/base/job-log", { jobId: id, title: `【${name}】定时任务日志` });
 }
 </script>
 

@@ -46,11 +46,9 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 	}
 	member := util.IsMemberByAuthInfo(authInfo)
 	query := c.Query(ctx).UserCollect
-	page, count, err := c.Page(ctx,
-		req.GetPageNum(),
-		req.GetPageSize(),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	page, count, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}

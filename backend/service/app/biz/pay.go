@@ -87,9 +87,9 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 
 	var goods []*models.OrderGoods
 	orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
-	goods, err = c.orderGoodsRepo.List(ctx,
-		repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)))
+	goods, err = c.orderGoodsRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -169,9 +169,9 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 
 	var goods []*models.OrderGoods
 	orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
-	goods, err = c.orderGoodsRepo.List(ctx,
-		repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)))
+	goods, err = c.orderGoodsRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

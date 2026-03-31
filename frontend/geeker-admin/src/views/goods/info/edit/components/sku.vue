@@ -64,54 +64,28 @@
     </el-card>
 
     <!-- 规格表单弹窗 -->
-    <ProDialog v-model="specDialog.visible" :title="specDialog.title" width="500px" @close="handleCloseGoodsSpecDialog">
-      <el-form ref="specFormRef" :model="specDialog.specFormData" :rules="specDialog.rules" label-suffix=":" label-width="100px">
-        <el-form-item label="规格名称" prop="name">
-          <el-input v-model="specDialog.specFormData.name" placeholder="请输入规格名称" />
-        </el-form-item>
-        <!-- 规格内容（动态可增减） -->
-        <el-form-item
-          v-for="(item, index) in specDialog.specFormData.item"
-          :key="index"
-          :label="`规格项 ${index + 1}`"
-          :prop="`item.${index}`"
-          :rules="{ required: true, message: '规格项不能为空', trigger: 'blur' }"
-        >
-          <div class="flex-items">
-            <el-input v-model="specDialog.specFormData.item[index]" placeholder="请输入规格内容" />
-            <el-button
-              type="danger"
-              circle
-              :disabled="specDialog.specFormData.item.length === 1"
-              class="ml-2"
-              @click="removeGoodsSpecItem(index)"
-            >
-              <el-icon><Delete /></el-icon>
-            </el-button>
-          </div>
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="specDialog.specFormData.sort" controls-position="right" :min="1" :precision="0" :step="1" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleGoodsSpecSubmit">确定</el-button>
-          <el-button @click="addGoodsSpecItem">添加规格</el-button>
-          <el-button @click="handleCloseGoodsSpecDialog">取消</el-button>
-        </div>
-      </template>
-    </ProDialog>
+    <FormDialog
+      v-model="specDialog.visible"
+      ref="specFormRef"
+      :title="specDialog.title"
+      width="500px"
+      :model="specDialog.specFormData"
+      :fields="specFormFields"
+      :rules="specDialog.rules"
+      label-width="100px"
+      @confirm="handleGoodsSpecSubmit"
+      @close="handleCloseGoodsSpecDialog"
+    />
   </div>
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref, toRefs } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElNotification } from "element-plus";
-import { Delete } from "@element-plus/icons-vue";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import ProDialog from "@/components/Dialog/ProDialog.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField } from "@/components/ProForm/interface";
 import UploadImg from "@/components/Upload/Img.vue";
 import { defGoodsService } from "@/api/admin/goods";
 import type { GoodsSpec } from "@/rpc/admin/goods_spec";
@@ -140,7 +114,7 @@ type SkuItem = Record<string, any> & {
 const isDynamicSpecItemKey = (key: string) => /^specItem\d+$/.test(key);
 
 const skuFormRef = ref();
-const specFormRef = ref();
+const specFormRef = ref<InstanceType<typeof FormDialog>>();
 
 const props = defineProps({
   modelValue: {
@@ -177,14 +151,16 @@ const state = reactive({
 
 const { rules } = toRefs(state);
 
+/** 商品规格编辑表格列配置。 */
 const specColumns: ColumnProps[] = [
   { type: "index", width: 50 },
-  { prop: "name", label: "规格名称" },
-  { prop: "item", label: "规格内容" },
-  { prop: "sort", label: "排序", width: 100, align: "right" },
+  { prop: "name", label: "规格名称", minWidth: 140 },
+  { prop: "item", label: "规格内容", minWidth: 160 },
+  { prop: "sort", label: "排序", minWidth: 100, align: "right" },
   { prop: "operation", label: "操作", width: 150, align: "center" }
 ];
 
+/** 商品 SKU 编辑表格列配置。 */
 const skuColumns = computed<ColumnProps[]>(() => {
   const dynamicSpecColumns = (formData.value.specList ?? []).map((item: GoodsSpec, index: number) => ({
     prop: `specItem${index}`,
@@ -196,11 +172,11 @@ const skuColumns = computed<ColumnProps[]>(() => {
     { type: "index", width: 50 },
     ...dynamicSpecColumns,
     { prop: "skuCode", label: "规格编号", align: "center", minWidth: 160 },
-    { prop: "price", label: "价格（元）", align: "center", width: 150 },
-    { prop: "discountPrice", label: "折扣价格（元）", align: "center", width: 150 },
-    { prop: "inventory", label: "库存", align: "center", width: 140 },
-    { prop: "picture", label: "规格图片", align: "center", width: 180 },
-    { prop: "initSaleNum", label: "初始销量", align: "center", width: 140 }
+    { prop: "price", label: "价格（元）", align: "center", minWidth: 150 },
+    { prop: "discountPrice", label: "折扣价格（元）", align: "center", minWidth: 160 },
+    { prop: "inventory", label: "库存", align: "center", minWidth: 140 },
+    { prop: "picture", label: "规格图片", align: "center", minWidth: 180 },
+    { prop: "initSaleNum", label: "初始销量", align: "center", minWidth: 140 }
   ];
 });
 
@@ -224,19 +200,47 @@ const specDialog = reactive({
     sort: 1
   } as GoodsSpec,
   rules: {
-    name: [{ required: true, message: "请输入规格名称", trigger: "blur" }]
+    name: [{ required: true, message: "请输入规格名称", trigger: "blur" }],
+    item: [
+      {
+        validator: (_rule: unknown, value: string[], callback: (error?: Error) => void) => {
+          // 动态规格项统一在这里校验，确保至少存在一项且每项都有内容。
+          if (!Array.isArray(value) || !value.length || value.some(item => !String(item ?? "").trim())) {
+            callback(new Error("请完善规格内容"));
+            return;
+          }
+          callback();
+        },
+        trigger: "blur"
+      }
+    ],
+    sort: [{ required: true, message: "请输入排序", trigger: "blur" }]
   }
 });
 
-/** 添加规格项输入框。 */
-const addGoodsSpecItem = () => {
-  specDialog.specFormData.item.push("");
-};
-
-/** 删除指定规格项输入框。 */
-const removeGoodsSpecItem = (index: number) => {
-  specDialog.specFormData.item.splice(index, 1);
-};
+/** 规格弹窗字段配置。 */
+const specFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "name",
+    label: "规格名称",
+    component: "input",
+    props: { placeholder: "请输入规格名称" }
+  },
+  {
+    prop: "item",
+    label: "规格内容",
+    component: "dynamic-list",
+    props: {
+      inputProps: { placeholder: "请输入规格内容" }
+    }
+  },
+  {
+    prop: "sort",
+    label: "排序",
+    component: "input-number",
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
+  }
+]);
 
 /** 打开规格弹窗，并在编辑态回填规格数据。 */
 function handleOpenGoodsSpecDialog(index?: number, row?: GoodsSpec) {
@@ -256,22 +260,25 @@ function handleOpenGoodsSpecDialog(index?: number, row?: GoodsSpec) {
 }
 
 /** 提交规格表单并重建 SKU 组合。 */
-function handleGoodsSpecSubmit() {
-  specFormRef.value.validate((valid: any) => {
-    if (valid) {
-      ensureSkuFormArrays();
-      const specFormData = JSON.parse(JSON.stringify(specDialog.specFormData));
-      if (specDialog.index >= 0) {
-        formData.value.specList[specDialog.index] = specFormData;
-      } else {
-        formData.value.specList.push(specFormData);
-      }
-      formData.value.specList.sort((item1: GoodsSpec, item2: GoodsSpec) => item1.sort - item2.sort);
-      ElMessage.success("保存规格成功");
-      generateSkuList();
-      handleCloseGoodsSpecDialog();
+async function handleGoodsSpecSubmit() {
+  try {
+    const isValid = await specFormRef.value?.validate();
+    if (!isValid) return;
+
+    ensureSkuFormArrays();
+    const specFormData = JSON.parse(JSON.stringify(specDialog.specFormData));
+    if (specDialog.index >= 0) {
+      formData.value.specList[specDialog.index] = specFormData;
+    } else {
+      formData.value.specList.push(specFormData);
     }
-  });
+    formData.value.specList.sort((item1: GoodsSpec, item2: GoodsSpec) => item1.sort - item2.sort);
+    ElMessage.success("保存规格成功");
+    generateSkuList();
+    handleCloseGoodsSpecDialog();
+  } catch {
+    // FormDialog 校验失败时保持弹窗开启，交由表单展示错误提示。
+  }
 }
 
 /** 重置规格弹窗表单，避免新增与编辑切换时残留旧值。 */

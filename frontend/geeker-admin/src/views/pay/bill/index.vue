@@ -29,14 +29,14 @@ const { BUTTONS } = useAuthButtons();
 
 /** 支付对账单表格列配置。 */
 const columns: ColumnProps[] = [
-  { prop: "billDate", label: "账单日期", search: { el: "input" } },
-  { prop: "billType", label: "账单类型" },
-  { prop: "filePath", label: "文件路径", width: 300 },
-  { prop: "totalCount", label: "总笔数", align: "right" },
-  { prop: "totalAmount", label: "总金额（元）", align: "right", cellType: "money" },
-  { prop: "thirdTotalCount", label: "对账文件总笔数", align: "right", width: 140 },
-  { prop: "thirdTotalAmount", label: "对账文件总金额（元）", align: "right", width: 160, cellType: "money" },
-  { prop: "status", label: "对账状态", width: 120, dictCode: "pay_bill_status" }
+  { prop: "billDate", label: "账单日期", minWidth: 120, search: { el: "input" } },
+  { prop: "billType", label: "账单类型", minWidth: 120 },
+  { prop: "filePath", label: "文件路径", minWidth: 300 },
+  { prop: "totalCount", label: "总笔数", minWidth: 100, align: "right" },
+  { prop: "totalAmount", label: "总金额（元）", minWidth: 130, align: "right", cellType: "money" },
+  { prop: "thirdTotalCount", label: "对账文件总笔数", align: "right", minWidth: 150 },
+  { prop: "thirdTotalAmount", label: "对账文件总金额（元）", align: "right", minWidth: 180, cellType: "money" },
+  { prop: "status", label: "对账状态", minWidth: 120, dictCode: "pay_bill_status" }
 ];
 
 /**

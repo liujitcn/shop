@@ -92,9 +92,9 @@ func NewOrderCase(
 
 	// 服务启动时恢复全部未支付订单的超时取消任务
 	orderQuery := c.Query(context.Background()).Order
-	list, err := c.List(context.Background(),
-		repo.Where(orderQuery.Status.Eq(int32(common.OrderStatus_CREATED))),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(common.OrderStatus_CREATED))))
+	list, err := c.List(context.Background(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,10 +139,10 @@ func (c *OrderCase) OrderPre(ctx context.Context) (*app.ConfirmOrderResponse, er
 	// 查询购物车列表
 	userCartQuery := c.userCartCase.Query(ctx).UserCart
 	userCartList := make([]*models.UserCart, 0)
-	userCartList, err = c.userCartCase.List(ctx,
-		repo.Where(userCartQuery.UserID.Eq(authInfo.UserId)),
-		repo.Where(userCartQuery.IsChecked.Is(true)),
-	)
+	userCartOpts := make([]repo.QueryOption, 0, 2)
+	userCartOpts = append(userCartOpts, repo.Where(userCartQuery.UserID.Eq(authInfo.UserId)))
+	userCartOpts = append(userCartOpts, repo.Where(userCartQuery.IsChecked.Is(true)))
+	userCartList, err = c.userCartCase.List(ctx, userCartOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -185,9 +185,9 @@ func (c *OrderCase) OrderRepurchase(ctx context.Context, req *app.OrderRepurchas
 	// 读取原订单中的商品明细，重新构造成下单请求
 	orderGoodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
 	var oldOrderGoods []*models.OrderGoods
-	oldOrderGoods, err = c.orderGoodsCase.List(ctx,
-		repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)),
-	)
+	orderGoodsOpts := make([]repo.QueryOption, 0, 1)
+	orderGoodsOpts = append(orderGoodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)))
+	oldOrderGoods, err = c.orderGoodsCase.List(ctx, orderGoodsOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -209,9 +209,9 @@ func (c *OrderCase) CountOrder(ctx context.Context) (*app.CountOrderResponse, er
 		return nil, err
 	}
 	query := c.Query(ctx).Order
-	list, err := c.List(ctx,
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -238,8 +238,8 @@ func (c *OrderCase) PageOrder(ctx context.Context, req *app.PageOrderRequest) (*
 		return nil, err
 	}
 	orderQuery := c.Query(ctx).Order
-	opts := make([]repo.QueryOption, 0, 3)
-	opts = append(opts, repo.Order(orderQuery.CreatedAt.Desc()))
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(orderQuery.UpdatedAt.Desc()))
 	opts = append(opts, repo.Where(orderQuery.UserID.Eq(authInfo.UserId)))
 	if req.GetStatus() != common.OrderStatus_UNKNOWN_OS {
 		opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(req.GetStatus()))))
@@ -678,9 +678,9 @@ func (c *OrderCase) cancelOrder(ctx context.Context, userId int64, req *app.Canc
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		orderGoodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
 		var orderGoodsList []*models.OrderGoods
-		orderGoodsList, err = c.orderGoodsCase.List(ctx,
-			repo.Where(orderGoodsQuery.OrderID.In(orderIds...)),
-		)
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(orderGoodsQuery.OrderID.In(orderIds...)))
+		orderGoodsList, err = c.orderGoodsCase.List(ctx, opts...)
 		for _, orderGoods := range orderGoodsList {
 			// 订单取消后恢复库存并回退销量
 			err = c.goodsCase.subSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)

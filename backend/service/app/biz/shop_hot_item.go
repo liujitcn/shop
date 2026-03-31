@@ -47,9 +47,11 @@ func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*app.L
 	var all []*models.ShopHotItem
 
 	shopHotItemQuery := c.Query(ctx).ShopHotItem
-	all, err = c.List(ctx,
-		repo.Where(shopHotItemQuery.HotID.Eq(shopHot.ID)),
-	)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(shopHotItemQuery.Sort.Asc()))
+	opts = append(opts, repo.Order(shopHotItemQuery.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(shopHotItemQuery.HotID.Eq(shopHot.ID)))
+	all, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +75,10 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 	member := util.IsMember(ctx)
 	// 先查询专区和商品关系，再批量回表查询商品详情
 	hotGoodsQuery := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods
-	hotGoodsList, count, err := c.shopHotGoodsRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(),
-		repo.Where(hotGoodsQuery.HotItemID.Eq(req.HotItemId)),
-	)
+	hotGoodsOpts := make([]repo.QueryOption, 0, 2)
+	hotGoodsOpts = append(hotGoodsOpts, repo.Order(hotGoodsQuery.Sort.Asc()))
+	hotGoodsOpts = append(hotGoodsOpts, repo.Where(hotGoodsQuery.HotItemID.Eq(req.HotItemId)))
+	hotGoodsList, count, err := c.shopHotGoodsRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), hotGoodsOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,10 +90,11 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 		}
 		var all []*models.Goods
 		goodsQuery := c.goodsRepo.Query(ctx).Goods
-		all, err = c.goodsRepo.List(ctx,
-			repo.Where(goodsQuery.ID.In(goodsIds...)),
-			repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))),
-		)
+		goodsOpts := make([]repo.QueryOption, 0, 3)
+		goodsOpts = append(goodsOpts, repo.Order(goodsQuery.UpdatedAt.Desc()))
+		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.ID.In(goodsIds...)))
+		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))))
+		all, err = c.goodsRepo.List(ctx, goodsOpts...)
 		if err != nil {
 			return nil, err
 		}

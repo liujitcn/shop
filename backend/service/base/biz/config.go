@@ -26,9 +26,9 @@ func (c *ConfigCase) GetConfig(ctx context.Context, req *base.ConfigRequest) (*b
 		return nil, errors.New("位置不能为空")
 	}
 	query := c.Query(ctx).BaseConfig
-	list, err := c.List(ctx,
-		repo.Where(query.Site.Eq(int32(req.GetSite()))),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.Site.Eq(int32(req.GetSite()))))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

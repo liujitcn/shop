@@ -46,7 +46,11 @@ func NewBaseMenuCase(baseCase *biz.BaseCase, tx data.Transaction, baseMenuRepo *
 
 // TreeBaseMenu 查询菜单树
 func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*admin.TreeBaseMenuResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).BaseMenu
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +59,11 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*admin.TreeBaseMenuRes
 
 // OptionBaseMenu 查询菜单选项
 func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *admin.OptionBaseMenuRequest) (*common.TreeOptionResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).BaseMenu
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

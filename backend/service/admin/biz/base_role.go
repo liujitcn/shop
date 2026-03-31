@@ -40,7 +40,10 @@ func NewBaseRoleCase(baseCase *biz.BaseCase, tx data.Transaction, baseRoleRepo *
 
 // OptionBaseRole 查询角色选项
 func (c *BaseRoleCase) OptionBaseRole(ctx context.Context) (*common.SelectOptionResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).BaseRole
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +61,8 @@ func (c *BaseRoleCase) OptionBaseRole(ctx context.Context) (*common.SelectOption
 // PageBaseRole 分页查询角色
 func (c *BaseRoleCase) PageBaseRole(ctx context.Context, req *admin.PageBaseRoleRequest) (*admin.PageBaseRoleResponse, error) {
 	query := c.Query(ctx).BaseRole
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}

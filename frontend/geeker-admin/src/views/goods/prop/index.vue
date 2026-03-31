@@ -106,9 +106,9 @@ const formFields = computed<ProFormField[]>(() => [
 /** 商品属性表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "label", label: "商品属性标签", search: { el: "input" } },
-  { prop: "value", label: "商品属性值" },
-  { prop: "sort", label: "排序", align: "right" },
+  { prop: "label", label: "商品属性标签", minWidth: 150, search: { el: "input" } },
+  { prop: "value", label: "商品属性值", minWidth: 150 },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {
     prop: "operation",
     label: "操作",

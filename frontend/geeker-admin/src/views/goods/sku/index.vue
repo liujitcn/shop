@@ -136,7 +136,7 @@ const formFields = computed<ProFormField[]>(() => [
   }
 ]);
 
-/** 动态拼装 SKU 表格列，前缀规格列随商品规格变化。 */
+/** 商品库存表格列配置，前缀规格列随商品规格变化动态拼装。 */
 const columns = computed<ColumnProps[]>(() => {
   const specColumns = specList.value.map((item, index) => ({
     prop: `specItem${index}`,
@@ -146,12 +146,12 @@ const columns = computed<ColumnProps[]>(() => {
 
   return [
     ...specColumns,
-    { prop: "skuCode", label: "规格编号", search: { el: "input" } },
-    { prop: "initSaleNum", label: "初始销量", align: "right" },
-    { prop: "realSaleNum", label: "真实销量", align: "right" },
-    { prop: "price", label: "价格（元）", align: "right", cellType: "money" },
-    { prop: "discountPrice", label: "折扣价格（元）", align: "right", cellType: "money" },
-    { prop: "inventory", label: "库存", align: "right" },
+    { prop: "skuCode", label: "规格编号", minWidth: 140, search: { el: "input" } },
+    { prop: "initSaleNum", label: "初始销量", minWidth: 100, align: "right" },
+    { prop: "realSaleNum", label: "真实销量", minWidth: 100, align: "right" },
+    { prop: "price", label: "价格（元）", minWidth: 110, align: "right", cellType: "money" },
+    { prop: "discountPrice", label: "折扣价格（元）", minWidth: 130, align: "right", cellType: "money" },
+    { prop: "inventory", label: "库存", minWidth: 90, align: "right" },
     {
       prop: "operation",
       label: "操作",

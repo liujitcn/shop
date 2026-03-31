@@ -168,8 +168,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as ShopBanner)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

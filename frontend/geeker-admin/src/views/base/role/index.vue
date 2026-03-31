@@ -178,14 +178,14 @@ const formFields = computed<ProFormField[]>(() => [
 /** 角色表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "name", label: "角色名称", search: { el: "input" } },
-  { prop: "code", label: "角色编码", search: { el: "input" } },
-  { prop: "dataScope", label: "数据权限", dictCode: "base_role_data_scope", search: { el: "select" } },
-  { prop: "remark", label: "备注" },
+  { prop: "name", label: "角色名称", minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: "角色编码", minWidth: 160, search: { el: "input" } },
+  { prop: "dataScope", label: "数据权限", minWidth: 120, dictCode: "base_role_data_scope", search: { el: "select" } },
+  { prop: "remark", label: "备注", minWidth: 160 },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -197,8 +197,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

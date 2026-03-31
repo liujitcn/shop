@@ -38,7 +38,9 @@ func NewBaseConfigCase(baseCase *biz.BaseCase, baseConfigRepo *data.BaseConfigRe
 // RefreshBaseConfig 刷新配置缓存
 func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 	query := c.Query(ctx).BaseConfig
-	list, err := c.List(ctx, repo.Where(query.Site.Eq(int32(common.BaseConfigSite_SYSTEM))))
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.Site.Eq(int32(common.BaseConfigSite_SYSTEM))))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,8 @@ func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 // PageBaseConfig 分页查询配置
 func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *admin.PageBaseConfigRequest) (*admin.PageBaseConfigResponse, error) {
 	query := c.Query(ctx).BaseConfig
-	opts := make([]repo.QueryOption, 0, 4)
+	opts := make([]repo.QueryOption, 0, 6)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.Site != nil {
 		opts = append(opts, repo.Where(query.Site.Eq(int32(req.GetSite()))))
 	}

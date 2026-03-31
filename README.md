@@ -237,12 +237,20 @@ make docker-build # 构建后端 Docker 镜像，默认镜像名 backend:latest
 
 ## Docker 打包
 
-后端目录已提供多阶段 `Dockerfile`，默认可直接在 `backend` 目录构建镜像：
+后端目录当前采用“宿主机先编译二进制，再由 Docker 打包运行时镜像”的方式，和旧版 `shop-back/server` 保持一致。默认流程如下：
 
 ```bash
 cd backend
 make docker-build
 ```
+
+上述命令会先执行：
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/server ./internal/cmd/server
+```
+
+随后再使用 `backend/Dockerfile` 将 `bin/server`、`configs`、`certs` 封装进运行时镜像，不再依赖容器内执行 `go mod download`。
 
 如需自定义镜像名和标签：
 

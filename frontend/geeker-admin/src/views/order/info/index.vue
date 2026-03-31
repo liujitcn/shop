@@ -3,105 +3,121 @@
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" />
 
     <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1200px" @close="handleCloseShippedDialog">
-      <el-card class="box-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <span>收货地址</span>
+      <el-card class="shipped-hero-card" shadow="never">
+        <div class="shipped-hero">
+          <div class="shipped-hero__main">
+            <div class="shipped-hero__eyebrow">订单发货</div>
+            <div class="shipped-hero__title-row">
+              <h2 class="shipped-hero__title">{{ dialogShipped.title }}</h2>
+              <span class="shipped-hero__badge">{{ shippedDialogModeText }}</span>
+            </div>
+            <p class="shipped-hero__desc">商品数量：{{ dataShipped.goods.length }} 件</p>
           </div>
-        </template>
 
-        <el-descriptions :column="1" border>
-          <el-descriptions-item label="联系人">
-            {{ dataShipped.address?.receiver }}
-          </el-descriptions-item>
-          <el-descriptions-item label="联系方式">
-            {{ dataShipped.address?.contact }}
-          </el-descriptions-item>
-          <el-descriptions-item label="地区">
-            {{ dataShipped.address?.address?.join(" / ") }}
-          </el-descriptions-item>
-          <el-descriptions-item label="详细地址">
-            {{ dataShipped.address?.detail }}
-          </el-descriptions-item>
-        </el-descriptions>
+          <div class="shipped-metrics">
+            <div class="shipped-metric-card">
+              <span class="shipped-metric-card__label">联系人</span>
+              <strong class="shipped-metric-card__value">{{ dataShipped.address?.receiver || "-" }}</strong>
+            </div>
+            <div class="shipped-metric-card">
+              <span class="shipped-metric-card__label">联系方式</span>
+              <strong class="shipped-metric-card__value">{{ dataShipped.address?.contact || "-" }}</strong>
+            </div>
+            <div class="shipped-metric-card">
+              <span class="shipped-metric-card__label">物流状态</span>
+              <strong class="shipped-metric-card__value">{{ dataShipped.logistics ? "已发货" : "待填写" }}</strong>
+            </div>
+            <div class="shipped-metric-card">
+              <span class="shipped-metric-card__label">物流单号</span>
+              <strong class="shipped-metric-card__value">{{ dataShipped.logistics?.no || formDataShipped.no || "-" }}</strong>
+            </div>
+          </div>
+        </div>
       </el-card>
 
-      <el-card class="box-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <span>商品清单</span>
-          </div>
-        </template>
-
-        <ProTable
-          row-key="skuCode"
-          :data="dataShipped.goods"
-          :columns="shippedGoodsColumns"
-          :pagination="false"
-          :tool-button="false"
-        >
-          <template #specItem="scope">{{ scope.row.specItem?.join(" ") }}</template>
-        </ProTable>
-      </el-card>
-
-      <el-card v-if="dataShipped.logistics" class="box-card" shadow="never">
-        <template #header>
-          <div class="card-header">
-            <span>物流信息</span>
-          </div>
-        </template>
-
-        <el-descriptions :column="2" border>
-          <el-descriptions-item label="物流公司">
-            {{ dataShipped.logistics.name }}
-          </el-descriptions-item>
-          <el-descriptions-item label="物流单号">
-            {{ dataShipped.logistics.no }}
-          </el-descriptions-item>
-          <el-descriptions-item label="联系方式">
-            {{ dataShipped.logistics.contact }}
-          </el-descriptions-item>
-          <el-descriptions-item label="发货时间">
-            {{ dataShipped.logistics.createdAt }}
-          </el-descriptions-item>
-        </el-descriptions>
-
-        <el-timeline style="margin-top: 20px">
-          <el-timeline-item
-            v-for="(detail, index) in dataShipped.logistics.detail"
-            :key="index"
-            :timestamp="detail.time"
-            placement="top"
-          >
-            {{ detail.text }}
-          </el-timeline-item>
-        </el-timeline>
-      </el-card>
-
-      <el-form v-else ref="dataFormRefShipped" :model="formDataShipped" :rules="rulesShipped" label-width="150px">
-        <el-card shadow="never">
+      <div class="shipped-detail-grid">
+        <el-card v-if="hasShippedAddressSection" class="shipped-section-card" shadow="never">
           <template #header>
-            <div class="card-header">
+            <div class="shipped-section-card__header">
+              <span>收货地址</span>
+            </div>
+          </template>
+
+          <el-descriptions :column="1" border class="shipped-descriptions">
+            <el-descriptions-item label="联系人">{{ dataShipped.address?.receiver }}</el-descriptions-item>
+            <el-descriptions-item label="联系方式">{{ dataShipped.address?.contact }}</el-descriptions-item>
+            <el-descriptions-item label="地区">{{ dataShipped.address?.address?.join(" / ") }}</el-descriptions-item>
+            <el-descriptions-item label="详细地址">{{ dataShipped.address?.detail }}</el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+
+        <el-card v-if="hasShippedLogisticsSection" class="shipped-section-card" shadow="never">
+          <template #header>
+            <div class="shipped-section-card__header">
               <span>物流信息</span>
             </div>
           </template>
-          <el-form-item label="物流公司名称" prop="name">
-            <el-input v-model="formDataShipped.name" placeholder="请输入物流公司名称" />
-          </el-form-item>
 
-          <el-form-item label="物流单号" prop="no">
-            <el-input v-model="formDataShipped.no" placeholder="请输入物流单号" />
-          </el-form-item>
+          <el-descriptions :column="2" border class="shipped-descriptions">
+            <el-descriptions-item label="物流公司">{{ dataShipped.logistics?.name }}</el-descriptions-item>
+            <el-descriptions-item label="物流单号">{{ dataShipped.logistics?.no }}</el-descriptions-item>
+            <el-descriptions-item label="联系方式">{{ dataShipped.logistics?.contact }}</el-descriptions-item>
+            <el-descriptions-item label="发货时间">{{ dataShipped.logistics?.createdAt }}</el-descriptions-item>
+          </el-descriptions>
 
-          <el-form-item label="联系方式" prop="contact">
-            <el-input v-model="formDataShipped.contact" placeholder="请输入联系方式" />
-          </el-form-item>
+          <el-timeline class="shipped-timeline">
+            <el-timeline-item
+              v-for="(detail, index) in dataShipped.logistics?.detail"
+              :key="index"
+              :timestamp="detail.time"
+              placement="top"
+            >
+              {{ detail.text }}
+            </el-timeline-item>
+          </el-timeline>
         </el-card>
-      </el-form>
+      </div>
+
+      <el-card v-if="dataShipped.goods.length" class="shipped-section-card shipped-section-card--full" shadow="never">
+        <template #header>
+          <div class="shipped-section-card__header">
+            <span>商品清单</span>
+            <span class="shipped-section-card__extra">{{ dataShipped.goods.length }} 项</span>
+          </div>
+        </template>
+
+        <div class="goods-list-table">
+          <ProTable
+            row-key="skuCode"
+            :data="dataShipped.goods"
+            :columns="shippedGoodsColumns"
+            :pagination="false"
+            :tool-button="false"
+          >
+            <template #specItem="scope">{{ scope.row.specItem?.join(" ") }}</template>
+          </ProTable>
+        </div>
+      </el-card>
+
+      <el-card v-if="isShippedEditable" class="shipped-section-card shipped-section-card--full" shadow="never">
+        <template #header>
+          <div class="shipped-section-card__header">
+            <span>填写物流信息</span>
+          </div>
+        </template>
+
+        <ProForm
+          ref="dataFormRefShipped"
+          :model="formDataShipped"
+          :fields="shippedFormFields"
+          :rules="rulesShipped"
+          label-width="150px"
+        />
+      </el-card>
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="handleShippedSubmitClick">确 定</el-button>
+          <el-button v-if="isShippedEditable" type="primary" @click="handleShippedSubmitClick">确 定</el-button>
           <el-button @click="handleCloseShippedDialog">取 消</el-button>
         </div>
       </template>
@@ -157,17 +173,15 @@
         />
       </el-card>
 
-      <el-form v-if="isRefundEditable" ref="dataFormRefRefund" :model="formDataRefund" :rules="rulesRefund" label-width="150px">
-        <el-card shadow="never">
-          <el-form-item label="退款原因" prop="reason">
-            <Dict v-model="formDataRefund.reason" code="order_refund_reason" />
-          </el-form-item>
-
-          <el-form-item label="退款金额" prop="refundMoney">
-            <el-input-number v-model="formDataRefund.refundMoney" :min="0.01" :max="maxRefundMoney" :precision="2" :step="0.1" />
-          </el-form-item>
-        </el-card>
-      </el-form>
+      <el-card v-if="isRefundEditable" shadow="never">
+        <ProForm
+          ref="dataFormRefRefund"
+          :model="formDataRefund"
+          :fields="refundFormFields"
+          :rules="rulesRefund"
+          label-width="150px"
+        />
+      </el-card>
 
       <template #footer>
         <div class="dialog-footer">
@@ -185,7 +199,9 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
 import type { ColumnProps, EnumProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
+import ProForm from "@/components/ProForm/index.vue";
 import ProTable from "@/components/ProTable/index.vue";
+import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defOrderService } from "@/api/admin/order";
 import { defBaseUserService } from "@/api/admin/base_user";
@@ -201,6 +217,7 @@ import type { SelectOptionResponse_Option } from "@/rpc/common/common";
 import router from "@/routers";
 import { OrderPayType, OrderStatus } from "@/rpc/common/enum";
 import { buildPageRequest } from "@/utils/proTable";
+import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -218,8 +235,8 @@ const props = defineProps({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const dataFormRefShipped = ref();
-const dataFormRefRefund = ref();
+const dataFormRefShipped = ref<ProFormInstance>();
+const dataFormRefRefund = ref<ProFormInstance>();
 const userOptions = ref<SelectOptionResponse_Option[]>([]);
 
 const dialogShipped = reactive({
@@ -252,6 +269,47 @@ const rulesShipped = computed(() => ({
   no: [{ required: true, message: "请输入物流单号", trigger: "blur" }],
   contact: [{ required: true, message: "请输入联系方式", trigger: "blur" }]
 }));
+
+/** 当前发货弹窗是否处于可编辑发货态。 */
+const isShippedEditable = computed(() => dialogShipped.title === "发货");
+
+/** 发货弹窗顶部模式文案。 */
+const shippedDialogModeText = computed(() => (isShippedEditable.value ? "待发货" : "已发货"));
+
+/** 收货地址存在有效内容时才展示地址模块。 */
+const hasShippedAddressSection = computed(() => {
+  return Boolean(dataShipped.address && (dataShipped.address.receiver || dataShipped.address.contact || dataShipped.address.detail));
+});
+
+/** 物流信息存在有效内容时才展示物流模块。 */
+const hasShippedLogisticsSection = computed(() => {
+  return Boolean(
+    dataShipped.logistics &&
+      (dataShipped.logistics.name || dataShipped.logistics.no || dataShipped.logistics.contact || dataShipped.logistics.createdAt)
+  );
+});
+
+/** 发货表单字段配置。 */
+const shippedFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "name",
+    label: "物流公司名称",
+    component: "input",
+    props: { placeholder: "请输入物流公司名称" }
+  },
+  {
+    prop: "no",
+    label: "物流单号",
+    component: "input",
+    props: { placeholder: "请输入物流单号" }
+  },
+  {
+    prop: "contact",
+    label: "联系方式",
+    component: "input",
+    props: { placeholder: "请输入联系方式" }
+  }
+]);
 
 const dialogRefund = reactive({
   title: "退款详情",
@@ -295,6 +353,28 @@ const rulesRefund = computed(() => ({
   ]
 }));
 
+/** 退款表单字段配置。 */
+const refundFormFields = computed<ProFormField[]>(() => [
+  {
+    prop: "reason",
+    label: "退款原因",
+    component: "dict",
+    props: { code: "order_refund_reason" }
+  },
+  {
+    prop: "refundMoney",
+    label: "退款金额",
+    component: "input-number",
+    props: {
+      min: 0.01,
+      max: maxRefundMoney.value,
+      precision: 2,
+      step: 0.1,
+      style: { width: "100%" }
+    }
+  }
+]);
+
 const isRefundEditable = computed(() => dialogRefund.title === "退款");
 const maxRefundMoney = computed(() => Number(((dataRefund.payment?.amount?.payerTotal ?? 0) / 100).toFixed(2)));
 
@@ -302,10 +382,10 @@ const shippedGoodsColumns: ColumnProps[] = [
   { prop: "name", label: "商品名称", minWidth: 180 },
   { prop: "skuCode", label: "规格编号", minWidth: 140 },
   { prop: "specItem", label: "规格名称", minWidth: 160 },
-  { prop: "num", label: "数量", align: "right", width: 90 },
-  { prop: "price", label: "单价", align: "right", width: 110, cellType: "money" },
-  { prop: "payPrice", label: "支付价", align: "right", width: 110, cellType: "money" },
-  { prop: "totalPayPrice", label: "总金额", align: "right", width: 110, cellType: "money" }
+  { prop: "num", label: "数量", align: "right", minWidth: 90 },
+  { prop: "price", label: "单价", align: "right", minWidth: 110, cellType: "money" },
+  { prop: "payPrice", label: "支付价", align: "right", minWidth: 110, cellType: "money" },
+  { prop: "totalPayPrice", label: "总金额", align: "right", minWidth: 110, cellType: "money" }
 ];
 
 const refundColumns: ColumnProps[] = [
@@ -319,6 +399,7 @@ const refundColumns: ColumnProps[] = [
   {
     prop: "payerRefund",
     label: "退款金额",
+    minWidth: 110,
     align: "right",
     cellType: "money",
     moneyProps: { value: scope => scope.row.amount?.payerRefund }
@@ -326,6 +407,7 @@ const refundColumns: ColumnProps[] = [
   {
     prop: "refundTotal",
     label: "原订单金额",
+    minWidth: 120,
     align: "right",
     cellType: "money",
     moneyProps: { value: scope => scope.row.amount?.total }
@@ -465,7 +547,7 @@ const columns: ColumnProps[] = [
   {
     prop: "userId",
     label: "用户",
-    width: 180,
+    minWidth: 180,
     enum: requestUserEnum,
     render: scope => renderUserCell(scope as unknown as RenderScope<Order>),
     search: {
@@ -487,22 +569,22 @@ const columns: ColumnProps[] = [
     prop: "payMoney",
     label: "金额（元）",
     align: "right",
-    width: 120,
+    minWidth: 120,
     render: scope => renderPayMoneyCell(scope as unknown as RenderScope<Order>)
   },
-  { prop: "payType", label: "支付方式", width: 110, dictCode: "order_pay_type", search: { el: "select" } },
-  { prop: "payChannel", label: "支付渠道", width: 110, dictCode: "order_pay_channel", search: { el: "select" } },
+  { prop: "payType", label: "支付方式", minWidth: 110, dictCode: "order_pay_type", search: { el: "select" } },
+  { prop: "payChannel", label: "支付渠道", minWidth: 110, dictCode: "order_pay_channel", search: { el: "select" } },
   {
     prop: "status",
     label: "状态",
-    width: 110,
+    minWidth: 110,
     dictCode: "order_status",
     search: props.status ? undefined : { el: "select" }
   },
   {
     prop: "createdAt",
     label: "创建时间",
-    width: 180,
+    minWidth: 180,
     search: {
       el: "date-picker",
       props: {
@@ -516,7 +598,7 @@ const columns: ColumnProps[] = [
       }
     }
   },
-  { prop: "goodsNum", label: "商品数", width: 90, align: "right" },
+  { prop: "goodsNum", label: "商品数", minWidth: 90, align: "right" },
   {
     prop: "operation",
     label: "操作",
@@ -641,15 +723,18 @@ function resetShippedDialog() {
  * 提交订单发货信息。
  */
 function handleShippedSubmitClick() {
-  dataFormRefShipped.value?.validate((isValid: boolean) => {
-    if (!isValid) return;
+  dataFormRefShipped.value
+    ?.validate?.()
+    ?.then(isValid => {
+      if (!isValid) return;
 
-    defOrderService.ShippedOrder(formDataShipped).then(() => {
-      ElMessage.success("订单发货成功");
-      handleCloseShippedDialog();
-      proTable.value?.getTableList();
-    });
-  });
+      defOrderService.ShippedOrder(formDataShipped).then(() => {
+        ElMessage.success("订单发货成功");
+        handleCloseShippedDialog();
+        proTable.value?.getTableList();
+      });
+    })
+    .catch(() => undefined);
 }
 
 /**
@@ -710,17 +795,20 @@ function resetRefundDialog() {
  * 提交退款申请。
  */
 function handleRefundSubmitClick() {
-  dataFormRefRefund.value?.validate((isValid: boolean) => {
-    if (!isValid) return;
+  dataFormRefRefund.value
+    ?.validate?.()
+    ?.then(isValid => {
+      if (!isValid) return;
 
-    const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderRequest;
-    submitData.refundMoney = submitData.refundMoney * 100;
-    defOrderService.RefundOrder(submitData).then(() => {
-      ElMessage.success("订单退款成功");
-      handleCloseRefundDialog();
-      proTable.value?.getTableList();
-    });
-  });
+      const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderRequest;
+      submitData.refundMoney = submitData.refundMoney * 100;
+      defOrderService.RefundOrder(submitData).then(() => {
+        ElMessage.success("订单退款成功");
+        handleCloseRefundDialog();
+        proTable.value?.getTableList();
+      });
+    })
+    .catch(() => undefined);
 }
 
 /**
@@ -735,11 +823,30 @@ function formatUser(userId: number) {
  * 打开订单详情页。
  */
 function handleOpenDetail(row: Order) {
-  router.push({
-    path: `/order/detail/${row.id}`,
-    query: { title: `【${row.orderNo}】订单详情` }
-  });
+  navigateTo(router, `/order/detail/${row.id}`, { title: `【${row.orderNo}】订单详情` });
 }
 
 loadUserOptions();
 </script>
+
+<style scoped lang="scss">
+/* 发货相关弹窗中的商品清单按实际行数撑开，避免继承通用表格的固定最小高度。 */
+.goods-list-table {
+  :deep(.table-main) {
+    height: auto;
+    min-height: auto;
+  }
+
+  :deep(.el-table) {
+    flex: initial;
+  }
+
+  :deep(.el-table__inner-wrapper),
+  :deep(.el-table__body-wrapper),
+  :deep(.el-scrollbar),
+  :deep(.el-scrollbar__wrap),
+  :deep(.el-scrollbar__view) {
+    height: auto;
+  }
+}
+</style>

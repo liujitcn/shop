@@ -34,10 +34,11 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo, ba
 // ListBaseDict 查询字典列表
 func (c *BaseDictCase) ListBaseDict(ctx context.Context, codes string) (*app.ListBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
-	baseDictList, err := c.List(ctx,
-		repo.Where(query.Code.In(strings.Split(codes, ",")...)),
-		repo.Where(query.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(query.Code.In(strings.Split(codes, ",")...)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	baseDictList, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

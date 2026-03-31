@@ -33,7 +33,9 @@ func NewOrderRefundCase(baseCase *biz.BaseCase, orderRefundRepo *data.OrderRefun
 // FindFromByOrderId 按订单查询退款信息
 func (c *OrderRefundCase) FindFromByOrderId(ctx context.Context, orderId int64) ([]*admin.OrderRefund, error) {
 	query := c.Query(ctx).OrderRefund
-	list, err := c.List(ctx, repo.Where(query.OrderID.Eq(orderId)))
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

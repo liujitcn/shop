@@ -38,6 +38,7 @@ import type { BaseDict, BaseDictForm, PageBaseDictRequest } from "@/rpc/admin/ba
 import router from "@/routers";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { navigateTo } from "@/utils/router";
 
 defineOptions({
   name: "BaseDict",
@@ -85,12 +86,12 @@ const formFields: ProFormField[] = [
 /** 字典表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "name", label: "字典名称", search: { el: "input" } },
-  { prop: "code", label: "字典编码", search: { el: "input" } },
+  { prop: "name", label: "字典名称", minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: "字典编码", minWidth: 160, search: { el: "input" } },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -102,8 +103,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDict)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",
@@ -291,9 +292,6 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  * 打开字典数据页面。
  */
 function handleOpenBaseDictItem(row: BaseDict) {
-  router.push({
-    name: "BaseDictItem",
-    query: { dictId: row.id, title: `【${row.name}】字典数据` }
-  });
+  navigateTo(router, "/base/dict-item", { dictId: row.id, title: `【${row.name}】字典数据` });
 }
 </script>

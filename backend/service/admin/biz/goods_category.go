@@ -35,7 +35,11 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 
 // TreeGoodsCategory 查询分类树
 func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context) (*admin.TreeGoodsCategoryResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).GoodsCategory
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +50,11 @@ func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context) (*admin.TreeG
 
 // OptionGoodsCategory 查询分类选项
 func (c *GoodsCategoryCase) OptionGoodsCategory(ctx context.Context, req *admin.OptionGoodsCategoryRequest) (*common.TreeOptionResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).GoodsCategory
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,10 +129,12 @@ func (c *GoodsCategoryCase) SetGoodsCategoryStatus(ctx context.Context, req *com
 // NameMap 查询分类路径名称映射
 func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentId *int64) map[int64]string {
 	query := c.Query(ctx).GoodsCategory
-	opts := make([]repo.QueryOption, 0, 1)
+	opts := make([]repo.QueryOption, 0, 3)
 	if parentId != nil {
 		opts = append(opts, repo.Where(query.ParentID.Eq(*parentId)))
 	}
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 
 	categoryList, err := c.List(ctx, opts...)
 	if err != nil {

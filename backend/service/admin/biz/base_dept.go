@@ -39,7 +39,11 @@ func NewBaseDeptCase(
 
 // TreeBaseDept 查询部门树
 func (c *BaseDeptCase) TreeBaseDept(ctx context.Context) (*admin.TreeBaseDeptResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).BaseDept
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +52,11 @@ func (c *BaseDeptCase) TreeBaseDept(ctx context.Context) (*admin.TreeBaseDeptRes
 
 // OptionBaseDept 查询部门选项
 func (c *BaseDeptCase) OptionBaseDept(ctx context.Context, req *admin.OptionBaseDeptRequest) (*common.TreeOptionResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).BaseDept
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

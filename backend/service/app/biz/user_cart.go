@@ -58,9 +58,10 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 	}
 	member := util.IsMemberByAuthInfo(authInfo)
 	query := c.Query(ctx).UserCart
-	all, err := c.List(ctx,
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	all, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

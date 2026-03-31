@@ -45,6 +45,7 @@ import type { Goods, PageGoodsRequest } from "@/rpc/admin/goods";
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
 import { GoodsStatus } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { navigateTo } from "@/utils/router";
 
 defineOptions({
   name: "Goods",
@@ -82,16 +83,16 @@ const columns: ColumnProps[] = [
     }
   },
   { prop: "name", label: "商品名称", minWidth: 200, search: { el: "input" } },
-  { prop: "categoryName", label: "分类", width: 140 },
+  { prop: "categoryName", label: "分类", minWidth: 140 },
   { prop: "desc", label: "商品描述", minWidth: 200 },
-  { prop: "initSaleNum", label: "初始销量", align: "right" },
-  { prop: "realSaleNum", label: "真实销量", align: "right" },
-  { prop: "price", label: "价格（元）", align: "right", cellType: "money" },
-  { prop: "discountPrice", label: "折扣价格（元）", align: "right", cellType: "money" },
+  { prop: "initSaleNum", label: "初始销量", minWidth: 100, align: "right" },
+  { prop: "realSaleNum", label: "真实销量", minWidth: 100, align: "right" },
+  { prop: "price", label: "价格（元）", minWidth: 110, align: "right", cellType: "money" },
+  { prop: "discountPrice", label: "折扣价格（元）", minWidth: 130, align: "right", cellType: "money" },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -103,8 +104,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as Goods)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",
@@ -214,26 +215,15 @@ async function requestGoodsTable(params: PageGoodsRequest) {
 }
 
 /**
- * 统一处理页面跳转；若路由实例未生效，则降级为浏览器地址跳转。
- */
-function navigateTo(path: string, query?: Record<string, string | number>) {
-  const target = { path, query };
-  router.push(target).catch(() => {
-    const resolved = router.resolve(target);
-    window.location.href = resolved.href;
-  });
-}
-
-/**
  * 打开商品编辑页。
  */
 function handleOpenDialog(row?: Goods) {
   if (row?.id) {
-    navigateTo("/goods/edit", { goodsId: row.id, title: `【${row.name}】商品编辑` });
+    navigateTo(router, "/goods/edit", { goodsId: row.id, title: `【${row.name}】商品编辑` });
     return;
   }
 
-  navigateTo("/goods/edit");
+  navigateTo(router, "/goods/edit");
 }
 
 /**
@@ -302,20 +292,20 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
  * 打开商品属性页。
  */
 function handleOpenProp(row: Goods) {
-  navigateTo("/goods/prop", { goodsId: row.id, title: `【${row.name}】商品属性` });
+  navigateTo(router, "/goods/prop", { goodsId: row.id, title: `【${row.name}】商品属性` });
 }
 
 /**
  * 打开商品规格页。
  */
 function handleOpenSku(row: Goods) {
-  navigateTo("/goods/sku", { goodsId: row.id, title: `【${row.name}】商品规格` });
+  navigateTo(router, "/goods/sku", { goodsId: row.id, title: `【${row.name}】商品规格` });
 }
 
 /**
  * 打开商品详情页。
  */
 function handleOpenDetail(row: Goods) {
-  navigateTo("/goods/detail", { goodsId: row.id, title: `【${row.name}】商品详情` });
+  navigateTo(router, "/goods/detail", { goodsId: row.id, title: `【${row.name}】商品详情` });
 }
 </script>

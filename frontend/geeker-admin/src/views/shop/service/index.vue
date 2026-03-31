@@ -91,13 +91,13 @@ const formFields: ProFormField[] = [
 /** 商城服务表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "label", label: "标签", search: { el: "input" } },
-  { prop: "value", label: "值" },
-  { prop: "sort", label: "排序", align: "right" },
+  { prop: "label", label: "标签", minWidth: 120, search: { el: "input" } },
+  { prop: "value", label: "值", minWidth: 200 },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -109,8 +109,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as ShopService)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

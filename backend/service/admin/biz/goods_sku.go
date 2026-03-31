@@ -32,7 +32,8 @@ func NewGoodsSkuCase(baseCase *biz.BaseCase, goodsSkuRepo *data.GoodsSkuRepo) *G
 // PageGoodsSku 分页查询商品规格项
 func (c *GoodsSkuCase) PageGoodsSku(ctx context.Context, req *admin.PageGoodsSkuRequest) (*admin.PageGoodsSkuResponse, error) {
 	query := c.Query(ctx).GoodsSku
-	opts := make([]repo.QueryOption, 0, 2)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(query.SkuCode.Asc()))
 	if req.GetGoodsId() > 0 {
 		opts = append(opts, repo.Where(query.GoodsID.Eq(req.GetGoodsId())))
 	}
@@ -69,7 +70,9 @@ func (c *GoodsSkuCase) UpdateGoodsSku(ctx context.Context, req *admin.GoodsSku) 
 // ListGoodsSkuByGoodsId 按商品查询规格项列表
 func (c *GoodsSkuCase) ListGoodsSkuByGoodsId(ctx context.Context, goodsId int64) ([]*admin.GoodsSku, error) {
 	query := c.Query(ctx).GoodsSku
-	list, err := c.List(ctx, repo.Where(query.GoodsID.Eq(goodsId)))
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

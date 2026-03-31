@@ -47,7 +47,8 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, ba
 // OptionBaseUser 查询用户选项
 func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *admin.OptionBaseUserRequest) (*common.SelectOptionResponse, error) {
 	query := c.Query(ctx).BaseUser
-	opts := make([]repo.QueryOption, 0, 1)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetKeyword() != "" {
 		opts = append(opts, repo.Where(query.NickName.Like("%"+req.GetKeyword()+"%")))
 	}
@@ -70,7 +71,8 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *admin.OptionBase
 // PageBaseUser 分页查询用户
 func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *admin.PageBaseUserRequest) (*admin.PageBaseUserResponse, error) {
 	query := c.Query(ctx).BaseUser
-	opts := make([]repo.QueryOption, 0, 5)
+	opts := make([]repo.QueryOption, 0, 6)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.DeptId != nil && req.GetDeptId() > 0 {
 		dept, err := c.baseDeptRepo.FindById(ctx, req.GetDeptId())
 		if err != nil {
@@ -78,7 +80,9 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *admin.PageBaseUser
 		}
 
 		deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
-		deptList, err := c.baseDeptRepo.List(ctx, repo.Where(deptQuery.Path.Like(dept.Path+"%")))
+		deptOpts := make([]repo.QueryOption, 0, 1)
+		deptOpts = append(deptOpts, repo.Where(deptQuery.Path.Like(dept.Path+"%")))
+		deptList, err := c.baseDeptRepo.List(ctx, deptOpts...)
 		if err != nil {
 			return nil, err
 		}

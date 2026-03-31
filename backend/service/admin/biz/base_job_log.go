@@ -33,7 +33,8 @@ func NewBaseJobLogCase(baseCase *biz.BaseCase, baseJobLogRepo *data.BaseJobLogRe
 // PageBaseJobLog 分页查询任务日志
 func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *admin.PageBaseJobLogRequest) (*admin.PageBaseJobLogResponse, error) {
 	query := c.Query(ctx).BaseJobLog
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Order(query.ExecuteTime.Desc()))
 	if req.GetJobId() > 0 {
 		opts = append(opts, repo.Where(query.JobID.Eq(req.GetJobId())))
 	}

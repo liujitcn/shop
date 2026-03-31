@@ -39,7 +39,9 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, tx data.Transaction, shopHotRepo
 // PageShopHotItem 分页查询热门专区项目
 func (c *ShopHotItemCase) PageShopHotItem(ctx context.Context, req *admin.PageShopHotItemRequest) (*admin.PageShopHotItemResponse, error) {
 	query := c.Query(ctx).ShopHotItem
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetHotId() > 0 {
 		opts = append(opts, repo.Where(query.HotID.Eq(req.GetHotId())))
 	}
@@ -73,7 +75,10 @@ func (c *ShopHotItemCase) GetShopHotItem(ctx context.Context, id int64) (*admin.
 	res := c.formMapper.ToDTO(shopHotItem)
 	query := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods
 	var hotGoodsList []*models.ShopHotGoods
-	hotGoodsList, err = c.shopHotGoodsRepo.List(ctx, repo.Where(query.HotItemID.Eq(shopHotItem.ID)))
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Where(query.HotItemID.Eq(shopHotItem.ID)))
+	hotGoodsList, err = c.shopHotGoodsRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

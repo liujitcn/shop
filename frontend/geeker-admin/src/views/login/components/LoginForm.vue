@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
@@ -111,7 +111,8 @@ const getCaptcha = async () => {
 
 /** 登录 */
 const handleLogin = (formEl: FormInstance | undefined) => {
-  if (!formEl) return;
+  // 登录请求执行期间直接拦截重复提交，避免回车或连续点击导致重复登录。
+  if (!formEl || loading.value) return;
   formEl.validate(async valid => {
     if (!valid) return;
     loading.value = true;
@@ -157,17 +158,6 @@ const resetForm = (formEl: FormInstance | undefined) => {
 
 onMounted(() => {
   getCaptcha();
-  // 监听 enter 事件（调用登录）
-  document.onkeydown = (e: KeyboardEvent) => {
-    if (e.code === "Enter" || e.code === "enter" || e.code === "NumpadEnter") {
-      if (loading.value) return;
-      handleLogin(loginFormRef.value);
-    }
-  };
-});
-
-onBeforeUnmount(() => {
-  document.onkeydown = null;
 });
 </script>
 

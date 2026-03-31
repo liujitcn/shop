@@ -51,10 +51,12 @@ func (c *ShopBannerCase) ListShopBanner(ctx context.Context, req *app.ListShopBa
 // 查询指定站点下启用中的轮播图
 func (c *ShopBannerCase) listBySite(ctx context.Context, site int32) ([]*models.ShopBanner, error) {
 	query := c.Query(ctx).ShopBanner
-	return c.List(ctx,
-		repo.Where(query.Site.Eq(site)),
-		repo.Where(query.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(query.Site.Eq(site)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	return c.List(ctx, opts...)
 }
 
 // 将轮播图模型转换为接口响应

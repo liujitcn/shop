@@ -32,9 +32,9 @@ func (c *GoodsSkuCase) mapBySkuCodes(ctx context.Context, skuCodes []string) (ma
 	res := make(map[string]*models.GoodsSku)
 	if len(skuCodes) > 0 {
 		query := c.Query(ctx).GoodsSku
-		all, err := c.List(ctx,
-			repo.Where(query.SkuCode.In(skuCodes...)),
-		)
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.SkuCode.In(skuCodes...)))
+		all, err := c.List(ctx, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -48,9 +48,9 @@ func (c *GoodsSkuCase) mapBySkuCodes(ctx context.Context, skuCodes []string) (ma
 // 查询商品下的全部规格库存列表
 func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member bool) ([]*app.GoodsResponse_Sku, error) {
 	query := c.Query(ctx).GoodsSku
-	all, err := c.List(ctx,
-		repo.Where(query.GoodsID.Eq(goodsId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	all, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

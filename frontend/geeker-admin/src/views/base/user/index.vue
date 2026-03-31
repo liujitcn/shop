@@ -173,14 +173,14 @@ const formFields = computed<ProFormField[]>(() => [
 /** 用户表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "userName", label: "用户账号", search: { el: "input" } },
-  { prop: "nickName", label: "昵称", search: { el: "input" } },
-  { prop: "phone", label: "手机号码", align: "center", search: { el: "input" } },
-  { prop: "gender", label: "性别", align: "center", dictCode: "base_user_gender", search: { el: "select" } },
+  { prop: "userName", label: "用户账号", minWidth: 140, search: { el: "input" } },
+  { prop: "nickName", label: "昵称", minWidth: 100, search: { el: "input" } },
+  { prop: "phone", label: "手机号码", minWidth: 130, align: "center", search: { el: "input" } },
+  { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -192,9 +192,9 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseUser)
     }
   },
-  { prop: "remark", label: "备注" },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "remark", label: "备注", minWidth: 160 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

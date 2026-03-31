@@ -30,9 +30,11 @@ func NewShopHotCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo) *Shop
 // ListShopHot 查询热门推荐列表
 func (c *ShopHotCase) ListShopHot(ctx context.Context) (*app.ListShopHotResponse, error) {
 	query := c.Query(ctx).ShopHot
-	all, err := c.ShopHotRepo.List(ctx,
-		repo.Where(query.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	all, err := c.ShopHotRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

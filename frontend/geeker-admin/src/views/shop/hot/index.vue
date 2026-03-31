@@ -32,6 +32,7 @@ import { defShopHotService } from "@/api/admin/shop_hot";
 import type { PageShopHotRequest, ShopHot, ShopHotForm } from "@/rpc/admin/shop_hot";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { navigateTo } from "@/utils/router";
 
 defineOptions({
   name: "ShopShopHot",
@@ -96,13 +97,13 @@ const formFields: ProFormField[] = [
 /** 热门推荐表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "title", label: "热门推荐标题", search: { el: "input" } },
-  { prop: "desc", label: "热门推荐描述", search: { el: "input" } },
-  { prop: "sort", label: "排序", align: "right" },
+  { prop: "title", label: "热门推荐标题", minWidth: 160, search: { el: "input" } },
+  { prop: "desc", label: "热门推荐描述", minWidth: 180, search: { el: "input" } },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -114,8 +115,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as ShopHot)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",
@@ -303,20 +304,9 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
 }
 
 /**
- * 统一处理页面跳转；若路由实例未生效，则降级为浏览器地址跳转。
- */
-function navigateTo(path: string, query?: Record<string, string | number>) {
-  const target = { path, query };
-  router.push(target).catch(() => {
-    const resolved = router.resolve(target);
-    window.location.href = resolved.href;
-  });
-}
-
-/**
  * 打开热门推荐选项页面。
  */
 function handleOpenShopHotItem(row: ShopHot) {
-  navigateTo("/shop/hot-item", { hotId: row.id, title: `【${row.title}】热门推荐选项` });
+  navigateTo(router, "/shop/hot-item", { hotId: row.id, title: `【${row.title}】热门推荐选项` });
 }
 </script>

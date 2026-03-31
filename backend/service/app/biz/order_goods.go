@@ -41,9 +41,9 @@ func (c *OrderGoodsCase) mapByOrderIds(ctx context.Context, orderIds []int64) (m
 	res := make(map[int64][]*app.OrderGoods)
 	if len(orderIds) > 0 {
 		query := c.Query(ctx).OrderGoods
-		all, err := c.List(ctx,
-			repo.Where(query.OrderID.In(orderIds...)),
-		)
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.OrderID.In(orderIds...)))
+		all, err := c.List(ctx, opts...)
 		if err != nil {
 			return nil, err
 		}
@@ -63,9 +63,9 @@ func (c *OrderGoodsCase) mapByOrderIds(ctx context.Context, orderIds []int64) (m
 // listByOrderId 查询单个订单的商品明细
 func (c *OrderGoodsCase) listByOrderId(ctx context.Context, orderId int64) ([]*app.OrderGoods, error) {
 	query := c.Query(ctx).OrderGoods
-	all, err := c.List(ctx,
-		repo.Where(query.OrderID.Eq(orderId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	all, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

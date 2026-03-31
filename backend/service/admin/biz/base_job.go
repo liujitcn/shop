@@ -46,7 +46,8 @@ func NewBaseJobCase(baseCase *biz.BaseCase, baseJobRepo *data.BaseJobRepo, baseJ
 // PageBaseJob 分页查询定时任务
 func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *admin.PageBaseJobRequest) (*admin.PageBaseJobResponse, error) {
 	query := c.Query(ctx).BaseJob
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}

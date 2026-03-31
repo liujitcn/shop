@@ -37,7 +37,9 @@ func NewBaseDictItemCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo
 // PageBaseDictItem 分页查询字典项
 func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *admin.PageBaseDictItemRequest) (*admin.PageBaseDictItemResponse, error) {
 	query := c.Query(ctx).BaseDictItem
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetDictId() > 0 {
 		opts = append(opts, repo.Where(query.DictID.Eq(req.GetDictId())))
 	}

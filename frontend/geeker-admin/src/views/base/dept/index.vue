@@ -113,13 +113,13 @@ const formFields = computed<ProFormField[]>(() => [
 /** 部门树表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "name", label: "部门名称", align: "left", search: { el: "input" } },
-  { prop: "remark", label: "备注", search: { el: "input" } },
-  { prop: "sort", label: "排序", align: "right" },
+  { prop: "name", label: "部门名称", minWidth: 140, align: "left", search: { el: "input" } },
+  { prop: "remark", label: "备注", minWidth: 160, search: { el: "input" } },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {
     prop: "status",
     label: "状态",
-    width: 100,
+    minWidth: 100,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -131,8 +131,8 @@ const columns: ColumnProps[] = [
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseDept)
     }
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

@@ -35,7 +35,8 @@ func NewBaseLogCase(baseCase *biz.BaseCase, baseLogRepo *data.BaseLogRepo) *Base
 // PageBaseLog 分页查询日志
 func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *admin.PageBaseLogRequest) (*admin.PageBaseLogResponse, error) {
 	query := c.Query(ctx).BaseLog
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Order(query.RequestTime.Desc()))
 	if req.GetOperation() != "" {
 		opts = append(opts, repo.Where(query.Operation.Like("%"+req.GetOperation()+"%")))
 	}

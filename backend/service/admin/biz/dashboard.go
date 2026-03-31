@@ -244,7 +244,9 @@ func (c *DashboardCase) DashboardRadarOrder(ctx context.Context, req *admin.Dash
 
 	dictItemQuery := c.baseDictItemCase.Query(ctx).BaseDictItem
 	var baseDictItemList []*models.BaseDictItem
-	baseDictItemList, err = c.baseDictItemCase.List(ctx, repo.Where(dictItemQuery.DictID.Eq(baseDict.ID)))
+	dictItemOpts := make([]repo.QueryOption, 0, 1)
+	dictItemOpts = append(dictItemOpts, repo.Where(dictItemQuery.DictID.Eq(baseDict.ID)))
+	baseDictItemList, err = c.baseDictItemCase.List(ctx, dictItemOpts...)
 	if err != nil || len(baseDictItemList) == 0 || len(goodsCategoryNameMap) == 0 {
 		return &admin.DashboardRadarResponse{}, nil
 	}

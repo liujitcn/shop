@@ -35,7 +35,9 @@ func NewShopServiceCase(baseCase *biz.BaseCase, shopServiceRepo *data.ShopServic
 // PageShopService 分页查询服务保障
 func (c *ShopServiceCase) PageShopService(ctx context.Context, req *admin.PageShopServiceRequest) (*admin.PageShopServiceResponse, error) {
 	query := c.Query(ctx).ShopService
-	opts := make([]repo.QueryOption, 0, 2)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetLabel() != "" {
 		opts = append(opts, repo.Where(query.Label.Like("%"+req.GetLabel()+"%")))
 	}

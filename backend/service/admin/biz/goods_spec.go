@@ -26,7 +26,10 @@ func NewGoodsSpecCase(baseCase *biz.BaseCase, goodsSpecRepo *data.GoodsSpecRepo)
 // ListGoodsSpec 查询商品规格列表
 func (c *GoodsSpecCase) ListGoodsSpec(ctx context.Context, req *admin.ListGoodsSpecRequest) (*admin.ListGoodsSpecResponse, error) {
 	query := c.Query(ctx).GoodsSpec
-	list, err := c.List(ctx, repo.Where(query.GoodsID.Eq(req.GetGoodsId())))
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(req.GetGoodsId())))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

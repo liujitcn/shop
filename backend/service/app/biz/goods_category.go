@@ -33,10 +33,12 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 // ListGoodsCategory 查询分类列表
 func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.ListGoodsCategoryRequest) (*app.ListGoodsCategoryResponse, error) {
 	query := c.Query(ctx).GoodsCategory
-	all, err := c.List(ctx,
-		repo.Where(query.ParentID.Eq(req.GetParentId())),
-		repo.Where(query.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(query.ParentID.Eq(req.GetParentId())))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	all, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,10 +51,11 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 		if category.ParentId > 0 {
 			goodsQuery := c.goodsInfoRepo.Query(ctx).Goods
 			var goodsList []*models.Goods
-			goodsList, _, err = c.goodsInfoRepo.Page(ctx, 1, 9,
-				repo.Where(goodsQuery.CategoryID.Eq(category.Id)),
-				repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))),
-			)
+			goodsOpts := make([]repo.QueryOption, 0, 3)
+			goodsOpts = append(goodsOpts, repo.Order(goodsQuery.UpdatedAt.Desc()))
+			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.CategoryID.Eq(category.Id)))
+			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
+			goodsList, _, err = c.goodsInfoRepo.Page(ctx, 1, 9, goodsOpts...)
 			if err != nil {
 				return nil, err
 			}

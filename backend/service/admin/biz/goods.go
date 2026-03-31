@@ -49,7 +49,8 @@ func NewGoodsCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.G
 // ListGoods 查询商品列表
 func (c *GoodsCase) ListGoods(ctx context.Context, req *admin.ListGoodsRequest) (*admin.ListGoodsResponse, error) {
 	query := c.Query(ctx).Goods
-	opts := make([]repo.QueryOption, 0, 1)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
@@ -80,7 +81,8 @@ func (c *GoodsCase) ListGoods(ctx context.Context, req *admin.ListGoodsRequest) 
 // PageGoods 分页查询商品
 func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) (*admin.PageGoodsResponse, error) {
 	query := c.Query(ctx).Goods
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	var err error
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
@@ -94,7 +96,9 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) 
 		if category.ParentID == 0 {
 			categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
 			var categoryList []*models.GoodsCategory
-			categoryList, err = c.goodsCategoryCase.List(ctx, repo.Where(categoryQuery.Path.Like(category.Path+"/"+fmt.Sprintf("%d", category.ID)+"%")))
+			categoryOpts := make([]repo.QueryOption, 0, 1)
+			categoryOpts = append(categoryOpts, repo.Where(categoryQuery.Path.Like(category.Path+"/"+fmt.Sprintf("%d", category.ID)+"%")))
+			categoryList, err = c.goodsCategoryCase.List(ctx, categoryOpts...)
 			if err != nil {
 				return nil, err
 			}
@@ -349,7 +353,11 @@ func (c *GoodsCase) batchCreateGoodsSku(ctx context.Context, goodsId int64, list
 
 // getCategoryNameMap 查询分类名称映射
 func (c *GoodsCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
-	categoryList, err := c.goodsCategoryCase.List(ctx)
+	categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(categoryQuery.Sort.Asc()))
+	opts = append(opts, repo.Order(categoryQuery.UpdatedAt.Desc()))
+	categoryList, err := c.goodsCategoryCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

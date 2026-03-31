@@ -31,10 +31,12 @@ func NewBaseDictItemCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo
 // 按字典编号列表查询启用中的字典项
 func (c *BaseDictItemCase) findByDictIds(ctx context.Context, dictIds []int64) ([]*models.BaseDictItem, error) {
 	query := c.Query(ctx).BaseDictItem
-	return c.List(ctx,
-		repo.Where(query.DictID.In(dictIds...)),
-		repo.Where(query.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Where(query.DictID.In(dictIds...)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	return c.List(ctx, opts...)
 }
 
 // 按字典编码和值查询标签

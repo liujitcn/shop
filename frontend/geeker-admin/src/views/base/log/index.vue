@@ -196,17 +196,20 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作方法",
+    minWidth: 140,
     search: { el: "input" }
   },
   {
     prop: "statusCode",
     label: "状态码",
+    minWidth: 100,
     align: "center",
     search: { el: "input-number", props: { min: 0, controlsPosition: "right" } }
   },
   {
     prop: "requestTime",
     label: "操作时间",
+    minWidth: 180,
     align: "center",
     search: {
       el: "date-picker",
@@ -221,12 +224,12 @@ const columns: ColumnProps[] = [
       }
     }
   },
-  { prop: "userName", label: "操作人", align: "center" },
-  { prop: "clientIp", label: "IP 地址", align: "center" },
-  { prop: "location", label: "地区" },
-  { prop: "browserName", label: "浏览器" },
-  { prop: "osName", label: "终端系统", width: 200 },
-  { prop: "costTime", label: "执行时间(ms)", align: "right" },
+  { prop: "userName", label: "操作人", minWidth: 100, align: "center" },
+  { prop: "clientIp", label: "IP 地址", minWidth: 130, align: "center" },
+  { prop: "location", label: "地区", minWidth: 120 },
+  { prop: "browserName", label: "浏览器", minWidth: 120 },
+  { prop: "osName", label: "终端系统", minWidth: 200 },
+  { prop: "costTime", label: "执行时间(ms)", minWidth: 130, align: "right" },
   {
     prop: "detailAction",
     label: "操作",

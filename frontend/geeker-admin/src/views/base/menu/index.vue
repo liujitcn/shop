@@ -175,18 +175,18 @@ const columns = computed<ColumnProps[]>(() => [
     align: "left",
     search: { el: "input", key: "title" }
   },
-  { prop: "type", label: "菜单类型", width: 120, dictCode: "base_menu_type", search: { el: "select" } },
+  { prop: "type", label: "菜单类型", minWidth: 120, dictCode: "base_menu_type", search: { el: "select" } },
   {
     prop: "meta.icon",
     label: "菜单图标",
     width: 90,
     render: scope => renderMenuIconCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "path", label: "路由路径/权限标识", width: 260, search: { el: "input" } },
-  { prop: "name", label: "路由名称", width: 180, search: { el: "input" } },
-  { prop: "component", label: "组件路径", width: 260 },
-  { prop: "redirect", label: "重定向地址", width: 220 },
-  { prop: "sort", label: "排序", width: 80, align: "right" },
+  { prop: "path", label: "路由路径/权限标识", minWidth: 260, search: { el: "input" } },
+  { prop: "name", label: "路由名称", minWidth: 180, search: { el: "input" } },
+  { prop: "component", label: "组件路径", minWidth: 260 },
+  { prop: "redirect", label: "重定向地址", minWidth: 220 },
+  { prop: "sort", label: "排序", minWidth: 80, align: "right" },
   {
     prop: "status",
     label: "状态",
@@ -209,8 +209,8 @@ const columns = computed<ColumnProps[]>(() => [
     width: 100,
     render: scope => renderHiddenCell(scope as unknown as RenderScope<BaseMenu>)
   },
-  { prop: "createdAt", label: "创建时间", width: 180 },
-  { prop: "updatedAt", label: "更新时间", width: 180 },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",

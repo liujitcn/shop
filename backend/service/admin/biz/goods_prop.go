@@ -32,7 +32,8 @@ func NewGoodsPropCase(baseCase *biz.BaseCase, goodsPropRepo *data.GoodsPropRepo)
 // PageGoodsProp 分页查询商品属性
 func (c *GoodsPropCase) PageGoodsProp(ctx context.Context, req *admin.PageGoodsPropRequest) (*admin.PageGoodsPropResponse, error) {
 	query := c.Query(ctx).GoodsProp
-	opts := make([]repo.QueryOption, 0, 2)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
 	if req.GetGoodsId() > 0 {
 		opts = append(opts, repo.Where(query.GoodsID.Eq(req.GetGoodsId())))
 	}
@@ -78,7 +79,10 @@ func (c *GoodsPropCase) UpdateGoodsProp(ctx context.Context, req *admin.GoodsPro
 // ListGoodsPropByGoodsId 按商品查询属性列表
 func (c *GoodsPropCase) ListGoodsPropByGoodsId(ctx context.Context, goodsId int64) ([]*admin.GoodsProp, error) {
 	query := c.Query(ctx).GoodsProp
-	list, err := c.List(ctx, repo.Where(query.GoodsID.Eq(goodsId)))
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -39,7 +39,9 @@ func NewShopHotCase(baseCase *biz.BaseCase, tx data.Transaction, shopHotRepo *da
 // PageShopHot 分页查询热门专区
 func (c *ShopHotCase) PageShopHot(ctx context.Context, req *admin.PageShopHotRequest) (*admin.PageShopHotResponse, error) {
 	baseQuery := c.Query(ctx).ShopHot
-	opts := make([]repo.QueryOption, 0, 3)
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Order(baseQuery.Sort.Asc()))
+	opts = append(opts, repo.Order(baseQuery.UpdatedAt.Desc()))
 	if req.GetTitle() != "" {
 		opts = append(opts, repo.Where(baseQuery.Title.Like("%"+req.GetTitle()+"%")))
 	}
@@ -102,7 +104,9 @@ func (c *ShopHotCase) DeleteShopHot(ctx context.Context, id string) error {
 		// 删除热门专区后需要同步删除下属项目，避免残留孤儿数据
 		hotItemQuery := c.shopHotItemCase.Query(ctx).ShopHotItem
 		var hotItemList []*models.ShopHotItem
-		hotItemList, err = c.shopHotItemCase.List(ctx, repo.Where(hotItemQuery.HotID.In(ids...)))
+		hotItemOpts := make([]repo.QueryOption, 0, 1)
+		hotItemOpts = append(hotItemOpts, repo.Where(hotItemQuery.HotID.In(ids...)))
+		hotItemList, err = c.shopHotItemCase.List(ctx, hotItemOpts...)
 		if err != nil {
 			return err
 		}
