@@ -2,7 +2,7 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseJobLogTable" />
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
+    <ProDialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
       <div class="detail-container">
         <el-descriptions title="基础信息" border :column="2">
           <el-descriptions-item label="状态">
@@ -30,7 +30,11 @@
           show-icon
         />
       </div>
-    </el-dialog>
+
+      <template #footer>
+        <el-button @click="handleCloseDialog">关闭</el-button>
+      </template>
+    </ProDialog>
   </div>
 </template>
 
@@ -40,6 +44,7 @@ import { useRoute } from "vue-router";
 import { InfoFilled } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { defBaseJobService } from "@/api/admin/base_job";
 import { formatJson } from "@/utils/utils";
 import type { BaseJobLog, PageBaseJobLogRequest } from "@/rpc/admin/base_job";
@@ -60,24 +65,29 @@ const dialog = reactive({
   visible: false
 });
 
-const detail = reactive<BaseJobLog>({
-  /** 任务日志ID */
-  id: 0,
-  /** 任务ID */
-  jobId: 0,
-  /** 执行参数 */
-  input: "",
-  /** 输出结果 */
-  output: "",
-  /** 错误信息 */
-  error: "",
-  /** 状态 */
-  status: BaseJobLogStatus.UNKNOWN_BJLS,
-  /** 消耗时间 */
-  processTime: "",
-  /** 执行时间 */
-  executeTime: ""
-});
+/** 创建默认任务日志详情，避免弹窗切换时残留上一条记录。 */
+function createDefaultDetail(): BaseJobLog {
+  return {
+    /** 任务日志ID */
+    id: 0,
+    /** 任务ID */
+    jobId: 0,
+    /** 执行参数 */
+    input: "",
+    /** 输出结果 */
+    output: "",
+    /** 错误信息 */
+    error: "",
+    /** 状态 */
+    status: BaseJobLogStatus.UNKNOWN_BJLS,
+    /** 消耗时间 */
+    processTime: "",
+    /** 执行时间 */
+    executeTime: ""
+  };
+}
+
+const detail = reactive<BaseJobLog>(createDefaultDetail());
 
 /** 定时任务日志表格列配置。 */
 const columns: ColumnProps[] = [
@@ -150,13 +160,21 @@ async function requestBaseJobLogTable(params: PageBaseJobLogRequest) {
  * 打开定时任务日志详情弹窗。
  */
 function handleOpenDialog(logId?: number) {
+  resetDetail();
+  dialog.title = "定时任务日志详情";
   dialog.visible = true;
   if (!logId) return;
 
-  dialog.title = "定时任务日志详情";
   defBaseJobService.GetBaseJobLog({ value: logId }).then(data => {
     Object.assign(detail, data);
   });
+}
+
+/**
+ * 重置任务日志详情，避免关闭后残留旧数据。
+ */
+function resetDetail() {
+  Object.assign(detail, createDefaultDetail());
 }
 
 /**
@@ -164,6 +182,7 @@ function handleOpenDialog(logId?: number) {
  */
 function handleCloseDialog() {
   dialog.visible = false;
+  resetDetail();
 }
 </script>
 

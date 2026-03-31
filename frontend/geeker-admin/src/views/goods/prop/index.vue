@@ -207,7 +207,7 @@ function handleSubmit() {
       ? defGoodsPropService.UpdateGoodsProp(submitData)
       : defGoodsPropService.CreateGoodsProp(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改商品属性成功" : "新增商品属性成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -241,7 +241,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
 
   const confirmMessage = propList.length
     ? propList.length === 1
-      ? `是否确定删除商品属性：${propList[0].label || propList[0].value || `ID:${propList[0].id}`}？`
+      ? `是否确定删除商品属性？\n属性名称：${propList[0].label || propList[0].value || `ID:${propList[0].id}`}`
       : `确认删除已选中的 ${propList.length} 个商品属性吗？`
     : "确认删除已选中的商品属性吗？";
 
@@ -252,12 +252,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
   }).then(
     () => {
       defGoodsPropService.DeleteGoodsProp({ value: propIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除商品属性成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除商品属性");
     }
   );
 }

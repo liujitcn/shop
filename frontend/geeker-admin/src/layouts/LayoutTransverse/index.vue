@@ -40,7 +40,7 @@ import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
 import { useRoute, useRouter } from "vue-router";
 import type { RouteItem } from "@/rpc/admin/auth";
-import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
+import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
 import SubMenu from "@/layouts/components/Menu/SubMenu.vue";
@@ -55,7 +55,12 @@ const title = computed(() => configStore.display.sysName || import.meta.env.VITE
 const logoUrl = computed(() => configStore.display.adminLogo);
 
 const handleClickMenu = (subItem: RouteItem) => {
-  if (subItem.path) router.push(subItem.path);
+  if (!subItem.path) return;
+  if (isExternalPath(subItem.path)) {
+    window.open(subItem.path, "_blank", "noopener,noreferrer");
+    return;
+  }
+  router.push(subItem.path);
 };
 </script>
 

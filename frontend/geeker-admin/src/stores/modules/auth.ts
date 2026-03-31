@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { defAuthService } from "@/api/admin/auth";
 import { AuthState } from "@/stores/interface";
-import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList } from "@/utils";
+import { getFlatMenuList, getShowMenuList, getAllBreadcrumbList, isExternalPath } from "@/utils";
 import type { RouteItem } from "@/rpc/admin/auth";
 
 const GLOBAL_AUTH_BUTTON_KEY = "__global__";
@@ -10,6 +10,7 @@ const GLOBAL_AUTH_BUTTON_KEY = "__global__";
 function normalizeRoutePath(path?: string, parentPath = "") {
   if (!path) return "";
   if (path === "/") return "/";
+  if (isExternalPath(path)) return path;
   if (path.startsWith("/")) return path;
 
   const normalizedParentPath = parentPath && parentPath !== "/" ? parentPath.replace(/\/+$/, "") : "";

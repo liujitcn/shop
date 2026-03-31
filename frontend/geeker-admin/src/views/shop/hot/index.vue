@@ -14,28 +14,22 @@
       label-width="150px"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
-    >
-      <template #pictureUpload>
-        <UploadImgs v-model:file-list="pictureFileList" :limit="2" />
-      </template>
-    </FormDialog>
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
-import type { UploadUserFile } from "element-plus";
 import { CirclePlus, Delete, EditPen, List } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
-import UploadImgs from "@/components/Upload/Imgs.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/admin/shop_hot";
 import type { PageShopHotRequest, ShopHot, ShopHotForm } from "@/rpc/admin/shop_hot";
-import router from "@/routers";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 
@@ -47,6 +41,7 @@ defineOptions({
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const router = useRouter();
 
 const dialog = reactive({
   title: "",
@@ -70,14 +65,6 @@ const formData = reactive<ShopHotForm>({
   status: Status.ENABLE
 });
 
-/** 将热门推荐图片值适配为上传组件需要的文件列表结构。 */
-const pictureFileList = computed<UploadUserFile[]>({
-  get: () => (formData.picture ?? []).map(url => ({ name: url.split("/").pop() ?? "image", url })),
-  set: value => {
-    formData.picture = value.map(item => item.url ?? "").filter(Boolean);
-  }
-});
-
 const rules = computed(() => ({
   title: [{ required: true, message: "请输入热门推荐标题", trigger: "blur" }],
   desc: [{ required: true, message: "请输入热门推荐描述", trigger: "blur" }],
@@ -96,7 +83,7 @@ const formFields: ProFormField[] = [
   { prop: "title", label: "热门推荐标题", component: "input", props: { placeholder: "请输入热门推荐标题" } },
   { prop: "desc", label: "热门推荐描述", component: "input", props: { placeholder: "请输入热门推荐描述" } },
   { prop: "banner", label: "轮播图", component: "image-upload" },
-  { prop: "picture", label: "推荐图片", component: "slot", slotName: "pictureUpload" },
+  { prop: "picture", label: "推荐图片", component: "images-upload", props: { limit: 2 } },
   {
     prop: "sort",
     label: "排序",
@@ -246,7 +233,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as ShopHotForm;
     const request = submitData.id ? defShopHotService.UpdateShopHot(submitData) : defShopHotService.CreateShopHot(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改热门推荐成功" : "新增热门推荐成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -261,7 +248,7 @@ async function handleBeforeSetStatus(row: ShopHot) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const hotName = row.title || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}热门推荐：${hotName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}热门推荐？\n推荐标题：${hotName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -294,7 +281,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
 
   const confirmMessage = hotList.length
     ? hotList.length === 1
-      ? `是否确定删除热门推荐：${hotList[0].title || `ID:${hotList[0].id}`}？`
+      ? `是否确定删除热门推荐？\n推荐标题：${hotList[0].title || `ID:${hotList[0].id}`}`
       : `确认删除已选中的 ${hotList.length} 个热门推荐吗？`
     : "确认删除已选中的热门推荐吗？";
 
@@ -305,23 +292,31 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
   }).then(
     () => {
       defShopHotService.DeleteShopHot({ value: hotIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除热门推荐成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除热门推荐");
     }
   );
+}
+
+/**
+ * 统一处理页面跳转；若路由实例未生效，则降级为浏览器地址跳转。
+ */
+function navigateTo(path: string, query?: Record<string, string | number>) {
+  const target = { path, query };
+  router.push(target).catch(() => {
+    const resolved = router.resolve(target);
+    window.location.href = resolved.href;
+  });
 }
 
 /**
  * 打开热门推荐选项页面。
  */
 function handleOpenShopHotItem(row: ShopHot) {
-  router.push({
-    path: "/shop/hot-item",
-    query: { hotId: row.id, title: `【${row.title}】热门推荐选项` }
-  });
+  navigateTo("/shop/hot-item", { hotId: row.id, title: `【${row.title}】热门推荐选项` });
 }
 </script>

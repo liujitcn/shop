@@ -1,39 +1,7 @@
 <template>
   <div class="app-container">
     <el-card shadow="never">
-      <el-form ref="dataFormRef" :rules="rules" :model="formData" label-width="120px">
-        <el-form-item label="商品分类" prop="categoryId">
-          <el-tree-select v-model="formData.categoryId" placeholder="请选择商品分类" :data="goodsCategoryOptions" filterable />
-        </el-form-item>
-        <el-form-item label="商品名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入商品名称" />
-        </el-form-item>
-        <el-form-item label="商品描述" prop="desc">
-          <el-input v-model="formData.desc" placeholder="请输入商品描述" type="textarea" />
-        </el-form-item>
-
-        <el-form-item label="商品主图" prop="picture">
-          <UploadImg v-model:image-url="formData.picture" />
-        </el-form-item>
-
-        <el-form-item label="商品轮播图" prop="banner">
-          <UploadImgs v-model:file-list="bannerFileList" />
-        </el-form-item>
-
-        <el-form-item label="商品详情" prop="detail">
-          <UploadImgs v-model:file-list="detailFileList" />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="上架"
-            inactive-text="下架"
-            :active-value="GoodsStatus.PUT_ON"
-            :inactive-value="GoodsStatus.PULL_OFF"
-          />
-        </el-form-item>
-      </el-form>
+      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="120px" />
       <template #footer>
         <el-button type="primary" @click="handleNext">下一步，设置商品属性</el-button>
       </template>
@@ -42,10 +10,10 @@
 </template>
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, toRefs } from "vue";
-import UploadImg from "@/components/Upload/Img.vue";
-import UploadImgs from "@/components/Upload/Imgs.vue";
+import { ElMessage } from "element-plus";
+import ProForm from "@/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
-import type { UploadUserFile } from "element-plus";
 defineOptions({
   name: "GoodsEditInfo",
   inheritAttrs: false
@@ -53,7 +21,7 @@ defineOptions({
 const emit = defineEmits(["next", "update:modelValue"]);
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
 import { GoodsStatus } from "@/rpc/common/enum";
-const dataFormRef = ref();
+const proFormRef = ref<ProFormInstance>();
 
 const props = defineProps({
   modelValue: {
@@ -66,22 +34,6 @@ const formData: any = computed({
   get: () => props.modelValue,
   set: value => {
     emit("update:modelValue", value);
-  }
-});
-
-/** 将商品轮播图值适配为上传组件文件列表。 */
-const bannerFileList = computed<UploadUserFile[]>({
-  get: () => (formData.value.banner ?? []).map((url: string) => ({ name: url.split("/").pop() ?? "image", url })),
-  set: value => {
-    formData.value.banner = value.map(item => item.url ?? "").filter(Boolean);
-  }
-});
-
-/** 将商品详情图值适配为上传组件文件列表。 */
-const detailFileList = computed<UploadUserFile[]>({
-  get: () => (formData.value.detail ?? []).map((url: string) => ({ name: url.split("/").pop() ?? "image", url })),
-  set: value => {
-    formData.value.detail = value.map(item => item.url ?? "").filter(Boolean);
   }
 });
 
@@ -99,12 +51,41 @@ const state = reactive({
 
 const { goodsCategoryOptions, rules } = toRefs(state);
 
-function handleNext() {
-  dataFormRef.value.validate((valid: any) => {
-    if (valid) {
-      emit("next");
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "categoryId",
+    label: "商品分类",
+    component: "tree-select",
+    options: goodsCategoryOptions.value as unknown as Array<{ label: string; value: string | number; children?: any[] }>,
+    props: { placeholder: "请选择商品分类", filterable: true }
+  },
+  { prop: "name", label: "商品名称", component: "input", props: { placeholder: "请输入商品名称" } },
+  { prop: "desc", label: "商品描述", component: "textarea", props: { placeholder: "请输入商品描述" } },
+  { prop: "picture", label: "商品主图", component: "image-upload" },
+  { prop: "banner", label: "商品轮播图", component: "images-upload" },
+  { prop: "detail", label: "商品详情", component: "images-upload" },
+  {
+    prop: "status",
+    label: "状态",
+    component: "switch",
+    props: {
+      inlinePrompt: true,
+      activeText: "上架",
+      inactiveText: "下架",
+      activeValue: GoodsStatus.PUT_ON,
+      inactiveValue: GoodsStatus.PULL_OFF
     }
-  });
+  }
+]);
+
+async function handleNext() {
+  try {
+    const valid = await proFormRef.value?.validate();
+    if (!valid) return;
+    emit("next");
+  } catch {
+    ElMessage.warning("请完善商品信息后再设置商品属性");
+  }
 }
 
 // 查询

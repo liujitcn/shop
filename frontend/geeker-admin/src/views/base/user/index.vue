@@ -198,7 +198,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 220,
+    width: 260,
     fixed: "right",
     cellType: "actions",
     actions: [
@@ -310,7 +310,7 @@ async function handleBeforeSetStatus(row: BaseUser) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const userName = row.nickName || row.userName || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}用户：${userName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}用户？\n用户名称：${userName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -328,7 +328,8 @@ async function handleBeforeSetStatus(row: BaseUser) {
  * 重置用户密码。
  */
 function handleResetPassword(row: BaseUser) {
-  ElMessageBox.prompt(`请输入用户${row.userName ? `【${row.userName}】` : ""}的新密码`, "重置密码", {
+  const userName = row.nickName || row.userName || `ID:${row.id}`;
+  ElMessageBox.prompt(`请输入新密码\n用户名称：${userName}`, "重置密码", {
     confirmButtonText: "确定",
     cancelButtonText: "取消"
   }).then(
@@ -432,7 +433,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = userList.length
     ? userList.length === 1
-      ? `是否确定删除用户：${userList[0].nickName || userList[0].userName || `ID:${userList[0].id}`}？`
+      ? `是否确定删除用户？\n用户名称：${userList[0].nickName || userList[0].userName || `ID:${userList[0].id}`}`
       : `确认删除已选中的 ${userList.length} 个用户吗？`
     : "确认删除已选中的用户吗？";
 
@@ -443,12 +444,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseUserService.DeleteBaseUser({ value: userIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除用户成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除用户");
     }
   );
 }

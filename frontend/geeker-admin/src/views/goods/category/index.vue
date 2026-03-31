@@ -77,12 +77,24 @@ const formData = reactive<GoodsCategoryForm>({
   status: Status.ENABLE
 });
 
-const rules = reactive({
+const rules = computed(() => ({
   parentId: [{ required: true, message: "上级分类不能为空", trigger: "change" }],
   name: [{ required: true, message: "分类名称不能为空", trigger: "blur" }],
+  picture: [
+    {
+      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+        if (formData.parentId !== 0 && !value) {
+          callback(new Error("非顶级分类必须上传图片"));
+          return;
+        }
+        callback();
+      },
+      trigger: "change"
+    }
+  ],
   sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
   status: [{ required: true, message: "状态不能为空", trigger: "change" }]
-});
+}));
 
 /** 分类表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
@@ -100,7 +112,14 @@ const formFields = computed<ProFormField[]>(() => [
     }
   },
   { prop: "name", label: "分类名称", component: "input", props: { placeholder: "请输入分类名称" } },
-  { prop: "picture", label: "照片", component: "image-upload" },
+  {
+    prop: "picture",
+    label: "照片",
+    component: "image-upload",
+    itemProps: model => ({
+      required: model.parentId !== 0
+    })
+  },
   {
     prop: "sort",
     label: "排序",
@@ -147,7 +166,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 200,
+    width: 220,
     fixed: "right",
     align: "left",
     cellType: "actions",
@@ -306,7 +325,7 @@ function handleSubmit() {
       ? defGoodsCategoryService.UpdateGoodsCategory(submitData)
       : defGoodsCategoryService.CreateGoodsCategory(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改商品分类成功" : "新增商品分类成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -321,7 +340,7 @@ async function handleBeforeSetStatus(row: GoodsCategory) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const categoryName = row.name || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}分类：${categoryName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}分类？\n分类名称：${categoryName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -356,7 +375,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
 
   const confirmMessage = categoryList.length
     ? categoryList.length === 1
-      ? `是否确定删除分类：${categoryList[0].name || `ID:${categoryList[0].id}`}？`
+      ? `是否确定删除分类？\n分类名称：${categoryList[0].name || `ID:${categoryList[0].id}`}`
       : `确认删除已选中的 ${categoryList.length} 个商品分类吗？`
     : "确认删除已选中的商品分类吗？";
 
@@ -367,12 +386,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
   }).then(
     () => {
       defGoodsCategoryService.DeleteGoodsCategory({ value: categoryIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除商品分类成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除商品分类");
     }
   );
 }

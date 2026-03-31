@@ -253,9 +253,12 @@ geeker-admin
 ### 列表页约定
 
 - 后台列表页优先参考 [`src/views/shop/banner/index.vue`](./src/views/shop/banner/index.vue) 的实现方式，统一采用 `ProTable + FormDialog + ProForm` 结构。
+- `src/views/base/menu/index.vue` 这类树形列表页也按上述结构收敛，顶部按钮使用 `headerActions`，状态列和操作列优先使用 `cellType` 与 `actions` 配置，仅保留图标选择、穿梭项展示等必要插槽。
+- 详情查看类弹窗若明显不属于表单场景，优先使用 `ProDialog`，不要直接回退到原生 `el-dialog`。
 - 顶部按钮优先通过 `headerActions` 配置，行内操作优先通过 `actions` 配置；只有基础配置无法覆盖时，才保留必要的页面 slot。
 - 状态列优先使用 `cellType: "status"`，图片列优先使用 `cellType: "image"`，避免在页面模板中重复手写通用展示逻辑。
 - 弹窗关闭时必须显式重置表单与校验状态；编辑态回填、选项预加载、提交成功后刷新表格都应在页面方法内明确处理。
+- 业务确认与提示文案优先体现明确对象，单项确认推荐使用“是否确定执行动作？\n字段中文名：字段值”，成功/取消提示也应尽量带上业务对象，例如“删除角色成功”“已取消删除角色”。
 
 ## 维护建议
 

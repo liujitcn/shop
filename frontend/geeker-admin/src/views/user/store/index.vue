@@ -1,10 +1,8 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestUserStoreTable">
-      <template #address="scope"> {{ formatAddress(scope.row.address, scope.row.detail) }} </template>
-    </ProTable>
+    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestUserStoreTable" />
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
+    <ProDialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
       <el-card shadow="never">
         <template #header>
           <div class="card-header">
@@ -77,7 +75,7 @@
           <el-button @click="handleCloseDialog">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
@@ -87,6 +85,7 @@ import { ElMessage } from "element-plus";
 import { CircleCheck } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
@@ -163,7 +162,11 @@ const columns: ColumnProps[] = [
   { prop: "name", label: "门店名称", search: { el: "input" } },
   { prop: "nickName", label: "联系人" },
   { prop: "phone", label: "电话" },
-  { prop: "address", label: "门店地址" },
+  {
+    prop: "address",
+    label: "门店地址",
+    render: scope => formatAddress((scope.row as UserStore).address, (scope.row as UserStore).detail)
+  },
   { prop: "status", label: "状态", width: 120, dictCode: "user_store_status", search: { el: "select" } },
   { prop: "remark", label: "备注" },
   {
@@ -213,11 +216,11 @@ function formatAddress(address?: string[], detailAddress?: string) {
  * 打开用户门店详情弹窗。
  */
 function handleOpenDialog(storeId?: number) {
+  resetDialogData();
+  dialog.title = "用户门店详情";
   dialog.visible = true;
   if (!storeId) return;
 
-  dialog.title = "用户门店详情";
-  formData.remark = "";
   defUserStoreService.GetUserStore({ value: storeId }).then(data => {
     detail.value = data;
     formData.id = data.id;
@@ -231,8 +234,27 @@ function handleOpenDialog(storeId?: number) {
  */
 function handleCloseDialog() {
   dialog.visible = false;
+  resetDialogData();
+}
+
+/**
+ * 重置门店详情与审核表单，避免切换弹窗时残留旧数据。
+ */
+function resetDialogData() {
   proFormRef.value?.resetFields();
   proFormRef.value?.clearValidate();
+  detail.value = {
+    id: 0,
+    name: "",
+    address: [],
+    detail: "",
+    picture: [],
+    businessLicense: [],
+    status: UserStoreStatus.UNKNOWN_USS,
+    remark: "",
+    nickName: "",
+    phone: ""
+  };
   formData.id = 0;
   formData.status = UserStoreStatus.UNKNOWN_USS;
   formData.remark = "";
@@ -246,7 +268,7 @@ function handleSubmitClick() {
     if (!isValid) return;
 
     defUserStoreService.AuditUserStore(formData).then(() => {
-      ElMessage.success("审核成功");
+      ElMessage.success("门店审核成功");
       handleCloseDialog();
       refreshTable();
     });

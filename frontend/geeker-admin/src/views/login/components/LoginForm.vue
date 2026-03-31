@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { defLoginService } from "@/api/base/login";
@@ -56,6 +56,7 @@ import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const dictStore = useDictStore();
 const tabsStore = useTabsStore();
@@ -91,6 +92,15 @@ const getFirstAccessibleRoutePath = () => {
   return firstRoute?.path ?? HOME_URL;
 };
 
+/** 获取登录成功后的回跳地址，优先使用登录前记录的完整页面地址。 */
+const getLoginRedirectPath = () => {
+  const redirect = route.query.redirect;
+  if (typeof redirect === "string" && redirect && redirect !== HOME_URL) {
+    return redirect;
+  }
+  return getFirstAccessibleRoutePath();
+};
+
 /** 获取验证码 */
 const getCaptcha = async () => {
   const data = await defLoginService.Captcha({});
@@ -122,8 +132,8 @@ const handleLogin = (formEl: FormInstance | undefined) => {
       tabsStore.setTabs([]);
       keepAliveStore.setKeepAliveName([]);
 
-      // 6.跳转到首个可访问页面
-      router.push(getFirstAccessibleRoutePath());
+      // 6.优先跳回登录失效前页面，没有记录时再进入首个可访问页面
+      router.push(getLoginRedirectPath());
       ElNotification({
         title: getTimeState(),
         message: "欢迎登录管理后台",

@@ -23,7 +23,7 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 import type { RouteItem } from "@/rpc/admin/auth";
-import { getRouteMetaAlwaysShow, getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
+import { getRouteMetaAlwaysShow, getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 
 defineProps<{ menuList: RouteItem[] }>();
 
@@ -57,6 +57,11 @@ const isSubMenu = (subItem: RouteItem) => {
 
 const handleClickMenu = (subItem: RouteItem) => {
   const menuItem = getMenuItem(subItem);
+  if (!menuItem.path) return;
+  if (isExternalPath(menuItem.path)) {
+    window.open(menuItem.path, "_blank", "noopener,noreferrer");
+    return;
+  }
   router.push(menuItem.path);
 };
 </script>

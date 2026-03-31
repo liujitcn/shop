@@ -1,6 +1,8 @@
 import axios, { type InternalAxiosRequestConfig, type AxiosResponse } from "axios";
 import qs from "qs";
 import { ElMessage, ElMessageBox } from "element-plus";
+import router from "@/routers";
+import { LOGIN_URL } from "@/config";
 import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
 
@@ -51,8 +53,13 @@ function handleAuthExpired() {
     type: "warning"
   }).then(() => {
     const userStore = getUserStore();
+    const currentRoute = router.currentRoute.value;
+    const redirect = currentRoute.path === LOGIN_URL ? undefined : currentRoute.fullPath;
     userStore.clearAuthData();
-    location.reload();
+    router.replace({
+      path: LOGIN_URL,
+      query: redirect ? { redirect } : undefined
+    });
   });
 }
 

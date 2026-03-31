@@ -7,14 +7,7 @@
       :columns="columns"
       :header-actions="headerActions"
       :request-api="requestBaseDictItemTable"
-    >
-      <template #tagType="scope">
-        <el-tag v-if="scope.row.tagType" :type="formatTagType(scope.row.tagType)" effect="plain">
-          {{ scope.row.label }}
-        </el-tag>
-        <span v-else>无</span>
-      </template>
-    </ProTable>
+    />
 
     <FormDialog
       v-model="dialog.visible"
@@ -48,11 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from "vue";
+import { computed, h, reactive, ref, resolveComponent, watch } from "vue";
 import { useRoute } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
@@ -132,13 +125,33 @@ function formatTagType(tagType: string) {
   return undefined;
 }
 
+/**
+ * 渲染标签类型列，统一复用字典项标签的展示方式。
+ */
+function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
+  if (!scope.row.tagType) return "无";
+  return h(
+    resolveComponent("el-tag"),
+    {
+      type: formatTagType(scope.row.tagType),
+      effect: "plain"
+    },
+    () => scope.row.label
+  );
+}
+
 /** 字典项表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
   { prop: "label", label: "字典标签", search: { el: "input" } },
   { prop: "value", label: "字典值" },
   { prop: "sort", label: "排序", align: "right" },
-  { prop: "tagType", label: "标签类型", width: 120 },
+  {
+    prop: "tagType",
+    label: "标签类型",
+    width: 120,
+    render: scope => renderTagTypeCell(scope as unknown as RenderScope<BaseDictItem>)
+  },
   {
     prop: "status",
     label: "状态",
@@ -282,7 +295,7 @@ function handleSubmit() {
       ? defBaseDictService.UpdateBaseDictItem(submitData)
       : defBaseDictService.CreateBaseDictItem(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改字典数据成功" : "新增字典数据成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -297,7 +310,7 @@ async function handleBeforeSetStatus(row: BaseDictItem) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const itemName = row.label || row.value || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}字典数据：${itemName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}字典数据？\n字典标签：${itemName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -330,9 +343,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     return;
   }
 
+  const singleItemName = dictItemList[0]?.label || dictItemList[0]?.value || `ID:${dictItemList[0]?.id ?? ""}`;
   const confirmMessage = dictItemList.length
     ? dictItemList.length === 1
-      ? `是否确定删除字典数据：${dictItemList[0].label || dictItemList[0].value || `ID:${dictItemList[0].id}`}？`
+      ? `是否确定删除字典数据？\n字典标签：${singleItemName}`
       : `确认删除已选中的 ${dictItemList.length} 项字典数据吗？`
     : "确认删除已选中的字典数据吗？";
 
@@ -343,12 +357,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseDictService.DeleteBaseDictItem({ value: dictItemIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除字典数据成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除字典数据");
     }
   );
 }

@@ -6,114 +6,51 @@
       row-key="id"
       :indent="20"
       :columns="columns"
+      :header-actions="headerActions"
       :request-api="requestMenuTable"
       :pagination="false"
       :default-expand-all="false"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+    />
+
+    <FormDialog
+      v-model="dialog.visible"
+      ref="formDialogRef"
+      :title="dialog.title"
+      width="1180px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="120px"
+      :col-span="12"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
     >
-      <template #tableHeader="{ selectedList }">
-        <el-button v-hasPerm="['base:menu:create']" type="success" :icon="CirclePlus" @click="handleOpenDialog(0)">
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['base:menu:delete']"
-          type="danger"
-          :icon="Delete"
-          :disabled="!selectedList.length"
-          @click="handleDeleteMenu(selectedList)"
-        >
-          删除
-        </el-button>
+      <template #menuIcon>
+        <SelectIcon v-model:icon-value="menuIconValue" placeholder="请选择菜单图标" />
       </template>
 
-      <template #icon="scope">
-        <el-icon v-if="resolveElementIcon(scope.row.meta?.icon)" :size="18">
-          <component :is="resolveElementIcon(scope.row.meta?.icon)" />
-        </el-icon>
-        <svg-icon v-else-if="scope.row.meta?.icon" :icon-class="scope.row.meta.icon" />
-        <span v-else>--</span>
+      <template #apiTransferItem="slotScope">
+        <el-popover effect="light" trigger="hover" placement="top" width="auto">
+          <template #default>
+            <div>操作名称：{{ slotScope.option.operation }}</div>
+            <div>请求方式：{{ slotScope.option.method }}</div>
+            <div>请求地址：{{ slotScope.option.path }}</div>
+          </template>
+          <template #reference>{{ slotScope.option.label }}</template>
+        </el-popover>
       </template>
-
-      <template #hidden="scope">
-        <el-tag v-if="scope.row.meta?.hidden" type="info">隐藏</el-tag>
-        <el-tag v-else type="success">显示</el-tag>
-      </template>
-
-      <template #status="scope">
-        <el-switch
-          v-model="scope.row.status"
-          inline-prompt
-          :active-value="Status.ENABLE"
-          :inactive-value="Status.DISABLE"
-          active-text="启用"
-          inactive-text="禁用"
-          :disabled="!BUTTONS['base:menu:status']"
-          :before-change="() => handleBeforeSetStatus(scope.row)"
-        />
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-hasPerm="['base:menu:create']"
-          type="primary"
-          link
-          :icon="CirclePlus"
-          @click.stop="handleOpenDialog(scope.row.id)"
-        >
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['base:menu:update']"
-          type="primary"
-          link
-          :icon="EditPen"
-          @click.stop="handleOpenDialog(scope.row.parentId, scope.row.id)"
-        >
-          编辑
-        </el-button>
-        <el-button v-hasPerm="['base:menu:delete']" type="danger" link :icon="Delete" @click.stop="handleDeleteMenu(scope.row)">
-          删除
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="1180px" @closed="handleCloseDialog">
-      <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="120px" :col-span="12">
-        <template #menuIcon>
-          <SelectIcon v-model:icon-value="menuIconValue" placeholder="请选择菜单图标" />
-        </template>
-
-        <template #apiTransferItem="slotScope">
-          <el-popover effect="light" trigger="hover" placement="top" width="auto">
-            <template #default>
-              <div>操作名称：{{ slotScope.option.operation }}</div>
-              <div>请求方式：{{ slotScope.option.method }}</div>
-              <div>请求地址：{{ slotScope.option.path }}</div>
-            </template>
-            <template #reference>{{ slotScope.option.label }}</template>
-          </el-popover>
-        </template>
-      </ProForm>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    </FormDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, h, reactive, ref, resolveComponent, resolveDynamicComponent } from "vue";
 import type { FormRules } from "element-plus";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import ProTable from "@/components/ProTable/index.vue";
-import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
-import ProForm from "@/components/ProForm/index.vue";
-import type { ProFormField, ProFormInstance, ProFormOption } from "@/components/ProForm/interface";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import SelectIcon from "@/components/SelectIcon/index.vue";
 import { defBaseMenuService } from "@/api/admin/base_menu";
 import { defBaseApiService } from "@/api/admin/base_api";
@@ -129,13 +66,17 @@ defineOptions({
   inheritAttrs: false
 });
 
+/**
+ * 菜单表单状态，统一补齐 meta 字段，便于 ProForm 直接双向绑定。
+ */
 type MenuFormState = Omit<BaseMenuForm, "meta"> & {
+  /** 菜单元信息。 */
   meta: BaseMenuMeta;
 };
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const proFormRef = ref<ProFormInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const menuOptions = ref<TreeOptionResponse_Option[]>([]);
 const apiList = ref<BaseApi[]>([]);
 
@@ -197,23 +138,132 @@ const statusOptions: ProFormOption[] = [
   { label: "禁用", value: Status.DISABLE }
 ];
 
+/**
+ * 渲染菜单图标单元格，统一兼容 Element Plus 图标和本地 svg 图标。
+ */
+function renderMenuIconCell(scope: RenderScope<BaseMenu>) {
+  const icon = scope.row.meta?.icon;
+  const iconName = resolveElementIcon(icon);
+  if (iconName) {
+    return h(
+      resolveComponent("el-icon"),
+      { size: 18 },
+      {
+        default: () => [h(resolveDynamicComponent(iconName) as any)]
+      }
+    );
+  }
+  if (icon) return h(resolveComponent("svg-icon"), { iconClass: icon });
+  return "--";
+}
+
+/**
+ * 渲染菜单显示状态标签，减少页面模板中的重复判断。
+ */
+function renderHiddenCell(scope: RenderScope<BaseMenu>) {
+  const isHidden = Boolean(scope.row.meta?.hidden);
+  return h(resolveComponent("el-tag"), { type: isHidden ? "info" : "success" }, () => (isHidden ? "隐藏" : "显示"));
+}
+
 /** 菜单表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "meta.title", label: "菜单名称", minWidth: 220, align: "left", search: { el: "input" } },
-  { prop: "type", label: "菜单类型", width: 120, dictCode: "base_menu_type" },
-  { prop: "meta.icon", label: "菜单图标", width: 90 },
+  {
+    prop: "meta.title",
+    label: "菜单名称",
+    minWidth: 220,
+    align: "left",
+    search: { el: "input", key: "title" }
+  },
+  { prop: "type", label: "菜单类型", width: 120, dictCode: "base_menu_type", search: { el: "select" } },
+  {
+    prop: "meta.icon",
+    label: "菜单图标",
+    width: 90,
+    render: scope => renderMenuIconCell(scope as unknown as RenderScope<BaseMenu>)
+  },
   { prop: "path", label: "路由路径/权限标识", width: 260, search: { el: "input" } },
   { prop: "name", label: "路由名称", width: 180, search: { el: "input" } },
   { prop: "component", label: "组件路径", width: 260 },
   { prop: "redirect", label: "重定向地址", width: 220 },
   { prop: "sort", label: "排序", width: 80, align: "right" },
-  { prop: "status", label: "状态", width: 100, dictCode: "status" },
-  { prop: "meta.hidden", label: "显示状态", width: 100 },
+  {
+    prop: "status",
+    label: "状态",
+    width: 100,
+    dictCode: "status",
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:menu:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as BaseMenu)
+    }
+  },
+  {
+    prop: "meta.hidden",
+    label: "显示状态",
+    width: 100,
+    render: scope => renderHiddenCell(scope as unknown as RenderScope<BaseMenu>)
+  },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 220, fixed: "right" }
-];
+  {
+    prop: "operation",
+    label: "操作",
+    width: 220,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "新增",
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: () => !BUTTONS.value["base:menu:create"],
+        onClick: scope => handleOpenDialog((scope.row as BaseMenu).id)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:menu:update"],
+        onClick: scope => handleOpenDialog(0, (scope.row as BaseMenu).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["base:menu:delete"],
+        onClick: scope => handleDeleteMenu(scope.row as BaseMenu)
+      }
+    ]
+  }
+]);
+
+/** 菜单表格顶部按钮配置。 */
+const headerActions = computed<HeaderActionProps[]>(() => [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["base:menu:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["base:menu:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDeleteMenu(scope.selectedList as BaseMenu[])
+  }
+]);
 
 /** API 穿梭框可选数据。 */
 const transferData = computed<ProFormOption[]>(() => {
@@ -250,6 +300,9 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "meta.title",
     label: formData.type === BaseMenuType.BUTTON ? "按钮名称" : "菜单标题",
     component: "input",
+    itemProps: {
+      required: true
+    },
     props: () => ({
       placeholder: formData.type === BaseMenuType.BUTTON ? "请输入按钮名称" : "请输入菜单标题"
     })
@@ -259,6 +312,9 @@ const formFields = computed<ProFormField[]>(() => [
     label: getPathFieldLabel(),
     component: "input",
     labelTooltip: getPathFieldTooltip(),
+    itemProps: {
+      required: true
+    },
     props: () => ({
       placeholder: getPathFieldPlaceholder()
     })
@@ -275,6 +331,9 @@ const formFields = computed<ProFormField[]>(() => [
     label: "菜单图标",
     component: "slot",
     slotName: "menuIcon",
+    itemProps: model => ({
+      required: model.type !== BaseMenuType.BUTTON
+    }),
     visible: model => model.type !== BaseMenuType.BUTTON
   },
   {
@@ -282,6 +341,9 @@ const formFields = computed<ProFormField[]>(() => [
     label: "路由名称",
     component: "input",
     labelTooltip: "如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。",
+    itemProps: model => ({
+      required: model.type === BaseMenuType.MENU
+    }),
     props: { placeholder: "请输入路由名称" },
     visible: model => model.type === BaseMenuType.MENU
   },
@@ -290,6 +352,9 @@ const formFields = computed<ProFormField[]>(() => [
     label: "组件路径",
     component: "input",
     labelTooltip: "组件页面完整路径，相对于 src/views/，例如 base/user/index，缺省后缀 .vue。",
+    itemProps: model => ({
+      required: model.type === BaseMenuType.MENU
+    }),
     props: { placeholder: "base/user/index" },
     visible: model => model.type === BaseMenuType.MENU
   },
@@ -391,6 +456,9 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "sort",
     label: "排序",
     component: "input-number",
+    itemProps: {
+      required: true
+    },
     props: {
       min: 1,
       controlsPosition: "right",
@@ -403,11 +471,14 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "status",
     label: "状态",
     component: "radio-group",
+    itemProps: {
+      required: true
+    },
     options: statusOptions
   }
 ]);
 
-const rules = reactive<FormRules>({
+const rules = computed<FormRules>(() => ({
   parentId: [{ required: true, message: "请选择上级菜单", trigger: "change" }],
   type: [{ required: true, message: "请选择菜单类型", trigger: "change" }],
   "meta.title": [
@@ -426,7 +497,7 @@ const rules = reactive<FormRules>({
         if (value) return callback();
         callback(new Error("请选择菜单图标"));
       },
-      trigger: "blur"
+      trigger: "change"
     }
   ],
   path: [
@@ -462,7 +533,7 @@ const rules = reactive<FormRules>({
   ],
   sort: [{ required: true, message: "请输入排序值", trigger: "blur" }],
   status: [{ required: true, message: "请选择状态", trigger: "change" }]
-});
+}));
 
 /** 计算当前路径字段文案。 */
 function getPathFieldLabel() {
@@ -546,8 +617,10 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
   };
 }
 
-/** 重置当前表单数据。 */
-function resetFormData(data?: Partial<BaseMenuForm>) {
+/** 重置当前表单数据和校验状态，避免新增与编辑切换时残留旧值。 */
+function resetForm(data?: Partial<BaseMenuForm>) {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
   Object.assign(formData, normalizeMenuForm(data));
 }
 
@@ -605,7 +678,7 @@ function buildSubmitPayload(): BaseMenuForm {
   return payload;
 }
 
-/** 加载菜单树选项和 API 列表。 */
+/** 加载菜单树选项和 API 列表，确保弹窗打开时相关数据已可用。 */
 async function loadDialogResources() {
   const [menuData, apiData] = await Promise.all([defBaseMenuService.OptionBaseMenu({}), defBaseApiService.ListBaseApi({})]);
   menuOptions.value = buildMenuOptions(menuData.list ?? []);
@@ -661,24 +734,24 @@ function refreshTable() {
  * 打开菜单弹窗。
  * parentId 为新增时的父节点 ID，menuId 为编辑时的菜单 ID。
  */
-async function handleOpenDialog(parentId: number, menuId?: number) {
+async function handleOpenDialog(parentId = 0, menuId?: number) {
   await loadDialogResources();
+  resetForm(menuId ? undefined : { parentId });
   dialog.visible = true;
 
   if (menuId) {
     dialog.title = "修改菜单";
     const data = await defBaseMenuService.GetBaseMenu({ value: menuId });
-    resetFormData(data);
+    resetForm(data);
     return;
   }
 
   dialog.title = "新增菜单";
-  resetFormData({ parentId });
 }
 
-/** 提交菜单表单。 */
+/** 提交菜单表单，并在成功后关闭弹窗、刷新表格。 */
 async function handleSubmit() {
-  const valid = await proFormRef.value?.validate();
+  const valid = await formDialogRef.value?.validate();
   if (!valid) return;
 
   const payload = buildSubmitPayload();
@@ -690,15 +763,14 @@ async function handleSubmit() {
     ElMessage.success("菜单创建成功");
   }
 
-  dialog.visible = false;
+  handleCloseDialog();
   refreshTable();
 }
 
-/** 关闭菜单弹窗并重置状态。 */
+/** 关闭菜单弹窗并显式重置表单与校验状态。 */
 function handleCloseDialog() {
   dialog.visible = false;
-  resetFormData();
-  proFormRef.value?.clearValidate();
+  resetForm();
 }
 
 /**
@@ -707,9 +779,9 @@ function handleCloseDialog() {
 async function handleBeforeSetStatus(row: BaseMenu) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
-  const menuName = row.meta?.title || row.name || row.path || String(row.id);
+  const menuName = row.meta?.title || row.name || row.path || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}菜单：${menuName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}菜单？\n菜单名称：${menuName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -740,9 +812,10 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
     return;
   }
 
+  const singleMenuName = menuList[0]?.meta?.title || menuList[0]?.name || menuList[0]?.path || `ID:${menuList[0]?.id ?? ""}`;
   const confirmMessage = menuList.length
     ? menuList.length === 1
-      ? `是否确定删除菜单：${menuList[0].meta?.title || menuList[0].name || menuList[0].path || `ID:${menuList[0].id}`}？`
+      ? `是否确定删除菜单？\n菜单名称：${singleMenuName}`
       : `确认删除已选中的 ${menuList.length} 个菜单项吗？`
     : "确认删除已选中的菜单项吗？";
 
@@ -753,12 +826,12 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
   }).then(
     () => {
       defBaseMenuService.DeleteBaseMenu({ value: menuIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除菜单成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除菜单");
     }
   );
 }

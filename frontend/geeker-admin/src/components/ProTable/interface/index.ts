@@ -72,7 +72,7 @@ export type HeaderRenderScope<T extends DefaultRow = DefaultRow> = {
   [key: string]: any;
 };
 
-export type CellType = "image" | "status" | "actions";
+export type CellType = "image" | "status" | "actions" | "money";
 
 export type ColumnActionParams<T extends DefaultRow = DefaultRow> =
   | Record<string, any>
@@ -106,6 +106,12 @@ export interface StatusCellProps<T extends DefaultRow = DefaultRow> {
   beforeChange?: (scope: RenderScope<T>, params?: Record<string, any>) => boolean | Promise<boolean>;
   onChange?: (value: string | number | boolean, scope: RenderScope<T>, params?: Record<string, any>) => void | Promise<void>;
   params?: ColumnActionParams<T>;
+}
+
+export interface MoneyCellProps<T extends DefaultRow = DefaultRow> {
+  value?: number | string | ((scope: RenderScope<T>) => number | string | undefined | null);
+  prefix?: string;
+  suffix?: string;
 }
 
 export interface TableActionProps<T extends DefaultRow = DefaultRow> {
@@ -147,6 +153,7 @@ export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
   render?: (scope: RenderScope<T>) => VNode | string; // 自定义单元格内容渲染（tsx语法）
   imageProps?: ImageCellProps<T>; // 图片列配置
   statusProps?: StatusCellProps<T>; // 状态列配置
+  moneyProps?: MoneyCellProps<T>; // 金额列配置
   actions?: TableActionProps<T>[]; // 操作按钮配置
   _children?: ColumnProps<T>[]; // 多级表头
 }

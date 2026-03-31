@@ -290,6 +290,7 @@
 /* el-dialog */
 .el-dialog {
   padding: 0;
+  margin-top: 8vh;
   .el-dialog__header {
     padding: 15px 20px;
     margin: 0;
@@ -301,5 +302,11 @@
   .el-dialog__body,
   .el-dialog__footer {
     padding: 15px 20px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .el-dialog {
+    margin-top: 4vh;
   }
 }

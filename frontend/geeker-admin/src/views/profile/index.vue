@@ -115,7 +115,7 @@
     </el-tabs>
 
     <!-- 弹窗 -->
-    <el-dialog v-model="dialog.visible" :title="dialog.title" :width="500" @closed="handleDialogClose">
+    <ProDialog v-model="dialog.visible" :title="dialog.title" :width="500" @closed="handleDialogClose">
       <!-- 账号资料 -->
       <ProForm
         v-if="dialog.type === DialogType.ACCOUNT"
@@ -159,7 +159,7 @@
           <el-button type="primary" @click="handleSubmit">确定</el-button>
         </span>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
@@ -172,6 +172,7 @@ import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue"
 import { defAuthService } from "@/api/admin/auth";
 import { UpdatePhoneForm, UpdatePwdForm, UserProfileForm } from "@/rpc/admin/auth";
 import ProForm from "@/components/ProForm/index.vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { ElMessage } from "element-plus";
 import { Camera, Edit, Female, Male, Phone, Timer, User } from "@element-plus/icons-vue";
@@ -303,8 +304,25 @@ const applyRouteState = async () => {
 };
 
 const handleDialogClose = () => {
+  resetDialogForms();
   dialog.type = "" as DialogType;
   syncRouteQuery(activeTab.value);
+};
+
+/**
+ * 重置弹窗表单校验与临时输入，避免不同弹窗类型之间串值。
+ */
+const resetDialogForms = () => {
+  accountFormRef.value?.clearValidate();
+  passwordFormRef.value?.resetFields();
+  passwordFormRef.value?.clearValidate();
+  mobileFormRef.value?.resetFields();
+  mobileFormRef.value?.clearValidate();
+  updatePwdForm.oldPwd = "";
+  updatePwdForm.newPwd = "";
+  updatePwdForm.confirmPwd = "";
+  updatePhoneForm.phone = "";
+  updatePhoneForm.code = "";
 };
 
 /**
@@ -426,6 +444,7 @@ const loadUserProfile = async () => {
 const handleTabChange = (name: string | number) => {
   activeTab.value = name === "security" ? "security" : "account";
   dialog.visible = false;
+  resetDialogForms();
   syncRouteQuery(activeTab.value);
 };
 
@@ -448,6 +467,7 @@ onBeforeUnmount(() => {
   if (mobileTimer.value) {
     clearInterval(mobileTimer.value);
   }
+  resetDialogForms();
 });
 </script>
 

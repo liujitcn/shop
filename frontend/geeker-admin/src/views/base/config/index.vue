@@ -290,7 +290,7 @@ function handleSubmit() {
       ? defBaseConfigService.UpdateBaseConfig(submitData)
       : defBaseConfigService.CreateBaseConfig(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改系统配置成功" : "新增系统配置成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -313,7 +313,7 @@ async function handleBeforeSetStatus(row: BaseConfig) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const configName = row.name || row.key || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}配置：${configName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}配置？\n配置名称：${configName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -348,7 +348,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = configList.length
     ? configList.length === 1
-      ? `是否确定删除配置：${configList[0].name || configList[0].key || `ID:${configList[0].id}`}？`
+      ? `是否确定删除配置？\n配置名称：${configList[0].name || configList[0].key || `ID:${configList[0].id}`}`
       : `确认删除已选中的 ${configList.length} 项系统配置吗？`
     : "确认删除已选中的系统配置吗？";
 
@@ -359,12 +359,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseConfigService.DeleteBaseConfig({ value: configIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除系统配置成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除系统配置");
     }
   );
 }

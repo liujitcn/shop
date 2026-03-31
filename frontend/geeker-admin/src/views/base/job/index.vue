@@ -1,54 +1,7 @@
 <!-- 定时任务 -->
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestBaseJobTable">
-      <template #args="scope">
-        <el-tag v-for="(arg, index) in scope.row.args" :key="index" class="mr-5">{{ arg.key }}={{ arg.value }}</el-tag>
-      </template>
-
-      <template #operation="scope">
-        <div class="job-operation">
-          <el-button
-            v-if="BUTTONS['base:job:update']"
-            type="primary"
-            link
-            :icon="EditPen"
-            @click.stop="handleOpenDialog(scope.row.id)"
-          >
-            编辑
-          </el-button>
-          <el-button v-if="BUTTONS['base:job:delete']" type="danger" link :icon="Delete" @click.stop="handleDelete(scope.row)">
-            删除
-          </el-button>
-          <el-dropdown v-if="showMoreMenu(scope.row)" @command="command => handleMenuCommand(command, scope.row)">
-            <el-button type="primary" link>
-              更多
-              <el-icon class="el-icon--right"><ArrowDown /></el-icon>
-            </el-button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item
-                  v-if="scope.row.status == 1 && scope.row.entryId === 0 && BUTTONS['base:job:start']"
-                  command="start"
-                >
-                  启动
-                </el-dropdown-item>
-                <el-dropdown-item
-                  v-if="scope.row.status == 1 && scope.row.entryId > 0 && BUTTONS['base:job:stop']"
-                  command="stop"
-                >
-                  停止
-                </el-dropdown-item>
-                <el-dropdown-item v-if="scope.row.status == 1 && BUTTONS['base:job:exec']" command="exec">
-                  执行一次
-                </el-dropdown-item>
-                <el-dropdown-item v-if="BUTTONS['base:job:log']" command="log">日志</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </div>
-      </template>
-    </ProTable>
+    <ProTable ref="proTable" row-key="id" :columns="columns" :header-actions="headerActions" :request-api="requestBaseJobTable" />
 
     <FormDialog
       v-model="dialog.visible"
@@ -66,10 +19,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, h, reactive, ref, resolveComponent, type VNode } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { ArrowDown, CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
+import { CirclePlus, Delete, EditPen, Promotion, Tickets, VideoPause, VideoPlay } from "@element-plus/icons-vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import ProTable from "@/components/ProTable/index.vue";
@@ -128,6 +81,146 @@ const statusOptions: ProFormOption[] = [
   { label: "禁用", value: Status.DISABLE }
 ];
 
+/**
+ * 渲染任务参数标签，便于在列表中快速查看键值对。
+ */
+function renderArgsCell(scope: RenderScope<BaseJob>) {
+  const args = scope.row.args ?? [];
+  if (!args.length) return "--";
+  return h(
+    "div",
+    null,
+    args.map((arg, index) =>
+      h(
+        resolveComponent("el-tag"),
+        {
+          key: `${arg.key}-${arg.value}-${index}`,
+          class: "mr-5"
+        },
+        () => `${arg.key}=${arg.value}`
+      )
+    )
+  );
+}
+
+/**
+ * 渲染定时任务操作列。
+ */
+function renderOperationCell(scope: RenderScope<BaseJob>) {
+  const row = scope.row;
+  const actionNodes: VNode[] = [];
+
+  if (BUTTONS.value["base:job:update"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `edit-${row.id}`,
+          type: "primary",
+          link: true,
+          icon: EditPen,
+          onClick: () => handleOpenDialog(row.id)
+        },
+        () => "编辑"
+      )
+    );
+  }
+
+  if (BUTTONS.value["base:job:delete"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `delete-${row.id}`,
+          type: "danger",
+          link: true,
+          icon: Delete,
+          onClick: () => handleDelete(row)
+        },
+        () => "删除"
+      )
+    );
+  }
+
+  if (row.status === Status.ENABLE && (row.entryId === undefined || row.entryId === 0) && BUTTONS.value["base:job:start"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `start-${row.id}`,
+          type: "primary",
+          link: true,
+          icon: VideoPlay,
+          class: "job-action job-action--start",
+          onClick: () => handleStart(row.id, row.name)
+        },
+        () => "启动"
+      )
+    );
+  }
+
+  if (row.status === Status.ENABLE && row.entryId > 0 && BUTTONS.value["base:job:stop"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `stop-${row.id}`,
+          type: "warning",
+          link: true,
+          icon: VideoPause,
+          class: "job-action job-action--stop",
+          onClick: () => handleStop(row.id, row.name)
+        },
+        () => "停止"
+      )
+    );
+  }
+
+  if (row.status === Status.ENABLE && (row.entryId === undefined || row.entryId === 0) && BUTTONS.value["base:job:exec"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `exec-${row.id}`,
+          type: "success",
+          link: true,
+          icon: Promotion,
+          class: "job-action job-action--exec",
+          onClick: () => handleExec(row.id, row.name)
+        },
+        () => "执行一次"
+      )
+    );
+  }
+
+  if (BUTTONS.value["base:job:log"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `log-${row.id}`,
+          type: "primary",
+          link: true,
+          icon: Tickets,
+          class: "job-action job-action--log",
+          onClick: () => handleOpenBaseJob(row.id, row.name)
+        },
+        () => "日志"
+      )
+    );
+  }
+
+  if (!actionNodes.length) return "--";
+  return h(
+    "div",
+    {
+      class: "job-operation",
+      key: `job-operation-${row.id}`
+    },
+    actionNodes
+  );
+}
+
 /** 定时任务表单字段配置。 */
 const formFields: ProFormField[] = [
   { prop: "name", label: "任务名称", component: "input", props: { placeholder: "请输入任务名称" } },
@@ -151,7 +244,7 @@ const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
   { prop: "name", label: "任务名称", search: { el: "input" } },
   { prop: "invokeTarget", label: "调用目标", search: { el: "input" } },
-  { prop: "args", label: "参数" },
+  { prop: "args", label: "参数", render: scope => renderArgsCell(scope as unknown as RenderScope<BaseJob>) },
   { prop: "cronExpression", label: "cron表达式", align: "center" },
   { prop: "entryId", label: "任务id", align: "right" },
   {
@@ -171,7 +264,13 @@ const columns: ColumnProps[] = [
   },
   { prop: "createdAt", label: "创建时间", width: 180 },
   { prop: "updatedAt", label: "更新时间", width: 180 },
-  { prop: "operation", label: "操作", width: 240, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 380,
+    fixed: "right",
+    render: scope => renderOperationCell(scope as unknown as RenderScope<BaseJob>)
+  }
 ];
 
 /** 定时任务顶部按钮配置。 */
@@ -192,32 +291,6 @@ const headerActions: HeaderActionProps[] = [
     onClick: scope => handleDelete(scope.selectedList as BaseJob[])
   }
 ];
-
-/**
- * 判断当前任务是否需要展示“更多”操作菜单。
- */
-function showMoreMenu(row: BaseJob) {
-  let count = 0;
-  // 脚本中读取 computed 需显式取 value，否则权限判断始终为 false。
-  if (row.status === Status.ENABLE && row.entryId === 0 && BUTTONS.value["base:job:start"]) count += 1;
-  if (row.status === Status.ENABLE && row.entryId > 0 && BUTTONS.value["base:job:stop"]) count += 1;
-  if (row.status === Status.ENABLE && BUTTONS.value["base:job:exec"]) count += 1;
-  if (BUTTONS.value["base:job:log"]) count += 1;
-  return count > 0;
-}
-
-/**
- * 分发定时任务更多菜单命令。
- */
-function handleMenuCommand(command: string, row: BaseJob) {
-  const actions: Record<string, () => void> = {
-    start: () => handleStart(row.id, row.name),
-    stop: () => handleStop(row.id, row.name),
-    exec: () => handleExec(row.id, row.name),
-    log: () => handleOpenBaseJob(row.id, row.name)
-  };
-  actions[command]?.();
-}
 
 /**
  * 请求定时任务列表，并由 ProTable 统一维护分页与搜索参数。
@@ -280,7 +353,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseJobForm;
     const request = submitData.id ? defBaseJobService.UpdateBaseJob(submitData) : defBaseJobService.CreateBaseJob(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改定时任务成功" : "新增定时任务成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -295,7 +368,7 @@ async function handleBeforeSetStatus(row: BaseJob) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const jobName = row.name || row.invokeTarget || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}定时任务：${jobName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}定时任务？\n任务名称：${jobName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -326,9 +399,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     return;
   }
 
+  const singleJobName = jobList[0]?.name || jobList[0]?.invokeTarget || `ID:${jobList[0]?.id ?? ""}`;
   const confirmMessage = jobList.length
     ? jobList.length === 1
-      ? `是否确定删除定时任务：${jobList[0].name || jobList[0].invokeTarget || `ID:${jobList[0].id}`}？`
+      ? `是否确定删除定时任务？\n任务名称：${singleJobName}`
       : `确认删除已选中的 ${jobList.length} 个定时任务吗？`
     : "确认删除已选中的定时任务吗？";
 
@@ -339,12 +413,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseJobService.DeleteBaseJob({ value: jobIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除定时任务成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除定时任务");
     }
   );
 }
@@ -353,7 +427,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  * 启动定时任务。
  */
 function handleStart(id: number, name: string) {
-  ElMessageBox.confirm(`确定启动【${name}】定时任务?`, "警告", {
+  ElMessageBox.confirm(`是否确定启动定时任务？\n任务名称：${name}`, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
@@ -365,7 +439,7 @@ function handleStart(id: number, name: string) {
       });
     },
     () => {
-      ElMessage.info("已取消启动");
+      ElMessage.info("已取消启动定时任务");
     }
   );
 }
@@ -374,7 +448,7 @@ function handleStart(id: number, name: string) {
  * 停止定时任务。
  */
 function handleStop(id: number, name: string) {
-  ElMessageBox.confirm(`确定停止【${name}】定时任务?`, "警告", {
+  ElMessageBox.confirm(`是否确定停止定时任务？\n任务名称：${name}`, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
@@ -386,7 +460,7 @@ function handleStop(id: number, name: string) {
       });
     },
     () => {
-      ElMessage.info("已取消停止");
+      ElMessage.info("已取消停止定时任务");
     }
   );
 }
@@ -395,7 +469,7 @@ function handleStop(id: number, name: string) {
  * 执行一次定时任务。
  */
 function handleExec(id: number, name: string) {
-  ElMessageBox.confirm(`确定执行【${name}】定时任务?`, "警告", {
+  ElMessageBox.confirm(`是否确定执行一次定时任务？\n任务名称：${name}`, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
@@ -407,7 +481,7 @@ function handleExec(id: number, name: string) {
       });
     },
     () => {
-      ElMessage.info("已取消执行");
+      ElMessage.info("已取消执行定时任务");
     }
   );
 }
@@ -426,8 +500,34 @@ function handleOpenBaseJob(id: number, name: string) {
 <style scoped>
 .job-operation {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px 10px;
   white-space: nowrap;
+}
+
+.job-action {
+  margin-left: 0;
+  font-weight: 500;
+}
+
+.job-action:deep(.el-icon) {
+  margin-right: 4px;
+}
+
+.job-action--start {
+  --el-button-text-color: var(--el-color-primary);
+}
+
+.job-action--stop {
+  --el-button-text-color: var(--el-color-warning);
+}
+
+.job-action--exec {
+  --el-button-text-color: var(--el-color-success);
+}
+
+.job-action--log {
+  --el-button-text-color: var(--el-color-info);
 }
 </style>

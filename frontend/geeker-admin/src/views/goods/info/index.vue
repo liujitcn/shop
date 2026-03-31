@@ -19,28 +19,11 @@
         :request-api="requestGoodsTable"
         :init-param="initParam"
       >
-        <template #picture="scope">
-          <el-popover placement="right" :width="400" trigger="hover">
-            <img :src="formatSrc(scope.row.picture)" width="400" height="400" />
-            <template #reference>
-              <img :src="formatSrc(scope.row.picture)" class="goods-picture" />
-            </template>
-          </el-popover>
-        </template>
-
         <template #name="scope">
           <el-link v-if="BUTTONS['goods:info:detail']" type="primary" @click.stop="handleOpenDetail(scope.row)">
             {{ scope.row.name }}
           </el-link>
           <span v-else>{{ scope.row.name }}</span>
-        </template>
-
-        <template #price="scope">
-          {{ formatPrice(scope.row.price) }}
-        </template>
-
-        <template #discountPrice="scope">
-          {{ formatPrice(scope.row.discountPrice) }}
         </template>
       </ProTable>
     </div>
@@ -49,6 +32,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, List, Tickets } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
@@ -59,10 +43,8 @@ import { defGoodsService } from "@/api/admin/goods";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
 import type { Goods, PageGoodsRequest } from "@/rpc/admin/goods";
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
-import router from "@/routers";
 import { GoodsStatus } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
-import { formatPrice, formatSrc } from "@/utils/utils";
 
 defineOptions({
   name: "Goods",
@@ -77,6 +59,7 @@ type CategoryFilterNode = {
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
+const router = useRouter();
 
 const initParam = reactive({
   categoryId: undefined as number | undefined
@@ -86,14 +69,25 @@ const categoryFilterValue = ref("");
 /** 商品表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "picture", label: "商品主图", width: 110 },
+  {
+    prop: "picture",
+    label: "商品主图",
+    minWidth: 150,
+    cellType: "image",
+    imageProps: {
+      previewWidth: 400,
+      previewHeight: 400,
+      width: 60,
+      height: 60
+    }
+  },
   { prop: "name", label: "商品名称", minWidth: 200, search: { el: "input" } },
   { prop: "categoryName", label: "分类", width: 140 },
   { prop: "desc", label: "商品描述", minWidth: 200 },
   { prop: "initSaleNum", label: "初始销量", align: "right" },
   { prop: "realSaleNum", label: "真实销量", align: "right" },
-  { prop: "price", label: "价格（元）", align: "right" },
-  { prop: "discountPrice", label: "折扣价格（元）", align: "right" },
+  { prop: "price", label: "价格（元）", align: "right", cellType: "money" },
+  { prop: "discountPrice", label: "折扣价格（元）", align: "right", cellType: "money" },
   {
     prop: "status",
     label: "状态",
@@ -114,7 +108,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 260,
+    width: 300,
     fixed: "right",
     cellType: "actions",
     actions: [
@@ -125,6 +119,14 @@ const columns: ColumnProps[] = [
         icon: List,
         hidden: () => !BUTTONS.value["goods:info:sku"],
         onClick: scope => handleOpenSku(scope.row as Goods)
+      },
+      {
+        label: "属性",
+        type: "primary",
+        link: true,
+        icon: Tickets,
+        hidden: () => !BUTTONS.value["goods:info:prop"],
+        onClick: scope => handleOpenProp(scope.row as Goods)
       },
       {
         label: "编辑",
@@ -141,14 +143,6 @@ const columns: ColumnProps[] = [
         icon: Delete,
         hidden: () => !BUTTONS.value["goods:info:delete"],
         onClick: scope => handleDelete(scope.row as Goods)
-      },
-      {
-        label: "属性",
-        type: "primary",
-        link: true,
-        icon: Tickets,
-        hidden: () => !BUTTONS.value["goods:info:prop"],
-        onClick: scope => handleOpenProp(scope.row as Goods)
       }
     ]
   }
@@ -220,20 +214,26 @@ async function requestGoodsTable(params: PageGoodsRequest) {
 }
 
 /**
+ * 统一处理页面跳转；若路由实例未生效，则降级为浏览器地址跳转。
+ */
+function navigateTo(path: string, query?: Record<string, string | number>) {
+  const target = { path, query };
+  router.push(target).catch(() => {
+    const resolved = router.resolve(target);
+    window.location.href = resolved.href;
+  });
+}
+
+/**
  * 打开商品编辑页。
  */
 function handleOpenDialog(row?: Goods) {
   if (row?.id) {
-    router.push({
-      path: "/goods/edit",
-      query: { goodsId: row.id, title: `【${row.name}】商品编辑` }
-    });
+    navigateTo("/goods/edit", { goodsId: row.id, title: `【${row.name}】商品编辑` });
     return;
   }
 
-  router.push({
-    path: "/goods/edit"
-  });
+  navigateTo("/goods/edit");
 }
 
 /**
@@ -244,7 +244,7 @@ async function handleBeforeSetStatus(row: Goods) {
   const text = nextStatus === GoodsStatus.PUT_ON ? "上架" : "下架";
   const goodsName = row.name || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}商品：${goodsName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}商品？\n商品名称：${goodsName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -277,7 +277,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
 
   const confirmMessage = goodsList.length
     ? goodsList.length === 1
-      ? `是否确定删除商品：${goodsList[0].name || `ID:${goodsList[0].id}`}？`
+      ? `是否确定删除商品？\n商品名称：${goodsList[0].name || `ID:${goodsList[0].id}`}`
       : `确认删除已选中的 ${goodsList.length} 个商品吗？`
     : "确认删除已选中的商品吗？";
 
@@ -288,12 +288,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
   }).then(
     () => {
       defGoodsService.DeleteGoods({ value: goodsIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除商品成功");
         proTable.value?.search();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除商品");
     }
   );
 }
@@ -302,38 +302,20 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
  * 打开商品属性页。
  */
 function handleOpenProp(row: Goods) {
-  router.push({
-    path: "/goods/prop",
-    query: { goodsId: row.id, title: `【${row.name}】商品属性` }
-  });
+  navigateTo("/goods/prop", { goodsId: row.id, title: `【${row.name}】商品属性` });
 }
 
 /**
  * 打开商品规格页。
  */
 function handleOpenSku(row: Goods) {
-  router.push({
-    path: "/goods/sku",
-    query: { goodsId: row.id, title: `【${row.name}】商品规格` }
-  });
+  navigateTo("/goods/sku", { goodsId: row.id, title: `【${row.name}】商品规格` });
 }
 
 /**
  * 打开商品详情页。
  */
 function handleOpenDetail(row: Goods) {
-  router.push({
-    path: "/goods/detail",
-    query: { goodsId: row.id, title: `【${row.name}】商品详情` }
-  });
+  navigateTo("/goods/detail", { goodsId: row.id, title: `【${row.name}】商品详情` });
 }
 </script>
-
-<style scoped>
-.goods-picture {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-</style>

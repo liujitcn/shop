@@ -27,7 +27,7 @@ import { ArrowRight } from "@element-plus/icons-vue";
 import { useAuthStore } from "@/stores/modules/auth";
 import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/admin/auth";
-import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
+import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 
 const route = useRoute();
 const router = useRouter();
@@ -48,7 +48,12 @@ const breadcrumbList = computed(() => {
 
 // Click Breadcrumb
 const onBreadcrumbClick = (item: RouteItem, index: number) => {
-  if (index !== breadcrumbList.value.length - 1 && item.path) router.push(item.path);
+  if (index === breadcrumbList.value.length - 1 || !item.path) return;
+  if (isExternalPath(item.path)) {
+    window.open(item.path, "_blank", "noopener,noreferrer");
+    return;
+  }
+  router.push(item.path);
 };
 </script>
 

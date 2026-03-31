@@ -3,6 +3,7 @@
     :model-value="modelValue"
     :title="title"
     :width="width"
+    :top="top"
     :confirm-text="confirmText"
     :cancel-text="cancelText"
     :confirm-loading="confirmLoading"
@@ -48,6 +49,7 @@ interface FormDialogProps {
   modelValue: boolean;
   title?: string;
   width?: string | number;
+  top?: string;
   model: Record<string, any>;
   fields: ProFormField[];
   rules?: FormRules;
@@ -66,6 +68,7 @@ interface FormDialogProps {
 withDefaults(defineProps<FormDialogProps>(), {
   title: "",
   width: "500px",
+  top: "8vh",
   rules: () => ({}),
   labelWidth: "110px",
   gutter: 20,

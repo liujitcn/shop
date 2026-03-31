@@ -7,14 +7,6 @@
         </el-link>
         <span v-else>{{ scope.row.filePath }}</span>
       </template>
-
-      <template #totalAmount="scope">
-        {{ formatPrice(scope.row.totalAmount) }}
-      </template>
-
-      <template #thirdTotalAmount="scope">
-        {{ formatPrice(scope.row.thirdTotalAmount) }}
-      </template>
     </ProTable>
   </div>
 </template>
@@ -27,7 +19,6 @@ import { defPayBillService } from "@/api/admin/pay_bill";
 import { defFileService } from "@/api/base/file";
 import type { PayBill, PagePayBillRequest } from "@/rpc/admin/pay_bill";
 import { buildPageRequest } from "@/utils/proTable";
-import { formatPrice } from "@/utils/utils";
 
 defineOptions({
   name: "PayBill",
@@ -42,9 +33,9 @@ const columns: ColumnProps[] = [
   { prop: "billType", label: "账单类型" },
   { prop: "filePath", label: "文件路径", width: 300 },
   { prop: "totalCount", label: "总笔数", align: "right" },
-  { prop: "totalAmount", label: "总金额（元）", align: "right" },
+  { prop: "totalAmount", label: "总金额（元）", align: "right", cellType: "money" },
   { prop: "thirdTotalCount", label: "对账文件总笔数", align: "right", width: 140 },
-  { prop: "thirdTotalAmount", label: "对账文件总金额（元）", align: "right", width: 160 },
+  { prop: "thirdTotalAmount", label: "对账文件总金额（元）", align: "right", width: 160, cellType: "money" },
   { prop: "status", label: "对账状态", width: 120, dictCode: "pay_bill_status" }
 ];
 

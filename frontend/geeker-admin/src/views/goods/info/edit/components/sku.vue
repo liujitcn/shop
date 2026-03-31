@@ -4,22 +4,14 @@
       <div class="mb-10px">
         <el-button type="success" icon="plus" @click="handleOpenGoodsSpecDialog()">添加</el-button>
       </div>
-      <el-table :data="formData.specList" highlight-current-row border>
-        <el-table-column type="index" width="50" />
-        <el-table-column label="规格名称" prop="name" />
-        <el-table-column label="规格内容" prop="item" />
-        <el-table-column label="排序" prop="sort" />
-        <el-table-column label="操作" width="150" align="center">
-          <template #default="scope">
-            <el-button type="primary" size="small" link icon="edit" @click="handleOpenGoodsSpecDialog(scope.$index, scope.row)">
-              编辑
-            </el-button>
-            <el-button type="danger" size="small" link icon="delete" @click="handleDeleteGoodsSpec(scope.$index)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <ProTable :data="formData.specList" :columns="specColumns" :pagination="false" :tool-button="false">
+        <template #operation="scope">
+          <el-button type="primary" size="small" link icon="edit" @click="handleOpenGoodsSpecDialog(scope.$index, scope.row)">
+            编辑
+          </el-button>
+          <el-button type="danger" size="small" link icon="delete" @click="handleDeleteGoodsSpec(scope.$index)"> 删除 </el-button>
+        </template>
+      </ProTable>
     </el-card>
 
     <el-card shadow="never">
@@ -27,64 +19,43 @@
         <span>商品库存</span>
       </template>
       <el-form ref="skuFormRef" :model="formData" size="small">
-        <el-table :data="formData.skuList" highlight-current-row border>
-          <el-table-column type="index" width="50" />
-          <el-table-column
-            v-for="(item, index) in formData.specList"
-            :key="index"
-            align="center"
-            :prop="'specItem' + index"
-            :label="item.name"
-          />
+        <ProTable :key="skuTableKey" :data="formData.skuList" :columns="skuColumns" :pagination="false" :tool-button="false">
+          <template #skuCode="scope">
+            <el-form-item :prop="'skuList[' + scope.$index + '].skuCode'" :rules="rules.skuCode">
+              <el-input v-model="scope.row.skuCode" />
+            </el-form-item>
+          </template>
 
-          <el-table-column label="规格编号" align="center">
-            <template #default="scope">
-              <el-form-item :prop="'skuList[' + scope.$index + '].skuCode'" :rules="rules.skuCode">
-                <el-input v-model="scope.row.skuCode" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+          <template #price="scope">
+            <el-form-item :prop="'skuList[' + scope.$index + '].price'" :rules="rules.price">
+              <el-input-number v-model="scope.row.price" :min="0.01" :precision="2" :step="0.01" />
+            </el-form-item>
+          </template>
 
-          <el-table-column label="价格（元）" align="center">
-            <template #default="scope">
-              <el-form-item :prop="'skuList[' + scope.$index + '].price'" :rules="rules.price">
-                <el-input-number v-model="scope.row.price" :min="0.01" :precision="2" :step="0.01" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+          <template #discountPrice="scope">
+            <el-form-item :prop="'skuList[' + scope.$index + '].discountPrice'" :rules="rules.discountPrice">
+              <el-input-number v-model="scope.row.discountPrice" :min="0.01" :precision="2" :step="0.01" />
+            </el-form-item>
+          </template>
 
-          <el-table-column label="折扣价格（元）" align="center">
-            <template #default="scope">
-              <el-form-item :prop="'skuList[' + scope.$index + '].discountPrice'" :rules="rules.discountPrice">
-                <el-input-number v-model="scope.row.discountPrice" :min="0.01" :precision="2" :step="0.01" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+          <template #inventory="scope">
+            <el-form-item :prop="'skuList[' + scope.$index + '].inventory'" :rules="rules.inventory">
+              <el-input-number v-model="scope.row.inventory" controls-position="right" :min="1" :precision="0" :step="1" />
+            </el-form-item>
+          </template>
 
-          <el-table-column label="库存" align="center">
-            <template #default="scope">
-              <el-form-item :prop="'skuList[' + scope.$index + '].inventory'" :rules="rules.inventory">
-                <el-input-number v-model="scope.row.inventory" controls-position="right" :min="1" :precision="0" :step="1" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+          <template #picture="scope">
+            <el-form-item :prop="'skuList[' + scope.$index + '].picture'">
+              <UploadImg v-model:image-url="scope.row.picture" />
+            </el-form-item>
+          </template>
 
-          <el-table-column label="规格图片" align="center">
-            <template #default="scope">
-              <el-form-item :prop="'skuList[' + scope.$index + '].picture'">
-                <UploadImg v-model:image-url="scope.row.picture" />
-              </el-form-item>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="初始销量" align="center">
-            <template #default="scope">
-              <el-form-item :prop="'skuList[' + scope.$index + '].initSaleNum'">
-                <el-input-number v-model="scope.row.initSaleNum" controls-position="right" :min="0" :precision="0" :step="1" />
-              </el-form-item>
-            </template>
-          </el-table-column>
-        </el-table>
+          <template #initSaleNum="scope">
+            <el-form-item :prop="'skuList[' + scope.$index + '].initSaleNum'">
+              <el-input-number v-model="scope.row.initSaleNum" controls-position="right" :min="0" :precision="0" :step="1" />
+            </el-form-item>
+          </template>
+        </ProTable>
       </el-form>
       <template #footer>
         <el-button @click="handlePrev">上一步，设置商品属性</el-button>
@@ -93,7 +64,7 @@
     </el-card>
 
     <!-- 规格表单弹窗 -->
-    <el-dialog v-model="specDialog.visible" :title="specDialog.title" width="500px" @close="handleCloseGoodsSpecDialog">
+    <ProDialog v-model="specDialog.visible" :title="specDialog.title" width="500px" @close="handleCloseGoodsSpecDialog">
       <el-form ref="specFormRef" :model="specDialog.specFormData" :rules="specDialog.rules" label-suffix=":" label-width="100px">
         <el-form-item label="规格名称" prop="name">
           <el-input v-model="specDialog.specFormData.name" placeholder="请输入规格名称" />
@@ -130,24 +101,28 @@
           <el-button @click="handleCloseGoodsSpecDialog">取消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref, toRefs } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import { ElMessage, ElNotification } from "element-plus";
 import { Delete } from "@element-plus/icons-vue";
+import type { ColumnProps } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import UploadImg from "@/components/Upload/Img.vue";
 import { defGoodsService } from "@/api/admin/goods";
 import type { GoodsSpec } from "@/rpc/admin/goods_spec";
+import { useTabsStore } from "@/stores/modules/tabs";
 defineOptions({
   name: "GoodsEditSku",
   inheritAttrs: false
 });
 const emit = defineEmits(["prev", "next", "update:modelValue", "resetForm"]);
-
-const router = useRouter();
+const route = useRoute();
+const tabsStore = useTabsStore();
 
 type SkuItem = Record<string, any> & {
   id: number;
@@ -202,6 +177,37 @@ const state = reactive({
 
 const { rules } = toRefs(state);
 
+const specColumns: ColumnProps[] = [
+  { type: "index", width: 50 },
+  { prop: "name", label: "规格名称" },
+  { prop: "item", label: "规格内容" },
+  { prop: "sort", label: "排序", width: 100, align: "right" },
+  { prop: "operation", label: "操作", width: 150, align: "center" }
+];
+
+const skuColumns = computed<ColumnProps[]>(() => {
+  const dynamicSpecColumns = (formData.value.specList ?? []).map((item: GoodsSpec, index: number) => ({
+    prop: `specItem${index}`,
+    label: item.name,
+    align: "center"
+  }));
+
+  return [
+    { type: "index", width: 50 },
+    ...dynamicSpecColumns,
+    { prop: "skuCode", label: "规格编号", align: "center", minWidth: 160 },
+    { prop: "price", label: "价格（元）", align: "center", width: 150 },
+    { prop: "discountPrice", label: "折扣价格（元）", align: "center", width: 150 },
+    { prop: "inventory", label: "库存", align: "center", width: 140 },
+    { prop: "picture", label: "规格图片", align: "center", width: 180 },
+    { prop: "initSaleNum", label: "初始销量", align: "center", width: 140 }
+  ];
+});
+
+const skuTableKey = computed(() =>
+  (formData.value.specList ?? []).map((item: GoodsSpec) => `${item.name}:${(item.item ?? []).join(",")}`).join("|")
+);
+
 // 规格弹窗状态
 const specDialog = reactive({
   visible: false,
@@ -222,19 +228,20 @@ const specDialog = reactive({
   }
 });
 
-// 添加规格项
+/** 添加规格项输入框。 */
 const addGoodsSpecItem = () => {
   specDialog.specFormData.item.push("");
 };
 
-// 删除规格项
+/** 删除指定规格项输入框。 */
 const removeGoodsSpecItem = (index: number) => {
   specDialog.specFormData.item.splice(index, 1);
 };
 
-// 打开规格弹窗
+/** 打开规格弹窗，并在编辑态回填规格数据。 */
 function handleOpenGoodsSpecDialog(index?: number, row?: GoodsSpec) {
   ensureSkuFormArrays();
+  resetGoodsSpecForm();
   specDialog.visible = true;
   if (row) {
     const specFormData = JSON.parse(JSON.stringify(row));
@@ -248,7 +255,7 @@ function handleOpenGoodsSpecDialog(index?: number, row?: GoodsSpec) {
   }
 }
 
-// 规格表单提交
+/** 提交规格表单并重建 SKU 组合。 */
 function handleGoodsSpecSubmit() {
   specFormRef.value.validate((valid: any) => {
     if (valid) {
@@ -260,23 +267,24 @@ function handleGoodsSpecSubmit() {
         formData.value.specList.push(specFormData);
       }
       formData.value.specList.sort((item1: GoodsSpec, item2: GoodsSpec) => item1.sort - item2.sort);
-      ElMessage.success("保存成功");
+      ElMessage.success("保存规格成功");
       generateSkuList();
       handleCloseGoodsSpecDialog();
     }
   });
 }
 
-// 重置表单
+/** 重置规格弹窗表单，避免新增与编辑切换时残留旧值。 */
 function resetGoodsSpecForm() {
-  specFormRef.value.resetFields();
-  specFormRef.value.clearValidate();
+  specFormRef.value?.resetFields();
+  specFormRef.value?.clearValidate();
   specDialog.specFormData.id = 0;
+  specDialog.specFormData.name = "";
   specDialog.specFormData.sort = 1;
   specDialog.specFormData.item = [""]; // 需要手动清空动态字段
 }
 
-// 关闭规格弹窗
+/** 关闭规格弹窗并恢复默认表单状态。 */
 function handleCloseGoodsSpecDialog() {
   specDialog.visible = false;
   resetGoodsSpecForm();
@@ -414,60 +422,85 @@ function handlePrev() {
 /**
  * 商品表单提交
  */
-function submitForm() {
-  skuFormRef.value.validate((skuValid: any) => {
-    if (skuValid) {
-      // 重组商品的规格和SKU列表
-      let submitsData = JSON.parse(JSON.stringify(formData.value));
+async function submitForm() {
+  ensureSkuFormArrays();
 
-      // 编辑sku
-      const skuList = submitsData.skuList;
-      skuList.map((obj: SkuItem) => {
-        let specItemMap: Record<string, any> = {};
-        Object.entries(obj).forEach(([key, value]) => {
-          if (isDynamicSpecItemKey(key)) {
-            specItemMap[key] = value;
-          }
-          if (key.endsWith("rice")) {
-            obj[key] = value * 100;
-          }
-        });
-        let specItemList: string[] = [];
-        Object.keys(specItemMap)
-          .sort()
-          .forEach(key => {
-            const specItem = specItemMap[key];
-            specItemList.push(String(specItem));
-          });
-        obj["specItem"] = specItemList;
-      });
+  if (!formData.value.skuList.length) {
+    ElMessage.warning("请先添加商品规格并生成库存组合");
+    return;
+  }
 
-      const goodsId = submitsData.id;
-      if (goodsId) {
-        // 编辑商品提交
-        defGoodsService.UpdateGoods(submitsData).then(() => {
-          emit("resetForm");
-          router.go(-1);
-          ElNotification({
-            title: "提示",
-            message: "编辑商品成功",
-            type: "success"
-          });
-        });
-      } else {
-        // 新增商品提交
-        defGoodsService.CreateGoods(submitsData).then(() => {
-          emit("resetForm");
-          router.go(-1);
-          ElNotification({
-            title: "提示",
-            message: "新增商品成功",
-            type: "success"
-          });
-        });
-      }
-    }
+  const hasInvalidSku = formData.value.skuList.some((item: SkuItem) => {
+    const skuCode = String(item.skuCode ?? "").trim();
+    const price = Number(item.price ?? 0);
+    const discountPrice = Number(item.discountPrice ?? 0);
+    const inventory = Number(item.inventory ?? 0);
+    const initSaleNum = Number(item.initSaleNum ?? 0);
+    return (
+      !skuCode ||
+      !Number.isFinite(price) ||
+      price < 0.01 ||
+      !Number.isFinite(discountPrice) ||
+      discountPrice < 0.01 ||
+      !Number.isInteger(inventory) ||
+      inventory < 1 ||
+      !Number.isInteger(initSaleNum) ||
+      initSaleNum < 0
+    );
   });
+  if (hasInvalidSku) {
+    ElMessage.warning("请完善商品库存信息后再提交");
+    return;
+  }
+
+  // 重组商品的规格和SKU列表
+  const submitsData = JSON.parse(JSON.stringify(formData.value));
+
+  const skuList = submitsData.skuList;
+  skuList.map((obj: SkuItem) => {
+    const specItemMap: Record<string, any> = {};
+    Object.entries(obj).forEach(([key, value]) => {
+      if (isDynamicSpecItemKey(key)) {
+        specItemMap[key] = value;
+      }
+      if (key.endsWith("rice")) {
+        obj[key] = value * 100;
+      }
+    });
+    const specItemList: string[] = [];
+    Object.keys(specItemMap)
+      .sort()
+      .forEach(key => {
+        const specItem = specItemMap[key];
+        specItemList.push(String(specItem));
+      });
+    obj.specItem = specItemList;
+  });
+
+  try {
+    const goodsId = submitsData.id;
+    if (goodsId) {
+      await defGoodsService.UpdateGoods(submitsData);
+      ElNotification({
+        title: "提示",
+        message: "编辑商品成功",
+        type: "success"
+      });
+      tabsStore.removeTabs(route.fullPath);
+      return;
+    }
+
+    await defGoodsService.CreateGoods(submitsData);
+    emit("resetForm");
+    ElNotification({
+      title: "提示",
+      message: "新增商品成功",
+      type: "success"
+    });
+    tabsStore.removeTabs(route.fullPath);
+  } catch (error: any) {
+    ElMessage.error(error?.message || "提交商品失败");
+  }
 }
 </script>
 <style scoped>

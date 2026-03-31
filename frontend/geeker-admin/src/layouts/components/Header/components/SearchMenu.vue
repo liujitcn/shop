@@ -40,7 +40,7 @@ import { useAuthStore } from "@/stores/modules/auth";
 import { useRouter } from "vue-router";
 import { useDebounceFn } from "@vueuse/core";
 import type { RouteItem } from "@/rpc/admin/auth";
-import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
+import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 
 interface SearchRouteItem extends RouteItem {
   path: string;
@@ -127,7 +127,11 @@ const keyboardOperation = (event: KeyboardEvent) => {
 const handleClickMenu = () => {
   const menu = searchList.value.find(item => item.path === activePath.value);
   if (!menu) return;
-  router.push(menu.path);
+  if (isExternalPath(menu.path)) {
+    window.open(menu.path, "_blank", "noopener,noreferrer");
+  } else {
+    router.push(menu.path);
+  }
   searchMenu.value = "";
   isShowSearch.value = false;
 };

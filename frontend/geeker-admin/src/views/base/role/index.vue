@@ -22,28 +22,33 @@
     />
 
     <el-drawer v-model="assignPermDialogVisible" :title="`【${checkedBaseRole.name}】权限分配`" size="500">
-      <div class="flex-x-between">
-        <el-input v-model="permKeywords" clearable class="w-[150px]" placeholder="菜单权限名称">
+      <div class="perm-toolbar">
+        <el-input v-model="permKeywords" clearable class="perm-search" placeholder="菜单权限名称">
           <template #prefix>
             <Search />
           </template>
         </el-input>
 
-        <div class="flex-center ml-5">
-          <el-button type="primary" size="small" plain @click="togglePermTree">
-            <template #icon>
-              <Switch />
-            </template>
-            {{ isExpanded ? "收缩" : "展开" }}
-          </el-button>
-          <el-checkbox v-model="parentChildLinked" class="ml-5" @change="handelParentChildLinkedChange">父子联动</el-checkbox>
-
-          <el-tooltip placement="bottom">
-            <template #content>如果只需勾选菜单权限，不需要勾选子菜单或者按钮权限，请关闭父子联动</template>
-            <el-icon class="ml-1 color-[--el-color-primary] inline-block cursor-pointer">
-              <QuestionFilled />
-            </el-icon>
-          </el-tooltip>
+        <div class="perm-toolbar__actions">
+          <div class="perm-toolbar__group">
+            <span class="perm-toolbar__label">树操作</span>
+            <el-button type="primary" size="small" plain class="perm-toolbar__button" @click="togglePermTree">
+              <template #icon>
+                <Switch />
+              </template>
+              {{ isExpanded ? "收缩节点" : "展开节点" }}
+            </el-button>
+          </div>
+          <div class="perm-toolbar__group perm-toolbar__group--linkage">
+            <span class="perm-toolbar__label">勾选模式</span>
+            <el-checkbox v-model="parentChildLinked" @change="handelParentChildLinkedChange">父子联动</el-checkbox>
+            <el-tooltip placement="bottom">
+              <template #content>如果只需勾选菜单权限，不需要勾选子菜单或者按钮权限，请关闭父子联动</template>
+              <el-icon class="perm-linkage__icon">
+                <QuestionFilled />
+              </el-icon>
+            </el-tooltip>
+          </div>
         </div>
       </div>
 
@@ -197,7 +202,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 220,
+    width: 280,
     fixed: "right",
     cellType: "actions",
     actions: [
@@ -304,7 +309,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseRoleForm;
     const request = submitData.id ? defBaseRoleService.UpdateBaseRole(submitData) : defBaseRoleService.CreateBaseRole(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改角色成功" : "新增角色成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -342,7 +347,7 @@ async function handleBeforeSetStatus(row: BaseRole) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const roleName = row.name || row.code || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}角色：${roleName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}角色？\n角色名称：${roleName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -375,7 +380,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = roleList.length
     ? roleList.length === 1
-      ? `是否确定删除角色：${roleList[0].name || roleList[0].code || `ID:${roleList[0].id}`}？`
+      ? `是否确定删除角色？\n角色名称：${roleList[0].name || roleList[0].code || `ID:${roleList[0].id}`}`
       : `确认删除已选中的 ${roleList.length} 个角色吗？`
     : "确认删除已选中的角色吗？";
 
@@ -386,12 +391,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseRoleService.DeleteBaseRole({ value: roleIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除角色成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除角色");
     }
   );
 }
@@ -458,3 +463,83 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   parentChildLinked.value = Boolean(val);
 }
 </script>
+
+<style scoped>
+.perm-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+  border: 1px solid #e4eaf3;
+  border-radius: 12px;
+}
+
+.perm-search {
+  width: 100%;
+}
+
+.perm-toolbar__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.perm-toolbar__group {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #e4eaf3;
+  border-radius: 10px;
+}
+
+.perm-toolbar__group--linkage {
+  margin-left: auto;
+}
+
+.perm-toolbar__label {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.perm-toolbar__button {
+  min-width: 98px;
+  border-color: var(--el-color-primary-light-5);
+  background: #fff;
+}
+
+.perm-toolbar__button:hover,
+.perm-toolbar__button:focus-visible {
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-5);
+}
+
+.perm-linkage__icon {
+  color: var(--el-color-primary);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .perm-toolbar__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .perm-toolbar__group,
+  .perm-toolbar__group--linkage {
+    justify-content: space-between;
+    margin-left: 0;
+    width: 100%;
+  }
+}
+</style>

@@ -5,38 +5,29 @@
         <el-button type="success" icon="plus" @click="handleAdd()">添加</el-button>
       </div>
       <el-form ref="dataFormRef" :model="formData" :rules="rules" :inline="true">
-        <el-table :data="formData.propList" highlight-current-row border>
-          <el-table-column type="index" width="50" />
-          <el-table-column property="label" label="属性名称">
-            <template #default="scope">
-              <el-form-item :prop="'propList[' + scope.$index + '].label'" :rules="rules.label">
-                <el-input v-model="scope.row.label" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+        <ProTable row-key="sort" :data="formData.propList" :columns="columns" :pagination="false" :tool-button="false">
+          <template #label="scope">
+            <el-form-item :prop="'propList[' + scope.$index + '].label'" :rules="rules.label">
+              <el-input v-model="scope.row.label" />
+            </el-form-item>
+          </template>
 
-          <el-table-column property="value" label="属性值">
-            <template #default="scope">
-              <el-form-item :prop="'propList[' + scope.$index + '].value'" :rules="rules.value">
-                <el-input v-model="scope.row.value" type="textarea" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+          <template #value="scope">
+            <el-form-item :prop="'propList[' + scope.$index + '].value'" :rules="rules.value">
+              <el-input v-model="scope.row.value" type="textarea" />
+            </el-form-item>
+          </template>
 
-          <el-table-column property="sort" label="排序">
-            <template #default="scope">
-              <el-form-item :prop="'propList[' + scope.$index + '].sort'" :rules="rules.sort">
-                <el-input-number v-model="scope.row.sort" controls-position="right" :min="1" :precision="0" :step="1" />
-              </el-form-item>
-            </template>
-          </el-table-column>
+          <template #sort="scope">
+            <el-form-item :prop="'propList[' + scope.$index + '].sort'" :rules="rules.sort">
+              <el-input-number v-model="scope.row.sort" controls-position="right" :min="1" :precision="0" :step="1" />
+            </el-form-item>
+          </template>
 
-          <el-table-column label="操作" width="150" align="center">
-            <template #default="scope">
-              <el-button type="danger" size="small" link icon="delete" @click.stop="handleRemove(scope.$index)"> 删除 </el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+          <template #operation="scope">
+            <el-button type="danger" size="small" link icon="delete" @click.stop="handleRemove(scope.$index)"> 删除 </el-button>
+          </template>
+        </ProTable>
       </el-form>
       <template #footer>
         <el-button @click="handlePrev">上一步，填写商品信息</el-button>
@@ -47,6 +38,9 @@
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref, toRefs } from "vue";
+import { ElMessage } from "element-plus";
+import type { ColumnProps } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
 defineOptions({
   name: "GoodsEditGoodsProp",
   inheritAttrs: false
@@ -85,6 +79,14 @@ const state = reactive({
 
 const { rules } = toRefs(state);
 
+const columns: ColumnProps[] = [
+  { type: "index", width: 50 },
+  { prop: "label", label: "属性名称" },
+  { prop: "value", label: "属性值" },
+  { prop: "sort", label: "排序", width: 220 },
+  { prop: "operation", label: "操作", width: 150, align: "center" }
+];
+
 function handleAdd() {
   ensurePropList();
   formData.value.propList.push({
@@ -101,11 +103,21 @@ function handlePrev() {
   emit("prev");
 }
 
-function handleNext() {
-  dataFormRef.value.validate((valid: any) => {
-    if (valid) {
-      emit("next");
-    }
+async function handleNext() {
+  ensurePropList();
+
+  const hasInvalidProp = formData.value.propList.some((item: Record<string, unknown>) => {
+    const label = String(item.label ?? "").trim();
+    const value = String(item.value ?? "").trim();
+    const sort = Number(item.sort ?? 0);
+    return !label || !value || !Number.isInteger(sort) || sort < 1;
   });
+
+  if (hasInvalidProp) {
+    ElMessage.warning("请完善商品属性后再设置商品库存");
+    return;
+  }
+
+  emit("next");
 }
 </script>

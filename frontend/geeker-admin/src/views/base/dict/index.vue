@@ -218,7 +218,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDictForm;
     const request = submitData.id ? defBaseDictService.UpdateBaseDict(submitData) : defBaseDictService.CreateBaseDict(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改字典成功" : "新增字典成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -233,7 +233,7 @@ async function handleBeforeSetStatus(row: BaseDict) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const dictName = row.name || row.code || String(row.id);
   try {
-    await ElMessageBox.confirm(`是否确定${text}字典：${dictName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}字典？\n字典名称：${dictName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -266,7 +266,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = dictList.length
     ? dictList.length === 1
-      ? `是否确定删除字典：${dictList[0].name || dictList[0].code || `ID:${dictList[0].id}`}？`
+      ? `是否确定删除字典？\n字典名称：${dictList[0].name || dictList[0].code || `ID:${dictList[0].id}`}`
       : `确认删除已选中的 ${dictList.length} 个字典吗？`
     : "确认删除已选中的字典吗？";
 
@@ -277,12 +277,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseDictService.DeleteBaseDict({ value: dictIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除字典成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除字典");
     }
   );
 }
@@ -292,7 +292,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  */
 function handleOpenBaseDictItem(row: BaseDict) {
   router.push({
-    path: "/base/dict/item",
+    name: "BaseDictItem",
     query: { dictId: row.id, title: `【${row.name}】字典数据` }
   });
 }

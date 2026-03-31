@@ -3,16 +3,26 @@
 </template>
 
 <script setup lang="tsx" name="TableColumn">
-import { inject, ref, useSlots } from "vue";
+import { inject, isProxy, markRaw, ref, toRaw, useSlots } from "vue";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@/components/ProTable/interface";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
+import { formatPrice } from "@/utils/utils";
 
 defineProps<{ column: ColumnProps }>();
 
 const slots = useSlots();
 
 const enumMap = inject("enumMap", ref(new Map()));
+
+/**
+ * 透传给 Element Plus 前移除图标组件上的响应式代理，避免 Vue 对组件对象发出性能告警。
+ */
+const normalizeActionIcon = (icon: unknown): any => {
+  if (!icon || (typeof icon !== "object" && typeof icon !== "function")) return icon;
+  const rawIcon = isProxy(icon) ? toRaw(icon) : icon;
+  return typeof rawIcon === "object" ? markRaw(rawIcon) : rawIcon;
+};
 
 // 渲染表格数据
 const renderCellData = (item: ColumnProps, scope: RenderScope<any>) => {
@@ -131,6 +141,21 @@ const renderStatusCell = (item: ColumnProps, scope: RenderScope<any>) => {
 };
 
 /**
+ * 渲染金额列，统一将分单位金额转换为元字符串，并支持简单前后缀。
+ */
+const renderMoneyCell = (item: ColumnProps, scope: RenderScope<any>) => {
+  const moneyProps = item.moneyProps ?? {};
+  const rawValue =
+    typeof moneyProps.value === "function"
+      ? moneyProps.value(scope)
+      : (moneyProps.value ?? handleRowAccordingToProp(scope.row, item.prop!));
+  if (rawValue === undefined || rawValue === null || rawValue === "") return "--";
+  const amount = typeof rawValue === "number" ? rawValue : Number(rawValue);
+  if (!Number.isFinite(amount)) return String(rawValue);
+  return `${moneyProps.prefix ?? ""}${formatPrice(amount)}${moneyProps.suffix ?? ""}`;
+};
+
+/**
  * 渲染操作按钮列，统一处理显隐、禁用与透传参数。
  */
 const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
@@ -143,7 +168,7 @@ const renderActionsCell = (item: ColumnProps, scope: RenderScope<any>) => {
       <el-button
         type={action.type ?? "primary"}
         link={action.link ?? true}
-        icon={action.icon}
+        icon={normalizeActionIcon(action.icon)}
         disabled={getBooleanValue(action.disabled, scope)}
         onClick={() => action.onClick(scope, params)}
       >
@@ -164,6 +189,8 @@ const renderPresetCell = (item: ColumnProps, scope: RenderScope<any>) => {
       return renderStatusCell(item, scope);
     case "actions":
       return renderActionsCell(item, scope);
+    case "money":
+      return renderMoneyCell(item, scope);
     default:
       return null;
   }

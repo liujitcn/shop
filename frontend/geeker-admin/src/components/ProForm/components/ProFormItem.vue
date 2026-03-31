@@ -59,7 +59,7 @@
 
   <UploadImg v-else-if="field.component === 'image-upload'" v-model:image-url="fieldValue" v-bind="fieldProps" />
 
-  <UploadImgs v-else-if="field.component === 'images-upload'" v-model:file-list="multipleFileValue" v-bind="fieldProps" />
+  <UploadImgs v-else-if="field.component === 'images-upload'" v-model:file-list="multipleImageFileValue" v-bind="fieldProps" />
 
   <UploadFile v-else-if="field.component === 'file-upload'" v-model:file-info="fieldValue" v-bind="fieldProps" />
 
@@ -76,6 +76,7 @@
 
 <script setup lang="ts" name="ProFormItem">
 import { computed } from "vue";
+import type { UploadUserFile } from "element-plus";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import CronExpression from "@/components/CronExpression/index.vue";
 import Dict from "@/components/Dict/index.vue";
@@ -137,6 +138,34 @@ const fieldValue = computed({
 const multipleFileValue = computed({
   get: () => (Array.isArray(fieldValue.value) ? fieldValue.value : []),
   set: value => setFieldValue(value)
+});
+
+/**
+ * 将多图上传字段兼容为 UploadImgs 所需的 UploadUserFile[]，
+ * 并在回写时根据原始数据结构恢复为 string[] 或 UploadUserFile[]。
+ */
+const multipleImageFileValue = computed<UploadUserFile[]>({
+  get: () => {
+    if (!Array.isArray(fieldValue.value)) return [];
+    return fieldValue.value.map((item: string | UploadUserFile) => {
+      if (typeof item === "string") {
+        return {
+          name: item.split("/").pop() ?? "image",
+          url: item
+        };
+      }
+      return item;
+    });
+  },
+  set: value => {
+    const shouldStoreObjectList =
+      Array.isArray(fieldValue.value) && fieldValue.value.some(item => typeof item === "object" && item !== null);
+    if (shouldStoreObjectList) {
+      setFieldValue(value);
+      return;
+    }
+    setFieldValue(value.map(item => item.url ?? "").filter(Boolean));
+  }
 });
 
 /** 统一处理字符串数组字段。 */

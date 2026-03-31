@@ -3,6 +3,7 @@
     :model-value="modelValue"
     :title="title"
     :width="width"
+    :top="top"
     :destroy-on-close="destroyOnClose"
     :close-on-click-modal="closeOnClickModal"
     :close-on-press-escape="closeOnPressEscape"
@@ -30,6 +31,7 @@ interface ProDialogProps {
   modelValue: boolean;
   title?: string;
   width?: string | number;
+  top?: string;
   confirmText?: string;
   cancelText?: string;
   confirmLoading?: boolean;
@@ -41,6 +43,7 @@ interface ProDialogProps {
 withDefaults(defineProps<ProDialogProps>(), {
   title: "",
   width: "500px",
+  top: "8vh",
   confirmText: "确定",
   cancelText: "取消",
   confirmLoading: false,

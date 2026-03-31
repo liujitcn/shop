@@ -55,7 +55,7 @@ import { useAuthStore } from "@/stores/modules/auth";
 import { useConfigStore } from "@/stores/modules/config";
 import { useGlobalStore } from "@/stores/modules/global";
 import type { RouteItem } from "@/rpc/admin/auth";
-import { getRouteMetaIcon, getRouteMetaTitle } from "@/utils";
+import { getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 import Main from "@/layouts/components/Main/index.vue";
 import ToolBarLeft from "@/layouts/components/Header/ToolBarLeft.vue";
 import ToolBarRight from "@/layouts/components/Header/ToolBarRight.vue";
@@ -106,7 +106,12 @@ const changeSubMenu = (item: RouteItem) => {
   splitActive.value = item.path ?? "";
   if (item.children?.length) return (subMenuList.value = item.children);
   subMenuList.value = [];
-  if (item.path) router.push(item.path);
+  if (!item.path) return;
+  if (isExternalPath(item.path)) {
+    window.open(item.path, "_blank", "noopener,noreferrer");
+    return;
+  }
+  router.push(item.path);
 };
 </script>
 

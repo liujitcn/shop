@@ -13,14 +13,6 @@
       <template #realSaleNum="scope">
         {{ scope.row.realSaleNum || 0 }}
       </template>
-
-      <template #price="scope">
-        {{ formatPrice(scope.row.price) }}
-      </template>
-
-      <template #discountPrice="scope">
-        {{ formatPrice(scope.row.discountPrice) }}
-      </template>
     </ProTable>
 
     <FormDialog
@@ -57,7 +49,6 @@ import { defGoodsSpecService } from "@/api/admin/goods_spec";
 import type { GoodsSku, PageGoodsSkuRequest } from "@/rpc/admin/goods_sku";
 import type { GoodsSpec } from "@/rpc/admin/goods_spec";
 import { buildPageRequest } from "@/utils/proTable";
-import { formatPrice } from "@/utils/utils";
 
 defineOptions({
   name: "GoodsSku",
@@ -158,8 +149,8 @@ const columns = computed<ColumnProps[]>(() => {
     { prop: "skuCode", label: "规格编号", search: { el: "input" } },
     { prop: "initSaleNum", label: "初始销量", align: "right" },
     { prop: "realSaleNum", label: "真实销量", align: "right" },
-    { prop: "price", label: "价格（元）", align: "right" },
-    { prop: "discountPrice", label: "折扣价格（元）", align: "right" },
+    { prop: "price", label: "价格（元）", align: "right", cellType: "money" },
+    { prop: "discountPrice", label: "折扣价格（元）", align: "right", cellType: "money" },
     { prop: "inventory", label: "库存", align: "right" },
     {
       prop: "operation",
@@ -246,7 +237,7 @@ function handleSubmit() {
     submitData.price = submitData.price * 100;
     submitData.discountPrice = submitData.discountPrice * 100;
     defGoodsSkuService.UpdateGoodsSku(submitData).then(() => {
-      ElMessage.success("修改成功");
+      ElMessage.success("修改 SKU 成功");
       handleCloseDialog();
       refreshTable();
     });

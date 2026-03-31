@@ -41,6 +41,7 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const userStore = useUserStore();
   const authStore = useAuthStore();
+  const redirectQuery = typeof to.query.redirect === "string" ? to.query.redirect : "";
 
   // 1.NProgress 开始
   NProgress.start();
@@ -51,7 +52,7 @@ router.beforeEach(async (to, from, next) => {
 
   // 3.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由到登陆页
   if (to.path.toLocaleLowerCase() === LOGIN_URL) {
-    if (userStore.token) return next(from.fullPath);
+    if (userStore.token) return next(redirectQuery || from.fullPath);
     resetRouter();
     return next();
   }
@@ -60,7 +61,14 @@ router.beforeEach(async (to, from, next) => {
   if (ROUTER_WHITE_LIST.includes(to.path)) return next();
 
   // 5.判断是否有 Token，没有重定向到 login 页面
-  if (!userStore.token) return next({ path: LOGIN_URL, replace: true });
+  if (!userStore.token) {
+    const redirect = to.path === LOGIN_URL ? undefined : to.fullPath;
+    return next({
+      path: LOGIN_URL,
+      query: redirect ? { redirect } : undefined,
+      replace: true
+    });
+  }
 
   // 6.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {

@@ -1,85 +1,8 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable">
-      <template #orderNo="scope">
-        <el-link v-if="BUTTONS['order:info:detail']" type="primary" @click.stop="handleOpenDetail(scope.row)">
-          {{ scope.row.orderNo }}
-        </el-link>
-        <span v-else>{{ scope.row.orderNo }}</span>
-      </template>
+    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" />
 
-      <template #userId="scope">
-        <span>{{ scope.row.nickName || formatUser(scope.row.userId) }}</span>
-      </template>
-
-      <template #payMoney="scope">
-        <el-popover effect="light" trigger="hover" placement="top" width="auto">
-          <template #default>
-            <div>总价：{{ formatPrice(scope.row.totalMoney) }}</div>
-            <div>实付：{{ formatPrice(scope.row.payMoney) }}</div>
-            <div>运费：{{ formatPrice(scope.row.postFee) }}</div>
-          </template>
-          <template #reference>
-            {{ formatPrice(scope.row.payMoney) }}
-          </template>
-        </el-popover>
-      </template>
-
-      <template #operation="scope">
-        <el-button
-          v-if="canOpenShipped(scope.row)"
-          v-hasPerm="['order:info:shipped']"
-          type="primary"
-          link
-          :icon="Van"
-          @click="handleOpenShippedDialog(scope.row.id, '发货')"
-        >
-          发货
-        </el-button>
-        <el-button
-          v-if="canViewShipped(scope.row)"
-          v-hasPerm="['order:info:shipped']"
-          type="primary"
-          link
-          :icon="View"
-          @click="handleOpenShippedDialog(scope.row.id, '发货详情')"
-        >
-          发货详情
-        </el-button>
-        <el-button
-          v-if="canRefundCod(scope.row)"
-          v-hasPerm="['order:info:refund']"
-          type="danger"
-          link
-          :icon="RefreshLeft"
-          @click="handleRefund(scope.row)"
-        >
-          退款
-        </el-button>
-        <el-button
-          v-if="canOpenRefund(scope.row)"
-          v-hasPerm="['order:info:refund']"
-          type="danger"
-          link
-          :icon="RefreshLeft"
-          @click="handleOpenRefundDialog(scope.row.id, '退款')"
-        >
-          退款
-        </el-button>
-        <el-button
-          v-if="canViewRefund(scope.row)"
-          v-hasPerm="['order:info:refund']"
-          type="danger"
-          link
-          :icon="View"
-          @click="handleOpenRefundDialog(scope.row.id, '退款详情')"
-        >
-          退款详情
-        </el-button>
-      </template>
-    </ProTable>
-
-    <el-dialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1200px" @close="handleCloseShippedDialog">
+    <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1200px" @close="handleCloseShippedDialog">
       <el-card class="box-card" shadow="never">
         <template #header>
           <div class="card-header">
@@ -110,23 +33,15 @@
           </div>
         </template>
 
-        <el-table :data="dataShipped.goods" border stripe>
-          <el-table-column prop="name" label="商品名称" />
-          <el-table-column prop="skuCode" label="规格编号" />
-          <el-table-column label="规格名称">
-            <template #default="{ row }">{{ row.specItem?.join(" ") }}</template>
-          </el-table-column>
-          <el-table-column prop="num" label="数量" />
-          <el-table-column label="单价">
-            <template #default="{ row }">{{ formatPrice(row.price) }}</template>
-          </el-table-column>
-          <el-table-column label="支付价">
-            <template #default="{ row }">{{ formatPrice(row.payPrice) }}</template>
-          </el-table-column>
-          <el-table-column label="总金额">
-            <template #default="{ row }">{{ formatPrice(row.totalPayPrice) }}</template>
-          </el-table-column>
-        </el-table>
+        <ProTable
+          row-key="skuCode"
+          :data="dataShipped.goods"
+          :columns="shippedGoodsColumns"
+          :pagination="false"
+          :tool-button="false"
+        >
+          <template #specItem="scope">{{ scope.row.specItem?.join(" ") }}</template>
+        </ProTable>
       </el-card>
 
       <el-card v-if="dataShipped.logistics" class="box-card" shadow="never">
@@ -190,9 +105,9 @@
           <el-button @click="handleCloseShippedDialog">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </ProDialog>
 
-    <el-dialog v-model="dialogRefund.visible" :title="dialogRefund.title" width="1200px" @close="handleCloseRefundDialog">
+    <ProDialog v-model="dialogRefund.visible" :title="dialogRefund.title" width="1200px" @close="handleCloseRefundDialog">
       <el-card v-if="dataRefund.payment" class="box-card" shadow="never">
         <template #header>
           <div class="card-header">
@@ -233,57 +148,43 @@
             <span>退款信息</span>
           </div>
         </template>
-        <el-table :data="dataRefund.refund" border stripe>
-          <el-table-column prop="thirdOrderNo" label="三方支付订单编号" align="center" />
-          <el-table-column prop="refundNo" label="退款编号" align="center" />
-          <el-table-column prop="thirdRefundNo" label="三方退款编号" align="center" />
-          <el-table-column prop="reason" label="退款原因" />
-          <el-table-column prop="channel" label="退款渠道" align="center" />
-          <el-table-column prop="userReceivedAccount" label="退款入账账户" align="center" />
-          <el-table-column prop="fundsAccount" label="资金账户类型" align="center" />
-          <el-table-column label="退款金额" align="right">
-            <template #default="{ row }">{{ formatPrice(row.amount?.payerRefund) }}</template>
-          </el-table-column>
-          <el-table-column label="原订单金额" align="right">
-            <template #default="{ row }">{{ formatPrice(row.amount?.total) }}</template>
-          </el-table-column>
-          <el-table-column prop="refundState" label="退款状态" align="center" />
-          <el-table-column prop="successTime" label="退款时间" align="center" />
-          <el-table-column prop="status" label="对帐状态" align="center">
-            <template #default="scope">
-              <DictLabel v-model="scope.row.status" code="order_bill_status" />
-            </template>
-          </el-table-column>
-        </el-table>
+        <ProTable
+          row-key="refundNo"
+          :data="dataRefund.refund"
+          :columns="refundColumns"
+          :pagination="false"
+          :tool-button="false"
+        />
       </el-card>
 
-      <el-form ref="dataFormRefRefund" :model="formDataRefund" :rules="rulesRefund" label-width="150px">
+      <el-form v-if="isRefundEditable" ref="dataFormRefRefund" :model="formDataRefund" :rules="rulesRefund" label-width="150px">
         <el-card shadow="never">
           <el-form-item label="退款原因" prop="reason">
             <Dict v-model="formDataRefund.reason" code="order_refund_reason" />
           </el-form-item>
 
           <el-form-item label="退款金额" prop="refundMoney">
-            <el-input-number v-model="formDataRefund.refundMoney" :precision="2" :step="0.1" />
+            <el-input-number v-model="formDataRefund.refundMoney" :min="0.01" :max="maxRefundMoney" :precision="2" :step="0.1" />
           </el-form-item>
         </el-card>
       </el-form>
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="handleRefundSubmitClick">确 定</el-button>
+          <el-button v-if="isRefundEditable" type="primary" @click="handleRefundSubmitClick">确 定</el-button>
           <el-button @click="handleCloseRefundDialog">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, h, reactive, ref, resolveComponent, type VNode } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
-import type { ColumnProps, EnumProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, EnumProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defOrderService } from "@/api/admin/order";
@@ -375,8 +276,189 @@ const formDataRefund = reactive<RefundOrderRequest>({
 
 const rulesRefund = computed(() => ({
   reason: [{ required: true, message: "请输入退款原因", trigger: "blur" }],
-  refundMoney: [{ required: true, message: "请输入退款金额", trigger: "blur" }]
+  refundMoney: [
+    { required: true, message: "请输入退款金额", trigger: "blur" },
+    {
+      validator: (_rule: unknown, value: number, callback: (error?: Error) => void) => {
+        if (!value || value <= 0) {
+          callback(new Error("退款金额必须大于 0"));
+          return;
+        }
+        if (value > maxRefundMoney.value) {
+          callback(new Error(`退款金额不能大于支付金额 ${maxRefundMoney.value.toFixed(2)} 元`));
+          return;
+        }
+        callback();
+      },
+      trigger: "blur"
+    }
+  ]
 }));
+
+const isRefundEditable = computed(() => dialogRefund.title === "退款");
+const maxRefundMoney = computed(() => Number(((dataRefund.payment?.amount?.payerTotal ?? 0) / 100).toFixed(2)));
+
+const shippedGoodsColumns: ColumnProps[] = [
+  { prop: "name", label: "商品名称", minWidth: 180 },
+  { prop: "skuCode", label: "规格编号", minWidth: 140 },
+  { prop: "specItem", label: "规格名称", minWidth: 160 },
+  { prop: "num", label: "数量", align: "right", width: 90 },
+  { prop: "price", label: "单价", align: "right", width: 110, cellType: "money" },
+  { prop: "payPrice", label: "支付价", align: "right", width: 110, cellType: "money" },
+  { prop: "totalPayPrice", label: "总金额", align: "right", width: 110, cellType: "money" }
+];
+
+const refundColumns: ColumnProps[] = [
+  { prop: "thirdOrderNo", label: "三方支付订单编号", align: "center", minWidth: 180 },
+  { prop: "refundNo", label: "退款编号", align: "center", minWidth: 160 },
+  { prop: "thirdRefundNo", label: "三方退款编号", align: "center", minWidth: 180 },
+  { prop: "reason", label: "退款原因", minWidth: 160 },
+  { prop: "channel", label: "退款渠道", align: "center", minWidth: 120 },
+  { prop: "userReceivedAccount", label: "退款入账账户", align: "center", minWidth: 160 },
+  { prop: "fundsAccount", label: "资金账户类型", align: "center", minWidth: 140 },
+  {
+    prop: "payerRefund",
+    label: "退款金额",
+    align: "right",
+    cellType: "money",
+    moneyProps: { value: scope => scope.row.amount?.payerRefund }
+  },
+  {
+    prop: "refundTotal",
+    label: "原订单金额",
+    align: "right",
+    cellType: "money",
+    moneyProps: { value: scope => scope.row.amount?.total }
+  },
+  { prop: "refundState", label: "退款状态", align: "center", minWidth: 120 },
+  { prop: "successTime", label: "退款时间", align: "center", minWidth: 180 },
+  { prop: "status", label: "对帐状态", align: "center", minWidth: 120, dictCode: "order_bill_status" }
+];
+
+/**
+ * 渲染订单编号列，带权限时可直接跳转到详情页。
+ */
+function renderOrderNoCell(scope: RenderScope<Order>) {
+  if (!BUTTONS.value["order:info:detail"]) return scope.row.orderNo;
+  return h(
+    resolveComponent("el-link"),
+    {
+      type: "primary",
+      onClick: () => handleOpenDetail(scope.row)
+    },
+    () => scope.row.orderNo
+  );
+}
+
+/**
+ * 渲染用户展示名，优先使用当前行昵称，兜底用户字典映射。
+ */
+function renderUserCell(scope: RenderScope<Order>) {
+  return scope.row.nickName || formatUser(scope.row.userId);
+}
+
+/**
+ * 渲染支付金额列，并展示总价、实付和运费明细。
+ */
+function renderPayMoneyCell(scope: RenderScope<Order>) {
+  return h(
+    resolveComponent("el-popover"),
+    {
+      effect: "light",
+      trigger: "hover",
+      placement: "top",
+      width: "auto"
+    },
+    {
+      default: () => [
+        h("div", null, `总价：${formatPrice(scope.row.totalMoney)}`),
+        h("div", null, `实付：${formatPrice(scope.row.payMoney)}`),
+        h("div", null, `运费：${formatPrice(scope.row.postFee)}`)
+      ],
+      reference: () => formatPrice(scope.row.payMoney)
+    }
+  );
+}
+
+/**
+ * 渲染订单操作列。
+ * 发货与退款流程依赖订单状态判断，保留在页面侧集中编排。
+ */
+function renderOperationCell(scope: RenderScope<Order>) {
+  const row = scope.row;
+  const actionNodes: VNode[] = [];
+
+  if (canOpenShipped(row) && BUTTONS.value["order:info:shipped"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        { key: `ship-${row.id}`, type: "primary", link: true, icon: Van, onClick: () => handleOpenShippedDialog(row.id, "发货") },
+        () => "发货"
+      )
+    );
+  }
+
+  if (canViewShipped(row) && BUTTONS.value["order:info:shipped"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `ship-detail-${row.id}`,
+          type: "primary",
+          link: true,
+          icon: View,
+          onClick: () => handleOpenShippedDialog(row.id, "发货详情")
+        },
+        () => "发货详情"
+      )
+    );
+  }
+
+  if (canRefundCod(row) && BUTTONS.value["order:info:refund"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        { key: `refund-cod-${row.id}`, type: "danger", link: true, icon: RefreshLeft, onClick: () => handleRefund(row) },
+        () => "退款"
+      )
+    );
+  }
+
+  if (canOpenRefund(row) && BUTTONS.value["order:info:refund"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `refund-${row.id}`,
+          type: "danger",
+          link: true,
+          icon: RefreshLeft,
+          onClick: () => handleOpenRefundDialog(row.id, "退款")
+        },
+        () => "退款"
+      )
+    );
+  }
+
+  if (canViewRefund(row) && BUTTONS.value["order:info:refund"]) {
+    actionNodes.push(
+      h(
+        resolveComponent("el-button"),
+        {
+          key: `refund-detail-${row.id}`,
+          type: "danger",
+          link: true,
+          icon: View,
+          onClick: () => handleOpenRefundDialog(row.id, "退款详情")
+        },
+        () => "退款详情"
+      )
+    );
+  }
+
+  if (!actionNodes.length) return "--";
+  return h("div", { class: "order-operation", key: `order-operation-${row.id}` }, actionNodes);
+}
 
 /** 订单表格列配置。 */
 const columns: ColumnProps[] = [
@@ -385,6 +467,7 @@ const columns: ColumnProps[] = [
     label: "用户",
     width: 180,
     enum: requestUserEnum,
+    render: scope => renderUserCell(scope as unknown as RenderScope<Order>),
     search: {
       el: "select",
       props: {
@@ -393,8 +476,20 @@ const columns: ColumnProps[] = [
       }
     }
   },
-  { prop: "orderNo", label: "订单编号", minWidth: 190, search: { el: "input" } },
-  { prop: "payMoney", label: "金额（元）", align: "right", width: 120 },
+  {
+    prop: "orderNo",
+    label: "订单编号",
+    minWidth: 190,
+    search: { el: "input" },
+    render: scope => renderOrderNoCell(scope as unknown as RenderScope<Order>)
+  },
+  {
+    prop: "payMoney",
+    label: "金额（元）",
+    align: "right",
+    width: 120,
+    render: scope => renderPayMoneyCell(scope as unknown as RenderScope<Order>)
+  },
   { prop: "payType", label: "支付方式", width: 110, dictCode: "order_pay_type", search: { el: "select" } },
   { prop: "payChannel", label: "支付渠道", width: 110, dictCode: "order_pay_channel", search: { el: "select" } },
   {
@@ -422,7 +517,13 @@ const columns: ColumnProps[] = [
     }
   },
   { prop: "goodsNum", label: "商品数", width: 90, align: "right" },
-  { prop: "operation", label: "操作", width: 280, fixed: "right" }
+  {
+    prop: "operation",
+    label: "操作",
+    width: 280,
+    fixed: "right",
+    render: scope => renderOperationCell(scope as unknown as RenderScope<Order>)
+  }
 ];
 
 /**
@@ -504,6 +605,7 @@ function canViewRefund(row: Order) {
  * 打开发货弹窗并加载物流数据。
  */
 function handleOpenShippedDialog(orderId: number, title: string) {
+  resetShippedDialog();
   dialogShipped.visible = true;
   dialogShipped.title = title;
   defOrderService.GetOrderShipped({ value: orderId }).then(data => {
@@ -517,6 +619,13 @@ function handleOpenShippedDialog(orderId: number, title: string) {
  */
 function handleCloseShippedDialog() {
   dialogShipped.visible = false;
+  resetShippedDialog();
+}
+
+/**
+ * 重置发货弹窗数据，避免不同订单之间串值。
+ */
+function resetShippedDialog() {
   dataFormRefShipped.value?.resetFields();
   dataFormRefShipped.value?.clearValidate();
   formDataShipped.orderId = 0;
@@ -536,7 +645,7 @@ function handleShippedSubmitClick() {
     if (!isValid) return;
 
     defOrderService.ShippedOrder(formDataShipped).then(() => {
-      ElMessage.success("发货成功");
+      ElMessage.success("订单发货成功");
       handleCloseShippedDialog();
       proTable.value?.getTableList();
     });
@@ -547,18 +656,18 @@ function handleShippedSubmitClick() {
  * 对货到付款订单发起退款。
  */
 function handleRefund(row: Order) {
-  ElMessageBox.prompt(`货到付款订单【${row.orderNo}】的退款原因`, "申请退款", {
+  ElMessageBox.prompt(`请输入退款原因\n订单编号：${row.orderNo || `ID:${row.id}`}`, "申请退款", {
     confirmButtonText: "确定",
     cancelButtonText: "取消"
   }).then(
     () => {
       defOrderService.RefundOrder({ orderId: row.id, refundMoney: 0 }).then(() => {
-        ElMessage.success("退款成功");
+        ElMessage.success("订单退款成功");
         proTable.value?.getTableList();
       });
     },
     () => {
-      ElMessage.info("已取消退款");
+      ElMessage.info("已取消订单退款");
     }
   );
 }
@@ -567,6 +676,7 @@ function handleRefund(row: Order) {
  * 打开退款弹窗并加载退款详情。
  */
 function handleOpenRefundDialog(orderId: number, title: string) {
+  resetRefundDialog();
   dialogRefund.visible = true;
   dialogRefund.title = title;
   defOrderService.GetOrderRefund({ value: orderId }).then(data => {
@@ -580,6 +690,13 @@ function handleOpenRefundDialog(orderId: number, title: string) {
  */
 function handleCloseRefundDialog() {
   dialogRefund.visible = false;
+  resetRefundDialog();
+}
+
+/**
+ * 重置退款弹窗数据，避免切换订单时残留上一条记录。
+ */
+function resetRefundDialog() {
   dataFormRefRefund.value?.resetFields();
   dataFormRefRefund.value?.clearValidate();
   formDataRefund.orderId = 0;
@@ -599,7 +716,7 @@ function handleRefundSubmitClick() {
     const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderRequest;
     submitData.refundMoney = submitData.refundMoney * 100;
     defOrderService.RefundOrder(submitData).then(() => {
-      ElMessage.success("退款成功");
+      ElMessage.success("订单退款成功");
       handleCloseRefundDialog();
       proTable.value?.getTableList();
     });

@@ -136,7 +136,7 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 200,
+    width: 220,
     fixed: "right",
     align: "left",
     cellType: "actions",
@@ -298,7 +298,7 @@ function handleSubmit() {
     const submitData = JSON.parse(JSON.stringify(formData)) as BaseDeptForm;
     const request = submitData.id ? defBaseDeptService.UpdateBaseDept(submitData) : defBaseDeptService.CreateBaseDept(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改部门成功" : "新增部门成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -313,7 +313,7 @@ async function handleBeforeSetStatus(row: BaseDept) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const deptName = row.name || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}部门：${deptName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}部门？\n部门名称：${deptName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -346,7 +346,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = deptList.length
     ? deptList.length === 1
-      ? `是否确定删除部门：${deptList[0].name || `ID:${deptList[0].id}`}？`
+      ? `是否确定删除部门？\n部门名称：${deptList[0].name || `ID:${deptList[0].id}`}`
       : `确认删除已选中的 ${deptList.length} 个部门吗？`
     : "确认删除已选中的部门吗？";
 
@@ -357,12 +357,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
   }).then(
     () => {
       defBaseDeptService.DeleteBaseDept({ value: deptIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除部门成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除部门");
     }
   );
 }

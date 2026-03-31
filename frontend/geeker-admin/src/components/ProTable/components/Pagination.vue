@@ -2,18 +2,17 @@
   <!-- 分页组件 -->
   <el-pagination
     :background="true"
-    :current-page="pageable.pageNum"
-    :page-size="pageable.pageSize"
+    v-model:current-page="currentPage"
+    v-model:page-size="pageSize"
     :page-sizes="[10, 25, 50, 100]"
     :total="pageable.total"
     :size="globalStore?.assemblySize ?? 'default'"
     layout="total, sizes, prev, pager, next, jumper"
-    @size-change="handleSizeChange"
-    @current-change="handleCurrentChange"
-  ></el-pagination>
+  />
 </template>
 
 <script setup lang="ts" name="Pagination">
+import { computed } from "vue";
 import { useGlobalStore } from "@/stores/modules/global";
 const globalStore = useGlobalStore();
 
@@ -29,5 +28,15 @@ interface PaginationProps {
   handleCurrentChange: (currentPage: number) => void;
 }
 
-defineProps<PaginationProps>();
+const props = defineProps<PaginationProps>();
+
+const currentPage = computed({
+  get: () => props.pageable.pageNum,
+  set: value => props.handleCurrentChange(value)
+});
+
+const pageSize = computed({
+  get: () => props.pageable.pageSize,
+  set: value => props.handleSizeChange(value)
+});
 </script>

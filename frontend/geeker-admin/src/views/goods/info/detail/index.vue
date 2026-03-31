@@ -91,66 +91,26 @@
       </el-tab-pane>
       <el-tab-pane label="属性信息">
         <el-card shadow="never">
-          <el-table :data="formData.propList" highlight-current-row border>
-            <el-table-column label="商品属性标签" prop="label" />
-            <el-table-column label="商品属性值" prop="value" />
-            <el-table-column label="排序" prop="sort" align="right" />
-          </el-table>
+          <ProTable row-key="label" :data="formData.propList" :columns="propColumns" :pagination="false" :tool-button="false" />
         </el-card>
       </el-tab-pane>
       <el-tab-pane label="库存信息">
         <el-card shadow="never">
-          <el-table :data="formData.skuList" highlight-current-row border>
-            <el-table-column
-              v-for="(item, index) in formData.specList"
-              :key="index"
-              align="center"
-              :prop="'specItem' + index"
-              :label="item.name"
-            />
-            <el-table-column label="规格图片" min-width="150" align="center">
-              <template #default="scope">
-                <el-popover placement="right" :width="400" trigger="hover">
-                  <img :src="scope.row.picture" width="400" height="400" />
-                  <template #reference>
-                    <img :src="scope.row.picture" style="max-width: 60px; max-height: 60px" />
-                  </template>
-                </el-popover>
-              </template>
-            </el-table-column>
-            <el-table-column label="规格编号" prop="skuCode" />
-            <el-table-column label="初始销量" prop="initSaleNum" align="right">
-              <template #default="scope">
-                {{ scope.row.initSaleNum || 0 }}
-              </template>
-            </el-table-column>
-            <el-table-column label="真实销量" prop="realSaleNum" align="right">
-              <template #default="scope">
-                {{ scope.row.realSaleNum || 0 }}
-              </template>
-            </el-table-column>
-            <el-table-column label="价格（元）" align="right">
-              <template #default="scope">
-                {{ scope.row.price / 100 || 0 }}
-              </template>
-            </el-table-column>
-            <el-table-column label="折扣价格（元）" align="right">
-              <template #default="scope">
-                {{ scope.row.discountPrice / 100 || 0 }}
-              </template>
-            </el-table-column>
-
-            <el-table-column label="库存" prop="inventory" align="right" />
-          </el-table>
+          <ProTable row-key="skuCode" :data="formData.skuList" :columns="skuColumns" :pagination="false" :tool-button="false">
+            <template #picture="scope">
+              <el-popover placement="right" :width="400" trigger="hover">
+                <img :src="scope.row.picture" width="400" height="400" />
+                <template #reference>
+                  <img :src="scope.row.picture" style="max-width: 60px; max-height: 60px" />
+                </template>
+              </el-popover>
+            </template>
+          </ProTable>
         </el-card>
       </el-tab-pane>
       <el-tab-pane label="规格信息">
         <el-card shadow="never">
-          <el-table :data="formData.specList" highlight-current-row border>
-            <el-table-column label="规格名称" prop="name" />
-            <el-table-column label="规格内容" prop="item" />
-            <el-table-column label="排序" prop="sort" />
-          </el-table>
+          <ProTable row-key="name" :data="formData.specList" :columns="specColumns" :pagination="false" :tool-button="false" />
         </el-card>
       </el-tab-pane>
     </el-tabs>
@@ -158,8 +118,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import type { ColumnProps } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
 import { type GoodsForm } from "@/rpc/admin/goods";
 import { type GoodsProp } from "@/rpc/admin/goods_prop";
 import { type GoodsSpec } from "@/rpc/admin/goods_spec";
@@ -207,6 +169,37 @@ const formData = reactive<GoodsForm>({
   skuList: skuList,
   /** 商品规格 */
   specList: specList
+});
+
+const propColumns: ColumnProps[] = [
+  { prop: "label", label: "商品属性标签" },
+  { prop: "value", label: "商品属性值" },
+  { prop: "sort", label: "排序", align: "right", width: 100 }
+];
+
+const specColumns: ColumnProps[] = [
+  { prop: "name", label: "规格名称" },
+  { prop: "item", label: "规格内容" },
+  { prop: "sort", label: "排序", align: "right", width: 100 }
+];
+
+const skuColumns = computed<ColumnProps[]>(() => {
+  const dynamicSpecColumns = formData.specList.map((item, index) => ({
+    prop: `specItem${index}`,
+    label: item.name,
+    align: "center"
+  }));
+
+  return [
+    ...dynamicSpecColumns,
+    { prop: "picture", label: "规格图片", minWidth: 150, align: "center" },
+    { prop: "skuCode", label: "规格编号", minWidth: 140 },
+    { prop: "initSaleNum", label: "初始销量", align: "right", width: 100 },
+    { prop: "realSaleNum", label: "真实销量", align: "right", width: 100 },
+    { prop: "price", label: "价格（元）", align: "right", width: 110, cellType: "money" },
+    { prop: "discountPrice", label: "折扣价格（元）", align: "right", width: 120, cellType: "money" },
+    { prop: "inventory", label: "库存", align: "right", width: 100 }
+  ];
 });
 
 // 监听路由参数变化，更新商品属性

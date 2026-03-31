@@ -301,7 +301,7 @@ function handleSubmit() {
       ? defShopBannerService.UpdateShopBanner(formData)
       : defShopBannerService.CreateShopBanner(formData);
     request.then(() => {
-      ElMessage.success(formData.id ? "修改成功" : "新增成功");
+      ElMessage.success(formData.id ? "修改轮播图成功" : "新增轮播图成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -323,7 +323,7 @@ async function handleBeforeSetStatus(row: ShopBanner) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   try {
-    await ElMessageBox.confirm(`是否确定${text}该轮播图？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}轮播图？`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -358,7 +358,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
 
   const confirmMessage = bannerList.length
     ? bannerList.length === 1
-      ? "是否确定删除该轮播图？"
+      ? "是否确定删除轮播图？"
       : `确认删除已选中的 ${bannerList.length} 张轮播图吗？`
     : "确认删除已选中的轮播图吗？";
 
@@ -369,12 +369,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
   }).then(
     () => {
       defShopBannerService.DeleteShopBanner({ value: bannerIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除轮播图成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除轮播图");
     }
   );
 }

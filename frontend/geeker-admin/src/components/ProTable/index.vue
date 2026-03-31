@@ -3,7 +3,7 @@
 <template>
   <!-- 查询表单 -->
   <SearchForm
-    v-show="isShowSearch"
+    v-if="hasSearchColumns && isShowSearch"
     :search="_search"
     :reset="_reset"
     :columns="searchColumns"
@@ -14,14 +14,14 @@
   <!-- 表格主体 -->
   <div class="card table-main">
     <!-- 表格头部 操作按钮 -->
-    <div class="table-header">
+    <div v-if="showTableHeader" class="table-header">
       <div class="header-button-lf">
         <slot name="tableHeader" :selected-list="selectedList" :selected-list-ids="selectedListIds" :is-selected="isSelected">
           <el-button
             v-for="action in visibleHeaderActions"
             :key="action.label"
             :type="action.type ?? 'primary'"
-            :icon="action.icon"
+            :icon="normalizeActionIcon(action.icon)"
             :disabled="getHeaderActionDisabled(action)"
             @click="handleHeaderActionClick(action)"
           >
@@ -29,7 +29,7 @@
           </el-button>
         </slot>
       </div>
-      <div v-if="toolButton" class="header-button-ri">
+      <div v-if="showToolButtonArea" class="header-button-ri">
         <slot name="toolButton">
           <el-tooltip v-if="showTreeToggleButton" :content="isTreeExpanded ? '折叠全部' : '展开全部'" placement="top">
             <el-button class="tool-button" :icon="isTreeExpanded ? Fold : Expand" circle @click="toggleTreeExpand" />
@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts" name="ProTable">
-import { ref, watch, provide, onMounted, unref, computed, nextTick, useAttrs } from "vue";
+import { ref, watch, provide, onMounted, unref, computed, nextTick, useAttrs, useSlots, isProxy, markRaw, toRaw } from "vue";
 import { ElTable } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
@@ -170,6 +170,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 // table 实例
 const tableRef = ref<InstanceType<typeof ElTable>>();
 const attrs = useAttrs();
+const slots = useSlots();
 
 // 生成组件唯一id
 const uuid = ref("id-" + generateUUID());
@@ -189,10 +190,21 @@ const treeProps = computed(() => {
 
 const showTreeToggleButton = computed(() => !!treeProps.value);
 
+/**
+ * 透传给 Element Plus 前移除图标组件上的响应式代理，避免 Vue 对组件对象发出性能告警。
+ */
+const normalizeActionIcon = (icon: unknown): any => {
+  if (!icon || (typeof icon !== "object" && typeof icon !== "function")) return icon;
+  const rawIcon = isProxy(icon) ? toRaw(icon) : icon;
+  return typeof rawIcon === "object" ? markRaw(rawIcon) : rawIcon;
+};
+
 // 控制 ToolButton 显示
 const showToolButton = (key: "refresh" | "setting" | "search") => {
   return Array.isArray(props.toolButton) ? props.toolButton.includes(key) : props.toolButton;
 };
+
+const showToolButtonArea = computed(() => Boolean(props.toolButton || slots.toolButton));
 
 // 单选值
 const radio = ref("");
@@ -353,6 +365,12 @@ const getHeaderActionDisabled = (action: HeaderActionProps) => {
  */
 const visibleHeaderActions = computed(() => {
   return props.headerActions.filter(action => !getHeaderActionHidden(action));
+});
+
+const hasSearchColumns = computed(() => searchColumns.value.length > 0);
+
+const showTableHeader = computed(() => {
+  return visibleHeaderActions.value.length > 0 || showToolButtonArea.value || Boolean(slots.tableHeader);
 });
 
 /**

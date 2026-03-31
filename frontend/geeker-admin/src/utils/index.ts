@@ -187,6 +187,14 @@ export function getUrlWithParams() {
 }
 
 /**
+ * 判断路径是否为外部链接。
+ */
+export function isExternalPath(path?: string) {
+  if (!path) return false;
+  return /^(https?:|mailto:|tel:)/.test(path);
+}
+
+/**
  * @description 使用递归扁平化菜单，方便添加动态路由
  * @param {Array} menuList 菜单列表
  * @returns {Array}

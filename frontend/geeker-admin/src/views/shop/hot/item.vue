@@ -14,7 +14,7 @@
       v-model="dialog.visible"
       ref="formDialogRef"
       :title="dialog.title"
-      width="1200px"
+      width="1300px"
       :model="formData"
       :fields="formFields"
       :rules="rules"
@@ -295,7 +295,7 @@ function handleSubmit() {
       ? defShopHotService.UpdateShopHotItem(submitData)
       : defShopHotService.CreateShopHotItem(submitData);
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改热门推荐项成功" : "新增热门推荐项成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -310,7 +310,7 @@ async function handleBeforeSetStatus(row: ShopHotItem) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const hotItemName = row.title || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}推荐项：${hotItemName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}推荐项？\n推荐标题：${hotItemName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -345,7 +345,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
 
   const confirmMessage = hotItemList.length
     ? hotItemList.length === 1
-      ? `是否确定删除推荐项：${hotItemList[0].title || `ID:${hotItemList[0].id}`}？`
+      ? `是否确定删除推荐项？\n推荐标题：${hotItemList[0].title || `ID:${hotItemList[0].id}`}`
       : `确认删除已选中的 ${hotItemList.length} 个热门推荐项吗？`
     : "确认删除已选中的热门推荐项吗？";
 
@@ -356,12 +356,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
   }).then(
     () => {
       defShopHotService.DeleteShopHotItem({ value: hotItemIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除热门推荐项成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除热门推荐项");
     }
   );
 }

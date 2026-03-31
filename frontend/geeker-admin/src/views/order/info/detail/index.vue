@@ -68,23 +68,9 @@
         </div>
       </template>
 
-      <el-table :data="formData.goods" border stripe>
-        <el-table-column prop="name" label="商品名称" />
-        <el-table-column prop="skuCode" label="规格编号" />
-        <el-table-column label="规格名称">
-          <template #default="{ row }">{{ row.specItem.join("/") }}</template>
-        </el-table-column>
-        <el-table-column prop="num" label="数量" />
-        <el-table-column label="单价">
-          <template #default="{ row }">{{ formatPrice(row.price) }}</template>
-        </el-table-column>
-        <el-table-column label="支付价">
-          <template #default="{ row }">{{ formatPrice(row.payPrice) }}</template>
-        </el-table-column>
-        <el-table-column label="总金额">
-          <template #default="{ row }">{{ formatPrice(row.totalPayPrice) }}</template>
-        </el-table-column>
-      </el-table>
+      <ProTable row-key="skuCode" :data="formData.goods" :columns="goodsColumns" :pagination="false" :tool-button="false">
+        <template #specItem="scope">{{ scope.row.specItem.join("/") }}</template>
+      </ProTable>
     </el-card>
 
     <!-- 支付信息 -->
@@ -158,28 +144,7 @@
           <span>退款信息</span>
         </div>
       </template>
-      <el-table :data="formData.refund" border stripe>
-        <el-table-column prop="thirdOrderNo" label="三方支付订单编号" align="center" />
-        <el-table-column prop="refundNo" label="退款编号" align="center" />
-        <el-table-column prop="thirdRefundNo" label="三方退款编号" align="center" />
-        <el-table-column prop="reason" label="退款原因" />
-        <el-table-column prop="channel" label="退款渠道" align="center" />
-        <el-table-column prop="userReceivedAccount" label="退款入账账户" align="center" />
-        <el-table-column prop="fundsAccount" label="资金账户类型" align="center" />
-        <el-table-column label="退款金额" align="right">
-          <template #default="{ row }">{{ formatPrice(row.amount.payerRefund) }}</template>
-        </el-table-column>
-        <el-table-column label="原订单金额" align="right">
-          <template #default="{ row }">{{ formatPrice(row.amount.total) }}</template>
-        </el-table-column>
-        <el-table-column prop="status" label="退款状态" align="center" />
-        <el-table-column prop="successTime" label="退款时间" align="center" />
-        <el-table-column prop="status" label="对帐状态" align="center">
-          <template #default="scope">
-            <DictLabel v-model="scope.row.status" code="order_bill_status" />
-          </template>
-        </el-table-column>
-      </el-table>
+      <ProTable row-key="refundNo" :data="formData.refund" :columns="refundColumns" :pagination="false" :tool-button="false" />
     </el-card>
   </div>
 </template>
@@ -187,6 +152,8 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import type { ColumnProps } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
 import { type OrderResponse } from "@/rpc/admin/order";
 import { defOrderService } from "@/api/admin/order";
 import { formatPrice } from "@/utils/utils";
@@ -218,6 +185,43 @@ const formData = reactive<OrderResponse>({
   /** 退款信息 */
   refund: []
 });
+
+const goodsColumns: ColumnProps[] = [
+  { prop: "name", label: "商品名称" },
+  { prop: "skuCode", label: "规格编号" },
+  { prop: "specItem", label: "规格名称" },
+  { prop: "num", label: "数量", align: "right" },
+  { prop: "price", label: "单价", align: "right", cellType: "money" },
+  { prop: "payPrice", label: "支付价", align: "right", cellType: "money" },
+  { prop: "totalPayPrice", label: "总金额", align: "right", cellType: "money" }
+];
+
+const refundColumns: ColumnProps[] = [
+  { prop: "thirdOrderNo", label: "三方支付订单编号", align: "center", minWidth: 180 },
+  { prop: "refundNo", label: "退款编号", align: "center", minWidth: 160 },
+  { prop: "thirdRefundNo", label: "三方退款编号", align: "center", minWidth: 180 },
+  { prop: "reason", label: "退款原因", minWidth: 160 },
+  { prop: "channel", label: "退款渠道", align: "center", minWidth: 120 },
+  { prop: "userReceivedAccount", label: "退款入账账户", align: "center", minWidth: 160 },
+  { prop: "fundsAccount", label: "资金账户类型", align: "center", minWidth: 140 },
+  {
+    prop: "amount.payerRefund",
+    label: "退款金额",
+    align: "right",
+    cellType: "money",
+    moneyProps: { value: scope => scope.row.amount?.payerRefund }
+  },
+  {
+    prop: "amount.total",
+    label: "原订单金额",
+    align: "right",
+    cellType: "money",
+    moneyProps: { value: scope => scope.row.amount?.total }
+  },
+  { prop: "refundState", label: "退款状态", align: "center", minWidth: 120 },
+  { prop: "successTime", label: "退款时间", align: "center", minWidth: 180 },
+  { prop: "status", label: "对帐状态", align: "center", minWidth: 120, dictCode: "order_bill_status" }
+];
 
 // 监听路由参数变化
 watch(

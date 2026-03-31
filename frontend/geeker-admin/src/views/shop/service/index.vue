@@ -222,7 +222,7 @@ function handleSubmit() {
       : defShopServiceService.CreateShopService(submitData);
 
     request.then(() => {
-      ElMessage.success(submitData.id ? "修改成功" : "新增成功");
+      ElMessage.success(submitData.id ? "修改商城服务成功" : "新增商城服务成功");
       handleCloseDialog();
       refreshTable();
     });
@@ -237,7 +237,7 @@ async function handleBeforeSetStatus(row: ShopService) {
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const serviceName = row.label || row.value || `ID:${row.id}`;
   try {
-    await ElMessageBox.confirm(`是否确定${text}标签：${serviceName}？`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}商城服务？\n服务名称：${serviceName}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -272,7 +272,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
 
   const confirmMessage = serviceList.length
     ? serviceList.length === 1
-      ? `是否确定删除标签：${serviceList[0].label || serviceList[0].value || `ID:${serviceList[0].id}`}？`
+      ? `是否确定删除商城服务？\n服务名称：${serviceList[0].label || serviceList[0].value || `ID:${serviceList[0].id}`}`
       : `确认删除已选中的 ${serviceList.length} 项商城服务吗？`
     : "确认删除已选中的商城服务吗？";
 
@@ -283,12 +283,12 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
   }).then(
     () => {
       defShopServiceService.DeleteShopService({ value: serviceIds }).then(() => {
-        ElMessage.success("删除成功");
+        ElMessage.success("删除商城服务成功");
         refreshTable();
       });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除商城服务");
     }
   );
 }
