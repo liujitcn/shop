@@ -141,10 +141,8 @@ func (c *BaseJobCase) StopBaseJob(ctx context.Context, req *admin.StopBaseJobReq
 	if baseJob.EntryID > 0 {
 		c.cron.Remove(cron.EntryID(baseJob.EntryID))
 	}
-	return c.UpdateById(ctx, &models.BaseJob{
-		ID:      baseJob.ID,
-		EntryID: 0,
-	})
+	baseJob.EntryID = 0
+	return c.Query(ctx).BaseJob.WithContext(ctx).Save(baseJob)
 }
 
 // ExecBaseJob 立即执行定时任务

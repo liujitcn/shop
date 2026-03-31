@@ -337,8 +337,8 @@ github.com/liujitcn/go-utils/http v0.0.1 h1:bj2kvsc00y8/mMt9HvCCC38rslP+i3cljFyB
 github.com/liujitcn/go-utils/http v0.0.1/go.mod h1:gOMEiO4q48A44KAmtW7RUnvsCTyK8Ad15zHRT0f+udE=
 github.com/liujitcn/go-utils/jwt v0.0.1 h1:ymO+Eo3Kk+I3ALHRqbEvvclc95YrwQWKmLTGILbsCE8=
 github.com/liujitcn/go-utils/jwt v0.0.1/go.mod h1:BRJq3jIGdss3tWOZrNsmmdD8nOxF6P3diKIIe4r1oJs=
-github.com/liujitcn/gorm-kit v0.0.21 h1:WgOl6m0eppDL1AvmqHYJ0yQ/pqoyl6Kijg/e6eHfwkA=
-github.com/liujitcn/gorm-kit v0.0.21/go.mod h1:cIXrYfdXJg70qAb0oGzo3BeLKn4ea+xMzyyzXFLeSq8=
+github.com/liujitcn/gorm-kit v0.0.23 h1:JZRAqdXy20jy1cTob+JxlY+WahgYsJKM8mhYFErJrIM=
+github.com/liujitcn/gorm-kit v0.0.23/go.mod h1:cIXrYfdXJg70qAb0oGzo3BeLKn4ea+xMzyyzXFLeSq8=
 github.com/liujitcn/kratos-kit v0.0.17 h1:CSm3W2NG7bc9Dc48LxkRQ0/5yy1BEhLqF8tQ4k1Em/s=
 github.com/liujitcn/kratos-kit v0.0.17/go.mod h1:NKoKOvatn97lpOsTeTl+5JHDcDAee/NxDLQDRcl9WDU=
 github.com/liujitcn/kratos-kit/api v0.0.9 h1:6qTN7aFHVMIonEvdETzkePng/O2ffCPXUeNBMoru0E4=

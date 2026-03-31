@@ -20,6 +20,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	_string "github.com/liujitcn/go-utils/string"
+	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repo"
 	"github.com/liujitcn/kratos-kit/oss"
@@ -63,24 +64,30 @@ func NewTradeBill(
 // Exec 执行交易账单下载与核对任务
 func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 	log.Infof("Job TradeBill Exec %+v", args)
-	var billDate string
 	v, ok := args["billDate"]
-	if ok {
-		billDate = v
-	} else {
-		billDate = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+	var now *time.Time
+	if ok && len(v) > 0 {
+		now = _time.StringTimeToTime(v)
 	}
+	if now == nil {
+		now = new(time.Now().AddDate(0, 0, -1))
+	}
+
+	billDate := _time.TimeToDateString(*now)
+
 	ret := make([]string, 0)
 	payment, err1 := t.payment(billDate, bill.BILL_TYPE_SUCCESS)
 	if err1 != nil {
-		return nil, err1
+		ret = append(ret, err1.Error())
+	} else {
+		ret = append(ret, payment...)
 	}
-	ret = append(ret, payment...)
 	refund, err2 := t.refund(billDate, bill.BILL_TYPE_REFUND)
 	if err2 != nil {
-		return nil, err2
+		ret = append(ret, err2.Error())
+	} else {
+		ret = append(ret, refund...)
 	}
-	ret = append(ret, refund...)
 	// 下载账单
 	return ret, nil
 }
@@ -95,7 +102,8 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	}
 	// 查询全部支付订单
 	paymentList := make([]*models.OrderPayment, 0)
-	startTime, endTime, err := billDateRange(billDate)
+	var startTime, endTime time.Time
+	startTime, endTime, err = billDateRange(billDate)
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -211,7 +219,8 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 	}
 	// 查询全部退款订单
 	refundList := make([]*models.OrderRefund, 0)
-	startTime, endTime, err := billDateRange(billDate)
+	var startTime, endTime time.Time
+	startTime, endTime, err = billDateRange(billDate)
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
