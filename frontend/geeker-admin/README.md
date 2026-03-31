@@ -197,6 +197,22 @@ geeker-admin
 /dashboard/workspace
 ```
 
+## 数据看板接口语义
+
+分析页 `/dashboard/analytics` 当前与后端统计口径约定如下：
+
+- `DashboardTimeType.DAY` 表示今日
+- `DashboardTimeType.WEEK` 表示本周
+- `DashboardTimeType.MONTH` 表示本月
+- `GET /api/admin/dashboard/bar/order`
+  返回订单趋势图数据，`seriesData` 顺序固定为：订单量、销售额、订单量增长率、销售额增长率
+- `GET /api/admin/dashboard/bar/goods`
+  返回商品销量排行，`seriesData[0]` 表示商品销量
+- `GET /api/admin/dashboard/pie/goods`
+  返回所选时间范围内的商品分类销量占比，不是全量商品数量占比
+- `GET /api/admin/dashboard/radar/order`
+  返回商品分类与订单状态的交叉销量数据，其中 `legendData` 为订单状态，`radarIndicator` 为商品分类
+
 ## 权限与路由
 
 - 静态路由仅保留登录页、布局页和错误页。

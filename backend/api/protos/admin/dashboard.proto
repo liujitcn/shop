@@ -90,6 +90,7 @@ message DashboardCountResponse {
 }
 
 // 订单销量（柱状图）请求参数
+// DAY: 今日按小时统计；WEEK: 本周按星期统计；MONTH: 本月按日期统计。
 message DashboardBarOrderRequest {
   DashboardTimeType timeType = 1 [
     (gnostic.openapi.v3.property) = {
@@ -113,6 +114,7 @@ message DashboardBarGoodsRequest {
 }
 
 // 商品分类（饼状图）请求参数
+// 按所选时间范围内的商品销量汇总分类占比，不统计全量商品库存数量。
 message DashboardPieGoodsRequest {
   DashboardTimeType timeType = 1 [
     (gnostic.openapi.v3.property) = {
@@ -122,6 +124,7 @@ message DashboardPieGoodsRequest {
 }
 
 // 商品订单销量状态（雷达图）请求参数
+// 按所选时间范围内的商品分类与订单状态交叉统计销量。
 message DashboardRadarOrderRequest {
   DashboardTimeType timeType = 1 [
     (gnostic.openapi.v3.property) = {
@@ -130,7 +133,9 @@ message DashboardRadarOrderRequest {
   ]; // 时间类型
 }
 
-//（柱状图）请求参数
+// （柱状图）返回结果
+// 订单趋势图约定 seriesData 顺序为：订单量、销售额、订单量增长率、销售额增长率。
+// 商品销量排行仅返回 1 组 seriesData，表示商品销量。
 message DashboardBarResponse {
   message SeriesData {
     repeated int64 value = 1 [
@@ -153,7 +158,8 @@ message DashboardBarResponse {
   ]; // 数据内容数组
 }
 
-//（饼状图）返回结果
+// （饼状图）返回结果
+// seriesData 表示所选时间范围内各商品分类的销量占比。
 message DashboardPieResponse {
   message SeriesData {
     int64 value = 1 [
@@ -176,6 +182,7 @@ message DashboardPieResponse {
 }
 
 // （雷达图）返回结果
+// legendData 为订单状态，radarIndicator 为商品分类，seriesData 为各状态在不同分类下的销量。
 message DashboardRadarResponse {
   message RadarIndicator {
     string name = 1 [
