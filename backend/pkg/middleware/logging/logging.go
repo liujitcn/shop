@@ -127,12 +127,10 @@ func Server(logger log.Logger,
 				}
 			}
 			reply, err = handler(ctx, req)
+			baseLog.Success = err == nil
 			if se := errors.FromError(err); se != nil {
 				baseLog.StatusCode = se.Code
 				baseLog.Reason = se.Reason
-			} else {
-				// 成功
-				baseLog.Success = true
 			}
 			baseLog.CostTime = time.Since(startTime).Milliseconds()
 			responseBytes, responseErr := json.Marshal(reply)
