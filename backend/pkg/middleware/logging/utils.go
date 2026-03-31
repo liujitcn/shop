@@ -70,6 +70,14 @@ func getClientRealIP(request *http.Request) string {
 		}
 	}
 
+	// 最后兼容部分网关透传的 X-Client-IP 头。
+	xci := request.Header.Get(HeaderKeyXClientIP)
+	if xci != "" {
+		if net.ParseIP(xci) != nil {
+			return xci
+		}
+	}
+
 	return getIPFromRemoteAddr(request.RemoteAddr)
 }
 
@@ -126,6 +134,12 @@ func getRequestId(request *http.Request) string {
 
 // clientIpToLocation 获取客户端IP的地理位置
 func clientIpToLocation(ip string) string {
+	if ip == "" {
+		return ""
+	}
+	if qqwry.IsPrivateIP(ip) {
+		return "内网IP"
+	}
 	res, err := ipClient.Query(ip)
 	if err != nil {
 		return ""

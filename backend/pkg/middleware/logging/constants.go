@@ -5,7 +5,7 @@ const (
 	HeaderKeyReferer       = "Referer"
 	HeaderKeyAuthorization = "Authorization"
 
-	HeaderKeyXRequestID     = "X-Request-ID"
+	HeaderKeyXRequestID     = "X-Request-id"
 	HeaderKeyXFcRequestID   = "x-fc-request-id"
 	HeaderKeyXCorrelationID = "X-Correlation-ID"
 	HeaderKeyXForwardedFor  = "X-Forwarded-For"

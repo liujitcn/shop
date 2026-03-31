@@ -3,6 +3,8 @@
 .idea
 .vscode
 bin
+!bin/
+!bin/server
 tmp
 dist
 node_modules

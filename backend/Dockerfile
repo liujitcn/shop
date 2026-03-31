@@ -1,30 +1,22 @@
-FROM golang:1.26.0-alpine AS builder
-
-WORKDIR /build
-
-RUN apk add --no-cache ca-certificates
-
-COPY go.mod go.sum ./
-RUN go mod download
-
-COPY . .
-
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /build/bin/server ./internal/cmd/server
-
 FROM alpine:3.22
+
+LABEL maintainer="Liu Jun<liujun@newcapec.net>"
+ENV VERSION=1.0
+ENV LANG=C.UTF-8
 
 WORKDIR /app
 
 RUN apk add --no-cache ca-certificates tzdata
-
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo "Asia/Shanghai" > /etc/timezone
 RUN mkdir -p /app/data /app/configs /app/certs
-
-COPY --from=builder /build/bin/server ./server
-COPY --from=builder /build/configs ./configs
-COPY --from=builder /build/certs ./certs
 
 VOLUME ["/app/data", "/app/configs", "/app/certs"]
 
+COPY bin/server /app/server
+COPY configs /app/configs
+COPY certs /app/certs
+
 EXPOSE 6001 7001
 
-ENTRYPOINT ["./server", "-conf", "./configs"]
+ENTRYPOINT ["/app/server", "-conf", "./configs"]

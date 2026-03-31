@@ -1,9 +1,10 @@
 # Makefile 常用目标：初始化工具、生成代码、格式化代码、启动服务
-.PHONY: help init plugin cli fmt gorm-gen wire api openapi ts run docker-build
+.PHONY: help init plugin cli fmt gorm-gen wire api openapi ts run build docker-build
 
 IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
+BINARY ?= bin/server
 
 # 初始化开发环境
 init: plugin cli
@@ -65,8 +66,13 @@ gen: api openapi ts
 run: api openapi
 	@go run ./cmd/server -conf ./configs
 
+# 构建 Linux 可执行文件，供 Docker 镜像直接打包
+build:
+	@mkdir -p $(dir $(BINARY))
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(BINARY) ./internal/cmd/server
+
 # 构建后端服务 Docker 镜像
-docker-build:
+docker-build: build
 	@docker build -f $(DOCKERFILE) -t $(IMAGE):$(TAG) .
 
 # 显示帮助

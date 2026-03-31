@@ -77,6 +77,7 @@ func Server(logger log.Logger,
 					baseLog.Path = htr.PathTemplate()
 					baseLog.Referer = trans.Ptr(referer)
 					baseLog.RequestURI = trans.Ptr(requestUri)
+					baseLog.ClientIP = trans.Ptr(clientIp)
 					baseLog.Location = trans.Ptr(clientIpToLocation(clientIp))
 
 					if htr.Operation() == base.OperationLoginServiceLogin {
@@ -121,6 +122,7 @@ func Server(logger log.Logger,
 					baseLog.BrowserName = ua.Name
 					baseLog.OsName = ua.OS
 					baseLog.OsVersion = ua.OSVersion
+					baseLog.ClientID = deviceName
 					baseLog.ClientName = deviceName
 				}
 			}
@@ -128,6 +130,9 @@ func Server(logger log.Logger,
 			if se := errors.FromError(err); se != nil {
 				baseLog.StatusCode = se.Code
 				baseLog.Reason = se.Reason
+			} else {
+				// 成功
+				baseLog.Success = true
 			}
 			baseLog.CostTime = time.Since(startTime).Milliseconds()
 			responseBytes, responseErr := json.Marshal(reply)
