@@ -1,5 +1,14 @@
 package dto
 
+// CountResult 统计结果
+// 用于聚合新增数量和总数量，避免在多个方法中重复定义
+type CountResult struct {
+	// NewNum 指定时间范围内的新增数量
+	NewNum int64 `gorm:"column:new_num"`
+	// TotalNum 总数量
+	TotalNum int64 `gorm:"column:total_num"`
+}
+
 // OrderSummary 月份订单汇总
 type OrderSummary struct {
 	Key        int64 `json:"key"`

@@ -15,7 +15,7 @@ const TableNameOrderPayment = "order_payment"
 // OrderPayment 订单支付信息
 type OrderPayment struct {
 	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单支付ID" json:"id"`                                                                                                                 // 订单支付ID
-	OrderID        int64          `gorm:"column:order_id;type:bigint;uniqueIndex:unique_order_info,priority:1;comment:订单ID" json:"order_id"`                                                                                            // 订单ID
+	OrderID        int64          `gorm:"column:order_id;type:bigint;uniqueIndex:unique_order_payment,priority:1;comment:订单ID" json:"order_id"`                                                                                         // 订单ID
 	OrderNo        string         `gorm:"column:order_no;type:varchar(32);comment:订单编号" json:"order_no"`                                                                                                                                // 订单编号
 	ThirdOrderNo   string         `gorm:"column:third_order_no;type:varchar(32);comment:三方订单编号" json:"third_order_no"`                                                                                                                  // 三方订单编号
 	TradeType      string         `gorm:"column:trade_type;type:varchar(16);comment:交易类型：JSAPI：公众号支付、小程序支付，NATIVE：Native支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付" json:"trade_type"`                                          // 交易类型：JSAPI：公众号支付、小程序支付，NATIVE：Native支付，APP：APP支付，MICROPAY：付款码支付，MWEB：H5支付，FACEPAY：刷脸支付

@@ -25,3 +25,51 @@
 ## 代码修改约束
 - 后续新增或修改代码时，若当前方法内某个变量名已在上文声明，后续涉及该变量的多值赋值禁止继续使用 `:=` 混合短声明。
 - 遇到上述场景时，必须先显式 `var` 定义新的变量，再使用 `=` 赋值，避免因重复声明触发 IDE 或 lint 警告。
+
+## 数据库索引命名规则
+- 唯一索引命名格式：`unique_表名`
+  - 示例：`unique_order`、`unique_goods`
+  - 参考文件：`pkg/gen/models/order.gen.go`
+- 普通索引命名格式：`idx_表名_字段1_字段2_...`
+  - 单字段索引：`idx_表名_字段名`
+    - 示例：`idx_order_status`、`idx_goods_category_id`
+  - 联合索引：`idx_表名_字段1_字段2`
+    - 示例：`idx_order_user_id_created_at`、`idx_goods_category_created_at`
+- 在 GORM 模型定义中添加索引时，必须严格遵守此命名规范
+  - 唯一索引：`gorm:"column:字段名;type:字段类型;uniqueIndex:unique_表名,priority:N;comment:注释"`
+  - 普通索引：`gorm:"column:字段名;type:字段类型;index:idx_表名_字段1_字段2,priority:N;comment:注释"`
+
+## 数据库命名规则
+- **表命名格式**：全部小写，单词间用下划线分隔
+  - 格式：`aa_bb_cc`
+  - 示例：`order`、`order_goods`、`base_user`、`goods_category`
+  - 禁止：`Order`、`OrderGoods`、`BaseUser`
+- **字段命名格式**：全部小写，单词间用下划线分隔
+  - 格式：`aa_bb_cc`
+  - 示例：`user_id`、`order_no`、`created_at`、`category_id`
+  - 禁止：`userId`、`orderNo`、`createdAt`、`categoryId`
+- **命名原则**：
+  - 使用有意义的英文单词，避免拼音
+  - 优先使用名词，避免动词
+  - 保持一致性，同一概念使用相同命名
+  - 参考文件：`pkg/gen/models/order.gen.go`、`pkg/gen/models/base_user.gen.go`
+
+## 变量命名规则
+- **Go 变量命名格式**：首字母小写的驼峰命名法（小驼峰）
+  - 格式：`aaBbCc`
+  - 示例：`userId`、`userName`、`orderId`、`categoryList`
+  - 禁止：`user_id`、`user_name`、`order_id`、`category_list`
+- **命名原则**：
+  - 变量名必须见名知意，避免无意义缩写
+  - 布尔变量以 `Is`、`Has`、`Can`、`Should` 等开头
+    - 示例：`isActive`、`hasPermission`、`canDelete`、`shouldUpdate`
+  - 常量使用全大写，单词间用下划线分隔
+    - 示例：`MAX_SIZE`、`DEFAULT_TIMEOUT`、`API_VERSION`
+  - 缩写词全大写时需保持一致性
+    - 推荐：`userID`、`htmlContent`、`xmlParser`
+  - 循环变量可使用简短名称（`i`、`j`、`k`），但需有明确上下文
+- **方法命名格式**：首字母大写的驼峰命名法（大驼峰，用于公开方法）或首字母小写（用于私有方法）
+  - 公开方法：`GetUser()`、`CreateOrder()`、`UpdateStatus()`
+  - 私有方法：`getUser()`、`createOrder()`、`updateStatus()`
+- **结构体命名格式**：首字母大写的驼峰命名法（大驼峰）
+  - 示例：`User`、`Order`、`Goods`、`AnalyticsCase`
