@@ -29,6 +29,7 @@ declare global {
   const Expand: typeof import('@element-plus/icons-vue').Expand
   const Female: typeof import('@element-plus/icons-vue').Female
   const Fold: typeof import('@element-plus/icons-vue').Fold
+  const Goods: typeof import('@element-plus/icons-vue').Goods
   const InfoFilled: typeof import('@element-plus/icons-vue').InfoFilled
   const List: typeof import('@element-plus/icons-vue').List
   const Male: typeof import('@element-plus/icons-vue').Male
@@ -49,6 +50,7 @@ declare global {
   const UserFilled: typeof import('@element-plus/icons-vue').UserFilled
   const Van: typeof import('@element-plus/icons-vue').Van
   const View: typeof import('@element-plus/icons-vue').View
+  const Wallet: typeof import('@element-plus/icons-vue').Wallet
   const computed: typeof import('vue').computed
   const createApp: typeof import('vue').createApp
   const customRef: typeof import('vue').customRef

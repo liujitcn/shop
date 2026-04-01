@@ -42,7 +42,6 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
-import { Document, Goods, User, Wallet } from "@element-plus/icons-vue";
 import OrderBarChart from "./components/OrderBarChart.vue";
 import GoodsBarChart from "./components/GoodsBarChart.vue";
 import GoodsPieChart from "./components/GoodsPieChart.vue";
@@ -59,9 +58,9 @@ defineOptions({
 
 /** 时间维度选项，需与后端枚举定义保持一致。 */
 const timeOptions = [
-  { label: "今日", value: DashboardTimeTypeEnum.DAY },
-  { label: "本周", value: DashboardTimeTypeEnum.WEEK },
-  { label: "本月", value: DashboardTimeTypeEnum.MONTH }
+  { label: "今日", value: AnalyticsTimeTypeEnum.DAY },
+  { label: "本周", value: AnalyticsTimeTypeEnum.WEEK },
+  { label: "本月", value: AnalyticsTimeTypeEnum.MONTH }
 ];
 
 const activeTimeType = ref<AnalyticsTimeType>(AnalyticsTimeTypeEnum.DAY);

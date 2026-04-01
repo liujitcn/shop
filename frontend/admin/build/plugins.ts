@@ -64,6 +64,7 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
             "Expand",
             "Female",
             "Fold",
+            "Goods",
             "InfoFilled",
             "List",
             "Male",
@@ -83,7 +84,8 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
             "User",
             "UserFilled",
             "Van",
-            "View"
+            "View",
+            "Wallet"
           ]
         }
       ]
