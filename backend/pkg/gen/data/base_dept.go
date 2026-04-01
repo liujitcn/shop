@@ -7,11 +7,10 @@ package data
 import (
 	"context"
 
-	"shop/pkg/gen/models"
-
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"shop/pkg/gen/models"
 )
 
 // BaseDeptRepo 定义 BaseDept 的基础仓储能力。

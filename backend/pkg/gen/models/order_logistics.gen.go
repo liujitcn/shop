@@ -19,7 +19,7 @@ type OrderLogistics struct {
 	Name      string         `gorm:"column:name;type:varchar(100);comment:物流公司名" json:"name"`                                                      // 物流公司名
 	No        string         `gorm:"column:no;type:varchar(100);comment:单号" json:"no"`                                                             // 单号
 	Contact   string         `gorm:"column:contact;type:varchar(100);comment:联系方式" json:"contact"`                                                 // 联系方式
-	Detail    string         `gorm:"column:detail;type:json;comment:物流详情" json:"detail"`                                                           // 物流详情
+	Detail    string         `gorm:"column:detail;type:text;comment:物流详情" json:"detail"`                                                           // 物流详情
 	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                               // 创建时间
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                               // 删除时间
 }

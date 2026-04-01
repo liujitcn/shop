@@ -21,8 +21,8 @@ type BaseMenu struct {
 	Name      string         `gorm:"column:name;type:varchar(255);comment:路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。" json:"name"` // 路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。如果需要开启缓存，需保证页面 defineOptions 中的 name 与此处一致，建议使用驼峰。
 	Component string         `gorm:"column:component;type:varchar(255);comment:前端页面组件" json:"component"`                                                                                        // 前端页面组件
 	Redirect  string         `gorm:"column:redirect;type:varchar(255);comment:重定向地址" json:"redirect"`                                                                                           // 重定向地址
-	Meta      string         `gorm:"column:meta;type:json;comment:前端页面组件" json:"meta"`                                                                                                          // 前端页面组件
-	Apis      string         `gorm:"column:apis;type:json;comment:分配的API列表" json:"apis"`                                                                                                        // 分配的API列表
+	Meta      string         `gorm:"column:meta;type:text;comment:前端页面组件" json:"meta"`                                                                                                          // 前端页面组件
+	Apis      string         `gorm:"column:apis;type:text;comment:分配的 API 列表" json:"apis"`                                                                                                      // 分配的 API 列表
 	Sort      int32          `gorm:"column:sort;type:int;comment:排序" json:"sort"`                                                                                                               // 排序
 	Status    int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【Status】" json:"status"`                                                                                            // 状态：枚举【Status】
 	CreatedBy int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                                                                                             // 创建人ID

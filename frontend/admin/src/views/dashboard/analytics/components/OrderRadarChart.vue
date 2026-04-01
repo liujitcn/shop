@@ -8,9 +8,9 @@
 
 <script setup lang="ts">
 import * as echarts from "echarts";
-import type { DashboardRadarResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { defDashboardService } from "@/api/admin/dashboard";
+import type { AnalyticsRadarResponse } from "@/rpc/admin/analytics";
+import { AnalyticsTimeType } from "@/rpc/admin/analytics";
+import { defAnalyticsService } from "@/api/admin/analytics";
 
 const props = defineProps({
   id: {
@@ -30,7 +30,7 @@ const props = defineProps({
     default: "400px",
   },
 });
-const sourceData = reactive<DashboardRadarResponse>({
+const sourceData = reactive<AnalyticsRadarResponse>({
   legendData: [],
   radarIndicator: [],
   seriesData: [],
@@ -73,8 +73,8 @@ const getChartOption = () => {
 };
 onMounted(async () => {
   const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  const res = await defDashboardService.DashboardRadarOrder({
-    timeType: DashboardTimeType.DAY,
+  const res = await defAnalyticsService.AnalyticsRadarOrder({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(sourceData, res);
   chart.setOption(getChartOption());

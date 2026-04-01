@@ -47,9 +47,9 @@ import OrderBarChart from "./components/OrderBarChart.vue";
 import GoodsBarChart from "./components/GoodsBarChart.vue";
 import GoodsPieChart from "./components/GoodsPieChart.vue";
 import OrderRadarChart from "./components/OrderRadarChart.vue";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardCountResponse, DashboardTimeType } from "@/rpc/admin/dashboard";
-import { DashboardTimeType as DashboardTimeTypeEnum } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsCountResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
+import { AnalyticsTimeType as AnalyticsTimeTypeEnum } from "@/rpc/admin/analytics";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -64,34 +64,34 @@ const timeOptions = [
   { label: "本月", value: DashboardTimeTypeEnum.MONTH }
 ];
 
-const activeTimeType = ref<DashboardTimeType>(DashboardTimeTypeEnum.DAY);
+const activeTimeType = ref<AnalyticsTimeType>(AnalyticsTimeTypeEnum.DAY);
 
 const activeTimeLabel = computed(() => {
   return timeOptions.find(item => item.value === activeTimeType.value)?.label ?? "当前";
 });
 
-const dashboardCountUser = reactive<DashboardCountResponse>({
+const dashboardCountUser = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
   totalNum: 0
 });
 
-const dashboardCountGoods = reactive<DashboardCountResponse>({
+const dashboardCountGoods = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
   totalNum: 0
 });
 
-const dashboardCountOrder = reactive<DashboardCountResponse>({
+const dashboardCountOrder = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
   totalNum: 0
 });
 
-const dashboardCountSale = reactive<DashboardCountResponse>({
+const dashboardCountSale = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
@@ -159,12 +159,12 @@ const summaryCards = computed<SummaryCardItem[]>(() => [
 /**
  * 按当前时间维度加载顶部汇总数据。
  */
-async function loadSummaryData(timeType: DashboardTimeType) {
+async function loadSummaryData(timeType: AnalyticsTimeType) {
   const [user, goods, order, sale] = await Promise.all([
-    defDashboardService.DashboardCountUser({ timeType }),
-    defDashboardService.DashboardCountGoods({ timeType }),
-    defDashboardService.DashboardCountOrder({ timeType }),
-    defDashboardService.DashboardCountSale({ timeType })
+    defAnalyticsService.AnalyticsCountUser({ timeType }),
+    defAnalyticsService.AnalyticsCountGoods({ timeType }),
+    defAnalyticsService.AnalyticsCountOrder({ timeType }),
+    defAnalyticsService.AnalyticsCountSale({ timeType })
   ]);
 
   Object.assign(dashboardCountUser, user);

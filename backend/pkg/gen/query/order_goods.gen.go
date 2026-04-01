@@ -36,9 +36,9 @@ func newOrderGoods(db *gorm.DB, opts ...gen.DOOption) orderGoods {
 	_orderGoods.Name = field.NewString(tableName, "name")
 	_orderGoods.Num = field.NewInt64(tableName, "num")
 	_orderGoods.Price = field.NewInt64(tableName, "price")
-	_orderGoods.PayPrice = field.NewInt64(tableName, "payPrice")
-	_orderGoods.TotalPrice = field.NewInt64(tableName, "totalPrice")
-	_orderGoods.TotalPayPrice = field.NewInt64(tableName, "totalPayPrice")
+	_orderGoods.PayPrice = field.NewInt64(tableName, "pay_price")
+	_orderGoods.TotalPrice = field.NewInt64(tableName, "total_price")
+	_orderGoods.TotalPayPrice = field.NewInt64(tableName, "total_pay_price")
 	_orderGoods.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_orderGoods.fillFieldMap()
@@ -55,7 +55,7 @@ type orderGoods struct {
 	OrderID       field.Int64  // 订单ID
 	GoodsID       field.Int64  // 商品ID
 	SkuCode       field.String // 规格编号
-	SpecItem      field.String // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
+	SpecItem      field.String // SKU 规格组成，注意：需要与 goods_spec 数组顺序对应
 	Picture       field.String // 商品图片
 	Name          field.String // 商品名称
 	Num           field.Int64  // 数量
@@ -89,9 +89,9 @@ func (o *orderGoods) updateTableName(table string) *orderGoods {
 	o.Name = field.NewString(table, "name")
 	o.Num = field.NewInt64(table, "num")
 	o.Price = field.NewInt64(table, "price")
-	o.PayPrice = field.NewInt64(table, "payPrice")
-	o.TotalPrice = field.NewInt64(table, "totalPrice")
-	o.TotalPayPrice = field.NewInt64(table, "totalPayPrice")
+	o.PayPrice = field.NewInt64(table, "pay_price")
+	o.TotalPrice = field.NewInt64(table, "total_price")
+	o.TotalPayPrice = field.NewInt64(table, "total_pay_price")
 	o.DeletedAt = field.NewField(table, "deleted_at")
 
 	o.fillFieldMap()
@@ -129,9 +129,9 @@ func (o *orderGoods) fillFieldMap() {
 	o.fieldMap["name"] = o.Name
 	o.fieldMap["num"] = o.Num
 	o.fieldMap["price"] = o.Price
-	o.fieldMap["payPrice"] = o.PayPrice
-	o.fieldMap["totalPrice"] = o.TotalPrice
-	o.fieldMap["totalPayPrice"] = o.TotalPayPrice
+	o.fieldMap["pay_price"] = o.PayPrice
+	o.fieldMap["total_price"] = o.TotalPrice
+	o.fieldMap["total_pay_price"] = o.TotalPayPrice
 	o.fieldMap["deleted_at"] = o.DeletedAt
 }
 

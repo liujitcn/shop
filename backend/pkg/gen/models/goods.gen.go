@@ -19,7 +19,7 @@ type Goods struct {
 	Name          string         `gorm:"column:name;type:varchar(255);comment:商品名称" json:"name"`                     // 商品名称
 	Desc          string         `gorm:"column:desc;type:varchar(255);comment:商品描述" json:"desc"`                     // 商品描述
 	Picture       string         `gorm:"column:picture;type:varchar(1024);comment:商品图片" json:"picture"`              // 商品图片
-	Banner        string         `gorm:"column:banner;type:json;comment:商品视频" json:"banner"`                         // 商品视频
+	Banner        string         `gorm:"column:banner;type:text;comment:商品视频" json:"banner"`                         // 商品视频
 	Detail        string         `gorm:"column:detail;type:text;comment:商品详情" json:"detail"`                         // 商品详情
 	Price         int64          `gorm:"column:price;type:bigint;comment:当前价格(分)" json:"price"`                      // 当前价格(分)
 	DiscountPrice int64          `gorm:"column:discount_price;type:bigint;comment:折扣价格（分）" json:"discount_price"`    // 折扣价格（分）

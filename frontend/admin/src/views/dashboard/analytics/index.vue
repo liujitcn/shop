@@ -134,9 +134,9 @@ import GoodsBarChart from "./components/GoodsBarChart.vue";
 import GoodsPieChart from "./components/GoodsPieChart.vue";
 import OrderRadarChart from "./components/OrderRadarChart.vue";
 import { useUserStore } from "@/store/modules/user";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardCountResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsCountResponse } from "@/rpc/admin/analytics";
+import { AnalyticsTimeType } from "@/rpc/admin/analytics";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -144,25 +144,25 @@ defineOptions({
   inheritAttrs: false,
 });
 
-const dashboardCountUser = reactive<DashboardCountResponse>({
+const dashboardCountUser = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
   totalNum: 0,
 });
-const dashboardCountGoods = reactive<DashboardCountResponse>({
+const dashboardCountGoods = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
   totalNum: 0,
 });
-const dashboardCountOrder = reactive<DashboardCountResponse>({
+const dashboardCountOrder = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
   totalNum: 0,
 });
-const dashboardCountSale = reactive<DashboardCountResponse>({
+const dashboardCountSale = reactive<AnalyticsCountResponse>({
   /** 新增数量 */
   newNum: 0,
   /** 总数量 */
@@ -170,23 +170,23 @@ const dashboardCountSale = reactive<DashboardCountResponse>({
 });
 
 async function handleQuery() {
-  const user = await defDashboardService.DashboardCountUser({
-    timeType: DashboardTimeType.DAY,
+  const user = await defAnalyticsService.AnalyticsCountUser({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(dashboardCountUser, user);
 
-  const goods = await defDashboardService.DashboardCountGoods({
-    timeType: DashboardTimeType.DAY,
+  const goods = await defAnalyticsService.AnalyticsCountGoods({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(dashboardCountGoods, goods);
 
-  const order = await defDashboardService.DashboardCountOrder({
-    timeType: DashboardTimeType.DAY,
+  const order = await defAnalyticsService.AnalyticsCountOrder({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(dashboardCountOrder, order);
 
-  const sale = await defDashboardService.DashboardCountSale({
-    timeType: DashboardTimeType.DAY,
+  const sale = await defAnalyticsService.AnalyticsCountSale({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(dashboardCountSale, sale);
 }

@@ -13,14 +13,14 @@
 import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardBarResponse, DashboardTimeType } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsBarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
 const props = defineProps<{
-  timeType: DashboardTimeType;
+  timeType: AnalyticsTimeType;
 }>();
 
-const sourceData = reactive<DashboardBarResponse>({
+const sourceData = reactive<AnalyticsBarResponse>({
   /** 图例的数据数组 */
   axisData: [],
   /** 数据内容数组 */
@@ -131,14 +131,14 @@ const option = computed<ECOption>(() => ({
       type: "line",
       yAxisIndex: 2,
       smooth: true,
-      data: (sourceData.seriesData[2]?.value ?? []).map(item => item / 100)
+      data: sourceData.seriesData[2]?.value ?? []
     },
     {
       name: seriesNames.saleGrowth,
       type: "line",
       yAxisIndex: 2,
       smooth: true,
-      data: (sourceData.seriesData[3]?.value ?? []).map(item => item / 100)
+      data: sourceData.seriesData[3]?.value ?? []
     }
   ]
 }));
@@ -146,8 +146,8 @@ const option = computed<ECOption>(() => ({
 /**
  * 根据时间维度加载订单趋势图数据。
  */
-async function loadChartData(timeType: DashboardTimeType) {
-  const data = await defDashboardService.DashboardBarOrder({ timeType });
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsBarOrder({ timeType });
   Object.assign(sourceData, data);
 }
 

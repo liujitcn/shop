@@ -13,14 +13,14 @@
 import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardBarResponse, DashboardTimeType } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsBarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
 const props = defineProps<{
-  timeType: DashboardTimeType;
+  timeType: AnalyticsTimeType;
 }>();
 
-const sourceData = reactive<DashboardBarResponse>({
+const sourceData = reactive<AnalyticsBarResponse>({
   /** 图例的数据数组 */
   axisData: [],
   /** 数据内容数组 */
@@ -93,8 +93,8 @@ const option = computed<ECOption>(() => ({
 /**
  * 根据时间维度加载商品销量排行数据。
  */
-async function loadChartData(timeType: DashboardTimeType) {
-  const data = await defDashboardService.DashboardBarGoods({
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsBarGoods({
     timeType,
     top: 15
   });

@@ -13,14 +13,14 @@
 import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardRadarResponse, DashboardTimeType } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsRadarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
 const props = defineProps<{
-  timeType: DashboardTimeType;
+  timeType: AnalyticsTimeType;
 }>();
 
-const sourceData = reactive<DashboardRadarResponse>({
+const sourceData = reactive<AnalyticsRadarResponse>({
   legendData: [],
   radarIndicator: [],
   seriesData: []
@@ -78,8 +78,8 @@ const option = computed<ECOption>(() => ({
 /**
  * 根据时间维度加载商品分类订单状态雷达图数据。
  */
-async function loadChartData(timeType: DashboardTimeType) {
-  const data = await defDashboardService.DashboardRadarOrder({ timeType });
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsRadarOrder({ timeType });
   Object.assign(sourceData, data);
 }
 

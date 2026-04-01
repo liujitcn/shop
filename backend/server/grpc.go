@@ -44,6 +44,7 @@ func NewGRPCServer(
 	ctx *bootstrap.Context,
 	middlewares GrpcMiddlewares,
 
+	adminAnalytics *admin.AnalyticsService,
 	adminAuth *admin.AuthService,
 	adminBaseApi *admin.BaseApiService,
 	adminBaseConfig *admin.BaseConfigService,
@@ -54,7 +55,6 @@ func NewGRPCServer(
 	adminBaseMenu *admin.BaseMenuService,
 	adminBaseRole *admin.BaseRoleService,
 	adminBaseUser *admin.BaseUserService,
-	adminDashboard *admin.DashboardService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
 	adminGoods *admin.GoodsService,
@@ -95,6 +95,7 @@ func NewGRPCServer(
 	if err != nil {
 		return nil, err
 	}
+	adminApi.RegisterAnalyticsServiceServer(srv, adminAnalytics)
 	adminApi.RegisterAuthServiceServer(srv, adminAuth)
 	adminApi.RegisterBaseApiServiceServer(srv, adminBaseApi)
 	adminApi.RegisterBaseConfigServiceServer(srv, adminBaseConfig)
@@ -105,7 +106,6 @@ func NewGRPCServer(
 	adminApi.RegisterBaseMenuServiceServer(srv, adminBaseMenu)
 	adminApi.RegisterBaseRoleServiceServer(srv, adminBaseRole)
 	adminApi.RegisterBaseUserServiceServer(srv, adminBaseUser)
-	adminApi.RegisterDashboardServiceServer(srv, adminDashboard)
 	adminApi.RegisterGoodsCategoryServiceServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceServer(srv, adminGoodsProp)
 	adminApi.RegisterGoodsServiceServer(srv, adminGoods)

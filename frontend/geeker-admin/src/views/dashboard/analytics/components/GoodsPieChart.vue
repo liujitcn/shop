@@ -13,14 +13,14 @@
 import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardPieResponse, DashboardTimeType } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsPieResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
 const props = defineProps<{
-  timeType: DashboardTimeType;
+  timeType: AnalyticsTimeType;
 }>();
 
-const sourceData = reactive<DashboardPieResponse>({
+const sourceData = reactive<AnalyticsPieResponse>({
   /** 数据内容数组 */
   seriesData: []
 });
@@ -66,8 +66,8 @@ const option = computed<ECOption>(() => ({
 /**
  * 根据时间维度加载商品分类占比数据。
  */
-async function loadChartData(timeType: DashboardTimeType) {
-  const data = await defDashboardService.DashboardPieGoods({ timeType });
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsPieGoods({ timeType });
   Object.assign(sourceData, data);
 }
 

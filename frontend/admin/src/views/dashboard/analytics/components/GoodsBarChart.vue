@@ -8,9 +8,9 @@
 
 <script setup lang="ts">
 import * as echarts from "echarts";
-import type { DashboardBarResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { defDashboardService } from "@/api/admin/dashboard";
+import type { AnalyticsBarResponse } from "@/rpc/admin/analytics";
+import { AnalyticsTimeType } from "@/rpc/admin/analytics";
+import { defAnalyticsService } from "@/api/admin/analytics";
 
 const props = defineProps({
   id: {
@@ -30,7 +30,7 @@ const props = defineProps({
     default: "400px",
   },
 });
-const sourceData = reactive<DashboardBarResponse>({
+const sourceData = reactive<AnalyticsBarResponse>({
   /** 图例的数据数组 */
   axisData: [],
   /** 数据内容数组 */
@@ -86,8 +86,8 @@ const getChartOption = () => {
 
 onMounted(async () => {
   const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  const res = await defDashboardService.DashboardBarGoods({
-    timeType: DashboardTimeType.DAY,
+  const res = await defAnalyticsService.AnalyticsBarGoods({
+    timeType: AnalyticsTimeType.DAY,
     top: 15,
   });
   Object.assign(sourceData, res);

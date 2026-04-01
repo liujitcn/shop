@@ -8,9 +8,9 @@
 
 <script setup lang="ts">
 import * as echarts from "echarts";
-import type { DashboardPieResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { defDashboardService } from "@/api/admin/dashboard";
+import type { AnalyticsPieResponse } from "@/rpc/admin/analytics";
+import { AnalyticsTimeType } from "@/rpc/admin/analytics";
+import { defAnalyticsService } from "@/api/admin/analytics";
 
 const props = defineProps({
   id: {
@@ -31,7 +31,7 @@ const props = defineProps({
   },
 });
 
-const sourceData = reactive<DashboardPieResponse>({
+const sourceData = reactive<AnalyticsPieResponse>({
   /** 数据内容数组 */
   seriesData: [],
 });
@@ -87,8 +87,8 @@ const getChartOption = () => {
 
 onMounted(async () => {
   const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  const res = await defDashboardService.DashboardPieGoods({
-    timeType: DashboardTimeType.DAY,
+  const res = await defAnalyticsService.AnalyticsPieGoods({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(sourceData, res);
   chart.setOption(getChartOption());

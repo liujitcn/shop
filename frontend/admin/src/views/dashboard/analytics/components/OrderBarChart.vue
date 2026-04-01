@@ -16,9 +16,9 @@
 
 <script setup lang="ts">
 import * as echarts from "echarts";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardBarResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsBarResponse } from "@/rpc/admin/analytics";
+import { AnalyticsTimeType } from "@/rpc/admin/analytics";
 
 const props = defineProps({
   id: {
@@ -39,7 +39,7 @@ const props = defineProps({
   },
 });
 
-const sourceData = reactive<DashboardBarResponse>({
+const sourceData = reactive<AnalyticsBarResponse>({
   /** 图例的数据数组 */
   axisData: [],
   /** 数据内容数组 */
@@ -175,8 +175,8 @@ const chart = ref<any>("");
 onMounted(async () => {
   // 图表初始化
   chart.value = markRaw(echarts.init(document.getElementById(props.id) as HTMLDivElement));
-  const res = await defDashboardService.DashboardBarOrder({
-    timeType: DashboardTimeType.DAY,
+  const res = await defAnalyticsService.AnalyticsBarOrder({
+    timeType: AnalyticsTimeType.DAY,
   });
   Object.assign(sourceData, res);
 
