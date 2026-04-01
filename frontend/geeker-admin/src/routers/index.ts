@@ -5,6 +5,7 @@ import { LOGIN_URL, ROUTER_WHITE_LIST } from "@/config";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { staticRouter, errorRouter } from "@/routers/modules/staticRouter";
 import NProgress from "@/config/nprogress";
+import { isUnmatchedRoute } from "@/utils/router";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -72,6 +73,12 @@ router.beforeEach(async (to, from, next) => {
 
   // 6.如果没有菜单列表，就重新请求菜单列表并添加动态路由
   if (!authStore.authMenuListGet.length) {
+    await initDynamicRouter();
+    return next({ ...to, replace: true });
+  }
+
+  // 6.1 菜单已恢复但路由实例尚未重新挂载时，补跑一次动态路由注册，避免刷新或登录首跳直接命中 404。
+  if (isUnmatchedRoute(router, to.path)) {
     await initDynamicRouter();
     return next({ ...to, replace: true });
   }

@@ -52,6 +52,7 @@ import { useDictStore } from "@/stores/modules/dict";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
+import { isUnmatchedRoute, navigateTo } from "@/utils/router";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 
@@ -81,8 +82,8 @@ const loginForm = reactive<LoginRequest>({
 
 /** 获取登录后的首个可访问路由 */
 const getFirstAccessibleRoutePath = () => {
-  // 首页路由存在时优先跳转，保证登录后路径与系统默认首页保持一致。
-  if (router.resolve(HOME_URL).matched.length) return HOME_URL;
+  // 首页仅在真正完成动态路由注册后才视为可达，避免把全局 404 占位路由误判为首页已加载。
+  if (!isUnmatchedRoute(router, HOME_URL)) return HOME_URL;
 
   const systemRouteSet = new Set(["/", "/layout", "/login", "/403", "/404", "/500"]);
   const firstRoute = router.getRoutes().find(item => {
@@ -133,8 +134,9 @@ const handleLogin = (formEl: FormInstance | undefined) => {
       tabsStore.setTabs([]);
       keepAliveStore.setKeepAliveName([]);
 
-      // 6.优先跳回登录失效前页面，没有记录时再进入首个可访问页面
-      router.push(getLoginRedirectPath());
+      // 6.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
+      // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
+      await navigateTo(router, getLoginRedirectPath());
       ElNotification({
         title: getTimeState(),
         message: "欢迎登录管理后台",

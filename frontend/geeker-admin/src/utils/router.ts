@@ -4,7 +4,7 @@ import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 /**
  * 判断当前解析结果是否只命中了全局 404 占位路由。
  */
-function isUnmatchedRoute(router: Router, path: string) {
+export function isUnmatchedRoute(router: Router, path: string) {
   const resolved = router.resolve(path);
   if (!resolved.matched.length) return true;
   return resolved.matched.some(item => item.path === "/:pathMatch(.*)*");
