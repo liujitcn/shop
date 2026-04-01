@@ -9,7 +9,7 @@ import {
   type PageBaseJobRequest,
   type PageBaseJobResponse,
   type StartBaseJobRequest,
-  type StopBaseJobRequest,
+  type StopBaseJobRequest
 } from "@/rpc/admin/base_job";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -25,14 +25,14 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<PageBaseJobRequest, PageBaseJobResponse>({
       url: `${BASE_JOB_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询定时任务 */
   GetBaseJob(request: Int64Value): Promise<BaseJobForm> {
     return service<Int64Value, BaseJobForm>({
       url: `${BASE_JOB_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建定时任务 */
@@ -40,7 +40,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<BaseJobForm, Empty>({
       url: `${BASE_JOB_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新定时任务 */
@@ -48,14 +48,14 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<BaseJobForm, Empty>({
       url: `${BASE_JOB_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除定时任务 */
   DeleteBaseJob(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_JOB_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -63,7 +63,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 启动任务 */
@@ -71,7 +71,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<StartBaseJobRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/start`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 停止任务 */
@@ -79,7 +79,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<StopBaseJobRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/stop`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 执行任务 */
@@ -87,7 +87,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<ExecBaseJobRequest, Empty>({
       url: `${BASE_JOB_URL}/${request.id}/exec`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 查询定时任务日志分页列表 */
@@ -95,7 +95,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<PageBaseJobLogRequest, PageBaseJobLogResponse>({
       url: `${BASE_JOB_LOG_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询定时任务日志 */
@@ -103,7 +103,7 @@ export class BaseJobServiceImpl implements BaseJobService {
     return service<Int64Value, BaseJobLog>({
       url: `${BASE_JOB_LOG_URL}/${request.value}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
 }

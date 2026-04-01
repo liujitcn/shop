@@ -1,229 +1,184 @@
-<!--  线 + 柱混合图 -->
 <template>
-  <el-card>
-    <template #header>
-      <div class="title">
-        销售数据统计
-        <el-tooltip effect="dark" content="点击试试下载" placement="bottom">
-          <i-ep-download class="download" @click="downloadEchart" />
-        </el-tooltip>
+  <article class="chart-card">
+    <div class="chart-card__header">
+      <div>
+        <h3 class="chart-card__title">订单销量趋势</h3>
       </div>
-    </template>
-
-    <div :id="id" :class="className" :style="{ height, width }" />
-  </el-card>
+    </div>
+    <ECharts :option="option" :height="360" />
+  </article>
 </template>
 
 <script setup lang="ts">
-import * as echarts from "echarts";
-import { defDashboardService } from "@/api/admin/dashboard";
-import type { DashboardBarResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
+import { computed, reactive, watch } from "vue";
+import ECharts from "@/components/ECharts/index.vue";
+import type { ECOption } from "@/components/ECharts/config";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsBarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
-const props = defineProps({
-  id: {
-    type: String,
-    default: "orderBarChart",
-  },
-  className: {
-    type: String,
-    default: "",
-  },
-  width: {
-    type: String,
-    default: "100%",
-  },
-  height: {
-    type: String,
-    default: "400px",
-  },
-});
+const props = defineProps<{
+  timeType: AnalyticsTimeType;
+}>();
 
-const sourceData = reactive<DashboardBarResponse>({
+const sourceData = reactive<AnalyticsBarResponse>({
   /** 图例的数据数组 */
   axisData: [],
   /** 数据内容数组 */
-  seriesData: [],
+  seriesData: []
 });
 
-const getChartOption = () => {
-  return {
-    grid: {
-      left: "2%",
-      right: "2%",
-      bottom: "10%",
-      containLabel: true,
-    },
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-        crossStyle: {
-          color: "#999",
-        },
-      },
-    },
-    legend: {
-      x: "center",
-      y: "bottom",
-      data: ["销售金额", "订单数量", "销售金额增长率", "订单数量增长率"],
-      textStyle: {
-        color: "#999",
-      },
-    },
-    xAxis: [
-      {
-        type: "category",
-        data: sourceData.axisData,
-        axisPointer: {
-          type: "shadow",
-        },
-      },
-    ],
-    yAxis: [
-      {
-        type: "value",
-        name: "销售金额",
-        position: "left",
-        alignTicks: true,
-        axisLine: {
-          show: true,
-          color: "#83bff6",
-        },
-        axisLabel: {
-          formatter: "{value}元",
-        },
-      },
-      {
-        type: "value",
-        name: "订单数量",
-        position: "left",
-        alignTicks: true,
-        offset: 80,
-        axisLine: {
-          show: true,
-          color: "#25d73c",
-        },
-        axisLabel: {
-          formatter: "{value}单",
-        },
-      },
-      {
-        type: "value",
-        name: "增长率",
-        position: "right",
-        axisLine: {
-          show: true,
-          color: "#EE6666",
-        },
-        axisLabel: {
-          formatter: "{value}%",
-        },
-      },
-    ],
-
-    series: [
-      {
-        name: "订单数量",
-        type: "bar",
-        yAxisIndex: 1,
-        data: sourceData.seriesData[0].value,
-        barWidth: 20,
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: "#25d73c" },
-            { offset: 0.5, color: "#1bc23d" },
-            { offset: 1, color: "#179e61" },
-          ]),
-        },
-      },
-      {
-        name: "销售金额",
-        type: "bar",
-        data: sourceData.seriesData[1].value.map((item) => item / 100),
-        barWidth: 20,
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: "#83bff6" },
-            { offset: 0.5, color: "#188df0" },
-            { offset: 1, color: "#188df0" },
-          ]),
-        },
-      },
-      {
-        name: "订单数量增长率",
-        type: "line",
-        yAxisIndex: 2,
-        data: sourceData.seriesData[2].value.map((item) => item / 100),
-        itemStyle: {
-          color: "#409EFF",
-        },
-      },
-      {
-        name: "销售金额增长率",
-        type: "line",
-        yAxisIndex: 2,
-        data: sourceData.seriesData[3].value.map((item) => item / 100),
-        itemStyle: {
-          color: "#67C23A",
-        },
-      },
-    ],
-  };
+/** 订单趋势图的系列名称，顺序需和后端返回保持一致。 */
+const seriesNames = {
+  orderCount: "订单量",
+  saleAmount: "销售额",
+  orderGrowth: "订单量增长率",
+  saleGrowth: "销售额增长率"
 };
-const chart = ref<any>("");
-onMounted(async () => {
-  // 图表初始化
-  chart.value = markRaw(echarts.init(document.getElementById(props.id) as HTMLDivElement));
-  const res = await defDashboardService.DashboardBarOrder({
-    timeType: DashboardTimeType.DAY,
-  });
-  Object.assign(sourceData, res);
 
-  chart.value.setOption(getChartOption());
-
-  // 大小自适应
-  window.addEventListener("resize", () => {
-    chart.value.resize();
-  });
-});
-const downloadEchart = () => {
-  // 获取画布图表地址信息
-  const img = new Image();
-  img.src = chart.value.getDataURL({
-    type: "png",
-    pixelRatio: 1,
-    backgroundColor: "#fff",
-  });
-  // 当图片加载完成后，生成 URL 并下载
-  img.onload = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(img, 0, 0, img.width, img.height);
-      const link = document.createElement("a");
-      link.download = `销售数据统计.png`;
-      link.href = canvas.toDataURL("image/png", 0.9);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+/** 订单趋势图表配置。 */
+const option = computed<ECOption>(() => ({
+  color: ["#2d6cdf", "#15a87b", "#f08c2e", "#d9485f"],
+  tooltip: {
+    trigger: "axis",
+    axisPointer: {
+      type: "cross"
     }
-  };
-};
+  },
+  legend: {
+    bottom: 0,
+    textStyle: {
+      color: "#7f8ea3"
+    },
+    data: Object.values(seriesNames)
+  },
+  toolbox: {
+    right: 8,
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    top: 36,
+    left: 18,
+    right: 18,
+    bottom: 48,
+    containLabel: true
+  },
+  xAxis: {
+    type: "category",
+    data: sourceData.axisData,
+    axisLabel: {
+      color: "#7f8ea3"
+    },
+    axisLine: {
+      lineStyle: {
+        color: "#d9e2ef"
+      }
+    }
+  },
+  yAxis: [
+    {
+      type: "value",
+      name: seriesNames.orderCount,
+      axisLabel: {
+        color: "#7f8ea3"
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#eef2f8"
+        }
+      }
+    },
+    {
+      type: "value",
+      name: seriesNames.saleAmount,
+      axisLabel: {
+        color: "#7f8ea3",
+        formatter: "{value} 元"
+      }
+    },
+    {
+      type: "value",
+      name: "增长率",
+      axisLabel: {
+        color: "#7f8ea3",
+        formatter: "{value}%"
+      }
+    }
+  ],
+  series: [
+    {
+      name: seriesNames.orderCount,
+      type: "bar",
+      barMaxWidth: 18,
+      data: sourceData.seriesData[0]?.value ?? [],
+      itemStyle: {
+        borderRadius: [8, 8, 0, 0]
+      }
+    },
+    {
+      name: seriesNames.saleAmount,
+      type: "bar",
+      yAxisIndex: 1,
+      barMaxWidth: 18,
+      data: (sourceData.seriesData[1]?.value ?? []).map(item => item / 100),
+      itemStyle: {
+        borderRadius: [8, 8, 0, 0]
+      }
+    },
+    {
+      name: seriesNames.orderGrowth,
+      type: "line",
+      yAxisIndex: 2,
+      smooth: true,
+      data: sourceData.seriesData[2]?.value ?? []
+    },
+    {
+      name: seriesNames.saleGrowth,
+      type: "line",
+      yAxisIndex: 2,
+      smooth: true,
+      data: sourceData.seriesData[3]?.value ?? []
+    }
+  ]
+}));
+
+/**
+ * 根据时间维度加载订单趋势图数据。
+ */
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsBarOrder({ timeType });
+  Object.assign(sourceData, data);
+}
+
+watch(
+  () => props.timeType,
+  value => {
+    loadChartData(value);
+  },
+  { immediate: true }
+);
 </script>
-<style lang="scss" scoped>
-.title {
+
+<style scoped lang="scss">
+.chart-card {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(246 249 253 / 92%));
+  box-shadow: 0 18px 36px rgb(31 45 61 / 8%);
+}
+
+.chart-card__header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
+}
 
-  .download {
-    cursor: pointer;
-
-    &:hover {
-      color: #409eff;
-    }
-  }
+.chart-card__title {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2d3d;
 }
 </style>

@@ -1,74 +1,8 @@
 <template>
-  <div class="app-container">
-    <div class="search-bar">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item prop="name" label="门店名称">
-          <el-input
-            v-model="queryParams.name"
-            placeholder="门店名称"
-            clearable
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <Dict v-model="queryParams.status" code="user_store_status" />
-        </el-form-item>
+  <div class="table-box">
+    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestUserStoreTable" />
 
-        <el-form-item>
-          <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
-          <el-button icon="refresh" @click="handleResetQuery">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-
-    <el-card shadow="never">
-      <el-table v-loading="loading" :data="pageData" highlight-current-row border>
-        <el-table-column label="门店名称" prop="name" />
-        <el-table-column label="联系人" prop="nickName" />
-        <el-table-column label="电话" prop="phone" />
-        <el-table-column label="门店地址">
-          <template #default="scope">
-            {{ scope.row.address.join("-") }} {{ scope.row.detail }}
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" align="center">
-          <template #default="scope">
-            <DictLabel v-model="scope.row.status" code="user_store_status" />
-          </template>
-        </el-table-column>
-        <el-table-column label="备注" prop="remark" />
-        <el-table-column fixed="right" label="操作" width="100">
-          <template #default="scope">
-            <el-button
-              v-hasPerm="['user:store:audit']"
-              type="primary"
-              size="small"
-              link
-              icon="info"
-              @click="handleOpenDialog(scope.row.id)"
-            >
-              审核
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <pagination
-        v-if="total > 0"
-        v-model:total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="handleQuery"
-      />
-    </el-card>
-
-    <el-dialog
-      v-model="dialog.visible"
-      :title="dialog.title"
-      width="1200px"
-      @close="handleCloseDialog"
-    >
-      <!-- 基础信息 -->
+    <ProDialog v-model="dialog.visible" :title="dialog.title" width="1200px" @close="handleCloseDialog">
       <el-card shadow="never">
         <template #header>
           <div class="card-header">
@@ -79,9 +13,7 @@
           <el-descriptions-item label="门店名称">
             {{ detail.name }}
           </el-descriptions-item>
-          <el-descriptions-item label="门店地址">
-            {{ detail.address.join("-") }} {{ detail.detail }}
-          </el-descriptions-item>
+          <el-descriptions-item label="门店地址">{{ formatAddress(detail.address, detail.detail) }}</el-descriptions-item>
           <el-descriptions-item label="门店照片">
             <div class="demo-image__preview">
               <el-image
@@ -117,7 +49,6 @@
         </el-descriptions>
       </el-card>
 
-      <!-- 用户信息 -->
       <el-card shadow="never">
         <template #header>
           <div class="card-header">
@@ -130,65 +61,51 @@
         </el-descriptions>
       </el-card>
 
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="150px">
-        <el-card shadow="never">
-          <template #header>
-            <div class="card-header">
-              <span>审核信息</span>
-            </div>
-          </template>
-          <el-form-item label="审核结果" prop="status">
-            <Dict v-model="formData.status" type="radio" code="user_store_status" />
-          </el-form-item>
-
-          <el-form-item v-if="formData.status == 2" label="拒绝原因" prop="remark">
-            <el-input v-model="formData.remark" type="textarea" placeholder="请输入拒绝原因" />
-          </el-form-item>
-        </el-card>
-      </el-form>
+      <el-card shadow="never">
+        <template #header>
+          <div class="card-header">
+            <span>审核信息</span>
+          </div>
+        </template>
+        <ProForm ref="proFormRef" :model="formData" :fields="formFields" :rules="rules" label-width="150px" />
+      </el-card>
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="handleSubmitClick">确 定</el-button>
           <el-button @click="handleCloseDialog">取 消</el-button>
         </div>
       </template>
-    </el-dialog>
+    </ProDialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed, reactive, ref } from "vue";
+import { ElMessage } from "element-plus";
+import { CircleCheck } from "@element-plus/icons-vue";
+import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
+import ProDialog from "@/components/Dialog/ProDialog.vue";
+import ProForm from "@/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
+import { useAuthButtons } from "@/hooks/useAuthButtons";
+import { defUserStoreService } from "@/api/admin/user_store";
+import type { AuditUserStoreForm, PageUserStoreRequest, UserStore } from "@/rpc/admin/user_store";
 import { UserStoreStatus } from "@/rpc/common/enum";
+import { buildPageRequest } from "@/utils/proTable";
 
 defineOptions({
   name: "UserStore",
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
-import { defUserStoreService } from "@/api/admin/user_store";
-import { UserStore, PageUserStoreRequest, AuditUserStoreForm } from "@/rpc/admin/user_store";
-const queryFormRef = ref(ElForm);
-const dataFormRef = ref(ElForm);
-
-const loading = ref(false);
-const total = ref(0);
-
-const queryParams = reactive<PageUserStoreRequest>({
-  /** 门店名称 */
-  name: "",
-  /** 状态码 */
-  status: undefined,
-  /** 当前页码 */
-  pageNum: 0,
-  /** 每一页的行数 */
-  pageSize: 10,
-});
-
-// 表格数据
-const pageData = ref<UserStore[]>();
+const { BUTTONS } = useAuthButtons();
+const proTable = ref<ProTableInstance>();
+const proFormRef = ref<ProFormInstance>();
 
 const dialog = reactive({
   title: "",
-  visible: false,
+  visible: false
 });
 
 const detail = ref<UserStore>({
@@ -211,7 +128,7 @@ const detail = ref<UserStore>({
   /** 联系人 */
   nickName: "",
   /** 手机号 */
-  phone: "",
+  phone: ""
 });
 
 const formData = reactive<AuditUserStoreForm>({
@@ -220,78 +137,142 @@ const formData = reactive<AuditUserStoreForm>({
   /** 状态 */
   status: UserStoreStatus.UNKNOWN_USS,
   /** 备注名 */
-  remark: "",
+  remark: ""
 });
 
 const rules = reactive({
   status: [{ required: true, message: "审核结果不能为空", trigger: "change" }],
-  remark: [{ required: true, message: "拒绝原因", trigger: "blur" }],
+  remark: [{ required: true, message: "拒绝原因", trigger: "blur" }]
 });
 
-/** 查询 */
-function handleQuery() {
-  loading.value = true;
-  defUserStoreService
-    .PageUserStore(queryParams)
-    .then((data) => {
-      pageData.value = data.list;
-      total.value = data.total;
-    })
-    .finally(() => {
-      loading.value = false;
-    });
-}
-/** 重置查询 */
-function handleResetQuery() {
-  queryFormRef.value.resetFields();
-  queryParams.pageNum = 1;
-  handleQuery();
-}
-
-// 打开用户门店弹窗
-function handleOpenDialog(logId?: number) {
-  dialog.visible = true;
-  if (logId) {
-    dialog.title = "用户门店详情";
-    defUserStoreService
-      .GetUserStore({
-        value: logId,
-      })
-      .then((data) => {
-        detail.value = data;
-        formData.id = detail.value.id;
-        formData.status = detail.value.status;
-      });
+/** 门店审核表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  { prop: "status", label: "审核结果", component: "dict", props: { code: "user_store_status", type: "radio" } },
+  {
+    prop: "remark",
+    label: "拒绝原因",
+    component: "textarea",
+    props: { placeholder: "请输入拒绝原因" },
+    visible: model => model.status == 2
   }
+]);
+
+/** 用户门店表格列配置。 */
+const columns: ColumnProps[] = [
+  { prop: "name", label: "门店名称", minWidth: 140, search: { el: "input" } },
+  { prop: "nickName", label: "联系人", minWidth: 100 },
+  { prop: "phone", label: "电话", minWidth: 130 },
+  {
+    prop: "address",
+    label: "门店地址",
+    minWidth: 220,
+    render: scope => formatAddress((scope.row as UserStore).address, (scope.row as UserStore).detail)
+  },
+  { prop: "status", label: "状态", minWidth: 120, dictCode: "user_store_status", search: { el: "select" } },
+  { prop: "remark", label: "备注", minWidth: 160 },
+  {
+    prop: "operation",
+    label: "操作",
+    width: 100,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "审核",
+        type: "primary",
+        link: true,
+        icon: CircleCheck,
+        hidden: () => !BUTTONS.value["user:store:audit"],
+        params: scope => ({ storeId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.storeId as number | undefined) ?? (scope.row as UserStore).id)
+      }
+    ]
+  }
+];
+
+/**
+ * 请求用户门店列表，并由 ProTable 统一维护分页与查询参数。
+ */
+async function requestUserStoreTable(params: PageUserStoreRequest) {
+  const data = await defUserStoreService.PageUserStore(buildPageRequest(params));
+  return { data };
 }
 
-// 关闭用户门店弹窗
-function handleCloseDialog() {
-  dialog.visible = false;
-  dataFormRef.value.resetFields();
-  dataFormRef.value.clearValidate();
-
-  formData.id = 0;
+/**
+ * 刷新用户门店表格。
+ */
+function refreshTable() {
+  proTable.value?.getTableList();
 }
 
-// 提交字典表单
-function handleSubmitClick() {
-  dataFormRef.value.validate((isValid: boolean) => {
-    if (isValid) {
-      loading.value = true;
-      defUserStoreService
-        .AuditUserStore(formData)
-        .then(() => {
-          ElMessage.success("审核成功");
-          handleCloseDialog();
-          handleQuery();
-        })
-        .finally(() => (loading.value = false));
-    }
+/**
+ * 格式化门店地址，兼容地址数组为空或未返回的情况。
+ */
+function formatAddress(address?: string[], detailAddress?: string) {
+  const addressText = Array.isArray(address) ? address.filter(Boolean).join("-") : "";
+  return [addressText, detailAddress].filter(Boolean).join(" ") || "--";
+}
+
+/**
+ * 打开用户门店详情弹窗。
+ */
+function handleOpenDialog(storeId?: number) {
+  resetDialogData();
+  dialog.title = "用户门店详情";
+  dialog.visible = true;
+  if (!storeId) return;
+
+  defUserStoreService.GetUserStore({ value: storeId }).then(data => {
+    detail.value = data;
+    formData.id = data.id;
+    formData.status = data.status;
+    formData.remark = data.remark;
   });
 }
 
-onMounted(() => {
-  handleQuery();
-});
+/**
+ * 关闭用户门店弹窗并清理审核表单。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetDialogData();
+}
+
+/**
+ * 重置门店详情与审核表单，避免切换弹窗时残留旧数据。
+ */
+function resetDialogData() {
+  proFormRef.value?.resetFields();
+  proFormRef.value?.clearValidate();
+  detail.value = {
+    id: 0,
+    name: "",
+    address: [],
+    detail: "",
+    picture: [],
+    businessLicense: [],
+    status: UserStoreStatus.UNKNOWN_USS,
+    remark: "",
+    nickName: "",
+    phone: ""
+  };
+  formData.id = 0;
+  formData.status = UserStoreStatus.UNKNOWN_USS;
+  formData.remark = "";
+}
+
+/**
+ * 提交门店审核结果。
+ */
+function handleSubmitClick() {
+  proFormRef.value?.validate()?.then(isValid => {
+    if (!isValid) return;
+
+    defUserStoreService.AuditUserStore(formData).then(() => {
+      ElMessage.success("门店审核成功");
+      handleCloseDialog();
+      refreshTable();
+    });
+  });
+}
 </script>

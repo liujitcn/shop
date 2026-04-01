@@ -1,413 +1,379 @@
-<!-- 热门推荐数据 -->
+<!-- 热门推荐选项数据 -->
 <template>
-  <div class="app-container">
-    <div class="search-bar mt-5">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item label="热门推荐标题" prop="title">
-          <el-input
-            v-model="queryParams.title"
-            placeholder="热门推荐标题"
-            clearable
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <Dict v-model="queryParams.status" code="status" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="search" @click="handleQuery()">搜索</el-button>
-          <el-button icon="refresh" @click="handleResetQuery()">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+  <div class="table-box">
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestShopHotItemTable"
+      :init-param="initParam"
+    />
 
-    <el-card shadow="never">
-      <div class="mb-[10px]">
-        <el-button
-          v-hasPerm="['shop:hot-item:create']"
-          type="success"
-          icon="plus"
-          @click="handleOpenDialog()"
-        >
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['shop:hot-item:delete']"
-          type="danger"
-          :disabled="ids.length === 0"
-          icon="delete"
-          @click="handleDelete()"
-        >
-          删除
-        </el-button>
-      </div>
-
-      <el-table
-        v-loading="loading"
-        highlight-current-row
-        :data="tableData"
-        border
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column title="热门推荐标题" prop="title" />
-        <el-table-column label="排序" prop="sort" />
-        <el-table-column label="状态" align="center" prop="status" width="80">
-          <template #default="scope">
-            <el-switch
-              v-model="scope.row.status"
-              inline-prompt
-              :active-value="Status.ENABLE"
-              :inactive-value="Status.DISABLE"
-              active-text="启用"
-              inactive-text="禁用"
-              :disabled="!useUserStore().hasPerm('shop:hot-item:status')"
-              @change="handleSetStatus(scope.row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column label="创建时间" prop="createdAt" align="center" />
-        <el-table-column label="更新时间" prop="updatedAt" align="center" />
-        <el-table-column fixed="right" label="操作" align="center" width="200">
-          <template #default="scope">
-            <el-button
-              v-hasPerm="['shop:hot-item:update']"
-              type="primary"
-              link
-              size="small"
-              icon="edit"
-              @click.stop="handleOpenDialog(scope.row.id)"
-            >
-              编辑
-            </el-button>
-            <el-button
-              v-hasPerm="['shop:hot-item:delete']"
-              type="danger"
-              link
-              size="small"
-              icon="delete"
-              @click.stop="handleDelete(scope.row.id)"
-            >
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <pagination
-        v-if="total > 0"
-        v-model:total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="handleQuery"
-      />
-    </el-card>
-
-    <!--热门推荐弹窗-->
-    <el-dialog
+    <FormDialog
       v-model="dialog.visible"
+      ref="formDialogRef"
       :title="dialog.title"
-      width="1400px"
+      width="1300px"
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="150px"
+      @confirm="handleSubmit"
       @close="handleCloseDialog"
     >
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="150px">
-        <el-card shadow="never">
-          <el-form-item label="热门推荐标题" prop="title">
-            <el-input v-model="formData.title" placeholder="热门推荐标题" />
-          </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-switch
-              v-model="formData.status"
-              inline-prompt
-              active-text="启用"
-              inactive-text="禁用"
-              :active-value="Status.ENABLE"
-              :inactive-value="Status.DISABLE"
-            />
-          </el-form-item>
-          <el-form-item label="排序">
-            <el-input-number
-              v-model="formData.sort"
-              controls-position="right"
-              :min="1"
-              :precision="0"
-              :step="1"
-            />
-          </el-form-item>
-          <el-form-item label="推荐商品">
-            <el-transfer
-              v-model="formData.goodsIds"
-              :titles="['可选商品', '已选商品']"
-              filterable
-              :data="transferData"
-            >
-              <template #default="{ option }">
-                <el-popover effect="light" trigger="hover" placement="top" width="auto">
-                  <template #default>
-                    <div>价格: {{ formatPrice(option.price) }}</div>
-                  </template>
-                  <template #reference>{{ option.label }}</template>
-                </el-popover>
-              </template>
-            </el-transfer>
-          </el-form-item>
-        </el-card>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmitClick">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
+      <template #goodsTransferItem="slotScope">
+        <el-popover effect="light" trigger="hover" placement="top" width="auto">
+          <template #default>
+            <div>价格：{{ formatPrice(slotScope.option.price) }}</div>
+          </template>
+          <template #reference>{{ slotScope.option.label }}</template>
+        </el-popover>
       </template>
-    </el-dialog>
+    </FormDialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import { useUserStore } from "@/store";
+import { computed, reactive, ref, watch } from "vue";
+import { useRoute } from "vue-router";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
+import { useAuthButtons } from "@/hooks/useAuthButtons";
+import { defShopHotService } from "@/api/admin/shop_hot";
+import { defGoodsService } from "@/api/admin/goods";
+import type { ListGoodsResponse_Goods } from "@/rpc/admin/goods";
+import type { PageShopHotItemRequest, ShopHotItem, ShopHotItemForm } from "@/rpc/admin/shop_hot";
+import { Status } from "@/rpc/common/enum";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { formatPrice } from "@/utils/utils";
 
 defineOptions({
   name: "ShopHotItem",
-  inheritAttrs: false,
+  inheritAttrs: false
 });
-
-import { defShopHotService } from "@/api/admin/shop_hot";
-import type { ShopHotItem, ShopHotItemForm, PageShopHotItemRequest } from "@/rpc/admin/shop_hot";
-import type { ListGoodsResponse_Goods } from "@/rpc/admin/goods";
-import { defGoodsService } from "@/api/admin/goods";
-import { formatPrice } from "../../../utils/utils";
-import { Status } from "@/rpc/common/enum";
 
 const route = useRoute();
+const { BUTTONS } = useAuthButtons();
+const proTable = ref<ProTableInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
-const hotId = ref(route.query.hotId as unknown as number);
-
-const queryFormRef = ref(ElForm);
-const dataFormRef = ref(ElForm);
-
-const loading = ref(false);
-const ids = ref<number[]>([]);
-const total = ref(0);
-
-const queryParams = reactive<PageShopHotItemRequest>({
-  /** 热门推荐id */
-  hotId: hotId.value,
-  /** 热门推荐属性名称 */
-  title: "",
-  /** 状态 */
-  status: undefined,
-  /** 当前页码 */
-  pageNum: 0,
-  /** 每一页的行数 */
-  pageSize: 10,
+const hotId = ref(Number(route.query.hotId ?? 0));
+const initParam = reactive({
+  hotId: hotId.value
 });
-
-const tableData = ref<ShopHotItem[]>();
 
 const dialog = reactive({
   title: "",
-  visible: false,
+  visible: false
 });
 
 const formData = reactive<ShopHotItemForm>({
-  /** 热门推荐ID */
+  /** 热门推荐选项ID */
   id: 0,
   /** 热门推荐ID */
   hotId: hotId.value,
-  /** 热门推荐标题 */
+  /** 标题 */
   title: "",
   /** 排序 */
   sort: 1,
-  /** 商品Id */
+  /** 商品ID */
   goodsIds: [],
   /** 状态 */
-  status: Status.ENABLE,
+  status: Status.ENABLE
 });
 
-// 监听路由参数变化，更新热门推荐数据
+const goodsList = ref<ListGoodsResponse_Goods[]>([]);
+
+const rules = computed(() => ({
+  title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
+  status: [{ required: true, message: "状态不能为空", trigger: "blur" }]
+}));
+
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
+
+/** 推荐商品穿梭框数据。 */
+const transferData = computed(() =>
+  goodsList.value.map(item => ({
+    ...item,
+    value: item.id,
+    label: `${item.categoryName}/${item.name}`
+  }))
+);
+
+/** 热门推荐选项表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "title",
+    label: "热门推荐选项标题",
+    component: "input",
+    props: { placeholder: "请输入热门推荐选项标题" }
+  },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions },
+  {
+    prop: "sort",
+    label: "排序",
+    component: "input-number",
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
+  },
+  {
+    prop: "goodsIds",
+    label: "推荐商品",
+    component: "transfer",
+    slotName: "goodsTransferItem",
+    options: transferData.value,
+    props: { titles: ["可选商品", "已选商品"], filterable: true },
+    colSpan: 24
+  }
+]);
+
+/** 热门推荐选项表格列配置。 */
+const columns: ColumnProps[] = [
+  { type: "selection", width: 55 },
+  { prop: "title", label: "热门推荐选项标题", minWidth: 180, search: { el: "input" } },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
+  {
+    prop: "status",
+    label: "状态",
+    minWidth: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["shop:hot-item:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as ShopHotItem)
+    }
+  },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
+  {
+    prop: "operation",
+    label: "操作",
+    width: 180,
+    fixed: "right",
+    cellType: "actions",
+    actions: [
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["shop:hot-item:update"],
+        params: scope => ({ hotItemId: scope.row.id }),
+        onClick: (scope, params) => handleOpenDialog((params?.hotItemId as number | undefined) ?? (scope.row as ShopHotItem).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["shop:hot-item:delete"],
+        onClick: scope => handleDelete(scope.row as ShopHotItem)
+      }
+    ]
+  }
+];
+
+/** 热门推荐选项顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["shop:hot-item:create"],
+    onClick: () => handleOpenDialog()
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["shop:hot-item:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as ShopHotItem[])
+  }
+];
+
+/**
+ * 监听路由中的热门推荐 ID，切换后刷新列表并同步表单默认值。
+ */
 watch(
-  () => [route.query.hotId],
-  ([newHotId]) => {
-    queryParams.hotId = newHotId as unknown as number;
-    hotId.value = newHotId as unknown as number;
-    handleQuery();
+  () => route.query.hotId,
+  newHotId => {
+    hotId.value = Number(newHotId ?? 0);
+    initParam.hotId = hotId.value;
+    formData.hotId = hotId.value;
+    formData.id = 0;
+    proTable.value?.search();
   }
 );
-const rules = computed(() => {
-  const rules: Partial<Record<string, any>> = {
-    title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
-    status: [{ required: true, message: "状态不能为空", trigger: "blur" }],
-  };
-  return rules;
-});
 
-// 查询
-function handleQuery() {
-  loading.value = true;
-  defShopHotService
-    .PageShopHotItem(queryParams)
-    .then((data) => {
-      tableData.value = data.list;
-      total.value = data.total;
+/**
+ * 请求热门推荐选项分页数据，并附带当前热门推荐 ID。
+ */
+async function requestShopHotItemTable(params: PageShopHotItemRequest) {
+  const data = await defShopHotService.PageShopHotItem(
+    buildPageRequest({
+      ...params,
+      hotId: hotId.value
     })
-    .finally(() => {
-      loading.value = false;
-    });
-}
-
-// 重置查询
-function handleResetQuery() {
-  queryFormRef.value.resetFields();
-  queryParams.pageNum = 1;
-  handleQuery();
-}
-
-// 行选择
-function handleSelectionChange(selection: any) {
-  ids.value = selection.map((item: any) => item.id);
-}
-const goodsList = ref<ListGoodsResponse_Goods[]>([]);
-// api 穿梭框数据
-const transferData = computed(() => {
-  return goodsList.value.map((item) => ({
-    ...item,
-    key: item.id,
-    label: `${item.categoryName}/${item.name}`,
-  }));
-});
-
-// 打开弹窗
-async function handleOpenDialog(hotItemId?: number) {
-  const listGoodsResponse = await defGoodsService.ListGoods({
-    name: "",
-  });
-  goodsList.value = listGoodsResponse.list || [];
-  dialog.visible = true;
-  if (hotItemId) {
-    dialog.title = "修改热门推荐数据";
-    defShopHotService
-      .GetShopHotItem({
-        value: hotItemId,
-      })
-      .then((data) => {
-        Object.assign(formData, { ...data });
-      });
-  } else {
-    dialog.title = "新增热门推荐数据";
-  }
-}
-
-// 提交表单
-function handleSubmitClick() {
-  dataFormRef.value.validate((isValid: boolean) => {
-    if (isValid) {
-      loading.value = true;
-      const id = formData.id;
-      formData.hotId = hotId.value;
-      if (id) {
-        defShopHotService
-          .UpdateShopHotItem(formData)
-          .then(() => {
-            ElMessage.success("修改成功");
-            handleCloseDialog();
-            handleQuery();
-          })
-          .finally(() => (loading.value = false));
-      } else {
-        defShopHotService
-          .CreateShopHotItem(formData)
-          .then(() => {
-            ElMessage.success("新增成功");
-            handleCloseDialog();
-            handleQuery();
-          })
-          .finally(() => (loading.value = false));
-      }
-    }
-  });
-}
-
-// 关闭弹窗
-function handleCloseDialog() {
-  dialog.visible = false;
-
-  dataFormRef.value.resetFields();
-  dataFormRef.value.clearValidate();
-
-  formData.id = 0;
-  formData.goodsIds = [];
-}
-
-// 设置热门推荐状态
-function handleSetStatus(row: ShopHotItem) {
-  let text = row.status === Status.ENABLE ? "启用" : "禁用";
-  ElMessageBox.confirm(`是否确定${text}热门推荐属性为：${row.title}?`, "提示", {
-    confirmButtonText: "确认",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
-    .then(() => {
-      defShopHotService.SetShopHotItemStatus({ id: row.id, status: row.status }).then(() => {
-        handleQuery();
-        ElMessage.success(`${text}成功`);
-      });
-    })
-    .catch(() => {
-      if (row.status == 0) {
-        row.status = 1;
-      } else {
-        row.status = 0;
-      }
-    });
+  );
+  return { data };
 }
 
 /**
- * 删除热门推荐
- *
- * @param hotItemId 热门推荐ID
+ * 刷新当前热门推荐选项表格。
  */
-function handleDelete(hotItemId?: number) {
-  const hotItemIds = [hotItemId || ids.value].join(",");
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
+/**
+ * 加载推荐商品下拉数据，供穿梭框使用。
+ */
+async function loadGoodsOptions() {
+  const listGoodsResponse = await defGoodsService.ListGoods({ name: "" });
+  goodsList.value = listGoodsResponse.list || [];
+}
+
+/**
+ * 重置热门推荐选项表单，避免新增和编辑之间互相污染。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.hotId = hotId.value;
+  formData.title = "";
+  formData.sort = 1;
+  formData.goodsIds = [];
+  formData.status = Status.ENABLE;
+}
+
+/**
+ * 打开热门推荐选项弹窗，并预加载推荐商品数据。
+ */
+async function handleOpenDialog(hotItemId?: number) {
+  resetForm();
+  await loadGoodsOptions();
+  dialog.title = hotItemId ? "修改热门推荐选项" : "新增热门推荐选项";
+  dialog.visible = true;
+  if (!hotItemId) return;
+
+  defShopHotService.GetShopHotItem({ value: hotItemId }).then(data => {
+    Object.assign(formData, data);
+  });
+}
+
+/**
+ * 关闭热门推荐选项弹窗并恢复默认值。
+ */
+function handleCloseDialog() {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 提交热门推荐选项表单。
+ */
+function handleSubmit() {
+  formDialogRef.value?.validate()?.then(isValid => {
+    if (!isValid) return;
+
+    formData.hotId = hotId.value;
+    const submitData = JSON.parse(JSON.stringify(formData)) as ShopHotItemForm;
+    const request = submitData.id
+      ? defShopHotService.UpdateShopHotItem(submitData)
+      : defShopHotService.CreateShopHotItem(submitData);
+    request.then(() => {
+      ElMessage.success(submitData.id ? "修改热门推荐项成功" : "新增热门推荐项成功");
+      handleCloseDialog();
+      refreshTable();
+    });
+  });
+}
+
+/**
+ * 在热门推荐选项状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
+ */
+async function handleBeforeSetStatus(row: ShopHotItem) {
+  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
+  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const hotItemName = row.title || `ID:${row.id}`;
+  try {
+    await ElMessageBox.confirm(`是否确定${text}推荐项？\n推荐标题：${hotItemName}`, "提示", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+    await defShopHotService.SetShopHotItemStatus({ id: row.id, status: nextStatus });
+    ElMessage.success(`${text}成功`);
+    refreshTable();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * 删除热门推荐选项，兼容单项删除与批量删除。
+ */
+function handleDelete(selected?: number | string | Array<number | string> | ShopHotItem | ShopHotItem[]) {
+  const hotItemList = Array.isArray(selected)
+    ? (selected.filter(item => typeof item === "object") as ShopHotItem[])
+    : selected && typeof selected === "object"
+      ? [selected as ShopHotItem]
+      : [];
+  const hotItemIds = (
+    hotItemList.length
+      ? hotItemList.map(item => item.id)
+      : normalizeSelectedIds(selected as number | string | Array<number | string>)
+  ).join(",");
   if (!hotItemIds) {
     ElMessage.warning("请勾选删除项");
     return;
   }
-  ElMessageBox.confirm("确认删除已选中的数据项?", "警告", {
+
+  const confirmMessage = hotItemList.length
+    ? hotItemList.length === 1
+      ? `是否确定删除推荐项？\n推荐标题：${hotItemList[0].title || `ID:${hotItemList[0].id}`}`
+      : `确认删除已选中的 ${hotItemList.length} 个热门推荐项吗？`
+    : "确认删除已选中的热门推荐项吗？";
+
+  ElMessageBox.confirm(confirmMessage, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "warning",
+    type: "warning"
   }).then(
     () => {
-      defShopHotService
-        .DeleteShopHotItem({
-          value: hotItemIds,
-        })
-        .then(() => {
-          ElMessage.success("删除成功");
-          handleResetQuery();
-        });
+      defShopHotService.DeleteShopHotItem({ value: hotItemIds }).then(() => {
+        ElMessage.success("删除热门推荐项成功");
+        refreshTable();
+      });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除热门推荐项");
     }
   );
 }
-
-onMounted(() => {
-  handleQuery();
-});
 </script>
+
 <style scoped>
-/* 使用深度选择器穿透 scoped 样式 */
 :deep(.el-transfer-panel) {
-  width: 450px; /* 面板整体宽度 */
+  width: 450px;
 }
 
-/* 调整列表区域 */
 :deep(.el-transfer-panel__list) {
-  height: 400px; /* 列表高度 */
-  width: 100%; /* 宽度继承父容器 */
+  width: 100%;
+  height: 400px;
 }
 </style>

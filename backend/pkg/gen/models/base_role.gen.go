@@ -18,7 +18,7 @@ type BaseRole struct {
 	Name      string         `gorm:"column:name;type:varchar(30);comment:角色名称" json:"name"`                                          // 角色名称
 	Code      string         `gorm:"column:code;type:varchar(100);uniqueIndex:unique_base_role,priority:1;comment:角色代码" json:"code"` // 角色代码
 	DataScope int32          `gorm:"column:data_scope;type:tinyint;comment:数据权限：枚举【BaseRoleDataScope】" json:"data_scope"`            // 数据权限：枚举【BaseRoleDataScope】
-	Menus     string         `gorm:"column:menus;type:json;comment:分配的菜单列表" json:"menus"`                                            // 分配的菜单列表
+	Menus     string         `gorm:"column:menus;type:text;comment:分配的菜单列表" json:"menus"`                                            // 分配的菜单列表
 	Status    int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【Status】" json:"status"`                                 // 状态：枚举【Status】
 	Remark    string         `gorm:"column:remark;type:varchar(500);comment:备注" json:"remark"`                                       // 备注
 	CreatedBy int64          `gorm:"column:created_by;type:bigint;comment:创建者ID" json:"created_by"`                                  // 创建者ID

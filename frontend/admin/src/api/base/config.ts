@@ -10,7 +10,7 @@ export class ConfigServiceImpl implements ConfigService {
     return service<ConfigRequest, ConfigResponse>({
       url: `${CONFIG_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
 }

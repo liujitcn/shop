@@ -1,101 +1,131 @@
-<!-- 漏斗图 -->
 <template>
-  <el-card>
-    <template #header>商品销量排行榜</template>
-    <div :id="id" :class="className" :style="{ height, width }" />
-  </el-card>
+  <article class="chart-card">
+    <div class="chart-card__header">
+      <div>
+        <h3 class="chart-card__title">商品销量排行</h3>
+      </div>
+    </div>
+    <ECharts :option="option" :height="360" />
+  </article>
 </template>
 
 <script setup lang="ts">
-import * as echarts from "echarts";
-import type { DashboardBarResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { defDashboardService } from "@/api/admin/dashboard";
+import { computed, reactive, watch } from "vue";
+import ECharts from "@/components/ECharts/index.vue";
+import type { ECOption } from "@/components/ECharts/config";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsBarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
-const props = defineProps({
-  id: {
-    type: String,
-    default: "goodsBarChart",
-  },
-  className: {
-    type: String,
-    default: "",
-  },
-  width: {
-    type: String,
-    default: "100%",
-  },
-  height: {
-    type: String,
-    default: "400px",
-  },
-});
-const sourceData = reactive<DashboardBarResponse>({
+const props = defineProps<{
+  timeType: AnalyticsTimeType;
+}>();
+
+const sourceData = reactive<AnalyticsBarResponse>({
   /** 图例的数据数组 */
   axisData: [],
   /** 数据内容数组 */
-  seriesData: [],
+  seriesData: []
 });
 
-const getChartOption = () => {
-  return {
-    grid: {
-      left: "2%",
-      right: "2%",
-      bottom: "10%",
-      containLabel: true,
+/** 商品销量排行图表配置。 */
+const option = computed<ECOption>(() => ({
+  color: ["#2d6cdf"],
+  tooltip: {
+    trigger: "axis",
+    axisPointer: {
+      type: "shadow"
+    }
+  },
+  toolbox: {
+    right: 8,
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  grid: {
+    top: 30,
+    left: 10,
+    right: 12,
+    bottom: 8,
+    containLabel: true
+  },
+  xAxis: {
+    type: "value",
+    axisLabel: {
+      color: "#7f8ea3"
     },
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-        crossStyle: {
-          color: "#999",
-        },
-      },
+    splitLine: {
+      lineStyle: {
+        color: "#eef2f8"
+      }
+    }
+  },
+  yAxis: {
+    type: "category",
+    data: sourceData.axisData,
+    axisLabel: {
+      color: "#7f8ea3"
     },
-    xAxis: [
-      {
-        type: "value",
+    axisLine: {
+      lineStyle: {
+        color: "#d9e2ef"
+      }
+    }
+  },
+  series: [
+    {
+      name: "销量",
+      type: "bar",
+      barMaxWidth: 16,
+      data: sourceData.seriesData[0]?.value ?? [],
+      showBackground: true,
+      backgroundStyle: {
+        color: "#edf3fb",
+        borderRadius: 8
       },
-    ],
-    yAxis: [
-      {
-        type: "category",
-        data: sourceData.axisData,
-      },
-    ],
+      itemStyle: {
+        borderRadius: [0, 8, 8, 0]
+      }
+    }
+  ]
+}));
 
-    series: [
-      {
-        name: "销售数量",
-        type: "bar",
-        data: sourceData.seriesData[0].value,
-        barWidth: 20,
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: "#83bff6" },
-            { offset: 0.5, color: "#188df0" },
-            { offset: 1, color: "#188df0" },
-          ]),
-        },
-      },
-    ],
-  };
-};
-
-onMounted(async () => {
-  const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  const res = await defDashboardService.DashboardBarGoods({
-    timeType: DashboardTimeType.DAY,
-    top: 15,
+/**
+ * 根据时间维度加载商品销量排行数据。
+ */
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsBarGoods({
+    timeType,
+    top: 15
   });
-  Object.assign(sourceData, res);
-  console.log(getChartOption());
-  chart.setOption(getChartOption());
+  Object.assign(sourceData, data);
+}
 
-  window.addEventListener("resize", () => {
-    chart.resize();
-  });
-});
+watch(
+  () => props.timeType,
+  value => {
+    loadChartData(value);
+  },
+  { immediate: true }
+);
 </script>
+
+<style scoped lang="scss">
+.chart-card {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(246 249 253 / 92%));
+  box-shadow: 0 18px 36px rgb(31 45 61 / 8%);
+}
+
+.chart-card__header {
+  margin-bottom: 12px;
+}
+
+.chart-card__title {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2d3d;
+}
+</style>

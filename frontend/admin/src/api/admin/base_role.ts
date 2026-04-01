@@ -4,7 +4,7 @@ import {
   type BaseRoleService,
   type PageBaseRoleRequest,
   type PageBaseRoleResponse,
-  type SetMenusRequest,
+  type SetMenusRequest
 } from "@/rpc/admin/base_role";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -19,7 +19,7 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     return service<Empty, SelectOptionResponse>({
       url: `${BASE_ROLE_URL}/option`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询角色分页列表 */
@@ -27,14 +27,14 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     return service<PageBaseRoleRequest, PageBaseRoleResponse>({
       url: `${BASE_ROLE_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询角色 */
   GetBaseRole(request: Int64Value): Promise<BaseRoleForm> {
     return service<Int64Value, BaseRoleForm>({
       url: `${BASE_ROLE_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建角色 */
@@ -42,7 +42,7 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     return service<BaseRoleForm, Empty>({
       url: `${BASE_ROLE_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新角色 */
@@ -50,14 +50,14 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     return service<BaseRoleForm, Empty>({
       url: `${BASE_ROLE_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除角色 */
   DeleteBaseRole(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_ROLE_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -65,7 +65,7 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_ROLE_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 设置角色菜单权限 */
@@ -73,7 +73,7 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     return service<SetMenusRequest, Empty>({
       url: `${BASE_ROLE_URL}/` + request.id + "/menus",
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

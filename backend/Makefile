@@ -36,7 +36,7 @@ fmt:
 
 # 生成 GORM 代码
 gorm-gen:
-	gen -base_path=pkg/gen -source='root:112233@tcp(127.0.0.1:3306)/shop?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
+	gen -base_path=pkg/gen -source='root:112233@tcp(127.0.0.1:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
 
 # 生成 wire 依赖注入代码
 wire: fmt

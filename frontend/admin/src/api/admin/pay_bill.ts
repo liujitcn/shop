@@ -1,9 +1,5 @@
 import service from "@/utils/request";
-import {
-  type PayBillService,
-  type PagePayBillRequest,
-  type PagePayBillResponse,
-} from "@/rpc/admin/pay_bill";
+import { type PayBillService, type PagePayBillRequest, type PagePayBillResponse } from "@/rpc/admin/pay_bill";
 
 const BASE_LOG_URL = "/admin/pay/bill";
 
@@ -14,7 +10,7 @@ export class PayBillServiceImpl implements PayBillService {
     return service<PagePayBillRequest, PagePayBillResponse>({
       url: `${BASE_LOG_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
 }

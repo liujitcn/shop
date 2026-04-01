@@ -5,7 +5,7 @@ import {
   type PageBaseUserRequest,
   type PageBaseUserResponse,
   type ResetBaseUserPwdRequest,
-  type OptionBaseUserRequest,
+  type OptionBaseUserRequest
 } from "@/rpc/admin/base_user";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -20,7 +20,7 @@ export class BaseUserServiceImpl implements BaseUserService {
     return service<OptionBaseUserRequest, SelectOptionResponse>({
       url: `${BASE_USER_URL}/option`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询用户分页列表 */
@@ -28,14 +28,14 @@ export class BaseUserServiceImpl implements BaseUserService {
     return service<PageBaseUserRequest, PageBaseUserResponse>({
       url: `${BASE_USER_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询用户 */
   GetBaseUser(request: Int64Value): Promise<BaseUserForm> {
     return service<Int64Value, BaseUserForm>({
       url: `${BASE_USER_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建用户 */
@@ -43,7 +43,7 @@ export class BaseUserServiceImpl implements BaseUserService {
     return service<BaseUserForm, Empty>({
       url: `${BASE_USER_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新用户 */
@@ -51,14 +51,14 @@ export class BaseUserServiceImpl implements BaseUserService {
     return service<BaseUserForm, Empty>({
       url: `${BASE_USER_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除用户 */
   DeleteBaseUser(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_USER_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -66,7 +66,7 @@ export class BaseUserServiceImpl implements BaseUserService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_USER_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 重置密码 */
@@ -74,7 +74,7 @@ export class BaseUserServiceImpl implements BaseUserService {
     return service<ResetBaseUserPwdRequest, Empty>({
       url: `${BASE_USER_URL}/` + request.id + "/pwd",
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

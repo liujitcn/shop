@@ -11,7 +11,7 @@ export class BaseApiServiceImpl implements BaseApiService {
     return service<Empty, ListBaseApiResponse>({
       url: `${BASE_API_URL}/list`,
       method: "get",
-      params: request,
+      params: request
     });
   }
 }

@@ -1,52 +1,64 @@
 <template>
-  <template v-if="tagType">
-    <el-tag :type="tagType" :size="tagSize">{{ label }}</el-tag>
-  </template>
-  <template v-else>
-    <span>{{ label }}</span>
-  </template>
+  <el-tag v-if="tagType" :type="tagType" :size="size">{{ label }}</el-tag>
+  <span v-else>{{ label }}</span>
 </template>
 
 <script setup lang="ts">
-import { useDictStore } from "@/store";
-const dictStore = useDictStore();
+import { ref, watch } from "vue";
+import { useDictStore } from "@/stores/modules/dict";
 
-const props = defineProps({
-  code: String,
-  modelValue: [String, Number],
-  size: {
-    type: String,
-    default: "default",
-  },
+type TagType = "success" | "warning" | "info" | "primary" | "danger";
+
+interface DictLabelProps {
+  code: string;
+  modelValue?: string | number;
+  size?: "default" | "large" | "small";
+}
+
+const props = withDefaults(defineProps<DictLabelProps>(), {
+  size: "default"
 });
 
+const dictStore = useDictStore();
 const label = ref("");
-const tagType = ref<"success" | "warning" | "info" | "primary" | "danger" | undefined>();
+const tagType = ref<TagType | undefined>();
 
-const tagSize = ref(props.size as "default" | "large" | "small");
+/**
+ * 过滤后端返回的 tag 类型，确保只传递 Element Plus 支持的枚举值。
+ */
+function normalizeTagType(rawTagType?: string): TagType | undefined {
+  const supportedTagTypes: TagType[] = ["success", "warning", "info", "primary", "danger"];
+  if (!rawTagType) return undefined;
+  return supportedTagTypes.find(tag => tag === rawTagType);
+}
 
-const getLabelAndTagByValue = async (dictCode: string, value: any) => {
-  // 先从本地缓存中获取字典数据
-  const dictData = dictStore.getDictionary(dictCode);
+/**
+ * 根据字典值刷新标签文本和标签类型。
+ */
+async function refreshLabelAndTag() {
+  if (!props.code) {
+    label.value = "";
+    tagType.value = undefined;
+    return;
+  }
 
-  // 查找对应的字典项
-  const dictEntry = dictData.find((item: any) => item.value == value);
-  return {
-    label: dictEntry ? dictEntry.label : "",
-    tag: dictEntry ? dictEntry.tagType : undefined,
-  };
-};
+  let dictList = dictStore.getDictionary(props.code);
+  if (!dictList.length) {
+    // 字典缓存可能尚未初始化，组件内部兜底触发一次加载。
+    await dictStore.loadDictionaries();
+    dictList = dictStore.getDictionary(props.code);
+  }
 
-// 监听 props 的变化，获取并更新 label 和 tag
-const fetchLabelAndTag = async () => {
-  const result = await getLabelAndTagByValue(props.code as string, props.modelValue);
-  label.value = result.label;
-  tagType.value = result.tag as "success" | "warning" | "info" | "primary" | "danger" | undefined;
-};
+  const matchedItem = dictList.find(dictItem => dictItem.value == props.modelValue);
+  label.value = matchedItem?.label ?? "";
+  tagType.value = normalizeTagType(matchedItem?.tagType);
+}
 
-// 首次挂载时获取字典数据
-onMounted(fetchLabelAndTag);
-
-// 当 modelValue 发生变化时重新获取
-watch(() => props.modelValue, fetchLabelAndTag);
+watch(
+  () => [props.code, props.modelValue],
+  async () => {
+    await refreshLabelAndTag();
+  },
+  { immediate: true }
+);
 </script>

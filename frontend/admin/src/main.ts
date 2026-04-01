@@ -1,19 +1,68 @@
 import { createApp } from "vue";
 import App from "./App.vue";
-import setupPlugins from "@/plugins";
-
-// 本地SVG图标
-import "virtual:svg-icons-register";
-
-// 样式
+// reset style sheet
+import "@/styles/reset.scss";
+// CSS common style sheet
+import "@/styles/common.scss";
+// iconfont css
+import "@/assets/iconfont/iconfont.scss";
+// font css
+import "@/assets/fonts/font.scss";
+// element css
+import "element-plus/dist/index.css";
+// element dark css
 import "element-plus/theme-chalk/dark/css-vars.css";
-// 暗黑模式自定义变量
-import "@/styles/dark/css-vars.css";
-import "@/styles/index.scss";
-import "uno.css";
-import "animate.css";
+// custom element dark css
+import "@/styles/element-dark.scss";
+// custom element css
+import "@/styles/element.scss";
+// svg icons
+import "virtual:svg-icons-register";
+// element plus
+import ElementPlus from "element-plus";
+// element icons
+import * as Icons from "@element-plus/icons-vue";
+// custom directives
+import directives from "@/directives/index";
+// vue Router
+import router from "@/routers";
+// pinia store
+import pinia from "@/stores";
+// 字典组件
+import Dict from "@/components/Dict/index.vue";
+import DictLabel from "@/components/Dict/DictLabel.vue";
+import SvgIcon from "@/components/SvgIcon/index.vue";
+// errorHandler
+import errorHandler from "@/utils/errorHandler";
+import { useConfigStore } from "@/stores/modules/config";
 
-const app = createApp(App);
-// 注册插件
-app.use(setupPlugins);
-app.mount("#app");
+/**
+ * 启动前先完成全局配置初始化，确保首屏展示尽量使用最新站点配置。
+ */
+async function bootstrap() {
+  const app = createApp(App);
+
+  app.config.errorHandler = errorHandler;
+
+  // register the element Icons component
+  Object.keys(Icons).forEach(key => {
+    app.component(key, Icons[key as keyof typeof Icons]);
+  });
+
+  // 注册字典相关全局组件
+  app.component("Dict", Dict);
+  app.component("DictLabel", DictLabel);
+  app.component("SvgIcon", SvgIcon);
+
+  app.use(ElementPlus).use(directives).use(router).use(pinia);
+
+  try {
+    await useConfigStore().loadDisplayConfig();
+  } catch {
+    // 配置接口失败时继续使用本地默认配置，避免阻断应用启动。
+  }
+
+  app.mount("#app");
+}
+
+bootstrap();

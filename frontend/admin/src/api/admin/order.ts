@@ -1,6 +1,5 @@
-import service from '@/utils/request'
+import service from "@/utils/request";
 import {
-  type Order,
   type OrderRefundResponse,
   type OrderResponse,
   type OrderService,
@@ -8,12 +7,12 @@ import {
   type PageOrderRequest,
   type PageOrderResponse,
   type RefundOrderRequest,
-  type ShippedOrderRequest,
-} from '@/rpc/admin/order'
-import type { Int64Value } from '@/rpc/google/protobuf/wrappers'
-import type { Empty } from '@/rpc/google/protobuf/empty'
+  type ShippedOrderRequest
+} from "@/rpc/admin/order";
+import type { Int64Value } from "@/rpc/google/protobuf/wrappers";
+import type { Empty } from "@/rpc/google/protobuf/empty";
 
-const ORDER_URL = '/admin/order/info'
+const ORDER_URL = "/admin/order/info";
 
 /** 订单服务 */
 export class OrderServiceImpl implements OrderService {
@@ -21,47 +20,47 @@ export class OrderServiceImpl implements OrderService {
   PageOrder(request: PageOrderRequest): Promise<PageOrderResponse> {
     return service<PageOrderRequest, PageOrderResponse>({
       url: `${ORDER_URL}`,
-      method: 'get',
-      params: request,
-    })
+      method: "get",
+      params: request
+    });
   }
   /** 查询订单 */
   GetOrder(request: Int64Value): Promise<OrderResponse> {
     return service<Int64Value, OrderResponse>({
       url: `${ORDER_URL}/${request.value}`,
-      method: 'get',
-    })
+      method: "get"
+    });
   }
   /** 查询订单退款信息 */
   GetOrderRefund(request: Int64Value): Promise<OrderRefundResponse> {
     return service<Int64Value, OrderRefundResponse>({
       url: `${ORDER_URL}/${request.value}/refund`,
-      method: 'get',
-    })
+      method: "get"
+    });
   }
   /** 订单退款 */
   RefundOrder(request: RefundOrderRequest): Promise<Empty> {
     return service<RefundOrderRequest, Empty>({
       url: `${ORDER_URL}/${request.orderId}/refund`,
-      method: 'put',
-      data: request,
-    })
+      method: "put",
+      data: request
+    });
   }
   /** 查询订单发货信息 */
   GetOrderShipped(request: Int64Value): Promise<OrderShippedResponse> {
     return service<Int64Value, OrderShippedResponse>({
       url: `${ORDER_URL}/${request.value}/shipped`,
-      method: 'get',
-    })
+      method: "get"
+    });
   }
   /** 订单发货 */
   ShippedOrder(request: ShippedOrderRequest): Promise<Empty> {
     return service<ShippedOrderRequest, Empty>({
       url: `${ORDER_URL}/${request.orderId}/shipped`,
-      method: 'put',
-      data: request,
-    })
+      method: "put",
+      data: request
+    });
   }
 }
 
-export const defOrderService = new OrderServiceImpl()
+export const defOrderService = new OrderServiceImpl();

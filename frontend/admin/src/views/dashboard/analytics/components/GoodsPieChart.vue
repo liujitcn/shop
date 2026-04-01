@@ -1,99 +1,101 @@
-<!-- 饼图 -->
 <template>
-  <el-card>
-    <template #header>商品分类饼图</template>
-    <div :id="id" :class="className" :style="{ height, width }" />
-  </el-card>
+  <article class="chart-card">
+    <div class="chart-card__header">
+      <div>
+        <h3 class="chart-card__title">商品分类占比</h3>
+      </div>
+    </div>
+    <ECharts :option="option" :height="360" />
+  </article>
 </template>
 
 <script setup lang="ts">
-import * as echarts from "echarts";
-import type { DashboardPieResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { defDashboardService } from "@/api/admin/dashboard";
+import { computed, reactive, watch } from "vue";
+import ECharts from "@/components/ECharts/index.vue";
+import type { ECOption } from "@/components/ECharts/config";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsPieResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
-const props = defineProps({
-  id: {
-    type: String,
-    default: "goodsPieChart",
-  },
-  className: {
-    type: String,
-    default: "",
-  },
-  width: {
-    type: String,
-    default: "100%",
-  },
-  height: {
-    type: String,
-    default: "400px",
-  },
-});
+const props = defineProps<{
+  timeType: AnalyticsTimeType;
+}>();
 
-const sourceData = reactive<DashboardPieResponse>({
+const sourceData = reactive<AnalyticsPieResponse>({
   /** 数据内容数组 */
-  seriesData: [],
+  seriesData: []
 });
 
-const getChartOption = () => {
-  return {
-    grid: {
-      left: "2%",
-      right: "2%",
-      bottom: "10%",
-      containLabel: true,
-    },
-    title: {
-      text: "商品分类",
-      left: "center",
-    },
-    tooltip: {
-      trigger: "item",
-      formatter: "{a} <br/>{b} : {c} ({d}%)",
-    },
-    legend: {
-      top: "bottom",
-      textStyle: {
-        color: "#999",
+/** 商品分类饼图配置。 */
+const option = computed<ECOption>(() => ({
+  color: ["#2d6cdf", "#15a87b", "#f08c2e", "#d9485f", "#7a5af8", "#0ea5e9", "#ef4444", "#84cc16"],
+  tooltip: {
+    trigger: "item",
+    formatter: "{b}<br/>{c} ({d}%)"
+  },
+  legend: {
+    bottom: 0,
+    left: "center",
+    textStyle: {
+      color: "#7f8ea3"
+    }
+  },
+  toolbox: {
+    right: 8,
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  series: [
+    {
+      name: "分类占比",
+      type: "pie",
+      radius: ["34%", "72%"],
+      center: ["50%", "45%"],
+      roseType: "radius",
+      itemStyle: {
+        borderRadius: 8
       },
-    },
-    series: [
-      {
-        name: "商品数量",
-        type: "pie",
-        radius: [50, 130],
-        center: ["50%", "50%"],
-        roseType: "area",
-        itemStyle: {
-          borderRadius: 1,
-        },
-        data: sourceData.seriesData,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
-        label: {
-          show: true, // 显示标签
-          formatter: "{b}", // {b}代表数据项名称，{c}代表数据项的值
-        },
+      label: {
+        color: "#4f5d73"
       },
-    ],
-  };
-};
+      data: sourceData.seriesData
+    }
+  ]
+}));
 
-onMounted(async () => {
-  const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  const res = await defDashboardService.DashboardPieGoods({
-    timeType: DashboardTimeType.DAY,
-  });
-  Object.assign(sourceData, res);
-  chart.setOption(getChartOption());
-  window.addEventListener("resize", () => {
-    chart.resize();
-  });
-});
+/**
+ * 根据时间维度加载商品分类占比数据。
+ */
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsPieGoods({ timeType });
+  Object.assign(sourceData, data);
+}
+
+watch(
+  () => props.timeType,
+  value => {
+    loadChartData(value);
+  },
+  { immediate: true }
+);
 </script>
+
+<style scoped lang="scss">
+.chart-card {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(246 249 253 / 92%));
+  box-shadow: 0 18px 36px rgb(31 45 61 / 8%);
+}
+
+.chart-card__header {
+  margin-bottom: 12px;
+}
+
+.chart-card__title {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2d3d;
+}
+</style>

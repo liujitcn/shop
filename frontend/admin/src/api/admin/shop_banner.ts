@@ -3,7 +3,7 @@ import {
   type ShopBannerForm,
   type ShopBannerService,
   type PageShopBannerRequest,
-  type PageShopBannerResponse,
+  type PageShopBannerResponse
 } from "@/rpc/admin/shop_banner";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -18,14 +18,14 @@ export class ShopBannerServiceImpl implements ShopBannerService {
     return service<PageShopBannerRequest, PageShopBannerResponse>({
       url: `${SHOP_BANNER_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询轮播图 */
   GetShopBanner(request: Int64Value): Promise<ShopBannerForm> {
     return service<Int64Value, ShopBannerForm>({
       url: `${SHOP_BANNER_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建轮播图 */
@@ -33,7 +33,7 @@ export class ShopBannerServiceImpl implements ShopBannerService {
     return service<ShopBannerForm, Empty>({
       url: `${SHOP_BANNER_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新轮播图 */
@@ -41,14 +41,14 @@ export class ShopBannerServiceImpl implements ShopBannerService {
     return service<ShopBannerForm, Empty>({
       url: `${SHOP_BANNER_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除轮播图 */
   DeleteShopBanner(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${SHOP_BANNER_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -56,7 +56,7 @@ export class ShopBannerServiceImpl implements ShopBannerService {
     return service<SetStatusRequest, Empty>({
       url: `${SHOP_BANNER_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

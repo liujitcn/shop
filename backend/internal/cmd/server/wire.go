@@ -4,8 +4,6 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/google/wire"
 	pkgBiz "shop/pkg/biz"
 	pkgConfigs "shop/pkg/configs"
 	pkgGenData "shop/pkg/gen/data"
@@ -14,6 +12,9 @@ import (
 	"shop/service/admin"
 	"shop/service/app"
 	"shop/service/base"
+
+	"github.com/go-kratos/kratos/v2"
+	"github.com/google/wire"
 
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )

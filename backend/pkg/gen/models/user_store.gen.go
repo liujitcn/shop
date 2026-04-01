@@ -17,10 +17,10 @@ type UserStore struct {
 	ID              int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:用户门店ID" json:"id"` // 用户门店ID
 	UserID          int64          `gorm:"column:user_id;type:bigint;comment:用户ID" json:"user_id"`                       // 用户ID
 	Name            string         `gorm:"column:name;type:varchar(100);comment:门店名称" json:"name"`                       // 门店名称
-	Address         string         `gorm:"column:address;type:json;comment:地址编号" json:"address"`                         // 地址编号
+	Address         string         `gorm:"column:address;type:text;comment:地址编号" json:"address"`                         // 地址编号
 	Detail          string         `gorm:"column:detail;type:varchar(255);comment:详细地址" json:"detail"`                   // 详细地址
-	Picture         string         `gorm:"column:picture;type:json;comment:照片" json:"picture"`                           // 照片
-	BusinessLicense string         `gorm:"column:business_license;type:json;comment:营业执照" json:"business_license"`       // 营业执照
+	Picture         string         `gorm:"column:picture;type:text;comment:照片" json:"picture"`                           // 照片
+	BusinessLicense string         `gorm:"column:business_license;type:text;comment:营业执照" json:"business_license"`       // 营业执照
 	Remark          string         `gorm:"column:remark;type:varchar(255);comment:备注" json:"remark"`                     // 备注
 	Status          int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【UserStoreStatus】" json:"status"`      // 状态：枚举【UserStoreStatus】
 	CreatedAt       time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`               // 创建时间

@@ -4,7 +4,7 @@ import {
   type UserStoreService,
   type PageUserStoreRequest,
   type PageUserStoreResponse,
-  type AuditUserStoreForm,
+  type AuditUserStoreForm
 } from "@/rpc/admin/user_store";
 import type { Int64Value } from "@/rpc/google/protobuf/wrappers";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -18,14 +18,14 @@ export class UserStoreServiceImpl implements UserStoreService {
     return service<PageUserStoreRequest, PageUserStoreResponse>({
       url: `${USER_STORE_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询用户门店 */
   GetUserStore(request: Int64Value): Promise<UserStore> {
     return service<Int64Value, UserStore>({
       url: `${USER_STORE_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 门店认证 */
@@ -33,7 +33,7 @@ export class UserStoreServiceImpl implements UserStoreService {
     return service<AuditUserStoreForm, Empty>({
       url: `${USER_STORE_URL}/${request.id}/audit`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }

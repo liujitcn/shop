@@ -1,86 +1,113 @@
-<!-- 雷达图 -->
 <template>
-  <el-card>
-    <template #header>订单状态雷达图</template>
-    <div :id="id" :class="className" :style="{ height, width }" />
-  </el-card>
+  <article class="chart-card">
+    <div class="chart-card__header">
+      <div>
+        <h3 class="chart-card__title">商品分类订单状态</h3>
+      </div>
+    </div>
+    <ECharts :option="option" :height="360" />
+  </article>
 </template>
 
 <script setup lang="ts">
-import * as echarts from "echarts";
-import type { DashboardRadarResponse } from "@/rpc/admin/dashboard";
-import { DashboardTimeType } from "@/rpc/admin/dashboard";
-import { defDashboardService } from "@/api/admin/dashboard";
+import { computed, reactive, watch } from "vue";
+import ECharts from "@/components/ECharts/index.vue";
+import type { ECOption } from "@/components/ECharts/config";
+import { defAnalyticsService } from "@/api/admin/analytics";
+import type { AnalyticsRadarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
-const props = defineProps({
-  id: {
-    type: String,
-    default: "orderRadarChart",
-  },
-  className: {
-    type: String,
-    default: "",
-  },
-  width: {
-    type: String,
-    default: "100%",
-  },
-  height: {
-    type: String,
-    default: "400px",
-  },
-});
-const sourceData = reactive<DashboardRadarResponse>({
+const props = defineProps<{
+  timeType: AnalyticsTimeType;
+}>();
+
+const sourceData = reactive<AnalyticsRadarResponse>({
   legendData: [],
   radarIndicator: [],
-  seriesData: [],
+  seriesData: []
 });
 
-const getChartOption = () => {
-  return {
-    grid: {
-      left: "2%",
-      right: "2%",
-      bottom: "10%",
-      containLabel: true,
+/** 商品分类订单状态雷达图配置。 */
+const option = computed<ECOption>(() => ({
+  color: ["#2d6cdf", "#d9485f", "#15a87b"],
+  tooltip: {
+    trigger: "item"
+  },
+  legend: {
+    bottom: 0,
+    textStyle: {
+      color: "#7f8ea3"
     },
-    tooltip: {
-      trigger: "item",
+    data: sourceData.legendData
+  },
+  toolbox: {
+    right: 8,
+    feature: {
+      saveAsImage: {}
+    }
+  },
+  radar: {
+    radius: "62%",
+    splitNumber: 5,
+    axisName: {
+      color: "#4f5d73"
     },
-    legend: {
-      x: "center",
-      y: "bottom",
-      data: sourceData.legendData,
-      textStyle: {
-        color: "#999",
-      },
+    splitLine: {
+      lineStyle: {
+        color: "#e7edf7"
+      }
     },
-    radar: {
-      radius: "60%",
-      indicator: sourceData.radarIndicator,
+    splitArea: {
+      areaStyle: {
+        color: ["rgb(45 108 223 / 0.03)", "rgb(45 108 223 / 0.01)"]
+      }
     },
-    series: [
-      {
-        name: "分类销量对比",
-        type: "radar",
-        itemStyle: {
-          borderRadius: 6,
-        },
-        data: sourceData.seriesData,
-      },
-    ],
-  };
-};
-onMounted(async () => {
-  const chart = echarts.init(document.getElementById(props.id) as HTMLDivElement);
-  const res = await defDashboardService.DashboardRadarOrder({
-    timeType: DashboardTimeType.DAY,
-  });
-  Object.assign(sourceData, res);
-  chart.setOption(getChartOption());
+    indicator: sourceData.radarIndicator
+  },
+  series: [
+    {
+      name: "商品分类订单状态",
+      type: "radar",
+      data: sourceData.seriesData,
+      areaStyle: {
+        opacity: 0.12
+      }
+    }
+  ]
+}));
 
-  window.addEventListener("resize", () => {
-    chart.resize();
-  });
-});
+/**
+ * 根据时间维度加载商品分类订单状态雷达图数据。
+ */
+async function loadChartData(timeType: AnalyticsTimeType) {
+  const data = await defAnalyticsService.AnalyticsRadarOrder({ timeType });
+  Object.assign(sourceData, data);
+}
+
+watch(
+  () => props.timeType,
+  value => {
+    loadChartData(value);
+  },
+  { immediate: true }
+);
 </script>
+
+<style scoped lang="scss">
+.chart-card {
+  padding: 20px;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(246 249 253 / 92%));
+  box-shadow: 0 18px 36px rgb(31 45 61 / 8%);
+}
+
+.chart-card__header {
+  margin-bottom: 12px;
+}
+
+.chart-card__title {
+  margin: 0;
+  font-size: 20px;
+  color: #1f2d3d;
+}
+</style>

@@ -9,7 +9,7 @@ export class FileServiceImpl {
   /** 多个文件上传 */
   MultiUploadFile(files: File[], fileType: string): Promise<MultiUploadFileResponse> {
     const formData = new FormData();
-    files.map((file) => {
+    files.map(file => {
       formData.append(file.name, file);
     });
     formData.append("basePath", STATIC_API_BASE_PATH);
@@ -19,8 +19,8 @@ export class FileServiceImpl {
       method: "post",
       data: formData,
       headers: {
-        "Content-Type": "multipart/form-data",
-      },
+        "Content-Type": "multipart/form-data"
+      }
     });
   }
   /** 上传文件 */
@@ -34,8 +34,8 @@ export class FileServiceImpl {
       method: "post",
       data: formData,
       headers: {
-        "Content-Type": "multipart/form-data",
-      },
+        "Content-Type": "multipart/form-data"
+      }
     });
   }
   /** 下载文件 */
@@ -46,9 +46,9 @@ export class FileServiceImpl {
         method: "get",
         params: {
           name: fileName,
-          path: file,
+          path: file
         } as DownloadFileRequest,
-        responseType: "blob", // 明确要求返回 Blob 类型
+        responseType: "blob" // 明确要求返回 Blob 类型
       });
       // 获取文件名
       const contentDisposition = response.headers["content-disposition"];

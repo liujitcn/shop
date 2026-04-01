@@ -1,202 +1,72 @@
 <template>
-  <div class="app-container">
-    <div class="search-bar">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item>
-          <el-button class="filter-item" type="primary" icon="search" @click="handleQuery">
-            搜索
-          </el-button>
-          <el-button icon="refresh" @click="handleResetQuery">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+  <div class="table-box">
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :header-actions="headerActions"
+      :request-api="requestGoodsCategoryTable"
+      :pagination="false"
+      :default-expand-all="false"
+      :indent="20"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+    />
 
-    <el-card shadow="never">
-      <div class="mb-10px">
-        <el-button
-          v-hasPerm="['goods:category:create']"
-          type="success"
-          icon="plus"
-          @click="handleOpenDialog(0)"
-        >
-          新增
-        </el-button>
-        <el-button
-          v-hasPerm="['goods:category:delete']"
-          type="danger"
-          :disabled="selectIds.length === 0"
-          icon="delete"
-          @click="handleDelete()"
-        >
-          删除
-        </el-button>
-      </div>
-
-      <el-table
-        v-loading="loading"
-        :data="categoryList"
-        row-key="id"
-        default-expand-all
-        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column prop="name" label="分类名称" />
-        <el-table-column label="图片" min-width="150" align="center">
-          <template #default="scope">
-            <el-popover placement="right" :width="400" trigger="hover">
-              <img :src="scope.row.picture" width="400" height="400" />
-              <template #reference>
-                <img :src="scope.row.picture" style="max-width: 60px; max-height: 60px" />
-              </template>
-            </el-popover>
-          </template>
-        </el-table-column>
-        <el-table-column prop="sort" label="排序" align="right" />
-        <el-table-column label="状态" align="center" prop="status" width="80">
-          <template #default="scope">
-            <el-switch
-              v-model="scope.row.status"
-              inline-prompt
-              :active-value="Status.ENABLE"
-              :inactive-value="Status.DISABLE"
-              active-text="启用"
-              inactive-text="禁用"
-              :disabled="!useUserStore().hasPerm('goods:category:status')"
-              @change="handleSetStatus(scope.row)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column label="创建时间" prop="createdAt" align="center" />
-        <el-table-column label="更新时间" prop="updatedAt" align="center" />
-        <el-table-column label="操作" fixed="right" align="left" width="200">
-          <template #default="scope">
-            <el-button
-              v-if="!scope.row.parentId"
-              v-hasPerm="['goods:category:create']"
-              type="primary"
-              link
-              size="small"
-              icon="plus"
-              @click.stop="handleOpenDialog(scope.row.id, undefined)"
-            >
-              新增
-            </el-button>
-            <el-button
-              v-hasPerm="['goods:category:update']"
-              type="primary"
-              link
-              size="small"
-              icon="edit"
-              @click.stop="handleOpenDialog(scope.row.parentId, scope.row.id)"
-            >
-              编辑
-            </el-button>
-            <el-button
-              v-hasPerm="['goods:category:delete']"
-              type="danger"
-              link
-              size="small"
-              icon="delete"
-              @click.stop="handleDelete(scope.row.id)"
-            >
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
-
-    <el-dialog
+    <FormDialog
       v-model="dialog.visible"
+      ref="formDialogRef"
       :title="dialog.title"
       width="600px"
-      @closed="handleCloseDialog"
-    >
-      <el-form ref="dataFormRef" :model="formData" :rules="rules" label-width="80px">
-        <el-form-item label="上级分类" prop="parentId">
-          <el-tree-select
-            v-model="formData.parentId"
-            placeholder="选择上级分类"
-            :data="categoryOptions"
-            filterable
-            check-strictly
-            :render-after-expand="false"
-          />
-        </el-form-item>
-        <el-form-item label="分类名称" prop="name">
-          <el-input
-            v-model="formData.name"
-            placeholder="请输入分类名称"
-          />
-        </el-form-item>
-        <el-form-item label="照片" prop="picture">
-          <single-image-upload v-model="formData.picture" file-type="category" />
-        </el-form-item>
-        <el-form-item label="排序" prop="sort">
-          <el-input-number
-            v-model="formData.sort"
-            controls-position="right"
-            :min="1"
-            :precision="0"
-            :step="1"
-          />
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="启用"
-            inactive-text="禁用"
-            :active-value="Status.ENABLE"
-            :inactive-value="Status.DISABLE"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
+      :model="formData"
+      :fields="formFields"
+      :rules="rules"
+      label-width="90px"
+      @confirm="handleSubmit"
+      @close="handleCloseDialog"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { TreeOptionResponse_Option } from "@/rpc/common/common";
+import { computed, reactive, ref } from "vue";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
+import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
+import { useAuthButtons } from "@/hooks/useAuthButtons";
+import { defGoodsCategoryService } from "@/api/admin/goods_category";
+import type { GoodsCategory, GoodsCategoryForm } from "@/rpc/admin/goods_category";
+import type { TreeOptionResponse_Option } from "@/rpc/common/common";
+import { Status } from "@/rpc/common/enum";
+import { normalizeSelectedIds } from "@/utils/proTable";
 
 defineOptions({
   name: "GoodsCategory",
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 
-import { defGoodsCategoryService } from "@/api/admin/goods_category";
-import { GoodsCategory, GoodsCategoryForm } from "@/rpc/admin/goods_category";
-import { Empty } from "@/rpc/google/protobuf/empty";
-import { useUserStore } from "@/store";
-import { Status } from "@/rpc/common/enum";
-
-const queryFormRef = ref(ElForm);
-const dataFormRef = ref(ElForm);
-
-const loading = ref(false);
-const selectIds = ref<number[]>([]);
-const queryParams = reactive<Empty>({});
+const { BUTTONS } = useAuthButtons();
+const proTable = ref<ProTableInstance>();
+const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const dialog = reactive({
   title: "",
-  visible: false,
+  visible: false
 });
 
-const categoryList = ref<GoodsCategory[]>();
-const categoryOptions = ref<TreeOptionResponse_Option[]>();
+const categoryOptions = ref<TreeOptionResponse_Option[]>([]);
+const statusOptions: ProFormOption[] = [
+  { label: "启用", value: Status.ENABLE },
+  { label: "禁用", value: Status.DISABLE }
+];
+
 const formData = reactive<GoodsCategoryForm>({
   /** 分类ID */
   id: 0,
   /** 父节点ID */
-  parentId: undefined,
+  parentId: 0,
   /** 分类名称 */
   name: "",
   /** 分类图片 */
@@ -204,173 +74,333 @@ const formData = reactive<GoodsCategoryForm>({
   /** 排序 */
   sort: 1,
   /** 菜单状态 */
-  status: Status.ENABLE,
+  status: Status.ENABLE
 });
 
-const rules = reactive({
+const rules = computed(() => ({
   parentId: [{ required: true, message: "上级分类不能为空", trigger: "change" }],
   name: [{ required: true, message: "分类名称不能为空", trigger: "blur" }],
+  picture: [
+    {
+      validator: (_rule: unknown, value: string, callback: (error?: Error) => void) => {
+        if (formData.parentId !== 0 && !value) {
+          callback(new Error("非顶级分类必须上传图片"));
+          return;
+        }
+        callback();
+      },
+      trigger: "change"
+    }
+  ],
   sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
-  status: [{ required: true, message: "状态不能为空", trigger: "blur" }],
-});
+  status: [{ required: true, message: "状态不能为空", trigger: "change" }]
+}));
 
-// 查询分类
-function handleQuery() {
-  loading.value = true;
-  defGoodsCategoryService.TreeGoodsCategory(queryParams).then((data) => {
-    categoryList.value = data.list;
-    loading.value = false;
-  });
-}
+/** 分类表单字段配置。 */
+const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "parentId",
+    label: "上级分类",
+    component: "tree-select",
+    options: categoryOptions.value,
+    props: {
+      placeholder: "选择上级分类",
+      filterable: true,
+      checkStrictly: true,
+      renderAfterExpand: false,
+      style: { width: "100%" }
+    }
+  },
+  { prop: "name", label: "分类名称", component: "input", props: { placeholder: "请输入分类名称" } },
+  {
+    prop: "picture",
+    label: "照片",
+    component: "image-upload",
+    itemProps: model => ({
+      required: model.parentId !== 0
+    })
+  },
+  {
+    prop: "sort",
+    label: "排序",
+    component: "input-number",
+    props: { min: 1, precision: 0, step: 1, controlsPosition: "right", style: { width: "100%" } }
+  },
+  { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
+]);
 
-// 重置查询
-function handleResetQuery() {
-  queryFormRef.value.resetFields();
-  handleQuery();
-}
+/** 分类表格列配置。 */
+const columns: ColumnProps[] = [
+  { type: "selection", width: 55 },
+  { prop: "name", label: "分类名称", minWidth: 140, align: "left", search: { el: "input" } },
+  {
+    prop: "picture",
+    label: "图片",
+    minWidth: 150,
+    cellType: "image",
+    imageProps: {
+      previewWidth: 400,
+      previewHeight: 400,
+      width: 60,
+      height: 60
+    }
+  },
+  { prop: "sort", label: "排序", minWidth: 90, align: "right" },
+  {
+    prop: "status",
+    label: "状态",
+    minWidth: 100,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: Status.ENABLE,
+      inactiveValue: Status.DISABLE,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["goods:category:status"],
+      beforeChange: scope => handleBeforeSetStatus(scope.row as GoodsCategory)
+    }
+  },
+  { prop: "createdAt", label: "创建时间", minWidth: 180 },
+  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
+  {
+    prop: "operation",
+    label: "操作",
+    width: 220,
+    fixed: "right",
+    align: "left",
+    cellType: "actions",
+    actions: [
+      {
+        label: "新增",
+        type: "primary",
+        link: true,
+        icon: CirclePlus,
+        hidden: scope => !BUTTONS.value["goods:category:create"] || Boolean((scope.row as GoodsCategory).parentId),
+        params: scope => ({ parentId: scope.row.id }),
+        onClick: (_, params) => handleOpenDialog((params?.parentId as number | undefined) ?? 0)
+      },
+      {
+        label: "编辑",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["goods:category:update"],
+        params: scope => ({
+          parentId: scope.row.parentId,
+          categoryId: scope.row.id
+        }),
+        onClick: (_, params) => handleOpenDialog(params?.parentId as number | undefined, params?.categoryId as number | undefined)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        hidden: () => !BUTTONS.value["goods:category:delete"],
+        onClick: scope => handleDelete(scope.row as GoodsCategory)
+      }
+    ]
+  }
+];
 
-// 处理选中项变化
-function handleSelectionChange(selection: any) {
-  selectIds.value = selection.map((item: any) => item.id);
+/** 分类顶部按钮配置。 */
+const headerActions: HeaderActionProps[] = [
+  {
+    label: "新增",
+    type: "success",
+    icon: CirclePlus,
+    hidden: () => !BUTTONS.value["goods:category:create"],
+    onClick: () => handleOpenDialog(0)
+  },
+  {
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    hidden: () => !BUTTONS.value["goods:category:delete"],
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as GoodsCategory[])
+  }
+];
+
+/**
+ * 按搜索条件递归过滤分类树，命中父节点或子节点时保留当前节点。
+ */
+function filterCategoryTree(categoryList: GoodsCategory[], keywordMap: { name: string; status: string }) {
+  const nameKeyword = keywordMap.name.trim().toLowerCase();
+  const statusKeyword = keywordMap.status.trim();
+
+  return categoryList.reduce<GoodsCategory[]>((result, item) => {
+    const children = filterCategoryTree(item.children ?? [], keywordMap);
+    const name = item.name?.toLowerCase() ?? "";
+    const status = String(item.status ?? "");
+    const matched = (!nameKeyword || name.includes(nameKeyword)) && (!statusKeyword || status === statusKeyword);
+
+    if (!matched && !children.length) return result;
+
+    result.push({
+      ...item,
+      children
+    });
+    return result;
+  }, []);
 }
 
 /**
- * 打开分类弹窗
- *
- * @param parentId 父分类ID
- * @param categoryId 分类ID
+ * 请求分类树数据，并按搜索条件过滤树形结构。
  */
-async function handleOpenDialog(parentId?: number, categoryId?: number) {
-  // 加载分类下拉数据
-  const optionGoodsCategoryResponse = await defGoodsCategoryService.OptionGoodsCategory({
-    parentId: 0,
-  });
+async function requestGoodsCategoryTable(params: Record<string, string>) {
+  const data = await defGoodsCategoryService.TreeGoodsCategory({});
+  const keywordMap = {
+    name: params.name ?? "",
+    status: String(params.status ?? "")
+  };
+  return { data: filterCategoryTree(data.list ?? [], keywordMap) };
+}
+
+/**
+ * 刷新分类树表格。
+ */
+function refreshTable() {
+  proTable.value?.getTableList();
+}
+
+/**
+ * 加载分类下拉树数据，供弹窗选择上级分类。
+ */
+async function loadCategoryOptions() {
+  const optionGoodsCategoryResponse = await defGoodsCategoryService.OptionGoodsCategory({ parentId: 0 });
   categoryOptions.value = [
     {
       value: 0,
       label: "顶级分类",
       disabled: false,
-      children: optionGoodsCategoryResponse.list,
-    },
+      children: optionGoodsCategoryResponse.list
+    }
   ];
-
-  dialog.visible = true;
-  if (categoryId) {
-    dialog.title = "修改分类";
-    defGoodsCategoryService
-      .GetGoodsCategory({
-        value: categoryId,
-      })
-      .then((data) => {
-        Object.assign(formData, data);
-      });
-  } else {
-    dialog.title = "新增分类";
-    formData.parentId = parentId;
-  }
 }
 
-// 提交分类表单
+/**
+ * 重置分类表单，避免上次编辑残留到下一次新增。
+ */
+function resetForm() {
+  formDialogRef.value?.resetFields();
+  formDialogRef.value?.clearValidate();
+  formData.id = 0;
+  formData.parentId = 0;
+  formData.name = "";
+  formData.picture = "";
+  formData.sort = 1;
+  formData.status = Status.ENABLE;
+}
+
+/**
+ * 打开分类弹窗。
+ */
+async function handleOpenDialog(parentId?: number, categoryId?: number) {
+  resetForm();
+  await loadCategoryOptions();
+  dialog.title = categoryId ? "修改分类" : "新增分类";
+  dialog.visible = true;
+
+  if (categoryId) {
+    defGoodsCategoryService.GetGoodsCategory({ value: categoryId }).then(data => {
+      Object.assign(formData, data);
+    });
+    return;
+  }
+
+  formData.parentId = parentId ?? 0;
+}
+
+/**
+ * 提交分类表单。
+ */
 function handleSubmit() {
-  dataFormRef.value.validate((valid: any) => {
-    if (valid) {
-      loading.value = true;
-      const categoryId = formData.id;
-      if (categoryId) {
-        defGoodsCategoryService
-          .UpdateGoodsCategory(formData)
-          .then(() => {
-            ElMessage.success("修改成功");
-            handleCloseDialog();
-            handleQuery();
-          })
-          .finally(() => (loading.value = false));
-      } else {
-        defGoodsCategoryService
-          .CreateGoodsCategory(formData)
-          .then(() => {
-            ElMessage.success("新增成功");
-            handleCloseDialog();
-            handleQuery();
-          })
-          .finally(() => (loading.value = false));
-      }
-    }
+  formDialogRef.value?.validate()?.then(valid => {
+    if (!valid) return;
+
+    const submitData = JSON.parse(JSON.stringify(formData)) as GoodsCategoryForm;
+    const request = submitData.id
+      ? defGoodsCategoryService.UpdateGoodsCategory(submitData)
+      : defGoodsCategoryService.CreateGoodsCategory(submitData);
+    request.then(() => {
+      ElMessage.success(submitData.id ? "修改商品分类成功" : "新增商品分类成功");
+      handleCloseDialog();
+      refreshTable();
+    });
   });
 }
 
-// 设置字典状态
-function handleSetStatus(row: GoodsCategory) {
-  let text = row.status === Status.ENABLE ? "启用" : "禁用";
-  ElMessageBox.confirm(`是否确定${text}分类为：${row.name}?`, "提示", {
-    confirmButtonText: "确认",
-    cancelButtonText: "取消",
-    type: "warning",
-  })
-    .then(() => {
-      defGoodsCategoryService
-        .SetGoodsCategoryStatus({ id: row.id, status: row.status })
-        .then(() => {
-          handleQuery();
-          ElMessage.success(`${text}成功`);
-        });
-    })
-    .catch(() => {
-      if (row.status == 0) {
-        row.status = 1;
-      } else {
-        row.status = 0;
-      }
+/**
+ * 在分类状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
+ */
+async function handleBeforeSetStatus(row: GoodsCategory) {
+  const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
+  const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
+  const categoryName = row.name || `ID:${row.id}`;
+  try {
+    await ElMessageBox.confirm(`是否确定${text}分类？\n分类名称：${categoryName}`, "提示", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
     });
+    await defGoodsCategoryService.SetGoodsCategoryStatus({ id: row.id, status: nextStatus });
+    ElMessage.success(`${text}成功`);
+    refreshTable();
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-// 删除分类
-function handleDelete(categoryId?: number) {
-  const categoryIds = [categoryId || selectIds.value].join(",");
-
+/**
+ * 删除分类，兼容单条删除与批量删除。
+ */
+function handleDelete(selected?: number | string | Array<number | string> | GoodsCategory | GoodsCategory[]) {
+  const categoryList = Array.isArray(selected)
+    ? (selected.filter(item => typeof item === "object") as GoodsCategory[])
+    : selected && typeof selected === "object"
+      ? [selected as GoodsCategory]
+      : [];
+  const categoryIds = (
+    categoryList.length
+      ? categoryList.map(item => item.id)
+      : normalizeSelectedIds(selected as number | string | Array<number | string>)
+  ).join(",");
   if (!categoryIds) {
     ElMessage.warning("请勾选删除项");
     return;
   }
 
-  ElMessageBox.confirm("确认删除已选中的数据项?", "警告", {
+  const confirmMessage = categoryList.length
+    ? categoryList.length === 1
+      ? `是否确定删除分类？\n分类名称：${categoryList[0].name || `ID:${categoryList[0].id}`}`
+      : `确认删除已选中的 ${categoryList.length} 个商品分类吗？`
+    : "确认删除已选中的商品分类吗？";
+
+  ElMessageBox.confirm(confirmMessage, "警告", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
-    type: "warning",
+    type: "warning"
   }).then(
     () => {
-      loading.value = true;
-      defGoodsCategoryService
-        .DeleteGoodsCategory({
-          value: categoryIds,
-        })
-        .then(() => {
-          ElMessage.success("删除成功");
-          handleResetQuery();
-        })
-        .finally(() => (loading.value = false));
+      defGoodsCategoryService.DeleteGoodsCategory({ value: categoryIds }).then(() => {
+        ElMessage.success("删除商品分类成功");
+        refreshTable();
+      });
     },
     () => {
-      ElMessage.info("已取消删除");
+      ElMessage.info("已取消删除商品分类");
     }
   );
 }
 
-// 重置表单
-function resetForm() {
-  dataFormRef.value.resetFields();
-  dataFormRef.value.clearValidate();
-
-  formData.id = 0;
-}
-
-// 关闭弹窗
+/**
+ * 关闭分类弹窗并恢复表单默认值。
+ */
 function handleCloseDialog() {
   dialog.visible = false;
   resetForm();
 }
-
-onMounted(() => {
-  handleQuery();
-});
 </script>

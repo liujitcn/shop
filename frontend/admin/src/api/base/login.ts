@@ -1,5 +1,12 @@
 import service from "@/utils/request";
-import type { CaptchaResponse, LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, LoginService } from "@/rpc/base/login";
+import type {
+  CaptchaResponse,
+  LoginRequest,
+  LoginResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
+  LoginService
+} from "@/rpc/base/login";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const LOGIN_URL = "/login";
@@ -11,7 +18,7 @@ export class LoginServiceImpl implements LoginService {
     return service<Empty, CaptchaResponse>({
       url: `${LOGIN_URL}/captcha`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 登录 */
@@ -19,7 +26,7 @@ export class LoginServiceImpl implements LoginService {
     return service<LoginRequest, LoginResponse>({
       url: `${LOGIN_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 登出 */
@@ -27,7 +34,7 @@ export class LoginServiceImpl implements LoginService {
     return service<Empty, Empty>({
       url: `${LOGIN_URL}/logout`,
       method: "delete",
-      data: request,
+      data: request
     });
   }
   /** 刷新认证令牌 */
@@ -35,7 +42,7 @@ export class LoginServiceImpl implements LoginService {
     return service<RefreshTokenRequest, RefreshTokenResponse>({
       url: `${LOGIN_URL}/refreshToken`,
       method: "post",
-      data: request,
+      data: request
     });
   }
 }

@@ -22,29 +22,32 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeMount, ref, watchEffect } from "vue";
+import { useVModel } from "@vueuse/core";
+import { ElTree } from "element-plus";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
 import { TreeOptionResponse_Option } from "@/rpc/common/common";
 const props = defineProps({
   modelValue: {
     type: [Number],
-    default: undefined,
-  },
+    default: undefined
+  }
 });
 
 const goodsCategoryList = ref<TreeOptionResponse_Option[]>(); // 分类列表
-const goodsCategoryTreeRef = ref(ElTree); // 分类树
+const goodsCategoryTreeRef = ref<InstanceType<typeof ElTree>>(); // 分类树
 const name = ref(); // 分类名称
 
-const emits = defineEmits(["node-click"]);
+const emits = defineEmits(["nodeClick"]);
 
 const deptId = useVModel(props, "modelValue", emits);
 
 watchEffect(
   () => {
-    goodsCategoryTreeRef.value.filter(name.value);
+    goodsCategoryTreeRef.value?.filter(name.value);
   },
   {
-    flush: "post", // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
+    flush: "post" // watchEffect会在DOM挂载或者更新之前就会触发，此属性控制在DOM元素更新后运行
   }
 );
 
@@ -61,11 +64,11 @@ function handleFilter(value: string, data: any) {
 /** 分类树节点 Click */
 function handleNodeClick(data: { [key: string]: any }) {
   deptId.value = data.value;
-  emits("node-click");
+  emits("nodeClick");
 }
 
 onBeforeMount(() => {
-  defGoodsCategoryService.OptionGoodsCategory({}).then((response) => {
+  defGoodsCategoryService.OptionGoodsCategory({}).then(response => {
     goodsCategoryList.value = response.list;
   });
 });

@@ -2,7 +2,7 @@
 import Order from "../index.vue";
 defineOptions({
   name: "Shipped",
-  inheritAttrs: false,
+  inheritAttrs: false
 });
 </script>
 

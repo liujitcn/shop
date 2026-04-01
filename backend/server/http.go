@@ -51,6 +51,7 @@ func NewHttpServer(
 	ctx *bootstrap.Context,
 	middlewares HttpMiddlewares,
 
+	adminAnalytics *admin.AnalyticsService,
 	adminAuth *admin.AuthService,
 	adminBaseApi *admin.BaseApiService,
 	adminBaseConfig *admin.BaseConfigService,
@@ -61,7 +62,6 @@ func NewHttpServer(
 	adminBaseMenu *admin.BaseMenuService,
 	adminBaseRole *admin.BaseRoleService,
 	adminBaseUser *admin.BaseUserService,
-	adminDashboard *admin.DashboardService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
 	adminGoods *admin.GoodsService,
@@ -103,6 +103,7 @@ func NewHttpServer(
 		return nil, err
 	}
 
+	adminApi.RegisterAnalyticsServiceHTTPServer(srv, adminAnalytics)
 	adminApi.RegisterAuthServiceHTTPServer(srv, adminAuth)
 	adminApi.RegisterBaseApiServiceHTTPServer(srv, adminBaseApi)
 	adminApi.RegisterBaseConfigServiceHTTPServer(srv, adminBaseConfig)
@@ -113,7 +114,6 @@ func NewHttpServer(
 	adminApi.RegisterBaseMenuServiceHTTPServer(srv, adminBaseMenu)
 	adminApi.RegisterBaseRoleServiceHTTPServer(srv, adminBaseRole)
 	adminApi.RegisterBaseUserServiceHTTPServer(srv, adminBaseUser)
-	adminApi.RegisterDashboardServiceHTTPServer(srv, adminDashboard)
 	adminApi.RegisterGoodsCategoryServiceHTTPServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceHTTPServer(srv, adminGoodsProp)
 	adminApi.RegisterGoodsServiceHTTPServer(srv, adminGoods)

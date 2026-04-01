@@ -53,7 +53,7 @@ type goodsSku struct {
 	GoodsID       field.Int64  // 商品ID
 	Picture       field.String // SKU图片
 	SkuCode       field.String // SKU编码
-	SpecItem      field.String // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
+	SpecItem      field.String // SKU 规格组成，注意：需要与 goods_spec 数组顺序对应
 	Price         field.Int64  // 当前价格(分)
 	DiscountPrice field.Int64  // 折扣价格（分）
 	InitSaleNum   field.Int64  // 初始销量

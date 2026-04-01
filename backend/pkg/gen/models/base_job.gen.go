@@ -17,7 +17,7 @@ type BaseJob struct {
 	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:任务ID" json:"id"`                                     // 任务ID
 	Name           string         `gorm:"column:name;type:varchar(50);comment:任务名称" json:"name"`                                                          // 任务名称
 	InvokeTarget   string         `gorm:"column:invoke_target;type:varchar(30);uniqueIndex:unique_base_job,priority:1;comment:调用目标" json:"invoke_target"` // 调用目标
-	Args           string         `gorm:"column:args;type:json;comment:目标参数" json:"args"`                                                                 // 目标参数
+	Args           string         `gorm:"column:args;type:text;comment:目标参数" json:"args"`                                                                 // 目标参数
 	CronExpression string         `gorm:"column:cron_expression;type:varchar(50);comment:cron表达式" json:"cron_expression"`                                 // cron表达式
 	Status         int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【Status】" json:"status"`                                                 // 状态：枚举【Status】
 	EntryID        int32          `gorm:"column:entry_id;type:smallint;comment:job启动时返回的id" json:"entry_id"`                                              // job启动时返回的id

@@ -7,7 +7,7 @@ import {
   type PageBaseDictItemRequest,
   type PageBaseDictItemResponse,
   type PageBaseDictRequest,
-  type PageBaseDictResponse,
+  type PageBaseDictResponse
 } from "@/rpc/admin/base_dict";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -24,7 +24,7 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<Empty, ListBaseDictResponse>({
       url: `${BASE_DICT_URL}/list`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询字典分页列表 */
@@ -32,14 +32,14 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<PageBaseDictRequest, PageBaseDictResponse>({
       url: `${BASE_DICT_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询字典 */
   GetBaseDict(request: Int64Value): Promise<BaseDictForm> {
     return service<Int64Value, BaseDictForm>({
       url: `${BASE_DICT_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建字典 */
@@ -47,7 +47,7 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<BaseDictForm, Empty>({
       url: `${BASE_DICT_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新字典 */
@@ -55,14 +55,14 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<BaseDictForm, Empty>({
       url: `${BASE_DICT_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除字典 */
   DeleteBaseDict(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_DICT_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -70,7 +70,7 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_DICT_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 查询字典属性分页列表 */
@@ -78,14 +78,14 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<PageBaseDictItemRequest, PageBaseDictItemResponse>({
       url: `${BASE_DICT_ITEM_URL}`,
       method: "get",
-      params: request,
+      params: request
     });
   }
   /** 查询字典属性 */
   GetBaseDictItem(request: Int64Value): Promise<BaseDictItemForm> {
     return service<Int64Value, BaseDictItemForm>({
       url: `${BASE_DICT_ITEM_URL}/${request.value}`,
-      method: "get",
+      method: "get"
     });
   }
   /** 创建字典属性 */
@@ -93,7 +93,7 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<BaseDictItemForm, Empty>({
       url: `${BASE_DICT_ITEM_URL}`,
       method: "post",
-      data: request,
+      data: request
     });
   }
   /** 更新字典属性 */
@@ -101,14 +101,14 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<BaseDictItemForm, Empty>({
       url: `${BASE_DICT_ITEM_URL}/${request.id}`,
       method: "put",
-      data: request,
+      data: request
     });
   }
   /** 删除字典属性 */
   DeleteBaseDictItem(request: StringValue): Promise<Empty> {
     return service<StringValue, Empty>({
       url: `${BASE_DICT_ITEM_URL}/${request.value}`,
-      method: "delete",
+      method: "delete"
     });
   }
   /** 设置状态 */
@@ -116,7 +116,7 @@ export class BaseDictServiceImpl implements BaseDictService {
     return service<SetStatusRequest, Empty>({
       url: `${BASE_DICT_ITEM_URL}/${request.id}/status`,
       method: "put",
-      data: request,
+      data: request
     });
   }
 }
