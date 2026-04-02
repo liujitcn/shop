@@ -45,22 +45,36 @@ function getTokenExpiresAt() {
   return getUserStore().tokenExpiresAt;
 }
 
+// 防止重复弹出登录过期弹窗的标志
+let isShowingAuthExpiredDialog = false;
+
 /** 统一处理认证失效 */
 function handleAuthExpired() {
+  // 如果已经在显示弹窗，则直接返回，避免重复弹窗
+  if (isShowingAuthExpiredDialog) {
+    return;
+  }
+
+  isShowingAuthExpiredDialog = true;
   ElMessageBox.confirm("当前页面已失效，请重新登录", "提示", {
     confirmButtonText: "确定",
     cancelButtonText: "取消",
     type: "warning"
-  }).then(() => {
-    const userStore = getUserStore();
-    const currentRoute = router.currentRoute.value;
-    const redirect = currentRoute.path === LOGIN_URL ? undefined : currentRoute.fullPath;
-    userStore.clearAuthData();
-    router.replace({
-      path: LOGIN_URL,
-      query: redirect ? { redirect } : undefined
+  })
+    .then(() => {
+      const userStore = getUserStore();
+      const currentRoute = router.currentRoute.value;
+      const redirect = currentRoute.path === LOGIN_URL ? undefined : currentRoute.fullPath;
+      userStore.clearAuthData();
+      router.replace({
+        path: LOGIN_URL,
+        query: redirect ? { redirect } : undefined
+      });
+    })
+    .finally(() => {
+      // 弹窗关闭后重置标志，允许下次再次弹窗
+      isShowingAuthExpiredDialog = false;
     });
-  });
 }
 
 // 请求拦截器

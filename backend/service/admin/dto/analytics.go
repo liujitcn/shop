@@ -34,3 +34,9 @@ type GoodsCategorySummary struct {
 	GoodsCount int64 `json:"goods_count"`
 	CategoryId int64 `json:"category_id"`
 }
+
+// OrderStatusSummary 订单状态汇总
+type OrderStatusSummary struct {
+	OrderCount int64 `json:"order_count"`
+	Status     int32 `json:"status"`
+}

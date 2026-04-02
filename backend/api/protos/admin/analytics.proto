@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
-// Admin 数据分析服务
+// Admin数据分析服务
 service AnalyticsService {
   // 查询汇总数据（用户）
   rpc AnalyticsCountUser (AnalyticsCountRequest) returns (AnalyticsCountResponse) {

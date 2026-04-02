@@ -33,9 +33,9 @@
 
     <section class="chart-grid">
       <OrderBarChart :time-type="activeTimeType" />
-      <GoodsBarChart :time-type="activeTimeType" />
+      <SalesBarChart :time-type="activeTimeType" />
       <GoodsPieChart :time-type="activeTimeType" />
-      <OrderRadarChart :time-type="activeTimeType" />
+      <OrderPieChart :time-type="activeTimeType" />
     </section>
   </div>
 </template>
@@ -43,9 +43,9 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
 import OrderBarChart from "./components/OrderBarChart.vue";
-import GoodsBarChart from "./components/GoodsBarChart.vue";
+import SalesBarChart from "./components/SalesBarChart.vue";
 import GoodsPieChart from "./components/GoodsPieChart.vue";
-import OrderRadarChart from "./components/OrderRadarChart.vue";
+import OrderPieChart from "./components/OrderPieChart.vue";
 import { defAnalyticsService } from "@/api/admin/analytics";
 import type { AnalyticsCountResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 import { AnalyticsTimeType as AnalyticsTimeTypeEnum } from "@/rpc/admin/analytics";
@@ -58,12 +58,12 @@ defineOptions({
 
 /** 时间维度选项，需与后端枚举定义保持一致。 */
 const timeOptions = [
-  { label: "今日", value: AnalyticsTimeTypeEnum.DAY },
   { label: "本周", value: AnalyticsTimeTypeEnum.WEEK },
-  { label: "本月", value: AnalyticsTimeTypeEnum.MONTH }
+  { label: "本月", value: AnalyticsTimeTypeEnum.MONTH },
+  { label: "本年", value: AnalyticsTimeTypeEnum.YEAR }
 ];
 
-const activeTimeType = ref<AnalyticsTimeType>(AnalyticsTimeTypeEnum.DAY);
+const activeTimeType = ref<AnalyticsTimeType>(AnalyticsTimeTypeEnum.WEEK);
 
 const activeTimeLabel = computed(() => {
   return timeOptions.find(item => item.value === activeTimeType.value)?.label ?? "当前";

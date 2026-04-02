@@ -29,22 +29,22 @@ const (
 type AnalyticsTimeType int32
 
 const (
-	AnalyticsTimeType_DAY   AnalyticsTimeType = 0 // 日
-	AnalyticsTimeType_WEEK  AnalyticsTimeType = 1 // 周
-	AnalyticsTimeType_MONTH AnalyticsTimeType = 2 // 月
+	AnalyticsTimeType_WEEK  AnalyticsTimeType = 0 // 周
+	AnalyticsTimeType_MONTH AnalyticsTimeType = 1 // 月
+	AnalyticsTimeType_YEAR  AnalyticsTimeType = 2 // 年
 )
 
 // Enum value maps for AnalyticsTimeType.
 var (
 	AnalyticsTimeType_name = map[int32]string{
-		0: "DAY",
-		1: "WEEK",
-		2: "MONTH",
+		0: "WEEK",
+		1: "MONTH",
+		2: "YEAR",
 	}
 	AnalyticsTimeType_value = map[string]int32{
-		"DAY":   0,
-		"WEEK":  1,
-		"MONTH": 2,
+		"WEEK":  0,
+		"MONTH": 1,
+		"YEAR":  2,
 	}
 )
 
@@ -117,7 +117,7 @@ func (x *AnalyticsCountRequest) GetTimeType() AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
 	}
-	return AnalyticsTimeType_DAY
+	return AnalyticsTimeType_WEEK
 }
 
 // 汇总数据返回结果
@@ -215,32 +215,31 @@ func (x *AnalyticsBarOrderRequest) GetTimeType() AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
 	}
-	return AnalyticsTimeType_DAY
+	return AnalyticsTimeType_WEEK
 }
 
-// 商品销量（柱状图）请求参数
-type AnalyticsBarGoodsRequest struct {
+// 订单销售额（柱状图）请求参数
+type AnalyticsBarSaleRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeType      AnalyticsTimeType      `protobuf:"varint,1,opt,name=timeType,proto3,enum=admin.AnalyticsTimeType" json:"timeType,omitempty"` // 时间类型
-	Top           int64                  `protobuf:"varint,2,opt,name=top,proto3" json:"top,omitempty"`                                        // top
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AnalyticsBarGoodsRequest) Reset() {
-	*x = AnalyticsBarGoodsRequest{}
+func (x *AnalyticsBarSaleRequest) Reset() {
+	*x = AnalyticsBarSaleRequest{}
 	mi := &file_admin_analytics_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AnalyticsBarGoodsRequest) String() string {
+func (x *AnalyticsBarSaleRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AnalyticsBarGoodsRequest) ProtoMessage() {}
+func (*AnalyticsBarSaleRequest) ProtoMessage() {}
 
-func (x *AnalyticsBarGoodsRequest) ProtoReflect() protoreflect.Message {
+func (x *AnalyticsBarSaleRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_analytics_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -252,23 +251,16 @@ func (x *AnalyticsBarGoodsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AnalyticsBarGoodsRequest.ProtoReflect.Descriptor instead.
-func (*AnalyticsBarGoodsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AnalyticsBarSaleRequest.ProtoReflect.Descriptor instead.
+func (*AnalyticsBarSaleRequest) Descriptor() ([]byte, []int) {
 	return file_admin_analytics_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *AnalyticsBarGoodsRequest) GetTimeType() AnalyticsTimeType {
+func (x *AnalyticsBarSaleRequest) GetTimeType() AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
 	}
-	return AnalyticsTimeType_DAY
-}
-
-func (x *AnalyticsBarGoodsRequest) GetTop() int64 {
-	if x != nil {
-		return x.Top
-	}
-	return 0
+	return AnalyticsTimeType_WEEK
 }
 
 // 商品分类（饼状图）请求参数
@@ -313,31 +305,31 @@ func (x *AnalyticsPieGoodsRequest) GetTimeType() AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
 	}
-	return AnalyticsTimeType_DAY
+	return AnalyticsTimeType_WEEK
 }
 
 // 商品订单销量状态（雷达图）请求参数
-type AnalyticsRadarOrderRequest struct {
+type AnalyticsPieOrderRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TimeType      AnalyticsTimeType      `protobuf:"varint,1,opt,name=timeType,proto3,enum=admin.AnalyticsTimeType" json:"timeType,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AnalyticsRadarOrderRequest) Reset() {
-	*x = AnalyticsRadarOrderRequest{}
+func (x *AnalyticsPieOrderRequest) Reset() {
+	*x = AnalyticsPieOrderRequest{}
 	mi := &file_admin_analytics_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AnalyticsRadarOrderRequest) String() string {
+func (x *AnalyticsPieOrderRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AnalyticsRadarOrderRequest) ProtoMessage() {}
+func (*AnalyticsPieOrderRequest) ProtoMessage() {}
 
-func (x *AnalyticsRadarOrderRequest) ProtoReflect() protoreflect.Message {
+func (x *AnalyticsPieOrderRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_analytics_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -349,16 +341,16 @@ func (x *AnalyticsRadarOrderRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AnalyticsRadarOrderRequest.ProtoReflect.Descriptor instead.
-func (*AnalyticsRadarOrderRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AnalyticsPieOrderRequest.ProtoReflect.Descriptor instead.
+func (*AnalyticsPieOrderRequest) Descriptor() ([]byte, []int) {
 	return file_admin_analytics_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *AnalyticsRadarOrderRequest) GetTimeType() AnalyticsTimeType {
+func (x *AnalyticsPieOrderRequest) GetTimeType() AnalyticsTimeType {
 	if x != nil {
 		return x.TimeType
 	}
-	return AnalyticsTimeType_DAY
+	return AnalyticsTimeType_WEEK
 }
 
 // （柱状图）请求参数
@@ -459,67 +451,6 @@ func (x *AnalyticsPieResponse) GetSeriesData() []*AnalyticsPieResponse_SeriesDat
 	return nil
 }
 
-// （雷达图）返回结果
-type AnalyticsRadarResponse struct {
-	state          protoimpl.MessageState                   `protogen:"open.v1"`
-	LegendData     []string                                 `protobuf:"bytes,1,rep,name=legendData,proto3" json:"legendData,omitempty"`         // 图例的数据数组
-	RadarIndicator []*AnalyticsRadarResponse_RadarIndicator `protobuf:"bytes,2,rep,name=radarIndicator,proto3" json:"radarIndicator,omitempty"` // 指示器
-	SeriesData     []*AnalyticsRadarResponse_SeriesData     `protobuf:"bytes,3,rep,name=seriesData,proto3" json:"seriesData,omitempty"`         // 数据
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *AnalyticsRadarResponse) Reset() {
-	*x = AnalyticsRadarResponse{}
-	mi := &file_admin_analytics_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AnalyticsRadarResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AnalyticsRadarResponse) ProtoMessage() {}
-
-func (x *AnalyticsRadarResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_analytics_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AnalyticsRadarResponse.ProtoReflect.Descriptor instead.
-func (*AnalyticsRadarResponse) Descriptor() ([]byte, []int) {
-	return file_admin_analytics_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *AnalyticsRadarResponse) GetLegendData() []string {
-	if x != nil {
-		return x.LegendData
-	}
-	return nil
-}
-
-func (x *AnalyticsRadarResponse) GetRadarIndicator() []*AnalyticsRadarResponse_RadarIndicator {
-	if x != nil {
-		return x.RadarIndicator
-	}
-	return nil
-}
-
-func (x *AnalyticsRadarResponse) GetSeriesData() []*AnalyticsRadarResponse_SeriesData {
-	if x != nil {
-		return x.SeriesData
-	}
-	return nil
-}
-
 type AnalyticsBarResponse_SeriesData struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         []int64                `protobuf:"varint,1,rep,packed,name=value,proto3" json:"value,omitempty"` // 数量
@@ -529,7 +460,7 @@ type AnalyticsBarResponse_SeriesData struct {
 
 func (x *AnalyticsBarResponse_SeriesData) Reset() {
 	*x = AnalyticsBarResponse_SeriesData{}
-	mi := &file_admin_analytics_proto_msgTypes[9]
+	mi := &file_admin_analytics_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -541,7 +472,7 @@ func (x *AnalyticsBarResponse_SeriesData) String() string {
 func (*AnalyticsBarResponse_SeriesData) ProtoMessage() {}
 
 func (x *AnalyticsBarResponse_SeriesData) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_analytics_proto_msgTypes[9]
+	mi := &file_admin_analytics_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -574,7 +505,7 @@ type AnalyticsPieResponse_SeriesData struct {
 
 func (x *AnalyticsPieResponse_SeriesData) Reset() {
 	*x = AnalyticsPieResponse_SeriesData{}
-	mi := &file_admin_analytics_proto_msgTypes[10]
+	mi := &file_admin_analytics_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -586,7 +517,7 @@ func (x *AnalyticsPieResponse_SeriesData) String() string {
 func (*AnalyticsPieResponse_SeriesData) ProtoMessage() {}
 
 func (x *AnalyticsPieResponse_SeriesData) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_analytics_proto_msgTypes[10]
+	mi := &file_admin_analytics_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -616,102 +547,6 @@ func (x *AnalyticsPieResponse_SeriesData) GetName() string {
 	return ""
 }
 
-type AnalyticsRadarResponse_RadarIndicator struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // 指示器名称
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AnalyticsRadarResponse_RadarIndicator) Reset() {
-	*x = AnalyticsRadarResponse_RadarIndicator{}
-	mi := &file_admin_analytics_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AnalyticsRadarResponse_RadarIndicator) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AnalyticsRadarResponse_RadarIndicator) ProtoMessage() {}
-
-func (x *AnalyticsRadarResponse_RadarIndicator) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_analytics_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AnalyticsRadarResponse_RadarIndicator.ProtoReflect.Descriptor instead.
-func (*AnalyticsRadarResponse_RadarIndicator) Descriptor() ([]byte, []int) {
-	return file_admin_analytics_proto_rawDescGZIP(), []int{8, 0}
-}
-
-func (x *AnalyticsRadarResponse_RadarIndicator) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-type AnalyticsRadarResponse_SeriesData struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`           // 数据项名称
-	Value         []int64                `protobuf:"varint,2,rep,packed,name=value,proto3" json:"value,omitempty"` // 单个数据项的数值
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AnalyticsRadarResponse_SeriesData) Reset() {
-	*x = AnalyticsRadarResponse_SeriesData{}
-	mi := &file_admin_analytics_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AnalyticsRadarResponse_SeriesData) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AnalyticsRadarResponse_SeriesData) ProtoMessage() {}
-
-func (x *AnalyticsRadarResponse_SeriesData) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_analytics_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AnalyticsRadarResponse_SeriesData.ProtoReflect.Descriptor instead.
-func (*AnalyticsRadarResponse_SeriesData) Descriptor() ([]byte, []int) {
-	return file_admin_analytics_proto_rawDescGZIP(), []int{8, 1}
-}
-
-func (x *AnalyticsRadarResponse_SeriesData) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *AnalyticsRadarResponse_SeriesData) GetValue() []int64 {
-	if x != nil {
-		return x.Value
-	}
-	return nil
-}
-
 var File_admin_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_analytics_proto_rawDesc = "" +
@@ -723,13 +558,12 @@ const file_admin_analytics_proto_rawDesc = "" +
 	"\x06newNum\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f新增数量R\x06newNum\x12+\n" +
 	"\btotalNum\x18\v \x01(\x03B\x0f\xbaG\f\x92\x02\t总数量R\btotalNum\"d\n" +
 	"\x18AnalyticsBarOrderRequest\x12H\n" +
-	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"\x81\x01\n" +
-	"\x18AnalyticsBarGoodsRequest\x12H\n" +
-	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\x12\x1b\n" +
-	"\x03top\x18\x02 \x01(\x03B\t\xbaG\x06\x92\x02\x03topR\x03top\"d\n" +
+	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"c\n" +
+	"\x17AnalyticsBarSaleRequest\x12H\n" +
+	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"d\n" +
 	"\x18AnalyticsPieGoodsRequest\x12H\n" +
-	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"f\n" +
-	"\x1aAnalyticsRadarOrderRequest\x12H\n" +
+	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"d\n" +
+	"\x18AnalyticsPieOrderRequest\x12H\n" +
 	"\btimeType\x18\x01 \x01(\x0e2\x18.admin.AnalyticsTimeTypeB\x12\xbaG\x0f\x92\x02\f时间类型R\btimeType\"\xe1\x01\n" +
 	"\x14AnalyticsBarResponse\x125\n" +
 	"\baxisData\x18\x01 \x03(\tB\x19\xbaG\x16\x92\x02\x13X,Y 轴数据数组R\baxisData\x12`\n" +
@@ -746,34 +580,20 @@ const file_admin_analytics_proto_rawDesc = "" +
 	"\n" +
 	"SeriesData\x12\"\n" +
 	"\x05value\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06数值R\x05value\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f系列名称R\x04name\"\xc0\x03\n" +
-	"\x16AnalyticsRadarResponse\x12;\n" +
-	"\n" +
-	"legendData\x18\x01 \x03(\tB\x1b\xbaG\x18\x92\x02\x15图例的数据数组R\n" +
-	"legendData\x12e\n" +
-	"\x0eradarIndicator\x18\x02 \x03(\v2,.admin.AnalyticsRadarResponse.RadarIndicatorB\x0f\xbaG\f\x92\x02\t指示器R\x0eradarIndicator\x12V\n" +
-	"\n" +
-	"seriesData\x18\x03 \x03(\v2(.admin.AnalyticsRadarResponse.SeriesDataB\f\xbaG\t\x92\x02\x06数据R\n" +
-	"seriesData\x1a;\n" +
-	"\x0eRadarIndicator\x12)\n" +
-	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f指示器名称R\x04name\x1am\n" +
-	"\n" +
-	"SeriesData\x12)\n" +
-	"\x04name\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f数据项名称R\x04name\x124\n" +
-	"\x05value\x18\x02 \x03(\x03B\x1e\xbaG\x1b\x92\x02\x18单个数据项的数值R\x05value*1\n" +
-	"\x11AnalyticsTimeType\x12\a\n" +
-	"\x03DAY\x10\x00\x12\b\n" +
-	"\x04WEEK\x10\x01\x12\t\n" +
-	"\x05MONTH\x10\x022\xfb\a\n" +
+	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f系列名称R\x04name*2\n" +
+	"\x11AnalyticsTimeType\x12\b\n" +
+	"\x04WEEK\x10\x00\x12\t\n" +
+	"\x05MONTH\x10\x01\x12\b\n" +
+	"\x04YEAR\x10\x022\xef\a\n" +
 	"\x10AnalyticsService\x12z\n" +
 	"\x12AnalyticsCountUser\x12\x1c.admin.AnalyticsCountRequest\x1a\x1d.admin.AnalyticsCountResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/admin/analytics/count/user\x12|\n" +
 	"\x13AnalyticsCountGoods\x12\x1c.admin.AnalyticsCountRequest\x1a\x1d.admin.AnalyticsCountResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/analytics/count/goods\x12|\n" +
 	"\x13AnalyticsCountOrder\x12\x1c.admin.AnalyticsCountRequest\x1a\x1d.admin.AnalyticsCountResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/analytics/count/order\x12z\n" +
 	"\x12AnalyticsCountSale\x12\x1c.admin.AnalyticsCountRequest\x1a\x1d.admin.AnalyticsCountResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/admin/analytics/count/sale\x12y\n" +
-	"\x11AnalyticsBarOrder\x12\x1f.admin.AnalyticsBarOrderRequest\x1a\x1b.admin.AnalyticsBarResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/bar/order\x12y\n" +
-	"\x11AnalyticsBarGoods\x12\x1f.admin.AnalyticsBarGoodsRequest\x1a\x1b.admin.AnalyticsBarResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/bar/goods\x12y\n" +
-	"\x11AnalyticsPieGoods\x12\x1f.admin.AnalyticsPieGoodsRequest\x1a\x1b.admin.AnalyticsPieResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/pie/goods\x12\x81\x01\n" +
-	"\x13AnalyticsRadarOrder\x12!.admin.AnalyticsRadarOrderRequest\x1a\x1d.admin.AnalyticsRadarResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/analytics/radar/orderBf\n" +
+	"\x11AnalyticsBarOrder\x12\x1f.admin.AnalyticsBarOrderRequest\x1a\x1b.admin.AnalyticsBarResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/bar/order\x12v\n" +
+	"\x10AnalyticsBarSale\x12\x1e.admin.AnalyticsBarSaleRequest\x1a\x1b.admin.AnalyticsBarResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/admin/analytics/bar/sale\x12y\n" +
+	"\x11AnalyticsPieGoods\x12\x1f.admin.AnalyticsPieGoodsRequest\x1a\x1b.admin.AnalyticsPieResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/pie/goods\x12y\n" +
+	"\x11AnalyticsPieOrder\x12\x1f.admin.AnalyticsPieOrderRequest\x1a\x1b.admin.AnalyticsPieResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/pie/orderBf\n" +
 	"\tcom.adminB\x0eAnalyticsProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (
@@ -789,54 +609,49 @@ func file_admin_analytics_proto_rawDescGZIP() []byte {
 }
 
 var file_admin_analytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_admin_analytics_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_admin_analytics_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_admin_analytics_proto_goTypes = []any{
-	(AnalyticsTimeType)(0),                        // 0: admin.AnalyticsTimeType
-	(*AnalyticsCountRequest)(nil),                 // 1: admin.AnalyticsCountRequest
-	(*AnalyticsCountResponse)(nil),                // 2: admin.AnalyticsCountResponse
-	(*AnalyticsBarOrderRequest)(nil),              // 3: admin.AnalyticsBarOrderRequest
-	(*AnalyticsBarGoodsRequest)(nil),              // 4: admin.AnalyticsBarGoodsRequest
-	(*AnalyticsPieGoodsRequest)(nil),              // 5: admin.AnalyticsPieGoodsRequest
-	(*AnalyticsRadarOrderRequest)(nil),            // 6: admin.AnalyticsRadarOrderRequest
-	(*AnalyticsBarResponse)(nil),                  // 7: admin.AnalyticsBarResponse
-	(*AnalyticsPieResponse)(nil),                  // 8: admin.AnalyticsPieResponse
-	(*AnalyticsRadarResponse)(nil),                // 9: admin.AnalyticsRadarResponse
-	(*AnalyticsBarResponse_SeriesData)(nil),       // 10: admin.AnalyticsBarResponse.SeriesData
-	(*AnalyticsPieResponse_SeriesData)(nil),       // 11: admin.AnalyticsPieResponse.SeriesData
-	(*AnalyticsRadarResponse_RadarIndicator)(nil), // 12: admin.AnalyticsRadarResponse.RadarIndicator
-	(*AnalyticsRadarResponse_SeriesData)(nil),     // 13: admin.AnalyticsRadarResponse.SeriesData
+	(AnalyticsTimeType)(0),                  // 0: admin.AnalyticsTimeType
+	(*AnalyticsCountRequest)(nil),           // 1: admin.AnalyticsCountRequest
+	(*AnalyticsCountResponse)(nil),          // 2: admin.AnalyticsCountResponse
+	(*AnalyticsBarOrderRequest)(nil),        // 3: admin.AnalyticsBarOrderRequest
+	(*AnalyticsBarSaleRequest)(nil),         // 4: admin.AnalyticsBarSaleRequest
+	(*AnalyticsPieGoodsRequest)(nil),        // 5: admin.AnalyticsPieGoodsRequest
+	(*AnalyticsPieOrderRequest)(nil),        // 6: admin.AnalyticsPieOrderRequest
+	(*AnalyticsBarResponse)(nil),            // 7: admin.AnalyticsBarResponse
+	(*AnalyticsPieResponse)(nil),            // 8: admin.AnalyticsPieResponse
+	(*AnalyticsBarResponse_SeriesData)(nil), // 9: admin.AnalyticsBarResponse.SeriesData
+	(*AnalyticsPieResponse_SeriesData)(nil), // 10: admin.AnalyticsPieResponse.SeriesData
 }
 var file_admin_analytics_proto_depIdxs = []int32{
 	0,  // 0: admin.AnalyticsCountRequest.timeType:type_name -> admin.AnalyticsTimeType
 	0,  // 1: admin.AnalyticsBarOrderRequest.timeType:type_name -> admin.AnalyticsTimeType
-	0,  // 2: admin.AnalyticsBarGoodsRequest.timeType:type_name -> admin.AnalyticsTimeType
+	0,  // 2: admin.AnalyticsBarSaleRequest.timeType:type_name -> admin.AnalyticsTimeType
 	0,  // 3: admin.AnalyticsPieGoodsRequest.timeType:type_name -> admin.AnalyticsTimeType
-	0,  // 4: admin.AnalyticsRadarOrderRequest.timeType:type_name -> admin.AnalyticsTimeType
-	10, // 5: admin.AnalyticsBarResponse.seriesData:type_name -> admin.AnalyticsBarResponse.SeriesData
-	11, // 6: admin.AnalyticsPieResponse.seriesData:type_name -> admin.AnalyticsPieResponse.SeriesData
-	12, // 7: admin.AnalyticsRadarResponse.radarIndicator:type_name -> admin.AnalyticsRadarResponse.RadarIndicator
-	13, // 8: admin.AnalyticsRadarResponse.seriesData:type_name -> admin.AnalyticsRadarResponse.SeriesData
-	1,  // 9: admin.AnalyticsService.AnalyticsCountUser:input_type -> admin.AnalyticsCountRequest
-	1,  // 10: admin.AnalyticsService.AnalyticsCountGoods:input_type -> admin.AnalyticsCountRequest
-	1,  // 11: admin.AnalyticsService.AnalyticsCountOrder:input_type -> admin.AnalyticsCountRequest
-	1,  // 12: admin.AnalyticsService.AnalyticsCountSale:input_type -> admin.AnalyticsCountRequest
-	3,  // 13: admin.AnalyticsService.AnalyticsBarOrder:input_type -> admin.AnalyticsBarOrderRequest
-	4,  // 14: admin.AnalyticsService.AnalyticsBarGoods:input_type -> admin.AnalyticsBarGoodsRequest
-	5,  // 15: admin.AnalyticsService.AnalyticsPieGoods:input_type -> admin.AnalyticsPieGoodsRequest
-	6,  // 16: admin.AnalyticsService.AnalyticsRadarOrder:input_type -> admin.AnalyticsRadarOrderRequest
-	2,  // 17: admin.AnalyticsService.AnalyticsCountUser:output_type -> admin.AnalyticsCountResponse
-	2,  // 18: admin.AnalyticsService.AnalyticsCountGoods:output_type -> admin.AnalyticsCountResponse
-	2,  // 19: admin.AnalyticsService.AnalyticsCountOrder:output_type -> admin.AnalyticsCountResponse
-	2,  // 20: admin.AnalyticsService.AnalyticsCountSale:output_type -> admin.AnalyticsCountResponse
-	7,  // 21: admin.AnalyticsService.AnalyticsBarOrder:output_type -> admin.AnalyticsBarResponse
-	7,  // 22: admin.AnalyticsService.AnalyticsBarGoods:output_type -> admin.AnalyticsBarResponse
-	8,  // 23: admin.AnalyticsService.AnalyticsPieGoods:output_type -> admin.AnalyticsPieResponse
-	9,  // 24: admin.AnalyticsService.AnalyticsRadarOrder:output_type -> admin.AnalyticsRadarResponse
-	17, // [17:25] is the sub-list for method output_type
-	9,  // [9:17] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	0,  // 4: admin.AnalyticsPieOrderRequest.timeType:type_name -> admin.AnalyticsTimeType
+	9,  // 5: admin.AnalyticsBarResponse.seriesData:type_name -> admin.AnalyticsBarResponse.SeriesData
+	10, // 6: admin.AnalyticsPieResponse.seriesData:type_name -> admin.AnalyticsPieResponse.SeriesData
+	1,  // 7: admin.AnalyticsService.AnalyticsCountUser:input_type -> admin.AnalyticsCountRequest
+	1,  // 8: admin.AnalyticsService.AnalyticsCountGoods:input_type -> admin.AnalyticsCountRequest
+	1,  // 9: admin.AnalyticsService.AnalyticsCountOrder:input_type -> admin.AnalyticsCountRequest
+	1,  // 10: admin.AnalyticsService.AnalyticsCountSale:input_type -> admin.AnalyticsCountRequest
+	3,  // 11: admin.AnalyticsService.AnalyticsBarOrder:input_type -> admin.AnalyticsBarOrderRequest
+	4,  // 12: admin.AnalyticsService.AnalyticsBarSale:input_type -> admin.AnalyticsBarSaleRequest
+	5,  // 13: admin.AnalyticsService.AnalyticsPieGoods:input_type -> admin.AnalyticsPieGoodsRequest
+	6,  // 14: admin.AnalyticsService.AnalyticsPieOrder:input_type -> admin.AnalyticsPieOrderRequest
+	2,  // 15: admin.AnalyticsService.AnalyticsCountUser:output_type -> admin.AnalyticsCountResponse
+	2,  // 16: admin.AnalyticsService.AnalyticsCountGoods:output_type -> admin.AnalyticsCountResponse
+	2,  // 17: admin.AnalyticsService.AnalyticsCountOrder:output_type -> admin.AnalyticsCountResponse
+	2,  // 18: admin.AnalyticsService.AnalyticsCountSale:output_type -> admin.AnalyticsCountResponse
+	7,  // 19: admin.AnalyticsService.AnalyticsBarOrder:output_type -> admin.AnalyticsBarResponse
+	7,  // 20: admin.AnalyticsService.AnalyticsBarSale:output_type -> admin.AnalyticsBarResponse
+	8,  // 21: admin.AnalyticsService.AnalyticsPieGoods:output_type -> admin.AnalyticsPieResponse
+	8,  // 22: admin.AnalyticsService.AnalyticsPieOrder:output_type -> admin.AnalyticsPieResponse
+	15, // [15:23] is the sub-list for method output_type
+	7,  // [7:15] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_admin_analytics_proto_init() }
@@ -850,7 +665,7 @@ func file_admin_analytics_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_analytics_proto_rawDesc), len(file_admin_analytics_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   13,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

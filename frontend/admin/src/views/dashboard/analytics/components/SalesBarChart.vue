@@ -2,7 +2,7 @@
   <article class="chart-card">
     <div class="chart-card__header">
       <div>
-        <h3 class="chart-card__title">商品销量排行</h3>
+        <h3 class="chart-card__title">订单销售额趋势</h3>
       </div>
     </div>
     <ECharts :option="option" :height="360" />
@@ -27,14 +27,28 @@ const sourceData = reactive<AnalyticsBarResponse>({
   seriesData: []
 });
 
-/** 商品销量排行图表配置。 */
+/** 销售额趋势图的系列名称。 */
+const seriesNames = {
+  saleAmount: "销售额",
+  saleGrowth: "销售额增长率"
+};
+
+/** 销售额趋势图表配置。 */
 const option = computed<ECOption>(() => ({
-  color: ["#2d6cdf"],
+  color: ["#15a87b", "#d9485f"],
   tooltip: {
     trigger: "axis",
     axisPointer: {
-      type: "shadow"
-    }
+      type: "cross"
+    },
+    valueFormatter: (value: number) => `${value} 元`
+  },
+  legend: {
+    bottom: 0,
+    textStyle: {
+      color: "#7f8ea3"
+    },
+    data: Object.values(seriesNames)
   },
   toolbox: {
     right: 8,
@@ -43,24 +57,13 @@ const option = computed<ECOption>(() => ({
     }
   },
   grid: {
-    top: 30,
-    left: 10,
-    right: 12,
-    bottom: 8,
+    top: 36,
+    left: 18,
+    right: 18,
+    bottom: 48,
     containLabel: true
   },
   xAxis: {
-    type: "value",
-    axisLabel: {
-      color: "#7f8ea3"
-    },
-    splitLine: {
-      lineStyle: {
-        color: "#eef2f8"
-      }
-    }
-  },
-  yAxis: {
     type: "category",
     data: sourceData.axisData,
     axisLabel: {
@@ -72,32 +75,53 @@ const option = computed<ECOption>(() => ({
       }
     }
   },
+  yAxis: [
+    {
+      type: "value",
+      name: "销售额(元)",
+      axisLabel: {
+        color: "#7f8ea3"
+      },
+      splitLine: {
+        lineStyle: {
+          color: "#eef2f8"
+        }
+      }
+    },
+    {
+      type: "value",
+      name: "增长率",
+      axisLabel: {
+        color: "#7f8ea3",
+        formatter: "{value}%"
+      }
+    }
+  ],
   series: [
     {
-      name: "销量",
+      name: seriesNames.saleAmount,
       type: "bar",
-      barMaxWidth: 16,
+      barMaxWidth: 18,
       data: sourceData.seriesData[0]?.value ?? [],
-      showBackground: true,
-      backgroundStyle: {
-        color: "#edf3fb",
-        borderRadius: 8
-      },
       itemStyle: {
-        borderRadius: [0, 8, 8, 0]
+        borderRadius: [8, 8, 0, 0]
       }
+    },
+    {
+      name: seriesNames.saleGrowth,
+      type: "line",
+      yAxisIndex: 1,
+      smooth: true,
+      data: sourceData.seriesData[1]?.value ?? []
     }
   ]
 }));
 
 /**
- * 根据时间维度加载商品销量排行数据。
+ * 根据时间维度加载销售额趋势图数据。
  */
 async function loadChartData(timeType: AnalyticsTimeType) {
-  const data = await defAnalyticsService.AnalyticsBarGoods({
-    timeType,
-    top: 15
-  });
+  const data = await defAnalyticsService.AnalyticsBarSale({ timeType });
   Object.assign(sourceData, data);
 }
 
@@ -120,6 +144,9 @@ watch(
 }
 
 .chart-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 

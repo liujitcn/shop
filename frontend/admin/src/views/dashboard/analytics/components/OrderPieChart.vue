@@ -2,7 +2,7 @@
   <article class="chart-card">
     <div class="chart-card__header">
       <div>
-        <h3 class="chart-card__title">商品分类订单状态</h3>
+        <h3 class="chart-card__title">订单状态分布</h3>
       </div>
     </div>
     <ECharts :option="option" :height="360" />
@@ -14,30 +14,30 @@ import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defAnalyticsService } from "@/api/admin/analytics";
-import type { AnalyticsRadarResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
+import type { AnalyticsPieResponse, AnalyticsTimeType } from "@/rpc/admin/analytics";
 
 const props = defineProps<{
   timeType: AnalyticsTimeType;
 }>();
 
-const sourceData = reactive<AnalyticsRadarResponse>({
-  legendData: [],
-  radarIndicator: [],
+const sourceData = reactive<AnalyticsPieResponse>({
+  /** 数据内容数组 */
   seriesData: []
 });
 
-/** 商品分类订单状态雷达图配置。 */
+/** 订单状态饼图配置。 */
 const option = computed<ECOption>(() => ({
-  color: ["#2d6cdf", "#d9485f", "#15a87b"],
+  color: ["#2d6cdf", "#15a87b", "#f08c2e", "#d9485f", "#7a5af8", "#0ea5e9", "#ef4444", "#84cc16"],
   tooltip: {
-    trigger: "item"
+    trigger: "item",
+    formatter: "{b}<br/>{c} ({d}%)"
   },
   legend: {
     bottom: 0,
+    left: "center",
     textStyle: {
       color: "#7f8ea3"
-    },
-    data: sourceData.legendData
+    }
   },
   toolbox: {
     right: 8,
@@ -45,41 +45,29 @@ const option = computed<ECOption>(() => ({
       saveAsImage: {}
     }
   },
-  radar: {
-    radius: "62%",
-    splitNumber: 5,
-    axisName: {
-      color: "#4f5d73"
-    },
-    splitLine: {
-      lineStyle: {
-        color: "#e7edf7"
-      }
-    },
-    splitArea: {
-      areaStyle: {
-        color: ["rgb(45 108 223 / 0.03)", "rgb(45 108 223 / 0.01)"]
-      }
-    },
-    indicator: sourceData.radarIndicator
-  },
   series: [
     {
-      name: "商品分类订单状态",
-      type: "radar",
-      data: sourceData.seriesData,
-      areaStyle: {
-        opacity: 0.12
-      }
+      name: "订单状态",
+      type: "pie",
+      radius: ["34%", "72%"],
+      center: ["50%", "45%"],
+      roseType: "radius",
+      itemStyle: {
+        borderRadius: 8
+      },
+      label: {
+        color: "#4f5d73"
+      },
+      data: sourceData.seriesData
     }
   ]
 }));
 
 /**
- * 根据时间维度加载商品分类订单状态雷达图数据。
+ * 根据时间维度加载订单状态分布数据。
  */
 async function loadChartData(timeType: AnalyticsTimeType) {
-  const data = await defAnalyticsService.AnalyticsRadarOrder({ timeType });
+  const data = await defAnalyticsService.AnalyticsPieOrder({ timeType });
   Object.assign(sourceData, data);
 }
 

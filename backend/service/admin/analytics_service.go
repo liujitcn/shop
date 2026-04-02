@@ -84,12 +84,12 @@ func (s *AnalyticsService) AnalyticsBarOrder(ctx context.Context, req *admin.Ana
 	return res, nil
 }
 
-// AnalyticsBarGoods 查询商品销量（柱状图）
-func (s *AnalyticsService) AnalyticsBarGoods(ctx context.Context, req *admin.AnalyticsBarGoodsRequest) (*admin.AnalyticsBarResponse, error) {
-	res, err := s.analyticsCase.AnalyticsBarGoods(ctx, req)
+// AnalyticsBarSale 查询订单销售额（柱状图）
+func (s *AnalyticsService) AnalyticsBarSale(ctx context.Context, req *admin.AnalyticsBarSaleRequest) (*admin.AnalyticsBarResponse, error) {
+	res, err := s.analyticsCase.AnalyticsBarSale(ctx, req)
 	if err != nil {
-		log.Error("AnalyticsBarGoods err:", err.Error())
-		return nil, errors.New("查询商品销量（柱状图）失败")
+		log.Error("AnalyticsBarSale err:", err.Error())
+		return nil, errors.New("查询订单销售额（柱状图）失败")
 	}
 	return res, nil
 }
@@ -104,12 +104,12 @@ func (s *AnalyticsService) AnalyticsPieGoods(ctx context.Context, req *admin.Ana
 	return res, nil
 }
 
-// AnalyticsRadarOrder 查询商品订单销量状态（雷达图）
-func (s *AnalyticsService) AnalyticsRadarOrder(ctx context.Context, req *admin.AnalyticsRadarOrderRequest) (*admin.AnalyticsRadarResponse, error) {
-	res, err := s.analyticsCase.AnalyticsRadarOrder(ctx, req)
+// AnalyticsPieOrder 查询订单状态分布（饼状图）。
+func (s *AnalyticsService) AnalyticsPieOrder(ctx context.Context, req *admin.AnalyticsPieOrderRequest) (*admin.AnalyticsPieResponse, error) {
+	res, err := s.analyticsCase.AnalyticsPieOrder(ctx, req)
 	if err != nil {
 		log.Error("AnalyticsRadarOrder err:", err.Error())
-		return nil, errors.New("查询商品订单销量状态（雷达图）失败")
+		return nil, errors.New("查询订单状态分布（饼状图）失败")
 	}
 	return res, nil
 }

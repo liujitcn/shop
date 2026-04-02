@@ -113,7 +113,7 @@ func (c *AnalyticsCase) AnalyticsCountSale(ctx context.Context, req *admin.Analy
 }
 
 // AnalyticsBarOrder 查询订单柱状图
-// 返回 seriesData 顺序固定为：订单量、销售额、订单量增长率、销售额增长率。
+// 返回 seriesData 顺序固定为：订单量、订单量增长率。
 func (c *AnalyticsCase) AnalyticsBarOrder(ctx context.Context, req *admin.AnalyticsBarOrderRequest) (*admin.AnalyticsBarResponse, error) {
 	startAt, endAt := getAnalyticsTimeRange(req.GetTimeType())
 	summary, axisData, err := c.queryOrderSummary(ctx, req.GetTimeType(), startAt, endAt)
@@ -122,25 +122,19 @@ func (c *AnalyticsCase) AnalyticsBarOrder(ctx context.Context, req *admin.Analyt
 	}
 
 	orderCountRow := make([]int64, 0, len(axisData))
-	saleAmountRow := make([]int64, 0, len(axisData))
 	orderCountRateRow := make([]int64, 0, len(axisData))
-	saleAmountRateRow := make([]int64, 0, len(axisData))
 	for i := range axisData {
 		key := int64(i + 1)
 		item, ok := summary[key]
 		if ok {
 			orderCountRow = append(orderCountRow, item.OrderCount)
-			saleAmountRow = append(saleAmountRow, item.SaleAmount)
 		} else {
 			orderCountRow = append(orderCountRow, 0)
-			saleAmountRow = append(saleAmountRow, 0)
 		}
 		if i == 0 {
 			orderCountRateRow = append(orderCountRateRow, calcGrowthRate(0, orderCountRow[i]))
-			saleAmountRateRow = append(saleAmountRateRow, calcGrowthRate(0, saleAmountRow[i]))
 		} else {
 			orderCountRateRow = append(orderCountRateRow, calcGrowthRate(orderCountRow[i-1], orderCountRow[i]))
-			saleAmountRateRow = append(saleAmountRateRow, calcGrowthRate(saleAmountRow[i-1], saleAmountRow[i]))
 		}
 	}
 
@@ -148,149 +142,140 @@ func (c *AnalyticsCase) AnalyticsBarOrder(ctx context.Context, req *admin.Analyt
 		AxisData: axisData,
 		SeriesData: []*admin.AnalyticsBarResponse_SeriesData{
 			{Value: orderCountRow},
-			{Value: saleAmountRow},
 			{Value: orderCountRateRow},
+		},
+	}, nil
+}
+
+// AnalyticsBarSale 查询订单销售额柱状图
+// 返回 seriesData 顺序固定为：销售额、销售额增长率。
+func (c *AnalyticsCase) AnalyticsBarSale(ctx context.Context, req *admin.AnalyticsBarSaleRequest) (*admin.AnalyticsBarResponse, error) {
+	startAt, endAt := getAnalyticsTimeRange(req.GetTimeType())
+	summary, axisData, err := c.queryOrderSummary(ctx, req.GetTimeType(), startAt, endAt)
+	if err != nil {
+		return nil, err
+	}
+
+	saleAmountRow := make([]int64, 0, len(axisData))
+	saleAmountRateRow := make([]int64, 0, len(axisData))
+	for i := range axisData {
+		key := int64(i + 1)
+		item, ok := summary[key]
+		if ok {
+			saleAmountRow = append(saleAmountRow, item.SaleAmount)
+		} else {
+			saleAmountRow = append(saleAmountRow, 0)
+		}
+		if i == 0 {
+			saleAmountRateRow = append(saleAmountRateRow, calcGrowthRate(0, saleAmountRow[i]))
+		} else {
+			saleAmountRateRow = append(saleAmountRateRow, calcGrowthRate(saleAmountRow[i-1], saleAmountRow[i]))
+		}
+	}
+
+	return &admin.AnalyticsBarResponse{
+		AxisData: axisData,
+		SeriesData: []*admin.AnalyticsBarResponse_SeriesData{
+			{Value: saleAmountRow},
 			{Value: saleAmountRateRow},
 		},
 	}, nil
 }
 
-// AnalyticsBarGoods 查询商品柱状图
-func (c *AnalyticsCase) AnalyticsBarGoods(ctx context.Context, req *admin.AnalyticsBarGoodsRequest) (*admin.AnalyticsBarResponse, error) {
-	startAt, endAt := getAnalyticsTimeRange(req.GetTimeType())
-	summary, err := c.queryOrderGoodsSummary(ctx, req.GetTop(), startAt, endAt)
-	if err != nil {
-		return nil, err
-	}
-
-	goodsIds := make([]int64, 0, len(summary))
-	for _, item := range summary {
-		goodsIds = append(goodsIds, item.GoodsId)
-	}
-
-	goodsMap := make(map[int64]string)
-	if len(goodsIds) > 0 {
-		goodsList, listErr := c.goodsCase.ListByIds(ctx, goodsIds)
-		if listErr != nil {
-			return nil, listErr
-		}
-		for _, item := range goodsList {
-			goodsMap[item.ID] = item.Name
-		}
-	}
-
-	sort.Slice(summary, func(i, j int) bool { return summary[i].GoodsCount > summary[j].GoodsCount })
-	axisData := make([]string, 0, len(summary))
-	goodsCountRow := make([]int64, 0, len(summary))
-	for _, item := range summary {
-		axisData = append(axisData, goodsMap[item.GoodsId])
-		goodsCountRow = append(goodsCountRow, item.GoodsCount)
-	}
-	return &admin.AnalyticsBarResponse{
-		AxisData:   axisData,
-		SeriesData: []*admin.AnalyticsBarResponse_SeriesData{{Value: goodsCountRow}},
-	}, nil
-}
-
 // AnalyticsPieGoods 查询商品饼图
-// 按时间范围统计已下单商品的分类销量占比，便于与顶部时间筛选保持一致。
+// 按时间范围统计已下单商品的一级分类销量占比，便于与顶部时间筛选保持一致。
 func (c *AnalyticsCase) AnalyticsPieGoods(ctx context.Context, req *admin.AnalyticsPieGoodsRequest) (*admin.AnalyticsPieResponse, error) {
 	startAt, endAt := getAnalyticsTimeRange(req.GetTimeType())
 	summary, err := c.queryGoodsCategorySummary(ctx, startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
-	nameMap := c.goodsCategoryCase.NameMap(ctx, new(int64(0)))
+
+	// 获取一级分类的名称映射
+	parentId := int64(0)
+	categoryNameMap := c.goodsCategoryCase.NameMap(ctx, &parentId)
 
 	seriesData := make([]*admin.AnalyticsPieResponse_SeriesData, 0, len(summary))
 	for _, item := range summary {
 		seriesData = append(seriesData, &admin.AnalyticsPieResponse_SeriesData{
 			Value: item.GoodsCount,
-			Name:  nameMap[item.CategoryId],
+			Name:  categoryNameMap[item.CategoryId],
 		})
 	}
 	return &admin.AnalyticsPieResponse{SeriesData: seriesData}, nil
 }
 
-// AnalyticsRadarOrder 查询订单雷达图
-// 图例为订单状态，指示器为商品分类，数值为对应分类下该状态的商品销量。
-func (c *AnalyticsCase) AnalyticsRadarOrder(ctx context.Context, req *admin.AnalyticsRadarOrderRequest) (*admin.AnalyticsRadarResponse, error) {
+// AnalyticsPieOrder 查询订单状态分布（饼状图）。
+// 按订单状态统计订单数量，用于展示各状态订单的占比分布。
+func (c *AnalyticsCase) AnalyticsPieOrder(ctx context.Context, req *admin.AnalyticsPieOrderRequest) (*admin.AnalyticsPieResponse, error) {
 	startAt, endAt := getAnalyticsTimeRange(req.GetTimeType())
-	summary, err := c.queryOrderGoodsStatusSummary(ctx, startAt, endAt)
+
+	// 查询订单状态统计数据
+	summary, err := c.queryOrderStatusSummary(ctx, startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
 
-	summaryMap := make(map[string]int64, len(summary))
-	for _, item := range summary {
-		summaryMap[fmt.Sprintf("%d_%d", item.CategoryId, item.Status)] = item.GoodsCount
-	}
-
-	parentId := int64(0)
-	goodsCategoryNameMap := c.goodsCategoryCase.NameMap(ctx, &parentId)
-
-	dictQuery := c.baseDictCase.Query(ctx).BaseDict
-	var baseDict *models.BaseDict
-	baseDict, err = c.baseDictCase.Find(ctx, repo.Where(dictQuery.Code.Eq("order_status")))
+	// 获取订单状态字典映射（value -> label）
+	statusLabelMap, err := c.getOrderStatusLabelMap(ctx)
 	if err != nil {
-		return &admin.AnalyticsRadarResponse{}, nil
+		return nil, err
 	}
 
-	dictItemQuery := c.baseDictItemCase.Query(ctx).BaseDictItem
-	var baseDictItemList []*models.BaseDictItem
-	dictItemOpts := make([]repo.QueryOption, 0, 1)
-	dictItemOpts = append(dictItemOpts, repo.Where(dictItemQuery.DictID.Eq(baseDict.ID)))
-	baseDictItemList, err = c.baseDictItemCase.List(ctx, dictItemOpts...)
-	if err != nil || len(baseDictItemList) == 0 || len(goodsCategoryNameMap) == 0 {
-		return &admin.AnalyticsRadarResponse{}, nil
-	}
-	// 按字典排序值固定图例与雷达数据顺序，避免前端展示顺序漂移。
-	sort.Slice(baseDictItemList, func(i, j int) bool {
-		if baseDictItemList[i].Sort == baseDictItemList[j].Sort {
-			return baseDictItemList[i].ID < baseDictItemList[j].ID
+	// 组装饼图数据
+	seriesData := make([]*admin.AnalyticsPieResponse_SeriesData, 0, len(summary))
+	for _, item := range summary {
+		label, ok := statusLabelMap[item.Status]
+		if !ok {
+			label = fmt.Sprintf("状态%d", item.Status)
 		}
-		return baseDictItemList[i].Sort < baseDictItemList[j].Sort
-	})
-
-	categoryIds := make([]int64, 0, len(goodsCategoryNameMap))
-	for id := range goodsCategoryNameMap {
-		categoryIds = append(categoryIds, id)
-	}
-	sort.Slice(categoryIds, func(i, j int) bool { return categoryIds[i] < categoryIds[j] })
-
-	legendData := make([]string, 0, len(baseDictItemList))
-	radarIndicator := make([]*admin.AnalyticsRadarResponse_RadarIndicator, 0, len(categoryIds))
-	seriesData := make([]*admin.AnalyticsRadarResponse_SeriesData, 0, len(baseDictItemList))
-	for idx, item := range baseDictItemList {
-		legendData = append(legendData, item.Label)
-		goodsNum := make([]int64, 0, len(categoryIds))
-		for _, categoryId := range categoryIds {
-			if idx == 0 {
-				radarIndicator = append(radarIndicator, &admin.AnalyticsRadarResponse_RadarIndicator{
-					Name: goodsCategoryNameMap[categoryId],
-				})
-			}
-			key := fmt.Sprintf("%d_%s", categoryId, item.Value)
-			goodsNum = append(goodsNum, summaryMap[key])
-		}
-		seriesData = append(seriesData, &admin.AnalyticsRadarResponse_SeriesData{
-			Name:  item.Label,
-			Value: goodsNum,
+		seriesData = append(seriesData, &admin.AnalyticsPieResponse_SeriesData{
+			Value: item.OrderCount,
+			Name:  label,
 		})
 	}
 
-	return &admin.AnalyticsRadarResponse{
-		LegendData:     legendData,
-		RadarIndicator: radarIndicator,
-		SeriesData:     seriesData,
-	}, nil
+	return &admin.AnalyticsPieResponse{SeriesData: seriesData}, nil
+}
+
+// getOrderStatusLabelMap 获取订单状态字典映射（value -> label）。
+func (c *AnalyticsCase) getOrderStatusLabelMap(ctx context.Context) (map[int32]string, error) {
+	dictQuery := c.baseDictCase.Query(ctx).BaseDict
+	baseDict, err := c.baseDictCase.Find(ctx, repo.Where(dictQuery.Code.Eq("order_status")))
+	if err != nil {
+		return nil, err
+	}
+
+	dictItemQuery := c.baseDictItemCase.Query(ctx).BaseDictItem
+	dictItemOpts := make([]repo.QueryOption, 0, 1)
+	dictItemOpts = append(dictItemOpts, repo.Where(dictItemQuery.DictID.Eq(baseDict.ID)))
+	baseDictItemList, err := c.baseDictItemCase.List(ctx, dictItemOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	statusLabelMap := make(map[int32]string, len(baseDictItemList))
+	for _, item := range baseDictItemList {
+		// 将字符串 value 转换为 int32
+		var statusValue int32
+		_, err = fmt.Sscanf(item.Value, "%d", &statusValue)
+		if err != nil {
+			continue
+		}
+		statusLabelMap[statusValue] = item.Label
+	}
+
+	return statusLabelMap, nil
 }
 
 // getAnalyticsTimeRange 获取统计时间范围
-// DAY=今日，WEEK=本周，MONTH=本月。
+// WEEK=本周，MONTH=本月，YEAR=本年。
 func getAnalyticsTimeRange(timeType admin.AnalyticsTimeType) (time.Time, time.Time) {
 	now := time.Now()
 	switch timeType {
+	case admin.AnalyticsTimeType_YEAR:
+		startAt := time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
+		return startAt, startAt.AddDate(1, 0, 0)
 	case admin.AnalyticsTimeType_MONTH:
 		startAt := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
 		return startAt, startAt.AddDate(0, 1, 0)
@@ -302,22 +287,35 @@ func getAnalyticsTimeRange(timeType admin.AnalyticsTimeType) (time.Time, time.Ti
 		startAt := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, now.Location())
 		return startAt, startAt.AddDate(0, 0, 7)
 	default:
-		startAt := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		return startAt, startAt.AddDate(0, 0, 1)
+		// 默认本周
+		weekday := int(now.Weekday())
+		if weekday == 0 {
+			weekday = 7
+		}
+		startAt := time.Date(now.Year(), now.Month(), now.Day()-weekday+1, 0, 0, 0, 0, now.Location())
+		return startAt, startAt.AddDate(0, 0, 7)
 	}
 }
 
 // formatAnalyticsAxis 格式化坐标轴
-// DAY 返回小时，WEEK 返回星期，MONTH 返回当月日期。
+// WEEK 返回星期，MONTH 返回当月日期，YEAR 返回月份。
 func formatAnalyticsAxis(timeType admin.AnalyticsTimeType, index int, startAt time.Time) string {
 	switch timeType {
+	case admin.AnalyticsTimeType_YEAR:
+		months := []string{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"}
+		if index < len(months) {
+			return months[index]
+		}
+		return ""
 	case admin.AnalyticsTimeType_MONTH:
 		return startAt.AddDate(0, 0, index).Format("01-02")
 	case admin.AnalyticsTimeType_WEEK:
 		labels := []string{"一", "二", "三", "四", "五", "六", "日"}
 		return "周" + labels[index]
 	default:
-		return fmt.Sprintf("%02d:00", index)
+		// 默认本周
+		labels := []string{"一", "二", "三", "四", "五", "六", "日"}
+		return "周" + labels[index]
 	}
 }
 
@@ -333,7 +331,7 @@ func calcGrowthRate(prev, curr int64) int64 {
 }
 
 // queryOrderSummary 查询订单统计
-// DAY 按小时，WEEK 按星期，MONTH 按日期聚合订单量与销售额。
+// WEEK 按星期，MONTH 按日期，YEAR 按月份聚合订单量与销售额。
 func (c *AnalyticsCase) queryOrderSummary(ctx context.Context, timeType admin.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]*dto.OrderSummary, []string, error) {
 	summaryMap := make(map[int64]*dto.OrderSummary)
 	axisData := make([]string, 0)
@@ -341,6 +339,22 @@ func (c *AnalyticsCase) queryOrderSummary(ctx context.Context, timeType admin.An
 
 	var err error
 	switch timeType {
+	case admin.AnalyticsTimeType_YEAR:
+		var rows []*dto.OrderSummary
+		err = db.Model(&models.Order{}).
+			Select("MONTH(created_at) AS `key`, COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
+			Where("created_at >= ? AND created_at < ?", startAt, endAt).
+			Group("MONTH(created_at)").
+			Scan(&rows).Error
+		if err != nil {
+			return nil, nil, err
+		}
+		for _, item := range rows {
+			summaryMap[item.Key] = item
+		}
+		for i := 0; i < 12; i++ {
+			axisData = append(axisData, formatAnalyticsAxis(timeType, i, startAt))
+		}
 	case admin.AnalyticsTimeType_MONTH:
 		var rows []*dto.OrderSummary
 		// 修复：正确处理查询错误
@@ -377,12 +391,12 @@ func (c *AnalyticsCase) queryOrderSummary(ctx context.Context, timeType admin.An
 			axisData = append(axisData, formatAnalyticsAxis(timeType, i, startAt))
 		}
 	default:
+		// 默认本周
 		var rows []*dto.OrderSummary
-		// 修复：正确处理查询错误
 		err = db.Model(&models.Order{}).
-			Select("HOUR(created_at)+1 AS `key`, COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
+			Select("WEEKDAY(created_at)+1 AS `key`, COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 			Where("created_at >= ? AND created_at < ?", startAt, endAt).
-			Group("HOUR(created_at)+1").
+			Group("WEEKDAY(created_at)+1").
 			Scan(&rows).Error
 		if err != nil {
 			return nil, nil, err
@@ -390,7 +404,7 @@ func (c *AnalyticsCase) queryOrderSummary(ctx context.Context, timeType admin.An
 		for _, item := range rows {
 			summaryMap[item.Key] = item
 		}
-		for i := 0; i < 24; i++ {
+		for i := 0; i < 7; i++ {
 			axisData = append(axisData, formatAnalyticsAxis(timeType, i, startAt))
 		}
 	}
@@ -415,20 +429,68 @@ func (c *AnalyticsCase) queryOrderGoodsSummary(ctx context.Context, top int64, s
 	return res, err
 }
 
-// queryGoodsCategorySummary 查询指定时间范围内的商品分类销量统计
-// 统计口径基于订单商品数量，而不是商品表中的累计库存或总商品数。
+// queryGoodsCategorySummary 查询指定时间范围内的一级商品分类销量统计
+// 统计口径基于订单商品数量，将子分类销量汇总到对应的一级分类下。
 func (c *AnalyticsCase) queryGoodsCategorySummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsCategorySummary, error) {
-	res := make([]*dto.GoodsCategorySummary, 0)
-	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
+	// 查询所有分类，建立分类层级映射
+	categoryList, err := c.goodsCategoryCase.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 建立分类ID到父级ID的映射，以及找到每个分类的根分类（一级分类）
+	parentMap := make(map[int64]int64, len(categoryList))
+	for _, category := range categoryList {
+		parentMap[category.ID] = category.ParentID
+	}
+
+	// 获取一级分类ID的函数：递归查找根分类
+	getRootCategoryId := func(categoryId int64) int64 {
+		for {
+			parentId, ok := parentMap[categoryId]
+			if !ok || parentId == 0 {
+				return categoryId
+			}
+			categoryId = parentId
+		}
+	}
+
+	// 查询所有商品分类的销量数据（包含子分类）
+	rows := make([]*dto.GoodsCategorySummary, 0)
+	err = c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
 		Select("goods.category_id, COALESCE(SUM(order_goods.num),0) AS goods_count").
 		Joins("JOIN goods ON goods.id = order_goods.goods_id").
 		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
 		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
 		Group("goods.category_id").
-		Order("goods_count DESC").
-		Scan(&res).Error
-	return res, err
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	// 将子分类的销量汇总到一级分类
+	rootCategoryCount := make(map[int64]int64)
+	for _, row := range rows {
+		rootId := getRootCategoryId(row.CategoryId)
+		rootCategoryCount[rootId] += row.GoodsCount
+	}
+
+	// 转换为结果数组
+	res := make([]*dto.GoodsCategorySummary, 0, len(rootCategoryCount))
+	for categoryId, count := range rootCategoryCount {
+		res = append(res, &dto.GoodsCategorySummary{
+			CategoryId: categoryId,
+			GoodsCount: count,
+		})
+	}
+
+	// 按销量降序排序
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].GoodsCount > res[j].GoodsCount
+	})
+
+	return res, nil
 }
 
 // queryOrderGoodsStatusSummary 查询商品订单状态统计
@@ -441,6 +503,18 @@ func (c *AnalyticsCase) queryOrderGoodsStatusSummary(ctx context.Context, startA
 		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
 		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
 		Group("goods.category_id, `order`.status").
+		Scan(&res).Error
+	return res, err
+}
+
+// queryOrderStatusSummary 查询订单状态统计
+func (c *AnalyticsCase) queryOrderStatusSummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.OrderStatusSummary, error) {
+	res := make([]*dto.OrderStatusSummary, 0)
+	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
+		Model(&models.Order{}).
+		Select("status, COUNT(*) AS order_count").
+		Where("created_at >= ? AND created_at < ?", startAt, endAt).
+		Group("status").
 		Scan(&res).Error
 	return res, err
 }

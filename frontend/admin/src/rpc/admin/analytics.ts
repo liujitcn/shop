@@ -8,12 +8,12 @@
 
 /** 时间类型 */
 export enum AnalyticsTimeType {
-  /** DAY - 日 */
-  DAY = 0,
   /** WEEK - 周 */
-  WEEK = 1,
+  WEEK = 0,
   /** MONTH - 月 */
-  MONTH = 2,
+  MONTH = 1,
+  /** YEAR - 年 */
+  YEAR = 2,
 }
 
 /** 汇总数据请求参数 */
@@ -36,12 +36,10 @@ export interface AnalyticsBarOrderRequest {
   timeType: AnalyticsTimeType;
 }
 
-/** 商品销量（柱状图）请求参数 */
-export interface AnalyticsBarGoodsRequest {
+/** 订单销售额（柱状图）请求参数 */
+export interface AnalyticsBarSaleRequest {
   /** 时间类型 */
   timeType: AnalyticsTimeType;
-  /** top */
-  top: number;
 }
 
 /** 商品分类（饼状图）请求参数 */
@@ -51,7 +49,7 @@ export interface AnalyticsPieGoodsRequest {
 }
 
 /** 商品订单销量状态（雷达图）请求参数 */
-export interface AnalyticsRadarOrderRequest {
+export interface AnalyticsPieOrderRequest {
   /** 时间类型 */
   timeType: AnalyticsTimeType;
 }
@@ -82,29 +80,7 @@ export interface AnalyticsPieResponse_SeriesData {
   name: string;
 }
 
-/** （雷达图）返回结果 */
-export interface AnalyticsRadarResponse {
-  /** 图例的数据数组 */
-  legendData: string[];
-  /** 指示器 */
-  radarIndicator: AnalyticsRadarResponse_RadarIndicator[];
-  /** 数据 */
-  seriesData: AnalyticsRadarResponse_SeriesData[];
-}
-
-export interface AnalyticsRadarResponse_RadarIndicator {
-  /** 指示器名称 */
-  name: string;
-}
-
-export interface AnalyticsRadarResponse_SeriesData {
-  /** 数据项名称 */
-  name: string;
-  /** 单个数据项的数值 */
-  value: number[];
-}
-
-/** Admin 数据分析服务 */
+/** Admin数据分析服务 */
 export interface AnalyticsService {
   /** 查询汇总数据（用户） */
   AnalyticsCountUser(request: AnalyticsCountRequest): Promise<AnalyticsCountResponse>;
@@ -116,10 +92,10 @@ export interface AnalyticsService {
   AnalyticsCountSale(request: AnalyticsCountRequest): Promise<AnalyticsCountResponse>;
   /** 查询订单销量（柱状图） */
   AnalyticsBarOrder(request: AnalyticsBarOrderRequest): Promise<AnalyticsBarResponse>;
-  /** 查询商品销量（柱状图） */
-  AnalyticsBarGoods(request: AnalyticsBarGoodsRequest): Promise<AnalyticsBarResponse>;
-  /** 查询商品分类（饼状图） */
+  /** 查询订单销售额（柱状图） */
+  AnalyticsBarSale(request: AnalyticsBarSaleRequest): Promise<AnalyticsBarResponse>;
+  /** 查询订单商品分类（饼状图） */
   AnalyticsPieGoods(request: AnalyticsPieGoodsRequest): Promise<AnalyticsPieResponse>;
-  /** 查询商品订单销量状态（雷达图） */
-  AnalyticsRadarOrder(request: AnalyticsRadarOrderRequest): Promise<AnalyticsRadarResponse>;
+  /** 查询订单状态（饼状图） */
+  AnalyticsPieOrder(request: AnalyticsPieOrderRequest): Promise<AnalyticsPieResponse>;
 }

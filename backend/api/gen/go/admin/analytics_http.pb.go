@@ -19,20 +19,20 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationAnalyticsServiceAnalyticsBarGoods = "/admin.AnalyticsService/AnalyticsBarGoods"
 const OperationAnalyticsServiceAnalyticsBarOrder = "/admin.AnalyticsService/AnalyticsBarOrder"
+const OperationAnalyticsServiceAnalyticsBarSale = "/admin.AnalyticsService/AnalyticsBarSale"
 const OperationAnalyticsServiceAnalyticsCountGoods = "/admin.AnalyticsService/AnalyticsCountGoods"
 const OperationAnalyticsServiceAnalyticsCountOrder = "/admin.AnalyticsService/AnalyticsCountOrder"
 const OperationAnalyticsServiceAnalyticsCountSale = "/admin.AnalyticsService/AnalyticsCountSale"
 const OperationAnalyticsServiceAnalyticsCountUser = "/admin.AnalyticsService/AnalyticsCountUser"
 const OperationAnalyticsServiceAnalyticsPieGoods = "/admin.AnalyticsService/AnalyticsPieGoods"
-const OperationAnalyticsServiceAnalyticsRadarOrder = "/admin.AnalyticsService/AnalyticsRadarOrder"
+const OperationAnalyticsServiceAnalyticsPieOrder = "/admin.AnalyticsService/AnalyticsPieOrder"
 
 type AnalyticsServiceHTTPServer interface {
-	// AnalyticsBarGoods 查询商品销量（柱状图）
-	AnalyticsBarGoods(context.Context, *AnalyticsBarGoodsRequest) (*AnalyticsBarResponse, error)
 	// AnalyticsBarOrder 查询订单销量（柱状图）
 	AnalyticsBarOrder(context.Context, *AnalyticsBarOrderRequest) (*AnalyticsBarResponse, error)
+	// AnalyticsBarSale 查询订单销售额（柱状图）
+	AnalyticsBarSale(context.Context, *AnalyticsBarSaleRequest) (*AnalyticsBarResponse, error)
 	// AnalyticsCountGoods 查询汇总数据（商品）
 	AnalyticsCountGoods(context.Context, *AnalyticsCountRequest) (*AnalyticsCountResponse, error)
 	// AnalyticsCountOrder 查询汇总数据（订单）
@@ -41,10 +41,10 @@ type AnalyticsServiceHTTPServer interface {
 	AnalyticsCountSale(context.Context, *AnalyticsCountRequest) (*AnalyticsCountResponse, error)
 	// AnalyticsCountUser 查询汇总数据（用户）
 	AnalyticsCountUser(context.Context, *AnalyticsCountRequest) (*AnalyticsCountResponse, error)
-	// AnalyticsPieGoods 查询商品分类（饼状图）
+	// AnalyticsPieGoods 查询订单商品分类（饼状图）
 	AnalyticsPieGoods(context.Context, *AnalyticsPieGoodsRequest) (*AnalyticsPieResponse, error)
-	// AnalyticsRadarOrder 查询商品订单销量状态（雷达图）
-	AnalyticsRadarOrder(context.Context, *AnalyticsRadarOrderRequest) (*AnalyticsRadarResponse, error)
+	// AnalyticsPieOrder 查询订单状态（饼状图）
+	AnalyticsPieOrder(context.Context, *AnalyticsPieOrderRequest) (*AnalyticsPieResponse, error)
 }
 
 func RegisterAnalyticsServiceHTTPServer(s *http.Server, srv AnalyticsServiceHTTPServer) {
@@ -54,9 +54,9 @@ func RegisterAnalyticsServiceHTTPServer(s *http.Server, srv AnalyticsServiceHTTP
 	r.GET("/api/admin/analytics/count/order", _AnalyticsService_AnalyticsCountOrder0_HTTP_Handler(srv))
 	r.GET("/api/admin/analytics/count/sale", _AnalyticsService_AnalyticsCountSale0_HTTP_Handler(srv))
 	r.GET("/api/admin/analytics/bar/order", _AnalyticsService_AnalyticsBarOrder0_HTTP_Handler(srv))
-	r.GET("/api/admin/analytics/bar/goods", _AnalyticsService_AnalyticsBarGoods0_HTTP_Handler(srv))
+	r.GET("/api/admin/analytics/bar/sale", _AnalyticsService_AnalyticsBarSale0_HTTP_Handler(srv))
 	r.GET("/api/admin/analytics/pie/goods", _AnalyticsService_AnalyticsPieGoods0_HTTP_Handler(srv))
-	r.GET("/api/admin/analytics/radar/order", _AnalyticsService_AnalyticsRadarOrder0_HTTP_Handler(srv))
+	r.GET("/api/admin/analytics/pie/order", _AnalyticsService_AnalyticsPieOrder0_HTTP_Handler(srv))
 }
 
 func _AnalyticsService_AnalyticsCountUser0_HTTP_Handler(srv AnalyticsServiceHTTPServer) func(ctx http.Context) error {
@@ -154,15 +154,15 @@ func _AnalyticsService_AnalyticsBarOrder0_HTTP_Handler(srv AnalyticsServiceHTTPS
 	}
 }
 
-func _AnalyticsService_AnalyticsBarGoods0_HTTP_Handler(srv AnalyticsServiceHTTPServer) func(ctx http.Context) error {
+func _AnalyticsService_AnalyticsBarSale0_HTTP_Handler(srv AnalyticsServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in AnalyticsBarGoodsRequest
+		var in AnalyticsBarSaleRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAnalyticsServiceAnalyticsBarGoods)
+		http.SetOperation(ctx, OperationAnalyticsServiceAnalyticsBarSale)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.AnalyticsBarGoods(ctx, req.(*AnalyticsBarGoodsRequest))
+			return srv.AnalyticsBarSale(ctx, req.(*AnalyticsBarSaleRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -192,30 +192,30 @@ func _AnalyticsService_AnalyticsPieGoods0_HTTP_Handler(srv AnalyticsServiceHTTPS
 	}
 }
 
-func _AnalyticsService_AnalyticsRadarOrder0_HTTP_Handler(srv AnalyticsServiceHTTPServer) func(ctx http.Context) error {
+func _AnalyticsService_AnalyticsPieOrder0_HTTP_Handler(srv AnalyticsServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in AnalyticsRadarOrderRequest
+		var in AnalyticsPieOrderRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAnalyticsServiceAnalyticsRadarOrder)
+		http.SetOperation(ctx, OperationAnalyticsServiceAnalyticsPieOrder)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.AnalyticsRadarOrder(ctx, req.(*AnalyticsRadarOrderRequest))
+			return srv.AnalyticsPieOrder(ctx, req.(*AnalyticsPieOrderRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*AnalyticsRadarResponse)
+		reply := out.(*AnalyticsPieResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type AnalyticsServiceHTTPClient interface {
-	// AnalyticsBarGoods 查询商品销量（柱状图）
-	AnalyticsBarGoods(ctx context.Context, req *AnalyticsBarGoodsRequest, opts ...http.CallOption) (rsp *AnalyticsBarResponse, err error)
 	// AnalyticsBarOrder 查询订单销量（柱状图）
 	AnalyticsBarOrder(ctx context.Context, req *AnalyticsBarOrderRequest, opts ...http.CallOption) (rsp *AnalyticsBarResponse, err error)
+	// AnalyticsBarSale 查询订单销售额（柱状图）
+	AnalyticsBarSale(ctx context.Context, req *AnalyticsBarSaleRequest, opts ...http.CallOption) (rsp *AnalyticsBarResponse, err error)
 	// AnalyticsCountGoods 查询汇总数据（商品）
 	AnalyticsCountGoods(ctx context.Context, req *AnalyticsCountRequest, opts ...http.CallOption) (rsp *AnalyticsCountResponse, err error)
 	// AnalyticsCountOrder 查询汇总数据（订单）
@@ -224,10 +224,10 @@ type AnalyticsServiceHTTPClient interface {
 	AnalyticsCountSale(ctx context.Context, req *AnalyticsCountRequest, opts ...http.CallOption) (rsp *AnalyticsCountResponse, err error)
 	// AnalyticsCountUser 查询汇总数据（用户）
 	AnalyticsCountUser(ctx context.Context, req *AnalyticsCountRequest, opts ...http.CallOption) (rsp *AnalyticsCountResponse, err error)
-	// AnalyticsPieGoods 查询商品分类（饼状图）
+	// AnalyticsPieGoods 查询订单商品分类（饼状图）
 	AnalyticsPieGoods(ctx context.Context, req *AnalyticsPieGoodsRequest, opts ...http.CallOption) (rsp *AnalyticsPieResponse, err error)
-	// AnalyticsRadarOrder 查询商品订单销量状态（雷达图）
-	AnalyticsRadarOrder(ctx context.Context, req *AnalyticsRadarOrderRequest, opts ...http.CallOption) (rsp *AnalyticsRadarResponse, err error)
+	// AnalyticsPieOrder 查询订单状态（饼状图）
+	AnalyticsPieOrder(ctx context.Context, req *AnalyticsPieOrderRequest, opts ...http.CallOption) (rsp *AnalyticsPieResponse, err error)
 }
 
 type AnalyticsServiceHTTPClientImpl struct {
@@ -238,12 +238,12 @@ func NewAnalyticsServiceHTTPClient(client *http.Client) AnalyticsServiceHTTPClie
 	return &AnalyticsServiceHTTPClientImpl{client}
 }
 
-// AnalyticsBarGoods 查询商品销量（柱状图）
-func (c *AnalyticsServiceHTTPClientImpl) AnalyticsBarGoods(ctx context.Context, in *AnalyticsBarGoodsRequest, opts ...http.CallOption) (*AnalyticsBarResponse, error) {
+// AnalyticsBarOrder 查询订单销量（柱状图）
+func (c *AnalyticsServiceHTTPClientImpl) AnalyticsBarOrder(ctx context.Context, in *AnalyticsBarOrderRequest, opts ...http.CallOption) (*AnalyticsBarResponse, error) {
 	var out AnalyticsBarResponse
-	pattern := "/api/admin/analytics/bar/goods"
+	pattern := "/api/admin/analytics/bar/order"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAnalyticsServiceAnalyticsBarGoods))
+	opts = append(opts, http.Operation(OperationAnalyticsServiceAnalyticsBarOrder))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -252,12 +252,12 @@ func (c *AnalyticsServiceHTTPClientImpl) AnalyticsBarGoods(ctx context.Context, 
 	return &out, nil
 }
 
-// AnalyticsBarOrder 查询订单销量（柱状图）
-func (c *AnalyticsServiceHTTPClientImpl) AnalyticsBarOrder(ctx context.Context, in *AnalyticsBarOrderRequest, opts ...http.CallOption) (*AnalyticsBarResponse, error) {
+// AnalyticsBarSale 查询订单销售额（柱状图）
+func (c *AnalyticsServiceHTTPClientImpl) AnalyticsBarSale(ctx context.Context, in *AnalyticsBarSaleRequest, opts ...http.CallOption) (*AnalyticsBarResponse, error) {
 	var out AnalyticsBarResponse
-	pattern := "/api/admin/analytics/bar/order"
+	pattern := "/api/admin/analytics/bar/sale"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAnalyticsServiceAnalyticsBarOrder))
+	opts = append(opts, http.Operation(OperationAnalyticsServiceAnalyticsBarSale))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -322,7 +322,7 @@ func (c *AnalyticsServiceHTTPClientImpl) AnalyticsCountUser(ctx context.Context,
 	return &out, nil
 }
 
-// AnalyticsPieGoods 查询商品分类（饼状图）
+// AnalyticsPieGoods 查询订单商品分类（饼状图）
 func (c *AnalyticsServiceHTTPClientImpl) AnalyticsPieGoods(ctx context.Context, in *AnalyticsPieGoodsRequest, opts ...http.CallOption) (*AnalyticsPieResponse, error) {
 	var out AnalyticsPieResponse
 	pattern := "/api/admin/analytics/pie/goods"
@@ -336,12 +336,12 @@ func (c *AnalyticsServiceHTTPClientImpl) AnalyticsPieGoods(ctx context.Context, 
 	return &out, nil
 }
 
-// AnalyticsRadarOrder 查询商品订单销量状态（雷达图）
-func (c *AnalyticsServiceHTTPClientImpl) AnalyticsRadarOrder(ctx context.Context, in *AnalyticsRadarOrderRequest, opts ...http.CallOption) (*AnalyticsRadarResponse, error) {
-	var out AnalyticsRadarResponse
-	pattern := "/api/admin/analytics/radar/order"
+// AnalyticsPieOrder 查询订单状态（饼状图）
+func (c *AnalyticsServiceHTTPClientImpl) AnalyticsPieOrder(ctx context.Context, in *AnalyticsPieOrderRequest, opts ...http.CallOption) (*AnalyticsPieResponse, error) {
+	var out AnalyticsPieResponse
+	pattern := "/api/admin/analytics/pie/order"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAnalyticsServiceAnalyticsRadarOrder))
+	opts = append(opts, http.Operation(OperationAnalyticsServiceAnalyticsPieOrder))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -27,17 +27,15 @@ const sourceData = reactive<AnalyticsBarResponse>({
   seriesData: []
 });
 
-/** 订单趋势图的系列名称，顺序需和后端返回保持一致。 */
+/** 订单趋势图的系列名称。 */
 const seriesNames = {
   orderCount: "订单量",
-  saleAmount: "销售额",
-  orderGrowth: "订单量增长率",
-  saleGrowth: "销售额增长率"
+  orderGrowth: "订单量增长率"
 };
 
 /** 订单趋势图表配置。 */
 const option = computed<ECOption>(() => ({
-  color: ["#2d6cdf", "#15a87b", "#f08c2e", "#d9485f"],
+  color: ["#2d6cdf", "#f08c2e"],
   tooltip: {
     trigger: "axis",
     axisPointer: {
@@ -79,7 +77,7 @@ const option = computed<ECOption>(() => ({
   yAxis: [
     {
       type: "value",
-      name: seriesNames.orderCount,
+      name: "订单量",
       axisLabel: {
         color: "#7f8ea3"
       },
@@ -87,14 +85,6 @@ const option = computed<ECOption>(() => ({
         lineStyle: {
           color: "#eef2f8"
         }
-      }
-    },
-    {
-      type: "value",
-      name: seriesNames.saleAmount,
-      axisLabel: {
-        color: "#7f8ea3",
-        formatter: "{value} 元"
       }
     },
     {
@@ -117,28 +107,11 @@ const option = computed<ECOption>(() => ({
       }
     },
     {
-      name: seriesNames.saleAmount,
-      type: "bar",
-      yAxisIndex: 1,
-      barMaxWidth: 18,
-      data: (sourceData.seriesData[1]?.value ?? []).map(item => item / 100),
-      itemStyle: {
-        borderRadius: [8, 8, 0, 0]
-      }
-    },
-    {
       name: seriesNames.orderGrowth,
       type: "line",
-      yAxisIndex: 2,
+      yAxisIndex: 1,
       smooth: true,
-      data: sourceData.seriesData[2]?.value ?? []
-    },
-    {
-      name: seriesNames.saleGrowth,
-      type: "line",
-      yAxisIndex: 2,
-      smooth: true,
-      data: sourceData.seriesData[3]?.value ?? []
+      data: sourceData.seriesData[1]?.value ?? []
     }
   ]
 }));

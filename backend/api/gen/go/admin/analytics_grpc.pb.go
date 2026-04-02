@@ -24,16 +24,16 @@ const (
 	AnalyticsService_AnalyticsCountOrder_FullMethodName = "/admin.AnalyticsService/AnalyticsCountOrder"
 	AnalyticsService_AnalyticsCountSale_FullMethodName  = "/admin.AnalyticsService/AnalyticsCountSale"
 	AnalyticsService_AnalyticsBarOrder_FullMethodName   = "/admin.AnalyticsService/AnalyticsBarOrder"
-	AnalyticsService_AnalyticsBarGoods_FullMethodName   = "/admin.AnalyticsService/AnalyticsBarGoods"
+	AnalyticsService_AnalyticsBarSale_FullMethodName    = "/admin.AnalyticsService/AnalyticsBarSale"
 	AnalyticsService_AnalyticsPieGoods_FullMethodName   = "/admin.AnalyticsService/AnalyticsPieGoods"
-	AnalyticsService_AnalyticsRadarOrder_FullMethodName = "/admin.AnalyticsService/AnalyticsRadarOrder"
+	AnalyticsService_AnalyticsPieOrder_FullMethodName   = "/admin.AnalyticsService/AnalyticsPieOrder"
 )
 
 // AnalyticsServiceClient is the client API for AnalyticsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Admin 数据分析服务
+// Admin数据分析服务
 type AnalyticsServiceClient interface {
 	// 查询汇总数据（用户）
 	AnalyticsCountUser(ctx context.Context, in *AnalyticsCountRequest, opts ...grpc.CallOption) (*AnalyticsCountResponse, error)
@@ -45,12 +45,12 @@ type AnalyticsServiceClient interface {
 	AnalyticsCountSale(ctx context.Context, in *AnalyticsCountRequest, opts ...grpc.CallOption) (*AnalyticsCountResponse, error)
 	// 查询订单销量（柱状图）
 	AnalyticsBarOrder(ctx context.Context, in *AnalyticsBarOrderRequest, opts ...grpc.CallOption) (*AnalyticsBarResponse, error)
-	// 查询商品销量（柱状图）
-	AnalyticsBarGoods(ctx context.Context, in *AnalyticsBarGoodsRequest, opts ...grpc.CallOption) (*AnalyticsBarResponse, error)
-	// 查询商品分类（饼状图）
+	// 查询订单销售额（柱状图）
+	AnalyticsBarSale(ctx context.Context, in *AnalyticsBarSaleRequest, opts ...grpc.CallOption) (*AnalyticsBarResponse, error)
+	// 查询订单商品分类（饼状图）
 	AnalyticsPieGoods(ctx context.Context, in *AnalyticsPieGoodsRequest, opts ...grpc.CallOption) (*AnalyticsPieResponse, error)
-	// 查询商品订单销量状态（雷达图）
-	AnalyticsRadarOrder(ctx context.Context, in *AnalyticsRadarOrderRequest, opts ...grpc.CallOption) (*AnalyticsRadarResponse, error)
+	// 查询订单状态（饼状图）
+	AnalyticsPieOrder(ctx context.Context, in *AnalyticsPieOrderRequest, opts ...grpc.CallOption) (*AnalyticsPieResponse, error)
 }
 
 type analyticsServiceClient struct {
@@ -111,10 +111,10 @@ func (c *analyticsServiceClient) AnalyticsBarOrder(ctx context.Context, in *Anal
 	return out, nil
 }
 
-func (c *analyticsServiceClient) AnalyticsBarGoods(ctx context.Context, in *AnalyticsBarGoodsRequest, opts ...grpc.CallOption) (*AnalyticsBarResponse, error) {
+func (c *analyticsServiceClient) AnalyticsBarSale(ctx context.Context, in *AnalyticsBarSaleRequest, opts ...grpc.CallOption) (*AnalyticsBarResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AnalyticsBarResponse)
-	err := c.cc.Invoke(ctx, AnalyticsService_AnalyticsBarGoods_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AnalyticsService_AnalyticsBarSale_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,10 +131,10 @@ func (c *analyticsServiceClient) AnalyticsPieGoods(ctx context.Context, in *Anal
 	return out, nil
 }
 
-func (c *analyticsServiceClient) AnalyticsRadarOrder(ctx context.Context, in *AnalyticsRadarOrderRequest, opts ...grpc.CallOption) (*AnalyticsRadarResponse, error) {
+func (c *analyticsServiceClient) AnalyticsPieOrder(ctx context.Context, in *AnalyticsPieOrderRequest, opts ...grpc.CallOption) (*AnalyticsPieResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AnalyticsRadarResponse)
-	err := c.cc.Invoke(ctx, AnalyticsService_AnalyticsRadarOrder_FullMethodName, in, out, cOpts...)
+	out := new(AnalyticsPieResponse)
+	err := c.cc.Invoke(ctx, AnalyticsService_AnalyticsPieOrder_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +145,7 @@ func (c *analyticsServiceClient) AnalyticsRadarOrder(ctx context.Context, in *An
 // All implementations must embed UnimplementedAnalyticsServiceServer
 // for forward compatibility.
 //
-// Admin 数据分析服务
+// Admin数据分析服务
 type AnalyticsServiceServer interface {
 	// 查询汇总数据（用户）
 	AnalyticsCountUser(context.Context, *AnalyticsCountRequest) (*AnalyticsCountResponse, error)
@@ -157,12 +157,12 @@ type AnalyticsServiceServer interface {
 	AnalyticsCountSale(context.Context, *AnalyticsCountRequest) (*AnalyticsCountResponse, error)
 	// 查询订单销量（柱状图）
 	AnalyticsBarOrder(context.Context, *AnalyticsBarOrderRequest) (*AnalyticsBarResponse, error)
-	// 查询商品销量（柱状图）
-	AnalyticsBarGoods(context.Context, *AnalyticsBarGoodsRequest) (*AnalyticsBarResponse, error)
-	// 查询商品分类（饼状图）
+	// 查询订单销售额（柱状图）
+	AnalyticsBarSale(context.Context, *AnalyticsBarSaleRequest) (*AnalyticsBarResponse, error)
+	// 查询订单商品分类（饼状图）
 	AnalyticsPieGoods(context.Context, *AnalyticsPieGoodsRequest) (*AnalyticsPieResponse, error)
-	// 查询商品订单销量状态（雷达图）
-	AnalyticsRadarOrder(context.Context, *AnalyticsRadarOrderRequest) (*AnalyticsRadarResponse, error)
+	// 查询订单状态（饼状图）
+	AnalyticsPieOrder(context.Context, *AnalyticsPieOrderRequest) (*AnalyticsPieResponse, error)
 	mustEmbedUnimplementedAnalyticsServiceServer()
 }
 
@@ -188,14 +188,14 @@ func (UnimplementedAnalyticsServiceServer) AnalyticsCountSale(context.Context, *
 func (UnimplementedAnalyticsServiceServer) AnalyticsBarOrder(context.Context, *AnalyticsBarOrderRequest) (*AnalyticsBarResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AnalyticsBarOrder not implemented")
 }
-func (UnimplementedAnalyticsServiceServer) AnalyticsBarGoods(context.Context, *AnalyticsBarGoodsRequest) (*AnalyticsBarResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method AnalyticsBarGoods not implemented")
+func (UnimplementedAnalyticsServiceServer) AnalyticsBarSale(context.Context, *AnalyticsBarSaleRequest) (*AnalyticsBarResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AnalyticsBarSale not implemented")
 }
 func (UnimplementedAnalyticsServiceServer) AnalyticsPieGoods(context.Context, *AnalyticsPieGoodsRequest) (*AnalyticsPieResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AnalyticsPieGoods not implemented")
 }
-func (UnimplementedAnalyticsServiceServer) AnalyticsRadarOrder(context.Context, *AnalyticsRadarOrderRequest) (*AnalyticsRadarResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method AnalyticsRadarOrder not implemented")
+func (UnimplementedAnalyticsServiceServer) AnalyticsPieOrder(context.Context, *AnalyticsPieOrderRequest) (*AnalyticsPieResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AnalyticsPieOrder not implemented")
 }
 func (UnimplementedAnalyticsServiceServer) mustEmbedUnimplementedAnalyticsServiceServer() {}
 func (UnimplementedAnalyticsServiceServer) testEmbeddedByValue()                          {}
@@ -308,20 +308,20 @@ func _AnalyticsService_AnalyticsBarOrder_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AnalyticsService_AnalyticsBarGoods_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AnalyticsBarGoodsRequest)
+func _AnalyticsService_AnalyticsBarSale_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AnalyticsBarSaleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnalyticsServiceServer).AnalyticsBarGoods(ctx, in)
+		return srv.(AnalyticsServiceServer).AnalyticsBarSale(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AnalyticsService_AnalyticsBarGoods_FullMethodName,
+		FullMethod: AnalyticsService_AnalyticsBarSale_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyticsServiceServer).AnalyticsBarGoods(ctx, req.(*AnalyticsBarGoodsRequest))
+		return srv.(AnalyticsServiceServer).AnalyticsBarSale(ctx, req.(*AnalyticsBarSaleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -344,20 +344,20 @@ func _AnalyticsService_AnalyticsPieGoods_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AnalyticsService_AnalyticsRadarOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AnalyticsRadarOrderRequest)
+func _AnalyticsService_AnalyticsPieOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AnalyticsPieOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnalyticsServiceServer).AnalyticsRadarOrder(ctx, in)
+		return srv.(AnalyticsServiceServer).AnalyticsPieOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AnalyticsService_AnalyticsRadarOrder_FullMethodName,
+		FullMethod: AnalyticsService_AnalyticsPieOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyticsServiceServer).AnalyticsRadarOrder(ctx, req.(*AnalyticsRadarOrderRequest))
+		return srv.(AnalyticsServiceServer).AnalyticsPieOrder(ctx, req.(*AnalyticsPieOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -390,16 +390,16 @@ var AnalyticsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AnalyticsService_AnalyticsBarOrder_Handler,
 		},
 		{
-			MethodName: "AnalyticsBarGoods",
-			Handler:    _AnalyticsService_AnalyticsBarGoods_Handler,
+			MethodName: "AnalyticsBarSale",
+			Handler:    _AnalyticsService_AnalyticsBarSale_Handler,
 		},
 		{
 			MethodName: "AnalyticsPieGoods",
 			Handler:    _AnalyticsService_AnalyticsPieGoods_Handler,
 		},
 		{
-			MethodName: "AnalyticsRadarOrder",
-			Handler:    _AnalyticsService_AnalyticsRadarOrder_Handler,
+			MethodName: "AnalyticsPieOrder",
+			Handler:    _AnalyticsService_AnalyticsPieOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

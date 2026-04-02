@@ -1,14 +1,13 @@
 import service from "@/utils/request";
 import {
-  type AnalyticsBarGoodsRequest,
+  type AnalyticsBarSaleRequest,
   type AnalyticsBarOrderRequest,
   type AnalyticsBarResponse,
   type AnalyticsCountRequest,
   type AnalyticsCountResponse,
   type AnalyticsPieGoodsRequest,
+  type AnalyticsPieOrderRequest,
   type AnalyticsPieResponse,
-  type AnalyticsRadarOrderRequest,
-  type AnalyticsRadarResponse,
   type AnalyticsService
 } from "@/rpc/admin/analytics";
 
@@ -56,10 +55,10 @@ export class AnalyticsServiceImpl implements AnalyticsService {
       params: request
     });
   }
-  /** 查询商品销量（柱状图） */
-  AnalyticsBarGoods(request: AnalyticsBarGoodsRequest): Promise<AnalyticsBarResponse> {
-    return service<AnalyticsBarGoodsRequest, AnalyticsBarResponse>({
-      url: `${ADMIN_ANALYTICS}/bar/goods`,
+  /** 查询订单销售额（柱状图） */
+  AnalyticsBarSale(request: AnalyticsBarSaleRequest): Promise<AnalyticsBarResponse> {
+    return service<AnalyticsBarSaleRequest, AnalyticsBarResponse>({
+      url: `${ADMIN_ANALYTICS}/bar/sale`,
       method: "get",
       params: request
     });
@@ -72,10 +71,10 @@ export class AnalyticsServiceImpl implements AnalyticsService {
       params: request
     });
   }
-  /** 查询商品订单销量状态（雷达图） */
-  AnalyticsRadarOrder(request: AnalyticsRadarOrderRequest): Promise<AnalyticsRadarResponse> {
-    return service<AnalyticsRadarOrderRequest, AnalyticsRadarResponse>({
-      url: `${ADMIN_ANALYTICS}/radar/order`,
+  /** 查询订单状态（饼状图） */
+  AnalyticsPieOrder(request: AnalyticsPieOrderRequest): Promise<AnalyticsPieResponse> {
+    return service<AnalyticsPieOrderRequest, AnalyticsPieResponse>({
+      url: `${ADMIN_ANALYTICS}/pie/order`,
       method: "get",
       params: request
     });

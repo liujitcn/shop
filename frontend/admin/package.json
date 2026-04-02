@@ -31,7 +31,6 @@
     "lint:prettier": "prettier --write \"src/**/*.{js,ts,json,tsx,css,less,scss,vue,html,md}\"",
     "lint:stylelint": "stylelint --cache --fix \"**/*.{vue,less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
     "lint:lint-staged": "lint-staged",
-    "prepare": "husky install",
     "release": "standard-version",
     "commit": "git add -A && czg && git push"
   },
@@ -104,6 +103,7 @@
     "vite-plugin-pwa": "^0.20.0",
     "vite-plugin-svg-icons": "^2.0.1",
     "vite-plugin-vue-devtools": "^7.3.5",
+    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^2.0.22"
   },
   "engines": {
@@ -125,5 +125,24 @@
     "commitizen": {
       "path": "node_modules/cz-git"
     }
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@",
+      "@parcel/watcher",
+      "/",
+      "a",
+      "c",
+      "e",
+      "es5-ext",
+      "esbuild",
+      "h",
+      "l",
+      "p",
+      "r",
+      "t",
+      "vue-demi",
+      "w"
+    ]
   }
 }

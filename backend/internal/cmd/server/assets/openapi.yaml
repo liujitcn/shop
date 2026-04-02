@@ -6,33 +6,6 @@ info:
     title: ""
     version: 0.0.1
 paths:
-    /api/admin/analytics/bar/goods:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询商品销量（柱状图）
-            operationId: AnalyticsService_AnalyticsBarGoods
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - DAY
-                        - WEEK
-                        - MONTH
-                    type: string
-                    format: enum
-                - name: top
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsBarResponse'
     /api/admin/analytics/bar/order:
         get:
             tags:
@@ -44,9 +17,32 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsBarResponse'
+    /api/admin/analytics/bar/sale:
+        get:
+            tags:
+                - AnalyticsService
+            description: 查询订单销售额（柱状图）
+            operationId: AnalyticsService_AnalyticsBarSale
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -67,9 +63,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -90,9 +86,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -113,9 +109,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -136,9 +132,9 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -152,16 +148,16 @@ paths:
         get:
             tags:
                 - AnalyticsService
-            description: 查询商品分类（饼状图）
+            description: 查询订单商品分类（饼状图）
             operationId: AnalyticsService_AnalyticsPieGoods
             parameters:
                 - name: timeType
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -171,20 +167,20 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AnalyticsPieResponse'
-    /api/admin/analytics/radar/order:
+    /api/admin/analytics/pie/order:
         get:
             tags:
                 - AnalyticsService
-            description: 查询商品订单销量状态（雷达图）
-            operationId: AnalyticsService_AnalyticsRadarOrder
+            description: 查询订单状态（饼状图）
+            operationId: AnalyticsService_AnalyticsPieOrder
             parameters:
                 - name: timeType
                   in: query
                   schema:
                     enum:
-                        - DAY
                         - WEEK
                         - MONTH
+                        - YEAR
                     type: string
                     format: enum
             responses:
@@ -193,7 +189,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AnalyticsRadarResponse'
+                                $ref: '#/components/schemas/AnalyticsPieResponse'
     /api/admin/auth/button:
         get:
             tags:
@@ -4164,42 +4160,6 @@ components:
                 name:
                     type: string
                     description: 系列名称
-        AnalyticsRadarResponse:
-            type: object
-            properties:
-                legendData:
-                    type: array
-                    items:
-                        type: string
-                    description: 图例的数据数组
-                radarIndicator:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/AnalyticsRadarResponse_RadarIndicator'
-                    description: 指示器
-                seriesData:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/AnalyticsRadarResponse_SeriesData'
-                    description: 数据
-            description: （雷达图）返回结果
-        AnalyticsRadarResponse_RadarIndicator:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 指示器名称
-        AnalyticsRadarResponse_SeriesData:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 数据项名称
-                value:
-                    type: array
-                    items:
-                        type: string
-                    description: 单个数据项的数值
         AppTreeOptionResponse:
             type: object
             properties:
@@ -7363,7 +7323,7 @@ components:
             description: 微信后台登录 - 回应
 tags:
     - name: AnalyticsService
-      description: Admin 数据分析服务
+      description: Admin数据分析服务
     - name: AuthService
       description: Admin用户登录认证服务
     - name: AuthService
