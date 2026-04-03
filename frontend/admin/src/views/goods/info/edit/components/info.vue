@@ -3,7 +3,6 @@
     <el-card class="goods-edit-info__hero" shadow="never">
       <div class="goods-edit-info__hero-content">
         <div>
-          <div class="goods-edit-info__eyebrow">第一步</div>
           <h2 class="goods-edit-info__title">填写商品信息</h2>
           <p class="goods-edit-info__desc">
             先完成分类、标题、描述、主图、轮播图、详情图和上下架状态，后续属性与库存都会基于这里的数据继续编辑。
@@ -167,14 +166,13 @@ onMounted(() => {
 
 .goods-edit-info__hero,
 .goods-edit-info__card {
-  border: 1px solid #e6ebf2;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .goods-edit-info__hero {
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(244 248 255 / 95%) 100%);
+  background: #fff;
 }
 
 .goods-edit-info__hero-content {
@@ -184,26 +182,18 @@ onMounted(() => {
   align-items: center;
 }
 
-.goods-edit-info__eyebrow {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #5b6b83;
-  text-transform: uppercase;
-}
-
 .goods-edit-info__title {
-  margin: 10px 0 12px;
-  font-size: 28px;
+  margin: 0 0 10px;
+  font-size: 20px;
   font-weight: 700;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-edit-info__desc {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #526071;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
 }
 
 .goods-edit-info__summary {
@@ -216,26 +206,26 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid #e6ebf2;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 82%);
+  padding: 16px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .goods-edit-info__summary-item span {
   font-size: 13px;
-  color: #6b7a90;
+  color: #64748b;
 }
 
 .goods-edit-info__summary-item strong {
-  font-size: 22px;
-  color: #1f2a37;
+  font-size: 20px;
+  color: #1f2937;
 }
 
 .goods-edit-info__card-header {
   font-size: 16px;
   font-weight: 600;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-edit-info__footer {

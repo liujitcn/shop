@@ -3,6 +3,12 @@
   <div v-loading="loading" class="app-container order-detail-page">
     <el-card v-if="formData.order" class="detail-hero-card" shadow="never">
       <div class="detail-hero">
+        <div class="detail-overview">
+          <div>
+            <div class="detail-overview__label">订单详情</div>
+            <p class="detail-overview__desc">订单编号：{{ formData.order.orderNo }}</p>
+          </div>
+        </div>
         <div class="detail-metrics">
           <div class="detail-metric-card">
             <span class="detail-metric-card__label">支付金额</span>
@@ -301,61 +307,78 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .order-detail-page {
-  padding-bottom: 24px;
-  background:
-    radial-gradient(circle at top left, rgb(240 247 255 / 95%), transparent 34%),
-    linear-gradient(180deg, #f6f8fb 0%, #f3f5f7 100%);
+  padding-bottom: 20px;
+  background: #f5f7fb;
 }
 
 .detail-hero-card,
 .detail-section-card {
   border: 1px solid #e5eaf1;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .detail-hero-card {
   margin-bottom: 18px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(241 247 255 / 95%) 100%);
+}
+
+:deep(.detail-hero-card .el-card__body),
+:deep(.detail-section-card .el-card__body) {
+  padding: 16px;
 }
 
 .detail-hero {
   display: block;
 }
 
+.detail-overview {
+  margin-bottom: 14px;
+}
+
+.detail-overview__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.detail-overview__desc {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #1f2937;
+}
+
 .detail-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .detail-metric-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid #e5eaf1;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 84%);
+  padding: 14px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .detail-metric-card__label {
   font-size: 13px;
-  color: #718096;
+  color: #64748b;
 }
 
 .detail-metric-card__value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #1f2937;
 }
 
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .detail-section-card {
@@ -363,7 +386,7 @@ onMounted(() => {
 }
 
 .detail-section-card--full {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .detail-section-card__header {
@@ -379,12 +402,16 @@ onMounted(() => {
 .detail-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #7c8aa0;
+  color: #94a3b8;
 }
 
 .detail-descriptions :deep(.el-descriptions__label) {
-  width: 120px;
+  width: 110px;
   font-weight: 600;
+}
+
+.detail-descriptions :deep(.el-descriptions__cell) {
+  padding: 10px 14px;
 }
 
 .order-no-field {
@@ -397,7 +424,7 @@ onMounted(() => {
 .detail-timeline {
   margin-top: 20px;
   padding: 18px 18px 0;
-  border-radius: 18px;
+  border-radius: 12px;
   background: #f8fafc;
 }
 

@@ -1,28 +1,30 @@
 <template>
   <div class="workspace-page">
-    <section class="workspace-hero">
-      <div class="hero-main">
-        <div class="hero-user">
-          <el-avatar class="hero-avatar" :src="avatarUrl" :size="88">
+    <el-card class="workspace-card workspace-card--welcome" shadow="never">
+      <div class="workspace-welcome">
+        <div class="workspace-user">
+          <el-avatar class="workspace-avatar" :src="avatarUrl" :size="64">
             {{ avatarFallback }}
           </el-avatar>
-          <div class="hero-copy">
+          <div class="workspace-copy">
+            <span class="workspace-copy__label">今日工作概览</span>
             <h1>{{ greetingText }}</h1>
             <p>{{ subtitleText }}</p>
           </div>
         </div>
+
+        <div class="workspace-summary">
+          <article v-for="item in overviewCards" :key="item.label" class="summary-item">
+            <span class="summary-item__label">{{ item.label }}</span>
+            <strong class="summary-item__value">{{ item.value }}</strong>
+            <span class="summary-item__meta">{{ item.meta }}</span>
+          </article>
+        </div>
       </div>
-      <div class="hero-grid">
-        <article v-for="item in overviewCards" :key="item.label" class="overview-card">
-          <span class="overview-card__label">{{ item.label }}</span>
-          <strong class="overview-card__value">{{ item.value }}</strong>
-          <span class="overview-card__meta">{{ item.meta }}</span>
-        </article>
-      </div>
-    </section>
+    </el-card>
 
     <section class="workspace-content">
-      <el-card class="content-card focus-card" shadow="never">
+      <el-card class="workspace-card" shadow="never">
         <template #header>
           <div class="panel-header">
             <div>
@@ -46,7 +48,7 @@
       </el-card>
 
       <div class="content-side">
-        <el-card class="content-card schedule-card" shadow="never">
+        <el-card class="workspace-card" shadow="never">
           <template #header>
             <div class="panel-header">
               <div>
@@ -66,7 +68,7 @@
           </div>
         </el-card>
 
-        <el-card class="content-card quick-card" shadow="never">
+        <el-card class="workspace-card" shadow="never">
           <template #header>
             <div class="panel-header">
               <div>
@@ -261,86 +263,101 @@ function navigateTo(path: string) {
 .workspace-page {
   min-height: 100%;
   padding: 24px;
-  background:
-    radial-gradient(circle at top left, rgb(224 238 255 / 88%), transparent 26%),
-    radial-gradient(circle at bottom right, rgb(255 237 223 / 72%), transparent 22%),
-    linear-gradient(180deg, #f5f8fc 0%, #f2f6fb 100%);
+  background: #f5f7fb;
 }
 
-.workspace-hero {
-  padding: 28px;
+.workspace-card {
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+}
+
+.workspace-card--welcome {
   margin-bottom: 20px;
-  background: linear-gradient(135deg, rgb(255 255 255 / 94%) 0%, rgb(246 250 255 / 96%) 50%, rgb(255 244 236 / 94%) 100%);
-  border: 1px solid rgb(226 234 245 / 92%);
-  border-radius: 28px;
-  box-shadow: 0 22px 52px rgb(32 64 104 / 9%);
 }
 
-.hero-main {
+:deep(.workspace-card .el-card__header) {
+  padding: 18px 20px 0;
+  border-bottom: 0;
+}
+
+:deep(.workspace-card .el-card__body) {
+  padding: 18px 20px 20px;
+}
+
+.workspace-welcome {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 20px;
 }
 
-.hero-user {
+.workspace-user {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   align-items: center;
+  min-width: 0;
 }
 
-.hero-avatar {
+.workspace-avatar {
   flex-shrink: 0;
-  border: 3px solid rgb(255 255 255 / 92%);
-  box-shadow: 0 12px 28px rgb(30 64 175 / 14%);
+  border: 1px solid #e5eaf1;
 }
 
-.hero-copy h1 {
-  margin: 0 0 10px;
-  font-size: 34px;
-  line-height: 1.2;
-  color: #1d3150;
+.workspace-copy h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  line-height: 1.3;
+  color: #1f2937;
 }
 
-.hero-copy p {
+.workspace-copy__label {
+  display: inline-flex;
+  margin-bottom: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.workspace-copy p {
   margin: 0;
   font-size: 14px;
-  line-height: 1.8;
-  color: #697c99;
+  line-height: 1.7;
+  color: #64748b;
 }
 
-.hero-grid {
+.workspace-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 24px;
+  gap: 12px;
+  min-width: 420px;
 }
 
-.overview-card {
-  padding: 20px;
-  background: rgb(255 255 255 / 82%);
-  border: 1px solid rgb(229 236 246 / 92%);
-  border-radius: 20px;
+.summary-item {
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
 }
 
-.overview-card__label {
+.summary-item__label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-size: 12px;
-  color: #7990ad;
+  color: #64748b;
 }
 
-.overview-card__value {
+.summary-item__value {
   display: block;
-  font-size: 20px;
-  color: #213552;
+  font-size: 18px;
+  color: #1f2937;
 }
 
-.overview-card__meta {
+.summary-item__meta {
   display: block;
   margin-top: 8px;
   font-size: 13px;
-  color: #657991;
+  color: #94a3b8;
 }
 
 .workspace-content {
@@ -355,32 +372,17 @@ function navigateTo(path: string) {
   gap: 20px;
 }
 
-.content-card {
-  border: 1px solid #e7eef7;
-  border-radius: 24px;
-  box-shadow: 0 18px 42px rgb(34 64 102 / 8%);
-}
-
-:deep(.content-card .el-card__header) {
-  padding: 22px 24px 0;
-  border-bottom: 0;
-}
-
-:deep(.content-card .el-card__body) {
-  padding: 20px 24px 24px;
-}
-
 .panel-header h3 {
   margin: 0;
-  font-size: 18px;
-  color: #1f3251;
+  font-size: 16px;
+  color: #1f2937;
 }
 
 .panel-header p {
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #70819b;
+  color: #64748b;
 }
 
 .focus-list,
@@ -403,18 +405,17 @@ function navigateTo(path: string) {
   justify-content: space-between;
   gap: 18px;
   width: 100%;
-  padding: 18px 20px;
+  padding: 16px 18px;
   text-align: left;
-  background: #f8fbff;
-  border: 1px solid #ebf1f8;
-  border-radius: 20px;
-  transition: all 0.2s ease;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
 }
 
 .focus-item:hover,
 .quick-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 26px rgb(46 95 160 / 10%);
+  border-color: #cdd7e5;
 }
 
 .focus-item__left {
@@ -427,21 +428,21 @@ function navigateTo(path: string) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   font-size: 12px;
   font-weight: 700;
-  color: #1d4ed8;
-  background: #dce9ff;
-  border-radius: 16px;
+  color: #2563eb;
+  background: #eaf2ff;
+  border-radius: 10px;
 }
 
 .focus-item strong,
 .schedule-item strong,
 .quick-item__title {
   display: block;
-  font-size: 16px;
-  color: #243754;
+  font-size: 15px;
+  color: #1f2937;
 }
 
 .focus-item p,
@@ -450,17 +451,17 @@ function navigateTo(path: string) {
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #6f839f;
+  color: #64748b;
 }
 
 .schedule-item {
   display: flex;
   gap: 14px;
   align-items: flex-start;
-  padding: 18px 20px;
-  background: #f8fbff;
-  border: 1px solid #ebf1f8;
-  border-radius: 20px;
+  padding: 16px 18px;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
 }
 
 .schedule-item__time {
@@ -468,7 +469,7 @@ function navigateTo(path: string) {
   padding-top: 2px;
   font-size: 13px;
   font-weight: 700;
-  color: #1d4ed8;
+  color: #2563eb;
 }
 
 .quick-grid {
@@ -477,30 +478,48 @@ function navigateTo(path: string) {
   gap: 14px;
 }
 
+.workspace-card :deep(.el-card__header) {
+  position: relative;
+}
+
+.workspace-card :deep(.el-card__header)::after {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  left: 20px;
+  height: 1px;
+  content: "";
+  background: #eef2f7;
+}
+
 .quick-item {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  min-height: 108px;
-  padding: 18px;
+  min-height: 96px;
+  padding: 16px;
   text-align: left;
-  background: linear-gradient(180deg, #f8fbff 0%, #fff8f2 100%);
-  border: 1px solid #ebf1f8;
-  border-radius: 20px;
-  transition: all 0.2s ease;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
 }
 
 @media screen and (width <= 1080px) {
-  .hero-main,
+  .workspace-welcome,
   .workspace-content {
-    grid-template-columns: 1fr;
     flex-direction: column;
+  }
+
+  .workspace-summary {
+    width: 100%;
+    min-width: 0;
   }
 }
 
 @media screen and (width <= 840px) {
-  .hero-grid,
+  .workspace-summary,
   .quick-grid {
     grid-template-columns: 1fr;
   }
@@ -511,17 +530,12 @@ function navigateTo(path: string) {
     padding: 16px;
   }
 
-  .workspace-hero,
-  :deep(.content-card .el-card__body) {
-    padding: 20px;
-  }
-
-  .hero-user {
+  .workspace-user {
     align-items: flex-start;
   }
 
-  .hero-copy h1 {
-    font-size: 28px;
+  .workspace-copy h1 {
+    font-size: 22px;
   }
 }
 </style>

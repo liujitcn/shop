@@ -135,11 +135,11 @@ watch(
 
 <style scoped lang="scss">
 .chart-card {
-  padding: 20px;
-  border: 1px solid rgb(255 255 255 / 70%);
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(246 249 253 / 92%));
-  box-shadow: 0 18px 36px rgb(31 45 61 / 8%);
+  padding: 18px;
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .chart-card__header {
@@ -151,7 +151,7 @@ watch(
 
 .chart-card__title {
   margin: 0;
-  font-size: 20px;
-  color: #1f2d3d;
+  font-size: 16px;
+  color: #1f2937;
 }
 </style>

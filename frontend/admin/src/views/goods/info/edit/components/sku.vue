@@ -3,7 +3,6 @@
     <el-card class="goods-edit-sku__hero" shadow="never">
       <div class="goods-edit-sku__hero-content">
         <div>
-          <div class="goods-edit-sku__eyebrow">第三步</div>
           <h2 class="goods-edit-sku__title">设置商品库存</h2>
           <p class="goods-edit-sku__desc">先维护规格定义，再为自动生成的 SKU 组合填写编号、价格、库存、规格图片和初始销量。</p>
         </div>
@@ -376,11 +375,9 @@ const mergeArraysByGoodsSpecItem = (
   // 处理每个旧数据项
   oldArr.forEach(oldItem => {
     const oldSpecValues = getSpecItemValues(oldItem);
-    console.log("oldSpecValues", oldSpecValues);
     // 查找所有包含旧数据规格值的新数据项
     mergedNewArr.forEach(newItem => {
       const newSpecValues = getSpecItemValues(newItem);
-      console.log("newSpecValues", oldSpecValues);
       if (isSubset(oldSpecValues, newSpecValues)) {
         mergeNonSpecProperties(newItem, oldItem, mergeFn);
       }
@@ -444,8 +441,6 @@ function generateSkuList() {
     return;
   }
   const oldSkuList = formData.value.skuList;
-
-  console.log(oldSkuList);
   // 提取所有规格项组成二维数组
   const specItem = formData.value.specList.map((spec: GoodsSpec) => spec.item);
   const combinations = cartesianIterative(specItem);
@@ -473,7 +468,6 @@ function generateSkuList() {
     newSkuList.push(sku);
   });
   // 默认合并（覆盖重复属性）
-  console.log(newSkuList);
   formData.value.skuList = mergeArraysByGoodsSpecItem(newSkuList, oldSkuList);
 }
 
@@ -574,14 +568,13 @@ async function submitForm() {
 
 .goods-edit-sku__hero,
 .goods-edit-sku__card {
-  border: 1px solid #e6ebf2;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .goods-edit-sku__hero {
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(244 249 255 / 95%) 100%);
+  background: #fff;
 }
 
 .goods-edit-sku__hero-content {
@@ -591,26 +584,18 @@ async function submitForm() {
   align-items: center;
 }
 
-.goods-edit-sku__eyebrow {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #5b6b83;
-  text-transform: uppercase;
-}
-
 .goods-edit-sku__title {
-  margin: 10px 0 12px;
-  font-size: 28px;
+  margin: 0 0 10px;
+  font-size: 20px;
   font-weight: 700;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-edit-sku__desc {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #526071;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
 }
 
 .goods-edit-sku__summary {
@@ -623,20 +608,20 @@ async function submitForm() {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid #e6ebf2;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 82%);
+  padding: 16px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .goods-edit-sku__summary-item span {
   font-size: 13px;
-  color: #6b7a90;
+  color: #64748b;
 }
 
 .goods-edit-sku__summary-item strong {
-  font-size: 22px;
-  color: #1f2a37;
+  font-size: 20px;
+  color: #1f2937;
 }
 
 .goods-edit-sku__card-header {
@@ -654,10 +639,10 @@ async function submitForm() {
   margin-bottom: 16px;
   font-size: 14px;
   line-height: 1.7;
-  color: #526071;
-  background: #f8fbff;
-  border: 1px solid #e2edf8;
-  border-radius: 16px;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
 }
 
 .goods-edit-sku__footer {

@@ -1,35 +1,38 @@
 <template>
   <div class="analytics-page">
-    <section class="hero-card">
-      <div class="hero-card__head">
+    <el-card class="analytics-card analytics-card--summary" shadow="never">
+      <div class="analytics-toolbar">
         <div>
-          <h2 class="hero-card__title">{{ activeTimeLabel }}经营数据</h2>
-          <p class="hero-card__desc">展示用户、商品、订单和销售额汇总，以及对应的趋势和分布情况。</p>
+          <h2 class="analytics-title">经营数据</h2>
+          <p class="analytics-desc">按时间维度查看用户、商品、订单与销售额的汇总和趋势变化。</p>
         </div>
+        <span class="analytics-period">{{ activeTimeLabel }}</span>
 
-        <el-tabs v-model="activeTimeType" class="hero-card__tabs">
+        <el-tabs v-model="activeTimeType" class="analytics-tabs">
           <el-tab-pane v-for="item in timeOptions" :key="item.value" :label="item.label" :name="item.value" />
         </el-tabs>
       </div>
 
-      <div class="hero-card__summary">
+      <div class="summary-grid">
         <article v-for="item in summaryCards" :key="item.key" class="summary-card" :style="{ '--card-accent': item.color }">
           <div class="summary-card__meta">
-            <span class="summary-card__label">{{ item.label }}</span>
+            <div>
+              <span class="summary-card__label">{{ item.label }}</span>
+              <div class="summary-card__value">{{ item.value }}</div>
+            </div>
             <div class="summary-card__icon">
               <el-icon :size="20">
                 <component :is="item.icon" />
               </el-icon>
             </div>
           </div>
-          <div class="summary-card__value">{{ item.value }}</div>
           <div class="summary-card__foot">
             <span>{{ item.footLabel }}</span>
             <strong>{{ item.newValue }}</strong>
           </div>
         </article>
       </div>
-    </section>
+    </el-card>
 
     <section class="chart-grid">
       <OrderBarChart :time-type="activeTimeType" />
@@ -183,70 +186,95 @@ watch(
 
 <style scoped lang="scss">
 .analytics-page {
-  padding: 24px;
-  background:
-    radial-gradient(circle at top left, rgb(45 108 223 / 10%), transparent 26%), linear-gradient(180deg, #f5f7fb 0%, #eef3f8 100%);
+  padding: 20px;
+  background: #f5f7fb;
 }
 
-.hero-card {
-  padding: 24px;
-  border: 1px solid rgb(255 255 255 / 70%);
-  border-radius: 24px;
-  background: linear-gradient(135deg, rgb(255 255 255 / 95%), rgb(246 249 253 / 92%)), #fff;
-  box-shadow: 0 20px 40px rgb(31 45 61 / 8%);
+.analytics-card {
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
-.hero-card__head {
+:deep(.analytics-card .el-card__body) {
+  padding: 18px;
+}
+
+.analytics-card--summary {
+  margin-bottom: 16px;
+}
+
+.analytics-toolbar {
   display: flex;
   gap: 24px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
-.hero-card__title {
+.analytics-title {
   margin: 0;
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 700;
-  color: #1f2d3d;
+  color: #1f2937;
 }
 
-.hero-card__desc {
-  max-width: 620px;
+.analytics-desc {
+  max-width: 560px;
   margin: 8px 0 0;
-  color: #6b7a90;
+  color: #64748b;
   line-height: 1.7;
 }
 
-.hero-card__tabs {
+.analytics-period {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2563eb;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+}
+
+.analytics-tabs {
   min-width: 280px;
 }
 
-.hero-card__summary {
+:deep(.analytics-tabs .el-tabs__nav) {
+  padding: 4px;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 10px;
+}
+
+:deep(.analytics-tabs .el-tabs__item) {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  color: #64748b;
+}
+
+:deep(.analytics-tabs .el-tabs__item.is-active) {
+  color: #1f2937;
+  background: #fff;
+}
+
+.summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px;
 }
 
 .summary-card {
-  position: relative;
-  padding: 20px;
-  overflow: hidden;
-  border-radius: 22px;
-  background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%);
-}
-
-.summary-card::after {
-  position: absolute;
-  top: -28px;
-  right: -18px;
-  width: 112px;
-  height: 112px;
-  content: "";
-  background: radial-gradient(circle, rgb(255 255 255 / 0%), var(--card-accent) 100%);
-  opacity: 0.12;
-  filter: blur(6px);
+  padding: 14px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .summary-card__meta {
@@ -256,27 +284,27 @@ watch(
 }
 
 .summary-card__label {
+  display: block;
   font-size: 14px;
-  color: #6b7a90;
+  color: #64748b;
 }
 
 .summary-card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   color: #fff;
-  border-radius: 14px;
+  border-radius: 10px;
   background: var(--card-accent);
-  box-shadow: 0 12px 24px rgb(0 0 0 / 10%);
 }
 
 .summary-card__value {
-  margin: 20px 0 12px;
-  font-size: 30px;
+  margin: 8px 0 0;
+  font-size: 24px;
   font-weight: 700;
-  color: #1f2d3d;
+  color: #1f2937;
 }
 
 .summary-card__foot {
@@ -284,7 +312,10 @@ watch(
   gap: 8px;
   align-items: center;
   font-size: 13px;
-  color: #7f8ea3;
+  color: #94a3b8;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eef2f7;
 }
 
 .summary-card__foot strong {
@@ -294,20 +325,20 @@ watch(
 .chart-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-top: 20px;
+  gap: 16px;
+  margin-top: 16px;
 }
 
-:deep(.hero-card__tabs .el-tabs__header) {
+:deep(.analytics-tabs .el-tabs__header) {
   margin: 0;
 }
 
-:deep(.hero-card__tabs .el-tabs__nav-wrap::after) {
+:deep(.analytics-tabs .el-tabs__nav-wrap::after) {
   display: none;
 }
 
 @media (max-width: 1200px) {
-  .hero-card__summary,
+  .summary-grid,
   .chart-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -318,21 +349,17 @@ watch(
     padding: 16px;
   }
 
-  .hero-card {
-    padding: 18px;
-    border-radius: 18px;
-  }
-
-  .hero-card__head {
+  .analytics-toolbar {
     flex-direction: column;
+    align-items: stretch;
   }
 
-  .hero-card__tabs {
+  .analytics-tabs {
     width: 100%;
     min-width: 0;
   }
 
-  .hero-card__summary,
+  .summary-grid,
   .chart-grid {
     grid-template-columns: minmax(0, 1fr);
   }

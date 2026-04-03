@@ -2,9 +2,13 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" />
 
-    <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1200px" @close="handleCloseShippedDialog">
+    <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1080px" @close="handleCloseShippedDialog">
       <el-card class="shipped-hero-card" shadow="never">
         <div class="shipped-hero">
+          <div class="dialog-summary">
+            <div class="dialog-summary__label">订单发货摘要</div>
+            <p class="dialog-summary__desc">先确认收货地址与物流状态，再填写或查看物流信息。</p>
+          </div>
           <div class="shipped-metrics">
             <div class="shipped-metric-card">
               <span class="shipped-metric-card__label">联系人</span>
@@ -114,9 +118,13 @@
       </template>
     </ProDialog>
 
-    <ProDialog v-model="dialogRefund.visible" :title="dialogRefund.title" width="1200px" @close="handleCloseRefundDialog">
+    <ProDialog v-model="dialogRefund.visible" :title="dialogRefund.title" width="1080px" @close="handleCloseRefundDialog">
       <el-card class="refund-hero-card" shadow="never">
         <div class="refund-hero">
+          <div class="dialog-summary">
+            <div class="dialog-summary__label">订单退款摘要</div>
+            <p class="dialog-summary__desc">先核对支付与对账信息，再决定是否发起退款或查看退款明细。</p>
+          </div>
           <div class="refund-metrics">
             <div class="refund-metric-card">
               <span class="refund-metric-card__label">支付金额</span>
@@ -856,53 +864,74 @@ loadUserOptions();
 .shipped-hero-card,
 .shipped-section-card {
   border: 1px solid #e5eaf1;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .shipped-hero-card {
   margin-bottom: 18px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(241 247 255 / 95%) 100%);
+}
+
+:deep(.shipped-hero-card .el-card__body),
+:deep(.shipped-section-card .el-card__body),
+:deep(.refund-hero-card .el-card__body),
+:deep(.refund-section-card .el-card__body) {
+  padding: 16px;
 }
 
 .shipped-hero {
   display: block;
 }
 
+.dialog-summary {
+  margin-bottom: 14px;
+}
+
+.dialog-summary__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.dialog-summary__desc {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #1f2937;
+}
+
 .shipped-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .shipped-metric-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid #e5eaf1;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 84%);
+  padding: 14px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .shipped-metric-card__label {
   font-size: 13px;
-  color: #718096;
+  color: #64748b;
 }
 
 .shipped-metric-card__value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: #1f2937;
   word-break: break-all;
 }
 
 .shipped-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .shipped-section-card {
@@ -910,7 +939,7 @@ loadUserOptions();
 }
 
 .shipped-section-card--full {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .shipped-section-card__header {
@@ -926,32 +955,35 @@ loadUserOptions();
 .shipped-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #7c8aa0;
+  color: #94a3b8;
 }
 
 .shipped-descriptions :deep(.el-descriptions__label) {
-  width: 120px;
+  width: 110px;
   font-weight: 600;
+}
+
+.shipped-descriptions :deep(.el-descriptions__cell),
+.refund-descriptions :deep(.el-descriptions__cell) {
+  padding: 10px 14px;
 }
 
 .shipped-timeline {
   margin-top: 20px;
   padding: 18px 18px 0;
-  border-radius: 18px;
+  border-radius: 12px;
   background: #f8fafc;
 }
 
 .refund-hero-card,
 .refund-section-card {
   border: 1px solid #e5eaf1;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .refund-hero-card {
   margin-bottom: 18px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(255 246 244 / 95%) 100%);
 }
 
 .refund-hero {
@@ -961,36 +993,36 @@ loadUserOptions();
 .refund-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .refund-metric-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid #f2dfdb;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 84%);
+  padding: 14px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .refund-metric-card__label {
   font-size: 13px;
-  color: #8b7a73;
+  color: #64748b;
 }
 
 .refund-metric-card__value {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: #1f2937;
   word-break: break-all;
 }
 
 .refund-detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 18px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .refund-section-card {
@@ -998,7 +1030,7 @@ loadUserOptions();
 }
 
 .refund-section-card--full {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .refund-section-card__header {
@@ -1014,11 +1046,11 @@ loadUserOptions();
 .refund-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #8b7a73;
+  color: #94a3b8;
 }
 
 .refund-descriptions :deep(.el-descriptions__label) {
-  width: 120px;
+  width: 110px;
   font-weight: 600;
 }
 

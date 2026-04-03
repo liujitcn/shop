@@ -3,7 +3,6 @@
     <el-card class="goods-edit-prop__hero" shadow="never">
       <div class="goods-edit-prop__hero-content">
         <div>
-          <div class="goods-edit-prop__eyebrow">第二步</div>
           <h2 class="goods-edit-prop__title">设置商品属性</h2>
           <p class="goods-edit-prop__desc">为商品补充可展示的属性信息，例如材质、产地、卖点说明等，排序越小越靠前。</p>
         </div>
@@ -171,14 +170,13 @@ async function handleNext() {
 
 .goods-edit-prop__hero,
 .goods-edit-prop__card {
-  border: 1px solid #e6ebf2;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .goods-edit-prop__hero {
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(245 250 255 / 95%) 100%);
+  background: #fff;
 }
 
 .goods-edit-prop__hero-content {
@@ -188,46 +186,38 @@ async function handleNext() {
   align-items: center;
 }
 
-.goods-edit-prop__eyebrow {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #5b6b83;
-  text-transform: uppercase;
-}
-
 .goods-edit-prop__title {
-  margin: 10px 0 12px;
-  font-size: 28px;
+  margin: 0 0 10px;
+  font-size: 20px;
   font-weight: 700;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-edit-prop__desc {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #526071;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
 }
 
 .goods-edit-prop__summary-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid #e6ebf2;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 82%);
+  padding: 16px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .goods-edit-prop__summary-item span {
   font-size: 13px;
-  color: #6b7a90;
+  color: #64748b;
 }
 
 .goods-edit-prop__summary-item strong {
-  font-size: 22px;
-  color: #1f2a37;
+  font-size: 20px;
+  color: #1f2937;
 }
 
 .goods-edit-prop__card-header {
@@ -245,10 +235,10 @@ async function handleNext() {
   margin-bottom: 16px;
   font-size: 14px;
   line-height: 1.7;
-  color: #526071;
-  background: #f8fbff;
-  border: 1px solid #e2edf8;
-  border-radius: 16px;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
 }
 
 .goods-edit-prop__footer {

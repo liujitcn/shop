@@ -4,7 +4,7 @@
     <el-card class="goods-edit-hero-card" shadow="never">
       <div class="goods-edit-hero">
         <div class="goods-edit-hero__intro">
-          <div class="goods-edit-hero__eyebrow">商品编辑工作台</div>
+          <span class="goods-edit-hero__label">商品编辑流程</span>
           <div class="goods-edit-hero__main">
             <h1 class="goods-edit-hero__title">{{ pageTitle }}</h1>
             <p class="goods-edit-hero__desc">{{ pageDescription }}</p>
@@ -241,28 +241,29 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .goods-edit-page {
-  padding-bottom: 24px;
-  background:
-    radial-gradient(circle at top left, rgb(240 248 255 / 92%), transparent 30%),
-    linear-gradient(180deg, #f6f8fb 0%, #f3f5f7 100%);
+  padding-bottom: 20px;
+  background: #f5f7fb;
 }
 
 .goods-edit-hero-card,
 .goods-edit-steps-card {
-  border: 1px solid #e6ebf2;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .goods-edit-hero-card {
   margin-bottom: 18px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(242 247 255 / 95%) 100%);
+}
+
+:deep(.goods-edit-hero-card .el-card__body),
+:deep(.goods-edit-steps-card .el-card__body) {
+  padding: 16px 18px;
 }
 
 .goods-edit-hero {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
   padding: 2px 0;
@@ -280,69 +281,76 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 16px;
-  align-items: baseline;
+  align-items: center;
 }
 
-.goods-edit-hero__eyebrow {
-  font-size: 13px;
+.goods-edit-hero__label {
+  display: inline-flex;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #5b6b83;
-  text-transform: uppercase;
+  color: #64748b;
 }
 
 .goods-edit-hero__title {
   margin: 0;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-edit-hero__desc {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  color: #526071;
+  color: #64748b;
 }
 
 .goods-edit-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(240px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .goods-edit-metric-card {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 14px 16px;
-  border: 1px solid #e6ebf2;
-  border-radius: 16px;
-  background: rgb(255 255 255 / 82%);
+  padding: 12px 14px;
+  min-width: 140px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .goods-edit-metric-card__label {
   font-size: 13px;
-  color: #6b7a90;
+  color: #64748b;
 }
 
 .goods-edit-metric-card__value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-edit-steps-card {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
+}
+
+.goods-edit-steps-card :deep(.el-steps) {
+  background: #f8fafc;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
 }
 
 .goods-edit-steps-card :deep(.el-step__title) {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .goods-edit-steps-card :deep(.el-step__description) {
+  font-size: 12px;
   line-height: 1.6;
 }
 

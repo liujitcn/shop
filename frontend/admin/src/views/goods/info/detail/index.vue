@@ -18,7 +18,7 @@
         </div>
 
         <div class="goods-hero__content">
-          <div class="goods-hero__eyebrow">商品详情</div>
+          <div class="goods-hero__eyebrow">商品资料总览</div>
           <div class="goods-hero__title-row">
             <h1 class="goods-hero__title">{{ formData.name || "-" }}</h1>
             <el-tag :type="statusTagType" effect="light" round>{{ statusText }}</el-tag>
@@ -380,30 +380,32 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .goods-detail-page {
-  padding-bottom: 24px;
-  background:
-    radial-gradient(circle at top left, rgb(245 247 255 / 90%), transparent 32%),
-    linear-gradient(180deg, #f7f9fc 0%, #f4f6f8 100%);
+  padding-bottom: 20px;
+  background: #f5f7fb;
 }
 
 .goods-hero-card,
 .detail-section-card,
 .detail-table-card {
-  border: 1px solid #e6ebf2;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(15 23 42 / 6%);
+  border: 1px solid #e5eaf1;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
 }
 
 .goods-hero-card {
   margin-bottom: 20px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgb(255 255 255 / 98%) 0%, rgb(244 248 255 / 95%) 100%);
+}
+
+:deep(.goods-hero-card .el-card__body),
+:deep(.detail-section-card .el-card__body),
+:deep(.detail-table-card .el-card__body) {
+  padding: 16px;
 }
 
 .goods-hero {
   display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 28px;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 16px;
   align-items: stretch;
 }
 
@@ -414,26 +416,24 @@ onMounted(() => {
 .goods-cover-image {
   width: 100%;
   height: 100%;
-  min-height: 320px;
+  min-height: 240px;
   overflow: hidden;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #eef3fb 0%, #dde7f5 100%);
+  border-radius: 12px;
+  background: #f3f4f6;
 }
 
 .goods-hero__content {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   justify-content: center;
   min-width: 0;
 }
 
 .goods-hero__eyebrow {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #5b6b83;
-  text-transform: uppercase;
+  color: #64748b;
 }
 
 .goods-hero__title-row {
@@ -445,32 +445,31 @@ onMounted(() => {
 
 .goods-hero__title {
   margin: 0;
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-hero__desc {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.8;
-  color: #526071;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #64748b;
 }
 
 .goods-meta-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .goods-meta-item,
 .goods-metric-card {
-  padding: 16px 18px;
-  border: 1px solid #e6ebf2;
-  border-radius: 18px;
-  background: rgb(255 255 255 / 82%);
-  backdrop-filter: blur(6px);
+  padding: 12px 14px;
+  border: 1px solid #e8edf4;
+  border-radius: 12px;
+  background: #f8fafc;
 }
 
 .goods-meta-item {
@@ -500,32 +499,30 @@ onMounted(() => {
 
 .goods-meta-item--action:hover,
 .goods-metric-card--action:hover {
-  border-color: #bfd2ea;
-  box-shadow: 0 12px 28px rgb(59 130 246 / 10%);
-  transform: translateY(-1px);
+  border-color: #cdd7e5;
 }
 
 .goods-meta-item__label,
 .goods-metric-card__label {
   font-size: 13px;
-  color: #6b7a90;
+  color: #64748b;
 }
 
 .goods-meta-item__value,
 .goods-metric-card__value {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .goods-metric-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .goods-detail-tabs :deep(.el-tabs__header) {
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .goods-detail-tabs :deep(.el-tabs__nav-wrap::after) {
@@ -533,14 +530,23 @@ onMounted(() => {
   background-color: #e6ebf2;
 }
 
+.goods-detail-tabs :deep(.el-tabs__nav) {
+  gap: 8px;
+}
+
 .goods-detail-tabs :deep(.el-tabs__item) {
-  height: 42px;
-  font-size: 15px;
+  height: 36px;
+  padding: 0 6px;
+  font-size: 14px;
   font-weight: 600;
 }
 
+.goods-detail-tabs :deep(.el-tabs__item.is-active) {
+  color: #1f2937;
+}
+
 .detail-section-card {
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .detail-table-card {
@@ -554,45 +560,49 @@ onMounted(() => {
   gap: 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2a37;
+  color: #1f2937;
 }
 
 .detail-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #7c8aa0;
+  color: #94a3b8;
 }
 
 .goods-descriptions :deep(.el-descriptions__label) {
-  width: 120px;
+  width: 110px;
   font-weight: 600;
+}
+
+.goods-descriptions :deep(.el-descriptions__cell) {
+  padding: 10px 14px;
 }
 
 .image-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .image-gallery__item {
   width: 100%;
   height: 160px;
   overflow: hidden;
-  border-radius: 18px;
-  background: #f3f6fb;
+  border-radius: 12px;
+  background: #f3f4f6;
 }
 
 .detail-image-list {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .detail-image-list__item {
   width: 100%;
   min-height: 260px;
   overflow: hidden;
-  border-radius: 18px;
-  background: #f3f6fb;
+  border-radius: 12px;
+  background: #f3f4f6;
 }
 
 .sku-image-cell {
@@ -605,15 +615,14 @@ onMounted(() => {
   height: 60px;
   object-fit: cover;
   border: 1px solid #dbe4f0;
-  border-radius: 12px;
-  box-shadow: 0 8px 18px rgb(15 23 42 / 10%);
+  border-radius: 10px;
 }
 
 .sku-image-cell__preview {
   width: 400px;
   height: 400px;
   object-fit: cover;
-  border-radius: 18px;
+  border-radius: 12px;
 }
 
 .image-placeholder {
@@ -624,8 +633,8 @@ onMounted(() => {
   height: 100%;
   min-height: 180px;
   font-size: 14px;
-  color: #7c8aa0;
-  background: linear-gradient(135deg, #eef3fb 0%, #dde7f5 100%);
+  color: #94a3b8;
+  background: #f3f4f6;
 }
 
 .image-placeholder--large {
