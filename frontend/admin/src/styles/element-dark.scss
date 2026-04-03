@@ -1,5 +1,22 @@
 /* 自定义 element 暗黑模式 */
 html.dark {
+  --admin-page-card-bg: var(--el-bg-color-overlay);
+  --admin-page-card-bg-soft: var(--el-fill-color-light);
+  --admin-page-card-bg-muted: var(--el-fill-color);
+  --admin-page-card-border: var(--el-border-color);
+  --admin-page-card-border-soft: var(--el-border-color-light);
+  --admin-page-card-border-muted: var(--el-border-color-lighter);
+  --admin-page-divider: var(--el-border-color-lighter);
+  --admin-page-divider-strong: var(--el-border-color);
+  --admin-page-text-primary: var(--el-text-color-primary);
+  --admin-page-text-secondary: var(--el-text-color-regular);
+  --admin-page-text-placeholder: var(--el-text-color-secondary);
+  --admin-page-shadow: 0 10px 28px rgb(0 0 0 / 22%);
+  --admin-page-accent-soft-bg: rgb(64 158 255 / 14%);
+  --admin-page-accent-soft-border: rgb(64 158 255 / 30%);
+  --admin-page-accent-soft-text: var(--el-color-primary-light-3);
+  --admin-page-badge-bg: rgb(64 158 255 / 16%);
+
   /* wangEditor */
   --w-e-toolbar-color: #eeeeee;
   --w-e-toolbar-bg-color: #141414;

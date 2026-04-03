@@ -261,9 +261,10 @@ function navigateTo(path: string) {
 
 <style lang="scss" scoped>
 .workspace-card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .workspace-card--welcome {
@@ -295,14 +296,14 @@ function navigateTo(path: string) {
 
 .workspace-avatar {
   flex-shrink: 0;
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
 }
 
 .workspace-copy h1 {
   margin: 0 0 8px;
   font-size: 24px;
   line-height: 1.3;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .workspace-copy__label {
@@ -310,14 +311,14 @@ function navigateTo(path: string) {
   margin-bottom: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .workspace-copy p {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .workspace-summary {
@@ -329,8 +330,8 @@ function navigateTo(path: string) {
 
 .summary-item {
   padding: 16px;
-  background: #f8fafc;
-  border: 1px solid #e8edf4;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
 }
 
@@ -338,20 +339,20 @@ function navigateTo(path: string) {
   display: block;
   margin-bottom: 8px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .summary-item__value {
   display: block;
   font-size: 18px;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .summary-item__meta {
   display: block;
   margin-top: 8px;
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--admin-page-text-placeholder);
 }
 
 .workspace-content {
@@ -369,14 +370,14 @@ function navigateTo(path: string) {
 .panel-header h3 {
   margin: 0;
   font-size: 16px;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .panel-header p {
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .focus-list,
@@ -401,15 +402,15 @@ function navigateTo(path: string) {
   width: 100%;
   padding: 16px 18px;
   text-align: left;
-  background: #f8fafc;
-  border: 1px solid #e8edf4;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
   transition: border-color 0.2s ease;
 }
 
 .focus-item:hover,
 .quick-item:hover {
-  border-color: #cdd7e5;
+  border-color: var(--admin-page-card-border-muted);
 }
 
 .focus-item__left {
@@ -427,7 +428,7 @@ function navigateTo(path: string) {
   font-size: 12px;
   font-weight: 700;
   color: #2563eb;
-  background: #eaf2ff;
+  background: var(--admin-page-badge-bg);
   border-radius: 10px;
 }
 
@@ -436,7 +437,7 @@ function navigateTo(path: string) {
 .quick-item__title {
   display: block;
   font-size: 15px;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .focus-item p,
@@ -445,7 +446,7 @@ function navigateTo(path: string) {
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .schedule-item {
@@ -453,8 +454,8 @@ function navigateTo(path: string) {
   gap: 14px;
   align-items: flex-start;
   padding: 16px 18px;
-  background: #f8fafc;
-  border: 1px solid #e8edf4;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
 }
 
@@ -483,7 +484,7 @@ function navigateTo(path: string) {
   left: 20px;
   height: 1px;
   content: "";
-  background: #eef2f7;
+  background: var(--admin-page-divider);
 }
 
 .quick-item {
@@ -494,8 +495,8 @@ function navigateTo(path: string) {
   min-height: 96px;
   padding: 16px;
   text-align: left;
-  background: #f8fafc;
-  border: 1px solid #e8edf4;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
   transition: border-color 0.2s ease;
 }

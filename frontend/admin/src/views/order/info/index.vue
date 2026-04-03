@@ -864,9 +864,10 @@ function handleOpenDetail(row: Order) {
 <style scoped lang="scss">
 .shipped-hero-card,
 .shipped-section-card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .shipped-hero-card {
@@ -891,13 +892,13 @@ function handleOpenDetail(row: Order) {
 .dialog-summary__label {
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .dialog-summary__desc {
   margin: 6px 0 0;
   font-size: 14px;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .shipped-metrics {
@@ -911,20 +912,20 @@ function handleOpenDetail(row: Order) {
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  border: 1px solid #e8edf4;
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 .shipped-metric-card__label {
   font-size: 13px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .shipped-metric-card__value {
   font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
   word-break: break-all;
 }
 
@@ -950,13 +951,13 @@ function handleOpenDetail(row: Order) {
   gap: 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .shipped-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--admin-page-text-placeholder);
 }
 
 .shipped-descriptions :deep(.el-descriptions__label) {
@@ -973,14 +974,15 @@ function handleOpenDetail(row: Order) {
   margin-top: 20px;
   padding: 18px 18px 0;
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 .refund-hero-card,
 .refund-section-card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .refund-hero-card {
@@ -1002,20 +1004,20 @@ function handleOpenDetail(row: Order) {
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  border: 1px solid #e8edf4;
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 .refund-metric-card__label {
   font-size: 13px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .refund-metric-card__value {
   font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
   word-break: break-all;
 }
 
@@ -1041,13 +1043,13 @@ function handleOpenDetail(row: Order) {
   gap: 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .refund-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--admin-page-text-placeholder);
 }
 
 .refund-descriptions :deep(.el-descriptions__label) {

@@ -40,9 +40,10 @@ const chartColumns = computed(() => props.contentRatio);
 
 <style scoped lang="scss">
 .analytics-card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 :deep(.analytics-card .el-card__body) {
@@ -65,13 +66,13 @@ const chartColumns = computed(() => props.contentRatio);
   margin: 0;
   font-size: 22px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .analytics-desc {
   max-width: 560px;
   margin: 8px 0 0;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
   line-height: 1.7;
 }
 
@@ -84,9 +85,9 @@ const chartColumns = computed(() => props.contentRatio);
   padding: 0 12px;
   font-size: 12px;
   font-weight: 600;
-  color: #2563eb;
-  background: #eff6ff;
-  border: 1px solid #dbeafe;
+  color: var(--admin-page-accent-soft-text);
+  background: var(--admin-page-accent-soft-bg);
+  border: 1px solid var(--admin-page-accent-soft-border);
   border-radius: 999px;
 }
 

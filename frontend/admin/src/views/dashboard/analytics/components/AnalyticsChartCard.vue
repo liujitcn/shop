@@ -37,10 +37,10 @@ const cardClass = computed(() => ({
 <style scoped lang="scss">
 .chart-card {
   padding: 18px;
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .chart-card__header {
@@ -55,14 +55,14 @@ const cardClass = computed(() => ({
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .chart-card__desc {
   margin: 6px 0 0;
   font-size: 13px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .chart-card__body {

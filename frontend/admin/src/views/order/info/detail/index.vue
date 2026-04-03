@@ -308,9 +308,10 @@ onMounted(() => {
 <style scoped lang="scss">
 .detail-hero-card,
 .detail-section-card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .detail-hero-card {
@@ -333,13 +334,13 @@ onMounted(() => {
 .detail-overview__label {
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .detail-overview__desc {
   margin: 6px 0 0;
   font-size: 14px;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .detail-metrics {
@@ -353,20 +354,20 @@ onMounted(() => {
   flex-direction: column;
   gap: 8px;
   padding: 14px;
-  border: 1px solid #e8edf4;
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 .detail-metric-card__label {
   font-size: 13px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .detail-metric-card__value {
   font-size: 20px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .detail-grid {
@@ -391,13 +392,13 @@ onMounted(() => {
   gap: 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .detail-section-card__extra {
   font-size: 13px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--admin-page-text-placeholder);
 }
 
 .detail-descriptions :deep(.el-descriptions__label) {
@@ -420,7 +421,7 @@ onMounted(() => {
   margin-top: 20px;
   padding: 18px 18px 0;
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 /* 商品清单按实际行数撑开，避免继承通用表格的固定最小高度。 */

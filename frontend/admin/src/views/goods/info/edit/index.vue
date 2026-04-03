@@ -242,9 +242,10 @@ onMounted(() => {
 <style scoped lang="scss">
 .goods-edit-hero-card,
 .goods-edit-steps-card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .goods-edit-hero-card {
@@ -283,7 +284,7 @@ onMounted(() => {
   display: inline-flex;
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .goods-edit-hero__title {
@@ -291,14 +292,14 @@ onMounted(() => {
   font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .goods-edit-hero__desc {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .goods-edit-metrics {
@@ -313,20 +314,20 @@ onMounted(() => {
   gap: 6px;
   padding: 12px 14px;
   min-width: 140px;
-  border: 1px solid #e8edf4;
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 .goods-edit-metric-card__label {
   font-size: 13px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .goods-edit-metric-card__value {
   font-size: 20px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .goods-edit-steps-card {
@@ -334,8 +335,8 @@ onMounted(() => {
 }
 
 .goods-edit-steps-card :deep(.el-steps) {
-  background: #f8fafc;
-  border: 1px solid #e8edf4;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
 }
 

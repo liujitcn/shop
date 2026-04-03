@@ -80,9 +80,9 @@ const gridTemplateColumns = computed(() => {
 
 .summary-card {
   padding: 14px;
-  border: 1px solid #e8edf4;
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
-  background: #fff;
+  background: var(--admin-page-card-bg);
 }
 
 .summary-card__meta {
@@ -96,7 +96,7 @@ const gridTemplateColumns = computed(() => {
   gap: 4px;
   align-items: center;
   font-size: 14px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .summary-card__foot-label {
@@ -106,7 +106,7 @@ const gridTemplateColumns = computed(() => {
 }
 
 .summary-card__tooltip-icon {
-  color: #94a3b8;
+  color: var(--admin-page-text-placeholder);
   cursor: pointer;
 }
 
@@ -120,7 +120,7 @@ const gridTemplateColumns = computed(() => {
   justify-content: center;
   width: 36px;
   height: 36px;
-  color: #fff;
+  color: var(--el-color-white);
   border-radius: 10px;
   background: var(--card-accent);
 }
@@ -129,7 +129,7 @@ const gridTemplateColumns = computed(() => {
   margin-top: 8px;
   font-size: 24px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .summary-card__foot {
@@ -139,9 +139,9 @@ const gridTemplateColumns = computed(() => {
   justify-content: space-between;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #eef2f7;
+  border-top: 1px solid var(--admin-page-divider);
   font-size: 13px;
-  color: #94a3b8;
+  color: var(--admin-page-text-placeholder);
 }
 
 .summary-card__foot b {

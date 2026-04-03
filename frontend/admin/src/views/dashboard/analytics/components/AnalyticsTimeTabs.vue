@@ -34,8 +34,8 @@ function handleUpdate(value: string | number) {
 
   :deep(.el-tabs__nav) {
     padding: 4px;
-    background: #f8fafc;
-    border: 1px solid #e8edf4;
+    background: var(--admin-page-card-bg-soft);
+    border: 1px solid var(--admin-page-card-border-soft);
     border-radius: 10px;
   }
 
@@ -47,7 +47,7 @@ function handleUpdate(value: string | number) {
     height: 32px;
     padding: 0 14px;
     border-radius: 8px;
-    color: #64748b;
+    color: var(--admin-page-text-secondary);
   }
 
   :deep(.el-tabs__active-bar) {
@@ -55,8 +55,8 @@ function handleUpdate(value: string | number) {
   }
 
   :deep(.el-tabs__item.is-active) {
-    color: #1f2937;
-    background: #fff;
+    color: var(--admin-page-text-primary);
+    background: var(--admin-page-card-bg);
   }
 }
 </style>

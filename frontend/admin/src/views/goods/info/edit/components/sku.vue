@@ -568,13 +568,10 @@ async function submitForm() {
 
 .goods-edit-sku__hero,
 .goods-edit-sku__card {
-  border: 1px solid #e5eaf1;
+  border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 4%);
-}
-
-.goods-edit-sku__hero {
-  background: #fff;
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
 .goods-edit-sku__hero-content {
@@ -588,14 +585,14 @@ async function submitForm() {
   margin: 0 0 10px;
   font-size: 20px;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .goods-edit-sku__desc {
   margin: 0;
   font-size: 14px;
   line-height: 1.7;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .goods-edit-sku__summary {
@@ -609,19 +606,19 @@ async function submitForm() {
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  border: 1px solid #e8edf4;
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
-  background: #f8fafc;
+  background: var(--admin-page-card-bg-soft);
 }
 
 .goods-edit-sku__summary-item span {
   font-size: 13px;
-  color: #64748b;
+  color: var(--admin-page-text-secondary);
 }
 
 .goods-edit-sku__summary-item strong {
   font-size: 20px;
-  color: #1f2937;
+  color: var(--admin-page-text-primary);
 }
 
 .goods-edit-sku__card-header {
@@ -631,7 +628,7 @@ async function submitForm() {
   gap: 12px;
   font-size: 16px;
   font-weight: 600;
-  color: #1f2a37;
+  color: var(--admin-page-text-primary);
 }
 
 .goods-edit-sku__tip {
@@ -639,9 +636,9 @@ async function submitForm() {
   margin-bottom: 16px;
   font-size: 14px;
   line-height: 1.7;
-  color: #64748b;
-  background: #f8fafc;
-  border: 1px solid #e8edf4;
+  color: var(--admin-page-text-secondary);
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
 }
 
