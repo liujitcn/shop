@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package admin;
+
+import "google/api/annotations.proto";
+
+import "common/analytics.proto";
+
+// Admin用户分析服务
+service UserAnalyticsService {
+  // 查询用户摘要指标
+  rpc GetUserAnalyticsSummary (common.AnalyticsTimeRequest) returns (UserAnalyticsSummaryResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/user/summary"
+    };
+  }
+
+  // 查询用户趋势
+  rpc GetUserAnalyticsTrend (common.AnalyticsTimeRequest) returns (common.AnalyticsTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/user/trend"
+    };
+  }
+
+  // 查询用户行为覆盖排行
+  rpc GetUserAnalyticsRank (common.AnalyticsTimeRequest) returns (common.AnalyticsRankResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/user/rank"
+    };
+  }
+}
+
+message UserAnalyticsSummaryResponse {
+  int64 newUserCount = 1;
+  int64 newUserGrowthRate = 2;
+  int64 orderUserCount = 3;
+  int64 orderUserConversionRate = 4;
+  int64 activeUserCount = 5;
+  int64 activeUserCoverageRate = 6;
+}

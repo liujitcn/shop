@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package admin;
+
+import "google/api/annotations.proto";
+
+import "common/analytics.proto";
+
+// Admin订单分析服务
+service OrderAnalyticsService {
+  // 查询订单摘要指标
+  rpc GetOrderAnalyticsSummary (common.AnalyticsTimeRequest) returns (OrderAnalyticsSummaryResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/order/summary"
+    };
+  }
+
+  // 查询订单趋势
+  rpc GetOrderAnalyticsTrend (common.AnalyticsTimeRequest) returns (common.AnalyticsTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/order/trend"
+    };
+  }
+
+  // 查询订单状态分布
+  rpc GetOrderAnalyticsPie (common.AnalyticsTimeRequest) returns (common.AnalyticsPieResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/order/pie"
+    };
+  }
+}
+
+message OrderAnalyticsSummaryResponse {
+  int64 newOrderCount = 1;
+  int64 newOrderGrowthRate = 2;
+  int64 saleAmount = 3;
+  int64 averageOrderAmount = 4;
+  int64 orderUserCount = 5;
+  int64 repurchaseRate = 6;
+}

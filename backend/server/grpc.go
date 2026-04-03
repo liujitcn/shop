@@ -44,7 +44,6 @@ func NewGRPCServer(
 	ctx *bootstrap.Context,
 	middlewares GrpcMiddlewares,
 
-	adminAnalytics *admin.AnalyticsService,
 	adminAuth *admin.AuthService,
 	adminBaseApi *admin.BaseApiService,
 	adminBaseConfig *admin.BaseConfigService,
@@ -55,16 +54,19 @@ func NewGRPCServer(
 	adminBaseMenu *admin.BaseMenuService,
 	adminBaseRole *admin.BaseRoleService,
 	adminBaseUser *admin.BaseUserService,
+	adminGoodsAnalytics *admin.GoodsAnalyticsService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
 	adminGoods *admin.GoodsService,
 	adminGoodsSku *admin.GoodsSkuService,
 	adminGoodsSpec *admin.GoodsSpecService,
+	adminOrderAnalytics *admin.OrderAnalyticsService,
 	adminOrder *admin.OrderService,
 	adminPayBill *admin.PayBillService,
 	adminShopBanner *admin.ShopBannerService,
 	adminShopHot *admin.ShopHotService,
 	adminShopService *admin.ShopServiceService,
+	adminUserAnalytics *admin.UserAnalyticsService,
 	adminUserStore *admin.UserStoreService,
 
 	appAuth *app.AuthService,
@@ -95,7 +97,6 @@ func NewGRPCServer(
 	if err != nil {
 		return nil, err
 	}
-	adminApi.RegisterAnalyticsServiceServer(srv, adminAnalytics)
 	adminApi.RegisterAuthServiceServer(srv, adminAuth)
 	adminApi.RegisterBaseApiServiceServer(srv, adminBaseApi)
 	adminApi.RegisterBaseConfigServiceServer(srv, adminBaseConfig)
@@ -106,16 +107,19 @@ func NewGRPCServer(
 	adminApi.RegisterBaseMenuServiceServer(srv, adminBaseMenu)
 	adminApi.RegisterBaseRoleServiceServer(srv, adminBaseRole)
 	adminApi.RegisterBaseUserServiceServer(srv, adminBaseUser)
+	adminApi.RegisterGoodsAnalyticsServiceServer(srv, adminGoodsAnalytics)
 	adminApi.RegisterGoodsCategoryServiceServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceServer(srv, adminGoodsProp)
 	adminApi.RegisterGoodsServiceServer(srv, adminGoods)
 	adminApi.RegisterGoodsSkuServiceServer(srv, adminGoodsSku)
 	adminApi.RegisterGoodsSpecServiceServer(srv, adminGoodsSpec)
+	adminApi.RegisterOrderAnalyticsServiceServer(srv, adminOrderAnalytics)
 	adminApi.RegisterOrderServiceServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceServer(srv, adminPayBill)
 	adminApi.RegisterShopBannerServiceServer(srv, adminShopBanner)
 	adminApi.RegisterShopHotServiceServer(srv, adminShopHot)
 	adminApi.RegisterShopServiceServiceServer(srv, adminShopService)
+	adminApi.RegisterUserAnalyticsServiceServer(srv, adminUserAnalytics)
 	adminApi.RegisterUserStoreServiceServer(srv, adminUserStore)
 
 	appApi.RegisterAuthServiceServer(srv, appAuth)

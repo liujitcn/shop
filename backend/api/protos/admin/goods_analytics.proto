@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package admin;
+
+import "google/api/annotations.proto";
+
+import "common/analytics.proto";
+
+// Admin商品分析服务
+service GoodsAnalyticsService {
+  // 查询商品摘要指标
+  rpc GetGoodsAnalyticsSummary (common.AnalyticsTimeRequest) returns (GoodsAnalyticsSummaryResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/goods/summary"
+    };
+  }
+
+  // 查询商品趋势
+  rpc GetGoodsAnalyticsTrend (common.AnalyticsTimeRequest) returns (common.AnalyticsTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/goods/trend"
+    };
+  }
+
+  // 查询商品分类分布
+  rpc GetGoodsAnalyticsPie (common.AnalyticsTimeRequest) returns (common.AnalyticsPieResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/goods/pie"
+    };
+  }
+}
+
+message GoodsAnalyticsSummaryResponse {
+  int64 newGoodsCount = 1;
+  int64 putOnGoodsRate = 2;
+  int64 activeGoodsCount = 3;
+  int64 activeGoodsRate = 4;
+  int64 saleCount = 5;
+  int64 saleGrowthRate = 6;
+}

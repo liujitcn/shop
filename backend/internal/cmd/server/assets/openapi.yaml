@@ -6,150 +6,12 @@ info:
     title: ""
     version: 0.0.1
 paths:
-    /api/admin/analytics/bar/order:
+    /api/admin/analytics/goods/pie:
         get:
             tags:
-                - AnalyticsService
-            description: 查询订单销量（柱状图）
-            operationId: AnalyticsService_AnalyticsBarOrder
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - WEEK
-                        - MONTH
-                        - YEAR
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsBarResponse'
-    /api/admin/analytics/bar/sale:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询订单销售额（柱状图）
-            operationId: AnalyticsService_AnalyticsBarSale
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - WEEK
-                        - MONTH
-                        - YEAR
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsBarResponse'
-    /api/admin/analytics/count/goods:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询汇总数据（商品）
-            operationId: AnalyticsService_AnalyticsCountGoods
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - WEEK
-                        - MONTH
-                        - YEAR
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsCountResponse'
-    /api/admin/analytics/count/order:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询汇总数据（订单）
-            operationId: AnalyticsService_AnalyticsCountOrder
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - WEEK
-                        - MONTH
-                        - YEAR
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsCountResponse'
-    /api/admin/analytics/count/sale:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询汇总数据（销量）
-            operationId: AnalyticsService_AnalyticsCountSale
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - WEEK
-                        - MONTH
-                        - YEAR
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsCountResponse'
-    /api/admin/analytics/count/user:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询汇总数据（用户）
-            operationId: AnalyticsService_AnalyticsCountUser
-            parameters:
-                - name: timeType
-                  in: query
-                  schema:
-                    enum:
-                        - WEEK
-                        - MONTH
-                        - YEAR
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AnalyticsCountResponse'
-    /api/admin/analytics/pie/goods:
-        get:
-            tags:
-                - AnalyticsService
-            description: 查询订单商品分类（饼状图）
-            operationId: AnalyticsService_AnalyticsPieGoods
+                - GoodsAnalyticsService
+            description: 查询商品分类分布
+            operationId: GoodsAnalyticsService_GetGoodsAnalyticsPie
             parameters:
                 - name: timeType
                   in: query
@@ -167,12 +29,58 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AnalyticsPieResponse'
-    /api/admin/analytics/pie/order:
+    /api/admin/analytics/goods/summary:
         get:
             tags:
-                - AnalyticsService
-            description: 查询订单状态（饼状图）
-            operationId: AnalyticsService_AnalyticsPieOrder
+                - GoodsAnalyticsService
+            description: 查询商品摘要指标
+            operationId: GoodsAnalyticsService_GetGoodsAnalyticsSummary
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GoodsAnalyticsSummaryResponse'
+    /api/admin/analytics/goods/trend:
+        get:
+            tags:
+                - GoodsAnalyticsService
+            description: 查询商品趋势
+            operationId: GoodsAnalyticsService_GetGoodsAnalyticsTrend
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsTrendResponse'
+    /api/admin/analytics/order/pie:
+        get:
+            tags:
+                - OrderAnalyticsService
+            description: 查询订单状态分布
+            operationId: OrderAnalyticsService_GetOrderAnalyticsPie
             parameters:
                 - name: timeType
                   in: query
@@ -190,6 +98,121 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AnalyticsPieResponse'
+    /api/admin/analytics/order/summary:
+        get:
+            tags:
+                - OrderAnalyticsService
+            description: 查询订单摘要指标
+            operationId: OrderAnalyticsService_GetOrderAnalyticsSummary
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderAnalyticsSummaryResponse'
+    /api/admin/analytics/order/trend:
+        get:
+            tags:
+                - OrderAnalyticsService
+            description: 查询订单趋势
+            operationId: OrderAnalyticsService_GetOrderAnalyticsTrend
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsTrendResponse'
+    /api/admin/analytics/user/rank:
+        get:
+            tags:
+                - UserAnalyticsService
+            description: 查询用户行为覆盖排行
+            operationId: UserAnalyticsService_GetUserAnalyticsRank
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsRankResponse'
+    /api/admin/analytics/user/summary:
+        get:
+            tags:
+                - UserAnalyticsService
+            description: 查询用户摘要指标
+            operationId: UserAnalyticsService_GetUserAnalyticsSummary
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserAnalyticsSummaryResponse'
+    /api/admin/analytics/user/trend:
+        get:
+            tags:
+                - UserAnalyticsService
+            description: 查询用户趋势
+            operationId: UserAnalyticsService_GetUserAnalyticsTrend
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsTrendResponse'
     /api/admin/auth/button:
         get:
             tags:
@@ -4110,56 +4133,80 @@ paths:
                                 $ref: '#/components/schemas/RefreshTokenResponse'
 components:
     schemas:
-        AnalyticsBarResponse:
+        AnalyticsPieItem:
             type: object
             properties:
-                axisData:
-                    type: array
-                    items:
-                        type: string
-                    description: X,Y 轴数据数组
-                seriesData:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/AnalyticsBarResponse_SeriesData'
-                    description: 数据内容数组
-            description: （柱状图）请求参数
-        AnalyticsBarResponse_SeriesData:
-            type: object
-            properties:
+                name:
+                    type: string
+                    description: 名称
                 value:
-                    type: array
-                    items:
-                        type: string
-                    description: 数量
-        AnalyticsCountResponse:
-            type: object
-            properties:
-                newNum:
                     type: string
-                    description: 新增数量
-                totalNum:
-                    type: string
-                    description: 总数量
-            description: 汇总数据返回结果
+                    description: 值
         AnalyticsPieResponse:
             type: object
             properties:
-                seriesData:
+                items:
                     type: array
                     items:
-                        $ref: '#/components/schemas/AnalyticsPieResponse_SeriesData'
-                    description: 数据内容数组
-            description: （饼状图）返回结果
-        AnalyticsPieResponse_SeriesData:
+                        $ref: '#/components/schemas/AnalyticsPieItem'
+                    description: 饼图数据
+        AnalyticsRankItem:
             type: object
             properties:
+                name:
+                    type: string
+                    description: 名称
                 value:
                     type: string
-                    description: 数值
+                    description: 值
+        AnalyticsRankResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AnalyticsRankItem'
+                    description: 排行列表
+        AnalyticsTrendResponse:
+            type: object
+            properties:
+                axis:
+                    type: array
+                    items:
+                        type: string
+                    description: 坐标轴数据
+                series:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AnalyticsTrendSeries'
+                    description: 系列列表
+                yAxisNames:
+                    type: array
+                    items:
+                        type: string
+                    description: Y轴名称列表
+        AnalyticsTrendSeries:
+            type: object
+            properties:
                 name:
                     type: string
                     description: 系列名称
+                type:
+                    enum:
+                        - BAR
+                        - LINE
+                    type: string
+                    description: 图表类型
+                    format: enum
+                data:
+                    type: array
+                    items:
+                        type: string
+                    description: 数据数组
+                yAxisIndex:
+                    type: integer
+                    description: Y轴索引
+                    format: int32
         AppTreeOptionResponse:
             type: object
             properties:
@@ -5247,6 +5294,21 @@ components:
                 categoryName:
                     type: string
                     description: 分类名称
+        GoodsAnalyticsSummaryResponse:
+            type: object
+            properties:
+                newGoodsCount:
+                    type: string
+                putOnGoodsRate:
+                    type: string
+                activeGoodsCount:
+                    type: string
+                activeGoodsRate:
+                    type: string
+                saleCount:
+                    type: string
+                saleGrowthRate:
+                    type: string
         GoodsCategory:
             type: object
             properties:
@@ -5839,6 +5901,21 @@ components:
                     type: string
                     description: 详细地址
             description: 订单地址信息
+        OrderAnalyticsSummaryResponse:
+            type: object
+            properties:
+                newOrderCount:
+                    type: string
+                newOrderGrowthRate:
+                    type: string
+                saleAmount:
+                    type: string
+                averageOrderAmount:
+                    type: string
+                orderUserCount:
+                    type: string
+                repurchaseRate:
+                    type: string
         OrderCancel:
             type: object
             properties:
@@ -7092,6 +7169,21 @@ components:
                     type: boolean
                     description: 是否默认
             description: 用户地址
+        UserAnalyticsSummaryResponse:
+            type: object
+            properties:
+                newUserCount:
+                    type: string
+                newUserGrowthRate:
+                    type: string
+                orderUserCount:
+                    type: string
+                orderUserConversionRate:
+                    type: string
+                activeUserCount:
+                    type: string
+                activeUserCoverageRate:
+                    type: string
         UserCart:
             type: object
             properties:
@@ -7322,12 +7414,10 @@ components:
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
             description: 微信后台登录 - 回应
 tags:
-    - name: AnalyticsService
-      description: Admin数据分析服务
-    - name: AuthService
-      description: Admin用户登录认证服务
     - name: AuthService
       description: App用户登录认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -7337,9 +7427,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -7354,10 +7444,12 @@ tags:
       description: Base系统配置公共服务
     - name: FileService
       description: Base文件服务
-    - name: GoodsCategoryService
-      description: App商品分类服务
+    - name: GoodsAnalyticsService
+      description: Admin商品分析服务
     - name: GoodsCategoryService
       description: Admin分类服务
+    - name: GoodsCategoryService
+      description: App商品分类服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsService
@@ -7370,6 +7462,8 @@ tags:
       description: Admin商品规格服务
     - name: LoginService
       description: Base登录公共服务
+    - name: OrderAnalyticsService
+      description: Admin订单分析服务
     - name: OrderService
       description: App订单服务
     - name: OrderService
@@ -7383,15 +7477,17 @@ tags:
     - name: ShopBannerService
       description: App轮播图服务
     - name: ShopHotService
-      description: App热门推荐服务
-    - name: ShopHotService
       description: Admin商城热门推荐服务
-    - name: ShopServiceService
-      description: App商城服务
+    - name: ShopHotService
+      description: App热门推荐服务
     - name: ShopServiceService
       description: Admin商城服务
+    - name: ShopServiceService
+      description: App商城服务
     - name: UserAddressService
       description: App用户地址管理服务
+    - name: UserAnalyticsService
+      description: Admin用户分析服务
     - name: UserCartService
       description: App用户购物车管理服务
     - name: UserCollectService

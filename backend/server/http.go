@@ -51,7 +51,6 @@ func NewHttpServer(
 	ctx *bootstrap.Context,
 	middlewares HttpMiddlewares,
 
-	adminAnalytics *admin.AnalyticsService,
 	adminAuth *admin.AuthService,
 	adminBaseApi *admin.BaseApiService,
 	adminBaseConfig *admin.BaseConfigService,
@@ -62,16 +61,19 @@ func NewHttpServer(
 	adminBaseMenu *admin.BaseMenuService,
 	adminBaseRole *admin.BaseRoleService,
 	adminBaseUser *admin.BaseUserService,
+	adminGoodsAnalytics *admin.GoodsAnalyticsService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
 	adminGoods *admin.GoodsService,
 	adminGoodsSku *admin.GoodsSkuService,
 	adminGoodsSpec *admin.GoodsSpecService,
+	adminOrderAnalytics *admin.OrderAnalyticsService,
 	adminOrder *admin.OrderService,
 	adminPayBill *admin.PayBillService,
 	adminShopBanner *admin.ShopBannerService,
 	adminShopHot *admin.ShopHotService,
 	adminShopService *admin.ShopServiceService,
+	adminUserAnalytics *admin.UserAnalyticsService,
 	adminUserStore *admin.UserStoreService,
 
 	appAuth *app.AuthService,
@@ -103,7 +105,6 @@ func NewHttpServer(
 		return nil, err
 	}
 
-	adminApi.RegisterAnalyticsServiceHTTPServer(srv, adminAnalytics)
 	adminApi.RegisterAuthServiceHTTPServer(srv, adminAuth)
 	adminApi.RegisterBaseApiServiceHTTPServer(srv, adminBaseApi)
 	adminApi.RegisterBaseConfigServiceHTTPServer(srv, adminBaseConfig)
@@ -114,16 +115,19 @@ func NewHttpServer(
 	adminApi.RegisterBaseMenuServiceHTTPServer(srv, adminBaseMenu)
 	adminApi.RegisterBaseRoleServiceHTTPServer(srv, adminBaseRole)
 	adminApi.RegisterBaseUserServiceHTTPServer(srv, adminBaseUser)
+	adminApi.RegisterGoodsAnalyticsServiceHTTPServer(srv, adminGoodsAnalytics)
 	adminApi.RegisterGoodsCategoryServiceHTTPServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceHTTPServer(srv, adminGoodsProp)
 	adminApi.RegisterGoodsServiceHTTPServer(srv, adminGoods)
 	adminApi.RegisterGoodsSkuServiceHTTPServer(srv, adminGoodsSku)
 	adminApi.RegisterGoodsSpecServiceHTTPServer(srv, adminGoodsSpec)
+	adminApi.RegisterOrderAnalyticsServiceHTTPServer(srv, adminOrderAnalytics)
 	adminApi.RegisterOrderServiceHTTPServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceHTTPServer(srv, adminPayBill)
 	adminApi.RegisterShopBannerServiceHTTPServer(srv, adminShopBanner)
 	adminApi.RegisterShopHotServiceHTTPServer(srv, adminShopHot)
 	adminApi.RegisterShopServiceServiceHTTPServer(srv, adminShopService)
+	adminApi.RegisterUserAnalyticsServiceHTTPServer(srv, adminUserAnalytics)
 	adminApi.RegisterUserStoreServiceHTTPServer(srv, adminUserStore)
 
 	appApi.RegisterAuthServiceHTTPServer(srv, appAuth)
