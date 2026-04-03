@@ -209,6 +209,7 @@ geeker-admin
 
 分析页 `/dashboard/analytics` 当前与后端统计口径约定如下：
 
+- 摘要指标卡组件 `src/views/dashboard/analytics/components/AnalyticsMetricCards.vue` 已支持主指标和辅助指标的问号提示，提示文案应与后端实际统计口径保持一致。
 - `DashboardTimeType.DAY` 表示今日
 - `DashboardTimeType.WEEK` 表示本周
 - `DashboardTimeType.MONTH` 表示本月
