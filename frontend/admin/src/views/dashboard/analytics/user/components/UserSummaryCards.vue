@@ -29,7 +29,7 @@ const cards = computed<AnalyticsMetricCardItem[]>(() => [
     label: "新增用户",
     value: String(summary.newUserCount),
     footLabel: "较上期",
-    footValue: `${(summary.newUserGrowthRate / 10).toFixed(1)}%`,
+    footValue: `${summary.newUserGrowthRate}%`,
     color: "#2d6cdf",
     icon: User
   },

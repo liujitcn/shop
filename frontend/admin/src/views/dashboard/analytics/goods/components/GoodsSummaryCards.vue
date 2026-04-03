@@ -28,7 +28,7 @@ const cards = computed<AnalyticsMetricCardItem[]>(() => [
     key: "newGoods",
     label: "新增商品",
     value: String(summary.newGoodsCount),
-    footLabel: "上架完成率",
+    footLabel: "上架率",
     footValue: `${(summary.putOnGoodsRate / 10).toFixed(1)}%`,
     color: "#15a87b",
     icon: Tickets
@@ -47,7 +47,7 @@ const cards = computed<AnalyticsMetricCardItem[]>(() => [
     label: "商品销量",
     value: String(summary.saleCount),
     footLabel: "较上期",
-    footValue: `${(summary.saleGrowthRate / 10).toFixed(1)}%`,
+    footValue: `${summary.saleGrowthRate}%`,
     color: "#f08c2e",
     icon: TrendCharts
   }
