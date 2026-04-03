@@ -1,6 +1,6 @@
 <!-- 商品详情 -->
 <template>
-  <div v-loading="loading" class="app-container goods-detail-page">
+  <div v-loading="loading" class="app-container">
     <el-card class="goods-hero-card" shadow="never">
       <div class="goods-hero">
         <div class="goods-hero__media">
@@ -379,11 +379,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.goods-detail-page {
-  padding-bottom: 20px;
-  background: #f5f7fb;
-}
-
 .goods-hero-card,
 .detail-section-card,
 .detail-table-card {
@@ -662,10 +657,6 @@ onMounted(() => {
 }
 
 @media (width <= 768px) {
-  .goods-detail-page {
-    padding-bottom: 12px;
-  }
-
   .goods-hero__title {
     font-size: 24px;
   }

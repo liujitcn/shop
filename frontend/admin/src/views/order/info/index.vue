@@ -218,7 +218,7 @@
 import { computed, h, reactive, ref, resolveComponent, type VNode } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
-import type { ColumnProps, EnumProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
+import type { ColumnProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import ProTable from "@/components/ProTable/index.vue";
@@ -579,13 +579,16 @@ const columns: ColumnProps[] = [
     prop: "userId",
     label: "用户",
     minWidth: 180,
-    enum: requestUserEnum,
+    enum: userOptions,
     render: scope => renderUserCell(scope as unknown as RenderScope<Order>),
     search: {
       el: "select",
       props: {
         filterable: true,
-        clearable: true
+        clearable: true,
+        remote: true,
+        remoteMethod: handleUserSearch,
+        reserveKeyword: false
       }
     }
   },
@@ -640,25 +643,25 @@ const columns: ColumnProps[] = [
 ];
 
 /**
- * 加载用户下拉项，供搜索和回显共用。
+ * 按关键字远程加载用户下拉项；空关键字直接清空，避免查询全量用户。
  */
-async function loadUserOptions() {
-  if (userOptions.value.length) return userOptions.value;
-  const response = await defBaseUserService.OptionBaseUser({ keyword: "" });
-  userOptions.value = response.list ?? [];
+async function loadUserOptionsByKeyword(keyword: string) {
+  const trimmedKeyword = keyword.trim();
+  if (!trimmedKeyword) {
+    userOptions.value.splice(0, userOptions.value.length);
+    return userOptions.value;
+  }
+
+  const response = await defBaseUserService.OptionBaseUser({ keyword: trimmedKeyword });
+  userOptions.value.splice(0, userOptions.value.length, ...(response.list ?? []));
   return userOptions.value;
 }
 
 /**
- * 将用户下拉项转换为 ProTable 搜索枚举。
+ * 处理用户远程搜索。
  */
-async function requestUserEnum() {
-  const options = await loadUserOptions();
-  const data: EnumProps[] = options.map(item => ({
-    label: item.label,
-    value: item.value
-  }));
-  return { data };
+function handleUserSearch(keyword: string) {
+  loadUserOptionsByKeyword(keyword);
 }
 
 /**
@@ -856,8 +859,6 @@ function formatUser(userId: number) {
 function handleOpenDetail(row: Order) {
   navigateTo(router, `/order/detail/${row.id}`, { title: `【${row.orderNo}】订单详情` });
 }
-
-loadUserOptions();
 </script>
 
 <style scoped lang="scss">

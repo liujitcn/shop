@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
@@ -46,14 +47,17 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, ba
 
 // OptionBaseUser 查询用户选项
 func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *admin.OptionBaseUserRequest) (*common.SelectOptionResponse, error) {
+	keyword := strings.TrimSpace(req.GetKeyword())
+	if keyword == "" {
+		return &common.SelectOptionResponse{List: []*common.SelectOptionResponse_Option{}}, nil
+	}
+
 	query := c.Query(ctx).BaseUser
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
-	if req.GetKeyword() != "" {
-		opts = append(opts, repo.Where(query.NickName.Like("%"+req.GetKeyword()+"%")))
-	}
+	opts = append(opts, repo.Where(query.NickName.Like("%"+keyword+"%")))
 
-	list, err := c.List(ctx, opts...)
+	list, _, err := c.Page(ctx, 1, 100, opts...)
 	if err != nil {
 		return nil, err
 	}

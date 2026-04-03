@@ -1,5 +1,5 @@
 <template>
-  <div class="analytics-page">
+  <div>
     <el-card class="analytics-card analytics-card--summary" shadow="never">
       <div class="analytics-toolbar">
         <div>
@@ -185,11 +185,6 @@ watch(
 </script>
 
 <style scoped lang="scss">
-.analytics-page {
-  padding: 20px;
-  background: #f5f7fb;
-}
-
 .analytics-card {
   border: 1px solid #e5eaf1;
   border-radius: 16px;
@@ -345,10 +340,6 @@ watch(
 }
 
 @media (max-width: 768px) {
-  .analytics-page {
-    padding: 16px;
-  }
-
   .analytics-toolbar {
     flex-direction: column;
     align-items: stretch;

@@ -1,5 +1,5 @@
 <template>
-  <div class="workspace-page">
+  <div>
     <el-card class="workspace-card workspace-card--welcome" shadow="never">
       <div class="workspace-welcome">
         <div class="workspace-user">
@@ -260,12 +260,6 @@ function navigateTo(path: string) {
 </script>
 
 <style lang="scss" scoped>
-.workspace-page {
-  min-height: 100%;
-  padding: 24px;
-  background: #f5f7fb;
-}
-
 .workspace-card {
   border: 1px solid #e5eaf1;
   border-radius: 16px;
@@ -526,10 +520,6 @@ function navigateTo(path: string) {
 }
 
 @media screen and (width <= 640px) {
-  .workspace-page {
-    padding: 16px;
-  }
-
   .workspace-user {
     align-items: flex-start;
   }

@@ -1,6 +1,6 @@
 <!-- 订单详情 -->
 <template>
-  <div v-loading="loading" class="app-container order-detail-page">
+  <div v-loading="loading" class="app-container">
     <el-card v-if="formData.order" class="detail-hero-card" shadow="never">
       <div class="detail-hero">
         <div class="detail-overview">
@@ -306,11 +306,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.order-detail-page {
-  padding-bottom: 20px;
-  background: #f5f7fb;
-}
-
 .detail-hero-card,
 .detail-section-card {
   border: 1px solid #e5eaf1;
@@ -455,10 +450,6 @@ onMounted(() => {
 }
 
 @media (width <= 768px) {
-  .order-detail-page {
-    padding-bottom: 12px;
-  }
-
   .detail-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

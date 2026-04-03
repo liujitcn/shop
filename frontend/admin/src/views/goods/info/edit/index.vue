@@ -1,6 +1,6 @@
 <!-- 商品编辑 -->
 <template>
-  <div v-loading="loading" class="app-container goods-edit-page">
+  <div v-loading="loading" class="app-container">
     <el-card class="goods-edit-hero-card" shadow="never">
       <div class="goods-edit-hero">
         <div class="goods-edit-hero__intro">
@@ -240,11 +240,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.goods-edit-page {
-  padding-bottom: 20px;
-  background: #f5f7fb;
-}
-
 .goods-edit-hero-card,
 .goods-edit-steps-card {
   border: 1px solid #e5eaf1;
@@ -370,10 +365,6 @@ onMounted(() => {
 }
 
 @media (width <= 768px) {
-  .goods-edit-page {
-    padding-bottom: 12px;
-  }
-
   .goods-edit-hero__title {
     font-size: 22px;
   }
