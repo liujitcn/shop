@@ -45,35 +45,35 @@ function getTokenExpiresAt() {
   return getUserStore().tokenExpiresAt;
 }
 
-// 防止重复弹出登录过期弹窗的标志
-let isShowingAuthExpiredDialog = false;
+// 防止并发 401/403 重复弹出认证失效确认框。
+let isHandlingAuthExpired = false;
 
 /** 统一处理认证失效 */
 function handleAuthExpired() {
-  // 如果已经在显示弹窗，则直接返回，避免重复弹窗
-  if (isShowingAuthExpiredDialog) {
+  if (isHandlingAuthExpired) {
     return;
   }
 
-  isShowingAuthExpiredDialog = true;
-  ElMessageBox.confirm("当前页面已失效，请重新登录", "提示", {
-    confirmButtonText: "确定",
+  isHandlingAuthExpired = true;
+  ElMessageBox.confirm("登录状态已失效，请重新登录", "提示", {
+    confirmButtonText: "重新登录",
     cancelButtonText: "取消",
-    type: "warning"
+    type: "warning",
+    closeOnClickModal: false,
+    closeOnPressEscape: false
   })
     .then(() => {
       const userStore = getUserStore();
       const currentRoute = router.currentRoute.value;
       const redirect = currentRoute.path === LOGIN_URL ? undefined : currentRoute.fullPath;
       userStore.clearAuthData();
-      router.replace({
+      return router.replace({
         path: LOGIN_URL,
         query: redirect ? { redirect } : undefined
       });
     })
     .finally(() => {
-      // 弹窗关闭后重置标志，允许下次再次弹窗
-      isShowingAuthExpiredDialog = false;
+      isHandlingAuthExpired = false;
     });
 }
 
@@ -116,13 +116,17 @@ service.interceptors.response.use(
     return Promise.reject(new Error(message || "Error"));
   },
   (error: any) => {
-    if (error.response?.data) {
-      const { code, message } = error.response.data;
-      // token 过期,重新登录
-      if (code === 401 || code === 403) {
-        handleAuthExpired();
+    const status = error.response?.status;
+    const code = error.response?.data?.code;
+    const message = error.response?.data?.message;
+
+    if (status === 401 || status === 403 || code === 401 || code === 403) {
+      handleAuthExpired();
+    } else if (error.response?.data) {
+      if (message) {
+        ElMessage.error(message);
       } else {
-        ElMessage.error(message || "系统出错");
+        ElMessage.error("系统出错");
       }
     } else {
       ElMessage.error(error.message || "系统出错");
