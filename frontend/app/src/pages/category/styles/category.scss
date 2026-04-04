@@ -44,8 +44,7 @@ page {
     justify-content: center;
     align-items: center;
     height: 96rpx;
-    font-size: 26rpx;
-    color: #595c63;
+    padding: 0 16rpx;
     position: relative;
     &::after {
       content: '';
@@ -55,6 +54,16 @@ page {
       width: 96rpx;
       border-top: 1rpx solid #e3e4e7;
     }
+  }
+  .name {
+    width: 100%;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 26rpx;
+    color: #595c63;
   }
   .active {
     background-color: #fff;

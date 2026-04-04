@@ -1,5 +1,12 @@
 import { http } from '@/utils/http'
-import type { CaptchaResponse, LoginRequest, LoginResponse, RefreshTokenRequest, RefreshTokenResponse, LoginService } from "@/rpc/base/login";
+import type {
+  CaptchaResponse,
+  LoginRequest,
+  LoginResponse,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
+  LoginService,
+} from '@/rpc/base/login'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const LOGIN_URL = '/login'

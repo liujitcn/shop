@@ -4,16 +4,36 @@ import { ref } from 'vue'
 import type { GoodsInfo, PageGoodsInfoRequest } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { formatSrc, formatPrice } from '@/utils'
+
+// 分类名、搜索词可能会经过路由层二次编码，这里统一做安全解码。
+const decodeQueryText = (value?: string) => {
+  if (!value) return ''
+  let result = value
+  for (let i = 0; i < 2; i++) {
+    try {
+      const decoded = decodeURIComponent(result)
+      if (decoded === result) break
+      result = decoded
+    } catch {
+      break
+    }
+  }
+  return result
+}
+
 // 接收页面参数
 const query = defineProps<{
   name: string
   categoryId: string
   categoryName: string
 }>()
+
+const decodedName = decodeQueryText(query.name)
+const decodedCategoryName = decodeQueryText(query.categoryName)
 // 分页参数
 const pageParams: Required<PageGoodsInfoRequest> = {
   /** 商品名 */
-  name: query.name || '',
+  name: decodedName,
   /** 分类id */
   categoryId: query.categoryId ? Number(query.categoryId) : 0,
   /** 猜你喜欢 */
@@ -47,11 +67,11 @@ const getGoodsData = async () => {
 // 组件挂载完毕
 onLoad(async () => {
   let title = '搜索结果'
-  if (query.categoryId && query.categoryName) {
-    title = query.categoryName
+  if (query.categoryId && decodedCategoryName) {
+    title = decodedCategoryName
   }
-  if (query.name) {
-    title = query.name
+  if (decodedName) {
+    title = decodedName
   }
   // 动态设置标题
   await uni.setNavigationBarTitle({ title: title })

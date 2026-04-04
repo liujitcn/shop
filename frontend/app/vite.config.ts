@@ -30,8 +30,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   /**
    * H5 生产环境默认发布到 /app/ 路径，开发环境保持根路径访问。
    */
-  const appBasePath =
-    env.VITE_APP_BASE_PATH || (mode === 'production-h5' ? '/app/' : '/')
+  const appBasePath = env.VITE_APP_BASE_PATH || (mode === 'production-h5' ? '/app/' : '/')
 
   return {
     base: appBasePath,
@@ -60,10 +59,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
           changeOrigin: true,
           target: devH5ProxyEnv.VITE_APP_STATIC_URL,
           rewrite: (proxyPath) =>
-            proxyPath.replace(
-              new RegExp('^' + env.VITE_APP_STATIC_API),
-              env.VITE_APP_STATIC_API,
-            ),
+            proxyPath.replace(new RegExp('^' + env.VITE_APP_STATIC_API), env.VITE_APP_STATIC_API),
         },
       },
     },

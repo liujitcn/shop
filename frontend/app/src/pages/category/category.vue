@@ -57,6 +57,14 @@ const getSubCategoryData = async (index: number) => {
   }
 }
 
+// 一级分类文案过长时，H5 用 title，其它端通过长按提示查看全称。
+const showCategoryName = (name: string) => {
+  uni.showToast({
+    title: name,
+    icon: 'none',
+  })
+}
+
 // 是否数据加载完毕
 const isFinish = ref(false)
 // 页面加载
@@ -78,8 +86,9 @@ onLoad(async () => {
           class="item"
           :class="{ active: index === activeIndex }"
           @tap="getSubCategoryData(index)"
+          @longpress="showCategoryName(item.name)"
         >
-          <text class="name">
+          <text class="name" :title="item.name">
             {{ item.name }}
           </text>
         </view>

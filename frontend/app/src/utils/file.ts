@@ -1,4 +1,4 @@
-import type { FileInfo, MultiUploadFileResponse } from "@/rpc/base/file";
+import type { FileInfo, MultiUploadFileResponse } from '@/rpc/base/file'
 import { formatSrc } from '@/utils/index.ts'
 
 const STATIC_API_BASE_PATH = import.meta.env.VITE_APP_STATIC_API

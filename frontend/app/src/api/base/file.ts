@@ -1,5 +1,5 @@
 import { http } from '@/utils/http'
-import type { DownloadFileRequest, MultiUploadFileResponse, FileInfo } from "@/rpc/base/file";
+import type { DownloadFileRequest, MultiUploadFileResponse, FileInfo } from '@/rpc/base/file'
 
 const FILE_URL = '/file'
 const STATIC_API_BASE_PATH = import.meta.env.VITE_APP_STATIC_API
