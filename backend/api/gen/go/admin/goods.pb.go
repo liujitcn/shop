@@ -7,6 +7,11 @@
 package admin
 
 import (
+	reflect "reflect"
+	common "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -15,10 +20,6 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
-	reflect "reflect"
-	common "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -267,7 +268,9 @@ type Goods struct {
 	// 初始销量
 	InitSaleNum int64 `protobuf:"varint,42,opt,name=initSaleNum,proto3" json:"initSaleNum,omitempty"`
 	// 真实销售数量
-	RealSaleNum   int64              `protobuf:"varint,43,opt,name=realSaleNum,proto3" json:"realSaleNum,omitempty"`
+	RealSaleNum int64 `protobuf:"varint,43,opt,name=realSaleNum,proto3" json:"realSaleNum,omitempty"`
+	// 库存数量
+	Inventory     int64              `protobuf:"varint,44,opt,name=inventory,proto3" json:"inventory,omitempty"`
 	Status        common.GoodsStatus `protobuf:"varint,101,opt,name=status,proto3,enum=common.GoodsStatus" json:"status,omitempty"` // 状态
 	CreatedAt     string             `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`                    // 创建时间
 	UpdatedAt     string             `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`                    // 更新时间
@@ -365,6 +368,13 @@ func (x *Goods) GetInitSaleNum() int64 {
 func (x *Goods) GetRealSaleNum() int64 {
 	if x != nil {
 		return x.RealSaleNum
+	}
+	return 0
+}
+
+func (x *Goods) GetInventory() int64 {
+	if x != nil {
+		return x.Inventory
 	}
 	return 0
 }
@@ -625,7 +635,7 @@ const file_admin_goods_proto_rawDesc = "" +
 	"\a_status\"K\n" +
 	"\x11PageGoodsResponse\x12 \n" +
 	"\x04list\x18\x01 \x03(\v2\f.admin.GoodsR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x87\x05\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\xb9\x05\n" +
 	"\x05Goods\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12.\n" +
 	"\n" +
@@ -637,7 +647,8 @@ const file_admin_goods_proto_rawDesc = "" +
 	"\x05price\x18( \x01(\x03B\x17\xbaG\x14\x92\x02\x11当前价格(分)R\x05price\x12A\n" +
 	"\rdiscountPrice\x18) \x01(\x03B\x1b\xbaG\x18\x92\x02\x15折扣价格（分）R\rdiscountPrice\x124\n" +
 	"\vinitSaleNum\x18* \x01(\x03B\x12\xbaG\x0f\x92\x02\f初始销量R\vinitSaleNum\x12:\n" +
-	"\vrealSaleNum\x18+ \x01(\x03B\x18\xbaG\x15\x92\x02\x12真实销售数量R\vrealSaleNum\x129\n" +
+	"\vrealSaleNum\x18+ \x01(\x03B\x18\xbaG\x15\x92\x02\x12真实销售数量R\vrealSaleNum\x120\n" +
+	"\tinventory\x18, \x01(\x03B\x12\xbaG\x0f\x92\x02\f库存数量R\tinventory\x129\n" +
 	"\x06status\x18e \x01(\x0e2\x13.common.GoodsStatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x121\n" +
 	"\tcreatedAt\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\tupdatedAt\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x127\n" +

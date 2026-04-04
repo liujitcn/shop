@@ -188,6 +188,11 @@ message Goods {
     (gnostic.openapi.v3.property) = { description: "真实销售数量" }
   ];
 
+  // 库存数量
+  int64 inventory = 44 [
+    (gnostic.openapi.v3.property) = { description: "库存数量" }
+  ];
+
   common.GoodsStatus status = 101 [
     (gnostic.openapi.v3.property) = { description: "状态" }
   ]; // 状态
