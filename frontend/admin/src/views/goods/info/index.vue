@@ -85,6 +85,7 @@ const columns: ColumnProps[] = [
   { prop: "name", label: "商品名称", minWidth: 200, search: { el: "input" } },
   { prop: "categoryName", label: "分类", minWidth: 140 },
   { prop: "desc", label: "商品描述", minWidth: 200 },
+  { prop: "inventory", label: "总库存", minWidth: 100, align: "right" },
   { prop: "initSaleNum", label: "初始销量", minWidth: 100, align: "right" },
   { prop: "realSaleNum", label: "真实销量", minWidth: 100, align: "right" },
   { prop: "price", label: "价格（元）", minWidth: 110, align: "right", cellType: "money" },

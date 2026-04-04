@@ -25,6 +25,7 @@ type Goods struct {
 	DiscountPrice int64          `gorm:"column:discount_price;type:bigint;comment:折扣价格（分）" json:"discount_price"`                                                                                // 折扣价格（分）
 	InitSaleNum   int64          `gorm:"column:init_sale_num;type:bigint;comment:初始销量" json:"init_sale_num"`                                                                                     // 初始销量
 	RealSaleNum   int64          `gorm:"column:real_sale_num;type:bigint;comment:真实销售数量" json:"real_sale_num"`                                                                                   // 真实销售数量
+	Inventory     int64          `gorm:"column:inventory;type:bigint;comment:库存数量" json:"inventory"`                                                                                             // 库存数量
 	Status        int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【GoodsStatus】" json:"status"`                                                                                    // 状态：枚举【GoodsStatus】
 	CreatedBy     int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                                                                                          // 创建人ID
 	UpdatedBy     int64          `gorm:"column:updated_by;type:bigint;comment:更新人ID" json:"updated_by"`                                                                                          // 更新人ID

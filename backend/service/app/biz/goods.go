@@ -167,9 +167,13 @@ func (c *GoodsCase) mapByGoodsIds(ctx context.Context, goodsIds []int64) (map[in
 // 增加商品销量
 func (c *GoodsCase) addSaleNum(ctx context.Context, goodsId, num int64) error {
 	query := c.Query(ctx).Goods
+	updates := map[string]interface{}{
+		"real_sale_num": query.RealSaleNum.Add(num),
+		"inventory":     query.Inventory.Sub(num),
+	}
 	res, err := query.WithContext(ctx).
 		Where(query.ID.Eq(goodsId)).
-		Update(query.RealSaleNum, query.RealSaleNum.Add(num))
+		Updates(updates)
 	if err != nil {
 		return err
 	}
@@ -182,9 +186,13 @@ func (c *GoodsCase) addSaleNum(ctx context.Context, goodsId, num int64) error {
 // 回退商品销量
 func (c *GoodsCase) subSaleNum(ctx context.Context, goodsId, num int64) error {
 	query := c.Query(ctx).Goods
+	updates := map[string]interface{}{
+		"real_sale_num": query.RealSaleNum.Sub(num),
+		"inventory":     query.Inventory.Add(num),
+	}
 	res, err := query.WithContext(ctx).
 		Where(query.ID.Eq(goodsId), query.RealSaleNum.Gte(num)).
-		Update(query.RealSaleNum, query.RealSaleNum.Sub(num))
+		Updates(updates)
 	if err != nil {
 		return err
 	}

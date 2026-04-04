@@ -274,7 +274,7 @@ const specCount = computed(() => formData.specList.length);
 /** 统计 SKU 数量。 */
 const skuCount = computed(() => formData.skuList.length);
 
-/** 汇总全部 SKU 的库存，便于首屏快速查看商品备货情况。 */
+/** 详情页延续按 SKU 汇总展示库存，避免编辑表单承载聚合字段。 */
 const totalInventory = computed(() => formData.skuList.reduce((total, item) => total + Number(item.inventory ?? 0), 0));
 
 /** 页面分区和标签页映射，统一控制概览卡跳转行为。 */

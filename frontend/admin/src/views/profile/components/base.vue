@@ -18,9 +18,8 @@
           <input ref="fileInputRef" type="file" class="hidden-input" accept="image/*" @change="handleFileChange" />
         </div>
         <div class="avatar-copy">
-          <strong>{{ profile.nickName || profile.userName || "未设置昵称" }}</strong>
-          <span>{{ profile.roleName || "未分配角色" }}</span>
-          <p>{{ profile.deptName || "未分配部门" }}</p>
+          <strong>头像</strong>
+          <p>点击右下角可更换头像</p>
         </div>
       </div>
 
@@ -270,16 +269,9 @@ function handleDialogClosed() {
 
 .avatar-copy strong {
   display: block;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: #303133;
-}
-
-.avatar-copy span {
-  display: block;
-  margin-top: 6px;
-  font-size: 13px;
-  color: #606266;
 }
 
 .avatar-copy p {

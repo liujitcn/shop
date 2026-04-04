@@ -1,18 +1,7 @@
 <template>
   <div class="profile-page">
-    <div class="profile-header">
-      <div>
-        <h2>个人中心</h2>
-        <p>统一管理账号资料、安全设置和登录密码。</p>
-      </div>
-    </div>
-
     <section class="profile-shell">
       <aside class="profile-nav">
-        <div class="profile-nav__header">
-          <strong>{{ userProfileForm.nickName || userProfileForm.userName || "未设置昵称" }}</strong>
-          <span>{{ userProfileForm.roleName || "未分配角色" }}</span>
-        </div>
         <button
           v-for="tab in profileTabs"
           :key="tab.value"
@@ -134,23 +123,6 @@ onMounted(async () => {
   padding: 20px;
 }
 
-.profile-header {
-  margin-bottom: 16px;
-}
-
-.profile-header h2 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.profile-header p {
-  margin: 6px 0 0;
-  font-size: 13px;
-  color: #909399;
-}
-
 .profile-shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -166,26 +138,6 @@ onMounted(async () => {
   border: 1px solid #ebeef5;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgb(0 0 0 / 4%);
-}
-
-.profile-nav__header {
-  padding-bottom: 14px;
-  margin-bottom: 14px;
-  border-bottom: 1px solid #f0f2f5;
-}
-
-.profile-nav__header strong {
-  display: block;
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
-}
-
-.profile-nav__header span {
-  display: block;
-  margin-top: 6px;
-  font-size: 13px;
-  color: #909399;
 }
 
 .nav-item {

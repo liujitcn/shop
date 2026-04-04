@@ -38,6 +38,7 @@ func newGoods(db *gorm.DB, opts ...gen.DOOption) goods {
 	_goods.DiscountPrice = field.NewInt64(tableName, "discount_price")
 	_goods.InitSaleNum = field.NewInt64(tableName, "init_sale_num")
 	_goods.RealSaleNum = field.NewInt64(tableName, "real_sale_num")
+	_goods.Inventory = field.NewInt64(tableName, "inventory")
 	_goods.Status = field.NewInt32(tableName, "status")
 	_goods.CreatedBy = field.NewInt64(tableName, "created_by")
 	_goods.UpdatedBy = field.NewInt64(tableName, "updated_by")
@@ -66,6 +67,7 @@ type goods struct {
 	DiscountPrice field.Int64  // 折扣价格（分）
 	InitSaleNum   field.Int64  // 初始销量
 	RealSaleNum   field.Int64  // 真实销售数量
+	Inventory     field.Int64  // 库存数量
 	Status        field.Int32  // 状态：枚举【GoodsStatus】
 	CreatedBy     field.Int64  // 创建人ID
 	UpdatedBy     field.Int64  // 更新人ID
@@ -99,6 +101,7 @@ func (g *goods) updateTableName(table string) *goods {
 	g.DiscountPrice = field.NewInt64(table, "discount_price")
 	g.InitSaleNum = field.NewInt64(table, "init_sale_num")
 	g.RealSaleNum = field.NewInt64(table, "real_sale_num")
+	g.Inventory = field.NewInt64(table, "inventory")
 	g.Status = field.NewInt32(table, "status")
 	g.CreatedBy = field.NewInt64(table, "created_by")
 	g.UpdatedBy = field.NewInt64(table, "updated_by")
@@ -129,7 +132,7 @@ func (g *goods) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *goods) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 17)
+	g.fieldMap = make(map[string]field.Expr, 18)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["category_id"] = g.CategoryID
 	g.fieldMap["name"] = g.Name
@@ -141,6 +144,7 @@ func (g *goods) fillFieldMap() {
 	g.fieldMap["discount_price"] = g.DiscountPrice
 	g.fieldMap["init_sale_num"] = g.InitSaleNum
 	g.fieldMap["real_sale_num"] = g.RealSaleNum
+	g.fieldMap["inventory"] = g.Inventory
 	g.fieldMap["status"] = g.Status
 	g.fieldMap["created_by"] = g.CreatedBy
 	g.fieldMap["updated_by"] = g.UpdatedBy

@@ -77,6 +77,8 @@ export interface Goods {
   initSaleNum: number;
   /** 真实销售数量 */
   realSaleNum: number;
+  /** 库存数量 */
+  inventory: number;
   /** 状态 */
   status: GoodsStatus;
   /** 创建时间 */

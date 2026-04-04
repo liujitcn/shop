@@ -32,7 +32,28 @@
       label-width="90px"
       @confirm="handleSubmit"
       @close="handleCloseDialog"
-    />
+    >
+      <template #passwordStrength>
+        <PasswordStrength :password="formData.pwd" />
+      </template>
+    </FormDialog>
+
+    <FormDialog
+      v-model="resetPwdDialog.visible"
+      ref="resetPwdFormDialogRef"
+      :title="resetPwdDialog.title"
+      width="520px"
+      :model="resetPwdForm"
+      :fields="resetPwdFields"
+      :rules="resetPwdRules"
+      label-width="90px"
+      @confirm="handleConfirmResetPassword"
+      @close="handleCloseResetPasswordDialog"
+    >
+      <template #resetPwdStrength>
+        <PasswordStrength :password="resetPwdForm.pwd" />
+      </template>
+    </FormDialog>
   </div>
 </template>
 
@@ -44,16 +65,18 @@ import { CirclePlus, Delete, EditPen, RefreshLeft } from "@element-plus/icons-vu
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
+import PasswordStrength from "@/components/PasswordStrength/index.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseUserService } from "@/api/admin/base_user";
-import type { BaseUser, BaseUserForm, PageBaseUserRequest } from "@/rpc/admin/base_user";
+import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPwdRequest } from "@/rpc/admin/base_user";
 import { defBaseDeptService } from "@/api/admin/base_dept";
 import { defBaseRoleService } from "@/api/admin/base_role";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/common";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
+import { PASSWORD_STRENGTH_ERROR_MESSAGE, validatePasswordStrengthValue } from "@/utils/passwordStrength";
 
 defineOptions({
   name: "BaseUser",
@@ -69,6 +92,7 @@ type DeptFilterNode = {
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const resetPwdFormDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const initParam = reactive({
   deptId: undefined as number | undefined
@@ -78,6 +102,10 @@ const deptFilterValue = ref("");
 const dialog = reactive({
   visible: false,
   title: "新增用户"
+});
+const resetPwdDialog = reactive({
+  visible: false,
+  title: "重置密码"
 });
 
 const formData = reactive<BaseUserForm>({
@@ -104,6 +132,11 @@ const formData = reactive<BaseUserForm>({
   /** 备注名 */
   remark: ""
 });
+const resetPwdForm = reactive<ResetBaseUserPwdRequest>({
+  id: 0,
+  pwd: ""
+});
+const resetPwdTargetName = ref("");
 
 const rules = reactive({
   userName: [{ required: true, message: "用户账号不能为空", trigger: "blur" }],
@@ -117,8 +150,17 @@ const rules = reactive({
       trigger: "blur"
     }
   ],
-  pwd: [{ pattern: /^(?=.*[0-9])(.{6,18})$/, message: "请输入6-18位密码", trigger: "blur" }],
+  pwd: [
+    { required: true, message: "请输入密码", trigger: "blur" },
+    { validator: validatePasswordField, trigger: "blur" }
+  ],
   status: [{ required: true, message: "用户状态不能为空", trigger: "change" }]
+});
+const resetPwdRules = reactive({
+  pwd: [
+    { required: true, message: "请输入新密码", trigger: "blur" },
+    { validator: validatePasswordField, trigger: "blur" }
+  ]
 });
 
 const basedDeptOptions = ref<TreeOptionResponse_Option[]>([]);
@@ -126,6 +168,20 @@ const baseRoleOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions: ProFormOption[] = [
   { label: "启用", value: Status.ENABLE },
   { label: "禁用", value: Status.DISABLE }
+];
+const resetPwdFields: ProFormField[] = [
+  {
+    prop: "pwd",
+    label: "新密码",
+    component: "password",
+    props: { placeholder: "请输入新密码", showPassword: true }
+  },
+  {
+    prop: "resetPwdStrength",
+    label: "强度提示",
+    component: "slot",
+    slotName: "resetPwdStrength"
+  }
 ];
 
 /** 用户表单字段配置。 */
@@ -163,6 +219,13 @@ const formFields = computed<ProFormField[]>(() => [
     label: "密码",
     component: "password",
     props: { placeholder: "请输入密码", showPassword: true },
+    visible: model => !model.id
+  },
+  {
+    prop: "passwordStrength",
+    label: "强度提示",
+    component: "slot",
+    slotName: "passwordStrength",
     visible: model => !model.id
   },
   { prop: "gender", label: "性别", component: "dict", props: { code: "base_user_gender" } },
@@ -325,28 +388,16 @@ async function handleBeforeSetStatus(row: BaseUser) {
 }
 
 /**
- * 重置用户密码。
+ * 打开重置密码弹窗，并回填当前操作用户。
  */
 function handleResetPassword(row: BaseUser) {
-  const userName = row.nickName || row.userName || `ID:${row.id}`;
-  ElMessageBox.prompt(`请输入新密码\n用户名称：${userName}`, "重置密码", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消"
-  }).then(
-    ({ value }) => {
-      if (!/^(?=.*[0-9])(.{6,18})$/.test(value)) {
-        ElMessage.warning("请输入6-18位密码");
-        return false;
-      }
-
-      defBaseUserService.ResetBaseUserPwd({ id: row.id, pwd: value }).then(() => {
-        ElMessage.success(`密码重置成功，新密码是：${value}`);
-      });
-    },
-    () => {
-      ElMessage.info("已取消重置密码");
-    }
-  );
+  resetPwdFormDialogRef.value?.resetFields();
+  resetPwdFormDialogRef.value?.clearValidate();
+  resetPwdForm.id = row.id;
+  resetPwdForm.pwd = "";
+  resetPwdTargetName.value = row.nickName || row.userName || `ID:${row.id}`;
+  resetPwdDialog.title = `重置密码：${resetPwdTargetName.value}`;
+  resetPwdDialog.visible = true;
 }
 
 /**
@@ -379,6 +430,18 @@ function handleCloseDialog() {
 }
 
 /**
+ * 关闭重置密码弹窗并恢复默认表单值。
+ */
+function handleCloseResetPasswordDialog() {
+  resetPwdDialog.visible = false;
+  resetPwdFormDialogRef.value?.resetFields();
+  resetPwdFormDialogRef.value?.clearValidate();
+  resetPwdForm.id = 0;
+  resetPwdForm.pwd = "";
+  resetPwdTargetName.value = "";
+}
+
+/**
  * 重置用户表单，避免新增与编辑之间互相污染。
  */
 function resetForm() {
@@ -398,6 +461,20 @@ function resetForm() {
 }
 
 /**
+ * 确认重置用户密码，并复用统一密码强度校验。
+ */
+function handleConfirmResetPassword() {
+  resetPwdFormDialogRef.value?.validate()?.then(valid => {
+    if (!valid) return;
+
+    defBaseUserService.ResetBaseUserPwd({ ...resetPwdForm }).then(() => {
+      ElMessage.success(`重置密码成功\n用户名称：${resetPwdTargetName.value}`);
+      handleCloseResetPasswordDialog();
+    });
+  });
+}
+
+/**
  * 提交用户表单，使用防抖避免重复提交。
  */
 const handleSubmit = useDebounceFn(() => {
@@ -413,6 +490,26 @@ const handleSubmit = useDebounceFn(() => {
     });
   });
 }, 1000);
+
+/**
+ * 校验密码强度，新增用户和重置密码统一要求达到最高强度。
+ *
+ * @param _rule 表单规则对象
+ * @param value 当前密码值
+ * @param callback 校验回调
+ */
+function validatePasswordField(_rule: unknown, value: string, callback: (error?: Error) => void) {
+  if (!value) {
+    callback();
+    return;
+  }
+  const result = validatePasswordStrengthValue(value);
+  if (!result.valid) {
+    callback(new Error(result.message || PASSWORD_STRENGTH_ERROR_MESSAGE));
+    return;
+  }
+  callback();
+}
 
 /**
  * 删除用户，兼容单条删除与批量删除。

@@ -5388,6 +5388,9 @@ components:
                 realSaleNum:
                     type: string
                     description: 真实销售数量
+                inventory:
+                    type: string
+                    description: 库存数量
                 status:
                     enum:
                         - UNKNOWN_GS

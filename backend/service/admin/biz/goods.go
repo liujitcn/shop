@@ -188,6 +188,7 @@ func (c *GoodsCase) CreateGoods(ctx context.Context, req *admin.GoodsForm) error
 			}
 			goods.InitSaleNum += sku.InitSaleNum
 			goods.RealSaleNum += sku.RealSaleNum
+			goods.Inventory += sku.Inventory
 		}
 
 		err := c.Create(ctx, goods)
@@ -219,6 +220,7 @@ func (c *GoodsCase) UpdateGoods(ctx context.Context, req *admin.GoodsForm) error
 			}
 			goods.InitSaleNum += sku.InitSaleNum
 			goods.RealSaleNum += sku.RealSaleNum
+			goods.Inventory += sku.Inventory
 		}
 
 		err := c.UpdateById(ctx, goods)
