@@ -5,7 +5,7 @@
 // source: app/goods_category.proto
 
 /* eslint-disable */
-import type { Goods } from "./goods";
+import type { GoodsInfo } from "./goods_info";
 
 export interface ListGoodsCategoryRequest {
   /** 父节点ID */
@@ -17,22 +17,22 @@ export interface ListGoodsCategoryResponse {
   list: GoodsCategory[];
 }
 
-/** 分类 */
+/** 商品分类 */
 export interface GoodsCategory {
-  /** 分类ID */
+  /** 商品分类ID */
   id: number;
   /** 父节点ID */
   parentId: number;
-  /** 分类名称 */
+  /** 商品分类名称 */
   name: string;
-  /** 分类图片 */
+  /** 商品分类图片 */
   picture: string;
   /** 商品列表 */
-  goods: Goods[];
+  goods: GoodsInfo[];
 }
 
 /** App商品分类服务 */
 export interface GoodsCategoryService {
-  /** 查询分类列表 */
+  /** 查询商品分类列表 */
   ListGoodsCategory(request: ListGoodsCategoryRequest): Promise<ListGoodsCategoryResponse>;
 }

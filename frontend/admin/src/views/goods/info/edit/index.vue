@@ -50,10 +50,10 @@ import { useRoute } from "vue-router";
 import info from "./components/info.vue";
 import prop from "./components/prop.vue";
 import sku from "./components/sku.vue";
-import type { GoodsForm } from "@/rpc/admin/goods";
+import type { GoodsInfoForm } from "@/rpc/admin/goods_info";
 import type { GoodsProp } from "@/rpc/admin/goods_prop";
 import type { GoodsSpec } from "@/rpc/admin/goods_spec";
-import { defGoodsService } from "@/api/admin/goods";
+import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { GoodsStatus } from "@/rpc/common/enum";
 
 defineOptions({
@@ -100,7 +100,7 @@ const state = reactive({
     skuList: skuList,
     /** 商品规格 */
     specList: specList
-  } as GoodsForm
+  } as GoodsInfoForm
 });
 
 const { loaded, active, formData } = toRefs(state);
@@ -116,7 +116,7 @@ const pageDescription = computed(() =>
 );
 
 /** 创建商品表单默认值，确保数组字段始终可用。 */
-function createDefaultFormData(): GoodsForm {
+function createDefaultFormData(): GoodsInfoForm {
   return {
     /** 商品ID */
     id: 0,
@@ -146,7 +146,7 @@ function createDefaultFormData(): GoodsForm {
 }
 
 /** 规范化商品表单响应，避免属性、规格、SKU 为空时页面报错。 */
-function normalizeGoodsForm(data?: Partial<GoodsForm>): GoodsForm {
+function normalizeGoodsInfoForm(data?: Partial<GoodsInfoForm>): GoodsInfoForm {
   return {
     ...createDefaultFormData(),
     ...data,
@@ -189,12 +189,12 @@ function resetForm() {
 function handleQuery() {
   loading.value = true;
   if (goodsId.value) {
-    defGoodsService
-      .GetGoods({
+    defGoodsInfoService
+      .GetGoodsInfo({
         value: goodsId.value
       })
       .then(data => {
-        const normalizedData = normalizeGoodsForm(data);
+        const normalizedData = normalizeGoodsInfoForm(data);
         normalizedData.skuList.forEach(item => {
           if (!item.initSaleNum) {
             item.initSaleNum = 0;

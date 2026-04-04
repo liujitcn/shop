@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.11.6
 //   protoc               unknown
-// source: admin/order.proto
+// source: admin/order_info.proto
 
 /* eslint-disable */
 import type {
@@ -17,7 +17,7 @@ import type {
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 
-export interface PageOrderRequest {
+export interface PageOrderInfoRequest {
   /** 订单编号 */
   orderNo: string;
   /** 用户id */
@@ -42,17 +42,17 @@ export interface PageOrderRequest {
   pageSize: number;
 }
 
-export interface PageOrderResponse {
+export interface PageOrderInfoResponse {
   /** 分页数据 */
-  list: Order[];
+  list: OrderInfo[];
   /** 总数 */
   total: number;
 }
 
-export interface OrderResponse {
+export interface OrderInfoResponse {
   /** 订单信息 */
   order:
-    | Order
+    | OrderInfo
     | undefined;
   /** 支付倒计时 */
   countdown: number;
@@ -78,7 +78,7 @@ export interface OrderResponse {
   refund: OrderRefund[];
 }
 
-export interface OrderRefundResponse {
+export interface OrderInfoRefundResponse {
   /** 支付信息 */
   payment:
     | OrderPayment
@@ -87,7 +87,7 @@ export interface OrderRefundResponse {
   refund: OrderRefund[];
 }
 
-export interface RefundOrderRequest {
+export interface RefundOrderInfoRequest {
   /** 订单id */
   orderId: number;
   /** 退款原因：枚举【OrderRefundReason】 */
@@ -98,7 +98,7 @@ export interface RefundOrderRequest {
   refundMoney: number;
 }
 
-export interface OrderShippedResponse {
+export interface OrderInfoShippedResponse {
   /** 地址信息 */
   address:
     | OrderAddress
@@ -109,7 +109,7 @@ export interface OrderShippedResponse {
   logistics: OrderLogistics | undefined;
 }
 
-export interface ShippedOrderRequest {
+export interface ShippedOrderInfoRequest {
   /** 订单id */
   orderId: number;
   /** 物流公司名 */
@@ -121,7 +121,7 @@ export interface ShippedOrderRequest {
 }
 
 /** 订单信息表 */
-export interface Order {
+export interface OrderInfo {
   /** 订单ID */
   id: number;
   /** 订单编号 */
@@ -319,18 +319,18 @@ export interface OrderRefund_Amount {
   payerRefund: number;
 }
 
-/** Admin订单服务 */
-export interface OrderService {
-  /** 查询订单分页列表 */
-  PageOrder(request: PageOrderRequest): Promise<PageOrderResponse>;
-  /** 查询订单 */
-  GetOrder(request: Int64Value): Promise<OrderResponse>;
-  /** 查询订单退款信息 */
-  GetOrderRefund(request: Int64Value): Promise<OrderRefundResponse>;
-  /** 订单退款 */
-  RefundOrder(request: RefundOrderRequest): Promise<Empty>;
-  /** 查询订单发货信息 */
-  GetOrderShipped(request: Int64Value): Promise<OrderShippedResponse>;
-  /** 订单发货 */
-  ShippedOrder(request: ShippedOrderRequest): Promise<Empty>;
+/** Admin订单信息服务 */
+export interface OrderInfoService {
+  /** 查询订单信息分页列表 */
+  PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponse>;
+  /** 查询订单信息 */
+  GetOrderInfo(request: Int64Value): Promise<OrderInfoResponse>;
+  /** 查询订单信息退款信息 */
+  GetOrderInfoRefund(request: Int64Value): Promise<OrderInfoRefundResponse>;
+  /** 订单信息退款 */
+  RefundOrderInfo(request: RefundOrderInfoRequest): Promise<Empty>;
+  /** 查询订单信息发货信息 */
+  GetOrderInfoShipped(request: Int64Value): Promise<OrderInfoShippedResponse>;
+  /** 订单信息发货 */
+  ShippedOrderInfo(request: ShippedOrderInfoRequest): Promise<Empty>;
 }

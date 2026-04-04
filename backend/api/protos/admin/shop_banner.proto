@@ -12,24 +12,24 @@ import "google/protobuf/wrappers.proto";
 import "common/common.proto";
 import "common/enum.proto";
 
-// Admin轮播图服务
+// Admin商城轮播图服务
 service ShopBannerService {
 
-  // 查询轮播图分页列表
+  // 查询商城轮播图分页列表
   rpc PageShopBanner (PageShopBannerRequest) returns (PageShopBannerResponse) {
     option (google.api.http) = {
       get: "/api/admin/shop/banner"
     };
   }
 
-  // 查询轮播图
+  // 查询商城轮播图
   rpc GetShopBanner (google.protobuf.Int64Value) returns (ShopBannerForm) {
     option (google.api.http) = {
       get: "/api/admin/shop/banner/{value}"
     };
   }
 
-  // 创建轮播图
+  // 创建商城轮播图
   rpc CreateShopBanner (ShopBannerForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/shop/banner"
@@ -37,7 +37,7 @@ service ShopBannerService {
     };
   }
 
-  // 更新轮播图
+  // 更新商城轮播图
   rpc UpdateShopBanner (ShopBannerForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/admin/shop/banner/{id}"
@@ -45,7 +45,7 @@ service ShopBannerService {
     };
   }
 
-  // 删除轮播图
+  // 删除商城轮播图
   rpc DeleteShopBanner (google.protobuf.StringValue) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/admin/shop/banner/{value}"

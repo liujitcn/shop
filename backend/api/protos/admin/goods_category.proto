@@ -11,30 +11,30 @@ import "google/protobuf/wrappers.proto";
 import "common/common.proto";
 import "common/enum.proto";
 
-// Admin分类服务
+// Admin商品分类服务
 service GoodsCategoryService {
-  // 查询分类树形列表
+  // 查询商品分类树形列表
   rpc TreeGoodsCategory (google.protobuf.Empty) returns (TreeGoodsCategoryResponse) {
     option (google.api.http) = {
       get: "/api/admin/goods/category/tree"
     };
   }
 
-  // 查询分类树形选择
+  // 查询商品分类树形选择
   rpc OptionGoodsCategory (OptionGoodsCategoryRequest) returns (common.TreeOptionResponse) {
     option (google.api.http) = {
       get: "/api/admin/goods/category/option"
     };
   }
 
-  // 查询分类
+  // 查询商品分类
   rpc GetGoodsCategory (google.protobuf.Int64Value) returns (GoodsCategoryForm) {
     option (google.api.http) = {
       get: "/api/admin/goods/category/{value}"
     };
   }
 
-  // 创建分类
+  // 创建商品分类
   rpc CreateGoodsCategory (GoodsCategoryForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/goods/category"
@@ -42,7 +42,7 @@ service GoodsCategoryService {
     };
   }
 
-  // 更新分类
+  // 更新商品分类
   rpc UpdateGoodsCategory (GoodsCategoryForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/admin/goods/category/{id}"
@@ -50,7 +50,7 @@ service GoodsCategoryService {
     };
   }
 
-  // 删除分类
+  // 删除商品分类
   rpc DeleteGoodsCategory (google.protobuf.StringValue) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/admin/goods/category/{value}"
@@ -73,27 +73,27 @@ message TreeGoodsCategoryResponse {
 
 message OptionGoodsCategoryRequest {
   optional int64 parentId = 1 [
-    (gnostic.openapi.v3.property) = {description: "父级分类ID"}
-  ];  // 父级分类ID
+    (gnostic.openapi.v3.property) = {description: "父级商品分类ID"}
+  ];  // 父级商品分类ID
 }
 
-// 分类
+// 商品分类
 message GoodsCategory {
   int64 id = 1 [
-    (gnostic.openapi.v3.property) = {description: "分类ID"}
-  ];  // 分类ID
+    (gnostic.openapi.v3.property) = {description: "商品分类ID"}
+  ];  // 商品分类ID
 
   int64 parentId = 2 [
-    (gnostic.openapi.v3.property) = {description: "父级分类ID"}
-  ];  // 父级分类ID
+    (gnostic.openapi.v3.property) = {description: "父级商品分类ID"}
+  ];  // 父级商品分类ID
 
   string name = 3 [
-    (gnostic.openapi.v3.property) = {description: "分类名称"}
-  ];  // 分类名称
+    (gnostic.openapi.v3.property) = {description: "商品分类名称"}
+  ];  // 商品分类名称
 
   string picture = 4 [
-    (gnostic.openapi.v3.property) = {description: "分类图片"}
-  ];  // 分类图片
+    (gnostic.openapi.v3.property) = {description: "商品分类图片"}
+  ];  // 商品分类图片
 
   int32 sort = 5 [
     (gnostic.openapi.v3.property) = { description: "排序" }
@@ -115,23 +115,23 @@ message GoodsCategory {
   ];  // 子节点树
 }
 
-// 分类
+// 商品分类
 message GoodsCategoryForm {
   int64 id = 1 [
-    (gnostic.openapi.v3.property) = {description: "分类ID"}
-  ];  // 分类ID
+    (gnostic.openapi.v3.property) = {description: "商品分类ID"}
+  ];  // 商品分类ID
 
   optional int64 parentId = 2 [
-    (gnostic.openapi.v3.property) = {description: "父级分类ID"}
-  ];  // 父级分类ID
+    (gnostic.openapi.v3.property) = {description: "父级商品分类ID"}
+  ];  // 父级商品分类ID
 
   string name = 3 [
-    (gnostic.openapi.v3.property) = {description: "分类名称"}
-  ];  // 分类名称
+    (gnostic.openapi.v3.property) = {description: "商品分类名称"}
+  ];  // 商品分类名称
 
   string picture = 4 [
-    (gnostic.openapi.v3.property) = {description: "分类图片"}
-  ];  // 分类图片
+    (gnostic.openapi.v3.property) = {description: "商品分类图片"}
+  ];  // 商品分类图片
 
   int32 sort = 5 [
     (gnostic.openapi.v3.property) = { description: "排序" }

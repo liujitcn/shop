@@ -35,8 +35,8 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopBannerService } from "@/api/admin/shop_banner";
 import type { PageShopBannerRequest, ShopBanner, ShopBannerForm } from "@/rpc/admin/shop_banner";
-import type { ListGoodsResponse_Goods } from "@/rpc/admin/goods";
-import { defGoodsService } from "@/api/admin/goods";
+import type { ListGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/goods_info";
+import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { ShopBannerType, Status } from "@/rpc/common/enum";
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
@@ -63,7 +63,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const route = useRoute();
 
-const goodsList = ref<ListGoodsResponse_Goods[]>([]);
+const goodsList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
 const goodsCategoryOptions = ref<CategoryOption[]>([]);
 
 const initParam = computed<PageShopBannerRequest>(() => {
@@ -279,12 +279,12 @@ function refreshTable() {
  * 预加载商品与分类选项，确保弹窗打开时下拉可用。
  */
 async function loadBannerOptions() {
-  const [listGoodsResponse, optionGoodsCategoryResponse] = await Promise.all([
-    defGoodsService.ListGoods({ name: "" }),
+  const [listGoodsInfoResponse, optionGoodsCategoryResponse] = await Promise.all([
+    defGoodsInfoService.ListGoodsInfo({ name: "" }),
     defGoodsCategoryService.OptionGoodsCategory({})
   ]);
 
-  goodsList.value = listGoodsResponse.list || [];
+  goodsList.value = listGoodsInfoResponse.list || [];
   goodsCategoryOptions.value = categoryOption(optionGoodsCategoryResponse.list || []);
 }
 

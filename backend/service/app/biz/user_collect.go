@@ -19,7 +19,7 @@ import (
 type UserCollectCase struct {
 	*biz.BaseCase
 	*data.UserCollectRepo
-	goodsCase    *GoodsCase
+	goodsCase    *GoodsInfoCase
 	goodsSkuCase *GoodsSkuCase
 }
 
@@ -27,7 +27,7 @@ type UserCollectCase struct {
 func NewUserCollectCase(
 	baseCase *biz.BaseCase,
 	userCollectRepo *data.UserCollectRepo,
-	goodsInfoCase *GoodsCase,
+	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 ) *UserCollectCase {
 	return &UserCollectCase{
@@ -58,7 +58,7 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 		goodsIds = append(goodsIds, info.GoodsID)
 	}
 
-	var goodsInfoMap map[int64]*models.Goods
+	var goodsInfoMap map[int64]*models.GoodsInfo
 	goodsInfoMap, err = c.goodsCase.mapByGoodsIds(ctx, goodsIds)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 	for _, item := range page {
 		goods, ok := goodsInfoMap[item.GoodsID]
 		if !ok {
-			goods = &models.Goods{}
+			goods = &models.GoodsInfo{}
 		}
 
 		price := goods.Price
@@ -117,8 +117,8 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 		return err
 	}
 	if !isCollect {
-		var goods *models.Goods
-		goods, err = c.goodsCase.GoodsRepo.FindById(ctx, userCollect.GetGoodsId())
+		var goods *models.GoodsInfo
+		goods, err = c.goodsCase.GoodsInfoRepo.FindById(ctx, userCollect.GetGoodsId())
 		if err != nil {
 			return err
 		}

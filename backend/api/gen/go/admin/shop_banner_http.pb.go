@@ -8,12 +8,11 @@ package admin
 
 import (
 	context "context"
-	common "shop/api/gen/go/common"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -31,17 +30,17 @@ const OperationShopBannerServiceSetShopBannerStatus = "/admin.ShopBannerService/
 const OperationShopBannerServiceUpdateShopBanner = "/admin.ShopBannerService/UpdateShopBanner"
 
 type ShopBannerServiceHTTPServer interface {
-	// CreateShopBanner 创建轮播图
+	// CreateShopBanner 创建商城轮播图
 	CreateShopBanner(context.Context, *ShopBannerForm) (*emptypb.Empty, error)
-	// DeleteShopBanner 删除轮播图
+	// DeleteShopBanner 删除商城轮播图
 	DeleteShopBanner(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
-	// GetShopBanner 查询轮播图
+	// GetShopBanner 查询商城轮播图
 	GetShopBanner(context.Context, *wrapperspb.Int64Value) (*ShopBannerForm, error)
-	// PageShopBanner 查询轮播图分页列表
+	// PageShopBanner 查询商城轮播图分页列表
 	PageShopBanner(context.Context, *PageShopBannerRequest) (*PageShopBannerResponse, error)
 	// SetShopBannerStatus 设置状态
 	SetShopBannerStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)
-	// UpdateShopBanner 更新轮播图
+	// UpdateShopBanner 更新商城轮播图
 	UpdateShopBanner(context.Context, *ShopBannerForm) (*emptypb.Empty, error)
 }
 
@@ -191,17 +190,17 @@ func _ShopBannerService_SetShopBannerStatus0_HTTP_Handler(srv ShopBannerServiceH
 }
 
 type ShopBannerServiceHTTPClient interface {
-	// CreateShopBanner 创建轮播图
+	// CreateShopBanner 创建商城轮播图
 	CreateShopBanner(ctx context.Context, req *ShopBannerForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// DeleteShopBanner 删除轮播图
+	// DeleteShopBanner 删除商城轮播图
 	DeleteShopBanner(ctx context.Context, req *wrapperspb.StringValue, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// GetShopBanner 查询轮播图
+	// GetShopBanner 查询商城轮播图
 	GetShopBanner(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *ShopBannerForm, err error)
-	// PageShopBanner 查询轮播图分页列表
+	// PageShopBanner 查询商城轮播图分页列表
 	PageShopBanner(ctx context.Context, req *PageShopBannerRequest, opts ...http.CallOption) (rsp *PageShopBannerResponse, err error)
 	// SetShopBannerStatus 设置状态
 	SetShopBannerStatus(ctx context.Context, req *common.SetStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// UpdateShopBanner 更新轮播图
+	// UpdateShopBanner 更新商城轮播图
 	UpdateShopBanner(ctx context.Context, req *ShopBannerForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -213,7 +212,7 @@ func NewShopBannerServiceHTTPClient(client *http.Client) ShopBannerServiceHTTPCl
 	return &ShopBannerServiceHTTPClientImpl{client}
 }
 
-// CreateShopBanner 创建轮播图
+// CreateShopBanner 创建商城轮播图
 func (c *ShopBannerServiceHTTPClientImpl) CreateShopBanner(ctx context.Context, in *ShopBannerForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/admin/shop/banner"
@@ -227,7 +226,7 @@ func (c *ShopBannerServiceHTTPClientImpl) CreateShopBanner(ctx context.Context, 
 	return &out, nil
 }
 
-// DeleteShopBanner 删除轮播图
+// DeleteShopBanner 删除商城轮播图
 func (c *ShopBannerServiceHTTPClientImpl) DeleteShopBanner(ctx context.Context, in *wrapperspb.StringValue, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/admin/shop/banner/{value}"
@@ -241,7 +240,7 @@ func (c *ShopBannerServiceHTTPClientImpl) DeleteShopBanner(ctx context.Context, 
 	return &out, nil
 }
 
-// GetShopBanner 查询轮播图
+// GetShopBanner 查询商城轮播图
 func (c *ShopBannerServiceHTTPClientImpl) GetShopBanner(ctx context.Context, in *wrapperspb.Int64Value, opts ...http.CallOption) (*ShopBannerForm, error) {
 	var out ShopBannerForm
 	pattern := "/api/admin/shop/banner/{value}"
@@ -255,7 +254,7 @@ func (c *ShopBannerServiceHTTPClientImpl) GetShopBanner(ctx context.Context, in 
 	return &out, nil
 }
 
-// PageShopBanner 查询轮播图分页列表
+// PageShopBanner 查询商城轮播图分页列表
 func (c *ShopBannerServiceHTTPClientImpl) PageShopBanner(ctx context.Context, in *PageShopBannerRequest, opts ...http.CallOption) (*PageShopBannerResponse, error) {
 	var out PageShopBannerResponse
 	pattern := "/api/admin/shop/banner"
@@ -283,7 +282,7 @@ func (c *ShopBannerServiceHTTPClientImpl) SetShopBannerStatus(ctx context.Contex
 	return &out, nil
 }
 
-// UpdateShopBanner 更新轮播图
+// UpdateShopBanner 更新商城轮播图
 func (c *ShopBannerServiceHTTPClientImpl) UpdateShopBanner(ctx context.Context, in *ShopBannerForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/admin/shop/banner/{id}"

@@ -19,7 +19,7 @@ import (
 type UserCartCase struct {
 	*biz.BaseCase
 	*data.UserCartRepo
-	goodsInfoCase *GoodsCase
+	goodsInfoCase *GoodsInfoCase
 	goodsSkuCase  *GoodsSkuCase
 }
 
@@ -27,7 +27,7 @@ type UserCartCase struct {
 func NewUserCartCase(
 	baseCase *biz.BaseCase,
 	userCartRepo *data.UserCartRepo,
-	goodsInfoCase *GoodsCase,
+	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 ) *UserCartCase {
 	return &UserCartCase{
@@ -73,7 +73,7 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 		skuCodes = append(skuCodes, info.SkuCode)
 	}
 
-	var goodsInfoMap map[int64]*models.Goods
+	var goodsInfoMap map[int64]*models.GoodsInfo
 	goodsInfoMap, err = c.goodsInfoCase.mapByGoodsIds(ctx, goodsIds)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 		}
 		goods, ok2 := goodsInfoMap[item.GoodsID]
 		if !ok2 {
-			goods = &models.Goods{}
+			goods = &models.GoodsInfo{}
 		}
 
 		picture := goods.Picture

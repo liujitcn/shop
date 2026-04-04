@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { defGoodsService } from '@/api/app/goods'
+import { defGoodsInfoService } from '@/api/app/goods'
 import { formatPrice, formatSrc } from '@/utils'
 import { onMounted, ref } from 'vue'
-import type { Goods, PageGoodsRequest } from '@/rpc/app/goods'
+import type { GoodsInfo, PageGoodsInfoRequest } from '@/rpc/app/goods_info'
 
 // 分页参数
-const pageParams: Required<PageGoodsRequest> = {
+const pageParams: Required<PageGoodsInfoRequest> = {
   /** 商品名 */
   name: '',
   /** 分类id */
@@ -16,7 +16,7 @@ const pageParams: Required<PageGoodsRequest> = {
   pageSize: 10,
 }
 // 猜你喜欢的列表
-const guessList = ref<Goods[]>([])
+const guessList = ref<GoodsInfo[]>([])
 // 已结束标记
 const finish = ref(false)
 // 获取猜你喜欢数据
@@ -25,7 +25,7 @@ const getHomeGoodsGuessLikeData = async () => {
   if (finish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
-  const res = await defGoodsService.PageGoods(pageParams)
+  const res = await defGoodsInfoService.PageGoodsInfo(pageParams)
   // 数组追加
   const list = res.list || []
   guessList.value.push(...list)

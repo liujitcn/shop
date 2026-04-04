@@ -8,13 +8,12 @@ package admin
 
 import (
 	context "context"
-	common "shop/api/gen/go/common"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -36,19 +35,19 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Admin分类服务
+// Admin商品分类服务
 type GoodsCategoryServiceClient interface {
-	// 查询分类树形列表
+	// 查询商品分类树形列表
 	TreeGoodsCategory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TreeGoodsCategoryResponse, error)
-	// 查询分类树形选择
+	// 查询商品分类树形选择
 	OptionGoodsCategory(ctx context.Context, in *OptionGoodsCategoryRequest, opts ...grpc.CallOption) (*common.TreeOptionResponse, error)
-	// 查询分类
+	// 查询商品分类
 	GetGoodsCategory(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*GoodsCategoryForm, error)
-	// 创建分类
+	// 创建商品分类
 	CreateGoodsCategory(ctx context.Context, in *GoodsCategoryForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 更新分类
+	// 更新商品分类
 	UpdateGoodsCategory(ctx context.Context, in *GoodsCategoryForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 删除分类
+	// 删除商品分类
 	DeleteGoodsCategory(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置状态
 	SetGoodsCategoryStatus(ctx context.Context, in *common.SetStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -136,19 +135,19 @@ func (c *goodsCategoryServiceClient) SetGoodsCategoryStatus(ctx context.Context,
 // All implementations must embed UnimplementedGoodsCategoryServiceServer
 // for forward compatibility.
 //
-// Admin分类服务
+// Admin商品分类服务
 type GoodsCategoryServiceServer interface {
-	// 查询分类树形列表
+	// 查询商品分类树形列表
 	TreeGoodsCategory(context.Context, *emptypb.Empty) (*TreeGoodsCategoryResponse, error)
-	// 查询分类树形选择
+	// 查询商品分类树形选择
 	OptionGoodsCategory(context.Context, *OptionGoodsCategoryRequest) (*common.TreeOptionResponse, error)
-	// 查询分类
+	// 查询商品分类
 	GetGoodsCategory(context.Context, *wrapperspb.Int64Value) (*GoodsCategoryForm, error)
-	// 创建分类
+	// 创建商品分类
 	CreateGoodsCategory(context.Context, *GoodsCategoryForm) (*emptypb.Empty, error)
-	// 更新分类
+	// 更新商品分类
 	UpdateGoodsCategory(context.Context, *GoodsCategoryForm) (*emptypb.Empty, error)
-	// 删除分类
+	// 删除商品分类
 	DeleteGoodsCategory(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	// 设置状态
 	SetGoodsCategoryStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)

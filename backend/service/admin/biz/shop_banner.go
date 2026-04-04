@@ -14,7 +14,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
-// ShopBannerCase 轮播图业务实例
+// ShopBannerCase 商城轮播图业务实例
 type ShopBannerCase struct {
 	*biz.BaseCase
 	*data.ShopBannerRepo
@@ -22,7 +22,7 @@ type ShopBannerCase struct {
 	mapper     *mapper.CopierMapper[admin.ShopBanner, models.ShopBanner]
 }
 
-// NewShopBannerCase 创建轮播图业务实例
+// NewShopBannerCase 创建商城轮播图业务实例
 func NewShopBannerCase(baseCase *biz.BaseCase, shopBannerRepo *data.ShopBannerRepo) *ShopBannerCase {
 	return &ShopBannerCase{
 		BaseCase:       baseCase,
@@ -32,7 +32,7 @@ func NewShopBannerCase(baseCase *biz.BaseCase, shopBannerRepo *data.ShopBannerRe
 	}
 }
 
-// PageShopBanner 分页查询轮播图
+// PageShopBanner 分页查询商城轮播图
 func (c *ShopBannerCase) PageShopBanner(ctx context.Context, req *admin.PageShopBannerRequest) (*admin.PageShopBannerResponse, error) {
 	query := c.Query(ctx).ShopBanner
 	opts := make([]repo.QueryOption, 0, 5)
@@ -61,7 +61,7 @@ func (c *ShopBannerCase) PageShopBanner(ctx context.Context, req *admin.PageShop
 	return &admin.PageShopBannerResponse{List: resList, Total: int32(total)}, nil
 }
 
-// GetShopBanner 获取轮播图
+// GetShopBanner 获取商城轮播图
 func (c *ShopBannerCase) GetShopBanner(ctx context.Context, id int64) (*admin.ShopBannerForm, error) {
 	shopBanner, err := c.FindById(ctx, id)
 	if err != nil {
@@ -71,24 +71,24 @@ func (c *ShopBannerCase) GetShopBanner(ctx context.Context, id int64) (*admin.Sh
 	return res, nil
 }
 
-// CreateShopBanner 创建轮播图
+// CreateShopBanner 创建商城轮播图
 func (c *ShopBannerCase) CreateShopBanner(ctx context.Context, req *admin.ShopBannerForm) error {
 	shopBanner := c.formMapper.ToEntity(req)
 	return c.Create(ctx, shopBanner)
 }
 
-// UpdateShopBanner 更新轮播图
+// UpdateShopBanner 更新商城轮播图
 func (c *ShopBannerCase) UpdateShopBanner(ctx context.Context, req *admin.ShopBannerForm) error {
 	shopBanner := c.formMapper.ToEntity(req)
 	return c.UpdateById(ctx, shopBanner)
 }
 
-// DeleteShopBanner 删除轮播图
+// DeleteShopBanner 删除商城轮播图
 func (c *ShopBannerCase) DeleteShopBanner(ctx context.Context, id string) error {
 	return c.DeleteByIds(ctx, _string.ConvertStringToInt64Array(id))
 }
 
-// SetShopBannerStatus 设置轮播图状态
+// SetShopBannerStatus 设置商城轮播图状态
 func (c *ShopBannerCase) SetShopBannerStatus(ctx context.Context, req *common.SetStatusRequest) error {
 	return c.UpdateById(ctx, &models.ShopBanner{
 		ID:     req.GetId(),

@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.11.6
 //   protoc               unknown
-// source: admin/goods.proto
+// source: admin/goods_info.proto
 
 /* eslint-disable */
 import type { SetStatusRequest } from "../common/common";
@@ -13,17 +13,17 @@ import type { GoodsProp } from "./goods_prop";
 import type { GoodsSku } from "./goods_sku";
 import type { GoodsSpec } from "./goods_spec";
 
-export interface ListGoodsRequest {
+export interface ListGoodsInfoRequest {
   /** 商品名称 */
   name: string;
 }
 
-export interface ListGoodsResponse {
+export interface ListGoodsInfoResponse {
   /** 分页数据 */
-  list: ListGoodsResponse_Goods[];
+  list: ListGoodsInfoResponse_GoodsInfo[];
 }
 
-export interface ListGoodsResponse_Goods {
+export interface ListGoodsInfoResponse_GoodsInfo {
   /** 商品ID */
   id: number;
   /** 名称 */
@@ -34,7 +34,7 @@ export interface ListGoodsResponse_Goods {
   categoryName: string;
 }
 
-export interface PageGoodsRequest {
+export interface PageGoodsInfoRequest {
   /** 分类id */
   categoryId?:
     | number
@@ -59,14 +59,14 @@ export interface PageGoodsRequest {
   pageSize: number;
 }
 
-export interface PageGoodsResponse {
+export interface PageGoodsInfoResponse {
   /** 分页数据 */
-  list: Goods[];
+  list: GoodsInfo[];
   /** 总数 */
   total: number;
 }
 
-export interface Goods {
+export interface GoodsInfo {
   /** 商品ID */
   id: number;
   /** 分类ID */
@@ -97,7 +97,7 @@ export interface Goods {
   categoryName: string;
 }
 
-export interface GoodsForm {
+export interface GoodsInfoForm {
   /** 商品ID */
   id: number;
   /** 分类ID */
@@ -128,20 +128,20 @@ export interface GoodsForm {
   categoryName: string;
 }
 
-/** Admin商品服务 */
-export interface GoodsService {
-  /** 查询商品列表 */
-  ListGoods(request: ListGoodsRequest): Promise<ListGoodsResponse>;
-  /** 查询商品分页列表 */
-  PageGoods(request: PageGoodsRequest): Promise<PageGoodsResponse>;
-  /** 查询商品 */
-  GetGoods(request: Int64Value): Promise<GoodsForm>;
-  /** 创建商品 */
-  CreateGoods(request: GoodsForm): Promise<Empty>;
-  /** 更新商品 */
-  UpdateGoods(request: GoodsForm): Promise<Empty>;
-  /** 删除商品 */
-  DeleteGoods(request: StringValue): Promise<Empty>;
+/** Admin商品信息服务 */
+export interface GoodsInfoService {
+  /** 查询商品信息列表 */
+  ListGoodsInfo(request: ListGoodsInfoRequest): Promise<ListGoodsInfoResponse>;
+  /** 查询商品信息分页列表 */
+  PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse>;
+  /** 查询商品信息 */
+  GetGoodsInfo(request: Int64Value): Promise<GoodsInfoForm>;
+  /** 创建商品信息 */
+  CreateGoodsInfo(request: GoodsInfoForm): Promise<Empty>;
+  /** 更新商品信息 */
+  UpdateGoodsInfo(request: GoodsInfoForm): Promise<Empty>;
+  /** 删除商品信息 */
+  DeleteGoodsInfo(request: StringValue): Promise<Empty>;
   /** 设置状态 */
-  SetGoodsStatus(request: SetStatusRequest): Promise<Empty>;
+  SetGoodsInfoStatus(request: SetStatusRequest): Promise<Empty>;
 }

@@ -5,13 +5,13 @@ import { onShow } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { ref } from 'vue'
-import type { CountOrderResponse_Count } from '@/rpc/app/order'
+import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'
 import { formatSrc } from '@/utils'
 import { OrderStatus } from '@/rpc/common/enum.ts'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-const orderCount = ref<(CountOrderResponse_Count & { icon?: string; text?: string })[]>([
+const orderCount = ref<(CountOrderInfoResponse_Count & { icon?: string; text?: string })[]>([
   { status: OrderStatus.CREATED, icon: 'icon-currency', num: 0 },
   { status: OrderStatus.PAID, icon: 'icon-gift', num: 0 },
   { status: OrderStatus.SHIPPED, icon: 'icon-check', num: 0 },
@@ -21,7 +21,7 @@ const orderCount = ref<(CountOrderResponse_Count & { icon?: string; text?: strin
 const userStore = useUserStore()
 const getOrderData = async () => {
   const numMap = new Map<number, number>()
-  const res = await defOrderService.CountOrder({})
+  const res = await defOrderService.CountOrderInfo({})
   if (res.count) {
     res.count.map((item) => {
       numMap.set(item.status, item.num)

@@ -19,13 +19,13 @@ import (
 type OrderGoodsCase struct {
 	*biz.BaseCase
 	*data.OrderGoodsRepo
-	goodsInfoCase *GoodsCase
+	goodsInfoCase *GoodsInfoCase
 	goodsSkuCase  *GoodsSkuCase
 }
 
 // NewOrderGoodsCase 创建订单商品明细业务处理对象
 func NewOrderGoodsCase(baseCase *biz.BaseCase, orderGoodsRepo *data.OrderGoodsRepo,
-	goodsInfoCase *GoodsCase,
+	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 ) *OrderGoodsCase {
 	return &OrderGoodsCase{
@@ -88,7 +88,7 @@ func (c *OrderGoodsCase) createByOrder(ctx context.Context, orderId int64, goods
 }
 
 // convertToModelList 将下单商品列表转换为模型列表
-func (c *OrderGoodsCase) convertToModelList(ctx context.Context, goods []*app.CreateOrderGoods) ([]*models.OrderGoods, error) {
+func (c *OrderGoodsCase) convertToModelList(ctx context.Context, goods []*app.CreateOrderInfoGoods) ([]*models.OrderGoods, error) {
 	// 根据登录信息判断当前下单用户是否享受会员价
 	member := util.IsMember(ctx)
 
@@ -103,10 +103,10 @@ func (c *OrderGoodsCase) convertToModelList(ctx context.Context, goods []*app.Cr
 	return orderGoodsList, nil
 }
 
-// convertToProtoByCreateOrderGoods 预览下单商品信息
-func (c *OrderGoodsCase) convertToProtoByCreateOrderGoods(ctx context.Context, member bool, item *app.CreateOrderGoods) (*app.OrderGoods, error) {
+// convertToProtoByCreateOrderInfoGoods 预览下单商品信息
+func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Context, member bool, item *app.CreateOrderInfoGoods) (*app.OrderGoods, error) {
 	// 查询商品信息和规格信息
-	goodsQuery := c.goodsInfoCase.Query(ctx).Goods
+	goodsQuery := c.goodsInfoCase.Query(ctx).GoodsInfo
 	goodsInfo, err := c.goodsInfoCase.Find(ctx,
 		repo.Where(goodsQuery.ID.Eq(item.GetGoodsId())),
 		repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))),
@@ -167,9 +167,9 @@ func (c *OrderGoodsCase) convertToProto(item *models.OrderGoods) *app.OrderGoods
 }
 
 // 将下单商品请求转换为订单商品模型
-func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods *app.CreateOrderGoods) (*models.OrderGoods, error) {
+func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods *app.CreateOrderInfoGoods) (*models.OrderGoods, error) {
 	// 查询商品信息和规格信息
-	goodsQuery := c.goodsInfoCase.Query(ctx).Goods
+	goodsQuery := c.goodsInfoCase.Query(ctx).GoodsInfo
 	goodsInfo, err := c.goodsInfoCase.Find(ctx,
 		repo.Where(goodsQuery.ID.Eq(goods.GoodsId)),
 		repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))),

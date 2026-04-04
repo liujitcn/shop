@@ -7,11 +7,6 @@
 package admin
 
 import (
-	reflect "reflect"
-	common "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -19,6 +14,10 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	common "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -75,7 +74,7 @@ func (x *TreeGoodsCategoryResponse) GetList() []*GoodsCategory {
 
 type OptionGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ParentId      *int64                 `protobuf:"varint,1,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"` // 父级分类ID
+	ParentId      *int64                 `protobuf:"varint,1,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"` // 父级商品分类ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -117,13 +116,13 @@ func (x *OptionGoodsCategoryRequest) GetParentId() int64 {
 	return 0
 }
 
-// 分类
+// 商品分类
 type GoodsCategory struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 分类ID
-	ParentId      int64                  `protobuf:"varint,2,opt,name=parentId,proto3" json:"parentId,omitempty"`                 // 父级分类ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                          // 分类名称
-	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                    // 分类图片
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 商品分类ID
+	ParentId      int64                  `protobuf:"varint,2,opt,name=parentId,proto3" json:"parentId,omitempty"`                 // 父级商品分类ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                          // 商品分类名称
+	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                    // 商品分类图片
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                         // 排序
 	Status        common.Status          `protobuf:"varint,50,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"` // 菜单状态
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`              // 创建时间
@@ -226,13 +225,13 @@ func (x *GoodsCategory) GetChildren() []*GoodsCategory {
 	return nil
 }
 
-// 分类
+// 商品分类
 type GoodsCategoryForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 分类ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"`                 // 父级分类ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 分类名称
-	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                          // 分类图片
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品分类ID
+	ParentId      *int64                 `protobuf:"varint,2,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"`                 // 父级商品分类ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 商品分类名称
+	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                          // 商品分类图片
 	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
 	Status        *common.Status         `protobuf:"varint,50,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 菜单状态
 	unknownFields protoimpl.UnknownFields
@@ -317,25 +316,25 @@ const file_admin_goods_category_proto_rawDesc = "" +
 	"\n" +
 	"\x1aadmin/goods_category.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\"E\n" +
 	"\x19TreeGoodsCategoryResponse\x12(\n" +
-	"\x04list\x18\x01 \x03(\v2\x14.admin.GoodsCategoryR\x04list\"`\n" +
-	"\x1aOptionGoodsCategoryRequest\x125\n" +
-	"\bparentId\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级分类IDH\x00R\bparentId\x88\x01\x01B\v\n" +
-	"\t_parentId\"\xc2\x03\n" +
-	"\rGoodsCategory\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类IDR\x02id\x120\n" +
-	"\bparentId\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级分类IDR\bparentId\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\x04name\x12,\n" +
-	"\apicture\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类图片R\apicture\x12 \n" +
+	"\x04list\x18\x01 \x03(\v2\x14.admin.GoodsCategoryR\x04list\"f\n" +
+	"\x1aOptionGoodsCategoryRequest\x12;\n" +
+	"\bparentId\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01B\v\n" +
+	"\t_parentId\"\xda\x03\n" +
+	"\rGoodsCategory\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x126\n" +
+	"\bparentId\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDR\bparentId\x12,\n" +
+	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
+	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12 \n" +
 	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12:\n" +
 	"\x06status\x182 \x01(\x0e2\x0e.common.StatusB\x12\xbaG\x0f\x92\x02\f菜单状态R\x06status\x121\n" +
 	"\tcreatedAt\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\tupdatedAt\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12E\n" +
-	"\bchildren\x18\xad\x02 \x03(\v2\x14.admin.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xbb\x02\n" +
-	"\x11GoodsCategoryForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类IDR\x02id\x125\n" +
-	"\bparentId\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级分类IDH\x00R\bparentId\x88\x01\x01\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\x04name\x12,\n" +
-	"\apicture\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类图片R\apicture\x12 \n" +
+	"\bchildren\x18\xad\x02 \x03(\v2\x14.admin.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xd3\x02\n" +
+	"\x11GoodsCategoryForm\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12;\n" +
+	"\bparentId\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01\x12,\n" +
+	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
+	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x12 \n" +
 	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12?\n" +
 	"\x06status\x182 \x01(\x0e2\x0e.common.StatusB\x12\xbaG\x0f\x92\x02\f菜单状态H\x01R\x06status\x88\x01\x01B\v\n" +
 	"\t_parentIdB\t\n" +

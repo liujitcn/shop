@@ -160,8 +160,8 @@ import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import { type OrderResponse } from "@/rpc/admin/order";
-import { defOrderService } from "@/api/admin/order";
+import { type OrderInfoResponse } from "@/rpc/admin/order_info";
+import { defOrderInfoService } from "@/api/admin/order_info";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -173,7 +173,7 @@ const route = useRoute();
 const loading = ref(false);
 
 const orderId = ref(route.params.orderId as unknown as number);
-const formData = reactive<OrderResponse>({
+const formData = reactive<OrderInfoResponse>({
   /** 订单信息 */
   order: undefined,
   /** 支付倒计时 */
@@ -271,8 +271,8 @@ watch(
 // 查询
 function handleQuery() {
   loading.value = true;
-  defOrderService
-    .GetOrder({
+  defOrderInfoService
+    .GetOrderInfo({
       value: orderId.value
     })
     .then(data => {

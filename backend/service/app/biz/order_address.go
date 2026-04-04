@@ -36,7 +36,7 @@ func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAdd
 }
 
 // findByOrderId 按订单编号查询订单地址
-func (c *OrderAddressCase) findByOrderId(ctx context.Context, orderId int64) (*app.OrderResponse_Address, error) {
+func (c *OrderAddressCase) findByOrderId(ctx context.Context, orderId int64) (*app.OrderInfoResponse_Address, error) {
 	query := c.Query(ctx).OrderAddress
 	orderAddress, err := c.Find(ctx,
 		repo.Where(query.OrderID.Eq(orderId)),
@@ -44,7 +44,7 @@ func (c *OrderAddressCase) findByOrderId(ctx context.Context, orderId int64) (*a
 	if err != nil {
 		return nil, err
 	}
-	return &app.OrderResponse_Address{
+	return &app.OrderInfoResponse_Address{
 		Receiver: orderAddress.Receiver,
 		Contact:  orderAddress.Contact,
 		Address:  _string.ConvertJsonStringToStringArray(orderAddress.Address),

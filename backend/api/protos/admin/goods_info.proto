@@ -15,54 +15,54 @@ import "admin/goods_prop.proto";
 import "admin/goods_sku.proto";
 import "admin/goods_spec.proto";
 
-// Admin商品服务
-service GoodsService {
-  // 查询商品列表
-  rpc ListGoods (ListGoodsRequest) returns (ListGoodsResponse) {
+// Admin商品信息服务
+service GoodsInfoService {
+  // 查询商品信息列表
+  rpc ListGoodsInfo (ListGoodsInfoRequest) returns (ListGoodsInfoResponse) {
     option (google.api.http) = {
       get: "/api/admin/goods/info/list"
     };
   }
 
-  // 查询商品分页列表
-  rpc PageGoods (PageGoodsRequest) returns (PageGoodsResponse) {
+  // 查询商品信息分页列表
+  rpc PageGoodsInfo (PageGoodsInfoRequest) returns (PageGoodsInfoResponse) {
     option (google.api.http) = {
       get: "/api/admin/goods/info"
     };
   }
 
-  // 查询商品
-  rpc GetGoods (google.protobuf.Int64Value) returns (GoodsForm) {
+  // 查询商品信息
+  rpc GetGoodsInfo (google.protobuf.Int64Value) returns (GoodsInfoForm) {
     option (google.api.http) = {
       get: "/api/admin/goods/info/{value}"
     };
   }
 
-  // 创建商品
-  rpc CreateGoods (GoodsForm) returns (google.protobuf.Empty) {
+  // 创建商品信息
+  rpc CreateGoodsInfo (GoodsInfoForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/goods/info"
       body: "*"
     };
   }
 
-  // 更新商品
-  rpc UpdateGoods (GoodsForm) returns (google.protobuf.Empty) {
+  // 更新商品信息
+  rpc UpdateGoodsInfo (GoodsInfoForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/admin/goods/info/{id}"
       body: "*"
     };
   }
 
-  // 删除商品
-  rpc DeleteGoods (google.protobuf.StringValue) returns (google.protobuf.Empty) {
+  // 删除商品信息
+  rpc DeleteGoodsInfo (google.protobuf.StringValue) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/admin/goods/info/{value}"
     };
   }
 
   // 设置状态
-  rpc SetGoodsStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
+  rpc SetGoodsInfoStatus (common.SetStatusRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/admin/goods/info/{id}/status"
       body: "*"
@@ -70,7 +70,7 @@ service GoodsService {
   }
 }
 
-message ListGoodsRequest{
+message ListGoodsInfoRequest{
   // 商品名称
   string name = 1 [
     (gnostic.openapi.v3.property) = {
@@ -79,8 +79,8 @@ message ListGoodsRequest{
   ];
 }
 
-message ListGoodsResponse{
-  message Goods {
+message ListGoodsInfoResponse{
+  message GoodsInfo {
     int64 id = 1 [
       (gnostic.openapi.v3.property) = {description: "商品ID"}
     ];  // 商品ID
@@ -99,10 +99,10 @@ message ListGoodsResponse{
     ];  // 分类名称
   }
   // 分页数据
-  repeated Goods list = 1;
+  repeated GoodsInfo list = 1;
 }
 
-message PageGoodsRequest{
+message PageGoodsInfoRequest{
   // 分类id
   optional int64 categoryId = 2 [
     (gnostic.openapi.v3.property) = {
@@ -154,14 +154,14 @@ message PageGoodsRequest{
   ];
 }
 
-message PageGoodsResponse{
+message PageGoodsInfoResponse{
   // 分页数据
-  repeated Goods list = 1;
+  repeated GoodsInfo list = 1;
   // 总数
   int32 total = 2;
 }
 
-message Goods {
+message GoodsInfo {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID
@@ -223,7 +223,7 @@ message Goods {
   ];  // 分类名称
 }
 
-message GoodsForm {
+message GoodsInfoForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID

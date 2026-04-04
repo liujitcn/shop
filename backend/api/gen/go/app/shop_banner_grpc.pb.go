@@ -8,7 +8,6 @@ package app
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -27,9 +26,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// App轮播图服务
+// App商城轮播图服务
 type ShopBannerServiceClient interface {
-	// 查询轮播图列表
+	// 查询商城轮播图列表
 	ListShopBanner(ctx context.Context, in *ListShopBannerRequest, opts ...grpc.CallOption) (*ListShopBannerResponse, error)
 }
 
@@ -55,9 +54,9 @@ func (c *shopBannerServiceClient) ListShopBanner(ctx context.Context, in *ListSh
 // All implementations must embed UnimplementedShopBannerServiceServer
 // for forward compatibility.
 //
-// App轮播图服务
+// App商城轮播图服务
 type ShopBannerServiceServer interface {
-	// 查询轮播图列表
+	// 查询商城轮播图列表
 	ListShopBanner(context.Context, *ListShopBannerRequest) (*ListShopBannerResponse, error)
 	mustEmbedUnimplementedShopBannerServiceServer()
 }

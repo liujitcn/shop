@@ -8,7 +8,6 @@ package app
 
 import (
 	context "context"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 )
@@ -23,7 +22,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationShopBannerServiceListShopBanner = "/app.ShopBannerService/ListShopBanner"
 
 type ShopBannerServiceHTTPServer interface {
-	// ListShopBanner 查询轮播图列表
+	// ListShopBanner 查询商城轮播图列表
 	ListShopBanner(context.Context, *ListShopBannerRequest) (*ListShopBannerResponse, error)
 }
 
@@ -52,7 +51,7 @@ func _ShopBannerService_ListShopBanner0_HTTP_Handler(srv ShopBannerServiceHTTPSe
 }
 
 type ShopBannerServiceHTTPClient interface {
-	// ListShopBanner 查询轮播图列表
+	// ListShopBanner 查询商城轮播图列表
 	ListShopBanner(ctx context.Context, req *ListShopBannerRequest, opts ...http.CallOption) (rsp *ListShopBannerResponse, err error)
 }
 
@@ -64,7 +63,7 @@ func NewShopBannerServiceHTTPClient(client *http.Client) ShopBannerServiceHTTPCl
 	return &ShopBannerServiceHTTPClientImpl{client}
 }
 
-// ListShopBanner 查询轮播图列表
+// ListShopBanner 查询商城轮播图列表
 func (c *ShopBannerServiceHTTPClientImpl) ListShopBanner(ctx context.Context, in *ListShopBannerRequest, opts ...http.CallOption) (*ListShopBannerResponse, error) {
 	var out ListShopBannerResponse
 	pattern := "/api/app/shop/banner"

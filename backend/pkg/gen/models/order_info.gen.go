@@ -10,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const TableNameOrder = "order"
+const TableNameOrderInfo = "order_info"
 
-// Order 订单信息表
-type Order struct {
+// OrderInfo 订单信息表
+type OrderInfo struct {
 	ID           int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单ID" json:"id"`                                                                         // 订单ID
 	OrderNo      string         `gorm:"column:order_no;type:varchar(20);uniqueIndex:unique_order_no,priority:1;comment:订单编号" json:"order_no"`                                               // 订单编号
 	UserID       int64          `gorm:"column:user_id;type:bigint;index:idx_order_user_id_created_at,priority:1;comment:用户id" json:"user_id"`                                               // 用户id
@@ -31,7 +31,7 @@ type Order struct {
 	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                     // 删除时间
 }
 
-// TableName Order's table name
-func (*Order) TableName() string {
-	return TableNameOrder
+// TableName OrderInfo's table name
+func (*OrderInfo) TableName() string {
+	return TableNameOrderInfo
 }

@@ -45,8 +45,8 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/admin/shop_hot";
-import { defGoodsService } from "@/api/admin/goods";
-import type { ListGoodsResponse_Goods } from "@/rpc/admin/goods";
+import { defGoodsInfoService } from "@/api/admin/goods_info";
+import type { ListGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/goods_info";
 import type { PageShopHotItemRequest, ShopHotItem, ShopHotItemForm } from "@/rpc/admin/shop_hot";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -87,7 +87,7 @@ const formData = reactive<ShopHotItemForm>({
   status: Status.ENABLE
 });
 
-const goodsList = ref<ListGoodsResponse_Goods[]>([]);
+const goodsList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
 
 const rules = computed(() => ({
   title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
@@ -241,8 +241,8 @@ function refreshTable() {
  * 加载推荐商品下拉数据，供穿梭框使用。
  */
 async function loadGoodsOptions() {
-  const listGoodsResponse = await defGoodsService.ListGoods({ name: "" });
-  goodsList.value = listGoodsResponse.list || [];
+  const listGoodsInfoResponse = await defGoodsInfoService.ListGoodsInfo({ name: "" });
+  goodsList.value = listGoodsInfoResponse.list || [];
 }
 
 /**

@@ -7,16 +7,15 @@
 package app
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -137,7 +136,7 @@ func (x *PageShopHotGoodsRequest) GetPageSize() int64 {
 type PageShopHotGoodsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 分页数据
-	List []*Goods `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	List []*GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
 	// 总数
 	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -174,7 +173,7 @@ func (*PageShopHotGoodsResponse) Descriptor() ([]byte, []int) {
 	return file_app_shop_hot_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *PageShopHotGoodsResponse) GetList() []*Goods {
+func (x *PageShopHotGoodsResponse) GetList() []*GoodsInfo {
 	if x != nil {
 		return x.List
 	}
@@ -390,16 +389,15 @@ var File_app_shop_hot_proto protoreflect.FileDescriptor
 
 const file_app_shop_hot_proto_rawDesc = "" +
 	"\n" +
-	"\x12app/shop_hot.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x0fapp/goods.proto\"7\n" +
+	"\x12app/shop_hot.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x14app/goods_info.proto\"7\n" +
 	"\x13ListShopHotResponse\x12 \n" +
 	"\x04list\x18\x01 \x03(\v2\f.app.ShopHotR\x04list\"\xc3\x01\n" +
 	"\x17PageShopHotGoodsRequest\x12,\n" +
 	"\thotItemId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b选项idR\thotItemId\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"P\n" +
-	"\x18PageShopHotGoodsResponse\x12\x1e\n" +
-	"\x04list\x18\x01 \x03(\v2\n" +
-	".app.GoodsR\x04list\x12\x14\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"T\n" +
+	"\x18PageShopHotGoodsResponse\x12\"\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\"\x9d\x01\n" +
 	"\aShopHot\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12\"\n" +
@@ -440,13 +438,13 @@ var file_app_shop_hot_proto_goTypes = []any{
 	(*ShopHot)(nil),                  // 3: app.ShopHot
 	(*ListShopHotItemResponse)(nil),  // 4: app.ListShopHotItemResponse
 	(*ShopHotItem)(nil),              // 5: app.ShopHotItem
-	(*Goods)(nil),                    // 6: app.Goods
+	(*GoodsInfo)(nil),                // 6: app.GoodsInfo
 	(*emptypb.Empty)(nil),            // 7: google.protobuf.Empty
 	(*wrapperspb.Int64Value)(nil),    // 8: google.protobuf.Int64Value
 }
 var file_app_shop_hot_proto_depIdxs = []int32{
 	3, // 0: app.ListShopHotResponse.list:type_name -> app.ShopHot
-	6, // 1: app.PageShopHotGoodsResponse.list:type_name -> app.Goods
+	6, // 1: app.PageShopHotGoodsResponse.list:type_name -> app.GoodsInfo
 	5, // 2: app.ListShopHotItemResponse.list:type_name -> app.ShopHotItem
 	7, // 3: app.ShopHotService.ListShopHot:input_type -> google.protobuf.Empty
 	8, // 4: app.ShopHotService.ListShopHotItem:input_type -> google.protobuf.Int64Value
@@ -466,7 +464,7 @@ func file_app_shop_hot_proto_init() {
 	if File_app_shop_hot_proto != nil {
 		return
 	}
-	file_app_goods_proto_init()
+	file_app_goods_info_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

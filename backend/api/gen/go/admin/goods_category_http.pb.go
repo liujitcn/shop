@@ -8,12 +8,11 @@ package admin
 
 import (
 	context "context"
-	common "shop/api/gen/go/common"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -32,19 +31,19 @@ const OperationGoodsCategoryServiceTreeGoodsCategory = "/admin.GoodsCategoryServ
 const OperationGoodsCategoryServiceUpdateGoodsCategory = "/admin.GoodsCategoryService/UpdateGoodsCategory"
 
 type GoodsCategoryServiceHTTPServer interface {
-	// CreateGoodsCategory 创建分类
+	// CreateGoodsCategory 创建商品分类
 	CreateGoodsCategory(context.Context, *GoodsCategoryForm) (*emptypb.Empty, error)
-	// DeleteGoodsCategory 删除分类
+	// DeleteGoodsCategory 删除商品分类
 	DeleteGoodsCategory(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
-	// GetGoodsCategory 查询分类
+	// GetGoodsCategory 查询商品分类
 	GetGoodsCategory(context.Context, *wrapperspb.Int64Value) (*GoodsCategoryForm, error)
-	// OptionGoodsCategory 查询分类树形选择
+	// OptionGoodsCategory 查询商品分类树形选择
 	OptionGoodsCategory(context.Context, *OptionGoodsCategoryRequest) (*common.TreeOptionResponse, error)
 	// SetGoodsCategoryStatus 设置状态
 	SetGoodsCategoryStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)
-	// TreeGoodsCategory 查询分类树形列表
+	// TreeGoodsCategory 查询商品分类树形列表
 	TreeGoodsCategory(context.Context, *emptypb.Empty) (*TreeGoodsCategoryResponse, error)
-	// UpdateGoodsCategory 更新分类
+	// UpdateGoodsCategory 更新商品分类
 	UpdateGoodsCategory(context.Context, *GoodsCategoryForm) (*emptypb.Empty, error)
 }
 
@@ -214,19 +213,19 @@ func _GoodsCategoryService_SetGoodsCategoryStatus0_HTTP_Handler(srv GoodsCategor
 }
 
 type GoodsCategoryServiceHTTPClient interface {
-	// CreateGoodsCategory 创建分类
+	// CreateGoodsCategory 创建商品分类
 	CreateGoodsCategory(ctx context.Context, req *GoodsCategoryForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// DeleteGoodsCategory 删除分类
+	// DeleteGoodsCategory 删除商品分类
 	DeleteGoodsCategory(ctx context.Context, req *wrapperspb.StringValue, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// GetGoodsCategory 查询分类
+	// GetGoodsCategory 查询商品分类
 	GetGoodsCategory(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *GoodsCategoryForm, err error)
-	// OptionGoodsCategory 查询分类树形选择
+	// OptionGoodsCategory 查询商品分类树形选择
 	OptionGoodsCategory(ctx context.Context, req *OptionGoodsCategoryRequest, opts ...http.CallOption) (rsp *common.TreeOptionResponse, err error)
 	// SetGoodsCategoryStatus 设置状态
 	SetGoodsCategoryStatus(ctx context.Context, req *common.SetStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// TreeGoodsCategory 查询分类树形列表
+	// TreeGoodsCategory 查询商品分类树形列表
 	TreeGoodsCategory(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *TreeGoodsCategoryResponse, err error)
-	// UpdateGoodsCategory 更新分类
+	// UpdateGoodsCategory 更新商品分类
 	UpdateGoodsCategory(ctx context.Context, req *GoodsCategoryForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
@@ -238,7 +237,7 @@ func NewGoodsCategoryServiceHTTPClient(client *http.Client) GoodsCategoryService
 	return &GoodsCategoryServiceHTTPClientImpl{client}
 }
 
-// CreateGoodsCategory 创建分类
+// CreateGoodsCategory 创建商品分类
 func (c *GoodsCategoryServiceHTTPClientImpl) CreateGoodsCategory(ctx context.Context, in *GoodsCategoryForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/admin/goods/category"
@@ -252,7 +251,7 @@ func (c *GoodsCategoryServiceHTTPClientImpl) CreateGoodsCategory(ctx context.Con
 	return &out, nil
 }
 
-// DeleteGoodsCategory 删除分类
+// DeleteGoodsCategory 删除商品分类
 func (c *GoodsCategoryServiceHTTPClientImpl) DeleteGoodsCategory(ctx context.Context, in *wrapperspb.StringValue, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/admin/goods/category/{value}"
@@ -266,7 +265,7 @@ func (c *GoodsCategoryServiceHTTPClientImpl) DeleteGoodsCategory(ctx context.Con
 	return &out, nil
 }
 
-// GetGoodsCategory 查询分类
+// GetGoodsCategory 查询商品分类
 func (c *GoodsCategoryServiceHTTPClientImpl) GetGoodsCategory(ctx context.Context, in *wrapperspb.Int64Value, opts ...http.CallOption) (*GoodsCategoryForm, error) {
 	var out GoodsCategoryForm
 	pattern := "/api/admin/goods/category/{value}"
@@ -280,7 +279,7 @@ func (c *GoodsCategoryServiceHTTPClientImpl) GetGoodsCategory(ctx context.Contex
 	return &out, nil
 }
 
-// OptionGoodsCategory 查询分类树形选择
+// OptionGoodsCategory 查询商品分类树形选择
 func (c *GoodsCategoryServiceHTTPClientImpl) OptionGoodsCategory(ctx context.Context, in *OptionGoodsCategoryRequest, opts ...http.CallOption) (*common.TreeOptionResponse, error) {
 	var out common.TreeOptionResponse
 	pattern := "/api/admin/goods/category/option"
@@ -308,7 +307,7 @@ func (c *GoodsCategoryServiceHTTPClientImpl) SetGoodsCategoryStatus(ctx context.
 	return &out, nil
 }
 
-// TreeGoodsCategory 查询分类树形列表
+// TreeGoodsCategory 查询商品分类树形列表
 func (c *GoodsCategoryServiceHTTPClientImpl) TreeGoodsCategory(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*TreeGoodsCategoryResponse, error) {
 	var out TreeGoodsCategoryResponse
 	pattern := "/api/admin/goods/category/tree"
@@ -322,7 +321,7 @@ func (c *GoodsCategoryServiceHTTPClientImpl) TreeGoodsCategory(ctx context.Conte
 	return &out, nil
 }
 
-// UpdateGoodsCategory 更新分类
+// UpdateGoodsCategory 更新商品分类
 func (c *GoodsCategoryServiceHTTPClientImpl) UpdateGoodsCategory(ctx context.Context, in *GoodsCategoryForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
 	pattern := "/api/admin/goods/category/{id}"

@@ -13,13 +13,13 @@ import (
 
 // GoodsAnalyticsCase 商品分析业务
 type GoodsAnalyticsCase struct {
-	goodsCase         *GoodsCase
+	goodsCase         *GoodsInfoCase
 	goodsCategoryCase *GoodsCategoryCase
 	orderGoodsCase    *OrderGoodsCase
 }
 
 // NewGoodsAnalyticsCase 创建商品分析业务
-func NewGoodsAnalyticsCase(goodsCase *GoodsCase, goodsCategoryCase *GoodsCategoryCase, orderGoodsCase *OrderGoodsCase) *GoodsAnalyticsCase {
+func NewGoodsAnalyticsCase(goodsCase *GoodsInfoCase, goodsCategoryCase *GoodsCategoryCase, orderGoodsCase *OrderGoodsCase) *GoodsAnalyticsCase {
 	return &GoodsAnalyticsCase{
 		goodsCase:         goodsCase,
 		goodsCategoryCase: goodsCategoryCase,
@@ -124,8 +124,8 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsPie(ctx context.Context, req *comm
 
 func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).Goods.WithContext(ctx).UnderlyingDB().
-		Model(&models.Goods{}).
+	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Count(&count).Error
 	return count, err
@@ -133,14 +133,14 @@ func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt t
 
 func (c *GoodsAnalyticsCase) countTotalGoods(ctx context.Context) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).Goods.WithContext(ctx).UnderlyingDB().Model(&models.Goods{}).Count(&count).Error
+	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().Model(&models.GoodsInfo{}).Count(&count).Error
 	return count, err
 }
 
 func (c *GoodsAnalyticsCase) countPutOnGoods(ctx context.Context) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).Goods.WithContext(ctx).UnderlyingDB().
-		Model(&models.Goods{}).
+	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
 		Where("status = ?", int32(commonApi.GoodsStatus_PUT_ON)).
 		Count(&count).Error
 	return count, err
@@ -150,8 +150,8 @@ func (c *GoodsAnalyticsCase) countDistinctActiveGoods(ctx context.Context, start
 	var count int64
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
-		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
-		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
+		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
+		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
 		Distinct("order_goods.goods_id").
 		Count(&count).Error
 	return count, err
@@ -165,8 +165,8 @@ func (c *GoodsAnalyticsCase) countGoodsSaleNum(ctx context.Context, startAt, end
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
 		Select("COALESCE(SUM(order_goods.num),0) AS sale_count").
-		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
-		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
+		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
+		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
 		Scan(&result).Error
 	return result.SaleCount, err
 }
@@ -188,8 +188,8 @@ func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(ctx context.Context, timeTyp
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
 		Select(selectExpr+" AS `key`, COALESCE(SUM(order_goods.num),0) AS sale_count, COUNT(DISTINCT order_goods.goods_id) AS active_goods_count").
-		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
-		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
+		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
+		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
 		Group("`key`").
 		Scan(&rows).Error
 	if err != nil {
@@ -244,11 +244,11 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 	}, 0)
 	err = c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
-		Select("goods.category_id, COALESCE(SUM(order_goods.num),0) AS goods_count").
-		Joins("JOIN goods ON goods.id = order_goods.goods_id").
-		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
-		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
-		Group("goods.category_id").
+		Select(models.TableNameGoodsInfo+".category_id, COALESCE(SUM(order_goods.num),0) AS goods_count").
+		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = order_goods.goods_id").
+		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
+		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
+		Group(models.TableNameGoodsInfo + ".category_id").
 		Scan(&rows).Error
 	if err != nil {
 		return nil, err

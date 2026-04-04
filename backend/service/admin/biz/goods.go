@@ -15,17 +15,17 @@ import (
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
-// GoodsCase 商品业务实例
-type GoodsCase struct {
+// GoodsInfoCase 商品业务实例
+type GoodsInfoCase struct {
 	*biz.BaseCase
 	tx data.Transaction
-	*data.GoodsRepo
+	*data.GoodsInfoRepo
 	goodsCategoryCase *GoodsCategoryCase
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSkuCase      *GoodsSkuCase
-	formMapper        *_mapper.CopierMapper[admin.GoodsForm, models.Goods]
-	mapper            *_mapper.CopierMapper[admin.Goods, models.Goods]
+	formMapper        *_mapper.CopierMapper[admin.GoodsInfoForm, models.GoodsInfo]
+	mapper            *_mapper.CopierMapper[admin.GoodsInfo, models.GoodsInfo]
 }
 
 const (
@@ -34,15 +34,15 @@ const (
 	goodsPriceAlertAbnormal int32 = 1
 )
 
-// NewGoodsCase 创建商品业务实例
-func NewGoodsCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.GoodsRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsCase {
-	formMapper := _mapper.NewCopierMapper[admin.GoodsForm, models.Goods]()
+// NewGoodsInfoCase 创建商品业务实例
+func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.GoodsInfoRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsInfoCase {
+	formMapper := _mapper.NewCopierMapper[admin.GoodsInfoForm, models.GoodsInfo]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
-	mapper := _mapper.NewCopierMapper[admin.Goods, models.Goods]()
-	return &GoodsCase{
+	mapper := _mapper.NewCopierMapper[admin.GoodsInfo, models.GoodsInfo]()
+	return &GoodsInfoCase{
 		BaseCase:          baseCase,
 		tx:                tx,
-		GoodsRepo:         goodsRepo,
+		GoodsInfoRepo:     goodsRepo,
 		goodsCategoryCase: goodsCategoryCase,
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
@@ -52,9 +52,9 @@ func NewGoodsCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.G
 	}
 }
 
-// ListGoods 查询商品列表
-func (c *GoodsCase) ListGoods(ctx context.Context, req *admin.ListGoodsRequest) (*admin.ListGoodsResponse, error) {
-	query := c.Query(ctx).Goods
+// ListGoodsInfo 查询商品列表
+func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
+	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetName() != "" {
@@ -72,21 +72,21 @@ func (c *GoodsCase) ListGoods(ctx context.Context, req *admin.ListGoodsRequest) 
 		return nil, err
 	}
 
-	resList := make([]*admin.ListGoodsResponse_Goods, 0, len(list))
+	resList := make([]*admin.ListGoodsInfoResponse_GoodsInfo, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, &admin.ListGoodsResponse_Goods{
+		resList = append(resList, &admin.ListGoodsInfoResponse_GoodsInfo{
 			Id:           item.ID,
 			Name:         item.Name,
 			Price:        item.Price,
 			CategoryName: categoryNames[item.CategoryID],
 		})
 	}
-	return &admin.ListGoodsResponse{List: resList}, nil
+	return &admin.ListGoodsInfoResponse{List: resList}, nil
 }
 
-// PageGoods 分页查询商品
-func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) (*admin.PageGoodsResponse, error) {
-	query := c.Query(ctx).Goods
+// PageGoodsInfo 分页查询商品
+func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsInfoRequest) (*admin.PageGoodsInfoResponse, error) {
+	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	var err error
@@ -127,7 +127,7 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) 
 			return nil, err
 		}
 		if len(goodsIDs) == 0 {
-			return &admin.PageGoodsResponse{List: []*admin.Goods{}, Total: 0}, nil
+			return &admin.PageGoodsInfoResponse{List: []*admin.GoodsInfo{}, Total: 0}, nil
 		}
 		opts = append(opts, repo.Where(query.ID.In(goodsIDs...)))
 	}
@@ -138,12 +138,12 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) 
 			return nil, err
 		}
 		if len(goodsIDs) == 0 {
-			return &admin.PageGoodsResponse{List: []*admin.Goods{}, Total: 0}, nil
+			return &admin.PageGoodsInfoResponse{List: []*admin.GoodsInfo{}, Total: 0}, nil
 		}
 		opts = append(opts, repo.Where(query.ID.In(goodsIDs...)))
 	}
 
-	var list []*models.Goods
+	var list []*models.GoodsInfo
 	var total int64
 	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
@@ -156,16 +156,16 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) 
 		return nil, err
 	}
 
-	resList := make([]*admin.Goods, 0, len(list))
+	resList := make([]*admin.GoodsInfo, 0, len(list))
 	for _, item := range list {
 		goods := c.mapper.ToDTO(item)
 		goods.CategoryName = categoryNames[item.CategoryID]
 		resList = append(resList, goods)
 	}
-	return &admin.PageGoodsResponse{List: resList, Total: int32(total)}, nil
+	return &admin.PageGoodsInfoResponse{List: resList, Total: int32(total)}, nil
 }
 
-func (c *GoodsCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
+func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
 	if inventoryAlert != goodsInventoryAlertLow && inventoryAlert != goodsInventoryAlertZero {
 		return nil, nil
 	}
@@ -173,8 +173,8 @@ func (c *GoodsCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryA
 	db := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsSku{}).
 		Select("DISTINCT goods_sku.goods_id").
-		Joins("JOIN goods ON goods.id = goods_sku.goods_id").
-		Where("goods.deleted_at IS NULL").
+		Joins("JOIN " + models.TableNameGoodsInfo + " ON " + models.TableNameGoodsInfo + ".id = goods_sku.goods_id").
+		Where(models.TableNameGoodsInfo + ".deleted_at IS NULL").
 		Where("goods_sku.deleted_at IS NULL")
 
 	if inventoryAlert == goodsInventoryAlertLow {
@@ -188,21 +188,21 @@ func (c *GoodsCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryA
 	return goodsIDs, err
 }
 
-func (c *GoodsCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
+func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
 	goodsIDs := make([]int64, 0)
 	err := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsSku{}).
 		Select("DISTINCT goods_sku.goods_id").
-		Joins("JOIN goods ON goods.id = goods_sku.goods_id").
-		Where("goods.deleted_at IS NULL").
+		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = goods_sku.goods_id").
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
 		Where("goods_sku.deleted_at IS NULL").
 		Where("goods_sku.price <= 0 OR goods_sku.discount_price < 0 OR (goods_sku.discount_price > 0 AND goods_sku.discount_price > goods_sku.price)").
 		Pluck("goods_sku.goods_id", &goodsIDs).Error
 	return goodsIDs, err
 }
 
-// GetGoods 获取商品
-func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*admin.GoodsForm, error) {
+// GetGoodsInfo 获取商品
+func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*admin.GoodsInfoForm, error) {
 	goods, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
@@ -240,8 +240,8 @@ func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*admin.GoodsForm, e
 	return goodsForm, nil
 }
 
-// CreateGoods 创建商品
-func (c *GoodsCase) CreateGoods(ctx context.Context, req *admin.GoodsForm) error {
+// CreateGoodsInfo 创建商品
+func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		goods := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
@@ -272,8 +272,8 @@ func (c *GoodsCase) CreateGoods(ctx context.Context, req *admin.GoodsForm) error
 	})
 }
 
-// UpdateGoods 更新商品
-func (c *GoodsCase) UpdateGoods(ctx context.Context, req *admin.GoodsForm) error {
+// UpdateGoodsInfo 更新商品
+func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		goods := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
@@ -308,8 +308,8 @@ func (c *GoodsCase) UpdateGoods(ctx context.Context, req *admin.GoodsForm) error
 	})
 }
 
-// DeleteGoods 删除商品
-func (c *GoodsCase) DeleteGoods(ctx context.Context, id string) error {
+// DeleteGoodsInfo 删除商品
+func (c *GoodsInfoCase) DeleteGoodsInfo(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err := c.DeleteByIds(ctx, ids)
@@ -322,16 +322,16 @@ func (c *GoodsCase) DeleteGoods(ctx context.Context, id string) error {
 	})
 }
 
-// SetGoodsStatus 设置商品状态
-func (c *GoodsCase) SetGoodsStatus(ctx context.Context, req *common.SetStatusRequest) error {
-	return c.UpdateById(ctx, &models.Goods{
+// SetGoodsInfoStatus 设置商品状态
+func (c *GoodsInfoCase) SetGoodsInfoStatus(ctx context.Context, req *common.SetStatusRequest) error {
+	return c.UpdateById(ctx, &models.GoodsInfo{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
 }
 
 // GoodsPropCaseList 查询商品属性列表
-func (c *GoodsCase) GoodsPropCaseList(ctx context.Context, goodsId int64) ([]*admin.GoodsProp, error) {
+func (c *GoodsInfoCase) GoodsPropCaseList(ctx context.Context, goodsId int64) ([]*admin.GoodsProp, error) {
 	res, err := c.goodsPropCase.ListGoodsPropByGoodsId(ctx, goodsId)
 	if err != nil {
 		return nil, err
@@ -340,12 +340,12 @@ func (c *GoodsCase) GoodsPropCaseList(ctx context.Context, goodsId int64) ([]*ad
 }
 
 // GoodsSkuCaseList 查询商品规格项列表
-func (c *GoodsCase) GoodsSkuCaseList(ctx context.Context, goodsId int64) ([]*admin.GoodsSku, error) {
+func (c *GoodsInfoCase) GoodsSkuCaseList(ctx context.Context, goodsId int64) ([]*admin.GoodsSku, error) {
 	return c.goodsSkuCase.ListGoodsSkuByGoodsId(ctx, goodsId)
 }
 
 // deleteGoodsChildren 删除商品子表数据
-func (c *GoodsCase) deleteGoodsChildren(ctx context.Context, ids []int64) error {
+func (c *GoodsInfoCase) deleteGoodsChildren(ctx context.Context, ids []int64) error {
 	query := c.Query(ctx)
 	for _, goodsId := range ids {
 		// 商品编辑会按“删旧建新”重建子表数据，这里必须物理删除，否则唯一索引会与软删除数据冲突。
@@ -371,7 +371,7 @@ func (c *GoodsCase) deleteGoodsChildren(ctx context.Context, ids []int64) error 
 }
 
 // batchCreateGoodsProp 批量创建商品属性
-func (c *GoodsCase) batchCreateGoodsProp(ctx context.Context, goodsId int64, list []*admin.GoodsProp) error {
+func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsId int64, list []*admin.GoodsProp) error {
 	entities := make([]*models.GoodsProp, 0, len(list))
 	for _, item := range list {
 		entities = append(entities, &models.GoodsProp{
@@ -385,7 +385,7 @@ func (c *GoodsCase) batchCreateGoodsProp(ctx context.Context, goodsId int64, lis
 }
 
 // batchCreateGoodsSpec 批量创建商品规格
-func (c *GoodsCase) batchCreateGoodsSpec(ctx context.Context, goodsId int64, list []*admin.GoodsSpec) error {
+func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsId int64, list []*admin.GoodsSpec) error {
 	entities := make([]*models.GoodsSpec, 0, len(list))
 	for _, item := range list {
 		entities = append(entities, &models.GoodsSpec{
@@ -399,7 +399,7 @@ func (c *GoodsCase) batchCreateGoodsSpec(ctx context.Context, goodsId int64, lis
 }
 
 // batchCreateGoodsSku 批量创建商品规格项
-func (c *GoodsCase) batchCreateGoodsSku(ctx context.Context, goodsId int64, list []*admin.GoodsSku) error {
+func (c *GoodsInfoCase) batchCreateGoodsSku(ctx context.Context, goodsId int64, list []*admin.GoodsSku) error {
 	entities := make([]*models.GoodsSku, 0, len(list))
 	for _, item := range list {
 		entities = append(entities, &models.GoodsSku{
@@ -418,7 +418,7 @@ func (c *GoodsCase) batchCreateGoodsSku(ctx context.Context, goodsId int64, list
 }
 
 // getCategoryNameMap 查询分类名称映射
-func (c *GoodsCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
+func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
 	categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(categoryQuery.Sort.Asc()))

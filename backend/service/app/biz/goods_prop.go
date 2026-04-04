@@ -27,7 +27,7 @@ func NewGoodsPropCase(baseCase *biz.BaseCase, goodsPropRepo *data.GoodsPropRepo)
 }
 
 // 查询商品属性列表
-func (c *GoodsPropCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*app.GoodsResponse_Prop, error) {
+func (c *GoodsPropCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*app.GoodsInfoResponse_Prop, error) {
 	query := c.Query(ctx).GoodsProp
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
@@ -36,7 +36,7 @@ func (c *GoodsPropCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*ap
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*app.GoodsResponse_Prop, 0)
+	list := make([]*app.GoodsInfoResponse_Prop, 0)
 	for _, item := range all {
 		list = append(list, c.convertToProto(item))
 	}
@@ -44,8 +44,8 @@ func (c *GoodsPropCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*ap
 }
 
 // 将商品属性模型转换为接口响应
-func (c *GoodsPropCase) convertToProto(item *models.GoodsProp) *app.GoodsResponse_Prop {
-	res := &app.GoodsResponse_Prop{
+func (c *GoodsPropCase) convertToProto(item *models.GoodsProp) *app.GoodsInfoResponse_Prop {
+	res := &app.GoodsInfoResponse_Prop{
 		Label: item.Label,
 		Value: item.Value,
 	}

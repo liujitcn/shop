@@ -31,15 +31,15 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseRole:       newBaseRole(db, opts...),
 		BaseUser:       newBaseUser(db, opts...),
 		CasbinRule:     newCasbinRule(db, opts...),
-		Goods:          newGoods(db, opts...),
 		GoodsCategory:  newGoodsCategory(db, opts...),
+		GoodsInfo:      newGoodsInfo(db, opts...),
 		GoodsProp:      newGoodsProp(db, opts...),
 		GoodsSku:       newGoodsSku(db, opts...),
 		GoodsSpec:      newGoodsSpec(db, opts...),
-		Order:          newOrder(db, opts...),
 		OrderAddress:   newOrderAddress(db, opts...),
 		OrderCancel:    newOrderCancel(db, opts...),
 		OrderGoods:     newOrderGoods(db, opts...),
+		OrderInfo:      newOrderInfo(db, opts...),
 		OrderLogistics: newOrderLogistics(db, opts...),
 		OrderPayment:   newOrderPayment(db, opts...),
 		OrderRefund:    newOrderRefund(db, opts...),
@@ -73,15 +73,15 @@ type Query struct {
 	BaseRole       baseRole
 	BaseUser       baseUser
 	CasbinRule     casbinRule
-	Goods          goods
 	GoodsCategory  goodsCategory
+	GoodsInfo      goodsInfo
 	GoodsProp      goodsProp
 	GoodsSku       goodsSku
 	GoodsSpec      goodsSpec
-	Order          order
 	OrderAddress   orderAddress
 	OrderCancel    orderCancel
 	OrderGoods     orderGoods
+	OrderInfo      orderInfo
 	OrderLogistics orderLogistics
 	OrderPayment   orderPayment
 	OrderRefund    orderRefund
@@ -116,15 +116,15 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseRole:       q.BaseRole.clone(db),
 		BaseUser:       q.BaseUser.clone(db),
 		CasbinRule:     q.CasbinRule.clone(db),
-		Goods:          q.Goods.clone(db),
 		GoodsCategory:  q.GoodsCategory.clone(db),
+		GoodsInfo:      q.GoodsInfo.clone(db),
 		GoodsProp:      q.GoodsProp.clone(db),
 		GoodsSku:       q.GoodsSku.clone(db),
 		GoodsSpec:      q.GoodsSpec.clone(db),
-		Order:          q.Order.clone(db),
 		OrderAddress:   q.OrderAddress.clone(db),
 		OrderCancel:    q.OrderCancel.clone(db),
 		OrderGoods:     q.OrderGoods.clone(db),
+		OrderInfo:      q.OrderInfo.clone(db),
 		OrderLogistics: q.OrderLogistics.clone(db),
 		OrderPayment:   q.OrderPayment.clone(db),
 		OrderRefund:    q.OrderRefund.clone(db),
@@ -166,15 +166,15 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseRole:       q.BaseRole.replaceDB(db),
 		BaseUser:       q.BaseUser.replaceDB(db),
 		CasbinRule:     q.CasbinRule.replaceDB(db),
-		Goods:          q.Goods.replaceDB(db),
 		GoodsCategory:  q.GoodsCategory.replaceDB(db),
+		GoodsInfo:      q.GoodsInfo.replaceDB(db),
 		GoodsProp:      q.GoodsProp.replaceDB(db),
 		GoodsSku:       q.GoodsSku.replaceDB(db),
 		GoodsSpec:      q.GoodsSpec.replaceDB(db),
-		Order:          q.Order.replaceDB(db),
 		OrderAddress:   q.OrderAddress.replaceDB(db),
 		OrderCancel:    q.OrderCancel.replaceDB(db),
 		OrderGoods:     q.OrderGoods.replaceDB(db),
+		OrderInfo:      q.OrderInfo.replaceDB(db),
 		OrderLogistics: q.OrderLogistics.replaceDB(db),
 		OrderPayment:   q.OrderPayment.replaceDB(db),
 		OrderRefund:    q.OrderRefund.replaceDB(db),
@@ -206,15 +206,15 @@ type queryCtx struct {
 	BaseRole       *baseRoleDo
 	BaseUser       *baseUserDo
 	CasbinRule     *casbinRuleDo
-	Goods          *goodsDo
 	GoodsCategory  *goodsCategoryDo
+	GoodsInfo      *goodsInfoDo
 	GoodsProp      *goodsPropDo
 	GoodsSku       *goodsSkuDo
 	GoodsSpec      *goodsSpecDo
-	Order          *orderDo
 	OrderAddress   *orderAddressDo
 	OrderCancel    *orderCancelDo
 	OrderGoods     *orderGoodsDo
+	OrderInfo      *orderInfoDo
 	OrderLogistics *orderLogisticsDo
 	OrderPayment   *orderPaymentDo
 	OrderRefund    *orderRefundDo
@@ -246,15 +246,15 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseRole:       q.BaseRole.WithContext(ctx),
 		BaseUser:       q.BaseUser.WithContext(ctx),
 		CasbinRule:     q.CasbinRule.WithContext(ctx),
-		Goods:          q.Goods.WithContext(ctx),
 		GoodsCategory:  q.GoodsCategory.WithContext(ctx),
+		GoodsInfo:      q.GoodsInfo.WithContext(ctx),
 		GoodsProp:      q.GoodsProp.WithContext(ctx),
 		GoodsSku:       q.GoodsSku.WithContext(ctx),
 		GoodsSpec:      q.GoodsSpec.WithContext(ctx),
-		Order:          q.Order.WithContext(ctx),
 		OrderAddress:   q.OrderAddress.WithContext(ctx),
 		OrderCancel:    q.OrderCancel.WithContext(ctx),
 		OrderGoods:     q.OrderGoods.WithContext(ctx),
+		OrderInfo:      q.OrderInfo.WithContext(ctx),
 		OrderLogistics: q.OrderLogistics.WithContext(ctx),
 		OrderPayment:   q.OrderPayment.WithContext(ctx),
 		OrderRefund:    q.OrderRefund.WithContext(ctx),

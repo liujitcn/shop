@@ -30,8 +30,8 @@ export interface ShopBanner {
   href: string;
 }
 
-/** App轮播图服务 */
+/** App商城轮播图服务 */
 export interface ShopBannerService {
-  /** 查询轮播图列表 */
+  /** 查询商城轮播图列表 */
   ListShopBanner(request: ListShopBannerRequest): Promise<ListShopBannerResponse>;
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { OrderStatus } from '@/rpc/common/enum'
 import { defOrderService } from '@/api/app/order'
-import type { PageOrderRequest, Order } from '@/rpc/app/order'
+import type { PageOrderInfoRequest, OrderInfo } from '@/rpc/app/order_info'
 import { onMounted, ref } from 'vue'
 import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
@@ -19,7 +19,7 @@ const props = defineProps<{
 }>()
 
 // 请求参数
-const queryParams: Required<PageOrderRequest> = {
+const queryParams: Required<PageOrderInfoRequest> = {
   pageNum: 1,
   pageSize: 10,
   status: props.status,
@@ -35,7 +35,7 @@ const refundReasonList = ref<ListBaseDictResponse_DictItem[]>([])
 // 订单取消/退款原因
 const reason = ref('')
 // 订单取id消
-const orderItem = ref<Order>()
+const orderItem = ref<OrderInfo>()
 // 标题
 const title = ref('')
 // tips
@@ -60,7 +60,7 @@ const getDictData = async () => {
   })
 }
 // 获取订单列表
-const orderList = ref<Order[]>([])
+const orderList = ref<OrderInfo[]>([])
 // 是否加载中标记，用于防止滚动触底触发多次请求
 const isLoading = ref(false)
 const getUserOrderData = async () => {
@@ -73,7 +73,7 @@ const getUserOrderData = async () => {
   // 发送请求前，标记为加载中
   isLoading.value = true
   // 发送请求
-  const res = await defOrderService.PageOrder(queryParams)
+  const res = await defOrderService.PageOrderInfo(queryParams)
   // 发送请求后，重置标记
   isLoading.value = false
   // 数组追加
@@ -155,7 +155,7 @@ const onOrderConfirm = (id: number) => {
     confirmColor: '#27BA9B',
     success: async (res) => {
       if (res.confirm) {
-        await defOrderService.ReceiveOrder({
+        await defOrderService.ReceiveOrderInfo({
           orderId: id,
         })
         await uni.showToast({ icon: 'success', title: '确认收货成功' })
@@ -167,7 +167,7 @@ const onOrderConfirm = (id: number) => {
 }
 
 // 确认收货
-const onOpenPopup = async (order: Order) => {
+const onOpenPopup = async (order: OrderInfo) => {
   console.log(cancelReasonList.value)
   console.log(refundReasonList.value)
   // 确保数据已加载
@@ -213,7 +213,7 @@ const onConfirmPopup = async () => {
   }
   // 发送请求
   if (orderItem.value.status === OrderStatus.CREATED) {
-    await defOrderService.CancelOrder({
+    await defOrderService.CancelOrderInfo({
       orderId: orderItem.value.id,
       reason: Number(reason.value),
     })
@@ -225,7 +225,7 @@ const onConfirmPopup = async () => {
     // 确认成功，更新为待评价
     updateStatusById(orderItem.value.id, OrderStatus.CANCELED)
   } else {
-    await defOrderService.RefundOrder({
+    await defOrderService.RefundOrderInfo({
       orderId: orderItem.value.id,
       reason: Number(reason.value),
     })
@@ -249,7 +249,7 @@ const onOrderDelete = (id: number) => {
     confirmColor: '#27BA9B',
     success: async (res) => {
       if (res.confirm) {
-        await defOrderService.DeleteOrder({ value: id })
+        await defOrderService.DeleteOrderInfo({ value: id })
         // 删除成功，界面中删除订单
         const index = orderList.value.findIndex((v) => v.id === id)
         orderList.value.splice(index, 1)

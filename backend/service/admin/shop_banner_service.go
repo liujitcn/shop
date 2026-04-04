@@ -22,13 +22,13 @@ import (
 
 const _ = grpc.SupportPackageIsVersion7
 
-// ShopBannerService Admin轮播图服务
+// ShopBannerService Admin商城轮播图服务
 type ShopBannerService struct {
 	admin.UnimplementedShopBannerServiceServer
 	bannerCase *biz.ShopBannerCase
 }
 
-// NewShopBannerService 创建Admin轮播图服务
+// NewShopBannerService 创建Admin商城轮播图服务
 func NewShopBannerService(
 	bannerCase *biz.ShopBannerCase,
 ) *ShopBannerService {
@@ -37,53 +37,53 @@ func NewShopBannerService(
 	}
 }
 
-// PageShopBanner 查询轮播图分页列表
+// PageShopBanner 查询商城轮播图分页列表
 func (s *ShopBannerService) PageShopBanner(ctx context.Context, req *admin.PageShopBannerRequest) (*admin.PageShopBannerResponse, error) {
 	page, err := s.bannerCase.PageShopBanner(ctx, req)
 	if err != nil {
 		log.Error("PageShopBanner err:", err.Error())
-		return nil, errors.New("查询轮播图分页列表失败")
+		return nil, errors.New("查询商城轮播图分页列表失败")
 	}
 
 	return page, nil
 }
 
-// GetShopBanner 查询轮播图
+// GetShopBanner 查询商城轮播图
 func (s *ShopBannerService) GetShopBanner(ctx context.Context, req *wrapperspb.Int64Value) (*admin.ShopBannerForm, error) {
 	shopBanner, err := s.bannerCase.GetShopBanner(ctx, req.GetValue())
 	if err != nil {
 		log.Error("GetShopBanner err:", err.Error())
-		return nil, errors.New("查询轮播图失败")
+		return nil, errors.New("查询商城轮播图失败")
 	}
 	return shopBanner, nil
 }
 
-// CreateShopBanner 创建轮播图
+// CreateShopBanner 创建商城轮播图
 func (s *ShopBannerService) CreateShopBanner(ctx context.Context, req *admin.ShopBannerForm) (*emptypb.Empty, error) {
 	err := s.bannerCase.CreateShopBanner(ctx, req)
 	if err != nil {
 		log.Error("CreateShopBanner err:", err.Error())
-		return nil, errors.New("创建轮播图失败")
+		return nil, errors.New("创建商城轮播图失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// UpdateShopBanner 更新轮播图
+// UpdateShopBanner 更新商城轮播图
 func (s *ShopBannerService) UpdateShopBanner(ctx context.Context, req *admin.ShopBannerForm) (*emptypb.Empty, error) {
 	err := s.bannerCase.UpdateShopBanner(ctx, req)
 	if err != nil {
 		log.Error("UpdateShopBanner err:", err.Error())
-		return nil, errors.New("更新轮播图失败")
+		return nil, errors.New("更新商城轮播图失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// DeleteShopBanner 删除轮播图
+// DeleteShopBanner 删除商城轮播图
 func (s *ShopBannerService) DeleteShopBanner(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.bannerCase.DeleteShopBanner(ctx, req.GetValue())
 	if err != nil {
 		log.Error("DeleteShopBanner err:", err.Error())
-		return nil, errors.New("删除轮播图失败")
+		return nil, errors.New("删除商城轮播图失败")
 	}
 	return new(emptypb.Empty), nil
 }

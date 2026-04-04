@@ -28,7 +28,7 @@ func NewGoodsSpecCase(baseCase *biz.BaseCase, goodsSpecRepo *data.GoodsSpecRepo)
 }
 
 // 查询商品下的全部规格列表
-func (c *GoodsSpecCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*app.GoodsResponse_Spec, error) {
+func (c *GoodsSpecCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*app.GoodsInfoResponse_Spec, error) {
 	query := c.Query(ctx).GoodsSpec
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
@@ -37,7 +37,7 @@ func (c *GoodsSpecCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*ap
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*app.GoodsResponse_Spec, 0)
+	list := make([]*app.GoodsInfoResponse_Spec, 0)
 	for _, item := range all {
 		list = append(list, c.convertToProto(item))
 	}
@@ -45,16 +45,16 @@ func (c *GoodsSpecCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*ap
 }
 
 // 将商品规格模型转换为接口响应
-func (c *GoodsSpecCase) convertToProto(item *models.GoodsSpec) *app.GoodsResponse_Spec {
-	itemList := make([]*app.GoodsResponse_Spec_Item, 0)
+func (c *GoodsSpecCase) convertToProto(item *models.GoodsSpec) *app.GoodsInfoResponse_Spec {
+	itemList := make([]*app.GoodsInfoResponse_Spec_Item, 0)
 	items := _string.ConvertJsonStringToStringArray(item.Item)
 	for _, name := range items {
-		itemList = append(itemList, &app.GoodsResponse_Spec_Item{
+		itemList = append(itemList, &app.GoodsInfoResponse_Spec_Item{
 			Name: name,
 		})
 	}
 
-	res := &app.GoodsResponse_Spec{
+	res := &app.GoodsInfoResponse_Spec{
 		Name: item.Name,
 		Item: itemList,
 	}

@@ -19,11 +19,11 @@ type ShopHotItemCase struct {
 	*data.ShopHotItemRepo
 	shopHotRepo      *data.ShopHotRepo
 	shopHotGoodsRepo *data.ShopHotGoodsRepo
-	goodsRepo        *data.GoodsRepo
+	goodsRepo        *data.GoodsInfoRepo
 }
 
 // NewShopHotItemCase 创建热门推荐项业务处理对象
-func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo, shopHotItemRepo *data.ShopHotItemRepo, shopHotGoodsRepo *data.ShopHotGoodsRepo, goodsInfoRepo *data.GoodsRepo) *ShopHotItemCase {
+func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo, shopHotItemRepo *data.ShopHotItemRepo, shopHotGoodsRepo *data.ShopHotGoodsRepo, goodsInfoRepo *data.GoodsInfoRepo) *ShopHotItemCase {
 	return &ShopHotItemCase{
 		BaseCase:         baseCase,
 		ShopHotItemRepo:  shopHotItemRepo,
@@ -82,14 +82,14 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*app.Goods, 0)
+	list := make([]*app.GoodsInfo, 0)
 	if count > 0 {
 		goodsIds := make([]int64, 0, len(hotGoodsList))
 		for _, item := range hotGoodsList {
 			goodsIds = append(goodsIds, item.GoodsID)
 		}
-		var all []*models.Goods
-		goodsQuery := c.goodsRepo.Query(ctx).Goods
+		var all []*models.GoodsInfo
+		goodsQuery := c.goodsRepo.Query(ctx).GoodsInfo
 		goodsOpts := make([]repo.QueryOption, 0, 3)
 		goodsOpts = append(goodsOpts, repo.Order(goodsQuery.UpdatedAt.Desc()))
 		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.ID.In(goodsIds...)))
@@ -103,7 +103,7 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 			if member {
 				price = item.DiscountPrice
 			}
-			list = append(list, &app.Goods{
+			list = append(list, &app.GoodsInfo{
 				Id:      item.ID,
 				Name:    item.Name,
 				Desc:    item.Desc,

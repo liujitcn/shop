@@ -27,7 +27,7 @@ func NewOrderLogisticsCase(baseCase *biz.BaseCase, orderLogisticsRepo *data.Orde
 }
 
 // findByOrderId 按订单编号查询物流信息
-func (c *OrderLogisticsCase) findByOrderId(ctx context.Context, orderId int64) (*app.OrderResponse_Logistics, error) {
+func (c *OrderLogisticsCase) findByOrderId(ctx context.Context, orderId int64) (*app.OrderInfoResponse_Logistics, error) {
 	query := c.Query(ctx).OrderLogistics
 	orderLogistics, err := c.Find(ctx,
 		repo.Where(query.OrderID.Eq(orderId)),
@@ -35,13 +35,13 @@ func (c *OrderLogisticsCase) findByOrderId(ctx context.Context, orderId int64) (
 	if err != nil {
 		return nil, err
 	}
-	detail := make([]*app.OrderResponse_Logistics_Detail, 0)
+	detail := make([]*app.OrderInfoResponse_Logistics_Detail, 0)
 	// 物流轨迹以序列化字符串存储，这里反序列化成前端响应结构
 	err = json.Unmarshal([]byte(orderLogistics.Detail), &detail)
 	if err != nil {
 		return nil, err
 	}
-	return &app.OrderResponse_Logistics{
+	return &app.OrderInfoResponse_Logistics{
 		Name:    orderLogistics.Name,
 		No:      orderLogistics.No,
 		Contact: orderLogistics.Contact,

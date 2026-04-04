@@ -14,20 +14,20 @@ const lowInventoryThreshold = 10
 
 // WorkspaceCase 工作台业务实例。
 type WorkspaceCase struct {
-	orderCase      *OrderCase
+	orderCase      *OrderInfoCase
 	baseUserCase   *BaseUserCase
 	orderGoodsCase *OrderGoodsCase
-	goodsCase      *GoodsCase
+	goodsCase      *GoodsInfoCase
 	goodsSkuCase   *GoodsSkuCase
 	payBillCase    *PayBillCase
 }
 
 // NewWorkspaceCase 创建工作台业务实例。
 func NewWorkspaceCase(
-	orderCase *OrderCase,
+	orderCase *OrderInfoCase,
 	baseUserCase *BaseUserCase,
 	orderGoodsCase *OrderGoodsCase,
-	goodsCase *GoodsCase,
+	goodsCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 	payBillCase *PayBillCase,
 ) *WorkspaceCase {
@@ -192,8 +192,8 @@ func paidOrderStatuses() []int32 {
 // countOrderCount 统计时间范围内订单数。
 func (c *WorkspaceCase) countOrderCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Count(&count).Error
 	return count, err
@@ -208,8 +208,8 @@ func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endA
 
 	var result row
 	statuses := paidOrderStatuses()
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Select("COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Where("status IN ?", statuses).
@@ -220,8 +220,8 @@ func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endA
 // countDistinctOrderUsers 统计时间范围内下单用户数。
 func (c *WorkspaceCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Distinct("user_id").
 		Count(&count).Error
@@ -238,12 +238,12 @@ func (c *WorkspaceCase) countRepurchaseUsers(ctx context.Context, startAt, endAt
 	sql := "" +
 		"SELECT COUNT(*) AS total FROM (" +
 		" SELECT user_id" +
-		" FROM `order`" +
+		" FROM `" + models.TableNameOrderInfo + "`" +
 		" WHERE created_at >= ? AND created_at < ?" +
 		" GROUP BY user_id" +
 		" HAVING COUNT(*) >= 2" +
 		") t"
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&result).Error
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&result).Error
 	return result.Total, err
 }
 
@@ -268,9 +268,9 @@ func (c *WorkspaceCase) countGoodsSaleNum(ctx context.Context, startAt, endAt ti
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
 		Select("COALESCE(SUM(order_goods.num),0) AS sale_count").
-		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
-		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
-		Where("`order`.status IN ?", statuses).
+		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
+		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
+		Where("`"+models.TableNameOrderInfo+"`.status IN ?", statuses).
 		Scan(&result).Error
 	return result.SaleCount, err
 }
@@ -281,9 +281,9 @@ func (c *WorkspaceCase) countDistinctActiveGoods(ctx context.Context, startAt, e
 	statuses := paidOrderStatuses()
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
-		Joins("JOIN `order` ON `order`.id = order_goods.order_id").
-		Where("`order`.created_at >= ? AND `order`.created_at < ?", startAt, endAt).
-		Where("`order`.status IN ?", statuses).
+		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
+		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
+		Where("`"+models.TableNameOrderInfo+"`.status IN ?", statuses).
 		Distinct("order_goods.goods_id").
 		Count(&count).Error
 	return count, err
@@ -292,8 +292,8 @@ func (c *WorkspaceCase) countDistinctActiveGoods(ctx context.Context, startAt, e
 // countNewGoods 统计时间范围内新增商品数。
 func (c *WorkspaceCase) countNewGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).Goods.WithContext(ctx).UnderlyingDB().
-		Model(&models.Goods{}).
+	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Count(&count).Error
 	return count, err
@@ -302,8 +302,8 @@ func (c *WorkspaceCase) countNewGoods(ctx context.Context, startAt, endAt time.T
 // countOrderStatus 统计指定订单状态数量。
 func (c *WorkspaceCase) countOrderStatus(ctx context.Context, status int32) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Where("status = ?", status).
 		Count(&count).Error
 	return count, err
@@ -314,10 +314,10 @@ func (c *WorkspaceCase) countLowInventorySku(ctx context.Context) (int64, error)
 	var count int64
 	err := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsSku{}).
-		Joins("JOIN goods ON goods.id = goods_sku.goods_id").
-		Where("goods.deleted_at IS NULL").
+		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = goods_sku.goods_id").
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
 		Where("goods_sku.deleted_at IS NULL").
-		Where("goods.status = ?", int32(commonApi.GoodsStatus_PUT_ON)).
+		Where(models.TableNameGoodsInfo+".status = ?", int32(commonApi.GoodsStatus_PUT_ON)).
 		Where("goods_sku.inventory > 0 AND goods_sku.inventory <= ?", lowInventoryThreshold).
 		Distinct("goods_sku.id").
 		Count(&count).Error
@@ -327,8 +327,8 @@ func (c *WorkspaceCase) countLowInventorySku(ctx context.Context) (int64, error)
 // countGoodsStatus 统计指定商品状态数量。
 func (c *WorkspaceCase) countGoodsStatus(ctx context.Context, status int32) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).Goods.WithContext(ctx).UnderlyingDB().
-		Model(&models.Goods{}).
+	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
 		Where("status = ?", status).
 		Count(&count).Error
 	return count, err
@@ -349,10 +349,10 @@ func (c *WorkspaceCase) countZeroInventoryPutOnSku(ctx context.Context) (int64, 
 	var count int64
 	err := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsSku{}).
-		Joins("JOIN goods ON goods.id = goods_sku.goods_id").
-		Where("goods.deleted_at IS NULL").
+		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = goods_sku.goods_id").
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
 		Where("goods_sku.deleted_at IS NULL").
-		Where("goods.status = ?", int32(commonApi.GoodsStatus_PUT_ON)).
+		Where(models.TableNameGoodsInfo+".status = ?", int32(commonApi.GoodsStatus_PUT_ON)).
 		Where("goods_sku.inventory = 0").
 		Distinct("goods_sku.id").
 		Count(&count).Error

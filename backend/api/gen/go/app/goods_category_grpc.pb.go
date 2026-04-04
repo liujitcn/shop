@@ -8,7 +8,6 @@ package app
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -29,7 +28,7 @@ const (
 //
 // App商品分类服务
 type GoodsCategoryServiceClient interface {
-	// 查询分类列表
+	// 查询商品分类列表
 	ListGoodsCategory(ctx context.Context, in *ListGoodsCategoryRequest, opts ...grpc.CallOption) (*ListGoodsCategoryResponse, error)
 }
 
@@ -57,7 +56,7 @@ func (c *goodsCategoryServiceClient) ListGoodsCategory(ctx context.Context, in *
 //
 // App商品分类服务
 type GoodsCategoryServiceServer interface {
-	// 查询分类列表
+	// 查询商品分类列表
 	ListGoodsCategory(context.Context, *ListGoodsCategoryRequest) (*ListGoodsCategoryResponse, error)
 	mustEmbedUnimplementedGoodsCategoryServiceServer()
 }

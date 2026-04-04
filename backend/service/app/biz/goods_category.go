@@ -18,11 +18,11 @@ import (
 type GoodsCategoryCase struct {
 	*biz.BaseCase
 	*data.GoodsCategoryRepo
-	goodsInfoRepo *data.GoodsRepo
+	goodsInfoRepo *data.GoodsInfoRepo
 }
 
 // NewGoodsCategoryCase 创建商品分类业务处理对象
-func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsCategoryRepo, goodsInfoRepo *data.GoodsRepo) *GoodsCategoryCase {
+func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsCategoryRepo, goodsInfoRepo *data.GoodsInfoRepo) *GoodsCategoryCase {
 	return &GoodsCategoryCase{
 		BaseCase:          baseCase,
 		GoodsCategoryRepo: goodsCategoryRepo,
@@ -49,8 +49,8 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 		category := c.convertToProto(item)
 		// 二级分类需要同时返回分类下的推荐商品
 		if category.ParentId > 0 {
-			goodsQuery := c.goodsInfoRepo.Query(ctx).Goods
-			var goodsList []*models.Goods
+			goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
+			var goodsList []*models.GoodsInfo
 			goodsOpts := make([]repo.QueryOption, 0, 3)
 			goodsOpts = append(goodsOpts, repo.Order(goodsQuery.UpdatedAt.Desc()))
 			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.CategoryID.Eq(category.Id)))
@@ -59,13 +59,13 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 			if err != nil {
 				return nil, err
 			}
-			category.Goods = make([]*app.Goods, 0, len(goodsList))
+			category.Goods = make([]*app.GoodsInfo, 0, len(goodsList))
 			for _, goods := range goodsList {
 				price := goods.Price
 				if member {
 					price = goods.DiscountPrice
 				}
-				category.Goods = append(category.Goods, &app.Goods{
+				category.Goods = append(category.Goods, &app.GoodsInfo{
 					Id:      goods.ID,
 					Name:    goods.Name,
 					Desc:    goods.Desc,

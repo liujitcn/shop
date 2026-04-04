@@ -5,11 +5,11 @@ package app;
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
-import "app/goods.proto";
+import "app/goods_info.proto";
 
 // App商品分类服务
 service GoodsCategoryService {
-  // 查询分类列表
+  // 查询商品分类列表
   rpc ListGoodsCategory (ListGoodsCategoryRequest) returns (ListGoodsCategoryResponse) {
     option (google.api.http) = {
       get: "/api/app/goods/category"
@@ -28,25 +28,25 @@ message ListGoodsCategoryResponse {
   repeated GoodsCategory list = 1;
 }
 
-// 分类
+// 商品分类
 message GoodsCategory {
   int64 id = 1 [
-    (gnostic.openapi.v3.property) = {description: "分类ID"}
-  ];  // 分类ID
+    (gnostic.openapi.v3.property) = {description: "商品分类ID"}
+  ];  // 商品分类ID
 
   int64 parentId = 2 [
     (gnostic.openapi.v3.property) = {description: "父节点ID"}
   ];  // 父节点ID
 
   string name = 3 [
-    (gnostic.openapi.v3.property) = {description: "分类名称"}
-  ];  // 分类名称
+    (gnostic.openapi.v3.property) = {description: "商品分类名称"}
+  ];  // 商品分类名称
 
   string picture = 4 [
-    (gnostic.openapi.v3.property) = {description: "分类图片"}
-  ];  // 分类图片
+    (gnostic.openapi.v3.property) = {description: "商品分类图片"}
+  ];  // 商品分类图片
 
-  repeated Goods goods = 101 [
+  repeated GoodsInfo goods = 101 [
     (gnostic.openapi.v3.property) = {description: "商品列表"}
   ];  // 商品列表
 }

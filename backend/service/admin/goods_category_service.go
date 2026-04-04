@@ -22,13 +22,13 @@ import (
 
 const _ = grpc.SupportPackageIsVersion7
 
-// GoodsCategoryService Admin分类服务
+// GoodsCategoryService Admin商品分类服务
 type GoodsCategoryService struct {
 	admin.UnimplementedGoodsCategoryServiceServer
 	goodsCategoryCase *biz.GoodsCategoryCase
 }
 
-// NewGoodsCategoryService 创建Admin分类服务
+// NewGoodsCategoryService 创建Admin商品分类服务
 func NewGoodsCategoryService(
 	categoryCase *biz.GoodsCategoryCase,
 ) *GoodsCategoryService {
@@ -37,63 +37,63 @@ func NewGoodsCategoryService(
 	}
 }
 
-// TreeGoodsCategory 查询分类树形列表
+// TreeGoodsCategory 查询商品分类树形列表
 func (s *GoodsCategoryService) TreeGoodsCategory(ctx context.Context, req *emptypb.Empty) (*admin.TreeGoodsCategoryResponse, error) {
 	tree, err := s.goodsCategoryCase.TreeGoodsCategory(ctx)
 	if err != nil {
 		log.Error("TreeGoodsCategory err:", err.Error())
-		return nil, errors.New("查询分类树形列表失败")
+		return nil, errors.New("查询商品分类树形列表失败")
 	}
 
 	return tree, nil
 }
 
-// OptionGoodsCategory 查询分类树形选择
+// OptionGoodsCategory 查询商品分类树形选择
 func (s *GoodsCategoryService) OptionGoodsCategory(ctx context.Context, req *admin.OptionGoodsCategoryRequest) (*common.TreeOptionResponse, error) {
 	tree, err := s.goodsCategoryCase.OptionGoodsCategory(ctx, req)
 	if err != nil {
 		log.Error("OptionGoodsCategory err:", err.Error())
-		return nil, errors.New("查询分类树形选择失败")
+		return nil, errors.New("查询商品分类树形选择失败")
 	}
 	return tree, nil
 }
 
-// GetGoodsCategory 查询分类
+// GetGoodsCategory 查询商品分类
 func (s *GoodsCategoryService) GetGoodsCategory(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsCategoryForm, error) {
 	goodsCategory, err := s.goodsCategoryCase.GetGoodsCategory(ctx, req.GetValue())
 	if err != nil {
 		log.Error("GetGoodsCategory err:", err.Error())
-		return nil, errors.New("查询分类失败")
+		return nil, errors.New("查询商品分类失败")
 	}
 	return goodsCategory, nil
 }
 
-// CreateGoodsCategory 创建分类
+// CreateGoodsCategory 创建商品分类
 func (s *GoodsCategoryService) CreateGoodsCategory(ctx context.Context, req *admin.GoodsCategoryForm) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.CreateGoodsCategory(ctx, req)
 	if err != nil {
 		log.Error("CreateGoodsCategory err:", err.Error())
-		return nil, errors.New("创建分类失败")
+		return nil, errors.New("创建商品分类失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// UpdateGoodsCategory 更新分类
+// UpdateGoodsCategory 更新商品分类
 func (s *GoodsCategoryService) UpdateGoodsCategory(ctx context.Context, req *admin.GoodsCategoryForm) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.UpdateGoodsCategory(ctx, req)
 	if err != nil {
 		log.Error("UpdateGoodsCategory err:", err.Error())
-		return nil, errors.New("更新分类失败")
+		return nil, errors.New("更新商品分类失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// DeleteGoodsCategory 删除分类
+// DeleteGoodsCategory 删除商品分类
 func (s *GoodsCategoryService) DeleteGoodsCategory(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.DeleteGoodsCategory(ctx, req.GetValue())
 	if err != nil {
 		log.Error("DeleteGoodsCategory err:", err.Error())
-		return nil, errors.New("删除分类失败")
+		return nil, errors.New("删除商品分类失败")
 	}
 	return new(emptypb.Empty), nil
 }

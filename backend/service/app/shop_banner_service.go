@@ -19,13 +19,13 @@ import (
 
 const _ = grpc.SupportPackageIsVersion7
 
-// ShopBannerService 轮播图服务
+// ShopBannerService 商城轮播图服务
 type ShopBannerService struct {
 	app.UnimplementedShopBannerServiceServer
 	shopBannerCase *biz.ShopBannerCase
 }
 
-// NewShopBannerService 创建轮播图服务
+// NewShopBannerService 创建商城轮播图服务
 func NewShopBannerService(
 	shopBannerCase *biz.ShopBannerCase,
 ) *ShopBannerService {
@@ -35,12 +35,12 @@ func NewShopBannerService(
 	return &ss
 }
 
-// ListShopBanner 查询轮播图列表
+// ListShopBanner 查询商城轮播图列表
 func (s *ShopBannerService) ListShopBanner(ctx context.Context, req *app.ListShopBannerRequest) (*app.ListShopBannerResponse, error) {
 	res, err := s.shopBannerCase.ListShopBanner(ctx, req)
 	if err != nil {
 		log.Error("ListGoodsCategory err:", err.Error())
-		return nil, errors.New("查询轮播图列表失败")
+		return nil, errors.New("查询商城轮播图列表失败")
 	}
 	return res, nil
 }

@@ -16,28 +16,28 @@ import (
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
-// GoodsCase 商品业务处理对象
-type GoodsCase struct {
+// GoodsInfoCase 商品业务处理对象
+type GoodsInfoCase struct {
 	*biz.BaseCase
-	*data.GoodsRepo
+	*data.GoodsInfoRepo
 	goodsCategoryRepo *data.GoodsCategoryRepo
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSkuCase      *GoodsSkuCase
 }
 
-// NewGoodsCase 创建商品业务处理对象
-func NewGoodsCase(
+// NewGoodsInfoCase 创建商品业务处理对象
+func NewGoodsInfoCase(
 	baseCase *biz.BaseCase,
-	goodsInfoRepo *data.GoodsRepo,
+	goodsInfoRepo *data.GoodsInfoRepo,
 	goodsCategoryRepo *data.GoodsCategoryRepo,
 	goodsPropCase *GoodsPropCase,
 	goodsSpecCase *GoodsSpecCase,
 	goodsSkuCase *GoodsSkuCase,
-) *GoodsCase {
-	return &GoodsCase{
+) *GoodsInfoCase {
+	return &GoodsInfoCase{
 		BaseCase:          baseCase,
-		GoodsRepo:         goodsInfoRepo,
+		GoodsInfoRepo:     goodsInfoRepo,
 		goodsCategoryRepo: goodsCategoryRepo,
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
@@ -45,12 +45,12 @@ func NewGoodsCase(
 	}
 }
 
-// GetGoods 查询商品详情
-func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*app.GoodsResponse, error) {
+// GetGoodsInfo 查询商品详情
+func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsInfoResponse, error) {
 	// 是否会员
 	member := util.IsMember(ctx)
 
-	query := c.Query(ctx).Goods
+	query := c.Query(ctx).GoodsInfo
 
 	info, err := c.Find(ctx,
 		repo.Where(query.ID.Eq(id)),
@@ -64,7 +64,7 @@ func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*app.GoodsResponse,
 		price = info.DiscountPrice
 	}
 
-	goodsInfo := &app.GoodsResponse{
+	goodsInfo := &app.GoodsInfoResponse{
 		Id:         info.ID,
 		CategoryId: info.CategoryID,
 		Name:       info.Name,
@@ -93,12 +93,12 @@ func (c *GoodsCase) GetGoods(ctx context.Context, id int64) (*app.GoodsResponse,
 	return goodsInfo, nil
 }
 
-// PageGoods 查询商品分页列表
-func (c *GoodsCase) PageGoods(ctx context.Context, req *app.PageGoodsRequest) (*app.PageGoodsResponse, error) {
+// PageGoodsInfo 查询商品分页列表
+func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest) (*app.PageGoodsInfoResponse, error) {
 	// 是否会员
 	member := util.IsMember(ctx)
 	query := c.Query(ctx)
-	goodsQuery := query.Goods
+	goodsQuery := query.GoodsInfo
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(goodsQuery.UpdatedAt.Desc()))
 	opts = append(opts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
@@ -125,17 +125,17 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *app.PageGoodsRequest) (*
 			opts = append(opts, repo.Where(goodsQuery.CategoryID.Eq(req.GetCategoryId())))
 		}
 	}
-	page, count, err := c.GoodsRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	page, count, err := c.GoodsInfoRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*app.Goods, 0)
+	list := make([]*app.GoodsInfo, 0)
 	for _, item := range page {
 		price := item.Price
 		if member {
 			price = item.DiscountPrice
 		}
-		list = append(list, &app.Goods{
+		list = append(list, &app.GoodsInfo{
 			Id:      item.ID,
 			Name:    item.Name,
 			Desc:    item.Desc,
@@ -145,19 +145,19 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *app.PageGoodsRequest) (*
 		})
 	}
 
-	return &app.PageGoodsResponse{
+	return &app.PageGoodsInfoResponse{
 		List:  list,
 		Total: int32(count),
 	}, nil
 }
 
 // 按商品编号批量查询并组装映射
-func (c *GoodsCase) mapByGoodsIds(ctx context.Context, goodsIds []int64) (map[int64]*models.Goods, error) {
+func (c *GoodsInfoCase) mapByGoodsIds(ctx context.Context, goodsIds []int64) (map[int64]*models.GoodsInfo, error) {
 	all, err := c.ListByIds(ctx, goodsIds)
 	if err != nil {
 		return nil, err
 	}
-	res := make(map[int64]*models.Goods)
+	res := make(map[int64]*models.GoodsInfo)
 	for _, item := range all {
 		res[item.ID] = item
 	}
@@ -165,8 +165,8 @@ func (c *GoodsCase) mapByGoodsIds(ctx context.Context, goodsIds []int64) (map[in
 }
 
 // 增加商品销量
-func (c *GoodsCase) addSaleNum(ctx context.Context, goodsId, num int64) error {
-	query := c.Query(ctx).Goods
+func (c *GoodsInfoCase) addSaleNum(ctx context.Context, goodsId, num int64) error {
+	query := c.Query(ctx).GoodsInfo
 	updates := map[string]interface{}{
 		"real_sale_num": query.RealSaleNum.Add(num),
 		"inventory":     query.Inventory.Sub(num),
@@ -184,8 +184,8 @@ func (c *GoodsCase) addSaleNum(ctx context.Context, goodsId, num int64) error {
 }
 
 // 回退商品销量
-func (c *GoodsCase) subSaleNum(ctx context.Context, goodsId, num int64) error {
-	query := c.Query(ctx).Goods
+func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsId, num int64) error {
+	query := c.Query(ctx).GoodsInfo
 	updates := map[string]interface{}{
 		"real_sale_num": query.RealSaleNum.Sub(num),
 		"inventory":     query.Inventory.Add(num),

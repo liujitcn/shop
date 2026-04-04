@@ -234,16 +234,16 @@ import ProForm from "@/components/ProForm/index.vue";
 import ProTable from "@/components/ProTable/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
-import { defOrderService } from "@/api/admin/order";
+import { defOrderInfoService } from "@/api/admin/order_info";
 import { defBaseUserService } from "@/api/admin/base_user";
 import type {
-  Order,
-  OrderRefundResponse,
-  OrderShippedResponse,
-  PageOrderRequest,
-  RefundOrderRequest,
-  ShippedOrderRequest
-} from "@/rpc/admin/order";
+  OrderInfo,
+  OrderInfoRefundResponse,
+  OrderInfoShippedResponse,
+  PageOrderInfoRequest,
+  RefundOrderInfoRequest,
+  ShippedOrderInfoRequest
+} from "@/rpc/admin/order_info";
 import type { SelectOptionResponse_Option } from "@/rpc/common/common";
 import router from "@/routers";
 import { OrderPayType, OrderStatus } from "@/rpc/common/enum";
@@ -332,7 +332,7 @@ const dialogShipped = reactive({
   visible: false
 });
 
-const dataShipped = reactive<OrderShippedResponse>({
+const dataShipped = reactive<OrderInfoShippedResponse>({
   /** 地址信息 */
   address: undefined,
   /** 商品信息 */
@@ -341,7 +341,7 @@ const dataShipped = reactive<OrderShippedResponse>({
   logistics: undefined
 });
 
-const formDataShipped = reactive<ShippedOrderRequest>({
+const formDataShipped = reactive<ShippedOrderInfoRequest>({
   /** 订单id */
   orderId: 0,
   /** 物流公司名 */
@@ -403,14 +403,14 @@ const dialogRefund = reactive({
   visible: false
 });
 
-const dataRefund = reactive<OrderRefundResponse>({
+const dataRefund = reactive<OrderInfoRefundResponse>({
   /** 支付信息 */
   payment: undefined,
   /** 退款信息 */
   refund: []
 });
 
-const formDataRefund = reactive<RefundOrderRequest>({
+const formDataRefund = reactive<RefundOrderInfoRequest>({
   /** 订单id */
   orderId: 0,
   /** 退款原因 */
@@ -518,7 +518,7 @@ const refundColumns: ColumnProps[] = [
 /**
  * 渲染订单编号列，带权限时可直接跳转到详情页。
  */
-function renderOrderNoCell(scope: RenderScope<Order>) {
+function renderOrderNoCell(scope: RenderScope<OrderInfo>) {
   if (!BUTTONS.value["order:info:detail"]) return scope.row.orderNo;
   return h(
     resolveComponent("el-link"),
@@ -533,14 +533,14 @@ function renderOrderNoCell(scope: RenderScope<Order>) {
 /**
  * 渲染用户展示名，优先使用当前行昵称，兜底用户字典映射。
  */
-function renderUserCell(scope: RenderScope<Order>) {
+function renderUserCell(scope: RenderScope<OrderInfo>) {
   return scope.row.nickName || formatUser(scope.row.userId);
 }
 
 /**
  * 渲染支付金额列，并展示总价、实付和运费明细。
  */
-function renderPayMoneyCell(scope: RenderScope<Order>) {
+function renderPayMoneyCell(scope: RenderScope<OrderInfo>) {
   return h(
     resolveComponent("el-popover"),
     {
@@ -564,7 +564,7 @@ function renderPayMoneyCell(scope: RenderScope<Order>) {
  * 渲染订单操作列。
  * 发货与退款流程依赖订单状态判断，保留在页面侧集中编排。
  */
-function renderOperationCell(scope: RenderScope<Order>) {
+function renderOperationCell(scope: RenderScope<OrderInfo>) {
   const row = scope.row;
   const actionNodes: VNode[] = [];
 
@@ -647,7 +647,7 @@ const columns: ColumnProps[] = [
     label: "用户",
     minWidth: 180,
     enum: userOptions,
-    render: scope => renderUserCell(scope as unknown as RenderScope<Order>),
+    render: scope => renderUserCell(scope as unknown as RenderScope<OrderInfo>),
     search: {
       el: "select",
       props: {
@@ -664,14 +664,14 @@ const columns: ColumnProps[] = [
     label: "订单编号",
     minWidth: 190,
     search: { el: "input" },
-    render: scope => renderOrderNoCell(scope as unknown as RenderScope<Order>)
+    render: scope => renderOrderNoCell(scope as unknown as RenderScope<OrderInfo>)
   },
   {
     prop: "payMoney",
     label: "金额（元）",
     align: "right",
     minWidth: 120,
-    render: scope => renderPayMoneyCell(scope as unknown as RenderScope<Order>)
+    render: scope => renderPayMoneyCell(scope as unknown as RenderScope<OrderInfo>)
   },
   { prop: "payType", label: "支付方式", minWidth: 110, dictCode: "order_pay_type", search: { el: "select" } },
   { prop: "payChannel", label: "支付渠道", minWidth: 110, dictCode: "order_pay_channel", search: { el: "select" } },
@@ -705,7 +705,7 @@ const columns: ColumnProps[] = [
     label: "操作",
     width: 280,
     fixed: "right",
-    render: scope => renderOperationCell(scope as unknown as RenderScope<Order>)
+    render: scope => renderOperationCell(scope as unknown as RenderScope<OrderInfo>)
   }
 ];
 
@@ -734,8 +734,8 @@ function handleUserSearch(keyword: string) {
 /**
  * 请求订单分页列表，并补齐固定筛选参数。
  */
-async function requestOrderTable(params: PageOrderRequest) {
-  const data = await defOrderService.PageOrder(
+async function requestOrderTable(params: PageOrderInfoRequest) {
+  const data = await defOrderInfoService.PageOrderInfo(
     buildPageRequest({
       ...params,
       userId: Number(params.userId ?? 0),
@@ -749,28 +749,28 @@ async function requestOrderTable(params: PageOrderRequest) {
 /**
  * 判断当前订单是否可发货。
  */
-function canOpenShipped(row: Order) {
+function canOpenShipped(row: OrderInfo) {
   return row.status === OrderStatus.PAID;
 }
 
 /**
  * 判断当前订单是否可查看发货详情。
  */
-function canViewShipped(row: Order) {
+function canViewShipped(row: OrderInfo) {
   return row.status === OrderStatus.SHIPPED || row.status === OrderStatus.RECEIVED;
 }
 
 /**
  * 判断货到付款订单是否可直接退款。
  */
-function canRefundCod(row: Order) {
+function canRefundCod(row: OrderInfo) {
   return row.payType === OrderPayType.CASH_ON_DELIVERY && canViewShipped(row);
 }
 
 /**
  * 判断在线支付订单是否可发起退款。
  */
-function canOpenRefund(row: Order) {
+function canOpenRefund(row: OrderInfo) {
   return (
     row.payType === OrderPayType.ONLINE_PAY &&
     (row.status === OrderStatus.SHIPPED || row.status === OrderStatus.RECEIVED || row.status === OrderStatus.REFUNDING)
@@ -780,7 +780,7 @@ function canOpenRefund(row: Order) {
 /**
  * 判断当前订单是否可查看退款详情。
  */
-function canViewRefund(row: Order) {
+function canViewRefund(row: OrderInfo) {
   return row.status === OrderStatus.REFUNDING;
 }
 
@@ -791,7 +791,7 @@ function handleOpenShippedDialog(orderId: number, title: string) {
   resetShippedDialog();
   dialogShipped.visible = true;
   dialogShipped.title = title;
-  defOrderService.GetOrderShipped({ value: orderId }).then(data => {
+  defOrderInfoService.GetOrderInfoShipped({ value: orderId }).then(data => {
     formDataShipped.orderId = orderId;
     Object.assign(dataShipped, data);
   });
@@ -829,7 +829,7 @@ function handleShippedSubmitClick() {
     ?.then(isValid => {
       if (!isValid) return;
 
-      defOrderService.ShippedOrder(formDataShipped).then(() => {
+      defOrderInfoService.ShippedOrderInfo(formDataShipped).then(() => {
         ElMessage.success("订单发货成功");
         handleCloseShippedDialog();
         proTable.value?.getTableList();
@@ -841,13 +841,13 @@ function handleShippedSubmitClick() {
 /**
  * 对货到付款订单发起退款。
  */
-function handleRefund(row: Order) {
+function handleRefund(row: OrderInfo) {
   ElMessageBox.prompt(`请输入退款原因\n订单编号：${row.orderNo || `ID:${row.id}`}`, "申请退款", {
     confirmButtonText: "确定",
     cancelButtonText: "取消"
   }).then(
     () => {
-      defOrderService.RefundOrder({ orderId: row.id, refundMoney: 0 }).then(() => {
+      defOrderInfoService.RefundOrderInfo({ orderId: row.id, refundMoney: 0 }).then(() => {
         ElMessage.success("订单退款成功");
         proTable.value?.getTableList();
       });
@@ -865,7 +865,7 @@ function handleOpenRefundDialog(orderId: number, title: string) {
   resetRefundDialog();
   dialogRefund.visible = true;
   dialogRefund.title = title;
-  defOrderService.GetOrderRefund({ value: orderId }).then(data => {
+  defOrderInfoService.GetOrderInfoRefund({ value: orderId }).then(data => {
     formDataRefund.orderId = orderId;
     Object.assign(dataRefund, data);
   });
@@ -901,9 +901,9 @@ function handleRefundSubmitClick() {
     ?.then(isValid => {
       if (!isValid) return;
 
-      const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderRequest;
+      const submitData = JSON.parse(JSON.stringify(formDataRefund)) as RefundOrderInfoRequest;
       submitData.refundMoney = submitData.refundMoney * 100;
-      defOrderService.RefundOrder(submitData).then(() => {
+      defOrderInfoService.RefundOrderInfo(submitData).then(() => {
         ElMessage.success("订单退款成功");
         handleCloseRefundDialog();
         proTable.value?.getTableList();
@@ -923,7 +923,7 @@ function formatUser(userId: number) {
 /**
  * 打开订单详情页。
  */
-function handleOpenDetail(row: Order) {
+function handleOpenDetail(row: OrderInfo) {
   navigateTo(router, `/order/detail/${row.id}`, { title: `【${row.orderNo}】订单详情` });
 }
 </script>

@@ -35,12 +35,12 @@ func NewGoodsCategoryService(
 	return &ss
 }
 
-// ListGoodsCategory 查询分类列表
+// ListGoodsCategory 查询商品分类列表
 func (s *GoodsCategoryService) ListGoodsCategory(ctx context.Context, req *app.ListGoodsCategoryRequest) (*app.ListGoodsCategoryResponse, error) {
 	res, err := s.goodsCategoryCase.ListGoodsCategory(ctx, req)
 	if err != nil {
 		log.Error("ListGoodsCategory err:", err.Error())
-		return nil, errors.New("查询分类列表失败")
+		return nil, errors.New("查询商品分类列表失败")
 	}
 	return res, nil
 }

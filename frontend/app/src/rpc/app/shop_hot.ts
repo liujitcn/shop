@@ -7,7 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
-import type { Goods } from "./goods";
+import type { GoodsInfo } from "./goods_info";
 
 export interface ListShopHotResponse {
   /** 分页数据 */
@@ -25,7 +25,7 @@ export interface PageShopHotGoodsRequest {
 
 export interface PageShopHotGoodsResponse {
   /** 分页数据 */
-  list: Goods[];
+  list: GoodsInfo[];
   /** 总数 */
   total: number;
 }

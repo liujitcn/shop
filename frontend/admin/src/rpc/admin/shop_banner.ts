@@ -78,17 +78,17 @@ export interface ShopBannerForm {
   status?: Status | undefined;
 }
 
-/** Admin轮播图服务 */
+/** Admin商城轮播图服务 */
 export interface ShopBannerService {
-  /** 查询轮播图分页列表 */
+  /** 查询商城轮播图分页列表 */
   PageShopBanner(request: PageShopBannerRequest): Promise<PageShopBannerResponse>;
-  /** 查询轮播图 */
+  /** 查询商城轮播图 */
   GetShopBanner(request: Int64Value): Promise<ShopBannerForm>;
-  /** 创建轮播图 */
+  /** 创建商城轮播图 */
   CreateShopBanner(request: ShopBannerForm): Promise<Empty>;
-  /** 更新轮播图 */
+  /** 更新商城轮播图 */
   UpdateShopBanner(request: ShopBannerForm): Promise<Empty>;
-  /** 删除轮播图 */
+  /** 删除商城轮播图 */
   DeleteShopBanner(request: StringValue): Promise<Empty>;
   /** 设置状态 */
   SetShopBannerStatus(request: SetStatusRequest): Promise<Empty>;

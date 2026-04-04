@@ -16,13 +16,13 @@ import (
 
 // OrderAnalyticsCase 订单分析业务
 type OrderAnalyticsCase struct {
-	orderCase        *OrderCase
+	orderCase        *OrderInfoCase
 	baseDictCase     *BaseDictCase
 	baseDictItemCase *BaseDictItemCase
 }
 
 // NewOrderAnalyticsCase 创建订单分析业务
-func NewOrderAnalyticsCase(orderCase *OrderCase, baseDictCase *BaseDictCase, baseDictItemCase *BaseDictItemCase) *OrderAnalyticsCase {
+func NewOrderAnalyticsCase(orderCase *OrderInfoCase, baseDictCase *BaseDictCase, baseDictItemCase *BaseDictItemCase) *OrderAnalyticsCase {
 	return &OrderAnalyticsCase{
 		orderCase:        orderCase,
 		baseDictCase:     baseDictCase,
@@ -121,8 +121,8 @@ func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt,
 		SaleAmount int64 `gorm:"column:sale_amount"`
 	}
 	var result row
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Select("COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Scan(&result).Error
@@ -131,8 +131,8 @@ func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt,
 
 func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Distinct("user_id").
 		Count(&count).Error
@@ -147,12 +147,12 @@ func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, startAt, 
 	sql := "" +
 		"SELECT COUNT(*) AS total FROM (" +
 		" SELECT user_id" +
-		" FROM `order`" +
+		" FROM `" + models.TableNameOrderInfo + "`" +
 		" WHERE created_at >= ? AND created_at < ?" +
 		" GROUP BY user_id" +
 		" HAVING COUNT(*) >= 2" +
 		") t"
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&result).Error
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&result).Error
 	return result.Total, err
 }
 
@@ -185,12 +185,12 @@ func (c *OrderAnalyticsCase) getOrderStatusLabelMap(ctx context.Context) (map[in
 func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType commonApi.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]*dto.OrderSummary, []string, error) {
 	summaryMap := make(map[int64]*dto.OrderSummary)
 	axisData := make([]string, 0)
-	db := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB()
+	db := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB()
 
 	switch timeType {
 	case commonApi.AnalyticsTimeType_YEAR:
 		var rows []*dto.OrderSummary
-		err := db.Model(&models.Order{}).
+		err := db.Model(&models.OrderInfo{}).
 			Select("MONTH(created_at) AS `key`, COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 			Where("created_at >= ? AND created_at < ?", startAt, endAt).
 			Group("MONTH(created_at)").
@@ -206,7 +206,7 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 		}
 	case commonApi.AnalyticsTimeType_MONTH:
 		var rows []*dto.OrderSummary
-		err := db.Model(&models.Order{}).
+		err := db.Model(&models.OrderInfo{}).
 			Select("DAY(created_at) AS `key`, COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 			Where("created_at >= ? AND created_at < ?", startAt, endAt).
 			Group("DAY(created_at)").
@@ -223,7 +223,7 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 		}
 	default:
 		var rows []*dto.OrderSummary
-		err := db.Model(&models.Order{}).
+		err := db.Model(&models.OrderInfo{}).
 			Select("WEEKDAY(created_at)+1 AS `key`, COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 			Where("created_at >= ? AND created_at < ?", startAt, endAt).
 			Group("WEEKDAY(created_at)+1").
@@ -250,8 +250,8 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 
 func (c *OrderAnalyticsCase) queryOrderStatusSummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.OrderStatusSummary, error) {
 	res := make([]*dto.OrderStatusSummary, 0)
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Select("status, COUNT(*) AS order_count").
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Group("status").

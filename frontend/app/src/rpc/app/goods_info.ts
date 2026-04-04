@@ -2,12 +2,12 @@
 // versions:
 //   protoc-gen-ts_proto  v2.11.6
 //   protoc               unknown
-// source: app/goods.proto
+// source: app/goods_info.proto
 
 /* eslint-disable */
 import type { Int64Value } from "../google/protobuf/wrappers";
 
-export interface PageGoodsRequest {
+export interface PageGoodsInfoRequest {
   /** 商品名 */
   name: string;
   /** 分类id */
@@ -20,14 +20,14 @@ export interface PageGoodsRequest {
   pageSize: number;
 }
 
-export interface PageGoodsResponse {
+export interface PageGoodsInfoResponse {
   /** 分页数据 */
-  list: Goods[];
+  list: GoodsInfo[];
   /** 总数 */
   total: number;
 }
 
-export interface GoodsResponse {
+export interface GoodsInfoResponse {
   /** 商品ID */
   id: number;
   /** 分类ID */
@@ -47,33 +47,33 @@ export interface GoodsResponse {
   /** 商品详情 */
   detail: string[];
   /** 商品属性 */
-  propList: GoodsResponse_Prop[];
+  propList: GoodsInfoResponse_Prop[];
   /** 商品SKU */
-  skuList: GoodsResponse_Sku[];
+  skuList: GoodsInfoResponse_Sku[];
   /** 商品规格 */
-  specList: GoodsResponse_Spec[];
+  specList: GoodsInfoResponse_Spec[];
 }
 
-export interface GoodsResponse_Prop {
+export interface GoodsInfoResponse_Prop {
   /** 商品属性名称 */
   label: string;
   /** 商品属性value */
   value: string;
 }
 
-export interface GoodsResponse_Spec {
+export interface GoodsInfoResponse_Spec {
   /** 商品规格名称 */
   name: string;
   /** 商品规格内容 */
-  item: GoodsResponse_Spec_Item[];
+  item: GoodsInfoResponse_Spec_Item[];
 }
 
-export interface GoodsResponse_Spec_Item {
+export interface GoodsInfoResponse_Spec_Item {
   /** 规格 */
   name: string;
 }
 
-export interface GoodsResponse_Sku {
+export interface GoodsInfoResponse_Sku {
   /** 商品图片 */
   picture: string;
   /** SKU SKU组成，需要与 goods_spec 数组顺序对应 */
@@ -88,7 +88,7 @@ export interface GoodsResponse_Sku {
   inventory: number;
 }
 
-export interface Goods {
+export interface GoodsInfo {
   /** 商品ID */
   id: number;
   /** 名称 */
@@ -103,10 +103,10 @@ export interface Goods {
   price: number;
 }
 
-/** App商品服务 */
-export interface GoodsService {
-  /** 查询商品分页列表 */
-  PageGoods(request: PageGoodsRequest): Promise<PageGoodsResponse>;
-  /** 查询商品 */
-  GetGoods(request: Int64Value): Promise<GoodsResponse>;
+/** App商品信息服务 */
+export interface GoodsInfoService {
+  /** 查询商品信息分页列表 */
+  PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse>;
+  /** 查询商品信息 */
+  GetGoodsInfo(request: Int64Value): Promise<GoodsInfoResponse>;
 }

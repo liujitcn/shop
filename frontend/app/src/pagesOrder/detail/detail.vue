@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables'
 import { defOrderService } from '@/api/app/order'
-import type { OrderResponse } from '@/rpc/app/order'
+import type { OrderInfoResponse } from '@/rpc/app/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
@@ -84,17 +84,17 @@ onReady(() => {
 // #endif
 
 // 获取订单详情
-const orderData = ref<OrderResponse>()
+const orderData = ref<OrderInfoResponse>()
 const getUserOrderById = async () => {
   if (!query.internal) {
-    const res = await defOrderService.GetOrderIdByOrderNo({
+    const res = await defOrderService.GetOrderInfoIdByOrderNo({
       value: String(query.id),
     })
     orderId.value = res.value
   } else {
     orderId.value = Number(query.id)
   }
-  orderData.value = await defOrderService.GetOrderById({
+  orderData.value = await defOrderService.GetOrderInfoById({
     value: orderId.value,
   })
 }
@@ -153,7 +153,7 @@ const onTimeUp = async () => {
   onTimeUpFlag.value = true
   // 修改订单状态为已取消
   try {
-    await defOrderService.CancelOrder({
+    await defOrderService.CancelOrderInfo({
       orderId: orderId.value,
       reason: OrderCancelReason.UNKNOWN_OCR,
     })
@@ -210,7 +210,7 @@ const onOrderConfirm = () => {
     confirmColor: '#27BA9B',
     success: async (success) => {
       if (success.confirm) {
-        await defOrderService.ReceiveOrder({
+        await defOrderService.ReceiveOrderInfo({
           orderId: orderId.value,
         })
         await getUserOrderById()
@@ -226,7 +226,7 @@ const onOrderDelete = () => {
     confirmColor: '#27BA9B',
     success: async (success) => {
       if (success.confirm) {
-        await defOrderService.DeleteOrder({ value: orderId.value })
+        await defOrderService.DeleteOrderInfo({ value: orderId.value })
         await uni.redirectTo({ url: '/pagesOrder/list/list?status=0' })
       }
     },
@@ -271,12 +271,12 @@ const onConfirmPopup = async () => {
   }
   // 发送请求
   if (orderData.value?.order!.status === OrderStatus.CREATED) {
-    await defOrderService.CancelOrder({
+    await defOrderService.CancelOrderInfo({
       orderId: orderId.value,
       reason: Number(reason.value),
     })
   } else {
-    await defOrderService.RefundOrder({
+    await defOrderService.RefundOrderInfo({
       orderId: orderId.value,
       reason: Number(reason.value),
     })

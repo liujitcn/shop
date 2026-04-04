@@ -8,13 +8,12 @@ package admin
 
 import (
 	context "context"
-	common "shop/api/gen/go/common"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -35,17 +34,17 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// Admin轮播图服务
+// Admin商城轮播图服务
 type ShopBannerServiceClient interface {
-	// 查询轮播图分页列表
+	// 查询商城轮播图分页列表
 	PageShopBanner(ctx context.Context, in *PageShopBannerRequest, opts ...grpc.CallOption) (*PageShopBannerResponse, error)
-	// 查询轮播图
+	// 查询商城轮播图
 	GetShopBanner(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*ShopBannerForm, error)
-	// 创建轮播图
+	// 创建商城轮播图
 	CreateShopBanner(ctx context.Context, in *ShopBannerForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 更新轮播图
+	// 更新商城轮播图
 	UpdateShopBanner(ctx context.Context, in *ShopBannerForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 删除轮播图
+	// 删除商城轮播图
 	DeleteShopBanner(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置状态
 	SetShopBannerStatus(ctx context.Context, in *common.SetStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -123,17 +122,17 @@ func (c *shopBannerServiceClient) SetShopBannerStatus(ctx context.Context, in *c
 // All implementations must embed UnimplementedShopBannerServiceServer
 // for forward compatibility.
 //
-// Admin轮播图服务
+// Admin商城轮播图服务
 type ShopBannerServiceServer interface {
-	// 查询轮播图分页列表
+	// 查询商城轮播图分页列表
 	PageShopBanner(context.Context, *PageShopBannerRequest) (*PageShopBannerResponse, error)
-	// 查询轮播图
+	// 查询商城轮播图
 	GetShopBanner(context.Context, *wrapperspb.Int64Value) (*ShopBannerForm, error)
-	// 创建轮播图
+	// 创建商城轮播图
 	CreateShopBanner(context.Context, *ShopBannerForm) (*emptypb.Empty, error)
-	// 更新轮播图
+	// 更新商城轮播图
 	UpdateShopBanner(context.Context, *ShopBannerForm) (*emptypb.Empty, error)
-	// 删除轮播图
+	// 删除商城轮播图
 	DeleteShopBanner(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
 	// 设置状态
 	SetShopBannerStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)

@@ -25,11 +25,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// OrderCase 订单业务实例
-type OrderCase struct {
+// OrderInfoCase 订单业务实例
+type OrderInfoCase struct {
 	*biz.BaseCase
 	tx data.Transaction
-	*data.OrderRepo
+	*data.OrderInfoRepo
 	orderAddressCase   *OrderAddressCase
 	orderCancelCase    *OrderCancelCase
 	orderGoodsCase     *OrderGoodsCase
@@ -39,15 +39,15 @@ type OrderCase struct {
 	baseUserCase       *BaseUserCase
 	baseDictItemCase   *BaseDictItemCase
 	wxPayCase          *wx.WxPayCase
-	mapper             *mapper.CopierMapper[admin.Order, models.Order]
+	mapper             *mapper.CopierMapper[admin.OrderInfo, models.OrderInfo]
 }
 
-// NewOrderCase 创建订单业务实例
-func NewOrderCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressCase *OrderAddressCase, orderRepo *data.OrderRepo, orderCancelCase *OrderCancelCase, orderGoodsCase *OrderGoodsCase, orderLogisticsCase *OrderLogisticsCase, orderPaymentCase *OrderPaymentCase, orderRefundCase *OrderRefundCase, baseUserCase *BaseUserCase, baseDictItemCase *BaseDictItemCase, wxPayCase *wx.WxPayCase) *OrderCase {
-	return &OrderCase{
+// NewOrderInfoCase 创建订单业务实例
+func NewOrderInfoCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressCase *OrderAddressCase, orderRepo *data.OrderInfoRepo, orderCancelCase *OrderCancelCase, orderGoodsCase *OrderGoodsCase, orderLogisticsCase *OrderLogisticsCase, orderPaymentCase *OrderPaymentCase, orderRefundCase *OrderRefundCase, baseUserCase *BaseUserCase, baseDictItemCase *BaseDictItemCase, wxPayCase *wx.WxPayCase) *OrderInfoCase {
+	return &OrderInfoCase{
 		BaseCase:           baseCase,
 		tx:                 tx,
-		OrderRepo:          orderRepo,
+		OrderInfoRepo:      orderRepo,
 		orderAddressCase:   orderAddressCase,
 		orderCancelCase:    orderCancelCase,
 		orderGoodsCase:     orderGoodsCase,
@@ -57,13 +57,13 @@ func NewOrderCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressCase 
 		baseUserCase:       baseUserCase,
 		baseDictItemCase:   baseDictItemCase,
 		wxPayCase:          wxPayCase,
-		mapper:             mapper.NewCopierMapper[admin.Order, models.Order](),
+		mapper:             mapper.NewCopierMapper[admin.OrderInfo, models.OrderInfo](),
 	}
 }
 
-// PageOrder 分页查询订单
-func (c *OrderCase) PageOrder(ctx context.Context, req *admin.PageOrderRequest) (*admin.PageOrderResponse, error) {
-	query := c.Query(ctx).Order
+// PageOrderInfo 分页查询订单
+func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *admin.PageOrderInfoRequest) (*admin.PageOrderInfoResponse, error) {
+	query := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 7)
 	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 	if req.GetUserId() > 0 {
@@ -104,7 +104,7 @@ func (c *OrderCase) PageOrder(ctx context.Context, req *admin.PageOrderRequest) 
 		return nil, err
 	}
 
-	resList := make([]*admin.Order, 0, len(list))
+	resList := make([]*admin.OrderInfo, 0, len(list))
 	for _, item := range list {
 		order := c.mapper.ToDTO(item)
 		if user, ok := userMap[item.UserID]; ok {
@@ -112,17 +112,17 @@ func (c *OrderCase) PageOrder(ctx context.Context, req *admin.PageOrderRequest) 
 		}
 		resList = append(resList, order)
 	}
-	return &admin.PageOrderResponse{List: resList, Total: int32(total)}, nil
+	return &admin.PageOrderInfoResponse{List: resList, Total: int32(total)}, nil
 }
 
-// GetOrder 获取订单
-func (c *OrderCase) GetOrder(ctx context.Context, id int64) (*admin.OrderResponse, error) {
+// GetOrderInfo 获取订单
+func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*admin.OrderInfoResponse, error) {
 	order, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &admin.OrderResponse{
+	res := &admin.OrderInfoResponse{
 		Order:     c.mapper.ToDTO(order),
 		Countdown: float32((order.CreatedAt.Add(30 * time.Minute)).Sub(time.Now()).Seconds()),
 	}
@@ -160,13 +160,13 @@ func (c *OrderCase) GetOrder(ctx context.Context, id int64) (*admin.OrderRespons
 	return res, nil
 }
 
-// GetOrderRefund 获取订单退款信息
-func (c *OrderCase) GetOrderRefund(ctx context.Context, id int64) (*admin.OrderRefundResponse, error) {
+// GetOrderInfoRefund 获取订单退款信息
+func (c *OrderInfoCase) GetOrderInfoRefund(ctx context.Context, id int64) (*admin.OrderInfoRefundResponse, error) {
 	order, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	res := &admin.OrderRefundResponse{}
+	res := &admin.OrderInfoRefundResponse{}
 	res.Payment, err = c.orderPaymentCase.FindFromByOrderId(ctx, order.ID)
 	if err != nil {
 		return nil, err
@@ -178,8 +178,8 @@ func (c *OrderCase) GetOrderRefund(ctx context.Context, id int64) (*admin.OrderR
 	return res, nil
 }
 
-// RefundOrder 退款订单
-func (c *OrderCase) RefundOrder(ctx context.Context, req *admin.RefundOrderRequest) error {
+// RefundOrderInfo 退款订单
+func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOrderInfoRequest) error {
 	order, err := c.FindById(ctx, req.GetOrderId())
 	if err != nil {
 		return err
@@ -239,21 +239,21 @@ func (c *OrderCase) RefundOrder(ctx context.Context, req *admin.RefundOrderReque
 		if err != nil {
 			return err
 		}
-		return c.UpdateById(ctx, &models.Order{
+		return c.UpdateById(ctx, &models.OrderInfo{
 			ID:     order.ID,
 			Status: int32(common.OrderStatus_REFUNDING),
 		})
 	})
 }
 
-// GetOrderShipped 获取订单发货信息
-func (c *OrderCase) GetOrderShipped(ctx context.Context, id int64) (*admin.OrderShippedResponse, error) {
+// GetOrderInfoShipped 获取订单发货信息
+func (c *OrderInfoCase) GetOrderInfoShipped(ctx context.Context, id int64) (*admin.OrderInfoShippedResponse, error) {
 	order, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &admin.OrderShippedResponse{}
+	res := &admin.OrderInfoShippedResponse{}
 	res.Address, err = c.orderAddressCase.FindFromByOrderId(ctx, order.ID)
 	if err != nil {
 		return nil, err
@@ -271,8 +271,8 @@ func (c *OrderCase) GetOrderShipped(ctx context.Context, id int64) (*admin.Order
 	return res, nil
 }
 
-// ShippedOrder 发货订单
-func (c *OrderCase) ShippedOrder(ctx context.Context, req *admin.ShippedOrderRequest) error {
+// ShippedOrderInfo 发货订单
+func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.ShippedOrderInfoRequest) error {
 	order, err := c.FindById(ctx, req.GetOrderId())
 	if err != nil {
 		return err
@@ -342,7 +342,7 @@ func (c *OrderCase) ShippedOrder(ctx context.Context, req *admin.ShippedOrderReq
 		if err != nil {
 			return err
 		}
-		return c.UpdateById(ctx, &models.Order{
+		return c.UpdateById(ctx, &models.OrderInfo{
 			ID:     order.ID,
 			Status: int32(common.OrderStatus_SHIPPED),
 		})
@@ -350,7 +350,7 @@ func (c *OrderCase) ShippedOrder(ctx context.Context, req *admin.ShippedOrderReq
 }
 
 // getOrderUserMap 查询订单用户映射
-func (c *OrderCase) getOrderUserMap(ctx context.Context, list []*models.Order) (map[int64]*models.BaseUser, error) {
+func (c *OrderInfoCase) getOrderUserMap(ctx context.Context, list []*models.OrderInfo) (map[int64]*models.BaseUser, error) {
 	userIds := make([]int64, 0, len(list))
 	for _, item := range list {
 		userIds = append(userIds, item.UserID)

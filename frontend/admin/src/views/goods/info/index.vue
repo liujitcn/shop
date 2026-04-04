@@ -39,9 +39,9 @@ import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/compone
 import ProTable from "@/components/ProTable/index.vue";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
-import { defGoodsService } from "@/api/admin/goods";
+import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
-import type { Goods, PageGoodsRequest } from "@/rpc/admin/goods";
+import type { GoodsInfo, PageGoodsInfoRequest } from "@/rpc/admin/goods_info";
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
 import { GoodsStatus } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -134,7 +134,7 @@ const columns: ColumnProps[] = [
       activeText: "上架",
       inactiveText: "下架",
       disabled: () => !BUTTONS.value["goods:info:status"],
-      beforeChange: scope => handleBeforeSetStatus(scope.row as Goods)
+      beforeChange: scope => handleBeforeSetStatus(scope.row as GoodsInfo)
     }
   },
   { prop: "createdAt", label: "创建时间", minWidth: 180 },
@@ -152,7 +152,7 @@ const columns: ColumnProps[] = [
         link: true,
         icon: List,
         hidden: () => !BUTTONS.value["goods:info:sku"],
-        onClick: scope => handleOpenSku(scope.row as Goods)
+        onClick: scope => handleOpenSku(scope.row as GoodsInfo)
       },
       {
         label: "属性",
@@ -160,7 +160,7 @@ const columns: ColumnProps[] = [
         link: true,
         icon: Tickets,
         hidden: () => !BUTTONS.value["goods:info:prop"],
-        onClick: scope => handleOpenProp(scope.row as Goods)
+        onClick: scope => handleOpenProp(scope.row as GoodsInfo)
       },
       {
         label: "编辑",
@@ -168,7 +168,7 @@ const columns: ColumnProps[] = [
         link: true,
         icon: EditPen,
         hidden: () => !BUTTONS.value["goods:info:update"],
-        onClick: scope => handleOpenDialog(scope.row as Goods)
+        onClick: scope => handleOpenDialog(scope.row as GoodsInfo)
       },
       {
         label: "删除",
@@ -176,7 +176,7 @@ const columns: ColumnProps[] = [
         link: true,
         icon: Delete,
         hidden: () => !BUTTONS.value["goods:info:delete"],
-        onClick: scope => handleDelete(scope.row as Goods)
+        onClick: scope => handleDelete(scope.row as GoodsInfo)
       }
     ]
   }
@@ -197,7 +197,7 @@ const headerActions: HeaderActionProps[] = [
     icon: Delete,
     hidden: () => !BUTTONS.value["goods:info:delete"],
     disabled: scope => !scope.selectedList.length,
-    onClick: scope => handleDelete(scope.selectedList as Goods[])
+    onClick: scope => handleDelete(scope.selectedList as GoodsInfo[])
   }
 ];
 
@@ -237,8 +237,8 @@ function changeTreeFilter(value: string) {
 /**
  * 请求商品分页列表，并统一处理分页参数。
  */
-async function requestGoodsTable(params: PageGoodsRequest) {
-  const data = await defGoodsService.PageGoods(
+async function requestGoodsTable(params: PageGoodsInfoRequest) {
+  const data = await defGoodsInfoService.PageGoodsInfo(
     buildPageRequest({
       ...params,
       categoryId: initParam.categoryId,
@@ -302,7 +302,7 @@ watch(
 /**
  * 打开商品编辑页。
  */
-function handleOpenDialog(row?: Goods) {
+function handleOpenDialog(row?: GoodsInfo) {
   if (row?.id) {
     navigateTo(router, "/goods/edit", { goodsId: row.id, title: `【${row.name}】商品编辑` });
     return;
@@ -314,7 +314,7 @@ function handleOpenDialog(row?: Goods) {
 /**
  * 在商品状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
-async function handleBeforeSetStatus(row: Goods) {
+async function handleBeforeSetStatus(row: GoodsInfo) {
   const nextStatus = row.status === GoodsStatus.PUT_ON ? GoodsStatus.PULL_OFF : GoodsStatus.PUT_ON;
   const text = nextStatus === GoodsStatus.PUT_ON ? "上架" : "下架";
   const goodsName = row.name || `ID:${row.id}`;
@@ -324,7 +324,7 @@ async function handleBeforeSetStatus(row: Goods) {
       cancelButtonText: "取消",
       type: "warning"
     });
-    await defGoodsService.SetGoodsStatus({ id: row.id, status: nextStatus });
+    await defGoodsInfoService.SetGoodsInfoStatus({ id: row.id, status: nextStatus });
     ElMessage.success(`${text}成功`);
     proTable.value?.getTableList();
     return true;
@@ -336,11 +336,11 @@ async function handleBeforeSetStatus(row: Goods) {
 /**
  * 删除商品，兼容单条删除与批量删除。
  */
-function handleDelete(selected?: number | string | Array<number | string> | Goods | Goods[] | { [key: string]: any }[]) {
+function handleDelete(selected?: number | string | Array<number | string> | GoodsInfo | GoodsInfo[] | { [key: string]: any }[]) {
   const goodsList = Array.isArray(selected)
-    ? (selected.filter(item => typeof item === "object") as Goods[])
+    ? (selected.filter(item => typeof item === "object") as GoodsInfo[])
     : selected && typeof selected === "object"
-      ? [selected as Goods]
+      ? [selected as GoodsInfo]
       : [];
   const goodsIds = (
     goodsList.length ? goodsList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
@@ -362,7 +362,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
     type: "warning"
   }).then(
     () => {
-      defGoodsService.DeleteGoods({ value: goodsIds }).then(() => {
+      defGoodsInfoService.DeleteGoodsInfo({ value: goodsIds }).then(() => {
         ElMessage.success("删除商品成功");
         proTable.value?.search();
       });
@@ -376,21 +376,21 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
 /**
  * 打开商品属性页。
  */
-function handleOpenProp(row: Goods) {
+function handleOpenProp(row: GoodsInfo) {
   navigateTo(router, "/goods/prop", { goodsId: row.id, title: `【${row.name}】商品属性` });
 }
 
 /**
  * 打开商品规格页。
  */
-function handleOpenSku(row: Goods) {
+function handleOpenSku(row: GoodsInfo) {
   navigateTo(router, "/goods/sku", { goodsId: row.id, title: `【${row.name}】商品规格` });
 }
 
 /**
  * 打开商品详情页。
  */
-function handleOpenDetail(row: Goods) {
+function handleOpenDetail(row: GoodsInfo) {
   navigateTo(router, "/goods/detail", { goodsId: row.id, title: `【${row.name}】商品详情` });
 }
 </script>

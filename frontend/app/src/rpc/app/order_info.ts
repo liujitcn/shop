@@ -2,7 +2,7 @@
 // versions:
 //   protoc-gen-ts_proto  v2.11.6
 //   protoc               unknown
-// source: app/order.proto
+// source: app/order_info.proto
 
 /* eslint-disable */
 import type {
@@ -16,7 +16,7 @@ import type {
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
-export interface CreateOrderGoods {
+export interface CreateOrderInfoGoods {
   /** 商品id */
   goodsId: number;
   /** 规格编号 */
@@ -25,8 +25,8 @@ export interface CreateOrderGoods {
   num: number;
 }
 
-/** 确认订单信息 */
-export interface ConfirmOrderResponse {
+/** 确认订单信息信息 */
+export interface ConfirmOrderInfoResponse {
   /** 商品信息 */
   goods: OrderGoods[];
   /** 汇总信息 */
@@ -37,25 +37,25 @@ export interface ConfirmOrderResponse {
   clearCart: boolean;
 }
 
-export interface OrderRepurchaseRequest {
+export interface OrderRepurchaseInfoRequest {
   /** 订单id */
   orderId: number;
 }
 
-/** 订单数量汇总 */
-export interface CountOrderResponse {
+/** 订单信息数量汇总 */
+export interface CountOrderInfoResponse {
   /** 总数 */
-  count: CountOrderResponse_Count[];
+  count: CountOrderInfoResponse_Count[];
 }
 
-export interface CountOrderResponse_Count {
+export interface CountOrderInfoResponse_Count {
   /** 订单状态 */
   status: OrderStatus;
   /** 订单数量 */
   num: number;
 }
 
-export interface PageOrderRequest {
+export interface PageOrderInfoRequest {
   /** 订单状态 */
   status: OrderStatus;
   /** 当前页码 */
@@ -64,31 +64,31 @@ export interface PageOrderRequest {
   pageSize: number;
 }
 
-export interface PageOrderResponse {
+export interface PageOrderInfoResponse {
   /** 分页数据 */
-  list: Order[];
+  list: OrderInfo[];
   /** 总数 */
   total: number;
 }
 
-export interface OrderResponse {
+export interface OrderInfoResponse {
   /** 订单信息 */
   order:
-    | Order
+    | OrderInfo
     | undefined;
   /** 地址信息 */
   address:
-    | OrderResponse_Address
+    | OrderInfoResponse_Address
     | undefined;
   /** 物流信息 */
   logistics:
-    | OrderResponse_Logistics
+    | OrderInfoResponse_Logistics
     | undefined;
   /** 支付倒计时 */
   countdown: number;
 }
 
-export interface OrderResponse_Address {
+export interface OrderInfoResponse_Address {
   /** 联系人 */
   receiver: string;
   /** 联系方式 */
@@ -99,7 +99,7 @@ export interface OrderResponse_Address {
   detail: string;
 }
 
-export interface OrderResponse_Logistics {
+export interface OrderInfoResponse_Logistics {
   /** 物流公司名 */
   name: string;
   /** 单号 */
@@ -107,17 +107,17 @@ export interface OrderResponse_Logistics {
   /** 联系方式 */
   contact: string;
   /** 物流详情 */
-  detail: OrderResponse_Logistics_Detail[];
+  detail: OrderInfoResponse_Logistics_Detail[];
 }
 
-export interface OrderResponse_Logistics_Detail {
+export interface OrderInfoResponse_Logistics_Detail {
   /** 时间 */
   time: string;
   /** 动态 */
   text: string;
 }
 
-export interface CreateOrderRequest {
+export interface CreateOrderInfoRequest {
   /** 地址id */
   addressId: number;
   /** 是否清空购物车 */
@@ -131,29 +131,29 @@ export interface CreateOrderRequest {
   /** 订单备注 */
   remark: string;
   /** 商品信息 */
-  goods: CreateOrderGoods[];
+  goods: CreateOrderInfoGoods[];
 }
 
-export interface CreateOrderResponse {
+export interface CreateOrderInfoResponse {
   /** 订单id */
   orderId: number;
 }
 
-export interface CancelOrderRequest {
+export interface CancelOrderInfoRequest {
   /** 订单id */
   orderId: number;
   /** 取消原因 */
   reason: OrderCancelReason;
 }
 
-export interface RefundOrderRequest {
+export interface RefundOrderInfoRequest {
   /** 订单id */
   orderId: number;
   /** 退款原因 */
   reason: OrderRefundReason;
 }
 
-export interface ReceiveOrderRequest {
+export interface ReceiveOrderInfoRequest {
   /** 订单id */
   orderId: number;
 }
@@ -181,7 +181,7 @@ export interface OrderGoods {
   totalPayPrice: number;
 }
 
-export interface Order {
+export interface OrderInfo {
   /** 订单id */
   id: number;
   /** 订单编号 */
@@ -229,30 +229,30 @@ export interface OrderSummary {
   goodsNum: number;
 }
 
-/** App订单服务 */
-export interface OrderService {
-  /** 预付订单 */
-  OrderPre(request: Empty): Promise<ConfirmOrderResponse>;
-  /** 立即购买订单 */
-  OrderBuy(request: CreateOrderGoods): Promise<ConfirmOrderResponse>;
-  /** 再次购买订单 */
-  OrderRepurchase(request: OrderRepurchaseRequest): Promise<ConfirmOrderResponse>;
-  /** 查询订单数量汇总 */
-  CountOrder(request: Empty): Promise<CountOrderResponse>;
-  /** 查询订单分页列表 */
-  PageOrder(request: PageOrderRequest): Promise<PageOrderResponse>;
-  /** 根据订单编号查询订单id */
-  GetOrderIdByOrderNo(request: StringValue): Promise<Int64Value>;
-  /** 根据订单id查询订单 */
-  GetOrderById(request: Int64Value): Promise<OrderResponse>;
-  /** 创建订单 */
-  CreateOrder(request: CreateOrderRequest): Promise<CreateOrderResponse>;
-  /** 删除订单 */
-  DeleteOrder(request: Int64Value): Promise<Empty>;
-  /** 取消订单 */
-  CancelOrder(request: CancelOrderRequest): Promise<Empty>;
-  /** 订单退款 */
-  RefundOrder(request: RefundOrderRequest): Promise<Empty>;
+/** App订单信息服务 */
+export interface OrderInfoService {
+  /** 预付订单信息 */
+  OrderInfoPre(request: Empty): Promise<ConfirmOrderInfoResponse>;
+  /** 立即购买订单信息 */
+  OrderInfoBuy(request: CreateOrderInfoGoods): Promise<ConfirmOrderInfoResponse>;
+  /** 再次购买订单信息 */
+  OrderInfoRepurchase(request: OrderRepurchaseInfoRequest): Promise<ConfirmOrderInfoResponse>;
+  /** 查询订单信息数量汇总 */
+  CountOrderInfo(request: Empty): Promise<CountOrderInfoResponse>;
+  /** 查询订单信息分页列表 */
+  PageOrderInfo(request: PageOrderInfoRequest): Promise<PageOrderInfoResponse>;
+  /** 根据订单信息编号查询订单信息id */
+  GetOrderInfoIdByOrderNo(request: StringValue): Promise<Int64Value>;
+  /** 根据订单信息id查询订单信息 */
+  GetOrderInfoById(request: Int64Value): Promise<OrderInfoResponse>;
+  /** 创建订单信息 */
+  CreateOrderInfo(request: CreateOrderInfoRequest): Promise<CreateOrderInfoResponse>;
+  /** 删除订单信息 */
+  DeleteOrderInfo(request: Int64Value): Promise<Empty>;
+  /** 取消订单信息 */
+  CancelOrderInfo(request: CancelOrderInfoRequest): Promise<Empty>;
+  /** 订单信息退款 */
+  RefundOrderInfo(request: RefundOrderInfoRequest): Promise<Empty>;
   /** 确认收货 */
-  ReceiveOrder(request: ReceiveOrderRequest): Promise<Empty>;
+  ReceiveOrderInfo(request: ReceiveOrderInfoRequest): Promise<Empty>;
 }

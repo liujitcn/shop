@@ -6,24 +6,24 @@ import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/wrappers.proto";
 
-// App商品服务
-service GoodsService {
-  // 查询商品分页列表
-  rpc PageGoods (PageGoodsRequest) returns (PageGoodsResponse) {
+// App商品信息服务
+service GoodsInfoService {
+  // 查询商品信息分页列表
+  rpc PageGoodsInfo (PageGoodsInfoRequest) returns (PageGoodsInfoResponse) {
     option (google.api.http) = {
       get: "/api/app/goods/info"
     };
   }
 
-  // 查询商品
-  rpc GetGoods (google.protobuf.Int64Value) returns (GoodsResponse) {
+  // 查询商品信息
+  rpc GetGoodsInfo (google.protobuf.Int64Value) returns (GoodsInfoResponse) {
     option (google.api.http) = {
       get: "/api/app/goods/info/{value}"
     };
   }
 }
 
-message PageGoodsRequest{
+message PageGoodsInfoRequest{
   // 商品名
   string name = 1 [
     (gnostic.openapi.v3.property) = {
@@ -60,14 +60,14 @@ message PageGoodsRequest{
   ];
 }
 
-message PageGoodsResponse{
+message PageGoodsInfoResponse{
   // 分页数据
-  repeated Goods list = 1;
+  repeated GoodsInfo list = 1;
   // 总数
   int32 total = 2;
 }
 
-message GoodsResponse {
+message GoodsInfoResponse {
   message Prop {
     // 商品属性名称
     string label = 1 [
@@ -179,7 +179,7 @@ message GoodsResponse {
   ]; // 商品规格
 }
 
-message Goods {
+message GoodsInfo {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID

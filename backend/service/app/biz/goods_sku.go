@@ -46,7 +46,7 @@ func (c *GoodsSkuCase) mapBySkuCodes(ctx context.Context, skuCodes []string) (ma
 }
 
 // 查询商品下的全部规格库存列表
-func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member bool) ([]*app.GoodsResponse_Sku, error) {
+func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member bool) ([]*app.GoodsInfoResponse_Sku, error) {
 	query := c.Query(ctx).GoodsSku
 	opts := make([]repo.QueryOption, 0, 1)
 	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
@@ -54,7 +54,7 @@ func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member 
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*app.GoodsResponse_Sku, 0)
+	list := make([]*app.GoodsInfoResponse_Sku, 0)
 	for _, item := range all {
 		list = append(list, c.convertToProto(item, member))
 	}
@@ -62,12 +62,12 @@ func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member 
 }
 
 // 将规格库存模型转换为接口响应
-func (c *GoodsSkuCase) convertToProto(item *models.GoodsSku, member bool) *app.GoodsResponse_Sku {
+func (c *GoodsSkuCase) convertToProto(item *models.GoodsSku, member bool) *app.GoodsInfoResponse_Sku {
 	price := item.Price
 	if member {
 		price = item.DiscountPrice
 	}
-	res := &app.GoodsResponse_Sku{
+	res := &app.GoodsInfoResponse_Sku{
 		Picture:   item.Picture,
 		SpecItem:  _string.ConvertJsonStringToStringArray(item.SpecItem),
 		SkuCode:   item.SkuCode,

@@ -10,10 +10,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const TableNameGoods = "goods"
+const TableNameGoodsInfo = "goods_info"
 
-// Goods 商品信息
-type Goods struct {
+// GoodsInfo 商品信息
+type GoodsInfo struct {
 	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品ID" json:"id"`                                                                             // 商品ID
 	CategoryID    int64          `gorm:"column:category_id;type:bigint;index:idx_goods_category_created_at,priority:1;index:idx_goods_category_id,priority:1;comment:商品分类ID" json:"category_id"` // 商品分类ID
 	Name          string         `gorm:"column:name;type:varchar(255);comment:商品名称" json:"name"`                                                                                                 // 商品名称
@@ -34,7 +34,7 @@ type Goods struct {
 	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                         // 删除时间
 }
 
-// TableName Goods's table name
-func (*Goods) TableName() string {
-	return TableNameGoods
+// TableName GoodsInfo's table name
+func (*GoodsInfo) TableName() string {
+	return TableNameGoodsInfo
 }

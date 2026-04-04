@@ -127,7 +127,7 @@ import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField } from "@/components/ProForm/interface";
 import UploadImg from "@/components/Upload/Img.vue";
-import { defGoodsService } from "@/api/admin/goods";
+import { defGoodsInfoService } from "@/api/admin/goods_info";
 import type { GoodsSpec } from "@/rpc/admin/goods_spec";
 import { useTabsStore } from "@/stores/modules/tabs";
 defineOptions({
@@ -536,7 +536,7 @@ async function submitForm() {
   try {
     const goodsId = submitsData.id;
     if (goodsId) {
-      await defGoodsService.UpdateGoods(submitsData);
+      await defGoodsInfoService.UpdateGoodsInfo(submitsData);
       ElNotification({
         title: "提示",
         message: "编辑商品成功",
@@ -546,7 +546,7 @@ async function submitForm() {
       return;
     }
 
-    await defGoodsService.CreateGoods(submitsData);
+    await defGoodsInfoService.CreateGoodsInfo(submitsData);
     emit("resetForm");
     ElNotification({
       title: "提示",

@@ -8,7 +8,6 @@ package app
 
 import (
 	context "context"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 )
@@ -23,7 +22,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationGoodsCategoryServiceListGoodsCategory = "/app.GoodsCategoryService/ListGoodsCategory"
 
 type GoodsCategoryServiceHTTPServer interface {
-	// ListGoodsCategory 查询分类列表
+	// ListGoodsCategory 查询商品分类列表
 	ListGoodsCategory(context.Context, *ListGoodsCategoryRequest) (*ListGoodsCategoryResponse, error)
 }
 
@@ -52,7 +51,7 @@ func _GoodsCategoryService_ListGoodsCategory0_HTTP_Handler(srv GoodsCategoryServ
 }
 
 type GoodsCategoryServiceHTTPClient interface {
-	// ListGoodsCategory 查询分类列表
+	// ListGoodsCategory 查询商品分类列表
 	ListGoodsCategory(ctx context.Context, req *ListGoodsCategoryRequest, opts ...http.CallOption) (rsp *ListGoodsCategoryResponse, err error)
 }
 
@@ -64,7 +63,7 @@ func NewGoodsCategoryServiceHTTPClient(client *http.Client) GoodsCategoryService
 	return &GoodsCategoryServiceHTTPClientImpl{client}
 }
 
-// ListGoodsCategory 查询分类列表
+// ListGoodsCategory 查询商品分类列表
 func (c *GoodsCategoryServiceHTTPClientImpl) ListGoodsCategory(ctx context.Context, in *ListGoodsCategoryRequest, opts ...http.CallOption) (*ListGoodsCategoryResponse, error) {
 	var out ListGoodsCategoryResponse
 	pattern := "/api/app/goods/category"

@@ -7,14 +7,13 @@
 package app
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -113,14 +112,14 @@ func (x *ListGoodsCategoryResponse) GetList() []*GoodsCategory {
 	return nil
 }
 
-// 分类
+// 商品分类
 type GoodsCategory struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`             // 分类ID
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`             // 商品分类ID
 	ParentId      int64                  `protobuf:"varint,2,opt,name=parentId,proto3" json:"parentId,omitempty"` // 父节点ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`          // 分类名称
-	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`    // 分类图片
-	Goods         []*Goods               `protobuf:"bytes,101,rep,name=goods,proto3" json:"goods,omitempty"`      // 商品列表
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`          // 商品分类名称
+	Picture       string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`    // 商品分类图片
+	Goods         []*GoodsInfo           `protobuf:"bytes,101,rep,name=goods,proto3" json:"goods,omitempty"`      // 商品列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -183,7 +182,7 @@ func (x *GoodsCategory) GetPicture() string {
 	return ""
 }
 
-func (x *GoodsCategory) GetGoods() []*Goods {
+func (x *GoodsCategory) GetGoods() []*GoodsInfo {
 	if x != nil {
 		return x.Goods
 	}
@@ -194,19 +193,18 @@ var File_app_goods_category_proto protoreflect.FileDescriptor
 
 const file_app_goods_category_proto_rawDesc = "" +
 	"\n" +
-	"\x18app/goods_category.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x0fapp/goods.proto\"[\n" +
+	"\x18app/goods_category.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x14app/goods_info.proto\"[\n" +
 	"\x18ListGoodsCategoryRequest\x122\n" +
 	"\bparentId\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDH\x00R\bparentId\x88\x01\x01B\v\n" +
 	"\t_parentId\"C\n" +
 	"\x19ListGoodsCategoryResponse\x12&\n" +
-	"\x04list\x18\x01 \x03(\v2\x12.app.GoodsCategoryR\x04list\"\xea\x01\n" +
-	"\rGoodsCategory\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类IDR\x02id\x12-\n" +
-	"\bparentId\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDR\bparentId\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\x04name\x12,\n" +
-	"\apicture\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类图片R\apicture\x124\n" +
-	"\x05goods\x18e \x03(\v2\n" +
-	".app.GoodsB\x12\xbaG\x0f\x92\x02\f商品列表R\x05goods2\x8b\x01\n" +
+	"\x04list\x18\x01 \x03(\v2\x12.app.GoodsCategoryR\x04list\"\x80\x02\n" +
+	"\rGoodsCategory\x12$\n" +
+	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12-\n" +
+	"\bparentId\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDR\bparentId\x12,\n" +
+	"\x04name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类名称R\x04name\x122\n" +
+	"\apicture\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品分类图片R\apicture\x128\n" +
+	"\x05goods\x18e \x03(\v2\x0e.app.GoodsInfoB\x12\xbaG\x0f\x92\x02\f商品列表R\x05goods2\x8b\x01\n" +
 	"\x14GoodsCategoryService\x12s\n" +
 	"\x11ListGoodsCategory\x12\x1d.app.ListGoodsCategoryRequest\x1a\x1e.app.ListGoodsCategoryResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/app/goods/categoryB^\n" +
 	"\acom.appB\x12GoodsCategoryProtoP\x01Z\x13shop/api/gen/go/app\xa2\x02\x03AXX\xaa\x02\x03App\xca\x02\x03App\xe2\x02\x0fApp\\GPBMetadata\xea\x02\x03Appb\x06proto3"
@@ -228,11 +226,11 @@ var file_app_goods_category_proto_goTypes = []any{
 	(*ListGoodsCategoryRequest)(nil),  // 0: app.ListGoodsCategoryRequest
 	(*ListGoodsCategoryResponse)(nil), // 1: app.ListGoodsCategoryResponse
 	(*GoodsCategory)(nil),             // 2: app.GoodsCategory
-	(*Goods)(nil),                     // 3: app.Goods
+	(*GoodsInfo)(nil),                 // 3: app.GoodsInfo
 }
 var file_app_goods_category_proto_depIdxs = []int32{
 	2, // 0: app.ListGoodsCategoryResponse.list:type_name -> app.GoodsCategory
-	3, // 1: app.GoodsCategory.goods:type_name -> app.Goods
+	3, // 1: app.GoodsCategory.goods:type_name -> app.GoodsInfo
 	0, // 2: app.GoodsCategoryService.ListGoodsCategory:input_type -> app.ListGoodsCategoryRequest
 	1, // 3: app.GoodsCategoryService.ListGoodsCategory:output_type -> app.ListGoodsCategoryResponse
 	3, // [3:4] is the sub-list for method output_type
@@ -247,7 +245,7 @@ func file_app_goods_category_proto_init() {
 	if File_app_goods_category_proto != nil {
 		return
 	}
-	file_app_goods_proto_init()
+	file_app_goods_info_proto_init()
 	file_app_goods_category_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

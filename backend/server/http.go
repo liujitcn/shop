@@ -64,12 +64,12 @@ func NewHttpServer(
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
-	adminGoods *admin.GoodsService,
+	adminGoods *admin.GoodsInfoService,
 	adminGoodsSku *admin.GoodsSkuService,
 	adminGoodsSpec *admin.GoodsSpecService,
 	adminOrderAnalytics *admin.OrderAnalyticsService,
 	adminOrderReport *admin.OrderReportService,
-	adminOrder *admin.OrderService,
+	adminOrder *admin.OrderInfoService,
 	adminPayBill *admin.PayBillService,
 	adminShopBanner *admin.ShopBannerService,
 	adminShopHot *admin.ShopHotService,
@@ -82,8 +82,8 @@ func NewHttpServer(
 	appBaseArea *app.BaseAreaService,
 	appBaseDict *app.BaseDictService,
 	appGoodsCategory *app.GoodsCategoryService,
-	appGoods *app.GoodsService,
-	appOrder *app.OrderService,
+	appGoods *app.GoodsInfoService,
+	appOrder *app.OrderInfoService,
 	appPay *app.PayService,
 	appShopBanner *app.ShopBannerService,
 	appShopHot *app.ShopHotService,
@@ -120,12 +120,12 @@ func NewHttpServer(
 	adminApi.RegisterGoodsAnalyticsServiceHTTPServer(srv, adminGoodsAnalytics)
 	adminApi.RegisterGoodsCategoryServiceHTTPServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceHTTPServer(srv, adminGoodsProp)
-	adminApi.RegisterGoodsServiceHTTPServer(srv, adminGoods)
+	adminApi.RegisterGoodsInfoServiceHTTPServer(srv, adminGoods)
 	adminApi.RegisterGoodsSkuServiceHTTPServer(srv, adminGoodsSku)
 	adminApi.RegisterGoodsSpecServiceHTTPServer(srv, adminGoodsSpec)
 	adminApi.RegisterOrderAnalyticsServiceHTTPServer(srv, adminOrderAnalytics)
 	adminApi.RegisterOrderReportServiceHTTPServer(srv, adminOrderReport)
-	adminApi.RegisterOrderServiceHTTPServer(srv, adminOrder)
+	adminApi.RegisterOrderInfoServiceHTTPServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceHTTPServer(srv, adminPayBill)
 	adminApi.RegisterShopBannerServiceHTTPServer(srv, adminShopBanner)
 	adminApi.RegisterShopHotServiceHTTPServer(srv, adminShopHot)
@@ -138,8 +138,8 @@ func NewHttpServer(
 	appApi.RegisterBaseAreaServiceHTTPServer(srv, appBaseArea)
 	appApi.RegisterBaseDictServiceHTTPServer(srv, appBaseDict)
 	appApi.RegisterGoodsCategoryServiceHTTPServer(srv, appGoodsCategory)
-	appApi.RegisterGoodsServiceHTTPServer(srv, appGoods)
-	appApi.RegisterOrderServiceHTTPServer(srv, appOrder)
+	appApi.RegisterGoodsInfoServiceHTTPServer(srv, appGoods)
+	appApi.RegisterOrderInfoServiceHTTPServer(srv, appOrder)
 	appApi.RegisterPayServiceHTTPServer(srv, appPay)
 	appApi.RegisterShopBannerServiceHTTPServer(srv, appShopBanner)
 	appApi.RegisterShopHotServiceHTTPServer(srv, appShopHot)

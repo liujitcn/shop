@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defOrderService } from '@/api/app/order'
 import { useAddressStore } from '@/stores'
-import type { ConfirmOrderResponse } from '@/rpc/app/order'
+import type { ConfirmOrderInfoResponse } from '@/rpc/app/order_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { UserAddress } from '@/rpc/app/user_address'
@@ -57,21 +57,21 @@ const query = defineProps<{
 }>()
 
 // 获取订单信息
-const orderPre = ref<ConfirmOrderResponse>()
+const orderPre = ref<ConfirmOrderInfoResponse>()
 const getUserOrderPreData = async () => {
   if (query.goodsId && query.skuCode && query.num) {
-    orderPre.value = await defOrderService.OrderBuy({
+    orderPre.value = await defOrderService.OrderInfoBuy({
       goodsId: Number(query.goodsId),
       skuCode: query.skuCode,
       num: Number(query.num),
     })
   } else if (query.orderId) {
     // 再次购买
-    orderPre.value = await defOrderService.OrderRepurchase({
+    orderPre.value = await defOrderService.OrderInfoRepurchase({
       orderId: Number(query.orderId),
     })
   } else {
-    orderPre.value = await defOrderService.OrderPre({})
+    orderPre.value = await defOrderService.OrderInfoPre({})
   }
 }
 
@@ -137,7 +137,7 @@ const onOrderSubmit = async () => {
     return uni.showToast({ icon: 'none', title: '请选择配送时间类型' })
   }
   // 发送请求
-  const res = await defOrderService.CreateOrder({
+  const res = await defOrderService.CreateOrderInfo({
     /** 地址id */
     addressId: selectAddress.value!.id,
     /** 是否清空购物车 */

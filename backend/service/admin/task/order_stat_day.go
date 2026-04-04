@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -74,7 +75,7 @@ SELECT
 FROM (
   SELECT DISTINCT o.pay_type, o.pay_channel
   FROM order_payment op
-  INNER JOIN ` + "`order`" + ` o ON o.id = op.order_id
+  INNER JOIN ` + "`" + models.TableNameOrderInfo + "`" + ` o ON o.id = op.order_id
   WHERE op.deleted_at IS NULL
     AND o.deleted_at IS NULL
     AND op.trade_state = 'SUCCESS'
@@ -83,7 +84,7 @@ FROM (
   UNION
   SELECT DISTINCT o.pay_type, o.pay_channel
   FROM order_refund orf
-  INNER JOIN ` + "`order`" + ` o ON o.id = orf.order_id
+  INNER JOIN ` + "`" + models.TableNameOrderInfo + "`" + ` o ON o.id = orf.order_id
   WHERE orf.deleted_at IS NULL
     AND o.deleted_at IS NULL
     AND orf.refund_state = 'SUCCESS'
@@ -92,7 +93,7 @@ FROM (
   UNION
   SELECT DISTINCT o.pay_type, o.pay_channel
   FROM order_cancel oc
-  INNER JOIN ` + "`order`" + ` o ON o.id = oc.order_id
+  INNER JOIN ` + "`" + models.TableNameOrderInfo + "`" + ` o ON o.id = oc.order_id
   WHERE oc.deleted_at IS NULL
     AND o.deleted_at IS NULL
     AND oc.created_at >= ?
@@ -107,7 +108,7 @@ LEFT JOIN (
     COUNT(DISTINCT o.user_id) AS paid_user_count,
     COALESCE(SUM(COALESCE(og.goods_count, 0)), 0) AS goods_count
   FROM order_payment op
-  INNER JOIN ` + "`order`" + ` o ON o.id = op.order_id
+  INNER JOIN ` + "`" + models.TableNameOrderInfo + "`" + ` o ON o.id = op.order_id
   LEFT JOIN (
     SELECT order_id, SUM(num) AS goods_count
     FROM order_goods
@@ -128,7 +129,7 @@ LEFT JOIN (
     COUNT(*) AS refund_order_count,
     COALESCE(SUM(CAST(JSON_UNQUOTE(JSON_EXTRACT(orf.amount, '$.payer_refund')) AS SIGNED)), 0) AS refund_order_amount
   FROM order_refund orf
-  INNER JOIN ` + "`order`" + ` o ON o.id = orf.order_id
+  INNER JOIN ` + "`" + models.TableNameOrderInfo + "`" + ` o ON o.id = orf.order_id
   WHERE orf.deleted_at IS NULL
     AND o.deleted_at IS NULL
     AND orf.refund_state = 'SUCCESS'
@@ -143,7 +144,7 @@ LEFT JOIN (
     COUNT(*) AS canceled_order_count,
     COALESCE(SUM(o.total_money), 0) AS canceled_order_amount
   FROM order_cancel oc
-  INNER JOIN ` + "`order`" + ` o ON o.id = oc.order_id
+  INNER JOIN ` + "`" + models.TableNameOrderInfo + "`" + ` o ON o.id = oc.order_id
   WHERE oc.deleted_at IS NULL
     AND o.deleted_at IS NULL
     AND oc.created_at >= ?

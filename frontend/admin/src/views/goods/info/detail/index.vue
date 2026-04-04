@@ -190,11 +190,11 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
-import { type GoodsForm } from "@/rpc/admin/goods";
+import { type GoodsInfoForm } from "@/rpc/admin/goods_info";
 import { type GoodsProp } from "@/rpc/admin/goods_prop";
 import { type GoodsSku } from "@/rpc/admin/goods_sku";
 import { type GoodsSpec } from "@/rpc/admin/goods_spec";
-import { defGoodsService } from "@/api/admin/goods";
+import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { GoodsStatus } from "@/rpc/common/enum";
 
 defineOptions({
@@ -223,7 +223,7 @@ const specList = reactive<GoodsSpec[]>([]);
 const banner = reactive<string[]>([]);
 const detail = reactive<string[]>([]);
 
-const formData = reactive<GoodsForm>({
+const formData = reactive<GoodsInfoForm>({
   /** 商品ID */
   id: 0,
   /** 分类ID */
@@ -345,8 +345,8 @@ watch(
 function handleQuery() {
   if (!goodsId.value) return;
   loading.value = true;
-  defGoodsService
-    .GetGoods({
+  defGoodsInfoService
+    .GetGoodsInfo({
       value: goodsId.value
     })
     .then(data => {

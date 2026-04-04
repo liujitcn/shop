@@ -6,8 +6,8 @@ import type {
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'
-import { defGoodsService } from '@/api/app/goods'
-import type { Goods, GoodsResponse } from '@/rpc/app/goods'
+import { defGoodsInfoService } from '@/api/app/goods'
+import type { GoodsInfo, GoodsInfoResponse } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores'
 import { computed, ref } from 'vue'
@@ -27,8 +27,8 @@ const query = defineProps<{
 }>()
 
 // 获取商品详情信息
-const goods = ref<GoodsResponse>()
-const goodsList = ref<Goods[]>([])
+const goods = ref<GoodsInfoResponse>()
+const goodsList = ref<GoodsInfo[]>([])
 const isCollect = ref<boolean>(false)
 const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
@@ -37,11 +37,11 @@ const serviceLabelList = computed(() => serviceList.value.map((item) => item.lab
 const loadData = async () => {
   const ssRes = await defShopServiceService.ListShopService({})
   serviceList.value = ssRes.list || []
-  const res = await defGoodsService.GetGoods({
+  const res = await defGoodsInfoService.GetGoodsInfo({
     value: Number(query.id),
   })
   goods.value = res
-  const pageRes = await defGoodsService.PageGoods({
+  const pageRes = await defGoodsInfoService.PageGoodsInfo({
     name: '',
     categoryId: res.categoryId,
     guessLike: false,

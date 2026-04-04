@@ -16,19 +16,19 @@ export interface TreeGoodsCategoryResponse {
 }
 
 export interface OptionGoodsCategoryRequest {
-  /** 父级分类ID */
+  /** 父级商品分类ID */
   parentId?: number | undefined;
 }
 
-/** 分类 */
+/** 商品分类 */
 export interface GoodsCategory {
-  /** 分类ID */
+  /** 商品分类ID */
   id: number;
-  /** 父级分类ID */
+  /** 父级商品分类ID */
   parentId: number;
-  /** 分类名称 */
+  /** 商品分类名称 */
   name: string;
-  /** 分类图片 */
+  /** 商品分类图片 */
   picture: string;
   /** 排序 */
   sort: number;
@@ -42,17 +42,17 @@ export interface GoodsCategory {
   children: GoodsCategory[];
 }
 
-/** 分类 */
+/** 商品分类 */
 export interface GoodsCategoryForm {
-  /** 分类ID */
+  /** 商品分类ID */
   id: number;
-  /** 父级分类ID */
+  /** 父级商品分类ID */
   parentId?:
     | number
     | undefined;
-  /** 分类名称 */
+  /** 商品分类名称 */
   name: string;
-  /** 分类图片 */
+  /** 商品分类图片 */
   picture: string;
   /** 排序 */
   sort: number;
@@ -60,19 +60,19 @@ export interface GoodsCategoryForm {
   status?: Status | undefined;
 }
 
-/** Admin分类服务 */
+/** Admin商品分类服务 */
 export interface GoodsCategoryService {
-  /** 查询分类树形列表 */
+  /** 查询商品分类树形列表 */
   TreeGoodsCategory(request: Empty): Promise<TreeGoodsCategoryResponse>;
-  /** 查询分类树形选择 */
+  /** 查询商品分类树形选择 */
   OptionGoodsCategory(request: OptionGoodsCategoryRequest): Promise<TreeOptionResponse>;
-  /** 查询分类 */
+  /** 查询商品分类 */
   GetGoodsCategory(request: Int64Value): Promise<GoodsCategoryForm>;
-  /** 创建分类 */
+  /** 创建商品分类 */
   CreateGoodsCategory(request: GoodsCategoryForm): Promise<Empty>;
-  /** 更新分类 */
+  /** 更新商品分类 */
   UpdateGoodsCategory(request: GoodsCategoryForm): Promise<Empty>;
-  /** 删除分类 */
+  /** 删除商品分类 */
   DeleteGoodsCategory(request: StringValue): Promise<Empty>;
   /** 设置状态 */
   SetGoodsCategoryStatus(request: SetStatusRequest): Promise<Empty>;

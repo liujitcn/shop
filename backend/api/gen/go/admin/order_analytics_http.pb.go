@@ -8,10 +8,9 @@ package admin
 
 import (
 	context "context"
-	common "shop/api/gen/go/common"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	common "shop/api/gen/go/common"
 )
 
 // This is a compile-time assertion to ensure that this generated file

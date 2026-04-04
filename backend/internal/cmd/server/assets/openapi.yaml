@@ -1750,7 +1750,7 @@ paths:
         post:
             tags:
                 - GoodsCategoryService
-            description: 创建分类
+            description: 创建商品分类
             operationId: GoodsCategoryService_CreateGoodsCategory
             requestBody:
                 content:
@@ -1766,7 +1766,7 @@ paths:
         get:
             tags:
                 - GoodsCategoryService
-            description: 查询分类树形选择
+            description: 查询商品分类树形选择
             operationId: GoodsCategoryService_OptionGoodsCategory
             parameters:
                 - name: parentId
@@ -1784,7 +1784,7 @@ paths:
         get:
             tags:
                 - GoodsCategoryService
-            description: 查询分类树形列表
+            description: 查询商品分类树形列表
             operationId: GoodsCategoryService_TreeGoodsCategory
             responses:
                 "200":
@@ -1797,7 +1797,7 @@ paths:
         put:
             tags:
                 - GoodsCategoryService
-            description: 更新分类
+            description: 更新商品分类
             operationId: GoodsCategoryService_UpdateGoodsCategory
             parameters:
                 - name: id
@@ -1841,7 +1841,7 @@ paths:
         get:
             tags:
                 - GoodsCategoryService
-            description: 查询分类
+            description: 查询商品分类
             operationId: GoodsCategoryService_GetGoodsCategory
             parameters:
                 - name: value
@@ -1860,7 +1860,7 @@ paths:
         delete:
             tags:
                 - GoodsCategoryService
-            description: 删除分类
+            description: 删除商品分类
             operationId: GoodsCategoryService_DeleteGoodsCategory
             parameters:
                 - name: value
@@ -1876,9 +1876,9 @@ paths:
     /api/admin/goods/info:
         get:
             tags:
-                - GoodsService
-            description: 查询商品分页列表
-            operationId: GoodsService_PageGoods
+                - GoodsInfoService
+            description: 查询商品信息分页列表
+            operationId: GoodsInfoService_PageGoodsInfo
             parameters:
                 - name: categoryId
                   in: query
@@ -1900,6 +1900,18 @@ paths:
                         - PULL_OFF
                     type: string
                     format: enum
+                - name: inventoryAlert
+                  in: query
+                  description: 库存预警类型：1 低库存，2 零库存
+                  schema:
+                    type: integer
+                    format: int32
+                - name: priceAlert
+                  in: query
+                  description: 价格异常类型：1 价格配置异常
+                  schema:
+                    type: integer
+                    format: int32
                 - name: pageNum
                   in: query
                   description: 当前页码
@@ -1916,17 +1928,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageGoodsResponse'
+                                $ref: '#/components/schemas/PageGoodsInfoResponse'
         post:
             tags:
-                - GoodsService
-            description: 创建商品
-            operationId: GoodsService_CreateGoods
+                - GoodsInfoService
+            description: 创建商品信息
+            operationId: GoodsInfoService_CreateGoodsInfo
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/GoodsForm'
+                            $ref: '#/components/schemas/GoodsInfoForm'
                 required: true
             responses:
                 "200":
@@ -1935,9 +1947,9 @@ paths:
     /api/admin/goods/info/list:
         get:
             tags:
-                - GoodsService
-            description: 查询商品列表
-            operationId: GoodsService_ListGoods
+                - GoodsInfoService
+            description: 查询商品信息列表
+            operationId: GoodsInfoService_ListGoodsInfo
             parameters:
                 - name: name
                   in: query
@@ -1950,13 +1962,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGoodsResponse'
+                                $ref: '#/components/schemas/ListGoodsInfoResponse'
     /api/admin/goods/info/{id}:
         put:
             tags:
-                - GoodsService
-            description: 更新商品
-            operationId: GoodsService_UpdateGoods
+                - GoodsInfoService
+            description: 更新商品信息
+            operationId: GoodsInfoService_UpdateGoodsInfo
             parameters:
                 - name: id
                   in: path
@@ -1967,7 +1979,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/GoodsForm'
+                            $ref: '#/components/schemas/GoodsInfoForm'
                 required: true
             responses:
                 "200":
@@ -1976,9 +1988,9 @@ paths:
     /api/admin/goods/info/{id}/status:
         put:
             tags:
-                - GoodsService
+                - GoodsInfoService
             description: 设置状态
-            operationId: GoodsService_SetGoodsStatus
+            operationId: GoodsInfoService_SetGoodsInfoStatus
             parameters:
                 - name: id
                   in: path
@@ -1998,9 +2010,9 @@ paths:
     /api/admin/goods/info/{value}:
         get:
             tags:
-                - GoodsService
-            description: 查询商品
-            operationId: GoodsService_GetGoods
+                - GoodsInfoService
+            description: 查询商品信息
+            operationId: GoodsInfoService_GetGoodsInfo
             parameters:
                 - name: value
                   in: path
@@ -2014,12 +2026,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GoodsForm'
+                                $ref: '#/components/schemas/GoodsInfoForm'
         delete:
             tags:
-                - GoodsService
-            description: 删除商品
-            operationId: GoodsService_DeleteGoods
+                - GoodsInfoService
+            description: 删除商品信息
+            operationId: GoodsInfoService_DeleteGoodsInfo
             parameters:
                 - name: value
                   in: path
@@ -2235,9 +2247,9 @@ paths:
     /api/admin/order/info:
         get:
             tags:
-                - OrderService
-            description: 查询订单分页列表
-            operationId: OrderService_PageOrder
+                - OrderInfoService
+            description: 查询订单信息分页列表
+            operationId: OrderInfoService_PageOrderInfo
             parameters:
                 - name: orderNo
                   in: query
@@ -2303,13 +2315,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageOrderResponse'
+                                $ref: '#/components/schemas/PageOrderInfoResponse'
     /api/admin/order/info/{orderId}/refund:
         put:
             tags:
-                - OrderService
-            description: 订单退款
-            operationId: OrderService_RefundOrder
+                - OrderInfoService
+            description: 订单信息退款
+            operationId: OrderInfoService_RefundOrderInfo
             parameters:
                 - name: orderId
                   in: path
@@ -2320,7 +2332,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RefundOrderRequest'
+                            $ref: '#/components/schemas/RefundOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -2329,9 +2341,9 @@ paths:
     /api/admin/order/info/{orderId}/shipped:
         put:
             tags:
-                - OrderService
-            description: 订单发货
-            operationId: OrderService_ShippedOrder
+                - OrderInfoService
+            description: 订单信息发货
+            operationId: OrderInfoService_ShippedOrderInfo
             parameters:
                 - name: orderId
                   in: path
@@ -2342,7 +2354,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ShippedOrderRequest'
+                            $ref: '#/components/schemas/ShippedOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -2351,9 +2363,9 @@ paths:
     /api/admin/order/info/{value}:
         get:
             tags:
-                - OrderService
-            description: 查询订单
-            operationId: OrderService_GetOrder
+                - OrderInfoService
+            description: 查询订单信息
+            operationId: OrderInfoService_GetOrderInfo
             parameters:
                 - name: value
                   in: path
@@ -2367,13 +2379,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrderResponse'
+                                $ref: '#/components/schemas/OrderInfoResponse'
     /api/admin/order/info/{value}/refund:
         get:
             tags:
-                - OrderService
-            description: 查询订单退款信息
-            operationId: OrderService_GetOrderRefund
+                - OrderInfoService
+            description: 查询订单信息退款信息
+            operationId: OrderInfoService_GetOrderInfoRefund
             parameters:
                 - name: value
                   in: path
@@ -2387,13 +2399,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrderRefundResponse'
+                                $ref: '#/components/schemas/OrderInfoRefundResponse'
     /api/admin/order/info/{value}/shipped:
         get:
             tags:
-                - OrderService
-            description: 查询订单发货信息
-            operationId: OrderService_GetOrderShipped
+                - OrderInfoService
+            description: 查询订单信息发货信息
+            operationId: OrderInfoService_GetOrderInfoShipped
             parameters:
                 - name: value
                   in: path
@@ -2407,7 +2419,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrderShippedResponse'
+                                $ref: '#/components/schemas/OrderInfoShippedResponse'
     /api/admin/pay/bill:
         get:
             tags:
@@ -2419,6 +2431,16 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_PBS
+                        - NO_COMPARE
+                        - NO_ERROR
+                        - HAS_ERROR
+                    type: string
+                    format: enum
                 - name: pageNum
                   in: query
                   description: 当前页码
@@ -2512,7 +2534,7 @@ paths:
         get:
             tags:
                 - ShopBannerService
-            description: 查询轮播图分页列表
+            description: 查询商城轮播图分页列表
             operationId: ShopBannerService_PageShopBanner
             parameters:
                 - name: site
@@ -2567,7 +2589,7 @@ paths:
         post:
             tags:
                 - ShopBannerService
-            description: 创建轮播图
+            description: 创建商城轮播图
             operationId: ShopBannerService_CreateShopBanner
             requestBody:
                 content:
@@ -2583,7 +2605,7 @@ paths:
         put:
             tags:
                 - ShopBannerService
-            description: 更新轮播图
+            description: 更新商城轮播图
             operationId: ShopBannerService_UpdateShopBanner
             parameters:
                 - name: id
@@ -2628,7 +2650,7 @@ paths:
         get:
             tags:
                 - ShopBannerService
-            description: 查询轮播图
+            description: 查询商城轮播图
             operationId: ShopBannerService_GetShopBanner
             parameters:
                 - name: value
@@ -2647,7 +2669,7 @@ paths:
         delete:
             tags:
                 - ShopBannerService
-            description: 删除轮播图
+            description: 删除商城轮播图
             operationId: ShopBannerService_DeleteShopBanner
             parameters:
                 - name: value
@@ -3296,7 +3318,7 @@ paths:
         get:
             tags:
                 - GoodsCategoryService
-            description: 查询分类列表
+            description: 查询商品分类列表
             operationId: GoodsCategoryService_ListGoodsCategory
             parameters:
                 - name: parentId
@@ -3313,9 +3335,9 @@ paths:
     /api/app/goods/info:
         get:
             tags:
-                - GoodsService
-            description: 查询商品分页列表
-            operationId: GoodsService_PageGoods
+                - GoodsInfoService
+            description: 查询商品信息分页列表
+            operationId: GoodsInfoService_PageGoodsInfo
             parameters:
                 - name: name
                   in: query
@@ -3348,13 +3370,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageGoodsResponse'
+                                $ref: '#/components/schemas/PageGoodsInfoResponse'
     /api/app/goods/info/{value}:
         get:
             tags:
-                - GoodsService
-            description: 查询商品
-            operationId: GoodsService_GetGoods
+                - GoodsInfoService
+            description: 查询商品信息
+            operationId: GoodsInfoService_GetGoodsInfo
             parameters:
                 - name: value
                   in: path
@@ -3368,13 +3390,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/GoodsResponse'
+                                $ref: '#/components/schemas/GoodsInfoResponse'
     /api/app/order/info:
         get:
             tags:
-                - OrderService
-            description: 查询订单分页列表
-            operationId: OrderService_PageOrder
+                - OrderInfoService
+            description: 查询订单信息分页列表
+            operationId: OrderInfoService_PageOrderInfo
             parameters:
                 - name: status
                   in: query
@@ -3407,17 +3429,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageOrderResponse'
+                                $ref: '#/components/schemas/PageOrderInfoResponse'
         post:
             tags:
-                - OrderService
-            description: 创建订单
-            operationId: OrderService_CreateOrder
+                - OrderInfoService
+            description: 创建订单信息
+            operationId: OrderInfoService_CreateOrderInfo
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateOrderRequest'
+                            $ref: '#/components/schemas/CreateOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -3425,18 +3447,18 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateOrderResponse'
+                                $ref: '#/components/schemas/CreateOrderInfoResponse'
     /api/app/order/info/buy:
         post:
             tags:
-                - OrderService
-            description: 立即购买订单
-            operationId: OrderService_OrderBuy
+                - OrderInfoService
+            description: 立即购买订单信息
+            operationId: OrderInfoService_OrderInfoBuy
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateOrderGoods'
+                            $ref: '#/components/schemas/CreateOrderInfoGoods'
                 required: true
             responses:
                 "200":
@@ -3444,26 +3466,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ConfirmOrderResponse'
+                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
     /api/app/order/info/count:
         get:
             tags:
-                - OrderService
-            description: 查询订单数量汇总
-            operationId: OrderService_CountOrder
+                - OrderInfoService
+            description: 查询订单信息数量汇总
+            operationId: OrderInfoService_CountOrderInfo
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CountOrderResponse'
+                                $ref: '#/components/schemas/CountOrderInfoResponse'
     /api/app/order/info/pre:
         post:
             tags:
-                - OrderService
-            description: 预付订单
-            operationId: OrderService_OrderPre
+                - OrderInfoService
+            description: 预付订单信息
+            operationId: OrderInfoService_OrderInfoPre
             requestBody:
                 content:
                     application/json: {}
@@ -3474,18 +3496,18 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ConfirmOrderResponse'
+                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
     /api/app/order/info/repurchase:
         post:
             tags:
-                - OrderService
-            description: 再次购买订单
-            operationId: OrderService_OrderRepurchase
+                - OrderInfoService
+            description: 再次购买订单信息
+            operationId: OrderInfoService_OrderInfoRepurchase
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/OrderRepurchaseRequest'
+                            $ref: '#/components/schemas/OrderRepurchaseInfoRequest'
                 required: true
             responses:
                 "200":
@@ -3493,13 +3515,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ConfirmOrderResponse'
+                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
     /api/app/order/info/{orderId}/cancel:
         put:
             tags:
-                - OrderService
-            description: 取消订单
-            operationId: OrderService_CancelOrder
+                - OrderInfoService
+            description: 取消订单信息
+            operationId: OrderInfoService_CancelOrderInfo
             parameters:
                 - name: orderId
                   in: path
@@ -3510,7 +3532,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CancelOrderRequest'
+                            $ref: '#/components/schemas/CancelOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -3519,9 +3541,9 @@ paths:
     /api/app/order/info/{orderId}/receive:
         put:
             tags:
-                - OrderService
+                - OrderInfoService
             description: 确认收货
-            operationId: OrderService_ReceiveOrder
+            operationId: OrderInfoService_ReceiveOrderInfo
             parameters:
                 - name: orderId
                   in: path
@@ -3532,7 +3554,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ReceiveOrderRequest'
+                            $ref: '#/components/schemas/ReceiveOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -3541,9 +3563,9 @@ paths:
     /api/app/order/info/{orderId}/refund:
         put:
             tags:
-                - OrderService
-            description: 订单退款
-            operationId: OrderService_RefundOrder
+                - OrderInfoService
+            description: 订单信息退款
+            operationId: OrderInfoService_RefundOrderInfo
             parameters:
                 - name: orderId
                   in: path
@@ -3554,7 +3576,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RefundOrderRequest'
+                            $ref: '#/components/schemas/RefundOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -3563,9 +3585,9 @@ paths:
     /api/app/order/info/{value}:
         get:
             tags:
-                - OrderService
-            description: 根据订单id查询订单
-            operationId: OrderService_GetOrderById
+                - OrderInfoService
+            description: 根据订单信息id查询订单信息
+            operationId: OrderInfoService_GetOrderInfoById
             parameters:
                 - name: value
                   in: path
@@ -3579,12 +3601,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrderResponse'
+                                $ref: '#/components/schemas/OrderInfoResponse'
         delete:
             tags:
-                - OrderService
-            description: 删除订单
-            operationId: OrderService_DeleteOrder
+                - OrderInfoService
+            description: 删除订单信息
+            operationId: OrderInfoService_DeleteOrderInfo
             parameters:
                 - name: value
                   in: path
@@ -3599,9 +3621,9 @@ paths:
     /api/app/order/info/{value}/orderNo:
         get:
             tags:
-                - OrderService
-            description: 根据订单编号查询订单id
-            operationId: OrderService_GetOrderIdByOrderNo
+                - OrderInfoService
+            description: 根据订单信息编号查询订单信息id
+            operationId: OrderInfoService_GetOrderInfoIdByOrderNo
             parameters:
                 - name: value
                   in: path
@@ -3684,7 +3706,7 @@ paths:
         get:
             tags:
                 - ShopBannerService
-            description: 查询轮播图列表
+            description: 查询商城轮播图列表
             operationId: ShopBannerService_ListShopBanner
             parameters:
                 - name: site
@@ -5180,7 +5202,7 @@ components:
                     type: string
                     description: 备注名
             description: 用户
-        CancelOrderRequest:
+        CancelOrderInfoRequest:
             type: object
             properties:
                 orderId:
@@ -5224,7 +5246,7 @@ components:
                 value:
                     type: string
                     description: 配置value
-        ConfirmOrderResponse:
+        ConfirmOrderInfoResponse:
             type: object
             properties:
                 goods:
@@ -5237,17 +5259,17 @@ components:
                 clearCart:
                     type: boolean
                     description: 是否清空购物车
-            description: 确认订单信息
-        CountOrderResponse:
+            description: 确认订单信息信息
+        CountOrderInfoResponse:
             type: object
             properties:
                 count:
                     type: array
                     items:
-                        $ref: '#/components/schemas/CountOrderResponse_Count'
+                        $ref: '#/components/schemas/CountOrderInfoResponse_Count'
                     description: 总数
-            description: 订单数量汇总
-        CountOrderResponse_Count:
+            description: 订单信息数量汇总
+        CountOrderInfoResponse_Count:
             type: object
             properties:
                 status:
@@ -5267,7 +5289,7 @@ components:
                     type: integer
                     description: 订单数量
                     format: int32
-        CreateOrderGoods:
+        CreateOrderInfoGoods:
             type: object
             properties:
                 goodsId:
@@ -5279,7 +5301,7 @@ components:
                 num:
                     type: string
                     description: 数量
-        CreateOrderRequest:
+        CreateOrderInfoRequest:
             type: object
             properties:
                 addressId:
@@ -5319,9 +5341,9 @@ components:
                 goods:
                     type: array
                     items:
-                        $ref: '#/components/schemas/CreateOrderGoods'
+                        $ref: '#/components/schemas/CreateOrderInfoGoods'
                     description: 商品信息
-        CreateOrderResponse:
+        CreateOrderInfoResponse:
             type: object
             properties:
                 orderId:
@@ -5358,7 +5380,89 @@ components:
                 extname:
                     type: string
                     description: 文件扩展名
-        Goods:
+        GoodsAnalyticsSummaryResponse:
+            type: object
+            properties:
+                newGoodsCount:
+                    type: string
+                putOnGoodsRate:
+                    type: string
+                activeGoodsCount:
+                    type: string
+                activeGoodsRate:
+                    type: string
+                saleCount:
+                    type: string
+                saleGrowthRate:
+                    type: string
+        GoodsCategory:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 商品分类ID
+                parentId:
+                    type: string
+                    description: 父级商品分类ID
+                name:
+                    type: string
+                    description: 商品分类名称
+                picture:
+                    type: string
+                    description: 商品分类图片
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 菜单状态
+                    format: enum
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoodsCategory'
+                    description: 子节点树
+            description: 商品分类
+        GoodsCategoryForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 商品分类ID
+                parentId:
+                    type: string
+                    description: 父级商品分类ID
+                name:
+                    type: string
+                    description: 商品分类名称
+                picture:
+                    type: string
+                    description: 商品分类图片
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 菜单状态
+                    format: enum
+            description: 商品分类
+        GoodsInfo:
             type: object
             properties:
                 id:
@@ -5408,89 +5512,7 @@ components:
                 categoryName:
                     type: string
                     description: 分类名称
-        GoodsAnalyticsSummaryResponse:
-            type: object
-            properties:
-                newGoodsCount:
-                    type: string
-                putOnGoodsRate:
-                    type: string
-                activeGoodsCount:
-                    type: string
-                activeGoodsRate:
-                    type: string
-                saleCount:
-                    type: string
-                saleGrowthRate:
-                    type: string
-        GoodsCategory:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 分类ID
-                parentId:
-                    type: string
-                    description: 父级分类ID
-                name:
-                    type: string
-                    description: 分类名称
-                picture:
-                    type: string
-                    description: 分类图片
-                sort:
-                    type: integer
-                    description: 排序
-                    format: int32
-                status:
-                    enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
-                    type: string
-                    description: 菜单状态
-                    format: enum
-                createdAt:
-                    type: string
-                    description: 创建时间
-                updatedAt:
-                    type: string
-                    description: 更新时间
-                children:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/GoodsCategory'
-                    description: 子节点树
-            description: 分类
-        GoodsCategoryForm:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 分类ID
-                parentId:
-                    type: string
-                    description: 父级分类ID
-                name:
-                    type: string
-                    description: 分类名称
-                picture:
-                    type: string
-                    description: 分类图片
-                sort:
-                    type: integer
-                    description: 排序
-                    format: int32
-                status:
-                    enum:
-                        - UNKNOWN
-                        - ENABLE
-                        - DISABLE
-                    type: string
-                    description: 菜单状态
-                    format: enum
-            description: 分类
-        GoodsForm:
+        GoodsInfoForm:
             type: object
             properties:
                 id:
@@ -5544,26 +5566,7 @@ components:
                 categoryName:
                     type: string
                     description: 分类名称
-        GoodsProp:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 商品属性ID
-                goodsId:
-                    type: string
-                    description: 商品规格名称
-                label:
-                    type: string
-                    description: 商品属性名称
-                value:
-                    type: string
-                    description: 商品属性value
-                sort:
-                    type: integer
-                    description: 排序
-                    format: int32
-        GoodsResponse:
+        GoodsInfoResponse:
             type: object
             properties:
                 id:
@@ -5600,19 +5603,19 @@ components:
                 propList:
                     type: array
                     items:
-                        $ref: '#/components/schemas/GoodsResponse_Prop'
+                        $ref: '#/components/schemas/GoodsInfoResponse_Prop'
                     description: 商品属性
                 skuList:
                     type: array
                     items:
-                        $ref: '#/components/schemas/GoodsResponse_Sku'
+                        $ref: '#/components/schemas/GoodsInfoResponse_Sku'
                     description: 商品SKU
                 specList:
                     type: array
                     items:
-                        $ref: '#/components/schemas/GoodsResponse_Spec'
+                        $ref: '#/components/schemas/GoodsInfoResponse_Spec'
                     description: 商品规格
-        GoodsResponse_Prop:
+        GoodsInfoResponse_Prop:
             type: object
             properties:
                 label:
@@ -5621,7 +5624,7 @@ components:
                 value:
                     type: string
                     description: 商品属性value
-        GoodsResponse_Sku:
+        GoodsInfoResponse_Sku:
             type: object
             properties:
                 picture:
@@ -5644,7 +5647,7 @@ components:
                 inventory:
                     type: string
                     description: 库存数量
-        GoodsResponse_Spec:
+        GoodsInfoResponse_Spec:
             type: object
             properties:
                 name:
@@ -5655,6 +5658,25 @@ components:
                     items:
                         $ref: '#/components/schemas/Spec_Item'
                     description: 商品规格内容
+        GoodsProp:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 商品属性ID
+                goodsId:
+                    type: string
+                    description: 商品规格名称
+                label:
+                    type: string
+                    description: 商品属性名称
+                value:
+                    type: string
+                    description: 商品属性value
+                sort:
+                    type: integer
+                    description: 排序
+                    format: int32
         GoodsSku:
             type: object
             properties:
@@ -5785,15 +5807,15 @@ components:
                     items:
                         $ref: '#/components/schemas/GoodsCategory'
                     description: 分页数据
-        ListGoodsResponse:
+        ListGoodsInfoResponse:
             type: object
             properties:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/ListGoodsResponse_Goods'
+                        $ref: '#/components/schemas/ListGoodsInfoResponse_GoodsInfo'
                     description: 分页数据
-        ListGoodsResponse_Goods:
+        ListGoodsInfoResponse_GoodsInfo:
             type: object
             properties:
                 id:
@@ -5922,81 +5944,6 @@ components:
                     items:
                         $ref: '#/components/schemas/FileInfo'
                     description: 文件上传结果
-        Order:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 订单id
-                orderNo:
-                    type: string
-                    description: 订单编号
-                userId:
-                    type: string
-                    description: 用户id
-                payMoney:
-                    type: string
-                    description: 实际支付金额（单位：分）
-                totalMoney:
-                    type: string
-                    description: 总价（单位：分）
-                postFee:
-                    type: string
-                    description: 优惠金额（单位：分）
-                goodsNum:
-                    type: string
-                    description: 商品总数
-                payType:
-                    enum:
-                        - UNKNOWN_OPT
-                        - ONLINE_PAY
-                        - CASH_ON_DELIVERY
-                    type: string
-                    description: 支付方式：枚举【OrderPayType】
-                    format: enum
-                payChannel:
-                    enum:
-                        - UNKNOWN_OPC
-                        - WX_PAY
-                        - UNION_PAY
-                    type: string
-                    description: 支付渠道：枚举【OrderPayChannel】
-                    format: enum
-                deliveryTime:
-                    enum:
-                        - UNKNOWN_ODT
-                        - ALL_TIME
-                        - WEEKDAY
-                        - WEEKEND
-                    type: string
-                    description: 配送时间：枚举【OrderDeliveryTime】
-                    format: enum
-                status:
-                    enum:
-                        - UNKNOWN_OS
-                        - CREATED
-                        - PAID
-                        - SHIPPED
-                        - RECEIVED
-                        - REFUNDING
-                        - CANCELED
-                        - DELETED
-                    type: string
-                    description: 状态：枚举【OrderStatus】
-                    format: enum
-                remark:
-                    type: string
-                    description: 订单备注
-                createdAt:
-                    type: string
-                    description: 创建时间
-                updatedAt:
-                    type: string
-                    description: 更新时间
-                nickName:
-                    type: string
-                    description: 用户名
-            description: 订单信息表
         OrderAddress:
             type: object
             properties:
@@ -6085,6 +6032,130 @@ components:
                     type: string
                     description: 支付金额汇总
             description: 订单商品信息
+        OrderInfo:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 订单id
+                orderNo:
+                    type: string
+                    description: 订单编号
+                userId:
+                    type: string
+                    description: 用户id
+                payMoney:
+                    type: string
+                    description: 实际支付金额（单位：分）
+                totalMoney:
+                    type: string
+                    description: 总价（单位：分）
+                postFee:
+                    type: string
+                    description: 优惠金额（单位：分）
+                goodsNum:
+                    type: string
+                    description: 商品总数
+                payType:
+                    enum:
+                        - UNKNOWN_OPT
+                        - ONLINE_PAY
+                        - CASH_ON_DELIVERY
+                    type: string
+                    description: 支付方式：枚举【OrderPayType】
+                    format: enum
+                payChannel:
+                    enum:
+                        - UNKNOWN_OPC
+                        - WX_PAY
+                        - UNION_PAY
+                    type: string
+                    description: 支付渠道：枚举【OrderPayChannel】
+                    format: enum
+                deliveryTime:
+                    enum:
+                        - UNKNOWN_ODT
+                        - ALL_TIME
+                        - WEEKDAY
+                        - WEEKEND
+                    type: string
+                    description: 配送时间：枚举【OrderDeliveryTime】
+                    format: enum
+                status:
+                    enum:
+                        - UNKNOWN_OS
+                        - CREATED
+                        - PAID
+                        - SHIPPED
+                        - RECEIVED
+                        - REFUNDING
+                        - CANCELED
+                        - DELETED
+                    type: string
+                    description: 状态：枚举【OrderStatus】
+                    format: enum
+                remark:
+                    type: string
+                    description: 订单备注
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+                nickName:
+                    type: string
+                    description: 用户名
+            description: 订单信息表
+        OrderInfoRefundResponse:
+            type: object
+            properties:
+                payment:
+                    $ref: '#/components/schemas/OrderPayment'
+                refund:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderRefund'
+                    description: 退款信息
+        OrderInfoResponse:
+            type: object
+            properties:
+                order:
+                    $ref: '#/components/schemas/OrderInfo'
+                countdown:
+                    type: number
+                    description: 支付倒计时
+                    format: float
+                address:
+                    $ref: '#/components/schemas/OrderAddress'
+                cancel:
+                    $ref: '#/components/schemas/OrderCancel'
+                goods:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderGoods'
+                    description: 商品信息
+                logistics:
+                    $ref: '#/components/schemas/OrderLogistics'
+                payment:
+                    $ref: '#/components/schemas/OrderPayment'
+                refund:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderRefund'
+                    description: 退款信息
+        OrderInfoShippedResponse:
+            type: object
+            properties:
+                address:
+                    $ref: '#/components/schemas/OrderAddress'
+                goods:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderGoods'
+                    description: 商品信息
+                logistics:
+                    $ref: '#/components/schemas/OrderLogistics'
         OrderLogistics:
             type: object
             properties:
@@ -6310,16 +6381,6 @@ components:
                     description: 对账状态：枚举【OrderBillStatus】
                     format: enum
             description: 订单退款信息
-        OrderRefundResponse:
-            type: object
-            properties:
-                payment:
-                    $ref: '#/components/schemas/OrderPayment'
-                refund:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/OrderRefund'
-                    description: 退款信息
         OrderRefund_Amount:
             type: object
             properties:
@@ -6336,51 +6397,12 @@ components:
                     type: string
                     description: 【用户退款金额】单位：分
             description: 【金额信息】
-        OrderRepurchaseRequest:
+        OrderRepurchaseInfoRequest:
             type: object
             properties:
                 orderId:
                     type: string
                     description: 订单id
-        OrderResponse:
-            type: object
-            properties:
-                order:
-                    $ref: '#/components/schemas/Order'
-                countdown:
-                    type: number
-                    description: 支付倒计时
-                    format: float
-                address:
-                    $ref: '#/components/schemas/OrderAddress'
-                cancel:
-                    $ref: '#/components/schemas/OrderCancel'
-                goods:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/OrderGoods'
-                    description: 商品信息
-                logistics:
-                    $ref: '#/components/schemas/OrderLogistics'
-                payment:
-                    $ref: '#/components/schemas/OrderPayment'
-                refund:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/OrderRefund'
-                    description: 退款信息
-        OrderShippedResponse:
-            type: object
-            properties:
-                address:
-                    $ref: '#/components/schemas/OrderAddress'
-                goods:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/OrderGoods'
-                    description: 商品信息
-                logistics:
-                    $ref: '#/components/schemas/OrderLogistics'
         OrderSummary:
             type: object
             properties:
@@ -6492,6 +6514,18 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+        PageGoodsInfoResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoodsInfo'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
         PageGoodsPropResponse:
             type: object
             properties:
@@ -6499,18 +6533,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/GoodsProp'
-                    description: 分页数据
-                total:
-                    type: integer
-                    description: 总数
-                    format: int32
-        PageGoodsResponse:
-            type: object
-            properties:
-                list:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/Goods'
                     description: 分页数据
                 total:
                     type: integer
@@ -6528,13 +6550,13 @@ components:
                     type: integer
                     description: 总数
                     format: int32
-        PageOrderResponse:
+        PageOrderInfoResponse:
             type: object
             properties:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Order'
+                        $ref: '#/components/schemas/OrderInfo'
                     description: 分页数据
                 total:
                     type: integer
@@ -6570,7 +6592,7 @@ components:
                 list:
                     type: array
                     items:
-                        $ref: '#/components/schemas/Goods'
+                        $ref: '#/components/schemas/GoodsInfo'
                     description: 分页数据
                 total:
                     type: integer
@@ -6697,7 +6719,7 @@ components:
                 phone:
                     type: string
                     description: 手机号
-        ReceiveOrderRequest:
+        ReceiveOrderInfoRequest:
             type: object
             properties:
                 orderId:
@@ -6727,7 +6749,7 @@ components:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
             description: 用户刷新令牌 - 回应
-        RefundOrderRequest:
+        RefundOrderInfoRequest:
             type: object
             properties:
                 orderId:
@@ -6870,7 +6892,7 @@ components:
                 isChecked:
                     type: boolean
                     description: 是否选中
-        ShippedOrderRequest:
+        ShippedOrderInfoRequest:
             type: object
             properties:
                 orderId:
@@ -7622,9 +7644,6 @@ components:
                 abnormalPriceSkuCount:
                     type: string
                     description: 价格配置异常SKU数
-                pendingOperationCount:
-                    type: string
-                    description: 运营位待检查项数
         WorkspaceTodoListResponse:
             type: object
             properties:
@@ -7666,9 +7685,9 @@ components:
             description: 微信后台登录 - 回应
 tags:
     - name: AuthService
-      description: App用户登录认证服务
-    - name: AuthService
       description: Admin用户登录认证服务
+    - name: AuthService
+      description: App用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -7678,9 +7697,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -7700,13 +7719,13 @@ tags:
     - name: GoodsCategoryService
       description: App商品分类服务
     - name: GoodsCategoryService
-      description: Admin分类服务
+      description: Admin商品分类服务
+    - name: GoodsInfoService
+      description: Admin商品信息服务
+    - name: GoodsInfoService
+      description: App商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
-    - name: GoodsService
-      description: Admin商品服务
-    - name: GoodsService
-      description: App商品服务
     - name: GoodsSkuService
       description: Admin商品SKU服务
     - name: GoodsSpecService
@@ -7715,24 +7734,24 @@ tags:
       description: Base登录公共服务
     - name: OrderAnalyticsService
       description: Admin订单分析服务
+    - name: OrderInfoService
+      description: App订单信息服务
+    - name: OrderInfoService
+      description: Admin订单信息服务
     - name: OrderReportService
       description: Admin订单报表服务
-    - name: OrderService
-      description: Admin订单服务
-    - name: OrderService
-      description: App订单服务
     - name: PayBillService
       description: Admin支付账单服务
     - name: PayService
       description: App支付服务
     - name: ShopBannerService
-      description: Admin轮播图服务
+      description: App商城轮播图服务
     - name: ShopBannerService
-      description: App轮播图服务
-    - name: ShopHotService
-      description: Admin商城热门推荐服务
+      description: Admin商城轮播图服务
     - name: ShopHotService
       description: App热门推荐服务
+    - name: ShopHotService
+      description: Admin商城热门推荐服务
     - name: ShopServiceService
       description: App商城服务
     - name: ShopServiceService
@@ -7746,8 +7765,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: App用户门店管理服务
-    - name: UserStoreService
       description: Admin用户门店管理服务
+    - name: UserStoreService
+      description: App用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

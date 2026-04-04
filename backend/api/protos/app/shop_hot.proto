@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/wrappers.proto";
 
-import "app/goods.proto";
+import "app/goods_info.proto";
 
 // App热门推荐服务
 service ShopHotService {
@@ -64,7 +64,7 @@ message PageShopHotGoodsRequest{
 
 message PageShopHotGoodsResponse{
   // 分页数据
-  repeated app.Goods list = 1;
+  repeated app.GoodsInfo list = 1;
   // 总数
   int32 total = 2;
 }

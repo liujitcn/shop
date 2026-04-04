@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-service v0.0.1
 // - protoc             (unknown)
-// source: admin/goods.proto
+// source: admin/goods_info.proto
 
 package admin
 
@@ -25,58 +25,58 @@ import (
 
 const _ = grpc.SupportPackageIsVersion7
 
-// GoodsService Admin商品服务
-type GoodsService struct {
-	admin.UnimplementedGoodsServiceServer
-	goodsCase *biz.GoodsCase
+// GoodsInfoService Admin商品信息服务
+type GoodsInfoService struct {
+	admin.UnimplementedGoodsInfoServiceServer
+	goodsCase *biz.GoodsInfoCase
 }
 
-// NewGoodsService 创建Admin商品服务
-func NewGoodsService(
-	goodsCase *biz.GoodsCase,
-) *GoodsService {
-	return &GoodsService{
+// NewGoodsInfoService 创建Admin商品信息服务
+func NewGoodsInfoService(
+	goodsCase *biz.GoodsInfoCase,
+) *GoodsInfoService {
+	return &GoodsInfoService{
 		goodsCase: goodsCase,
 	}
 }
 
-// ListGoods 查询商品列表
-func (s *GoodsService) ListGoods(ctx context.Context, req *admin.ListGoodsRequest) (*admin.ListGoodsResponse, error) {
-	list, err := s.goodsCase.ListGoods(ctx, req)
+// ListGoodsInfo 查询商品信息列表
+func (s *GoodsInfoService) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
+	list, err := s.goodsCase.ListGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("ListGoods err:", err.Error())
+		log.Error("ListGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品列表失败")
 	}
 	return list, nil
 }
 
-// PageGoods 查询商品分页列表
-func (s *GoodsService) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) (*admin.PageGoodsResponse, error) {
-	page, err := s.goodsCase.PageGoods(ctx, req)
+// PageGoodsInfo 查询商品信息分页列表
+func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsInfoRequest) (*admin.PageGoodsInfoResponse, error) {
+	page, err := s.goodsCase.PageGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("PageGoods err:", err.Error())
+		log.Error("PageGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品分页列表失败")
 	}
 
 	return page, nil
 }
 
-// GetGoods 查询商品
-func (s *GoodsService) GetGoods(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsForm, error) {
-	goods, err := s.goodsCase.GetGoods(ctx, req.GetValue())
+// GetGoodsInfo 查询商品信息
+func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsInfoForm, error) {
+	goods, err := s.goodsCase.GetGoodsInfo(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetGoods err:", err.Error())
+		log.Error("GetGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品失败")
 	}
 
 	return goods, nil
 }
 
-// CreateGoods 创建商品
-func (s *GoodsService) CreateGoods(ctx context.Context, req *admin.GoodsForm) (*emptypb.Empty, error) {
-	err := s.goodsCase.CreateGoods(ctx, req)
+// CreateGoodsInfo 创建商品信息
+func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) (*emptypb.Empty, error) {
+	err := s.goodsCase.CreateGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("CreateGoods err:", err.Error())
+		log.Error("CreateGoodsInfo err:", err.Error())
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			switch {
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsProp):
@@ -92,11 +92,11 @@ func (s *GoodsService) CreateGoods(ctx context.Context, req *admin.GoodsForm) (*
 	return new(emptypb.Empty), nil
 }
 
-// UpdateGoods 更新商品
-func (s *GoodsService) UpdateGoods(ctx context.Context, req *admin.GoodsForm) (*emptypb.Empty, error) {
-	err := s.goodsCase.UpdateGoods(ctx, req)
+// UpdateGoodsInfo 更新商品信息
+func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) (*emptypb.Empty, error) {
+	err := s.goodsCase.UpdateGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("UpdateGoods err:", err.Error())
+		log.Error("UpdateGoodsInfo err:", err.Error())
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			switch {
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsProp):
@@ -112,21 +112,21 @@ func (s *GoodsService) UpdateGoods(ctx context.Context, req *admin.GoodsForm) (*
 	return new(emptypb.Empty), nil
 }
 
-// DeleteGoods 删除商品
-func (s *GoodsService) DeleteGoods(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
-	err := s.goodsCase.DeleteGoods(ctx, req.GetValue())
+// DeleteGoodsInfo 删除商品信息
+func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
+	err := s.goodsCase.DeleteGoodsInfo(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteGoods err:", err.Error())
+		log.Error("DeleteGoodsInfo err:", err.Error())
 		return nil, errors.New("删除商品失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// SetGoodsStatus 设置状态
-func (s *GoodsService) SetGoodsStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
-	err := s.goodsCase.SetGoodsStatus(ctx, req)
+// SetGoodsInfoStatus 设置状态
+func (s *GoodsInfoService) SetGoodsInfoStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
+	err := s.goodsCase.SetGoodsInfoStatus(ctx, req)
 	if err != nil {
-		log.Error("SetGoodsStatus err:", err.Error())
+		log.Error("SetGoodsInfoStatus err:", err.Error())
 		return nil, errors.New("设置状态失败")
 	}
 	return new(emptypb.Empty), nil

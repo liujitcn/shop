@@ -57,12 +57,12 @@ func NewGRPCServer(
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
-	adminGoods *admin.GoodsService,
+	adminGoods *admin.GoodsInfoService,
 	adminGoodsSku *admin.GoodsSkuService,
 	adminGoodsSpec *admin.GoodsSpecService,
 	adminOrderAnalytics *admin.OrderAnalyticsService,
 	adminOrderReport *admin.OrderReportService,
-	adminOrder *admin.OrderService,
+	adminOrder *admin.OrderInfoService,
 	adminPayBill *admin.PayBillService,
 	adminShopBanner *admin.ShopBannerService,
 	adminShopHot *admin.ShopHotService,
@@ -75,8 +75,8 @@ func NewGRPCServer(
 	appBaseArea *app.BaseAreaService,
 	appBaseDict *app.BaseDictService,
 	appGoodsCategory *app.GoodsCategoryService,
-	appGoods *app.GoodsService,
-	appOrder *app.OrderService,
+	appGoods *app.GoodsInfoService,
+	appOrder *app.OrderInfoService,
 	appPay *app.PayService,
 	appShopBanner *app.ShopBannerService,
 	appShopHot *app.ShopHotService,
@@ -112,12 +112,12 @@ func NewGRPCServer(
 	adminApi.RegisterGoodsAnalyticsServiceServer(srv, adminGoodsAnalytics)
 	adminApi.RegisterGoodsCategoryServiceServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceServer(srv, adminGoodsProp)
-	adminApi.RegisterGoodsServiceServer(srv, adminGoods)
+	adminApi.RegisterGoodsInfoServiceServer(srv, adminGoods)
 	adminApi.RegisterGoodsSkuServiceServer(srv, adminGoodsSku)
 	adminApi.RegisterGoodsSpecServiceServer(srv, adminGoodsSpec)
 	adminApi.RegisterOrderAnalyticsServiceServer(srv, adminOrderAnalytics)
 	adminApi.RegisterOrderReportServiceServer(srv, adminOrderReport)
-	adminApi.RegisterOrderServiceServer(srv, adminOrder)
+	adminApi.RegisterOrderInfoServiceServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceServer(srv, adminPayBill)
 	adminApi.RegisterShopBannerServiceServer(srv, adminShopBanner)
 	adminApi.RegisterShopHotServiceServer(srv, adminShopHot)
@@ -130,8 +130,8 @@ func NewGRPCServer(
 	appApi.RegisterBaseAreaServiceServer(srv, appBaseArea)
 	appApi.RegisterBaseDictServiceServer(srv, appBaseDict)
 	appApi.RegisterGoodsCategoryServiceServer(srv, appGoodsCategory)
-	appApi.RegisterGoodsServiceServer(srv, appGoods)
-	appApi.RegisterOrderServiceServer(srv, appOrder)
+	appApi.RegisterGoodsInfoServiceServer(srv, appGoods)
+	appApi.RegisterOrderInfoServiceServer(srv, appOrder)
 	appApi.RegisterPayServiceServer(srv, appPay)
 	appApi.RegisterShopBannerServiceServer(srv, appShopBanner)
 	appApi.RegisterShopHotServiceServer(srv, appShopHot)

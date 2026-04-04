@@ -29,18 +29,18 @@ import (
 
 const orderRefundReason string = "order_refund_reason" // 退款原因
 
-// OrderCase 订单业务处理对象
-type OrderCase struct {
+// OrderInfoCase 订单业务处理对象
+type OrderInfoCase struct {
 	*biz.BaseCase
 	tx data.Transaction
-	*data.OrderRepo
+	*data.OrderInfoRepo
 	orderCancelCase    *OrderCancelCase
 	orderGoodsCase     *OrderGoodsCase
 	orderAddressCase   *OrderAddressCase
 	orderLogisticsCase *OrderLogisticsCase
 	orderPaymentCase   *OrderPaymentCase
 	orderRefundCase    *OrderRefundCase
-	goodsCase          *GoodsCase
+	goodsCase          *GoodsInfoCase
 	goodsSkuCase       *GoodsSkuCase
 	userAddressCase    *UserAddressCase
 	userCartCase       *UserCartCase
@@ -50,18 +50,18 @@ type OrderCase struct {
 	wxPayCase          *wx.WxPayCase
 }
 
-// NewOrderCase 创建订单业务处理对象
-func NewOrderCase(
+// NewOrderInfoCase 创建订单业务处理对象
+func NewOrderInfoCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
-	orderRepo *data.OrderRepo,
+	orderRepo *data.OrderInfoRepo,
 	orderCancelCase *OrderCancelCase,
 	orderGoodsCase *OrderGoodsCase,
 	orderAddressCase *OrderAddressCase,
 	orderLogisticsCase *OrderLogisticsCase,
 	orderPaymentCase *OrderPaymentCase,
 	orderRefundCase *OrderRefundCase,
-	goodsCase *GoodsCase,
+	goodsCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 	userAddressCase *UserAddressCase,
 	userCartCase *UserCartCase,
@@ -69,11 +69,11 @@ func NewOrderCase(
 	orderSchedulerCase *OrderSchedulerCase,
 	payCase *PayCase,
 	wxPayCase *wx.WxPayCase,
-) (*OrderCase, error) {
-	c := &OrderCase{
+) (*OrderInfoCase, error) {
+	c := &OrderInfoCase{
 		BaseCase:           baseCase,
 		tx:                 tx,
-		OrderRepo:          orderRepo,
+		OrderInfoRepo:      orderRepo,
 		orderCancelCase:    orderCancelCase,
 		orderGoodsCase:     orderGoodsCase,
 		orderAddressCase:   orderAddressCase,
@@ -91,7 +91,7 @@ func NewOrderCase(
 	}
 
 	// 服务启动时恢复全部未支付订单的超时取消任务
-	orderQuery := c.Query(context.Background()).Order
+	orderQuery := c.Query(context.Background()).OrderInfo
 	opts := make([]repo.QueryOption, 0, 1)
 	opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(common.OrderStatus_CREATED))))
 	list, err := c.List(context.Background(), opts...)
@@ -106,7 +106,7 @@ func NewOrderCase(
 		countdown := createdAt.Sub(nowTime).Seconds()
 		if countdown < 0 {
 			// 自动取消订单
-			err = c.cancelOrder(context.Background(), item.UserID, &app.CancelOrderRequest{
+			err = c.cancelOrder(context.Background(), item.UserID, &app.CancelOrderInfoRequest{
 				OrderId: item.ID,
 			})
 			if err != nil {
@@ -115,7 +115,7 @@ func NewOrderCase(
 		} else {
 			// 添加自动取消定时任务
 			c.orderSchedulerCase.AddSchedule(item.ID, time.Duration(countdown)*time.Second, func() {
-				err = c.cancelOrder(context.Background(), item.UserID, &app.CancelOrderRequest{
+				err = c.cancelOrder(context.Background(), item.UserID, &app.CancelOrderInfoRequest{
 					OrderId: item.ID,
 				})
 				if err != nil {
@@ -128,8 +128,8 @@ func NewOrderCase(
 	return c, nil
 }
 
-// OrderPre 预付订单
-func (c *OrderCase) OrderPre(ctx context.Context) (*app.ConfirmOrderResponse, error) {
+// OrderInfoPre 预付订单
+func (c *OrderInfoCase) OrderInfoPre(ctx context.Context) (*app.ConfirmOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -146,9 +146,9 @@ func (c *OrderCase) OrderPre(ctx context.Context) (*app.ConfirmOrderResponse, er
 	if err != nil {
 		return nil, err
 	}
-	createOrderGoods := make([]*app.CreateOrderGoods, 0)
+	createOrderGoods := make([]*app.CreateOrderInfoGoods, 0)
 	for _, item := range userCartList {
-		createOrderGoods = append(createOrderGoods, &app.CreateOrderGoods{
+		createOrderGoods = append(createOrderGoods, &app.CreateOrderInfoGoods{
 			GoodsId: item.GoodsID,
 			SkuCode: item.SkuCode,
 			Num:     item.Num,
@@ -157,8 +157,8 @@ func (c *OrderCase) OrderPre(ctx context.Context) (*app.ConfirmOrderResponse, er
 	return c.orderBuy(ctx, member, createOrderGoods)
 }
 
-// OrderBuy 立即购买订单
-func (c *OrderCase) OrderBuy(ctx context.Context, req *app.CreateOrderGoods) (*app.ConfirmOrderResponse, error) {
+// OrderInfoBuy 立即购买订单
+func (c *OrderInfoCase) OrderInfoBuy(ctx context.Context, req *app.CreateOrderInfoGoods) (*app.ConfirmOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -166,18 +166,18 @@ func (c *OrderCase) OrderBuy(ctx context.Context, req *app.CreateOrderGoods) (*a
 	member := util.IsMemberByAuthInfo(authInfo)
 
 	// 将单个商品请求封装成统一的下单明细列表
-	createOrderGoods := []*app.CreateOrderGoods{req}
+	createOrderGoods := []*app.CreateOrderInfoGoods{req}
 	return c.orderBuy(ctx, member, createOrderGoods)
 }
 
-// OrderRepurchase 再次购买订单
-func (c *OrderCase) OrderRepurchase(ctx context.Context, req *app.OrderRepurchaseRequest) (*app.ConfirmOrderResponse, error) {
+// OrderInfoRepurchase 再次购买订单
+func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderRepurchaseInfoRequest) (*app.ConfirmOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 	member := util.IsMemberByAuthInfo(authInfo)
-	var order *models.Order
+	var order *models.OrderInfo
 	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {
 		return nil, err
@@ -191,9 +191,9 @@ func (c *OrderCase) OrderRepurchase(ctx context.Context, req *app.OrderRepurchas
 	if err != nil {
 		return nil, err
 	}
-	createOrderGoods := make([]*app.CreateOrderGoods, 0)
+	createOrderGoods := make([]*app.CreateOrderInfoGoods, 0)
 	for _, item := range oldOrderGoods {
-		createOrderGoods = append(createOrderGoods, &app.CreateOrderGoods{
+		createOrderGoods = append(createOrderGoods, &app.CreateOrderInfoGoods{
 			GoodsId: item.GoodsID,
 			SkuCode: item.SkuCode,
 			Num:     item.Num,
@@ -202,13 +202,13 @@ func (c *OrderCase) OrderRepurchase(ctx context.Context, req *app.OrderRepurchas
 	return c.orderBuy(ctx, member, createOrderGoods)
 }
 
-// CountOrder 查询订单数量汇总
-func (c *OrderCase) CountOrder(ctx context.Context) (*app.CountOrderResponse, error) {
+// CountOrderInfo 查询订单数量汇总
+func (c *OrderInfoCase) CountOrderInfo(ctx context.Context) (*app.CountOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	query := c.Query(ctx).Order
+	query := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 1)
 	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
 	list, err := c.List(ctx, opts...)
@@ -219,32 +219,32 @@ func (c *OrderCase) CountOrder(ctx context.Context) (*app.CountOrderResponse, er
 	for _, item := range list {
 		res[item.Status]++
 	}
-	count := make([]*app.CountOrderResponse_Count, 0)
+	count := make([]*app.CountOrderInfoResponse_Count, 0)
 	for k, v := range res {
-		count = append(count, &app.CountOrderResponse_Count{
+		count = append(count, &app.CountOrderInfoResponse_Count{
 			Status: common.OrderStatus(k),
 			Num:    v,
 		})
 	}
-	return &app.CountOrderResponse{
+	return &app.CountOrderInfoResponse{
 		Count: count,
 	}, nil
 }
 
-// PageOrder 查询订单分页列表
-func (c *OrderCase) PageOrder(ctx context.Context, req *app.PageOrderRequest) (*app.PageOrderResponse, error) {
+// PageOrderInfo 查询订单分页列表
+func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *app.PageOrderInfoRequest) (*app.PageOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	orderQuery := c.Query(ctx).Order
+	orderQuery := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(orderQuery.UpdatedAt.Desc()))
 	opts = append(opts, repo.Where(orderQuery.UserID.Eq(authInfo.UserId)))
 	if req.GetStatus() != common.OrderStatus_UNKNOWN_OS {
 		opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(req.GetStatus()))))
 	}
-	var page []*models.Order
+	var page []*models.OrderInfo
 	var count int64
 	page, count, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
@@ -262,7 +262,7 @@ func (c *OrderCase) PageOrder(ctx context.Context, req *app.PageOrderRequest) (*
 		return nil, err
 	}
 
-	list := make([]*app.Order, 0)
+	list := make([]*app.OrderInfo, 0)
 	for _, item := range page {
 		order := c.convertToProto(item)
 		if v, ok := orderGoodsMap[order.Id]; ok {
@@ -271,21 +271,21 @@ func (c *OrderCase) PageOrder(ctx context.Context, req *app.PageOrderRequest) (*
 		list = append(list, order)
 	}
 
-	return &app.PageOrderResponse{
+	return &app.PageOrderInfoResponse{
 		List:  list,
 		Total: int32(count),
 	}, nil
 }
 
-// GetOrderIdByOrderNo 按订单号查询订单编号
-func (c *OrderCase) GetOrderIdByOrderNo(ctx context.Context, orderNo string) (int64, error) {
+// GetOrderInfoIdByOrderNo 按订单号查询订单编号
+func (c *OrderInfoCase) GetOrderInfoIdByOrderNo(ctx context.Context, orderNo string) (int64, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return 0, err
 	}
 
-	query := c.Query(ctx).Order
-	var item *models.Order
+	query := c.Query(ctx).OrderInfo
+	var item *models.OrderInfo
 	item, err = c.Find(ctx,
 		repo.Where(query.OrderNo.Eq(orderNo)),
 		repo.Where(query.UserID.Eq(authInfo.UserId)),
@@ -296,14 +296,14 @@ func (c *OrderCase) GetOrderIdByOrderNo(ctx context.Context, orderNo string) (in
 	return item.ID, nil
 }
 
-// GetOrderById 根据订单编号查询订单
-func (c *OrderCase) GetOrderById(ctx context.Context, id int64) (*app.OrderResponse, error) {
+// GetOrderInfoById 根据订单编号查询订单
+func (c *OrderInfoCase) GetOrderInfoById(ctx context.Context, id int64) (*app.OrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	var item *models.Order
+	var item *models.OrderInfo
 	item, err = c.findByUserIdAndId(ctx, authInfo.UserId, id)
 	if err != nil {
 		return nil, err
@@ -321,13 +321,13 @@ func (c *OrderCase) GetOrderById(ctx context.Context, id int64) (*app.OrderRespo
 		return nil, err
 	}
 	// 查询订单收货地址快照
-	var address *app.OrderResponse_Address
+	var address *app.OrderInfoResponse_Address
 	address, err = c.orderAddressCase.findByOrderId(ctx, order.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	res := app.OrderResponse{
+	res := app.OrderInfoResponse{
 		Order:     order,
 		Address:   address,
 		Countdown: float32(countdown),
@@ -345,7 +345,7 @@ func (c *OrderCase) GetOrderById(ctx context.Context, id int64) (*app.OrderRespo
 		}
 	case common.OrderStatus_SHIPPED, common.OrderStatus_RECEIVED:
 		// 已发货订单返回物流信息
-		var logistics *app.OrderResponse_Logistics
+		var logistics *app.OrderInfoResponse_Logistics
 		logistics, err = c.orderLogisticsCase.findByOrderId(ctx, order.Id)
 		if err != nil {
 			return nil, err
@@ -367,8 +367,8 @@ func (c *OrderCase) GetOrderById(ctx context.Context, id int64) (*app.OrderRespo
 	return &res, nil
 }
 
-// CreateOrder 创建订单并发起支付准备
-func (c *OrderCase) CreateOrder(ctx context.Context, request *app.CreateOrderRequest) (*app.CreateOrderResponse, error) {
+// CreateOrderInfo 创建订单并发起支付准备
+func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.CreateOrderInfoRequest) (*app.CreateOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -380,7 +380,7 @@ func (c *OrderCase) CreateOrder(ctx context.Context, request *app.CreateOrderReq
 	}
 
 	// 先构建订单基础信息，再在事务中统一落库
-	order := &models.Order{
+	order := &models.OrderInfo{
 		OrderNo:      strconv.FormatInt(id.GenSnowflakeID(), 10),
 		UserID:       authInfo.UserId,
 		PayType:      int32(request.PayType),
@@ -416,7 +416,7 @@ func (c *OrderCase) CreateOrder(ctx context.Context, request *app.CreateOrderReq
 		}
 		// 当前版本统一免运费
 		order.PostFee = 0
-		err = c.OrderRepo.Create(ctx, order)
+		err = c.OrderInfoRepo.Create(ctx, order)
 		if err != nil {
 			return err
 		}
@@ -444,7 +444,7 @@ func (c *OrderCase) CreateOrder(ctx context.Context, request *app.CreateOrderReq
 		nowTime := time.Now()
 		countdown := createdAt.Sub(nowTime).Seconds()
 		c.orderSchedulerCase.AddSchedule(order.ID, time.Duration(countdown)*time.Second, func() {
-			err = c.cancelOrder(context.Background(), order.UserID, &app.CancelOrderRequest{
+			err = c.cancelOrder(context.Background(), order.UserID, &app.CancelOrderInfoRequest{
 				OrderId: order.ID,
 			})
 			if err != nil {
@@ -452,19 +452,19 @@ func (c *OrderCase) CreateOrder(ctx context.Context, request *app.CreateOrderReq
 			}
 		})
 	}
-	return &app.CreateOrderResponse{
+	return &app.CreateOrderInfoResponse{
 		OrderId: order.ID,
 	}, nil
 }
 
-// DeleteOrder 删除订单
-func (c *OrderCase) DeleteOrder(ctx context.Context, id int64) error {
+// DeleteOrderInfo 删除订单
+func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
 	}
 
-	var order *models.Order
+	var order *models.OrderInfo
 	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, id)
 	if err != nil {
 		return err
@@ -474,13 +474,13 @@ func (c *OrderCase) DeleteOrder(ctx context.Context, id int64) error {
 	}
 
 	orderIds := []int64{id}
-	return c.updateByIds(ctx, authInfo.UserId, orderIds, &models.Order{
+	return c.updateByIds(ctx, authInfo.UserId, orderIds, &models.OrderInfo{
 		Status: int32(common.OrderStatus_DELETED),
 	})
 }
 
-// CancelOrder 取消订单并回退库存销量
-func (c *OrderCase) CancelOrder(ctx context.Context, req *app.CancelOrderRequest) error {
+// CancelOrderInfo 取消订单并回退库存销量
+func (c *OrderInfoCase) CancelOrderInfo(ctx context.Context, req *app.CancelOrderInfoRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -488,13 +488,13 @@ func (c *OrderCase) CancelOrder(ctx context.Context, req *app.CancelOrderRequest
 	return c.cancelOrder(ctx, authInfo.UserId, req)
 }
 
-// RefundOrder 申请订单退款
-func (c *OrderCase) RefundOrder(ctx context.Context, req *app.RefundOrderRequest) error {
+// RefundOrderInfo 申请订单退款
+func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrderInfoRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
 	}
-	var order *models.Order
+	var order *models.OrderInfo
 	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {
 		return err
@@ -574,20 +574,20 @@ func (c *OrderCase) RefundOrder(ctx context.Context, req *app.RefundOrderRequest
 		if err != nil {
 			return err
 		}
-		return c.updateByIds(ctx, authInfo.UserId, orderIds, &models.Order{
+		return c.updateByIds(ctx, authInfo.UserId, orderIds, &models.OrderInfo{
 			Status: int32(common.OrderStatus_REFUNDING),
 		})
 	})
 }
 
-// ReceiveOrder 确认收货
-func (c *OrderCase) ReceiveOrder(ctx context.Context, req *app.ReceiveOrderRequest) error {
+// ReceiveOrderInfo 确认收货
+func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *app.ReceiveOrderInfoRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
 	}
 
-	var order *models.Order
+	var order *models.OrderInfo
 	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {
 		return err
@@ -597,14 +597,14 @@ func (c *OrderCase) ReceiveOrder(ctx context.Context, req *app.ReceiveOrderReque
 	}
 
 	orderIds := []int64{req.GetOrderId()}
-	return c.updateByIds(ctx, authInfo.UserId, orderIds, &models.Order{
+	return c.updateByIds(ctx, authInfo.UserId, orderIds, &models.OrderInfo{
 		Status: int32(common.OrderStatus_RECEIVED),
 	})
 }
 
 // 将订单模型转换为接口响应
-func (c *OrderCase) convertToProto(item *models.Order) *app.Order {
-	res := &app.Order{
+func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *app.OrderInfo {
+	res := &app.OrderInfo{
 		Id:           item.ID,
 		OrderNo:      item.OrderNo,
 		PayMoney:     item.PayMoney,
@@ -623,10 +623,10 @@ func (c *OrderCase) convertToProto(item *models.Order) *app.Order {
 }
 
 // 汇总下单商品信息并生成确认单
-func (c *OrderCase) orderBuy(ctx context.Context, member bool, createOrderGoods []*app.CreateOrderGoods) (*app.ConfirmOrderResponse, error) {
+func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGoods []*app.CreateOrderInfoGoods) (*app.ConfirmOrderInfoResponse, error) {
 	newOrderGoods := make([]*app.OrderGoods, 0)
 	for _, item := range createOrderGoods {
-		newGoods, err := c.orderGoodsCase.convertToProtoByCreateOrderGoods(ctx, member, item)
+		newGoods, err := c.orderGoodsCase.convertToProtoByCreateOrderInfoGoods(ctx, member, item)
 		if err != nil {
 			return nil, err
 		}
@@ -641,14 +641,14 @@ func (c *OrderCase) orderBuy(ctx context.Context, member bool, createOrderGoods 
 	}
 	// 当前版本统一免运费
 	summary.PostFee = 0
-	return &app.ConfirmOrderResponse{
+	return &app.ConfirmOrderInfoResponse{
 		Goods:   newOrderGoods,
 		Summary: &summary,
 	}, nil
 }
 
 // cancelOrder 内部执行订单取消并回退库存销量
-func (c *OrderCase) cancelOrder(ctx context.Context, userId int64, req *app.CancelOrderRequest) error {
+func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.CancelOrderInfoRequest) error {
 	order, err := c.findByUserIdAndId(ctx, userId, req.GetOrderId())
 	if err != nil {
 		return err
@@ -700,15 +700,15 @@ func (c *OrderCase) cancelOrder(ctx context.Context, userId int64, req *app.Canc
 		if err != nil {
 			return err
 		}
-		return c.updateByIds(ctx, userId, orderIds, &models.Order{
+		return c.updateByIds(ctx, userId, orderIds, &models.OrderInfo{
 			Status: int32(common.OrderStatus_CANCELED),
 		})
 	})
 }
 
 // 按订单编号和用户编号查询订单
-func (c *OrderCase) findByUserIdAndId(ctx context.Context, userId, orderId int64) (*models.Order, error) {
-	query := c.Query(ctx).Order
+func (c *OrderInfoCase) findByUserIdAndId(ctx context.Context, userId, orderId int64) (*models.OrderInfo, error) {
+	query := c.Query(ctx).OrderInfo
 	return c.Find(ctx,
 		repo.Where(query.ID.Eq(orderId)),
 		repo.Where(query.UserID.Eq(userId)),
@@ -716,11 +716,11 @@ func (c *OrderCase) findByUserIdAndId(ctx context.Context, userId, orderId int64
 }
 
 // 按订单编号批量更新当前用户的订单
-func (c *OrderCase) updateByIds(ctx context.Context, userId int64, ids []int64, entity *models.Order) error {
+func (c *OrderInfoCase) updateByIds(ctx context.Context, userId int64, ids []int64, entity *models.OrderInfo) error {
 	if len(ids) == 0 {
 		return nil
 	}
-	query := c.Query(ctx).Order
+	query := c.Query(ctx).OrderInfo
 	return c.Update(ctx, entity,
 		repo.Where(query.ID.In(ids...)),
 		repo.Where(query.UserID.Eq(userId)),

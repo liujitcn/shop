@@ -13,11 +13,11 @@ import (
 // UserAnalyticsCase 用户分析业务
 type UserAnalyticsCase struct {
 	baseUserCase *BaseUserCase
-	orderCase    *OrderCase
+	orderCase    *OrderInfoCase
 }
 
 // NewUserAnalyticsCase 创建用户分析业务
-func NewUserAnalyticsCase(baseUserCase *BaseUserCase, orderCase *OrderCase) *UserAnalyticsCase {
+func NewUserAnalyticsCase(baseUserCase *BaseUserCase, orderCase *OrderInfoCase) *UserAnalyticsCase {
 	return &UserAnalyticsCase{
 		baseUserCase: baseUserCase,
 		orderCase:    orderCase,
@@ -141,7 +141,7 @@ func (c *UserAnalyticsCase) countNewUsers(ctx context.Context, startAt, endAt ti
 
 func (c *UserAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	db := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().Model(&models.Order{})
+	db := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Model(&models.OrderInfo{})
 	if !startAt.IsZero() {
 		db = db.Where("created_at >= ? AND created_at < ?", startAt, endAt)
 	} else {
@@ -167,7 +167,7 @@ func (c *UserAnalyticsCase) countDistinctActiveUsers(ctx context.Context, startA
 		" UNION ALL" +
 		" SELECT user_id FROM user_store WHERE created_at >= ? AND created_at < ?" +
 		" UNION ALL" +
-		" SELECT user_id FROM `order` WHERE created_at >= ? AND created_at < ?" +
+		" SELECT user_id FROM `" + models.TableNameOrderInfo + "` WHERE created_at >= ? AND created_at < ?" +
 		") t"
 	// 将多种活跃行为表合并后去重，得到周期内真实活跃用户数。
 	err := c.baseUserCase.Query(ctx).BaseUser.WithContext(ctx).UnderlyingDB().
@@ -218,8 +218,8 @@ func (c *UserAnalyticsCase) queryOrderUserSummary(ctx context.Context, timeType 
 	}
 	rows := make([]*row, 0)
 	selectExpr, _ := utils.GetAnalyticsGroupExpr(timeType, startAt, endAt)
-	err := c.orderCase.Query(ctx).Order.WithContext(ctx).UnderlyingDB().
-		Model(&models.Order{}).
+	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.OrderInfo{}).
 		Select(selectExpr+" AS `key`, COUNT(DISTINCT user_id) AS count").
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Group("`key`").

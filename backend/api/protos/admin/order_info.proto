@@ -9,46 +9,46 @@ import "google/protobuf/wrappers.proto";
 
 import "common/enum.proto";
 
-// Admin订单服务
-service OrderService {
-  // 查询订单分页列表
-  rpc PageOrder (PageOrderRequest) returns (PageOrderResponse) {
+// Admin订单信息服务
+service OrderInfoService {
+  // 查询订单信息分页列表
+  rpc PageOrderInfo (PageOrderInfoRequest) returns (PageOrderInfoResponse) {
     option (google.api.http) = {
       get: "/api/admin/order/info"
     };
   }
 
-  // 查询订单
-  rpc GetOrder (google.protobuf.Int64Value) returns (OrderResponse) {
+  // 查询订单信息
+  rpc GetOrderInfo (google.protobuf.Int64Value) returns (OrderInfoResponse) {
     option (google.api.http) = {
       get: "/api/admin/order/info/{value}"
     };
   }
 
-  // 查询订单退款信息
-  rpc GetOrderRefund (google.protobuf.Int64Value) returns (OrderRefundResponse) {
+  // 查询订单信息退款信息
+  rpc GetOrderInfoRefund (google.protobuf.Int64Value) returns (OrderInfoRefundResponse) {
     option (google.api.http) = {
       get: "/api/admin/order/info/{value}/refund"
     };
   }
 
-  // 订单退款
-  rpc RefundOrder (RefundOrderRequest) returns (google.protobuf.Empty) {
+  // 订单信息退款
+  rpc RefundOrderInfo (RefundOrderInfoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/admin/order/info/{orderId}/refund"
       body: "*"
     };
   }
 
-  // 查询订单发货信息
-  rpc GetOrderShipped (google.protobuf.Int64Value) returns (OrderShippedResponse) {
+  // 查询订单信息发货信息
+  rpc GetOrderInfoShipped (google.protobuf.Int64Value) returns (OrderInfoShippedResponse) {
     option (google.api.http) = {
       get: "/api/admin/order/info/{value}/shipped"
     };
   }
 
-  // 订单发货
-  rpc ShippedOrder (ShippedOrderRequest) returns (google.protobuf.Empty) {
+  // 订单信息发货
+  rpc ShippedOrderInfo (ShippedOrderInfoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put: "/api/admin/order/info/{orderId}/shipped"
       body: "*"
@@ -56,7 +56,7 @@ service OrderService {
   }
 }
 
-message PageOrderRequest{
+message PageOrderInfoRequest{
   string orderNo = 2 [
     (gnostic.openapi.v3.property) = {description: "订单编号"}
   ];  // 订单编号
@@ -102,15 +102,15 @@ message PageOrderRequest{
   ];
 }
 
-message PageOrderResponse{
+message PageOrderInfoResponse{
   // 分页数据
-  repeated Order list = 1;
+  repeated OrderInfo list = 1;
   // 总数
   int32 total = 2;
 }
 
-message OrderResponse{
-  Order order = 1 [
+message OrderInfoResponse{
+  OrderInfo order = 1 [
     (gnostic.openapi.v3.property) = {description: "订单信息"}
   ];  // 订单信息
 
@@ -143,7 +143,7 @@ message OrderResponse{
   ];  // 退款信息
 }
 
-message OrderRefundResponse {
+message OrderInfoRefundResponse {
   OrderPayment payment = 104 [
     (gnostic.openapi.v3.property) = {description: "支付信息"}
   ];  // 支付信息
@@ -153,7 +153,7 @@ message OrderRefundResponse {
   ];  // 退款信息
 }
 
-message RefundOrderRequest {
+message RefundOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
@@ -165,7 +165,7 @@ message RefundOrderRequest {
   ]; // 退款金额
 }
 
-message OrderShippedResponse {
+message OrderInfoShippedResponse {
   OrderAddress address = 100 [
     (gnostic.openapi.v3.property) = {description: "地址信息"}
   ];  // 地址信息
@@ -179,7 +179,7 @@ message OrderShippedResponse {
   ];  // 物流信息
 }
 
-message ShippedOrderRequest {
+message ShippedOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
@@ -195,7 +195,7 @@ message ShippedOrderRequest {
 }
 
 // 订单信息表
-message Order {
+message OrderInfo {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = { description: "订单id" }
   ];  // 订单ID
@@ -445,4 +445,3 @@ message OrderRefund {
     (gnostic.openapi.v3.property) = { description: "对账状态：枚举【OrderBillStatus】" }
   ];  // 对账状态：枚举【OrderBillStatus】
 }
-

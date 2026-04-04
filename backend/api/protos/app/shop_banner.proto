@@ -7,9 +7,9 @@ import "google/api/annotations.proto";
 
 import "common/enum.proto";
 
-// App轮播图服务
+// App商城轮播图服务
 service ShopBannerService {
-  // 查询轮播图列表
+  // 查询商城轮播图列表
   rpc ListShopBanner (ListShopBannerRequest) returns (ListShopBannerResponse) {
     option (google.api.http) = {
       get: "/api/app/shop/banner"

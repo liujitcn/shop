@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defShopHotService } from '@/api/app/shop_hot'
 import type { ShopHotItem } from '@/rpc/app/shop_hot'
-import type { Goods } from '@/rpc/app/goods'
+import type { GoodsInfo } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
@@ -16,7 +16,7 @@ const bannerPicture = ref('')
 const subTypes = ref<
   (ShopHotItem & {
     finish?: boolean
-    goodsItems?: Goods[]
+    goodsItems?: GoodsInfo[]
     total?: number
     pageNum?: number
     pageSize?: number
