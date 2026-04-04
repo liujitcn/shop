@@ -1,0 +1,176 @@
+# backend
+
+`backend` 是 `shop` 项目的后端服务，基于 `Go + Kratos`，同时提供 HTTP、gRPC、OpenAPI、文件上传和本地静态资源托管能力。
+
+## 技术栈
+
+- Go `1.26`
+- Kratos
+- gRPC + HTTP
+- GORM / GORM Gen
+- MySQL
+- Casbin
+- Wire
+- Buf / Protobuf / OpenAPI
+
+## 目录结构
+
+```text
+backend
+├── internal/cmd/server   # 实际启动入口
+├── service               # admin / app / base 服务实现
+├── server                # HTTP / gRPC 服务装配
+├── configs               # 运行配置
+├── api                   # proto 与生成配置
+├── pkg                   # 业务公共层、中间件、模型与查询代码
+├── data                  # 本地上传目录与前端静态资源目录
+├── certs                 # 证书目录
+└── Makefile              # 后端常用命令
+```
+
+## 已覆盖模块
+
+- 后台基础能力：登录、验证码、Token 刷新、用户、角色、菜单、部门、岗位、字典、配置、日志。
+- 商城管理能力：商品分类、商品信息、规格、属性、SKU、轮播图、热门推荐、商城服务、门店管理。
+- 商城端能力：分类、商品详情、购物车、收藏、地址、订单、支付、门店认证。
+- 统计分析：工作台、用户分析、商品分析、订单分析、支付账单。
+
+## 环境要求
+
+- Go `1.26+`
+- MySQL `8.x`
+
+## 配置说明
+
+启动命令固定使用：
+
+```bash
+go run ./internal/cmd/server -conf ./configs
+```
+
+主要配置文件：
+
+| 文件 | 作用 | 关键说明 |
+| --- | --- | --- |
+| `configs/data.yaml` | 数据库配置 | 默认数据库为 `shop_test`，`enable_migrate: true` |
+| `configs/server.yaml` | HTTP / gRPC 端口 | HTTP `7001`，gRPC `6001` |
+| `configs/auth.yaml` | JWT 配置 | 包含白名单接口 |
+| `configs/oss.yaml` | 文件存储 | 默认 `type: local`，根目录 `./data` |
+| `configs/configs.yaml` | 商城自定义配置 | 微信小程序与微信支付配置 |
+
+补充：
+
+- 本地上传目录会映射到 `/shop/*`，即 `backend/data/shop/... -> http://localhost:7001/shop/...`。
+- 后端会自动扫描 `backend/data` 下包含 `index.html` 的一级子目录，并按目录名挂载单页应用。
+- 因此 `backend/data/shop/index.html` 对应 `/shop`，`backend/data/app/index.html` 对应 `/app`。
+- `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
+
+## 数据库初始化
+
+### 1. 创建数据库
+
+```sql
+CREATE DATABASE shop_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+然后修改 `configs/data.yaml` 中的 `source`。
+
+### 2. 启动一次服务自动建表
+
+```bash
+cd backend
+go run ./internal/cmd/server -conf ./configs
+```
+
+### 3. 导入初始化数据
+
+在仓库根目录执行：
+
+```bash
+mysql -uroot -p shop_test < sql/default-data.sql
+mysql -uroot -p shop_test < sql/casbin_rule.sql
+mysql -uroot -p shop_test < sql/base_area.sql
+```
+
+如需导入演示商品数据：
+
+```bash
+mysql -uroot -p shop_test < sql/shop.sql
+```
+
+默认后台账号：
+
+- `super / 112233`
+- `admin / 112233`
+
+## 启动服务
+
+```bash
+cd backend
+go run ./internal/cmd/server -conf ./configs
+```
+
+默认地址：
+
+- HTTP：`http://localhost:7001`
+- gRPC：`localhost:6001`
+- Swagger UI：`http://localhost:7001/docs/`
+- OpenAPI：`http://localhost:7001/docs/openapi.yaml`
+
+## 前端静态资源协作
+
+- 管理后台构建产物输出到 `backend/data/shop`。
+- 商城 H5 构建产物输出到 `backend/data/app`。
+- 后端运行后会自动托管这两个目录，不需要额外配置 Nginx 才能本地联调。
+
+## 常用命令
+
+以下命令都在 `backend` 目录执行：
+
+```bash
+make init
+make fmt
+make api
+make openapi
+make ts
+make gen
+make wire
+make docker-build
+```
+
+对应说明：
+
+- `make init`：安装 `protoc` 相关插件、`buf`、`wire`、`goimports` 等工具。
+- `make fmt`：使用 `goimports` 格式化 Go 代码。
+- `make api`：生成 proto 对应 Go 代码。
+- `make openapi`：生成 OpenAPI 文档。
+- `make ts`：生成前端 TypeScript RPC 代码。
+- `make gen`：一键生成 Go / OpenAPI / TypeScript 产物。
+- `make wire`：生成依赖注入代码。
+- `make docker-build`：构建 Docker 镜像。
+
+注意：
+
+- `Makefile` 里的 `run` 目标仍然指向 `./cmd/server`，和当前真实入口不一致。
+- 当前实际可用启动命令仍然是 `go run ./internal/cmd/server -conf ./configs`。
+
+## Docker 打包
+
+```bash
+cd backend
+make docker-build
+```
+
+默认会先构建：
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/server ./internal/cmd/server
+```
+
+然后使用 `Dockerfile` 打包 `bin/server`、`configs`、`certs` 到运行时镜像。
+
+如需自定义镜像名和标签：
+
+```bash
+make docker-build IMAGE=your-registry/backend TAG=v1.0.0
+```
