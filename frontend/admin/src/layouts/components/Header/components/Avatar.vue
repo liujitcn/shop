@@ -36,7 +36,7 @@ import { useRouter } from "vue-router";
 import { useUserStore } from "@/stores/modules/user";
 import { ElMessageBox, ElMessage } from "element-plus";
 import type { DropdownInstance } from "element-plus";
-import defaultAvatar from "@/assets/images/avatar.gif";
+import defaultAvatar from "@/assets/images/avatar.png";
 
 const router = useRouter();
 const userStore = useUserStore();

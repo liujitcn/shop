@@ -1,92 +1,86 @@
 <template>
-  <div>
-    <el-card class="workspace-card workspace-card--welcome" shadow="never">
-      <div class="workspace-welcome">
-        <div class="workspace-user">
-          <el-avatar class="workspace-avatar" :src="avatarUrl" :size="64">
-            {{ avatarFallback }}
-          </el-avatar>
-          <div class="workspace-copy">
-            <span class="workspace-copy__label">今日工作概览</span>
-            <h1>{{ greetingText }}</h1>
-            <p>{{ subtitleText }}</p>
+  <div v-loading="loading" class="workspace-page">
+    <el-card class="workspace-card workspace-card--hero" shadow="never">
+      <div class="workspace-hero">
+        <div class="workspace-hero__intro">
+          <div class="workspace-user">
+            <div class="workspace-avatar">
+              <img :src="avatarSrc" alt="avatar" @error="handleAvatarError" />
+            </div>
+            <div class="workspace-copy">
+              <h1>{{ greetingText }}</h1>
+            </div>
           </div>
         </div>
 
-        <div class="workspace-summary">
-          <article v-for="item in overviewCards" :key="item.label" class="summary-item">
-            <span class="summary-item__label">{{ item.label }}</span>
-            <strong class="summary-item__value">{{ item.value }}</strong>
-            <span class="summary-item__meta">{{ item.meta }}</span>
+        <div class="metric-grid">
+          <article v-for="item in metricCards" :key="item.key" class="metric-card">
+            <button type="button" class="metric-card__main" @click="handleNavigate(item.analysisPath)">
+              <div class="metric-card__header">
+                <span class="metric-card__label">{{ item.label }}</span>
+                <span class="metric-card__trend" :class="`metric-card__trend--${item.trendTone}`">{{ item.trend }}</span>
+              </div>
+              <strong class="metric-card__value">{{ item.value }}</strong>
+            </button>
+            <div class="metric-card__footer">
+              <span>{{ item.subLabel }}</span>
+              <button type="button" class="metric-card__link" @click="handleNavigate(item.actionPath)">
+                {{ item.subValue }}
+              </button>
+            </div>
           </article>
         </div>
       </div>
     </el-card>
 
-    <section class="workspace-content">
-      <el-card class="workspace-card" shadow="never">
-        <template #header>
-          <div class="panel-header">
-            <div>
-              <h3>今日关注</h3>
-              <p>先处理最容易影响运营节奏的事项。</p>
-            </div>
-          </div>
-        </template>
-        <div class="focus-list">
-          <button v-for="item in focusItems" :key="item.title" type="button" class="focus-item" @click="navigateTo(item.path)">
-            <div class="focus-item__left">
-              <span class="focus-item__badge">{{ item.badge }}</span>
-              <div>
-                <strong>{{ item.title }}</strong>
-                <p>{{ item.description }}</p>
-              </div>
-            </div>
-            <el-icon><ArrowRight /></el-icon>
-          </button>
-        </div>
-      </el-card>
-
-      <div class="content-side">
-        <el-card class="workspace-card" shadow="never">
+    <section class="workspace-main">
+      <div class="workspace-primary">
+        <el-card class="workspace-card workspace-card--todo" shadow="never">
           <template #header>
             <div class="panel-header">
-              <div>
-                <h3>工作建议</h3>
-                <p>按固定节奏检查关键模块。</p>
-              </div>
+              <div><h3>待处理事项</h3></div>
             </div>
           </template>
-          <div class="schedule-list">
-            <div v-for="item in scheduleItems" :key="item.title" class="schedule-item">
-              <span class="schedule-item__time">{{ item.time }}</span>
-              <div>
-                <strong>{{ item.title }}</strong>
-                <p>{{ item.description }}</p>
+
+          <div class="todo-list">
+            <button v-for="item in todoItems" :key="item.key" type="button" class="todo-item" @click="handleNavigate(item.path)">
+              <div class="todo-item__main">
+                <div class="todo-item__badge">{{ item.badge }}</div>
+                <div>
+                  <strong>{{ item.title }}</strong>
+                  <p class="workspace-item__desc">{{ item.description }}</p>
+                </div>
               </div>
-            </div>
+              <div class="todo-item__side">
+                <span class="todo-item__count">{{ item.count }}</span>
+                <span class="todo-item__unit">{{ item.unit }}</span>
+              </div>
+            </button>
           </div>
         </el-card>
+      </div>
 
-        <el-card class="workspace-card" shadow="never">
+      <div class="workspace-side">
+        <el-card class="workspace-card workspace-card--risk" shadow="never">
           <template #header>
             <div class="panel-header">
-              <div>
-                <h3>快捷入口</h3>
-                <p>常用模块直接进入。</p>
-              </div>
+              <div><h3>风险提醒</h3></div>
             </div>
           </template>
-          <div class="quick-grid">
-            <button
-              v-for="item in quickEntries"
-              :key="item.title"
-              type="button"
-              class="quick-item"
-              @click="navigateTo(item.path)"
-            >
-              <span class="quick-item__title">{{ item.title }}</span>
-              <span class="quick-item__desc">{{ item.description }}</span>
+
+          <div class="risk-list">
+            <button v-for="item in riskItems" :key="item.key" type="button" class="risk-item" @click="handleNavigate(item.path)">
+              <div class="risk-item__main">
+                <span class="risk-item__tag" :class="`risk-item__tag--${item.level}`">{{ item.levelLabel }}</span>
+                <div class="risk-item__content">
+                  <div class="risk-item__title">{{ item.title }}</div>
+                  <p class="workspace-item__desc">{{ item.description }}</p>
+                </div>
+              </div>
+              <div class="risk-item__side">
+                <strong class="risk-item__count">{{ item.count }}</strong>
+                <span class="risk-item__unit">{{ item.unit }}</span>
+              </div>
             </button>
           </div>
         </el-card>
@@ -101,52 +95,125 @@ defineOptions({
   inheritAttrs: false
 });
 
-import { computed } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { ArrowRight } from "@element-plus/icons-vue";
+import { defWorkspaceService } from "@/api/admin/workspace";
+import type { WorkspaceMetricsResponse, WorkspaceRiskListResponse, WorkspaceTodoListResponse } from "@/rpc/admin/workspace";
 import { useUserStore } from "@/stores/modules/user";
+import { formatPrice, formatSrc } from "@/utils/utils";
+import defaultAvatar from "@/assets/images/avatar.png";
 
-/** 工作台概览卡片。 */
-interface OverviewCard {
-  /** 标题。 */
+/** 工作台指标卡片。 */
+interface WorkspaceMetricCard {
+  /** 唯一标识。 */
+  key: string;
+  /** 指标标题。 */
   label: string;
-  /** 主值。 */
+  /** 指标主值。 */
   value: string;
-  /** 辅助说明。 */
-  meta: string;
+  /** 趋势文案。 */
+  trend: string;
+  /** 趋势语义。 */
+  trendTone: "up" | "flat" | "down";
+  /** 次级标签。 */
+  subLabel: string;
+  /** 次级值。 */
+  subValue: string;
+  /** 分析页跳转路径。 */
+  analysisPath: string;
+  /** 业务页跳转路径。 */
+  actionPath: string;
 }
 
-/** 工作台待办项。 */
-interface WorkspaceActionItem {
-  /** 标题。 */
+/** 工作台待处理事项。 */
+interface WorkspaceTodoItem {
+  /** 唯一标识。 */
+  key: string;
+  /** 事项标题。 */
   title: string;
-  /** 描述。 */
+  /** 数量值。 */
+  count: number;
+  /** 数值单位。 */
+  unit: string;
+  /** 辅助说明。 */
   description: string;
+  /** 徽标文案。 */
+  badge: string;
   /** 跳转路径。 */
   path: string;
-  /** 徽标文案。 */
-  badge?: string;
-  /** 时间文案。 */
-  time?: string;
+}
+
+/** 风险等级。 */
+type WorkspaceRiskLevel = "warning" | "danger" | "info";
+
+/** 工作台风险提醒。 */
+interface WorkspaceRiskItem {
+  /** 唯一标识。 */
+  key: string;
+  /** 风险标题。 */
+  title: string;
+  /** 风险数量。 */
+  count: number;
+  /** 数值单位。 */
+  unit: string;
+  /** 辅助说明。 */
+  description: string;
+  /** 风险等级。 */
+  level: WorkspaceRiskLevel;
+  /** 风险等级文案。 */
+  levelLabel: string;
+  /** 跳转路径。 */
+  path: string;
 }
 
 const router = useRouter();
 const userStore = useUserStore();
+const loading = ref(false);
+const avatarSrc = ref(defaultAvatar);
 
-/** 当前显示名称，优先昵称。 */
+const metrics = reactive<WorkspaceMetricsResponse>({
+  todayOrderCount: 0,
+  todayOrderGrowthRate: 0,
+  todaySaleAmount: 0,
+  averageOrderAmount: 0,
+  payConversionRate: 0,
+  todayOrderUserCount: 0,
+  repurchaseRate: 0,
+  todayNewUserCount: 0,
+  todaySaleCount: 0,
+  activeGoodsCount: 0,
+  todayNewGoodsCount: 0,
+  todaySaleGrowthRate: 0
+});
+
+const todoSummary = reactive<WorkspaceTodoListResponse>({
+  pendingPayOrderCount: 0,
+  pendingShippedOrderCount: 0,
+  lowInventorySkuCount: 0,
+  pendingPutOnGoodsCount: 0
+});
+
+const riskSummary = reactive<WorkspaceRiskListResponse>({
+  abnormalPayBillCount: 0,
+  zeroInventoryPutOnSkuCount: 0,
+  abnormalPriceSkuCount: 0,
+  pendingOperationCount: 0
+});
+
+/** 当前显示名称，优先取昵称。 */
 const displayName = computed(() => {
   return userStore.userInfo.nickName || userStore.userInfo.userName || "管理员";
 });
 
-/** 头像兜底文案。 */
-const avatarFallback = computed(() => {
-  return displayName.value.slice(0, 1);
-});
+/** 同步工作台头像展示，优先使用用户头像，为空时回退默认头像。 */
+function syncAvatarSrc(avatar?: string) {
+  avatarSrc.value = formatSrc(avatar || "") || defaultAvatar;
+}
 
-/** 当前头像地址。 */
-const avatarUrl = computed(() => {
-  return userStore.userInfo.avatar || "";
-});
+/** 头像加载失败时回退默认头像，避免出现破图。 */
+function handleAvatarError() {
+  avatarSrc.value = defaultAvatar;
+}
 
 /** 根据当前时段生成问候语。 */
 const greetingText = computed(() => {
@@ -158,108 +225,200 @@ const greetingText = computed(() => {
   return `晚上好，${displayName.value}`;
 });
 
-/** 工作台副标题。 */
-const subtitleText = computed(() => {
-  return "先处理订单、商品和店铺运营，再回看系统配置与账号安全。";
-});
+/** 将分转成带货币符号的金额文本。 */
+function formatPriceLabel(value: number) {
+  return formatPrice(value);
+}
 
-/** 工作台概览数据。 */
-const overviewCards = computed<OverviewCard[]>(() => {
+/** 将千分比转成 1 位小数百分比。 */
+function formatRatioLabel(value: number) {
+  return `${(value / 10).toFixed(1)}%`;
+}
+
+/** 工作台指标卡片。 */
+const metricCards = computed<WorkspaceMetricCard[]>(() => {
   return [
     {
-      label: "今日重点",
-      value: "订单与商品",
-      meta: "优先检查发货与库存"
+      key: "today-order",
+      label: "今日订单",
+      value: String(metrics.todayOrderCount),
+      trend: `较昨日 ${metrics.todayOrderGrowthRate >= 0 ? "+" : ""}${metrics.todayOrderGrowthRate}%`,
+      trendTone: metrics.todayOrderGrowthRate >= 0 ? "up" : "down",
+      subLabel: "客单价",
+      subValue: formatPriceLabel(metrics.averageOrderAmount),
+      analysisPath: "/dashboard/analytics/order",
+      actionPath: "/dashboard/analytics/order"
     },
     {
-      label: "处理节奏",
-      value: "先订单后运营",
-      meta: "上午看履约，下午看投放"
+      key: "today-sales",
+      label: "今日成交额",
+      value: formatPriceLabel(metrics.todaySaleAmount),
+      trend: `较昨日 ${metrics.todaySaleGrowthRate >= 0 ? "+" : ""}${metrics.todaySaleGrowthRate}%`,
+      trendTone: metrics.todaySaleGrowthRate >= 0 ? "up" : "down",
+      subLabel: "支付转化",
+      subValue: formatRatioLabel(metrics.payConversionRate),
+      analysisPath: "/dashboard/analytics/order",
+      actionPath: "/dashboard/analytics/order"
     },
     {
-      label: "今日建议",
-      value: "先巡检关键模块",
-      meta: "避免问题积压到收尾阶段"
+      key: "today-users",
+      label: "今日下单用户",
+      value: String(metrics.todayOrderUserCount),
+      trend: `复购占比 ${formatRatioLabel(metrics.repurchaseRate)}`,
+      trendTone: "flat",
+      subLabel: "新增用户",
+      subValue: `${metrics.todayNewUserCount} 人`,
+      analysisPath: "/dashboard/analytics/user",
+      actionPath: "/dashboard/analytics/user"
+    },
+    {
+      key: "today-goods",
+      label: "今日商品销量",
+      value: String(metrics.todaySaleCount),
+      trend: `动销商品 ${metrics.activeGoodsCount} 个`,
+      trendTone: "flat",
+      subLabel: "新增商品",
+      subValue: `${metrics.todayNewGoodsCount} 个`,
+      analysisPath: "/dashboard/analytics/goods",
+      actionPath: "/dashboard/analytics/goods"
     }
   ];
 });
 
-/** 今日关注项。 */
-const focusItems: WorkspaceActionItem[] = [
-  {
-    title: "订单管理",
-    description: "查看待处理订单与发货进度。",
-    path: "/order/info",
-    badge: "订单"
-  },
-  {
-    title: "商品管理",
-    description: "检查商品资料、库存和上架状态。",
-    path: "/goods/info",
-    badge: "商品"
-  },
-  {
-    title: "店铺运营",
-    description: "维护轮播图、热门推荐和服务配置。",
-    path: "/shop/banner",
-    badge: "运营"
-  }
-];
+/** 工作台待处理事项。 */
+const todoItems = computed<WorkspaceTodoItem[]>(() => {
+  return [
+    {
+      key: "todo-pay",
+      title: "待支付订单",
+      count: todoSummary.pendingPayOrderCount,
+      unit: "单",
+      description: "继续观察支付转化情况。",
+      badge: "支付",
+      path: "/order/info"
+    },
+    {
+      key: "todo-shipped",
+      title: "待发货订单",
+      count: todoSummary.pendingShippedOrderCount,
+      unit: "单",
+      description: "优先处理已支付未发货订单。",
+      badge: "履约",
+      path: "/order/info"
+    },
+    {
+      key: "todo-stock",
+      title: "低库存 SKU",
+      count: todoSummary.lowInventorySkuCount,
+      unit: "个",
+      description: "需要尽快补货或调整售卖策略。",
+      badge: "库存",
+      path: "/goods/info"
+    },
+    {
+      key: "todo-put-on",
+      title: "待上架商品",
+      count: todoSummary.pendingPutOnGoodsCount,
+      unit: "个",
+      description: "资料已齐，适合统一回看上架。",
+      badge: "商品",
+      path: "/goods/info"
+    }
+  ];
+});
 
-/** 建议检查节奏。 */
-const scheduleItems: WorkspaceActionItem[] = [
-  {
-    time: "09:30",
-    title: "核对订单",
-    description: "确认新单、支付状态与异常单。",
-    path: ""
-  },
-  {
-    time: "14:00",
-    title: "巡检商品",
-    description: "检查价格、库存和上下架状态。",
-    path: ""
-  },
-  {
-    time: "17:30",
-    title: "回看运营位",
-    description: "确认首页推荐和服务配置是否生效。",
-    path: ""
-  }
-];
+/** 工作台风险提醒。 */
+const riskItems = computed<WorkspaceRiskItem[]>(() => {
+  return [
+    {
+      key: "risk-bill",
+      title: "对账单异常",
+      count: riskSummary.abnormalPayBillCount,
+      unit: "项",
+      description: "优先核对 pay_bill 对账状态。",
+      level: "danger",
+      levelLabel: "高风险",
+      path: "/pay/bill"
+    },
+    {
+      key: "risk-zero-stock",
+      title: "库存为 0 但仍上架",
+      count: riskSummary.zeroInventoryPutOnSkuCount,
+      unit: "项",
+      description: "继续曝光会直接影响转化。",
+      level: "danger",
+      levelLabel: "高风险",
+      path: "/goods/info"
+    },
+    {
+      key: "risk-price",
+      title: "价格配置异常",
+      count: riskSummary.abnormalPriceSkuCount,
+      unit: "项",
+      description: "需要复核售价与折扣价关系。",
+      level: "warning",
+      levelLabel: "需核对",
+      path: "/goods/info"
+    },
+    {
+      key: "risk-operation",
+      title: "运营位待检查",
+      count: riskSummary.pendingOperationCount,
+      unit: "项",
+      description: "首页投放位存在待确认内容。",
+      level: "info",
+      levelLabel: "待检查",
+      path: "/shop/banner"
+    }
+  ];
+});
 
-/** 快捷入口。 */
-const quickEntries: WorkspaceActionItem[] = [
-  {
-    title: "用户管理",
-    description: "账号、角色、部门",
-    path: "/base/user"
-  },
-  {
-    title: "系统配置",
-    description: "站点与基础配置",
-    path: "/base/config"
-  },
-  {
-    title: "轮播图",
-    description: "店铺首页投放",
-    path: "/shop/banner"
-  },
-  {
-    title: "热门推荐",
-    description: "商品推荐位",
-    path: "/shop/hot"
-  }
-];
-
-/** 跳转到目标页面。 */
-function navigateTo(path: string) {
+/**
+ * 统一处理工作台入口跳转。
+ * @param path 目标路由路径。
+ */
+function handleNavigate(path: string) {
   if (!path) return;
   router.push(path);
 }
+
+/** 加载工作台三块数据。 */
+async function loadWorkspaceData() {
+  loading.value = true;
+  try {
+    const [metricsData, todoData, riskData] = await Promise.all([
+      defWorkspaceService.GetWorkspaceMetrics({}),
+      defWorkspaceService.GetWorkspaceTodoList({}),
+      defWorkspaceService.GetWorkspaceRiskList({})
+    ]);
+    Object.assign(metrics, metricsData);
+    Object.assign(todoSummary, todoData);
+    Object.assign(riskSummary, riskData);
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  loadWorkspaceData();
+});
+
+watch(
+  () => userStore.userInfo.avatar,
+  avatar => {
+    syncAvatarSrc(avatar);
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>
+.workspace-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .workspace-card {
   border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
@@ -267,24 +426,38 @@ function navigateTo(path: string) {
   box-shadow: var(--admin-page-shadow);
 }
 
-.workspace-card--welcome {
-  margin-bottom: 20px;
+.workspace-card--hero {
+  overflow: hidden;
 }
 
 :deep(.workspace-card .el-card__header) {
+  position: relative;
   padding: 18px 20px 0;
   border-bottom: 0;
+}
+
+:deep(.workspace-card .el-card__header)::after {
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+  left: 20px;
+  height: 1px;
+  content: "";
+  background: var(--admin-page-divider);
 }
 
 :deep(.workspace-card .el-card__body) {
   padding: 18px 20px 20px;
 }
 
-.workspace-welcome {
+.workspace-hero {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.workspace-hero__intro {
+  display: block;
 }
 
 .workspace-user {
@@ -295,73 +468,139 @@ function navigateTo(path: string) {
 }
 
 .workspace-avatar {
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
+  overflow: hidden;
   border: 1px solid var(--admin-page-card-border);
+  border-radius: 50%;
+  background: #edf2f7;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .workspace-copy h1 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 24px;
-  line-height: 1.3;
+  line-height: 1.2;
   color: var(--admin-page-text-primary);
 }
 
-.workspace-copy__label {
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric-card__main,
+.todo-item,
+.risk-item {
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.metric-card {
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: 14px;
+  background: var(--admin-page-card-bg-soft);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.metric-card:hover,
+.todo-item:hover,
+.risk-item:hover {
+  border-color: var(--admin-page-card-border-muted);
+  transform: translateY(-1px);
+}
+
+.metric-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 16px 12px;
+  text-align: left;
+}
+
+.metric-card__header,
+.metric-card__footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.metric-card__label {
+  font-size: 13px;
+  color: var(--admin-page-text-secondary);
+}
+
+.metric-card__trend {
   display: inline-flex;
-  margin-bottom: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--admin-page-text-secondary);
+  border-radius: 999px;
 }
 
-.workspace-copy p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--admin-page-text-secondary);
+.metric-card__trend--up {
+  color: var(--el-color-success);
+  background: rgb(103 194 58 / 12%);
 }
 
-.workspace-summary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  min-width: 420px;
+.metric-card__trend--flat {
+  color: var(--admin-page-accent-soft-text);
+  background: var(--admin-page-accent-soft-bg);
 }
 
-.summary-item {
-  padding: 16px;
-  background: var(--admin-page-card-bg-soft);
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+.metric-card__trend--down {
+  color: var(--el-color-danger);
+  background: rgb(245 108 108 / 12%);
 }
 
-.summary-item__label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: var(--admin-page-text-secondary);
-}
-
-.summary-item__value {
-  display: block;
-  font-size: 18px;
+.metric-card__value {
+  font-size: 28px;
+  line-height: 1.1;
   color: var(--admin-page-text-primary);
 }
 
-.summary-item__meta {
-  display: block;
-  margin-top: 8px;
+.metric-card__footer {
+  padding: 12px 16px 16px;
   font-size: 13px;
-  color: var(--admin-page-text-placeholder);
+  color: var(--admin-page-text-secondary);
+  border-top: 1px solid var(--admin-page-divider);
 }
 
-.workspace-content {
+.metric-card__link {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--el-color-primary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.workspace-main {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.9fr);
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
   gap: 20px;
 }
 
-.content-side {
+.workspace-primary,
+.workspace-side {
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -369,164 +608,213 @@ function navigateTo(path: string) {
 
 .panel-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--admin-page-text-primary);
 }
 
-.panel-header p {
-  margin: 8px 0 0;
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--admin-page-text-secondary);
-}
-
-.focus-list,
-.schedule-list {
+.todo-list,
+.risk-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.focus-item,
-.quick-item {
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-}
-
-.focus-item {
+.todo-item {
   display: flex;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
   width: 100%;
   padding: 16px 18px;
   text-align: left;
-  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
-  transition: border-color 0.2s ease;
+  border-radius: 14px;
+  background: var(--admin-page-card-bg-soft);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.focus-item:hover,
-.quick-item:hover {
-  border-color: var(--admin-page-card-border-muted);
-}
-
-.focus-item__left {
+.todo-item__main {
   display: flex;
   gap: 14px;
   align-items: flex-start;
+  min-width: 0;
 }
 
-.focus-item__badge {
+.todo-item__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 10px;
   font-size: 12px;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--admin-page-accent-soft-text);
   background: var(--admin-page-badge-bg);
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
-.focus-item strong,
-.schedule-item strong,
-.quick-item__title {
+.todo-item strong,
+.risk-item__title {
   display: block;
-  font-size: 15px;
   color: var(--admin-page-text-primary);
 }
 
-.focus-item p,
-.schedule-item p,
-.quick-item__desc {
-  margin: 8px 0 0;
-  font-size: 13px;
-  line-height: 1.7;
+.todo-item strong {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.workspace-item__desc {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
   color: var(--admin-page-text-secondary);
 }
 
-.schedule-item {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 16px 18px;
-  background: var(--admin-page-card-bg-soft);
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
-}
-
-.schedule-item__time {
-  min-width: 56px;
-  padding-top: 2px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #2563eb;
-}
-
-.quick-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.workspace-card :deep(.el-card__header) {
-  position: relative;
-}
-
-.workspace-card :deep(.el-card__header)::after {
-  position: absolute;
-  right: 20px;
-  bottom: 0;
-  left: 20px;
-  height: 1px;
-  content: "";
-  background: var(--admin-page-divider);
-}
-
-.quick-item {
+.todo-item__side {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  min-height: 96px;
-  padding: 16px;
-  text-align: left;
-  background: var(--admin-page-card-bg-soft);
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
-  transition: border-color 0.2s ease;
+  gap: 4px;
+  align-items: flex-end;
+  flex-shrink: 0;
 }
 
-@media screen and (width <= 1080px) {
-  .workspace-welcome,
-  .workspace-content {
+.todo-item__count {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--admin-page-text-primary);
+}
+
+.todo-item__unit {
+  font-size: 12px;
+  color: var(--admin-page-text-placeholder);
+}
+
+.risk-item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 18px;
+  text-align: left;
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: 14px;
+  background: var(--admin-page-card-bg-soft);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.risk-item__main {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.risk-item__tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 44px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.risk-item__tag--danger {
+  color: var(--el-color-danger);
+  background: rgb(245 108 108 / 12%);
+}
+
+.risk-item__tag--warning {
+  color: var(--el-color-warning);
+  background: rgb(230 162 60 / 12%);
+}
+
+.risk-item__tag--info {
+  color: var(--admin-page-accent-soft-text);
+  background: var(--admin-page-accent-soft-bg);
+}
+
+.risk-item__content {
+  min-width: 0;
+}
+
+.risk-item__side {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.risk-item__count {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--admin-page-text-primary);
+}
+
+.risk-item__unit {
+  font-size: 12px;
+  color: var(--admin-page-text-placeholder);
+}
+
+.risk-item__title {
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--admin-page-text-primary);
+}
+
+@media (width <= 1200px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-main {
+    display: flex;
     flex-direction: column;
   }
 
-  .workspace-summary {
-    width: 100%;
-    min-width: 0;
+  .workspace-side {
+    order: -1;
   }
 }
 
-@media screen and (width <= 840px) {
-  .workspace-summary,
-  .quick-grid {
+@media (width <= 768px) {
+  .metric-grid {
     grid-template-columns: 1fr;
   }
-}
 
-@media screen and (width <= 640px) {
-  .workspace-user {
-    align-items: flex-start;
+  .todo-item {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .workspace-copy h1 {
-    font-size: 22px;
+  .risk-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .todo-item__side {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  .risk-item__side {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
   }
 }
 </style>

@@ -82,13 +82,14 @@ func NewBaseCase(
 		}
 	}
 
-	// 项目启动，加载casbin
-	err := s.RebuildPolicyRule(ctx.Context())
+	// 检查API
+	err := s.baseApiCase.apiCheck(assets.OpenApiData)
 	if err != nil {
 		return nil, cleanup, err
 	}
 
-	err = s.baseApiCase.apiCheck(assets.OpenApiData)
+	// 加载casbin
+	err = s.RebuildPolicyRule(ctx.Context())
 	if err != nil {
 		return nil, cleanup, err
 	}

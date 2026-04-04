@@ -75,6 +75,7 @@ func NewHttpServer(
 	adminShopService *admin.ShopServiceService,
 	adminUserAnalytics *admin.UserAnalyticsService,
 	adminUserStore *admin.UserStoreService,
+	adminWorkspace *admin.WorkspaceService,
 
 	appAuth *app.AuthService,
 	appBaseArea *app.BaseAreaService,
@@ -129,6 +130,7 @@ func NewHttpServer(
 	adminApi.RegisterShopServiceServiceHTTPServer(srv, adminShopService)
 	adminApi.RegisterUserAnalyticsServiceHTTPServer(srv, adminUserAnalytics)
 	adminApi.RegisterUserStoreServiceHTTPServer(srv, adminUserStore)
+	adminApi.RegisterWorkspaceServiceHTTPServer(srv, adminWorkspace)
 
 	appApi.RegisterAuthServiceHTTPServer(srv, appAuth)
 	appApi.RegisterBaseAreaServiceHTTPServer(srv, appBaseArea)

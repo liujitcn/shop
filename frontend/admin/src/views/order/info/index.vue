@@ -1,6 +1,15 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" />
+    <el-alert
+      v-if="reportSourceLabel"
+      class="order-report-alert"
+      type="info"
+      :closable="false"
+      show-icon
+      :title="`当前正在查看 ${reportSourceLabel} 的订单明细`"
+    />
+
+    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" :init-param="reportInitParam" />
 
     <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1080px" @close="handleCloseShippedDialog">
       <el-card class="shipped-hero-card" shadow="never">
@@ -218,6 +227,7 @@
 import { computed, h, reactive, ref, resolveComponent, type VNode } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
+import { useRoute } from "vue-router";
 import type { ColumnProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
@@ -255,10 +265,35 @@ const props = defineProps({
 });
 
 const { BUTTONS } = useAuthButtons();
+const route = useRoute();
 const proTable = ref<ProTableInstance>();
 const dataFormRefShipped = ref<ProFormInstance>();
 const dataFormRefRefund = ref<ProFormInstance>();
 const userOptions = ref<SelectOptionResponse_Option[]>([]);
+
+const reportInitParam = computed(() => {
+  const startDate = String(route.query.startDate ?? "");
+  const endDate = String(route.query.endDate ?? "");
+  const payType = Number(route.query.payType ?? 0);
+  const payChannel = Number(route.query.payChannel ?? 0);
+  const initParam: Record<string, unknown> = {};
+  if (startDate && endDate) {
+    initParam.createdAt = [startDate, endDate];
+  }
+  if (payType > 0) {
+    initParam.payType = payType;
+  }
+  if (payChannel > 0) {
+    initParam.payChannel = payChannel;
+  }
+  return initParam;
+});
+
+const reportSourceLabel = computed(() => {
+  if (route.query.source !== "month-report") return "";
+  const periodLabel = String(route.query.periodLabel ?? "");
+  return periodLabel ? `${periodLabel} 月报` : "报表";
+});
 
 const dialogShipped = reactive({
   title: "发货详情",
@@ -1055,6 +1090,10 @@ function handleOpenDetail(row: Order) {
 .refund-descriptions :deep(.el-descriptions__label) {
   width: 110px;
   font-weight: 600;
+}
+
+.order-report-alert {
+  margin-bottom: 16px;
 }
 
 /* 发货相关弹窗中的商品清单按实际行数撑开，避免继承通用表格的固定最小高度。 */

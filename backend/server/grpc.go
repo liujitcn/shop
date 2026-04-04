@@ -68,6 +68,7 @@ func NewGRPCServer(
 	adminShopService *admin.ShopServiceService,
 	adminUserAnalytics *admin.UserAnalyticsService,
 	adminUserStore *admin.UserStoreService,
+	adminWorkspace *admin.WorkspaceService,
 
 	appAuth *app.AuthService,
 	appBaseArea *app.BaseAreaService,
@@ -121,6 +122,7 @@ func NewGRPCServer(
 	adminApi.RegisterShopServiceServiceServer(srv, adminShopService)
 	adminApi.RegisterUserAnalyticsServiceServer(srv, adminUserAnalytics)
 	adminApi.RegisterUserStoreServiceServer(srv, adminUserStore)
+	adminApi.RegisterWorkspaceServiceServer(srv, adminWorkspace)
 
 	appApi.RegisterAuthServiceServer(srv, appAuth)
 	appApi.RegisterBaseAreaServiceServer(srv, appBaseArea)

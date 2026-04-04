@@ -37,6 +37,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewOrderGoodsCase,
 	biz.NewOrderLogisticsCase,
 	biz.NewOrderPaymentCase,
+	biz.NewOrderReportCase,
 	biz.NewOrderRefundCase,
 	biz.NewPayBillCase,
 	biz.NewShopBannerCase,
@@ -45,7 +46,9 @@ var ProviderSet = wire.NewSet(
 	biz.NewShopServiceCase,
 	biz.NewUserAnalyticsCase,
 	biz.NewUserStoreCase,
+	biz.NewWorkspaceCase,
 
+	task.NewOrderStatDay,
 	task.NewTradeBill,
 	task.NewTaskList,
 
@@ -68,6 +71,7 @@ var ProviderSet = wire.NewSet(
 	NewGoodsSkuService,
 	NewGoodsSpecService,
 	NewOrderAnalyticsService,
+	NewOrderReportService,
 	NewOrderService,
 	NewPayBillService,
 	NewShopBannerService,
@@ -75,4 +79,5 @@ var ProviderSet = wire.NewSet(
 	NewShopServiceService,
 	NewUserAnalyticsService,
 	NewUserStoreService,
+	NewWorkspaceService,
 )

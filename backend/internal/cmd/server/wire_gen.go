@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -21,17 +28,10 @@ import (
 	wx2 "shop/service/app/wx"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -176,7 +176,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderPaymentRepo := data.NewOrderPaymentRepo(dataData)
 	orderRefundRepo := data.NewOrderRefundRepo(dataData)
 	tradeBill := task.NewTradeBill(dataData, ossOSS, transaction, wxPayCase, payBillRepo, orderPaymentRepo, orderRefundRepo)
-	v := task.NewTaskList(tradeBill)
+	orderStatDay := task.NewOrderStatDay(dataData, transaction)
+	v := task.NewTaskList(tradeBill, orderStatDay)
 	baseJobCase := biz2.NewBaseJobCase(baseCase, baseJobRepo, bizBaseJobLogCase, v)
 	baseJobService := admin.NewBaseJobService(baseJobCase, bizBaseJobLogCase)
 	bizBaseLogCase := biz2.NewBaseLogCase(baseCase, baseLogRepo)
@@ -236,6 +237,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseAreaRepo := data.NewBaseAreaRepo(dataData)
 	userStoreCase := biz2.NewUserStoreCase(baseCase, transaction, userStoreRepo, baseAreaRepo, baseUserCase, baseRoleCase)
 	userStoreService := admin.NewUserStoreService(userStoreCase)
+	workspaceCase := biz2.NewWorkspaceCase(orderCase, baseUserCase, orderGoodsCase, goodsCase, goodsSkuCase, payBillCase, shopBannerCase, shopHotCase, shopServiceCase)
+	workspaceService := admin.NewWorkspaceService(workspaceCase)
 	bizBaseUserCase := biz4.NewBaseUserCase(baseCase, baseUserRepo)
 	bizBaseRoleCase := biz4.NewBaseRoleCase(baseCase, baseRoleRepo)
 	bizBaseDeptCase := biz4.NewBaseDeptCase(baseCase, baseDeptRepo)
@@ -313,7 +316,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseUserCase2 := biz3.NewBaseUserCase(baseUserRepo)
 	loginCase := biz3.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2)
 	loginService := base.NewLoginService(loginCase)
-	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsCategoryService, goodsPropService, goodsService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsService, appOrderService, payService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
+	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsCategoryService, goodsPropService, goodsService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsService, appOrderService, payService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -322,7 +325,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	httpMiddlewares := server.NewHttpMiddleware(context, authenticator, baseUserRepo, engine, userToken, authentication_Jwt)
-	httpServer, err := server.NewHttpServer(context, httpMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsCategoryService, goodsPropService, goodsService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsService, appOrderService, payService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
+	httpServer, err := server.NewHttpServer(context, httpMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsCategoryService, goodsPropService, goodsService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsService, appOrderService, payService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
 	if err != nil {
 		cleanup4()
 		cleanup3()

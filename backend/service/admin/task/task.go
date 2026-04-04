@@ -2,7 +2,7 @@ package task
 
 import "reflect"
 
-func NewTaskList(tradeBill *TradeBill) map[string]TaskExec {
+func NewTaskList(tradeBill *TradeBill, orderStatDay *OrderStatDay) map[string]TaskExec {
 	taskMap := make(map[string]TaskExec)
 	// 申请交易账单
 	tradeBillName := getStructName(tradeBill)
@@ -10,6 +10,13 @@ func NewTaskList(tradeBill *TradeBill) map[string]TaskExec {
 		panic("申请交易账单 task already exists")
 	} else {
 		taskMap[tradeBillName] = tradeBill
+	}
+	// 订单日汇总
+	orderStatDayName := getStructName(orderStatDay)
+	if _, ok := taskMap[orderStatDayName]; ok {
+		panic("订单日汇总 task already exists")
+	} else {
+		taskMap[orderStatDayName] = orderStatDay
 	}
 	return taskMap
 }

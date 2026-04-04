@@ -4,7 +4,7 @@
       <div class="panel-header">
         <div>
           <h3>账号信息</h3>
-          <p>维护头像和基本资料。</p>
+          <p>维护头像、昵称和基础账号资料。</p>
         </div>
         <el-button type="primary" plain @click="openAccountDialog">修改基本资料</el-button>
       </div>
@@ -13,14 +13,14 @@
     <div class="base-layout">
       <div class="avatar-panel">
         <div class="avatar-shell">
-          <el-avatar :src="profile.avatar" :size="116" />
+          <el-avatar :src="avatarSrc" :size="116" @error="handleAvatarError" />
           <el-button class="avatar-trigger" circle type="primary" :icon="Camera" @click="triggerFileUpload" />
           <input ref="fileInputRef" type="file" class="hidden-input" accept="image/*" @change="handleFileChange" />
         </div>
         <div class="avatar-copy">
           <strong>{{ profile.nickName || profile.userName || "未设置昵称" }}</strong>
           <span>{{ profile.roleName || "未分配角色" }}</span>
-          <p>点击右下角可更换头像。</p>
+          <p>{{ profile.deptName || "未分配部门" }}</p>
         </div>
       </div>
 
@@ -78,6 +78,7 @@ import type { ProFormField, ProFormInstance } from "@/components/ProForm/interfa
 import type { UserProfileForm } from "@/rpc/admin/auth";
 import { ElMessage } from "element-plus";
 import { Camera } from "@element-plus/icons-vue";
+import defaultAvatar from "@/assets/images/avatar.png";
 
 /** 个人中心基础资料组件属性。 */
 interface ProfileBaseProps {
@@ -95,6 +96,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 const accountFormRef = ref<ProFormInstance>();
 const accountDialogVisible = ref(false);
 const submitLoading = ref(false);
+const avatarSrc = ref(defaultAvatar);
 const accountForm = reactive<Pick<UserProfileForm, "nickName" | "gender">>({
   nickName: "",
   gender: 3
@@ -112,14 +114,31 @@ const genderText = computed(() => {
   return "保密";
 });
 
+/**
+ * 同步个人中心头像展示，优先使用用户头像，为空时回退默认头像。
+ *
+ * @param avatar 用户头像地址
+ */
+function syncAvatarSrc(avatar?: string) {
+  // 个人中心与头部头像保持一致，统一使用本地默认头像兜底。
+  avatarSrc.value = avatar || defaultAvatar;
+}
+
 watch(
   () => props.profile,
   profile => {
     accountForm.nickName = profile.nickName;
     accountForm.gender = profile.gender;
+    syncAvatarSrc(profile.avatar);
   },
   { immediate: true, deep: true }
 );
+
+/** 头像加载失败时回退默认头像，避免出现空白或破图。 */
+function handleAvatarError() {
+  avatarSrc.value = defaultAvatar;
+  return false;
+}
 
 /** 触发头像文件选择。 */
 function triggerFileUpload() {
@@ -183,18 +202,17 @@ function handleDialogClosed() {
 
 <style scoped lang="scss">
 .base-card {
-  border: 1px solid #e7eef7;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(34 64 102 / 8%);
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
 }
 
 :deep(.base-card .el-card__header) {
-  padding: 22px 24px 0;
-  border-bottom: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f0f2f5;
 }
 
 :deep(.base-card .el-card__body) {
-  padding: 20px 24px 24px;
+  padding: 20px;
 }
 
 .panel-header {
@@ -207,29 +225,28 @@ function handleDialogClosed() {
 .panel-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #1f3251;
+  color: #303133;
 }
 
 .panel-header p {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
-  line-height: 1.7;
-  color: #70819b;
+  color: #909399;
 }
 
 .base-layout {
   display: grid;
-  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
 }
 
 .avatar-panel {
-  padding: 24px;
+  padding: 24px 20px;
   text-align: center;
-  background: linear-gradient(180deg, #f7fbff 0%, #fff6ef 100%);
-  border: 1px solid #e8eef7;
-  border-radius: 22px;
+  background: #f8fafc;
+  border: 1px solid #eef2f6;
+  border-radius: 12px;
 }
 
 .avatar-shell {
@@ -248,40 +265,40 @@ function handleDialogClosed() {
 }
 
 .avatar-copy {
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .avatar-copy strong {
   display: block;
-  font-size: 20px;
-  color: #243754;
+  font-size: 18px;
+  font-weight: 600;
+  color: #303133;
 }
 
 .avatar-copy span {
   display: block;
-  margin-top: 8px;
-  font-size: 14px;
-  color: #5f7390;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #606266;
 }
 
 .avatar-copy p {
-  margin: 12px 0 0;
-  font-size: 13px;
-  line-height: 1.7;
-  color: #7a8ba6;
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #909399;
 }
 
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .detail-item {
-  padding: 18px;
-  background: #f8fbff;
-  border: 1px solid #ebf1f8;
-  border-radius: 18px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #f0f2f5;
+  border-radius: 10px;
 }
 
 .detail-item--wide {
@@ -290,15 +307,15 @@ function handleDialogClosed() {
 
 .detail-label {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-size: 12px;
-  color: #7a8ba6;
+  color: #909399;
 }
 
 .detail-value {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  color: #243754;
+  color: #303133;
   word-break: break-all;
 }
 

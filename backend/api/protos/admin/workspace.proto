@@ -1,0 +1,162 @@
+syntax = "proto3";
+
+package admin;
+
+import "google/api/annotations.proto";
+import "gnostic/openapi/v3/annotations.proto";
+
+// Admin工作台服务
+service WorkspaceService {
+  // 查询工作台顶部指标
+  rpc GetWorkspaceMetrics (WorkspaceMetricsRequest) returns (WorkspaceMetricsResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/workspace/metric"
+    };
+  }
+
+  // 查询工作台待处理事项
+  rpc GetWorkspaceTodoList (WorkspaceTodoListRequest) returns (WorkspaceTodoListResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/workspace/todo"
+    };
+  }
+
+  // 查询工作台风险提醒
+  rpc GetWorkspaceRiskList (WorkspaceRiskListRequest) returns (WorkspaceRiskListResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/workspace/risk"
+    };
+  }
+}
+
+message WorkspaceMetricsRequest {}
+
+message WorkspaceMetricsResponse {
+  int64 todayOrderCount = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日订单数"
+    }
+  ];
+
+  int64 todayOrderGrowthRate = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日订单较昨日增长率，百分比整数"
+    }
+  ];
+
+  int64 todaySaleAmount = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日成交额，单位分"
+    }
+  ];
+
+  int64 averageOrderAmount = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "客单价，单位分"
+    }
+  ];
+
+  int64 payConversionRate = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "支付转化率，千分比"
+    }
+  ];
+
+  int64 todayOrderUserCount = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日下单用户数"
+    }
+  ];
+
+  int64 repurchaseRate = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "复购占比，千分比"
+    }
+  ];
+
+  int64 todayNewUserCount = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日新增用户数"
+    }
+  ];
+
+  int64 todaySaleCount = 9 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日商品销量"
+    }
+  ];
+
+  int64 activeGoodsCount = 10 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日动销商品数"
+    }
+  ];
+
+  int64 todayNewGoodsCount = 11 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日新增商品数"
+    }
+  ];
+
+  int64 todaySaleGrowthRate = 12 [
+    (gnostic.openapi.v3.property) = {
+      description: "今日成交额较昨日增长率，百分比整数"
+    }
+  ];
+}
+
+message WorkspaceTodoListRequest {}
+
+message WorkspaceTodoListResponse {
+  int64 pendingPayOrderCount = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "待支付订单数"
+    }
+  ];
+
+  int64 pendingShippedOrderCount = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "待发货订单数"
+    }
+  ];
+
+  int64 lowInventorySkuCount = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "低库存SKU数"
+    }
+  ];
+
+  int64 pendingPutOnGoodsCount = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "待上架商品数"
+    }
+  ];
+}
+
+message WorkspaceRiskListRequest {}
+
+message WorkspaceRiskListResponse {
+  int64 abnormalPayBillCount = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "对账单异常数"
+    }
+  ];
+
+  int64 zeroInventoryPutOnSkuCount = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "零库存仍上架SKU数"
+    }
+  ];
+
+  int64 abnormalPriceSkuCount = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "价格配置异常SKU数"
+    }
+  ];
+
+  int64 pendingOperationCount = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "运营位待检查项数"
+    }
+  ];
+}

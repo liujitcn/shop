@@ -2436,6 +2436,78 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PagePayBillResponse'
+    /api/admin/report/order/month/list:
+        get:
+            tags:
+                - OrderReportService
+            description: 查询订单月报明细
+            operationId: OrderReportService_OrderMonthReportList
+            parameters:
+                - name: startMonth
+                  in: query
+                  description: 开始月份，格式：YYYY-MM
+                  schema:
+                    type: string
+                - name: endMonth
+                  in: query
+                  description: 结束月份，格式：YYYY-MM
+                  schema:
+                    type: string
+                - name: payType
+                  in: query
+                  description: 支付方式：枚举【OrderPayType】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+                - name: payChannel
+                  in: query
+                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderMonthReportListResponse'
+    /api/admin/report/order/month/summary:
+        get:
+            tags:
+                - OrderReportService
+            description: 查询订单月报汇总
+            operationId: OrderReportService_OrderMonthReportSummary
+            parameters:
+                - name: startMonth
+                  in: query
+                  description: 开始月份，格式：YYYY-MM
+                  schema:
+                    type: string
+                - name: endMonth
+                  in: query
+                  description: 结束月份，格式：YYYY-MM
+                  schema:
+                    type: string
+                - name: payType
+                  in: query
+                  description: 支付方式：枚举【OrderPayType】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+                - name: payChannel
+                  in: query
+                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderMonthReportSummaryResponse'
     /api/admin/shop/banner:
         get:
             tags:
@@ -3083,6 +3155,45 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/UserStore'
+    /api/admin/workspace/metric:
+        get:
+            tags:
+                - WorkspaceService
+            description: 查询工作台顶部指标
+            operationId: WorkspaceService_GetWorkspaceMetrics
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/WorkspaceMetricsResponse'
+    /api/admin/workspace/risk:
+        get:
+            tags:
+                - WorkspaceService
+            description: 查询工作台风险提醒
+            operationId: WorkspaceService_GetWorkspaceRiskList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/WorkspaceRiskListResponse'
+    /api/admin/workspace/todo:
+        get:
+            tags:
+                - WorkspaceService
+            description: 查询工作台待处理事项
+            operationId: WorkspaceService_GetWorkspaceTodoList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/WorkspaceTodoListResponse'
     /api/app/auth/login/wx:
         post:
             tags:
@@ -6001,6 +6112,74 @@ components:
                 text:
                     type: string
                     description: 动态
+        OrderMonthReportItem:
+            type: object
+            properties:
+                month:
+                    type: string
+                    description: 月份，格式：YYYY-MM
+                paidOrderCount:
+                    type: string
+                    description: 支付成功订单数
+                paidOrderAmount:
+                    type: string
+                    description: 支付成功金额，单位分
+                refundOrderCount:
+                    type: string
+                    description: 退款成功订单数
+                refundOrderAmount:
+                    type: string
+                    description: 退款成功金额，单位分
+                netOrderAmount:
+                    type: string
+                    description: 净销售额，单位分
+                paidUserCount:
+                    type: string
+                    description: 支付用户数
+                goodsCount:
+                    type: string
+                    description: 商品件数
+                customerUnitPrice:
+                    type: string
+                    description: 客单价，单位分
+            description: 订单月报明细
+        OrderMonthReportListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderMonthReportItem'
+                    description: 月报明细
+            description: 订单月报名细列表响应
+        OrderMonthReportSummaryResponse:
+            type: object
+            properties:
+                paidOrderCount:
+                    type: string
+                    description: 支付成功订单数
+                paidOrderAmount:
+                    type: string
+                    description: 支付成功金额，单位分
+                refundOrderCount:
+                    type: string
+                    description: 退款成功订单数
+                refundOrderAmount:
+                    type: string
+                    description: 退款成功金额，单位分
+                netOrderAmount:
+                    type: string
+                    description: 净销售额，单位分
+                paidUserCount:
+                    type: string
+                    description: 支付用户数
+                goodsCount:
+                    type: string
+                    description: 商品件数
+                customerUnitPrice:
+                    type: string
+                    description: 客单价，单位分
+            description: 订单月报汇总响应
         OrderPayment:
             type: object
             properties:
@@ -7389,6 +7568,75 @@ components:
                         type: string
                     description: 省市区
             description: 用户门店信息
+        WorkspaceMetricsResponse:
+            type: object
+            properties:
+                todayOrderCount:
+                    type: string
+                    description: 今日订单数
+                todayOrderGrowthRate:
+                    type: string
+                    description: 今日订单较昨日增长率，百分比整数
+                todaySaleAmount:
+                    type: string
+                    description: 今日成交额，单位分
+                averageOrderAmount:
+                    type: string
+                    description: 客单价，单位分
+                payConversionRate:
+                    type: string
+                    description: 支付转化率，千分比
+                todayOrderUserCount:
+                    type: string
+                    description: 今日下单用户数
+                repurchaseRate:
+                    type: string
+                    description: 复购占比，千分比
+                todayNewUserCount:
+                    type: string
+                    description: 今日新增用户数
+                todaySaleCount:
+                    type: string
+                    description: 今日商品销量
+                activeGoodsCount:
+                    type: string
+                    description: 今日动销商品数
+                todayNewGoodsCount:
+                    type: string
+                    description: 今日新增商品数
+                todaySaleGrowthRate:
+                    type: string
+                    description: 今日成交额较昨日增长率，百分比整数
+        WorkspaceRiskListResponse:
+            type: object
+            properties:
+                abnormalPayBillCount:
+                    type: string
+                    description: 对账单异常数
+                zeroInventoryPutOnSkuCount:
+                    type: string
+                    description: 零库存仍上架SKU数
+                abnormalPriceSkuCount:
+                    type: string
+                    description: 价格配置异常SKU数
+                pendingOperationCount:
+                    type: string
+                    description: 运营位待检查项数
+        WorkspaceTodoListResponse:
+            type: object
+            properties:
+                pendingPayOrderCount:
+                    type: string
+                    description: 待支付订单数
+                pendingShippedOrderCount:
+                    type: string
+                    description: 待发货订单数
+                lowInventorySkuCount:
+                    type: string
+                    description: 低库存SKU数
+                pendingPutOnGoodsCount:
+                    type: string
+                    description: 待上架商品数
         WxLoginRequest:
             type: object
             properties:
@@ -7427,9 +7675,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: Admin字典服务
-    - name: BaseDictService
       description: App字典服务
+    - name: BaseDictService
+      description: Admin字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -7447,9 +7695,9 @@ tags:
     - name: GoodsAnalyticsService
       description: Admin商品分析服务
     - name: GoodsCategoryService
-      description: Admin分类服务
-    - name: GoodsCategoryService
       description: App商品分类服务
+    - name: GoodsCategoryService
+      description: Admin分类服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsService
@@ -7464,10 +7712,12 @@ tags:
       description: Base登录公共服务
     - name: OrderAnalyticsService
       description: Admin订单分析服务
-    - name: OrderService
-      description: App订单服务
+    - name: OrderReportService
+      description: Admin订单报表服务
     - name: OrderService
       description: Admin订单服务
+    - name: OrderService
+      description: App订单服务
     - name: PayBillService
       description: Admin支付账单服务
     - name: PayService
@@ -7481,9 +7731,9 @@ tags:
     - name: ShopHotService
       description: App热门推荐服务
     - name: ShopServiceService
-      description: Admin商城服务
-    - name: ShopServiceService
       description: App商城服务
+    - name: ShopServiceService
+      description: Admin商城服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService
@@ -7496,3 +7746,5 @@ tags:
       description: App用户门店管理服务
     - name: UserStoreService
       description: Admin用户门店管理服务
+    - name: WorkspaceService
+      description: Admin工作台服务

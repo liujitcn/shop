@@ -5,9 +5,9 @@
         <div class="panel-header">
           <div>
             <h3>修改密码</h3>
-            <p>更新当前登录密码。</p>
+            <p>更新当前登录密码，保持账号安全。</p>
           </div>
-          <el-tag type="warning" effect="dark">建议高强度</el-tag>
+          <el-tag type="warning" effect="plain">建议高强度</el-tag>
         </div>
       </template>
       <div class="password-layout">
@@ -28,17 +28,17 @@
           <div class="tip-card">
             <span class="tip-badge">01</span>
             <strong>避免重复密码</strong>
-            <p>不要复用旧密码。</p>
+            <p>不要重复使用旧密码或其他系统已使用密码。</p>
           </div>
           <div class="tip-card">
             <span class="tip-badge">02</span>
             <strong>控制密码强度</strong>
-            <p>尽量使用强密码。</p>
+            <p>建议使用大小写字母、数字和符号组合。</p>
           </div>
           <div class="tip-card">
             <span class="tip-badge">03</span>
-            <strong>及时通知团队</strong>
-            <p>变更后及时同步。</p>
+            <strong>及时更新记录</strong>
+            <p>如有账号交接，请同步更新保管记录。</p>
           </div>
         </div>
       </div>
@@ -104,18 +104,17 @@ function resetPasswordForm() {
 
 <style scoped lang="scss">
 .password-card {
-  border: 1px solid #e7eef7;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(34 64 102 / 8%);
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
 }
 
 :deep(.password-card .el-card__header) {
-  padding: 22px 24px 0;
-  border-bottom: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f0f2f5;
 }
 
 :deep(.password-card .el-card__body) {
-  padding: 20px 24px 24px;
+  padding: 20px;
 }
 
 .panel-header {
@@ -128,28 +127,27 @@ function resetPasswordForm() {
 .panel-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #1f3251;
+  color: #303133;
 }
 
 .panel-header p {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
-  line-height: 1.7;
-  color: #70819b;
+  color: #909399;
 }
 
 .password-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.9fr);
-  gap: 20px;
+  gap: 16px;
 }
 
 .password-form-wrap,
 .tip-card {
-  padding: 20px;
-  background: #f8fbff;
-  border: 1px solid #ebf1f8;
-  border-radius: 18px;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #f0f2f5;
+  border-radius: 10px;
 }
 
 .password-footer {
@@ -162,35 +160,35 @@ function resetPasswordForm() {
 .password-tips {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 .tip-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  margin-bottom: 12px;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
   font-size: 12px;
   font-weight: 700;
-  color: #1d4ed8;
-  background: #dce9ff;
-  border-radius: 50%;
+  color: #409eff;
+  background: #ecf5ff;
+  border-radius: 8px;
 }
 
 .tip-card strong {
   display: block;
   margin-bottom: 8px;
-  font-size: 16px;
-  color: #243754;
+  font-size: 15px;
+  color: #303133;
 }
 
 .tip-card p {
   margin: 0;
   font-size: 13px;
-  line-height: 1.7;
-  color: #70819b;
+  line-height: 1.6;
+  color: #909399;
 }
 
 @media screen and (width <= 960px) {

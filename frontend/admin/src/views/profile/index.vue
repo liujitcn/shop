@@ -1,7 +1,18 @@
 <template>
   <div class="profile-page">
+    <div class="profile-header">
+      <div>
+        <h2>个人中心</h2>
+        <p>统一管理账号资料、安全设置和登录密码。</p>
+      </div>
+    </div>
+
     <section class="profile-shell">
-      <aside class="profile-nav card-panel">
+      <aside class="profile-nav">
+        <div class="profile-nav__header">
+          <strong>{{ userProfileForm.nickName || userProfileForm.userName || "未设置昵称" }}</strong>
+          <span>{{ userProfileForm.roleName || "未分配角色" }}</span>
+        </div>
         <button
           v-for="tab in profileTabs"
           :key="tab.value"
@@ -10,8 +21,9 @@
           :class="{ 'nav-item--active': activeTab === tab.value }"
           @click="handleTabChange(tab.value)"
         >
-          <div>
+          <div class="nav-item__content">
             <strong>{{ tab.label }}</strong>
+            <span>{{ tab.description }}</span>
           </div>
           <el-icon><ArrowRight /></el-icon>
         </button>
@@ -119,33 +131,61 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 .profile-page {
-  min-height: calc(100vh - 50px);
-  padding: 24px;
-  background:
-    radial-gradient(circle at top left, rgb(230 239 255 / 88%), transparent 28%),
-    radial-gradient(circle at bottom right, rgb(255 236 221 / 72%), transparent 24%),
-    linear-gradient(180deg, #f6f9fd 0%, #f3f7fc 100%);
+  padding: 20px;
 }
 
-.card-panel {
-  border: 1px solid #e7eef7;
-  border-radius: 26px;
-  background: rgb(255 255 255 / 88%);
-  box-shadow: 0 22px 48px rgb(34 64 102 / 8%);
-  backdrop-filter: blur(10px);
+.profile-header {
+  margin-bottom: 16px;
+}
+
+.profile-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.profile-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #909399;
 }
 
 .profile-shell {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
 }
 
 .profile-nav {
   position: sticky;
-  top: 24px;
-  padding: 14px;
+  top: 20px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 4%);
+}
+
+.profile-nav__header {
+  padding-bottom: 14px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.profile-nav__header strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.profile-nav__header span {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #909399;
 }
 
 .nav-item {
@@ -153,13 +193,13 @@ onMounted(async () => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 18px 16px;
-  color: #31445f;
+  padding: 14px 12px;
+  color: #606266;
   text-align: left;
   cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: 18px;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 10px;
   transition: all 0.2s ease;
 }
 
@@ -167,23 +207,28 @@ onMounted(async () => {
   margin-top: 8px;
 }
 
-.nav-item strong {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 15px;
+.nav-item__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.nav-item p {
-  margin: 0;
+.nav-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.nav-item span {
   font-size: 12px;
-  line-height: 1.6;
-  color: #71839d;
+  color: #909399;
 }
 
 .nav-item:hover,
 .nav-item--active {
-  color: #1d4ed8;
-  background: linear-gradient(135deg, #edf4ff 0%, #fff3ea 100%);
+  color: #409eff;
+  background: #f5f9ff;
+  border-color: #d9ecff;
 }
 
 .profile-content {

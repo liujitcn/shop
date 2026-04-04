@@ -43,6 +43,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OrderLogistics: newOrderLogistics(db, opts...),
 		OrderPayment:   newOrderPayment(db, opts...),
 		OrderRefund:    newOrderRefund(db, opts...),
+		OrderStatDay:   newOrderStatDay(db, opts...),
 		PayBill:        newPayBill(db, opts...),
 		ShopBanner:     newShopBanner(db, opts...),
 		ShopHot:        newShopHot(db, opts...),
@@ -84,6 +85,7 @@ type Query struct {
 	OrderLogistics orderLogistics
 	OrderPayment   orderPayment
 	OrderRefund    orderRefund
+	OrderStatDay   orderStatDay
 	PayBill        payBill
 	ShopBanner     shopBanner
 	ShopHot        shopHot
@@ -126,6 +128,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OrderLogistics: q.OrderLogistics.clone(db),
 		OrderPayment:   q.OrderPayment.clone(db),
 		OrderRefund:    q.OrderRefund.clone(db),
+		OrderStatDay:   q.OrderStatDay.clone(db),
 		PayBill:        q.PayBill.clone(db),
 		ShopBanner:     q.ShopBanner.clone(db),
 		ShopHot:        q.ShopHot.clone(db),
@@ -175,6 +178,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OrderLogistics: q.OrderLogistics.replaceDB(db),
 		OrderPayment:   q.OrderPayment.replaceDB(db),
 		OrderRefund:    q.OrderRefund.replaceDB(db),
+		OrderStatDay:   q.OrderStatDay.replaceDB(db),
 		PayBill:        q.PayBill.replaceDB(db),
 		ShopBanner:     q.ShopBanner.replaceDB(db),
 		ShopHot:        q.ShopHot.replaceDB(db),
@@ -214,6 +218,7 @@ type queryCtx struct {
 	OrderLogistics *orderLogisticsDo
 	OrderPayment   *orderPaymentDo
 	OrderRefund    *orderRefundDo
+	OrderStatDay   *orderStatDayDo
 	PayBill        *payBillDo
 	ShopBanner     *shopBannerDo
 	ShopHot        *shopHotDo
@@ -253,6 +258,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OrderLogistics: q.OrderLogistics.WithContext(ctx),
 		OrderPayment:   q.OrderPayment.WithContext(ctx),
 		OrderRefund:    q.OrderRefund.WithContext(ctx),
+		OrderStatDay:   q.OrderStatDay.WithContext(ctx),
 		PayBill:        q.PayBill.WithContext(ctx),
 		ShopBanner:     q.ShopBanner.WithContext(ctx),
 		ShopHot:        q.ShopHot.WithContext(ctx),

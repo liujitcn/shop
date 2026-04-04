@@ -4,20 +4,20 @@
       <div class="security-intro">
         <div>
           <h3>安全设置</h3>
-          <p>管理验证方式与安全状态。</p>
+          <p>管理登录密码、手机验证和账号完整度。</p>
         </div>
-        <el-tag type="success" effect="dark">安全巡检中</el-tag>
+        <el-tag effect="plain" type="success">账号状态正常</el-tag>
       </div>
       <div class="security-list">
         <div class="security-item">
-          <div>
+          <div class="security-item__content">
             <strong>登录密码</strong>
-            <p>定期更新密码。</p>
+            <p>建议定期更新，避免长期使用同一密码。</p>
           </div>
           <el-button type="primary" plain @click="emit('switchTab', 'password')">前往修改</el-button>
         </div>
         <div class="security-item">
-          <div>
+          <div class="security-item__content">
             <strong>绑定手机</strong>
             <p>{{ mobileTip }}</p>
           </div>
@@ -31,7 +31,7 @@
         <div class="status-header">
           <div>
             <h3>账号状态</h3>
-            <p>查看当前账号状态。</p>
+            <p>查看当前账号验证状态与资料完整度。</p>
           </div>
         </div>
       </template>
@@ -208,19 +208,18 @@ onBeforeUnmount(() => {
 
 .security-card,
 .status-card {
-  border: 1px solid #e7eef7;
-  border-radius: 24px;
-  box-shadow: 0 18px 40px rgb(34 64 102 / 8%);
+  border: 1px solid #ebeef5;
+  border-radius: 12px;
 }
 
 :deep(.security-card .el-card__body),
 :deep(.status-card .el-card__body) {
-  padding: 24px;
+  padding: 20px;
 }
 
 :deep(.status-card .el-card__header) {
-  padding: 22px 24px 0;
-  border-bottom: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f0f2f5;
 }
 
 .security-intro,
@@ -235,22 +234,21 @@ onBeforeUnmount(() => {
 .status-header h3 {
   margin: 0;
   font-size: 18px;
-  color: #1f3251;
+  color: #303133;
 }
 
 .security-intro p,
 .status-header p {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   font-size: 13px;
-  line-height: 1.7;
-  color: #70819b;
+  color: #909399;
 }
 
 .security-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
+  gap: 12px;
+  margin-top: 16px;
 }
 
 .security-item,
@@ -259,32 +257,36 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 18px 20px;
-  background: #f8fbff;
-  border: 1px solid #ebf1f8;
-  border-radius: 18px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #f0f2f5;
+  border-radius: 10px;
+}
+
+.security-item__content {
+  min-width: 0;
 }
 
 .security-item strong,
 .status-item strong {
   display: block;
   margin-bottom: 6px;
-  font-size: 16px;
-  color: #243754;
+  font-size: 15px;
+  color: #303133;
 }
 
 .security-item p,
 .status-item span {
   margin: 0;
   font-size: 13px;
-  line-height: 1.7;
-  color: #70819b;
+  line-height: 1.6;
+  color: #909399;
 }
 
 .status-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 12px;
 }
 
 .dialog-footer {
@@ -296,11 +298,13 @@ onBeforeUnmount(() => {
   .security-intro,
   .status-header,
   .security-item,
-  .status-item,
-  .status-grid {
-    grid-template-columns: 1fr;
+  .status-item {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .status-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

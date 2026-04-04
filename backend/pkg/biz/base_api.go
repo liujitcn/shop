@@ -34,29 +34,28 @@ func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.Bas
 		return err
 	}
 
-	oldApiIDMap := make(map[string]int64, len(oldApiList))
+	oldApiIdMap := make(map[string]int64, len(oldApiList))
 	for _, oldApi := range oldApiList {
-		oldApiIDMap[fmt.Sprintf("%s_%s", oldApi.Method, oldApi.Path)] = oldApi.ID
+		oldApiIdMap[oldApi.Operation] = oldApi.ID
 	}
 
 	apiList := make([]*models.BaseApi, 0)
 	for _, item := range apis {
-		key := fmt.Sprintf("%s_%s", item.Method, item.Path)
-		if id, ok := oldApiIDMap[key]; ok {
+		if id, ok := oldApiIdMap[item.Operation]; ok {
 			item.ID = id
 			err = c.UpdateById(ctx, item)
 			if err != nil {
 				return err
 			}
-			delete(oldApiIDMap, key)
+			delete(oldApiIdMap, item.Operation)
 			continue
 		}
 		apiList = append(apiList, item)
 	}
 
-	if len(oldApiIDMap) > 0 {
-		oldApiIds := make([]int64, 0, len(oldApiIDMap))
-		for _, id := range oldApiIDMap {
+	if len(oldApiIdMap) > 0 {
+		oldApiIds := make([]int64, 0, len(oldApiIdMap))
+		for _, id := range oldApiIdMap {
 			oldApiIds = append(oldApiIds, id)
 		}
 		err = c.DeleteByIds(ctx, oldApiIds)
