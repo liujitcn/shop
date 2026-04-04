@@ -1,7 +1,18 @@
 <template>
-  <el-tabs :model-value="modelValue" class="analytics-tabs" @update:model-value="handleUpdate">
-    <el-tab-pane v-for="item in options" :key="item.value" :label="item.label" :name="item.value" />
-  </el-tabs>
+  <div class="analytics-tabs" role="tablist" aria-label="时间范围选择">
+    <button
+      v-for="item in options"
+      :key="item.value"
+      type="button"
+      class="analytics-tabs__item"
+      :class="{ 'is-active': modelValue === item.value }"
+      role="tab"
+      :aria-selected="modelValue === item.value"
+      @click="handleUpdate(item.value)"
+    >
+      {{ item.label }}
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -28,49 +39,41 @@ function handleUpdate(value: string | number) {
 
 <style scoped lang="scss">
 .analytics-tabs {
-  :deep(.el-tabs__header) {
-    margin: 0;
-  }
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: 10px;
+}
 
-  :deep(.el-tabs__nav) {
-    display: flex;
-    gap: 2px;
-    padding: 4px 6px;
-    background: var(--admin-page-card-bg-soft);
-    border: 1px solid var(--admin-page-card-border-soft);
-    border-radius: 10px;
-  }
+.analytics-tabs__item {
+  min-width: 64px;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
 
-  :deep(.el-tabs__nav-wrap::after) {
-    display: none;
-  }
+.analytics-tabs__item:hover {
+  color: var(--el-color-primary);
+}
 
-  :deep(.el-tabs__item) {
-    height: 32px;
-    padding: 0 14px;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-weight: 600;
-    color: var(--admin-page-text-secondary);
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease,
-      border-color 0.2s ease;
-  }
-
-  :deep(.el-tabs__active-bar) {
-    display: none;
-  }
-
-  :deep(.el-tabs__item.is-active) {
-    color: var(--el-color-primary);
-    background: color-mix(in srgb, var(--el-color-primary) 12%, #ffffff);
-    border-color: color-mix(in srgb, var(--el-color-primary) 28%, transparent);
-  }
-
-  :deep(.el-tabs__item:hover) {
-    color: var(--el-color-primary);
-  }
+.analytics-tabs__item.is-active {
+  color: var(--el-color-primary);
+  background: color-mix(in srgb, var(--el-color-primary) 12%, #ffffff);
+  border-color: color-mix(in srgb, var(--el-color-primary) 28%, transparent);
+  box-shadow: 0 6px 14px -10px color-mix(in srgb, var(--el-color-primary) 60%, transparent);
 }
 </style>
