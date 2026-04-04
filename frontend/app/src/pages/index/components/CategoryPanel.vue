@@ -2,17 +2,40 @@
 import type { GoodsCategory } from '@/rpc/app/goods_category'
 import { formatSrc } from '@/utils'
 import defaultCategoryIcon from '@/static/images/logo_icon.png'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 // 定义 props 接收数据
-defineProps<{
+const props = defineProps<{
   list: GoodsCategory[]
 }>()
 
+type CategoryDisplayItem = GoodsCategory & {
+  isMore?: boolean
+}
+
+const MAX_VISIBLE_COUNT = 8
+const MAX_NAME_LENGTH = 5
+
 const failedImageIds = ref<number[]>([])
 
-const getCategoryIcon = (item: GoodsCategory) => {
-  if (!item.picture || failedImageIds.value.includes(item.id)) {
+const visibleList = computed<CategoryDisplayItem[]>(() => {
+  if (props.list.length <= MAX_VISIBLE_COUNT) {
+    return props.list
+  }
+
+  return [
+    ...props.list.slice(0, MAX_VISIBLE_COUNT - 1),
+    {
+      id: -1,
+      name: '更多',
+      picture: '',
+      isMore: true,
+    },
+  ]
+})
+
+const getCategoryIcon = (item: CategoryDisplayItem) => {
+  if (item.isMore || !item.picture || failedImageIds.value.includes(item.id)) {
     return defaultCategoryIcon
   }
   return formatSrc(item.picture)
@@ -31,22 +54,44 @@ const showCategoryName = (name: string) => {
     icon: 'none',
   })
 }
+
+const formatCategoryName = (name: string) => {
+  if (name.length <= MAX_NAME_LENGTH) {
+    return name
+  }
+  return `${name.slice(0, MAX_NAME_LENGTH)}...`
+}
+
+const shouldShowFullName = (name: string) => {
+  return name.length > MAX_NAME_LENGTH
+}
+
+const onTapCategory = (item: CategoryDisplayItem) => {
+  if (item.isMore) {
+    uni.switchTab({
+      url: '/pages/category/category',
+    })
+    return
+  }
+
+  uni.navigateTo({
+    url: `/pages/search/index?categoryId=${item.id}&categoryName=${encodeURIComponent(item.name)}`,
+  })
+}
 </script>
 
 <template>
   <view class="panel category-panel">
     <view class="category">
-      <navigator
+      <view
         class="category-item"
-        hover-class="none"
-        :url="`/pages/search/index?categoryId=${item.id}&categoryName=${encodeURIComponent(
-          item.name,
-        )}`"
-        v-for="item in list"
+        v-for="item in visibleList"
         :key="item.id"
-        @longpress="showCategoryName(item.name)"
+        hover-class="none"
+        @tap="onTapCategory(item)"
+        @longpress="shouldShowFullName(item.name) && showCategoryName(item.name)"
       >
-        <view class="icon-box">
+        <view class="icon-box" :class="{ 'icon-box-more': item.isMore }">
           <image
             class="icon"
             :src="getCategoryIcon(item)"
@@ -54,8 +99,10 @@ const showCategoryName = (name: string) => {
             @error="onImageError(item.id)"
           ></image>
         </view>
-        <view class="text" :title="item.name">{{ item.name }}</view>
-      </navigator>
+        <view class="text" :title="shouldShowFullName(item.name) ? item.name : ''">
+          {{ formatCategoryName(item.name) }}
+        </view>
+      </view>
     </view>
   </view>
 </template>
