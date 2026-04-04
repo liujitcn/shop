@@ -153,10 +153,4 @@ message WorkspaceRiskListResponse {
       description: "价格配置异常SKU数"
     }
   ];
-
-  int64 pendingOperationCount = 4 [
-    (gnostic.openapi.v3.property) = {
-      description: "运营位待检查项数"
-    }
-  ];
 }

@@ -10,6 +10,10 @@ import type { PayBillStatus } from "../common/enum";
 export interface PagePayBillRequest {
   /** 账单日期 */
   billDate: string;
+  /** 对账状态：枚举【PayBillStatus】 */
+  status?:
+    | PayBillStatus
+    | undefined;
   /** 当前页码 */
   pageNum: number;
   /** 每一页的行数 */

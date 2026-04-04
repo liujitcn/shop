@@ -123,6 +123,20 @@ message PageGoodsRequest{
     }
   ];
 
+  // 库存预警类型：1 低库存，2 零库存
+  optional int32 inventoryAlert = 103 [
+    (gnostic.openapi.v3.property) = {
+      description: "库存预警类型：1 低库存，2 零库存",
+    }
+  ];
+
+  // 价格异常类型：1 价格配置异常
+  optional int32 priceAlert = 104 [
+    (gnostic.openapi.v3.property) = {
+      description: "价格异常类型：1 价格配置异常",
+    }
+  ];
+
   // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {

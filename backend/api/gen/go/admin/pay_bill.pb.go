@@ -27,7 +27,8 @@ const (
 
 type PagePayBillRequest struct {
 	state    protoimpl.MessageState `protogen:"open.v1"`
-	BillDate string                 `protobuf:"bytes,3,opt,name=billDate,proto3" json:"billDate,omitempty"` // 账单日期
+	BillDate string                 `protobuf:"bytes,3,opt,name=billDate,proto3" json:"billDate,omitempty"`                              // 账单日期
+	Status   *common.PayBillStatus  `protobuf:"varint,4,opt,name=status,proto3,enum=common.PayBillStatus,oneof" json:"status,omitempty"` // 对账状态：枚举【PayBillStatus】
 	// 当前页码
 	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
 	// 每一页的行数
@@ -71,6 +72,13 @@ func (x *PagePayBillRequest) GetBillDate() string {
 		return x.BillDate
 	}
 	return ""
+}
+
+func (x *PagePayBillRequest) GetStatus() common.PayBillStatus {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return common.PayBillStatus(0)
 }
 
 func (x *PagePayBillRequest) GetPageNum() int64 {
@@ -270,11 +278,13 @@ var File_admin_pay_bill_proto protoreflect.FileDescriptor
 
 const file_admin_pay_bill_proto_rawDesc = "" +
 	"\n" +
-	"\x14admin/pay_bill.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x11common/enum.proto\"\xc0\x01\n" +
+	"\x14admin/pay_bill.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x11common/enum.proto\"\xaf\x02\n" +
 	"\x12PagePayBillRequest\x12.\n" +
-	"\bbillDate\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f账单日期R\bbillDate\x128\n" +
+	"\bbillDate\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f账单日期R\bbillDate\x12b\n" +
+	"\x06status\x18\x04 \x01(\x0e2\x15.common.PayBillStatusB.\xbaG+\x92\x02(对账状态：枚举【PayBillStatus】H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"O\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\a_status\"O\n" +
 	"\x13PagePayBillResponse\x12\"\n" +
 	"\x04list\x18\x01 \x03(\v2\x0e.admin.PayBillR\x04list\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\"\xd5\a\n" +
@@ -317,15 +327,16 @@ var file_admin_pay_bill_proto_goTypes = []any{
 	(common.PayBillStatus)(0),   // 3: common.PayBillStatus
 }
 var file_admin_pay_bill_proto_depIdxs = []int32{
-	2, // 0: admin.PagePayBillResponse.list:type_name -> admin.PayBill
-	3, // 1: admin.PayBill.status:type_name -> common.PayBillStatus
-	0, // 2: admin.PayBillService.PagePayBill:input_type -> admin.PagePayBillRequest
-	1, // 3: admin.PayBillService.PagePayBill:output_type -> admin.PagePayBillResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 0: admin.PagePayBillRequest.status:type_name -> common.PayBillStatus
+	2, // 1: admin.PagePayBillResponse.list:type_name -> admin.PayBill
+	3, // 2: admin.PayBill.status:type_name -> common.PayBillStatus
+	0, // 3: admin.PayBillService.PagePayBill:input_type -> admin.PagePayBillRequest
+	1, // 4: admin.PayBillService.PagePayBill:output_type -> admin.PagePayBillResponse
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_admin_pay_bill_proto_init() }
@@ -333,6 +344,7 @@ func file_admin_pay_bill_proto_init() {
 	if File_admin_pay_bill_proto != nil {
 		return
 	}
+	file_admin_pay_bill_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

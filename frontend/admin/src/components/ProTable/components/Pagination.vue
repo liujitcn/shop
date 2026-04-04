@@ -1,13 +1,15 @@
 <template>
   <!-- 分页组件 -->
   <el-pagination
-    :background="true"
-    v-model:current-page="currentPage"
-    v-model:page-size="pageSize"
+    background
+    :current-page="currentPage"
+    :page-size="pageSize"
     :page-sizes="[10, 25, 50, 100]"
     :total="pageable.total"
     :size="globalStore?.assemblySize ?? 'default'"
     layout="total, sizes, prev, pager, next, jumper"
+    @update:current-page="handleCurrentPageUpdate"
+    @update:page-size="handlePageSizeUpdate"
   />
 </template>
 
@@ -39,4 +41,14 @@ const pageSize = computed({
   get: () => props.pageable.pageSize,
   set: value => props.handleSizeChange(value)
 });
+
+/** 同步当前页码更新，兼容 Element Plus 当前推荐写法。 */
+function handleCurrentPageUpdate(value: number) {
+  currentPage.value = value;
+}
+
+/** 同步分页大小更新，兼容 Element Plus 当前推荐写法。 */
+function handlePageSizeUpdate(value: number) {
+  pageSize.value = value;
+}
 </script>

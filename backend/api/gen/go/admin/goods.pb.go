@@ -127,6 +127,10 @@ type PageGoodsRequest struct {
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	// 状态
 	Status *common.GoodsStatus `protobuf:"varint,100,opt,name=status,proto3,enum=common.GoodsStatus,oneof" json:"status,omitempty"`
+	// 库存预警类型：1 低库存，2 零库存
+	InventoryAlert *int32 `protobuf:"varint,103,opt,name=inventoryAlert,proto3,oneof" json:"inventoryAlert,omitempty"`
+	// 价格异常类型：1 价格配置异常
+	PriceAlert *int32 `protobuf:"varint,104,opt,name=priceAlert,proto3,oneof" json:"priceAlert,omitempty"`
 	// 当前页码
 	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
 	// 每一页的行数
@@ -184,6 +188,20 @@ func (x *PageGoodsRequest) GetStatus() common.GoodsStatus {
 		return *x.Status
 	}
 	return common.GoodsStatus(0)
+}
+
+func (x *PageGoodsRequest) GetInventoryAlert() int32 {
+	if x != nil && x.InventoryAlert != nil {
+		return *x.InventoryAlert
+	}
+	return 0
+}
+
+func (x *PageGoodsRequest) GetPriceAlert() int32 {
+	if x != nil && x.PriceAlert != nil {
+		return *x.PriceAlert
+	}
+	return 0
 }
 
 func (x *PageGoodsRequest) GetPageNum() int64 {
@@ -622,17 +640,23 @@ const file_admin_goods_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12 \n" +
 	"\x04name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12-\n" +
 	"\x05price\x18\x03 \x01(\x03B\x17\xbaG\x14\x92\x02\x11当前价格(分)R\x05price\x126\n" +
-	"\fcategoryName\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xc5\x02\n" +
+	"\fcategoryName\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xa0\x04\n" +
 	"\x10PageGoodsRequest\x123\n" +
 	"\n" +
 	"categoryId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类idH\x00R\n" +
 	"categoryId\x88\x01\x01\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\x12>\n" +
-	"\x06status\x18d \x01(\x0e2\x13.common.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x128\n" +
+	"\x06status\x18d \x01(\x0e2\x13.common.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12a\n" +
+	"\x0einventoryAlert\x18g \x01(\x05B4\xbaG1\x92\x02.库存预警类型：1 低库存，2 零库存H\x02R\x0einventoryAlert\x88\x01\x01\x12T\n" +
+	"\n" +
+	"priceAlert\x18h \x01(\x05B/\xbaG,\x92\x02)价格异常类型：1 价格配置异常H\x03R\n" +
+	"priceAlert\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\r\n" +
 	"\v_categoryIdB\t\n" +
-	"\a_status\"K\n" +
+	"\a_statusB\x11\n" +
+	"\x0f_inventoryAlertB\r\n" +
+	"\v_priceAlert\"K\n" +
 	"\x11PageGoodsResponse\x12 \n" +
 	"\x04list\x18\x01 \x03(\v2\f.admin.GoodsR\x04list\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x05R\x05total\"\xb9\x05\n" +

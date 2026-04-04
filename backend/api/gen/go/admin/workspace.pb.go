@@ -337,7 +337,6 @@ type WorkspaceRiskListResponse struct {
 	AbnormalPayBillCount       int64                  `protobuf:"varint,1,opt,name=abnormalPayBillCount,proto3" json:"abnormalPayBillCount,omitempty"`
 	ZeroInventoryPutOnSkuCount int64                  `protobuf:"varint,2,opt,name=zeroInventoryPutOnSkuCount,proto3" json:"zeroInventoryPutOnSkuCount,omitempty"`
 	AbnormalPriceSkuCount      int64                  `protobuf:"varint,3,opt,name=abnormalPriceSkuCount,proto3" json:"abnormalPriceSkuCount,omitempty"`
-	PendingOperationCount      int64                  `protobuf:"varint,4,opt,name=pendingOperationCount,proto3" json:"pendingOperationCount,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
@@ -393,13 +392,6 @@ func (x *WorkspaceRiskListResponse) GetAbnormalPriceSkuCount() int64 {
 	return 0
 }
 
-func (x *WorkspaceRiskListResponse) GetPendingOperationCount() int64 {
-	if x != nil {
-		return x.PendingOperationCount
-	}
-	return 0
-}
-
 var File_admin_workspace_proto protoreflect.FileDescriptor
 
 const file_admin_workspace_proto_rawDesc = "" +
@@ -426,12 +418,11 @@ const file_admin_workspace_proto_rawDesc = "" +
 	"\x18pendingShippedOrderCount\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12待发货订单数R\x18pendingShippedOrderCount\x12I\n" +
 	"\x14lowInventorySkuCount\x18\x03 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f低库存SKU数R\x14lowInventorySkuCount\x12P\n" +
 	"\x16pendingPutOnGoodsCount\x18\x04 \x01(\x03B\x18\xbaG\x15\x92\x02\x12待上架商品数R\x16pendingPutOnGoodsCount\"\x1a\n" +
-	"\x18WorkspaceRiskListRequest\"\xf5\x02\n" +
+	"\x18WorkspaceRiskListRequest\"\x9f\x02\n" +
 	"\x19WorkspaceRiskListResponse\x12L\n" +
 	"\x14abnormalPayBillCount\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12对账单异常数R\x14abnormalPayBillCount\x12^\n" +
 	"\x1azeroInventoryPutOnSkuCount\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18零库存仍上架SKU数R\x1azeroInventoryPutOnSkuCount\x12T\n" +
-	"\x15abnormalPriceSkuCount\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18价格配置异常SKU数R\x15abnormalPriceSkuCount\x12T\n" +
-	"\x15pendingOperationCount\x18\x04 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18运营位待检查项数R\x15pendingOperationCount2\x8b\x03\n" +
+	"\x15abnormalPriceSkuCount\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18价格配置异常SKU数R\x15abnormalPriceSkuCount2\x8b\x03\n" +
 	"\x10WorkspaceService\x12{\n" +
 	"\x13GetWorkspaceMetrics\x12\x1e.admin.WorkspaceMetricsRequest\x1a\x1f.admin.WorkspaceMetricsResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/admin/workspace/metric\x12|\n" +
 	"\x14GetWorkspaceTodoList\x12\x1f.admin.WorkspaceTodoListRequest\x1a .admin.WorkspaceTodoListResponse\"!\x82\xd3\xe4\x93\x02\x1b\x12\x19/api/admin/workspace/todo\x12|\n" +

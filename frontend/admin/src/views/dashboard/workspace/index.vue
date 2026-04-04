@@ -96,10 +96,12 @@ defineOptions({
 });
 
 import { computed, onMounted, reactive, ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, type RouteLocationRaw } from "vue-router";
 import { defWorkspaceService } from "@/api/admin/workspace";
 import type { WorkspaceMetricsResponse, WorkspaceRiskListResponse, WorkspaceTodoListResponse } from "@/rpc/admin/workspace";
 import { useUserStore } from "@/stores/modules/user";
+import { GoodsStatus, OrderStatus, PayBillStatus } from "@/rpc/common/enum";
+import { navigateTo } from "@/utils/router";
 import { formatPrice, formatSrc } from "@/utils/utils";
 import defaultAvatar from "@/assets/images/avatar.png";
 
@@ -140,7 +142,7 @@ interface WorkspaceTodoItem {
   /** 徽标文案。 */
   badge: string;
   /** 跳转路径。 */
-  path: string;
+  path: RouteLocationRaw;
 }
 
 /** 风险等级。 */
@@ -163,7 +165,7 @@ interface WorkspaceRiskItem {
   /** 风险等级文案。 */
   levelLabel: string;
   /** 跳转路径。 */
-  path: string;
+  path: RouteLocationRaw;
 }
 
 const router = useRouter();
@@ -196,8 +198,7 @@ const todoSummary = reactive<WorkspaceTodoListResponse>({
 const riskSummary = reactive<WorkspaceRiskListResponse>({
   abnormalPayBillCount: 0,
   zeroInventoryPutOnSkuCount: 0,
-  abnormalPriceSkuCount: 0,
-  pendingOperationCount: 0
+  abnormalPriceSkuCount: 0
 });
 
 /** 当前显示名称，优先取昵称。 */
@@ -295,7 +296,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "单",
       description: "继续观察支付转化情况。",
       badge: "支付",
-      path: "/order/info"
+      path: { path: "/order/order", query: { status: String(OrderStatus.CREATED) } }
     },
     {
       key: "todo-shipped",
@@ -304,16 +305,16 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "单",
       description: "优先处理已支付未发货订单。",
       badge: "履约",
-      path: "/order/info"
+      path: { path: "/order/order", query: { status: String(OrderStatus.PAID) } }
     },
     {
       key: "todo-stock",
-      title: "低库存 SKU",
+      title: "低库存商品",
       count: todoSummary.lowInventorySkuCount,
       unit: "个",
       description: "需要尽快补货或调整售卖策略。",
       badge: "库存",
-      path: "/goods/info"
+      path: { path: "/goods/goods", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "1" } }
     },
     {
       key: "todo-put-on",
@@ -322,7 +323,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "个",
       description: "资料已齐，适合统一回看上架。",
       badge: "商品",
-      path: "/goods/info"
+      path: { path: "/goods/goods", query: { status: String(GoodsStatus.PULL_OFF) } }
     }
   ];
 });
@@ -335,10 +336,10 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       title: "对账单异常",
       count: riskSummary.abnormalPayBillCount,
       unit: "项",
-      description: "优先核对 pay_bill 对账状态。",
+      description: "优先核对对账结果，尽快排查差异原因。",
       level: "danger",
       levelLabel: "高风险",
-      path: "/pay/bill"
+      path: { path: "/pay/bill", query: { status: String(PayBillStatus.HAS_ERROR) } }
     },
     {
       key: "risk-zero-stock",
@@ -348,7 +349,7 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       description: "继续曝光会直接影响转化。",
       level: "danger",
       levelLabel: "高风险",
-      path: "/goods/info"
+      path: { path: "/goods/goods", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "2" } }
     },
     {
       key: "risk-price",
@@ -358,17 +359,7 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       description: "需要复核售价与折扣价关系。",
       level: "warning",
       levelLabel: "需核对",
-      path: "/goods/info"
-    },
-    {
-      key: "risk-operation",
-      title: "运营位待检查",
-      count: riskSummary.pendingOperationCount,
-      unit: "项",
-      description: "首页投放位存在待确认内容。",
-      level: "info",
-      levelLabel: "待检查",
-      path: "/shop/banner"
+      path: { path: "/goods/goods", query: { priceAlert: "1" } }
     }
   ];
 });
@@ -377,9 +368,13 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
  * 统一处理工作台入口跳转。
  * @param path 目标路由路径。
  */
-function handleNavigate(path: string) {
+function handleNavigate(path: RouteLocationRaw) {
   if (!path) return;
-  router.push(path);
+  if (typeof path === "string") {
+    navigateTo(router, path);
+    return;
+  }
+  navigateTo(router, String(path.path ?? ""), (path.query ?? {}) as Record<string, string | number>);
 }
 
 /** 加载工作台三块数据。 */

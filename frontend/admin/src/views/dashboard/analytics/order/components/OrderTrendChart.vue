@@ -1,5 +1,5 @@
 <template>
-  <AnalyticsChartCard title="订单与销售趋势" description="在同一张图中查看订单量和销售额走势。" primary>
+  <AnalyticsChartCard title="订单与销售趋势" primary>
     <ECharts :option="option" />
   </AnalyticsChartCard>
 </template>

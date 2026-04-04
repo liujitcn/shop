@@ -6,7 +6,6 @@
           <h2 class="analytics-title">{{ title }}</h2>
           <p class="analytics-desc">{{ description }}</p>
         </div>
-        <span class="analytics-period">{{ periodLabel }}</span>
         <div class="analytics-toolbar__tabs">
           <slot name="toolbar" />
         </div>
@@ -74,21 +73,6 @@ const chartColumns = computed(() => props.contentRatio);
   margin: 8px 0 0;
   color: var(--admin-page-text-secondary);
   line-height: 1.7;
-}
-
-.analytics-period {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 72px;
-  height: 32px;
-  padding: 0 12px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--admin-page-accent-soft-text);
-  background: var(--admin-page-accent-soft-bg);
-  border: 1px solid var(--admin-page-accent-soft-border);
-  border-radius: 999px;
 }
 
 .analytics-toolbar__tabs {

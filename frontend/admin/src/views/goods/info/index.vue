@@ -31,8 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { useRouter } from "vue-router";
+import { reactive, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, List, Tickets } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
@@ -61,11 +61,26 @@ type CategoryFilterNode = {
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const router = useRouter();
+const route = useRoute();
 
 const initParam = reactive({
-  categoryId: undefined as number | undefined
+  categoryId: undefined as number | undefined,
+  status: undefined as number | undefined,
+  inventoryAlert: undefined as number | undefined,
+  priceAlert: undefined as number | undefined
 });
 const categoryFilterValue = ref("");
+
+const inventoryAlertOptions = [
+  { label: "低库存", value: 1 },
+  { label: "零库存", value: 2 }
+];
+
+const priceAlertOptions = [{ label: "价格异常", value: 1 }];
+const goodsStatusOptions = [
+  { label: "上架", value: GoodsStatus.PUT_ON },
+  { label: "下架", value: GoodsStatus.PULL_OFF }
+];
 
 /** 商品表格列配置。 */
 const columns: ColumnProps[] = [
@@ -86,6 +101,22 @@ const columns: ColumnProps[] = [
   { prop: "categoryName", label: "分类", minWidth: 140 },
   { prop: "desc", label: "商品描述", minWidth: 200 },
   { prop: "inventory", label: "总库存", minWidth: 100, align: "right" },
+  {
+    prop: "inventoryAlert",
+    label: "库存预警",
+    minWidth: 120,
+    enum: inventoryAlertOptions,
+    isShow: false,
+    search: { el: "select" }
+  },
+  {
+    prop: "priceAlert",
+    label: "价格异常",
+    minWidth: 120,
+    enum: priceAlertOptions,
+    isShow: false,
+    search: { el: "select" }
+  },
   { prop: "initSaleNum", label: "初始销量", minWidth: 100, align: "right" },
   { prop: "realSaleNum", label: "真实销量", minWidth: 100, align: "right" },
   { prop: "price", label: "价格（元）", minWidth: 110, align: "right", cellType: "money" },
@@ -94,6 +125,7 @@ const columns: ColumnProps[] = [
     prop: "status",
     label: "状态",
     minWidth: 100,
+    enum: goodsStatusOptions,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -209,11 +241,63 @@ async function requestGoodsTable(params: PageGoodsRequest) {
   const data = await defGoodsService.PageGoods(
     buildPageRequest({
       ...params,
-      categoryId: initParam.categoryId
+      categoryId: initParam.categoryId,
+      status: initParam.status,
+      inventoryAlert: initParam.inventoryAlert,
+      priceAlert: initParam.priceAlert
     })
   );
   return { data };
 }
+
+function syncWorkspaceQuery() {
+  const categoryId = Number(route.query.categoryId ?? 0);
+  const status = Number(route.query.status ?? 0);
+  const inventoryAlert = Number(route.query.inventoryAlert ?? 0);
+  const priceAlert = Number(route.query.priceAlert ?? 0);
+
+  initParam.categoryId = categoryId > 0 ? categoryId : undefined;
+  initParam.status = status > 0 ? status : undefined;
+  initParam.inventoryAlert = inventoryAlert > 0 ? inventoryAlert : undefined;
+  initParam.priceAlert = priceAlert > 0 ? priceAlert : undefined;
+  categoryFilterValue.value = initParam.categoryId ? String(initParam.categoryId) : "";
+
+  if (proTable.value) {
+    Object.assign(proTable.value.searchParam, {
+      categoryId: initParam.categoryId,
+      status: initParam.status,
+      inventoryAlert: initParam.inventoryAlert,
+      priceAlert: initParam.priceAlert
+    });
+    Object.assign(proTable.value.searchInitParam, {
+      categoryId: initParam.categoryId,
+      status: initParam.status,
+      inventoryAlert: initParam.inventoryAlert,
+      priceAlert: initParam.priceAlert
+    });
+  }
+}
+
+watch(
+  () => route.query,
+  () => {
+    syncWorkspaceQuery();
+    if (proTable.value) {
+      proTable.value.pageable.pageNum = 1;
+      proTable.value.search();
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => proTable.value,
+  value => {
+    if (!value) return;
+    syncWorkspaceQuery();
+  },
+  { immediate: true }
+);
 
 /**
  * 打开商品编辑页。

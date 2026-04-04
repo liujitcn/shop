@@ -14,15 +14,12 @@ const lowInventoryThreshold = 10
 
 // WorkspaceCase 工作台业务实例。
 type WorkspaceCase struct {
-	orderCase       *OrderCase
-	baseUserCase    *BaseUserCase
-	orderGoodsCase  *OrderGoodsCase
-	goodsCase       *GoodsCase
-	goodsSkuCase    *GoodsSkuCase
-	payBillCase     *PayBillCase
-	shopBannerCase  *ShopBannerCase
-	shopHotCase     *ShopHotCase
-	shopServiceCase *ShopServiceCase
+	orderCase      *OrderCase
+	baseUserCase   *BaseUserCase
+	orderGoodsCase *OrderGoodsCase
+	goodsCase      *GoodsCase
+	goodsSkuCase   *GoodsSkuCase
+	payBillCase    *PayBillCase
 }
 
 // NewWorkspaceCase 创建工作台业务实例。
@@ -33,20 +30,14 @@ func NewWorkspaceCase(
 	goodsCase *GoodsCase,
 	goodsSkuCase *GoodsSkuCase,
 	payBillCase *PayBillCase,
-	shopBannerCase *ShopBannerCase,
-	shopHotCase *ShopHotCase,
-	shopServiceCase *ShopServiceCase,
 ) *WorkspaceCase {
 	return &WorkspaceCase{
-		orderCase:       orderCase,
-		baseUserCase:    baseUserCase,
-		orderGoodsCase:  orderGoodsCase,
-		goodsCase:       goodsCase,
-		goodsSkuCase:    goodsSkuCase,
-		payBillCase:     payBillCase,
-		shopBannerCase:  shopBannerCase,
-		shopHotCase:     shopHotCase,
-		shopServiceCase: shopServiceCase,
+		orderCase:      orderCase,
+		baseUserCase:   baseUserCase,
+		orderGoodsCase: orderGoodsCase,
+		goodsCase:      goodsCase,
+		goodsSkuCase:   goodsSkuCase,
+		payBillCase:    payBillCase,
 	}
 }
 
@@ -168,16 +159,10 @@ func (c *WorkspaceCase) GetWorkspaceRiskList(ctx context.Context, _ *adminApi.Wo
 		return nil, err
 	}
 
-	pendingOperationCount, err := c.countPendingOperation(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	return &adminApi.WorkspaceRiskListResponse{
 		AbnormalPayBillCount:       abnormalPayBillCount,
 		ZeroInventoryPutOnSkuCount: zeroInventoryPutOnSkuCount,
 		AbnormalPriceSkuCount:      abnormalPriceSkuCount,
-		PendingOperationCount:      pendingOperationCount,
 	}, nil
 }
 
@@ -380,58 +365,6 @@ func (c *WorkspaceCase) countAbnormalPriceSku(ctx context.Context) (int64, error
 	err := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsSku{}).
 		Where("price <= 0 OR discount_price < 0 OR (discount_price > 0 AND discount_price > price)").
-		Count(&count).Error
-	return count, err
-}
-
-// countPendingOperation 统计运营位待检查项数量。
-func (c *WorkspaceCase) countPendingOperation(ctx context.Context) (int64, error) {
-	disableStatus := int32(commonApi.Status_DISABLE)
-
-	shopBannerCount, err := c.countShopBannerStatus(ctx, disableStatus)
-	if err != nil {
-		return 0, err
-	}
-
-	shopHotCount, err := c.countShopHotStatus(ctx, disableStatus)
-	if err != nil {
-		return 0, err
-	}
-
-	shopServiceCount, err := c.countShopServiceStatus(ctx, disableStatus)
-	if err != nil {
-		return 0, err
-	}
-
-	return shopBannerCount + shopHotCount + shopServiceCount, nil
-}
-
-// countShopBannerStatus 统计指定轮播图状态数量。
-func (c *WorkspaceCase) countShopBannerStatus(ctx context.Context, status int32) (int64, error) {
-	var count int64
-	err := c.shopBannerCase.Query(ctx).ShopBanner.WithContext(ctx).UnderlyingDB().
-		Model(&models.ShopBanner{}).
-		Where("status = ?", status).
-		Count(&count).Error
-	return count, err
-}
-
-// countShopHotStatus 统计指定热门推荐状态数量。
-func (c *WorkspaceCase) countShopHotStatus(ctx context.Context, status int32) (int64, error) {
-	var count int64
-	err := c.shopHotCase.Query(ctx).ShopHot.WithContext(ctx).UnderlyingDB().
-		Model(&models.ShopHot{}).
-		Where("status = ?", status).
-		Count(&count).Error
-	return count, err
-}
-
-// countShopServiceStatus 统计指定服务配置状态数量。
-func (c *WorkspaceCase) countShopServiceStatus(ctx context.Context, status int32) (int64, error) {
-	var count int64
-	err := c.shopServiceCase.Query(ctx).ShopService.WithContext(ctx).UnderlyingDB().
-		Model(&models.ShopService{}).
-		Where("status = ?", status).
 		Count(&count).Error
 	return count, err
 }

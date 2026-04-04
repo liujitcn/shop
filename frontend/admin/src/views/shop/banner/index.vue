@@ -7,6 +7,7 @@
       :columns="columns"
       :header-actions="headerActions"
       :request-api="requestShopBannerTable"
+      :init-param="initParam"
     />
 
     <FormDialog
@@ -25,7 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
@@ -59,9 +61,38 @@ interface CategoryOption {
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
+const route = useRoute();
 
 const goodsList = ref<ListGoodsResponse_Goods[]>([]);
 const goodsCategoryOptions = ref<CategoryOption[]>([]);
+
+const initParam = computed<PageShopBannerRequest>(() => {
+  const status = Number(route.query.status ?? 0);
+  return {
+    site: undefined,
+    type: undefined,
+    status: status > 0 ? status : undefined,
+    pageNum: 1,
+    pageSize: 10
+  };
+});
+
+watch(
+  () => [route.query.status, proTable.value],
+  () => {
+    if (!proTable.value) return;
+    const status = Number(route.query.status ?? 0);
+    Object.assign(proTable.value.searchParam, {
+      status: status > 0 ? status : undefined
+    });
+    Object.assign(proTable.value.searchInitParam, {
+      status: status > 0 ? status : undefined
+    });
+    proTable.value.pageable.pageNum = 1;
+    proTable.value.search();
+  },
+  { immediate: true }
+);
 
 const dialog = reactive({
   title: "",

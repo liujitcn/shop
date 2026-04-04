@@ -224,7 +224,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, resolveComponent, type VNode } from "vue";
+import { computed, h, reactive, ref, resolveComponent, type VNode, watch } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
@@ -274,11 +274,15 @@ const userOptions = ref<SelectOptionResponse_Option[]>([]);
 const reportInitParam = computed(() => {
   const startDate = String(route.query.startDate ?? "");
   const endDate = String(route.query.endDate ?? "");
+  const status = Number(route.query.status ?? 0);
   const payType = Number(route.query.payType ?? 0);
   const payChannel = Number(route.query.payChannel ?? 0);
   const initParam: Record<string, unknown> = {};
   if (startDate && endDate) {
     initParam.createdAt = [startDate, endDate];
+  }
+  if (status > 0) {
+    initParam.status = status;
   }
   if (payType > 0) {
     initParam.payType = payType;
@@ -288,6 +292,34 @@ const reportInitParam = computed(() => {
   }
   return initParam;
 });
+
+watch(
+  () => [route.query, proTable.value],
+  () => {
+    if (!proTable.value) return;
+    const startDate = String(route.query.startDate ?? "");
+    const endDate = String(route.query.endDate ?? "");
+    const status = Number(route.query.status ?? 0);
+    const payType = Number(route.query.payType ?? 0);
+    const payChannel = Number(route.query.payChannel ?? 0);
+    const createdAt = startDate && endDate ? [startDate, endDate] : undefined;
+    Object.assign(proTable.value.searchParam, {
+      status: status > 0 ? status : undefined,
+      payType: payType > 0 ? payType : undefined,
+      payChannel: payChannel > 0 ? payChannel : undefined,
+      createdAt
+    });
+    Object.assign(proTable.value.searchInitParam, {
+      status: status > 0 ? status : undefined,
+      payType: payType > 0 ? payType : undefined,
+      payChannel: payChannel > 0 ? payChannel : undefined,
+      createdAt
+    });
+    proTable.value.pageable.pageNum = 1;
+    proTable.value.search();
+  },
+  { immediate: true }
+);
 
 const reportSourceLabel = computed(() => {
   if (route.query.source !== "month-report") return "";

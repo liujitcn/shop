@@ -68,6 +68,7 @@ func NewHttpServer(
 	adminGoodsSku *admin.GoodsSkuService,
 	adminGoodsSpec *admin.GoodsSpecService,
 	adminOrderAnalytics *admin.OrderAnalyticsService,
+	adminOrderReport *admin.OrderReportService,
 	adminOrder *admin.OrderService,
 	adminPayBill *admin.PayBillService,
 	adminShopBanner *admin.ShopBannerService,
@@ -123,6 +124,7 @@ func NewHttpServer(
 	adminApi.RegisterGoodsSkuServiceHTTPServer(srv, adminGoodsSku)
 	adminApi.RegisterGoodsSpecServiceHTTPServer(srv, adminGoodsSpec)
 	adminApi.RegisterOrderAnalyticsServiceHTTPServer(srv, adminOrderAnalytics)
+	adminApi.RegisterOrderReportServiceHTTPServer(srv, adminOrderReport)
 	adminApi.RegisterOrderServiceHTTPServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceHTTPServer(srv, adminPayBill)
 	adminApi.RegisterShopBannerServiceHTTPServer(srv, adminShopBanner)

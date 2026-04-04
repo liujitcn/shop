@@ -28,6 +28,12 @@ type GoodsCase struct {
 	mapper            *_mapper.CopierMapper[admin.Goods, models.Goods]
 }
 
+const (
+	goodsInventoryAlertLow  int32 = 1
+	goodsInventoryAlertZero int32 = 2
+	goodsPriceAlertAbnormal int32 = 1
+)
+
 // NewGoodsCase 创建商品业务实例
 func NewGoodsCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.GoodsRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsCase {
 	formMapper := _mapper.NewCopierMapper[admin.GoodsForm, models.Goods]()
@@ -114,6 +120,28 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) 
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	if req.InventoryAlert != nil {
+		var goodsIDs []int64
+		goodsIDs, err = c.findGoodsIDsByInventoryAlert(ctx, req.GetInventoryAlert())
+		if err != nil {
+			return nil, err
+		}
+		if len(goodsIDs) == 0 {
+			return &admin.PageGoodsResponse{List: []*admin.Goods{}, Total: 0}, nil
+		}
+		opts = append(opts, repo.Where(query.ID.In(goodsIDs...)))
+	}
+	if req.PriceAlert != nil && req.GetPriceAlert() == goodsPriceAlertAbnormal {
+		var goodsIDs []int64
+		goodsIDs, err = c.findGoodsIDsByAbnormalPrice(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if len(goodsIDs) == 0 {
+			return &admin.PageGoodsResponse{List: []*admin.Goods{}, Total: 0}, nil
+		}
+		opts = append(opts, repo.Where(query.ID.In(goodsIDs...)))
+	}
 
 	var list []*models.Goods
 	var total int64
@@ -135,6 +163,42 @@ func (c *GoodsCase) PageGoods(ctx context.Context, req *admin.PageGoodsRequest) 
 		resList = append(resList, goods)
 	}
 	return &admin.PageGoodsResponse{List: resList, Total: int32(total)}, nil
+}
+
+func (c *GoodsCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
+	if inventoryAlert != goodsInventoryAlertLow && inventoryAlert != goodsInventoryAlertZero {
+		return nil, nil
+	}
+
+	db := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsSku{}).
+		Select("DISTINCT goods_sku.goods_id").
+		Joins("JOIN goods ON goods.id = goods_sku.goods_id").
+		Where("goods.deleted_at IS NULL").
+		Where("goods_sku.deleted_at IS NULL")
+
+	if inventoryAlert == goodsInventoryAlertLow {
+		db = db.Where("goods_sku.inventory > 0 AND goods_sku.inventory <= ?", lowInventoryThreshold)
+	} else {
+		db = db.Where("goods_sku.inventory = 0")
+	}
+
+	goodsIDs := make([]int64, 0)
+	err := db.Pluck("goods_sku.goods_id", &goodsIDs).Error
+	return goodsIDs, err
+}
+
+func (c *GoodsCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
+	goodsIDs := make([]int64, 0)
+	err := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsSku{}).
+		Select("DISTINCT goods_sku.goods_id").
+		Joins("JOIN goods ON goods.id = goods_sku.goods_id").
+		Where("goods.deleted_at IS NULL").
+		Where("goods_sku.deleted_at IS NULL").
+		Where("goods_sku.price <= 0 OR goods_sku.discount_price < 0 OR (goods_sku.discount_price > 0 AND goods_sku.discount_price > goods_sku.price)").
+		Pluck("goods_sku.goods_id", &goodsIDs).Error
+	return goodsIDs, err
 }
 
 // GetGoods 获取商品

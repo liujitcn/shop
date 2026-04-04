@@ -61,6 +61,7 @@ func NewGRPCServer(
 	adminGoodsSku *admin.GoodsSkuService,
 	adminGoodsSpec *admin.GoodsSpecService,
 	adminOrderAnalytics *admin.OrderAnalyticsService,
+	adminOrderReport *admin.OrderReportService,
 	adminOrder *admin.OrderService,
 	adminPayBill *admin.PayBillService,
 	adminShopBanner *admin.ShopBannerService,
@@ -115,6 +116,7 @@ func NewGRPCServer(
 	adminApi.RegisterGoodsSkuServiceServer(srv, adminGoodsSku)
 	adminApi.RegisterGoodsSpecServiceServer(srv, adminGoodsSpec)
 	adminApi.RegisterOrderAnalyticsServiceServer(srv, adminOrderAnalytics)
+	adminApi.RegisterOrderReportServiceServer(srv, adminOrderReport)
 	adminApi.RegisterOrderServiceServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceServer(srv, adminPayBill)
 	adminApi.RegisterShopBannerServiceServer(srv, adminShopBanner)

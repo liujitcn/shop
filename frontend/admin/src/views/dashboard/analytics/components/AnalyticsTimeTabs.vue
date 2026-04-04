@@ -33,7 +33,9 @@ function handleUpdate(value: string | number) {
   }
 
   :deep(.el-tabs__nav) {
-    padding: 4px;
+    display: flex;
+    gap: 2px;
+    padding: 4px 6px;
     background: var(--admin-page-card-bg-soft);
     border: 1px solid var(--admin-page-card-border-soft);
     border-radius: 10px;
@@ -46,8 +48,15 @@ function handleUpdate(value: string | number) {
   :deep(.el-tabs__item) {
     height: 32px;
     padding: 0 14px;
+    border: 1px solid transparent;
     border-radius: 8px;
+    box-sizing: border-box;
+    font-weight: 600;
     color: var(--admin-page-text-secondary);
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
   }
 
   :deep(.el-tabs__active-bar) {
@@ -55,8 +64,13 @@ function handleUpdate(value: string | number) {
   }
 
   :deep(.el-tabs__item.is-active) {
-    color: var(--admin-page-text-primary);
-    background: var(--admin-page-card-bg);
+    color: var(--el-color-primary);
+    background: color-mix(in srgb, var(--el-color-primary) 12%, #ffffff);
+    border-color: color-mix(in srgb, var(--el-color-primary) 28%, transparent);
+  }
+
+  :deep(.el-tabs__item:hover) {
+    color: var(--el-color-primary);
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div v-loading="loading" class="order-month-report">
-    <AnalyticsPageLayout title="订单月报" description="" :period-label="periodLabel" content-ratio="minmax(0, 1fr)">
+    <AnalyticsPageLayout title="订单月报" description="" period-label="" content-ratio="minmax(0, 1fr)">
       <template #toolbar>
         <div class="report-toolbar">
           <el-date-picker
@@ -32,7 +32,7 @@
         <AnalyticsMetricCards :items="metricItems" />
       </template>
 
-      <AnalyticsChartCard title="成交与退款趋势" description="按月查看支付金额、退款金额和支付订单数的变化。" primary>
+      <AnalyticsChartCard title="成交与退款趋势" primary>
         <ECharts :option="chartOption" :on-click="handleChartClick" />
       </AnalyticsChartCard>
     </AnalyticsPageLayout>
@@ -130,7 +130,54 @@ const reportSummary = computed<OrderMonthReportSummaryResponse>(() => {
   return report.summary ?? emptySummary();
 });
 
-const periodLabel = computed(() => `${monthRange.value[0]} ~ ${monthRange.value[1]}`);
+function normalizeNumber(value: unknown) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+  if (typeof value === "string") {
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : 0;
+  }
+  return 0;
+}
+
+function normalizeReportItem(payload: Partial<OrderMonthReportItem> | undefined): OrderMonthReportItem {
+  const source = (payload ?? {}) as Partial<OrderMonthReportItem> & Record<string, unknown>;
+  return {
+    month: String(source.month ?? ""),
+    paidOrderCount: normalizeNumber(source.paidOrderCount ?? source.paid_order_count),
+    paidOrderAmount: normalizeNumber(source.paidOrderAmount ?? source.paid_order_amount),
+    refundOrderCount: normalizeNumber(source.refundOrderCount ?? source.refund_order_count),
+    refundOrderAmount: normalizeNumber(source.refundOrderAmount ?? source.refund_order_amount),
+    netOrderAmount: normalizeNumber(source.netOrderAmount ?? source.net_order_amount),
+    paidUserCount: normalizeNumber(source.paidUserCount ?? source.paid_user_count),
+    goodsCount: normalizeNumber(source.goodsCount ?? source.goods_count),
+    customerUnitPrice: normalizeNumber(source.customerUnitPrice ?? source.customer_unit_price)
+  };
+}
+
+function normalizeSummaryResponse(payload: unknown): OrderMonthReportSummaryResponse {
+  const source = ((payload as { data?: Partial<OrderMonthReportSummaryResponse> } | undefined)?.data ??
+    payload ??
+    {}) as Partial<OrderMonthReportSummaryResponse> & Record<string, unknown>;
+
+  return {
+    paidOrderCount: normalizeNumber(source.paidOrderCount ?? source.paid_order_count),
+    paidOrderAmount: normalizeNumber(source.paidOrderAmount ?? source.paid_order_amount),
+    refundOrderCount: normalizeNumber(source.refundOrderCount ?? source.refund_order_count),
+    refundOrderAmount: normalizeNumber(source.refundOrderAmount ?? source.refund_order_amount),
+    netOrderAmount: normalizeNumber(source.netOrderAmount ?? source.net_order_amount),
+    paidUserCount: normalizeNumber(source.paidUserCount ?? source.paid_user_count),
+    goodsCount: normalizeNumber(source.goodsCount ?? source.goods_count),
+    customerUnitPrice: normalizeNumber(source.customerUnitPrice ?? source.customer_unit_price)
+  };
+}
+
+function normalizeListResponse(payload: unknown): OrderMonthReportItem[] {
+  const source =
+    (payload as { data?: { items?: Partial<OrderMonthReportItem>[] }; items?: Partial<OrderMonthReportItem>[] } | undefined) ??
+    {};
+  const rawItems = source.data?.items ?? source.items ?? [];
+  return rawItems.map(item => normalizeReportItem(item));
+}
 
 const metricItems = computed<AnalyticsMetricCardItem[]>(() => [
   {
@@ -293,13 +340,14 @@ async function loadData() {
       defOrderReportService.OrderMonthReportSummary(request),
       defOrderReportService.OrderMonthReportList(request)
     ]);
-    const summary = summaryData ?? emptySummary();
+    const summary = normalizeSummaryResponse(summaryData);
+    const items = normalizeListResponse(listData);
     report.summary = {
       ...emptySummary(),
       ...summary,
       netOrderAmount: summary.netOrderAmount ?? summary.paidOrderAmount - summary.refundOrderAmount
     };
-    report.items = (listData.items ?? []).map(item => ({
+    report.items = items.map(item => ({
       ...item,
       netOrderAmount: item.netOrderAmount ?? item.paidOrderAmount - item.refundOrderAmount
     }));
@@ -453,10 +501,32 @@ initializePage();
   width: 100%;
 }
 
+.order-month-report :deep(.summary-grid) {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.order-month-report :deep(.summary-card__meta) {
+  align-items: flex-start;
+}
+
+.order-month-report :deep(.summary-card__label),
+.order-month-report :deep(.summary-card__foot-label) {
+  line-height: 1.5;
+  white-space: normal;
+}
+
+.order-month-report :deep(.summary-card__value) {
+  word-break: break-word;
+}
+
 @media (max-width: 768px) {
   .report-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .order-month-report :deep(.summary-grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 </style>

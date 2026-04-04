@@ -45,6 +45,14 @@ export interface PageGoodsRequest {
   status?:
     | GoodsStatus
     | undefined;
+  /** 库存预警类型：1 低库存，2 零库存 */
+  inventoryAlert?:
+    | number
+    | undefined;
+  /** 价格异常类型：1 价格配置异常 */
+  priceAlert?:
+    | number
+    | undefined;
   /** 当前页码 */
   pageNum: number;
   /** 每一页的行数 */

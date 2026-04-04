@@ -22,6 +22,10 @@ message PagePayBillRequest {
     (gnostic.openapi.v3.property) = {description: "账单日期"}
   ];// 账单日期
 
+  optional common.PayBillStatus status = 4 [
+    (gnostic.openapi.v3.property) = {description: "对账状态：枚举【PayBillStatus】"}
+  ];// 对账状态：枚举【PayBillStatus】
+
   // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {

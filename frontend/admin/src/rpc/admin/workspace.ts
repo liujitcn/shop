@@ -41,7 +41,6 @@ export interface WorkspaceRiskListResponse {
   abnormalPayBillCount: number;
   zeroInventoryPutOnSkuCount: number;
   abnormalPriceSkuCount: number;
-  pendingOperationCount: number;
 }
 
 /** Admin工作台服务 */
