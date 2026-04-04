@@ -139,7 +139,6 @@
     display: flex;
     flex-direction: column;
 
-    // 修复 safari 浏览器表格错位 https://github.com/HalseySpicy/Geeker-Admin/issues/83
     table {
       width: 100%;
     }

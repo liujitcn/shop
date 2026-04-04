@@ -48,7 +48,7 @@ import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 
 defineOptions({
-  name: "Goods",
+  name: "GoodsInfo",
   inheritAttrs: false
 });
 

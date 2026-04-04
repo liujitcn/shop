@@ -296,7 +296,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "单",
       description: "继续观察支付转化情况。",
       badge: "支付",
-      path: { path: "/order/order", query: { status: String(OrderStatus.CREATED) } }
+      path: { path: "/order/info", query: { status: String(OrderStatus.CREATED) } }
     },
     {
       key: "todo-shipped",
@@ -305,7 +305,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "单",
       description: "优先处理已支付未发货订单。",
       badge: "履约",
-      path: { path: "/order/order", query: { status: String(OrderStatus.PAID) } }
+      path: { path: "/order/info", query: { status: String(OrderStatus.PAID) } }
     },
     {
       key: "todo-stock",
@@ -314,7 +314,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "个",
       description: "需要尽快补货或调整售卖策略。",
       badge: "库存",
-      path: { path: "/goods/goods", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "1" } }
+      path: { path: "/goods/info", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "1" } }
     },
     {
       key: "todo-put-on",
@@ -323,7 +323,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
       unit: "个",
       description: "资料已齐，适合统一回看上架。",
       badge: "商品",
-      path: { path: "/goods/goods", query: { status: String(GoodsStatus.PULL_OFF) } }
+      path: { path: "/goods/info", query: { status: String(GoodsStatus.PULL_OFF) } }
     }
   ];
 });
@@ -349,7 +349,7 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       description: "继续曝光会直接影响转化。",
       level: "danger",
       levelLabel: "高风险",
-      path: { path: "/goods/goods", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "2" } }
+      path: { path: "/goods/info", query: { status: String(GoodsStatus.PUT_ON), inventoryAlert: "2" } }
     },
     {
       key: "risk-price",
@@ -359,7 +359,7 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       description: "需要复核售价与折扣价关系。",
       level: "warning",
       levelLabel: "需核对",
-      path: { path: "/goods/goods", query: { priceAlert: "1" } }
+      path: { path: "/goods/info", query: { priceAlert: "1" } }
     }
   ];
 });

@@ -1,6 +1,6 @@
-# geeker-admin
+# shop-admin
 
-`geeker-admin` 是 `shop` 项目的后台管理前端，基于 `Vue 3 + Vite + TypeScript + Element Plus + Pinia` 构建，负责商城后台的登录认证、权限菜单、基础数据维护、商品管理、订单管理、店铺运营和支付账单等功能。
+`shop-admin` 是 `shop` 项目的后台管理前端，基于 `Vue 3 + Vite + TypeScript + Element Plus + Pinia` 构建，负责商城后台的登录认证、权限菜单、基础数据维护、商品管理、订单管理、店铺运营和支付账单等功能。
 
 项目当前采用后端动态菜单驱动路由，前端按接口返回的菜单树动态注册页面组件；认证链路使用 `access token + refresh token`，在令牌即将过期时自动刷新，适配当前商城后台的权限体系。
 
@@ -90,7 +90,7 @@ pnpm preview
 当前 `vite.config.ts` 已将构建输出目录固定为：
 
 ```text
-../../backend/data/geeker
+../../backend/data/shop
 ```
 
 这意味着前端打包结果会直接写入 `shop` 仓库下的后端静态资源目录，而不是当前前端目录内的 `dist`。在联调或发布时，需要同时关注后端目录中的静态文件是否已被正确覆盖。
@@ -98,7 +98,7 @@ pnpm preview
 生产环境公共访问前缀当前配置为：
 
 ```text
-/geeker/
+/shop/
 ```
 
 如果后端静态资源挂载路径调整，需要同步修改 `.env.production` 中的 `VITE_PUBLIC_PATH`。
@@ -111,7 +111,7 @@ pnpm preview
 
 | 变量名 | 说明 | 当前值 |
 | --- | --- | --- |
-| `VITE_GLOB_APP_TITLE` | 应用标题 | `Geeker Admin` |
+| `VITE_GLOB_APP_TITLE` | 应用标题 | `Shop Admin` |
 | `VITE_PORT` | 本地开发端口 | `8848` |
 | `VITE_OPEN` | 启动时自动打开浏览器 | `true` |
 | `VITE_DEVTOOLS` | 是否开启 Vue DevTools | `false` |
@@ -135,7 +135,7 @@ pnpm preview
 | 变量名 | 说明 | 当前值 |
 | --- | --- | --- |
 | `VITE_USER_NODE_ENV` | 环境标识 | `production` |
-| `VITE_PUBLIC_PATH` | 公共访问路径 | `/geeker/` |
+| `VITE_PUBLIC_PATH` | 公共访问路径 | `/shop/` |
 | `VITE_ROUTER_MODE` | 路由模式 | `hash` |
 | `VITE_BUILD_COMPRESS` | 构建压缩方式 | `none` |
 | `VITE_BUILD_COMPRESS_DELETE_ORIGIN_FILE` | 压缩后是否删除源文件 | `false` |
@@ -155,7 +155,7 @@ pnpm preview
 ## 目录结构
 
 ```text
-geeker-admin
+shop-admin
 ├── build                  Vite 构建扩展配置
 ├── public                 静态资源
 ├── src
@@ -231,7 +231,7 @@ geeker-admin
 - 前端启动后会拉取用户菜单和按钮权限，再按菜单配置动态注册路由。
 - 菜单组件路径通过 `src/views` 下的页面文件自动匹配，未匹配到的页面会回退到待迁移页面占位逻辑。
 - 隐藏业务页跳转统一复用 `src/utils/router.ts` 中的 `navigateTo`，避免各页面重复维护 `router.push + resolve` 降级逻辑。
-- 列表页跳转到隐藏业务页时，前端应优先按完整 `path` 跳转，并与 `/Users/liujun/workspace/shop/shop/sql/geeker-admin.sql` 中 `base_menu` 的父子菜单路径保持一致；当前已校验的隐藏页包括 `/base/dict-item`、`/base/job-log`、`/goods/edit`、`/order/detail/:orderId`、`/shop/hot-item`。
+- 列表页跳转到隐藏业务页时，前端应优先按完整 `path` 跳转，并与 `../sql/default-data.sql` 中 `base_menu` 的父子菜单路径保持一致；当前已校验的隐藏页包括 `/base/dict-item`、`/base/job-log`、`/goods/edit`、`/order/detail/:orderId`、`/shop/hot-item`。
 
 相关接口：
 

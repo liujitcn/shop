@@ -252,7 +252,7 @@ import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
-  name: "Order",
+  name: "OrderInfo",
   inheritAttrs: false
 });
 
