@@ -48,9 +48,6 @@ func (c *UserAddressCase) ListUserAddress(ctx context.Context) (*app.ListUserAdd
 		return nil, err
 	}
 
-	// 兼容历史脏数据：若存在多条默认地址，仅保留排序后的第一条在接口层展示为默认。
-	c.normalizeDefaultFlag(all)
-
 	list := make([]*app.UserAddress, 0)
 	for _, address := range all {
 		list = append(list, &app.UserAddress{
@@ -91,10 +88,14 @@ func (c *UserAddressCase) CreateUserAddress(ctx context.Context, userAddress *ap
 		return err
 	}
 	address := c.convertToModel(authInfo.UserId, userAddress)
+	query := c.Query(ctx).UserAddress
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		if address.IsDefault {
-			// 新地址设为默认时，需要先清空当前用户的其他默认地址。
-			if err = c.clearDefaultAddress(ctx, authInfo.UserId, 0); err != nil {
+			// 新地址设为默认时，需要先清空当前用户的其他默认地址
+			err = c.UserAddressRepo.Update(ctx, &models.UserAddress{IsDefault: false},
+				repo.Where(query.UserID.Eq(authInfo.UserId)),
+			)
+			if err != nil {
 				return err
 			}
 		}
@@ -113,15 +114,18 @@ func (c *UserAddressCase) UpdateUserAddress(ctx context.Context, userAddress *ap
 		return err
 	}
 	address := c.convertToModel(authInfo.UserId, userAddress)
+	query := c.Query(ctx).UserAddress
 
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		if address.IsDefault {
-			// 修改默认地址时，同样需要保证只有一条默认记录。
-			if err = c.clearDefaultAddress(ctx, authInfo.UserId, address.ID); err != nil {
+			// 修改默认地址时，同样需要保证只有一条默认记录
+			err = c.UserAddressRepo.Update(ctx, &models.UserAddress{IsDefault: false},
+				repo.Where(query.UserID.Eq(authInfo.UserId)),
+			)
+			if err != nil {
 				return err
 			}
 		}
-		query := c.Query(ctx).UserAddress
 		err = c.UserAddressRepo.Update(ctx, address,
 			repo.Where(query.ID.Eq(address.ID)),
 			repo.Where(query.UserID.Eq(authInfo.UserId)),
@@ -171,36 +175,4 @@ func (c *UserAddressCase) convertToModel(userId int64, item *app.UserAddressForm
 		IsDefault: item.GetIsDefault(),
 	}
 	return res
-}
-
-// clearDefaultAddress 清空指定用户的默认地址，可选择排除当前地址。
-func (c *UserAddressCase) clearDefaultAddress(ctx context.Context, userId, excludeID int64) error {
-	query := c.Query(ctx).UserAddress
-	do := query.WithContext(ctx).Where(query.UserID.Eq(userId), query.IsDefault.Is(true))
-	if excludeID > 0 {
-		do = do.Where(query.ID.Neq(excludeID))
-	}
-
-	res, err := do.Updates(map[string]interface{}{
-		"is_default": false,
-	})
-	if err != nil {
-		return err
-	}
-	return res.Error
-}
-
-// normalizeDefaultFlag 兼容历史脏数据：若列表中存在多条默认地址，只保留第一条。
-func (c *UserAddressCase) normalizeDefaultFlag(list []*models.UserAddress) {
-	var found bool
-	for _, item := range list {
-		if !item.IsDefault {
-			continue
-		}
-		if !found {
-			found = true
-			continue
-		}
-		item.IsDefault = false
-	}
 }
