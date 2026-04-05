@@ -267,7 +267,7 @@ const { guessRef, onScrollToLower } = useGuessList()
   .goods {
     display: flex;
     padding: 20rpx 20rpx 20rpx 80rpx;
-    border-radius: 10rpx;
+    border-radius: 20rpx;
     background-color: #fff;
     position: relative;
 

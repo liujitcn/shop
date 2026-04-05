@@ -121,7 +121,7 @@ page {
     width: 345rpx;
     padding: 24rpx 20rpx 20rpx;
     margin-bottom: 20rpx;
-    border-radius: 10rpx;
+    border-radius: 20rpx;
     overflow: hidden;
     background-color: #fff;
   }

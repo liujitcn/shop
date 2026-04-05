@@ -541,7 +541,7 @@ page {
       width: 340rpx;
       padding: 24rpx 20rpx 20rpx;
       margin: 20rpx 7rpx;
-      border-radius: 10rpx;
+      border-radius: 20rpx;
       background-color: #fff;
     }
     .image {

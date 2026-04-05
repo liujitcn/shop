@@ -173,7 +173,7 @@ page {
   line-height: 90rpx;
   margin: 0 20rpx;
   font-size: 28rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   box-shadow: 0 4rpx 5rpx rgba(200, 200, 200, 0.3);
   color: #333;
   background-color: #fff;
@@ -205,7 +205,7 @@ page {
     width: 342rpx;
     padding: 20rpx;
     margin-top: 20rpx;
-    border-radius: 10rpx;
+    border-radius: 20rpx;
     background-color: #fff;
   }
   .thumb {
