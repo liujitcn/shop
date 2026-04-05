@@ -98,11 +98,13 @@ page {
   display: flex;
   justify-content: space-around;
   line-height: 60rpx;
-  margin: 0 10rpx;
+  margin: 0 20rpx;
   background-color: #fff;
-  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   position: relative;
   z-index: 9;
+  overflow: hidden;
 
   .item {
     flex: 1;

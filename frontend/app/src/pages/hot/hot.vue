@@ -154,7 +154,7 @@ page {
 .cover {
   width: 750rpx;
   height: 225rpx;
-  border-radius: 0 0 40rpx 40rpx;
+  border-radius: 0 0 20rpx 20rpx;
   overflow: hidden;
   position: absolute;
   left: 0;
@@ -174,7 +174,7 @@ page {
   margin: 0 20rpx;
   font-size: 28rpx;
   border-radius: 20rpx;
-  box-shadow: 0 4rpx 5rpx rgba(200, 200, 200, 0.3);
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   color: #333;
   background-color: #fff;
   position: relative;
@@ -202,14 +202,16 @@ page {
   justify-content: space-between;
   padding: 0 20rpx 20rpx;
   .navigator {
-    width: 342rpx;
+    width: calc((100% - 20rpx) / 2);
     padding: 20rpx;
     margin-top: 20rpx;
     border-radius: 20rpx;
+    box-sizing: border-box;
     background-color: #fff;
+    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
   .thumb {
-    width: 305rpx;
+    width: 100%;
     height: 305rpx;
   }
   .name {

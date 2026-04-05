@@ -537,15 +537,18 @@ page {
     background-color: #f4f4f4;
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     .goods {
-      width: 340rpx;
+      width: calc((100% - 20rpx) / 2);
       padding: 24rpx 20rpx 20rpx;
-      margin: 20rpx 7rpx;
+      margin-top: 20rpx;
       border-radius: 20rpx;
       background-color: #fff;
+      box-sizing: border-box;
+      box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
     }
     .image {
-      width: 300rpx;
+      width: 100%;
       height: 260rpx;
     }
     .name {
@@ -565,9 +568,6 @@ page {
     }
   }
   navigator {
-    &:nth-child(even) {
-      margin-right: 0;
-    }
   }
 }
 
@@ -579,43 +579,57 @@ page {
   bottom: calc((var(--window-bottom)));
   z-index: 1;
   background-color: #fff;
-  height: 100rpx;
-  padding: 0 20rpx;
+  min-height: 100rpx;
+  padding: 12rpx 20rpx;
   border-top: 1rpx solid #eaeaea;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-sizing: content-box;
+  box-shadow: 0 -8rpx 24rpx rgba(15, 23, 42, 0.04);
+
   .buttons {
     display: flex;
+    flex: 0 0 460rpx;
+
     & > view {
-      width: 220rpx;
+      flex: 1;
       text-align: center;
-      line-height: 72rpx;
+      line-height: 76rpx;
       font-size: 26rpx;
       color: #fff;
-      border-radius: 72rpx;
+      border-radius: 20rpx;
     }
+
     .addcart {
       background-color: #ffa868;
     }
+
     .payment {
       background-color: #27ba9b;
       margin-left: 20rpx;
     }
   }
+
   .icons {
-    padding-right: 20rpx;
+    max-width: calc(100% - 480rpx);
     display: flex;
     align-items: center;
+    gap: 8rpx;
     flex: 1;
+
     // 兼容 H5 端和 App 端的导航链接样式
     .navigator-wrap,
     .icons-button {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-width: 88rpx;
+      height: 76rpx;
       text-align: center;
-      line-height: 1.4;
-      padding: 0;
+      line-height: 1;
+      padding: 0 6rpx;
       margin: 0;
       border-radius: 0;
       font-size: 20rpx;
@@ -625,9 +639,12 @@ page {
         border: none;
       }
     }
+
     text {
       display: block;
       font-size: 34rpx;
+      line-height: 1;
+      margin-bottom: 6rpx;
       transition: color 0.3s ease;
     }
     // 收藏按钮文字颜色变化

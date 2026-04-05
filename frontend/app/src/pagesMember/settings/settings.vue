@@ -67,7 +67,8 @@ page {
   padding: 0 20rpx;
   background-color: #fff;
   margin-bottom: 20rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   .item {
     line-height: 90rpx;
     padding-left: 10rpx;
@@ -112,7 +113,8 @@ page {
   .button {
     background-color: #fff;
     margin-bottom: 20rpx;
-    border-radius: 10rpx;
+    border-radius: 20rpx;
+    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
 }
 </style>

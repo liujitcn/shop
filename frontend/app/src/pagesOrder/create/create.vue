@@ -223,7 +223,7 @@ const onOrderSubmitOk = computed(() => {
           <view class="attrs">{{ item.specItem.join('/') }}</view>
           <view class="prices">
             <view class="pay-price symbol">{{ formatPrice(item.payPrice) }}</view>
-            <view class="price symbol">{{ formatPrice(item.price) }}</view>
+            <view class="origin-price symbol">{{ formatPrice(item.price) }}</view>
           </view>
           <view class="count">x{{ item.num }}</view>
         </view>
@@ -304,8 +304,9 @@ page {
   margin: 20rpx;
   padding: 30rpx 30rpx 30rpx 84rpx;
   font-size: 26rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   background: url(@/static/images/locate.png) 20rpx center / 50rpx no-repeat #fff;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   position: relative;
 
   .icon {
@@ -330,13 +331,15 @@ page {
 .goods {
   margin: 20rpx;
   padding: 0 20rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   background-color: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .item {
     display: flex;
     padding: 30rpx 0;
     border-top: 1rpx solid #eee;
+    align-items: flex-start;
 
     &:first-child {
       border-top: none;
@@ -345,7 +348,7 @@ page {
     .picture {
       width: 170rpx;
       height: 170rpx;
-      border-radius: 10rpx;
+      border-radius: 16rpx;
       margin-right: 20rpx;
     }
 
@@ -353,8 +356,9 @@ page {
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       position: relative;
+      min-height: 170rpx;
     }
 
     .name {
@@ -377,18 +381,23 @@ page {
     .prices {
       display: flex;
       align-items: baseline;
-      margin-top: 6rpx;
+      gap: 12rpx;
+      margin-top: 14rpx;
       font-size: 28rpx;
 
       .pay-price {
-        margin-right: 10rpx;
         color: #cf4444;
+        font-weight: 600;
       }
 
-      .price {
+      .origin-price {
         font-size: 24rpx;
         color: #999;
         text-decoration: line-through;
+        background: transparent;
+        height: auto;
+        line-height: 1;
+        padding: 0;
       }
     }
 
@@ -405,8 +414,9 @@ page {
 .related {
   margin: 20rpx;
   padding: 0 20rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   background-color: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .item {
     display: flex;
@@ -443,8 +453,9 @@ page {
 .settlement {
   margin: 20rpx;
   padding: 0 20rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   background-color: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .item {
     display: flex;
@@ -467,19 +478,22 @@ page {
   right: 0;
   bottom: calc(var(--window-bottom));
   z-index: 1;
-
   background-color: #fff;
-  height: 100rpx;
-  padding: 0 20rpx;
+  min-height: 100rpx;
+  padding: 12rpx 20rpx;
   border-top: 1rpx solid #eaeaea;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-sizing: content-box;
+  box-shadow: 0 -8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .total-pay {
     font-size: 40rpx;
     color: #cf4444;
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
 
     .decimal {
       font-size: 75%;
@@ -487,9 +501,10 @@ page {
   }
 
   .button {
-    width: 220rpx;
+    min-width: 240rpx;
+    padding: 0 32rpx;
     text-align: center;
-    line-height: 72rpx;
+    line-height: 76rpx;
     font-size: 26rpx;
     color: #fff;
     border-radius: 72rpx;

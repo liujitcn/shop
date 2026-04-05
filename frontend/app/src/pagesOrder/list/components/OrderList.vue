@@ -398,8 +398,9 @@ const onRefresherRefresh = async () => {
     min-height: 100rpx;
     padding: 20rpx;
     margin: 20rpx 20rpx 0;
-    border-radius: 10rpx;
+    border-radius: 20rpx;
     background-color: #fff;
+    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
     &:last-child {
       padding-bottom: 40rpx;
@@ -439,7 +440,7 @@ const onRefresherRefresh = async () => {
       width: 170rpx;
       height: 170rpx;
       margin-right: 20rpx;
-      border-radius: 10rpx;
+      border-radius: 16rpx;
       overflow: hidden;
       position: relative;
       .image {
@@ -561,7 +562,7 @@ const onRefresherRefresh = async () => {
 
 .popup-root {
   padding: 30rpx 30rpx 0;
-  border-radius: 10rpx 10rpx 0 0;
+  border-radius: 20rpx 20rpx 0 0;
   overflow: hidden;
 
   .title {

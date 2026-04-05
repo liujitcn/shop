@@ -228,7 +228,7 @@ page {
   margin: 50rpx 20rpx 0;
   background-color: #fff;
   border-radius: 20rpx;
-  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .title {
     height: 40rpx;

@@ -380,7 +380,7 @@ page {
     display: flex;
     align-items: center;
     padding: 20rpx;
-    border-radius: 8rpx;
+    border-radius: 20rpx;
     color: #fff;
     font-size: 26rpx;
 
@@ -399,8 +399,9 @@ page {
 .content {
   margin: 20rpx 20rpx 0;
   padding: 0 20rpx;
-  border-radius: 10rpx;
+  border-radius: 20rpx;
   background-color: #fff;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .form-item,
   .uni-forms-item {

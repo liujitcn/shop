@@ -145,6 +145,7 @@ defineExpose({
     box-sizing: border-box;
     overflow: hidden;
     background-color: #fff;
+    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
   .image {
     width: 100%;

@@ -118,15 +118,17 @@ page {
   justify-content: space-between;
   padding: 0 20rpx;
   .goods-item {
-    width: 345rpx;
+    width: calc((100% - 20rpx) / 2);
     padding: 24rpx 20rpx 20rpx;
     margin-bottom: 20rpx;
     border-radius: 20rpx;
+    box-sizing: border-box;
     overflow: hidden;
     background-color: #fff;
+    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
   .image {
-    width: 304rpx;
+    width: 100%;
     height: 304rpx;
   }
   .name {

@@ -153,10 +153,10 @@ const { guessRef, onScrollToLower } = useGuessList()
                 class="navigator"
               >
                 <image mode="aspectFill" class="picture" :src="formatSrc(item.picture)"></image>
-                <view class="meta">
-                  <view class="name ellipsis">{{ item.name }}</view>
+                <view class="goods-meta">
+                  <view class="goods-name">{{ item.name }}</view>
                   <view class="attrsText ellipsis">{{ item.specItem.join('/') }}</view>
-                  <view class="price">
+                  <view class="price-row">
                     <text class="current-price">{{ formatPrice(item.price) }}</text>
                     <text v-if="item.joinPrice" class="join-price">{{
                       formatPrice(item.joinPrice)
@@ -165,7 +165,7 @@ const { guessRef, onScrollToLower } = useGuessList()
                 </view>
               </navigator>
               <!-- 商品数量 -->
-              <view class="count">
+              <view class="goods-count">
                 <vk-data-input-number-box
                   v-model="item.num"
                   :min="1"
@@ -266,13 +266,17 @@ const { guessRef, onScrollToLower } = useGuessList()
   // 购物车商品
   .goods {
     display: flex;
-    padding: 20rpx 20rpx 20rpx 80rpx;
+    padding: 28rpx 20rpx 28rpx 80rpx;
     border-radius: 20rpx;
     background-color: #fff;
+    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
     position: relative;
+    min-height: 280rpx;
 
     .navigator {
-      display: flex;
+      display: block;
+      flex: 1;
+      min-width: 0;
     }
 
     .checkbox {
@@ -300,22 +304,34 @@ const { guessRef, onScrollToLower } = useGuessList()
     }
 
     .picture {
-      width: 170rpx;
-      height: 170rpx;
+      display: block;
+      width: 148rpx;
+      height: 148rpx;
+      border-radius: 16rpx;
     }
 
-    .meta {
-      flex: 1;
+    .goods-meta {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      margin-left: 20rpx;
+      justify-content: flex-start;
+      width: 100%;
+      min-height: 148rpx;
+      margin-top: 16rpx;
+      padding-right: 240rpx;
+      box-sizing: border-box;
     }
 
-    .name {
-      height: 72rpx;
+    .goods-name {
+      line-height: 1.4;
       font-size: 26rpx;
       color: #444;
+      white-space: normal;
+      word-break: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     .attrsText {
@@ -326,13 +342,19 @@ const { guessRef, onScrollToLower } = useGuessList()
       border-radius: 4rpx;
       color: #888;
       background-color: #f7f7f8;
+      margin-top: 10rpx;
     }
 
-    .price {
+    .price-row {
       display: flex;
       align-items: center;
       gap: 8rpx;
       font-size: 26rpx;
+      line-height: 1;
+      padding: 0;
+      height: auto;
+      background: transparent;
+      margin-top: 10rpx;
 
       .current-price {
         color: #cf4444;
@@ -358,16 +380,16 @@ const { guessRef, onScrollToLower } = useGuessList()
     }
 
     // 商品数量
-    .count {
+    .goods-count {
       position: absolute;
-      bottom: 20rpx;
-      right: 5rpx;
+      right: 20rpx;
+      bottom: 28rpx;
 
       display: flex;
       justify-content: space-between;
       align-items: center;
       width: 220rpx;
-      height: 30rpx;
+      height: 64rpx;
 
       .text {
         height: 100%;

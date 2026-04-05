@@ -3,8 +3,10 @@
   height: 280rpx;
   position: relative;
   overflow: hidden;
+  border-radius: 20rpx;
   transform: translateY(0);
   background-color: #efefef;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   .indicator {
     position: absolute;
     left: 0;
