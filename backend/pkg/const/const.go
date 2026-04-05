@@ -9,3 +9,7 @@ const (
 const (
 	BaseUserName_Super string = "super" // 超级管理员
 )
+
+const (
+	BasePath string = "shop" // 文件上传默认根目录
+)

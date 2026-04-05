@@ -15,7 +15,6 @@ const userStore = useUserStore()
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const imgMaxSize = ref(1024 * 1024)
-const staticApiBasePath = import.meta.env.VITE_APP_STATIC_API || '/shop'
 
 // 获取个人信息，修改个人信息需提供初始值
 const userInfo = ref({} as UserInfo)
@@ -106,7 +105,6 @@ const uploadFile = async (file: string) => {
     name: 'file',
     filePath: file,
     formData: {
-      basePath: staticApiBasePath,
       fileType: 'avatar',
     },
     success: async (res) => {

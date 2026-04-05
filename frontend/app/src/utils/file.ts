@@ -1,6 +1,5 @@
 import type { FileInfo, MultiUploadFileResponse } from '@/rpc/base/file'
 import { formatSrc } from '@/utils/index.ts'
-const STATIC_API_BASE_PATH = import.meta.env.VITE_APP_STATIC_API
 
 // 文件上传-兼容小程序端、H5端、App端
 export const uploadFile = async (fileType: string, filePath: string): Promise<FileInfo> => {
@@ -9,7 +8,6 @@ export const uploadFile = async (fileType: string, filePath: string): Promise<Fi
     name: 'file',
     filePath: filePath,
     formData: {
-      basePath: STATIC_API_BASE_PATH,
       fileType: fileType,
     },
   })
@@ -35,7 +33,6 @@ export const uploadFileList = async (
           name: 'file',
           filePath: filePath,
           formData: {
-            basePath: STATIC_API_BASE_PATH,
             fileType: fileType,
           },
         })
@@ -61,7 +58,6 @@ export const multiUploadFile = async (fileType: string, files: any): Promise<Fil
     filePath: '',
     files: files,
     formData: {
-      basePath: STATIC_API_BASE_PATH,
       fileType: fileType,
     },
   })

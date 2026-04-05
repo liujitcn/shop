@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"path"
+	_const "shop/pkg/const"
 	"strconv"
 	"strings"
 	"time"
@@ -65,7 +66,7 @@ func _FileService_MultiUploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(
 				}
 				contentType := fhs.Header.Get("Content-Type")
 				var uploadFileInfo *base.UploadFileInfo
-				uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("basePath"), r.FormValue("fileType"), contentType, fhs.Filename)
+				uploadFileInfo, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, fhs.Filename)
 				if err != nil {
 					return err
 				}
@@ -95,7 +96,7 @@ func _FileService_UploadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx h
 		}
 		contentType := header.Header.Get("Content-Type")
 		var in *base.UploadFileInfo
-		in, err = convertUploadFileInfo(formFile, r.FormValue("basePath"), r.FormValue("fileType"), contentType, header.Filename)
+		in, err = convertUploadFileInfo(formFile, r.FormValue("fileType"), contentType, header.Filename)
 		if err != nil {
 			return err
 		}
@@ -147,7 +148,7 @@ func _FileService_DownloadFile0_HTTP_Handler(srv FileServiceHTTPServer) func(ctx
 	}
 }
 
-func convertUploadFileInfo(multipartFile multipart.File, basePath, fileType, contentType, fileName string) (*base.UploadFileInfo, error) {
+func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, fileName string) (*base.UploadFileInfo, error) {
 	defer func(multipartFile multipart.File) {
 		err := multipartFile.Close()
 		if err != nil {
@@ -160,14 +161,7 @@ func convertUploadFileInfo(multipartFile multipart.File, basePath, fileType, con
 	if err != nil {
 		return nil, err
 	}
-	var filePath = ""
-	if basePath != "" {
-		if strings.HasPrefix(basePath, "/") {
-			filePath = basePath
-		} else {
-			filePath = "/" + basePath
-		}
-	}
+	filePath := fmt.Sprintf("/%s", _const.BasePath)
 	if len(fileType) != 0 {
 		filePath += "/" + fileType
 	}

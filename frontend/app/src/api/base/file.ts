@@ -2,7 +2,6 @@ import { http } from '@/utils/http'
 import type { DownloadFileRequest, MultiUploadFileResponse, FileInfo } from '@/rpc/base/file'
 
 const FILE_URL = '/file'
-const STATIC_API_BASE_PATH = import.meta.env.VITE_APP_STATIC_API
 
 /** 文件服务 */
 export class FileServiceImpl {
@@ -12,8 +11,6 @@ export class FileServiceImpl {
     files.map((file) => {
       formData.append(file.name, file)
     })
-    // 透传静态资源基础目录，保持和管理端上传行为一致
-    formData.append('basePath', STATIC_API_BASE_PATH)
     formData.append('fileType', fileType)
     return http<MultiUploadFileResponse>({
       url: `${FILE_URL}/multi`,
@@ -28,8 +25,6 @@ export class FileServiceImpl {
   UploadFile(file: File, fileType: string): Promise<FileInfo> {
     const formData = new FormData()
     formData.append('file', file)
-    // 透传静态资源基础目录，保持和管理端上传行为一致
-    formData.append('basePath', STATIC_API_BASE_PATH)
     formData.append('fileType', fileType)
     return http<FileInfo>({
       url: `${FILE_URL}`,
