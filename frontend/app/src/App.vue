@@ -14,6 +14,6 @@ onHide(() => {
 
 <style lang="scss">
 // 字体图标
-@import '@/styles/fonts.scss';
-@import '@/styles/base.scss';
+@use '@/styles/fonts.scss';
+@use '@/styles/base.scss';
 </style>

@@ -30,5 +30,5 @@ defineProps<{
 </template>
 
 <style lang="scss">
-@import '../styles/hot.scss';
+@use '../styles/hot.scss';
 </style>

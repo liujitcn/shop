@@ -82,5 +82,5 @@ const onTapCategory = (item: CategoryDisplayItem) => {
 </template>
 
 <style lang="scss">
-@import '../styles/category.scss';
+@use '../styles/category.scss';
 </style>
