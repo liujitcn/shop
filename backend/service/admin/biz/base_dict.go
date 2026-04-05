@@ -40,7 +40,7 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo, ba
 func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
 	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	baseDictList, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictRes
 	baseDictItemList := make([]*models.BaseDictItem, 0)
 	itemOpts := make([]repo.QueryOption, 0, 2)
 	itemOpts = append(itemOpts, repo.Order(baseDictItemQuery.Sort.Asc()))
-	itemOpts = append(itemOpts, repo.Order(baseDictItemQuery.UpdatedAt.Desc()))
+	itemOpts = append(itemOpts, repo.Order(baseDictItemQuery.CreatedAt.Desc()))
 	baseDictItemList, err = c.baseDictItemCase.List(ctx, itemOpts...)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictRes
 func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *admin.PageBaseDictRequest) (*admin.PageBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
 	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}

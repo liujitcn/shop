@@ -38,7 +38,7 @@ func (c *GoodsCategoryCase) TreeGoodsCategory(ctx context.Context) (*admin.TreeG
 	query := c.Query(ctx).GoodsCategory
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (c *GoodsCategoryCase) OptionGoodsCategory(ctx context.Context, req *admin.
 	query := c.Query(ctx).GoodsCategory
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -134,7 +134,7 @@ func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentId *int64) map[in
 		opts = append(opts, repo.Where(query.ParentID.Eq(*parentId)))
 	}
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 
 	categoryList, err := c.List(ctx, opts...)
 	if err != nil {

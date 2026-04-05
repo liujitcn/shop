@@ -58,7 +58,7 @@ func (c *BaseConfigCase) RefreshBaseConfig(ctx context.Context) error {
 func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *admin.PageBaseConfigRequest) (*admin.PageBaseConfigResponse, error) {
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repo.QueryOption, 0, 6)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.Site != nil {
 		opts = append(opts, repo.Where(query.Site.Eq(int32(req.GetSite()))))
 	}

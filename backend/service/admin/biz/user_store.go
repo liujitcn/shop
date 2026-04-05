@@ -40,7 +40,7 @@ func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo
 func (c *UserStoreCase) PageUserStore(ctx context.Context, req *admin.PageUserStoreRequest) (*admin.PageUserStoreResponse, error) {
 	query := c.Query(ctx).UserStore
 	opts := make([]repo.QueryOption, 0, 3)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}

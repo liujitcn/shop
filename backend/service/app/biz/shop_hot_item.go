@@ -49,7 +49,7 @@ func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*app.L
 	shopHotItemQuery := c.Query(ctx).ShopHotItem
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(shopHotItemQuery.Sort.Asc()))
-	opts = append(opts, repo.Order(shopHotItemQuery.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(shopHotItemQuery.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(shopHotItemQuery.HotID.Eq(shopHot.ID)))
 	all, err = c.List(ctx, opts...)
 	if err != nil {
@@ -91,7 +91,7 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 		var all []*models.GoodsInfo
 		goodsQuery := c.goodsRepo.Query(ctx).GoodsInfo
 		goodsOpts := make([]repo.QueryOption, 0, 3)
-		goodsOpts = append(goodsOpts, repo.Order(goodsQuery.UpdatedAt.Desc()))
+		goodsOpts = append(goodsOpts, repo.Order(goodsQuery.CreatedAt.Desc()))
 		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.ID.In(goodsIds...)))
 		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))))
 		all, err = c.goodsRepo.List(ctx, goodsOpts...)

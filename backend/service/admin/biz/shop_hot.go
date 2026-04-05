@@ -41,7 +41,7 @@ func (c *ShopHotCase) PageShopHot(ctx context.Context, req *admin.PageShopHotReq
 	baseQuery := c.Query(ctx).ShopHot
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(baseQuery.Sort.Asc()))
-	opts = append(opts, repo.Order(baseQuery.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(baseQuery.CreatedAt.Desc()))
 	if req.GetTitle() != "" {
 		opts = append(opts, repo.Where(baseQuery.Title.Like("%"+req.GetTitle()+"%")))
 	}

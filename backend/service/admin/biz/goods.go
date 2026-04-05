@@ -56,7 +56,7 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *da
 func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
@@ -88,7 +88,7 @@ func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsI
 func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsInfoRequest) (*admin.PageGoodsInfoResponse, error) {
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	var err error
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
@@ -422,7 +422,7 @@ func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]strin
 	categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(categoryQuery.Sort.Asc()))
-	opts = append(opts, repo.Order(categoryQuery.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(categoryQuery.CreatedAt.Desc()))
 	categoryList, err := c.goodsCategoryCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err

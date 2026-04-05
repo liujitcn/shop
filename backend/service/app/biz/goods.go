@@ -100,7 +100,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 	query := c.Query(ctx)
 	goodsQuery := query.GoodsInfo
 	opts := make([]repo.QueryOption, 0, 5)
-	opts = append(opts, repo.Order(goodsQuery.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(goodsQuery.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
 
 	if req.GetName() != "" {

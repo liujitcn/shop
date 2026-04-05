@@ -32,7 +32,7 @@ func (c *ShopHotCase) ListShopHot(ctx context.Context) (*app.ListShopHotResponse
 	query := c.Query(ctx).ShopHot
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
 	all, err := c.ShopHotRepo.List(ctx, opts...)
 	if err != nil {

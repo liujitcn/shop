@@ -39,7 +39,7 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *admin.Page
 	query := c.Query(ctx).BaseDictItem
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.GetDictId() > 0 {
 		opts = append(opts, repo.Where(query.DictID.Eq(req.GetDictId())))
 	}

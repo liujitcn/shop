@@ -37,7 +37,7 @@ func (c *ShopBannerCase) PageShopBanner(ctx context.Context, req *admin.PageShop
 	query := c.Query(ctx).ShopBanner
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.Site != nil {
 		opts = append(opts, repo.Where(query.Site.Eq(int32(req.GetSite()))))
 	}

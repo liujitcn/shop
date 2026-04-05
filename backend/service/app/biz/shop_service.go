@@ -31,7 +31,7 @@ func (c *ShopServiceCase) ListShopService(ctx context.Context) (*app.ListShopSer
 	query := c.Query(ctx).ShopService
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
 	all, err := c.ShopServiceRepo.List(ctx, opts...)
 	if err != nil {

@@ -239,7 +239,7 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *app.PageOrderInf
 	}
 	orderQuery := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Order(orderQuery.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(orderQuery.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(orderQuery.UserID.Eq(authInfo.UserId)))
 	if req.GetStatus() != common.OrderStatus_UNKNOWN_OS {
 		opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(req.GetStatus()))))

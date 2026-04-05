@@ -238,8 +238,24 @@ function handleApplyPreset(value: string) {
   applyExpressionToState(value);
 }
 
+/**
+ * 同步单个分段状态，保持响应式对象引用稳定，避免子组件因引用替换导致回显失效。
+ */
+function syncSegmentState(target: CronSegmentState, source: CronSegmentState) {
+  target.mode = source.mode;
+  target.rangeStart = source.rangeStart;
+  target.rangeEnd = source.rangeEnd;
+  target.stepStart = source.stepStart;
+  target.stepValue = source.stepValue;
+  target.specific = [...source.specific];
+  target.weekday = source.weekday;
+}
+
+/**
+ * 处理分段编辑器回传，按字段同步状态，避免多次编辑时丢失响应式关联。
+ */
 function handleUpdateSegment(segment: CronSegmentKey, value: CronSegmentState) {
-  editorState[segment] = { ...value };
+  syncSegmentState(editorState[segment], value);
 }
 
 function handleConfirmEditor() {
@@ -326,17 +342,20 @@ function formatSpecificLabel(label: string, value: number) {
   return String(value);
 }
 
+/**
+ * 将外部 Cron 表达式解析后回填到编辑器状态，确保表单回显和再次编辑保持一致。
+ */
 function applyExpressionToState(expression: string) {
   const parts = expression.trim().split(/\s+/);
   const normalizedParts = parts.length === 7 ? parts : ["0", "*", "*", "*", "*", "?", "*"];
 
-  editorState.second = parseSegmentValue(normalizedParts[0], 0);
-  editorState.minute = parseSegmentValue(normalizedParts[1], 0);
-  editorState.hour = parseSegmentValue(normalizedParts[2], 0);
-  editorState.day = parseSegmentValue(normalizedParts[3], 1);
-  editorState.month = parseSegmentValue(normalizedParts[4], 1);
-  editorState.week = parseSegmentValue(normalizedParts[5], 1);
-  editorState.year = parseSegmentValue(normalizedParts[6], currentYear);
+  syncSegmentState(editorState.second, parseSegmentValue(normalizedParts[0], 0));
+  syncSegmentState(editorState.minute, parseSegmentValue(normalizedParts[1], 0));
+  syncSegmentState(editorState.hour, parseSegmentValue(normalizedParts[2], 0));
+  syncSegmentState(editorState.day, parseSegmentValue(normalizedParts[3], 1));
+  syncSegmentState(editorState.month, parseSegmentValue(normalizedParts[4], 1));
+  syncSegmentState(editorState.week, parseSegmentValue(normalizedParts[5], 1));
+  syncSegmentState(editorState.year, parseSegmentValue(normalizedParts[6], currentYear));
 }
 
 function parseSegmentValue(value: string, min: number) {
@@ -388,6 +407,15 @@ function parseSegmentValue(value: string, min: number) {
   }
   return nextState;
 }
+
+watch(
+  () => props.modelValue,
+  value => {
+    // 外部表单重置、编辑弹窗重新赋值时，需要同步回内部编辑态，保证内容可回显。
+    applyExpressionToState(value || "0 * * * * ? *");
+  },
+  { immediate: true }
+);
 
 const CronSegmentEditor = defineComponent({
   name: "CronSegmentEditor",

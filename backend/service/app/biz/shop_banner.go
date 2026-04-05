@@ -53,7 +53,7 @@ func (c *ShopBannerCase) listBySite(ctx context.Context, site int32) ([]*models.
 	query := c.Query(ctx).ShopBanner
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.Site.Eq(site)))
 	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
 	return c.List(ctx, opts...)

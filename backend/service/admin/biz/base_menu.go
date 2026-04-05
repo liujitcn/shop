@@ -49,7 +49,7 @@ func (c *BaseMenuCase) TreeBaseMenu(ctx context.Context) (*admin.TreeBaseMenuRes
 	query := c.Query(ctx).BaseMenu
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (c *BaseMenuCase) OptionBaseMenu(ctx context.Context, req *admin.OptionBase
 	query := c.Query(ctx).BaseMenu
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err

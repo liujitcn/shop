@@ -54,7 +54,7 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *admin.OptionBase
 
 	query := c.Query(ctx).BaseUser
 	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.NickName.Like("%"+keyword+"%")))
 
 	list, _, err := c.Page(ctx, 1, 100, opts...)
@@ -76,7 +76,7 @@ func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *admin.OptionBase
 func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *admin.PageBaseUserRequest) (*admin.PageBaseUserResponse, error) {
 	query := c.Query(ctx).BaseUser
 	opts := make([]repo.QueryOption, 0, 6)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.DeptId != nil && req.GetDeptId() > 0 {
 		dept, err := c.baseDeptRepo.FindById(ctx, req.GetDeptId())
 		if err != nil {

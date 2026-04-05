@@ -65,7 +65,7 @@ func NewOrderInfoCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressC
 func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *admin.PageOrderInfoRequest) (*admin.PageOrderInfoResponse, error) {
 	query := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 7)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.GetUserId() > 0 {
 		opts = append(opts, repo.Where(query.UserID.Eq(req.GetUserId())))
 	}

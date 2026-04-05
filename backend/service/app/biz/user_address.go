@@ -41,7 +41,7 @@ func (c *UserAddressCase) ListUserAddress(ctx context.Context) (*app.ListUserAdd
 	}
 	query := c.Query(ctx).UserAddress
 	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
 	all, err := c.List(ctx, opts...)
 	if err != nil {

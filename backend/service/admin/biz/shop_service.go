@@ -37,7 +37,7 @@ func (c *ShopServiceCase) PageShopService(ctx context.Context, req *admin.PageSh
 	query := c.Query(ctx).ShopService
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.GetLabel() != "" {
 		opts = append(opts, repo.Where(query.Label.Like("%"+req.GetLabel()+"%")))
 	}

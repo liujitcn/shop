@@ -41,7 +41,7 @@ func (c *ShopHotItemCase) PageShopHotItem(ctx context.Context, req *admin.PageSh
 	query := c.Query(ctx).ShopHotItem
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
-	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	if req.GetHotId() > 0 {
 		opts = append(opts, repo.Where(query.HotID.Eq(req.GetHotId())))
 	}
