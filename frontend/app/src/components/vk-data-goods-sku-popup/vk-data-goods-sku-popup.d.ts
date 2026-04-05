@@ -1,7 +1,7 @@
-import { type Component } from '@uni-helper/uni-app-types'
+import type { DefineComponent } from 'vue'
 
 /** SKU 弹出层 */
-export type SkuPopup = Component<SkuPopupProps>
+export type SkuPopup = DefineComponent<SkuPopupProps>
 
 /** SKU 弹出层实例 */
 export type SkuPopupInstance = InstanceType<SkuPopup>
@@ -82,13 +82,13 @@ export type SkuPopupProps = {
   selectArr?: string[]
 
   /** 打开弹出层 */
-  onOpen: () => void
+  onOpen?: () => void
   /** 关闭弹出层 */
-  onClose: () => void
+  onClose?: () => void
   /** 点击加入购物车时（需选择完SKU才会触发）*/
-  onAddCart: (event: SkuPopupEvent) => void
+  onAddCart?: (event: SkuPopupEvent) => void
   /** 点击立即购买时（需选择完SKU才会触发）*/
-  onBuyNow: (event: SkuPopupEvent) => void
+  onBuyNow?: (event: SkuPopupEvent) => void
 }
 
 /**  商品信息本地数据源 */

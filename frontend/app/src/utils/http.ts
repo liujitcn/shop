@@ -167,50 +167,63 @@ async function promptRelogin() {
     uni.showModal({
       title: '提示',
       content: '当前页面已失效，请重新登录',
-      success: (res) => {
-        if (res.confirm) {
-          void clearUserData()
-        }
-        resolve()
-      },
-      complete: () => {
-        isPromptingRelogin = false
-      },
+      showCancel: false,
+      confirmText: '重新登录',
+      complete: () => resolve(),
     })
   })
+  await clearUserData()
+  isPromptingRelogin = false
 }
 
-function clearUserData() {
-  getUserStore().then((userStore) => {
-    userStore.clearUserData().then(() => {
-      // 获取当前页面信息（兼容多平台）
-      const pages = getCurrentPages()
-      const currentPage = pages[pages.length - 1]
+async function clearUserData() {
+  const userStore = await getUserStore()
+  await userStore.clearUserData()
 
-      // 1. 获取页面参数（兼容方案）
-      let params: Record<string, string> = {}
-      const miniPage = currentPage as { options?: Record<string, string> }
-      const routePage = currentPage as { $vm?: { $route?: { query?: Record<string, string> } } }
-      // 微信小程序
-      // #ifdef MP-WEIXIN
-      params = miniPage.options || {}
-      // #endif
+  // 获取当前页面信息（兼容多平台）
+  const pages = getCurrentPages()
+  const currentPage = pages[pages.length - 1]
+  if (!currentPage?.route) {
+    navigateToLogin()
+    return
+  }
 
-      // H5和APP
-      // #ifdef H5 || APP-PLUS
-      if (routePage.$vm && routePage.$vm.$route) {
-        params = routePage.$vm.$route.query || {}
-      }
-      // #endif
-      const query = Object.keys(params)
-        .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-        .join('&')
-      const url = query ? `${currentPage.route}?${query}` : currentPage.route
+  // 1. 获取页面参数（兼容方案）
+  let params: Record<string, string> = {}
+  const miniPage = currentPage as { options?: Record<string, string> }
+  const routePage = currentPage as { $vm?: { $route?: { query?: Record<string, string> } } }
+  // 微信小程序
+  // #ifdef MP-WEIXIN
+  params = miniPage.options || {}
+  // #endif
 
-      // 存储路由信息
-      uni.setStorageSync('lastRoute', '/' + url)
+  // H5和APP
+  // #ifdef H5 || APP-PLUS
+  if (routePage.$vm && routePage.$vm.$route) {
+    params = routePage.$vm.$route.query || {}
+  }
+  // #endif
+  const query = Object.keys(params)
+    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+    .join('&')
+  const url = query ? `${currentPage.route}?${query}` : currentPage.route
 
-      uni.reLaunch({ url: '/pages/login/login' })
-    })
+  // 登录页失效时不再回写自己，避免登录完成后再次回到登录页。
+  if (currentPage.route !== 'pages/login/login') {
+    uni.setStorageSync('lastRoute', '/' + url)
+  } else {
+    uni.removeStorageSync('lastRoute')
+  }
+
+  navigateToLogin()
+}
+
+function navigateToLogin() {
+  // 小程序端 token 失效时，优先重启页面栈进入登录页；失败时再兜底跳转。
+  uni.reLaunch({
+    url: '/pages/login/login',
+    fail: () => {
+      uni.redirectTo({ url: '/pages/login/login' })
+    },
   })
 }

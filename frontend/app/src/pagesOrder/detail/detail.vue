@@ -137,7 +137,7 @@ const openH5PayUrl = (url: string) => {
 
   // App 端通过系统能力打开外部支付链接
   // #ifdef APP-PLUS
-  // eslint-disable-next-line no-undef
+
   plus.runtime.openURL(url)
   // #endif
 }

@@ -8,9 +8,10 @@ const props = defineProps<{
   list: GoodsCategory[]
 }>()
 
-type CategoryDisplayItem = GoodsCategory & {
-  isMore?: boolean
-}
+type CategoryDisplayItem = Pick<GoodsCategory, 'id' | 'name' | 'picture'> &
+  Partial<GoodsCategory> & {
+    isMore?: boolean
+  }
 
 const MAX_VISIBLE_COUNT = 8
 const MAX_NAME_LENGTH = 5

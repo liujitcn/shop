@@ -22,7 +22,7 @@ const imageStyles = {
 
 const imgMaxSize = ref(1024 * 1024)
 const picture = computed(() => {
-  let arr: FileInfo[] = []
+  const arr: FileInfo[] = []
   form.value.picture?.map((url) => {
     const fileInfo = getFileInfo(url)
     arr.push(fileInfo)
@@ -30,7 +30,7 @@ const picture = computed(() => {
   return arr
 })
 const businessLicense = computed(() => {
-  let arr: FileInfo[] = []
+  const arr: FileInfo[] = []
   form.value.businessLicense?.map((url) => {
     const fileInfo = getFileInfo(url)
     arr.push(fileInfo)
@@ -112,7 +112,7 @@ const handlePictureSelect = async (files: any) => {
   })
   // #endif
   // #ifdef MP-WEIXIN
-  let filePaths: string[] = []
+  const filePaths: string[] = []
   let hasOversize = false
   tempFiles.map((file: any) => {
     const { path, size } = file
@@ -169,7 +169,7 @@ const handleBusinessLicenseSelect = async (files: any) => {
   })
   // #endif
   // #ifdef MP-WEIXIN
-  let filePaths: string[] = []
+  const filePaths: string[] = []
   let hasOversize = false
   tempFiles.map((file: any) => {
     const { path, size } = file

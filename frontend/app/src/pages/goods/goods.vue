@@ -100,7 +100,7 @@ const onChange: UniHelper.SwiperOnChange = (ev) => {
 // 点击图片时
 const onTapImage = (url: string) => {
   // 大图预览
-  let urls: string[] = []
+  const urls: string[] = []
   goods.value!.banner.map((item) => {
     urls.push(formatSrc(item))
   })
