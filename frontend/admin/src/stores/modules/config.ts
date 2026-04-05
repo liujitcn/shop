@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { defConfigService } from "@/api/base/config";
-import { BaseConfigSite } from "@/rpc/base/config";
+import { BaseConfigSite } from "@/rpc/common/enum";
 import type { SiteConfigState, SiteDisplayConfig } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import defaultLogoUrl from "@/assets/images/logo.svg";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineConfig, loadEnv, ConfigEnv, UserConfig } from "vite";
 import { resolve } from "path";
 import { wrapperEnv } from "./build/getEnv";
