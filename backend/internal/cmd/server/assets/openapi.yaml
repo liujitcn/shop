@@ -2458,6 +2458,78 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PagePayBillResponse'
+    /api/admin/report/order/day/list:
+        get:
+            tags:
+                - OrderReportService
+            description: 查询订单日报明细
+            operationId: OrderReportService_OrderDayReportList
+            parameters:
+                - name: startDate
+                  in: query
+                  description: 开始日期，格式：YYYY-MM-DD
+                  schema:
+                    type: string
+                - name: endDate
+                  in: query
+                  description: 结束日期，格式：YYYY-MM-DD
+                  schema:
+                    type: string
+                - name: payType
+                  in: query
+                  description: 支付方式：枚举【OrderPayType】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+                - name: payChannel
+                  in: query
+                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderDayReportListResponse'
+    /api/admin/report/order/day/summary:
+        get:
+            tags:
+                - OrderReportService
+            description: 查询订单日报汇总
+            operationId: OrderReportService_OrderDayReportSummary
+            parameters:
+                - name: startDate
+                  in: query
+                  description: 开始日期，格式：YYYY-MM-DD
+                  schema:
+                    type: string
+                - name: endDate
+                  in: query
+                  description: 结束日期，格式：YYYY-MM-DD
+                  schema:
+                    type: string
+                - name: payType
+                  in: query
+                  description: 支付方式：枚举【OrderPayType】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+                - name: payChannel
+                  in: query
+                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OrderDayReportSummaryResponse'
     /api/admin/report/order/month/list:
         get:
             tags:
@@ -5996,6 +6068,74 @@ components:
                     type: string
                     description: 创建时间
             description: 订单取消信息
+        OrderDayReportItem:
+            type: object
+            properties:
+                day:
+                    type: string
+                    description: 日期，格式：YYYY-MM-DD
+                paidOrderCount:
+                    type: string
+                    description: 支付成功订单数
+                paidOrderAmount:
+                    type: string
+                    description: 支付成功金额，单位分
+                refundOrderCount:
+                    type: string
+                    description: 退款成功订单数
+                refundOrderAmount:
+                    type: string
+                    description: 退款成功金额，单位分
+                netOrderAmount:
+                    type: string
+                    description: 净销售额，单位分
+                paidUserCount:
+                    type: string
+                    description: 支付用户数
+                goodsCount:
+                    type: string
+                    description: 商品件数
+                customerUnitPrice:
+                    type: string
+                    description: 客单价，单位分
+            description: 订单日报明细
+        OrderDayReportListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderDayReportItem'
+                    description: 日报明细
+            description: 订单日报明细列表响应
+        OrderDayReportSummaryResponse:
+            type: object
+            properties:
+                paidOrderCount:
+                    type: string
+                    description: 支付成功订单数
+                paidOrderAmount:
+                    type: string
+                    description: 支付成功金额，单位分
+                refundOrderCount:
+                    type: string
+                    description: 退款成功订单数
+                refundOrderAmount:
+                    type: string
+                    description: 退款成功金额，单位分
+                netOrderAmount:
+                    type: string
+                    description: 净销售额，单位分
+                paidUserCount:
+                    type: string
+                    description: 支付用户数
+                goodsCount:
+                    type: string
+                    description: 商品件数
+                customerUnitPrice:
+                    type: string
+                    description: 客单价，单位分
+            description: 订单日报汇总响应
         OrderGoods:
             type: object
             properties:

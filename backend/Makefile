@@ -5,6 +5,8 @@ IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
+TS_PROTO_BIN ?= $(shell command -v protoc-gen-ts_proto 2>/dev/null || find "$(HOME)/.nvm/versions/node" -path '*/bin/protoc-gen-ts_proto' 2>/dev/null | sort | tail -n 1)
+TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
 
 # 初始化开发环境
 init: plugin cli
@@ -55,9 +57,10 @@ openapi:
 
 # 生成 TypeScript 代码
 ts:
+	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Install it first or ensure it is on PATH." && exit 1)
 	@cd api && \
-	buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
-	buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
+	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
+	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
 
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
 gen: api openapi ts

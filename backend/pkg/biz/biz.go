@@ -51,9 +51,8 @@ func NewBaseCase(
 	sdk.Runtime.SetCache(cache)
 	sdk.Runtime.SetQueue(queue)
 
-	queue.Register(string(_const.Log), baseLogCase.SaveLog)
 	// 注册日志队列
-	queue.Register(string(_const.ApiCheck), baseApiCase.saveApi)
+	queue.Register(string(_const.Log), baseLogCase.SaveLog)
 	// 注册定时任务日志队列
 	queue.Register(string(_const.JobLog), baseJobLogCase.SaveJobLog)
 

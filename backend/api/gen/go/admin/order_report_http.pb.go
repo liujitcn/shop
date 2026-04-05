@@ -19,10 +19,16 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationOrderReportServiceOrderDayReportList = "/admin.OrderReportService/OrderDayReportList"
+const OperationOrderReportServiceOrderDayReportSummary = "/admin.OrderReportService/OrderDayReportSummary"
 const OperationOrderReportServiceOrderMonthReportList = "/admin.OrderReportService/OrderMonthReportList"
 const OperationOrderReportServiceOrderMonthReportSummary = "/admin.OrderReportService/OrderMonthReportSummary"
 
 type OrderReportServiceHTTPServer interface {
+	// OrderDayReportList 查询订单日报明细
+	OrderDayReportList(context.Context, *OrderDayReportListRequest) (*OrderDayReportListResponse, error)
+	// OrderDayReportSummary 查询订单日报汇总
+	OrderDayReportSummary(context.Context, *OrderDayReportSummaryRequest) (*OrderDayReportSummaryResponse, error)
 	// OrderMonthReportList 查询订单月报明细
 	OrderMonthReportList(context.Context, *OrderMonthReportListRequest) (*OrderMonthReportListResponse, error)
 	// OrderMonthReportSummary 查询订单月报汇总
@@ -33,6 +39,8 @@ func RegisterOrderReportServiceHTTPServer(s *http.Server, srv OrderReportService
 	r := s.Route("/")
 	r.GET("/api/admin/report/order/month/summary", _OrderReportService_OrderMonthReportSummary0_HTTP_Handler(srv))
 	r.GET("/api/admin/report/order/month/list", _OrderReportService_OrderMonthReportList0_HTTP_Handler(srv))
+	r.GET("/api/admin/report/order/day/summary", _OrderReportService_OrderDayReportSummary0_HTTP_Handler(srv))
+	r.GET("/api/admin/report/order/day/list", _OrderReportService_OrderDayReportList0_HTTP_Handler(srv))
 }
 
 func _OrderReportService_OrderMonthReportSummary0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
@@ -73,7 +81,49 @@ func _OrderReportService_OrderMonthReportList0_HTTP_Handler(srv OrderReportServi
 	}
 }
 
+func _OrderReportService_OrderDayReportSummary0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in OrderDayReportSummaryRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrderReportServiceOrderDayReportSummary)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OrderDayReportSummary(ctx, req.(*OrderDayReportSummaryRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*OrderDayReportSummaryResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _OrderReportService_OrderDayReportList0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in OrderDayReportListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationOrderReportServiceOrderDayReportList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OrderDayReportList(ctx, req.(*OrderDayReportListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*OrderDayReportListResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type OrderReportServiceHTTPClient interface {
+	// OrderDayReportList 查询订单日报明细
+	OrderDayReportList(ctx context.Context, req *OrderDayReportListRequest, opts ...http.CallOption) (rsp *OrderDayReportListResponse, err error)
+	// OrderDayReportSummary 查询订单日报汇总
+	OrderDayReportSummary(ctx context.Context, req *OrderDayReportSummaryRequest, opts ...http.CallOption) (rsp *OrderDayReportSummaryResponse, err error)
 	// OrderMonthReportList 查询订单月报明细
 	OrderMonthReportList(ctx context.Context, req *OrderMonthReportListRequest, opts ...http.CallOption) (rsp *OrderMonthReportListResponse, err error)
 	// OrderMonthReportSummary 查询订单月报汇总
@@ -86,6 +136,34 @@ type OrderReportServiceHTTPClientImpl struct {
 
 func NewOrderReportServiceHTTPClient(client *http.Client) OrderReportServiceHTTPClient {
 	return &OrderReportServiceHTTPClientImpl{client}
+}
+
+// OrderDayReportList 查询订单日报明细
+func (c *OrderReportServiceHTTPClientImpl) OrderDayReportList(ctx context.Context, in *OrderDayReportListRequest, opts ...http.CallOption) (*OrderDayReportListResponse, error) {
+	var out OrderDayReportListResponse
+	pattern := "/api/admin/report/order/day/list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationOrderReportServiceOrderDayReportList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// OrderDayReportSummary 查询订单日报汇总
+func (c *OrderReportServiceHTTPClientImpl) OrderDayReportSummary(ctx context.Context, in *OrderDayReportSummaryRequest, opts ...http.CallOption) (*OrderDayReportSummaryResponse, error) {
+	var out OrderDayReportSummaryResponse
+	pattern := "/api/admin/report/order/day/summary"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationOrderReportServiceOrderDayReportSummary))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // OrderMonthReportList 查询订单月报明细

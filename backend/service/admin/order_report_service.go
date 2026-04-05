@@ -45,3 +45,23 @@ func (s *OrderReportService) OrderMonthReportList(ctx context.Context, req *admi
 	}
 	return res, nil
 }
+
+// OrderDayReportSummary 查询订单日报汇总
+func (s *OrderReportService) OrderDayReportSummary(ctx context.Context, req *adminApi.OrderDayReportSummaryRequest) (*adminApi.OrderDayReportSummaryResponse, error) {
+	res, err := s.orderReportCase.OrderDayReportSummary(ctx, req)
+	if err != nil {
+		log.Error("OrderDayReportSummary err:", err.Error())
+		return nil, errors.New("查询订单日报汇总失败")
+	}
+	return res, nil
+}
+
+// OrderDayReportList 查询订单日报明细
+func (s *OrderReportService) OrderDayReportList(ctx context.Context, req *adminApi.OrderDayReportListRequest) (*adminApi.OrderDayReportListResponse, error) {
+	res, err := s.orderReportCase.OrderDayReportList(ctx, req)
+	if err != nil {
+		log.Error("OrderDayReportList err:", err.Error())
+		return nil, errors.New("查询订单日报明细失败")
+	}
+	return res, nil
+}

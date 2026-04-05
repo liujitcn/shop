@@ -18,7 +18,8 @@ import (
 type OrderReportCase struct {
 	*biz.BaseCase
 	*data.OrderStatDayRepo
-	mapper *mapper.CopierMapper[adminApi.OrderMonthReportItem, dto.OrderMonthReportRow]
+	monthMapper *mapper.CopierMapper[adminApi.OrderMonthReportItem, dto.OrderMonthReportRow]
+	dayMapper   *mapper.CopierMapper[adminApi.OrderDayReportItem, dto.OrderDayReportRow]
 }
 
 // NewOrderReportCase 创建订单报表业务
@@ -26,7 +27,8 @@ func NewOrderReportCase(baseCase *biz.BaseCase, orderStatDayRepo *data.OrderStat
 	return &OrderReportCase{
 		BaseCase:         baseCase,
 		OrderStatDayRepo: orderStatDayRepo,
-		mapper:           mapper.NewCopierMapper[adminApi.OrderMonthReportItem, dto.OrderMonthReportRow](),
+		monthMapper:      mapper.NewCopierMapper[adminApi.OrderMonthReportItem, dto.OrderMonthReportRow](),
+		dayMapper:        mapper.NewCopierMapper[adminApi.OrderDayReportItem, dto.OrderDayReportRow](),
 	}
 }
 
@@ -105,6 +107,81 @@ func (c *OrderReportCase) OrderMonthReportList(ctx context.Context, req *adminAp
 	}, nil
 }
 
+// OrderDayReportSummary 查询订单日报汇总
+func (c *OrderReportCase) OrderDayReportSummary(ctx context.Context, req *adminApi.OrderDayReportSummaryRequest) (*adminApi.OrderDayReportSummaryResponse, error) {
+	startDate, err := c.parseDate(req.GetStartDate())
+	if err != nil {
+		return nil, err
+	}
+
+	endDate, err := c.parseDate(req.GetEndDate())
+	if err != nil {
+		return nil, err
+	}
+
+	if endDate.Before(startDate) {
+		return nil, fmt.Errorf("结束日期不能早于开始日期")
+	}
+
+	rows, err := c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startDate, endDate.AddDate(0, 0, 1))
+	if err != nil {
+		return nil, err
+	}
+
+	summary := &adminApi.OrderDayReportSummaryResponse{}
+	for _, row := range rows {
+		item := c.toOrderDayReportItem(row)
+		c.appendDayReportSummary(summary, item)
+	}
+
+	summary.NetOrderAmount = summary.PaidOrderAmount - summary.RefundOrderAmount
+	summary.CustomerUnitPrice = utils.CalcPerUnit(summary.PaidOrderAmount, summary.PaidOrderCount)
+	return summary, nil
+}
+
+// OrderDayReportList 查询订单日报明细
+func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.OrderDayReportListRequest) (*adminApi.OrderDayReportListResponse, error) {
+	startDate, err := c.parseDate(req.GetStartDate())
+	if err != nil {
+		return nil, err
+	}
+
+	endDate, err := c.parseDate(req.GetEndDate())
+	if err != nil {
+		return nil, err
+	}
+
+	if endDate.Before(startDate) {
+		return nil, fmt.Errorf("结束日期不能早于开始日期")
+	}
+
+	rows, err := c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startDate, endDate.AddDate(0, 0, 1))
+	if err != nil {
+		return nil, err
+	}
+
+	rowMap := make(map[string]*dto.OrderDayReportRow, len(rows))
+	for _, item := range rows {
+		rowMap[item.Day] = item
+	}
+
+	items := make([]*adminApi.OrderDayReportItem, 0)
+	cursor := startDate
+	for !cursor.After(endDate) {
+		dayKey := cursor.Format("2006-01-02")
+		row, ok := rowMap[dayKey]
+		if !ok {
+			row = &dto.OrderDayReportRow{Day: dayKey}
+		}
+		items = append(items, c.toOrderDayReportItem(row))
+		cursor = cursor.AddDate(0, 0, 1)
+	}
+
+	return &adminApi.OrderDayReportListResponse{
+		Items: items,
+	}, nil
+}
+
 // parseMonth 解析月份字符串并归一化到当月第一天。
 func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
 	if month == "" {
@@ -117,6 +194,20 @@ func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
 		return time.Time{}, fmt.Errorf("月份格式错误：%s", month)
 	}
 	return time.Date(parsedTime.Year(), parsedTime.Month(), 1, 0, 0, 0, 0, location), nil
+}
+
+// parseDate 解析日期字符串并归一化到当天零点。
+func (c *OrderReportCase) parseDate(date string) (time.Time, error) {
+	if date == "" {
+		return time.Time{}, fmt.Errorf("日期不能为空")
+	}
+
+	location := time.Now().Location()
+	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("日期格式错误：%s", date)
+	}
+	return time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, location), nil
 }
 
 // queryOrderMonthReportRows 查询月报聚合数据。
@@ -148,6 +239,35 @@ func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType
 	return rows, err
 }
 
+// queryOrderDayReportRows 查询日报聚合数据。
+func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderDayReportRow, error) {
+	rows := make([]*dto.OrderDayReportRow, 0)
+	sql := "" +
+		"SELECT DATE_FORMAT(stat_date, '%Y-%m-%d') AS day," +
+		" COALESCE(SUM(paid_order_count), 0) AS paid_order_count," +
+		" COALESCE(SUM(paid_order_amount), 0) AS paid_order_amount," +
+		" COALESCE(SUM(refund_order_count), 0) AS refund_order_count," +
+		" COALESCE(SUM(refund_order_amount), 0) AS refund_order_amount," +
+		" COALESCE(SUM(paid_user_count), 0) AS paid_user_count," +
+		" COALESCE(SUM(goods_count), 0) AS goods_count" +
+		" FROM order_stat_day" +
+		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?"
+	args := []any{startAt, endAt}
+	if payType > 0 {
+		sql += " AND pay_type = ?"
+		args = append(args, payType)
+	}
+	if payChannel > 0 {
+		sql += " AND pay_channel = ?"
+		args = append(args, payChannel)
+	}
+	sql += "" +
+		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m-%d')" +
+		" ORDER BY day ASC"
+	err := c.Query(ctx).OrderStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
+	return rows, err
+}
+
 // appendMonthReportSummary 累加月报区间汇总。
 func (c *OrderReportCase) appendMonthReportSummary(summary *adminApi.OrderMonthReportSummaryResponse, item *adminApi.OrderMonthReportItem) {
 	summary.PaidOrderCount += item.PaidOrderCount
@@ -159,7 +279,24 @@ func (c *OrderReportCase) appendMonthReportSummary(summary *adminApi.OrderMonthR
 }
 
 func (c *OrderReportCase) toOrderMonthReportItem(row *dto.OrderMonthReportRow) *adminApi.OrderMonthReportItem {
-	item := c.mapper.ToDTO(row)
+	item := c.monthMapper.ToDTO(row)
+	item.NetOrderAmount = row.PaidOrderAmount - row.RefundOrderAmount
+	item.CustomerUnitPrice = utils.CalcPerUnit(row.PaidOrderAmount, row.PaidOrderCount)
+	return item
+}
+
+// appendDayReportSummary 累加日报区间汇总。
+func (c *OrderReportCase) appendDayReportSummary(summary *adminApi.OrderDayReportSummaryResponse, item *adminApi.OrderDayReportItem) {
+	summary.PaidOrderCount += item.PaidOrderCount
+	summary.PaidOrderAmount += item.PaidOrderAmount
+	summary.RefundOrderCount += item.RefundOrderCount
+	summary.RefundOrderAmount += item.RefundOrderAmount
+	summary.PaidUserCount += item.PaidUserCount
+	summary.GoodsCount += item.GoodsCount
+}
+
+func (c *OrderReportCase) toOrderDayReportItem(row *dto.OrderDayReportRow) *adminApi.OrderDayReportItem {
+	item := c.dayMapper.ToDTO(row)
 	item.NetOrderAmount = row.PaidOrderAmount - row.RefundOrderAmount
 	item.CustomerUnitPrice = utils.CalcPerUnit(row.PaidOrderAmount, row.PaidOrderCount)
 	return item

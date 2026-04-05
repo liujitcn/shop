@@ -78,10 +78,86 @@ export interface OrderMonthReportListResponse {
   items: OrderMonthReportItem[];
 }
 
+/** 订单日报汇总查询条件 */
+export interface OrderDayReportSummaryRequest {
+  /** 开始日期，格式：YYYY-MM-DD */
+  startDate: string;
+  /** 结束日期，格式：YYYY-MM-DD */
+  endDate: string;
+  /** 支付方式：枚举【OrderPayType】，0 表示全部 */
+  payType: number;
+  /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
+  payChannel: number;
+}
+
+/** 订单日报明细查询条件 */
+export interface OrderDayReportListRequest {
+  /** 开始日期，格式：YYYY-MM-DD */
+  startDate: string;
+  /** 结束日期，格式：YYYY-MM-DD */
+  endDate: string;
+  /** 支付方式：枚举【OrderPayType】，0 表示全部 */
+  payType: number;
+  /** 支付渠道：枚举【OrderPayChannel】，0 表示全部 */
+  payChannel: number;
+}
+
+/** 订单日报汇总响应 */
+export interface OrderDayReportSummaryResponse {
+  /** 支付成功订单数 */
+  paidOrderCount: number;
+  /** 支付成功金额，单位分 */
+  paidOrderAmount: number;
+  /** 退款成功订单数 */
+  refundOrderCount: number;
+  /** 退款成功金额，单位分 */
+  refundOrderAmount: number;
+  /** 净销售额，单位分 */
+  netOrderAmount: number;
+  /** 支付用户数 */
+  paidUserCount: number;
+  /** 商品件数 */
+  goodsCount: number;
+  /** 客单价，单位分 */
+  customerUnitPrice: number;
+}
+
+/** 订单日报明细 */
+export interface OrderDayReportItem {
+  /** 日期，格式：YYYY-MM-DD */
+  day: string;
+  /** 支付成功订单数 */
+  paidOrderCount: number;
+  /** 支付成功金额，单位分 */
+  paidOrderAmount: number;
+  /** 退款成功订单数 */
+  refundOrderCount: number;
+  /** 退款成功金额，单位分 */
+  refundOrderAmount: number;
+  /** 净销售额，单位分 */
+  netOrderAmount: number;
+  /** 支付用户数 */
+  paidUserCount: number;
+  /** 商品件数 */
+  goodsCount: number;
+  /** 客单价，单位分 */
+  customerUnitPrice: number;
+}
+
+/** 订单日报明细列表响应 */
+export interface OrderDayReportListResponse {
+  /** 日报明细 */
+  items: OrderDayReportItem[];
+}
+
 /** Admin订单报表服务 */
 export interface OrderReportService {
   /** 查询订单月报汇总 */
   OrderMonthReportSummary(request: OrderMonthReportSummaryRequest): Promise<OrderMonthReportSummaryResponse>;
   /** 查询订单月报明细 */
   OrderMonthReportList(request: OrderMonthReportListRequest): Promise<OrderMonthReportListResponse>;
+  /** 查询订单日报汇总 */
+  OrderDayReportSummary(request: OrderDayReportSummaryRequest): Promise<OrderDayReportSummaryResponse>;
+  /** 查询订单日报明细 */
+  OrderDayReportList(request: OrderDayReportListRequest): Promise<OrderDayReportListResponse>;
 }

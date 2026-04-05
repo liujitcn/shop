@@ -1,5 +1,9 @@
 import service from "@/utils/request";
 import type {
+  OrderDayReportListRequest,
+  OrderDayReportListResponse,
+  OrderDayReportSummaryRequest,
+  OrderDayReportSummaryResponse,
   OrderMonthReportListRequest,
   OrderMonthReportListResponse,
   OrderMonthReportSummaryRequest,
@@ -23,6 +27,24 @@ export class OrderReportServiceImpl {
   OrderMonthReportList(request: OrderMonthReportListRequest): Promise<OrderMonthReportListResponse> {
     return service<OrderMonthReportListRequest, OrderMonthReportListResponse>({
       url: `${ORDER_REPORT_URL}/month/list`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询订单日报汇总 */
+  OrderDayReportSummary(request: OrderDayReportSummaryRequest): Promise<OrderDayReportSummaryResponse> {
+    return service<OrderDayReportSummaryRequest, OrderDayReportSummaryResponse>({
+      url: `${ORDER_REPORT_URL}/day/summary`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询订单日报明细 */
+  OrderDayReportList(request: OrderDayReportListRequest): Promise<OrderDayReportListResponse> {
+    return service<OrderDayReportListRequest, OrderDayReportListResponse>({
+      url: `${ORDER_REPORT_URL}/day/list`,
       method: "get",
       params: request
     });

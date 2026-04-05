@@ -19,6 +19,20 @@ service OrderReportService {
       get: "/api/admin/report/order/month/list"
     };
   }
+
+  // 查询订单日报汇总
+  rpc OrderDayReportSummary (OrderDayReportSummaryRequest) returns (OrderDayReportSummaryResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/report/order/day/summary"
+    };
+  }
+
+  // 查询订单日报明细
+  rpc OrderDayReportList (OrderDayReportListRequest) returns (OrderDayReportListResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/report/order/day/list"
+    };
+  }
 }
 
 // 订单月报汇总查询条件
@@ -91,4 +105,76 @@ message OrderMonthReportItem {
 message OrderMonthReportListResponse {
   // 月报明细
   repeated OrderMonthReportItem items = 1;
+}
+
+// 订单日报汇总查询条件
+message OrderDayReportSummaryRequest {
+  // 开始日期，格式：YYYY-MM-DD
+  string start_date = 1 [json_name = "startDate"];
+  // 结束日期，格式：YYYY-MM-DD
+  string end_date = 2 [json_name = "endDate"];
+  // 支付方式：枚举【OrderPayType】，0 表示全部
+  int32 pay_type = 3 [json_name = "payType"];
+  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+  int32 pay_channel = 4 [json_name = "payChannel"];
+}
+
+// 订单日报明细查询条件
+message OrderDayReportListRequest {
+  // 开始日期，格式：YYYY-MM-DD
+  string start_date = 1 [json_name = "startDate"];
+  // 结束日期，格式：YYYY-MM-DD
+  string end_date = 2 [json_name = "endDate"];
+  // 支付方式：枚举【OrderPayType】，0 表示全部
+  int32 pay_type = 3 [json_name = "payType"];
+  // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+  int32 pay_channel = 4 [json_name = "payChannel"];
+}
+
+// 订单日报汇总响应
+message OrderDayReportSummaryResponse {
+  // 支付成功订单数
+  int64 paid_order_count = 1 [json_name = "paidOrderCount"];
+  // 支付成功金额，单位分
+  int64 paid_order_amount = 2 [json_name = "paidOrderAmount"];
+  // 退款成功订单数
+  int64 refund_order_count = 3 [json_name = "refundOrderCount"];
+  // 退款成功金额，单位分
+  int64 refund_order_amount = 4 [json_name = "refundOrderAmount"];
+  // 净销售额，单位分
+  int64 net_order_amount = 5 [json_name = "netOrderAmount"];
+  // 支付用户数
+  int64 paid_user_count = 6 [json_name = "paidUserCount"];
+  // 商品件数
+  int64 goods_count = 7 [json_name = "goodsCount"];
+  // 客单价，单位分
+  int64 customer_unit_price = 8 [json_name = "customerUnitPrice"];
+}
+
+// 订单日报明细
+message OrderDayReportItem {
+  // 日期，格式：YYYY-MM-DD
+  string day = 1;
+  // 支付成功订单数
+  int64 paid_order_count = 2 [json_name = "paidOrderCount"];
+  // 支付成功金额，单位分
+  int64 paid_order_amount = 3 [json_name = "paidOrderAmount"];
+  // 退款成功订单数
+  int64 refund_order_count = 4 [json_name = "refundOrderCount"];
+  // 退款成功金额，单位分
+  int64 refund_order_amount = 5 [json_name = "refundOrderAmount"];
+  // 净销售额，单位分
+  int64 net_order_amount = 6 [json_name = "netOrderAmount"];
+  // 支付用户数
+  int64 paid_user_count = 7 [json_name = "paidUserCount"];
+  // 商品件数
+  int64 goods_count = 8 [json_name = "goodsCount"];
+  // 客单价，单位分
+  int64 customer_unit_price = 9 [json_name = "customerUnitPrice"];
+}
+
+// 订单日报明细列表响应
+message OrderDayReportListResponse {
+  // 日报明细
+  repeated OrderDayReportItem items = 1;
 }

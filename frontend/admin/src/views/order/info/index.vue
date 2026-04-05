@@ -322,9 +322,16 @@ watch(
 );
 
 const reportSourceLabel = computed(() => {
-  if (route.query.source !== "month-report") return "";
+  if (route.query.source === "month-report") {
+    const periodLabel = String(route.query.periodLabel ?? "");
+    return periodLabel ? `${periodLabel} 月报` : "报表";
+  }
+  if (route.query.source === "day-report") {
+    const periodLabel = String(route.query.periodLabel ?? "");
+    return periodLabel ? `${periodLabel} 日报` : "报表";
+  }
   const periodLabel = String(route.query.periodLabel ?? "");
-  return periodLabel ? `${periodLabel} 月报` : "报表";
+  return periodLabel ? `${periodLabel} 报表` : "";
 });
 
 const dialogShipped = reactive({

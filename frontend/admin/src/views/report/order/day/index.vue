@@ -1,17 +1,9 @@
 <template>
-  <div v-loading="loading" class="order-month-report">
-    <AnalyticsPageLayout title="订单月报" description="" period-label="" content-ratio="minmax(0, 1fr)">
+  <div v-loading="loading" class="order-day-report">
+    <AnalyticsPageLayout title="订单日报" description="" period-label="" content-ratio="minmax(0, 1fr)">
       <template #toolbar>
         <div class="report-toolbar">
-          <el-date-picker
-            v-model="monthRange"
-            type="monthrange"
-            unlink-panels
-            range-separator="~"
-            start-placeholder="开始月份"
-            end-placeholder="结束月份"
-            value-format="YYYY-MM"
-          />
+          <el-date-picker v-model="monthValue" type="month" placeholder="选择月份" value-format="YYYY-MM" />
           <el-select v-model="filters.payType" clearable placeholder="支付方式" class="report-toolbar__select">
             <el-option v-for="item in payTypeOptions" :key="String(item.value)" :label="item.label" :value="Number(item.value)" />
           </el-select>
@@ -48,7 +40,7 @@
               :class="{ 'report-tab--active': activePanel === 'summary' }"
               @click="handlePanelChange('summary')"
             >
-              月度汇总
+              日度汇总
             </button>
           </div>
           <el-button v-if="activePanel === 'summary'" @click="handleExport">导出 Excel</el-button>
@@ -60,9 +52,9 @@
 
         <div v-show="activePanel === 'summary'" class="report-panel">
           <el-table :data="report.items" border class="report-table">
-            <el-table-column prop="month" label="月份" min-width="120">
+            <el-table-column prop="day" label="日期" min-width="140">
               <template #default="{ row }">
-                <el-button link type="primary" @click="openOrderDetail(row.month)">{{ row.month }}</el-button>
+                <el-button link type="primary" @click="openOrderDetail(row.day)">{{ row.day }}</el-button>
               </template>
             </el-table-column>
             <el-table-column prop="paidOrderCount" label="支付订单数" min-width="120" align="right" />
@@ -83,7 +75,7 @@
             </el-table-column>
             <el-table-column label="操作" width="120" fixed="right" align="center">
               <template #default="{ row }">
-                <el-button link type="primary" @click="openOrderDetail(row.month)">查看明细</el-button>
+                <el-button link type="primary" @click="openOrderDetail(row.day)">查询明细</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -94,8 +86,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+defineOptions({
+  name: "OrderDayReport"
+});
+
+import { computed, reactive, ref, watch } from "vue";
 import dayjs from "dayjs";
+import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
 import { Box, CreditCard, Goods, Money, RefreshLeft, User } from "@element-plus/icons-vue";
 import type { ECElementEvent } from "echarts/core";
@@ -107,21 +104,18 @@ import AnalyticsMetricCards, {
 } from "@/views/dashboard/analytics/components/AnalyticsMetricCards.vue";
 import AnalyticsPageLayout from "@/views/dashboard/analytics/components/AnalyticsPageLayout.vue";
 import { defOrderReportService } from "@/api/admin/order_report";
-import type { OrderMonthReportItem, OrderMonthReportSummaryResponse } from "@/rpc/admin/order_report";
+import type { OrderDayReportItem, OrderDayReportSummaryResponse } from "@/rpc/admin/order_report";
 import router from "@/routers";
 import { buildDictEnum } from "@/utils/proTable";
 import { formatPrice } from "@/utils/utils";
 
-defineOptions({
-  name: "OrderMonthReport"
-});
-
-/** 月报内容面板类型。 */
+/** 日报内容面板类型。 */
 type ReportPanelType = "trend" | "summary";
 
+const route = useRoute();
 const loading = ref(false);
 const activePanel = ref<ReportPanelType>("trend");
-const monthRange = ref<[string, string]>(getDefaultMonthRange());
+const monthValue = ref(getDefaultMonthValue());
 const payTypeOptions = ref<EnumProps[]>([]);
 const payChannelOptions = ref<EnumProps[]>([]);
 const filters = reactive({
@@ -129,7 +123,7 @@ const filters = reactive({
   payChannel: undefined as number | undefined
 });
 
-const emptySummary = (): OrderMonthReportSummaryResponse => ({
+const emptySummary = (): OrderDayReportSummaryResponse => ({
   paidOrderCount: 0,
   paidOrderAmount: 0,
   refundOrderCount: 0,
@@ -141,17 +135,16 @@ const emptySummary = (): OrderMonthReportSummaryResponse => ({
 });
 
 const report = reactive<{
-  summary: OrderMonthReportSummaryResponse;
-  items: OrderMonthReportItem[];
+  summary: OrderDayReportSummaryResponse;
+  items: OrderDayReportItem[];
 }>({
   summary: emptySummary(),
   items: []
 });
 
-const reportSummary = computed<OrderMonthReportSummaryResponse>(() => {
-  return report.summary ?? emptySummary();
-});
+const reportSummary = computed<OrderDayReportSummaryResponse>(() => report.summary ?? emptySummary());
 
+/** 统一将接口返回的数值字段转成数字。 */
 function normalizeNumber(value: unknown) {
   if (typeof value === "number") return Number.isFinite(value) ? value : 0;
   if (typeof value === "string") {
@@ -161,10 +154,11 @@ function normalizeNumber(value: unknown) {
   return 0;
 }
 
-function normalizeReportItem(payload: Partial<OrderMonthReportItem> | undefined): OrderMonthReportItem {
-  const source = (payload ?? {}) as Partial<OrderMonthReportItem> & Record<string, unknown>;
+/** 统一整理日报明细项，兼容蛇形和驼峰字段。 */
+function normalizeReportItem(payload: Partial<OrderDayReportItem> | undefined): OrderDayReportItem {
+  const source = (payload ?? {}) as Partial<OrderDayReportItem> & Record<string, unknown>;
   return {
-    month: String(source.month ?? ""),
+    day: String(source.day ?? ""),
     paidOrderCount: normalizeNumber(source.paidOrderCount ?? source.paid_order_count),
     paidOrderAmount: normalizeNumber(source.paidOrderAmount ?? source.paid_order_amount),
     refundOrderCount: normalizeNumber(source.refundOrderCount ?? source.refund_order_count),
@@ -176,10 +170,11 @@ function normalizeReportItem(payload: Partial<OrderMonthReportItem> | undefined)
   };
 }
 
-function normalizeSummaryResponse(payload: unknown): OrderMonthReportSummaryResponse {
-  const source = ((payload as { data?: Partial<OrderMonthReportSummaryResponse> } | undefined)?.data ??
+/** 统一整理日报汇总响应，兼容网关包装结构。 */
+function normalizeSummaryResponse(payload: unknown): OrderDayReportSummaryResponse {
+  const source = ((payload as { data?: Partial<OrderDayReportSummaryResponse> } | undefined)?.data ??
     payload ??
-    {}) as Partial<OrderMonthReportSummaryResponse> & Record<string, unknown>;
+    {}) as Partial<OrderDayReportSummaryResponse> & Record<string, unknown>;
 
   return {
     paidOrderCount: normalizeNumber(source.paidOrderCount ?? source.paid_order_count),
@@ -193,10 +188,10 @@ function normalizeSummaryResponse(payload: unknown): OrderMonthReportSummaryResp
   };
 }
 
-function normalizeListResponse(payload: unknown): OrderMonthReportItem[] {
+/** 统一整理日报明细列表响应。 */
+function normalizeListResponse(payload: unknown): OrderDayReportItem[] {
   const source =
-    (payload as { data?: { items?: Partial<OrderMonthReportItem>[] }; items?: Partial<OrderMonthReportItem>[] } | undefined) ??
-    {};
+    (payload as { data?: { items?: Partial<OrderDayReportItem>[] }; items?: Partial<OrderDayReportItem>[] } | undefined) ?? {};
   const rawItems = source.data?.items ?? source.items ?? [];
   return rawItems.map(item => normalizeReportItem(item));
 }
@@ -279,7 +274,6 @@ const chartOption = computed<ECOption>(() => ({
     }
   },
   grid: {
-    // 顶部额外留白，避免坐标轴名称与卡片标题区发生视觉重叠，同时保留轴标题在顶部展示。
     top: 72,
     left: 20,
     right: 20,
@@ -288,7 +282,7 @@ const chartOption = computed<ECOption>(() => ({
   },
   xAxis: {
     type: "category",
-    data: report.items.map(item => item.month),
+    data: report.items.map(item => item.day),
     axisLabel: {
       color: "#6d7b8f"
     },
@@ -353,24 +347,25 @@ const chartOption = computed<ECOption>(() => ({
   ]
 }));
 
-/** 切换月报展示面板。 */
+/** 切换日报展示面板。 */
 function handlePanelChange(panel: ReportPanelType) {
   activePanel.value = panel;
 }
 
+/** 按当前筛选条件加载日报汇总和列表。 */
 async function loadData() {
   loading.value = true;
   try {
-    const [startMonth, endMonth] = monthRange.value;
+    const startMonth = monthValue.value;
     const request = {
-      startMonth,
-      endMonth,
+      startDate: dayjs(`${startMonth}-01`).format("YYYY-MM-DD"),
+      endDate: dayjs(`${startMonth}-01`).endOf("month").format("YYYY-MM-DD"),
       payType: filters.payType ?? 0,
       payChannel: filters.payChannel ?? 0
     };
     const [summaryData, listData] = await Promise.all([
-      defOrderReportService.OrderMonthReportSummary(request),
-      defOrderReportService.OrderMonthReportList(request)
+      defOrderReportService.OrderDayReportSummary(request),
+      defOrderReportService.OrderDayReportList(request)
     ]);
     const summary = normalizeSummaryResponse(summaryData);
     const items = normalizeListResponse(listData);
@@ -383,34 +378,37 @@ async function loadData() {
       ...item,
       netOrderAmount: item.netOrderAmount ?? item.paidOrderAmount - item.refundOrderAmount
     }));
-  } catch (error) {
+  } catch {
     report.summary = emptySummary();
     report.items = [];
-    throw error;
+    throw new Error("load order day report failed");
   } finally {
     loading.value = false;
   }
 }
 
+/** 图表点击后跳转到订单列表页查看当天明细。 */
 function handleChartClick(event: ECElementEvent) {
   if (!event.name || typeof event.name !== "string") return;
   openOrderDetail(event.name);
 }
 
-function openOrderDetail(month: string) {
+/** 跳转到订单列表页查看指定日期的订单明细。 */
+function openOrderDetail(day: string) {
   router.push({
-    path: "/report/order/day",
+    path: "/order/info",
     query: {
-      startDate: dayjs(`${month}-01`).format("YYYY-MM-DD"),
-      endDate: dayjs(`${month}-01`).endOf("month").format("YYYY-MM-DD"),
+      startDate: day,
+      endDate: day,
       payType: filters.payType,
       payChannel: filters.payChannel,
-      source: "month-report",
-      periodLabel: month
+      source: "day-report",
+      periodLabel: day
     }
   });
 }
 
+/** 导出当前日报表格数据。 */
 function handleExport() {
   if (!report.items.length) {
     ElMessage.warning("暂无可导出数据");
@@ -418,7 +416,7 @@ function handleExport() {
   }
 
   const headers = [
-    "月份",
+    "日期",
     "支付订单数",
     "支付金额（元）",
     "退款订单数",
@@ -429,7 +427,7 @@ function handleExport() {
     "客单价（元）"
   ];
   const rows = report.items.map(item => [
-    item.month,
+    item.day,
     item.paidOrderCount,
     formatPrice(item.paidOrderAmount),
     item.refundOrderCount,
@@ -455,7 +453,7 @@ function handleExport() {
     .map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(","))
     .join("\n");
   const blob = new Blob([`\ufeff${csvContent}`], { type: "application/vnd.ms-excel;charset=utf-8;" });
-  const fileName = `订单月报_${monthRange.value[0]}_${monthRange.value[1]}.xls`;
+  const fileName = `订单日报_${monthValue.value}.xls`;
   const blobUrl = window.URL.createObjectURL(blob);
   const downloadLink = document.createElement("a");
   downloadLink.style.display = "none";
@@ -467,18 +465,35 @@ function handleExport() {
   window.URL.revokeObjectURL(blobUrl);
 }
 
-function getDefaultMonthRange(): [string, string] {
-  const currentMonth = dayjs();
-  return [currentMonth.subtract(5, "month").format("YYYY-MM"), currentMonth.format("YYYY-MM")];
+/** 默认展示当前月份的日报。 */
+function getDefaultMonthValue(): string {
+  return dayjs().format("YYYY-MM");
 }
 
+/** 根据路由查询参数同步初始化日期与筛选条件。 */
+function syncRouteQuery() {
+  const startDate = String(route.query.startDate ?? "");
+  const endDate = String(route.query.endDate ?? "");
+  const payType = Number(route.query.payType ?? 0);
+  const payChannel = Number(route.query.payChannel ?? 0);
+
+  if (startDate && endDate) {
+    monthValue.value = dayjs(startDate).format("YYYY-MM");
+  }
+  filters.payType = payType > 0 ? payType : undefined;
+  filters.payChannel = payChannel > 0 ? payChannel : undefined;
+}
+
+/** 加载日报筛选字典。 */
 async function loadFilterOptions() {
   const [payTypeEnum, payChannelEnum] = await Promise.all([buildDictEnum("order_pay_type"), buildDictEnum("order_pay_channel")]);
   payTypeOptions.value = payTypeEnum.data;
   payChannelOptions.value = payChannelEnum.data;
 }
 
+/** 初始化页面：同步路由、加载字典、拉取日报数据。 */
 async function initializePage() {
+  syncRouteQuery();
   await loadFilterOptions().catch(() => {
     payTypeOptions.value = [];
     payChannelOptions.value = [];
@@ -486,11 +501,19 @@ async function initializePage() {
   await loadData().catch(() => undefined);
 }
 
+watch(
+  () => route.query,
+  () => {
+    syncRouteQuery();
+    loadData().catch(() => undefined);
+  }
+);
+
 initializePage();
 </script>
 
 <style scoped lang="scss">
-.order-month-report {
+.order-day-report {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -571,21 +594,21 @@ initializePage();
   width: 100%;
 }
 
-.order-month-report :deep(.summary-grid) {
+.order-day-report :deep(.summary-grid) {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
-.order-month-report :deep(.summary-card__meta) {
+.order-day-report :deep(.summary-card__meta) {
   align-items: flex-start;
 }
 
-.order-month-report :deep(.summary-card__label),
-.order-month-report :deep(.summary-card__foot-label) {
+.order-day-report :deep(.summary-card__label),
+.order-day-report :deep(.summary-card__foot-label) {
   line-height: 1.5;
   white-space: normal;
 }
 
-.order-month-report :deep(.summary-card__value) {
+.order-day-report :deep(.summary-card__value) {
   word-break: break-word;
 }
 
@@ -604,7 +627,7 @@ initializePage();
     flex-wrap: wrap;
   }
 
-  .order-month-report :deep(.summary-grid) {
+  .order-day-report :deep(.summary-grid) {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }

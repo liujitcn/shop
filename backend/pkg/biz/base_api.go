@@ -2,18 +2,12 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
 	"sort"
 	"strings"
 
-	_const "shop/pkg/const"
-	"shop/pkg/gen/data"
-	"shop/pkg/gen/models"
-
-	"github.com/go-kratos/kratos/v2/log"
-	queueData "github.com/liujitcn/kratos-kit/queue/data"
-	"github.com/liujitcn/kratos-kit/sdk"
 	"gopkg.in/yaml.v3"
 )
 
@@ -27,92 +21,14 @@ func NewBaseApiCase(baseApiRepo *data.BaseApiRepo) *BaseApiCase {
 	return &BaseApiCase{BaseApiRepo: baseApiRepo}
 }
 
-// batchCreateBaseApi 批量同步接口数据
-func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.BaseApi) error {
-	oldApiList, err := c.List(ctx)
-	if err != nil {
-		return err
-	}
-
-	oldApiIdMap := make(map[string]int64, len(oldApiList))
-	for _, oldApi := range oldApiList {
-		oldApiIdMap[oldApi.Operation] = oldApi.ID
-	}
-
-	apiList := make([]*models.BaseApi, 0)
-	for _, item := range apis {
-		if id, ok := oldApiIdMap[item.Operation]; ok {
-			item.ID = id
-			err = c.UpdateById(ctx, item)
-			if err != nil {
-				return err
-			}
-			delete(oldApiIdMap, item.Operation)
-			continue
-		}
-		apiList = append(apiList, item)
-	}
-
-	if len(oldApiIdMap) > 0 {
-		oldApiIds := make([]int64, 0, len(oldApiIdMap))
-		for _, id := range oldApiIdMap {
-			oldApiIds = append(oldApiIds, id)
-		}
-		err = c.DeleteByIds(ctx, oldApiIds)
-		if err != nil {
-			return err
-		}
-	}
-
-	if len(apiList) == 0 {
-		return nil
-	}
-	return c.BatchCreate(ctx, apiList)
-}
-
-// saveApi 保存队列中的接口同步数据
-func (c *BaseApiCase) saveApi(message queueData.Message) error {
-	rawBody, err := json.Marshal(message.Values)
-	if err != nil {
-		log.Errorf("序列化接口同步消息失败[%s]", err.Error())
-		return err
-	}
-
-	var payload map[string][]*models.BaseApi
-	err = json.Unmarshal(rawBody, &payload)
-	if err != nil {
-		log.Errorf("反序列化接口同步消息失败[%s]", err.Error())
-		return err
-	}
-
-	if list, ok := payload["data"]; ok {
-		return c.batchCreateBaseApi(context.TODO(), list)
-	}
-	return nil
-}
-
 // apiCheck 检查并同步 openapi 接口数据
 func (c *BaseApiCase) apiCheck(openApiData []byte) error {
 	baseApiList, err := c.openApiDataToBaseApi(openApiData)
 	if err != nil {
 		return err
 	}
-
-	queue := sdk.Runtime.GetQueue()
-	if queue == nil {
-		return c.batchCreateBaseApi(context.TODO(), baseApiList)
-	}
-
-	messageData := map[string]interface{}{
-		"data": baseApiList,
-	}
-
-	message, err := sdk.Runtime.GetStreamMessage(string(_const.ApiCheck), messageData)
-	if err != nil {
-		log.Errorf("构建接口同步消息失败[%s]", err.Error())
-		return err
-	}
-	return queue.Append(string(_const.ApiCheck), message)
+	// API 检查改为同步执行，启动时直接根据 openapi 文档落库，避免排队导致接口权限数据滞后。
+	return c.batchCreateBaseApi(context.TODO(), baseApiList)
 }
 
 // openApiDataToBaseApi 将 openapi 文档转换为接口模型
@@ -167,6 +83,49 @@ func (c *BaseApiCase) openApiDataToBaseApi(openApiData []byte) ([]*models.BaseAp
 		return baseApiList[i].Operation < baseApiList[j].Operation
 	})
 	return baseApiList, nil
+}
+
+// batchCreateBaseApi 批量同步接口数据
+func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.BaseApi) error {
+	oldApiList, err := c.List(ctx)
+	if err != nil {
+		return err
+	}
+
+	oldApiIdMap := make(map[string]int64, len(oldApiList))
+	for _, oldApi := range oldApiList {
+		oldApiIdMap[oldApi.Operation] = oldApi.ID
+	}
+
+	apiList := make([]*models.BaseApi, 0)
+	for _, item := range apis {
+		if id, ok := oldApiIdMap[item.Operation]; ok {
+			item.ID = id
+			err = c.UpdateById(ctx, item)
+			if err != nil {
+				return err
+			}
+			delete(oldApiIdMap, item.Operation)
+			continue
+		}
+		apiList = append(apiList, item)
+	}
+
+	if len(oldApiIdMap) > 0 {
+		oldApiIds := make([]int64, 0, len(oldApiIdMap))
+		for _, id := range oldApiIdMap {
+			oldApiIds = append(oldApiIds, id)
+		}
+		err = c.DeleteByIds(ctx, oldApiIds)
+		if err != nil {
+			return err
+		}
+	}
+
+	if len(apiList) == 0 {
+		return nil
+	}
+	return c.BatchCreate(ctx, apiList)
 }
 
 // parseOperation 解析单个 openapi 操作项
