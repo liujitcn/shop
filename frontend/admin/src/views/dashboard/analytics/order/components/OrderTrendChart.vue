@@ -1,7 +1,7 @@
 <template>
-  <AnalyticsChartCard title="订单与销售趋势" primary>
+  <DataPanelCard title="订单与销售趋势" primary>
     <ECharts :option="option" />
-  </AnalyticsChartCard>
+  </DataPanelCard>
 </template>
 
 <script setup lang="ts">
@@ -9,7 +9,7 @@ import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defOrderAnalyticsService } from "@/api/admin/order_analytics";
-import AnalyticsChartCard from "../../components/AnalyticsChartCard.vue";
+import DataPanelCard from "@/components/Card/DataPanelCard.vue";
 import type { AnalyticsTimeType, AnalyticsTrendResponse } from "@/rpc/common/analytics";
 
 const props = defineProps<{

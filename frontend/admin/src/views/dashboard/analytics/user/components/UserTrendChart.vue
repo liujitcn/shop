@@ -1,7 +1,7 @@
 <template>
-  <AnalyticsChartCard title="用户增长趋势" description="注册用户与下单用户按时间维度对比。" primary>
+  <DataPanelCard title="用户增长趋势" description="注册用户与下单用户按时间维度对比。" primary>
     <ECharts :option="option" />
-  </AnalyticsChartCard>
+  </DataPanelCard>
 </template>
 
 <script setup lang="ts">
@@ -9,7 +9,7 @@ import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defUserAnalyticsService } from "@/api/admin/user_analytics";
-import AnalyticsChartCard from "../../components/AnalyticsChartCard.vue";
+import DataPanelCard from "@/components/Card/DataPanelCard.vue";
 import type { AnalyticsTimeType, AnalyticsTrendResponse } from "@/rpc/common/analytics";
 
 const props = defineProps<{

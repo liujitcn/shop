@@ -1,7 +1,7 @@
 <template>
-  <AnalyticsChartCard title="订单状态分布" description="关注履约状态与取消结构。">
+  <DataPanelCard title="订单状态分布" description="关注履约状态与取消结构。">
     <ECharts :option="option" />
-  </AnalyticsChartCard>
+  </DataPanelCard>
 </template>
 
 <script setup lang="ts">
@@ -9,7 +9,7 @@ import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defOrderAnalyticsService } from "@/api/admin/order_analytics";
-import AnalyticsChartCard from "../../components/AnalyticsChartCard.vue";
+import DataPanelCard from "@/components/Card/DataPanelCard.vue";
 import type { AnalyticsPieResponse, AnalyticsTimeType } from "@/rpc/common/analytics";
 
 const props = defineProps<{

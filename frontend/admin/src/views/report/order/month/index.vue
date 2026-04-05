@@ -24,7 +24,6 @@
             />
           </el-select>
           <el-button type="primary" @click="loadData">查询</el-button>
-          <el-button @click="handleExport">导出 Excel</el-button>
         </div>
       </template>
 
@@ -32,45 +31,65 @@
         <AnalyticsMetricCards :items="metricItems" />
       </template>
 
-      <AnalyticsChartCard title="成交与退款趋势" primary>
-        <ECharts :option="chartOption" :on-click="handleChartClick" />
-      </AnalyticsChartCard>
+      <article class="report-card report-card--tabs">
+        <div class="report-card__header report-card__header--tabs">
+          <div class="report-card__tabs">
+            <button
+              type="button"
+              class="report-tab"
+              :class="{ 'report-tab--active': activePanel === 'trend' }"
+              @click="handlePanelChange('trend')"
+            >
+              成交与退款趋势
+            </button>
+            <button
+              type="button"
+              class="report-tab"
+              :class="{ 'report-tab--active': activePanel === 'summary' }"
+              @click="handlePanelChange('summary')"
+            >
+              月度汇总
+            </button>
+          </div>
+          <el-button v-if="activePanel === 'summary'" @click="handleExport">导出 Excel</el-button>
+        </div>
+
+        <div v-show="activePanel === 'trend'" class="report-panel report-panel--chart">
+          <ECharts :option="chartOption" :on-click="handleChartClick" />
+        </div>
+
+        <div v-show="activePanel === 'summary'" class="report-panel">
+          <el-table :data="report.items" border class="report-table">
+            <el-table-column prop="month" label="月份" min-width="120">
+              <template #default="{ row }">
+                <el-button link type="primary" @click="openOrderDetail(row.month)">{{ row.month }}</el-button>
+              </template>
+            </el-table-column>
+            <el-table-column prop="paidOrderCount" label="支付订单数" min-width="120" align="right" />
+            <el-table-column prop="paidOrderAmount" label="支付金额（元）" min-width="150" align="right">
+              <template #default="{ row }">{{ formatPrice(row.paidOrderAmount) }}</template>
+            </el-table-column>
+            <el-table-column prop="refundOrderCount" label="退款订单数" min-width="120" align="right" />
+            <el-table-column prop="refundOrderAmount" label="退款金额（元）" min-width="150" align="right">
+              <template #default="{ row }">{{ formatPrice(row.refundOrderAmount) }}</template>
+            </el-table-column>
+            <el-table-column prop="netOrderAmount" label="净销售额（元）" min-width="150" align="right">
+              <template #default="{ row }">{{ formatPrice(row.netOrderAmount) }}</template>
+            </el-table-column>
+            <el-table-column prop="paidUserCount" label="支付用户数" min-width="120" align="right" />
+            <el-table-column prop="goodsCount" label="商品件数" min-width="120" align="right" />
+            <el-table-column prop="customerUnitPrice" label="客单价（元）" min-width="130" align="right">
+              <template #default="{ row }">{{ formatPrice(row.customerUnitPrice) }}</template>
+            </el-table-column>
+            <el-table-column label="操作" width="120" fixed="right" align="center">
+              <template #default="{ row }">
+                <el-button link type="primary" @click="openOrderDetail(row.month)">查看明细</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </article>
     </AnalyticsPageLayout>
-
-    <article class="report-card">
-      <div class="report-card__header">
-        <h3 class="report-card__title">月度汇总</h3>
-      </div>
-
-      <el-table :data="report.items" border class="report-table">
-        <el-table-column prop="month" label="月份" min-width="120">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="openOrderDetail(row.month)">{{ row.month }}</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column prop="paidOrderCount" label="支付订单数" min-width="120" align="right" />
-        <el-table-column prop="paidOrderAmount" label="支付金额（元）" min-width="150" align="right">
-          <template #default="{ row }">{{ formatPrice(row.paidOrderAmount) }}</template>
-        </el-table-column>
-        <el-table-column prop="refundOrderCount" label="退款订单数" min-width="120" align="right" />
-        <el-table-column prop="refundOrderAmount" label="退款金额（元）" min-width="150" align="right">
-          <template #default="{ row }">{{ formatPrice(row.refundOrderAmount) }}</template>
-        </el-table-column>
-        <el-table-column prop="netOrderAmount" label="净销售额（元）" min-width="150" align="right">
-          <template #default="{ row }">{{ formatPrice(row.netOrderAmount) }}</template>
-        </el-table-column>
-        <el-table-column prop="paidUserCount" label="支付用户数" min-width="120" align="right" />
-        <el-table-column prop="goodsCount" label="商品件数" min-width="120" align="right" />
-        <el-table-column prop="customerUnitPrice" label="客单价（元）" min-width="130" align="right">
-          <template #default="{ row }">{{ formatPrice(row.customerUnitPrice) }}</template>
-        </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right" align="center">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="openOrderDetail(row.month)">查看明细</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </article>
   </div>
 </template>
 
@@ -87,7 +106,6 @@ import AnalyticsMetricCards, {
   type AnalyticsMetricCardItem
 } from "@/views/dashboard/analytics/components/AnalyticsMetricCards.vue";
 import AnalyticsPageLayout from "@/views/dashboard/analytics/components/AnalyticsPageLayout.vue";
-import AnalyticsChartCard from "@/views/dashboard/analytics/components/AnalyticsChartCard.vue";
 import { defOrderReportService } from "@/api/admin/order_report";
 import type { OrderMonthReportItem, OrderMonthReportSummaryResponse } from "@/rpc/admin/order_report";
 import router from "@/routers";
@@ -98,7 +116,11 @@ defineOptions({
   name: "OrderMonthReport"
 });
 
+/** 月报内容面板类型。 */
+type ReportPanelType = "trend" | "summary";
+
 const loading = ref(false);
+const activePanel = ref<ReportPanelType>("trend");
 const monthRange = ref<[string, string]>(getDefaultMonthRange());
 const payTypeOptions = ref<EnumProps[]>([]);
 const payChannelOptions = ref<EnumProps[]>([]);
@@ -257,7 +279,8 @@ const chartOption = computed<ECOption>(() => ({
     }
   },
   grid: {
-    top: 24,
+    // 顶部额外留白，避免坐标轴名称与卡片标题区发生视觉重叠，同时保留轴标题在顶部展示。
+    top: 72,
     left: 20,
     right: 20,
     bottom: 44,
@@ -279,6 +302,8 @@ const chartOption = computed<ECOption>(() => ({
     {
       type: "value",
       name: "金额（元）",
+      nameLocation: "end",
+      nameGap: 28,
       axisLabel: {
         color: "#6d7b8f",
         formatter: (value: number) => Number(value).toFixed(0)
@@ -292,6 +317,8 @@ const chartOption = computed<ECOption>(() => ({
     {
       type: "value",
       name: "订单数",
+      nameLocation: "end",
+      nameGap: 24,
       axisLabel: {
         color: "#6d7b8f"
       }
@@ -325,6 +352,11 @@ const chartOption = computed<ECOption>(() => ({
     }
   ]
 }));
+
+/** 切换月报展示面板。 */
+function handlePanelChange(panel: ReportPanelType) {
+  activePanel.value = panel;
+}
 
 async function loadData() {
   loading.value = true;
@@ -482,6 +514,10 @@ initializePage();
   box-shadow: var(--admin-page-shadow);
 }
 
+.report-card--tabs {
+  overflow: hidden;
+}
+
 .report-card__header {
   display: flex;
   align-items: center;
@@ -490,11 +526,45 @@ initializePage();
   margin-bottom: 16px;
 }
 
-.report-card__title {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--admin-page-text-primary);
+.report-card__header--tabs {
+  margin-bottom: 18px;
+}
+
+.report-card__tabs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+
+.report-tab {
+  min-width: 0;
+  padding: 10px 16px;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
+  background: var(--admin-page-card-bg-soft);
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: 999px;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.report-tab--active {
+  color: var(--el-color-primary);
+  background: color-mix(in srgb, var(--el-color-primary) 12%, var(--admin-page-card-bg));
+  border-color: color-mix(in srgb, var(--el-color-primary) 36%, var(--admin-page-card-border));
+  box-shadow: 0 8px 18px rgb(64 158 255 / 12%);
+}
+
+.report-panel {
+  min-width: 0;
+}
+
+.report-panel--chart {
+  height: 360px;
 }
 
 .report-table {
@@ -523,6 +593,15 @@ initializePage();
   .report-toolbar {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .report-card__header--tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-card__tabs {
+    flex-wrap: wrap;
   }
 
   .order-month-report :deep(.summary-grid) {

@@ -1,7 +1,7 @@
 <template>
-  <AnalyticsChartCard title="用户行为覆盖" description="查看用户沉淀与转化行为的覆盖情况。">
+  <DataPanelCard title="用户行为覆盖" description="查看用户沉淀与转化行为的覆盖情况。">
     <ECharts :option="option" />
-  </AnalyticsChartCard>
+  </DataPanelCard>
 </template>
 
 <script setup lang="ts">
@@ -9,7 +9,7 @@ import { computed, reactive, watch } from "vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defUserAnalyticsService } from "@/api/admin/user_analytics";
-import AnalyticsChartCard from "../../components/AnalyticsChartCard.vue";
+import DataPanelCard from "@/components/Card/DataPanelCard.vue";
 import type { AnalyticsRankResponse, AnalyticsTimeType } from "@/rpc/common/analytics";
 
 const props = defineProps<{

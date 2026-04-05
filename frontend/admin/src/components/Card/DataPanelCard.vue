@@ -1,13 +1,13 @@
 <template>
-  <article class="chart-card" :class="cardClass">
-    <div class="chart-card__header">
+  <article class="data-panel-card" :class="cardClass">
+    <div class="data-panel-card__header">
       <div>
-        <h3 class="chart-card__title">{{ title }}</h3>
-        <p v-if="description" class="chart-card__desc">{{ description }}</p>
+        <h3 class="data-panel-card__title">{{ title }}</h3>
+        <p v-if="description" class="data-panel-card__desc">{{ description }}</p>
       </div>
       <slot name="extra" />
     </div>
-    <div class="chart-card__body">
+    <div class="data-panel-card__body">
       <slot />
     </div>
   </article>
@@ -29,13 +29,13 @@ const props = withDefaults(
 );
 
 const cardClass = computed(() => ({
-  "chart-card--primary": props.primary,
-  "chart-card--secondary": !props.primary
+  "data-panel-card--primary": props.primary,
+  "data-panel-card--secondary": !props.primary
 }));
 </script>
 
 <style scoped lang="scss">
-.chart-card {
+.data-panel-card {
   padding: 18px;
   border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
@@ -43,7 +43,7 @@ const cardClass = computed(() => ({
   box-shadow: var(--admin-page-shadow);
 }
 
-.chart-card__header {
+.data-panel-card__header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -51,21 +51,21 @@ const cardClass = computed(() => ({
   margin-bottom: 12px;
 }
 
-.chart-card__title {
+.data-panel-card__title {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
   color: var(--admin-page-text-primary);
 }
 
-.chart-card__desc {
+.data-panel-card__desc {
   margin: 6px 0 0;
   font-size: 13px;
   line-height: 1.7;
   color: var(--admin-page-text-secondary);
 }
 
-.chart-card__body {
+.data-panel-card__body {
   height: 360px;
 }
 </style>
