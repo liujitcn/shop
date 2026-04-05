@@ -1199,7 +1199,7 @@ export default {
     position: fixed;
     z-index: 99;
     bottom: 0;
-    border-radius: 20rpx 20rpx 0 0;
+    border-radius: 10rpx 10rpx 0 0;
     background-color: #fff;
 
     .specification-wrapper {

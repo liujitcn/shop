@@ -1,6 +1,8 @@
-import type { FileInfo, MultiUploadFileResponse } from '@/rpc/base/file'
+import type { File } from '@liujitcn/shop-base'
 import { formatSrc } from '@/utils/index.ts'
 
+type FileInfo = File.FileInfo
+type MultiUploadFileResponse = File.MultiUploadFileResponse
 const STATIC_API_BASE_PATH = import.meta.env.VITE_APP_STATIC_API
 
 // 文件上传-兼容小程序端、H5端、App端

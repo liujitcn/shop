@@ -620,9 +620,8 @@ page {
   line-height: 1.4;
   padding: 0 20rpx;
   margin: 20rpx 20rpx 0;
-  border-radius: 20rpx;
+  border-radius: 10rpx;
   background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .locate,
   .item {
@@ -667,9 +666,8 @@ page {
 .goods {
   margin: 20rpx 20rpx 0;
   padding: 0 20rpx;
-  border-radius: 20rpx;
+  border-radius: 10rpx;
   background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .item {
     padding: 30rpx 0;
@@ -683,7 +681,7 @@ page {
     .cover {
       width: 170rpx;
       height: 170rpx;
-      border-radius: 16rpx;
+      border-radius: 10rpx;
       margin-right: 20rpx;
     }
 
@@ -714,14 +712,8 @@ page {
 
     .price {
       display: flex;
-      align-items: baseline;
-      gap: 10rpx;
       margin-top: 6rpx;
       font-size: 24rpx;
-      background: transparent;
-      height: auto;
-      line-height: 1;
-      padding: 0;
     }
 
     .symbol {
@@ -808,9 +800,8 @@ page {
   margin: 20rpx 20rpx 0;
   font-size: 26rpx;
   color: #666;
-  border-radius: 20rpx;
+  border-radius: 10rpx;
   background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .title {
     font-size: 30rpx;
@@ -847,8 +838,9 @@ page {
   right: 0;
   bottom: calc(var(--window-bottom));
   z-index: 1;
-  min-height: 100rpx;
-  padding: 12rpx 20rpx;
+
+  height: 100rpx;
+  padding: 0 20rpx;
   display: flex;
   align-items: center;
   flex-direction: row-reverse;
@@ -856,21 +848,19 @@ page {
   border-bottom: 1rpx solid #ededed;
   background-color: #fff;
   box-sizing: content-box;
-  box-shadow: 0 -8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .button {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-width: 200rpx;
-    height: 76rpx;
-    padding: 0 28rpx;
+
+    width: 200rpx;
+    height: 72rpx;
     margin-left: 15rpx;
     font-size: 26rpx;
     border-radius: 72rpx;
     border: 1rpx solid #ccc;
     color: #444;
-    box-sizing: border-box;
   }
 
   .delete {
@@ -897,7 +887,7 @@ page {
 
 .popup-root {
   padding: 30rpx 30rpx 0;
-  border-radius: 20rpx 20rpx 0 0;
+  border-radius: 10rpx 10rpx 0 0;
   overflow: hidden;
 
   .title {

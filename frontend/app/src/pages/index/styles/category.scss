@@ -1,19 +1,12 @@
-.category-panel {
-  margin: 20rpx 20rpx 0;
-  padding: 20rpx 12rpx 8rpx;
-  border-radius: 20rpx;
-  background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
-}
-
 /* 前台类目 */
 .category {
+  margin: 20rpx 0 0;
+  padding: 10rpx 0;
   display: flex;
   flex-wrap: wrap;
   min-height: 328rpx;
 
   .category-item {
-    flex: 0 0 25%;
     width: 25%;
     min-height: 172rpx;
     padding: 16rpx 8rpx 18rpx;
@@ -23,40 +16,22 @@
     align-items: center;
     box-sizing: border-box;
 
-    .icon-box {
+    .icon {
       width: 92rpx;
       height: 92rpx;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: none;
-      border-radius: 20rpx;
-      background: linear-gradient(180deg, #f8fafc 0%, #eef4ff 100%);
-      box-shadow: 0 8rpx 18rpx rgba(59, 130, 246, 0.12);
-    }
-
-    .icon-box-more {
-      background: linear-gradient(180deg, #ecfeff 0%, #dbeafe 100%);
-    }
-
-    .icon {
-      width: 74rpx;
-      height: 74rpx;
-      flex: none;
     }
 
     .text {
       display: block;
-      margin-top: 10rpx;
       width: 100%;
       height: 40rpx;
+      margin-top: 10rpx;
       padding: 0 2rpx;
       box-sizing: border-box;
       line-height: 40rpx;
       text-align: center;
       font-size: 26rpx;
-      font-weight: 500;
-      color: #334155;
+      color: #666;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;

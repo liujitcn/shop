@@ -133,7 +133,9 @@ onShow(() => {
       </view>
     </view>
     <!-- 猜你喜欢 -->
-    <XtxGuess ref="guessRef" />
+    <view class="guess">
+      <XtxGuess ref="guessRef" />
+    </view>
   </scroll-view>
 </template>
 
@@ -227,8 +229,8 @@ page {
   padding: 30rpx;
   margin: 50rpx 20rpx 0;
   background-color: #fff;
-  border-radius: 20rpx;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
+  border-radius: 10rpx;
+  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
 
   .title {
     height: 40rpx;
@@ -287,4 +289,9 @@ page {
   }
 }
 
+/* 猜你喜欢 */
+.guess {
+  background-color: #f7f7f8;
+  margin-top: 20rpx;
+}
 </style>

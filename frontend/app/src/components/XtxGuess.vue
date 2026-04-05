@@ -4,15 +4,6 @@ import { formatPrice, formatSrc } from '@/utils'
 import { onMounted, ref } from 'vue'
 import type { GoodsInfo, PageGoodsInfoRequest } from '@/rpc/app/goods_info'
 
-withDefaults(
-  defineProps<{
-    flush?: boolean
-  }>(),
-  {
-    flush: false,
-  },
-)
-
 // 分页参数
 const pageParams: Required<PageGoodsInfoRequest> = {
   /** 商品名 */
@@ -64,29 +55,27 @@ defineExpose({
 </script>
 
 <template>
-  <view class="guess-panel">
-    <!-- 猜你喜欢 -->
-    <view class="caption">
-      <text class="text">猜你喜欢</text>
-    </view>
-    <view class="guess" :class="{ 'guess-flush': flush }">
-      <navigator
-        v-for="item in guessList"
-        :key="item.id"
-        class="guess-item"
-        :url="`/pages/goods/goods?id=${item.id}`"
-      >
-        <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
-        <view class="name"> {{ item.name }} </view>
-        <view class="price">
-          <text class="small">¥</text>
-          <text>{{ formatPrice(item.price) }}</text>
-        </view>
-      </navigator>
-    </view>
-    <view class="loading-text">
-      {{ finish ? '没有更多数据~' : '正在加载...' }}
-    </view>
+  <!-- 猜你喜欢 -->
+  <view class="caption">
+    <text class="text">猜你喜欢</text>
+  </view>
+  <view class="guess">
+    <navigator
+      v-for="item in guessList"
+      :key="item.id"
+      class="guess-item"
+      :url="`/pages/goods/goods?id=${item.id}`"
+    >
+      <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
+      <view class="name"> {{ item.name }} </view>
+      <view class="price">
+        <text class="small">¥</text>
+        <text>{{ formatPrice(item.price) }}</text>
+      </view>
+    </navigator>
+  </view>
+  <view class="loading-text">
+    {{ finish ? '没有更多数据~' : '正在加载...' }}
   </view>
 </template>
 
@@ -94,16 +83,10 @@ defineExpose({
 :host {
   display: block;
 }
-
-.guess-panel {
-  width: 100%;
-}
-
 /* 分类标题 */
 .caption {
   display: flex;
   justify-content: center;
-  width: 100%;
   line-height: 1;
   padding: 36rpx 0 40rpx;
   font-size: 32rpx;
@@ -132,23 +115,16 @@ defineExpose({
   flex-wrap: wrap;
   justify-content: space-between;
   padding: 0 20rpx;
-
-  &.guess-flush {
-    padding: 0;
-  }
-
   .guess-item {
-    width: calc((100% - 20rpx) / 2);
+    width: 345rpx;
     padding: 24rpx 20rpx 20rpx;
     margin-bottom: 20rpx;
-    border-radius: 20rpx;
-    box-sizing: border-box;
+    border-radius: 10rpx;
     overflow: hidden;
     background-color: #fff;
-    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
   .image {
-    width: 100%;
+    width: 304rpx;
     height: 304rpx;
   }
   .name {

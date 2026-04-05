@@ -30,6 +30,7 @@ const query = defineProps<{
 
 const decodedName = decodeQueryText(query.name)
 const decodedCategoryName = decodeQueryText(query.categoryName)
+
 // 分页参数
 const pageParams: Required<PageGoodsInfoRequest> = {
   /** 商品名 */
@@ -118,17 +119,15 @@ page {
   justify-content: space-between;
   padding: 0 20rpx;
   .goods-item {
-    width: calc((100% - 20rpx) / 2);
+    width: 345rpx;
     padding: 24rpx 20rpx 20rpx;
     margin-bottom: 20rpx;
-    border-radius: 20rpx;
-    box-sizing: border-box;
+    border-radius: 10rpx;
     overflow: hidden;
     background-color: #fff;
-    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
   .image {
-    width: 100%;
+    width: 304rpx;
     height: 304rpx;
   }
   .name {

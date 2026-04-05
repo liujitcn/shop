@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { defUserStoreService } from '@/api/app/user_store'
 import { onLoad } from '@dcloudio/uni-app'
-import type { FileInfo } from '@/rpc/base/file'
+import type { File } from '@liujitcn/shop-base'
 import { computed, ref } from 'vue'
 import { defBaseAreaService } from '@/api/app/base_area'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/common'
-import { UserStoreStatus } from '@/rpc/common/enum'
+import { Status, UserStoreStatus } from '@/rpc/common/enum'
 import type { UserStore, UserStoreForm } from '@/rpc/app/user_store'
 import { getFileInfo, multiUploadFile, uploadFileList } from '@/utils/file.ts'
+
+type FileInfo = File.FileInfo
 
 const imageStyles = {
   width: 100,
@@ -380,7 +382,7 @@ page {
     display: flex;
     align-items: center;
     padding: 20rpx;
-    border-radius: 20rpx;
+    border-radius: 8rpx;
     color: #fff;
     font-size: 26rpx;
 
@@ -399,9 +401,8 @@ page {
 .content {
   margin: 20rpx 20rpx 0;
   padding: 0 20rpx;
-  border-radius: 20rpx;
+  border-radius: 10rpx;
   background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .form-item,
   .uni-forms-item {

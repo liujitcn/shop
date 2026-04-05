@@ -57,7 +57,12 @@ const getSubCategoryData = async (index: number) => {
   }
 }
 
-// 一级分类文案过长时，H5 用 title，其它端通过长按提示查看全称。
+const MAX_NAME_LENGTH = 5
+
+const shouldShowFullName = (name: string) => {
+  return name.length > MAX_NAME_LENGTH
+}
+
 const showCategoryName = (name: string) => {
   uni.showToast({
     title: name,
@@ -86,9 +91,9 @@ onLoad(async () => {
           class="item"
           :class="{ active: index === activeIndex }"
           @tap="getSubCategoryData(index)"
-          @longpress="showCategoryName(item.name)"
+          @longpress="shouldShowFullName(item.name) && showCategoryName(item.name)"
         >
-          <text class="name" :title="item.name">
+          <text class="name" :title="shouldShowFullName(item.name) ? item.name : ''">
             {{ item.name }}
           </text>
         </view>
@@ -104,9 +109,7 @@ onLoad(async () => {
             <navigator
               class="more"
               hover-class="none"
-              :url="`/pages/search/index?categoryId=${item.id}&categoryName=${encodeURIComponent(
-                item.name,
-              )}`"
+              :url="`/pages/search/index?categoryId=${item.id}&categoryName=${item.name}`"
               >全部</navigator
             >
           </view>

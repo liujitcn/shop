@@ -123,9 +123,8 @@ page {
 .address {
   padding: 0 20rpx;
   margin: 0 20rpx;
-  border-radius: 20rpx;
+  border-radius: 10rpx;
   background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
 
   .item-content {
     line-height: 1;

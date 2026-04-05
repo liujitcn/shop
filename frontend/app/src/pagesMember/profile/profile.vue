@@ -301,9 +301,8 @@ page {
   &-content {
     margin: 20rpx 20rpx 0;
     padding: 0 20rpx;
-    border-radius: 20rpx;
+    border-radius: 10rpx;
     background-color: #fff;
-    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
 
   &-item {

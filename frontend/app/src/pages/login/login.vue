@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LoginRequest } from '@/rpc/base/login'
+import type { Login } from '@liujitcn/shop-base'
 import { useUserStore } from '@/stores'
 import type { WxLoginRequest } from '@/rpc/app/auth'
 import { onLoad } from '@dcloudio/uni-app'
@@ -69,7 +69,7 @@ const getCaptcha = () => {
   })
 }
 // 传统表单登录。
-const form = ref<LoginRequest>({
+const form = ref<Login.LoginRequest>({
   userName: '',
   password: '',
   captchaId: '',
@@ -163,7 +163,7 @@ onLoad(async () => {
 <template>
   <view class="viewport">
     <view class="logo">
-      <image :src="settingStore.getData('appLogo') || defaultLogo" />
+      <image :src="settingStore.getData('sysLogo') || defaultLogo" />
     </view>
     <view class="login">
       <!-- 网页端表单登录 -->

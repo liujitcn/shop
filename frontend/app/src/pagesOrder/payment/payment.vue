@@ -59,13 +59,9 @@ page {
 
 .overview {
   line-height: 1;
-  margin: 20rpx;
   padding: 50rpx 0;
-  border-radius: 20rpx;
   color: #fff;
   background-color: #27ba9b;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
-  overflow: hidden;
 
   .tips {
     width: 70%;
@@ -104,7 +100,7 @@ page {
 
     &:first-child {
       width: 200rpx;
-      border-radius: 72rpx;
+      border-radius: 64rpx;
       border: 1rpx solid #fff;
     }
   }

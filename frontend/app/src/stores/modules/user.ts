@@ -1,4 +1,4 @@
-import type { LoginRequest } from '@/rpc/base/login'
+import type { Login } from '@liujitcn/shop-base'
 import type { UserInfo, WxLoginRequest } from '@/rpc/app/auth'
 import { defAuthService } from '@/api/app/auth'
 import { defLoginService } from '@/api/base/login'
@@ -25,7 +25,7 @@ export const useUserStore = defineStore(
      * @param request
      * @returns
      */
-    function login(request: LoginRequest) {
+    function login(request: Login.LoginRequest) {
       return new Promise<void>((resolve, reject) => {
         defLoginService
           .Login(request)

@@ -8,7 +8,7 @@ const searchValue = ref('')
 const handleSearch = () => {
   if (!searchValue.value.trim()) return
   uni.navigateTo({
-    url: `/pages/search/index?name=${encodeURIComponent(searchValue.value)}`,
+    url: `/pages/search/index?name=${searchValue.value}`,
   })
   searchValue.value = ''
 }

@@ -154,7 +154,7 @@ page {
 .cover {
   width: 750rpx;
   height: 225rpx;
-  border-radius: 0 0 20rpx 20rpx;
+  border-radius: 0 0 40rpx 40rpx;
   overflow: hidden;
   position: absolute;
   left: 0;
@@ -173,8 +173,8 @@ page {
   line-height: 90rpx;
   margin: 0 20rpx;
   font-size: 28rpx;
-  border-radius: 20rpx;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
+  border-radius: 10rpx;
+  box-shadow: 0 4rpx 5rpx rgba(200, 200, 200, 0.3);
   color: #333;
   background-color: #fff;
   position: relative;
@@ -202,16 +202,14 @@ page {
   justify-content: space-between;
   padding: 0 20rpx 20rpx;
   .navigator {
-    width: calc((100% - 20rpx) / 2);
+    width: 342rpx;
     padding: 20rpx;
     margin-top: 20rpx;
-    border-radius: 20rpx;
-    box-sizing: border-box;
+    border-radius: 10rpx;
     background-color: #fff;
-    box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.04);
   }
   .thumb {
-    width: 100%;
+    width: 305rpx;
     height: 305rpx;
   }
   .name {
