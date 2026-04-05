@@ -102,7 +102,7 @@ import type { WorkspaceMetricsResponse, WorkspaceRiskListResponse, WorkspaceTodo
 import { useUserStore } from "@/stores/modules/user";
 import { GoodsStatus, OrderStatus, PayBillStatus } from "@/rpc/common/enum";
 import { navigateTo } from "@/utils/router";
-import { formatPrice, formatSrc } from "@/utils/utils";
+import { formatPrice } from "@/utils/utils";
 import defaultAvatar from "@/assets/images/avatar.png";
 
 /** 工作台指标卡片。 */
@@ -208,7 +208,8 @@ const displayName = computed(() => {
 
 /** 同步工作台头像展示，优先使用用户头像，为空时回退默认头像。 */
 function syncAvatarSrc(avatar?: string) {
-  avatarSrc.value = formatSrc(avatar || "") || defaultAvatar;
+  // 工作台头像与头部、个人中心统一使用用户资料中的原始地址，避免重复拼接静态域名导致地址失效。
+  avatarSrc.value = avatar || defaultAvatar;
 }
 
 /** 头像加载失败时回退默认头像，避免出现破图。 */

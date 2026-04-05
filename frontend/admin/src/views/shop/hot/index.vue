@@ -83,8 +83,8 @@ const statusOptions: ProFormOption[] = [
 const formFields: ProFormField[] = [
   { prop: "title", label: "热门推荐标题", component: "input", props: { placeholder: "请输入热门推荐标题" } },
   { prop: "desc", label: "热门推荐描述", component: "input", props: { placeholder: "请输入热门推荐描述" } },
-  { prop: "banner", label: "轮播图", component: "image-upload" },
-  { prop: "picture", label: "推荐图片", component: "images-upload", props: { limit: 2 } },
+  { prop: "banner", label: "轮播图", component: "image-upload", props: { uploadType: "hot" } },
+  { prop: "picture", label: "推荐图片", component: "images-upload", props: { limit: 2, uploadType: "hot" } },
   {
     prop: "sort",
     label: "排序",

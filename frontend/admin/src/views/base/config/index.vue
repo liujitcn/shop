@@ -25,7 +25,7 @@
         <el-input v-model="formData.value" placeholder="请输入配置值" />
       </template>
       <template #imageValue>
-        <UploadImg v-model:image-url="formData.value" />
+        <UploadImg v-model:image-url="formData.value" upload-type="config" />
       </template>
       <template #richTextValue>
         <WangEditor v-model:value="formData.value" />

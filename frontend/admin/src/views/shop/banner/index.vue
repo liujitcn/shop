@@ -131,7 +131,7 @@ const statusOptions: ProFormOption[] = [
 /** 轮播图表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
   { prop: "site", label: "位置", component: "dict", props: { code: "shop_banner_site" } },
-  { prop: "picture", label: "照片", component: "image-upload" },
+  { prop: "picture", label: "照片", component: "image-upload", props: { uploadType: "banner" } },
   { prop: "type", label: "跳转类型", component: "dict", props: { code: "shop_banner_type" } },
   {
     prop: "href",

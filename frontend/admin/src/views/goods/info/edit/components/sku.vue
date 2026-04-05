@@ -84,7 +84,7 @@
 
           <template #picture="scope">
             <el-form-item :prop="'skuList[' + scope.$index + '].picture'">
-              <UploadImg v-model:image-url="scope.row.picture" />
+              <UploadImg v-model:image-url="scope.row.picture" upload-type="goods" />
             </el-form-item>
           </template>
 

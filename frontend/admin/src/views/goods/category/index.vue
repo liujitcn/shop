@@ -116,6 +116,9 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "picture",
     label: "照片",
     component: "image-upload",
+    props: {
+      uploadType: "category"
+    },
     itemProps: model => ({
       required: model.parentId !== 0
     })

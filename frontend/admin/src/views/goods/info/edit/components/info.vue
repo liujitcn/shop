@@ -128,9 +128,9 @@ const baseFormFields = computed<ProFormField[]>(() => [
 
 /** 图片与详情字段配置。 */
 const mediaFormFields = computed<ProFormField[]>(() => [
-  { prop: "picture", label: "商品主图", component: "image-upload", colSpan: 24 },
-  { prop: "banner", label: "商品轮播图", component: "images-upload", colSpan: 24 },
-  { prop: "detail", label: "商品详情", component: "images-upload", colSpan: 24 }
+  { prop: "picture", label: "商品主图", component: "image-upload", colSpan: 24, props: { uploadType: "goods" } },
+  { prop: "banner", label: "商品轮播图", component: "images-upload", colSpan: 24, props: { uploadType: "goods" } },
+  { prop: "detail", label: "商品详情", component: "images-upload", colSpan: 24, props: { uploadType: "goods" } }
 ]);
 
 async function handleNext() {
