@@ -11,6 +11,7 @@ const props = defineProps<{
 type CategoryDisplayItem = Pick<GoodsCategory, 'id' | 'name' | 'picture'> &
   Partial<GoodsCategory> & {
     isMore?: boolean
+    pictures?: string[]
   }
 
 const MAX_VISIBLE_COUNT = 8
@@ -21,13 +22,21 @@ const visibleList = computed<CategoryDisplayItem[]>(() => {
     return props.list
   }
 
+  const hiddenList = props.list.slice(MAX_VISIBLE_COUNT - 1)
+  const fallbackList = props.list.slice(0, MAX_VISIBLE_COUNT - 1)
+  const morePictures = [...hiddenList, ...fallbackList]
+    .map((item) => item.picture)
+    .filter(Boolean)
+    .slice(0, 4)
+
   return [
     ...props.list.slice(0, MAX_VISIBLE_COUNT - 1),
     {
       id: -1,
-      name: '更多',
+      name: '全部分类',
       picture: '',
       isMore: true,
+      pictures: morePictures,
     },
   ]
 })
@@ -74,7 +83,16 @@ const onTapCategory = (item: CategoryDisplayItem) => {
       @tap="onTapCategory(item)"
       @longpress="shouldShowFullName(item.name) && showCategoryName(item.name)"
     >
-      <image class="icon" :src="formatSrc(item.picture)" mode="aspectFit"></image>
+      <view v-if="item.isMore" class="icon icon-grid">
+        <image
+          v-for="(picture, index) in item.pictures"
+          :key="`${item.id}-${index}`"
+          class="icon-grid-item"
+          :src="formatSrc(picture)"
+          mode="aspectFill"
+        />
+      </view>
+      <image v-else class="icon" :src="formatSrc(item.picture)" mode="aspectFit"></image>
       <view class="text" :title="shouldShowFullName(item.name) ? item.name : ''">
         {{ formatCategoryName(item.name) }}
       </view>

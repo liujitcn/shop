@@ -21,6 +21,23 @@
       height: 92rpx;
     }
 
+    .icon-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6rpx;
+      padding: 4rpx;
+      border-radius: 24rpx;
+      background: #f4f6f8;
+      overflow: hidden;
+    }
+
+    .icon-grid-item {
+      width: 39rpx;
+      height: 39rpx;
+      border-radius: 12rpx;
+      background: #fff;
+    }
+
     .text {
       display: block;
       width: 100%;
