@@ -5,7 +5,6 @@
  *
  */
 
-import { useUserStore } from '@/stores'
 import { getToken, getTokenExpiresIn } from '@/utils/auth'
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
@@ -120,6 +119,12 @@ let isRefreshing = false
 let refreshTokenPromise: Promise<void> | null = null
 let isPromptingRelogin = false
 
+// 懒加载用户 store，避免 stores -> api -> http 的静态循环依赖。
+async function getUserStore() {
+  const { useUserStore } = await import('@/stores/modules/user')
+  return useUserStore()
+}
+
 function shouldRefreshToken() {
   const now = new Date().getTime()
   const expiresIn = getTokenExpiresIn()
@@ -139,10 +144,9 @@ function handleTokenRefresh() {
   if (refreshTokenPromise) {
     return refreshTokenPromise
   }
-  const userStore = useUserStore()
   isRefreshing = true
-  refreshTokenPromise = userStore
-    .refreshToken()
+  refreshTokenPromise = getUserStore()
+    .then((userStore) => userStore.refreshToken())
     .catch(async (error) => {
       await promptRelogin()
       throw error
@@ -177,35 +181,36 @@ async function promptRelogin() {
 }
 
 function clearUserData() {
-  const userStore = useUserStore()
-  userStore.clearUserData().then(() => {
-    // 获取当前页面信息（兼容多平台）
-    const pages = getCurrentPages()
-    const currentPage = pages[pages.length - 1]
+  getUserStore().then((userStore) => {
+    userStore.clearUserData().then(() => {
+      // 获取当前页面信息（兼容多平台）
+      const pages = getCurrentPages()
+      const currentPage = pages[pages.length - 1]
 
-    // 1. 获取页面参数（兼容方案）
-    let params: Record<string, string> = {}
-    const miniPage = currentPage as { options?: Record<string, string> }
-    const routePage = currentPage as { $vm?: { $route?: { query?: Record<string, string> } } }
-    // 微信小程序
-    // #ifdef MP-WEIXIN
-    params = miniPage.options || {}
-    // #endif
+      // 1. 获取页面参数（兼容方案）
+      let params: Record<string, string> = {}
+      const miniPage = currentPage as { options?: Record<string, string> }
+      const routePage = currentPage as { $vm?: { $route?: { query?: Record<string, string> } } }
+      // 微信小程序
+      // #ifdef MP-WEIXIN
+      params = miniPage.options || {}
+      // #endif
 
-    // H5和APP
-    // #ifdef H5 || APP-PLUS
-    if (routePage.$vm && routePage.$vm.$route) {
-      params = routePage.$vm.$route.query || {}
-    }
-    // #endif
-    const query = Object.keys(params)
-      .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-      .join('&')
-    const url = query ? `${currentPage.route}?${query}` : currentPage.route
+      // H5和APP
+      // #ifdef H5 || APP-PLUS
+      if (routePage.$vm && routePage.$vm.$route) {
+        params = routePage.$vm.$route.query || {}
+      }
+      // #endif
+      const query = Object.keys(params)
+        .map((key) => `${key}=${encodeURIComponent(params[key])}`)
+        .join('&')
+      const url = query ? `${currentPage.route}?${query}` : currentPage.route
 
-    // 存储路由信息
-    uni.setStorageSync('lastRoute', '/' + url)
+      // 存储路由信息
+      uni.setStorageSync('lastRoute', '/' + url)
 
-    uni.reLaunch({ url: '/pages/login/login' })
+      uni.reLaunch({ url: '/pages/login/login' })
+    })
   })
 }

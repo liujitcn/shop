@@ -259,16 +259,14 @@ page {
       align-items: center; /* 水平居中 */
       justify-content: center; /* 垂直居中 */
       text-align: center;
+      font-size: 24rpx;
+      color: #333;
       /* 图标样式调整 */
       &::before {
         display: block;
         margin-bottom: 10rpx; /* 增加图标和文字间距 */
         font-size: 60rpx; /* 保持图标大小 */
       }
-
-      /* 文字样式调整 */
-      font-size: 24rpx;
-      color: #333;
       .badge {
         position: absolute;
         top: -10rpx;
