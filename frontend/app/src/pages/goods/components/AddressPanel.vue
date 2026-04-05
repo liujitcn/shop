@@ -2,6 +2,7 @@
 import { defUserAddressService } from '@/api/app/user_address'
 import { useAddressStore, useUserStore } from '@/stores'
 import type { UserAddress } from '@/rpc/app/user_address'
+import { navigateToLogin } from '@/utils/login'
 import { onShow } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue' // 获取会员信息
 const userStore = useUserStore()
@@ -64,13 +65,10 @@ const emit = defineEmits<{
       </view>
     </view>
     <view class="footer">
-      <view class="button primary">
-        <navigator
-          hover-class="none"
-          :url="userStore.userInfo ? '/pagesMember/address/edit' : '/pages/login/login'"
-          >新建地址</navigator
-        >
+      <view v-if="userStore.userInfo" class="button primary">
+        <navigator hover-class="none" url="/pagesMember/address/edit">新建地址</navigator>
       </view>
+      <view v-else class="button primary" @tap="navigateToLogin">新建地址</view>
     </view>
   </view>
 </template>

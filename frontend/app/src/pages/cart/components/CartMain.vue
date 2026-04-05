@@ -7,6 +7,7 @@ import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
+import { navigateToLogin } from '@/utils/login'
 
 // 是否适配底部安全区域
 defineProps<{
@@ -105,6 +106,10 @@ const selectedCartListMoney = computed(() => {
 
 // 结算按钮
 const gotoPayment = () => {
+  if (!userStore.userInfo) {
+    navigateToLogin()
+    return
+  }
   if (selectedCartListCount.value === 0) {
     return uni.showToast({
       icon: 'none',
@@ -213,9 +218,7 @@ const { guessRef, onScrollToLower } = useGuessList()
     <!-- 未登录: 提示登录 -->
     <view class="login-blank" v-else>
       <text class="text">登录后可查看购物车中的商品</text>
-      <navigator url="/pages/login/login" hover-class="none">
-        <button class="button">去登录</button>
-      </navigator>
+      <button class="button" @tap="navigateToLogin">去登录</button>
     </view>
     <!-- 猜你喜欢 -->
     <XtxGuess ref="guessRef" />

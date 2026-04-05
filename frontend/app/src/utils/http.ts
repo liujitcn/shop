@@ -5,7 +5,16 @@
  *
  */
 
-import { getToken, getTokenExpiresIn } from '@/utils/auth'
+import {
+  clearToken,
+  getRefreshToken,
+  getToken,
+  getTokenExpiresIn,
+  setRefreshToken,
+  setToken,
+  setTokenExpiresIn,
+} from '@/utils/auth'
+import { saveCurrentRoute } from '@/utils/login'
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = import.meta.env.VITE_APP_API_URL || ''
@@ -52,9 +61,33 @@ uni.addInterceptor('uploadFile', httpInterceptor)
  *    3.3 网络错误 -> 提示用户换网络
  */
 type Data = {
-  code: string
-  message: string
-  reason: string
+  code?: string | number
+  message?: string
+  reason?: string | number
+}
+
+const authErrorCodeSet = new Set(['401', '403', '300', '304', '305', '306', '307', '400'])
+const authErrorReasonSet = new Set([
+  'NOT_LOGGED_IN',
+  'INCORRECT_ACCESS_TOKEN',
+  'INCORRECT_REFRESH_TOKEN',
+  'TOKEN_EXPIRED',
+  'TOKEN_NOT_EXIST',
+  'ACCESS_FORBIDDEN',
+])
+
+function isAuthErrorResponse(data: unknown) {
+  if (!data || typeof data !== 'object') {
+    return false
+  }
+
+  const response = data as Data
+  const code = response.code !== undefined ? String(response.code) : ''
+  const reason = response.reason !== undefined ? String(response.reason) : ''
+
+  return (
+    authErrorCodeSet.has(code) || authErrorCodeSet.has(reason) || authErrorReasonSet.has(reason)
+  )
 }
 
 // 2.2 添加类型，支持泛型
@@ -79,8 +112,14 @@ export const http = <T>(options: UniApp.RequestOptions) => {
           ...requestOptions,
           // 响应成功
           success(res) {
+            const responseData = res.data as Data
             // 状态码 2xx， axios 就是这样设计的
             if (res.statusCode >= 200 && res.statusCode < 300) {
+              if (isAuthErrorResponse(responseData)) {
+                void promptRelogin()
+                reject(res)
+                return
+              }
               // 2.1 提取核心数据 res.data
               resolve(res.data as T)
             } else if (res.statusCode === 401 || res.statusCode === 403) {
@@ -91,7 +130,7 @@ export const http = <T>(options: UniApp.RequestOptions) => {
               // 其他错误 -> 根据后端错误信息轻提示
               void uni.showToast({
                 icon: 'none',
-                title: (res.data as Data).message || '请求错误',
+                title: responseData.message || '请求错误',
               })
               reject(res)
             }
@@ -119,12 +158,6 @@ let isRefreshing = false
 let refreshTokenPromise: Promise<void> | null = null
 let isPromptingRelogin = false
 
-// 懒加载用户 store，避免 stores -> api -> http 的静态循环依赖。
-async function getUserStore() {
-  const { useUserStore } = await import('@/stores/modules/user')
-  return useUserStore()
-}
-
 function shouldRefreshToken() {
   const now = new Date().getTime()
   const expiresIn = getTokenExpiresIn()
@@ -145,8 +178,7 @@ function handleTokenRefresh() {
     return refreshTokenPromise
   }
   isRefreshing = true
-  refreshTokenPromise = getUserStore()
-    .then((userStore) => userStore.refreshToken())
+  refreshTokenPromise = refreshAccessToken()
     .catch(async (error) => {
       await promptRelogin()
       throw error
@@ -158,68 +190,93 @@ function handleTokenRefresh() {
   return refreshTokenPromise
 }
 
+async function refreshAccessToken() {
+  const refreshToken = getRefreshToken()
+  if (!refreshToken) {
+    throw new Error('refresh token missing')
+  }
+
+  const response = await new Promise<UniApp.RequestSuccessCallbackResult>((resolve, reject) => {
+    uni.request({
+      url: `${baseURL}/login/refreshToken`,
+      method: 'POST',
+      data: { refreshToken },
+      header: {
+        'source-client': 'miniapp',
+      },
+      success: resolve,
+      fail: reject,
+    })
+  })
+
+  const responseData = response.data as
+    | Data
+    | {
+        tokenType?: string
+        accessToken?: string
+        refreshToken?: string
+        expiresIn?: number
+      }
+
+  if (
+    response.statusCode < 200 ||
+    response.statusCode >= 300 ||
+    isAuthErrorResponse(responseData)
+  ) {
+    throw response
+  }
+
+  const {
+    tokenType,
+    accessToken,
+    refreshToken: nextRefreshToken,
+    expiresIn,
+  } = responseData as {
+    tokenType?: string
+    accessToken?: string
+    refreshToken?: string
+    expiresIn?: number
+  }
+
+  if (!tokenType || !accessToken || !nextRefreshToken || !expiresIn) {
+    throw new Error('refresh token response invalid')
+  }
+
+  setToken(`${tokenType} ${accessToken}`)
+  setRefreshToken(nextRefreshToken)
+  setTokenExpiresIn(expiresIn)
+}
+
 async function promptRelogin() {
   if (isPromptingRelogin) {
     return
   }
   isPromptingRelogin = true
-  await new Promise<void>((resolve) => {
-    uni.showModal({
+  try {
+    const modalRes = await uni.showModal({
       title: '提示',
       content: '当前页面已失效，请重新登录',
       showCancel: false,
       confirmText: '重新登录',
-      complete: () => resolve(),
     })
-  })
-  await clearUserData()
-  isPromptingRelogin = false
+
+    if (!modalRes.confirm) {
+      return
+    }
+
+    // 小程序端确认弹窗关闭到页面跳转之间留一个极短缓冲，避免按钮点击后路由不生效。
+    await new Promise((resolve) => setTimeout(resolve, 80))
+    await clearUserData()
+  } finally {
+    isPromptingRelogin = false
+  }
 }
 
 async function clearUserData() {
-  const userStore = await getUserStore()
-  await userStore.clearUserData()
-
-  // 获取当前页面信息（兼容多平台）
-  const pages = getCurrentPages()
-  const currentPage = pages[pages.length - 1]
-  if (!currentPage?.route) {
-    navigateToLogin()
-    return
-  }
-
-  // 1. 获取页面参数（兼容方案）
-  let params: Record<string, string> = {}
-  const miniPage = currentPage as { options?: Record<string, string> }
-  const routePage = currentPage as { $vm?: { $route?: { query?: Record<string, string> } } }
-  // 微信小程序
-  // #ifdef MP-WEIXIN
-  params = miniPage.options || {}
-  // #endif
-
-  // H5和APP
-  // #ifdef H5 || APP-PLUS
-  if (routePage.$vm && routePage.$vm.$route) {
-    params = routePage.$vm.$route.query || {}
-  }
-  // #endif
-  const query = Object.keys(params)
-    .map((key) => `${key}=${encodeURIComponent(params[key])}`)
-    .join('&')
-  const url = query ? `${currentPage.route}?${query}` : currentPage.route
-
-  // 登录页失效时不再回写自己，避免登录完成后再次回到登录页。
-  if (currentPage.route !== 'pages/login/login') {
-    uni.setStorageSync('lastRoute', '/' + url)
-  } else {
-    uni.removeStorageSync('lastRoute')
-  }
-
-  navigateToLogin()
-}
-
-function navigateToLogin() {
-  // 小程序端 token 失效时，优先重启页面栈进入登录页；失败时再兜底跳转。
+  clearToken()
+  uni.removeStorageSync('user')
+  saveCurrentRoute()
+  // token 失效时直接重启页面栈，避免小程序历史页残留。
   uni.reLaunch({
     url: '/pages/login/login',
     fail: () => {

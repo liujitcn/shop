@@ -7,6 +7,7 @@ import { defBaseDictService } from '@/api/app/base_dict'
 import { ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'
 import { formatSrc } from '@/utils'
+import { navigateToLogin } from '@/utils/login'
 import { OrderStatus } from '@/rpc/common/enum.ts'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -85,13 +86,11 @@ onShow(() => {
       </view>
       <!-- 情况2：未登录 -->
       <view class="overview" v-else>
-        <navigator url="/pages/login/login" hover-class="none">
+        <view @tap="navigateToLogin">
           <image class="avatar gray" mode="aspectFill" src="@/static/images/avatar.png"></image>
-        </navigator>
+        </view>
         <view class="meta">
-          <navigator url="/pages/login/login" hover-class="none" class="nickname">
-            未登录
-          </navigator>
+          <view @tap="navigateToLogin" class="nickname"> 未登录 </view>
           <view class="extra">
             <text class="tips">点击登录账号</text>
           </view>
@@ -106,30 +105,42 @@ onShow(() => {
       <view class="title">
         我的订单
         <navigator
+          v-if="userStore.userInfo"
           class="navigator"
-          :url="userStore.userInfo ? '/pagesOrder/list/list?status=0' : '/pages/login/login'"
+          url="/pagesOrder/list/list?status=0"
           hover-class="none"
         >
           查看全部订单<text class="icon-right"></text>
         </navigator>
+        <view v-else class="navigator" @tap="navigateToLogin"
+          >查看全部订单<text class="icon-right"></text
+        ></view>
       </view>
       <view class="section">
         <!-- 订单 -->
-        <navigator
-          v-for="item in orderCount"
-          :key="item.status"
-          :class="item.icon"
-          :url="
-            userStore.userInfo
-              ? `/pagesOrder/list/list?status=${item.status}`
-              : '/pages/login/login'
-          "
-          class="navigator"
-          hover-class="none"
-        >
-          <span class="badge" v-if="item.num">{{ item.num > 99 ? '99+' : item.num }}</span>
-          {{ item.text }}
-        </navigator>
+        <template v-if="userStore.userInfo">
+          <navigator
+            v-for="item in orderCount"
+            :key="item.status"
+            :class="item.icon"
+            :url="`/pagesOrder/list/list?status=${item.status}`"
+            class="navigator"
+            hover-class="none"
+          >
+            <span class="badge" v-if="item.num">{{ item.num > 99 ? '99+' : item.num }}</span>
+            {{ item.text }}
+          </navigator>
+        </template>
+        <template v-else>
+          <view
+            v-for="item in orderCount"
+            :key="item.status"
+            :class="[item.icon, 'navigator']"
+            @tap="navigateToLogin"
+          >
+            {{ item.text }}
+          </view>
+        </template>
       </view>
     </view>
     <!-- 猜你喜欢 -->

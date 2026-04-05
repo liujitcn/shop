@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { formatSrc, formatPrice } from '@/utils'
+import { navigateToLogin } from '@/utils/login'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/shop_service.ts'
 // 获取会员信息
@@ -150,9 +151,7 @@ const selectArrText = computed(() => {
 // 加入购物车事件
 const onAddCart = async (ev: SkuPopupEvent) => {
   if (!userStore.userInfo) {
-    await uni.navigateTo({
-      url: '/pages/login/login',
-    })
+    navigateToLogin()
     return
   }
   await defUserCartService.CreateUserCart({
@@ -171,9 +170,7 @@ const onAddCart = async (ev: SkuPopupEvent) => {
 // 立即购买
 const onBuyNow = (ev: SkuPopupEvent) => {
   if (!userStore.userInfo) {
-    uni.navigateTo({
-      url: '/pages/login/login',
-    })
+    navigateToLogin()
     return
   }
   isShowSku.value = false
@@ -184,9 +181,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 // 收藏
 const onCollect = async () => {
   if (!userStore.userInfo) {
-    await uni.navigateTo({
-      url: '/pages/login/login',
-    })
+    navigateToLogin()
     return
   }
   await defUserCollectService.CreateUserCollect({
