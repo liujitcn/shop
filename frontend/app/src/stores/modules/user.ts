@@ -1,5 +1,5 @@
-import type { Login } from '@liujitcn/shop-base'
 import type { UserInfo, WxLoginRequest } from '@/rpc/app/auth'
+import type { LoginRequest } from '@/rpc/base/login'
 import { defAuthService } from '@/api/app/auth'
 import { defLoginService } from '@/api/base/login'
 import { defineStore } from 'pinia'
@@ -25,7 +25,7 @@ export const useUserStore = defineStore(
      * @param request
      * @returns
      */
-    function login(request: Login.LoginRequest) {
+    function login(request: LoginRequest) {
       return new Promise<void>((resolve, reject) => {
         defLoginService
           .Login(request)

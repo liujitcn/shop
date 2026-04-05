@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Login } from '@liujitcn/shop-base'
 import { useUserStore } from '@/stores'
 import type { WxLoginRequest } from '@/rpc/app/auth'
+import type { LoginRequest } from '@/rpc/base/login'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { defLoginService } from '@/api/base/login'
@@ -69,7 +69,7 @@ const getCaptcha = () => {
   })
 }
 // 传统表单登录。
-const form = ref<Login.LoginRequest>({
+const form = ref<LoginRequest>({
   userName: '',
   password: '',
   captchaId: '',
