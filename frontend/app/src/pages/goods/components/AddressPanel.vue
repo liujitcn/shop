@@ -78,7 +78,7 @@ const emit = defineEmits<{
 <style lang="scss">
 .address-panel {
   padding: 0 30rpx;
-  border-radius: 10rpx 10rpx 0 0;
+  border-radius: 20rpx 20rpx 0 0;
   position: relative;
   background-color: #fff;
 }
@@ -123,7 +123,7 @@ const emit = defineEmits<{
   // 新增选中样式
   .item.selected {
     background-color: #f5f5f5;
-    border-radius: 10rpx;
+    border-radius: 20rpx;
   }
 
   // 调整图标位置
