@@ -5,7 +5,23 @@ IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
-TS_PROTO_BIN ?= $(shell command -v protoc-gen-ts_proto 2>/dev/null || find "$(HOME)/.nvm/versions/node" -path '*/bin/protoc-gen-ts_proto' 2>/dev/null | sort | tail -n 1)
+TS_PROTO_BIN ?= $(shell \
+	bin="$$(command -v protoc-gen-ts_proto 2>/dev/null)"; \
+	if [ -n "$$bin" ] && [ -x "$$bin" ]; then \
+		printf '%s' "$$bin"; \
+	elif [ -x "$(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto" ]; then \
+		printf '%s' "$(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto"; \
+	elif [ -x "$(CURDIR)/../frontend/app/node_modules/.bin/protoc-gen-ts_proto" ]; then \
+		printf '%s' "$(CURDIR)/../frontend/app/node_modules/.bin/protoc-gen-ts_proto"; \
+	else \
+		for candidate in "$$HOME"/.nvm/versions/node/*/bin/protoc-gen-ts_proto; do \
+			if [ -x "$$candidate" ]; then \
+				bin="$$candidate"; \
+			fi; \
+		done; \
+		printf '%s' "$$bin"; \
+	fi \
+)
 TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
 
 # 初始化开发环境
@@ -57,7 +73,7 @@ openapi:
 
 # 生成 TypeScript 代码
 ts:
-	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Install it first or ensure it is on PATH." && exit 1)
+	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/admin or frontend/app, or install ts-proto globally." && exit 1)
 	@cd api && \
 	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
 	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
