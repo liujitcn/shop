@@ -79,19 +79,6 @@
               @change="value => handleUpdateSegment('month', value)"
             />
           </el-tab-pane>
-          <el-tab-pane label="周" name="week">
-            <CronSegmentEditor
-              unit="周"
-              :min="1"
-              :max="7"
-              :state="editorState.week"
-              :supports-every="true"
-              :supports-unspecified="true"
-              :supports-step="false"
-              :supports-specific="true"
-              @change="value => handleUpdateSegment('week', value)"
-            />
-          </el-tab-pane>
           <el-tab-pane label="年" name="year">
             <CronSegmentEditor
               unit="年"
@@ -130,7 +117,7 @@ import type { PropType } from "vue";
 import { Operation } from "@element-plus/icons-vue";
 
 type CronSegmentMode = "every" | "unspecified" | "range" | "step" | "specific" | "last" | "weekday";
-type CronSegmentKey = "second" | "minute" | "hour" | "day" | "month" | "week" | "year";
+type CronSegmentKey = "second" | "minute" | "hour" | "day" | "month" | "year";
 
 interface CronExpressionProps {
   modelValue?: string;
@@ -163,13 +150,13 @@ const dialogVisible = ref(false);
 const activeTab = ref<CronSegmentKey>("second");
 
 const presetOptions = [
-  { label: "每分钟执行", value: "0 * * * * ? *" },
-  { label: "每 5 分钟执行", value: "0 */5 * * * ? *" },
-  { label: "每小时执行", value: "0 0 * * * ? *" },
-  { label: "每天零点执行", value: "0 0 0 * * ? *" },
-  { label: "每天早上 8 点执行", value: "0 0 8 * * ? *" },
-  { label: "每周一早上 8 点执行", value: "0 0 8 ? * 1 *" },
-  { label: "每月 1 号零点执行", value: "0 0 0 1 * ? *" }
+  { label: "每分钟执行", value: "0 * * * * *" },
+  { label: "每 5 分钟执行", value: "0 */5 * * * *" },
+  { label: "每小时执行", value: "0 0 * * * *" },
+  { label: "每天零点执行", value: "0 0 0 * * *" },
+  { label: "每天早上 8 点执行", value: "0 0 8 * * *" },
+  { label: "每月 1 号零点执行", value: "0 0 0 1 * *" },
+  { label: "明年每天零点执行", value: `0 0 0 * * ${currentYear + 1}` }
 ];
 
 function createSegmentState(min = 0): CronSegmentState {
@@ -191,7 +178,6 @@ function createDefaultEditorState(): CronEditorState {
     hour: createSegmentState(),
     day: createSegmentState(1),
     month: createSegmentState(1),
-    week: { ...createSegmentState(1), mode: "unspecified", rangeStart: 1, rangeEnd: 7 },
     year: { ...createSegmentState(currentYear), mode: "every", rangeStart: currentYear, rangeEnd: currentYear }
   };
 }
@@ -210,7 +196,6 @@ const previewExpression = computed(() => {
     buildSegmentValue(editorState.hour),
     buildSegmentValue(editorState.day),
     buildSegmentValue(editorState.month),
-    buildSegmentValue(editorState.week),
     buildSegmentValue(editorState.year)
   ].join(" ");
 });
@@ -222,14 +207,13 @@ const expressionDescription = computed(() => {
     formatSegmentDescription("小时", editorState.hour),
     formatSegmentDescription("日期", editorState.day),
     formatSegmentDescription("月份", editorState.month),
-    formatSegmentDescription("星期", editorState.week),
     formatSegmentDescription("年份", editorState.year)
   ].filter(Boolean);
   return descriptionList.length ? descriptionList.join("，") : "未配置执行规则";
 });
 
 function handleOpenEditor(tab?: CronSegmentKey | "preset") {
-  applyExpressionToState(props.modelValue || "0 * * * * ? *");
+  applyExpressionToState(props.modelValue || "0 * * * * *");
   dialogVisible.value = true;
   activeTab.value = tab && tab !== "preset" ? tab : "second";
 }
@@ -310,7 +294,6 @@ function formatSegmentDescription(label: string, segment: CronSegmentState) {
 function formatUnitSuffix(label: string) {
   if (label === "日期") return "日";
   if (label === "月份") return "月";
-  if (label === "星期") return "周";
   if (label === "年份") return "年";
   return label;
 }
@@ -318,26 +301,11 @@ function formatUnitSuffix(label: string) {
 function formatCycleSuffix(label: string) {
   if (label === "日期") return "天";
   if (label === "月份") return "个月";
-  if (label === "星期") return "周";
   if (label === "年份") return "年";
   return label;
 }
 
-function formatWeekLabel(value: number) {
-  const weekLabelMap: Record<number, string> = {
-    1: "周一",
-    2: "周二",
-    3: "周三",
-    4: "周四",
-    5: "周五",
-    6: "周六",
-    7: "周日"
-  };
-  return weekLabelMap[value] ?? String(value);
-}
-
 function formatSpecificLabel(label: string, value: number) {
-  if (label === "星期") return formatWeekLabel(value);
   if (label === "年份") return `${value}年`;
   return String(value);
 }
@@ -347,15 +315,14 @@ function formatSpecificLabel(label: string, value: number) {
  */
 function applyExpressionToState(expression: string) {
   const parts = expression.trim().split(/\s+/);
-  const normalizedParts = parts.length === 7 ? parts : ["0", "*", "*", "*", "*", "?", "*"];
+  const normalizedParts = parts.length === 6 ? parts : ["0", "*", "*", "*", "*", "*"];
 
   syncSegmentState(editorState.second, parseSegmentValue(normalizedParts[0], 0));
   syncSegmentState(editorState.minute, parseSegmentValue(normalizedParts[1], 0));
   syncSegmentState(editorState.hour, parseSegmentValue(normalizedParts[2], 0));
   syncSegmentState(editorState.day, parseSegmentValue(normalizedParts[3], 1));
   syncSegmentState(editorState.month, parseSegmentValue(normalizedParts[4], 1));
-  syncSegmentState(editorState.week, parseSegmentValue(normalizedParts[5], 1));
-  syncSegmentState(editorState.year, parseSegmentValue(normalizedParts[6], currentYear));
+  syncSegmentState(editorState.year, parseSegmentValue(normalizedParts[5], currentYear));
 }
 
 function parseSegmentValue(value: string, min: number) {
@@ -412,7 +379,7 @@ watch(
   () => props.modelValue,
   value => {
     // 外部表单重置、编辑弹窗重新赋值时，需要同步回内部编辑态，保证内容可回显。
-    applyExpressionToState(value || "0 * * * * ? *");
+    applyExpressionToState(value || "0 * * * * *");
   },
   { immediate: true }
 );
@@ -486,12 +453,7 @@ const CronSegmentEditor = defineComponent({
     const specificOptions = computed(() => {
       return numberOptions.value.map(item => ({
         value: item,
-        label:
-          segmentProps.unit === "周"
-            ? formatWeekLabel(item)
-            : segmentProps.unit === "年"
-              ? `${item}年`
-              : `${item}${segmentProps.unit}`
+        label: segmentProps.unit === "年" ? `${item}年` : `${item}${segmentProps.unit}`
       }));
     });
 

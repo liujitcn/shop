@@ -348,8 +348,8 @@ INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `so
 INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (60003, 6000, '3', '有误差', 'danger', 1, 1, 1, 1, '2025-04-21 23:36:49', '2025-04-21 23:36:49', NULL);
 
 TRUNCATE TABLE `base_job`;
-INSERT INTO `base_job` (`id`, `name`, `invoke_target`, `args`, `cron_expression`, `status`, `entry_id`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, '申请交易账单', 'TradeBill', '[{\"key\":\"billDate\"}]', '0 0 1 * * ? *', 1, 0, 1, 1, '2025-04-21 10:52:17', '2026-04-06 07:31:57', NULL);
-INSERT INTO `base_job` (`id`, `name`, `invoke_target`, `args`, `cron_expression`, `status`, `entry_id`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, '订单日汇总', 'OrderStatDay', '[{\"key\":\"statDate\"}]', '0 10 0 * * ? *', 1, 0, 1, 1, '2026-04-03 00:00:00', '2026-04-06 07:31:29', NULL);
+INSERT INTO `base_job` (`id`, `name`, `invoke_target`, `args`, `cron_expression`, `status`, `entry_id`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, '申请交易账单', 'TradeBill', '[{\"key\":\"billDate\"}]', '0 0 1 * * ?', 1, 0, 1, 1, '2025-04-21 10:52:17', '2026-04-06 07:31:57', NULL);
+INSERT INTO `base_job` (`id`, `name`, `invoke_target`, `args`, `cron_expression`, `status`, `entry_id`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, '订单日汇总', 'OrderStatDay', '[{\"key\":\"statDate\"}]', '0 10 0 * * ?', 1, 0, 1, 1, '2026-04-03 00:00:00', '2026-04-06 07:31:29', NULL);
 
 TRUNCATE TABLE `base_menu`;
 INSERT INTO `base_menu` (`id`, `parent_id`, `type`, `path`, `name`, `component`, `redirect`, `meta`, `apis`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, 0, 1, '/', '', 'Layout', '/dashboard/workspace', '{\"icon\": \"HomeFilled\", \"title\": \"首页\", \"hidden\": false, \"keepAlive\": false, \"alwaysShow\": false}', '[]', 1, 1, 1, 1, '2025-04-14 09:29:19', '2025-04-18 10:18:39', NULL);

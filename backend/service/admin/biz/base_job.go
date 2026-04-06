@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"shop/service/admin/task"
 	"time"
@@ -13,7 +12,8 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/liujitcn/go-utils/mapper"
+	"github.com/go-kratos/kratos/v2/log"
+	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	"github.com/robfig/cron/v3"
@@ -26,21 +26,48 @@ type BaseJobCase struct {
 	baseJobLogCase *BaseJobLogCase
 	cron           *cron.Cron
 	task           map[string]task.TaskExec
-	formMapper     *mapper.CopierMapper[admin.BaseJobForm, models.BaseJob]
-	mapper         *mapper.CopierMapper[admin.BaseJob, models.BaseJob]
+	formMapper     *_mapper.CopierMapper[admin.BaseJobForm, models.BaseJob]
+	mapper         *_mapper.CopierMapper[admin.BaseJob, models.BaseJob]
 }
 
 // NewBaseJobCase 创建定时任务业务实例
 func NewBaseJobCase(baseCase *biz.BaseCase, baseJobRepo *data.BaseJobRepo, baseJobLogCase *BaseJobLogCase, task map[string]task.TaskExec) *BaseJobCase {
-	return &BaseJobCase{
+	formMapper := _mapper.NewCopierMapper[admin.BaseJobForm, models.BaseJob]()
+	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*admin.BaseJobArgs]().NewConverterPair())
+	mapper := _mapper.NewCopierMapper[admin.BaseJob, models.BaseJob]()
+	mapper.AppendConverters(_mapper.NewJSONTypeConverter[[]*admin.BaseJobArgs]().NewConverterPair())
+
+	c := &BaseJobCase{
 		BaseCase:       baseCase,
 		BaseJobRepo:    baseJobRepo,
 		baseJobLogCase: baseJobLogCase,
 		cron:           cron.New(cron.WithSeconds()),
 		task:           task,
-		formMapper:     mapper.NewCopierMapper[admin.BaseJobForm, models.BaseJob](),
-		mapper:         mapper.NewCopierMapper[admin.BaseJob, models.BaseJob](),
+		formMapper:     formMapper,
+		mapper:         mapper,
 	}
+
+	ctx := c.Context.Context()
+	// 查询全部定是任务，先停止，然后启动启用的
+	list, err := c.List(ctx)
+	if err != nil {
+		log.Errorf("查询定时任务失败: %+v", err)
+	}
+	for _, item := range list {
+		// 停止
+		err = c.stopBaseJob(ctx, item)
+		if err != nil {
+			log.Errorf("停止定时任务失败: %+v", err)
+			continue
+		}
+		// 启动
+		err = c.startBaseJob(ctx, item)
+		if err != nil {
+			log.Errorf("启动定时任务失败: %+v", err)
+			continue
+		}
+	}
+	return c
 }
 
 // PageBaseJob 分页查询定时任务
@@ -65,7 +92,8 @@ func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *admin.PageBaseJobReq
 
 	resList := make([]*admin.BaseJob, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, c.toBaseJob(item))
+		baseJob := c.mapper.ToDTO(item)
+		resList = append(resList, baseJob)
 	}
 	return &admin.PageBaseJobResponse{List: resList, Total: int32(total)}, nil
 }
@@ -77,7 +105,6 @@ func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*admin.BaseJobF
 		return nil, err
 	}
 	res := c.formMapper.ToDTO(baseJob)
-	res.Args = c.toBaseJobArgs(baseJob.Args)
 	return res, nil
 }
 
@@ -114,23 +141,7 @@ func (c *BaseJobCase) StartBaseJob(ctx context.Context, req *admin.StartBaseJobR
 	if err != nil {
 		return err
 	}
-	if _, ok := c.task[baseJob.InvokeTarget]; !ok {
-		return errors.New("调用目标不存在")
-	}
-
-	var entryId cron.EntryID
-	entryId, err = c.cron.AddFunc(baseJob.CronExpression, func() {
-		_ = c.runJob(context.Background(), baseJob)
-	})
-	if err != nil {
-		return err
-	}
-
-	c.cron.Start()
-	return c.UpdateById(ctx, &models.BaseJob{
-		ID:      baseJob.ID,
-		EntryID: int32(entryId),
-	})
+	return c.startBaseJob(ctx, baseJob)
 }
 
 // StopBaseJob 停止定时任务
@@ -139,11 +150,7 @@ func (c *BaseJobCase) StopBaseJob(ctx context.Context, req *admin.StopBaseJobReq
 	if err != nil {
 		return err
 	}
-	if baseJob.EntryID > 0 {
-		c.cron.Remove(cron.EntryID(baseJob.EntryID))
-	}
-	baseJob.EntryID = 0
-	return c.Query(ctx).BaseJob.WithContext(ctx).Save(baseJob)
+	return c.stopBaseJob(ctx, baseJob)
 }
 
 // ExecBaseJob 立即执行定时任务
@@ -162,8 +169,10 @@ func (c *BaseJobCase) runJob(ctx context.Context, baseJob *models.BaseJob) error
 		return errors.New("调用目标不存在")
 	}
 
+	baseJobForm := c.formMapper.ToDTO(baseJob)
+
 	argsMap := make(map[string]string)
-	for _, item := range c.toBaseJobArgs(baseJob.Args) {
+	for _, item := range baseJobForm.Args {
 		argsMap[item.Key] = item.Value
 	}
 
@@ -190,16 +199,32 @@ func (c *BaseJobCase) runJob(ctx context.Context, baseJob *models.BaseJob) error
 	return err
 }
 
-// toBaseJob 转换任务响应
-func (c *BaseJobCase) toBaseJob(item *models.BaseJob) *admin.BaseJob {
-	baseJob := c.mapper.ToDTO(item)
-	baseJob.Args = c.toBaseJobArgs(item.Args)
-	return baseJob
+func (c *BaseJobCase) startBaseJob(ctx context.Context, baseJob *models.BaseJob) error {
+	if _, ok := c.task[baseJob.InvokeTarget]; !ok {
+		return errors.New("调用目标不存在")
+	}
+
+	entryId, err := c.cron.AddFunc(baseJob.CronExpression, func() {
+		err := c.runJob(context.Background(), baseJob)
+		if err != nil {
+			log.Errorf("runJob err:%+v", err)
+		}
+	})
+	if err != nil {
+		return err
+	}
+
+	c.cron.Start()
+	return c.UpdateById(ctx, &models.BaseJob{
+		ID:      baseJob.ID,
+		EntryID: int32(entryId),
+	})
 }
 
-// toBaseJobArgs 转换任务参数
-func (c *BaseJobCase) toBaseJobArgs(args string) []*admin.BaseJobArgs {
-	res := make([]*admin.BaseJobArgs, 0)
-	_ = json.Unmarshal([]byte(args), &res)
-	return res
+func (c *BaseJobCase) stopBaseJob(ctx context.Context, baseJob *models.BaseJob) error {
+	if baseJob.EntryID > 0 {
+		c.cron.Remove(cron.EntryID(baseJob.EntryID))
+	}
+	baseJob.EntryID = 0
+	return c.Query(ctx).BaseJob.WithContext(ctx).Save(baseJob)
 }

@@ -226,7 +226,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
 const formFields: ProFormField[] = [
   { prop: "name", label: "任务名称", component: "input", props: { placeholder: "请输入任务名称" } },
   { prop: "invokeTarget", label: "调用目标", component: "input", props: { placeholder: "请输入调用目标" } },
-  { prop: "cronExpression", label: "cron表达式", component: "cron-expression", props: { placeholder: "0 0 0 * * ?" } },
+  { prop: "cronExpression", label: "cron表达式", component: "cron-expression", props: { placeholder: "0 0 0 * * *" } },
   {
     prop: "args",
     label: "目标参数",
