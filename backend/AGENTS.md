@@ -44,13 +44,63 @@
 - 后续新增或修改代码时，代码注释统一使用中文。
 - 后续新增或修改代码时，必须为每个新增或修改的方法补充中文方法注释。
 - 后续新增或修改代码时，必须补充必要的中文行内注释（关键逻辑、边界条件、异常分支需明确说明）。
+- 后续新增或修改代码时，`switch` 与 `if` 语句必须补充中文注释，明确说明分支判断目的、业务语义或进入该分支的原因，禁止仅保留裸分支结构。
 
 ## 代码修改约束
+- 后续新增或修改后端代码时，必须优先检查并复用以下基础库及其子模块中已有的方法、工具函数、通用封装与约定，禁止在项目内重复实现等价能力。
+- `kratos-kit` 优先复用范围包括：
+  1. `api`：protobuf 定义与代码生成相关能力
+  2. `bootstrap`：应用启动、配置加载、日志、注册中心、Tracer、`kratos.App` 组装
+  3. `config` 及其子模块：本地/远程配置加载与配置中心接入，包含 `apollo`、`consul`、`etcd`、`kubernetes`、`nacos`、`polaris`
+  4. `logger` 及其子模块：日志工厂与不同日志实现接入，包含 `aliyun`、`fluent`、`logrus`、`tencent`、`zap`、`zerolog`
+  5. `registry` 及其子模块：服务注册发现工厂与不同注册中心接入，包含 `consul`、`etcd`、`eureka`、`kubernetes`、`nacos`、`polaris`、`servicecomb`、`zookeeper`
+  6. `tracer`、`tracing`：OpenTelemetry TracerProvider、Exporter 和追踪适配层
+  7. `auth` 及其子模块：认证、鉴权、引擎与中间件能力，包含 `authn`、`authz`
+  8. `cache` 及其子模块：缓存封装，包含 `memory`、`redis`
+  9. `queue` 及其子模块：队列封装，包含 `memory`、`redis`、`redisqueue`
+  10. `locker` 及其子模块：分布式锁能力，包含 `redis`
+  11. `oss` 及其子模块：对象存储与文件存储封装，包含 `aliyun`、`ftp`、`local`、`minio`
+  12. `database/gorm`：GORM 客户端与数据库接入封装
+  13. `broker`：消息发布订阅与 typed handler 封装
+  14. `transport` 及其子模块：通用传输辅助能力，包含 `keepalive`、`mcp`
+  15. `rpc` 及其子模块：Kratos HTTP/GRPC Server 配置与中间件封装，包含 `middleware`
+  16. `swagger-ui`：Swagger UI 嵌入与路由注册
+  17. `pprof`：性能采样与性能分析接入
+  18. `captcha`：验证码生成与存储封装
+  19. `sdk`：SDK 初始化入口封装
+  20. `runtime`：运行时应用信息模型
+  21. `utils`：TLS、Redis 配置等通用辅助能力
+- `go-utils` 优先复用范围包括：
+  1. 根包 `utils`：统计时间、金额转换等基础工具
+  2. `byte`：`int` 与 `[]byte` 转换、ASCII 大小写字节转换
+  3. `crypto`：通用密码学工具
+  4. `geoip` 及其子模块：IP 地理位置查询，包含 `geolite`、`ip2region`、`qqwry`
+  5. `http`：基于 options 模式的通用 HTTP 请求客户端
+  6. `id`：Snowflake、UUIDv4/v7、XID 等 ID 生成能力
+  7. `io`：文件读取、路径匹配、文件属性判断
+  8. `ip`：IP 地址相关工具能力
+  9. `jwt`：JWT 生成、解析、校验
+  10. `map`：泛型 map 工具
+  11. `mapper`：DTO 与实体互转、类型转换器封装
+  12. `slice`：泛型 slice 工具
+  13. `string`：字符串转换、脱敏、随机串、金额字符串转换
+  14. `stringcase`：大小驼峰、蛇形、短横线等命名转换
+  15. `time`：时间格式化、区间、差值、protobuf 时间转换
+  16. `tls`：TLS 配置加载
+  17. `trans`：值与指针、切片、Map Key/Value 互转
+- `gorm-kit` 优先复用范围包括：
+  1. `repo`：通用仓储能力、分页、批量写入策略、函数式查询选项
+  2. `gen`：基于 `gorm/gen` 的代码生成入口
+- 判断是否已有现成实现时，不能只检查顶层目录或当前仓库内已经直接引用的包名，必须同时检查上述模块清单。
+- 若上述基础库或其子模块中已提供可满足需求的方法，默认直接复用；只有在现有能力明显不适用、无法扩展或会引入不合理副作用时，才允许新增本地实现。
+- 需要新增本地实现时，必须先确认 `kratos-kit`、`go-utils`、`gorm-kit` 及其相关子模块中不存在合适方案，并保持新增实现与这些基础库的使用方式、返回结构和错误处理风格一致。
 - 后续新增或修改代码时，若当前方法内某个变量名已在上文声明，后续涉及该变量的多值赋值禁止继续使用 `:=` 混合短声明。
 - 遇到上述场景时，必须先显式 `var` 定义新的变量，再使用 `=` 赋值，避免因重复声明触发 IDE 或 lint 警告。
 - 后续新增或修改代码时，禁止使用 `var (...)` 形式成组声明一批局部变量后再集中赋值。
 - 每个局部变量必须在首次使用前一行就近声明，避免在方法开头堆积无关变量定义。
 - 方法内第一次出现 `err` 时，必须结合实际调用使用 `:=` 获取；后续复用同一个 `err` 时，只能使用 `=` 赋值。
+- 同一个方法内只允许初始化一次 `err` 变量；首次初始化后，禁止在任何内层作用域再次使用 `var err error`、`err :=` 或通过新的短声明重新引入同名 `err`。
+- 若前文已经存在 `cartGoodsIds, err := ...` 这类声明，后续即使进入 `if`、`for`、`switch` 等内层作用域，也只能继续复用外层 `err` 并使用 `=` 赋值，禁止再写 `var err error`。
 - 后续新增或修改 Go 文件时，方法顺序必须按“外部调用方法在前，内部调用方法在后”的原则组织。
 - 同一文件内的方法排列必须尽量遵循真实调用链顺序：上层入口方法写在前面，被其调用的内部方法紧随其后，按从上到下展开。
 - 对外暴露的构造函数、Service 方法、Case 入口方法应优先放在文件靠前位置；仅供本文件内部使用的辅助方法、转换方法、工具方法放在后面。
@@ -95,8 +145,10 @@
     - 示例：`isActive`、`hasPermission`、`canDelete`、`shouldUpdate`
   - 常量使用全大写，单词间用下划线分隔
     - 示例：`MAX_SIZE`、`DEFAULT_TIMEOUT`、`API_VERSION`
-  - 缩写词全大写时需保持一致性
-    - 推荐：`userID`、`htmlContent`、`xmlParser`
+  - 除生成代码外，变量、方法、结构体字段命名必须优先使用普通驼峰写法，禁止在标识符中使用 `ID`、`SKU`、`URL`、`HTTP` 等全大写缩写片段
+    - 单数推荐：`userId`、`skuId`、`avatarUrl`、`httpClient`
+    - 复数推荐：`userIds`、`skuIds`、`orderItemIds`
+    - 禁止：`userID`、`skuID`、`avatarURL`、`userIdS`、`skuIdS`
   - 循环变量可使用简短名称（`i`、`j`、`k`），但需有明确上下文
 - **方法命名格式**：首字母大写的驼峰命名法（大驼峰，用于公开方法）或首字母小写（用于私有方法）
   - 公开方法：`GetUser()`、`CreateOrder()`、`UpdateStatus()`

@@ -7,6 +7,10 @@ import type {
 import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { defGoodsInfoService } from '@/api/app/goods'
+import {
+  buildRecommendGoodsActionItem,
+  reportRecommendGoodsAction,
+} from '@/api/app/recommend'
 import type { GoodsInfo, GoodsInfoResponse } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores'
@@ -17,6 +21,7 @@ import { formatSrc, formatPrice } from '@/utils'
 import { navigateToLogin } from '@/utils/login'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/shop_service.ts'
+import { RecommendGoodsActionType } from '@/rpc/common/enum'
 // 获取会员信息
 const userStore = useUserStore()
 // 获取屏幕边界到安全区域距离
@@ -39,15 +44,38 @@ const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
 const serviceLabelList = computed(() => serviceList.value.map((item) => item.label))
 
+// 构建当前商品推荐行为事件项
+const buildCurrentGoodsActionItem = (goodsNum = 1) => {
+  return buildRecommendGoodsActionItem({
+    goodsId: Number(query.id),
+    goodsNum,
+    source: query.source || 'direct',
+    scene: query.scene || '',
+    requestId: query.requestId || '',
+    index: Number(query.index || 0),
+  })
+}
+
+// 上报当前商品推荐行为
+const reportCurrentGoodsAction = async (
+  eventType: RecommendGoodsActionType,
+  goodsNum = 1,
+) => {
+  if (!userStore.userInfo) {
+    return
+  }
+  try {
+    await reportRecommendGoodsAction(eventType, [buildCurrentGoodsActionItem(goodsNum)])
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 const loadData = async () => {
   const ssRes = await defShopServiceService.ListShopService({})
   serviceList.value = ssRes.list || []
   const res = await defGoodsInfoService.GetGoodsInfo({
-    id: Number(query.id),
-    source: query.source || '',
-    scene: query.scene || '',
-    requestId: query.requestId || '',
-    index: Number(query.index || 0),
+    value: Number(query.id),
   })
   goodsInfo.value = res
   const pageRes = await defGoodsInfoService.PageGoodsInfo({
@@ -85,6 +113,7 @@ const loadData = async () => {
 // 页面加载
 onLoad(() => {
   loadData()
+  void reportCurrentGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_VIEW)
   if (userStore.userInfo) {
     defUserCartService.CountUserCart({}).then((res) => {
       cartNum.value = res.value
@@ -171,6 +200,7 @@ const onAddCart = async (ev: SkuPopupEvent) => {
   })
   const res = await defUserCartService.CountUserCart({})
   cartNum.value = res.value
+  await reportCurrentGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CART, ev.buy_num)
   await uni.showToast({ title: '添加成功' })
   isShowSku.value = false
 }
@@ -182,7 +212,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
   }
   isShowSku.value = false
   uni.navigateTo({
-    url: `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}`,
+    url: `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}&source=${query.source || 'direct'}&scene=${query.scene || ''}&requestId=${query.requestId || ''}&index=${query.index || 0}`,
   })
 }
 // 收藏
@@ -195,6 +225,9 @@ const onCollect = async () => {
     goodsId: goodsInfo.value!.id,
   })
   isCollect.value = !isCollect.value
+  if (isCollect.value) {
+    await reportCurrentGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_COLLECT)
+  }
   await uni.showToast({ title: isCollect.value ? '收藏成功' : '取消成功' })
 }
 

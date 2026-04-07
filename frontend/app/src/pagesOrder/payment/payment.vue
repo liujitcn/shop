@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { reportRecommendGoodsAction, takeRecommendPayTrack } from '@/api/app/recommend'
 import { useGuessList } from '@/composables'
 import { onLoad } from '@dcloudio/uni-app'
-import { RecommendScene } from '@/rpc/app/recommend'
+import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
 
 // 获取页面参数
 const query = defineProps<{
@@ -12,7 +13,13 @@ const query = defineProps<{
 const { guessRef, onScrollToLower } = useGuessList()
 
 // 页面加载
-onLoad(() => {})
+onLoad(() => {
+  const goodsItems = takeRecommendPayTrack(Number(query.id))
+  if (goodsItems.length === 0) {
+    return
+  }
+  void reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_PAY, goodsItems)
+})
 </script>
 
 <template>

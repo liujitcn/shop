@@ -112,7 +112,8 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 	member := util.IsMemberByAuthInfo(authInfo)
 	query := c.Query(ctx).UserCollect
 	// 已存在则执行取消收藏，不存在则创建收藏记录
-	isCollect, err := c.findByUserIdAndGoodsId(ctx, authInfo.UserId, userCollect.GetGoodsId())
+	var isCollect bool
+	isCollect, err = c.findByUserIdAndGoodsId(ctx, authInfo.UserId, userCollect.GetGoodsId())
 	if err != nil {
 		return err
 	}

@@ -3,11 +3,12 @@ syntax = "proto3";
 package app;
 
 import "app/goods_info.proto";
+import "common/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
-// App推荐服务
+// App推荐服务，包含推荐查询与独立埋点上报能力。
 service RecommendService {
   // 查询推荐商品列表
   rpc RecommendGoods (RecommendGoodsRequest) returns (RecommendGoodsResponse) {
@@ -16,26 +17,26 @@ service RecommendService {
     };
   }
 
-  // 记录推荐曝光
-  rpc RecommendExposure (RecommendExposureRequest) returns (google.protobuf.Empty) {
+  // 上报推荐曝光事件
+  rpc RecommendExposureReport (RecommendExposureReportRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/api/app/recommend/exposure"
+      post: "/api/app/recommend/event/exposure"
+      body: "*"
+    };
+  }
+
+  // 上报推荐商品行为事件
+  rpc RecommendGoodsActionReport (RecommendGoodsActionReportRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/app/recommend/event/goods"
       body: "*"
     };
   }
 }
 
-enum RecommendScene {
-  RECOMMEND_SCENE_UNKNOWN = 0;
-  HOME = 1;
-  CART = 2;
-  PROFILE = 3;
-  ORDER_DETAIL = 4;
-  ORDER_PAID = 5;
-}
-
+// RecommendGoodsRequest 查询推荐商品列表请求。
 message RecommendGoodsRequest {
-  RecommendScene scene = 1 [
+  common.RecommendScene scene = 1 [
     (gnostic.openapi.v3.property) = {
       description: "推荐场景",
     }
@@ -44,12 +45,6 @@ message RecommendGoodsRequest {
   int64 orderId = 2 [
     (gnostic.openapi.v3.property) = {
       description: "订单ID",
-    }
-  ];
-
-  repeated int64 cartGoodsIds = 3 [
-    (gnostic.openapi.v3.property) = {
-      description: "购物车商品ID列表",
     }
   ];
 
@@ -68,6 +63,7 @@ message RecommendGoodsRequest {
   ];
 }
 
+// RecommendGoodsResponse 查询推荐商品列表响应。
 message RecommendGoodsResponse {
   repeated app.GoodsInfo list = 1;
 
@@ -84,22 +80,55 @@ message RecommendGoodsResponse {
   ];
 }
 
-message RecommendExposureRequest {
-  string requestId = 1 [
-    (gnostic.openapi.v3.property) = {
-      description: "推荐请求ID",
-    }
+// RecommendGoodsActionItem 推荐商品行为埋点商品项。
+message RecommendGoodsActionItem {
+  int64 goodsId = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];
 
-  RecommendScene scene = 2 [
-    (gnostic.openapi.v3.property) = {
-      description: "推荐场景",
-    }
+  int64 goodsNum = 2 [
+    (gnostic.openapi.v3.property) = {description: "商品数量"}
+  ];
+
+  string source = 3 [
+    (gnostic.openapi.v3.property) = {description: "入口来源"}
+  ];
+
+  string scene = 4 [
+    (gnostic.openapi.v3.property) = {description: "推荐场景"}
+  ];
+
+  string requestId = 5 [
+    (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
+  ];
+
+  int32 index = 6 [
+    (gnostic.openapi.v3.property) = {description: "推荐位序号"}
+  ];
+}
+
+// RecommendExposureReportRequest 推荐曝光上报请求。
+message RecommendExposureReportRequest {
+  string requestId = 1 [
+    (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
+  ];
+
+  string scene = 2 [
+    (gnostic.openapi.v3.property) = {description: "推荐场景"}
   ];
 
   repeated int64 goodsIds = 3 [
-    (gnostic.openapi.v3.property) = {
-      description: "曝光商品ID列表",
-    }
+    (gnostic.openapi.v3.property) = {description: "曝光商品ID列表"}
+  ];
+}
+
+// RecommendGoodsActionReportRequest 推荐商品行为上报请求。
+message RecommendGoodsActionReportRequest {
+  common.RecommendGoodsActionType eventType = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品行为事件类型"}
+  ];
+
+  repeated RecommendGoodsActionItem goodsItems = 2 [
+    (gnostic.openapi.v3.property) = {description: "商品行为事件项"}
   ];
 }

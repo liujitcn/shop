@@ -8,7 +8,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
 import { navigateToLogin } from '@/utils/login'
-import { RecommendScene } from '@/rpc/app/recommend'
+import { RecommendScene } from '@/rpc/common/enum'
 
 // 是否适配底部安全区域
 defineProps<{

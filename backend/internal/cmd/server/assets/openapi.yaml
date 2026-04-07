@@ -3438,35 +3438,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PageGoodsInfoResponse'
-    /api/app/goods/info/{id}:
+    /api/app/goods/info/{value}:
         get:
             tags:
                 - GoodsInfoService
             description: 查询商品信息
             operationId: GoodsInfoService_GetGoodsInfo
             parameters:
-                - name: id
+                - name: value
                   in: path
+                  description: The int64 value.
                   required: true
                   schema:
                     type: string
-                - name: source
-                  in: query
-                  schema:
-                    type: string
-                - name: scene
-                  in: query
-                  schema:
-                    type: string
-                - name: requestId
-                  in: query
-                  schema:
-                    type: string
-                - name: index
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
             responses:
                 "200":
                     description: OK
@@ -3785,17 +3769,33 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/JsapiPayResponse'
-    /api/app/recommend/exposure:
+    /api/app/recommend/event/exposure:
         post:
             tags:
                 - RecommendService
-            description: 记录推荐曝光
-            operationId: RecommendService_RecommendExposure
+            description: 上报推荐曝光事件
+            operationId: RecommendService_RecommendExposureReport
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RecommendExposureRequest'
+                            $ref: '#/components/schemas/RecommendExposureReportRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/app/recommend/event/goods:
+        post:
+            tags:
+                - RecommendService
+            description: 上报推荐商品行为事件
+            operationId: RecommendService_RecommendGoodsActionReport
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RecommendGoodsActionReportRequest'
                 required: true
             responses:
                 "200":
@@ -3824,12 +3824,6 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: cartGoodsIds
-                  in: query
-                  schema:
-                    type: array
-                    items:
-                        type: string
                 - name: pageNum
                   in: query
                   schema:
@@ -6936,28 +6930,64 @@ components:
                 orderId:
                     type: string
                     description: 订单id
-        RecommendExposureRequest:
+        RecommendExposureReportRequest:
             type: object
             properties:
                 requestId:
                     type: string
                     description: 推荐请求ID
                 scene:
-                    enum:
-                        - RECOMMEND_SCENE_UNKNOWN
-                        - HOME
-                        - CART
-                        - PROFILE
-                        - ORDER_DETAIL
-                        - ORDER_PAID
                     type: string
                     description: 推荐场景
-                    format: enum
                 goodsIds:
                     type: array
                     items:
                         type: string
                     description: 曝光商品ID列表
+            description: RecommendExposureReportRequest 推荐曝光上报请求。
+        RecommendGoodsActionItem:
+            type: object
+            properties:
+                goodsId:
+                    type: string
+                    description: 商品ID
+                goodsNum:
+                    type: string
+                    description: 商品数量
+                source:
+                    type: string
+                    description: 入口来源
+                scene:
+                    type: string
+                    description: 推荐场景
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                index:
+                    type: integer
+                    description: 推荐位序号
+                    format: int32
+            description: RecommendGoodsActionItem 推荐商品行为埋点商品项。
+        RecommendGoodsActionReportRequest:
+            type: object
+            properties:
+                eventType:
+                    enum:
+                        - UNKNOWN_RGAT
+                        - RECOMMEND_GOODS_ACTION_VIEW
+                        - RECOMMEND_GOODS_ACTION_COLLECT
+                        - RECOMMEND_GOODS_ACTION_CART
+                        - RECOMMEND_GOODS_ACTION_ORDER_CREATE
+                        - RECOMMEND_GOODS_ACTION_ORDER_PAY
+                    type: string
+                    description: 商品行为事件类型
+                    format: enum
+                goodsItems:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecommendGoodsActionItem'
+                    description: 商品行为事件项
+            description: RecommendGoodsActionReportRequest 推荐商品行为上报请求。
         RecommendGoodsResponse:
             type: object
             properties:
@@ -6972,6 +7002,7 @@ components:
                 requestId:
                     type: string
                     description: 推荐请求ID
+            description: RecommendGoodsResponse 查询推荐商品列表响应。
         RefreshTokenRequest:
             type: object
             properties:
@@ -7992,7 +8023,7 @@ tags:
     - name: PayService
       description: App支付服务
     - name: RecommendService
-      description: App推荐服务
+      description: App推荐服务，包含推荐查询与独立埋点上报能力。
     - name: ShopBannerService
       description: Admin商城轮播图服务
     - name: ShopBannerService

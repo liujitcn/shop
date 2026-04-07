@@ -8,8 +8,7 @@ import { ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/login'
-import { OrderStatus } from '@/rpc/common/enum.ts'
-import { RecommendScene } from '@/rpc/app/recommend'
+import { OrderStatus, RecommendScene } from '@/rpc/common/enum'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 

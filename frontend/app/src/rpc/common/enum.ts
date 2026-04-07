@@ -228,3 +228,35 @@ export enum PayBillStatus {
   /** HAS_ERROR - 有误差 */
   HAS_ERROR = 3,
 }
+
+/** 推荐场景枚举 */
+export enum RecommendScene {
+  /** RECOMMEND_SCENE_UNKNOWN - 未指定推荐场景 */
+  RECOMMEND_SCENE_UNKNOWN = 0,
+  /** HOME - 首页推荐场景 */
+  HOME = 1,
+  /** CART - 购物车推荐场景 */
+  CART = 2,
+  /** PROFILE - 个人中心推荐场景 */
+  PROFILE = 3,
+  /** ORDER_DETAIL - 订单详情推荐场景 */
+  ORDER_DETAIL = 4,
+  /** ORDER_PAID - 支付成功推荐场景 */
+  ORDER_PAID = 5,
+}
+
+/** 推荐商品行为类型枚举 */
+export enum RecommendGoodsActionType {
+  /** UNKNOWN_RGAT - 未指定商品行为类型 */
+  UNKNOWN_RGAT = 0,
+  /** RECOMMEND_GOODS_ACTION_VIEW - 商品浏览事件 */
+  RECOMMEND_GOODS_ACTION_VIEW = 1,
+  /** RECOMMEND_GOODS_ACTION_COLLECT - 商品收藏事件 */
+  RECOMMEND_GOODS_ACTION_COLLECT = 2,
+  /** RECOMMEND_GOODS_ACTION_CART - 商品加购事件 */
+  RECOMMEND_GOODS_ACTION_CART = 3,
+  /** RECOMMEND_GOODS_ACTION_ORDER_CREATE - 下单事件 */
+  RECOMMEND_GOODS_ACTION_ORDER_CREATE = 4,
+  /** RECOMMEND_GOODS_ACTION_ORDER_PAY - 支付事件 */
+  RECOMMEND_GOODS_ACTION_ORDER_PAY = 5,
+}

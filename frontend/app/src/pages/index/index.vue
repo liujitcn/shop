@@ -13,8 +13,7 @@ import HotPanel from './components/HotPanel.vue'
 import PageSkeleton from './components/PageSkeleton.vue'
 import { useGuessList } from '@/composables'
 import { useSettingStore } from '@/stores'
-import { ShopBannerSite } from '@/rpc/common/enum.ts'
-import { RecommendScene } from '@/rpc/app/recommend'
+import { RecommendScene, ShopBannerSite } from '@/rpc/common/enum'
 
 const settingStore = useSettingStore()
 // 获取轮播图数据

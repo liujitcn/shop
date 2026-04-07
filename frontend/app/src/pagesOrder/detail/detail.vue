@@ -10,7 +10,7 @@ import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { defPayService } from '@/api/app/pay'
 import { formatPrice, formatSrc } from '@/utils'
-import { RecommendScene } from '@/rpc/app/recommend'
+import { RecommendScene } from '@/rpc/common/enum'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢

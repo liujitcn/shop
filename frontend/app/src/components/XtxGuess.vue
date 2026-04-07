@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { defRecommendService } from '@/api/app/recommend'
+import { defRecommendService, reportRecommendExposure } from '@/api/app/recommend'
+import { useUserStore } from '@/stores'
 import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
-import { RecommendScene } from '@/rpc/app/recommend'
+import { RecommendScene } from '@/rpc/common/enum'
+
+const userStore = useUserStore()
 
 // 组件属性
 const props = withDefaults(
@@ -22,7 +25,6 @@ const props = withDefaults(
 const pageParams = {
   scene: props.scene,
   orderId: props.orderId,
-  cartGoodsIds: [] as number[],
   pageNum: 1,
   pageSize: 10,
 }
@@ -75,14 +77,20 @@ const resetData = () => {
 
 // 上报曝光埋点
 const reportExposure = async () => {
-  if (exposed.value || !isVisible.value || !requestId.value || guessList.value.length === 0) {
+  if (
+    exposed.value ||
+    !userStore.userInfo ||
+    !isVisible.value ||
+    !requestId.value ||
+    guessList.value.length === 0
+  ) {
     return
   }
   exposed.value = true
   try {
-    await defRecommendService.RecommendExposure({
+    await reportRecommendExposure({
       requestId: requestId.value,
-      scene: props.scene,
+      scene: String(props.scene),
       goodsIds: guessList.value.map((item) => item.id),
     })
   } catch (error) {

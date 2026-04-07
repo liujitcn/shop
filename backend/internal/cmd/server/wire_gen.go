@@ -7,13 +7,6 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -28,10 +21,17 @@ import (
 	wx2 "shop/service/app/wx"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
-)
 
-import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
+
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
+
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -304,7 +304,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendExposureRepo := data.NewRecommendExposureRepo(dataData)
 	recommendClickRepo := data.NewRecommendClickRepo(dataData)
 	recommendGoodsViewRepo := data.NewRecommendGoodsViewRepo(dataData)
-	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendExposureRepo, recommendClickRepo, recommendGoodsViewRepo)
+	recommendUserGoodsPreferenceRepo := data.NewRecommendUserGoodsPreferenceRepo(dataData)
+	recommendEventCase := biz4.NewRecommendEventCase(baseCase, transaction, recommendExposureRepo, recommendClickRepo, recommendGoodsViewRepo, recommendRequestRepo, recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendGoodsRelationRepo, goodsInfoRepo)
 	recommendService := app.NewRecommendService(recommendCase, recommendEventCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
 	appShopBannerService := app.NewShopBannerService(bizShopBannerCase)

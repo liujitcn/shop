@@ -4,6 +4,7 @@ package app;
 
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
 
 // App商品信息服务
 service GoodsInfoService {
@@ -15,9 +16,9 @@ service GoodsInfoService {
   }
 
   // 查询商品信息
-  rpc GetGoodsInfo (GetGoodsInfoRequest) returns (GoodsInfoResponse) {
+  rpc GetGoodsInfo (google.protobuf.Int64Value) returns (GoodsInfoResponse) {
     option (google.api.http) = {
-      get: "/api/app/goods/info/{id}"
+      get: "/api/app/goods/info/{value}"
     };
   }
 }
@@ -58,28 +59,6 @@ message PageGoodsInfoResponse{
   repeated GoodsInfo list = 1;
   // 总数
   int32 total = 2;
-}
-
-message GetGoodsInfoRequest {
-  int64 id = 1 [
-    (gnostic.openapi.v3.property) = {description: "商品ID"}
-  ];
-
-  string source = 2 [
-    (gnostic.openapi.v3.property) = {description: "来源"}
-  ];
-
-  string scene = 3 [
-    (gnostic.openapi.v3.property) = {description: "推荐场景"}
-  ];
-
-  string requestId = 4 [
-    (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
-  ];
-
-  int32 index = 5 [
-    (gnostic.openapi.v3.property) = {description: "推荐位序号"}
-  ];
 }
 
 message GoodsInfoResponse {

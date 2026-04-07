@@ -5,6 +5,10 @@ const baseURL = import.meta.env.VITE_APP_STATIC_URL
  * @returns 静态资源访问前缀
  */
 const resolveStaticOrigin = () => {
+  // H5 开发环境优先走当前站点，由 Vite 代理转发 /shop 静态资源。
+  if (typeof window !== 'undefined' && window.location?.protocol?.startsWith('http')) {
+    return window.location.origin
+  }
   if (baseURL) {
     return baseURL.replace(/\/$/, '')
   }

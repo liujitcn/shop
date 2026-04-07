@@ -5,42 +5,54 @@
 // source: app/recommend.proto
 
 /* eslint-disable */
+import type { RecommendGoodsActionType, RecommendScene } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { GoodsInfo } from "./goods_info";
 
-export enum RecommendScene {
-  RECOMMEND_SCENE_UNKNOWN = 0,
-  HOME = 1,
-  CART = 2,
-  PROFILE = 3,
-  ORDER_DETAIL = 4,
-  ORDER_PAID = 5,
-}
-
+/** RecommendGoodsRequest 查询推荐商品列表请求。 */
 export interface RecommendGoodsRequest {
   scene: RecommendScene;
   orderId: number;
-  cartGoodsIds: number[];
   pageNum: number;
   pageSize: number;
 }
 
+/** RecommendGoodsResponse 查询推荐商品列表响应。 */
 export interface RecommendGoodsResponse {
   list: GoodsInfo[];
   total: number;
   requestId: string;
 }
 
-export interface RecommendExposureRequest {
+/** RecommendGoodsActionItem 推荐商品行为埋点商品项。 */
+export interface RecommendGoodsActionItem {
+  goodsId: number;
+  goodsNum: number;
+  source: string;
+  scene: string;
   requestId: string;
-  scene: RecommendScene;
+  index: number;
+}
+
+/** RecommendExposureReportRequest 推荐曝光上报请求。 */
+export interface RecommendExposureReportRequest {
+  requestId: string;
+  scene: string;
   goodsIds: number[];
 }
 
-/** App推荐服务 */
+/** RecommendGoodsActionReportRequest 推荐商品行为上报请求。 */
+export interface RecommendGoodsActionReportRequest {
+  eventType: RecommendGoodsActionType;
+  goodsItems: RecommendGoodsActionItem[];
+}
+
+/** App推荐服务，包含推荐查询与独立埋点上报能力。 */
 export interface RecommendService {
   /** 查询推荐商品列表 */
   RecommendGoods(request: RecommendGoodsRequest): Promise<RecommendGoodsResponse>;
-  /** 记录推荐曝光 */
-  RecommendExposure(request: RecommendExposureRequest): Promise<Empty>;
+  /** 上报推荐曝光事件 */
+  RecommendExposureReport(request: RecommendExposureReportRequest): Promise<Empty>;
+  /** 上报推荐商品行为事件 */
+  RecommendGoodsActionReport(request: RecommendGoodsActionReportRequest): Promise<Empty>;
 }

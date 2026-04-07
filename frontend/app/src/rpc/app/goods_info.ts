@@ -5,6 +5,7 @@
 // source: app/goods_info.proto
 
 /* eslint-disable */
+import type { Int64Value } from "../google/protobuf/wrappers";
 
 export interface PageGoodsInfoRequest {
   /** 商品名 */
@@ -22,14 +23,6 @@ export interface PageGoodsInfoResponse {
   list: GoodsInfo[];
   /** 总数 */
   total: number;
-}
-
-export interface GetGoodsInfoRequest {
-  id: number;
-  source: string;
-  scene: string;
-  requestId: string;
-  index: number;
 }
 
 export interface GoodsInfoResponse {
@@ -113,5 +106,5 @@ export interface GoodsInfoService {
   /** 查询商品信息分页列表 */
   PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse>;
   /** 查询商品信息 */
-  GetGoodsInfo(request: GetGoodsInfoRequest): Promise<GoodsInfoResponse>;
+  GetGoodsInfo(request: Int64Value): Promise<GoodsInfoResponse>;
 }

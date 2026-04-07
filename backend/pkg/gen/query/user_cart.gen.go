@@ -34,6 +34,10 @@ func newUserCart(db *gorm.DB, opts ...gen.DOOption) userCart {
 	_userCart.Num = field.NewInt64(tableName, "num")
 	_userCart.Price = field.NewInt64(tableName, "price")
 	_userCart.IsChecked = field.NewBool(tableName, "is_checked")
+	_userCart.Source = field.NewString(tableName, "source")
+	_userCart.Scene = field.NewString(tableName, "scene")
+	_userCart.RequestID = field.NewString(tableName, "request_id")
+	_userCart.Position = field.NewInt32(tableName, "position")
 	_userCart.CreatedAt = field.NewTime(tableName, "created_at")
 	_userCart.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_userCart.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -55,6 +59,10 @@ type userCart struct {
 	Num       field.Int64  // 数量
 	Price     field.Int64  // 加入时单价
 	IsChecked field.Bool   // 是否选中
+	Source    field.String // 入口来源
+	Scene     field.String // 推荐场景
+	RequestID field.String // 推荐请求ID
+	Position  field.Int32  // 推荐位序号
 	CreatedAt field.Time   // 创建时间
 	UpdatedAt field.Time   // 更新时间
 	DeletedAt field.Field  // 删除时间
@@ -81,6 +89,10 @@ func (u *userCart) updateTableName(table string) *userCart {
 	u.Num = field.NewInt64(table, "num")
 	u.Price = field.NewInt64(table, "price")
 	u.IsChecked = field.NewBool(table, "is_checked")
+	u.Source = field.NewString(table, "source")
+	u.Scene = field.NewString(table, "scene")
+	u.RequestID = field.NewString(table, "request_id")
+	u.Position = field.NewInt32(table, "position")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.DeletedAt = field.NewField(table, "deleted_at")
@@ -108,7 +120,7 @@ func (u *userCart) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userCart) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 10)
+	u.fieldMap = make(map[string]field.Expr, 14)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
 	u.fieldMap["goods_id"] = u.GoodsID
@@ -116,6 +128,10 @@ func (u *userCart) fillFieldMap() {
 	u.fieldMap["num"] = u.Num
 	u.fieldMap["price"] = u.Price
 	u.fieldMap["is_checked"] = u.IsChecked
+	u.fieldMap["source"] = u.Source
+	u.fieldMap["scene"] = u.Scene
+	u.fieldMap["request_id"] = u.RequestID
+	u.fieldMap["position"] = u.Position
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt

@@ -18,7 +18,17 @@ import { saveCurrentRoute } from '@/utils/login'
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = import.meta.env.VITE_APP_API_URL || ''
-const baseURL = `${apiTargetUrl}${apiBasePath}`
+const normalizedApiBasePath = apiBasePath.startsWith('/') ? apiBasePath : `/${apiBasePath}`
+
+/**
+ * H5 开发环境优先走同源代理，避免浏览器直接请求后端产生跨域。
+ * 其它平台继续使用显式配置的后端地址。
+ */
+const requestOrigin =
+  typeof window !== 'undefined' && window.location?.protocol?.startsWith('http')
+    ? ''
+    : apiTargetUrl.replace(/\/$/, '')
+const baseURL = `${requestOrigin}${normalizedApiBasePath}`
 
 // 添加拦截器
 const httpInterceptor = {

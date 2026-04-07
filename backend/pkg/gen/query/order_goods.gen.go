@@ -39,6 +39,10 @@ func newOrderGoods(db *gorm.DB, opts ...gen.DOOption) orderGoods {
 	_orderGoods.PayPrice = field.NewInt64(tableName, "pay_price")
 	_orderGoods.TotalPrice = field.NewInt64(tableName, "total_price")
 	_orderGoods.TotalPayPrice = field.NewInt64(tableName, "total_pay_price")
+	_orderGoods.Source = field.NewString(tableName, "source")
+	_orderGoods.Scene = field.NewString(tableName, "scene")
+	_orderGoods.RequestID = field.NewString(tableName, "request_id")
+	_orderGoods.Position = field.NewInt32(tableName, "position")
 	_orderGoods.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_orderGoods.fillFieldMap()
@@ -63,6 +67,10 @@ type orderGoods struct {
 	PayPrice      field.Int64  // 支付价格（分）
 	TotalPrice    field.Int64  // 当前金额汇总
 	TotalPayPrice field.Int64  // 支付金额汇总
+	Source        field.String // 入口来源
+	Scene         field.String // 推荐场景
+	RequestID     field.String // 推荐请求ID
+	Position      field.Int32  // 推荐位序号
 	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
@@ -92,6 +100,10 @@ func (o *orderGoods) updateTableName(table string) *orderGoods {
 	o.PayPrice = field.NewInt64(table, "pay_price")
 	o.TotalPrice = field.NewInt64(table, "total_price")
 	o.TotalPayPrice = field.NewInt64(table, "total_pay_price")
+	o.Source = field.NewString(table, "source")
+	o.Scene = field.NewString(table, "scene")
+	o.RequestID = field.NewString(table, "request_id")
+	o.Position = field.NewInt32(table, "position")
 	o.DeletedAt = field.NewField(table, "deleted_at")
 
 	o.fillFieldMap()
@@ -119,7 +131,7 @@ func (o *orderGoods) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderGoods) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 13)
+	o.fieldMap = make(map[string]field.Expr, 17)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["goods_id"] = o.GoodsID
@@ -132,6 +144,10 @@ func (o *orderGoods) fillFieldMap() {
 	o.fieldMap["pay_price"] = o.PayPrice
 	o.fieldMap["total_price"] = o.TotalPrice
 	o.fieldMap["total_pay_price"] = o.TotalPayPrice
+	o.fieldMap["source"] = o.Source
+	o.fieldMap["scene"] = o.Scene
+	o.fieldMap["request_id"] = o.RequestID
+	o.fieldMap["position"] = o.Position
 	o.fieldMap["deleted_at"] = o.DeletedAt
 }
 

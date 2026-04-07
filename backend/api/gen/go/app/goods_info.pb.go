@@ -15,6 +15,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
@@ -150,82 +151,6 @@ func (x *PageGoodsInfoResponse) GetTotal() int32 {
 	return 0
 }
 
-type GetGoodsInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Source        string                 `protobuf:"bytes,2,opt,name=source,proto3" json:"source,omitempty"`
-	Scene         string                 `protobuf:"bytes,3,opt,name=scene,proto3" json:"scene,omitempty"`
-	RequestId     string                 `protobuf:"bytes,4,opt,name=requestId,proto3" json:"requestId,omitempty"`
-	Index         int32                  `protobuf:"varint,5,opt,name=index,proto3" json:"index,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetGoodsInfoRequest) Reset() {
-	*x = GetGoodsInfoRequest{}
-	mi := &file_app_goods_info_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetGoodsInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetGoodsInfoRequest) ProtoMessage() {}
-
-func (x *GetGoodsInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetGoodsInfoRequest.ProtoReflect.Descriptor instead.
-func (*GetGoodsInfoRequest) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *GetGoodsInfoRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *GetGoodsInfoRequest) GetSource() string {
-	if x != nil {
-		return x.Source
-	}
-	return ""
-}
-
-func (x *GetGoodsInfoRequest) GetScene() string {
-	if x != nil {
-		return x.Scene
-	}
-	return ""
-}
-
-func (x *GetGoodsInfoRequest) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *GetGoodsInfoRequest) GetIndex() int32 {
-	if x != nil {
-		return x.Index
-	}
-	return 0
-}
-
 type GoodsInfoResponse struct {
 	state      protoimpl.MessageState `protogen:"open.v1"`
 	Id         int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                 // 商品ID
@@ -248,7 +173,7 @@ type GoodsInfoResponse struct {
 
 func (x *GoodsInfoResponse) Reset() {
 	*x = GoodsInfoResponse{}
-	mi := &file_app_goods_info_proto_msgTypes[3]
+	mi := &file_app_goods_info_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -260,7 +185,7 @@ func (x *GoodsInfoResponse) String() string {
 func (*GoodsInfoResponse) ProtoMessage() {}
 
 func (x *GoodsInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[3]
+	mi := &file_app_goods_info_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -273,7 +198,7 @@ func (x *GoodsInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsInfoResponse.ProtoReflect.Descriptor instead.
 func (*GoodsInfoResponse) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{3}
+	return file_app_goods_info_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GoodsInfoResponse) GetId() int64 {
@@ -376,7 +301,7 @@ type GoodsInfo struct {
 
 func (x *GoodsInfo) Reset() {
 	*x = GoodsInfo{}
-	mi := &file_app_goods_info_proto_msgTypes[4]
+	mi := &file_app_goods_info_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -388,7 +313,7 @@ func (x *GoodsInfo) String() string {
 func (*GoodsInfo) ProtoMessage() {}
 
 func (x *GoodsInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[4]
+	mi := &file_app_goods_info_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +326,7 @@ func (x *GoodsInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsInfo.ProtoReflect.Descriptor instead.
 func (*GoodsInfo) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{4}
+	return file_app_goods_info_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GoodsInfo) GetId() int64 {
@@ -457,7 +382,7 @@ type GoodsInfoResponse_Prop struct {
 
 func (x *GoodsInfoResponse_Prop) Reset() {
 	*x = GoodsInfoResponse_Prop{}
-	mi := &file_app_goods_info_proto_msgTypes[5]
+	mi := &file_app_goods_info_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -469,7 +394,7 @@ func (x *GoodsInfoResponse_Prop) String() string {
 func (*GoodsInfoResponse_Prop) ProtoMessage() {}
 
 func (x *GoodsInfoResponse_Prop) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[5]
+	mi := &file_app_goods_info_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -482,7 +407,7 @@ func (x *GoodsInfoResponse_Prop) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsInfoResponse_Prop.ProtoReflect.Descriptor instead.
 func (*GoodsInfoResponse_Prop) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{3, 0}
+	return file_app_goods_info_proto_rawDescGZIP(), []int{2, 0}
 }
 
 func (x *GoodsInfoResponse_Prop) GetLabel() string {
@@ -509,7 +434,7 @@ type GoodsInfoResponse_Spec struct {
 
 func (x *GoodsInfoResponse_Spec) Reset() {
 	*x = GoodsInfoResponse_Spec{}
-	mi := &file_app_goods_info_proto_msgTypes[6]
+	mi := &file_app_goods_info_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -521,7 +446,7 @@ func (x *GoodsInfoResponse_Spec) String() string {
 func (*GoodsInfoResponse_Spec) ProtoMessage() {}
 
 func (x *GoodsInfoResponse_Spec) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[6]
+	mi := &file_app_goods_info_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -534,7 +459,7 @@ func (x *GoodsInfoResponse_Spec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsInfoResponse_Spec.ProtoReflect.Descriptor instead.
 func (*GoodsInfoResponse_Spec) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{3, 1}
+	return file_app_goods_info_proto_rawDescGZIP(), []int{2, 1}
 }
 
 func (x *GoodsInfoResponse_Spec) GetName() string {
@@ -570,7 +495,7 @@ type GoodsInfoResponse_Sku struct {
 
 func (x *GoodsInfoResponse_Sku) Reset() {
 	*x = GoodsInfoResponse_Sku{}
-	mi := &file_app_goods_info_proto_msgTypes[7]
+	mi := &file_app_goods_info_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -582,7 +507,7 @@ func (x *GoodsInfoResponse_Sku) String() string {
 func (*GoodsInfoResponse_Sku) ProtoMessage() {}
 
 func (x *GoodsInfoResponse_Sku) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[7]
+	mi := &file_app_goods_info_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -595,7 +520,7 @@ func (x *GoodsInfoResponse_Sku) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsInfoResponse_Sku.ProtoReflect.Descriptor instead.
 func (*GoodsInfoResponse_Sku) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{3, 2}
+	return file_app_goods_info_proto_rawDescGZIP(), []int{2, 2}
 }
 
 func (x *GoodsInfoResponse_Sku) GetPicture() string {
@@ -649,7 +574,7 @@ type GoodsInfoResponse_Spec_Item struct {
 
 func (x *GoodsInfoResponse_Spec_Item) Reset() {
 	*x = GoodsInfoResponse_Spec_Item{}
-	mi := &file_app_goods_info_proto_msgTypes[8]
+	mi := &file_app_goods_info_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -661,7 +586,7 @@ func (x *GoodsInfoResponse_Spec_Item) String() string {
 func (*GoodsInfoResponse_Spec_Item) ProtoMessage() {}
 
 func (x *GoodsInfoResponse_Spec_Item) ProtoReflect() protoreflect.Message {
-	mi := &file_app_goods_info_proto_msgTypes[8]
+	mi := &file_app_goods_info_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -674,7 +599,7 @@ func (x *GoodsInfoResponse_Spec_Item) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsInfoResponse_Spec_Item.ProtoReflect.Descriptor instead.
 func (*GoodsInfoResponse_Spec_Item) Descriptor() ([]byte, []int) {
-	return file_app_goods_info_proto_rawDescGZIP(), []int{3, 1, 0}
+	return file_app_goods_info_proto_rawDescGZIP(), []int{2, 1, 0}
 }
 
 func (x *GoodsInfoResponse_Spec_Item) GetName() string {
@@ -688,7 +613,7 @@ var File_app_goods_info_proto protoreflect.FileDescriptor
 
 const file_app_goods_info_proto_rawDesc = "" +
 	"\n" +
-	"\x14app/goods_info.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xe7\x01\n" +
+	"\x14app/goods_info.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xe7\x01\n" +
 	"\x14PageGoodsInfoRequest\x12#\n" +
 	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t商品名R\x04name\x12.\n" +
 	"\n" +
@@ -698,13 +623,7 @@ const file_app_goods_info_proto_rawDesc = "" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"Q\n" +
 	"\x15PageGoodsInfoResponse\x12\"\n" +
 	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xe6\x01\n" +
-	"\x13GetGoodsInfoRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12$\n" +
-	"\x06source\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06来源R\x06source\x12(\n" +
-	"\x05scene\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x122\n" +
-	"\trequestId\x18\x04 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12+\n" +
-	"\x05index\x18\x05 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f推荐位序号R\x05index\"\xc8\t\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\xc8\t\n" +
 	"\x11GoodsInfoResponse\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12.\n" +
 	"\n" +
@@ -741,10 +660,10 @@ const file_app_goods_info_proto_rawDesc = "" +
 	"\x04desc\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x12,\n" +
 	"\apicture\x18\x1e \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12,\n" +
 	"\asaleNum\x18( \x01(\x03B\x12\xbaG\x0f\x92\x02\f初始销量R\asaleNum\x12\"\n" +
-	"\x05price\x18) \x01(\x03B\f\xbaG\t\x92\x02\x06价格R\x05price2\xdb\x01\n" +
+	"\x05price\x18) \x01(\x03B\f\xbaG\t\x92\x02\x06价格R\x05price2\xe1\x01\n" +
 	"\x10GoodsInfoService\x12c\n" +
-	"\rPageGoodsInfo\x12\x19.app.PageGoodsInfoRequest\x1a\x1a.app.PageGoodsInfoResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/app/goods/info\x12b\n" +
-	"\fGetGoodsInfo\x12\x18.app.GetGoodsInfoRequest\x1a\x16.app.GoodsInfoResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/app/goods/info/{id}BZ\n" +
+	"\rPageGoodsInfo\x12\x19.app.PageGoodsInfoRequest\x1a\x1a.app.PageGoodsInfoResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/app/goods/info\x12h\n" +
+	"\fGetGoodsInfo\x12\x1b.google.protobuf.Int64Value\x1a\x16.app.GoodsInfoResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/app/goods/info/{value}BZ\n" +
 	"\acom.appB\x0eGoodsInfoProtoP\x01Z\x13shop/api/gen/go/app\xa2\x02\x03AXX\xaa\x02\x03App\xca\x02\x03App\xe2\x02\x0fApp\\GPBMetadata\xea\x02\x03Appb\x06proto3"
 
 var (
@@ -759,28 +678,28 @@ func file_app_goods_info_proto_rawDescGZIP() []byte {
 	return file_app_goods_info_proto_rawDescData
 }
 
-var file_app_goods_info_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_app_goods_info_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_app_goods_info_proto_goTypes = []any{
 	(*PageGoodsInfoRequest)(nil),        // 0: app.PageGoodsInfoRequest
 	(*PageGoodsInfoResponse)(nil),       // 1: app.PageGoodsInfoResponse
-	(*GetGoodsInfoRequest)(nil),         // 2: app.GetGoodsInfoRequest
-	(*GoodsInfoResponse)(nil),           // 3: app.GoodsInfoResponse
-	(*GoodsInfo)(nil),                   // 4: app.GoodsInfo
-	(*GoodsInfoResponse_Prop)(nil),      // 5: app.GoodsInfoResponse.Prop
-	(*GoodsInfoResponse_Spec)(nil),      // 6: app.GoodsInfoResponse.Spec
-	(*GoodsInfoResponse_Sku)(nil),       // 7: app.GoodsInfoResponse.Sku
-	(*GoodsInfoResponse_Spec_Item)(nil), // 8: app.GoodsInfoResponse.Spec.Item
+	(*GoodsInfoResponse)(nil),           // 2: app.GoodsInfoResponse
+	(*GoodsInfo)(nil),                   // 3: app.GoodsInfo
+	(*GoodsInfoResponse_Prop)(nil),      // 4: app.GoodsInfoResponse.Prop
+	(*GoodsInfoResponse_Spec)(nil),      // 5: app.GoodsInfoResponse.Spec
+	(*GoodsInfoResponse_Sku)(nil),       // 6: app.GoodsInfoResponse.Sku
+	(*GoodsInfoResponse_Spec_Item)(nil), // 7: app.GoodsInfoResponse.Spec.Item
+	(*wrapperspb.Int64Value)(nil),       // 8: google.protobuf.Int64Value
 }
 var file_app_goods_info_proto_depIdxs = []int32{
-	4, // 0: app.PageGoodsInfoResponse.list:type_name -> app.GoodsInfo
-	5, // 1: app.GoodsInfoResponse.propList:type_name -> app.GoodsInfoResponse.Prop
-	7, // 2: app.GoodsInfoResponse.skuList:type_name -> app.GoodsInfoResponse.Sku
-	6, // 3: app.GoodsInfoResponse.specList:type_name -> app.GoodsInfoResponse.Spec
-	8, // 4: app.GoodsInfoResponse.Spec.item:type_name -> app.GoodsInfoResponse.Spec.Item
+	3, // 0: app.PageGoodsInfoResponse.list:type_name -> app.GoodsInfo
+	4, // 1: app.GoodsInfoResponse.propList:type_name -> app.GoodsInfoResponse.Prop
+	6, // 2: app.GoodsInfoResponse.skuList:type_name -> app.GoodsInfoResponse.Sku
+	5, // 3: app.GoodsInfoResponse.specList:type_name -> app.GoodsInfoResponse.Spec
+	7, // 4: app.GoodsInfoResponse.Spec.item:type_name -> app.GoodsInfoResponse.Spec.Item
 	0, // 5: app.GoodsInfoService.PageGoodsInfo:input_type -> app.PageGoodsInfoRequest
-	2, // 6: app.GoodsInfoService.GetGoodsInfo:input_type -> app.GetGoodsInfoRequest
+	8, // 6: app.GoodsInfoService.GetGoodsInfo:input_type -> google.protobuf.Int64Value
 	1, // 7: app.GoodsInfoService.PageGoodsInfo:output_type -> app.PageGoodsInfoResponse
-	3, // 8: app.GoodsInfoService.GetGoodsInfo:output_type -> app.GoodsInfoResponse
+	2, // 8: app.GoodsInfoService.GetGoodsInfo:output_type -> app.GoodsInfoResponse
 	7, // [7:9] is the sub-list for method output_type
 	5, // [5:7] is the sub-list for method input_type
 	5, // [5:5] is the sub-list for extension type_name
@@ -799,7 +718,7 @@ func file_app_goods_info_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_goods_info_proto_rawDesc), len(file_app_goods_info_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

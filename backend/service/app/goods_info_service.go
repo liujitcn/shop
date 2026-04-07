@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const _ = grpc.SupportPackageIsVersion7
@@ -46,8 +47,8 @@ func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *app.PageGoods
 }
 
 // GetGoodsInfo 查询商品信息
-func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *app.GetGoodsInfoRequest) (*app.GoodsInfoResponse, error) {
-	info, err := s.goodsInfoCase.GetGoodsInfo(ctx, req)
+func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value) (*app.GoodsInfoResponse, error) {
+	info, err := s.goodsInfoCase.GetGoodsInfo(ctx, req.GetValue())
 	if err != nil {
 		log.Error("GetGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品失败")

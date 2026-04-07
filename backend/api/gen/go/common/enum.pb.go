@@ -1050,6 +1050,124 @@ func (PayBillStatus) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{18}
 }
 
+// 推荐场景枚举
+type RecommendScene int32
+
+const (
+	RecommendScene_RECOMMEND_SCENE_UNKNOWN RecommendScene = 0 // 未指定推荐场景
+	RecommendScene_HOME                    RecommendScene = 1 // 首页推荐场景
+	RecommendScene_CART                    RecommendScene = 2 // 购物车推荐场景
+	RecommendScene_PROFILE                 RecommendScene = 3 // 个人中心推荐场景
+	RecommendScene_ORDER_DETAIL            RecommendScene = 4 // 订单详情推荐场景
+	RecommendScene_ORDER_PAID              RecommendScene = 5 // 支付成功推荐场景
+)
+
+// Enum value maps for RecommendScene.
+var (
+	RecommendScene_name = map[int32]string{
+		0: "RECOMMEND_SCENE_UNKNOWN",
+		1: "HOME",
+		2: "CART",
+		3: "PROFILE",
+		4: "ORDER_DETAIL",
+		5: "ORDER_PAID",
+	}
+	RecommendScene_value = map[string]int32{
+		"RECOMMEND_SCENE_UNKNOWN": 0,
+		"HOME":                    1,
+		"CART":                    2,
+		"PROFILE":                 3,
+		"ORDER_DETAIL":            4,
+		"ORDER_PAID":              5,
+	}
+)
+
+func (x RecommendScene) Enum() *RecommendScene {
+	p := new(RecommendScene)
+	*p = x
+	return p
+}
+
+func (x RecommendScene) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RecommendScene) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_enum_proto_enumTypes[19].Descriptor()
+}
+
+func (RecommendScene) Type() protoreflect.EnumType {
+	return &file_common_enum_proto_enumTypes[19]
+}
+
+func (x RecommendScene) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RecommendScene.Descriptor instead.
+func (RecommendScene) EnumDescriptor() ([]byte, []int) {
+	return file_common_enum_proto_rawDescGZIP(), []int{19}
+}
+
+// 推荐商品行为类型枚举
+type RecommendGoodsActionType int32
+
+const (
+	RecommendGoodsActionType_UNKNOWN_RGAT                        RecommendGoodsActionType = 0 // 未指定商品行为类型
+	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW         RecommendGoodsActionType = 1 // 商品浏览事件
+	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_COLLECT      RecommendGoodsActionType = 2 // 商品收藏事件
+	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CART         RecommendGoodsActionType = 3 // 商品加购事件
+	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE RecommendGoodsActionType = 4 // 下单事件
+	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY    RecommendGoodsActionType = 5 // 支付事件
+)
+
+// Enum value maps for RecommendGoodsActionType.
+var (
+	RecommendGoodsActionType_name = map[int32]string{
+		0: "UNKNOWN_RGAT",
+		1: "RECOMMEND_GOODS_ACTION_VIEW",
+		2: "RECOMMEND_GOODS_ACTION_COLLECT",
+		3: "RECOMMEND_GOODS_ACTION_CART",
+		4: "RECOMMEND_GOODS_ACTION_ORDER_CREATE",
+		5: "RECOMMEND_GOODS_ACTION_ORDER_PAY",
+	}
+	RecommendGoodsActionType_value = map[string]int32{
+		"UNKNOWN_RGAT":                        0,
+		"RECOMMEND_GOODS_ACTION_VIEW":         1,
+		"RECOMMEND_GOODS_ACTION_COLLECT":      2,
+		"RECOMMEND_GOODS_ACTION_CART":         3,
+		"RECOMMEND_GOODS_ACTION_ORDER_CREATE": 4,
+		"RECOMMEND_GOODS_ACTION_ORDER_PAY":    5,
+	}
+)
+
+func (x RecommendGoodsActionType) Enum() *RecommendGoodsActionType {
+	p := new(RecommendGoodsActionType)
+	*p = x
+	return p
+}
+
+func (x RecommendGoodsActionType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RecommendGoodsActionType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_enum_proto_enumTypes[20].Descriptor()
+}
+
+func (RecommendGoodsActionType) Type() protoreflect.EnumType {
+	return &file_common_enum_proto_enumTypes[20]
+}
+
+func (x RecommendGoodsActionType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RecommendGoodsActionType.Descriptor instead.
+func (RecommendGoodsActionType) EnumDescriptor() ([]byte, []int) {
+	return file_common_enum_proto_rawDescGZIP(), []int{20}
+}
+
 var File_common_enum_proto protoreflect.FileDescriptor
 
 const file_common_enum_proto_rawDesc = "" +
@@ -1169,7 +1287,22 @@ const file_common_enum_proto_rawDesc = "" +
 	"\n" +
 	"NO_COMPARE\x10\x01\x12\f\n" +
 	"\bNO_ERROR\x10\x02\x12\r\n" +
-	"\tHAS_ERROR\x10\x03Bg\n" +
+	"\tHAS_ERROR\x10\x03*p\n" +
+	"\x0eRecommendScene\x12\x1b\n" +
+	"\x17RECOMMEND_SCENE_UNKNOWN\x10\x00\x12\b\n" +
+	"\x04HOME\x10\x01\x12\b\n" +
+	"\x04CART\x10\x02\x12\v\n" +
+	"\aPROFILE\x10\x03\x12\x10\n" +
+	"\fORDER_DETAIL\x10\x04\x12\x0e\n" +
+	"\n" +
+	"ORDER_PAID\x10\x05*\xe1\x01\n" +
+	"\x18RecommendGoodsActionType\x12\x10\n" +
+	"\fUNKNOWN_RGAT\x10\x00\x12\x1f\n" +
+	"\x1bRECOMMEND_GOODS_ACTION_VIEW\x10\x01\x12\"\n" +
+	"\x1eRECOMMEND_GOODS_ACTION_COLLECT\x10\x02\x12\x1f\n" +
+	"\x1bRECOMMEND_GOODS_ACTION_CART\x10\x03\x12'\n" +
+	"#RECOMMEND_GOODS_ACTION_ORDER_CREATE\x10\x04\x12$\n" +
+	" RECOMMEND_GOODS_ACTION_ORDER_PAY\x10\x05Bg\n" +
 	"\n" +
 	"com.commonB\tEnumProtoP\x01Z\x16shop/api/gen/go/common\xa2\x02\x03CXX\xaa\x02\x06Common\xca\x02\x06Common\xe2\x02\x12Common\\GPBMetadata\xea\x02\x06Commonb\x06proto3"
 
@@ -1185,27 +1318,29 @@ func file_common_enum_proto_rawDescGZIP() []byte {
 	return file_common_enum_proto_rawDescData
 }
 
-var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 19)
+var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 21)
 var file_common_enum_proto_goTypes = []any{
-	(Status)(0),            // 0: common.Status
-	(BaseConfigSite)(0),    // 1: common.BaseConfigSite
-	(BaseConfigType)(0),    // 2: common.BaseConfigType
-	(BaseJobLogStatus)(0),  // 3: common.BaseJobLogStatus
-	(BaseMenuType)(0),      // 4: common.BaseMenuType
-	(BaseRoleDataScope)(0), // 5: common.BaseRoleDataScope
-	(BaseUserGender)(0),    // 6: common.BaseUserGender
-	(UserStoreStatus)(0),   // 7: common.UserStoreStatus
-	(GoodsStatus)(0),       // 8: common.GoodsStatus
-	(OrderStatus)(0),       // 9: common.OrderStatus
-	(OrderPayType)(0),      // 10: common.OrderPayType
-	(OrderPayChannel)(0),   // 11: common.OrderPayChannel
-	(OrderDeliveryTime)(0), // 12: common.OrderDeliveryTime
-	(OrderCancelReason)(0), // 13: common.OrderCancelReason
-	(OrderBillStatus)(0),   // 14: common.OrderBillStatus
-	(OrderRefundReason)(0), // 15: common.OrderRefundReason
-	(ShopBannerSite)(0),    // 16: common.ShopBannerSite
-	(ShopBannerType)(0),    // 17: common.ShopBannerType
-	(PayBillStatus)(0),     // 18: common.PayBillStatus
+	(Status)(0),                   // 0: common.Status
+	(BaseConfigSite)(0),           // 1: common.BaseConfigSite
+	(BaseConfigType)(0),           // 2: common.BaseConfigType
+	(BaseJobLogStatus)(0),         // 3: common.BaseJobLogStatus
+	(BaseMenuType)(0),             // 4: common.BaseMenuType
+	(BaseRoleDataScope)(0),        // 5: common.BaseRoleDataScope
+	(BaseUserGender)(0),           // 6: common.BaseUserGender
+	(UserStoreStatus)(0),          // 7: common.UserStoreStatus
+	(GoodsStatus)(0),              // 8: common.GoodsStatus
+	(OrderStatus)(0),              // 9: common.OrderStatus
+	(OrderPayType)(0),             // 10: common.OrderPayType
+	(OrderPayChannel)(0),          // 11: common.OrderPayChannel
+	(OrderDeliveryTime)(0),        // 12: common.OrderDeliveryTime
+	(OrderCancelReason)(0),        // 13: common.OrderCancelReason
+	(OrderBillStatus)(0),          // 14: common.OrderBillStatus
+	(OrderRefundReason)(0),        // 15: common.OrderRefundReason
+	(ShopBannerSite)(0),           // 16: common.ShopBannerSite
+	(ShopBannerType)(0),           // 17: common.ShopBannerType
+	(PayBillStatus)(0),            // 18: common.PayBillStatus
+	(RecommendScene)(0),           // 19: common.RecommendScene
+	(RecommendGoodsActionType)(0), // 20: common.RecommendGoodsActionType
 }
 var file_common_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1225,7 +1360,7 @@ func file_common_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_enum_proto_rawDesc), len(file_common_enum_proto_rawDesc)),
-			NumEnums:      19,
+			NumEnums:      21,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

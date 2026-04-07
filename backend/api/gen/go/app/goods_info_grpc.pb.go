@@ -12,6 +12,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -33,7 +34,7 @@ type GoodsInfoServiceClient interface {
 	// 查询商品信息分页列表
 	PageGoodsInfo(ctx context.Context, in *PageGoodsInfoRequest, opts ...grpc.CallOption) (*PageGoodsInfoResponse, error)
 	// 查询商品信息
-	GetGoodsInfo(ctx context.Context, in *GetGoodsInfoRequest, opts ...grpc.CallOption) (*GoodsInfoResponse, error)
+	GetGoodsInfo(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*GoodsInfoResponse, error)
 }
 
 type goodsInfoServiceClient struct {
@@ -54,7 +55,7 @@ func (c *goodsInfoServiceClient) PageGoodsInfo(ctx context.Context, in *PageGood
 	return out, nil
 }
 
-func (c *goodsInfoServiceClient) GetGoodsInfo(ctx context.Context, in *GetGoodsInfoRequest, opts ...grpc.CallOption) (*GoodsInfoResponse, error) {
+func (c *goodsInfoServiceClient) GetGoodsInfo(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*GoodsInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GoodsInfoResponse)
 	err := c.cc.Invoke(ctx, GoodsInfoService_GetGoodsInfo_FullMethodName, in, out, cOpts...)
@@ -73,7 +74,7 @@ type GoodsInfoServiceServer interface {
 	// 查询商品信息分页列表
 	PageGoodsInfo(context.Context, *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error)
 	// 查询商品信息
-	GetGoodsInfo(context.Context, *GetGoodsInfoRequest) (*GoodsInfoResponse, error)
+	GetGoodsInfo(context.Context, *wrapperspb.Int64Value) (*GoodsInfoResponse, error)
 	mustEmbedUnimplementedGoodsInfoServiceServer()
 }
 
@@ -87,7 +88,7 @@ type UnimplementedGoodsInfoServiceServer struct{}
 func (UnimplementedGoodsInfoServiceServer) PageGoodsInfo(context.Context, *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageGoodsInfo not implemented")
 }
-func (UnimplementedGoodsInfoServiceServer) GetGoodsInfo(context.Context, *GetGoodsInfoRequest) (*GoodsInfoResponse, error) {
+func (UnimplementedGoodsInfoServiceServer) GetGoodsInfo(context.Context, *wrapperspb.Int64Value) (*GoodsInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGoodsInfo not implemented")
 }
 func (UnimplementedGoodsInfoServiceServer) mustEmbedUnimplementedGoodsInfoServiceServer() {}
@@ -130,7 +131,7 @@ func _GoodsInfoService_PageGoodsInfo_Handler(srv interface{}, ctx context.Contex
 }
 
 func _GoodsInfoService_GetGoodsInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetGoodsInfoRequest)
+	in := new(wrapperspb.Int64Value)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func _GoodsInfoService_GetGoodsInfo_Handler(srv interface{}, ctx context.Context
 		FullMethod: GoodsInfoService_GetGoodsInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsInfoServiceServer).GetGoodsInfo(ctx, req.(*GetGoodsInfoRequest))
+		return srv.(GoodsInfoServiceServer).GetGoodsInfo(ctx, req.(*wrapperspb.Int64Value))
 	}
 	return interceptor(ctx, in, info, handler)
 }

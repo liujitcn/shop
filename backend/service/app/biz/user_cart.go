@@ -134,7 +134,8 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	member := util.IsMemberByAuthInfo(authInfo)
 	cartQuery := c.Query(ctx).UserCart
 	// 先查同一商品同一规格是否已在购物车中，存在则直接累加数量
-	find, err := c.Find(ctx,
+	var find *models.UserCart
+	find, err = c.Find(ctx,
 		repo.Where(cartQuery.UserID.Eq(authInfo.UserId)),
 		repo.Where(cartQuery.GoodsID.Eq(userCart.GetGoodsId())),
 		repo.Where(cartQuery.SkuCode.Eq(userCart.GetSkuCode())),

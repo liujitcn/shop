@@ -21,3 +21,4 @@ authn:
         - "/app.ShopServiceService/ListShopService"
         - "/app.ShopHotService/PageShopHotGoods"
         - "/app.PayService/PayNotify"
+        - "/app.RecommendService/RecommendGoods"

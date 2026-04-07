@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  buildRecommendGoodsActionItem,
+  reportRecommendGoodsAction,
+  saveRecommendPayTrack,
+} from '@/api/app/recommend'
 import { defOrderService } from '@/api/app/order'
 import { useAddressStore } from '@/stores'
 import type { ConfirmOrderInfoResponse } from '@/rpc/app/order_info'
@@ -9,6 +14,7 @@ import { defUserAddressService } from '@/api/app/user_address'
 import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
+import { RecommendGoodsActionType } from '@/rpc/common/enum'
 
 const addressStore = useAddressStore()
 
@@ -54,6 +60,10 @@ const query = defineProps<{
   skuCode?: string
   num?: string
   orderId?: string
+  source?: string
+  scene?: string
+  requestId?: string
+  index?: string
 }>()
 
 // 获取订单信息
@@ -157,6 +167,19 @@ const onOrderSubmit = async () => {
       num: v.num,
     })),
   })
+  const goodsItems = orderPre.value!.goods.map((item) => {
+    const isCurrentGoods = Number(query.goodsId || 0) === item.goodsId
+    return buildRecommendGoodsActionItem({
+      goodsId: item.goodsId,
+      goodsNum: item.num,
+      source: isCurrentGoods ? query.source || 'direct' : 'direct',
+      scene: isCurrentGoods ? query.scene || '' : '',
+      requestId: isCurrentGoods ? query.requestId || '' : '',
+      index: isCurrentGoods ? Number(query.index || 0) : 0,
+    })
+  })
+  await reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_CREATE, goodsItems)
+  saveRecommendPayTrack(res.orderId, goodsItems)
   // 关闭当前页面，跳转到订单详情，传递订单id
   if (Number(activePayType.value.value) === 2) {
     await uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${res.orderId}` })

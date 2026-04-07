@@ -17,13 +17,15 @@ const _ = grpc.SupportPackageIsVersion7
 // RecommendService 推荐服务。
 type RecommendService struct {
 	app.UnimplementedRecommendServiceServer
-	recommendCase *biz.RecommendCase
+	recommendCase      *biz.RecommendCase
+	recommendEventCase *biz.RecommendEventCase
 }
 
 // NewRecommendService 创建推荐服务。
-func NewRecommendService(recommendCase *biz.RecommendCase, _ *biz.RecommendEventCase) *RecommendService {
+func NewRecommendService(recommendCase *biz.RecommendCase, recommendEventCase *biz.RecommendEventCase) *RecommendService {
 	var ss = RecommendService{
-		recommendCase: recommendCase,
+		recommendCase:      recommendCase,
+		recommendEventCase: recommendEventCase,
 	}
 	return &ss
 }
@@ -38,12 +40,22 @@ func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.Recommen
 	return res, nil
 }
 
-// RecommendExposure 记录推荐曝光。
-func (s *RecommendService) RecommendExposure(ctx context.Context, req *app.RecommendExposureRequest) (*emptypb.Empty, error) {
-	err := s.recommendCase.RecommendExposure(ctx, req)
+// RecommendExposureReport 上报推荐曝光事件。
+func (s *RecommendService) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) (*emptypb.Empty, error) {
+	err := s.recommendEventCase.RecommendExposureReport(ctx, req)
 	if err != nil {
-		log.Error("RecommendExposure err:", err.Error())
-		return nil, errors.New("记录推荐曝光失败")
+		log.Error("RecommendExposureReport err:", err.Error())
+		return nil, errors.New("上报推荐曝光失败")
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// RecommendGoodsActionReport 上报推荐商品行为事件。
+func (s *RecommendService) RecommendGoodsActionReport(ctx context.Context, req *app.RecommendGoodsActionReportRequest) (*emptypb.Empty, error) {
+	err := s.recommendEventCase.RecommendGoodsActionReport(ctx, req)
+	if err != nil {
+		log.Error("RecommendGoodsActionReport err:", err.Error())
+		return nil, errors.New("上报推荐商品行为失败")
 	}
 	return &emptypb.Empty{}, nil
 }
