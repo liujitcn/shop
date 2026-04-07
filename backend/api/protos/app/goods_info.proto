@@ -36,12 +36,6 @@ message PageGoodsInfoRequest{
       description: "分类id",
     }
   ];
-  // 猜你喜欢
-  bool guessLike = 3 [
-    (gnostic.openapi.v3.property) = {
-      description: "猜你喜欢",
-    }
-  ];
 
   // 当前页码
   int64 pageNum = 101 [

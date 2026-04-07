@@ -7,14 +7,15 @@
 package app
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -30,8 +31,6 @@ type PageGoodsInfoRequest struct {
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// 分类id
 	CategoryId int64 `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"`
-	// 猜你喜欢
-	GuessLike bool `protobuf:"varint,3,opt,name=guessLike,proto3" json:"guessLike,omitempty"`
 	// 当前页码
 	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
 	// 每一页的行数
@@ -82,13 +81,6 @@ func (x *PageGoodsInfoRequest) GetCategoryId() int64 {
 		return x.CategoryId
 	}
 	return 0
-}
-
-func (x *PageGoodsInfoRequest) GetGuessLike() bool {
-	if x != nil {
-		return x.GuessLike
-	}
-	return false
 }
 
 func (x *PageGoodsInfoRequest) GetPageNum() int64 {
@@ -621,13 +613,12 @@ var File_app_goods_info_proto protoreflect.FileDescriptor
 
 const file_app_goods_info_proto_rawDesc = "" +
 	"\n" +
-	"\x14app/goods_info.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x99\x02\n" +
+	"\x14app/goods_info.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xe7\x01\n" +
 	"\x14PageGoodsInfoRequest\x12#\n" +
 	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t商品名R\x04name\x12.\n" +
 	"\n" +
 	"categoryId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类idR\n" +
-	"categoryId\x120\n" +
-	"\tguessLike\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f猜你喜欢R\tguessLike\x128\n" +
+	"categoryId\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"Q\n" +
 	"\x15PageGoodsInfoResponse\x12\"\n" +
