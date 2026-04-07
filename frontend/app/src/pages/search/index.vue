@@ -37,13 +37,11 @@ const pageParams: Required<PageGoodsInfoRequest> = {
   name: decodedName,
   /** 分类id */
   categoryId: query.categoryId ? Number(query.categoryId) : 0,
-  /** 猜你喜欢 */
-  guessLike: false,
   pageNum: 1,
   pageSize: 10,
 }
 // 猜你喜欢的列表
-const goodsList = ref<GoodsInfo[]>([])
+const goodsInfoList = ref<GoodsInfo[]>([])
 // 已结束标记
 const finish = ref(false)
 // 获取数据
@@ -55,9 +53,9 @@ const getGoodsData = async () => {
   const res = await defGoodsInfoService.PageGoodsInfo(pageParams)
   // 数组追加
   const list = res.list || []
-  goodsList.value.push(...list)
+  goodsInfoList.value.push(...list)
   // 分页条件
-  if (goodsList.value.length < res.total) {
+  if (goodsInfoList.value.length < res.total) {
     // 页码累加
     pageParams.pageNum++
   } else {
@@ -89,7 +87,7 @@ const onScrollToLower = async () => {
   <scroll-view enable-back-to-top scroll-y class="scroll-view" @scrolltolower="onScrollToLower">
     <view class="goods">
       <navigator
-        v-for="item in goodsList"
+        v-for="item in goodsInfoList"
         :key="item.id"
         class="goods-item"
         :url="`/pages/goods/goods?id=${item.id}`"

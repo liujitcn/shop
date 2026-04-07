@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
@@ -46,9 +47,10 @@ func NewGoodsInfoCase(
 }
 
 // GetGoodsInfo 查询商品详情
-func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsInfoResponse, error) {
+func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, req *app.GetGoodsInfoRequest) (*app.GoodsInfoResponse, error) {
 	// 是否会员
 	member := util.IsMember(ctx)
+	id := req.GetId()
 
 	query := c.Query(ctx).GoodsInfo
 
@@ -59,6 +61,7 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsI
 	if err != nil {
 		return nil, err
 	}
+	c.recordGoodsAttribution(ctx, req)
 	price := info.Price
 	if member {
 		price = info.DiscountPrice
@@ -149,6 +152,23 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 		List:  list,
 		Total: int32(count),
 	}, nil
+}
+
+// 记录商品详情来源归因，埋点失败不影响主流程。
+func (c *GoodsInfoCase) recordGoodsAttribution(ctx context.Context, req *app.GetGoodsInfoRequest) {
+	userID := getRecommendUserID(ctx)
+	source := strings.TrimSpace(req.GetSource())
+	scene := strings.TrimSpace(req.GetScene())
+	requestID := strings.TrimSpace(req.GetRequestId())
+	position := req.GetIndex()
+
+	if source == "" {
+		source = "direct"
+	}
+	publishGoodsViewEvent(userID, req.GetId(), position, requestID, source, scene)
+	if source == "recommend" && requestID != "" && scene != "" {
+		publishRecommendClickEvent(userID, req.GetId(), requestID, scene, source, position)
+	}
 }
 
 // 按商品编号批量查询并组装映射

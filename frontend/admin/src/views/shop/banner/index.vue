@@ -63,7 +63,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const route = useRoute();
 
-const goodsList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
+const goodsInfoList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
 const goodsCategoryOptions = ref<CategoryOption[]>([]);
 
 const initParam = computed<PageShopBannerRequest>(() => {
@@ -137,7 +137,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "href",
     label: "跳转链接",
     component: "select",
-    options: goodsList.value.map(item => ({ label: item.name, value: String(item.id) })),
+    options: goodsInfoList.value.map(item => ({ label: item.name, value: String(item.id) })),
     props: { placeholder: "请选择" },
     visible: model => model.type == ShopBannerType.GOODS_DETAIL
   },
@@ -284,7 +284,7 @@ async function loadBannerOptions() {
     defGoodsCategoryService.OptionGoodsCategory({})
   ]);
 
-  goodsList.value = listGoodsInfoResponse.list || [];
+  goodsInfoList.value = listGoodsInfoResponse.list || [];
   goodsCategoryOptions.value = categoryOption(optionGoodsCategoryResponse.list || []);
 }
 

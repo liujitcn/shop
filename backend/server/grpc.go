@@ -78,6 +78,7 @@ func NewGRPCServer(
 	appGoods *app.GoodsInfoService,
 	appOrder *app.OrderInfoService,
 	appPay *app.PayService,
+	appRecommend *app.RecommendService,
 	appShopBanner *app.ShopBannerService,
 	appShopHot *app.ShopHotService,
 	appShopService *app.ShopServiceService,
@@ -133,6 +134,7 @@ func NewGRPCServer(
 	appApi.RegisterGoodsInfoServiceServer(srv, appGoods)
 	appApi.RegisterOrderInfoServiceServer(srv, appOrder)
 	appApi.RegisterPayServiceServer(srv, appPay)
+	appApi.RegisterRecommendServiceServer(srv, appRecommend)
 	appApi.RegisterShopBannerServiceServer(srv, appShopBanner)
 	appApi.RegisterShopHotServiceServer(srv, appShopHot)
 	appApi.RegisterShopServiceServiceServer(srv, appShopService)

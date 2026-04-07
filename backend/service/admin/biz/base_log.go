@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	_const "shop/pkg/const"
 	"time"
 
 	"shop/api/gen/go/admin"
@@ -25,11 +26,15 @@ type BaseLogCase struct {
 
 // NewBaseLogCase 创建日志业务实例
 func NewBaseLogCase(baseCase *biz.BaseCase, baseLogRepo *data.BaseLogRepo) *BaseLogCase {
-	return &BaseLogCase{
+	c := &BaseLogCase{
 		BaseCase:    baseCase,
 		BaseLogRepo: baseLogRepo,
 		mapper:      mapper.NewCopierMapper[admin.BaseLog, models.BaseLog](),
 	}
+
+	// 注册日志队列
+	c.RegisterQueueConsumer(_const.Log, c.saveLog)
+	return c
 }
 
 // PageBaseLog 分页查询日志
@@ -78,8 +83,8 @@ func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*admin.BaseLog,
 	return c.toBaseLog(baseLog), nil
 }
 
-// SaveLog 保存日志队列消息
-func (c *BaseLogCase) SaveLog(message queueData.Message) error {
+// saveLog 保存日志队列消息
+func (c *BaseLogCase) saveLog(message queueData.Message) error {
 	rawBody, err := json.Marshal(message.Values)
 	if err != nil {
 		return err

@@ -12,15 +12,15 @@ import (
 
 // UserAnalyticsCase 用户分析业务
 type UserAnalyticsCase struct {
-	baseUserCase *BaseUserCase
-	orderCase    *OrderInfoCase
+	baseUserCase  *BaseUserCase
+	orderInfoCase *OrderInfoCase
 }
 
 // NewUserAnalyticsCase 创建用户分析业务
-func NewUserAnalyticsCase(baseUserCase *BaseUserCase, orderCase *OrderInfoCase) *UserAnalyticsCase {
+func NewUserAnalyticsCase(baseUserCase *BaseUserCase, orderInfoCase *OrderInfoCase) *UserAnalyticsCase {
 	return &UserAnalyticsCase{
-		baseUserCase: baseUserCase,
-		orderCase:    orderCase,
+		baseUserCase:  baseUserCase,
+		orderInfoCase: orderInfoCase,
 	}
 }
 
@@ -141,7 +141,7 @@ func (c *UserAnalyticsCase) countNewUsers(ctx context.Context, startAt, endAt ti
 
 func (c *UserAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	db := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Model(&models.OrderInfo{})
+	db := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Model(&models.OrderInfo{})
 	if !startAt.IsZero() {
 		db = db.Where("created_at >= ? AND created_at < ?", startAt, endAt)
 	} else {
@@ -218,7 +218,7 @@ func (c *UserAnalyticsCase) queryOrderUserSummary(ctx context.Context, timeType 
 	}
 	rows := make([]*row, 0)
 	selectExpr, _ := utils.GetAnalyticsGroupExpr(timeType, startAt, endAt)
-	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderInfo{}).
 		Select(selectExpr+" AS `key`, COUNT(DISTINCT user_id) AS count").
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).

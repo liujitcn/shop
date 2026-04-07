@@ -8,6 +8,7 @@ import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
 import { navigateToLogin } from '@/utils/login'
+import { RecommendScene } from '@/rpc/app/recommend'
 
 // 是否适配底部安全区域
 defineProps<{
@@ -221,7 +222,11 @@ const { guessRef, onScrollToLower } = useGuessList()
       <button class="button" @tap="navigateToLogin">去登录</button>
     </view>
     <!-- 猜你喜欢 -->
-    <XtxGuess ref="guessRef" />
+    <XtxGuess
+      ref="guessRef"
+      title="搭配着买"
+      :scene="RecommendScene.CART"
+    />
     <!-- 底部占位空盒子 -->
     <view class="toolbar-height"></view>
   </scroll-view>

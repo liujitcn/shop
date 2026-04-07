@@ -12,8 +12,6 @@ import (
 // ProviderSet is server providers.
 var ProviderSet = wire.NewSet(
 	NewBaseApiCase,
-	NewBaseJobLogCase,
-	NewBaseLogCase,
 	NewCasbinRuleCase,
 	NewBaseCase,
 	oss.NewOSS,

@@ -1,17 +1,28 @@
 <script setup lang="ts">
-import { defGoodsInfoService } from '@/api/app/goods'
+import { defRecommendService } from '@/api/app/recommend'
 import { formatPrice, formatSrc } from '@/utils'
-import { onMounted, ref } from 'vue'
-import type { GoodsInfo, PageGoodsInfoRequest } from '@/rpc/app/goods_info'
+import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import type { GoodsInfo } from '@/rpc/app/goods_info'
+import { RecommendScene } from '@/rpc/app/recommend'
+
+// 组件属性
+const props = withDefaults(
+  defineProps<{
+    title?: string
+    scene: RecommendScene
+    orderId?: number
+  }>(),
+  {
+    title: '猜你喜欢',
+    orderId: 0,
+  },
+)
 
 // 分页参数
-const pageParams: Required<PageGoodsInfoRequest> = {
-  /** 商品名 */
-  name: '',
-  /** 分类id */
-  categoryId: 0,
-  /** 猜你喜欢 */
-  guessLike: true,
+const pageParams = {
+  scene: props.scene,
+  orderId: props.orderId,
+  cartGoodsIds: [] as number[],
   pageNum: 1,
   pageSize: 10,
 }
@@ -19,13 +30,27 @@ const pageParams: Required<PageGoodsInfoRequest> = {
 const guessList = ref<GoodsInfo[]>([])
 // 已结束标记
 const finish = ref(false)
+// 推荐请求ID
+const requestId = ref('')
+// 是否已经进入可视区
+const isVisible = ref(false)
+// 是否已经记录曝光
+const exposed = ref(false)
+// 交叉观察器
+let exposureObserver: any
+
 // 获取猜你喜欢数据
 const getHomeGoodsGuessLikeData = async () => {
   // 退出分页判断
   if (finish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
-  const res = await defGoodsInfoService.PageGoodsInfo(pageParams)
+  pageParams.scene = props.scene
+  pageParams.orderId = props.orderId
+  const res = await defRecommendService.RecommendGoods(pageParams)
+  if (!requestId.value) {
+    requestId.value = res.requestId
+  }
   // 数组追加
   const list = res.list || []
   guessList.value.push(...list)
@@ -36,16 +61,60 @@ const getHomeGoodsGuessLikeData = async () => {
   } else {
     finish.value = true
   }
+  await nextTick()
+  await reportExposure()
 }
 // 重置数据
 const resetData = () => {
   pageParams.pageNum = 1
   guessList.value = []
   finish.value = false
+  requestId.value = ''
+  exposed.value = false
+}
+
+// 上报曝光埋点
+const reportExposure = async () => {
+  if (exposed.value || !isVisible.value || !requestId.value || guessList.value.length === 0) {
+    return
+  }
+  exposed.value = true
+  try {
+    await defRecommendService.RecommendExposure({
+      requestId: requestId.value,
+      scene: props.scene,
+      goodsIds: guessList.value.map((item) => item.id),
+    })
+  } catch (error) {
+    exposed.value = false
+    console.error(error)
+  }
+}
+
+// 初始化曝光观察器
+const initExposureObserver = () => {
+  const instance = getCurrentInstance()
+  if (!instance) {
+    return
+  }
+  exposureObserver = uni.createIntersectionObserver(instance)
+  exposureObserver.relativeToViewport().observe('.guess-root', (res: { intersectionRatio: number }) => {
+    if (res.intersectionRatio <= 0) {
+      return
+    }
+    isVisible.value = true
+    void reportExposure()
+  })
 }
 // 组件挂载完毕
 onMounted(() => {
-  getHomeGoodsGuessLikeData()
+  initExposureObserver()
+  void getHomeGoodsGuessLikeData()
+})
+
+// 组件卸载
+onBeforeUnmount(() => {
+  exposureObserver?.disconnect?.()
 })
 // 暴露方法
 defineExpose({
@@ -56,26 +125,28 @@ defineExpose({
 
 <template>
   <!-- 猜你喜欢 -->
-  <view class="caption">
-    <text class="text">猜你喜欢</text>
-  </view>
-  <view class="guess">
-    <navigator
-      v-for="item in guessList"
-      :key="item.id"
-      class="guess-item"
-      :url="`/pages/goods/goods?id=${item.id}`"
-    >
-      <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
-      <view class="name"> {{ item.name }} </view>
-      <view class="price">
-        <text class="small">¥</text>
-        <text>{{ formatPrice(item.price) }}</text>
-      </view>
-    </navigator>
-  </view>
-  <view class="loading-text">
-    {{ finish ? '没有更多数据~' : '正在加载...' }}
+  <view class="guess-root">
+    <view class="caption">
+      <text class="text">{{ props.title }}</text>
+    </view>
+    <view class="guess">
+      <navigator
+        v-for="(item, index) in guessList"
+        :key="item.id"
+        class="guess-item"
+        :url="`/pages/goods/goods?id=${item.id}&source=recommend&scene=${props.scene}&requestId=${requestId}&index=${index}`"
+      >
+        <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
+        <view class="name"> {{ item.name }} </view>
+        <view class="price">
+          <text class="small">¥</text>
+          <text>{{ formatPrice(item.price) }}</text>
+        </view>
+      </navigator>
+    </view>
+    <view class="loading-text">
+      {{ finish ? '没有更多数据~' : '正在加载...' }}
+    </view>
   </view>
 </template>
 

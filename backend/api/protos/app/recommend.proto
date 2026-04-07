@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package app;
+
+import "app/goods_info.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// App推荐服务
+service RecommendService {
+  // 查询推荐商品列表
+  rpc RecommendGoods (RecommendGoodsRequest) returns (RecommendGoodsResponse) {
+    option (google.api.http) = {
+      get: "/api/app/recommend/goods"
+    };
+  }
+
+  // 记录推荐曝光
+  rpc RecommendExposure (RecommendExposureRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/app/recommend/exposure"
+      body: "*"
+    };
+  }
+}
+
+enum RecommendScene {
+  RECOMMEND_SCENE_UNKNOWN = 0;
+  HOME = 1;
+  CART = 2;
+  PROFILE = 3;
+  ORDER_DETAIL = 4;
+  ORDER_PAID = 5;
+}
+
+message RecommendGoodsRequest {
+  RecommendScene scene = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐场景",
+    }
+  ];
+
+  int64 orderId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "订单ID",
+    }
+  ];
+
+  repeated int64 cartGoodsIds = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "购物车商品ID列表",
+    }
+  ];
+
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ];
+
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每页数量",
+      default: {number: 10}
+    }
+  ];
+}
+
+message RecommendGoodsResponse {
+  repeated app.GoodsInfo list = 1;
+
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "总数",
+    }
+  ];
+
+  string requestId = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求ID",
+    }
+  ];
+}
+
+message RecommendExposureRequest {
+  string requestId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求ID",
+    }
+  ];
+
+  RecommendScene scene = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐场景",
+    }
+  ];
+
+  repeated int64 goodsIds = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "曝光商品ID列表",
+    }
+  ];
+}

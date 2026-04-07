@@ -10,6 +10,7 @@ import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { defPayService } from '@/api/app/pay'
 import { formatPrice, formatSrc } from '@/utils'
+import { RecommendScene } from '@/rpc/app/recommend'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢
@@ -440,7 +441,12 @@ const onConfirmPopup = async () => {
       </view>
 
       <!-- 猜你喜欢 -->
-      <XtxGuess ref="guessRef" />
+      <XtxGuess
+        ref="guessRef"
+        title="买过这单的人还会买"
+        :scene="RecommendScene.ORDER_DETAIL"
+        :order-id="orderId"
+      />
 
       <!-- 底部操作栏 -->
       <view class="toolbar-height" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }" />

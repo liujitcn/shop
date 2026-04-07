@@ -19,7 +19,7 @@ type ShopHotItemCase struct {
 	*data.ShopHotItemRepo
 	shopHotRepo      *data.ShopHotRepo
 	shopHotGoodsRepo *data.ShopHotGoodsRepo
-	goodsRepo        *data.GoodsInfoRepo
+	goodsInfoRepo    *data.GoodsInfoRepo
 }
 
 // NewShopHotItemCase 创建热门推荐项业务处理对象
@@ -29,7 +29,7 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo, s
 		ShopHotItemRepo:  shopHotItemRepo,
 		shopHotRepo:      shopHotRepo,
 		shopHotGoodsRepo: shopHotGoodsRepo,
-		goodsRepo:        goodsInfoRepo,
+		goodsInfoRepo:    goodsInfoRepo,
 	}
 }
 
@@ -89,12 +89,12 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 			goodsIds = append(goodsIds, item.GoodsID)
 		}
 		var all []*models.GoodsInfo
-		goodsQuery := c.goodsRepo.Query(ctx).GoodsInfo
+		goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
 		goodsOpts := make([]repo.QueryOption, 0, 3)
 		goodsOpts = append(goodsOpts, repo.Order(goodsQuery.CreatedAt.Desc()))
 		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.ID.In(goodsIds...)))
 		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))))
-		all, err = c.goodsRepo.List(ctx, goodsOpts...)
+		all, err = c.goodsInfoRepo.List(ctx, goodsOpts...)
 		if err != nil {
 			return nil, err
 		}

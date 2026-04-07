@@ -3421,11 +3421,6 @@ paths:
                   description: 分类id
                   schema:
                     type: string
-                - name: guessLike
-                  in: query
-                  description: 猜你喜欢
-                  schema:
-                    type: boolean
                 - name: pageNum
                   in: query
                   description: 当前页码
@@ -3443,19 +3438,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PageGoodsInfoResponse'
-    /api/app/goods/info/{value}:
+    /api/app/goods/info/{id}:
         get:
             tags:
                 - GoodsInfoService
             description: 查询商品信息
             operationId: GoodsInfoService_GetGoodsInfo
             parameters:
-                - name: value
+                - name: id
                   in: path
-                  description: The int64 value.
                   required: true
                   schema:
                     type: string
+                - name: source
+                  in: query
+                  schema:
+                    type: string
+                - name: scene
+                  in: query
+                  schema:
+                    type: string
+                - name: requestId
+                  in: query
+                  schema:
+                    type: string
+                - name: index
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -3774,6 +3785,66 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/JsapiPayResponse'
+    /api/app/recommend/exposure:
+        post:
+            tags:
+                - RecommendService
+            description: 记录推荐曝光
+            operationId: RecommendService_RecommendExposure
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RecommendExposureRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/app/recommend/goods:
+        get:
+            tags:
+                - RecommendService
+            description: 查询推荐商品列表
+            operationId: RecommendService_RecommendGoods
+            parameters:
+                - name: scene
+                  in: query
+                  schema:
+                    enum:
+                        - RECOMMEND_SCENE_UNKNOWN
+                        - HOME
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    format: enum
+                - name: orderId
+                  in: query
+                  schema:
+                    type: string
+                - name: cartGoodsIds
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecommendGoodsResponse'
     /api/app/shop/banner:
         get:
             tags:
@@ -6865,6 +6936,42 @@ components:
                 orderId:
                     type: string
                     description: 订单id
+        RecommendExposureRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                scene:
+                    enum:
+                        - RECOMMEND_SCENE_UNKNOWN
+                        - HOME
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    description: 推荐场景
+                    format: enum
+                goodsIds:
+                    type: array
+                    items:
+                        type: string
+                    description: 曝光商品ID列表
+        RecommendGoodsResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoodsInfo'
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+                requestId:
+                    type: string
+                    description: 推荐请求ID
         RefreshTokenRequest:
             type: object
             properties:
@@ -7837,9 +7944,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: Admin字典服务
-    - name: BaseDictService
       description: App字典服务
+    - name: BaseDictService
+      description: Admin字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -7861,9 +7968,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: Admin商品信息服务
-    - name: GoodsInfoService
       description: App商品信息服务
+    - name: GoodsInfoService
+      description: Admin商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsSkuService
@@ -7884,18 +7991,20 @@ tags:
       description: Admin支付账单服务
     - name: PayService
       description: App支付服务
-    - name: ShopBannerService
-      description: App商城轮播图服务
+    - name: RecommendService
+      description: App推荐服务
     - name: ShopBannerService
       description: Admin商城轮播图服务
-    - name: ShopHotService
-      description: App热门推荐服务
+    - name: ShopBannerService
+      description: App商城轮播图服务
     - name: ShopHotService
       description: Admin商城热门推荐服务
-    - name: ShopServiceService
-      description: App商城服务
+    - name: ShopHotService
+      description: App热门推荐服务
     - name: ShopServiceService
       description: Admin商城服务
+    - name: ShopServiceService
+      description: App商城服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService
@@ -7905,8 +8014,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: Admin用户门店管理服务
-    - name: UserStoreService
       description: App用户门店管理服务
+    - name: UserStoreService
+      description: Admin用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

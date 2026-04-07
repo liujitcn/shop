@@ -17,128 +17,149 @@ import (
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:             db,
-		BaseApi:        newBaseApi(db, opts...),
-		BaseArea:       newBaseArea(db, opts...),
-		BaseConfig:     newBaseConfig(db, opts...),
-		BaseDept:       newBaseDept(db, opts...),
-		BaseDict:       newBaseDict(db, opts...),
-		BaseDictItem:   newBaseDictItem(db, opts...),
-		BaseJob:        newBaseJob(db, opts...),
-		BaseJobLog:     newBaseJobLog(db, opts...),
-		BaseLog:        newBaseLog(db, opts...),
-		BaseMenu:       newBaseMenu(db, opts...),
-		BaseRole:       newBaseRole(db, opts...),
-		BaseUser:       newBaseUser(db, opts...),
-		CasbinRule:     newCasbinRule(db, opts...),
-		GoodsCategory:  newGoodsCategory(db, opts...),
-		GoodsInfo:      newGoodsInfo(db, opts...),
-		GoodsProp:      newGoodsProp(db, opts...),
-		GoodsSku:       newGoodsSku(db, opts...),
-		GoodsSpec:      newGoodsSpec(db, opts...),
-		OrderAddress:   newOrderAddress(db, opts...),
-		OrderCancel:    newOrderCancel(db, opts...),
-		OrderGoods:     newOrderGoods(db, opts...),
-		OrderInfo:      newOrderInfo(db, opts...),
-		OrderLogistics: newOrderLogistics(db, opts...),
-		OrderPayment:   newOrderPayment(db, opts...),
-		OrderRefund:    newOrderRefund(db, opts...),
-		OrderStatDay:   newOrderStatDay(db, opts...),
-		PayBill:        newPayBill(db, opts...),
-		ShopBanner:     newShopBanner(db, opts...),
-		ShopHot:        newShopHot(db, opts...),
-		ShopHotGoods:   newShopHotGoods(db, opts...),
-		ShopHotItem:    newShopHotItem(db, opts...),
-		ShopService:    newShopService(db, opts...),
-		UserAddress:    newUserAddress(db, opts...),
-		UserCart:       newUserCart(db, opts...),
-		UserCollect:    newUserCollect(db, opts...),
-		UserStore:      newUserStore(db, opts...),
+		db:                           db,
+		BaseApi:                      newBaseApi(db, opts...),
+		BaseArea:                     newBaseArea(db, opts...),
+		BaseConfig:                   newBaseConfig(db, opts...),
+		BaseDept:                     newBaseDept(db, opts...),
+		BaseDict:                     newBaseDict(db, opts...),
+		BaseDictItem:                 newBaseDictItem(db, opts...),
+		BaseJob:                      newBaseJob(db, opts...),
+		BaseJobLog:                   newBaseJobLog(db, opts...),
+		BaseLog:                      newBaseLog(db, opts...),
+		BaseMenu:                     newBaseMenu(db, opts...),
+		BaseRole:                     newBaseRole(db, opts...),
+		BaseUser:                     newBaseUser(db, opts...),
+		CasbinRule:                   newCasbinRule(db, opts...),
+		GoodsCategory:                newGoodsCategory(db, opts...),
+		GoodsInfo:                    newGoodsInfo(db, opts...),
+		GoodsProp:                    newGoodsProp(db, opts...),
+		GoodsSku:                     newGoodsSku(db, opts...),
+		GoodsSpec:                    newGoodsSpec(db, opts...),
+		OrderAddress:                 newOrderAddress(db, opts...),
+		OrderCancel:                  newOrderCancel(db, opts...),
+		OrderGoods:                   newOrderGoods(db, opts...),
+		OrderInfo:                    newOrderInfo(db, opts...),
+		OrderLogistics:               newOrderLogistics(db, opts...),
+		OrderPayment:                 newOrderPayment(db, opts...),
+		OrderRefund:                  newOrderRefund(db, opts...),
+		OrderStatDay:                 newOrderStatDay(db, opts...),
+		PayBill:                      newPayBill(db, opts...),
+		RecommendClick:               newRecommendClick(db, opts...),
+		RecommendExposure:            newRecommendExposure(db, opts...),
+		RecommendGoodsRelation:       newRecommendGoodsRelation(db, opts...),
+		RecommendGoodsView:           newRecommendGoodsView(db, opts...),
+		RecommendRequest:             newRecommendRequest(db, opts...),
+		RecommendUserGoodsPreference: newRecommendUserGoodsPreference(db, opts...),
+		RecommendUserPreference:      newRecommendUserPreference(db, opts...),
+		ShopBanner:                   newShopBanner(db, opts...),
+		ShopHot:                      newShopHot(db, opts...),
+		ShopHotGoods:                 newShopHotGoods(db, opts...),
+		ShopHotItem:                  newShopHotItem(db, opts...),
+		ShopService:                  newShopService(db, opts...),
+		UserAddress:                  newUserAddress(db, opts...),
+		UserCart:                     newUserCart(db, opts...),
+		UserCollect:                  newUserCollect(db, opts...),
+		UserStore:                    newUserStore(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	BaseApi        baseApi
-	BaseArea       baseArea
-	BaseConfig     baseConfig
-	BaseDept       baseDept
-	BaseDict       baseDict
-	BaseDictItem   baseDictItem
-	BaseJob        baseJob
-	BaseJobLog     baseJobLog
-	BaseLog        baseLog
-	BaseMenu       baseMenu
-	BaseRole       baseRole
-	BaseUser       baseUser
-	CasbinRule     casbinRule
-	GoodsCategory  goodsCategory
-	GoodsInfo      goodsInfo
-	GoodsProp      goodsProp
-	GoodsSku       goodsSku
-	GoodsSpec      goodsSpec
-	OrderAddress   orderAddress
-	OrderCancel    orderCancel
-	OrderGoods     orderGoods
-	OrderInfo      orderInfo
-	OrderLogistics orderLogistics
-	OrderPayment   orderPayment
-	OrderRefund    orderRefund
-	OrderStatDay   orderStatDay
-	PayBill        payBill
-	ShopBanner     shopBanner
-	ShopHot        shopHot
-	ShopHotGoods   shopHotGoods
-	ShopHotItem    shopHotItem
-	ShopService    shopService
-	UserAddress    userAddress
-	UserCart       userCart
-	UserCollect    userCollect
-	UserStore      userStore
+	BaseApi                      baseApi
+	BaseArea                     baseArea
+	BaseConfig                   baseConfig
+	BaseDept                     baseDept
+	BaseDict                     baseDict
+	BaseDictItem                 baseDictItem
+	BaseJob                      baseJob
+	BaseJobLog                   baseJobLog
+	BaseLog                      baseLog
+	BaseMenu                     baseMenu
+	BaseRole                     baseRole
+	BaseUser                     baseUser
+	CasbinRule                   casbinRule
+	GoodsCategory                goodsCategory
+	GoodsInfo                    goodsInfo
+	GoodsProp                    goodsProp
+	GoodsSku                     goodsSku
+	GoodsSpec                    goodsSpec
+	OrderAddress                 orderAddress
+	OrderCancel                  orderCancel
+	OrderGoods                   orderGoods
+	OrderInfo                    orderInfo
+	OrderLogistics               orderLogistics
+	OrderPayment                 orderPayment
+	OrderRefund                  orderRefund
+	OrderStatDay                 orderStatDay
+	PayBill                      payBill
+	RecommendClick               recommendClick
+	RecommendExposure            recommendExposure
+	RecommendGoodsRelation       recommendGoodsRelation
+	RecommendGoodsView           recommendGoodsView
+	RecommendRequest             recommendRequest
+	RecommendUserGoodsPreference recommendUserGoodsPreference
+	RecommendUserPreference      recommendUserPreference
+	ShopBanner                   shopBanner
+	ShopHot                      shopHot
+	ShopHotGoods                 shopHotGoods
+	ShopHotItem                  shopHotItem
+	ShopService                  shopService
+	UserAddress                  userAddress
+	UserCart                     userCart
+	UserCollect                  userCollect
+	UserStore                    userStore
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:             db,
-		BaseApi:        q.BaseApi.clone(db),
-		BaseArea:       q.BaseArea.clone(db),
-		BaseConfig:     q.BaseConfig.clone(db),
-		BaseDept:       q.BaseDept.clone(db),
-		BaseDict:       q.BaseDict.clone(db),
-		BaseDictItem:   q.BaseDictItem.clone(db),
-		BaseJob:        q.BaseJob.clone(db),
-		BaseJobLog:     q.BaseJobLog.clone(db),
-		BaseLog:        q.BaseLog.clone(db),
-		BaseMenu:       q.BaseMenu.clone(db),
-		BaseRole:       q.BaseRole.clone(db),
-		BaseUser:       q.BaseUser.clone(db),
-		CasbinRule:     q.CasbinRule.clone(db),
-		GoodsCategory:  q.GoodsCategory.clone(db),
-		GoodsInfo:      q.GoodsInfo.clone(db),
-		GoodsProp:      q.GoodsProp.clone(db),
-		GoodsSku:       q.GoodsSku.clone(db),
-		GoodsSpec:      q.GoodsSpec.clone(db),
-		OrderAddress:   q.OrderAddress.clone(db),
-		OrderCancel:    q.OrderCancel.clone(db),
-		OrderGoods:     q.OrderGoods.clone(db),
-		OrderInfo:      q.OrderInfo.clone(db),
-		OrderLogistics: q.OrderLogistics.clone(db),
-		OrderPayment:   q.OrderPayment.clone(db),
-		OrderRefund:    q.OrderRefund.clone(db),
-		OrderStatDay:   q.OrderStatDay.clone(db),
-		PayBill:        q.PayBill.clone(db),
-		ShopBanner:     q.ShopBanner.clone(db),
-		ShopHot:        q.ShopHot.clone(db),
-		ShopHotGoods:   q.ShopHotGoods.clone(db),
-		ShopHotItem:    q.ShopHotItem.clone(db),
-		ShopService:    q.ShopService.clone(db),
-		UserAddress:    q.UserAddress.clone(db),
-		UserCart:       q.UserCart.clone(db),
-		UserCollect:    q.UserCollect.clone(db),
-		UserStore:      q.UserStore.clone(db),
+		db:                           db,
+		BaseApi:                      q.BaseApi.clone(db),
+		BaseArea:                     q.BaseArea.clone(db),
+		BaseConfig:                   q.BaseConfig.clone(db),
+		BaseDept:                     q.BaseDept.clone(db),
+		BaseDict:                     q.BaseDict.clone(db),
+		BaseDictItem:                 q.BaseDictItem.clone(db),
+		BaseJob:                      q.BaseJob.clone(db),
+		BaseJobLog:                   q.BaseJobLog.clone(db),
+		BaseLog:                      q.BaseLog.clone(db),
+		BaseMenu:                     q.BaseMenu.clone(db),
+		BaseRole:                     q.BaseRole.clone(db),
+		BaseUser:                     q.BaseUser.clone(db),
+		CasbinRule:                   q.CasbinRule.clone(db),
+		GoodsCategory:                q.GoodsCategory.clone(db),
+		GoodsInfo:                    q.GoodsInfo.clone(db),
+		GoodsProp:                    q.GoodsProp.clone(db),
+		GoodsSku:                     q.GoodsSku.clone(db),
+		GoodsSpec:                    q.GoodsSpec.clone(db),
+		OrderAddress:                 q.OrderAddress.clone(db),
+		OrderCancel:                  q.OrderCancel.clone(db),
+		OrderGoods:                   q.OrderGoods.clone(db),
+		OrderInfo:                    q.OrderInfo.clone(db),
+		OrderLogistics:               q.OrderLogistics.clone(db),
+		OrderPayment:                 q.OrderPayment.clone(db),
+		OrderRefund:                  q.OrderRefund.clone(db),
+		OrderStatDay:                 q.OrderStatDay.clone(db),
+		PayBill:                      q.PayBill.clone(db),
+		RecommendClick:               q.RecommendClick.clone(db),
+		RecommendExposure:            q.RecommendExposure.clone(db),
+		RecommendGoodsRelation:       q.RecommendGoodsRelation.clone(db),
+		RecommendGoodsView:           q.RecommendGoodsView.clone(db),
+		RecommendRequest:             q.RecommendRequest.clone(db),
+		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.clone(db),
+		RecommendUserPreference:      q.RecommendUserPreference.clone(db),
+		ShopBanner:                   q.ShopBanner.clone(db),
+		ShopHot:                      q.ShopHot.clone(db),
+		ShopHotGoods:                 q.ShopHotGoods.clone(db),
+		ShopHotItem:                  q.ShopHotItem.clone(db),
+		ShopService:                  q.ShopService.clone(db),
+		UserAddress:                  q.UserAddress.clone(db),
+		UserCart:                     q.UserCart.clone(db),
+		UserCollect:                  q.UserCollect.clone(db),
+		UserStore:                    q.UserStore.clone(db),
 	}
 }
 
@@ -152,123 +173,144 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:             db,
-		BaseApi:        q.BaseApi.replaceDB(db),
-		BaseArea:       q.BaseArea.replaceDB(db),
-		BaseConfig:     q.BaseConfig.replaceDB(db),
-		BaseDept:       q.BaseDept.replaceDB(db),
-		BaseDict:       q.BaseDict.replaceDB(db),
-		BaseDictItem:   q.BaseDictItem.replaceDB(db),
-		BaseJob:        q.BaseJob.replaceDB(db),
-		BaseJobLog:     q.BaseJobLog.replaceDB(db),
-		BaseLog:        q.BaseLog.replaceDB(db),
-		BaseMenu:       q.BaseMenu.replaceDB(db),
-		BaseRole:       q.BaseRole.replaceDB(db),
-		BaseUser:       q.BaseUser.replaceDB(db),
-		CasbinRule:     q.CasbinRule.replaceDB(db),
-		GoodsCategory:  q.GoodsCategory.replaceDB(db),
-		GoodsInfo:      q.GoodsInfo.replaceDB(db),
-		GoodsProp:      q.GoodsProp.replaceDB(db),
-		GoodsSku:       q.GoodsSku.replaceDB(db),
-		GoodsSpec:      q.GoodsSpec.replaceDB(db),
-		OrderAddress:   q.OrderAddress.replaceDB(db),
-		OrderCancel:    q.OrderCancel.replaceDB(db),
-		OrderGoods:     q.OrderGoods.replaceDB(db),
-		OrderInfo:      q.OrderInfo.replaceDB(db),
-		OrderLogistics: q.OrderLogistics.replaceDB(db),
-		OrderPayment:   q.OrderPayment.replaceDB(db),
-		OrderRefund:    q.OrderRefund.replaceDB(db),
-		OrderStatDay:   q.OrderStatDay.replaceDB(db),
-		PayBill:        q.PayBill.replaceDB(db),
-		ShopBanner:     q.ShopBanner.replaceDB(db),
-		ShopHot:        q.ShopHot.replaceDB(db),
-		ShopHotGoods:   q.ShopHotGoods.replaceDB(db),
-		ShopHotItem:    q.ShopHotItem.replaceDB(db),
-		ShopService:    q.ShopService.replaceDB(db),
-		UserAddress:    q.UserAddress.replaceDB(db),
-		UserCart:       q.UserCart.replaceDB(db),
-		UserCollect:    q.UserCollect.replaceDB(db),
-		UserStore:      q.UserStore.replaceDB(db),
+		db:                           db,
+		BaseApi:                      q.BaseApi.replaceDB(db),
+		BaseArea:                     q.BaseArea.replaceDB(db),
+		BaseConfig:                   q.BaseConfig.replaceDB(db),
+		BaseDept:                     q.BaseDept.replaceDB(db),
+		BaseDict:                     q.BaseDict.replaceDB(db),
+		BaseDictItem:                 q.BaseDictItem.replaceDB(db),
+		BaseJob:                      q.BaseJob.replaceDB(db),
+		BaseJobLog:                   q.BaseJobLog.replaceDB(db),
+		BaseLog:                      q.BaseLog.replaceDB(db),
+		BaseMenu:                     q.BaseMenu.replaceDB(db),
+		BaseRole:                     q.BaseRole.replaceDB(db),
+		BaseUser:                     q.BaseUser.replaceDB(db),
+		CasbinRule:                   q.CasbinRule.replaceDB(db),
+		GoodsCategory:                q.GoodsCategory.replaceDB(db),
+		GoodsInfo:                    q.GoodsInfo.replaceDB(db),
+		GoodsProp:                    q.GoodsProp.replaceDB(db),
+		GoodsSku:                     q.GoodsSku.replaceDB(db),
+		GoodsSpec:                    q.GoodsSpec.replaceDB(db),
+		OrderAddress:                 q.OrderAddress.replaceDB(db),
+		OrderCancel:                  q.OrderCancel.replaceDB(db),
+		OrderGoods:                   q.OrderGoods.replaceDB(db),
+		OrderInfo:                    q.OrderInfo.replaceDB(db),
+		OrderLogistics:               q.OrderLogistics.replaceDB(db),
+		OrderPayment:                 q.OrderPayment.replaceDB(db),
+		OrderRefund:                  q.OrderRefund.replaceDB(db),
+		OrderStatDay:                 q.OrderStatDay.replaceDB(db),
+		PayBill:                      q.PayBill.replaceDB(db),
+		RecommendClick:               q.RecommendClick.replaceDB(db),
+		RecommendExposure:            q.RecommendExposure.replaceDB(db),
+		RecommendGoodsRelation:       q.RecommendGoodsRelation.replaceDB(db),
+		RecommendGoodsView:           q.RecommendGoodsView.replaceDB(db),
+		RecommendRequest:             q.RecommendRequest.replaceDB(db),
+		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.replaceDB(db),
+		RecommendUserPreference:      q.RecommendUserPreference.replaceDB(db),
+		ShopBanner:                   q.ShopBanner.replaceDB(db),
+		ShopHot:                      q.ShopHot.replaceDB(db),
+		ShopHotGoods:                 q.ShopHotGoods.replaceDB(db),
+		ShopHotItem:                  q.ShopHotItem.replaceDB(db),
+		ShopService:                  q.ShopService.replaceDB(db),
+		UserAddress:                  q.UserAddress.replaceDB(db),
+		UserCart:                     q.UserCart.replaceDB(db),
+		UserCollect:                  q.UserCollect.replaceDB(db),
+		UserStore:                    q.UserStore.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	BaseApi        *baseApiDo
-	BaseArea       *baseAreaDo
-	BaseConfig     *baseConfigDo
-	BaseDept       *baseDeptDo
-	BaseDict       *baseDictDo
-	BaseDictItem   *baseDictItemDo
-	BaseJob        *baseJobDo
-	BaseJobLog     *baseJobLogDo
-	BaseLog        *baseLogDo
-	BaseMenu       *baseMenuDo
-	BaseRole       *baseRoleDo
-	BaseUser       *baseUserDo
-	CasbinRule     *casbinRuleDo
-	GoodsCategory  *goodsCategoryDo
-	GoodsInfo      *goodsInfoDo
-	GoodsProp      *goodsPropDo
-	GoodsSku       *goodsSkuDo
-	GoodsSpec      *goodsSpecDo
-	OrderAddress   *orderAddressDo
-	OrderCancel    *orderCancelDo
-	OrderGoods     *orderGoodsDo
-	OrderInfo      *orderInfoDo
-	OrderLogistics *orderLogisticsDo
-	OrderPayment   *orderPaymentDo
-	OrderRefund    *orderRefundDo
-	OrderStatDay   *orderStatDayDo
-	PayBill        *payBillDo
-	ShopBanner     *shopBannerDo
-	ShopHot        *shopHotDo
-	ShopHotGoods   *shopHotGoodsDo
-	ShopHotItem    *shopHotItemDo
-	ShopService    *shopServiceDo
-	UserAddress    *userAddressDo
-	UserCart       *userCartDo
-	UserCollect    *userCollectDo
-	UserStore      *userStoreDo
+	BaseApi                      *baseApiDo
+	BaseArea                     *baseAreaDo
+	BaseConfig                   *baseConfigDo
+	BaseDept                     *baseDeptDo
+	BaseDict                     *baseDictDo
+	BaseDictItem                 *baseDictItemDo
+	BaseJob                      *baseJobDo
+	BaseJobLog                   *baseJobLogDo
+	BaseLog                      *baseLogDo
+	BaseMenu                     *baseMenuDo
+	BaseRole                     *baseRoleDo
+	BaseUser                     *baseUserDo
+	CasbinRule                   *casbinRuleDo
+	GoodsCategory                *goodsCategoryDo
+	GoodsInfo                    *goodsInfoDo
+	GoodsProp                    *goodsPropDo
+	GoodsSku                     *goodsSkuDo
+	GoodsSpec                    *goodsSpecDo
+	OrderAddress                 *orderAddressDo
+	OrderCancel                  *orderCancelDo
+	OrderGoods                   *orderGoodsDo
+	OrderInfo                    *orderInfoDo
+	OrderLogistics               *orderLogisticsDo
+	OrderPayment                 *orderPaymentDo
+	OrderRefund                  *orderRefundDo
+	OrderStatDay                 *orderStatDayDo
+	PayBill                      *payBillDo
+	RecommendClick               *recommendClickDo
+	RecommendExposure            *recommendExposureDo
+	RecommendGoodsRelation       *recommendGoodsRelationDo
+	RecommendGoodsView           *recommendGoodsViewDo
+	RecommendRequest             *recommendRequestDo
+	RecommendUserGoodsPreference *recommendUserGoodsPreferenceDo
+	RecommendUserPreference      *recommendUserPreferenceDo
+	ShopBanner                   *shopBannerDo
+	ShopHot                      *shopHotDo
+	ShopHotGoods                 *shopHotGoodsDo
+	ShopHotItem                  *shopHotItemDo
+	ShopService                  *shopServiceDo
+	UserAddress                  *userAddressDo
+	UserCart                     *userCartDo
+	UserCollect                  *userCollectDo
+	UserStore                    *userStoreDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		BaseApi:        q.BaseApi.WithContext(ctx),
-		BaseArea:       q.BaseArea.WithContext(ctx),
-		BaseConfig:     q.BaseConfig.WithContext(ctx),
-		BaseDept:       q.BaseDept.WithContext(ctx),
-		BaseDict:       q.BaseDict.WithContext(ctx),
-		BaseDictItem:   q.BaseDictItem.WithContext(ctx),
-		BaseJob:        q.BaseJob.WithContext(ctx),
-		BaseJobLog:     q.BaseJobLog.WithContext(ctx),
-		BaseLog:        q.BaseLog.WithContext(ctx),
-		BaseMenu:       q.BaseMenu.WithContext(ctx),
-		BaseRole:       q.BaseRole.WithContext(ctx),
-		BaseUser:       q.BaseUser.WithContext(ctx),
-		CasbinRule:     q.CasbinRule.WithContext(ctx),
-		GoodsCategory:  q.GoodsCategory.WithContext(ctx),
-		GoodsInfo:      q.GoodsInfo.WithContext(ctx),
-		GoodsProp:      q.GoodsProp.WithContext(ctx),
-		GoodsSku:       q.GoodsSku.WithContext(ctx),
-		GoodsSpec:      q.GoodsSpec.WithContext(ctx),
-		OrderAddress:   q.OrderAddress.WithContext(ctx),
-		OrderCancel:    q.OrderCancel.WithContext(ctx),
-		OrderGoods:     q.OrderGoods.WithContext(ctx),
-		OrderInfo:      q.OrderInfo.WithContext(ctx),
-		OrderLogistics: q.OrderLogistics.WithContext(ctx),
-		OrderPayment:   q.OrderPayment.WithContext(ctx),
-		OrderRefund:    q.OrderRefund.WithContext(ctx),
-		OrderStatDay:   q.OrderStatDay.WithContext(ctx),
-		PayBill:        q.PayBill.WithContext(ctx),
-		ShopBanner:     q.ShopBanner.WithContext(ctx),
-		ShopHot:        q.ShopHot.WithContext(ctx),
-		ShopHotGoods:   q.ShopHotGoods.WithContext(ctx),
-		ShopHotItem:    q.ShopHotItem.WithContext(ctx),
-		ShopService:    q.ShopService.WithContext(ctx),
-		UserAddress:    q.UserAddress.WithContext(ctx),
-		UserCart:       q.UserCart.WithContext(ctx),
-		UserCollect:    q.UserCollect.WithContext(ctx),
-		UserStore:      q.UserStore.WithContext(ctx),
+		BaseApi:                      q.BaseApi.WithContext(ctx),
+		BaseArea:                     q.BaseArea.WithContext(ctx),
+		BaseConfig:                   q.BaseConfig.WithContext(ctx),
+		BaseDept:                     q.BaseDept.WithContext(ctx),
+		BaseDict:                     q.BaseDict.WithContext(ctx),
+		BaseDictItem:                 q.BaseDictItem.WithContext(ctx),
+		BaseJob:                      q.BaseJob.WithContext(ctx),
+		BaseJobLog:                   q.BaseJobLog.WithContext(ctx),
+		BaseLog:                      q.BaseLog.WithContext(ctx),
+		BaseMenu:                     q.BaseMenu.WithContext(ctx),
+		BaseRole:                     q.BaseRole.WithContext(ctx),
+		BaseUser:                     q.BaseUser.WithContext(ctx),
+		CasbinRule:                   q.CasbinRule.WithContext(ctx),
+		GoodsCategory:                q.GoodsCategory.WithContext(ctx),
+		GoodsInfo:                    q.GoodsInfo.WithContext(ctx),
+		GoodsProp:                    q.GoodsProp.WithContext(ctx),
+		GoodsSku:                     q.GoodsSku.WithContext(ctx),
+		GoodsSpec:                    q.GoodsSpec.WithContext(ctx),
+		OrderAddress:                 q.OrderAddress.WithContext(ctx),
+		OrderCancel:                  q.OrderCancel.WithContext(ctx),
+		OrderGoods:                   q.OrderGoods.WithContext(ctx),
+		OrderInfo:                    q.OrderInfo.WithContext(ctx),
+		OrderLogistics:               q.OrderLogistics.WithContext(ctx),
+		OrderPayment:                 q.OrderPayment.WithContext(ctx),
+		OrderRefund:                  q.OrderRefund.WithContext(ctx),
+		OrderStatDay:                 q.OrderStatDay.WithContext(ctx),
+		PayBill:                      q.PayBill.WithContext(ctx),
+		RecommendClick:               q.RecommendClick.WithContext(ctx),
+		RecommendExposure:            q.RecommendExposure.WithContext(ctx),
+		RecommendGoodsRelation:       q.RecommendGoodsRelation.WithContext(ctx),
+		RecommendGoodsView:           q.RecommendGoodsView.WithContext(ctx),
+		RecommendRequest:             q.RecommendRequest.WithContext(ctx),
+		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.WithContext(ctx),
+		RecommendUserPreference:      q.RecommendUserPreference.WithContext(ctx),
+		ShopBanner:                   q.ShopBanner.WithContext(ctx),
+		ShopHot:                      q.ShopHot.WithContext(ctx),
+		ShopHotGoods:                 q.ShopHotGoods.WithContext(ctx),
+		ShopHotItem:                  q.ShopHotItem.WithContext(ctx),
+		ShopService:                  q.ShopService.WithContext(ctx),
+		UserAddress:                  q.UserAddress.WithContext(ctx),
+		UserCart:                     q.UserCart.WithContext(ctx),
+		UserCollect:                  q.UserCollect.WithContext(ctx),
+		UserStore:                    q.UserStore.WithContext(ctx),
 	}
 }
 

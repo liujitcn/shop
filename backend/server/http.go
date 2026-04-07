@@ -85,6 +85,7 @@ func NewHttpServer(
 	appGoods *app.GoodsInfoService,
 	appOrder *app.OrderInfoService,
 	appPay *app.PayService,
+	appRecommend *app.RecommendService,
 	appShopBanner *app.ShopBannerService,
 	appShopHot *app.ShopHotService,
 	appShopService *app.ShopServiceService,
@@ -141,6 +142,7 @@ func NewHttpServer(
 	appApi.RegisterGoodsInfoServiceHTTPServer(srv, appGoods)
 	appApi.RegisterOrderInfoServiceHTTPServer(srv, appOrder)
 	appApi.RegisterPayServiceHTTPServer(srv, appPay)
+	appApi.RegisterRecommendServiceHTTPServer(srv, appRecommend)
 	appApi.RegisterShopBannerServiceHTTPServer(srv, appShopBanner)
 	appApi.RegisterShopHotServiceHTTPServer(srv, appShopHot)
 	appApi.RegisterShopServiceServiceHTTPServer(srv, appShopService)

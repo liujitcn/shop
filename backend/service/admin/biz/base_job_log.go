@@ -2,6 +2,8 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
+	_const "shop/pkg/const"
 	"strconv"
 
 	"shop/api/gen/go/admin"
@@ -9,9 +11,11 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repo"
+	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
 
 // BaseJobLogCase 任务日志业务实例
@@ -23,11 +27,15 @@ type BaseJobLogCase struct {
 
 // NewBaseJobLogCase 创建任务日志业务实例
 func NewBaseJobLogCase(baseCase *biz.BaseCase, baseJobLogRepo *data.BaseJobLogRepo) *BaseJobLogCase {
-	return &BaseJobLogCase{
+	c := &BaseJobLogCase{
 		BaseCase:       baseCase,
 		BaseJobLogRepo: baseJobLogRepo,
 		mapper:         mapper.NewCopierMapper[admin.BaseJobLog, models.BaseJobLog](),
 	}
+
+	// 注册定时任务日志队列
+	c.RegisterQueueConsumer(_const.JobLog, c.saveJobLog)
+	return c
 }
 
 // PageBaseJobLog 分页查询任务日志
@@ -71,6 +79,28 @@ func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*admin.Ba
 		return nil, err
 	}
 	return c.toBaseJobLog(baseJobLog), nil
+}
+
+// saveJobLog 保存任务日志队列消息。
+func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
+	rb, err := json.Marshal(message.Values)
+	if err != nil {
+		log.Errorf("json Marshal error, %s", err.Error())
+		return err
+	}
+	var m map[string]*models.BaseJobLog
+	err = json.Unmarshal(rb, &m)
+	if err != nil {
+		log.Errorf("json Unmarshal error, %s", err.Error())
+		return err
+	}
+	if v, ok := m["data"]; ok {
+		err = c.Create(context.TODO(), v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // toBaseJobLog 转换任务日志响应

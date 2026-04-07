@@ -15,7 +15,6 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const _ = grpc.SupportPackageIsVersion7
@@ -23,22 +22,22 @@ const _ = grpc.SupportPackageIsVersion7
 // GoodsInfoService 商品信息服务
 type GoodsInfoService struct {
 	app.UnimplementedGoodsInfoServiceServer
-	goodsCase *biz.GoodsInfoCase
+	goodsInfoCase *biz.GoodsInfoCase
 }
 
 // NewGoodsInfoService 创建商品信息服务
 func NewGoodsInfoService(
-	goodsCase *biz.GoodsInfoCase,
+	goodsInfoCase *biz.GoodsInfoCase,
 ) *GoodsInfoService {
 	var ss = GoodsInfoService{
-		goodsCase: goodsCase,
+		goodsInfoCase: goodsInfoCase,
 	}
 	return &ss
 }
 
 // PageGoodsInfo 查询商品信息分页列表
 func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest) (*app.PageGoodsInfoResponse, error) {
-	page, err := s.goodsCase.PageGoodsInfo(ctx, req)
+	page, err := s.goodsInfoCase.PageGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("PageGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品分页列表失败")
@@ -47,8 +46,8 @@ func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *app.PageGoods
 }
 
 // GetGoodsInfo 查询商品信息
-func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value) (*app.GoodsInfoResponse, error) {
-	info, err := s.goodsCase.GetGoodsInfo(ctx, req.GetValue())
+func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *app.GetGoodsInfoRequest) (*app.GoodsInfoResponse, error) {
+	info, err := s.goodsInfoCase.GetGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("GetGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品失败")

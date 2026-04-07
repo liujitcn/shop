@@ -13,15 +13,15 @@ import (
 
 // GoodsAnalyticsCase 商品分析业务
 type GoodsAnalyticsCase struct {
-	goodsCase         *GoodsInfoCase
+	goodsInfoCase     *GoodsInfoCase
 	goodsCategoryCase *GoodsCategoryCase
 	orderGoodsCase    *OrderGoodsCase
 }
 
 // NewGoodsAnalyticsCase 创建商品分析业务
-func NewGoodsAnalyticsCase(goodsCase *GoodsInfoCase, goodsCategoryCase *GoodsCategoryCase, orderGoodsCase *OrderGoodsCase) *GoodsAnalyticsCase {
+func NewGoodsAnalyticsCase(goodsInfoCase *GoodsInfoCase, goodsCategoryCase *GoodsCategoryCase, orderGoodsCase *OrderGoodsCase) *GoodsAnalyticsCase {
 	return &GoodsAnalyticsCase{
-		goodsCase:         goodsCase,
+		goodsInfoCase:     goodsInfoCase,
 		goodsCategoryCase: goodsCategoryCase,
 		orderGoodsCase:    orderGoodsCase,
 	}
@@ -124,7 +124,7 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsPie(ctx context.Context, req *comm
 
 func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Count(&count).Error
@@ -133,13 +133,13 @@ func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt t
 
 func (c *GoodsAnalyticsCase) countTotalGoods(ctx context.Context) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().Model(&models.GoodsInfo{}).Count(&count).Error
+	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().Model(&models.GoodsInfo{}).Count(&count).Error
 	return count, err
 }
 
 func (c *GoodsAnalyticsCase) countPutOnGoods(ctx context.Context) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsInfo{}).
 		Where("status = ?", int32(commonApi.GoodsStatus_PUT_ON)).
 		Count(&count).Error

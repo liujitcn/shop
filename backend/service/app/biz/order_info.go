@@ -40,7 +40,7 @@ type OrderInfoCase struct {
 	orderLogisticsCase *OrderLogisticsCase
 	orderPaymentCase   *OrderPaymentCase
 	orderRefundCase    *OrderRefundCase
-	goodsCase          *GoodsInfoCase
+	goodsInfoCase      *GoodsInfoCase
 	goodsSkuCase       *GoodsSkuCase
 	userAddressCase    *UserAddressCase
 	userCartCase       *UserCartCase
@@ -54,14 +54,14 @@ type OrderInfoCase struct {
 func NewOrderInfoCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
-	orderRepo *data.OrderInfoRepo,
+	orderInfoRepo *data.OrderInfoRepo,
 	orderCancelCase *OrderCancelCase,
 	orderGoodsCase *OrderGoodsCase,
 	orderAddressCase *OrderAddressCase,
 	orderLogisticsCase *OrderLogisticsCase,
 	orderPaymentCase *OrderPaymentCase,
 	orderRefundCase *OrderRefundCase,
-	goodsCase *GoodsInfoCase,
+	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 	userAddressCase *UserAddressCase,
 	userCartCase *UserCartCase,
@@ -73,14 +73,14 @@ func NewOrderInfoCase(
 	c := &OrderInfoCase{
 		BaseCase:           baseCase,
 		tx:                 tx,
-		OrderInfoRepo:      orderRepo,
+		OrderInfoRepo:      orderInfoRepo,
 		orderCancelCase:    orderCancelCase,
 		orderGoodsCase:     orderGoodsCase,
 		orderAddressCase:   orderAddressCase,
 		orderLogisticsCase: orderLogisticsCase,
 		orderPaymentCase:   orderPaymentCase,
 		orderRefundCase:    orderRefundCase,
-		goodsCase:          goodsCase,
+		goodsInfoCase:      goodsInfoCase,
 		goodsSkuCase:       goodsSkuCase,
 		userAddressCase:    userAddressCase,
 		userCartCase:       userCartCase,
@@ -177,8 +177,8 @@ func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderR
 		return nil, err
 	}
 	member := util.IsMemberByAuthInfo(authInfo)
-	var order *models.OrderInfo
-	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
+	var orderInfo *models.OrderInfo
+	orderInfo, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderR
 	orderGoodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
 	var oldOrderGoods []*models.OrderGoods
 	orderGoodsOpts := make([]repo.QueryOption, 0, 1)
-	orderGoodsOpts = append(orderGoodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)))
+	orderGoodsOpts = append(orderGoodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
 	oldOrderGoods, err = c.orderGoodsCase.List(ctx, orderGoodsOpts...)
 	if err != nil {
 		return nil, err
@@ -264,11 +264,11 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *app.PageOrderInf
 
 	list := make([]*app.OrderInfo, 0)
 	for _, item := range page {
-		order := c.convertToProto(item)
-		if v, ok := orderGoodsMap[order.Id]; ok {
-			order.Goods = v
+		orderInfo := c.convertToProto(item)
+		if v, ok := orderGoodsMap[orderInfo.Id]; ok {
+			orderInfo.Goods = v
 		}
-		list = append(list, order)
+		list = append(list, orderInfo)
 	}
 
 	return &app.PageOrderInfoResponse{
@@ -308,7 +308,7 @@ func (c *OrderInfoCase) GetOrderInfoById(ctx context.Context, id int64) (*app.Or
 	if err != nil {
 		return nil, err
 	}
-	order := c.convertToProto(item)
+	orderInfo := c.convertToProto(item)
 	// 只有待支付订单才需要返回支付剩余时间
 	payTimeout := configs.ParsePayTimeout()
 	createdAt := item.CreatedAt.Add(payTimeout)
@@ -316,19 +316,19 @@ func (c *OrderInfoCase) GetOrderInfoById(ctx context.Context, id int64) (*app.Or
 	countdown := createdAt.Sub(nowTime).Seconds()
 
 	// 查询订单商品明细
-	order.Goods, err = c.orderGoodsCase.listByOrderId(ctx, order.Id)
+	orderInfo.Goods, err = c.orderGoodsCase.listByOrderId(ctx, orderInfo.Id)
 	if err != nil {
 		return nil, err
 	}
 	// 查询订单收货地址快照
 	var address *app.OrderInfoResponse_Address
-	address, err = c.orderAddressCase.findByOrderId(ctx, order.Id)
+	address, err = c.orderAddressCase.findByOrderId(ctx, orderInfo.Id)
 	if err != nil {
 		return nil, err
 	}
 
 	res := app.OrderInfoResponse{
-		Order:     order,
+		Order:     orderInfo,
 		Address:   address,
 		Countdown: float32(countdown),
 	}
@@ -338,7 +338,7 @@ func (c *OrderInfoCase) GetOrderInfoById(ctx context.Context, id int64) (*app.Or
 	case common.OrderStatus_PAID:
 		// 待支付订单返回支付倒计时
 		if common.OrderPayType(item.PayType) == common.OrderPayType_ONLINE_PAY {
-			res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByOrderId(ctx, order.Id)
+			res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByOrderId(ctx, orderInfo.Id)
 			if err != nil {
 				return nil, err
 			}
@@ -346,20 +346,20 @@ func (c *OrderInfoCase) GetOrderInfoById(ctx context.Context, id int64) (*app.Or
 	case common.OrderStatus_SHIPPED, common.OrderStatus_RECEIVED:
 		// 已发货订单返回物流信息
 		var logistics *app.OrderInfoResponse_Logistics
-		logistics, err = c.orderLogisticsCase.findByOrderId(ctx, order.Id)
+		logistics, err = c.orderLogisticsCase.findByOrderId(ctx, orderInfo.Id)
 		if err != nil {
 			return nil, err
 		}
 		res.Logistics = logistics
 	case common.OrderStatus_CANCELED:
 		// 已取消订单返回取消时间
-		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByOrderId(ctx, order.Id)
+		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByOrderId(ctx, orderInfo.Id)
 		if err != nil {
 			return nil, err
 		}
 	case common.OrderStatus_REFUNDING:
 		// 退款订单返回退款时间
-		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderId(ctx, order.Id)
+		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderId(ctx, orderInfo.Id)
 		if err != nil {
 			return nil, err
 		}
@@ -380,7 +380,7 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 	}
 
 	// 先构建订单基础信息，再在事务中统一落库
-	order := &models.OrderInfo{
+	orderInfo := &models.OrderInfo{
 		OrderNo:      strconv.FormatInt(id.GenSnowflakeID(), 10),
 		UserID:       authInfo.UserId,
 		PayType:      int32(request.PayType),
@@ -396,11 +396,11 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 			return err
 		}
 		for _, orderGoods := range orderGoodsList {
-			order.PayMoney += orderGoods.TotalPayPrice
-			order.TotalMoney += orderGoods.TotalPrice
-			order.GoodsNum += orderGoods.Num
+			orderInfo.PayMoney += orderGoods.TotalPayPrice
+			orderInfo.TotalMoney += orderGoods.TotalPrice
+			orderInfo.GoodsNum += orderGoods.Num
 			// 创建订单后立即扣减库存并增加销量
-			err = c.goodsCase.addSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
+			err = c.goodsInfoCase.addSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
 			if err != nil {
 				return err
 			}
@@ -415,19 +415,19 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 			}
 		}
 		// 当前版本统一免运费
-		order.PostFee = 0
-		err = c.OrderInfoRepo.Create(ctx, order)
+		orderInfo.PostFee = 0
+		err = c.OrderInfoRepo.Create(ctx, orderInfo)
 		if err != nil {
 			return err
 		}
 
 		// 保存订单商品快照
-		err = c.orderGoodsCase.createByOrder(ctx, order.ID, orderGoodsList)
+		err = c.orderGoodsCase.createByOrder(ctx, orderInfo.ID, orderGoodsList)
 		if err != nil {
 			return err
 		}
 		// 保存订单地址快照
-		err = c.orderAddressCase.createByOrder(ctx, authInfo.UserId, order.ID, request.GetAddressId())
+		err = c.orderAddressCase.createByOrder(ctx, authInfo.UserId, orderInfo.ID, request.GetAddressId())
 		if err != nil {
 			return err
 		}
@@ -437,23 +437,23 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 		return nil, err
 	}
 	// 为在线支付订单增加超时自动取消任务
-	if order.Status == int32(common.OrderStatus_CREATED) {
+	if orderInfo.Status == int32(common.OrderStatus_CREATED) {
 		// 延迟时间使用支付超时配置
 		payTimeout := configs.ParsePayTimeout()
-		createdAt := order.CreatedAt.Add(payTimeout)
+		createdAt := orderInfo.CreatedAt.Add(payTimeout)
 		nowTime := time.Now()
 		countdown := createdAt.Sub(nowTime).Seconds()
-		c.orderSchedulerCase.AddSchedule(order.ID, time.Duration(countdown)*time.Second, func() {
-			err = c.cancelOrder(context.Background(), order.UserID, &app.CancelOrderInfoRequest{
-				OrderId: order.ID,
+		c.orderSchedulerCase.AddSchedule(orderInfo.ID, time.Duration(countdown)*time.Second, func() {
+			err = c.cancelOrder(context.Background(), orderInfo.UserID, &app.CancelOrderInfoRequest{
+				OrderId: orderInfo.ID,
 			})
 			if err != nil {
-				log.Errorf("CancelOrder order %d failed: %v", order.ID, err)
+				log.Errorf("CancelOrder order %d failed: %v", orderInfo.ID, err)
 			}
 		})
 	}
 	return &app.CreateOrderInfoResponse{
-		OrderId: order.ID,
+		OrderId: orderInfo.ID,
 	}, nil
 }
 
@@ -464,13 +464,13 @@ func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
 		return err
 	}
 
-	var order *models.OrderInfo
-	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, id)
+	var orderInfo *models.OrderInfo
+	orderInfo, err = c.findByUserIdAndId(ctx, authInfo.UserId, id)
 	if err != nil {
 		return err
 	}
-	if !(order.Status == int32(common.OrderStatus_RECEIVED) || order.Status == int32(common.OrderStatus_REFUNDING) || order.Status == int32(common.OrderStatus_CANCELED)) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if !(orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING) || orderInfo.Status == int32(common.OrderStatus_CANCELED)) {
+		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
 	orderIds := []int64{id}
@@ -494,23 +494,23 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 	if err != nil {
 		return err
 	}
-	var order *models.OrderInfo
-	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
+	var orderInfo *models.OrderInfo
+	orderInfo, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {
 		return err
 	}
 
-	if order.Status != int32(common.OrderStatus_PAID) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if orderInfo.Status != int32(common.OrderStatus_PAID) {
+		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
 	orderRefund := &models.OrderRefund{
 		OrderID:  req.GetOrderId(),
-		RefundNo: order.OrderNo, // 退款单号，和订单号使用一个方便查询退款
+		RefundNo: orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
 		Reason:   int32(req.GetReason()),
 	}
 	// 只有在线支付订单才会走退款单和微信退款流程
-	if common.OrderPayType(order.PayType) == common.OrderPayType_ONLINE_PAY {
+	if common.OrderPayType(orderInfo.PayType) == common.OrderPayType_ONLINE_PAY {
 		// 先把退款原因值翻译成字典标签，便于退款记录展示
 		reason := strconv.Itoa(int(orderRefund.Reason))
 		var label string
@@ -519,15 +519,15 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 			reason = label
 		}
 		// 仅微信支付订单需要调用微信退款接口
-		if common.OrderPayChannel(order.PayChannel) == common.OrderPayChannel_WX_PAY {
+		if common.OrderPayChannel(orderInfo.PayChannel) == common.OrderPayChannel_WX_PAY {
 			var refund *refunddomestic.Refund
 			refund, err = c.wxPayCase.Refund(refunddomestic.CreateRequest{
-				OutTradeNo:  trans.String(order.OrderNo),
+				OutTradeNo:  trans.String(orderInfo.OrderNo),
 				OutRefundNo: trans.String(orderRefund.RefundNo),
 				Reason:      trans.String(reason),
 				Amount: &refunddomestic.AmountReq{
-					Total:    trans.Int64(order.PayMoney),
-					Refund:   trans.Int64(order.PayMoney),
+					Total:    trans.Int64(orderInfo.PayMoney),
+					Refund:   trans.Int64(orderInfo.PayMoney),
 					Currency: trans.String("CNY"),
 				},
 			})
@@ -541,7 +541,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 						if err != nil {
 							return err
 						}
-						err = c.payCase.RefundSuccess(ctx, order, refundResource)
+						err = c.payCase.RefundSuccess(ctx, orderInfo, refundResource)
 						if err != nil {
 							return err
 						}
@@ -587,13 +587,13 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *app.ReceiveOr
 		return err
 	}
 
-	var order *models.OrderInfo
-	order, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
+	var orderInfo *models.OrderInfo
+	orderInfo, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {
 		return err
 	}
-	if order.Status != int32(common.OrderStatus_SHIPPED) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if orderInfo.Status != int32(common.OrderStatus_SHIPPED) {
+		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
 	orderIds := []int64{req.GetOrderId()}
@@ -649,25 +649,25 @@ func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGo
 
 // cancelOrder 内部执行订单取消并回退库存销量
 func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.CancelOrderInfoRequest) error {
-	order, err := c.findByUserIdAndId(ctx, userId, req.GetOrderId())
+	orderInfo, err := c.findByUserIdAndId(ctx, userId, req.GetOrderId())
 	if err != nil {
 		return err
 	}
-	if order.Status != int32(common.OrderStatus_CREATED) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
+		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
 	// 微信在线支付订单在取消前先补查一次真实支付状态，避免回调延迟时误取消已支付订单
-	if common.OrderPayType(order.PayType) == common.OrderPayType_ONLINE_PAY &&
-		common.OrderPayChannel(order.PayChannel) == common.OrderPayChannel_WX_PAY {
+	if common.OrderPayType(orderInfo.PayType) == common.OrderPayType_ONLINE_PAY &&
+		common.OrderPayChannel(orderInfo.PayChannel) == common.OrderPayChannel_WX_PAY {
 		var paymentResource *app.PaymentResource
-		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(order.OrderNo)
+		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderInfo.OrderNo)
 		if err != nil {
 			return err
 		}
 		if paymentResource != nil && paymentResource.GetTradeState().String() == "SUCCESS" {
 			// 查询到已支付后，直接复用支付服务中的成功处理逻辑补齐本地状态
-			err = c.payCase.PaySuccess(ctx, order, paymentResource)
+			err = c.payCase.PaySuccess(ctx, orderInfo, paymentResource)
 			if err != nil {
 				return err
 			}
@@ -683,7 +683,7 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 		orderGoodsList, err = c.orderGoodsCase.List(ctx, opts...)
 		for _, orderGoods := range orderGoodsList {
 			// 订单取消后恢复库存并回退销量
-			err = c.goodsCase.subSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
+			err = c.goodsInfoCase.subSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)
 			if err != nil {
 				return err
 			}

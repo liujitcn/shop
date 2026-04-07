@@ -35,14 +35,14 @@ const (
 )
 
 // NewGoodsInfoCase 创建商品业务实例
-func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsRepo *data.GoodsInfoRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsInfoCase {
+func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo *data.GoodsInfoRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsInfoCase {
 	formMapper := _mapper.NewCopierMapper[admin.GoodsInfoForm, models.GoodsInfo]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	mapper := _mapper.NewCopierMapper[admin.GoodsInfo, models.GoodsInfo]()
 	return &GoodsInfoCase{
 		BaseCase:          baseCase,
 		tx:                tx,
-		GoodsInfoRepo:     goodsRepo,
+		GoodsInfoRepo:     goodsInfoRepo,
 		goodsCategoryCase: goodsCategoryCase,
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
@@ -158,9 +158,9 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 
 	resList := make([]*admin.GoodsInfo, 0, len(list))
 	for _, item := range list {
-		goods := c.mapper.ToDTO(item)
-		goods.CategoryName = categoryNames[item.CategoryID]
-		resList = append(resList, goods)
+		goodsInfo := c.mapper.ToDTO(item)
+		goodsInfo.CategoryName = categoryNames[item.CategoryID]
+		resList = append(resList, goodsInfo)
 	}
 	return &admin.PageGoodsInfoResponse{List: resList, Total: int32(total)}, nil
 }
@@ -203,15 +203,15 @@ func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int6
 
 // GetGoodsInfo 获取商品
 func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*admin.GoodsInfoForm, error) {
-	goods, err := c.FindById(ctx, id)
+	goodsInfo, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	goodsForm := c.formMapper.ToDTO(goods)
+	goodsForm := c.formMapper.ToDTO(goodsInfo)
 
 	var category *models.GoodsCategory
-	category, err = c.goodsCategoryCase.FindById(ctx, goods.CategoryID)
+	category, err = c.goodsCategoryCase.FindById(ctx, goodsInfo.CategoryID)
 	if err == nil {
 		goodsForm.CategoryName = category.Name
 		if category.ParentID > 0 {
@@ -243,68 +243,68 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*admin.Good
 // CreateGoodsInfo 创建商品
 func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		goods := c.formMapper.ToEntity(req)
+		goodsInfo := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			if idx == 0 {
-				goods.Price = sku.Price
-				goods.DiscountPrice = sku.DiscountPrice
+				goodsInfo.Price = sku.Price
+				goodsInfo.DiscountPrice = sku.DiscountPrice
 			}
-			goods.InitSaleNum += sku.InitSaleNum
-			goods.RealSaleNum += sku.RealSaleNum
-			goods.Inventory += sku.Inventory
+			goodsInfo.InitSaleNum += sku.InitSaleNum
+			goodsInfo.RealSaleNum += sku.RealSaleNum
+			goodsInfo.Inventory += sku.Inventory
 		}
 
-		err := c.Create(ctx, goods)
+		err := c.Create(ctx, goodsInfo)
 		if err != nil {
 			return err
 		}
 
-		err = c.batchCreateGoodsProp(ctx, goods.ID, req.GetPropList())
+		err = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
 		if err != nil {
 			return err
 		}
-		err = c.batchCreateGoodsSpec(ctx, goods.ID, req.GetSpecList())
+		err = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
 		if err != nil {
 			return err
 		}
-		return c.batchCreateGoodsSku(ctx, goods.ID, skuList)
+		return c.batchCreateGoodsSku(ctx, goodsInfo.ID, skuList)
 	})
 }
 
 // UpdateGoodsInfo 更新商品
 func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		goods := c.formMapper.ToEntity(req)
+		goodsInfo := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			if idx == 0 {
-				goods.Price = sku.Price
-				goods.DiscountPrice = sku.DiscountPrice
+				goodsInfo.Price = sku.Price
+				goodsInfo.DiscountPrice = sku.DiscountPrice
 			}
-			goods.InitSaleNum += sku.InitSaleNum
-			goods.RealSaleNum += sku.RealSaleNum
-			goods.Inventory += sku.Inventory
+			goodsInfo.InitSaleNum += sku.InitSaleNum
+			goodsInfo.RealSaleNum += sku.RealSaleNum
+			goodsInfo.Inventory += sku.Inventory
 		}
 
-		err := c.UpdateById(ctx, goods)
+		err := c.UpdateById(ctx, goodsInfo)
 		if err != nil {
 			return err
 		}
 
-		err = c.deleteGoodsChildren(ctx, []int64{goods.ID})
+		err = c.deleteGoodsChildren(ctx, []int64{goodsInfo.ID})
 		if err != nil {
 			return err
 		}
-		err = c.batchCreateGoodsProp(ctx, goods.ID, req.GetPropList())
+		err = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
 		if err != nil {
 			return err
 		}
-		err = c.batchCreateGoodsSpec(ctx, goods.ID, req.GetSpecList())
+		err = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
 		if err != nil {
 			return err
 		}
-		return c.batchCreateGoodsSku(ctx, goods.ID, skuList)
+		return c.batchCreateGoodsSku(ctx, goodsInfo.ID, skuList)
 	})
 }
 

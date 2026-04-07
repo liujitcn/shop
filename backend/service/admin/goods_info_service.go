@@ -28,21 +28,21 @@ const _ = grpc.SupportPackageIsVersion7
 // GoodsInfoService Admin商品信息服务
 type GoodsInfoService struct {
 	admin.UnimplementedGoodsInfoServiceServer
-	goodsCase *biz.GoodsInfoCase
+	goodsInfoCase *biz.GoodsInfoCase
 }
 
 // NewGoodsInfoService 创建Admin商品信息服务
 func NewGoodsInfoService(
-	goodsCase *biz.GoodsInfoCase,
+	goodsInfoCase *biz.GoodsInfoCase,
 ) *GoodsInfoService {
 	return &GoodsInfoService{
-		goodsCase: goodsCase,
+		goodsInfoCase: goodsInfoCase,
 	}
 }
 
 // ListGoodsInfo 查询商品信息列表
 func (s *GoodsInfoService) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
-	list, err := s.goodsCase.ListGoodsInfo(ctx, req)
+	list, err := s.goodsInfoCase.ListGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("ListGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品列表失败")
@@ -52,7 +52,7 @@ func (s *GoodsInfoService) ListGoodsInfo(ctx context.Context, req *admin.ListGoo
 
 // PageGoodsInfo 查询商品信息分页列表
 func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsInfoRequest) (*admin.PageGoodsInfoResponse, error) {
-	page, err := s.goodsCase.PageGoodsInfo(ctx, req)
+	page, err := s.goodsInfoCase.PageGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("PageGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品分页列表失败")
@@ -63,18 +63,18 @@ func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *admin.PageGoo
 
 // GetGoodsInfo 查询商品信息
 func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsInfoForm, error) {
-	goods, err := s.goodsCase.GetGoodsInfo(ctx, req.GetValue())
+	goodsInfo, err := s.goodsInfoCase.GetGoodsInfo(ctx, req.GetValue())
 	if err != nil {
 		log.Error("GetGoodsInfo err:", err.Error())
 		return nil, errors.New("查询商品失败")
 	}
 
-	return goods, nil
+	return goodsInfo, nil
 }
 
 // CreateGoodsInfo 创建商品信息
 func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) (*emptypb.Empty, error) {
-	err := s.goodsCase.CreateGoodsInfo(ctx, req)
+	err := s.goodsInfoCase.CreateGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("CreateGoodsInfo err:", err.Error())
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
@@ -94,7 +94,7 @@ func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *admin.Goods
 
 // UpdateGoodsInfo 更新商品信息
 func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) (*emptypb.Empty, error) {
-	err := s.goodsCase.UpdateGoodsInfo(ctx, req)
+	err := s.goodsInfoCase.UpdateGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("UpdateGoodsInfo err:", err.Error())
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
@@ -114,7 +114,7 @@ func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *admin.Goods
 
 // DeleteGoodsInfo 删除商品信息
 func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
-	err := s.goodsCase.DeleteGoodsInfo(ctx, req.GetValue())
+	err := s.goodsInfoCase.DeleteGoodsInfo(ctx, req.GetValue())
 	if err != nil {
 		log.Error("DeleteGoodsInfo err:", err.Error())
 		return nil, errors.New("删除商品失败")
@@ -124,7 +124,7 @@ func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *wrapperspb.
 
 // SetGoodsInfoStatus 设置状态
 func (s *GoodsInfoService) SetGoodsInfoStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
-	err := s.goodsCase.SetGoodsInfoStatus(ctx, req)
+	err := s.goodsInfoCase.SetGoodsInfoStatus(ctx, req)
 	if err != nil {
 		log.Error("SetGoodsInfoStatus err:", err.Error())
 		return nil, errors.New("设置状态失败")

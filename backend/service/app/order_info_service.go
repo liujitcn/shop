@@ -24,22 +24,22 @@ const _ = grpc.SupportPackageIsVersion7
 // OrderInfoService 订单信息服务
 type OrderInfoService struct {
 	app.UnimplementedOrderInfoServiceServer
-	orderCase *biz.OrderInfoCase
+	orderInfoCase *biz.OrderInfoCase
 }
 
 // NewOrderInfoService 创建订单信息服务
 func NewOrderInfoService(
-	orderCase *biz.OrderInfoCase,
+	orderInfoCase *biz.OrderInfoCase,
 ) *OrderInfoService {
 	var ss = OrderInfoService{
-		orderCase: orderCase,
+		orderInfoCase: orderInfoCase,
 	}
 	return &ss
 }
 
 // OrderInfoPre 预付订单信息
 func (s *OrderInfoService) OrderInfoPre(ctx context.Context, req *emptypb.Empty) (*app.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderCase.OrderInfoPre(ctx)
+	res, err := s.orderInfoCase.OrderInfoPre(ctx)
 	if err != nil {
 		log.Error("OrderInfoPre err:", err.Error())
 		return nil, errors.New("预付订单失败")
@@ -51,7 +51,7 @@ func (s *OrderInfoService) OrderInfoPre(ctx context.Context, req *emptypb.Empty)
 
 // OrderInfoBuy 立即购买订单信息
 func (s *OrderInfoService) OrderInfoBuy(ctx context.Context, req *app.CreateOrderInfoGoods) (*app.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderCase.OrderInfoBuy(ctx, req)
+	res, err := s.orderInfoCase.OrderInfoBuy(ctx, req)
 	if err != nil {
 		log.Error("OrderInfoBuy err:", err.Error())
 		return nil, errors.New("立即购买失败")
@@ -61,7 +61,7 @@ func (s *OrderInfoService) OrderInfoBuy(ctx context.Context, req *app.CreateOrde
 
 // OrderInfoRepurchase 再次购买订单信息
 func (s *OrderInfoService) OrderInfoRepurchase(ctx context.Context, req *app.OrderRepurchaseInfoRequest) (*app.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderCase.OrderInfoRepurchase(ctx, req)
+	res, err := s.orderInfoCase.OrderInfoRepurchase(ctx, req)
 	if err != nil {
 		log.Error("OrderInfoRepurchase err:", err.Error())
 		return nil, errors.New("再次购买订单失败")
@@ -71,7 +71,7 @@ func (s *OrderInfoService) OrderInfoRepurchase(ctx context.Context, req *app.Ord
 
 // CountOrderInfo 查询订单信息数量汇总
 func (s *OrderInfoService) CountOrderInfo(ctx context.Context, req *emptypb.Empty) (*app.CountOrderInfoResponse, error) {
-	res, err := s.orderCase.CountOrderInfo(ctx)
+	res, err := s.orderInfoCase.CountOrderInfo(ctx)
 	if err != nil {
 		log.Error("CountOrderInfo err:", err.Error())
 		return nil, errors.New("查询订单数量汇总失败")
@@ -81,7 +81,7 @@ func (s *OrderInfoService) CountOrderInfo(ctx context.Context, req *emptypb.Empt
 
 // PageOrderInfo 查询订单信息分页列表
 func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *app.PageOrderInfoRequest) (*app.PageOrderInfoResponse, error) {
-	page, err := s.orderCase.PageOrderInfo(ctx, req)
+	page, err := s.orderInfoCase.PageOrderInfo(ctx, req)
 	if err != nil {
 		log.Error("PageOrderInfo err:", err.Error())
 		return nil, errors.New("查询订单分页列表失败")
@@ -91,7 +91,7 @@ func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *app.PageOrder
 
 // GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息编号
 func (s *OrderInfoService) GetOrderInfoIdByOrderNo(ctx context.Context, req *wrapperspb.StringValue) (*wrapperspb.Int64Value, error) {
-	res, err := s.orderCase.GetOrderInfoIdByOrderNo(ctx, req.GetValue())
+	res, err := s.orderInfoCase.GetOrderInfoIdByOrderNo(ctx, req.GetValue())
 	if err != nil {
 		log.Error("GetOrderInfoIdByOrderNo err:", err.Error())
 		return nil, errors.New("查询订单失败")
@@ -104,7 +104,7 @@ func (s *OrderInfoService) GetOrderInfoIdByOrderNo(ctx context.Context, req *wra
 
 // GetOrderInfoById 根据订单信息编号查询订单信息
 func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *wrapperspb.Int64Value) (*app.OrderInfoResponse, error) {
-	res, err := s.orderCase.GetOrderInfoById(ctx, req.GetValue())
+	res, err := s.orderInfoCase.GetOrderInfoById(ctx, req.GetValue())
 	if err != nil {
 		log.Error("GetOrderInfoById err:", err.Error())
 		return nil, errors.New("查询订单失败")
@@ -115,7 +115,7 @@ func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *wrapperspb
 
 // CreateOrderInfo 创建订单信息
 func (s *OrderInfoService) CreateOrderInfo(ctx context.Context, req *app.CreateOrderInfoRequest) (*app.CreateOrderInfoResponse, error) {
-	res, err := s.orderCase.CreateOrderInfo(ctx, req)
+	res, err := s.orderInfoCase.CreateOrderInfo(ctx, req)
 	if err != nil {
 		log.Error("CreateOrderInfo err:", err.Error())
 		return nil, errors.New("创建订单失败")
@@ -125,7 +125,7 @@ func (s *OrderInfoService) CreateOrderInfo(ctx context.Context, req *app.CreateO
 
 // DeleteOrderInfo 删除订单信息
 func (s *OrderInfoService) DeleteOrderInfo(ctx context.Context, req *wrapperspb.Int64Value) (*emptypb.Empty, error) {
-	err := s.orderCase.DeleteOrderInfo(ctx, req.GetValue())
+	err := s.orderInfoCase.DeleteOrderInfo(ctx, req.GetValue())
 	if err != nil {
 		log.Error("DeleteOrderInfo err:", err.Error())
 		return nil, errors.New("删除订单失败")
@@ -135,7 +135,7 @@ func (s *OrderInfoService) DeleteOrderInfo(ctx context.Context, req *wrapperspb.
 
 // CancelOrderInfo 取消订单信息
 func (s *OrderInfoService) CancelOrderInfo(ctx context.Context, req *app.CancelOrderInfoRequest) (*emptypb.Empty, error) {
-	err := s.orderCase.CancelOrderInfo(ctx, req)
+	err := s.orderInfoCase.CancelOrderInfo(ctx, req)
 	if err != nil {
 		log.Error("CancelOrderInfo err:", err.Error())
 		return nil, errors.New("取消订单失败")
@@ -145,7 +145,7 @@ func (s *OrderInfoService) CancelOrderInfo(ctx context.Context, req *app.CancelO
 
 // RefundOrderInfo 订单信息退款
 func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *app.RefundOrderInfoRequest) (*emptypb.Empty, error) {
-	err := s.orderCase.RefundOrderInfo(ctx, req)
+	err := s.orderInfoCase.RefundOrderInfo(ctx, req)
 	if err != nil {
 		log.Error("RefundOrderInfo err:", err.Error())
 		return nil, errors.New("订单退款失败")
@@ -155,7 +155,7 @@ func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *app.RefundO
 
 // ReceiveOrderInfo 确认收货
 func (s *OrderInfoService) ReceiveOrderInfo(ctx context.Context, req *app.ReceiveOrderInfoRequest) (*emptypb.Empty, error) {
-	err := s.orderCase.ReceiveOrderInfo(ctx, req)
+	err := s.orderInfoCase.ReceiveOrderInfo(ctx, req)
 	if err != nil {
 		log.Error("ReceiveOrderInfo err:", err.Error())
 		return nil, errors.New("确认收货失败")

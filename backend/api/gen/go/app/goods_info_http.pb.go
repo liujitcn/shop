@@ -11,7 +11,6 @@ import (
 
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
-	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -26,7 +25,7 @@ const OperationGoodsInfoServicePageGoodsInfo = "/app.GoodsInfoService/PageGoodsI
 
 type GoodsInfoServiceHTTPServer interface {
 	// GetGoodsInfo 查询商品信息
-	GetGoodsInfo(context.Context, *wrapperspb.Int64Value) (*GoodsInfoResponse, error)
+	GetGoodsInfo(context.Context, *GetGoodsInfoRequest) (*GoodsInfoResponse, error)
 	// PageGoodsInfo 查询商品信息分页列表
 	PageGoodsInfo(context.Context, *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error)
 }
@@ -34,7 +33,7 @@ type GoodsInfoServiceHTTPServer interface {
 func RegisterGoodsInfoServiceHTTPServer(s *http.Server, srv GoodsInfoServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/app/goods/info", _GoodsInfoService_PageGoodsInfo0_HTTP_Handler(srv))
-	r.GET("/api/app/goods/info/{value}", _GoodsInfoService_GetGoodsInfo0_HTTP_Handler(srv))
+	r.GET("/api/app/goods/info/{id}", _GoodsInfoService_GetGoodsInfo0_HTTP_Handler(srv))
 }
 
 func _GoodsInfoService_PageGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServer) func(ctx http.Context) error {
@@ -58,7 +57,7 @@ func _GoodsInfoService_PageGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServe
 
 func _GoodsInfoService_GetGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in wrapperspb.Int64Value
+		var in GetGoodsInfoRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -67,7 +66,7 @@ func _GoodsInfoService_GetGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServer
 		}
 		http.SetOperation(ctx, OperationGoodsInfoServiceGetGoodsInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetGoodsInfo(ctx, req.(*wrapperspb.Int64Value))
+			return srv.GetGoodsInfo(ctx, req.(*GetGoodsInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -80,7 +79,7 @@ func _GoodsInfoService_GetGoodsInfo0_HTTP_Handler(srv GoodsInfoServiceHTTPServer
 
 type GoodsInfoServiceHTTPClient interface {
 	// GetGoodsInfo 查询商品信息
-	GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *GoodsInfoResponse, err error)
+	GetGoodsInfo(ctx context.Context, req *GetGoodsInfoRequest, opts ...http.CallOption) (rsp *GoodsInfoResponse, err error)
 	// PageGoodsInfo 查询商品信息分页列表
 	PageGoodsInfo(ctx context.Context, req *PageGoodsInfoRequest, opts ...http.CallOption) (rsp *PageGoodsInfoResponse, err error)
 }
@@ -94,9 +93,9 @@ func NewGoodsInfoServiceHTTPClient(client *http.Client) GoodsInfoServiceHTTPClie
 }
 
 // GetGoodsInfo 查询商品信息
-func (c *GoodsInfoServiceHTTPClientImpl) GetGoodsInfo(ctx context.Context, in *wrapperspb.Int64Value, opts ...http.CallOption) (*GoodsInfoResponse, error) {
+func (c *GoodsInfoServiceHTTPClientImpl) GetGoodsInfo(ctx context.Context, in *GetGoodsInfoRequest, opts ...http.CallOption) (*GoodsInfoResponse, error) {
 	var out GoodsInfoResponse
-	pattern := "/api/app/goods/info/{value}"
+	pattern := "/api/app/goods/info/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationGoodsInfoServiceGetGoodsInfo))
 	opts = append(opts, http.PathTemplate(pattern))

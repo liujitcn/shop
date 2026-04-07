@@ -25,11 +25,15 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 // 接收页面参数
 const query = defineProps<{
   id: string
+  source?: string
+  scene?: string
+  requestId?: string
+  index?: string
 }>()
 
 // 获取商品详情信息
-const goods = ref<GoodsInfoResponse>()
-const goodsList = ref<GoodsInfo[]>([])
+const goodsInfo = ref<GoodsInfoResponse>()
+const goodsInfoList = ref<GoodsInfo[]>([])
 const isCollect = ref<boolean>(false)
 const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
@@ -39,17 +43,20 @@ const loadData = async () => {
   const ssRes = await defShopServiceService.ListShopService({})
   serviceList.value = ssRes.list || []
   const res = await defGoodsInfoService.GetGoodsInfo({
-    value: Number(query.id),
+    id: Number(query.id),
+    source: query.source || '',
+    scene: query.scene || '',
+    requestId: query.requestId || '',
+    index: Number(query.index || 0),
   })
-  goods.value = res
+  goodsInfo.value = res
   const pageRes = await defGoodsInfoService.PageGoodsInfo({
     name: '',
     categoryId: res.categoryId,
-    guessLike: false,
     pageNum: 1,
     pageSize: 30,
   })
-  goodsList.value = pageRes.list || []
+  goodsInfoList.value = pageRes.list || []
   // SKU组件所需格式
   localData.value = {
     _id: res.id,
@@ -102,7 +109,7 @@ const onChange: UniHelper.SwiperOnChange = (ev) => {
 const onTapImage = (url: string) => {
   // 大图预览
   const urls: string[] = []
-  goods.value!.banner.map((item) => {
+  goodsInfo.value!.banner.map((item) => {
     urls.push(formatSrc(item))
   })
   uni.previewImage({
@@ -185,7 +192,7 @@ const onCollect = async () => {
     return
   }
   await defUserCollectService.CreateUserCollect({
-    goodsId: goods.value!.id,
+    goodsId: goodsInfo.value!.id,
   })
   isCollect.value = !isCollect.value
   await uni.showToast({ title: isCollect.value ? '收藏成功' : '取消成功' })
@@ -193,11 +200,11 @@ const onCollect = async () => {
 
 // 定义分享配置
 const shareConfig = computed(() => {
-  if (!goods.value) return {}
+  if (!goodsInfo.value) return {}
   return {
-    title: `${goods.value.name} ¥${formatPrice(goods.value.price)}`,
-    path: `/pages/goods/goods?id=${goods.value.id}`,
-    imageUrl: formatSrc(goods.value.picture),
+    title: `${goodsInfo.value.name} ¥${formatPrice(goodsInfo.value.price)}`,
+    path: `/pages/goods/goods?id=${goodsInfo.value.id}`,
+    imageUrl: formatSrc(goodsInfo.value.picture),
   }
 })
 
@@ -229,20 +236,20 @@ const onShareTimeline = () => {
     @add-cart="onAddCart"
     @buy-now="onBuyNow"
   />
-  <scroll-view v-if="goods" enable-back-to-top scroll-y class="viewport">
+  <scroll-view v-if="goodsInfo" enable-back-to-top scroll-y class="viewport">
     <!-- 基本信息 -->
     <view class="goods">
       <!-- 商品主图 -->
       <view class="preview">
         <swiper circular @change="onChange">
-          <swiper-item v-for="item in goods!.banner" :key="item">
+          <swiper-item v-for="item in goodsInfo!.banner" :key="item">
             <image class="image" mode="aspectFill" :src="formatSrc(item)" @tap="onTapImage(item)" />
           </swiper-item>
         </swiper>
         <view class="indicator">
           <text class="current">{{ currentIndex + 1 }}</text>
           <text class="split">/</text>
-          <text class="total">{{ goods!.banner.length }}</text>
+          <text class="total">{{ goodsInfo!.banner.length }}</text>
         </view>
       </view>
 
@@ -250,10 +257,10 @@ const onShareTimeline = () => {
       <view class="meta">
         <view class="price">
           <text class="symbol">¥</text>
-          <text class="number">{{ formatPrice(goods!.price) }}</text>
+          <text class="number">{{ formatPrice(goodsInfo!.price) }}</text>
         </view>
-        <view class="name ellipsis">{{ goods!.name }}</view>
-        <view class="desc"> {{ goods!.desc }} </view>
+        <view class="name ellipsis">{{ goodsInfo!.name }}</view>
+        <view class="desc"> {{ goodsInfo!.desc }} </view>
       </view>
 
       <!-- 操作面板 -->
@@ -281,14 +288,14 @@ const onShareTimeline = () => {
       <view class="content">
         <view class="properties">
           <!-- 属性详情 -->
-          <view v-for="item in goods!.propList" :key="item.label" class="item">
+          <view v-for="item in goodsInfo!.propList" :key="item.label" class="item">
             <text class="label">{{ item.label }}</text>
             <text class="value">{{ item.value }}</text>
           </view>
         </view>
         <!-- 图片详情 -->
         <image
-          v-for="item in goods!.detail"
+          v-for="item in goodsInfo!.detail"
           :key="item"
           class="image"
           mode="widthFix"
@@ -304,7 +311,7 @@ const onShareTimeline = () => {
       </view>
       <view class="content">
         <navigator
-          v-for="item in goodsList"
+          v-for="item in goodsInfoList"
           :key="item.id"
           class="goods"
           hover-class="none"
@@ -322,7 +329,7 @@ const onShareTimeline = () => {
   </scroll-view>
 
   <!-- 用户操作 -->
-  <view v-if="goods" class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
+  <view v-if="goodsInfo" class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
     <view class="icons">
       <button class="icons-button" @tap="onCollect()">
         <text class="icon-heart" :class="{ active: isCollect }" />{{

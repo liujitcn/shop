@@ -14,28 +14,28 @@ const lowInventoryThreshold = 10
 
 // WorkspaceCase 工作台业务实例。
 type WorkspaceCase struct {
-	orderCase      *OrderInfoCase
+	orderInfoCase  *OrderInfoCase
 	baseUserCase   *BaseUserCase
 	orderGoodsCase *OrderGoodsCase
-	goodsCase      *GoodsInfoCase
+	goodsInfoCase  *GoodsInfoCase
 	goodsSkuCase   *GoodsSkuCase
 	payBillCase    *PayBillCase
 }
 
 // NewWorkspaceCase 创建工作台业务实例。
 func NewWorkspaceCase(
-	orderCase *OrderInfoCase,
+	orderInfoCase *OrderInfoCase,
 	baseUserCase *BaseUserCase,
 	orderGoodsCase *OrderGoodsCase,
-	goodsCase *GoodsInfoCase,
+	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 	payBillCase *PayBillCase,
 ) *WorkspaceCase {
 	return &WorkspaceCase{
-		orderCase:      orderCase,
+		orderInfoCase:  orderInfoCase,
 		baseUserCase:   baseUserCase,
 		orderGoodsCase: orderGoodsCase,
-		goodsCase:      goodsCase,
+		goodsInfoCase:  goodsInfoCase,
 		goodsSkuCase:   goodsSkuCase,
 		payBillCase:    payBillCase,
 	}
@@ -192,7 +192,7 @@ func paidOrderStatuses() []int32 {
 // countOrderCount 统计时间范围内订单数。
 func (c *WorkspaceCase) countOrderCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Count(&count).Error
@@ -208,7 +208,7 @@ func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endA
 
 	var result row
 	statuses := paidOrderStatuses()
-	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderInfo{}).
 		Select("COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
@@ -220,7 +220,7 @@ func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endA
 // countDistinctOrderUsers 统计时间范围内下单用户数。
 func (c *WorkspaceCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Distinct("user_id").
@@ -243,7 +243,7 @@ func (c *WorkspaceCase) countRepurchaseUsers(ctx context.Context, startAt, endAt
 		" GROUP BY user_id" +
 		" HAVING COUNT(*) >= 2" +
 		") t"
-	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&result).Error
+	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&result).Error
 	return result.Total, err
 }
 
@@ -292,7 +292,7 @@ func (c *WorkspaceCase) countDistinctActiveGoods(ctx context.Context, startAt, e
 // countNewGoods 统计时间范围内新增商品数。
 func (c *WorkspaceCase) countNewGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsInfo{}).
 		Where("created_at >= ? AND created_at < ?", startAt, endAt).
 		Count(&count).Error
@@ -302,7 +302,7 @@ func (c *WorkspaceCase) countNewGoods(ctx context.Context, startAt, endAt time.T
 // countOrderStatus 统计指定订单状态数量。
 func (c *WorkspaceCase) countOrderStatus(ctx context.Context, status int32) (int64, error) {
 	var count int64
-	err := c.orderCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
+	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderInfo{}).
 		Where("status = ?", status).
 		Count(&count).Error
@@ -327,7 +327,7 @@ func (c *WorkspaceCase) countLowInventorySku(ctx context.Context) (int64, error)
 // countGoodsStatus 统计指定商品状态数量。
 func (c *WorkspaceCase) countGoodsStatus(ctx context.Context, status int32) (int64, error) {
 	var count int64
-	err := c.goodsCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsInfo{}).
 		Where("status = ?", status).
 		Count(&count).Error

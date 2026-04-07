@@ -60,7 +60,7 @@ const getDictData = async () => {
   })
 }
 // 获取订单列表
-const orderList = ref<OrderInfo[]>([])
+const orderInfoList = ref<OrderInfo[]>([])
 // 是否加载中标记，用于防止滚动触底触发多次请求
 const isLoading = ref(false)
 const getUserOrderData = async () => {
@@ -78,9 +78,9 @@ const getUserOrderData = async () => {
   isLoading.value = false
   // 数组追加
   const list = res.list || []
-  orderList.value.push(...list)
+  orderInfoList.value.push(...list)
   // 分页条件
-  if (orderList.value.length < res.total) {
+  if (orderInfoList.value.length < res.total) {
     // 页码累加
     queryParams.pageNum++
   } else {
@@ -251,8 +251,8 @@ const onOrderDelete = (id: number) => {
       if (res.confirm) {
         await defOrderService.DeleteOrderInfo({ value: id })
         // 删除成功，界面中删除订单
-        const index = orderList.value.findIndex((v) => v.id === id)
-        orderList.value.splice(index, 1)
+        const index = orderInfoList.value.findIndex((v) => v.id === id)
+        orderInfoList.value.splice(index, 1)
       }
     },
   })
@@ -260,11 +260,11 @@ const onOrderDelete = (id: number) => {
 
 // 更新状态的函数
 const updateStatusById = (id: number, status: OrderStatus): void => {
-  const index = orderList.value.findIndex((v) => v.id === id)
+  const index = orderInfoList.value.findIndex((v) => v.id === id)
   if (index < 0) {
     console.error(`未找到 ID 为 ${id} 的订单`)
   } else {
-    orderList.value[index].status = status
+    orderInfoList.value[index].status = status
   }
 }
 
@@ -278,7 +278,7 @@ const onRefresherRefresh = async () => {
   isTriggered.value = true
   // 重置数据
   queryParams.pageNum = 1
-  orderList.value = []
+  orderInfoList.value = []
   isFinish.value = false
   // 加载数据
   await getUserOrderData()
@@ -297,7 +297,7 @@ const onRefresherRefresh = async () => {
     @refresherrefresh="onRefresherRefresh"
     @scrolltolower="getUserOrderData"
   >
-    <view class="card" v-for="order in orderList" :key="order.id">
+    <view class="card" v-for="order in orderInfoList" :key="order.id">
       <!-- 订单信息 -->
       <view class="status">
         <text class="date" v-if="order.cancelTime">{{ order.cancelTime }}</text>

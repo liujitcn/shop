@@ -337,23 +337,23 @@ async function handleBeforeSetStatus(row: GoodsInfo) {
  * 删除商品，兼容单条删除与批量删除。
  */
 function handleDelete(selected?: number | string | Array<number | string> | GoodsInfo | GoodsInfo[] | { [key: string]: any }[]) {
-  const goodsList = Array.isArray(selected)
+  const goodsInfoList = Array.isArray(selected)
     ? (selected.filter(item => typeof item === "object") as GoodsInfo[])
     : selected && typeof selected === "object"
       ? [selected as GoodsInfo]
       : [];
   const goodsIds = (
-    goodsList.length ? goodsList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
+    goodsInfoList.length ? goodsInfoList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!goodsIds) {
     ElMessage.warning("请勾选删除项");
     return;
   }
 
-  const confirmMessage = goodsList.length
-    ? goodsList.length === 1
-      ? `是否确定删除商品？\n商品名称：${goodsList[0].name || `ID:${goodsList[0].id}`}`
-      : `确认删除已选中的 ${goodsList.length} 个商品吗？`
+  const confirmMessage = goodsInfoList.length
+    ? goodsInfoList.length === 1
+      ? `是否确定删除商品？\n商品名称：${goodsInfoList[0].name || `ID:${goodsInfoList[0].id}`}`
+      : `确认删除已选中的 ${goodsInfoList.length} 个商品吗？`
     : "确认删除已选中的商品吗？";
 
   ElMessageBox.confirm(confirmMessage, "警告", {

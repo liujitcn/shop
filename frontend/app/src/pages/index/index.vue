@@ -14,6 +14,7 @@ import PageSkeleton from './components/PageSkeleton.vue'
 import { useGuessList } from '@/composables'
 import { useSettingStore } from '@/stores'
 import { ShopBannerSite } from '@/rpc/common/enum.ts'
+import { RecommendScene } from '@/rpc/app/recommend'
 
 const settingStore = useSettingStore()
 // 获取轮播图数据
@@ -128,7 +129,7 @@ const onShareTimeline = () => {
         <!-- 热门推荐 -->
         <HotPanel v-if="hotList.length" :list="hotList" />
         <!-- 猜你喜欢 -->
-        <XtxGuess ref="guessRef" />
+        <XtxGuess ref="guessRef" title="为你推荐" :scene="RecommendScene.HOME" />
       </template>
     </scroll-view>
   </view>

@@ -43,11 +43,11 @@ type OrderInfoCase struct {
 }
 
 // NewOrderInfoCase 创建订单业务实例
-func NewOrderInfoCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressCase *OrderAddressCase, orderRepo *data.OrderInfoRepo, orderCancelCase *OrderCancelCase, orderGoodsCase *OrderGoodsCase, orderLogisticsCase *OrderLogisticsCase, orderPaymentCase *OrderPaymentCase, orderRefundCase *OrderRefundCase, baseUserCase *BaseUserCase, baseDictItemCase *BaseDictItemCase, wxPayCase *wx.WxPayCase) *OrderInfoCase {
+func NewOrderInfoCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressCase *OrderAddressCase, orderInfoRepo *data.OrderInfoRepo, orderCancelCase *OrderCancelCase, orderGoodsCase *OrderGoodsCase, orderLogisticsCase *OrderLogisticsCase, orderPaymentCase *OrderPaymentCase, orderRefundCase *OrderRefundCase, baseUserCase *BaseUserCase, baseDictItemCase *BaseDictItemCase, wxPayCase *wx.WxPayCase) *OrderInfoCase {
 	return &OrderInfoCase{
 		BaseCase:           baseCase,
 		tx:                 tx,
-		OrderInfoRepo:      orderRepo,
+		OrderInfoRepo:      orderInfoRepo,
 		orderAddressCase:   orderAddressCase,
 		orderCancelCase:    orderCancelCase,
 		orderGoodsCase:     orderGoodsCase,
@@ -106,54 +106,54 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *admin.PageOrderI
 
 	resList := make([]*admin.OrderInfo, 0, len(list))
 	for _, item := range list {
-		order := c.mapper.ToDTO(item)
+		orderInfo := c.mapper.ToDTO(item)
 		if user, ok := userMap[item.UserID]; ok {
-			order.NickName = user.NickName
+			orderInfo.NickName = user.NickName
 		}
-		resList = append(resList, order)
+		resList = append(resList, orderInfo)
 	}
 	return &admin.PageOrderInfoResponse{List: resList, Total: int32(total)}, nil
 }
 
 // GetOrderInfo 获取订单
 func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*admin.OrderInfoResponse, error) {
-	order, err := c.FindById(ctx, id)
+	orderInfo, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &admin.OrderInfoResponse{
-		Order:     c.mapper.ToDTO(order),
-		Countdown: float32((order.CreatedAt.Add(30 * time.Minute)).Sub(time.Now()).Seconds()),
+		Order:     c.mapper.ToDTO(orderInfo),
+		Countdown: float32((orderInfo.CreatedAt.Add(30 * time.Minute)).Sub(time.Now()).Seconds()),
 	}
 
 	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindById(ctx, order.UserID)
+	baseUser, err = c.baseUserCase.FindById(ctx, orderInfo.UserID)
 	if err == nil {
 		res.Order.NickName = baseUser.NickName
 	}
 
-	res.Address, err = c.orderAddressCase.FindFromByOrderId(ctx, order.ID)
+	res.Address, err = c.orderAddressCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Cancel, err = c.orderCancelCase.FindFromByOrderId(ctx, order.ID)
+	res.Cancel, err = c.orderCancelCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Goods, err = c.orderGoodsCase.FindFromByOrderId(ctx, order.ID)
+	res.Goods, err = c.orderGoodsCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Logistics, err = c.orderLogisticsCase.FindFromByOrderId(ctx, order.ID)
+	res.Logistics, err = c.orderLogisticsCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Payment, err = c.orderPaymentCase.FindFromByOrderId(ctx, order.ID)
+	res.Payment, err = c.orderPaymentCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Refund, err = c.orderRefundCase.FindFromByOrderId(ctx, order.ID)
+	res.Refund, err = c.orderRefundCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -162,16 +162,16 @@ func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*admin.Orde
 
 // GetOrderInfoRefund 获取订单退款信息
 func (c *OrderInfoCase) GetOrderInfoRefund(ctx context.Context, id int64) (*admin.OrderInfoRefundResponse, error) {
-	order, err := c.FindById(ctx, id)
+	orderInfo, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	res := &admin.OrderInfoRefundResponse{}
-	res.Payment, err = c.orderPaymentCase.FindFromByOrderId(ctx, order.ID)
+	res.Payment, err = c.orderPaymentCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Refund, err = c.orderRefundCase.FindFromByOrderId(ctx, order.ID)
+	res.Refund, err = c.orderRefundCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -180,12 +180,12 @@ func (c *OrderInfoCase) GetOrderInfoRefund(ctx context.Context, id int64) (*admi
 
 // RefundOrderInfo 退款订单
 func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOrderInfoRequest) error {
-	order, err := c.FindById(ctx, req.GetOrderId())
+	orderInfo, err := c.FindById(ctx, req.GetOrderId())
 	if err != nil {
 		return err
 	}
-	if !(order.Status == int32(common.OrderStatus_SHIPPED) || order.Status == int32(common.OrderStatus_RECEIVED) || order.Status == int32(common.OrderStatus_REFUNDING)) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if !(orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING)) {
+		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
 	orderRefund := &models.OrderRefund{
@@ -194,15 +194,15 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 		Reason:   int32(req.GetReason()),
 	}
 
-	if common.OrderPayType(order.PayType) == common.OrderPayType_ONLINE_PAY && common.OrderPayChannel(order.PayChannel) == common.OrderPayChannel_WX_PAY {
+	if common.OrderPayType(orderInfo.PayType) == common.OrderPayType_ONLINE_PAY && common.OrderPayChannel(orderInfo.PayChannel) == common.OrderPayChannel_WX_PAY {
 		reason := common.OrderRefundReason_name[int32(req.GetReason())]
 		var refund *refunddomestic.Refund
 		refund, err = c.wxPayCase.Refund(refunddomestic.CreateRequest{
-			OutTradeNo:  trans.String(order.OrderNo),
+			OutTradeNo:  trans.String(orderInfo.OrderNo),
 			OutRefundNo: trans.String(orderRefund.RefundNo),
 			Reason:      trans.String(reason),
 			Amount: &refunddomestic.AmountReq{
-				Total:    trans.Int64(order.PayMoney),
+				Total:    trans.Int64(orderInfo.PayMoney),
 				Refund:   trans.Int64(req.GetRefundMoney()),
 				Currency: trans.String("CNY"),
 			},
@@ -240,7 +240,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 			return err
 		}
 		return c.UpdateById(ctx, &models.OrderInfo{
-			ID:     order.ID,
+			ID:     orderInfo.ID,
 			Status: int32(common.OrderStatus_REFUNDING),
 		})
 	})
@@ -248,22 +248,22 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 
 // GetOrderInfoShipped 获取订单发货信息
 func (c *OrderInfoCase) GetOrderInfoShipped(ctx context.Context, id int64) (*admin.OrderInfoShippedResponse, error) {
-	order, err := c.FindById(ctx, id)
+	orderInfo, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &admin.OrderInfoShippedResponse{}
-	res.Address, err = c.orderAddressCase.FindFromByOrderId(ctx, order.ID)
+	res.Address, err = c.orderAddressCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Goods, err = c.orderGoodsCase.FindFromByOrderId(ctx, order.ID)
+	res.Goods, err = c.orderGoodsCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	if order.Status == int32(common.OrderStatus_SHIPPED) || order.Status == int32(common.OrderStatus_RECEIVED) {
-		res.Logistics, err = c.orderLogisticsCase.FindFromByOrderId(ctx, order.ID)
+	if orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED) {
+		res.Logistics, err = c.orderLogisticsCase.FindFromByOrderId(ctx, orderInfo.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -273,18 +273,18 @@ func (c *OrderInfoCase) GetOrderInfoShipped(ctx context.Context, id int64) (*adm
 
 // ShippedOrderInfo 发货订单
 func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.ShippedOrderInfoRequest) error {
-	order, err := c.FindById(ctx, req.GetOrderId())
+	orderInfo, err := c.FindById(ctx, req.GetOrderId())
 	if err != nil {
 		return err
 	}
-	if order.Status != int32(common.OrderStatus_PAID) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if orderInfo.Status != int32(common.OrderStatus_PAID) {
+		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
-	if common.OrderPayType(order.PayType) == common.OrderPayType_ONLINE_PAY && common.OrderPayChannel(order.PayChannel) == common.OrderPayChannel_WX_PAY {
+	if common.OrderPayType(orderInfo.PayType) == common.OrderPayType_ONLINE_PAY && common.OrderPayChannel(orderInfo.PayChannel) == common.OrderPayChannel_WX_PAY {
 		var transaction *payments.Transaction
 		transaction, err = c.wxPayCase.QueryOrderByOutTradeNo(jsapi.QueryOrderByOutTradeNoRequest{
-			OutTradeNo: trans.String(order.OrderNo),
+			OutTradeNo: trans.String(orderInfo.OrderNo),
 		})
 		if err != nil {
 			return err
@@ -297,7 +297,7 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 
 		paymentQuery := c.orderPaymentCase.Query(ctx).OrderPayment
 		var orderPayment *models.OrderPayment
-		orderPayment, err = c.orderPaymentCase.Find(ctx, repo.Where(paymentQuery.OrderID.Eq(order.ID)))
+		orderPayment, err = c.orderPaymentCase.Find(ctx, repo.Where(paymentQuery.OrderID.Eq(orderInfo.ID)))
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				orderPayment = &models.OrderPayment{}
@@ -311,7 +311,7 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 			now := time.Now()
 			successTime = &now
 		}
-		orderPayment.OrderID = order.ID
+		orderPayment.OrderID = orderInfo.ID
 		orderPayment.OrderNo = trans.StringValue(transaction.OutTradeNo)
 		orderPayment.ThirdOrderNo = trans.StringValue(transaction.TransactionId)
 		orderPayment.TradeType = trans.StringValue(transaction.TradeType)
@@ -333,7 +333,7 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.orderLogisticsCase.Create(ctx, &models.OrderLogistics{
-			OrderID: order.ID,
+			OrderID: orderInfo.ID,
 			Name:    req.GetName(),
 			No:      req.GetNo(),
 			Contact: req.GetContact(),
@@ -343,7 +343,7 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 			return err
 		}
 		return c.UpdateById(ctx, &models.OrderInfo{
-			ID:     order.ID,
+			ID:     orderInfo.ID,
 			Status: int32(common.OrderStatus_SHIPPED),
 		})
 	})

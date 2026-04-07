@@ -50,27 +50,27 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 		// 二级分类需要同时返回分类下的推荐商品
 		if category.ParentId > 0 {
 			goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
-			var goodsList []*models.GoodsInfo
+			var goodsInfoList []*models.GoodsInfo
 			goodsOpts := make([]repo.QueryOption, 0, 3)
 			goodsOpts = append(goodsOpts, repo.Order(goodsQuery.CreatedAt.Desc()))
 			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.CategoryID.Eq(category.Id)))
 			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
-			goodsList, _, err = c.goodsInfoRepo.Page(ctx, 1, 9, goodsOpts...)
+			goodsInfoList, _, err = c.goodsInfoRepo.Page(ctx, 1, 9, goodsOpts...)
 			if err != nil {
 				return nil, err
 			}
-			category.Goods = make([]*app.GoodsInfo, 0, len(goodsList))
-			for _, goods := range goodsList {
-				price := goods.Price
+			category.Goods = make([]*app.GoodsInfo, 0, len(goodsInfoList))
+			for _, goodsInfo := range goodsInfoList {
+				price := goodsInfo.Price
 				if member {
-					price = goods.DiscountPrice
+					price = goodsInfo.DiscountPrice
 				}
 				category.Goods = append(category.Goods, &app.GoodsInfo{
-					Id:      goods.ID,
-					Name:    goods.Name,
-					Desc:    goods.Desc,
-					Picture: goods.Picture,
-					SaleNum: goods.InitSaleNum + goods.RealSaleNum,
+					Id:      goodsInfo.ID,
+					Name:    goodsInfo.Name,
+					Desc:    goodsInfo.Desc,
+					Picture: goodsInfo.Picture,
+					SaleNum: goodsInfo.InitSaleNum + goodsInfo.RealSaleNum,
 					Price:   price,
 				})
 			}

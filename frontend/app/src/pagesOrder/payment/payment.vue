@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables'
 import { onLoad } from '@dcloudio/uni-app'
+import { RecommendScene } from '@/rpc/app/recommend'
 
 // 获取页面参数
 const query = defineProps<{
@@ -41,7 +42,12 @@ onLoad(() => {})
     </view>
 
     <!-- 猜你喜欢 -->
-    <XtxGuess ref="guessRef" />
+    <XtxGuess
+      ref="guessRef"
+      title="顺手再带两件"
+      :scene="RecommendScene.ORDER_PAID"
+      :order-id="Number(query.id)"
+    />
   </scroll-view>
 </template>
 

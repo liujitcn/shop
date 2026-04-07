@@ -1,11 +1,11 @@
 import { http } from '@/utils/http'
 import type {
+  GetGoodsInfoRequest,
   GoodsInfoResponse,
   GoodsInfoService,
   PageGoodsInfoRequest,
   PageGoodsInfoResponse,
 } from '@/rpc/app/goods_info'
-import type { Int64Value } from '@/rpc/google/protobuf/wrappers'
 
 const GOODS_URL = '/app/goods/info'
 
@@ -20,10 +20,11 @@ export class GoodsServiceImpl implements GoodsInfoService {
     })
   }
 
-  GetGoodsInfo(request: Int64Value): Promise<GoodsInfoResponse> {
+  GetGoodsInfo(request: GetGoodsInfoRequest): Promise<GoodsInfoResponse> {
     return http<GoodsInfoResponse>({
-      url: `${GOODS_URL}/${request.value}`,
+      url: `${GOODS_URL}/${request.id}`,
       method: 'GET',
+      data: request,
     })
   }
 }

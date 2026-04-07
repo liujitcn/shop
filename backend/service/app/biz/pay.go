@@ -34,7 +34,7 @@ import (
 type PayCase struct {
 	*biz.BaseCase
 	tx                 data.Transaction
-	orderRepo          *data.OrderInfoRepo
+	orderInfoRepo      *data.OrderInfoRepo
 	orderGoodsRepo     *data.OrderGoodsRepo
 	orderPaymentRepo   *data.OrderPaymentRepo
 	orderRefundRepo    *data.OrderRefundRepo
@@ -46,7 +46,7 @@ type PayCase struct {
 func NewPayCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
-	orderCase *data.OrderInfoRepo,
+	orderInfoRepo *data.OrderInfoRepo,
 	orderGoodsRepo *data.OrderGoodsRepo,
 	orderPaymentRepo *data.OrderPaymentRepo,
 	orderRefundRepo *data.OrderRefundRepo,
@@ -56,7 +56,7 @@ func NewPayCase(
 	return &PayCase{
 		BaseCase:           baseCase,
 		tx:                 tx,
-		orderRepo:          orderCase,
+		orderInfoRepo:      orderInfoRepo,
 		orderGoodsRepo:     orderGoodsRepo,
 		orderPaymentRepo:   orderPaymentRepo,
 		orderRefundRepo:    orderRefundRepo,
@@ -72,30 +72,30 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 		return nil, err
 	}
 
-	var order *models.OrderInfo
-	query := c.orderRepo.Query(ctx).OrderInfo
-	order, err = c.orderRepo.Find(ctx,
+	var orderInfo *models.OrderInfo
+	query := c.orderInfoRepo.Query(ctx).OrderInfo
+	orderInfo, err = c.orderInfoRepo.Find(ctx,
 		repo.Where(query.ID.Eq(req.GetOrderId())),
 		repo.Where(query.UserID.Eq(authInfo.UserId)),
 	)
 	if err != nil {
 		return nil, err
 	}
-	if order.Status != int32(common.OrderStatus_CREATED) {
-		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
+		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
-	var goods []*models.OrderGoods
+	var goodsInfoList []*models.OrderGoods
 	orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
 	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)))
-	goods, err = c.orderGoodsRepo.List(ctx, opts...)
+	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
+	goodsInfoList, err = c.orderGoodsRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	goodsDetail := make([]jsapi.GoodsDetail, 0)
-	for _, item := range goods {
+	for _, item := range goodsInfoList {
 		goodsDetail = append(goodsDetail, jsapi.GoodsDetail{
 			MerchantGoodsId: new(fmt.Sprintf("%s_%s", strconv.FormatInt(item.GoodsID, 10), item.SkuCode)),
 			GoodsName:       &item.Name,
@@ -113,10 +113,10 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 	var jsapiPayResponse *app.JsapiPayResponse
 	jsapiPayResponse, err = c.wxPayCase.JsapiPay(jsapi.PrepayRequest{
 		Description: &description,
-		OutTradeNo:  &order.OrderNo,
-		TimeExpire:  new(order.CreatedAt.Add(payTimeout)),
+		OutTradeNo:  &orderInfo.OrderNo,
+		TimeExpire:  new(orderInfo.CreatedAt.Add(payTimeout)),
 		Amount: &jsapi.Amount{
-			Total: &order.PayMoney,
+			Total: &orderInfo.PayMoney,
 		},
 		Payer: &jsapi.Payer{
 			Openid: &authInfo.OpenId,
@@ -131,11 +131,11 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 			if apiErr.Code == "ORDERPAID" {
 				// 调用查询订单接口
 				var paymentResource *app.PaymentResource
-				paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(order.OrderNo)
+				paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderInfo.OrderNo)
 				if err != nil {
 					return nil, err
 				}
-				err = c.PaySuccess(ctx, order, paymentResource)
+				err = c.PaySuccess(ctx, orderInfo, paymentResource)
 				if err != nil {
 					return nil, err
 				}
@@ -154,30 +154,30 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 		return nil, err
 	}
 
-	var order *models.OrderInfo
-	query := c.orderRepo.Query(ctx).OrderInfo
-	order, err = c.orderRepo.Find(ctx,
+	var orderInfo *models.OrderInfo
+	query := c.orderInfoRepo.Query(ctx).OrderInfo
+	orderInfo, err = c.orderInfoRepo.Find(ctx,
 		repo.Where(query.ID.Eq(req.GetOrderId())),
 		repo.Where(query.UserID.Eq(authInfo.UserId)),
 	)
 	if err != nil {
 		return nil, err
 	}
-	if order.Status != int32(common.OrderStatus_CREATED) {
-		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[order.Status])
+	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
+		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
-	var goods []*models.OrderGoods
+	var goodsInfoList []*models.OrderGoods
 	orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
 	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(order.ID)))
-	goods, err = c.orderGoodsRepo.List(ctx, opts...)
+	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
+	goodsInfoList, err = c.orderGoodsRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	goodsDetail := make([]h5.GoodsDetail, 0)
-	for _, item := range goods {
+	for _, item := range goodsInfoList {
 		goodsDetail = append(goodsDetail, h5.GoodsDetail{
 			MerchantGoodsId: new(fmt.Sprintf("%s_%s", strconv.FormatInt(item.GoodsID, 10), item.SkuCode)),
 			GoodsName:       &item.Name,
@@ -186,7 +186,7 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 		})
 	}
 	payTimeout := configs.ParsePayTimeout()
-	createdAt := order.CreatedAt.Add(payTimeout)
+	createdAt := orderInfo.CreatedAt.Add(payTimeout)
 
 	var description = "H5支付"
 	if len(goodsDetail) > 0 {
@@ -201,10 +201,10 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 	var h5PayResponse *app.H5PayResponse
 	h5PayResponse, err = c.wxPayCase.H5Pay(h5.PrepayRequest{
 		Description: trans.String(description),
-		OutTradeNo:  trans.String(order.OrderNo),
+		OutTradeNo:  trans.String(orderInfo.OrderNo),
 		TimeExpire:  trans.Time(createdAt),
 		Amount: &h5.Amount{
-			Total: &order.PayMoney,
+			Total: &orderInfo.PayMoney,
 		},
 		SceneInfo: &h5.SceneInfo{
 			PayerClientIp: trans.String(payerClientIp),
@@ -244,12 +244,12 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		var order *models.OrderInfo
-		order, err = c.findByOrderNo(ctx, paymentResource.GetOutTradeNo())
+		var orderInfo *models.OrderInfo
+		orderInfo, err = c.findByOrderNo(ctx, paymentResource.GetOutTradeNo())
 		if err != nil {
 			return err
 		}
-		return c.PaySuccess(ctx, order, &paymentResource)
+		return c.PaySuccess(ctx, orderInfo, &paymentResource)
 	} else if strings.HasPrefix(request.EventType, app.ResourceType_REFUND.String()) {
 		// 转换
 		var refundResource app.RefundResource
@@ -257,12 +257,12 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		var order *models.OrderInfo
-		order, err = c.findByOrderNo(ctx, refundResource.GetOutTradeNo())
+		var orderInfo *models.OrderInfo
+		orderInfo, err = c.findByOrderNo(ctx, refundResource.GetOutTradeNo())
 		if err != nil {
 			return err
 		}
-		return c.RefundSuccess(ctx, order, &refundResource)
+		return c.RefundSuccess(ctx, orderInfo, &refundResource)
 	}
 
 	return errors.New("notify event type err")
@@ -288,15 +288,15 @@ func (c *PayCase) getPayerClientIP(ctx context.Context) string {
 }
 
 // PaySuccess 支付成功处理
-func (c *PayCase) PaySuccess(ctx context.Context, order *models.OrderInfo, paymentResource *app.PaymentResource) error {
-	if order == nil {
-		return errors.New("order is nil")
+func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, paymentResource *app.PaymentResource) error {
+	if orderInfo == nil {
+		return errors.New("orderInfo is nil")
 	}
 	// 查询支付信息
 	var orderPayment *models.OrderPayment
 	orderPaymentQuery := c.orderPaymentRepo.Query(ctx).OrderPayment
 	orderPayment, err := c.orderPaymentRepo.Find(ctx,
-		repo.Where(orderPaymentQuery.OrderID.Eq(order.ID)),
+		repo.Where(orderPaymentQuery.OrderID.Eq(orderInfo.ID)),
 	)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -309,7 +309,7 @@ func (c *PayCase) PaySuccess(ctx context.Context, order *models.OrderInfo, payme
 	if successTime == nil {
 		successTime = trans.Time(time.Now())
 	}
-	orderPayment.OrderID = order.ID
+	orderPayment.OrderID = orderInfo.ID
 	orderPayment.OrderNo = paymentResource.GetOutTradeNo()
 	orderPayment.ThirdOrderNo = paymentResource.GetTransactionId()
 	orderPayment.TradeType = paymentResource.GetTradeType().String()
@@ -337,27 +337,27 @@ func (c *PayCase) PaySuccess(ctx context.Context, order *models.OrderInfo, payme
 		}
 		// 支付成功，修改订单状态
 		if orderPayment.TradeState == app.PaymentResource_SUCCESS.String() {
-			err = c.updateOrder(ctx, order.ID, order.UserID, common.OrderStatus_PAID)
+			err = c.updateOrder(ctx, orderInfo.ID, orderInfo.UserID, common.OrderStatus_PAID)
 			if err != nil {
 				return err
 			}
 			// 删除自动取消
-			c.orderSchedulerCase.DeleteScheduled(order.ID)
+			c.orderSchedulerCase.DeleteScheduled(orderInfo.ID)
 		}
 		return nil
 	})
 }
 
 // RefundSuccess 退款成功处理
-func (c *PayCase) RefundSuccess(ctx context.Context, order *models.OrderInfo, refundResource *app.RefundResource) error {
-	if order == nil {
-		return errors.New("order is nil")
+func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo, refundResource *app.RefundResource) error {
+	if orderInfo == nil {
+		return errors.New("orderInfo is nil")
 	}
 	// 查询支付信息
 	var orderRefund *models.OrderRefund
 	orderRefundQuery := c.orderRefundRepo.Query(ctx).OrderRefund
 	orderRefund, err := c.orderRefundRepo.Find(ctx,
-		repo.Where(orderRefundQuery.OrderID.Eq(order.ID)),
+		repo.Where(orderRefundQuery.OrderID.Eq(orderInfo.ID)),
 	)
 	successTime := _time.TimestamppbToTime(refundResource.GetSuccessTime())
 	if successTime == nil {
@@ -366,7 +366,7 @@ func (c *PayCase) RefundSuccess(ctx context.Context, order *models.OrderInfo, re
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			orderRefund = &models.OrderRefund{
-				OrderID:    order.ID,
+				OrderID:    orderInfo.ID,
 				RefundNo:   refundResource.GetOutRefundNo(),
 				CreateTime: time.Now(),
 			}
@@ -398,7 +398,7 @@ func (c *PayCase) RefundSuccess(ctx context.Context, order *models.OrderInfo, re
 		}
 		// 支付成功，修改订单状态
 		if orderRefund.RefundState == app.RefundResource_SUCCESS.String() {
-			return c.updateOrder(ctx, order.ID, order.UserID, common.OrderStatus_REFUNDING)
+			return c.updateOrder(ctx, orderInfo.ID, orderInfo.UserID, common.OrderStatus_REFUNDING)
 		}
 		return nil
 	})
@@ -407,20 +407,20 @@ func (c *PayCase) RefundSuccess(ctx context.Context, order *models.OrderInfo, re
 // findByOrderNo 根据订单号查询订单
 func (c *PayCase) findByOrderNo(ctx context.Context, orderNo string) (*models.OrderInfo, error) {
 	// 查询订单
-	orderQuery := c.orderRepo.Query(ctx).OrderInfo
-	order, err := c.orderRepo.Find(ctx,
+	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
+	orderInfo, err := c.orderInfoRepo.Find(ctx,
 		repo.Where(orderQuery.OrderNo.Eq(orderNo)),
 	)
 	if err != nil {
 		return nil, err
 	}
-	return order, nil
+	return orderInfo, nil
 }
 
 // updateOrder 更新订单状态
 func (c *PayCase) updateOrder(ctx context.Context, orderId, userId int64, status common.OrderStatus) error {
-	orderQuery := c.orderRepo.Query(ctx).OrderInfo
-	return c.orderRepo.Update(ctx, &models.OrderInfo{Status: int32(status)},
+	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
+	return c.orderInfoRepo.Update(ctx, &models.OrderInfo{Status: int32(status)},
 		repo.Where(orderQuery.UserID.Eq(userId)),
 		repo.Where(orderQuery.ID.Eq(orderId)),
 	)

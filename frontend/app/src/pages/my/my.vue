@@ -9,6 +9,7 @@ import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/login'
 import { OrderStatus } from '@/rpc/common/enum.ts'
+import { RecommendScene } from '@/rpc/app/recommend'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
@@ -145,7 +146,7 @@ onShow(() => {
     </view>
     <!-- 猜你喜欢 -->
     <view class="guess">
-      <XtxGuess ref="guessRef" />
+      <XtxGuess ref="guessRef" title="根据你的偏好推荐" :scene="RecommendScene.PROFILE" />
     </view>
   </scroll-view>
 </template>

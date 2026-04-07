@@ -19,8 +19,8 @@ import (
 type UserCollectCase struct {
 	*biz.BaseCase
 	*data.UserCollectRepo
-	goodsCase    *GoodsInfoCase
-	goodsSkuCase *GoodsSkuCase
+	goodsInfoCase *GoodsInfoCase
+	goodsSkuCase  *GoodsSkuCase
 }
 
 // NewUserCollectCase 创建用户收藏业务处理对象
@@ -33,7 +33,7 @@ func NewUserCollectCase(
 	return &UserCollectCase{
 		BaseCase:        baseCase,
 		UserCollectRepo: userCollectRepo,
-		goodsCase:       goodsInfoCase,
+		goodsInfoCase:   goodsInfoCase,
 		goodsSkuCase:    goodsSkuCase,
 	}
 }
@@ -59,30 +59,30 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 	}
 
 	var goodsInfoMap map[int64]*models.GoodsInfo
-	goodsInfoMap, err = c.goodsCase.mapByGoodsIds(ctx, goodsIds)
+	goodsInfoMap, err = c.goodsInfoCase.mapByGoodsIds(ctx, goodsIds)
 	if err != nil {
 		return nil, err
 	}
 
 	list := make([]*app.UserCollect, 0)
 	for _, item := range page {
-		goods, ok := goodsInfoMap[item.GoodsID]
+		goodsInfo, ok := goodsInfoMap[item.GoodsID]
 		if !ok {
-			goods = &models.GoodsInfo{}
+			goodsInfo = &models.GoodsInfo{}
 		}
 
-		price := goods.Price
+		price := goodsInfo.Price
 		if member {
-			price = goods.DiscountPrice
+			price = goodsInfo.DiscountPrice
 		}
 
 		collect := &app.UserCollect{
 			Id:        item.ID,
 			GoodsId:   item.GoodsID,
-			Name:      goods.Name,
-			Desc:      goods.Desc,
-			Picture:   goods.Picture,
-			SaleNum:   goods.InitSaleNum + goods.RealSaleNum,
+			Name:      goodsInfo.Name,
+			Desc:      goodsInfo.Desc,
+			Picture:   goodsInfo.Picture,
+			SaleNum:   goodsInfo.InitSaleNum + goodsInfo.RealSaleNum,
 			Price:     price,
 			JoinPrice: item.Price,
 		}
@@ -117,14 +117,14 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 		return err
 	}
 	if !isCollect {
-		var goods *models.GoodsInfo
-		goods, err = c.goodsCase.GoodsInfoRepo.FindById(ctx, userCollect.GetGoodsId())
+		var goodsInfo *models.GoodsInfo
+		goodsInfo, err = c.goodsInfoCase.GoodsInfoRepo.FindById(ctx, userCollect.GetGoodsId())
 		if err != nil {
 			return err
 		}
-		price := goods.Price
+		price := goodsInfo.Price
 		if member {
-			price = goods.DiscountPrice
+			price = goodsInfo.DiscountPrice
 		}
 
 		return c.Create(ctx, &models.UserCollect{

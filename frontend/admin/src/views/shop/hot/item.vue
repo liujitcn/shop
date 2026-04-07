@@ -87,7 +87,7 @@ const formData = reactive<ShopHotItemForm>({
   status: Status.ENABLE
 });
 
-const goodsList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
+const goodsInfoList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
 
 const rules = computed(() => ({
   title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
@@ -101,7 +101,7 @@ const statusOptions: ProFormOption[] = [
 
 /** 推荐商品穿梭框数据。 */
 const transferData = computed(() =>
-  goodsList.value.map(item => ({
+  goodsInfoList.value.map(item => ({
     ...item,
     value: item.id,
     label: `${item.categoryName}/${item.name}`
@@ -242,7 +242,7 @@ function refreshTable() {
  */
 async function loadGoodsOptions() {
   const listGoodsInfoResponse = await defGoodsInfoService.ListGoodsInfo({ name: "" });
-  goodsList.value = listGoodsInfoResponse.list || [];
+  goodsInfoList.value = listGoodsInfoResponse.list || [];
 }
 
 /**
