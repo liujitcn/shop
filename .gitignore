@@ -61,6 +61,6 @@ config.local.yaml
 config.local.yml
 config.local.json
 certs/
-data/
 web/
 service_tmp/
+/backend/data/

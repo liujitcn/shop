@@ -5,22 +5,11 @@ IMAGE ?= backend
 TAG ?= latest
 DOCKERFILE ?= Dockerfile
 BINARY ?= bin/server
-TS_PROTO_BIN ?= $(shell \
-	bin="$$(command -v protoc-gen-ts_proto 2>/dev/null)"; \
-	if [ -n "$$bin" ] && [ -x "$$bin" ]; then \
-		printf '%s' "$$bin"; \
-	elif [ -x "$(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto" ]; then \
-		printf '%s' "$(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto"; \
-	elif [ -x "$(CURDIR)/../frontend/app/node_modules/.bin/protoc-gen-ts_proto" ]; then \
-		printf '%s' "$(CURDIR)/../frontend/app/node_modules/.bin/protoc-gen-ts_proto"; \
-	else \
-		for candidate in "$$HOME"/.nvm/versions/node/*/bin/protoc-gen-ts_proto; do \
-			if [ -x "$$candidate" ]; then \
-				bin="$$candidate"; \
-			fi; \
-		done; \
-		printf '%s' "$$bin"; \
-	fi \
+TS_PROTO_BIN ?= $(or \
+	$(shell command -v protoc-gen-ts_proto 2>/dev/null), \
+	$(wildcard $(CURDIR)/../frontend/admin/node_modules/.bin/protoc-gen-ts_proto), \
+	$(wildcard $(CURDIR)/../frontend/app/node_modules/.bin/protoc-gen-ts_proto), \
+	$(lastword $(wildcard $(HOME)/.nvm/versions/node/*/bin/protoc-gen-ts_proto)) \
 )
 TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
 
