@@ -2,6 +2,7 @@
 import {
   buildRecommendGoodsActionItem,
   defRecommendService,
+  formatRecommendSource,
   normalizeRecommendScene,
   reportRecommendExposure,
   reportRecommendGoodsAction,
@@ -9,7 +10,7 @@ import {
 import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
-import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { RecommendGoodsActionType, RecommendScene, RecommendSource } from '@/rpc/common/enum'
 
 interface GuessGoods extends GoodsInfo {
   recommendRequestId: string
@@ -128,7 +129,7 @@ const onTapGoods = async (item: GuessGoods) => {
       buildRecommendGoodsActionItem({
         goodsId: item.id,
         goodsNum: 1,
-        source: 'recommend',
+        source: RecommendSource.RECOMMEND,
         scene: item.recommendScene,
         requestId: item.recommendRequestId,
         index: item.recommendIndex,
@@ -138,7 +139,7 @@ const onTapGoods = async (item: GuessGoods) => {
     console.error(error)
   }
   void uni.navigateTo({
-    url: `/pages/goods/goods?id=${item.id}&source=recommend&scene=${item.recommendScene}&requestId=${item.recommendRequestId}&index=${item.recommendIndex}`,
+    url: `/pages/goods/goods?id=${item.id}&source=${formatRecommendSource(RecommendSource.RECOMMEND)}&scene=${item.recommendScene}&requestId=${item.recommendRequestId}&index=${item.recommendIndex}`,
   })
 }
 

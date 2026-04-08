@@ -159,10 +159,10 @@ func (x *RecommendGoodsResponse) GetRequestId() string {
 // RecommendContext 推荐上下文。
 type RecommendContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Source        string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`       // 入口来源
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`         // 推荐场景
-	RequestId     string                 `protobuf:"bytes,3,opt,name=requestId,proto3" json:"requestId,omitempty"` // 推荐请求ID
-	Position      int32                  `protobuf:"varint,4,opt,name=position,proto3" json:"position,omitempty"`  // 推荐位序号
+	Source        common.RecommendSource `protobuf:"varint,1,opt,name=source,proto3,enum=common.RecommendSource" json:"source,omitempty"` // 入口来源
+	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`                                // 推荐场景
+	RequestId     string                 `protobuf:"bytes,3,opt,name=requestId,proto3" json:"requestId,omitempty"`                        // 推荐请求ID
+	Position      int32                  `protobuf:"varint,4,opt,name=position,proto3" json:"position,omitempty"`                         // 推荐位序号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -197,11 +197,11 @@ func (*RecommendContext) Descriptor() ([]byte, []int) {
 	return file_app_recommend_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *RecommendContext) GetSource() string {
+func (x *RecommendContext) GetSource() common.RecommendSource {
 	if x != nil {
 		return x.Source
 	}
-	return ""
+	return common.RecommendSource(0)
 }
 
 func (x *RecommendContext) GetScene() string {
@@ -413,9 +413,9 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\x16RecommendGoodsResponse\x12\"\n" +
 	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x122\n" +
-	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xcf\x01\n" +
-	"\x10RecommendContext\x12*\n" +
-	"\x06source\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f入口来源R\x06source\x12(\n" +
+	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xe8\x01\n" +
+	"\x10RecommendContext\x12C\n" +
+	"\x06source\x18\x01 \x01(\x0e2\x17.common.RecommendSourceB\x12\xbaG\x0f\x92\x02\f入口来源R\x06source\x12(\n" +
 	"\x05scene\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x122\n" +
 	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x121\n" +
 	"\bposition\x18\x04 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f推荐位序号R\bposition\"\xce\x01\n" +
@@ -461,29 +461,31 @@ var file_app_recommend_proto_goTypes = []any{
 	(*RecommendGoodsActionReportRequest)(nil), // 5: app.RecommendGoodsActionReportRequest
 	(common.RecommendScene)(0),                // 6: common.RecommendScene
 	(*GoodsInfo)(nil),                         // 7: app.GoodsInfo
-	(common.RecommendGoodsActionType)(0),      // 8: common.RecommendGoodsActionType
-	(*emptypb.Empty)(nil),                     // 9: google.protobuf.Empty
-	(*wrapperspb.Int64Value)(nil),             // 10: google.protobuf.Int64Value
+	(common.RecommendSource)(0),               // 8: common.RecommendSource
+	(common.RecommendGoodsActionType)(0),      // 9: common.RecommendGoodsActionType
+	(*emptypb.Empty)(nil),                     // 10: google.protobuf.Empty
+	(*wrapperspb.Int64Value)(nil),             // 11: google.protobuf.Int64Value
 }
 var file_app_recommend_proto_depIdxs = []int32{
 	6,  // 0: app.RecommendGoodsRequest.scene:type_name -> common.RecommendScene
 	7,  // 1: app.RecommendGoodsResponse.list:type_name -> app.GoodsInfo
-	2,  // 2: app.RecommendGoodsActionItem.recommendContext:type_name -> app.RecommendContext
-	8,  // 3: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
-	3,  // 4: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
-	9,  // 5: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
-	0,  // 6: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
-	4,  // 7: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
-	5,  // 8: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
-	10, // 9: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
-	1,  // 10: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
-	9,  // 11: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
-	9,  // 12: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	8,  // 2: app.RecommendContext.source:type_name -> common.RecommendSource
+	2,  // 3: app.RecommendGoodsActionItem.recommendContext:type_name -> app.RecommendContext
+	9,  // 4: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
+	3,  // 5: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
+	10, // 6: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
+	0,  // 7: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
+	4,  // 8: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
+	5,  // 9: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
+	11, // 10: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
+	1,  // 11: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
+	10, // 12: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
+	10, // 13: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_app_recommend_proto_init() }

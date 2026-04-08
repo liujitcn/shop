@@ -90,7 +90,7 @@ message RecommendGoodsResponse {
 
 // RecommendContext 推荐上下文。
 message RecommendContext {
-  string source = 1 [
+  common.RecommendSource source = 1 [
     (gnostic.openapi.v3.property) = {description: "入口来源"}
   ];  // 入口来源
 

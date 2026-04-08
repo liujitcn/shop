@@ -153,7 +153,7 @@ func (c *OrderInfoCase) OrderInfoPre(ctx context.Context) (*app.ConfirmOrderInfo
 			SkuCode: item.SkuCode,
 			Num:     item.Num,
 			RecommendContext: &app.RecommendContext{
-				Source:    formatRecommendSource(item.Source),
+				Source:    common.RecommendSource(item.Source),
 				Scene:     formatRecommendScene(item.Scene),
 				RequestId: item.RequestID,
 				Position:  item.Position,
@@ -204,7 +204,7 @@ func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderR
 			SkuCode: item.SkuCode,
 			Num:     item.Num,
 			RecommendContext: &app.RecommendContext{
-				Source:    formatRecommendSource(item.Source),
+				Source:    common.RecommendSource(item.Source),
 				Scene:     formatRecommendScene(item.Scene),
 				RequestId: item.RequestID,
 				Position:  item.Position,

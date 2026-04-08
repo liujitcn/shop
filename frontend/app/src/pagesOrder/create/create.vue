@@ -2,6 +2,7 @@
 import {
   buildRecommendGoodsActionItem,
   buildRecommendContext,
+  formatRecommendSource,
   getRecommendCartTrack,
   normalizeRecommendScene,
   reportRecommendGoodsAction,
@@ -79,7 +80,7 @@ const mergeCartRecommendContext = (res: ConfirmOrderInfoResponse): ConfirmOrderI
       }
       return {
         ...item,
-        source: track.source || item.source || 'direct',
+        source: formatRecommendSource(track.source || item.source || 'direct'),
         scene: track.scene || item.scene || '',
         requestId: track.requestId || item.requestId || '',
         position: track.index || item.position || 0,

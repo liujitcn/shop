@@ -1,5 +1,5 @@
 import { http } from '@/utils/http'
-import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { RecommendGoodsActionType, RecommendScene, RecommendSource } from '@/rpc/common/enum'
 import type {
   RecommendContext,
   RecommendExposureReportRequest,
@@ -100,10 +100,33 @@ export interface RecommendGoodsActionContext {
   goodsId: number
   skuCode?: string
   goodsNum?: number
-  source?: string
+  source?: string | number
   scene?: string
   requestId?: string
   index?: number
+}
+
+/** 规范化推荐来源值。 */
+export const normalizeRecommendSource = (source?: string | number): RecommendSource => {
+  if (source === undefined || source === null || source === '') {
+    return RecommendSource.DIRECT
+  }
+  if (typeof source === 'number') {
+    return source === RecommendSource.RECOMMEND ? RecommendSource.RECOMMEND : RecommendSource.DIRECT
+  }
+  const value = String(source).trim()
+  if (!value) {
+    return RecommendSource.DIRECT
+  }
+  if (/^\d+$/.test(value)) {
+    return Number(value) === RecommendSource.RECOMMEND ? RecommendSource.RECOMMEND : RecommendSource.DIRECT
+  }
+  return value.toLowerCase() === 'recommend' ? RecommendSource.RECOMMEND : RecommendSource.DIRECT
+}
+
+/** 将推荐来源格式化为路由字符串。 */
+export const formatRecommendSource = (source?: string | number): string => {
+  return normalizeRecommendSource(source) === RecommendSource.RECOMMEND ? 'recommend' : 'direct'
 }
 
 /** 构建推荐上下文。 */
@@ -111,7 +134,7 @@ export const buildRecommendContext = (
   context: Omit<RecommendGoodsActionContext, 'goodsId' | 'skuCode' | 'goodsNum'>,
 ): RecommendContext => {
   return {
-    source: context.source || 'direct',
+    source: normalizeRecommendSource(context.source),
     scene: normalizeRecommendScene(context.scene),
     requestId: context.requestId || '',
     position: context.index || 0,
@@ -184,7 +207,7 @@ export const saveRecommendCartTrack = (context: RecommendGoodsActionContext): vo
   if (
     !context.goodsId ||
     !context.skuCode ||
-    context.source !== 'recommend' ||
+    normalizeRecommendSource(context.source) !== RecommendSource.RECOMMEND ||
     !context.requestId
   ) {
     return
@@ -193,7 +216,7 @@ export const saveRecommendCartTrack = (context: RecommendGoodsActionContext): vo
     goodsId: context.goodsId,
     skuCode: context.skuCode,
     goodsNum: context.goodsNum || 1,
-    source: context.source,
+    source: normalizeRecommendSource(context.source),
     scene: normalizeRecommendScene(context.scene),
     requestId: context.requestId,
     index: context.index || 0,
