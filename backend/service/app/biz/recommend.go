@@ -1117,7 +1117,7 @@ func (c *RecommendEventCase) publishTrackGoodsEvents(actor *RecommendActor, good
 			actor,
 			goodsItem.GetGoodsId(),
 			strings.TrimSpace(recommendContext.GetRequestId()),
-			parseRecommendScene(recommendContext.GetScene()),
+			normalizeRecommendSceneEnum(recommendContext.GetScene()),
 			normalizeRecommendSource(recommendContext.GetSource()),
 			recommendContext.GetPosition(),
 		)
@@ -1138,7 +1138,7 @@ func (c *RecommendEventCase) publishTrackGoodsViewEvents(actor *RecommendActor, 
 			recommendContext.GetPosition(),
 			strings.TrimSpace(recommendContext.GetRequestId()),
 			normalizeRecommendSource(recommendContext.GetSource()),
-			parseRecommendScene(recommendContext.GetScene()),
+			normalizeRecommendSceneEnum(recommendContext.GetScene()),
 		)
 	}
 }
@@ -1156,7 +1156,7 @@ func (c *RecommendEventCase) publishTrackGoodsCartEvents(actor *RecommendActor, 
 			goodsItem.GetGoodsId(),
 			goodsItem.GetGoodsNum(),
 			strings.TrimSpace(recommendContext.GetRequestId()),
-			parseRecommendScene(recommendContext.GetScene()),
+			normalizeRecommendSceneEnum(recommendContext.GetScene()),
 			normalizeRecommendSource(recommendContext.GetSource()),
 			recommendContext.GetPosition(),
 		)
@@ -1176,7 +1176,7 @@ func (c *RecommendEventCase) buildTrackGoodsItems(goodsItems []*app.RecommendGoo
 			GoodsID:   goodsItem.GetGoodsId(),
 			GoodsNum:  goodsItem.GetGoodsNum(),
 			Source:    normalizeRecommendSource(recommendContext.GetSource()),
-			Scene:     parseRecommendScene(recommendContext.GetScene()),
+			Scene:     normalizeRecommendSceneEnum(recommendContext.GetScene()),
 			RequestID: strings.TrimSpace(recommendContext.GetRequestId()),
 			Position:  recommendContext.GetPosition(),
 		})

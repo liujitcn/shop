@@ -147,7 +147,7 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 		TotalPrice:    goodsSku.Price * item.GetNum(),
 		TotalPayPrice: payPrice * item.GetNum(),
 		Source:        formatRecommendSource(normalizeRecommendSource(recommendContext.GetSource())),
-		Scene:         formatRecommendScene(parseRecommendScene(recommendContext.GetScene())),
+		Scene:         formatRecommendScene(normalizeRecommendSceneEnum(recommendContext.GetScene())),
 		RequestId:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}
@@ -220,7 +220,7 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		TotalPrice:    goodsSku.Price * goods.Num,
 		TotalPayPrice: payPrice * goods.Num,
 		Source:        normalizeRecommendSource(recommendContext.GetSource()),
-		Scene:         parseRecommendScene(recommendContext.GetScene()),
+		Scene:         normalizeRecommendSceneEnum(recommendContext.GetScene()),
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}

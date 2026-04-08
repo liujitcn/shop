@@ -94,7 +94,7 @@ message RecommendContext {
     (gnostic.openapi.v3.property) = {description: "入口来源"}
   ];  // 入口来源
 
-  string scene = 2 [
+  common.RecommendScene scene = 2 [
     (gnostic.openapi.v3.property) = {description: "推荐场景"}
   ];  // 推荐场景
 

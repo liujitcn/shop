@@ -37,7 +37,7 @@ export interface RecommendContext {
   /** 入口来源 */
   source: RecommendSource;
   /** 推荐场景 */
-  scene: string;
+  scene: RecommendScene;
   /** 推荐请求ID */
   requestId: string;
   /** 推荐位序号 */

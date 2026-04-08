@@ -2,6 +2,7 @@
 import {
   buildRecommendGoodsActionItem,
   defRecommendService,
+  formatRecommendScene,
   formatRecommendSource,
   normalizeRecommendScene,
   reportRecommendExposure,
@@ -14,7 +15,7 @@ import { RecommendGoodsActionType, RecommendScene, RecommendSource } from '@/rpc
 
 interface GuessGoods extends GoodsInfo {
   recommendRequestId: string
-  recommendScene: string
+  recommendScene: RecommendScene
   recommendIndex: number
 }
 
@@ -66,11 +67,12 @@ const getHomeGoodsGuessLikeData = async () => {
   pageParams.orderId = props.orderId
   const res = await defRecommendService.RecommendGoods(pageParams)
   const startIndex = guessList.value.length
-  const sceneName = normalizeRecommendScene(props.scene)
+  const sceneValue = normalizeRecommendScene(props.scene)
+  const sceneName = formatRecommendScene(sceneValue)
   const list = (res.list || []).map((item, index) => ({
     ...item,
     recommendRequestId: res.requestId,
-    recommendScene: sceneName,
+    recommendScene: sceneValue,
     recommendIndex: startIndex + index,
   }))
   guessList.value.push(...list)
@@ -139,7 +141,7 @@ const onTapGoods = async (item: GuessGoods) => {
     console.error(error)
   }
   void uni.navigateTo({
-    url: `/pages/goods/goods?id=${item.id}&source=${formatRecommendSource(RecommendSource.RECOMMEND)}&scene=${item.recommendScene}&requestId=${item.recommendRequestId}&index=${item.recommendIndex}`,
+    url: `/pages/goods/goods?id=${item.id}&source=${formatRecommendSource(RecommendSource.RECOMMEND)}&scene=${formatRecommendScene(item.recommendScene)}&requestId=${item.recommendRequestId}&index=${item.recommendIndex}`,
   })
 }
 

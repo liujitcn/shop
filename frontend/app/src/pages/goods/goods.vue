@@ -10,6 +10,7 @@ import { defGoodsInfoService } from '@/api/app/goods'
 import {
   buildRecommendGoodsActionItem,
   buildRecommendContext,
+  formatRecommendScene,
   normalizeRecommendScene,
   reportRecommendGoodsAction,
   saveRecommendCartTrack,
@@ -227,7 +228,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
   }
   isShowSku.value = false
   uni.navigateTo({
-    url: `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}&source=${query.source || 'direct'}&scene=${normalizeRecommendScene(query.scene || '')}&requestId=${query.requestId || ''}&index=${query.index || 0}`,
+    url: `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}&source=${query.source || 'direct'}&scene=${formatRecommendScene(query.scene || '')}&requestId=${query.requestId || ''}&index=${query.index || 0}`,
   })
 }
 // 收藏

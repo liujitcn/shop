@@ -101,7 +101,7 @@ export interface RecommendGoodsActionContext {
   skuCode?: string
   goodsNum?: number
   source?: string | number
-  scene?: string
+  scene?: string | number
   requestId?: string
   index?: number
 }
@@ -142,21 +142,27 @@ export const buildRecommendContext = (
 }
 
 /** 规范化推荐场景值。 */
-export const normalizeRecommendScene = (scene?: string | number): string => {
+export const normalizeRecommendScene = (scene?: string | number): RecommendScene => {
   if (scene === undefined || scene === null || scene === '') {
-    return ''
+    return RecommendScene.RECOMMEND_SCENE_UNKNOWN
   }
   if (typeof scene === 'number') {
-    return RecommendScene[scene] || ''
+    return RecommendScene[scene] ? scene : RecommendScene.RECOMMEND_SCENE_UNKNOWN
   }
   const value = String(scene).trim()
   if (!value) {
-    return ''
+    return RecommendScene.RECOMMEND_SCENE_UNKNOWN
   }
   if (/^\d+$/.test(value)) {
-    return RecommendScene[Number(value)] || ''
+    const sceneValue = Number(value)
+    return RecommendScene[sceneValue] ? sceneValue : RecommendScene.RECOMMEND_SCENE_UNKNOWN
   }
-  return value
+  return (RecommendScene as unknown as Record<string, RecommendScene | undefined>)[value] || RecommendScene.RECOMMEND_SCENE_UNKNOWN
+}
+
+export const formatRecommendScene = (scene?: string | number): string => {
+  const sceneValue = normalizeRecommendScene(scene)
+  return sceneValue === RecommendScene.RECOMMEND_SCENE_UNKNOWN ? '' : RecommendScene[sceneValue]
 }
 
 /** 构建推荐商品行为事件项。 */

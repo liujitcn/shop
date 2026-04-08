@@ -121,7 +121,7 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 			IsChecked: item.IsChecked,
 			RecommendContext: &app.RecommendContext{
 				Source:    common.RecommendSource(item.Source),
-				Scene:     formatRecommendScene(item.Scene),
+				Scene:     common.RecommendScene(item.Scene),
 				RequestId: item.RequestID,
 				Position:  item.Position,
 			},
@@ -266,7 +266,7 @@ func (c *UserCartCase) applyRecommendContext(userCart *models.UserCart, recommen
 	// 请求带推荐上下文时优先使用规范化后的值。
 	if recommendContext != nil {
 		source = normalizeRecommendSource(recommendContext.GetSource())
-		scene = parseRecommendScene(recommendContext.GetScene())
+		scene = normalizeRecommendSceneEnum(recommendContext.GetScene())
 		requestId = strings.TrimSpace(recommendContext.GetRequestId())
 		position = recommendContext.GetPosition()
 	}

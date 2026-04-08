@@ -135,7 +135,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 			GoodsID:   userCollect.GetGoodsId(),
 			Price:     price,
 			Source:    normalizeRecommendSource(recommendContext.GetSource()),
-			Scene:     parseRecommendScene(recommendContext.GetScene()),
+			Scene:     normalizeRecommendSceneEnum(recommendContext.GetScene()),
 			RequestID: strings.TrimSpace(recommendContext.GetRequestId()),
 			Position:  recommendContext.GetPosition(),
 		})

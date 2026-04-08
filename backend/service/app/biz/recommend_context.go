@@ -41,6 +41,10 @@ func ParseRecommendSceneForTask(scene string) int32 {
 	return parseRecommendScene(scene)
 }
 
+func normalizeRecommendSceneEnum(scene common.RecommendScene) int32 {
+	return int32(scene)
+}
+
 func formatRecommendSource(source int32) string {
 	switch common.RecommendSource(source) {
 	case common.RecommendSource_RECOMMEND:

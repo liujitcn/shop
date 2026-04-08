@@ -2,6 +2,7 @@
 import {
   buildRecommendGoodsActionItem,
   buildRecommendContext,
+  formatRecommendScene,
   formatRecommendSource,
   getRecommendCartTrack,
   normalizeRecommendScene,
@@ -81,7 +82,7 @@ const mergeCartRecommendContext = (res: ConfirmOrderInfoResponse): ConfirmOrderI
       return {
         ...item,
         source: formatRecommendSource(track.source || item.source || 'direct'),
-        scene: track.scene || item.scene || '',
+        scene: formatRecommendScene(track.scene || item.scene || ''),
         requestId: track.requestId || item.requestId || '',
         position: track.index || item.position || 0,
       }
@@ -213,7 +214,7 @@ const onOrderSubmit = async () => {
       goodsId: item.goodsId,
       goodsNum: item.num,
       source: item.recommendContext?.source || 'direct',
-      scene: item.recommendContext?.scene || '',
+      scene: item.recommendContext?.scene || 0,
       requestId: item.recommendContext?.requestId || '',
       index: item.recommendContext?.position || 0,
     })
