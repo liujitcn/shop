@@ -15,6 +15,7 @@ import type {
 } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
+import type { RecommendContext } from "./recommend";
 
 export interface CreateOrderInfoGoods {
   /** 商品id */
@@ -23,6 +24,8 @@ export interface CreateOrderInfoGoods {
   skuCode: string;
   /** 数量 */
   num: number;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
 }
 
 /** 确认订单信息信息 */
@@ -179,6 +182,10 @@ export interface OrderGoods {
   totalPrice: number;
   /** 支付金额汇总 */
   totalPayPrice: number;
+  source: string;
+  scene: string;
+  requestId: string;
+  position: number;
 }
 
 export interface OrderInfo {

@@ -68,7 +68,7 @@ ts:
 	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
 
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
-gen: api openapi ts
+gen: api openapi ts fmt
 
 # 启动应用
 run: api openapi

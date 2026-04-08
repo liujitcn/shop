@@ -36,6 +36,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		GoodsProp:                    newGoodsProp(db, opts...),
 		GoodsSku:                     newGoodsSku(db, opts...),
 		GoodsSpec:                    newGoodsSpec(db, opts...),
+		GoodsStatDay:                 newGoodsStatDay(db, opts...),
 		OrderAddress:                 newOrderAddress(db, opts...),
 		OrderCancel:                  newOrderCancel(db, opts...),
 		OrderGoods:                   newOrderGoods(db, opts...),
@@ -47,7 +48,9 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		PayBill:                      newPayBill(db, opts...),
 		RecommendClick:               newRecommendClick(db, opts...),
 		RecommendExposure:            newRecommendExposure(db, opts...),
+		RecommendGoodsAction:         newRecommendGoodsAction(db, opts...),
 		RecommendGoodsRelation:       newRecommendGoodsRelation(db, opts...),
+		RecommendGoodsStatDay:        newRecommendGoodsStatDay(db, opts...),
 		RecommendGoodsView:           newRecommendGoodsView(db, opts...),
 		RecommendRequest:             newRecommendRequest(db, opts...),
 		RecommendUserGoodsPreference: newRecommendUserGoodsPreference(db, opts...),
@@ -85,6 +88,7 @@ type Query struct {
 	GoodsProp                    goodsProp
 	GoodsSku                     goodsSku
 	GoodsSpec                    goodsSpec
+	GoodsStatDay                 goodsStatDay
 	OrderAddress                 orderAddress
 	OrderCancel                  orderCancel
 	OrderGoods                   orderGoods
@@ -96,7 +100,9 @@ type Query struct {
 	PayBill                      payBill
 	RecommendClick               recommendClick
 	RecommendExposure            recommendExposure
+	RecommendGoodsAction         recommendGoodsAction
 	RecommendGoodsRelation       recommendGoodsRelation
+	RecommendGoodsStatDay        recommendGoodsStatDay
 	RecommendGoodsView           recommendGoodsView
 	RecommendRequest             recommendRequest
 	RecommendUserGoodsPreference recommendUserGoodsPreference
@@ -135,6 +141,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		GoodsProp:                    q.GoodsProp.clone(db),
 		GoodsSku:                     q.GoodsSku.clone(db),
 		GoodsSpec:                    q.GoodsSpec.clone(db),
+		GoodsStatDay:                 q.GoodsStatDay.clone(db),
 		OrderAddress:                 q.OrderAddress.clone(db),
 		OrderCancel:                  q.OrderCancel.clone(db),
 		OrderGoods:                   q.OrderGoods.clone(db),
@@ -146,7 +153,9 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		PayBill:                      q.PayBill.clone(db),
 		RecommendClick:               q.RecommendClick.clone(db),
 		RecommendExposure:            q.RecommendExposure.clone(db),
+		RecommendGoodsAction:         q.RecommendGoodsAction.clone(db),
 		RecommendGoodsRelation:       q.RecommendGoodsRelation.clone(db),
+		RecommendGoodsStatDay:        q.RecommendGoodsStatDay.clone(db),
 		RecommendGoodsView:           q.RecommendGoodsView.clone(db),
 		RecommendRequest:             q.RecommendRequest.clone(db),
 		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.clone(db),
@@ -192,6 +201,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		GoodsProp:                    q.GoodsProp.replaceDB(db),
 		GoodsSku:                     q.GoodsSku.replaceDB(db),
 		GoodsSpec:                    q.GoodsSpec.replaceDB(db),
+		GoodsStatDay:                 q.GoodsStatDay.replaceDB(db),
 		OrderAddress:                 q.OrderAddress.replaceDB(db),
 		OrderCancel:                  q.OrderCancel.replaceDB(db),
 		OrderGoods:                   q.OrderGoods.replaceDB(db),
@@ -203,7 +213,9 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		PayBill:                      q.PayBill.replaceDB(db),
 		RecommendClick:               q.RecommendClick.replaceDB(db),
 		RecommendExposure:            q.RecommendExposure.replaceDB(db),
+		RecommendGoodsAction:         q.RecommendGoodsAction.replaceDB(db),
 		RecommendGoodsRelation:       q.RecommendGoodsRelation.replaceDB(db),
+		RecommendGoodsStatDay:        q.RecommendGoodsStatDay.replaceDB(db),
 		RecommendGoodsView:           q.RecommendGoodsView.replaceDB(db),
 		RecommendRequest:             q.RecommendRequest.replaceDB(db),
 		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.replaceDB(db),
@@ -239,6 +251,7 @@ type queryCtx struct {
 	GoodsProp                    *goodsPropDo
 	GoodsSku                     *goodsSkuDo
 	GoodsSpec                    *goodsSpecDo
+	GoodsStatDay                 *goodsStatDayDo
 	OrderAddress                 *orderAddressDo
 	OrderCancel                  *orderCancelDo
 	OrderGoods                   *orderGoodsDo
@@ -250,7 +263,9 @@ type queryCtx struct {
 	PayBill                      *payBillDo
 	RecommendClick               *recommendClickDo
 	RecommendExposure            *recommendExposureDo
+	RecommendGoodsAction         *recommendGoodsActionDo
 	RecommendGoodsRelation       *recommendGoodsRelationDo
+	RecommendGoodsStatDay        *recommendGoodsStatDayDo
 	RecommendGoodsView           *recommendGoodsViewDo
 	RecommendRequest             *recommendRequestDo
 	RecommendUserGoodsPreference *recommendUserGoodsPreferenceDo
@@ -286,6 +301,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		GoodsProp:                    q.GoodsProp.WithContext(ctx),
 		GoodsSku:                     q.GoodsSku.WithContext(ctx),
 		GoodsSpec:                    q.GoodsSpec.WithContext(ctx),
+		GoodsStatDay:                 q.GoodsStatDay.WithContext(ctx),
 		OrderAddress:                 q.OrderAddress.WithContext(ctx),
 		OrderCancel:                  q.OrderCancel.WithContext(ctx),
 		OrderGoods:                   q.OrderGoods.WithContext(ctx),
@@ -297,7 +313,9 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		PayBill:                      q.PayBill.WithContext(ctx),
 		RecommendClick:               q.RecommendClick.WithContext(ctx),
 		RecommendExposure:            q.RecommendExposure.WithContext(ctx),
+		RecommendGoodsAction:         q.RecommendGoodsAction.WithContext(ctx),
 		RecommendGoodsRelation:       q.RecommendGoodsRelation.WithContext(ctx),
+		RecommendGoodsStatDay:        q.RecommendGoodsStatDay.WithContext(ctx),
 		RecommendGoodsView:           q.RecommendGoodsView.WithContext(ctx),
 		RecommendRequest:             q.RecommendRequest.WithContext(ctx),
 		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.WithContext(ctx),

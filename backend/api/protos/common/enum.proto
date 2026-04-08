@@ -180,4 +180,5 @@ enum RecommendGoodsActionType{
   RECOMMEND_GOODS_ACTION_CART = 3; // 商品加购事件
   RECOMMEND_GOODS_ACTION_ORDER_CREATE = 4; // 下单事件
   RECOMMEND_GOODS_ACTION_ORDER_PAY = 5; // 支付事件
+  RECOMMEND_GOODS_ACTION_CLICK = 6; // 推荐点击事件
 }

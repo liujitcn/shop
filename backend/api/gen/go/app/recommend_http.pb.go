@@ -8,10 +8,10 @@ package app
 
 import (
 	context "context"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,11 +21,14 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationRecommendServiceRecommendAnonymousActor = "/app.RecommendService/RecommendAnonymousActor"
 const OperationRecommendServiceRecommendExposureReport = "/app.RecommendService/RecommendExposureReport"
 const OperationRecommendServiceRecommendGoods = "/app.RecommendService/RecommendGoods"
 const OperationRecommendServiceRecommendGoodsActionReport = "/app.RecommendService/RecommendGoodsActionReport"
 
 type RecommendServiceHTTPServer interface {
+	// RecommendAnonymousActor 获取匿名推荐主体
+	RecommendAnonymousActor(context.Context, *emptypb.Empty) (*wrapperspb.Int64Value, error)
 	// RecommendExposureReport 上报推荐曝光事件
 	RecommendExposureReport(context.Context, *RecommendExposureReportRequest) (*emptypb.Empty, error)
 	// RecommendGoods 查询推荐商品列表
@@ -36,9 +39,29 @@ type RecommendServiceHTTPServer interface {
 
 func RegisterRecommendServiceHTTPServer(s *http.Server, srv RecommendServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/api/app/recommend/actor/anonymous", _RecommendService_RecommendAnonymousActor0_HTTP_Handler(srv))
 	r.GET("/api/app/recommend/goods", _RecommendService_RecommendGoods0_HTTP_Handler(srv))
 	r.POST("/api/app/recommend/event/exposure", _RecommendService_RecommendExposureReport0_HTTP_Handler(srv))
 	r.POST("/api/app/recommend/event/goods", _RecommendService_RecommendGoodsActionReport0_HTTP_Handler(srv))
+}
+
+func _RecommendService_RecommendAnonymousActor0_HTTP_Handler(srv RecommendServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendServiceRecommendAnonymousActor)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RecommendAnonymousActor(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*wrapperspb.Int64Value)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _RecommendService_RecommendGoods0_HTTP_Handler(srv RecommendServiceHTTPServer) func(ctx http.Context) error {
@@ -105,6 +128,8 @@ func _RecommendService_RecommendGoodsActionReport0_HTTP_Handler(srv RecommendSer
 }
 
 type RecommendServiceHTTPClient interface {
+	// RecommendAnonymousActor 获取匿名推荐主体
+	RecommendAnonymousActor(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *wrapperspb.Int64Value, err error)
 	// RecommendExposureReport 上报推荐曝光事件
 	RecommendExposureReport(ctx context.Context, req *RecommendExposureReportRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// RecommendGoods 查询推荐商品列表
@@ -119,6 +144,20 @@ type RecommendServiceHTTPClientImpl struct {
 
 func NewRecommendServiceHTTPClient(client *http.Client) RecommendServiceHTTPClient {
 	return &RecommendServiceHTTPClientImpl{client}
+}
+
+// RecommendAnonymousActor 获取匿名推荐主体
+func (c *RecommendServiceHTTPClientImpl) RecommendAnonymousActor(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*wrapperspb.Int64Value, error) {
+	var out wrapperspb.Int64Value
+	pattern := "/api/app/recommend/actor/anonymous"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRecommendServiceRecommendAnonymousActor))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // RecommendExposureReport 上报推荐曝光事件

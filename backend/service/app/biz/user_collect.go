@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"shop/api/gen/go/app"
 	"shop/pkg/biz"
@@ -118,6 +119,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 		return err
 	}
 	if !isCollect {
+		recommendContext := userCollect.GetRecommendContext()
 		var goodsInfo *models.GoodsInfo
 		goodsInfo, err = c.goodsInfoCase.GoodsInfoRepo.FindById(ctx, userCollect.GetGoodsId())
 		if err != nil {
@@ -129,9 +131,13 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 		}
 
 		return c.Create(ctx, &models.UserCollect{
-			UserID:  authInfo.UserId,
-			GoodsID: userCollect.GetGoodsId(),
-			Price:   price,
+			UserID:    authInfo.UserId,
+			GoodsID:   userCollect.GetGoodsId(),
+			Price:     price,
+			Source:    defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct"),
+			Scene:     strings.TrimSpace(recommendContext.GetScene()),
+			RequestID: strings.TrimSpace(recommendContext.GetRequestId()),
+			Position:  recommendContext.GetPosition(),
 		})
 	}
 

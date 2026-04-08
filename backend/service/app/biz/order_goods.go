@@ -134,6 +134,7 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 	if member {
 		payPrice = goodsSku.DiscountPrice
 	}
+	recommendContext := item.GetRecommendContext()
 	res := &app.OrderGoods{
 		GoodsId:       goodsInfo.ID,
 		SkuCode:       goodsSku.SkuCode,
@@ -145,6 +146,10 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * item.GetNum(),
 		TotalPayPrice: payPrice * item.GetNum(),
+		Source:        recommendContext.GetSource(),
+		Scene:         recommendContext.GetScene(),
+		RequestId:     recommendContext.GetRequestId(),
+		Position:      recommendContext.GetPosition(),
 	}
 	return res, nil
 }
@@ -162,6 +167,10 @@ func (c *OrderGoodsCase) convertToProto(item *models.OrderGoods) *app.OrderGoods
 		PayPrice:      item.PayPrice,
 		TotalPrice:    item.TotalPrice,
 		TotalPayPrice: item.TotalPayPrice,
+		Source:        item.Source,
+		Scene:         item.Scene,
+		RequestId:     item.RequestID,
+		Position:      item.Position,
 	}
 	return res
 }
@@ -197,6 +206,7 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 	if member {
 		payPrice = goodsSku.DiscountPrice
 	}
+	recommendContext := goods.GetRecommendContext()
 
 	res := &models.OrderGoods{
 		GoodsID:       goodsInfo.ID,
@@ -209,6 +219,10 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * goods.Num,
 		TotalPayPrice: payPrice * goods.Num,
+		Source:        recommendContext.GetSource(),
+		Scene:         recommendContext.GetScene(),
+		RequestID:     recommendContext.GetRequestId(),
+		Position:      recommendContext.GetPosition(),
 	}
 	return res, nil
 }

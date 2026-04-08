@@ -10,6 +10,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const _ = grpc.SupportPackageIsVersion7
@@ -28,6 +29,16 @@ func NewRecommendService(recommendCase *biz.RecommendCase, recommendEventCase *b
 		recommendEventCase: recommendEventCase,
 	}
 	return &ss
+}
+
+// RecommendAnonymousActor 获取匿名推荐主体。
+func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) (*wrapperspb.Int64Value, error) {
+	res, err := s.recommendCase.RecommendAnonymousActor(ctx, req)
+	if err != nil {
+		log.Error("RecommendAnonymousActor err:", err.Error())
+		return nil, errors.New("获取匿名推荐主体失败")
+	}
+	return res, nil
 }
 
 // RecommendGoods 查询推荐商品列表。

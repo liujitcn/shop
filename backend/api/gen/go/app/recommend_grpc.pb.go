@@ -8,11 +8,11 @@ package app
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	RecommendService_RecommendAnonymousActor_FullMethodName    = "/app.RecommendService/RecommendAnonymousActor"
 	RecommendService_RecommendGoods_FullMethodName             = "/app.RecommendService/RecommendGoods"
 	RecommendService_RecommendExposureReport_FullMethodName    = "/app.RecommendService/RecommendExposureReport"
 	RecommendService_RecommendGoodsActionReport_FullMethodName = "/app.RecommendService/RecommendGoodsActionReport"
@@ -30,8 +31,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// App推荐服务，包含推荐查询与独立埋点上报能力。
+// App推荐服务
 type RecommendServiceClient interface {
+	// 获取匿名推荐主体
+	RecommendAnonymousActor(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*wrapperspb.Int64Value, error)
 	// 查询推荐商品列表
 	RecommendGoods(ctx context.Context, in *RecommendGoodsRequest, opts ...grpc.CallOption) (*RecommendGoodsResponse, error)
 	// 上报推荐曝光事件
@@ -46,6 +49,16 @@ type recommendServiceClient struct {
 
 func NewRecommendServiceClient(cc grpc.ClientConnInterface) RecommendServiceClient {
 	return &recommendServiceClient{cc}
+}
+
+func (c *recommendServiceClient) RecommendAnonymousActor(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*wrapperspb.Int64Value, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(wrapperspb.Int64Value)
+	err := c.cc.Invoke(ctx, RecommendService_RecommendAnonymousActor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *recommendServiceClient) RecommendGoods(ctx context.Context, in *RecommendGoodsRequest, opts ...grpc.CallOption) (*RecommendGoodsResponse, error) {
@@ -82,8 +95,10 @@ func (c *recommendServiceClient) RecommendGoodsActionReport(ctx context.Context,
 // All implementations must embed UnimplementedRecommendServiceServer
 // for forward compatibility.
 //
-// App推荐服务，包含推荐查询与独立埋点上报能力。
+// App推荐服务
 type RecommendServiceServer interface {
+	// 获取匿名推荐主体
+	RecommendAnonymousActor(context.Context, *emptypb.Empty) (*wrapperspb.Int64Value, error)
 	// 查询推荐商品列表
 	RecommendGoods(context.Context, *RecommendGoodsRequest) (*RecommendGoodsResponse, error)
 	// 上报推荐曝光事件
@@ -100,6 +115,9 @@ type RecommendServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRecommendServiceServer struct{}
 
+func (UnimplementedRecommendServiceServer) RecommendAnonymousActor(context.Context, *emptypb.Empty) (*wrapperspb.Int64Value, error) {
+	return nil, status.Error(codes.Unimplemented, "method RecommendAnonymousActor not implemented")
+}
 func (UnimplementedRecommendServiceServer) RecommendGoods(context.Context, *RecommendGoodsRequest) (*RecommendGoodsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RecommendGoods not implemented")
 }
@@ -128,6 +146,24 @@ func RegisterRecommendServiceServer(s grpc.ServiceRegistrar, srv RecommendServic
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&RecommendService_ServiceDesc, srv)
+}
+
+func _RecommendService_RecommendAnonymousActor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendServiceServer).RecommendAnonymousActor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendService_RecommendAnonymousActor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendServiceServer).RecommendAnonymousActor(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _RecommendService_RecommendGoods_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -191,6 +227,10 @@ var RecommendService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "app.RecommendService",
 	HandlerType: (*RecommendServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RecommendAnonymousActor",
+			Handler:    _RecommendService_RecommendAnonymousActor_Handler,
+		},
 		{
 			MethodName: "RecommendGoods",
 			Handler:    _RecommendService_RecommendGoods_Handler,

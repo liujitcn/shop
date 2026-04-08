@@ -12,14 +12,15 @@ const TableNameRecommendClick = "recommend_click"
 
 // RecommendClick 推荐点击记录信息
 type RecommendClick struct {
-	ID        int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                // 主键ID
-	RequestID string    `gorm:"column:request_id;type:varchar(64);not null;index:idx_request_goods,priority:1;comment:推荐请求ID" json:"request_id"`                           // 推荐请求ID
-	UserID    int64     `gorm:"column:user_id;type:bigint;not null;index:idx_user_scene_created,priority:1;comment:用户ID，未登录为0" json:"user_id"`                             // 用户ID，未登录为0
-	Scene     string    `gorm:"column:scene;type:varchar(32);not null;index:idx_user_scene_created,priority:2;comment:推荐场景" json:"scene"`                                  // 推荐场景
-	GoodsID   int64     `gorm:"column:goods_id;type:bigint;not null;index:idx_request_goods,priority:2;comment:商品ID" json:"goods_id"`                                      // 商品ID
-	Position  int32     `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                                                                    // 推荐位序号
-	Source    string    `gorm:"column:source;type:varchar(32);not null;default:recommend;comment:来源，固定recommend" json:"source"`                                            // 来源，固定recommend
-	CreatedAt time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_user_scene_created,priority:3;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
+	ID        int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                               // 主键ID
+	RequestID string    `gorm:"column:request_id;type:varchar(64);not null;index:idx_request_goods,priority:1;comment:推荐请求ID" json:"request_id"`                                                          // 推荐请求ID
+	ActorType int32     `gorm:"column:actor_type;type:tinyint;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:1;comment:主体类型：0匿名 1登录用户" json:"actor_type"`                  // 主体类型：0匿名 1登录用户
+	ActorID   int64     `gorm:"column:actor_id;type:bigint;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:2;comment:主体ID：匿名ID或用户ID" json:"actor_id"`                       // 主体ID：匿名ID或用户ID
+	Scene     string    `gorm:"column:scene;type:varchar(32);not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:3;comment:推荐场景" json:"scene"`                                  // 推荐场景
+	GoodsID   int64     `gorm:"column:goods_id;type:bigint;not null;index:idx_request_goods,priority:2;comment:商品ID" json:"goods_id"`                                                                     // 商品ID
+	Position  int32     `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                                                                                                   // 推荐位序号
+	Source    string    `gorm:"column:source;type:varchar(32);not null;default:recommend;comment:来源，固定recommend" json:"source"`                                                                           // 来源，固定recommend
+	CreatedAt time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:4;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
 }
 
 // TableName RecommendClick's table name

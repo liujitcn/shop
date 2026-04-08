@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"shop/api/gen/go/app"
 	"shop/pkg/biz"
@@ -117,6 +118,12 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 			Price:     price,
 			JoinPrice: item.Price,
 			IsChecked: item.IsChecked,
+			RecommendContext: &app.RecommendContext{
+				Source:    defaultString(item.Source, "direct"),
+				Scene:     item.Scene,
+				RequestId: item.RequestID,
+				Position:  item.Position,
+			},
 		}
 		list = append(list, cart)
 	}
@@ -163,6 +170,7 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 				Price:     price,
 				IsChecked: true,
 			}
+			c.applyRecommendContext(userCartModel, userCart.GetRecommendContext())
 			return c.UserCartRepo.Create(ctx, userCartModel)
 		}
 		return err
@@ -170,6 +178,7 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 
 	// 更新
 	find.Num += userCart.GetNum()
+	c.applyRecommendContext(find, userCart.GetRecommendContext())
 	return c.UserCartRepo.UpdateById(ctx, find)
 }
 
@@ -240,4 +249,45 @@ func (c *UserCartCase) deleteByUserIdAndGoodsIdAndSkuCode(ctx context.Context, u
 		repo.Where(query.GoodsID.Eq(goodsId)),
 		repo.Where(query.SkuCode.Eq(skuCode)),
 	)
+}
+
+// applyRecommendContext 将推荐上下文写入购物车模型。
+func (c *UserCartCase) applyRecommendContext(userCart *models.UserCart, recommendContext *app.RecommendContext) {
+	// 购物车模型为空时无需继续处理。
+	if userCart == nil {
+		return
+	}
+
+	source := "direct"
+	scene := ""
+	requestId := ""
+	position := int32(0)
+	// 请求带推荐上下文时优先使用规范化后的值。
+	if recommendContext != nil {
+		source = defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct")
+		scene = normalizeRecommendScene(strings.TrimSpace(recommendContext.GetScene()))
+		requestId = strings.TrimSpace(recommendContext.GetRequestId())
+		position = recommendContext.GetPosition()
+	}
+
+	// 明确来自推荐位且带 requestId 的加购，允许覆盖旧上下文，保证后续购物车成交可归因。
+	if source == "recommend" && requestId != "" {
+		userCart.Source = source
+		userCart.Scene = scene
+		userCart.RequestID = requestId
+		userCart.Position = position
+		return
+	}
+
+	// 历史购物车缺少上下文时，至少补齐默认来源，避免后续下单出现空字符串。
+	userCart.Source = defaultString(strings.TrimSpace(userCart.Source), source)
+	if userCart.Scene == "" {
+		userCart.Scene = scene
+	}
+	if userCart.RequestID == "" {
+		userCart.RequestID = requestId
+	}
+	if userCart.Position == 0 {
+		userCart.Position = position
+	}
 }

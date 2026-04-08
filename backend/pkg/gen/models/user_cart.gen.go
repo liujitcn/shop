@@ -20,11 +20,11 @@ type UserCart struct {
 	SkuCode   string         `gorm:"column:sku_code;type:varchar(50);comment:规格编号" json:"sku_code"`                                 // 规格编号
 	Num       int64          `gorm:"column:num;type:bigint;comment:数量" json:"num"`                                                  // 数量
 	Price     int64          `gorm:"column:price;type:bigint;comment:加入时单价" json:"price"`                                           // 加入时单价
-	IsChecked bool           `gorm:"column:is_checked;type:tinyint(1);comment:是否选中" json:"is_checked"`                              // 是否选中
 	Source    string         `gorm:"column:source;type:varchar(32);not null;default:direct;comment:入口来源" json:"source"`             // 入口来源
 	Scene     string         `gorm:"column:scene;type:varchar(32);comment:推荐场景" json:"scene"`                                       // 推荐场景
 	RequestID string         `gorm:"column:request_id;type:varchar(64);comment:推荐请求ID" json:"request_id"`                           // 推荐请求ID
 	Position  int32          `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                        // 推荐位序号
+	IsChecked bool           `gorm:"column:is_checked;type:tinyint(1);comment:是否选中" json:"is_checked"`                              // 是否选中
 	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                // 创建时间
 	UpdatedAt time.Time      `gorm:"column:updated_at;type:datetime;comment:更新时间" json:"updated_at"`                                // 更新时间
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                // 删除时间

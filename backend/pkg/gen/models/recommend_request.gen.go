@@ -12,17 +12,18 @@ const TableNameRecommendRequest = "recommend_request"
 
 // RecommendRequest 推荐请求记录信息
 type RecommendRequest struct {
-	ID                int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                // 主键ID
-	RequestID         string    `gorm:"column:request_id;type:varchar(64);not null;uniqueIndex:uk_request_id,priority:1;comment:推荐请求ID" json:"request_id"`                         // 推荐请求ID
-	UserID            int64     `gorm:"column:user_id;type:bigint;not null;index:idx_user_scene_created,priority:1;comment:用户ID，未登录为0" json:"user_id"`                             // 用户ID，未登录为0
-	Scene             string    `gorm:"column:scene;type:varchar(32);not null;index:idx_user_scene_created,priority:2;comment:推荐场景" json:"scene"`                                  // 推荐场景
-	SourceContextJSON string    `gorm:"column:source_context_json;type:json;comment:场景上下文JSON" json:"source_context_json"`                                                         // 场景上下文JSON
-	PageNum           int32     `gorm:"column:page_num;type:int;not null;default:1;comment:页码" json:"page_num"`                                                                    // 页码
-	PageSize          int32     `gorm:"column:page_size;type:int;not null;default:10;comment:分页大小" json:"page_size"`                                                               // 分页大小
-	GoodsIdsJSON      string    `gorm:"column:goods_ids_json;type:json;not null;comment:推荐商品ID列表JSON" json:"goods_ids_json"`                                                       // 推荐商品ID列表JSON
-	StrategyVersion   string    `gorm:"column:strategy_version;type:varchar(32);comment:策略版本" json:"strategy_version"`                                                             // 策略版本
-	RecallSourcesJSON string    `gorm:"column:recall_sources_json;type:json;comment:召回来源JSON" json:"recall_sources_json"`                                                          // 召回来源JSON
-	CreatedAt         time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_user_scene_created,priority:3;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
+	ID                int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                                 // 主键ID
+	RequestID         string    `gorm:"column:request_id;type:varchar(64);not null;uniqueIndex:uk_request_id,priority:1;comment:推荐请求ID" json:"request_id"`                                                          // 推荐请求ID
+	ActorType         int32     `gorm:"column:actor_type;type:tinyint;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:1;comment:主体类型：0匿名 1登录用户" json:"actor_type"`                  // 主体类型：0匿名 1登录用户
+	ActorID           int64     `gorm:"column:actor_id;type:bigint;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:2;comment:主体ID：匿名ID或用户ID" json:"actor_id"`                       // 主体ID：匿名ID或用户ID
+	Scene             string    `gorm:"column:scene;type:varchar(32);not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:3;comment:推荐场景" json:"scene"`                                  // 推荐场景
+	SourceContextJSON string    `gorm:"column:source_context_json;type:json;comment:场景上下文JSON" json:"source_context_json"`                                                                                          // 场景上下文JSON
+	PageNum           int32     `gorm:"column:page_num;type:int;not null;default:1;comment:页码" json:"page_num"`                                                                                                     // 页码
+	PageSize          int32     `gorm:"column:page_size;type:int;not null;default:10;comment:分页大小" json:"page_size"`                                                                                                // 分页大小
+	GoodsIdsJSON      string    `gorm:"column:goods_ids_json;type:json;not null;comment:推荐商品ID列表JSON" json:"goods_ids_json"`                                                                                        // 推荐商品ID列表JSON
+	StrategyVersion   string    `gorm:"column:strategy_version;type:varchar(32);comment:策略版本" json:"strategy_version"`                                                                                              // 策略版本
+	RecallSourcesJSON string    `gorm:"column:recall_sources_json;type:json;comment:召回来源JSON" json:"recall_sources_json"`                                                                                           // 召回来源JSON
+	CreatedAt         time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:4;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
 }
 
 // TableName RecommendRequest's table name

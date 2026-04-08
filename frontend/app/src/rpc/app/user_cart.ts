@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 import type { Int32Value, Int64Value } from "../google/protobuf/wrappers";
+import type { RecommendContext } from "./recommend";
 
 export interface ListUserCartResponse {
   /** 数据 */
@@ -37,6 +38,8 @@ export interface UserCart {
   joinPrice: number;
   /** 是否选中 */
   isChecked: boolean;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
 }
 
 /** 用户购物车 */
@@ -47,6 +50,8 @@ export interface CreateUserCartRequest {
   skuCode: string;
   /** 数量 */
   num: number;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
 }
 
 /** 用户购物车 */

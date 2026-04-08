@@ -128,6 +128,12 @@ const goIndex = () => {
 }
 // 猜你喜欢
 const { guessRef, onScrollToLower } = useGuessList()
+const guessTitle = computed(() => {
+  if (userStore.userInfo) {
+    return '搭配着买'
+  }
+  return '大家都在买'
+})
 </script>
 
 <template>
@@ -224,7 +230,7 @@ const { guessRef, onScrollToLower } = useGuessList()
     <!-- 猜你喜欢 -->
     <XtxGuess
       ref="guessRef"
-      title="搭配着买"
+      :title="guessTitle"
       :scene="RecommendScene.CART"
     />
     <!-- 底部占位空盒子 -->

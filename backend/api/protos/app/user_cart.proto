@@ -8,6 +8,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
+import "app/recommend.proto";
 import "common/common.proto";
 
 // App用户购物车管理服务
@@ -118,6 +119,10 @@ message UserCart {
   bool isChecked = 51 [
     (gnostic.openapi.v3.property) = {description: "是否选中"}
   ];  // 是否选中
+
+  RecommendContext recommendContext = 52 [
+    (gnostic.openapi.v3.property) = {description: "推荐上下文"}
+  ];  // 推荐上下文
 }
 
 // 用户购物车
@@ -133,6 +138,10 @@ message CreateUserCartRequest {
   int64 num = 3 [
     (gnostic.openapi.v3.property) = {description: "数量"}
   ]; // 数量
+
+  RecommendContext recommendContext = 4 [
+    (gnostic.openapi.v3.property) = {description: "推荐上下文"}
+  ];  // 推荐上下文
 }
 
 // 用户购物车

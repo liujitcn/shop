@@ -49,6 +49,11 @@ var ProviderSet = wire.NewSet(
 	biz.NewWorkspaceCase,
 
 	task.NewOrderStatDay,
+	task.NewGoodsStatDay,
+	task.NewRecommendGoodsStatDay,
+	task.NewRecommendEvalReport,
+	task.NewRecommendUserPreferenceRebuild,
+	task.NewRecommendGoodsRelationRebuild,
 	task.NewTradeBill,
 	task.NewTaskList,
 

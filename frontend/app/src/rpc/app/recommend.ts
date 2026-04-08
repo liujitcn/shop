@@ -7,48 +7,75 @@
 /* eslint-disable */
 import type { RecommendGoodsActionType, RecommendScene } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
+import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
 
 /** RecommendGoodsRequest 查询推荐商品列表请求。 */
 export interface RecommendGoodsRequest {
+  /** 推荐场景 */
   scene: RecommendScene;
+  /** 订单ID */
   orderId: number;
+  /** 当前页码 */
   pageNum: number;
+  /** 每页数量 */
   pageSize: number;
 }
 
 /** RecommendGoodsResponse 查询推荐商品列表响应。 */
 export interface RecommendGoodsResponse {
+  /** 推荐商品列表 */
   list: GoodsInfo[];
+  /** 总数 */
   total: number;
+  /** 推荐请求ID */
   requestId: string;
+}
+
+/** RecommendContext 推荐上下文。 */
+export interface RecommendContext {
+  /** 入口来源 */
+  source: string;
+  /** 推荐场景 */
+  scene: string;
+  /** 推荐请求ID */
+  requestId: string;
+  /** 推荐位序号 */
+  position: number;
 }
 
 /** RecommendGoodsActionItem 推荐商品行为埋点商品项。 */
 export interface RecommendGoodsActionItem {
+  /** 商品ID */
   goodsId: number;
+  /** 商品数量 */
   goodsNum: number;
-  source: string;
-  scene: string;
-  requestId: string;
-  index: number;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
 }
 
 /** RecommendExposureReportRequest 推荐曝光上报请求。 */
 export interface RecommendExposureReportRequest {
+  /** 推荐请求ID */
   requestId: string;
+  /** 推荐场景 */
   scene: string;
+  /** 曝光商品ID列表 */
   goodsIds: number[];
 }
 
 /** RecommendGoodsActionReportRequest 推荐商品行为上报请求。 */
 export interface RecommendGoodsActionReportRequest {
+  /** 商品行为事件类型 */
   eventType: RecommendGoodsActionType;
+  /** 商品行为事件项 */
   goodsItems: RecommendGoodsActionItem[];
 }
 
-/** App推荐服务，包含推荐查询与独立埋点上报能力。 */
+/** App推荐服务 */
 export interface RecommendService {
+  /** 获取匿名推荐主体 */
+  RecommendAnonymousActor(request: Empty): Promise<Int64Value>;
   /** 查询推荐商品列表 */
   RecommendGoods(request: RecommendGoodsRequest): Promise<RecommendGoodsResponse>;
   /** 上报推荐曝光事件 */

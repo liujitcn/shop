@@ -10,6 +10,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 import "app/user_address.proto";
+import "app/recommend.proto";
 
 import "common/enum.proto";
 
@@ -118,6 +119,10 @@ message CreateOrderInfoGoods {
   int64 num = 3 [
     (gnostic.openapi.v3.property) = {description: "数量"}
   ]; // 数量
+
+  RecommendContext recommendContext = 4 [
+    (gnostic.openapi.v3.property) = {description: "推荐上下文"}
+  ];  // 推荐上下文
 }
 
 // 确认订单信息信息
@@ -351,6 +356,22 @@ message OrderGoods {
   // 支付金额汇总
   int64 totalPayPrice = 43 [
     (gnostic.openapi.v3.property) = { description: "支付金额汇总" }
+  ];
+
+  string source = 44 [
+    (gnostic.openapi.v3.property) = {description: "入口来源"}
+  ];
+
+  string scene = 45 [
+    (gnostic.openapi.v3.property) = {description: "推荐场景"}
+  ];
+
+  string requestId = 46 [
+    (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
+  ];
+
+  int32 position = 47 [
+    (gnostic.openapi.v3.property) = {description: "推荐位序号"}
   ];
 }
 

@@ -7,11 +7,6 @@
 package app
 
 import (
-	reflect "reflect"
-	_ "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -19,6 +14,10 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	_ "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -182,10 +181,11 @@ func (x *PageUserCollectResponse) GetTotal() int32 {
 
 // 用户购物车
 type UserCollectForm struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 商品id
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 商品id
+	RecommendContext *RecommendContext      `protobuf:"bytes,2,opt,name=recommendContext,proto3" json:"recommendContext,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *UserCollectForm) Reset() {
@@ -223,6 +223,13 @@ func (x *UserCollectForm) GetGoodsId() int64 {
 		return x.GoodsId
 	}
 	return 0
+}
+
+func (x *UserCollectForm) GetRecommendContext() *RecommendContext {
+	if x != nil {
+		return x.RecommendContext
+	}
+	return nil
 }
 
 // 用户收藏
@@ -333,7 +340,7 @@ var File_app_user_collect_proto protoreflect.FileDescriptor
 
 const file_app_user_collect_proto_rawDesc = "" +
 	"\n" +
-	"\x16app/user_collect.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\"<\n" +
+	"\x16app/user_collect.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x13app/recommend.proto\"<\n" +
 	"\x10IsCollectRequest\x12(\n" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\"\x94\x01\n" +
 	"\x16PageUserCollectRequest\x128\n" +
@@ -341,9 +348,10 @@ const file_app_user_collect_proto_rawDesc = "" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"U\n" +
 	"\x17PageUserCollectResponse\x12$\n" +
 	"\x04list\x18\x01 \x03(\v2\x10.app.UserCollectR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\";\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"\x95\x01\n" +
 	"\x0fUserCollectForm\x12(\n" +
-	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\"\xd6\x02\n" +
+	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12X\n" +
+	"\x10recommendContext\x18\x02 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xd6\x02\n" +
 	"\vUserCollect\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户收藏IDR\x02id\x12(\n" +
 	"\agoodsId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12 \n" +
@@ -379,25 +387,27 @@ var file_app_user_collect_proto_goTypes = []any{
 	(*PageUserCollectResponse)(nil), // 2: app.PageUserCollectResponse
 	(*UserCollectForm)(nil),         // 3: app.UserCollectForm
 	(*UserCollect)(nil),             // 4: app.UserCollect
-	(*wrapperspb.StringValue)(nil),  // 5: google.protobuf.StringValue
-	(*wrapperspb.BoolValue)(nil),    // 6: google.protobuf.BoolValue
-	(*emptypb.Empty)(nil),           // 7: google.protobuf.Empty
+	(*RecommendContext)(nil),        // 5: app.RecommendContext
+	(*wrapperspb.StringValue)(nil),  // 6: google.protobuf.StringValue
+	(*wrapperspb.BoolValue)(nil),    // 7: google.protobuf.BoolValue
+	(*emptypb.Empty)(nil),           // 8: google.protobuf.Empty
 }
 var file_app_user_collect_proto_depIdxs = []int32{
 	4, // 0: app.PageUserCollectResponse.list:type_name -> app.UserCollect
-	1, // 1: app.UserCollectService.PageUserCollect:input_type -> app.PageUserCollectRequest
-	0, // 2: app.UserCollectService.GetIsCollect:input_type -> app.IsCollectRequest
-	3, // 3: app.UserCollectService.CreateUserCollect:input_type -> app.UserCollectForm
-	5, // 4: app.UserCollectService.DeleteUserCollect:input_type -> google.protobuf.StringValue
-	2, // 5: app.UserCollectService.PageUserCollect:output_type -> app.PageUserCollectResponse
-	6, // 6: app.UserCollectService.GetIsCollect:output_type -> google.protobuf.BoolValue
-	7, // 7: app.UserCollectService.CreateUserCollect:output_type -> google.protobuf.Empty
-	7, // 8: app.UserCollectService.DeleteUserCollect:output_type -> google.protobuf.Empty
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 1: app.UserCollectForm.recommendContext:type_name -> app.RecommendContext
+	1, // 2: app.UserCollectService.PageUserCollect:input_type -> app.PageUserCollectRequest
+	0, // 3: app.UserCollectService.GetIsCollect:input_type -> app.IsCollectRequest
+	3, // 4: app.UserCollectService.CreateUserCollect:input_type -> app.UserCollectForm
+	6, // 5: app.UserCollectService.DeleteUserCollect:input_type -> google.protobuf.StringValue
+	2, // 6: app.UserCollectService.PageUserCollect:output_type -> app.PageUserCollectResponse
+	7, // 7: app.UserCollectService.GetIsCollect:output_type -> google.protobuf.BoolValue
+	8, // 8: app.UserCollectService.CreateUserCollect:output_type -> google.protobuf.Empty
+	8, // 9: app.UserCollectService.DeleteUserCollect:output_type -> google.protobuf.Empty
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_app_user_collect_proto_init() }
@@ -405,6 +415,7 @@ func file_app_user_collect_proto_init() {
 	if File_app_user_collect_proto != nil {
 		return
 	}
+	file_app_recommend_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

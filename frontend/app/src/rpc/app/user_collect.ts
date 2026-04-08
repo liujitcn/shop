@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 import type { BoolValue, StringValue } from "../google/protobuf/wrappers";
+import type { RecommendContext } from "./recommend";
 
 export interface IsCollectRequest {
   /** 商品ID */
@@ -31,6 +32,8 @@ export interface PageUserCollectResponse {
 export interface UserCollectForm {
   /** 商品id */
   goodsId: number;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
 }
 
 /** 用户收藏 */

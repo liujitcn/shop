@@ -7,16 +7,16 @@
 package app
 
 import (
-	reflect "reflect"
-	common "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	common "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -29,10 +29,10 @@ const (
 // RecommendGoodsRequest 查询推荐商品列表请求。
 type RecommendGoodsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Scene         common.RecommendScene  `protobuf:"varint,1,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"`
-	OrderId       int64                  `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`
-	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	Scene         common.RecommendScene  `protobuf:"varint,1,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"` // 推荐场景
+	OrderId       int64                  `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`                        // 订单ID
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                      // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                    // 每页数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -98,9 +98,9 @@ func (x *RecommendGoodsRequest) GetPageSize() int64 {
 // RecommendGoodsResponse 查询推荐商品列表响应。
 type RecommendGoodsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	List          []*GoodsInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
-	RequestId     string                 `protobuf:"bytes,3,opt,name=requestId,proto3" json:"requestId,omitempty"`
+	List          []*GoodsInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`           // 推荐商品列表
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`        // 总数
+	RequestId     string                 `protobuf:"bytes,3,opt,name=requestId,proto3" json:"requestId,omitempty"` // 推荐请求ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -156,22 +156,88 @@ func (x *RecommendGoodsResponse) GetRequestId() string {
 	return ""
 }
 
-// RecommendGoodsActionItem 推荐商品行为埋点商品项。
-type RecommendGoodsActionItem struct {
+// RecommendContext 推荐上下文。
+type RecommendContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
-	GoodsNum      int64                  `protobuf:"varint,2,opt,name=goodsNum,proto3" json:"goodsNum,omitempty"`
-	Source        string                 `protobuf:"bytes,3,opt,name=source,proto3" json:"source,omitempty"`
-	Scene         string                 `protobuf:"bytes,4,opt,name=scene,proto3" json:"scene,omitempty"`
-	RequestId     string                 `protobuf:"bytes,5,opt,name=requestId,proto3" json:"requestId,omitempty"`
-	Index         int32                  `protobuf:"varint,6,opt,name=index,proto3" json:"index,omitempty"`
+	Source        string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`       // 入口来源
+	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`         // 推荐场景
+	RequestId     string                 `protobuf:"bytes,3,opt,name=requestId,proto3" json:"requestId,omitempty"` // 推荐请求ID
+	Position      int32                  `protobuf:"varint,4,opt,name=position,proto3" json:"position,omitempty"`  // 推荐位序号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *RecommendContext) Reset() {
+	*x = RecommendContext{}
+	mi := &file_app_recommend_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendContext) ProtoMessage() {}
+
+func (x *RecommendContext) ProtoReflect() protoreflect.Message {
+	mi := &file_app_recommend_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendContext.ProtoReflect.Descriptor instead.
+func (*RecommendContext) Descriptor() ([]byte, []int) {
+	return file_app_recommend_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RecommendContext) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *RecommendContext) GetScene() string {
+	if x != nil {
+		return x.Scene
+	}
+	return ""
+}
+
+func (x *RecommendContext) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *RecommendContext) GetPosition() int32 {
+	if x != nil {
+		return x.Position
+	}
+	return 0
+}
+
+// RecommendGoodsActionItem 推荐商品行为埋点商品项。
+type RecommendGoodsActionItem struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 商品ID
+	GoodsNum         int64                  `protobuf:"varint,2,opt,name=goodsNum,proto3" json:"goodsNum,omitempty"`                // 商品数量
+	RecommendContext *RecommendContext      `protobuf:"bytes,3,opt,name=recommendContext,proto3" json:"recommendContext,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
 func (x *RecommendGoodsActionItem) Reset() {
 	*x = RecommendGoodsActionItem{}
-	mi := &file_app_recommend_proto_msgTypes[2]
+	mi := &file_app_recommend_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -183,7 +249,7 @@ func (x *RecommendGoodsActionItem) String() string {
 func (*RecommendGoodsActionItem) ProtoMessage() {}
 
 func (x *RecommendGoodsActionItem) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[2]
+	mi := &file_app_recommend_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -196,7 +262,7 @@ func (x *RecommendGoodsActionItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendGoodsActionItem.ProtoReflect.Descriptor instead.
 func (*RecommendGoodsActionItem) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{2}
+	return file_app_recommend_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RecommendGoodsActionItem) GetGoodsId() int64 {
@@ -213,47 +279,26 @@ func (x *RecommendGoodsActionItem) GetGoodsNum() int64 {
 	return 0
 }
 
-func (x *RecommendGoodsActionItem) GetSource() string {
+func (x *RecommendGoodsActionItem) GetRecommendContext() *RecommendContext {
 	if x != nil {
-		return x.Source
+		return x.RecommendContext
 	}
-	return ""
-}
-
-func (x *RecommendGoodsActionItem) GetScene() string {
-	if x != nil {
-		return x.Scene
-	}
-	return ""
-}
-
-func (x *RecommendGoodsActionItem) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
-func (x *RecommendGoodsActionItem) GetIndex() int32 {
-	if x != nil {
-		return x.Index
-	}
-	return 0
+	return nil
 }
 
 // RecommendExposureReportRequest 推荐曝光上报请求。
 type RecommendExposureReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     string                 `protobuf:"bytes,1,opt,name=requestId,proto3" json:"requestId,omitempty"`
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`
-	GoodsIds      []int64                `protobuf:"varint,3,rep,packed,name=goodsIds,proto3" json:"goodsIds,omitempty"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=requestId,proto3" json:"requestId,omitempty"`       // 推荐请求ID
+	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`               // 推荐场景
+	GoodsIds      []int64                `protobuf:"varint,3,rep,packed,name=goodsIds,proto3" json:"goodsIds,omitempty"` // 曝光商品ID列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RecommendExposureReportRequest) Reset() {
 	*x = RecommendExposureReportRequest{}
-	mi := &file_app_recommend_proto_msgTypes[3]
+	mi := &file_app_recommend_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -265,7 +310,7 @@ func (x *RecommendExposureReportRequest) String() string {
 func (*RecommendExposureReportRequest) ProtoMessage() {}
 
 func (x *RecommendExposureReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[3]
+	mi := &file_app_recommend_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -278,7 +323,7 @@ func (x *RecommendExposureReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendExposureReportRequest.ProtoReflect.Descriptor instead.
 func (*RecommendExposureReportRequest) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{3}
+	return file_app_recommend_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RecommendExposureReportRequest) GetRequestId() string {
@@ -305,15 +350,15 @@ func (x *RecommendExposureReportRequest) GetGoodsIds() []int64 {
 // RecommendGoodsActionReportRequest 推荐商品行为上报请求。
 type RecommendGoodsActionReportRequest struct {
 	state         protoimpl.MessageState          `protogen:"open.v1"`
-	EventType     common.RecommendGoodsActionType `protobuf:"varint,1,opt,name=eventType,proto3,enum=common.RecommendGoodsActionType" json:"eventType,omitempty"`
-	GoodsItems    []*RecommendGoodsActionItem     `protobuf:"bytes,2,rep,name=goodsItems,proto3" json:"goodsItems,omitempty"`
+	EventType     common.RecommendGoodsActionType `protobuf:"varint,1,opt,name=eventType,proto3,enum=common.RecommendGoodsActionType" json:"eventType,omitempty"` // 商品行为事件类型
+	GoodsItems    []*RecommendGoodsActionItem     `protobuf:"bytes,2,rep,name=goodsItems,proto3" json:"goodsItems,omitempty"`                                     // 商品行为事件项
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *RecommendGoodsActionReportRequest) Reset() {
 	*x = RecommendGoodsActionReportRequest{}
-	mi := &file_app_recommend_proto_msgTypes[4]
+	mi := &file_app_recommend_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -325,7 +370,7 @@ func (x *RecommendGoodsActionReportRequest) String() string {
 func (*RecommendGoodsActionReportRequest) ProtoMessage() {}
 
 func (x *RecommendGoodsActionReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[4]
+	mi := &file_app_recommend_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -338,7 +383,7 @@ func (x *RecommendGoodsActionReportRequest) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use RecommendGoodsActionReportRequest.ProtoReflect.Descriptor instead.
 func (*RecommendGoodsActionReportRequest) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{4}
+	return file_app_recommend_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RecommendGoodsActionReportRequest) GetEventType() common.RecommendGoodsActionType {
@@ -359,7 +404,7 @@ var File_app_recommend_proto protoreflect.FileDescriptor
 
 const file_app_recommend_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/recommend.proto\x12\x03app\x1a\x14app/goods_info.proto\x1a\x11common/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xf9\x01\n" +
+	"\x13app/recommend.proto\x12\x03app\x1a\x14app/goods_info.proto\x1a\x11common/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xf9\x01\n" +
 	"\x15RecommendGoodsRequest\x12@\n" +
 	"\x05scene\x18\x01 \x01(\x0e2\x16.common.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x12(\n" +
 	"\aorderId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x128\n" +
@@ -368,14 +413,16 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\x16RecommendGoodsResponse\x12\"\n" +
 	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x122\n" +
-	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xab\x02\n" +
+	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xcf\x01\n" +
+	"\x10RecommendContext\x12*\n" +
+	"\x06source\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f入口来源R\x06source\x12(\n" +
+	"\x05scene\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x122\n" +
+	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x121\n" +
+	"\bposition\x18\x04 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f推荐位序号R\bposition\"\xce\x01\n" +
 	"\x18RecommendGoodsActionItem\x12(\n" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12.\n" +
-	"\bgoodsNum\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品数量R\bgoodsNum\x12*\n" +
-	"\x06source\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f入口来源R\x06source\x12(\n" +
-	"\x05scene\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x122\n" +
-	"\trequestId\x18\x05 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12+\n" +
-	"\x05index\x18\x06 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f推荐位序号R\x05index\"\xb6\x01\n" +
+	"\bgoodsNum\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品数量R\bgoodsNum\x12X\n" +
+	"\x10recommendContext\x18\x03 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xb6\x01\n" +
 	"\x1eRecommendExposureReportRequest\x122\n" +
 	"\trequestId\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12(\n" +
 	"\x05scene\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x126\n" +
@@ -384,8 +431,9 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\teventType\x18\x01 \x01(\x0e2 .common.RecommendGoodsActionTypeB\x1e\xbaG\x1b\x92\x02\x18商品行为事件类型R\teventType\x12Z\n" +
 	"\n" +
 	"goodsItems\x18\x02 \x03(\v2\x1d.app.RecommendGoodsActionItemB\x1b\xbaG\x18\x92\x02\x15商品行为事件项R\n" +
-	"goodsItems2\x90\x03\n" +
-	"\x10RecommendService\x12k\n" +
+	"goodsItems2\x8c\x04\n" +
+	"\x10RecommendService\x12z\n" +
+	"\x17RecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int64Value\"*\x82\xd3\xe4\x93\x02$\x12\"/api/app/recommend/actor/anonymous\x12k\n" +
 	"\x0eRecommendGoods\x12\x1a.app.RecommendGoodsRequest\x1a\x1b.app.RecommendGoodsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/app/recommend/goods\x12\x84\x01\n" +
 	"\x17RecommendExposureReport\x12#.app.RecommendExposureReportRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/app/recommend/event/exposure\x12\x87\x01\n" +
 	"\x1aRecommendGoodsActionReport\x12&.app.RecommendGoodsActionReportRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/api/app/recommend/event/goodsBZ\n" +
@@ -403,34 +451,39 @@ func file_app_recommend_proto_rawDescGZIP() []byte {
 	return file_app_recommend_proto_rawDescData
 }
 
-var file_app_recommend_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_app_recommend_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_app_recommend_proto_goTypes = []any{
 	(*RecommendGoodsRequest)(nil),             // 0: app.RecommendGoodsRequest
 	(*RecommendGoodsResponse)(nil),            // 1: app.RecommendGoodsResponse
-	(*RecommendGoodsActionItem)(nil),          // 2: app.RecommendGoodsActionItem
-	(*RecommendExposureReportRequest)(nil),    // 3: app.RecommendExposureReportRequest
-	(*RecommendGoodsActionReportRequest)(nil), // 4: app.RecommendGoodsActionReportRequest
-	(common.RecommendScene)(0),                // 5: common.RecommendScene
-	(*GoodsInfo)(nil),                         // 6: app.GoodsInfo
-	(common.RecommendGoodsActionType)(0),      // 7: common.RecommendGoodsActionType
-	(*emptypb.Empty)(nil),                     // 8: google.protobuf.Empty
+	(*RecommendContext)(nil),                  // 2: app.RecommendContext
+	(*RecommendGoodsActionItem)(nil),          // 3: app.RecommendGoodsActionItem
+	(*RecommendExposureReportRequest)(nil),    // 4: app.RecommendExposureReportRequest
+	(*RecommendGoodsActionReportRequest)(nil), // 5: app.RecommendGoodsActionReportRequest
+	(common.RecommendScene)(0),                // 6: common.RecommendScene
+	(*GoodsInfo)(nil),                         // 7: app.GoodsInfo
+	(common.RecommendGoodsActionType)(0),      // 8: common.RecommendGoodsActionType
+	(*emptypb.Empty)(nil),                     // 9: google.protobuf.Empty
+	(*wrapperspb.Int64Value)(nil),             // 10: google.protobuf.Int64Value
 }
 var file_app_recommend_proto_depIdxs = []int32{
-	5, // 0: app.RecommendGoodsRequest.scene:type_name -> common.RecommendScene
-	6, // 1: app.RecommendGoodsResponse.list:type_name -> app.GoodsInfo
-	7, // 2: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
-	2, // 3: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
-	0, // 4: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
-	3, // 5: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
-	4, // 6: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
-	1, // 7: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
-	8, // 8: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
-	8, // 9: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	6,  // 0: app.RecommendGoodsRequest.scene:type_name -> common.RecommendScene
+	7,  // 1: app.RecommendGoodsResponse.list:type_name -> app.GoodsInfo
+	2,  // 2: app.RecommendGoodsActionItem.recommendContext:type_name -> app.RecommendContext
+	8,  // 3: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
+	3,  // 4: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
+	9,  // 5: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
+	0,  // 6: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
+	4,  // 7: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
+	5,  // 8: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
+	10, // 9: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
+	1,  // 10: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
+	9,  // 11: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
+	9,  // 12: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
+	9,  // [9:13] is the sub-list for method output_type
+	5,  // [5:9] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_app_recommend_proto_init() }
@@ -445,7 +498,7 @@ func file_app_recommend_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_recommend_proto_rawDesc), len(file_app_recommend_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

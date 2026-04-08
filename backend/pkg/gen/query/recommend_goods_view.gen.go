@@ -28,7 +28,8 @@ func newRecommendGoodsView(db *gorm.DB, opts ...gen.DOOption) recommendGoodsView
 	tableName := _recommendGoodsView.recommendGoodsViewDo.TableName()
 	_recommendGoodsView.ALL = field.NewAsterisk(tableName)
 	_recommendGoodsView.ID = field.NewInt64(tableName, "id")
-	_recommendGoodsView.UserID = field.NewInt64(tableName, "user_id")
+	_recommendGoodsView.ActorType = field.NewInt32(tableName, "actor_type")
+	_recommendGoodsView.ActorID = field.NewInt64(tableName, "actor_id")
 	_recommendGoodsView.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendGoodsView.Source = field.NewString(tableName, "source")
 	_recommendGoodsView.Scene = field.NewString(tableName, "scene")
@@ -48,7 +49,8 @@ type recommendGoodsView struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64  // 主键ID
-	UserID    field.Int64  // 用户ID，未登录为0
+	ActorType field.Int32  // 主体类型：0匿名 1登录用户
+	ActorID   field.Int64  // 主体ID：匿名ID或用户ID
 	GoodsID   field.Int64  // 商品ID
 	Source    field.String // 入口来源
 	Scene     field.String // 推荐场景
@@ -73,7 +75,8 @@ func (r recommendGoodsView) As(alias string) *recommendGoodsView {
 func (r *recommendGoodsView) updateTableName(table string) *recommendGoodsView {
 	r.ALL = field.NewAsterisk(table)
 	r.ID = field.NewInt64(table, "id")
-	r.UserID = field.NewInt64(table, "user_id")
+	r.ActorType = field.NewInt32(table, "actor_type")
+	r.ActorID = field.NewInt64(table, "actor_id")
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.Source = field.NewString(table, "source")
 	r.Scene = field.NewString(table, "scene")
@@ -109,9 +112,10 @@ func (r *recommendGoodsView) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (r *recommendGoodsView) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 9)
+	r.fieldMap = make(map[string]field.Expr, 10)
 	r.fieldMap["id"] = r.ID
-	r.fieldMap["user_id"] = r.UserID
+	r.fieldMap["actor_type"] = r.ActorType
+	r.fieldMap["actor_id"] = r.ActorID
 	r.fieldMap["goods_id"] = r.GoodsID
 	r.fieldMap["source"] = r.Source
 	r.fieldMap["scene"] = r.Scene

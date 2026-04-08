@@ -29,7 +29,8 @@ func newRecommendExposure(db *gorm.DB, opts ...gen.DOOption) recommendExposure {
 	_recommendExposure.ALL = field.NewAsterisk(tableName)
 	_recommendExposure.ID = field.NewInt64(tableName, "id")
 	_recommendExposure.RequestID = field.NewString(tableName, "request_id")
-	_recommendExposure.UserID = field.NewInt64(tableName, "user_id")
+	_recommendExposure.ActorType = field.NewInt32(tableName, "actor_type")
+	_recommendExposure.ActorID = field.NewInt64(tableName, "actor_id")
 	_recommendExposure.Scene = field.NewString(tableName, "scene")
 	_recommendExposure.GoodsIdsJSON = field.NewString(tableName, "goods_ids_json")
 	_recommendExposure.ExposeMode = field.NewString(tableName, "expose_mode")
@@ -47,7 +48,8 @@ type recommendExposure struct {
 	ALL          field.Asterisk
 	ID           field.Int64  // 主键ID
 	RequestID    field.String // 推荐请求ID
-	UserID       field.Int64  // 用户ID，未登录为0
+	ActorType    field.Int32  // 主体类型：0匿名 1登录用户
+	ActorID      field.Int64  // 主体ID：匿名ID或用户ID
 	Scene        field.String // 推荐场景
 	GoodsIdsJSON field.String // 曝光商品ID列表JSON
 	ExposeMode   field.String // 曝光模式
@@ -70,7 +72,8 @@ func (r *recommendExposure) updateTableName(table string) *recommendExposure {
 	r.ALL = field.NewAsterisk(table)
 	r.ID = field.NewInt64(table, "id")
 	r.RequestID = field.NewString(table, "request_id")
-	r.UserID = field.NewInt64(table, "user_id")
+	r.ActorType = field.NewInt32(table, "actor_type")
+	r.ActorID = field.NewInt64(table, "actor_id")
 	r.Scene = field.NewString(table, "scene")
 	r.GoodsIdsJSON = field.NewString(table, "goods_ids_json")
 	r.ExposeMode = field.NewString(table, "expose_mode")
@@ -103,10 +106,11 @@ func (r *recommendExposure) GetFieldByName(fieldName string) (field.OrderExpr, b
 }
 
 func (r *recommendExposure) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 7)
+	r.fieldMap = make(map[string]field.Expr, 8)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["request_id"] = r.RequestID
-	r.fieldMap["user_id"] = r.UserID
+	r.fieldMap["actor_type"] = r.ActorType
+	r.fieldMap["actor_id"] = r.ActorID
 	r.fieldMap["scene"] = r.Scene
 	r.fieldMap["goods_ids_json"] = r.GoodsIdsJSON
 	r.fieldMap["expose_mode"] = r.ExposeMode

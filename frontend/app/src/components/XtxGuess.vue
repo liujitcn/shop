@@ -1,12 +1,28 @@
 <script setup lang="ts">
-import { defRecommendService, reportRecommendExposure } from '@/api/app/recommend'
-import { useUserStore } from '@/stores'
+import {
+  buildRecommendGoodsActionItem,
+  defRecommendService,
+  normalizeRecommendScene,
+  reportRecommendExposure,
+  reportRecommendGoodsAction,
+} from '@/api/app/recommend'
 import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
-import { RecommendScene } from '@/rpc/common/enum'
+import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
 
-const userStore = useUserStore()
+interface GuessGoods extends GoodsInfo {
+  recommendRequestId: string
+  recommendScene: string
+  recommendIndex: number
+}
+
+interface RecommendExposureBatch {
+  requestId: string
+  scene: string
+  goodsIds: number[]
+  exposed: boolean
+}
 
 // 组件属性
 const props = withDefaults(
@@ -29,15 +45,13 @@ const pageParams = {
   pageSize: 10,
 }
 // 猜你喜欢的列表
-const guessList = ref<GoodsInfo[]>([])
+const guessList = ref<GuessGoods[]>([])
 // 已结束标记
 const finish = ref(false)
-// 推荐请求ID
-const requestId = ref('')
 // 是否已经进入可视区
 const isVisible = ref(false)
-// 是否已经记录曝光
-const exposed = ref(false)
+// 未曝光的分页批次
+const exposureBatches = ref<RecommendExposureBatch[]>([])
 // 交叉观察器
 let exposureObserver: any
 
@@ -50,12 +64,23 @@ const getHomeGoodsGuessLikeData = async () => {
   pageParams.scene = props.scene
   pageParams.orderId = props.orderId
   const res = await defRecommendService.RecommendGoods(pageParams)
-  if (!requestId.value) {
-    requestId.value = res.requestId
-  }
-  // 数组追加
-  const list = res.list || []
+  const startIndex = guessList.value.length
+  const sceneName = normalizeRecommendScene(props.scene)
+  const list = (res.list || []).map((item, index) => ({
+    ...item,
+    recommendRequestId: res.requestId,
+    recommendScene: sceneName,
+    recommendIndex: startIndex + index,
+  }))
   guessList.value.push(...list)
+  if (res.requestId && list.length > 0) {
+    exposureBatches.value.push({
+      requestId: res.requestId,
+      scene: sceneName,
+      goodsIds: list.map((item) => item.id),
+      exposed: false,
+    })
+  }
   // 分页条件
   if (guessList.value.length < res.total) {
     // 页码累加
@@ -71,32 +96,50 @@ const resetData = () => {
   pageParams.pageNum = 1
   guessList.value = []
   finish.value = false
-  requestId.value = ''
-  exposed.value = false
+  exposureBatches.value = []
 }
 
 // 上报曝光埋点
 const reportExposure = async () => {
-  if (
-    exposed.value ||
-    !userStore.userInfo ||
-    !isVisible.value ||
-    !requestId.value ||
-    guessList.value.length === 0
-  ) {
+  if (!isVisible.value || exposureBatches.value.length === 0) {
     return
   }
-  exposed.value = true
+  for (const batch of exposureBatches.value) {
+    if (batch.exposed || !batch.requestId || batch.goodsIds.length === 0) {
+      continue
+    }
+    batch.exposed = true
+    try {
+      await reportRecommendExposure({
+        requestId: batch.requestId,
+        scene: batch.scene,
+        goodsIds: batch.goodsIds,
+      })
+    } catch (error) {
+      batch.exposed = false
+      console.error(error)
+    }
+  }
+}
+
+const onTapGoods = async (item: GuessGoods) => {
   try {
-    await reportRecommendExposure({
-      requestId: requestId.value,
-      scene: String(props.scene),
-      goodsIds: guessList.value.map((item) => item.id),
-    })
+    await reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CLICK, [
+      buildRecommendGoodsActionItem({
+        goodsId: item.id,
+        goodsNum: 1,
+        source: 'recommend',
+        scene: item.recommendScene,
+        requestId: item.recommendRequestId,
+        index: item.recommendIndex,
+      }),
+    ])
   } catch (error) {
-    exposed.value = false
     console.error(error)
   }
+  void uni.navigateTo({
+    url: `/pages/goods/goods?id=${item.id}&source=recommend&scene=${item.recommendScene}&requestId=${item.recommendRequestId}&index=${item.recommendIndex}`,
+  })
 }
 
 // 初始化曝光观察器
@@ -138,11 +181,11 @@ defineExpose({
       <text class="text">{{ props.title }}</text>
     </view>
     <view class="guess">
-      <navigator
-        v-for="(item, index) in guessList"
+      <view
+        v-for="item in guessList"
         :key="item.id"
         class="guess-item"
-        :url="`/pages/goods/goods?id=${item.id}&source=recommend&scene=${props.scene}&requestId=${requestId}&index=${index}`"
+        @tap="onTapGoods(item)"
       >
         <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
         <view class="name"> {{ item.name }} </view>
@@ -150,7 +193,7 @@ defineExpose({
           <text class="small">¥</text>
           <text>{{ formatPrice(item.price) }}</text>
         </view>
-      </navigator>
+      </view>
     </view>
     <view class="loading-text">
       {{ finish ? '没有更多数据~' : '正在加载...' }}

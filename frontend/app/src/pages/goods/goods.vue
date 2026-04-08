@@ -9,7 +9,10 @@ import { defUserCollectService } from '@/api/app/user_collect'
 import { defGoodsInfoService } from '@/api/app/goods'
 import {
   buildRecommendGoodsActionItem,
+  buildRecommendContext,
+  normalizeRecommendScene,
   reportRecommendGoodsAction,
+  saveRecommendCartTrack,
 } from '@/api/app/recommend'
 import type { GoodsInfo, GoodsInfoResponse } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
@@ -50,7 +53,7 @@ const buildCurrentGoodsActionItem = (goodsNum = 1) => {
     goodsId: Number(query.id),
     goodsNum,
     source: query.source || 'direct',
-    scene: query.scene || '',
+    scene: normalizeRecommendScene(query.scene || ''),
     requestId: query.requestId || '',
     index: Number(query.index || 0),
   })
@@ -61,9 +64,6 @@ const reportCurrentGoodsAction = async (
   eventType: RecommendGoodsActionType,
   goodsNum = 1,
 ) => {
-  if (!userStore.userInfo) {
-    return
-  }
   try {
     await reportRecommendGoodsAction(eventType, [buildCurrentGoodsActionItem(goodsNum)])
   } catch (error) {
@@ -197,6 +197,21 @@ const onAddCart = async (ev: SkuPopupEvent) => {
     skuCode: ev._id,
     /** 数量 */
     num: ev.buy_num,
+    recommendContext: buildRecommendContext({
+      source: query.source || 'direct',
+      scene: normalizeRecommendScene(query.scene || ''),
+      requestId: query.requestId || '',
+      index: Number(query.index || 0),
+    }),
+  })
+  saveRecommendCartTrack({
+    goodsId: ev.goods_id,
+    skuCode: ev._id,
+    goodsNum: ev.buy_num,
+    source: query.source || 'direct',
+    scene: normalizeRecommendScene(query.scene || ''),
+    requestId: query.requestId || '',
+    index: Number(query.index || 0),
   })
   const res = await defUserCartService.CountUserCart({})
   cartNum.value = res.value
@@ -212,7 +227,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
   }
   isShowSku.value = false
   uni.navigateTo({
-    url: `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}&source=${query.source || 'direct'}&scene=${query.scene || ''}&requestId=${query.requestId || ''}&index=${query.index || 0}`,
+    url: `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}&source=${query.source || 'direct'}&scene=${normalizeRecommendScene(query.scene || '')}&requestId=${query.requestId || ''}&index=${query.index || 0}`,
   })
 }
 // 收藏
@@ -223,6 +238,12 @@ const onCollect = async () => {
   }
   await defUserCollectService.CreateUserCollect({
     goodsId: goodsInfo.value!.id,
+    recommendContext: buildRecommendContext({
+      source: query.source || 'direct',
+      scene: normalizeRecommendScene(query.scene || ''),
+      requestId: query.requestId || '',
+      index: Number(query.index || 0),
+    }),
   })
   isCollect.value = !isCollect.value
   if (isCollect.value) {

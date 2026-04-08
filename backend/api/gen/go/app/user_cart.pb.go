@@ -7,11 +7,6 @@
 package app
 
 import (
-	reflect "reflect"
-	_ "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -19,6 +14,10 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	_ "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -88,10 +87,11 @@ type UserCart struct {
 	// 价格
 	Price int64 `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`
 	// 加入时价格
-	JoinPrice     int64 `protobuf:"varint,40,opt,name=joinPrice,proto3" json:"joinPrice,omitempty"`
-	IsChecked     bool  `protobuf:"varint,51,opt,name=isChecked,proto3" json:"isChecked,omitempty"` // 是否选中
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	JoinPrice        int64             `protobuf:"varint,40,opt,name=joinPrice,proto3" json:"joinPrice,omitempty"`
+	IsChecked        bool              `protobuf:"varint,51,opt,name=isChecked,proto3" json:"isChecked,omitempty"`              // 是否选中
+	RecommendContext *RecommendContext `protobuf:"bytes,52,opt,name=recommendContext,proto3" json:"recommendContext,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *UserCart) Reset() {
@@ -201,14 +201,22 @@ func (x *UserCart) GetIsChecked() bool {
 	return false
 }
 
+func (x *UserCart) GetRecommendContext() *RecommendContext {
+	if x != nil {
+		return x.RecommendContext
+	}
+	return nil
+}
+
 // 用户购物车
 type CreateUserCartRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 规格id
-	SkuCode       string                 `protobuf:"bytes,2,opt,name=skuCode,proto3" json:"skuCode,omitempty"`  // 规格编号
-	Num           int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`         // 数量
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 规格id
+	SkuCode          string                 `protobuf:"bytes,2,opt,name=skuCode,proto3" json:"skuCode,omitempty"`                   // 规格编号
+	Num              int64                  `protobuf:"varint,3,opt,name=num,proto3" json:"num,omitempty"`                          // 数量
+	RecommendContext *RecommendContext      `protobuf:"bytes,4,opt,name=recommendContext,proto3" json:"recommendContext,omitempty"` // 推荐上下文
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CreateUserCartRequest) Reset() {
@@ -260,6 +268,13 @@ func (x *CreateUserCartRequest) GetNum() int64 {
 		return x.Num
 	}
 	return 0
+}
+
+func (x *CreateUserCartRequest) GetRecommendContext() *RecommendContext {
+	if x != nil {
+		return x.RecommendContext
+	}
+	return nil
 }
 
 // 用户购物车
@@ -415,9 +430,9 @@ var File_app_user_cart_proto protoreflect.FileDescriptor
 
 const file_app_user_cart_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/user_cart.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\"9\n" +
+	"\x13app/user_cart.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13app/recommend.proto\x1a\x13common/common.proto\"9\n" +
 	"\x14ListUserCartResponse\x12!\n" +
-	"\x04list\x18\x01 \x03(\v2\r.app.UserCartR\x04list\"\xe8\x03\n" +
+	"\x04list\x18\x01 \x03(\v2\r.app.UserCartR\x04list\"\xc2\x04\n" +
 	"\bUserCart\x12'\n" +
 	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11用户购物车IDR\x02id\x12(\n" +
 	"\agoodsId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12,\n" +
@@ -429,11 +444,13 @@ const file_app_user_cart_proto_rawDesc = "" +
 	"\tinventory\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f库存数量R\tinventory\x12\"\n" +
 	"\x05price\x18) \x01(\x03B\f\xbaG\t\x92\x02\x06价格R\x05price\x123\n" +
 	"\tjoinPrice\x18( \x01(\x03B\x15\xbaG\x12\x92\x02\x0f加入时价格R\tjoinPrice\x120\n" +
-	"\tisChecked\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\"\x8f\x01\n" +
+	"\tisChecked\x183 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否选中R\tisChecked\x12X\n" +
+	"\x10recommendContext\x184 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xe9\x01\n" +
 	"\x15CreateUserCartRequest\x12(\n" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b规格idR\agoodsId\x12,\n" +
 	"\askuCode\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f规格编号R\askuCode\x12\x1e\n" +
-	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\"Z\n" +
+	"\x03num\x18\x03 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\x12X\n" +
+	"\x10recommendContext\x18\x04 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"Z\n" +
 	"\x15UpdateUserCartRequest\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v购物车idR\x02id\x12\x1e\n" +
 	"\x03num\x18\x02 \x01(\x03B\f\xbaG\t\x92\x02\x06数量R\x03num\"o\n" +
@@ -472,31 +489,34 @@ var file_app_user_cart_proto_goTypes = []any{
 	(*UpdateUserCartRequest)(nil),    // 3: app.UpdateUserCartRequest
 	(*SetUserCartStatusRequest)(nil), // 4: app.SetUserCartStatusRequest
 	(*SelectedUserCartRequest)(nil),  // 5: app.SelectedUserCartRequest
-	(*emptypb.Empty)(nil),            // 6: google.protobuf.Empty
-	(*wrapperspb.Int64Value)(nil),    // 7: google.protobuf.Int64Value
-	(*wrapperspb.Int32Value)(nil),    // 8: google.protobuf.Int32Value
+	(*RecommendContext)(nil),         // 6: app.RecommendContext
+	(*emptypb.Empty)(nil),            // 7: google.protobuf.Empty
+	(*wrapperspb.Int64Value)(nil),    // 8: google.protobuf.Int64Value
+	(*wrapperspb.Int32Value)(nil),    // 9: google.protobuf.Int32Value
 }
 var file_app_user_cart_proto_depIdxs = []int32{
-	1, // 0: app.ListUserCartResponse.list:type_name -> app.UserCart
-	6, // 1: app.UserCartService.CountUserCart:input_type -> google.protobuf.Empty
-	6, // 2: app.UserCartService.ListUserCart:input_type -> google.protobuf.Empty
-	2, // 3: app.UserCartService.CreateUserCart:input_type -> app.CreateUserCartRequest
-	3, // 4: app.UserCartService.UpdateUserCart:input_type -> app.UpdateUserCartRequest
-	7, // 5: app.UserCartService.DeleteUserCart:input_type -> google.protobuf.Int64Value
-	4, // 6: app.UserCartService.SetUserCartStatus:input_type -> app.SetUserCartStatusRequest
-	5, // 7: app.UserCartService.SelectedUserCart:input_type -> app.SelectedUserCartRequest
-	8, // 8: app.UserCartService.CountUserCart:output_type -> google.protobuf.Int32Value
-	0, // 9: app.UserCartService.ListUserCart:output_type -> app.ListUserCartResponse
-	6, // 10: app.UserCartService.CreateUserCart:output_type -> google.protobuf.Empty
-	6, // 11: app.UserCartService.UpdateUserCart:output_type -> google.protobuf.Empty
-	6, // 12: app.UserCartService.DeleteUserCart:output_type -> google.protobuf.Empty
-	6, // 13: app.UserCartService.SetUserCartStatus:output_type -> google.protobuf.Empty
-	6, // 14: app.UserCartService.SelectedUserCart:output_type -> google.protobuf.Empty
-	8, // [8:15] is the sub-list for method output_type
-	1, // [1:8] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1,  // 0: app.ListUserCartResponse.list:type_name -> app.UserCart
+	6,  // 1: app.UserCart.recommendContext:type_name -> app.RecommendContext
+	6,  // 2: app.CreateUserCartRequest.recommendContext:type_name -> app.RecommendContext
+	7,  // 3: app.UserCartService.CountUserCart:input_type -> google.protobuf.Empty
+	7,  // 4: app.UserCartService.ListUserCart:input_type -> google.protobuf.Empty
+	2,  // 5: app.UserCartService.CreateUserCart:input_type -> app.CreateUserCartRequest
+	3,  // 6: app.UserCartService.UpdateUserCart:input_type -> app.UpdateUserCartRequest
+	8,  // 7: app.UserCartService.DeleteUserCart:input_type -> google.protobuf.Int64Value
+	4,  // 8: app.UserCartService.SetUserCartStatus:input_type -> app.SetUserCartStatusRequest
+	5,  // 9: app.UserCartService.SelectedUserCart:input_type -> app.SelectedUserCartRequest
+	9,  // 10: app.UserCartService.CountUserCart:output_type -> google.protobuf.Int32Value
+	0,  // 11: app.UserCartService.ListUserCart:output_type -> app.ListUserCartResponse
+	7,  // 12: app.UserCartService.CreateUserCart:output_type -> google.protobuf.Empty
+	7,  // 13: app.UserCartService.UpdateUserCart:output_type -> google.protobuf.Empty
+	7,  // 14: app.UserCartService.DeleteUserCart:output_type -> google.protobuf.Empty
+	7,  // 15: app.UserCartService.SetUserCartStatus:output_type -> google.protobuf.Empty
+	7,  // 16: app.UserCartService.SelectedUserCart:output_type -> google.protobuf.Empty
+	10, // [10:17] is the sub-list for method output_type
+	3,  // [3:10] is the sub-list for method input_type
+	3,  // [3:3] is the sub-list for extension type_name
+	3,  // [3:3] is the sub-list for extension extendee
+	0,  // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_app_user_cart_proto_init() }
@@ -504,6 +524,7 @@ func file_app_user_cart_proto_init() {
 	if File_app_user_cart_proto != nil {
 		return
 	}
+	file_app_recommend_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

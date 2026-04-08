@@ -21,4 +21,7 @@ authn:
         - "/app.ShopServiceService/ListShopService"
         - "/app.ShopHotService/PageShopHotGoods"
         - "/app.PayService/PayNotify"
+        - "/app.RecommendService/RecommendAnonymousActor"
         - "/app.RecommendService/RecommendGoods"
+        - "/app.RecommendService/RecommendExposureReport"
+        - "/app.RecommendService/RecommendGoodsActionReport"

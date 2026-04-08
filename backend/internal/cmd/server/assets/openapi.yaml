@@ -3769,6 +3769,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/JsapiPayResponse'
+    /api/app/recommend/actor/anonymous:
+        get:
+            tags:
+                - RecommendService
+            description: 获取匿名推荐主体
+            operationId: RecommendService_RecommendAnonymousActor
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: string
     /api/app/recommend/event/exposure:
         post:
             tags:
@@ -5438,6 +5451,19 @@ components:
                 num:
                     type: string
                     description: 数量
+                source:
+                    type: string
+                    description: 入口来源
+                scene:
+                    type: string
+                    description: 推荐场景
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                position:
+                    type: integer
+                    description: 推荐位序号
+                    format: int32
         CreateOrderInfoRequest:
             type: object
             properties:
@@ -6979,6 +7005,7 @@ components:
                         - RECOMMEND_GOODS_ACTION_CART
                         - RECOMMEND_GOODS_ACTION_ORDER_CREATE
                         - RECOMMEND_GOODS_ACTION_ORDER_PAY
+                        - RECOMMEND_GOODS_ACTION_CLICK
                     type: string
                     description: 商品行为事件类型
                     format: enum
@@ -7739,6 +7766,19 @@ components:
                 goodsId:
                     type: string
                     description: 商品id
+                source:
+                    type: string
+                    description: 入口来源
+                scene:
+                    type: string
+                    description: 推荐场景
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                position:
+                    type: integer
+                    description: 推荐位序号
+                    format: int32
             description: 用户购物车
         UserInfo:
             type: object
@@ -8023,7 +8063,7 @@ tags:
     - name: PayService
       description: App支付服务
     - name: RecommendService
-      description: App推荐服务，包含推荐查询与独立埋点上报能力。
+      description: App推荐服务
     - name: ShopBannerService
       description: Admin商城轮播图服务
     - name: ShopBannerService

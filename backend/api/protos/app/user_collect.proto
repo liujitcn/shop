@@ -9,6 +9,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 import "common/common.proto";
+import "app/recommend.proto";
 
 // App用户收藏管理服务
 service UserCollectService {
@@ -79,6 +80,10 @@ message UserCollectForm {
   int64 goodsId = 1 [
     (gnostic.openapi.v3.property) = {description: "商品id"}
   ];  // 商品id
+
+  RecommendContext recommendContext = 2 [
+    (gnostic.openapi.v3.property) = {description: "推荐上下文"}
+  ];  // 推荐上下文
 }
 
 // 用户收藏

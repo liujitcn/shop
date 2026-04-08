@@ -4,7 +4,7 @@ import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { defOrderService } from '@/api/app/order'
 import { defBaseDictService } from '@/api/app/base_dict'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'
 import { formatSrc } from '@/utils'
 import { navigateToLogin } from '@/utils/login'
@@ -52,6 +52,12 @@ const getOrderData = async () => {
 }
 
 const { guessRef, onScrollToLower } = useGuessList()
+const guessTitle = computed(() => {
+  if (userStore.userInfo) {
+    return '根据你的偏好推荐'
+  }
+  return '热门好物推荐'
+})
 // 初始化调用: 页面显示触发
 onShow(() => {
   if (userStore.userInfo) {
@@ -145,7 +151,7 @@ onShow(() => {
     </view>
     <!-- 猜你喜欢 -->
     <view class="guess">
-      <XtxGuess ref="guessRef" title="根据你的偏好推荐" :scene="RecommendScene.PROFILE" />
+      <XtxGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.PROFILE" />
     </view>
   </scroll-view>
 </template>

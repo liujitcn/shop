@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import {
   buildRecommendGoodsActionItem,
+  buildRecommendContext,
+  getRecommendCartTrack,
+  normalizeRecommendScene,
   reportRecommendGoodsAction,
   saveRecommendPayTrack,
 } from '@/api/app/recommend'
 import { defOrderService } from '@/api/app/order'
 import { useAddressStore } from '@/stores'
-import type { ConfirmOrderInfoResponse } from '@/rpc/app/order_info'
+import type { ConfirmOrderInfoResponse, CreateOrderInfoGoods, OrderGoods } from '@/rpc/app/order_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { UserAddress } from '@/rpc/app/user_address'
@@ -66,6 +69,39 @@ const query = defineProps<{
   index?: string
 }>()
 
+const mergeCartRecommendContext = (res: ConfirmOrderInfoResponse): ConfirmOrderInfoResponse => {
+  return {
+    ...res,
+    goods: (res.goods || []).map((item) => {
+      const track = getRecommendCartTrack(item.goodsId, item.skuCode)
+      if (!track) {
+        return item
+      }
+      return {
+        ...item,
+        source: track.source || item.source || 'direct',
+        scene: track.scene || item.scene || '',
+        requestId: track.requestId || item.requestId || '',
+        position: track.index || item.position || 0,
+      }
+    }),
+  }
+}
+
+const buildOrderRequestGoods = (item: OrderGoods): CreateOrderInfoGoods => {
+  return {
+    goodsId: item.goodsId,
+    skuCode: item.skuCode,
+    num: item.num,
+    recommendContext: buildRecommendContext({
+      source: item.source || 'direct',
+      scene: normalizeRecommendScene(item.scene || ''),
+      requestId: item.requestId || '',
+      index: item.position || 0,
+    }),
+  }
+}
+
 // 获取订单信息
 const orderPre = ref<ConfirmOrderInfoResponse>()
 const getUserOrderPreData = async () => {
@@ -74,6 +110,12 @@ const getUserOrderPreData = async () => {
       goodsId: Number(query.goodsId),
       skuCode: query.skuCode,
       num: Number(query.num),
+      recommendContext: buildRecommendContext({
+        source: query.source || 'direct',
+        scene: normalizeRecommendScene(query.scene || ''),
+        requestId: query.requestId || '',
+        index: Number(query.index || 0),
+      }),
     })
   } else if (query.orderId) {
     // 再次购买
@@ -81,7 +123,8 @@ const getUserOrderPreData = async () => {
       orderId: Number(query.orderId),
     })
   } else {
-    orderPre.value = await defOrderService.OrderInfoPre({})
+    const res = await defOrderService.OrderInfoPre({})
+    orderPre.value = mergeCartRecommendContext(res)
   }
 }
 
@@ -146,6 +189,7 @@ const onOrderSubmit = async () => {
   if (!activeDelivery.value?.value) {
     return uni.showToast({ icon: 'none', title: '请选择配送时间类型' })
   }
+  const requestGoods = orderPre.value!.goods.map((item) => buildOrderRequestGoods(item))
   // 发送请求
   const res = await defOrderService.CreateOrderInfo({
     /** 地址id */
@@ -161,21 +205,16 @@ const onOrderSubmit = async () => {
     /** 订单备注 */
     remark: buyerMessage.value,
     /** 商品信息 */
-    goods: orderPre.value!.goods.map((v) => ({
-      goodsId: v.goodsId,
-      skuCode: v.skuCode,
-      num: v.num,
-    })),
+    goods: requestGoods,
   })
-  const goodsItems = orderPre.value!.goods.map((item) => {
-    const isCurrentGoods = Number(query.goodsId || 0) === item.goodsId
+  const goodsItems = requestGoods.map((item) => {
     return buildRecommendGoodsActionItem({
       goodsId: item.goodsId,
       goodsNum: item.num,
-      source: isCurrentGoods ? query.source || 'direct' : 'direct',
-      scene: isCurrentGoods ? query.scene || '' : '',
-      requestId: isCurrentGoods ? query.requestId || '' : '',
-      index: isCurrentGoods ? Number(query.index || 0) : 0,
+      source: item.recommendContext?.source || 'direct',
+      scene: item.recommendContext?.scene || '',
+      requestId: item.recommendContext?.requestId || '',
+      index: item.recommendContext?.position || 0,
     })
   })
   await reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_CREATE, goodsItems)
