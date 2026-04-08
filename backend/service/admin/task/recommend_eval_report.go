@@ -6,8 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"shop/api/gen/go/common"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	appBiz "shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -33,7 +35,7 @@ func NewRecommendEvalReport(dataStore *data.Data) *RecommendEvalReport {
 }
 
 type recommendEvalSummaryRow struct {
-	Scene               string  `gorm:"column:scene"`
+	Scene               int32   `gorm:"column:scene"`
 	RequestCount        int64   `gorm:"column:request_count"`
 	ExposedRequestCount int64   `gorm:"column:exposed_request_count"`
 	ExposedGoodsCount   int64   `gorm:"column:exposed_goods_count"`
@@ -48,7 +50,7 @@ type recommendEvalSummaryRow struct {
 }
 
 type recommendEvalSourceRow struct {
-	Scene         string  `gorm:"column:scene"`
+	Scene         int32   `gorm:"column:scene"`
 	RecallSource  string  `gorm:"column:recall_source"`
 	RequestCount  int64   `gorm:"column:request_count"`
 	ClickReqCount int64   `gorm:"column:click_request_count"`
@@ -122,8 +124,12 @@ func (t *RecommendEvalReport) buildSceneFilter(startAt time.Time, endAt time.Tim
 	sceneClause := ""
 	args := []any{startAt, endAt}
 	if scene != "" {
+		sceneValue := appBiz.ParseRecommendSceneForTask(scene)
+		if sceneValue == int32(common.RecommendScene_RECOMMEND_SCENE_UNKNOWN) {
+			return sceneClause, args
+		}
 		sceneClause = " AND rr.scene = ?"
-		args = append(args, scene)
+		args = append(args, sceneValue)
 	}
 	return sceneClause, args
 }
@@ -254,7 +260,7 @@ func (t *RecommendEvalReport) buildResult(
 	for _, row := range summaryRows {
 		result = append(result, fmt.Sprintf(
 			"scene=%s requests=%d exposedReq=%d exposedGoods=%d clickReq=%d clicks=%d payReq=%d pays=%d requestCTR=%.4f exposureCTR=%.4f requestPayCVR=%.4f clickPayCVR=%.4f",
-			row.Scene,
+			appBiz.FormatRecommendSceneForTask(row.Scene),
 			row.RequestCount,
 			row.ExposedRequestCount,
 			row.ExposedGoodsCount,
@@ -277,7 +283,7 @@ func (t *RecommendEvalReport) buildResult(
 	for _, row := range sourceRows {
 		result = append(result, fmt.Sprintf(
 			"scene=%s source=%s requests=%d clickReq=%d payReq=%d requestCTR=%.4f requestPayCVR=%.4f clickPayCVR=%.4f",
-			row.Scene,
+			appBiz.FormatRecommendSceneForTask(row.Scene),
 			row.RecallSource,
 			row.RequestCount,
 			row.ClickReqCount,

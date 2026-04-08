@@ -39,8 +39,8 @@ func newOrderGoods(db *gorm.DB, opts ...gen.DOOption) orderGoods {
 	_orderGoods.PayPrice = field.NewInt64(tableName, "pay_price")
 	_orderGoods.TotalPrice = field.NewInt64(tableName, "total_price")
 	_orderGoods.TotalPayPrice = field.NewInt64(tableName, "total_pay_price")
-	_orderGoods.Source = field.NewString(tableName, "source")
-	_orderGoods.Scene = field.NewString(tableName, "scene")
+	_orderGoods.Source = field.NewInt32(tableName, "source")
+	_orderGoods.Scene = field.NewInt32(tableName, "scene")
 	_orderGoods.RequestID = field.NewString(tableName, "request_id")
 	_orderGoods.Position = field.NewInt32(tableName, "position")
 	_orderGoods.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -67,8 +67,8 @@ type orderGoods struct {
 	PayPrice      field.Int64  // 支付价格（分）
 	TotalPrice    field.Int64  // 当前金额汇总
 	TotalPayPrice field.Int64  // 支付金额汇总
-	Source        field.String // 入口来源
-	Scene         field.String // 推荐场景
+	Source        field.Int32  // 入口来源
+	Scene         field.Int32  // 推荐场景
 	RequestID     field.String // 推荐请求ID
 	Position      field.Int32  // 推荐位序号
 	DeletedAt     field.Field  // 删除时间
@@ -100,8 +100,8 @@ func (o *orderGoods) updateTableName(table string) *orderGoods {
 	o.PayPrice = field.NewInt64(table, "pay_price")
 	o.TotalPrice = field.NewInt64(table, "total_price")
 	o.TotalPayPrice = field.NewInt64(table, "total_pay_price")
-	o.Source = field.NewString(table, "source")
-	o.Scene = field.NewString(table, "scene")
+	o.Source = field.NewInt32(table, "source")
+	o.Scene = field.NewInt32(table, "scene")
 	o.RequestID = field.NewString(table, "request_id")
 	o.Position = field.NewInt32(table, "position")
 	o.DeletedAt = field.NewField(table, "deleted_at")

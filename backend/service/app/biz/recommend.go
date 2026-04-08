@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"strconv"
 	"strings"
 	"time"
 
@@ -16,7 +15,6 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/utils"
 
-	"github.com/google/uuid"
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repo"
 	auth "github.com/liujitcn/kratos-kit/auth"
@@ -100,8 +98,8 @@ type RecommendEvent struct {
 	ActorType  int32                      `json:"actorType"`
 	ActorID    int64                      `json:"actorId"`
 	RequestID  string                     `json:"requestId,omitempty"`
-	Scene      string                     `json:"scene,omitempty"`
-	Source     string                     `json:"source,omitempty"`
+	Scene      int32                      `json:"scene,omitempty"`
+	Source     int32                      `json:"source,omitempty"`
 	GoodsID    int64                      `json:"goodsId,omitempty"`
 	GoodsIDs   []int64                    `json:"goodsIds,omitempty"`
 	GoodsNum   int64                      `json:"goodsNum,omitempty"`
@@ -116,8 +114,8 @@ type RecommendEvent struct {
 type RecommendEventGoodsItem struct {
 	GoodsID   int64  `json:"goodsId,omitempty"`
 	GoodsNum  int64  `json:"goodsNum,omitempty"`
-	Source    string `json:"source,omitempty"`
-	Scene     string `json:"scene,omitempty"`
+	Source    int32  `json:"source,omitempty"`
+	Scene     int32  `json:"scene,omitempty"`
 	RequestID string `json:"requestId,omitempty"`
 	Position  int32  `json:"position,omitempty"`
 }
@@ -191,7 +189,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	req.PageNum = pageNum
 	req.PageSize = pageSize
 	// 每次推荐请求都生成独立 requestID，用于后续曝光归因。
-	requestID := uuid.NewString()
+	requestID := id.NewShortUUID()
 	actor := c.resolveRecommendActor(ctx)
 
 	var list []*app.GoodsInfo
@@ -241,7 +239,7 @@ func (c *RecommendEventCase) RecommendExposureReport(ctx context.Context, req *a
 	publishRecommendExposureEvent(
 		actor,
 		strings.TrimSpace(req.GetRequestId()),
-		normalizeRecommendScene(strings.TrimSpace(req.GetScene())),
+		parseRecommendScene(req.GetScene()),
 		req.GetGoodsIds(),
 	)
 	return nil
@@ -520,7 +518,7 @@ func (c *RecommendCase) saveRecommendRequest(ctx context.Context, requestID stri
 		RequestID:         requestID,
 		ActorType:         actor.ActorType,
 		ActorID:           actor.ActorId,
-		Scene:             req.GetScene().String(),
+		Scene:             int32(req.GetScene()),
 		SourceContextJSON: string(sourceContextJSON),
 		PageNum:           int32(req.GetPageNum()),
 		PageSize:          int32(req.GetPageSize()),
@@ -572,7 +570,7 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			RequestID:    event.RequestID,
 			ActorType:    event.ActorType,
 			ActorID:      event.ActorID,
-			Scene:        normalizeRecommendScene(event.Scene),
+			Scene:        event.Scene,
 			GoodsIdsJSON: string(goodsIdsJson),
 			ExposeMode:   defaultString(event.ExposeMode, "viewport_once"),
 		})
@@ -581,10 +579,10 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			RequestID: event.RequestID,
 			ActorType: event.ActorType,
 			ActorID:   event.ActorID,
-			Scene:     normalizeRecommendScene(event.Scene),
+			Scene:     event.Scene,
 			GoodsID:   event.GoodsID,
 			Position:  event.Position,
-			Source:    defaultString(event.Source, "recommend"),
+			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_RECOMMEND),
 		})
 		if err != nil {
 			return err
@@ -595,8 +593,8 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			EventType: event.EventType,
 			GoodsID:   event.GoodsID,
 			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
-			Source:    defaultString(event.Source, "recommend"),
-			Scene:     normalizeRecommendScene(event.Scene),
+			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_RECOMMEND),
+			Scene:     event.Scene,
 			RequestID: event.RequestID,
 			Position:  event.Position,
 		})
@@ -605,8 +603,8 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			ActorType: event.ActorType,
 			ActorID:   event.ActorID,
 			GoodsID:   event.GoodsID,
-			Source:    defaultString(event.Source, "direct"),
-			Scene:     normalizeRecommendScene(event.Scene),
+			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT),
+			Scene:     event.Scene,
 			RequestID: event.RequestID,
 			Position:  event.Position,
 			ViewMode:  defaultString(event.ViewMode, "detail_open"),
@@ -620,8 +618,8 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			EventType: event.EventType,
 			GoodsID:   event.GoodsID,
 			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
-			Source:    defaultString(event.Source, "direct"),
-			Scene:     normalizeRecommendScene(event.Scene),
+			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT),
+			Scene:     event.Scene,
 			RequestID: event.RequestID,
 			Position:  event.Position,
 		})
@@ -632,8 +630,8 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			EventType: event.EventType,
 			GoodsID:   event.GoodsID,
 			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
-			Source:    defaultString(event.Source, "direct"),
-			Scene:     normalizeRecommendScene(event.Scene),
+			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT),
+			Scene:     event.Scene,
 			RequestID: event.RequestID,
 			Position:  event.Position,
 		})
@@ -645,8 +643,8 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 				EventType: event.EventType,
 				GoodsID:   goodsItem.GoodsID,
 				GoodsNum:  c.normalizeGoodsCount(goodsItem.GoodsNum),
-				Source:    defaultString(goodsItem.Source, "direct"),
-				Scene:     normalizeRecommendScene(goodsItem.Scene),
+				Source:    normalizeRecommendSourceCode(goodsItem.Source, common.RecommendSource_DIRECT),
+				Scene:     goodsItem.Scene,
 				RequestID: goodsItem.RequestID,
 				Position:  goodsItem.Position,
 			})
@@ -836,7 +834,7 @@ func (c *RecommendEventCase) upsertUserCategoryPreference(ctx context.Context, e
 // upsertGoodsRelation 按同一次推荐请求的共同出现结果累计商品关联度。
 func (c *RecommendEventCase) upsertGoodsRelation(ctx context.Context, event *RecommendEvent, eventTime time.Time) error {
 	// 只有来源于推荐位的请求才参与商品共现关系沉淀。
-	if event.RequestID == "" || defaultString(event.Source, "direct") != "recommend" {
+	if event.RequestID == "" || !isRecommendSource(normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT)) {
 		return nil
 	}
 
@@ -981,7 +979,7 @@ func (c *RecommendEventCase) upsertSingleGoodsRelation(ctx context.Context, good
 }
 
 // publishRecommendExposureEvent 投递推荐曝光事件。
-func publishRecommendExposureEvent(actor *RecommendActor, requestID, scene string, goodsIds []int64) {
+func publishRecommendExposureEvent(actor *RecommendActor, requestID string, scene int32, goodsIds []int64) {
 	utils.AddQueue(_const.RecommendEvent, &RecommendEvent{
 		EventType:  recommendEventTypeExposure,
 		UserID:     actor.UserId,
@@ -996,7 +994,7 @@ func publishRecommendExposureEvent(actor *RecommendActor, requestID, scene strin
 }
 
 // publishRecommendClickEvent 投递推荐点击事件。
-func publishRecommendClickEvent(actor *RecommendActor, goodsID int64, requestID, scene, source string, position int32) {
+func publishRecommendClickEvent(actor *RecommendActor, goodsID int64, requestID string, scene, source int32, position int32) {
 	utils.AddQueue(_const.RecommendEvent, &RecommendEvent{
 		EventType:  recommendEventTypeClick,
 		UserID:     actor.UserId,
@@ -1013,7 +1011,7 @@ func publishRecommendClickEvent(actor *RecommendActor, goodsID int64, requestID,
 }
 
 // publishGoodsViewEvent 投递商品浏览事件。
-func publishGoodsViewEvent(actor *RecommendActor, goodsID int64, position int32, requestID, source, scene string) {
+func publishGoodsViewEvent(actor *RecommendActor, goodsID int64, position int32, requestID string, source, scene int32) {
 	utils.AddQueue(_const.RecommendEvent, &RecommendEvent{
 		EventType:  recommendEventTypeView,
 		UserID:     actor.UserId,
@@ -1031,7 +1029,7 @@ func publishGoodsViewEvent(actor *RecommendActor, goodsID int64, position int32,
 }
 
 // publishGoodsCollectEvent 投递商品收藏事件。
-func publishGoodsCollectEvent(actor *RecommendActor, goodsID int64, requestID, scene, source string, position int32) {
+func publishGoodsCollectEvent(actor *RecommendActor, goodsID int64, requestID string, scene, source int32, position int32) {
 	utils.AddQueue(_const.RecommendEvent, &RecommendEvent{
 		EventType:  recommendEventTypeCollect,
 		UserID:     actor.UserId,
@@ -1048,7 +1046,7 @@ func publishGoodsCollectEvent(actor *RecommendActor, goodsID int64, requestID, s
 }
 
 // publishGoodsCartEvent 投递商品加购事件。
-func publishGoodsCartEvent(actor *RecommendActor, goodsID, goodsNum int64, requestID, scene, source string, position int32) {
+func publishGoodsCartEvent(actor *RecommendActor, goodsID, goodsNum int64, requestID string, scene, source int32, position int32) {
 	utils.AddQueue(_const.RecommendEvent, &RecommendEvent{
 		EventType:  recommendEventTypeCart,
 		UserID:     actor.UserId,
@@ -1108,7 +1106,7 @@ func buildRecommendEventGoodsItems(orderGoodsList []*models.OrderGoods) []*Recom
 }
 
 // publishTrackGoodsEvents 批量投递单商品埋点事件。
-func (c *RecommendEventCase) publishTrackGoodsEvents(actor *RecommendActor, goodsItems []*app.RecommendGoodsActionItem, publishFn func(actor *RecommendActor, goodsID int64, requestID, scene, source string, position int32)) {
+func (c *RecommendEventCase) publishTrackGoodsEvents(actor *RecommendActor, goodsItems []*app.RecommendGoodsActionItem, publishFn func(actor *RecommendActor, goodsID int64, requestID string, scene, source int32, position int32)) {
 	for _, goodsItem := range goodsItems {
 		// 商品项为空或缺少商品ID时跳过，避免发送脏事件。
 		if goodsItem == nil || goodsItem.GetGoodsId() <= 0 {
@@ -1119,8 +1117,8 @@ func (c *RecommendEventCase) publishTrackGoodsEvents(actor *RecommendActor, good
 			actor,
 			goodsItem.GetGoodsId(),
 			strings.TrimSpace(recommendContext.GetRequestId()),
-			normalizeRecommendScene(strings.TrimSpace(recommendContext.GetScene())),
-			defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct"),
+			parseRecommendScene(recommendContext.GetScene()),
+			parseRecommendSource(recommendContext.GetSource()),
 			recommendContext.GetPosition(),
 		)
 	}
@@ -1139,8 +1137,8 @@ func (c *RecommendEventCase) publishTrackGoodsViewEvents(actor *RecommendActor, 
 			goodsItem.GetGoodsId(),
 			recommendContext.GetPosition(),
 			strings.TrimSpace(recommendContext.GetRequestId()),
-			defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct"),
-			normalizeRecommendScene(strings.TrimSpace(recommendContext.GetScene())),
+			parseRecommendSource(recommendContext.GetSource()),
+			parseRecommendScene(recommendContext.GetScene()),
 		)
 	}
 }
@@ -1158,8 +1156,8 @@ func (c *RecommendEventCase) publishTrackGoodsCartEvents(actor *RecommendActor, 
 			goodsItem.GetGoodsId(),
 			goodsItem.GetGoodsNum(),
 			strings.TrimSpace(recommendContext.GetRequestId()),
-			normalizeRecommendScene(strings.TrimSpace(recommendContext.GetScene())),
-			defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct"),
+			parseRecommendScene(recommendContext.GetScene()),
+			parseRecommendSource(recommendContext.GetSource()),
 			recommendContext.GetPosition(),
 		)
 	}
@@ -1177,8 +1175,8 @@ func (c *RecommendEventCase) buildTrackGoodsItems(goodsItems []*app.RecommendGoo
 		list = append(list, &RecommendEventGoodsItem{
 			GoodsID:   goodsItem.GetGoodsId(),
 			GoodsNum:  goodsItem.GetGoodsNum(),
-			Source:    defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct"),
-			Scene:     normalizeRecommendScene(strings.TrimSpace(recommendContext.GetScene())),
+			Source:    parseRecommendSource(recommendContext.GetSource()),
+			Scene:     parseRecommendScene(recommendContext.GetScene()),
 			RequestID: strings.TrimSpace(recommendContext.GetRequestId()),
 			Position:  recommendContext.GetPosition(),
 		})
@@ -1186,26 +1184,11 @@ func (c *RecommendEventCase) buildTrackGoodsItems(goodsItems []*app.RecommendGoo
 	return list
 }
 
-func normalizeRecommendScene(scene string) string {
-	scene = strings.TrimSpace(scene)
-	if scene == "" {
-		return ""
+func normalizeRecommendSourceCode(source int32, defaultSource common.RecommendSource) int32 {
+	if source > 0 {
+		return source
 	}
-	if sceneNumber, err := strconv.Atoi(scene); err == nil {
-		if sceneName, ok := common.RecommendScene_name[int32(sceneNumber)]; ok && sceneName != common.RecommendScene_RECOMMEND_SCENE_UNKNOWN.String() {
-			return sceneName
-		}
-	}
-	switch scene {
-	case common.RecommendScene_HOME.String(),
-		common.RecommendScene_CART.String(),
-		common.RecommendScene_PROFILE.String(),
-		common.RecommendScene_ORDER_DETAIL.String(),
-		common.RecommendScene_ORDER_PAID.String():
-		return scene
-	default:
-		return scene
-	}
+	return int32(defaultSource)
 }
 
 // getRecommendUserID 获取推荐场景下的用户ID。

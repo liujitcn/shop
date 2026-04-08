@@ -1108,6 +1108,56 @@ func (RecommendScene) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{19}
 }
 
+// 推荐来源枚举
+type RecommendSource int32
+
+const (
+	RecommendSource_RECOMMEND_SOURCE_UNKNOWN RecommendSource = 0 // 未指定入口来源
+	RecommendSource_DIRECT                   RecommendSource = 1 // 非推荐入口直达
+	RecommendSource_RECOMMEND                RecommendSource = 2 // 推荐入口
+)
+
+// Enum value maps for RecommendSource.
+var (
+	RecommendSource_name = map[int32]string{
+		0: "RECOMMEND_SOURCE_UNKNOWN",
+		1: "DIRECT",
+		2: "RECOMMEND",
+	}
+	RecommendSource_value = map[string]int32{
+		"RECOMMEND_SOURCE_UNKNOWN": 0,
+		"DIRECT":                   1,
+		"RECOMMEND":                2,
+	}
+)
+
+func (x RecommendSource) Enum() *RecommendSource {
+	p := new(RecommendSource)
+	*p = x
+	return p
+}
+
+func (x RecommendSource) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RecommendSource) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_enum_proto_enumTypes[20].Descriptor()
+}
+
+func (RecommendSource) Type() protoreflect.EnumType {
+	return &file_common_enum_proto_enumTypes[20]
+}
+
+func (x RecommendSource) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RecommendSource.Descriptor instead.
+func (RecommendSource) EnumDescriptor() ([]byte, []int) {
+	return file_common_enum_proto_rawDescGZIP(), []int{20}
+}
+
 // 推荐商品行为类型枚举
 type RecommendGoodsActionType int32
 
@@ -1154,11 +1204,11 @@ func (x RecommendGoodsActionType) String() string {
 }
 
 func (RecommendGoodsActionType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_enum_proto_enumTypes[20].Descriptor()
+	return file_common_enum_proto_enumTypes[21].Descriptor()
 }
 
 func (RecommendGoodsActionType) Type() protoreflect.EnumType {
-	return &file_common_enum_proto_enumTypes[20]
+	return &file_common_enum_proto_enumTypes[21]
 }
 
 func (x RecommendGoodsActionType) Number() protoreflect.EnumNumber {
@@ -1167,7 +1217,7 @@ func (x RecommendGoodsActionType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RecommendGoodsActionType.Descriptor instead.
 func (RecommendGoodsActionType) EnumDescriptor() ([]byte, []int) {
-	return file_common_enum_proto_rawDescGZIP(), []int{20}
+	return file_common_enum_proto_rawDescGZIP(), []int{21}
 }
 
 var File_common_enum_proto protoreflect.FileDescriptor
@@ -1297,7 +1347,12 @@ const file_common_enum_proto_rawDesc = "" +
 	"\aPROFILE\x10\x03\x12\x10\n" +
 	"\fORDER_DETAIL\x10\x04\x12\x0e\n" +
 	"\n" +
-	"ORDER_PAID\x10\x05*\x83\x02\n" +
+	"ORDER_PAID\x10\x05*J\n" +
+	"\x0fRecommendSource\x12\x1c\n" +
+	"\x18RECOMMEND_SOURCE_UNKNOWN\x10\x00\x12\n" +
+	"\n" +
+	"\x06DIRECT\x10\x01\x12\r\n" +
+	"\tRECOMMEND\x10\x02*\x83\x02\n" +
 	"\x18RecommendGoodsActionType\x12\x10\n" +
 	"\fUNKNOWN_RGAT\x10\x00\x12\x1f\n" +
 	"\x1bRECOMMEND_GOODS_ACTION_VIEW\x10\x01\x12\"\n" +
@@ -1321,7 +1376,7 @@ func file_common_enum_proto_rawDescGZIP() []byte {
 	return file_common_enum_proto_rawDescData
 }
 
-var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 21)
+var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 22)
 var file_common_enum_proto_goTypes = []any{
 	(Status)(0),                   // 0: common.Status
 	(BaseConfigSite)(0),           // 1: common.BaseConfigSite
@@ -1343,7 +1398,8 @@ var file_common_enum_proto_goTypes = []any{
 	(ShopBannerType)(0),           // 17: common.ShopBannerType
 	(PayBillStatus)(0),            // 18: common.PayBillStatus
 	(RecommendScene)(0),           // 19: common.RecommendScene
-	(RecommendGoodsActionType)(0), // 20: common.RecommendGoodsActionType
+	(RecommendSource)(0),          // 20: common.RecommendSource
+	(RecommendGoodsActionType)(0), // 21: common.RecommendGoodsActionType
 }
 var file_common_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1363,7 +1419,7 @@ func file_common_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_enum_proto_rawDesc), len(file_common_enum_proto_rawDesc)),
-			NumEnums:      21,
+			NumEnums:      22,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

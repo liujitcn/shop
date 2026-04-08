@@ -423,7 +423,7 @@ FROM (
     WHERE rga.created_at >= ?
       AND rga.created_at < ?
       AND rga.event_type = 'goods_view'
-      AND rga.source = 'recommend'
+      AND rga.source = 2
       AND jt.related_goods_id <> rga.goods_id
     UNION ALL
     SELECT

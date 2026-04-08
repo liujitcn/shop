@@ -33,8 +33,8 @@ func newRecommendGoodsAction(db *gorm.DB, opts ...gen.DOOption) recommendGoodsAc
 	_recommendGoodsAction.EventType = field.NewString(tableName, "event_type")
 	_recommendGoodsAction.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendGoodsAction.GoodsNum = field.NewInt64(tableName, "goods_num")
-	_recommendGoodsAction.Source = field.NewString(tableName, "source")
-	_recommendGoodsAction.Scene = field.NewString(tableName, "scene")
+	_recommendGoodsAction.Source = field.NewInt32(tableName, "source")
+	_recommendGoodsAction.Scene = field.NewInt32(tableName, "scene")
 	_recommendGoodsAction.RequestID = field.NewString(tableName, "request_id")
 	_recommendGoodsAction.Position = field.NewInt32(tableName, "position")
 	_recommendGoodsAction.CreatedAt = field.NewTime(tableName, "created_at")
@@ -55,8 +55,8 @@ type recommendGoodsAction struct {
 	EventType field.String // 行为事件类型
 	GoodsID   field.Int64  // 商品ID
 	GoodsNum  field.Int64  // 商品数量
-	Source    field.String // 入口来源
-	Scene     field.String // 推荐场景
+	Source    field.Int32  // 入口来源
+	Scene     field.Int32  // 推荐场景
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
 	CreatedAt field.Time   // 创建时间
@@ -82,8 +82,8 @@ func (r *recommendGoodsAction) updateTableName(table string) *recommendGoodsActi
 	r.EventType = field.NewString(table, "event_type")
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.GoodsNum = field.NewInt64(table, "goods_num")
-	r.Source = field.NewString(table, "source")
-	r.Scene = field.NewString(table, "scene")
+	r.Source = field.NewInt32(table, "source")
+	r.Scene = field.NewInt32(table, "scene")
 	r.RequestID = field.NewString(table, "request_id")
 	r.Position = field.NewInt32(table, "position")
 	r.CreatedAt = field.NewTime(table, "created_at")

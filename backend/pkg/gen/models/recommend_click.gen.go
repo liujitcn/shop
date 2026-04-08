@@ -16,10 +16,10 @@ type RecommendClick struct {
 	RequestID string    `gorm:"column:request_id;type:varchar(64);not null;index:idx_request_goods,priority:1;comment:推荐请求ID" json:"request_id"`                                                          // 推荐请求ID
 	ActorType int32     `gorm:"column:actor_type;type:tinyint;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:1;comment:主体类型：0匿名 1登录用户" json:"actor_type"`                  // 主体类型：0匿名 1登录用户
 	ActorID   int64     `gorm:"column:actor_id;type:bigint;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:2;comment:主体ID：匿名ID或用户ID" json:"actor_id"`                       // 主体ID：匿名ID或用户ID
-	Scene     string    `gorm:"column:scene;type:varchar(32);not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:3;comment:推荐场景" json:"scene"`                                  // 推荐场景
+	Scene     int32     `gorm:"column:scene;type:tinyint;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:3;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                          // 推荐场景：枚举【RecommendScene】
 	GoodsID   int64     `gorm:"column:goods_id;type:bigint;not null;index:idx_request_goods,priority:2;comment:商品ID" json:"goods_id"`                                                                     // 商品ID
 	Position  int32     `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                                                                                                   // 推荐位序号
-	Source    string    `gorm:"column:source;type:varchar(32);not null;default:recommend;comment:来源，固定recommend" json:"source"`                                                                           // 来源，固定recommend
+	Source    int32     `gorm:"column:source;type:tinyint;not null;default:2;comment:入口来源：枚举【RecommendSource】" json:"source"`                                                                                 // 入口来源：枚举【RecommendSource】
 	CreatedAt time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_recommend_click_actor_type_actor_id_scene_created,priority:4;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
 }
 

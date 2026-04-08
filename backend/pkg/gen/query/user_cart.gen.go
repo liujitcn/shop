@@ -33,8 +33,8 @@ func newUserCart(db *gorm.DB, opts ...gen.DOOption) userCart {
 	_userCart.SkuCode = field.NewString(tableName, "sku_code")
 	_userCart.Num = field.NewInt64(tableName, "num")
 	_userCart.Price = field.NewInt64(tableName, "price")
-	_userCart.Source = field.NewString(tableName, "source")
-	_userCart.Scene = field.NewString(tableName, "scene")
+	_userCart.Source = field.NewInt32(tableName, "source")
+	_userCart.Scene = field.NewInt32(tableName, "scene")
 	_userCart.RequestID = field.NewString(tableName, "request_id")
 	_userCart.Position = field.NewInt32(tableName, "position")
 	_userCart.IsChecked = field.NewBool(tableName, "is_checked")
@@ -58,8 +58,8 @@ type userCart struct {
 	SkuCode   field.String // 规格编号
 	Num       field.Int64  // 数量
 	Price     field.Int64  // 加入时单价
-	Source    field.String // 入口来源
-	Scene     field.String // 推荐场景
+	Source    field.Int32  // 入口来源
+	Scene     field.Int32  // 推荐场景
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
 	IsChecked field.Bool   // 是否选中
@@ -88,8 +88,8 @@ func (u *userCart) updateTableName(table string) *userCart {
 	u.SkuCode = field.NewString(table, "sku_code")
 	u.Num = field.NewInt64(table, "num")
 	u.Price = field.NewInt64(table, "price")
-	u.Source = field.NewString(table, "source")
-	u.Scene = field.NewString(table, "scene")
+	u.Source = field.NewInt32(table, "source")
+	u.Scene = field.NewInt32(table, "scene")
 	u.RequestID = field.NewString(table, "request_id")
 	u.Position = field.NewInt32(table, "position")
 	u.IsChecked = field.NewBool(table, "is_checked")

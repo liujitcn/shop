@@ -31,7 +31,7 @@ func newRecommendExposure(db *gorm.DB, opts ...gen.DOOption) recommendExposure {
 	_recommendExposure.RequestID = field.NewString(tableName, "request_id")
 	_recommendExposure.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendExposure.ActorID = field.NewInt64(tableName, "actor_id")
-	_recommendExposure.Scene = field.NewString(tableName, "scene")
+	_recommendExposure.Scene = field.NewInt32(tableName, "scene")
 	_recommendExposure.GoodsIdsJSON = field.NewString(tableName, "goods_ids_json")
 	_recommendExposure.ExposeMode = field.NewString(tableName, "expose_mode")
 	_recommendExposure.CreatedAt = field.NewTime(tableName, "created_at")
@@ -50,7 +50,7 @@ type recommendExposure struct {
 	RequestID    field.String // 推荐请求ID
 	ActorType    field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID      field.Int64  // 主体ID：匿名ID或用户ID
-	Scene        field.String // 推荐场景
+	Scene        field.Int32  // 推荐场景
 	GoodsIdsJSON field.String // 曝光商品ID列表JSON
 	ExposeMode   field.String // 曝光模式
 	CreatedAt    field.Time   // 创建时间
@@ -74,7 +74,7 @@ func (r *recommendExposure) updateTableName(table string) *recommendExposure {
 	r.RequestID = field.NewString(table, "request_id")
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
-	r.Scene = field.NewString(table, "scene")
+	r.Scene = field.NewInt32(table, "scene")
 	r.GoodsIdsJSON = field.NewString(table, "goods_ids_json")
 	r.ExposeMode = field.NewString(table, "expose_mode")
 	r.CreatedAt = field.NewTime(table, "created_at")

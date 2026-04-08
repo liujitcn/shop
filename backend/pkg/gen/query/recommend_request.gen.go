@@ -31,7 +31,7 @@ func newRecommendRequest(db *gorm.DB, opts ...gen.DOOption) recommendRequest {
 	_recommendRequest.RequestID = field.NewString(tableName, "request_id")
 	_recommendRequest.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendRequest.ActorID = field.NewInt64(tableName, "actor_id")
-	_recommendRequest.Scene = field.NewString(tableName, "scene")
+	_recommendRequest.Scene = field.NewInt32(tableName, "scene")
 	_recommendRequest.SourceContextJSON = field.NewString(tableName, "source_context_json")
 	_recommendRequest.PageNum = field.NewInt32(tableName, "page_num")
 	_recommendRequest.PageSize = field.NewInt32(tableName, "page_size")
@@ -54,7 +54,7 @@ type recommendRequest struct {
 	RequestID         field.String // 推荐请求ID
 	ActorType         field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID           field.Int64  // 主体ID：匿名ID或用户ID
-	Scene             field.String // 推荐场景
+	Scene             field.Int32  // 推荐场景
 	SourceContextJSON field.String // 场景上下文JSON
 	PageNum           field.Int32  // 页码
 	PageSize          field.Int32  // 分页大小
@@ -82,7 +82,7 @@ func (r *recommendRequest) updateTableName(table string) *recommendRequest {
 	r.RequestID = field.NewString(table, "request_id")
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
-	r.Scene = field.NewString(table, "scene")
+	r.Scene = field.NewInt32(table, "scene")
 	r.SourceContextJSON = field.NewString(table, "source_context_json")
 	r.PageNum = field.NewInt32(table, "page_num")
 	r.PageSize = field.NewInt32(table, "page_size")

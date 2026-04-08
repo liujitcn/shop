@@ -146,8 +146,8 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * item.GetNum(),
 		TotalPayPrice: payPrice * item.GetNum(),
-		Source:        recommendContext.GetSource(),
-		Scene:         recommendContext.GetScene(),
+		Source:        formatRecommendSource(parseRecommendSource(recommendContext.GetSource())),
+		Scene:         formatRecommendScene(parseRecommendScene(recommendContext.GetScene())),
 		RequestId:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}
@@ -167,8 +167,8 @@ func (c *OrderGoodsCase) convertToProto(item *models.OrderGoods) *app.OrderGoods
 		PayPrice:      item.PayPrice,
 		TotalPrice:    item.TotalPrice,
 		TotalPayPrice: item.TotalPayPrice,
-		Source:        item.Source,
-		Scene:         item.Scene,
+		Source:        formatRecommendSource(item.Source),
+		Scene:         formatRecommendScene(item.Scene),
 		RequestId:     item.RequestID,
 		Position:      item.Position,
 	}
@@ -219,8 +219,8 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * goods.Num,
 		TotalPayPrice: payPrice * goods.Num,
-		Source:        recommendContext.GetSource(),
-		Scene:         recommendContext.GetScene(),
+		Source:        parseRecommendSource(recommendContext.GetSource()),
+		Scene:         parseRecommendScene(recommendContext.GetScene()),
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}

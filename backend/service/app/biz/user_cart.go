@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"shop/api/gen/go/app"
+	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
@@ -119,8 +120,8 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 			JoinPrice: item.Price,
 			IsChecked: item.IsChecked,
 			RecommendContext: &app.RecommendContext{
-				Source:    defaultString(item.Source, "direct"),
-				Scene:     item.Scene,
+				Source:    formatRecommendSource(item.Source),
+				Scene:     formatRecommendScene(item.Scene),
 				RequestId: item.RequestID,
 				Position:  item.Position,
 			},
@@ -258,20 +259,20 @@ func (c *UserCartCase) applyRecommendContext(userCart *models.UserCart, recommen
 		return
 	}
 
-	source := "direct"
-	scene := ""
+	source := int32(common.RecommendSource_DIRECT)
+	scene := int32(0)
 	requestId := ""
 	position := int32(0)
 	// 请求带推荐上下文时优先使用规范化后的值。
 	if recommendContext != nil {
-		source = defaultString(strings.TrimSpace(recommendContext.GetSource()), "direct")
-		scene = normalizeRecommendScene(strings.TrimSpace(recommendContext.GetScene()))
+		source = parseRecommendSource(recommendContext.GetSource())
+		scene = parseRecommendScene(recommendContext.GetScene())
 		requestId = strings.TrimSpace(recommendContext.GetRequestId())
 		position = recommendContext.GetPosition()
 	}
 
 	// 明确来自推荐位且带 requestId 的加购，允许覆盖旧上下文，保证后续购物车成交可归因。
-	if source == "recommend" && requestId != "" {
+	if isRecommendSource(source) && requestId != "" {
 		userCart.Source = source
 		userCart.Scene = scene
 		userCart.RequestID = requestId
@@ -280,8 +281,10 @@ func (c *UserCartCase) applyRecommendContext(userCart *models.UserCart, recommen
 	}
 
 	// 历史购物车缺少上下文时，至少补齐默认来源，避免后续下单出现空字符串。
-	userCart.Source = defaultString(strings.TrimSpace(userCart.Source), source)
-	if userCart.Scene == "" {
+	if userCart.Source == 0 {
+		userCart.Source = source
+	}
+	if userCart.Scene == 0 {
 		userCart.Scene = scene
 	}
 	if userCart.RequestID == "" {

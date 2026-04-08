@@ -29,7 +29,7 @@ func newRecommendGoodsStatDay(db *gorm.DB, opts ...gen.DOOption) recommendGoodsS
 	_recommendGoodsStatDay.ALL = field.NewAsterisk(tableName)
 	_recommendGoodsStatDay.ID = field.NewInt64(tableName, "id")
 	_recommendGoodsStatDay.StatDate = field.NewTime(tableName, "stat_date")
-	_recommendGoodsStatDay.Scene = field.NewString(tableName, "scene")
+	_recommendGoodsStatDay.Scene = field.NewInt32(tableName, "scene")
 	_recommendGoodsStatDay.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendGoodsStatDay.RequestCount = field.NewInt64(tableName, "request_count")
 	_recommendGoodsStatDay.ExposureCount = field.NewInt64(tableName, "exposure_count")
@@ -57,7 +57,7 @@ type recommendGoodsStatDay struct {
 	ALL           field.Asterisk
 	ID            field.Int64   // 主键ID
 	StatDate      field.Time    // 统计日期
-	Scene         field.String  // 推荐场景
+	Scene         field.Int32   // 推荐场景
 	GoodsID       field.Int64   // 商品ID
 	RequestCount  field.Int64   // 推荐请求次数
 	ExposureCount field.Int64   // 推荐曝光次数
@@ -90,7 +90,7 @@ func (r *recommendGoodsStatDay) updateTableName(table string) *recommendGoodsSta
 	r.ALL = field.NewAsterisk(table)
 	r.ID = field.NewInt64(table, "id")
 	r.StatDate = field.NewTime(table, "stat_date")
-	r.Scene = field.NewString(table, "scene")
+	r.Scene = field.NewInt32(table, "scene")
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.RequestCount = field.NewInt64(table, "request_count")
 	r.ExposureCount = field.NewInt64(table, "exposure_count")

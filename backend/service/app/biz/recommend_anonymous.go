@@ -54,7 +54,7 @@ func (c *RecommendCase) listSceneHotGoodsIds(ctx context.Context, scene common.R
 		ctx,
 		1,
 		int64(limit),
-		repo.Where(recommendStatQuery.Scene.Eq(scene.String())),
+		repo.Where(recommendStatQuery.Scene.Eq(int32(scene))),
 		repo.Where(recommendStatQuery.StatDate.Gte(startDate)),
 		repo.Order(recommendStatQuery.Score.Desc()),
 		repo.Order(recommendStatQuery.StatDate.Desc()),

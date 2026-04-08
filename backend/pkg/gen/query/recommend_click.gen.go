@@ -31,10 +31,10 @@ func newRecommendClick(db *gorm.DB, opts ...gen.DOOption) recommendClick {
 	_recommendClick.RequestID = field.NewString(tableName, "request_id")
 	_recommendClick.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendClick.ActorID = field.NewInt64(tableName, "actor_id")
-	_recommendClick.Scene = field.NewString(tableName, "scene")
+	_recommendClick.Scene = field.NewInt32(tableName, "scene")
 	_recommendClick.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendClick.Position = field.NewInt32(tableName, "position")
-	_recommendClick.Source = field.NewString(tableName, "source")
+	_recommendClick.Source = field.NewInt32(tableName, "source")
 	_recommendClick.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_recommendClick.fillFieldMap()
@@ -51,10 +51,10 @@ type recommendClick struct {
 	RequestID field.String // 推荐请求ID
 	ActorType field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID   field.Int64  // 主体ID：匿名ID或用户ID
-	Scene     field.String // 推荐场景
+	Scene     field.Int32  // 推荐场景
 	GoodsID   field.Int64  // 商品ID
 	Position  field.Int32  // 推荐位序号
-	Source    field.String // 来源，固定recommend
+	Source    field.Int32  // 入口来源
 	CreatedAt field.Time   // 创建时间
 
 	fieldMap map[string]field.Expr
@@ -76,10 +76,10 @@ func (r *recommendClick) updateTableName(table string) *recommendClick {
 	r.RequestID = field.NewString(table, "request_id")
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
-	r.Scene = field.NewString(table, "scene")
+	r.Scene = field.NewInt32(table, "scene")
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.Position = field.NewInt32(table, "position")
-	r.Source = field.NewString(table, "source")
+	r.Source = field.NewInt32(table, "source")
 	r.CreatedAt = field.NewTime(table, "created_at")
 
 	r.fillFieldMap()

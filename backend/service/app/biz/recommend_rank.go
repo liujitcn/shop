@@ -201,7 +201,7 @@ func (c *RecommendCase) buildRecommendCandidates(
 	if err != nil {
 		return nil, err
 	}
-	actorExposurePenalties, err := c.loadActorExposurePenalties(ctx, actor, req.GetScene().String(), candidateGoodsIds)
+	actorExposurePenalties, err := c.loadActorExposurePenalties(ctx, actor, int32(req.GetScene()), candidateGoodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func (c *RecommendCase) buildRecommendCandidates(
 	if err != nil {
 		return nil, err
 	}
-	scenePopularityScores, sceneExposurePenalties, err := c.loadScenePopularitySignals(ctx, req.GetScene().String(), candidateGoodsIds)
+	scenePopularityScores, sceneExposurePenalties, err := c.loadScenePopularitySignals(ctx, int32(req.GetScene()), candidateGoodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -332,11 +332,11 @@ func (c *RecommendCase) buildAnonymousRecommendCandidates(
 			RecallSources: make(map[string]struct{}, 3),
 		}
 	}
-	scenePopularityScores, sceneExposurePenalties, err := c.loadScenePopularitySignals(ctx, req.GetScene().String(), candidateGoodsIds)
+	scenePopularityScores, sceneExposurePenalties, err := c.loadScenePopularitySignals(ctx, int32(req.GetScene()), candidateGoodsIds)
 	if err != nil {
 		return nil, err
 	}
-	actorExposurePenalties, err := c.loadActorExposurePenalties(ctx, actor, req.GetScene().String(), candidateGoodsIds)
+	actorExposurePenalties, err := c.loadActorExposurePenalties(ctx, actor, int32(req.GetScene()), candidateGoodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -436,8 +436,8 @@ func (c *RecommendCase) loadProfileScores(ctx context.Context, userID int64, cat
 	return scores, nil
 }
 
-func (c *RecommendCase) loadScenePopularitySignals(ctx context.Context, scene string, goodsIds []int64) (map[int64]float64, map[int64]float64, error) {
-	if scene == "" || len(goodsIds) == 0 {
+func (c *RecommendCase) loadScenePopularitySignals(ctx context.Context, scene int32, goodsIds []int64) (map[int64]float64, map[int64]float64, error) {
+	if scene == 0 || len(goodsIds) == 0 {
 		return map[int64]float64{}, map[int64]float64{}, nil
 	}
 	statQuery := c.recommendGoodsStatDayRepo.Query(ctx).RecommendGoodsStatDay
@@ -479,8 +479,8 @@ func (c *RecommendCase) loadGlobalPopularityScores(ctx context.Context, goodsIds
 	return scores, nil
 }
 
-func (c *RecommendCase) loadActorExposurePenalties(ctx context.Context, actor *RecommendActor, scene string, goodsIds []int64) (map[int64]float64, error) {
-	if actor == nil || actor.ActorId <= 0 || scene == "" || len(goodsIds) == 0 {
+func (c *RecommendCase) loadActorExposurePenalties(ctx context.Context, actor *RecommendActor, scene int32, goodsIds []int64) (map[int64]float64, error) {
+	if actor == nil || actor.ActorId <= 0 || scene == 0 || len(goodsIds) == 0 {
 		return map[int64]float64{}, nil
 	}
 	exposureQuery := c.RecommendExposureRepo.Query(ctx).RecommendExposure

@@ -31,8 +31,8 @@ func newRecommendGoodsView(db *gorm.DB, opts ...gen.DOOption) recommendGoodsView
 	_recommendGoodsView.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendGoodsView.ActorID = field.NewInt64(tableName, "actor_id")
 	_recommendGoodsView.GoodsID = field.NewInt64(tableName, "goods_id")
-	_recommendGoodsView.Source = field.NewString(tableName, "source")
-	_recommendGoodsView.Scene = field.NewString(tableName, "scene")
+	_recommendGoodsView.Source = field.NewInt32(tableName, "source")
+	_recommendGoodsView.Scene = field.NewInt32(tableName, "scene")
 	_recommendGoodsView.RequestID = field.NewString(tableName, "request_id")
 	_recommendGoodsView.Position = field.NewInt32(tableName, "position")
 	_recommendGoodsView.ViewMode = field.NewString(tableName, "view_mode")
@@ -52,8 +52,8 @@ type recommendGoodsView struct {
 	ActorType field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID   field.Int64  // 主体ID：匿名ID或用户ID
 	GoodsID   field.Int64  // 商品ID
-	Source    field.String // 入口来源
-	Scene     field.String // 推荐场景
+	Source    field.Int32  // 入口来源
+	Scene     field.Int32  // 推荐场景
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
 	ViewMode  field.String // 浏览模式
@@ -78,8 +78,8 @@ func (r *recommendGoodsView) updateTableName(table string) *recommendGoodsView {
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
 	r.GoodsID = field.NewInt64(table, "goods_id")
-	r.Source = field.NewString(table, "source")
-	r.Scene = field.NewString(table, "scene")
+	r.Source = field.NewInt32(table, "source")
+	r.Scene = field.NewInt32(table, "scene")
 	r.RequestID = field.NewString(table, "request_id")
 	r.Position = field.NewInt32(table, "position")
 	r.ViewMode = field.NewString(table, "view_mode")

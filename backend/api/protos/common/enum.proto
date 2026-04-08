@@ -172,6 +172,13 @@ enum RecommendScene{
   ORDER_PAID = 5; // 支付成功推荐场景
 }
 
+// 推荐来源枚举
+enum RecommendSource{
+  RECOMMEND_SOURCE_UNKNOWN = 0; // 未指定入口来源
+  DIRECT = 1; // 非推荐入口直达
+  RECOMMEND = 2; // 推荐入口
+}
+
 // 推荐商品行为类型枚举
 enum RecommendGoodsActionType{
   UNKNOWN_RGAT = 0; // 未指定商品行为类型
