@@ -16,7 +16,7 @@ type OrderAddress struct {
 	OrderID   int64          `gorm:"column:order_id;type:bigint;index:idx_order_address_order_id,priority:1;comment:订单ID" json:"order_id"` // 订单ID
 	Receiver  string         `gorm:"column:receiver;type:varchar(100);comment:联系人" json:"receiver"`                                        // 联系人
 	Contact   string         `gorm:"column:contact;type:varchar(100);comment:联系方式" json:"contact"`                                         // 联系方式
-	Address   string         `gorm:"column:address;type:text;comment:省市区" json:"address"`                                                  // 省市区
+	Address   string         `gorm:"column:address;type:json;comment:省市区" json:"address"`                                                  // 省市区
 	Detail    string         `gorm:"column:detail;type:varchar(255);comment:详细地址" json:"detail"`                                           // 详细地址
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                       // 删除时间
 }

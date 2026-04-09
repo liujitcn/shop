@@ -16,14 +16,14 @@ type OrderGoods struct {
 	OrderID       int64          `gorm:"column:order_id;type:bigint;index:idx_order_goods_order_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:1;comment:订单ID" json:"order_id"` // 订单ID
 	GoodsID       int64          `gorm:"column:goods_id;type:bigint;index:idx_order_goods_goods_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:2;comment:商品ID" json:"goods_id"` // 商品ID
 	SkuCode       string         `gorm:"column:sku_code;type:varchar(50);comment:规格编号" json:"sku_code"`                                                                                         // 规格编号
-	SpecItem      string         `gorm:"column:spec_item;type:text;comment:SKU 规格组成，注意：需要与 goods_spec 数组顺序对应" json:"spec_item"`                                                                 // SKU 规格组成，注意：需要与 goods_spec 数组顺序对应
+	SpecItem      string         `gorm:"column:spec_item;type:json;comment:SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应" json:"spec_item"`                                                                 // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
 	Picture       string         `gorm:"column:picture;type:varchar(255);comment:商品图片" json:"picture"`                                                                                          // 商品图片
 	Name          string         `gorm:"column:name;type:varchar(255);comment:商品名称" json:"name"`                                                                                                // 商品名称
 	Num           int64          `gorm:"column:num;type:bigint;comment:数量" json:"num"`                                                                                                          // 数量
 	Price         int64          `gorm:"column:price;type:bigint;comment:当前价格(分)" json:"price"`                                                                                                 // 当前价格(分)
-	PayPrice      int64          `gorm:"column:pay_price;type:bigint;comment:支付价格（分）" json:"pay_price"`                                                                                         // 支付价格（分）
-	TotalPrice    int64          `gorm:"column:total_price;type:bigint;comment:当前金额汇总" json:"total_price"`                                                                                      // 当前金额汇总
-	TotalPayPrice int64          `gorm:"column:total_pay_price;type:bigint;comment:支付金额汇总" json:"total_pay_price"`                                                                              // 支付金额汇总
+	PayPrice      int64          `gorm:"column:pay_price;type:bigint;comment:支付价格（分）" json:"payPrice"`                                                                                         // 支付价格（分）
+	TotalPrice    int64          `gorm:"column:total_price;type:bigint;comment:当前金额汇总" json:"totalPrice"`                                                                                      // 当前金额汇总
+	TotalPayPrice int64          `gorm:"column:total_pay_price;type:bigint;comment:支付金额汇总" json:"totalPayPrice"`                                                                              // 支付金额汇总
 	Source        int32          `gorm:"column:source;type:tinyint;not null;default:1;comment:入口来源：枚举【RecommendSource】" json:"source"`                                                           // 入口来源：枚举【RecommendSource】
 	Scene         int32          `gorm:"column:scene;type:tinyint;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                                                 // 推荐场景：枚举【RecommendScene】
 	RequestID     string         `gorm:"column:request_id;type:varchar(64);comment:推荐请求ID" json:"request_id"`                                                                                   // 推荐请求ID

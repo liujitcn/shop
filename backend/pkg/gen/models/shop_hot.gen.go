@@ -18,7 +18,7 @@ type ShopHot struct {
 	Title     string         `gorm:"column:title;type:varchar(100);comment:标题" json:"title"`                         // 标题
 	Desc      string         `gorm:"column:desc;type:varchar(100);comment:描述" json:"desc"`                           // 描述
 	Banner    string         `gorm:"column:banner;type:varchar(1024);comment:轮播图" json:"banner"`                     // 轮播图
-	Picture   string         `gorm:"column:picture;type:text;comment:图片" json:"picture"`                             // 图片
+	Picture   string         `gorm:"column:picture;type:json;comment:图片" json:"picture"`                             // 图片
 	Sort      int32          `gorm:"column:sort;type:int;comment:排序" json:"sort"`                                    // 排序
 	Status    int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【Status】" json:"status"`                 // 状态：枚举【Status】
 	CreatedBy int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                  // 创建人ID
