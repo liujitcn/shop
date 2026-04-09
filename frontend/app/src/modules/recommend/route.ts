@@ -1,29 +1,20 @@
+import type { RecommendContext, RecommendGoodsActionItem } from '@/rpc/app/recommend'
+import type { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
 import {
   buildRecommendContext,
   buildRecommendGoodsActionItem,
   parseRecommendScene,
-  parseRecommendSource,
-  reportRecommendGoodsAction,
-  saveRecommendCartTrack,
   stringifyRecommendScene,
-  stringifyRecommendSource,
-} from '@/api/app/recommend'
-import type { RecommendContext, RecommendGoodsActionItem } from '@/rpc/app/recommend'
-import type { RecommendGoodsActionType, RecommendScene, RecommendSource } from '@/rpc/common/enum'
+} from './context'
+import { reportRecommendGoodsAction, saveRecommendCartTrack } from './track'
 
-/** 推荐路由上下文参数。 */
-export interface RecommendRouteQuery {
-  /** 推荐来源。 */
-  source?: RecommendSource | string
-  /** 推荐场景。 */
+/** 页面路由里允许 scene/index 以字符串形式透传。 */
+export type RecommendRouteQuery = Omit<Partial<RecommendContext>, 'scene' | 'position'> & {
   scene?: RecommendScene | string
-  /** 推荐请求 ID。 */
-  requestId?: string
-  /** 推荐位序号。 */
   index?: string | number
 }
 
-/** 解析推荐位序号。 */
+/** 路由里的 index 统一收敛为非负整数位置。 */
 const resolveRecommendIndex = (index?: string | number): number => {
   if (index === undefined || index === null || index === '') {
     return 0
@@ -35,15 +26,11 @@ const resolveRecommendIndex = (index?: string | number): number => {
   return position
 }
 
-/** 解析路由中的推荐上下文。 */
+/** 从路由 query 解析出规范的推荐上下文。 */
 export const resolveRecommendRouteContext = (
   query: RecommendRouteQuery,
 ): RecommendContext => {
   return {
-    source:
-      typeof query.source === 'string'
-        ? parseRecommendSource(query.source)
-        : (query.source ?? parseRecommendSource('')),
     scene:
       typeof query.scene === 'string'
         ? parseRecommendScene(query.scene)
@@ -53,12 +40,12 @@ export const resolveRecommendRouteContext = (
   }
 }
 
-/** 根据路由参数构建推荐上下文。 */
+/** 给页面入口统一补齐默认推荐上下文字段。 */
 export const buildRecommendContextByRoute = (query: RecommendRouteQuery): RecommendContext => {
   return buildRecommendContext(resolveRecommendRouteContext(query))
 }
 
-/** 根据路由参数构建推荐行为事件项。 */
+/** 从路由参数直接生成商品行为事件项。 */
 export const buildRecommendGoodsActionItemByRoute = (
   query: RecommendRouteQuery,
   goodsId: number,
@@ -71,7 +58,7 @@ export const buildRecommendGoodsActionItemByRoute = (
   })
 }
 
-/** 按当前路由上下文上报商品行为事件。 */
+/** 路由场景下的商品行为上报快捷入口。 */
 export const reportRecommendGoodsActionByRoute = async (
   eventType: RecommendGoodsActionType,
   query: RecommendRouteQuery,
@@ -83,7 +70,7 @@ export const reportRecommendGoodsActionByRoute = async (
   ])
 }
 
-/** 按当前路由上下文暂存购物车推荐归因。 */
+/** 进入购物车前先把路由里的推荐上下文暂存下来。 */
 export const saveRecommendCartTrackByRoute = (
   query: RecommendRouteQuery,
   goodsId: number,
@@ -98,21 +85,17 @@ export const saveRecommendCartTrackByRoute = (
   })
 }
 
-/** 构建推荐路由查询串。 */
+/** 构造落在商品详情页上的推荐 query 字符串。 */
 export const buildRecommendRouteQuery = (query: RecommendRouteQuery): string => {
   const routeContext = resolveRecommendRouteContext(query)
   const params: string[] = []
-  params.push(`source=${encodeURIComponent(stringifyRecommendSource(routeContext.source))}`)
   const scene = stringifyRecommendScene(routeContext.scene)
-  // 推荐场景为空时不再拼接，避免产生无意义参数。
   if (scene) {
     params.push(`scene=${encodeURIComponent(scene)}`)
   }
-  // requestId 为空时不透传，避免 URL 冗余。
   if (routeContext.requestId) {
     params.push(`requestId=${encodeURIComponent(routeContext.requestId)}`)
   }
-  // 推荐位序号为 0 时也保留，确保首位商品能被稳定回溯。
   params.push(`index=${routeContext.position || 0}`)
   return params.join('&')
 }
@@ -120,7 +103,6 @@ export const buildRecommendRouteQuery = (query: RecommendRouteQuery): string => 
 /** 构建带推荐上下文的商品详情页地址。 */
 export const buildRecommendGoodsUrl = (goodsId: number, query: RecommendRouteQuery): string => {
   const routeQuery = buildRecommendRouteQuery(query)
-  // 没有推荐参数时只保留商品 ID，避免生成多余的空查询串。
   if (!routeQuery) {
     return `/pages/goods/goods?id=${goodsId}`
   }

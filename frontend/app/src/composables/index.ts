@@ -1,8 +1,6 @@
 import type { XtxGuessInstance } from '@/types/components'
 import { ref } from 'vue'
 
-export * from './useRecommend'
-
 /**
  * 猜你喜欢组合式函数
  */

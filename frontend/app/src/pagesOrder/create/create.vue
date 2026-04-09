@@ -2,16 +2,13 @@
 import {
   buildRecommendContext,
   buildRecommendGoodsActionItemByContext,
+  buildRecommendContextByRoute,
+  buildRecommendGoodsUrl,
   getRecommendCartTrack,
-  parseRecommendScene,
-  parseRecommendSource,
   reportRecommendGoodsAction,
   saveRecommendPayTrack,
-  stringifyRecommendScene,
-  stringifyRecommendSource,
-} from '@/api/app/recommend'
-import { buildRecommendContextByRoute, buildRecommendGoodsUrl } from '@/composables'
-import { defOrderService } from '@/api/app/order'
+} from '@/modules/recommend'
+import { defOrderService } from '@/api/app/order_info.ts'
 import { useAddressStore } from '@/stores'
 import type {
   ConfirmOrderInfoResponse,
@@ -71,7 +68,6 @@ const query = defineProps<{
   skuCode?: string
   num?: string
   orderId?: string
-  source?: string
   scene?: string
   requestId?: string
   index?: string
@@ -88,8 +84,7 @@ const mergeCartRecommendContext = (res: ConfirmOrderInfoResponse): ConfirmOrderI
       }
       return {
         ...item,
-        source: stringifyRecommendSource(track.source ?? parseRecommendSource(item.source || '')),
-        scene: stringifyRecommendScene(track.scene ?? parseRecommendScene(item.scene || '')),
+        scene: track.scene ?? item.scene,
         requestId: track.requestId || item.requestId || '',
         position: track.position || item.position || 0,
       }
@@ -104,8 +99,7 @@ const buildOrderRequestGoods = (item: OrderGoods): CreateOrderInfoGoods => {
     skuCode: item.skuCode,
     num: item.num,
     recommendContext: buildRecommendContext({
-      source: parseRecommendSource(item.source || ''),
-      scene: parseRecommendScene(item.scene || ''),
+      scene: item.scene,
       requestId: item.requestId || '',
       position: item.position || 0,
     }),
@@ -278,7 +272,6 @@ const onOrderSubmitOk = computed(() => {
         :key="item.skuCode"
         :url="
           buildRecommendGoodsUrl(item.goodsId, {
-            source: item.source,
             scene: item.scene,
             requestId: item.requestId,
             index: item.position,

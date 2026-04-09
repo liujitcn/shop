@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reportRecommendGoodsAction, takeRecommendPayTrack } from '@/api/app/recommend'
+import { reportRecommendGoodsAction, takeRecommendPayTrack } from '@/modules/recommend'
 import { useGuessList } from '@/composables'
 import { onLoad } from '@dcloudio/uni-app'
 import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'

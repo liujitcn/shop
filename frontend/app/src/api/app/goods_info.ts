@@ -7,14 +7,14 @@ import type {
 } from '@/rpc/app/goods_info'
 import type { Int64Value } from '@/rpc/google/protobuf/wrappers'
 
-const GOODS_URL = '/app/goods/info'
+const GOODS_INFO_URL = '/app/goods/info'
 
 /** 商品服务 */
-export class GoodsServiceImpl implements GoodsInfoService {
+export class GoodsInfoServiceImpl implements GoodsInfoService {
   /** 查询商品分页列表 */
   PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse> {
     return http<PageGoodsInfoResponse>({
-      url: `${GOODS_URL}`,
+      url: `${GOODS_INFO_URL}`,
       method: 'GET',
       data: request,
     })
@@ -22,10 +22,10 @@ export class GoodsServiceImpl implements GoodsInfoService {
 
   GetGoodsInfo(request: Int64Value): Promise<GoodsInfoResponse> {
     return http<GoodsInfoResponse>({
-      url: `${GOODS_URL}/${request.value}`,
+      url: `${GOODS_INFO_URL}/${request.value}`,
       method: 'GET',
     })
   }
 }
 
-export const defGoodsInfoService = new GoodsServiceImpl()
+export const defGoodsInfoService = new GoodsInfoServiceImpl()

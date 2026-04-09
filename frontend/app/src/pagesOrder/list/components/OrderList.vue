@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { OrderStatus } from '@/rpc/common/enum'
-import { defOrderService } from '@/api/app/order'
+import { defOrderService } from '@/api/app/order_info.ts'
 import type { PageOrderInfoRequest, OrderInfo } from '@/rpc/app/order_info'
 import { onMounted, ref } from 'vue'
 import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'

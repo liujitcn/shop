@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import {
   buildRecommendGoodsActionItem,
-  defRecommendService,
+  buildRecommendGoodsUrl,
+  fetchRecommendGoods,
   reportRecommendExposure,
   reportRecommendGoodsAction,
-} from '@/api/app/recommend'
-import { buildRecommendGoodsUrl } from '@/composables'
+} from '@/modules/recommend'
 import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
-import { RecommendGoodsActionType, RecommendScene, RecommendSource } from '@/rpc/common/enum'
+import type {
+  RecommendContext,
+  RecommendExposureReportRequest,
+  RecommendGoodsRequest,
+  RecommendGoodsResponse,
+} from '@/rpc/app/recommend'
+import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
 
-interface GuessGoods extends GoodsInfo {
-  recommendRequestId: string
+type GuessGoods = GoodsInfo & {
+  recommendRequestId: RecommendGoodsResponse['requestId']
   recommendScene: RecommendScene
-  recommendIndex: number
+  recommendIndex: RecommendContext['position']
 }
 
-interface RecommendExposureBatch {
-  /** 推荐请求 ID。 */
-  requestId: string
-  /** 推荐场景枚举值。 */
-  scene: RecommendScene
-  /** 曝光商品 ID 列表。 */
-  goodsIds: number[]
+type RecommendExposureBatch = RecommendExposureReportRequest & {
   /** 当前批次是否已经上报过曝光。 */
   exposed: boolean
 }
@@ -42,7 +42,7 @@ const props = withDefaults(
 )
 
 // 分页参数
-const pageParams = {
+const pageParams: RecommendGoodsRequest = {
   scene: props.scene,
   orderId: props.orderId,
   pageNum: 1,
@@ -67,7 +67,7 @@ const getHomeGoodsGuessLikeData = async () => {
   }
   pageParams.scene = props.scene
   pageParams.orderId = props.orderId
-  const res = await defRecommendService.RecommendGoods(pageParams)
+  const res = await fetchRecommendGoods(pageParams)
   const startIndex = guessList.value.length
   const sceneValue = props.scene
   const list = (res.list || []).map((item, index) => ({
@@ -132,7 +132,6 @@ const onTapGoods = async (item: GuessGoods) => {
       buildRecommendGoodsActionItem({
         goodsId: item.id,
         goodsNum: 1,
-        source: RecommendSource.RECOMMEND,
         scene: item.recommendScene,
         requestId: item.recommendRequestId,
         position: item.recommendIndex,
@@ -143,7 +142,6 @@ const onTapGoods = async (item: GuessGoods) => {
   }
   void uni.navigateTo({
     url: buildRecommendGoodsUrl(item.id, {
-      source: RecommendSource.RECOMMEND,
       scene: item.recommendScene,
       requestId: item.recommendRequestId,
       index: item.recommendIndex,

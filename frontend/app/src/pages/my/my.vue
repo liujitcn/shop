@@ -2,7 +2,7 @@
 import { useGuessList } from '@/composables'
 import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
-import { defOrderService } from '@/api/app/order'
+import { defOrderService } from '@/api/app/order_info.ts'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { computed, ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'

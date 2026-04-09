@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { buildRecommendGoodsUrl, useGuessList } from '@/composables'
-import { defOrderService } from '@/api/app/order'
+import { buildRecommendGoodsUrl } from '@/modules/recommend'
+import { useGuessList } from '@/composables'
+import { defOrderService } from '@/api/app/order_info.ts'
 import type { OrderInfoResponse } from '@/rpc/app/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -381,7 +382,6 @@ const onConfirmPopup = async () => {
             class="navigator"
             :url="
               buildRecommendGoodsUrl(item.goodsId, {
-                source: item.source,
                 scene: item.scene,
                 requestId: item.requestId,
                 index: item.position,

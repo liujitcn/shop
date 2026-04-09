@@ -6,13 +6,13 @@ import type {
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'
-import { defGoodsInfoService } from '@/api/app/goods'
+import { defGoodsInfoService } from '@/api/app/goods_info.ts'
 import {
   buildRecommendContextByRoute,
   buildRecommendRouteQuery,
   reportRecommendGoodsActionByRoute,
   saveRecommendCartTrackByRoute,
-} from '@/composables'
+} from '@/modules/recommend'
 import type { GoodsInfo, GoodsInfoResponse } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { useUserStore } from '@/stores'
@@ -32,7 +32,6 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 // 接收页面参数
 const query = defineProps<{
   id: string
-  source?: string
   scene?: string
   requestId?: string
   index?: string
