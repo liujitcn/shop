@@ -228,7 +228,7 @@ INSERT INTO recommend_user_goods_preference (
   score,
   last_behavior_type,
   last_behavior_at,
-  behavior_summary_json,
+  behavior_summary,
   window_days,
   created_at,
   updated_at
@@ -246,7 +246,7 @@ SELECT
     'cart_count', agg.cart_count,
     'order_count', agg.order_count,
     'pay_count', agg.pay_count
-  ) AS behavior_summary_json,
+  ) AS behavior_summary,
   ? AS window_days,
   agg.first_behavior_at AS created_at,
   agg.last_behavior_at AS updated_at
@@ -294,7 +294,7 @@ INSERT INTO recommend_user_preference (
   preference_type,
   target_id,
   score,
-  behavior_summary_json,
+  behavior_summary,
   window_days,
   created_at,
   updated_at
@@ -311,7 +311,7 @@ SELECT
     'cart_count', agg.cart_count,
     'order_count', agg.order_count,
     'pay_count', agg.pay_count
-  ) AS behavior_summary_json,
+  ) AS behavior_summary,
   ? AS window_days,
   agg.first_behavior_at AS created_at,
   agg.last_behavior_at AS updated_at
@@ -375,7 +375,7 @@ INSERT INTO recommend_goods_relation (
   related_goods_id,
   relation_type,
   score,
-  evidence_json,
+  evidence,
   window_days,
   created_at,
   updated_at
@@ -385,7 +385,7 @@ SELECT
   agg.related_goods_id,
   agg.relation_type,
   agg.score,
-  JSON_OBJECT(agg.relation_type, CAST(agg.score AS SIGNED)) AS evidence_json,
+  JSON_OBJECT(agg.relation_type, CAST(agg.score AS SIGNED)) AS evidence,
   ? AS window_days,
   agg.first_seen_at AS created_at,
   agg.last_seen_at AS updated_at
@@ -399,17 +399,18 @@ FROM (
     MAX(pairs.event_time) AS last_seen_at
   FROM (
     SELECT
-      rc.goods_id,
+      rga.goods_id,
       jt.related_goods_id,
       ? AS relation_type,
       1 AS score,
-      rc.created_at AS event_time
-    FROM ` + "`" + models.TableNameRecommendClick + "`" + ` rc
-    INNER JOIN ` + "`" + models.TableNameRecommendRequest + "`" + ` rr ON rr.request_id = rc.request_id
-    INNER JOIN JSON_TABLE(rr.goods_ids_json, '$[*]' COLUMNS(related_goods_id BIGINT PATH '$')) jt
-    WHERE rc.created_at >= ?
-      AND rc.created_at < ?
-      AND jt.related_goods_id <> rc.goods_id
+      rga.created_at AS event_time
+    FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
+    INNER JOIN ` + "`" + models.TableNameRecommendRequest + "`" + ` rr ON rr.request_id = rga.request_id
+    INNER JOIN JSON_TABLE(rr.goods_ids, '$[*]' COLUMNS(related_goods_id BIGINT PATH '$')) jt
+    WHERE rga.created_at >= ?
+      AND rga.created_at < ?
+      AND rga.event_type = 'recommend_click'
+      AND jt.related_goods_id <> rga.goods_id
     UNION ALL
     SELECT
       rga.goods_id,
@@ -419,7 +420,7 @@ FROM (
       rga.created_at AS event_time
     FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
     INNER JOIN ` + "`" + models.TableNameRecommendRequest + "`" + ` rr ON rr.request_id = rga.request_id
-    INNER JOIN JSON_TABLE(rr.goods_ids_json, '$[*]' COLUMNS(related_goods_id BIGINT PATH '$')) jt
+    INNER JOIN JSON_TABLE(rr.goods_ids, '$[*]' COLUMNS(related_goods_id BIGINT PATH '$')) jt
     WHERE rga.created_at >= ?
       AND rga.created_at < ?
       AND rga.event_type = 'goods_view'

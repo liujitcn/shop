@@ -32,7 +32,7 @@ func newRecommendGoodsRelation(db *gorm.DB, opts ...gen.DOOption) recommendGoods
 	_recommendGoodsRelation.RelatedGoodsID = field.NewInt64(tableName, "related_goods_id")
 	_recommendGoodsRelation.RelationType = field.NewString(tableName, "relation_type")
 	_recommendGoodsRelation.Score = field.NewFloat64(tableName, "score")
-	_recommendGoodsRelation.EvidenceJSON = field.NewString(tableName, "evidence_json")
+	_recommendGoodsRelation.Evidence = field.NewString(tableName, "evidence")
 	_recommendGoodsRelation.WindowDays = field.NewInt32(tableName, "window_days")
 	_recommendGoodsRelation.CreatedAt = field.NewTime(tableName, "created_at")
 	_recommendGoodsRelation.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -52,7 +52,7 @@ type recommendGoodsRelation struct {
 	RelatedGoodsID field.Int64   // 关联商品ID
 	RelationType   field.String  // 关系类型
 	Score          field.Float64 // 关联得分
-	EvidenceJSON   field.String  // 关联证据JSON
+	Evidence       field.String  // 关联证据JSON
 	WindowDays     field.Int32   // 统计窗口天数
 	CreatedAt      field.Time    // 创建时间
 	UpdatedAt      field.Time    // 更新时间
@@ -77,7 +77,7 @@ func (r *recommendGoodsRelation) updateTableName(table string) *recommendGoodsRe
 	r.RelatedGoodsID = field.NewInt64(table, "related_goods_id")
 	r.RelationType = field.NewString(table, "relation_type")
 	r.Score = field.NewFloat64(table, "score")
-	r.EvidenceJSON = field.NewString(table, "evidence_json")
+	r.Evidence = field.NewString(table, "evidence")
 	r.WindowDays = field.NewInt32(table, "window_days")
 	r.CreatedAt = field.NewTime(table, "created_at")
 	r.UpdatedAt = field.NewTime(table, "updated_at")
@@ -115,7 +115,7 @@ func (r *recommendGoodsRelation) fillFieldMap() {
 	r.fieldMap["related_goods_id"] = r.RelatedGoodsID
 	r.fieldMap["relation_type"] = r.RelationType
 	r.fieldMap["score"] = r.Score
-	r.fieldMap["evidence_json"] = r.EvidenceJSON
+	r.fieldMap["evidence"] = r.Evidence
 	r.fieldMap["window_days"] = r.WindowDays
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt

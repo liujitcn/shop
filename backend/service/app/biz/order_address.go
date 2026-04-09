@@ -10,7 +10,7 @@ import (
 
 	"shop/api/gen/go/app"
 
-	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -20,6 +20,7 @@ type OrderAddressCase struct {
 	*data.OrderAddressRepo
 	userAddressRepo *data.UserAddressRepo
 	baseAreaCase    *BaseAreaCase
+	mapper          *mapper.CopierMapper[app.OrderInfoResponse_Address, models.OrderAddress]
 }
 
 // NewOrderAddressCase 创建订单收货地址业务处理对象
@@ -32,6 +33,11 @@ func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAdd
 		OrderAddressRepo: orderAddressRepo,
 		userAddressRepo:  userAddressRepo,
 		baseAreaCase:     baseAreaCase,
+		mapper: func() *mapper.CopierMapper[app.OrderInfoResponse_Address, models.OrderAddress] {
+			m := mapper.NewCopierMapper[app.OrderInfoResponse_Address, models.OrderAddress]()
+			m.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+			return m
+		}(),
 	}
 }
 
@@ -44,12 +50,7 @@ func (c *OrderAddressCase) findByOrderId(ctx context.Context, orderId int64) (*a
 	if err != nil {
 		return nil, err
 	}
-	return &app.OrderInfoResponse_Address{
-		Receiver: orderAddress.Receiver,
-		Contact:  orderAddress.Contact,
-		Address:  _string.ConvertJsonStringToStringArray(orderAddress.Address),
-		Detail:   orderAddress.Detail,
-	}, nil
+	return c.mapper.ToDTO(orderAddress), nil
 }
 
 // createByOrder 按用户地址创建订单地址快照

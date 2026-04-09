@@ -12,6 +12,7 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -20,6 +21,8 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	*data.BaseDictRepo
 	baseDictItemCase *BaseDictItemCase
+	dictMapper       *mapper.CopierMapper[app.ListBaseDictResponse_Dict, models.BaseDict]
+	itemMapper       *mapper.CopierMapper[app.ListBaseDictResponse_DictItem, models.BaseDictItem]
 }
 
 // NewBaseDictCase 创建字典业务处理对象
@@ -28,6 +31,8 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo, ba
 		BaseCase:         baseCase,
 		BaseDictRepo:     baseDictRepo,
 		baseDictItemCase: baseDictItemCase,
+		dictMapper:       mapper.NewCopierMapper[app.ListBaseDictResponse_Dict, models.BaseDict](),
+		itemMapper:       mapper.NewCopierMapper[app.ListBaseDictResponse_DictItem, models.BaseDictItem](),
 	}
 }
 
@@ -67,18 +72,13 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context, codes string) (*app.Lis
 				return dictItems[i].Sort < dictItems[j].Sort
 			})
 			for _, dictItem := range dictItems {
-				items = append(items, &app.ListBaseDictResponse_DictItem{
-					Value: dictItem.Value,
-					Label: dictItem.Label,
-				})
+				items = append(items, c.itemMapper.ToDTO(dictItem))
 			}
 		}
 
-		list = append(list, &app.ListBaseDictResponse_Dict{
-			Code:  dict.Code,
-			Name:  dict.Name,
-			Items: items,
-		})
+		dictItem := c.dictMapper.ToDTO(dict)
+		dictItem.Items = items
+		list = append(list, dictItem)
 	}
 
 	return &app.ListBaseDictResponse{

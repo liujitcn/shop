@@ -11,6 +11,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/service/app/util"
 
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -22,6 +23,8 @@ type UserCollectCase struct {
 	*data.UserCollectRepo
 	goodsInfoCase *GoodsInfoCase
 	goodsSkuCase  *GoodsSkuCase
+	mapper        *mapper.CopierMapper[app.UserCollect, models.UserCollect]
+	goodsMapper   *mapper.CopierMapper[app.UserCollect, models.GoodsInfo]
 }
 
 // NewUserCollectCase 创建用户收藏业务处理对象
@@ -36,6 +39,8 @@ func NewUserCollectCase(
 		UserCollectRepo: userCollectRepo,
 		goodsInfoCase:   goodsInfoCase,
 		goodsSkuCase:    goodsSkuCase,
+		mapper:          mapper.NewCopierMapper[app.UserCollect, models.UserCollect](),
+		goodsMapper:     mapper.NewCopierMapper[app.UserCollect, models.GoodsInfo](),
 	}
 }
 
@@ -77,16 +82,14 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 			price = goodsInfo.DiscountPrice
 		}
 
-		collect := &app.UserCollect{
-			Id:        item.ID,
-			GoodsId:   item.GoodsID,
-			Name:      goodsInfo.Name,
-			Desc:      goodsInfo.Desc,
-			Picture:   goodsInfo.Picture,
-			SaleNum:   goodsInfo.InitSaleNum + goodsInfo.RealSaleNum,
-			Price:     price,
-			JoinPrice: item.Price,
-		}
+		collect := c.mapper.ToDTO(item)
+		goodsCollect := c.goodsMapper.ToDTO(goodsInfo)
+		collect.Name = goodsCollect.Name
+		collect.Desc = goodsCollect.Desc
+		collect.Picture = goodsCollect.Picture
+		collect.SaleNum = goodsInfo.InitSaleNum + goodsInfo.RealSaleNum
+		collect.Price = price
+		collect.JoinPrice = item.Price
 		list = append(list, collect)
 	}
 	return &app.PageUserCollectResponse{

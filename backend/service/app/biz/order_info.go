@@ -19,6 +19,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/id"
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
@@ -48,6 +49,7 @@ type OrderInfoCase struct {
 	orderSchedulerCase *OrderSchedulerCase
 	payCase            *PayCase
 	wxPayCase          *wx.WxPayCase
+	mapper             *mapper.CopierMapper[app.OrderInfo, models.OrderInfo]
 }
 
 // NewOrderInfoCase 创建订单业务处理对象
@@ -88,6 +90,7 @@ func NewOrderInfoCase(
 		orderSchedulerCase: orderSchedulerCase,
 		payCase:            payCase,
 		wxPayCase:          wxPayCase,
+		mapper:             mapper.NewCopierMapper[app.OrderInfo, models.OrderInfo](),
 	}
 
 	// 服务启动时恢复全部未支付订单的超时取消任务
@@ -616,21 +619,9 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *app.ReceiveOr
 
 // 将订单模型转换为接口响应
 func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *app.OrderInfo {
-	res := &app.OrderInfo{
-		Id:           item.ID,
-		OrderNo:      item.OrderNo,
-		PayMoney:     item.PayMoney,
-		TotalMoney:   item.TotalMoney,
-		PostFee:      item.PostFee,
-		GoodsNum:     item.GoodsNum,
-		PayType:      common.OrderPayType(item.PayType),
-		PayChannel:   common.OrderPayChannel(item.PayChannel),
-		DeliveryTime: common.OrderDeliveryTime(item.DeliveryTime),
-		Status:       common.OrderStatus(item.Status),
-		Remark:       item.Remark,
-		CreatedAt:    _time.TimeToTimeString(item.CreatedAt),
-		UpdatedAt:    _time.TimeToTimeString(item.UpdatedAt),
-	}
+	res := c.mapper.ToDTO(item)
+	res.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
+	res.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
 	return res
 }
 

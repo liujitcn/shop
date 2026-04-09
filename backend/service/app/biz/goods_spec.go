@@ -9,6 +9,7 @@ import (
 
 	"shop/api/gen/go/app"
 
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 )
@@ -17,6 +18,7 @@ import (
 type GoodsSpecCase struct {
 	*biz.BaseCase
 	*data.GoodsSpecRepo
+	mapper *mapper.CopierMapper[app.GoodsInfoResponse_Spec, models.GoodsSpec]
 }
 
 // NewGoodsSpecCase 创建商品规格业务处理对象
@@ -24,6 +26,7 @@ func NewGoodsSpecCase(baseCase *biz.BaseCase, goodsSpecRepo *data.GoodsSpecRepo)
 	return &GoodsSpecCase{
 		BaseCase:      baseCase,
 		GoodsSpecRepo: goodsSpecRepo,
+		mapper:        mapper.NewCopierMapper[app.GoodsInfoResponse_Spec, models.GoodsSpec](),
 	}
 }
 
@@ -39,24 +42,14 @@ func (c *GoodsSpecCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*ap
 	}
 	list := make([]*app.GoodsInfoResponse_Spec, 0)
 	for _, item := range all {
-		list = append(list, c.convertToProto(item))
+		spec := c.mapper.ToDTO(item)
+		itemList := make([]*app.GoodsInfoResponse_Spec_Item, 0)
+		items := _string.ConvertJsonStringToStringArray(item.Item)
+		for _, name := range items {
+			itemList = append(itemList, &app.GoodsInfoResponse_Spec_Item{Name: name})
+		}
+		spec.Item = itemList
+		list = append(list, spec)
 	}
 	return list, nil
-}
-
-// 将商品规格模型转换为接口响应
-func (c *GoodsSpecCase) convertToProto(item *models.GoodsSpec) *app.GoodsInfoResponse_Spec {
-	itemList := make([]*app.GoodsInfoResponse_Spec_Item, 0)
-	items := _string.ConvertJsonStringToStringArray(item.Item)
-	for _, name := range items {
-		itemList = append(itemList, &app.GoodsInfoResponse_Spec_Item{
-			Name: name,
-		})
-	}
-
-	res := &app.GoodsInfoResponse_Spec{
-		Name: item.Name,
-		Item: itemList,
-	}
-	return res
 }

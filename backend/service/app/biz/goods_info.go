@@ -12,7 +12,7 @@ import (
 	"shop/api/gen/go/common"
 	"shop/service/app/util"
 
-	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -24,6 +24,8 @@ type GoodsInfoCase struct {
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSkuCase      *GoodsSkuCase
+	responseMapper    *mapper.CopierMapper[app.GoodsInfoResponse, models.GoodsInfo]
+	listMapper        *mapper.CopierMapper[app.GoodsInfo, models.GoodsInfo]
 }
 
 // NewGoodsInfoCase 创建商品业务处理对象
@@ -35,6 +37,9 @@ func NewGoodsInfoCase(
 	goodsSpecCase *GoodsSpecCase,
 	goodsSkuCase *GoodsSkuCase,
 ) *GoodsInfoCase {
+	responseMapper := mapper.NewCopierMapper[app.GoodsInfoResponse, models.GoodsInfo]()
+	responseMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+	listMapper := mapper.NewCopierMapper[app.GoodsInfo, models.GoodsInfo]()
 	return &GoodsInfoCase{
 		BaseCase:          baseCase,
 		GoodsInfoRepo:     goodsInfoRepo,
@@ -42,6 +47,8 @@ func NewGoodsInfoCase(
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
 		goodsSkuCase:      goodsSkuCase,
+		responseMapper:    responseMapper,
+		listMapper:        listMapper,
 	}
 }
 
@@ -64,17 +71,9 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsI
 		price = info.DiscountPrice
 	}
 
-	goodsInfo := &app.GoodsInfoResponse{
-		Id:         info.ID,
-		CategoryId: info.CategoryID,
-		Name:       info.Name,
-		Desc:       info.Desc,
-		Price:      price,
-		SaleNum:    info.InitSaleNum + info.RealSaleNum,
-		Picture:    info.Picture,
-		Banner:     _string.ConvertJsonStringToStringArray(info.Banner),
-		Detail:     _string.ConvertJsonStringToStringArray(info.Detail),
-	}
+	goodsInfo := c.responseMapper.ToDTO(info)
+	goodsInfo.Price = price
+	goodsInfo.SaleNum = info.InitSaleNum + info.RealSaleNum
 	// 属性
 	goodsInfo.PropList, err = c.goodsPropCase.listByGoodsId(ctx, goodsInfo.Id)
 	if err != nil {
@@ -135,14 +134,10 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 		if member {
 			price = item.DiscountPrice
 		}
-		list = append(list, &app.GoodsInfo{
-			Id:      item.ID,
-			Name:    item.Name,
-			Desc:    item.Desc,
-			Picture: item.Picture,
-			SaleNum: item.InitSaleNum + item.RealSaleNum,
-			Price:   price,
-		})
+		goodsInfo := c.listMapper.ToDTO(item)
+		goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
+		goodsInfo.Price = price
+		list = append(list, goodsInfo)
 	}
 
 	return &app.PageGoodsInfoResponse{

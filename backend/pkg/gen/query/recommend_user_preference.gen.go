@@ -32,7 +32,7 @@ func newRecommendUserPreference(db *gorm.DB, opts ...gen.DOOption) recommendUser
 	_recommendUserPreference.PreferenceType = field.NewString(tableName, "preference_type")
 	_recommendUserPreference.TargetID = field.NewInt64(tableName, "target_id")
 	_recommendUserPreference.Score = field.NewFloat64(tableName, "score")
-	_recommendUserPreference.BehaviorSummaryJSON = field.NewString(tableName, "behavior_summary_json")
+	_recommendUserPreference.BehaviorSummary = field.NewString(tableName, "behavior_summary")
 	_recommendUserPreference.WindowDays = field.NewInt32(tableName, "window_days")
 	_recommendUserPreference.CreatedAt = field.NewTime(tableName, "created_at")
 	_recommendUserPreference.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -46,16 +46,16 @@ func newRecommendUserPreference(db *gorm.DB, opts ...gen.DOOption) recommendUser
 type recommendUserPreference struct {
 	recommendUserPreferenceDo recommendUserPreferenceDo
 
-	ALL                 field.Asterisk
-	ID                  field.Int64   // 主键ID
-	UserID              field.Int64   // 用户ID
-	PreferenceType      field.String  // 偏好类型
-	TargetID            field.Int64   // 偏好对象ID
-	Score               field.Float64 // 偏好得分
-	BehaviorSummaryJSON field.String  // 行为汇总JSON
-	WindowDays          field.Int32   // 统计窗口天数
-	CreatedAt           field.Time    // 创建时间
-	UpdatedAt           field.Time    // 更新时间
+	ALL             field.Asterisk
+	ID              field.Int64   // 主键ID
+	UserID          field.Int64   // 用户ID
+	PreferenceType  field.String  // 偏好类型
+	TargetID        field.Int64   // 偏好对象ID
+	Score           field.Float64 // 偏好得分
+	BehaviorSummary field.String  // 行为汇总JSON
+	WindowDays      field.Int32   // 统计窗口天数
+	CreatedAt       field.Time    // 创建时间
+	UpdatedAt       field.Time    // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -77,7 +77,7 @@ func (r *recommendUserPreference) updateTableName(table string) *recommendUserPr
 	r.PreferenceType = field.NewString(table, "preference_type")
 	r.TargetID = field.NewInt64(table, "target_id")
 	r.Score = field.NewFloat64(table, "score")
-	r.BehaviorSummaryJSON = field.NewString(table, "behavior_summary_json")
+	r.BehaviorSummary = field.NewString(table, "behavior_summary")
 	r.WindowDays = field.NewInt32(table, "window_days")
 	r.CreatedAt = field.NewTime(table, "created_at")
 	r.UpdatedAt = field.NewTime(table, "updated_at")
@@ -115,7 +115,7 @@ func (r *recommendUserPreference) fillFieldMap() {
 	r.fieldMap["preference_type"] = r.PreferenceType
 	r.fieldMap["target_id"] = r.TargetID
 	r.fieldMap["score"] = r.Score
-	r.fieldMap["behavior_summary_json"] = r.BehaviorSummaryJSON
+	r.fieldMap["behavior_summary"] = r.BehaviorSummary
 	r.fieldMap["window_days"] = r.WindowDays
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt

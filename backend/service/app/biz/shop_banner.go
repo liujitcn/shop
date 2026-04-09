@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
@@ -10,9 +11,8 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
-
-	"strconv"
 )
 
 // ShopBannerCase 商城轮播图业务处理对象
@@ -20,6 +20,7 @@ type ShopBannerCase struct {
 	*biz.BaseCase
 	*data.ShopBannerRepo
 	goodsCategoryCase *GoodsCategoryCase
+	mapper            *mapper.CopierMapper[app.ShopBanner, models.ShopBanner]
 }
 
 // NewShopBannerCase 创建商城轮播图业务处理对象
@@ -28,6 +29,7 @@ func NewShopBannerCase(baseCase *biz.BaseCase, shopBannerRepo *data.ShopBannerRe
 		BaseCase:          baseCase,
 		ShopBannerRepo:    shopBannerRepo,
 		goodsCategoryCase: goodsCategoryCase,
+		mapper:            mapper.NewCopierMapper[app.ShopBanner, models.ShopBanner](),
 	}
 }
 
@@ -61,6 +63,7 @@ func (c *ShopBannerCase) listBySite(ctx context.Context, site int32) ([]*models.
 
 // 将商城轮播图模型转换为接口响应
 func (c *ShopBannerCase) convertToProto(ctx context.Context, item *models.ShopBanner) *app.ShopBanner {
+	res := c.mapper.ToDTO(item)
 	var href string
 	switch common.ShopBannerType(item.Type) {
 	case common.ShopBannerType_GOODS_DETAIL:
@@ -81,11 +84,6 @@ func (c *ShopBannerCase) convertToProto(ctx context.Context, item *models.ShopBa
 	default:
 		href = item.Href
 	}
-	res := &app.ShopBanner{
-		Site:    common.ShopBannerSite(item.Site),
-		Picture: item.Picture,
-		Type:    common.ShopBannerType(item.Type),
-		Href:    href,
-	}
+	res.Href = href
 	return res
 }

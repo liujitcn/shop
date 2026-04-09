@@ -10,6 +10,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/service/app/util"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -20,6 +21,8 @@ type ShopHotItemCase struct {
 	shopHotRepo      *data.ShopHotRepo
 	shopHotGoodsRepo *data.ShopHotGoodsRepo
 	goodsInfoRepo    *data.GoodsInfoRepo
+	mapper           *mapper.CopierMapper[app.ShopHotItem, models.ShopHotItem]
+	goodsMapper      *mapper.CopierMapper[app.GoodsInfo, models.GoodsInfo]
 }
 
 // NewShopHotItemCase 创建热门推荐项业务处理对象
@@ -30,6 +33,8 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo, s
 		shopHotRepo:      shopHotRepo,
 		shopHotGoodsRepo: shopHotGoodsRepo,
 		goodsInfoRepo:    goodsInfoRepo,
+		mapper:           mapper.NewCopierMapper[app.ShopHotItem, models.ShopHotItem](),
+		goodsMapper:      mapper.NewCopierMapper[app.GoodsInfo, models.GoodsInfo](),
 	}
 }
 
@@ -58,7 +63,7 @@ func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*app.L
 
 	list := make([]*app.ShopHotItem, 0, len(all))
 	for _, item := range all {
-		list = append(list, c.convertToProto(item))
+		list = append(list, c.mapper.ToDTO(item))
 	}
 
 	return &app.ListShopHotItemResponse{
@@ -103,27 +108,14 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 			if member {
 				price = item.DiscountPrice
 			}
-			list = append(list, &app.GoodsInfo{
-				Id:      item.ID,
-				Name:    item.Name,
-				Desc:    item.Desc,
-				Picture: item.Picture,
-				SaleNum: item.InitSaleNum + item.RealSaleNum,
-				Price:   price,
-			})
+			goodsInfo := c.goodsMapper.ToDTO(item)
+			goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
+			goodsInfo.Price = price
+			list = append(list, goodsInfo)
 		}
 	}
 	return &app.PageShopHotGoodsResponse{
 		List:  list,
 		Total: int32(count),
 	}, nil
-}
-
-// 将热门推荐项模型转换为接口响应
-func (c *ShopHotItemCase) convertToProto(item *models.ShopHotItem) *app.ShopHotItem {
-	res := &app.ShopHotItem{
-		Id:    item.ID,
-		Title: item.Title,
-	}
-	return res
 }

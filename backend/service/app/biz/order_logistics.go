@@ -7,7 +7,9 @@ import (
 	"shop/api/gen/go/app"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -15,6 +17,7 @@ import (
 type OrderLogisticsCase struct {
 	*biz.BaseCase
 	*data.OrderLogisticsRepo
+	mapper *mapper.CopierMapper[app.OrderInfoResponse_Logistics, models.OrderLogistics]
 }
 
 // NewOrderLogisticsCase 创建订单物流业务处理对象
@@ -23,6 +26,7 @@ func NewOrderLogisticsCase(baseCase *biz.BaseCase, orderLogisticsRepo *data.Orde
 	return &OrderLogisticsCase{
 		BaseCase:           baseCase,
 		OrderLogisticsRepo: orderLogisticsRepo,
+		mapper:             mapper.NewCopierMapper[app.OrderInfoResponse_Logistics, models.OrderLogistics](),
 	}
 }
 
@@ -41,10 +45,7 @@ func (c *OrderLogisticsCase) findByOrderId(ctx context.Context, orderId int64) (
 	if err != nil {
 		return nil, err
 	}
-	return &app.OrderInfoResponse_Logistics{
-		Name:    orderLogistics.Name,
-		No:      orderLogistics.No,
-		Contact: orderLogistics.Contact,
-		Detail:  detail,
-	}, nil
+	res := c.mapper.ToDTO(orderLogistics)
+	res.Detail = detail
+	return res, nil
 }

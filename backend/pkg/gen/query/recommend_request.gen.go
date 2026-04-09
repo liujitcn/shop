@@ -32,12 +32,12 @@ func newRecommendRequest(db *gorm.DB, opts ...gen.DOOption) recommendRequest {
 	_recommendRequest.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendRequest.ActorID = field.NewInt64(tableName, "actor_id")
 	_recommendRequest.Scene = field.NewInt32(tableName, "scene")
-	_recommendRequest.SourceContextJSON = field.NewString(tableName, "source_context_json")
+	_recommendRequest.SourceContext = field.NewString(tableName, "source_context")
 	_recommendRequest.PageNum = field.NewInt32(tableName, "page_num")
 	_recommendRequest.PageSize = field.NewInt32(tableName, "page_size")
-	_recommendRequest.GoodsIdsJSON = field.NewString(tableName, "goods_ids_json")
+	_recommendRequest.GoodsIds = field.NewString(tableName, "goods_ids")
 	_recommendRequest.StrategyVersion = field.NewString(tableName, "strategy_version")
-	_recommendRequest.RecallSourcesJSON = field.NewString(tableName, "recall_sources_json")
+	_recommendRequest.RecallSources = field.NewString(tableName, "recall_sources")
 	_recommendRequest.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_recommendRequest.fillFieldMap()
@@ -49,19 +49,19 @@ func newRecommendRequest(db *gorm.DB, opts ...gen.DOOption) recommendRequest {
 type recommendRequest struct {
 	recommendRequestDo recommendRequestDo
 
-	ALL               field.Asterisk
-	ID                field.Int64  // 主键ID
-	RequestID         field.String // 推荐请求ID
-	ActorType         field.Int32  // 主体类型：0匿名 1登录用户
-	ActorID           field.Int64  // 主体ID：匿名ID或用户ID
-	Scene             field.Int32  // 推荐场景
-	SourceContextJSON field.String // 场景上下文JSON
-	PageNum           field.Int32  // 页码
-	PageSize          field.Int32  // 分页大小
-	GoodsIdsJSON      field.String // 推荐商品ID列表JSON
-	StrategyVersion   field.String // 策略版本
-	RecallSourcesJSON field.String // 召回来源JSON
-	CreatedAt         field.Time   // 创建时间
+	ALL             field.Asterisk
+	ID              field.Int64  // 主键ID
+	RequestID       field.String // 推荐请求ID
+	ActorType       field.Int32  // 主体类型：0匿名 1登录用户
+	ActorID         field.Int64  // 主体ID：匿名ID或用户ID
+	Scene           field.Int32  // 推荐场景
+	SourceContext   field.String // 场景上下文JSON
+	PageNum         field.Int32  // 页码
+	PageSize        field.Int32  // 分页大小
+	GoodsIds        field.String // 推荐商品ID列表JSON
+	StrategyVersion field.String // 策略版本
+	RecallSources   field.String // 召回来源JSON
+	CreatedAt       field.Time   // 创建时间
 
 	fieldMap map[string]field.Expr
 }
@@ -83,12 +83,12 @@ func (r *recommendRequest) updateTableName(table string) *recommendRequest {
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
 	r.Scene = field.NewInt32(table, "scene")
-	r.SourceContextJSON = field.NewString(table, "source_context_json")
+	r.SourceContext = field.NewString(table, "source_context")
 	r.PageNum = field.NewInt32(table, "page_num")
 	r.PageSize = field.NewInt32(table, "page_size")
-	r.GoodsIdsJSON = field.NewString(table, "goods_ids_json")
+	r.GoodsIds = field.NewString(table, "goods_ids")
 	r.StrategyVersion = field.NewString(table, "strategy_version")
-	r.RecallSourcesJSON = field.NewString(table, "recall_sources_json")
+	r.RecallSources = field.NewString(table, "recall_sources")
 	r.CreatedAt = field.NewTime(table, "created_at")
 
 	r.fillFieldMap()
@@ -124,12 +124,12 @@ func (r *recommendRequest) fillFieldMap() {
 	r.fieldMap["actor_type"] = r.ActorType
 	r.fieldMap["actor_id"] = r.ActorID
 	r.fieldMap["scene"] = r.Scene
-	r.fieldMap["source_context_json"] = r.SourceContextJSON
+	r.fieldMap["source_context"] = r.SourceContext
 	r.fieldMap["page_num"] = r.PageNum
 	r.fieldMap["page_size"] = r.PageSize
-	r.fieldMap["goods_ids_json"] = r.GoodsIdsJSON
+	r.fieldMap["goods_ids"] = r.GoodsIds
 	r.fieldMap["strategy_version"] = r.StrategyVersion
-	r.fieldMap["recall_sources_json"] = r.RecallSourcesJSON
+	r.fieldMap["recall_sources"] = r.RecallSources
 	r.fieldMap["created_at"] = r.CreatedAt
 }
 

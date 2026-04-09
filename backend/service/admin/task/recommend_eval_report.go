@@ -148,18 +148,19 @@ exposure_request AS (
   SELECT
     re.request_id,
     COUNT(*) AS exposure_batch_count,
-    SUM(JSON_LENGTH(re.goods_ids_json)) AS exposed_goods_count
+    SUM(JSON_LENGTH(re.goods_ids)) AS exposed_goods_count
   FROM ` + "`" + models.TableNameRecommendExposure + "`" + ` re
   INNER JOIN base_requests br ON br.request_id = re.request_id
   GROUP BY re.request_id
 ),
 click_request AS (
   SELECT
-    rc.request_id,
+    rga.request_id,
     COUNT(*) AS click_count
-  FROM ` + "`" + models.TableNameRecommendClick + "`" + ` rc
-  INNER JOIN base_requests br ON br.request_id = rc.request_id
-  GROUP BY rc.request_id
+  FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
+  INNER JOIN base_requests br ON br.request_id = rga.request_id
+  WHERE rga.event_type = 'recommend_click'
+  GROUP BY rga.request_id
 ),
 pay_request AS (
   SELECT
@@ -198,7 +199,7 @@ WITH request_scope AS (
   SELECT
     rr.request_id,
     rr.scene,
-    COALESCE(NULLIF(rr.recall_sources_json, ''), '[]') AS recall_sources_json
+    COALESCE(NULLIF(rr.recall_sources, ''), '[]') AS recall_sources
   FROM ` + "`" + models.TableNameRecommendRequest + "`" + ` rr
   WHERE rr.created_at >= ?
     AND rr.created_at < ?` + sceneClause + `
@@ -209,12 +210,13 @@ base_requests AS (
     rs.scene,
     jt.recall_source
   FROM request_scope rs,
-       JSON_TABLE(rs.recall_sources_json, '$[*]' COLUMNS(recall_source VARCHAR(64) PATH '$')) jt
+       JSON_TABLE(rs.recall_sources, '$[*]' COLUMNS(recall_source VARCHAR(64) PATH '$')) jt
 ),
 click_request AS (
-  SELECT DISTINCT rc.request_id
-  FROM ` + "`" + models.TableNameRecommendClick + "`" + ` rc
-  INNER JOIN request_scope rs ON rs.request_id = rc.request_id
+  SELECT DISTINCT rga.request_id
+  FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
+  INNER JOIN request_scope rs ON rs.request_id = rga.request_id
+  WHERE rga.event_type = 'recommend_click'
 ),
 pay_request AS (
   SELECT DISTINCT rga.request_id

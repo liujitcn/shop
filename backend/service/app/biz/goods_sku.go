@@ -9,7 +9,7 @@ import (
 
 	"shop/api/gen/go/app"
 
-	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -17,6 +17,7 @@ import (
 type GoodsSkuCase struct {
 	*biz.BaseCase
 	*data.GoodsSkuRepo
+	mapper *mapper.CopierMapper[app.GoodsInfoResponse_Sku, models.GoodsSku]
 }
 
 // NewGoodsSkuCase 创建商品规格库存业务处理对象
@@ -24,6 +25,11 @@ func NewGoodsSkuCase(baseCase *biz.BaseCase, goodsSkuRepo *data.GoodsSkuRepo) *G
 	return &GoodsSkuCase{
 		BaseCase:     baseCase,
 		GoodsSkuRepo: goodsSkuRepo,
+		mapper: func() *mapper.CopierMapper[app.GoodsInfoResponse_Sku, models.GoodsSku] {
+			m := mapper.NewCopierMapper[app.GoodsInfoResponse_Sku, models.GoodsSku]()
+			m.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+			return m
+		}(),
 	}
 }
 
@@ -56,26 +62,16 @@ func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member 
 	}
 	list := make([]*app.GoodsInfoResponse_Sku, 0)
 	for _, item := range all {
-		list = append(list, c.convertToProto(item, member))
+		price := item.Price
+		if member {
+			price = item.DiscountPrice
+		}
+		sku := c.mapper.ToDTO(item)
+		sku.Price = price
+		sku.SaleNum = item.InitSaleNum + item.RealSaleNum
+		list = append(list, sku)
 	}
 	return list, nil
-}
-
-// 将规格库存模型转换为接口响应
-func (c *GoodsSkuCase) convertToProto(item *models.GoodsSku, member bool) *app.GoodsInfoResponse_Sku {
-	price := item.Price
-	if member {
-		price = item.DiscountPrice
-	}
-	res := &app.GoodsInfoResponse_Sku{
-		Picture:   item.Picture,
-		SpecItem:  _string.ConvertJsonStringToStringArray(item.SpecItem),
-		SkuCode:   item.SkuCode,
-		Price:     price,
-		SaleNum:   item.InitSaleNum + item.RealSaleNum,
-		Inventory: item.Inventory,
-	}
-	return res
 }
 
 // 增加规格销量并扣减库存

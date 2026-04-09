@@ -12,16 +12,16 @@ const TableNameRecommendUserGoodsPreference = "recommend_user_goods_preference"
 
 // RecommendUserGoodsPreference 用户商品偏好聚合信息
 type RecommendUserGoodsPreference struct {
-	ID                  int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                           // 主键ID
-	UserID              int64     `gorm:"column:user_id;type:bigint;not null;uniqueIndex:uk_user_goods,priority:1;index:idx_user_score,priority:1;comment:用户ID" json:"user_id"` // 用户ID
-	GoodsID             int64     `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:uk_user_goods,priority:2;comment:商品ID" json:"goods_id"`                               // 商品ID
-	Score               float64   `gorm:"column:score;type:decimal(10,4);not null;index:idx_user_score,priority:2;default:0.0000;comment:商品偏好得分" json:"score"`                  // 商品偏好得分
-	LastBehaviorType    string    `gorm:"column:last_behavior_type;type:varchar(32);comment:最近行为类型" json:"last_behavior_type"`                                                  // 最近行为类型
-	LastBehaviorAt      time.Time `gorm:"column:last_behavior_at;type:datetime;comment:最近行为时间" json:"last_behavior_at"`                                                         // 最近行为时间
-	BehaviorSummaryJSON string    `gorm:"column:behavior_summary_json;type:json;comment:行为汇总JSON" json:"behavior_summary_json"`                                                 // 行为汇总JSON
-	WindowDays          int32     `gorm:"column:window_days;type:int;not null;uniqueIndex:uk_user_goods,priority:3;default:30;comment:统计窗口天数" json:"window_days"`               // 统计窗口天数
-	CreatedAt           time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                    // 创建时间
-	UpdatedAt           time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                    // 更新时间
+	ID               int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                           // 主键ID
+	UserID           int64     `gorm:"column:user_id;type:bigint;not null;uniqueIndex:uk_user_goods,priority:1;index:idx_user_score,priority:1;comment:用户ID" json:"user_id"` // 用户ID
+	GoodsID          int64     `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:uk_user_goods,priority:2;comment:商品ID" json:"goods_id"`                               // 商品ID
+	Score            float64   `gorm:"column:score;type:decimal(10,4);not null;index:idx_user_score,priority:2;default:0.0000;comment:商品偏好得分" json:"score"`                  // 商品偏好得分
+	LastBehaviorType string    `gorm:"column:last_behavior_type;type:varchar(32);comment:最近行为类型" json:"last_behavior_type"`                                                  // 最近行为类型
+	LastBehaviorAt   time.Time `gorm:"column:last_behavior_at;type:datetime;comment:最近行为时间" json:"last_behavior_at"`                                                         // 最近行为时间
+	BehaviorSummary  string    `gorm:"column:behavior_summary;type:json;comment:行为汇总JSON" json:"behavior_summary"`                                                           // 行为汇总JSON
+	WindowDays       int32     `gorm:"column:window_days;type:int;not null;uniqueIndex:uk_user_goods,priority:3;default:30;comment:统计窗口天数" json:"window_days"`               // 统计窗口天数
+	CreatedAt        time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                    // 创建时间
+	UpdatedAt        time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                    // 更新时间
 }
 
 // TableName RecommendUserGoodsPreference's table name

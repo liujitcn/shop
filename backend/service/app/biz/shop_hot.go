@@ -9,7 +9,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -17,6 +17,7 @@ import (
 type ShopHotCase struct {
 	*biz.BaseCase
 	*data.ShopHotRepo
+	mapper *mapper.CopierMapper[app.ShopHot, models.ShopHot]
 }
 
 // NewShopHotCase 创建热门推荐分组业务处理对象
@@ -24,6 +25,11 @@ func NewShopHotCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo) *Shop
 	return &ShopHotCase{
 		BaseCase:    baseCase,
 		ShopHotRepo: shopHotRepo,
+		mapper: func() *mapper.CopierMapper[app.ShopHot, models.ShopHot] {
+			m := mapper.NewCopierMapper[app.ShopHot, models.ShopHot]()
+			m.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+			return m
+		}(),
 	}
 }
 
@@ -41,22 +47,12 @@ func (c *ShopHotCase) ListShopHot(ctx context.Context) (*app.ListShopHotResponse
 
 	list := make([]*app.ShopHot, 0, len(all))
 	for _, item := range all {
-		list = append(list, c.convertToProto(item))
+		list = append(list, c.mapper.ToDTO(item))
 	}
 
 	return &app.ListShopHotResponse{
 		List: list,
 	}, nil
-}
-
-// 将热门推荐分组模型转换为接口响应
-func (c *ShopHotCase) convertToProto(item *models.ShopHot) *app.ShopHot {
-	return &app.ShopHot{
-		Id:      item.ID,
-		Title:   item.Title,
-		Desc:    item.Desc,
-		Picture: _string.ConvertJsonStringToStringArray(item.Picture),
-	}
 }
 
 // 按编号查询启用中的热门推荐分组

@@ -11,7 +11,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/service/app/util"
 
-	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -21,6 +21,7 @@ type OrderGoodsCase struct {
 	*data.OrderGoodsRepo
 	goodsInfoCase *GoodsInfoCase
 	goodsSkuCase  *GoodsSkuCase
+	mapper        *mapper.CopierMapper[app.OrderGoods, models.OrderGoods]
 }
 
 // NewOrderGoodsCase 创建订单商品明细业务处理对象
@@ -28,11 +29,14 @@ func NewOrderGoodsCase(baseCase *biz.BaseCase, orderGoodsRepo *data.OrderGoodsRe
 	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 ) *OrderGoodsCase {
+	orderGoodsMapper := mapper.NewCopierMapper[app.OrderGoods, models.OrderGoods]()
+	orderGoodsMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &OrderGoodsCase{
 		BaseCase:       baseCase,
 		OrderGoodsRepo: orderGoodsRepo,
 		goodsInfoCase:  goodsInfoCase,
 		goodsSkuCase:   goodsSkuCase,
+		mapper:         orderGoodsMapper,
 	}
 }
 
@@ -135,43 +139,30 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 		payPrice = goodsSku.DiscountPrice
 	}
 	recommendContext := item.GetRecommendContext()
-	res := &app.OrderGoods{
-		GoodsId:       goodsInfo.ID,
+	model := &models.OrderGoods{
+		GoodsID:       goodsInfo.ID,
 		SkuCode:       goodsSku.SkuCode,
 		Picture:       picture,
 		Name:          goodsInfo.Name,
 		Num:           item.GetNum(),
-		SpecItem:      _string.ConvertJsonStringToStringArray(goodsSku.SpecItem),
+		SpecItem:      goodsSku.SpecItem,
 		Price:         goodsSku.Price,
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * item.GetNum(),
 		TotalPayPrice: payPrice * item.GetNum(),
-		Source:        formatRecommendSource(normalizeRecommendSource(recommendContext.GetSource())),
-		Scene:         formatRecommendScene(normalizeRecommendSceneEnum(recommendContext.GetScene())),
-		RequestId:     recommendContext.GetRequestId(),
+		Source:        normalizeRecommendSource(recommendContext.GetSource()),
+		Scene:         normalizeRecommendSceneEnum(recommendContext.GetScene()),
+		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}
-	return res, nil
+	return c.convertToProto(model), nil
 }
 
 // 将订单商品模型转换为接口响应
 func (c *OrderGoodsCase) convertToProto(item *models.OrderGoods) *app.OrderGoods {
-	res := &app.OrderGoods{
-		GoodsId:       item.GoodsID,
-		SkuCode:       item.SkuCode,
-		Picture:       item.Picture,
-		Name:          item.Name,
-		Num:           item.Num,
-		SpecItem:      _string.ConvertJsonStringToStringArray(item.SpecItem),
-		Price:         item.Price,
-		PayPrice:      item.PayPrice,
-		TotalPrice:    item.TotalPrice,
-		TotalPayPrice: item.TotalPayPrice,
-		Source:        formatRecommendSource(item.Source),
-		Scene:         formatRecommendScene(item.Scene),
-		RequestId:     item.RequestID,
-		Position:      item.Position,
-	}
+	res := c.mapper.ToDTO(item)
+	res.Source = formatRecommendSource(item.Source)
+	res.Scene = formatRecommendScene(item.Scene)
 	return res
 }
 

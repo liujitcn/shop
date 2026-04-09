@@ -22,6 +22,7 @@ type GoodsCategoryCase struct {
 	*biz.BaseCase
 	*data.GoodsCategoryRepo
 	formMapper *mapper.CopierMapper[admin.GoodsCategoryForm, models.GoodsCategory]
+	mapper     *mapper.CopierMapper[admin.GoodsCategory, models.GoodsCategory]
 }
 
 // NewGoodsCategoryCase 创建商品分类业务实例
@@ -30,6 +31,7 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 		BaseCase:          baseCase,
 		GoodsCategoryRepo: goodsCategoryRepo,
 		formMapper:        mapper.NewCopierMapper[admin.GoodsCategoryForm, models.GoodsCategory](),
+		mapper:            mapper.NewCopierMapper[admin.GoodsCategory, models.GoodsCategory](),
 	}
 }
 
@@ -172,16 +174,9 @@ func (c *GoodsCategoryCase) buildTree(categoryList []*models.GoodsCategory, pare
 		if item.ParentID != parentId {
 			continue
 		}
-		category := &admin.GoodsCategory{
-			Id:        item.ID,
-			ParentId:  item.ParentID,
-			Name:      item.Name,
-			Picture:   item.Picture,
-			Sort:      item.Sort,
-			Status:    common.Status(item.Status),
-			CreatedAt: _time.TimeToTimeString(item.CreatedAt),
-			UpdatedAt: _time.TimeToTimeString(item.UpdatedAt),
-		}
+		category := c.mapper.ToDTO(item)
+		category.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
+		category.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
 		category.Children = c.buildTree(categoryList, item.ID)
 		res = append(res, category)
 	}

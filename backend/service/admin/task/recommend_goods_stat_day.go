@@ -92,20 +92,15 @@ SELECT
 FROM (
   SELECT DISTINCT rr.scene, jt.goods_id
   FROM ` + "`" + models.TableNameRecommendRequest + "`" + ` rr,
-       JSON_TABLE(rr.goods_ids_json, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
+       JSON_TABLE(rr.goods_ids, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
   WHERE rr.created_at >= ?
     AND rr.created_at < ?
   UNION
   SELECT DISTINCT re.scene, jt.goods_id
   FROM ` + "`" + models.TableNameRecommendExposure + "`" + ` re,
-       JSON_TABLE(re.goods_ids_json, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
+       JSON_TABLE(re.goods_ids, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
   WHERE re.created_at >= ?
     AND re.created_at < ?
-  UNION
-  SELECT DISTINCT rc.scene, rc.goods_id
-  FROM ` + "`" + models.TableNameRecommendClick + "`" + ` rc
-  WHERE rc.created_at >= ?
-    AND rc.created_at < ?
   UNION
   SELECT DISTINCT rga.scene, rga.goods_id
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
@@ -115,7 +110,7 @@ FROM (
 LEFT JOIN (
   SELECT rr.scene, jt.goods_id, COUNT(*) AS request_count
   FROM ` + "`" + models.TableNameRecommendRequest + "`" + ` rr,
-       JSON_TABLE(rr.goods_ids_json, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
+       JSON_TABLE(rr.goods_ids, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
   WHERE rr.created_at >= ?
     AND rr.created_at < ?
   GROUP BY rr.scene, jt.goods_id
@@ -123,16 +118,17 @@ LEFT JOIN (
 LEFT JOIN (
   SELECT re.scene, jt.goods_id, COUNT(*) AS exposure_count
   FROM ` + "`" + models.TableNameRecommendExposure + "`" + ` re,
-       JSON_TABLE(re.goods_ids_json, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
+       JSON_TABLE(re.goods_ids, '$[*]' COLUMNS(goods_id BIGINT PATH '$')) jt
   WHERE re.created_at >= ?
     AND re.created_at < ?
   GROUP BY re.scene, jt.goods_id
 ) exposure_stat ON exposure_stat.scene = dim.scene AND exposure_stat.goods_id = dim.goods_id
 LEFT JOIN (
   SELECT scene, goods_id, COUNT(*) AS click_count
-  FROM ` + "`" + models.TableNameRecommendClick + "`" + `
+  FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + `
   WHERE created_at >= ?
     AND created_at < ?
+    AND event_type = 'recommend_click'
   GROUP BY scene, goods_id
 ) click_stat ON click_stat.scene = dim.scene AND click_stat.goods_id = dim.goods_id
 LEFT JOIN (
@@ -161,7 +157,6 @@ ORDER BY dim.scene ASC, dim.goods_id ASC
 `
 		args := []any{
 			statDate,
-			startAt, endAt,
 			startAt, endAt,
 			startAt, endAt,
 			startAt, endAt,

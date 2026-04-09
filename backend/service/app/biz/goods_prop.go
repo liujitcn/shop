@@ -9,6 +9,7 @@ import (
 
 	"shop/api/gen/go/app"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -16,6 +17,7 @@ import (
 type GoodsPropCase struct {
 	*biz.BaseCase
 	*data.GoodsPropRepo
+	mapper *mapper.CopierMapper[app.GoodsInfoResponse_Prop, models.GoodsProp]
 }
 
 // NewGoodsPropCase 创建商品属性业务处理对象
@@ -23,6 +25,7 @@ func NewGoodsPropCase(baseCase *biz.BaseCase, goodsPropRepo *data.GoodsPropRepo)
 	return &GoodsPropCase{
 		BaseCase:      baseCase,
 		GoodsPropRepo: goodsPropRepo,
+		mapper:        mapper.NewCopierMapper[app.GoodsInfoResponse_Prop, models.GoodsProp](),
 	}
 }
 
@@ -38,16 +41,7 @@ func (c *GoodsPropCase) listByGoodsId(ctx context.Context, goodsId int64) ([]*ap
 	}
 	list := make([]*app.GoodsInfoResponse_Prop, 0)
 	for _, item := range all {
-		list = append(list, c.convertToProto(item))
+		list = append(list, c.mapper.ToDTO(item))
 	}
 	return list, nil
-}
-
-// 将商品属性模型转换为接口响应
-func (c *GoodsPropCase) convertToProto(item *models.GoodsProp) *app.GoodsInfoResponse_Prop {
-	res := &app.GoodsInfoResponse_Prop{
-		Label: item.Label,
-		Value: item.Value,
-	}
-	return res
 }

@@ -484,7 +484,7 @@ func (c *RecommendCase) loadActorExposurePenalties(ctx context.Context, actor *R
 		return map[int64]float64{}, nil
 	}
 	exposureQuery := c.RecommendExposureRepo.Query(ctx).RecommendExposure
-	clickQuery := c.RecommendClickRepo.Query(ctx).RecommendClick
+	actionQuery := c.RecommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
 	cutoff := time.Now().AddDate(0, 0, -recommendActorExposureLookbackDays)
 	exposureList, err := c.RecommendExposureRepo.List(ctx,
 		repo.Where(exposureQuery.ActorType.Eq(actor.ActorType)),
@@ -495,12 +495,13 @@ func (c *RecommendCase) loadActorExposurePenalties(ctx context.Context, actor *R
 	if err != nil {
 		return nil, err
 	}
-	clickList, err := c.RecommendClickRepo.List(ctx,
-		repo.Where(clickQuery.ActorType.Eq(actor.ActorType)),
-		repo.Where(clickQuery.ActorID.Eq(actor.ActorId)),
-		repo.Where(clickQuery.Scene.Eq(scene)),
-		repo.Where(clickQuery.CreatedAt.Gte(cutoff)),
-		repo.Where(clickQuery.GoodsID.In(goodsIds...)),
+	clickList, err := c.RecommendGoodsActionRepo.List(ctx,
+		repo.Where(actionQuery.ActorType.Eq(actor.ActorType)),
+		repo.Where(actionQuery.ActorID.Eq(actor.ActorId)),
+		repo.Where(actionQuery.Scene.Eq(scene)),
+		repo.Where(actionQuery.EventType.Eq(recommendEventTypeClick)),
+		repo.Where(actionQuery.CreatedAt.Gte(cutoff)),
+		repo.Where(actionQuery.GoodsID.In(goodsIds...)),
 	)
 	if err != nil {
 		return nil, err
@@ -508,7 +509,7 @@ func (c *RecommendCase) loadActorExposurePenalties(ctx context.Context, actor *R
 	exposureCountMap := make(map[int64]int64, len(goodsIds))
 	for _, item := range exposureList {
 		ids := make([]int64, 0)
-		if err = json.Unmarshal([]byte(item.GoodsIdsJSON), &ids); err != nil {
+		if err = json.Unmarshal([]byte(item.GoodsIds), &ids); err != nil {
 			continue
 		}
 		for _, goodsID := range ids {

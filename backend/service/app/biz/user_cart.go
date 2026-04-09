@@ -12,6 +12,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/service/app/util"
 
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -23,6 +24,7 @@ type UserCartCase struct {
 	*data.UserCartRepo
 	goodsInfoCase *GoodsInfoCase
 	goodsSkuCase  *GoodsSkuCase
+	mapper        *mapper.CopierMapper[app.UserCart, models.UserCart]
 }
 
 // NewUserCartCase 创建用户购物车业务处理对象
@@ -32,11 +34,13 @@ func NewUserCartCase(
 	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
 ) *UserCartCase {
+	userCartMapper := mapper.NewCopierMapper[app.UserCart, models.UserCart]()
 	return &UserCartCase{
 		BaseCase:      baseCase,
 		UserCartRepo:  userCartRepo,
 		goodsInfoCase: goodsInfoCase,
 		goodsSkuCase:  goodsSkuCase,
+		mapper:        userCartMapper,
 	}
 }
 
@@ -107,24 +111,18 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 			price = sku.DiscountPrice
 		}
 
-		cart := &app.UserCart{
-			Id:        item.ID,
-			GoodsId:   item.GoodsID,
-			SkuCode:   item.SkuCode,
-			Picture:   picture,
-			Name:      goods.Name,
-			Num:       item.Num,
-			SpecItem:  _string.ConvertJsonStringToStringArray(sku.SpecItem),
-			Inventory: sku.Inventory,
-			Price:     price,
-			JoinPrice: item.Price,
-			IsChecked: item.IsChecked,
-			RecommendContext: &app.RecommendContext{
-				Source:    common.RecommendSource(item.Source),
-				Scene:     common.RecommendScene(item.Scene),
-				RequestId: item.RequestID,
-				Position:  item.Position,
-			},
+		cart := c.mapper.ToDTO(item)
+		cart.Picture = picture
+		cart.Name = goods.Name
+		cart.SpecItem = _string.ConvertJsonStringToStringArray(sku.SpecItem)
+		cart.Inventory = sku.Inventory
+		cart.Price = price
+		cart.JoinPrice = item.Price
+		cart.RecommendContext = &app.RecommendContext{
+			Source:    common.RecommendSource(item.Source),
+			Scene:     common.RecommendScene(item.Scene),
+			RequestId: item.RequestID,
+			Position:  item.Position,
 		}
 		list = append(list, cart)
 	}

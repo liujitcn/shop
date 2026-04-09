@@ -81,8 +81,9 @@ SELECT
   ) AS score
 FROM (
   SELECT goods_id
-  FROM ` + "`" + models.TableNameRecommendGoodsView + "`" + `
+  FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + `
   WHERE created_at >= ? AND created_at < ?
+    AND event_type = 'goods_view'
   UNION
   SELECT goods_id
   FROM user_collect
@@ -115,9 +116,10 @@ FROM (
 ) dim
 LEFT JOIN (
   SELECT goods_id, COUNT(*) AS view_count
-  FROM ` + "`" + models.TableNameRecommendGoodsView + "`" + `
+  FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + `
   WHERE created_at >= ?
     AND created_at < ?
+    AND event_type = 'goods_view'
   GROUP BY goods_id
 ) view_stat ON view_stat.goods_id = dim.goods_id
 LEFT JOIN (

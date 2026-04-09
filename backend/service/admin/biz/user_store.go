@@ -10,6 +10,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 )
@@ -22,10 +23,13 @@ type UserStoreCase struct {
 	baseAreaRepo *data.BaseAreaRepo
 	baseUserCase *BaseUserCase
 	baseRoleCase *BaseRoleCase
+	mapper       *mapper.CopierMapper[admin.UserStore, models.UserStore]
 }
 
 // NewUserStoreCase 创建门店申请业务实例
 func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo *data.UserStoreRepo, baseAreaRepo *data.BaseAreaRepo, baseUserCase *BaseUserCase, baseRoleCase *BaseRoleCase) *UserStoreCase {
+	userStoreMapper := mapper.NewCopierMapper[admin.UserStore, models.UserStore]()
+	userStoreMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &UserStoreCase{
 		BaseCase:      baseCase,
 		tx:            tx,
@@ -33,6 +37,7 @@ func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo
 		baseAreaRepo:  baseAreaRepo,
 		baseUserCase:  baseUserCase,
 		baseRoleCase:  baseRoleCase,
+		mapper:        userStoreMapper,
 	}
 }
 
@@ -142,16 +147,9 @@ func (c *UserStoreCase) AuditUserStore(ctx context.Context, req *admin.AuditUser
 
 // toUserStore 转换门店申请响应
 func (c *UserStoreCase) toUserStore(ctx context.Context, item *models.UserStore) *admin.UserStore {
-	return &admin.UserStore{
-		Id:              item.ID,
-		Name:            item.Name,
-		Address:         c.getAddressListByCode(ctx, item.Address),
-		Detail:          item.Detail,
-		Picture:         _string.ConvertJsonStringToStringArray(item.Picture),
-		BusinessLicense: _string.ConvertJsonStringToStringArray(item.BusinessLicense),
-		Status:          common.UserStoreStatus(item.Status),
-		Remark:          item.Remark,
-	}
+	res := c.mapper.ToDTO(item)
+	res.Address = c.getAddressListByCode(ctx, item.Address)
+	return res
 }
 
 // getAddressListByCode 根据区域编号构建地址名称

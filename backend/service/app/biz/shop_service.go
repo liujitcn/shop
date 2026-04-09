@@ -9,6 +9,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -16,6 +17,7 @@ import (
 type ShopServiceCase struct {
 	*biz.BaseCase
 	*data.ShopServiceRepo
+	mapper *mapper.CopierMapper[app.ShopService, models.ShopService]
 }
 
 // NewShopServiceCase 创建商城服务说明项业务处理对象
@@ -23,6 +25,7 @@ func NewShopServiceCase(baseCase *biz.BaseCase, shopServiceRepo *data.ShopServic
 	return &ShopServiceCase{
 		BaseCase:        baseCase,
 		ShopServiceRepo: shopServiceRepo,
+		mapper:          mapper.NewCopierMapper[app.ShopService, models.ShopService](),
 	}
 }
 
@@ -40,18 +43,10 @@ func (c *ShopServiceCase) ListShopService(ctx context.Context) (*app.ListShopSer
 
 	list := make([]*app.ShopService, 0, len(all))
 	for _, item := range all {
-		list = append(list, c.convertToProto(ctx, item))
+		list = append(list, c.mapper.ToDTO(item))
 	}
 
 	return &app.ListShopServiceResponse{
 		List: list,
 	}, nil
-}
-
-// 将商城服务模型转换为接口响应
-func (c *ShopServiceCase) convertToProto(ctx context.Context, item *models.ShopService) *app.ShopService {
-	return &app.ShopService{
-		Label: item.Label,
-		Value: item.Value,
-	}
 }

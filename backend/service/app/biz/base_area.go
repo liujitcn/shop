@@ -11,6 +11,7 @@ import (
 
 	"shop/api/gen/go/common"
 
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/kratos-kit/cache"
 )
@@ -23,7 +24,8 @@ var lock sync.RWMutex
 type BaseAreaCase struct {
 	*biz.BaseCase
 	*data.BaseAreaRepo
-	cache cache.Cache
+	cache  cache.Cache
+	mapper *mapper.CopierMapper[common.AppTreeOptionResponse_Option, models.BaseArea]
 }
 
 // NewBaseAreaCase 创建行政区域业务处理对象
@@ -34,6 +36,7 @@ func NewBaseAreaCase(
 	return &BaseAreaCase{
 		BaseCase:     baseCase,
 		BaseAreaRepo: baseAreaRepo,
+		mapper:       mapper.NewCopierMapper[common.AppTreeOptionResponse_Option, models.BaseArea](),
 	}
 }
 
@@ -92,12 +95,9 @@ func (c *BaseAreaCase) buildTree(list []*models.BaseArea, parentId int64) []*com
 	var res []*common.AppTreeOptionResponse_Option
 	for _, item := range list {
 		if item.ParentID == parentId {
-			option := &common.AppTreeOptionResponse_Option{
-				Value:    strconv.FormatInt(item.ID, 10),
-				Text:     item.Name,
-				Selected: false,
-				Disable:  false,
-			}
+			option := c.mapper.ToDTO(item)
+			option.Value = strconv.FormatInt(item.ID, 10)
+			option.Text = item.Name
 			option.Children = c.buildTree(list, item.ID)
 			res = append(res, option)
 		}

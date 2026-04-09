@@ -17,7 +17,7 @@ type RecommendGoodsRelation struct {
 	RelatedGoodsID int64     `gorm:"column:related_goods_id;type:bigint;not null;uniqueIndex:uk_goods_relation,priority:2;comment:关联商品ID" json:"related_goods_id"`                                    // 关联商品ID
 	RelationType   string    `gorm:"column:relation_type;type:varchar(32);not null;uniqueIndex:uk_goods_relation,priority:3;index:idx_goods_type_score,priority:2;comment:关系类型" json:"relation_type"` // 关系类型
 	Score          float64   `gorm:"column:score;type:decimal(10,4);not null;index:idx_goods_type_score,priority:3;default:0.0000;comment:关联得分" json:"score"`                                         // 关联得分
-	EvidenceJSON   string    `gorm:"column:evidence_json;type:json;comment:关联证据JSON" json:"evidence_json"`                                                                                            // 关联证据JSON
+	Evidence       string    `gorm:"column:evidence;type:json;comment:关联证据JSON" json:"evidence"`                                                                                                      // 关联证据JSON
 	WindowDays     int32     `gorm:"column:window_days;type:int;not null;uniqueIndex:uk_goods_relation,priority:4;default:30;comment:统计窗口天数" json:"window_days"`                                      // 统计窗口天数
 	CreatedAt      time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                                               // 创建时间
 	UpdatedAt      time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                               // 更新时间

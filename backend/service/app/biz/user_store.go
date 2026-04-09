@@ -12,6 +12,7 @@ import (
 	"shop/pkg/gen/models"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	"github.com/liujitcn/kratos-kit/sdk"
@@ -24,6 +25,8 @@ type UserStoreCase struct {
 	tx data.Transaction
 	*data.UserStoreRepo
 	baseAreaCase *BaseAreaCase
+	formMapper   *mapper.CopierMapper[app.UserStoreForm, models.UserStore]
+	dtoMapper    *mapper.CopierMapper[app.UserStore, models.UserStore]
 }
 
 // NewUserStoreCase 创建用户门店入驻业务处理对象
@@ -31,11 +34,17 @@ func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction,
 	userStoreRepo *data.UserStoreRepo,
 	baseAreaCase *BaseAreaCase,
 ) *UserStoreCase {
+	formMapper := mapper.NewCopierMapper[app.UserStoreForm, models.UserStore]()
+	formMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+	dtoMapper := mapper.NewCopierMapper[app.UserStore, models.UserStore]()
+	dtoMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &UserStoreCase{
 		BaseCase:      baseCase,
 		tx:            tx,
 		UserStoreRepo: userStoreRepo,
 		baseAreaCase:  baseAreaCase,
+		formMapper:    formMapper,
+		dtoMapper:     dtoMapper,
 	}
 }
 
@@ -104,31 +113,16 @@ func (c *UserStoreCase) UpdateUserStore(ctx context.Context, form *app.UserStore
 
 // 将用户门店模型转换为接口响应
 func (c *UserStoreCase) convertToProto(ctx context.Context, item *models.UserStore) *app.UserStore {
-	return &app.UserStore{
-		Id:              item.ID,
-		Name:            item.Name,
-		Address:         _string.ConvertJsonStringToStringArray(item.Address),
-		Detail:          item.Detail,
-		Picture:         _string.ConvertJsonStringToStringArray(item.Picture),
-		BusinessLicense: _string.ConvertJsonStringToStringArray(item.BusinessLicense),
-		AddressName:     c.baseAreaCase.getAddressListByCode(ctx, item.Address),
-		Status:          common.UserStoreStatus(item.Status),
-		Remark:          item.Remark,
-	}
+	res := c.dtoMapper.ToDTO(item)
+	res.AddressName = c.baseAreaCase.getAddressListByCode(ctx, item.Address)
+	return res
 }
 
 // 将用户门店表单转换为模型
 func (c *UserStoreCase) convertToModel(userId int64, item *app.UserStoreForm) *models.UserStore {
-	res := &models.UserStore{
-		ID:              item.GetId(),
-		UserID:          userId,
-		Name:            item.GetName(),
-		Address:         _string.ConvertStringArrayToString(item.GetAddress()),
-		Detail:          item.GetDetail(),
-		Picture:         _string.ConvertStringArrayToString(item.GetPicture()),
-		BusinessLicense: _string.ConvertStringArrayToString(item.GetBusinessLicense()),
-		Status:          int32(common.UserStoreStatus_PENDING_REVIEW),
-	}
+	res := c.formMapper.ToEntity(item)
+	res.UserID = userId
+	res.Status = int32(common.UserStoreStatus_PENDING_REVIEW)
 	return res
 }
 

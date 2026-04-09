@@ -11,6 +11,7 @@ import (
 	"shop/api/gen/go/common"
 	"shop/service/app/util"
 
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -19,6 +20,8 @@ type GoodsCategoryCase struct {
 	*biz.BaseCase
 	*data.GoodsCategoryRepo
 	goodsInfoRepo *data.GoodsInfoRepo
+	mapper        *mapper.CopierMapper[app.GoodsCategory, models.GoodsCategory]
+	goodsMapper   *mapper.CopierMapper[app.GoodsInfo, models.GoodsInfo]
 }
 
 // NewGoodsCategoryCase 创建商品分类业务处理对象
@@ -27,6 +30,8 @@ func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsC
 		BaseCase:          baseCase,
 		GoodsCategoryRepo: goodsCategoryRepo,
 		goodsInfoRepo:     goodsInfoRepo,
+		mapper:            mapper.NewCopierMapper[app.GoodsCategory, models.GoodsCategory](),
+		goodsMapper:       mapper.NewCopierMapper[app.GoodsInfo, models.GoodsInfo](),
 	}
 }
 
@@ -46,7 +51,7 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 	member := util.IsMember(ctx)
 	list := make([]*app.GoodsCategory, 0, len(all))
 	for _, item := range all {
-		category := c.convertToProto(item)
+		category := c.mapper.ToDTO(item)
 		// 二级分类需要同时返回分类下的推荐商品
 		if category.ParentId > 0 {
 			goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
@@ -65,14 +70,10 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 				if member {
 					price = goodsInfo.DiscountPrice
 				}
-				category.Goods = append(category.Goods, &app.GoodsInfo{
-					Id:      goodsInfo.ID,
-					Name:    goodsInfo.Name,
-					Desc:    goodsInfo.Desc,
-					Picture: goodsInfo.Picture,
-					SaleNum: goodsInfo.InitSaleNum + goodsInfo.RealSaleNum,
-					Price:   price,
-				})
+				goods := c.goodsMapper.ToDTO(goodsInfo)
+				goods.SaleNum = goodsInfo.InitSaleNum + goodsInfo.RealSaleNum
+				goods.Price = price
+				category.Goods = append(category.Goods, goods)
 			}
 		}
 		list = append(list, category)
@@ -81,16 +82,4 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 	return &app.ListGoodsCategoryResponse{
 		List: list,
 	}, nil
-}
-
-// 将商品分类模型转换为接口响应
-func (c *GoodsCategoryCase) convertToProto(item *models.GoodsCategory) *app.GoodsCategory {
-	res := &app.GoodsCategory{
-		Id:       item.ID,
-		ParentId: item.ParentID,
-		Name:     item.Name,
-		Picture:  item.Picture,
-		Goods:    nil,
-	}
-	return res
 }

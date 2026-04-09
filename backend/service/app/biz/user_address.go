@@ -8,7 +8,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -18,6 +18,8 @@ type UserAddressCase struct {
 	tx data.Transaction
 	*data.UserAddressRepo
 	baseAreaCase *BaseAreaCase
+	formMapper   *mapper.CopierMapper[app.UserAddressForm, models.UserAddress]
+	mapper       *mapper.CopierMapper[app.UserAddress, models.UserAddress]
 }
 
 // NewUserAddressCase 创建用户收货地址业务处理对象
@@ -25,11 +27,15 @@ func NewUserAddressCase(baseCase *biz.BaseCase, tx data.Transaction,
 	userAddressRepo *data.UserAddressRepo,
 	baseAreaCase *BaseAreaCase,
 ) *UserAddressCase {
+	formMapper := mapper.NewCopierMapper[app.UserAddressForm, models.UserAddress]()
+	formMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &UserAddressCase{
 		BaseCase:        baseCase,
 		tx:              tx,
 		UserAddressRepo: userAddressRepo,
 		baseAreaCase:    baseAreaCase,
+		formMapper:      formMapper,
+		mapper:          mapper.NewCopierMapper[app.UserAddress, models.UserAddress](),
 	}
 }
 
@@ -50,14 +56,9 @@ func (c *UserAddressCase) ListUserAddress(ctx context.Context) (*app.ListUserAdd
 
 	list := make([]*app.UserAddress, 0)
 	for _, address := range all {
-		list = append(list, &app.UserAddress{
-			Id:        address.ID,
-			Receiver:  address.Receiver,
-			Contact:   address.Contact,
-			Address:   c.baseAreaCase.getAddressListByCode(ctx, address.Address),
-			Detail:    address.Detail,
-			IsDefault: address.IsDefault,
-		})
+		item := c.mapper.ToDTO(address)
+		item.Address = c.baseAreaCase.getAddressListByCode(ctx, address.Address)
+		list = append(list, item)
 	}
 	return &app.ListUserAddressResponse{
 		List: list,
@@ -145,28 +146,15 @@ func (c *UserAddressCase) DeleteUserAddress(ctx context.Context, id int64) error
 
 // 将用户地址模型转换为表单响应
 func (c *UserAddressCase) convertToProto(ctx context.Context, item *models.UserAddress) *app.UserAddressForm {
-	return &app.UserAddressForm{
-		Id:          item.ID,
-		Receiver:    item.Receiver,
-		Contact:     item.Contact,
-		Address:     _string.ConvertJsonStringToStringArray(item.Address),
-		Detail:      item.Detail,
-		AddressName: c.baseAreaCase.getAddressListByCode(ctx, item.Address),
-		IsDefault:   item.IsDefault,
-	}
+	res := c.formMapper.ToDTO(item)
+	res.AddressName = c.baseAreaCase.getAddressListByCode(ctx, item.Address)
+	return res
 }
 
 // 将用户地址表单转换为模型
 func (c *UserAddressCase) convertToModel(userId int64, item *app.UserAddressForm) *models.UserAddress {
-	res := &models.UserAddress{
-		ID:        item.GetId(),
-		UserID:    userId,
-		Receiver:  item.GetReceiver(),
-		Contact:   item.GetContact(),
-		Address:   _string.ConvertStringArrayToString(item.GetAddress()),
-		Detail:    item.GetDetail(),
-		IsDefault: item.GetIsDefault(),
-	}
+	res := c.formMapper.ToEntity(item)
+	res.UserID = userId
 	return res
 }
 

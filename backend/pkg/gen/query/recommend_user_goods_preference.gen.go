@@ -33,7 +33,7 @@ func newRecommendUserGoodsPreference(db *gorm.DB, opts ...gen.DOOption) recommen
 	_recommendUserGoodsPreference.Score = field.NewFloat64(tableName, "score")
 	_recommendUserGoodsPreference.LastBehaviorType = field.NewString(tableName, "last_behavior_type")
 	_recommendUserGoodsPreference.LastBehaviorAt = field.NewTime(tableName, "last_behavior_at")
-	_recommendUserGoodsPreference.BehaviorSummaryJSON = field.NewString(tableName, "behavior_summary_json")
+	_recommendUserGoodsPreference.BehaviorSummary = field.NewString(tableName, "behavior_summary")
 	_recommendUserGoodsPreference.WindowDays = field.NewInt32(tableName, "window_days")
 	_recommendUserGoodsPreference.CreatedAt = field.NewTime(tableName, "created_at")
 	_recommendUserGoodsPreference.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -47,17 +47,17 @@ func newRecommendUserGoodsPreference(db *gorm.DB, opts ...gen.DOOption) recommen
 type recommendUserGoodsPreference struct {
 	recommendUserGoodsPreferenceDo recommendUserGoodsPreferenceDo
 
-	ALL                 field.Asterisk
-	ID                  field.Int64   // 主键ID
-	UserID              field.Int64   // 用户ID
-	GoodsID             field.Int64   // 商品ID
-	Score               field.Float64 // 商品偏好得分
-	LastBehaviorType    field.String  // 最近行为类型
-	LastBehaviorAt      field.Time    // 最近行为时间
-	BehaviorSummaryJSON field.String  // 行为汇总JSON
-	WindowDays          field.Int32   // 统计窗口天数
-	CreatedAt           field.Time    // 创建时间
-	UpdatedAt           field.Time    // 更新时间
+	ALL              field.Asterisk
+	ID               field.Int64   // 主键ID
+	UserID           field.Int64   // 用户ID
+	GoodsID          field.Int64   // 商品ID
+	Score            field.Float64 // 商品偏好得分
+	LastBehaviorType field.String  // 最近行为类型
+	LastBehaviorAt   field.Time    // 最近行为时间
+	BehaviorSummary  field.String  // 行为汇总JSON
+	WindowDays       field.Int32   // 统计窗口天数
+	CreatedAt        field.Time    // 创建时间
+	UpdatedAt        field.Time    // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -80,7 +80,7 @@ func (r *recommendUserGoodsPreference) updateTableName(table string) *recommendU
 	r.Score = field.NewFloat64(table, "score")
 	r.LastBehaviorType = field.NewString(table, "last_behavior_type")
 	r.LastBehaviorAt = field.NewTime(table, "last_behavior_at")
-	r.BehaviorSummaryJSON = field.NewString(table, "behavior_summary_json")
+	r.BehaviorSummary = field.NewString(table, "behavior_summary")
 	r.WindowDays = field.NewInt32(table, "window_days")
 	r.CreatedAt = field.NewTime(table, "created_at")
 	r.UpdatedAt = field.NewTime(table, "updated_at")
@@ -121,7 +121,7 @@ func (r *recommendUserGoodsPreference) fillFieldMap() {
 	r.fieldMap["score"] = r.Score
 	r.fieldMap["last_behavior_type"] = r.LastBehaviorType
 	r.fieldMap["last_behavior_at"] = r.LastBehaviorAt
-	r.fieldMap["behavior_summary_json"] = r.BehaviorSummaryJSON
+	r.fieldMap["behavior_summary"] = r.BehaviorSummary
 	r.fieldMap["window_days"] = r.WindowDays
 	r.fieldMap["created_at"] = r.CreatedAt
 	r.fieldMap["updated_at"] = r.UpdatedAt

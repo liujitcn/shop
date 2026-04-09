@@ -50,7 +50,7 @@ type RecommendCase struct {
 	*data.RecommendRequestRepo
 	*data.RecommendUserGoodsPreferenceRepo
 	*data.RecommendExposureRepo
-	*data.RecommendClickRepo
+	*data.RecommendGoodsActionRepo
 	goodsInfoRepo             *data.GoodsInfoRepo
 	orderGoodsRepo            *data.OrderGoodsRepo
 	userCartRepo              *data.UserCartRepo
@@ -66,7 +66,7 @@ func NewRecommendCase(
 	recommendRequestRepo *data.RecommendRequestRepo,
 	recommendUserGoodsPreferenceRepo *data.RecommendUserGoodsPreferenceRepo,
 	recommendExposureRepo *data.RecommendExposureRepo,
-	recommendClickRepo *data.RecommendClickRepo,
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
 	goodsInfoRepo *data.GoodsInfoRepo,
 	orderGoodsRepo *data.OrderGoodsRepo,
 	userCartRepo *data.UserCartRepo,
@@ -80,7 +80,7 @@ func NewRecommendCase(
 		RecommendRequestRepo:             recommendRequestRepo,
 		RecommendUserGoodsPreferenceRepo: recommendUserGoodsPreferenceRepo,
 		RecommendExposureRepo:            recommendExposureRepo,
-		RecommendClickRepo:               recommendClickRepo,
+		RecommendGoodsActionRepo:         recommendGoodsActionRepo,
 		goodsInfoRepo:                    goodsInfoRepo,
 		orderGoodsRepo:                   orderGoodsRepo,
 		userCartRepo:                     userCartRepo,
@@ -106,7 +106,6 @@ type RecommendEvent struct {
 	GoodsItems []*RecommendEventGoodsItem `json:"goodsItems,omitempty"`
 	Position   int32                      `json:"position,omitempty"`
 	ExposeMode string                     `json:"exposeMode,omitempty"`
-	ViewMode   string                     `json:"viewMode,omitempty"`
 	OccurredAt int64                      `json:"occurredAt,omitempty"`
 }
 
@@ -125,8 +124,6 @@ type RecommendEventCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.RecommendExposureRepo
-	*data.RecommendClickRepo
-	*data.RecommendGoodsViewRepo
 	*data.RecommendGoodsActionRepo
 	*data.RecommendRequestRepo
 	*data.RecommendUserPreferenceRepo
@@ -140,8 +137,6 @@ func NewRecommendEventCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	recommendExposureRepo *data.RecommendExposureRepo,
-	recommendClickRepo *data.RecommendClickRepo,
-	recommendGoodsViewRepo *data.RecommendGoodsViewRepo,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
 	recommendRequestRepo *data.RecommendRequestRepo,
 	recommendUserPreferenceRepo *data.RecommendUserPreferenceRepo,
@@ -153,8 +148,6 @@ func NewRecommendEventCase(
 		BaseCase:                         baseCase,
 		tx:                               tx,
 		RecommendExposureRepo:            recommendExposureRepo,
-		RecommendClickRepo:               recommendClickRepo,
-		RecommendGoodsViewRepo:           recommendGoodsViewRepo,
 		RecommendGoodsActionRepo:         recommendGoodsActionRepo,
 		RecommendRequestRepo:             recommendRequestRepo,
 		RecommendUserPreferenceRepo:      recommendUserPreferenceRepo,
@@ -515,16 +508,16 @@ func (c *RecommendCase) saveRecommendRequest(ctx context.Context, requestID stri
 
 	// 推荐请求表保存的是本次实际下发结果，供曝光与点击链路统一回查。
 	entity := &models.RecommendRequest{
-		RequestID:         requestID,
-		ActorType:         actor.ActorType,
-		ActorID:           actor.ActorId,
-		Scene:             int32(req.GetScene()),
-		SourceContextJSON: string(sourceContextJSON),
-		PageNum:           int32(req.GetPageNum()),
-		PageSize:          int32(req.GetPageSize()),
-		GoodsIdsJSON:      string(goodsIdsJSON),
-		StrategyVersion:   recommendStrategyVersion,
-		RecallSourcesJSON: string(recallSourcesJSON),
+		RequestID:       requestID,
+		ActorType:       actor.ActorType,
+		ActorID:         actor.ActorId,
+		Scene:           int32(req.GetScene()),
+		SourceContext:   string(sourceContextJSON),
+		PageNum:         int32(req.GetPageNum()),
+		PageSize:        int32(req.GetPageSize()),
+		GoodsIds:        string(goodsIdsJSON),
+		StrategyVersion: recommendStrategyVersion,
+		RecallSources:   string(recallSourcesJSON),
 	}
 	return c.RecommendRequestRepo.Create(ctx, entity)
 }
@@ -559,7 +552,7 @@ func (c *RecommendEventCase) consume(ctx context.Context, event *RecommendEvent)
 
 // saveEventDetail 保存推荐行为明细。
 func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *RecommendEvent) error {
-	// 不同事件类型落不同明细表，保证曝光、点击、浏览各自独立存储。
+	// 曝光单独保留批次明细，其余商品行为统一写入行为事实表。
 	switch event.EventType {
 	case recommendEventTypeExposure:
 		goodsIdsJson, err := json.Marshal(event.GoodsIDs)
@@ -567,25 +560,17 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			return err
 		}
 		return c.RecommendExposureRepo.Create(ctx, &models.RecommendExposure{
-			RequestID:    event.RequestID,
-			ActorType:    event.ActorType,
-			ActorID:      event.ActorID,
-			Scene:        event.Scene,
-			GoodsIdsJSON: string(goodsIdsJson),
-			ExposeMode:   defaultString(event.ExposeMode, "viewport_once"),
+			RequestID:  event.RequestID,
+			ActorType:  event.ActorType,
+			ActorID:    event.ActorID,
+			Scene:      event.Scene,
+			GoodsIds:   string(goodsIdsJson),
+			ExposeMode: defaultString(event.ExposeMode, "viewport_once"),
 		})
-	case recommendEventTypeClick:
-		err := c.RecommendClickRepo.Create(ctx, &models.RecommendClick{
-			RequestID: event.RequestID,
-			ActorType: event.ActorType,
-			ActorID:   event.ActorID,
-			Scene:     event.Scene,
-			GoodsID:   event.GoodsID,
-			Position:  event.Position,
-			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_RECOMMEND),
-		})
-		if err != nil {
-			return err
+	case recommendEventTypeClick, recommendEventTypeView:
+		source := common.RecommendSource_DIRECT
+		if event.EventType == recommendEventTypeClick {
+			source = common.RecommendSource_RECOMMEND
 		}
 		return c.RecommendGoodsActionRepo.Create(ctx, &models.RecommendGoodsAction{
 			ActorType: event.ActorType,
@@ -593,32 +578,7 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			EventType: event.EventType,
 			GoodsID:   event.GoodsID,
 			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
-			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_RECOMMEND),
-			Scene:     event.Scene,
-			RequestID: event.RequestID,
-			Position:  event.Position,
-		})
-	case recommendEventTypeView:
-		err := c.RecommendGoodsViewRepo.Create(ctx, &models.RecommendGoodsView{
-			ActorType: event.ActorType,
-			ActorID:   event.ActorID,
-			GoodsID:   event.GoodsID,
-			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT),
-			Scene:     event.Scene,
-			RequestID: event.RequestID,
-			Position:  event.Position,
-			ViewMode:  defaultString(event.ViewMode, "detail_open"),
-		})
-		if err != nil {
-			return err
-		}
-		return c.RecommendGoodsActionRepo.Create(ctx, &models.RecommendGoodsAction{
-			ActorType: event.ActorType,
-			ActorID:   event.ActorID,
-			EventType: event.EventType,
-			GoodsID:   event.GoodsID,
-			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
-			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT),
+			Source:    normalizeRecommendSourceCode(event.Source, source),
 			Scene:     event.Scene,
 			RequestID: event.RequestID,
 			Position:  event.Position,
@@ -753,7 +713,7 @@ func (c *RecommendEventCase) upsertUserGoodsPreference(ctx context.Context, even
 	// 已有画像记录时在原有得分与摘要上继续累加。
 	if entity != nil {
 		score += entity.Score
-		summaryJSON = entity.BehaviorSummaryJSON
+		summaryJSON = entity.BehaviorSummary
 	}
 	summaryJSON, err = addBehaviorSummaryCount(summaryJSON, c.getEventSummaryKey(event.EventType), c.normalizeGoodsCount(goodsNum))
 	if err != nil {
@@ -762,22 +722,22 @@ func (c *RecommendEventCase) upsertUserGoodsPreference(ctx context.Context, even
 
 	if entity == nil || entity.ID == 0 {
 		return c.RecommendUserGoodsPreferenceRepo.Create(ctx, &models.RecommendUserGoodsPreference{
-			UserID:              event.UserID,
-			GoodsID:             event.GoodsID,
-			Score:               score,
-			LastBehaviorType:    event.EventType,
-			LastBehaviorAt:      eventTime,
-			BehaviorSummaryJSON: summaryJSON,
-			WindowDays:          recommendAggregateWindowDays,
-			CreatedAt:           eventTime,
-			UpdatedAt:           eventTime,
+			UserID:           event.UserID,
+			GoodsID:          event.GoodsID,
+			Score:            score,
+			LastBehaviorType: event.EventType,
+			LastBehaviorAt:   eventTime,
+			BehaviorSummary:  summaryJSON,
+			WindowDays:       recommendAggregateWindowDays,
+			CreatedAt:        eventTime,
+			UpdatedAt:        eventTime,
 		})
 	}
 
 	entity.Score = score
 	entity.LastBehaviorType = event.EventType
 	entity.LastBehaviorAt = eventTime
-	entity.BehaviorSummaryJSON = summaryJSON
+	entity.BehaviorSummary = summaryJSON
 	entity.UpdatedAt = eventTime
 	return c.RecommendUserGoodsPreferenceRepo.UpdateById(ctx, entity)
 }
@@ -805,7 +765,7 @@ func (c *RecommendEventCase) upsertUserCategoryPreference(ctx context.Context, e
 	// 已有类目画像时继续在原值上累积行为分数。
 	if entity != nil {
 		score += entity.Score
-		summaryJSON = entity.BehaviorSummaryJSON
+		summaryJSON = entity.BehaviorSummary
 	}
 	summaryJSON, err = addBehaviorSummaryCount(summaryJSON, c.getEventSummaryKey(event.EventType), c.normalizeGoodsCount(goodsNum))
 	if err != nil {
@@ -814,19 +774,19 @@ func (c *RecommendEventCase) upsertUserCategoryPreference(ctx context.Context, e
 
 	if entity == nil || entity.ID == 0 {
 		return c.RecommendUserPreferenceRepo.Create(ctx, &models.RecommendUserPreference{
-			UserID:              event.UserID,
-			PreferenceType:      recommendPreferenceTypeCategory,
-			TargetID:            categoryID,
-			Score:               score,
-			BehaviorSummaryJSON: summaryJSON,
-			WindowDays:          recommendAggregateWindowDays,
-			CreatedAt:           eventTime,
-			UpdatedAt:           eventTime,
+			UserID:          event.UserID,
+			PreferenceType:  recommendPreferenceTypeCategory,
+			TargetID:        categoryID,
+			Score:           score,
+			BehaviorSummary: summaryJSON,
+			WindowDays:      recommendAggregateWindowDays,
+			CreatedAt:       eventTime,
+			UpdatedAt:       eventTime,
 		})
 	}
 
 	entity.Score = score
-	entity.BehaviorSummaryJSON = summaryJSON
+	entity.BehaviorSummary = summaryJSON
 	entity.UpdatedAt = eventTime
 	return c.RecommendUserPreferenceRepo.UpdateById(ctx, entity)
 }
@@ -909,7 +869,7 @@ func (c *RecommendEventCase) listRequestRelatedGoodsIds(ctx context.Context, req
 	}
 
 	goodsIds := make([]int64, 0)
-	err = json.Unmarshal([]byte(entity.GoodsIdsJSON), &goodsIds)
+	err = json.Unmarshal([]byte(entity.GoodsIds), &goodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -952,7 +912,7 @@ func (c *RecommendEventCase) upsertSingleGoodsRelation(ctx context.Context, good
 	// 已存在关系记录时在原有强度上继续累加。
 	if entity != nil {
 		score += entity.Score
-		evidenceJSON = entity.EvidenceJSON
+		evidenceJSON = entity.Evidence
 	}
 	evidenceJSON, err = addBehaviorSummaryCount(evidenceJSON, relationType, int64(score))
 	if err != nil {
@@ -965,7 +925,7 @@ func (c *RecommendEventCase) upsertSingleGoodsRelation(ctx context.Context, good
 			RelatedGoodsID: relatedGoodsID,
 			RelationType:   relationType,
 			Score:          score,
-			EvidenceJSON:   evidenceJSON,
+			Evidence:       evidenceJSON,
 			WindowDays:     recommendAggregateWindowDays,
 			CreatedAt:      eventTime,
 			UpdatedAt:      eventTime,
@@ -973,7 +933,7 @@ func (c *RecommendEventCase) upsertSingleGoodsRelation(ctx context.Context, good
 	}
 
 	entity.Score = score
-	entity.EvidenceJSON = evidenceJSON
+	entity.Evidence = evidenceJSON
 	entity.UpdatedAt = eventTime
 	return c.RecommendGoodsRelationRepo.UpdateById(ctx, entity)
 }
@@ -1023,7 +983,6 @@ func publishGoodsViewEvent(actor *RecommendActor, goodsID int64, position int32,
 		GoodsID:    goodsID,
 		GoodsNum:   1,
 		Position:   position,
-		ViewMode:   "detail_open",
 		OccurredAt: time.Now().Unix(),
 	})
 }
