@@ -159,7 +159,7 @@ click_request AS (
     COUNT(*) AS click_count
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
   INNER JOIN base_requests br ON br.request_id = rga.request_id
-  WHERE rga.event_type = 'recommend_click'
+  WHERE rga.event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeClick) + `
   GROUP BY rga.request_id
 ),
 pay_request AS (
@@ -168,7 +168,7 @@ pay_request AS (
     COUNT(*) AS pay_count
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
   INNER JOIN base_requests br ON br.request_id = rga.request_id
-  WHERE rga.event_type = 'order_pay'
+  WHERE rga.event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypePay) + `
   GROUP BY rga.request_id
 )
 SELECT
@@ -216,13 +216,13 @@ click_request AS (
   SELECT DISTINCT rga.request_id
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
   INNER JOIN request_scope rs ON rs.request_id = rga.request_id
-  WHERE rga.event_type = 'recommend_click'
+  WHERE rga.event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeClick) + `
 ),
 pay_request AS (
   SELECT DISTINCT rga.request_id
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
   INNER JOIN request_scope rs ON rs.request_id = rga.request_id
-  WHERE rga.event_type = 'order_pay'
+  WHERE rga.event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypePay) + `
 )
 SELECT
   br.scene AS scene,

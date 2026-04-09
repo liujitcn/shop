@@ -54,7 +54,7 @@ type recommendRequest struct {
 	RequestID       field.String // 推荐请求ID
 	ActorType       field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID         field.Int64  // 主体ID：匿名ID或用户ID
-	Scene           field.Int32  // 推荐场景
+	Scene           field.Int32  // 推荐场景：枚举【RecommendScene】
 	SourceContext   field.String // 场景上下文JSON
 	PageNum         field.Int32  // 页码
 	PageSize        field.Int32  // 分页大小

@@ -30,7 +30,7 @@ func newRecommendGoodsAction(db *gorm.DB, opts ...gen.DOOption) recommendGoodsAc
 	_recommendGoodsAction.ID = field.NewInt64(tableName, "id")
 	_recommendGoodsAction.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendGoodsAction.ActorID = field.NewInt64(tableName, "actor_id")
-	_recommendGoodsAction.EventType = field.NewString(tableName, "event_type")
+	_recommendGoodsAction.EventType = field.NewInt32(tableName, "event_type")
 	_recommendGoodsAction.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendGoodsAction.GoodsNum = field.NewInt64(tableName, "goods_num")
 	_recommendGoodsAction.Source = field.NewInt32(tableName, "source")
@@ -52,11 +52,11 @@ type recommendGoodsAction struct {
 	ID        field.Int64  // 主键ID
 	ActorType field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID   field.Int64  // 主体ID：匿名ID或用户ID
-	EventType field.String // 行为事件类型
+	EventType field.Int32  // 行为事件类型：枚举【RecommendGoodsActionType】
 	GoodsID   field.Int64  // 商品ID
 	GoodsNum  field.Int64  // 商品数量
-	Source    field.Int32  // 入口来源
-	Scene     field.Int32  // 推荐场景
+	Source    field.Int32  // 入口来源：枚举【RecommendSource】
+	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
 	CreatedAt field.Time   // 创建时间
@@ -79,7 +79,7 @@ func (r *recommendGoodsAction) updateTableName(table string) *recommendGoodsActi
 	r.ID = field.NewInt64(table, "id")
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
-	r.EventType = field.NewString(table, "event_type")
+	r.EventType = field.NewInt32(table, "event_type")
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.GoodsNum = field.NewInt64(table, "goods_num")
 	r.Source = field.NewInt32(table, "source")

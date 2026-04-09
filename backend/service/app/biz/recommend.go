@@ -232,7 +232,7 @@ func (c *RecommendEventCase) RecommendExposureReport(ctx context.Context, req *a
 	publishRecommendExposureEvent(
 		actor,
 		strings.TrimSpace(req.GetRequestId()),
-		parseRecommendScene(req.GetScene()),
+		normalizeRecommendSceneEnum(req.GetScene()),
 		req.GetGoodsIds(),
 	)
 	return nil
@@ -569,13 +569,14 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 		})
 	case recommendEventTypeClick, recommendEventTypeView:
 		source := common.RecommendSource_DIRECT
+		// 推荐点击默认来自推荐流量，浏览事件按透传来源兜底。
 		if event.EventType == recommendEventTypeClick {
 			source = common.RecommendSource_RECOMMEND
 		}
 		return c.RecommendGoodsActionRepo.Create(ctx, &models.RecommendGoodsAction{
 			ActorType: event.ActorType,
 			ActorID:   event.ActorID,
-			EventType: event.EventType,
+			EventType: int32(convertRecommendEventTypeToGoodsActionType(event.EventType)),
 			GoodsID:   event.GoodsID,
 			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
 			Source:    normalizeRecommendSourceCode(event.Source, source),
@@ -587,7 +588,7 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 		return c.RecommendGoodsActionRepo.Create(ctx, &models.RecommendGoodsAction{
 			ActorType: event.ActorType,
 			ActorID:   event.ActorID,
-			EventType: event.EventType,
+			EventType: int32(convertRecommendEventTypeToGoodsActionType(event.EventType)),
 			GoodsID:   event.GoodsID,
 			GoodsNum:  c.normalizeGoodsCount(event.GoodsNum),
 			Source:    normalizeRecommendSourceCode(event.Source, common.RecommendSource_DIRECT),
@@ -600,7 +601,7 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			err := c.RecommendGoodsActionRepo.Create(ctx, &models.RecommendGoodsAction{
 				ActorType: event.ActorType,
 				ActorID:   event.ActorID,
-				EventType: event.EventType,
+				EventType: int32(convertRecommendEventTypeToGoodsActionType(event.EventType)),
 				GoodsID:   goodsItem.GoodsID,
 				GoodsNum:  c.normalizeGoodsCount(goodsItem.GoodsNum),
 				Source:    normalizeRecommendSourceCode(goodsItem.Source, common.RecommendSource_DIRECT),

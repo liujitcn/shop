@@ -21,6 +21,11 @@ authn:
         - "/app.ShopServiceService/ListShopService"
         - "/app.ShopHotService/PageShopHotGoods"
         - "/app.PayService/PayNotify"
+    optionalAuth:
+      prefix:
+      regex:
+      path:
+      match:
         - "/app.RecommendService/RecommendAnonymousActor"
         - "/app.RecommendService/RecommendGoods"
         - "/app.RecommendService/RecommendExposureReport"

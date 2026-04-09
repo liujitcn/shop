@@ -5451,19 +5451,8 @@ components:
                 num:
                     type: string
                     description: 数量
-                source:
-                    type: string
-                    description: 入口来源
-                scene:
-                    type: string
-                    description: 推荐场景
-                requestId:
-                    type: string
-                    description: 推荐请求ID
-                position:
-                    type: integer
-                    description: 推荐位序号
-                    format: int32
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendContext'
         CreateOrderInfoRequest:
             type: object
             properties:
@@ -5524,6 +5513,8 @@ components:
                 num:
                     type: string
                     description: 数量
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendContext'
             description: 用户购物车
         ExecBaseJobRequest:
             type: object
@@ -6956,6 +6947,36 @@ components:
                 orderId:
                     type: string
                     description: 订单id
+        RecommendContext:
+            type: object
+            properties:
+                source:
+                    enum:
+                        - RECOMMEND_SOURCE_UNKNOWN
+                        - DIRECT
+                        - RECOMMEND
+                    type: string
+                    description: 入口来源
+                    format: enum
+                scene:
+                    enum:
+                        - RECOMMEND_SCENE_UNKNOWN
+                        - HOME
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    description: 推荐场景
+                    format: enum
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                position:
+                    type: integer
+                    description: 推荐位序号
+                    format: int32
+            description: RecommendContext 推荐上下文。
         RecommendExposureReportRequest:
             type: object
             properties:
@@ -6963,8 +6984,16 @@ components:
                     type: string
                     description: 推荐请求ID
                 scene:
+                    enum:
+                        - RECOMMEND_SCENE_UNKNOWN
+                        - HOME
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
                     type: string
                     description: 推荐场景
+                    format: enum
                 goodsIds:
                     type: array
                     items:
@@ -6980,19 +7009,8 @@ components:
                 goodsNum:
                     type: string
                     description: 商品数量
-                source:
-                    type: string
-                    description: 入口来源
-                scene:
-                    type: string
-                    description: 推荐场景
-                requestId:
-                    type: string
-                    description: 推荐请求ID
-                index:
-                    type: integer
-                    description: 推荐位序号
-                    format: int32
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendContext'
             description: RecommendGoodsActionItem 推荐商品行为埋点商品项。
         RecommendGoodsActionReportRequest:
             type: object
@@ -7731,6 +7749,8 @@ components:
                 isChecked:
                     type: boolean
                     description: 是否选中
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendContext'
             description: 用户购物车
         UserCollect:
             type: object
@@ -7766,19 +7786,8 @@ components:
                 goodsId:
                     type: string
                     description: 商品id
-                source:
-                    type: string
-                    description: 入口来源
-                scene:
-                    type: string
-                    description: 推荐场景
-                requestId:
-                    type: string
-                    description: 推荐请求ID
-                position:
-                    type: integer
-                    description: 推荐位序号
-                    format: int32
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendContext'
             description: 用户购物车
         UserInfo:
             type: object
@@ -8003,9 +8012,9 @@ components:
             description: 微信后台登录 - 回应
 tags:
     - name: AuthService
-      description: Admin用户登录认证服务
-    - name: AuthService
       description: App用户登录认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -8015,9 +8024,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -8039,9 +8048,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: App商品信息服务
-    - name: GoodsInfoService
       description: Admin商品信息服务
+    - name: GoodsInfoService
+      description: App商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsSkuService
@@ -8073,9 +8082,9 @@ tags:
     - name: ShopHotService
       description: App热门推荐服务
     - name: ShopServiceService
-      description: Admin商城服务
-    - name: ShopServiceService
       description: App商城服务
+    - name: ShopServiceService
+      description: Admin商城服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService

@@ -50,7 +50,7 @@ type recommendExposure struct {
 	RequestID  field.String // 推荐请求ID
 	ActorType  field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID    field.Int64  // 主体ID：匿名ID或用户ID
-	Scene      field.Int32  // 推荐场景
+	Scene      field.Int32  // 推荐场景：枚举【RecommendScene】
 	GoodsIds   field.String // 曝光商品ID列表JSON
 	ExposeMode field.String // 曝光模式
 	CreatedAt  field.Time   // 创建时间

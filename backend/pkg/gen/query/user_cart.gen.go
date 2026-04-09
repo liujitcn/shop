@@ -58,8 +58,8 @@ type userCart struct {
 	SkuCode   field.String // 规格编号
 	Num       field.Int64  // 数量
 	Price     field.Int64  // 加入时单价
-	Source    field.Int32  // 入口来源
-	Scene     field.Int32  // 推荐场景
+	Source    field.Int32  // 入口来源：枚举【RecommendSource】
+	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
 	IsChecked field.Bool   // 是否选中

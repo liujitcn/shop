@@ -128,20 +128,20 @@ LEFT JOIN (
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + `
   WHERE created_at >= ?
     AND created_at < ?
-    AND event_type = 'recommend_click'
+    AND event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeClick) + `
   GROUP BY scene, goods_id
 ) click_stat ON click_stat.scene = dim.scene AND click_stat.goods_id = dim.goods_id
 LEFT JOIN (
   SELECT
     scene,
     goods_id,
-    SUM(CASE WHEN event_type = 'goods_view' THEN 1 ELSE 0 END) AS view_count,
-    SUM(CASE WHEN event_type = 'goods_collect' THEN 1 ELSE 0 END) AS collect_count,
-    SUM(CASE WHEN event_type = 'goods_cart' THEN goods_num ELSE 0 END) AS cart_count,
-    SUM(CASE WHEN event_type = 'order_create' THEN 1 ELSE 0 END) AS order_count,
-    SUM(CASE WHEN event_type = 'order_pay' THEN 1 ELSE 0 END) AS pay_count,
-    SUM(CASE WHEN event_type = 'order_pay' THEN goods_num ELSE 0 END) AS pay_goods_num,
-    SUM(CASE WHEN event_type = 'order_pay' THEN pay_info.total_pay_amount ELSE 0 END) AS pay_amount
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeView) + ` THEN 1 ELSE 0 END) AS view_count,
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeCollect) + ` THEN 1 ELSE 0 END) AS collect_count,
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeCart) + ` THEN goods_num ELSE 0 END) AS cart_count,
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeOrder) + ` THEN 1 ELSE 0 END) AS order_count,
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypePay) + ` THEN 1 ELSE 0 END) AS pay_count,
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypePay) + ` THEN goods_num ELSE 0 END) AS pay_goods_num,
+    SUM(CASE WHEN event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypePay) + ` THEN pay_info.total_pay_amount ELSE 0 END) AS pay_amount
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + ` rga
   LEFT JOIN (
     SELECT request_id, goods_id, SUM(total_pay_price) AS total_pay_amount

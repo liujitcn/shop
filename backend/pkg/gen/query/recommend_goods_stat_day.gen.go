@@ -57,7 +57,7 @@ type recommendGoodsStatDay struct {
 	ALL           field.Asterisk
 	ID            field.Int64   // 主键ID
 	StatDate      field.Time    // 统计日期
-	Scene         field.Int32   // 推荐场景
+	Scene         field.Int32   // 推荐场景：枚举【RecommendScene】
 	GoodsID       field.Int64   // 商品ID
 	RequestCount  field.Int64   // 推荐请求次数
 	ExposureCount field.Int64   // 推荐曝光次数

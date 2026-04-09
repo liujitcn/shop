@@ -59,7 +59,7 @@ type orderGoods struct {
 	OrderID       field.Int64  // 订单ID
 	GoodsID       field.Int64  // 商品ID
 	SkuCode       field.String // 规格编号
-	SpecItem      field.String // SKU 规格组成，注意：需要与 goods_spec 数组顺序对应
+	SpecItem      field.String // SKU 规格组成, 注意：需要与 goods_spec 数组顺序对应
 	Picture       field.String // 商品图片
 	Name          field.String // 商品名称
 	Num           field.Int64  // 数量
@@ -67,8 +67,8 @@ type orderGoods struct {
 	PayPrice      field.Int64  // 支付价格（分）
 	TotalPrice    field.Int64  // 当前金额汇总
 	TotalPayPrice field.Int64  // 支付金额汇总
-	Source        field.Int32  // 入口来源
-	Scene         field.Int32  // 推荐场景
+	Source        field.Int32  // 入口来源：枚举【RecommendSource】
+	Scene         field.Int32  // 推荐场景：枚举【RecommendScene】
 	RequestID     field.String // 推荐请求ID
 	Position      field.Int32  // 推荐位序号
 	DeletedAt     field.Field  // 删除时间

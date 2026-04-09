@@ -181,18 +181,18 @@ func normalizeGoodsNumExpr(expr string) string {
 func (t *RecommendUserPreferenceRebuild) userGoodsPreferenceArgs(startAt time.Time, endAt time.Time) []any {
 	return []any{
 		recommendRebuildWindowDays,
-		recommendEventTypeClick,
-		recommendEventTypeView,
-		recommendEventTypeCollect,
-		recommendEventTypeCart,
-		recommendEventTypeOrder,
-		recommendEventTypePay,
-		recommendEventTypeClick,
-		recommendEventTypeView,
-		recommendEventTypeCollect,
-		recommendEventTypeCart,
-		recommendEventTypeOrder,
-		recommendEventTypePay,
+		recommendGoodsActionTypeClick,
+		recommendGoodsActionTypeView,
+		recommendGoodsActionTypeCollect,
+		recommendGoodsActionTypeCart,
+		recommendGoodsActionTypeOrder,
+		recommendGoodsActionTypePay,
+		recommendGoodsActionTypeClick,
+		recommendGoodsActionTypeView,
+		recommendGoodsActionTypeCollect,
+		recommendGoodsActionTypeCart,
+		recommendGoodsActionTypeOrder,
+		recommendGoodsActionTypePay,
 		startAt, endAt,
 		recommendActorTypeUser,
 	}
@@ -202,18 +202,18 @@ func (t *RecommendUserPreferenceRebuild) userCategoryPreferenceArgs(startAt time
 	return []any{
 		recommendPreferenceTypeCat,
 		recommendRebuildWindowDays,
-		recommendEventTypeClick,
-		recommendEventTypeView,
-		recommendEventTypeCollect,
-		recommendEventTypeCart,
-		recommendEventTypeOrder,
-		recommendEventTypePay,
-		recommendEventTypeClick,
-		recommendEventTypeView,
-		recommendEventTypeCollect,
-		recommendEventTypeCart,
-		recommendEventTypeOrder,
-		recommendEventTypePay,
+		recommendGoodsActionTypeClick,
+		recommendGoodsActionTypeView,
+		recommendGoodsActionTypeCollect,
+		recommendGoodsActionTypeCart,
+		recommendGoodsActionTypeOrder,
+		recommendGoodsActionTypePay,
+		recommendGoodsActionTypeClick,
+		recommendGoodsActionTypeView,
+		recommendGoodsActionTypeCollect,
+		recommendGoodsActionTypeCart,
+		recommendGoodsActionTypeOrder,
+		recommendGoodsActionTypePay,
 		startAt, endAt,
 		recommendActorTypeUser,
 	}
@@ -221,6 +221,7 @@ func (t *RecommendUserPreferenceRebuild) userCategoryPreferenceArgs(startAt time
 
 func (t *RecommendUserPreferenceRebuild) buildUserGoodsPreferenceSQL() string {
 	normalizedNum := normalizeGoodsNumExpr("rga.goods_num")
+	eventTypeNameExpr := buildRecommendGoodsActionTypeNameExpr("rga.event_type")
 	return `
 INSERT INTO recommend_user_goods_preference (
   user_id,
@@ -265,7 +266,7 @@ FROM (
         ELSE 0
       END
     ) AS score,
-    SUBSTRING_INDEX(GROUP_CONCAT(rga.event_type ORDER BY rga.created_at DESC, rga.id DESC), ',', 1) AS last_behavior_type,
+    SUBSTRING_INDEX(GROUP_CONCAT(` + eventTypeNameExpr + ` ORDER BY rga.created_at DESC, rga.id DESC), ',', 1) AS last_behavior_type,
     MAX(rga.created_at) AS last_behavior_at,
     MIN(rga.created_at) AS first_behavior_at,
     SUM(CASE WHEN rga.event_type = ? THEN ` + normalizedNum + ` ELSE 0 END) AS click_count,
@@ -409,7 +410,7 @@ FROM (
     INNER JOIN JSON_TABLE(rr.goods_ids, '$[*]' COLUMNS(related_goods_id BIGINT PATH '$')) jt
     WHERE rga.created_at >= ?
       AND rga.created_at < ?
-      AND rga.event_type = 'recommend_click'
+      AND rga.event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeClick) + `
       AND jt.related_goods_id <> rga.goods_id
     UNION ALL
     SELECT
@@ -423,7 +424,7 @@ FROM (
     INNER JOIN JSON_TABLE(rr.goods_ids, '$[*]' COLUMNS(related_goods_id BIGINT PATH '$')) jt
     WHERE rga.created_at >= ?
       AND rga.created_at < ?
-      AND rga.event_type = 'goods_view'
+      AND rga.event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeView) + `
       AND rga.source = 2
       AND jt.related_goods_id <> rga.goods_id
     UNION ALL

@@ -18,6 +18,8 @@
 - 已支持匿名与登录两类推荐主体，匿名主体通过 `X-Recommend-Anonymous-Id` 透传。
 - 推荐主链路已覆盖 `request -> exposure -> click -> view -> collect -> cart -> order -> pay`。
 - 推荐排序已升级为“混合候选召回 + 统一打分排序 + 基础打散/降权”，同时支持评分明细回写。
+- 后端推荐公共能力已下沉到 `backend/pkg/recommend`，商城业务侧仅保留场景适配、埋点与查询编排。
+- 商城前端推荐上下文、跳转与埋点辅助统一收敛到 `frontend/app/src/api/app/recommend.ts` 与 `frontend/app/src/composables/useRecommend.ts`。
 - 后台已提供推荐商品日统计、离线评估、用户偏好重建、商品关联重建任务。
 
 ## 目录结构

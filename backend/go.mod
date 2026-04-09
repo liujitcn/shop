@@ -8,34 +8,34 @@ require (
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/liujitcn/go-utils v0.0.19
-	github.com/liujitcn/go-utils/crypto v0.0.6
+	github.com/liujitcn/go-utils v0.0.21
+	github.com/liujitcn/go-utils/crypto v0.0.7
 	github.com/liujitcn/go-utils/geoip v0.0.1
 	github.com/liujitcn/go-utils/http v0.0.1
-	github.com/liujitcn/gorm-kit v0.0.23
-	github.com/liujitcn/kratos-kit v0.0.17
-	github.com/liujitcn/kratos-kit/api v0.0.9
-	github.com/liujitcn/kratos-kit/auth v0.0.5
-	github.com/liujitcn/kratos-kit/auth/authn v0.0.5
+	github.com/liujitcn/gorm-kit v0.0.25
+	github.com/liujitcn/kratos-kit v0.0.19
+	github.com/liujitcn/kratos-kit/api v0.0.10
+	github.com/liujitcn/kratos-kit/auth v0.0.7
+	github.com/liujitcn/kratos-kit/auth/authn v0.0.7
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.5
-	github.com/liujitcn/kratos-kit/auth/authz v0.0.5
-	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.5
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.4
-	github.com/liujitcn/kratos-kit/cache v0.0.5
-	github.com/liujitcn/kratos-kit/captcha v0.0.2
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.8
+	github.com/liujitcn/kratos-kit/auth/authz v0.0.7
+	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.7
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.6
+	github.com/liujitcn/kratos-kit/cache v0.0.6
+	github.com/liujitcn/kratos-kit/captcha v0.0.3
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.10
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.5
-	github.com/liujitcn/kratos-kit/logger/zap v0.0.3
+	github.com/liujitcn/kratos-kit/logger/zap v0.0.4
 	github.com/liujitcn/kratos-kit/oss v0.0.5
 	github.com/liujitcn/kratos-kit/pprof v0.0.3
-	github.com/liujitcn/kratos-kit/queue v0.0.7
-	github.com/liujitcn/kratos-kit/rpc v0.0.3
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.1
+	github.com/liujitcn/kratos-kit/queue v0.0.8
+	github.com/liujitcn/kratos-kit/rpc v0.0.4
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.2
 	github.com/mileusna/useragent v1.3.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
-	google.golang.org/genproto/googleapis/api v0.0.0-20260319201613-d00831a3d3e7
-	google.golang.org/grpc v1.79.3
+	google.golang.org/genproto/googleapis/api v0.0.0-20260406210006-6f92a3bedf2d
+	google.golang.org/grpc v1.80.0
 	google.golang.org/protobuf v1.36.11
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gen v0.3.27
@@ -73,7 +73,6 @@ require (
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
-	github.com/go-kratos/kratos/contrib/log/zap/v2 v2.0.0-20251217105121-fb8e43efb207 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
@@ -108,16 +107,16 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
 	github.com/liujitcn/go-utils/jwt v0.0.1 // indirect
-	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.5 // indirect
-	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.5 // indirect
-	github.com/liujitcn/kratos-kit/config v0.0.6 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.7 // indirect
+	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/config v0.0.7 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.8 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.2 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.8 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/registry v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/registry v0.0.7 // indirect
 	github.com/liujitcn/kratos-kit/tracer v0.0.5 // indirect
-	github.com/liujitcn/kratos-kit/utils v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/utils v0.0.6 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
@@ -172,17 +171,17 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.1 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/crypto v0.49.0 // indirect
 	golang.org/x/exp v0.0.0-20260218203240-3dfff04db8fa // indirect
 	golang.org/x/image v0.23.0 // indirect
-	golang.org/x/mod v0.33.0 // indirect
-	golang.org/x/net v0.51.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.42.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260311181403-84a4fc48630c // indirect
+	golang.org/x/tools v0.43.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260401024825-9d38bb4040a9 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect

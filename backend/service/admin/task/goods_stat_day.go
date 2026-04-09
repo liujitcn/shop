@@ -83,7 +83,7 @@ FROM (
   SELECT goods_id
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + `
   WHERE created_at >= ? AND created_at < ?
-    AND event_type = 'goods_view'
+    AND event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeView) + `
   UNION
   SELECT goods_id
   FROM user_collect
@@ -119,7 +119,7 @@ LEFT JOIN (
   FROM ` + "`" + models.TableNameRecommendGoodsAction + "`" + `
   WHERE created_at >= ?
     AND created_at < ?
-    AND event_type = 'goods_view'
+    AND event_type = ` + fmt.Sprintf("%d", recommendGoodsActionTypeView) + `
   GROUP BY goods_id
 ) view_stat ON view_stat.goods_id = dim.goods_id
 LEFT JOIN (

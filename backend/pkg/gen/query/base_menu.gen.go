@@ -62,7 +62,7 @@ type baseMenu struct {
 	Component field.String // 前端页面组件
 	Redirect  field.String // 重定向地址
 	Meta      field.String // 前端页面组件
-	Apis      field.String // 分配的 API 列表
+	Apis      field.String // 分配的API列表
 	Sort      field.Int32  // 排序
 	Status    field.Int32  // 状态：枚举【Status】
 	CreatedBy field.Int64  // 创建人ID
