@@ -25,7 +25,6 @@ import (
 )
 
 const (
-	recommendStrategyVersion        = "v1"
 	recommendEventTypeExposure      = "recommend_exposure"
 	recommendEventTypeClick         = "recommend_click"
 	recommendEventTypeView          = "goods_view"
@@ -105,7 +104,6 @@ type RecommendEvent struct {
 	GoodsNum   int64                      `json:"goodsNum,omitempty"`
 	GoodsItems []*RecommendEventGoodsItem `json:"goodsItems,omitempty"`
 	Position   int32                      `json:"position,omitempty"`
-	ExposeMode string                     `json:"exposeMode,omitempty"`
 	OccurredAt int64                      `json:"occurredAt,omitempty"`
 }
 
@@ -576,16 +574,15 @@ func (c *RecommendCase) saveRecommendRequest(ctx context.Context, requestID stri
 
 	// 推荐请求表保存的是本次实际下发结果，供曝光与点击链路统一回查。
 	entity := &models.RecommendRequest{
-		RequestID:       requestID,
-		ActorType:       actor.ActorType,
-		ActorID:         actor.ActorId,
-		Scene:           int32(req.GetScene()),
-		SourceContext:   string(sourceContextJSON),
-		PageNum:         int32(req.GetPageNum()),
-		PageSize:        int32(req.GetPageSize()),
-		GoodsIds:        string(goodsIdsJSON),
-		StrategyVersion: recommendStrategyVersion,
-		RecallSources:   string(recallSourcesJSON),
+		RequestID:     requestID,
+		ActorType:     actor.ActorType,
+		ActorID:       actor.ActorId,
+		Scene:         int32(req.GetScene()),
+		SourceContext: string(sourceContextJSON),
+		PageNum:       int32(req.GetPageNum()),
+		PageSize:      int32(req.GetPageSize()),
+		GoodsIds:      string(goodsIdsJSON),
+		RecallSources: string(recallSourcesJSON),
 	}
 	return c.RecommendRequestRepo.Create(ctx, entity)
 }
@@ -628,12 +625,11 @@ func (c *RecommendEventCase) saveEventDetail(ctx context.Context, event *Recomme
 			return err
 		}
 		return c.RecommendExposureRepo.Create(ctx, &models.RecommendExposure{
-			RequestID:  event.RequestID,
-			ActorType:  event.ActorType,
-			ActorID:    event.ActorID,
-			Scene:      event.Scene,
-			GoodsIds:   string(goodsIdsJson),
-			ExposeMode: defaultString(event.ExposeMode, "viewport_once"),
+			RequestID: event.RequestID,
+			ActorType: event.ActorType,
+			ActorID:   event.ActorID,
+			Scene:     event.Scene,
+			GoodsIds:  string(goodsIdsJson),
 		})
 	case recommendEventTypeClick, recommendEventTypeView:
 		source := common.RecommendSource_DIRECT
@@ -1017,7 +1013,6 @@ func publishRecommendExposureEvent(actor *RecommendActor, requestID string, scen
 		RequestID:  requestID,
 		Scene:      scene,
 		GoodsIDs:   goodsIds,
-		ExposeMode: "viewport_once",
 		OccurredAt: time.Now().Unix(),
 	})
 }
