@@ -2,12 +2,10 @@
 import {
   buildRecommendGoodsActionItem,
   defRecommendService,
-  formatRecommendScene,
-  formatRecommendSource,
-  normalizeRecommendScene,
   reportRecommendExposure,
   reportRecommendGoodsAction,
 } from '@/api/app/recommend'
+import { buildRecommendGoodsUrl } from '@/composables'
 import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
@@ -20,9 +18,13 @@ interface GuessGoods extends GoodsInfo {
 }
 
 interface RecommendExposureBatch {
+  /** 推荐请求 ID。 */
   requestId: string
-  scene: string
+  /** 推荐场景枚举值。 */
+  scene: RecommendScene
+  /** 曝光商品 ID 列表。 */
   goodsIds: number[]
+  /** 当前批次是否已经上报过曝光。 */
   exposed: boolean
 }
 
@@ -67,8 +69,7 @@ const getHomeGoodsGuessLikeData = async () => {
   pageParams.orderId = props.orderId
   const res = await defRecommendService.RecommendGoods(pageParams)
   const startIndex = guessList.value.length
-  const sceneValue = normalizeRecommendScene(props.scene)
-  const sceneName = formatRecommendScene(sceneValue)
+  const sceneValue = props.scene
   const list = (res.list || []).map((item, index) => ({
     ...item,
     recommendRequestId: res.requestId,
@@ -79,7 +80,7 @@ const getHomeGoodsGuessLikeData = async () => {
   if (res.requestId && list.length > 0) {
     exposureBatches.value.push({
       requestId: res.requestId,
-      scene: sceneName,
+      scene: sceneValue,
       goodsIds: list.map((item) => item.id),
       exposed: false,
     })
@@ -134,14 +135,19 @@ const onTapGoods = async (item: GuessGoods) => {
         source: RecommendSource.RECOMMEND,
         scene: item.recommendScene,
         requestId: item.recommendRequestId,
-        index: item.recommendIndex,
+        position: item.recommendIndex,
       }),
     ])
   } catch (error) {
     console.error(error)
   }
   void uni.navigateTo({
-    url: `/pages/goods/goods?id=${item.id}&source=${formatRecommendSource(RecommendSource.RECOMMEND)}&scene=${formatRecommendScene(item.recommendScene)}&requestId=${item.recommendRequestId}&index=${item.recommendIndex}`,
+    url: buildRecommendGoodsUrl(item.id, {
+      source: RecommendSource.RECOMMEND,
+      scene: item.recommendScene,
+      requestId: item.recommendRequestId,
+      index: item.recommendIndex,
+    }),
   })
 }
 
@@ -152,13 +158,15 @@ const initExposureObserver = () => {
     return
   }
   exposureObserver = uni.createIntersectionObserver(instance)
-  exposureObserver.relativeToViewport().observe('.guess-root', (res: { intersectionRatio: number }) => {
-    if (res.intersectionRatio <= 0) {
-      return
-    }
-    isVisible.value = true
-    void reportExposure()
-  })
+  exposureObserver
+    .relativeToViewport()
+    .observe('.guess-root', (res: { intersectionRatio: number }) => {
+      if (res.intersectionRatio <= 0) {
+        return
+      }
+      isVisible.value = true
+      void reportExposure()
+    })
 }
 // 组件挂载完毕
 onMounted(() => {
@@ -184,12 +192,7 @@ defineExpose({
       <text class="text">{{ props.title }}</text>
     </view>
     <view class="guess">
-      <view
-        v-for="item in guessList"
-        :key="item.id"
-        class="guess-item"
-        @tap="onTapGoods(item)"
-      >
+      <view v-for="item in guessList" :key="item.id" class="guess-item" @tap="onTapGoods(item)">
         <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
         <view class="name"> {{ item.name }} </view>
         <view class="price">

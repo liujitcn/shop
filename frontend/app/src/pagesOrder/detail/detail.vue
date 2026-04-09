@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useGuessList } from '@/composables'
+import { buildRecommendGoodsUrl, useGuessList } from '@/composables'
 import { defOrderService } from '@/api/app/order'
 import type { OrderInfoResponse } from '@/rpc/app/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
@@ -379,7 +379,14 @@ const onConfirmPopup = async () => {
             v-for="item in orderData.order!.goods"
             :key="item.goodsId"
             class="navigator"
-            :url="`/pages/goods/goods?id=${item.goodsId}`"
+            :url="
+              buildRecommendGoodsUrl(item.goodsId, {
+                source: item.source,
+                scene: item.scene,
+                requestId: item.requestId,
+                index: item.position,
+              })
+            "
             hover-class="none"
           >
             <image class="cover" :src="formatSrc(item.picture)" />

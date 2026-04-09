@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import {
-  buildRecommendGoodsActionItem,
   buildRecommendContext,
-  formatRecommendScene,
-  formatRecommendSource,
+  buildRecommendGoodsActionItemByContext,
   getRecommendCartTrack,
-  normalizeRecommendScene,
+  parseRecommendScene,
+  parseRecommendSource,
   reportRecommendGoodsAction,
   saveRecommendPayTrack,
+  stringifyRecommendScene,
+  stringifyRecommendSource,
 } from '@/api/app/recommend'
+import { buildRecommendContextByRoute, buildRecommendGoodsUrl } from '@/composables'
 import { defOrderService } from '@/api/app/order'
 import { useAddressStore } from '@/stores'
-import type { ConfirmOrderInfoResponse, CreateOrderInfoGoods, OrderGoods } from '@/rpc/app/order_info'
+import type {
+  ConfirmOrderInfoResponse,
+  CreateOrderInfoGoods,
+  OrderGoods,
+} from '@/rpc/app/order_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { UserAddress } from '@/rpc/app/user_address'
@@ -71,6 +77,7 @@ const query = defineProps<{
   index?: string
 }>()
 
+/** 合并购物车里暂存的推荐归因信息。 */
 const mergeCartRecommendContext = (res: ConfirmOrderInfoResponse): ConfirmOrderInfoResponse => {
   return {
     ...res,
@@ -81,25 +88,26 @@ const mergeCartRecommendContext = (res: ConfirmOrderInfoResponse): ConfirmOrderI
       }
       return {
         ...item,
-        source: formatRecommendSource(track.source || item.source || 'direct'),
-        scene: formatRecommendScene(track.scene || item.scene || ''),
+        source: stringifyRecommendSource(track.source ?? parseRecommendSource(item.source || '')),
+        scene: stringifyRecommendScene(track.scene ?? parseRecommendScene(item.scene || '')),
         requestId: track.requestId || item.requestId || '',
-        position: track.index || item.position || 0,
+        position: track.position || item.position || 0,
       }
     }),
   }
 }
 
+/** 构建订单提交商品项。 */
 const buildOrderRequestGoods = (item: OrderGoods): CreateOrderInfoGoods => {
   return {
     goodsId: item.goodsId,
     skuCode: item.skuCode,
     num: item.num,
     recommendContext: buildRecommendContext({
-      source: item.source || 'direct',
-      scene: normalizeRecommendScene(item.scene || ''),
+      source: parseRecommendSource(item.source || ''),
+      scene: parseRecommendScene(item.scene || ''),
       requestId: item.requestId || '',
-      index: item.position || 0,
+      position: item.position || 0,
     }),
   }
 }
@@ -112,12 +120,7 @@ const getUserOrderPreData = async () => {
       goodsId: Number(query.goodsId),
       skuCode: query.skuCode,
       num: Number(query.num),
-      recommendContext: buildRecommendContext({
-        source: query.source || 'direct',
-        scene: normalizeRecommendScene(query.scene || ''),
-        requestId: query.requestId || '',
-        index: Number(query.index || 0),
-      }),
+      recommendContext: buildRecommendContextByRoute(query),
     })
   } else if (query.orderId) {
     // 再次购买
@@ -209,17 +212,13 @@ const onOrderSubmit = async () => {
     /** 商品信息 */
     goods: requestGoods,
   })
-  const goodsItems = requestGoods.map((item) => {
-    return buildRecommendGoodsActionItem({
-      goodsId: item.goodsId,
-      goodsNum: item.num,
-      source: item.recommendContext?.source || 'direct',
-      scene: item.recommendContext?.scene || 0,
-      requestId: item.recommendContext?.requestId || '',
-      index: item.recommendContext?.position || 0,
-    })
-  })
-  await reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_CREATE, goodsItems)
+  const goodsItems = requestGoods.map((item) =>
+    buildRecommendGoodsActionItemByContext(item.goodsId, item.num, item.recommendContext),
+  )
+  await reportRecommendGoodsAction(
+    RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_CREATE,
+    goodsItems,
+  )
   saveRecommendPayTrack(res.orderId, goodsItems)
   // 关闭当前页面，跳转到订单详情，传递订单id
   if (Number(activePayType.value.value) === 2) {
@@ -277,7 +276,14 @@ const onOrderSubmitOk = computed(() => {
       <navigator
         v-for="item in orderPre!.goods"
         :key="item.skuCode"
-        :url="`/pages/goods/goods?id=${item.goodsId}`"
+        :url="
+          buildRecommendGoodsUrl(item.goodsId, {
+            source: item.source,
+            scene: item.scene,
+            requestId: item.requestId,
+            index: item.position,
+          })
+        "
         class="item"
         hover-class="none"
       >

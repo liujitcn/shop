@@ -18,7 +18,10 @@ onLoad(() => {
   if (goodsItems.length === 0) {
     return
   }
-  void reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_PAY, goodsItems)
+  void reportRecommendGoodsAction(
+    RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_PAY,
+    goodsItems,
+  )
 })
 </script>
 

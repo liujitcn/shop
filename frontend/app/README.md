@@ -12,6 +12,7 @@
 - 下单、支付结果、订单列表、订单详情
 - 个人中心、设置、门店认证
 - WebView 页面承载协议等内容
+- 推荐链路已覆盖商品详情、猜你喜欢、订单确认和支付成功页，前端统一通过 `src/api/app/recommend.ts` 与 `src/composables/useRecommend.ts` 透传推荐上下文。
 
 ## 技术栈
 

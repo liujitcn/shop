@@ -59,7 +59,7 @@ export interface RecommendExposureReportRequest {
   /** 推荐请求ID */
   requestId: string;
   /** 推荐场景 */
-  scene: string;
+  scene: RecommendScene;
   /** 曝光商品ID列表 */
   goodsIds: number[];
 }

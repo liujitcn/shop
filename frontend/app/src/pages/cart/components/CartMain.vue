@@ -228,11 +228,7 @@ const guessTitle = computed(() => {
       <button class="button" @tap="navigateToLogin">去登录</button>
     </view>
     <!-- 猜你喜欢 -->
-    <XtxGuess
-      ref="guessRef"
-      :title="guessTitle"
-      :scene="RecommendScene.CART"
-    />
+    <XtxGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.CART" />
     <!-- 底部占位空盒子 -->
     <view class="toolbar-height"></view>
   </scroll-view>

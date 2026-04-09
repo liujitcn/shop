@@ -26,9 +26,6 @@ export class RecommendServiceImpl implements RecommendService {
     return http<Int64Value>({
       url: `${RECOMMEND_URL}/actor/anonymous`,
       method: 'GET',
-      header: {
-        Authorization: 'no-auth',
-      },
     })
   }
 
@@ -83,9 +80,7 @@ const resolveRecommendAnonymousId = async (): Promise<number> => {
     return 0
   }
 
-  const cachedActor = uni.getStorageSync(RECOMMEND_ANONYMOUS_ACTOR_KEY) as
-    | Int64Value
-    | undefined
+  const cachedActor = uni.getStorageSync(RECOMMEND_ANONYMOUS_ACTOR_KEY) as Int64Value | undefined
   if (cachedActor?.value) {
     return cachedActor.value
   }
@@ -96,58 +91,50 @@ const resolveRecommendAnonymousId = async (): Promise<number> => {
 }
 
 /** 推荐商品行为上下文。 */
-export interface RecommendGoodsActionContext {
+export interface RecommendGoodsActionContext extends RecommendContext {
   goodsId: number
   skuCode?: string
   goodsNum?: number
-  source?: string | number
-  scene?: string | number
-  requestId?: string
-  index?: number
 }
 
-/** 规范化推荐来源值。 */
-export const normalizeRecommendSource = (source?: string | number): RecommendSource => {
+/** 解析推荐来源字符串。 */
+export const parseRecommendSource = (source?: string): RecommendSource => {
   if (source === undefined || source === null || source === '') {
     return RecommendSource.DIRECT
-  }
-  if (typeof source === 'number') {
-    return source === RecommendSource.RECOMMEND ? RecommendSource.RECOMMEND : RecommendSource.DIRECT
   }
   const value = String(source).trim()
   if (!value) {
     return RecommendSource.DIRECT
   }
   if (/^\d+$/.test(value)) {
-    return Number(value) === RecommendSource.RECOMMEND ? RecommendSource.RECOMMEND : RecommendSource.DIRECT
+    return Number(value) === RecommendSource.RECOMMEND
+      ? RecommendSource.RECOMMEND
+      : RecommendSource.DIRECT
   }
   return value.toLowerCase() === 'recommend' ? RecommendSource.RECOMMEND : RecommendSource.DIRECT
 }
 
-/** 将推荐来源格式化为路由字符串。 */
-export const formatRecommendSource = (source?: string | number): string => {
-  return normalizeRecommendSource(source) === RecommendSource.RECOMMEND ? 'recommend' : 'direct'
+/** 将推荐来源枚举格式化为路由字符串。 */
+export const stringifyRecommendSource = (source?: RecommendSource): string => {
+  return source === RecommendSource.RECOMMEND ? 'recommend' : 'direct'
 }
 
 /** 构建推荐上下文。 */
 export const buildRecommendContext = (
-  context: Omit<RecommendGoodsActionContext, 'goodsId' | 'skuCode' | 'goodsNum'>,
+  context: Partial<RecommendContext> = {},
 ): RecommendContext => {
   return {
-    source: normalizeRecommendSource(context.source),
-    scene: normalizeRecommendScene(context.scene),
+    source: context.source ?? RecommendSource.DIRECT,
+    scene: context.scene ?? RecommendScene.RECOMMEND_SCENE_UNKNOWN,
     requestId: context.requestId || '',
-    position: context.index || 0,
+    position: context.position || 0,
   }
 }
 
-/** 规范化推荐场景值。 */
-export const normalizeRecommendScene = (scene?: string | number): RecommendScene => {
+/** 解析推荐场景字符串。 */
+export const parseRecommendScene = (scene?: string): RecommendScene => {
   if (scene === undefined || scene === null || scene === '') {
     return RecommendScene.RECOMMEND_SCENE_UNKNOWN
-  }
-  if (typeof scene === 'number') {
-    return RecommendScene[scene] ? scene : RecommendScene.RECOMMEND_SCENE_UNKNOWN
   }
   const value = String(scene).trim()
   if (!value) {
@@ -157,11 +144,14 @@ export const normalizeRecommendScene = (scene?: string | number): RecommendScene
     const sceneValue = Number(value)
     return RecommendScene[sceneValue] ? sceneValue : RecommendScene.RECOMMEND_SCENE_UNKNOWN
   }
-  return (RecommendScene as unknown as Record<string, RecommendScene | undefined>)[value] || RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  return (
+    (RecommendScene as unknown as Record<string, RecommendScene | undefined>)[value] ||
+    RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  )
 }
 
-export const formatRecommendScene = (scene?: string | number): string => {
-  const sceneValue = normalizeRecommendScene(scene)
+export const stringifyRecommendScene = (scene?: RecommendScene): string => {
+  const sceneValue = scene ?? RecommendScene.RECOMMEND_SCENE_UNKNOWN
   return sceneValue === RecommendScene.RECOMMEND_SCENE_UNKNOWN ? '' : RecommendScene[sceneValue]
 }
 
@@ -173,6 +163,19 @@ export const buildRecommendGoodsActionItem = (
     goodsId: context.goodsId,
     goodsNum: context.goodsNum || 1,
     recommendContext: buildRecommendContext(context),
+  }
+}
+
+/** 基于现有推荐上下文构建推荐行为事件项。 */
+export const buildRecommendGoodsActionItemByContext = (
+  goodsId: number,
+  goodsNum: number,
+  recommendContext?: RecommendContext,
+): RecommendGoodsActionItem => {
+  return {
+    goodsId,
+    goodsNum: goodsNum || 1,
+    recommendContext: recommendContext || buildRecommendContext({}),
   }
 }
 
@@ -201,7 +204,10 @@ export const reportRecommendGoodsAction = async (
 }
 
 /** 暂存支付成功页所需的推荐商品行为数据。 */
-export const saveRecommendPayTrack = (orderId: number, goodsItems: RecommendGoodsActionItem[]): void => {
+export const saveRecommendPayTrack = (
+  orderId: number,
+  goodsItems: RecommendGoodsActionItem[],
+): void => {
   if (orderId <= 0 || goodsItems.length === 0) {
     return
   }
@@ -210,22 +216,17 @@ export const saveRecommendPayTrack = (orderId: number, goodsItems: RecommendGood
 
 /** 暂存购物车商品的推荐上下文。 */
 export const saveRecommendCartTrack = (context: RecommendGoodsActionContext): void => {
-  if (
-    !context.goodsId ||
-    !context.skuCode ||
-    normalizeRecommendSource(context.source) !== RecommendSource.RECOMMEND ||
-    !context.requestId
-  ) {
+  if (!context.goodsId || !context.skuCode || context.source !== RecommendSource.RECOMMEND || !context.requestId) {
     return
   }
   uni.setStorageSync(`${RECOMMEND_CART_TRACK_PREFIX}${context.goodsId}_${context.skuCode}`, {
     goodsId: context.goodsId,
     skuCode: context.skuCode,
     goodsNum: context.goodsNum || 1,
-    source: normalizeRecommendSource(context.source),
-    scene: normalizeRecommendScene(context.scene),
+    source: context.source,
+    scene: context.scene ?? RecommendScene.RECOMMEND_SCENE_UNKNOWN,
     requestId: context.requestId,
-    index: context.index || 0,
+    position: context.position || 0,
   } as RecommendGoodsActionContext)
 }
 
