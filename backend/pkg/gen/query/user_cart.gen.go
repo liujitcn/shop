@@ -33,7 +33,6 @@ func newUserCart(db *gorm.DB, opts ...gen.DOOption) userCart {
 	_userCart.SkuCode = field.NewString(tableName, "sku_code")
 	_userCart.Num = field.NewInt64(tableName, "num")
 	_userCart.Price = field.NewInt64(tableName, "price")
-	_userCart.Source = field.NewInt32(tableName, "source")
 	_userCart.Scene = field.NewInt32(tableName, "scene")
 	_userCart.RequestID = field.NewString(tableName, "request_id")
 	_userCart.Position = field.NewInt32(tableName, "position")
@@ -58,7 +57,6 @@ type userCart struct {
 	SkuCode   field.String // 规格编号
 	Num       field.Int64  // 数量
 	Price     field.Int64  // 加入时单价
-	Source    field.Int32  // 入口来源：枚举【RecommendSource】
 	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
@@ -88,7 +86,6 @@ func (u *userCart) updateTableName(table string) *userCart {
 	u.SkuCode = field.NewString(table, "sku_code")
 	u.Num = field.NewInt64(table, "num")
 	u.Price = field.NewInt64(table, "price")
-	u.Source = field.NewInt32(table, "source")
 	u.Scene = field.NewInt32(table, "scene")
 	u.RequestID = field.NewString(table, "request_id")
 	u.Position = field.NewInt32(table, "position")
@@ -120,14 +117,13 @@ func (u *userCart) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userCart) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 14)
+	u.fieldMap = make(map[string]field.Expr, 13)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
 	u.fieldMap["goods_id"] = u.GoodsID
 	u.fieldMap["sku_code"] = u.SkuCode
 	u.fieldMap["num"] = u.Num
 	u.fieldMap["price"] = u.Price
-	u.fieldMap["source"] = u.Source
 	u.fieldMap["scene"] = u.Scene
 	u.fieldMap["request_id"] = u.RequestID
 	u.fieldMap["position"] = u.Position

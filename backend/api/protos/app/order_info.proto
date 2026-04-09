@@ -338,41 +338,33 @@ message OrderGoods {
     (gnostic.openapi.v3.property) = {description: "数量"}
   ]; // 数量
 
-  // 价格
   int64 price = 41 [
     (gnostic.openapi.v3.property) = { description: "价格" }
-  ];
+  ]; // 价格
 
-  // 支付价格
   int64 payPrice = 40 [
     (gnostic.openapi.v3.property) = { description: "支付价格" }
-  ];
+  ]; // 支付价格
 
-  // 当前金额汇总
   int64 totalPrice = 42 [
     (gnostic.openapi.v3.property) = { description: "当前金额汇总" }
-  ];
+  ]; // 当前金额汇总
 
-  // 支付金额汇总
   int64 totalPayPrice = 43 [
     (gnostic.openapi.v3.property) = { description: "支付金额汇总" }
-  ];
+  ]; // 支付金额汇总
 
-  string source = 44 [
-    (gnostic.openapi.v3.property) = {description: "入口来源"}
-  ];
-
-  string scene = 45 [
+  common.RecommendScene scene = 45 [
     (gnostic.openapi.v3.property) = {description: "推荐场景"}
-  ];
+  ]; // 推荐场景
 
   string requestId = 46 [
     (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
-  ];
+  ]; // 推荐请求ID
 
   int32 position = 47 [
     (gnostic.openapi.v3.property) = {description: "推荐位序号"}
-  ];
+  ]; // 推荐位序号
 }
 
 message OrderInfo {

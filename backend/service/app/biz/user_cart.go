@@ -119,7 +119,6 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 		cart.Price = price
 		cart.JoinPrice = item.Price
 		cart.RecommendContext = &app.RecommendContext{
-			Source:    common.RecommendSource(item.Source),
 			Scene:     common.RecommendScene(item.Scene),
 			RequestId: item.RequestID,
 			Position:  item.Position,
@@ -257,31 +256,25 @@ func (c *UserCartCase) applyRecommendContext(userCart *models.UserCart, recommen
 		return
 	}
 
-	source := int32(common.RecommendSource_DIRECT)
 	scene := int32(0)
 	requestId := ""
 	position := int32(0)
 	// 请求带推荐上下文时优先使用规范化后的值。
 	if recommendContext != nil {
-		source = normalizeRecommendSource(recommendContext.GetSource())
 		scene = normalizeRecommendSceneEnum(recommendContext.GetScene())
 		requestId = strings.TrimSpace(recommendContext.GetRequestId())
 		position = recommendContext.GetPosition()
 	}
 
-	// 明确来自推荐位且带 requestId 的加购，允许覆盖旧上下文，保证后续购物车成交可归因。
-	if isRecommendSource(source) && requestId != "" {
-		userCart.Source = source
+	// 带 requestId 的加购允许覆盖旧上下文，保证后续购物车成交可归因。
+	if hasRecommendRequest(requestId) {
 		userCart.Scene = scene
 		userCart.RequestID = requestId
 		userCart.Position = position
 		return
 	}
 
-	// 历史购物车缺少上下文时，至少补齐默认来源，避免后续下单出现空字符串。
-	if userCart.Source == 0 {
-		userCart.Source = source
-	}
+	// 历史购物车缺少上下文时，补齐剩余推荐字段。
 	if userCart.Scene == 0 {
 		userCart.Scene = scene
 	}

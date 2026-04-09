@@ -6964,14 +6964,6 @@ components:
         RecommendContext:
             type: object
             properties:
-                source:
-                    enum:
-                        - RECOMMEND_SOURCE_UNKNOWN
-                        - DIRECT
-                        - RECOMMEND
-                    type: string
-                    description: 入口来源
-                    format: enum
                 scene:
                     enum:
                         - RECOMMEND_SCENE_UNKNOWN

@@ -18,7 +18,6 @@ type UserCollect struct {
 	UserID    int64          `gorm:"column:user_id;type:bigint;index:idx_user_collect_user_id,priority:1;comment:用户ID" json:"user_id"` // 用户ID
 	GoodsID   int64          `gorm:"column:goods_id;type:bigint;comment:商品ID" json:"goods_id"`                                         // 商品ID
 	Price     int64          `gorm:"column:price;type:bigint;comment:收藏时单价" json:"price"`                                              // 收藏时单价
-	Source    int32          `gorm:"column:source;type:tinyint;not null;default:1;comment:入口来源：枚举【RecommendSource】" json:"source"`     // 入口来源：枚举【RecommendSource】
 	Scene     int32          `gorm:"column:scene;type:tinyint;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                           // 推荐场景：枚举【RecommendScene】
 	RequestID string         `gorm:"column:request_id;type:varchar(64);comment:推荐请求ID" json:"request_id"`                              // 推荐请求ID
 	Position  int32          `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                           // 推荐位序号

@@ -33,7 +33,6 @@ func newRecommendGoodsAction(db *gorm.DB, opts ...gen.DOOption) recommendGoodsAc
 	_recommendGoodsAction.EventType = field.NewInt32(tableName, "event_type")
 	_recommendGoodsAction.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendGoodsAction.GoodsNum = field.NewInt64(tableName, "goods_num")
-	_recommendGoodsAction.Source = field.NewInt32(tableName, "source")
 	_recommendGoodsAction.Scene = field.NewInt32(tableName, "scene")
 	_recommendGoodsAction.RequestID = field.NewString(tableName, "request_id")
 	_recommendGoodsAction.Position = field.NewInt32(tableName, "position")
@@ -55,7 +54,6 @@ type recommendGoodsAction struct {
 	EventType field.Int32  // 行为事件类型：枚举【RecommendGoodsActionType】
 	GoodsID   field.Int64  // 商品ID
 	GoodsNum  field.Int64  // 商品数量
-	Source    field.Int32  // 入口来源：枚举【RecommendSource】
 	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
 	RequestID field.String // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
@@ -82,7 +80,6 @@ func (r *recommendGoodsAction) updateTableName(table string) *recommendGoodsActi
 	r.EventType = field.NewInt32(table, "event_type")
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.GoodsNum = field.NewInt64(table, "goods_num")
-	r.Source = field.NewInt32(table, "source")
 	r.Scene = field.NewInt32(table, "scene")
 	r.RequestID = field.NewString(table, "request_id")
 	r.Position = field.NewInt32(table, "position")
@@ -115,14 +112,13 @@ func (r *recommendGoodsAction) GetFieldByName(fieldName string) (field.OrderExpr
 }
 
 func (r *recommendGoodsAction) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 11)
+	r.fieldMap = make(map[string]field.Expr, 10)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["actor_type"] = r.ActorType
 	r.fieldMap["actor_id"] = r.ActorID
 	r.fieldMap["event_type"] = r.EventType
 	r.fieldMap["goods_id"] = r.GoodsID
 	r.fieldMap["goods_num"] = r.GoodsNum
-	r.fieldMap["source"] = r.Source
 	r.fieldMap["scene"] = r.Scene
 	r.fieldMap["request_id"] = r.RequestID
 	r.fieldMap["position"] = r.Position

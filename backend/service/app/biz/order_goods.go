@@ -150,7 +150,6 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * item.GetNum(),
 		TotalPayPrice: payPrice * item.GetNum(),
-		Source:        normalizeRecommendSource(recommendContext.GetSource()),
 		Scene:         normalizeRecommendSceneEnum(recommendContext.GetScene()),
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
@@ -161,7 +160,6 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 // 将订单商品模型转换为接口响应
 func (c *OrderGoodsCase) convertToProto(item *models.OrderGoods) *app.OrderGoods {
 	res := c.mapper.ToDTO(item)
-	res.Source = formatRecommendSource(item.Source)
 	res.Scene = formatRecommendScene(item.Scene)
 	return res
 }
@@ -210,7 +208,6 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * goods.Num,
 		TotalPayPrice: payPrice * goods.Num,
-		Source:        normalizeRecommendSource(recommendContext.GetSource()),
 		Scene:         normalizeRecommendSceneEnum(recommendContext.GetScene()),
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),

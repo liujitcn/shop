@@ -7,36 +7,6 @@ import (
 	"shop/api/gen/go/common"
 )
 
-func parseRecommendSource(source string) int32 {
-	value := strings.TrimSpace(source)
-	if value == "" {
-		return int32(common.RecommendSource_DIRECT)
-	}
-	if number, err := strconv.Atoi(value); err == nil {
-		switch common.RecommendSource(number) {
-		case common.RecommendSource_DIRECT, common.RecommendSource_RECOMMEND:
-			return int32(number)
-		default:
-			return int32(common.RecommendSource_DIRECT)
-		}
-	}
-	switch strings.ToLower(value) {
-	case "recommend":
-		return int32(common.RecommendSource_RECOMMEND)
-	case "direct":
-		fallthrough
-	default:
-		return int32(common.RecommendSource_DIRECT)
-	}
-}
-
-func normalizeRecommendSource(source common.RecommendSource) int32 {
-	if source == common.RecommendSource_RECOMMEND_SOURCE_UNKNOWN {
-		return int32(common.RecommendSource_DIRECT)
-	}
-	return int32(source)
-}
-
 func ParseRecommendSceneForTask(scene string) int32 {
 	return parseRecommendScene(scene)
 }
@@ -45,19 +15,8 @@ func normalizeRecommendSceneEnum(scene common.RecommendScene) int32 {
 	return int32(scene)
 }
 
-func formatRecommendSource(source int32) string {
-	switch common.RecommendSource(source) {
-	case common.RecommendSource_RECOMMEND:
-		return "recommend"
-	case common.RecommendSource_DIRECT:
-		fallthrough
-	default:
-		return "direct"
-	}
-}
-
-func isRecommendSource(source int32) bool {
-	return source == int32(common.RecommendSource_RECOMMEND)
+func hasRecommendRequest(requestID string) bool {
+	return strings.TrimSpace(requestID) != ""
 }
 
 func parseRecommendScene(scene string) int32 {
