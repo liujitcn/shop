@@ -128,7 +128,7 @@ message RecommendExposureReportRequest {
     (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
   ];  // 推荐请求ID
 
-  string scene = 2 [
+  common.RecommendScene scene = 2 [
     (gnostic.openapi.v3.property) = {description: "推荐场景"}
   ];  // 推荐场景
 

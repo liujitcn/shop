@@ -7,16 +7,17 @@
 package app
 
 import (
+	reflect "reflect"
+	common "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
-	reflect "reflect"
-	common "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -289,9 +290,9 @@ func (x *RecommendGoodsActionItem) GetRecommendContext() *RecommendContext {
 // RecommendExposureReportRequest 推荐曝光上报请求。
 type RecommendExposureReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     string                 `protobuf:"bytes,1,opt,name=requestId,proto3" json:"requestId,omitempty"`       // 推荐请求ID
-	Scene         string                 `protobuf:"bytes,2,opt,name=scene,proto3" json:"scene,omitempty"`               // 推荐场景
-	GoodsIds      []int64                `protobuf:"varint,3,rep,packed,name=goodsIds,proto3" json:"goodsIds,omitempty"` // 曝光商品ID列表
+	RequestId     string                 `protobuf:"bytes,1,opt,name=requestId,proto3" json:"requestId,omitempty"`                     // 推荐请求ID
+	Scene         common.RecommendScene  `protobuf:"varint,2,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"` // 推荐场景
+	GoodsIds      []int64                `protobuf:"varint,3,rep,packed,name=goodsIds,proto3" json:"goodsIds,omitempty"`               // 曝光商品ID列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -333,11 +334,11 @@ func (x *RecommendExposureReportRequest) GetRequestId() string {
 	return ""
 }
 
-func (x *RecommendExposureReportRequest) GetScene() string {
+func (x *RecommendExposureReportRequest) GetScene() common.RecommendScene {
 	if x != nil {
 		return x.Scene
 	}
-	return ""
+	return common.RecommendScene(0)
 }
 
 func (x *RecommendExposureReportRequest) GetGoodsIds() []int64 {
@@ -422,10 +423,10 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\x18RecommendGoodsActionItem\x12(\n" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12.\n" +
 	"\bgoodsNum\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品数量R\bgoodsNum\x12X\n" +
-	"\x10recommendContext\x18\x03 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xb6\x01\n" +
+	"\x10recommendContext\x18\x03 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xce\x01\n" +
 	"\x1eRecommendExposureReportRequest\x122\n" +
-	"\trequestId\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12(\n" +
-	"\x05scene\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x126\n" +
+	"\trequestId\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12@\n" +
+	"\x05scene\x18\x02 \x01(\x0e2\x16.common.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x126\n" +
 	"\bgoodsIds\x18\x03 \x03(\x03B\x1a\xbaG\x17\x92\x02\x14曝光商品ID列表R\bgoodsIds\"\xdf\x01\n" +
 	"!RecommendGoodsActionReportRequest\x12^\n" +
 	"\teventType\x18\x01 \x01(\x0e2 .common.RecommendGoodsActionTypeB\x1e\xbaG\x1b\x92\x02\x18商品行为事件类型R\teventType\x12Z\n" +
@@ -472,21 +473,22 @@ var file_app_recommend_proto_depIdxs = []int32{
 	8,  // 2: app.RecommendContext.source:type_name -> common.RecommendSource
 	6,  // 3: app.RecommendContext.scene:type_name -> common.RecommendScene
 	2,  // 4: app.RecommendGoodsActionItem.recommendContext:type_name -> app.RecommendContext
-	9,  // 5: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
-	3,  // 6: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
-	10, // 7: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
-	0,  // 8: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
-	4,  // 9: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
-	5,  // 10: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
-	11, // 11: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
-	1,  // 12: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
-	10, // 13: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
-	10, // 14: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
-	11, // [11:15] is the sub-list for method output_type
-	7,  // [7:11] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	6,  // 5: app.RecommendExposureReportRequest.scene:type_name -> common.RecommendScene
+	9,  // 6: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
+	3,  // 7: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
+	10, // 8: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
+	0,  // 9: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
+	4,  // 10: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
+	5,  // 11: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
+	11, // 12: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
+	1,  // 13: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
+	10, // 14: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
+	10, // 15: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
+	12, // [12:16] is the sub-list for method output_type
+	8,  // [8:12] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_app_recommend_proto_init() }
