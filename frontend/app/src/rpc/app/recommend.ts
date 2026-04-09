@@ -5,7 +5,7 @@
 // source: app/recommend.proto
 
 /* eslint-disable */
-import type { RecommendGoodsActionType, RecommendScene, RecommendSource } from "../common/enum";
+import type { RecommendGoodsActionType, RecommendScene } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
@@ -34,8 +34,6 @@ export interface RecommendGoodsResponse {
 
 /** RecommendContext 推荐上下文。 */
 export interface RecommendContext {
-  /** 入口来源 */
-  source: RecommendSource;
   /** 推荐场景 */
   scene: RecommendScene;
   /** 推荐请求ID */

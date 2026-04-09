@@ -245,16 +245,6 @@ export enum RecommendScene {
   ORDER_PAID = 5,
 }
 
-/** 推荐来源枚举 */
-export enum RecommendSource {
-  /** RECOMMEND_SOURCE_UNKNOWN - 未指定入口来源 */
-  RECOMMEND_SOURCE_UNKNOWN = 0,
-  /** DIRECT - 非推荐入口直达 */
-  DIRECT = 1,
-  /** RECOMMEND - 推荐入口 */
-  RECOMMEND = 2,
-}
-
 /** 推荐商品行为类型枚举 */
 export enum RecommendGoodsActionType {
   /** UNKNOWN_RGAT - 未指定商品行为类型 */
