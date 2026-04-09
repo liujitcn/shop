@@ -4,6 +4,8 @@
 //   protoc               unknown
 // source: common/error.proto
 
+/* eslint-disable */
+
 export enum ErrorReason {
   /** METHOD_NOT_ALLOWED - common error */
   METHOD_NOT_ALLOWED = 0,

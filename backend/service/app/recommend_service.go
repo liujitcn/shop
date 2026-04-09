@@ -41,6 +41,16 @@ func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *emp
 	return res, nil
 }
 
+// BindRecommendAnonymousActor 绑定匿名推荐主体到当前登录用户。
+func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	err := s.recommendEventCase.BindRecommendAnonymousActor(ctx, req)
+	if err != nil {
+		log.Error("BindRecommendAnonymousActor err:", err.Error())
+		return nil, errors.New("绑定匿名推荐主体失败")
+	}
+	return &emptypb.Empty{}, nil
+}
+
 // RecommendGoods 查询推荐商品列表。
 func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.RecommendGoodsRequest) (*app.RecommendGoodsResponse, error) {
 	res, err := s.recommendCase.RecommendGoods(ctx, req)

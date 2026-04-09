@@ -3782,6 +3782,20 @@ paths:
                         application/json:
                             schema:
                                 type: string
+    /api/app/recommend/actor/bind:
+        post:
+            tags:
+                - RecommendService
+            description: 绑定匿名推荐主体到当前登录用户
+            operationId: RecommendService_BindRecommendAnonymousActor
+            requestBody:
+                content:
+                    application/json: {}
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/app/recommend/event/exposure:
         post:
             tags:

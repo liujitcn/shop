@@ -18,6 +18,14 @@ service RecommendService {
     };
   }
 
+  // 绑定匿名推荐主体到当前登录用户
+  rpc BindRecommendAnonymousActor (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/app/recommend/actor/bind"
+      body: "*"
+    };
+  }
+
   // 查询推荐商品列表
   rpc RecommendGoods (RecommendGoodsRequest) returns (RecommendGoodsResponse) {
     option (google.api.http) = {

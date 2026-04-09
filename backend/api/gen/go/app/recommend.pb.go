@@ -7,17 +7,16 @@
 package app
 
 import (
-	reflect "reflect"
-	common "shop/api/gen/go/common"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	reflect "reflect"
+	common "shop/api/gen/go/common"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -432,9 +431,10 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\teventType\x18\x01 \x01(\x0e2 .common.RecommendGoodsActionTypeB\x1e\xbaG\x1b\x92\x02\x18商品行为事件类型R\teventType\x12Z\n" +
 	"\n" +
 	"goodsItems\x18\x02 \x03(\v2\x1d.app.RecommendGoodsActionItemB\x1b\xbaG\x18\x92\x02\x15商品行为事件项R\n" +
-	"goodsItems2\x8c\x04\n" +
+	"goodsItems2\x85\x05\n" +
 	"\x10RecommendService\x12z\n" +
-	"\x17RecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int64Value\"*\x82\xd3\xe4\x93\x02$\x12\"/api/app/recommend/actor/anonymous\x12k\n" +
+	"\x17RecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int64Value\"*\x82\xd3\xe4\x93\x02$\x12\"/api/app/recommend/actor/anonymous\x12w\n" +
+	"\x1bBindRecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/app/recommend/actor/bind\x12k\n" +
 	"\x0eRecommendGoods\x12\x1a.app.RecommendGoodsRequest\x1a\x1b.app.RecommendGoodsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/app/recommend/goods\x12\x84\x01\n" +
 	"\x17RecommendExposureReport\x12#.app.RecommendExposureReportRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/app/recommend/event/exposure\x12\x87\x01\n" +
 	"\x1aRecommendGoodsActionReport\x12&.app.RecommendGoodsActionReportRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/api/app/recommend/event/goodsBZ\n" +
@@ -477,15 +477,17 @@ var file_app_recommend_proto_depIdxs = []int32{
 	9,  // 6: app.RecommendGoodsActionReportRequest.eventType:type_name -> common.RecommendGoodsActionType
 	3,  // 7: app.RecommendGoodsActionReportRequest.goodsItems:type_name -> app.RecommendGoodsActionItem
 	10, // 8: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
-	0,  // 9: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
-	4,  // 10: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
-	5,  // 11: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
-	11, // 12: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
-	1,  // 13: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
-	10, // 14: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
-	10, // 15: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
+	10, // 9: app.RecommendService.BindRecommendAnonymousActor:input_type -> google.protobuf.Empty
+	0,  // 10: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
+	4,  // 11: app.RecommendService.RecommendExposureReport:input_type -> app.RecommendExposureReportRequest
+	5,  // 12: app.RecommendService.RecommendGoodsActionReport:input_type -> app.RecommendGoodsActionReportRequest
+	11, // 13: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
+	10, // 14: app.RecommendService.BindRecommendAnonymousActor:output_type -> google.protobuf.Empty
+	1,  // 15: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
+	10, // 16: app.RecommendService.RecommendExposureReport:output_type -> google.protobuf.Empty
+	10, // 17: app.RecommendService.RecommendGoodsActionReport:output_type -> google.protobuf.Empty
+	13, // [13:18] is the sub-list for method output_type
+	8,  // [8:13] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
 	8,  // [8:8] is the sub-list for extension extendee
 	0,  // [0:8] is the sub-list for field type_name

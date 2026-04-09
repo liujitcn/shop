@@ -76,6 +76,8 @@ export interface RecommendGoodsActionReportRequest {
 export interface RecommendService {
   /** 获取匿名推荐主体 */
   RecommendAnonymousActor(request: Empty): Promise<Int64Value>;
+  /** 绑定匿名推荐主体到当前登录用户 */
+  BindRecommendAnonymousActor(request: Empty): Promise<Empty>;
   /** 查询推荐商品列表 */
   RecommendGoods(request: RecommendGoodsRequest): Promise<RecommendGoodsResponse>;
   /** 上报推荐曝光事件 */

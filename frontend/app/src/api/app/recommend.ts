@@ -12,12 +12,15 @@ import type {
 import type { Empty } from '@/rpc/google/protobuf/empty'
 import type { Int64Value } from '@/rpc/google/protobuf/wrappers'
 import { useUserStore } from '@/stores'
+import {
+  RECOMMEND_ANONYMOUS_ACTOR_KEY,
+  buildRecommendAnonymousHeader,
+  getCachedRecommendAnonymousId,
+} from './recommendActor'
 
 const RECOMMEND_URL = '/app/recommend'
 const RECOMMEND_PAY_TRACK_PREFIX = 'recommend_pay_track_'
 const RECOMMEND_CART_TRACK_PREFIX = 'recommend_cart_track_'
-const RECOMMEND_ANONYMOUS_ACTOR_KEY = 'recommend_anonymous_actor'
-const RECOMMEND_ANONYMOUS_ID_HEADER = 'X-Recommend-Anonymous-Id'
 
 /** 推荐服务 */
 export class RecommendServiceImpl implements RecommendService {
@@ -26,6 +29,17 @@ export class RecommendServiceImpl implements RecommendService {
     return http<Int64Value>({
       url: `${RECOMMEND_URL}/actor/anonymous`,
       method: 'GET',
+    })
+  }
+
+  /** 绑定匿名推荐主体 */
+  async BindRecommendAnonymousActor(_: Empty): Promise<Empty> {
+    const anonymousId = getCachedRecommendAnonymousId()
+    return http<Empty>({
+      url: `${RECOMMEND_URL}/actor/bind`,
+      method: 'POST',
+      header: buildRecommendHeader(anonymousId),
+      data: {},
     })
   }
 
@@ -64,14 +78,8 @@ export class RecommendServiceImpl implements RecommendService {
 }
 
 /** 构建匿名 ID 请求头。 */
-const buildRecommendHeader = (anonymousId: number): Record<string, string> => {
-  if (!anonymousId) {
-    return {}
-  }
-  return {
-    [RECOMMEND_ANONYMOUS_ID_HEADER]: String(anonymousId),
-  }
-}
+const buildRecommendHeader = (anonymousId: number): Record<string, string> =>
+  buildRecommendAnonymousHeader(anonymousId)
 
 /** 解析当前匿名推荐 ID。 */
 const resolveRecommendAnonymousId = async (): Promise<number> => {
@@ -80,9 +88,9 @@ const resolveRecommendAnonymousId = async (): Promise<number> => {
     return 0
   }
 
-  const cachedActor = uni.getStorageSync(RECOMMEND_ANONYMOUS_ACTOR_KEY) as Int64Value | undefined
-  if (cachedActor?.value) {
-    return cachedActor.value
+  const cachedAnonymousId = getCachedRecommendAnonymousId()
+  if (cachedAnonymousId) {
+    return cachedAnonymousId
   }
 
   const actor = await defRecommendService.RecommendAnonymousActor({})

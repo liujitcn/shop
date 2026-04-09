@@ -166,6 +166,32 @@ func (c *RecommendCase) RecommendAnonymousActor(ctx context.Context, req *emptyp
 	return wrapperspb.Int64(actorId), nil
 }
 
+// BindRecommendAnonymousActor 将匿名推荐主体历史归并到当前登录用户。
+func (c *RecommendEventCase) BindRecommendAnonymousActor(ctx context.Context, _ *emptypb.Empty) error {
+	authInfo, err := auth.FromContext(ctx)
+	if err != nil || authInfo == nil || authInfo.UserId <= 0 {
+		return nil
+	}
+
+	anonymousId := extractRecommendAnonymousId(ctx)
+	if anonymousId <= 0 || anonymousId == authInfo.UserId {
+		return nil
+	}
+
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		if err = c.bindRecommendRequestActor(ctx, anonymousId, authInfo.UserId); err != nil {
+			return err
+		}
+		if err = c.bindRecommendExposureActor(ctx, anonymousId, authInfo.UserId); err != nil {
+			return err
+		}
+		if err = c.bindRecommendGoodsActionActor(ctx, anonymousId, authInfo.UserId); err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
 // RecommendGoods 查询推荐商品列表。
 func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGoodsRequest) (*app.RecommendGoodsResponse, error) {
 	// 统一兜底分页参数，避免前端漏传导致查询异常。
@@ -219,6 +245,48 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 		Total:     int32(total),
 		RequestId: requestID,
 	}, nil
+}
+
+func (c *RecommendEventCase) bindRecommendRequestActor(ctx context.Context, anonymousId, userId int64) error {
+	recommendRequestQuery := c.RecommendRequestRepo.Data.Query(ctx).RecommendRequest
+	_, err := recommendRequestQuery.WithContext(ctx).
+		Where(
+			recommendRequestQuery.ActorType.Eq(recommendActorTypeAnonymous),
+			recommendRequestQuery.ActorID.Eq(anonymousId),
+		).
+		Updates(map[string]interface{}{
+			"actor_type": recommendActorTypeUser,
+			"actor_id":   userId,
+		})
+	return err
+}
+
+func (c *RecommendEventCase) bindRecommendExposureActor(ctx context.Context, anonymousId, userId int64) error {
+	recommendExposureQuery := c.RecommendExposureRepo.Data.Query(ctx).RecommendExposure
+	_, err := recommendExposureQuery.WithContext(ctx).
+		Where(
+			recommendExposureQuery.ActorType.Eq(recommendActorTypeAnonymous),
+			recommendExposureQuery.ActorID.Eq(anonymousId),
+		).
+		Updates(map[string]interface{}{
+			"actor_type": recommendActorTypeUser,
+			"actor_id":   userId,
+		})
+	return err
+}
+
+func (c *RecommendEventCase) bindRecommendGoodsActionActor(ctx context.Context, anonymousId, userId int64) error {
+	recommendGoodsActionQuery := c.RecommendGoodsActionRepo.Data.Query(ctx).RecommendGoodsAction
+	_, err := recommendGoodsActionQuery.WithContext(ctx).
+		Where(
+			recommendGoodsActionQuery.ActorType.Eq(recommendActorTypeAnonymous),
+			recommendGoodsActionQuery.ActorID.Eq(anonymousId),
+		).
+		Updates(map[string]interface{}{
+			"actor_type": recommendActorTypeUser,
+			"actor_id":   userId,
+		})
+	return err
 }
 
 // RecommendExposureReport 接收独立推荐曝光接口并异步投递事件。

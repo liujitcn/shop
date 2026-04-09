@@ -1,6 +1,7 @@
 import type { UserInfo, WxLoginRequest } from '@/rpc/app/auth'
 import type { LoginRequest } from '@/rpc/base/login'
 import { defAuthService } from '@/api/app/auth'
+import { bindRecommendAnonymousActor } from '@/api/app/recommendActor'
 import { defLoginService } from '@/api/base/login'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
@@ -34,7 +35,13 @@ export const useUserStore = defineStore(
             setToken(tokenType + ' ' + accessToken) // Bearer eyJhbGciOiJIUzI1NiJ9.xxx.xxx
             setRefreshToken(refreshToken)
             setTokenExpiresIn(expiresIn)
-            resolve()
+            bindRecommendAnonymousActor()
+              .catch((error) => {
+                console.warn('bindRecommendAnonymousActor failed', error)
+              })
+              .finally(() => {
+                resolve()
+              })
           })
           .catch((error) => {
             reject(error)
@@ -57,7 +64,13 @@ export const useUserStore = defineStore(
             setToken(tokenType + ' ' + accessToken)
             setRefreshToken(refreshToken)
             setTokenExpiresIn(expiresIn)
-            resolve()
+            bindRecommendAnonymousActor()
+              .catch((error) => {
+                console.warn('bindRecommendAnonymousActor failed', error)
+              })
+              .finally(() => {
+                resolve()
+              })
           })
           .catch((error) => {
             reject(error)
