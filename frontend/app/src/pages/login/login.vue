@@ -200,8 +200,16 @@ onLoad(async () => {
       />
       <input v-model="form.password" class="input" type="text" password placeholder="请输入密码" />
       <view class="captcha-row">
-        <input v-model="form.captchaCode" class="input" type="text" placeholder="请输入验证码" />
-        <image class="captcha-image" :src="captchaBase64" mode="widthFix" @tap="getCaptcha" />
+        <input
+          v-model="form.captchaCode"
+          class="input captcha-input"
+          type="text"
+          placeholder="请输入验证码"
+        />
+        <view class="captcha-divider"></view>
+        <view class="captcha-trigger" @tap="getCaptcha">
+          <image class="captcha-image" :src="captchaBase64" mode="aspectFit" />
+        </view>
       </view>
       <button @tap="onSubmit" class="button phone">登录</button>
       <!-- #endif -->
@@ -286,21 +294,45 @@ page {
   // 新增验证码相关样式
   .captcha-row {
     display: flex;
-    gap: 20rpx;
+    align-items: center;
     width: 100%;
+    height: 88rpx;
     margin-bottom: 20rpx;
+    padding: 0 10rpx 0 30rpx;
+    border: 1px solid #ddd;
+    border-radius: 72rpx;
+    background: #fff;
+    box-sizing: border-box;
 
-    .input {
+    .captcha-input {
       flex: 1;
+      height: 100%;
+      margin-bottom: 0;
+      padding-left: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .captcha-divider {
+      width: 1rpx;
+      height: 44rpx;
+      background: #e7ebf0;
+    }
+
+    .captcha-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 260rpx;
+      height: 100%;
+      padding: 0 16rpx;
+      box-sizing: border-box;
     }
 
     .captcha-image {
       flex-shrink: 0;
-      width: 240rpx;
-      height: 80rpx;
-      border-radius: 8rpx;
-      border: 1rpx solid #ddd;
-      cursor: pointer;
+      width: 210rpx;
+      height: 60rpx;
     }
   }
 }
