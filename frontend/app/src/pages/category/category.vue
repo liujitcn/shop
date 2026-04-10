@@ -8,6 +8,7 @@ import type { ShopBanner } from '@/rpc/app/shop_banner'
 import type { GoodsCategory } from '@/rpc/app/goods_category'
 import { formatSrc, formatPrice } from '@/utils'
 import { ShopBannerSite } from '@/rpc/common/enum.ts'
+import { goodsDetailUrl } from '@/utils/navigation'
 
 // 获取轮播图数据
 const bannerList = ref<ShopBanner[]>([])
@@ -109,7 +110,7 @@ onLoad(async () => {
             <navigator
               class="more"
               hover-class="none"
-              :url="`/pages/search/index?categoryId=${item.id}&categoryName=${item.name}`"
+              :url="`/pages/search/index?categoryId=${encodeURIComponent(String(item.id))}&categoryName=${encodeURIComponent(item.name)}`"
               >全部</navigator
             >
           </view>
@@ -119,7 +120,7 @@ onLoad(async () => {
               :key="goodsItem.id"
               class="goods"
               hover-class="none"
-              :url="`/pages/goods/goods?id=${goodsItem.id}`"
+              :url="goodsDetailUrl(goodsItem.id)"
             >
               <image class="image" :src="formatSrc(goodsItem.picture)"></image>
               <view class="name ellipsis">{{ goodsItem.name }}</view>

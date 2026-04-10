@@ -16,19 +16,20 @@ defineProps<{
 }>()
 
 const handleClick = (item: ShopBanner) => {
-  if (!item.type || !item.href) return
+  if (!item.type || !item.href) {
+    return
+  }
+
   switch (item.type) {
     case ShopBannerType.GOODS_DETAIL:
       uni.navigateTo({ url: `/pages/goods/goods?${item.href}` })
-      break
+      return
     case ShopBannerType.CATEGORY_DETAIL:
-      uni.navigateTo({ url: `/pages/search/search?${item.href}` })
-      break
+      uni.navigateTo({ url: `/pages/search/index?${item.href}` })
+      return
     case ShopBannerType.WEB_VIEW:
-      uni.navigateTo({
-        url: `/pages/webview/webview?url=${encodeURIComponent(item.href)}`,
-      })
-      break
+      uni.navigateTo({ url: `/pages/webview/webview?url=${encodeURIComponent(item.href)}` })
+      return
     case ShopBannerType.MINI:
       // #ifdef MP-WEIXIN
       uni.navigateToMiniProgram({
@@ -42,9 +43,9 @@ const handleClick = (item: ShopBanner) => {
         },
       })
       // #endif
-      break
+      return
     default:
-      console.warn('Unhandled banner type:', item.type)
+      return
   }
 }
 </script>

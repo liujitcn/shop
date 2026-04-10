@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import type { PageUserCollectRequest, UserCollect } from '@/rpc/app/user_collect'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { formatSrc, formatPrice } from '@/utils'
+import { goodsDetailUrl, switchTabToHome } from '@/utils/navigation'
 // 分页参数
 const pageParams: Required<PageUserCollectRequest> = {
   pageNum: 1,
@@ -66,9 +67,7 @@ const onDeleteCollect = (id: number) => {
 
 // 切换首页
 const goIndex = () => {
-  uni.switchTab({ url: '/pages/index/index' }).then((r) => {
-    console.log(r)
-  })
+  void switchTabToHome()
 }
 </script>
 
@@ -82,7 +81,7 @@ const goIndex = () => {
           <!-- 商品信息 -->
           <view class="goods">
             <navigator
-              :url="`/pages/goods/goods?id=${item.goodsId}`"
+              :url="goodsDetailUrl(item.goodsId)"
               hover-class="none"
               class="navigator"
             >

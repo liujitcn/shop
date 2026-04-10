@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { navigateToSearch } from '@/utils/navigation'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 const searchValue = ref('')
@@ -7,9 +8,7 @@ const searchValue = ref('')
 // 执行搜索
 const handleSearch = () => {
   if (!searchValue.value.trim()) return
-  uni.navigateTo({
-    url: `/pages/search/index?name=${searchValue.value}`,
-  })
+  void navigateToSearch({ name: searchValue.value })
   searchValue.value = ''
 }
 import { useSettingStore } from '@/stores'

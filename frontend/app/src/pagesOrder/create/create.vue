@@ -15,7 +15,8 @@ import { defUserAddressService } from '@/api/app/user_address'
 import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
-import { RecommendGoodsActionType } from '@/rpc/common/enum'
+import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { goodsDetailUrl, orderDetailUrl, redirectToOrderPayment } from '@/utils/navigation'
 
 const addressStore = useAddressStore()
 const recommendStore = useRecommendStore()
@@ -66,8 +67,9 @@ const query = defineProps<{
   requestId?: string
   index?: string
 }>()
+const routeScene = query.scene ? (Number(query.scene) as RecommendScene) : undefined
 const recommendContext = {
-  scene: query.scene,
+  scene: routeScene,
   requestId: query.requestId,
   position: query.index,
 } as unknown as RecommendContext
@@ -197,9 +199,9 @@ const onOrderSubmit = async () => {
   })
   // 关闭当前页面，跳转到订单详情，传递订单id
   if (Number(activePayType.value.value) === 2) {
-    await uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${res.orderId}` })
+    redirectToOrderPayment(res.orderId)
   } else {
-    await uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${res.orderId}&internal=true` })
+    uni.redirectTo({ url: orderDetailUrl({ id: res.orderId, internal: true }) })
   }
 }
 
@@ -252,7 +254,12 @@ const onOrderSubmitOk = computed(() => {
         v-for="item in orderPre!.goods"
         :key="item.skuCode"
         :url="
-          `/pages/goods/goods?id=${item.goodsId}&scene=${encodeURIComponent(String(item.scene))}&requestId=${encodeURIComponent(item.requestId || '')}&index=${encodeURIComponent(String(item.position))}`
+          goodsDetailUrl({
+            id: item.goodsId,
+            scene: item.scene,
+            requestId: item.requestId,
+            index: item.position,
+          })
         "
         class="item"
         hover-class="none"

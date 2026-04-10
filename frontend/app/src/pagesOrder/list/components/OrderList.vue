@@ -8,6 +8,7 @@ import { defBaseDictService } from '@/api/app/base_dict'
 import { onLoad } from '@dcloudio/uni-app'
 import { defPayService } from '@/api/app/pay'
 import { formatSrc, formatPrice } from '@/utils'
+import { orderCreateUrl, orderDetailUrl, redirectToOrderPayment } from '@/utils/navigation'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -137,7 +138,7 @@ const onOrderPay = async (id: number) => {
     /** 接口调用成功的回调函数 */
     success: () => {
       // 关闭当前页，再跳转支付结果页
-      uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${id}` })
+      void redirectToOrderPayment(id)
     },
   })
   // #endif
@@ -319,7 +320,7 @@ const onRefresherRefresh = async () => {
         v-for="item in order.goods"
         :key="item.goodsId"
         class="goods"
-        :url="`/pagesOrder/detail/detail?id=${order.id}&internal=true`"
+        :url="orderDetailUrl({ id: order.id, internal: true })"
         hover-class="none"
       >
         <view class="cover">
@@ -350,7 +351,7 @@ const onRefresherRefresh = async () => {
         <navigator
           v-if="order.status !== OrderStatus.CREATED"
           class="button secondary"
-          :url="`/pagesOrder/create/create?orderId=${order.id}`"
+          :url="orderCreateUrl({ orderId: order.id })"
           hover-class="none"
         >
           再次购买

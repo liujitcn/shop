@@ -5,6 +5,7 @@ import { useGuessList } from '@/composables'
 import { onLoad } from '@dcloudio/uni-app'
 import { useRecommendStore } from '@/stores'
 import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { homeTabPage, orderDetailUrl } from '@/utils/navigation'
 
 // 获取页面参数
 const query = defineProps<{
@@ -53,7 +54,7 @@ onLoad(() => {
         <navigator
           hover-class="none"
           class="button navigator"
-          url="/pages/index/index"
+          :url="homeTabPage"
           open-type="switchTab"
         >
           返回首页
@@ -61,7 +62,7 @@ onLoad(() => {
         <navigator
           hover-class="none"
           class="button navigator"
-          :url="`/pagesOrder/detail/detail?id=${query.id}&internal=true`"
+          :url="orderDetailUrl({ id: query.id, internal: true })"
           open-type="redirect"
         >
           查看订单

@@ -11,6 +11,13 @@ import { defBaseDictService } from '@/api/app/base_dict'
 import { defPayService } from '@/api/app/pay'
 import { formatPrice, formatSrc } from '@/utils'
 import { RecommendScene } from '@/rpc/common/enum'
+import {
+  goodsDetailUrl,
+  homeTabPage,
+  orderCreateUrl,
+  orderListUrl,
+  redirectToOrderPayment,
+} from '@/utils/navigation'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 猜你喜欢
@@ -35,16 +42,12 @@ const buildGoodsDetailUrl = (
   goodsId: number,
   query: { scene?: RecommendScene; requestId?: string; index?: number },
 ) => {
-  const params = [`id=${goodsId}`]
-  const scene = query.scene ?? RecommendScene.RECOMMEND_SCENE_UNKNOWN
-  if (scene !== RecommendScene.RECOMMEND_SCENE_UNKNOWN) {
-    params.push(`scene=${encodeURIComponent(RecommendScene[scene])}`)
-  }
-  if (query.requestId) {
-    params.push(`requestId=${encodeURIComponent(query.requestId)}`)
-  }
-  params.push(`index=${encodeURIComponent(String(query.index || 0))}`)
-  return `/pages/goods/goods?${params.join('&')}`
+  return goodsDetailUrl({
+    id: goodsId,
+    scene: query.scene,
+    requestId: query.requestId,
+    index: query.index,
+  })
 }
 
 // 复制内容
@@ -209,7 +212,7 @@ const onOrderPay = async () => {
     /** 接口调用成功的回调函数 */
     success: () => {
       // 关闭当前页，再跳转支付结果页
-      uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${query.id}` })
+      void redirectToOrderPayment(query.id)
     },
   })
   // #endif
@@ -245,7 +248,7 @@ const onOrderDelete = () => {
     success: async (success) => {
       if (success.confirm) {
         await defOrderService.DeleteOrderInfo({ value: orderId.value })
-        await uni.redirectTo({ url: '/pagesOrder/list/list?status=0' })
+        uni.redirectTo({ url: orderListUrl(0) })
       }
     },
   })
@@ -315,7 +318,12 @@ const onConfirmPopup = async () => {
   <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
     <view class="wrap">
       <navigator v-if="pages.length > 1" open-type="navigateBack" class="back icon-left" />
-      <navigator v-else url="/pages/index/index" open-type="switchTab" class="back icon-home" />
+      <navigator
+        v-else
+        :url="homeTabPage"
+        open-type="switchTab"
+        class="back icon-home"
+      />
       <view class="title">订单详情</view>
     </view>
   </view>
@@ -353,7 +361,7 @@ const onConfirmPopup = async () => {
           <view class="button-group">
             <navigator
               class="button"
-              :url="`/pagesOrder/create/create?orderId=${query.id}`"
+              :url="orderCreateUrl({ orderId: query.id })"
               hover-class="none"
             >
               再次购买
@@ -491,7 +499,7 @@ const onConfirmPopup = async () => {
         <navigator
           v-if="orderData.order!.status !== OrderStatus.CREATED"
           class="button secondary"
-          :url="`/pagesOrder/create/create?orderId=${query.id}`"
+          :url="orderCreateUrl({ orderId: query.id })"
           hover-class="none"
         >
           再次购买

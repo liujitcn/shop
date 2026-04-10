@@ -7,7 +7,7 @@ import { defBaseDictService } from '@/api/app/base_dict'
 import { computed, ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/order_info'
 import { formatSrc } from '@/utils'
-import { navigateToLogin } from '@/utils/login'
+import { navigateToLogin, orderListUrl } from '@/utils/navigation'
 import { OrderStatus, RecommendScene } from '@/rpc/common/enum'
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -113,7 +113,7 @@ onShow(() => {
         <navigator
           v-if="userStore.userInfo"
           class="navigator"
-          url="/pagesOrder/list/list?status=0"
+          :url="orderListUrl(0)"
           hover-class="none"
         >
           查看全部订单<text class="icon-right"></text>
@@ -129,7 +129,7 @@ onShow(() => {
             v-for="item in orderCount"
             :key="item.status"
             :class="item.icon"
-            :url="`/pagesOrder/list/list?status=${item.status}`"
+            :url="orderListUrl(item.status)"
             class="navigator"
             hover-class="none"
           >

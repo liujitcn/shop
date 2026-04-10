@@ -2,7 +2,7 @@
 import { defUserAddressService } from '@/api/app/user_address'
 import { useAddressStore, useUserStore } from '@/stores'
 import type { UserAddress } from '@/rpc/app/user_address'
-import { navigateToLogin } from '@/utils/login'
+import { navigateToLogin } from '@/utils/navigation'
 import { onShow } from '@dcloudio/uni-app'
 import { ref, onMounted } from 'vue' // 获取会员信息
 const userStore = useUserStore()

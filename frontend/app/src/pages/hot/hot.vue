@@ -5,6 +5,7 @@ import type { GoodsInfo } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
+import { goodsDetailUrl } from '@/utils/navigation'
 
 // uniapp 获取页面参数
 const query = defineProps<{
@@ -122,7 +123,7 @@ const onScrollToLower = async () => {
           :key="goods.id"
           hover-class="none"
           class="navigator"
-          :url="`/pages/goods/goods?id=${goods.id}`"
+          :url="goodsDetailUrl(goods.id)"
         >
           <image class="thumb" :src="formatSrc(goods.picture)" />
           <view class="name ellipsis">{{ goods.name }}</view>

@@ -6,6 +6,7 @@ import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { defLoginService } from '@/api/base/login'
 import defaultLogo from '@/static/images/logo_icon.png'
+import { homeTabPage } from '@/utils/navigation'
 const userStore = useUserStore()
 import { useSettingStore } from '@/stores'
 
@@ -31,21 +32,14 @@ const triggerAgreePrivacyShake = () => {
   }, 500)
 }
 
-// 打开协议详情页
-const openProtocolPage = (type: 'service' | 'privacy') => {
-  uni.navigateTo({
-    url: `/pages/login/protocal?type=${type}`,
-  })
-}
-
 // 打开服务条款
 const onOpenServiceProtocol = () => {
-  openProtocolPage('service')
+  uni.navigateTo({ url: '/pages/login/protocal?type=service' })
 }
 
 // 打开隐私协议
 const onOpenPrivacyContract = () => {
-  openProtocolPage('privacy')
+  uni.navigateTo({ url: '/pages/login/protocal?type=privacy' })
 }
 
 // #ifdef MP-WEIXIN
@@ -130,22 +124,24 @@ const loginSuccess = async () => {
   // 成功提示
   await uni.showToast({ icon: 'success', title: '登录成功' })
   setTimeout(() => {
-    const lastRoute = uni.getStorageSync('lastRoute') || '/pages/index/index'
-    if (lastRoute.startsWith('/pages/index/index')) {
+    const lastRoute = uni.getStorageSync('lastRoute') || homeTabPage
+    if (lastRoute.startsWith(homeTabPage)) {
       uni.setStorageSync('SwitchTabIndex', true)
     }
     uni.removeStorageSync('lastRoute')
-    const tab = [
-      '/pages/index/index',
+
+    const pagePath = String(lastRoute).split('?')[0] || homeTabPage
+    const tabBarPages = new Set([
+      homeTabPage,
       '/pages/category/category',
       '/pages/cart/cart',
       '/pages/my/my',
-    ]
-    if (tab.includes(lastRoute)) {
-      uni.switchTab({ url: lastRoute })
-    } else {
-      uni.reLaunch({ url: lastRoute })
+    ])
+    if (tabBarPages.has(pagePath)) {
+      uni.switchTab({ url: pagePath })
+      return
     }
+    uni.reLaunch({ url: lastRoute })
   }, 500)
 }
 

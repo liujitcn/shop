@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import type { GoodsInfo, PageGoodsInfoRequest } from '@/rpc/app/goods_info'
 import { onLoad } from '@dcloudio/uni-app'
 import { formatSrc, formatPrice } from '@/utils'
+import { goodsDetailUrl } from '@/utils/navigation'
 
 // 分类名、搜索词可能会经过路由层二次编码，这里统一做安全解码。
 const decodeQueryText = (value?: string) => {
@@ -90,7 +91,7 @@ const onScrollToLower = async () => {
         v-for="item in goodsInfoList"
         :key="item.id"
         class="goods-item"
-        :url="`/pages/goods/goods?id=${item.id}`"
+        :url="goodsDetailUrl(item.id)"
       >
         <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
         <view class="name"> {{ item.name }} </view>

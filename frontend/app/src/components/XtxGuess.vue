@@ -11,6 +11,7 @@ import type {
   RecommendGoodsResponse,
 } from '@/rpc/app/recommend'
 import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { goodsDetailUrl } from '@/utils/navigation'
 
 type GuessGoods = GoodsInfo & {
   recommendRequestId: RecommendGoodsResponse['requestId']
@@ -144,16 +145,13 @@ const onTapGoods = async (item: GuessGoods) => {
   } catch (error) {
     console.error(error)
   }
-  const params = [`id=${encodeURIComponent(String(item.id))}`]
-  if (item.recommendScene !== RecommendScene.RECOMMEND_SCENE_UNKNOWN) {
-    params.push(`scene=${encodeURIComponent(RecommendScene[item.recommendScene])}`)
-  }
-  if (item.recommendRequestId) {
-    params.push(`requestId=${encodeURIComponent(item.recommendRequestId)}`)
-  }
-  params.push(`index=${encodeURIComponent(String(item.recommendIndex || 0))}`)
-  void uni.navigateTo({
-    url: `/pages/goods/goods?${params.join('&')}`,
+  uni.navigateTo({
+    url: goodsDetailUrl({
+      id: item.id,
+      scene: item.recommendScene,
+      requestId: item.recommendRequestId,
+      index: item.recommendIndex,
+    }),
   })
 }
 

@@ -16,10 +16,10 @@ import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { formatSrc, formatPrice } from '@/utils'
-import { navigateToLogin } from '@/utils/login'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/shop_service.ts'
-import { RecommendGoodsActionType } from '@/rpc/common/enum'
+import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { goodsDetailUrl, navigateToLogin, navigateToOrderCreate } from '@/utils/navigation'
 // 获取会员信息
 const userStore = useUserStore()
 const recommendStore = useRecommendStore()
@@ -34,9 +34,10 @@ const query = defineProps<{
   index?: string
 }>()
 const goodsId = Number(query.id)
+const routeScene = query.scene ? (Number(query.scene) as RecommendScene) : undefined
 // 当前页直接复用入口路由上的原始推荐参数，不在这里做额外转换。
 const recommendContext = {
-  scene: query.scene,
+  scene: routeScene,
   requestId: query.requestId,
   position: query.index,
 } as unknown as RecommendContext
@@ -221,22 +222,13 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     return
   }
   isShowSku.value = false
-  const params = [
-    `goodsId=${encodeURIComponent(String(ev.goods_id))}`,
-    `skuCode=${encodeURIComponent(String(ev._id))}`,
-    `num=${encodeURIComponent(String(ev.buy_num))}`,
-  ]
-  if (query.scene) {
-    params.push(`scene=${encodeURIComponent(query.scene)}`)
-  }
-  if (query.requestId) {
-    params.push(`requestId=${encodeURIComponent(query.requestId)}`)
-  }
-  if (query.index !== undefined && query.index !== '') {
-    params.push(`index=${encodeURIComponent(query.index)}`)
-  }
-  uni.navigateTo({
-    url: `/pagesOrder/create/create?${params.join('&')}`,
+  void navigateToOrderCreate({
+    goodsId: ev.goods_id,
+    skuCode: ev._id,
+    num: ev.buy_num,
+    scene: routeScene,
+    requestId: query.requestId,
+    index: query.index,
   })
 }
 // 收藏
@@ -275,7 +267,7 @@ const shareConfig = computed(() => {
   if (!goodsInfo.value) return {}
   return {
     title: `${goodsInfo.value.name} ¥${formatPrice(goodsInfo.value.price)}`,
-    path: `/pages/goods/goods?id=${goodsInfo.value.id}`,
+    path: goodsDetailUrl(goodsInfo.value.id),
     imageUrl: formatSrc(goodsInfo.value.picture),
   }
 })
@@ -387,7 +379,7 @@ const onShareTimeline = () => {
           :key="item.id"
           class="goods"
           hover-class="none"
-          :url="`/pages/goods/goods?id=${item.id}`"
+          :url="goodsDetailUrl(item.id)"
         >
           <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
           <view class="name ellipsis">{{ item.name }}</view>

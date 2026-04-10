@@ -7,8 +7,13 @@ import { useUserStore } from '@/stores'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import { formatSrc, formatPrice } from '@/utils'
-import { navigateToLogin } from '@/utils/login'
 import { RecommendScene } from '@/rpc/common/enum'
+import {
+  goodsDetailUrl,
+  navigateToLogin,
+  navigateToOrderCreate,
+  switchTabToHome,
+} from '@/utils/navigation'
 
 // 是否适配底部安全区域
 defineProps<{
@@ -118,13 +123,11 @@ const gotoPayment = () => {
     })
   }
   // 跳转到结算页
-  uni.navigateTo({ url: '/pagesOrder/create/create' })
+  void navigateToOrderCreate()
 }
 // 切换首页
 const goIndex = () => {
-  uni.switchTab({ url: '/pages/index/index' }).then((r) => {
-    console.log(r)
-  })
+  void switchTabToHome()
 }
 // 猜你喜欢
 const { guessRef, onScrollToLower } = useGuessList()
@@ -160,7 +163,7 @@ const guessTitle = computed(() => {
                 :class="{ checked: item.isChecked }"
               ></text>
               <navigator
-                :url="`/pages/goods/goods?id=${item.goodsId}`"
+                :url="goodsDetailUrl(item.goodsId)"
                 hover-class="none"
                 class="navigator"
               >

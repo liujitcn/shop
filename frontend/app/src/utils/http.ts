@@ -14,7 +14,7 @@ import {
   setToken,
   setTokenExpiresIn,
 } from '@/utils/auth'
-import { saveCurrentRoute } from '@/utils/login'
+import { saveCurrentRoute } from '@/utils/navigation'
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || '/api'
 const apiTargetUrl = import.meta.env.VITE_APP_API_URL || ''

@@ -2,6 +2,7 @@
 import type { GoodsCategory } from '@/rpc/app/goods_category'
 import { formatSrc } from '@/utils'
 import { computed } from 'vue'
+import { navigateToSearch } from '@/utils/navigation'
 
 // 定义 props 接收数据
 const props = defineProps<{
@@ -61,15 +62,11 @@ const showCategoryName = (name: string) => {
 
 const onTapCategory = (item: CategoryDisplayItem) => {
   if (item.isMore) {
-    uni.switchTab({
-      url: '/pages/category/category',
-    })
+    uni.switchTab({ url: '/pages/category/category' })
     return
   }
 
-  uni.navigateTo({
-    url: `/pages/search/index?categoryId=${item.id}&categoryName=${item.name}`,
-  })
+  void navigateToSearch({ categoryId: item.id, categoryName: item.name })
 }
 </script>
 
