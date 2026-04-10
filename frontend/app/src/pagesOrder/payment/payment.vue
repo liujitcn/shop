@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { reportRecommendGoodsAction, takeRecommendPayTrack } from '@/modules/recommend'
+import { defRecommendService } from '@/api/app/recommend'
+import { defOrderService } from '@/api/app/order_info.ts'
 import { useGuessList } from '@/composables'
 import { onLoad } from '@dcloudio/uni-app'
+import { useRecommendStore } from '@/stores'
 import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
 
 // 获取页面参数
@@ -11,17 +13,33 @@ const query = defineProps<{
 
 // 猜你喜欢
 const { guessRef, onScrollToLower } = useGuessList()
+const recommendStore = useRecommendStore()
 
 // 页面加载
 onLoad(() => {
-  const goodsItems = takeRecommendPayTrack(Number(query.id))
-  if (goodsItems.length === 0) {
-    return
-  }
-  void reportRecommendGoodsAction(
-    RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_PAY,
-    goodsItems,
-  )
+  void (async () => {
+    const res = await defOrderService.GetOrderInfoById({
+      value: Number(query.id),
+    })
+    const goodsItems =
+      res.order?.goods.map((item) => ({
+        goodsId: item.goodsId,
+        goodsNum: item.num,
+        recommendContext: {
+          scene: item.scene,
+          requestId: item.requestId,
+          position: item.position,
+        },
+      })) || []
+    if (goodsItems.length === 0) {
+      return
+    }
+    await recommendStore.getAnonymousId()
+    await defRecommendService.RecommendGoodsActionReport({
+      eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_PAY,
+      goodsItems,
+    })
+  })()
 })
 </script>
 

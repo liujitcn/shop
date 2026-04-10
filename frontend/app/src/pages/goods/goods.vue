@@ -7,15 +7,11 @@ import type {
 import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { defGoodsInfoService } from '@/api/app/goods_info.ts'
-import {
-  buildRecommendContextByRoute,
-  buildRecommendRouteQuery,
-  reportRecommendGoodsActionByRoute,
-  saveRecommendCartTrackByRoute,
-} from '@/modules/recommend'
+import { defRecommendService } from '@/api/app/recommend'
 import type { GoodsInfo, GoodsInfoResponse } from '@/rpc/app/goods_info'
+import type { RecommendContext } from '@/rpc/app/recommend'
 import { onLoad } from '@dcloudio/uni-app'
-import { useUserStore } from '@/stores'
+import { useRecommendStore, useUserStore } from '@/stores'
 import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
@@ -26,6 +22,7 @@ import type { ShopService } from '@/rpc/app/shop_service.ts'
 import { RecommendGoodsActionType } from '@/rpc/common/enum'
 // 获取会员信息
 const userStore = useUserStore()
+const recommendStore = useRecommendStore()
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
@@ -36,6 +33,13 @@ const query = defineProps<{
   requestId?: string
   index?: string
 }>()
+const goodsId = Number(query.id)
+// 当前页直接复用入口路由上的原始推荐参数，不在这里做额外转换。
+const recommendContext = {
+  scene: query.scene,
+  requestId: query.requestId,
+  position: query.index,
+} as unknown as RecommendContext
 
 // 获取商品详情信息
 const goodsInfo = ref<GoodsInfoResponse>()
@@ -45,20 +49,11 @@ const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
 const serviceLabelList = computed(() => serviceList.value.map((item) => item.label))
 
-// 上报当前商品推荐行为
-const reportCurrentGoodsAction = async (eventType: RecommendGoodsActionType, goodsNum = 1) => {
-  try {
-    await reportRecommendGoodsActionByRoute(eventType, query, Number(query.id), goodsNum)
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 const loadData = async () => {
   const ssRes = await defShopServiceService.ListShopService({})
   serviceList.value = ssRes.list || []
   const res = await defGoodsInfoService.GetGoodsInfo({
-    value: Number(query.id),
+    value: goodsId,
   })
   goodsInfo.value = res
   const pageRes = await defGoodsInfoService.PageGoodsInfo({
@@ -96,14 +91,30 @@ const loadData = async () => {
 // 页面加载
 onLoad(() => {
   loadData()
-  void reportCurrentGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_VIEW)
+  void (async () => {
+    try {
+      await recommendStore.getAnonymousId()
+      await defRecommendService.RecommendGoodsActionReport({
+        eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_VIEW,
+        goodsItems: [
+          {
+            goodsId,
+            goodsNum: 1,
+            recommendContext,
+          },
+        ],
+      })
+    } catch (error) {
+      console.error(error)
+    }
+  })()
   if (userStore.userInfo) {
     defUserCartService.CountUserCart({}).then((res) => {
       cartNum.value = res.value
     })
     defUserCollectService
       .GetIsCollect({
-        goodsId: Number(query.id),
+        goodsId,
       })
       .then((res) => {
         isCollect.value = res.value
@@ -167,6 +178,7 @@ const skuPopupRef = ref<SkuPopupInstance>()
 const selectArrText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
+
 // 加入购物车事件
 const onAddCart = async (ev: SkuPopupEvent) => {
   if (!userStore.userInfo) {
@@ -180,12 +192,25 @@ const onAddCart = async (ev: SkuPopupEvent) => {
     skuCode: ev._id,
     /** 数量 */
     num: ev.buy_num,
-    recommendContext: buildRecommendContextByRoute(query),
+    recommendContext,
   })
-  saveRecommendCartTrackByRoute(query, ev.goods_id, ev._id, ev.buy_num)
   const res = await defUserCartService.CountUserCart({})
   cartNum.value = res.value
-  await reportCurrentGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CART, ev.buy_num)
+  try {
+    await recommendStore.getAnonymousId()
+    await defRecommendService.RecommendGoodsActionReport({
+      eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CART,
+      goodsItems: [
+        {
+          goodsId,
+          goodsNum: ev.buy_num,
+          recommendContext,
+        },
+      ],
+    })
+  } catch (error) {
+    console.error(error)
+  }
   await uni.showToast({ title: '添加成功' })
   isShowSku.value = false
 }
@@ -196,11 +221,22 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     return
   }
   isShowSku.value = false
-  const recommendRouteQuery = buildRecommendRouteQuery(query)
+  const params = [
+    `goodsId=${encodeURIComponent(String(ev.goods_id))}`,
+    `skuCode=${encodeURIComponent(String(ev._id))}`,
+    `num=${encodeURIComponent(String(ev.buy_num))}`,
+  ]
+  if (query.scene) {
+    params.push(`scene=${encodeURIComponent(query.scene)}`)
+  }
+  if (query.requestId) {
+    params.push(`requestId=${encodeURIComponent(query.requestId)}`)
+  }
+  if (query.index !== undefined && query.index !== '') {
+    params.push(`index=${encodeURIComponent(query.index)}`)
+  }
   uni.navigateTo({
-    url: recommendRouteQuery
-      ? `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}&${recommendRouteQuery}`
-      : `/pagesOrder/create/create?goodsId=${ev.goods_id}&skuCode=${ev._id}&num=${ev.buy_num}`,
+    url: `/pagesOrder/create/create?${params.join('&')}`,
   })
 }
 // 收藏
@@ -210,12 +246,26 @@ const onCollect = async () => {
     return
   }
   await defUserCollectService.CreateUserCollect({
-    goodsId: goodsInfo.value!.id,
-    recommendContext: buildRecommendContextByRoute(query),
+    goodsId: goodsId,
+    recommendContext,
   })
   isCollect.value = !isCollect.value
   if (isCollect.value) {
-    await reportCurrentGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_COLLECT)
+    try {
+      await recommendStore.getAnonymousId()
+      await defRecommendService.RecommendGoodsActionReport({
+        eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_COLLECT,
+        goodsItems: [
+          {
+            goodsId,
+            goodsNum: 1,
+            recommendContext,
+          },
+        ],
+      })
+    } catch (error) {
+      console.error(error)
+    }
   }
   await uni.showToast({ title: isCollect.value ? '收藏成功' : '取消成功' })
 }

@@ -18,8 +18,17 @@ const wxLoginForm = ref<WxLoginRequest>({
 
 // 是否同意协议
 const isAgreePrivacy = ref(false)
+const isAgreePrivacyShakeY = ref(false)
+
 const toggleAgreePrivacy = () => {
   isAgreePrivacy.value = !isAgreePrivacy.value
+}
+
+const triggerAgreePrivacyShake = () => {
+  isAgreePrivacyShakeY.value = true
+  setTimeout(() => {
+    isAgreePrivacyShakeY.value = false
+  }, 500)
 }
 
 // 打开协议详情页
@@ -41,7 +50,10 @@ const onOpenPrivacyContract = () => {
 
 // #ifdef MP-WEIXIN
 const wxLogin = async () => {
-  await checkedAgreePrivacy()
+  const isAgreed = await checkedAgreePrivacy()
+  if (!isAgreed) {
+    return
+  }
   const res = await wx.login()
   wxLoginForm.value.code = res.code
   // 显示确认弹窗
@@ -98,7 +110,10 @@ const onSubmit = async () => {
     })
     return
   }
-  await checkedAgreePrivacy()
+  const isAgreed = await checkedAgreePrivacy()
+  if (!isAgreed) {
+    return
+  }
   userStore
     .login(form.value)
     .then(() => {
@@ -135,21 +150,30 @@ const loginSuccess = async () => {
 }
 
 // 请先阅读并勾选协议
-const isAgreePrivacyShakeY = ref(false)
 const checkedAgreePrivacy = async () => {
-  if (!isAgreePrivacy.value) {
-    uni.showToast({
-      icon: 'none',
-      title: '请先阅读并勾选协议内容',
-    })
-    // 震动提示
-    isAgreePrivacyShakeY.value = true
-    setTimeout(() => {
-      isAgreePrivacyShakeY.value = false
-    }, 500)
-    // 返回错误
-    return Promise.reject(new Error('请先阅读并勾选协议内容'))
+  if (isAgreePrivacy.value) {
+    return true
   }
+
+  triggerAgreePrivacyShake()
+
+  return new Promise<boolean>((resolve) => {
+    uni.showModal({
+      title: '提示',
+      content: '请先阅读并勾选协议内容，点击确定后将自动勾选并继续登录',
+      confirmText: '确定',
+      cancelText: '取消',
+      success: ({ confirm }) => {
+        if (confirm) {
+          isAgreePrivacy.value = true
+          resolve(true)
+          return
+        }
+        resolve(false)
+      },
+      fail: () => resolve(false),
+    })
+  })
 }
 
 // 获取 code 登录凭证

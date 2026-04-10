@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import {
-  buildRecommendGoodsActionItem,
-  buildRecommendGoodsUrl,
-  fetchRecommendGoods,
-  reportRecommendExposure,
-  reportRecommendGoodsAction,
-} from '@/modules/recommend'
+import { defRecommendService } from '@/api/app/recommend'
+import { useRecommendStore } from '@/stores'
 import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
@@ -58,6 +53,7 @@ const isVisible = ref(false)
 const exposureBatches = ref<RecommendExposureBatch[]>([])
 // 交叉观察器
 let exposureObserver: any
+const recommendStore = useRecommendStore()
 
 // 获取猜你喜欢数据
 const getHomeGoodsGuessLikeData = async () => {
@@ -67,7 +63,8 @@ const getHomeGoodsGuessLikeData = async () => {
   }
   pageParams.scene = props.scene
   pageParams.orderId = props.orderId
-  const res = await fetchRecommendGoods(pageParams)
+  await recommendStore.getAnonymousId()
+  const res = await defRecommendService.RecommendGoods(pageParams)
   const startIndex = guessList.value.length
   const sceneValue = props.scene
   const list = (res.list || []).map((item, index) => ({
@@ -114,7 +111,8 @@ const reportExposure = async () => {
     }
     batch.exposed = true
     try {
-      await reportRecommendExposure({
+      await recommendStore.getAnonymousId()
+      await defRecommendService.RecommendExposureReport({
         requestId: batch.requestId,
         scene: batch.scene,
         goodsIds: batch.goodsIds,
@@ -128,24 +126,34 @@ const reportExposure = async () => {
 
 const onTapGoods = async (item: GuessGoods) => {
   try {
-    await reportRecommendGoodsAction(RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CLICK, [
-      buildRecommendGoodsActionItem({
-        goodsId: item.id,
-        goodsNum: 1,
-        scene: item.recommendScene,
-        requestId: item.recommendRequestId,
-        position: item.recommendIndex,
-      }),
-    ])
+    await recommendStore.getAnonymousId()
+    await defRecommendService.RecommendGoodsActionReport({
+      eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CLICK,
+      goodsItems: [
+        {
+          goodsId: item.id,
+          goodsNum: 1,
+          recommendContext: {
+            scene: item.recommendScene,
+            requestId: item.recommendRequestId,
+            position: item.recommendIndex,
+          },
+        },
+      ],
+    })
   } catch (error) {
     console.error(error)
   }
+  const params = [`id=${encodeURIComponent(String(item.id))}`]
+  if (item.recommendScene !== RecommendScene.RECOMMEND_SCENE_UNKNOWN) {
+    params.push(`scene=${encodeURIComponent(RecommendScene[item.recommendScene])}`)
+  }
+  if (item.recommendRequestId) {
+    params.push(`requestId=${encodeURIComponent(item.recommendRequestId)}`)
+  }
+  params.push(`index=${encodeURIComponent(String(item.recommendIndex || 0))}`)
   void uni.navigateTo({
-    url: buildRecommendGoodsUrl(item.id, {
-      scene: item.recommendScene,
-      requestId: item.recommendRequestId,
-      index: item.recommendIndex,
-    }),
+    url: `/pages/goods/goods?${params.join('&')}`,
   })
 }
 

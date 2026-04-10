@@ -1,12 +1,6 @@
-import type { RecommendContext, RecommendGoodsActionItem } from '@/rpc/app/recommend'
-import type { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
-import {
-  buildRecommendContext,
-  buildRecommendGoodsActionItem,
-  parseRecommendScene,
-  stringifyRecommendScene,
-} from './context'
-import { reportRecommendGoodsAction, saveRecommendCartTrack } from './track'
+import type { RecommendContext } from '@/rpc/app/recommend'
+import { RecommendScene } from '@/rpc/common/enum'
+import { buildRecommendContext } from './context'
 
 /** 页面路由里允许 scene/index 以字符串形式透传。 */
 export type RecommendRouteQuery = Omit<Partial<RecommendContext>, 'scene' | 'position'> & {
@@ -26,8 +20,33 @@ const resolveRecommendIndex = (index?: string | number): number => {
   return position
 }
 
+/** 兼容路由 query 里字符串或枚举值形式的场景参数。 */
+const parseRecommendScene = (scene?: string): RecommendScene => {
+  if (scene === undefined || scene === null || scene === '') {
+    return RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  }
+  const value = String(scene).trim()
+  if (!value) {
+    return RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  }
+  if (/^\d+$/.test(value)) {
+    const sceneValue = Number(value)
+    return RecommendScene[sceneValue] ? sceneValue : RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  }
+  return (
+    (RecommendScene as unknown as Record<string, RecommendScene | undefined>)[value] ||
+    RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  )
+}
+
+/** 仅在场景有效时输出 query 参数值。 */
+const stringifyRecommendScene = (scene?: RecommendScene): string => {
+  const sceneValue = scene ?? RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  return sceneValue === RecommendScene.RECOMMEND_SCENE_UNKNOWN ? '' : RecommendScene[sceneValue]
+}
+
 /** 从路由 query 解析出规范的推荐上下文。 */
-export const resolveRecommendRouteContext = (
+const resolveRecommendRouteContext = (
   query: RecommendRouteQuery,
 ): RecommendContext => {
   return {
@@ -45,48 +64,8 @@ export const buildRecommendContextByRoute = (query: RecommendRouteQuery): Recomm
   return buildRecommendContext(resolveRecommendRouteContext(query))
 }
 
-/** 从路由参数直接生成商品行为事件项。 */
-export const buildRecommendGoodsActionItemByRoute = (
-  query: RecommendRouteQuery,
-  goodsId: number,
-  goodsNum = 1,
-): RecommendGoodsActionItem => {
-  return buildRecommendGoodsActionItem({
-    ...resolveRecommendRouteContext(query),
-    goodsId,
-    goodsNum,
-  })
-}
-
-/** 路由场景下的商品行为上报快捷入口。 */
-export const reportRecommendGoodsActionByRoute = async (
-  eventType: RecommendGoodsActionType,
-  query: RecommendRouteQuery,
-  goodsId: number,
-  goodsNum = 1,
-): Promise<void> => {
-  await reportRecommendGoodsAction(eventType, [
-    buildRecommendGoodsActionItemByRoute(query, goodsId, goodsNum),
-  ])
-}
-
-/** 进入购物车前先把路由里的推荐上下文暂存下来。 */
-export const saveRecommendCartTrackByRoute = (
-  query: RecommendRouteQuery,
-  goodsId: number,
-  skuCode: string,
-  goodsNum = 1,
-): void => {
-  saveRecommendCartTrack({
-    ...resolveRecommendRouteContext(query),
-    goodsId,
-    skuCode,
-    goodsNum,
-  })
-}
-
 /** 构造落在商品详情页上的推荐 query 字符串。 */
-export const buildRecommendRouteQuery = (query: RecommendRouteQuery): string => {
+const buildRecommendRouteQuery = (query: RecommendRouteQuery): string => {
   const routeContext = resolveRecommendRouteContext(query)
   const params: string[] = []
   const scene = stringifyRecommendScene(routeContext.scene)
