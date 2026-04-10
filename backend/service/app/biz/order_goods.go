@@ -56,7 +56,7 @@ func (c *OrderGoodsCase) mapByOrderIds(ctx context.Context, orderIds []int64) (m
 			if !ok {
 				v = make([]*app.OrderGoods, 0)
 			}
-			v = append(v, c.convertToProto(item))
+			v = append(v, c.mapper.ToDTO(item))
 
 			res[item.OrderID] = v
 		}
@@ -75,7 +75,7 @@ func (c *OrderGoodsCase) listByOrderId(ctx context.Context, orderId int64) ([]*a
 	}
 	list := make([]*app.OrderGoods, 0)
 	for _, item := range all {
-		list = append(list, c.convertToProto(item))
+		list = append(list, c.mapper.ToDTO(item))
 	}
 	return list, nil
 }
@@ -154,14 +154,7 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}
-	return c.convertToProto(model), nil
-}
-
-// 将订单商品模型转换为接口响应
-func (c *OrderGoodsCase) convertToProto(item *models.OrderGoods) *app.OrderGoods {
-	res := c.mapper.ToDTO(item)
-	res.Scene = formatRecommendScene(item.Scene)
-	return res
+	return c.mapper.ToDTO(model), nil
 }
 
 // 将下单商品请求转换为订单商品模型

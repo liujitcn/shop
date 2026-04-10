@@ -512,6 +512,14 @@ export default {
   methods: {
     formatSrc,
     formatPrice,
+    resetState() {
+      let that = this
+      let specList = that.goodsInfo[that.specListName]
+      if (!specList || specList.length === 0) {
+        return
+      }
+      that.init()
+    },
     // 初始化
     init(notAutoClick) {
       let that = this
@@ -681,6 +689,7 @@ export default {
       if (new Date().getTime() - that.openTime < 400) {
         return false
       }
+      that.resetState()
       if (s === 'mask') {
         if (that.maskCloseAble !== false) {
           that.$emit('input', false)
@@ -909,21 +918,19 @@ export default {
       }
       return index
     },
-    // 自动选择sku前提是只有一组sku,默认自动选择最前面的有库存的sku
+    // 打开规格时默认选中第一个有库存的sku
     autoClickSku() {
       let that = this
       let { stockName } = that
       let skuList = that.goodsInfo[that.skuListName]
-      let specListArr = that.goodsInfo[that.specListName]
-      if (specListArr.length === 1) {
-        let specList = specListArr[0].list
-        for (let i = 0; i < specList.length; i++) {
-          let sku = that.getListItem(skuList, that.skuArrName, [specList[i].name])
-          if (sku && sku[stockName] > 0) {
-            that.skuClick(specList[i], 0, i)
-            break
-          }
-        }
+      if (!skuList || skuList.length === 0) {
+        return
+      }
+      let firstStockSku = skuList.find((sku) => sku[stockName] > 0)
+      if (firstStockSku && firstStockSku[that.skuArrName]) {
+        that.selectSku({
+          sku: firstStockSku[that.skuArrName],
+        })
       }
     },
     // 主题颜色
@@ -1124,6 +1131,8 @@ export default {
       let that = this
       if (newVal) {
         that.open()
+      } else if (oldValue) {
+        that.resetState()
       }
     },
     defaultGoods: {
