@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buildRecommendGoodsUrl } from '@/modules/recommend'
 import { useGuessList } from '@/composables'
 import { defOrderService } from '@/api/app/order_info.ts'
 import type { OrderInfoResponse } from '@/rpc/app/order_info'
@@ -31,6 +30,23 @@ const reason = ref('')
 const title = ref('')
 // tips
 const tips = ref('')
+
+const buildGoodsDetailUrl = (
+  goodsId: number,
+  query: { scene?: RecommendScene; requestId?: string; index?: number },
+) => {
+  const params = [`id=${goodsId}`]
+  const scene = query.scene ?? RecommendScene.RECOMMEND_SCENE_UNKNOWN
+  if (scene !== RecommendScene.RECOMMEND_SCENE_UNKNOWN) {
+    params.push(`scene=${encodeURIComponent(RecommendScene[scene])}`)
+  }
+  if (query.requestId) {
+    params.push(`requestId=${encodeURIComponent(query.requestId)}`)
+  }
+  params.push(`index=${encodeURIComponent(String(query.index || 0))}`)
+  return `/pages/goods/goods?${params.join('&')}`
+}
+
 // 复制内容
 const onCopy = (id: string) => {
   // 设置系统剪贴板的内容
@@ -381,7 +397,7 @@ const onConfirmPopup = async () => {
             :key="item.goodsId"
             class="navigator"
             :url="
-              buildRecommendGoodsUrl(item.goodsId, {
+              buildGoodsDetailUrl(item.goodsId, {
                 scene: item.scene,
                 requestId: item.requestId,
                 index: item.position,
