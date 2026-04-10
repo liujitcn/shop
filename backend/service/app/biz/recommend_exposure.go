@@ -4,21 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"strings"
 	"time"
 
-	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	recommendactor "shop/pkg/recommend/actor"
 	recommendcandidate "shop/pkg/recommend/candidate"
 	recommendcontext "shop/pkg/recommend/context"
 	recommendcore "shop/pkg/recommend/core"
 	recommendevent "shop/pkg/recommend/event"
 	"shop/pkg/utils"
+	appDto "shop/service/app/dto"
 
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -61,35 +59,32 @@ func NewRecommendExposureCase(
 		RecommendGoodsRelationRepo:       recommendGoodsRelationRepo,
 		GoodsInfoRepo:                    goodsInfoRepo,
 	}
-	recommendExposureCase.RegisterQueueConsumer(_const.RecommendEvent, recommendExposureCase.SaveRecommendEvent)
+	recommendExposureCase.RegisterQueueConsumer(_const.RecommendExposureEvent, recommendExposureCase.SaveRecommendExposureEvent)
 	return recommendExposureCase
 }
 
-// RecommendExposureReport 接收独立推荐曝光接口并异步投递事件。
-func (c *RecommendExposureCase) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) error {
-	// 空请求直接忽略，避免埋点接口影响主业务流程。
-	if req == nil {
-		return nil
-	}
-
-	actor := recommendactor.Resolve(ctx)
-	publishRecommendExposureEvent(
-		actor,
-		strings.TrimSpace(req.GetRequestId()),
-		recommendcontext.NormalizeSceneEnum(req.GetScene()),
-		req.GetGoodsIds(),
-	)
-	return nil
+// publishRecommendExposureEvent 投递推荐曝光事件。
+func (c *RecommendExposureCase) publishRecommendExposureEvent(actor *appDto.RecommendActor, requestId string, scene common.RecommendScene, goodsIds []int64) {
+	utils.AddQueue(_const.RecommendExposureEvent, &appDto.RecommendEvent{
+		EventType:  recommendevent.EventTypeExposure,
+		UserID:     recommendUserID(actor),
+		ActorType:  actor.ActorType,
+		ActorID:    actor.ActorId,
+		RequestID:  requestId,
+		Scene:      scene,
+		GoodsIDs:   goodsIds,
+		OccurredAt: time.Now().Unix(),
+	})
 }
 
-// SaveRecommendEvent 消费推荐行为事件。
-func (c *RecommendExposureCase) SaveRecommendEvent(message queueData.Message) error {
+// SaveRecommendExposureEvent 消费推荐曝光事件。
+func (c *RecommendExposureCase) SaveRecommendExposureEvent(message queueData.Message) error {
 	rawBody, err := json.Marshal(message.Values)
 	if err != nil {
 		return err
 	}
 
-	payload := make(map[string]*RecommendEvent)
+	payload := make(map[string]*appDto.RecommendEvent)
 	err = json.Unmarshal(rawBody, &payload)
 	if err != nil {
 		return err
@@ -104,7 +99,7 @@ func (c *RecommendExposureCase) SaveRecommendEvent(message queueData.Message) er
 }
 
 // loadActorExposurePenalties 加载当前主体的曝光惩罚分。
-func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, actor *RecommendActor, scene int32, goodsIds []int64) (map[int64]float64, error) {
+func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, actor *appDto.RecommendActor, scene int32, goodsIds []int64) (map[int64]float64, error) {
 	// 主体、场景或候选商品缺失时，不计算曝光惩罚。
 	if actor == nil || actor.ActorId <= 0 || scene == 0 || len(goodsIds) == 0 {
 		return map[int64]float64{}, nil
@@ -183,7 +178,7 @@ func (c *RecommendExposureCase) BindRecommendExposureActor(ctx context.Context, 
 }
 
 // consume 在同一事务中保存明细并执行聚合。
-func (c *RecommendExposureCase) consume(ctx context.Context, event *RecommendEvent) error {
+func (c *RecommendExposureCase) consume(ctx context.Context, event *appDto.RecommendEvent) error {
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err := c.saveEventDetail(ctx, event)
 		if err != nil {
@@ -194,7 +189,7 @@ func (c *RecommendExposureCase) consume(ctx context.Context, event *RecommendEve
 }
 
 // saveEventDetail 保存推荐行为明细。
-func (c *RecommendExposureCase) saveEventDetail(ctx context.Context, event *RecommendEvent) error {
+func (c *RecommendExposureCase) saveEventDetail(ctx context.Context, event *appDto.RecommendEvent) error {
 	// 曝光单独保留批次明细，其余商品行为统一写入行为事实表。
 	var err error
 	switch event.EventType {
@@ -207,7 +202,7 @@ func (c *RecommendExposureCase) saveEventDetail(ctx context.Context, event *Reco
 			RequestID: event.RequestID,
 			ActorType: event.ActorType,
 			ActorID:   event.ActorID,
-			Scene:     event.Scene,
+			Scene:     int32(event.Scene),
 			GoodsIds:  string(goodsIdsJson),
 		})
 	case recommendevent.EventTypeClick, recommendevent.EventTypeView:
@@ -217,7 +212,7 @@ func (c *RecommendExposureCase) saveEventDetail(ctx context.Context, event *Reco
 			EventType: int32(recommendevent.ConvertEventTypeToGoodsActionType(event.EventType)),
 			GoodsID:   event.GoodsID,
 			GoodsNum:  recommendevent.NormalizeGoodsCount(event.GoodsNum),
-			Scene:     event.Scene,
+			Scene:     int32(event.Scene),
 			RequestID: event.RequestID,
 			Position:  event.Position,
 		})
@@ -228,7 +223,7 @@ func (c *RecommendExposureCase) saveEventDetail(ctx context.Context, event *Reco
 			EventType: int32(recommendevent.ConvertEventTypeToGoodsActionType(event.EventType)),
 			GoodsID:   event.GoodsID,
 			GoodsNum:  recommendevent.NormalizeGoodsCount(event.GoodsNum),
-			Scene:     event.Scene,
+			Scene:     int32(event.Scene),
 			RequestID: event.RequestID,
 			Position:  event.Position,
 		})
@@ -255,7 +250,7 @@ func (c *RecommendExposureCase) saveEventDetail(ctx context.Context, event *Reco
 }
 
 // aggregateEvent 聚合推荐行为到画像与商品关联表。
-func (c *RecommendExposureCase) aggregateEvent(ctx context.Context, event *RecommendEvent) error {
+func (c *RecommendExposureCase) aggregateEvent(ctx context.Context, event *appDto.RecommendEvent) error {
 	// 空事件无需聚合，避免事务内继续做无效操作。
 	if event == nil {
 		return nil
@@ -276,7 +271,7 @@ func (c *RecommendExposureCase) aggregateEvent(ctx context.Context, event *Recom
 }
 
 // aggregateSingleGoodsEvent 聚合单商品行为。
-func (c *RecommendExposureCase) aggregateSingleGoodsEvent(ctx context.Context, event *RecommendEvent) error {
+func (c *RecommendExposureCase) aggregateSingleGoodsEvent(ctx context.Context, event *appDto.RecommendEvent) error {
 	// 单商品行为缺少商品ID时无法聚合，直接忽略。
 	if event.GoodsID <= 0 {
 		return nil
@@ -300,17 +295,17 @@ func (c *RecommendExposureCase) aggregateSingleGoodsEvent(ctx context.Context, e
 }
 
 // aggregateOrderGoodsEvent 聚合订单级强行为。
-func (c *RecommendExposureCase) aggregateOrderGoodsEvent(ctx context.Context, event *RecommendEvent) error {
+func (c *RecommendExposureCase) aggregateOrderGoodsEvent(ctx context.Context, event *appDto.RecommendEvent) error {
 	eventTime := recommendevent.EventTime(event)
 	goodsItems := recommendevent.NormalizeGoodsItems(event.GoodsItems)
 	var err error
 	for _, goodsItem := range goodsItems {
-		singleEvent := &RecommendEvent{
+		singleEvent := &appDto.RecommendEvent{
 			EventType:  event.EventType,
 			UserID:     event.UserID,
 			GoodsID:    goodsItem.GoodsID,
 			GoodsNum:   goodsItem.GoodsNum,
-			Scene:      goodsItem.Scene,
+			Scene:      common.RecommendScene(goodsItem.Scene),
 			RequestID:  goodsItem.RequestID,
 			Position:   goodsItem.Position,
 			OccurredAt: event.OccurredAt,
@@ -334,7 +329,7 @@ func (c *RecommendExposureCase) aggregateOrderGoodsEvent(ctx context.Context, ev
 }
 
 // upsertUserGoodsPreference 累计用户对具体商品的偏好得分。
-func (c *RecommendExposureCase) upsertUserGoodsPreference(ctx context.Context, event *RecommendEvent, eventTime time.Time, goodsNum int64) error {
+func (c *RecommendExposureCase) upsertUserGoodsPreference(ctx context.Context, event *appDto.RecommendEvent, eventTime time.Time, goodsNum int64) error {
 	recommendUserGoodsPreferenceQuery := c.RecommendUserGoodsPreferenceRepo.Query(ctx).RecommendUserGoodsPreference
 	entity, err := c.RecommendUserGoodsPreferenceRepo.Find(ctx,
 		repo.Where(recommendUserGoodsPreferenceQuery.UserID.Eq(event.UserID)),
@@ -381,7 +376,7 @@ func (c *RecommendExposureCase) upsertUserGoodsPreference(ctx context.Context, e
 }
 
 // upsertUserCategoryPreference 累计用户对商品类目的偏好得分。
-func (c *RecommendExposureCase) upsertUserCategoryPreference(ctx context.Context, event *RecommendEvent, categoryId int64, eventTime time.Time, goodsNum int64) error {
+func (c *RecommendExposureCase) upsertUserCategoryPreference(ctx context.Context, event *appDto.RecommendEvent, categoryId int64, eventTime time.Time, goodsNum int64) error {
 	// 商品没有有效类目时，不生成类目偏好画像。
 	if categoryId <= 0 {
 		return nil
@@ -431,7 +426,7 @@ func (c *RecommendExposureCase) upsertUserCategoryPreference(ctx context.Context
 }
 
 // upsertGoodsRelation 按同一次推荐请求的共同出现结果累计商品关联度。
-func (c *RecommendExposureCase) upsertGoodsRelation(ctx context.Context, event *RecommendEvent, eventTime time.Time) error {
+func (c *RecommendExposureCase) upsertGoodsRelation(ctx context.Context, event *appDto.RecommendEvent, eventTime time.Time) error {
 	// 只有带 requestId 的请求才参与商品共现关系沉淀。
 	if !recommendcontext.HasRequest(event.RequestID) {
 		return nil
@@ -462,7 +457,7 @@ func (c *RecommendExposureCase) upsertGoodsRelation(ctx context.Context, event *
 }
 
 // upsertOrderGoodsRelations 累计订单内商品的共购与共支付关系。
-func (c *RecommendExposureCase) upsertOrderGoodsRelations(ctx context.Context, event *RecommendEvent, goodsItems []*RecommendEventGoodsItem, eventTime time.Time) error {
+func (c *RecommendExposureCase) upsertOrderGoodsRelations(ctx context.Context, event *appDto.RecommendEvent, goodsItems []*appDto.RecommendEventGoodsItem, eventTime time.Time) error {
 	relationType := recommendevent.RelationType(event.EventType)
 	// 仅下单和支付这类订单级事件需要建立共购关系。
 	if relationType == "" {
@@ -577,18 +572,4 @@ func (c *RecommendExposureCase) upsertSingleGoodsRelation(ctx context.Context, g
 	entity.Evidence = evidenceJson
 	entity.UpdatedAt = eventTime
 	return c.RecommendGoodsRelationRepo.UpdateById(ctx, entity)
-}
-
-// publishRecommendExposureEvent 投递推荐曝光事件。
-func publishRecommendExposureEvent(actor *RecommendActor, requestId string, scene int32, goodsIds []int64) {
-	utils.AddQueue(_const.RecommendEvent, &RecommendEvent{
-		EventType:  recommendevent.EventTypeExposure,
-		UserID:     actor.UserId,
-		ActorType:  actor.ActorType,
-		ActorID:    actor.ActorId,
-		RequestID:  requestId,
-		Scene:      scene,
-		GoodsIDs:   goodsIds,
-		OccurredAt: time.Now().Unix(),
-	})
 }

@@ -1,10 +1,11 @@
 package dto
 
+import "shop/api/gen/go/common"
+
 // RecommendActor 表示推荐链路中的主体信息。
 type RecommendActor struct {
 	ActorType int32
 	ActorId   int64
-	UserId    int64
 }
 
 // RecommendEvent 表示推荐行为事件。
@@ -14,7 +15,7 @@ type RecommendEvent struct {
 	ActorType  int32                      `json:"actorType"`
 	ActorID    int64                      `json:"actorId"`
 	RequestID  string                     `json:"requestId,omitempty"`
-	Scene      int32                      `json:"scene,omitempty"`
+	Scene      common.RecommendScene      `json:"scene,omitempty"`
 	GoodsID    int64                      `json:"goodsId,omitempty"`
 	GoodsIDs   []int64                    `json:"goodsIds,omitempty"`
 	GoodsNum   int64                      `json:"goodsNum,omitempty"`

@@ -1,10 +1,12 @@
 package core
 
-import "shop/pkg/gen/models"
+import (
+	"shop/api/gen/go/app"
+)
 
 // Candidate 表示推荐引擎内部流转的候选商品。
 type Candidate struct {
-	Goods                 *models.GoodsInfo
+	Goods                 *app.GoodsInfo
 	RelationScore         float64
 	UserGoodsScore        float64
 	ProfileScore          float64

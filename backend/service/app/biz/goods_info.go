@@ -7,6 +7,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	recommendCore "shop/pkg/recommend/core"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
@@ -92,13 +93,13 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsI
 	return goodsInfo, nil
 }
 
-// PageGoodsInfo 查询商品分页列表
-func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest) (*app.PageGoodsInfoResponse, error) {
+// PageGoodsInfo 查询商品分页列表。
+func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest, extraOpts ...repo.QueryOption) (*app.PageGoodsInfoResponse, error) {
 	// 是否会员
 	member := util.IsMember(ctx)
 	query := c.Query(ctx)
 	goodsQuery := query.GoodsInfo
-	opts := make([]repo.QueryOption, 0, 5)
+	opts := make([]repo.QueryOption, 0, 5+len(extraOpts))
 	opts = append(opts, repo.Order(goodsQuery.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
 
@@ -124,6 +125,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 			opts = append(opts, repo.Where(goodsQuery.CategoryID.Eq(req.GetCategoryId())))
 		}
 	}
+	opts = append(opts, extraOpts...)
 	page, count, err := c.GoodsInfoRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
@@ -138,6 +140,65 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 		List:  list,
 		Total: int32(count),
 	}, nil
+}
+
+// listByGoodsIds 按商品 ID 顺序查询商品信息。
+func (c *GoodsInfoCase) listByGoodsIds(ctx context.Context, goodsIds []int64) ([]*app.GoodsInfo, error) {
+	// 是否会员
+	member := util.IsMember(ctx)
+	result := make([]*app.GoodsInfo, 0, len(goodsIds))
+	// 没有候选商品时，无需访问数据库。
+	if len(goodsIds) == 0 {
+		return result, nil
+	}
+
+	query := c.GoodsInfoRepo.Query(ctx).GoodsInfo
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Where(query.ID.In(goodsIds...)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsMap := make(map[int64]*models.GoodsInfo, len(list))
+	for _, item := range list {
+		goodsMap[item.ID] = item
+	}
+	for _, goodsId := range goodsIds {
+		item, ok := goodsMap[goodsId]
+		// 查询结果缺少对应商品时，直接跳过无效 ID。
+		if !ok {
+			continue
+		}
+
+		goodsInfo := c.convertToProto(item, member)
+		result = append(result, goodsInfo)
+	}
+	return result, nil
+}
+
+// listCategoryIdsByGoodsIds 根据商品 ID 列表查询分类 ID 列表。
+func (c *GoodsInfoCase) listCategoryIdsByGoodsIds(ctx context.Context, goodsIds []int64) ([]int64, error) {
+	// 没有商品上下文时无需访问数据库查询类目。
+	if len(goodsIds) == 0 {
+		return []int64{}, nil
+	}
+
+	query := c.GoodsInfoRepo.Query(ctx).GoodsInfo
+	list, err := c.GoodsInfoRepo.List(ctx,
+		repo.Where(query.ID.In(goodsIds...)),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryIds := make([]int64, 0, len(list))
+	for _, item := range list {
+		categoryIds = append(categoryIds, item.CategoryID)
+	}
+	return recommendCore.DedupeInt64s(categoryIds), nil
 }
 
 // 按商品编号批量查询并组装映射

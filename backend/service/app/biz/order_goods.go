@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	recommendCore "shop/pkg/recommend/core"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
@@ -89,6 +90,23 @@ func (c *OrderGoodsCase) createByOrder(ctx context.Context, orderId int64, goods
 		item.OrderID = orderId
 	}
 	return c.BatchCreate(ctx, goods)
+}
+
+// listGoodsIdsByOrderId 查询订单中的商品 ID 列表。
+func (c *OrderGoodsCase) listGoodsIdsByOrderId(ctx context.Context, orderId int64) ([]int64, error) {
+	query := c.Query(ctx).OrderGoods
+	list, err := c.List(ctx,
+		repo.Where(query.OrderID.Eq(orderId)),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIds := make([]int64, 0, len(list))
+	for _, item := range list {
+		goodsIds = append(goodsIds, item.GoodsID)
+	}
+	return recommendCore.DedupeInt64s(goodsIds), nil
 }
 
 // convertToModelList 将下单商品列表转换为模型列表

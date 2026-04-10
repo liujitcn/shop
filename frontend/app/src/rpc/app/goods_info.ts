@@ -89,6 +89,8 @@ export interface GoodsInfoResponse_Sku {
 export interface GoodsInfo {
   /** 商品ID */
   id: number;
+  /** 分类ID */
+  categoryId: number;
   /** 名称 */
   name: string;
   /** 描述 */
@@ -99,6 +101,8 @@ export interface GoodsInfo {
   saleNum: number;
   /** 价格 */
   price: number;
+  /** 更新时间 */
+  updatedAt: string;
 }
 
 /** App商品信息服务 */

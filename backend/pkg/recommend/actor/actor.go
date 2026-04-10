@@ -6,30 +6,29 @@ import (
 	"strings"
 
 	recommendevent "shop/pkg/recommend/event"
-	appdto "shop/service/app/dto"
+	appDto "shop/service/app/dto"
 
 	"github.com/go-kratos/kratos/v2/transport"
-	auth "github.com/liujitcn/kratos-kit/auth"
+	"github.com/liujitcn/kratos-kit/auth"
 )
 
 const AnonymousIDHeader = "X-Recommend-Anonymous-Id"
 
 // Resolve 解析推荐主体，登录态优先覆盖匿名主体。
-func Resolve(ctx context.Context) *appdto.RecommendActor {
+func Resolve(ctx context.Context) *appDto.RecommendActor {
 	authInfo, err := auth.FromContext(ctx)
 	if err == nil && authInfo != nil && authInfo.UserId > 0 {
-		return &appdto.RecommendActor{
+		return &appDto.RecommendActor{
 			ActorType: recommendevent.ActorTypeUser,
 			ActorId:   authInfo.UserId,
-			UserId:    authInfo.UserId,
 		}
 	}
 
 	anonymousID := ExtractAnonymousID(ctx)
 	if anonymousID <= 0 {
-		return &appdto.RecommendActor{ActorType: recommendevent.ActorTypeAnonymous}
+		return &appDto.RecommendActor{ActorType: recommendevent.ActorTypeAnonymous}
 	}
-	return &appdto.RecommendActor{
+	return &appDto.RecommendActor{
 		ActorType: recommendevent.ActorTypeAnonymous,
 		ActorId:   anonymousID,
 	}

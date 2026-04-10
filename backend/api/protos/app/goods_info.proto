@@ -178,6 +178,10 @@ message GoodsInfo {
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID
 
+  int64 categoryId = 2 [
+    (gnostic.openapi.v3.property) = {description: "分类ID"}
+  ];  // 分类ID
+
   string name = 4 [
     (gnostic.openapi.v3.property) = {description: "名称"}
   ];  // 名称
@@ -199,4 +203,8 @@ message GoodsInfo {
   int64 price = 41 [
     (gnostic.openapi.v3.property) = { description: "价格" }
   ];
+  
+  string updatedAt = 201 [
+    (gnostic.openapi.v3.property) = {description: "更新时间"}
+  ];// 更新时间
 }

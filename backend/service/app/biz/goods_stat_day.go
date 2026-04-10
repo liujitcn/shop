@@ -7,8 +7,8 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	recommendcandidate "shop/pkg/recommend/candidate"
-	recommendcore "shop/pkg/recommend/core"
-	recommendrank "shop/pkg/recommend/rank"
+	recommendCore "shop/pkg/recommend/core"
+	recommendRank "shop/pkg/recommend/rank"
 
 	"github.com/liujitcn/gorm-kit/repo"
 )
@@ -29,20 +29,17 @@ func NewGoodsStatDayCase(baseCase *biz.BaseCase, goodsStatDayRepo *data.GoodsSta
 
 // mergeAnonymousGoodsIds 合并场景热度与公共热度商品。
 func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGoodsIds []int64, startDate time.Time, limit int) ([]int64, error) {
-	result := recommendcore.DedupeInt64s(sceneGoodsIds)
+	result := recommendCore.DedupeInt64s(sceneGoodsIds)
 	if len(result) >= limit {
 		return result[:limit], nil
 	}
 
-	goodsStatQuery := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
-	list, _, err := c.GoodsStatDayRepo.Page(
-		ctx,
-		1,
-		int64(limit),
-		repo.Where(goodsStatQuery.StatDate.Gte(startDate)),
-		repo.Order(goodsStatQuery.Score.Desc()),
-		repo.Order(goodsStatQuery.StatDate.Desc()),
-	)
+	query := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Where(query.StatDate.Gte(startDate)))
+	opts = append(opts, repo.Order(query.Score.Desc()))
+	opts = append(opts, repo.Order(query.StatDate.Desc()))
+	list, _, err := c.Page(ctx, 1, int64(limit), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +47,7 @@ func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGood
 	for _, item := range list {
 		result = append(result, item.GoodsID)
 	}
-	return recommendcore.DedupeInt64s(result), nil
+	return recommendCore.DedupeInt64s(result), nil
 }
 
 // loadGlobalPopularityScores 加载全站热度分数。
@@ -60,17 +57,17 @@ func (c *GoodsStatDayCase) loadGlobalPopularityScores(ctx context.Context, goods
 	}
 	statQuery := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
 	startDate := time.Now().AddDate(0, 0, -recommendcandidate.StatLookbackDays)
-	list, err := c.GoodsStatDayRepo.List(ctx,
-		repo.Where(statQuery.GoodsID.In(goodsIds...)),
-		repo.Where(statQuery.StatDate.Gte(startDate)),
-	)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Where(statQuery.GoodsID.In(goodsIds...)))
+	opts = append(opts, repo.Where(statQuery.StatDate.Gte(startDate)))
+	list, err := c.GoodsStatDayRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	scores := make(map[int64]float64, len(list))
 	for _, item := range list {
-		scores[item.GoodsID] += item.Score * recommendrank.CalculateDayDecay(item.StatDate)
+		scores[item.GoodsID] += item.Score * recommendRank.CalculateDayDecay(item.StatDate)
 	}
 	return scores, nil
 }

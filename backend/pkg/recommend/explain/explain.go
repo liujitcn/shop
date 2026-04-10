@@ -27,7 +27,7 @@ func BuildScoreDetail(candidate *recommendcore.Candidate) recommendcore.ScoreDet
 		return recommendcore.ScoreDetail{}
 	}
 	return recommendcore.ScoreDetail{
-		GoodsId:               candidate.Goods.ID,
+		GoodsId:               candidate.Goods.Id,
 		FinalScore:            candidate.FinalScore,
 		RelationScore:         candidate.RelationScore,
 		UserGoodsScore:        candidate.UserGoodsScore,

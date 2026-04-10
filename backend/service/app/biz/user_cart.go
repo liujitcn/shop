@@ -8,6 +8,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	recommendcore "shop/pkg/recommend/core"
 	"shop/service/app/util"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -261,4 +262,26 @@ func (c *UserCartCase) deleteByUserIdAndGoodsIdAndSkuCode(ctx context.Context, u
 		repo.Where(query.GoodsID.Eq(goodsId)),
 		repo.Where(query.SkuCode.Eq(skuCode)),
 	)
+}
+
+// listGoodsIdsByUserId 查询指定用户购物车中的商品 ID 列表。
+func (c *UserCartCase) listGoodsIdsByUserId(ctx context.Context, userId int64) ([]int64, error) {
+	// 未登录用户没有专属购物车，直接返回空集合。
+	if userId == 0 {
+		return []int64{}, nil
+	}
+
+	query := c.Query(ctx).UserCart
+	list, err := c.List(ctx,
+		repo.Where(query.UserID.Eq(userId)),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIds := make([]int64, 0, len(list))
+	for _, item := range list {
+		goodsIds = append(goodsIds, item.GoodsID)
+	}
+	return recommendcore.DedupeInt64s(goodsIds), nil
 }

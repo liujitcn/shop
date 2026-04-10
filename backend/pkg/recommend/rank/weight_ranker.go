@@ -5,6 +5,8 @@ import (
 	"time"
 
 	recommendcore "shop/pkg/recommend/core"
+
+	_time "github.com/liujitcn/go-utils/time"
 )
 
 const (
@@ -51,12 +53,13 @@ func CalculateExposurePenalty(exposureCount, clickCount int64) float64 {
 }
 
 // CalculateFreshnessScore 计算商品的新鲜度分数。
-func CalculateFreshnessScore(createdAt time.Time) float64 {
-	if createdAt.IsZero() {
+func CalculateFreshnessScore(createdAtStr string) float64 {
+	createdAt := _time.StringTimeToTime(createdAtStr)
+	if createdAt == nil || createdAt.IsZero() {
 		// 缺失创建时间时无法计算新鲜度。
 		return 0
 	}
-	daysAgo := time.Since(createdAt).Hours() / 24
+	daysAgo := time.Since(*createdAt).Hours() / 24
 	if daysAgo <= 0 {
 		// 当天创建的商品给予满分。
 		return 1
@@ -118,7 +121,9 @@ func RankCandidates(candidates map[int64]*recommendcore.Candidate) []*recommendc
 			// 最终分相同时优先比较场景热度。
 			if list[i].ScenePopularityScore == list[j].ScenePopularityScore {
 				// 场景热度也相同时优先返回更新的商品。
-				return list[i].Goods.CreatedAt.After(list[j].Goods.CreatedAt)
+				iUpdatedAt := _time.StringTimeToTime(list[i].Goods.UpdatedAt)
+				jUpdatedAt := _time.StringTimeToTime(list[j].Goods.UpdatedAt)
+				return (*iUpdatedAt).After(*jUpdatedAt)
 			}
 			return list[i].ScenePopularityScore > list[j].ScenePopularityScore
 		}
