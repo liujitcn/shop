@@ -9,7 +9,7 @@ import (
 	"shop/api/gen/go/common"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	appBiz "shop/service/app/biz"
+	recommendcontext "shop/pkg/recommend/context"
 
 	"github.com/go-kratos/kratos/v2/log"
 )
@@ -87,14 +87,17 @@ func (t *RecommendEvalReport) Exec(args map[string]string) ([]string, error) {
 	return t.buildResult(startAt, endAt, scene, summaryRows, sourceRows), nil
 }
 
+// parseDateRange 解析评估任务的日期范围参数。
 func (t *RecommendEvalReport) parseDateRange(startDate string, endDate string) (time.Time, time.Time, error) {
 	location := time.Now().Location()
+	// 没有指定日期时，默认统计昨天整天的数据。
 	if startDate == "" && endDate == "" {
 		start := time.Now().AddDate(0, 0, -1)
 		start = time.Date(start.Year(), start.Month(), start.Day(), 0, 0, 0, 0, location)
 		return start, start.AddDate(0, 0, 1), nil
 	}
 
+	// 单独传结束日期会导致统计范围不明确，直接返回错误。
 	if startDate == "" {
 		return time.Time{}, time.Time{}, fmt.Errorf("startDate 不能为空")
 	}
@@ -104,13 +107,16 @@ func (t *RecommendEvalReport) parseDateRange(startDate string, endDate string) (
 		return time.Time{}, time.Time{}, fmt.Errorf("startDate 格式错误，应为 2006-01-02")
 	}
 
+	// 未传结束日期时，按开始日期同一天处理。
 	if endDate == "" {
 		endDate = startDate
 	}
-	end, err := time.ParseInLocation("2006-01-02", endDate, location)
+	var end time.Time
+	end, err = time.ParseInLocation("2006-01-02", endDate, location)
 	if err != nil {
 		return time.Time{}, time.Time{}, fmt.Errorf("endDate 格式错误，应为 2006-01-02")
 	}
+	// 结束日期早于开始日期时，不允许继续执行统计。
 	if end.Before(start) {
 		return time.Time{}, time.Time{}, fmt.Errorf("endDate 不能早于 startDate")
 	}
@@ -120,11 +126,14 @@ func (t *RecommendEvalReport) parseDateRange(startDate string, endDate string) (
 	return start, end, nil
 }
 
+// buildSceneFilter 构造离线评估的场景过滤条件。
 func (t *RecommendEvalReport) buildSceneFilter(startAt time.Time, endAt time.Time, scene string) (string, []any) {
 	sceneClause := ""
 	args := []any{startAt, endAt}
+	// 未指定场景时，默认统计全部推荐场景。
 	if scene != "" {
-		sceneValue := appBiz.ParseRecommendSceneForTask(scene)
+		sceneValue := recommendcontext.ParseScene(scene)
+		// 无法识别的场景值直接忽略，避免拼出错误过滤条件。
 		if sceneValue == int32(common.RecommendScene_RECOMMEND_SCENE_UNKNOWN) {
 			return sceneClause, args
 		}
@@ -134,6 +143,7 @@ func (t *RecommendEvalReport) buildSceneFilter(startAt time.Time, endAt time.Tim
 	return sceneClause, args
 }
 
+// buildSummarySQL 构造场景级推荐评估汇总 SQL。
 func (t *RecommendEvalReport) buildSummarySQL(sceneClause string) string {
 	return `
 WITH base_requests AS (
@@ -193,6 +203,7 @@ ORDER BY request_count DESC, br.scene ASC
 `
 }
 
+// buildSourceSQL 构造召回来源维度的推荐评估 SQL。
 func (t *RecommendEvalReport) buildSourceSQL(sceneClause string) string {
 	return `
 WITH request_scope AS (
@@ -241,6 +252,7 @@ ORDER BY br.scene ASC, request_count DESC, br.recall_source ASC
 `
 }
 
+// buildResult 组装推荐离线评估文本结果。
 func (t *RecommendEvalReport) buildResult(
 	startAt time.Time,
 	endAt time.Time,
@@ -251,9 +263,11 @@ func (t *RecommendEvalReport) buildResult(
 	result := []string{
 		fmt.Sprintf("推荐离线评估范围: %s ~ %s", startAt.Format("2006-01-02"), endAt.Add(-time.Nanosecond).Format("2006-01-02")),
 	}
+	// 用户传了场景过滤时，将过滤条件写入结果头部。
 	if scene != "" {
 		result = append(result, fmt.Sprintf("场景过滤: %s", scene))
 	}
+	// 没有推荐请求数据时，直接返回空结果说明。
 	if len(summaryRows) == 0 {
 		return append(result, "未找到推荐请求数据")
 	}
@@ -262,7 +276,7 @@ func (t *RecommendEvalReport) buildResult(
 	for _, row := range summaryRows {
 		result = append(result, fmt.Sprintf(
 			"scene=%s requests=%d exposedReq=%d exposedGoods=%d clickReq=%d clicks=%d payReq=%d pays=%d requestCTR=%.4f exposureCTR=%.4f requestPayCVR=%.4f clickPayCVR=%.4f",
-			appBiz.FormatRecommendSceneForTask(row.Scene),
+			recommendcontext.FormatScene(row.Scene),
 			row.RequestCount,
 			row.ExposedRequestCount,
 			row.ExposedGoodsCount,
@@ -277,6 +291,7 @@ func (t *RecommendEvalReport) buildResult(
 		))
 	}
 
+	// 没有召回来源明细时，只返回场景汇总结果。
 	if len(sourceRows) == 0 {
 		return result
 	}
@@ -285,7 +300,7 @@ func (t *RecommendEvalReport) buildResult(
 	for _, row := range sourceRows {
 		result = append(result, fmt.Sprintf(
 			"scene=%s source=%s requests=%d clickReq=%d payReq=%d requestCTR=%.4f requestPayCVR=%.4f clickPayCVR=%.4f",
-			appBiz.FormatRecommendSceneForTask(row.Scene),
+			recommendcontext.FormatScene(row.Scene),
 			row.RecallSource,
 			row.RequestCount,
 			row.ClickReqCount,

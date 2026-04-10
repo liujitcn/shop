@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -21,17 +28,10 @@ import (
 	wx2 "shop/service/app/wx"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -301,18 +301,23 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	appOrderInfoService := app.NewOrderInfoService(bizOrderInfoCase)
 	payService := app.NewPayService(payCase)
 	recommendRequestRepo := data.NewRecommendRequestRepo(dataData)
-	recommendUserGoodsPreferenceRepo := data.NewRecommendUserGoodsPreferenceRepo(dataData)
 	recommendExposureRepo := data.NewRecommendExposureRepo(dataData)
 	recommendGoodsActionRepo := data.NewRecommendGoodsActionRepo(dataData)
-	goodsStatDayRepo := data.NewGoodsStatDayRepo(dataData)
-	recommendGoodsStatDayRepo := data.NewRecommendGoodsStatDayRepo(dataData)
 	recommendUserPreferenceRepo := data.NewRecommendUserPreferenceRepo(dataData)
-	recommendProfileCase := biz4.NewRecommendProfileCase(baseCase, recommendUserPreferenceRepo)
+	recommendUserGoodsPreferenceRepo := data.NewRecommendUserGoodsPreferenceRepo(dataData)
 	recommendGoodsRelationRepo := data.NewRecommendGoodsRelationRepo(dataData)
-	recommendRelationCase := biz4.NewRecommendRelationCase(baseCase, recommendGoodsRelationRepo)
-	recommendCase := biz4.NewRecommendCase(baseCase, recommendRequestRepo, recommendUserGoodsPreferenceRepo, recommendExposureRepo, recommendGoodsActionRepo, goodsInfoRepo, orderGoodsRepo, userCartRepo, goodsStatDayRepo, recommendGoodsStatDayRepo, recommendProfileCase, recommendRelationCase)
-	recommendEventCase := biz4.NewRecommendEventCase(baseCase, transaction, recommendExposureRepo, recommendGoodsActionRepo, recommendRequestRepo, recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendGoodsRelationRepo, goodsInfoRepo)
-	recommendService := app.NewRecommendService(recommendCase, recommendEventCase)
+	recommendExposureCase := biz4.NewRecommendExposureCase(baseCase, transaction, recommendExposureRepo, recommendGoodsActionRepo, recommendRequestRepo, recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendGoodsRelationRepo, goodsInfoRepo)
+	recommendUserGoodsPreferenceCase := biz4.NewRecommendUserGoodsPreferenceCase(baseCase, recommendUserGoodsPreferenceRepo)
+	recommendUserPreferenceCase := biz4.NewRecommendUserPreferenceCase(baseCase, recommendUserPreferenceRepo)
+	recommendGoodsRelationCase := biz4.NewRecommendGoodsRelationCase(baseCase, recommendGoodsRelationRepo)
+	recommendGoodsStatDayRepo := data.NewRecommendGoodsStatDayRepo(dataData)
+	recommendGoodsStatDayCase := biz4.NewRecommendGoodsStatDayCase(baseCase, recommendGoodsStatDayRepo)
+	goodsStatDayRepo := data.NewGoodsStatDayRepo(dataData)
+	goodsStatDayCase := biz4.NewGoodsStatDayCase(baseCase, goodsStatDayRepo)
+	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, recommendRequestRepo, bizGoodsInfoCase, orderGoodsRepo, userCartRepo, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase)
+	recommendGoodsActionCase := biz4.NewRecommendGoodsActionCase(baseCase, recommendGoodsActionRepo)
+	recommendCase := biz4.NewRecommendCase(baseCase, transaction, recommendRequestCase, recommendExposureCase, recommendGoodsActionCase)
+	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
 	appShopBannerService := app.NewShopBannerService(bizShopBannerCase)
 	bizShopHotCase := biz4.NewShopHotCase(baseCase, shopHotRepo)

@@ -109,50 +109,9 @@ func (c *OrderGoodsCase) convertToModelList(ctx context.Context, goods []*app.Cr
 
 // convertToProtoByCreateOrderInfoGoods 预览下单商品信息
 func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Context, member bool, item *app.CreateOrderInfoGoods) (*app.OrderGoods, error) {
-	// 查询商品信息和规格信息
-	goodsQuery := c.goodsInfoCase.Query(ctx).GoodsInfo
-	goodsInfo, err := c.goodsInfoCase.Find(ctx,
-		repo.Where(goodsQuery.ID.Eq(item.GetGoodsId())),
-		repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	model, err := c.convertToModel(ctx, member, item)
 	if err != nil {
 		return nil, err
-	}
-	skuQuery := c.goodsSkuCase.Query(ctx).GoodsSku
-	var goodsSku *models.GoodsSku
-	goodsSku, err = c.goodsSkuCase.Find(ctx,
-		repo.Where(skuQuery.SkuCode.Eq(item.GetSkuCode())),
-		repo.Where(skuQuery.GoodsID.Eq(item.GetGoodsId())),
-	)
-	if err != nil {
-		return nil, err
-	}
-	picture := goodsInfo.Picture
-	if len(goodsSku.Picture) > 0 {
-		// 规格图片优先级高于商品主图
-		picture = goodsSku.Picture
-	}
-
-	// 支付价格
-	payPrice := goodsSku.Price
-	if member {
-		payPrice = goodsSku.DiscountPrice
-	}
-	recommendContext := item.GetRecommendContext()
-	model := &models.OrderGoods{
-		GoodsID:       goodsInfo.ID,
-		SkuCode:       goodsSku.SkuCode,
-		Picture:       picture,
-		Name:          goodsInfo.Name,
-		Num:           item.GetNum(),
-		SpecItem:      goodsSku.SpecItem,
-		Price:         goodsSku.Price,
-		PayPrice:      payPrice,
-		TotalPrice:    goodsSku.Price * item.GetNum(),
-		TotalPayPrice: payPrice * item.GetNum(),
-		Scene:         normalizeRecommendSceneEnum(recommendContext.GetScene()),
-		RequestID:     recommendContext.GetRequestId(),
-		Position:      recommendContext.GetPosition(),
 	}
 	return c.mapper.ToDTO(model), nil
 }
@@ -201,7 +160,7 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		PayPrice:      payPrice,
 		TotalPrice:    goodsSku.Price * goods.Num,
 		TotalPayPrice: payPrice * goods.Num,
-		Scene:         normalizeRecommendSceneEnum(recommendContext.GetScene()),
+		Scene:         int32(recommendContext.GetScene()),
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}

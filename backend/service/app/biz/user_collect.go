@@ -3,8 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"strings"
-
 	"shop/api/gen/go/app"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
@@ -137,8 +135,8 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 			UserID:    authInfo.UserId,
 			GoodsID:   userCollect.GetGoodsId(),
 			Price:     price,
-			Scene:     normalizeRecommendSceneEnum(recommendContext.GetScene()),
-			RequestID: strings.TrimSpace(recommendContext.GetRequestId()),
+			Scene:     int32(recommendContext.GetScene()),
+			RequestID: recommendContext.GetRequestId(),
 			Position:  recommendContext.GetPosition(),
 		})
 	}

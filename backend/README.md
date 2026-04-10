@@ -40,7 +40,7 @@ backend
 - 推荐主体：同时支持登录用户与匿名主体，匿名主体通过请求头 `X-Recommend-Anonymous-Id` 透传。
 - 行为链路：已覆盖推荐请求、曝光、点击、浏览、收藏、加购、下单、支付明细采集。
 - 排序能力：当前采用“场景关联 + 用户商品偏好 + 类目偏好 + 场景热度 + 全站热度 + 新鲜度”的统一排序，并带有重复购买降权、曝光惩罚和类目打散。
-- 模块结构：推荐公共类型、排序、解释与过滤能力已下沉到 `pkg/recommend`，`service/app/biz` 侧保留商城场景召回与事件处理。
+- 模块结构：推荐公共类型、排序、解释与过滤能力已下沉到 `pkg/recommend`，推荐链路 DTO 统一放在 `service/app/dto`，`service/app/biz` 侧按表对应的 Case 拆分商城场景召回与事件处理。
 - 聚合能力：在线增量维护 `recommend_user_preference`、`recommend_user_goods_preference`、`recommend_goods_relation`，同时支持离线重建。
 
 ## 推荐任务

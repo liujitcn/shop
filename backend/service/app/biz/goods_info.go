@@ -130,13 +130,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 	}
 	list := make([]*app.GoodsInfo, 0)
 	for _, item := range page {
-		price := item.Price
-		if member {
-			price = item.DiscountPrice
-		}
-		goodsInfo := c.listMapper.ToDTO(item)
-		goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
-		goodsInfo.Price = price
+		goodsInfo := c.convertToProto(item, member)
 		list = append(list, goodsInfo)
 	}
 
@@ -196,4 +190,17 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsId, num int64) erro
 	}
 	return res.Error
 
+}
+
+// convertToProto 转换单个商品为接口返回结构
+func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *app.GoodsInfo {
+	goodsInfo := c.listMapper.ToDTO(item)
+	// 会员使用会员价，普通用户返回标准售价。
+	if member {
+		goodsInfo.Price = item.DiscountPrice
+	} else {
+		goodsInfo.Price = item.Price
+	}
+	goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
+	return goodsInfo
 }

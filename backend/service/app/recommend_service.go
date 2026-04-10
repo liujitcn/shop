@@ -18,15 +18,13 @@ const _ = grpc.SupportPackageIsVersion7
 // RecommendService 推荐服务。
 type RecommendService struct {
 	app.UnimplementedRecommendServiceServer
-	recommendCase      *biz.RecommendCase
-	recommendEventCase *biz.RecommendEventCase
+	recommendCase *biz.RecommendCase
 }
 
 // NewRecommendService 创建推荐服务。
-func NewRecommendService(recommendCase *biz.RecommendCase, recommendEventCase *biz.RecommendEventCase) *RecommendService {
+func NewRecommendService(recommendCase *biz.RecommendCase) *RecommendService {
 	var ss = RecommendService{
-		recommendCase:      recommendCase,
-		recommendEventCase: recommendEventCase,
+		recommendCase: recommendCase,
 	}
 	return &ss
 }
@@ -34,6 +32,7 @@ func NewRecommendService(recommendCase *biz.RecommendCase, recommendEventCase *b
 // RecommendAnonymousActor 获取匿名推荐主体。
 func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) (*wrapperspb.Int64Value, error) {
 	res, err := s.recommendCase.RecommendAnonymousActor(ctx, req)
+	// 透出统一错误文案，避免把内部实现细节返回给客户端。
 	if err != nil {
 		log.Error("RecommendAnonymousActor err:", err.Error())
 		return nil, errors.New("获取匿名推荐主体失败")
@@ -43,7 +42,8 @@ func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *emp
 
 // BindRecommendAnonymousActor 绑定匿名推荐主体到当前登录用户。
 func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
-	err := s.recommendEventCase.BindRecommendAnonymousActor(ctx, req)
+	err := s.recommendCase.BindRecommendAnonymousActor(ctx, req)
+	// 绑定失败时统一返回业务错误，避免服务层泄露底层错误。
 	if err != nil {
 		log.Error("BindRecommendAnonymousActor err:", err.Error())
 		return nil, errors.New("绑定匿名推荐主体失败")
@@ -54,6 +54,7 @@ func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req 
 // RecommendGoods 查询推荐商品列表。
 func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.RecommendGoodsRequest) (*app.RecommendGoodsResponse, error) {
 	res, err := s.recommendCase.RecommendGoods(ctx, req)
+	// 推荐结果查询异常时，统一转成稳定的用户可读错误。
 	if err != nil {
 		log.Error("RecommendGoods err:", err.Error())
 		return nil, errors.New("查询推荐商品失败")
@@ -63,7 +64,8 @@ func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.Recommen
 
 // RecommendExposureReport 上报推荐曝光事件。
 func (s *RecommendService) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) (*emptypb.Empty, error) {
-	err := s.recommendEventCase.RecommendExposureReport(ctx, req)
+	err := s.recommendCase.RecommendExposureReport(ctx, req)
+	// 埋点写入失败时返回统一业务错误，避免接口返回内部细节。
 	if err != nil {
 		log.Error("RecommendExposureReport err:", err.Error())
 		return nil, errors.New("上报推荐曝光失败")
@@ -73,7 +75,8 @@ func (s *RecommendService) RecommendExposureReport(ctx context.Context, req *app
 
 // RecommendGoodsActionReport 上报推荐商品行为事件。
 func (s *RecommendService) RecommendGoodsActionReport(ctx context.Context, req *app.RecommendGoodsActionReportRequest) (*emptypb.Empty, error) {
-	err := s.recommendEventCase.RecommendGoodsActionReport(ctx, req)
+	err := s.recommendCase.RecommendGoodsActionReport(ctx, req)
+	// 商品行为埋点失败时统一转成业务错误。
 	if err != nil {
 		log.Error("RecommendGoodsActionReport err:", err.Error())
 		return nil, errors.New("上报推荐商品行为失败")

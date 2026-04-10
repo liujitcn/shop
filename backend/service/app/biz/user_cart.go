@@ -3,8 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"strings"
-
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
@@ -168,7 +166,12 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 				Price:     price,
 				IsChecked: true,
 			}
-			c.applyRecommendContext(userCartModel, userCart.GetRecommendContext())
+			recommendContext := userCart.GetRecommendContext()
+			if recommendContext != nil {
+				userCartModel.Scene = int32(recommendContext.Scene)
+				userCartModel.RequestID = recommendContext.RequestId
+				userCartModel.Position = recommendContext.Position
+			}
 			return c.UserCartRepo.Create(ctx, userCartModel)
 		}
 		return err
@@ -176,7 +179,18 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 
 	// 更新
 	find.Num += userCart.GetNum()
-	c.applyRecommendContext(find, userCart.GetRecommendContext())
+	recommendContext := userCart.GetRecommendContext()
+	if recommendContext != nil {
+		if find.Scene == 0 {
+			find.Scene = int32(recommendContext.Scene)
+		}
+		if find.GoodsID == 0 {
+			find.RequestID = recommendContext.RequestId
+		}
+		if find.Position == 0 {
+			find.Position = recommendContext.Position
+		}
+	}
 	return c.UserCartRepo.UpdateById(ctx, find)
 }
 
@@ -247,41 +261,4 @@ func (c *UserCartCase) deleteByUserIdAndGoodsIdAndSkuCode(ctx context.Context, u
 		repo.Where(query.GoodsID.Eq(goodsId)),
 		repo.Where(query.SkuCode.Eq(skuCode)),
 	)
-}
-
-// applyRecommendContext 将推荐上下文写入购物车模型。
-func (c *UserCartCase) applyRecommendContext(userCart *models.UserCart, recommendContext *app.RecommendContext) {
-	// 购物车模型为空时无需继续处理。
-	if userCart == nil {
-		return
-	}
-
-	scene := int32(0)
-	requestId := ""
-	position := int32(0)
-	// 请求带推荐上下文时优先使用规范化后的值。
-	if recommendContext != nil {
-		scene = normalizeRecommendSceneEnum(recommendContext.GetScene())
-		requestId = strings.TrimSpace(recommendContext.GetRequestId())
-		position = recommendContext.GetPosition()
-	}
-
-	// 带 requestId 的加购允许覆盖旧上下文，保证后续购物车成交可归因。
-	if hasRecommendRequest(requestId) {
-		userCart.Scene = scene
-		userCart.RequestID = requestId
-		userCart.Position = position
-		return
-	}
-
-	// 历史购物车缺少上下文时，补齐剩余推荐字段。
-	if userCart.Scene == 0 {
-		userCart.Scene = scene
-	}
-	if userCart.RequestID == "" {
-		userCart.RequestID = requestId
-	}
-	if userCart.Position == 0 {
-		userCart.Position = position
-	}
 }

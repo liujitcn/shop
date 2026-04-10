@@ -1,4 +1,4 @@
-package biz
+package recommendcontext
 
 import (
 	"strconv"
@@ -7,19 +7,8 @@ import (
 	"shop/api/gen/go/common"
 )
 
-func ParseRecommendSceneForTask(scene string) int32 {
-	return parseRecommendScene(scene)
-}
-
-func normalizeRecommendSceneEnum(scene common.RecommendScene) int32 {
-	return int32(scene)
-}
-
-func hasRecommendRequest(requestID string) bool {
-	return strings.TrimSpace(requestID) != ""
-}
-
-func parseRecommendScene(scene string) int32 {
+// ParseScene 解析任务入参中的推荐场景。
+func ParseScene(scene string) int32 {
 	value := strings.TrimSpace(scene)
 	if value == "" {
 		return int32(common.RecommendScene_RECOMMEND_SCENE_UNKNOWN)
@@ -47,7 +36,18 @@ func parseRecommendScene(scene string) int32 {
 	}
 }
 
-func formatRecommendScene(scene int32) string {
+// NormalizeSceneEnum 统一 proto 场景枚举到存储值。
+func NormalizeSceneEnum(scene common.RecommendScene) int32 {
+	return int32(scene)
+}
+
+// HasRequest 判断推荐请求 ID 是否有效。
+func HasRequest(requestID string) bool {
+	return strings.TrimSpace(requestID) != ""
+}
+
+// FormatScene 将存储值格式化为可读场景名。
+func FormatScene(scene int32) string {
 	sceneValue := common.RecommendScene(scene)
 	if sceneValue == common.RecommendScene_RECOMMEND_SCENE_UNKNOWN {
 		return ""
@@ -56,8 +56,4 @@ func formatRecommendScene(scene int32) string {
 		return sceneValue.String()
 	}
 	return ""
-}
-
-func FormatRecommendSceneForTask(scene int32) string {
-	return formatRecommendScene(scene)
 }
