@@ -4,6 +4,7 @@ import (
 	"context"
 	"shop/api/gen/go/conf"
 	"shop/pkg/configs"
+	"shop/pkg/job"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
@@ -49,10 +50,12 @@ var (
 
 func newApp(
 	ctx *bootstrap.Context,
+	cron *job.CronServer,
 	gs *grpc.Server,
 	hs *http.Server,
 ) *kratos.App {
 	return bootstrap.NewApp(ctx,
+		cron,
 		gs,
 		hs,
 	)

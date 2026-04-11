@@ -10,7 +10,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -112,7 +112,7 @@ func (c *OrderGoodsCase) listGoodsIdsByOrderId(ctx context.Context, orderId int6
 // convertToModelList 将下单商品列表转换为模型列表
 func (c *OrderGoodsCase) convertToModelList(ctx context.Context, goods []*app.CreateOrderInfoGoods) ([]*models.OrderGoods, error) {
 	// 根据登录信息判断当前下单用户是否享受会员价
-	member := util.IsMember(ctx)
+	member := utils.IsMember(ctx)
 
 	orderGoodsList := make([]*models.OrderGoods, 0)
 	for _, item := range goods {

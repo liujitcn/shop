@@ -7,7 +7,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -48,7 +48,7 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 	if err != nil {
 		return nil, err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 	query := c.Query(ctx).UserCollect
 	opts := make([]repo.QueryOption, 0, 1)
 	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
@@ -111,7 +111,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 	if err != nil {
 		return err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 	query := c.Query(ctx).UserCollect
 	// 已存在则执行取消收藏，不存在则创建收藏记录
 	var isCollect bool

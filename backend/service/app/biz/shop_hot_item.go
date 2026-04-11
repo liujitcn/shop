@@ -8,7 +8,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -77,7 +77,7 @@ func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*app.L
 // PageShopHotGoods 查询热门推荐商品
 func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageShopHotGoodsRequest) (*app.PageShopHotGoodsResponse, error) {
 	// 是否会员
-	member := util.IsMember(ctx)
+	member := utils.IsMember(ctx)
 	// 先查询专区和商品关系，再批量回表查询商品详情
 	hotGoodsQuery := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods
 	hotGoodsOpts := make([]repo.QueryOption, 0, 2)

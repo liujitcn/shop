@@ -31,6 +31,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue v0.0.8
 	github.com/liujitcn/kratos-kit/rpc v0.0.4
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.2
+	github.com/liujitcn/kratos-kit/transport/cron v0.0.1
 	github.com/mileusna/useragent v1.3.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
@@ -109,6 +110,7 @@ require (
 	github.com/liujitcn/go-utils/jwt v0.0.1 // indirect
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/broker v0.0.1 // indirect
 	github.com/liujitcn/kratos-kit/config v0.0.7 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.8 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.2 // indirect
@@ -116,6 +118,9 @@ require (
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.7 // indirect
 	github.com/liujitcn/kratos-kit/tracer v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/tracing v0.0.1 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.3 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/utils v0.0.6 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

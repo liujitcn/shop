@@ -12,7 +12,7 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/api/gen/go/conf"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/id"
@@ -56,7 +56,7 @@ func NewAuthCase(
 
 // WxLogin 微信登录
 func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.WxLoginResponse, error) {
-	sessionKey, err := util.GetSessionKey(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret(), req.GetCode())
+	sessionKey, err := utils.GetSessionKey(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret(), req.GetCode())
 	if err != nil {
 		return nil, errors.New("登录失败，code错误")
 	}
@@ -202,7 +202,7 @@ func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*a
 	var accessToken string
 	accessToken, err = sdk.Runtime.GetCache().Get(cacheKeyWxAccessToken)
 	if err != nil {
-		token, tokenErr := util.GetAccessToken(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret())
+		token, tokenErr := utils.GetAccessToken(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret())
 		if tokenErr != nil {
 			return nil, fmt.Errorf("授权失败:%s", tokenErr.Error())
 		}
@@ -215,8 +215,8 @@ func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*a
 		}
 	}
 
-	var phone *util.PhoneNumber
-	phone, err = util.GetPhoneNumber(accessToken, req.GetCode())
+	var phone *utils.PhoneNumber
+	phone, err = utils.GetPhoneNumber(accessToken, req.GetCode())
 	if err != nil {
 		return nil, fmt.Errorf("授权失败:%s", err.Error())
 	}

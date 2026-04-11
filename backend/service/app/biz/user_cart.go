@@ -9,7 +9,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendcore "shop/pkg/recommend/core"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -61,7 +61,7 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 	if err != nil {
 		return nil, err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 	query := c.Query(ctx).UserCart
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
@@ -135,7 +135,7 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	if err != nil {
 		return err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 	cartQuery := c.Query(ctx).UserCart
 	// 先查同一商品同一规格是否已在购物车中，存在则直接累加数量
 	var find *models.UserCart

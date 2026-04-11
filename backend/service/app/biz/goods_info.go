@@ -11,7 +11,7 @@ import (
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -56,7 +56,7 @@ func NewGoodsInfoCase(
 // GetGoodsInfo 查询商品详情
 func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsInfoResponse, error) {
 	// 是否会员
-	member := util.IsMember(ctx)
+	member := utils.IsMember(ctx)
 
 	query := c.Query(ctx).GoodsInfo
 
@@ -96,7 +96,7 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsI
 // PageGoodsInfo 查询商品分页列表。
 func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest, extraOpts ...repo.QueryOption) (*app.PageGoodsInfoResponse, error) {
 	// 是否会员
-	member := util.IsMember(ctx)
+	member := utils.IsMember(ctx)
 	query := c.Query(ctx)
 	goodsQuery := query.GoodsInfo
 	opts := make([]repo.QueryOption, 0, 5+len(extraOpts))
@@ -145,7 +145,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 // listByGoodsIds 按商品 ID 顺序查询商品信息。
 func (c *GoodsInfoCase) listByGoodsIds(ctx context.Context, goodsIds []int64) ([]*app.GoodsInfo, error) {
 	// 是否会员
-	member := util.IsMember(ctx)
+	member := utils.IsMember(ctx)
 	result := make([]*app.GoodsInfo, 0, len(goodsIds))
 	// 没有候选商品时，无需访问数据库。
 	if len(goodsIds) == 0 {

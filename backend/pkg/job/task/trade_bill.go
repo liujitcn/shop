@@ -9,14 +9,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"shop/service/admin/wx"
-	"shop/service/admin/wx/bill"
 	"strings"
 	"time"
 
 	"shop/api/gen/go/admin"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/wx"
+	"shop/pkg/wx/bill"
 
 	"github.com/go-kratos/kratos/v2/log"
 	_string "github.com/liujitcn/go-utils/string"

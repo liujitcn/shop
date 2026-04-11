@@ -1,6 +1,6 @@
 package bill
 
-// TradeBillRequest 交易账单请求
+// TradeBillRequest 交易账单请求。
 type TradeBillRequest struct {
 	// 格式YYYY-MM-DD。仅支持三个月内的账单下载申请
 	BillDate *string `json:"bill_date"`
@@ -8,7 +8,7 @@ type TradeBillRequest struct {
 	BillType *string `json:"bill_type"`
 }
 
-// TradeBillResponse 交易账单响应
+// TradeBillResponse 交易账单响应。
 type TradeBillResponse struct {
 	HashType    *string `json:"hash_type"`    // 哈希类型，固定为SHA1
 	HashValue   *string `json:"hash_value"`   // 账单文件的SHA1摘要值，用于商户侧校验文件的一致性

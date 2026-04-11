@@ -4,23 +4,22 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"shop/service/admin/wx"
 	"strconv"
 	"time"
 
 	"shop/api/gen/go/admin"
+	appApi "shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/wx"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repo"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/payments"
-	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/refunddomestic"
 	"gorm.io/gorm"
 )
@@ -277,28 +276,29 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 	if err != nil {
 		return err
 	}
+	// 只有已支付订单才能继续发货。
 	if orderInfo.Status != int32(common.OrderStatus_PAID) {
 		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
+	// 微信支付订单在发货前需要再次核验支付状态，避免未支付订单被误发货。
 	if common.OrderPayType(orderInfo.PayType) == common.OrderPayType_ONLINE_PAY && common.OrderPayChannel(orderInfo.PayChannel) == common.OrderPayChannel_WX_PAY {
-		var transaction *payments.Transaction
-		transaction, err = c.wxPayCase.QueryOrderByOutTradeNo(jsapi.QueryOrderByOutTradeNoRequest{
-			OutTradeNo: trans.String(orderInfo.OrderNo),
-		})
+		var paymentResource *appApi.PaymentResource
+		paymentResource, err = c.wxPayCase.QueryOrderByOutTradeNo(orderInfo.OrderNo)
 		if err != nil {
 			return err
 		}
 
-		tradeState := trans.StringValue(transaction.TradeState)
-		if tradeState != "SUCCESS" {
-			return fmt.Errorf("订单状态错误：【%s】", tradeState)
+		// 只有微信侧明确返回支付成功，才允许继续同步支付单并发货。
+		if paymentResource.GetTradeState() != appApi.PaymentResource_SUCCESS {
+			return fmt.Errorf("订单状态错误：【%s】", paymentResource.GetTradeState().String())
 		}
 
 		paymentQuery := c.orderPaymentCase.Query(ctx).OrderPayment
 		var orderPayment *models.OrderPayment
 		orderPayment, err = c.orderPaymentCase.Find(ctx, repo.Where(paymentQuery.OrderID.Eq(orderInfo.ID)))
 		if err != nil {
+			// 支付单不存在时按首次补录处理，其余查询异常直接返回。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				orderPayment = &models.OrderPayment{}
 			} else {
@@ -306,21 +306,24 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 			}
 		}
 
-		successTime := _time.StringDateToTime(transaction.SuccessTime)
+		successTime := paymentResource.GetSuccessTime()
+		// 微信未返回成功时间时，使用当前时间兜底，避免后续入库空值。
 		if successTime == nil {
 			now := time.Now()
-			successTime = &now
+			orderPayment.SuccessTime = now
+		} else {
+			orderPayment.SuccessTime = successTime.AsTime()
 		}
 		orderPayment.OrderID = orderInfo.ID
-		orderPayment.OrderNo = trans.StringValue(transaction.OutTradeNo)
-		orderPayment.ThirdOrderNo = trans.StringValue(transaction.TransactionId)
-		orderPayment.TradeType = trans.StringValue(transaction.TradeType)
-		orderPayment.TradeState = tradeState
-		orderPayment.TradeStateDesc = trans.StringValue(transaction.TradeStateDesc)
-		orderPayment.BankType = trans.StringValue(transaction.BankType)
-		orderPayment.SuccessTime = *successTime
-		orderPayment.Payer = _string.ConvertAnyToJsonString(transaction.Payer)
-		orderPayment.Amount = _string.ConvertAnyToJsonString(transaction.Amount)
+		orderPayment.OrderNo = paymentResource.GetOutTradeNo()
+		orderPayment.ThirdOrderNo = paymentResource.GetTransactionId()
+		orderPayment.TradeType = paymentResource.GetTradeType().String()
+		orderPayment.TradeState = paymentResource.GetTradeState().String()
+		orderPayment.TradeStateDesc = paymentResource.GetTradeStateDesc()
+		orderPayment.BankType = paymentResource.GetBankType()
+		orderPayment.Payer = _string.ConvertAnyToJsonString(paymentResource.GetPayer())
+		orderPayment.Amount = _string.ConvertAnyToJsonString(paymentResource.GetAmount())
+		// 首次发货前补录支付单时走创建，已有记录则直接覆盖同步微信最新状态。
 		if orderPayment.ID == 0 {
 			err = c.orderPaymentCase.Create(ctx, orderPayment)
 		} else {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"shop/api/gen/go/app"
+	"shop/api/gen/go/common"
 	"shop/pkg/utils"
 	"time"
 
@@ -24,19 +25,19 @@ import (
 type RecommendExposureCase struct {
 	*biz.BaseCase
 	*data.RecommendExposureRepo
-	recommendGoodsActionCase *RecommendGoodsActionCase
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo
 }
 
 // NewRecommendExposureCase 创建推荐曝光业务处理对象。
 func NewRecommendExposureCase(
 	baseCase *biz.BaseCase,
 	recommendExposureRepo *data.RecommendExposureRepo,
-	recommendGoodsActionCase *RecommendGoodsActionCase,
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
 ) *RecommendExposureCase {
 	recommendExposureCase := &RecommendExposureCase{
 		BaseCase:                 baseCase,
 		RecommendExposureRepo:    recommendExposureRepo,
-		recommendGoodsActionCase: recommendGoodsActionCase,
+		recommendGoodsActionRepo: recommendGoodsActionRepo,
 	}
 	recommendExposureCase.RegisterQueueConsumer(_const.RecommendExposureEvent, recommendExposureCase.saveRecommendExposureEvent)
 	return recommendExposureCase
@@ -92,7 +93,7 @@ func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, 
 	}
 
 	clickCountMap := make(map[int64]int64, len(goodsIds))
-	clickCountMap, err = c.recommendGoodsActionCase.loadRecommendClickCountMap(ctx, actor, scene, cutoff, goodsIds)
+	clickCountMap, err = c.loadRecommendClickCountMap(ctx, actor, scene, cutoff, goodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -153,6 +154,30 @@ func (c *RecommendExposureCase) loadRecommendExposureCountMap(ctx context.Contex
 		for _, goodsID := range ids {
 			countMap[goodsID]++
 		}
+	}
+	return countMap, nil
+}
+
+// loadRecommendClickCountMap 查询当前主体在指定场景下的点击次数。
+func (c *RecommendExposureCase) loadRecommendClickCountMap(ctx context.Context, actor *appdto.RecommendActor, scene int32, cutoff time.Time, goodsIds []int64) (map[int64]int64, error) {
+	query := c.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
+	opts := make([]repo.QueryOption, 0, 6)
+	opts = append(opts, repo.Where(query.ActorType.Eq(actor.ActorType)))
+	opts = append(opts, repo.Where(query.ActorID.Eq(actor.ActorId)))
+	opts = append(opts, repo.Where(query.Scene.Eq(scene)))
+	opts = append(opts, repo.Where(query.EventType.Eq(int32(common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK))))
+	opts = append(opts, repo.Where(query.CreatedAt.Gte(cutoff)))
+	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
+
+	list, err := c.recommendGoodsActionRepo.List(ctx, opts...)
+	// 查询点击行为失败时，直接返回错误交由调用方处理。
+	if err != nil {
+		return nil, err
+	}
+
+	countMap := make(map[int64]int64, len(list))
+	for _, item := range list {
+		countMap[item.GoodsID]++
 	}
 	return countMap, nil
 }

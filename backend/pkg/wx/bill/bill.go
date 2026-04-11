@@ -14,10 +14,10 @@ import (
 	"github.com/wechatpay-apiv3/wechatpay-go/services"
 )
 
-// BillService 微信账单 API 服务
+// BillService 微信账单 API 服务。
 type BillService services.Service
 
-// TradeBill 申请交易账单
+// TradeBill 申请交易账单。
 func (a *BillService) TradeBill(ctx context.Context, req TradeBillRequest) (resp *TradeBillResponse, result *core.APIResult, err error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodGet
@@ -26,9 +26,11 @@ func (a *BillService) TradeBill(ctx context.Context, req TradeBillRequest) (resp
 		localVarHeaderParams = nethttp.Header{}
 	)
 
+	// 缺少账单日期时，微信账单接口无法正常调用。
 	if req.BillDate == nil || len(*req.BillDate) == 0 {
 		return nil, nil, fmt.Errorf("field `BillDate` is required and must be specified in TradeBillRequest")
 	}
+	// 缺少账单类型时，微信账单接口无法正常调用。
 	if req.BillType == nil || len(*req.BillType) == 0 {
 		return nil, nil, fmt.Errorf("field `BillType` is required and must be specified in TradeBillRequest")
 	}
@@ -54,7 +56,7 @@ func (a *BillService) TradeBill(ctx context.Context, req TradeBillRequest) (resp
 	return resp, result, nil
 }
 
-// DownloadBill 下载账单
+// DownloadBill 下载账单。
 func (a *BillService) DownloadBill(ctx context.Context, url string) ([]byte, error) {
 	var (
 		localVarHTTPMethod   = nethttp.MethodGet
@@ -71,10 +73,10 @@ func (a *BillService) DownloadBill(ctx context.Context, url string) ([]byte, err
 	}
 	httpResp := result.Response
 
-	var body []byte
-	body, err = io.ReadAll(httpResp.Body)
+	body, err := io.ReadAll(httpResp.Body)
 	defer func(body io.ReadCloser) {
 		closeErr := body.Close()
+		// 关闭响应体失败时，仅记录日志，不覆盖主流程错误。
 		if closeErr != nil {
 			log.Errorf("failed to close body: %v", closeErr)
 		}

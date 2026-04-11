@@ -198,30 +198,6 @@ func (c *RecommendGoodsActionCase) publishRecommendGoodsActionEvent(actor *appDt
 	})
 }
 
-// loadRecommendClickCountMap 查询当前主体在指定场景下的点击次数。
-func (c *RecommendGoodsActionCase) loadRecommendClickCountMap(ctx context.Context, actor *appDto.RecommendActor, scene int32, cutoff time.Time, goodsIds []int64) (map[int64]int64, error) {
-	query := c.RecommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
-	opts := make([]repo.QueryOption, 0, 6)
-	opts = append(opts, repo.Where(query.ActorType.Eq(actor.ActorType)))
-	opts = append(opts, repo.Where(query.ActorID.Eq(actor.ActorId)))
-	opts = append(opts, repo.Where(query.Scene.Eq(scene)))
-	opts = append(opts, repo.Where(query.EventType.Eq(int32(common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK))))
-	opts = append(opts, repo.Where(query.CreatedAt.Gte(cutoff)))
-	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
-
-	list, err := c.RecommendGoodsActionRepo.List(ctx, opts...)
-	// 查询点击行为失败时，直接返回错误交由调用方处理。
-	if err != nil {
-		return nil, err
-	}
-
-	countMap := make(map[int64]int64, len(list))
-	for _, item := range list {
-		countMap[item.GoodsID]++
-	}
-	return countMap, nil
-}
-
 // upsertGoodsRelation 按同一次推荐请求的共同出现结果累计商品关联度。
 func (c *RecommendGoodsActionCase) upsertGoodsRelation(ctx context.Context, eventType common.RecommendGoodsActionType, requestId string, goodsId, goodsNum int64, eventTime time.Time) error {
 	if requestId == "" {

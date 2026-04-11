@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"shop/api/gen/go/app"
 	"shop/pkg/configs"
-	"shop/service/app/wx"
+	"shop/pkg/wx"
 	"strconv"
 	"strings"
 	"time"

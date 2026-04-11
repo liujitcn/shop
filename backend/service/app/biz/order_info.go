@@ -14,8 +14,8 @@ import (
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
-	"shop/service/app/util"
-	"shop/service/app/wx"
+	"shop/pkg/wx"
+	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/id"
@@ -137,7 +137,7 @@ func (c *OrderInfoCase) OrderInfoPre(ctx context.Context) (*app.ConfirmOrderInfo
 	if err != nil {
 		return nil, err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 
 	// 查询购物车列表
 	userCartQuery := c.userCartCase.Query(ctx).UserCart
@@ -171,7 +171,7 @@ func (c *OrderInfoCase) OrderInfoBuy(ctx context.Context, req *app.CreateOrderIn
 	if err != nil {
 		return nil, err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 
 	// 将单个商品请求封装成统一的下单明细列表
 	createOrderGoods := []*app.CreateOrderInfoGoods{req}
@@ -184,7 +184,7 @@ func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderR
 	if err != nil {
 		return nil, err
 	}
-	member := util.IsMemberByAuthInfo(authInfo)
+	member := utils.IsMemberByAuthInfo(authInfo)
 	var orderInfo *models.OrderInfo
 	orderInfo, err = c.findByUserIdAndId(ctx, authInfo.UserId, req.GetOrderId())
 	if err != nil {

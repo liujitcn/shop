@@ -2,7 +2,6 @@ package app
 
 import (
 	"shop/service/app/biz"
-	"shop/service/app/wx"
 
 	"github.com/google/wire"
 )
@@ -47,8 +46,6 @@ var ProviderSet = wire.NewSet(
 	biz.NewUserCartCase,
 	biz.NewUserCollectCase,
 	biz.NewUserStoreCase,
-
-	wx.NewWxPayCase,
 
 	NewAuthService,
 	NewBaseAreaService,

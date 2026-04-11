@@ -1,8 +1,8 @@
 package job
 
 import (
+	"shop/pkg/job/task"
 	"shop/pkg/utils"
-	"shop/service/admin/task"
 	"strings"
 	"time"
 
@@ -21,8 +21,8 @@ type ExecJob struct {
 	ErrMsg       string
 }
 
-// Run 函数任务执行
-func (e *ExecJob) Run() {
+// Execute 执行任务并写入任务日志。
+func (e *ExecJob) Execute() error {
 	// 记录日志
 	baseJobLog := models.BaseJobLog{
 		JobID:       e.JobId,                                // 定时任务id
@@ -42,8 +42,13 @@ func (e *ExecJob) Run() {
 	baseJobLog.Status = int32(e.Status)
 	baseJobLog.Error = e.ErrMsg
 	// 执行时间
-	baseJobLog.ProcessTime = int32(time.Now().Sub(baseJobLog.ExecuteTime).Milliseconds())
+	baseJobLog.ProcessTime = int32(time.Since(baseJobLog.ExecuteTime).Milliseconds())
 	// 加入日志队列
 	utils.AddQueue(_const.JobLog, baseJobLog)
-	return
+	return err
+}
+
+// Run 函数任务执行
+func (e *ExecJob) Run() {
+	_ = e.Execute()
 }

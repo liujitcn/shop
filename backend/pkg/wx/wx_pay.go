@@ -10,11 +10,13 @@ import (
 	"errors"
 	"fmt"
 	nethttp "net/http"
-	"shop/api/gen/go/app"
-	"shop/api/gen/go/conf"
-	"shop/pkg/biz"
 	"strings"
 	"time"
+
+	appApi "shop/api/gen/go/app"
+	"shop/api/gen/go/conf"
+	"shop/pkg/biz"
+	"shop/pkg/wx/bill"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
@@ -35,7 +37,7 @@ import (
 
 const notifyUrl = "/api/app/pay/notify"
 
-// WxPayCase 微信支付业务实例
+// WxPayCase 微信支付业务实例。
 type WxPayCase struct {
 	*biz.BaseCase
 	wxPay         *conf.WxPay
@@ -44,7 +46,7 @@ type WxPayCase struct {
 	client        *wxPayCore.Client
 }
 
-// NewWxPayCase 创建微信支付业务实例
+// NewWxPayCase 创建微信支付业务实例。
 func NewWxPayCase(baseCase *biz.BaseCase, wxPay *conf.WxPay) (*WxPayCase, error) {
 	mchPrivateKey, err := utils.LoadPrivateKeyWithPath(wxPay.GetMchCertPath())
 	if err != nil {
@@ -71,8 +73,9 @@ func NewWxPayCase(baseCase *biz.BaseCase, wxPay *conf.WxPay) (*WxPayCase, error)
 	}, nil
 }
 
-func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*app.JsapiPayResponse, error) {
-	// 拼接公共参数
+// JsapiPay 创建 JSAPI 支付预下单信息。
+func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*appApi.JsapiPayResponse, error) {
+	// 拼接公共参数。
 	req.Appid = trans.String(c.wxPay.GetAppid())
 	req.Mchid = trans.String(c.wxPay.GetMchId())
 	req.NotifyUrl = trans.String(c.wxPay.GetNotifyUrl() + notifyUrl)
@@ -83,20 +86,18 @@ func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*app.JsapiPayResponse, er
 		log.Errorf("支付失败[%s]", err.Error())
 		return nil, err
 	}
+	// 微信支付返回非成功状态码时，统一按支付失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
 		return nil, errors.New("支付失败")
 	}
 
-	// 1. 生成基础参数
 	nonceStr := strings.ReplaceAll(uuid.New().String(), "-", "")
 	timestamp := fmt.Sprintf("%d", time.Now().Unix())
 	packageStr := fmt.Sprintf("prepay_id=%s", trans.StringValue(resp.PrepayId))
-
-	// 计算签名
 	paySign := c.generatePaySign(timestamp, nonceStr, packageStr)
 
-	return &app.JsapiPayResponse{
+	return &appApi.JsapiPayResponse{
 		AppId:     c.wxPay.GetAppid(),
 		TimeStamp: timestamp,
 		NonceStr:  nonceStr,
@@ -105,8 +106,9 @@ func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*app.JsapiPayResponse, er
 	}, err
 }
 
-func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*app.H5PayResponse, error) {
-	// 拼接公共参数
+// H5Pay 创建 H5 支付预下单信息。
+func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*appApi.H5PayResponse, error) {
+	// 拼接公共参数。
 	req.Appid = trans.String(c.wxPay.GetAppid())
 	req.Mchid = trans.String(c.wxPay.GetMchId())
 	req.NotifyUrl = trans.String(c.wxPay.GetNotifyUrl() + notifyUrl)
@@ -117,18 +119,41 @@ func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*app.H5PayResponse, error) {
 		log.Errorf("支付失败[%s]", err.Error())
 		return nil, err
 	}
+	// 微信支付返回非成功状态码时，统一按支付失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
 		return nil, errors.New("支付失败")
 	}
 
-	return &app.H5PayResponse{
+	return &appApi.H5PayResponse{
 		H5Url: trans.StringValue(resp.H5Url),
 	}, err
 }
 
-// QueryOrderByOutTradeNo 根据商户订单号查询支付订单并转换为项目内支付资源结构
-func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource, error) {
+// TradeBill 申请交易账单。
+func (c *WxPayCase) TradeBill(req bill.TradeBillRequest) (*bill.TradeBillResponse, error) {
+	svc := bill.BillService{Client: c.client}
+	resp, result, err := svc.TradeBill(c.ctx, req)
+	if err != nil {
+		log.Errorf("申请交易账单失败[%s]", err.Error())
+		return nil, errors.New("申请交易账单失败")
+	}
+	// 微信账单接口返回非成功状态码时，统一按申请失败处理。
+	if result.Response.StatusCode != nethttp.StatusOK {
+		log.Errorf("申请交易账单失败[%s]", result.Response.Status)
+		return nil, errors.New("申请交易账单失败")
+	}
+	return resp, nil
+}
+
+// DownloadBill 下载账单。
+func (c *WxPayCase) DownloadBill(url string) ([]byte, error) {
+	svc := bill.BillService{Client: c.client}
+	return svc.DownloadBill(c.ctx, url)
+}
+
+// QueryOrderByOutTradeNo 根据商户订单号查询支付订单并转换为项目内支付资源结构。
+func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appApi.PaymentResource, error) {
 	req := jsapi.QueryOrderByOutTradeNoRequest{
 		OutTradeNo: wxPayCore.String(orderNo),
 		Mchid:      wxPayCore.String(c.wxPay.GetMchId()),
@@ -137,11 +162,12 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource
 	resp, result, err := svc.QueryOrderByOutTradeNo(c.ctx, req)
 	if err != nil {
 		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
+			// 订单在微信侧不存在时，按未支付状态返回，避免上层继续报错。
 			if apiErr.Code == "ORDER_NOT_EXIST" {
-				return &app.PaymentResource{
+				return &appApi.PaymentResource{
 					OutTradeNo:     trans.StringValue(req.OutTradeNo),
 					Mchid:          c.wxPay.GetMchId(),
-					TradeState:     app.PaymentResource_NOTPAY,
+					TradeState:     appApi.PaymentResource_NOTPAY,
 					TradeStateDesc: apiErr.Message,
 				}, nil
 			}
@@ -149,16 +175,18 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource
 		log.Errorf("查询支付失败[%s]", err.Error())
 		return nil, errors.New("查询支付失败")
 	}
+	// 微信支付返回非成功状态码时，统一按查询失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("查询支付失败[%s]", result.Response.Status)
 		return nil, errors.New("查询支付失败")
 	}
 
+	// 微信支付没有返回交易体时，视为查询失败。
 	if resp == nil {
 		return nil, errors.New("查询支付失败")
 	}
 
-	paymentResource := &app.PaymentResource{
+	paymentResource := &appApi.PaymentResource{
 		TransactionId:  trans.StringValue(resp.TransactionId),
 		Mchid:          trans.StringValue(resp.Mchid),
 		BankType:       trans.StringValue(resp.BankType),
@@ -168,46 +196,47 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource
 		Attach:         trans.StringValue(resp.Attach),
 	}
 
-	// 交易状态需要显式映射，避免依赖字符串反序列化带来的未知字段问题
+	// 交易状态需要显式映射，避免依赖字符串反序列化带来的未知字段问题。
 	switch trans.StringValue(resp.TradeState) {
-	case app.PaymentResource_SUCCESS.String():
-		paymentResource.TradeState = app.PaymentResource_SUCCESS
-	case app.PaymentResource_REFUND.String():
-		paymentResource.TradeState = app.PaymentResource_REFUND
-	case app.PaymentResource_NOTPAY.String():
-		paymentResource.TradeState = app.PaymentResource_NOTPAY
-	case app.PaymentResource_CLOSED.String():
-		paymentResource.TradeState = app.PaymentResource_CLOSED
-	case app.PaymentResource_REVOKED.String():
-		paymentResource.TradeState = app.PaymentResource_REVOKED
-	case app.PaymentResource_USERPAYING.String():
-		paymentResource.TradeState = app.PaymentResource_USERPAYING
-	case app.PaymentResource_PAYERROR.String():
-		paymentResource.TradeState = app.PaymentResource_PAYERROR
+	case appApi.PaymentResource_SUCCESS.String():
+		paymentResource.TradeState = appApi.PaymentResource_SUCCESS
+	case appApi.PaymentResource_REFUND.String():
+		paymentResource.TradeState = appApi.PaymentResource_REFUND
+	case appApi.PaymentResource_NOTPAY.String():
+		paymentResource.TradeState = appApi.PaymentResource_NOTPAY
+	case appApi.PaymentResource_CLOSED.String():
+		paymentResource.TradeState = appApi.PaymentResource_CLOSED
+	case appApi.PaymentResource_REVOKED.String():
+		paymentResource.TradeState = appApi.PaymentResource_REVOKED
+	case appApi.PaymentResource_USERPAYING.String():
+		paymentResource.TradeState = appApi.PaymentResource_USERPAYING
+	case appApi.PaymentResource_PAYERROR.String():
+		paymentResource.TradeState = appApi.PaymentResource_PAYERROR
 	default:
-		paymentResource.TradeState = app.PaymentResource_TRADE_STATE_UNSPECIFIED
+		paymentResource.TradeState = appApi.PaymentResource_TRADE_STATE_UNSPECIFIED
 	}
 
-	// 交易类型需要显式映射，确保返回结构与项目 proto 定义一致
+	// 交易类型需要显式映射，确保返回结构与项目 proto 定义一致。
 	switch trans.StringValue(resp.TradeType) {
-	case app.PaymentResource_JSAPI.String():
-		paymentResource.TradeType = app.PaymentResource_JSAPI
-	case app.PaymentResource_NATIVE.String():
-		paymentResource.TradeType = app.PaymentResource_NATIVE
-	case app.PaymentResource_APP.String():
-		paymentResource.TradeType = app.PaymentResource_APP
-	case app.PaymentResource_MICROPAY.String():
-		paymentResource.TradeType = app.PaymentResource_MICROPAY
-	case app.PaymentResource_MWEB.String():
-		paymentResource.TradeType = app.PaymentResource_MWEB
-	case app.PaymentResource_FACEPAY.String():
-		paymentResource.TradeType = app.PaymentResource_FACEPAY
+	case appApi.PaymentResource_JSAPI.String():
+		paymentResource.TradeType = appApi.PaymentResource_JSAPI
+	case appApi.PaymentResource_NATIVE.String():
+		paymentResource.TradeType = appApi.PaymentResource_NATIVE
+	case appApi.PaymentResource_APP.String():
+		paymentResource.TradeType = appApi.PaymentResource_APP
+	case appApi.PaymentResource_MICROPAY.String():
+		paymentResource.TradeType = appApi.PaymentResource_MICROPAY
+	case appApi.PaymentResource_MWEB.String():
+		paymentResource.TradeType = appApi.PaymentResource_MWEB
+	case appApi.PaymentResource_FACEPAY.String():
+		paymentResource.TradeType = appApi.PaymentResource_FACEPAY
 	default:
-		paymentResource.TradeType = app.PaymentResource_TRADE_TYPE_UNSPECIFIED
+		paymentResource.TradeType = appApi.PaymentResource_TRADE_TYPE_UNSPECIFIED
 	}
 
+	// 微信支付返回金额信息时，按项目内资源结构回填。
 	if resp.Amount != nil {
-		paymentResource.Amount = &app.PaymentResource_Amount{
+		paymentResource.Amount = &appApi.PaymentResource_Amount{
 			PayerTotal:    trans.Int64Value(resp.Amount.PayerTotal),
 			Total:         trans.Int64Value(resp.Amount.Total),
 			Currency:      trans.StringValue(resp.Amount.Currency),
@@ -215,14 +244,15 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource
 		}
 	}
 
+	// 微信支付返回支付者信息时，按项目内资源结构回填。
 	if resp.Payer != nil {
-		paymentResource.Payer = &app.PaymentResource_Payer{
+		paymentResource.Payer = &appApi.PaymentResource_Payer{
 			Openid: trans.StringValue(resp.Payer.Openid),
 		}
 	}
 
 	if successTime := trans.StringValue(resp.SuccessTime); successTime != "" {
-		// 微信支付返回 RFC3339 时间，这里统一转换为 protobuf 时间戳
+		// 微信支付返回 RFC3339 时间，这里统一转换为 protobuf 时间戳。
 		parsedTime, parseErr := time.Parse(time.RFC3339, successTime)
 		if parseErr != nil {
 			return nil, parseErr
@@ -233,9 +263,9 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*app.PaymentResource
 	return paymentResource, nil
 }
 
-// Refund 创建退款单
+// Refund 创建退款单。
 func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Refund, error) {
-	// 拼接公共参数
+	// 拼接公共参数。
 	req.NotifyUrl = trans.String(c.wxPay.GetNotifyUrl() + notifyUrl)
 
 	svc := refunddomestic.RefundsApiService{Client: c.client}
@@ -244,6 +274,7 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 		log.Errorf("支付失败[%s]", err.Error())
 		return nil, err
 	}
+	// 微信退款接口返回非成功状态码时，统一按退款失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
 		return nil, errors.New("支付失败")
@@ -252,28 +283,30 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 	return resp, err
 }
 
-// QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构
-func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*app.RefundResource, error) {
+// QueryByOutRefundNo 根据商户退款单号查询退款单并转换为项目内退款资源结构。
+func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*appApi.RefundResource, error) {
 	req := refunddomestic.QueryByOutRefundNoRequest{
 		OutRefundNo: wxPayCore.String(refundOrderNo),
 	}
-	// 拼接公共参数
+
 	svc := refunddomestic.RefundsApiService{Client: c.client}
 	resp, result, err := svc.QueryByOutRefundNo(c.ctx, req)
 	if err != nil {
 		log.Errorf("查询退款失败[%s]", err.Error())
 		return nil, errors.New("查询退款失败")
 	}
+	// 微信退款查询接口返回非成功状态码时，统一按查询失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("查询退款失败[%s]", result.Response.Status)
 		return nil, errors.New("查询退款失败")
 	}
 
+	// 微信退款查询没有返回退款体时，视为查询失败。
 	if resp == nil {
 		return nil, errors.New("查询退款失败")
 	}
 
-	refundResource := &app.RefundResource{
+	refundResource := &appApi.RefundResource{
 		TransactionId:       trans.StringValue(resp.TransactionId),
 		OutTradeNo:          trans.StringValue(resp.OutTradeNo),
 		RefundId:            trans.StringValue(resp.RefundId),
@@ -281,22 +314,23 @@ func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*app.RefundResourc
 		UserReceivedAccount: trans.StringValue(resp.UserReceivedAccount),
 	}
 
-	// 退款状态需要显式映射，避免依赖字符串反序列化带来的未知字段问题
+	// 退款状态需要显式映射，避免依赖字符串反序列化带来的未知字段问题。
 	switch fmt.Sprint(resp.Status) {
-	case app.RefundResource_SUCCESS.String():
-		refundResource.RefundStatus = app.RefundResource_SUCCESS
-	case app.RefundResource_CLOSED.String():
-		refundResource.RefundStatus = app.RefundResource_CLOSED
-	case app.RefundResource_PROCESSING.String():
-		refundResource.RefundStatus = app.RefundResource_PROCESSING
-	case app.RefundResource_ABNORMAL.String():
-		refundResource.RefundStatus = app.RefundResource_ABNORMAL
+	case appApi.RefundResource_SUCCESS.String():
+		refundResource.RefundStatus = appApi.RefundResource_SUCCESS
+	case appApi.RefundResource_CLOSED.String():
+		refundResource.RefundStatus = appApi.RefundResource_CLOSED
+	case appApi.RefundResource_PROCESSING.String():
+		refundResource.RefundStatus = appApi.RefundResource_PROCESSING
+	case appApi.RefundResource_ABNORMAL.String():
+		refundResource.RefundStatus = appApi.RefundResource_ABNORMAL
 	default:
-		refundResource.RefundStatus = app.RefundResource_REFUND_STATUS_UNSPECIFIED
+		refundResource.RefundStatus = appApi.RefundResource_REFUND_STATUS_UNSPECIFIED
 	}
 
+	// 微信退款返回金额信息时，按项目内资源结构回填。
 	if resp.Amount != nil {
-		refundResource.Amount = &app.RefundResource_Amount{
+		refundResource.Amount = &appApi.RefundResource_Amount{
 			Total:       int32(trans.Int64Value(resp.Amount.Total)),
 			Refund:      int32(trans.Int64Value(resp.Amount.Refund)),
 			PayerTotal:  int32(trans.Int64Value(resp.Amount.PayerTotal)),
@@ -304,25 +338,22 @@ func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*app.RefundResourc
 		}
 	}
 
+	// 微信退款 SDK 已将成功时间解析为 time.Time，这里统一转换为 protobuf 时间戳。
 	if resp.SuccessTime != nil {
-		// 微信支付 SDK 已将退款成功时间解析为 time.Time，这里统一转换为 protobuf 时间戳
 		refundResource.SuccessTime = timestamppb.New(*resp.SuccessTime)
 	}
 
 	return refundResource, nil
 }
 
-// Notify 解析微信支付回调通知
+// Notify 解析微信支付回调通知。
 func (c *WxPayCase) Notify(ctx context.Context) (*notify.Request, error) {
-	// 1. 使用 `RegisterDownloaderWithPrivateKey` 注册下载器
 	err := downloader.MgrInstance().RegisterDownloaderWithPrivateKey(ctx, c.mchPrivateKey, c.wxPay.GetMchCertSn(), c.wxPay.GetMchId(), c.wxPay.GetMchAPIv3Key())
 	if err != nil {
 		return nil, err
 	}
-	// 2. 获取商户号对应的微信支付平台证书访问器
 	certificateVisitor := downloader.MgrInstance().GetCertificateVisitor(c.wxPay.GetMchId())
 
-	// 3. 使用证书访问器初始化 `notify.Handler`
 	var handler *notify.Handler
 	handler, err = notify.NewRSANotifyHandler(c.wxPay.GetMchAPIv3Key(), verifiers.NewSHA256WithRSAVerifier(certificateVisitor))
 	if err != nil {
@@ -334,6 +365,7 @@ func (c *WxPayCase) Notify(ctx context.Context) (*notify.Request, error) {
 			httpReq = htr.Request()
 		}
 	}
+	// 无法从上下文提取原始 HTTP 请求时，无法继续验签通知。
 	if httpReq == nil {
 		return nil, errors.New("transport convert nethttp request failed")
 	}
@@ -345,8 +377,8 @@ func (c *WxPayCase) Notify(ctx context.Context) (*notify.Request, error) {
 	return req, nil
 }
 
+// generatePaySign 生成前端支付签名。
 func (c *WxPayCase) generatePaySign(timeStamp, nonceStr, packageStr string) string {
-
 	var signBuilder strings.Builder
 	signBuilder.WriteString(c.wxPay.GetAppid() + "\n")
 	signBuilder.WriteString(timeStamp + "\n")
@@ -356,6 +388,7 @@ func (c *WxPayCase) generatePaySign(timeStamp, nonceStr, packageStr string) stri
 
 	hashed := sha256.Sum256([]byte(signString))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, c.mchPrivateKey, crypto.SHA256, hashed[:])
+	// 本地签名失败时，返回空字符串交由上层按失败处理。
 	if err != nil {
 		return ""
 	}

@@ -7,7 +7,9 @@ import (
 	pkgBiz "shop/pkg/biz"
 	pkgConfigs "shop/pkg/configs"
 	pkgGenData "shop/pkg/gen/data"
+	pkgJob "shop/pkg/job"
 	pkgMiddleware "shop/pkg/middleware"
+	pkgWx "shop/pkg/wx"
 	"shop/server"
 	"shop/service/admin"
 	"shop/service/app"
@@ -22,6 +24,8 @@ import (
 // initApp init kratos application.
 func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 	panic(wire.Build(
+		pkgJob.ProviderSet,
+		pkgWx.ProviderSet,
 		pkgBiz.ProviderSet,
 		pkgConfigs.ProviderSet,
 		pkgGenData.ProviderSet,

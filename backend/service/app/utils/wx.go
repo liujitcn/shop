@@ -1,4 +1,4 @@
-package util
+package utils
 
 import (
 	_http "github.com/liujitcn/go-utils/http"

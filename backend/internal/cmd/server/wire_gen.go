@@ -17,15 +17,15 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
+	"shop/pkg/job"
+	"shop/pkg/job/task"
 	"shop/pkg/middleware"
+	"shop/pkg/wx"
 	"shop/server"
 	"shop/service/admin"
 	biz2 "shop/service/admin/biz"
-	"shop/service/admin/task"
-	"shop/service/admin/wx"
 	"shop/service/app"
 	biz4 "shop/service/app/biz"
-	wx2 "shop/service/app/wx"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
 )
@@ -39,8 +39,6 @@ import (
 
 // initApp init kratos application.
 func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
-	authentication_Jwt := configs.ParseAuthnJwt(context)
-	authenticator := middleware.NewAuthenticator(authentication_Jwt)
 	confData, err := configs.ParseData(context)
 	if err != nil {
 		return nil, nil, err
@@ -51,20 +49,20 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	dataData := data.NewData(client)
-	baseUserRepo := data.NewBaseUserRepo(dataData)
-	engine, err := middleware.NewAuthzEngine()
+	baseJobRepo := data.NewBaseJobRepo(dataData)
+	confOSS, err := configs.ParseOss(context)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
+	ossOSS := oss.NewOSS(confOSS)
+	transaction := data.NewTransaction(dataData)
 	data_Redis := configs.ParseRedis(confData)
 	cacheCache, cleanup2, err := cache.NewCache(data_Redis)
 	if err != nil {
 		cleanup()
 		return nil, nil, err
 	}
-	userToken := middleware.NewUserToken(authentication_Jwt, cacheCache, authenticator)
-	grpcMiddlewares := server.NewGrpcMiddleware(context, authenticator, baseUserRepo, engine, userToken, authentication_Jwt)
 	data_Queue := configs.ParseQueue(confData)
 	queueQueue, cleanup3, err := queue.NewQueue(data_Redis, data_Queue)
 	if err != nil {
@@ -89,6 +87,13 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	casbinRuleRepo := data.NewCasbinRuleRepo(dataData)
 	baseApiRepo := data.NewBaseApiRepo(dataData)
 	baseApiCase := biz.NewBaseApiCase(baseApiRepo)
+	engine, err := middleware.NewAuthzEngine()
+	if err != nil {
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	casbinRuleCase, err := biz.NewCasbinRuleCase(casbinRuleRepo, baseApiCase, engine)
 	if err != nil {
 		cleanup3()
@@ -103,55 +108,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	baseDeptRepo := data.NewBaseDeptRepo(dataData)
-	transaction := data.NewTransaction(dataData)
-	baseRoleRepo := data.NewBaseRoleRepo(dataData)
-	baseMenuRepo := data.NewBaseMenuRepo(dataData)
-	bizBaseApiCase := biz2.NewBaseApiCase(baseCase, baseApiRepo)
-	bizCasbinRuleCase, err := biz2.NewCasbinRuleCase(baseCase, casbinRuleRepo, baseMenuRepo, baseRoleRepo, bizBaseApiCase, engine)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseRoleCase := biz2.NewBaseRoleCase(baseCase, transaction, baseRoleRepo, bizCasbinRuleCase)
-	baseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepo)
-	baseMenuCase := biz2.NewBaseMenuCase(baseCase, transaction, baseMenuRepo, bizCasbinRuleCase)
-	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepo, baseDeptRepo, baseRoleCase, baseDeptCase, baseMenuCase)
-	confOSS, err := configs.ParseOss(context)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	ossOSS := oss.NewOSS(confOSS)
-	fileCase := biz3.NewFileCase(ossOSS)
-	authCase := biz2.NewAuthCase(baseCase, baseUserCase, baseRoleCase, baseDeptCase, baseMenuCase, fileCase)
-	authService := admin.NewAuthService(authCase)
-	baseApiService := admin.NewBaseApiService(bizBaseApiCase)
-	baseConfigRepo := data.NewBaseConfigRepo(dataData)
-	baseConfigCase := biz2.NewBaseConfigCase(baseCase, baseConfigRepo)
-	baseConfigService, err := admin.NewBaseConfigService(baseConfigCase)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	baseDeptService := admin.NewBaseDeptService(baseDeptCase)
-	baseDictRepo := data.NewBaseDictRepo(dataData)
-	baseDictItemRepo := data.NewBaseDictItemRepo(dataData)
-	baseDictItemCase := biz2.NewBaseDictItemCase(baseCase, baseDictRepo, baseDictItemRepo)
-	baseDictCase := biz2.NewBaseDictCase(baseCase, baseDictRepo, baseDictItemCase)
-	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)
-	baseJobRepo := data.NewBaseJobRepo(dataData)
-	baseJobLogRepo := data.NewBaseJobLogRepo(dataData)
-	baseJobLogCase := biz2.NewBaseJobLogCase(baseCase, baseJobLogRepo)
 	shopConfig := configs.NewShopConfig(context)
 	wxPay, err := configs.ParseWxPay(shopConfig)
 	if err != nil {
@@ -173,14 +129,52 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderPaymentRepo := data.NewOrderPaymentRepo(dataData)
 	orderRefundRepo := data.NewOrderRefundRepo(dataData)
 	tradeBill := task.NewTradeBill(dataData, ossOSS, transaction, wxPayCase, payBillRepo, orderPaymentRepo, orderRefundRepo)
-	orderStatDay := task.NewOrderStatDay(dataData, transaction)
-	goodsStatDay := task.NewGoodsStatDay(dataData, transaction)
-	recommendGoodsStatDay := task.NewRecommendGoodsStatDay(dataData, transaction)
-	recommendEvalReport := task.NewRecommendEvalReport(dataData)
-	recommendUserPreferenceRebuild := task.NewRecommendUserPreferenceRebuild(dataData, transaction)
-	recommendGoodsRelationRebuild := task.NewRecommendGoodsRelationRebuild(dataData, transaction)
-	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendGoodsStatDay, recommendEvalReport, recommendUserPreferenceRebuild, recommendGoodsRelationRebuild)
-	baseJobCase := biz2.NewBaseJobCase(baseCase, baseJobRepo, baseJobLogCase, v)
+	v := task.NewTaskList(tradeBill)
+	cronServer := job.NewCronServer(baseJobRepo, v)
+	authentication_Jwt := configs.ParseAuthnJwt(context)
+	authenticator := middleware.NewAuthenticator(authentication_Jwt)
+	baseUserRepo := data.NewBaseUserRepo(dataData)
+	userToken := middleware.NewUserToken(authentication_Jwt, cacheCache, authenticator)
+	grpcMiddlewares := server.NewGrpcMiddleware(context, authenticator, baseUserRepo, engine, userToken, authentication_Jwt)
+	baseDeptRepo := data.NewBaseDeptRepo(dataData)
+	baseRoleRepo := data.NewBaseRoleRepo(dataData)
+	baseMenuRepo := data.NewBaseMenuRepo(dataData)
+	bizBaseApiCase := biz2.NewBaseApiCase(baseCase, baseApiRepo)
+	bizCasbinRuleCase, err := biz2.NewCasbinRuleCase(baseCase, casbinRuleRepo, baseMenuRepo, baseRoleRepo, bizBaseApiCase, engine)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	baseRoleCase := biz2.NewBaseRoleCase(baseCase, transaction, baseRoleRepo, bizCasbinRuleCase)
+	baseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepo)
+	baseMenuCase := biz2.NewBaseMenuCase(baseCase, transaction, baseMenuRepo, bizCasbinRuleCase)
+	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepo, baseDeptRepo, baseRoleCase, baseDeptCase, baseMenuCase)
+	fileCase := biz3.NewFileCase(ossOSS)
+	authCase := biz2.NewAuthCase(baseCase, baseUserCase, baseRoleCase, baseDeptCase, baseMenuCase, fileCase)
+	authService := admin.NewAuthService(authCase)
+	baseApiService := admin.NewBaseApiService(bizBaseApiCase)
+	baseConfigRepo := data.NewBaseConfigRepo(dataData)
+	baseConfigCase := biz2.NewBaseConfigCase(baseCase, baseConfigRepo)
+	baseConfigService, err := admin.NewBaseConfigService(baseConfigCase)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	baseDeptService := admin.NewBaseDeptService(baseDeptCase)
+	baseDictRepo := data.NewBaseDictRepo(dataData)
+	baseDictItemRepo := data.NewBaseDictItemRepo(dataData)
+	baseDictItemCase := biz2.NewBaseDictItemCase(baseCase, baseDictRepo, baseDictItemRepo)
+	baseDictCase := biz2.NewBaseDictCase(baseCase, baseDictRepo, baseDictItemCase)
+	baseDictService := admin.NewBaseDictService(baseDictCase, baseDictItemCase)
+	baseJobLogRepo := data.NewBaseJobLogRepo(dataData)
+	baseJobLogCase := biz2.NewBaseJobLogCase(baseCase, baseJobLogRepo)
+	baseJobCase := biz2.NewBaseJobCase(baseCase, baseJobRepo, baseJobLogCase, cronServer)
 	baseJobService := admin.NewBaseJobService(baseJobCase, baseJobLogCase)
 	baseLogRepo := data.NewBaseLogRepo(dataData)
 	baseLogCase := biz2.NewBaseLogCase(baseCase, baseLogRepo)
@@ -281,16 +275,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	userCartRepo := data.NewUserCartRepo(dataData)
 	userCartCase := biz4.NewUserCartCase(baseCase, userCartRepo, bizGoodsInfoCase, bizGoodsSkuCase)
 	orderSchedulerCase := biz4.NewOrderSchedulerCase(baseCase)
-	wxWxPayCase, err := wx2.NewWxPayCase(baseCase, wxPay)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	payCase := biz4.NewPayCase(baseCase, transaction, orderInfoRepo, orderGoodsRepo, orderPaymentRepo, orderRefundRepo, orderSchedulerCase, wxWxPayCase)
-	bizOrderInfoCase, err := biz4.NewOrderInfoCase(baseCase, transaction, orderInfoRepo, bizOrderCancelCase, bizOrderGoodsCase, bizOrderAddressCase, bizOrderLogisticsCase, bizOrderPaymentCase, bizOrderRefundCase, bizGoodsInfoCase, bizGoodsSkuCase, userAddressCase, userCartCase, bizBaseDictItemCase, orderSchedulerCase, payCase, wxWxPayCase)
+	payCase := biz4.NewPayCase(baseCase, transaction, orderInfoRepo, orderGoodsRepo, orderPaymentRepo, orderRefundRepo, orderSchedulerCase, wxPayCase)
+	bizOrderInfoCase, err := biz4.NewOrderInfoCase(baseCase, transaction, orderInfoRepo, bizOrderCancelCase, bizOrderGoodsCase, bizOrderAddressCase, bizOrderLogisticsCase, bizOrderPaymentCase, bizOrderRefundCase, bizGoodsInfoCase, bizGoodsSkuCase, userAddressCase, userCartCase, bizBaseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -357,7 +343,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	kratosApp := newApp(context, grpcServer, httpServer)
+	kratosApp := newApp(context, cronServer, grpcServer, httpServer)
 	return kratosApp, func() {
 		cleanup4()
 		cleanup3()

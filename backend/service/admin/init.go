@@ -2,8 +2,6 @@ package admin
 
 import (
 	"shop/service/admin/biz"
-	"shop/service/admin/task"
-	"shop/service/admin/wx"
 
 	"github.com/google/wire"
 )
@@ -47,17 +45,6 @@ var ProviderSet = wire.NewSet(
 	biz.NewUserAnalyticsCase,
 	biz.NewUserStoreCase,
 	biz.NewWorkspaceCase,
-
-	task.NewOrderStatDay,
-	task.NewGoodsStatDay,
-	task.NewRecommendGoodsStatDay,
-	task.NewRecommendEvalReport,
-	task.NewRecommendUserPreferenceRebuild,
-	task.NewRecommendGoodsRelationRebuild,
-	task.NewTradeBill,
-	task.NewTaskList,
-
-	wx.NewWxPayCase,
 
 	NewAuthService,
 	NewBaseApiService,

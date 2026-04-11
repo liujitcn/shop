@@ -9,7 +9,7 @@ import (
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
-	"shop/service/app/util"
+	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -48,7 +48,7 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 		return nil, err
 	}
 
-	member := util.IsMember(ctx)
+	member := utils.IsMember(ctx)
 	list := make([]*app.GoodsCategory, 0, len(all))
 	for _, item := range all {
 		category := c.mapper.ToDTO(item)
