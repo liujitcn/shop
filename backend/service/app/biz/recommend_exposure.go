@@ -84,35 +84,15 @@ func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, 
 		return map[int64]float64{}, nil
 	}
 
-	exposureQuery := c.RecommendExposureRepo.Query(ctx).RecommendExposure
-	exposureOpts := make([]repo.QueryOption, 0, 4)
-	exposureOpts = append(exposureOpts, repo.Where(exposureQuery.ActorType.Eq(actor.ActorType)))
-	exposureOpts = append(exposureOpts, repo.Where(exposureQuery.ActorID.Eq(actor.ActorId)))
-	exposureOpts = append(exposureOpts, repo.Where(exposureQuery.Scene.Eq(scene)))
-
 	cutoff := time.Now().AddDate(0, 0, -recommendCandidate.ActorExposureLookbackDays)
-	exposureOpts = append(exposureOpts, repo.Where(exposureQuery.CreatedAt.Gte(cutoff)))
-	exposureList, err := c.RecommendExposureRepo.List(ctx, exposureOpts...)
-	// 查询曝光批次失败时，无法继续计算惩罚分。
+
+	exposureCountMap, err := c.loadRecommendExposureCountMap(ctx, actor, scene, cutoff, goodsIds)
 	if err != nil {
 		return nil, err
 	}
 
-	exposureCountMap := make(map[int64]int64, len(goodsIds))
-	for _, item := range exposureList {
-		ids := make([]int64, 0)
-		// 曝光商品列表反序列化失败时，直接跳过当前批次。
-		if err = json.Unmarshal([]byte(item.GoodsIds), &ids); err != nil {
-			continue
-		}
-		for _, goodsID := range ids {
-			exposureCountMap[goodsID]++
-		}
-	}
-
 	clickCountMap := make(map[int64]int64, len(goodsIds))
 	clickCountMap, err = c.recommendGoodsActionCase.loadRecommendClickCountMap(ctx, actor, scene, cutoff, goodsIds)
-	// 查询点击行为失败时，无法继续计算曝光点击比。
 	if err != nil {
 		return nil, err
 	}
@@ -147,4 +127,32 @@ func (c *RecommendExposureCase) bindRecommendExposureActor(ctx context.Context, 
 			"actor_id":   userId,
 		})
 	return err
+}
+
+func (c *RecommendExposureCase) loadRecommendExposureCountMap(ctx context.Context, actor *appdto.RecommendActor, scene int32, cutoff time.Time, goodsIds []int64) (map[int64]int64, error) {
+	query := c.RecommendExposureRepo.Query(ctx).RecommendExposure
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Where(query.ActorType.Eq(actor.ActorType)))
+	opts = append(opts, repo.Where(query.ActorID.Eq(actor.ActorId)))
+	opts = append(opts, repo.Where(query.Scene.Eq(scene)))
+
+	opts = append(opts, repo.Where(query.CreatedAt.Gte(cutoff)))
+	list, err := c.RecommendExposureRepo.List(ctx, opts...)
+	// 查询曝光批次失败时，无法继续计算惩罚分。
+	if err != nil {
+		return nil, err
+	}
+
+	countMap := make(map[int64]int64, len(goodsIds))
+	for _, item := range list {
+		ids := make([]int64, 0)
+		// 曝光商品列表反序列化失败时，直接跳过当前批次。
+		if err = json.Unmarshal([]byte(item.GoodsIds), &ids); err != nil {
+			continue
+		}
+		for _, goodsID := range ids {
+			countMap[goodsID]++
+		}
+	}
+	return countMap, nil
 }

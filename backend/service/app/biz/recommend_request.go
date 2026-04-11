@@ -217,7 +217,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 		sourceContext["cartGoodsIds"] = cartGoodsIds
 		// 购物车为空时，跳过购物车关联召回。
 		if len(cartGoodsIds) > 0 {
-			priorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, cartGoodsIds, int(pageSize))
+			priorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, cartGoodsIds, pageSize)
 			if err != nil {
 				return nil, 0, nil, nil, err
 			}
@@ -234,7 +234,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 			if err != nil {
 				return nil, 0, nil, nil, err
 			}
-			priorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, orderGoodsIds, int(pageSize))
+			priorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, orderGoodsIds, pageSize)
 			if err != nil {
 				return nil, 0, nil, nil, err
 			}

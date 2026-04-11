@@ -29,14 +29,14 @@ func NewRecommendGoodsStatDayCase(baseCase *biz.BaseCase, recommendGoodsStatDayR
 }
 
 // listSceneHotGoodsIds 查询场景热度商品。
-func (c *RecommendGoodsStatDayCase) listSceneHotGoodsIds(ctx context.Context, scene common.RecommendScene, startDate time.Time, limit int) ([]int64, error) {
+func (c *RecommendGoodsStatDayCase) listSceneHotGoodsIds(ctx context.Context, scene common.RecommendScene, startDate time.Time, limit int64) ([]int64, error) {
 	query := c.RecommendGoodsStatDayRepo.Query(ctx).RecommendGoodsStatDay
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Where(query.Scene.Eq(int32(scene))))
 	opts = append(opts, repo.Where(query.StatDate.Gte(startDate)))
 	opts = append(opts, repo.Order(query.Score.Desc()))
 	opts = append(opts, repo.Order(query.StatDate.Desc()))
-	list, _, err := c.RecommendGoodsStatDayRepo.Page(ctx, 1, int64(limit), opts...)
+	list, _, err := c.RecommendGoodsStatDayRepo.Page(ctx, 1, limit, opts...)
 	if err != nil {
 		return nil, err
 	}

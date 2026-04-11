@@ -6,7 +6,7 @@ import (
 
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
-	recommendcandidate "shop/pkg/recommend/candidate"
+	recommendCandidate "shop/pkg/recommend/candidate"
 	recommendCore "shop/pkg/recommend/core"
 	recommendRank "shop/pkg/recommend/rank"
 
@@ -28,9 +28,9 @@ func NewGoodsStatDayCase(baseCase *biz.BaseCase, goodsStatDayRepo *data.GoodsSta
 }
 
 // mergeAnonymousGoodsIds 合并场景热度与公共热度商品。
-func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGoodsIds []int64, startDate time.Time, limit int) ([]int64, error) {
+func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGoodsIds []int64, startDate time.Time, limit int64) ([]int64, error) {
 	result := recommendCore.DedupeInt64s(sceneGoodsIds)
-	if len(result) >= limit {
+	if int64(len(result)) >= limit {
 		return result[:limit], nil
 	}
 
@@ -39,7 +39,7 @@ func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGood
 	opts = append(opts, repo.Where(query.StatDate.Gte(startDate)))
 	opts = append(opts, repo.Order(query.Score.Desc()))
 	opts = append(opts, repo.Order(query.StatDate.Desc()))
-	list, _, err := c.Page(ctx, 1, int64(limit), opts...)
+	list, _, err := c.Page(ctx, 1, limit, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *GoodsStatDayCase) loadGlobalPopularityScores(ctx context.Context, goods
 		return map[int64]float64{}, nil
 	}
 	statQuery := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
-	startDate := time.Now().AddDate(0, 0, -recommendcandidate.StatLookbackDays)
+	startDate := time.Now().AddDate(0, 0, -recommendCandidate.StatLookbackDays)
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Where(statQuery.GoodsID.In(goodsIds...)))
 	opts = append(opts, repo.Where(statQuery.StatDate.Gte(startDate)))

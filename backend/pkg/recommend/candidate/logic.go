@@ -47,8 +47,8 @@ type AnonymousSignals struct {
 }
 
 // ResolveCandidateLimit 计算当前分页请求的候选池大小。
-func ResolveCandidateLimit(pageNum, pageSize int64) int {
-	limit := int(pageNum * pageSize * PoolMultiplier)
+func ResolveCandidateLimit(pageNum, pageSize int64) int64 {
+	limit := pageNum * pageSize * PoolMultiplier
 	if limit < PoolMin {
 		limit = PoolMin
 	}
