@@ -94,8 +94,8 @@ func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
 		log.Errorf("json Unmarshal error, %s", err.Error())
 		return err
 	}
-	if v, ok := m["data"]; ok {
-		err = c.Create(context.TODO(), v)
+	if baseJobLog, ok := m["data"]; ok {
+		err = c.Create(context.TODO(), baseJobLog)
 		if err != nil {
 			return err
 		}

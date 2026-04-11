@@ -3,11 +3,10 @@ package biz
 import (
 	"context"
 	"shop/api/gen/go/app"
-	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
-	recommendactor "shop/pkg/recommend/actor"
-	recommendevent "shop/pkg/recommend/event"
+	recommendActor "shop/pkg/recommend/actor"
+	recommendEvent "shop/pkg/recommend/event"
 	appdto "shop/service/app/dto"
 
 	"github.com/liujitcn/go-utils/id"
@@ -17,7 +16,7 @@ import (
 )
 
 func recommendUserID(actor *appdto.RecommendActor) int64 {
-	if actor == nil || actor.ActorType != recommendevent.ActorTypeUser {
+	if actor == nil || actor.ActorType != recommendEvent.ActorTypeUser {
 		return 0
 	}
 	return actor.ActorId
@@ -64,7 +63,7 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, req *em
 	}
 
 	// 匿名主体不存在或已经是同一个主体时，直接跳过绑定。
-	anonymousId := recommendactor.ExtractAnonymousID(ctx)
+	anonymousId := recommendActor.ExtractAnonymousID(ctx)
 	if anonymousId <= 0 || anonymousId == authInfo.UserId {
 		return nil
 	}
@@ -74,11 +73,11 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, req *em
 		if err != nil {
 			return err
 		}
-		err = c.recommendExposureCase.BindRecommendExposureActor(ctx, anonymousId, authInfo.UserId)
+		err = c.recommendExposureCase.bindRecommendExposureActor(ctx, anonymousId, authInfo.UserId)
 		if err != nil {
 			return err
 		}
-		err = c.recommendGoodsActionCase.BindRecommendGoodsActionActor(ctx, anonymousId, authInfo.UserId)
+		err = c.recommendGoodsActionCase.bindRecommendGoodsActionActor(ctx, anonymousId, authInfo.UserId)
 		if err != nil {
 			return err
 		}
@@ -101,7 +100,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	}
 	// 每次推荐请求都生成独立 requestID，用于后续曝光归因。
 	requestId := id.NewGUIDv7NoHyphen()
-	actor := recommendactor.Resolve(ctx)
+	actor := recommendActor.Resolve(ctx)
 
 	list := make([]*app.GoodsInfo, 0)
 	total := int64(0)
@@ -111,7 +110,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	recallSources := make([]string, 0, 4)
 	var err error
 	// 匿名主体统一走公共推荐池，减少首页、购物车、我的三端内容分裂。
-	if actor.ActorType == recommendevent.ActorTypeAnonymous {
+	if actor.ActorType == recommendEvent.ActorTypeAnonymous {
 		list, total, recallSources, sourceContext, err = c.recommendRequestCase.listAnonymousRecommendGoods(ctx, actor, req)
 	} else {
 		list, total, recallSources, sourceContext, err = c.recommendRequestCase.listRecommendGoods(ctx, actor, req, recommendUserID(actor))
@@ -136,43 +135,14 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 
 // RecommendExposureReport 上报推荐曝光事件。
 func (c *RecommendCase) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) error {
-	// 空请求直接忽略，避免埋点接口影响主业务流程。
-	if req == nil {
-		return nil
-	}
-
-	actor := recommendactor.Resolve(ctx)
-	c.recommendExposureCase.publishRecommendExposureEvent(
-		actor,
-		req.GetRequestId(),
-		req.GetScene(),
-		req.GetGoodsIds(),
-	)
+	actor := recommendActor.Resolve(ctx)
+	c.recommendExposureCase.publishRecommendExposureEvent(actor, req)
 	return nil
 }
 
 // RecommendGoodsActionReport 上报推荐商品行为事件。
 func (c *RecommendCase) RecommendGoodsActionReport(ctx context.Context, req *app.RecommendGoodsActionReportRequest) error {
-	// 空请求直接返回，异步埋点不做额外失败放大。
-	if req == nil {
-		return nil
-	}
-
-	actor := recommendactor.Resolve(ctx)
-	// 按商品行为类型拆分投递不同事件，保持曝光与商品行为链路独立。
-	switch req.GetEventType() {
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK:
-		c.recommendGoodsActionCase.publishTrackGoodsEvents(actor, req.GetGoodsItems(), publishRecommendClickEvent)
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW:
-		c.recommendGoodsActionCase.publishTrackGoodsViewEvents(actor, req.GetGoodsItems())
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_COLLECT:
-		c.recommendGoodsActionCase.publishTrackGoodsEvents(actor, req.GetGoodsItems(), publishGoodsCollectEvent)
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CART:
-		c.recommendGoodsActionCase.publishTrackGoodsCartEvents(actor, req.GetGoodsItems())
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE:
-		publishOrderCreateEvent(actor, recommendevent.BuildGoodsItemsFromActionItems(req.GetGoodsItems()))
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY:
-		publishOrderPayEvent(actor, recommendevent.BuildGoodsItemsFromActionItems(req.GetGoodsItems()))
-	}
+	actor := recommendActor.Resolve(ctx)
+	c.recommendGoodsActionCase.publishRecommendGoodsActionEvent(actor, req)
 	return nil
 }

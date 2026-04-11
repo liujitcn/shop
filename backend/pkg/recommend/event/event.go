@@ -41,10 +41,10 @@ func BuildGoodsItemsFromOrderGoods(orderGoodsList []*models.OrderGoods) []*appdt
 			continue
 		}
 		goodsItems = append(goodsItems, &appdto.RecommendEventGoodsItem{
-			GoodsID:   orderGoods.GoodsID,
+			GoodsId:   orderGoods.GoodsID,
 			GoodsNum:  orderGoods.Num,
-			Scene:     orderGoods.Scene,
-			RequestID: orderGoods.RequestID,
+			Scene:     common.RecommendScene(orderGoods.Scene),
+			RequestId: orderGoods.RequestID,
 			Position:  orderGoods.Position,
 		})
 	}
@@ -60,10 +60,10 @@ func BuildGoodsItemsFromActionItems(goodsItems []*app.RecommendGoodsActionItem) 
 		}
 		recommendCtx := goodsItem.GetRecommendContext()
 		list = append(list, &appdto.RecommendEventGoodsItem{
-			GoodsID:   goodsItem.GetGoodsId(),
+			GoodsId:   goodsItem.GetGoodsId(),
 			GoodsNum:  goodsItem.GetGoodsNum(),
-			Scene:     recommendcontext.NormalizeSceneEnum(recommendCtx.GetScene()),
-			RequestID: strings.TrimSpace(recommendCtx.GetRequestId()),
+			Scene:     common.RecommendScene(recommendcontext.NormalizeSceneEnum(recommendCtx.GetScene())),
+			RequestId: strings.TrimSpace(recommendCtx.GetRequestId()),
 			Position:  recommendCtx.GetPosition(),
 		})
 	}
@@ -74,7 +74,7 @@ func BuildGoodsItemsFromActionItems(goodsItems []*app.RecommendGoodsActionItem) 
 func NormalizeGoodsItems(goodsItems []*appdto.RecommendEventGoodsItem) []*appdto.RecommendEventGoodsItem {
 	list := make([]*appdto.RecommendEventGoodsItem, 0, len(goodsItems))
 	for _, goodsItem := range goodsItems {
-		if goodsItem == nil || goodsItem.GoodsID <= 0 {
+		if goodsItem == nil || goodsItem.GoodsId <= 0 {
 			continue
 		}
 		if goodsItem.GoodsNum <= 0 {
@@ -101,8 +101,8 @@ func NormalizeGoodsCount(goodsNum int64) int64 {
 	return goodsNum
 }
 
-// EventTime 获取事件发生时间。
-func EventTime(event *appdto.RecommendEvent) time.Time {
+// EventTime 获取商品行为事件发生时间。
+func EventTime(event *appdto.RecommendGoodsActionEvent) time.Time {
 	if event == nil || event.OccurredAt <= 0 {
 		return time.Now()
 	}

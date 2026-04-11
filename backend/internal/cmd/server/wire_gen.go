@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -21,17 +28,10 @@ import (
 	wx2 "shop/service/app/wx"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -306,7 +306,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendUserPreferenceRepo := data.NewRecommendUserPreferenceRepo(dataData)
 	recommendUserGoodsPreferenceRepo := data.NewRecommendUserGoodsPreferenceRepo(dataData)
 	recommendGoodsRelationRepo := data.NewRecommendGoodsRelationRepo(dataData)
-	recommendExposureCase := biz4.NewRecommendExposureCase(baseCase, transaction, recommendExposureRepo, recommendGoodsActionRepo, recommendRequestRepo, recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendGoodsRelationRepo, goodsInfoRepo)
+	recommendGoodsActionCase := biz4.NewRecommendGoodsActionCase(baseCase, transaction, recommendGoodsActionRepo, recommendRequestRepo, recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendGoodsRelationRepo, goodsInfoRepo)
+	recommendExposureCase := biz4.NewRecommendExposureCase(baseCase, recommendExposureRepo, recommendGoodsActionCase)
 	recommendUserGoodsPreferenceCase := biz4.NewRecommendUserGoodsPreferenceCase(baseCase, recommendUserGoodsPreferenceRepo)
 	recommendUserPreferenceCase := biz4.NewRecommendUserPreferenceCase(baseCase, recommendUserPreferenceRepo)
 	recommendGoodsRelationCase := biz4.NewRecommendGoodsRelationCase(baseCase, recommendGoodsRelationRepo)
@@ -315,7 +316,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	goodsStatDayRepo := data.NewGoodsStatDayRepo(dataData)
 	goodsStatDayCase := biz4.NewGoodsStatDayCase(baseCase, goodsStatDayRepo)
 	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, recommendRequestRepo, bizGoodsInfoCase, bizOrderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase)
-	recommendGoodsActionCase := biz4.NewRecommendGoodsActionCase(baseCase, recommendGoodsActionRepo, recommendExposureCase)
 	recommendCase := biz4.NewRecommendCase(baseCase, transaction, recommendRequestCase, recommendExposureCase, recommendGoodsActionCase)
 	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
