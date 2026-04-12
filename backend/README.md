@@ -41,13 +41,19 @@ backend
 - 行为链路：已覆盖推荐请求、曝光、点击、浏览、收藏、加购、下单、支付明细采集。
 - 排序能力：当前采用“场景关联 + 用户商品偏好 + 类目偏好 + 场景热度 + 全站热度 + 新鲜度”的统一排序，并带有重复购买降权、曝光惩罚和类目打散。
 - 模块结构：推荐公共类型、排序、解释与过滤能力已下沉到 `pkg/recommend`，推荐链路 DTO 统一放在 `service/app/dto`，`service/app/biz` 侧按表对应的 Case 拆分商城场景召回与事件处理。
-- 聚合能力：在线增量维护 `recommend_user_preference`、`recommend_user_goods_preference`、`recommend_goods_relation`，同时支持离线重建。
+- 聚合能力：当前已在线增量维护 `recommend_user_preference`、`recommend_user_goods_preference`、`recommend_goods_relation`，离线重建所需原始表已具备，但重建执行器尚未补齐。
+- 改造方向：推荐能力后续按“商城专用 Gorse 化推荐服务”演进，不走通用推荐平台路线，并严格区分“商城业务事实层 / 商城推荐域层 / Gorse 内核层”三层边界，见 [docs/recommendation-gorse-mall-roadmap.md](docs/recommendation-gorse-mall-roadmap.md)。
+- 现状评估：推荐链路闭环检查与 Gorse 差距分析见 [docs/recommendation-chain-review.md](docs/recommendation-chain-review.md)。
+- 表结构差距：MySQL 场景下的推荐表结构缺口记录见 [docs/recommendation-mysql-gap.md](docs/recommendation-mysql-gap.md)。
 
 ## 推荐任务
 
-当前已接入以下推荐相关后台任务：
+当前代码中已接入以下推荐相关后台任务：
 
 - `RecommendGoodsStatDay`：推荐商品日统计
+
+当前 `sql/default-data.sql` 中还预置了以下推荐任务名称，但仓库当前代码尚未实现对应执行器：
+
 - `RecommendEvalReport`：推荐离线评估报告
 - `RecommendUserPreferenceRebuild`：推荐用户偏好重建，要求传入或默认使用固定 30 天窗口
 - `RecommendGoodsRelationRebuild`：推荐商品关联重建，要求传入或默认使用固定 30 天窗口

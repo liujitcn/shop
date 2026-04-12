@@ -2,6 +2,11 @@
 
 本文基于 `backend/service/app/recommend_service.go` 及其当前工作区关联实现编写，结论时间为 2026-04-12。对照项使用的是当天可访问的 Gorse 官方 README 与文档页面。
 
+阅读说明：
+
+- 本文负责回答“当前链路是否闭环、和 Gorse 还差什么”。
+- 如果要看后续应该按什么目标继续推进，请优先阅读 [recommendation-gorse-mall-roadmap.md](recommendation-gorse-mall-roadmap.md)。
+
 ## 结论
 
 当前仓库的推荐能力已经形成了一条“基础业务闭环”：

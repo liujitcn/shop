@@ -8,6 +8,7 @@ import (
 	"shop/api/gen/go/base"
 	"shop/pkg/gen/data"
 	"shop/pkg/utils"
+	"strings"
 	"time"
 
 	_const "shop/pkg/const"
@@ -32,7 +33,7 @@ type Redacter interface {
 }
 
 // Server is an server logging middleware.
-func Server(logger log.Logger,
+func Server(_ log.Logger,
 	baseUserRepo *data.BaseUserRepo,
 	authenticator authnEngine.Authenticator,
 ) middleware.Middleware {
@@ -143,19 +144,42 @@ func Server(logger log.Logger,
 			}
 			// 写入日志
 			utils.AddQueue(_const.Log, &baseLog)
-			log.NewHelper(log.WithContext(ctx, logger)).Log(level,
-				"kind", "server",
-				"component", kind,
-				"operation", baseLog.Operation,
-				"args", baseLog.RequestBody,
-				"code", baseLog.StatusCode,
-				"reason", baseLog.Reason,
-				"stack", stack,
-				"latency", baseLog.CostTime,
-			)
+			logLine := buildAccessLogLine(kind, &baseLog)
+			// 错误请求使用错误级别输出，便于在控制台快速筛选异常请求。
+			if level == log.LevelError {
+				log.Error(logLine)
+			} else {
+				// 非错误请求统一输出单行文本日志，避免结构化日志过于冗长。
+				log.Info(logLine)
+			}
 			return
 		}
 	}
+}
+
+// buildAccessLogLine 构造控制台单行访问日志。
+func buildAccessLogLine(kind string, baseLog *models.BaseLog) string {
+	return fmt.Sprintf(
+		"请求方法=%s 请求方式=%s 请求路径=%s 请求参数=%s 状态码=%d 请求耗时=%s",
+		normalizeLogField(baseLog.Method),
+		normalizeLogField(kind),
+		normalizeLogField(baseLog.Path),
+		normalizeLogField(baseLog.RequestBody),
+		baseLog.StatusCode,
+		fmt.Sprintf("%dms", baseLog.CostTime),
+	)
+}
+
+// normalizeLogField 将日志字段压缩成单行文本。
+func normalizeLogField(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "-"
+	}
+	value = strings.ReplaceAll(value, "\r\n", " ")
+	value = strings.ReplaceAll(value, "\n", " ")
+	value = strings.ReplaceAll(value, "\r", " ")
+	return strings.Join(strings.Fields(value), " ")
 }
 
 // extractArgs returns the string of the req
