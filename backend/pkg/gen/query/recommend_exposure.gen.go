@@ -32,7 +32,6 @@ func newRecommendExposure(db *gorm.DB, opts ...gen.DOOption) recommendExposure {
 	_recommendExposure.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendExposure.ActorID = field.NewInt64(tableName, "actor_id")
 	_recommendExposure.Scene = field.NewInt32(tableName, "scene")
-	_recommendExposure.GoodsIds = field.NewString(tableName, "goods_ids")
 	_recommendExposure.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_recommendExposure.fillFieldMap()
@@ -50,7 +49,6 @@ type recommendExposure struct {
 	ActorType field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID   field.Int64  // 主体ID：匿名ID或用户ID
 	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
-	GoodsIds  field.String // 曝光商品ID列表JSON
 	CreatedAt field.Time   // 创建时间
 
 	fieldMap map[string]field.Expr
@@ -73,7 +71,6 @@ func (r *recommendExposure) updateTableName(table string) *recommendExposure {
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
 	r.Scene = field.NewInt32(table, "scene")
-	r.GoodsIds = field.NewString(table, "goods_ids")
 	r.CreatedAt = field.NewTime(table, "created_at")
 
 	r.fillFieldMap()
@@ -103,13 +100,12 @@ func (r *recommendExposure) GetFieldByName(fieldName string) (field.OrderExpr, b
 }
 
 func (r *recommendExposure) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 7)
+	r.fieldMap = make(map[string]field.Expr, 6)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["request_id"] = r.RequestID
 	r.fieldMap["actor_type"] = r.ActorType
 	r.fieldMap["actor_id"] = r.ActorID
 	r.fieldMap["scene"] = r.Scene
-	r.fieldMap["goods_ids"] = r.GoodsIds
 	r.fieldMap["created_at"] = r.CreatedAt
 }
 

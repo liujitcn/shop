@@ -3,41 +3,49 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"shop/api/gen/go/app"
-	"shop/api/gen/go/common"
-	"shop/pkg/utils"
 	"time"
 
+	"shop/api/gen/go/app"
+	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendCandidate "shop/pkg/recommend/candidate"
 	recommendevent "shop/pkg/recommend/event"
+	"shop/pkg/utils"
 	appdto "shop/service/app/dto"
 
-	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
+
+// recommendExposureEvent 推荐曝光队列事件。
+type recommendExposureEvent struct {
+	Exposure *models.RecommendExposure `json:"exposure"`
+	GoodsIds []int64                   `json:"goodsIds"`
+}
 
 // RecommendExposureCase 推荐曝光业务处理对象。
 type RecommendExposureCase struct {
 	*biz.BaseCase
 	*data.RecommendExposureRepo
-	recommendGoodsActionRepo *data.RecommendGoodsActionRepo
+	recommendExposureItemCase *RecommendExposureItemCase
+	recommendGoodsActionRepo  *data.RecommendGoodsActionRepo
 }
 
 // NewRecommendExposureCase 创建推荐曝光业务处理对象。
 func NewRecommendExposureCase(
 	baseCase *biz.BaseCase,
 	recommendExposureRepo *data.RecommendExposureRepo,
+	recommendExposureItemCase *RecommendExposureItemCase,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
 ) *RecommendExposureCase {
 	recommendExposureCase := &RecommendExposureCase{
-		BaseCase:                 baseCase,
-		RecommendExposureRepo:    recommendExposureRepo,
-		recommendGoodsActionRepo: recommendGoodsActionRepo,
+		BaseCase:                  baseCase,
+		RecommendExposureRepo:     recommendExposureRepo,
+		recommendExposureItemCase: recommendExposureItemCase,
+		recommendGoodsActionRepo:  recommendGoodsActionRepo,
 	}
 	recommendExposureCase.RegisterQueueConsumer(_const.RecommendExposureEvent, recommendExposureCase.saveRecommendExposureEvent)
 	return recommendExposureCase
@@ -51,7 +59,7 @@ func (c *RecommendExposureCase) saveRecommendExposureEvent(message queueData.Mes
 		return err
 	}
 
-	payload := make(map[string]*models.RecommendExposure)
+	payload := make(map[string]*recommendExposureEvent)
 	err = json.Unmarshal(rawBody, &payload)
 	// 队列消息反序列化失败时，直接返回错误交由上层处理。
 	if err != nil {
@@ -59,22 +67,36 @@ func (c *RecommendExposureCase) saveRecommendExposureEvent(message queueData.Mes
 	}
 
 	event, ok := payload["data"]
-	// 队列消息缺少业务体时直接丢弃，避免消费者重复报错。
-	if !ok || event == nil {
+	// 队列体或主表数据缺失时，不再继续落库。
+	if !ok || event == nil || event.Exposure == nil {
 		return nil
 	}
-	return c.Create(context.TODO(), event)
+
+	return c.RecommendExposureRepo.Data.Transaction(context.TODO(), func(ctx context.Context) error {
+		err := c.RecommendExposureRepo.Create(ctx, event.Exposure)
+		if err != nil {
+			return err
+		}
+		return c.recommendExposureItemCase.batchCreateByRecommendExposure(ctx, event.Exposure.ID, event.Exposure.RequestID, event.GoodsIds)
+	})
 }
 
 // publishRecommendExposureEvent 投递推荐曝光事件。
 func (c *RecommendExposureCase) publishRecommendExposureEvent(actor *appdto.RecommendActor, req *app.RecommendExposureReportRequest) {
-	utils.AddQueue(_const.RecommendExposureEvent, &models.RecommendExposure{
-		RequestID: req.GetRequestId(),
-		ActorType: actor.ActorType,
-		ActorID:   actor.ActorId,
-		Scene:     int32(req.GetScene()),
-		GoodsIds:  _string.ConvertInt64ArrayToString(req.GetGoodsIds()),
-		CreatedAt: time.Now(),
+	// 空请求直接忽略，避免埋点接口影响主流程。
+	if req == nil {
+		return
+	}
+
+	utils.AddQueue(_const.RecommendExposureEvent, &recommendExposureEvent{
+		Exposure: &models.RecommendExposure{
+			RequestID: req.GetRequestId(),
+			ActorType: actor.ActorType,
+			ActorID:   actor.ActorId,
+			Scene:     int32(req.GetScene()),
+			CreatedAt: time.Now(),
+		},
+		GoodsIds: req.GetGoodsIds(),
 	})
 }
 
@@ -87,7 +109,7 @@ func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, 
 
 	cutoff := time.Now().AddDate(0, 0, -recommendCandidate.ActorExposureLookbackDays)
 
-	exposureCountMap, err := c.loadRecommendExposureCountMap(ctx, actor, scene, cutoff, goodsIds)
+	exposureCountMap, err := c.recommendExposureItemCase.loadRecommendExposureCountMap(ctx, actor, scene, cutoff, goodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -99,17 +121,17 @@ func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, 
 	}
 
 	penalties := make(map[int64]float64, len(goodsIds))
-	for _, goodsID := range goodsIds {
-		exposureCount := exposureCountMap[goodsID]
-		clickCount := clickCountMap[goodsID]
+	for _, goodsId := range goodsIds {
+		exposureCount := exposureCountMap[goodsId]
+		clickCount := clickCountMap[goodsId]
 		// 曝光明显偏高且没有点击时，直接下调该商品权重。
 		if exposureCount >= 3 && clickCount == 0 {
-			penalties[goodsID] = 0.6
+			penalties[goodsId] = 0.6
 			continue
 		}
 		// 曝光很高但点击率极低时，施加更强的曝光惩罚。
 		if exposureCount >= 5 && clickCount*20 < exposureCount {
-			penalties[goodsID] = 0.3
+			penalties[goodsId] = 0.3
 		}
 	}
 	return penalties, nil
@@ -128,34 +150,6 @@ func (c *RecommendExposureCase) bindRecommendExposureActor(ctx context.Context, 
 			"actor_id":   userId,
 		})
 	return err
-}
-
-func (c *RecommendExposureCase) loadRecommendExposureCountMap(ctx context.Context, actor *appdto.RecommendActor, scene int32, cutoff time.Time, goodsIds []int64) (map[int64]int64, error) {
-	query := c.RecommendExposureRepo.Query(ctx).RecommendExposure
-	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Where(query.ActorType.Eq(actor.ActorType)))
-	opts = append(opts, repo.Where(query.ActorID.Eq(actor.ActorId)))
-	opts = append(opts, repo.Where(query.Scene.Eq(scene)))
-
-	opts = append(opts, repo.Where(query.CreatedAt.Gte(cutoff)))
-	list, err := c.RecommendExposureRepo.List(ctx, opts...)
-	// 查询曝光批次失败时，无法继续计算惩罚分。
-	if err != nil {
-		return nil, err
-	}
-
-	countMap := make(map[int64]int64, len(goodsIds))
-	for _, item := range list {
-		ids := make([]int64, 0)
-		// 曝光商品列表反序列化失败时，直接跳过当前批次。
-		if err = json.Unmarshal([]byte(item.GoodsIds), &ids); err != nil {
-			continue
-		}
-		for _, goodsID := range ids {
-			countMap[goodsID]++
-		}
-	}
-	return countMap, nil
 }
 
 // loadRecommendClickCountMap 查询当前主体在指定场景下的点击次数。

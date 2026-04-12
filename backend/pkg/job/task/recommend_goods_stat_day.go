@@ -2,7 +2,6 @@ package task
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -29,7 +28,9 @@ type RecommendGoodsStatDay struct {
 	tx                        data.Transaction
 	recommendGoodsStatDayRepo *data.RecommendGoodsStatDayRepo
 	recommendRequestRepo      *data.RecommendRequestRepo
+	recommendRequestItemRepo  *data.RecommendRequestItemRepo
 	recommendExposureRepo     *data.RecommendExposureRepo
+	recommendExposureItemRepo *data.RecommendExposureItemRepo
 	recommendGoodsActionRepo  *data.RecommendGoodsActionRepo
 	orderGoodsRepo            *data.OrderGoodsRepo
 	ctx                       context.Context
@@ -40,7 +41,9 @@ func NewRecommendGoodsStatDay(
 	tx data.Transaction,
 	recommendGoodsStatDayRepo *data.RecommendGoodsStatDayRepo,
 	recommendRequestRepo *data.RecommendRequestRepo,
+	recommendRequestItemRepo *data.RecommendRequestItemRepo,
 	recommendExposureRepo *data.RecommendExposureRepo,
+	recommendExposureItemRepo *data.RecommendExposureItemRepo,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
 	orderGoodsRepo *data.OrderGoodsRepo,
 ) *RecommendGoodsStatDay {
@@ -48,7 +51,9 @@ func NewRecommendGoodsStatDay(
 		tx:                        tx,
 		recommendGoodsStatDayRepo: recommendGoodsStatDayRepo,
 		recommendRequestRepo:      recommendRequestRepo,
+		recommendRequestItemRepo:  recommendRequestItemRepo,
 		recommendExposureRepo:     recommendExposureRepo,
+		recommendExposureItemRepo: recommendExposureItemRepo,
 		recommendGoodsActionRepo:  recommendGoodsActionRepo,
 		orderGoodsRepo:            orderGoodsRepo,
 		ctx:                       context.Background(),
@@ -103,20 +108,32 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+
+		requestSceneMap := make(map[int64]int32, len(requestList))
+		requestRecordIds := make([]int64, 0, len(requestList))
 		for _, item := range requestList {
-			var goodsIds []int64
-			// 请求商品列表 JSON 非法时直接失败，避免统计口径失真。
-			err = json.Unmarshal([]byte(item.GoodsIds), &goodsIds)
-			// 请求商品列表解析失败时，直接返回错误避免请求口径失真。
+			// 非法请求主表记录直接跳过，避免污染 item 明细查询条件。
+			if item.ID <= 0 {
+				continue
+			}
+			requestSceneMap[item.ID] = item.Scene
+			requestRecordIds = append(requestRecordIds, item.ID)
+		}
+		// 请求主记录存在时，再读取逐商品明细累计请求次数。
+		if len(requestRecordIds) > 0 {
+			recommendRequestItemQuery := t.recommendRequestItemRepo.Query(ctx).RecommendRequestItem
+			requestItemList, err := t.recommendRequestItemRepo.List(ctx, repo.Where(recommendRequestItemQuery.RecommendRequestID.In(requestRecordIds...)))
+			// 推荐请求逐商品明细查询失败时，直接返回错误避免统计结果不完整。
 			if err != nil {
 				return err
 			}
-			for _, goodsId := range goodsIds {
-				// 非法商品不参与统计。
-				if goodsId <= 0 {
+			for _, item := range requestItemList {
+				scene, ok := requestSceneMap[item.RecommendRequestID]
+				// 逐商品明细无法匹配主表场景或商品非法时，直接跳过。
+				if !ok || item.GoodsID <= 0 {
 					continue
 				}
-				ensureStat(item.Scene, goodsId).RequestCount++
+				ensureStat(scene, item.GoodsID).RequestCount++
 			}
 		}
 
@@ -129,20 +146,32 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+
+		exposureSceneMap := make(map[int64]int32, len(exposureList))
+		exposureIds := make([]int64, 0, len(exposureList))
 		for _, item := range exposureList {
-			var goodsIds []int64
-			// 曝光商品列表 JSON 非法时直接失败，避免统计口径失真。
-			err = json.Unmarshal([]byte(item.GoodsIds), &goodsIds)
-			// 曝光商品列表解析失败时，直接返回错误避免曝光口径失真。
+			// 非法曝光主表记录直接跳过，避免污染 item 明细查询条件。
+			if item.ID <= 0 {
+				continue
+			}
+			exposureSceneMap[item.ID] = item.Scene
+			exposureIds = append(exposureIds, item.ID)
+		}
+		// 曝光主记录存在时，再读取逐商品明细累计曝光次数。
+		if len(exposureIds) > 0 {
+			recommendExposureItemQuery := t.recommendExposureItemRepo.Query(ctx).RecommendExposureItem
+			exposureItemList, err := t.recommendExposureItemRepo.List(ctx, repo.Where(recommendExposureItemQuery.RecommendExposureID.In(exposureIds...)))
+			// 推荐曝光逐商品明细查询失败时，直接返回错误避免统计结果不完整。
 			if err != nil {
 				return err
 			}
-			for _, goodsId := range goodsIds {
-				// 非法商品不参与统计。
-				if goodsId <= 0 {
+			for _, item := range exposureItemList {
+				scene, ok := exposureSceneMap[item.RecommendExposureID]
+				// 逐商品明细无法匹配主表场景或商品非法时，直接跳过。
+				if !ok || item.GoodsID <= 0 {
 					continue
 				}
-				ensureStat(item.Scene, goodsId).ExposureCount++
+				ensureStat(scene, item.GoodsID).ExposureCount++
 			}
 		}
 

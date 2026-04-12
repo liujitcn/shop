@@ -20,8 +20,6 @@ type RecommendRequest struct {
 	SourceContext string    `gorm:"column:source_context;type:json;comment:场景上下文JSON" json:"source_context"`                                                                                                    // 场景上下文JSON
 	PageNum       int32     `gorm:"column:page_num;type:int;not null;default:1;comment:页码" json:"page_num"`                                                                                                     // 页码
 	PageSize      int32     `gorm:"column:page_size;type:int;not null;default:10;comment:分页大小" json:"page_size"`                                                                                                // 分页大小
-	GoodsIds      string    `gorm:"column:goods_ids;type:json;not null;comment:推荐商品ID列表JSON" json:"goods_ids"`                                                                                                  // 推荐商品ID列表JSON
-	RecallSources string    `gorm:"column:recall_sources;type:json;comment:召回来源JSON" json:"recall_sources"`                                                                                                     // 召回来源JSON
 	CreatedAt     time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:4;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
 }
 

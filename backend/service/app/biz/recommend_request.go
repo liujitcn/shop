@@ -22,6 +22,7 @@ import (
 type RecommendRequestCase struct {
 	*biz.BaseCase
 	*data.RecommendRequestRepo
+	recommendRequestItemCase         *RecommendRequestItemCase
 	goodsInfoCase                    *GoodsInfoCase
 	orderGoodsCase                   *OrderGoodsCase
 	userCartCase                     *UserCartCase
@@ -37,6 +38,7 @@ type RecommendRequestCase struct {
 func NewRecommendRequestCase(
 	baseCase *biz.BaseCase,
 	recommendRequestRepo *data.RecommendRequestRepo,
+	recommendRequestItemCase *RecommendRequestItemCase,
 	goodsInfoCase *GoodsInfoCase,
 	orderGoodsCase *OrderGoodsCase,
 	userCartCase *UserCartCase,
@@ -50,6 +52,7 @@ func NewRecommendRequestCase(
 	return &RecommendRequestCase{
 		BaseCase:                         baseCase,
 		RecommendRequestRepo:             recommendRequestRepo,
+		recommendRequestItemCase:         recommendRequestItemCase,
 		goodsInfoCase:                    goodsInfoCase,
 		orderGoodsCase:                   orderGoodsCase,
 		userCartCase:                     userCartCase,
@@ -489,40 +492,42 @@ func (c *RecommendRequestCase) listRecommendGoods(
 
 // saveRecommendRequest 保存推荐请求记录。
 func (c *RecommendRequestCase) saveRecommendRequest(ctx context.Context, requestId string, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest, sourceContext map[string]any, list []*app.GoodsInfo, recallSources []string) error {
-	// 请求表只记录最终发给前端的结果。
-	sourceContextJson, err := json.Marshal(sourceContext)
+	// 主表只保留排查请求所需的精简上下文，大体量 explain 明细下沉到 item 表。
+	persistedSourceContext := make(map[string]any, len(sourceContext))
+	for key, value := range sourceContext {
+		// 逐商品 explain 明细已经落到 item 表，这里不再重复保存。
+		if key == "returnedScoreDetails" {
+			continue
+		}
+		// 主体信息已经有独立列，不再在上下文里重复冗余。
+		if key == "actorType" || key == "actorId" {
+			continue
+		}
+		persistedSourceContext[key] = value
+	}
+	sourceContextJson, err := json.Marshal(persistedSourceContext)
 	if err != nil {
 		return err
 	}
 
-	// 这里只持久化商品 ID，不保存整份商品快照。
-	goodsIds := make([]int64, 0, len(list))
-	for _, item := range list {
-		goodsIds = append(goodsIds, item.GetId())
-	}
-
-	var goodsIdsJson []byte
-	goodsIdsJson, err = json.Marshal(goodsIds)
-	if err != nil {
-		return err
-	}
-	var recallSourcesJson []byte
-	recallSourcesJson, err = json.Marshal(recallSources)
-	if err != nil {
-		return err
-	}
-
+	createdAt := time.Now()
 	// 这条记录会被曝光、点击、下单链路按 requestId 回查。
 	entity := &models.RecommendRequest{
-		RequestID:     requestId,
-		ActorType:     actor.ActorType,
-		ActorID:       actor.ActorId,
-		Scene:         int32(req.GetScene()),
+		RequestID: requestId,
+		ActorType: actor.ActorType,
+		ActorID:   actor.ActorId,
+		Scene:     int32(req.GetScene()),
+		// 精简后的上下文仍然保留场景调试信息。
 		SourceContext: string(sourceContextJson),
 		PageNum:       int32(req.GetPageNum()),
 		PageSize:      int32(req.GetPageSize()),
-		GoodsIds:      string(goodsIdsJson),
-		RecallSources: string(recallSourcesJson),
+		CreatedAt:     createdAt,
 	}
-	return c.RecommendRequestRepo.Create(ctx, entity)
+	return c.RecommendRequestRepo.Data.Transaction(ctx, func(ctx context.Context) error {
+		err = c.RecommendRequestRepo.Create(ctx, entity)
+		if err != nil {
+			return err
+		}
+		return c.recommendRequestItemCase.batchCreateByRecommendRequest(ctx, entity.ID, req, sourceContext, list, recallSources)
+	})
 }

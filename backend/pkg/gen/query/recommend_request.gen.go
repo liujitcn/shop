@@ -35,8 +35,6 @@ func newRecommendRequest(db *gorm.DB, opts ...gen.DOOption) recommendRequest {
 	_recommendRequest.SourceContext = field.NewString(tableName, "source_context")
 	_recommendRequest.PageNum = field.NewInt32(tableName, "page_num")
 	_recommendRequest.PageSize = field.NewInt32(tableName, "page_size")
-	_recommendRequest.GoodsIds = field.NewString(tableName, "goods_ids")
-	_recommendRequest.RecallSources = field.NewString(tableName, "recall_sources")
 	_recommendRequest.CreatedAt = field.NewTime(tableName, "created_at")
 
 	_recommendRequest.fillFieldMap()
@@ -57,8 +55,6 @@ type recommendRequest struct {
 	SourceContext field.String // 场景上下文JSON
 	PageNum       field.Int32  // 页码
 	PageSize      field.Int32  // 分页大小
-	GoodsIds      field.String // 推荐商品ID列表JSON
-	RecallSources field.String // 召回来源JSON
 	CreatedAt     field.Time   // 创建时间
 
 	fieldMap map[string]field.Expr
@@ -84,8 +80,6 @@ func (r *recommendRequest) updateTableName(table string) *recommendRequest {
 	r.SourceContext = field.NewString(table, "source_context")
 	r.PageNum = field.NewInt32(table, "page_num")
 	r.PageSize = field.NewInt32(table, "page_size")
-	r.GoodsIds = field.NewString(table, "goods_ids")
-	r.RecallSources = field.NewString(table, "recall_sources")
 	r.CreatedAt = field.NewTime(table, "created_at")
 
 	r.fillFieldMap()
@@ -115,7 +109,7 @@ func (r *recommendRequest) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (r *recommendRequest) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 11)
+	r.fieldMap = make(map[string]field.Expr, 9)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["request_id"] = r.RequestID
 	r.fieldMap["actor_type"] = r.ActorType
@@ -124,8 +118,6 @@ func (r *recommendRequest) fillFieldMap() {
 	r.fieldMap["source_context"] = r.SourceContext
 	r.fieldMap["page_num"] = r.PageNum
 	r.fieldMap["page_size"] = r.PageSize
-	r.fieldMap["goods_ids"] = r.GoodsIds
-	r.fieldMap["recall_sources"] = r.RecallSources
 	r.fieldMap["created_at"] = r.CreatedAt
 }
 

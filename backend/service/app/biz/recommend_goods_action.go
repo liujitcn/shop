@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"shop/api/gen/go/app"
@@ -12,14 +11,11 @@ import (
 	_const "shop/pkg/const"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	recommendCore "shop/pkg/recommend/core"
 	recommendEvent "shop/pkg/recommend/event"
 	"shop/pkg/utils"
 	appDto "shop/service/app/dto"
 
-	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
-	"gorm.io/gorm"
 )
 
 // RecommendGoodsActionCase 推荐商品行为业务处理对象。
@@ -27,7 +23,7 @@ type RecommendGoodsActionCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.RecommendGoodsActionRepo
-	recommendRequestCase             *RecommendRequestCase
+	recommendRequestItemCase         *RecommendRequestItemCase
 	recommendUserPreferenceCase      *RecommendUserPreferenceCase
 	recommendUserGoodsPreferenceCase *RecommendUserGoodsPreferenceCase
 	recommendGoodsRelationCase       *RecommendGoodsRelationCase
@@ -39,7 +35,7 @@ func NewRecommendGoodsActionCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
-	recommendRequestCase *RecommendRequestCase,
+	recommendRequestItemCase *RecommendRequestItemCase,
 	recommendUserPreferenceCase *RecommendUserPreferenceCase,
 	recommendUserGoodsPreferenceCase *RecommendUserGoodsPreferenceCase,
 	recommendGoodsRelationCase *RecommendGoodsRelationCase,
@@ -49,7 +45,7 @@ func NewRecommendGoodsActionCase(
 		BaseCase:                         baseCase,
 		tx:                               tx,
 		RecommendGoodsActionRepo:         recommendGoodsActionRepo,
-		recommendRequestCase:             recommendRequestCase,
+		recommendRequestItemCase:         recommendRequestItemCase,
 		recommendUserPreferenceCase:      recommendUserPreferenceCase,
 		recommendUserGoodsPreferenceCase: recommendUserGoodsPreferenceCase,
 		recommendGoodsRelationCase:       recommendGoodsRelationCase,
@@ -173,7 +169,7 @@ func (c *RecommendGoodsActionCase) upsertGoodsRelation(ctx context.Context, even
 		return nil
 	}
 
-	relatedGoodsIds, err := c.listRequestRelatedGoodsIds(ctx, requestId, goodsId)
+	relatedGoodsIds, err := c.recommendRequestItemCase.listRelatedGoodsIdsByRequestId(ctx, requestId, goodsId)
 	if err != nil {
 		return err
 	}
@@ -188,33 +184,4 @@ func (c *RecommendGoodsActionCase) upsertGoodsRelation(ctx context.Context, even
 		}
 	}
 	return nil
-}
-
-// listRequestRelatedGoodsIds 读取推荐请求中与当前商品共同出现的其他商品。
-func (c *RecommendGoodsActionCase) listRequestRelatedGoodsIds(ctx context.Context, requestId string, goodsId int64) ([]int64, error) {
-	query := c.recommendRequestCase.Query(ctx).RecommendRequest
-	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(query.RequestID.Eq(requestId)))
-	entity, err := c.recommendRequestCase.RecommendRequestRepo.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return []int64{}, nil
-		}
-		return nil, err
-	}
-
-	goodsIds := make([]int64, 0)
-	err = json.Unmarshal([]byte(entity.GoodsIds), &goodsIds)
-	if err != nil {
-		return nil, err
-	}
-
-	relatedGoodsIds := make([]int64, 0, len(goodsIds))
-	for _, item := range goodsIds {
-		if item == 0 || item == goodsId {
-			continue
-		}
-		relatedGoodsIds = append(relatedGoodsIds, item)
-	}
-	return recommendCore.DedupeInt64s(relatedGoodsIds), nil
 }
