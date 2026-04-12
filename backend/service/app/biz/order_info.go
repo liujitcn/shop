@@ -763,7 +763,7 @@ func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(payType common.OrderPa
 
 	eventTypeList := make([]common.RecommendGoodsActionType, 0)
 	eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_CREATE)
-	if payType == common.OrderPayType_ONLINE_PAY {
+	if payType == common.OrderPayType_CASH_ON_DELIVERY {
 		eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_PAY)
 	}
 	for _, item := range eventTypeList {
