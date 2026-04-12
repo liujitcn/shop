@@ -9,6 +9,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendEvent "shop/pkg/recommend/event"
+	pkgUtils "shop/pkg/utils"
 	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 	"time"
@@ -23,11 +24,10 @@ import (
 type UserCollectCase struct {
 	*biz.BaseCase
 	*data.UserCollectRepo
-	goodsInfoCase            *GoodsInfoCase
-	goodsSkuCase             *GoodsSkuCase
-	recommendGoodsActionCase *RecommendGoodsActionCase
-	mapper                   *mapper.CopierMapper[app.UserCollect, models.UserCollect]
-	goodsMapper              *mapper.CopierMapper[app.UserCollect, models.GoodsInfo]
+	goodsInfoCase *GoodsInfoCase
+	goodsSkuCase  *GoodsSkuCase
+	mapper        *mapper.CopierMapper[app.UserCollect, models.UserCollect]
+	goodsMapper   *mapper.CopierMapper[app.UserCollect, models.GoodsInfo]
 }
 
 // NewUserCollectCase 创建用户收藏业务处理对象
@@ -36,16 +36,14 @@ func NewUserCollectCase(
 	userCollectRepo *data.UserCollectRepo,
 	goodsInfoCase *GoodsInfoCase,
 	goodsSkuCase *GoodsSkuCase,
-	recommendGoodsActionCase *RecommendGoodsActionCase,
 ) *UserCollectCase {
 	return &UserCollectCase{
-		BaseCase:                 baseCase,
-		UserCollectRepo:          userCollectRepo,
-		goodsInfoCase:            goodsInfoCase,
-		goodsSkuCase:             goodsSkuCase,
-		recommendGoodsActionCase: recommendGoodsActionCase,
-		mapper:                   mapper.NewCopierMapper[app.UserCollect, models.UserCollect](),
-		goodsMapper:              mapper.NewCopierMapper[app.UserCollect, models.GoodsInfo](),
+		BaseCase:        baseCase,
+		UserCollectRepo: userCollectRepo,
+		goodsInfoCase:   goodsInfoCase,
+		goodsSkuCase:    goodsSkuCase,
+		mapper:          mapper.NewCopierMapper[app.UserCollect, models.UserCollect](),
+		goodsMapper:     mapper.NewCopierMapper[app.UserCollect, models.GoodsInfo](),
 	}
 }
 
@@ -155,19 +153,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 			return err
 		}
 		// 收藏成功后，按后端事实回写推荐收藏行为。
-		c.recommendGoodsActionCase.enqueueRecommendGoodsActionEvent(&appDto.RecommendActor{
-			ActorType: recommendEvent.ActorTypeUser,
-			ActorId:   authInfo.UserId,
-		}, &app.RecommendGoodsActionReportRequest{
-			EventType: common.RecommendGoodsActionType_COLLECT,
-			GoodsItems: []*app.RecommendGoodsActionItem{
-				{
-					GoodsId:          userCollect.GetGoodsId(),
-					GoodsNum:         1,
-					RecommendContext: recommendContext,
-				},
-			},
-		}, time.Time{})
+		c.dispatchRecommendGoodsActionEvent(authInfo.UserId, userCollect.GetGoodsId(), recommendContext)
 		return nil
 	}
 
@@ -205,4 +191,31 @@ func (c *UserCollectCase) findByUserIdAndGoodsId(ctx context.Context, userId, go
 		return false, err
 	}
 	return find != nil && find.ID > 0, nil
+}
+
+// dispatchRecommendGoodsActionEvent 根据收藏落库事实回写推荐收藏行为。
+func (c *UserCollectCase) dispatchRecommendGoodsActionEvent(userId, goodsId int64, recommendContext *app.RecommendContext) {
+	// 用户编号或商品编号非法时，无法构建可归因的推荐收藏行为。
+	if userId <= 0 || goodsId <= 0 {
+		return
+	}
+	// 收藏请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
+	if recommendContext == nil {
+		recommendContext = &app.RecommendContext{}
+	}
+
+	// 只在收藏记录写库成功后回写推荐收藏行为，确保推荐链路与后端事实一致。
+	pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
+		ActorType: recommendEvent.ActorTypeUser,
+		ActorId:   userId,
+	}, &app.RecommendGoodsActionReportRequest{
+		EventType: common.RecommendGoodsActionType_COLLECT,
+		GoodsItems: []*app.RecommendGoodsActionItem{
+			{
+				GoodsId:          goodsId,
+				GoodsNum:         1,
+				RecommendContext: recommendContext,
+			},
+		},
+	}, time.Time{})
 }

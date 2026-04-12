@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { defRecommendService } from '@/api/app/recommend'
-import { defOrderService } from '@/api/app/order_info.ts'
 import { useGuessList } from '@/composables'
-import { onLoad } from '@dcloudio/uni-app'
-import { useRecommendStore } from '@/stores'
-import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { RecommendScene } from '@/rpc/common/enum'
 import { homeTabPage, orderDetailUrl } from '@/utils/navigation'
 
 // 获取页面参数
@@ -14,34 +10,6 @@ const query = defineProps<{
 
 // 猜你喜欢
 const { guessRef, onScrollToLower } = useGuessList()
-const recommendStore = useRecommendStore()
-
-// 页面加载
-onLoad(() => {
-  void (async () => {
-    const res = await defOrderService.GetOrderInfoById({
-      value: Number(query.id),
-    })
-    const goodsItems =
-      res.order?.goods.map((item) => ({
-        goodsId: item.goodsId,
-        goodsNum: item.num,
-        recommendContext: {
-          scene: item.scene,
-          requestId: item.requestId,
-          position: item.position,
-        },
-      })) || []
-    if (goodsItems.length === 0) {
-      return
-    }
-    await recommendStore.getAnonymousId()
-    await defRecommendService.RecommendGoodsActionReport({
-      eventType: RecommendGoodsActionType.ORDER_PAY,
-      goodsItems,
-    })
-  })()
-})
 </script>
 
 <template>

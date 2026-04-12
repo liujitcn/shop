@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { defRecommendService } from '@/api/app/recommend'
 import { defOrderService } from '@/api/app/order_info.ts'
-import { useAddressStore, useRecommendStore } from '@/stores'
+import { useAddressStore } from '@/stores'
 import type {
   ConfirmOrderInfoResponse,
   CreateOrderInfoGoods,
@@ -15,11 +14,10 @@ import { defUserAddressService } from '@/api/app/user_address'
 import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
-import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { RecommendScene } from '@/rpc/common/enum'
 import { goodsDetailUrl, orderDetailUrl, redirectToOrderPayment } from '@/utils/navigation'
 
 const addressStore = useAddressStore()
-const recommendStore = useRecommendStore()
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
@@ -186,16 +184,6 @@ const onOrderSubmit = async () => {
     remark: buyerMessage.value,
     /** 商品信息 */
     goods: requestGoods,
-  })
-  const goodsItems = requestGoods.map((item) => ({
-    goodsId: item.goodsId,
-    goodsNum: item.num || 1,
-    recommendContext: item.recommendContext,
-  }))
-  await recommendStore.getAnonymousId()
-  await defRecommendService.RecommendGoodsActionReport({
-    eventType: RecommendGoodsActionType.ORDER_CREATE,
-    goodsItems,
   })
   // 关闭当前页面，跳转到订单详情，传递订单id
   if (Number(activePayType.value.value) === 2) {

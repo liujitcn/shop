@@ -6,7 +6,10 @@ import (
 	"fmt"
 	"shop/api/gen/go/app"
 	"shop/pkg/configs"
+	recommendEvent "shop/pkg/recommend/event"
+	pkgUtils "shop/pkg/utils"
 	"shop/pkg/wx"
+	appDto "shop/service/app/dto"
 	"strconv"
 	"strings"
 	"time"
@@ -322,7 +325,9 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 	orderPayment.SceneInfo = _string.ConvertAnyToJsonString(paymentResource.GetSceneInfo())
 	orderPayment.Status = 1
 
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	var orderGoodsList []*models.OrderGoods
+	var shouldReportOrderPay bool
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		// 添加支付信息
 		if orderPayment.ID == 0 {
 			err = c.orderPaymentRepo.Create(ctx, orderPayment)
@@ -337,15 +342,36 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 		}
 		// 支付成功，修改订单状态
 		if orderPayment.TradeState == app.PaymentResource_SUCCESS.String() {
-			err = c.updateOrder(ctx, orderInfo.ID, orderInfo.UserID, common.OrderStatus_PAID)
+			// 只有首次从待支付进入已支付，才视为本次通知真正完成支付落账。
+			shouldReportOrderPay, err = c.markOrderPaid(ctx, orderInfo.ID, orderInfo.UserID)
 			if err != nil {
 				return err
 			}
-			// 删除自动取消
-			c.orderSchedulerCase.DeleteScheduled(orderInfo.ID)
+			// 首次支付成功时，读取订单商品快照，确保推荐支付行为完全基于后端事实构建。
+			if shouldReportOrderPay {
+				orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
+				orderGoodsList, err = c.orderGoodsRepo.List(ctx,
+					repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)),
+				)
+				if err != nil {
+					return err
+				}
+			}
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	if orderPayment.TradeState == app.PaymentResource_SUCCESS.String() {
+		// 支付成功后无论是否重复通知，都尝试清理超时取消任务，避免历史定时任务继续生效。
+		c.orderSchedulerCase.DeleteScheduled(orderInfo.ID)
+	}
+	// 只有首次支付成功才回写 ORDER_PAY，避免重复通知产生重复推荐事实。
+	if shouldReportOrderPay {
+		c.dispatchRecommendGoodsActionEvent(orderInfo.UserID, orderGoodsList, trans.TimeValue(successTime))
+	}
+	return nil
 }
 
 // RefundSuccess 退款成功处理
@@ -424,4 +450,64 @@ func (c *PayCase) updateOrder(ctx context.Context, orderId, userId int64, status
 		repo.Where(orderQuery.UserID.Eq(userId)),
 		repo.Where(orderQuery.ID.Eq(orderId)),
 	)
+}
+
+// markOrderPaid 将待支付订单推进到已支付，并返回是否为首次支付成功。
+func (c *PayCase) markOrderPaid(ctx context.Context, orderId, userId int64) (bool, error) {
+	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
+	res, err := orderQuery.WithContext(ctx).
+		Where(
+			orderQuery.UserID.Eq(userId),
+			orderQuery.ID.Eq(orderId),
+			orderQuery.Status.Eq(int32(common.OrderStatus_CREATED)),
+		).
+		Updates(map[string]interface{}{
+			"status": int32(common.OrderStatus_PAID),
+		})
+	if err != nil {
+		return false, err
+	}
+	// 已经进入支付成功口径的订单不再重复回写 ORDER_PAY。
+	if res.RowsAffected == 0 {
+		return false, nil
+	}
+	return true, res.Error
+}
+
+// dispatchRecommendGoodsActionEvent 根据已支付订单商品快照回写推荐支付行为。
+func (c *PayCase) dispatchRecommendGoodsActionEvent(userId int64, goodsList []*models.OrderGoods, eventTime time.Time) {
+	// 主体编号非法或订单商品为空时，无法构建可归因的推荐支付行为。
+	if userId <= 0 || len(goodsList) == 0 {
+		return
+	}
+
+	goodsItems := make([]*app.RecommendGoodsActionItem, 0, len(goodsList))
+	for _, item := range goodsList {
+		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+		goodsItems = append(goodsItems, &app.RecommendGoodsActionItem{
+			GoodsId:  item.GoodsID,
+			GoodsNum: item.Num,
+			RecommendContext: &app.RecommendContext{
+				Scene:     common.RecommendScene(item.Scene),
+				RequestId: item.RequestID,
+				Position:  item.Position,
+			},
+		})
+	}
+	// 没有有效商品项时，不生成空上报请求。
+	if len(goodsItems) == 0 {
+		return
+	}
+
+	// 支付行为只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
+	pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
+		ActorType: recommendEvent.ActorTypeUser,
+		ActorId:   userId,
+	}, &app.RecommendGoodsActionReportRequest{
+		EventType:  common.RecommendGoodsActionType_ORDER_PAY,
+		GoodsItems: goodsItems,
+	}, eventTime)
 }

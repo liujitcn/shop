@@ -197,21 +197,6 @@ const onAddCart = async (ev: SkuPopupEvent) => {
   })
   const res = await defUserCartService.CountUserCart({})
   cartNum.value = res.value
-  try {
-    await recommendStore.getAnonymousId()
-    await defRecommendService.RecommendGoodsActionReport({
-      eventType: RecommendGoodsActionType.ADD_CART,
-      goodsItems: [
-        {
-          goodsId,
-          goodsNum: ev.buy_num,
-          recommendContext,
-        },
-      ],
-    })
-  } catch (error) {
-    console.error(error)
-  }
   await uni.showToast({ title: '添加成功' })
   isShowSku.value = false
 }
@@ -242,23 +227,6 @@ const onCollect = async () => {
     recommendContext,
   })
   isCollect.value = !isCollect.value
-  if (isCollect.value) {
-    try {
-      await recommendStore.getAnonymousId()
-      await defRecommendService.RecommendGoodsActionReport({
-        eventType: RecommendGoodsActionType.COLLECT,
-        goodsItems: [
-          {
-            goodsId,
-            goodsNum: 1,
-            recommendContext,
-          },
-        ],
-      })
-    } catch (error) {
-      console.error(error)
-    }
-  }
   await uni.showToast({ title: isCollect.value ? '收藏成功' : '取消成功' })
 }
 

@@ -9,7 +9,11 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendcore "shop/pkg/recommend/core"
+	recommendEvent "shop/pkg/recommend/event"
+	pkgUtils "shop/pkg/utils"
+	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
+	"time"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -136,6 +140,11 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 		return err
 	}
 	member := utils.IsMemberByAuthInfo(authInfo)
+	recommendContext := userCart.GetRecommendContext()
+	// 加购请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
+	if recommendContext == nil {
+		recommendContext = &app.RecommendContext{}
+	}
 	cartQuery := c.Query(ctx).UserCart
 	// 先查同一商品同一规格是否已在购物车中，存在则直接累加数量
 	var find *models.UserCart
@@ -166,33 +175,42 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 				Num:       userCart.GetNum(),
 				Price:     price,
 				IsChecked: true,
+				Scene:     int32(recommendContext.GetScene()),
+				RequestID: recommendContext.GetRequestId(),
+				Position:  recommendContext.GetPosition(),
 			}
-			recommendContext := userCart.GetRecommendContext()
-			if recommendContext != nil {
-				userCartModel.Scene = int32(recommendContext.Scene)
-				userCartModel.RequestID = recommendContext.RequestId
-				userCartModel.Position = recommendContext.Position
+			err = c.UserCartRepo.Create(ctx, userCartModel)
+			// 购物车创建失败时，不继续回写推荐行为，避免事实不一致。
+			if err != nil {
+				return err
 			}
-			return c.UserCartRepo.Create(ctx, userCartModel)
+			// 新增购物车成功后，按本次加购数量回写推荐加购行为。
+			c.dispatchRecommendGoodsActionEvent(authInfo.UserId, userCart.GetGoodsId(), userCart.GetNum(), recommendContext)
+			return nil
 		}
 		return err
 	}
 
 	// 更新
 	find.Num += userCart.GetNum()
-	recommendContext := userCart.GetRecommendContext()
-	if recommendContext != nil {
-		if find.Scene == 0 {
-			find.Scene = int32(recommendContext.Scene)
-		}
-		if find.GoodsID == 0 {
-			find.RequestID = recommendContext.RequestId
-		}
-		if find.Position == 0 {
-			find.Position = recommendContext.Position
-		}
+	// 购物车已有推荐上下文时优先保留，仅在缺失字段上补齐本次上下文。
+	if find.Scene == 0 {
+		find.Scene = int32(recommendContext.GetScene())
 	}
-	return c.UserCartRepo.UpdateById(ctx, find)
+	if find.RequestID == "" {
+		find.RequestID = recommendContext.GetRequestId()
+	}
+	if find.Position == 0 {
+		find.Position = recommendContext.GetPosition()
+	}
+	err = c.UserCartRepo.UpdateById(ctx, find)
+	// 购物车更新失败时，不继续回写推荐行为，避免事实不一致。
+	if err != nil {
+		return err
+	}
+	// 已有购物车累加成功后，仍按本次新增数量回写推荐加购行为。
+	c.dispatchRecommendGoodsActionEvent(authInfo.UserId, userCart.GetGoodsId(), userCart.GetNum(), recommendContext)
+	return nil
 }
 
 // UpdateUserCart 更新用户购物车
@@ -284,4 +302,31 @@ func (c *UserCartCase) listGoodsIdsByUserId(ctx context.Context, userId int64) (
 		goodsIds = append(goodsIds, item.GoodsID)
 	}
 	return recommendcore.DedupeInt64s(goodsIds), nil
+}
+
+// dispatchRecommendGoodsActionEvent 根据购物车落库事实回写推荐加购行为。
+func (c *UserCartCase) dispatchRecommendGoodsActionEvent(userId, goodsId, goodsNum int64, recommendContext *app.RecommendContext) {
+	// 用户编号、商品编号或加购数量非法时，无法构建可归因的推荐加购行为。
+	if userId <= 0 || goodsId <= 0 || goodsNum <= 0 {
+		return
+	}
+	// 加购请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
+	if recommendContext == nil {
+		recommendContext = &app.RecommendContext{}
+	}
+
+	// 只在购物车写库成功后回写推荐加购行为，确保推荐链路与后端事实一致。
+	pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
+		ActorType: recommendEvent.ActorTypeUser,
+		ActorId:   userId,
+	}, &app.RecommendGoodsActionReportRequest{
+		EventType: common.RecommendGoodsActionType_ADD_CART,
+		GoodsItems: []*app.RecommendGoodsActionItem{
+			{
+				GoodsId:          goodsId,
+				GoodsNum:         goodsNum,
+				RecommendContext: recommendContext,
+			},
+		},
+	}, time.Time{})
 }

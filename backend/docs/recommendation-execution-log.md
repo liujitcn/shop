@@ -26,10 +26,10 @@
 
 ## 当前停留点
 
-- 当前阶段：批次 1，后端事实回写。
-- 当前任务：`B1-03` 加购成功后端回写 `ADD_CART`。
+- 当前阶段：批次 2，归因明细落库。
+- 当前任务：`B2-01` 新增 `recommend_request_item` 表结构与生成代码。
 - 当前状态：`未开始`
-- 上次结束位置：`B1-02` 已确认完成，等待进入 `B1-03`。
+- 上次结束位置：`B1-07` 已确认完成，等待进入 `B2-01`。
 
 ## 执行清单
 
@@ -37,11 +37,11 @@
 | --- | --- | --- | --- | --- |
 | B1-01 | 批次 1 | 新增推荐行为后端内部写入入口，供业务服务直接调用 | `backend/service/app/biz/recommend_goods_action.go` | 已完成 |
 | B1-02 | 批次 1 | 收藏成功后端回写 `COLLECT` | `backend/service/app/biz/user_collect.go` | 已完成 |
-| B1-03 | 批次 1 | 加购成功后端回写 `ADD_CART` | `backend/service/app/biz/user_cart.go` | 未开始 |
-| B1-04 | 批次 1 | 下单成功后端回写 `ORDER_CREATE` | `backend/service/app/biz/order_info.go` | 未开始 |
-| B1-05 | 批次 1 | 支付成功后端回写 `ORDER_PAY`，并补幂等保护 | `backend/service/app/biz/pay.go` | 未开始 |
-| B1-06 | 批次 1 | 删除前端 `COLLECT`、`ADD_CART`、`ORDER_CREATE`、`ORDER_PAY` 上报 | `frontend/app/src/pages/goods/goods.vue` `frontend/app/src/pagesOrder/create/create.vue` `frontend/app/src/pagesOrder/payment/payment.vue` | 未开始 |
-| B1-07 | 批次 1 | 批次 1 校验与回归 | `backend` `frontend/app` | 未开始 |
+| B1-03 | 批次 1 | 加购成功后端回写 `ADD_CART` | `backend/service/app/biz/user_cart.go` | 已完成 |
+| B1-04 | 批次 1 | 下单成功后端回写 `ORDER_CREATE` | `backend/service/app/biz/order_info.go` | 已完成 |
+| B1-05 | 批次 1 | 支付成功后端回写 `ORDER_PAY`，并补幂等保护 | `backend/service/app/biz/pay.go` | 已完成 |
+| B1-06 | 批次 1 | 删除前端 `COLLECT`、`ADD_CART`、`ORDER_CREATE`、`ORDER_PAY` 上报 | `frontend/app/src/pages/goods/goods.vue` `frontend/app/src/pagesOrder/create/create.vue` `frontend/app/src/pagesOrder/payment/payment.vue` | 已完成 |
+| B1-07 | 批次 1 | 批次 1 校验与回归 | `backend` `frontend/app` | 已完成 |
 | B2-01 | 批次 2 | 新增 `recommend_request_item` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
 | B2-02 | 批次 2 | 推荐请求主表落库时同步写 `recommend_request_item` | `backend/service/app/biz/recommend_request.go` | 未开始 |
 | B2-03 | 批次 2 | 新增 `recommend_exposure_item` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
@@ -67,3 +67,10 @@
 - 2026-04-12：`B1-01` 已确认完成；当前停留点推进到 `B1-02`，并增加“确认后可直接提交当前项代码”的记录规则。
 - 2026-04-12：完成 `B1-02` 代码实现；收藏成功后改为后端回写 `COLLECT`，并补了推荐上下文空值保护，等待用户确认。
 - 2026-04-12：`B1-02` 已确认完成；当前停留点推进到 `B1-03`。
+- 2026-04-12：完成 `B1-03`、`B1-04`、`B1-05` 代码实现；已将加购、下单、支付成功改为后端事实回写，并把支付成功回写收敛为“首次从待支付进入已支付”才写入 `ORDER_PAY`，当前停在 `B1-06` 前等待确认。
+- 2026-04-12：已执行 `backend/make wire` 与 `backend/go test ./...`，结果通过。
+- 2026-04-12：`B1-03`、`B1-04`、`B1-05` 已确认完成；开始推进 `B1-06`。
+- 2026-04-12：完成 `B1-06` 代码实现；已删除商城前端对 `COLLECT`、`ADD_CART`、`ORDER_CREATE`、`ORDER_PAY` 的主动上报，等待确认。
+- 2026-04-12：已执行 `frontend/app/pnpm lint` 与 `frontend/app/pnpm tsc`，结果通过。
+- 2026-04-12：`B1-06` 已确认完成；当前停留点推进到 `B1-07`。
+- 2026-04-12：已执行 `backend/go test ./...`、`frontend/app/pnpm lint` 与 `frontend/app/pnpm tsc`，结果通过；`B1-07` 已确认完成，当前停留点推进到 `B2-01`。

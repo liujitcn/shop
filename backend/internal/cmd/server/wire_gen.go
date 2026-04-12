@@ -317,7 +317,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	appShopServiceService := app.NewShopServiceService(bizShopServiceCase)
 	userAddressService := app.NewUserAddressService(userAddressCase)
 	userCartService := app.NewUserCartService(userCartCase)
-	userCollectCase := biz4.NewUserCollectCase(baseCase, userCollectRepo, bizGoodsInfoCase, bizGoodsSkuCase, recommendGoodsActionCase)
+	userCollectCase := biz4.NewUserCollectCase(baseCase, userCollectRepo, bizGoodsInfoCase, bizGoodsSkuCase)
 	userCollectService := app.NewUserCollectService(userCollectCase)
 	bizUserStoreCase := biz4.NewUserStoreCase(baseCase, transaction, userStoreRepo, baseAreaCase)
 	appUserStoreService := app.NewUserStoreService(bizUserStoreCase)
