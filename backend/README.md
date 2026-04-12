@@ -45,6 +45,7 @@ backend
 - 改造方向：推荐能力后续按“商城专用 Gorse 化推荐服务”演进，不走通用推荐平台路线，并严格区分“商城业务事实层 / 商城推荐域层 / Gorse 内核层”三层边界，见 [docs/recommendation-gorse-mall-roadmap.md](docs/recommendation-gorse-mall-roadmap.md)。
 - 现状评估：推荐链路闭环检查与 Gorse 差距分析见 [docs/recommendation-chain-review.md](docs/recommendation-chain-review.md)。
 - 表结构差距：MySQL 场景下的推荐表结构缺口记录见 [docs/recommendation-mysql-gap.md](docs/recommendation-mysql-gap.md)。
+- 执行记录：分批改造进度、当前停留点与确认状态见 [docs/recommendation-execution-log.md](docs/recommendation-execution-log.md)。
 
 ## 推荐任务
 

@@ -157,6 +157,16 @@ func (c *RecommendGoodsActionCase) bindRecommendGoodsActionActor(ctx context.Con
 	return err
 }
 
+// enqueueRecommendGoodsActionEvent 根据后端业务事实投递推荐商品行为事件。
+func (c *RecommendGoodsActionCase) enqueueRecommendGoodsActionEvent(actor *appDto.RecommendActor, req *app.RecommendGoodsActionReportRequest, eventTime time.Time) {
+	event := c.buildRecommendGoodsActionEvent(actor, req, eventTime)
+	// 构建结果为空时，不投递无效行为事件。
+	if event == nil || len(event.GoodsItems) == 0 {
+		return
+	}
+	utils.AddQueue(_const.RecommendGoodsActionEvent, event)
+}
+
 // publishRecommendGoodsActionEvent 投递单商品埋点事件。
 func (c *RecommendGoodsActionCase) publishRecommendGoodsActionEvent(actor *appDto.RecommendActor, req *app.RecommendGoodsActionReportRequest) {
 	// 空请求直接忽略，避免埋点接口影响主流程。
@@ -164,12 +174,35 @@ func (c *RecommendGoodsActionCase) publishRecommendGoodsActionEvent(actor *appDt
 		return
 	}
 
-	createdAt := time.Now()
+	c.enqueueRecommendGoodsActionEvent(actor, req, time.Now())
+}
+
+// buildRecommendGoodsActionEvent 构建推荐商品行为事件。
+func (c *RecommendGoodsActionCase) buildRecommendGoodsActionEvent(actor *appDto.RecommendActor, req *app.RecommendGoodsActionReportRequest, eventTime time.Time) *appDto.RecommendGoodsActionEvent {
+	// 请求体为空时，无法继续构建行为事件。
+	if req == nil {
+		return nil
+	}
+	// 主体缺失或主体 ID 非法时，不投递无法归因的行为事件。
+	if actor == nil || actor.ActorId <= 0 {
+		return nil
+	}
+
+	eventType := req.GetEventType()
+	// 未知行为类型不投递，避免污染后续聚合口径。
+	if eventType == common.RecommendGoodsActionType_UNKNOWN_RGAT {
+		return nil
+	}
+
+	// 调用方未显式传入事件时间时，统一回退到当前时间。
+	if eventTime.IsZero() {
+		eventTime = time.Now()
+	}
 
 	goodsItems := req.GetGoodsItems()
 	recommendGoodsActions := make([]*models.RecommendGoodsAction, 0, len(goodsItems))
 	for _, item := range goodsItems {
-		// 商品项为空或商品 ID 非法时，直接跳过当前埋点。
+		// 商品项为空或商品 ID 非法时，直接跳过当前行为项。
 		if item == nil || item.GetGoodsId() <= 0 {
 			continue
 		}
@@ -177,25 +210,26 @@ func (c *RecommendGoodsActionCase) publishRecommendGoodsActionEvent(actor *appDt
 		recommendGoodsActions = append(recommendGoodsActions, &models.RecommendGoodsAction{
 			ActorType: actor.ActorType,
 			ActorID:   actor.ActorId,
-			EventType: int32(req.GetEventType()),
+			EventType: int32(eventType),
 			GoodsID:   item.GetGoodsId(),
 			GoodsNum:  recommendEvent.NormalizeGoodsCount(item.GetGoodsNum()),
 			Scene:     int32(recommendContext.GetScene()),
 			RequestID: recommendContext.GetRequestId(),
 			Position:  recommendContext.GetPosition(),
-			CreatedAt: createdAt,
+			CreatedAt: eventTime,
 		})
 	}
-	// 没有有效商品明细时，不投递空队列消息。
+	// 没有有效商品明细时，不返回空行为事件。
 	if len(recommendGoodsActions) == 0 {
-		return
+		return nil
 	}
-	utils.AddQueue(_const.RecommendGoodsActionEvent, &appDto.RecommendGoodsActionEvent{
+
+	return &appDto.RecommendGoodsActionEvent{
 		RecommendActor: actor,
-		EventType:      req.GetEventType(),
-		EventTime:      createdAt,
+		EventType:      eventType,
+		EventTime:      eventTime,
 		GoodsItems:     recommendGoodsActions,
-	})
+	}
 }
 
 // upsertGoodsRelation 按同一次推荐请求的共同出现结果累计商品关联度。
