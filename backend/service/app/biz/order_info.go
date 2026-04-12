@@ -452,7 +452,7 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 	if err != nil {
 		return nil, err
 	}
-	c.dispatchRecommendGoodsActionEvent(authInfo.UserId, request.GetGoods(), orderInfo.CreatedAt)
+	c.dispatchRecommendGoodsActionEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderInfo.CreatedAt)
 	// 为在线支付订单增加超时自动取消任务
 	if orderInfo.Status == int32(common.OrderStatus_CREATED) {
 		// 延迟时间使用支付超时配置
@@ -733,7 +733,7 @@ func (c *OrderInfoCase) updateByIds(ctx context.Context, userId int64, ids []int
 }
 
 // dispatchRecommendGoodsActionEvent 根据已落库订单事实回写推荐下单行为。
-func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(userId int64, goodsList []*app.CreateOrderInfoGoods, eventTime time.Time) {
+func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(payType common.OrderPayType, userId int64, goodsList []*app.CreateOrderInfoGoods, eventTime time.Time) {
 	// 主体编号非法或订单商品为空时，无法构建可归因的推荐下单行为。
 	if userId <= 0 || len(goodsList) == 0 {
 		return
@@ -760,13 +760,21 @@ func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(userId int64, goodsLis
 	if len(goodsItems) == 0 {
 		return
 	}
-	orderCreateReport := &app.RecommendGoodsActionReportRequest{
-		EventType:  common.RecommendGoodsActionType_ORDER_CREATE,
-		GoodsItems: goodsItems,
+
+	eventTypeList := make([]common.RecommendGoodsActionType, 0)
+	eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_CREATE)
+	if payType == common.OrderPayType_ONLINE_PAY {
+		eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_PAY)
 	}
-	// 订单创建事务提交成功后，再按落库事实回写推荐下单行为。
-	pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
-		ActorType: recommendEvent.ActorTypeUser,
-		ActorId:   userId,
-	}, orderCreateReport, eventTime)
+	for _, item := range eventTypeList {
+		orderCreateReport := &app.RecommendGoodsActionReportRequest{
+			EventType:  item,
+			GoodsItems: goodsItems,
+		}
+		// 订单创建事务提交成功后，再按落库事实回写推荐下单行为。
+		pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
+			ActorType: recommendEvent.ActorTypeUser,
+			ActorId:   userId,
+		}, orderCreateReport, eventTime)
+	}
 }
