@@ -8,7 +8,7 @@ require (
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
-	github.com/liujitcn/go-utils v0.0.21
+	github.com/liujitcn/go-utils v0.0.22
 	github.com/liujitcn/go-utils/crypto v0.0.7
 	github.com/liujitcn/go-utils/geoip v0.0.1
 	github.com/liujitcn/go-utils/http v0.0.1
@@ -31,7 +31,7 @@ require (
 	github.com/liujitcn/kratos-kit/queue v0.0.8
 	github.com/liujitcn/kratos-kit/rpc v0.0.4
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.2
-	github.com/liujitcn/kratos-kit/transport/cron v0.0.1
+	github.com/liujitcn/kratos-kit/transport/cron v0.0.2
 	github.com/mileusna/useragent v1.3.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
