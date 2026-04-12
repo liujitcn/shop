@@ -11,8 +11,8 @@ import (
 	recommendCandidate "shop/pkg/recommend/candidate"
 	recommendcore "shop/pkg/recommend/core"
 	recommendEvent "shop/pkg/recommend/event"
-	recommendExplain "shop/pkg/recommend/explain"
 	appDto "shop/service/app/dto"
+	"sort"
 	"time"
 
 	"github.com/liujitcn/gorm-kit/repo"
@@ -172,9 +172,41 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		for source := range candidate.RecallSources {
 			pageRecallSources[source] = struct{}{}
 		}
-		scoreDetails = append(scoreDetails, recommendExplain.BuildScoreDetail(candidate))
+		scoreDetails = append(scoreDetails, recommendcore.ScoreDetail{
+			GoodsId:               candidate.Goods.Id,
+			FinalScore:            candidate.FinalScore,
+			RelationScore:         candidate.RelationScore,
+			UserGoodsScore:        candidate.UserGoodsScore,
+			ProfileScore:          candidate.ProfileScore,
+			ScenePopularityScore:  candidate.ScenePopularityScore,
+			GlobalPopularityScore: candidate.GlobalPopularityScore,
+			FreshnessScore:        candidate.FreshnessScore,
+			ExposurePenalty:       candidate.ExposurePenalty,
+			ActorExposurePenalty:  candidate.ActorExposurePenalty,
+			RepeatPenalty:         candidate.RepeatPenalty,
+		})
 	}
-	return rankedGoods[offset:end], total, recommendExplain.ListRecallSources(pageRecallSources), map[string]any{
+	recallSourceList := make([]string, 0, len(pageRecallSources))
+	for source := range pageRecallSources {
+		recallSourceList = append(recallSourceList, source)
+	}
+	// 召回来源按稳定顺序返回，便于日志和前端比对。
+	sort.Strings(recallSourceList)
+	for i := range scoreDetails {
+		candidate, ok := candidates[scoreDetails[i].GoodsId]
+		// 候选解释缺失时，上面已经跳过，这里只做保护。
+		if !ok {
+			continue
+		}
+		recallSources := make([]string, 0, len(candidate.RecallSources))
+		for source := range candidate.RecallSources {
+			recallSources = append(recallSources, source)
+		}
+		// 单商品 explain 中的召回来源也保持稳定顺序。
+		sort.Strings(recallSources)
+		scoreDetails[i].RecallSources = recallSources
+	}
+	return rankedGoods[offset:end], total, recallSourceList, map[string]any{
 		"candidateLimit":             candidateLimit,
 		"sceneHotGoodsIds":           sceneGoodsIds,
 		"anonymousCandidateGoodsIds": candidateGoodsIds,
@@ -412,9 +444,41 @@ func (c *RecommendRequestCase) listRecommendGoods(
 		for source := range candidate.RecallSources {
 			pageRecallSources[source] = struct{}{}
 		}
-		scoreDetails = append(scoreDetails, recommendExplain.BuildScoreDetail(candidate))
+		scoreDetails = append(scoreDetails, recommendcore.ScoreDetail{
+			GoodsId:               candidate.Goods.Id,
+			FinalScore:            candidate.FinalScore,
+			RelationScore:         candidate.RelationScore,
+			UserGoodsScore:        candidate.UserGoodsScore,
+			ProfileScore:          candidate.ProfileScore,
+			ScenePopularityScore:  candidate.ScenePopularityScore,
+			GlobalPopularityScore: candidate.GlobalPopularityScore,
+			FreshnessScore:        candidate.FreshnessScore,
+			ExposurePenalty:       candidate.ExposurePenalty,
+			ActorExposurePenalty:  candidate.ActorExposurePenalty,
+			RepeatPenalty:         candidate.RepeatPenalty,
+		})
 	}
-	return list, total, recommendExplain.ListRecallSources(pageRecallSources), map[string]any{
+	recallSourceList := make([]string, 0, len(pageRecallSources))
+	for source := range pageRecallSources {
+		recallSourceList = append(recallSourceList, source)
+	}
+	// 召回来源按稳定顺序返回，便于日志和前端比对。
+	sort.Strings(recallSourceList)
+	for i := range scoreDetails {
+		candidate, ok := candidates[scoreDetails[i].GoodsId]
+		// 候选解释缺失时，上面已经跳过，这里只做保护。
+		if !ok {
+			continue
+		}
+		recallSources := make([]string, 0, len(candidate.RecallSources))
+		for source := range candidate.RecallSources {
+			recallSources = append(recallSources, source)
+		}
+		// 单商品 explain 中的召回来源也保持稳定顺序。
+		sort.Strings(recallSources)
+		scoreDetails[i].RecallSources = recallSources
+	}
+	return list, total, recallSourceList, map[string]any{
 		"candidateLimit":       candidateLimit,
 		"priorityGoodsIds":     priorityGoodsIds,
 		"categoryIds":          categoryIds,

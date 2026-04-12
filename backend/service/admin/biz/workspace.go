@@ -7,6 +7,7 @@ import (
 	adminApi "shop/api/gen/go/admin"
 	commonApi "shop/api/gen/go/common"
 	"shop/pkg/gen/models"
+	pkgUtils "shop/pkg/utils"
 	"shop/service/admin/utils"
 )
 
@@ -179,16 +180,6 @@ func getYesterdayRange(todayStartAt time.Time) (time.Time, time.Time) {
 	return startAt, todayStartAt
 }
 
-// paidOrderStatuses 返回统计成交与销量时认可的订单状态。
-func paidOrderStatuses() []int32 {
-	return []int32{
-		int32(commonApi.OrderStatus_PAID),
-		int32(commonApi.OrderStatus_SHIPPED),
-		int32(commonApi.OrderStatus_RECEIVED),
-		int32(commonApi.OrderStatus_REFUNDING),
-	}
-}
-
 // countOrderCount 统计时间范围内订单数。
 func (c *WorkspaceCase) countOrderCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
@@ -207,7 +198,7 @@ func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endA
 	}
 
 	var result row
-	statuses := paidOrderStatuses()
+	statuses := pkgUtils.PaidOrderStatuses()
 	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderInfo{}).
 		Select("COUNT(*) AS order_count, COALESCE(SUM(pay_money),0) AS sale_amount").
@@ -264,7 +255,7 @@ func (c *WorkspaceCase) countGoodsSaleNum(ctx context.Context, startAt, endAt ti
 	}
 
 	var result row
-	statuses := paidOrderStatuses()
+	statuses := pkgUtils.PaidOrderStatuses()
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
 		Select("COALESCE(SUM(order_goods.num),0) AS sale_count").
@@ -278,7 +269,7 @@ func (c *WorkspaceCase) countGoodsSaleNum(ctx context.Context, startAt, endAt ti
 // countDistinctActiveGoods 统计时间范围内动销商品数。
 func (c *WorkspaceCase) countDistinctActiveGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	statuses := paidOrderStatuses()
+	statuses := pkgUtils.PaidOrderStatuses()
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
 		Model(&models.OrderGoods{}).
 		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").

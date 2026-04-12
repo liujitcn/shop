@@ -1,16 +1,20 @@
 package candidate
 
 import (
+	"sort"
+
 	"shop/api/gen/go/app"
 	recommendCore "shop/pkg/recommend/core"
-	recommendFilter "shop/pkg/recommend/filter"
 	recommendRank "shop/pkg/recommend/rank"
+
+	_time "github.com/liujitcn/go-utils/time"
 )
 
 const (
-	PoolMultiplier = 8
-	PoolMin        = 80
-	PoolMax        = 240
+	PoolMultiplier        = 8
+	PoolMin               = 80
+	PoolMax               = 240
+	DefaultMaxPerCategory = 2
 
 	AnonymousRecallDays       = 30
 	StatLookbackDays          = 30
@@ -62,6 +66,7 @@ func ResolveCandidateLimit(pageNum, pageSize int64) int64 {
 func BuildPersonalized(goodsList []*app.GoodsInfo, signals PersonalizedSignals) map[int64]*recommendCore.Candidate {
 	candidates := make(map[int64]*recommendCore.Candidate, len(goodsList))
 	for _, item := range goodsList {
+		// 过滤空商品和非法商品，避免脏数据进入候选池。
 		if item == nil || item.Id <= 0 {
 			continue
 		}
@@ -77,27 +82,45 @@ func BuildPersonalized(goodsList []*app.GoodsInfo, signals PersonalizedSignals) 
 		candidate.FreshnessScore = recommendRank.CalculateFreshnessScore(item.UpdatedAt)
 		candidate.ExposurePenalty = signals.SceneExposurePenalties[item.Id]
 		candidate.ActorExposurePenalty = signals.ActorExposurePenalties[item.Id]
-		candidate.RepeatPenalty = CalculateRepeatPenalty(item.Id, signals.RecentPaidGoods)
-		candidate.FinalScore = recommendRank.CalculateFinalScore(candidate)
+		// 近期已购商品需要附加重复推荐惩罚，避免短时间内反复推荐。
+		if _, ok := signals.RecentPaidGoods[item.Id]; ok {
+			candidate.RepeatPenalty = 1.5
+		}
+		candidate.FinalScore = candidate.RelationScore*0.30 +
+			candidate.UserGoodsScore*0.25 +
+			candidate.ProfileScore*0.15 +
+			candidate.ScenePopularityScore*0.20 +
+			candidate.GlobalPopularityScore*0.10 +
+			candidate.FreshnessScore*0.10 -
+			candidate.ExposurePenalty -
+			candidate.ActorExposurePenalty -
+			candidate.RepeatPenalty
 
+		// 命中了商品关联召回时记录来源，便于 explain 返回。
 		if candidate.RelationScore > 0 {
 			candidate.RecallSources[RecallSourceRelation] = struct{}{}
 		}
+		// 命中了用户商品偏好召回时记录来源。
 		if candidate.UserGoodsScore > 0 {
 			candidate.RecallSources[RecallSourceUserGoods] = struct{}{}
 		}
+		// 命中了类目画像召回时记录来源。
 		if candidate.ProfileScore > 0 {
 			candidate.RecallSources[RecallSourceProfile] = struct{}{}
 		}
+		// 命中了场景热度召回时记录来源。
 		if candidate.ScenePopularityScore > 0 {
 			candidate.RecallSources[RecallSourceSceneHot] = struct{}{}
 		}
+		// 命中了全站热度召回时记录来源。
 		if candidate.GlobalPopularityScore > 0 {
 			candidate.RecallSources[RecallSourceGlobalHot] = struct{}{}
 		}
+		// 没有任何显式召回来源时，说明当前候选来自 latest 兜底。
 		if len(candidate.RecallSources) == 0 {
 			candidate.RecallSources[RecallSourceLatest] = struct{}{}
 		}
+		// 记录用户级曝光惩罚命中情况，便于排查降权原因。
 		if candidate.ActorExposurePenalty > 0 {
 			candidate.RecallSources[RecallSourceActorPenalty] = struct{}{}
 		}
@@ -111,6 +134,7 @@ func BuildPersonalized(goodsList []*app.GoodsInfo, signals PersonalizedSignals) 
 func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[int64]*recommendCore.Candidate {
 	candidates := make(map[int64]*recommendCore.Candidate, len(goodsList))
 	for _, item := range goodsList {
+		// 过滤空商品和非法商品，避免匿名候选池混入脏数据。
 		if item == nil || item.Id <= 0 {
 			continue
 		}
@@ -123,17 +147,25 @@ func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[in
 		candidate.FreshnessScore = recommendRank.CalculateFreshnessScore(item.UpdatedAt)
 		candidate.ExposurePenalty = signals.SceneExposurePenalties[item.Id]
 		candidate.ActorExposurePenalty = signals.ActorExposurePenalties[item.Id]
-		candidate.FinalScore = recommendRank.CalculateAnonymousFinalScore(candidate)
+		candidate.FinalScore = candidate.ScenePopularityScore*0.55 +
+			candidate.GlobalPopularityScore*0.30 +
+			candidate.FreshnessScore*0.15 -
+			candidate.ExposurePenalty -
+			candidate.ActorExposurePenalty
 
+		// 命中了场景热度召回时记录来源。
 		if candidate.ScenePopularityScore > 0 {
 			candidate.RecallSources[RecallSourceSceneHot] = struct{}{}
 		}
+		// 命中了全站热度召回时记录来源。
 		if candidate.GlobalPopularityScore > 0 {
 			candidate.RecallSources[RecallSourceGlobalHot] = struct{}{}
 		}
+		// 没有公共召回来源时，说明当前候选来自 latest 兜底。
 		if len(candidate.RecallSources) == 0 {
 			candidate.RecallSources[RecallSourceLatest] = struct{}{}
 		}
+		// 记录匿名主体曝光惩罚命中情况，便于 explain 返回。
 		if candidate.ActorExposurePenalty > 0 {
 			candidate.RecallSources[RecallSourceActorPenalty] = struct{}{}
 		}
@@ -143,18 +175,55 @@ func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[in
 	return candidates
 }
 
-// CalculateRepeatPenalty 计算近期已购商品的重复推荐惩罚。
-func CalculateRepeatPenalty(goodsID int64, recentPaidGoods map[int64]struct{}) float64 {
-	if _, ok := recentPaidGoods[goodsID]; ok {
-		return 1.5
-	}
-	return 0
-}
-
 // RankGoods 对候选商品执行统一排序和类目打散。
 func RankGoods(candidates map[int64]*recommendCore.Candidate) []*app.GoodsInfo {
-	return recommendFilter.DiversifyCandidates(
-		recommendRank.RankCandidates(candidates),
-		recommendFilter.DefaultMaxPerCategory,
-	)
+	if len(candidates) == 0 {
+		// 空候选集直接返回空商品列表。
+		return []*app.GoodsInfo{}
+	}
+
+	rankedCandidates := make([]*recommendCore.Candidate, 0, len(candidates))
+	for _, item := range candidates {
+		// 缺失商品实体的候选无法参与排序，直接跳过。
+		if item == nil || item.Goods == nil {
+			continue
+		}
+		rankedCandidates = append(rankedCandidates, item)
+	}
+	sort.SliceStable(rankedCandidates, func(i, j int) bool {
+		if rankedCandidates[i].FinalScore == rankedCandidates[j].FinalScore {
+			// 最终分相同时优先比较场景热度。
+			if rankedCandidates[i].ScenePopularityScore == rankedCandidates[j].ScenePopularityScore {
+				iUpdatedAt := _time.StringTimeToTime(rankedCandidates[i].Goods.UpdatedAt)
+				jUpdatedAt := _time.StringTimeToTime(rankedCandidates[j].Goods.UpdatedAt)
+				// 左侧时间为空时不抢占前位，避免空时间排到前面。
+				if iUpdatedAt == nil || iUpdatedAt.IsZero() {
+					return false
+				}
+				// 右侧时间为空时左侧优先，保证有更新时间的商品排序更稳定。
+				if jUpdatedAt == nil || jUpdatedAt.IsZero() {
+					return true
+				}
+				// 场景热度也相同时优先返回更新的商品。
+				return iUpdatedAt.After(*jUpdatedAt)
+			}
+			return rankedCandidates[i].ScenePopularityScore > rankedCandidates[j].ScenePopularityScore
+		}
+		return rankedCandidates[i].FinalScore > rankedCandidates[j].FinalScore
+	})
+
+	result := make([]*app.GoodsInfo, 0, len(rankedCandidates))
+	categoryCount := make(map[int64]int, len(rankedCandidates))
+	overflow := make([]*app.GoodsInfo, 0)
+	for _, item := range rankedCandidates {
+		categoryId := item.Goods.CategoryId
+		// 单个类目达到上限后先放入溢出区，保持结果多样性。
+		if categoryId > 0 && categoryCount[categoryId] >= DefaultMaxPerCategory {
+			overflow = append(overflow, item.Goods)
+			continue
+		}
+		categoryCount[categoryId]++
+		result = append(result, item.Goods)
+	}
+	return append(result, overflow...)
 }
