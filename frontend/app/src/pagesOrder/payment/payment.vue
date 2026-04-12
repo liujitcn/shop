@@ -37,7 +37,7 @@ onLoad(() => {
     }
     await recommendStore.getAnonymousId()
     await defRecommendService.RecommendGoodsActionReport({
-      eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_PAY,
+      eventType: RecommendGoodsActionType.ORDER_PAY,
       goodsItems,
     })
   })()

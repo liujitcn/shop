@@ -80,11 +80,7 @@ const goIndex = () => {
         <uni-swipe-action-item v-for="item in collectList" :key="item.id" class="collect-swipe">
           <!-- 商品信息 -->
           <view class="goods">
-            <navigator
-              :url="goodsDetailUrl(item.goodsId)"
-              hover-class="none"
-              class="navigator"
-            >
+            <navigator :url="goodsDetailUrl(item.goodsId)" hover-class="none" class="navigator">
               <image mode="aspectFill" class="picture" :src="formatSrc(item.picture)"></image>
               <view class="meta">
                 <view class="name ellipsis">{{ item.name }}</view>

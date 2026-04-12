@@ -249,16 +249,16 @@ export enum RecommendScene {
 export enum RecommendGoodsActionType {
   /** UNKNOWN_RGAT - 未指定商品行为类型 */
   UNKNOWN_RGAT = 0,
-  /** RECOMMEND_GOODS_ACTION_VIEW - 商品浏览事件 */
-  RECOMMEND_GOODS_ACTION_VIEW = 1,
-  /** RECOMMEND_GOODS_ACTION_COLLECT - 商品收藏事件 */
-  RECOMMEND_GOODS_ACTION_COLLECT = 2,
-  /** RECOMMEND_GOODS_ACTION_CART - 商品加购事件 */
-  RECOMMEND_GOODS_ACTION_CART = 3,
-  /** RECOMMEND_GOODS_ACTION_ORDER_CREATE - 下单事件 */
-  RECOMMEND_GOODS_ACTION_ORDER_CREATE = 4,
-  /** RECOMMEND_GOODS_ACTION_ORDER_PAY - 支付事件 */
-  RECOMMEND_GOODS_ACTION_ORDER_PAY = 5,
-  /** RECOMMEND_GOODS_ACTION_CLICK - 推荐点击事件 */
-  RECOMMEND_GOODS_ACTION_CLICK = 6,
+  /** VIEW - 商品浏览事件 */
+  VIEW = 1,
+  /** COLLECT - 商品收藏事件 */
+  COLLECT = 2,
+  /** ADD_CART - 商品加购事件 */
+  ADD_CART = 3,
+  /** ORDER_CREATE - 下单事件 */
+  ORDER_CREATE = 4,
+  /** ORDER_PAY - 支付事件 */
+  ORDER_PAY = 5,
+  /** CLICK - 推荐点击事件 */
+  CLICK = 6,
 }

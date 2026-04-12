@@ -159,7 +159,7 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		requestIds := make([]string, 0, len(actionList))
 		for _, item := range actionList {
 			// 只有支付事件需要回查订单商品金额。
-			if item.EventType != int32(common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY) || item.RequestID == "" {
+			if item.EventType != int32(common.RecommendGoodsActionType_ORDER_PAY) || item.RequestID == "" {
 				continue
 			}
 			requestIds = append(requestIds, item.RequestID)
@@ -190,24 +190,25 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 				continue
 			}
 			stat := ensureStat(item.Scene, item.GoodsID)
+			eventType := common.RecommendGoodsActionType(item.EventType)
 			// 按行为事件类型分别累计推荐链路指标。
-			switch common.RecommendGoodsActionType(item.EventType) {
-			case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK:
+			switch eventType {
+			case common.RecommendGoodsActionType_CLICK:
 				// 点击事件只累计点击次数。
 				stat.ClickCount++
-			case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW:
+			case common.RecommendGoodsActionType_VIEW:
 				// 浏览事件只累计浏览次数。
 				stat.ViewCount++
-			case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_COLLECT:
+			case common.RecommendGoodsActionType_COLLECT:
 				// 收藏事件只累计收藏次数。
 				stat.CollectCount++
-			case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CART:
+			case common.RecommendGoodsActionType_ADD_CART:
 				// 加购事件累计商品数量，保持和历史口径一致。
 				stat.CartCount += item.GoodsNum
-			case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE:
+			case common.RecommendGoodsActionType_ORDER_CREATE:
 				// 下单事件累计下单次数。
 				stat.OrderCount++
-			case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY:
+			case common.RecommendGoodsActionType_ORDER_PAY:
 				// 支付事件累计支付次数、件数和金额。
 				stat.PayCount++
 				stat.PayGoodsNum += item.GoodsNum

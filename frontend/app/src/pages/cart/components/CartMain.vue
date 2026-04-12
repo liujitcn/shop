@@ -162,11 +162,7 @@ const guessTitle = computed(() => {
                 class="checkbox"
                 :class="{ checked: item.isChecked }"
               ></text>
-              <navigator
-                :url="goodsDetailUrl(item.goodsId)"
-                hover-class="none"
-                class="navigator"
-              >
+              <navigator :url="goodsDetailUrl(item.goodsId)" hover-class="none" class="navigator">
                 <image mode="aspectFill" class="picture" :src="formatSrc(item.picture)"></image>
                 <view class="meta">
                   <view class="name ellipsis">{{ item.name }}</view>

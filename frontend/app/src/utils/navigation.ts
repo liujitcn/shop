@@ -75,8 +75,7 @@ const normalizeRecommendRouteQuery = (query: {
   requestId?: string
   index?: string | number
 }) => {
-  const scene =
-    query.scene === RecommendScene.RECOMMEND_SCENE_UNKNOWN ? undefined : query.scene
+  const scene = query.scene === RecommendScene.RECOMMEND_SCENE_UNKNOWN ? undefined : query.scene
   const requestId = query.requestId?.trim() ? query.requestId : undefined
   const hasRecommendContext =
     scene !== undefined || requestId !== undefined || isValidQueryValue(query.index)

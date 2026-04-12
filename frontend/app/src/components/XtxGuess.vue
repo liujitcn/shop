@@ -129,7 +129,7 @@ const onTapGoods = async (item: GuessGoods) => {
   try {
     await recommendStore.getAnonymousId()
     await defRecommendService.RecommendGoodsActionReport({
-      eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CLICK,
+      eventType: RecommendGoodsActionType.CLICK,
       goodsItems: [
         {
           goodsId: item.id,

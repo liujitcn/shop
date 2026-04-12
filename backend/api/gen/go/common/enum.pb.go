@@ -1113,34 +1113,34 @@ func (RecommendScene) EnumDescriptor() ([]byte, []int) {
 type RecommendGoodsActionType int32
 
 const (
-	RecommendGoodsActionType_UNKNOWN_RGAT                        RecommendGoodsActionType = 0 // 未指定商品行为类型
-	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW         RecommendGoodsActionType = 1 // 商品浏览事件
-	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_COLLECT      RecommendGoodsActionType = 2 // 商品收藏事件
-	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CART         RecommendGoodsActionType = 3 // 商品加购事件
-	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE RecommendGoodsActionType = 4 // 下单事件
-	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY    RecommendGoodsActionType = 5 // 支付事件
-	RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK        RecommendGoodsActionType = 6 // 推荐点击事件
+	RecommendGoodsActionType_UNKNOWN_RGAT RecommendGoodsActionType = 0 // 未指定商品行为类型
+	RecommendGoodsActionType_VIEW         RecommendGoodsActionType = 1 // 商品浏览事件
+	RecommendGoodsActionType_COLLECT      RecommendGoodsActionType = 2 // 商品收藏事件
+	RecommendGoodsActionType_ADD_CART     RecommendGoodsActionType = 3 // 商品加购事件
+	RecommendGoodsActionType_ORDER_CREATE RecommendGoodsActionType = 4 // 下单事件
+	RecommendGoodsActionType_ORDER_PAY    RecommendGoodsActionType = 5 // 支付事件
+	RecommendGoodsActionType_CLICK        RecommendGoodsActionType = 6 // 推荐点击事件
 )
 
 // Enum value maps for RecommendGoodsActionType.
 var (
 	RecommendGoodsActionType_name = map[int32]string{
 		0: "UNKNOWN_RGAT",
-		1: "RECOMMEND_GOODS_ACTION_VIEW",
-		2: "RECOMMEND_GOODS_ACTION_COLLECT",
-		3: "RECOMMEND_GOODS_ACTION_CART",
-		4: "RECOMMEND_GOODS_ACTION_ORDER_CREATE",
-		5: "RECOMMEND_GOODS_ACTION_ORDER_PAY",
-		6: "RECOMMEND_GOODS_ACTION_CLICK",
+		1: "VIEW",
+		2: "COLLECT",
+		3: "ADD_CART",
+		4: "ORDER_CREATE",
+		5: "ORDER_PAY",
+		6: "CLICK",
 	}
 	RecommendGoodsActionType_value = map[string]int32{
-		"UNKNOWN_RGAT":                        0,
-		"RECOMMEND_GOODS_ACTION_VIEW":         1,
-		"RECOMMEND_GOODS_ACTION_COLLECT":      2,
-		"RECOMMEND_GOODS_ACTION_CART":         3,
-		"RECOMMEND_GOODS_ACTION_ORDER_CREATE": 4,
-		"RECOMMEND_GOODS_ACTION_ORDER_PAY":    5,
-		"RECOMMEND_GOODS_ACTION_CLICK":        6,
+		"UNKNOWN_RGAT": 0,
+		"VIEW":         1,
+		"COLLECT":      2,
+		"ADD_CART":     3,
+		"ORDER_CREATE": 4,
+		"ORDER_PAY":    5,
+		"CLICK":        6,
 	}
 )
 
@@ -1298,15 +1298,15 @@ const file_common_enum_proto_rawDesc = "" +
 	"\aPROFILE\x10\x03\x12\x10\n" +
 	"\fORDER_DETAIL\x10\x04\x12\x0e\n" +
 	"\n" +
-	"ORDER_PAID\x10\x05*\x83\x02\n" +
+	"ORDER_PAID\x10\x05*}\n" +
 	"\x18RecommendGoodsActionType\x12\x10\n" +
-	"\fUNKNOWN_RGAT\x10\x00\x12\x1f\n" +
-	"\x1bRECOMMEND_GOODS_ACTION_VIEW\x10\x01\x12\"\n" +
-	"\x1eRECOMMEND_GOODS_ACTION_COLLECT\x10\x02\x12\x1f\n" +
-	"\x1bRECOMMEND_GOODS_ACTION_CART\x10\x03\x12'\n" +
-	"#RECOMMEND_GOODS_ACTION_ORDER_CREATE\x10\x04\x12$\n" +
-	" RECOMMEND_GOODS_ACTION_ORDER_PAY\x10\x05\x12 \n" +
-	"\x1cRECOMMEND_GOODS_ACTION_CLICK\x10\x06Bg\n" +
+	"\fUNKNOWN_RGAT\x10\x00\x12\b\n" +
+	"\x04VIEW\x10\x01\x12\v\n" +
+	"\aCOLLECT\x10\x02\x12\f\n" +
+	"\bADD_CART\x10\x03\x12\x10\n" +
+	"\fORDER_CREATE\x10\x04\x12\r\n" +
+	"\tORDER_PAY\x10\x05\x12\t\n" +
+	"\x05CLICK\x10\x06Bg\n" +
 	"\n" +
 	"com.commonB\tEnumProtoP\x01Z\x16shop/api/gen/go/common\xa2\x02\x03CXX\xaa\x02\x06Common\xca\x02\x06Common\xe2\x02\x12Common\\GPBMetadata\xea\x02\x06Commonb\x06proto3"
 

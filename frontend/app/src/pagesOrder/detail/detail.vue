@@ -318,12 +318,7 @@ const onConfirmPopup = async () => {
   <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
     <view class="wrap">
       <navigator v-if="pages.length > 1" open-type="navigateBack" class="back icon-left" />
-      <navigator
-        v-else
-        :url="homeTabPage"
-        open-type="switchTab"
-        class="back icon-home"
-      />
+      <navigator v-else :url="homeTabPage" open-type="switchTab" class="back icon-home" />
       <view class="title">订单详情</view>
     </view>
   </view>

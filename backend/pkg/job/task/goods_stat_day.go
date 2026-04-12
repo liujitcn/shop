@@ -89,7 +89,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		actionOpts := make([]repo.QueryOption, 0, 3)
 		actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
 		actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lt(endAt)))
-		actionOpts = append(actionOpts, repo.Where(actionQuery.EventType.Eq(int32(common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW))))
+		actionOpts = append(actionOpts, repo.Where(actionQuery.EventType.Eq(int32(common.RecommendGoodsActionType_VIEW))))
 		var viewList []*models.RecommendGoodsAction
 		viewList, err = t.recommendGoodsActionRepo.List(ctx, actionOpts...)
 		// 浏览行为查询失败时，直接返回错误避免统计结果不完整。

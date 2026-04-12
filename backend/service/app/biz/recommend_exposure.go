@@ -165,7 +165,7 @@ func (c *RecommendExposureCase) loadRecommendClickCountMap(ctx context.Context, 
 	opts = append(opts, repo.Where(query.ActorType.Eq(actor.ActorType)))
 	opts = append(opts, repo.Where(query.ActorID.Eq(actor.ActorId)))
 	opts = append(opts, repo.Where(query.Scene.Eq(scene)))
-	opts = append(opts, repo.Where(query.EventType.Eq(int32(common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK))))
+	opts = append(opts, repo.Where(query.EventType.Eq(int32(common.RecommendGoodsActionType_CLICK))))
 	opts = append(opts, repo.Where(query.CreatedAt.Gte(cutoff)))
 	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
 

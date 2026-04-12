@@ -7024,12 +7024,12 @@ components:
                 eventType:
                     enum:
                         - UNKNOWN_RGAT
-                        - RECOMMEND_GOODS_ACTION_VIEW
-                        - RECOMMEND_GOODS_ACTION_COLLECT
-                        - RECOMMEND_GOODS_ACTION_CART
-                        - RECOMMEND_GOODS_ACTION_ORDER_CREATE
-                        - RECOMMEND_GOODS_ACTION_ORDER_PAY
-                        - RECOMMEND_GOODS_ACTION_CLICK
+                        - VIEW
+                        - COLLECT
+                        - ADD_CART
+                        - ORDER_CREATE
+                        - ORDER_PAY
+                        - CLICK
                     type: string
                     description: 商品行为事件类型
                     format: enum

@@ -8,10 +8,6 @@ import (
 
 const (
 	PreferenceTypeCategory = "category"
-	RelationTypeCoClick    = "co_click"
-	RelationTypeCoView     = "co_view"
-	RelationTypeCoOrder    = "co_order"
-	RelationTypeCoPay      = "co_pay"
 
 	ActorTypeAnonymous = int32(0)
 	ActorTypeUser      = int32(1)
@@ -38,10 +34,10 @@ func NormalizeGoodsCount(goodsNum int64) int64 {
 // IsSingleGoodsEvent 判断是否为单商品事件。
 func IsSingleGoodsEvent(eventType common.RecommendGoodsActionType) bool {
 	switch eventType {
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK,
-		common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW,
-		common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_COLLECT,
-		common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CART:
+	case common.RecommendGoodsActionType_CLICK,
+		common.RecommendGoodsActionType_VIEW,
+		common.RecommendGoodsActionType_COLLECT,
+		common.RecommendGoodsActionType_ADD_CART:
 		return true
 	default:
 		return false
@@ -51,8 +47,8 @@ func IsSingleGoodsEvent(eventType common.RecommendGoodsActionType) bool {
 // IsOrderGoodsEvent 判断是否为订单级多商品事件。
 func IsOrderGoodsEvent(eventType common.RecommendGoodsActionType) bool {
 	switch eventType {
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE,
-		common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY:
+	case common.RecommendGoodsActionType_ORDER_CREATE,
+		common.RecommendGoodsActionType_ORDER_PAY:
 		return true
 	default:
 		return false
@@ -62,52 +58,49 @@ func IsOrderGoodsEvent(eventType common.RecommendGoodsActionType) bool {
 // EventWeight 返回用户偏好聚合所使用的事件权重。
 func EventWeight(eventType common.RecommendGoodsActionType) float64 {
 	switch eventType {
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK:
+	case common.RecommendGoodsActionType_CLICK:
 		return 3
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW:
+	case common.RecommendGoodsActionType_VIEW:
 		return 2
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_COLLECT:
+	case common.RecommendGoodsActionType_COLLECT:
 		return 4
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CART:
+	case common.RecommendGoodsActionType_ADD_CART:
 		return 6
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE:
+	case common.RecommendGoodsActionType_ORDER_CREATE:
 		return 8
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY:
+	case common.RecommendGoodsActionType_ORDER_PAY:
 		return 10
 	default:
 		return 0
+	}
+}
+
+// IsRelationEvent 判断是否为可生成商品关联的行为事件。
+func IsRelationEvent(eventType common.RecommendGoodsActionType) bool {
+	switch eventType {
+	case common.RecommendGoodsActionType_CLICK,
+		common.RecommendGoodsActionType_VIEW,
+		common.RecommendGoodsActionType_ORDER_CREATE,
+		common.RecommendGoodsActionType_ORDER_PAY:
+		return true
+	default:
+		return false
 	}
 }
 
 // RelationWeight 返回商品关联聚合所使用的关系权重。
-func RelationWeight(relationType string) float64 {
-	switch relationType {
-	case RelationTypeCoClick:
+func RelationWeight(eventType common.RecommendGoodsActionType) float64 {
+	switch eventType {
+	case common.RecommendGoodsActionType_CLICK:
 		return 3
-	case RelationTypeCoView:
+	case common.RecommendGoodsActionType_VIEW:
 		return 2
-	case RelationTypeCoOrder:
+	case common.RecommendGoodsActionType_ORDER_CREATE:
 		return 8
-	case RelationTypeCoPay:
+	case common.RecommendGoodsActionType_ORDER_PAY:
 		return 10
 	default:
 		return 0
-	}
-}
-
-// RelationType 根据事件类型映射商品关系类型。
-func RelationType(eventType common.RecommendGoodsActionType) string {
-	switch eventType {
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_CLICK:
-		return RelationTypeCoClick
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_VIEW:
-		return RelationTypeCoView
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_CREATE:
-		return RelationTypeCoOrder
-	case common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY:
-		return RelationTypeCoPay
-	default:
-		return ""
 	}
 }
 

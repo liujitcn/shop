@@ -87,8 +87,8 @@ func (c *RecommendGoodsRelationCase) upsertOrderGoodsRelations(ctx context.Conte
 	if len(list) < 2 {
 		return nil
 	}
-	// 无法映射关系类型时，不继续写入关联关系。
-	if recommendEvent.RelationType(eventType) == "" {
+	// 非关联行为不继续写入关联关系。
+	if !recommendEvent.IsRelationEvent(eventType) {
 		return nil
 	}
 
@@ -117,11 +117,11 @@ func (c *RecommendGoodsRelationCase) upsertSingleGoodsRelation(ctx context.Conte
 	if goodsId <= 0 || relatedGoodsId <= 0 || goodsId == relatedGoodsId {
 		return nil
 	}
-	relationType := recommendEvent.RelationType(eventType)
-	// 无法映射关系类型时，不继续写入关联关系。
-	if relationType == "" {
+	// 非关联行为不继续写入关联关系。
+	if !recommendEvent.IsRelationEvent(eventType) {
 		return nil
 	}
+	relationType := eventType.String()
 
 	recommendGoodsRelationQuery := c.Query(ctx).RecommendGoodsRelation
 	opts := make([]repo.QueryOption, 0, 4)
@@ -140,7 +140,7 @@ func (c *RecommendGoodsRelationCase) upsertSingleGoodsRelation(ctx context.Conte
 	score := relationScore
 	// 调用方没有提供关系分时，回退到关系类型默认权重。
 	if score <= 0 {
-		score = recommendEvent.RelationWeight(relationType)
+		score = recommendEvent.RelationWeight(eventType)
 	}
 	// 已有聚合记录时，在原有得分和证据上继续累加。
 	if entity != nil {

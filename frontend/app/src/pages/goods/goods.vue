@@ -96,7 +96,7 @@ onLoad(() => {
     try {
       await recommendStore.getAnonymousId()
       await defRecommendService.RecommendGoodsActionReport({
-        eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_VIEW,
+        eventType: RecommendGoodsActionType.VIEW,
         goodsItems: [
           {
             goodsId,
@@ -200,7 +200,7 @@ const onAddCart = async (ev: SkuPopupEvent) => {
   try {
     await recommendStore.getAnonymousId()
     await defRecommendService.RecommendGoodsActionReport({
-      eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_CART,
+      eventType: RecommendGoodsActionType.ADD_CART,
       goodsItems: [
         {
           goodsId,
@@ -246,7 +246,7 @@ const onCollect = async () => {
     try {
       await recommendStore.getAnonymousId()
       await defRecommendService.RecommendGoodsActionReport({
-        eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_COLLECT,
+        eventType: RecommendGoodsActionType.COLLECT,
         goodsItems: [
           {
             goodsId,

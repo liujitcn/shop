@@ -55,7 +55,7 @@ func (c *RecommendUserGoodsPreferenceCase) loadUserGoodsSignals(ctx context.Cont
 	for _, item := range list {
 		scores[item.GoodsID] = item.Score
 		// 最近支付过的商品需要单独记录，用于推荐时做惩罚或过滤。
-		if item.LastBehaviorType == common.RecommendGoodsActionType_RECOMMEND_GOODS_ACTION_ORDER_PAY.String() && item.LastBehaviorAt.After(cutoff) {
+		if item.LastBehaviorType == common.RecommendGoodsActionType_ORDER_PAY.String() && item.LastBehaviorAt.After(cutoff) {
 			recentPaidGoodsMap[item.GoodsID] = struct{}{}
 		}
 	}

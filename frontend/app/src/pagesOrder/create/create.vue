@@ -194,7 +194,7 @@ const onOrderSubmit = async () => {
   }))
   await recommendStore.getAnonymousId()
   await defRecommendService.RecommendGoodsActionReport({
-    eventType: RecommendGoodsActionType.RECOMMEND_GOODS_ACTION_ORDER_CREATE,
+    eventType: RecommendGoodsActionType.ORDER_CREATE,
     goodsItems,
   })
   // 关闭当前页面，跳转到订单详情，传递订单id
