@@ -39,8 +39,6 @@ func Server(_ log.Logger,
 ) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req interface{}) (reply interface{}, err error) {
-			var kind string
-
 			startTime := time.Now()
 			// 日志信息
 			baseLog := models.BaseLog{
@@ -49,7 +47,6 @@ func Server(_ log.Logger,
 				StatusCode: int32(status.FromGRPCCode(codes.OK)),
 			}
 			if info, ok := transport.FromServerContext(ctx); ok {
-				kind = info.Kind().String()
 				baseLog.Operation = info.Operation()
 				var fullErr error
 				if htr, htrOk := info.(*http.Transport); htrOk {
@@ -144,7 +141,7 @@ func Server(_ log.Logger,
 			}
 			// 写入日志
 			utils.AddQueue(_const.Log, &baseLog)
-			logLine := buildAccessLogLine(kind, &baseLog)
+			logLine := buildAccessLogLine(&baseLog)
 			// 错误请求使用错误级别输出，便于在控制台快速筛选异常请求。
 			if level == log.LevelError {
 				log.Error(logLine)
@@ -158,11 +155,11 @@ func Server(_ log.Logger,
 }
 
 // buildAccessLogLine 构造控制台单行访问日志。
-func buildAccessLogLine(kind string, baseLog *models.BaseLog) string {
+func buildAccessLogLine(baseLog *models.BaseLog) string {
 	return fmt.Sprintf(
-		"请求方法=%s 请求方式=%s 请求路径=%s 请求参数=%s 状态码=%d 请求耗时=%s",
+		"operation=%s method=%s path=%s args=%s code=%d latency=%s",
+		normalizeLogField(baseLog.Operation),
 		normalizeLogField(baseLog.Method),
-		normalizeLogField(kind),
 		normalizeLogField(baseLog.Path),
 		normalizeLogField(baseLog.RequestBody),
 		baseLog.StatusCode,
