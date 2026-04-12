@@ -27,16 +27,16 @@
 ## 当前停留点
 
 - 当前阶段：批次 1，后端事实回写。
-- 当前任务：`B1-02` 收藏成功后端回写 `COLLECT`。
+- 当前任务：`B1-03` 加购成功后端回写 `ADD_CART`。
 - 当前状态：`未开始`
-- 上次结束位置：`B1-01` 已确认完成，等待进入 `B1-02`。
+- 上次结束位置：`B1-02` 已确认完成，等待进入 `B1-03`。
 
 ## 执行清单
 
 | ID | 批次 | 任务 | 主要范围 | 状态 |
 | --- | --- | --- | --- | --- |
 | B1-01 | 批次 1 | 新增推荐行为后端内部写入入口，供业务服务直接调用 | `backend/service/app/biz/recommend_goods_action.go` | 已完成 |
-| B1-02 | 批次 1 | 收藏成功后端回写 `COLLECT` | `backend/service/app/biz/user_collect.go` | 未开始 |
+| B1-02 | 批次 1 | 收藏成功后端回写 `COLLECT` | `backend/service/app/biz/user_collect.go` | 已完成 |
 | B1-03 | 批次 1 | 加购成功后端回写 `ADD_CART` | `backend/service/app/biz/user_cart.go` | 未开始 |
 | B1-04 | 批次 1 | 下单成功后端回写 `ORDER_CREATE` | `backend/service/app/biz/order_info.go` | 未开始 |
 | B1-05 | 批次 1 | 支付成功后端回写 `ORDER_PAY`，并补幂等保护 | `backend/service/app/biz/pay.go` | 未开始 |
@@ -65,3 +65,5 @@
 - 2026-04-12：创建执行记录文档；当前停留在 `B1-01`，尚未开始编码。
 - 2026-04-12：完成 `B1-01` 代码实现；已新增推荐行为后端内部写入入口，并按确认意见复用现有 `RecommendGoodsActionReportRequest`，未新增写入 DTO，等待用户确认。
 - 2026-04-12：`B1-01` 已确认完成；当前停留点推进到 `B1-02`，并增加“确认后可直接提交当前项代码”的记录规则。
+- 2026-04-12：完成 `B1-02` 代码实现；收藏成功后改为后端回写 `COLLECT`，并补了推荐上下文空值保护，等待用户确认。
+- 2026-04-12：`B1-02` 已确认完成；当前停留点推进到 `B1-03`。
