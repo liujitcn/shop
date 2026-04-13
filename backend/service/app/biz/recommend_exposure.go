@@ -10,7 +10,6 @@ import (
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/gen/data"
-	"shop/pkg/gen/models"
 	recommendCandidate "shop/pkg/recommend/candidate"
 	recommendevent "shop/pkg/recommend/event"
 	"shop/pkg/utils"
@@ -19,12 +18,6 @@ import (
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
-
-// recommendExposureEvent 推荐曝光队列事件。
-type recommendExposureEvent struct {
-	Exposure *models.RecommendExposure `json:"exposure"`
-	GoodsIds []int64                   `json:"goodsIds"`
-}
 
 // RecommendExposureCase 推荐曝光业务处理对象。
 type RecommendExposureCase struct {
@@ -58,7 +51,7 @@ func (c *RecommendExposureCase) saveRecommendExposureEvent(message queueData.Mes
 		return err
 	}
 
-	payload := make(map[string]*recommendExposureEvent)
+	payload := make(map[string]*utils.RecommendExposureEvent)
 	err = json.Unmarshal(rawBody, &payload)
 	if err != nil {
 		return err
@@ -86,16 +79,7 @@ func (c *RecommendExposureCase) publishRecommendExposureEvent(actor *appdto.Reco
 		return
 	}
 
-	utils.AddQueue(_const.RecommendExposureEvent, &recommendExposureEvent{
-		Exposure: &models.RecommendExposure{
-			RequestID: req.GetRequestId(),
-			ActorType: actor.ActorType,
-			ActorID:   actor.ActorId,
-			Scene:     int32(req.GetScene()),
-			CreatedAt: time.Now(),
-		},
-		GoodsIds: req.GetGoodsIds(),
-	})
+	utils.DispatchRecommendExposureEvent(actor, req)
 }
 
 // loadActorExposurePenalties 加载当前主体的曝光惩罚分。

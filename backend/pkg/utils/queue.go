@@ -22,6 +22,12 @@ type RecommendGoodsActionEvent struct {
 	GoodsItems     []*models.RecommendGoodsAction  // 商品行为列表
 }
 
+// RecommendExposureEvent 推荐曝光队列事件。
+type RecommendExposureEvent struct {
+	Exposure *models.RecommendExposure // 推荐曝光信息
+	GoodsIds []int64                   // 曝光商品列表
+}
+
 // AddQueue 向运行时队列追加异步消息。
 func AddQueue(queue _const.Queue, data any) {
 	queueId := string(queue)
@@ -46,6 +52,24 @@ func AddQueue(queue _const.Queue, data any) {
 	if err != nil {
 		log.Errorf("Append message error, %s", err.Error())
 	}
+}
+
+func DispatchRecommendExposureEvent(actor *appDto.RecommendActor, req *app.RecommendExposureReportRequest) {
+	// 空请求直接忽略，避免埋点接口影响主流程。
+	if req == nil {
+		return
+	}
+
+	AddQueue(_const.RecommendExposureEvent, &RecommendExposureEvent{
+		Exposure: &models.RecommendExposure{
+			RequestID: req.GetRequestId(),
+			ActorType: actor.ActorType,
+			ActorID:   actor.ActorId,
+			Scene:     int32(req.GetScene()),
+			CreatedAt: time.Now(),
+		},
+		GoodsIds: req.GetGoodsIds(),
+	})
 }
 
 // DispatchRecommendGoodsActionEvent 将后端事实转换为推荐行为事件并投递到队列。
