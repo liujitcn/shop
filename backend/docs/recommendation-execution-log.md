@@ -27,9 +27,9 @@
 ## 当前停留点
 
 - 当前阶段：批次 3，匿名绑定归因与重建任务。
-- 当前任务：`B3-02` 匿名绑定时写入绑定日志。
-- 当前状态：`未开始`
-- 上次结束位置：`B3-01` 已确认完成，已提交当前任务代码。
+- 当前任务：`B3-05` 注册推荐重建任务并校验。
+- 当前状态：`待确认`
+- 上次结束位置：`B3-02` 至 `B3-05` 已按统一方案完成代码实现，等待用户确认是否进入 `B4-01`。
 
 ## 执行清单
 
@@ -48,10 +48,10 @@
 | B2-04 | 批次 2 | 曝光上报时同步写 `recommend_exposure_item` | `backend/service/app/biz/recommend_exposure.go` | 已完成 |
 | B2-05 | 批次 2 | 批次 2 校验与回归 | `backend` | 已完成 |
 | B3-01 | 批次 3 | 新增 `recommend_actor_bind_log` 生成代码 | `backend/pkg/gen` | 已完成 |
-| B3-02 | 批次 3 | 匿名绑定时写入绑定日志 | `backend/service/app/biz/recommend.go` | 未开始 |
-| B3-03 | 批次 3 | 实现 `RecommendUserPreferenceRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 未开始 |
-| B3-04 | 批次 3 | 实现 `RecommendGoodsRelationRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 未开始 |
-| B3-05 | 批次 3 | 注册推荐重建任务并校验 | `backend/pkg/job/init.go` `backend/pkg/job/task/task.go` | 未开始 |
+| B3-02 | 批次 3 | 匿名绑定时写入绑定日志 | `backend/service/app/biz/recommend.go` | 待确认 |
+| B3-03 | 批次 3 | 实现 `RecommendUserPreferenceRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 待确认 |
+| B3-04 | 批次 3 | 实现 `RecommendGoodsRelationRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 待确认 |
+| B3-05 | 批次 3 | 注册推荐重建任务并校验 | `backend/pkg/job/init.go` `backend/pkg/job/task/task.go` | 待确认 |
 | B4-01 | 批次 4 | 新增 `recommend_eval_report` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
 | B4-02 | 批次 4 | 新增 `recommend_model_version` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
 | B4-03 | 批次 4 | 实现 `RecommendEvalReport` 任务 | `backend/pkg/job/task` | 未开始 |
@@ -79,3 +79,5 @@
 - 2026-04-13：`B2-01` 至 `B2-05` 已确认完成；执行记录已收口，当前停留点推进到 `B3-01`。
 - 2026-04-13：完成 `B3-01` 代码实现；已新增 `recommend_actor_bind_log` 最小事实表，仅保留 `anonymous_id`、`user_id`、`created_at`，同步本地 `shop_test` 建表，并重新生成 `backend/pkg/gen`，等待确认。
 - 2026-04-13：`B3-01` 已确认完成；按确认意见移除 `sql/default-data.sql` 中相关建表语句，本次仅提交 `backend/pkg/gen` 生成代码，当前停留点推进到 `B3-02`。
+- 2026-04-13：完成 `B3-02` 代码实现；匿名主体归并到登录用户时，已在同一事务内写入 `recommend_actor_bind_log`，等待确认。
+- 2026-04-13：按确认意见新增 `RecommendActorBindLogCase`，统一收敛绑定日志保存、用户偏好重建、商品关联重建，并补齐 `RecommendUserPreferenceRebuild`、`RecommendGoodsRelationRebuild` 任务注册与初始化脚本，当前停留点推进到 `B3-05`。

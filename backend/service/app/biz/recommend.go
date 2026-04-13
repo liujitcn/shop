@@ -17,26 +17,29 @@ import (
 // RecommendCase 推荐业务处理对象。
 type RecommendCase struct {
 	*biz.BaseCase
-	tx                       data.Transaction
-	recommendRequestCase     *RecommendRequestCase
-	recommendExposureCase    *RecommendExposureCase
-	recommendGoodsActionCase *RecommendGoodsActionCase
+	tx                        data.Transaction
+	recommendActorBindLogCase *RecommendActorBindLogCase
+	recommendRequestCase      *RecommendRequestCase
+	recommendExposureCase     *RecommendExposureCase
+	recommendGoodsActionCase  *RecommendGoodsActionCase
 }
 
 // NewRecommendCase 创建推荐业务处理对象。
 func NewRecommendCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
+	recommendActorBindLogCase *RecommendActorBindLogCase,
 	recommendRequestCase *RecommendRequestCase,
 	recommendExposureCase *RecommendExposureCase,
 	recommendGoodsActionCase *RecommendGoodsActionCase,
 ) *RecommendCase {
 	return &RecommendCase{
-		BaseCase:                 baseCase,
-		tx:                       tx,
-		recommendRequestCase:     recommendRequestCase,
-		recommendExposureCase:    recommendExposureCase,
-		recommendGoodsActionCase: recommendGoodsActionCase,
+		BaseCase:                  baseCase,
+		tx:                        tx,
+		recommendActorBindLogCase: recommendActorBindLogCase,
+		recommendRequestCase:      recommendRequestCase,
+		recommendExposureCase:     recommendExposureCase,
+		recommendGoodsActionCase:  recommendGoodsActionCase,
 	}
 }
 
@@ -74,7 +77,7 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, req *em
 		if err != nil {
 			return err
 		}
-		return nil
+		return c.recommendActorBindLogCase.SaveRecommendActorBindLog(ctx, anonymousId, authInfo.UserId)
 	})
 }
 

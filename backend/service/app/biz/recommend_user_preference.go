@@ -20,14 +20,143 @@ import (
 type RecommendUserPreferenceCase struct {
 	*biz.BaseCase
 	*data.RecommendUserPreferenceRepo
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo
+	goodsInfoRepo            *data.GoodsInfoRepo
 }
 
 // NewRecommendUserPreferenceCase 创建推荐用户偏好业务处理对象。
-func NewRecommendUserPreferenceCase(baseCase *biz.BaseCase, recommendUserPreferenceRepo *data.RecommendUserPreferenceRepo) *RecommendUserPreferenceCase {
+func NewRecommendUserPreferenceCase(
+	baseCase *biz.BaseCase,
+	recommendUserPreferenceRepo *data.RecommendUserPreferenceRepo,
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
+	goodsInfoRepo *data.GoodsInfoRepo,
+) *RecommendUserPreferenceCase {
 	return &RecommendUserPreferenceCase{
 		BaseCase:                    baseCase,
 		RecommendUserPreferenceRepo: recommendUserPreferenceRepo,
+		recommendGoodsActionRepo:    recommendGoodsActionRepo,
+		goodsInfoRepo:               goodsInfoRepo,
 	}
+}
+
+type recommendUserPreferenceKey struct {
+	userId     int64
+	categoryId int64
+}
+
+// RebuildRecommendUserPreference 重建用户类目偏好聚合。
+func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context.Context, userIds []int64, windowDays int32) error {
+	// 没有命中重建用户时，无需继续重建类目偏好。
+	if len(userIds) == 0 {
+		return nil
+	}
+
+	endAt := time.Now()
+	startAt := endAt.AddDate(0, 0, -int(windowDays))
+
+	preferenceQuery := c.Query(ctx).RecommendUserPreference
+	preferenceOpts := make([]repo.QueryOption, 0, 2)
+	preferenceOpts = append(preferenceOpts, repo.Where(preferenceQuery.UserID.In(userIds...)))
+	preferenceOpts = append(preferenceOpts, repo.Where(preferenceQuery.WindowDays.Eq(windowDays)))
+	err := c.Delete(ctx, preferenceOpts...)
+	if err != nil {
+		return err
+	}
+
+	actionQuery := c.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
+	actionOpts := make([]repo.QueryOption, 0, 5)
+	actionOpts = append(actionOpts, repo.Where(actionQuery.ActorType.Eq(recommendEvent.ActorTypeUser)))
+	actionOpts = append(actionOpts, repo.Where(actionQuery.ActorID.In(userIds...)))
+	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
+	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lte(endAt)))
+	actionOpts = append(actionOpts, repo.Order(actionQuery.CreatedAt.Asc()))
+	actionList, err := c.recommendGoodsActionRepo.List(ctx, actionOpts...)
+	if err != nil {
+		return err
+	}
+	// 当前窗口没有行为数据时，只保留清理动作。
+	if len(actionList) == 0 {
+		return nil
+	}
+
+	goodsIds := make([]int64, 0, len(actionList))
+	for _, item := range actionList {
+		// 非法商品不参与类目偏好重建。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+		goodsIds = append(goodsIds, item.GoodsID)
+	}
+	goodsIds = recommendcore.DedupeInt64s(goodsIds)
+	goodsInfoMap := make(map[int64]*models.GoodsInfo, len(goodsIds))
+	if len(goodsIds) > 0 {
+		goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
+		goodsOpts := make([]repo.QueryOption, 0, 1)
+		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.ID.In(goodsIds...)))
+		goodsList, listErr := c.goodsInfoRepo.List(ctx, goodsOpts...)
+		if listErr != nil {
+			return listErr
+		}
+		for _, item := range goodsList {
+			goodsInfoMap[item.ID] = item
+		}
+	}
+
+	preferenceMap := make(map[recommendUserPreferenceKey]*models.RecommendUserPreference)
+	for _, item := range actionList {
+		// 非法行为明细不参与类目偏好重建。
+		if item == nil || item.ActorID <= 0 || item.GoodsID <= 0 {
+			continue
+		}
+
+		goodsInfo, ok := goodsInfoMap[item.GoodsID]
+		// 商品缺少类目时，不生成类目偏好。
+		if !ok || goodsInfo == nil || goodsInfo.CategoryID <= 0 {
+			continue
+		}
+
+		eventType := common.RecommendGoodsActionType(item.EventType)
+		// 无法识别的行为类型不参与类目偏好重建。
+		if eventType == common.RecommendGoodsActionType_UNKNOWN_RGAT {
+			continue
+		}
+
+		key := recommendUserPreferenceKey{
+			userId:     item.ActorID,
+			categoryId: goodsInfo.CategoryID,
+		}
+		entity, ok := preferenceMap[key]
+		// 当前用户类目组合首次出现时，先初始化重建实体。
+		if !ok {
+			entity = &models.RecommendUserPreference{
+				UserID:         item.ActorID,
+				PreferenceType: recommendEvent.PreferenceTypeCategory,
+				TargetID:       goodsInfo.CategoryID,
+				WindowDays:     windowDays,
+				CreatedAt:      item.CreatedAt,
+				UpdatedAt:      item.CreatedAt,
+			}
+			preferenceMap[key] = entity
+		}
+
+		entity.Score += recommendEvent.EventWeight(eventType) * recommendEvent.NormalizeGoodsNum(item.GoodsNum)
+		entity.BehaviorSummary, err = recommendEvent.AddBehaviorSummaryCount(entity.BehaviorSummary, eventType, recommendEvent.NormalizeGoodsCount(item.GoodsNum))
+		if err != nil {
+			return err
+		}
+		if item.CreatedAt.After(entity.UpdatedAt) {
+			entity.UpdatedAt = item.CreatedAt
+		}
+	}
+
+	list := make([]*models.RecommendUserPreference, 0, len(preferenceMap))
+	for _, item := range preferenceMap {
+		list = append(list, item)
+	}
+	if len(list) == 0 {
+		return nil
+	}
+	return c.BatchCreate(ctx, list)
 }
 
 // listPreferredCategoryIds 查询用户偏好的分类 ID 列表。

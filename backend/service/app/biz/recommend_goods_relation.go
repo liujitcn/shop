@@ -20,14 +20,250 @@ import (
 type RecommendGoodsRelationCase struct {
 	*biz.BaseCase
 	*data.RecommendGoodsRelationRepo
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo
+	recommendRequestRepo     *data.RecommendRequestRepo
+	recommendRequestItemRepo *data.RecommendRequestItemRepo
 }
 
 // NewRecommendGoodsRelationCase 创建推荐商品关联业务处理对象。
-func NewRecommendGoodsRelationCase(baseCase *biz.BaseCase, recommendGoodsRelationRepo *data.RecommendGoodsRelationRepo) *RecommendGoodsRelationCase {
+func NewRecommendGoodsRelationCase(
+	baseCase *biz.BaseCase,
+	recommendGoodsRelationRepo *data.RecommendGoodsRelationRepo,
+	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
+	recommendRequestRepo *data.RecommendRequestRepo,
+	recommendRequestItemRepo *data.RecommendRequestItemRepo,
+) *RecommendGoodsRelationCase {
 	return &RecommendGoodsRelationCase{
 		BaseCase:                   baseCase,
 		RecommendGoodsRelationRepo: recommendGoodsRelationRepo,
+		recommendGoodsActionRepo:   recommendGoodsActionRepo,
+		recommendRequestRepo:       recommendRequestRepo,
+		recommendRequestItemRepo:   recommendRequestItemRepo,
 	}
+}
+
+type recommendGoodsRelationKey struct {
+	goodsId        int64
+	relatedGoodsId int64
+	relationType   string
+}
+
+type recommendOrderRelationGroupKey struct {
+	requestId string
+	eventType int32
+}
+
+// RebuildRecommendGoodsRelation 重建商品关联聚合。
+func (c *RecommendGoodsRelationCase) RebuildRecommendGoodsRelation(ctx context.Context, windowDays int32) error {
+	endAt := time.Now()
+	startAt := endAt.AddDate(0, 0, -int(windowDays))
+
+	relationQuery := c.Query(ctx).RecommendGoodsRelation
+	relationOpts := make([]repo.QueryOption, 0, 1)
+	relationOpts = append(relationOpts, repo.Where(relationQuery.WindowDays.Eq(windowDays)))
+	err := c.Delete(ctx, relationOpts...)
+	if err != nil {
+		return err
+	}
+
+	actionQuery := c.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
+	actionOpts := make([]repo.QueryOption, 0, 5)
+	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
+	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lte(endAt)))
+	actionOpts = append(actionOpts, repo.Where(actionQuery.EventType.In(
+		int32(common.RecommendGoodsActionType_CLICK),
+		int32(common.RecommendGoodsActionType_VIEW),
+		int32(common.RecommendGoodsActionType_ORDER_CREATE),
+		int32(common.RecommendGoodsActionType_ORDER_PAY),
+	)))
+	actionOpts = append(actionOpts, repo.Order(actionQuery.CreatedAt.Asc()))
+	actionOpts = append(actionOpts, repo.Order(actionQuery.ID.Asc()))
+	actionList, err := c.recommendGoodsActionRepo.List(ctx, actionOpts...)
+	if err != nil {
+		return err
+	}
+	// 当前窗口没有关联行为时，只保留清理动作。
+	if len(actionList) == 0 {
+		return nil
+	}
+
+	requestGoodsMap, err := c.loadRequestGoodsMap(ctx, actionList)
+	if err != nil {
+		return err
+	}
+
+	relationMap := make(map[recommendGoodsRelationKey]*models.RecommendGoodsRelation)
+	orderGroupMap := make(map[recommendOrderRelationGroupKey][]*models.RecommendGoodsAction)
+	for _, item := range actionList {
+		// 非法行为明细不参与商品关联重建。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+
+		eventType := common.RecommendGoodsActionType(item.EventType)
+		if recommendEvent.IsSingleGoodsEvent(eventType) {
+			relatedGoodsIds := requestGoodsMap[item.RequestID]
+			for _, relatedGoodsId := range relatedGoodsIds {
+				err = c.accumulateGoodsRelationEntity(relationMap, item.GoodsID, relatedGoodsId, eventType, item.CreatedAt, recommendEvent.NormalizeGoodsNum(item.GoodsNum), windowDays)
+				if err != nil {
+					return err
+				}
+			}
+			continue
+		}
+
+		// 订单级行为按请求编号分组后统一沉淀整单共现关系。
+		if item.RequestID != "" {
+			key := recommendOrderRelationGroupKey{requestId: item.RequestID, eventType: item.EventType}
+			orderGroupMap[key] = append(orderGroupMap[key], item)
+		}
+	}
+
+	for _, list := range orderGroupMap {
+		// 订单级行为少于两个商品时，不生成共现关系。
+		if len(list) < 2 {
+			continue
+		}
+		eventType := common.RecommendGoodsActionType(list[0].EventType)
+		for i := 0; i < len(list); i++ {
+			leftItem := list[i]
+			for j := i + 1; j < len(list); j++ {
+				rightItem := list[j]
+				relationScore := recommendEvent.NormalizeGoodsNum(leftItem.GoodsNum) + recommendEvent.NormalizeGoodsNum(rightItem.GoodsNum)
+				err = c.accumulateGoodsRelationEntity(relationMap, leftItem.GoodsID, rightItem.GoodsID, eventType, rightItem.CreatedAt, relationScore, windowDays)
+				if err != nil {
+					return err
+				}
+				err = c.accumulateGoodsRelationEntity(relationMap, rightItem.GoodsID, leftItem.GoodsID, eventType, rightItem.CreatedAt, relationScore, windowDays)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	list := make([]*models.RecommendGoodsRelation, 0, len(relationMap))
+	for _, item := range relationMap {
+		list = append(list, item)
+	}
+	if len(list) == 0 {
+		return nil
+	}
+	return c.BatchCreate(ctx, list)
+}
+
+// loadRequestGoodsMap 按请求编号预加载推荐请求内的商品集合。
+func (c *RecommendGoodsRelationCase) loadRequestGoodsMap(ctx context.Context, actionList []*models.RecommendGoodsAction) (map[string][]int64, error) {
+	requestIds := make([]string, 0, len(actionList))
+	for _, item := range actionList {
+		// 只有单商品行为才需要回查推荐请求明细。
+		if item == nil || item.RequestID == "" || !recommendEvent.IsSingleGoodsEvent(common.RecommendGoodsActionType(item.EventType)) {
+			continue
+		}
+		requestIds = append(requestIds, item.RequestID)
+	}
+	requestIds = recommendcore.DedupeStrings(requestIds)
+	if len(requestIds) == 0 {
+		return map[string][]int64{}, nil
+	}
+
+	requestQuery := c.recommendRequestRepo.Query(ctx).RecommendRequest
+	requestOpts := make([]repo.QueryOption, 0, 1)
+	requestOpts = append(requestOpts, repo.Where(requestQuery.RequestID.In(requestIds...)))
+	requestList, err := c.recommendRequestRepo.List(ctx, requestOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	requestIdByRecordId := make(map[int64]string, len(requestList))
+	requestRecordIds := make([]int64, 0, len(requestList))
+	for _, item := range requestList {
+		// 非法请求主记录不参与逐商品明细映射。
+		if item == nil || item.ID <= 0 || item.RequestID == "" {
+			continue
+		}
+		requestIdByRecordId[item.ID] = item.RequestID
+		requestRecordIds = append(requestRecordIds, item.ID)
+	}
+	if len(requestRecordIds) == 0 {
+		return map[string][]int64{}, nil
+	}
+
+	requestItemQuery := c.recommendRequestItemRepo.Query(ctx).RecommendRequestItem
+	requestItemOpts := make([]repo.QueryOption, 0, 1)
+	requestItemOpts = append(requestItemOpts, repo.Where(requestItemQuery.RecommendRequestID.In(requestRecordIds...)))
+	requestItemList, err := c.recommendRequestItemRepo.List(ctx, requestItemOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	requestGoodsSetMap := make(map[string]map[int64]struct{}, len(requestItemList))
+	for _, item := range requestItemList {
+		requestId, ok := requestIdByRecordId[item.RecommendRequestID]
+		// 逐商品明细无法匹配主请求或商品非法时，直接跳过。
+		if !ok || item.GoodsID <= 0 {
+			continue
+		}
+		if _, ok = requestGoodsSetMap[requestId]; !ok {
+			requestGoodsSetMap[requestId] = make(map[int64]struct{}, 4)
+		}
+		requestGoodsSetMap[requestId][item.GoodsID] = struct{}{}
+	}
+
+	requestGoodsMap := make(map[string][]int64, len(requestGoodsSetMap))
+	for requestId, goodsSet := range requestGoodsSetMap {
+		goodsIds := make([]int64, 0, len(goodsSet))
+		for goodsId := range goodsSet {
+			goodsIds = append(goodsIds, goodsId)
+		}
+		requestGoodsMap[requestId] = recommendcore.DedupeInt64s(goodsIds)
+	}
+	return requestGoodsMap, nil
+}
+
+// accumulateGoodsRelationEntity 累加单个方向的商品关联实体。
+func (c *RecommendGoodsRelationCase) accumulateGoodsRelationEntity(entityMap map[recommendGoodsRelationKey]*models.RecommendGoodsRelation, goodsId, relatedGoodsId int64, eventType common.RecommendGoodsActionType, eventTime time.Time, relationScore float64, windowDays int32) error {
+	// 非法商品或自关联商品不生成商品关系。
+	if goodsId <= 0 || relatedGoodsId <= 0 || goodsId == relatedGoodsId {
+		return nil
+	}
+
+	relationType := eventType.String()
+	key := recommendGoodsRelationKey{
+		goodsId:        goodsId,
+		relatedGoodsId: relatedGoodsId,
+		relationType:   relationType,
+	}
+	entity, ok := entityMap[key]
+	if !ok {
+		entity = &models.RecommendGoodsRelation{
+			GoodsID:        goodsId,
+			RelatedGoodsID: relatedGoodsId,
+			RelationType:   relationType,
+			WindowDays:     windowDays,
+			CreatedAt:      eventTime,
+			UpdatedAt:      eventTime,
+		}
+		entityMap[key] = entity
+	}
+
+	// 调用方没有提供关联分时，回退到当前事件的默认关系权重。
+	if relationScore <= 0 {
+		relationScore = recommendEvent.RelationWeight(eventType)
+	}
+	entity.Score += relationScore
+	var err error
+	entity.Evidence, err = recommendEvent.AddBehaviorSummaryCount(entity.Evidence, eventType, int64(relationScore))
+	if err != nil {
+		return err
+	}
+	if eventTime.Before(entity.CreatedAt) {
+		entity.CreatedAt = eventTime
+	}
+	if eventTime.After(entity.UpdatedAt) {
+		entity.UpdatedAt = eventTime
+	}
+	return nil
 }
 
 // listRelatedGoodsIds 查询关联商品 ID 列表。

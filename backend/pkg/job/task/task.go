@@ -3,9 +3,11 @@ package task
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"time"
 
 	"shop/pkg/errorsx"
+	recommendEvent "shop/pkg/recommend/event"
 
 	_time "github.com/liujitcn/go-utils/time"
 )
@@ -16,12 +18,16 @@ func NewTaskList(
 	orderStatDay *OrderStatDay,
 	goodsStatDay *GoodsStatDay,
 	recommendGoodsStatDay *RecommendGoodsStatDay,
+	recommendUserPreferenceRebuild *RecommendUserPreferenceRebuild,
+	recommendGoodsRelationRebuild *RecommendGoodsRelationRebuild,
 ) map[string]TaskExec {
-	taskMap := make(map[string]TaskExec, 4)
+	taskMap := make(map[string]TaskExec, 6)
 	registerTask(taskMap, tradeBill, "申请交易账单")
 	registerTask(taskMap, orderStatDay, "订单日汇总")
 	registerTask(taskMap, goodsStatDay, "商品日汇总")
 	registerTask(taskMap, recommendGoodsStatDay, "推荐商品日汇总")
+	registerTask(taskMap, recommendUserPreferenceRebuild, "推荐用户偏好重建")
+	registerTask(taskMap, recommendGoodsRelationRebuild, "推荐商品关联重建")
 	return taskMap
 }
 
@@ -57,6 +63,24 @@ func parseStatDateArg(value string) (time.Time, error) {
 		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("statDate 格式错误，支持 %s 或 %s", _time.DateLayout, _time.Layout))
 	}
 	return *statTime, nil
+}
+
+// parseRecommendWindowDaysArg 解析推荐重建窗口参数。
+func parseRecommendWindowDaysArg(value string) (int32, error) {
+	// 未传窗口参数时，默认使用固定 30 天窗口。
+	if value == "" {
+		return recommendEvent.AggregateWindowDays, nil
+	}
+
+	windowDays, err := strconv.Atoi(value)
+	if err != nil {
+		return 0, errorsx.InvalidArgument("windowDays 格式错误")
+	}
+	// 当前推荐重建任务只支持固定 30 天窗口，避免任务结果与在线查询口径分叉。
+	if int32(windowDays) != recommendEvent.AggregateWindowDays {
+		return 0, errorsx.InvalidArgument(fmt.Sprintf("windowDays 当前仅支持 %d", recommendEvent.AggregateWindowDays))
+	}
+	return int32(windowDays), nil
 }
 
 // getStructName 获取结构体指针对应的结构体名称。

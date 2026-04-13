@@ -23,6 +23,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewRecommendRequestItemCase,
 	biz.NewRecommendExposureItemCase,
 	biz.NewRecommendGoodsActionCase,
+	biz.NewRecommendActorBindLogCase,
 	biz.NewRecommendUserGoodsPreferenceCase,
 	biz.NewRecommendUserPreferenceCase,
 	biz.NewRecommendExposureCase,

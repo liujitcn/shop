@@ -12,8 +12,8 @@ require (
 	github.com/liujitcn/go-utils/crypto v0.0.7
 	github.com/liujitcn/go-utils/geoip v0.0.1
 	github.com/liujitcn/go-utils/http v0.0.1
-	github.com/liujitcn/gorm-kit v0.0.25
-	github.com/liujitcn/kratos-kit v0.0.19
+	github.com/liujitcn/gorm-kit v0.0.26
+	github.com/liujitcn/kratos-kit v0.0.20
 	github.com/liujitcn/kratos-kit/api v0.0.10
 	github.com/liujitcn/kratos-kit/auth v0.0.7
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.7
@@ -23,7 +23,7 @@ require (
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.6
 	github.com/liujitcn/kratos-kit/cache v0.0.6
 	github.com/liujitcn/kratos-kit/captcha v0.0.3
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.10
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.13
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.5
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.4
 	github.com/liujitcn/kratos-kit/oss v0.0.5

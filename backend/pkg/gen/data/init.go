@@ -38,6 +38,7 @@ var ProviderSet = wire.NewSet(
 	NewOrderRefundRepo,
 	NewOrderStatDayRepo,
 	NewPayBillRepo,
+	NewRecommendActorBindLogRepo,
 	NewRecommendExposureRepo,
 	NewRecommendExposureItemRepo,
 	NewRecommendGoodsActionRepo,

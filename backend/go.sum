@@ -335,10 +335,10 @@ github.com/liujitcn/go-utils/http v0.0.1 h1:bj2kvsc00y8/mMt9HvCCC38rslP+i3cljFyB
 github.com/liujitcn/go-utils/http v0.0.1/go.mod h1:gOMEiO4q48A44KAmtW7RUnvsCTyK8Ad15zHRT0f+udE=
 github.com/liujitcn/go-utils/jwt v0.0.1 h1:ymO+Eo3Kk+I3ALHRqbEvvclc95YrwQWKmLTGILbsCE8=
 github.com/liujitcn/go-utils/jwt v0.0.1/go.mod h1:BRJq3jIGdss3tWOZrNsmmdD8nOxF6P3diKIIe4r1oJs=
-github.com/liujitcn/gorm-kit v0.0.25 h1:VFRoCjldoxyMw0MnTOijce/x1xafQGz8ZHjzfmeDeuM=
-github.com/liujitcn/gorm-kit v0.0.25/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
-github.com/liujitcn/kratos-kit v0.0.19 h1:x7OBXlFuAvVcnb9ei4yxEFF9jVyGlXw96mFSKKRRyyk=
-github.com/liujitcn/kratos-kit v0.0.19/go.mod h1:yKU0KacC9Y1KTdE/Sjgv2hVUQ4Qi4q+0Yq6dZDoxKH4=
+github.com/liujitcn/gorm-kit v0.0.26 h1:Mt//699RJNhx7E5+NZ/jUD1JCrYtu1w2pFrMzjUU454=
+github.com/liujitcn/gorm-kit v0.0.26/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
+github.com/liujitcn/kratos-kit v0.0.20 h1:kPGJUpJ7XUMrsq4ZoUCGw2CgbWbzYtzvB1/pudQrFTo=
+github.com/liujitcn/kratos-kit v0.0.20/go.mod h1:yKU0KacC9Y1KTdE/Sjgv2hVUQ4Qi4q+0Yq6dZDoxKH4=
 github.com/liujitcn/kratos-kit/api v0.0.10 h1:Fyu2rv0YPPVkeEK4GBRPhHamGkLX68aDT7klhwYMQbA=
 github.com/liujitcn/kratos-kit/api v0.0.10/go.mod h1:vEdhTflQEXTq8F7hzC1UxENeJXAQ8ws1IwCNTwsGNMU=
 github.com/liujitcn/kratos-kit/auth v0.0.7 h1:r9E/WNMgQe8IXakUcu+Pggw3ff7mAOaVl7D1IflHmXw=
@@ -365,8 +365,8 @@ github.com/liujitcn/kratos-kit/captcha v0.0.3 h1:oUs2+1dYwFeEqvWMZy54PVvdz2zFfam
 github.com/liujitcn/kratos-kit/captcha v0.0.3/go.mod h1:0y9piWl2VV/tz3pW2dXwdI2ogIqOvN5vFkYhbIzjEBs=
 github.com/liujitcn/kratos-kit/config v0.0.7 h1:PjhRFdUv0mpJNWIUp+CsIZpUzNZmZBZuNIURf1jPA/o=
 github.com/liujitcn/kratos-kit/config v0.0.7/go.mod h1:MvkDbE0I0JNG/LA+IMoVFIZUDwAJ3O9QUFfzyIlJxpA=
-github.com/liujitcn/kratos-kit/database/gorm v0.0.10 h1:Ns1HUDLznnO+jBxiqT/RvqLoM63hg9FzTWbuu3Ho3f0=
-github.com/liujitcn/kratos-kit/database/gorm v0.0.10/go.mod h1:eyBtWZE17ZmEFQD2d+UHjpP5mcdKTAPMSqFd1pqdpIc=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.13 h1:uczLoHgt+ophrJ4UR9OsS9hT4ZT3Sd8RgAskCs+Tu9U=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.13/go.mod h1:uQTKYj2WAmZ+0MxUumCcoYDmtilAcB1xck1hWCgb64I=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.8 h1:gNN8KyrOhgZfp10WuIzmoLL0BH4subaWujI5WLPmSpY=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.8/go.mod h1:G4im2NEUggOLq3CAX5otJi0LaqxedbXbhazUuaIExvM=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.5 h1:8MhD9T+pim4zlJrvtpAbCxjEzup90LUMtu0tgBehTGs=

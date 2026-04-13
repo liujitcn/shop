@@ -42,6 +42,7 @@ func init() {
 		new(models.OrderRefund),
 		new(models.OrderStatDay),
 		new(models.PayBill),
+		new(models.RecommendActorBindLog),
 		new(models.RecommendExposure),
 		new(models.RecommendExposureItem),
 		new(models.RecommendGoodsAction),
