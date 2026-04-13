@@ -2,9 +2,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -33,8 +33,8 @@ func NewRecommendService(recommendCase *biz.RecommendCase) *RecommendService {
 func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) (*wrapperspb.Int64Value, error) {
 	res, err := s.recommendCase.RecommendAnonymousActor(ctx, req)
 	if err != nil {
-		log.Error("RecommendAnonymousActor err:", err.Error())
-		return nil, errors.New("获取匿名推荐主体失败")
+		log.Errorf("RecommendAnonymousActor %v", err)
+		return nil, errorsx.WrapInternal(err, "获取匿名推荐主体失败")
 	}
 	return res, nil
 }
@@ -43,8 +43,8 @@ func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *emp
 func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
 	err := s.recommendCase.BindRecommendAnonymousActor(ctx, req)
 	if err != nil {
-		log.Error("BindRecommendAnonymousActor err:", err.Error())
-		return nil, errors.New("绑定匿名推荐主体失败")
+		log.Errorf("BindRecommendAnonymousActor %v", err)
+		return nil, errorsx.WrapInternal(err, "绑定匿名推荐主体失败")
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -53,8 +53,8 @@ func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req 
 func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.RecommendGoodsRequest) (*app.RecommendGoodsResponse, error) {
 	res, err := s.recommendCase.RecommendGoods(ctx, req)
 	if err != nil {
-		log.Error("RecommendGoods err:", err.Error())
-		return nil, errors.New("查询推荐商品失败")
+		log.Errorf("RecommendGoods %v", err)
+		return nil, errorsx.WrapInternal(err, "查询推荐商品失败")
 	}
 	return res, nil
 }
@@ -63,8 +63,8 @@ func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.Recommen
 func (s *RecommendService) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) (*emptypb.Empty, error) {
 	err := s.recommendCase.RecommendExposureReport(ctx, req)
 	if err != nil {
-		log.Error("RecommendExposureReport err:", err.Error())
-		return nil, errors.New("上报推荐曝光失败")
+		log.Errorf("RecommendExposureReport %v", err)
+		return nil, errorsx.WrapInternal(err, "上报推荐曝光失败")
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -73,8 +73,8 @@ func (s *RecommendService) RecommendExposureReport(ctx context.Context, req *app
 func (s *RecommendService) RecommendGoodsActionReport(ctx context.Context, req *app.RecommendGoodsActionReportRequest) (*emptypb.Empty, error) {
 	err := s.recommendCase.RecommendGoodsActionReport(ctx, req)
 	if err != nil {
-		log.Error("RecommendGoodsActionReport err:", err.Error())
-		return nil, errors.New("上报推荐商品行为失败")
+		log.Errorf("RecommendGoodsActionReport %v", err)
+		return nil, errorsx.WrapInternal(err, "上报推荐商品行为失败")
 	}
 	return &emptypb.Empty{}, nil
 }

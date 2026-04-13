@@ -7,6 +7,7 @@ import (
 
 	adminApi "shop/api/gen/go/admin"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/service/admin/dto"
 	"shop/service/admin/utils"
@@ -46,7 +47,7 @@ func (c *OrderReportCase) OrderMonthReportSummary(ctx context.Context, req *admi
 
 	// 结束月份早于开始月份时，不允许继续统计月报。
 	if endMonth.Before(startMonth) {
-		return nil, fmt.Errorf("结束月份不能早于开始月份")
+		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
 	}
 
 	rows, err := c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startMonth, endMonth.AddDate(0, 1, 0))
@@ -79,7 +80,7 @@ func (c *OrderReportCase) OrderMonthReportList(ctx context.Context, req *adminAp
 
 	// 结束月份早于开始月份时，不允许继续统计月报。
 	if endMonth.Before(startMonth) {
-		return nil, fmt.Errorf("结束月份不能早于开始月份")
+		return nil, errorsx.InvalidArgument("结束月份不能早于开始月份")
 	}
 
 	rows, err := c.queryOrderMonthReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startMonth, endMonth.AddDate(0, 1, 0))
@@ -124,7 +125,7 @@ func (c *OrderReportCase) OrderDayReportSummary(ctx context.Context, req *adminA
 
 	// 结束日期早于开始日期时，不允许继续统计日报。
 	if endDate.Before(startDate) {
-		return nil, fmt.Errorf("结束日期不能早于开始日期")
+		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
 	}
 
 	rows, err := c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startDate, endDate.AddDate(0, 0, 1))
@@ -157,7 +158,7 @@ func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.
 
 	// 结束日期早于开始日期时，不允许继续统计日报。
 	if endDate.Before(startDate) {
-		return nil, fmt.Errorf("结束日期不能早于开始日期")
+		return nil, errorsx.InvalidArgument("结束日期不能早于开始日期")
 	}
 
 	rows, err := c.queryOrderDayReportRows(ctx, req.GetPayType(), req.GetPayChannel(), startDate, endDate.AddDate(0, 0, 1))
@@ -192,13 +193,13 @@ func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.
 func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
 	// 月份为空时，无法继续解析月报范围。
 	if month == "" {
-		return time.Time{}, fmt.Errorf("月份不能为空")
+		return time.Time{}, errorsx.InvalidArgument("月份不能为空")
 	}
 
 	location := time.Now().Location()
 	parsedTime, err := time.ParseInLocation("2006-01", month, location)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("月份格式错误：%s", month)
+		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("月份格式错误：%s", month))
 	}
 	return time.Date(parsedTime.Year(), parsedTime.Month(), 1, 0, 0, 0, 0, location), nil
 }
@@ -207,13 +208,13 @@ func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
 func (c *OrderReportCase) parseDate(date string) (time.Time, error) {
 	// 日期为空时，无法继续解析日报范围。
 	if date == "" {
-		return time.Time{}, fmt.Errorf("日期不能为空")
+		return time.Time{}, errorsx.InvalidArgument("日期不能为空")
 	}
 
 	location := time.Now().Location()
 	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("日期格式错误：%s", date)
+		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("日期格式错误：%s", date))
 	}
 	return time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, location), nil
 }

@@ -2,10 +2,10 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	adminApi "shop/api/gen/go/admin"
 	commonApi "shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -33,8 +33,8 @@ func NewGoodsAnalyticsService(
 func (s *GoodsAnalyticsService) GetGoodsAnalyticsSummary(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*adminApi.GoodsAnalyticsSummaryResponse, error) {
 	res, err := s.goodsAnalyticsCase.GetGoodsAnalyticsSummary(ctx, req)
 	if err != nil {
-		log.Error("GetGoodsAnalyticsSummary err:", err.Error())
-		return nil, errors.New("查询商品摘要指标失败")
+		log.Errorf("GetGoodsAnalyticsSummary %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品摘要指标失败")
 	}
 	return res, nil
 }
@@ -43,8 +43,8 @@ func (s *GoodsAnalyticsService) GetGoodsAnalyticsSummary(ctx context.Context, re
 func (s *GoodsAnalyticsService) GetGoodsAnalyticsTrend(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsTrendResponse, error) {
 	res, err := s.goodsAnalyticsCase.GetGoodsAnalyticsTrend(ctx, req)
 	if err != nil {
-		log.Error("GetGoodsAnalyticsTrend err:", err.Error())
-		return nil, errors.New("查询商品趋势失败")
+		log.Errorf("GetGoodsAnalyticsTrend %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品趋势失败")
 	}
 	return res, nil
 }
@@ -53,8 +53,8 @@ func (s *GoodsAnalyticsService) GetGoodsAnalyticsTrend(ctx context.Context, req 
 func (s *GoodsAnalyticsService) GetGoodsAnalyticsPie(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsPieResponse, error) {
 	res, err := s.goodsAnalyticsCase.GetGoodsAnalyticsPie(ctx, req)
 	if err != nil {
-		log.Error("GetGoodsAnalyticsPie err:", err.Error())
-		return nil, errors.New("查询商品分类分布失败")
+		log.Errorf("GetGoodsAnalyticsPie %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品分类分布失败")
 	}
 	return res, nil
 }

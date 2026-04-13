@@ -2,9 +2,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	adminApi "shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -30,8 +30,8 @@ func NewWorkspaceService(workspaceCase *biz.WorkspaceCase) *WorkspaceService {
 func (s *WorkspaceService) GetWorkspaceMetrics(ctx context.Context, req *adminApi.WorkspaceMetricsRequest) (*adminApi.WorkspaceMetricsResponse, error) {
 	res, err := s.workspaceCase.GetWorkspaceMetrics(ctx, req)
 	if err != nil {
-		log.Error("GetWorkspaceMetrics err:", err.Error())
-		return nil, errors.New("查询工作台顶部指标失败")
+		log.Errorf("GetWorkspaceMetrics %v", err)
+		return nil, errorsx.WrapInternal(err, "查询工作台顶部指标失败")
 	}
 	return res, nil
 }
@@ -40,8 +40,8 @@ func (s *WorkspaceService) GetWorkspaceMetrics(ctx context.Context, req *adminAp
 func (s *WorkspaceService) GetWorkspaceTodoList(ctx context.Context, req *adminApi.WorkspaceTodoListRequest) (*adminApi.WorkspaceTodoListResponse, error) {
 	res, err := s.workspaceCase.GetWorkspaceTodoList(ctx, req)
 	if err != nil {
-		log.Error("GetWorkspaceTodoList err:", err.Error())
-		return nil, errors.New("查询工作台待处理事项失败")
+		log.Errorf("GetWorkspaceTodoList %v", err)
+		return nil, errorsx.WrapInternal(err, "查询工作台待处理事项失败")
 	}
 	return res, nil
 }
@@ -50,8 +50,8 @@ func (s *WorkspaceService) GetWorkspaceTodoList(ctx context.Context, req *adminA
 func (s *WorkspaceService) GetWorkspaceRiskList(ctx context.Context, req *adminApi.WorkspaceRiskListRequest) (*adminApi.WorkspaceRiskListResponse, error) {
 	res, err := s.workspaceCase.GetWorkspaceRiskList(ctx, req)
 	if err != nil {
-		log.Error("GetWorkspaceRiskList err:", err.Error())
-		return nil, errors.New("查询工作台风险提醒失败")
+		log.Errorf("GetWorkspaceRiskList %v", err)
+		return nil, errorsx.WrapInternal(err, "查询工作台风险提醒失败")
 	}
 	return res, nil
 }

@@ -8,10 +8,10 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -41,8 +41,8 @@ func NewBaseAreaService(
 func (s *BaseAreaService) TreeBaseArea(ctx context.Context, req *emptypb.Empty) (*common.AppTreeOptionResponse, error) {
 	tree, err := s.baseAreaCase.TreeBaseArea(ctx)
 	if err != nil {
-		log.Error("TreeBaseArea err:", err.Error())
-		return nil, errors.New("查询行政区域树形列表失败")
+		log.Errorf("TreeBaseArea %v", err)
+		return nil, errorsx.WrapInternal(err, "查询行政区域树形列表失败")
 	}
 
 	return tree, nil

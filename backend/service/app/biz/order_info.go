@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -494,7 +495,12 @@ func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
 	}
 	// 只有已收货、退款中或已取消订单允许删除。
 	if !(orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING) || orderInfo.Status == int32(common.OrderStatus_CANCELED)) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			"RECEIVED|REFUNDING|CANCELED",
+		)
 	}
 
 	orderIds := []int64{id}
@@ -526,7 +532,12 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 
 	// 只有已支付订单才能继续申请退款。
 	if orderInfo.Status != int32(common.OrderStatus_PAID) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			common.OrderStatus_PAID.String(),
+		)
 	}
 
 	orderRefund := &models.OrderRefund{
@@ -573,7 +584,12 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 						if err != nil {
 							return err
 						}
-						return errors.New("订单已退款，不能重复退款")
+						return errorsx.StateConflict(
+							"订单已退款，不能重复退款",
+							"order_refund",
+							app.RefundResource_SUCCESS.String(),
+							"NONE",
+						)
 					}
 				}
 				return err
@@ -622,7 +638,12 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *app.ReceiveOr
 	}
 	// 只有已发货订单才能确认收货。
 	if orderInfo.Status != int32(common.OrderStatus_SHIPPED) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			common.OrderStatus_SHIPPED.String(),
+		)
 	}
 
 	orderIds := []int64{req.GetOrderId()}
@@ -672,7 +693,12 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 	}
 	// 只有待支付订单才能继续取消。
 	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			common.OrderStatus_CREATED.String(),
+		)
 	}
 
 	// 微信在线支付订单在取消前先补查一次真实支付状态，避免回调延迟时误取消已支付订单
@@ -690,7 +716,12 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 			if err != nil {
 				return err
 			}
-			return errors.New("订单已支付，无法取消")
+			return errorsx.StateConflict(
+				"订单已支付，无法取消",
+				"order_info",
+				common.OrderStatus_PAID.String(),
+				common.OrderStatus_CREATED.String(),
+			)
 		}
 	}
 	orderIds := []int64{req.GetOrderId()}

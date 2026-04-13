@@ -123,6 +123,27 @@
 - `api/gen`，`pkg/gen` 生成的代码，禁止直接修改其内容，也禁止添加文件。
 - 不要扩展无意义的子方法，禁止在已有方法内新增仅被单一分支调用的子方法。
 
+## 错误处理规则
+- 后续新增或修改后端错误处理时，必须遵循 [backend/docs/error-handling-design.md](./docs/error-handling-design.md) 当前定义的 6 类顶层错误，禁止恢复“按文案拆枚举”“按资源拆枚举”“按场景拆枚举”的旧做法。
+- 顶层 `reason` 只允许使用：`INVALID_ARGUMENT`、`UNAUTHENTICATED`、`PERMISSION_DENIED`、`RESOURCE_NOT_FOUND`、`CONFLICT`、`INTERNAL_ERROR`。
+- 未经明确确认，禁止新增新的顶层 `reason`、禁止在 `error.proto` 中继续追加 `TOKEN_EXPIRED`、`USER_NOT_FOUND`、`STATE_CONFLICT`、`UNIQUE_VIOLATION` 这类旧风格或派生风格枚举。
+- 后续新增或修改业务错误时，禁止直接把 `errors.New(...)`、`fmt.Errorf(...)` 作为对外业务错误返回；对外返回必须优先使用 `shop/pkg/errorsx` 中的统一构造方法。
+- `repo` 层、数据库访问层、第三方 SDK 层默认返回原始错误，不负责对外错误分类，也不要在这些层直接拼面向前端的业务提示。
+- `biz` 层负责错误分类、对外 `message`、必要的 `metadata` 与 `cause`；`service` 层不做业务分类判断，只负责打印原始日志和统一兜底包装。
+- `service` 层捕获错误后，默认统一使用 `errorsx.WrapInternal(err, "xxx失败")` 返回；若 `biz` 层已经返回结构化错误，`WrapInternal` 会直接透传，禁止在 `service` 层二次改写已有 `reason`。
+- `service` 层打印错误时，必须直接在当前方法内使用 `log.Errorf("方法名 %v", err)` 这一类格式，禁止再封装新的日志 helper，禁止使用 `log.Error("xx err:", err.Error())` 这类会产生 `err:error:` 冗余前缀的写法。
+- `INVALID_ARGUMENT` 只用于“请求本身有问题”的场景，例如参数为空、格式错误、取值非法、验证码错误、地址错误、订单商品为空；能通过修改请求立即解决的问题，优先归入这一类。
+- `UNAUTHENTICATED` 只用于“身份不成立”的场景，例如用户名或密码错误、未登录、token 无效、token 过期、刷新令牌无效；登录场景中的“用户不存在”也统一收敛到这一类，避免账号探测。
+- `PERMISSION_DENIED` 只用于“身份成立但不允许操作”的场景，例如账号禁用、角色禁用、无权限、不能操作超级管理员、不能操作超级管理员角色。
+- `RESOURCE_NOT_FOUND` 只用于“目标资源不存在”的场景，例如用户不存在、角色不存在、部门不存在、订单不存在、定时任务不存在、调用目标不存在；登录失败场景不要归到这一类。
+- `CONFLICT` 只用于“资源存在，但当前状态不允许继续操作”的场景，例如唯一约束冲突、存在子节点不能删除、状态不允许变更、资源受保护、重复支付、重复退款、已支付不可取消。
+- 唯一约束冲突必须优先使用 `errorsx.UniqueConflict(...)`；存在子资源不能删除必须优先使用 `errorsx.HasChildrenConflict(...)`；状态不匹配必须优先使用 `errorsx.StateConflict(...)`；受保护资源必须优先使用 `errorsx.ProtectedResourceConflict(...)`。
+- 冲突类错误需要补充结构化信息时，必须优先复用 `errorsx` 中已经定义的元数据键：`conflict_type`、`resource`、`field`、`constraint`、`child_resource`、`current_state`、`expected_state`；不要在同类错误上随意新增命名分散的 metadata key。
+- `INTERNAL_ERROR` 作为其余异常的唯一兜底分类，适用于数据库错误、Redis 错误、RPC 错误、第三方服务错误、配置错误、数据不一致、文件系统错误，以及“按当前请求内容无法直接修复”的内部异常。
+- 需要把底层错误转换为结构化业务错误时，必须保留原始错误链，优先使用 `.WithCause(err)`；禁止只返回新的中文文案而把原始错误完全丢掉。
+- 识别 MySQL 唯一键冲突时，必须优先复用 `errorsx.IsMySQLDuplicateKey(err)`，不要在业务代码里重复写数据库错误码判断。
+- 前端是否展示弹窗、表单提示、跳转登录，必须由 `code/reason/metadata` 决定；后端不要新增依赖中文 `message` 才能稳定分支的协议约定。
+
 ## 数据库索引命名规则
 - 唯一索引命名格式：`unique_表名`
   - 示例：`unique_order`、`unique_goods`
@@ -243,6 +264,9 @@
   - 新增资源：`POST /api/admin/base/menu`
   - 更新资源：`PUT /api/admin/base/menu/{id}`
   - 删除资源：`DELETE /api/admin/base/menu/{id}`
+- RESTful 判断以“资源建模”而不是“动词翻译”为准；`login`、`logout`、`refresh`、`bind`、`exec`、`buy`、`repurchase` 这类业务动作，必须优先抽象为会话、令牌、绑定关系、执行记录、确认单、支付单等资源或子资源。
+- 资源唯一标识必须优先放在 path 中，筛选、分页、排序、统计维度等集合查询条件应优先放在 query 或请求参数中，不要把 `userInfo`、`orderNo`、`page`、`status` 这类筛选或语义修饰信息直接拼成动作式路径片段。
+- 同一资源的查询、创建、更新、删除应尽量复用同一主路径，只通过 HTTP Method 区分动作；若出现 `/list`、`/create`、`/update`、`/delete`、`/detail` 这类片段，必须先判断是否只是对 CRUD 语义的重复表达。
 - 状态切换、排序、导出、树结构、选项集、统计汇总等非标准 CRUD 场景，必须抽象成资源或子资源，禁止直接使用动词式路径：
   - 推荐：`PUT /api/admin/base/menu/{id}/status`
   - 推荐：`GET /api/admin/base/menu/tree`
@@ -256,4 +280,5 @@
   - 推荐：`DELETE /api/admin/goods`
   - 推荐：`PUT /api/admin/base/role/{id}/menu`
   - 禁止：`POST /api/admin/goods/batchDelete`
+- `proto` 中的 RPC 方法名应与最终资源语义保持一致；若路径已抽象为 `profile`、`session`、`token`、`shipment`、`selection` 等资源，方法名也应同步避免保留 `GetUserInfo`、`WxLogin`、`ShippedOrderInfo`、`SelectedUserCart` 这类历史动作式或歧义命名。
 - HTTP 路径命名确定后，`proto` 中的 `google.api.http` 映射、`sql/default-data.sql` 中的 `base_api.path`、前端请求地址必须同步保持一致，禁止只改其中一处。

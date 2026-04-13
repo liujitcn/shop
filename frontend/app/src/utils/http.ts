@@ -29,6 +29,8 @@ const requestOrigin =
     ? ''
     : apiTargetUrl.replace(/\/$/, '')
 const baseURL = `${requestOrigin}${normalizedApiBasePath}`
+const NO_AUTH_URL_SET = new Set(['/login', '/login/captcha', '/login/refreshToken'])
+const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set(['/login', '/login/captcha'])
 
 // 添加拦截器
 const httpInterceptor = {
@@ -76,15 +78,9 @@ type Data = {
   reason?: string | number
 }
 
-const authErrorCodeSet = new Set(['401', '403', '300', '304', '305', '306', '307', '400'])
-const authErrorReasonSet = new Set([
-  'NOT_LOGGED_IN',
-  'INCORRECT_ACCESS_TOKEN',
-  'INCORRECT_REFRESH_TOKEN',
-  'TOKEN_EXPIRED',
-  'TOKEN_NOT_EXIST',
-  'ACCESS_FORBIDDEN',
-])
+// 新错误模型下，认证与鉴权只保留两类顶层原因。
+const authErrorCodeSet = new Set(['401', '403'])
+const authErrorReasonSet = new Set(['UNAUTHENTICATED', 'PERMISSION_DENIED'])
 
 function isAuthErrorResponse(data: unknown) {
   if (!data || typeof data !== 'object') {
@@ -100,6 +96,16 @@ function isAuthErrorResponse(data: unknown) {
   )
 }
 
+// 当前请求属于公共认证接口时，不应自动附带旧登录态。
+function isNoAuthRequest(url: string) {
+  return NO_AUTH_URL_SET.has(url)
+}
+
+// 登录与验证码接口失败时，只提示本次请求失败，不触发重新登录流程。
+function shouldSkipAuthExpiredPrompt(url: string) {
+  return AUTH_EXPIRED_EXCLUDED_URL_SET.has(url)
+}
+
 // 2.2 添加类型，支持泛型
 export const http = <T>(options: UniApp.RequestOptions) => {
   // 1. 返回 Promise 对象
@@ -107,8 +113,10 @@ export const http = <T>(options: UniApp.RequestOptions) => {
     const sendRequest = async () => {
       try {
         const requestOptions = { ...options, header: { ...options.header } }
-        const isRefreshTokenRequest = requestOptions.url.endsWith('/login/refreshToken')
-        if (requestOptions.header?.Authorization !== 'no-auth' && !isRefreshTokenRequest) {
+        const requestUrl = String(requestOptions.url)
+        const skipAuthRequest =
+          requestOptions.header?.Authorization === 'no-auth' || isNoAuthRequest(requestUrl)
+        if (!skipAuthRequest) {
           await ensureValidToken()
           const accessToken = getToken()
           if (accessToken) {
@@ -126,7 +134,14 @@ export const http = <T>(options: UniApp.RequestOptions) => {
             // 状态码 2xx， axios 就是这样设计的
             if (res.statusCode >= 200 && res.statusCode < 300) {
               if (isAuthErrorResponse(responseData)) {
-                void promptRelogin()
+                if (shouldSkipAuthExpiredPrompt(requestUrl)) {
+                  void uni.showToast({
+                    icon: 'none',
+                    title: responseData.message || '请求错误',
+                  })
+                } else {
+                  void promptRelogin()
+                }
                 reject(res)
                 return
               }
@@ -134,7 +149,14 @@ export const http = <T>(options: UniApp.RequestOptions) => {
               resolve(res.data as T)
             } else if (res.statusCode === 401 || res.statusCode === 403) {
               // 401/403 错误 -> 清理用户信息，跳转到登录页
-              void promptRelogin()
+              if (shouldSkipAuthExpiredPrompt(requestUrl)) {
+                void uni.showToast({
+                  icon: 'none',
+                  title: responseData.message || '请求错误',
+                })
+              } else {
+                void promptRelogin()
+              }
               reject(res)
             } else {
               // 其他错误 -> 根据后端错误信息轻提示

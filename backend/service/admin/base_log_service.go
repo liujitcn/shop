@@ -8,9 +8,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -39,8 +39,8 @@ func NewBaseLogService(
 func (s *BaseLogService) PageBaseLog(ctx context.Context, req *admin.PageBaseLogRequest) (*admin.PageBaseLogResponse, error) {
 	page, err := s.baseLogCase.PageBaseLog(ctx, req)
 	if err != nil {
-		log.Error("PageBaseLog err:", err.Error())
-		return nil, errors.New("查询日志分页列表失败")
+		log.Errorf("PageBaseLog %v", err)
+		return nil, errorsx.WrapInternal(err, "查询日志分页列表失败")
 	}
 
 	return page, nil
@@ -50,8 +50,8 @@ func (s *BaseLogService) PageBaseLog(ctx context.Context, req *admin.PageBaseLog
 func (s *BaseLogService) GetBaseLog(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseLog, error) {
 	res, err := s.baseLogCase.GetBaseLog(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseLog err:", err.Error())
-		return nil, errors.New("查询日志失败")
+		log.Errorf("GetBaseLog %v", err)
+		return nil, errorsx.WrapInternal(err, "查询日志失败")
 	}
 	return res, nil
 }

@@ -13,6 +13,7 @@ import (
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
 	baseBiz "shop/service/base/biz"
 
@@ -68,25 +69,25 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
 	var baseUser *models.BaseUser
 	baseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
 	if err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续访问后台信息。
 	if baseUser.Status != int32(common.Status_ENABLE) {
-		return nil, errors.New("用户状态错误")
+		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
 	// 查询角色信息
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.FindById(ctx, baseUser.RoleID)
 	if err != nil {
-		return nil, errors.New("角色不存在")
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
 
 	// 查询部门信息
 	var baseDept *models.BaseDept
 	baseDept, err = c.baseDeptCase.FindById(ctx, baseUser.DeptID)
 	if err != nil {
-		return nil, errors.New("部门不存在")
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
 
 	return &admin.UserInfo{
@@ -110,11 +111,11 @@ func (c *AuthCase) GetUserMenu(ctx context.Context) (*admin.TreeRouteResponse, e
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.FindById(ctx, authInfo.RoleId)
 	if err != nil {
-		return nil, errors.New("角色不存在")
+		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
 	// 角色被停用时，不允许继续获取菜单。
 	if baseRole.Status != int32(common.Status_ENABLE) {
-		return nil, errors.New("角色状态错误")
+		return nil, errorsx.PermissionDenied("角色已被禁用")
 	}
 
 	query := c.baseMenuCase.Query(ctx).BaseMenu
@@ -138,7 +139,7 @@ func (c *AuthCase) GetUserMenu(ctx context.Context) (*admin.TreeRouteResponse, e
 	var menuList []*models.BaseMenu
 	menuList, err = c.baseMenuCase.List(ctx, opts...)
 	if err != nil {
-		return nil, err
+		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
 	}
 
 	list := c.baseMenuCase.buildRouteTree(menuList, 0)
@@ -155,18 +156,18 @@ func (c *AuthCase) GetUserButton(ctx context.Context) (*common.StringValues, err
 	var baseUser *models.BaseUser
 	baseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
 	if err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取按钮权限。
 	if baseUser.Status != int32(common.Status_ENABLE) {
-		return nil, errors.New("用户状态错误")
+		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
 	// 查询角色信息
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.FindById(ctx, baseUser.RoleID)
 	if err != nil {
-		return nil, errors.New("角色不存在")
+		return nil, errorsx.Internal("查询用户按钮权限失败").WithCause(err)
 	}
 
 	query := c.baseMenuCase.Query(ctx).BaseMenu
@@ -187,7 +188,7 @@ func (c *AuthCase) GetUserButton(ctx context.Context) (*common.StringValues, err
 	var baseMenus []*models.BaseMenu
 	baseMenus, err = c.baseMenuCase.List(ctx, opts...)
 	if err != nil {
-		return nil, common.ErrorAccessForbidden("用户权限不存在")
+		return nil, errorsx.Internal("查询用户按钮权限失败").WithCause(err)
 	}
 
 	permission := make([]string, 0, len(baseMenus))
@@ -210,23 +211,23 @@ func (c *AuthCase) GetUserProfile(ctx context.Context) (*admin.UserProfileForm, 
 	var baseUser *models.BaseUser
 	baseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
 	if err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	// 用户被停用时，不允许继续获取个人资料。
 	if baseUser.Status != int32(common.Status_ENABLE) {
-		return nil, errors.New("用户状态错误")
+		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
 	var baseRole *models.BaseRole
 	baseRole, err = c.baseRoleCase.FindById(ctx, baseUser.RoleID)
 	if err != nil {
-		return nil, errors.New("角色不存在")
+		return nil, errorsx.Internal("获取个人资料失败").WithCause(err)
 	}
 
 	var baseDept *models.BaseDept
 	baseDept, err = c.baseDeptCase.FindById(ctx, baseUser.DeptID)
 	if err != nil {
-		return nil, errors.New("部门不存在")
+		return nil, errorsx.Internal("获取个人资料失败").WithCause(err)
 	}
 
 	return &admin.UserProfileForm{
@@ -251,7 +252,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *admin.UserProfile
 	var oldBaseUser *models.BaseUser
 	oldBaseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
 	if err != nil {
-		return err
+		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 	baseUser := models.BaseUser{
 		ID:       authInfo.UserId,
@@ -262,7 +263,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *admin.UserProfile
 	}
 	err = c.baseUserCase.UpdateById(ctx, &baseUser)
 	if err != nil {
-		return err
+		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
 	// 删除图片
 	c.fileCase.DeleteFile(oldBaseUser.Avatar, baseUser.Avatar)
@@ -278,24 +279,28 @@ func (c *AuthCase) SendUpdatePhoneCode(ctx context.Context, req *admin.SendUpdat
 	}
 	// 手机号格式非法时，不继续发送验证码。
 	if !phoneRegexp.MatchString(req.GetPhone()) {
-		return errors.New("手机号格式错误")
+		return errorsx.InvalidArgument("手机号格式错误")
 	}
 
 	var userId int64
 	userId, err = c.findUserIdByPhone(ctx, req.GetPhone())
 	// 手机号占用查询异常时，统一返回发送失败。
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("发送验证码失败")
+		return errorsx.Internal("发送验证码失败").WithCause(err)
 	}
 	// 手机号已绑定其他用户时，不允许继续发送验证码。
 	if userId > 0 && userId != authInfo.UserId {
-		return errors.New("手机号已被占用")
+		return errorsx.Conflict("手机号已被占用").WithMetadata(map[string]string{
+			errorsx.MetadataKeyConflictType: errorsx.ConflictTypeUniqueViolation,
+			errorsx.MetadataKeyResource:     "base_user",
+			errorsx.MetadataKeyField:        "phone",
+		})
 	}
 
 	code := fmt.Sprintf("%06d", rand.IntN(1000000))
 	err = sdk.Runtime.GetCache().Set(c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone()), code, 5*time.Minute)
 	if err != nil {
-		return errors.New("发送验证码失败")
+		return errorsx.Internal("发送验证码失败").WithCause(err)
 	}
 
 	// 当前先将验证码写入日志，后续接入短信渠道时替换这里
@@ -311,11 +316,11 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhoneFo
 	}
 	// 手机号格式非法时，不允许继续修改。
 	if !phoneRegexp.MatchString(req.GetPhone()) {
-		return errors.New("手机号格式错误")
+		return errorsx.InvalidArgument("手机号格式错误")
 	}
 	// 验证码为空时，不允许继续修改。
 	if strings.TrimSpace(req.GetCode()) == "" {
-		return errors.New("验证码不能为空")
+		return errorsx.InvalidArgument("验证码不能为空")
 	}
 
 	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
@@ -323,22 +328,26 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhoneFo
 	cacheCode, err = sdk.Runtime.GetCache().Get(cacheKey)
 	// 验证码不存在或已过期时，直接返回业务错误。
 	if err != nil || cacheCode == "" {
-		return errors.New("验证码已过期")
+		return errorsx.InvalidArgument("验证码已过期")
 	}
 	// 验证码不匹配时，直接返回业务错误。
 	if cacheCode != req.GetCode() {
-		return errors.New("验证码错误")
+		return errorsx.InvalidArgument("验证码错误")
 	}
 
 	var userId int64
 	userId, err = c.findUserIdByPhone(ctx, req.GetPhone())
 	// 手机号占用查询异常时，统一返回修改失败。
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors.New("修改手机号失败")
+		return errorsx.Internal("修改手机号失败").WithCause(err)
 	}
 	// 手机号已绑定其他用户时，不允许继续修改。
 	if userId > 0 && userId != authInfo.UserId {
-		return errors.New("手机号已被占用")
+		return errorsx.Conflict("手机号已被占用").WithMetadata(map[string]string{
+			errorsx.MetadataKeyConflictType: errorsx.ConflictTypeUniqueViolation,
+			errorsx.MetadataKeyResource:     "base_user",
+			errorsx.MetadataKeyField:        "phone",
+		})
 	}
 
 	err = c.baseUserCase.UpdateById(ctx, &models.BaseUser{
@@ -346,7 +355,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhoneFo
 		Phone: req.GetPhone(),
 	})
 	if err != nil {
-		return errors.New("修改手机号失败")
+		return errorsx.Internal("修改手机号失败").WithCause(err)
 	}
 
 	err = sdk.Runtime.GetCache().Del(cacheKey)
@@ -365,32 +374,32 @@ func (c *AuthCase) UpdateUserPwd(ctx context.Context, req *admin.UpdatePwdForm) 
 	}
 	// 原密码为空时，不允许继续修改。
 	if strings.TrimSpace(req.GetOldPwd()) == "" {
-		return errors.New("原密码不能为空")
+		return errorsx.InvalidArgument("原密码不能为空")
 	}
 	// 新密码为空时，不允许继续修改。
 	if strings.TrimSpace(req.GetNewPwd()) == "" {
-		return errors.New("新密码不能为空")
+		return errorsx.InvalidArgument("新密码不能为空")
 	}
 	// 两次输入密码不一致时，不允许继续修改。
 	if req.GetNewPwd() != req.GetConfirmPwd() {
-		return errors.New("两次输入的密码不一致")
+		return errorsx.InvalidArgument("两次输入的密码不一致")
 	}
 
 	var baseUser *models.BaseUser
 	baseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
 	if err != nil {
-		return errors.New("用户不存在")
+		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 
 	err = crypto.Verify(req.GetOldPwd(), baseUser.Password)
 	if err != nil {
-		return errors.New("原密码错误")
+		return errorsx.InvalidArgument("原密码错误")
 	}
 
 	var encrypted string
 	encrypted, err = crypto.Encrypt(req.GetNewPwd())
 	if err != nil {
-		return errors.New("密码加密失败")
+		return errorsx.Internal("修改密码失败").WithCause(err)
 	}
 
 	return c.baseUserCase.UpdateById(ctx, &models.BaseUser{

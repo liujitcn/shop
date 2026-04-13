@@ -8,14 +8,13 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -42,8 +41,8 @@ func NewBaseUserService(
 func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *admin.OptionBaseUserRequest) (*common.SelectOptionResponse, error) {
 	list, err := s.baseUserCase.OptionBaseUser(ctx, req)
 	if err != nil {
-		log.Error("OptionBaseUser err:", err.Error())
-		return nil, errors.New("查询用户下拉选择失败")
+		log.Errorf("OptionBaseUser %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户下拉选择失败")
 	}
 	return list, nil
 }
@@ -52,8 +51,8 @@ func (s *BaseUserService) OptionBaseUser(ctx context.Context, req *admin.OptionB
 func (s *BaseUserService) PageBaseUser(ctx context.Context, req *admin.PageBaseUserRequest) (*admin.PageBaseUserResponse, error) {
 	page, err := s.baseUserCase.PageBaseUser(ctx, req)
 	if err != nil {
-		log.Error("PageBaseUser err:", err.Error())
-		return nil, errors.New("查询用户分页列表失败")
+		log.Errorf("PageBaseUser %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户分页列表失败")
 	}
 	return page, nil
 }
@@ -62,8 +61,8 @@ func (s *BaseUserService) PageBaseUser(ctx context.Context, req *admin.PageBaseU
 func (s *BaseUserService) GetBaseUser(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseUserForm, error) {
 	baseUser, err := s.baseUserCase.GetBaseUser(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseUser err:", err.Error())
-		return nil, errors.New("查询用户失败")
+		log.Errorf("GetBaseUser %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户失败")
 	}
 	return baseUser, nil
 }
@@ -72,12 +71,12 @@ func (s *BaseUserService) GetBaseUser(ctx context.Context, req *wrapperspb.Int64
 func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *admin.BaseUserForm) (*emptypb.Empty, error) {
 	err := s.baseUserCase.CreateBaseUser(ctx, req)
 	if err != nil {
-		log.Error("CreateBaseUser err:", err.Error())
+		log.Errorf("CreateBaseUser %v", err)
 		// 命中用户账号唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("用户账号重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
 		}
-		return nil, errors.New("创建用户失败")
+		return nil, errorsx.WrapInternal(err, "创建用户失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -86,12 +85,12 @@ func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *admin.BaseUse
 func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *admin.BaseUserForm) (*emptypb.Empty, error) {
 	err := s.baseUserCase.UpdateBaseUser(ctx, req)
 	if err != nil {
-		log.Error("UpdateBaseUser err:", err.Error())
+		log.Errorf("UpdateBaseUser %v", err)
 		// 命中用户账号唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("用户账号重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
 		}
-		return nil, errors.New("更新用户失败")
+		return nil, errorsx.WrapInternal(err, "更新用户失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -100,8 +99,8 @@ func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *admin.BaseUse
 func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.baseUserCase.DeleteBaseUser(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteBaseUser err:", err.Error())
-		return nil, errors.New("删除用户失败")
+		log.Errorf("DeleteBaseUser %v", err)
+		return nil, errorsx.WrapInternal(err, "删除用户失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -110,8 +109,8 @@ func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *wrapperspb.St
 func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.SetBaseUserStatus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseUserStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetBaseUserStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -120,8 +119,8 @@ func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *common.Set
 func (s *BaseUserService) ResetBaseUserPwd(ctx context.Context, req *admin.ResetBaseUserPwdRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.ResetBaseUserPwd(ctx, req)
 	if err != nil {
-		log.Error("ResetBaseUserPwd err:", err.Error())
-		return nil, errors.New("重置密码失败")
+		log.Errorf("ResetBaseUserPwd %v", err)
+		return nil, errorsx.WrapInternal(err, "重置密码失败")
 	}
 	return new(emptypb.Empty), nil
 }

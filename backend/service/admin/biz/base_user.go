@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -10,6 +9,7 @@ import (
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -162,11 +162,11 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *admin.BaseUserFo
 func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *admin.BaseUserForm) error {
 	oldBaseUser, err := c.FindById(ctx, req.GetId())
 	if err != nil {
-		return common.ErrorUserNotFound("更新用户失败, 用户信息不存在")
+		return errorsx.ResourceNotFound("更新用户失败，用户信息不存在").WithCause(err)
 	}
 	// 超级管理员账号不允许被修改。
 	if oldBaseUser.UserName == _const.BaseUserName_Super {
-		return errors.New("更新用户失败，不能操作超级管理员")
+		return errorsx.PermissionDenied("更新用户失败，不能操作超级管理员")
 	}
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = oldBaseUser.Password
@@ -183,7 +183,7 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	for _, baseUser := range baseUserList {
 		// 超级管理员账号不允许被删除。
 		if baseUser.UserName == _const.BaseUserName_Super {
-			return errors.New("删除用户失败，不能操作超级管理员")
+			return errorsx.PermissionDenied("删除用户失败，不能操作超级管理员")
 		}
 	}
 	return c.DeleteByIds(ctx, ids)
@@ -193,11 +193,11 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetStatusRequest) error {
 	baseUser, err := c.FindById(ctx, req.GetId())
 	if err != nil {
-		return common.ErrorUserNotFound("设置状态失败, 用户信息不存在")
+		return errorsx.ResourceNotFound("设置状态失败，用户信息不存在").WithCause(err)
 	}
 	// 超级管理员账号不允许被停用或启用。
 	if baseUser.UserName == _const.BaseUserName_Super {
-		return errors.New("设置状态失败，不能操作超级管理员")
+		return errorsx.PermissionDenied("设置状态失败，不能操作超级管理员")
 	}
 	return c.UpdateById(ctx, &models.BaseUser{
 		ID:     req.GetId(),
@@ -209,11 +209,11 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetSta
 func (c *BaseUserCase) ResetBaseUserPwd(ctx context.Context, req *admin.ResetBaseUserPwdRequest) error {
 	baseUser, err := c.FindById(ctx, req.GetId())
 	if err != nil {
-		return common.ErrorUserNotFound("重置密码失败, 用户信息不存在")
+		return errorsx.ResourceNotFound("重置密码失败，用户信息不存在").WithCause(err)
 	}
 	// 超级管理员账号不允许被重置密码。
 	if baseUser.UserName == _const.BaseUserName_Super {
-		return errors.New("重置密码失败，不能操作超级管理员")
+		return errorsx.PermissionDenied("重置密码失败，不能操作超级管理员")
 	}
 
 	passwordStr := req.GetPwd()

@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewShopServiceService(
 func (s *ShopServiceService) ListShopService(ctx context.Context, req *emptypb.Empty) (*app.ListShopServiceResponse, error) {
 	res, err := s.shopServiceCase.ListShopService(ctx)
 	if err != nil {
-		log.Error("ListShopService err:", err.Error())
-		return nil, errors.New("查询商城服务列表失败")
+		log.Errorf("ListShopService %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商城服务列表失败")
 	}
 	return res, nil
 }

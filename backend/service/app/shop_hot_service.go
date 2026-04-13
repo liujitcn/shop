@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -44,8 +44,8 @@ func NewShopHotService(
 func (s *ShopHotService) ListShopHot(ctx context.Context, req *emptypb.Empty) (*app.ListShopHotResponse, error) {
 	res, err := s.shopHotCase.ListShopHot(ctx)
 	if err != nil {
-		log.Error("ListShopHot err:", err.Error())
-		return nil, errors.New("查询热门推荐列表失败")
+		log.Errorf("ListShopHot %v", err)
+		return nil, errorsx.WrapInternal(err, "查询热门推荐列表失败")
 	}
 	return res, nil
 }
@@ -54,8 +54,8 @@ func (s *ShopHotService) ListShopHot(ctx context.Context, req *emptypb.Empty) (*
 func (s *ShopHotService) ListShopHotItem(ctx context.Context, req *wrapperspb.Int64Value) (*app.ListShopHotItemResponse, error) {
 	res, err := s.shopHotItemCase.ListShopHotItem(ctx, req.GetValue())
 	if err != nil {
-		log.Error("ListShopHotItem err:", err.Error())
-		return nil, errors.New("查询热门推荐选项失败")
+		log.Errorf("ListShopHotItem %v", err)
+		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
 	}
 	return res, nil
 }
@@ -64,8 +64,8 @@ func (s *ShopHotService) ListShopHotItem(ctx context.Context, req *wrapperspb.In
 func (s *ShopHotService) PageShopHotGoods(ctx context.Context, req *app.PageShopHotGoodsRequest) (*app.PageShopHotGoodsResponse, error) {
 	page, err := s.shopHotItemCase.PageShopHotGoods(ctx, req)
 	if err != nil {
-		log.Error("PageShopHotGoods err:", err.Error())
-		return nil, errors.New("查询热门推荐商品失败")
+		log.Errorf("PageShopHotGoods %v", err)
+		return nil, errorsx.WrapInternal(err, "查询热门推荐商品失败")
 	}
 	return page, nil
 }

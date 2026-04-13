@@ -1,10 +1,10 @@
 package configs
 
 import (
-	"errors"
 	"os"
 	"path/filepath"
 	"shop/api/gen/go/conf"
+	"shop/pkg/errorsx"
 	"strconv"
 	"time"
 
@@ -35,13 +35,13 @@ func ParseWxMiniApp(cfg *conf.ShopConfig) (*conf.WxMiniApp, error) {
 	wxMiniApp := cfg.GetWxMiniApp()
 	// 缺少微信小程序配置时，直接返回配置错误。
 	if wxMiniApp == nil {
-		return nil, errors.New("微信登录配置信息错误")
+		return nil, errorsx.Internal("微信登录配置信息错误")
 	}
 	appId := wxMiniApp.GetAppid()
 	secret := wxMiniApp.GetSecret()
 	// 小程序关键字段缺失时，视为配置不可用。
 	if appId == "" || secret == "" {
-		return nil, errors.New("微信登录配置信息错误")
+		return nil, errorsx.Internal("微信登录配置信息错误")
 	}
 	return wxMiniApp, nil
 }
@@ -51,7 +51,7 @@ func ParseWxPay(cfg *conf.ShopConfig) (*conf.WxPay, error) {
 	wxPay := cfg.GetWxPay()
 	// 缺少微信支付配置时，直接返回配置错误。
 	if wxPay == nil {
-		return nil, errors.New("支付配置信息错误")
+		return nil, errorsx.Internal("支付配置信息错误")
 	}
 	appId := wxPay.GetAppid()
 	mchId := wxPay.GetMchId()
@@ -60,7 +60,7 @@ func ParseWxPay(cfg *conf.ShopConfig) (*conf.WxPay, error) {
 	mchApiV3Key := wxPay.GetMchAPIv3Key()
 	// 微信支付关键字段缺失时，视为配置不可用。
 	if appId == "" || mchId == "" || mchCertSn == "" || mchCertPath == "" || mchApiV3Key == "" {
-		return nil, errors.New("支付配置信息错误")
+		return nil, errorsx.Internal("支付配置信息错误")
 	}
 	// 兼容不同工作目录启动（GoLand/命令行）导致的相对路径差异。
 	if resolvedPath, ok := resolveFilePath(mchCertPath); ok {
@@ -127,7 +127,7 @@ func ParseOss(ctx *bootstrap.Context) (*bootstrapConf.OSS, error) {
 	cfg := ctx.GetConfig()
 	// 对象存储配置缺失时，直接返回错误。
 	if cfg == nil || cfg.GetOss() == nil {
-		return nil, errors.New("config oss is nil")
+		return nil, errorsx.Internal("对象存储配置缺失")
 	}
 	return cfg.GetOss(), nil
 }
@@ -137,7 +137,7 @@ func ParseData(ctx *bootstrap.Context) (*bootstrapConf.Data, error) {
 	cfg := ctx.GetConfig()
 	// 数据源配置缺失时，直接返回错误。
 	if cfg == nil || cfg.GetData() == nil {
-		return nil, errors.New("config data is nil")
+		return nil, errorsx.Internal("数据源配置缺失")
 	}
 	return cfg.GetData(), nil
 }
@@ -162,7 +162,7 @@ func ParsePprof(ctx *bootstrap.Context) (*bootstrapConf.Pprof, error) {
 	cfg := ctx.GetConfig()
 	// 性能分析配置缺失时，直接返回错误。
 	if cfg == nil || cfg.GetPprof() == nil {
-		return nil, errors.New("config pprof is nil")
+		return nil, errorsx.Internal("性能分析配置缺失")
 	}
 	return cfg.GetPprof(), nil
 }

@@ -2,12 +2,12 @@ package biz
 
 import (
 	"context"
-	"errors"
 	recommendCore "shop/pkg/recommend/core"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/service/app/utils"
@@ -87,7 +87,7 @@ func (c *OrderGoodsCase) listByOrderId(ctx context.Context, orderId int64) ([]*a
 func (c *OrderGoodsCase) createByOrder(ctx context.Context, orderId int64, goods []*models.OrderGoods) error {
 	// 订单商品为空时，禁止继续创建订单明细。
 	if len(goods) == 0 {
-		return errors.New("订单商品信息不能为空")
+		return errorsx.InvalidArgument("订单商品信息不能为空")
 	}
 	for _, item := range goods {
 		item.OrderID = orderId

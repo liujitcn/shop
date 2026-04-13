@@ -16,6 +16,7 @@ import (
 	appApi "shop/api/gen/go/app"
 	"shop/api/gen/go/conf"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/wx/bill"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -89,7 +90,7 @@ func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*appApi.JsapiPayResponse,
 	// 微信支付返回非成功状态码时，统一按支付失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
-		return nil, errors.New("支付失败")
+		return nil, errorsx.Internal("支付失败")
 	}
 
 	nonceStr := strings.ReplaceAll(uuid.New().String(), "-", "")
@@ -122,7 +123,7 @@ func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*appApi.H5PayResponse, error) {
 	// 微信支付返回非成功状态码时，统一按支付失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
-		return nil, errors.New("支付失败")
+		return nil, errorsx.Internal("支付失败")
 	}
 
 	return &appApi.H5PayResponse{
@@ -136,12 +137,12 @@ func (c *WxPayCase) TradeBill(req bill.TradeBillRequest) (*bill.TradeBillRespons
 	resp, result, err := svc.TradeBill(c.ctx, req)
 	if err != nil {
 		log.Errorf("申请交易账单失败[%s]", err.Error())
-		return nil, errors.New("申请交易账单失败")
+		return nil, errorsx.Internal("申请交易账单失败")
 	}
 	// 微信账单接口返回非成功状态码时，统一按申请失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("申请交易账单失败[%s]", result.Response.Status)
-		return nil, errors.New("申请交易账单失败")
+		return nil, errorsx.Internal("申请交易账单失败")
 	}
 	return resp, nil
 }
@@ -174,17 +175,17 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appApi.PaymentResou
 			}
 		}
 		log.Errorf("查询支付失败[%s]", err.Error())
-		return nil, errors.New("查询支付失败")
+		return nil, errorsx.Internal("查询支付失败")
 	}
 	// 微信支付返回非成功状态码时，统一按查询失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("查询支付失败[%s]", result.Response.Status)
-		return nil, errors.New("查询支付失败")
+		return nil, errorsx.Internal("查询支付失败")
 	}
 
 	// 微信支付没有返回交易体时，视为查询失败。
 	if resp == nil {
-		return nil, errors.New("查询支付失败")
+		return nil, errorsx.Internal("查询支付失败")
 	}
 
 	paymentResource := &appApi.PaymentResource{
@@ -280,7 +281,7 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 	// 微信退款接口返回非成功状态码时，统一按退款失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("支付失败[%s]", result.Response.Status)
-		return nil, errors.New("支付失败")
+		return nil, errorsx.Internal("支付失败")
 	}
 
 	return resp, err
@@ -296,17 +297,17 @@ func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*appApi.RefundReso
 	resp, result, err := svc.QueryByOutRefundNo(c.ctx, req)
 	if err != nil {
 		log.Errorf("查询退款失败[%s]", err.Error())
-		return nil, errors.New("查询退款失败")
+		return nil, errorsx.Internal("查询退款失败")
 	}
 	// 微信退款查询接口返回非成功状态码时，统一按查询失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
 		log.Errorf("查询退款失败[%s]", result.Response.Status)
-		return nil, errors.New("查询退款失败")
+		return nil, errorsx.Internal("查询退款失败")
 	}
 
 	// 微信退款查询没有返回退款体时，视为查询失败。
 	if resp == nil {
-		return nil, errors.New("查询退款失败")
+		return nil, errorsx.Internal("查询退款失败")
 	}
 
 	refundResource := &appApi.RefundResource{
@@ -372,7 +373,7 @@ func (c *WxPayCase) Notify(ctx context.Context) (*notify.Request, error) {
 	}
 	// 无法从上下文提取原始 HTTP 请求时，无法继续验签通知。
 	if httpReq == nil {
-		return nil, errors.New("transport convert nethttp request failed")
+		return nil, errorsx.Internal("支付通知请求转换失败")
 	}
 	var req *notify.Request
 	req, err = handler.ParseNotifyRequest(ctx, httpReq, certificateVisitor)

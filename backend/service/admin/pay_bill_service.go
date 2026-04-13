@@ -8,9 +8,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -38,8 +38,8 @@ func NewPayBillService(
 func (s *PayBillService) PagePayBill(ctx context.Context, req *admin.PagePayBillRequest) (*admin.PagePayBillResponse, error) {
 	page, err := s.payBillCase.PagePayBill(ctx, req)
 	if err != nil {
-		log.Error("PagePayBill err:", err.Error())
-		return nil, errors.New("查询支付账单分页列表失败")
+		log.Errorf("PagePayBill %v", err)
+		return nil, errorsx.WrapInternal(err, "查询支付账单分页列表失败")
 	}
 	return page, nil
 }

@@ -2,9 +2,9 @@ package biz
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/base"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 
 	"github.com/liujitcn/gorm-kit/repo"
@@ -25,7 +25,7 @@ func NewConfigCase(baseConfigRepo *data.BaseConfigRepo) *ConfigCase {
 func (c *ConfigCase) GetConfig(ctx context.Context, req *base.ConfigRequest) (*base.ConfigResponse, error) {
 	// 配置位置缺失时，无法确定查询范围。
 	if req.GetSite() == 0 {
-		return nil, errors.New("位置不能为空")
+		return nil, errorsx.InvalidArgument("位置不能为空")
 	}
 	query := c.Query(ctx).BaseConfig
 	opts := make([]repo.QueryOption, 0, 1)

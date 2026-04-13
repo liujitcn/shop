@@ -11,6 +11,7 @@ import (
 	appApi "shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/wx"
@@ -192,7 +193,12 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 	}
 	// 当前订单状态不支持退款时，直接返回业务错误。
 	if !(orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING)) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			"SHIPPED|RECEIVED|REFUNDING",
+		)
 	}
 
 	orderRefund := &models.OrderRefund{
@@ -291,7 +297,12 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 	}
 	// 只有已支付订单才能继续发货。
 	if orderInfo.Status != int32(common.OrderStatus_PAID) {
-		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			common.OrderStatus_PAID.String(),
+		)
 	}
 
 	// 微信支付订单在发货前需要再次核验支付状态，避免未支付订单被误发货。
@@ -304,7 +315,12 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 
 		// 只有微信侧明确返回支付成功，才允许继续同步支付单并发货。
 		if paymentResource.GetTradeState() != appApi.PaymentResource_SUCCESS {
-			return fmt.Errorf("订单状态错误：【%s】", paymentResource.GetTradeState().String())
+			return errorsx.StateConflict(
+				fmt.Sprintf("订单状态错误：【%s】", paymentResource.GetTradeState().String()),
+				"order_payment",
+				paymentResource.GetTradeState().String(),
+				appApi.PaymentResource_SUCCESS.String(),
+			)
 		}
 
 		query := c.orderPaymentCase.Query(ctx).OrderPayment

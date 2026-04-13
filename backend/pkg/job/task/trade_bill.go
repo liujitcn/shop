@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/wx"
@@ -427,7 +428,7 @@ func (t *TradeBill) checkHash(fileBytes []byte, hashValue string) error {
 	hashHex := fmt.Sprintf("%x", hashSum)
 	// 账单内容与期望哈希不一致时，视为文件校验失败。
 	if hashHex != hashValue {
-		return errors.New("hash value error")
+		return errorsx.Internal("校验账单文件失败")
 	}
 	return nil
 }

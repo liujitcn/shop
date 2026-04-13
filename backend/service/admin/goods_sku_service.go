@@ -8,13 +8,12 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -39,8 +38,8 @@ func NewGoodsSkuService(goodsSkuCase *biz.GoodsSkuCase) *GoodsSkuService {
 func (s *GoodsSkuService) PageGoodsSku(ctx context.Context, req *admin.PageGoodsSkuRequest) (*admin.PageGoodsSkuResponse, error) {
 	page, err := s.goodsSkuCase.PageGoodsSku(ctx, req)
 	if err != nil {
-		log.Error("PageGoodsSku err:", err.Error())
-		return nil, errors.New("查询商品SKU分页列表失败")
+		log.Errorf("PageGoodsSku %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品SKU分页列表失败")
 	}
 	return page, nil
 }
@@ -49,8 +48,8 @@ func (s *GoodsSkuService) PageGoodsSku(ctx context.Context, req *admin.PageGoods
 func (s *GoodsSkuService) GetGoodsSku(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsSku, error) {
 	goodsSku, err := s.goodsSkuCase.GetGoodsSku(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetGoodsSku err:", err.Error())
-		return nil, errors.New("查询商品SKU失败")
+		log.Errorf("GetGoodsSku %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品SKU失败")
 	}
 	return goodsSku, nil
 }
@@ -59,12 +58,12 @@ func (s *GoodsSkuService) GetGoodsSku(ctx context.Context, req *wrapperspb.Int64
 func (s *GoodsSkuService) UpdateGoodsSku(ctx context.Context, req *admin.GoodsSku) (*emptypb.Empty, error) {
 	err := s.goodsSkuCase.UpdateGoodsSku(ctx, req)
 	if err != nil {
-		log.Error("UpdateGoodsSku err:", err.Error())
+		log.Errorf("UpdateGoodsSku %v", err)
 		// 命中 SKU 编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("SKU编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
 		}
-		return nil, errors.New("更新商品SKU失败")
+		return nil, errorsx.WrapInternal(err, "更新商品SKU失败")
 	}
 	return new(emptypb.Empty), nil
 }

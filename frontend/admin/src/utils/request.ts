@@ -11,6 +11,7 @@ const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_AP
 const baseURL = `${apiTargetUrl}${apiBasePath}`;
 const REFRESH_TOKEN_URL = "/login/refreshToken";
 const NO_AUTH_URL_SET = new Set(["/login", "/login/captcha", REFRESH_TOKEN_URL]);
+const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set(["/login", "/login/captcha"]);
 
 // 创建 axios 实例
 const service = axios.create({
@@ -38,6 +39,14 @@ function shouldSkipAuth(config: InternalAxiosRequestConfig) {
 
   const requestUrl = config.url ?? "";
   return NO_AUTH_URL_SET.has(requestUrl);
+}
+
+/** 判断当前请求是否不应触发登录失效弹窗 */
+function shouldSkipAuthExpiredPrompt(config?: InternalAxiosRequestConfig) {
+  if (!config) return false;
+
+  const requestUrl = config.url ?? "";
+  return AUTH_EXPIRED_EXCLUDED_URL_SET.has(requestUrl);
 }
 
 /** 读取访问令牌过期时间 */
@@ -119,8 +128,10 @@ service.interceptors.response.use(
     const status = error.response?.status;
     const code = error.response?.data?.code;
     const message = error.response?.data?.message;
+    const requestConfig = error.config as InternalAxiosRequestConfig | undefined;
 
-    if (status === 401 || status === 403 || code === 401 || code === 403) {
+    // 登录与验证码接口上的 401/403 属于当前请求失败，不应触发“登录失效”流程。
+    if ((status === 401 || status === 403 || code === 401 || code === 403) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
       handleAuthExpired();
     } else if (error.response?.data) {
       if (message) {

@@ -8,9 +8,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -39,8 +39,8 @@ func NewBaseApiService(
 func (s *BaseApiService) ListBaseApi(ctx context.Context, req *emptypb.Empty) (*admin.ListBaseApiResponse, error) {
 	list, err := s.baseApiCase.ListBaseApi(ctx)
 	if err != nil {
-		log.Error("ListBaseApi err:", err.Error())
-		return nil, errors.New("查询API列表失败")
+		log.Errorf("ListBaseApi %v", err)
+		return nil, errorsx.WrapInternal(err, "查询API列表失败")
 	}
 
 	return list, nil

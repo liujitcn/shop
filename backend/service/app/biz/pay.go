@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"shop/api/gen/go/app"
 	"shop/pkg/configs"
+	"shop/pkg/errorsx"
 	recommendEvent "shop/pkg/recommend/event"
 	pkgUtils "shop/pkg/utils"
 	"shop/pkg/wx"
@@ -86,7 +87,12 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 	}
 	// 仅允许待支付订单进入预下单流程。
 	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
-		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return nil, errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			common.OrderStatus_CREATED.String(),
+		)
 	}
 
 	var orderGoodsList []*models.OrderGoods
@@ -146,7 +152,12 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 				if err != nil {
 					return nil, err
 				}
-				return nil, errors.New("订单已支付，不能重复支付")
+				return nil, errorsx.StateConflict(
+					"订单已支付，不能重复支付",
+					"order_payment",
+					app.PaymentResource_SUCCESS.String(),
+					common.OrderStatus_CREATED.String(),
+				)
 			}
 		}
 		return nil, err
@@ -172,7 +183,12 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 	}
 	// 仅允许待支付订单进入预下单流程。
 	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
-		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
+		return nil, errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			common.OrderStatus(orderInfo.Status).String(),
+			common.OrderStatus_CREATED.String(),
+		)
 	}
 
 	var orderGoodsList []*models.OrderGoods
@@ -205,7 +221,7 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 	payerClientIp := c.getPayerClientIp(ctx)
 	// 无法识别客户端 IP 时，不满足微信 H5 下单要求。
 	if payerClientIp == "" {
-		return nil, errors.New("获取客户端IP失败")
+		return nil, errorsx.Internal("获取客户端IP失败")
 	}
 
 	var h5PayResponse *app.H5PayResponse
@@ -243,7 +259,7 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 	resource := request.Resource
 	// 回调缺少业务资源体时，无法继续处理通知。
 	if resource == nil {
-		return errors.New("notify resource is nil")
+		return errorsx.Internal("支付通知缺少资源体")
 	}
 
 	log.Infof("PayNotify EventType=%s，Plaintext=%s", request.EventType, resource.Plaintext)
@@ -276,7 +292,7 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 		return c.RefundSuccess(ctx, orderInfo, &refundResource)
 	}
 
-	return errors.New("notify event type err")
+	return errorsx.Internal("支付通知事件类型错误")
 }
 
 // getPayerClientIp 从当前 HTTP 请求中提取客户端真实 IP。
@@ -305,7 +321,7 @@ func (c *PayCase) getPayerClientIp(ctx context.Context) string {
 func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, paymentResource *app.PaymentResource) error {
 	// 未找到本地订单时，无法回写支付成功状态。
 	if orderInfo == nil {
-		return errors.New("orderInfo is nil")
+		return errorsx.Internal("支付成功处理失败，订单不存在")
 	}
 	// 查询支付信息
 	var orderPayment *models.OrderPayment
@@ -393,7 +409,7 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo, refundResource *app.RefundResource) error {
 	// 未找到本地订单时，无法回写退款成功状态。
 	if orderInfo == nil {
-		return errors.New("orderInfo is nil")
+		return errorsx.Internal("退款成功处理失败，订单不存在")
 	}
 	// 查询支付信息
 	var orderRefund *models.OrderRefund

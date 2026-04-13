@@ -8,14 +8,13 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -42,8 +41,8 @@ func NewBaseRoleService(
 func (s *BaseRoleService) OptionBaseRole(ctx context.Context, req *emptypb.Empty) (*common.SelectOptionResponse, error) {
 	list, err := s.baseRoleCase.OptionBaseRole(ctx)
 	if err != nil {
-		log.Error("OptionBaseRole err:", err.Error())
-		return nil, errors.New("查询角色下拉列表失败")
+		log.Errorf("OptionBaseRole %v", err)
+		return nil, errorsx.WrapInternal(err, "查询角色下拉列表失败")
 	}
 	return list, nil
 }
@@ -52,8 +51,8 @@ func (s *BaseRoleService) OptionBaseRole(ctx context.Context, req *emptypb.Empty
 func (s *BaseRoleService) PageBaseRole(ctx context.Context, req *admin.PageBaseRoleRequest) (*admin.PageBaseRoleResponse, error) {
 	page, err := s.baseRoleCase.PageBaseRole(ctx, req)
 	if err != nil {
-		log.Error("PageBaseRole err:", err.Error())
-		return nil, errors.New("查询角色分页列表失败")
+		log.Errorf("PageBaseRole %v", err)
+		return nil, errorsx.WrapInternal(err, "查询角色分页列表失败")
 	}
 	return page, nil
 }
@@ -62,8 +61,8 @@ func (s *BaseRoleService) PageBaseRole(ctx context.Context, req *admin.PageBaseR
 func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseRoleForm, error) {
 	baseRole, err := s.baseRoleCase.GetBaseRole(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseRole err:", err.Error())
-		return nil, errors.New("查询角色失败")
+		log.Errorf("GetBaseRole %v", err)
+		return nil, errorsx.WrapInternal(err, "查询角色失败")
 	}
 	return baseRole, nil
 }
@@ -72,12 +71,12 @@ func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *wrapperspb.Int64
 func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *admin.BaseRoleForm) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.CreateBaseRole(ctx, req)
 	if err != nil {
-		log.Error("CreateBaseRole err:", err.Error())
+		log.Errorf("CreateBaseRole %v", err)
 		// 命中角色编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("角色编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
 		}
-		return nil, errors.New("创建角色失败")
+		return nil, errorsx.WrapInternal(err, "创建角色失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -86,12 +85,12 @@ func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *admin.BaseRol
 func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *admin.BaseRoleForm) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.UpdateBaseRole(ctx, req)
 	if err != nil {
-		log.Error("UpdateBaseRole err:", err.Error())
+		log.Errorf("UpdateBaseRole %v", err)
 		// 命中角色编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("角色编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
 		}
-		return nil, errors.New("更新角色失败")
+		return nil, errorsx.WrapInternal(err, "更新角色失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -100,8 +99,8 @@ func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *admin.BaseRol
 func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.DeleteBaseRole(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteBaseRole err:", err.Error())
-		return nil, errors.New("删除角色失败")
+		log.Errorf("DeleteBaseRole %v", err)
+		return nil, errorsx.WrapInternal(err, "删除角色失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -110,8 +109,8 @@ func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *wrapperspb.St
 func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleStatus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseRoleStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetBaseRoleStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -120,8 +119,8 @@ func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *common.Set
 func (s *BaseRoleService) SetBaseRoleMenus(ctx context.Context, req *admin.SetMenusRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleMenus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseRoleMenus err:", err.Error())
-		return nil, errors.New("设置角色菜单权限失败")
+		log.Errorf("SetBaseRoleMenus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置角色菜单权限失败")
 	}
 	return new(emptypb.Empty), nil
 }

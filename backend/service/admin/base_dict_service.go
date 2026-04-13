@@ -8,14 +8,13 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -45,8 +44,8 @@ func NewBaseDictService(
 func (s *BaseDictService) ListBaseDict(ctx context.Context, req *emptypb.Empty) (*admin.ListBaseDictResponse, error) {
 	res, err := s.baseDictCase.ListBaseDict(ctx)
 	if err != nil {
-		log.Error("ListBaseDict err:", err.Error())
-		return nil, errors.New("查询失败")
+		log.Errorf("ListBaseDict %v", err)
+		return nil, errorsx.WrapInternal(err, "查询失败")
 	}
 	return res, nil
 }
@@ -55,8 +54,8 @@ func (s *BaseDictService) ListBaseDict(ctx context.Context, req *emptypb.Empty) 
 func (s *BaseDictService) PageBaseDict(ctx context.Context, req *admin.PageBaseDictRequest) (*admin.PageBaseDictResponse, error) {
 	page, err := s.baseDictCase.PageBaseDict(ctx, req)
 	if err != nil {
-		log.Error("PageBaseDict err:", err.Error())
-		return nil, errors.New("查询字典分页列表失败")
+		log.Errorf("PageBaseDict %v", err)
+		return nil, errorsx.WrapInternal(err, "查询字典分页列表失败")
 	}
 
 	return page, nil
@@ -66,8 +65,8 @@ func (s *BaseDictService) PageBaseDict(ctx context.Context, req *admin.PageBaseD
 func (s *BaseDictService) GetBaseDict(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseDictForm, error) {
 	baseDict, err := s.baseDictCase.GetBaseDict(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseDict err:", err.Error())
-		return nil, errors.New("查询字典失败")
+		log.Errorf("GetBaseDict %v", err)
+		return nil, errorsx.WrapInternal(err, "查询字典失败")
 	}
 
 	return baseDict, nil
@@ -77,12 +76,12 @@ func (s *BaseDictService) GetBaseDict(ctx context.Context, req *wrapperspb.Int64
 func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *admin.BaseDictForm) (*emptypb.Empty, error) {
 	err := s.baseDictCase.CreateBaseDict(ctx, req)
 	if err != nil {
-		log.Error("CreateBaseDict err:", err.Error())
+		log.Errorf("CreateBaseDict %v", err)
 		// 命中字典编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("字典编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
 		}
-		return nil, errors.New("创建字典失败")
+		return nil, errorsx.WrapInternal(err, "创建字典失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -91,12 +90,12 @@ func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *admin.BaseDic
 func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *admin.BaseDictForm) (*emptypb.Empty, error) {
 	err := s.baseDictCase.UpdateBaseDict(ctx, req)
 	if err != nil {
-		log.Error("UpdateBaseDict err:", err.Error())
+		log.Errorf("UpdateBaseDict %v", err)
 		// 命中字典编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("字典编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
 		}
-		return nil, errors.New("更新字典失败")
+		return nil, errorsx.WrapInternal(err, "更新字典失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -105,8 +104,8 @@ func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *admin.BaseDic
 func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.baseDictCase.DeleteBaseDict(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteBaseDict err:", err.Error())
-		return nil, errors.New("删除字典失败")
+		log.Errorf("DeleteBaseDict %v", err)
+		return nil, errorsx.WrapInternal(err, "删除字典失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -115,8 +114,8 @@ func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *wrapperspb.St
 func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.SetBaseDictStatus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseDictStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetBaseDictStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -125,8 +124,8 @@ func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *common.Set
 func (s *BaseDictService) PageBaseDictItem(ctx context.Context, req *admin.PageBaseDictItemRequest) (*admin.PageBaseDictItemResponse, error) {
 	page, err := s.baseDictItemCase.PageBaseDictItem(ctx, req)
 	if err != nil {
-		log.Error("PageBaseDictItem err:", err.Error())
-		return nil, errors.New("查询字典属性分页列表失败")
+		log.Errorf("PageBaseDictItem %v", err)
+		return nil, errorsx.WrapInternal(err, "查询字典属性分页列表失败")
 	}
 	return page, nil
 }
@@ -135,8 +134,8 @@ func (s *BaseDictService) PageBaseDictItem(ctx context.Context, req *admin.PageB
 func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseDictItemForm, error) {
 	baseDictItem, err := s.baseDictItemCase.GetBaseDictItem(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseDictItem err:", err.Error())
-		return nil, errors.New("查询字典属性失败")
+		log.Errorf("GetBaseDictItem %v", err)
+		return nil, errorsx.WrapInternal(err, "查询字典属性失败")
 	}
 	return baseDictItem, nil
 }
@@ -145,12 +144,12 @@ func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *wrapperspb.I
 func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *admin.BaseDictItemForm) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.CreateBaseDictItem(ctx, req)
 	if err != nil {
-		log.Error("CreateBaseDictItem err:", err.Error())
+		log.Errorf("CreateBaseDictItem %v", err)
 		// 命中字典项编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("字典属性编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
 		}
-		return nil, errors.New("创建字典属性失败")
+		return nil, errorsx.WrapInternal(err, "创建字典属性失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -159,12 +158,12 @@ func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *admin.Bas
 func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *admin.BaseDictItemForm) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.UpdateBaseDictItem(ctx, req)
 	if err != nil {
-		log.Error("UpdateBaseDictItem err:", err.Error())
+		log.Errorf("UpdateBaseDictItem %v", err)
 		// 命中字典项编码唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("字典属性编码重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
 		}
-		return nil, errors.New("更新字典属性失败")
+		return nil, errorsx.WrapInternal(err, "更新字典属性失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -173,8 +172,8 @@ func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *admin.Bas
 func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.DeleteBaseDictItem(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteBaseDictItem err:", err.Error())
-		return nil, errors.New("删除字典属性失败")
+		log.Errorf("DeleteBaseDictItem %v", err)
+		return nil, errorsx.WrapInternal(err, "删除字典属性失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -183,8 +182,8 @@ func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *wrappersp
 func (s *BaseDictService) SetBaseDictItemStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.SetBaseDictItemStatus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseDictItemStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetBaseDictItemStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }

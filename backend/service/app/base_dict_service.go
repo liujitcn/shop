@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewBaseDictService(
 func (s *BaseDictService) ListBaseDict(ctx context.Context, req *wrapperspb.StringValue) (*app.ListBaseDictResponse, error) {
 	res, err := s.baseDictCase.ListBaseDict(ctx, req.GetValue())
 	if err != nil {
-		log.Error("ListBaseDict err:", err.Error())
-		return nil, errors.New("查询失败")
+		log.Errorf("ListBaseDict %v", err)
+		return nil, errorsx.WrapInternal(err, "查询失败")
 	}
 	return res, nil
 }

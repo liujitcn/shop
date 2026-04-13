@@ -2,10 +2,10 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	adminApi "shop/api/gen/go/admin"
 	commonApi "shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -33,8 +33,8 @@ func NewOrderAnalyticsService(
 func (s *OrderAnalyticsService) GetOrderAnalyticsSummary(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*adminApi.OrderAnalyticsSummaryResponse, error) {
 	res, err := s.orderAnalyticsCase.GetOrderAnalyticsSummary(ctx, req)
 	if err != nil {
-		log.Error("GetOrderAnalyticsSummary err:", err.Error())
-		return nil, errors.New("查询订单摘要指标失败")
+		log.Errorf("GetOrderAnalyticsSummary %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单摘要指标失败")
 	}
 	return res, nil
 }
@@ -43,8 +43,8 @@ func (s *OrderAnalyticsService) GetOrderAnalyticsSummary(ctx context.Context, re
 func (s *OrderAnalyticsService) GetOrderAnalyticsTrend(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsTrendResponse, error) {
 	res, err := s.orderAnalyticsCase.GetOrderAnalyticsTrend(ctx, req)
 	if err != nil {
-		log.Error("GetOrderAnalyticsTrend err:", err.Error())
-		return nil, errors.New("查询订单趋势失败")
+		log.Errorf("GetOrderAnalyticsTrend %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单趋势失败")
 	}
 	return res, nil
 }
@@ -53,8 +53,8 @@ func (s *OrderAnalyticsService) GetOrderAnalyticsTrend(ctx context.Context, req 
 func (s *OrderAnalyticsService) GetOrderAnalyticsPie(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsPieResponse, error) {
 	res, err := s.orderAnalyticsCase.GetOrderAnalyticsPie(ctx, req)
 	if err != nil {
-		log.Error("GetOrderAnalyticsPie err:", err.Error())
-		return nil, errors.New("查询订单状态分布失败")
+		log.Errorf("GetOrderAnalyticsPie %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单状态分布失败")
 	}
 	return res, nil
 }

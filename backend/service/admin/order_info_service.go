@@ -8,9 +8,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewOrderInfoService(
 func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *admin.PageOrderInfoRequest) (*admin.PageOrderInfoResponse, error) {
 	page, err := s.orderInfoCase.PageOrderInfo(ctx, req)
 	if err != nil {
-		log.Error("PageOrderInfo err:", err.Error())
-		return nil, errors.New("查询订单分页列表失败")
+		log.Errorf("PageOrderInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单分页列表失败")
 	}
 	return page, nil
 }
@@ -50,8 +50,8 @@ func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *admin.PageOrd
 func (s *OrderInfoService) GetOrderInfo(ctx context.Context, req *wrapperspb.Int64Value) (*admin.OrderInfoResponse, error) {
 	res, err := s.orderInfoCase.GetOrderInfo(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetOrderInfo err:", err.Error())
-		return nil, errors.New("查询订单失败")
+		log.Errorf("GetOrderInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单失败")
 	}
 
 	return res, nil
@@ -61,8 +61,8 @@ func (s *OrderInfoService) GetOrderInfo(ctx context.Context, req *wrapperspb.Int
 func (s *OrderInfoService) GetOrderInfoRefund(ctx context.Context, req *wrapperspb.Int64Value) (*admin.OrderInfoRefundResponse, error) {
 	res, err := s.orderInfoCase.GetOrderInfoRefund(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetOrderInfoRefund err:", err.Error())
-		return nil, errors.New("查询订单退款信息失败")
+		log.Errorf("GetOrderInfoRefund %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单退款信息失败")
 	}
 
 	return res, nil
@@ -72,8 +72,8 @@ func (s *OrderInfoService) GetOrderInfoRefund(ctx context.Context, req *wrappers
 func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *admin.RefundOrderInfoRequest) (*emptypb.Empty, error) {
 	err := s.orderInfoCase.RefundOrderInfo(ctx, req)
 	if err != nil {
-		log.Error("RefundOrderInfo err:", err.Error())
-		return nil, errors.New("订单退款失败")
+		log.Errorf("RefundOrderInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "订单退款失败")
 	}
 
 	return new(emptypb.Empty), nil
@@ -83,8 +83,8 @@ func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *admin.Refun
 func (s *OrderInfoService) GetOrderInfoShipped(ctx context.Context, req *wrapperspb.Int64Value) (*admin.OrderInfoShippedResponse, error) {
 	res, err := s.orderInfoCase.GetOrderInfoShipped(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetOrderInfoShipped err:", err.Error())
-		return nil, errors.New("查询订单发货信息失败")
+		log.Errorf("GetOrderInfoShipped %v", err)
+		return nil, errorsx.WrapInternal(err, "查询订单发货信息失败")
 	}
 
 	return res, nil
@@ -94,8 +94,8 @@ func (s *OrderInfoService) GetOrderInfoShipped(ctx context.Context, req *wrapper
 func (s *OrderInfoService) ShippedOrderInfo(ctx context.Context, req *admin.ShippedOrderInfoRequest) (*emptypb.Empty, error) {
 	err := s.orderInfoCase.ShippedOrderInfo(ctx, req)
 	if err != nil {
-		log.Error("ShippedOrderInfo err:", err.Error())
-		return nil, errors.New("订单发货失败")
+		log.Errorf("ShippedOrderInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "订单发货失败")
 	}
 
 	return new(emptypb.Empty), nil

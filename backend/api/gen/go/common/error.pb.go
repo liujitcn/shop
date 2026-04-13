@@ -26,90 +26,31 @@ const (
 type ErrorReason int32
 
 const (
-	// common error
-	ErrorReason_METHOD_NOT_ALLOWED    ErrorReason = 0 // 405
-	ErrorReason_REQUEST_TIMEOUT       ErrorReason = 1 // 408
-	ErrorReason_INTERNAL_SERVER_ERROR ErrorReason = 2 // 500
-	ErrorReason_NOT_IMPLEMENTED       ErrorReason = 3 // 501
-	ErrorReason_NETWORK_ERROR         ErrorReason = 4 // 502
-	ErrorReason_SERVICE_UNAVAILABLE   ErrorReason = 5 // 503
-	ErrorReason_NETWORK_TIMEOUT       ErrorReason = 6 // 504
-	ErrorReason_REQUEST_NOT_SUPPORT   ErrorReason = 7 // 505
-	// 400
-	ErrorReason_BAD_REQUEST        ErrorReason = 100 // 400
-	ErrorReason_INVALID_GRANT_TYPE ErrorReason = 101 // 400
-	ErrorReason_INVALID_USERID     ErrorReason = 102 // 用户ID无效
-	ErrorReason_INVALID_TOKEN      ErrorReason = 103 // token无效
-	ErrorReason_INVALID_PASSWORD   ErrorReason = 104 // 密码无效
-	// 404
-	ErrorReason_RESOURCE_NOT_FOUND ErrorReason = 200 // 404
-	ErrorReason_USER_NOT_FOUND     ErrorReason = 201 // 用户不存在
-	// 401
-	ErrorReason_NOT_LOGGED_IN           ErrorReason = 300
-	ErrorReason_USER_FREEZE             ErrorReason = 301 // 用户被冻结
-	ErrorReason_INCORRECT_PASSWORD      ErrorReason = 302 // 密码错误
-	ErrorReason_INCORRECT_APP_SECRET    ErrorReason = 303 // 密钥错误
-	ErrorReason_INCORRECT_ACCESS_TOKEN  ErrorReason = 304 // 访问令牌错误
-	ErrorReason_INCORRECT_REFRESH_TOKEN ErrorReason = 305 // 刷新令牌错误
-	ErrorReason_TOKEN_EXPIRED           ErrorReason = 306 // token过期
-	ErrorReason_TOKEN_NOT_EXIST         ErrorReason = 307 // token不存在
-	// 403
-	ErrorReason_ACCESS_FORBIDDEN ErrorReason = 400
+	ErrorReason_INVALID_ARGUMENT   ErrorReason = 0 // 请求参数错误
+	ErrorReason_UNAUTHENTICATED    ErrorReason = 1 // 用户未通过认证
+	ErrorReason_PERMISSION_DENIED  ErrorReason = 2 // 用户没有权限
+	ErrorReason_RESOURCE_NOT_FOUND ErrorReason = 3 // 资源不存在
+	ErrorReason_CONFLICT           ErrorReason = 4 // 当前状态冲突
+	ErrorReason_INTERNAL_ERROR     ErrorReason = 5 // 服务内部异常
 )
 
 // Enum value maps for ErrorReason.
 var (
 	ErrorReason_name = map[int32]string{
-		0:   "METHOD_NOT_ALLOWED",
-		1:   "REQUEST_TIMEOUT",
-		2:   "INTERNAL_SERVER_ERROR",
-		3:   "NOT_IMPLEMENTED",
-		4:   "NETWORK_ERROR",
-		5:   "SERVICE_UNAVAILABLE",
-		6:   "NETWORK_TIMEOUT",
-		7:   "REQUEST_NOT_SUPPORT",
-		100: "BAD_REQUEST",
-		101: "INVALID_GRANT_TYPE",
-		102: "INVALID_USERID",
-		103: "INVALID_TOKEN",
-		104: "INVALID_PASSWORD",
-		200: "RESOURCE_NOT_FOUND",
-		201: "USER_NOT_FOUND",
-		300: "NOT_LOGGED_IN",
-		301: "USER_FREEZE",
-		302: "INCORRECT_PASSWORD",
-		303: "INCORRECT_APP_SECRET",
-		304: "INCORRECT_ACCESS_TOKEN",
-		305: "INCORRECT_REFRESH_TOKEN",
-		306: "TOKEN_EXPIRED",
-		307: "TOKEN_NOT_EXIST",
-		400: "ACCESS_FORBIDDEN",
+		0: "INVALID_ARGUMENT",
+		1: "UNAUTHENTICATED",
+		2: "PERMISSION_DENIED",
+		3: "RESOURCE_NOT_FOUND",
+		4: "CONFLICT",
+		5: "INTERNAL_ERROR",
 	}
 	ErrorReason_value = map[string]int32{
-		"METHOD_NOT_ALLOWED":      0,
-		"REQUEST_TIMEOUT":         1,
-		"INTERNAL_SERVER_ERROR":   2,
-		"NOT_IMPLEMENTED":         3,
-		"NETWORK_ERROR":           4,
-		"SERVICE_UNAVAILABLE":     5,
-		"NETWORK_TIMEOUT":         6,
-		"REQUEST_NOT_SUPPORT":     7,
-		"BAD_REQUEST":             100,
-		"INVALID_GRANT_TYPE":      101,
-		"INVALID_USERID":          102,
-		"INVALID_TOKEN":           103,
-		"INVALID_PASSWORD":        104,
-		"RESOURCE_NOT_FOUND":      200,
-		"USER_NOT_FOUND":          201,
-		"NOT_LOGGED_IN":           300,
-		"USER_FREEZE":             301,
-		"INCORRECT_PASSWORD":      302,
-		"INCORRECT_APP_SECRET":    303,
-		"INCORRECT_ACCESS_TOKEN":  304,
-		"INCORRECT_REFRESH_TOKEN": 305,
-		"TOKEN_EXPIRED":           306,
-		"TOKEN_NOT_EXIST":         307,
-		"ACCESS_FORBIDDEN":        400,
+		"INVALID_ARGUMENT":   0,
+		"UNAUTHENTICATED":    1,
+		"PERMISSION_DENIED":  2,
+		"RESOURCE_NOT_FOUND": 3,
+		"CONFLICT":           4,
+		"INTERNAL_ERROR":     5,
 	}
 )
 
@@ -144,32 +85,14 @@ var File_common_error_proto protoreflect.FileDescriptor
 
 const file_common_error_proto_rawDesc = "" +
 	"\n" +
-	"\x12common/error.proto\x12\x06common\x1a\x13errors/errors.proto*\xc4\x05\n" +
-	"\vErrorReason\x12\x1c\n" +
-	"\x12METHOD_NOT_ALLOWED\x10\x00\x1a\x04\xa8E\x95\x03\x12\x19\n" +
-	"\x0fREQUEST_TIMEOUT\x10\x01\x1a\x04\xa8E\x98\x03\x12\x1f\n" +
-	"\x15INTERNAL_SERVER_ERROR\x10\x02\x1a\x04\xa8E\xf4\x03\x12\x19\n" +
-	"\x0fNOT_IMPLEMENTED\x10\x03\x1a\x04\xa8E\xf5\x03\x12\x17\n" +
-	"\rNETWORK_ERROR\x10\x04\x1a\x04\xa8E\xf6\x03\x12\x1d\n" +
-	"\x13SERVICE_UNAVAILABLE\x10\x05\x1a\x04\xa8E\xf7\x03\x12\x19\n" +
-	"\x0fNETWORK_TIMEOUT\x10\x06\x1a\x04\xa8E\xf8\x03\x12\x1d\n" +
-	"\x13REQUEST_NOT_SUPPORT\x10\a\x1a\x04\xa8E\xf9\x03\x12\x15\n" +
-	"\vBAD_REQUEST\x10d\x1a\x04\xa8E\x90\x03\x12\x1c\n" +
-	"\x12INVALID_GRANT_TYPE\x10e\x1a\x04\xa8E\x90\x03\x12\x18\n" +
-	"\x0eINVALID_USERID\x10f\x1a\x04\xa8E\x90\x03\x12\x17\n" +
-	"\rINVALID_TOKEN\x10g\x1a\x04\xa8E\x90\x03\x12\x1a\n" +
-	"\x10INVALID_PASSWORD\x10h\x1a\x04\xa8E\x90\x03\x12\x1d\n" +
-	"\x12RESOURCE_NOT_FOUND\x10\xc8\x01\x1a\x04\xa8E\x94\x03\x12\x19\n" +
-	"\x0eUSER_NOT_FOUND\x10\xc9\x01\x1a\x04\xa8E\x94\x03\x12\x18\n" +
-	"\rNOT_LOGGED_IN\x10\xac\x02\x1a\x04\xa8E\x91\x03\x12\x16\n" +
-	"\vUSER_FREEZE\x10\xad\x02\x1a\x04\xa8E\x91\x03\x12\x1d\n" +
-	"\x12INCORRECT_PASSWORD\x10\xae\x02\x1a\x04\xa8E\x91\x03\x12\x1f\n" +
-	"\x14INCORRECT_APP_SECRET\x10\xaf\x02\x1a\x04\xa8E\x91\x03\x12!\n" +
-	"\x16INCORRECT_ACCESS_TOKEN\x10\xb0\x02\x1a\x04\xa8E\x91\x03\x12\"\n" +
-	"\x17INCORRECT_REFRESH_TOKEN\x10\xb1\x02\x1a\x04\xa8E\x91\x03\x12\x18\n" +
-	"\rTOKEN_EXPIRED\x10\xb2\x02\x1a\x04\xa8E\x91\x03\x12\x1a\n" +
-	"\x0fTOKEN_NOT_EXIST\x10\xb3\x02\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
-	"\x10ACCESS_FORBIDDEN\x10\x90\x03\x1a\x04\xa8E\x93\x03\x1a\x04\xa0E\xf4\x03Bh\n" +
+	"\x12common/error.proto\x12\x06common\x1a\x13errors/errors.proto*\xb3\x01\n" +
+	"\vErrorReason\x12\x1a\n" +
+	"\x10INVALID_ARGUMENT\x10\x00\x1a\x04\xa8E\x90\x03\x12\x19\n" +
+	"\x0fUNAUTHENTICATED\x10\x01\x1a\x04\xa8E\x91\x03\x12\x1b\n" +
+	"\x11PERMISSION_DENIED\x10\x02\x1a\x04\xa8E\x93\x03\x12\x1c\n" +
+	"\x12RESOURCE_NOT_FOUND\x10\x03\x1a\x04\xa8E\x94\x03\x12\x12\n" +
+	"\bCONFLICT\x10\x04\x1a\x04\xa8E\x99\x03\x12\x18\n" +
+	"\x0eINTERNAL_ERROR\x10\x05\x1a\x04\xa8E\xf4\x03\x1a\x04\xa0E\xf4\x03Bh\n" +
 	"\n" +
 	"com.commonB\n" +
 	"ErrorProtoP\x01Z\x16shop/api/gen/go/common\xa2\x02\x03CXX\xaa\x02\x06Common\xca\x02\x06Common\xe2\x02\x12Common\\GPBMetadata\xea\x02\x06Commonb\x06proto3"

@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewAuthService(
 func (s *AuthService) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.WxLoginResponse, error) {
 	res, err := s.authCase.WxLogin(ctx, req)
 	if err != nil {
-		log.Error("WxLogin err:", err.Error())
-		return nil, errors.New("登录失败")
+		log.Errorf("WxLogin %v", err)
+		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
 	return res, nil
 }
@@ -50,8 +50,8 @@ func (s *AuthService) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*ap
 func (s *AuthService) GetUserInfo(ctx context.Context, req *emptypb.Empty) (*app.UserInfo, error) {
 	res, err := s.authCase.GetUserInfo(ctx)
 	if err != nil {
-		log.Error("GetUserInfo err:", err.Error())
-		return nil, err
+		log.Errorf("GetUserInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "获取用户信息失败")
 	}
 	return res, nil
 }
@@ -60,8 +60,8 @@ func (s *AuthService) GetUserInfo(ctx context.Context, req *emptypb.Empty) (*app
 func (s *AuthService) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInfoRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserInfo(ctx, req)
 	if err != nil {
-		log.Error("UpdateUserInfo err:", err.Error())
-		return nil, errors.New("修改个人中心用户信息失败")
+		log.Errorf("UpdateUserInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "修改个人中心用户信息失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -70,8 +70,8 @@ func (s *AuthService) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInf
 func (s *AuthService) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*app.PhoneAuthResponse, error) {
 	res, err := s.authCase.PhoneAuth(ctx, req)
 	if err != nil {
-		log.Error("PhoneAuth err:", err.Error())
-		return nil, err
+		log.Errorf("PhoneAuth %v", err)
+		return nil, errorsx.WrapInternal(err, "手机号授权失败")
 	}
 	return res, nil
 }

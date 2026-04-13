@@ -8,9 +8,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -38,8 +38,8 @@ func NewGoodsSpecService(
 func (s *GoodsSpecService) ListGoodsSpec(ctx context.Context, req *admin.ListGoodsSpecRequest) (*admin.ListGoodsSpecResponse, error) {
 	list, err := s.goodsSpecCase.ListGoodsSpec(ctx, req)
 	if err != nil {
-		log.Error("ListGoodsSpec err:", err.Error())
-		return nil, errors.New("查询规格列表失败")
+		log.Errorf("ListGoodsSpec %v", err)
+		return nil, errorsx.WrapInternal(err, "查询规格列表失败")
 	}
 	return list, nil
 }

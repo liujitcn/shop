@@ -2,10 +2,10 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -110,7 +110,7 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 		}
 		// 仍然存在子菜单时，禁止删除当前节点。
 		if count > 0 {
-			return errors.New("删除菜单失败,下面有菜单")
+			return errorsx.HasChildrenConflict("删除菜单失败，下面有菜单", "base_menu", "base_menu")
 		}
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {

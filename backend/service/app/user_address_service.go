@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -41,8 +41,8 @@ func NewUserAddressService(
 func (s *UserAddressService) ListUserAddress(ctx context.Context, req *emptypb.Empty) (*app.ListUserAddressResponse, error) {
 	res, err := s.userAddressCase.ListUserAddress(ctx)
 	if err != nil {
-		log.Error("ListUserAddress err:", err.Error())
-		return nil, errors.New("查询用户地址列表失败")
+		log.Errorf("ListUserAddress %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户地址列表失败")
 	}
 
 	return res, nil
@@ -52,8 +52,8 @@ func (s *UserAddressService) ListUserAddress(ctx context.Context, req *emptypb.E
 func (s *UserAddressService) GetUserAddress(ctx context.Context, req *wrapperspb.Int64Value) (*app.UserAddressForm, error) {
 	userAddress, err := s.userAddressCase.GetUserAddress(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetUserAddress err:", err.Error())
-		return nil, errors.New("查询用户地址失败")
+		log.Errorf("GetUserAddress %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户地址失败")
 	}
 
 	return userAddress, nil
@@ -63,8 +63,8 @@ func (s *UserAddressService) GetUserAddress(ctx context.Context, req *wrapperspb
 func (s *UserAddressService) CreateUserAddress(ctx context.Context, req *app.UserAddressForm) (*emptypb.Empty, error) {
 	err := s.userAddressCase.CreateUserAddress(ctx, req)
 	if err != nil {
-		log.Error("CreateUserAddress err:", err.Error())
-		return nil, errors.New("创建用户地址失败")
+		log.Errorf("CreateUserAddress %v", err)
+		return nil, errorsx.WrapInternal(err, "创建用户地址失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -73,8 +73,8 @@ func (s *UserAddressService) CreateUserAddress(ctx context.Context, req *app.Use
 func (s *UserAddressService) UpdateUserAddress(ctx context.Context, req *app.UserAddressForm) (*emptypb.Empty, error) {
 	err := s.userAddressCase.UpdateUserAddress(ctx, req)
 	if err != nil {
-		log.Error("UpdateUserAddress err:", err.Error())
-		return nil, errors.New("更新用户地址失败")
+		log.Errorf("UpdateUserAddress %v", err)
+		return nil, errorsx.WrapInternal(err, "更新用户地址失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -83,8 +83,8 @@ func (s *UserAddressService) UpdateUserAddress(ctx context.Context, req *app.Use
 func (s *UserAddressService) DeleteUserAddress(ctx context.Context, req *wrapperspb.Int64Value) (*emptypb.Empty, error) {
 	err := s.userAddressCase.DeleteUserAddress(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteUserAddress err:", err.Error())
-		return nil, errors.New("删除用户地址失败")
+		log.Errorf("DeleteUserAddress %v", err)
+		return nil, errorsx.WrapInternal(err, "删除用户地址失败")
 	}
 	return new(emptypb.Empty), nil
 }

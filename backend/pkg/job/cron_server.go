@@ -3,9 +3,9 @@ package job
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/job/task"
@@ -60,7 +60,7 @@ func (c *CronServer) Stop(ctx context.Context) error {
 func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) error {
 	// 任务实体为空时，无法继续启动调度。
 	if baseJob == nil {
-		return errors.New("定时任务不存在")
+		return errorsx.ResourceNotFound("定时任务不存在")
 	}
 
 	invokeTarget, err := c.lookupTaskExec(baseJob.InvokeTarget)
@@ -112,7 +112,7 @@ func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) erro
 func (c *CronServer) StopJob(ctx context.Context, baseJob *models.BaseJob) error {
 	// 任务实体为空时，无法继续停止调度。
 	if baseJob == nil {
-		return errors.New("定时任务不存在")
+		return errorsx.ResourceNotFound("定时任务不存在")
 	}
 
 	err := c.updateBaseJobEntryId(ctx, baseJob.ID, 0)
@@ -133,7 +133,7 @@ func (c *CronServer) StopJob(ctx context.Context, baseJob *models.BaseJob) error
 func (c *CronServer) RunJob(_ context.Context, baseJob *models.BaseJob) error {
 	// 任务实体为空时，无法继续执行。
 	if baseJob == nil {
-		return errors.New("定时任务不存在")
+		return errorsx.ResourceNotFound("定时任务不存在")
 	}
 
 	invokeTarget, err := c.lookupTaskExec(baseJob.InvokeTarget)
@@ -226,13 +226,13 @@ func (c *CronServer) rollbackStartedJobs(ctx context.Context, startedJobs []*mod
 func (c *CronServer) lookupTaskExec(invokeTarget string) (task.TaskExec, error) {
 	// 调用目标为空时，无法定位实际任务实现。
 	if invokeTarget == "" {
-		return nil, errors.New("调用目标不存在")
+		return nil, errorsx.ResourceNotFound("调用目标不存在")
 	}
 
 	invokeTargetExec, ok := c.task[invokeTarget]
 	// 调用目标未注册时，直接返回明确错误。
 	if !ok || invokeTargetExec == nil {
-		return nil, errors.New("调用目标不存在")
+		return nil, errorsx.ResourceNotFound("调用目标不存在")
 	}
 	return invokeTargetExec, nil
 }

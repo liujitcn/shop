@@ -8,8 +8,8 @@ package base
 
 import (
 	"context"
-	"errors"
 	"shop/api/gen/go/base"
+	"shop/pkg/errorsx"
 
 	"shop/service/base/biz"
 
@@ -39,8 +39,8 @@ func NewFileService(
 func (s *FileService) MultiUploadFile(ctx context.Context, req *base.MultiUploadFileRequest) (*base.MultiUploadFileResponse, error) {
 	res, err := s.fileCase.MultiUploadFile(req)
 	if err != nil {
-		log.Error("MultiUploadFile err:", err.Error())
-		return nil, errors.New("多个文件上传失败")
+		log.Errorf("MultiUploadFile %v", err)
+		return nil, errorsx.WrapInternal(err, "多个文件上传失败")
 	}
 	return res, nil
 }
@@ -49,8 +49,8 @@ func (s *FileService) MultiUploadFile(ctx context.Context, req *base.MultiUpload
 func (s *FileService) UploadFile(ctx context.Context, req *base.UploadFileInfo) (*base.FileInfo, error) {
 	res, err := s.fileCase.UploadFile(req)
 	if err != nil {
-		log.Error("UploadFile err:", err.Error())
-		return nil, errors.New("单个文件上传失败")
+		log.Errorf("UploadFile %v", err)
+		return nil, errorsx.WrapInternal(err, "单个文件上传失败")
 	}
 	return res, nil
 }
@@ -59,8 +59,8 @@ func (s *FileService) UploadFile(ctx context.Context, req *base.UploadFileInfo) 
 func (s *FileService) DownloadFile(ctx context.Context, req *base.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
 	res, err := s.fileCase.DownloadFile(req)
 	if err != nil {
-		log.Error("DownloadFile err:", err.Error())
-		return nil, errors.New("下载文件失败")
+		log.Errorf("DownloadFile %v", err)
+		return nil, errorsx.WrapInternal(err, "下载文件失败")
 	}
 	return res, nil
 }

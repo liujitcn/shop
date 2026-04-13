@@ -8,14 +8,13 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -39,7 +38,8 @@ func NewBaseConfigService(
 	// 服务启动，刷新缓存
 	_, err := ss.RefreshBaseConfig(context.Background(), new(emptypb.Empty))
 	if err != nil {
-		return nil, err
+		log.Errorf("NewBaseConfigService %v", err)
+		return nil, errorsx.WrapInternal(err, "初始化系统配置缓存失败")
 	}
 	return &ss, nil
 }
@@ -48,8 +48,8 @@ func NewBaseConfigService(
 func (s *BaseConfigService) RefreshBaseConfig(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.RefreshBaseConfig(ctx)
 	if err != nil {
-		log.Error("RefreshBaseConfig err:", err.Error())
-		return nil, errors.New("刷新缓存失败")
+		log.Errorf("RefreshBaseConfig %v", err)
+		return nil, errorsx.WrapInternal(err, "刷新缓存失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -58,8 +58,8 @@ func (s *BaseConfigService) RefreshBaseConfig(ctx context.Context, req *emptypb.
 func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *admin.PageBaseConfigRequest) (*admin.PageBaseConfigResponse, error) {
 	page, err := s.baseConfigCase.PageBaseConfig(ctx, req)
 	if err != nil {
-		log.Error("PageBaseConfig err:", err.Error())
-		return nil, errors.New("查询系统配置分页列表失败")
+		log.Errorf("PageBaseConfig %v", err)
+		return nil, errorsx.WrapInternal(err, "查询系统配置分页列表失败")
 	}
 
 	return page, nil
@@ -69,8 +69,8 @@ func (s *BaseConfigService) PageBaseConfig(ctx context.Context, req *admin.PageB
 func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseConfigForm, error) {
 	config, err := s.baseConfigCase.GetBaseConfig(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseConfig err:", err.Error())
-		return nil, errors.New("查询系统配置失败")
+		log.Errorf("GetBaseConfig %v", err)
+		return nil, errorsx.WrapInternal(err, "查询系统配置失败")
 	}
 	return config, nil
 }
@@ -79,12 +79,12 @@ func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *wrapperspb.I
 func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *admin.BaseConfigForm) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.CreateBaseConfig(ctx, req)
 	if err != nil {
-		log.Error("CreateBaseConfig err:", err.Error())
+		log.Errorf("CreateBaseConfig %v", err)
 		// 命中配置键唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("配置key重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
 		}
-		return nil, errors.New("创建系统配置失败")
+		return nil, errorsx.WrapInternal(err, "创建系统配置失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -93,12 +93,12 @@ func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *admin.Bas
 func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *admin.BaseConfigForm) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.UpdateBaseConfig(ctx, req)
 	if err != nil {
-		log.Error("UpdateBaseConfig err:", err.Error())
+		log.Errorf("UpdateBaseConfig %v", err)
 		// 命中配置键唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("配置key重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
 		}
-		return nil, errors.New("更新系统配置失败")
+		return nil, errorsx.WrapInternal(err, "更新系统配置失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -107,8 +107,8 @@ func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *admin.Bas
 func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.DeleteBaseConfig(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteBaseConfig err:", err.Error())
-		return nil, errors.New("删除系统配置失败")
+		log.Errorf("DeleteBaseConfig %v", err)
+		return nil, errorsx.WrapInternal(err, "删除系统配置失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -117,8 +117,8 @@ func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *wrappersp
 func (s *BaseConfigService) SetBaseConfigStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.SetBaseConfigStatus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseConfigStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetBaseConfigStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }

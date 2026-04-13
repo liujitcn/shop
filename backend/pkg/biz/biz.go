@@ -3,12 +3,11 @@ package biz
 import (
 	"context"
 	"shop/internal/cmd/server/assets"
+	"shop/pkg/errorsx"
 	"sync"
 	"time"
 
 	_const "shop/pkg/const"
-
-	"shop/api/gen/go/common"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/kratos-kit/auth"
@@ -101,7 +100,7 @@ func (c *BaseCase) GetAuthInfo(ctx context.Context) (*authData.UserTokenPayload,
 	authInfo, err := auth.FromContext(ctx)
 	if err != nil {
 		log.Errorf("用户认证失败[%s]", err.Error())
-		return nil, common.ErrorAccessForbidden("用户认证失败")
+		return nil, errorsx.Unauthenticated("用户认证失败").WithCause(err)
 	}
 	return authInfo, nil
 }

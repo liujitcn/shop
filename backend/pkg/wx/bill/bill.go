@@ -2,10 +2,11 @@ package bill
 
 import (
 	"context"
-	"fmt"
 	"io"
 	nethttp "net/http"
 	neturl "net/url"
+
+	"shop/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
@@ -21,11 +22,11 @@ type BillService services.Service
 func (a *BillService) TradeBill(ctx context.Context, req TradeBillRequest) (resp *TradeBillResponse, result *core.APIResult, err error) {
 	// 缺少账单日期时，微信账单接口无法正常调用。
 	if req.BillDate == nil || len(*req.BillDate) == 0 {
-		return nil, nil, fmt.Errorf("field `BillDate` is required and must be specified in TradeBillRequest")
+		return nil, nil, errorsx.InvalidArgument("账单日期不能为空")
 	}
 	// 缺少账单类型时，微信账单接口无法正常调用。
 	if req.BillType == nil || len(*req.BillType) == 0 {
-		return nil, nil, fmt.Errorf("field `BillType` is required and must be specified in TradeBillRequest")
+		return nil, nil, errorsx.InvalidArgument("账单类型不能为空")
 	}
 
 	requestPath := consts.WechatPayAPIServer + "/v3/bill/tradebill"

@@ -2,9 +2,9 @@ package biz
 
 import (
 	"context"
-	"errors"
 
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -61,7 +61,7 @@ func (c *OrderAddressCase) createByOrder(ctx context.Context, userId, orderId, a
 	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
 	userAddress, err := c.userAddressRepo.Find(ctx, opts...)
 	if err != nil {
-		return errors.New("地址错误")
+		return errorsx.InvalidArgument("地址错误").WithCause(err)
 	}
 	// 下单时复制一份地址快照，避免用户后续修改地址影响历史订单展示
 	return c.Create(ctx, &models.OrderAddress{

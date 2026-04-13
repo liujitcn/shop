@@ -8,7 +8,7 @@ package base
 
 import (
 	"context"
-	"errors"
+	"shop/pkg/errorsx"
 	"shop/service/base/biz"
 
 	"shop/api/gen/go/base"
@@ -38,8 +38,8 @@ func NewConfigService(
 func (s *ConfigService) GetConfig(ctx context.Context, req *base.ConfigRequest) (*base.ConfigResponse, error) {
 	resp, err := s.configCase.GetConfig(ctx, req)
 	if err != nil {
-		log.Error("GetConfig err:", err.Error())
-		return nil, errors.New("获取系统配置失败")
+		log.Errorf("GetConfig %v", err)
+		return nil, errorsx.WrapInternal(err, "获取系统配置失败")
 	}
 
 	return resp, nil

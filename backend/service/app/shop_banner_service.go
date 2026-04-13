@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -39,8 +39,8 @@ func NewShopBannerService(
 func (s *ShopBannerService) ListShopBanner(ctx context.Context, req *app.ListShopBannerRequest) (*app.ListShopBannerResponse, error) {
 	res, err := s.shopBannerCase.ListShopBanner(ctx, req)
 	if err != nil {
-		log.Error("ListGoodsCategory err:", err.Error())
-		return nil, errors.New("查询商城轮播图列表失败")
+		log.Errorf("ListShopBanner %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商城轮播图列表失败")
 	}
 	return res, nil
 }

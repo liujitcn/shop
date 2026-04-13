@@ -2,12 +2,12 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -89,7 +89,7 @@ func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *admin.BaseDeptFo
 		var parentDept *models.BaseDept
 		parentDept, err = c.FindById(ctx, parentId)
 		if err != nil {
-			return errors.New("创建部门失败，更新路径错误")
+			return errorsx.Internal("创建部门失败，更新路径错误").WithCause(err)
 		}
 		path = fmt.Sprintf("%s/%d", parentDept.Path, baseDept.ID)
 	}
@@ -118,7 +118,7 @@ func (c *BaseDeptCase) DeleteBaseDept(ctx context.Context, id string) error {
 		}
 		// 仍然存在子部门时，禁止删除当前部门。
 		if count > 0 {
-			return errors.New("删除部门失败,下面有部门")
+			return errorsx.HasChildrenConflict("删除部门失败，下面有部门", "base_dept", "base_dept")
 		}
 	}
 	return c.DeleteByIds(ctx, ids)
@@ -136,7 +136,7 @@ func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *common.SetSta
 	}
 	// 存在子部门时，不允许直接调整当前部门状态。
 	if count > 0 {
-		return errors.New("设置状态失败,下面有部门")
+		return errorsx.HasChildrenConflict("设置状态失败，下面有部门", "base_dept", "base_dept")
 	}
 
 	return c.UpdateById(ctx, &models.BaseDept{

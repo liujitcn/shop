@@ -1,10 +1,10 @@
 package biz
 
 import (
-	"errors"
 	"slices"
 
 	"shop/api/gen/go/base"
+	"shop/pkg/errorsx"
 
 	"github.com/go-kratos/kratos/v2/log"
 	_string "github.com/liujitcn/go-utils/string"
@@ -33,13 +33,12 @@ func (c *FileCase) MultiUploadFile(req *base.MultiUploadFileRequest) (*base.Mult
 	uploadFiles := req.GetFiles()
 	// 未传入上传文件时，直接返回错误。
 	if len(uploadFiles) == 0 {
-		return nil, errors.New("no upload file")
+		return nil, errorsx.InvalidArgument("未上传文件")
 	}
 	for _, item := range uploadFiles {
 		url, err := c.UploadByByte(item.GetName(), item.GetPath(), item.GetContent())
 		if err != nil {
-			log.Error("MultiUploadFile err:", err.Error())
-			return nil, errors.New("文件上传失败")
+			return nil, errorsx.Internal("文件上传失败").WithCause(err)
 		}
 		files = append(files, &base.FileInfo{
 			Url:     url,
@@ -54,8 +53,7 @@ func (c *FileCase) MultiUploadFile(req *base.MultiUploadFileRequest) (*base.Mult
 func (c *FileCase) UploadFile(req *base.UploadFileInfo) (*base.FileInfo, error) {
 	url, err := c.UploadByByte(req.GetName(), req.GetPath(), req.GetContent())
 	if err != nil {
-		log.Error("UploadFile err:", err.Error())
-		return nil, errors.New("文件上传失败")
+		return nil, errorsx.Internal("文件上传失败").WithCause(err)
 	}
 	return &base.FileInfo{
 		Url:     url,
@@ -68,8 +66,7 @@ func (c *FileCase) UploadFile(req *base.UploadFileInfo) (*base.FileInfo, error) 
 func (c *FileCase) DownloadFile(req *base.DownloadFileRequest) (*wrapperspb.BytesValue, error) {
 	fileByte, err := c.GetFileByte(req.GetPath())
 	if err != nil {
-		log.Error("DownloadFile err:", err.Error())
-		return nil, errors.New("文件下载失败")
+		return nil, errorsx.Internal("文件下载失败").WithCause(err)
 	}
 	return &wrapperspb.BytesValue{Value: fileByte}, nil
 }

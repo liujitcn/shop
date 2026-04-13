@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -39,8 +39,8 @@ func NewGoodsCategoryService(
 func (s *GoodsCategoryService) ListGoodsCategory(ctx context.Context, req *app.ListGoodsCategoryRequest) (*app.ListGoodsCategoryResponse, error) {
 	res, err := s.goodsCategoryCase.ListGoodsCategory(ctx, req)
 	if err != nil {
-		log.Error("ListGoodsCategory err:", err.Error())
-		return nil, errors.New("查询商品分类列表失败")
+		log.Errorf("ListGoodsCategory %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品分类列表失败")
 	}
 	return res, nil
 }

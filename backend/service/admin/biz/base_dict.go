@@ -2,12 +2,12 @@ package biz
 
 import (
 	"context"
-	"errors"
 	"sort"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -148,11 +148,11 @@ func (c *BaseDictCase) DeleteBaseDict(ctx context.Context, id string) error {
 		opts = append(opts, repo.Where(query.DictID.Eq(dictId)))
 		count, err := c.baseDictItemCase.Count(ctx, opts...)
 		if err != nil {
-			return errors.New("删除字典失败")
+			return errorsx.Internal("删除字典失败").WithCause(err)
 		}
 		// 字典下仍有子项时，不允许直接删除字典。
 		if count > 0 {
-			return errors.New("删除字典失败,下面有属性")
+			return errorsx.HasChildrenConflict("删除字典失败，下面有属性", "base_dict", "base_dict_item")
 		}
 	}
 	return c.DeleteByIds(ctx, ids)

@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewUserStoreService(
 func (s *UserStoreService) GetUserStore(ctx context.Context, req *emptypb.Empty) (*app.UserStore, error) {
 	res, err := s.userStoreCase.GetUserStore(ctx)
 	if err != nil {
-		log.Error("GetUserStore err:", err.Error())
-		return nil, errors.New("查询用户门店失败")
+		log.Errorf("GetUserStore %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户门店失败")
 	}
 	return res, nil
 }
@@ -50,8 +50,8 @@ func (s *UserStoreService) GetUserStore(ctx context.Context, req *emptypb.Empty)
 func (s *UserStoreService) CreateUserStore(ctx context.Context, req *app.UserStoreForm) (*emptypb.Empty, error) {
 	err := s.userStoreCase.CreateUserStore(ctx, req)
 	if err != nil {
-		log.Error("CreateUserStore err:", err.Error())
-		return nil, errors.New("创建用户门店失败")
+		log.Errorf("CreateUserStore %v", err)
+		return nil, errorsx.WrapInternal(err, "创建用户门店失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -60,8 +60,8 @@ func (s *UserStoreService) CreateUserStore(ctx context.Context, req *app.UserSto
 func (s *UserStoreService) UpdateUserStore(ctx context.Context, req *app.UserStoreForm) (*emptypb.Empty, error) {
 	err := s.userStoreCase.UpdateUserStore(ctx, req)
 	if err != nil {
-		log.Error("UpdateUserStore err:", err.Error())
-		return nil, errors.New("更新用户门店失败")
+		log.Errorf("UpdateUserStore %v", err)
+		return nil, errorsx.WrapInternal(err, "更新用户门店失败")
 	}
 	return new(emptypb.Empty), nil
 }

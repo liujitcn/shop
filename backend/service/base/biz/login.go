@@ -2,15 +2,13 @@ package biz
 
 import (
 	"context"
-	"errors"
 
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 
 	"shop/api/gen/go/base"
-	"shop/api/gen/go/common"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -62,7 +60,7 @@ func (c *LoginCase) Logout(ctx context.Context) error {
 	}
 	err = c.userToken.RemoveToken(authInfo.UserId)
 	if err != nil {
-		return errors.New("退出登录失败")
+		return errorsx.Internal("退出登录失败").WithCause(err)
 	}
 	return nil
 }
@@ -78,14 +76,14 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *base.RefreshTokenRequ
 	refreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
 	// 客户端刷新令牌与缓存不一致时，拒绝刷新访问令牌。
 	if refreshToken != req.GetRefreshToken() {
-		return nil, common.ErrorIncorrectRefreshToken("invalid refresh token")
+		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
 	}
 
 	// 生成新的访问令牌
 	var accessToken string
 	accessToken, err = c.userToken.GenerateAccessToken(authInfo)
 	if err != nil {
-		return nil, common.ErrorIncorrectRefreshToken("invalid refresh token")
+		return nil, errorsx.Internal("刷新认证令牌失败").WithCause(err)
 	}
 	// Token 有效期
 	expiresIn := c.userToken.GetAccessTokenExpires()
@@ -102,39 +100,38 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *base.RefreshTokenRequ
 func (c *LoginCase) Login(ctx context.Context, req *base.LoginRequest) (*base.LoginResponse, error) {
 	// 验证码标识或验证码缺失时，不允许继续登录。
 	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
-		return nil, errors.New("验证码不存在")
+		return nil, errorsx.InvalidArgument("验证码不能为空")
 	}
 	// 验证码校验失败时，直接拒绝登录请求。
 	if !captcha.Verify(req.GetCaptchaId(), req.GetCaptchaCode(), true) {
-		return nil, errors.New("验证码错误")
+		return nil, errorsx.InvalidArgument("验证码错误")
 	}
 
 	user, err := c.baseUserCase.FindByUserName(ctx, req.GetUserName())
 	if err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 	// 用户被停用时，不允许签发新的登录令牌。
 	if user.Status != 1 {
-		return nil, errors.New("用户状态错误")
+		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 	err = crypto.Verify(req.GetPassword(), user.Password)
 	if err != nil {
-		log.Errorf("verify pwd err: %s", err.Error())
-		return nil, errors.New("密码错误")
+		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 
 	// 查询角色信息
 	var role *models.BaseRole
 	role, err = c.baseRoleCase.FindById(ctx, user.RoleID)
 	if err != nil {
-		return nil, errors.New("角色不存在")
+		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 
 	// 查询部门信息
 	var dept *models.BaseDept
 	dept, err = c.baseDeptCase.FindById(ctx, user.DeptID)
 	if err != nil {
-		return nil, errors.New("部门不存在")
+		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 
 	// 生成访问令牌
@@ -149,7 +146,7 @@ func (c *LoginCase) Login(ctx context.Context, req *base.LoginRequest) (*base.Lo
 		DeptName: dept.Name,
 	})
 	if err != nil {
-		return nil, errors.New("登录失败")
+		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 
 	// Token 有效期

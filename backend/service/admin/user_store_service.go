@@ -8,9 +8,9 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewUserStoreService(
 func (s *UserStoreService) PageUserStore(ctx context.Context, req *admin.PageUserStoreRequest) (*admin.PageUserStoreResponse, error) {
 	page, err := s.userStoreCase.PageUserStore(ctx, req)
 	if err != nil {
-		log.Error("PageUserStore err:", err.Error())
-		return nil, errors.New("查询用户门店列表失败")
+		log.Errorf("PageUserStore %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户门店列表失败")
 	}
 
 	return page, nil
@@ -51,8 +51,8 @@ func (s *UserStoreService) PageUserStore(ctx context.Context, req *admin.PageUse
 func (s *UserStoreService) GetUserStore(ctx context.Context, req *wrapperspb.Int64Value) (*admin.UserStore, error) {
 	userStore, err := s.userStoreCase.GetUserStore(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetUserStore err:", err.Error())
-		return nil, errors.New("查询用户门店失败")
+		log.Errorf("GetUserStore %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户门店失败")
 	}
 
 	return userStore, nil
@@ -62,8 +62,8 @@ func (s *UserStoreService) GetUserStore(ctx context.Context, req *wrapperspb.Int
 func (s *UserStoreService) AuditUserStore(ctx context.Context, req *admin.AuditUserStoreForm) (*emptypb.Empty, error) {
 	err := s.userStoreCase.AuditUserStore(ctx, req)
 	if err != nil {
-		log.Error("AuditUserStore err:", err.Error())
-		return nil, errors.New("门店认证失败")
+		log.Errorf("AuditUserStore %v", err)
+		return nil, errorsx.WrapInternal(err, "门店认证失败")
 	}
 	return new(emptypb.Empty), nil
 }

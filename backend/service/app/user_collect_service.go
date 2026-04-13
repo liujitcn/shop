@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -41,8 +41,8 @@ func NewUserCollectService(
 func (s *UserCollectService) PageUserCollect(ctx context.Context, req *app.PageUserCollectRequest) (*app.PageUserCollectResponse, error) {
 	page, err := s.userCollectCase.PageUserCollect(ctx, req)
 	if err != nil {
-		log.Error("PageUserCollect err:", err.Error())
-		return nil, errors.New("查询用户收藏列表失败")
+		log.Errorf("PageUserCollect %v", err)
+		return nil, errorsx.WrapInternal(err, "查询用户收藏列表失败")
 	}
 	return page, nil
 }
@@ -51,8 +51,8 @@ func (s *UserCollectService) PageUserCollect(ctx context.Context, req *app.PageU
 func (s *UserCollectService) GetIsCollect(ctx context.Context, req *app.IsCollectRequest) (*wrapperspb.BoolValue, error) {
 	res, err := s.userCollectCase.GetIsCollect(ctx, req)
 	if err != nil {
+		log.Errorf("GetIsCollect %v", err)
 		// 收藏状态查询失败时按未收藏返回，避免影响详情页主流程
-		log.Error("GetIsCollect err:", err.Error())
 		return &wrapperspb.BoolValue{Value: false}, nil
 	}
 	return &wrapperspb.BoolValue{
@@ -64,8 +64,8 @@ func (s *UserCollectService) GetIsCollect(ctx context.Context, req *app.IsCollec
 func (s *UserCollectService) CreateUserCollect(ctx context.Context, req *app.UserCollectForm) (*emptypb.Empty, error) {
 	err := s.userCollectCase.CreateUserCollect(ctx, req)
 	if err != nil {
-		log.Error("CreateUserCollect err:", err.Error())
-		return nil, errors.New("创建用户收藏失败")
+		log.Errorf("CreateUserCollect %v", err)
+		return nil, errorsx.WrapInternal(err, "创建用户收藏失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -74,8 +74,8 @@ func (s *UserCollectService) CreateUserCollect(ctx context.Context, req *app.Use
 func (s *UserCollectService) DeleteUserCollect(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.userCollectCase.DeleteUserCollect(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteUserCollect err:", err.Error())
-		return nil, errors.New("删除用户收藏失败")
+		log.Errorf("DeleteUserCollect %v", err)
+		return nil, errorsx.WrapInternal(err, "删除用户收藏失败")
 	}
 	return new(emptypb.Empty), nil
 }

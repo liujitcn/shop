@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"shop/pkg/errorsx"
+
 	_time "github.com/liujitcn/go-utils/time"
 )
 
@@ -52,7 +54,7 @@ func parseStatDateArg(value string) (time.Time, error) {
 	statTime := _time.StringDateToTime(&value)
 	// 日期格式非法时直接返回错误，避免统计错天。
 	if statTime == nil || statTime.Year() <= 1 {
-		return time.Time{}, fmt.Errorf("statDate 格式错误，支持 %s 或 %s", _time.DateLayout, _time.Layout)
+		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("statDate 格式错误，支持 %s 或 %s", _time.DateLayout, _time.Layout))
 	}
 	return *statTime, nil
 }

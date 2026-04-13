@@ -343,7 +343,9 @@ function handleDelete(selected?: number | string | Array<number | string> | Good
       ? [selected as GoodsInfo]
       : [];
   const goodsIds = (
-    goodsInfoList.length ? goodsInfoList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
+    goodsInfoList.length
+      ? goodsInfoList.map(item => item.id)
+      : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
   if (!goodsIds) {
     ElMessage.warning("请勾选删除项");

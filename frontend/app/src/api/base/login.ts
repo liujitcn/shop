@@ -19,6 +19,7 @@ export class LoginServiceImpl implements LoginService {
       url: `${LOGIN_URL}/captcha`,
       method: 'GET',
       data: request,
+      header: { Authorization: 'no-auth' },
     })
   }
   /** 登出 */
@@ -35,6 +36,7 @@ export class LoginServiceImpl implements LoginService {
       url: `${LOGIN_URL}/refreshToken`,
       method: 'POST',
       data: request,
+      header: { Authorization: 'no-auth' },
     })
   }
   /** 登录 */
@@ -43,6 +45,7 @@ export class LoginServiceImpl implements LoginService {
       url: `${LOGIN_URL}`,
       method: 'POST',
       data: request,
+      header: { Authorization: 'no-auth' },
     })
   }
 }

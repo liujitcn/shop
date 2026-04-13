@@ -8,13 +8,12 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -41,8 +40,8 @@ func NewGoodsPropService(
 func (s *GoodsPropService) PageGoodsProp(ctx context.Context, req *admin.PageGoodsPropRequest) (*admin.PageGoodsPropResponse, error) {
 	page, err := s.goodsPropCase.PageGoodsProp(ctx, req)
 	if err != nil {
-		log.Error("PageGoodsProp err:", err.Error())
-		return nil, errors.New("查询属性列表失败")
+		log.Errorf("PageGoodsProp %v", err)
+		return nil, errorsx.WrapInternal(err, "查询属性列表失败")
 	}
 
 	return page, nil
@@ -52,8 +51,8 @@ func (s *GoodsPropService) PageGoodsProp(ctx context.Context, req *admin.PageGoo
 func (s *GoodsPropService) GetGoodsProp(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsProp, error) {
 	goodsProp, err := s.goodsPropCase.GetGoodsProp(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetGoodsProp err:", err.Error())
-		return nil, errors.New("查询商品属性失败")
+		log.Errorf("GetGoodsProp %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品属性失败")
 	}
 	return goodsProp, nil
 }
@@ -62,12 +61,12 @@ func (s *GoodsPropService) GetGoodsProp(ctx context.Context, req *wrapperspb.Int
 func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *admin.GoodsProp) (*emptypb.Empty, error) {
 	err := s.goodsPropCase.CreateGoodsProp(ctx, req)
 	if err != nil {
-		log.Error("CreateGoodsProp err:", err.Error())
+		log.Errorf("CreateGoodsProp %v", err)
 		// 命中商品属性唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("商品属性重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
 		}
-		return nil, errors.New("创建商品属性失败")
+		return nil, errorsx.WrapInternal(err, "创建商品属性失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -76,12 +75,12 @@ func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *admin.Goods
 func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *admin.GoodsProp) (*emptypb.Empty, error) {
 	err := s.goodsPropCase.UpdateGoodsProp(ctx, req)
 	if err != nil {
-		log.Error("UpdateGoodsProp err:", err.Error())
+		log.Errorf("UpdateGoodsProp %v", err)
 		// 命中商品属性唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("商品属性重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
 		}
-		return nil, errors.New("更新商品属性失败")
+		return nil, errorsx.WrapInternal(err, "更新商品属性失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -90,8 +89,8 @@ func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *admin.Goods
 func (s *GoodsPropService) DeleteGoodsProp(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.goodsPropCase.DeleteGoodsProp(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteGoodsProp err:", err.Error())
-		return nil, errors.New("删除商品属性失败")
+		log.Errorf("DeleteGoodsProp %v", err)
+		return nil, errorsx.WrapInternal(err, "删除商品属性失败")
 	}
 	return new(emptypb.Empty), nil
 }

@@ -2,12 +2,12 @@ package biz
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -119,7 +119,7 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *admin.BaseRoleFo
 	}
 	// 超级管理员角色不允许被修改。
 	if oldBaseRole.Code == _const.BaseRoleCode_Super {
-		return errors.New("更新角色失败，不能操作超级管理员角色")
+		return errorsx.PermissionDenied("更新角色失败，不能操作超级管理员角色")
 	}
 
 	baseRole := c.formMapper.ToEntity(req)
@@ -143,11 +143,11 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 	opts = append(opts, repo.Where(query.Code.Eq(_const.BaseRoleCode_Super)))
 	count, err := c.Count(ctx, opts...)
 	if err != nil {
-		return errors.New("删除角色失败")
+		return errorsx.Internal("删除角色失败").WithCause(err)
 	}
 	// 命中超级管理员角色时，禁止继续删除。
 	if count > 0 {
-		return errors.New("删除角色失败，不能操作超级管理员角色")
+		return errorsx.PermissionDenied("删除角色失败，不能操作超级管理员角色")
 	}
 
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
@@ -167,7 +167,7 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *common.SetSta
 	}
 	// 超级管理员角色不允许修改状态。
 	if baseRole.Code == _const.BaseRoleCode_Super {
-		return errors.New("设置状态失败，不能操作超级管理员角色")
+		return errorsx.PermissionDenied("设置状态失败，不能操作超级管理员角色")
 	}
 	return c.UpdateById(ctx, &models.BaseRole{
 		ID:     req.GetId(),
@@ -183,7 +183,7 @@ func (c *BaseRoleCase) SetBaseRoleMenus(ctx context.Context, req *admin.SetMenus
 	}
 	// 超级管理员角色不允许调整菜单权限。
 	if oldBaseRole.Code == _const.BaseRoleCode_Super {
-		return errors.New("更新角色失败，不能操作超级管理员角色")
+		return errorsx.PermissionDenied("更新角色失败，不能操作超级管理员角色")
 	}
 
 	baseRole := &models.BaseRole{

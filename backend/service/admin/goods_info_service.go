@@ -13,6 +13,7 @@ import (
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
 	"shop/service/admin/biz"
 
@@ -44,8 +45,8 @@ func NewGoodsInfoService(
 func (s *GoodsInfoService) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
 	list, err := s.goodsInfoCase.ListGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("ListGoodsInfo err:", err.Error())
-		return nil, errors.New("查询商品列表失败")
+		log.Errorf("ListGoodsInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品列表失败")
 	}
 	return list, nil
 }
@@ -54,8 +55,8 @@ func (s *GoodsInfoService) ListGoodsInfo(ctx context.Context, req *admin.ListGoo
 func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsInfoRequest) (*admin.PageGoodsInfoResponse, error) {
 	page, err := s.goodsInfoCase.PageGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("PageGoodsInfo err:", err.Error())
-		return nil, errors.New("查询商品分页列表失败")
+		log.Errorf("PageGoodsInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品分页列表失败")
 	}
 
 	return page, nil
@@ -65,8 +66,8 @@ func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *admin.PageGoo
 func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value) (*admin.GoodsInfoForm, error) {
 	goodsInfo, err := s.goodsInfoCase.GetGoodsInfo(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetGoodsInfo err:", err.Error())
-		return nil, errors.New("查询商品失败")
+		log.Errorf("GetGoodsInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品失败")
 	}
 
 	return goodsInfo, nil
@@ -76,20 +77,20 @@ func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int
 func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.CreateGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("CreateGoodsInfo err:", err.Error())
+		log.Errorf("CreateGoodsInfo %v", err)
 		// 命中唯一索引冲突时，按具体子表返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			// 根据冲突表名区分属性、SKU 与规格的重复错误。
 			switch {
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsProp):
-				return nil, errors.New("商品属性重复")
+				return nil, errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsSku):
-				return nil, errors.New("SKU编码重复")
+				return nil, errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsSpec):
-				return nil, errors.New("商品规格重复")
+				return nil, errorsx.UniqueConflict("商品规格重复", "goods_spec", "name", "unique_goods_spec").WithCause(err)
 			}
 		}
-		return nil, errors.New("创建商品失败")
+		return nil, errorsx.WrapInternal(err, "创建商品失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -98,20 +99,20 @@ func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *admin.Goods
 func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.UpdateGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("UpdateGoodsInfo err:", err.Error())
+		log.Errorf("UpdateGoodsInfo %v", err)
 		// 命中唯一索引冲突时，按具体子表返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			// 根据冲突表名区分属性、SKU 与规格的重复错误。
 			switch {
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsProp):
-				return nil, errors.New("商品属性重复")
+				return nil, errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsSku):
-				return nil, errors.New("SKU编码重复")
+				return nil, errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsSpec):
-				return nil, errors.New("商品规格重复")
+				return nil, errorsx.UniqueConflict("商品规格重复", "goods_spec", "name", "unique_goods_spec").WithCause(err)
 			}
 		}
-		return nil, errors.New("更新商品失败")
+		return nil, errorsx.WrapInternal(err, "更新商品失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -120,8 +121,8 @@ func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *admin.Goods
 func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.DeleteGoodsInfo(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteGoodsInfo err:", err.Error())
-		return nil, errors.New("删除商品失败")
+		log.Errorf("DeleteGoodsInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "删除商品失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -130,8 +131,8 @@ func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *wrapperspb.
 func (s *GoodsInfoService) SetGoodsInfoStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.SetGoodsInfoStatus(ctx, req)
 	if err != nil {
-		log.Error("SetGoodsInfoStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetGoodsInfoStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }

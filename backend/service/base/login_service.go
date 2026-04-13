@@ -8,8 +8,8 @@ package base
 
 import (
 	"context"
-	"errors"
 	"shop/api/gen/go/base"
+	"shop/pkg/errorsx"
 	"shop/service/base/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewLoginService(
 func (s *LoginService) Captcha(ctx context.Context, req *emptypb.Empty) (*base.CaptchaResponse, error) {
 	res, err := s.loginCase.Captcha(ctx)
 	if err != nil {
-		log.Error("Captcha err:", err.Error())
-		return nil, errors.New("获取验证码失败")
+		log.Errorf("Captcha %v", err)
+		return nil, errorsx.WrapInternal(err, "获取验证码失败")
 	}
 	return res, nil
 }
@@ -50,8 +50,8 @@ func (s *LoginService) Captcha(ctx context.Context, req *emptypb.Empty) (*base.C
 func (s *LoginService) Logout(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
 	err := s.loginCase.Logout(ctx)
 	if err != nil {
-		log.Error("Logout err:", err.Error())
-		return nil, errors.New("退出登录失败")
+		log.Errorf("Logout %v", err)
+		return nil, errorsx.WrapInternal(err, "退出登录失败")
 	}
 	return &emptypb.Empty{}, nil
 }
@@ -60,8 +60,8 @@ func (s *LoginService) Logout(ctx context.Context, req *emptypb.Empty) (*emptypb
 func (s *LoginService) RefreshToken(ctx context.Context, req *base.RefreshTokenRequest) (*base.RefreshTokenResponse, error) {
 	res, err := s.loginCase.RefreshToken(ctx, req)
 	if err != nil {
-		log.Error("RefreshToken err:", err.Error())
-		return nil, errors.New("刷新认证令牌失败")
+		log.Errorf("RefreshToken %v", err)
+		return nil, errorsx.WrapInternal(err, "刷新认证令牌失败")
 	}
 	return res, nil
 }
@@ -70,8 +70,8 @@ func (s *LoginService) RefreshToken(ctx context.Context, req *base.RefreshTokenR
 func (s *LoginService) Login(ctx context.Context, req *base.LoginRequest) (*base.LoginResponse, error) {
 	res, err := s.loginCase.Login(ctx, req)
 	if err != nil {
-		log.Error("Login err:", err.Error())
-		return nil, errors.New("登录失败")
+		log.Errorf("Login %v", err)
+		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
 	return res, nil
 }

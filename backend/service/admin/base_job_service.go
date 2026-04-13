@@ -8,14 +8,13 @@ package admin
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
+	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-sql-driver/mysql"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
@@ -45,8 +44,8 @@ func NewBaseJobService(
 func (s *BaseJobService) PageBaseJob(ctx context.Context, req *admin.PageBaseJobRequest) (*admin.PageBaseJobResponse, error) {
 	page, err := s.baseJobCase.PageBaseJob(ctx, req)
 	if err != nil {
-		log.Error("PageBaseJob err:", err.Error())
-		return nil, errors.New("查询定时任务分页列表失败")
+		log.Errorf("PageBaseJob %v", err)
+		return nil, errorsx.WrapInternal(err, "查询定时任务分页列表失败")
 	}
 	return page, nil
 }
@@ -55,8 +54,8 @@ func (s *BaseJobService) PageBaseJob(ctx context.Context, req *admin.PageBaseJob
 func (s *BaseJobService) GetBaseJob(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseJobForm, error) {
 	baseJob, err := s.baseJobCase.GetBaseJob(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseJob err:", err.Error())
-		return nil, errors.New("查询定时任务失败")
+		log.Errorf("GetBaseJob %v", err)
+		return nil, errorsx.WrapInternal(err, "查询定时任务失败")
 	}
 	return baseJob, nil
 }
@@ -65,12 +64,12 @@ func (s *BaseJobService) GetBaseJob(ctx context.Context, req *wrapperspb.Int64Va
 func (s *BaseJobService) CreateBaseJob(ctx context.Context, req *admin.BaseJobForm) (*emptypb.Empty, error) {
 	err := s.baseJobCase.CreateBaseJob(ctx, req)
 	if err != nil {
-		log.Error("CreateBaseJob err:", err.Error())
+		log.Errorf("CreateBaseJob %v", err)
 		// 命中调用目标唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("调用目标重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
 		}
-		return nil, errors.New("创建定时任务失败")
+		return nil, errorsx.WrapInternal(err, "创建定时任务失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -79,12 +78,12 @@ func (s *BaseJobService) CreateBaseJob(ctx context.Context, req *admin.BaseJobFo
 func (s *BaseJobService) UpdateBaseJob(ctx context.Context, req *admin.BaseJobForm) (*emptypb.Empty, error) {
 	err := s.baseJobCase.UpdateBaseJob(ctx, req)
 	if err != nil {
-		log.Error("UpdateBaseJob err:", err.Error())
+		log.Errorf("UpdateBaseJob %v", err)
 		// 命中调用目标唯一索引冲突时，返回更明确的业务错误。
-		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
-			return nil, errors.New("调用目标重复")
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
 		}
-		return nil, errors.New("更新定时任务失败")
+		return nil, errorsx.WrapInternal(err, "更新定时任务失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -93,8 +92,8 @@ func (s *BaseJobService) UpdateBaseJob(ctx context.Context, req *admin.BaseJobFo
 func (s *BaseJobService) DeleteBaseJob(ctx context.Context, req *wrapperspb.StringValue) (*emptypb.Empty, error) {
 	err := s.baseJobCase.DeleteBaseJob(ctx, req.GetValue())
 	if err != nil {
-		log.Error("DeleteBaseJob err:", err.Error())
-		return nil, errors.New("删除定时任务失败")
+		log.Errorf("DeleteBaseJob %v", err)
+		return nil, errorsx.WrapInternal(err, "删除定时任务失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -103,8 +102,8 @@ func (s *BaseJobService) DeleteBaseJob(ctx context.Context, req *wrapperspb.Stri
 func (s *BaseJobService) SetBaseJobStatus(ctx context.Context, req *common.SetStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.SetBaseJobStatus(ctx, req)
 	if err != nil {
-		log.Error("SetBaseJobStatus err:", err.Error())
-		return nil, errors.New("设置状态失败")
+		log.Errorf("SetBaseJobStatus %v", err)
+		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -113,8 +112,8 @@ func (s *BaseJobService) SetBaseJobStatus(ctx context.Context, req *common.SetSt
 func (s *BaseJobService) StartBaseJob(ctx context.Context, req *admin.StartBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.StartBaseJob(ctx, req)
 	if err != nil {
-		log.Error("StartBaseJob err:", err.Error())
-		return nil, errors.New("启动任务失败")
+		log.Errorf("StartBaseJob %v", err)
+		return nil, errorsx.WrapInternal(err, "启动任务失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -123,8 +122,8 @@ func (s *BaseJobService) StartBaseJob(ctx context.Context, req *admin.StartBaseJ
 func (s *BaseJobService) StopBaseJob(ctx context.Context, req *admin.StopBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.StopBaseJob(ctx, req)
 	if err != nil {
-		log.Error("StopBaseJob err:", err.Error())
-		return nil, errors.New("停止任务失败")
+		log.Errorf("StopBaseJob %v", err)
+		return nil, errorsx.WrapInternal(err, "停止任务失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -133,8 +132,8 @@ func (s *BaseJobService) StopBaseJob(ctx context.Context, req *admin.StopBaseJob
 func (s *BaseJobService) ExecBaseJob(ctx context.Context, req *admin.ExecBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.ExecBaseJob(ctx, req)
 	if err != nil {
-		log.Error("ExecBaseJob err:", err.Error())
-		return nil, errors.New("执行任务失败")
+		log.Errorf("ExecBaseJob %v", err)
+		return nil, errorsx.WrapInternal(err, "执行任务失败")
 	}
 	return new(emptypb.Empty), nil
 }
@@ -143,8 +142,8 @@ func (s *BaseJobService) ExecBaseJob(ctx context.Context, req *admin.ExecBaseJob
 func (s *BaseJobService) PageBaseJobLog(ctx context.Context, req *admin.PageBaseJobLogRequest) (*admin.PageBaseJobLogResponse, error) {
 	page, err := s.baseJobLogCase.PageBaseJobLog(ctx, req)
 	if err != nil {
-		log.Error("PageBaseJobLog err:", err.Error())
-		return nil, errors.New("查询定时任务日志分页列表失败")
+		log.Errorf("PageBaseJobLog %v", err)
+		return nil, errorsx.WrapInternal(err, "查询定时任务日志分页列表失败")
 	}
 
 	return page, nil
@@ -154,8 +153,8 @@ func (s *BaseJobService) PageBaseJobLog(ctx context.Context, req *admin.PageBase
 func (s *BaseJobService) GetBaseJobLog(ctx context.Context, req *wrapperspb.Int64Value) (*admin.BaseJobLog, error) {
 	baseLog, err := s.baseJobLogCase.GetBaseJobLog(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetBaseJobLog err:", err.Error())
-		return nil, errors.New("查询定时任务日志失败")
+		log.Errorf("GetBaseJobLog %v", err)
+		return nil, errorsx.WrapInternal(err, "查询定时任务日志失败")
 	}
 	return baseLog, nil
 }

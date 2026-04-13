@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewGoodsInfoService(
 func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest) (*app.PageGoodsInfoResponse, error) {
 	page, err := s.goodsInfoCase.PageGoodsInfo(ctx, req)
 	if err != nil {
-		log.Error("PageGoodsInfo err:", err.Error())
-		return nil, errors.New("查询商品分页列表失败")
+		log.Errorf("PageGoodsInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品分页列表失败")
 	}
 	return page, nil
 }
@@ -50,8 +50,8 @@ func (s *GoodsInfoService) PageGoodsInfo(ctx context.Context, req *app.PageGoods
 func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *wrapperspb.Int64Value) (*app.GoodsInfoResponse, error) {
 	info, err := s.goodsInfoCase.GetGoodsInfo(ctx, req.GetValue())
 	if err != nil {
-		log.Error("GetGoodsInfo err:", err.Error())
-		return nil, errors.New("查询商品失败")
+		log.Errorf("GetGoodsInfo %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品失败")
 	}
 	return info, nil
 }

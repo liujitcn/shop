@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	"shop/api/gen/go/app"
+	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -40,8 +40,8 @@ func NewPayService(
 func (s *PayService) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.JsapiPayResponse, error) {
 	res, err := s.payCase.JsapiPay(ctx, req)
 	if err != nil {
-		log.Error("JsapiPay err:", err.Error())
-		return nil, errors.New("支付失败")
+		log.Errorf("JsapiPay %v", err)
+		return nil, errorsx.WrapInternal(err, "支付失败")
 	}
 	return res, nil
 }
@@ -50,8 +50,8 @@ func (s *PayService) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Js
 func (s *PayService) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayResponse, error) {
 	res, err := s.payCase.H5Pay(ctx, req)
 	if err != nil {
-		log.Error("H5Pay err:", err.Error())
-		return nil, errors.New("支付失败")
+		log.Errorf("H5Pay %v", err)
+		return nil, errorsx.WrapInternal(err, "支付失败")
 	}
 	return res, nil
 }
@@ -60,8 +60,8 @@ func (s *PayService) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5Pay
 func (s *PayService) PayNotify(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
 	err := s.payCase.PayNotify(ctx)
 	if err != nil {
-		log.Error("PayNotify err:", err.Error())
-		return nil, errors.New("通知失败")
+		log.Errorf("PayNotify %v", err)
+		return nil, errorsx.WrapInternal(err, "通知失败")
 	}
 	return new(emptypb.Empty), nil
 }
