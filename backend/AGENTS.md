@@ -97,9 +97,10 @@
 - 需要新增本地实现时，必须先确认 `kratos-kit`、`go-utils`、`gorm-kit` 及其相关子模块中不存在合适方案，并保持新增实现与这些基础库的使用方式、返回结构和错误处理风格一致。
 - 后续新增或修改涉及数据库查询条件的代码时，查询条件必须先通过 `Query(ctx)` 取得对应查询对象，再通过 `[]repo.QueryOption` 收敛条件，禁止直接在 `List`、`Page`、`Find` 等调用里内联堆砌大量 `repo.Where(...)`。
 - 推荐写法固定为先定义查询对象和条件切片，再按需 `append` 条件，例如：
-  - `goodsQuery := c.goodsInfoCase.GoodsInfoRepo.Query(ctx).GoodsInfo`
+  - `query := c.goodsInfoCase.GoodsInfoRepo.Query(ctx).GoodsInfo`
   - `opts := make([]repo.QueryOption, 0, 2)`
 - 后续查询调用应统一使用 `opts...` 传入，例如 `List(ctx, opts...)`、`Page(ctx, pageNum, pageSize, opts...)`、`Find(ctx, opts...)`，保持查询条件组织方式一致，便于复用和增删条件。
+- 如果当前方法内，只有一个query对象，直接使用 `query`，`opts`，不用追加表相关信息
 - 后续新增或修改代码时，若当前方法内某个变量名已在上文声明，后续涉及该变量的多值赋值禁止继续使用 `:=` 混合短声明。
 - 遇到上述场景时，必须先显式 `var` 定义新的变量，再使用 `=` 赋值，避免因重复声明触发 IDE 或 lint 警告。
 - 后续新增或修改代码时，禁止使用 `var (...)` 形式成组声明一批局部变量后再集中赋值。
