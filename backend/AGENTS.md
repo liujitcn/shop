@@ -100,7 +100,7 @@
   - `query := c.goodsInfoCase.GoodsInfoRepo.Query(ctx).GoodsInfo`
   - `opts := make([]repo.QueryOption, 0, 2)`
 - 后续查询调用应统一使用 `opts...` 传入，例如 `List(ctx, opts...)`、`Page(ctx, pageNum, pageSize, opts...)`、`Find(ctx, opts...)`，保持查询条件组织方式一致，便于复用和增删条件。
-- 如果当前方法内，只有一个query对象，直接使用 `query`，`opts`，不用追加表相关信息
+- 如果当前方法内，只有一个query对象，直接使用 `query`，`opts`，变量定义，不用追加表相关信息，比如 `goodsQuery`， `goodsOpts`
 - 后续新增或修改代码时，若当前方法内某个变量名已在上文声明，后续涉及该变量的多值赋值禁止继续使用 `:=` 混合短声明。
 - 遇到上述场景时，必须先显式 `var` 定义新的变量，再使用 `=` 赋值，避免因重复声明触发 IDE 或 lint 警告。
 - 后续新增或修改代码时，禁止使用 `var (...)` 形式成组声明一批局部变量后再集中赋值。
