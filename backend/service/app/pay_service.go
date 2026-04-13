@@ -37,7 +37,7 @@ func NewPayService(
 }
 
 // JsapiPay 小程序支付
-func (s *PayService) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.JsapiPayResponse, error) {
+func (s *PayService) JsapiPay(ctx context.Context, req *app.JsapiPayRequest) (*app.JsapiPayResponse, error) {
 	res, err := s.payCase.JsapiPay(ctx, req)
 	if err != nil {
 		log.Errorf("JsapiPay %v", err)
@@ -47,7 +47,7 @@ func (s *PayService) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Js
 }
 
 // H5Pay H5支付
-func (s *PayService) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayResponse, error) {
+func (s *PayService) H5Pay(ctx context.Context, req *app.H5PayRequest) (*app.H5PayResponse, error) {
 	res, err := s.payCase.H5Pay(ctx, req)
 	if err != nil {
 		log.Errorf("H5Pay %v", err)

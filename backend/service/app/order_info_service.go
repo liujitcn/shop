@@ -37,11 +37,11 @@ func NewOrderInfoService(
 	return &ss
 }
 
-// OrderInfoPre 预付订单信息
-func (s *OrderInfoService) OrderInfoPre(ctx context.Context, req *emptypb.Empty) (*app.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.OrderInfoPre(ctx)
+// ConfirmOrderInfo 确认订单信息
+func (s *OrderInfoService) ConfirmOrderInfo(ctx context.Context, req *emptypb.Empty) (*app.ConfirmOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.ConfirmOrderInfo(ctx)
 	if err != nil {
-		log.Errorf("OrderInfoPre %v", err)
+		log.Errorf("ConfirmOrderInfo %v", err)
 		return nil, errorsx.WrapInternal(err, "预付订单失败")
 	}
 	// 预付订单来自购物车结算，前端确认后需要清空购物车勾选项
@@ -49,21 +49,21 @@ func (s *OrderInfoService) OrderInfoPre(ctx context.Context, req *emptypb.Empty)
 	return res, nil
 }
 
-// OrderInfoBuy 立即购买订单信息
-func (s *OrderInfoService) OrderInfoBuy(ctx context.Context, req *app.CreateOrderInfoGoods) (*app.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.OrderInfoBuy(ctx, req)
+// BuyNowOrderInfo 立即购买订单信息
+func (s *OrderInfoService) BuyNowOrderInfo(ctx context.Context, req *app.BuyNowOrderInfoRequest) (*app.BuyNowOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.BuyNowOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("OrderInfoBuy %v", err)
+		log.Errorf("BuyNowOrderInfo %v", err)
 		return nil, errorsx.WrapInternal(err, "立即购买失败")
 	}
 	return res, nil
 }
 
-// OrderInfoRepurchase 再次购买订单信息
-func (s *OrderInfoService) OrderInfoRepurchase(ctx context.Context, req *app.OrderRepurchaseInfoRequest) (*app.ConfirmOrderInfoResponse, error) {
-	res, err := s.orderInfoCase.OrderInfoRepurchase(ctx, req)
+// RepurchaseOrderInfo 再次购买订单信息
+func (s *OrderInfoService) RepurchaseOrderInfo(ctx context.Context, req *app.RepurchaseOrderInfoRequest) (*app.RepurchaseOrderInfoResponse, error) {
+	res, err := s.orderInfoCase.RepurchaseOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("OrderInfoRepurchase %v", err)
+		log.Errorf("RepurchaseOrderInfo %v", err)
 		return nil, errorsx.WrapInternal(err, "再次购买订单失败")
 	}
 	return res, nil

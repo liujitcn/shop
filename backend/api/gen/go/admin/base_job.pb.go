@@ -249,28 +249,28 @@ func (x *StopBaseJobRequest) GetId() int64 {
 	return 0
 }
 
-// ExecBaseJob请求参数
-type ExecBaseJobRequest struct {
+// 执行任务请求参数
+type ExecuteBaseJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ExecBaseJobRequest) Reset() {
-	*x = ExecBaseJobRequest{}
+func (x *ExecuteBaseJobRequest) Reset() {
+	*x = ExecuteBaseJobRequest{}
 	mi := &file_admin_base_job_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExecBaseJobRequest) String() string {
+func (x *ExecuteBaseJobRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExecBaseJobRequest) ProtoMessage() {}
+func (*ExecuteBaseJobRequest) ProtoMessage() {}
 
-func (x *ExecBaseJobRequest) ProtoReflect() protoreflect.Message {
+func (x *ExecuteBaseJobRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_base_job_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -282,12 +282,12 @@ func (x *ExecBaseJobRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExecBaseJobRequest.ProtoReflect.Descriptor instead.
-func (*ExecBaseJobRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ExecuteBaseJobRequest.ProtoReflect.Descriptor instead.
+func (*ExecuteBaseJobRequest) Descriptor() ([]byte, []int) {
 	return file_admin_base_job_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *ExecBaseJobRequest) GetId() int64 {
+func (x *ExecuteBaseJobRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
@@ -790,8 +790,8 @@ const file_admin_base_job_proto_rawDesc = "" +
 	"\x13StartBaseJobRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"4\n" +
 	"\x12StopBaseJobRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"4\n" +
-	"\x12ExecBaseJobRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"7\n" +
+	"\x15ExecuteBaseJobRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"N\n" +
 	"\vBaseJobArgs\x12\x1e\n" +
 	"\x03key\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06参数R\x03key\x12\x1f\n" +
@@ -833,7 +833,7 @@ const file_admin_base_job_proto_rawDesc = "" +
 	"\x05error\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f错误信息R\x05error\x12[\n" +
 	"\x06status\x18\x06 \x01(\x0e2\x18.common.BaseJobLogStatusB)\xbaG&\x92\x02#状态：1、成功。2、失败。R\x06status\x12;\n" +
 	"\vprocessTime\x18\a \x01(\tB\x19\xbaG\x16\x92\x02\x13消耗时间/毫秒R\vprocessTime\x124\n" +
-	"\vexecuteTime\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime2\x95\t\n" +
+	"\vexecuteTime\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime2\xa2\t\n" +
 	"\x0eBaseJobService\x12a\n" +
 	"\vPageBaseJob\x12\x19.admin.PageBaseJobRequest\x1a\x1a.admin.PageBaseJobResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/admin/base/job\x12b\n" +
 	"\n" +
@@ -841,10 +841,10 @@ const file_admin_base_job_proto_rawDesc = "" +
 	"\rCreateBaseJob\x12\x12.admin.BaseJobForm\x1a\x16.google.protobuf.Empty\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/admin/base/job\x12`\n" +
 	"\rUpdateBaseJob\x12\x12.admin.BaseJobForm\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d:\x01*\x1a\x18/api/admin/base/job/{id}\x12j\n" +
 	"\rDeleteBaseJob\x12\x1c.google.protobuf.StringValue\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/admin/base/job/{value}\x12p\n" +
-	"\x10SetBaseJobStatus\x12\x18.common.SetStatusRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/admin/base/job/{id}/status\x12m\n" +
-	"\fStartBaseJob\x12\x1a.admin.StartBaseJobRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/admin/base/job/{id}/start\x12j\n" +
-	"\vStopBaseJob\x12\x19.admin.StopBaseJobRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/api/admin/base/job/{id}/stop\x12j\n" +
-	"\vExecBaseJob\x12\x19.admin.ExecBaseJobRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/api/admin/base/job/{id}/exec\x12n\n" +
+	"\x10SetBaseJobStatus\x12\x18.common.SetStatusRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/admin/base/job/{id}/status\x12o\n" +
+	"\fStartBaseJob\x12\x1a.admin.StartBaseJobRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/admin/base/job/{id}/running\x12j\n" +
+	"\vStopBaseJob\x12\x19.admin.StopBaseJobRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\"* /api/admin/base/job/{id}/running\x12u\n" +
+	"\x0eExecuteBaseJob\x12\x1c.admin.ExecuteBaseJobRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\x01*\"\"/api/admin/base/job/{id}/execution\x12n\n" +
 	"\x0ePageBaseJobLog\x12\x1c.admin.PageBaseJobLogRequest\x1a\x1d.admin.PageBaseJobLogResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/admin/base/job-log\x12h\n" +
 	"\rGetBaseJobLog\x12\x1b.google.protobuf.Int64Value\x1a\x11.admin.BaseJobLog\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/admin/base/job-log/{value}Bd\n" +
 	"\tcom.adminB\fBaseJobProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
@@ -867,7 +867,7 @@ var file_admin_base_job_proto_goTypes = []any{
 	(*PageBaseJobResponse)(nil),     // 1: admin.PageBaseJobResponse
 	(*StartBaseJobRequest)(nil),     // 2: admin.StartBaseJobRequest
 	(*StopBaseJobRequest)(nil),      // 3: admin.StopBaseJobRequest
-	(*ExecBaseJobRequest)(nil),      // 4: admin.ExecBaseJobRequest
+	(*ExecuteBaseJobRequest)(nil),   // 4: admin.ExecuteBaseJobRequest
 	(*BaseJobArgs)(nil),             // 5: admin.BaseJobArgs
 	(*BaseJob)(nil),                 // 6: admin.BaseJob
 	(*BaseJobForm)(nil),             // 7: admin.BaseJobForm
@@ -899,7 +899,7 @@ var file_admin_base_job_proto_depIdxs = []int32{
 	15, // 14: admin.BaseJobService.SetBaseJobStatus:input_type -> common.SetStatusRequest
 	2,  // 15: admin.BaseJobService.StartBaseJob:input_type -> admin.StartBaseJobRequest
 	3,  // 16: admin.BaseJobService.StopBaseJob:input_type -> admin.StopBaseJobRequest
-	4,  // 17: admin.BaseJobService.ExecBaseJob:input_type -> admin.ExecBaseJobRequest
+	4,  // 17: admin.BaseJobService.ExecuteBaseJob:input_type -> admin.ExecuteBaseJobRequest
 	8,  // 18: admin.BaseJobService.PageBaseJobLog:input_type -> admin.PageBaseJobLogRequest
 	13, // 19: admin.BaseJobService.GetBaseJobLog:input_type -> google.protobuf.Int64Value
 	1,  // 20: admin.BaseJobService.PageBaseJob:output_type -> admin.PageBaseJobResponse
@@ -910,7 +910,7 @@ var file_admin_base_job_proto_depIdxs = []int32{
 	16, // 25: admin.BaseJobService.SetBaseJobStatus:output_type -> google.protobuf.Empty
 	16, // 26: admin.BaseJobService.StartBaseJob:output_type -> google.protobuf.Empty
 	16, // 27: admin.BaseJobService.StopBaseJob:output_type -> google.protobuf.Empty
-	16, // 28: admin.BaseJobService.ExecBaseJob:output_type -> google.protobuf.Empty
+	16, // 28: admin.BaseJobService.ExecuteBaseJob:output_type -> google.protobuf.Empty
 	9,  // 29: admin.BaseJobService.PageBaseJobLog:output_type -> admin.PageBaseJobLogResponse
 	10, // 30: admin.BaseJobService.GetBaseJobLog:output_type -> admin.BaseJobLog
 	20, // [20:31] is the sub-list for method output_type

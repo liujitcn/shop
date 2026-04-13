@@ -21,10 +21,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_WxLogin_FullMethodName        = "/app.AuthService/WxLogin"
-	AuthService_GetUserInfo_FullMethodName    = "/app.AuthService/GetUserInfo"
-	AuthService_UpdateUserInfo_FullMethodName = "/app.AuthService/UpdateUserInfo"
-	AuthService_PhoneAuth_FullMethodName      = "/app.AuthService/PhoneAuth"
+	AuthService_WechatLogin_FullMethodName       = "/app.AuthService/WechatLogin"
+	AuthService_GetUserProfile_FullMethodName    = "/app.AuthService/GetUserProfile"
+	AuthService_UpdateUserProfile_FullMethodName = "/app.AuthService/UpdateUserProfile"
+	AuthService_BindUserPhone_FullMethodName     = "/app.AuthService/BindUserPhone"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -34,13 +34,13 @@ const (
 // App用户登录认证服务
 type AuthServiceClient interface {
 	// 微信登录
-	WxLogin(ctx context.Context, in *WxLoginRequest, opts ...grpc.CallOption) (*WxLoginResponse, error)
+	WechatLogin(ctx context.Context, in *WechatLoginRequest, opts ...grpc.CallOption) (*WechatLoginResponse, error)
 	// 获取已经登录的用户的数据
-	GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfo, error)
+	GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserProfileForm, error)
 	// 修改个人中心用户信息
-	UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserProfile(ctx context.Context, in *UserProfileForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 手机号授权
-	PhoneAuth(ctx context.Context, in *PhoneAuthRequest, opts ...grpc.CallOption) (*PhoneAuthResponse, error)
+	BindUserPhone(ctx context.Context, in *BindUserPhoneRequest, opts ...grpc.CallOption) (*BindUserPhoneResponse, error)
 }
 
 type authServiceClient struct {
@@ -51,40 +51,40 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) WxLogin(ctx context.Context, in *WxLoginRequest, opts ...grpc.CallOption) (*WxLoginResponse, error) {
+func (c *authServiceClient) WechatLogin(ctx context.Context, in *WechatLoginRequest, opts ...grpc.CallOption) (*WechatLoginResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WxLoginResponse)
-	err := c.cc.Invoke(ctx, AuthService_WxLogin_FullMethodName, in, out, cOpts...)
+	out := new(WechatLoginResponse)
+	err := c.cc.Invoke(ctx, AuthService_WechatLogin_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfo, error) {
+func (c *authServiceClient) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserProfileForm, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserInfo)
-	err := c.cc.Invoke(ctx, AuthService_GetUserInfo_FullMethodName, in, out, cOpts...)
+	out := new(UserProfileForm)
+	err := c.cc.Invoke(ctx, AuthService_GetUserProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authServiceClient) UpdateUserProfile(ctx context.Context, in *UserProfileForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AuthService_UpdateUserInfo_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AuthService_UpdateUserProfile_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) PhoneAuth(ctx context.Context, in *PhoneAuthRequest, opts ...grpc.CallOption) (*PhoneAuthResponse, error) {
+func (c *authServiceClient) BindUserPhone(ctx context.Context, in *BindUserPhoneRequest, opts ...grpc.CallOption) (*BindUserPhoneResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PhoneAuthResponse)
-	err := c.cc.Invoke(ctx, AuthService_PhoneAuth_FullMethodName, in, out, cOpts...)
+	out := new(BindUserPhoneResponse)
+	err := c.cc.Invoke(ctx, AuthService_BindUserPhone_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,13 +98,13 @@ func (c *authServiceClient) PhoneAuth(ctx context.Context, in *PhoneAuthRequest,
 // App用户登录认证服务
 type AuthServiceServer interface {
 	// 微信登录
-	WxLogin(context.Context, *WxLoginRequest) (*WxLoginResponse, error)
+	WechatLogin(context.Context, *WechatLoginRequest) (*WechatLoginResponse, error)
 	// 获取已经登录的用户的数据
-	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error)
+	GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileForm, error)
 	// 修改个人中心用户信息
-	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*emptypb.Empty, error)
+	UpdateUserProfile(context.Context, *UserProfileForm) (*emptypb.Empty, error)
 	// 手机号授权
-	PhoneAuth(context.Context, *PhoneAuthRequest) (*PhoneAuthResponse, error)
+	BindUserPhone(context.Context, *BindUserPhoneRequest) (*BindUserPhoneResponse, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -115,17 +115,17 @@ type AuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServiceServer struct{}
 
-func (UnimplementedAuthServiceServer) WxLogin(context.Context, *WxLoginRequest) (*WxLoginResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method WxLogin not implemented")
+func (UnimplementedAuthServiceServer) WechatLogin(context.Context, *WechatLoginRequest) (*WechatLoginResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method WechatLogin not implemented")
 }
-func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetUserInfo not implemented")
+func (UnimplementedAuthServiceServer) GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileForm, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserProfile not implemented")
 }
-func (UnimplementedAuthServiceServer) UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateUserInfo not implemented")
+func (UnimplementedAuthServiceServer) UpdateUserProfile(context.Context, *UserProfileForm) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUserProfile not implemented")
 }
-func (UnimplementedAuthServiceServer) PhoneAuth(context.Context, *PhoneAuthRequest) (*PhoneAuthResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PhoneAuth not implemented")
+func (UnimplementedAuthServiceServer) BindUserPhone(context.Context, *BindUserPhoneRequest) (*BindUserPhoneResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BindUserPhone not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -148,74 +148,74 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 
-func _AuthService_WxLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WxLoginRequest)
+func _AuthService_WechatLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(WechatLoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).WxLogin(ctx, in)
+		return srv.(AuthServiceServer).WechatLogin(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_WxLogin_FullMethodName,
+		FullMethod: AuthService_WechatLogin_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).WxLogin(ctx, req.(*WxLoginRequest))
+		return srv.(AuthServiceServer).WechatLogin(ctx, req.(*WechatLoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_GetUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AuthService_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).GetUserInfo(ctx, in)
+		return srv.(AuthServiceServer).GetUserProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_GetUserInfo_FullMethodName,
+		FullMethod: AuthService_GetUserProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).GetUserInfo(ctx, req.(*emptypb.Empty))
+		return srv.(AuthServiceServer).GetUserProfile(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_UpdateUserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserInfoRequest)
+func _AuthService_UpdateUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserProfileForm)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).UpdateUserInfo(ctx, in)
+		return srv.(AuthServiceServer).UpdateUserProfile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_UpdateUserInfo_FullMethodName,
+		FullMethod: AuthService_UpdateUserProfile_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).UpdateUserInfo(ctx, req.(*UpdateUserInfoRequest))
+		return srv.(AuthServiceServer).UpdateUserProfile(ctx, req.(*UserProfileForm))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_PhoneAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PhoneAuthRequest)
+func _AuthService_BindUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BindUserPhoneRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).PhoneAuth(ctx, in)
+		return srv.(AuthServiceServer).BindUserPhone(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_PhoneAuth_FullMethodName,
+		FullMethod: AuthService_BindUserPhone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).PhoneAuth(ctx, req.(*PhoneAuthRequest))
+		return srv.(AuthServiceServer).BindUserPhone(ctx, req.(*BindUserPhoneRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -228,20 +228,20 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "WxLogin",
-			Handler:    _AuthService_WxLogin_Handler,
+			MethodName: "WechatLogin",
+			Handler:    _AuthService_WechatLogin_Handler,
 		},
 		{
-			MethodName: "GetUserInfo",
-			Handler:    _AuthService_GetUserInfo_Handler,
+			MethodName: "GetUserProfile",
+			Handler:    _AuthService_GetUserProfile_Handler,
 		},
 		{
-			MethodName: "UpdateUserInfo",
-			Handler:    _AuthService_UpdateUserInfo_Handler,
+			MethodName: "UpdateUserProfile",
+			Handler:    _AuthService_UpdateUserProfile_Handler,
 		},
 		{
-			MethodName: "PhoneAuth",
-			Handler:    _AuthService_PhoneAuth_Handler,
+			MethodName: "BindUserPhone",
+			Handler:    _AuthService_BindUserPhone_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

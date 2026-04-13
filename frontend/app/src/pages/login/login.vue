@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores'
-import type { WxLoginRequest } from '@/rpc/app/auth'
+import { useSettingStore, useUserStore } from '@/stores'
+import type { WechatLoginRequest } from '@/rpc/app/auth'
 import type { LoginRequest } from '@/rpc/base/login'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { defLoginService } from '@/api/base/login'
 import defaultLogo from '@/static/images/logo_icon.png'
 import { homeTabPage } from '@/utils/navigation'
-const userStore = useUserStore()
-import { useSettingStore } from '@/stores'
 
+const userStore = useUserStore()
 const settingStore = useSettingStore()
 
-// 传统表单登录。
-const wxLoginForm = ref<WxLoginRequest>({
+// 微信登录表单
+const wechatLoginForm = ref<WechatLoginRequest>({
   code: '',
 })
 
@@ -49,14 +48,14 @@ const wxLogin = async () => {
     return
   }
   const res = await wx.login()
-  wxLoginForm.value.code = res.code
+  wechatLoginForm.value.code = res.code
   // 显示确认弹窗
   uni.showModal({
     title: '提示',
     content: '确定要使用微信登录吗？',
     success: (res) => {
       if (res.confirm) {
-        userStore.wxLogin(wxLoginForm.value).then(() => {
+        userStore.wechatLogin(wechatLoginForm.value).then(() => {
           void loginSuccess()
         })
       }
@@ -120,7 +119,7 @@ const onSubmit = async () => {
 }
 // #endif
 const loginSuccess = async () => {
-  await userStore.getUserInfo()
+  await userStore.getUserProfile()
   // 成功提示
   await uni.showToast({ icon: 'success', title: '登录成功' })
   setTimeout(() => {

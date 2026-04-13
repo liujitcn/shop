@@ -33,9 +33,9 @@ const (
 // App支付服务
 type PayServiceClient interface {
 	// 小程序支付
-	JsapiPay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*JsapiPayResponse, error)
+	JsapiPay(ctx context.Context, in *JsapiPayRequest, opts ...grpc.CallOption) (*JsapiPayResponse, error)
 	// H5支付
-	H5Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*H5PayResponse, error)
+	H5Pay(ctx context.Context, in *H5PayRequest, opts ...grpc.CallOption) (*H5PayResponse, error)
 	// 支付通知
 	PayNotify(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -48,7 +48,7 @@ func NewPayServiceClient(cc grpc.ClientConnInterface) PayServiceClient {
 	return &payServiceClient{cc}
 }
 
-func (c *payServiceClient) JsapiPay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*JsapiPayResponse, error) {
+func (c *payServiceClient) JsapiPay(ctx context.Context, in *JsapiPayRequest, opts ...grpc.CallOption) (*JsapiPayResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(JsapiPayResponse)
 	err := c.cc.Invoke(ctx, PayService_JsapiPay_FullMethodName, in, out, cOpts...)
@@ -58,7 +58,7 @@ func (c *payServiceClient) JsapiPay(ctx context.Context, in *PayRequest, opts ..
 	return out, nil
 }
 
-func (c *payServiceClient) H5Pay(ctx context.Context, in *PayRequest, opts ...grpc.CallOption) (*H5PayResponse, error) {
+func (c *payServiceClient) H5Pay(ctx context.Context, in *H5PayRequest, opts ...grpc.CallOption) (*H5PayResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(H5PayResponse)
 	err := c.cc.Invoke(ctx, PayService_H5Pay_FullMethodName, in, out, cOpts...)
@@ -85,9 +85,9 @@ func (c *payServiceClient) PayNotify(ctx context.Context, in *emptypb.Empty, opt
 // App支付服务
 type PayServiceServer interface {
 	// 小程序支付
-	JsapiPay(context.Context, *PayRequest) (*JsapiPayResponse, error)
+	JsapiPay(context.Context, *JsapiPayRequest) (*JsapiPayResponse, error)
 	// H5支付
-	H5Pay(context.Context, *PayRequest) (*H5PayResponse, error)
+	H5Pay(context.Context, *H5PayRequest) (*H5PayResponse, error)
 	// 支付通知
 	PayNotify(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedPayServiceServer()
@@ -100,10 +100,10 @@ type PayServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedPayServiceServer struct{}
 
-func (UnimplementedPayServiceServer) JsapiPay(context.Context, *PayRequest) (*JsapiPayResponse, error) {
+func (UnimplementedPayServiceServer) JsapiPay(context.Context, *JsapiPayRequest) (*JsapiPayResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method JsapiPay not implemented")
 }
-func (UnimplementedPayServiceServer) H5Pay(context.Context, *PayRequest) (*H5PayResponse, error) {
+func (UnimplementedPayServiceServer) H5Pay(context.Context, *H5PayRequest) (*H5PayResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method H5Pay not implemented")
 }
 func (UnimplementedPayServiceServer) PayNotify(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
@@ -131,7 +131,7 @@ func RegisterPayServiceServer(s grpc.ServiceRegistrar, srv PayServiceServer) {
 }
 
 func _PayService_JsapiPay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PayRequest)
+	in := new(JsapiPayRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -143,13 +143,13 @@ func _PayService_JsapiPay_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: PayService_JsapiPay_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PayServiceServer).JsapiPay(ctx, req.(*PayRequest))
+		return srv.(PayServiceServer).JsapiPay(ctx, req.(*JsapiPayRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _PayService_H5Pay_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PayRequest)
+	in := new(H5PayRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func _PayService_H5Pay_Handler(srv interface{}, ctx context.Context, dec func(in
 		FullMethod: PayService_H5Pay_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PayServiceServer).H5Pay(ctx, req.(*PayRequest))
+		return srv.(PayServiceServer).H5Pay(ctx, req.(*H5PayRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

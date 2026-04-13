@@ -138,8 +138,8 @@ func NewOrderInfoCase(
 	return c, nil
 }
 
-// OrderInfoPre 预付订单
-func (c *OrderInfoCase) OrderInfoPre(ctx context.Context) (*app.ConfirmOrderInfoResponse, error) {
+// ConfirmOrderInfo 确认订单
+func (c *OrderInfoCase) ConfirmOrderInfo(ctx context.Context) (*app.ConfirmOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -172,8 +172,8 @@ func (c *OrderInfoCase) OrderInfoPre(ctx context.Context) (*app.ConfirmOrderInfo
 	return c.orderBuy(ctx, member, createOrderGoods)
 }
 
-// OrderInfoBuy 立即购买订单
-func (c *OrderInfoCase) OrderInfoBuy(ctx context.Context, req *app.CreateOrderInfoGoods) (*app.ConfirmOrderInfoResponse, error) {
+// BuyNowOrderInfo 立即购买订单
+func (c *OrderInfoCase) BuyNowOrderInfo(ctx context.Context, req *app.BuyNowOrderInfoRequest) (*app.BuyNowOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -181,12 +181,25 @@ func (c *OrderInfoCase) OrderInfoBuy(ctx context.Context, req *app.CreateOrderIn
 	member := utils.IsMemberByAuthInfo(authInfo)
 
 	// 将单个商品请求封装成统一的下单明细列表
-	createOrderGoods := []*app.CreateOrderInfoGoods{req}
-	return c.orderBuy(ctx, member, createOrderGoods)
+	createOrderGoods := []*app.CreateOrderInfoGoods{{
+		GoodsId:          req.GetGoodsId(),
+		SkuCode:          req.GetSkuCode(),
+		Num:              req.GetNum(),
+		RecommendContext: req.GetRecommendContext(),
+	}}
+	res, err := c.orderBuy(ctx, member, createOrderGoods)
+	if err != nil {
+		return nil, err
+	}
+	return &app.BuyNowOrderInfoResponse{
+		Goods:     res.GetGoods(),
+		Summary:   res.GetSummary(),
+		ClearCart: res.GetClearCart(),
+	}, nil
 }
 
-// OrderInfoRepurchase 再次购买订单
-func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderRepurchaseInfoRequest) (*app.ConfirmOrderInfoResponse, error) {
+// RepurchaseOrderInfo 再次购买订单
+func (c *OrderInfoCase) RepurchaseOrderInfo(ctx context.Context, req *app.RepurchaseOrderInfoRequest) (*app.RepurchaseOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -219,7 +232,15 @@ func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderR
 			},
 		})
 	}
-	return c.orderBuy(ctx, member, createOrderGoods)
+	res, err := c.orderBuy(ctx, member, createOrderGoods)
+	if err != nil {
+		return nil, err
+	}
+	return &app.RepurchaseOrderInfoResponse{
+		Goods:     res.GetGoods(),
+		Summary:   res.GetSummary(),
+		ClearCart: res.GetClearCart(),
+	}, nil
 }
 
 // CountOrderInfo 查询订单数量汇总

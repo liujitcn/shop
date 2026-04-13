@@ -3,7 +3,7 @@ import {
   type BaseJobForm,
   type BaseJobLog,
   type BaseJobService,
-  type ExecBaseJobRequest,
+  type ExecuteBaseJobRequest,
   type PageBaseJobLogRequest,
   type PageBaseJobLogResponse,
   type PageBaseJobRequest,
@@ -69,7 +69,7 @@ export class BaseJobServiceImpl implements BaseJobService {
   /** 启动任务 */
   StartBaseJob(request: StartBaseJobRequest): Promise<Empty> {
     return service<StartBaseJobRequest, Empty>({
-      url: `${BASE_JOB_URL}/${request.id}/start`,
+      url: `${BASE_JOB_URL}/${request.id}/running`,
       method: "put",
       data: request
     });
@@ -77,16 +77,16 @@ export class BaseJobServiceImpl implements BaseJobService {
   /** 停止任务 */
   StopBaseJob(request: StopBaseJobRequest): Promise<Empty> {
     return service<StopBaseJobRequest, Empty>({
-      url: `${BASE_JOB_URL}/${request.id}/stop`,
-      method: "put",
+      url: `${BASE_JOB_URL}/${request.id}/running`,
+      method: "delete",
       data: request
     });
   }
   /** 执行任务 */
-  ExecBaseJob(request: ExecBaseJobRequest): Promise<Empty> {
-    return service<ExecBaseJobRequest, Empty>({
-      url: `${BASE_JOB_URL}/${request.id}/exec`,
-      method: "put",
+  ExecuteBaseJob(request: ExecuteBaseJobRequest): Promise<Empty> {
+    return service<ExecuteBaseJobRequest, Empty>({
+      url: `${BASE_JOB_URL}/${request.id}/execution`,
+      method: "post",
       data: request
     });
   }

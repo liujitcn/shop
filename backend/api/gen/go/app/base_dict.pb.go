@@ -25,28 +25,30 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 字典列表响应
-type ListBaseDictResponse struct {
-	state         protoimpl.MessageState       `protogen:"open.v1"`
-	List          []*ListBaseDictResponse_Dict `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
+// 字典表单
+type BaseDictForm struct {
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Code          string                   `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`   // 字典编号
+	Name          string                   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`   // 字典名称
+	Items         []*BaseDictForm_DictItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"` // 字典属性
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListBaseDictResponse) Reset() {
-	*x = ListBaseDictResponse{}
+func (x *BaseDictForm) Reset() {
+	*x = BaseDictForm{}
 	mi := &file_app_base_dict_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListBaseDictResponse) String() string {
+func (x *BaseDictForm) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListBaseDictResponse) ProtoMessage() {}
+func (*BaseDictForm) ProtoMessage() {}
 
-func (x *ListBaseDictResponse) ProtoReflect() protoreflect.Message {
+func (x *BaseDictForm) ProtoReflect() protoreflect.Message {
 	mi := &file_app_base_dict_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,20 +60,34 @@ func (x *ListBaseDictResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListBaseDictResponse.ProtoReflect.Descriptor instead.
-func (*ListBaseDictResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use BaseDictForm.ProtoReflect.Descriptor instead.
+func (*BaseDictForm) Descriptor() ([]byte, []int) {
 	return file_app_base_dict_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListBaseDictResponse) GetList() []*ListBaseDictResponse_Dict {
+func (x *BaseDictForm) GetCode() string {
 	if x != nil {
-		return x.List
+		return x.Code
+	}
+	return ""
+}
+
+func (x *BaseDictForm) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BaseDictForm) GetItems() []*BaseDictForm_DictItem {
+	if x != nil {
+		return x.Items
 	}
 	return nil
 }
 
 // 字典项
-type ListBaseDictResponse_DictItem struct {
+type BaseDictForm_DictItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"` // 字典值
 	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"` // 字典项标签
@@ -79,20 +95,20 @@ type ListBaseDictResponse_DictItem struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListBaseDictResponse_DictItem) Reset() {
-	*x = ListBaseDictResponse_DictItem{}
+func (x *BaseDictForm_DictItem) Reset() {
+	*x = BaseDictForm_DictItem{}
 	mi := &file_app_base_dict_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListBaseDictResponse_DictItem) String() string {
+func (x *BaseDictForm_DictItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListBaseDictResponse_DictItem) ProtoMessage() {}
+func (*BaseDictForm_DictItem) ProtoMessage() {}
 
-func (x *ListBaseDictResponse_DictItem) ProtoReflect() protoreflect.Message {
+func (x *BaseDictForm_DictItem) ProtoReflect() protoreflect.Message {
 	mi := &file_app_base_dict_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -104,102 +120,39 @@ func (x *ListBaseDictResponse_DictItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListBaseDictResponse_DictItem.ProtoReflect.Descriptor instead.
-func (*ListBaseDictResponse_DictItem) Descriptor() ([]byte, []int) {
+// Deprecated: Use BaseDictForm_DictItem.ProtoReflect.Descriptor instead.
+func (*BaseDictForm_DictItem) Descriptor() ([]byte, []int) {
 	return file_app_base_dict_proto_rawDescGZIP(), []int{0, 0}
 }
 
-func (x *ListBaseDictResponse_DictItem) GetValue() string {
+func (x *BaseDictForm_DictItem) GetValue() string {
 	if x != nil {
 		return x.Value
 	}
 	return ""
 }
 
-func (x *ListBaseDictResponse_DictItem) GetLabel() string {
+func (x *BaseDictForm_DictItem) GetLabel() string {
 	if x != nil {
 		return x.Label
 	}
 	return ""
 }
 
-// 字典
-type ListBaseDictResponse_Dict struct {
-	state         protoimpl.MessageState           `protogen:"open.v1"`
-	Code          string                           `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`   // 字典编号
-	Name          string                           `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`   // 字典名称
-	Items         []*ListBaseDictResponse_DictItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty"` // 字典属性
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListBaseDictResponse_Dict) Reset() {
-	*x = ListBaseDictResponse_Dict{}
-	mi := &file_app_base_dict_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListBaseDictResponse_Dict) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListBaseDictResponse_Dict) ProtoMessage() {}
-
-func (x *ListBaseDictResponse_Dict) ProtoReflect() protoreflect.Message {
-	mi := &file_app_base_dict_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListBaseDictResponse_Dict.ProtoReflect.Descriptor instead.
-func (*ListBaseDictResponse_Dict) Descriptor() ([]byte, []int) {
-	return file_app_base_dict_proto_rawDescGZIP(), []int{0, 1}
-}
-
-func (x *ListBaseDictResponse_Dict) GetCode() string {
-	if x != nil {
-		return x.Code
-	}
-	return ""
-}
-
-func (x *ListBaseDictResponse_Dict) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *ListBaseDictResponse_Dict) GetItems() []*ListBaseDictResponse_DictItem {
-	if x != nil {
-		return x.Items
-	}
-	return nil
-}
-
 var File_app_base_dict_proto protoreflect.FileDescriptor
 
 const file_app_base_dict_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/base_dict.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xe8\x02\n" +
-	"\x14ListBaseDictResponse\x12F\n" +
-	"\x04list\x18\x01 \x03(\v2\x1e.app.ListBaseDictResponse.DictB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x1aa\n" +
+	"\x13app/base_dict.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\x87\x02\n" +
+	"\fBaseDictForm\x12&\n" +
+	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
+	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典名称R\x04name\x12D\n" +
+	"\x05items\x18\x03 \x03(\v2\x1a.app.BaseDictForm.DictItemB\x12\xbaG\x0f\x92\x02\f字典属性R\x05items\x1aa\n" +
 	"\bDictItem\x12(\n" +
 	"\x05value\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典项值R\x05value\x12+\n" +
-	"\x05label\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f字典项标签R\x05label\x1a\xa4\x01\n" +
-	"\x04Dict\x12&\n" +
-	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典名称R\x04name\x12L\n" +
-	"\x05items\x18\x03 \x03(\v2\".app.ListBaseDictResponse.DictItemB\x12\xbaG\x0f\x92\x02\f字典属性R\x05items2{\n" +
-	"\x0fBaseDictService\x12h\n" +
-	"\fListBaseDict\x12\x1c.google.protobuf.StringValue\x1a\x19.app.ListBaseDictResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/api/app/base/dict/listBY\n" +
+	"\x05label\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f字典项标签R\x05label2u\n" +
+	"\x0fBaseDictService\x12b\n" +
+	"\vGetBaseDict\x12\x1c.google.protobuf.StringValue\x1a\x11.app.BaseDictForm\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/app/base/dict/{value}BY\n" +
 	"\acom.appB\rBaseDictProtoP\x01Z\x13shop/api/gen/go/app\xa2\x02\x03AXX\xaa\x02\x03App\xca\x02\x03App\xe2\x02\x0fApp\\GPBMetadata\xea\x02\x03Appb\x06proto3"
 
 var (
@@ -214,23 +167,21 @@ func file_app_base_dict_proto_rawDescGZIP() []byte {
 	return file_app_base_dict_proto_rawDescData
 }
 
-var file_app_base_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_app_base_dict_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_app_base_dict_proto_goTypes = []any{
-	(*ListBaseDictResponse)(nil),          // 0: app.ListBaseDictResponse
-	(*ListBaseDictResponse_DictItem)(nil), // 1: app.ListBaseDictResponse.DictItem
-	(*ListBaseDictResponse_Dict)(nil),     // 2: app.ListBaseDictResponse.Dict
-	(*wrapperspb.StringValue)(nil),        // 3: google.protobuf.StringValue
+	(*BaseDictForm)(nil),           // 0: app.BaseDictForm
+	(*BaseDictForm_DictItem)(nil),  // 1: app.BaseDictForm.DictItem
+	(*wrapperspb.StringValue)(nil), // 2: google.protobuf.StringValue
 }
 var file_app_base_dict_proto_depIdxs = []int32{
-	2, // 0: app.ListBaseDictResponse.list:type_name -> app.ListBaseDictResponse.Dict
-	1, // 1: app.ListBaseDictResponse.Dict.items:type_name -> app.ListBaseDictResponse.DictItem
-	3, // 2: app.BaseDictService.ListBaseDict:input_type -> google.protobuf.StringValue
-	0, // 3: app.BaseDictService.ListBaseDict:output_type -> app.ListBaseDictResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 0: app.BaseDictForm.items:type_name -> app.BaseDictForm.DictItem
+	2, // 1: app.BaseDictService.GetBaseDict:input_type -> google.protobuf.StringValue
+	0, // 2: app.BaseDictService.GetBaseDict:output_type -> app.BaseDictForm
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_app_base_dict_proto_init() }
@@ -244,7 +195,7 @@ func file_app_base_dict_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_base_dict_proto_rawDesc), len(file_app_base_dict_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

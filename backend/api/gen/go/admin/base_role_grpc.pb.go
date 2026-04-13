@@ -30,7 +30,7 @@ const (
 	BaseRoleService_UpdateBaseRole_FullMethodName    = "/admin.BaseRoleService/UpdateBaseRole"
 	BaseRoleService_DeleteBaseRole_FullMethodName    = "/admin.BaseRoleService/DeleteBaseRole"
 	BaseRoleService_SetBaseRoleStatus_FullMethodName = "/admin.BaseRoleService/SetBaseRoleStatus"
-	BaseRoleService_SetBaseRoleMenus_FullMethodName  = "/admin.BaseRoleService/SetBaseRoleMenus"
+	BaseRoleService_SetBaseRoleMenu_FullMethodName   = "/admin.BaseRoleService/SetBaseRoleMenu"
 )
 
 // BaseRoleServiceClient is the client API for BaseRoleService service.
@@ -54,7 +54,7 @@ type BaseRoleServiceClient interface {
 	// 设置状态
 	SetBaseRoleStatus(ctx context.Context, in *common.SetStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置角色菜单权限
-	SetBaseRoleMenus(ctx context.Context, in *SetMenusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetBaseRoleMenu(ctx context.Context, in *SetBaseRoleMenuRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseRoleServiceClient struct {
@@ -135,10 +135,10 @@ func (c *baseRoleServiceClient) SetBaseRoleStatus(ctx context.Context, in *commo
 	return out, nil
 }
 
-func (c *baseRoleServiceClient) SetBaseRoleMenus(ctx context.Context, in *SetMenusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseRoleServiceClient) SetBaseRoleMenu(ctx context.Context, in *SetBaseRoleMenuRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseRoleService_SetBaseRoleMenus_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseRoleService_SetBaseRoleMenu_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ type BaseRoleServiceServer interface {
 	// 设置状态
 	SetBaseRoleStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)
 	// 设置角色菜单权限
-	SetBaseRoleMenus(context.Context, *SetMenusRequest) (*emptypb.Empty, error)
+	SetBaseRoleMenu(context.Context, *SetBaseRoleMenuRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseRoleServiceServer()
 }
 
@@ -198,8 +198,8 @@ func (UnimplementedBaseRoleServiceServer) DeleteBaseRole(context.Context, *wrapp
 func (UnimplementedBaseRoleServiceServer) SetBaseRoleStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseRoleStatus not implemented")
 }
-func (UnimplementedBaseRoleServiceServer) SetBaseRoleMenus(context.Context, *SetMenusRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetBaseRoleMenus not implemented")
+func (UnimplementedBaseRoleServiceServer) SetBaseRoleMenu(context.Context, *SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBaseRoleMenu not implemented")
 }
 func (UnimplementedBaseRoleServiceServer) mustEmbedUnimplementedBaseRoleServiceServer() {}
 func (UnimplementedBaseRoleServiceServer) testEmbeddedByValue()                         {}
@@ -348,20 +348,20 @@ func _BaseRoleService_SetBaseRoleStatus_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseRoleService_SetBaseRoleMenus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetMenusRequest)
+func _BaseRoleService_SetBaseRoleMenu_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBaseRoleMenuRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseRoleServiceServer).SetBaseRoleMenus(ctx, in)
+		return srv.(BaseRoleServiceServer).SetBaseRoleMenu(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseRoleService_SetBaseRoleMenus_FullMethodName,
+		FullMethod: BaseRoleService_SetBaseRoleMenu_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseRoleServiceServer).SetBaseRoleMenus(ctx, req.(*SetMenusRequest))
+		return srv.(BaseRoleServiceServer).SetBaseRoleMenu(ctx, req.(*SetBaseRoleMenuRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -402,8 +402,8 @@ var BaseRoleService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseRoleService_SetBaseRoleStatus_Handler,
 		},
 		{
-			MethodName: "SetBaseRoleMenus",
-			Handler:    _BaseRoleService_SetBaseRoleMenus_Handler,
+			MethodName: "SetBaseRoleMenu",
+			Handler:    _BaseRoleService_SetBaseRoleMenu_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

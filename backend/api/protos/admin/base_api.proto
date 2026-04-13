@@ -11,7 +11,7 @@ service BaseApiService {
   // 查询API列表
   rpc ListBaseApi (google.protobuf.Empty) returns (ListBaseApiResponse) {
     option (google.api.http) = {
-      get: "/api/admin/base/api/list"
+      get: "/api/admin/base/api"
     };
   }
 }

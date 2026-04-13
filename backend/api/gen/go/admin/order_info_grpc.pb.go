@@ -22,12 +22,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderInfoService_PageOrderInfo_FullMethodName       = "/admin.OrderInfoService/PageOrderInfo"
-	OrderInfoService_GetOrderInfo_FullMethodName        = "/admin.OrderInfoService/GetOrderInfo"
-	OrderInfoService_GetOrderInfoRefund_FullMethodName  = "/admin.OrderInfoService/GetOrderInfoRefund"
-	OrderInfoService_RefundOrderInfo_FullMethodName     = "/admin.OrderInfoService/RefundOrderInfo"
-	OrderInfoService_GetOrderInfoShipped_FullMethodName = "/admin.OrderInfoService/GetOrderInfoShipped"
-	OrderInfoService_ShippedOrderInfo_FullMethodName    = "/admin.OrderInfoService/ShippedOrderInfo"
+	OrderInfoService_PageOrderInfo_FullMethodName        = "/admin.OrderInfoService/PageOrderInfo"
+	OrderInfoService_GetOrderInfo_FullMethodName         = "/admin.OrderInfoService/GetOrderInfo"
+	OrderInfoService_GetOrderInfoRefund_FullMethodName   = "/admin.OrderInfoService/GetOrderInfoRefund"
+	OrderInfoService_RefundOrderInfo_FullMethodName      = "/admin.OrderInfoService/RefundOrderInfo"
+	OrderInfoService_GetOrderInfoShipment_FullMethodName = "/admin.OrderInfoService/GetOrderInfoShipment"
+	OrderInfoService_ShipOrderInfo_FullMethodName        = "/admin.OrderInfoService/ShipOrderInfo"
 )
 
 // OrderInfoServiceClient is the client API for OrderInfoService service.
@@ -45,9 +45,9 @@ type OrderInfoServiceClient interface {
 	// 订单信息退款
 	RefundOrderInfo(ctx context.Context, in *RefundOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询订单信息发货信息
-	GetOrderInfoShipped(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*OrderInfoShippedResponse, error)
+	GetOrderInfoShipment(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*OrderInfoShipmentForm, error)
 	// 订单信息发货
-	ShippedOrderInfo(ctx context.Context, in *ShippedOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ShipOrderInfo(ctx context.Context, in *ShipOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type orderInfoServiceClient struct {
@@ -98,20 +98,20 @@ func (c *orderInfoServiceClient) RefundOrderInfo(ctx context.Context, in *Refund
 	return out, nil
 }
 
-func (c *orderInfoServiceClient) GetOrderInfoShipped(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*OrderInfoShippedResponse, error) {
+func (c *orderInfoServiceClient) GetOrderInfoShipment(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*OrderInfoShipmentForm, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrderInfoShippedResponse)
-	err := c.cc.Invoke(ctx, OrderInfoService_GetOrderInfoShipped_FullMethodName, in, out, cOpts...)
+	out := new(OrderInfoShipmentForm)
+	err := c.cc.Invoke(ctx, OrderInfoService_GetOrderInfoShipment_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderInfoServiceClient) ShippedOrderInfo(ctx context.Context, in *ShippedOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *orderInfoServiceClient) ShipOrderInfo(ctx context.Context, in *ShipOrderInfoRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, OrderInfoService_ShippedOrderInfo_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, OrderInfoService_ShipOrderInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,9 +133,9 @@ type OrderInfoServiceServer interface {
 	// 订单信息退款
 	RefundOrderInfo(context.Context, *RefundOrderInfoRequest) (*emptypb.Empty, error)
 	// 查询订单信息发货信息
-	GetOrderInfoShipped(context.Context, *wrapperspb.Int64Value) (*OrderInfoShippedResponse, error)
+	GetOrderInfoShipment(context.Context, *wrapperspb.Int64Value) (*OrderInfoShipmentForm, error)
 	// 订单信息发货
-	ShippedOrderInfo(context.Context, *ShippedOrderInfoRequest) (*emptypb.Empty, error)
+	ShipOrderInfo(context.Context, *ShipOrderInfoRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedOrderInfoServiceServer()
 }
 
@@ -158,11 +158,11 @@ func (UnimplementedOrderInfoServiceServer) GetOrderInfoRefund(context.Context, *
 func (UnimplementedOrderInfoServiceServer) RefundOrderInfo(context.Context, *RefundOrderInfoRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method RefundOrderInfo not implemented")
 }
-func (UnimplementedOrderInfoServiceServer) GetOrderInfoShipped(context.Context, *wrapperspb.Int64Value) (*OrderInfoShippedResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetOrderInfoShipped not implemented")
+func (UnimplementedOrderInfoServiceServer) GetOrderInfoShipment(context.Context, *wrapperspb.Int64Value) (*OrderInfoShipmentForm, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOrderInfoShipment not implemented")
 }
-func (UnimplementedOrderInfoServiceServer) ShippedOrderInfo(context.Context, *ShippedOrderInfoRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ShippedOrderInfo not implemented")
+func (UnimplementedOrderInfoServiceServer) ShipOrderInfo(context.Context, *ShipOrderInfoRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ShipOrderInfo not implemented")
 }
 func (UnimplementedOrderInfoServiceServer) mustEmbedUnimplementedOrderInfoServiceServer() {}
 func (UnimplementedOrderInfoServiceServer) testEmbeddedByValue()                          {}
@@ -257,38 +257,38 @@ func _OrderInfoService_RefundOrderInfo_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderInfoService_GetOrderInfoShipped_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderInfoService_GetOrderInfoShipment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.Int64Value)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderInfoServiceServer).GetOrderInfoShipped(ctx, in)
+		return srv.(OrderInfoServiceServer).GetOrderInfoShipment(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderInfoService_GetOrderInfoShipped_FullMethodName,
+		FullMethod: OrderInfoService_GetOrderInfoShipment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderInfoServiceServer).GetOrderInfoShipped(ctx, req.(*wrapperspb.Int64Value))
+		return srv.(OrderInfoServiceServer).GetOrderInfoShipment(ctx, req.(*wrapperspb.Int64Value))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderInfoService_ShippedOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ShippedOrderInfoRequest)
+func _OrderInfoService_ShipOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShipOrderInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderInfoServiceServer).ShippedOrderInfo(ctx, in)
+		return srv.(OrderInfoServiceServer).ShipOrderInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderInfoService_ShippedOrderInfo_FullMethodName,
+		FullMethod: OrderInfoService_ShipOrderInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderInfoServiceServer).ShippedOrderInfo(ctx, req.(*ShippedOrderInfoRequest))
+		return srv.(OrderInfoServiceServer).ShipOrderInfo(ctx, req.(*ShipOrderInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -317,12 +317,12 @@ var OrderInfoService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderInfoService_RefundOrderInfo_Handler,
 		},
 		{
-			MethodName: "GetOrderInfoShipped",
-			Handler:    _OrderInfoService_GetOrderInfoShipped_Handler,
+			MethodName: "GetOrderInfoShipment",
+			Handler:    _OrderInfoService_GetOrderInfoShipment_Handler,
 		},
 		{
-			MethodName: "ShippedOrderInfo",
-			Handler:    _OrderInfoService_ShippedOrderInfo_Handler,
+			MethodName: "ShipOrderInfo",
+			Handler:    _OrderInfoService_ShipOrderInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

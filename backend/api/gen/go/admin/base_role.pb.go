@@ -360,29 +360,29 @@ func (x *BaseRoleForm) GetRemark() string {
 	return ""
 }
 
-// SetMenus请求参数
-type SetMenusRequest struct {
+// 设置角色菜单权限请求参数
+type SetBaseRoleMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`              // 用户ID
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`              // 角色ID
 	Menus         []int64                `protobuf:"varint,2,rep,packed,name=menus,proto3" json:"menus,omitempty"` // 分配的菜单列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SetMenusRequest) Reset() {
-	*x = SetMenusRequest{}
+func (x *SetBaseRoleMenuRequest) Reset() {
+	*x = SetBaseRoleMenuRequest{}
 	mi := &file_admin_base_role_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetMenusRequest) String() string {
+func (x *SetBaseRoleMenuRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetMenusRequest) ProtoMessage() {}
+func (*SetBaseRoleMenuRequest) ProtoMessage() {}
 
-func (x *SetMenusRequest) ProtoReflect() protoreflect.Message {
+func (x *SetBaseRoleMenuRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_base_role_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -394,19 +394,19 @@ func (x *SetMenusRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetMenusRequest.ProtoReflect.Descriptor instead.
-func (*SetMenusRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use SetBaseRoleMenuRequest.ProtoReflect.Descriptor instead.
+func (*SetBaseRoleMenuRequest) Descriptor() ([]byte, []int) {
 	return file_admin_base_role_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *SetMenusRequest) GetId() int64 {
+func (x *SetBaseRoleMenuRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *SetMenusRequest) GetMenus() []int64 {
+func (x *SetBaseRoleMenuRequest) GetMenus() []int64 {
 	if x != nil {
 		return x.Menus
 	}
@@ -448,10 +448,10 @@ const file_admin_base_role_proto_rawDesc = "" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remarkB\f\n" +
 	"\n" +
 	"_dataScopeB\t\n" +
-	"\a_status\"d\n" +
-	"\x0fSetMenusRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x121\n" +
-	"\x05menus\x18\x02 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus2\xe3\x06\n" +
+	"\a_status\"k\n" +
+	"\x16SetBaseRoleMenuRequest\x12\x1e\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x121\n" +
+	"\x05menus\x18\x02 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus2\xe8\x06\n" +
 	"\x0fBaseRoleService\x12k\n" +
 	"\x0eOptionBaseRole\x12\x16.google.protobuf.Empty\x1a\x1c.common.SelectOptionResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/admin/base/role/option\x12e\n" +
 	"\fPageBaseRole\x12\x1a.admin.PageBaseRoleRequest\x1a\x1b.admin.PageBaseRoleResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/admin/base/role\x12e\n" +
@@ -459,8 +459,8 @@ const file_admin_base_role_proto_rawDesc = "" +
 	"\x0eCreateBaseRole\x12\x13.admin.BaseRoleForm\x1a\x16.google.protobuf.Empty\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/admin/base/role\x12c\n" +
 	"\x0eUpdateBaseRole\x12\x13.admin.BaseRoleForm\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/api/admin/base/role/{id}\x12l\n" +
 	"\x0eDeleteBaseRole\x12\x1c.google.protobuf.StringValue\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/admin/base/role/{value}\x12r\n" +
-	"\x11SetBaseRoleStatus\x12\x18.common.SetStatusRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/admin/base/role/{id}/status\x12n\n" +
-	"\x10SetBaseRoleMenus\x12\x16.admin.SetMenusRequest\x1a\x16.google.protobuf.Empty\"*\x82\xd3\xe4\x93\x02$:\x01*\x1a\x1f/api/admin/base/role/{id}/menusBe\n" +
+	"\x11SetBaseRoleStatus\x12\x18.common.SetStatusRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/admin/base/role/{id}/status\x12s\n" +
+	"\x0fSetBaseRoleMenu\x12\x1d.admin.SetBaseRoleMenuRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\x1a\x1e/api/admin/base/role/{id}/menuBe\n" +
 	"\tcom.adminB\rBaseRoleProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (
@@ -481,7 +481,7 @@ var file_admin_base_role_proto_goTypes = []any{
 	(*PageBaseRoleResponse)(nil),        // 1: admin.PageBaseRoleResponse
 	(*BaseRole)(nil),                    // 2: admin.BaseRole
 	(*BaseRoleForm)(nil),                // 3: admin.BaseRoleForm
-	(*SetMenusRequest)(nil),             // 4: admin.SetMenusRequest
+	(*SetBaseRoleMenuRequest)(nil),      // 4: admin.SetBaseRoleMenuRequest
 	(common.Status)(0),                  // 5: common.Status
 	(common.BaseRoleDataScope)(0),       // 6: common.BaseRoleDataScope
 	(*emptypb.Empty)(nil),               // 7: google.protobuf.Empty
@@ -504,7 +504,7 @@ var file_admin_base_role_proto_depIdxs = []int32{
 	3,  // 10: admin.BaseRoleService.UpdateBaseRole:input_type -> admin.BaseRoleForm
 	9,  // 11: admin.BaseRoleService.DeleteBaseRole:input_type -> google.protobuf.StringValue
 	10, // 12: admin.BaseRoleService.SetBaseRoleStatus:input_type -> common.SetStatusRequest
-	4,  // 13: admin.BaseRoleService.SetBaseRoleMenus:input_type -> admin.SetMenusRequest
+	4,  // 13: admin.BaseRoleService.SetBaseRoleMenu:input_type -> admin.SetBaseRoleMenuRequest
 	11, // 14: admin.BaseRoleService.OptionBaseRole:output_type -> common.SelectOptionResponse
 	1,  // 15: admin.BaseRoleService.PageBaseRole:output_type -> admin.PageBaseRoleResponse
 	3,  // 16: admin.BaseRoleService.GetBaseRole:output_type -> admin.BaseRoleForm
@@ -512,7 +512,7 @@ var file_admin_base_role_proto_depIdxs = []int32{
 	7,  // 18: admin.BaseRoleService.UpdateBaseRole:output_type -> google.protobuf.Empty
 	7,  // 19: admin.BaseRoleService.DeleteBaseRole:output_type -> google.protobuf.Empty
 	7,  // 20: admin.BaseRoleService.SetBaseRoleStatus:output_type -> google.protobuf.Empty
-	7,  // 21: admin.BaseRoleService.SetBaseRoleMenus:output_type -> google.protobuf.Empty
+	7,  // 21: admin.BaseRoleService.SetBaseRoleMenu:output_type -> google.protobuf.Empty
 	14, // [14:22] is the sub-list for method output_type
 	6,  // [6:14] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name

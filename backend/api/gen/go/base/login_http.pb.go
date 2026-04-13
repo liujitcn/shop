@@ -40,9 +40,9 @@ type LoginServiceHTTPServer interface {
 func RegisterLoginServiceHTTPServer(s *http.Server, srv LoginServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/login/captcha", _LoginService_Captcha0_HTTP_Handler(srv))
-	r.DELETE("/api/login/logout", _LoginService_Logout0_HTTP_Handler(srv))
-	r.POST("/api/login/refreshToken", _LoginService_RefreshToken0_HTTP_Handler(srv))
-	r.POST("/api/login", _LoginService_Login0_HTTP_Handler(srv))
+	r.DELETE("/api/auth", _LoginService_Logout0_HTTP_Handler(srv))
+	r.POST("/api/auth/token", _LoginService_RefreshToken0_HTTP_Handler(srv))
+	r.POST("/api/auth", _LoginService_Login0_HTTP_Handler(srv))
 }
 
 func _LoginService_Captcha0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx http.Context) error {
@@ -163,7 +163,7 @@ func (c *LoginServiceHTTPClientImpl) Captcha(ctx context.Context, in *emptypb.Em
 // Login 登录
 func (c *LoginServiceHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*LoginResponse, error) {
 	var out LoginResponse
-	pattern := "/api/login"
+	pattern := "/api/auth"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationLoginServiceLogin))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -177,7 +177,7 @@ func (c *LoginServiceHTTPClientImpl) Login(ctx context.Context, in *LoginRequest
 // Logout 登出
 func (c *LoginServiceHTTPClientImpl) Logout(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/login/logout"
+	pattern := "/api/auth"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationLoginServiceLogout))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -191,7 +191,7 @@ func (c *LoginServiceHTTPClientImpl) Logout(ctx context.Context, in *emptypb.Emp
 // RefreshToken 刷新认证令牌
 func (c *LoginServiceHTTPClientImpl) RefreshToken(ctx context.Context, in *RefreshTokenRequest, opts ...http.CallOption) (*RefreshTokenResponse, error) {
 	var out RefreshTokenResponse
-	pattern := "/api/login/refreshToken"
+	pattern := "/api/auth/token"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationLoginServiceRefreshToken))
 	opts = append(opts, http.PathTemplate(pattern))

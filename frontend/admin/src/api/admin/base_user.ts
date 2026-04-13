@@ -4,7 +4,7 @@ import {
   type BaseUserService,
   type PageBaseUserRequest,
   type PageBaseUserResponse,
-  type ResetBaseUserPwdRequest,
+  type ResetBaseUserPasswordRequest,
   type OptionBaseUserRequest
 } from "@/rpc/admin/base_user";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -70,9 +70,9 @@ export class BaseUserServiceImpl implements BaseUserService {
     });
   }
   /** 重置密码 */
-  ResetBaseUserPwd(request: ResetBaseUserPwdRequest): Promise<Empty> {
-    return service<ResetBaseUserPwdRequest, Empty>({
-      url: `${BASE_USER_URL}/` + request.id + "/pwd",
+  ResetBaseUserPassword(request: ResetBaseUserPasswordRequest): Promise<Empty> {
+    return service<ResetBaseUserPasswordRequest, Empty>({
+      url: `${BASE_USER_URL}/${request.id}/password`,
       method: "put",
       data: request
     });

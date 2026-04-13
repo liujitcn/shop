@@ -115,11 +115,11 @@ func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *common.Set
 	return new(emptypb.Empty), nil
 }
 
-// SetBaseRoleMenus 设置角色菜单权限
-func (s *BaseRoleService) SetBaseRoleMenus(ctx context.Context, req *admin.SetMenusRequest) (*emptypb.Empty, error) {
-	err := s.baseRoleCase.SetBaseRoleMenus(ctx, req)
+// SetBaseRoleMenu 设置角色菜单权限
+func (s *BaseRoleService) SetBaseRoleMenu(ctx context.Context, req *admin.SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
+	err := s.baseRoleCase.SetBaseRoleMenu(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseRoleMenus %v", err)
+		log.Errorf("SetBaseRoleMenu %v", err)
 		return nil, errorsx.WrapInternal(err, "设置角色菜单权限失败")
 	}
 	return new(emptypb.Empty), nil

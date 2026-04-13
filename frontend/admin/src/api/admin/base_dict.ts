@@ -3,7 +3,7 @@ import {
   type BaseDictForm,
   type BaseDictItemForm,
   type BaseDictService,
-  type ListBaseDictResponse,
+  type OptionBaseDictResponse,
   type PageBaseDictItemRequest,
   type PageBaseDictItemResponse,
   type PageBaseDictRequest,
@@ -19,10 +19,10 @@ const BASE_DICT_ITEM_URL = "/admin/base/dict-item";
 
 /** Admin字典服务 */
 export class BaseDictServiceImpl implements BaseDictService {
-  /** 查询字典列表 */
-  ListBaseDict(request: Empty): Promise<ListBaseDictResponse> {
-    return service<Empty, ListBaseDictResponse>({
-      url: `${BASE_DICT_URL}/list`,
+  /** 查询字典下拉选择 */
+  OptionBaseDict(request: Empty): Promise<OptionBaseDictResponse> {
+    return service<Empty, OptionBaseDictResponse>({
+      url: `${BASE_DICT_URL}/option`,
       method: "get",
       params: request
     });

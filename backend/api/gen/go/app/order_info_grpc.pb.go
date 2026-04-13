@@ -22,9 +22,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	OrderInfoService_OrderInfoPre_FullMethodName            = "/app.OrderInfoService/OrderInfoPre"
-	OrderInfoService_OrderInfoBuy_FullMethodName            = "/app.OrderInfoService/OrderInfoBuy"
-	OrderInfoService_OrderInfoRepurchase_FullMethodName     = "/app.OrderInfoService/OrderInfoRepurchase"
+	OrderInfoService_ConfirmOrderInfo_FullMethodName        = "/app.OrderInfoService/ConfirmOrderInfo"
+	OrderInfoService_BuyNowOrderInfo_FullMethodName         = "/app.OrderInfoService/BuyNowOrderInfo"
+	OrderInfoService_RepurchaseOrderInfo_FullMethodName     = "/app.OrderInfoService/RepurchaseOrderInfo"
 	OrderInfoService_CountOrderInfo_FullMethodName          = "/app.OrderInfoService/CountOrderInfo"
 	OrderInfoService_PageOrderInfo_FullMethodName           = "/app.OrderInfoService/PageOrderInfo"
 	OrderInfoService_GetOrderInfoIdByOrderNo_FullMethodName = "/app.OrderInfoService/GetOrderInfoIdByOrderNo"
@@ -42,12 +42,12 @@ const (
 //
 // App订单信息服务
 type OrderInfoServiceClient interface {
-	// 预付订单信息
-	OrderInfoPre(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error)
+	// 确认订单信息
+	ConfirmOrderInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error)
 	// 立即购买订单信息
-	OrderInfoBuy(ctx context.Context, in *CreateOrderInfoGoods, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error)
+	BuyNowOrderInfo(ctx context.Context, in *BuyNowOrderInfoRequest, opts ...grpc.CallOption) (*BuyNowOrderInfoResponse, error)
 	// 再次购买订单信息
-	OrderInfoRepurchase(ctx context.Context, in *OrderRepurchaseInfoRequest, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error)
+	RepurchaseOrderInfo(ctx context.Context, in *RepurchaseOrderInfoRequest, opts ...grpc.CallOption) (*RepurchaseOrderInfoResponse, error)
 	// 查询订单信息数量汇总
 	CountOrderInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CountOrderInfoResponse, error)
 	// 查询订单信息分页列表
@@ -76,30 +76,30 @@ func NewOrderInfoServiceClient(cc grpc.ClientConnInterface) OrderInfoServiceClie
 	return &orderInfoServiceClient{cc}
 }
 
-func (c *orderInfoServiceClient) OrderInfoPre(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error) {
+func (c *orderInfoServiceClient) ConfirmOrderInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConfirmOrderInfoResponse)
-	err := c.cc.Invoke(ctx, OrderInfoService_OrderInfoPre_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, OrderInfoService_ConfirmOrderInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderInfoServiceClient) OrderInfoBuy(ctx context.Context, in *CreateOrderInfoGoods, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error) {
+func (c *orderInfoServiceClient) BuyNowOrderInfo(ctx context.Context, in *BuyNowOrderInfoRequest, opts ...grpc.CallOption) (*BuyNowOrderInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConfirmOrderInfoResponse)
-	err := c.cc.Invoke(ctx, OrderInfoService_OrderInfoBuy_FullMethodName, in, out, cOpts...)
+	out := new(BuyNowOrderInfoResponse)
+	err := c.cc.Invoke(ctx, OrderInfoService_BuyNowOrderInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *orderInfoServiceClient) OrderInfoRepurchase(ctx context.Context, in *OrderRepurchaseInfoRequest, opts ...grpc.CallOption) (*ConfirmOrderInfoResponse, error) {
+func (c *orderInfoServiceClient) RepurchaseOrderInfo(ctx context.Context, in *RepurchaseOrderInfoRequest, opts ...grpc.CallOption) (*RepurchaseOrderInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConfirmOrderInfoResponse)
-	err := c.cc.Invoke(ctx, OrderInfoService_OrderInfoRepurchase_FullMethodName, in, out, cOpts...)
+	out := new(RepurchaseOrderInfoResponse)
+	err := c.cc.Invoke(ctx, OrderInfoService_RepurchaseOrderInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,12 +202,12 @@ func (c *orderInfoServiceClient) ReceiveOrderInfo(ctx context.Context, in *Recei
 //
 // App订单信息服务
 type OrderInfoServiceServer interface {
-	// 预付订单信息
-	OrderInfoPre(context.Context, *emptypb.Empty) (*ConfirmOrderInfoResponse, error)
+	// 确认订单信息
+	ConfirmOrderInfo(context.Context, *emptypb.Empty) (*ConfirmOrderInfoResponse, error)
 	// 立即购买订单信息
-	OrderInfoBuy(context.Context, *CreateOrderInfoGoods) (*ConfirmOrderInfoResponse, error)
+	BuyNowOrderInfo(context.Context, *BuyNowOrderInfoRequest) (*BuyNowOrderInfoResponse, error)
 	// 再次购买订单信息
-	OrderInfoRepurchase(context.Context, *OrderRepurchaseInfoRequest) (*ConfirmOrderInfoResponse, error)
+	RepurchaseOrderInfo(context.Context, *RepurchaseOrderInfoRequest) (*RepurchaseOrderInfoResponse, error)
 	// 查询订单信息数量汇总
 	CountOrderInfo(context.Context, *emptypb.Empty) (*CountOrderInfoResponse, error)
 	// 查询订单信息分页列表
@@ -236,14 +236,14 @@ type OrderInfoServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedOrderInfoServiceServer struct{}
 
-func (UnimplementedOrderInfoServiceServer) OrderInfoPre(context.Context, *emptypb.Empty) (*ConfirmOrderInfoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OrderInfoPre not implemented")
+func (UnimplementedOrderInfoServiceServer) ConfirmOrderInfo(context.Context, *emptypb.Empty) (*ConfirmOrderInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ConfirmOrderInfo not implemented")
 }
-func (UnimplementedOrderInfoServiceServer) OrderInfoBuy(context.Context, *CreateOrderInfoGoods) (*ConfirmOrderInfoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OrderInfoBuy not implemented")
+func (UnimplementedOrderInfoServiceServer) BuyNowOrderInfo(context.Context, *BuyNowOrderInfoRequest) (*BuyNowOrderInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BuyNowOrderInfo not implemented")
 }
-func (UnimplementedOrderInfoServiceServer) OrderInfoRepurchase(context.Context, *OrderRepurchaseInfoRequest) (*ConfirmOrderInfoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method OrderInfoRepurchase not implemented")
+func (UnimplementedOrderInfoServiceServer) RepurchaseOrderInfo(context.Context, *RepurchaseOrderInfoRequest) (*RepurchaseOrderInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RepurchaseOrderInfo not implemented")
 }
 func (UnimplementedOrderInfoServiceServer) CountOrderInfo(context.Context, *emptypb.Empty) (*CountOrderInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CountOrderInfo not implemented")
@@ -293,56 +293,56 @@ func RegisterOrderInfoServiceServer(s grpc.ServiceRegistrar, srv OrderInfoServic
 	s.RegisterService(&OrderInfoService_ServiceDesc, srv)
 }
 
-func _OrderInfoService_OrderInfoPre_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderInfoService_ConfirmOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderInfoServiceServer).OrderInfoPre(ctx, in)
+		return srv.(OrderInfoServiceServer).ConfirmOrderInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderInfoService_OrderInfoPre_FullMethodName,
+		FullMethod: OrderInfoService_ConfirmOrderInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderInfoServiceServer).OrderInfoPre(ctx, req.(*emptypb.Empty))
+		return srv.(OrderInfoServiceServer).ConfirmOrderInfo(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderInfoService_OrderInfoBuy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateOrderInfoGoods)
+func _OrderInfoService_BuyNowOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BuyNowOrderInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderInfoServiceServer).OrderInfoBuy(ctx, in)
+		return srv.(OrderInfoServiceServer).BuyNowOrderInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderInfoService_OrderInfoBuy_FullMethodName,
+		FullMethod: OrderInfoService_BuyNowOrderInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderInfoServiceServer).OrderInfoBuy(ctx, req.(*CreateOrderInfoGoods))
+		return srv.(OrderInfoServiceServer).BuyNowOrderInfo(ctx, req.(*BuyNowOrderInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderInfoService_OrderInfoRepurchase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrderRepurchaseInfoRequest)
+func _OrderInfoService_RepurchaseOrderInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RepurchaseOrderInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderInfoServiceServer).OrderInfoRepurchase(ctx, in)
+		return srv.(OrderInfoServiceServer).RepurchaseOrderInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OrderInfoService_OrderInfoRepurchase_FullMethodName,
+		FullMethod: OrderInfoService_RepurchaseOrderInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderInfoServiceServer).OrderInfoRepurchase(ctx, req.(*OrderRepurchaseInfoRequest))
+		return srv.(OrderInfoServiceServer).RepurchaseOrderInfo(ctx, req.(*RepurchaseOrderInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -517,16 +517,16 @@ var OrderInfoService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OrderInfoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "OrderInfoPre",
-			Handler:    _OrderInfoService_OrderInfoPre_Handler,
+			MethodName: "ConfirmOrderInfo",
+			Handler:    _OrderInfoService_ConfirmOrderInfo_Handler,
 		},
 		{
-			MethodName: "OrderInfoBuy",
-			Handler:    _OrderInfoService_OrderInfoBuy_Handler,
+			MethodName: "BuyNowOrderInfo",
+			Handler:    _OrderInfoService_BuyNowOrderInfo_Handler,
 		},
 		{
-			MethodName: "OrderInfoRepurchase",
-			Handler:    _OrderInfoService_OrderInfoRepurchase_Handler,
+			MethodName: "RepurchaseOrderInfo",
+			Handler:    _OrderInfoService_RepurchaseOrderInfo_Handler,
 		},
 		{
 			MethodName: "CountOrderInfo",

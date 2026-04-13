@@ -26,40 +26,40 @@ const OperationAuthServiceGetUserButton = "/admin.AuthService/GetUserButton"
 const OperationAuthServiceGetUserInfo = "/admin.AuthService/GetUserInfo"
 const OperationAuthServiceGetUserMenu = "/admin.AuthService/GetUserMenu"
 const OperationAuthServiceGetUserProfile = "/admin.AuthService/GetUserProfile"
-const OperationAuthServiceSendUpdatePhoneCode = "/admin.AuthService/SendUpdatePhoneCode"
+const OperationAuthServiceSendPhoneCode = "/admin.AuthService/SendPhoneCode"
+const OperationAuthServiceUpdateUserPassword = "/admin.AuthService/UpdateUserPassword"
 const OperationAuthServiceUpdateUserPhone = "/admin.AuthService/UpdateUserPhone"
 const OperationAuthServiceUpdateUserProfile = "/admin.AuthService/UpdateUserProfile"
-const OperationAuthServiceUpdateUserPwd = "/admin.AuthService/UpdateUserPwd"
 
 type AuthServiceHTTPServer interface {
 	// GetUserButton 获取已经登录的用户按钮
 	GetUserButton(context.Context, *emptypb.Empty) (*common.StringValues, error)
 	// GetUserInfo 获取已经登录的用户的数据
-	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error)
+	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfoForm, error)
 	// GetUserMenu 获取已经登录的用户菜单
 	GetUserMenu(context.Context, *emptypb.Empty) (*TreeRouteResponse, error)
 	// GetUserProfile 获取个人中心用户信息
 	GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileForm, error)
-	// SendUpdatePhoneCode 发送手机号验证码
-	SendUpdatePhoneCode(context.Context, *SendUpdatePhoneCodeForm) (*emptypb.Empty, error)
+	// SendPhoneCode 发送手机号验证码
+	SendPhoneCode(context.Context, *SendPhoneCodeRequest) (*emptypb.Empty, error)
+	// UpdateUserPassword 修改个人中心密码
+	UpdateUserPassword(context.Context, *UserPasswordForm) (*emptypb.Empty, error)
 	// UpdateUserPhone 修改个人中心手机号
-	UpdateUserPhone(context.Context, *UpdatePhoneForm) (*emptypb.Empty, error)
+	UpdateUserPhone(context.Context, *UserPhoneForm) (*emptypb.Empty, error)
 	// UpdateUserProfile 修改个人中心用户信息
 	UpdateUserProfile(context.Context, *UserProfileForm) (*emptypb.Empty, error)
-	// UpdateUserPwd 修改个人中心密码
-	UpdateUserPwd(context.Context, *UpdatePwdForm) (*emptypb.Empty, error)
 }
 
 func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/admin/auth/userInfo", _AuthService_GetUserInfo0_HTTP_Handler(srv))
+	r.GET("/api/admin/auth/user", _AuthService_GetUserInfo0_HTTP_Handler(srv))
 	r.GET("/api/admin/auth/menu", _AuthService_GetUserMenu0_HTTP_Handler(srv))
 	r.GET("/api/admin/auth/button", _AuthService_GetUserButton0_HTTP_Handler(srv))
-	r.GET("/api/admin/auth/userProfile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
-	r.PUT("/api/admin/auth/update/userProfile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
-	r.POST("/api/admin/auth/send/update/phone", _AuthService_SendUpdatePhoneCode0_HTTP_Handler(srv))
-	r.PUT("/api/admin/auth/update/phone", _AuthService_UpdateUserPhone0_HTTP_Handler(srv))
-	r.PUT("/api/admin/auth/update/pwd", _AuthService_UpdateUserPwd0_HTTP_Handler(srv))
+	r.GET("/api/admin/auth/profile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
+	r.PUT("/api/admin/auth/profile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
+	r.POST("/api/admin/auth/phone/code", _AuthService_SendPhoneCode0_HTTP_Handler(srv))
+	r.PUT("/api/admin/auth/phone", _AuthService_UpdateUserPhone0_HTTP_Handler(srv))
+	r.PUT("/api/admin/auth/password", _AuthService_UpdateUserPassword0_HTTP_Handler(srv))
 }
 
 func _AuthService_GetUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
@@ -76,7 +76,7 @@ func _AuthService_GetUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx 
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserInfo)
+		reply := out.(*UserInfoForm)
 		return ctx.Result(200, reply)
 	}
 }
@@ -160,18 +160,18 @@ func _AuthService_UpdateUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) fun
 	}
 }
 
-func _AuthService_SendUpdatePhoneCode0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_SendPhoneCode0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SendUpdatePhoneCodeForm
+		var in SendPhoneCodeRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceSendUpdatePhoneCode)
+		http.SetOperation(ctx, OperationAuthServiceSendPhoneCode)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SendUpdatePhoneCode(ctx, req.(*SendUpdatePhoneCodeForm))
+			return srv.SendPhoneCode(ctx, req.(*SendPhoneCodeRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -184,7 +184,7 @@ func _AuthService_SendUpdatePhoneCode0_HTTP_Handler(srv AuthServiceHTTPServer) f
 
 func _AuthService_UpdateUserPhone0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdatePhoneForm
+		var in UserPhoneForm
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -193,7 +193,7 @@ func _AuthService_UpdateUserPhone0_HTTP_Handler(srv AuthServiceHTTPServer) func(
 		}
 		http.SetOperation(ctx, OperationAuthServiceUpdateUserPhone)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUserPhone(ctx, req.(*UpdatePhoneForm))
+			return srv.UpdateUserPhone(ctx, req.(*UserPhoneForm))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -204,18 +204,18 @@ func _AuthService_UpdateUserPhone0_HTTP_Handler(srv AuthServiceHTTPServer) func(
 	}
 }
 
-func _AuthService_UpdateUserPwd0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_UpdateUserPassword0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdatePwdForm
+		var in UserPasswordForm
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceUpdateUserPwd)
+		http.SetOperation(ctx, OperationAuthServiceUpdateUserPassword)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUserPwd(ctx, req.(*UpdatePwdForm))
+			return srv.UpdateUserPassword(ctx, req.(*UserPasswordForm))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -230,19 +230,19 @@ type AuthServiceHTTPClient interface {
 	// GetUserButton 获取已经登录的用户按钮
 	GetUserButton(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *common.StringValues, err error)
 	// GetUserInfo 获取已经登录的用户的数据
-	GetUserInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UserInfo, err error)
+	GetUserInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UserInfoForm, err error)
 	// GetUserMenu 获取已经登录的用户菜单
 	GetUserMenu(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *TreeRouteResponse, err error)
 	// GetUserProfile 获取个人中心用户信息
 	GetUserProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UserProfileForm, err error)
-	// SendUpdatePhoneCode 发送手机号验证码
-	SendUpdatePhoneCode(ctx context.Context, req *SendUpdatePhoneCodeForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SendPhoneCode 发送手机号验证码
+	SendPhoneCode(ctx context.Context, req *SendPhoneCodeRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// UpdateUserPassword 修改个人中心密码
+	UpdateUserPassword(ctx context.Context, req *UserPasswordForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateUserPhone 修改个人中心手机号
-	UpdateUserPhone(ctx context.Context, req *UpdatePhoneForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UpdateUserPhone(ctx context.Context, req *UserPhoneForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateUserProfile 修改个人中心用户信息
 	UpdateUserProfile(ctx context.Context, req *UserProfileForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// UpdateUserPwd 修改个人中心密码
-	UpdateUserPwd(ctx context.Context, req *UpdatePwdForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type AuthServiceHTTPClientImpl struct {
@@ -268,9 +268,9 @@ func (c *AuthServiceHTTPClientImpl) GetUserButton(ctx context.Context, in *empty
 }
 
 // GetUserInfo 获取已经登录的用户的数据
-func (c *AuthServiceHTTPClientImpl) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UserInfo, error) {
-	var out UserInfo
-	pattern := "/api/admin/auth/userInfo"
+func (c *AuthServiceHTTPClientImpl) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UserInfoForm, error) {
+	var out UserInfoForm
+	pattern := "/api/admin/auth/user"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAuthServiceGetUserInfo))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -298,7 +298,7 @@ func (c *AuthServiceHTTPClientImpl) GetUserMenu(ctx context.Context, in *emptypb
 // GetUserProfile 获取个人中心用户信息
 func (c *AuthServiceHTTPClientImpl) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UserProfileForm, error) {
 	var out UserProfileForm
-	pattern := "/api/admin/auth/userProfile"
+	pattern := "/api/admin/auth/profile"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAuthServiceGetUserProfile))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -309,12 +309,12 @@ func (c *AuthServiceHTTPClientImpl) GetUserProfile(ctx context.Context, in *empt
 	return &out, nil
 }
 
-// SendUpdatePhoneCode 发送手机号验证码
-func (c *AuthServiceHTTPClientImpl) SendUpdatePhoneCode(ctx context.Context, in *SendUpdatePhoneCodeForm, opts ...http.CallOption) (*emptypb.Empty, error) {
+// SendPhoneCode 发送手机号验证码
+func (c *AuthServiceHTTPClientImpl) SendPhoneCode(ctx context.Context, in *SendPhoneCodeRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/auth/send/update/phone"
+	pattern := "/api/admin/auth/phone/code"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthServiceSendUpdatePhoneCode))
+	opts = append(opts, http.Operation(OperationAuthServiceSendPhoneCode))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -323,10 +323,24 @@ func (c *AuthServiceHTTPClientImpl) SendUpdatePhoneCode(ctx context.Context, in 
 	return &out, nil
 }
 
-// UpdateUserPhone 修改个人中心手机号
-func (c *AuthServiceHTTPClientImpl) UpdateUserPhone(ctx context.Context, in *UpdatePhoneForm, opts ...http.CallOption) (*emptypb.Empty, error) {
+// UpdateUserPassword 修改个人中心密码
+func (c *AuthServiceHTTPClientImpl) UpdateUserPassword(ctx context.Context, in *UserPasswordForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/auth/update/phone"
+	pattern := "/api/admin/auth/password"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthServiceUpdateUserPassword))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// UpdateUserPhone 修改个人中心手机号
+func (c *AuthServiceHTTPClientImpl) UpdateUserPhone(ctx context.Context, in *UserPhoneForm, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/admin/auth/phone"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthServiceUpdateUserPhone))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -340,23 +354,9 @@ func (c *AuthServiceHTTPClientImpl) UpdateUserPhone(ctx context.Context, in *Upd
 // UpdateUserProfile 修改个人中心用户信息
 func (c *AuthServiceHTTPClientImpl) UpdateUserProfile(ctx context.Context, in *UserProfileForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/auth/update/userProfile"
+	pattern := "/api/admin/auth/profile"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAuthServiceUpdateUserProfile))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// UpdateUserPwd 修改个人中心密码
-func (c *AuthServiceHTTPClientImpl) UpdateUserPwd(ctx context.Context, in *UpdatePwdForm, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/admin/auth/update/pwd"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthServiceUpdateUserPwd))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {

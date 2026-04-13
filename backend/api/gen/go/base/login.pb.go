@@ -354,13 +354,12 @@ const file_base_login_proto_rawDesc = "" +
 	"\vaccessToken\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbb\x02\n" +
 	"\frefreshToken\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb3\x01\n" +
 	"\ttokenType\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdb\x01\n" +
-	"\texpiresIn\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn2\xed\x02\n" +
+	"\texpiresIn\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn2\xdc\x02\n" +
 	"\fLoginService\x12T\n" +
-	"\aCaptcha\x12\x16.google.protobuf.Empty\x1a\x15.base.CaptchaResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/api/login/captcha\x12S\n" +
-	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x19\x82\xd3\xe4\x93\x02\x13*\x11/api/login/logout\x12i\n" +
-	"\fRefreshToken\x12\x19.base.RefreshTokenRequest\x1a\x1a.base.RefreshTokenResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/api/login/refreshToken\x12G\n" +
-	"\x05Login\x12\x12.base.LoginRequest\x1a\x13.base.LoginResponse\"\x15\x82\xd3\xe4\x93\x02\x0f:\x01*\"\n" +
-	"/api/loginB\\\n" +
+	"\aCaptcha\x12\x16.google.protobuf.Empty\x1a\x15.base.CaptchaResponse\"\x1a\x82\xd3\xe4\x93\x02\x14\x12\x12/api/login/captcha\x12K\n" +
+	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x11\x82\xd3\xe4\x93\x02\v*\t/api/auth\x12a\n" +
+	"\fRefreshToken\x12\x19.base.RefreshTokenRequest\x1a\x1a.base.RefreshTokenResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/api/auth/token\x12F\n" +
+	"\x05Login\x12\x12.base.LoginRequest\x1a\x13.base.LoginResponse\"\x14\x82\xd3\xe4\x93\x02\x0e:\x01*\"\t/api/authB\\\n" +
 	"\bcom.baseB\n" +
 	"LoginProtoP\x01Z\x14shop/api/gen/go/base\xa2\x02\x03BXX\xaa\x02\x04Base\xca\x02\x04Base\xe2\x02\x10Base\\GPBMetadata\xea\x02\x04Baseb\x06proto3"
 

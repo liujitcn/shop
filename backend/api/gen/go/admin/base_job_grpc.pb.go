@@ -31,7 +31,7 @@ const (
 	BaseJobService_SetBaseJobStatus_FullMethodName = "/admin.BaseJobService/SetBaseJobStatus"
 	BaseJobService_StartBaseJob_FullMethodName     = "/admin.BaseJobService/StartBaseJob"
 	BaseJobService_StopBaseJob_FullMethodName      = "/admin.BaseJobService/StopBaseJob"
-	BaseJobService_ExecBaseJob_FullMethodName      = "/admin.BaseJobService/ExecBaseJob"
+	BaseJobService_ExecuteBaseJob_FullMethodName   = "/admin.BaseJobService/ExecuteBaseJob"
 	BaseJobService_PageBaseJobLog_FullMethodName   = "/admin.BaseJobService/PageBaseJobLog"
 	BaseJobService_GetBaseJobLog_FullMethodName    = "/admin.BaseJobService/GetBaseJobLog"
 )
@@ -59,7 +59,7 @@ type BaseJobServiceClient interface {
 	// 停止任务
 	StopBaseJob(ctx context.Context, in *StopBaseJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 执行任务
-	ExecBaseJob(ctx context.Context, in *ExecBaseJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ExecuteBaseJob(ctx context.Context, in *ExecuteBaseJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询定时任务日志分页列表
 	PageBaseJobLog(ctx context.Context, in *PageBaseJobLogRequest, opts ...grpc.CallOption) (*PageBaseJobLogResponse, error)
 	// 查询定时任务日志
@@ -154,10 +154,10 @@ func (c *baseJobServiceClient) StopBaseJob(ctx context.Context, in *StopBaseJobR
 	return out, nil
 }
 
-func (c *baseJobServiceClient) ExecBaseJob(ctx context.Context, in *ExecBaseJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseJobServiceClient) ExecuteBaseJob(ctx context.Context, in *ExecuteBaseJobRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseJobService_ExecBaseJob_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseJobService_ExecuteBaseJob_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ type BaseJobServiceServer interface {
 	// 停止任务
 	StopBaseJob(context.Context, *StopBaseJobRequest) (*emptypb.Empty, error)
 	// 执行任务
-	ExecBaseJob(context.Context, *ExecBaseJobRequest) (*emptypb.Empty, error)
+	ExecuteBaseJob(context.Context, *ExecuteBaseJobRequest) (*emptypb.Empty, error)
 	// 查询定时任务日志分页列表
 	PageBaseJobLog(context.Context, *PageBaseJobLogRequest) (*PageBaseJobLogResponse, error)
 	// 查询定时任务日志
@@ -246,8 +246,8 @@ func (UnimplementedBaseJobServiceServer) StartBaseJob(context.Context, *StartBas
 func (UnimplementedBaseJobServiceServer) StopBaseJob(context.Context, *StopBaseJobRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method StopBaseJob not implemented")
 }
-func (UnimplementedBaseJobServiceServer) ExecBaseJob(context.Context, *ExecBaseJobRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ExecBaseJob not implemented")
+func (UnimplementedBaseJobServiceServer) ExecuteBaseJob(context.Context, *ExecuteBaseJobRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExecuteBaseJob not implemented")
 }
 func (UnimplementedBaseJobServiceServer) PageBaseJobLog(context.Context, *PageBaseJobLogRequest) (*PageBaseJobLogResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseJobLog not implemented")
@@ -420,20 +420,20 @@ func _BaseJobService_StopBaseJob_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseJobService_ExecBaseJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExecBaseJobRequest)
+func _BaseJobService_ExecuteBaseJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteBaseJobRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseJobServiceServer).ExecBaseJob(ctx, in)
+		return srv.(BaseJobServiceServer).ExecuteBaseJob(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseJobService_ExecBaseJob_FullMethodName,
+		FullMethod: BaseJobService_ExecuteBaseJob_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseJobServiceServer).ExecBaseJob(ctx, req.(*ExecBaseJobRequest))
+		return srv.(BaseJobServiceServer).ExecuteBaseJob(ctx, req.(*ExecuteBaseJobRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -514,8 +514,8 @@ var BaseJobService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseJobService_StopBaseJob_Handler,
 		},
 		{
-			MethodName: "ExecBaseJob",
-			Handler:    _BaseJobService_ExecBaseJob_Handler,
+			MethodName: "ExecuteBaseJob",
+			Handler:    _BaseJobService_ExecuteBaseJob_Handler,
 		},
 		{
 			MethodName: "PageBaseJobLog",

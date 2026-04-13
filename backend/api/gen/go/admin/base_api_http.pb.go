@@ -30,7 +30,7 @@ type BaseApiServiceHTTPServer interface {
 
 func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/admin/base/api/list", _BaseApiService_ListBaseApi0_HTTP_Handler(srv))
+	r.GET("/api/admin/base/api", _BaseApiService_ListBaseApi0_HTTP_Handler(srv))
 }
 
 func _BaseApiService_ListBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
@@ -68,7 +68,7 @@ func NewBaseApiServiceHTTPClient(client *http.Client) BaseApiServiceHTTPClient {
 // ListBaseApi 查询API列表
 func (c *BaseApiServiceHTTPClientImpl) ListBaseApi(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ListBaseApiResponse, error) {
 	var out ListBaseApiResponse
-	pattern := "/api/admin/base/api/list"
+	pattern := "/api/admin/base/api"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBaseApiServiceListBaseApi))
 	opts = append(opts, http.PathTemplate(pattern))

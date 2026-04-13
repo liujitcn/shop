@@ -8,7 +8,7 @@ export class GoodsSpecServiceImpl implements GoodsSpecService {
   /** 查询商品规格列表 */
   ListGoodsSpec(request: ListGoodsSpecRequest): Promise<ListGoodsSpecResponse> {
     return service<ListGoodsSpecRequest, ListGoodsSpecResponse>({
-      url: `${GOODS_SPEC_URL}/list`,
+      url: `${GOODS_SPEC_URL}`,
       method: "get",
       params: request
     });

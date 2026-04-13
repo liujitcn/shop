@@ -29,8 +29,10 @@ const requestOrigin =
     ? ''
     : apiTargetUrl.replace(/\/$/, '')
 const baseURL = `${requestOrigin}${normalizedApiBasePath}`
-const NO_AUTH_URL_SET = new Set(['/login', '/login/captcha', '/login/refreshToken'])
-const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set(['/login', '/login/captcha'])
+const AUTH_URL = '/auth'
+const REFRESH_TOKEN_URL = `${AUTH_URL}/token`
+const NO_AUTH_URL_SET = new Set([AUTH_URL, '/login/captcha', REFRESH_TOKEN_URL])
+const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([AUTH_URL, '/login/captcha'])
 
 // 添加拦截器
 const httpInterceptor = {
@@ -230,7 +232,7 @@ async function refreshAccessToken() {
 
   const response = await new Promise<UniApp.RequestSuccessCallbackResult>((resolve, reject) => {
     uni.request({
-      url: `${baseURL}/login/refreshToken`,
+      url: `${baseURL}${REFRESH_TOKEN_URL}`,
       method: 'POST',
       data: { refreshToken },
       header: {

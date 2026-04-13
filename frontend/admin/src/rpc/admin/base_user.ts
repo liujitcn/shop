@@ -115,8 +115,8 @@ export interface BaseUserForm {
   remark: string;
 }
 
-/** ResetBaseUserPwd请求参数 */
-export interface ResetBaseUserPwdRequest {
+/** 重置用户密码请求参数 */
+export interface ResetBaseUserPasswordRequest {
   /** 用户ID */
   id: number;
   /** 密码 */
@@ -140,5 +140,5 @@ export interface BaseUserService {
   /** 设置状态 */
   SetBaseUserStatus(request: SetStatusRequest): Promise<Empty>;
   /** 重置密码 */
-  ResetBaseUserPwd(request: ResetBaseUserPwdRequest): Promise<Empty>;
+  ResetBaseUserPassword(request: ResetBaseUserPasswordRequest): Promise<Empty>;
 }

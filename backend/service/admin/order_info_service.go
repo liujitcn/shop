@@ -79,22 +79,22 @@ func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *admin.Refun
 	return new(emptypb.Empty), nil
 }
 
-// GetOrderInfoShipped 查询订单信息发货信息
-func (s *OrderInfoService) GetOrderInfoShipped(ctx context.Context, req *wrapperspb.Int64Value) (*admin.OrderInfoShippedResponse, error) {
-	res, err := s.orderInfoCase.GetOrderInfoShipped(ctx, req.GetValue())
+// GetOrderInfoShipment 查询订单信息发货信息
+func (s *OrderInfoService) GetOrderInfoShipment(ctx context.Context, req *wrapperspb.Int64Value) (*admin.OrderInfoShipmentForm, error) {
+	res, err := s.orderInfoCase.GetOrderInfoShipment(ctx, req.GetValue())
 	if err != nil {
-		log.Errorf("GetOrderInfoShipped %v", err)
+		log.Errorf("GetOrderInfoShipment %v", err)
 		return nil, errorsx.WrapInternal(err, "查询订单发货信息失败")
 	}
 
 	return res, nil
 }
 
-// ShippedOrderInfo 订单信息发货
-func (s *OrderInfoService) ShippedOrderInfo(ctx context.Context, req *admin.ShippedOrderInfoRequest) (*emptypb.Empty, error) {
-	err := s.orderInfoCase.ShippedOrderInfo(ctx, req)
+// ShipOrderInfo 订单信息发货
+func (s *OrderInfoService) ShipOrderInfo(ctx context.Context, req *admin.ShipOrderInfoRequest) (*emptypb.Empty, error) {
+	err := s.orderInfoCase.ShipOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("ShippedOrderInfo %v", err)
+		log.Errorf("ShipOrderInfo %v", err)
 		return nil, errorsx.WrapInternal(err, "订单发货失败")
 	}
 

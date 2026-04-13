@@ -46,7 +46,7 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopHotService } from "@/api/admin/shop_hot";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
-import type { ListGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/goods_info";
+import type { OptionGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/goods_info";
 import type { PageShopHotItemRequest, ShopHotItem, ShopHotItemForm } from "@/rpc/admin/shop_hot";
 import { Status } from "@/rpc/common/enum";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
@@ -87,7 +87,7 @@ const formData = reactive<ShopHotItemForm>({
   status: Status.ENABLE
 });
 
-const goodsInfoList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
+const goodsInfoList = ref<OptionGoodsInfoResponse_GoodsInfo[]>([]);
 
 const rules = computed(() => ({
   title: [{ required: true, message: "请输入热门推荐选项标题", trigger: "blur" }],
@@ -241,7 +241,7 @@ function refreshTable() {
  * 加载推荐商品下拉数据，供穿梭框使用。
  */
 async function loadGoodsOptions() {
-  const listGoodsInfoResponse = await defGoodsInfoService.ListGoodsInfo({ name: "" });
+  const listGoodsInfoResponse = await defGoodsInfoService.OptionGoodsInfo({ name: "" });
   goodsInfoList.value = listGoodsInfoResponse.list || [];
 }
 

@@ -25,7 +25,7 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationBaseJobServiceCreateBaseJob = "/admin.BaseJobService/CreateBaseJob"
 const OperationBaseJobServiceDeleteBaseJob = "/admin.BaseJobService/DeleteBaseJob"
-const OperationBaseJobServiceExecBaseJob = "/admin.BaseJobService/ExecBaseJob"
+const OperationBaseJobServiceExecuteBaseJob = "/admin.BaseJobService/ExecuteBaseJob"
 const OperationBaseJobServiceGetBaseJob = "/admin.BaseJobService/GetBaseJob"
 const OperationBaseJobServiceGetBaseJobLog = "/admin.BaseJobService/GetBaseJobLog"
 const OperationBaseJobServicePageBaseJob = "/admin.BaseJobService/PageBaseJob"
@@ -40,8 +40,8 @@ type BaseJobServiceHTTPServer interface {
 	CreateBaseJob(context.Context, *BaseJobForm) (*emptypb.Empty, error)
 	// DeleteBaseJob 删除定时任务
 	DeleteBaseJob(context.Context, *wrapperspb.StringValue) (*emptypb.Empty, error)
-	// ExecBaseJob 执行任务
-	ExecBaseJob(context.Context, *ExecBaseJobRequest) (*emptypb.Empty, error)
+	// ExecuteBaseJob 执行任务
+	ExecuteBaseJob(context.Context, *ExecuteBaseJobRequest) (*emptypb.Empty, error)
 	// GetBaseJob 查询定时任务
 	GetBaseJob(context.Context, *wrapperspb.Int64Value) (*BaseJobForm, error)
 	// GetBaseJobLog 查询定时任务日志
@@ -68,9 +68,9 @@ func RegisterBaseJobServiceHTTPServer(s *http.Server, srv BaseJobServiceHTTPServ
 	r.PUT("/api/admin/base/job/{id}", _BaseJobService_UpdateBaseJob0_HTTP_Handler(srv))
 	r.DELETE("/api/admin/base/job/{value}", _BaseJobService_DeleteBaseJob0_HTTP_Handler(srv))
 	r.PUT("/api/admin/base/job/{id}/status", _BaseJobService_SetBaseJobStatus0_HTTP_Handler(srv))
-	r.PUT("/api/admin/base/job/{id}/start", _BaseJobService_StartBaseJob0_HTTP_Handler(srv))
-	r.PUT("/api/admin/base/job/{id}/stop", _BaseJobService_StopBaseJob0_HTTP_Handler(srv))
-	r.PUT("/api/admin/base/job/{id}/exec", _BaseJobService_ExecBaseJob0_HTTP_Handler(srv))
+	r.PUT("/api/admin/base/job/{id}/running", _BaseJobService_StartBaseJob0_HTTP_Handler(srv))
+	r.DELETE("/api/admin/base/job/{id}/running", _BaseJobService_StopBaseJob0_HTTP_Handler(srv))
+	r.POST("/api/admin/base/job/{id}/execution", _BaseJobService_ExecuteBaseJob0_HTTP_Handler(srv))
 	r.GET("/api/admin/base/job-log", _BaseJobService_PageBaseJobLog0_HTTP_Handler(srv))
 	r.GET("/api/admin/base/job-log/{value}", _BaseJobService_GetBaseJobLog0_HTTP_Handler(srv))
 }
@@ -238,9 +238,6 @@ func _BaseJobService_StartBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) fu
 func _BaseJobService_StopBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in StopBaseJobRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -260,9 +257,9 @@ func _BaseJobService_StopBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) fun
 	}
 }
 
-func _BaseJobService_ExecBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
+func _BaseJobService_ExecuteBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ExecBaseJobRequest
+		var in ExecuteBaseJobRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -272,9 +269,9 @@ func _BaseJobService_ExecBaseJob0_HTTP_Handler(srv BaseJobServiceHTTPServer) fun
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseJobServiceExecBaseJob)
+		http.SetOperation(ctx, OperationBaseJobServiceExecuteBaseJob)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ExecBaseJob(ctx, req.(*ExecBaseJobRequest))
+			return srv.ExecuteBaseJob(ctx, req.(*ExecuteBaseJobRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -331,8 +328,8 @@ type BaseJobServiceHTTPClient interface {
 	CreateBaseJob(ctx context.Context, req *BaseJobForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteBaseJob 删除定时任务
 	DeleteBaseJob(ctx context.Context, req *wrapperspb.StringValue, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// ExecBaseJob 执行任务
-	ExecBaseJob(ctx context.Context, req *ExecBaseJobRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// ExecuteBaseJob 执行任务
+	ExecuteBaseJob(ctx context.Context, req *ExecuteBaseJobRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetBaseJob 查询定时任务
 	GetBaseJob(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *BaseJobForm, err error)
 	// GetBaseJobLog 查询定时任务日志
@@ -387,14 +384,14 @@ func (c *BaseJobServiceHTTPClientImpl) DeleteBaseJob(ctx context.Context, in *wr
 	return &out, nil
 }
 
-// ExecBaseJob 执行任务
-func (c *BaseJobServiceHTTPClientImpl) ExecBaseJob(ctx context.Context, in *ExecBaseJobRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// ExecuteBaseJob 执行任务
+func (c *BaseJobServiceHTTPClientImpl) ExecuteBaseJob(ctx context.Context, in *ExecuteBaseJobRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/base/job/{id}/exec"
+	pattern := "/api/admin/base/job/{id}/execution"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationBaseJobServiceExecBaseJob))
+	opts = append(opts, http.Operation(OperationBaseJobServiceExecuteBaseJob))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -474,7 +471,7 @@ func (c *BaseJobServiceHTTPClientImpl) SetBaseJobStatus(ctx context.Context, in 
 // StartBaseJob 启动任务
 func (c *BaseJobServiceHTTPClientImpl) StartBaseJob(ctx context.Context, in *StartBaseJobRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/base/job/{id}/start"
+	pattern := "/api/admin/base/job/{id}/running"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBaseJobServiceStartBaseJob))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -488,11 +485,11 @@ func (c *BaseJobServiceHTTPClientImpl) StartBaseJob(ctx context.Context, in *Sta
 // StopBaseJob 停止任务
 func (c *BaseJobServiceHTTPClientImpl) StopBaseJob(ctx context.Context, in *StopBaseJobRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/base/job/{id}/stop"
-	path := binding.EncodeURL(pattern, in, false)
+	pattern := "/api/admin/base/job/{id}/running"
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBaseJobServiceStopBaseJob))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

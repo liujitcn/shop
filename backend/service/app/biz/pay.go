@@ -70,7 +70,7 @@ func NewPayCase(
 }
 
 // JsapiPay 创建 JSAPI 支付预下单信息
-func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.JsapiPayResponse, error) {
+func (c *PayCase) JsapiPay(ctx context.Context, req *app.JsapiPayRequest) (*app.JsapiPayResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 }
 
 // H5Pay 创建 H5 支付预下单信息
-func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayResponse, error) {
+func (c *PayCase) H5Pay(ctx context.Context, req *app.H5PayRequest) (*app.H5PayResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err

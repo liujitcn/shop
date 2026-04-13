@@ -15,9 +15,9 @@ import "common/enum.proto";
 // Admin系统配置服务
 service BaseConfigService {
   // 刷新缓存
-  rpc RefreshBaseConfig (google.protobuf.Empty) returns (google.protobuf.Empty) {
+  rpc RefreshBaseConfigCache (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/api/admin/base/config/refresh"
+      put: "/api/admin/base/config/cache"
       body: "*"
     };
   }

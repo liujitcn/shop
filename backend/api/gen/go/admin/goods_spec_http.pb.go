@@ -29,7 +29,7 @@ type GoodsSpecServiceHTTPServer interface {
 
 func RegisterGoodsSpecServiceHTTPServer(s *http.Server, srv GoodsSpecServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/admin/goods/spec/list", _GoodsSpecService_ListGoodsSpec0_HTTP_Handler(srv))
+	r.GET("/api/admin/goods/spec", _GoodsSpecService_ListGoodsSpec0_HTTP_Handler(srv))
 }
 
 func _GoodsSpecService_ListGoodsSpec0_HTTP_Handler(srv GoodsSpecServiceHTTPServer) func(ctx http.Context) error {
@@ -67,7 +67,7 @@ func NewGoodsSpecServiceHTTPClient(client *http.Client) GoodsSpecServiceHTTPClie
 // ListGoodsSpec 查询商品规格列表
 func (c *GoodsSpecServiceHTTPClientImpl) ListGoodsSpec(ctx context.Context, in *ListGoodsSpecRequest, opts ...http.CallOption) (*ListGoodsSpecResponse, error) {
 	var out ListGoodsSpecResponse
-	pattern := "/api/admin/goods/spec/list"
+	pattern := "/api/admin/goods/spec"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationGoodsSpecServiceListGoodsSpec))
 	opts = append(opts, http.PathTemplate(pattern))

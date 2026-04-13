@@ -14,10 +14,10 @@ const BASE_CONFIG_URL = "/admin/base/config";
 /** Admin系统配置服务 */
 export class BaseConfigServiceImpl implements BaseConfigService {
   /** 刷新缓存 */
-  RefreshBaseConfig(request: Empty): Promise<Empty> {
+  RefreshBaseConfigCache(request: Empty): Promise<Empty> {
     return service<Empty, Empty>({
-      url: `${BASE_CONFIG_URL}/refresh`,
-      method: "post",
+      url: `${BASE_CONFIG_URL}/cache`,
+      method: "put",
       data: request
     });
   }

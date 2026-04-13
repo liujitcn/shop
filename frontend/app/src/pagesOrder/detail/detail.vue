@@ -5,12 +5,11 @@ import type { OrderInfoResponse } from '@/rpc/app/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
-import { OrderCancelReason, OrderStatus } from '@/rpc/common/enum'
-import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
+import { OrderCancelReason, OrderStatus, RecommendScene } from '@/rpc/common/enum'
+import type { BaseDictForm_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { defPayService } from '@/api/app/pay'
 import { formatPrice, formatSrc } from '@/utils'
-import { RecommendScene } from '@/rpc/common/enum'
 import {
   goodsDetailUrl,
   homeTabPage,
@@ -25,11 +24,11 @@ const { guessRef, onScrollToLower } = useGuessList()
 // 弹出层组件
 const popup = ref<UniHelper.UniPopupInstance>()
 // 原因列表
-const reasonList = ref<ListBaseDictResponse_DictItem[]>([])
+const reasonList = ref<BaseDictForm_DictItem[]>([])
 // 取消原因列表
-const cancelReasonList = ref<ListBaseDictResponse_DictItem[]>([])
+const cancelReasonList = ref<BaseDictForm_DictItem[]>([])
 // 退款原因列表
-const refundReasonList = ref<ListBaseDictResponse_DictItem[]>([])
+const refundReasonList = ref<BaseDictForm_DictItem[]>([])
 const orderStatusMap: Map<number, string> = new Map()
 // 订单取消/退款原因
 const reason = ref('')
@@ -120,28 +119,20 @@ const getUserOrderById = async () => {
   })
 }
 const getDictData = async () => {
-  const order_status = 'order_status'
-  const cancel_reason = 'order_cancel_reason'
-  const refund_reason = 'order_refund_reason'
-  const res = await defBaseDictService.ListBaseDict({
-    value: `${order_status},${cancel_reason},${refund_reason}`,
+  const orderStatusCode = 'order_status'
+  const cancelReasonCode = 'order_cancel_reason'
+  const refundReasonCode = 'order_refund_reason'
+  // 新协议按字典编码单查，这里并发加载详情页依赖的三个字典。
+  const [orderStatusDict, cancelReasonDict, refundReasonDict] = await Promise.all([
+    defBaseDictService.GetBaseDict({ value: orderStatusCode }),
+    defBaseDictService.GetBaseDict({ value: cancelReasonCode }),
+    defBaseDictService.GetBaseDict({ value: refundReasonCode }),
+  ])
+  orderStatusDict.items.map((dictItem) => {
+    orderStatusMap.set(Number(dictItem.value), dictItem.label)
   })
-  const list = res.list || []
-  list.map((item) => {
-    switch (item.code) {
-      case order_status:
-        item.items.map((dictItem) => {
-          orderStatusMap.set(Number(dictItem.value), dictItem.label)
-        })
-        break
-      case cancel_reason:
-        cancelReasonList.value = item.items || []
-        break
-      case refund_reason:
-        refundReasonList.value = item.items || []
-        break
-    }
-  })
+  cancelReasonList.value = cancelReasonDict.items || []
+  refundReasonList.value = refundReasonDict.items || []
 }
 onLoad(() => {
   Promise.all([getUserOrderById(), getDictData()])
@@ -212,7 +203,7 @@ const onOrderPay = async () => {
     /** 接口调用成功的回调函数 */
     success: () => {
       // 关闭当前页，再跳转支付结果页
-      void redirectToOrderPayment(query.id)
+      void redirectToOrderPayment(orderId.value)
     },
   })
   // #endif

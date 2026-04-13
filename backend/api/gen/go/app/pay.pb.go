@@ -135,7 +135,7 @@ func (x PaymentResource_TradeState) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PaymentResource_TradeState.Descriptor instead.
 func (PaymentResource_TradeState) EnumDescriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{3, 0}
+	return file_app_pay_proto_rawDescGZIP(), []int{4, 0}
 }
 
 // 交易类型枚举
@@ -197,7 +197,7 @@ func (x PaymentResource_TradeType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PaymentResource_TradeType.Descriptor instead.
 func (PaymentResource_TradeType) EnumDescriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{3, 1}
+	return file_app_pay_proto_rawDescGZIP(), []int{4, 1}
 }
 
 // 【退款状态】
@@ -253,31 +253,31 @@ func (x RefundResource_RefundStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RefundResource_RefundStatus.Descriptor instead.
 func (RefundResource_RefundStatus) EnumDescriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{4, 0}
+	return file_app_pay_proto_rawDescGZIP(), []int{5, 0}
 }
 
-// 支付请求参数
-type PayRequest struct {
+// 小程序支付请求参数
+type JsapiPayRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PayRequest) Reset() {
-	*x = PayRequest{}
+func (x *JsapiPayRequest) Reset() {
+	*x = JsapiPayRequest{}
 	mi := &file_app_pay_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PayRequest) String() string {
+func (x *JsapiPayRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PayRequest) ProtoMessage() {}
+func (*JsapiPayRequest) ProtoMessage() {}
 
-func (x *PayRequest) ProtoReflect() protoreflect.Message {
+func (x *JsapiPayRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_pay_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -289,12 +289,57 @@ func (x *PayRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PayRequest.ProtoReflect.Descriptor instead.
-func (*PayRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use JsapiPayRequest.ProtoReflect.Descriptor instead.
+func (*JsapiPayRequest) Descriptor() ([]byte, []int) {
 	return file_app_pay_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PayRequest) GetOrderId() int64 {
+func (x *JsapiPayRequest) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+// H5支付请求参数
+type H5PayRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *H5PayRequest) Reset() {
+	*x = H5PayRequest{}
+	mi := &file_app_pay_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *H5PayRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*H5PayRequest) ProtoMessage() {}
+
+func (x *H5PayRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_app_pay_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use H5PayRequest.ProtoReflect.Descriptor instead.
+func (*H5PayRequest) Descriptor() ([]byte, []int) {
+	return file_app_pay_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *H5PayRequest) GetOrderId() int64 {
 	if x != nil {
 		return x.OrderId
 	}
@@ -315,7 +360,7 @@ type JsapiPayResponse struct {
 
 func (x *JsapiPayResponse) Reset() {
 	*x = JsapiPayResponse{}
-	mi := &file_app_pay_proto_msgTypes[1]
+	mi := &file_app_pay_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -327,7 +372,7 @@ func (x *JsapiPayResponse) String() string {
 func (*JsapiPayResponse) ProtoMessage() {}
 
 func (x *JsapiPayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[1]
+	mi := &file_app_pay_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -340,7 +385,7 @@ func (x *JsapiPayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use JsapiPayResponse.ProtoReflect.Descriptor instead.
 func (*JsapiPayResponse) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{1}
+	return file_app_pay_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *JsapiPayResponse) GetAppId() string {
@@ -388,7 +433,7 @@ type H5PayResponse struct {
 
 func (x *H5PayResponse) Reset() {
 	*x = H5PayResponse{}
-	mi := &file_app_pay_proto_msgTypes[2]
+	mi := &file_app_pay_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -400,7 +445,7 @@ func (x *H5PayResponse) String() string {
 func (*H5PayResponse) ProtoMessage() {}
 
 func (x *H5PayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[2]
+	mi := &file_app_pay_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -413,7 +458,7 @@ func (x *H5PayResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use H5PayResponse.ProtoReflect.Descriptor instead.
 func (*H5PayResponse) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{2}
+	return file_app_pay_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *H5PayResponse) GetH5Url() string {
@@ -445,7 +490,7 @@ type PaymentResource struct {
 
 func (x *PaymentResource) Reset() {
 	*x = PaymentResource{}
-	mi := &file_app_pay_proto_msgTypes[3]
+	mi := &file_app_pay_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -457,7 +502,7 @@ func (x *PaymentResource) String() string {
 func (*PaymentResource) ProtoMessage() {}
 
 func (x *PaymentResource) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[3]
+	mi := &file_app_pay_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -470,7 +515,7 @@ func (x *PaymentResource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PaymentResource.ProtoReflect.Descriptor instead.
 func (*PaymentResource) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{3}
+	return file_app_pay_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *PaymentResource) GetTransactionId() string {
@@ -582,7 +627,7 @@ type RefundResource struct {
 
 func (x *RefundResource) Reset() {
 	*x = RefundResource{}
-	mi := &file_app_pay_proto_msgTypes[4]
+	mi := &file_app_pay_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -594,7 +639,7 @@ func (x *RefundResource) String() string {
 func (*RefundResource) ProtoMessage() {}
 
 func (x *RefundResource) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[4]
+	mi := &file_app_pay_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -607,7 +652,7 @@ func (x *RefundResource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefundResource.ProtoReflect.Descriptor instead.
 func (*RefundResource) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{4}
+	return file_app_pay_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RefundResource) GetMchid() string {
@@ -686,7 +731,7 @@ type PaymentResource_Amount struct {
 
 func (x *PaymentResource_Amount) Reset() {
 	*x = PaymentResource_Amount{}
-	mi := &file_app_pay_proto_msgTypes[5]
+	mi := &file_app_pay_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -698,7 +743,7 @@ func (x *PaymentResource_Amount) String() string {
 func (*PaymentResource_Amount) ProtoMessage() {}
 
 func (x *PaymentResource_Amount) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[5]
+	mi := &file_app_pay_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -711,7 +756,7 @@ func (x *PaymentResource_Amount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PaymentResource_Amount.ProtoReflect.Descriptor instead.
 func (*PaymentResource_Amount) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{3, 0}
+	return file_app_pay_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *PaymentResource_Amount) GetPayerTotal() int64 {
@@ -752,7 +797,7 @@ type PaymentResource_Payer struct {
 
 func (x *PaymentResource_Payer) Reset() {
 	*x = PaymentResource_Payer{}
-	mi := &file_app_pay_proto_msgTypes[6]
+	mi := &file_app_pay_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -764,7 +809,7 @@ func (x *PaymentResource_Payer) String() string {
 func (*PaymentResource_Payer) ProtoMessage() {}
 
 func (x *PaymentResource_Payer) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[6]
+	mi := &file_app_pay_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -777,7 +822,7 @@ func (x *PaymentResource_Payer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PaymentResource_Payer.ProtoReflect.Descriptor instead.
 func (*PaymentResource_Payer) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{3, 1}
+	return file_app_pay_proto_rawDescGZIP(), []int{4, 1}
 }
 
 func (x *PaymentResource_Payer) GetOpenid() string {
@@ -797,7 +842,7 @@ type PaymentResource_SceneInfo struct {
 
 func (x *PaymentResource_SceneInfo) Reset() {
 	*x = PaymentResource_SceneInfo{}
-	mi := &file_app_pay_proto_msgTypes[7]
+	mi := &file_app_pay_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -809,7 +854,7 @@ func (x *PaymentResource_SceneInfo) String() string {
 func (*PaymentResource_SceneInfo) ProtoMessage() {}
 
 func (x *PaymentResource_SceneInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[7]
+	mi := &file_app_pay_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -822,7 +867,7 @@ func (x *PaymentResource_SceneInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PaymentResource_SceneInfo.ProtoReflect.Descriptor instead.
 func (*PaymentResource_SceneInfo) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{3, 2}
+	return file_app_pay_proto_rawDescGZIP(), []int{4, 2}
 }
 
 func (x *PaymentResource_SceneInfo) GetDeviceId() string {
@@ -845,7 +890,7 @@ type RefundResource_Amount struct {
 
 func (x *RefundResource_Amount) Reset() {
 	*x = RefundResource_Amount{}
-	mi := &file_app_pay_proto_msgTypes[8]
+	mi := &file_app_pay_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -857,7 +902,7 @@ func (x *RefundResource_Amount) String() string {
 func (*RefundResource_Amount) ProtoMessage() {}
 
 func (x *RefundResource_Amount) ProtoReflect() protoreflect.Message {
-	mi := &file_app_pay_proto_msgTypes[8]
+	mi := &file_app_pay_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -870,7 +915,7 @@ func (x *RefundResource_Amount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RefundResource_Amount.ProtoReflect.Descriptor instead.
 func (*RefundResource_Amount) Descriptor() ([]byte, []int) {
-	return file_app_pay_proto_rawDescGZIP(), []int{4, 0}
+	return file_app_pay_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *RefundResource_Amount) GetTotal() int32 {
@@ -905,9 +950,10 @@ var File_app_pay_proto protoreflect.FileDescriptor
 
 const file_app_pay_proto_rawDesc = "" +
 	"\n" +
-	"\rapp/pay.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"6\n" +
-	"\n" +
-	"PayRequest\x12(\n" +
+	"\rapp/pay.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\";\n" +
+	"\x0fJsapiPayRequest\x12(\n" +
+	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"8\n" +
+	"\fH5PayRequest\x12(\n" +
 	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xeb\x06\n" +
 	"\x10JsapiPayResponse\x12\x95\x01\n" +
 	"\x05appId\x18\x01 \x01(\tB\x7f\xbaG|\x92\x02y填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。R\x05appId\x12\xcf\x01\n" +
@@ -997,11 +1043,11 @@ const file_app_pay_proto_rawDesc = "" +
 	"\fResourceType\x12\x0f\n" +
 	"\vTRANSACTION\x10\x00\x12\n" +
 	"\n" +
-	"\x06REFUND\x10\x012\x9a\x02\n" +
+	"\x06REFUND\x10\x012\xa1\x02\n" +
 	"\n" +
-	"PayService\x12[\n" +
-	"\bJsapiPay\x12\x0f.app.PayRequest\x1a\x15.app.JsapiPayResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/app/pay/{orderId}/jsapi\x12R\n" +
-	"\x05H5Pay\x12\x0f.app.PayRequest\x1a\x12.app.H5PayResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/app/pay/{orderId}/h5\x12[\n" +
+	"PayService\x12`\n" +
+	"\bJsapiPay\x12\x14.app.JsapiPayRequest\x1a\x15.app.JsapiPayResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/api/app/pay/{orderId}/jsapi\x12T\n" +
+	"\x05H5Pay\x12\x11.app.H5PayRequest\x1a\x12.app.H5PayResponse\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/api/app/pay/{orderId}/h5\x12[\n" +
 	"\tPayNotify\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/api/app/pay/notifyBT\n" +
 	"\acom.appB\bPayProtoP\x01Z\x13shop/api/gen/go/app\xa2\x02\x03AXX\xaa\x02\x03App\xca\x02\x03App\xe2\x02\x0fApp\\GPBMetadata\xea\x02\x03Appb\x06proto3"
 
@@ -1018,40 +1064,41 @@ func file_app_pay_proto_rawDescGZIP() []byte {
 }
 
 var file_app_pay_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_app_pay_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_app_pay_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_app_pay_proto_goTypes = []any{
 	(ResourceType)(0),                 // 0: app.ResourceType
 	(PaymentResource_TradeState)(0),   // 1: app.PaymentResource.TradeState
 	(PaymentResource_TradeType)(0),    // 2: app.PaymentResource.TradeType
 	(RefundResource_RefundStatus)(0),  // 3: app.RefundResource.RefundStatus
-	(*PayRequest)(nil),                // 4: app.PayRequest
-	(*JsapiPayResponse)(nil),          // 5: app.JsapiPayResponse
-	(*H5PayResponse)(nil),             // 6: app.H5PayResponse
-	(*PaymentResource)(nil),           // 7: app.PaymentResource
-	(*RefundResource)(nil),            // 8: app.RefundResource
-	(*PaymentResource_Amount)(nil),    // 9: app.PaymentResource.Amount
-	(*PaymentResource_Payer)(nil),     // 10: app.PaymentResource.Payer
-	(*PaymentResource_SceneInfo)(nil), // 11: app.PaymentResource.SceneInfo
-	(*RefundResource_Amount)(nil),     // 12: app.RefundResource.Amount
-	(*timestamppb.Timestamp)(nil),     // 13: google.protobuf.Timestamp
-	(*emptypb.Empty)(nil),             // 14: google.protobuf.Empty
+	(*JsapiPayRequest)(nil),           // 4: app.JsapiPayRequest
+	(*H5PayRequest)(nil),              // 5: app.H5PayRequest
+	(*JsapiPayResponse)(nil),          // 6: app.JsapiPayResponse
+	(*H5PayResponse)(nil),             // 7: app.H5PayResponse
+	(*PaymentResource)(nil),           // 8: app.PaymentResource
+	(*RefundResource)(nil),            // 9: app.RefundResource
+	(*PaymentResource_Amount)(nil),    // 10: app.PaymentResource.Amount
+	(*PaymentResource_Payer)(nil),     // 11: app.PaymentResource.Payer
+	(*PaymentResource_SceneInfo)(nil), // 12: app.PaymentResource.SceneInfo
+	(*RefundResource_Amount)(nil),     // 13: app.RefundResource.Amount
+	(*timestamppb.Timestamp)(nil),     // 14: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),             // 15: google.protobuf.Empty
 }
 var file_app_pay_proto_depIdxs = []int32{
-	9,  // 0: app.PaymentResource.amount:type_name -> app.PaymentResource.Amount
+	10, // 0: app.PaymentResource.amount:type_name -> app.PaymentResource.Amount
 	1,  // 1: app.PaymentResource.trade_state:type_name -> app.PaymentResource.TradeState
-	13, // 2: app.PaymentResource.success_time:type_name -> google.protobuf.Timestamp
-	10, // 3: app.PaymentResource.payer:type_name -> app.PaymentResource.Payer
+	14, // 2: app.PaymentResource.success_time:type_name -> google.protobuf.Timestamp
+	11, // 3: app.PaymentResource.payer:type_name -> app.PaymentResource.Payer
 	2,  // 4: app.PaymentResource.trade_type:type_name -> app.PaymentResource.TradeType
-	11, // 5: app.PaymentResource.scene_info:type_name -> app.PaymentResource.SceneInfo
+	12, // 5: app.PaymentResource.scene_info:type_name -> app.PaymentResource.SceneInfo
 	3,  // 6: app.RefundResource.refund_status:type_name -> app.RefundResource.RefundStatus
-	13, // 7: app.RefundResource.success_time:type_name -> google.protobuf.Timestamp
-	12, // 8: app.RefundResource.amount:type_name -> app.RefundResource.Amount
-	4,  // 9: app.PayService.JsapiPay:input_type -> app.PayRequest
-	4,  // 10: app.PayService.H5Pay:input_type -> app.PayRequest
-	14, // 11: app.PayService.PayNotify:input_type -> google.protobuf.Empty
-	5,  // 12: app.PayService.JsapiPay:output_type -> app.JsapiPayResponse
-	6,  // 13: app.PayService.H5Pay:output_type -> app.H5PayResponse
-	14, // 14: app.PayService.PayNotify:output_type -> google.protobuf.Empty
+	14, // 7: app.RefundResource.success_time:type_name -> google.protobuf.Timestamp
+	13, // 8: app.RefundResource.amount:type_name -> app.RefundResource.Amount
+	4,  // 9: app.PayService.JsapiPay:input_type -> app.JsapiPayRequest
+	5,  // 10: app.PayService.H5Pay:input_type -> app.H5PayRequest
+	15, // 11: app.PayService.PayNotify:input_type -> google.protobuf.Empty
+	6,  // 12: app.PayService.JsapiPay:output_type -> app.JsapiPayResponse
+	7,  // 13: app.PayService.H5Pay:output_type -> app.H5PayResponse
+	15, // 14: app.PayService.PayNotify:output_type -> google.protobuf.Empty
 	12, // [12:15] is the sub-list for method output_type
 	9,  // [9:12] is the sub-list for method input_type
 	9,  // [9:9] is the sub-list for extension type_name
@@ -1070,7 +1117,7 @@ func file_app_pay_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_pay_proto_rawDesc), len(file_app_pay_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

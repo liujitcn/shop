@@ -70,7 +70,7 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseUserService } from "@/api/admin/base_user";
-import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPwdRequest } from "@/rpc/admin/base_user";
+import type { BaseUser, BaseUserForm, PageBaseUserRequest, ResetBaseUserPasswordRequest } from "@/rpc/admin/base_user";
 import { defBaseDeptService } from "@/api/admin/base_dept";
 import { defBaseRoleService } from "@/api/admin/base_role";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/common";
@@ -132,7 +132,7 @@ const formData = reactive<BaseUserForm>({
   /** 备注名 */
   remark: ""
 });
-const resetPwdForm = reactive<ResetBaseUserPwdRequest>({
+const resetPwdForm = reactive<ResetBaseUserPasswordRequest>({
   id: 0,
   pwd: ""
 });
@@ -467,7 +467,7 @@ function handleConfirmResetPassword() {
   resetPwdFormDialogRef.value?.validate()?.then(valid => {
     if (!valid) return;
 
-    defBaseUserService.ResetBaseUserPwd({ ...resetPwdForm }).then(() => {
+    defBaseUserService.ResetBaseUserPassword({ ...resetPwdForm }).then(() => {
       ElMessage.success(`重置密码成功\n用户名称：${resetPwdTargetName.value}`);
       handleCloseResetPasswordDialog();
     });

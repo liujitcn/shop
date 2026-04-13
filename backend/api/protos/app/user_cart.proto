@@ -22,7 +22,7 @@ service UserCartService {
   // 查询用户购物车列表
   rpc ListUserCart (google.protobuf.Empty) returns (ListUserCartResponse) {
     option (google.api.http) = {
-      get: "/api/app/user/cart/list"
+      get: "/api/app/user/cart"
     };
   }
 
@@ -35,9 +35,9 @@ service UserCartService {
   }
 
   // 更新用户购物车
-  rpc UpdateUserCart (UpdateUserCartRequest) returns (google.protobuf.Empty) {
+  rpc UpdateUserCart (UserCartForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/app/user/cart"
+      put: "/api/app/user/cart/{id}"
       body: "*"
     };
   }
@@ -58,9 +58,9 @@ service UserCartService {
   }
 
   // 设置全选
-  rpc SelectedUserCart (SelectedUserCartRequest) returns (google.protobuf.Empty) {
+  rpc SetUserCartSelection (SetUserCartSelectionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/app/user/cart/selected"
+      put: "/api/app/user/cart/selection"
       body: "*"
     };
   }
@@ -143,8 +143,8 @@ message CreateUserCartRequest {
   ];  // 推荐上下文
 }
 
-// 更新购物车请求参数
-message UpdateUserCartRequest {
+// 用户购物车表单
+message UserCartForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "购物车id"}
   ];  // 购物车id
@@ -165,8 +165,8 @@ message SetUserCartStatusRequest {
   ];  // 是否选中
 }
 
-// 购物车全选设置请求参数
-message SelectedUserCartRequest {
+// 设置购物车选中状态请求参数
+message SetUserCartSelectionRequest {
   bool isChecked = 1 [
     (gnostic.openapi.v3.property) = {description: "是否选中"}
   ];  // 是否选中

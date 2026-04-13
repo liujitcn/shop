@@ -476,7 +476,7 @@ function handleExec(id: number, name: string) {
     type: "warning"
   }).then(
     () => {
-      defBaseJobService.ExecBaseJob({ id }).then(() => {
+      defBaseJobService.ExecuteBaseJob({ id }).then(() => {
         ElMessage.success("执行成功");
         refreshTable();
       });

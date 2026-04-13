@@ -78,9 +78,9 @@ export interface BaseRoleForm {
   remark: string;
 }
 
-/** SetMenus请求参数 */
-export interface SetMenusRequest {
-  /** 用户ID */
+/** 设置角色菜单权限请求参数 */
+export interface SetBaseRoleMenuRequest {
+  /** 角色ID */
   id: number;
   /** 分配的菜单列表 */
   menus: number[];
@@ -103,5 +103,5 @@ export interface BaseRoleService {
   /** 设置状态 */
   SetBaseRoleStatus(request: SetStatusRequest): Promise<Empty>;
   /** 设置角色菜单权限 */
-  SetBaseRoleMenus(request: SetMenusRequest): Promise<Empty>;
+  SetBaseRoleMenu(request: SetBaseRoleMenuRequest): Promise<Empty>;
 }

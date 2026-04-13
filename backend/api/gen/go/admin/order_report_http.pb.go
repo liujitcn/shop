@@ -39,9 +39,9 @@ type OrderReportServiceHTTPServer interface {
 func RegisterOrderReportServiceHTTPServer(s *http.Server, srv OrderReportServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/admin/report/order/month/summary", _OrderReportService_OrderMonthReportSummary0_HTTP_Handler(srv))
-	r.GET("/api/admin/report/order/month/list", _OrderReportService_OrderMonthReportList0_HTTP_Handler(srv))
+	r.GET("/api/admin/report/order/month/detail", _OrderReportService_OrderMonthReportList0_HTTP_Handler(srv))
 	r.GET("/api/admin/report/order/day/summary", _OrderReportService_OrderDayReportSummary0_HTTP_Handler(srv))
-	r.GET("/api/admin/report/order/day/list", _OrderReportService_OrderDayReportList0_HTTP_Handler(srv))
+	r.GET("/api/admin/report/order/day/detail", _OrderReportService_OrderDayReportList0_HTTP_Handler(srv))
 }
 
 func _OrderReportService_OrderMonthReportSummary0_HTTP_Handler(srv OrderReportServiceHTTPServer) func(ctx http.Context) error {
@@ -142,7 +142,7 @@ func NewOrderReportServiceHTTPClient(client *http.Client) OrderReportServiceHTTP
 // OrderDayReportList 查询订单日报明细
 func (c *OrderReportServiceHTTPClientImpl) OrderDayReportList(ctx context.Context, in *OrderDayReportListRequest, opts ...http.CallOption) (*OrderDayReportListResponse, error) {
 	var out OrderDayReportListResponse
-	pattern := "/api/admin/report/order/day/list"
+	pattern := "/api/admin/report/order/day/detail"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationOrderReportServiceOrderDayReportList))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -170,7 +170,7 @@ func (c *OrderReportServiceHTTPClientImpl) OrderDayReportSummary(ctx context.Con
 // OrderMonthReportList 查询订单月报明细
 func (c *OrderReportServiceHTTPClientImpl) OrderMonthReportList(ctx context.Context, in *OrderMonthReportListRequest, opts ...http.CallOption) (*OrderMonthReportListResponse, error) {
 	var out OrderMonthReportListResponse
-	pattern := "/api/admin/report/order/month/list"
+	pattern := "/api/admin/report/order/month/detail"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationOrderReportServiceOrderMonthReportList))
 	opts = append(opts, http.PathTemplate(pattern))

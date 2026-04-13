@@ -170,12 +170,12 @@ shop-admin
 
 ## 认证机制
 
-登录相关接口位于 `/login` 命名空间：
+登录相关接口分为验证码与认证资源两组：
 
 - `GET /login/captcha`
-- `POST /login`
-- `POST /login/refreshToken`
-- `DELETE /login/logout`
+- `POST /auth`
+- `POST /auth/token`
+- `DELETE /auth`
 
 当前处理策略：
 

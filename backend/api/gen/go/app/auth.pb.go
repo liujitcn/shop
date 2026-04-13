@@ -27,8 +27,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// User信息
-type UserInfo struct {
+// 用户资料表单
+type UserProfileForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"` // 用户账号
 	NickName      string                 `protobuf:"bytes,2,opt,name=nickName,proto3" json:"nickName,omitempty"` // 用户昵称
@@ -39,20 +39,20 @@ type UserInfo struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UserInfo) Reset() {
-	*x = UserInfo{}
+func (x *UserProfileForm) Reset() {
+	*x = UserProfileForm{}
 	mi := &file_app_auth_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UserInfo) String() string {
+func (x *UserProfileForm) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UserInfo) ProtoMessage() {}
+func (*UserProfileForm) ProtoMessage() {}
 
-func (x *UserInfo) ProtoReflect() protoreflect.Message {
+func (x *UserProfileForm) ProtoReflect() protoreflect.Message {
 	mi := &file_app_auth_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -64,40 +64,40 @@ func (x *UserInfo) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UserInfo.ProtoReflect.Descriptor instead.
-func (*UserInfo) Descriptor() ([]byte, []int) {
+// Deprecated: Use UserProfileForm.ProtoReflect.Descriptor instead.
+func (*UserProfileForm) Descriptor() ([]byte, []int) {
 	return file_app_auth_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserInfo) GetUserName() string {
+func (x *UserProfileForm) GetUserName() string {
 	if x != nil {
 		return x.UserName
 	}
 	return ""
 }
 
-func (x *UserInfo) GetNickName() string {
+func (x *UserProfileForm) GetNickName() string {
 	if x != nil {
 		return x.NickName
 	}
 	return ""
 }
 
-func (x *UserInfo) GetGender() int32 {
+func (x *UserProfileForm) GetGender() int32 {
 	if x != nil {
 		return x.Gender
 	}
 	return 0
 }
 
-func (x *UserInfo) GetPhone() string {
+func (x *UserProfileForm) GetPhone() string {
 	if x != nil {
 		return x.Phone
 	}
 	return ""
 }
 
-func (x *UserInfo) GetAvatar() string {
+func (x *UserProfileForm) GetAvatar() string {
 	if x != nil {
 		return x.Avatar
 	}
@@ -105,27 +105,27 @@ func (x *UserInfo) GetAvatar() string {
 }
 
 // 微信登录请求参数
-type WxLoginRequest struct {
+type WechatLoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"` // 用户登录凭据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *WxLoginRequest) Reset() {
-	*x = WxLoginRequest{}
+func (x *WechatLoginRequest) Reset() {
+	*x = WechatLoginRequest{}
 	mi := &file_app_auth_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *WxLoginRequest) String() string {
+func (x *WechatLoginRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WxLoginRequest) ProtoMessage() {}
+func (*WechatLoginRequest) ProtoMessage() {}
 
-func (x *WxLoginRequest) ProtoReflect() protoreflect.Message {
+func (x *WechatLoginRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_app_auth_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -137,12 +137,12 @@ func (x *WxLoginRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WxLoginRequest.ProtoReflect.Descriptor instead.
-func (*WxLoginRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use WechatLoginRequest.ProtoReflect.Descriptor instead.
+func (*WechatLoginRequest) Descriptor() ([]byte, []int) {
 	return file_app_auth_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *WxLoginRequest) GetCode() string {
+func (x *WechatLoginRequest) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
@@ -150,7 +150,7 @@ func (x *WxLoginRequest) GetCode() string {
 }
 
 // 微信登录响应
-type WxLoginResponse struct {
+type WechatLoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=accessToken,proto3" json:"accessToken,omitempty"`   // 访问令牌，必选项。
 	RefreshToken  string                 `protobuf:"bytes,2,opt,name=refreshToken,proto3" json:"refreshToken,omitempty"` // 更新令牌，用来获取下一次的访问令牌，可选项。
@@ -160,20 +160,20 @@ type WxLoginResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *WxLoginResponse) Reset() {
-	*x = WxLoginResponse{}
+func (x *WechatLoginResponse) Reset() {
+	*x = WechatLoginResponse{}
 	mi := &file_app_auth_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *WxLoginResponse) String() string {
+func (x *WechatLoginResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WxLoginResponse) ProtoMessage() {}
+func (*WechatLoginResponse) ProtoMessage() {}
 
-func (x *WxLoginResponse) ProtoReflect() protoreflect.Message {
+func (x *WechatLoginResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_app_auth_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -185,123 +185,62 @@ func (x *WxLoginResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WxLoginResponse.ProtoReflect.Descriptor instead.
-func (*WxLoginResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use WechatLoginResponse.ProtoReflect.Descriptor instead.
+func (*WechatLoginResponse) Descriptor() ([]byte, []int) {
 	return file_app_auth_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *WxLoginResponse) GetAccessToken() string {
+func (x *WechatLoginResponse) GetAccessToken() string {
 	if x != nil {
 		return x.AccessToken
 	}
 	return ""
 }
 
-func (x *WxLoginResponse) GetRefreshToken() string {
+func (x *WechatLoginResponse) GetRefreshToken() string {
 	if x != nil {
 		return x.RefreshToken
 	}
 	return ""
 }
 
-func (x *WxLoginResponse) GetTokenType() string {
+func (x *WechatLoginResponse) GetTokenType() string {
 	if x != nil {
 		return x.TokenType
 	}
 	return ""
 }
 
-func (x *WxLoginResponse) GetExpiresIn() int64 {
+func (x *WechatLoginResponse) GetExpiresIn() int64 {
 	if x != nil {
 		return x.ExpiresIn
 	}
 	return 0
 }
 
-// UpdateUser信息请求参数
-type UpdateUserInfoRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NickName      string                 `protobuf:"bytes,1,opt,name=nickName,proto3" json:"nickName,omitempty"` // 昵称
-	Avatar        string                 `protobuf:"bytes,2,opt,name=avatar,proto3" json:"avatar,omitempty"`     // 头像URL
-	Gender        int32                  `protobuf:"varint,3,opt,name=gender,proto3" json:"gender,omitempty"`    // 性别
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateUserInfoRequest) Reset() {
-	*x = UpdateUserInfoRequest{}
-	mi := &file_app_auth_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateUserInfoRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateUserInfoRequest) ProtoMessage() {}
-
-func (x *UpdateUserInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_auth_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateUserInfoRequest.ProtoReflect.Descriptor instead.
-func (*UpdateUserInfoRequest) Descriptor() ([]byte, []int) {
-	return file_app_auth_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *UpdateUserInfoRequest) GetNickName() string {
-	if x != nil {
-		return x.NickName
-	}
-	return ""
-}
-
-func (x *UpdateUserInfoRequest) GetAvatar() string {
-	if x != nil {
-		return x.Avatar
-	}
-	return ""
-}
-
-func (x *UpdateUserInfoRequest) GetGender() int32 {
-	if x != nil {
-		return x.Gender
-	}
-	return 0
-}
-
 // 手机号授权请求参数
-type PhoneAuthRequest struct {
+type BindUserPhoneRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"` // 授权信息
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PhoneAuthRequest) Reset() {
-	*x = PhoneAuthRequest{}
-	mi := &file_app_auth_proto_msgTypes[4]
+func (x *BindUserPhoneRequest) Reset() {
+	*x = BindUserPhoneRequest{}
+	mi := &file_app_auth_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PhoneAuthRequest) String() string {
+func (x *BindUserPhoneRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PhoneAuthRequest) ProtoMessage() {}
+func (*BindUserPhoneRequest) ProtoMessage() {}
 
-func (x *PhoneAuthRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_auth_proto_msgTypes[4]
+func (x *BindUserPhoneRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_app_auth_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -312,12 +251,12 @@ func (x *PhoneAuthRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PhoneAuthRequest.ProtoReflect.Descriptor instead.
-func (*PhoneAuthRequest) Descriptor() ([]byte, []int) {
-	return file_app_auth_proto_rawDescGZIP(), []int{4}
+// Deprecated: Use BindUserPhoneRequest.ProtoReflect.Descriptor instead.
+func (*BindUserPhoneRequest) Descriptor() ([]byte, []int) {
+	return file_app_auth_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *PhoneAuthRequest) GetCode() string {
+func (x *BindUserPhoneRequest) GetCode() string {
 	if x != nil {
 		return x.Code
 	}
@@ -325,28 +264,28 @@ func (x *PhoneAuthRequest) GetCode() string {
 }
 
 // 手机号授权响应
-type PhoneAuthResponse struct {
+type BindUserPhoneResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PhoneAuthResponse) Reset() {
-	*x = PhoneAuthResponse{}
-	mi := &file_app_auth_proto_msgTypes[5]
+func (x *BindUserPhoneResponse) Reset() {
+	*x = BindUserPhoneResponse{}
+	mi := &file_app_auth_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PhoneAuthResponse) String() string {
+func (x *BindUserPhoneResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PhoneAuthResponse) ProtoMessage() {}
+func (*BindUserPhoneResponse) ProtoMessage() {}
 
-func (x *PhoneAuthResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_auth_proto_msgTypes[5]
+func (x *BindUserPhoneResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_app_auth_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -357,12 +296,12 @@ func (x *PhoneAuthResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PhoneAuthResponse.ProtoReflect.Descriptor instead.
-func (*PhoneAuthResponse) Descriptor() ([]byte, []int) {
-	return file_app_auth_proto_rawDescGZIP(), []int{5}
+// Deprecated: Use BindUserPhoneResponse.ProtoReflect.Descriptor instead.
+func (*BindUserPhoneResponse) Descriptor() ([]byte, []int) {
+	return file_app_auth_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *PhoneAuthResponse) GetPhone() string {
+func (x *BindUserPhoneResponse) GetPhone() string {
 	if x != nil {
 		return x.Phone
 	}
@@ -373,33 +312,29 @@ var File_app_auth_proto protoreflect.FileDescriptor
 
 const file_app_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x0eapp/auth.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xdd\x01\n" +
-	"\bUserInfo\x12.\n" +
+	"\x0eapp/auth.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xe4\x01\n" +
+	"\x0fUserProfileForm\x12.\n" +
 	"\buserName\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12.\n" +
 	"\bnickName\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12$\n" +
 	"\x06gender\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\x12%\n" +
 	"\x05phone\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12$\n" +
-	"\x06avatar\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\">\n" +
-	"\x0eWxLoginRequest\x12,\n" +
-	"\x04code\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12用户登录凭据R\x04code\"\xd8\x06\n" +
-	"\x0fWxLoginResponse\x12s\n" +
+	"\x06avatar\x18\x05 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\"B\n" +
+	"\x12WechatLoginRequest\x12,\n" +
+	"\x04code\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12用户登录凭据R\x04code\"\xdc\x06\n" +
+	"\x13WechatLoginResponse\x12s\n" +
 	"\vaccessToken\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbb\x02\n" +
 	"\frefreshToken\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb3\x01\n" +
 	"\ttokenType\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdb\x01\n" +
-	"\texpiresIn\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\x90\x01\n" +
-	"\x15UpdateUserInfoRequest\x12(\n" +
-	"\bnickName\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06昵称R\bnickName\x12'\n" +
-	"\x06avatar\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t头像URLR\x06avatar\x12$\n" +
-	"\x06gender\x18\x03 \x01(\x05B\f\xbaG\t\x92\x02\x06性别R\x06gender\":\n" +
-	"\x10PhoneAuthRequest\x12&\n" +
-	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f授权信息R\x04code\":\n" +
-	"\x11PhoneAuthResponse\x12%\n" +
-	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone2\x8a\x03\n" +
-	"\vAuthService\x12W\n" +
-	"\aWxLogin\x12\x13.app.WxLoginRequest\x1a\x14.app.WxLoginResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/app/auth/login/wx\x12T\n" +
-	"\vGetUserInfo\x12\x16.google.protobuf.Empty\x1a\r.app.UserInfo\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/app/auth/userInfo\x12g\n" +
-	"\x0eUpdateUserInfo\x12\x1a.app.UpdateUserInfoRequest\x1a\x16.google.protobuf.Empty\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\x1a\x16/api/app/auth/userInfo\x12c\n" +
-	"\tPhoneAuth\x12\x15.app.PhoneAuthRequest\x1a\x16.app.PhoneAuthResponse\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/app/auth/userInfo/phoneBU\n" +
+	"\texpiresIn\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\">\n" +
+	"\x14BindUserPhoneRequest\x12&\n" +
+	"\x04code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f授权信息R\x04code\">\n" +
+	"\x15BindUserPhoneResponse\x12%\n" +
+	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone2\x9c\x03\n" +
+	"\vAuthService\x12a\n" +
+	"\vWechatLogin\x12\x17.app.WechatLoginRequest\x1a\x18.app.WechatLoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/app/auth/wechat\x12]\n" +
+	"\x0eGetUserProfile\x12\x16.google.protobuf.Empty\x1a\x14.app.UserProfileForm\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/app/auth/profile\x12c\n" +
+	"\x11UpdateUserProfile\x12\x14.app.UserProfileForm\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\x1a\x15/api/app/auth/profile\x12f\n" +
+	"\rBindUserPhone\x12\x19.app.BindUserPhoneRequest\x1a\x1a.app.BindUserPhoneResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\x1a\x13/api/app/auth/phoneBU\n" +
 	"\acom.appB\tAuthProtoP\x01Z\x13shop/api/gen/go/app\xa2\x02\x03AXX\xaa\x02\x03App\xca\x02\x03App\xe2\x02\x0fApp\\GPBMetadata\xea\x02\x03Appb\x06proto3"
 
 var (
@@ -414,25 +349,24 @@ func file_app_auth_proto_rawDescGZIP() []byte {
 	return file_app_auth_proto_rawDescData
 }
 
-var file_app_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_app_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_app_auth_proto_goTypes = []any{
-	(*UserInfo)(nil),              // 0: app.UserInfo
-	(*WxLoginRequest)(nil),        // 1: app.WxLoginRequest
-	(*WxLoginResponse)(nil),       // 2: app.WxLoginResponse
-	(*UpdateUserInfoRequest)(nil), // 3: app.UpdateUserInfoRequest
-	(*PhoneAuthRequest)(nil),      // 4: app.PhoneAuthRequest
-	(*PhoneAuthResponse)(nil),     // 5: app.PhoneAuthResponse
-	(*emptypb.Empty)(nil),         // 6: google.protobuf.Empty
+	(*UserProfileForm)(nil),       // 0: app.UserProfileForm
+	(*WechatLoginRequest)(nil),    // 1: app.WechatLoginRequest
+	(*WechatLoginResponse)(nil),   // 2: app.WechatLoginResponse
+	(*BindUserPhoneRequest)(nil),  // 3: app.BindUserPhoneRequest
+	(*BindUserPhoneResponse)(nil), // 4: app.BindUserPhoneResponse
+	(*emptypb.Empty)(nil),         // 5: google.protobuf.Empty
 }
 var file_app_auth_proto_depIdxs = []int32{
-	1, // 0: app.AuthService.WxLogin:input_type -> app.WxLoginRequest
-	6, // 1: app.AuthService.GetUserInfo:input_type -> google.protobuf.Empty
-	3, // 2: app.AuthService.UpdateUserInfo:input_type -> app.UpdateUserInfoRequest
-	4, // 3: app.AuthService.PhoneAuth:input_type -> app.PhoneAuthRequest
-	2, // 4: app.AuthService.WxLogin:output_type -> app.WxLoginResponse
-	0, // 5: app.AuthService.GetUserInfo:output_type -> app.UserInfo
-	6, // 6: app.AuthService.UpdateUserInfo:output_type -> google.protobuf.Empty
-	5, // 7: app.AuthService.PhoneAuth:output_type -> app.PhoneAuthResponse
+	1, // 0: app.AuthService.WechatLogin:input_type -> app.WechatLoginRequest
+	5, // 1: app.AuthService.GetUserProfile:input_type -> google.protobuf.Empty
+	0, // 2: app.AuthService.UpdateUserProfile:input_type -> app.UserProfileForm
+	3, // 3: app.AuthService.BindUserPhone:input_type -> app.BindUserPhoneRequest
+	2, // 4: app.AuthService.WechatLogin:output_type -> app.WechatLoginResponse
+	0, // 5: app.AuthService.GetUserProfile:output_type -> app.UserProfileForm
+	5, // 6: app.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	4, // 7: app.AuthService.BindUserPhone:output_type -> app.BindUserPhoneResponse
 	4, // [4:8] is the sub-list for method output_type
 	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -451,7 +385,7 @@ func file_app_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_auth_proto_rawDesc), len(file_app_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

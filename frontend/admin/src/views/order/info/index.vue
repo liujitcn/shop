@@ -239,10 +239,10 @@ import { defBaseUserService } from "@/api/admin/base_user";
 import type {
   OrderInfo,
   OrderInfoRefundResponse,
-  OrderInfoShippedResponse,
+  OrderInfoShipmentForm,
   PageOrderInfoRequest,
   RefundOrderInfoRequest,
-  ShippedOrderInfoRequest
+  ShipOrderInfoRequest
 } from "@/rpc/admin/order_info";
 import type { SelectOptionResponse_Option } from "@/rpc/common/common";
 import router from "@/routers";
@@ -339,7 +339,7 @@ const dialogShipped = reactive({
   visible: false
 });
 
-const dataShipped = reactive<OrderInfoShippedResponse>({
+const dataShipped = reactive<OrderInfoShipmentForm>({
   /** 地址信息 */
   address: undefined,
   /** 商品信息 */
@@ -348,7 +348,7 @@ const dataShipped = reactive<OrderInfoShippedResponse>({
   logistics: undefined
 });
 
-const formDataShipped = reactive<ShippedOrderInfoRequest>({
+const formDataShipped = reactive<ShipOrderInfoRequest>({
   /** 订单id */
   orderId: 0,
   /** 物流公司名 */
@@ -798,7 +798,7 @@ function handleOpenShippedDialog(orderId: number, title: string) {
   resetShippedDialog();
   dialogShipped.visible = true;
   dialogShipped.title = title;
-  defOrderInfoService.GetOrderInfoShipped({ value: orderId }).then(data => {
+  defOrderInfoService.GetOrderInfoShipment({ value: orderId }).then(data => {
     formDataShipped.orderId = orderId;
     Object.assign(dataShipped, data);
   });
@@ -836,7 +836,7 @@ function handleShippedSubmitClick() {
     ?.then(isValid => {
       if (!isValid) return;
 
-      defOrderInfoService.ShippedOrderInfo(formDataShipped).then(() => {
+      defOrderInfoService.ShipOrderInfo(formDataShipped).then(() => {
         ElMessage.success("订单发货成功");
         handleCloseShippedDialog();
         proTable.value?.getTableList();

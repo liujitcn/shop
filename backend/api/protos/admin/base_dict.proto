@@ -15,9 +15,9 @@ import "common/enum.proto";
 // Admin字典服务
 service BaseDictService {
   // 查询字典列表
-  rpc ListBaseDict (google.protobuf.Empty) returns (ListBaseDictResponse) {
+  rpc OptionBaseDict (google.protobuf.Empty) returns (OptionBaseDictResponse) {
     option (google.api.http) = {
-      get: "/api/admin/base/dict/list"
+      get: "/api/admin/base/dict/option"
     };
   }
 
@@ -241,8 +241,8 @@ message PageBaseDictItemResponse{
   ]; // 总数
 }
 
-// 字典列表响应
-message ListBaseDictResponse{
+// 字典选项响应
+message OptionBaseDictResponse{
   // 字典项
   message BaseDictItem {
     string value = 3 [

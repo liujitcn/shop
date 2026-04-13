@@ -1,20 +1,26 @@
 import { http } from '@/utils/http'
-import type { H5PayResponse, JsapiPayResponse, PayRequest, PayService } from '@/rpc/app/pay'
+import type {
+  H5PayRequest,
+  H5PayResponse,
+  JsapiPayRequest,
+  JsapiPayResponse,
+  PayService,
+} from '@/rpc/app/pay'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 const PAY_URL = '/app/pay'
 
-/** 热们推荐服务 */
+/** 支付服务 */
 export class PayServiceImpl implements PayService {
   /** 小程序支付 */
-  JsapiPay(request: PayRequest): Promise<JsapiPayResponse> {
+  JsapiPay(request: JsapiPayRequest): Promise<JsapiPayResponse> {
     return http<JsapiPayResponse>({
       url: `${PAY_URL}/${request.orderId}/jsapi`,
       method: 'POST',
       data: request,
     })
   }
-  /** 小程序支付 */
-  H5Pay(request: PayRequest): Promise<H5PayResponse> {
+  /** H5 支付 */
+  H5Pay(request: H5PayRequest): Promise<H5PayResponse> {
     return http<H5PayResponse>({
       url: `${PAY_URL}/${request.orderId}/h5`,
       method: 'POST',

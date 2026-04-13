@@ -86,14 +86,14 @@ export interface PageBaseDictItemResponse {
   total: number;
 }
 
-/** 字典列表响应 */
-export interface ListBaseDictResponse {
+/** 字典选项响应 */
+export interface OptionBaseDictResponse {
   /** 分页数据 */
-  list: ListBaseDictResponse_BaseDict[];
+  list: OptionBaseDictResponse_BaseDict[];
 }
 
 /** 字典项 */
-export interface ListBaseDictResponse_BaseDictItem {
+export interface OptionBaseDictResponse_BaseDictItem {
   /** 字典值 */
   value: string;
   /** 字典项标签 */
@@ -103,13 +103,13 @@ export interface ListBaseDictResponse_BaseDictItem {
 }
 
 /** 字典 */
-export interface ListBaseDictResponse_BaseDict {
+export interface OptionBaseDictResponse_BaseDict {
   /** 字典编号 */
   code: string;
   /** 字典名称 */
   name: string;
   /** 字典属性 */
-  items: ListBaseDictResponse_BaseDictItem[];
+  items: OptionBaseDictResponse_BaseDictItem[];
 }
 
 /** 字典项 */
@@ -155,7 +155,7 @@ export interface BaseDictItemForm {
 /** Admin字典服务 */
 export interface BaseDictService {
   /** 查询字典列表 */
-  ListBaseDict(request: Empty): Promise<ListBaseDictResponse>;
+  OptionBaseDict(request: Empty): Promise<OptionBaseDictResponse>;
   /** 查询字典分页列表 */
   PageBaseDict(request: PageBaseDictRequest): Promise<PageBaseDictResponse>;
   /** 查询字典 */

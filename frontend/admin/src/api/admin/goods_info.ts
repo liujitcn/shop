@@ -4,8 +4,8 @@ import {
   type GoodsInfoService,
   type PageGoodsInfoRequest,
   type PageGoodsInfoResponse,
-  type ListGoodsInfoRequest,
-  type ListGoodsInfoResponse
+  type OptionGoodsInfoRequest,
+  type OptionGoodsInfoResponse
 } from "@/rpc/admin/goods_info";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -15,10 +15,10 @@ const GOODS_URL = "/admin/goods/info";
 
 /** Admin商品服务 */
 export class GoodsInfoServiceImpl implements GoodsInfoService {
-  /** 查询商品列表 */
-  ListGoodsInfo(request: ListGoodsInfoRequest): Promise<ListGoodsInfoResponse> {
-    return service<ListGoodsInfoRequest, ListGoodsInfoResponse>({
-      url: `${GOODS_URL}/list`,
+  /** 查询商品下拉选择 */
+  OptionGoodsInfo(request: OptionGoodsInfoRequest): Promise<OptionGoodsInfoResponse> {
+    return service<OptionGoodsInfoRequest, OptionGoodsInfoResponse>({
+      url: `${GOODS_URL}/option`,
       method: "get",
       params: request
     });

@@ -15,9 +15,9 @@ import "common/types.proto";
 service AuthService {
 
   // 获取已经登录的用户的数据
-  rpc GetUserInfo (google.protobuf.Empty) returns (UserInfo) {
+  rpc GetUserInfo (google.protobuf.Empty) returns (UserInfoForm) {
     option (google.api.http) = {
-      get: "/api/admin/auth/userInfo"
+      get: "/api/admin/auth/user"
     };
   }
 
@@ -38,45 +38,45 @@ service AuthService {
   // 获取个人中心用户信息
   rpc GetUserProfile (google.protobuf.Empty) returns (UserProfileForm) {
     option (google.api.http) = {
-      get: "/api/admin/auth/userProfile"
+      get: "/api/admin/auth/profile"
     };
   }
 
   // 修改个人中心用户信息
   rpc UpdateUserProfile (UserProfileForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/auth/update/userProfile"
+      put: "/api/admin/auth/profile"
       body: "*"
     };
   }
 
   // 发送手机号验证码
-  rpc SendUpdatePhoneCode (SendUpdatePhoneCodeForm) returns (google.protobuf.Empty) {
+  rpc SendPhoneCode (SendPhoneCodeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/api/admin/auth/send/update/phone"
+      post: "/api/admin/auth/phone/code"
       body: "*"
     };
   }
 
   // 修改个人中心手机号
-  rpc UpdateUserPhone (UpdatePhoneForm) returns (google.protobuf.Empty) {
+  rpc UpdateUserPhone (UserPhoneForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/auth/update/phone"
+      put: "/api/admin/auth/phone"
       body: "*"
     };
   }
 
   // 修改个人中心密码
-  rpc UpdateUserPwd (UpdatePwdForm) returns (google.protobuf.Empty) {
+  rpc UpdateUserPassword (UserPasswordForm) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/auth/update/pwd"
+      put: "/api/admin/auth/password"
       body: "*"
     };
   }
 }
 
-// User信息
-message UserInfo {
+// 用户信息表单
+message UserInfoForm {
   string userName = 1 [
     (gnostic.openapi.v3.property) = {description: "用户账号"}
   ]; // 用户账号
@@ -219,8 +219,8 @@ message UserProfileForm {
   ];// 创建时间
 }
 
-// UpdatePwd表单
-message UpdatePwdForm {
+// 用户密码表单
+message UserPasswordForm {
   string oldPwd = 1 [
     (gnostic.openapi.v3.property) = {description: "原密码"}
   ]; // 原密码
@@ -232,15 +232,15 @@ message UpdatePwdForm {
   ]; // 确认密码
 }
 
-// SendUpdatePhoneCode表单
-message SendUpdatePhoneCodeForm {
+// 发送手机号验证码请求参数
+message SendPhoneCodeRequest {
   string phone = 1 [
     (gnostic.openapi.v3.property) = {description: "手机号"}
   ]; // 手机号
 }
 
-// UpdatePhone表单
-message UpdatePhoneForm {
+// 用户手机号表单
+message UserPhoneForm {
   string phone = 1 [
     (gnostic.openapi.v3.property) = {description: "手机号"}
   ]; // 手机号

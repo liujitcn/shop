@@ -22,13 +22,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserCartService_CountUserCart_FullMethodName     = "/app.UserCartService/CountUserCart"
-	UserCartService_ListUserCart_FullMethodName      = "/app.UserCartService/ListUserCart"
-	UserCartService_CreateUserCart_FullMethodName    = "/app.UserCartService/CreateUserCart"
-	UserCartService_UpdateUserCart_FullMethodName    = "/app.UserCartService/UpdateUserCart"
-	UserCartService_DeleteUserCart_FullMethodName    = "/app.UserCartService/DeleteUserCart"
-	UserCartService_SetUserCartStatus_FullMethodName = "/app.UserCartService/SetUserCartStatus"
-	UserCartService_SelectedUserCart_FullMethodName  = "/app.UserCartService/SelectedUserCart"
+	UserCartService_CountUserCart_FullMethodName        = "/app.UserCartService/CountUserCart"
+	UserCartService_ListUserCart_FullMethodName         = "/app.UserCartService/ListUserCart"
+	UserCartService_CreateUserCart_FullMethodName       = "/app.UserCartService/CreateUserCart"
+	UserCartService_UpdateUserCart_FullMethodName       = "/app.UserCartService/UpdateUserCart"
+	UserCartService_DeleteUserCart_FullMethodName       = "/app.UserCartService/DeleteUserCart"
+	UserCartService_SetUserCartStatus_FullMethodName    = "/app.UserCartService/SetUserCartStatus"
+	UserCartService_SetUserCartSelection_FullMethodName = "/app.UserCartService/SetUserCartSelection"
 )
 
 // UserCartServiceClient is the client API for UserCartService service.
@@ -44,13 +44,13 @@ type UserCartServiceClient interface {
 	// 创建用户购物车
 	CreateUserCart(ctx context.Context, in *CreateUserCartRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新用户购物车
-	UpdateUserCart(ctx context.Context, in *UpdateUserCartRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserCart(ctx context.Context, in *UserCartForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除用户购物车
 	DeleteUserCart(ctx context.Context, in *wrapperspb.Int64Value, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置状态
 	SetUserCartStatus(ctx context.Context, in *SetUserCartStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置全选
-	SelectedUserCart(ctx context.Context, in *SelectedUserCartRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SetUserCartSelection(ctx context.Context, in *SetUserCartSelectionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type userCartServiceClient struct {
@@ -91,7 +91,7 @@ func (c *userCartServiceClient) CreateUserCart(ctx context.Context, in *CreateUs
 	return out, nil
 }
 
-func (c *userCartServiceClient) UpdateUserCart(ctx context.Context, in *UpdateUserCartRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userCartServiceClient) UpdateUserCart(ctx context.Context, in *UserCartForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, UserCartService_UpdateUserCart_FullMethodName, in, out, cOpts...)
@@ -121,10 +121,10 @@ func (c *userCartServiceClient) SetUserCartStatus(ctx context.Context, in *SetUs
 	return out, nil
 }
 
-func (c *userCartServiceClient) SelectedUserCart(ctx context.Context, in *SelectedUserCartRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *userCartServiceClient) SetUserCartSelection(ctx context.Context, in *SetUserCartSelectionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserCartService_SelectedUserCart_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, UserCartService_SetUserCartSelection_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -144,13 +144,13 @@ type UserCartServiceServer interface {
 	// 创建用户购物车
 	CreateUserCart(context.Context, *CreateUserCartRequest) (*emptypb.Empty, error)
 	// 更新用户购物车
-	UpdateUserCart(context.Context, *UpdateUserCartRequest) (*emptypb.Empty, error)
+	UpdateUserCart(context.Context, *UserCartForm) (*emptypb.Empty, error)
 	// 删除用户购物车
 	DeleteUserCart(context.Context, *wrapperspb.Int64Value) (*emptypb.Empty, error)
 	// 设置状态
 	SetUserCartStatus(context.Context, *SetUserCartStatusRequest) (*emptypb.Empty, error)
 	// 设置全选
-	SelectedUserCart(context.Context, *SelectedUserCartRequest) (*emptypb.Empty, error)
+	SetUserCartSelection(context.Context, *SetUserCartSelectionRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserCartServiceServer()
 }
 
@@ -170,7 +170,7 @@ func (UnimplementedUserCartServiceServer) ListUserCart(context.Context, *emptypb
 func (UnimplementedUserCartServiceServer) CreateUserCart(context.Context, *CreateUserCartRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateUserCart not implemented")
 }
-func (UnimplementedUserCartServiceServer) UpdateUserCart(context.Context, *UpdateUserCartRequest) (*emptypb.Empty, error) {
+func (UnimplementedUserCartServiceServer) UpdateUserCart(context.Context, *UserCartForm) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateUserCart not implemented")
 }
 func (UnimplementedUserCartServiceServer) DeleteUserCart(context.Context, *wrapperspb.Int64Value) (*emptypb.Empty, error) {
@@ -179,8 +179,8 @@ func (UnimplementedUserCartServiceServer) DeleteUserCart(context.Context, *wrapp
 func (UnimplementedUserCartServiceServer) SetUserCartStatus(context.Context, *SetUserCartStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetUserCartStatus not implemented")
 }
-func (UnimplementedUserCartServiceServer) SelectedUserCart(context.Context, *SelectedUserCartRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SelectedUserCart not implemented")
+func (UnimplementedUserCartServiceServer) SetUserCartSelection(context.Context, *SetUserCartSelectionRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetUserCartSelection not implemented")
 }
 func (UnimplementedUserCartServiceServer) mustEmbedUnimplementedUserCartServiceServer() {}
 func (UnimplementedUserCartServiceServer) testEmbeddedByValue()                         {}
@@ -258,7 +258,7 @@ func _UserCartService_CreateUserCart_Handler(srv interface{}, ctx context.Contex
 }
 
 func _UserCartService_UpdateUserCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateUserCartRequest)
+	in := new(UserCartForm)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -270,7 +270,7 @@ func _UserCartService_UpdateUserCart_Handler(srv interface{}, ctx context.Contex
 		FullMethod: UserCartService_UpdateUserCart_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserCartServiceServer).UpdateUserCart(ctx, req.(*UpdateUserCartRequest))
+		return srv.(UserCartServiceServer).UpdateUserCart(ctx, req.(*UserCartForm))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -311,20 +311,20 @@ func _UserCartService_SetUserCartStatus_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserCartService_SelectedUserCart_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SelectedUserCartRequest)
+func _UserCartService_SetUserCartSelection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserCartSelectionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserCartServiceServer).SelectedUserCart(ctx, in)
+		return srv.(UserCartServiceServer).SetUserCartSelection(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserCartService_SelectedUserCart_FullMethodName,
+		FullMethod: UserCartService_SetUserCartSelection_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserCartServiceServer).SelectedUserCart(ctx, req.(*SelectedUserCartRequest))
+		return srv.(UserCartServiceServer).SetUserCartSelection(ctx, req.(*SetUserCartSelectionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -361,8 +361,8 @@ var UserCartService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserCartService_SetUserCartStatus_Handler,
 		},
 		{
-			MethodName: "SelectedUserCart",
-			Handler:    _UserCartService_SelectedUserCart_Handler,
+			MethodName: "SetUserCartSelection",
+			Handler:    _UserCartService_SetUserCartSelection_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

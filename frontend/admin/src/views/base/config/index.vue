@@ -273,7 +273,7 @@ function handleOpenDialog(configId?: number) {
  * 刷新服务端配置缓存，使用防抖避免重复点击。
  */
 const handleRefreshCache = useDebounceFn(() => {
-  defBaseConfigService.RefreshBaseConfig({}).then(() => {
+  defBaseConfigService.RefreshBaseConfigCache({}).then(() => {
     ElMessage.success("刷新成功");
   });
 }, 1000);

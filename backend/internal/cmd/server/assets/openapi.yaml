@@ -239,23 +239,23 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/TreeRouteResponse'
-    /api/admin/auth/send/update/phone:
-        post:
+    /api/admin/auth/password:
+        put:
             tags:
                 - AuthService
-            description: 发送手机号验证码
-            operationId: AuthService_SendUpdatePhoneCode
+            description: 修改个人中心密码
+            operationId: AuthService_UpdateUserPassword
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SendUpdatePhoneCodeForm'
+                            $ref: '#/components/schemas/UserPasswordForm'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/auth/update/phone:
+    /api/admin/auth/phone:
         put:
             tags:
                 - AuthService
@@ -265,29 +265,41 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UpdatePhoneForm'
+                            $ref: '#/components/schemas/UserPhoneForm'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/auth/update/pwd:
-        put:
+    /api/admin/auth/phone/code:
+        post:
             tags:
                 - AuthService
-            description: 修改个人中心密码
-            operationId: AuthService_UpdateUserPwd
+            description: 发送手机号验证码
+            operationId: AuthService_SendPhoneCode
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UpdatePwdForm'
+                            $ref: '#/components/schemas/SendPhoneCodeRequest'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/auth/update/userProfile:
+    /api/admin/auth/profile:
+        get:
+            tags:
+                - AuthService
+            description: 获取个人中心用户信息
+            operationId: AuthService_GetUserProfile
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UserProfileForm'
         put:
             tags:
                 - AuthService
@@ -303,7 +315,7 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/auth/userInfo:
+    /api/admin/auth/user:
         get:
             tags:
                 - AuthService
@@ -315,21 +327,8 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UserInfo'
-    /api/admin/auth/userProfile:
-        get:
-            tags:
-                - AuthService
-            description: 获取个人中心用户信息
-            operationId: AuthService_GetUserProfile
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/UserProfileForm'
-    /api/admin/base/api/list:
+                                $ref: '#/components/schemas/UserInfoForm'
+    /api/admin/base/api:
         get:
             tags:
                 - BaseApiService
@@ -416,12 +415,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/base/config/refresh:
-        post:
+    /api/admin/base/config/cache:
+        put:
             tags:
                 - BaseConfigService
             description: 刷新缓存
-            operationId: BaseConfigService_RefreshBaseConfig
+            operationId: BaseConfigService_RefreshBaseConfigCache
             requestBody:
                 content:
                     application/json: {}
@@ -825,19 +824,19 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/base/dict/list:
+    /api/admin/base/dict/option:
         get:
             tags:
                 - BaseDictService
             description: 查询字典列表
-            operationId: BaseDictService_ListBaseDict
+            operationId: BaseDictService_OptionBaseDict
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListBaseDictResponse'
+                                $ref: '#/components/schemas/OptionBaseDictResponse'
     /api/admin/base/dict/{id}:
         put:
             tags:
@@ -1055,12 +1054,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/base/job/{id}/exec:
-        put:
+    /api/admin/base/job/{id}/execution:
+        post:
             tags:
                 - BaseJobService
             description: 执行任务
-            operationId: BaseJobService_ExecBaseJob
+            operationId: BaseJobService_ExecuteBaseJob
             parameters:
                 - name: id
                   in: path
@@ -1071,13 +1070,13 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ExecBaseJobRequest'
+                            $ref: '#/components/schemas/ExecuteBaseJobRequest'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/base/job/{id}/start:
+    /api/admin/base/job/{id}/running:
         put:
             tags:
                 - BaseJobService
@@ -1099,6 +1098,21 @@ paths:
                 "200":
                     description: OK
                     content: {}
+        delete:
+            tags:
+                - BaseJobService
+            description: 停止任务
+            operationId: BaseJobService_StopBaseJob
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/admin/base/job/{id}/status:
         put:
             tags:
@@ -1116,28 +1130,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/SetStatusRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/admin/base/job/{id}/stop:
-        put:
-            tags:
-                - BaseJobService
-            description: 停止任务
-            operationId: BaseJobService_StopBaseJob
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/StopBaseJobRequest'
                 required: true
             responses:
                 "200":
@@ -1452,12 +1444,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/base/role/{id}/menus:
+    /api/admin/base/role/{id}/menu:
         put:
             tags:
                 - BaseRoleService
             description: 设置角色菜单权限
-            operationId: BaseRoleService_SetBaseRoleMenus
+            operationId: BaseRoleService_SetBaseRoleMenu
             parameters:
                 - name: id
                   in: path
@@ -1468,7 +1460,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SetMenusRequest'
+                            $ref: '#/components/schemas/SetBaseRoleMenuRequest'
                 required: true
             responses:
                 "200":
@@ -1634,12 +1626,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/base/user/{id}/pwd:
+    /api/admin/base/user/{id}/password:
         put:
             tags:
                 - BaseUserService
             description: 重置密码
-            operationId: BaseUserService_ResetBaseUserPwd
+            operationId: BaseUserService_ResetBaseUserPassword
             parameters:
                 - name: id
                   in: path
@@ -1650,7 +1642,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ResetBaseUserPwdRequest'
+                            $ref: '#/components/schemas/ResetBaseUserPasswordRequest'
                 required: true
             responses:
                 "200":
@@ -1905,12 +1897,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/goods/info/list:
+    /api/admin/goods/info/option:
         get:
             tags:
                 - GoodsInfoService
-            description: 查询商品信息列表
-            operationId: GoodsInfoService_ListGoodsInfo
+            description: 查询商品信息下拉选择
+            operationId: GoodsInfoService_OptionGoodsInfo
             parameters:
                 - name: name
                   in: query
@@ -1922,7 +1914,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListGoodsInfoResponse'
+                                $ref: '#/components/schemas/OptionGoodsInfoResponse'
     /api/admin/goods/info/{id}:
         put:
             tags:
@@ -2178,7 +2170,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GoodsSku'
-    /api/admin/goods/spec/list:
+    /api/admin/goods/spec:
         get:
             tags:
                 - GoodsSpecService
@@ -2286,12 +2278,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/order/info/{orderId}/shipped:
+    /api/admin/order/info/{orderId}/shipment:
         put:
             tags:
                 - OrderInfoService
             description: 订单信息发货
-            operationId: OrderInfoService_ShippedOrderInfo
+            operationId: OrderInfoService_ShipOrderInfo
             parameters:
                 - name: orderId
                   in: path
@@ -2302,7 +2294,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/ShippedOrderInfoRequest'
+                            $ref: '#/components/schemas/ShipOrderInfoRequest'
                 required: true
             responses:
                 "200":
@@ -2348,12 +2340,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/OrderInfoRefundResponse'
-    /api/admin/order/info/{value}/shipped:
+    /api/admin/order/info/{value}/shipment:
         get:
             tags:
                 - OrderInfoService
             description: 查询订单信息发货信息
-            operationId: OrderInfoService_GetOrderInfoShipped
+            operationId: OrderInfoService_GetOrderInfoShipment
             parameters:
                 - name: value
                   in: path
@@ -2367,7 +2359,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/OrderInfoShippedResponse'
+                                $ref: '#/components/schemas/OrderInfoShipmentForm'
     /api/admin/pay/bill:
         get:
             tags:
@@ -2404,7 +2396,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PagePayBillResponse'
-    /api/admin/report/order/day/list:
+    /api/admin/report/order/day/detail:
         get:
             tags:
                 - OrderReportService
@@ -2468,7 +2460,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/OrderDayReportSummaryResponse'
-    /api/admin/report/order/month/list:
+    /api/admin/report/order/month/detail:
         get:
             tags:
                 - OrderReportService
@@ -3193,17 +3185,17 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/WorkspaceTodoListResponse'
-    /api/app/auth/login/wx:
-        post:
+    /api/app/auth/phone:
+        put:
             tags:
                 - AuthService
-            description: 微信登录
-            operationId: AuthService_WxLogin
+            description: 手机号授权
+            operationId: AuthService_BindUserPhone
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/WxLoginRequest'
+                            $ref: '#/components/schemas/BindUserPhoneRequest'
                 required: true
             responses:
                 "200":
@@ -3211,46 +3203,46 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/WxLoginResponse'
-    /api/app/auth/userInfo:
+                                $ref: '#/components/schemas/BindUserPhoneResponse'
+    /api/app/auth/profile:
         get:
             tags:
                 - AuthService
             description: 获取已经登录的用户的数据
-            operationId: AuthService_GetUserInfo
+            operationId: AuthService_GetUserProfile
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/UserInfo'
+                                $ref: '#/components/schemas/UserProfileForm'
         put:
             tags:
                 - AuthService
             description: 修改个人中心用户信息
-            operationId: AuthService_UpdateUserInfo
+            operationId: AuthService_UpdateUserProfile
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UpdateUserInfoRequest'
+                            $ref: '#/components/schemas/UserProfileForm'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/app/auth/userInfo/phone:
-        put:
+    /api/app/auth/wechat:
+        post:
             tags:
                 - AuthService
-            description: 手机号授权
-            operationId: AuthService_PhoneAuth
+            description: 微信登录
+            operationId: AuthService_WechatLogin
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/PhoneAuthRequest'
+                            $ref: '#/components/schemas/WechatLoginRequest'
                 required: true
             responses:
                 "200":
@@ -3258,7 +3250,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PhoneAuthResponse'
+                                $ref: '#/components/schemas/WechatLoginResponse'
     /api/app/base/area/tree:
         get:
             tags:
@@ -3272,16 +3264,17 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AppTreeOptionResponse'
-    /api/app/base/dict/list:
+    /api/app/base/dict/{value}:
         get:
             tags:
                 - BaseDictService
-            description: 查询字典列表
-            operationId: BaseDictService_ListBaseDict
+            description: 查询字典
+            operationId: BaseDictService_GetBaseDict
             parameters:
                 - name: value
-                  in: query
+                  in: path
                   description: The string value.
+                  required: true
                   schema:
                     type: string
             responses:
@@ -3290,7 +3283,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ListBaseDictResponse'
+                                $ref: '#/components/schemas/BaseDictForm'
     /api/app/goods/category:
         get:
             tags:
@@ -3359,6 +3352,61 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GoodsInfoResponse'
+    /api/app/order/confirm:
+        post:
+            tags:
+                - OrderInfoService
+            description: 确认订单信息
+            operationId: OrderInfoService_ConfirmOrderInfo
+            requestBody:
+                content:
+                    application/json: {}
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
+    /api/app/order/confirm/buy-now:
+        post:
+            tags:
+                - OrderInfoService
+            description: 立即购买订单信息
+            operationId: OrderInfoService_BuyNowOrderInfo
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BuyNowOrderInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BuyNowOrderInfoResponse'
+    /api/app/order/confirm/repurchase:
+        post:
+            tags:
+                - OrderInfoService
+            description: 再次购买订单信息
+            operationId: OrderInfoService_RepurchaseOrderInfo
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RepurchaseOrderInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RepurchaseOrderInfoResponse'
     /api/app/order/info:
         get:
             tags:
@@ -3413,25 +3461,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/CreateOrderInfoResponse'
-    /api/app/order/info/buy:
-        post:
-            tags:
-                - OrderInfoService
-            description: 立即购买订单信息
-            operationId: OrderInfoService_OrderInfoBuy
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/CreateOrderInfoGoods'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
     /api/app/order/info/count:
         get:
             tags:
@@ -3445,43 +3474,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/CountOrderInfoResponse'
-    /api/app/order/info/pre:
-        post:
+    /api/app/order/info/no/{value}:
+        get:
             tags:
                 - OrderInfoService
-            description: 预付订单信息
-            operationId: OrderInfoService_OrderInfoPre
-            requestBody:
-                content:
-                    application/json: {}
-                required: true
+            description: 根据订单信息编号查询订单信息id
+            operationId: OrderInfoService_GetOrderInfoIdByOrderNo
+            parameters:
+                - name: value
+                  in: path
+                  description: The string value.
+                  required: true
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
-    /api/app/order/info/repurchase:
-        post:
-            tags:
-                - OrderInfoService
-            description: 再次购买订单信息
-            operationId: OrderInfoService_OrderInfoRepurchase
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/OrderRepurchaseInfoRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ConfirmOrderInfoResponse'
-    /api/app/order/info/{orderId}/cancel:
+                                type: string
+    /api/app/order/info/{orderId}/cancellation:
         put:
             tags:
                 - OrderInfoService
@@ -3503,7 +3516,7 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/app/order/info/{orderId}/receive:
+    /api/app/order/info/{orderId}/receipt:
         put:
             tags:
                 - OrderInfoService
@@ -3583,26 +3596,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/app/order/info/{value}/orderNo:
-        get:
-            tags:
-                - OrderInfoService
-            description: 根据订单信息编号查询订单信息id
-            operationId: OrderInfoService_GetOrderInfoIdByOrderNo
-            parameters:
-                - name: value
-                  in: path
-                  description: The string value.
-                  required: true
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                type: string
     /api/app/pay/notify:
         post:
             tags:
@@ -3633,7 +3626,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/PayRequest'
+                            $ref: '#/components/schemas/H5PayRequest'
                 required: true
             responses:
                 "200":
@@ -3658,7 +3651,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/PayRequest'
+                            $ref: '#/components/schemas/JsapiPayRequest'
                 required: true
             responses:
                 "200":
@@ -3680,7 +3673,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
-    /api/app/recommend/actor/bind:
+    /api/app/recommend/actor/binding:
         post:
             tags:
                 - RecommendService
@@ -3941,21 +3934,18 @@ paths:
                     description: OK
                     content: {}
     /api/app/user/cart:
-        put:
+        get:
             tags:
                 - UserCartService
-            description: 更新用户购物车
-            operationId: UserCartService_UpdateUserCart
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/UpdateUserCartRequest'
-                required: true
+            description: 查询用户购物车列表
+            operationId: UserCartService_ListUserCart
             responses:
                 "200":
                     description: OK
-                    content: {}
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserCartResponse'
         post:
             tags:
                 - UserCartService
@@ -3985,30 +3975,39 @@ paths:
                             schema:
                                 type: integer
                                 format: int32
-    /api/app/user/cart/list:
-        get:
-            tags:
-                - UserCartService
-            description: 查询用户购物车列表
-            operationId: UserCartService_ListUserCart
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/ListUserCartResponse'
-    /api/app/user/cart/selected:
+    /api/app/user/cart/selection:
         put:
             tags:
                 - UserCartService
             description: 设置全选
-            operationId: UserCartService_SelectedUserCart
+            operationId: UserCartService_SetUserCartSelection
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/SelectedUserCartRequest'
+                            $ref: '#/components/schemas/SetUserCartSelectionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/app/user/cart/{id}:
+        put:
+            tags:
+                - UserCartService
+            description: 更新用户购物车
+            operationId: UserCartService_UpdateUserCart
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UserCartForm'
                 required: true
             responses:
                 "200":
@@ -4175,6 +4174,53 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/auth:
+        post:
+            tags:
+                - LoginService
+            description: 登录
+            operationId: LoginService_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginResponse'
+        delete:
+            tags:
+                - LoginService
+            description: 登出
+            operationId: LoginService_Logout
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/auth/token:
+        post:
+            tags:
+                - LoginService
+            description: 刷新认证令牌
+            operationId: LoginService_RefreshToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RefreshTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RefreshTokenResponse'
     /api/config:
         get:
             tags:
@@ -4259,25 +4305,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/MultiUploadFileResponse'
-    /api/login:
-        post:
-            tags:
-                - LoginService
-            description: 登录
-            operationId: LoginService_Login
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/LoginRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/LoginResponse'
     /api/login/captcha:
         get:
             tags:
@@ -4291,35 +4318,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/CaptchaResponse'
-    /api/login/logout:
-        delete:
-            tags:
-                - LoginService
-            description: 登出
-            operationId: LoginService_Logout
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/login/refreshToken:
-        post:
-            tags:
-                - LoginService
-            description: 刷新认证令牌
-            operationId: LoginService_RefreshToken
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/RefreshTokenRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/RefreshTokenResponse'
 components:
     schemas:
         AnalyticsPieItem:
@@ -5275,6 +5273,49 @@ components:
                     type: string
                     description: 备注名
             description: 用户表单
+        BindUserPhoneRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 授权信息
+            description: 手机号授权请求参数
+        BindUserPhoneResponse:
+            type: object
+            properties:
+                phone:
+                    type: string
+                    description: 手机号
+            description: 手机号授权响应
+        BuyNowOrderInfoRequest:
+            type: object
+            properties:
+                goodsId:
+                    type: string
+                    description: 商品id
+                skuCode:
+                    type: string
+                    description: 规格编号
+                num:
+                    type: string
+                    description: 数量
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendContext'
+            description: 立即购买订单请求参数
+        BuyNowOrderInfoResponse:
+            type: object
+            properties:
+                goods:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderGoods'
+                    description: 商品信息
+                summary:
+                    $ref: '#/components/schemas/OrderSummary'
+                clearCart:
+                    type: boolean
+                    description: 是否清空购物车
+            description: 立即购买订单响应
         CancelOrderInfoRequest:
             type: object
             properties:
@@ -5447,13 +5488,13 @@ components:
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
             description: 创建购物车请求参数
-        ExecBaseJobRequest:
+        ExecuteBaseJobRequest:
             type: object
             properties:
                 id:
                     type: string
                     description: 主键id
-            description: ExecBaseJob请求参数
+            description: 执行任务请求参数
         FileInfo:
             type: object
             properties:
@@ -5836,6 +5877,13 @@ components:
                     description: 排序
                     format: int32
             description: 商品规格
+        H5PayRequest:
+            type: object
+            properties:
+                orderId:
+                    type: string
+                    description: 订单id
+            description: H5支付请求参数
         H5PayResponse:
             type: object
             properties:
@@ -5843,6 +5891,13 @@ components:
                     type: string
                     description: 支付url
             description: H5 支付响应
+        JsapiPayRequest:
+            type: object
+            properties:
+                orderId:
+                    type: string
+                    description: 订单id
+            description: 小程序支付请求参数
         JsapiPayResponse:
             type: object
             properties:
@@ -5871,43 +5926,6 @@ components:
                         $ref: '#/components/schemas/BaseApi'
                     description: 分页数据
             description: API列表响应
-        ListBaseDictResponse:
-            type: object
-            properties:
-                list:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ListBaseDictResponse_BaseDict'
-                    description: 分页数据
-            description: 字典列表响应
-        ListBaseDictResponse_BaseDict:
-            type: object
-            properties:
-                code:
-                    type: string
-                    description: 字典编号
-                name:
-                    type: string
-                    description: 字典名称
-                items:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ListBaseDictResponse_BaseDictItem'
-                    description: 字典属性
-            description: 字典
-        ListBaseDictResponse_BaseDictItem:
-            type: object
-            properties:
-                value:
-                    type: string
-                    description: 字典项值
-                label:
-                    type: string
-                    description: 字典项标签
-                tagType:
-                    type: string
-                    description: 标签类型，用于前端样式展示（如success、warning等）
-            description: 字典项
         ListGoodsCategoryResponse:
             type: object
             properties:
@@ -5917,31 +5935,6 @@ components:
                         $ref: '#/components/schemas/GoodsCategory'
                     description: 分页数据
             description: 商品分类列表响应
-        ListGoodsInfoResponse:
-            type: object
-            properties:
-                list:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ListGoodsInfoResponse_GoodsInfo'
-                    description: 分页数据
-            description: 商品列表响应
-        ListGoodsInfoResponse_GoodsInfo:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 商品ID
-                name:
-                    type: string
-                    description: 名称
-                price:
-                    type: string
-                    description: 当前价格(分)
-                categoryName:
-                    type: string
-                    description: 分类名称
-            description: Goods信息
         ListGoodsSpecResponse:
             type: object
             properties:
@@ -6065,6 +6058,68 @@ components:
                         $ref: '#/components/schemas/FileInfo'
                     description: 文件上传结果
             description: 批量上传文件响应
+        OptionBaseDictResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OptionBaseDictResponse_BaseDict'
+                    description: 分页数据
+            description: 字典选项响应
+        OptionBaseDictResponse_BaseDict:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 字典编号
+                name:
+                    type: string
+                    description: 字典名称
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OptionBaseDictResponse_BaseDictItem'
+                    description: 字典属性
+            description: 字典
+        OptionBaseDictResponse_BaseDictItem:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: 字典项值
+                label:
+                    type: string
+                    description: 字典项标签
+                tagType:
+                    type: string
+                    description: 标签类型，用于前端样式展示（如success、warning等）
+            description: 字典项
+        OptionGoodsInfoResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OptionGoodsInfoResponse_GoodsInfo'
+                    description: 分页数据
+            description: 商品选项响应
+        OptionGoodsInfoResponse_GoodsInfo:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 商品ID
+                name:
+                    type: string
+                    description: 名称
+                price:
+                    type: string
+                    description: 当前价格(分)
+                categoryName:
+                    type: string
+                    description: 分类名称
+            description: Goods信息
         OrderAddress:
             type: object
             properties:
@@ -6342,7 +6397,7 @@ components:
                         $ref: '#/components/schemas/OrderRefund'
                     description: 退款信息
             description: 订单详情响应
-        OrderInfoShippedResponse:
+        OrderInfoShipmentForm:
             type: object
             properties:
                 address:
@@ -6354,7 +6409,7 @@ components:
                     description: 商品信息
                 logistics:
                     $ref: '#/components/schemas/OrderLogistics'
-            description: 订单Shipped响应
+            description: 订单发货表单
         OrderLogistics:
             type: object
             properties:
@@ -6597,13 +6652,6 @@ components:
                     type: string
                     description: 【用户退款金额】单位：分
             description: 退款金额信息
-        OrderRepurchaseInfoRequest:
-            type: object
-            properties:
-                orderId:
-                    type: string
-                    description: 订单id
-            description: 再次购买订单请求参数
         OrderSummary:
             type: object
             properties:
@@ -6923,27 +6971,6 @@ components:
                     description: 对账状态：枚举【PayBillStatus】
                     format: enum
             description: 支付账单
-        PayRequest:
-            type: object
-            properties:
-                orderId:
-                    type: string
-                    description: 订单id
-            description: 支付请求参数
-        PhoneAuthRequest:
-            type: object
-            properties:
-                code:
-                    type: string
-                    description: 授权信息
-            description: 手机号授权请求参数
-        PhoneAuthResponse:
-            type: object
-            properties:
-                phone:
-                    type: string
-                    description: 手机号
-            description: 手机号授权响应
         ReceiveOrderInfoRequest:
             type: object
             properties:
@@ -7091,7 +7118,28 @@ components:
                     type: string
                     description: 退款金额
             description: 订单退款请求参数
-        ResetBaseUserPwdRequest:
+        RepurchaseOrderInfoRequest:
+            type: object
+            properties:
+                orderId:
+                    type: string
+                    description: 订单id
+            description: 再次购买订单请求参数
+        RepurchaseOrderInfoResponse:
+            type: object
+            properties:
+                goods:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OrderGoods'
+                    description: 商品信息
+                summary:
+                    $ref: '#/components/schemas/OrderSummary'
+                clearCart:
+                    type: boolean
+                    description: 是否清空购物车
+            description: 再次购买订单响应
+        ResetBaseUserPasswordRequest:
             type: object
             properties:
                 id:
@@ -7100,7 +7148,7 @@ components:
                 pwd:
                     type: string
                     description: 密码
-            description: ResetBaseUserPwd请求参数
+            description: 重置用户密码请求参数
         RouteItem:
             type: object
             properties:
@@ -7186,32 +7234,25 @@ components:
                     type: boolean
                     description: 是否禁用
             description: 下拉选项
-        SelectedUserCartRequest:
-            type: object
-            properties:
-                isChecked:
-                    type: boolean
-                    description: 是否选中
-            description: 购物车全选设置请求参数
-        SendUpdatePhoneCodeForm:
+        SendPhoneCodeRequest:
             type: object
             properties:
                 phone:
                     type: string
                     description: 手机号
-            description: SendUpdatePhoneCode表单
-        SetMenusRequest:
+            description: 发送手机号验证码请求参数
+        SetBaseRoleMenuRequest:
             type: object
             properties:
                 id:
                     type: string
-                    description: 用户ID
+                    description: 角色ID
                 menus:
                     type: array
                     items:
                         type: string
                     description: 分配的菜单列表
-            description: SetMenus请求参数
+            description: 设置角色菜单权限请求参数
         SetStatusRequest:
             type: object
             properties:
@@ -7223,6 +7264,13 @@ components:
                     description: 状态
                     format: int32
             description: 状态设置请求参数
+        SetUserCartSelectionRequest:
+            type: object
+            properties:
+                isChecked:
+                    type: boolean
+                    description: 是否选中
+            description: 设置购物车选中状态请求参数
         SetUserCartStatusRequest:
             type: object
             properties:
@@ -7233,7 +7281,7 @@ components:
                     type: boolean
                     description: 是否选中
             description: SetUserCartStatus请求参数
-        ShippedOrderInfoRequest:
+        ShipOrderInfoRequest:
             type: object
             properties:
                 orderId:
@@ -7248,7 +7296,7 @@ components:
                 contact:
                     type: string
                     description: 联系方式
-            description: ShippedOrder信息请求参数
+            description: 订单发货请求参数
         ShopBanner:
             type: object
             properties:
@@ -7536,13 +7584,6 @@ components:
                     type: string
                     description: 主键id
             description: StartBaseJob请求参数
-        StopBaseJobRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 主键id
-            description: StopBaseJob请求参数
         StringValues:
             type: object
             properties:
@@ -7618,53 +7659,6 @@ components:
                         $ref: '#/components/schemas/RouteItem'
                     description: 路由列表
             description: Route树响应
-        UpdatePhoneForm:
-            type: object
-            properties:
-                phone:
-                    type: string
-                    description: 手机号
-                code:
-                    type: string
-                    description: 验证码
-            description: UpdatePhone表单
-        UpdatePwdForm:
-            type: object
-            properties:
-                oldPwd:
-                    type: string
-                    description: 原密码
-                newPwd:
-                    type: string
-                    description: 新密码
-                confirmPwd:
-                    type: string
-                    description: 确认密码
-            description: UpdatePwd表单
-        UpdateUserCartRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: 购物车id
-                num:
-                    type: string
-                    description: 数量
-            description: 更新购物车请求参数
-        UpdateUserInfoRequest:
-            type: object
-            properties:
-                nickName:
-                    type: string
-                    description: 昵称
-                avatar:
-                    type: string
-                    description: 头像URL
-                gender:
-                    type: integer
-                    description: 性别
-                    format: int32
-            description: UpdateUser信息请求参数
         UploadFileInfo:
             type: object
             properties:
@@ -7798,6 +7792,16 @@ components:
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
             description: UserCart
+        UserCartForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 购物车id
+                num:
+                    type: string
+                    description: 数量
+            description: 用户购物车表单
         UserCollect:
             type: object
             properties:
@@ -7835,7 +7839,7 @@ components:
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
             description: UserCollect表单
-        UserInfo:
+        UserInfoForm:
             type: object
             properties:
                 userName:
@@ -7859,7 +7863,30 @@ components:
                 deptName:
                     type: string
                     description: 部门名称
-            description: User信息
+            description: 用户信息表单
+        UserPasswordForm:
+            type: object
+            properties:
+                oldPwd:
+                    type: string
+                    description: 原密码
+                newPwd:
+                    type: string
+                    description: 新密码
+                confirmPwd:
+                    type: string
+                    description: 确认密码
+            description: 用户密码表单
+        UserPhoneForm:
+            type: object
+            properties:
+                phone:
+                    type: string
+                    description: 手机号
+                code:
+                    type: string
+                    description: 验证码
+            description: 用户手机号表单
         UserProfileForm:
             type: object
             properties:
@@ -7968,6 +7995,30 @@ components:
                         type: string
                     description: 省市区
             description: 用户门店表单
+        WechatLoginRequest:
+            type: object
+            properties:
+                code:
+                    type: string
+                    description: 用户登录凭据
+            description: 微信登录请求参数
+        WechatLoginResponse:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                    description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
+                refreshToken:
+                    type: string
+                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
+                tokenType:
+                    type: string
+                    default: Bearer
+                    description: 令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。
+                expiresIn:
+                    type: string
+                    description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+            description: 微信登录响应
         WorkspaceMetricsResponse:
             type: object
             properties:
@@ -8037,30 +8088,6 @@ components:
                     type: string
                     description: 待上架商品数
             description: 工作台待办响应
-        WxLoginRequest:
-            type: object
-            properties:
-                code:
-                    type: string
-                    description: 用户登录凭据
-            description: 微信登录请求参数
-        WxLoginResponse:
-            type: object
-            properties:
-                accessToken:
-                    type: string
-                    description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
-                refreshToken:
-                    type: string
-                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
-                tokenType:
-                    type: string
-                    default: Bearer
-                    description: 令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。
-                expiresIn:
-                    type: string
-                    description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
-            description: 微信登录响应
 tags:
     - name: AuthService
       description: App用户登录认证服务

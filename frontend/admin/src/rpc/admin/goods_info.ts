@@ -13,20 +13,20 @@ import type { GoodsProp } from "./goods_prop";
 import type { GoodsSku } from "./goods_sku";
 import type { GoodsSpec } from "./goods_spec";
 
-/** 商品列表查询条件 */
-export interface ListGoodsInfoRequest {
+/** 商品选项查询条件 */
+export interface OptionGoodsInfoRequest {
   /** 商品名称 */
   name: string;
 }
 
-/** 商品列表响应 */
-export interface ListGoodsInfoResponse {
+/** 商品选项响应 */
+export interface OptionGoodsInfoResponse {
   /** 分页数据 */
-  list: ListGoodsInfoResponse_GoodsInfo[];
+  list: OptionGoodsInfoResponse_GoodsInfo[];
 }
 
 /** Goods信息 */
-export interface ListGoodsInfoResponse_GoodsInfo {
+export interface OptionGoodsInfoResponse_GoodsInfo {
   /** 商品ID */
   id: number;
   /** 名称 */
@@ -137,8 +137,8 @@ export interface GoodsInfoForm {
 
 /** Admin商品信息服务 */
 export interface GoodsInfoService {
-  /** 查询商品信息列表 */
-  ListGoodsInfo(request: ListGoodsInfoRequest): Promise<ListGoodsInfoResponse>;
+  /** 查询商品信息下拉选择 */
+  OptionGoodsInfo(request: OptionGoodsInfoRequest): Promise<OptionGoodsInfoResponse>;
   /** 查询商品信息分页列表 */
   PageGoodsInfo(request: PageGoodsInfoRequest): Promise<PageGoodsInfoResponse>;
   /** 查询商品信息 */

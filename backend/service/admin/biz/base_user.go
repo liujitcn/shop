@@ -205,8 +205,8 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetSta
 	})
 }
 
-// ResetBaseUserPwd 重置用户密码
-func (c *BaseUserCase) ResetBaseUserPwd(ctx context.Context, req *admin.ResetBaseUserPwdRequest) error {
+// ResetBaseUserPassword 重置用户密码
+func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *admin.ResetBaseUserPasswordRequest) error {
 	baseUser, err := c.FindById(ctx, req.GetId())
 	if err != nil {
 		return errorsx.ResourceNotFound("重置密码失败，用户信息不存在").WithCause(err)

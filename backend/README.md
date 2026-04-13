@@ -88,6 +88,7 @@ go run ./internal/cmd/server -conf ./configs
 - 后端会自动扫描 `backend/data` 下包含 `index.html` 的一级子目录，并按目录名挂载单页应用。
 - 因此 `backend/data/shop/index.html` 对应 `/shop`，`backend/data/app/index.html` 对应 `/app`。
 - `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
+- `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 
 ## 数据库初始化
 

@@ -36,11 +36,11 @@ func NewBaseDictService(
 	return &ss
 }
 
-// ListBaseDict 查询字典列表
-func (s *BaseDictService) ListBaseDict(ctx context.Context, req *wrapperspb.StringValue) (*app.ListBaseDictResponse, error) {
-	res, err := s.baseDictCase.ListBaseDict(ctx, req.GetValue())
+// GetBaseDict 查询字典
+func (s *BaseDictService) GetBaseDict(ctx context.Context, req *wrapperspb.StringValue) (*app.BaseDictForm, error) {
+	res, err := s.baseDictCase.GetBaseDict(ctx, req.GetValue())
 	if err != nil {
-		log.Errorf("ListBaseDict %v", err)
+		log.Errorf("GetBaseDict %v", err)
 		return nil, errorsx.WrapInternal(err, "查询失败")
 	}
 	return res, nil

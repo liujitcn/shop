@@ -9,7 +9,7 @@ export class BaseApiServiceImpl implements BaseApiService {
   /** 查询API列表 */
   ListBaseApi(request: Empty): Promise<ListBaseApiResponse> {
     return service<Empty, ListBaseApiResponse>({
-      url: `${BASE_API_URL}/list`,
+      url: `${BASE_API_URL}`,
       method: "get",
       params: request
     });

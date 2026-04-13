@@ -3,15 +3,19 @@ import { defOrderService } from '@/api/app/order_info.ts'
 import { useAddressStore } from '@/stores'
 import type {
   ConfirmOrderInfoResponse,
-  CreateOrderInfoGoods,
+  BuyNowOrderInfoRequest,
   OrderGoods,
+  RepurchaseOrderInfoRequest,
+  BuyNowOrderInfoResponse,
+  RepurchaseOrderInfoResponse,
+  CreateOrderInfoGoods,
 } from '@/rpc/app/order_info'
+import type { BaseDictForm_DictItem } from '@/rpc/app/base_dict'
 import type { RecommendContext } from '@/rpc/app/recommend'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { UserAddress } from '@/rpc/app/user_address'
 import { defUserAddressService } from '@/api/app/user_address'
-import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
 import { RecommendScene } from '@/rpc/common/enum'
@@ -24,7 +28,7 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单备注
 const buyerMessage = ref('')
 // 支付方式
-const payTypeList = ref<ListBaseDictResponse_DictItem[]>([])
+const payTypeList = ref<BaseDictForm_DictItem[]>([])
 // 当前支付方式下标
 const payTypeActiveIndex = ref(0)
 // 当前支付方式
@@ -34,7 +38,7 @@ const onChangePayType: UniHelper.SelectorPickerOnChange = (ev) => {
   payTypeActiveIndex.value = ev.detail.value
 }
 // 支付渠道
-const payChannelList = ref<ListBaseDictResponse_DictItem[]>([])
+const payChannelList = ref<BaseDictForm_DictItem[]>([])
 // 当前支付渠道下标
 const payChannelActiveIndex = ref(0)
 // 当前支付渠道
@@ -45,7 +49,7 @@ const onChangePayChannel: UniHelper.SelectorPickerOnChange = (ev) => {
 }
 
 // 配送时间
-const deliveryList = ref<ListBaseDictResponse_DictItem[]>([])
+const deliveryList = ref<BaseDictForm_DictItem[]>([])
 // 当前配送时间下标
 const deliveryActiveIndex = ref(0)
 // 当前配送时间
@@ -87,22 +91,26 @@ const buildOrderRequestGoods = (item: OrderGoods): CreateOrderInfoGoods => {
 }
 
 // 获取订单信息
-const orderPre = ref<ConfirmOrderInfoResponse>()
+const orderPre = ref<
+  ConfirmOrderInfoResponse | BuyNowOrderInfoResponse | RepurchaseOrderInfoResponse
+>()
 const getUserOrderPreData = async () => {
   if (query.goodsId && query.skuCode && query.num) {
-    orderPre.value = await defOrderService.OrderInfoBuy({
+    const request: BuyNowOrderInfoRequest = {
       goodsId: Number(query.goodsId),
       skuCode: query.skuCode,
       num: Number(query.num),
       recommendContext,
-    })
+    }
+    orderPre.value = await defOrderService.BuyNowOrderInfo(request)
   } else if (query.orderId) {
     // 再次购买
-    orderPre.value = await defOrderService.OrderInfoRepurchase({
+    const request: RepurchaseOrderInfoRequest = {
       orderId: Number(query.orderId),
-    })
+    }
+    orderPre.value = await defOrderService.RepurchaseOrderInfo(request)
   } else {
-    orderPre.value = await defOrderService.OrderInfoPre({})
+    orderPre.value = await defOrderService.ConfirmOrderInfo({})
   }
 }
 
@@ -113,26 +121,18 @@ const getUserAddressData = async () => {
 }
 
 const getDictData = async () => {
-  const pay_type = 'order_pay_type'
-  const pay_channel = 'order_pay_channel'
-  const delivery_time_type = 'order_delivery_time'
-  const res = await defBaseDictService.ListBaseDict({
-    value: `${pay_type},${pay_channel},${delivery_time_type}`,
-  })
-  const list = res.list || []
-  list.map((item) => {
-    switch (item.code) {
-      case pay_type:
-        payTypeList.value = item.items || []
-        break
-      case pay_channel:
-        payChannelList.value = item.items || []
-        break
-      case delivery_time_type:
-        deliveryList.value = item.items || []
-        break
-    }
-  })
+  const payTypeCode = 'order_pay_type'
+  const payChannelCode = 'order_pay_channel'
+  const deliveryTimeCode = 'order_delivery_time'
+  // 新接口每次只返回一个字典，这里并发拉取三个字典并分别写入页面状态。
+  const [payTypeDict, payChannelDict, deliveryDict] = await Promise.all([
+    defBaseDictService.GetBaseDict({ value: payTypeCode }),
+    defBaseDictService.GetBaseDict({ value: payChannelCode }),
+    defBaseDictService.GetBaseDict({ value: deliveryTimeCode }),
+  ])
+  payTypeList.value = payTypeDict.items || []
+  payChannelList.value = payChannelDict.items || []
+  deliveryList.value = deliveryDict.items || []
 }
 
 onLoad(() => {

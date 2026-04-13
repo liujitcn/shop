@@ -3,7 +3,7 @@ import { OrderStatus } from '@/rpc/common/enum'
 import { defOrderService } from '@/api/app/order_info.ts'
 import type { PageOrderInfoRequest, OrderInfo } from '@/rpc/app/order_info'
 import { onMounted, ref } from 'vue'
-import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
+import type { BaseDictForm_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { onLoad } from '@dcloudio/uni-app'
 import { defPayService } from '@/api/app/pay'
@@ -28,11 +28,11 @@ const queryParams: Required<PageOrderInfoRequest> = {
 
 // 弹出层组件
 const popup = ref<UniHelper.UniPopupInstance>()
-const reasonList = ref<ListBaseDictResponse_DictItem[]>([])
+const reasonList = ref<BaseDictForm_DictItem[]>([])
 // 取消原因列表
-const cancelReasonList = ref<ListBaseDictResponse_DictItem[]>([])
+const cancelReasonList = ref<BaseDictForm_DictItem[]>([])
 // 退款原因列表
-const refundReasonList = ref<ListBaseDictResponse_DictItem[]>([])
+const refundReasonList = ref<BaseDictForm_DictItem[]>([])
 // 订单取消/退款原因
 const reason = ref('')
 // 订单取id消
@@ -43,22 +43,14 @@ const title = ref('')
 const tips = ref('')
 
 const getDictData = async () => {
-  const cancel_reason = 'order_cancel_reason'
-  const refund_reason = 'order_refund_reason'
-  const res = await defBaseDictService.ListBaseDict({
-    value: `${cancel_reason},${refund_reason}`,
-  })
-  const list = res.list || []
-  list.map((item) => {
-    switch (item.code) {
-      case cancel_reason:
-        cancelReasonList.value = item.items || []
-        break
-      case refund_reason:
-        refundReasonList.value = item.items || []
-        break
-    }
-  })
+  const cancelReasonCode = 'order_cancel_reason'
+  const refundReasonCode = 'order_refund_reason'
+  const [cancelReasonDict, refundReasonDict] = await Promise.all([
+    defBaseDictService.GetBaseDict({ value: cancelReasonCode }),
+    defBaseDictService.GetBaseDict({ value: refundReasonCode }),
+  ])
+  cancelReasonList.value = cancelReasonDict.items || []
+  refundReasonList.value = refundReasonDict.items || []
 }
 // 获取订单列表
 const orderInfoList = ref<OrderInfo[]>([])
@@ -169,21 +161,16 @@ const onOrderConfirm = (id: number) => {
 
 // 确认收货
 const onOpenPopup = async (order: OrderInfo) => {
-  console.log(cancelReasonList.value)
-  console.log(refundReasonList.value)
   // 确保数据已加载
   if (cancelReasonList.value.length === 0 || refundReasonList.value.length === 0) {
     await getDictData()
   }
-  console.log(cancelReasonList.value)
-  console.log(refundReasonList.value)
   orderItem.value = order
   title.value = order.status === OrderStatus.CREATED ? '订单取消' : '订单退款'
   tips.value =
     order.status === OrderStatus.CREATED ? '请选择订单取消的原因：' : '请选择订单退款的原因：'
   reasonList.value =
     order.status === OrderStatus.CREATED ? cancelReasonList.value : refundReasonList.value
-  console.log(reasonList.value)
   popup.value?.open!()
 }
 

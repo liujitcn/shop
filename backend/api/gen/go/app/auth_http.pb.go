@@ -21,83 +21,83 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationAuthServiceGetUserInfo = "/app.AuthService/GetUserInfo"
-const OperationAuthServicePhoneAuth = "/app.AuthService/PhoneAuth"
-const OperationAuthServiceUpdateUserInfo = "/app.AuthService/UpdateUserInfo"
-const OperationAuthServiceWxLogin = "/app.AuthService/WxLogin"
+const OperationAuthServiceBindUserPhone = "/app.AuthService/BindUserPhone"
+const OperationAuthServiceGetUserProfile = "/app.AuthService/GetUserProfile"
+const OperationAuthServiceUpdateUserProfile = "/app.AuthService/UpdateUserProfile"
+const OperationAuthServiceWechatLogin = "/app.AuthService/WechatLogin"
 
 type AuthServiceHTTPServer interface {
-	// GetUserInfo 获取已经登录的用户的数据
-	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error)
-	// PhoneAuth 手机号授权
-	PhoneAuth(context.Context, *PhoneAuthRequest) (*PhoneAuthResponse, error)
-	// UpdateUserInfo 修改个人中心用户信息
-	UpdateUserInfo(context.Context, *UpdateUserInfoRequest) (*emptypb.Empty, error)
-	// WxLogin 微信登录
-	WxLogin(context.Context, *WxLoginRequest) (*WxLoginResponse, error)
+	// BindUserPhone 手机号授权
+	BindUserPhone(context.Context, *BindUserPhoneRequest) (*BindUserPhoneResponse, error)
+	// GetUserProfile 获取已经登录的用户的数据
+	GetUserProfile(context.Context, *emptypb.Empty) (*UserProfileForm, error)
+	// UpdateUserProfile 修改个人中心用户信息
+	UpdateUserProfile(context.Context, *UserProfileForm) (*emptypb.Empty, error)
+	// WechatLogin 微信登录
+	WechatLogin(context.Context, *WechatLoginRequest) (*WechatLoginResponse, error)
 }
 
 func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/api/app/auth/login/wx", _AuthService_WxLogin0_HTTP_Handler(srv))
-	r.GET("/api/app/auth/userInfo", _AuthService_GetUserInfo0_HTTP_Handler(srv))
-	r.PUT("/api/app/auth/userInfo", _AuthService_UpdateUserInfo0_HTTP_Handler(srv))
-	r.PUT("/api/app/auth/userInfo/phone", _AuthService_PhoneAuth0_HTTP_Handler(srv))
+	r.POST("/api/app/auth/wechat", _AuthService_WechatLogin0_HTTP_Handler(srv))
+	r.GET("/api/app/auth/profile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
+	r.PUT("/api/app/auth/profile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
+	r.PUT("/api/app/auth/phone", _AuthService_BindUserPhone0_HTTP_Handler(srv))
 }
 
-func _AuthService_WxLogin0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_WechatLogin0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in WxLoginRequest
+		var in WechatLoginRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceWxLogin)
+		http.SetOperation(ctx, OperationAuthServiceWechatLogin)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.WxLogin(ctx, req.(*WxLoginRequest))
+			return srv.WechatLogin(ctx, req.(*WechatLoginRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*WxLoginResponse)
+		reply := out.(*WechatLoginResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AuthService_GetUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_GetUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceGetUserInfo)
+		http.SetOperation(ctx, OperationAuthServiceGetUserProfile)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetUserInfo(ctx, req.(*emptypb.Empty))
+			return srv.GetUserProfile(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*UserInfo)
+		reply := out.(*UserProfileForm)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AuthService_UpdateUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_UpdateUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateUserInfoRequest
+		var in UserProfileForm
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServiceUpdateUserInfo)
+		http.SetOperation(ctx, OperationAuthServiceUpdateUserProfile)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUserInfo(ctx, req.(*UpdateUserInfoRequest))
+			return srv.UpdateUserProfile(ctx, req.(*UserProfileForm))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -108,37 +108,37 @@ func _AuthService_UpdateUserInfo0_HTTP_Handler(srv AuthServiceHTTPServer) func(c
 	}
 }
 
-func _AuthService_PhoneAuth0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
+func _AuthService_BindUserPhone0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PhoneAuthRequest
+		var in BindUserPhoneRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAuthServicePhoneAuth)
+		http.SetOperation(ctx, OperationAuthServiceBindUserPhone)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PhoneAuth(ctx, req.(*PhoneAuthRequest))
+			return srv.BindUserPhone(ctx, req.(*BindUserPhoneRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PhoneAuthResponse)
+		reply := out.(*BindUserPhoneResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
 type AuthServiceHTTPClient interface {
-	// GetUserInfo 获取已经登录的用户的数据
-	GetUserInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UserInfo, err error)
-	// PhoneAuth 手机号授权
-	PhoneAuth(ctx context.Context, req *PhoneAuthRequest, opts ...http.CallOption) (rsp *PhoneAuthResponse, err error)
-	// UpdateUserInfo 修改个人中心用户信息
-	UpdateUserInfo(ctx context.Context, req *UpdateUserInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// WxLogin 微信登录
-	WxLogin(ctx context.Context, req *WxLoginRequest, opts ...http.CallOption) (rsp *WxLoginResponse, err error)
+	// BindUserPhone 手机号授权
+	BindUserPhone(ctx context.Context, req *BindUserPhoneRequest, opts ...http.CallOption) (rsp *BindUserPhoneResponse, err error)
+	// GetUserProfile 获取已经登录的用户的数据
+	GetUserProfile(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *UserProfileForm, err error)
+	// UpdateUserProfile 修改个人中心用户信息
+	UpdateUserProfile(ctx context.Context, req *UserProfileForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// WechatLogin 微信登录
+	WechatLogin(ctx context.Context, req *WechatLoginRequest, opts ...http.CallOption) (rsp *WechatLoginResponse, err error)
 }
 
 type AuthServiceHTTPClientImpl struct {
@@ -149,12 +149,26 @@ func NewAuthServiceHTTPClient(client *http.Client) AuthServiceHTTPClient {
 	return &AuthServiceHTTPClientImpl{client}
 }
 
-// GetUserInfo 获取已经登录的用户的数据
-func (c *AuthServiceHTTPClientImpl) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UserInfo, error) {
-	var out UserInfo
-	pattern := "/api/app/auth/userInfo"
+// BindUserPhone 手机号授权
+func (c *AuthServiceHTTPClientImpl) BindUserPhone(ctx context.Context, in *BindUserPhoneRequest, opts ...http.CallOption) (*BindUserPhoneResponse, error) {
+	var out BindUserPhoneResponse
+	pattern := "/api/app/auth/phone"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAuthServiceBindUserPhone))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetUserProfile 获取已经登录的用户的数据
+func (c *AuthServiceHTTPClientImpl) GetUserProfile(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*UserProfileForm, error) {
+	var out UserProfileForm
+	pattern := "/api/app/auth/profile"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAuthServiceGetUserInfo))
+	opts = append(opts, http.Operation(OperationAuthServiceGetUserProfile))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -163,26 +177,12 @@ func (c *AuthServiceHTTPClientImpl) GetUserInfo(ctx context.Context, in *emptypb
 	return &out, nil
 }
 
-// PhoneAuth 手机号授权
-func (c *AuthServiceHTTPClientImpl) PhoneAuth(ctx context.Context, in *PhoneAuthRequest, opts ...http.CallOption) (*PhoneAuthResponse, error) {
-	var out PhoneAuthResponse
-	pattern := "/api/app/auth/userInfo/phone"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthServicePhoneAuth))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// UpdateUserInfo 修改个人中心用户信息
-func (c *AuthServiceHTTPClientImpl) UpdateUserInfo(ctx context.Context, in *UpdateUserInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// UpdateUserProfile 修改个人中心用户信息
+func (c *AuthServiceHTTPClientImpl) UpdateUserProfile(ctx context.Context, in *UserProfileForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/auth/userInfo"
+	pattern := "/api/app/auth/profile"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthServiceUpdateUserInfo))
+	opts = append(opts, http.Operation(OperationAuthServiceUpdateUserProfile))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
@@ -191,12 +191,12 @@ func (c *AuthServiceHTTPClientImpl) UpdateUserInfo(ctx context.Context, in *Upda
 	return &out, nil
 }
 
-// WxLogin 微信登录
-func (c *AuthServiceHTTPClientImpl) WxLogin(ctx context.Context, in *WxLoginRequest, opts ...http.CallOption) (*WxLoginResponse, error) {
-	var out WxLoginResponse
-	pattern := "/api/app/auth/login/wx"
+// WechatLogin 微信登录
+func (c *AuthServiceHTTPClientImpl) WechatLogin(ctx context.Context, in *WechatLoginRequest, opts ...http.CallOption) (*WechatLoginResponse, error) {
+	var out WechatLoginResponse
+	pattern := "/api/app/auth/wechat"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAuthServiceWxLogin))
+	opts = append(opts, http.Operation(OperationAuthServiceWechatLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

@@ -36,8 +36,8 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo, ba
 	}
 }
 
-// ListBaseDict 查询字典列表
-func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictResponse, error) {
+// OptionBaseDict 查询字典下拉选择
+func (c *BaseDictCase) OptionBaseDict(ctx context.Context) (*admin.OptionBaseDictResponse, error) {
 	query := c.Query(ctx).BaseDict
 	opts := make([]repo.QueryOption, 0, 1)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
@@ -61,9 +61,9 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictRes
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 
-	resList := make([]*admin.ListBaseDictResponse_BaseDict, 0, len(baseDictList))
+	resList := make([]*admin.OptionBaseDictResponse_BaseDict, 0, len(baseDictList))
 	for _, dict := range baseDictList {
-		items := make([]*admin.ListBaseDictResponse_BaseDictItem, 0)
+		items := make([]*admin.OptionBaseDictResponse_BaseDictItem, 0)
 		dictItems, ok := dictItemMap[dict.ID]
 		// 当前字典存在子项时，按排序字段稳定输出字典项。
 		if ok {
@@ -71,20 +71,20 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictRes
 				return dictItems[i].Sort < dictItems[j].Sort
 			})
 			for _, dictItem := range dictItems {
-				items = append(items, &admin.ListBaseDictResponse_BaseDictItem{
+				items = append(items, &admin.OptionBaseDictResponse_BaseDictItem{
 					Value:   dictItem.Value,
 					Label:   dictItem.Label,
 					TagType: dictItem.TagType,
 				})
 			}
 		}
-		resList = append(resList, &admin.ListBaseDictResponse_BaseDict{
+		resList = append(resList, &admin.OptionBaseDictResponse_BaseDict{
 			Code:  dict.Code,
 			Name:  dict.Name,
 			Items: items,
 		})
 	}
-	return &admin.ListBaseDictResponse{List: resList}, nil
+	return &admin.OptionBaseDictResponse{List: resList}, nil
 }
 
 // PageBaseDict 分页查询字典

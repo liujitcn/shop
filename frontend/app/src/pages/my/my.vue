@@ -30,18 +30,13 @@ const getOrderData = async () => {
   }
 
   const code = 'order_status'
-  const orderStatus = await defBaseDictService.ListBaseDict({
+  const orderStatus = await defBaseDictService.GetBaseDict({
     value: code,
   })
   const textMap = new Map<number, string>()
-  if (orderStatus && orderStatus.list) {
-    orderStatus.list.map((dict) => {
-      if (dict.code === code)
-        if (dict.items) {
-          dict.items.map((dictItem) => {
-            textMap.set(Number(dictItem.value), dictItem.label)
-          })
-        }
+  if (orderStatus && orderStatus.items) {
+    orderStatus.items.map((dictItem) => {
+      textMap.set(Number(dictItem.value), dictItem.label)
     })
   }
 

@@ -419,9 +419,9 @@ const file_admin_base_config_proto_rawDesc = "" +
 	"\x06status\x183 \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\a\n" +
 	"\x05_siteB\a\n" +
 	"\x05_typeB\t\n" +
-	"\a_status2\x9a\x06\n" +
-	"\x11BaseConfigService\x12n\n" +
-	"\x11RefreshBaseConfig\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/api/admin/base/config/refresh\x12m\n" +
+	"\a_status2\x9d\x06\n" +
+	"\x11BaseConfigService\x12q\n" +
+	"\x16RefreshBaseConfigCache\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"'\x82\xd3\xe4\x93\x02!:\x01*\x1a\x1c/api/admin/base/config/cache\x12m\n" +
 	"\x0ePageBaseConfig\x12\x1c.admin.PageBaseConfigRequest\x1a\x1d.admin.PageBaseConfigResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/admin/base/config\x12k\n" +
 	"\rGetBaseConfig\x12\x1b.google.protobuf.Int64Value\x1a\x15.admin.BaseConfigForm\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/base/config/{value}\x12d\n" +
 	"\x10CreateBaseConfig\x12\x15.admin.BaseConfigForm\x1a\x16.google.protobuf.Empty\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/admin/base/config\x12i\n" +
@@ -467,14 +467,14 @@ var file_admin_base_config_proto_depIdxs = []int32{
 	4,  // 7: admin.BaseConfigForm.site:type_name -> common.BaseConfigSite
 	5,  // 8: admin.BaseConfigForm.type:type_name -> common.BaseConfigType
 	6,  // 9: admin.BaseConfigForm.status:type_name -> common.Status
-	7,  // 10: admin.BaseConfigService.RefreshBaseConfig:input_type -> google.protobuf.Empty
+	7,  // 10: admin.BaseConfigService.RefreshBaseConfigCache:input_type -> google.protobuf.Empty
 	0,  // 11: admin.BaseConfigService.PageBaseConfig:input_type -> admin.PageBaseConfigRequest
 	8,  // 12: admin.BaseConfigService.GetBaseConfig:input_type -> google.protobuf.Int64Value
 	3,  // 13: admin.BaseConfigService.CreateBaseConfig:input_type -> admin.BaseConfigForm
 	3,  // 14: admin.BaseConfigService.UpdateBaseConfig:input_type -> admin.BaseConfigForm
 	9,  // 15: admin.BaseConfigService.DeleteBaseConfig:input_type -> google.protobuf.StringValue
 	10, // 16: admin.BaseConfigService.SetBaseConfigStatus:input_type -> common.SetStatusRequest
-	7,  // 17: admin.BaseConfigService.RefreshBaseConfig:output_type -> google.protobuf.Empty
+	7,  // 17: admin.BaseConfigService.RefreshBaseConfigCache:output_type -> google.protobuf.Empty
 	1,  // 18: admin.BaseConfigService.PageBaseConfig:output_type -> admin.PageBaseConfigResponse
 	3,  // 19: admin.BaseConfigService.GetBaseConfig:output_type -> admin.BaseConfigForm
 	7,  // 20: admin.BaseConfigService.CreateBaseConfig:output_type -> google.protobuf.Empty

@@ -66,9 +66,9 @@ service BaseRoleService {
   }
 
   // 设置角色菜单权限
-  rpc SetBaseRoleMenus (SetMenusRequest) returns (google.protobuf.Empty) {
+  rpc SetBaseRoleMenu (SetBaseRoleMenuRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/base/role/{id}/menus"
+      put: "/api/admin/base/role/{id}/menu"
       body: "*"
     };
   }
@@ -183,11 +183,11 @@ message BaseRoleForm {
   ];  // 备注
 }
 
-// SetMenus请求参数
-message SetMenusRequest {
+// 设置角色菜单权限请求参数
+message SetBaseRoleMenuRequest {
   int64 id = 1 [
-    (gnostic.openapi.v3.property) = {description: "用户ID"}
-  ];  // 用户ID
+    (gnostic.openapi.v3.property) = {description: "角色ID"}
+  ];  // 角色ID
 
   repeated int64 menus = 2 [
     (gnostic.openapi.v3.property) = {description: "分配的菜单列表"}

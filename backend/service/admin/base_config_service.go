@@ -36,7 +36,7 @@ func NewBaseConfigService(
 		baseConfigCase: configCase,
 	}
 	// 服务启动，刷新缓存
-	_, err := ss.RefreshBaseConfig(context.Background(), new(emptypb.Empty))
+	_, err := ss.RefreshBaseConfigCache(context.Background(), new(emptypb.Empty))
 	if err != nil {
 		log.Errorf("NewBaseConfigService %v", err)
 		return nil, errorsx.WrapInternal(err, "初始化系统配置缓存失败")
@@ -44,8 +44,8 @@ func NewBaseConfigService(
 	return &ss, nil
 }
 
-// RefreshBaseConfig 刷新缓存
-func (s *BaseConfigService) RefreshBaseConfig(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+// RefreshBaseConfigCache 刷新缓存
+func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.RefreshBaseConfig(ctx)
 	if err != nil {
 		log.Errorf("RefreshBaseConfig %v", err)

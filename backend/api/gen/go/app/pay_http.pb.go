@@ -27,9 +27,9 @@ const OperationPayServicePayNotify = "/app.PayService/PayNotify"
 
 type PayServiceHTTPServer interface {
 	// H5Pay H5支付
-	H5Pay(context.Context, *PayRequest) (*H5PayResponse, error)
+	H5Pay(context.Context, *H5PayRequest) (*H5PayResponse, error)
 	// JsapiPay 小程序支付
-	JsapiPay(context.Context, *PayRequest) (*JsapiPayResponse, error)
+	JsapiPay(context.Context, *JsapiPayRequest) (*JsapiPayResponse, error)
 	// PayNotify 支付通知
 	PayNotify(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 }
@@ -43,7 +43,7 @@ func RegisterPayServiceHTTPServer(s *http.Server, srv PayServiceHTTPServer) {
 
 func _PayService_JsapiPay0_HTTP_Handler(srv PayServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PayRequest
+		var in JsapiPayRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -55,7 +55,7 @@ func _PayService_JsapiPay0_HTTP_Handler(srv PayServiceHTTPServer) func(ctx http.
 		}
 		http.SetOperation(ctx, OperationPayServiceJsapiPay)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.JsapiPay(ctx, req.(*PayRequest))
+			return srv.JsapiPay(ctx, req.(*JsapiPayRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -68,7 +68,7 @@ func _PayService_JsapiPay0_HTTP_Handler(srv PayServiceHTTPServer) func(ctx http.
 
 func _PayService_H5Pay0_HTTP_Handler(srv PayServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PayRequest
+		var in H5PayRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -80,7 +80,7 @@ func _PayService_H5Pay0_HTTP_Handler(srv PayServiceHTTPServer) func(ctx http.Con
 		}
 		http.SetOperation(ctx, OperationPayServiceH5Pay)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.H5Pay(ctx, req.(*PayRequest))
+			return srv.H5Pay(ctx, req.(*H5PayRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -115,9 +115,9 @@ func _PayService_PayNotify0_HTTP_Handler(srv PayServiceHTTPServer) func(ctx http
 
 type PayServiceHTTPClient interface {
 	// H5Pay H5支付
-	H5Pay(ctx context.Context, req *PayRequest, opts ...http.CallOption) (rsp *H5PayResponse, err error)
+	H5Pay(ctx context.Context, req *H5PayRequest, opts ...http.CallOption) (rsp *H5PayResponse, err error)
 	// JsapiPay 小程序支付
-	JsapiPay(ctx context.Context, req *PayRequest, opts ...http.CallOption) (rsp *JsapiPayResponse, err error)
+	JsapiPay(ctx context.Context, req *JsapiPayRequest, opts ...http.CallOption) (rsp *JsapiPayResponse, err error)
 	// PayNotify 支付通知
 	PayNotify(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
@@ -131,7 +131,7 @@ func NewPayServiceHTTPClient(client *http.Client) PayServiceHTTPClient {
 }
 
 // H5Pay H5支付
-func (c *PayServiceHTTPClientImpl) H5Pay(ctx context.Context, in *PayRequest, opts ...http.CallOption) (*H5PayResponse, error) {
+func (c *PayServiceHTTPClientImpl) H5Pay(ctx context.Context, in *H5PayRequest, opts ...http.CallOption) (*H5PayResponse, error) {
 	var out H5PayResponse
 	pattern := "/api/app/pay/{orderId}/h5"
 	path := binding.EncodeURL(pattern, in, false)
@@ -145,7 +145,7 @@ func (c *PayServiceHTTPClientImpl) H5Pay(ctx context.Context, in *PayRequest, op
 }
 
 // JsapiPay 小程序支付
-func (c *PayServiceHTTPClientImpl) JsapiPay(ctx context.Context, in *PayRequest, opts ...http.CallOption) (*JsapiPayResponse, error) {
+func (c *PayServiceHTTPClientImpl) JsapiPay(ctx context.Context, in *JsapiPayRequest, opts ...http.CallOption) (*JsapiPayResponse, error) {
 	var out JsapiPayResponse
 	pattern := "/api/app/pay/{orderId}/jsapi"
 	path := binding.EncodeURL(pattern, in, false)

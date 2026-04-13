@@ -1,5 +1,5 @@
 import type { EnumProps } from "@/components/ProTable/interface";
-import type { ListBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
 import { useDictStoreHook } from "@/stores/modules/dict";
 
 type DictValueType = "number" | "string";
@@ -8,7 +8,7 @@ type SelectedId = string | number;
 /**
  * 按配置将字典值转换为表格枚举可识别的类型。
  */
-function transformDictValue(dictItem: ListBaseDictResponse_BaseDictItem, valueType: DictValueType) {
+function transformDictValue(dictItem: OptionBaseDictResponse_BaseDictItem, valueType: DictValueType) {
   if (valueType === "number") return Number(dictItem.value);
   return dictItem.value;
 }

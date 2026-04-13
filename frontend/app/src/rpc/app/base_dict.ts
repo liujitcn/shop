@@ -7,32 +7,26 @@
 /* eslint-disable */
 import type { StringValue } from "../google/protobuf/wrappers";
 
-/** 字典列表响应 */
-export interface ListBaseDictResponse {
-  /** 分页数据 */
-  list: ListBaseDictResponse_Dict[];
+/** 字典表单 */
+export interface BaseDictForm {
+  /** 字典编号 */
+  code: string;
+  /** 字典名称 */
+  name: string;
+  /** 字典属性 */
+  items: BaseDictForm_DictItem[];
 }
 
 /** 字典项 */
-export interface ListBaseDictResponse_DictItem {
+export interface BaseDictForm_DictItem {
   /** 字典值 */
   value: string;
   /** 字典项标签 */
   label: string;
 }
 
-/** 字典 */
-export interface ListBaseDictResponse_Dict {
-  /** 字典编号 */
-  code: string;
-  /** 字典名称 */
-  name: string;
-  /** 字典属性 */
-  items: ListBaseDictResponse_DictItem[];
-}
-
 /** App字典服务 */
 export interface BaseDictService {
-  /** 查询字典列表 */
-  ListBaseDict(request: StringValue): Promise<ListBaseDictResponse>;
+  /** 查询字典 */
+  GetBaseDict(request: StringValue): Promise<BaseDictForm>;
 }

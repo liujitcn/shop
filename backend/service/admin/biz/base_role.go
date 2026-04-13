@@ -175,8 +175,8 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *common.SetSta
 	})
 }
 
-// SetBaseRoleMenus 设置角色菜单
-func (c *BaseRoleCase) SetBaseRoleMenus(ctx context.Context, req *admin.SetMenusRequest) error {
+// SetBaseRoleMenu 设置角色菜单
+func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *admin.SetBaseRoleMenuRequest) error {
 	oldBaseRole, err := c.FindById(ctx, req.GetId())
 	if err != nil {
 		return err

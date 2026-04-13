@@ -17,7 +17,7 @@ service OrderReportService {
   // 查询订单月报明细
   rpc OrderMonthReportList (OrderMonthReportListRequest) returns (OrderMonthReportListResponse) {
     option (google.api.http) = {
-      get: "/api/admin/report/order/month/list"
+      get: "/api/admin/report/order/month/detail"
     };
   }
 
@@ -31,7 +31,7 @@ service OrderReportService {
   // 查询订单日报明细
   rpc OrderDayReportList (OrderDayReportListRequest) returns (OrderDayReportListResponse) {
     option (google.api.http) = {
-      get: "/api/admin/report/order/day/list"
+      get: "/api/admin/report/order/day/detail"
     };
   }
 }

@@ -11,7 +11,7 @@ authn:
         - "/base.ConfigService/GetConfig"
         - "/base.LoginService/Captcha"
         - "/base.LoginService/Login"
-        - "/app.AuthService/WxLogin"
+        - "/app.AuthService/WechatLogin"
         - "/app.GoodsCategoryService/ListGoodsCategory"
         - "/app.GoodsInfoService/PageGoodsInfo"
         - "/app.GoodsInfoService/GetGoodsInfo"

@@ -93,7 +93,7 @@ export interface BaseConfigForm {
 /** Admin系统配置服务 */
 export interface BaseConfigService {
   /** 刷新缓存 */
-  RefreshBaseConfig(request: Empty): Promise<Empty>;
+  RefreshBaseConfigCache(request: Empty): Promise<Empty>;
   /** 查询系统配置分页列表 */
   PageBaseConfig(request: PageBaseConfigRequest): Promise<PageBaseConfigResponse>;
   /** 查询系统配置 */

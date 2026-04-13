@@ -18,14 +18,14 @@ service LoginService {
   // 登出
   rpc Logout (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/login/logout"
+      delete: "/api/auth"
     };
   }
 
   // 刷新认证令牌
   rpc RefreshToken (RefreshTokenRequest) returns (RefreshTokenResponse) {
     option (google.api.http) = {
-      post: "/api/login/refreshToken"
+      post: "/api/auth/token"
       body: "*"
     };
   }
@@ -33,7 +33,7 @@ service LoginService {
   // 登录
   rpc Login (LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/api/login"
+      post: "/api/auth"
       body: "*"
     };
   }

@@ -1,9 +1,9 @@
 import { http } from '@/utils/http'
 import type {
   ListUserCartResponse,
-  SelectedUserCartRequest,
   CreateUserCartRequest,
-  UpdateUserCartRequest,
+  SetUserCartSelectionRequest,
+  UserCartForm,
   UserCartService,
   SetUserCartStatusRequest,
 } from '@/rpc/app/user_cart'
@@ -26,7 +26,7 @@ export class UserCartServiceImpl implements UserCartService {
   /** 查询购物车列表 */
   ListUserCart(request: Empty): Promise<ListUserCartResponse> {
     return http<ListUserCartResponse>({
-      url: `${USER_CART_URL}/list`,
+      url: `${USER_CART_URL}`,
       method: 'GET',
       data: request,
     })
@@ -40,9 +40,9 @@ export class UserCartServiceImpl implements UserCartService {
     })
   }
   /** 更新购物车 */
-  UpdateUserCart(request: UpdateUserCartRequest): Promise<Empty> {
+  UpdateUserCart(request: UserCartForm): Promise<Empty> {
     return http<Empty>({
-      url: `${USER_CART_URL}`,
+      url: `${USER_CART_URL}/${request.id}`,
       method: 'PUT',
       data: request,
     })
@@ -63,9 +63,9 @@ export class UserCartServiceImpl implements UserCartService {
     })
   }
   /** 设置全选 */
-  SelectedUserCart(request: SelectedUserCartRequest): Promise<Empty> {
+  SetUserCartSelection(request: SetUserCartSelectionRequest): Promise<Empty> {
     return http<Empty>({
-      url: `${USER_CART_URL}/selected`,
+      url: `${USER_CART_URL}/selection`,
       method: 'PUT',
       data: request,
     })

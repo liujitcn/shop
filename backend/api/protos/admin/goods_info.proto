@@ -17,10 +17,10 @@ import "admin/goods_spec.proto";
 
 // Admin商品信息服务
 service GoodsInfoService {
-  // 查询商品信息列表
-  rpc ListGoodsInfo (ListGoodsInfoRequest) returns (ListGoodsInfoResponse) {
+  // 查询商品信息下拉选择
+  rpc OptionGoodsInfo (OptionGoodsInfoRequest) returns (OptionGoodsInfoResponse) {
     option (google.api.http) = {
-      get: "/api/admin/goods/info/list"
+      get: "/api/admin/goods/info/option"
     };
   }
 
@@ -70,8 +70,8 @@ service GoodsInfoService {
   }
 }
 
-// 商品列表查询条件
-message ListGoodsInfoRequest{
+// 商品选项查询条件
+message OptionGoodsInfoRequest {
   string name = 1 [
     (gnostic.openapi.v3.property) = {
       description: "商品名称",
@@ -79,8 +79,8 @@ message ListGoodsInfoRequest{
   ]; // 商品名称
 }
 
-// 商品列表响应
-message ListGoodsInfoResponse{
+// 商品选项响应
+message OptionGoodsInfoResponse {
   // Goods信息
   message GoodsInfo {
     int64 id = 1 [

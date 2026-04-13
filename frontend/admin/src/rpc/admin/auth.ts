@@ -8,8 +8,8 @@
 import type { StringValues } from "../common/types";
 import type { Empty } from "../google/protobuf/empty";
 
-/** User信息 */
-export interface UserInfo {
+/** 用户信息表单 */
+export interface UserInfoForm {
   /** 用户账号 */
   userName: string;
   /** 用户昵称 */
@@ -122,8 +122,8 @@ export interface UserProfileForm {
   createdAt: string;
 }
 
-/** UpdatePwd表单 */
-export interface UpdatePwdForm {
+/** 用户密码表单 */
+export interface UserPasswordForm {
   /** 原密码 */
   oldPwd: string;
   /** 新密码 */
@@ -132,14 +132,14 @@ export interface UpdatePwdForm {
   confirmPwd: string;
 }
 
-/** SendUpdatePhoneCode表单 */
-export interface SendUpdatePhoneCodeForm {
+/** 发送手机号验证码请求参数 */
+export interface SendPhoneCodeRequest {
   /** 手机号 */
   phone: string;
 }
 
-/** UpdatePhone表单 */
-export interface UpdatePhoneForm {
+/** 用户手机号表单 */
+export interface UserPhoneForm {
   /** 手机号 */
   phone: string;
   /** 验证码 */
@@ -149,7 +149,7 @@ export interface UpdatePhoneForm {
 /** Admin用户登录认证服务 */
 export interface AuthService {
   /** 获取已经登录的用户的数据 */
-  GetUserInfo(request: Empty): Promise<UserInfo>;
+  GetUserInfo(request: Empty): Promise<UserInfoForm>;
   /** 获取已经登录的用户菜单 */
   GetUserMenu(request: Empty): Promise<TreeRouteResponse>;
   /** 获取已经登录的用户按钮 */
@@ -159,9 +159,9 @@ export interface AuthService {
   /** 修改个人中心用户信息 */
   UpdateUserProfile(request: UserProfileForm): Promise<Empty>;
   /** 发送手机号验证码 */
-  SendUpdatePhoneCode(request: SendUpdatePhoneCodeForm): Promise<Empty>;
+  SendPhoneCode(request: SendPhoneCodeRequest): Promise<Empty>;
   /** 修改个人中心手机号 */
-  UpdateUserPhone(request: UpdatePhoneForm): Promise<Empty>;
+  UpdateUserPhone(request: UserPhoneForm): Promise<Empty>;
   /** 修改个人中心密码 */
-  UpdateUserPwd(request: UpdatePwdForm): Promise<Empty>;
+  UpdateUserPassword(request: UserPasswordForm): Promise<Empty>;
 }

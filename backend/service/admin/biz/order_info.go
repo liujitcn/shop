@@ -263,14 +263,14 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 	})
 }
 
-// GetOrderInfoShipped 获取订单发货信息
-func (c *OrderInfoCase) GetOrderInfoShipped(ctx context.Context, id int64) (*admin.OrderInfoShippedResponse, error) {
+// GetOrderInfoShipment 获取订单发货信息
+func (c *OrderInfoCase) GetOrderInfoShipment(ctx context.Context, id int64) (*admin.OrderInfoShipmentForm, error) {
 	orderInfo, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &admin.OrderInfoShippedResponse{}
+	res := &admin.OrderInfoShipmentForm{}
 	res.Address, err = c.orderAddressCase.FindFromByOrderId(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
@@ -289,8 +289,8 @@ func (c *OrderInfoCase) GetOrderInfoShipped(ctx context.Context, id int64) (*adm
 	return res, nil
 }
 
-// ShippedOrderInfo 发货订单
-func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.ShippedOrderInfoRequest) error {
+// ShipOrderInfo 发货订单
+func (c *OrderInfoCase) ShipOrderInfo(ctx context.Context, req *admin.ShipOrderInfoRequest) error {
 	orderInfo, err := c.FindById(ctx, req.GetOrderId())
 	if err != nil {
 		return err

@@ -23,7 +23,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GoodsInfoService_ListGoodsInfo_FullMethodName      = "/admin.GoodsInfoService/ListGoodsInfo"
+	GoodsInfoService_OptionGoodsInfo_FullMethodName    = "/admin.GoodsInfoService/OptionGoodsInfo"
 	GoodsInfoService_PageGoodsInfo_FullMethodName      = "/admin.GoodsInfoService/PageGoodsInfo"
 	GoodsInfoService_GetGoodsInfo_FullMethodName       = "/admin.GoodsInfoService/GetGoodsInfo"
 	GoodsInfoService_CreateGoodsInfo_FullMethodName    = "/admin.GoodsInfoService/CreateGoodsInfo"
@@ -38,8 +38,8 @@ const (
 //
 // Admin商品信息服务
 type GoodsInfoServiceClient interface {
-	// 查询商品信息列表
-	ListGoodsInfo(ctx context.Context, in *ListGoodsInfoRequest, opts ...grpc.CallOption) (*ListGoodsInfoResponse, error)
+	// 查询商品信息下拉选择
+	OptionGoodsInfo(ctx context.Context, in *OptionGoodsInfoRequest, opts ...grpc.CallOption) (*OptionGoodsInfoResponse, error)
 	// 查询商品信息分页列表
 	PageGoodsInfo(ctx context.Context, in *PageGoodsInfoRequest, opts ...grpc.CallOption) (*PageGoodsInfoResponse, error)
 	// 查询商品信息
@@ -62,10 +62,10 @@ func NewGoodsInfoServiceClient(cc grpc.ClientConnInterface) GoodsInfoServiceClie
 	return &goodsInfoServiceClient{cc}
 }
 
-func (c *goodsInfoServiceClient) ListGoodsInfo(ctx context.Context, in *ListGoodsInfoRequest, opts ...grpc.CallOption) (*ListGoodsInfoResponse, error) {
+func (c *goodsInfoServiceClient) OptionGoodsInfo(ctx context.Context, in *OptionGoodsInfoRequest, opts ...grpc.CallOption) (*OptionGoodsInfoResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListGoodsInfoResponse)
-	err := c.cc.Invoke(ctx, GoodsInfoService_ListGoodsInfo_FullMethodName, in, out, cOpts...)
+	out := new(OptionGoodsInfoResponse)
+	err := c.cc.Invoke(ctx, GoodsInfoService_OptionGoodsInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -138,8 +138,8 @@ func (c *goodsInfoServiceClient) SetGoodsInfoStatus(ctx context.Context, in *com
 //
 // Admin商品信息服务
 type GoodsInfoServiceServer interface {
-	// 查询商品信息列表
-	ListGoodsInfo(context.Context, *ListGoodsInfoRequest) (*ListGoodsInfoResponse, error)
+	// 查询商品信息下拉选择
+	OptionGoodsInfo(context.Context, *OptionGoodsInfoRequest) (*OptionGoodsInfoResponse, error)
 	// 查询商品信息分页列表
 	PageGoodsInfo(context.Context, *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error)
 	// 查询商品信息
@@ -162,8 +162,8 @@ type GoodsInfoServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedGoodsInfoServiceServer struct{}
 
-func (UnimplementedGoodsInfoServiceServer) ListGoodsInfo(context.Context, *ListGoodsInfoRequest) (*ListGoodsInfoResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListGoodsInfo not implemented")
+func (UnimplementedGoodsInfoServiceServer) OptionGoodsInfo(context.Context, *OptionGoodsInfoRequest) (*OptionGoodsInfoResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionGoodsInfo not implemented")
 }
 func (UnimplementedGoodsInfoServiceServer) PageGoodsInfo(context.Context, *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageGoodsInfo not implemented")
@@ -204,20 +204,20 @@ func RegisterGoodsInfoServiceServer(s grpc.ServiceRegistrar, srv GoodsInfoServic
 	s.RegisterService(&GoodsInfoService_ServiceDesc, srv)
 }
 
-func _GoodsInfoService_ListGoodsInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListGoodsInfoRequest)
+func _GoodsInfoService_OptionGoodsInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OptionGoodsInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GoodsInfoServiceServer).ListGoodsInfo(ctx, in)
+		return srv.(GoodsInfoServiceServer).OptionGoodsInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GoodsInfoService_ListGoodsInfo_FullMethodName,
+		FullMethod: GoodsInfoService_OptionGoodsInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GoodsInfoServiceServer).ListGoodsInfo(ctx, req.(*ListGoodsInfoRequest))
+		return srv.(GoodsInfoServiceServer).OptionGoodsInfo(ctx, req.(*OptionGoodsInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -338,8 +338,8 @@ var GoodsInfoService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GoodsInfoServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListGoodsInfo",
-			Handler:    _GoodsInfoService_ListGoodsInfo_Handler,
+			MethodName: "OptionGoodsInfo",
+			Handler:    _GoodsInfoService_OptionGoodsInfo_Handler,
 		},
 		{
 			MethodName: "PageGoodsInfo",

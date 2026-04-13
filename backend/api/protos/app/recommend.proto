@@ -21,7 +21,7 @@ service RecommendService {
   // 绑定匿名推荐主体到当前登录用户
   rpc BindRecommendAnonymousActor (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/api/app/recommend/actor/bind"
+      post: "/api/app/recommend/actor/binding"
       body: "*"
     };
   }

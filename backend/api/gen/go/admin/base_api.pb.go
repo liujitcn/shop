@@ -177,9 +177,9 @@ const file_admin_base_api_proto_rawDesc = "" +
 	"\x04desc\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x120\n" +
 	"\toperation\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f操作方法R\toperation\x12*\n" +
 	"\x06method\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求方式R\x06method\x12&\n" +
-	"\x04path\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\x04path2u\n" +
-	"\x0eBaseApiService\x12c\n" +
-	"\vListBaseApi\x12\x16.google.protobuf.Empty\x1a\x1a.admin.ListBaseApiResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/admin/base/api/listBd\n" +
+	"\x04path\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\x04path2p\n" +
+	"\x0eBaseApiService\x12^\n" +
+	"\vListBaseApi\x12\x16.google.protobuf.Empty\x1a\x1a.admin.ListBaseApiResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/admin/base/apiBd\n" +
 	"\tcom.adminB\fBaseApiProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (

@@ -1,5 +1,5 @@
-import type { RouteItem, UserInfo } from "@/rpc/admin/auth";
-import type { ListBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
+import type { RouteItem, UserInfoForm } from "@/rpc/admin/auth";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
 
 export type LayoutType = "vertical" | "classic" | "transverse" | "columns";
 
@@ -48,7 +48,7 @@ export interface UserState {
   refreshToken: string;
   tokenType: string;
   tokenExpiresAt: number;
-  userInfo: UserInfo;
+  userInfo: UserInfoForm;
 }
 
 /* tabsMenuProps */
@@ -82,7 +82,7 @@ export interface KeepAliveState {
 
 /* DictState */
 export interface DictState {
-  dictionary: Record<string, ListBaseDictResponse_BaseDictItem[]>;
+  dictionary: Record<string, OptionBaseDictResponse_BaseDictItem[]>;
 }
 
 /** 站点配置状态 */

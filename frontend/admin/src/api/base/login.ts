@@ -9,14 +9,15 @@ import type {
 } from "@/rpc/base/login";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 
-const LOGIN_URL = "/login";
+const CAPTCHA_URL = "/login";
+const AUTH_URL = "/auth";
 
 /** 登录公共服务 */
 export class LoginServiceImpl implements LoginService {
   /** 验证码 */
   Captcha(request: Empty): Promise<CaptchaResponse> {
     return service<Empty, CaptchaResponse>({
-      url: `${LOGIN_URL}/captcha`,
+      url: `${CAPTCHA_URL}/captcha`,
       method: "get",
       params: request
     });
@@ -24,7 +25,7 @@ export class LoginServiceImpl implements LoginService {
   /** 登录 */
   Login(request: LoginRequest): Promise<LoginResponse> {
     return service<LoginRequest, LoginResponse>({
-      url: `${LOGIN_URL}`,
+      url: `${AUTH_URL}`,
       method: "post",
       data: request
     });
@@ -32,7 +33,7 @@ export class LoginServiceImpl implements LoginService {
   /** 登出 */
   Logout(request: Empty): Promise<Empty> {
     return service<Empty, Empty>({
-      url: `${LOGIN_URL}/logout`,
+      url: `${AUTH_URL}`,
       method: "delete",
       data: request
     });
@@ -40,7 +41,7 @@ export class LoginServiceImpl implements LoginService {
   /** 刷新认证令牌 */
   RefreshToken(request: RefreshTokenRequest): Promise<RefreshTokenResponse> {
     return service<RefreshTokenRequest, RefreshTokenResponse>({
-      url: `${LOGIN_URL}/refreshToken`,
+      url: `${AUTH_URL}/token`,
       method: "post",
       data: request
     });

@@ -22,22 +22,26 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationOrderInfoServiceBuyNowOrderInfo = "/app.OrderInfoService/BuyNowOrderInfo"
 const OperationOrderInfoServiceCancelOrderInfo = "/app.OrderInfoService/CancelOrderInfo"
+const OperationOrderInfoServiceConfirmOrderInfo = "/app.OrderInfoService/ConfirmOrderInfo"
 const OperationOrderInfoServiceCountOrderInfo = "/app.OrderInfoService/CountOrderInfo"
 const OperationOrderInfoServiceCreateOrderInfo = "/app.OrderInfoService/CreateOrderInfo"
 const OperationOrderInfoServiceDeleteOrderInfo = "/app.OrderInfoService/DeleteOrderInfo"
 const OperationOrderInfoServiceGetOrderInfoById = "/app.OrderInfoService/GetOrderInfoById"
 const OperationOrderInfoServiceGetOrderInfoIdByOrderNo = "/app.OrderInfoService/GetOrderInfoIdByOrderNo"
-const OperationOrderInfoServiceOrderInfoBuy = "/app.OrderInfoService/OrderInfoBuy"
-const OperationOrderInfoServiceOrderInfoPre = "/app.OrderInfoService/OrderInfoPre"
-const OperationOrderInfoServiceOrderInfoRepurchase = "/app.OrderInfoService/OrderInfoRepurchase"
 const OperationOrderInfoServicePageOrderInfo = "/app.OrderInfoService/PageOrderInfo"
 const OperationOrderInfoServiceReceiveOrderInfo = "/app.OrderInfoService/ReceiveOrderInfo"
 const OperationOrderInfoServiceRefundOrderInfo = "/app.OrderInfoService/RefundOrderInfo"
+const OperationOrderInfoServiceRepurchaseOrderInfo = "/app.OrderInfoService/RepurchaseOrderInfo"
 
 type OrderInfoServiceHTTPServer interface {
+	// BuyNowOrderInfo 立即购买订单信息
+	BuyNowOrderInfo(context.Context, *BuyNowOrderInfoRequest) (*BuyNowOrderInfoResponse, error)
 	// CancelOrderInfo 取消订单信息
 	CancelOrderInfo(context.Context, *CancelOrderInfoRequest) (*emptypb.Empty, error)
+	// ConfirmOrderInfo 确认订单信息
+	ConfirmOrderInfo(context.Context, *emptypb.Empty) (*ConfirmOrderInfoResponse, error)
 	// CountOrderInfo 查询订单信息数量汇总
 	CountOrderInfo(context.Context, *emptypb.Empty) (*CountOrderInfoResponse, error)
 	// CreateOrderInfo 创建订单信息
@@ -48,37 +52,33 @@ type OrderInfoServiceHTTPServer interface {
 	GetOrderInfoById(context.Context, *wrapperspb.Int64Value) (*OrderInfoResponse, error)
 	// GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息id
 	GetOrderInfoIdByOrderNo(context.Context, *wrapperspb.StringValue) (*wrapperspb.Int64Value, error)
-	// OrderInfoBuy 立即购买订单信息
-	OrderInfoBuy(context.Context, *CreateOrderInfoGoods) (*ConfirmOrderInfoResponse, error)
-	// OrderInfoPre 预付订单信息
-	OrderInfoPre(context.Context, *emptypb.Empty) (*ConfirmOrderInfoResponse, error)
-	// OrderInfoRepurchase 再次购买订单信息
-	OrderInfoRepurchase(context.Context, *OrderRepurchaseInfoRequest) (*ConfirmOrderInfoResponse, error)
 	// PageOrderInfo 查询订单信息分页列表
 	PageOrderInfo(context.Context, *PageOrderInfoRequest) (*PageOrderInfoResponse, error)
 	// ReceiveOrderInfo 确认收货
 	ReceiveOrderInfo(context.Context, *ReceiveOrderInfoRequest) (*emptypb.Empty, error)
 	// RefundOrderInfo 订单信息退款
 	RefundOrderInfo(context.Context, *RefundOrderInfoRequest) (*emptypb.Empty, error)
+	// RepurchaseOrderInfo 再次购买订单信息
+	RepurchaseOrderInfo(context.Context, *RepurchaseOrderInfoRequest) (*RepurchaseOrderInfoResponse, error)
 }
 
 func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/api/app/order/info/pre", _OrderInfoService_OrderInfoPre0_HTTP_Handler(srv))
-	r.POST("/api/app/order/info/buy", _OrderInfoService_OrderInfoBuy0_HTTP_Handler(srv))
-	r.POST("/api/app/order/info/repurchase", _OrderInfoService_OrderInfoRepurchase0_HTTP_Handler(srv))
+	r.POST("/api/app/order/confirm", _OrderInfoService_ConfirmOrderInfo0_HTTP_Handler(srv))
+	r.POST("/api/app/order/confirm/buy-now", _OrderInfoService_BuyNowOrderInfo0_HTTP_Handler(srv))
+	r.POST("/api/app/order/confirm/repurchase", _OrderInfoService_RepurchaseOrderInfo0_HTTP_Handler(srv))
 	r.GET("/api/app/order/info/count", _OrderInfoService_CountOrderInfo0_HTTP_Handler(srv))
 	r.GET("/api/app/order/info", _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv))
-	r.GET("/api/app/order/info/{value}/orderNo", _OrderInfoService_GetOrderInfoIdByOrderNo0_HTTP_Handler(srv))
+	r.GET("/api/app/order/info/no/{value}", _OrderInfoService_GetOrderInfoIdByOrderNo0_HTTP_Handler(srv))
 	r.GET("/api/app/order/info/{value}", _OrderInfoService_GetOrderInfoById0_HTTP_Handler(srv))
 	r.POST("/api/app/order/info", _OrderInfoService_CreateOrderInfo0_HTTP_Handler(srv))
 	r.DELETE("/api/app/order/info/{value}", _OrderInfoService_DeleteOrderInfo0_HTTP_Handler(srv))
-	r.PUT("/api/app/order/info/{orderId}/cancel", _OrderInfoService_CancelOrderInfo0_HTTP_Handler(srv))
-	r.PUT("/api/app/order/info/{orderId}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
-	r.PUT("/api/app/order/info/{orderId}/receive", _OrderInfoService_ReceiveOrderInfo0_HTTP_Handler(srv))
+	r.PUT("/api/app/order/info/{order_id}/cancellation", _OrderInfoService_CancelOrderInfo0_HTTP_Handler(srv))
+	r.PUT("/api/app/order/info/{order_id}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
+	r.PUT("/api/app/order/info/{order_id}/receipt", _OrderInfoService_ReceiveOrderInfo0_HTTP_Handler(srv))
 }
 
-func _OrderInfoService_OrderInfoPre0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+func _OrderInfoService_ConfirmOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
 		if err := ctx.Bind(&in); err != nil {
@@ -87,9 +87,9 @@ func _OrderInfoService_OrderInfoPre0_HTTP_Handler(srv OrderInfoServiceHTTPServer
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderInfoServiceOrderInfoPre)
+		http.SetOperation(ctx, OperationOrderInfoServiceConfirmOrderInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OrderInfoPre(ctx, req.(*emptypb.Empty))
+			return srv.ConfirmOrderInfo(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -100,46 +100,46 @@ func _OrderInfoService_OrderInfoPre0_HTTP_Handler(srv OrderInfoServiceHTTPServer
 	}
 }
 
-func _OrderInfoService_OrderInfoBuy0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+func _OrderInfoService_BuyNowOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in CreateOrderInfoGoods
+		var in BuyNowOrderInfoRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderInfoServiceOrderInfoBuy)
+		http.SetOperation(ctx, OperationOrderInfoServiceBuyNowOrderInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OrderInfoBuy(ctx, req.(*CreateOrderInfoGoods))
+			return srv.BuyNowOrderInfo(ctx, req.(*BuyNowOrderInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ConfirmOrderInfoResponse)
+		reply := out.(*BuyNowOrderInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _OrderInfoService_OrderInfoRepurchase0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+func _OrderInfoService_RepurchaseOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in OrderRepurchaseInfoRequest
+		var in RepurchaseOrderInfoRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderInfoServiceOrderInfoRepurchase)
+		http.SetOperation(ctx, OperationOrderInfoServiceRepurchaseOrderInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.OrderInfoRepurchase(ctx, req.(*OrderRepurchaseInfoRequest))
+			return srv.RepurchaseOrderInfo(ctx, req.(*RepurchaseOrderInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ConfirmOrderInfoResponse)
+		reply := out.(*RepurchaseOrderInfoResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -346,8 +346,12 @@ func _OrderInfoService_ReceiveOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPSe
 }
 
 type OrderInfoServiceHTTPClient interface {
+	// BuyNowOrderInfo 立即购买订单信息
+	BuyNowOrderInfo(ctx context.Context, req *BuyNowOrderInfoRequest, opts ...http.CallOption) (rsp *BuyNowOrderInfoResponse, err error)
 	// CancelOrderInfo 取消订单信息
 	CancelOrderInfo(ctx context.Context, req *CancelOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// ConfirmOrderInfo 确认订单信息
+	ConfirmOrderInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ConfirmOrderInfoResponse, err error)
 	// CountOrderInfo 查询订单信息数量汇总
 	CountOrderInfo(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *CountOrderInfoResponse, err error)
 	// CreateOrderInfo 创建订单信息
@@ -358,18 +362,14 @@ type OrderInfoServiceHTTPClient interface {
 	GetOrderInfoById(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *OrderInfoResponse, err error)
 	// GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息id
 	GetOrderInfoIdByOrderNo(ctx context.Context, req *wrapperspb.StringValue, opts ...http.CallOption) (rsp *wrapperspb.Int64Value, err error)
-	// OrderInfoBuy 立即购买订单信息
-	OrderInfoBuy(ctx context.Context, req *CreateOrderInfoGoods, opts ...http.CallOption) (rsp *ConfirmOrderInfoResponse, err error)
-	// OrderInfoPre 预付订单信息
-	OrderInfoPre(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ConfirmOrderInfoResponse, err error)
-	// OrderInfoRepurchase 再次购买订单信息
-	OrderInfoRepurchase(ctx context.Context, req *OrderRepurchaseInfoRequest, opts ...http.CallOption) (rsp *ConfirmOrderInfoResponse, err error)
 	// PageOrderInfo 查询订单信息分页列表
 	PageOrderInfo(ctx context.Context, req *PageOrderInfoRequest, opts ...http.CallOption) (rsp *PageOrderInfoResponse, err error)
 	// ReceiveOrderInfo 确认收货
 	ReceiveOrderInfo(ctx context.Context, req *ReceiveOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// RefundOrderInfo 订单信息退款
 	RefundOrderInfo(ctx context.Context, req *RefundOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// RepurchaseOrderInfo 再次购买订单信息
+	RepurchaseOrderInfo(ctx context.Context, req *RepurchaseOrderInfoRequest, opts ...http.CallOption) (rsp *RepurchaseOrderInfoResponse, err error)
 }
 
 type OrderInfoServiceHTTPClientImpl struct {
@@ -380,14 +380,42 @@ func NewOrderInfoServiceHTTPClient(client *http.Client) OrderInfoServiceHTTPClie
 	return &OrderInfoServiceHTTPClientImpl{client}
 }
 
+// BuyNowOrderInfo 立即购买订单信息
+func (c *OrderInfoServiceHTTPClientImpl) BuyNowOrderInfo(ctx context.Context, in *BuyNowOrderInfoRequest, opts ...http.CallOption) (*BuyNowOrderInfoResponse, error) {
+	var out BuyNowOrderInfoResponse
+	pattern := "/api/app/order/confirm/buy-now"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationOrderInfoServiceBuyNowOrderInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // CancelOrderInfo 取消订单信息
 func (c *OrderInfoServiceHTTPClientImpl) CancelOrderInfo(ctx context.Context, in *CancelOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/order/info/{orderId}/cancel"
+	pattern := "/api/app/order/info/{order_id}/cancellation"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationOrderInfoServiceCancelOrderInfo))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ConfirmOrderInfo 确认订单信息
+func (c *OrderInfoServiceHTTPClientImpl) ConfirmOrderInfo(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ConfirmOrderInfoResponse, error) {
+	var out ConfirmOrderInfoResponse
+	pattern := "/api/app/order/confirm"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationOrderInfoServiceConfirmOrderInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -453,53 +481,11 @@ func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoById(ctx context.Context, i
 // GetOrderInfoIdByOrderNo 根据订单信息编号查询订单信息id
 func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoIdByOrderNo(ctx context.Context, in *wrapperspb.StringValue, opts ...http.CallOption) (*wrapperspb.Int64Value, error) {
 	var out wrapperspb.Int64Value
-	pattern := "/api/app/order/info/{value}/orderNo"
+	pattern := "/api/app/order/info/no/{value}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationOrderInfoServiceGetOrderInfoIdByOrderNo))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// OrderInfoBuy 立即购买订单信息
-func (c *OrderInfoServiceHTTPClientImpl) OrderInfoBuy(ctx context.Context, in *CreateOrderInfoGoods, opts ...http.CallOption) (*ConfirmOrderInfoResponse, error) {
-	var out ConfirmOrderInfoResponse
-	pattern := "/api/app/order/info/buy"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationOrderInfoServiceOrderInfoBuy))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// OrderInfoPre 预付订单信息
-func (c *OrderInfoServiceHTTPClientImpl) OrderInfoPre(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ConfirmOrderInfoResponse, error) {
-	var out ConfirmOrderInfoResponse
-	pattern := "/api/app/order/info/pre"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationOrderInfoServiceOrderInfoPre))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// OrderInfoRepurchase 再次购买订单信息
-func (c *OrderInfoServiceHTTPClientImpl) OrderInfoRepurchase(ctx context.Context, in *OrderRepurchaseInfoRequest, opts ...http.CallOption) (*ConfirmOrderInfoResponse, error) {
-	var out ConfirmOrderInfoResponse
-	pattern := "/api/app/order/info/repurchase"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationOrderInfoServiceOrderInfoRepurchase))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -523,7 +509,7 @@ func (c *OrderInfoServiceHTTPClientImpl) PageOrderInfo(ctx context.Context, in *
 // ReceiveOrderInfo 确认收货
 func (c *OrderInfoServiceHTTPClientImpl) ReceiveOrderInfo(ctx context.Context, in *ReceiveOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/order/info/{orderId}/receive"
+	pattern := "/api/app/order/info/{order_id}/receipt"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationOrderInfoServiceReceiveOrderInfo))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -537,11 +523,25 @@ func (c *OrderInfoServiceHTTPClientImpl) ReceiveOrderInfo(ctx context.Context, i
 // RefundOrderInfo 订单信息退款
 func (c *OrderInfoServiceHTTPClientImpl) RefundOrderInfo(ctx context.Context, in *RefundOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/order/info/{orderId}/refund"
+	pattern := "/api/app/order/info/{order_id}/refund"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationOrderInfoServiceRefundOrderInfo))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RepurchaseOrderInfo 再次购买订单信息
+func (c *OrderInfoServiceHTTPClientImpl) RepurchaseOrderInfo(ctx context.Context, in *RepurchaseOrderInfoRequest, opts ...http.CallOption) (*RepurchaseOrderInfoResponse, error) {
+	var out RepurchaseOrderInfoResponse
+	pattern := "/api/app/order/confirm/repurchase"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationOrderInfoServiceRepurchaseOrderInfo))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

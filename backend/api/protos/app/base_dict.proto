@@ -8,16 +8,16 @@ import "google/protobuf/wrappers.proto";
 
 // App字典服务
 service BaseDictService {
-  // 查询字典列表
-  rpc ListBaseDict (google.protobuf.StringValue) returns (ListBaseDictResponse) {
+  // 查询字典
+  rpc GetBaseDict (google.protobuf.StringValue) returns (BaseDictForm) {
     option (google.api.http) = {
-      get: "/api/app/base/dict/list"
+      get: "/api/app/base/dict/{value}"
     };
   }
 }
 
-// 字典列表响应
-message ListBaseDictResponse{
+// 字典表单
+message BaseDictForm {
   // 字典项
   message DictItem {
     string value = 1 [
@@ -28,20 +28,16 @@ message ListBaseDictResponse{
       (gnostic.openapi.v3.property) = {description: "字典项标签"}
     ];  // 字典项标签
   }
-  // 字典
-  message Dict {
-    string code = 1 [
-      (gnostic.openapi.v3.property) = {description: "字典编号"}
-    ];  // 字典编号
 
-    string name = 2 [
-      (gnostic.openapi.v3.property) = {description: "字典名称"}
-    ];  // 字典名称
-    repeated DictItem items = 3 [
-      (gnostic.openapi.v3.property) = {description: "字典属性"}
-    ]; // 字典属性
-  }
-  repeated Dict list = 1 [
-    (gnostic.openapi.v3.property) = {description: "分页数据"}
-  ]; // 分页数据
+  string code = 1 [
+    (gnostic.openapi.v3.property) = {description: "字典编号"}
+  ];  // 字典编号
+
+  string name = 2 [
+    (gnostic.openapi.v3.property) = {description: "字典名称"}
+  ];  // 字典名称
+
+  repeated DictItem items = 3 [
+    (gnostic.openapi.v3.property) = {description: "字典属性"}
+  ]; // 字典属性
 }

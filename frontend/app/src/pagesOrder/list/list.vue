@@ -22,17 +22,12 @@ const orderStatusMap: Map<number, string> = new Map()
 
 onLoad(async () => {
   const code = 'order_status'
-  const orderStatus = await defBaseDictService.ListBaseDict({
+  const orderStatus = await defBaseDictService.GetBaseDict({
     value: code,
   })
-  if (orderStatus && orderStatus.list) {
-    orderStatus.list.map((dict) => {
-      if (dict.code === code)
-        if (dict.items) {
-          dict.items.map((dictItem) => {
-            orderStatusMap.set(Number(dictItem.value), dictItem.label)
-          })
-        }
+  if (orderStatus && orderStatus.items) {
+    orderStatus.items.map((dictItem) => {
+      orderStatusMap.set(Number(dictItem.value), dictItem.label)
     })
   }
 

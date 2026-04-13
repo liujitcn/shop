@@ -55,8 +55,8 @@ export interface CreateUserCartRequest {
   recommendContext: RecommendContext | undefined;
 }
 
-/** 更新购物车请求参数 */
-export interface UpdateUserCartRequest {
+/** 用户购物车表单 */
+export interface UserCartForm {
   /** 购物车id */
   id: number;
   /** 数量 */
@@ -71,8 +71,8 @@ export interface SetUserCartStatusRequest {
   isChecked: boolean;
 }
 
-/** 购物车全选设置请求参数 */
-export interface SelectedUserCartRequest {
+/** 设置购物车选中状态请求参数 */
+export interface SetUserCartSelectionRequest {
   /** 是否选中 */
   isChecked: boolean;
 }
@@ -86,11 +86,11 @@ export interface UserCartService {
   /** 创建用户购物车 */
   CreateUserCart(request: CreateUserCartRequest): Promise<Empty>;
   /** 更新用户购物车 */
-  UpdateUserCart(request: UpdateUserCartRequest): Promise<Empty>;
+  UpdateUserCart(request: UserCartForm): Promise<Empty>;
   /** 删除用户购物车 */
   DeleteUserCart(request: Int64Value): Promise<Empty>;
   /** 设置状态 */
   SetUserCartStatus(request: SetUserCartStatusRequest): Promise<Empty>;
   /** 设置全选 */
-  SelectedUserCart(request: SelectedUserCartRequest): Promise<Empty>;
+  SetUserCartSelection(request: SetUserCartSelectionRequest): Promise<Empty>;
 }

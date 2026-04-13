@@ -40,7 +40,7 @@
 import type { CSSProperties } from "vue";
 import { ref, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
-import type { ListBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
+import type { OptionBaseDictResponse_BaseDictItem } from "@/rpc/admin/base_dict";
 
 type DictType = "select" | "radio" | "checkbox";
 type DictCodeType = "string" | "number";
@@ -90,7 +90,7 @@ function syncSelectedValue(modelValue: DictValue | DictValue[] | undefined) {
 /**
  * 按配置将字典值转换为字符串或数字。
  */
-function convertDictValue(dictItem: ListBaseDictResponse_BaseDictItem): DictValue {
+function convertDictValue(dictItem: OptionBaseDictResponse_BaseDictItem): DictValue {
   if (props.codeType === "number") return Number(dictItem.value);
   return dictItem.value;
 }

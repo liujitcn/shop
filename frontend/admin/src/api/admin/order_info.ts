@@ -3,11 +3,11 @@ import {
   type OrderInfoRefundResponse,
   type OrderInfoResponse,
   type OrderInfoService,
-  type OrderInfoShippedResponse,
+  type OrderInfoShipmentForm,
   type PageOrderInfoRequest,
   type PageOrderInfoResponse,
   type RefundOrderInfoRequest,
-  type ShippedOrderInfoRequest
+  type ShipOrderInfoRequest
 } from "@/rpc/admin/order_info";
 import type { Int64Value } from "@/rpc/google/protobuf/wrappers";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -47,16 +47,16 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     });
   }
   /** 查询订单发货信息 */
-  GetOrderInfoShipped(request: Int64Value): Promise<OrderInfoShippedResponse> {
-    return service<Int64Value, OrderInfoShippedResponse>({
-      url: `${ORDER_URL}/${request.value}/shipped`,
+  GetOrderInfoShipment(request: Int64Value): Promise<OrderInfoShipmentForm> {
+    return service<Int64Value, OrderInfoShipmentForm>({
+      url: `${ORDER_URL}/${request.value}/shipment`,
       method: "get"
     });
   }
   /** 订单发货 */
-  ShippedOrderInfo(request: ShippedOrderInfoRequest): Promise<Empty> {
-    return service<ShippedOrderInfoRequest, Empty>({
-      url: `${ORDER_URL}/${request.orderId}/shipped`,
+  ShipOrderInfo(request: ShipOrderInfoRequest): Promise<Empty> {
+    return service<ShipOrderInfoRequest, Empty>({
+      url: `${ORDER_URL}/${request.orderId}/shipment`,
       method: "put",
       data: request
     });

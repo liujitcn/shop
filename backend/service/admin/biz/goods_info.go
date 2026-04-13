@@ -52,8 +52,8 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo
 	}
 }
 
-// ListGoodsInfo 查询商品列表
-func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
+// OptionGoodsInfo 查询商品下拉选择
+func (c *GoodsInfoCase) OptionGoodsInfo(ctx context.Context, req *admin.OptionGoodsInfoRequest) (*admin.OptionGoodsInfoResponse, error) {
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
@@ -72,16 +72,16 @@ func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsI
 		return nil, err
 	}
 
-	resList := make([]*admin.ListGoodsInfoResponse_GoodsInfo, 0, len(list))
+	resList := make([]*admin.OptionGoodsInfoResponse_GoodsInfo, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, &admin.ListGoodsInfoResponse_GoodsInfo{
+		resList = append(resList, &admin.OptionGoodsInfoResponse_GoodsInfo{
 			Id:           item.ID,
 			Name:         item.Name,
 			Price:        item.Price,
 			CategoryName: categoryNames[item.CategoryID],
 		})
 	}
-	return &admin.ListGoodsInfoResponse{List: resList}, nil
+	return &admin.OptionGoodsInfoResponse{List: resList}, nil
 }
 
 // PageGoodsInfo 分页查询商品

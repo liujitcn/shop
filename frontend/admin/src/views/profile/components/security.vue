@@ -75,7 +75,7 @@ import { defAuthService } from "@/api/admin/auth";
 import ProForm from "@/components/ProForm/index.vue";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
-import type { UpdatePhoneForm, UserProfileForm } from "@/rpc/admin/auth";
+import type { SendPhoneCodeRequest, UserPhoneForm, UserProfileForm } from "@/rpc/admin/auth";
 import { ElMessage } from "element-plus";
 
 /** 安全中心组件属性。 */
@@ -96,9 +96,12 @@ const phoneDialogVisible = ref(false);
 const submitLoading = ref(false);
 const countdown = ref(0);
 const phoneTimer = ref<number | null>(null);
-const phoneForm = reactive<UpdatePhoneForm>({
+const phoneForm = reactive<UserPhoneForm>({
   phone: "",
   code: ""
+});
+const sendPhoneCodeForm = reactive<SendPhoneCodeRequest>({
+  phone: ""
 });
 
 const phoneFormFields: ProFormField[] = [
@@ -144,7 +147,8 @@ async function handleSendCode() {
     return;
   }
 
-  await defAuthService.SendUpdatePhoneCode({ phone: phoneForm.phone });
+  sendPhoneCodeForm.phone = phoneForm.phone;
+  await defAuthService.SendPhoneCode(sendPhoneCodeForm);
   ElMessage.success("验证码已发送");
   startCountdown();
 }

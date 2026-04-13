@@ -23,7 +23,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseDictService_ListBaseDict_FullMethodName          = "/admin.BaseDictService/ListBaseDict"
+	BaseDictService_OptionBaseDict_FullMethodName        = "/admin.BaseDictService/OptionBaseDict"
 	BaseDictService_PageBaseDict_FullMethodName          = "/admin.BaseDictService/PageBaseDict"
 	BaseDictService_GetBaseDict_FullMethodName           = "/admin.BaseDictService/GetBaseDict"
 	BaseDictService_CreateBaseDict_FullMethodName        = "/admin.BaseDictService/CreateBaseDict"
@@ -45,7 +45,7 @@ const (
 // Admin字典服务
 type BaseDictServiceClient interface {
 	// 查询字典列表
-	ListBaseDict(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListBaseDictResponse, error)
+	OptionBaseDict(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*OptionBaseDictResponse, error)
 	// 查询字典分页列表
 	PageBaseDict(ctx context.Context, in *PageBaseDictRequest, opts ...grpc.CallOption) (*PageBaseDictResponse, error)
 	// 查询字典
@@ -80,10 +80,10 @@ func NewBaseDictServiceClient(cc grpc.ClientConnInterface) BaseDictServiceClient
 	return &baseDictServiceClient{cc}
 }
 
-func (c *baseDictServiceClient) ListBaseDict(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ListBaseDictResponse, error) {
+func (c *baseDictServiceClient) OptionBaseDict(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*OptionBaseDictResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBaseDictResponse)
-	err := c.cc.Invoke(ctx, BaseDictService_ListBaseDict_FullMethodName, in, out, cOpts...)
+	out := new(OptionBaseDictResponse)
+	err := c.cc.Invoke(ctx, BaseDictService_OptionBaseDict_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (c *baseDictServiceClient) SetBaseDictItemStatus(ctx context.Context, in *c
 // Admin字典服务
 type BaseDictServiceServer interface {
 	// 查询字典列表
-	ListBaseDict(context.Context, *emptypb.Empty) (*ListBaseDictResponse, error)
+	OptionBaseDict(context.Context, *emptypb.Empty) (*OptionBaseDictResponse, error)
 	// 查询字典分页列表
 	PageBaseDict(context.Context, *PageBaseDictRequest) (*PageBaseDictResponse, error)
 	// 查询字典
@@ -252,8 +252,8 @@ type BaseDictServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseDictServiceServer struct{}
 
-func (UnimplementedBaseDictServiceServer) ListBaseDict(context.Context, *emptypb.Empty) (*ListBaseDictResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListBaseDict not implemented")
+func (UnimplementedBaseDictServiceServer) OptionBaseDict(context.Context, *emptypb.Empty) (*OptionBaseDictResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OptionBaseDict not implemented")
 }
 func (UnimplementedBaseDictServiceServer) PageBaseDict(context.Context, *PageBaseDictRequest) (*PageBaseDictResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageBaseDict not implemented")
@@ -312,20 +312,20 @@ func RegisterBaseDictServiceServer(s grpc.ServiceRegistrar, srv BaseDictServiceS
 	s.RegisterService(&BaseDictService_ServiceDesc, srv)
 }
 
-func _BaseDictService_ListBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BaseDictService_OptionBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseDictServiceServer).ListBaseDict(ctx, in)
+		return srv.(BaseDictServiceServer).OptionBaseDict(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseDictService_ListBaseDict_FullMethodName,
+		FullMethod: BaseDictService_OptionBaseDict_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).ListBaseDict(ctx, req.(*emptypb.Empty))
+		return srv.(BaseDictServiceServer).OptionBaseDict(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -554,8 +554,8 @@ var BaseDictService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseDictServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListBaseDict",
-			Handler:    _BaseDictService_ListBaseDict_Handler,
+			MethodName: "OptionBaseDict",
+			Handler:    _BaseDictService_OptionBaseDict_Handler,
 		},
 		{
 			MethodName: "PageBaseDict",

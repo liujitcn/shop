@@ -15,8 +15,14 @@ export enum ResourceType {
   REFUND = 1,
 }
 
-/** 支付请求参数 */
-export interface PayRequest {
+/** 小程序支付请求参数 */
+export interface JsapiPayRequest {
+  /** 订单id */
+  orderId: number;
+}
+
+/** H5支付请求参数 */
+export interface H5PayRequest {
   /** 订单id */
   orderId: number;
 }
@@ -189,9 +195,9 @@ export interface RefundResource_Amount {
 /** App支付服务 */
 export interface PayService {
   /** 小程序支付 */
-  JsapiPay(request: PayRequest): Promise<JsapiPayResponse>;
+  JsapiPay(request: JsapiPayRequest): Promise<JsapiPayResponse>;
   /** H5支付 */
-  H5Pay(request: PayRequest): Promise<H5PayResponse>;
+  H5Pay(request: H5PayRequest): Promise<H5PayResponse>;
   /** 支付通知 */
   PayNotify(request: Empty): Promise<Empty>;
 }

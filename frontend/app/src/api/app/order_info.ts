@@ -1,46 +1,49 @@
 import { http } from '@/utils/http'
 import type {
+  BuyNowOrderInfoRequest,
+  BuyNowOrderInfoResponse,
   ConfirmOrderInfoResponse,
   CreateOrderInfoRequest,
   CreateOrderInfoResponse,
   OrderInfoResponse,
-  OrderRepurchaseInfoRequest,
+  RepurchaseOrderInfoRequest,
+  RepurchaseOrderInfoResponse,
   OrderInfoService,
   PageOrderInfoRequest,
   PageOrderInfoResponse,
   CountOrderInfoResponse,
   CancelOrderInfoRequest,
   RefundOrderInfoRequest,
-  CreateOrderInfoGoods,
   ReceiveOrderInfoRequest,
 } from '@/rpc/app/order_info'
 import type { Int64Value, StringValue } from '@/rpc/google/protobuf/wrappers'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const ORDER_INFO_URL = '/app/order/info'
+const ORDER_CONFIRM_URL = '/app/order/confirm'
 
 /** 订单服务 */
 export class OrderInfoServiceImpl implements OrderInfoService {
-  /** 预付订单 */
-  OrderInfoPre(request: Empty): Promise<ConfirmOrderInfoResponse> {
+  /** 确认订单信息 */
+  ConfirmOrderInfo(request: Empty): Promise<ConfirmOrderInfoResponse> {
     return http<ConfirmOrderInfoResponse>({
-      url: `${ORDER_INFO_URL}/pre`,
+      url: `${ORDER_CONFIRM_URL}`,
       method: 'POST',
       data: request,
     })
   }
   /** 立即购买订单 */
-  OrderInfoBuy(request: CreateOrderInfoGoods): Promise<ConfirmOrderInfoResponse> {
-    return http<ConfirmOrderInfoResponse>({
-      url: `${ORDER_INFO_URL}/buy`,
+  BuyNowOrderInfo(request: BuyNowOrderInfoRequest): Promise<BuyNowOrderInfoResponse> {
+    return http<BuyNowOrderInfoResponse>({
+      url: `${ORDER_CONFIRM_URL}/buy-now`,
       method: 'POST',
       data: request,
     })
   }
   /** 再次购买订单 */
-  OrderInfoRepurchase(request: OrderRepurchaseInfoRequest): Promise<ConfirmOrderInfoResponse> {
-    return http<ConfirmOrderInfoResponse>({
-      url: `${ORDER_INFO_URL}/repurchase`,
+  RepurchaseOrderInfo(request: RepurchaseOrderInfoRequest): Promise<RepurchaseOrderInfoResponse> {
+    return http<RepurchaseOrderInfoResponse>({
+      url: `${ORDER_CONFIRM_URL}/repurchase`,
       method: 'POST',
       data: request,
     })
@@ -65,7 +68,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
   /** 根据订单编号查询订单id */
   GetOrderInfoIdByOrderNo(request: StringValue): Promise<Int64Value> {
     return http<Int64Value>({
-      url: `${ORDER_INFO_URL}/${request.value}/orderNo`,
+      url: `${ORDER_INFO_URL}/no/${request.value}`,
       method: 'GET',
     })
   }
@@ -94,7 +97,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
   /** 取消订单 */
   CancelOrderInfo(request: CancelOrderInfoRequest): Promise<Empty> {
     return http<Empty>({
-      url: `${ORDER_INFO_URL}/${request.orderId}/cancel`,
+      url: `${ORDER_INFO_URL}/${request.orderId}/cancellation`,
       method: 'PUT',
       data: request,
     })
@@ -110,7 +113,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
   /** 确认收货 */
   ReceiveOrderInfo(request: ReceiveOrderInfoRequest): Promise<Empty> {
     return http<Empty>({
-      url: `${ORDER_INFO_URL}/${request.orderId}/receive`,
+      url: `${ORDER_INFO_URL}/${request.orderId}/receipt`,
       method: 'PUT',
       data: request,
     })

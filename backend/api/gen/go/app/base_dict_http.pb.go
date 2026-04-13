@@ -21,40 +21,43 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationBaseDictServiceListBaseDict = "/app.BaseDictService/ListBaseDict"
+const OperationBaseDictServiceGetBaseDict = "/app.BaseDictService/GetBaseDict"
 
 type BaseDictServiceHTTPServer interface {
-	// ListBaseDict 查询字典列表
-	ListBaseDict(context.Context, *wrapperspb.StringValue) (*ListBaseDictResponse, error)
+	// GetBaseDict 查询字典
+	GetBaseDict(context.Context, *wrapperspb.StringValue) (*BaseDictForm, error)
 }
 
 func RegisterBaseDictServiceHTTPServer(s *http.Server, srv BaseDictServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/app/base/dict/list", _BaseDictService_ListBaseDict0_HTTP_Handler(srv))
+	r.GET("/api/app/base/dict/{value}", _BaseDictService_GetBaseDict0_HTTP_Handler(srv))
 }
 
-func _BaseDictService_ListBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+func _BaseDictService_GetBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in wrapperspb.StringValue
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseDictServiceListBaseDict)
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseDictServiceGetBaseDict)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListBaseDict(ctx, req.(*wrapperspb.StringValue))
+			return srv.GetBaseDict(ctx, req.(*wrapperspb.StringValue))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListBaseDictResponse)
+		reply := out.(*BaseDictForm)
 		return ctx.Result(200, reply)
 	}
 }
 
 type BaseDictServiceHTTPClient interface {
-	// ListBaseDict 查询字典列表
-	ListBaseDict(ctx context.Context, req *wrapperspb.StringValue, opts ...http.CallOption) (rsp *ListBaseDictResponse, err error)
+	// GetBaseDict 查询字典
+	GetBaseDict(ctx context.Context, req *wrapperspb.StringValue, opts ...http.CallOption) (rsp *BaseDictForm, err error)
 }
 
 type BaseDictServiceHTTPClientImpl struct {
@@ -65,12 +68,12 @@ func NewBaseDictServiceHTTPClient(client *http.Client) BaseDictServiceHTTPClient
 	return &BaseDictServiceHTTPClientImpl{client}
 }
 
-// ListBaseDict 查询字典列表
-func (c *BaseDictServiceHTTPClientImpl) ListBaseDict(ctx context.Context, in *wrapperspb.StringValue, opts ...http.CallOption) (*ListBaseDictResponse, error) {
-	var out ListBaseDictResponse
-	pattern := "/api/app/base/dict/list"
+// GetBaseDict 查询字典
+func (c *BaseDictServiceHTTPClientImpl) GetBaseDict(ctx context.Context, in *wrapperspb.StringValue, opts ...http.CallOption) (*BaseDictForm, error) {
+	var out BaseDictForm
+	pattern := "/api/app/base/dict/{value}"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationBaseDictServiceListBaseDict))
+	opts = append(opts, http.Operation(OperationBaseDictServiceGetBaseDict))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -63,7 +63,7 @@ service BaseJobService {
   // 启动任务
   rpc StartBaseJob (StartBaseJobRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/base/job/{id}/start"
+      put: "/api/admin/base/job/{id}/running"
       body: "*"
     };
   }
@@ -71,15 +71,14 @@ service BaseJobService {
   // 停止任务
   rpc StopBaseJob (StopBaseJobRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/base/job/{id}/stop"
-      body: "*"
+      delete: "/api/admin/base/job/{id}/running"
     };
   }
 
   // 执行任务
-  rpc ExecBaseJob (ExecBaseJobRequest) returns (google.protobuf.Empty) {
+  rpc ExecuteBaseJob (ExecuteBaseJobRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/base/job/{id}/exec"
+      post: "/api/admin/base/job/{id}/execution"
       body: "*"
     };
   }
@@ -158,8 +157,8 @@ message StopBaseJobRequest {
   ];  // 主键id
 }
 
-// ExecBaseJob请求参数
-message ExecBaseJobRequest {
+// 执行任务请求参数
+message ExecuteBaseJobRequest {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "主键id"}
   ];  // 主键id

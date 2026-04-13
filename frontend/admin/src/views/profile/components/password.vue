@@ -55,7 +55,7 @@ import PasswordStrength from "@/components/PasswordStrength/index.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import { LOGIN_URL } from "@/config";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
-import type { UpdatePwdForm } from "@/rpc/admin/auth";
+import type { UserPasswordForm } from "@/rpc/admin/auth";
 import { useUserStore } from "@/stores/modules/user";
 import { ElMessage } from "element-plus";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, getPasswordStrength, validatePasswordStrengthValue } from "@/utils/passwordStrength";
@@ -64,7 +64,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const passwordFormRef = ref<ProFormInstance>();
 const submitLoading = ref(false);
-const passwordForm = reactive<UpdatePwdForm>({
+const passwordForm = reactive<UserPasswordForm>({
   oldPwd: "",
   newPwd: "",
   confirmPwd: ""
@@ -102,7 +102,7 @@ async function handleSubmitPassword() {
 
   submitLoading.value = true;
   try {
-    await defAuthService.UpdateUserPwd(passwordForm);
+    await defAuthService.UpdateUserPassword(passwordForm);
     ElMessage.success("密码修改成功，请重新登录");
     resetPasswordForm();
     await forceRelogin();

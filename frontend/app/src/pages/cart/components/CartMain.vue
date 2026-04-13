@@ -90,7 +90,7 @@ const onChangeSelectedAll = () => {
     item.isChecked = _isSelectedAll
   })
   // 后端数据更新
-  defUserCartService.SelectedUserCart({ isChecked: _isSelectedAll })
+  defUserCartService.SetUserCartSelection({ isChecked: _isSelectedAll })
 }
 
 // 计算选中单品列表

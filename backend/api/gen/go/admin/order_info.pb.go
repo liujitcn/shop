@@ -338,7 +338,7 @@ func (x *OrderInfoRefundResponse) GetRefund() []*OrderRefund {
 // 订单退款请求参数
 type RefundOrderInfoRequest struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
-	OrderId       int64                     `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"`                                   // 订单id
+	OrderId       int64                     `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                    // 订单id
 	Reason        *common.OrderRefundReason `protobuf:"varint,2,opt,name=reason,proto3,enum=common.OrderRefundReason,oneof" json:"reason,omitempty"` // 退款原因：枚举【OrderRefundReason】
 	RefundMoney   int64                     `protobuf:"varint,3,opt,name=refundMoney,proto3" json:"refundMoney,omitempty"`                           // 退款金额
 	unknownFields protoimpl.UnknownFields
@@ -396,8 +396,8 @@ func (x *RefundOrderInfoRequest) GetRefundMoney() int64 {
 	return 0
 }
 
-// 订单Shipped响应
-type OrderInfoShippedResponse struct {
+// 订单发货表单
+type OrderInfoShipmentForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Address       *OrderAddress          `protobuf:"bytes,100,opt,name=address,proto3" json:"address,omitempty"`     // 地址信息
 	Goods         []*OrderGoods          `protobuf:"bytes,102,rep,name=goods,proto3" json:"goods,omitempty"`         // 商品信息
@@ -406,20 +406,20 @@ type OrderInfoShippedResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *OrderInfoShippedResponse) Reset() {
-	*x = OrderInfoShippedResponse{}
+func (x *OrderInfoShipmentForm) Reset() {
+	*x = OrderInfoShipmentForm{}
 	mi := &file_admin_order_info_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *OrderInfoShippedResponse) String() string {
+func (x *OrderInfoShipmentForm) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*OrderInfoShippedResponse) ProtoMessage() {}
+func (*OrderInfoShipmentForm) ProtoMessage() {}
 
-func (x *OrderInfoShippedResponse) ProtoReflect() protoreflect.Message {
+func (x *OrderInfoShipmentForm) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_order_info_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -431,57 +431,57 @@ func (x *OrderInfoShippedResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use OrderInfoShippedResponse.ProtoReflect.Descriptor instead.
-func (*OrderInfoShippedResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use OrderInfoShipmentForm.ProtoReflect.Descriptor instead.
+func (*OrderInfoShipmentForm) Descriptor() ([]byte, []int) {
 	return file_admin_order_info_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *OrderInfoShippedResponse) GetAddress() *OrderAddress {
+func (x *OrderInfoShipmentForm) GetAddress() *OrderAddress {
 	if x != nil {
 		return x.Address
 	}
 	return nil
 }
 
-func (x *OrderInfoShippedResponse) GetGoods() []*OrderGoods {
+func (x *OrderInfoShipmentForm) GetGoods() []*OrderGoods {
 	if x != nil {
 		return x.Goods
 	}
 	return nil
 }
 
-func (x *OrderInfoShippedResponse) GetLogistics() *OrderLogistics {
+func (x *OrderInfoShipmentForm) GetLogistics() *OrderLogistics {
 	if x != nil {
 		return x.Logistics
 	}
 	return nil
 }
 
-// ShippedOrder信息请求参数
-type ShippedOrderInfoRequest struct {
+// 订单发货请求参数
+type ShipOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`        // 物流公司名
-	No            string                 `protobuf:"bytes,4,opt,name=no,proto3" json:"no,omitempty"`            // 物流单号
-	Contact       string                 `protobuf:"bytes,5,opt,name=contact,proto3" json:"contact,omitempty"`  // 联系方式
+	OrderId       int64                  `protobuf:"varint,1,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"` // 订单id
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                       // 物流公司名
+	No            string                 `protobuf:"bytes,4,opt,name=no,proto3" json:"no,omitempty"`                           // 物流单号
+	Contact       string                 `protobuf:"bytes,5,opt,name=contact,proto3" json:"contact,omitempty"`                 // 联系方式
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ShippedOrderInfoRequest) Reset() {
-	*x = ShippedOrderInfoRequest{}
+func (x *ShipOrderInfoRequest) Reset() {
+	*x = ShipOrderInfoRequest{}
 	mi := &file_admin_order_info_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ShippedOrderInfoRequest) String() string {
+func (x *ShipOrderInfoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ShippedOrderInfoRequest) ProtoMessage() {}
+func (*ShipOrderInfoRequest) ProtoMessage() {}
 
-func (x *ShippedOrderInfoRequest) ProtoReflect() protoreflect.Message {
+func (x *ShipOrderInfoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_order_info_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -493,33 +493,33 @@ func (x *ShippedOrderInfoRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ShippedOrderInfoRequest.ProtoReflect.Descriptor instead.
-func (*ShippedOrderInfoRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ShipOrderInfoRequest.ProtoReflect.Descriptor instead.
+func (*ShipOrderInfoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_order_info_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *ShippedOrderInfoRequest) GetOrderId() int64 {
+func (x *ShipOrderInfoRequest) GetOrderId() int64 {
 	if x != nil {
 		return x.OrderId
 	}
 	return 0
 }
 
-func (x *ShippedOrderInfoRequest) GetName() string {
+func (x *ShipOrderInfoRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *ShippedOrderInfoRequest) GetNo() string {
+func (x *ShipOrderInfoRequest) GetNo() string {
 	if x != nil {
 		return x.No
 	}
 	return ""
 }
 
-func (x *ShippedOrderInfoRequest) GetContact() string {
+func (x *ShipOrderInfoRequest) GetContact() string {
 	if x != nil {
 		return x.Contact
 	}
@@ -1580,18 +1580,18 @@ const file_admin_order_info_proto_rawDesc = "" +
 	"\x06refund\x18i \x03(\v2\x12.admin.OrderRefundB\x12\xbaG\x0f\x92\x02\f退款信息R\x06refund\"\x9c\x01\n" +
 	"\x17OrderInfoRefundResponse\x12A\n" +
 	"\apayment\x18h \x01(\v2\x13.admin.OrderPaymentB\x12\xbaG\x0f\x92\x02\f支付信息R\apayment\x12>\n" +
-	"\x06refund\x18i \x03(\v2\x12.admin.OrderRefundB\x12\xbaG\x0f\x92\x02\f退款信息R\x06refund\"\xef\x01\n" +
-	"\x16RefundOrderInfoRequest\x12(\n" +
-	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12j\n" +
+	"\x06refund\x18i \x03(\v2\x12.admin.OrderRefundB\x12\xbaG\x0f\x92\x02\f退款信息R\x06refund\"\xf0\x01\n" +
+	"\x16RefundOrderInfoRequest\x12)\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12j\n" +
 	"\x06reason\x18\x02 \x01(\x0e2\x19.common.OrderRefundReasonB2\xbaG/\x92\x02,退款原因：枚举【OrderRefundReason】H\x00R\x06reason\x88\x01\x01\x124\n" +
 	"\vrefundMoney\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f退款金额R\vrefundMoneyB\t\n" +
-	"\a_reason\"\xe3\x01\n" +
-	"\x18OrderInfoShippedResponse\x12A\n" +
+	"\a_reason\"\xe0\x01\n" +
+	"\x15OrderInfoShipmentForm\x12A\n" +
 	"\aaddress\x18d \x01(\v2\x13.admin.OrderAddressB\x12\xbaG\x0f\x92\x02\f地址信息R\aaddress\x12;\n" +
 	"\x05goods\x18f \x03(\v2\x11.admin.OrderGoodsB\x12\xbaG\x0f\x92\x02\f商品信息R\x05goods\x12G\n" +
-	"\tlogistics\x18g \x01(\v2\x15.admin.OrderLogisticsB\x12\xbaG\x0f\x92\x02\f物流信息R\tlogistics\"\xc0\x01\n" +
-	"\x17ShippedOrderInfoRequest\x12(\n" +
-	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12)\n" +
+	"\tlogistics\x18g \x01(\v2\x15.admin.OrderLogisticsB\x12\xbaG\x0f\x92\x02\f物流信息R\tlogistics\"\xbe\x01\n" +
+	"\x14ShipOrderInfoRequest\x12)\n" +
+	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12)\n" +
 	"\x04name\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
 	"\x02no\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
 	"\acontact\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\"\xc8\a\n" +
@@ -1695,14 +1695,14 @@ const file_admin_order_info_proto_rawDesc = "" +
 	"\x06refund\x18\x02 \x01(\x03B$\xbaG!\x92\x02\x1e【退款金额】单位：分R\x06refund\x12Q\n" +
 	"\vpayer_total\x18\x03 \x01(\x03B0\xbaG-\x92\x02*【用户实际支付金额】单位：分R\n" +
 	"payerTotal\x12M\n" +
-	"\fpayer_refund\x18\x04 \x01(\x03B*\xbaG'\x92\x02$【用户退款金额】单位：分R\vpayerRefund2\xee\x05\n" +
+	"\fpayer_refund\x18\x04 \x01(\x03B*\xbaG'\x92\x02$【用户退款金额】单位：分R\vpayerRefund2\xea\x05\n" +
 	"\x10OrderInfoService\x12i\n" +
 	"\rPageOrderInfo\x12\x1b.admin.PageOrderInfoRequest\x1a\x1c.admin.PageOrderInfoResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/admin/order/info\x12l\n" +
 	"\fGetOrderInfo\x12\x1b.google.protobuf.Int64Value\x1a\x18.admin.OrderInfoResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/admin/order/info/{value}\x12\x7f\n" +
-	"\x12GetOrderInfoRefund\x12\x1b.google.protobuf.Int64Value\x1a\x1e.admin.OrderInfoRefundResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/admin/order/info/{value}/refund\x12{\n" +
-	"\x0fRefundOrderInfo\x12\x1d.admin.RefundOrderInfoRequest\x1a\x16.google.protobuf.Empty\"1\x82\xd3\xe4\x93\x02+:\x01*\x1a&/api/admin/order/info/{orderId}/refund\x12\x82\x01\n" +
-	"\x13GetOrderInfoShipped\x12\x1b.google.protobuf.Int64Value\x1a\x1f.admin.OrderInfoShippedResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/order/info/{value}/shipped\x12~\n" +
-	"\x10ShippedOrderInfo\x12\x1e.admin.ShippedOrderInfoRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/admin/order/info/{orderId}/shippedBf\n" +
+	"\x12GetOrderInfoRefund\x12\x1b.google.protobuf.Int64Value\x1a\x1e.admin.OrderInfoRefundResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/admin/order/info/{value}/refund\x12|\n" +
+	"\x0fRefundOrderInfo\x12\x1d.admin.RefundOrderInfoRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/admin/order/info/{order_id}/refund\x12\x81\x01\n" +
+	"\x14GetOrderInfoShipment\x12\x1b.google.protobuf.Int64Value\x1a\x1c.admin.OrderInfoShipmentForm\".\x82\xd3\xe4\x93\x02(\x12&/api/admin/order/info/{value}/shipment\x12z\n" +
+	"\rShipOrderInfo\x12\x1b.admin.ShipOrderInfoRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x01*\x1a)/api/admin/order/info/{order_id}/shipmentBf\n" +
 	"\tcom.adminB\x0eOrderInfoProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (
@@ -1719,34 +1719,34 @@ func file_admin_order_info_proto_rawDescGZIP() []byte {
 
 var file_admin_order_info_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_admin_order_info_proto_goTypes = []any{
-	(*PageOrderInfoRequest)(nil),     // 0: admin.PageOrderInfoRequest
-	(*PageOrderInfoResponse)(nil),    // 1: admin.PageOrderInfoResponse
-	(*OrderInfoResponse)(nil),        // 2: admin.OrderInfoResponse
-	(*OrderInfoRefundResponse)(nil),  // 3: admin.OrderInfoRefundResponse
-	(*RefundOrderInfoRequest)(nil),   // 4: admin.RefundOrderInfoRequest
-	(*OrderInfoShippedResponse)(nil), // 5: admin.OrderInfoShippedResponse
-	(*ShippedOrderInfoRequest)(nil),  // 6: admin.ShippedOrderInfoRequest
-	(*OrderInfo)(nil),                // 7: admin.OrderInfo
-	(*OrderAddress)(nil),             // 8: admin.OrderAddress
-	(*OrderCancel)(nil),              // 9: admin.OrderCancel
-	(*OrderGoods)(nil),               // 10: admin.OrderGoods
-	(*OrderLogistics)(nil),           // 11: admin.OrderLogistics
-	(*OrderPayment)(nil),             // 12: admin.OrderPayment
-	(*OrderRefund)(nil),              // 13: admin.OrderRefund
-	(*OrderLogistics_Detail)(nil),    // 14: admin.OrderLogistics.Detail
-	(*OrderPayment_Payer)(nil),       // 15: admin.OrderPayment.Payer
-	(*OrderPayment_Amount)(nil),      // 16: admin.OrderPayment.Amount
-	(*OrderPayment_SceneInfo)(nil),   // 17: admin.OrderPayment.SceneInfo
-	(*OrderRefund_Amount)(nil),       // 18: admin.OrderRefund.Amount
-	(common.OrderStatus)(0),          // 19: common.OrderStatus
-	(common.OrderPayType)(0),         // 20: common.OrderPayType
-	(common.OrderPayChannel)(0),      // 21: common.OrderPayChannel
-	(common.OrderRefundReason)(0),    // 22: common.OrderRefundReason
-	(common.OrderDeliveryTime)(0),    // 23: common.OrderDeliveryTime
-	(common.OrderCancelReason)(0),    // 24: common.OrderCancelReason
-	(common.OrderBillStatus)(0),      // 25: common.OrderBillStatus
-	(*wrapperspb.Int64Value)(nil),    // 26: google.protobuf.Int64Value
-	(*emptypb.Empty)(nil),            // 27: google.protobuf.Empty
+	(*PageOrderInfoRequest)(nil),    // 0: admin.PageOrderInfoRequest
+	(*PageOrderInfoResponse)(nil),   // 1: admin.PageOrderInfoResponse
+	(*OrderInfoResponse)(nil),       // 2: admin.OrderInfoResponse
+	(*OrderInfoRefundResponse)(nil), // 3: admin.OrderInfoRefundResponse
+	(*RefundOrderInfoRequest)(nil),  // 4: admin.RefundOrderInfoRequest
+	(*OrderInfoShipmentForm)(nil),   // 5: admin.OrderInfoShipmentForm
+	(*ShipOrderInfoRequest)(nil),    // 6: admin.ShipOrderInfoRequest
+	(*OrderInfo)(nil),               // 7: admin.OrderInfo
+	(*OrderAddress)(nil),            // 8: admin.OrderAddress
+	(*OrderCancel)(nil),             // 9: admin.OrderCancel
+	(*OrderGoods)(nil),              // 10: admin.OrderGoods
+	(*OrderLogistics)(nil),          // 11: admin.OrderLogistics
+	(*OrderPayment)(nil),            // 12: admin.OrderPayment
+	(*OrderRefund)(nil),             // 13: admin.OrderRefund
+	(*OrderLogistics_Detail)(nil),   // 14: admin.OrderLogistics.Detail
+	(*OrderPayment_Payer)(nil),      // 15: admin.OrderPayment.Payer
+	(*OrderPayment_Amount)(nil),     // 16: admin.OrderPayment.Amount
+	(*OrderPayment_SceneInfo)(nil),  // 17: admin.OrderPayment.SceneInfo
+	(*OrderRefund_Amount)(nil),      // 18: admin.OrderRefund.Amount
+	(common.OrderStatus)(0),         // 19: common.OrderStatus
+	(common.OrderPayType)(0),        // 20: common.OrderPayType
+	(common.OrderPayChannel)(0),     // 21: common.OrderPayChannel
+	(common.OrderRefundReason)(0),   // 22: common.OrderRefundReason
+	(common.OrderDeliveryTime)(0),   // 23: common.OrderDeliveryTime
+	(common.OrderCancelReason)(0),   // 24: common.OrderCancelReason
+	(common.OrderBillStatus)(0),     // 25: common.OrderBillStatus
+	(*wrapperspb.Int64Value)(nil),   // 26: google.protobuf.Int64Value
+	(*emptypb.Empty)(nil),           // 27: google.protobuf.Empty
 }
 var file_admin_order_info_proto_depIdxs = []int32{
 	19, // 0: admin.PageOrderInfoRequest.status:type_name -> common.OrderStatus
@@ -1763,9 +1763,9 @@ var file_admin_order_info_proto_depIdxs = []int32{
 	12, // 11: admin.OrderInfoRefundResponse.payment:type_name -> admin.OrderPayment
 	13, // 12: admin.OrderInfoRefundResponse.refund:type_name -> admin.OrderRefund
 	22, // 13: admin.RefundOrderInfoRequest.reason:type_name -> common.OrderRefundReason
-	8,  // 14: admin.OrderInfoShippedResponse.address:type_name -> admin.OrderAddress
-	10, // 15: admin.OrderInfoShippedResponse.goods:type_name -> admin.OrderGoods
-	11, // 16: admin.OrderInfoShippedResponse.logistics:type_name -> admin.OrderLogistics
+	8,  // 14: admin.OrderInfoShipmentForm.address:type_name -> admin.OrderAddress
+	10, // 15: admin.OrderInfoShipmentForm.goods:type_name -> admin.OrderGoods
+	11, // 16: admin.OrderInfoShipmentForm.logistics:type_name -> admin.OrderLogistics
 	20, // 17: admin.OrderInfo.payType:type_name -> common.OrderPayType
 	21, // 18: admin.OrderInfo.payChannel:type_name -> common.OrderPayChannel
 	23, // 19: admin.OrderInfo.deliveryTime:type_name -> common.OrderDeliveryTime
@@ -1783,14 +1783,14 @@ var file_admin_order_info_proto_depIdxs = []int32{
 	26, // 31: admin.OrderInfoService.GetOrderInfo:input_type -> google.protobuf.Int64Value
 	26, // 32: admin.OrderInfoService.GetOrderInfoRefund:input_type -> google.protobuf.Int64Value
 	4,  // 33: admin.OrderInfoService.RefundOrderInfo:input_type -> admin.RefundOrderInfoRequest
-	26, // 34: admin.OrderInfoService.GetOrderInfoShipped:input_type -> google.protobuf.Int64Value
-	6,  // 35: admin.OrderInfoService.ShippedOrderInfo:input_type -> admin.ShippedOrderInfoRequest
+	26, // 34: admin.OrderInfoService.GetOrderInfoShipment:input_type -> google.protobuf.Int64Value
+	6,  // 35: admin.OrderInfoService.ShipOrderInfo:input_type -> admin.ShipOrderInfoRequest
 	1,  // 36: admin.OrderInfoService.PageOrderInfo:output_type -> admin.PageOrderInfoResponse
 	2,  // 37: admin.OrderInfoService.GetOrderInfo:output_type -> admin.OrderInfoResponse
 	3,  // 38: admin.OrderInfoService.GetOrderInfoRefund:output_type -> admin.OrderInfoRefundResponse
 	27, // 39: admin.OrderInfoService.RefundOrderInfo:output_type -> google.protobuf.Empty
-	5,  // 40: admin.OrderInfoService.GetOrderInfoShipped:output_type -> admin.OrderInfoShippedResponse
-	27, // 41: admin.OrderInfoService.ShippedOrderInfo:output_type -> google.protobuf.Empty
+	5,  // 40: admin.OrderInfoService.GetOrderInfoShipment:output_type -> admin.OrderInfoShipmentForm
+	27, // 41: admin.OrderInfoService.ShipOrderInfo:output_type -> google.protobuf.Empty
 	36, // [36:42] is the sub-list for method output_type
 	30, // [30:36] is the sub-list for method input_type
 	30, // [30:30] is the sub-list for extension type_name

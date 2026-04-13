@@ -424,7 +424,7 @@ function handleAssignPermSubmit() {
 
   const checkedNodes = (permTreeRef.value?.getCheckedNodes(false, true) as Array<{ value: number }> | undefined) ?? [];
   const checkedMenuIds = checkedNodes.map(node => Number(node.value));
-  defBaseRoleService.SetBaseRoleMenus({ id: roleId, menus: checkedMenuIds }).then(() => {
+  defBaseRoleService.SetBaseRoleMenu({ id: roleId, menus: checkedMenuIds }).then(() => {
     ElMessage.success("分配权限成功");
     assignPermDialogVisible.value = false;
     refreshTable();

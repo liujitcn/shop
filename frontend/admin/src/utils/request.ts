@@ -9,9 +9,10 @@ import { useUserStore } from "@/stores/modules/user";
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
 const baseURL = `${apiTargetUrl}${apiBasePath}`;
-const REFRESH_TOKEN_URL = "/login/refreshToken";
-const NO_AUTH_URL_SET = new Set(["/login", "/login/captcha", REFRESH_TOKEN_URL]);
-const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set(["/login", "/login/captcha"]);
+const AUTH_URL = "/auth";
+const REFRESH_TOKEN_URL = `${AUTH_URL}/token`;
+const NO_AUTH_URL_SET = new Set([AUTH_URL, "/login/captcha", REFRESH_TOKEN_URL]);
+const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([AUTH_URL, "/login/captcha"]);
 
 // 创建 axios 实例
 const service = axios.create({

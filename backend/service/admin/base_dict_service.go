@@ -40,11 +40,11 @@ func NewBaseDictService(
 	}
 }
 
-// ListBaseDict 查询字典列表
-func (s *BaseDictService) ListBaseDict(ctx context.Context, req *emptypb.Empty) (*admin.ListBaseDictResponse, error) {
-	res, err := s.baseDictCase.ListBaseDict(ctx)
+// OptionBaseDict 查询字典下拉选择
+func (s *BaseDictService) OptionBaseDict(ctx context.Context, req *emptypb.Empty) (*admin.OptionBaseDictResponse, error) {
+	res, err := s.baseDictCase.OptionBaseDict(ctx)
 	if err != nil {
-		log.Errorf("ListBaseDict %v", err)
+		log.Errorf("OptionBaseDict %v", err)
 		return nil, errorsx.WrapInternal(err, "查询失败")
 	}
 	return res, nil

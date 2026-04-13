@@ -18,6 +18,18 @@ import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 import type { RecommendContext } from "./recommend";
 
+/** 立即购买订单请求参数 */
+export interface BuyNowOrderInfoRequest {
+  /** 商品id */
+  goodsId: number;
+  /** 规格编号 */
+  skuCode: string;
+  /** 数量 */
+  num: number;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
+}
+
 /** 下单商品 */
 export interface CreateOrderInfoGoods {
   /** 商品id */
@@ -42,10 +54,34 @@ export interface ConfirmOrderInfoResponse {
   clearCart: boolean;
 }
 
+/** 立即购买订单响应 */
+export interface BuyNowOrderInfoResponse {
+  /** 商品信息 */
+  goods: OrderGoods[];
+  /** 汇总信息 */
+  summary:
+    | OrderSummary
+    | undefined;
+  /** 是否清空购物车 */
+  clearCart: boolean;
+}
+
 /** 再次购买订单请求参数 */
-export interface OrderRepurchaseInfoRequest {
+export interface RepurchaseOrderInfoRequest {
   /** 订单id */
   orderId: number;
+}
+
+/** 再次购买订单响应 */
+export interface RepurchaseOrderInfoResponse {
+  /** 商品信息 */
+  goods: OrderGoods[];
+  /** 汇总信息 */
+  summary:
+    | OrderSummary
+    | undefined;
+  /** 是否清空购物车 */
+  clearCart: boolean;
 }
 
 /** 订单数量汇总响应 */
@@ -258,12 +294,12 @@ export interface OrderSummary {
 
 /** App订单信息服务 */
 export interface OrderInfoService {
-  /** 预付订单信息 */
-  OrderInfoPre(request: Empty): Promise<ConfirmOrderInfoResponse>;
+  /** 确认订单信息 */
+  ConfirmOrderInfo(request: Empty): Promise<ConfirmOrderInfoResponse>;
   /** 立即购买订单信息 */
-  OrderInfoBuy(request: CreateOrderInfoGoods): Promise<ConfirmOrderInfoResponse>;
+  BuyNowOrderInfo(request: BuyNowOrderInfoRequest): Promise<BuyNowOrderInfoResponse>;
   /** 再次购买订单信息 */
-  OrderInfoRepurchase(request: OrderRepurchaseInfoRequest): Promise<ConfirmOrderInfoResponse>;
+  RepurchaseOrderInfo(request: RepurchaseOrderInfoRequest): Promise<RepurchaseOrderInfoResponse>;
   /** 查询订单信息数量汇总 */
   CountOrderInfo(request: Empty): Promise<CountOrderInfoResponse>;
   /** 查询订单信息分页列表 */

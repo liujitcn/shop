@@ -70,7 +70,7 @@ func (s *UserCartService) CreateUserCart(ctx context.Context, req *app.CreateUse
 }
 
 // UpdateUserCart 更新用户购物车
-func (s *UserCartService) UpdateUserCart(ctx context.Context, req *app.UpdateUserCartRequest) (*emptypb.Empty, error) {
+func (s *UserCartService) UpdateUserCart(ctx context.Context, req *app.UserCartForm) (*emptypb.Empty, error) {
 	err := s.userCartCase.UpdateUserCart(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateUserCart %v", err)
@@ -99,11 +99,11 @@ func (s *UserCartService) SetUserCartStatus(ctx context.Context, req *app.SetUse
 	return new(emptypb.Empty), nil
 }
 
-// SelectedUserCart 设置购物车全选状态
-func (s *UserCartService) SelectedUserCart(ctx context.Context, req *app.SelectedUserCartRequest) (*emptypb.Empty, error) {
-	err := s.userCartCase.SelectedUserCart(ctx, req.GetIsChecked())
+// SetUserCartSelection 设置购物车全选状态
+func (s *UserCartService) SetUserCartSelection(ctx context.Context, req *app.SetUserCartSelectionRequest) (*emptypb.Empty, error) {
+	err := s.userCartCase.SetUserCartSelection(ctx, req.GetIsChecked())
 	if err != nil {
-		log.Errorf("SelectedUserCart %v", err)
+		log.Errorf("SetUserCartSelection %v", err)
 		return nil, errorsx.WrapInternal(err, "设置全选失败")
 	}
 	return new(emptypb.Empty), nil

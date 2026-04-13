@@ -1,4 +1,4 @@
-import type { UserInfo, WxLoginRequest } from '@/rpc/app/auth'
+import type { UserProfileForm, WechatLoginRequest } from '@/rpc/app/auth'
 import type { LoginRequest } from '@/rpc/base/login'
 import { defAuthService } from '@/api/app/auth'
 import { defLoginService } from '@/api/base/login'
@@ -18,7 +18,7 @@ export const useUserStore = defineStore(
   'user',
   () => {
     // 会员信息
-    const userInfo = ref<UserInfo>()
+    const userInfo = ref<UserProfileForm>()
 
     /**
      * 登录
@@ -56,10 +56,10 @@ export const useUserStore = defineStore(
      * @param request
      * @returns
      */
-    function wxLogin(request: WxLoginRequest) {
+    function wechatLogin(request: WechatLoginRequest) {
       return new Promise<void>((resolve, reject) => {
         defAuthService
-          .WxLogin(request)
+          .WechatLogin(request)
           .then((data) => {
             const { tokenType, accessToken, refreshToken, expiresIn } = data
             setToken(tokenType + ' ' + accessToken)
@@ -81,12 +81,12 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 获取用户信息
+     * 获取用户资料
      */
-    function getUserInfo() {
-      return new Promise<UserInfo>((resolve, reject) => {
+    function getUserProfile() {
+      return new Promise<UserProfileForm>((resolve, reject) => {
         defAuthService
-          .GetUserInfo({})
+          .GetUserProfile({})
           .then((data) => {
             if (!data) {
               reject('Verification failed, please Login again.')
@@ -157,9 +157,9 @@ export const useUserStore = defineStore(
     }
     return {
       userInfo,
-      getUserInfo,
+      getUserProfile,
       login,
-      wxLogin,
+      wechatLogin,
       logout,
       clearUserData,
       refreshToken,

@@ -29,7 +29,7 @@ const OperationBaseDictServiceDeleteBaseDict = "/admin.BaseDictService/DeleteBas
 const OperationBaseDictServiceDeleteBaseDictItem = "/admin.BaseDictService/DeleteBaseDictItem"
 const OperationBaseDictServiceGetBaseDict = "/admin.BaseDictService/GetBaseDict"
 const OperationBaseDictServiceGetBaseDictItem = "/admin.BaseDictService/GetBaseDictItem"
-const OperationBaseDictServiceListBaseDict = "/admin.BaseDictService/ListBaseDict"
+const OperationBaseDictServiceOptionBaseDict = "/admin.BaseDictService/OptionBaseDict"
 const OperationBaseDictServicePageBaseDict = "/admin.BaseDictService/PageBaseDict"
 const OperationBaseDictServicePageBaseDictItem = "/admin.BaseDictService/PageBaseDictItem"
 const OperationBaseDictServiceSetBaseDictItemStatus = "/admin.BaseDictService/SetBaseDictItemStatus"
@@ -50,8 +50,8 @@ type BaseDictServiceHTTPServer interface {
 	GetBaseDict(context.Context, *wrapperspb.Int64Value) (*BaseDictForm, error)
 	// GetBaseDictItem 查询字典属性
 	GetBaseDictItem(context.Context, *wrapperspb.Int64Value) (*BaseDictItemForm, error)
-	// ListBaseDict 查询字典列表
-	ListBaseDict(context.Context, *emptypb.Empty) (*ListBaseDictResponse, error)
+	// OptionBaseDict 查询字典列表
+	OptionBaseDict(context.Context, *emptypb.Empty) (*OptionBaseDictResponse, error)
 	// PageBaseDict 查询字典分页列表
 	PageBaseDict(context.Context, *PageBaseDictRequest) (*PageBaseDictResponse, error)
 	// PageBaseDictItem 查询字典属性分页列表
@@ -68,7 +68,7 @@ type BaseDictServiceHTTPServer interface {
 
 func RegisterBaseDictServiceHTTPServer(s *http.Server, srv BaseDictServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/admin/base/dict/list", _BaseDictService_ListBaseDict0_HTTP_Handler(srv))
+	r.GET("/api/admin/base/dict/option", _BaseDictService_OptionBaseDict0_HTTP_Handler(srv))
 	r.GET("/api/admin/base/dict", _BaseDictService_PageBaseDict0_HTTP_Handler(srv))
 	r.GET("/api/admin/base/dict/{value}", _BaseDictService_GetBaseDict0_HTTP_Handler(srv))
 	r.POST("/api/admin/base/dict", _BaseDictService_CreateBaseDict0_HTTP_Handler(srv))
@@ -83,21 +83,21 @@ func RegisterBaseDictServiceHTTPServer(s *http.Server, srv BaseDictServiceHTTPSe
 	r.PUT("/api/admin/base/dict-item/{id}/status", _BaseDictService_SetBaseDictItemStatus0_HTTP_Handler(srv))
 }
 
-func _BaseDictService_ListBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
+func _BaseDictService_OptionBaseDict0_HTTP_Handler(srv BaseDictServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseDictServiceListBaseDict)
+		http.SetOperation(ctx, OperationBaseDictServiceOptionBaseDict)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListBaseDict(ctx, req.(*emptypb.Empty))
+			return srv.OptionBaseDict(ctx, req.(*emptypb.Empty))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*ListBaseDictResponse)
+		reply := out.(*OptionBaseDictResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -385,8 +385,8 @@ type BaseDictServiceHTTPClient interface {
 	GetBaseDict(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *BaseDictForm, err error)
 	// GetBaseDictItem 查询字典属性
 	GetBaseDictItem(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *BaseDictItemForm, err error)
-	// ListBaseDict 查询字典列表
-	ListBaseDict(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ListBaseDictResponse, err error)
+	// OptionBaseDict 查询字典列表
+	OptionBaseDict(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *OptionBaseDictResponse, err error)
 	// PageBaseDict 查询字典分页列表
 	PageBaseDict(ctx context.Context, req *PageBaseDictRequest, opts ...http.CallOption) (rsp *PageBaseDictResponse, err error)
 	// PageBaseDictItem 查询字典属性分页列表
@@ -493,12 +493,12 @@ func (c *BaseDictServiceHTTPClientImpl) GetBaseDictItem(ctx context.Context, in 
 	return &out, nil
 }
 
-// ListBaseDict 查询字典列表
-func (c *BaseDictServiceHTTPClientImpl) ListBaseDict(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ListBaseDictResponse, error) {
-	var out ListBaseDictResponse
-	pattern := "/api/admin/base/dict/list"
+// OptionBaseDict 查询字典列表
+func (c *BaseDictServiceHTTPClientImpl) OptionBaseDict(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*OptionBaseDictResponse, error) {
+	var out OptionBaseDictResponse
+	pattern := "/api/admin/base/dict/option"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationBaseDictServiceListBaseDict))
+	opts = append(opts, http.Operation(OperationBaseDictServiceOptionBaseDict))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -28,7 +28,7 @@ const OperationBaseRoleServiceDeleteBaseRole = "/admin.BaseRoleService/DeleteBas
 const OperationBaseRoleServiceGetBaseRole = "/admin.BaseRoleService/GetBaseRole"
 const OperationBaseRoleServiceOptionBaseRole = "/admin.BaseRoleService/OptionBaseRole"
 const OperationBaseRoleServicePageBaseRole = "/admin.BaseRoleService/PageBaseRole"
-const OperationBaseRoleServiceSetBaseRoleMenus = "/admin.BaseRoleService/SetBaseRoleMenus"
+const OperationBaseRoleServiceSetBaseRoleMenu = "/admin.BaseRoleService/SetBaseRoleMenu"
 const OperationBaseRoleServiceSetBaseRoleStatus = "/admin.BaseRoleService/SetBaseRoleStatus"
 const OperationBaseRoleServiceUpdateBaseRole = "/admin.BaseRoleService/UpdateBaseRole"
 
@@ -43,8 +43,8 @@ type BaseRoleServiceHTTPServer interface {
 	OptionBaseRole(context.Context, *emptypb.Empty) (*common.SelectOptionResponse, error)
 	// PageBaseRole 查询角色分页列表
 	PageBaseRole(context.Context, *PageBaseRoleRequest) (*PageBaseRoleResponse, error)
-	// SetBaseRoleMenus 设置角色菜单权限
-	SetBaseRoleMenus(context.Context, *SetMenusRequest) (*emptypb.Empty, error)
+	// SetBaseRoleMenu 设置角色菜单权限
+	SetBaseRoleMenu(context.Context, *SetBaseRoleMenuRequest) (*emptypb.Empty, error)
 	// SetBaseRoleStatus 设置状态
 	SetBaseRoleStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseRole 更新角色
@@ -60,7 +60,7 @@ func RegisterBaseRoleServiceHTTPServer(s *http.Server, srv BaseRoleServiceHTTPSe
 	r.PUT("/api/admin/base/role/{id}", _BaseRoleService_UpdateBaseRole0_HTTP_Handler(srv))
 	r.DELETE("/api/admin/base/role/{value}", _BaseRoleService_DeleteBaseRole0_HTTP_Handler(srv))
 	r.PUT("/api/admin/base/role/{id}/status", _BaseRoleService_SetBaseRoleStatus0_HTTP_Handler(srv))
-	r.PUT("/api/admin/base/role/{id}/menus", _BaseRoleService_SetBaseRoleMenus0_HTTP_Handler(srv))
+	r.PUT("/api/admin/base/role/{id}/menu", _BaseRoleService_SetBaseRoleMenu0_HTTP_Handler(srv))
 }
 
 func _BaseRoleService_OptionBaseRole0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
@@ -217,9 +217,9 @@ func _BaseRoleService_SetBaseRoleStatus0_HTTP_Handler(srv BaseRoleServiceHTTPSer
 	}
 }
 
-func _BaseRoleService_SetBaseRoleMenus0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
+func _BaseRoleService_SetBaseRoleMenu0_HTTP_Handler(srv BaseRoleServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SetMenusRequest
+		var in SetBaseRoleMenuRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -229,9 +229,9 @@ func _BaseRoleService_SetBaseRoleMenus0_HTTP_Handler(srv BaseRoleServiceHTTPServ
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseRoleServiceSetBaseRoleMenus)
+		http.SetOperation(ctx, OperationBaseRoleServiceSetBaseRoleMenu)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SetBaseRoleMenus(ctx, req.(*SetMenusRequest))
+			return srv.SetBaseRoleMenu(ctx, req.(*SetBaseRoleMenuRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -253,8 +253,8 @@ type BaseRoleServiceHTTPClient interface {
 	OptionBaseRole(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *common.SelectOptionResponse, err error)
 	// PageBaseRole 查询角色分页列表
 	PageBaseRole(ctx context.Context, req *PageBaseRoleRequest, opts ...http.CallOption) (rsp *PageBaseRoleResponse, err error)
-	// SetBaseRoleMenus 设置角色菜单权限
-	SetBaseRoleMenus(ctx context.Context, req *SetMenusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SetBaseRoleMenu 设置角色菜单权限
+	SetBaseRoleMenu(ctx context.Context, req *SetBaseRoleMenuRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseRoleStatus 设置状态
 	SetBaseRoleStatus(ctx context.Context, req *common.SetStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseRole 更新角色
@@ -339,12 +339,12 @@ func (c *BaseRoleServiceHTTPClientImpl) PageBaseRole(ctx context.Context, in *Pa
 	return &out, nil
 }
 
-// SetBaseRoleMenus 设置角色菜单权限
-func (c *BaseRoleServiceHTTPClientImpl) SetBaseRoleMenus(ctx context.Context, in *SetMenusRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// SetBaseRoleMenu 设置角色菜单权限
+func (c *BaseRoleServiceHTTPClientImpl) SetBaseRoleMenu(ctx context.Context, in *SetBaseRoleMenuRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/base/role/{id}/menus"
+	pattern := "/api/admin/base/role/{id}/menu"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationBaseRoleServiceSetBaseRoleMenus))
+	opts = append(opts, http.Operation(OperationBaseRoleServiceSetBaseRoleMenu))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {

@@ -36,41 +36,41 @@ func NewAuthService(
 	return &ss
 }
 
-// WxLogin 微信登录
-func (s *AuthService) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.WxLoginResponse, error) {
-	res, err := s.authCase.WxLogin(ctx, req)
+// WechatLogin 微信登录
+func (s *AuthService) WechatLogin(ctx context.Context, req *app.WechatLoginRequest) (*app.WechatLoginResponse, error) {
+	res, err := s.authCase.WechatLogin(ctx, req)
 	if err != nil {
-		log.Errorf("WxLogin %v", err)
+		log.Errorf("WechatLogin %v", err)
 		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
 	return res, nil
 }
 
-// GetUserInfo 获取已经登录的用户数据
-func (s *AuthService) GetUserInfo(ctx context.Context, req *emptypb.Empty) (*app.UserInfo, error) {
-	res, err := s.authCase.GetUserInfo(ctx)
+// GetUserProfile 获取已经登录的用户数据
+func (s *AuthService) GetUserProfile(ctx context.Context, req *emptypb.Empty) (*app.UserProfileForm, error) {
+	res, err := s.authCase.GetUserProfile(ctx)
 	if err != nil {
-		log.Errorf("GetUserInfo %v", err)
+		log.Errorf("GetUserProfile %v", err)
 		return nil, errorsx.WrapInternal(err, "获取用户信息失败")
 	}
 	return res, nil
 }
 
-// UpdateUserInfo 修改个人中心用户信息
-func (s *AuthService) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInfoRequest) (*emptypb.Empty, error) {
-	err := s.authCase.UpdateUserInfo(ctx, req)
+// UpdateUserProfile 修改个人中心用户信息
+func (s *AuthService) UpdateUserProfile(ctx context.Context, req *app.UserProfileForm) (*emptypb.Empty, error) {
+	err := s.authCase.UpdateUserProfile(ctx, req)
 	if err != nil {
-		log.Errorf("UpdateUserInfo %v", err)
+		log.Errorf("UpdateUserProfile %v", err)
 		return nil, errorsx.WrapInternal(err, "修改个人中心用户信息失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// PhoneAuth 手机号授权
-func (s *AuthService) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*app.PhoneAuthResponse, error) {
-	res, err := s.authCase.PhoneAuth(ctx, req)
+// BindUserPhone 手机号授权
+func (s *AuthService) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequest) (*app.BindUserPhoneResponse, error) {
+	res, err := s.authCase.BindUserPhone(ctx, req)
 	if err != nil {
-		log.Errorf("PhoneAuth %v", err)
+		log.Errorf("BindUserPhone %v", err)
 		return nil, errorsx.WrapInternal(err, "手机号授权失败")
 	}
 	return res, nil

@@ -44,7 +44,7 @@ type RecommendServiceHTTPServer interface {
 func RegisterRecommendServiceHTTPServer(s *http.Server, srv RecommendServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/app/recommend/actor/anonymous", _RecommendService_RecommendAnonymousActor0_HTTP_Handler(srv))
-	r.POST("/api/app/recommend/actor/bind", _RecommendService_BindRecommendAnonymousActor0_HTTP_Handler(srv))
+	r.POST("/api/app/recommend/actor/binding", _RecommendService_BindRecommendAnonymousActor0_HTTP_Handler(srv))
 	r.GET("/api/app/recommend/goods", _RecommendService_RecommendGoods0_HTTP_Handler(srv))
 	r.POST("/api/app/recommend/event/exposure", _RecommendService_RecommendExposureReport0_HTTP_Handler(srv))
 	r.POST("/api/app/recommend/event/goods", _RecommendService_RecommendGoodsActionReport0_HTTP_Handler(srv))
@@ -178,7 +178,7 @@ func NewRecommendServiceHTTPClient(client *http.Client) RecommendServiceHTTPClie
 // BindRecommendAnonymousActor 绑定匿名推荐主体到当前登录用户
 func (c *RecommendServiceHTTPClientImpl) BindRecommendAnonymousActor(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/recommend/actor/bind"
+	pattern := "/api/app/recommend/actor/binding"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationRecommendServiceBindRecommendAnonymousActor))
 	opts = append(opts, http.PathTemplate(pattern))

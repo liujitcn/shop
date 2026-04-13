@@ -37,7 +37,7 @@ func NewAuthService(
 }
 
 // GetUserInfo 获取已经登录的用户的数据
-func (s *AuthService) GetUserInfo(ctx context.Context, req *emptypb.Empty) (*admin.UserInfo, error) {
+func (s *AuthService) GetUserInfo(ctx context.Context, req *emptypb.Empty) (*admin.UserInfoForm, error) {
 	res, err := s.authCase.GetUserInfo(ctx)
 	if err != nil {
 		log.Errorf("GetUserInfo %v", err)
@@ -86,18 +86,18 @@ func (s *AuthService) UpdateUserProfile(ctx context.Context, req *admin.UserProf
 	return new(emptypb.Empty), nil
 }
 
-// SendUpdatePhoneCode 发送手机号验证码
-func (s *AuthService) SendUpdatePhoneCode(ctx context.Context, req *admin.SendUpdatePhoneCodeForm) (*emptypb.Empty, error) {
-	err := s.authCase.SendUpdatePhoneCode(ctx, req)
+// SendPhoneCode 发送手机号验证码
+func (s *AuthService) SendPhoneCode(ctx context.Context, req *admin.SendPhoneCodeRequest) (*emptypb.Empty, error) {
+	err := s.authCase.SendPhoneCode(ctx, req)
 	if err != nil {
-		log.Errorf("SendUpdatePhoneCode %v", err)
+		log.Errorf("SendPhoneCode %v", err)
 		return nil, errorsx.WrapInternal(err, "发送手机号验证码失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
 // UpdateUserPhone 修改个人中心手机号
-func (s *AuthService) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhoneForm) (*emptypb.Empty, error) {
+func (s *AuthService) UpdateUserPhone(ctx context.Context, req *admin.UserPhoneForm) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserPhone(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateUserPhone %v", err)
@@ -107,11 +107,11 @@ func (s *AuthService) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhon
 	return new(emptypb.Empty), nil
 }
 
-// UpdateUserPwd 修改个人中心密码
-func (s *AuthService) UpdateUserPwd(ctx context.Context, req *admin.UpdatePwdForm) (*emptypb.Empty, error) {
-	err := s.authCase.UpdateUserPwd(ctx, req)
+// UpdateUserPassword 修改个人中心密码
+func (s *AuthService) UpdateUserPassword(ctx context.Context, req *admin.UserPasswordForm) (*emptypb.Empty, error) {
+	err := s.authCase.UpdateUserPassword(ctx, req)
 	if err != nil {
-		log.Errorf("UpdateUserPwd %v", err)
+		log.Errorf("UpdateUserPassword %v", err)
 		return nil, errorsx.WrapInternal(err, "重置密码失败")
 	}
 	return new(emptypb.Empty), nil

@@ -126,8 +126,8 @@ func (c *BaseJobCase) StopBaseJob(ctx context.Context, req *admin.StopBaseJobReq
 	return c.cronServer.StopJob(ctx, baseJob)
 }
 
-// ExecBaseJob 立即执行定时任务
-func (c *BaseJobCase) ExecBaseJob(ctx context.Context, req *admin.ExecBaseJobRequest) error {
+// ExecuteBaseJob 立即执行定时任务
+func (c *BaseJobCase) ExecuteBaseJob(ctx context.Context, req *admin.ExecuteBaseJobRequest) error {
 	baseJob, err := c.FindById(ctx, req.GetId())
 	if err != nil {
 		return err

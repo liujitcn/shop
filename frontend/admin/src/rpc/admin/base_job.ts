@@ -46,8 +46,8 @@ export interface StopBaseJobRequest {
   id: number;
 }
 
-/** ExecBaseJob请求参数 */
-export interface ExecBaseJobRequest {
+/** 执行任务请求参数 */
+export interface ExecuteBaseJobRequest {
   /** 主键id */
   id: number;
 }
@@ -161,7 +161,7 @@ export interface BaseJobService {
   /** 停止任务 */
   StopBaseJob(request: StopBaseJobRequest): Promise<Empty>;
   /** 执行任务 */
-  ExecBaseJob(request: ExecBaseJobRequest): Promise<Empty>;
+  ExecuteBaseJob(request: ExecuteBaseJobRequest): Promise<Empty>;
   /** 查询定时任务日志分页列表 */
   PageBaseJobLog(request: PageBaseJobLogRequest): Promise<PageBaseJobLogResponse>;
   /** 查询定时任务日志 */

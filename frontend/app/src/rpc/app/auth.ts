@@ -7,8 +7,8 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 
-/** User信息 */
-export interface UserInfo {
+/** 用户资料表单 */
+export interface UserProfileForm {
   /** 用户账号 */
   userName: string;
   /** 用户昵称 */
@@ -22,13 +22,13 @@ export interface UserInfo {
 }
 
 /** 微信登录请求参数 */
-export interface WxLoginRequest {
+export interface WechatLoginRequest {
   /** 用户登录凭据 */
   code: string;
 }
 
 /** 微信登录响应 */
-export interface WxLoginResponse {
+export interface WechatLoginResponse {
   /** 访问令牌，必选项。 */
   accessToken: string;
   /** 更新令牌，用来获取下一次的访问令牌，可选项。 */
@@ -39,24 +39,14 @@ export interface WxLoginResponse {
   expiresIn: number;
 }
 
-/** UpdateUser信息请求参数 */
-export interface UpdateUserInfoRequest {
-  /** 昵称 */
-  nickName: string;
-  /** 头像URL */
-  avatar: string;
-  /** 性别 */
-  gender: number;
-}
-
 /** 手机号授权请求参数 */
-export interface PhoneAuthRequest {
+export interface BindUserPhoneRequest {
   /** 授权信息 */
   code: string;
 }
 
 /** 手机号授权响应 */
-export interface PhoneAuthResponse {
+export interface BindUserPhoneResponse {
   /** 手机号 */
   phone: string;
 }
@@ -64,11 +54,11 @@ export interface PhoneAuthResponse {
 /** App用户登录认证服务 */
 export interface AuthService {
   /** 微信登录 */
-  WxLogin(request: WxLoginRequest): Promise<WxLoginResponse>;
+  WechatLogin(request: WechatLoginRequest): Promise<WechatLoginResponse>;
   /** 获取已经登录的用户的数据 */
-  GetUserInfo(request: Empty): Promise<UserInfo>;
+  GetUserProfile(request: Empty): Promise<UserProfileForm>;
   /** 修改个人中心用户信息 */
-  UpdateUserInfo(request: UpdateUserInfoRequest): Promise<Empty>;
+  UpdateUserProfile(request: UserProfileForm): Promise<Empty>;
   /** 手机号授权 */
-  PhoneAuth(request: PhoneAuthRequest): Promise<PhoneAuthResponse>;
+  BindUserPhone(request: BindUserPhoneRequest): Promise<BindUserPhoneResponse>;
 }

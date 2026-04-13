@@ -24,24 +24,24 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationOrderInfoServiceGetOrderInfo = "/admin.OrderInfoService/GetOrderInfo"
 const OperationOrderInfoServiceGetOrderInfoRefund = "/admin.OrderInfoService/GetOrderInfoRefund"
-const OperationOrderInfoServiceGetOrderInfoShipped = "/admin.OrderInfoService/GetOrderInfoShipped"
+const OperationOrderInfoServiceGetOrderInfoShipment = "/admin.OrderInfoService/GetOrderInfoShipment"
 const OperationOrderInfoServicePageOrderInfo = "/admin.OrderInfoService/PageOrderInfo"
 const OperationOrderInfoServiceRefundOrderInfo = "/admin.OrderInfoService/RefundOrderInfo"
-const OperationOrderInfoServiceShippedOrderInfo = "/admin.OrderInfoService/ShippedOrderInfo"
+const OperationOrderInfoServiceShipOrderInfo = "/admin.OrderInfoService/ShipOrderInfo"
 
 type OrderInfoServiceHTTPServer interface {
 	// GetOrderInfo 查询订单信息
 	GetOrderInfo(context.Context, *wrapperspb.Int64Value) (*OrderInfoResponse, error)
 	// GetOrderInfoRefund 查询订单信息退款信息
 	GetOrderInfoRefund(context.Context, *wrapperspb.Int64Value) (*OrderInfoRefundResponse, error)
-	// GetOrderInfoShipped 查询订单信息发货信息
-	GetOrderInfoShipped(context.Context, *wrapperspb.Int64Value) (*OrderInfoShippedResponse, error)
+	// GetOrderInfoShipment 查询订单信息发货信息
+	GetOrderInfoShipment(context.Context, *wrapperspb.Int64Value) (*OrderInfoShipmentForm, error)
 	// PageOrderInfo 查询订单信息分页列表
 	PageOrderInfo(context.Context, *PageOrderInfoRequest) (*PageOrderInfoResponse, error)
 	// RefundOrderInfo 订单信息退款
 	RefundOrderInfo(context.Context, *RefundOrderInfoRequest) (*emptypb.Empty, error)
-	// ShippedOrderInfo 订单信息发货
-	ShippedOrderInfo(context.Context, *ShippedOrderInfoRequest) (*emptypb.Empty, error)
+	// ShipOrderInfo 订单信息发货
+	ShipOrderInfo(context.Context, *ShipOrderInfoRequest) (*emptypb.Empty, error)
 }
 
 func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTPServer) {
@@ -49,9 +49,9 @@ func RegisterOrderInfoServiceHTTPServer(s *http.Server, srv OrderInfoServiceHTTP
 	r.GET("/api/admin/order/info", _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv))
 	r.GET("/api/admin/order/info/{value}", _OrderInfoService_GetOrderInfo0_HTTP_Handler(srv))
 	r.GET("/api/admin/order/info/{value}/refund", _OrderInfoService_GetOrderInfoRefund0_HTTP_Handler(srv))
-	r.PUT("/api/admin/order/info/{orderId}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
-	r.GET("/api/admin/order/info/{value}/shipped", _OrderInfoService_GetOrderInfoShipped0_HTTP_Handler(srv))
-	r.PUT("/api/admin/order/info/{orderId}/shipped", _OrderInfoService_ShippedOrderInfo0_HTTP_Handler(srv))
+	r.PUT("/api/admin/order/info/{order_id}/refund", _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv))
+	r.GET("/api/admin/order/info/{value}/shipment", _OrderInfoService_GetOrderInfoShipment0_HTTP_Handler(srv))
+	r.PUT("/api/admin/order/info/{order_id}/shipment", _OrderInfoService_ShipOrderInfo0_HTTP_Handler(srv))
 }
 
 func _OrderInfoService_PageOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
@@ -142,7 +142,7 @@ func _OrderInfoService_RefundOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPSer
 	}
 }
 
-func _OrderInfoService_GetOrderInfoShipped0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+func _OrderInfoService_GetOrderInfoShipment0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in wrapperspb.Int64Value
 		if err := ctx.BindQuery(&in); err != nil {
@@ -151,22 +151,22 @@ func _OrderInfoService_GetOrderInfoShipped0_HTTP_Handler(srv OrderInfoServiceHTT
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderInfoServiceGetOrderInfoShipped)
+		http.SetOperation(ctx, OperationOrderInfoServiceGetOrderInfoShipment)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetOrderInfoShipped(ctx, req.(*wrapperspb.Int64Value))
+			return srv.GetOrderInfoShipment(ctx, req.(*wrapperspb.Int64Value))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*OrderInfoShippedResponse)
+		reply := out.(*OrderInfoShipmentForm)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _OrderInfoService_ShippedOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
+func _OrderInfoService_ShipOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ShippedOrderInfoRequest
+		var in ShipOrderInfoRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -176,9 +176,9 @@ func _OrderInfoService_ShippedOrderInfo0_HTTP_Handler(srv OrderInfoServiceHTTPSe
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationOrderInfoServiceShippedOrderInfo)
+		http.SetOperation(ctx, OperationOrderInfoServiceShipOrderInfo)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ShippedOrderInfo(ctx, req.(*ShippedOrderInfoRequest))
+			return srv.ShipOrderInfo(ctx, req.(*ShipOrderInfoRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -194,14 +194,14 @@ type OrderInfoServiceHTTPClient interface {
 	GetOrderInfo(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *OrderInfoResponse, err error)
 	// GetOrderInfoRefund 查询订单信息退款信息
 	GetOrderInfoRefund(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *OrderInfoRefundResponse, err error)
-	// GetOrderInfoShipped 查询订单信息发货信息
-	GetOrderInfoShipped(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *OrderInfoShippedResponse, err error)
+	// GetOrderInfoShipment 查询订单信息发货信息
+	GetOrderInfoShipment(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *OrderInfoShipmentForm, err error)
 	// PageOrderInfo 查询订单信息分页列表
 	PageOrderInfo(ctx context.Context, req *PageOrderInfoRequest, opts ...http.CallOption) (rsp *PageOrderInfoResponse, err error)
 	// RefundOrderInfo 订单信息退款
 	RefundOrderInfo(ctx context.Context, req *RefundOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// ShippedOrderInfo 订单信息发货
-	ShippedOrderInfo(ctx context.Context, req *ShippedOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// ShipOrderInfo 订单信息发货
+	ShipOrderInfo(ctx context.Context, req *ShipOrderInfoRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type OrderInfoServiceHTTPClientImpl struct {
@@ -240,12 +240,12 @@ func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoRefund(ctx context.Context,
 	return &out, nil
 }
 
-// GetOrderInfoShipped 查询订单信息发货信息
-func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoShipped(ctx context.Context, in *wrapperspb.Int64Value, opts ...http.CallOption) (*OrderInfoShippedResponse, error) {
-	var out OrderInfoShippedResponse
-	pattern := "/api/admin/order/info/{value}/shipped"
+// GetOrderInfoShipment 查询订单信息发货信息
+func (c *OrderInfoServiceHTTPClientImpl) GetOrderInfoShipment(ctx context.Context, in *wrapperspb.Int64Value, opts ...http.CallOption) (*OrderInfoShipmentForm, error) {
+	var out OrderInfoShipmentForm
+	pattern := "/api/admin/order/info/{value}/shipment"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationOrderInfoServiceGetOrderInfoShipped))
+	opts = append(opts, http.Operation(OperationOrderInfoServiceGetOrderInfoShipment))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -271,7 +271,7 @@ func (c *OrderInfoServiceHTTPClientImpl) PageOrderInfo(ctx context.Context, in *
 // RefundOrderInfo 订单信息退款
 func (c *OrderInfoServiceHTTPClientImpl) RefundOrderInfo(ctx context.Context, in *RefundOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/order/info/{orderId}/refund"
+	pattern := "/api/admin/order/info/{order_id}/refund"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationOrderInfoServiceRefundOrderInfo))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -282,12 +282,12 @@ func (c *OrderInfoServiceHTTPClientImpl) RefundOrderInfo(ctx context.Context, in
 	return &out, nil
 }
 
-// ShippedOrderInfo 订单信息发货
-func (c *OrderInfoServiceHTTPClientImpl) ShippedOrderInfo(ctx context.Context, in *ShippedOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// ShipOrderInfo 订单信息发货
+func (c *OrderInfoServiceHTTPClientImpl) ShipOrderInfo(ctx context.Context, in *ShipOrderInfoRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/order/info/{orderId}/shipped"
+	pattern := "/api/admin/order/info/{order_id}/shipment"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationOrderInfoServiceShippedOrderInfo))
+	opts = append(opts, http.Operation(OperationOrderInfoServiceShipOrderInfo))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {

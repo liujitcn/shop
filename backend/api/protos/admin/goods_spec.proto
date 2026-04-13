@@ -16,7 +16,7 @@ service GoodsSpecService {
   // 查询商品规格列表
   rpc ListGoodsSpec (ListGoodsSpecRequest) returns (ListGoodsSpecResponse) {
     option (google.api.http) = {
-      get: "/api/admin/goods/spec/list"
+      get: "/api/admin/goods/spec"
     };
   }
 }

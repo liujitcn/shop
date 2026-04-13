@@ -2,12 +2,12 @@ import { defineStore } from "pinia";
 import { defAuthService } from "@/api/admin/auth";
 import { defLoginService } from "@/api/base/login";
 import type { LoginRequest } from "@/rpc/base/login";
-import type { UserInfo } from "@/rpc/admin/auth";
+import type { UserInfoForm } from "@/rpc/admin/auth";
 import { UserState } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 import { useDictStoreHook } from "@/stores/modules/dict";
 
-const defaultUserInfo: UserInfo = {
+const defaultUserInfo: UserInfoForm = {
   userName: "",
   nickName: "",
   phone: "",

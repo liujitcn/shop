@@ -22,14 +22,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_GetUserInfo_FullMethodName         = "/admin.AuthService/GetUserInfo"
-	AuthService_GetUserMenu_FullMethodName         = "/admin.AuthService/GetUserMenu"
-	AuthService_GetUserButton_FullMethodName       = "/admin.AuthService/GetUserButton"
-	AuthService_GetUserProfile_FullMethodName      = "/admin.AuthService/GetUserProfile"
-	AuthService_UpdateUserProfile_FullMethodName   = "/admin.AuthService/UpdateUserProfile"
-	AuthService_SendUpdatePhoneCode_FullMethodName = "/admin.AuthService/SendUpdatePhoneCode"
-	AuthService_UpdateUserPhone_FullMethodName     = "/admin.AuthService/UpdateUserPhone"
-	AuthService_UpdateUserPwd_FullMethodName       = "/admin.AuthService/UpdateUserPwd"
+	AuthService_GetUserInfo_FullMethodName        = "/admin.AuthService/GetUserInfo"
+	AuthService_GetUserMenu_FullMethodName        = "/admin.AuthService/GetUserMenu"
+	AuthService_GetUserButton_FullMethodName      = "/admin.AuthService/GetUserButton"
+	AuthService_GetUserProfile_FullMethodName     = "/admin.AuthService/GetUserProfile"
+	AuthService_UpdateUserProfile_FullMethodName  = "/admin.AuthService/UpdateUserProfile"
+	AuthService_SendPhoneCode_FullMethodName      = "/admin.AuthService/SendPhoneCode"
+	AuthService_UpdateUserPhone_FullMethodName    = "/admin.AuthService/UpdateUserPhone"
+	AuthService_UpdateUserPassword_FullMethodName = "/admin.AuthService/UpdateUserPassword"
 )
 
 // AuthServiceClient is the client API for AuthService service.
@@ -39,7 +39,7 @@ const (
 // Admin用户登录认证服务
 type AuthServiceClient interface {
 	// 获取已经登录的用户的数据
-	GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfo, error)
+	GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfoForm, error)
 	// 获取已经登录的用户菜单
 	GetUserMenu(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TreeRouteResponse, error)
 	// 获取已经登录的用户按钮
@@ -49,11 +49,11 @@ type AuthServiceClient interface {
 	// 修改个人中心用户信息
 	UpdateUserProfile(ctx context.Context, in *UserProfileForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 发送手机号验证码
-	SendUpdatePhoneCode(ctx context.Context, in *SendUpdatePhoneCodeForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SendPhoneCode(ctx context.Context, in *SendPhoneCodeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 修改个人中心手机号
-	UpdateUserPhone(ctx context.Context, in *UpdatePhoneForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserPhone(ctx context.Context, in *UserPhoneForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 修改个人中心密码
-	UpdateUserPwd(ctx context.Context, in *UpdatePwdForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateUserPassword(ctx context.Context, in *UserPasswordForm, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type authServiceClient struct {
@@ -64,9 +64,9 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfo, error) {
+func (c *authServiceClient) GetUserInfo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UserInfoForm, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(UserInfo)
+	out := new(UserInfoForm)
 	err := c.cc.Invoke(ctx, AuthService_GetUserInfo_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -114,17 +114,17 @@ func (c *authServiceClient) UpdateUserProfile(ctx context.Context, in *UserProfi
 	return out, nil
 }
 
-func (c *authServiceClient) SendUpdatePhoneCode(ctx context.Context, in *SendUpdatePhoneCodeForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authServiceClient) SendPhoneCode(ctx context.Context, in *SendPhoneCodeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AuthService_SendUpdatePhoneCode_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AuthService_SendPhoneCode_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *authServiceClient) UpdateUserPhone(ctx context.Context, in *UpdatePhoneForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authServiceClient) UpdateUserPhone(ctx context.Context, in *UserPhoneForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, AuthService_UpdateUserPhone_FullMethodName, in, out, cOpts...)
@@ -134,10 +134,10 @@ func (c *authServiceClient) UpdateUserPhone(ctx context.Context, in *UpdatePhone
 	return out, nil
 }
 
-func (c *authServiceClient) UpdateUserPwd(ctx context.Context, in *UpdatePwdForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *authServiceClient) UpdateUserPassword(ctx context.Context, in *UserPasswordForm, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, AuthService_UpdateUserPwd_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AuthService_UpdateUserPassword_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (c *authServiceClient) UpdateUserPwd(ctx context.Context, in *UpdatePwdForm
 // Admin用户登录认证服务
 type AuthServiceServer interface {
 	// 获取已经登录的用户的数据
-	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error)
+	GetUserInfo(context.Context, *emptypb.Empty) (*UserInfoForm, error)
 	// 获取已经登录的用户菜单
 	GetUserMenu(context.Context, *emptypb.Empty) (*TreeRouteResponse, error)
 	// 获取已经登录的用户按钮
@@ -161,11 +161,11 @@ type AuthServiceServer interface {
 	// 修改个人中心用户信息
 	UpdateUserProfile(context.Context, *UserProfileForm) (*emptypb.Empty, error)
 	// 发送手机号验证码
-	SendUpdatePhoneCode(context.Context, *SendUpdatePhoneCodeForm) (*emptypb.Empty, error)
+	SendPhoneCode(context.Context, *SendPhoneCodeRequest) (*emptypb.Empty, error)
 	// 修改个人中心手机号
-	UpdateUserPhone(context.Context, *UpdatePhoneForm) (*emptypb.Empty, error)
+	UpdateUserPhone(context.Context, *UserPhoneForm) (*emptypb.Empty, error)
 	// 修改个人中心密码
-	UpdateUserPwd(context.Context, *UpdatePwdForm) (*emptypb.Empty, error)
+	UpdateUserPassword(context.Context, *UserPasswordForm) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAuthServiceServer()
 }
 
@@ -176,7 +176,7 @@ type AuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServiceServer struct{}
 
-func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *emptypb.Empty) (*UserInfo, error) {
+func (UnimplementedAuthServiceServer) GetUserInfo(context.Context, *emptypb.Empty) (*UserInfoForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserInfo not implemented")
 }
 func (UnimplementedAuthServiceServer) GetUserMenu(context.Context, *emptypb.Empty) (*TreeRouteResponse, error) {
@@ -191,14 +191,14 @@ func (UnimplementedAuthServiceServer) GetUserProfile(context.Context, *emptypb.E
 func (UnimplementedAuthServiceServer) UpdateUserProfile(context.Context, *UserProfileForm) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateUserProfile not implemented")
 }
-func (UnimplementedAuthServiceServer) SendUpdatePhoneCode(context.Context, *SendUpdatePhoneCodeForm) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SendUpdatePhoneCode not implemented")
+func (UnimplementedAuthServiceServer) SendPhoneCode(context.Context, *SendPhoneCodeRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendPhoneCode not implemented")
 }
-func (UnimplementedAuthServiceServer) UpdateUserPhone(context.Context, *UpdatePhoneForm) (*emptypb.Empty, error) {
+func (UnimplementedAuthServiceServer) UpdateUserPhone(context.Context, *UserPhoneForm) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateUserPhone not implemented")
 }
-func (UnimplementedAuthServiceServer) UpdateUserPwd(context.Context, *UpdatePwdForm) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method UpdateUserPwd not implemented")
+func (UnimplementedAuthServiceServer) UpdateUserPassword(context.Context, *UserPasswordForm) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateUserPassword not implemented")
 }
 func (UnimplementedAuthServiceServer) mustEmbedUnimplementedAuthServiceServer() {}
 func (UnimplementedAuthServiceServer) testEmbeddedByValue()                     {}
@@ -311,26 +311,26 @@ func _AuthService_UpdateUserProfile_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_SendUpdatePhoneCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SendUpdatePhoneCodeForm)
+func _AuthService_SendPhoneCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendPhoneCodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).SendUpdatePhoneCode(ctx, in)
+		return srv.(AuthServiceServer).SendPhoneCode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_SendUpdatePhoneCode_FullMethodName,
+		FullMethod: AuthService_SendPhoneCode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).SendUpdatePhoneCode(ctx, req.(*SendUpdatePhoneCodeForm))
+		return srv.(AuthServiceServer).SendPhoneCode(ctx, req.(*SendPhoneCodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthService_UpdateUserPhone_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdatePhoneForm)
+	in := new(UserPhoneForm)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -342,25 +342,25 @@ func _AuthService_UpdateUserPhone_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: AuthService_UpdateUserPhone_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).UpdateUserPhone(ctx, req.(*UpdatePhoneForm))
+		return srv.(AuthServiceServer).UpdateUserPhone(ctx, req.(*UserPhoneForm))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AuthService_UpdateUserPwd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdatePwdForm)
+func _AuthService_UpdateUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserPasswordForm)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).UpdateUserPwd(ctx, in)
+		return srv.(AuthServiceServer).UpdateUserPassword(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_UpdateUserPwd_FullMethodName,
+		FullMethod: AuthService_UpdateUserPassword_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).UpdateUserPwd(ctx, req.(*UpdatePwdForm))
+		return srv.(AuthServiceServer).UpdateUserPassword(ctx, req.(*UserPasswordForm))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -393,16 +393,16 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AuthService_UpdateUserProfile_Handler,
 		},
 		{
-			MethodName: "SendUpdatePhoneCode",
-			Handler:    _AuthService_SendUpdatePhoneCode_Handler,
+			MethodName: "SendPhoneCode",
+			Handler:    _AuthService_SendPhoneCode_Handler,
 		},
 		{
 			MethodName: "UpdateUserPhone",
 			Handler:    _AuthService_UpdateUserPhone_Handler,
 		},
 		{
-			MethodName: "UpdateUserPwd",
-			Handler:    _AuthService_UpdateUserPwd_Handler,
+			MethodName: "UpdateUserPassword",
+			Handler:    _AuthService_UpdateUserPassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

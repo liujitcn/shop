@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"sort"
-	"strings"
 
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
@@ -21,8 +20,8 @@ type BaseDictCase struct {
 	*biz.BaseCase
 	*data.BaseDictRepo
 	baseDictItemCase *BaseDictItemCase
-	dictMapper       *mapper.CopierMapper[app.ListBaseDictResponse_Dict, models.BaseDict]
-	itemMapper       *mapper.CopierMapper[app.ListBaseDictResponse_DictItem, models.BaseDictItem]
+	dictMapper       *mapper.CopierMapper[app.BaseDictForm, models.BaseDict]
+	itemMapper       *mapper.CopierMapper[app.BaseDictForm_DictItem, models.BaseDictItem]
 }
 
 // NewBaseDictCase 创建字典业务处理对象
@@ -31,30 +30,25 @@ func NewBaseDictCase(baseCase *biz.BaseCase, baseDictRepo *data.BaseDictRepo, ba
 		BaseCase:         baseCase,
 		BaseDictRepo:     baseDictRepo,
 		baseDictItemCase: baseDictItemCase,
-		dictMapper:       mapper.NewCopierMapper[app.ListBaseDictResponse_Dict, models.BaseDict](),
-		itemMapper:       mapper.NewCopierMapper[app.ListBaseDictResponse_DictItem, models.BaseDictItem](),
+		dictMapper:       mapper.NewCopierMapper[app.BaseDictForm, models.BaseDict](),
+		itemMapper:       mapper.NewCopierMapper[app.BaseDictForm_DictItem, models.BaseDictItem](),
 	}
 }
 
-// ListBaseDict 查询字典列表
-func (c *BaseDictCase) ListBaseDict(ctx context.Context, codes string) (*app.ListBaseDictResponse, error) {
+// GetBaseDict 查询字典
+func (c *BaseDictCase) GetBaseDict(ctx context.Context, code string) (*app.BaseDictForm, error) {
 	query := c.Query(ctx).BaseDict
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repo.Where(query.Code.In(strings.Split(codes, ",")...)))
+	opts = append(opts, repo.Where(query.Code.Eq(code)))
 	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
-	baseDictList, err := c.List(ctx, opts...)
+	baseDict, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	dictIds := make([]int64, 0, len(baseDictList))
-	for _, dict := range baseDictList {
-		dictIds = append(dictIds, dict.ID)
-	}
-
 	var baseDictItemList []*models.BaseDictItem
-	baseDictItemList, err = c.baseDictItemCase.findByDictIds(ctx, dictIds)
+	baseDictItemList, err = c.baseDictItemCase.findByDictIds(ctx, []int64{baseDict.ID})
 	if err != nil {
 		return nil, err
 	}
@@ -64,25 +58,18 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context, codes string) (*app.Lis
 		dictItemMap[item.DictID] = append(dictItemMap[item.DictID], item)
 	}
 
-	list := make([]*app.ListBaseDictResponse_Dict, 0, len(baseDictList))
-	for _, dict := range baseDictList {
-		items := make([]*app.ListBaseDictResponse_DictItem, 0)
-		// 命中字典项映射时，再按排序规则组装当前字典的子项。
-		if dictItems, ok := dictItemMap[dict.ID]; ok {
-			sort.SliceStable(dictItems, func(i, j int) bool {
-				return dictItems[i].Sort < dictItems[j].Sort
-			})
-			for _, dictItem := range dictItems {
-				items = append(items, c.itemMapper.ToDTO(dictItem))
-			}
+	items := make([]*app.BaseDictForm_DictItem, 0)
+	// 命中字典项映射时，再按排序规则组装当前字典的子项。
+	if dictItems, ok := dictItemMap[baseDict.ID]; ok {
+		sort.SliceStable(dictItems, func(i, j int) bool {
+			return dictItems[i].Sort < dictItems[j].Sort
+		})
+		for _, dictItem := range dictItems {
+			items = append(items, c.itemMapper.ToDTO(dictItem))
 		}
-
-		dictItem := c.dictMapper.ToDTO(dict)
-		dictItem.Items = items
-		list = append(list, dictItem)
 	}
 
-	return &app.ListBaseDictResponse{
-		List: list,
-	}, nil
+	res := c.dictMapper.ToDTO(baseDict)
+	res.Items = items
+	return res, nil
 }

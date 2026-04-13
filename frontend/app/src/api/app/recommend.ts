@@ -25,7 +25,7 @@ export class RecommendServiceImpl implements RecommendService {
   /** 绑定匿名推荐主体到当前登录用户 */
   BindRecommendAnonymousActor(_: Empty): Promise<Empty> {
     return http<Empty>({
-      url: `${RECOMMEND_URL}/actor/bind`,
+      url: `${RECOMMEND_URL}/actor/binding`,
       method: 'POST',
       // 推荐匿名标识统一由 store 维护，API 层只负责透传到请求头。
       header: useRecommendStore().buildAnonymousHeader(),

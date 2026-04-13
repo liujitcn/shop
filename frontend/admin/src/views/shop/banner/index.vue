@@ -35,7 +35,7 @@ import type { ProFormField, ProFormOption } from "@/components/ProForm/interface
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defShopBannerService } from "@/api/admin/shop_banner";
 import type { PageShopBannerRequest, ShopBanner, ShopBannerForm } from "@/rpc/admin/shop_banner";
-import type { ListGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/goods_info";
+import type { OptionGoodsInfoResponse_GoodsInfo } from "@/rpc/admin/goods_info";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { ShopBannerType, Status } from "@/rpc/common/enum";
 import type { TreeOptionResponse_Option } from "@/rpc/common/common";
@@ -63,7 +63,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const route = useRoute();
 
-const goodsInfoList = ref<ListGoodsInfoResponse_GoodsInfo[]>([]);
+const goodsInfoList = ref<OptionGoodsInfoResponse_GoodsInfo[]>([]);
 const goodsCategoryOptions = ref<CategoryOption[]>([]);
 
 const initParam = computed<PageShopBannerRequest>(() => {
@@ -280,7 +280,7 @@ function refreshTable() {
  */
 async function loadBannerOptions() {
   const [listGoodsInfoResponse, optionGoodsCategoryResponse] = await Promise.all([
-    defGoodsInfoService.ListGoodsInfo({ name: "" }),
+    defGoodsInfoService.OptionGoodsInfo({ name: "" }),
     defGoodsCategoryService.OptionGoodsCategory({})
   ]);
 

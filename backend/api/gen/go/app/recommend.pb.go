@@ -423,10 +423,10 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\teventType\x18\x01 \x01(\x0e2 .common.RecommendGoodsActionTypeB\x1e\xbaG\x1b\x92\x02\x18商品行为事件类型R\teventType\x12Z\n" +
 	"\n" +
 	"goodsItems\x18\x02 \x03(\v2\x1d.app.RecommendGoodsActionItemB\x1b\xbaG\x18\x92\x02\x15商品行为事件项R\n" +
-	"goodsItems2\x85\x05\n" +
+	"goodsItems2\x88\x05\n" +
 	"\x10RecommendService\x12z\n" +
-	"\x17RecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int64Value\"*\x82\xd3\xe4\x93\x02$\x12\"/api/app/recommend/actor/anonymous\x12w\n" +
-	"\x1bBindRecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/api/app/recommend/actor/bind\x12k\n" +
+	"\x17RecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x1b.google.protobuf.Int64Value\"*\x82\xd3\xe4\x93\x02$\x12\"/api/app/recommend/actor/anonymous\x12z\n" +
+	"\x1bBindRecommendAnonymousActor\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/app/recommend/actor/binding\x12k\n" +
 	"\x0eRecommendGoods\x12\x1a.app.RecommendGoodsRequest\x1a\x1b.app.RecommendGoodsResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/app/recommend/goods\x12\x84\x01\n" +
 	"\x17RecommendExposureReport\x12#.app.RecommendExposureReportRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&:\x01*\"!/api/app/recommend/event/exposure\x12\x87\x01\n" +
 	"\x1aRecommendGoodsActionReport\x12&.app.RecommendGoodsActionReportRequest\x1a\x16.google.protobuf.Empty\")\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/api/app/recommend/event/goodsBZ\n" +

@@ -221,7 +221,7 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 }
 
 // UpdateUserCart 更新用户购物车
-func (c *UserCartCase) UpdateUserCart(ctx context.Context, req *app.UpdateUserCartRequest) error {
+func (c *UserCartCase) UpdateUserCart(ctx context.Context, req *app.UserCartForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -265,8 +265,8 @@ func (c *UserCartCase) SetUserCartStatus(ctx context.Context, req *app.SetUserCa
 	)
 }
 
-// SelectedUserCart 设置购物车全选状态
-func (c *UserCartCase) SelectedUserCart(ctx context.Context, isChecked bool) error {
+// SetUserCartSelection 设置购物车全选状态
+func (c *UserCartCase) SetUserCartSelection(ctx context.Context, isChecked bool) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

@@ -41,11 +41,11 @@ func NewGoodsInfoService(
 	}
 }
 
-// ListGoodsInfo 查询商品信息列表
-func (s *GoodsInfoService) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsInfoRequest) (*admin.ListGoodsInfoResponse, error) {
-	list, err := s.goodsInfoCase.ListGoodsInfo(ctx, req)
+// OptionGoodsInfo 查询商品信息下拉选择
+func (s *GoodsInfoService) OptionGoodsInfo(ctx context.Context, req *admin.OptionGoodsInfoRequest) (*admin.OptionGoodsInfoResponse, error) {
+	list, err := s.goodsInfoCase.OptionGoodsInfo(ctx, req)
 	if err != nil {
-		log.Errorf("ListGoodsInfo %v", err)
+		log.Errorf("OptionGoodsInfo %v", err)
 		return nil, errorsx.WrapInternal(err, "查询商品列表失败")
 	}
 	return list, nil

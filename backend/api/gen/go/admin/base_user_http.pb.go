@@ -28,7 +28,7 @@ const OperationBaseUserServiceDeleteBaseUser = "/admin.BaseUserService/DeleteBas
 const OperationBaseUserServiceGetBaseUser = "/admin.BaseUserService/GetBaseUser"
 const OperationBaseUserServiceOptionBaseUser = "/admin.BaseUserService/OptionBaseUser"
 const OperationBaseUserServicePageBaseUser = "/admin.BaseUserService/PageBaseUser"
-const OperationBaseUserServiceResetBaseUserPwd = "/admin.BaseUserService/ResetBaseUserPwd"
+const OperationBaseUserServiceResetBaseUserPassword = "/admin.BaseUserService/ResetBaseUserPassword"
 const OperationBaseUserServiceSetBaseUserStatus = "/admin.BaseUserService/SetBaseUserStatus"
 const OperationBaseUserServiceUpdateBaseUser = "/admin.BaseUserService/UpdateBaseUser"
 
@@ -43,8 +43,8 @@ type BaseUserServiceHTTPServer interface {
 	OptionBaseUser(context.Context, *OptionBaseUserRequest) (*common.SelectOptionResponse, error)
 	// PageBaseUser 查询用户分页列表
 	PageBaseUser(context.Context, *PageBaseUserRequest) (*PageBaseUserResponse, error)
-	// ResetBaseUserPwd 重置密码
-	ResetBaseUserPwd(context.Context, *ResetBaseUserPwdRequest) (*emptypb.Empty, error)
+	// ResetBaseUserPassword 重置密码
+	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
 	// SetBaseUserStatus 设置状态
 	SetBaseUserStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)
 	// UpdateBaseUser 更新用户
@@ -60,7 +60,7 @@ func RegisterBaseUserServiceHTTPServer(s *http.Server, srv BaseUserServiceHTTPSe
 	r.PUT("/api/admin/base/user/{id}", _BaseUserService_UpdateBaseUser0_HTTP_Handler(srv))
 	r.DELETE("/api/admin/base/user/{value}", _BaseUserService_DeleteBaseUser0_HTTP_Handler(srv))
 	r.PUT("/api/admin/base/user/{id}/status", _BaseUserService_SetBaseUserStatus0_HTTP_Handler(srv))
-	r.PUT("/api/admin/base/user/{id}/pwd", _BaseUserService_ResetBaseUserPwd0_HTTP_Handler(srv))
+	r.PUT("/api/admin/base/user/{id}/password", _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv))
 }
 
 func _BaseUserService_OptionBaseUser0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
@@ -217,9 +217,9 @@ func _BaseUserService_SetBaseUserStatus0_HTTP_Handler(srv BaseUserServiceHTTPSer
 	}
 }
 
-func _BaseUserService_ResetBaseUserPwd0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
+func _BaseUserService_ResetBaseUserPassword0_HTTP_Handler(srv BaseUserServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in ResetBaseUserPwdRequest
+		var in ResetBaseUserPasswordRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -229,9 +229,9 @@ func _BaseUserService_ResetBaseUserPwd0_HTTP_Handler(srv BaseUserServiceHTTPServ
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationBaseUserServiceResetBaseUserPwd)
+		http.SetOperation(ctx, OperationBaseUserServiceResetBaseUserPassword)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ResetBaseUserPwd(ctx, req.(*ResetBaseUserPwdRequest))
+			return srv.ResetBaseUserPassword(ctx, req.(*ResetBaseUserPasswordRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -253,8 +253,8 @@ type BaseUserServiceHTTPClient interface {
 	OptionBaseUser(ctx context.Context, req *OptionBaseUserRequest, opts ...http.CallOption) (rsp *common.SelectOptionResponse, err error)
 	// PageBaseUser 查询用户分页列表
 	PageBaseUser(ctx context.Context, req *PageBaseUserRequest, opts ...http.CallOption) (rsp *PageBaseUserResponse, err error)
-	// ResetBaseUserPwd 重置密码
-	ResetBaseUserPwd(ctx context.Context, req *ResetBaseUserPwdRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// ResetBaseUserPassword 重置密码
+	ResetBaseUserPassword(ctx context.Context, req *ResetBaseUserPasswordRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseUserStatus 设置状态
 	SetBaseUserStatus(ctx context.Context, req *common.SetStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateBaseUser 更新用户
@@ -339,12 +339,12 @@ func (c *BaseUserServiceHTTPClientImpl) PageBaseUser(ctx context.Context, in *Pa
 	return &out, nil
 }
 
-// ResetBaseUserPwd 重置密码
-func (c *BaseUserServiceHTTPClientImpl) ResetBaseUserPwd(ctx context.Context, in *ResetBaseUserPwdRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// ResetBaseUserPassword 重置密码
+func (c *BaseUserServiceHTTPClientImpl) ResetBaseUserPassword(ctx context.Context, in *ResetBaseUserPasswordRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/admin/base/user/{id}/pwd"
+	pattern := "/api/admin/base/user/{id}/password"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationBaseUserServiceResetBaseUserPwd))
+	opts = append(opts, http.Operation(OperationBaseUserServiceResetBaseUserPassword))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {

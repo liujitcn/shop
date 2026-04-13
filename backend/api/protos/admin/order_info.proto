@@ -35,22 +35,22 @@ service OrderInfoService {
   // 订单信息退款
   rpc RefundOrderInfo (RefundOrderInfoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/order/info/{orderId}/refund"
+      put: "/api/admin/order/info/{order_id}/refund"
       body: "*"
     };
   }
 
   // 查询订单信息发货信息
-  rpc GetOrderInfoShipped (google.protobuf.Int64Value) returns (OrderInfoShippedResponse) {
+  rpc GetOrderInfoShipment (google.protobuf.Int64Value) returns (OrderInfoShipmentForm) {
     option (google.api.http) = {
-      get: "/api/admin/order/info/{value}/shipped"
+      get: "/api/admin/order/info/{value}/shipment"
     };
   }
 
   // 订单信息发货
-  rpc ShippedOrderInfo (ShippedOrderInfoRequest) returns (google.protobuf.Empty) {
+  rpc ShipOrderInfo (ShipOrderInfoRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put: "/api/admin/order/info/{orderId}/shipped"
+      put: "/api/admin/order/info/{order_id}/shipment"
       body: "*"
     };
   }
@@ -157,7 +157,7 @@ message OrderInfoRefundResponse {
 
 // 订单退款请求参数
 message RefundOrderInfoRequest {
-  int64 orderId = 1 [
+  int64 order_id = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
   optional common.OrderRefundReason reason = 2 [
@@ -168,8 +168,8 @@ message RefundOrderInfoRequest {
   ]; // 退款金额
 }
 
-// 订单Shipped响应
-message OrderInfoShippedResponse {
+// 订单发货表单
+message OrderInfoShipmentForm {
   OrderAddress address = 100 [
     (gnostic.openapi.v3.property) = {description: "地址信息"}
   ];  // 地址信息
@@ -183,9 +183,9 @@ message OrderInfoShippedResponse {
   ];  // 物流信息
 }
 
-// ShippedOrder信息请求参数
-message ShippedOrderInfoRequest {
-  int64 orderId = 1 [
+// 订单发货请求参数
+message ShipOrderInfoRequest {
+  int64 order_id = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
   string name = 3 [

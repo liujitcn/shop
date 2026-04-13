@@ -60,7 +60,7 @@ func NewAuthCase(
 }
 
 // GetUserInfo 获取用户信息
-func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
+func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfoForm, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*admin.UserInfo, error) {
 		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
 
-	return &admin.UserInfo{
+	return &admin.UserInfoForm{
 		UserName: baseUser.UserName,
 		NickName: baseUser.NickName,
 		Phone:    baseUser.Phone,
@@ -271,8 +271,8 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *admin.UserProfile
 	return nil
 }
 
-// SendUpdatePhoneCode 发送更新手机号验证码
-func (c *AuthCase) SendUpdatePhoneCode(ctx context.Context, req *admin.SendUpdatePhoneCodeForm) error {
+// SendPhoneCode 发送更新手机号验证码
+func (c *AuthCase) SendPhoneCode(ctx context.Context, req *admin.SendPhoneCodeRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -309,7 +309,7 @@ func (c *AuthCase) SendUpdatePhoneCode(ctx context.Context, req *admin.SendUpdat
 }
 
 // UpdateUserPhone 更新用户手机号
-func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhoneForm) error {
+func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UserPhoneForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -366,8 +366,8 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UpdatePhoneFo
 	return nil
 }
 
-// UpdateUserPwd 更新用户密码
-func (c *AuthCase) UpdateUserPwd(ctx context.Context, req *admin.UpdatePwdForm) error {
+// UpdateUserPassword 更新用户密码
+func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *admin.UserPasswordForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err

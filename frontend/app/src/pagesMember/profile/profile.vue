@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { defAuthService } from '@/api/app/auth'
-
 import { useUserStore } from '@/stores'
-import type { UserInfo } from '@/rpc/app/auth'
+import type { UserProfileForm } from '@/rpc/app/auth'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-import type { ListBaseDictResponse_DictItem } from '@/rpc/app/base_dict'
+import type { BaseDictForm_DictItem } from '@/rpc/app/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc } from '@/utils'
 
@@ -17,9 +16,9 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 const imgMaxSize = ref(1024 * 1024)
 
 // 获取个人信息，修改个人信息需提供初始值
-const userInfo = ref({} as UserInfo)
+const userInfo = ref({} as UserProfileForm)
 const getUserData = async () => {
-  const res = await defAuthService.GetUserInfo({})
+  const res = await defAuthService.GetUserProfile({})
   userInfo.value = res
   // 同步 Store 的头像和昵称，用于我的页面展示
   userStore.userInfo!.userName = res.userName
@@ -29,21 +28,14 @@ const getUserData = async () => {
   userStore.userInfo!.avatar = res.avatar
 }
 
-const genderList = ref<ListBaseDictResponse_DictItem[]>([])
+const genderList = ref<BaseDictForm_DictItem[]>([])
 
 const getDictData = async () => {
-  const gender = 'base_user_gender'
-  const res = await defBaseDictService.ListBaseDict({
-    value: gender,
+  const genderCode = 'base_user_gender'
+  const res = await defBaseDictService.GetBaseDict({
+    value: genderCode,
   })
-  const list = res.list || []
-  list.map((item) => {
-    switch (item.code) {
-      case gender:
-        genderList.value = item.items || []
-        break
-    }
-  })
+  genderList.value = res.items || []
 }
 
 onLoad(() => {
@@ -113,7 +105,7 @@ const uploadFile = async (file: string) => {
         // 更新用户头像
         userInfo.value.avatar = fileInfo.url
         // 更新用户信息
-        await defAuthService.UpdateUserInfo(userInfo.value)
+        await defAuthService.UpdateUserProfile(userInfo.value)
         userStore.userInfo!.avatar = userInfo.value.avatar
         await uni.showToast({ icon: 'success', title: '更新成功' })
       } else {
@@ -132,8 +124,9 @@ const onGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
 // 新增授权手机号处理
 const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
   if (e.detail.errMsg !== 'getPhoneNumber:ok') return
-  const res = await defAuthService.PhoneAuth({ code: e.detail.code || '' })
+  const res = await defAuthService.BindUserPhone({ code: e.detail.code || '' })
   userInfo.value.phone = res.phone
+  userStore.userInfo!.phone = res.phone
   await uni.showToast({ icon: 'success', title: '授权成功' })
 }
 
@@ -142,10 +135,12 @@ const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
 // 点击保存提交表单
 const onSubmit = async () => {
   const { nickName, gender } = userInfo.value
-  await defAuthService.UpdateUserInfo({
+  await defAuthService.UpdateUserProfile({
     nickName: nickName,
     gender: gender,
     avatar: userInfo.value.avatar,
+    phone: userInfo.value.phone,
+    userName: userInfo.value.userName,
   })
   // 更新Store昵称
   userStore.userInfo!.nickName = nickName

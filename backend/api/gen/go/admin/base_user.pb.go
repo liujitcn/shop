@@ -524,8 +524,8 @@ func (x *BaseUserForm) GetRemark() string {
 	return ""
 }
 
-// ResetBaseUserPwd请求参数
-type ResetBaseUserPwdRequest struct {
+// 重置用户密码请求参数
+type ResetBaseUserPasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`  // 用户ID
 	Pwd           string                 `protobuf:"bytes,2,opt,name=pwd,proto3" json:"pwd,omitempty"` // 密码
@@ -533,20 +533,20 @@ type ResetBaseUserPwdRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ResetBaseUserPwdRequest) Reset() {
-	*x = ResetBaseUserPwdRequest{}
+func (x *ResetBaseUserPasswordRequest) Reset() {
+	*x = ResetBaseUserPasswordRequest{}
 	mi := &file_admin_base_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ResetBaseUserPwdRequest) String() string {
+func (x *ResetBaseUserPasswordRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ResetBaseUserPwdRequest) ProtoMessage() {}
+func (*ResetBaseUserPasswordRequest) ProtoMessage() {}
 
-func (x *ResetBaseUserPwdRequest) ProtoReflect() protoreflect.Message {
+func (x *ResetBaseUserPasswordRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_base_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -558,19 +558,19 @@ func (x *ResetBaseUserPwdRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ResetBaseUserPwdRequest.ProtoReflect.Descriptor instead.
-func (*ResetBaseUserPwdRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ResetBaseUserPasswordRequest.ProtoReflect.Descriptor instead.
+func (*ResetBaseUserPasswordRequest) Descriptor() ([]byte, []int) {
 	return file_admin_base_user_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *ResetBaseUserPwdRequest) GetId() int64 {
+func (x *ResetBaseUserPasswordRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *ResetBaseUserPwdRequest) GetPwd() string {
+func (x *ResetBaseUserPasswordRequest) GetPwd() string {
 	if x != nil {
 		return x.Pwd
 	}
@@ -625,13 +625,13 @@ const file_admin_base_user_proto_rawDesc = "" +
 	"\a_roleIdB\t\n" +
 	"\a_deptIdB\t\n" +
 	"\a_genderB\t\n" +
-	"\a_status\"Y\n" +
-	"\x17ResetBaseUserPwdRequest\x12\x1e\n" +
+	"\a_status\"^\n" +
+	"\x1cResetBaseUserPasswordRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12\x1e\n" +
 	"\x03pwd\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06密码R\x03pwd*4\n" +
 	"\fBaseUserName\x12\x19\n" +
 	"\x15USER_NAME_UNSPECIFIED\x10\x00\x12\t\n" +
-	"\x05super\x10\x012\xef\x06\n" +
+	"\x05super\x10\x012\xff\x06\n" +
 	"\x0fBaseUserService\x12q\n" +
 	"\x0eOptionBaseUser\x12\x1c.admin.OptionBaseUserRequest\x1a\x1c.common.SelectOptionResponse\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/admin/base/user/option\x12e\n" +
 	"\fPageBaseUser\x12\x1a.admin.PageBaseUserRequest\x1a\x1b.admin.PageBaseUserResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/admin/base/user\x12e\n" +
@@ -639,8 +639,8 @@ const file_admin_base_user_proto_rawDesc = "" +
 	"\x0eCreateBaseUser\x12\x13.admin.BaseUserForm\x1a\x16.google.protobuf.Empty\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/api/admin/base/user\x12c\n" +
 	"\x0eUpdateBaseUser\x12\x13.admin.BaseUserForm\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e:\x01*\x1a\x19/api/admin/base/user/{id}\x12l\n" +
 	"\x0eDeleteBaseUser\x12\x1c.google.protobuf.StringValue\x1a\x16.google.protobuf.Empty\"$\x82\xd3\xe4\x93\x02\x1e*\x1c/api/admin/base/user/{value}\x12r\n" +
-	"\x11SetBaseUserStatus\x12\x18.common.SetStatusRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/admin/base/user/{id}/status\x12t\n" +
-	"\x10ResetBaseUserPwd\x12\x1e.admin.ResetBaseUserPwdRequest\x1a\x16.google.protobuf.Empty\"(\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/api/admin/base/user/{id}/pwdBe\n" +
+	"\x11SetBaseUserStatus\x12\x18.common.SetStatusRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\x1a /api/admin/base/user/{id}/status\x12\x83\x01\n" +
+	"\x15ResetBaseUserPassword\x12#.admin.ResetBaseUserPasswordRequest\x1a\x16.google.protobuf.Empty\"-\x82\xd3\xe4\x93\x02':\x01*\x1a\"/api/admin/base/user/{id}/passwordBe\n" +
 	"\tcom.adminB\rBaseUserProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (
@@ -658,20 +658,20 @@ func file_admin_base_user_proto_rawDescGZIP() []byte {
 var file_admin_base_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_admin_base_user_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_admin_base_user_proto_goTypes = []any{
-	(BaseUserName)(0),                   // 0: admin.BaseUserName
-	(*OptionBaseUserRequest)(nil),       // 1: admin.OptionBaseUserRequest
-	(*PageBaseUserRequest)(nil),         // 2: admin.PageBaseUserRequest
-	(*PageBaseUserResponse)(nil),        // 3: admin.PageBaseUserResponse
-	(*BaseUser)(nil),                    // 4: admin.BaseUser
-	(*BaseUserForm)(nil),                // 5: admin.BaseUserForm
-	(*ResetBaseUserPwdRequest)(nil),     // 6: admin.ResetBaseUserPwdRequest
-	(common.Status)(0),                  // 7: common.Status
-	(common.BaseUserGender)(0),          // 8: common.BaseUserGender
-	(*wrapperspb.Int64Value)(nil),       // 9: google.protobuf.Int64Value
-	(*wrapperspb.StringValue)(nil),      // 10: google.protobuf.StringValue
-	(*common.SetStatusRequest)(nil),     // 11: common.SetStatusRequest
-	(*common.SelectOptionResponse)(nil), // 12: common.SelectOptionResponse
-	(*emptypb.Empty)(nil),               // 13: google.protobuf.Empty
+	(BaseUserName)(0),                    // 0: admin.BaseUserName
+	(*OptionBaseUserRequest)(nil),        // 1: admin.OptionBaseUserRequest
+	(*PageBaseUserRequest)(nil),          // 2: admin.PageBaseUserRequest
+	(*PageBaseUserResponse)(nil),         // 3: admin.PageBaseUserResponse
+	(*BaseUser)(nil),                     // 4: admin.BaseUser
+	(*BaseUserForm)(nil),                 // 5: admin.BaseUserForm
+	(*ResetBaseUserPasswordRequest)(nil), // 6: admin.ResetBaseUserPasswordRequest
+	(common.Status)(0),                   // 7: common.Status
+	(common.BaseUserGender)(0),           // 8: common.BaseUserGender
+	(*wrapperspb.Int64Value)(nil),        // 9: google.protobuf.Int64Value
+	(*wrapperspb.StringValue)(nil),       // 10: google.protobuf.StringValue
+	(*common.SetStatusRequest)(nil),      // 11: common.SetStatusRequest
+	(*common.SelectOptionResponse)(nil),  // 12: common.SelectOptionResponse
+	(*emptypb.Empty)(nil),                // 13: google.protobuf.Empty
 }
 var file_admin_base_user_proto_depIdxs = []int32{
 	7,  // 0: admin.PageBaseUserRequest.status:type_name -> common.Status
@@ -687,7 +687,7 @@ var file_admin_base_user_proto_depIdxs = []int32{
 	5,  // 10: admin.BaseUserService.UpdateBaseUser:input_type -> admin.BaseUserForm
 	10, // 11: admin.BaseUserService.DeleteBaseUser:input_type -> google.protobuf.StringValue
 	11, // 12: admin.BaseUserService.SetBaseUserStatus:input_type -> common.SetStatusRequest
-	6,  // 13: admin.BaseUserService.ResetBaseUserPwd:input_type -> admin.ResetBaseUserPwdRequest
+	6,  // 13: admin.BaseUserService.ResetBaseUserPassword:input_type -> admin.ResetBaseUserPasswordRequest
 	12, // 14: admin.BaseUserService.OptionBaseUser:output_type -> common.SelectOptionResponse
 	3,  // 15: admin.BaseUserService.PageBaseUser:output_type -> admin.PageBaseUserResponse
 	5,  // 16: admin.BaseUserService.GetBaseUser:output_type -> admin.BaseUserForm
@@ -695,7 +695,7 @@ var file_admin_base_user_proto_depIdxs = []int32{
 	13, // 18: admin.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
 	13, // 19: admin.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
 	13, // 20: admin.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
-	13, // 21: admin.BaseUserService.ResetBaseUserPwd:output_type -> google.protobuf.Empty
+	13, // 21: admin.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
 	14, // [14:22] is the sub-list for method output_type
 	6,  // [6:14] is the sub-list for method input_type
 	6,  // [6:6] is the sub-list for extension type_name

@@ -103,8 +103,8 @@ export interface RefundOrderInfoRequest {
   refundMoney: number;
 }
 
-/** 订单Shipped响应 */
-export interface OrderInfoShippedResponse {
+/** 订单发货表单 */
+export interface OrderInfoShipmentForm {
   /** 地址信息 */
   address:
     | OrderAddress
@@ -115,8 +115,8 @@ export interface OrderInfoShippedResponse {
   logistics: OrderLogistics | undefined;
 }
 
-/** ShippedOrder信息请求参数 */
-export interface ShippedOrderInfoRequest {
+/** 订单发货请求参数 */
+export interface ShipOrderInfoRequest {
   /** 订单id */
   orderId: number;
   /** 物流公司名 */
@@ -338,7 +338,7 @@ export interface OrderInfoService {
   /** 订单信息退款 */
   RefundOrderInfo(request: RefundOrderInfoRequest): Promise<Empty>;
   /** 查询订单信息发货信息 */
-  GetOrderInfoShipped(request: Int64Value): Promise<OrderInfoShippedResponse>;
+  GetOrderInfoShipment(request: Int64Value): Promise<OrderInfoShipmentForm>;
   /** 订单信息发货 */
-  ShippedOrderInfo(request: ShippedOrderInfoRequest): Promise<Empty>;
+  ShipOrderInfo(request: ShipOrderInfoRequest): Promise<Empty>;
 }

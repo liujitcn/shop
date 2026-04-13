@@ -888,12 +888,12 @@ const file_admin_order_report_proto_rawDesc = "" +
 	"goodsCount\x12K\n" +
 	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"a\n" +
 	"\x1aOrderDayReportListResponse\x12C\n" +
-	"\x05items\x18\x01 \x03(\v2\x19.admin.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x05items2\xd4\x04\n" +
+	"\x05items\x18\x01 \x03(\v2\x19.admin.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x05items2\xd8\x04\n" +
 	"\x12OrderReportService\x12\x97\x01\n" +
-	"\x17OrderMonthReportSummary\x12%.admin.OrderMonthReportSummaryRequest\x1a&.admin.OrderMonthReportSummaryResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/report/order/month/summary\x12\x8b\x01\n" +
-	"\x14OrderMonthReportList\x12\".admin.OrderMonthReportListRequest\x1a#.admin.OrderMonthReportListResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/admin/report/order/month/list\x12\x8f\x01\n" +
-	"\x15OrderDayReportSummary\x12#.admin.OrderDayReportSummaryRequest\x1a$.admin.OrderDayReportSummaryResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/admin/report/order/day/summary\x12\x83\x01\n" +
-	"\x12OrderDayReportList\x12 .admin.OrderDayReportListRequest\x1a!.admin.OrderDayReportListResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/report/order/day/listBh\n" +
+	"\x17OrderMonthReportSummary\x12%.admin.OrderMonthReportSummaryRequest\x1a&.admin.OrderMonthReportSummaryResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/report/order/month/summary\x12\x8d\x01\n" +
+	"\x14OrderMonthReportList\x12\".admin.OrderMonthReportListRequest\x1a#.admin.OrderMonthReportListResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/admin/report/order/month/detail\x12\x8f\x01\n" +
+	"\x15OrderDayReportSummary\x12#.admin.OrderDayReportSummaryRequest\x1a$.admin.OrderDayReportSummaryResponse\"+\x82\xd3\xe4\x93\x02%\x12#/api/admin/report/order/day/summary\x12\x85\x01\n" +
+	"\x12OrderDayReportList\x12 .admin.OrderDayReportListRequest\x1a!.admin.OrderDayReportListResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/admin/report/order/day/detailBh\n" +
 	"\tcom.adminB\x10OrderReportProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (

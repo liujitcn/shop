@@ -128,11 +128,11 @@ func (s *BaseJobService) StopBaseJob(ctx context.Context, req *admin.StopBaseJob
 	return new(emptypb.Empty), nil
 }
 
-// ExecBaseJob 执行任务
-func (s *BaseJobService) ExecBaseJob(ctx context.Context, req *admin.ExecBaseJobRequest) (*emptypb.Empty, error) {
-	err := s.baseJobCase.ExecBaseJob(ctx, req)
+// ExecuteBaseJob 执行任务
+func (s *BaseJobService) ExecuteBaseJob(ctx context.Context, req *admin.ExecuteBaseJobRequest) (*emptypb.Empty, error) {
+	err := s.baseJobCase.ExecuteBaseJob(ctx, req)
 	if err != nil {
-		log.Errorf("ExecBaseJob %v", err)
+		log.Errorf("ExecuteBaseJob %v", err)
 		return nil, errorsx.WrapInternal(err, "执行任务失败")
 	}
 	return new(emptypb.Empty), nil

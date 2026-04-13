@@ -4,7 +4,7 @@ import {
   type BaseRoleService,
   type PageBaseRoleRequest,
   type PageBaseRoleResponse,
-  type SetMenusRequest
+  type SetBaseRoleMenuRequest
 } from "@/rpc/admin/base_role";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 import type { Int64Value, StringValue } from "@/rpc/google/protobuf/wrappers";
@@ -69,9 +69,9 @@ export class BaseRoleServiceImpl implements BaseRoleService {
     });
   }
   /** 设置角色菜单权限 */
-  SetBaseRoleMenus(request: SetMenusRequest): Promise<Empty> {
-    return service<SetMenusRequest, Empty>({
-      url: `${BASE_ROLE_URL}/` + request.id + "/menus",
+  SetBaseRoleMenu(request: SetBaseRoleMenuRequest): Promise<Empty> {
+    return service<SetBaseRoleMenuRequest, Empty>({
+      url: `${BASE_ROLE_URL}/${request.id}/menu`,
       method: "put",
       data: request
     });

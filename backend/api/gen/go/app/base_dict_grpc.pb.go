@@ -21,7 +21,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseDictService_ListBaseDict_FullMethodName = "/app.BaseDictService/ListBaseDict"
+	BaseDictService_GetBaseDict_FullMethodName = "/app.BaseDictService/GetBaseDict"
 )
 
 // BaseDictServiceClient is the client API for BaseDictService service.
@@ -30,8 +30,8 @@ const (
 //
 // App字典服务
 type BaseDictServiceClient interface {
-	// 查询字典列表
-	ListBaseDict(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ListBaseDictResponse, error)
+	// 查询字典
+	GetBaseDict(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*BaseDictForm, error)
 }
 
 type baseDictServiceClient struct {
@@ -42,10 +42,10 @@ func NewBaseDictServiceClient(cc grpc.ClientConnInterface) BaseDictServiceClient
 	return &baseDictServiceClient{cc}
 }
 
-func (c *baseDictServiceClient) ListBaseDict(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*ListBaseDictResponse, error) {
+func (c *baseDictServiceClient) GetBaseDict(ctx context.Context, in *wrapperspb.StringValue, opts ...grpc.CallOption) (*BaseDictForm, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBaseDictResponse)
-	err := c.cc.Invoke(ctx, BaseDictService_ListBaseDict_FullMethodName, in, out, cOpts...)
+	out := new(BaseDictForm)
+	err := c.cc.Invoke(ctx, BaseDictService_GetBaseDict_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,8 +58,8 @@ func (c *baseDictServiceClient) ListBaseDict(ctx context.Context, in *wrapperspb
 //
 // App字典服务
 type BaseDictServiceServer interface {
-	// 查询字典列表
-	ListBaseDict(context.Context, *wrapperspb.StringValue) (*ListBaseDictResponse, error)
+	// 查询字典
+	GetBaseDict(context.Context, *wrapperspb.StringValue) (*BaseDictForm, error)
 	mustEmbedUnimplementedBaseDictServiceServer()
 }
 
@@ -70,8 +70,8 @@ type BaseDictServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBaseDictServiceServer struct{}
 
-func (UnimplementedBaseDictServiceServer) ListBaseDict(context.Context, *wrapperspb.StringValue) (*ListBaseDictResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListBaseDict not implemented")
+func (UnimplementedBaseDictServiceServer) GetBaseDict(context.Context, *wrapperspb.StringValue) (*BaseDictForm, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBaseDict not implemented")
 }
 func (UnimplementedBaseDictServiceServer) mustEmbedUnimplementedBaseDictServiceServer() {}
 func (UnimplementedBaseDictServiceServer) testEmbeddedByValue()                         {}
@@ -94,20 +94,20 @@ func RegisterBaseDictServiceServer(s grpc.ServiceRegistrar, srv BaseDictServiceS
 	s.RegisterService(&BaseDictService_ServiceDesc, srv)
 }
 
-func _BaseDictService_ListBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BaseDictService_GetBaseDict_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(wrapperspb.StringValue)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseDictServiceServer).ListBaseDict(ctx, in)
+		return srv.(BaseDictServiceServer).GetBaseDict(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseDictService_ListBaseDict_FullMethodName,
+		FullMethod: BaseDictService_GetBaseDict_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseDictServiceServer).ListBaseDict(ctx, req.(*wrapperspb.StringValue))
+		return srv.(BaseDictServiceServer).GetBaseDict(ctx, req.(*wrapperspb.StringValue))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -120,8 +120,8 @@ var BaseDictService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*BaseDictServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ListBaseDict",
-			Handler:    _BaseDictService_ListBaseDict_Handler,
+			MethodName: "GetBaseDict",
+			Handler:    _BaseDictService_GetBaseDict_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

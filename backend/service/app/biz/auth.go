@@ -55,8 +55,8 @@ func NewAuthCase(
 	}
 }
 
-// WxLogin 微信登录
-func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.WxLoginResponse, error) {
+// WechatLogin 微信登录
+func (c *AuthCase) WechatLogin(ctx context.Context, req *app.WechatLoginRequest) (*app.WechatLoginResponse, error) {
 	sessionKey, err := utils.GetSessionKey(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret(), req.GetCode())
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
@@ -132,7 +132,7 @@ func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.W
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 
-	return &app.WxLoginResponse{
+	return &app.WechatLoginResponse{
 		TokenType:    engine.BearerWord,
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
@@ -140,8 +140,8 @@ func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.W
 	}, nil
 }
 
-// GetUserInfo 获取当前登录用户信息
-func (c *AuthCase) GetUserInfo(ctx context.Context) (*app.UserInfo, error) {
+// GetUserProfile 获取当前登录用户信息
+func (c *AuthCase) GetUserProfile(ctx context.Context) (*app.UserProfileForm, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -157,7 +157,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*app.UserInfo, error) {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 
-	return &app.UserInfo{
+	return &app.UserProfileForm{
 		UserName: user.UserName,
 		NickName: user.NickName,
 		Gender:   user.Gender,
@@ -166,8 +166,8 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*app.UserInfo, error) {
 	}, nil
 }
 
-// UpdateUserInfo 修改个人中心用户信息
-func (c *AuthCase) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInfoRequest) error {
+// UpdateUserProfile 修改个人中心用户信息
+func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *app.UserProfileForm) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
@@ -205,8 +205,8 @@ func (c *AuthCase) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInfoRe
 	return nil
 }
 
-// PhoneAuth 手机号授权
-func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*app.PhoneAuthResponse, error) {
+// BindUserPhone 手机号授权
+func (c *AuthCase) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequest) (*app.BindUserPhoneResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -272,7 +272,7 @@ func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*a
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
 
-	return &app.PhoneAuthResponse{
+	return &app.BindUserPhoneResponse{
 		Phone: _string.DesensitizePhone(user.Phone),
 	}, nil
 }

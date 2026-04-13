@@ -29,28 +29,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 商品列表查询条件
-type ListGoodsInfoRequest struct {
+// 商品选项查询条件
+type OptionGoodsInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // 商品名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsInfoRequest) Reset() {
-	*x = ListGoodsInfoRequest{}
+func (x *OptionGoodsInfoRequest) Reset() {
+	*x = OptionGoodsInfoRequest{}
 	mi := &file_admin_goods_info_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsInfoRequest) String() string {
+func (x *OptionGoodsInfoRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsInfoRequest) ProtoMessage() {}
+func (*OptionGoodsInfoRequest) ProtoMessage() {}
 
-func (x *ListGoodsInfoRequest) ProtoReflect() protoreflect.Message {
+func (x *OptionGoodsInfoRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_goods_info_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -62,40 +62,40 @@ func (x *ListGoodsInfoRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsInfoRequest.ProtoReflect.Descriptor instead.
-func (*ListGoodsInfoRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionGoodsInfoRequest.ProtoReflect.Descriptor instead.
+func (*OptionGoodsInfoRequest) Descriptor() ([]byte, []int) {
 	return file_admin_goods_info_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ListGoodsInfoRequest) GetName() string {
+func (x *OptionGoodsInfoRequest) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-// 商品列表响应
-type ListGoodsInfoResponse struct {
-	state         protoimpl.MessageState             `protogen:"open.v1"`
-	List          []*ListGoodsInfoResponse_GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
+// 商品选项响应
+type OptionGoodsInfoResponse struct {
+	state         protoimpl.MessageState               `protogen:"open.v1"`
+	List          []*OptionGoodsInfoResponse_GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsInfoResponse) Reset() {
-	*x = ListGoodsInfoResponse{}
+func (x *OptionGoodsInfoResponse) Reset() {
+	*x = OptionGoodsInfoResponse{}
 	mi := &file_admin_goods_info_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsInfoResponse) String() string {
+func (x *OptionGoodsInfoResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsInfoResponse) ProtoMessage() {}
+func (*OptionGoodsInfoResponse) ProtoMessage() {}
 
-func (x *ListGoodsInfoResponse) ProtoReflect() protoreflect.Message {
+func (x *OptionGoodsInfoResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_goods_info_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -107,12 +107,12 @@ func (x *ListGoodsInfoResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsInfoResponse.ProtoReflect.Descriptor instead.
-func (*ListGoodsInfoResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionGoodsInfoResponse.ProtoReflect.Descriptor instead.
+func (*OptionGoodsInfoResponse) Descriptor() ([]byte, []int) {
 	return file_admin_goods_info_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ListGoodsInfoResponse) GetList() []*ListGoodsInfoResponse_GoodsInfo {
+func (x *OptionGoodsInfoResponse) GetList() []*OptionGoodsInfoResponse_GoodsInfo {
 	if x != nil {
 		return x.List
 	}
@@ -548,7 +548,7 @@ func (x *GoodsInfoForm) GetCategoryName() string {
 }
 
 // Goods信息
-type ListGoodsInfoResponse_GoodsInfo struct {
+type OptionGoodsInfoResponse_GoodsInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                    // 商品ID
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                 // 名称
@@ -558,20 +558,20 @@ type ListGoodsInfoResponse_GoodsInfo struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ListGoodsInfoResponse_GoodsInfo) Reset() {
-	*x = ListGoodsInfoResponse_GoodsInfo{}
+func (x *OptionGoodsInfoResponse_GoodsInfo) Reset() {
+	*x = OptionGoodsInfoResponse_GoodsInfo{}
 	mi := &file_admin_goods_info_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ListGoodsInfoResponse_GoodsInfo) String() string {
+func (x *OptionGoodsInfoResponse_GoodsInfo) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ListGoodsInfoResponse_GoodsInfo) ProtoMessage() {}
+func (*OptionGoodsInfoResponse_GoodsInfo) ProtoMessage() {}
 
-func (x *ListGoodsInfoResponse_GoodsInfo) ProtoReflect() protoreflect.Message {
+func (x *OptionGoodsInfoResponse_GoodsInfo) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_goods_info_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -583,33 +583,33 @@ func (x *ListGoodsInfoResponse_GoodsInfo) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ListGoodsInfoResponse_GoodsInfo.ProtoReflect.Descriptor instead.
-func (*ListGoodsInfoResponse_GoodsInfo) Descriptor() ([]byte, []int) {
+// Deprecated: Use OptionGoodsInfoResponse_GoodsInfo.ProtoReflect.Descriptor instead.
+func (*OptionGoodsInfoResponse_GoodsInfo) Descriptor() ([]byte, []int) {
 	return file_admin_goods_info_proto_rawDescGZIP(), []int{1, 0}
 }
 
-func (x *ListGoodsInfoResponse_GoodsInfo) GetId() int64 {
+func (x *OptionGoodsInfoResponse_GoodsInfo) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *ListGoodsInfoResponse_GoodsInfo) GetName() string {
+func (x *OptionGoodsInfoResponse_GoodsInfo) GetName() string {
 	if x != nil {
 		return x.Name
 	}
 	return ""
 }
 
-func (x *ListGoodsInfoResponse_GoodsInfo) GetPrice() int64 {
+func (x *OptionGoodsInfoResponse_GoodsInfo) GetPrice() int64 {
 	if x != nil {
 		return x.Price
 	}
 	return 0
 }
 
-func (x *ListGoodsInfoResponse_GoodsInfo) GetCategoryName() string {
+func (x *OptionGoodsInfoResponse_GoodsInfo) GetCategoryName() string {
 	if x != nil {
 		return x.CategoryName
 	}
@@ -620,11 +620,11 @@ var File_admin_goods_info_proto protoreflect.FileDescriptor
 
 const file_admin_goods_info_proto_rawDesc = "" +
 	"\n" +
-	"\x16admin/goods_info.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\x1a\x16admin/goods_prop.proto\x1a\x15admin/goods_sku.proto\x1a\x16admin/goods_spec.proto\">\n" +
-	"\x14ListGoodsInfoRequest\x12&\n" +
-	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\"\x9e\x02\n" +
-	"\x15ListGoodsInfoResponse\x12N\n" +
-	"\x04list\x18\x01 \x03(\v2&.admin.ListGoodsInfoResponse.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x1a\xb4\x01\n" +
+	"\x16admin/goods_info.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\x1a\x16admin/goods_prop.proto\x1a\x15admin/goods_sku.proto\x1a\x16admin/goods_spec.proto\"@\n" +
+	"\x16OptionGoodsInfoRequest\x12&\n" +
+	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\"\xa2\x02\n" +
+	"\x17OptionGoodsInfoResponse\x12P\n" +
+	"\x04list\x18\x01 \x03(\v2(.admin.OptionGoodsInfoResponse.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x1a\xb4\x01\n" +
 	"\tGoodsInfo\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12 \n" +
 	"\x04name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12-\n" +
@@ -682,9 +682,9 @@ const file_admin_goods_info_proto_rawDesc = "" +
 	"\bspecList\x18f \x03(\v2\x10.admin.GoodsSpecB\x12\xbaG\x0f\x92\x02\f商品规格R\bspecList\x127\n" +
 	"\fcategoryName\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryNameB\r\n" +
 	"\v_categoryIdB\t\n" +
-	"\a_status2\x88\x06\n" +
-	"\x10GoodsInfoService\x12n\n" +
-	"\rListGoodsInfo\x12\x1b.admin.ListGoodsInfoRequest\x1a\x1c.admin.ListGoodsInfoResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/admin/goods/info/list\x12i\n" +
+	"\a_status2\x90\x06\n" +
+	"\x10GoodsInfoService\x12v\n" +
+	"\x0fOptionGoodsInfo\x12\x1d.admin.OptionGoodsInfoRequest\x1a\x1e.admin.OptionGoodsInfoResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/admin/goods/info/option\x12i\n" +
 	"\rPageGoodsInfo\x12\x1b.admin.PageGoodsInfoRequest\x1a\x1c.admin.PageGoodsInfoResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/admin/goods/info\x12h\n" +
 	"\fGetGoodsInfo\x12\x1b.google.protobuf.Int64Value\x1a\x14.admin.GoodsInfoForm\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/admin/goods/info/{value}\x12a\n" +
 	"\x0fCreateGoodsInfo\x12\x14.admin.GoodsInfoForm\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/admin/goods/info\x12f\n" +
@@ -707,24 +707,24 @@ func file_admin_goods_info_proto_rawDescGZIP() []byte {
 
 var file_admin_goods_info_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_admin_goods_info_proto_goTypes = []any{
-	(*ListGoodsInfoRequest)(nil),            // 0: admin.ListGoodsInfoRequest
-	(*ListGoodsInfoResponse)(nil),           // 1: admin.ListGoodsInfoResponse
-	(*PageGoodsInfoRequest)(nil),            // 2: admin.PageGoodsInfoRequest
-	(*PageGoodsInfoResponse)(nil),           // 3: admin.PageGoodsInfoResponse
-	(*GoodsInfo)(nil),                       // 4: admin.GoodsInfo
-	(*GoodsInfoForm)(nil),                   // 5: admin.GoodsInfoForm
-	(*ListGoodsInfoResponse_GoodsInfo)(nil), // 6: admin.ListGoodsInfoResponse.GoodsInfo
-	(common.GoodsStatus)(0),                 // 7: common.GoodsStatus
-	(*GoodsProp)(nil),                       // 8: admin.GoodsProp
-	(*GoodsSku)(nil),                        // 9: admin.GoodsSku
-	(*GoodsSpec)(nil),                       // 10: admin.GoodsSpec
-	(*wrapperspb.Int64Value)(nil),           // 11: google.protobuf.Int64Value
-	(*wrapperspb.StringValue)(nil),          // 12: google.protobuf.StringValue
-	(*common.SetStatusRequest)(nil),         // 13: common.SetStatusRequest
-	(*emptypb.Empty)(nil),                   // 14: google.protobuf.Empty
+	(*OptionGoodsInfoRequest)(nil),            // 0: admin.OptionGoodsInfoRequest
+	(*OptionGoodsInfoResponse)(nil),           // 1: admin.OptionGoodsInfoResponse
+	(*PageGoodsInfoRequest)(nil),              // 2: admin.PageGoodsInfoRequest
+	(*PageGoodsInfoResponse)(nil),             // 3: admin.PageGoodsInfoResponse
+	(*GoodsInfo)(nil),                         // 4: admin.GoodsInfo
+	(*GoodsInfoForm)(nil),                     // 5: admin.GoodsInfoForm
+	(*OptionGoodsInfoResponse_GoodsInfo)(nil), // 6: admin.OptionGoodsInfoResponse.GoodsInfo
+	(common.GoodsStatus)(0),                   // 7: common.GoodsStatus
+	(*GoodsProp)(nil),                         // 8: admin.GoodsProp
+	(*GoodsSku)(nil),                          // 9: admin.GoodsSku
+	(*GoodsSpec)(nil),                         // 10: admin.GoodsSpec
+	(*wrapperspb.Int64Value)(nil),             // 11: google.protobuf.Int64Value
+	(*wrapperspb.StringValue)(nil),            // 12: google.protobuf.StringValue
+	(*common.SetStatusRequest)(nil),           // 13: common.SetStatusRequest
+	(*emptypb.Empty)(nil),                     // 14: google.protobuf.Empty
 }
 var file_admin_goods_info_proto_depIdxs = []int32{
-	6,  // 0: admin.ListGoodsInfoResponse.list:type_name -> admin.ListGoodsInfoResponse.GoodsInfo
+	6,  // 0: admin.OptionGoodsInfoResponse.list:type_name -> admin.OptionGoodsInfoResponse.GoodsInfo
 	7,  // 1: admin.PageGoodsInfoRequest.status:type_name -> common.GoodsStatus
 	4,  // 2: admin.PageGoodsInfoResponse.list:type_name -> admin.GoodsInfo
 	7,  // 3: admin.GoodsInfo.status:type_name -> common.GoodsStatus
@@ -732,14 +732,14 @@ var file_admin_goods_info_proto_depIdxs = []int32{
 	8,  // 5: admin.GoodsInfoForm.propList:type_name -> admin.GoodsProp
 	9,  // 6: admin.GoodsInfoForm.skuList:type_name -> admin.GoodsSku
 	10, // 7: admin.GoodsInfoForm.specList:type_name -> admin.GoodsSpec
-	0,  // 8: admin.GoodsInfoService.ListGoodsInfo:input_type -> admin.ListGoodsInfoRequest
+	0,  // 8: admin.GoodsInfoService.OptionGoodsInfo:input_type -> admin.OptionGoodsInfoRequest
 	2,  // 9: admin.GoodsInfoService.PageGoodsInfo:input_type -> admin.PageGoodsInfoRequest
 	11, // 10: admin.GoodsInfoService.GetGoodsInfo:input_type -> google.protobuf.Int64Value
 	5,  // 11: admin.GoodsInfoService.CreateGoodsInfo:input_type -> admin.GoodsInfoForm
 	5,  // 12: admin.GoodsInfoService.UpdateGoodsInfo:input_type -> admin.GoodsInfoForm
 	12, // 13: admin.GoodsInfoService.DeleteGoodsInfo:input_type -> google.protobuf.StringValue
 	13, // 14: admin.GoodsInfoService.SetGoodsInfoStatus:input_type -> common.SetStatusRequest
-	1,  // 15: admin.GoodsInfoService.ListGoodsInfo:output_type -> admin.ListGoodsInfoResponse
+	1,  // 15: admin.GoodsInfoService.OptionGoodsInfo:output_type -> admin.OptionGoodsInfoResponse
 	3,  // 16: admin.GoodsInfoService.PageGoodsInfo:output_type -> admin.PageGoodsInfoResponse
 	5,  // 17: admin.GoodsInfoService.GetGoodsInfo:output_type -> admin.GoodsInfoForm
 	14, // 18: admin.GoodsInfoService.CreateGoodsInfo:output_type -> google.protobuf.Empty

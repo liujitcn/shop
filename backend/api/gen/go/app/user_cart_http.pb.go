@@ -26,7 +26,7 @@ const OperationUserCartServiceCountUserCart = "/app.UserCartService/CountUserCar
 const OperationUserCartServiceCreateUserCart = "/app.UserCartService/CreateUserCart"
 const OperationUserCartServiceDeleteUserCart = "/app.UserCartService/DeleteUserCart"
 const OperationUserCartServiceListUserCart = "/app.UserCartService/ListUserCart"
-const OperationUserCartServiceSelectedUserCart = "/app.UserCartService/SelectedUserCart"
+const OperationUserCartServiceSetUserCartSelection = "/app.UserCartService/SetUserCartSelection"
 const OperationUserCartServiceSetUserCartStatus = "/app.UserCartService/SetUserCartStatus"
 const OperationUserCartServiceUpdateUserCart = "/app.UserCartService/UpdateUserCart"
 
@@ -39,23 +39,23 @@ type UserCartServiceHTTPServer interface {
 	DeleteUserCart(context.Context, *wrapperspb.Int64Value) (*emptypb.Empty, error)
 	// ListUserCart 查询用户购物车列表
 	ListUserCart(context.Context, *emptypb.Empty) (*ListUserCartResponse, error)
-	// SelectedUserCart 设置全选
-	SelectedUserCart(context.Context, *SelectedUserCartRequest) (*emptypb.Empty, error)
+	// SetUserCartSelection 设置全选
+	SetUserCartSelection(context.Context, *SetUserCartSelectionRequest) (*emptypb.Empty, error)
 	// SetUserCartStatus 设置状态
 	SetUserCartStatus(context.Context, *SetUserCartStatusRequest) (*emptypb.Empty, error)
 	// UpdateUserCart 更新用户购物车
-	UpdateUserCart(context.Context, *UpdateUserCartRequest) (*emptypb.Empty, error)
+	UpdateUserCart(context.Context, *UserCartForm) (*emptypb.Empty, error)
 }
 
 func RegisterUserCartServiceHTTPServer(s *http.Server, srv UserCartServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/app/user/cart/count", _UserCartService_CountUserCart0_HTTP_Handler(srv))
-	r.GET("/api/app/user/cart/list", _UserCartService_ListUserCart0_HTTP_Handler(srv))
+	r.GET("/api/app/user/cart", _UserCartService_ListUserCart0_HTTP_Handler(srv))
 	r.POST("/api/app/user/cart", _UserCartService_CreateUserCart0_HTTP_Handler(srv))
-	r.PUT("/api/app/user/cart", _UserCartService_UpdateUserCart0_HTTP_Handler(srv))
+	r.PUT("/api/app/user/cart/{id}", _UserCartService_UpdateUserCart0_HTTP_Handler(srv))
 	r.DELETE("/api/app/user/cart/{value}", _UserCartService_DeleteUserCart0_HTTP_Handler(srv))
 	r.PUT("/api/app/user/cart/{id}/status", _UserCartService_SetUserCartStatus0_HTTP_Handler(srv))
-	r.PUT("/api/app/user/cart/selected", _UserCartService_SelectedUserCart0_HTTP_Handler(srv))
+	r.PUT("/api/app/user/cart/selection", _UserCartService_SetUserCartSelection0_HTTP_Handler(srv))
 }
 
 func _UserCartService_CountUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
@@ -120,16 +120,19 @@ func _UserCartService_CreateUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer
 
 func _UserCartService_UpdateUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in UpdateUserCartRequest
+		var in UserCartForm
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
 		http.SetOperation(ctx, OperationUserCartServiceUpdateUserCart)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.UpdateUserCart(ctx, req.(*UpdateUserCartRequest))
+			return srv.UpdateUserCart(ctx, req.(*UserCartForm))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -187,18 +190,18 @@ func _UserCartService_SetUserCartStatus0_HTTP_Handler(srv UserCartServiceHTTPSer
 	}
 }
 
-func _UserCartService_SelectedUserCart0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
+func _UserCartService_SetUserCartSelection0_HTTP_Handler(srv UserCartServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in SelectedUserCartRequest
+		var in SetUserCartSelectionRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationUserCartServiceSelectedUserCart)
+		http.SetOperation(ctx, OperationUserCartServiceSetUserCartSelection)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.SelectedUserCart(ctx, req.(*SelectedUserCartRequest))
+			return srv.SetUserCartSelection(ctx, req.(*SetUserCartSelectionRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -218,12 +221,12 @@ type UserCartServiceHTTPClient interface {
 	DeleteUserCart(ctx context.Context, req *wrapperspb.Int64Value, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// ListUserCart 查询用户购物车列表
 	ListUserCart(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *ListUserCartResponse, err error)
-	// SelectedUserCart 设置全选
-	SelectedUserCart(ctx context.Context, req *SelectedUserCartRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SetUserCartSelection 设置全选
+	SetUserCartSelection(ctx context.Context, req *SetUserCartSelectionRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetUserCartStatus 设置状态
 	SetUserCartStatus(ctx context.Context, req *SetUserCartStatusRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// UpdateUserCart 更新用户购物车
-	UpdateUserCart(ctx context.Context, req *UpdateUserCartRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	UpdateUserCart(ctx context.Context, req *UserCartForm, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type UserCartServiceHTTPClientImpl struct {
@@ -279,7 +282,7 @@ func (c *UserCartServiceHTTPClientImpl) DeleteUserCart(ctx context.Context, in *
 // ListUserCart 查询用户购物车列表
 func (c *UserCartServiceHTTPClientImpl) ListUserCart(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*ListUserCartResponse, error) {
 	var out ListUserCartResponse
-	pattern := "/api/app/user/cart/list"
+	pattern := "/api/app/user/cart"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationUserCartServiceListUserCart))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -290,12 +293,12 @@ func (c *UserCartServiceHTTPClientImpl) ListUserCart(ctx context.Context, in *em
 	return &out, nil
 }
 
-// SelectedUserCart 设置全选
-func (c *UserCartServiceHTTPClientImpl) SelectedUserCart(ctx context.Context, in *SelectedUserCartRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// SetUserCartSelection 设置全选
+func (c *UserCartServiceHTTPClientImpl) SetUserCartSelection(ctx context.Context, in *SetUserCartSelectionRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/user/cart/selected"
+	pattern := "/api/app/user/cart/selection"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationUserCartServiceSelectedUserCart))
+	opts = append(opts, http.Operation(OperationUserCartServiceSetUserCartSelection))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
@@ -319,9 +322,9 @@ func (c *UserCartServiceHTTPClientImpl) SetUserCartStatus(ctx context.Context, i
 }
 
 // UpdateUserCart 更新用户购物车
-func (c *UserCartServiceHTTPClientImpl) UpdateUserCart(ctx context.Context, in *UpdateUserCartRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+func (c *UserCartServiceHTTPClientImpl) UpdateUserCart(ctx context.Context, in *UserCartForm, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/user/cart"
+	pattern := "/api/app/user/cart/{id}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationUserCartServiceUpdateUserCart))
 	opts = append(opts, http.PathTemplate(pattern))

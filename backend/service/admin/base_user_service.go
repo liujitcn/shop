@@ -115,11 +115,11 @@ func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *common.Set
 	return new(emptypb.Empty), nil
 }
 
-// ResetBaseUserPwd 重置密码
-func (s *BaseUserService) ResetBaseUserPwd(ctx context.Context, req *admin.ResetBaseUserPwdRequest) (*emptypb.Empty, error) {
-	err := s.baseUserCase.ResetBaseUserPwd(ctx, req)
+// ResetBaseUserPassword 重置密码
+func (s *BaseUserService) ResetBaseUserPassword(ctx context.Context, req *admin.ResetBaseUserPasswordRequest) (*emptypb.Empty, error) {
+	err := s.baseUserCase.ResetBaseUserPassword(ctx, req)
 	if err != nil {
-		log.Errorf("ResetBaseUserPwd %v", err)
+		log.Errorf("ResetBaseUserPassword %v", err)
 		return nil, errorsx.WrapInternal(err, "重置密码失败")
 	}
 	return new(emptypb.Empty), nil

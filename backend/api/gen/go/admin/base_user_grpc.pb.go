@@ -23,14 +23,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseUserService_OptionBaseUser_FullMethodName    = "/admin.BaseUserService/OptionBaseUser"
-	BaseUserService_PageBaseUser_FullMethodName      = "/admin.BaseUserService/PageBaseUser"
-	BaseUserService_GetBaseUser_FullMethodName       = "/admin.BaseUserService/GetBaseUser"
-	BaseUserService_CreateBaseUser_FullMethodName    = "/admin.BaseUserService/CreateBaseUser"
-	BaseUserService_UpdateBaseUser_FullMethodName    = "/admin.BaseUserService/UpdateBaseUser"
-	BaseUserService_DeleteBaseUser_FullMethodName    = "/admin.BaseUserService/DeleteBaseUser"
-	BaseUserService_SetBaseUserStatus_FullMethodName = "/admin.BaseUserService/SetBaseUserStatus"
-	BaseUserService_ResetBaseUserPwd_FullMethodName  = "/admin.BaseUserService/ResetBaseUserPwd"
+	BaseUserService_OptionBaseUser_FullMethodName        = "/admin.BaseUserService/OptionBaseUser"
+	BaseUserService_PageBaseUser_FullMethodName          = "/admin.BaseUserService/PageBaseUser"
+	BaseUserService_GetBaseUser_FullMethodName           = "/admin.BaseUserService/GetBaseUser"
+	BaseUserService_CreateBaseUser_FullMethodName        = "/admin.BaseUserService/CreateBaseUser"
+	BaseUserService_UpdateBaseUser_FullMethodName        = "/admin.BaseUserService/UpdateBaseUser"
+	BaseUserService_DeleteBaseUser_FullMethodName        = "/admin.BaseUserService/DeleteBaseUser"
+	BaseUserService_SetBaseUserStatus_FullMethodName     = "/admin.BaseUserService/SetBaseUserStatus"
+	BaseUserService_ResetBaseUserPassword_FullMethodName = "/admin.BaseUserService/ResetBaseUserPassword"
 )
 
 // BaseUserServiceClient is the client API for BaseUserService service.
@@ -54,7 +54,7 @@ type BaseUserServiceClient interface {
 	// 设置状态
 	SetBaseUserStatus(ctx context.Context, in *common.SetStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 重置密码
-	ResetBaseUserPwd(ctx context.Context, in *ResetBaseUserPwdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ResetBaseUserPassword(ctx context.Context, in *ResetBaseUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseUserServiceClient struct {
@@ -135,10 +135,10 @@ func (c *baseUserServiceClient) SetBaseUserStatus(ctx context.Context, in *commo
 	return out, nil
 }
 
-func (c *baseUserServiceClient) ResetBaseUserPwd(ctx context.Context, in *ResetBaseUserPwdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseUserServiceClient) ResetBaseUserPassword(ctx context.Context, in *ResetBaseUserPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseUserService_ResetBaseUserPwd_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseUserService_ResetBaseUserPassword_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ type BaseUserServiceServer interface {
 	// 设置状态
 	SetBaseUserStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error)
 	// 重置密码
-	ResetBaseUserPwd(context.Context, *ResetBaseUserPwdRequest) (*emptypb.Empty, error)
+	ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseUserServiceServer()
 }
 
@@ -198,8 +198,8 @@ func (UnimplementedBaseUserServiceServer) DeleteBaseUser(context.Context, *wrapp
 func (UnimplementedBaseUserServiceServer) SetBaseUserStatus(context.Context, *common.SetStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseUserStatus not implemented")
 }
-func (UnimplementedBaseUserServiceServer) ResetBaseUserPwd(context.Context, *ResetBaseUserPwdRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ResetBaseUserPwd not implemented")
+func (UnimplementedBaseUserServiceServer) ResetBaseUserPassword(context.Context, *ResetBaseUserPasswordRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResetBaseUserPassword not implemented")
 }
 func (UnimplementedBaseUserServiceServer) mustEmbedUnimplementedBaseUserServiceServer() {}
 func (UnimplementedBaseUserServiceServer) testEmbeddedByValue()                         {}
@@ -348,20 +348,20 @@ func _BaseUserService_SetBaseUserStatus_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseUserService_ResetBaseUserPwd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ResetBaseUserPwdRequest)
+func _BaseUserService_ResetBaseUserPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResetBaseUserPasswordRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseUserServiceServer).ResetBaseUserPwd(ctx, in)
+		return srv.(BaseUserServiceServer).ResetBaseUserPassword(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseUserService_ResetBaseUserPwd_FullMethodName,
+		FullMethod: BaseUserService_ResetBaseUserPassword_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseUserServiceServer).ResetBaseUserPwd(ctx, req.(*ResetBaseUserPwdRequest))
+		return srv.(BaseUserServiceServer).ResetBaseUserPassword(ctx, req.(*ResetBaseUserPasswordRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -402,8 +402,8 @@ var BaseUserService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseUserService_SetBaseUserStatus_Handler,
 		},
 		{
-			MethodName: "ResetBaseUserPwd",
-			Handler:    _BaseUserService_ResetBaseUserPwd_Handler,
+			MethodName: "ResetBaseUserPassword",
+			Handler:    _BaseUserService_ResetBaseUserPassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
