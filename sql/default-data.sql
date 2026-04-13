@@ -26,6 +26,7 @@ ALTER TABLE `order_payment` COMMENT '订单支付信息';
 ALTER TABLE `order_refund` COMMENT '订单退款信息';
 ALTER TABLE `order_stat_day` COMMENT '订单日统计表';
 ALTER TABLE `pay_bill` COMMENT '支付对帐单信息';
+ALTER TABLE `recommend_actor_bind_log` COMMENT '推荐主体绑定日志信息';
 ALTER TABLE `recommend_exposure` COMMENT '推荐曝光记录信息';
 ALTER TABLE `recommend_exposure_item` COMMENT '推荐曝光商品明细信息';
 ALTER TABLE `recommend_goods_action` COMMENT '推荐商品行为明细信息';

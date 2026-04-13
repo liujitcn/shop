@@ -124,14 +124,18 @@
 - 不要扩展无意义的子方法，禁止在已有方法内新增仅被单一分支调用的子方法。
 
 ## 错误处理规则
-- 后续新增或修改后端错误处理时，必须遵循 [backend/docs/error-handling-design.md](./docs/error-handling-design.md) 当前定义的 6 类顶层错误，禁止恢复“按文案拆枚举”“按资源拆枚举”“按场景拆枚举”的旧做法。
+- 后续新增或修改后端错误处理时，错误体系只解决 3 件事：让调用方稳定判断少量必要场景、让用户看到合适提示文案、让日志保留足够排障信息；禁止恢复“按文案拆枚举”“按资源拆枚举”“按场景拆枚举”的旧做法。
+- `reason` 只负责稳定的一级分类；`message` 只负责面向用户的提示文案；`metadata` 只负责调用方确有需要时的二级结构化信息；`cause`、日志与链路信息只负责保留底层技术细节。禁止把每一句中文提示、每一种资源类型或每一个细分场景都扩展成新的顶层 `reason`。
 - 顶层 `reason` 只允许使用：`INVALID_ARGUMENT`、`UNAUTHENTICATED`、`PERMISSION_DENIED`、`RESOURCE_NOT_FOUND`、`CONFLICT`、`INTERNAL_ERROR`。
+- `error.proto` 中上述 6 个顶层 `reason` 的集合视为冻结集合；其语义分别对应“请求有误 / 身份不成立 / 身份成立但不允许 / 资源不存在 / 当前状态冲突 / 其余内部异常”，并分别对应 HTTP `400/401/403/404/409/500` 语义；禁止把枚举值当作具体业务句子的清单继续扩充。
 - 未经明确确认，禁止新增新的顶层 `reason`、禁止在 `error.proto` 中继续追加 `TOKEN_EXPIRED`、`USER_NOT_FOUND`、`STATE_CONFLICT`、`UNIQUE_VIOLATION` 这类旧风格或派生风格枚举。
+- 只有在“现有 6 类无法准确表达一级语义、调用方存在明确稳定的跨页面或跨端分支需求、且该需求不能通过 `reason + metadata` 表达、并且该分类具备长期稳定性”这 4 个条件同时满足时，才允许评估是否新增顶层 `reason`；缺少任一条件都不得新增。
 - 后续新增或修改业务错误时，禁止直接把 `errors.New(...)`、`fmt.Errorf(...)` 作为对外业务错误返回；对外返回必须优先使用 `shop/pkg/errorsx` 中的统一构造方法。
 - `repo` 层、数据库访问层、第三方 SDK 层默认返回原始错误，不负责对外错误分类，也不要在这些层直接拼面向前端的业务提示。
 - `biz` 层负责错误分类、对外 `message`、必要的 `metadata` 与 `cause`；`service` 层不做业务分类判断，只负责打印原始日志和统一兜底包装。
 - `service` 层捕获错误后，默认统一使用 `errorsx.WrapInternal(err, "xxx失败")` 返回；若 `biz` 层已经返回结构化错误，`WrapInternal` 会直接透传，禁止在 `service` 层二次改写已有 `reason`。
 - `service` 层打印错误时，必须直接在当前方法内使用 `log.Errorf("方法名 %v", err)` 这一类格式，禁止再封装新的日志 helper，禁止使用 `log.Error("xx err:", err.Error())` 这类会产生 `err:error:` 冗余前缀的写法。
+- 默认优先使用 `reason + message`；只有当调用方确实需要在同一个 `reason` 下继续做稳定分支时，才允许补充 `metadata`。禁止把整句中文提示复制到 `metadata`，也禁止无限扩展 `metadata` 键，把它变成第二套枚举系统。
 - `INVALID_ARGUMENT` 只用于“请求本身有问题”的场景，例如参数为空、格式错误、取值非法、验证码错误、地址错误、订单商品为空；能通过修改请求立即解决的问题，优先归入这一类。
 - `UNAUTHENTICATED` 只用于“身份不成立”的场景，例如用户名或密码错误、未登录、token 无效、token 过期、刷新令牌无效；登录场景中的“用户不存在”也统一收敛到这一类，避免账号探测。
 - `PERMISSION_DENIED` 只用于“身份成立但不允许操作”的场景，例如账号禁用、角色禁用、无权限、不能操作超级管理员、不能操作超级管理员角色。
