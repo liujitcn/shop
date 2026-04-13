@@ -17,37 +17,58 @@ export enum AnalyticsSeriesType {
   LINE = 1,
 }
 
+/** 分析时间请求参数 */
 export interface AnalyticsTimeRequest {
+  /** 时间类型 */
   timeType: AnalyticsTimeType;
 }
 
+/** 趋势分析Series */
 export interface AnalyticsTrendSeries {
+  /** 系列名称 */
   name: string;
+  /** 图表类型 */
   type: AnalyticsSeriesType;
+  /** 数据数组 */
   data: number[];
+  /** Y轴索引 */
   yAxisIndex: number;
 }
 
+/** Analytics趋势响应 */
 export interface AnalyticsTrendResponse {
+  /** 坐标轴数据 */
   axis: string[];
+  /** 系列列表 */
   series: AnalyticsTrendSeries[];
+  /** Y轴名称列表 */
   yAxisNames: string[];
 }
 
+/** 排行分析项 */
 export interface AnalyticsRankItem {
+  /** 名称 */
   name: string;
+  /** 值 */
   value: number;
 }
 
+/** Analytics排行响应 */
 export interface AnalyticsRankResponse {
+  /** 排行列表 */
   items: AnalyticsRankItem[];
 }
 
+/** 占比分析项 */
 export interface AnalyticsPieItem {
+  /** 名称 */
   name: string;
+  /** 值 */
   value: number;
 }
 
+/** Analytics占比响应 */
 export interface AnalyticsPieResponse {
+  /** 饼图数据 */
   items: AnalyticsPieItem[];
 }

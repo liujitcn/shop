@@ -50,6 +50,7 @@ func (c *RecommendGoodsStatDayCase) listSceneHotGoodsIds(ctx context.Context, sc
 
 // loadScenePopularitySignals 加载场景热度和曝光惩罚信号。
 func (c *RecommendGoodsStatDayCase) loadScenePopularitySignals(ctx context.Context, scene int32, goodsIds []int64) (map[int64]float64, map[int64]float64, error) {
+	// 场景或商品集合为空时，不需要查询任何热度信号。
 	if scene == 0 || len(goodsIds) == 0 {
 		return map[int64]float64{}, map[int64]float64{}, nil
 	}

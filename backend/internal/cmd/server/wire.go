@@ -21,7 +21,7 @@ import (
 	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
-// initApp init kratos application.
+// initApp 初始化 Kratos 应用实例。
 func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 	panic(wire.Build(
 		pkgJob.ProviderSet,

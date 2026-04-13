@@ -17,47 +17,46 @@ service ShopBannerService {
   }
 }
 
+// 轮播图列表查询条件
 message ListShopBannerRequest{
-  //位置：枚举【ShopBannerSite】
   int32 site = 1 [
     (gnostic.openapi.v3.property) = {
       description: "位置：枚举【ShopBannerSite】",
     }
-  ];
+  ]; // 位置：枚举【ShopBannerSite】
 }
 
+// 轮播图列表响应
 message ListShopBannerResponse{
-  // 分页数据
-  repeated ShopBanner list = 1;
+  repeated ShopBanner list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
 }
 
+// 轮播图
 message ShopBanner {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "主键id"}
   ];  // 主键id
 
-  // 位置：枚举【ShopBannerSite】
   common.ShopBannerSite site = 2 [
     (gnostic.openapi.v3.property) = {
       description: "位置：枚举【ShopBannerSite】",
     }
-  ];
-  // 图片链接
+  ]; // 位置：枚举【ShopBannerSite】
   string picture = 3 [
     (gnostic.openapi.v3.property) = {
       description: "图片链接",
     }
-  ];
-  // 跳转类型：枚举【ShopBannerType】
+  ]; // 图片链接
   common.ShopBannerType type = 4 [
     (gnostic.openapi.v3.property) = {
       description: "跳转类型：枚举【ShopBannerType】",
     }
-  ];
-  // 跳转地址
+  ]; // 跳转类型：枚举【ShopBannerType】
   string href = 5 [
     (gnostic.openapi.v3.property) = {
       description: "跳转地址",
     }
-  ];
+  ]; // 跳转地址
 }

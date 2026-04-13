@@ -58,8 +58,8 @@ func (c *ShopHotCase) ListShopHot(ctx context.Context) (*app.ListShopHotResponse
 // 按编号查询启用中的热门推荐分组
 func (c *ShopHotCase) findById(ctx context.Context, id int64) (*models.ShopHot, error) {
 	query := c.Query(ctx).ShopHot
-	return c.Find(ctx,
-		repo.Where(query.ID.Eq(id)),
-		repo.Where(query.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(id)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.Status_ENABLE))))
+	return c.Find(ctx, opts...)
 }

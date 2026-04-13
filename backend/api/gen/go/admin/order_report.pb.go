@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -25,15 +26,11 @@ const (
 
 // 订单月报汇总查询条件
 type OrderMonthReportSummaryRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 开始月份，格式：YYYY-MM
-	StartMonth string `protobuf:"bytes,1,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`
-	// 结束月份，格式：YYYY-MM
-	EndMonth string `protobuf:"bytes,2,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`
-	// 支付方式：枚举【OrderPayType】，0 表示全部
-	PayType int32 `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	// 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	PayChannel    int32 `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StartMonth    string                 `protobuf:"bytes,1,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`  // 开始月份，格式：YYYY-MM
+	EndMonth      string                 `protobuf:"bytes,2,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`        // 结束月份，格式：YYYY-MM
+	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`          // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"` // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -96,17 +93,13 @@ func (x *OrderMonthReportSummaryRequest) GetPayChannel() int32 {
 	return 0
 }
 
-// 订单月报名细查询条件
+// 订单月报列表请求参数
 type OrderMonthReportListRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 开始月份，格式：YYYY-MM
-	StartMonth string `protobuf:"bytes,1,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`
-	// 结束月份，格式：YYYY-MM
-	EndMonth string `protobuf:"bytes,2,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`
-	// 支付方式：枚举【OrderPayType】，0 表示全部
-	PayType int32 `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	// 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	PayChannel    int32 `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StartMonth    string                 `protobuf:"bytes,1,opt,name=start_month,json=startMonth,proto3" json:"start_month,omitempty"`  // 开始月份，格式：YYYY-MM
+	EndMonth      string                 `protobuf:"bytes,2,opt,name=end_month,json=endMonth,proto3" json:"end_month,omitempty"`        // 结束月份，格式：YYYY-MM
+	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`          // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"` // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -171,23 +164,15 @@ func (x *OrderMonthReportListRequest) GetPayChannel() int32 {
 
 // 订单月报汇总响应
 type OrderMonthReportSummaryResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 支付成功订单数
-	PaidOrderCount int64 `protobuf:"varint,1,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`
-	// 支付成功金额，单位分
-	PaidOrderAmount int64 `protobuf:"varint,2,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`
-	// 退款成功订单数
-	RefundOrderCount int64 `protobuf:"varint,3,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`
-	// 退款成功金额，单位分
-	RefundOrderAmount int64 `protobuf:"varint,4,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"`
-	// 净销售额，单位分
-	NetOrderAmount int64 `protobuf:"varint,5,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`
-	// 支付用户数
-	PaidUserCount int64 `protobuf:"varint,6,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`
-	// 商品件数
-	GoodsCount int64 `protobuf:"varint,7,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`
-	// 客单价，单位分
-	CustomerUnitPrice int64 `protobuf:"varint,8,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	PaidOrderCount    int64                  `protobuf:"varint,1,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`          // 支付成功订单数
+	PaidOrderAmount   int64                  `protobuf:"varint,2,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`       // 支付成功金额，单位分
+	RefundOrderCount  int64                  `protobuf:"varint,3,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`    // 退款成功订单数
+	RefundOrderAmount int64                  `protobuf:"varint,4,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"` // 退款成功金额，单位分
+	NetOrderAmount    int64                  `protobuf:"varint,5,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`          // 净销售额，单位分
+	PaidUserCount     int64                  `protobuf:"varint,6,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`             // 支付用户数
+	GoodsCount        int64                  `protobuf:"varint,7,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`                        // 商品件数
+	CustomerUnitPrice int64                  `protobuf:"varint,8,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"` // 客单价，单位分
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -278,27 +263,18 @@ func (x *OrderMonthReportSummaryResponse) GetCustomerUnitPrice() int64 {
 	return 0
 }
 
-// 订单月报明细
+// 订单月报项
 type OrderMonthReportItem struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 月份，格式：YYYY-MM
-	Month string `protobuf:"bytes,1,opt,name=month,proto3" json:"month,omitempty"`
-	// 支付成功订单数
-	PaidOrderCount int64 `protobuf:"varint,2,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`
-	// 支付成功金额，单位分
-	PaidOrderAmount int64 `protobuf:"varint,3,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`
-	// 退款成功订单数
-	RefundOrderCount int64 `protobuf:"varint,4,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`
-	// 退款成功金额，单位分
-	RefundOrderAmount int64 `protobuf:"varint,5,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"`
-	// 净销售额，单位分
-	NetOrderAmount int64 `protobuf:"varint,6,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`
-	// 支付用户数
-	PaidUserCount int64 `protobuf:"varint,7,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`
-	// 商品件数
-	GoodsCount int64 `protobuf:"varint,8,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`
-	// 客单价，单位分
-	CustomerUnitPrice int64 `protobuf:"varint,9,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Month             string                 `protobuf:"bytes,1,opt,name=month,proto3" json:"month,omitempty"`                                                     // 月份，格式：YYYY-MM
+	PaidOrderCount    int64                  `protobuf:"varint,2,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`          // 支付成功订单数
+	PaidOrderAmount   int64                  `protobuf:"varint,3,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`       // 支付成功金额，单位分
+	RefundOrderCount  int64                  `protobuf:"varint,4,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`    // 退款成功订单数
+	RefundOrderAmount int64                  `protobuf:"varint,5,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"` // 退款成功金额，单位分
+	NetOrderAmount    int64                  `protobuf:"varint,6,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`          // 净销售额，单位分
+	PaidUserCount     int64                  `protobuf:"varint,7,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`             // 支付用户数
+	GoodsCount        int64                  `protobuf:"varint,8,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`                        // 商品件数
+	CustomerUnitPrice int64                  `protobuf:"varint,9,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"` // 客单价，单位分
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -396,11 +372,10 @@ func (x *OrderMonthReportItem) GetCustomerUnitPrice() int64 {
 	return 0
 }
 
-// 订单月报名细列表响应
+// 订单月报列表响应
 type OrderMonthReportListResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 月报明细
-	Items         []*OrderMonthReportItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Items         []*OrderMonthReportItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"` // 月报明细
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -444,15 +419,11 @@ func (x *OrderMonthReportListResponse) GetItems() []*OrderMonthReportItem {
 
 // 订单日报汇总查询条件
 type OrderDayReportSummaryRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 开始日期，格式：YYYY-MM-DD
-	StartDate string `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	// 结束日期，格式：YYYY-MM-DD
-	EndDate string `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
-	// 支付方式：枚举【OrderPayType】，0 表示全部
-	PayType int32 `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	// 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	PayChannel    int32 `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StartDate     string                 `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`     // 开始日期，格式：YYYY-MM-DD
+	EndDate       string                 `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`           // 结束日期，格式：YYYY-MM-DD
+	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`          // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"` // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -515,17 +486,13 @@ func (x *OrderDayReportSummaryRequest) GetPayChannel() int32 {
 	return 0
 }
 
-// 订单日报明细查询条件
+// 订单日报列表请求参数
 type OrderDayReportListRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 开始日期，格式：YYYY-MM-DD
-	StartDate string `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`
-	// 结束日期，格式：YYYY-MM-DD
-	EndDate string `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`
-	// 支付方式：枚举【OrderPayType】，0 表示全部
-	PayType int32 `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`
-	// 支付渠道：枚举【OrderPayChannel】，0 表示全部
-	PayChannel    int32 `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	StartDate     string                 `protobuf:"bytes,1,opt,name=start_date,json=startDate,proto3" json:"start_date,omitempty"`     // 开始日期，格式：YYYY-MM-DD
+	EndDate       string                 `protobuf:"bytes,2,opt,name=end_date,json=endDate,proto3" json:"end_date,omitempty"`           // 结束日期，格式：YYYY-MM-DD
+	PayType       int32                  `protobuf:"varint,3,opt,name=pay_type,json=payType,proto3" json:"pay_type,omitempty"`          // 支付方式：枚举【OrderPayType】，0 表示全部
+	PayChannel    int32                  `protobuf:"varint,4,opt,name=pay_channel,json=payChannel,proto3" json:"pay_channel,omitempty"` // 支付渠道：枚举【OrderPayChannel】，0 表示全部
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -590,23 +557,15 @@ func (x *OrderDayReportListRequest) GetPayChannel() int32 {
 
 // 订单日报汇总响应
 type OrderDayReportSummaryResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 支付成功订单数
-	PaidOrderCount int64 `protobuf:"varint,1,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`
-	// 支付成功金额，单位分
-	PaidOrderAmount int64 `protobuf:"varint,2,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`
-	// 退款成功订单数
-	RefundOrderCount int64 `protobuf:"varint,3,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`
-	// 退款成功金额，单位分
-	RefundOrderAmount int64 `protobuf:"varint,4,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"`
-	// 净销售额，单位分
-	NetOrderAmount int64 `protobuf:"varint,5,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`
-	// 支付用户数
-	PaidUserCount int64 `protobuf:"varint,6,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`
-	// 商品件数
-	GoodsCount int64 `protobuf:"varint,7,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`
-	// 客单价，单位分
-	CustomerUnitPrice int64 `protobuf:"varint,8,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	PaidOrderCount    int64                  `protobuf:"varint,1,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`          // 支付成功订单数
+	PaidOrderAmount   int64                  `protobuf:"varint,2,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`       // 支付成功金额，单位分
+	RefundOrderCount  int64                  `protobuf:"varint,3,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`    // 退款成功订单数
+	RefundOrderAmount int64                  `protobuf:"varint,4,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"` // 退款成功金额，单位分
+	NetOrderAmount    int64                  `protobuf:"varint,5,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`          // 净销售额，单位分
+	PaidUserCount     int64                  `protobuf:"varint,6,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`             // 支付用户数
+	GoodsCount        int64                  `protobuf:"varint,7,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`                        // 商品件数
+	CustomerUnitPrice int64                  `protobuf:"varint,8,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"` // 客单价，单位分
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -697,27 +656,18 @@ func (x *OrderDayReportSummaryResponse) GetCustomerUnitPrice() int64 {
 	return 0
 }
 
-// 订单日报明细
+// 订单日报项
 type OrderDayReportItem struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 日期，格式：YYYY-MM-DD
-	Day string `protobuf:"bytes,1,opt,name=day,proto3" json:"day,omitempty"`
-	// 支付成功订单数
-	PaidOrderCount int64 `protobuf:"varint,2,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`
-	// 支付成功金额，单位分
-	PaidOrderAmount int64 `protobuf:"varint,3,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`
-	// 退款成功订单数
-	RefundOrderCount int64 `protobuf:"varint,4,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`
-	// 退款成功金额，单位分
-	RefundOrderAmount int64 `protobuf:"varint,5,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"`
-	// 净销售额，单位分
-	NetOrderAmount int64 `protobuf:"varint,6,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`
-	// 支付用户数
-	PaidUserCount int64 `protobuf:"varint,7,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`
-	// 商品件数
-	GoodsCount int64 `protobuf:"varint,8,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`
-	// 客单价，单位分
-	CustomerUnitPrice int64 `protobuf:"varint,9,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"`
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Day               string                 `protobuf:"bytes,1,opt,name=day,proto3" json:"day,omitempty"`                                                         // 日期，格式：YYYY-MM-DD
+	PaidOrderCount    int64                  `protobuf:"varint,2,opt,name=paid_order_count,json=paidOrderCount,proto3" json:"paid_order_count,omitempty"`          // 支付成功订单数
+	PaidOrderAmount   int64                  `protobuf:"varint,3,opt,name=paid_order_amount,json=paidOrderAmount,proto3" json:"paid_order_amount,omitempty"`       // 支付成功金额，单位分
+	RefundOrderCount  int64                  `protobuf:"varint,4,opt,name=refund_order_count,json=refundOrderCount,proto3" json:"refund_order_count,omitempty"`    // 退款成功订单数
+	RefundOrderAmount int64                  `protobuf:"varint,5,opt,name=refund_order_amount,json=refundOrderAmount,proto3" json:"refund_order_amount,omitempty"` // 退款成功金额，单位分
+	NetOrderAmount    int64                  `protobuf:"varint,6,opt,name=net_order_amount,json=netOrderAmount,proto3" json:"net_order_amount,omitempty"`          // 净销售额，单位分
+	PaidUserCount     int64                  `protobuf:"varint,7,opt,name=paid_user_count,json=paidUserCount,proto3" json:"paid_user_count,omitempty"`             // 支付用户数
+	GoodsCount        int64                  `protobuf:"varint,8,opt,name=goods_count,json=goodsCount,proto3" json:"goods_count,omitempty"`                        // 商品件数
+	CustomerUnitPrice int64                  `protobuf:"varint,9,opt,name=customer_unit_price,json=customerUnitPrice,proto3" json:"customer_unit_price,omitempty"` // 客单价，单位分
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -815,11 +765,10 @@ func (x *OrderDayReportItem) GetCustomerUnitPrice() int64 {
 	return 0
 }
 
-// 订单日报明细列表响应
+// 订单日报列表响应
 type OrderDayReportListResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 日报明细
-	Items         []*OrderDayReportItem `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Items         []*OrderDayReportItem  `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"` // 日报明细
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -865,81 +814,81 @@ var File_admin_order_report_proto protoreflect.FileDescriptor
 
 const file_admin_order_report_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/order_report.proto\x12\x05admin\x1a\x1cgoogle/api/annotations.proto\"\x9a\x01\n" +
-	"\x1eOrderMonthReportSummaryRequest\x12\x1f\n" +
-	"\vstart_month\x18\x01 \x01(\tR\n" +
-	"startMonth\x12\x1b\n" +
-	"\tend_month\x18\x02 \x01(\tR\bendMonth\x12\x19\n" +
-	"\bpay_type\x18\x03 \x01(\x05R\apayType\x12\x1f\n" +
-	"\vpay_channel\x18\x04 \x01(\x05R\n" +
-	"payChannel\"\x97\x01\n" +
-	"\x1bOrderMonthReportListRequest\x12\x1f\n" +
-	"\vstart_month\x18\x01 \x01(\tR\n" +
-	"startMonth\x12\x1b\n" +
-	"\tend_month\x18\x02 \x01(\tR\bendMonth\x12\x19\n" +
-	"\bpay_type\x18\x03 \x01(\x05R\apayType\x12\x1f\n" +
-	"\vpay_channel\x18\x04 \x01(\x05R\n" +
-	"payChannel\"\xf8\x02\n" +
-	"\x1fOrderMonthReportSummaryResponse\x12(\n" +
-	"\x10paid_order_count\x18\x01 \x01(\x03R\x0epaidOrderCount\x12*\n" +
-	"\x11paid_order_amount\x18\x02 \x01(\x03R\x0fpaidOrderAmount\x12,\n" +
-	"\x12refund_order_count\x18\x03 \x01(\x03R\x10refundOrderCount\x12.\n" +
-	"\x13refund_order_amount\x18\x04 \x01(\x03R\x11refundOrderAmount\x12(\n" +
-	"\x10net_order_amount\x18\x05 \x01(\x03R\x0enetOrderAmount\x12&\n" +
-	"\x0fpaid_user_count\x18\x06 \x01(\x03R\rpaidUserCount\x12\x1f\n" +
-	"\vgoods_count\x18\a \x01(\x03R\n" +
-	"goodsCount\x12.\n" +
-	"\x13customer_unit_price\x18\b \x01(\x03R\x11customerUnitPrice\"\x83\x03\n" +
-	"\x14OrderMonthReportItem\x12\x14\n" +
-	"\x05month\x18\x01 \x01(\tR\x05month\x12(\n" +
-	"\x10paid_order_count\x18\x02 \x01(\x03R\x0epaidOrderCount\x12*\n" +
-	"\x11paid_order_amount\x18\x03 \x01(\x03R\x0fpaidOrderAmount\x12,\n" +
-	"\x12refund_order_count\x18\x04 \x01(\x03R\x10refundOrderCount\x12.\n" +
-	"\x13refund_order_amount\x18\x05 \x01(\x03R\x11refundOrderAmount\x12(\n" +
-	"\x10net_order_amount\x18\x06 \x01(\x03R\x0enetOrderAmount\x12&\n" +
-	"\x0fpaid_user_count\x18\a \x01(\x03R\rpaidUserCount\x12\x1f\n" +
-	"\vgoods_count\x18\b \x01(\x03R\n" +
-	"goodsCount\x12.\n" +
-	"\x13customer_unit_price\x18\t \x01(\x03R\x11customerUnitPrice\"Q\n" +
-	"\x1cOrderMonthReportListResponse\x121\n" +
-	"\x05items\x18\x01 \x03(\v2\x1b.admin.OrderMonthReportItemR\x05items\"\x94\x01\n" +
-	"\x1cOrderDayReportSummaryRequest\x12\x1d\n" +
+	"\x18admin/order_report.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\"\xeb\x02\n" +
+	"\x1eOrderMonthReportSummaryRequest\x12F\n" +
+	"\vstart_month\x18\x01 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
+	"startMonth\x12B\n" +
+	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
+	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannel\"\xe8\x02\n" +
+	"\x1bOrderMonthReportListRequest\x12F\n" +
+	"\vstart_month\x18\x01 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
+	"startMonth\x12B\n" +
+	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\x12Y\n" +
+	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannel\"\xe6\x04\n" +
+	"\x1fOrderMonthReportSummaryResponse\x12E\n" +
+	"\x10paid_order_count\x18\x01 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15支付成功订单数R\x0epaidOrderCount\x12P\n" +
+	"\x11paid_order_amount\x18\x02 \x01(\x03B$\xbaG!\x92\x02\x1e支付成功金额，单位分R\x0fpaidOrderAmount\x12I\n" +
+	"\x12refund_order_count\x18\x03 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15退款成功订单数R\x10refundOrderCount\x12T\n" +
+	"\x13refund_order_amount\x18\x04 \x01(\x03B$\xbaG!\x92\x02\x1e退款成功金额，单位分R\x11refundOrderAmount\x12H\n" +
+	"\x10net_order_amount\x18\x05 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18净销售额，单位分R\x0enetOrderAmount\x12=\n" +
+	"\x0fpaid_user_count\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
+	"\vgoods_count\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
+	"goodsCount\x12K\n" +
+	"\x13customer_unit_price\x18\b \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\x92\x05\n" +
+	"\x14OrderMonthReportItem\x125\n" +
+	"\x05month\x18\x01 \x01(\tB\x1f\xbaG\x1c\x92\x02\x19月份，格式：YYYY-MMR\x05month\x12E\n" +
+	"\x10paid_order_count\x18\x02 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15支付成功订单数R\x0epaidOrderCount\x12P\n" +
+	"\x11paid_order_amount\x18\x03 \x01(\x03B$\xbaG!\x92\x02\x1e支付成功金额，单位分R\x0fpaidOrderAmount\x12I\n" +
+	"\x12refund_order_count\x18\x04 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15退款成功订单数R\x10refundOrderCount\x12T\n" +
+	"\x13refund_order_amount\x18\x05 \x01(\x03B$\xbaG!\x92\x02\x1e退款成功金额，单位分R\x11refundOrderAmount\x12H\n" +
+	"\x10net_order_amount\x18\x06 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18净销售额，单位分R\x0enetOrderAmount\x12=\n" +
+	"\x0fpaid_user_count\x18\a \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
+	"\vgoods_count\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
+	"goodsCount\x12K\n" +
+	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"e\n" +
+	"\x1cOrderMonthReportListResponse\x12E\n" +
+	"\x05items\x18\x01 \x03(\v2\x1b.admin.OrderMonthReportItemB\x12\xbaG\x0f\x92\x02\f月报明细R\x05items\"\xeb\x02\n" +
+	"\x1cOrderDayReportSummaryRequest\x12G\n" +
 	"\n" +
-	"start_date\x18\x01 \x01(\tR\tstartDate\x12\x19\n" +
-	"\bend_date\x18\x02 \x01(\tR\aendDate\x12\x19\n" +
-	"\bpay_type\x18\x03 \x01(\x05R\apayType\x12\x1f\n" +
-	"\vpay_channel\x18\x04 \x01(\x05R\n" +
-	"payChannel\"\x91\x01\n" +
-	"\x19OrderDayReportListRequest\x12\x1d\n" +
+	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
+	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
+	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannel\"\xe8\x02\n" +
+	"\x19OrderDayReportListRequest\x12G\n" +
 	"\n" +
-	"start_date\x18\x01 \x01(\tR\tstartDate\x12\x19\n" +
-	"\bend_date\x18\x02 \x01(\tR\aendDate\x12\x19\n" +
-	"\bpay_type\x18\x03 \x01(\x05R\apayType\x12\x1f\n" +
-	"\vpay_channel\x18\x04 \x01(\x05R\n" +
-	"payChannel\"\xf6\x02\n" +
-	"\x1dOrderDayReportSummaryResponse\x12(\n" +
-	"\x10paid_order_count\x18\x01 \x01(\x03R\x0epaidOrderCount\x12*\n" +
-	"\x11paid_order_amount\x18\x02 \x01(\x03R\x0fpaidOrderAmount\x12,\n" +
-	"\x12refund_order_count\x18\x03 \x01(\x03R\x10refundOrderCount\x12.\n" +
-	"\x13refund_order_amount\x18\x04 \x01(\x03R\x11refundOrderAmount\x12(\n" +
-	"\x10net_order_amount\x18\x05 \x01(\x03R\x0enetOrderAmount\x12&\n" +
-	"\x0fpaid_user_count\x18\x06 \x01(\x03R\rpaidUserCount\x12\x1f\n" +
-	"\vgoods_count\x18\a \x01(\x03R\n" +
-	"goodsCount\x12.\n" +
-	"\x13customer_unit_price\x18\b \x01(\x03R\x11customerUnitPrice\"\xfd\x02\n" +
-	"\x12OrderDayReportItem\x12\x10\n" +
-	"\x03day\x18\x01 \x01(\tR\x03day\x12(\n" +
-	"\x10paid_order_count\x18\x02 \x01(\x03R\x0epaidOrderCount\x12*\n" +
-	"\x11paid_order_amount\x18\x03 \x01(\x03R\x0fpaidOrderAmount\x12,\n" +
-	"\x12refund_order_count\x18\x04 \x01(\x03R\x10refundOrderCount\x12.\n" +
-	"\x13refund_order_amount\x18\x05 \x01(\x03R\x11refundOrderAmount\x12(\n" +
-	"\x10net_order_amount\x18\x06 \x01(\x03R\x0enetOrderAmount\x12&\n" +
-	"\x0fpaid_user_count\x18\a \x01(\x03R\rpaidUserCount\x12\x1f\n" +
-	"\vgoods_count\x18\b \x01(\x03R\n" +
-	"goodsCount\x12.\n" +
-	"\x13customer_unit_price\x18\t \x01(\x03R\x11customerUnitPrice\"M\n" +
-	"\x1aOrderDayReportListResponse\x12/\n" +
-	"\x05items\x18\x01 \x03(\v2\x19.admin.OrderDayReportItemR\x05items2\xd4\x04\n" +
+	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
+	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\x12Y\n" +
+	"\bpay_type\x18\x03 \x01(\x05B>\xbaG;\x92\x028支付方式：枚举【OrderPayType】，0 表示全部R\apayType\x12b\n" +
+	"\vpay_channel\x18\x04 \x01(\x05BA\xbaG>\x92\x02;支付渠道：枚举【OrderPayChannel】，0 表示全部R\n" +
+	"payChannel\"\xe4\x04\n" +
+	"\x1dOrderDayReportSummaryResponse\x12E\n" +
+	"\x10paid_order_count\x18\x01 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15支付成功订单数R\x0epaidOrderCount\x12P\n" +
+	"\x11paid_order_amount\x18\x02 \x01(\x03B$\xbaG!\x92\x02\x1e支付成功金额，单位分R\x0fpaidOrderAmount\x12I\n" +
+	"\x12refund_order_count\x18\x03 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15退款成功订单数R\x10refundOrderCount\x12T\n" +
+	"\x13refund_order_amount\x18\x04 \x01(\x03B$\xbaG!\x92\x02\x1e退款成功金额，单位分R\x11refundOrderAmount\x12H\n" +
+	"\x10net_order_amount\x18\x05 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18净销售额，单位分R\x0enetOrderAmount\x12=\n" +
+	"\x0fpaid_user_count\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
+	"\vgoods_count\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
+	"goodsCount\x12K\n" +
+	"\x13customer_unit_price\x18\b \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"\x8f\x05\n" +
+	"\x12OrderDayReportItem\x124\n" +
+	"\x03day\x18\x01 \x01(\tB\"\xbaG\x1f\x92\x02\x1c日期，格式：YYYY-MM-DDR\x03day\x12E\n" +
+	"\x10paid_order_count\x18\x02 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15支付成功订单数R\x0epaidOrderCount\x12P\n" +
+	"\x11paid_order_amount\x18\x03 \x01(\x03B$\xbaG!\x92\x02\x1e支付成功金额，单位分R\x0fpaidOrderAmount\x12I\n" +
+	"\x12refund_order_count\x18\x04 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15退款成功订单数R\x10refundOrderCount\x12T\n" +
+	"\x13refund_order_amount\x18\x05 \x01(\x03B$\xbaG!\x92\x02\x1e退款成功金额，单位分R\x11refundOrderAmount\x12H\n" +
+	"\x10net_order_amount\x18\x06 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18净销售额，单位分R\x0enetOrderAmount\x12=\n" +
+	"\x0fpaid_user_count\x18\a \x01(\x03B\x15\xbaG\x12\x92\x02\x0f支付用户数R\rpaidUserCount\x123\n" +
+	"\vgoods_count\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品件数R\n" +
+	"goodsCount\x12K\n" +
+	"\x13customer_unit_price\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15客单价，单位分R\x11customerUnitPrice\"a\n" +
+	"\x1aOrderDayReportListResponse\x12C\n" +
+	"\x05items\x18\x01 \x03(\v2\x19.admin.OrderDayReportItemB\x12\xbaG\x0f\x92\x02\f日报明细R\x05items2\xd4\x04\n" +
 	"\x12OrderReportService\x12\x97\x01\n" +
 	"\x17OrderMonthReportSummary\x12%.admin.OrderMonthReportSummaryRequest\x1a&.admin.OrderMonthReportSummaryResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/report/order/month/summary\x12\x8b\x01\n" +
 	"\x14OrderMonthReportList\x12\".admin.OrderMonthReportListRequest\x1a#.admin.OrderMonthReportListResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/admin/report/order/month/list\x12\x8f\x01\n" +

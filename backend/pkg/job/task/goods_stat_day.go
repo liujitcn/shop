@@ -53,7 +53,6 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	log.Infof("Job GoodsStatDay Exec %+v", args)
 
 	statTime, err := parseStatDateArg(args["statDate"])
-	// 统计日期非法时，直接返回错误避免写入错误日期数据。
 	if err != nil {
 		return []string{err.Error()}, err
 	}
@@ -63,10 +62,11 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	endAt := statDate.AddDate(0, 0, 1)
 
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
-		goodsStatDayQuery := t.goodsStatDayRepo.Query(ctx).GoodsStatDay
+		statQuery := t.goodsStatDayRepo.Query(ctx).GoodsStatDay
 		// 统计任务按天全量重算，先清掉当天旧数据再回写。
-		err = t.goodsStatDayRepo.Delete(ctx, repo.Where(goodsStatDayQuery.StatDate.Eq(statDate)))
-		// 删除旧统计失败时，终止本次重算避免新旧数据并存。
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(statQuery.StatDate.Eq(statDate)))
+		err = t.goodsStatDayRepo.Delete(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -86,13 +86,12 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 
 		actionQuery := t.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
-		actionOpts := make([]repo.QueryOption, 0, 3)
-		actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
-		actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lt(endAt)))
-		actionOpts = append(actionOpts, repo.Where(actionQuery.EventType.Eq(int32(common.RecommendGoodsActionType_VIEW))))
+		opts = make([]repo.QueryOption, 0, 3)
+		opts = append(opts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(actionQuery.CreatedAt.Lt(endAt)))
+		opts = append(opts, repo.Where(actionQuery.EventType.Eq(int32(common.RecommendGoodsActionType_VIEW))))
 		var viewList []*models.RecommendGoodsAction
-		viewList, err = t.recommendGoodsActionRepo.List(ctx, actionOpts...)
-		// 浏览行为查询失败时，直接返回错误避免统计结果不完整。
+		viewList, err = t.recommendGoodsActionRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -104,13 +103,12 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			ensureStat(item.GoodsID).ViewCount++
 		}
 
-		userCollectQuery := t.userCollectRepo.Query(ctx).UserCollect
-		collectOpts := make([]repo.QueryOption, 0, 2)
-		collectOpts = append(collectOpts, repo.Where(userCollectQuery.CreatedAt.Gte(startAt)))
-		collectOpts = append(collectOpts, repo.Where(userCollectQuery.CreatedAt.Lt(endAt)))
+		collectQuery := t.userCollectRepo.Query(ctx).UserCollect
+		opts = make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(collectQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(collectQuery.CreatedAt.Lt(endAt)))
 		var collectList []*models.UserCollect
-		collectList, err = t.userCollectRepo.List(ctx, collectOpts...)
-		// 收藏记录查询失败时，直接返回错误避免统计结果不完整。
+		collectList, err = t.userCollectRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -122,13 +120,12 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			ensureStat(item.GoodsID).CollectCount++
 		}
 
-		userCartQuery := t.userCartRepo.Query(ctx).UserCart
-		cartOpts := make([]repo.QueryOption, 0, 2)
-		cartOpts = append(cartOpts, repo.Where(userCartQuery.CreatedAt.Gte(startAt)))
-		cartOpts = append(cartOpts, repo.Where(userCartQuery.CreatedAt.Lt(endAt)))
+		cartQuery := t.userCartRepo.Query(ctx).UserCart
+		opts = make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(cartQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(cartQuery.CreatedAt.Lt(endAt)))
 		var cartList []*models.UserCart
-		cartList, err = t.userCartRepo.List(ctx, cartOpts...)
-		// 购物车记录查询失败时，直接返回错误避免统计结果不完整。
+		cartList, err = t.userCartRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -140,13 +137,12 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			ensureStat(item.GoodsID).CartCount += item.Num
 		}
 
-		orderInfoQuery := t.orderInfoRepo.Query(ctx).OrderInfo
-		orderInfoOpts := make([]repo.QueryOption, 0, 2)
-		orderInfoOpts = append(orderInfoOpts, repo.Where(orderInfoQuery.CreatedAt.Gte(startAt)))
-		orderInfoOpts = append(orderInfoOpts, repo.Where(orderInfoQuery.CreatedAt.Lt(endAt)))
+		orderQuery := t.orderInfoRepo.Query(ctx).OrderInfo
+		opts = make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(orderQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(orderQuery.CreatedAt.Lt(endAt)))
 		var orderInfoList []*models.OrderInfo
-		orderInfoList, err = t.orderInfoRepo.List(ctx, orderInfoOpts...)
-		// 下单记录查询失败时，直接返回错误避免统计结果不完整。
+		orderInfoList, err = t.orderInfoRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -162,11 +158,13 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 
 		// 存在订单数据时，才继续回查订单商品明细。
 		orderGoodsByOrderId := make(map[int64][]*models.OrderGoods)
+		// 只有命中订单时，才需要继续回查订单商品明细。
 		if len(orderIds) > 0 {
 			orderGoodsQuery := t.orderGoodsRepo.Query(ctx).OrderGoods
+			opts = make([]repo.QueryOption, 0, 1)
+			opts = append(opts, repo.Where(orderGoodsQuery.OrderID.In(orderIds...)))
 			var orderGoodsList []*models.OrderGoods
-			orderGoodsList, err = t.orderGoodsRepo.List(ctx, repo.Where(orderGoodsQuery.OrderID.In(orderIds...)))
-			// 订单商品明细查询失败时，直接返回错误避免统计结果不完整。
+			orderGoodsList, err = t.orderGoodsRepo.List(ctx, opts...)
 			if err != nil {
 				return err
 			}
@@ -228,7 +226,6 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 		return t.goodsStatDayRepo.BatchCreate(ctx, list)
 	})
-	// 事务执行失败时，直接返回错误交由任务日志记录。
 	if err != nil {
 		return []string{err.Error()}, err
 	}

@@ -105,98 +105,96 @@ service ShopHotService {
   }
 }
 
+// 热门专区分页查询条件
 message PageShopHotRequest{
-  // 商城热门推荐标题
   string title = 2 [
     (gnostic.openapi.v3.property) = {
       description: "商城热门推荐标题",
     }
-  ];
-  // 商城热门推荐描述
+  ]; // 商城热门推荐标题
   string desc = 3 [
     (gnostic.openapi.v3.property) = {
       description: "商城热门推荐描述",
     }
-  ];
+  ]; // 商城热门推荐描述
 
-  // 状态
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {
       description: "状态",
       default: {number: 0}
     }
-  ];
+  ]; // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 热门专区分页响应
 message PageShopHotResponse{
-  // 分页数据
-  repeated ShopHot list = 1;
-  // 总数
-  int32 total = 2;
+  repeated ShopHot list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 热门专区项分页查询条件
 message PageShopHotItemRequest{
-  // 商城热门推荐id
   int64 hotId = 2 [
     (gnostic.openapi.v3.property) = {
       description: "商城热门推荐id",
     }
-  ];
-  // 商城热门推荐属性标题
+  ]; // 商城热门推荐id
   string title = 3 [
     (gnostic.openapi.v3.property) = {
       description: "商城热门推荐属性标题",
     }
-  ];
+  ]; // 商城热门推荐属性标题
 
-  // 状态
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {
       description: "状态",
     }
-  ];
+  ]; // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 热门专区项分页响应
 message PageShopHotItemResponse{
-  // 分页数据
-  repeated ShopHotItem list = 1;
-  // 总数
-  int32 total = 2;
+  repeated ShopHotItem list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
-// 商城热门推荐
+// 热门专区
 message ShopHot {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
@@ -226,7 +224,7 @@ message ShopHot {
   ];// 更新时间
 }
 
-// 商城热门推荐
+// 热门专区表单
 message ShopHotForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
@@ -257,6 +255,7 @@ message ShopHotForm {
   ]; // 状态
 }
 
+// 热门专区项
 message ShopHotItem {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}
@@ -286,6 +285,7 @@ message ShopHotItem {
   ];// 更新时间
 }
 
+// 热门专区项表单
 message ShopHotItemForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "商城热门推荐ID"}

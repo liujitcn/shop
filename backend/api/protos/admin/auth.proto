@@ -75,6 +75,7 @@ service AuthService {
   }
 }
 
+// User信息
 message UserInfo {
   string userName = 1 [
     (gnostic.openapi.v3.property) = {description: "用户账号"}
@@ -105,11 +106,14 @@ message UserInfo {
   ];  // 部门名称
 }
 
+// Route树响应
 message TreeRouteResponse {
-  repeated RouteItem list = 1;
+  repeated RouteItem list = 1 [
+    (gnostic.openapi.v3.property) = {description: "路由列表"}
+  ]; // 路由列表
 }
 
-// 路由项
+// Route项
 message RouteItem {
   optional string path = 1 [
     (gnostic.openapi.v3.property) = {
@@ -146,22 +150,45 @@ message RouteItem {
   ]; // 子节点树
 }
 
+// Route元信息
 message RouteMeta {
-  optional string title = 1; //菜单标题
-  optional string icon = 2; //菜单图标
-  optional bool alwaysShow = 4;//【目录】只有一个子路由是否始终显示
-  optional bool hidden = 5; // 是否隐藏(true-是 false-否)
-  optional bool keepAlive = 6; //【菜单】是否开启页面缓存
-  optional bool full = 7; //【菜单】是否全屏(示例：数据大屏页面)
-  optional bool affix = 8; //【菜单】是否固定在标签页中(首页通常是固定项)
-  repeated RouteParams params = 9; // 参数
+  optional string title = 1 [
+    (gnostic.openapi.v3.property) = {description: "菜单标题"}
+  ]; // 菜单标题
+  optional string icon = 2 [
+    (gnostic.openapi.v3.property) = {description: "菜单图标"}
+  ]; // 菜单图标
+  optional bool alwaysShow = 4 [
+    (gnostic.openapi.v3.property) = {description: "【目录】只有一个子路由是否始终显示"}
+  ]; // 【目录】只有一个子路由是否始终显示
+  optional bool hidden = 5 [
+    (gnostic.openapi.v3.property) = {description: "是否隐藏(true-是 false-否)"}
+  ]; // 是否隐藏(true-是 false-否)
+  optional bool keepAlive = 6 [
+    (gnostic.openapi.v3.property) = {description: "【菜单】是否开启页面缓存"}
+  ]; // 【菜单】是否开启页面缓存
+  optional bool full = 7 [
+    (gnostic.openapi.v3.property) = {description: "【菜单】是否全屏(示例：数据大屏页面)"}
+  ]; // 【菜单】是否全屏(示例：数据大屏页面)
+  optional bool affix = 8 [
+    (gnostic.openapi.v3.property) = {description: "【菜单】是否固定在标签页中(首页通常是固定项)"}
+  ]; // 【菜单】是否固定在标签页中(首页通常是固定项)
+  repeated RouteParams params = 9 [
+    (gnostic.openapi.v3.property) = {description: "参数"}
+  ]; // 参数
 }
 
+// Route参数
 message RouteParams {
-  optional string key = 1; //key
-  optional string value = 2; //value
+  optional string key = 1 [
+    (gnostic.openapi.v3.property) = {description: "key"}
+  ]; // key
+  optional string value = 2 [
+    (gnostic.openapi.v3.property) = {description: "value"}
+  ]; // value
 }
 
+// 用户资料表单
 message UserProfileForm {
   string userName = 1 [
     (gnostic.openapi.v3.property) = {description: "用户名"}
@@ -192,7 +219,7 @@ message UserProfileForm {
   ];// 创建时间
 }
 
-// 修改密码表单
+// UpdatePwd表单
 message UpdatePwdForm {
   string oldPwd = 1 [
     (gnostic.openapi.v3.property) = {description: "原密码"}
@@ -205,14 +232,14 @@ message UpdatePwdForm {
   ]; // 确认密码
 }
 
-// 发送手机验证码表单
+// SendUpdatePhoneCode表单
 message SendUpdatePhoneCodeForm {
   string phone = 1 [
     (gnostic.openapi.v3.property) = {description: "手机号"}
   ]; // 手机号
 }
 
-// 修改手机表单
+// UpdatePhone表单
 message UpdatePhoneForm {
   string phone = 1 [
     (gnostic.openapi.v3.property) = {description: "手机号"}

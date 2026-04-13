@@ -23,6 +23,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 状态设置请求参数
 type SetStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`         // 主键id
@@ -75,9 +76,10 @@ func (x *SetStatusRequest) GetStatus() int32 {
 	return 0
 }
 
+// 树形选项响应
 type TreeOptionResponse struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
-	List          []*TreeOptionResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	List          []*TreeOptionResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 选项列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -119,9 +121,10 @@ func (x *TreeOptionResponse) GetList() []*TreeOptionResponse_Option {
 	return nil
 }
 
+// 下拉选项响应
 type SelectOptionResponse struct {
 	state         protoimpl.MessageState         `protogen:"open.v1"`
-	List          []*SelectOptionResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	List          []*SelectOptionResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 选项列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -163,9 +166,10 @@ func (x *SelectOptionResponse) GetList() []*SelectOptionResponse_Option {
 	return nil
 }
 
+// 应用树形选项响应
 type AppTreeOptionResponse struct {
 	state         protoimpl.MessageState          `protogen:"open.v1"`
-	List          []*AppTreeOptionResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	List          []*AppTreeOptionResponse_Option `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 选项列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -207,6 +211,7 @@ func (x *AppTreeOptionResponse) GetList() []*AppTreeOptionResponse_Option {
 	return nil
 }
 
+// 树形选项
 type TreeOptionResponse_Option struct {
 	state         protoimpl.MessageState       `protogen:"open.v1"`
 	Label         string                       `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`         // 选项名
@@ -275,6 +280,7 @@ func (x *TreeOptionResponse_Option) GetChildren() []*TreeOptionResponse_Option {
 	return nil
 }
 
+// 下拉选项
 type SelectOptionResponse_Option struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`        // 选项名
@@ -335,10 +341,10 @@ func (x *SelectOptionResponse_Option) GetDisabled() bool {
 	return false
 }
 
+// 应用树形选项
 type AppTreeOptionResponse_Option struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 值。必填
-	Value         string                          `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Value         string                          `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"`         // 值。必填
 	Text          string                          `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`           // 显示文字。必填
 	Selected      bool                            `protobuf:"varint,3,opt,name=selected,proto3" json:"selected,omitempty"`  // 是否默认选中。默认值false
 	Disable       bool                            `protobuf:"varint,4,opt,name=disable,proto3" json:"disable,omitempty"`    // 是否禁用。默认值false
@@ -419,22 +425,22 @@ const file_common_common_proto_rawDesc = "" +
 	"\x13common/common.proto\x12\x06common\x1a$gnostic/openapi/v3/annotations.proto\"X\n" +
 	"\x10SetStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xa7\x02\n" +
-	"\x12TreeOptionResponse\x125\n" +
-	"\x04list\x18\x01 \x03(\v2!.common.TreeOptionResponse.OptionR\x04list\x1a\xd9\x01\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xbb\x02\n" +
+	"\x12TreeOptionResponse\x12I\n" +
+	"\x04list\x18\x01 \x03(\v2!.common.TreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f选项列表R\x04list\x1a\xd9\x01\n" +
 	"\x06Option\x12%\n" +
 	"\x05label\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t选项名R\x05label\x12%\n" +
 	"\x05value\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t选项值R\x05value\x12.\n" +
 	"\bdisabled\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否禁用R\bdisabled\x12Q\n" +
-	"\bchildren\x18e \x03(\v2!.common.TreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xd8\x01\n" +
-	"\x14SelectOptionResponse\x127\n" +
-	"\x04list\x18\x01 \x03(\v2#.common.SelectOptionResponse.OptionR\x04list\x1a\x86\x01\n" +
+	"\bchildren\x18e \x03(\v2!.common.TreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f子节点树R\bchildren\"\xec\x01\n" +
+	"\x14SelectOptionResponse\x12K\n" +
+	"\x04list\x18\x01 \x03(\v2#.common.SelectOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f选项列表R\x04list\x1a\x86\x01\n" +
 	"\x06Option\x12%\n" +
 	"\x05label\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t选项名R\x05label\x12%\n" +
 	"\x05value\x18\x02 \x01(\x03B\x0f\xbaG\f\x92\x02\t选项值R\x05value\x12.\n" +
-	"\bdisabled\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否禁用R\bdisabled\"\x93\x03\n" +
-	"\x15AppTreeOptionResponse\x128\n" +
-	"\x04list\x18\x01 \x03(\v2$.common.AppTreeOptionResponse.OptionR\x04list\x1a\xbf\x02\n" +
+	"\bdisabled\x18\x03 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否禁用R\bdisabled\"\xa7\x03\n" +
+	"\x15AppTreeOptionResponse\x12L\n" +
+	"\x04list\x18\x01 \x03(\v2$.common.AppTreeOptionResponse.OptionB\x12\xbaG\x0f\x92\x02\f选项列表R\x04list\x1a\xbf\x02\n" +
 	"\x06Option\x12(\n" +
 	"\x05value\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f值。必填R\x05value\x12/\n" +
 	"\x04text\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15显示文字。必填R\x04text\x12E\n" +

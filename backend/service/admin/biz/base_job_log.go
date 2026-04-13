@@ -43,18 +43,22 @@ func (c *BaseJobLogCase) PageBaseJobLog(ctx context.Context, req *admin.PageBase
 	query := c.Query(ctx).BaseJobLog
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.ExecuteTime.Desc()))
+	// 传入任务编号时，仅查询对应任务的执行日志。
 	if req.GetJobId() > 0 {
 		opts = append(opts, repo.Where(query.JobID.Eq(req.GetJobId())))
 	}
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	// 仅在传入完整时间区间时，按执行时间范围过滤任务日志。
 	if len(req.GetExecuteTime()) == 2 {
 		startTime := _time.StringTimeToTime(req.GetExecuteTime()[0])
 		endTime := _time.StringTimeToTime(req.GetExecuteTime()[1])
+		// 开始时间解析成功时，补充执行时间下界。
 		if startTime != nil {
 			opts = append(opts, repo.Where(query.ExecuteTime.Gte(*startTime)))
 		}
+		// 结束时间解析成功时，补充执行时间上界。
 		if endTime != nil {
 			opts = append(opts, repo.Where(query.ExecuteTime.Lte(*endTime)))
 		}
@@ -94,6 +98,7 @@ func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
 		log.Errorf("json Unmarshal error, %s", err.Error())
 		return err
 	}
+	// 队列消息携带任务日志实体时，落库保存执行日志。
 	if baseJobLog, ok := m["data"]; ok {
 		err = c.Create(context.TODO(), baseJobLog)
 		if err != nil {

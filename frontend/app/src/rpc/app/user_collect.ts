@@ -9,11 +9,13 @@ import type { Empty } from "../google/protobuf/empty";
 import type { BoolValue, StringValue } from "../google/protobuf/wrappers";
 import type { RecommendContext } from "./recommend";
 
+/** 收藏状态请求参数 */
 export interface IsCollectRequest {
   /** 商品ID */
   goodsId: number;
 }
 
+/** 用户收藏分页查询条件 */
 export interface PageUserCollectRequest {
   /** 当前页码 */
   pageNum: number;
@@ -21,6 +23,7 @@ export interface PageUserCollectRequest {
   pageSize: number;
 }
 
+/** 用户收藏分页响应 */
 export interface PageUserCollectResponse {
   /** 数据 */
   list: UserCollect[];
@@ -28,7 +31,7 @@ export interface PageUserCollectResponse {
   total: number;
 }
 
-/** 用户购物车 */
+/** UserCollect表单 */
 export interface UserCollectForm {
   /** 商品id */
   goodsId: number;
@@ -36,7 +39,7 @@ export interface UserCollectForm {
   recommendContext: RecommendContext | undefined;
 }
 
-/** 用户收藏 */
+/** UserCollect */
 export interface UserCollect {
   /** 用户收藏ID */
   id: number;

@@ -17,6 +17,7 @@ import type {
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 
+/** 订单分页查询条件 */
 export interface PageOrderInfoRequest {
   /** 订单编号 */
   orderNo: string;
@@ -42,6 +43,7 @@ export interface PageOrderInfoRequest {
   pageSize: number;
 }
 
+/** 订单分页响应 */
 export interface PageOrderInfoResponse {
   /** 分页数据 */
   list: OrderInfo[];
@@ -49,6 +51,7 @@ export interface PageOrderInfoResponse {
   total: number;
 }
 
+/** 订单详情响应 */
 export interface OrderInfoResponse {
   /** 订单信息 */
   order:
@@ -78,6 +81,7 @@ export interface OrderInfoResponse {
   refund: OrderRefund[];
 }
 
+/** 订单Refund响应 */
 export interface OrderInfoRefundResponse {
   /** 支付信息 */
   payment:
@@ -87,6 +91,7 @@ export interface OrderInfoRefundResponse {
   refund: OrderRefund[];
 }
 
+/** 订单退款请求参数 */
 export interface RefundOrderInfoRequest {
   /** 订单id */
   orderId: number;
@@ -98,6 +103,7 @@ export interface RefundOrderInfoRequest {
   refundMoney: number;
 }
 
+/** 订单Shipped响应 */
 export interface OrderInfoShippedResponse {
   /** 地址信息 */
   address:
@@ -109,6 +115,7 @@ export interface OrderInfoShippedResponse {
   logistics: OrderLogistics | undefined;
 }
 
+/** ShippedOrder信息请求参数 */
 export interface ShippedOrderInfoRequest {
   /** 订单id */
   orderId: number;
@@ -120,7 +127,7 @@ export interface ShippedOrderInfoRequest {
   contact: string;
 }
 
-/** 订单信息表 */
+/** Order信息 */
 export interface OrderInfo {
   /** 订单ID */
   id: number;
@@ -154,7 +161,7 @@ export interface OrderInfo {
   nickName: string;
 }
 
-/** 订单地址信息 */
+/** 订单地址 */
 export interface OrderAddress {
   /** 联系人 */
   receiver: string;
@@ -166,7 +173,7 @@ export interface OrderAddress {
   detail: string;
 }
 
-/** 订单取消信息 */
+/** 订单取消记录 */
 export interface OrderCancel {
   /** 取消原因：枚举【OrderCancelReason】 */
   reason: OrderCancelReason;
@@ -174,7 +181,7 @@ export interface OrderCancel {
   createdAt: string;
 }
 
-/** 订单商品信息 */
+/** 订单商品 */
 export interface OrderGoods {
   /** 商品ID */
   goodsId: number;
@@ -198,7 +205,7 @@ export interface OrderGoods {
   totalPayPrice: number;
 }
 
-/** 订单物流信息 */
+/** 订单物流 */
 export interface OrderLogistics {
   /** 物流公司名 */
   name: string;
@@ -212,6 +219,7 @@ export interface OrderLogistics {
   createdAt: string;
 }
 
+/** Detail */
 export interface OrderLogistics_Detail {
   /** 时间 */
   time: string;
@@ -219,7 +227,7 @@ export interface OrderLogistics_Detail {
   text: string;
 }
 
-/** 订单支付信息 */
+/** 订单支付 */
 export interface OrderPayment {
   /** 订单编号 */
   orderNo: string;
@@ -257,7 +265,7 @@ export interface OrderPayment_Payer {
   openid: string;
 }
 
-/** 订单金额信息，当支付成功时返回该字段 */
+/** 支付金额信息 */
 export interface OrderPayment_Amount {
   /** 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额） */
   payerTotal: number;
@@ -269,13 +277,13 @@ export interface OrderPayment_Amount {
   payerCurrency: string;
 }
 
-/** 场景信息 */
+/** 支付场景信息 */
 export interface OrderPayment_SceneInfo {
   /** 【商户端设备号】门店号/收银设备ID */
   deviceId: string;
 }
 
-/** 订单退款信息 */
+/** 订单退款 */
 export interface OrderRefund {
   /** 支付订单编号 */
   orderNo: string;
@@ -307,7 +315,7 @@ export interface OrderRefund {
   status: OrderBillStatus;
 }
 
-/** 【金额信息】 */
+/** 退款金额信息 */
 export interface OrderRefund_Amount {
   /** 【原订单金额】单位：分 */
   total: number;

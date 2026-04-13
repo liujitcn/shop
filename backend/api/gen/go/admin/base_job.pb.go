@@ -29,18 +29,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 定时任务分页查询条件
 type PageBaseJobRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 任务名称
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 调用目标
-	InvokeTarget string `protobuf:"bytes,3,opt,name=invokeTarget,proto3" json:"invokeTarget,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                 // 任务名称
+	InvokeTarget  string                 `protobuf:"bytes,3,opt,name=invokeTarget,proto3" json:"invokeTarget,omitempty"`                 // 调用目标
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -110,12 +106,11 @@ func (x *PageBaseJobRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 定时任务分页响应
 type PageBaseJobResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseJob `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseJob             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -164,6 +159,7 @@ func (x *PageBaseJobResponse) GetTotal() int32 {
 	return 0
 }
 
+// StartBaseJob请求参数
 type StartBaseJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
@@ -208,6 +204,7 @@ func (x *StartBaseJobRequest) GetId() int64 {
 	return 0
 }
 
+// StopBaseJob请求参数
 type StopBaseJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
@@ -252,6 +249,7 @@ func (x *StopBaseJobRequest) GetId() int64 {
 	return 0
 }
 
+// ExecBaseJob请求参数
 type ExecBaseJobRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
@@ -296,12 +294,11 @@ func (x *ExecBaseJobRequest) GetId() int64 {
 	return 0
 }
 
+// 定时任务参数
 type BaseJobArgs struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 参数
-	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// 值
-	Value         string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`     // 参数
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"` // 值
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -352,25 +349,18 @@ func (x *BaseJobArgs) GetValue() string {
 
 // 定时任务
 type BaseJob struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 任务ID
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 任务名称
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 调用目标
-	InvokeTarget string `protobuf:"bytes,3,opt,name=invokeTarget,proto3" json:"invokeTarget,omitempty"`
-	// 目标参数
-	Args []*BaseJobArgs `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`
-	// cron表达式
-	CronExpression string `protobuf:"bytes,5,opt,name=cronExpression,proto3" json:"cronExpression,omitempty"`
-	// job启动时返回的id
-	EntryId int32 `protobuf:"varint,6,opt,name=entryId,proto3" json:"entryId,omitempty"`
-	// 状态
-	Status        common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"`
-	CreatedAt     string        `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"` // 创建时间
-	UpdatedAt     string        `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"` // 更新时间
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                              // 任务ID
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                           // 任务名称
+	InvokeTarget   string                 `protobuf:"bytes,3,opt,name=invokeTarget,proto3" json:"invokeTarget,omitempty"`           // 调用目标
+	Args           []*BaseJobArgs         `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`                           // 目标参数
+	CronExpression string                 `protobuf:"bytes,5,opt,name=cronExpression,proto3" json:"cronExpression,omitempty"`       // cron表达式
+	EntryId        int32                  `protobuf:"varint,6,opt,name=entryId,proto3" json:"entryId,omitempty"`                    // job启动时返回的id
+	Status         common.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"` // 状态
+	CreatedAt      string                 `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`               // 创建时间
+	UpdatedAt      string                 `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`               // 更新时间
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *BaseJob) Reset() {
@@ -466,20 +456,15 @@ func (x *BaseJob) GetUpdatedAt() string {
 	return ""
 }
 
-// 定时任务
+// 定时任务表单
 type BaseJobForm struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 任务ID
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 任务名称
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 调用目标
-	InvokeTarget string `protobuf:"bytes,3,opt,name=invokeTarget,proto3" json:"invokeTarget,omitempty"`
-	// 目标参数
-	Args []*BaseJobArgs `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`
-	// cron表达式
-	CronExpression string         `protobuf:"bytes,5,opt,name=cronExpression,proto3" json:"cronExpression,omitempty"`
-	Status         *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 任务ID
+	Name           string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                 // 任务名称
+	InvokeTarget   string                 `protobuf:"bytes,3,opt,name=invokeTarget,proto3" json:"invokeTarget,omitempty"`                 // 调用目标
+	Args           []*BaseJobArgs         `protobuf:"bytes,4,rep,name=args,proto3" json:"args,omitempty"`                                 // 目标参数
+	CronExpression string                 `protobuf:"bytes,5,opt,name=cronExpression,proto3" json:"cronExpression,omitempty"`             // cron表达式
+	Status         *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -556,16 +541,14 @@ func (x *BaseJobForm) GetStatus() common.Status {
 	return common.Status(0)
 }
 
+// 定时任务日志分页查询条件
 type PageBaseJobLogRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	JobId int64                  `protobuf:"varint,2,opt,name=jobId,proto3" json:"jobId,omitempty"` // 任务id
-	// 状态
-	Status      *common.BaseJobLogStatus `protobuf:"varint,6,opt,name=status,proto3,enum=common.BaseJobLogStatus,oneof" json:"status,omitempty"`
-	ExecuteTime []string                 `protobuf:"bytes,8,rep,name=executeTime,proto3" json:"executeTime,omitempty"` // 执行时间
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	JobId         int64                    `protobuf:"varint,2,opt,name=jobId,proto3" json:"jobId,omitempty"`                                      // 任务id
+	Status        *common.BaseJobLogStatus `protobuf:"varint,6,opt,name=status,proto3,enum=common.BaseJobLogStatus,oneof" json:"status,omitempty"` // 状态
+	ExecuteTime   []string                 `protobuf:"bytes,8,rep,name=executeTime,proto3" json:"executeTime,omitempty"`                           // 执行时间
+	PageNum       int64                    `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                                // 当前页码
+	PageSize      int64                    `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                              // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -635,12 +618,11 @@ func (x *PageBaseJobLogRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 定时任务日志分页响应
 type PageBaseJobLogResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseJobLog `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseJobLog          `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -691,23 +673,15 @@ func (x *PageBaseJobLogResponse) GetTotal() int32 {
 
 // 定时任务日志
 type BaseJobLog struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 任务日志ID
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 任务ID
-	JobId int64 `protobuf:"varint,2,opt,name=jobId,proto3" json:"jobId,omitempty"`
-	// 执行参数
-	Input string `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`
-	// 输出结果
-	Output string `protobuf:"bytes,4,opt,name=output,proto3" json:"output,omitempty"`
-	// 错误信息
-	Error string `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"`
-	// 状态：1、成功。2、失败。
-	Status common.BaseJobLogStatus `protobuf:"varint,6,opt,name=status,proto3,enum=common.BaseJobLogStatus" json:"status,omitempty"`
-	// 消耗时间/毫秒
-	ProcessTime string `protobuf:"bytes,7,opt,name=processTime,proto3" json:"processTime,omitempty"`
-	// 执行时间
-	ExecuteTime   string `protobuf:"bytes,8,opt,name=executeTime,proto3" json:"executeTime,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Id            int64                   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 任务日志ID
+	JobId         int64                   `protobuf:"varint,2,opt,name=jobId,proto3" json:"jobId,omitempty"`                                // 任务ID
+	Input         string                  `protobuf:"bytes,3,opt,name=input,proto3" json:"input,omitempty"`                                 // 执行参数
+	Output        string                  `protobuf:"bytes,4,opt,name=output,proto3" json:"output,omitempty"`                               // 输出结果
+	Error         string                  `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"`                                 // 错误信息
+	Status        common.BaseJobLogStatus `protobuf:"varint,6,opt,name=status,proto3,enum=common.BaseJobLogStatus" json:"status,omitempty"` // 状态：1、成功。2、失败。
+	ProcessTime   string                  `protobuf:"bytes,7,opt,name=processTime,proto3" json:"processTime,omitempty"`                     // 消耗时间/毫秒
+	ExecuteTime   string                  `protobuf:"bytes,8,opt,name=executeTime,proto3" json:"executeTime,omitempty"`                     // 执行时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -809,10 +783,10 @@ const file_admin_base_job_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"O\n" +
-	"\x13PageBaseJobResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.admin.BaseJobR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"5\n" +
+	"\a_status\"q\n" +
+	"\x13PageBaseJobResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.admin.BaseJobB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"5\n" +
 	"\x13StartBaseJobRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\"4\n" +
 	"\x12StopBaseJobRequest\x12\x1e\n" +
@@ -846,10 +820,10 @@ const file_admin_base_job_proto_rawDesc = "" +
 	"\vexecuteTime\x18\b \x03(\tB\x12\xbaG\x0f\x92\x02\f执行时间R\vexecuteTime\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"U\n" +
-	"\x16PageBaseJobLogResponse\x12%\n" +
-	"\x04list\x18\x01 \x03(\v2\x11.admin.BaseJobLogR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xab\x03\n" +
+	"\a_status\"w\n" +
+	"\x16PageBaseJobLogResponse\x129\n" +
+	"\x04list\x18\x01 \x03(\v2\x11.admin.BaseJobLogB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xab\x03\n" +
 	"\n" +
 	"BaseJobLog\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e任务日志IDR\x02id\x12$\n" +

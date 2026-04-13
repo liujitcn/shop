@@ -58,14 +58,12 @@ func NewRecommendGoodsActionCase(
 // saveRecommendGoodsActionEvent 消费推荐商品行为事件。
 func (c *RecommendGoodsActionCase) saveRecommendGoodsActionEvent(message queueData.Message) error {
 	rawBody, err := json.Marshal(message.Values)
-	// 队列消息转 JSON 失败时，无法继续解析业务体。
 	if err != nil {
 		return err
 	}
 
 	payload := make(map[string]*utils.RecommendGoodsActionEvent)
 	err = json.Unmarshal(rawBody, &payload)
-	// 队列消息反序列化失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return err
 	}
@@ -131,6 +129,7 @@ func (c *RecommendGoodsActionCase) saveRecommendGoodsActionEvent(message queueDa
 				}
 			}
 		}
+		// 订单级行为统一按整单商品集合沉淀共现关系。
 		if isOrderGoodsEvent {
 			return c.recommendGoodsRelationCase.upsertOrderGoodsRelations(ctx, list, eventType, event.EventTime)
 		}
@@ -140,11 +139,11 @@ func (c *RecommendGoodsActionCase) saveRecommendGoodsActionEvent(message queueDa
 
 // bindRecommendGoodsActionActor 将匿名行为主体绑定为登录主体。
 func (c *RecommendGoodsActionCase) bindRecommendGoodsActionActor(ctx context.Context, anonymousId, userId int64) error {
-	recommendGoodsActionQuery := c.RecommendGoodsActionRepo.Data.Query(ctx).RecommendGoodsAction
-	_, err := recommendGoodsActionQuery.WithContext(ctx).
+	query := c.RecommendGoodsActionRepo.Data.Query(ctx).RecommendGoodsAction
+	_, err := query.WithContext(ctx).
 		Where(
-			recommendGoodsActionQuery.ActorType.Eq(recommendEvent.ActorTypeAnonymous),
-			recommendGoodsActionQuery.ActorID.Eq(anonymousId),
+			query.ActorType.Eq(recommendEvent.ActorTypeAnonymous),
+			query.ActorID.Eq(anonymousId),
 		).
 		Updates(map[string]interface{}{
 			"actor_type": recommendEvent.ActorTypeUser,
@@ -165,6 +164,7 @@ func (c *RecommendGoodsActionCase) publishRecommendGoodsActionEvent(actor *appDt
 
 // upsertGoodsRelation 按同一次推荐请求的共同出现结果累计商品关联度。
 func (c *RecommendGoodsActionCase) upsertGoodsRelation(ctx context.Context, eventType common.RecommendGoodsActionType, requestId string, goodsId, goodsNum int64, eventTime time.Time) error {
+	// 请求编号为空时，无法回查同批推荐商品，不做关联聚合。
 	if requestId == "" {
 		return nil
 	}

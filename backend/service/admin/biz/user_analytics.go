@@ -130,6 +130,7 @@ func (c *UserAnalyticsCase) GetUserAnalyticsRank(ctx context.Context, req *commo
 	}, nil
 }
 
+// countNewUsers 统计时间范围内新增用户数。
 func (c *UserAnalyticsCase) countNewUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
 	err := c.baseUserCase.Query(ctx).BaseUser.WithContext(ctx).UnderlyingDB().
@@ -139,12 +140,15 @@ func (c *UserAnalyticsCase) countNewUsers(ctx context.Context, startAt, endAt ti
 	return count, err
 }
 
+// countDistinctOrderUsers 统计时间范围内下单用户数。
 func (c *UserAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
 	db := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().Model(&models.OrderInfo{})
+	// 指定开始时间时，按完整区间统计下单用户。
 	if !startAt.IsZero() {
 		db = db.Where("created_at >= ? AND created_at < ?", startAt, endAt)
 	} else {
+		// 未指定开始时间时，统计截止时间之前的累计下单用户。
 		db = db.Where("created_at < ?", endAt)
 	}
 	err := db.Distinct("user_id").Count(&count).Error
@@ -154,7 +158,7 @@ func (c *UserAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt
 // countDistinctActiveUsers 查询周期内活跃用户数。
 func (c *UserAnalyticsCase) countDistinctActiveUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	type row struct {
-		UserID int64 `gorm:"column:user_id"`
+		UserId int64 `gorm:"column:user_id"`
 	}
 	rows := make([]row, 0)
 	sql := "" +
@@ -176,6 +180,7 @@ func (c *UserAnalyticsCase) countDistinctActiveUsers(ctx context.Context, startA
 	return int64(len(rows)), err
 }
 
+// countDistinctBehaviorUsers 统计截止指定时间的行为用户数。
 func (c *UserAnalyticsCase) countDistinctBehaviorUsers(ctx context.Context, tableName string, endAt time.Time) (int64, error) {
 	var count int64
 	err := c.baseUserCase.Query(ctx).BaseUser.WithContext(ctx).UnderlyingDB().

@@ -17,16 +17,19 @@ export enum BaseConfigSite {
   APP = 3,
 }
 
+/** 配置请求参数 */
 export interface ConfigRequest {
   /** 位置：枚举【BaseConfigSite】 */
   site: BaseConfigSite;
 }
 
+/** 配置响应 */
 export interface ConfigResponse {
   /** 系统配置 */
   data: ConfigResponse_Data[];
 }
 
+/** 配置数据 */
 export interface ConfigResponse_Data {
   /** 配置key */
   key: string;

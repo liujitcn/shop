@@ -66,9 +66,11 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 	log.Infof("Job TradeBill Exec %+v", args)
 	v, ok := args["billDate"]
 	var now *time.Time
+	// 任务参数显式指定账单日期时，优先按指定日期执行。
 	if ok && len(v) > 0 {
 		now = _time.StringTimeToTime(v)
 	}
+	// 未指定账单日期时，默认回退到前一天执行对账。
 	if now == nil {
 		now = new(time.Now().AddDate(0, 0, -1))
 	}
@@ -77,12 +79,14 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 
 	ret := make([]string, 0)
 	payment, err1 := t.payment(billDate, bill.BILL_TYPE_SUCCESS)
+	// 支付账单核对失败时，记录错误信息并继续处理退款账单。
 	if err1 != nil {
 		ret = append(ret, err1.Error())
 	} else {
 		ret = append(ret, payment...)
 	}
 	refund, err2 := t.refund(billDate, bill.BILL_TYPE_REFUND)
+	// 退款账单核对失败时，记录错误信息供任务结果统一返回。
 	if err2 != nil {
 		ret = append(ret, err2.Error())
 	} else {
@@ -96,6 +100,7 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	ret := make([]string, 0)
 	payBill, err := t.downloadBill(billDate, billType)
+	// 账单下载失败时，当前账单类型无法继续核对。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -104,16 +109,20 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	paymentList := make([]*models.OrderPayment, 0)
 	var startTime, endTime time.Time
 	startTime, endTime, err = billDateRange(billDate)
+	// 账单日期解析失败时，直接终止本次支付账单核对。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
 	}
-	orderPaymentQuery := t.data.Query(t.ctx).OrderPayment
+	query := t.data.Query(t.ctx).OrderPayment
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.SuccessTime.Gte(startTime)))
+	opts = append(opts, repo.Where(query.SuccessTime.Lt(endTime)))
 	paymentList, err = t.orderPaymentRepo.List(
 		t.ctx,
-		repo.Where(orderPaymentQuery.SuccessTime.Gte(startTime)),
-		repo.Where(orderPaymentQuery.SuccessTime.Lt(endTime)),
+		opts...,
 	)
+	// 本地支付记录查询失败时，无法继续执行账单比对。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -127,6 +136,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	// 获取对账单内容
 	var fileByte []byte
 	fileByte, err = t.oss.GetFileByte(payBill.FilePath)
+	// 账单文件读取失败时，无法继续校验与解析。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -146,6 +156,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	for {
 		var record []string
 		record, err = reader.Read()
+		// 读到文件结尾时，结束当前账单解析循环。
 		if err == io.EOF {
 			break
 		}
@@ -157,6 +168,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 		for i := range record {
 			record[i] = strings.Trim(record[i], "`")
 		}
+		// 仅处理微信支付账单的标准列数记录。
 		switch len(record) {
 		case 20:
 			// 计算金额
@@ -194,6 +206,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 			}
 		}
 
+		// 本地与三方统计完全一致时，标记本次支付账单核对成功。
 		if payBill.TotalCount == payBill.ThirdTotalCount && payBill.TotalAmount == payBill.ThirdTotalAmount {
 			payBill.Status = 1
 		} else {
@@ -201,6 +214,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 		}
 		return t.payBillRepo.UpdateById(ctx, payBill)
 	})
+	// 对账结果事务提交失败时，直接返回错误供任务重试。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -213,6 +227,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 	ret := make([]string, 0)
 	payBill, err := t.downloadBill(billDate, billType)
+	// 账单下载失败时，当前账单类型无法继续核对。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -221,16 +236,20 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 	refundList := make([]*models.OrderRefund, 0)
 	var startTime, endTime time.Time
 	startTime, endTime, err = billDateRange(billDate)
+	// 账单日期解析失败时，直接终止本次退款账单核对。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
 	}
-	orderRefundQuery := t.data.Query(t.ctx).OrderRefund
+	query := t.data.Query(t.ctx).OrderRefund
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.SuccessTime.Gte(startTime)))
+	opts = append(opts, repo.Where(query.SuccessTime.Lt(endTime)))
 	refundList, err = t.orderRefundRepo.List(
 		t.ctx,
-		repo.Where(orderRefundQuery.SuccessTime.Gte(startTime)),
-		repo.Where(orderRefundQuery.SuccessTime.Lt(endTime)),
+		opts...,
 	)
+	// 本地退款记录查询失败时，无法继续执行账单比对。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -244,6 +263,7 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 	// 获取对账单内容
 	var fileByte []byte
 	fileByte, err = t.oss.GetFileByte(payBill.FilePath)
+	// 账单文件读取失败时，无法继续校验与解析。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -263,6 +283,7 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 	for {
 		var record []string
 		record, err = reader.Read()
+		// 读到文件结尾时，结束当前账单解析循环。
 		if err == io.EOF {
 			break
 		}
@@ -274,6 +295,7 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 		for i := range record {
 			record[i] = strings.Trim(record[i], "`")
 		}
+		// 仅处理微信退款账单的标准列数记录。
 		switch len(record) {
 		case 29:
 			// 计算金额
@@ -311,6 +333,7 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 			}
 		}
 
+		// 本地与三方统计完全一致时，标记本次退款账单核对成功。
 		if payBill.TotalCount == payBill.ThirdTotalCount && payBill.TotalAmount == payBill.ThirdTotalAmount {
 			payBill.Status = 1
 		} else {
@@ -318,6 +341,7 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 		}
 		return t.payBillRepo.UpdateById(ctx, payBill)
 	})
+	// 对账结果事务提交失败时，直接返回错误供任务重试。
 	if err != nil {
 		ret = append(ret, err.Error())
 		return ret, err
@@ -328,15 +352,19 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 // downloadBill 下载并初始化对账单记录
 func (t *TradeBill) downloadBill(billDate, billType string) (*models.PayBill, error) {
 	// 获取当前定时账单日期
-	payBillQuery := t.data.Query(t.ctx).PayBill
+	query := t.data.Query(t.ctx).PayBill
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.BillDate.Eq(billDate)))
+	opts = append(opts, repo.Where(query.BillType.Eq(billType)))
 	first, err := t.payBillRepo.Find(
 		t.ctx,
-		repo.Where(payBillQuery.BillDate.Eq(billDate)),
-		repo.Where(payBillQuery.BillType.Eq(billType)),
+		opts...,
 	)
+	// 已存在的账单查询出现非“未找到”错误时，直接返回。
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
+	// 账单记录不存在时，先向微信申请并落本地账单文件。
 	if errors.Is(err, gorm.ErrRecordNotFound) || first == nil {
 		// 申请账单
 		var tradeBill *bill.TradeBillResponse
@@ -397,6 +425,7 @@ func (t *TradeBill) checkHash(fileBytes []byte, hashValue string) error {
 	hashSum := hash.Sum(nil) // 返回 [20]byte 的切片
 	// 将哈希值转换为十六进制字符串（与常见工具格式一致）
 	hashHex := fmt.Sprintf("%x", hashSum)
+	// 账单内容与期望哈希不一致时，视为文件校验失败。
 	if hashHex != hashValue {
 		return errors.New("hash value error")
 	}

@@ -66,9 +66,11 @@ func (c *BaseRoleCase) PageBaseRole(ctx context.Context, req *admin.PageBaseRole
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	// 传入名称关键字时，按名称模糊匹配角色。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
+	// 传入编码关键字时，按编码模糊匹配角色。
 	if req.GetCode() != "" {
 		opts = append(opts, repo.Where(query.Code.Like("%"+req.GetCode()+"%")))
 	}
@@ -101,8 +103,7 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *admin.BaseRoleFo
 	baseRole := c.formMapper.ToEntity(req)
 	baseRole.Menus = _string.ConvertInt64ArrayToString(req.GetMenus())
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		var err error
-		err = c.Create(ctx, baseRole)
+		err := c.Create(ctx, baseRole)
 		if err != nil {
 			return err
 		}
@@ -116,6 +117,7 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *admin.BaseRoleFo
 	if err != nil {
 		return err
 	}
+	// 超级管理员角色不允许被修改。
 	if oldBaseRole.Code == _const.BaseRoleCode_Super {
 		return errors.New("更新角色失败，不能操作超级管理员角色")
 	}
@@ -123,7 +125,7 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *admin.BaseRoleFo
 	baseRole := c.formMapper.ToEntity(req)
 	baseRole.Menus = _string.ConvertInt64ArrayToString(req.GetMenus())
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.UpdateById(ctx, baseRole)
+		err = c.UpdateById(ctx, baseRole)
 		if err != nil {
 			return err
 		}
@@ -136,16 +138,20 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	query := c.Query(ctx).BaseRole
 
-	count, err := c.Count(ctx, repo.Where(query.ID.In(ids...)), repo.Where(query.Code.Eq(_const.BaseRoleCode_Super)))
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.In(ids...)))
+	opts = append(opts, repo.Where(query.Code.Eq(_const.BaseRoleCode_Super)))
+	count, err := c.Count(ctx, opts...)
 	if err != nil {
 		return errors.New("删除角色失败")
 	}
+	// 命中超级管理员角色时，禁止继续删除。
 	if count > 0 {
 		return errors.New("删除角色失败，不能操作超级管理员角色")
 	}
 
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.DeleteByIds(ctx, ids)
+		err = c.DeleteByIds(ctx, ids)
 		if err != nil {
 			return err
 		}
@@ -159,6 +165,7 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *common.SetSta
 	if err != nil {
 		return err
 	}
+	// 超级管理员角色不允许修改状态。
 	if baseRole.Code == _const.BaseRoleCode_Super {
 		return errors.New("设置状态失败，不能操作超级管理员角色")
 	}
@@ -174,6 +181,7 @@ func (c *BaseRoleCase) SetBaseRoleMenus(ctx context.Context, req *admin.SetMenus
 	if err != nil {
 		return err
 	}
+	// 超级管理员角色不允许调整菜单权限。
 	if oldBaseRole.Code == _const.BaseRoleCode_Super {
 		return errors.New("更新角色失败，不能操作超级管理员角色")
 	}
@@ -183,7 +191,7 @@ func (c *BaseRoleCase) SetBaseRoleMenus(ctx context.Context, req *admin.SetMenus
 		Menus: _string.ConvertInt64ArrayToString(req.GetMenus()),
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.UpdateById(ctx, baseRole)
+		err = c.UpdateById(ctx, baseRole)
 		if err != nil {
 			return err
 		}

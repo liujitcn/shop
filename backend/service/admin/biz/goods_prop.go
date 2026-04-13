@@ -34,9 +34,11 @@ func (c *GoodsPropCase) PageGoodsProp(ctx context.Context, req *admin.PageGoodsP
 	query := c.Query(ctx).GoodsProp
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
+	// 传入商品编号时，仅查询对应商品的属性。
 	if req.GetGoodsId() > 0 {
 		opts = append(opts, repo.Where(query.GoodsID.Eq(req.GetGoodsId())))
 	}
+	// 传入属性名时，按属性名模糊匹配。
 	if req.GetLabel() != "" {
 		opts = append(opts, repo.Where(query.Label.Like("%"+req.GetLabel()+"%")))
 	}

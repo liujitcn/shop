@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package admin;
 
+import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
 import "common/analytics.proto";
@@ -30,11 +31,24 @@ service UserAnalyticsService {
   }
 }
 
+// 用户分析汇总响应
 message UserAnalyticsSummaryResponse {
-  int64 newUserCount = 1;
-  int64 newUserGrowthRate = 2;
-  int64 orderUserCount = 3;
-  int64 orderUserConversionRate = 4;
-  int64 activeUserCount = 5;
-  int64 activeUserCoverageRate = 6;
+  int64 newUserCount = 1 [
+    (gnostic.openapi.v3.property) = {description: "新增用户数"}
+  ]; // 新增用户数
+  int64 newUserGrowthRate = 2 [
+    (gnostic.openapi.v3.property) = {description: "新增用户增长率"}
+  ]; // 新增用户增长率
+  int64 orderUserCount = 3 [
+    (gnostic.openapi.v3.property) = {description: "下单用户数"}
+  ]; // 下单用户数
+  int64 orderUserConversionRate = 4 [
+    (gnostic.openapi.v3.property) = {description: "下单转化率"}
+  ]; // 下单转化率
+  int64 activeUserCount = 5 [
+    (gnostic.openapi.v3.property) = {description: "活跃用户数"}
+  ]; // 活跃用户数
+  int64 activeUserCoverageRate = 6 [
+    (gnostic.openapi.v3.property) = {description: "活跃覆盖率"}
+  ]; // 活跃覆盖率
 }

@@ -77,6 +77,7 @@ func (BaseConfigSite) EnumDescriptor() ([]byte, []int) {
 	return file_base_config_proto_rawDescGZIP(), []int{0}
 }
 
+// 配置请求参数
 type ConfigRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Site          BaseConfigSite         `protobuf:"varint,2,opt,name=site,proto3,enum=base.BaseConfigSite" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
@@ -121,6 +122,7 @@ func (x *ConfigRequest) GetSite() BaseConfigSite {
 	return BaseConfigSite_UNKNOWN_BCS
 }
 
+// 配置响应
 type ConfigResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Data          []*ConfigResponse_Data `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty"` // 系统配置
@@ -165,6 +167,7 @@ func (x *ConfigResponse) GetData() []*ConfigResponse_Data {
 	return nil
 }
 
+// 配置数据
 type ConfigResponse_Data struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`     // 配置key

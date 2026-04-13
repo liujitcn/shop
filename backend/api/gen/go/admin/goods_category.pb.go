@@ -28,10 +28,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品分类树响应
 type TreeGoodsCategoryResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*GoodsCategory `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsCategory       `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,6 +73,7 @@ func (x *TreeGoodsCategoryResponse) GetList() []*GoodsCategory {
 	return nil
 }
 
+// 商品分类选项查询条件
 type OptionGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"` // 父级商品分类ID
@@ -226,7 +227,7 @@ func (x *GoodsCategory) GetChildren() []*GoodsCategory {
 	return nil
 }
 
-// 商品分类
+// 商品分类表单
 type GoodsCategoryForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品分类ID
@@ -315,9 +316,9 @@ var File_admin_goods_category_proto protoreflect.FileDescriptor
 
 const file_admin_goods_category_proto_rawDesc = "" +
 	"\n" +
-	"\x1aadmin/goods_category.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\"E\n" +
-	"\x19TreeGoodsCategoryResponse\x12(\n" +
-	"\x04list\x18\x01 \x03(\v2\x14.admin.GoodsCategoryR\x04list\"f\n" +
+	"\x1aadmin/goods_category.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\"Y\n" +
+	"\x19TreeGoodsCategoryResponse\x12<\n" +
+	"\x04list\x18\x01 \x03(\v2\x14.admin.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"f\n" +
 	"\x1aOptionGoodsCategoryRequest\x12;\n" +
 	"\bparentId\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14父级商品分类IDH\x00R\bparentId\x88\x01\x01B\v\n" +
 	"\t_parentId\"\xda\x03\n" +

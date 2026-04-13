@@ -10,11 +10,13 @@ import type { Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 商品分类树响应 */
 export interface TreeGoodsCategoryResponse {
   /** 分页数据 */
   list: GoodsCategory[];
 }
 
+/** 商品分类选项查询条件 */
 export interface OptionGoodsCategoryRequest {
   /** 父级商品分类ID */
   parentId?: number | undefined;
@@ -42,7 +44,7 @@ export interface GoodsCategory {
   children: GoodsCategory[];
 }
 
-/** 商品分类 */
+/** 商品分类表单 */
 export interface GoodsCategoryForm {
   /** 商品分类ID */
   id: number;

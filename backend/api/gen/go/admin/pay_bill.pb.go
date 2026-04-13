@@ -25,14 +25,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 支付账单分页查询条件
 type PagePayBillRequest struct {
-	state    protoimpl.MessageState `protogen:"open.v1"`
-	BillDate string                 `protobuf:"bytes,3,opt,name=billDate,proto3" json:"billDate,omitempty"`                              // 账单日期
-	Status   *common.PayBillStatus  `protobuf:"varint,4,opt,name=status,proto3,enum=common.PayBillStatus,oneof" json:"status,omitempty"` // 对账状态：枚举【PayBillStatus】
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BillDate      string                 `protobuf:"bytes,3,opt,name=billDate,proto3" json:"billDate,omitempty"`                              // 账单日期
+	Status        *common.PayBillStatus  `protobuf:"varint,4,opt,name=status,proto3,enum=common.PayBillStatus,oneof" json:"status,omitempty"` // 对账状态：枚举【PayBillStatus】
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                             // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                           // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -95,12 +94,11 @@ func (x *PagePayBillRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 支付账单分页响应
 type PagePayBillResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*PayBill `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*PayBill             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -284,10 +282,10 @@ const file_admin_pay_bill_proto_rawDesc = "" +
 	"\x06status\x18\x04 \x01(\x0e2\x15.common.PayBillStatusB.\xbaG+\x92\x02(对账状态：枚举【PayBillStatus】H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"O\n" +
-	"\x13PagePayBillResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.admin.PayBillR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xd5\a\n" +
+	"\a_status\"q\n" +
+	"\x13PagePayBillResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.admin.PayBillB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xd5\a\n" +
 	"\aPayBill\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12_\n" +
 	"\bbillDate\x18\x02 \x01(\tBC\xbaG@\x92\x02=格式YYYY-MM-DD。仅支持三个月内的账单下载申请R\bbillDate\x12\xfa\x01\n" +

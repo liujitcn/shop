@@ -9,7 +9,7 @@
 /**
  * `double` 类型数组包装消息。
  *
- * `DoubleValues` 的 JSON 表示为数字数组。
+ * DoubleValues
  */
 export interface DoubleValues {
   /** 值列表。 */
@@ -19,7 +19,7 @@ export interface DoubleValues {
 /**
  * `float` 类型数组包装消息。
  *
- * `FloatValues` 的 JSON 表示为数字数组。
+ * FloatValues
  */
 export interface FloatValues {
   /** 值列表。 */
@@ -29,7 +29,7 @@ export interface FloatValues {
 /**
  * `int64` 类型数组包装消息。
  *
- * `Int64Values` 的 JSON 表示为字符串数组。
+ * Int64Values
  */
 export interface Int64Values {
   /** 值列表。 */
@@ -39,7 +39,7 @@ export interface Int64Values {
 /**
  * `uint64` 类型数组包装消息。
  *
- * `UInt64Values` 的 JSON 表示为字符串数组。
+ * UInt64Values
  */
 export interface UInt64Values {
   /** 值列表。 */
@@ -49,7 +49,7 @@ export interface UInt64Values {
 /**
  * `int32` 类型数组包装消息。
  *
- * `Int32Values` 的 JSON 表示为数字数组。
+ * Int32Values
  */
 export interface Int32Values {
   /** 值列表。 */
@@ -59,7 +59,7 @@ export interface Int32Values {
 /**
  * `uint32` 类型数组包装消息。
  *
- * `UInt32Values` 的 JSON 表示为数字数组。
+ * UInt32Values
  */
 export interface UInt32Values {
   /** 值列表。 */
@@ -69,7 +69,7 @@ export interface UInt32Values {
 /**
  * `bool` 类型数组包装消息。
  *
- * `BoolValues` 的 JSON 表示为布尔数组。
+ * BoolValues
  */
 export interface BoolValues {
   /** 值列表。 */
@@ -79,7 +79,7 @@ export interface BoolValues {
 /**
  * `string` 类型数组包装消息。
  *
- * `StringValues` 的 JSON 表示为字符串数组。
+ * StringValues
  */
 export interface StringValues {
   /** 值列表。 */
@@ -89,7 +89,7 @@ export interface StringValues {
 /**
  * `bytes` 类型数组包装消息。
  *
- * `BytesValues` 的 JSON 表示为字符串数组。
+ * BytesValues
  */
 export interface BytesValues {
   /** 值列表。 */

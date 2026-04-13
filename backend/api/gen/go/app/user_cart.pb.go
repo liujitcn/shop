@@ -28,10 +28,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 用户购物车列表响应
 type ListUserCartResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 数据
-	List          []*UserCart `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*UserCart            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,24 +73,21 @@ func (x *ListUserCartResponse) GetList() []*UserCart {
 	return nil
 }
 
-// 用户购物车
+// UserCart
 type UserCart struct {
-	state    protoimpl.MessageState `protogen:"open.v1"`
-	Id       int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`            // 用户购物车ID
-	GoodsId  int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`  // 商品ID
-	SkuCode  string                 `protobuf:"bytes,3,opt,name=skuCode,proto3" json:"skuCode,omitempty"`   // 规格编号
-	Picture  string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`   // 商品图片
-	Name     string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`         // 名称
-	Num      int64                  `protobuf:"varint,6,opt,name=num,proto3" json:"num,omitempty"`          // 数量
-	SpecItem []string               `protobuf:"bytes,7,rep,name=specItem,proto3" json:"specItem,omitempty"` // 规格描述
-	// 库存数量
-	Inventory int64 `protobuf:"varint,8,opt,name=inventory,proto3" json:"inventory,omitempty"`
-	// 价格
-	Price int64 `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`
-	// 加入时价格
-	JoinPrice        int64             `protobuf:"varint,40,opt,name=joinPrice,proto3" json:"joinPrice,omitempty"`
-	IsChecked        bool              `protobuf:"varint,51,opt,name=isChecked,proto3" json:"isChecked,omitempty"`              // 是否选中
-	RecommendContext *RecommendContext `protobuf:"bytes,52,opt,name=recommendContext,proto3" json:"recommendContext,omitempty"` // 推荐上下文
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 用户购物车ID
+	GoodsId          int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                   // 商品ID
+	SkuCode          string                 `protobuf:"bytes,3,opt,name=skuCode,proto3" json:"skuCode,omitempty"`                    // 规格编号
+	Picture          string                 `protobuf:"bytes,4,opt,name=picture,proto3" json:"picture,omitempty"`                    // 商品图片
+	Name             string                 `protobuf:"bytes,5,opt,name=name,proto3" json:"name,omitempty"`                          // 名称
+	Num              int64                  `protobuf:"varint,6,opt,name=num,proto3" json:"num,omitempty"`                           // 数量
+	SpecItem         []string               `protobuf:"bytes,7,rep,name=specItem,proto3" json:"specItem,omitempty"`                  // 规格描述
+	Inventory        int64                  `protobuf:"varint,8,opt,name=inventory,proto3" json:"inventory,omitempty"`               // 库存数量
+	Price            int64                  `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`                      // 价格
+	JoinPrice        int64                  `protobuf:"varint,40,opt,name=joinPrice,proto3" json:"joinPrice,omitempty"`              // 加入时价格
+	IsChecked        bool                   `protobuf:"varint,51,opt,name=isChecked,proto3" json:"isChecked,omitempty"`              // 是否选中
+	RecommendContext *RecommendContext      `protobuf:"bytes,52,opt,name=recommendContext,proto3" json:"recommendContext,omitempty"` // 推荐上下文
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -209,7 +206,7 @@ func (x *UserCart) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// 用户购物车
+// 创建购物车请求参数
 type CreateUserCartRequest struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 规格id
@@ -278,7 +275,7 @@ func (x *CreateUserCartRequest) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// 用户购物车
+// 更新购物车请求参数
 type UpdateUserCartRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`   // 购物车id
@@ -331,6 +328,7 @@ func (x *UpdateUserCartRequest) GetNum() int64 {
 	return 0
 }
 
+// SetUserCartStatus请求参数
 type SetUserCartStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`               // 购物车id
@@ -383,6 +381,7 @@ func (x *SetUserCartStatusRequest) GetIsChecked() bool {
 	return false
 }
 
+// 购物车全选设置请求参数
 type SelectedUserCartRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	IsChecked     bool                   `protobuf:"varint,1,opt,name=isChecked,proto3" json:"isChecked,omitempty"` // 是否选中
@@ -431,9 +430,9 @@ var File_app_user_cart_proto protoreflect.FileDescriptor
 
 const file_app_user_cart_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/user_cart.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13app/recommend.proto\x1a\x13common/common.proto\"9\n" +
-	"\x14ListUserCartResponse\x12!\n" +
-	"\x04list\x18\x01 \x03(\v2\r.app.UserCartR\x04list\"\xc2\x04\n" +
+	"\x13app/user_cart.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13app/recommend.proto\x1a\x13common/common.proto\"G\n" +
+	"\x14ListUserCartResponse\x12/\n" +
+	"\x04list\x18\x01 \x03(\v2\r.app.UserCartB\f\xbaG\t\x92\x02\x06数据R\x04list\"\xc2\x04\n" +
 	"\bUserCart\x12'\n" +
 	"\x02id\x18\x01 \x01(\x03B\x17\xbaG\x14\x92\x02\x11用户购物车IDR\x02id\x12(\n" +
 	"\agoodsId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12,\n" +

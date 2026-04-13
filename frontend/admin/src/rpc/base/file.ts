@@ -7,16 +7,19 @@
 /* eslint-disable */
 import type { BytesValue } from "../google/protobuf/wrappers";
 
+/** 批量上传文件请求参数 */
 export interface MultiUploadFileRequest {
   /** 文件名 */
   files: UploadFileInfo[];
 }
 
+/** 批量上传文件响应 */
 export interface MultiUploadFileResponse {
   /** 文件上传结果 */
   files: FileInfo[];
 }
 
+/** 上传文件信息 */
 export interface UploadFileInfo {
   /** 文件名 */
   name: string;
@@ -28,6 +31,7 @@ export interface UploadFileInfo {
   content: Uint8Array;
 }
 
+/** 下载文件请求参数 */
 export interface DownloadFileRequest {
   /** 文件名 */
   name: string;
@@ -35,6 +39,7 @@ export interface DownloadFileRequest {
   path: string;
 }
 
+/** File信息 */
 export interface FileInfo {
   /** 文件路径 */
   url: string;

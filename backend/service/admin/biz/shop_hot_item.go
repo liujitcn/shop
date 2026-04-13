@@ -42,9 +42,11 @@ func (c *ShopHotItemCase) PageShopHotItem(ctx context.Context, req *admin.PageSh
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入专区编号时，仅查询指定热门专区下的项目。
 	if req.GetHotId() > 0 {
 		opts = append(opts, repo.Where(query.HotID.Eq(req.GetHotId())))
 	}
+	// 传入标题关键字时，按标题模糊匹配热门专区项目。
 	if req.GetTitle() != "" {
 		opts = append(opts, repo.Where(query.Title.Like("%"+req.GetTitle()+"%")))
 	}
@@ -124,7 +126,9 @@ func (c *ShopHotItemCase) DeleteShopHotItem(ctx context.Context, id string) erro
 			return err
 		}
 		query := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods
-		return c.shopHotGoodsRepo.Delete(ctx, repo.Where(query.HotItemID.In(ids...)))
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.HotItemID.In(ids...)))
+		return c.shopHotGoodsRepo.Delete(ctx, opts...)
 	})
 }
 
@@ -139,7 +143,9 @@ func (c *ShopHotItemCase) SetShopHotItemStatus(ctx context.Context, req *common.
 // replaceShopHotGoods 替换热门选项商品
 func (c *ShopHotItemCase) replaceShopHotGoods(ctx context.Context, hotItemId int64, goodsIds []int64) error {
 	query := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods
-	err := c.shopHotGoodsRepo.Delete(ctx, repo.Where(query.HotItemID.Eq(hotItemId)))
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.HotItemID.Eq(hotItemId)))
+	err := c.shopHotGoodsRepo.Delete(ctx, opts...)
 	if err != nil {
 		return err
 	}

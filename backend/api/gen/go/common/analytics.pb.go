@@ -118,9 +118,10 @@ func (AnalyticsSeriesType) EnumDescriptor() ([]byte, []int) {
 	return file_common_analytics_proto_rawDescGZIP(), []int{1}
 }
 
+// 分析时间请求参数
 type AnalyticsTimeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	TimeType      AnalyticsTimeType      `protobuf:"varint,1,opt,name=timeType,proto3,enum=common.AnalyticsTimeType" json:"timeType,omitempty"`
+	TimeType      AnalyticsTimeType      `protobuf:"varint,1,opt,name=timeType,proto3,enum=common.AnalyticsTimeType" json:"timeType,omitempty"` // 时间类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -162,12 +163,13 @@ func (x *AnalyticsTimeRequest) GetTimeType() AnalyticsTimeType {
 	return AnalyticsTimeType_WEEK
 }
 
+// 趋势分析Series
 type AnalyticsTrendSeries struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Type          AnalyticsSeriesType    `protobuf:"varint,2,opt,name=type,proto3,enum=common.AnalyticsSeriesType" json:"type,omitempty"`
-	Data          []int64                `protobuf:"varint,3,rep,packed,name=data,proto3" json:"data,omitempty"`
-	YAxisIndex    int32                  `protobuf:"varint,4,opt,name=yAxisIndex,proto3" json:"yAxisIndex,omitempty"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                  // 系列名称
+	Type          AnalyticsSeriesType    `protobuf:"varint,2,opt,name=type,proto3,enum=common.AnalyticsSeriesType" json:"type,omitempty"` // 图表类型
+	Data          []int64                `protobuf:"varint,3,rep,packed,name=data,proto3" json:"data,omitempty"`                          // 数据数组
+	YAxisIndex    int32                  `protobuf:"varint,4,opt,name=yAxisIndex,proto3" json:"yAxisIndex,omitempty"`                     // Y轴索引
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -230,11 +232,12 @@ func (x *AnalyticsTrendSeries) GetYAxisIndex() int32 {
 	return 0
 }
 
+// Analytics趋势响应
 type AnalyticsTrendResponse struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Axis          []string                `protobuf:"bytes,1,rep,name=axis,proto3" json:"axis,omitempty"`
-	Series        []*AnalyticsTrendSeries `protobuf:"bytes,2,rep,name=series,proto3" json:"series,omitempty"`
-	YAxisNames    []string                `protobuf:"bytes,3,rep,name=yAxisNames,proto3" json:"yAxisNames,omitempty"`
+	Axis          []string                `protobuf:"bytes,1,rep,name=axis,proto3" json:"axis,omitempty"`             // 坐标轴数据
+	Series        []*AnalyticsTrendSeries `protobuf:"bytes,2,rep,name=series,proto3" json:"series,omitempty"`         // 系列列表
+	YAxisNames    []string                `protobuf:"bytes,3,rep,name=yAxisNames,proto3" json:"yAxisNames,omitempty"` // Y轴名称列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -290,10 +293,11 @@ func (x *AnalyticsTrendResponse) GetYAxisNames() []string {
 	return nil
 }
 
+// 排行分析项
 type AnalyticsRankItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Value         int64                  `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`    // 名称
+	Value         int64                  `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"` // 值
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -342,9 +346,10 @@ func (x *AnalyticsRankItem) GetValue() int64 {
 	return 0
 }
 
+// Analytics排行响应
 type AnalyticsRankResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []*AnalyticsRankItem   `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Items         []*AnalyticsRankItem   `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"` // 排行列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -386,10 +391,11 @@ func (x *AnalyticsRankResponse) GetItems() []*AnalyticsRankItem {
 	return nil
 }
 
+// 占比分析项
 type AnalyticsPieItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Value         int64                  `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`    // 名称
+	Value         int64                  `protobuf:"varint,2,opt,name=value,proto3" json:"value,omitempty"` // 值
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -438,9 +444,10 @@ func (x *AnalyticsPieItem) GetValue() int64 {
 	return 0
 }
 
+// Analytics占比响应
 type AnalyticsPieResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Items         []*AnalyticsPieItem    `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"`
+	Items         []*AnalyticsPieItem    `protobuf:"bytes,1,rep,name=items,proto3" json:"items,omitempty"` // 饼图数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

@@ -10,6 +10,7 @@ import type { BaseJobLogStatus, Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 定时任务分页查询条件 */
 export interface PageBaseJobRequest {
   /** 任务名称 */
   name: string;
@@ -25,6 +26,7 @@ export interface PageBaseJobRequest {
   pageSize: number;
 }
 
+/** 定时任务分页响应 */
 export interface PageBaseJobResponse {
   /** 分页数据 */
   list: BaseJob[];
@@ -32,21 +34,25 @@ export interface PageBaseJobResponse {
   total: number;
 }
 
+/** StartBaseJob请求参数 */
 export interface StartBaseJobRequest {
   /** 主键id */
   id: number;
 }
 
+/** StopBaseJob请求参数 */
 export interface StopBaseJobRequest {
   /** 主键id */
   id: number;
 }
 
+/** ExecBaseJob请求参数 */
 export interface ExecBaseJobRequest {
   /** 主键id */
   id: number;
 }
 
+/** 定时任务参数 */
 export interface BaseJobArgs {
   /** 参数 */
   key: string;
@@ -76,7 +82,7 @@ export interface BaseJob {
   updatedAt: string;
 }
 
-/** 定时任务 */
+/** 定时任务表单 */
 export interface BaseJobForm {
   /** 任务ID */
   id: number;
@@ -88,9 +94,11 @@ export interface BaseJobForm {
   args: BaseJobArgs[];
   /** cron表达式 */
   cronExpression: string;
+  /** 状态 */
   status?: Status | undefined;
 }
 
+/** 定时任务日志分页查询条件 */
 export interface PageBaseJobLogRequest {
   /** 任务id */
   jobId: number;
@@ -106,6 +114,7 @@ export interface PageBaseJobLogRequest {
   pageSize: number;
 }
 
+/** 定时任务日志分页响应 */
 export interface PageBaseJobLogResponse {
   /** 分页数据 */
   list: BaseJobLog[];

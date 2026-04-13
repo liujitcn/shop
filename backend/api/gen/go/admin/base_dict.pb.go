@@ -29,15 +29,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 字典分页查询条件
 type PageBaseDictRequest struct {
-	state  protoimpl.MessageState `protogen:"open.v1"`
-	Code   string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                // 字典编号
-	Name   string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 字典名称
-	Status *common.Status         `protobuf:"varint,51,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                // 字典编号
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 字典名称
+	Status        *common.Status         `protobuf:"varint,51,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                       // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                     // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -107,12 +106,11 @@ func (x *PageBaseDictRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 字典分页响应
 type PageBaseDictResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseDict `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseDict            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -246,7 +244,7 @@ func (x *BaseDict) GetUpdatedAt() string {
 	return ""
 }
 
-// 字典
+// 字典表单
 type BaseDictForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 字典ID
@@ -315,18 +313,14 @@ func (x *BaseDictForm) GetStatus() common.Status {
 	return common.Status(0)
 }
 
+// 字典属性分页查询条件
 type PageBaseDictItemRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 字典id
-	DictId int64 `protobuf:"varint,1,opt,name=dictId,proto3" json:"dictId,omitempty"`
-	// 字典属性名称
-	Label string `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DictId        int64                  `protobuf:"varint,1,opt,name=dictId,proto3" json:"dictId,omitempty"`                            // 字典id
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                               // 字典属性名称
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -396,12 +390,11 @@ func (x *PageBaseDictItemRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 字典属性分页响应
 type PageBaseDictItemResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseDictItem `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseDictItem        `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -450,10 +443,10 @@ func (x *PageBaseDictItemResponse) GetTotal() int32 {
 	return 0
 }
 
+// 字典列表响应
 type ListBaseDictResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*ListBaseDictResponse_BaseDict `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState           `protogen:"open.v1"`
+	List          []*ListBaseDictResponse_BaseDict `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -495,6 +488,7 @@ func (x *ListBaseDictResponse) GetList() []*ListBaseDictResponse_BaseDict {
 	return nil
 }
 
+// 字典项
 type BaseDictItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                              // 字典ID
@@ -603,6 +597,7 @@ func (x *BaseDictItem) GetUpdatedAt() string {
 	return ""
 }
 
+// 字典属性表单
 type BaseDictItemForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 字典ID
@@ -695,6 +690,7 @@ func (x *BaseDictItemForm) GetStatus() common.Status {
 	return common.Status(0)
 }
 
+// 字典项
 type ListBaseDictResponse_BaseDictItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`     // 字典值
@@ -755,6 +751,7 @@ func (x *ListBaseDictResponse_BaseDictItem) GetTagType() string {
 	return ""
 }
 
+// 字典
 type ListBaseDictResponse_BaseDict struct {
 	state         protoimpl.MessageState               `protogen:"open.v1"`
 	Code          string                               `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`     // 字典编号
@@ -826,10 +823,10 @@ const file_admin_base_dict_proto_rawDesc = "" +
 	"\x06status\x183 \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"Q\n" +
-	"\x14PageBaseDictResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseDictR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x96\x02\n" +
+	"\a_status\"s\n" +
+	"\x14PageBaseDictResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseDictB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x96\x02\n" +
 	"\bBaseDict\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b字典IDR\x02id\x12&\n" +
 	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典编号R\x04code\x12&\n" +
@@ -849,12 +846,12 @@ const file_admin_base_dict_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"Y\n" +
-	"\x18PageBaseDictItemResponse\x12'\n" +
-	"\x04list\x18\x01 \x03(\v2\x13.admin.BaseDictItemR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xd0\x03\n" +
-	"\x14ListBaseDictResponse\x128\n" +
-	"\x04list\x18\x01 \x03(\v2$.admin.ListBaseDictResponse.BaseDictR\x04list\x1a\xcb\x01\n" +
+	"\a_status\"{\n" +
+	"\x18PageBaseDictItemResponse\x12;\n" +
+	"\x04list\x18\x01 \x03(\v2\x13.admin.BaseDictItemB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xe4\x03\n" +
+	"\x14ListBaseDictResponse\x12L\n" +
+	"\x04list\x18\x01 \x03(\v2$.admin.ListBaseDictResponse.BaseDictB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x1a\xcb\x01\n" +
 	"\fBaseDictItem\x12(\n" +
 	"\x05value\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典项值R\x05value\x12+\n" +
 	"\x05label\x18\x04 \x01(\tB\x15\xbaG\x12\x92\x02\x0f字典项标签R\x05label\x12d\n" +

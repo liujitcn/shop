@@ -17,11 +17,13 @@ export enum BaseUserName {
   super = 1,
 }
 
+/** 用户选项查询条件 */
 export interface OptionBaseUserRequest {
   /** 关键字 */
   keyword: string;
 }
 
+/** 用户分页查询条件 */
 export interface PageBaseUserRequest {
   /** 用户账号 */
   userName: string;
@@ -43,6 +45,7 @@ export interface PageBaseUserRequest {
   pageSize: number;
 }
 
+/** 用户分页响应 */
 export interface PageBaseUserResponse {
   /** 分页数据 */
   list: BaseUser[];
@@ -78,7 +81,7 @@ export interface BaseUser {
   updatedAt: string;
 }
 
-/** 用户 */
+/** 用户表单 */
 export interface BaseUserForm {
   /** 用户ID */
   id: number;
@@ -112,6 +115,7 @@ export interface BaseUserForm {
   remark: string;
 }
 
+/** ResetBaseUserPwd请求参数 */
 export interface ResetBaseUserPwdRequest {
   /** 用户ID */
   id: number;

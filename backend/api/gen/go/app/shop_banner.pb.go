@@ -25,10 +25,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 轮播图列表查询条件
 type ListShopBannerRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 位置：枚举【ShopBannerSite】
-	Site          int32 `protobuf:"varint,1,opt,name=site,proto3" json:"site,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Site          int32                  `protobuf:"varint,1,opt,name=site,proto3" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -70,10 +70,10 @@ func (x *ListShopBannerRequest) GetSite() int32 {
 	return 0
 }
 
+// 轮播图列表响应
 type ListShopBannerResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*ShopBanner `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopBanner          `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -115,17 +115,14 @@ func (x *ListShopBannerResponse) GetList() []*ShopBanner {
 	return nil
 }
 
+// 轮播图
 type ShopBanner struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
-	// 位置：枚举【ShopBannerSite】
-	Site common.ShopBannerSite `protobuf:"varint,2,opt,name=site,proto3,enum=common.ShopBannerSite" json:"site,omitempty"`
-	// 图片链接
-	Picture string `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`
-	// 跳转类型：枚举【ShopBannerType】
-	Type common.ShopBannerType `protobuf:"varint,4,opt,name=type,proto3,enum=common.ShopBannerType" json:"type,omitempty"`
-	// 跳转地址
-	Href          string `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 主键id
+	Site          common.ShopBannerSite  `protobuf:"varint,2,opt,name=site,proto3,enum=common.ShopBannerSite" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
+	Picture       string                 `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`                       // 图片链接
+	Type          common.ShopBannerType  `protobuf:"varint,4,opt,name=type,proto3,enum=common.ShopBannerType" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
+	Href          string                 `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`                             // 跳转地址
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,9 +198,9 @@ const file_app_shop_banner_proto_rawDesc = "" +
 	"\n" +
 	"\x15app/shop_banner.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x11common/enum.proto\"V\n" +
 	"\x15ListShopBannerRequest\x12=\n" +
-	"\x04site\x18\x01 \x01(\x05B)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】R\x04site\"=\n" +
-	"\x16ListShopBannerResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.app.ShopBannerR\x04list\"\xb6\x02\n" +
+	"\x04site\x18\x01 \x01(\x05B)\xbaG&\x92\x02#位置：枚举【ShopBannerSite】R\x04site\"Q\n" +
+	"\x16ListShopBannerResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.app.ShopBannerB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"\xb6\x02\n" +
 	"\n" +
 	"ShopBanner\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12U\n" +

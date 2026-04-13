@@ -50,12 +50,14 @@ service UserAddressService {
   }
 }
 
+// 用户地址列表响应
 message ListUserAddressResponse {
-  // 数据
-  repeated UserAddress list = 1;
+  repeated UserAddress list = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据"}
+  ]; // 数据
 }
 
-// 用户地址
+// UserAddress
 message UserAddress {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户地址ID"}
@@ -79,7 +81,7 @@ message UserAddress {
   ];  // 是否默认
 }
 
-// 用户地址
+// UserAddress表单
 message UserAddressForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户地址ID"}

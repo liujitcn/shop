@@ -18,7 +18,7 @@ export interface OrderMonthReportSummaryRequest {
   payChannel: number;
 }
 
-/** 订单月报名细查询条件 */
+/** 订单月报列表请求参数 */
 export interface OrderMonthReportListRequest {
   /** 开始月份，格式：YYYY-MM */
   startMonth: string;
@@ -50,7 +50,7 @@ export interface OrderMonthReportSummaryResponse {
   customerUnitPrice: number;
 }
 
-/** 订单月报明细 */
+/** 订单月报项 */
 export interface OrderMonthReportItem {
   /** 月份，格式：YYYY-MM */
   month: string;
@@ -72,7 +72,7 @@ export interface OrderMonthReportItem {
   customerUnitPrice: number;
 }
 
-/** 订单月报名细列表响应 */
+/** 订单月报列表响应 */
 export interface OrderMonthReportListResponse {
   /** 月报明细 */
   items: OrderMonthReportItem[];
@@ -90,7 +90,7 @@ export interface OrderDayReportSummaryRequest {
   payChannel: number;
 }
 
-/** 订单日报明细查询条件 */
+/** 订单日报列表请求参数 */
 export interface OrderDayReportListRequest {
   /** 开始日期，格式：YYYY-MM-DD */
   startDate: string;
@@ -122,7 +122,7 @@ export interface OrderDayReportSummaryResponse {
   customerUnitPrice: number;
 }
 
-/** 订单日报明细 */
+/** 订单日报项 */
 export interface OrderDayReportItem {
   /** 日期，格式：YYYY-MM-DD */
   day: string;
@@ -144,7 +144,7 @@ export interface OrderDayReportItem {
   customerUnitPrice: number;
 }
 
-/** 订单日报明细列表响应 */
+/** 订单日报列表响应 */
 export interface OrderDayReportListResponse {
   /** 日报明细 */
   items: OrderDayReportItem[];

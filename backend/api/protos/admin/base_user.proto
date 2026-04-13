@@ -73,71 +73,68 @@ service BaseUserService {
   }
 }
 
+// 用户选项查询条件
 message OptionBaseUserRequest {
-  // 关键字
   string keyword = 1 [
     (gnostic.openapi.v3.property) = {
       description: "关键字",
     }
-  ];
+  ]; // 关键字
 }
 
+// 用户分页查询条件
 message PageBaseUserRequest {
-  // 用户账号
   string userName = 2 [
     (gnostic.openapi.v3.property) = {
       description: "用户账号",
     }
-  ];
-  // 用户昵称
+  ]; // 用户账号
   string nickName = 3 [
     (gnostic.openapi.v3.property) = {
       description: "用户昵称",
     }
-  ];
+  ]; // 用户昵称
 
-  // 部门ID
   optional int64 deptId = 5 [
     (gnostic.openapi.v3.property) = {
       description: "部门ID"
     }
-  ];
-  // 手机号
+  ]; // 部门ID
   string phone = 6 [
     (gnostic.openapi.v3.property) = {
       description: "手机号",
     }
-  ];
+  ]; // 手机号
 
-  // 状态
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {
       description: "状态",
     }
-  ];
+  ]; // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 用户分页响应
 message PageBaseUserResponse {
-  // 分页数据
-  repeated BaseUser list = 1;
-  // 总数
-  int32 total = 2;
+  repeated BaseUser list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
 // 用户
@@ -190,7 +187,7 @@ message BaseUser {
   ];// 更新时间
 }
 
-// 用户
+// 用户表单
 message BaseUserForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户ID"}
@@ -237,6 +234,7 @@ message BaseUserForm {
   ]; // 备注名
 }
 
+// ResetBaseUserPwd请求参数
 message ResetBaseUserPwdRequest {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户ID"}

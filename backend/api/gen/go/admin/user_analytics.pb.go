@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,14 +25,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 用户分析汇总响应
 type UserAnalyticsSummaryResponse struct {
 	state                   protoimpl.MessageState `protogen:"open.v1"`
-	NewUserCount            int64                  `protobuf:"varint,1,opt,name=newUserCount,proto3" json:"newUserCount,omitempty"`
-	NewUserGrowthRate       int64                  `protobuf:"varint,2,opt,name=newUserGrowthRate,proto3" json:"newUserGrowthRate,omitempty"`
-	OrderUserCount          int64                  `protobuf:"varint,3,opt,name=orderUserCount,proto3" json:"orderUserCount,omitempty"`
-	OrderUserConversionRate int64                  `protobuf:"varint,4,opt,name=orderUserConversionRate,proto3" json:"orderUserConversionRate,omitempty"`
-	ActiveUserCount         int64                  `protobuf:"varint,5,opt,name=activeUserCount,proto3" json:"activeUserCount,omitempty"`
-	ActiveUserCoverageRate  int64                  `protobuf:"varint,6,opt,name=activeUserCoverageRate,proto3" json:"activeUserCoverageRate,omitempty"`
+	NewUserCount            int64                  `protobuf:"varint,1,opt,name=newUserCount,proto3" json:"newUserCount,omitempty"`                       // 新增用户数
+	NewUserGrowthRate       int64                  `protobuf:"varint,2,opt,name=newUserGrowthRate,proto3" json:"newUserGrowthRate,omitempty"`             // 新增用户增长率
+	OrderUserCount          int64                  `protobuf:"varint,3,opt,name=orderUserCount,proto3" json:"orderUserCount,omitempty"`                   // 下单用户数
+	OrderUserConversionRate int64                  `protobuf:"varint,4,opt,name=orderUserConversionRate,proto3" json:"orderUserConversionRate,omitempty"` // 下单转化率
+	ActiveUserCount         int64                  `protobuf:"varint,5,opt,name=activeUserCount,proto3" json:"activeUserCount,omitempty"`                 // 活跃用户数
+	ActiveUserCoverageRate  int64                  `protobuf:"varint,6,opt,name=activeUserCoverageRate,proto3" json:"activeUserCoverageRate,omitempty"`   // 活跃覆盖率
 	unknownFields           protoimpl.UnknownFields
 	sizeCache               protoimpl.SizeCache
 }
@@ -112,14 +114,14 @@ var File_admin_user_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_user_analytics_proto_rawDesc = "" +
 	"\n" +
-	"\x1aadmin/user_analytics.proto\x12\x05admin\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\xb4\x02\n" +
-	"\x1cUserAnalyticsSummaryResponse\x12\"\n" +
-	"\fnewUserCount\x18\x01 \x01(\x03R\fnewUserCount\x12,\n" +
-	"\x11newUserGrowthRate\x18\x02 \x01(\x03R\x11newUserGrowthRate\x12&\n" +
-	"\x0eorderUserCount\x18\x03 \x01(\x03R\x0eorderUserCount\x128\n" +
-	"\x17orderUserConversionRate\x18\x04 \x01(\x03R\x17orderUserConversionRate\x12(\n" +
-	"\x0factiveUserCount\x18\x05 \x01(\x03R\x0factiveUserCount\x126\n" +
-	"\x16activeUserCoverageRate\x18\x06 \x01(\x03R\x16activeUserCoverageRate2\x9d\x03\n" +
+	"\x1aadmin/user_analytics.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\xc4\x03\n" +
+	"\x1cUserAnalyticsSummaryResponse\x129\n" +
+	"\fnewUserCount\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f新增用户数R\fnewUserCount\x12I\n" +
+	"\x11newUserGrowthRate\x18\x02 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15新增用户增长率R\x11newUserGrowthRate\x12=\n" +
+	"\x0eorderUserCount\x18\x03 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f下单用户数R\x0eorderUserCount\x12O\n" +
+	"\x17orderUserConversionRate\x18\x04 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f下单转化率R\x17orderUserConversionRate\x12?\n" +
+	"\x0factiveUserCount\x18\x05 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f活跃用户数R\x0factiveUserCount\x12M\n" +
+	"\x16activeUserCoverageRate\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f活跃覆盖率R\x16activeUserCoverageRate2\x9d\x03\n" +
 	"\x14UserAnalyticsService\x12\x87\x01\n" +
 	"\x17GetUserAnalyticsSummary\x12\x1c.common.AnalyticsTimeRequest\x1a#.admin.UserAnalyticsSummaryResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/admin/analytics/user/summary\x12~\n" +
 	"\x15GetUserAnalyticsTrend\x12\x1c.common.AnalyticsTimeRequest\x1a\x1e.common.AnalyticsTrendResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/admin/analytics/user/trend\x12{\n" +

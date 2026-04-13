@@ -8,6 +8,7 @@
 import type { StringValues } from "../common/types";
 import type { Empty } from "../google/protobuf/empty";
 
+/** User信息 */
 export interface UserInfo {
   /** 用户账号 */
   userName: string;
@@ -25,11 +26,13 @@ export interface UserInfo {
   deptName: string;
 }
 
+/** Route树响应 */
 export interface TreeRouteResponse {
+  /** 路由列表 */
   list: RouteItem[];
 }
 
-/** 路由项 */
+/** Route项 */
 export interface RouteItem {
   /** 路由路径 */
   path?:
@@ -55,6 +58,7 @@ export interface RouteItem {
   children: RouteItem[];
 }
 
+/** Route元信息 */
 export interface RouteMeta {
   /** 菜单标题 */
   title?:
@@ -88,6 +92,7 @@ export interface RouteMeta {
   params: RouteParams[];
 }
 
+/** Route参数 */
 export interface RouteParams {
   /** key */
   key?:
@@ -97,6 +102,7 @@ export interface RouteParams {
   value?: string | undefined;
 }
 
+/** 用户资料表单 */
 export interface UserProfileForm {
   /** 用户名 */
   userName: string;
@@ -116,7 +122,7 @@ export interface UserProfileForm {
   createdAt: string;
 }
 
-/** 修改密码表单 */
+/** UpdatePwd表单 */
 export interface UpdatePwdForm {
   /** 原密码 */
   oldPwd: string;
@@ -126,13 +132,13 @@ export interface UpdatePwdForm {
   confirmPwd: string;
 }
 
-/** 发送手机验证码表单 */
+/** SendUpdatePhoneCode表单 */
 export interface SendUpdatePhoneCodeForm {
   /** 手机号 */
   phone: string;
 }
 
-/** 修改手机表单 */
+/** UpdatePhone表单 */
 export interface UpdatePhoneForm {
   /** 手机号 */
   phone: string;

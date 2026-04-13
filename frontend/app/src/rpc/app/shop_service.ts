@@ -7,11 +7,13 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 
+/** 商城服务列表响应 */
 export interface ListShopServiceResponse {
   /** 列表数据 */
   list: ShopService[];
 }
 
+/** 商城服务 */
 export interface ShopService {
   /** 标签 */
   label: string;

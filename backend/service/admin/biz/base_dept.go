@@ -84,6 +84,7 @@ func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *admin.BaseDeptFo
 
 	path := fmt.Sprintf("/0/%d", baseDept.ID)
 	parentId := req.GetParentId()
+	// 存在父部门时，继承父部门路径并追加当前节点。
 	if parentId != 0 {
 		var parentDept *models.BaseDept
 		parentDept, err = c.FindById(ctx, parentId)
@@ -109,10 +110,13 @@ func (c *BaseDeptCase) DeleteBaseDept(ctx context.Context, id string) error {
 	query := c.Query(ctx).BaseDept
 
 	for _, deptId := range ids {
-		count, err := c.Count(ctx, repo.Where(query.ParentID.Eq(deptId)))
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.ParentID.Eq(deptId)))
+		count, err := c.Count(ctx, opts...)
 		if err != nil {
 			return err
 		}
+		// 仍然存在子部门时，禁止删除当前部门。
 		if count > 0 {
 			return errors.New("删除部门失败,下面有部门")
 		}
@@ -124,10 +128,13 @@ func (c *BaseDeptCase) DeleteBaseDept(ctx context.Context, id string) error {
 func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *common.SetStatusRequest) error {
 	query := c.Query(ctx).BaseDept
 
-	count, err := c.Count(ctx, repo.Where(query.ParentID.Eq(req.GetId())))
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.ParentID.Eq(req.GetId())))
+	count, err := c.Count(ctx, opts...)
 	if err != nil {
 		return err
 	}
+	// 存在子部门时，不允许直接调整当前部门状态。
 	if count > 0 {
 		return errors.New("设置状态失败,下面有部门")
 	}
@@ -142,6 +149,7 @@ func (c *BaseDeptCase) SetBaseDeptStatus(ctx context.Context, req *common.SetSta
 func (c *BaseDeptCase) buildBaseDeptTree(list []*models.BaseDept, parentId int64) []*admin.BaseDept {
 	res := make([]*admin.BaseDept, 0)
 	for _, item := range list {
+		// 非当前父节点的部门不参与当前层级构建。
 		if item.ParentID != parentId {
 			continue
 		}
@@ -156,6 +164,7 @@ func (c *BaseDeptCase) buildBaseDeptTree(list []*models.BaseDept, parentId int64
 func (c *BaseDeptCase) buildBaseDeptOption(list []*models.BaseDept, parentId int64) []*common.TreeOptionResponse_Option {
 	res := make([]*common.TreeOptionResponse_Option, 0)
 	for _, item := range list {
+		// 非当前父节点的部门不参与当前层级选项构建。
 		if item.ParentID != parentId {
 			continue
 		}

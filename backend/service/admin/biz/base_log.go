@@ -42,6 +42,7 @@ func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *admin.PageBaseLogReq
 	query := c.Query(ctx).BaseLog
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.RequestTime.Desc()))
+	// 传入操作名时，按操作名模糊匹配日志。
 	if req.GetOperation() != "" {
 		opts = append(opts, repo.Where(query.Operation.Like("%"+req.GetOperation()+"%")))
 	}
@@ -50,12 +51,15 @@ func (c *BaseLogCase) PageBaseLog(ctx context.Context, req *admin.PageBaseLogReq
 	}
 
 	requestTime := req.GetRequestTime()
+	// 仅在传入完整时间区间时，按请求时间范围过滤日志。
 	if len(requestTime) == 2 {
 		startTime := _time.StringTimeToTime(requestTime[0])
 		endTime := _time.StringTimeToTime(requestTime[1])
+		// 开始时间解析成功时，补充请求时间下界。
 		if startTime != nil {
 			opts = append(opts, repo.Where(query.RequestTime.Gte(*startTime)))
 		}
+		// 结束时间解析成功时，补充请求时间上界。
 		if endTime != nil {
 			endValue := endTime.AddDate(0, 0, 1)
 			opts = append(opts, repo.Where(query.RequestTime.Lt(endValue)))
@@ -95,6 +99,7 @@ func (c *BaseLogCase) saveLog(message queueData.Message) error {
 	if err != nil {
 		return err
 	}
+	// 队列消息携带访问日志实体时，落库保存日志。
 	if baseLog, ok := payload["data"]; ok {
 		return c.Create(context.TODO(), baseLog)
 	}

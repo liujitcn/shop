@@ -66,11 +66,14 @@ service BaseDeptService {
   }
 }
 
+// 部门树响应
 message TreeBaseDeptResponse {
-  // 分页数据
-  repeated BaseDept list = 1;
+  repeated BaseDept list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
 }
 
+// 部门选项查询条件
 message OptionBaseDeptRequest {
   optional int64 parentId = 2 [
     (gnostic.openapi.v3.property) = {description: "父级部门ID"}
@@ -115,7 +118,7 @@ message BaseDept {
   ];  // 子部门
 }
 
-// 部门
+// 部门表单
 message BaseDeptForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "部门ID"}

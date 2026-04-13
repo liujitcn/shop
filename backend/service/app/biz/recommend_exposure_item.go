@@ -89,7 +89,6 @@ func (c *RecommendExposureItemCase) loadRecommendExposureCountMap(ctx context.Co
 	exposureOpts = append(exposureOpts, repo.Where(recommendExposureQuery.Scene.Eq(scene)))
 	exposureOpts = append(exposureOpts, repo.Where(recommendExposureQuery.CreatedAt.Gte(cutoff)))
 	exposureList, err := c.recommendExposureRepo.List(ctx, exposureOpts...)
-	// 查询曝光批次失败时，无法继续计算惩罚分。
 	if err != nil {
 		return nil, err
 	}

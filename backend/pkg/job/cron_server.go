@@ -34,7 +34,6 @@ func NewCronServer(baseJobRepo *data.BaseJobRepo, task map[string]task.TaskExec)
 // Start 启动定时任务服务并重载启用中的任务。
 func (c *CronServer) Start(ctx context.Context) error {
 	err := c.Server.Start(ctx)
-	// 底层 cron 服务启动失败时，不再继续加载任务。
 	if err != nil {
 		log.Errorf("cron server start failed, err=%v", err)
 		return err
@@ -43,6 +42,7 @@ func (c *CronServer) Start(ctx context.Context) error {
 	err = c.reloadJobs(ctx)
 	// 任务重载失败时，回滚当前 cron 服务启动状态。
 	if err != nil {
+		// 停服失败只记录日志，原始重载错误仍然优先返回。
 		if stopErr := c.Stop(ctx); stopErr != nil {
 			log.Errorf("cron server stop failed, err=%v", stopErr)
 		}
@@ -64,14 +64,12 @@ func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) erro
 	}
 
 	invokeTarget, err := c.lookupTaskExec(baseJob.InvokeTarget)
-	// 调用目标不存在时，直接返回明确错误。
 	if err != nil {
 		return err
 	}
 
 	argsMap := make(map[string]string)
 	argsMap, err = parseJobArgs(baseJob.Args)
-	// 参数 JSON 非法时，直接返回错误避免注册错误任务。
 	if err != nil {
 		return err
 	}
@@ -95,7 +93,6 @@ func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) erro
 			log.Errorf("cron job execute failed, jobId=%d err=%v", jobId, execErr)
 		}
 	})
-	// cron 表达式非法或注册失败时，直接返回错误。
 	if err != nil {
 		return err
 	}
@@ -119,7 +116,6 @@ func (c *CronServer) StopJob(ctx context.Context, baseJob *models.BaseJob) error
 	}
 
 	err := c.updateBaseJobEntryId(ctx, baseJob.ID, 0)
-	// 调度记录清理失败时，不提前移除内存任务，避免运行态与数据库状态分叉。
 	if err != nil {
 		return err
 	}
@@ -141,14 +137,12 @@ func (c *CronServer) RunJob(_ context.Context, baseJob *models.BaseJob) error {
 	}
 
 	invokeTarget, err := c.lookupTaskExec(baseJob.InvokeTarget)
-	// 调用目标不存在时，直接返回明确错误。
 	if err != nil {
 		return err
 	}
 
 	argsMap := make(map[string]string)
 	argsMap, err = parseJobArgs(baseJob.Args)
-	// 参数 JSON 非法时，直接返回错误避免执行错误任务。
 	if err != nil {
 		return err
 	}
@@ -164,7 +158,6 @@ func (c *CronServer) RunJob(_ context.Context, baseJob *models.BaseJob) error {
 // reloadJobs 重载数据库中的全部定时任务状态。
 func (c *CronServer) reloadJobs(ctx context.Context) error {
 	list, err := c.baseJobRepo.List(ctx)
-	// 查询任务列表失败时，直接返回错误终止服务启动。
 	if err != nil {
 		return err
 	}
@@ -177,7 +170,6 @@ func (c *CronServer) reloadJobs(ctx context.Context) error {
 		}
 
 		err = c.StopJob(ctx, item)
-		// 重置旧调度信息失败时，直接中断启动流程。
 		if err != nil {
 			return err
 		}
@@ -223,7 +215,6 @@ func (c *CronServer) rollbackStartedJobs(ctx context.Context, startedJobs []*mod
 		}
 
 		err := c.StopJob(ctx, item)
-		// 只要有一条任务回滚失败，立即返回错误交由上层记录。
 		if err != nil {
 			return err
 		}
@@ -255,7 +246,6 @@ func parseJobArgs(rawArgs string) (map[string]string, error) {
 
 	args := make([]*admin.BaseJobArgs, 0)
 	err := json.Unmarshal([]byte(rawArgs), &args)
-	// 参数 JSON 非法时，直接返回错误交由上层处理。
 	if err != nil {
 		return nil, err
 	}

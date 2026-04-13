@@ -54,14 +54,12 @@ func NewRecommendExposureCase(
 // saveRecommendExposureEvent 消费推荐曝光事件。
 func (c *RecommendExposureCase) saveRecommendExposureEvent(message queueData.Message) error {
 	rawBody, err := json.Marshal(message.Values)
-	// 队列消息转 JSON 失败时，无法继续解析业务体。
 	if err != nil {
 		return err
 	}
 
 	payload := make(map[string]*recommendExposureEvent)
 	err = json.Unmarshal(rawBody, &payload)
-	// 队列消息反序列化失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return err
 	}
@@ -139,11 +137,11 @@ func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, 
 
 // bindRecommendExposureActor 将匿名曝光主体绑定为登录主体。
 func (c *RecommendExposureCase) bindRecommendExposureActor(ctx context.Context, anonymousId, userId int64) error {
-	recommendExposureQuery := c.RecommendExposureRepo.Data.Query(ctx).RecommendExposure
-	_, err := recommendExposureQuery.WithContext(ctx).
+	query := c.RecommendExposureRepo.Data.Query(ctx).RecommendExposure
+	_, err := query.WithContext(ctx).
 		Where(
-			recommendExposureQuery.ActorType.Eq(recommendevent.ActorTypeAnonymous),
-			recommendExposureQuery.ActorID.Eq(anonymousId),
+			query.ActorType.Eq(recommendevent.ActorTypeAnonymous),
+			query.ActorID.Eq(anonymousId),
 		).
 		Updates(map[string]interface{}{
 			"actor_type": recommendevent.ActorTypeUser,
@@ -164,7 +162,6 @@ func (c *RecommendExposureCase) loadRecommendClickCountMap(ctx context.Context, 
 	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
 
 	list, err := c.recommendGoodsActionRepo.List(ctx, opts...)
-	// 查询点击行为失败时，直接返回错误交由调用方处理。
 	if err != nil {
 		return nil, err
 	}

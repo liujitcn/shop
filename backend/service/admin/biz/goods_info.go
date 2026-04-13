@@ -57,6 +57,7 @@ func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsI
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入商品名称关键字时，按名称模糊过滤。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
@@ -66,8 +67,7 @@ func (c *GoodsInfoCase) ListGoodsInfo(ctx context.Context, req *admin.ListGoodsI
 		return nil, err
 	}
 
-	var categoryNames map[int64]string
-	categoryNames, err = c.getCategoryNameMap(ctx)
+	categoryNames, err := c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,30 +89,31 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
-	var err error
+	// 商品名称存在时，按名称模糊过滤。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
+	// 指定分类时，按分类层级筛选商品。
 	if req.CategoryId != nil && req.GetCategoryId() > 0 {
-		var category *models.GoodsCategory
-		category, err = c.goodsCategoryCase.FindById(ctx, req.GetCategoryId())
+		category, err := c.goodsCategoryCase.FindById(ctx, req.GetCategoryId())
 		if err != nil {
 			return nil, err
 		}
+		// 一级分类需要同时包含全部子分类商品。
 		if category.ParentID == 0 {
 			categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
 			var categoryList []*models.GoodsCategory
 			categoryOpts := make([]repo.QueryOption, 0, 1)
 			categoryOpts = append(categoryOpts, repo.Where(categoryQuery.Path.Like(category.Path+"/"+fmt.Sprintf("%d", category.ID)+"%")))
-			categoryList, err = c.goodsCategoryCase.List(ctx, categoryOpts...)
+			categoryList, err := c.goodsCategoryCase.List(ctx, categoryOpts...)
 			if err != nil {
 				return nil, err
 			}
-			categoryIds := []int64{category.ID}
+			categoryIdList := []int64{category.ID}
 			for _, item := range categoryList {
-				categoryIds = append(categoryIds, item.ID)
+				categoryIdList = append(categoryIdList, item.ID)
 			}
-			opts = append(opts, repo.Where(query.CategoryID.In(categoryIds...)))
+			opts = append(opts, repo.Where(query.CategoryID.In(categoryIdList...)))
 		} else {
 			opts = append(opts, repo.Where(query.CategoryID.Eq(req.GetCategoryId())))
 		}
@@ -120,38 +121,37 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	// 指定库存预警时，先筛出符合预警条件的商品集合。
 	if req.InventoryAlert != nil {
-		var goodsIDs []int64
-		goodsIDs, err = c.findGoodsIDsByInventoryAlert(ctx, req.GetInventoryAlert())
+		goodsIdList, err := c.findGoodsIdsByInventoryAlert(ctx, req.GetInventoryAlert())
 		if err != nil {
 			return nil, err
 		}
-		if len(goodsIDs) == 0 {
+		// 预警条件无命中商品时，直接返回空分页结果。
+		if len(goodsIdList) == 0 {
 			return &admin.PageGoodsInfoResponse{List: []*admin.GoodsInfo{}, Total: 0}, nil
 		}
-		opts = append(opts, repo.Where(query.ID.In(goodsIDs...)))
+		opts = append(opts, repo.Where(query.ID.In(goodsIdList...)))
 	}
+	// 异常价格预警只在指定预警类型时生效。
 	if req.PriceAlert != nil && req.GetPriceAlert() == goodsPriceAlertAbnormal {
-		var goodsIDs []int64
-		goodsIDs, err = c.findGoodsIDsByAbnormalPrice(ctx)
+		goodsIdList, err := c.findGoodsIdsByAbnormalPrice(ctx)
 		if err != nil {
 			return nil, err
 		}
-		if len(goodsIDs) == 0 {
+		// 异常价格条件无命中商品时，直接返回空分页结果。
+		if len(goodsIdList) == 0 {
 			return &admin.PageGoodsInfoResponse{List: []*admin.GoodsInfo{}, Total: 0}, nil
 		}
-		opts = append(opts, repo.Where(query.ID.In(goodsIDs...)))
+		opts = append(opts, repo.Where(query.ID.In(goodsIdList...)))
 	}
 
-	var list []*models.GoodsInfo
-	var total int64
-	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	var categoryNames map[int64]string
-	categoryNames, err = c.getCategoryNameMap(ctx)
+	categoryNames, err := c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,9 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 	return &admin.PageGoodsInfoResponse{List: resList, Total: int32(total)}, nil
 }
 
-func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
+// findGoodsIdsByInventoryAlert 查询命中库存预警的商品标识。
+func (c *GoodsInfoCase) findGoodsIdsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
+	// 非支持的库存预警类型不返回商品集合。
 	if inventoryAlert != goodsInventoryAlertLow && inventoryAlert != goodsInventoryAlertZero {
 		return nil, nil
 	}
@@ -177,19 +179,21 @@ func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, invent
 		Where(models.TableNameGoodsInfo + ".deleted_at IS NULL").
 		Where("goods_sku.deleted_at IS NULL")
 
+	// 根据不同预警类型追加库存过滤条件。
 	if inventoryAlert == goodsInventoryAlertLow {
 		db = db.Where("goods_sku.inventory > 0 AND goods_sku.inventory <= ?", lowInventoryThreshold)
 	} else {
 		db = db.Where("goods_sku.inventory = 0")
 	}
 
-	goodsIDs := make([]int64, 0)
-	err := db.Pluck("goods_sku.goods_id", &goodsIDs).Error
-	return goodsIDs, err
+	goodsIdList := make([]int64, 0)
+	err := db.Pluck("goods_sku.goods_id", &goodsIdList).Error
+	return goodsIdList, err
 }
 
-func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
-	goodsIDs := make([]int64, 0)
+// findGoodsIdsByAbnormalPrice 查询命中异常价格预警的商品标识。
+func (c *GoodsInfoCase) findGoodsIdsByAbnormalPrice(ctx context.Context) ([]int64, error) {
+	goodsIdList := make([]int64, 0)
 	err := c.goodsSkuCase.Query(ctx).GoodsSku.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsSku{}).
 		Select("DISTINCT goods_sku.goods_id").
@@ -197,8 +201,8 @@ func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int6
 		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
 		Where("goods_sku.deleted_at IS NULL").
 		Where("goods_sku.price <= 0 OR goods_sku.discount_price < 0 OR (goods_sku.discount_price > 0 AND goods_sku.discount_price > goods_sku.price)").
-		Pluck("goods_sku.goods_id", &goodsIDs).Error
-	return goodsIDs, err
+		Pluck("goods_sku.goods_id", &goodsIdList).Error
+	return goodsIdList, err
 }
 
 // GetGoodsInfo 获取商品
@@ -210,13 +214,14 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*admin.Good
 
 	goodsForm := c.formMapper.ToDTO(goodsInfo)
 
-	var category *models.GoodsCategory
-	category, err = c.goodsCategoryCase.FindById(ctx, goodsInfo.CategoryID)
+	category, err := c.goodsCategoryCase.FindById(ctx, goodsInfo.CategoryID)
+	// 分类存在时，补齐商品所属分类名称。
 	if err == nil {
 		goodsForm.CategoryName = category.Name
+		// 二级分类需要同时拼接父分类名称。
 		if category.ParentID > 0 {
-			var parentCategory *models.GoodsCategory
-			parentCategory, err = c.goodsCategoryCase.FindById(ctx, category.ParentID)
+			parentCategory, err := c.goodsCategoryCase.FindById(ctx, category.ParentID)
+			// 父分类存在时，返回“父/子”形式的完整分类名称。
 			if err == nil {
 				goodsForm.CategoryName = fmt.Sprintf("%s/%s", parentCategory.Name, category.Name)
 			}
@@ -246,6 +251,7 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		goodsInfo := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
+			// 首个 SKU 的价格作为商品主价格展示。
 			if idx == 0 {
 				goodsInfo.Price = sku.Price
 				goodsInfo.DiscountPrice = sku.DiscountPrice
@@ -278,6 +284,7 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		goodsInfo := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
+			// 首个 SKU 的价格作为商品主价格展示。
 			if idx == 0 {
 				goodsInfo.Price = sku.Price
 				goodsInfo.DiscountPrice = sku.DiscountPrice
@@ -419,10 +426,10 @@ func (c *GoodsInfoCase) batchCreateGoodsSku(ctx context.Context, goodsId int64, 
 
 // getCategoryNameMap 查询分类名称映射
 func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
-	categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
+	query := c.goodsCategoryCase.Query(ctx).GoodsCategory
 	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Order(categoryQuery.Sort.Asc()))
-	opts = append(opts, repo.Order(categoryQuery.CreatedAt.Desc()))
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	categoryList, err := c.goodsCategoryCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -438,7 +445,9 @@ func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]strin
 	res := make(map[int64]string, len(categoryList))
 	for id, name := range nameMap {
 		parentId := parentMap[id]
+		// 存在父分类时，优先拼接父子层级名称。
 		if parentId > 0 {
+			// 父分类名称存在时，返回完整的“父/子”展示名称。
 			if parentName, ok := nameMap[parentId]; ok {
 				res[id] = parentName + "/" + name
 				continue

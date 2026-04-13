@@ -9,11 +9,13 @@ import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
 
+/** 热门专区列表响应 */
 export interface ListShopHotResponse {
   /** 分页数据 */
   list: ShopHot[];
 }
 
+/** 热门专区商品分页查询条件 */
 export interface PageShopHotGoodsRequest {
   /** 选项id */
   hotItemId: number;
@@ -23,6 +25,7 @@ export interface PageShopHotGoodsRequest {
   pageSize: number;
 }
 
+/** 热门专区商品分页响应 */
 export interface PageShopHotGoodsResponse {
   /** 分页数据 */
   list: GoodsInfo[];
@@ -30,12 +33,11 @@ export interface PageShopHotGoodsResponse {
   total: number;
 }
 
+/** 热门专区 */
 export interface ShopHot {
+  /** 主键id */
   id: number;
-  /**
-   * 主键id
-   * 标题
-   */
+  /** 主键id */
   title: string;
   /** 描述 */
   desc: string;
@@ -43,12 +45,11 @@ export interface ShopHot {
   picture: string[];
 }
 
+/** 热门专区项列表响应 */
 export interface ListShopHotItemResponse {
+  /** 主键id */
   id: number;
-  /**
-   * 主键id
-   * 标题
-   */
+  /** 主键id */
   title: string;
   /** 轮播图 */
   banner: string;
@@ -56,12 +57,11 @@ export interface ListShopHotItemResponse {
   list: ShopHotItem[];
 }
 
+/** 热门专区项 */
 export interface ShopHotItem {
+  /** 主键id */
   id: number;
-  /**
-   * 主键id
-   * 标题
-   */
+  /** 主键id */
   title: string;
 }
 

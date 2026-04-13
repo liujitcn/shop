@@ -65,7 +65,6 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	log.Infof("Job RecommendGoodsStatDay Exec %+v", args)
 
 	statTime, err := parseStatDateArg(args["statDate"])
-	// 统计日期非法时，直接返回错误避免写入错误日期数据。
 	if err != nil {
 		return []string{err.Error()}, err
 	}
@@ -75,10 +74,11 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	endAt := statDate.AddDate(0, 0, 1)
 
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
-		recommendGoodsStatDayQuery := t.recommendGoodsStatDayRepo.Query(ctx).RecommendGoodsStatDay
+		statQuery := t.recommendGoodsStatDayRepo.Query(ctx).RecommendGoodsStatDay
 		// 统计任务按天全量重算，先清掉当天旧数据再回写。
-		err := t.recommendGoodsStatDayRepo.Delete(ctx, repo.Where(recommendGoodsStatDayQuery.StatDate.Eq(statDate)))
-		// 删除旧统计失败时，终止本次重算避免新旧数据并存。
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(statQuery.StatDate.Eq(statDate)))
+		err := t.recommendGoodsStatDayRepo.Delete(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -99,12 +99,12 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return item
 		}
 
-		recommendRequestQuery := t.recommendRequestRepo.Query(ctx).RecommendRequest
-		requestOpts := make([]repo.QueryOption, 0, 2)
-		requestOpts = append(requestOpts, repo.Where(recommendRequestQuery.CreatedAt.Gte(startAt)))
-		requestOpts = append(requestOpts, repo.Where(recommendRequestQuery.CreatedAt.Lt(endAt)))
-		requestList, err := t.recommendRequestRepo.List(ctx, requestOpts...)
-		// 推荐请求查询失败时，直接返回错误避免统计结果不完整。
+		requestQuery := t.recommendRequestRepo.Query(ctx).RecommendRequest
+		opts = make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(requestQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(requestQuery.CreatedAt.Lt(endAt)))
+		var requestList []*models.RecommendRequest
+		requestList, err = t.recommendRequestRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -121,9 +121,11 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 		// 请求主记录存在时，再读取逐商品明细累计请求次数。
 		if len(requestRecordIds) > 0 {
-			recommendRequestItemQuery := t.recommendRequestItemRepo.Query(ctx).RecommendRequestItem
-			requestItemList, err := t.recommendRequestItemRepo.List(ctx, repo.Where(recommendRequestItemQuery.RecommendRequestID.In(requestRecordIds...)))
-			// 推荐请求逐商品明细查询失败时，直接返回错误避免统计结果不完整。
+			requestItemQuery := t.recommendRequestItemRepo.Query(ctx).RecommendRequestItem
+			opts = make([]repo.QueryOption, 0, 1)
+			opts = append(opts, repo.Where(requestItemQuery.RecommendRequestID.In(requestRecordIds...)))
+			var requestItemList []*models.RecommendRequestItem
+			requestItemList, err = t.recommendRequestItemRepo.List(ctx, opts...)
 			if err != nil {
 				return err
 			}
@@ -137,12 +139,12 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			}
 		}
 
-		recommendExposureQuery := t.recommendExposureRepo.Query(ctx).RecommendExposure
-		exposureOpts := make([]repo.QueryOption, 0, 2)
-		exposureOpts = append(exposureOpts, repo.Where(recommendExposureQuery.CreatedAt.Gte(startAt)))
-		exposureOpts = append(exposureOpts, repo.Where(recommendExposureQuery.CreatedAt.Lt(endAt)))
-		exposureList, err := t.recommendExposureRepo.List(ctx, exposureOpts...)
-		// 推荐曝光查询失败时，直接返回错误避免统计结果不完整。
+		exposureQuery := t.recommendExposureRepo.Query(ctx).RecommendExposure
+		opts = make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(exposureQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(exposureQuery.CreatedAt.Lt(endAt)))
+		var exposureList []*models.RecommendExposure
+		exposureList, err = t.recommendExposureRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -159,9 +161,11 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 		// 曝光主记录存在时，再读取逐商品明细累计曝光次数。
 		if len(exposureIds) > 0 {
-			recommendExposureItemQuery := t.recommendExposureItemRepo.Query(ctx).RecommendExposureItem
-			exposureItemList, err := t.recommendExposureItemRepo.List(ctx, repo.Where(recommendExposureItemQuery.RecommendExposureID.In(exposureIds...)))
-			// 推荐曝光逐商品明细查询失败时，直接返回错误避免统计结果不完整。
+			exposureItemQuery := t.recommendExposureItemRepo.Query(ctx).RecommendExposureItem
+			opts = make([]repo.QueryOption, 0, 1)
+			opts = append(opts, repo.Where(exposureItemQuery.RecommendExposureID.In(exposureIds...)))
+			var exposureItemList []*models.RecommendExposureItem
+			exposureItemList, err = t.recommendExposureItemRepo.List(ctx, opts...)
 			if err != nil {
 				return err
 			}
@@ -175,12 +179,12 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			}
 		}
 
-		recommendGoodsActionQuery := t.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
-		actionOpts := make([]repo.QueryOption, 0, 2)
-		actionOpts = append(actionOpts, repo.Where(recommendGoodsActionQuery.CreatedAt.Gte(startAt)))
-		actionOpts = append(actionOpts, repo.Where(recommendGoodsActionQuery.CreatedAt.Lt(endAt)))
-		actionList, err := t.recommendGoodsActionRepo.List(ctx, actionOpts...)
-		// 推荐行为查询失败时，直接返回错误避免统计结果不完整。
+		actionQuery := t.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
+		opts = make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(actionQuery.CreatedAt.Lt(endAt)))
+		var actionList []*models.RecommendGoodsAction
+		actionList, err = t.recommendGoodsActionRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -198,8 +202,10 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		// 存在支付请求时，才继续回查订单商品支付金额。
 		if len(requestIds) > 0 {
 			orderGoodsQuery := t.orderGoodsRepo.Query(ctx).OrderGoods
-			orderGoodsList, err := t.orderGoodsRepo.List(ctx, repo.Where(orderGoodsQuery.RequestID.In(requestIds...)))
-			// 订单商品明细查询失败时，直接返回错误避免支付金额统计失真。
+			opts = make([]repo.QueryOption, 0, 1)
+			opts = append(opts, repo.Where(orderGoodsQuery.RequestID.In(requestIds...)))
+			var orderGoodsList []*models.OrderGoods
+			orderGoodsList, err = t.orderGoodsRepo.List(ctx, opts...)
 			if err != nil {
 				return err
 			}
@@ -267,7 +273,6 @@ func (t *RecommendGoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 		return t.recommendGoodsStatDayRepo.BatchCreate(ctx, list)
 	})
-	// 事务执行失败时，直接返回错误交由任务日志记录。
 	if err != nil {
 		return []string{err.Error()}, err
 	}

@@ -38,18 +38,20 @@ func NewShopHotCase(baseCase *biz.BaseCase, tx data.Transaction, shopHotRepo *da
 
 // PageShopHot 分页查询热门专区
 func (c *ShopHotCase) PageShopHot(ctx context.Context, req *admin.PageShopHotRequest) (*admin.PageShopHotResponse, error) {
-	baseQuery := c.Query(ctx).ShopHot
+	query := c.Query(ctx).ShopHot
 	opts := make([]repo.QueryOption, 0, 5)
-	opts = append(opts, repo.Order(baseQuery.Sort.Asc()))
-	opts = append(opts, repo.Order(baseQuery.CreatedAt.Desc()))
+	opts = append(opts, repo.Order(query.Sort.Asc()))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入标题关键字时，按标题模糊匹配热门专区。
 	if req.GetTitle() != "" {
-		opts = append(opts, repo.Where(baseQuery.Title.Like("%"+req.GetTitle()+"%")))
+		opts = append(opts, repo.Where(query.Title.Like("%"+req.GetTitle()+"%")))
 	}
+	// 传入描述关键字时，按描述模糊匹配热门专区。
 	if req.GetDesc() != "" {
-		opts = append(opts, repo.Where(baseQuery.Desc.Like("%"+req.GetDesc()+"%")))
+		opts = append(opts, repo.Where(query.Desc.Like("%"+req.GetDesc()+"%")))
 	}
 	if req.Status != nil {
-		opts = append(opts, repo.Where(baseQuery.Status.Eq(int32(req.GetStatus()))))
+		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 
 	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -67,9 +69,7 @@ func (c *ShopHotCase) PageShopHot(ctx context.Context, req *admin.PageShopHotReq
 
 // GetShopHot 获取热门专区
 func (c *ShopHotCase) GetShopHot(ctx context.Context, id int64) (*admin.ShopHotForm, error) {
-	var shopHot *models.ShopHot
-	var err error
-	shopHot, err = c.FindById(ctx, id)
+	shopHot, err := c.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -102,11 +102,11 @@ func (c *ShopHotCase) DeleteShopHot(ctx context.Context, id string) error {
 		}
 
 		// 删除热门专区后需要同步删除下属项目，避免残留孤儿数据
-		hotItemQuery := c.shopHotItemCase.Query(ctx).ShopHotItem
+		query := c.shopHotItemCase.Query(ctx).ShopHotItem
 		var hotItemList []*models.ShopHotItem
-		hotItemOpts := make([]repo.QueryOption, 0, 1)
-		hotItemOpts = append(hotItemOpts, repo.Where(hotItemQuery.HotID.In(ids...)))
-		hotItemList, err = c.shopHotItemCase.List(ctx, hotItemOpts...)
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.HotID.In(ids...)))
+		hotItemList, err = c.shopHotItemCase.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -115,6 +115,7 @@ func (c *ShopHotCase) DeleteShopHot(ctx context.Context, id string) error {
 		for _, item := range hotItemList {
 			itemIds = append(itemIds, item.ID)
 		}
+		// 命中下属项目时，同步清理项目数据避免孤儿记录。
 		if len(itemIds) > 0 {
 			err = c.shopHotItemCase.DeleteByIds(ctx, itemIds)
 			if err != nil {

@@ -7,16 +7,19 @@
 /* eslint-disable */
 import type { ShopBannerSite, ShopBannerType } from "../common/enum";
 
+/** 轮播图列表查询条件 */
 export interface ListShopBannerRequest {
   /** 位置：枚举【ShopBannerSite】 */
   site: number;
 }
 
+/** 轮播图列表响应 */
 export interface ListShopBannerResponse {
   /** 分页数据 */
   list: ShopBanner[];
 }
 
+/** 轮播图 */
 export interface ShopBanner {
   /** 主键id */
   id: number;

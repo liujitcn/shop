@@ -26,10 +26,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 热门专区列表响应
 type ListShopHotResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*ShopHot `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopHot             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -71,14 +71,12 @@ func (x *ListShopHotResponse) GetList() []*ShopHot {
 	return nil
 }
 
+// 热门专区商品分页查询条件
 type PageShopHotGoodsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 选项id
-	HotItemId int64 `protobuf:"varint,1,opt,name=hotItemId,proto3" json:"hotItemId,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HotItemId     int64                  `protobuf:"varint,1,opt,name=hotItemId,proto3" json:"hotItemId,omitempty"` // 选项id
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`   // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"` // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -134,12 +132,11 @@ func (x *PageShopHotGoodsRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 热门专区商品分页响应
 type PageShopHotGoodsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -188,16 +185,14 @@ func (x *PageShopHotGoodsResponse) GetTotal() int32 {
 	return 0
 }
 
+// 热门专区
 type ShopHot struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
 	// 主键id
-	// 标题
-	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 描述
-	Desc string `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`
-	// 图片链接
-	Picture       []string `protobuf:"bytes,4,rep,name=picture,proto3" json:"picture,omitempty"`
+	Title         string   `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`     // 标题
+	Desc          string   `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`       // 描述
+	Picture       []string `protobuf:"bytes,4,rep,name=picture,proto3" json:"picture,omitempty"` // 图片链接
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -260,16 +255,14 @@ func (x *ShopHot) GetPicture() []string {
 	return nil
 }
 
+// 热门专区项列表响应
 type ListShopHotItemResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
 	// 主键id
-	// 标题
-	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 轮播图
-	Banner string `protobuf:"bytes,3,opt,name=banner,proto3" json:"banner,omitempty"`
-	// 选项
-	List          []*ShopHotItem `protobuf:"bytes,4,rep,name=list,proto3" json:"list,omitempty"`
+	Title         string         `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`   // 标题
+	Banner        string         `protobuf:"bytes,3,opt,name=banner,proto3" json:"banner,omitempty"` // 轮播图
+	List          []*ShopHotItem `protobuf:"bytes,4,rep,name=list,proto3" json:"list,omitempty"`     // 选项
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -332,12 +325,12 @@ func (x *ListShopHotItemResponse) GetList() []*ShopHotItem {
 	return nil
 }
 
+// 热门专区项
 type ShopHotItem struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 主键id
 	// 主键id
-	// 标题
-	Title         string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Title         string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"` // 标题
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -390,16 +383,16 @@ var File_app_shop_hot_proto protoreflect.FileDescriptor
 
 const file_app_shop_hot_proto_rawDesc = "" +
 	"\n" +
-	"\x12app/shop_hot.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x14app/goods_info.proto\"7\n" +
-	"\x13ListShopHotResponse\x12 \n" +
-	"\x04list\x18\x01 \x03(\v2\f.app.ShopHotR\x04list\"\xc3\x01\n" +
+	"\x12app/shop_hot.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x14app/goods_info.proto\"K\n" +
+	"\x13ListShopHotResponse\x124\n" +
+	"\x04list\x18\x01 \x03(\v2\f.app.ShopHotB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"\xc3\x01\n" +
 	"\x17PageShopHotGoodsRequest\x12,\n" +
 	"\thotItemId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b选项idR\thotItemId\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"T\n" +
-	"\x18PageShopHotGoodsResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x9d\x01\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"v\n" +
+	"\x18PageShopHotGoodsResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x9d\x01\n" +
 	"\aShopHot\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12\"\n" +
 	"\x05title\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06标题R\x05title\x12 \n" +

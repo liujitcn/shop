@@ -27,6 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// User信息
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"` // 用户账号
@@ -103,7 +104,7 @@ func (x *UserInfo) GetAvatar() string {
 	return ""
 }
 
-// 微信后台登录 - 请求
+// 微信登录请求参数
 type WxLoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"` // 用户登录凭据
@@ -148,7 +149,7 @@ func (x *WxLoginRequest) GetCode() string {
 	return ""
 }
 
-// 微信后台登录 - 回应
+// 微信登录响应
 type WxLoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=accessToken,proto3" json:"accessToken,omitempty"`   // 访问令牌，必选项。
@@ -217,6 +218,7 @@ func (x *WxLoginResponse) GetExpiresIn() int64 {
 	return 0
 }
 
+// UpdateUser信息请求参数
 type UpdateUserInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NickName      string                 `protobuf:"bytes,1,opt,name=nickName,proto3" json:"nickName,omitempty"` // 昵称
@@ -277,6 +279,7 @@ func (x *UpdateUserInfoRequest) GetGender() int32 {
 	return 0
 }
 
+// 手机号授权请求参数
 type PhoneAuthRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Code          string                 `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"` // 授权信息
@@ -321,6 +324,7 @@ func (x *PhoneAuthRequest) GetCode() string {
 	return ""
 }
 
+// 手机号授权响应
 type PhoneAuthResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号

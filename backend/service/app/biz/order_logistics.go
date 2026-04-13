@@ -33,9 +33,9 @@ func NewOrderLogisticsCase(baseCase *biz.BaseCase, orderLogisticsRepo *data.Orde
 // findByOrderId 按订单编号查询物流信息
 func (c *OrderLogisticsCase) findByOrderId(ctx context.Context, orderId int64) (*app.OrderInfoResponse_Logistics, error) {
 	query := c.Query(ctx).OrderLogistics
-	orderLogistics, err := c.Find(ctx,
-		repo.Where(query.OrderID.Eq(orderId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	orderLogistics, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

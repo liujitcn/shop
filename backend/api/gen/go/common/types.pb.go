@@ -25,7 +25,7 @@ const (
 
 // `double` 类型数组包装消息。
 //
-// `DoubleValues` 的 JSON 表示为数字数组。
+// DoubleValues
 type DoubleValues struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -73,7 +73,7 @@ func (x *DoubleValues) GetValue() []float64 {
 
 // `float` 类型数组包装消息。
 //
-// `FloatValues` 的 JSON 表示为数字数组。
+// FloatValues
 type FloatValues struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -121,7 +121,7 @@ func (x *FloatValues) GetValue() []float32 {
 
 // `int64` 类型数组包装消息。
 //
-// `Int64Values` 的 JSON 表示为字符串数组。
+// Int64Values
 type Int64Values struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -169,7 +169,7 @@ func (x *Int64Values) GetValue() []int64 {
 
 // `uint64` 类型数组包装消息。
 //
-// `UInt64Values` 的 JSON 表示为字符串数组。
+// UInt64Values
 type UInt64Values struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -217,7 +217,7 @@ func (x *UInt64Values) GetValue() []uint64 {
 
 // `int32` 类型数组包装消息。
 //
-// `Int32Values` 的 JSON 表示为数字数组。
+// Int32Values
 type Int32Values struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -265,7 +265,7 @@ func (x *Int32Values) GetValue() []int32 {
 
 // `uint32` 类型数组包装消息。
 //
-// `UInt32Values` 的 JSON 表示为数字数组。
+// UInt32Values
 type UInt32Values struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -313,7 +313,7 @@ func (x *UInt32Values) GetValue() []uint32 {
 
 // `bool` 类型数组包装消息。
 //
-// `BoolValues` 的 JSON 表示为布尔数组。
+// BoolValues
 type BoolValues struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -361,7 +361,7 @@ func (x *BoolValues) GetValue() []bool {
 
 // `string` 类型数组包装消息。
 //
-// `StringValues` 的 JSON 表示为字符串数组。
+// StringValues
 type StringValues struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。
@@ -409,7 +409,7 @@ func (x *StringValues) GetValue() []string {
 
 // `bytes` 类型数组包装消息。
 //
-// `BytesValues` 的 JSON 表示为字符串数组。
+// BytesValues
 type BytesValues struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// 值列表。

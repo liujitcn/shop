@@ -17,6 +17,7 @@ service PayBillService {
   }
 }
 
+// 支付账单分页查询条件
 message PagePayBillRequest {
   string billDate = 3 [
     (gnostic.openapi.v3.property) = {description: "账单日期"}
@@ -26,28 +27,29 @@ message PagePayBillRequest {
     (gnostic.openapi.v3.property) = {description: "对账状态：枚举【PayBillStatus】"}
   ];// 对账状态：枚举【PayBillStatus】
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 支付账单分页响应
 message PagePayBillResponse {
-  // 分页数据
-  repeated PayBill list = 1;
-  // 总数
-  int32 total = 2;
+  repeated PayBill list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
 // 支付账单

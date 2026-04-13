@@ -6,7 +6,7 @@ import (
 	"github.com/google/wire"
 )
 
-// ProviderSet is server providers.
+// ProviderSet 汇总商城端服务依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	biz.NewAuthCase,
 	biz.NewBaseAreaCase,

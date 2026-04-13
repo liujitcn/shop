@@ -112,6 +112,7 @@ service BaseDictService {
   }
 }
 
+// 字典分页查询条件
 message PageBaseDictRequest{
 
   string code = 2 [
@@ -126,28 +127,29 @@ message PageBaseDictRequest{
     (gnostic.openapi.v3.property) = { description: "状态" }
   ]; // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 字典分页响应
 message PageBaseDictResponse{
-  // 分页数据
-  repeated BaseDict list = 1;
-  // 总数
-  int32 total = 2;
+  repeated BaseDict list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
 // 字典
@@ -176,7 +178,7 @@ message BaseDict {
   ];// 更新时间
 }
 
-// 字典
+// 字典表单
 message BaseDictForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "字典ID"}
@@ -195,52 +197,53 @@ message BaseDictForm {
   ]; // 状态
 }
 
+// 字典属性分页查询条件
 message PageBaseDictItemRequest{
-  // 字典id
   int64 dictId = 1 [
     (gnostic.openapi.v3.property) = {
       description: "字典id",
     }
-  ];
-  // 字典属性名称
+  ]; // 字典id
   string label = 2 [
     (gnostic.openapi.v3.property) = {
       description: "字典属性名称",
     }
-  ];
+  ]; // 字典属性名称
 
-  // 状态
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {
       description: "状态",
     }
-  ];
+  ]; // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 字典属性分页响应
 message PageBaseDictItemResponse{
-  // 分页数据
-  repeated BaseDictItem list = 1;
-  // 总数
-  int32 total = 2;
+  repeated BaseDictItem list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 字典列表响应
 message ListBaseDictResponse{
+  // 字典项
   message BaseDictItem {
     string value = 3 [
       (gnostic.openapi.v3.property) = {description: "字典项值"}
@@ -254,6 +257,7 @@ message ListBaseDictResponse{
       (gnostic.openapi.v3.property) = {description: "标签类型，用于前端样式展示（如success、warning等）"}
     ];  // 标签类型，用于前端样式展示（如success、warning等）
   }
+  // 字典
   message BaseDict {
 
     string code = 2 [
@@ -267,10 +271,12 @@ message ListBaseDictResponse{
       (gnostic.openapi.v3.property) = {description: "字典属性"}
     ]; // 字典属性
   }
-  // 分页数据
-  repeated BaseDict list = 1;
+  repeated BaseDict list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
 }
 
+// 字典项
 message BaseDictItem {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "字典ID"}
@@ -308,6 +314,7 @@ message BaseDictItem {
   ];// 更新时间
 }
 
+// 字典属性表单
 message BaseDictItemForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "字典ID"}

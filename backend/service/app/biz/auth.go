@@ -60,16 +60,20 @@ func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.W
 	if err != nil {
 		return nil, errors.New("登录失败，code错误")
 	}
+	// 微信侧返回业务错误时，直接透传错误信息。
 	if sessionKey.ErrCode != 0 {
 		return nil, fmt.Errorf("【%d】%s", sessionKey.ErrCode, sessionKey.ErrMsg)
 	}
+	// 未返回 Openid 时，当前登录请求无效。
 	if sessionKey.Openid == "" {
 		return nil, errors.New("登录失败，Openid错误")
 	}
 
 	var user *models.BaseUser
 	user, err = c.baseUserCase.findByOpenid(ctx, sessionKey.Openid)
+	// 按 Openid 查询用户失败时，仅对“未注册”场景继续自动注册。
 	if err != nil {
+		// 非“未注册”错误说明查询本身异常，直接返回登录失败。
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("用户不存在")
 		}
@@ -87,10 +91,12 @@ func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.W
 			Status:   int32(common.Status_ENABLE),
 			Remark:   "自动注册用户",
 		}
+		// 自动注册用户失败时，直接返回登录失败。
 		if err = c.baseUserCase.Create(ctx, user); err != nil {
 			return nil, errors.New("用户不存在")
 		}
 	}
+	// 用户被停用时，不允许继续登录。
 	if user.Status != int32(common.Status_ENABLE) {
 		return nil, errors.New("用户状态错误")
 	}
@@ -104,7 +110,7 @@ func (c *AuthCase) WxLogin(ctx context.Context, req *app.WxLoginRequest) (*app.W
 	var dept *models.BaseDept
 	dept, err = c.baseDeptCase.FindById(ctx, user.DeptID)
 	if err != nil {
-		return nil, errors.New("角色不存在")
+		return nil, errors.New("部门不存在")
 	}
 
 	var accessToken, refreshToken string
@@ -142,6 +148,7 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*app.UserInfo, error) {
 	if err != nil {
 		return nil, errors.New("用户不存在")
 	}
+	// 用户被停用时，不允许继续获取个人信息。
 	if user.Status != int32(common.Status_ENABLE) {
 		return nil, errors.New("用户状态错误")
 	}
@@ -175,6 +182,7 @@ func (c *AuthCase) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInfoRe
 		Gender:   req.GetGender(),
 		Avatar:   req.GetAvatar(),
 	}
+	// 用户资料更新失败时，直接返回错误交由上层处理。
 	if err = c.baseUserCase.UpdateById(ctx, baseUser); err != nil {
 		log.Error("UpdateUserInfo update user err:", err.Error())
 		return errors.New("修改个人中心用户信息失败")
@@ -182,8 +190,11 @@ func (c *AuthCase) UpdateUserInfo(ctx context.Context, req *app.UpdateUserInfoRe
 
 	// 删除被替换的旧头像文件
 	oss := sdk.Runtime.GetOSS()
+	// OSS 可用时，尝试清理被替换掉的历史头像文件。
 	if oss != nil {
+		// 新头像为空或发生变更时，旧头像文件需要尝试删除。
 		if baseUser.Avatar == "" || oldBaseUser.Avatar != baseUser.Avatar {
+			// 头像文件删除失败时，只记录日志不影响主流程。
 			if err = oss.DeleteFile(oldBaseUser.Avatar); err != nil {
 				log.Error("deleteFile err:", err.Error())
 			}
@@ -201,15 +212,19 @@ func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*a
 
 	var accessToken string
 	accessToken, err = sdk.Runtime.GetCache().Get(cacheKeyWxAccessToken)
+	// 本地缓存未命中 access token 时，回源微信重新获取。
 	if err != nil {
 		token, tokenErr := utils.GetAccessToken(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret())
+		// 微信 access token 获取失败时，直接返回授权失败。
 		if tokenErr != nil {
 			return nil, fmt.Errorf("授权失败:%s", tokenErr.Error())
 		}
+		// 微信侧返回 access token 业务错误时，直接返回授权失败。
 		if token.ErrCode != 0 {
 			return nil, fmt.Errorf("授权失败:%s", token.ErrMsg)
 		}
 		accessToken = token.AccessToken
+		// 新 access token 缓存失败时，只记录日志不影响主流程。
 		if cacheErr := sdk.Runtime.GetCache().Set(cacheKeyWxAccessToken, accessToken, time.Duration(token.ExpiresIn-300)); cacheErr != nil {
 			log.Error("cache set accessToken err:", cacheErr.Error())
 		}
@@ -220,15 +235,18 @@ func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*a
 	if err != nil {
 		return nil, fmt.Errorf("授权失败:%s", err.Error())
 	}
+	// 微信侧返回手机号授权错误时，直接返回授权失败。
 	if phone.ErrCode != 0 {
 		return nil, fmt.Errorf("授权失败:%s", phone.ErrMsg)
 	}
 
 	var find *models.BaseUser
 	find, err = c.baseUserCase.findByPhone(ctx, phone.PhoneInfo.PhoneNumber)
+	// 手机号占用查询异常时，直接返回授权失败。
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("授权失败")
 	}
+	// 手机号已绑定其他账号时，不允许继续授权。
 	if find != nil && find.ID != authInfo.UserId {
 		return nil, fmt.Errorf("授权失败，手机号被占用")
 	}
@@ -237,6 +255,7 @@ func (c *AuthCase) PhoneAuth(ctx context.Context, req *app.PhoneAuthRequest) (*a
 		ID:    authInfo.UserId,
 		Phone: phone.PhoneInfo.PhoneNumber,
 	}
+	// 绑定手机号写库失败时，直接返回业务错误。
 	if err = c.baseUserCase.UpdateById(ctx, user); err != nil {
 		log.Error("PhoneAuth update user err:", err.Error())
 		return nil, errors.New("手机号授权失败")

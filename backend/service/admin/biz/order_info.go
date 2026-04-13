@@ -65,9 +65,11 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *admin.PageOrderI
 	query := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 7)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入用户编号时，按用户过滤订单。
 	if req.GetUserId() > 0 {
 		opts = append(opts, repo.Where(query.UserID.Eq(req.GetUserId())))
 	}
+	// 传入订单号关键字时，按订单号模糊匹配。
 	if req.GetOrderNo() != "" {
 		opts = append(opts, repo.Where(query.OrderNo.Like("%"+req.GetOrderNo()+"%")))
 	}
@@ -80,12 +82,15 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *admin.PageOrderI
 	if req.PayChannel != nil {
 		opts = append(opts, repo.Where(query.PayChannel.Eq(int32(req.GetPayChannel()))))
 	}
+	// 传入时间范围时，按创建时间区间过滤订单。
 	if len(req.GetCreatedAt()) == 2 {
 		startTime := _time.StringTimeToTime(req.GetCreatedAt()[0])
 		endTime := _time.StringTimeToTime(req.GetCreatedAt()[1])
+		// 开始时间可解析时，追加起始时间条件。
 		if startTime != nil {
 			opts = append(opts, repo.Where(query.CreatedAt.Gte(*startTime)))
 		}
+		// 结束时间可解析时，追加结束时间条件。
 		if endTime != nil {
 			endAt := endTime.Add(24 * time.Hour)
 			opts = append(opts, repo.Where(query.CreatedAt.Lt(endAt)))
@@ -106,6 +111,7 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *admin.PageOrderI
 	resList := make([]*admin.OrderInfo, 0, len(list))
 	for _, item := range list {
 		orderInfo := c.mapper.ToDTO(item)
+		// 命中用户信息时，补齐下单用户昵称。
 		if user, ok := userMap[item.UserID]; ok {
 			orderInfo.NickName = user.NickName
 		}
@@ -128,6 +134,7 @@ func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*admin.Orde
 
 	var baseUser *models.BaseUser
 	baseUser, err = c.baseUserCase.FindById(ctx, orderInfo.UserID)
+	// 用户存在时，补齐订单上的下单用户昵称。
 	if err == nil {
 		res.Order.NickName = baseUser.NickName
 	}
@@ -183,6 +190,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 	if err != nil {
 		return err
 	}
+	// 当前订单状态不支持退款时，直接返回业务错误。
 	if !(orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING)) {
 		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
@@ -193,6 +201,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 		Reason:   int32(req.GetReason()),
 	}
 
+	// 微信在线支付订单需要先走微信退款单创建流程。
 	if common.OrderPayType(orderInfo.PayType) == common.OrderPayType_ONLINE_PAY && common.OrderPayChannel(orderInfo.PayChannel) == common.OrderPayChannel_WX_PAY {
 		reason := common.OrderRefundReason_name[int32(req.GetReason())]
 		var refund *refunddomestic.Refund
@@ -212,15 +221,18 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 		orderRefund.OrderNo = trans.StringValue(refund.OutTradeNo)
 		orderRefund.ThirdOrderNo = trans.StringValue(refund.TransactionId)
 		orderRefund.ThirdRefundNo = trans.StringValue(refund.RefundId)
+		// 微信返回退款渠道时，补齐退款渠道字段。
 		if refund.Channel != nil && refund.Channel.Ptr() != nil {
 			orderRefund.Channel = string(*refund.Channel.Ptr())
 		}
 		orderRefund.UserReceivedAccount = trans.StringValue(refund.UserReceivedAccount)
 		orderRefund.CreateTime = trans.TimeValue(refund.CreateTime)
 		orderRefund.SuccessTime = trans.TimeValue(refund.SuccessTime)
+		// 微信返回退款状态时，补齐退款状态字段。
 		if refund.Status != nil && refund.Status.Ptr() != nil {
 			orderRefund.RefundState = string(*refund.Status.Ptr())
 		}
+		// 微信返回资金账户时，补齐资金账户字段。
 		if refund.FundsAccount != nil && refund.FundsAccount.Ptr() != nil {
 			orderRefund.FundsAccount = string(*refund.FundsAccount.Ptr())
 		}
@@ -261,6 +273,7 @@ func (c *OrderInfoCase) GetOrderInfoShipped(ctx context.Context, id int64) (*adm
 	if err != nil {
 		return nil, err
 	}
+	// 已发货或已收货订单需要补充物流信息。
 	if orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED) {
 		res.Logistics, err = c.orderLogisticsCase.FindFromByOrderId(ctx, orderInfo.ID)
 		if err != nil {
@@ -294,9 +307,12 @@ func (c *OrderInfoCase) ShippedOrderInfo(ctx context.Context, req *admin.Shipped
 			return fmt.Errorf("订单状态错误：【%s】", paymentResource.GetTradeState().String())
 		}
 
-		paymentQuery := c.orderPaymentCase.Query(ctx).OrderPayment
+		query := c.orderPaymentCase.Query(ctx).OrderPayment
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.OrderID.Eq(orderInfo.ID)))
 		var orderPayment *models.OrderPayment
-		orderPayment, err = c.orderPaymentCase.Find(ctx, repo.Where(paymentQuery.OrderID.Eq(orderInfo.ID)))
+		orderPayment, err = c.orderPaymentCase.Find(ctx, opts...)
+		// 支付记录查询失败时，仅对“未找到”场景回退空对象。
 		if err != nil {
 			// 支付单不存在时按首次补录处理，其余查询异常直接返回。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -359,6 +375,7 @@ func (c *OrderInfoCase) getOrderUserMap(ctx context.Context, list []*models.Orde
 		userIds = append(userIds, item.UserID)
 	}
 	userMap := make(map[int64]*models.BaseUser)
+	// 订单列表为空时，直接返回空用户映射。
 	if len(userIds) == 0 {
 		return userMap, nil
 	}

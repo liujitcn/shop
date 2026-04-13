@@ -25,6 +25,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 验证码响应
 type CaptchaResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CaptchaId     string                 `protobuf:"bytes,1,opt,name=captchaId,proto3" json:"captchaId,omitempty"`         // 验证码ID。
@@ -77,7 +78,7 @@ func (x *CaptchaResponse) GetCaptchaBase64() string {
 	return ""
 }
 
-// 用户刷新令牌 - 请求
+// 刷新令牌请求参数
 type RefreshTokenRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refreshToken,proto3" json:"refreshToken,omitempty"` // 更新令牌，用来获取下一次的访问令牌，必选项。
@@ -122,7 +123,7 @@ func (x *RefreshTokenRequest) GetRefreshToken() string {
 	return ""
 }
 
-// 用户刷新令牌 - 回应
+// 刷新令牌响应
 type RefreshTokenResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=accessToken,proto3" json:"accessToken,omitempty"`   // 访问令牌，必选项。
@@ -191,7 +192,7 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 	return 0
 }
 
-// 用户后台登录 - 请求
+// 登录请求参数
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`       // 用户名，必选项。
@@ -260,7 +261,7 @@ func (x *LoginRequest) GetCaptchaId() string {
 	return ""
 }
 
-// 用户后台登录 - 回应
+// 登录响应
 type LoginResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken   string                 `protobuf:"bytes,1,opt,name=accessToken,proto3" json:"accessToken,omitempty"`   // 访问令牌，必选项。

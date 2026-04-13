@@ -29,18 +29,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 轮播图分页查询条件
 type PageShopBannerRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 位置：枚举【ShopBannerSite】
-	Site *common.ShopBannerSite `protobuf:"varint,1,opt,name=site,proto3,enum=common.ShopBannerSite,oneof" json:"site,omitempty"`
-	// 跳转类型：枚举【ShopBannerType】
-	Type *common.ShopBannerType `protobuf:"varint,2,opt,name=type,proto3,enum=common.ShopBannerType,oneof" json:"type,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Site          *common.ShopBannerSite `protobuf:"varint,1,opt,name=site,proto3,enum=common.ShopBannerSite,oneof" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
+	Type          *common.ShopBannerType `protobuf:"varint,2,opt,name=type,proto3,enum=common.ShopBannerType,oneof" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`   // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                          // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                        // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -110,12 +106,11 @@ func (x *PageShopBannerRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 轮播图分页响应
 type PageShopBannerResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*ShopBanner `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopBanner          `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -164,24 +159,18 @@ func (x *PageShopBannerResponse) GetTotal() int32 {
 	return 0
 }
 
+// 轮播图
 type ShopBanner struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 主键id
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 位置：枚举【ShopBannerSite】
-	Site common.ShopBannerSite `protobuf:"varint,2,opt,name=site,proto3,enum=common.ShopBannerSite" json:"site,omitempty"`
-	// 图片链接
-	Picture string `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`
-	// 跳转类型：枚举【ShopBannerType】
-	Type common.ShopBannerType `protobuf:"varint,4,opt,name=type,proto3,enum=common.ShopBannerType" json:"type,omitempty"`
-	// 跳转地址
-	Href string `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`
-	// 排序
-	Sort int32 `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`
-	// 状态
-	Status        common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"`
-	CreatedAt     string        `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"` // 创建时间
-	UpdatedAt     string        `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"` // 更新时间
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 主键id
+	Site          common.ShopBannerSite  `protobuf:"varint,2,opt,name=site,proto3,enum=common.ShopBannerSite" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
+	Picture       string                 `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`                       // 图片链接
+	Type          common.ShopBannerType  `protobuf:"varint,4,opt,name=type,proto3,enum=common.ShopBannerType" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
+	Href          string                 `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`                             // 跳转地址
+	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                            // 排序
+	Status        common.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"`   // 状态
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`                 // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`                 // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -279,21 +268,16 @@ func (x *ShopBanner) GetUpdatedAt() string {
 	return ""
 }
 
+// 轮播图表单
 type ShopBannerForm struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 主键id
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 位置：枚举【ShopBannerSite】
-	Site *common.ShopBannerSite `protobuf:"varint,2,opt,name=site,proto3,enum=common.ShopBannerSite,oneof" json:"site,omitempty"`
-	// 图片链接
-	Picture string `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`
-	// 跳转类型：枚举【ShopBannerType】
-	Type *common.ShopBannerType `protobuf:"varint,4,opt,name=type,proto3,enum=common.ShopBannerType,oneof" json:"type,omitempty"`
-	// 跳转地址
-	Href string `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`
-	// 排序
-	Sort          int32          `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`
-	Status        *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 主键id
+	Site          *common.ShopBannerSite `protobuf:"varint,2,opt,name=site,proto3,enum=common.ShopBannerSite,oneof" json:"site,omitempty"` // 位置：枚举【ShopBannerSite】
+	Picture       string                 `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`                             // 图片链接
+	Type          *common.ShopBannerType `protobuf:"varint,4,opt,name=type,proto3,enum=common.ShopBannerType,oneof" json:"type,omitempty"` // 跳转类型：枚举【ShopBannerType】
+	Href          string                 `protobuf:"bytes,5,opt,name=href,proto3" json:"href,omitempty"`                                   // 跳转地址
+	Sort          int32                  `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                  // 排序
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`   // 状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -390,10 +374,10 @@ const file_admin_shop_banner_proto_rawDesc = "" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\a\n" +
 	"\x05_siteB\a\n" +
 	"\x05_typeB\t\n" +
-	"\a_status\"U\n" +
-	"\x16PageShopBannerResponse\x12%\n" +
-	"\x04list\x18\x01 \x03(\v2\x11.admin.ShopBannerR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xf4\x03\n" +
+	"\a_status\"w\n" +
+	"\x16PageShopBannerResponse\x129\n" +
+	"\x04list\x18\x01 \x03(\v2\x11.admin.ShopBannerB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xf4\x03\n" +
 	"\n" +
 	"ShopBanner\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键idR\x02id\x12U\n" +

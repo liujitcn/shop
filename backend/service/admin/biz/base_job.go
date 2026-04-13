@@ -46,9 +46,11 @@ func (c *BaseJobCase) PageBaseJob(ctx context.Context, req *admin.PageBaseJobReq
 	query := c.Query(ctx).BaseJob
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入任务名称时，按名称模糊匹配定时任务。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
+	// 传入调用目标时，按调用目标模糊匹配定时任务。
 	if req.GetInvokeTarget() != "" {
 		opts = append(opts, repo.Where(query.InvokeTarget.Like("%"+req.GetInvokeTarget()+"%")))
 	}

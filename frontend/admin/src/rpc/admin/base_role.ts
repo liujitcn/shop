@@ -10,6 +10,7 @@ import type { BaseRoleDataScope, Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 角色分页查询条件 */
 export interface PageBaseRoleRequest {
   /** 角色名称 */
   name: string;
@@ -25,6 +26,7 @@ export interface PageBaseRoleRequest {
   pageSize: number;
 }
 
+/** 角色分页响应 */
 export interface PageBaseRoleResponse {
   /** 分页数据 */
   list: BaseRole[];
@@ -54,7 +56,7 @@ export interface BaseRole {
   updatedAt: string;
 }
 
-/** 角色 */
+/** 角色表单 */
 export interface BaseRoleForm {
   /** 角色ID */
   id: number;
@@ -76,6 +78,7 @@ export interface BaseRoleForm {
   remark: string;
 }
 
+/** SetMenus请求参数 */
 export interface SetMenusRequest {
   /** 用户ID */
   id: number;

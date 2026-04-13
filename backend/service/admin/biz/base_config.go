@@ -62,12 +62,14 @@ func (c *BaseConfigCase) PageBaseConfig(ctx context.Context, req *admin.PageBase
 	if req.Site != nil {
 		opts = append(opts, repo.Where(query.Site.Eq(int32(req.GetSite()))))
 	}
+	// 传入名称关键字时，按配置名称模糊匹配。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
 	if req.Type != nil {
 		opts = append(opts, repo.Where(query.Type.Eq(int32(req.GetType()))))
 	}
+	// 传入键关键字时，按配置键模糊匹配。
 	if req.GetKey() != "" {
 		opts = append(opts, repo.Where(query.Key.Like("%"+req.GetKey()+"%")))
 	}
@@ -129,6 +131,7 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *admin.BaseCo
 		return err
 	}
 
+	// 配置键发生变化时，需要先清理旧缓存键。
 	if oldConfig.Key != entity.Key {
 		err = c.clearBaseConfigCache(oldConfig.Key)
 		if err != nil {
@@ -181,6 +184,7 @@ func (c *BaseConfigCase) SetBaseConfigStatus(ctx context.Context, req *common.Se
 		return err
 	}
 
+	// 启用状态需要同步配置缓存，禁用状态则清理缓存。
 	if baseConfig.Status == int32(common.Status_ENABLE) {
 		err = c.syncBaseConfigCache(baseConfig)
 		if err != nil {

@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 
+/** 验证码响应 */
 export interface CaptchaResponse {
   /** 验证码ID。 */
   captchaId: string;
@@ -14,13 +15,13 @@ export interface CaptchaResponse {
   captchaBase64: string;
 }
 
-/** 用户刷新令牌 - 请求 */
+/** 刷新令牌请求参数 */
 export interface RefreshTokenRequest {
   /** 更新令牌，用来获取下一次的访问令牌，必选项。 */
   refreshToken: string;
 }
 
-/** 用户刷新令牌 - 回应 */
+/** 刷新令牌响应 */
 export interface RefreshTokenResponse {
   /** 访问令牌，必选项。 */
   accessToken: string;
@@ -32,7 +33,7 @@ export interface RefreshTokenResponse {
   expiresIn: number;
 }
 
-/** 用户后台登录 - 请求 */
+/** 登录请求参数 */
 export interface LoginRequest {
   /** 用户名，必选项。 */
   userName: string;
@@ -44,7 +45,7 @@ export interface LoginRequest {
   captchaId: string;
 }
 
-/** 用户后台登录 - 回应 */
+/** 登录响应 */
 export interface LoginResponse {
   /** 访问令牌，必选项。 */
   accessToken: string;

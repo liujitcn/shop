@@ -29,6 +29,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 下单商品
 type CreateOrderInfoGoods struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 商品id
@@ -97,7 +98,7 @@ func (x *CreateOrderInfoGoods) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// 确认订单信息信息
+// 确认订单响应
 type ConfirmOrderInfoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Goods         []*OrderGoods          `protobuf:"bytes,1,rep,name=goods,proto3" json:"goods,omitempty"`          // 商品信息
@@ -158,6 +159,7 @@ func (x *ConfirmOrderInfoResponse) GetClearCart() bool {
 	return false
 }
 
+// 再次购买订单请求参数
 type OrderRepurchaseInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
@@ -202,11 +204,10 @@ func (x *OrderRepurchaseInfoRequest) GetOrderId() int64 {
 	return 0
 }
 
-// 订单信息数量汇总
+// 订单数量汇总响应
 type CountOrderInfoResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 总数
-	Count         []*CountOrderInfoResponse_Count `protobuf:"bytes,1,rep,name=count,proto3" json:"count,omitempty"`
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Count         []*CountOrderInfoResponse_Count `protobuf:"bytes,1,rep,name=count,proto3" json:"count,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -248,14 +249,12 @@ func (x *CountOrderInfoResponse) GetCount() []*CountOrderInfoResponse_Count {
 	return nil
 }
 
+// 订单分页查询条件
 type PageOrderInfoRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 订单状态
-	Status common.OrderStatus `protobuf:"varint,1,opt,name=status,proto3,enum=common.OrderStatus" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        common.OrderStatus     `protobuf:"varint,1,opt,name=status,proto3,enum=common.OrderStatus" json:"status,omitempty"` // 订单状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                     // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                   // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -311,12 +310,11 @@ func (x *PageOrderInfoRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 订单分页响应
 type PageOrderInfoResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*OrderInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*OrderInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -365,9 +363,9 @@ func (x *PageOrderInfoResponse) GetTotal() int32 {
 	return 0
 }
 
+// 订单详情响应
 type OrderInfoResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 订单信息
+	state         protoimpl.MessageState       `protogen:"open.v1"`
 	Order         *OrderInfo                   `protobuf:"bytes,1,opt,name=order,proto3" json:"order,omitempty"`           // 订单信息
 	Address       *OrderInfoResponse_Address   `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`       // 地址信息
 	Logistics     *OrderInfoResponse_Logistics `protobuf:"bytes,3,opt,name=logistics,proto3" json:"logistics,omitempty"`   // 物流信息
@@ -434,6 +432,7 @@ func (x *OrderInfoResponse) GetCountdown() float32 {
 	return 0
 }
 
+// 创建订单请求参数
 type CreateOrderInfoRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	AddressId     int64                    `protobuf:"varint,1,opt,name=addressId,proto3" json:"addressId,omitempty"`                                      // 地址id
@@ -526,6 +525,7 @@ func (x *CreateOrderInfoRequest) GetGoods() []*CreateOrderInfoGoods {
 	return nil
 }
 
+// 创建订单响应
 type CreateOrderInfoResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
@@ -570,6 +570,7 @@ func (x *CreateOrderInfoResponse) GetOrderId() int64 {
 	return 0
 }
 
+// 取消订单请求参数
 type CancelOrderInfoRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	OrderId       int64                    `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"`                             // 订单id
@@ -622,6 +623,7 @@ func (x *CancelOrderInfoRequest) GetReason() common.OrderCancelReason {
 	return common.OrderCancelReason(0)
 }
 
+// 订单退款请求参数
 type RefundOrderInfoRequest struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	OrderId       int64                    `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"`                             // 订单id
@@ -674,6 +676,7 @@ func (x *RefundOrderInfoRequest) GetReason() common.OrderRefundReason {
 	return common.OrderRefundReason(0)
 }
 
+// 确认收货请求参数
 type ReceiveOrderInfoRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
@@ -718,6 +721,7 @@ func (x *ReceiveOrderInfoRequest) GetOrderId() int64 {
 	return 0
 }
 
+// 订单商品
 type OrderGoods struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                         // 商品ID
@@ -858,6 +862,7 @@ func (x *OrderGoods) GetPosition() int32 {
 	return 0
 }
 
+// Order信息
 type OrderInfo struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
 	Id            int64                    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                    // 订单id
@@ -1030,6 +1035,7 @@ func (x *OrderInfo) GetGoods() []*OrderGoods {
 	return nil
 }
 
+// Order汇总
 type OrderSummary struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PayMoney      int64                  `protobuf:"varint,1,opt,name=payMoney,proto3" json:"payMoney,omitempty"`     // 实际支付金额
@@ -1098,12 +1104,11 @@ func (x *OrderSummary) GetGoodsNum() int64 {
 	return 0
 }
 
+// 订单数量统计项
 type CountOrderInfoResponse_Count struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 订单状态
-	Status common.OrderStatus `protobuf:"varint,1,opt,name=status,proto3,enum=common.OrderStatus" json:"status,omitempty"`
-	// 订单数量
-	Num           int32 `protobuf:"varint,2,opt,name=num,proto3" json:"num,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        common.OrderStatus     `protobuf:"varint,1,opt,name=status,proto3,enum=common.OrderStatus" json:"status,omitempty"` // 订单状态
+	Num           int32                  `protobuf:"varint,2,opt,name=num,proto3" json:"num,omitempty"`                               // 订单数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1152,6 +1157,7 @@ func (x *CountOrderInfoResponse_Count) GetNum() int32 {
 	return 0
 }
 
+// 收货地址
 type OrderInfoResponse_Address struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Receiver      string                 `protobuf:"bytes,1,opt,name=receiver,proto3" json:"receiver,omitempty"` // 联系人
@@ -1220,6 +1226,7 @@ func (x *OrderInfoResponse_Address) GetDetail() string {
 	return ""
 }
 
+// 物流信息
 type OrderInfoResponse_Logistics struct {
 	state         protoimpl.MessageState                `protogen:"open.v1"`
 	Name          string                                `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`       // 物流公司名
@@ -1288,6 +1295,7 @@ func (x *OrderInfoResponse_Logistics) GetDetail() []*OrderInfoResponse_Logistics
 	return nil
 }
 
+// Detail
 type OrderInfoResponse_Logistics_Detail struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Time          string                 `protobuf:"bytes,1,opt,name=time,proto3" json:"time,omitempty"` // 时间
@@ -1355,19 +1363,19 @@ const file_app_order_info_proto_rawDesc = "" +
 	"\asummary\x18\x02 \x01(\v2\x11.app.OrderSummaryB\x12\xbaG\x0f\x92\x02\f汇总信息R\asummary\x129\n" +
 	"\tclearCart\x18\x03 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否清空购物车R\tclearCart\"F\n" +
 	"\x1aOrderRepurchaseInfoRequest\x12(\n" +
-	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xc1\x01\n" +
-	"\x16CountOrderInfoResponse\x127\n" +
-	"\x05count\x18\x01 \x03(\v2!.app.CountOrderInfoResponse.CountR\x05count\x1an\n" +
+	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xcf\x01\n" +
+	"\x16CountOrderInfoResponse\x12E\n" +
+	"\x05count\x18\x01 \x03(\v2!.app.CountOrderInfoResponse.CountB\f\xbaG\t\x92\x02\x06总数R\x05count\x1an\n" +
 	"\x05Count\x12?\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x13.common.OrderStatusB\x12\xbaG\x0f\x92\x02\f订单状态R\x06status\x12$\n" +
 	"\x03num\x18\x02 \x01(\x05B\x12\xbaG\x0f\x92\x02\f订单数量R\x03num\"\xd3\x01\n" +
 	"\x14PageOrderInfoRequest\x12?\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x13.common.OrderStatusB\x12\xbaG\x0f\x92\x02\f订单状态R\x06status\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"Q\n" +
-	"\x15PageOrderInfoResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.app.OrderInfoR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x90\x06\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"s\n" +
+	"\x15PageOrderInfoResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.app.OrderInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x90\x06\n" +
 	"\x11OrderInfoResponse\x128\n" +
 	"\x05order\x18\x01 \x01(\v2\x0e.app.OrderInfoB\x12\xbaG\x0f\x92\x02\f订单信息R\x05order\x12L\n" +
 	"\aaddress\x18\x02 \x01(\v2\x1e.app.OrderInfoResponse.AddressB\x12\xbaG\x0f\x92\x02\f地址信息R\aaddress\x12R\n" +

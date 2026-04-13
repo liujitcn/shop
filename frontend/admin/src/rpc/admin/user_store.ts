@@ -9,6 +9,7 @@ import type { UserStoreStatus } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 
+/** 用户门店分页查询条件 */
 export interface PageUserStoreRequest {
   /** 门店名称 */
   name: string;
@@ -22,6 +23,7 @@ export interface PageUserStoreRequest {
   pageSize: number;
 }
 
+/** 用户门店分页响应 */
 export interface PageUserStoreResponse {
   /** 分页数据 */
   list: UserStore[];
@@ -29,6 +31,7 @@ export interface PageUserStoreResponse {
   total: number;
 }
 
+/** AuditUserStore表单 */
 export interface AuditUserStoreForm {
   /** 用户门店ID */
   id: number;
@@ -38,7 +41,7 @@ export interface AuditUserStoreForm {
   remark: string;
 }
 
-/** 用户门店信息 */
+/** 用户门店 */
 export interface UserStore {
   /** 用户门店ID */
   id: number;

@@ -41,10 +41,10 @@ func NewShopHotItemCase(baseCase *biz.BaseCase, shopHotRepo *data.ShopHotRepo, s
 // ListShopHotItem 查询热门推荐选项
 func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*app.ListShopHotItemResponse, error) {
 	shopHotQuery := c.shopHotRepo.Query(ctx).ShopHot
-	shopHot, err := c.shopHotRepo.Find(ctx,
-		repo.Where(shopHotQuery.ID.Eq(id)),
-		repo.Where(shopHotQuery.Status.Eq(int32(common.Status_ENABLE))),
-	)
+	shopHotOpts := make([]repo.QueryOption, 0, 2)
+	shopHotOpts = append(shopHotOpts, repo.Where(shopHotQuery.ID.Eq(id)))
+	shopHotOpts = append(shopHotOpts, repo.Where(shopHotQuery.Status.Eq(int32(common.Status_ENABLE))))
+	shopHot, err := c.shopHotRepo.Find(ctx, shopHotOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +88,7 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 		return nil, err
 	}
 	list := make([]*app.GoodsInfo, 0)
+	// 当前页存在热门商品关联记录时，再批量回表查询商品详情。
 	if count > 0 {
 		goodsIds := make([]int64, 0, len(hotGoodsList))
 		for _, item := range hotGoodsList {
@@ -105,6 +106,7 @@ func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageSho
 		}
 		for _, item := range all {
 			price := item.Price
+			// 会员访问时，优先展示会员价。
 			if member {
 				price = item.DiscountPrice
 			}

@@ -65,6 +65,7 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context) (*admin.ListBaseDictRes
 	for _, dict := range baseDictList {
 		items := make([]*admin.ListBaseDictResponse_BaseDictItem, 0)
 		dictItems, ok := dictItemMap[dict.ID]
+		// 当前字典存在子项时，按排序字段稳定输出字典项。
 		if ok {
 			sort.SliceStable(dictItems, func(i, j int) bool {
 				return dictItems[i].Sort < dictItems[j].Sort
@@ -94,9 +95,11 @@ func (c *BaseDictCase) PageBaseDict(ctx context.Context, req *admin.PageBaseDict
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	// 传入名称关键字时，按名称模糊匹配字典。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
+	// 传入编码关键字时，按编码模糊匹配字典。
 	if req.GetCode() != "" {
 		opts = append(opts, repo.Where(query.Code.Like("%"+req.GetCode()+"%")))
 	}
@@ -141,10 +144,13 @@ func (c *BaseDictCase) DeleteBaseDict(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	query := c.baseDictItemCase.Query(ctx).BaseDictItem
 	for _, dictId := range ids {
-		count, err := c.baseDictItemCase.Count(ctx, repo.Where(query.DictID.Eq(dictId)))
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.DictID.Eq(dictId)))
+		count, err := c.baseDictItemCase.Count(ctx, opts...)
 		if err != nil {
 			return errors.New("删除字典失败")
 		}
+		// 字典下仍有子项时，不允许直接删除字典。
 		if count > 0 {
 			return errors.New("删除字典失败,下面有属性")
 		}

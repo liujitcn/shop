@@ -29,16 +29,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商城服务分页查询条件
 type PageShopServiceRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 标签
-	Label string `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`                               // 标签
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -101,12 +98,11 @@ func (x *PageShopServiceRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 商城服务分页响应
 type PageShopServiceResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*ShopService `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopService         `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -155,20 +151,16 @@ func (x *PageShopServiceResponse) GetTotal() int32 {
 	return 0
 }
 
+// 商城服务
 type ShopService struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 服务ID
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 标签
-	Label string `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
-	// 值
-	Value string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
-	// 排序
-	Sort int32 `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`
-	// 状态
-	Status        common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"`
-	CreatedAt     string        `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"` // 创建时间
-	UpdatedAt     string        `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"` // 更新时间
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                              // 服务ID
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                         // 标签
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                         // 值
+	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                          // 排序
+	Status        common.Status          `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status" json:"status,omitempty"` // 状态
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`               // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`               // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -252,17 +244,14 @@ func (x *ShopService) GetUpdatedAt() string {
 	return ""
 }
 
+// 商城服务表单
 type ShopServiceForm struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 服务ID
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// 标签
-	Label string `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
-	// 值
-	Value string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
-	// 排序
-	Sort          int32          `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`
-	Status        *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 服务ID
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                               // 标签
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`                               // 值
+	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                                // 排序
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态：枚举【Status】
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -342,10 +331,10 @@ const file_admin_shop_service_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"W\n" +
-	"\x17PageShopServiceResponse\x12&\n" +
-	"\x04list\x18\x01 \x03(\v2\x12.admin.ShopServiceR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xb0\x02\n" +
+	"\a_status\"y\n" +
+	"\x17PageShopServiceResponse\x12:\n" +
+	"\x04list\x18\x01 \x03(\v2\x12.admin.ShopServiceB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb0\x02\n" +
 	"\vShopService\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b服务IDR\x02id\x12\"\n" +
 	"\x05label\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12\x1f\n" +

@@ -10,11 +10,13 @@ import type { Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 部门树响应 */
 export interface TreeBaseDeptResponse {
   /** 分页数据 */
   list: BaseDept[];
 }
 
+/** 部门选项查询条件 */
 export interface OptionBaseDeptRequest {
   /** 父级部门ID */
   parentId?: number | undefined;
@@ -42,7 +44,7 @@ export interface BaseDept {
   children: BaseDept[];
 }
 
-/** 部门 */
+/** 部门表单 */
 export interface BaseDeptForm {
   /** 部门ID */
   id: number;

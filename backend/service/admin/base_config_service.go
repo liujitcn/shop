@@ -80,6 +80,7 @@ func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *admin.Bas
 	err := s.baseConfigCase.CreateBaseConfig(ctx, req)
 	if err != nil {
 		log.Error("CreateBaseConfig err:", err.Error())
+		// 命中配置键唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("配置key重复")
 		}
@@ -93,6 +94,7 @@ func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *admin.Bas
 	err := s.baseConfigCase.UpdateBaseConfig(ctx, req)
 	if err != nil {
 		log.Error("UpdateBaseConfig err:", err.Error())
+		// 命中配置键唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("配置key重复")
 		}

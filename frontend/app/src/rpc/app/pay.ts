@@ -15,11 +15,13 @@ export enum ResourceType {
   REFUND = 1,
 }
 
+/** 支付请求参数 */
 export interface PayRequest {
   /** 订单id */
   orderId: number;
 }
 
+/** 小程序支付响应 */
 export interface JsapiPayResponse {
   /** 填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。 */
   appId: string;
@@ -33,25 +35,31 @@ export interface JsapiPayResponse {
   paySign: string;
 }
 
+/** H5 支付响应 */
 export interface H5PayResponse {
   /** 支付url */
   h5Url: string;
 }
 
-/** 支付资源数据 */
+/** 支付结果 */
 export interface PaymentResource {
   /** 【微信支付订单号】微信支付侧订单的唯一标识 */
   transactionId: string;
+  /** 金额信息 */
   amount:
     | PaymentResource_Amount
     | undefined;
   /** 【商户号】商户下单时传入的商户号 */
   mchid: string;
+  /** 交易状态 */
   tradeState: PaymentResource_TradeState;
   /** 【银行类型】用户支付方式说明 */
   bankType: string;
   /** 【支付完成时间】用户完成支付的时间 */
-  successTime: Timestamp | undefined;
+  successTime:
+    | Timestamp
+    | undefined;
+  /** 支付者信息 */
   payer:
     | PaymentResource_Payer
     | undefined;
@@ -61,9 +69,11 @@ export interface PaymentResource {
   appid: string;
   /** 【交易状态描述】状态详细说明 */
   tradeStateDesc: string;
+  /** 交易类型 */
   tradeType: PaymentResource_TradeType;
   /** 【商户数据包】自定义数据包（<=128字符） */
   attach: string;
+  /** 场景信息 */
   sceneInfo: PaymentResource_SceneInfo | undefined;
 }
 
@@ -103,7 +113,7 @@ export enum PaymentResource_TradeType {
   FACEPAY = 6,
 }
 
-/** 订单金额信息，当支付成功时返回该字段 */
+/** 支付金额信息 */
 export interface PaymentResource_Amount {
   /** 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额） */
   payerTotal: number;
@@ -121,12 +131,13 @@ export interface PaymentResource_Payer {
   openid: string;
 }
 
-/** 场景信息 */
+/** 支付场景信息 */
 export interface PaymentResource_SceneInfo {
   /** 【商户端设备号】门店号/收银设备ID */
   deviceId: string;
 }
 
+/** 退款结果 */
 export interface RefundResource {
   /** 【商户号】商户下单时传入的商户号 */
   mchid: string;
@@ -138,6 +149,7 @@ export interface RefundResource {
   refundId: string;
   /** 【商户退款单号】商户系统内部退款单号 */
   outRefundNo: string;
+  /** 退款状态 */
   refundStatus: RefundResource_RefundStatus;
   /** 【退款成功时间】 */
   successTime:
@@ -145,6 +157,7 @@ export interface RefundResource {
     | undefined;
   /** 【退款入账账户】 */
   userReceivedAccount: string;
+  /** 金额信息 */
   amount: RefundResource_Amount | undefined;
 }
 
@@ -161,7 +174,7 @@ export enum RefundResource_RefundStatus {
   ABNORMAL = 4,
 }
 
-/** 【金额信息】 */
+/** 退款金额信息 */
 export interface RefundResource_Amount {
   /** 【原订单金额】单位：分 */
   total: number;

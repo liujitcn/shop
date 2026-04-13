@@ -67,6 +67,7 @@ func (c *BaseDictCase) ListBaseDict(ctx context.Context, codes string) (*app.Lis
 	list := make([]*app.ListBaseDictResponse_Dict, 0, len(baseDictList))
 	for _, dict := range baseDictList {
 		items := make([]*app.ListBaseDictResponse_DictItem, 0)
+		// 命中字典项映射时，再按排序规则组装当前字典的子项。
 		if dictItems, ok := dictItemMap[dict.ID]; ok {
 			sort.SliceStable(dictItems, func(i, j int) bool {
 				return dictItems[i].Sort < dictItems[j].Sort

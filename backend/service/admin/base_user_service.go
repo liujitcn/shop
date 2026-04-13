@@ -73,6 +73,7 @@ func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *admin.BaseUse
 	err := s.baseUserCase.CreateBaseUser(ctx, req)
 	if err != nil {
 		log.Error("CreateBaseUser err:", err.Error())
+		// 命中用户账号唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("用户账号重复")
 		}
@@ -86,6 +87,7 @@ func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *admin.BaseUse
 	err := s.baseUserCase.UpdateBaseUser(ctx, req)
 	if err != nil {
 		log.Error("UpdateBaseUser err:", err.Error())
+		// 命中用户账号唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("用户账号重复")
 		}

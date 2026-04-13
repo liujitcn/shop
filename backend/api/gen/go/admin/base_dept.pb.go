@@ -28,10 +28,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 部门树响应
 type TreeBaseDeptResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*BaseDept `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseDept            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,6 +73,7 @@ func (x *TreeBaseDeptResponse) GetList() []*BaseDept {
 	return nil
 }
 
+// 部门选项查询条件
 type OptionBaseDeptRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,2,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"` // 父级部门ID
@@ -226,7 +227,7 @@ func (x *BaseDept) GetChildren() []*BaseDept {
 	return nil
 }
 
-// 部门
+// 部门表单
 type BaseDeptForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 部门ID
@@ -315,9 +316,9 @@ var File_admin_base_dept_proto protoreflect.FileDescriptor
 
 const file_admin_base_dept_proto_rawDesc = "" +
 	"\n" +
-	"\x15admin/base_dept.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\";\n" +
-	"\x14TreeBaseDeptResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseDeptR\x04list\"[\n" +
+	"\x15admin/base_dept.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\"O\n" +
+	"\x14TreeBaseDeptResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseDeptB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"[\n" +
 	"\x15OptionBaseDeptRequest\x125\n" +
 	"\bparentId\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x00R\bparentId\x88\x01\x01B\v\n" +
 	"\t_parentId\"\xa7\x03\n" +

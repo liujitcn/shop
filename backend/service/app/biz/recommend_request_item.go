@@ -117,7 +117,10 @@ func (c *RecommendRequestItemCase) listRelatedGoodsIdsByRequestId(ctx context.Co
 	}
 
 	recommendRequestQuery := c.recommendRequestRepo.Query(ctx).RecommendRequest
-	requestEntity, err := c.recommendRequestRepo.Find(ctx, repo.Where(recommendRequestQuery.RequestID.Eq(requestId)))
+	requestOpts := make([]repo.QueryOption, 0, 1)
+	requestOpts = append(requestOpts, repo.Where(recommendRequestQuery.RequestID.Eq(requestId)))
+	requestEntity, err := c.recommendRequestRepo.Find(ctx, requestOpts...)
+	// 请求主表查询失败时，仅对“未找到”场景回退为空结果。
 	if err != nil {
 		// 请求主表不存在时，说明当前行为无法回查推荐链路。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -127,7 +130,9 @@ func (c *RecommendRequestItemCase) listRelatedGoodsIdsByRequestId(ctx context.Co
 	}
 
 	recommendRequestItemQuery := c.Query(ctx).RecommendRequestItem
-	requestItemList, err := c.List(ctx, repo.Where(recommendRequestItemQuery.RecommendRequestID.Eq(requestEntity.ID)))
+	requestItemOpts := make([]repo.QueryOption, 0, 1)
+	requestItemOpts = append(requestItemOpts, repo.Where(recommendRequestItemQuery.RecommendRequestID.Eq(requestEntity.ID)))
+	requestItemList, err := c.List(ctx, requestItemOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -152,12 +157,13 @@ func (c *RecommendRequestItemCase) loadPositionMapByRequestId(ctx context.Contex
 	}
 
 	recommendRequestQuery := c.recommendRequestRepo.Query(ctx).RecommendRequest
-	requestEntity, err := c.recommendRequestRepo.Find(ctx, repo.Where(recommendRequestQuery.RequestID.Eq(requestId)))
+	requestOpts := make([]repo.QueryOption, 0, 1)
+	requestOpts = append(requestOpts, repo.Where(recommendRequestQuery.RequestID.Eq(requestId)))
+	requestEntity, err := c.recommendRequestRepo.Find(ctx, requestOpts...)
 	// 推荐请求不存在时，说明曝光无法回查到请求链路，直接退回空映射。
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return positionMap, nil
 	}
-	// 其他查询错误直接返回，避免在异常状态下写出错误位次。
 	if err != nil {
 		return nil, err
 	}

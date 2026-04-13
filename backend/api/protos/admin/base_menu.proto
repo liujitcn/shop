@@ -66,10 +66,14 @@ service BaseMenuService {
   }
 }
 
+// 菜单树响应
 message TreeBaseMenuResponse {
-  repeated BaseMenu list = 1;
+  repeated BaseMenu list = 1 [
+    (gnostic.openapi.v3.property) = {description: "菜单树"}
+  ]; // 菜单树
 }
 
+// 菜单选项查询条件
 message OptionBaseMenuRequest {
   optional int64 parentId = 1 [
     (gnostic.openapi.v3.property) = {description: "父级菜单ID"}
@@ -144,7 +148,7 @@ message BaseMenu {
   ];  // 子菜单
 }
 
-// 菜单
+// 菜单表单
 message BaseMenuForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {
@@ -205,6 +209,7 @@ message BaseMenuForm {
   ]; // 状态
 }
 
+// 菜单元信息
 message BaseMenuMeta {
   string title = 1 [
     (gnostic.openapi.v3.property) = {
@@ -248,6 +253,7 @@ message BaseMenuMeta {
   ]; // 参数
 }
 
+// 菜单参数
 message BaseMenuParams {
   string key = 1 [
     (gnostic.openapi.v3.property) = {

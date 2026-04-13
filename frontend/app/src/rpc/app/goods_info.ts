@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Int64Value } from "../google/protobuf/wrappers";
 
+/** 商品分页查询条件 */
 export interface PageGoodsInfoRequest {
   /** 商品名 */
   name: string;
@@ -18,6 +19,7 @@ export interface PageGoodsInfoRequest {
   pageSize: number;
 }
 
+/** 商品分页响应 */
 export interface PageGoodsInfoResponse {
   /** 分页数据 */
   list: GoodsInfo[];
@@ -25,6 +27,7 @@ export interface PageGoodsInfoResponse {
   total: number;
 }
 
+/** 商品详情响应 */
 export interface GoodsInfoResponse {
   /** 商品ID */
   id: number;
@@ -52,6 +55,7 @@ export interface GoodsInfoResponse {
   specList: GoodsInfoResponse_Spec[];
 }
 
+/** 商品属性 */
 export interface GoodsInfoResponse_Prop {
   /** 商品属性名称 */
   label: string;
@@ -59,6 +63,7 @@ export interface GoodsInfoResponse_Prop {
   value: string;
 }
 
+/** 商品规格 */
 export interface GoodsInfoResponse_Spec {
   /** 商品规格名称 */
   name: string;
@@ -66,11 +71,13 @@ export interface GoodsInfoResponse_Spec {
   item: GoodsInfoResponse_Spec_Item[];
 }
 
+/** 规格项 */
 export interface GoodsInfoResponse_Spec_Item {
   /** 规格 */
   name: string;
 }
 
+/** 商品 SKU */
 export interface GoodsInfoResponse_Sku {
   /** 商品图片 */
   picture: string;
@@ -86,6 +93,7 @@ export interface GoodsInfoResponse_Sku {
   inventory: number;
 }
 
+/** Goods信息 */
 export interface GoodsInfo {
   /** 商品ID */
   id: number;

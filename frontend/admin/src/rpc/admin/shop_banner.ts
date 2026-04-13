@@ -10,6 +10,7 @@ import type { ShopBannerSite, ShopBannerType, Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 轮播图分页查询条件 */
 export interface PageShopBannerRequest {
   /** 位置：枚举【ShopBannerSite】 */
   site?:
@@ -29,6 +30,7 @@ export interface PageShopBannerRequest {
   pageSize: number;
 }
 
+/** 轮播图分页响应 */
 export interface PageShopBannerResponse {
   /** 分页数据 */
   list: ShopBanner[];
@@ -36,6 +38,7 @@ export interface PageShopBannerResponse {
   total: number;
 }
 
+/** 轮播图 */
 export interface ShopBanner {
   /** 主键id */
   id: number;
@@ -57,6 +60,7 @@ export interface ShopBanner {
   updatedAt: string;
 }
 
+/** 轮播图表单 */
 export interface ShopBannerForm {
   /** 主键id */
   id: number;

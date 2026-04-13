@@ -2,30 +2,56 @@ syntax = "proto3";
 
 package conf;
 
+import "gnostic/openapi/v3/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/struct.proto";
 
+// 商城配置
 message ShopConfigWrapper {
-  ShopConfig shop = 1;
+  ShopConfig shop = 1 [
+    (gnostic.openapi.v3.property) = {description: "商城配置"}
+  ]; // 商城配置
 }
 
-// ShopServerConfig
+// ShopConfig
 message ShopConfig {
-  WxMiniApp wxMiniApp = 1; // 小程序登录参数
-  WxPay wxPay = 2; // 微信支付参数
+  WxMiniApp wxMiniApp = 1 [
+    (gnostic.openapi.v3.property) = {description: "小程序登录参数"}
+  ]; // 小程序登录参数
+  WxPay wxPay = 2 [
+    (gnostic.openapi.v3.property) = {description: "微信支付参数"}
+  ]; // 微信支付参数
 }
 
+// WxMiniApp
 message WxMiniApp {
-  string appid = 1;
-  string secret = 2;
+  string appid = 1 [
+    (gnostic.openapi.v3.property) = {description: "小程序 AppID"}
+  ]; // 小程序 AppID
+  string secret = 2 [
+    (gnostic.openapi.v3.property) = {description: "小程序密钥"}
+  ]; // 小程序密钥
 }
 
+// WxPay
 message WxPay {
-  string appid = 1;
-  string mchId = 2; // 商户id
-  string notifyUrl = 3; // 通知地址
+  string appid = 1 [
+    (gnostic.openapi.v3.property) = {description: "微信支付 AppID"}
+  ]; // 微信支付 AppID
+  string mchId = 2 [
+    (gnostic.openapi.v3.property) = {description: "商户id"}
+  ]; // 商户id
+  string notifyUrl = 3 [
+    (gnostic.openapi.v3.property) = {description: "通知地址"}
+  ]; // 通知地址
 
-  string mchCertSn = 80; // 商户证书序列号
-  string mchCertPath = 81; // 商户证书路径
-  string mchAPIv3Key = 82; // api 密钥
+  string mchCertSn = 80 [
+    (gnostic.openapi.v3.property) = {description: "商户证书序列号"}
+  ]; // 商户证书序列号
+  string mchCertPath = 81 [
+    (gnostic.openapi.v3.property) = {description: "商户证书路径"}
+  ]; // 商户证书路径
+  string mchAPIv3Key = 82 [
+    (gnostic.openapi.v3.property) = {description: "api 密钥"}
+  ]; // api 密钥
 }

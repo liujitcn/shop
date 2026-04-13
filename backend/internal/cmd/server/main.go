@@ -48,6 +48,7 @@ var (
 	version = "1.0.0"
 )
 
+// newApp 组装应用实例并挂载定时任务、GRPC 与 HTTP 服务。
 func newApp(
 	ctx *bootstrap.Context,
 	cron *job.CronServer,
@@ -61,6 +62,7 @@ func newApp(
 	)
 }
 
+// runApp 初始化上下文并启动应用主流程。
 func runApp() error {
 	ctx := bootstrap.NewContext(
 		context.Background(),
@@ -74,7 +76,9 @@ func runApp() error {
 	return bootstrap.RunApp(ctx, initApp)
 }
 
+// main 作为服务启动入口，负责执行应用启动并在失败时中止进程。
 func main() {
+	// 应用启动失败时直接中止进程，避免服务以异常状态继续运行。
 	if err := runApp(); err != nil {
 		panic(err)
 	}

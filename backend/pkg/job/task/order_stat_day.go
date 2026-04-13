@@ -46,7 +46,6 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 	log.Infof("Job OrderStatDay Exec %+v", args)
 
 	statTime, err := parseStatDateArg(args["statDate"])
-	// 统计日期非法时，直接返回错误避免写入错误日期数据。
 	if err != nil {
 		return []string{err.Error()}, err
 	}
@@ -56,21 +55,19 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 	endAt := statDate.AddDate(0, 0, 1)
 
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
-		orderStatDayQuery := t.orderStatDayRepo.Query(ctx).OrderStatDay
+		query := t.orderStatDayRepo.Query(ctx).OrderStatDay
 		// 订单日统计表带软删字段，这里必须物理删除旧数据再回灌。
-		_, err = orderStatDayQuery.WithContext(ctx).Unscoped().Where(orderStatDayQuery.StatDate.Eq(statDate)).Delete()
-		// 删除旧统计失败时，终止本次重算避免新旧数据并存。
+		_, err = query.WithContext(ctx).Unscoped().Where(query.StatDate.Eq(statDate)).Delete()
 		if err != nil {
 			return err
 		}
 
-		orderInfoQuery := t.orderInfoRepo.Query(ctx).OrderInfo
-		orderInfoOpts := make([]repo.QueryOption, 0, 2)
-		orderInfoOpts = append(orderInfoOpts, repo.Where(orderInfoQuery.CreatedAt.Gte(startAt)))
-		orderInfoOpts = append(orderInfoOpts, repo.Where(orderInfoQuery.CreatedAt.Lt(endAt)))
+		orderQuery := t.orderInfoRepo.Query(ctx).OrderInfo
+		opts := make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(orderQuery.CreatedAt.Gte(startAt)))
+		opts = append(opts, repo.Where(orderQuery.CreatedAt.Lt(endAt)))
 		var orderInfoList []*models.OrderInfo
-		orderInfoList, err = t.orderInfoRepo.List(ctx, orderInfoOpts...)
-		// 订单主表查询失败时，直接返回错误避免统计结果不完整。
+		orderInfoList, err = t.orderInfoRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -137,7 +134,6 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 		return t.orderStatDayRepo.BatchCreate(ctx, list)
 	})
-	// 事务执行失败时，直接返回错误交由任务日志记录。
 	if err != nil {
 		return []string{err.Error()}, err
 	}

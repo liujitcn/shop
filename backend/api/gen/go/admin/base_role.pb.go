@@ -28,15 +28,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 角色分页查询条件
 type PageBaseRoleRequest struct {
-	state  protoimpl.MessageState `protogen:"open.v1"`
-	Name   string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                 // 角色名称
-	Code   string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                 // 角色编号
-	Status *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                 // 角色名称
+	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                 // 角色编号
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -106,12 +105,11 @@ func (x *PageBaseRoleRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 角色分页响应
 type PageBaseRoleResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseRole `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseRole            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -269,7 +267,7 @@ func (x *BaseRole) GetUpdatedAt() string {
 	return ""
 }
 
-// 角色
+// 角色表单
 type BaseRoleForm struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                   // 角色ID
@@ -362,6 +360,7 @@ func (x *BaseRoleForm) GetRemark() string {
 	return ""
 }
 
+// SetMenus请求参数
 type SetMenusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`              // 用户ID
@@ -425,10 +424,10 @@ const file_admin_base_role_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"Q\n" +
-	"\x14PageBaseRoleResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseRoleR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x83\x04\n" +
+	"\a_status\"s\n" +
+	"\x14PageBaseRoleResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseRoleB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x83\x04\n" +
 	"\bBaseRole\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +

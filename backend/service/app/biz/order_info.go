@@ -97,9 +97,9 @@ func NewOrderInfoCase(
 	}
 
 	// 服务启动时恢复全部未支付订单的超时取消任务
-	orderQuery := c.Query(context.Background()).OrderInfo
+	query := c.Query(context.Background()).OrderInfo
 	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(common.OrderStatus_CREATED))))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.OrderStatus_CREATED))))
 	list, err := c.List(context.Background(), opts...)
 	if err != nil {
 		return nil, err
@@ -110,11 +110,13 @@ func NewOrderInfoCase(
 		createdAt := item.CreatedAt.Add(payTimeout)
 		nowTime := time.Now()
 		countdown := createdAt.Sub(nowTime).Seconds()
+		// 已超出支付时限的订单立即执行取消。
 		if countdown < 0 {
 			// 自动取消订单
 			err = c.cancelOrder(context.Background(), item.UserID, &app.CancelOrderInfoRequest{
 				OrderId: item.ID,
 			})
+			// 自动取消执行失败时，仅记录日志继续恢复其余任务。
 			if err != nil {
 				log.Errorf("CancelOrder order %d failed: %v", item.ID, err)
 			}
@@ -124,6 +126,7 @@ func NewOrderInfoCase(
 				err = c.cancelOrder(context.Background(), item.UserID, &app.CancelOrderInfoRequest{
 					OrderId: item.ID,
 				})
+				// 定时任务取消失败时，仅记录日志避免影响调度器运行。
 				if err != nil {
 					log.Errorf("CancelOrder order %d failed: %v", item.ID, err)
 				}
@@ -143,12 +146,12 @@ func (c *OrderInfoCase) OrderInfoPre(ctx context.Context) (*app.ConfirmOrderInfo
 	member := utils.IsMemberByAuthInfo(authInfo)
 
 	// 查询购物车列表
-	userCartQuery := c.userCartCase.Query(ctx).UserCart
+	query := c.userCartCase.Query(ctx).UserCart
 	userCartList := make([]*models.UserCart, 0)
-	userCartOpts := make([]repo.QueryOption, 0, 2)
-	userCartOpts = append(userCartOpts, repo.Where(userCartQuery.UserID.Eq(authInfo.UserId)))
-	userCartOpts = append(userCartOpts, repo.Where(userCartQuery.IsChecked.Is(true)))
-	userCartList, err = c.userCartCase.List(ctx, userCartOpts...)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repo.Where(query.IsChecked.Is(true)))
+	userCartList, err = c.userCartCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -194,11 +197,11 @@ func (c *OrderInfoCase) OrderInfoRepurchase(ctx context.Context, req *app.OrderR
 		return nil, err
 	}
 	// 读取原订单中的商品明细，重新构造成下单请求
-	orderGoodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
+	query := c.orderGoodsCase.Query(ctx).OrderGoods
 	var oldOrderGoods []*models.OrderGoods
-	orderGoodsOpts := make([]repo.QueryOption, 0, 1)
-	orderGoodsOpts = append(orderGoodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
-	oldOrderGoods, err = c.orderGoodsCase.List(ctx, orderGoodsOpts...)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderInfo.ID)))
+	oldOrderGoods, err = c.orderGoodsCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -253,12 +256,13 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *app.PageOrderInf
 	if err != nil {
 		return nil, err
 	}
-	orderQuery := c.Query(ctx).OrderInfo
+	query := c.Query(ctx).OrderInfo
 	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Order(orderQuery.CreatedAt.Desc()))
-	opts = append(opts, repo.Where(orderQuery.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	// 指定订单状态时，只返回该状态下的订单记录。
 	if req.GetStatus() != common.OrderStatus_UNKNOWN_OS {
-		opts = append(opts, repo.Where(orderQuery.Status.Eq(int32(req.GetStatus()))))
+		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 	var page []*models.OrderInfo
 	var count int64
@@ -281,6 +285,7 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *app.PageOrderInf
 	list := make([]*app.OrderInfo, 0)
 	for _, item := range page {
 		orderInfo := c.convertToProto(item)
+		// 命中订单商品映射时，补齐当前订单的商品列表。
 		if v, ok := orderGoodsMap[orderInfo.Id]; ok {
 			orderInfo.Goods = v
 		}
@@ -302,10 +307,10 @@ func (c *OrderInfoCase) GetOrderInfoIdByOrderNo(ctx context.Context, orderNo str
 
 	query := c.Query(ctx).OrderInfo
 	var item *models.OrderInfo
-	item, err = c.Find(ctx,
-		repo.Where(query.OrderNo.Eq(orderNo)),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.OrderNo.Eq(orderNo)))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	item, err = c.Find(ctx, opts...)
 	if err != nil {
 		return 0, err
 	}
@@ -352,7 +357,7 @@ func (c *OrderInfoCase) GetOrderInfoById(ctx context.Context, id int64) (*app.Or
 	// 根据订单状态补充额外展示字段
 	switch common.OrderStatus(item.Status) {
 	case common.OrderStatus_PAID:
-		// 待支付订单返回支付倒计时
+		// 在线支付且已支付的订单需要补充支付完成时间。
 		if common.OrderPayType(item.PayType) == common.OrderPayType_ONLINE_PAY {
 			res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByOrderId(ctx, orderInfo.Id)
 			if err != nil {
@@ -464,6 +469,7 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 			err = c.cancelOrder(context.Background(), orderInfo.UserID, &app.CancelOrderInfoRequest{
 				OrderId: orderInfo.ID,
 			})
+			// 定时取消执行失败时，仅记录日志避免影响后续调度。
 			if err != nil {
 				log.Errorf("CancelOrder order %d failed: %v", orderInfo.ID, err)
 			}
@@ -486,6 +492,7 @@ func (c *OrderInfoCase) DeleteOrderInfo(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
+	// 只有已收货、退款中或已取消订单允许删除。
 	if !(orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING) || orderInfo.Status == int32(common.OrderStatus_CANCELED)) {
 		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
@@ -517,6 +524,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 		return err
 	}
 
+	// 只有已支付订单才能继续申请退款。
 	if orderInfo.Status != int32(common.OrderStatus_PAID) {
 		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
@@ -532,6 +540,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 		reason := strconv.Itoa(int(orderRefund.Reason))
 		var label string
 		label, err = c.baseDictItemCase.findLabelByCodeAndValue(ctx, orderRefundReason, reason)
+		// 字典标签查询成功时，使用标签替换原始原因值。
 		if err == nil {
 			reason = label
 		}
@@ -548,9 +557,11 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *app.RefundOrde
 					Currency: trans.String("CNY"),
 				},
 			})
+			// 微信退款创建失败时，需要识别“已全额退款”的可恢复场景。
 			if err != nil {
+				// 命中微信 API 错误结构时，再判断是否属于幂等退款场景。
 				if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
-					// 订单已支付
+					// 微信明确返回“订单已全额退款”时，补查退款结果并同步本地状态。
 					if apiErr.Code == "INVALID_REQUEST" && apiErr.Message == "订单已全额退款" {
 						// 调用查询退款接口
 						var refundResource *app.RefundResource
@@ -609,6 +620,7 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *app.ReceiveOr
 	if err != nil {
 		return err
 	}
+	// 只有已发货订单才能确认收货。
 	if orderInfo.Status != int32(common.OrderStatus_SHIPPED) {
 		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
@@ -658,6 +670,7 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 	if err != nil {
 		return err
 	}
+	// 只有待支付订单才能继续取消。
 	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
 		return fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
@@ -670,6 +683,7 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 		if err != nil {
 			return err
 		}
+		// 微信侧已确认支付成功时，先同步本地状态再拒绝取消。
 		if paymentResource != nil && paymentResource.GetTradeState().String() == "SUCCESS" {
 			// 查询到已支付后，直接复用支付服务中的成功处理逻辑补齐本地状态
 			err = c.payCase.PaySuccess(ctx, orderInfo, paymentResource)
@@ -681,10 +695,10 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 	}
 	orderIds := []int64{req.GetOrderId()}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		orderGoodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
+		query := c.orderGoodsCase.Query(ctx).OrderGoods
 		var orderGoodsList []*models.OrderGoods
 		opts := make([]repo.QueryOption, 0, 1)
-		opts = append(opts, repo.Where(orderGoodsQuery.OrderID.In(orderIds...)))
+		opts = append(opts, repo.Where(query.OrderID.In(orderIds...)))
 		orderGoodsList, err = c.orderGoodsCase.List(ctx, opts...)
 		for _, orderGoods := range orderGoodsList {
 			// 订单取消后恢复库存并回退销量
@@ -714,14 +728,15 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userId int64, req *app.
 // 按订单编号和用户编号查询订单
 func (c *OrderInfoCase) findByUserIdAndId(ctx context.Context, userId, orderId int64) (*models.OrderInfo, error) {
 	query := c.Query(ctx).OrderInfo
-	return c.Find(ctx,
-		repo.Where(query.ID.Eq(orderId)),
-		repo.Where(query.UserID.Eq(userId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(orderId)))
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	return c.Find(ctx, opts...)
 }
 
 // 按订单编号批量更新当前用户的订单
 func (c *OrderInfoCase) updateByIds(ctx context.Context, userId int64, ids []int64, entity *models.OrderInfo) error {
+	// 没有待更新订单时，直接返回避免执行空 SQL。
 	if len(ids) == 0 {
 		return nil
 	}
@@ -763,6 +778,7 @@ func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(payType common.OrderPa
 
 	eventTypeList := make([]common.RecommendGoodsActionType, 0)
 	eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_CREATE)
+	// 货到付款订单在创建时同步回写支付行为。
 	if payType == common.OrderPayType_CASH_ON_DELIVERY {
 		eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_PAY)
 	}

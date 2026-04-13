@@ -7,12 +7,19 @@
 /* eslint-disable */
 import type { AnalyticsRankResponse, AnalyticsTimeRequest, AnalyticsTrendResponse } from "../common/analytics";
 
+/** 用户分析汇总响应 */
 export interface UserAnalyticsSummaryResponse {
+  /** 新增用户数 */
   newUserCount: number;
+  /** 新增用户增长率 */
   newUserGrowthRate: number;
+  /** 下单用户数 */
   orderUserCount: number;
+  /** 下单转化率 */
   orderUserConversionRate: number;
+  /** 活跃用户数 */
   activeUserCount: number;
+  /** 活跃覆盖率 */
   activeUserCoverageRate: number;
 }
 

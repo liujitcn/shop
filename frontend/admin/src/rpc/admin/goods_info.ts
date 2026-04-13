@@ -13,16 +13,19 @@ import type { GoodsProp } from "./goods_prop";
 import type { GoodsSku } from "./goods_sku";
 import type { GoodsSpec } from "./goods_spec";
 
+/** 商品列表查询条件 */
 export interface ListGoodsInfoRequest {
   /** 商品名称 */
   name: string;
 }
 
+/** 商品列表响应 */
 export interface ListGoodsInfoResponse {
   /** 分页数据 */
   list: ListGoodsInfoResponse_GoodsInfo[];
 }
 
+/** Goods信息 */
 export interface ListGoodsInfoResponse_GoodsInfo {
   /** 商品ID */
   id: number;
@@ -34,6 +37,7 @@ export interface ListGoodsInfoResponse_GoodsInfo {
   categoryName: string;
 }
 
+/** 商品分页查询条件 */
 export interface PageGoodsInfoRequest {
   /** 分类id */
   categoryId?:
@@ -59,6 +63,7 @@ export interface PageGoodsInfoRequest {
   pageSize: number;
 }
 
+/** 商品分页响应 */
 export interface PageGoodsInfoResponse {
   /** 分页数据 */
   list: GoodsInfo[];
@@ -66,6 +71,7 @@ export interface PageGoodsInfoResponse {
   total: number;
 }
 
+/** Goods信息 */
 export interface GoodsInfo {
   /** 商品ID */
   id: number;
@@ -97,6 +103,7 @@ export interface GoodsInfo {
   categoryName: string;
 }
 
+/** 商品表单 */
 export interface GoodsInfoForm {
   /** 商品ID */
   id: number;

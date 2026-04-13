@@ -45,7 +45,6 @@ func (c *RecommendUserPreferenceCase) listPreferredCategoryIds(ctx context.Conte
 	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 
 	list, _, err := c.Page(ctx, 1, limit, opts...)
-	// 查询用户类目偏好失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +71,6 @@ func (c *RecommendUserPreferenceCase) loadProfileScores(ctx context.Context, use
 	opts = append(opts, repo.Where(query.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
 
 	list, err := c.List(ctx, opts...)
-	// 查询画像分数失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +110,6 @@ func (c *RecommendUserPreferenceCase) upsertUserCategoryPreference(ctx context.C
 		summaryJson = entity.BehaviorSummary
 	}
 	summaryJson, err = recommendEvent.AddBehaviorSummaryCount(summaryJson, eventType, recommendEvent.NormalizeGoodsCount(goodsNum))
-	// 行为汇总 JSON 更新失败时，直接返回错误避免写入不一致数据。
 	if err != nil {
 		return err
 	}

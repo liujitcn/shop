@@ -10,10 +10,13 @@ import type { BaseMenuType, Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 菜单树响应 */
 export interface TreeBaseMenuResponse {
+  /** 菜单树 */
   list: BaseMenu[];
 }
 
+/** 菜单选项查询条件 */
 export interface OptionBaseMenuRequest {
   /** 父级菜单ID */
   parentId?: number | undefined;
@@ -51,7 +54,7 @@ export interface BaseMenu {
   children: BaseMenu[];
 }
 
-/** 菜单 */
+/** 菜单表单 */
 export interface BaseMenuForm {
   /** 菜单ID */
   id: number;
@@ -83,6 +86,7 @@ export interface BaseMenuForm {
   status?: Status | undefined;
 }
 
+/** 菜单元信息 */
 export interface BaseMenuMeta {
   /** 菜单标题 */
   title: string;
@@ -114,6 +118,7 @@ export interface BaseMenuMeta {
   params: BaseMenuParams[];
 }
 
+/** 菜单参数 */
 export interface BaseMenuParams {
   /** key */
   key: string;

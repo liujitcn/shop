@@ -76,11 +76,13 @@ func (c *UserCollectCase) PageUserCollect(ctx context.Context, req *app.PageUser
 	list := make([]*app.UserCollect, 0)
 	for _, item := range page {
 		goodsInfo, ok := goodsInfoMap[item.GoodsID]
+		// 收藏商品已失效时，使用空商品信息兜底避免列表组装失败。
 		if !ok {
 			goodsInfo = &models.GoodsInfo{}
 		}
 
 		price := goodsInfo.Price
+		// 会员用户优先展示会员价。
 		if member {
 			price = goodsInfo.DiscountPrice
 		}
@@ -124,6 +126,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 	if err != nil {
 		return err
 	}
+	// 当前未收藏时，按新增收藏路径写入记录。
 	if !isCollect {
 		recommendContext := userCollect.GetRecommendContext()
 		// 推荐上下文缺失时，回退到空上下文，避免收藏接口出现空指针。
@@ -136,6 +139,7 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 			return err
 		}
 		price := goodsInfo.Price
+		// 会员用户收藏商品时，优先记录会员价快照。
 		if member {
 			price = goodsInfo.DiscountPrice
 		}
@@ -148,7 +152,6 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 			RequestID: recommendContext.GetRequestId(),
 			Position:  recommendContext.GetPosition(),
 		})
-		// 收藏记录写入失败时，不继续回写推荐行为，避免事实不一致。
 		if err != nil {
 			return err
 		}
@@ -180,11 +183,12 @@ func (c *UserCollectCase) DeleteUserCollect(ctx context.Context, ids string) err
 // 按用户编号和商品编号判断是否已收藏
 func (c *UserCollectCase) findByUserIdAndGoodsId(ctx context.Context, userId, goodsId int64) (bool, error) {
 	query := c.Query(ctx).UserCollect
-	find, err := c.Find(ctx,
-		repo.Where(query.UserID.Eq(userId)),
-		repo.Where(query.GoodsID.Eq(goodsId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	find, err := c.Find(ctx, opts...)
 	if err != nil {
+		// 记录不存在时，明确返回“未收藏”而不是错误。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return false, nil
 		}

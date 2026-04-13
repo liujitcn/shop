@@ -59,15 +59,15 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsI
 	member := utils.IsMember(ctx)
 
 	query := c.Query(ctx).GoodsInfo
-
-	info, err := c.Find(ctx,
-		repo.Where(query.ID.Eq(id)),
-		repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(id)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
+	info, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 	price := info.Price
+	// 会员访问时，详情页优先展示会员价。
 	if member {
 		price = info.DiscountPrice
 	}
@@ -103,10 +103,12 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 	opts = append(opts, repo.Order(goodsQuery.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
 
+	// 传入商品名称时，按名称模糊匹配商品。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(goodsQuery.Name.Like("%"+req.GetName()+"%")))
 	}
 
+	// 传入分类时，按分类或分类树范围过滤商品。
 	if req.GetCategoryId() > 0 {
 		// 顶级分类需要展开为其子分类后再查询商品分类 ID
 		category, err := c.goodsCategoryRepo.FindById(ctx, req.GetCategoryId())
@@ -114,6 +116,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 			return nil, err
 		}
 
+		// 顶级分类需要展开到全部子分类一起查询。
 		if category.ParentID == 0 {
 			categoryQuery := query.GoodsCategory
 			opts = append(opts, repo.Join(
@@ -187,9 +190,9 @@ func (c *GoodsInfoCase) listCategoryIdsByGoodsIds(ctx context.Context, goodsIds 
 	}
 
 	query := c.GoodsInfoRepo.Query(ctx).GoodsInfo
-	list, err := c.GoodsInfoRepo.List(ctx,
-		repo.Where(query.ID.In(goodsIds...)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.ID.In(goodsIds...)))
+	list, err := c.GoodsInfoRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -227,6 +230,7 @@ func (c *GoodsInfoCase) addSaleNum(ctx context.Context, goodsId, num int64) erro
 	if err != nil {
 		return err
 	}
+	// 未命中任何商品记录时，视为无需更新直接返回。
 	if res.RowsAffected == 0 {
 		return nil
 	}
@@ -246,6 +250,7 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsId, num int64) erro
 	if err != nil {
 		return err
 	}
+	// 未命中任何商品记录时，视为无需更新直接返回。
 	if res.RowsAffected == 0 {
 		return nil
 	}
@@ -257,6 +262,7 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsId, num int64) erro
 func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *app.GoodsInfo {
 	goodsInfo := c.listMapper.ToDTO(item)
 	// 会员使用会员价，普通用户返回标准售价。
+	// 会员访问时，优先返回会员价。
 	if member {
 		goodsInfo.Price = item.DiscountPrice
 	} else {

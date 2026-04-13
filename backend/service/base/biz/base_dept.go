@@ -8,7 +8,7 @@ type BaseDeptCase struct {
 	*data.BaseDeptRepo
 }
 
-// NewBaseDeptCase new a BaseDept use case.
+// NewBaseDeptCase 创建基础部门业务实例。
 func NewBaseDeptCase(baseDeptRepo *data.BaseDeptRepo) *BaseDeptCase {
 	return &BaseDeptCase{
 		BaseDeptRepo: baseDeptRepo,

@@ -24,6 +24,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 工作台指标查询条件
 type WorkspaceMetricsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -60,20 +61,21 @@ func (*WorkspaceMetricsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_workspace_proto_rawDescGZIP(), []int{0}
 }
 
+// 工作台指标响应
 type WorkspaceMetricsResponse struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	TodayOrderCount      int64                  `protobuf:"varint,1,opt,name=todayOrderCount,proto3" json:"todayOrderCount,omitempty"`
-	TodayOrderGrowthRate int64                  `protobuf:"varint,2,opt,name=todayOrderGrowthRate,proto3" json:"todayOrderGrowthRate,omitempty"`
-	TodaySaleAmount      int64                  `protobuf:"varint,3,opt,name=todaySaleAmount,proto3" json:"todaySaleAmount,omitempty"`
-	AverageOrderAmount   int64                  `protobuf:"varint,4,opt,name=averageOrderAmount,proto3" json:"averageOrderAmount,omitempty"`
-	PayConversionRate    int64                  `protobuf:"varint,5,opt,name=payConversionRate,proto3" json:"payConversionRate,omitempty"`
-	TodayOrderUserCount  int64                  `protobuf:"varint,6,opt,name=todayOrderUserCount,proto3" json:"todayOrderUserCount,omitempty"`
-	RepurchaseRate       int64                  `protobuf:"varint,7,opt,name=repurchaseRate,proto3" json:"repurchaseRate,omitempty"`
-	TodayNewUserCount    int64                  `protobuf:"varint,8,opt,name=todayNewUserCount,proto3" json:"todayNewUserCount,omitempty"`
-	TodaySaleCount       int64                  `protobuf:"varint,9,opt,name=todaySaleCount,proto3" json:"todaySaleCount,omitempty"`
-	ActiveGoodsCount     int64                  `protobuf:"varint,10,opt,name=activeGoodsCount,proto3" json:"activeGoodsCount,omitempty"`
-	TodayNewGoodsCount   int64                  `protobuf:"varint,11,opt,name=todayNewGoodsCount,proto3" json:"todayNewGoodsCount,omitempty"`
-	TodaySaleGrowthRate  int64                  `protobuf:"varint,12,opt,name=todaySaleGrowthRate,proto3" json:"todaySaleGrowthRate,omitempty"`
+	TodayOrderCount      int64                  `protobuf:"varint,1,opt,name=todayOrderCount,proto3" json:"todayOrderCount,omitempty"`           // 今日订单数
+	TodayOrderGrowthRate int64                  `protobuf:"varint,2,opt,name=todayOrderGrowthRate,proto3" json:"todayOrderGrowthRate,omitempty"` // 今日订单较昨日增长率，百分比整数
+	TodaySaleAmount      int64                  `protobuf:"varint,3,opt,name=todaySaleAmount,proto3" json:"todaySaleAmount,omitempty"`           // 今日成交额，单位分
+	AverageOrderAmount   int64                  `protobuf:"varint,4,opt,name=averageOrderAmount,proto3" json:"averageOrderAmount,omitempty"`     // 客单价，单位分
+	PayConversionRate    int64                  `protobuf:"varint,5,opt,name=payConversionRate,proto3" json:"payConversionRate,omitempty"`       // 支付转化率，千分比
+	TodayOrderUserCount  int64                  `protobuf:"varint,6,opt,name=todayOrderUserCount,proto3" json:"todayOrderUserCount,omitempty"`   // 今日下单用户数
+	RepurchaseRate       int64                  `protobuf:"varint,7,opt,name=repurchaseRate,proto3" json:"repurchaseRate,omitempty"`             // 复购占比，千分比
+	TodayNewUserCount    int64                  `protobuf:"varint,8,opt,name=todayNewUserCount,proto3" json:"todayNewUserCount,omitempty"`       // 今日新增用户数
+	TodaySaleCount       int64                  `protobuf:"varint,9,opt,name=todaySaleCount,proto3" json:"todaySaleCount,omitempty"`             // 今日商品销量
+	ActiveGoodsCount     int64                  `protobuf:"varint,10,opt,name=activeGoodsCount,proto3" json:"activeGoodsCount,omitempty"`        // 今日动销商品数
+	TodayNewGoodsCount   int64                  `protobuf:"varint,11,opt,name=todayNewGoodsCount,proto3" json:"todayNewGoodsCount,omitempty"`    // 今日新增商品数
+	TodaySaleGrowthRate  int64                  `protobuf:"varint,12,opt,name=todaySaleGrowthRate,proto3" json:"todaySaleGrowthRate,omitempty"`  // 今日成交额较昨日增长率，百分比整数
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
@@ -192,6 +194,7 @@ func (x *WorkspaceMetricsResponse) GetTodaySaleGrowthRate() int64 {
 	return 0
 }
 
+// 工作台待办查询条件
 type WorkspaceTodoListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -228,12 +231,13 @@ func (*WorkspaceTodoListRequest) Descriptor() ([]byte, []int) {
 	return file_admin_workspace_proto_rawDescGZIP(), []int{2}
 }
 
+// 工作台待办响应
 type WorkspaceTodoListResponse struct {
 	state                    protoimpl.MessageState `protogen:"open.v1"`
-	PendingPayOrderCount     int64                  `protobuf:"varint,1,opt,name=pendingPayOrderCount,proto3" json:"pendingPayOrderCount,omitempty"`
-	PendingShippedOrderCount int64                  `protobuf:"varint,2,opt,name=pendingShippedOrderCount,proto3" json:"pendingShippedOrderCount,omitempty"`
-	LowInventorySkuCount     int64                  `protobuf:"varint,3,opt,name=lowInventorySkuCount,proto3" json:"lowInventorySkuCount,omitempty"`
-	PendingPutOnGoodsCount   int64                  `protobuf:"varint,4,opt,name=pendingPutOnGoodsCount,proto3" json:"pendingPutOnGoodsCount,omitempty"`
+	PendingPayOrderCount     int64                  `protobuf:"varint,1,opt,name=pendingPayOrderCount,proto3" json:"pendingPayOrderCount,omitempty"`         // 待支付订单数
+	PendingShippedOrderCount int64                  `protobuf:"varint,2,opt,name=pendingShippedOrderCount,proto3" json:"pendingShippedOrderCount,omitempty"` // 待发货订单数
+	LowInventorySkuCount     int64                  `protobuf:"varint,3,opt,name=lowInventorySkuCount,proto3" json:"lowInventorySkuCount,omitempty"`         // 低库存SKU数
+	PendingPutOnGoodsCount   int64                  `protobuf:"varint,4,opt,name=pendingPutOnGoodsCount,proto3" json:"pendingPutOnGoodsCount,omitempty"`     // 待上架商品数
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
 }
@@ -296,6 +300,7 @@ func (x *WorkspaceTodoListResponse) GetPendingPutOnGoodsCount() int64 {
 	return 0
 }
 
+// 工作台风险提醒查询条件
 type WorkspaceRiskListRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -332,11 +337,12 @@ func (*WorkspaceRiskListRequest) Descriptor() ([]byte, []int) {
 	return file_admin_workspace_proto_rawDescGZIP(), []int{4}
 }
 
+// 工作台风险提醒响应
 type WorkspaceRiskListResponse struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
-	AbnormalPayBillCount       int64                  `protobuf:"varint,1,opt,name=abnormalPayBillCount,proto3" json:"abnormalPayBillCount,omitempty"`
-	ZeroInventoryPutOnSkuCount int64                  `protobuf:"varint,2,opt,name=zeroInventoryPutOnSkuCount,proto3" json:"zeroInventoryPutOnSkuCount,omitempty"`
-	AbnormalPriceSkuCount      int64                  `protobuf:"varint,3,opt,name=abnormalPriceSkuCount,proto3" json:"abnormalPriceSkuCount,omitempty"`
+	AbnormalPayBillCount       int64                  `protobuf:"varint,1,opt,name=abnormalPayBillCount,proto3" json:"abnormalPayBillCount,omitempty"`             // 对账单异常数
+	ZeroInventoryPutOnSkuCount int64                  `protobuf:"varint,2,opt,name=zeroInventoryPutOnSkuCount,proto3" json:"zeroInventoryPutOnSkuCount,omitempty"` // 零库存仍上架SKU数
+	AbnormalPriceSkuCount      int64                  `protobuf:"varint,3,opt,name=abnormalPriceSkuCount,proto3" json:"abnormalPriceSkuCount,omitempty"`           // 价格配置异常SKU数
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }

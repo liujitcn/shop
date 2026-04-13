@@ -48,6 +48,7 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, ba
 // OptionBaseUser 查询用户选项
 func (c *BaseUserCase) OptionBaseUser(ctx context.Context, req *admin.OptionBaseUserRequest) (*common.SelectOptionResponse, error) {
 	keyword := strings.TrimSpace(req.GetKeyword())
+	// 未传关键字时，直接返回空选项集。
 	if keyword == "" {
 		return &common.SelectOptionResponse{List: []*common.SelectOptionResponse_Option{}}, nil
 	}
@@ -77,6 +78,7 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *admin.PageBaseUser
 	query := c.Query(ctx).BaseUser
 	opts := make([]repo.QueryOption, 0, 6)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 指定部门时，按部门及其子部门范围筛选用户。
 	if req.DeptId != nil && req.GetDeptId() > 0 {
 		dept, err := c.baseDeptRepo.FindById(ctx, req.GetDeptId())
 		if err != nil {
@@ -95,6 +97,7 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *admin.PageBaseUser
 		for _, item := range deptList {
 			deptIds = append(deptIds, item.ID)
 		}
+		// 命中部门集合时，按部门编号范围过滤用户。
 		if len(deptIds) > 0 {
 			opts = append(opts, repo.Where(query.DeptID.In(deptIds...)))
 		}
@@ -102,12 +105,15 @@ func (c *BaseUserCase) PageBaseUser(ctx context.Context, req *admin.PageBaseUser
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	// 传入用户名关键字时，按用户名模糊匹配。
 	if req.GetUserName() != "" {
 		opts = append(opts, repo.Where(query.UserName.Like("%"+req.GetUserName()+"%")))
 	}
+	// 传入昵称关键字时，按昵称模糊匹配。
 	if req.GetNickName() != "" {
 		opts = append(opts, repo.Where(query.NickName.Like("%"+req.GetNickName()+"%")))
 	}
+	// 传入手机号关键字时，按手机号模糊匹配。
 	if req.GetPhone() != "" {
 		opts = append(opts, repo.Where(query.Phone.Like("%"+req.GetPhone()+"%")))
 	}
@@ -138,6 +144,7 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*admin.BaseUs
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *admin.BaseUserForm) error {
 	passwordStr := req.GetPwd()
+	// 未显式传入密码时，回退到系统默认密码规则。
 	if passwordStr == "" {
 		passwordStr = c.getDefaultPassword(req.GetUserName(), req.GetPhone())
 	}
@@ -157,6 +164,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	if err != nil {
 		return common.ErrorUserNotFound("更新用户失败, 用户信息不存在")
 	}
+	// 超级管理员账号不允许被修改。
 	if oldBaseUser.UserName == _const.BaseUserName_Super {
 		return errors.New("更新用户失败，不能操作超级管理员")
 	}
@@ -173,6 +181,7 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 		return err
 	}
 	for _, baseUser := range baseUserList {
+		// 超级管理员账号不允许被删除。
 		if baseUser.UserName == _const.BaseUserName_Super {
 			return errors.New("删除用户失败，不能操作超级管理员")
 		}
@@ -186,6 +195,7 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetSta
 	if err != nil {
 		return common.ErrorUserNotFound("设置状态失败, 用户信息不存在")
 	}
+	// 超级管理员账号不允许被停用或启用。
 	if baseUser.UserName == _const.BaseUserName_Super {
 		return errors.New("设置状态失败，不能操作超级管理员")
 	}
@@ -201,11 +211,13 @@ func (c *BaseUserCase) ResetBaseUserPwd(ctx context.Context, req *admin.ResetBas
 	if err != nil {
 		return common.ErrorUserNotFound("重置密码失败, 用户信息不存在")
 	}
+	// 超级管理员账号不允许被重置密码。
 	if baseUser.UserName == _const.BaseUserName_Super {
 		return errors.New("重置密码失败，不能操作超级管理员")
 	}
 
 	passwordStr := req.GetPwd()
+	// 未显式传入密码时，回退到系统默认密码规则。
 	if passwordStr == "" {
 		passwordStr = c.getDefaultPassword(baseUser.UserName, baseUser.Phone)
 	}
@@ -223,6 +235,7 @@ func (c *BaseUserCase) ResetBaseUserPwd(ctx context.Context, req *admin.ResetBas
 // getDefaultPassword 生成默认密码
 func (c *BaseUserCase) getDefaultPassword(userName, phone string) string {
 	prefix := phone
+	// 手机号长度充足时，仅截取前 4 位作为默认密码前缀。
 	if len(phone) > 4 {
 		prefix = phone[:4]
 	}

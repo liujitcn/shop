@@ -6,16 +6,19 @@
 
 /* eslint-disable */
 
+/** 商品规格列表查询条件 */
 export interface ListGoodsSpecRequest {
   /** 商品id */
   goodsId: number;
 }
 
+/** 商品规格列表响应 */
 export interface ListGoodsSpecResponse {
   /** 分页数据 */
   list: GoodsSpec[];
 }
 
+/** 商品规格 */
 export interface GoodsSpec {
   /** 商品规格ID */
   id: number;

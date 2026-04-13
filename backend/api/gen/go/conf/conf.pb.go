@@ -11,6 +11,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "github.com/google/gnostic/openapiv3"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/durationpb"
@@ -24,9 +25,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商城配置
 type ShopConfigWrapper struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Shop          *ShopConfig            `protobuf:"bytes,1,opt,name=shop,proto3" json:"shop,omitempty"`
+	Shop          *ShopConfig            `protobuf:"bytes,1,opt,name=shop,proto3" json:"shop,omitempty"` // 商城配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -68,7 +70,7 @@ func (x *ShopConfigWrapper) GetShop() *ShopConfig {
 	return nil
 }
 
-// ShopServerConfig
+// ShopConfig
 type ShopConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	WxMiniApp     *WxMiniApp             `protobuf:"bytes,1,opt,name=wxMiniApp,proto3" json:"wxMiniApp,omitempty"` // 小程序登录参数
@@ -121,10 +123,11 @@ func (x *ShopConfig) GetWxPay() *WxPay {
 	return nil
 }
 
+// WxMiniApp
 type WxMiniApp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Appid         string                 `protobuf:"bytes,1,opt,name=appid,proto3" json:"appid,omitempty"`
-	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"`
+	Appid         string                 `protobuf:"bytes,1,opt,name=appid,proto3" json:"appid,omitempty"`   // 小程序 AppID
+	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"` // 小程序密钥
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -173,9 +176,10 @@ func (x *WxMiniApp) GetSecret() string {
 	return ""
 }
 
+// WxPay
 type WxPay struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Appid         string                 `protobuf:"bytes,1,opt,name=appid,proto3" json:"appid,omitempty"`
+	Appid         string                 `protobuf:"bytes,1,opt,name=appid,proto3" json:"appid,omitempty"`              // 微信支付 AppID
 	MchId         string                 `protobuf:"bytes,2,opt,name=mchId,proto3" json:"mchId,omitempty"`              // 商户id
 	NotifyUrl     string                 `protobuf:"bytes,3,opt,name=notifyUrl,proto3" json:"notifyUrl,omitempty"`      // 通知地址
 	MchCertSn     string                 `protobuf:"bytes,80,opt,name=mchCertSn,proto3" json:"mchCertSn,omitempty"`     // 商户证书序列号
@@ -261,23 +265,24 @@ var File_conf_conf_proto protoreflect.FileDescriptor
 
 const file_conf_conf_proto_rawDesc = "" +
 	"\n" +
-	"\x0fconf/conf.proto\x12\x04conf\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\"9\n" +
-	"\x11ShopConfigWrapper\x12$\n" +
-	"\x04shop\x18\x01 \x01(\v2\x10.conf.ShopConfigR\x04shop\"^\n" +
+	"\x0fconf/conf.proto\x12\x04conf\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\"M\n" +
+	"\x11ShopConfigWrapper\x128\n" +
+	"\x04shop\x18\x01 \x01(\v2\x10.conf.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\x95\x01\n" +
 	"\n" +
-	"ShopConfig\x12-\n" +
-	"\twxMiniApp\x18\x01 \x01(\v2\x0f.conf.WxMiniAppR\twxMiniApp\x12!\n" +
-	"\x05wxPay\x18\x02 \x01(\v2\v.conf.WxPayR\x05wxPay\"9\n" +
-	"\tWxMiniApp\x12\x14\n" +
-	"\x05appid\x18\x01 \x01(\tR\x05appid\x12\x16\n" +
-	"\x06secret\x18\x02 \x01(\tR\x06secret\"\xb3\x01\n" +
-	"\x05WxPay\x12\x14\n" +
-	"\x05appid\x18\x01 \x01(\tR\x05appid\x12\x14\n" +
-	"\x05mchId\x18\x02 \x01(\tR\x05mchId\x12\x1c\n" +
-	"\tnotifyUrl\x18\x03 \x01(\tR\tnotifyUrl\x12\x1c\n" +
-	"\tmchCertSn\x18P \x01(\tR\tmchCertSn\x12 \n" +
-	"\vmchCertPath\x18Q \x01(\tR\vmchCertPath\x12 \n" +
-	"\vmchAPIv3Key\x18R \x01(\tR\vmchAPIv3KeyB[\n" +
+	"ShopConfig\x12J\n" +
+	"\twxMiniApp\x18\x01 \x01(\v2\x0f.conf.WxMiniAppB\x1b\xbaG\x18\x92\x02\x15小程序登录参数R\twxMiniApp\x12;\n" +
+	"\x05wxPay\x18\x02 \x01(\v2\v.conf.WxPayB\x18\xbaG\x15\x92\x02\x12微信支付参数R\x05wxPay\"g\n" +
+	"\tWxMiniApp\x12+\n" +
+	"\x05appid\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序 AppIDR\x05appid\x12-\n" +
+	"\x06secret\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序密钥R\x06secret\"\xba\x02\n" +
+	"\x05WxPay\x12.\n" +
+	"\x05appid\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12微信支付 AppIDR\x05appid\x12$\n" +
+	"\x05mchId\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b商户idR\x05mchId\x120\n" +
+	"\tnotifyUrl\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f通知地址R\tnotifyUrl\x129\n" +
+	"\tmchCertSn\x18P \x01(\tB\x1b\xbaG\x18\x92\x02\x15商户证书序列号R\tmchCertSn\x12:\n" +
+	"\vmchCertPath\x18Q \x01(\tB\x18\xbaG\x15\x92\x02\x12商户证书路径R\vmchCertPath\x122\n" +
+	"\vmchAPIv3Key\x18R \x01(\tB\x10\xbaG\r\x92\x02\n" +
+	"api 密钥R\vmchAPIv3KeyB[\n" +
 	"\bcom.confB\tConfProtoP\x01Z\x14shop/api/gen/go/conf\xa2\x02\x03CXX\xaa\x02\x04Conf\xca\x02\x04Conf\xe2\x02\x10Conf\\GPBMetadata\xea\x02\x04Confb\x06proto3"
 
 var (

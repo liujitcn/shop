@@ -7,12 +7,19 @@
 /* eslint-disable */
 import type { AnalyticsPieResponse, AnalyticsTimeRequest, AnalyticsTrendResponse } from "../common/analytics";
 
+/** 订单分析汇总响应 */
 export interface OrderAnalyticsSummaryResponse {
+  /** 新增订单数 */
   newOrderCount: number;
+  /** 新增订单增长率 */
   newOrderGrowthRate: number;
+  /** 销售额 */
   saleAmount: number;
+  /** 客单价 */
   averageOrderAmount: number;
+  /** 下单用户数 */
   orderUserCount: number;
+  /** 复购率 */
   repurchaseRate: number;
 }
 

@@ -44,6 +44,7 @@ func (c *OrderReportCase) OrderMonthReportSummary(ctx context.Context, req *admi
 		return nil, err
 	}
 
+	// 结束月份早于开始月份时，不允许继续统计月报。
 	if endMonth.Before(startMonth) {
 		return nil, fmt.Errorf("结束月份不能早于开始月份")
 	}
@@ -76,6 +77,7 @@ func (c *OrderReportCase) OrderMonthReportList(ctx context.Context, req *adminAp
 		return nil, err
 	}
 
+	// 结束月份早于开始月份时，不允许继续统计月报。
 	if endMonth.Before(startMonth) {
 		return nil, fmt.Errorf("结束月份不能早于开始月份")
 	}
@@ -95,6 +97,7 @@ func (c *OrderReportCase) OrderMonthReportList(ctx context.Context, req *adminAp
 	for !cursor.After(endMonth) {
 		monthKey := cursor.Format("2006-01")
 		row, ok := rowMap[monthKey]
+		// 当前月份没有统计数据时，补空行保证月份连续。
 		if !ok {
 			row = &dto.OrderMonthReportRow{Month: monthKey}
 		}
@@ -119,6 +122,7 @@ func (c *OrderReportCase) OrderDayReportSummary(ctx context.Context, req *adminA
 		return nil, err
 	}
 
+	// 结束日期早于开始日期时，不允许继续统计日报。
 	if endDate.Before(startDate) {
 		return nil, fmt.Errorf("结束日期不能早于开始日期")
 	}
@@ -151,6 +155,7 @@ func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.
 		return nil, err
 	}
 
+	// 结束日期早于开始日期时，不允许继续统计日报。
 	if endDate.Before(startDate) {
 		return nil, fmt.Errorf("结束日期不能早于开始日期")
 	}
@@ -170,6 +175,7 @@ func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.
 	for !cursor.After(endDate) {
 		dayKey := cursor.Format("2006-01-02")
 		row, ok := rowMap[dayKey]
+		// 当前日期没有统计数据时，补空行保证日期连续。
 		if !ok {
 			row = &dto.OrderDayReportRow{Day: dayKey}
 		}
@@ -184,6 +190,7 @@ func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.
 
 // parseMonth 解析月份字符串并归一化到当月第一天。
 func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
+	// 月份为空时，无法继续解析月报范围。
 	if month == "" {
 		return time.Time{}, fmt.Errorf("月份不能为空")
 	}
@@ -198,6 +205,7 @@ func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
 
 // parseDate 解析日期字符串并归一化到当天零点。
 func (c *OrderReportCase) parseDate(date string) (time.Time, error) {
+	// 日期为空时，无法继续解析日报范围。
 	if date == "" {
 		return time.Time{}, fmt.Errorf("日期不能为空")
 	}
@@ -224,10 +232,12 @@ func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType
 		" FROM order_stat_day" +
 		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?"
 	args := []any{startAt, endAt}
+	// 传入支付类型时，按支付类型缩小月报统计范围。
 	if payType > 0 {
 		sql += " AND pay_type = ?"
 		args = append(args, payType)
 	}
+	// 传入支付渠道时，按支付渠道缩小月报统计范围。
 	if payChannel > 0 {
 		sql += " AND pay_channel = ?"
 		args = append(args, payChannel)
@@ -253,10 +263,12 @@ func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, 
 		" FROM order_stat_day" +
 		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?"
 	args := []any{startAt, endAt}
+	// 传入支付类型时，按支付类型缩小日报统计范围。
 	if payType > 0 {
 		sql += " AND pay_type = ?"
 		args = append(args, payType)
 	}
+	// 传入支付渠道时，按支付渠道缩小日报统计范围。
 	if payChannel > 0 {
 		sql += " AND pay_channel = ?"
 		args = append(args, payChannel)
@@ -278,6 +290,7 @@ func (c *OrderReportCase) appendMonthReportSummary(summary *adminApi.OrderMonthR
 	summary.GoodsCount += item.GoodsCount
 }
 
+// toOrderMonthReportItem 转换月报行数据。
 func (c *OrderReportCase) toOrderMonthReportItem(row *dto.OrderMonthReportRow) *adminApi.OrderMonthReportItem {
 	item := c.monthMapper.ToDTO(row)
 	item.NetOrderAmount = row.PaidOrderAmount - row.RefundOrderAmount
@@ -295,6 +308,7 @@ func (c *OrderReportCase) appendDayReportSummary(summary *adminApi.OrderDayRepor
 	summary.GoodsCount += item.GoodsCount
 }
 
+// toOrderDayReportItem 转换日报行数据。
 func (c *OrderReportCase) toOrderDayReportItem(row *dto.OrderDayReportRow) *adminApi.OrderDayReportItem {
 	item := c.dayMapper.ToDTO(row)
 	item.NetOrderAmount = row.PaidOrderAmount - row.RefundOrderAmount

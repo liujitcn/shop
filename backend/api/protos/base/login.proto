@@ -39,6 +39,7 @@ service LoginService {
   }
 }
 
+// 验证码响应
 message CaptchaResponse {
   string captchaId = 1 [
     (gnostic.openapi.v3.property) = {description: "验证码ID"}
@@ -51,7 +52,7 @@ message CaptchaResponse {
   ]; // 验证码base64
 }
 
-// 用户刷新令牌 - 请求
+// 刷新令牌请求参数
 message RefreshTokenRequest {
   string refreshToken = 1 [
     (gnostic.openapi.v3.property) = {
@@ -60,7 +61,7 @@ message RefreshTokenRequest {
   ]; // 更新令牌，用来获取下一次的访问令牌，必选项。
 }
 
-// 用户刷新令牌 - 回应
+// 刷新令牌响应
 message RefreshTokenResponse {
   string accessToken = 1 [
     (gnostic.openapi.v3.property) = {
@@ -88,7 +89,7 @@ message RefreshTokenResponse {
   ]; // 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
 }
 
-// 用户后台登录 - 请求
+// 登录请求参数
 message LoginRequest {
   string userName = 1 [
     (gnostic.openapi.v3.property) = {description: "用户名"}
@@ -109,7 +110,7 @@ message LoginRequest {
   ]; // 验证码Id
 }
 
-// 用户后台登录 - 回应
+// 登录响应
 message LoginResponse {
   string accessToken = 1 [
     (gnostic.openapi.v3.property) = {

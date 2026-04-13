@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,14 +25,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品分析汇总响应
 type GoodsAnalyticsSummaryResponse struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	NewGoodsCount    int64                  `protobuf:"varint,1,opt,name=newGoodsCount,proto3" json:"newGoodsCount,omitempty"`
-	PutOnGoodsRate   int64                  `protobuf:"varint,2,opt,name=putOnGoodsRate,proto3" json:"putOnGoodsRate,omitempty"`
-	ActiveGoodsCount int64                  `protobuf:"varint,3,opt,name=activeGoodsCount,proto3" json:"activeGoodsCount,omitempty"`
-	ActiveGoodsRate  int64                  `protobuf:"varint,4,opt,name=activeGoodsRate,proto3" json:"activeGoodsRate,omitempty"`
-	SaleCount        int64                  `protobuf:"varint,5,opt,name=saleCount,proto3" json:"saleCount,omitempty"`
-	SaleGrowthRate   int64                  `protobuf:"varint,6,opt,name=saleGrowthRate,proto3" json:"saleGrowthRate,omitempty"`
+	NewGoodsCount    int64                  `protobuf:"varint,1,opt,name=newGoodsCount,proto3" json:"newGoodsCount,omitempty"`       // 新增商品数
+	PutOnGoodsRate   int64                  `protobuf:"varint,2,opt,name=putOnGoodsRate,proto3" json:"putOnGoodsRate,omitempty"`     // 上架商品占比
+	ActiveGoodsCount int64                  `protobuf:"varint,3,opt,name=activeGoodsCount,proto3" json:"activeGoodsCount,omitempty"` // 活跃商品数
+	ActiveGoodsRate  int64                  `protobuf:"varint,4,opt,name=activeGoodsRate,proto3" json:"activeGoodsRate,omitempty"`   // 活跃商品占比
+	SaleCount        int64                  `protobuf:"varint,5,opt,name=saleCount,proto3" json:"saleCount,omitempty"`               // 销售件数
+	SaleGrowthRate   int64                  `protobuf:"varint,6,opt,name=saleGrowthRate,proto3" json:"saleGrowthRate,omitempty"`     // 销售增长率
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -112,14 +114,14 @@ var File_admin_goods_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_goods_analytics_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/goods_analytics.proto\x12\x05admin\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\x89\x02\n" +
-	"\x1dGoodsAnalyticsSummaryResponse\x12$\n" +
-	"\rnewGoodsCount\x18\x01 \x01(\x03R\rnewGoodsCount\x12&\n" +
-	"\x0eputOnGoodsRate\x18\x02 \x01(\x03R\x0eputOnGoodsRate\x12*\n" +
-	"\x10activeGoodsCount\x18\x03 \x01(\x03R\x10activeGoodsCount\x12(\n" +
-	"\x0factiveGoodsRate\x18\x04 \x01(\x03R\x0factiveGoodsRate\x12\x1c\n" +
-	"\tsaleCount\x18\x05 \x01(\x03R\tsaleCount\x12&\n" +
-	"\x0esaleGrowthRate\x18\x06 \x01(\x03R\x0esaleGrowthRate2\xa3\x03\n" +
+	"\x1badmin/goods_analytics.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\x96\x03\n" +
+	"\x1dGoodsAnalyticsSummaryResponse\x12;\n" +
+	"\rnewGoodsCount\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f新增商品数R\rnewGoodsCount\x12@\n" +
+	"\x0eputOnGoodsRate\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12上架商品占比R\x0eputOnGoodsRate\x12A\n" +
+	"\x10activeGoodsCount\x18\x03 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f活跃商品数R\x10activeGoodsCount\x12B\n" +
+	"\x0factiveGoodsRate\x18\x04 \x01(\x03B\x18\xbaG\x15\x92\x02\x12活跃商品占比R\x0factiveGoodsRate\x120\n" +
+	"\tsaleCount\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f销售件数R\tsaleCount\x12=\n" +
+	"\x0esaleGrowthRate\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f销售增长率R\x0esaleGrowthRate2\xa3\x03\n" +
 	"\x15GoodsAnalyticsService\x12\x8a\x01\n" +
 	"\x18GetGoodsAnalyticsSummary\x12\x1c.common.AnalyticsTimeRequest\x1a$.admin.GoodsAnalyticsSummaryResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/admin/analytics/goods/summary\x12\x80\x01\n" +
 	"\x16GetGoodsAnalyticsTrend\x12\x1c.common.AnalyticsTimeRequest\x1a\x1e.common.AnalyticsTrendResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/analytics/goods/trend\x12z\n" +

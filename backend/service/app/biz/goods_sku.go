@@ -36,6 +36,7 @@ func NewGoodsSkuCase(baseCase *biz.BaseCase, goodsSkuRepo *data.GoodsSkuRepo) *G
 // 按规格编码批量查询并返回映射
 func (c *GoodsSkuCase) mapBySkuCodes(ctx context.Context, skuCodes []string) (map[string]*models.GoodsSku, error) {
 	res := make(map[string]*models.GoodsSku)
+	// 仅在存在 SKU 编码时，才访问数据库构建映射。
 	if len(skuCodes) > 0 {
 		query := c.Query(ctx).GoodsSku
 		opts := make([]repo.QueryOption, 0, 1)
@@ -63,6 +64,7 @@ func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member 
 	list := make([]*app.GoodsInfoResponse_Sku, 0)
 	for _, item := range all {
 		price := item.Price
+		// 会员用户优先使用会员价展示 SKU。
 		if member {
 			price = item.DiscountPrice
 		}
@@ -87,6 +89,7 @@ func (c *GoodsSkuCase) addSaleNum(ctx context.Context, skuCode string, num int64
 	if err != nil {
 		return err
 	}
+	// 未命中任何规格时，视为无需更新直接返回。
 	if res.RowsAffected == 0 {
 		return nil
 	}
@@ -106,6 +109,7 @@ func (c *GoodsSkuCase) subSaleNum(ctx context.Context, skuCode string, num int64
 	if err != nil {
 		return err
 	}
+	// 未命中任何规格时，视为无需回退直接返回。
 	if res.RowsAffected == 0 {
 		return nil
 	}

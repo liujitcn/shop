@@ -28,6 +28,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 收藏状态请求参数
 type IsCollectRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 商品ID
@@ -72,12 +73,11 @@ func (x *IsCollectRequest) GetGoodsId() int64 {
 	return 0
 }
 
+// 用户收藏分页查询条件
 type PageUserCollectRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`   // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"` // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,12 +126,11 @@ func (x *PageUserCollectRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 用户收藏分页响应
 type PageUserCollectResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 数据
-	List []*UserCollect `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*UserCollect         `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -180,7 +179,7 @@ func (x *PageUserCollectResponse) GetTotal() int32 {
 	return 0
 }
 
-// 用户购物车
+// UserCollect表单
 type UserCollectForm struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 商品id
@@ -233,20 +232,17 @@ func (x *UserCollectForm) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// 用户收藏
+// UserCollect
 type UserCollect struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Id      int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`           // 用户收藏ID
-	GoodsId int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 商品ID
-	Name    string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`        // 名称
-	Desc    string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`        // 描述
-	Picture string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"` // 商品图片
-	// 销量
-	SaleNum int64 `protobuf:"varint,40,opt,name=saleNum,proto3" json:"saleNum,omitempty"`
-	// 价格
-	Price int64 `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`
-	// 加入时价格
-	JoinPrice     int64 `protobuf:"varint,50,opt,name=joinPrice,proto3" json:"joinPrice,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                // 用户收藏ID
+	GoodsId       int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`      // 商品ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`             // 名称
+	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`             // 描述
+	Picture       string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`      // 商品图片
+	SaleNum       int64                  `protobuf:"varint,40,opt,name=saleNum,proto3" json:"saleNum,omitempty"`     // 销量
+	Price         int64                  `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`         // 价格
+	JoinPrice     int64                  `protobuf:"varint,50,opt,name=joinPrice,proto3" json:"joinPrice,omitempty"` // 加入时价格
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -346,10 +342,10 @@ const file_app_user_collect_proto_rawDesc = "" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\"\x94\x01\n" +
 	"\x16PageUserCollectRequest\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"U\n" +
-	"\x17PageUserCollectResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.app.UserCollectR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x95\x01\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"q\n" +
+	"\x17PageUserCollectResponse\x122\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.app.UserCollectB\f\xbaG\t\x92\x02\x06数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x95\x01\n" +
 	"\x0fUserCollectForm\x12(\n" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12X\n" +
 	"\x10recommendContext\x18\x02 \x01(\v2\x15.app.RecommendContextB\x15\xbaG\x12\x92\x02\x0f推荐上下文R\x10recommendContext\"\xd6\x02\n" +

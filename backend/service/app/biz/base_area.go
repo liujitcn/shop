@@ -44,6 +44,7 @@ func NewBaseAreaCase(
 func (c *BaseAreaCase) TreeBaseArea(ctx context.Context) (*common.AppTreeOptionResponse, error) {
 	lock.RLock()
 	defer lock.RUnlock()
+	// 树缓存尚未初始化时，从数据库加载并构建整棵区域树。
 	if tree == nil {
 		// 首次访问时从数据库加载并缓存，避免重复构树
 		list, err := c.List(ctx)
@@ -68,6 +69,7 @@ func (c *BaseAreaCase) getAddressListByCode(ctx context.Context, code string) []
 	lock.RLock()
 	defer lock.RUnlock()
 	res := make([]string, 0)
+	// 编码映射尚未初始化时，先懒加载全部区域编码。
 	if codeMap == nil {
 		// 懒加载编码映射，减少重复查询
 		list, err := c.List(ctx)
@@ -81,6 +83,7 @@ func (c *BaseAreaCase) getAddressListByCode(ctx context.Context, code string) []
 	}
 	codeList := _string.ConvertJsonStringToStringArray(code)
 	for _, item := range codeList {
+		// 命中编码映射时，返回对应的区域名称。
 		if v, ok := codeMap[item]; ok {
 			res = append(res, v)
 		} else {
@@ -94,6 +97,7 @@ func (c *BaseAreaCase) getAddressListByCode(ctx context.Context, code string) []
 func (c *BaseAreaCase) buildTree(list []*models.BaseArea, parentId int64) []*common.AppTreeOptionResponse_Option {
 	var res []*common.AppTreeOptionResponse_Option
 	for _, item := range list {
+		// 仅把当前父节点下的区域挂到本层结果里。
 		if item.ParentID == parentId {
 			option := c.mapper.ToDTO(item)
 			option.Value = strconv.FormatInt(item.ID, 10)

@@ -53,9 +53,11 @@ type AnonymousSignals struct {
 // ResolveCandidateLimit 计算当前分页请求的候选池大小。
 func ResolveCandidateLimit(pageNum, pageSize int64) int64 {
 	limit := pageNum * pageSize * PoolMultiplier
+	// 候选池过小时，回退到系统允许的最小容量。
 	if limit < PoolMin {
 		limit = PoolMin
 	}
+	// 候选池过大时，截断到系统允许的最大容量。
 	if limit > PoolMax {
 		limit = PoolMax
 	}
@@ -177,6 +179,7 @@ func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[in
 
 // RankGoods 对候选商品执行统一排序和类目打散。
 func RankGoods(candidates map[int64]*recommendCore.Candidate) []*app.GoodsInfo {
+	// 没有候选商品时，直接返回空结果避免继续排序。
 	if len(candidates) == 0 {
 		// 空候选集直接返回空商品列表。
 		return []*app.GoodsInfo{}
@@ -191,6 +194,7 @@ func RankGoods(candidates map[int64]*recommendCore.Candidate) []*app.GoodsInfo {
 		rankedCandidates = append(rankedCandidates, item)
 	}
 	sort.SliceStable(rankedCandidates, func(i, j int) bool {
+		// 最终分相同时，继续按次级指标打破并列顺序。
 		if rankedCandidates[i].FinalScore == rankedCandidates[j].FinalScore {
 			// 最终分相同时优先比较场景热度。
 			if rankedCandidates[i].ScenePopularityScore == rankedCandidates[j].ScenePopularityScore {

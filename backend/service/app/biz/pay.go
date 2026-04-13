@@ -77,28 +77,29 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 
 	var orderInfo *models.OrderInfo
 	query := c.orderInfoRepo.Query(ctx).OrderInfo
-	orderInfo, err = c.orderInfoRepo.Find(ctx,
-		repo.Where(query.ID.Eq(req.GetOrderId())),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	orderOpts := make([]repo.QueryOption, 0, 2)
+	orderOpts = append(orderOpts, repo.Where(query.ID.Eq(req.GetOrderId())))
+	orderOpts = append(orderOpts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	orderInfo, err = c.orderInfoRepo.Find(ctx, orderOpts...)
 	if err != nil {
 		return nil, err
 	}
+	// 仅允许待支付订单进入预下单流程。
 	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
 		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
-	var goodsInfoList []*models.OrderGoods
+	var orderGoodsList []*models.OrderGoods
 	orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
-	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
-	goodsInfoList, err = c.orderGoodsRepo.List(ctx, opts...)
+	goodsOpts := make([]repo.QueryOption, 0, 1)
+	goodsOpts = append(goodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
+	orderGoodsList, err = c.orderGoodsRepo.List(ctx, goodsOpts...)
 	if err != nil {
 		return nil, err
 	}
 
 	goodsDetail := make([]jsapi.GoodsDetail, 0)
-	for _, item := range goodsInfoList {
+	for _, item := range orderGoodsList {
 		goodsDetail = append(goodsDetail, jsapi.GoodsDetail{
 			MerchantGoodsId: new(fmt.Sprintf("%s_%s", strconv.FormatInt(item.GoodsID, 10), item.SkuCode)),
 			GoodsName:       &item.Name,
@@ -109,6 +110,7 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 
 	payTimeout := configs.ParsePayTimeout()
 	var description = "小程序支付"
+	// 订单存在商品明细时，优先使用首个商品名作为支付描述。
 	if len(goodsDetail) > 0 {
 		description = trans.StringValue(goodsDetail[0].GoodsName)
 	}
@@ -128,7 +130,9 @@ func (c *PayCase) JsapiPay(ctx context.Context, req *app.PayRequest) (*app.Jsapi
 			GoodsDetail: goodsDetail,
 		},
 	})
+	// 微信预下单失败时，优先识别是否为重复支付通知。
 	if err != nil {
+		// 命中微信 API 错误类型时，进一步识别可恢复的重复支付场景。
 		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
 			// 订单已支付
 			if apiErr.Code == "ORDERPAID" {
@@ -159,28 +163,29 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 
 	var orderInfo *models.OrderInfo
 	query := c.orderInfoRepo.Query(ctx).OrderInfo
-	orderInfo, err = c.orderInfoRepo.Find(ctx,
-		repo.Where(query.ID.Eq(req.GetOrderId())),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	orderOpts := make([]repo.QueryOption, 0, 2)
+	orderOpts = append(orderOpts, repo.Where(query.ID.Eq(req.GetOrderId())))
+	orderOpts = append(orderOpts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	orderInfo, err = c.orderInfoRepo.Find(ctx, orderOpts...)
 	if err != nil {
 		return nil, err
 	}
+	// 仅允许待支付订单进入预下单流程。
 	if orderInfo.Status != int32(common.OrderStatus_CREATED) {
 		return nil, fmt.Errorf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status])
 	}
 
-	var goodsInfoList []*models.OrderGoods
+	var orderGoodsList []*models.OrderGoods
 	orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
-	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
-	goodsInfoList, err = c.orderGoodsRepo.List(ctx, opts...)
+	goodsOpts := make([]repo.QueryOption, 0, 1)
+	goodsOpts = append(goodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
+	orderGoodsList, err = c.orderGoodsRepo.List(ctx, goodsOpts...)
 	if err != nil {
 		return nil, err
 	}
 
 	goodsDetail := make([]h5.GoodsDetail, 0)
-	for _, item := range goodsInfoList {
+	for _, item := range orderGoodsList {
 		goodsDetail = append(goodsDetail, h5.GoodsDetail{
 			MerchantGoodsId: new(fmt.Sprintf("%s_%s", strconv.FormatInt(item.GoodsID, 10), item.SkuCode)),
 			GoodsName:       &item.Name,
@@ -192,11 +197,13 @@ func (c *PayCase) H5Pay(ctx context.Context, req *app.PayRequest) (*app.H5PayRes
 	createdAt := orderInfo.CreatedAt.Add(payTimeout)
 
 	var description = "H5支付"
+	// 订单存在商品明细时，优先使用首个商品名作为支付描述。
 	if len(goodsDetail) > 0 {
 		description = trans.StringValue(goodsDetail[0].GoodsName)
 	}
 	// 微信 H5 支付要求必须上送发起支付的客户端 IP
-	payerClientIp := c.getPayerClientIP(ctx)
+	payerClientIp := c.getPayerClientIp(ctx)
+	// 无法识别客户端 IP 时，不满足微信 H5 下单要求。
 	if payerClientIp == "" {
 		return nil, errors.New("获取客户端IP失败")
 	}
@@ -234,6 +241,7 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 		return err
 	}
 	resource := request.Resource
+	// 回调缺少业务资源体时，无法继续处理通知。
 	if resource == nil {
 		return errors.New("notify resource is nil")
 	}
@@ -271,19 +279,22 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 	return errors.New("notify event type err")
 }
 
-// getPayerClientIP 从当前 HTTP 请求中提取客户端真实 IP
-func (c *PayCase) getPayerClientIP(ctx context.Context) string {
+// getPayerClientIp 从当前 HTTP 请求中提取客户端真实 IP。
+func (c *PayCase) getPayerClientIp(ctx context.Context) string {
 	serverTransport, ok := transport.FromServerContext(ctx)
+	// 非服务端请求上下文时，无法提取客户端请求信息。
 	if !ok {
 		return ""
 	}
 
 	httpTransport, ok := serverTransport.(*kratosHttp.Transport)
+	// 当前传输层不是 HTTP 时，不存在客户端 HTTP 请求对象。
 	if !ok {
 		return ""
 	}
 
 	request := httpTransport.Request()
+	// 底层请求对象为空时，无法继续读取真实 IP。
 	if request == nil {
 		return ""
 	}
@@ -292,16 +303,19 @@ func (c *PayCase) getPayerClientIP(ctx context.Context) string {
 
 // PaySuccess 支付成功处理
 func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, paymentResource *app.PaymentResource) error {
+	// 未找到本地订单时，无法回写支付成功状态。
 	if orderInfo == nil {
 		return errors.New("orderInfo is nil")
 	}
 	// 查询支付信息
 	var orderPayment *models.OrderPayment
 	orderPaymentQuery := c.orderPaymentRepo.Query(ctx).OrderPayment
-	orderPayment, err := c.orderPaymentRepo.Find(ctx,
-		repo.Where(orderPaymentQuery.OrderID.Eq(orderInfo.ID)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(orderPaymentQuery.OrderID.Eq(orderInfo.ID)))
+	orderPayment, err := c.orderPaymentRepo.Find(ctx, opts...)
+	// 支付记录查询失败时，仅对“记录不存在”做初始化回退。
 	if err != nil {
+		// 支付记录尚未创建时，初始化空实体供后续写入。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			orderPayment = &models.OrderPayment{}
 		} else {
@@ -309,6 +323,7 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 		}
 	}
 	successTime := _time.TimestamppbToTime(paymentResource.GetSuccessTime())
+	// 微信回调未携带成功时间时，回退到当前时间写入本地记录。
 	if successTime == nil {
 		successTime = trans.Time(time.Now())
 	}
@@ -350,9 +365,9 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 			// 首次支付成功时，读取订单商品快照，确保推荐支付行为完全基于后端事实构建。
 			if shouldReportOrderPay {
 				orderGoodsQuery := c.orderGoodsRepo.Query(ctx).OrderGoods
-				orderGoodsList, err = c.orderGoodsRepo.List(ctx,
-					repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)),
-				)
+				orderGoodsOpts := make([]repo.QueryOption, 0, 1)
+				orderGoodsOpts = append(orderGoodsOpts, repo.Where(orderGoodsQuery.OrderID.Eq(orderInfo.ID)))
+				orderGoodsList, err = c.orderGoodsRepo.List(ctx, orderGoodsOpts...)
 				if err != nil {
 					return err
 				}
@@ -363,8 +378,8 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 	if err != nil {
 		return err
 	}
+	// 支付成功后无论是否重复通知，都尝试清理超时取消任务，避免历史定时任务继续生效。
 	if orderPayment.TradeState == app.PaymentResource_SUCCESS.String() {
-		// 支付成功后无论是否重复通知，都尝试清理超时取消任务，避免历史定时任务继续生效。
 		c.orderSchedulerCase.DeleteScheduled(orderInfo.ID)
 	}
 	// 只有首次支付成功才回写 ORDER_PAY，避免重复通知产生重复推荐事实。
@@ -376,20 +391,24 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 
 // RefundSuccess 退款成功处理
 func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo, refundResource *app.RefundResource) error {
+	// 未找到本地订单时，无法回写退款成功状态。
 	if orderInfo == nil {
 		return errors.New("orderInfo is nil")
 	}
 	// 查询支付信息
 	var orderRefund *models.OrderRefund
-	orderRefundQuery := c.orderRefundRepo.Query(ctx).OrderRefund
-	orderRefund, err := c.orderRefundRepo.Find(ctx,
-		repo.Where(orderRefundQuery.OrderID.Eq(orderInfo.ID)),
-	)
+	query := c.orderRefundRepo.Query(ctx).OrderRefund
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderInfo.ID)))
+	orderRefund, err := c.orderRefundRepo.Find(ctx, opts...)
 	successTime := _time.TimestamppbToTime(refundResource.GetSuccessTime())
+	// 微信回调未携带成功时间时，回退到当前时间写入本地记录。
 	if successTime == nil {
 		successTime = trans.Time(time.Now())
 	}
+	// 退款记录查询失败时，仅对“记录不存在”做初始化回退。
 	if err != nil {
+		// 退款记录尚未创建时，初始化空实体供后续写入。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			orderRefund = &models.OrderRefund{
 				OrderID:    orderInfo.ID,
@@ -422,7 +441,7 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 				return err
 			}
 		}
-		// 支付成功，修改订单状态
+		// 退款成功时，同步把订单推进到退款中状态。
 		if orderRefund.RefundState == app.RefundResource_SUCCESS.String() {
 			return c.updateOrder(ctx, orderInfo.ID, orderInfo.UserID, common.OrderStatus_REFUNDING)
 		}
@@ -433,10 +452,10 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 // findByOrderNo 根据订单号查询订单
 func (c *PayCase) findByOrderNo(ctx context.Context, orderNo string) (*models.OrderInfo, error) {
 	// 查询订单
-	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
-	orderInfo, err := c.orderInfoRepo.Find(ctx,
-		repo.Where(orderQuery.OrderNo.Eq(orderNo)),
-	)
+	query := c.orderInfoRepo.Query(ctx).OrderInfo
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderNo.Eq(orderNo)))
+	orderInfo, err := c.orderInfoRepo.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -445,21 +464,23 @@ func (c *PayCase) findByOrderNo(ctx context.Context, orderNo string) (*models.Or
 
 // updateOrder 更新订单状态
 func (c *PayCase) updateOrder(ctx context.Context, orderId, userId int64, status common.OrderStatus) error {
-	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
+	query := c.orderInfoRepo.Query(ctx).OrderInfo
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	opts = append(opts, repo.Where(query.ID.Eq(orderId)))
 	return c.orderInfoRepo.Update(ctx, &models.OrderInfo{Status: int32(status)},
-		repo.Where(orderQuery.UserID.Eq(userId)),
-		repo.Where(orderQuery.ID.Eq(orderId)),
+		opts...,
 	)
 }
 
 // markOrderPaid 将待支付订单推进到已支付，并返回是否为首次支付成功。
 func (c *PayCase) markOrderPaid(ctx context.Context, orderId, userId int64) (bool, error) {
-	orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
-	res, err := orderQuery.WithContext(ctx).
+	query := c.orderInfoRepo.Query(ctx).OrderInfo
+	res, err := query.WithContext(ctx).
 		Where(
-			orderQuery.UserID.Eq(userId),
-			orderQuery.ID.Eq(orderId),
-			orderQuery.Status.Eq(int32(common.OrderStatus_CREATED)),
+			query.UserID.Eq(userId),
+			query.ID.Eq(orderId),
+			query.Status.Eq(int32(common.OrderStatus_CREATED)),
 		).
 		Updates(map[string]interface{}{
 			"status": int32(common.OrderStatus_PAID),

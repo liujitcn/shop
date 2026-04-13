@@ -25,7 +25,7 @@ type LoginCase struct {
 	baseUserCase *BaseUserCase
 }
 
-// NewLoginCase new a Login use case.
+// NewLoginCase 创建登录业务实例。
 func NewLoginCase(
 	baseCase *biz.BaseCase,
 	userToken *authData.UserToken,
@@ -42,7 +42,7 @@ func NewLoginCase(
 	}
 }
 
-// Captcha 验证码
+// Captcha 生成验证码。
 func (c *LoginCase) Captcha(ctx context.Context) (*base.CaptchaResponse, error) {
 	id, b64s, _, err := captcha.DriverDigitFunc()
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *LoginCase) Captcha(ctx context.Context) (*base.CaptchaResponse, error) 
 	}, err
 }
 
-// Logout 登出
+// Logout 退出登录。
 func (c *LoginCase) Logout(ctx context.Context) error {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -67,7 +67,7 @@ func (c *LoginCase) Logout(ctx context.Context) error {
 	return nil
 }
 
-// RefreshToken 刷新认证令牌
+// RefreshToken 刷新认证令牌。
 func (c *LoginCase) RefreshToken(ctx context.Context, req *base.RefreshTokenRequest) (*base.RefreshTokenResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
@@ -76,6 +76,7 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *base.RefreshTokenRequ
 
 	// 校验刷新令牌
 	refreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
+	// 客户端刷新令牌与缓存不一致时，拒绝刷新访问令牌。
 	if refreshToken != req.GetRefreshToken() {
 		return nil, common.ErrorIncorrectRefreshToken("invalid refresh token")
 	}
@@ -97,11 +98,13 @@ func (c *LoginCase) RefreshToken(ctx context.Context, req *base.RefreshTokenRequ
 	}, nil
 }
 
-// Login 登录
+// Login 执行登录。
 func (c *LoginCase) Login(ctx context.Context, req *base.LoginRequest) (*base.LoginResponse, error) {
+	// 验证码标识或验证码缺失时，不允许继续登录。
 	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
 		return nil, errors.New("验证码不存在")
 	}
+	// 验证码校验失败时，直接拒绝登录请求。
 	if !captcha.Verify(req.GetCaptchaId(), req.GetCaptchaCode(), true) {
 		return nil, errors.New("验证码错误")
 	}
@@ -110,6 +113,7 @@ func (c *LoginCase) Login(ctx context.Context, req *base.LoginRequest) (*base.Lo
 	if err != nil {
 		return nil, errors.New("用户不存在")
 	}
+	// 用户被停用时，不允许签发新的登录令牌。
 	if user.Status != 1 {
 		return nil, errors.New("用户状态错误")
 	}

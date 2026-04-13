@@ -27,7 +27,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// RecommendGoodsRequest 查询推荐商品列表请求。
+// 推荐商品请求参数
 type RecommendGoodsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scene         common.RecommendScene  `protobuf:"varint,1,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"` // 推荐场景
@@ -96,7 +96,7 @@ func (x *RecommendGoodsRequest) GetPageSize() int64 {
 	return 0
 }
 
-// RecommendGoodsResponse 查询推荐商品列表响应。
+// 推荐商品响应
 type RecommendGoodsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	List          []*GoodsInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`           // 推荐商品列表
@@ -157,7 +157,7 @@ func (x *RecommendGoodsResponse) GetRequestId() string {
 	return ""
 }
 
-// RecommendContext 推荐上下文。
+// 推荐上下文
 type RecommendContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scene         common.RecommendScene  `protobuf:"varint,1,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"` // 推荐场景
@@ -218,7 +218,7 @@ func (x *RecommendContext) GetPosition() int32 {
 	return 0
 }
 
-// RecommendGoodsActionItem 推荐商品行为埋点商品项。
+// 推荐商品行为项
 type RecommendGoodsActionItem struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	GoodsId          int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                  // 商品ID
@@ -279,7 +279,7 @@ func (x *RecommendGoodsActionItem) GetRecommendContext() *RecommendContext {
 	return nil
 }
 
-// RecommendExposureReportRequest 推荐曝光上报请求。
+// 推荐曝光上报请求参数
 type RecommendExposureReportRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RequestId     string                 `protobuf:"bytes,1,opt,name=requestId,proto3" json:"requestId,omitempty"`                     // 推荐请求ID
@@ -340,7 +340,7 @@ func (x *RecommendExposureReportRequest) GetGoodsIds() []int64 {
 	return nil
 }
 
-// RecommendGoodsActionReportRequest 推荐商品行为上报请求。
+// 推荐商品行为上报请求参数
 type RecommendGoodsActionReportRequest struct {
 	state         protoimpl.MessageState          `protogen:"open.v1"`
 	EventType     common.RecommendGoodsActionType `protobuf:"varint,1,opt,name=eventType,proto3,enum=common.RecommendGoodsActionType" json:"eventType,omitempty"` // 商品行为事件类型
@@ -402,9 +402,9 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\x05scene\x18\x01 \x01(\x0e2\x16.common.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x12(\n" +
 	"\aorderId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12:\n" +
-	"\bpageSize\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\x94\x01\n" +
-	"\x16RecommendGoodsResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\"\n" +
+	"\bpageSize\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xae\x01\n" +
+	"\x16RecommendGoodsResponse\x12<\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoB\x18\xbaG\x15\x92\x02\x12推荐商品列表R\x04list\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x122\n" +
 	"\trequestId\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xbb\x01\n" +
 	"\x10RecommendContext\x12@\n" +

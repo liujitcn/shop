@@ -57,10 +57,11 @@ func (c *UserStoreCase) GetUserStore(ctx context.Context) (*app.UserStore, error
 
 	query := c.Query(ctx).UserStore
 	var userStore *models.UserStore
-	userStore, err = c.Find(ctx,
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	userStore, err = c.Find(ctx, opts...)
 	if err != nil {
+		// 当前用户尚未开店时，返回空门店信息而不是错误。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &app.UserStore{}, nil
 		}
@@ -87,10 +88,10 @@ func (c *UserStoreCase) UpdateUserStore(ctx context.Context, form *app.UserStore
 
 	query := c.Query(ctx).UserStore
 	var oldUserStore *models.UserStore
-	oldUserStore, err = c.Find(ctx,
-		repo.Where(query.ID.Eq(form.GetId())),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(form.GetId())))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	oldUserStore, err = c.Find(ctx, opts...)
 	if err != nil {
 		return err
 	}
@@ -130,9 +131,12 @@ func (c *UserStoreCase) convertToModel(userId int64, item *app.UserStoreForm) *m
 func (c *UserStoreCase) multiDeleteFileByString(oldFile string, newFile []string) {
 	oldFileList := _string.ConvertJsonStringToStringArray(oldFile)
 	oss := sdk.Runtime.GetOSS()
+	// OSS 已初始化时，按差异删除已被替换的旧文件。
 	if oss != nil {
 		for _, item := range oldFileList {
+			// 新文件列表未保留该文件时，删除旧文件释放对象存储空间。
 			if len(newFile) == 0 || !slices.Contains(newFile, item) {
+				// 单个旧文件删除失败时，仅记录日志不影响主流程。
 				if err := oss.DeleteFile(item); err != nil {
 					log.Error("multiDeleteFile err:", err.Error())
 				}

@@ -27,10 +27,10 @@ func NewOrderCancelCase(baseCase *biz.BaseCase, orderCancelRepo *data.OrderCance
 
 // findCancelTimeByOrderId 查询订单取消时间
 func (c *OrderCancelCase) findCancelTimeByOrderId(ctx context.Context, orderId int64) (string, error) {
-	cancelQuery := c.Query(ctx).OrderCancel
-	orderCancel, err := c.Find(ctx,
-		repo.Where(cancelQuery.OrderID.Eq(orderId)),
-	)
+	query := c.Query(ctx).OrderCancel
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	orderCancel, err := c.Find(ctx, opts...)
 	if err != nil {
 		return "", err
 	}

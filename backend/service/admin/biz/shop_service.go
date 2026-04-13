@@ -38,6 +38,7 @@ func (c *ShopServiceCase) PageShopService(ctx context.Context, req *admin.PageSh
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入服务名称时，按名称模糊匹配服务保障项。
 	if req.GetLabel() != "" {
 		opts = append(opts, repo.Where(query.Label.Like("%"+req.GetLabel()+"%")))
 	}

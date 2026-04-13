@@ -109,6 +109,7 @@ service OrderInfoService {
   }
 }
 
+// 下单商品
 message CreateOrderInfoGoods {
   int64 goodsId = 1 [
     (gnostic.openapi.v3.property) = {description: "商品id"}
@@ -125,7 +126,7 @@ message CreateOrderInfoGoods {
   ];  // 推荐上下文
 }
 
-// 确认订单信息信息
+// 确认订单响应
 message ConfirmOrderInfoResponse {
   repeated OrderGoods goods = 1 [
     (gnostic.openapi.v3.property) = {description: "商品信息"}
@@ -139,66 +140,70 @@ message ConfirmOrderInfoResponse {
   ]; // 是否清空购物车
 }
 
+// 再次购买订单请求参数
 message OrderRepurchaseInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
 }
 
-// 订单信息数量汇总
+// 订单数量汇总响应
 message CountOrderInfoResponse {
+  // 订单数量统计项
   message Count {
-    // 订单状态
     common.OrderStatus status = 1 [
       (gnostic.openapi.v3.property) = {
         description: "订单状态",
       }
-    ];
-    // 订单数量
+    ]; // 订单状态
     int32 num = 2 [
       (gnostic.openapi.v3.property) = {
         description: "订单数量",
       }
-    ];
+    ]; // 订单数量
   }
 
-  // 总数
-  repeated Count count = 1;
+  repeated Count count = 1 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 订单分页查询条件
 message PageOrderInfoRequest{
-  // 订单状态
   common.OrderStatus status = 1 [
     (gnostic.openapi.v3.property) = {
       description: "订单状态",
     }
-  ];
+  ]; // 订单状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 订单分页响应
 message PageOrderInfoResponse{
-  // 分页数据
-  repeated OrderInfo list = 1;
-  // 总数
-  int32 total = 2;
+  repeated OrderInfo list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 订单详情响应
 message OrderInfoResponse {
+  // 收货地址
   message Address {
     string receiver = 1 [
       (gnostic.openapi.v3.property) = {description: "联系人"}
@@ -214,7 +219,9 @@ message OrderInfoResponse {
     ];  // 详细地址
   }
 
+  // 物流信息
   message Logistics {
+    // Detail
     message Detail {
       string time = 1 [
         (gnostic.openapi.v3.property) = {description: "时间"}
@@ -237,7 +244,6 @@ message OrderInfoResponse {
       (gnostic.openapi.v3.property) = {description: "物流详情"}
     ];  // 物流详情
   }
-  // 订单信息
   OrderInfo order = 1 [
     (gnostic.openapi.v3.property) = {description: "订单信息"}
   ];  // 订单信息
@@ -252,6 +258,7 @@ message OrderInfoResponse {
     (gnostic.openapi.v3.property) = {description: "支付倒计时"}
   ];  // 支付倒计时
 }
+// 创建订单请求参数
 message CreateOrderInfoRequest {
   int64 addressId = 1 [
     (gnostic.openapi.v3.property) = {description: "地址id"}
@@ -282,12 +289,14 @@ message CreateOrderInfoRequest {
   ]; // 商品信息
 }
 
+// 创建订单响应
 message CreateOrderInfoResponse {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
 }
 
+// 取消订单请求参数
 message CancelOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
@@ -297,6 +306,7 @@ message CancelOrderInfoRequest {
   ]; // 取消原因
 }
 
+// 订单退款请求参数
 message RefundOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
@@ -306,6 +316,7 @@ message RefundOrderInfoRequest {
   ]; // 退款原因
 }
 
+// 确认收货请求参数
 message ReceiveOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
@@ -313,6 +324,7 @@ message ReceiveOrderInfoRequest {
 }
 
 
+// 订单商品
 message OrderGoods {
   int64 goodsId = 1 [
     (gnostic.openapi.v3.property) = {description: "商品ID"}
@@ -367,6 +379,7 @@ message OrderGoods {
   ]; // 推荐位序号
 }
 
+// Order信息
 message OrderInfo {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
@@ -438,6 +451,7 @@ message OrderInfo {
   ]; // 商品信息
 }
 
+// Order汇总
 message OrderSummary {
   int64 payMoney = 1 [
     (gnostic.openapi.v3.property) = {description: "实际支付金额"}

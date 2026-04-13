@@ -66,12 +66,14 @@ service UserCartService {
   }
 }
 
+// 用户购物车列表响应
 message ListUserCartResponse {
-  // 数据
-  repeated UserCart list = 1;
+  repeated UserCart list = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据"}
+  ]; // 数据
 }
 
-// 用户购物车
+// UserCart
 message UserCart {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户购物车ID"}
@@ -101,20 +103,17 @@ message UserCart {
     (gnostic.openapi.v3.property) = {description: "规格描述"}
   ]; // 规格描述
 
-  // 库存数量
   int64 inventory = 8 [
     (gnostic.openapi.v3.property) = { description: "库存数量" }
-  ];
+  ]; // 库存数量
 
-  // 价格
   int64 price = 41 [
     (gnostic.openapi.v3.property) = { description: "价格" }
-  ];
+  ]; // 价格
 
-  // 加入时价格
   int64 joinPrice = 40 [
     (gnostic.openapi.v3.property) = { description: "加入时价格" }
-  ];
+  ]; // 加入时价格
 
   bool isChecked = 51 [
     (gnostic.openapi.v3.property) = {description: "是否选中"}
@@ -125,7 +124,7 @@ message UserCart {
   ];  // 推荐上下文
 }
 
-// 用户购物车
+// 创建购物车请求参数
 message CreateUserCartRequest {
   int64 goodsId = 1 [
     (gnostic.openapi.v3.property) = {description: "规格id"}
@@ -144,7 +143,7 @@ message CreateUserCartRequest {
   ];  // 推荐上下文
 }
 
-// 用户购物车
+// 更新购物车请求参数
 message UpdateUserCartRequest {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "购物车id"}
@@ -155,6 +154,7 @@ message UpdateUserCartRequest {
   ]; // 数量
 }
 
+// SetUserCartStatus请求参数
 message SetUserCartStatusRequest {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "购物车id"}
@@ -165,6 +165,7 @@ message SetUserCartStatusRequest {
   ];  // 是否选中
 }
 
+// 购物车全选设置请求参数
 message SelectedUserCartRequest {
   bool isChecked = 1 [
     (gnostic.openapi.v3.property) = {description: "是否选中"}

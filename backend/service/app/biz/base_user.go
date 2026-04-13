@@ -27,15 +27,15 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo) *B
 // 按微信唯一标识查询用户
 func (c *BaseUserCase) findByOpenid(ctx context.Context, openid string) (*models.BaseUser, error) {
 	query := c.Query(ctx).BaseUser
-	return c.Find(ctx,
-		repo.Where(query.Openid.Eq(openid)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.Openid.Eq(openid)))
+	return c.Find(ctx, opts...)
 }
 
 // 按手机号查询用户
 func (c *BaseUserCase) findByPhone(ctx context.Context, phone string) (*models.BaseUser, error) {
 	query := c.Query(ctx).BaseUser
-	return c.Find(ctx,
-		repo.Where(query.Phone.Eq(phone)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.Phone.Eq(phone)))
+	return c.Find(ctx, opts...)
 }

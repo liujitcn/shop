@@ -15,13 +15,16 @@ service ConfigService {
   }
 }
 
+// 配置请求参数
 message ConfigRequest {
   BaseConfigSite site = 2 [
     (gnostic.openapi.v3.property) = {description: "位置：枚举【BaseConfigSite】"}
   ];  // 位置：枚举【BaseConfigSite】
 }
 
+// 配置响应
 message ConfigResponse {
+  // 配置数据
   message Data {
     string key = 1 [
       (gnostic.openapi.v3.property) = {description: "配置key"}

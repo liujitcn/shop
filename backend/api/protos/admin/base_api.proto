@@ -16,12 +16,14 @@ service BaseApiService {
   }
 }
 
+// API列表响应
 message ListBaseApiResponse {
-  // 分页数据
-  repeated BaseApi list = 1;
+  repeated BaseApi list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
 }
 
-// 日志
+// API
 message BaseApi {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {

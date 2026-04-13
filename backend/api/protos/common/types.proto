@@ -6,7 +6,7 @@ import "gnostic/openapi/v3/annotations.proto";
 
 // `double` 类型数组包装消息。
 //
-// `DoubleValues` 的 JSON 表示为数字数组。
+// DoubleValues
 message DoubleValues {
   // 值列表。
   repeated double value = 1 [
@@ -16,7 +16,7 @@ message DoubleValues {
 
 // `float` 类型数组包装消息。
 //
-// `FloatValues` 的 JSON 表示为数字数组。
+// FloatValues
 message FloatValues {
   // 值列表。
   repeated float value = 1 [
@@ -26,7 +26,7 @@ message FloatValues {
 
 // `int64` 类型数组包装消息。
 //
-// `Int64Values` 的 JSON 表示为字符串数组。
+// Int64Values
 message Int64Values {
   // 值列表。
   repeated int64 value = 1 [
@@ -36,7 +36,7 @@ message Int64Values {
 
 // `uint64` 类型数组包装消息。
 //
-// `UInt64Values` 的 JSON 表示为字符串数组。
+// UInt64Values
 message UInt64Values {
   // 值列表。
   repeated uint64 value =  1 [
@@ -46,7 +46,7 @@ message UInt64Values {
 
 // `int32` 类型数组包装消息。
 //
-// `Int32Values` 的 JSON 表示为数字数组。
+// Int32Values
 message Int32Values {
   // 值列表。
   repeated int32 value =  1 [
@@ -56,7 +56,7 @@ message Int32Values {
 
 // `uint32` 类型数组包装消息。
 //
-// `UInt32Values` 的 JSON 表示为数字数组。
+// UInt32Values
 message UInt32Values {
   // 值列表。
   repeated uint32 value =  1 [
@@ -66,7 +66,7 @@ message UInt32Values {
 
 // `bool` 类型数组包装消息。
 //
-// `BoolValues` 的 JSON 表示为布尔数组。
+// BoolValues
 message BoolValues {
   // 值列表。
   repeated bool value =  1 [
@@ -76,7 +76,7 @@ message BoolValues {
 
 // `string` 类型数组包装消息。
 //
-// `StringValues` 的 JSON 表示为字符串数组。
+// StringValues
 message StringValues {
   // 值列表。
   repeated string value =  1 [
@@ -86,7 +86,7 @@ message StringValues {
 
 // `bytes` 类型数组包装消息。
 //
-// `BytesValues` 的 JSON 表示为字符串数组。
+// BytesValues
 message BytesValues {
   // 值列表。
   repeated bytes value =  1 [

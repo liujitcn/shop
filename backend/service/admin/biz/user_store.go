@@ -46,6 +46,7 @@ func (c *UserStoreCase) PageUserStore(ctx context.Context, req *admin.PageUserSt
 	query := c.Query(ctx).UserStore
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入名称关键字时，按名称模糊匹配门店申请。
 	if req.GetName() != "" {
 		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
@@ -64,6 +65,7 @@ func (c *UserStoreCase) PageUserStore(ctx context.Context, req *admin.PageUserSt
 	}
 
 	userMap := make(map[int64]*models.BaseUser)
+	// 页面存在用户编号时，批量回查用户基础信息补齐昵称和手机号。
 	if len(userIds) > 0 {
 		var userList []*models.BaseUser
 		userList, err = c.baseUserCase.ListByIds(ctx, userIds)
@@ -78,6 +80,7 @@ func (c *UserStoreCase) PageUserStore(ctx context.Context, req *admin.PageUserSt
 	list := make([]*admin.UserStore, 0, len(page))
 	for _, item := range page {
 		userStore := c.toUserStore(ctx, item)
+		// 命中用户信息时，补齐申请人的昵称和手机号。
 		if user, ok := userMap[item.UserID]; ok {
 			userStore.NickName = user.NickName
 			userStore.Phone = user.Phone
@@ -128,13 +131,16 @@ func (c *UserStoreCase) AuditUserStore(ctx context.Context, req *admin.AuditUser
 		}
 
 		code := _const.BaseRoleCode_Guest
+		// 审核通过时，将用户角色切换为正式用户角色。
 		if req.GetStatus() == common.UserStoreStatus_APPROVED {
 			code = _const.BaseRoleCode_User
 		}
 
-		roleQuery := c.baseRoleCase.Query(ctx).BaseRole
+		query := c.baseRoleCase.Query(ctx).BaseRole
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.Code.Eq(code)))
 		var baseRole *models.BaseRole
-		baseRole, err = c.baseRoleCase.Find(ctx, repo.Where(roleQuery.Code.Eq(code)))
+		baseRole, err = c.baseRoleCase.Find(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -155,6 +161,7 @@ func (c *UserStoreCase) toUserStore(ctx context.Context, item *models.UserStore)
 // getAddressListByCode 根据区域编号构建地址名称
 func (c *UserStoreCase) getAddressListByCode(ctx context.Context, address string) []string {
 	ids := _string.ConvertJsonStringToInt64Array(address)
+	// 地址编号为空时，直接返回空地址列表。
 	if len(ids) == 0 {
 		return []string{}
 	}
@@ -171,6 +178,7 @@ func (c *UserStoreCase) getAddressListByCode(ctx context.Context, address string
 
 	res := make([]string, 0, len(ids))
 	for _, id := range ids {
+		// 命中区域名称映射时，按原顺序补齐地址名称。
 		if name, ok := areaMap[id]; ok {
 			res = append(res, name)
 		}

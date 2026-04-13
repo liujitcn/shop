@@ -23,6 +23,7 @@ import (
 
 type GrpcMiddlewares []middleware.Middleware
 
+// NewGrpcMiddleware 创建 GRPC 服务统一中间件链。
 func NewGrpcMiddleware(
 	ctx *bootstrap.Context,
 	authenticator authnEngine.Authenticator,
@@ -33,6 +34,7 @@ func NewGrpcMiddleware(
 ) GrpcMiddlewares {
 	var ms GrpcMiddlewares
 	cfg := ctx.GetConfig()
+	// 开启日志中间件时，统一挂载请求日志与操作者解析逻辑。
 	if cfg != nil && cfg.Server != nil && cfg.Server.Grpc != nil && cfg.Server.Grpc.Middleware != nil && cfg.Server.Grpc.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))
 	}
@@ -40,6 +42,7 @@ func NewGrpcMiddleware(
 	return ms
 }
 
+// NewGRPCServer 创建 GRPC Server 并注册全部业务服务。
 func NewGRPCServer(
 	ctx *bootstrap.Context,
 	middlewares GrpcMiddlewares,
@@ -92,6 +95,7 @@ func NewGRPCServer(
 	login *base.LoginService,
 ) (*grpc.Server, error) {
 	cfg := ctx.GetConfig()
+	// 未启用 GRPC 配置时，跳过 GRPC 服务创建。
 	if cfg == nil || cfg.Server == nil || cfg.Server.Grpc == nil {
 		return nil, nil
 	}

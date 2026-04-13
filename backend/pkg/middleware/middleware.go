@@ -26,6 +26,7 @@ func NewAuthzEngine() (authzEngine.Engine, error) {
 	return authzEngineCasbin.NewEngine(context.Background())
 }
 
+// NewUserToken 创建用户令牌管理器。
 func NewUserToken(cfg *bootstrapConf.Authentication_Jwt, cache cache.Cache, authenticator authnEngine.Authenticator) *authData.UserToken {
 	const (
 		userAccessTokenKeyPrefix  = "uat_"

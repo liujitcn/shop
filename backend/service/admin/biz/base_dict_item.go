@@ -40,12 +40,14 @@ func (c *BaseDictItemCase) PageBaseDictItem(ctx context.Context, req *admin.Page
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.Sort.Asc()))
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	// 传入字典编号时，按所属字典过滤字典项。
 	if req.GetDictId() > 0 {
 		opts = append(opts, repo.Where(query.DictID.Eq(req.GetDictId())))
 	}
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	// 传入标签关键字时，按标签模糊匹配字典项。
 	if req.GetLabel() != "" {
 		opts = append(opts, repo.Where(query.Label.Like("%"+req.GetLabel()+"%")))
 	}

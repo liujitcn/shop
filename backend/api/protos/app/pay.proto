@@ -33,28 +33,37 @@ service PayService {
   }
 }
 
+// 支付请求参数
 message PayRequest{
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
   ];  // 订单id
 }
 
+// 小程序支付响应
 message JsapiPayResponse{
-  // 填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。
-  string appId = 1;
-  // Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。
-  string timeStamp = 2;
-  // 随机字符串，不长于32位。该值建议使用随机数算法生成。
-  string nonceStr = 3;
-  // 订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。
-  string package = 4;
-  // 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
-  string paySign = 5;
+  string appId = 1 [
+    (gnostic.openapi.v3.property) = {description: "填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。"}
+  ]; // 填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。
+  string timeStamp = 2 [
+    (gnostic.openapi.v3.property) = {description: "Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。"}
+  ]; // Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。
+  string nonceStr = 3 [
+    (gnostic.openapi.v3.property) = {description: "随机字符串，不长于32位。该值建议使用随机数算法生成。"}
+  ]; // 随机字符串，不长于32位。该值建议使用随机数算法生成。
+  string package = 4 [
+    (gnostic.openapi.v3.property) = {description: "订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。"}
+  ]; // 订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。
+  string paySign = 5 [
+    (gnostic.openapi.v3.property) = {description: "签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339"}
+  ]; // 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
 }
 
+// H5 支付响应
 message H5PayResponse{
-  // 支付url
-  string h5Url = 1;
+  string h5Url = 1 [
+    (gnostic.openapi.v3.property) = {description: "支付url"}
+  ]; // 支付url
 }
 
 enum ResourceType {
@@ -62,26 +71,34 @@ enum ResourceType {
   REFUND = 1; // 退款
 }
 
-// 支付资源数据
+// 支付结果
 message PaymentResource {
-  // 【微信支付订单号】微信支付侧订单的唯一标识
-  string transaction_id = 1;
+  string transaction_id = 1 [
+    (gnostic.openapi.v3.property) = {description: "【微信支付订单号】微信支付侧订单的唯一标识"}
+  ]; // 【微信支付订单号】微信支付侧订单的唯一标识
 
-  // 订单金额信息，当支付成功时返回该字段
+  // 支付金额信息
   message Amount {
-    // 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
-    int64 payer_total = 1;
-    // 【总金额】订单总金额，单位为分，整型
-    int64 total = 2;
-    // 【货币类型】固定返回：CNY，代表人民币
-    string currency = 3;
-    // 【用户支付币种】 固定返回：CNY，代表人民币。
-    string payer_currency = 4;
+    int64 payer_total = 1 [
+      (gnostic.openapi.v3.property) = {description: "【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）"}
+    ]; // 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
+    int64 total = 2 [
+      (gnostic.openapi.v3.property) = {description: "【总金额】订单总金额，单位为分，整型"}
+    ]; // 【总金额】订单总金额，单位为分，整型
+    string currency = 3 [
+      (gnostic.openapi.v3.property) = {description: "【货币类型】固定返回：CNY，代表人民币"}
+    ]; // 【货币类型】固定返回：CNY，代表人民币
+    string payer_currency = 4 [
+      (gnostic.openapi.v3.property) = {description: "【用户支付币种】 固定返回：CNY，代表人民币。"}
+    ]; // 【用户支付币种】 固定返回：CNY，代表人民币。
   }
-  Amount amount = 2;
+  Amount amount = 2 [
+    (gnostic.openapi.v3.property) = {description: "金额信息"}
+  ]; // 金额信息
 
-  // 【商户号】商户下单时传入的商户号
-  string mchid = 3;
+  string mchid = 3 [
+    (gnostic.openapi.v3.property) = {description: "【商户号】商户下单时传入的商户号"}
+  ]; // 【商户号】商户下单时传入的商户号
 
   // 【交易状态】交易状态枚举
   enum TradeState {
@@ -94,26 +111,36 @@ message PaymentResource {
     USERPAYING = 6;  // 用户支付中（仅付款码支付会返回）
     PAYERROR = 7;    // 支付失败（仅付款码支付会返回）
   }
-  TradeState trade_state = 4;
+  TradeState trade_state = 4 [
+    (gnostic.openapi.v3.property) = {description: "交易状态"}
+  ]; // 交易状态
 
-  // 【银行类型】用户支付方式说明
-  string bank_type = 5;
+  string bank_type = 5 [
+    (gnostic.openapi.v3.property) = {description: "【银行类型】用户支付方式说明"}
+  ]; // 【银行类型】用户支付方式说明
 
-  // 【支付完成时间】用户完成支付的时间
-  google.protobuf.Timestamp success_time = 6;
+  google.protobuf.Timestamp success_time = 6 [
+    (gnostic.openapi.v3.property) = {description: "【支付完成时间】用户完成支付的时间"}
+  ]; // 【支付完成时间】用户完成支付的时间
 
   // 支付者信息
   message Payer {
-    // 【用户标识】用户在商户appid下的唯一标识
-    string openid = 1;
+    string openid = 1 [
+      (gnostic.openapi.v3.property) = {description: "【用户标识】用户在商户appid下的唯一标识"}
+    ]; // 【用户标识】用户在商户appid下的唯一标识
   }
-  Payer payer = 8;
-  // 【商户订单号】商户系统内部订单号
-  string out_trade_no = 9;
-  // 【公众账号ID】下单时传入的公众账号ID
-  string appid = 10;
-  // 【交易状态描述】状态详细说明
-  string trade_state_desc = 11;
+  Payer payer = 8 [
+    (gnostic.openapi.v3.property) = {description: "支付者信息"}
+  ]; // 支付者信息
+  string out_trade_no = 9 [
+    (gnostic.openapi.v3.property) = {description: "【商户订单号】商户系统内部订单号"}
+  ]; // 【商户订单号】商户系统内部订单号
+  string appid = 10 [
+    (gnostic.openapi.v3.property) = {description: "【公众账号ID】下单时传入的公众账号ID"}
+  ]; // 【公众账号ID】下单时传入的公众账号ID
+  string trade_state_desc = 11 [
+    (gnostic.openapi.v3.property) = {description: "【交易状态描述】状态详细说明"}
+  ]; // 【交易状态描述】状态详细说明
   // 交易类型枚举
   enum TradeType {
     TRADE_TYPE_UNSPECIFIED = 0;
@@ -124,34 +151,46 @@ message PaymentResource {
     MWEB = 5;     // H5支付
     FACEPAY = 6;  // 刷脸支付
   }
-  TradeType trade_type = 12;
+  TradeType trade_type = 12 [
+    (gnostic.openapi.v3.property) = {description: "交易类型"}
+  ]; // 交易类型
 
-  // 【商户数据包】自定义数据包（<=128字符）
-  string attach = 13;
+  string attach = 13 [
+    (gnostic.openapi.v3.property) = {description: "【商户数据包】自定义数据包（<=128字符）"}
+  ]; // 【商户数据包】自定义数据包（<=128字符）
 
-  // 场景信息
+  // 支付场景信息
   message SceneInfo {
-    // 【商户端设备号】门店号/收银设备ID
-    string device_id = 1;
+    string device_id = 1 [
+      (gnostic.openapi.v3.property) = {description: "【商户端设备号】门店号/收银设备ID"}
+    ]; // 【商户端设备号】门店号/收银设备ID
   }
-  SceneInfo scene_info = 14;
+  SceneInfo scene_info = 14 [
+    (gnostic.openapi.v3.property) = {description: "场景信息"}
+  ]; // 场景信息
 }
 
+// 退款结果
 message RefundResource {
-  //【商户号】商户下单时传入的商户号
-  string mchid = 1;
+  string mchid = 1 [
+    (gnostic.openapi.v3.property) = {description: "【商户号】商户下单时传入的商户号"}
+  ]; // 【商户号】商户下单时传入的商户号
 
-  //【微信支付订单号】微信支付侧订单的唯一标识
-  string transaction_id = 2;
+  string transaction_id = 2 [
+    (gnostic.openapi.v3.property) = {description: "【微信支付订单号】微信支付侧订单的唯一标识"}
+  ]; // 【微信支付订单号】微信支付侧订单的唯一标识
 
-  //【商户订单号】商户系统内部订单号
-  string out_trade_no = 3;
+  string out_trade_no = 3 [
+    (gnostic.openapi.v3.property) = {description: "【商户订单号】商户系统内部订单号"}
+  ]; // 【商户订单号】商户系统内部订单号
 
-  //【微信支付退款单号】微信侧生成的唯一退款标识
-  string refund_id = 4;
+  string refund_id = 4 [
+    (gnostic.openapi.v3.property) = {description: "【微信支付退款单号】微信侧生成的唯一退款标识"}
+  ]; // 【微信支付退款单号】微信侧生成的唯一退款标识
 
-  //【商户退款单号】商户系统内部退款单号
-  string out_refund_no = 5;
+  string out_refund_no = 5 [
+    (gnostic.openapi.v3.property) = {description: "【商户退款单号】商户系统内部退款单号"}
+  ]; // 【商户退款单号】商户系统内部退款单号
 
   //【退款状态】
   enum RefundStatus {
@@ -161,27 +200,37 @@ message RefundResource {
     PROCESSING = 3;  // 退款处理中
     ABNORMAL = 4;    // 退款异常
   }
-  RefundStatus refund_status = 6;
+  RefundStatus refund_status = 6 [
+    (gnostic.openapi.v3.property) = {description: "退款状态"}
+  ]; // 退款状态
 
-  //【退款成功时间】
-  google.protobuf.Timestamp success_time = 7;
+  google.protobuf.Timestamp success_time = 7 [
+    (gnostic.openapi.v3.property) = {description: "【退款成功时间】"}
+  ]; // 【退款成功时间】
 
-  //【退款入账账户】
-  string user_received_account = 8;
+  string user_received_account = 8 [
+    (gnostic.openapi.v3.property) = {description: "【退款入账账户】"}
+  ]; // 【退款入账账户】
 
-  //【金额信息】
+  // 退款金额信息
   message Amount {
-    //【原订单金额】单位：分
-    int32 total = 1;
+    int32 total = 1 [
+      (gnostic.openapi.v3.property) = {description: "【原订单金额】单位：分"}
+    ]; // 【原订单金额】单位：分
 
-    //【退款金额】单位：分
-    int32 refund = 2;
+    int32 refund = 2 [
+      (gnostic.openapi.v3.property) = {description: "【退款金额】单位：分"}
+    ]; // 【退款金额】单位：分
 
-    //【用户实际支付金额】单位：分
-    int32 payer_total = 3;
+    int32 payer_total = 3 [
+      (gnostic.openapi.v3.property) = {description: "【用户实际支付金额】单位：分"}
+    ]; // 【用户实际支付金额】单位：分
 
-    //【用户退款金额】单位：分
-    int32 payer_refund = 4;
+    int32 payer_refund = 4 [
+      (gnostic.openapi.v3.property) = {description: "【用户退款金额】单位：分"}
+    ]; // 【用户退款金额】单位：分
   }
-  Amount amount = 9;
+  Amount amount = 9 [
+    (gnostic.openapi.v3.property) = {description: "金额信息"}
+  ]; // 金额信息
 }

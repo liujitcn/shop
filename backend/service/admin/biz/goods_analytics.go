@@ -110,8 +110,8 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsPie(ctx context.Context, req *comm
 		return nil, err
 	}
 
-	parentID := int64(0)
-	categoryNameMap := c.goodsCategoryCase.NameMap(ctx, &parentID)
+	parentId := int64(0)
+	categoryNameMap := c.goodsCategoryCase.NameMap(ctx, &parentId)
 	items := make([]*commonApi.AnalyticsPieItem, 0, len(summary))
 	for _, item := range summary {
 		items = append(items, &commonApi.AnalyticsPieItem{
@@ -122,6 +122,7 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsPie(ctx context.Context, req *comm
 	return &commonApi.AnalyticsPieResponse{Items: items}, nil
 }
 
+// countNewGoods 统计时间范围内新增商品数。
 func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
 	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
@@ -131,12 +132,14 @@ func (c *GoodsAnalyticsCase) countNewGoods(ctx context.Context, startAt, endAt t
 	return count, err
 }
 
+// countTotalGoods 统计商品总数。
 func (c *GoodsAnalyticsCase) countTotalGoods(ctx context.Context) (int64, error) {
 	var count int64
 	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().Model(&models.GoodsInfo{}).Count(&count).Error
 	return count, err
 }
 
+// countPutOnGoods 统计已上架商品数。
 func (c *GoodsAnalyticsCase) countPutOnGoods(ctx context.Context) (int64, error) {
 	var count int64
 	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
@@ -146,6 +149,7 @@ func (c *GoodsAnalyticsCase) countPutOnGoods(ctx context.Context) (int64, error)
 	return count, err
 }
 
+// countDistinctActiveGoods 统计时间范围内动销商品数。
 func (c *GoodsAnalyticsCase) countDistinctActiveGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
 	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
@@ -157,6 +161,7 @@ func (c *GoodsAnalyticsCase) countDistinctActiveGoods(ctx context.Context, start
 	return count, err
 }
 
+// countGoodsSaleNum 统计时间范围内商品销量。
 func (c *GoodsAnalyticsCase) countGoodsSaleNum(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	type row struct {
 		SaleCount int64 `gorm:"column:sale_count"`
@@ -206,6 +211,7 @@ func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(ctx context.Context, timeTyp
 	// 补齐空档位，保证前端图表序列长度与横轴一致。
 	for i := range axis {
 		key := int64(i + 1)
+		// 当前桶位缺少聚合结果时，补一个空对象保证序列完整。
 		if _, ok := res[key]; !ok {
 			res[key] = goodsTrendSummary{}
 		}
@@ -228,13 +234,14 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 		parentMap[category.ID] = category.ParentID
 	}
 
-	getRootCategoryID := func(categoryID int64) int64 {
+	getRootCategoryId := func(categoryId int64) int64 {
 		for {
-			parentID, ok := parentMap[categoryID]
-			if !ok || parentID == 0 {
-				return categoryID
+			parentId, ok := parentMap[categoryId]
+			// 当前分类已到顶层或不存在映射时，直接返回当前分类编号。
+			if !ok || parentId == 0 {
+				return categoryId
 			}
-			categoryID = parentID
+			categoryId = parentId
 		}
 	}
 
@@ -257,19 +264,19 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 	rootCategoryCount := make(map[int64]int64)
 	for _, row := range rows {
 		// 将子分类销量汇总到一级分类，便于页面展示大类分布。
-		rootID := getRootCategoryID(row.CategoryId)
-		rootCategoryCount[rootID] += row.GoodsCount
+		rootId := getRootCategoryId(row.CategoryId)
+		rootCategoryCount[rootId] += row.GoodsCount
 	}
 
 	res := make([]*struct {
 		GoodsCount int64
 		CategoryId int64
 	}, 0, len(rootCategoryCount))
-	for categoryID, count := range rootCategoryCount {
+	for categoryId, count := range rootCategoryCount {
 		res = append(res, &struct {
 			GoodsCount int64
 			CategoryId int64
-		}{GoodsCount: count, CategoryId: categoryID})
+		}{GoodsCount: count, CategoryId: categoryId})
 	}
 	sort.Slice(res, func(i, j int) bool { return res[i].GoodsCount > res[j].GoodsCount })
 	return res, nil

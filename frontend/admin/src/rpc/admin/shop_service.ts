@@ -10,6 +10,7 @@ import type { Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 商城服务分页查询条件 */
 export interface PageShopServiceRequest {
   /** 标签 */
   label: string;
@@ -23,6 +24,7 @@ export interface PageShopServiceRequest {
   pageSize: number;
 }
 
+/** 商城服务分页响应 */
 export interface PageShopServiceResponse {
   /** 分页数据 */
   list: ShopService[];
@@ -30,6 +32,7 @@ export interface PageShopServiceResponse {
   total: number;
 }
 
+/** 商城服务 */
 export interface ShopService {
   /** 服务ID */
   id: number;
@@ -47,6 +50,7 @@ export interface ShopService {
   updatedAt: string;
 }
 
+/** 商城服务表单 */
 export interface ShopServiceForm {
   /** 服务ID */
   id: number;

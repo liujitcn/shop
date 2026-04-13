@@ -10,7 +10,7 @@ import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
 
-/** RecommendGoodsRequest 查询推荐商品列表请求。 */
+/** 推荐商品请求参数 */
 export interface RecommendGoodsRequest {
   /** 推荐场景 */
   scene: RecommendScene;
@@ -22,7 +22,7 @@ export interface RecommendGoodsRequest {
   pageSize: number;
 }
 
-/** RecommendGoodsResponse 查询推荐商品列表响应。 */
+/** 推荐商品响应 */
 export interface RecommendGoodsResponse {
   /** 推荐商品列表 */
   list: GoodsInfo[];
@@ -32,7 +32,7 @@ export interface RecommendGoodsResponse {
   requestId: string;
 }
 
-/** RecommendContext 推荐上下文。 */
+/** 推荐上下文 */
 export interface RecommendContext {
   /** 推荐场景 */
   scene: RecommendScene;
@@ -42,7 +42,7 @@ export interface RecommendContext {
   position: number;
 }
 
-/** RecommendGoodsActionItem 推荐商品行为埋点商品项。 */
+/** 推荐商品行为项 */
 export interface RecommendGoodsActionItem {
   /** 商品ID */
   goodsId: number;
@@ -52,7 +52,7 @@ export interface RecommendGoodsActionItem {
   recommendContext: RecommendContext | undefined;
 }
 
-/** RecommendExposureReportRequest 推荐曝光上报请求。 */
+/** 推荐曝光上报请求参数 */
 export interface RecommendExposureReportRequest {
   /** 推荐请求ID */
   requestId: string;
@@ -62,7 +62,7 @@ export interface RecommendExposureReportRequest {
   goodsIds: number[];
 }
 
-/** RecommendGoodsActionReportRequest 推荐商品行为上报请求。 */
+/** 推荐商品行为上报请求参数 */
 export interface RecommendGoodsActionReportRequest {
   /** 商品行为事件类型 */
   eventType: RecommendGoodsActionType;

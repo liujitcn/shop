@@ -10,6 +10,7 @@ import type { BaseConfigSite, BaseConfigType, Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 系统配置分页查询条件 */
 export interface PageBaseConfigRequest {
   /** 位置：枚举【BaseConfigSite】 */
   site?:
@@ -37,6 +38,7 @@ export interface PageBaseConfigRequest {
   pageSize: number;
 }
 
+/** 系统配置分页响应 */
 export interface PageBaseConfigResponse {
   /** 分页数据 */
   list: BaseConfig[];
@@ -44,6 +46,7 @@ export interface PageBaseConfigResponse {
   total: number;
 }
 
+/** 系统配置 */
 export interface BaseConfig {
   /** 配置ID */
   id: number;
@@ -65,6 +68,7 @@ export interface BaseConfig {
   updatedAt: string;
 }
 
+/** 系统配置表单 */
 export interface BaseConfigForm {
   /** 配置ID */
   id: number;

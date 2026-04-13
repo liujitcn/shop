@@ -8,6 +8,7 @@
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 商品属性分页查询条件 */
 export interface PageGoodsPropRequest {
   /** 商品id */
   goodsId: number;
@@ -19,6 +20,7 @@ export interface PageGoodsPropRequest {
   pageSize: number;
 }
 
+/** 商品属性分页响应 */
 export interface PageGoodsPropResponse {
   /** 分页数据 */
   list: GoodsProp[];
@@ -26,6 +28,7 @@ export interface PageGoodsPropResponse {
   total: number;
 }
 
+/** 商品属性 */
 export interface GoodsProp {
   /** 商品属性ID */
   id: number;

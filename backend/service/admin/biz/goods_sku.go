@@ -34,9 +34,11 @@ func (c *GoodsSkuCase) PageGoodsSku(ctx context.Context, req *admin.PageGoodsSku
 	query := c.Query(ctx).GoodsSku
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.SkuCode.Asc()))
+	// 传入商品编号时，仅查询对应商品的 SKU。
 	if req.GetGoodsId() > 0 {
 		opts = append(opts, repo.Where(query.GoodsID.Eq(req.GetGoodsId())))
 	}
+	// 传入 SKU 编码时，按编码模糊匹配 SKU。
 	if req.GetSkuCode() != "" {
 		opts = append(opts, repo.Where(query.SkuCode.Like("%"+req.GetSkuCode()+"%")))
 	}

@@ -37,14 +37,13 @@ func (c *RecommendUserGoodsPreferenceCase) loadUserGoodsSignals(ctx context.Cont
 		return map[int64]float64{}, map[int64]struct{}{}, nil
 	}
 
-	preferenceQuery := c.Query(ctx).RecommendUserGoodsPreference
+	query := c.Query(ctx).RecommendUserGoodsPreference
 	opts := make([]repo.QueryOption, 0, 3)
-	opts = append(opts, repo.Where(preferenceQuery.UserID.Eq(userId)))
-	opts = append(opts, repo.Where(preferenceQuery.GoodsID.In(goodsIds...)))
-	opts = append(opts, repo.Where(preferenceQuery.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
+	opts = append(opts, repo.Where(query.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
 
 	list, err := c.List(ctx, opts...)
-	// 查询用户商品偏好失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return nil, nil, err
 	}
@@ -84,7 +83,6 @@ func (c *RecommendUserGoodsPreferenceCase) upsertUserGoodsPreference(ctx context
 		summaryJson = entity.BehaviorSummary
 	}
 	summaryJson, err = recommendEvent.AddBehaviorSummaryCount(summaryJson, eventType, recommendEvent.NormalizeGoodsCount(goodsNum))
-	// 行为汇总 JSON 更新失败时，直接返回错误避免写入不一致数据。
 	if err != nil {
 		return err
 	}

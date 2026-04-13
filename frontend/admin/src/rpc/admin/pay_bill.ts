@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { PayBillStatus } from "../common/enum";
 
+/** 支付账单分页查询条件 */
 export interface PagePayBillRequest {
   /** 账单日期 */
   billDate: string;
@@ -20,6 +21,7 @@ export interface PagePayBillRequest {
   pageSize: number;
 }
 
+/** 支付账单分页响应 */
 export interface PagePayBillResponse {
   /** 分页数据 */
   list: PayBill[];

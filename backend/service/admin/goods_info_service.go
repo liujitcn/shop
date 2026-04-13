@@ -77,7 +77,9 @@ func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *admin.Goods
 	err := s.goodsInfoCase.CreateGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("CreateGoodsInfo err:", err.Error())
+		// 命中唯一索引冲突时，按具体子表返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
+			// 根据冲突表名区分属性、SKU 与规格的重复错误。
 			switch {
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsProp):
 				return nil, errors.New("商品属性重复")
@@ -97,7 +99,9 @@ func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *admin.Goods
 	err := s.goodsInfoCase.UpdateGoodsInfo(ctx, req)
 	if err != nil {
 		log.Error("UpdateGoodsInfo err:", err.Error())
+		// 命中唯一索引冲突时，按具体子表返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
+			// 根据冲突表名区分属性、SKU 与规格的重复错误。
 			switch {
 			case strings.Contains(errMySQL.Message, models.TableNameGoodsProp):
 				return nil, errors.New("商品属性重复")

@@ -74,6 +74,7 @@ service BaseRoleService {
   }
 }
 
+// 角色分页查询条件
 message PageBaseRoleRequest {
 
   string name = 2 [
@@ -88,28 +89,29 @@ message PageBaseRoleRequest {
     (gnostic.openapi.v3.property) = {description: "状态"}
   ];  // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 角色分页响应
 message PageBaseRoleResponse {
-  // 分页数据
-  repeated BaseRole list = 1;
-  // 总数
-  int32 total = 2;
+  repeated BaseRole list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
 // 角色
@@ -150,7 +152,7 @@ message BaseRole {
   ];// 更新时间
 }
 
-// 角色
+// 角色表单
 message BaseRoleForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "角色ID"}
@@ -181,6 +183,7 @@ message BaseRoleForm {
   ];  // 备注
 }
 
+// SetMenus请求参数
 message SetMenusRequest {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户ID"}

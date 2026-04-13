@@ -78,6 +78,7 @@ func (c *GoodsCategoryCase) GetGoodsCategory(ctx context.Context, id int64) (*ad
 // CreateGoodsCategory 创建分类
 func (c *GoodsCategoryCase) CreateGoodsCategory(ctx context.Context, req *admin.GoodsCategoryForm) error {
 	goodsCategory := c.formMapper.ToEntity(req)
+	// 根分类直接挂在虚拟根节点下。
 	if goodsCategory.ParentID == 0 {
 		goodsCategory.Path = "0"
 	} else {
@@ -102,6 +103,7 @@ func (c *GoodsCategoryCase) UpdateGoodsCategory(ctx context.Context, req *admin.
 	goodsCategory.Name = req.GetName()
 	goodsCategory.Sort = req.GetSort()
 	goodsCategory.Status = int32(req.GetStatus())
+	// 根分类直接挂在虚拟根节点下。
 	if goodsCategory.ParentID == 0 {
 		goodsCategory.Path = "0"
 	} else {
@@ -132,6 +134,7 @@ func (c *GoodsCategoryCase) SetGoodsCategoryStatus(ctx context.Context, req *com
 func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentId *int64) map[int64]string {
 	query := c.Query(ctx).GoodsCategory
 	opts := make([]repo.QueryOption, 0, 3)
+	// 指定父分类时，仅返回该父分类下的直接子分类。
 	if parentId != nil {
 		opts = append(opts, repo.Where(query.ParentID.Eq(*parentId)))
 	}
@@ -155,9 +158,11 @@ func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentId *int64) map[in
 		pathName := make([]string, 0, len(paths))
 		for _, item := range paths {
 			value, convErr := strconv.ParseInt(item, 10, 64)
+			// 非法路径片段直接跳过，避免影响剩余路径解析。
 			if convErr != nil {
 				continue
 			}
+			// 命中分类名称时，按路径顺序拼接展示名称。
 			if name, ok := categoryNameMap[value]; ok {
 				pathName = append(pathName, name)
 			}
@@ -171,6 +176,7 @@ func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentId *int64) map[in
 func (c *GoodsCategoryCase) buildTree(categoryList []*models.GoodsCategory, parentId int64) []*admin.GoodsCategory {
 	res := make([]*admin.GoodsCategory, 0)
 	for _, item := range categoryList {
+		// 仅处理当前父节点下的直接子分类。
 		if item.ParentID != parentId {
 			continue
 		}
@@ -187,6 +193,7 @@ func (c *GoodsCategoryCase) buildTree(categoryList []*models.GoodsCategory, pare
 func (c *GoodsCategoryCase) buildOption(categoryList []*models.GoodsCategory, parentId int64, disabled bool) []*common.TreeOptionResponse_Option {
 	res := make([]*common.TreeOptionResponse_Option, 0)
 	for _, item := range categoryList {
+		// 仅处理当前父节点下的直接子分类。
 		if item.ParentID != parentId {
 			continue
 		}

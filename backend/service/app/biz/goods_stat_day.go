@@ -30,6 +30,7 @@ func NewGoodsStatDayCase(baseCase *biz.BaseCase, goodsStatDayRepo *data.GoodsSta
 // mergeAnonymousGoodsIds 合并场景热度与公共热度商品。
 func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGoodsIds []int64, startDate time.Time, limit int64) ([]int64, error) {
 	result := recommendCore.DedupeInt64s(sceneGoodsIds)
+	// 当前结果已达到限制数量时，直接截断返回。
 	if int64(len(result)) >= limit {
 		return result[:limit], nil
 	}
@@ -52,14 +53,15 @@ func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGood
 
 // loadGlobalPopularityScores 加载全站热度分数。
 func (c *GoodsStatDayCase) loadGlobalPopularityScores(ctx context.Context, goodsIds []int64) (map[int64]float64, error) {
+	// 候选商品为空时，不需要继续加载全站热度。
 	if len(goodsIds) == 0 {
 		return map[int64]float64{}, nil
 	}
-	statQuery := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
+	query := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
 	startDate := time.Now().AddDate(0, 0, -recommendCandidate.StatLookbackDays)
 	opts := make([]repo.QueryOption, 0, 3)
-	opts = append(opts, repo.Where(statQuery.GoodsID.In(goodsIds...)))
-	opts = append(opts, repo.Where(statQuery.StatDate.Gte(startDate)))
+	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
+	opts = append(opts, repo.Where(query.StatDate.Gte(startDate)))
 	list, err := c.GoodsStatDayRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err

@@ -17,15 +17,18 @@ service GoodsCategoryService {
   }
 }
 
+// 商品分类列表查询条件
 message ListGoodsCategoryRequest {
   optional int64 parentId = 1 [
     (gnostic.openapi.v3.property) = {description: "父节点ID"}
   ];  // 父节点ID
 }
 
+// 商品分类列表响应
 message ListGoodsCategoryResponse {
-  // 分页数据
-  repeated GoodsCategory list = 1;
+  repeated GoodsCategory list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
 }
 
 // 商品分类

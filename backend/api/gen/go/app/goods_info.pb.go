@@ -25,16 +25,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品分页查询条件
 type PageGoodsInfoRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商品名
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// 分类id
-	CategoryId int64 `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`              // 商品名
+	CategoryId    int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"` // 分类id
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`     // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`   // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -97,12 +94,11 @@ func (x *PageGoodsInfoRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 商品分页响应
 type PageGoodsInfoResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -151,22 +147,21 @@ func (x *PageGoodsInfoResponse) GetTotal() int32 {
 	return 0
 }
 
+// 商品详情响应
 type GoodsInfoResponse struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                 // 商品ID
-	CategoryId int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"` // 分类ID
-	Name       string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`              // 名称
-	Desc       string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`              // 描述
-	// 当前价格(分)
-	Price int64 `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`
-	// 销量
-	SaleNum       int64                     `protobuf:"varint,6,opt,name=saleNum,proto3" json:"saleNum,omitempty"`
-	Picture       string                    `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`    // 商品图片
-	Banner        []string                  `protobuf:"bytes,31,rep,name=banner,proto3" json:"banner,omitempty"`      // 轮播图
-	Detail        []string                  `protobuf:"bytes,32,rep,name=detail,proto3" json:"detail,omitempty"`      // 商品详情
-	PropList      []*GoodsInfoResponse_Prop `protobuf:"bytes,100,rep,name=propList,proto3" json:"propList,omitempty"` // 商品属性
-	SkuList       []*GoodsInfoResponse_Sku  `protobuf:"bytes,101,rep,name=skuList,proto3" json:"skuList,omitempty"`   // 商品SKU
-	SpecList      []*GoodsInfoResponse_Spec `protobuf:"bytes,102,rep,name=specList,proto3" json:"specList,omitempty"` // 商品规格
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                 // 商品ID
+	CategoryId    int64                     `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"` // 分类ID
+	Name          string                    `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`              // 名称
+	Desc          string                    `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`              // 描述
+	Price         int64                     `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`           // 当前价格(分)
+	SaleNum       int64                     `protobuf:"varint,6,opt,name=saleNum,proto3" json:"saleNum,omitempty"`       // 销量
+	Picture       string                    `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`       // 商品图片
+	Banner        []string                  `protobuf:"bytes,31,rep,name=banner,proto3" json:"banner,omitempty"`         // 轮播图
+	Detail        []string                  `protobuf:"bytes,32,rep,name=detail,proto3" json:"detail,omitempty"`         // 商品详情
+	PropList      []*GoodsInfoResponse_Prop `protobuf:"bytes,100,rep,name=propList,proto3" json:"propList,omitempty"`    // 商品属性
+	SkuList       []*GoodsInfoResponse_Sku  `protobuf:"bytes,101,rep,name=skuList,proto3" json:"skuList,omitempty"`      // 商品SKU
+	SpecList      []*GoodsInfoResponse_Spec `protobuf:"bytes,102,rep,name=specList,proto3" json:"specList,omitempty"`    // 商品规格
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -285,18 +280,17 @@ func (x *GoodsInfoResponse) GetSpecList() []*GoodsInfoResponse_Spec {
 	return nil
 }
 
+// Goods信息
 type GoodsInfo struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                 // 商品ID
-	CategoryId int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"` // 分类ID
-	Name       string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`              // 名称
-	Desc       string                 `protobuf:"bytes,5,opt,name=desc,proto3" json:"desc,omitempty"`              // 描述
-	Picture    string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`       // 商品图片
-	// 销量
-	SaleNum int64 `protobuf:"varint,40,opt,name=saleNum,proto3" json:"saleNum,omitempty"`
-	// 价格
-	Price         int64  `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`
-	UpdatedAt     string `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"` // 更新时间
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                 // 商品ID
+	CategoryId    int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"` // 分类ID
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`              // 名称
+	Desc          string                 `protobuf:"bytes,5,opt,name=desc,proto3" json:"desc,omitempty"`              // 描述
+	Picture       string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`       // 商品图片
+	SaleNum       int64                  `protobuf:"varint,40,opt,name=saleNum,proto3" json:"saleNum,omitempty"`      // 销量
+	Price         int64                  `protobuf:"varint,41,opt,name=price,proto3" json:"price,omitempty"`          // 价格
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`  // 更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -387,11 +381,11 @@ func (x *GoodsInfo) GetUpdatedAt() string {
 	return ""
 }
 
+// 商品属性
 type GoodsInfoResponse_Prop struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商品属性名称
-	Label         string `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
-	Value         string `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"` // 商品属性value
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"` // 商品属性名称
+	Value         string                 `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"` // 商品属性value
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -440,6 +434,7 @@ func (x *GoodsInfoResponse_Prop) GetValue() string {
 	return ""
 }
 
+// 商品规格
 type GoodsInfoResponse_Spec struct {
 	state         protoimpl.MessageState         `protogen:"open.v1"`
 	Name          string                         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // 商品规格名称
@@ -492,19 +487,15 @@ func (x *GoodsInfoResponse_Spec) GetItem() []*GoodsInfoResponse_Spec_Item {
 	return nil
 }
 
+// 商品 SKU
 type GoodsInfoResponse_Sku struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Picture string                 `protobuf:"bytes,2,opt,name=picture,proto3" json:"picture,omitempty"` // 商品图片
-	// SKU SKU组成，需要与 goods_spec 数组顺序对应
-	SpecItem []string `protobuf:"bytes,3,rep,name=specItem,proto3" json:"specItem,omitempty"`
-	// SKU编码
-	SkuCode string `protobuf:"bytes,4,opt,name=skuCode,proto3" json:"skuCode,omitempty"`
-	// 当前价格(分)
-	Price int64 `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`
-	// 销量
-	SaleNum int64 `protobuf:"varint,6,opt,name=saleNum,proto3" json:"saleNum,omitempty"`
-	// 库存数量
-	Inventory     int64 `protobuf:"varint,7,opt,name=inventory,proto3" json:"inventory,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Picture       string                 `protobuf:"bytes,2,opt,name=picture,proto3" json:"picture,omitempty"`      // 商品图片
+	SpecItem      []string               `protobuf:"bytes,3,rep,name=specItem,proto3" json:"specItem,omitempty"`    // SKU SKU组成，需要与 goods_spec 数组顺序对应
+	SkuCode       string                 `protobuf:"bytes,4,opt,name=skuCode,proto3" json:"skuCode,omitempty"`      // SKU编码
+	Price         int64                  `protobuf:"varint,5,opt,name=price,proto3" json:"price,omitempty"`         // 当前价格(分)
+	SaleNum       int64                  `protobuf:"varint,6,opt,name=saleNum,proto3" json:"saleNum,omitempty"`     // 销量
+	Inventory     int64                  `protobuf:"varint,7,opt,name=inventory,proto3" json:"inventory,omitempty"` // 库存数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -581,6 +572,7 @@ func (x *GoodsInfoResponse_Sku) GetInventory() int64 {
 	return 0
 }
 
+// 规格项
 type GoodsInfoResponse_Spec_Item struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // 规格
@@ -636,10 +628,10 @@ const file_app_goods_info_proto_rawDesc = "" +
 	"categoryId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类idR\n" +
 	"categoryId\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"Q\n" +
-	"\x15PageGoodsInfoResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xc8\t\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"s\n" +
+	"\x15PageGoodsInfoResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xc8\t\n" +
 	"\x11GoodsInfoResponse\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12.\n" +
 	"\n" +

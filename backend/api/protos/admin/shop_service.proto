@@ -61,74 +61,70 @@ service ShopServiceService {
   }
 }
 
+// 商城服务分页查询条件
 message PageShopServiceRequest{
-  // 标签
   string label = 1 [
     (gnostic.openapi.v3.property) = {
       description: "标签",
     }
-  ];
+  ]; // 标签
 
-  // 状态
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {
       description: "状态",
     }
-  ];
+  ]; // 状态
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 商城服务分页响应
 message PageShopServiceResponse{
-  // 分页数据
-  repeated ShopService list = 1;
-  // 总数
-  int32 total = 2;
+  repeated ShopService list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 商城服务
 message ShopService {
-  // 服务ID
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "服务ID"}
-  ];
+  ]; // 服务ID
 
-  // 标签
   string label = 2 [
     (gnostic.openapi.v3.property) = {
       description: "标签",
     }
-  ];
-  // 值
+  ]; // 标签
   string value = 3 [
     (gnostic.openapi.v3.property) = {
       description: "值",
     }
-  ];
-  // 排序
+  ]; // 值
   int32 sort = 4 [
     (gnostic.openapi.v3.property) = {
       description: "排序",
     }
-  ];
+  ]; // 排序
 
-  // 状态
   common.Status status = 100 [
     (gnostic.openapi.v3.property) = { description: "状态" }
-  ];
+  ]; // 状态
 
   string createdAt = 200 [
     (gnostic.openapi.v3.property) = {description: "创建时间"}
@@ -138,30 +134,27 @@ message ShopService {
   ];// 更新时间
 }
 
+// 商城服务表单
 message ShopServiceForm {
-  // 服务ID
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "服务ID"}
-  ];
+  ]; // 服务ID
 
-  // 标签
   string label = 2 [
     (gnostic.openapi.v3.property) = {
       description: "标签",
     }
-  ];
-  // 值
+  ]; // 标签
   string value = 3 [
     (gnostic.openapi.v3.property) = {
       description: "值",
     }
-  ];
-  // 排序
+  ]; // 值
   int32 sort = 4 [
     (gnostic.openapi.v3.property) = {
       description: "排序",
     }
-  ];
+  ]; // 排序
 
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {description: "状态：枚举【Status】"}

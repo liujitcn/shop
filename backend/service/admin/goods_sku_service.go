@@ -60,6 +60,7 @@ func (s *GoodsSkuService) UpdateGoodsSku(ctx context.Context, req *admin.GoodsSk
 	err := s.goodsSkuCase.UpdateGoodsSku(ctx, req)
 	if err != nil {
 		log.Error("UpdateGoodsSku err:", err.Error())
+		// 命中 SKU 编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("SKU编码重复")
 		}

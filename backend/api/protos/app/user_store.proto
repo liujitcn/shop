@@ -36,7 +36,7 @@ service UserStoreService {
   }
 }
 
-// 用户门店信息
+// 用户门店
 message UserStore {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户门店ID"}
@@ -69,7 +69,7 @@ message UserStore {
   ]; // 备注名
 }
 
-// 用户门店信息
+// 用户门店表单
 message UserStoreForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户门店ID"}

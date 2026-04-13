@@ -26,10 +26,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商城服务列表响应
 type ListShopServiceResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 列表数据
-	List          []*ShopService `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopService         `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 列表数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -71,12 +71,11 @@ func (x *ListShopServiceResponse) GetList() []*ShopService {
 	return nil
 }
 
+// 商城服务
 type ShopService struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 标签
-	Label string `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
-	// 值
-	Value         string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"` // 标签
+	Value         string                 `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"` // 值
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -129,9 +128,9 @@ var File_app_shop_service_proto protoreflect.FileDescriptor
 
 const file_app_shop_service_proto_rawDesc = "" +
 	"\n" +
-	"\x16app/shop_service.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x11common/enum.proto\"?\n" +
-	"\x17ListShopServiceResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.app.ShopServiceR\x04list\"R\n" +
+	"\x16app/shop_service.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x11common/enum.proto\"S\n" +
+	"\x17ListShopServiceResponse\x128\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.app.ShopServiceB\x12\xbaG\x0f\x92\x02\f列表数据R\x04list\"R\n" +
 	"\vShopService\x12\"\n" +
 	"\x05label\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06标签R\x05label\x12\x1f\n" +
 	"\x05value\x18\x03 \x01(\tB\t\xbaG\x06\x92\x02\x03值R\x05value2|\n" +

@@ -7,12 +7,13 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 
+/** API列表响应 */
 export interface ListBaseApiResponse {
   /** 分页数据 */
   list: BaseApi[];
 }
 
-/** 日志 */
+/** API */
 export interface BaseApi {
   /** API ID */
   id: number;

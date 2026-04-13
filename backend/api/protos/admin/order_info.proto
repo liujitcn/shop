@@ -56,24 +56,23 @@ service OrderInfoService {
   }
 }
 
+// 订单分页查询条件
 message PageOrderInfoRequest{
   string orderNo = 2 [
     (gnostic.openapi.v3.property) = {description: "订单编号"}
   ];  // 订单编号
 
-  // 用户id
   int64 userId = 3 [
     (gnostic.openapi.v3.property) = {
       description: "用户id",
     }
-  ];
+  ]; // 用户id
 
-  // 订单状态
   optional common.OrderStatus status = 5 [
     (gnostic.openapi.v3.property) = {
       description: "订单状态",
     }
-  ];
+  ]; // 订单状态
   optional common.OrderPayType payType = 8 [
     (gnostic.openapi.v3.property) = { description: "支付方式：枚举【OrderPayType】" }
   ];  // 支付方式：枚举【OrderPayType】
@@ -85,30 +84,32 @@ message PageOrderInfoRequest{
     (gnostic.openapi.v3.property) = {description: "创建时间"}
   ]; // 创建时间
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 订单分页响应
 message PageOrderInfoResponse{
-  // 分页数据
-  repeated OrderInfo list = 1;
-  // 总数
-  int32 total = 2;
+  repeated OrderInfo list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 订单详情响应
 message OrderInfoResponse{
   OrderInfo order = 1 [
     (gnostic.openapi.v3.property) = {description: "订单信息"}
@@ -143,6 +144,7 @@ message OrderInfoResponse{
   ];  // 退款信息
 }
 
+// 订单Refund响应
 message OrderInfoRefundResponse {
   OrderPayment payment = 104 [
     (gnostic.openapi.v3.property) = {description: "支付信息"}
@@ -153,6 +155,7 @@ message OrderInfoRefundResponse {
   ];  // 退款信息
 }
 
+// 订单退款请求参数
 message RefundOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
@@ -165,6 +168,7 @@ message RefundOrderInfoRequest {
   ]; // 退款金额
 }
 
+// 订单Shipped响应
 message OrderInfoShippedResponse {
   OrderAddress address = 100 [
     (gnostic.openapi.v3.property) = {description: "地址信息"}
@@ -179,6 +183,7 @@ message OrderInfoShippedResponse {
   ];  // 物流信息
 }
 
+// ShippedOrder信息请求参数
 message ShippedOrderInfoRequest {
   int64 orderId = 1 [
     (gnostic.openapi.v3.property) = {description: "订单id"}
@@ -194,7 +199,7 @@ message ShippedOrderInfoRequest {
   ];  // 联系方式
 }
 
-// 订单信息表
+// Order信息
 message OrderInfo {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = { description: "订单id" }
@@ -244,7 +249,7 @@ message OrderInfo {
   ];  // 用户名
 }
 
-// 订单地址信息
+// 订单地址
 message OrderAddress {
   string receiver = 3 [
     (gnostic.openapi.v3.property) = { description: "联系人" }
@@ -260,7 +265,7 @@ message OrderAddress {
   ];  // 详细地址
 }
 
-// 订单取消信息
+// 订单取消记录
 message OrderCancel {
   common.OrderCancelReason reason = 3 [
     (gnostic.openapi.v3.property) = { description: "取消原因：枚举【OrderCancelReason】" }
@@ -270,7 +275,7 @@ message OrderCancel {
   ];  // 创建时间
 }
 
-// 订单商品信息
+// 订单商品
 message OrderGoods {
   int64 goodsId = 3 [
     (gnostic.openapi.v3.property) = { description: "商品id" }
@@ -304,8 +309,9 @@ message OrderGoods {
   ];  // 支付金额汇总
 }
 
-// 订单物流信息
+// 订单物流
 message OrderLogistics {
+  // Detail
   message Detail {
     string time = 1 [
       (gnostic.openapi.v3.property) = {description: "时间"}
@@ -331,28 +337,34 @@ message OrderLogistics {
   ];  // 创建时间
 }
 
-// 订单支付信息
+// 订单支付
 message OrderPayment {
   // 支付者信息
   message Payer {
-    // 【用户标识】用户在商户appid下的唯一标识
-    string openid = 1;
+    string openid = 1 [
+      (gnostic.openapi.v3.property) = {description: "【用户标识】用户在商户appid下的唯一标识"}
+    ]; // 【用户标识】用户在商户appid下的唯一标识
   }
-  // 订单金额信息，当支付成功时返回该字段
+  // 支付金额信息
   message Amount {
-    // 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
-    int64 payer_total = 1;
-    // 【总金额】订单总金额，单位为分，整型
-    int64 total = 2;
-    // 【货币类型】固定返回：CNY，代表人民币
-    string currency = 3;
-    // 【用户支付币种】 固定返回：CNY，代表人民币。
-    string payer_currency = 4;
+    int64 payer_total = 1 [
+      (gnostic.openapi.v3.property) = {description: "【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）"}
+    ]; // 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
+    int64 total = 2 [
+      (gnostic.openapi.v3.property) = {description: "【总金额】订单总金额，单位为分，整型"}
+    ]; // 【总金额】订单总金额，单位为分，整型
+    string currency = 3 [
+      (gnostic.openapi.v3.property) = {description: "【货币类型】固定返回：CNY，代表人民币"}
+    ]; // 【货币类型】固定返回：CNY，代表人民币
+    string payer_currency = 4 [
+      (gnostic.openapi.v3.property) = {description: "【用户支付币种】 固定返回：CNY，代表人民币。"}
+    ]; // 【用户支付币种】 固定返回：CNY，代表人民币。
   }
-  // 场景信息
+  // 支付场景信息
   message SceneInfo {
-    // 【商户端设备号】门店号/收银设备ID
-    string device_id = 1;
+    string device_id = 1 [
+      (gnostic.openapi.v3.property) = {description: "【商户端设备号】门店号/收银设备ID"}
+    ]; // 【商户端设备号】门店号/收银设备ID
   }
   string orderNo = 3 [
     (gnostic.openapi.v3.property) = { description: "订单编号" }
@@ -389,21 +401,25 @@ message OrderPayment {
   ];  // 对账状态：枚举【OrderBillStatus】
 }
 
-// 订单退款信息
+// 订单退款
 message OrderRefund {
-  //【金额信息】
+  // 退款金额信息
   message Amount {
-    //【原订单金额】单位：分
-    int64 total = 1;
+    int64 total = 1 [
+      (gnostic.openapi.v3.property) = {description: "【原订单金额】单位：分"}
+    ]; // 【原订单金额】单位：分
 
-    //【退款金额】单位：分
-    int64 refund = 2;
+    int64 refund = 2 [
+      (gnostic.openapi.v3.property) = {description: "【退款金额】单位：分"}
+    ]; // 【退款金额】单位：分
 
-    //【用户实际支付金额】单位：分
-    int64 payer_total = 3;
+    int64 payer_total = 3 [
+      (gnostic.openapi.v3.property) = {description: "【用户实际支付金额】单位：分"}
+    ]; // 【用户实际支付金额】单位：分
 
-    //【用户退款金额】单位：分
-    int64 payer_refund = 4;
+    int64 payer_refund = 4 [
+      (gnostic.openapi.v3.property) = {description: "【用户退款金额】单位：分"}
+    ]; // 【用户退款金额】单位：分
   }
   string orderNo = 1 [
     (gnostic.openapi.v3.property) = { description: "支付订单编号" }

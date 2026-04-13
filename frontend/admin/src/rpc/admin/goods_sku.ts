@@ -8,9 +8,11 @@
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 
+/** 商品 SKU 分页查询条件 */
 export interface PageGoodsSkuRequest {
   /** 商品id */
   goodsId: number;
+  /** 商品SKU编号 */
   skuCode: string;
   /** 当前页码 */
   pageNum: number;
@@ -18,6 +20,7 @@ export interface PageGoodsSkuRequest {
   pageSize: number;
 }
 
+/** 商品 SKU 分页响应 */
 export interface PageGoodsSkuResponse {
   /** 分页数据 */
   list: GoodsSku[];
@@ -25,6 +28,7 @@ export interface PageGoodsSkuResponse {
   total: number;
 }
 
+/** 商品 SKU */
 export interface GoodsSku {
   /** 商品SKUID */
   id: number;

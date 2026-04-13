@@ -8,12 +8,13 @@
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 
+/** 用户地址列表响应 */
 export interface ListUserAddressResponse {
   /** 数据 */
   list: UserAddress[];
 }
 
-/** 用户地址 */
+/** UserAddress */
 export interface UserAddress {
   /** 用户地址ID */
   id: number;
@@ -29,7 +30,7 @@ export interface UserAddress {
   isDefault: boolean;
 }
 
-/** 用户地址 */
+/** UserAddress表单 */
 export interface UserAddressForm {
   /** 用户地址ID */
   id: number;

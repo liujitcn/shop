@@ -73,6 +73,7 @@ func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *admin.BaseRol
 	err := s.baseRoleCase.CreateBaseRole(ctx, req)
 	if err != nil {
 		log.Error("CreateBaseRole err:", err.Error())
+		// 命中角色编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("角色编码重复")
 		}
@@ -86,6 +87,7 @@ func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *admin.BaseRol
 	err := s.baseRoleCase.UpdateBaseRole(ctx, req)
 	if err != nil {
 		log.Error("UpdateBaseRole err:", err.Error())
+		// 命中角色编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("角色编码重复")
 		}

@@ -44,7 +44,6 @@ func (c *RecommendGoodsRelationCase) listRelatedGoodsIds(ctx context.Context, go
 	opts = append(opts, repo.Order(query.UpdatedAt.Desc()))
 
 	list, _, err := c.Page(ctx, 1, limit, opts...)
-	// 查询关联商品失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +68,6 @@ func (c *RecommendGoodsRelationCase) loadRelationScores(ctx context.Context, sou
 	opts = append(opts, repo.Where(query.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
 
 	list, err := c.List(ctx, opts...)
-	// 查询关联分数失败时，直接返回错误交由上层处理。
 	if err != nil {
 		return nil, err
 	}
@@ -92,19 +90,20 @@ func (c *RecommendGoodsRelationCase) upsertOrderGoodsRelations(ctx context.Conte
 		return nil
 	}
 
-	var err error
 	for i := 0; i < len(list); i++ {
 		leftItem := list[i]
 		for j := i + 1; j < len(list); j++ {
 			rightItem := list[j]
 			relationScore := recommendEvent.NormalizeGoodsNum(leftItem.GoodsNum) + recommendEvent.NormalizeGoodsNum(rightItem.GoodsNum)
-			err = c.upsertSingleGoodsRelation(ctx, leftItem.GoodsID, rightItem.GoodsID, eventType, eventTime, relationScore)
-			if err != nil {
-				return err
+			relationErr := c.upsertSingleGoodsRelation(ctx, leftItem.GoodsID, rightItem.GoodsID, eventType, eventTime, relationScore)
+			// 任一方向写入失败时，直接终止当前关联关系更新。
+			if relationErr != nil {
+				return relationErr
 			}
-			err = c.upsertSingleGoodsRelation(ctx, rightItem.GoodsID, leftItem.GoodsID, eventType, eventTime, relationScore)
-			if err != nil {
-				return err
+			relationErr = c.upsertSingleGoodsRelation(ctx, rightItem.GoodsID, leftItem.GoodsID, eventType, eventTime, relationScore)
+			// 反向关系写入失败时，直接终止当前关联关系更新。
+			if relationErr != nil {
+				return relationErr
 			}
 		}
 	}
@@ -123,12 +122,12 @@ func (c *RecommendGoodsRelationCase) upsertSingleGoodsRelation(ctx context.Conte
 	}
 	relationType := eventType.String()
 
-	recommendGoodsRelationQuery := c.Query(ctx).RecommendGoodsRelation
+	query := c.Query(ctx).RecommendGoodsRelation
 	opts := make([]repo.QueryOption, 0, 4)
-	opts = append(opts, repo.Where(recommendGoodsRelationQuery.GoodsID.Eq(goodsId)))
-	opts = append(opts, repo.Where(recommendGoodsRelationQuery.RelatedGoodsID.Eq(relatedGoodsId)))
-	opts = append(opts, repo.Where(recommendGoodsRelationQuery.RelationType.Eq(relationType)))
-	opts = append(opts, repo.Where(recommendGoodsRelationQuery.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	opts = append(opts, repo.Where(query.RelatedGoodsID.Eq(relatedGoodsId)))
+	opts = append(opts, repo.Where(query.RelationType.Eq(relationType)))
+	opts = append(opts, repo.Where(query.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
 
 	entity, err := c.Find(ctx, opts...)
 	// 除记录不存在外的查询异常都应中断聚合，避免覆盖脏数据。
@@ -148,7 +147,6 @@ func (c *RecommendGoodsRelationCase) upsertSingleGoodsRelation(ctx context.Conte
 		evidenceJson = entity.Evidence
 	}
 	evidenceJson, err = recommendEvent.AddBehaviorSummaryCount(evidenceJson, eventType, int64(score))
-	// 关系证据 JSON 更新失败时，直接返回错误避免写入不一致数据。
 	if err != nil {
 		return err
 	}

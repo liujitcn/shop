@@ -28,6 +28,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// User信息
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`   // 用户账号
@@ -120,9 +121,10 @@ func (x *UserInfo) GetDeptName() string {
 	return ""
 }
 
+// Route树响应
 type TreeRouteResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	List          []*RouteItem           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	List          []*RouteItem           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 路由列表
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -164,7 +166,7 @@ func (x *TreeRouteResponse) GetList() []*RouteItem {
 	return nil
 }
 
-// 路由项
+// Route项
 type RouteItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Path          *string                `protobuf:"bytes,1,opt,name=path,proto3,oneof" json:"path,omitempty"`           // 路由路径
@@ -249,15 +251,16 @@ func (x *RouteItem) GetChildren() []*RouteItem {
 	return nil
 }
 
+// Route元信息
 type RouteMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Title         *string                `protobuf:"bytes,1,opt,name=title,proto3,oneof" json:"title,omitempty"`            //菜单标题
-	Icon          *string                `protobuf:"bytes,2,opt,name=icon,proto3,oneof" json:"icon,omitempty"`              //菜单图标
-	AlwaysShow    *bool                  `protobuf:"varint,4,opt,name=alwaysShow,proto3,oneof" json:"alwaysShow,omitempty"` //【目录】只有一个子路由是否始终显示
+	Title         *string                `protobuf:"bytes,1,opt,name=title,proto3,oneof" json:"title,omitempty"`            // 菜单标题
+	Icon          *string                `protobuf:"bytes,2,opt,name=icon,proto3,oneof" json:"icon,omitempty"`              // 菜单图标
+	AlwaysShow    *bool                  `protobuf:"varint,4,opt,name=alwaysShow,proto3,oneof" json:"alwaysShow,omitempty"` // 【目录】只有一个子路由是否始终显示
 	Hidden        *bool                  `protobuf:"varint,5,opt,name=hidden,proto3,oneof" json:"hidden,omitempty"`         // 是否隐藏(true-是 false-否)
-	KeepAlive     *bool                  `protobuf:"varint,6,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`   //【菜单】是否开启页面缓存
-	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`             //【菜单】是否全屏(示例：数据大屏页面)
-	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`           //【菜单】是否固定在标签页中(首页通常是固定项)
+	KeepAlive     *bool                  `protobuf:"varint,6,opt,name=keepAlive,proto3,oneof" json:"keepAlive,omitempty"`   // 【菜单】是否开启页面缓存
+	Full          *bool                  `protobuf:"varint,7,opt,name=full,proto3,oneof" json:"full,omitempty"`             // 【菜单】是否全屏(示例：数据大屏页面)
+	Affix         *bool                  `protobuf:"varint,8,opt,name=affix,proto3,oneof" json:"affix,omitempty"`           // 【菜单】是否固定在标签页中(首页通常是固定项)
 	Params        []*RouteParams         `protobuf:"bytes,9,rep,name=params,proto3" json:"params,omitempty"`                // 参数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -349,10 +352,11 @@ func (x *RouteMeta) GetParams() []*RouteParams {
 	return nil
 }
 
+// Route参数
 type RouteParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Key           *string                `protobuf:"bytes,1,opt,name=key,proto3,oneof" json:"key,omitempty"`     //key
-	Value         *string                `protobuf:"bytes,2,opt,name=value,proto3,oneof" json:"value,omitempty"` //value
+	Key           *string                `protobuf:"bytes,1,opt,name=key,proto3,oneof" json:"key,omitempty"`     // key
+	Value         *string                `protobuf:"bytes,2,opt,name=value,proto3,oneof" json:"value,omitempty"` // value
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -401,6 +405,7 @@ func (x *RouteParams) GetValue() string {
 	return ""
 }
 
+// 用户资料表单
 type UserProfileForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserName      string                 `protobuf:"bytes,1,opt,name=userName,proto3" json:"userName,omitempty"`     // 用户名
@@ -501,7 +506,7 @@ func (x *UserProfileForm) GetCreatedAt() string {
 	return ""
 }
 
-// 修改密码表单
+// UpdatePwd表单
 type UpdatePwdForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OldPwd        string                 `protobuf:"bytes,1,opt,name=oldPwd,proto3" json:"oldPwd,omitempty"`         // 原密码
@@ -562,7 +567,7 @@ func (x *UpdatePwdForm) GetConfirmPwd() string {
 	return ""
 }
 
-// 发送手机验证码表单
+// SendUpdatePhoneCode表单
 type SendUpdatePhoneCodeForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号
@@ -607,7 +612,7 @@ func (x *SendUpdatePhoneCodeForm) GetPhone() string {
 	return ""
 }
 
-// 修改手机表单
+// UpdatePhone表单
 type UpdatePhoneForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Phone         string                 `protobuf:"bytes,1,opt,name=phone,proto3" json:"phone,omitempty"` // 手机号
@@ -672,9 +677,9 @@ const file_admin_auth_proto_rawDesc = "" +
 	"\x06avatar\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12.\n" +
 	"\broleCode\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\broleCode\x12.\n" +
 	"\broleName\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\broleName\x12.\n" +
-	"\bdeptName\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\bdeptName\"9\n" +
-	"\x11TreeRouteResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.admin.RouteItemR\x04list\"\xe9\x03\n" +
+	"\bdeptName\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\bdeptName\"M\n" +
+	"\x11TreeRouteResponse\x128\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.admin.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x04list\"\xe9\x03\n" +
 	"\tRouteItem\x12+\n" +
 	"\x04path\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f路由路径H\x00R\x04path\x88\x01\x01\x126\n" +
 	"\bredirect\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址H\x01R\bredirect\x88\x01\x01\x12\x82\x01\n" +
@@ -687,18 +692,18 @@ const file_admin_auth_proto_rawDesc = "" +
 	"\x05_nameB\f\n" +
 	"\n" +
 	"_componentB\a\n" +
-	"\x05_meta\"\xd2\x02\n" +
-	"\tRouteMeta\x12\x19\n" +
-	"\x05title\x18\x01 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x17\n" +
-	"\x04icon\x18\x02 \x01(\tH\x01R\x04icon\x88\x01\x01\x12#\n" +
+	"\x05_meta\"\x9d\x05\n" +
+	"\tRouteMeta\x12-\n" +
+	"\x05title\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单标题H\x00R\x05title\x88\x01\x01\x12+\n" +
+	"\x04icon\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f菜单图标H\x01R\x04icon\x88\x01\x01\x12^\n" +
 	"\n" +
-	"alwaysShow\x18\x04 \x01(\bH\x02R\n" +
-	"alwaysShow\x88\x01\x01\x12\x1b\n" +
-	"\x06hidden\x18\x05 \x01(\bH\x03R\x06hidden\x88\x01\x01\x12!\n" +
-	"\tkeepAlive\x18\x06 \x01(\bH\x04R\tkeepAlive\x88\x01\x01\x12\x17\n" +
-	"\x04full\x18\a \x01(\bH\x05R\x04full\x88\x01\x01\x12\x19\n" +
-	"\x05affix\x18\b \x01(\bH\x06R\x05affix\x88\x01\x01\x12*\n" +
-	"\x06params\x18\t \x03(\v2\x12.admin.RouteParamsR\x06paramsB\b\n" +
+	"alwaysShow\x18\x04 \x01(\bB9\xbaG6\x92\x023【目录】只有一个子路由是否始终显示H\x02R\n" +
+	"alwaysShow\x88\x01\x01\x12C\n" +
+	"\x06hidden\x18\x05 \x01(\bB&\xbaG#\x92\x02 是否隐藏(true-是 false-否)H\x03R\x06hidden\x88\x01\x01\x12M\n" +
+	"\tkeepAlive\x18\x06 \x01(\bB*\xbaG'\x92\x02$【菜单】是否开启页面缓存H\x04R\tkeepAlive\x88\x01\x01\x12T\n" +
+	"\x04full\x18\a \x01(\bB;\xbaG8\x92\x025【菜单】是否全屏(示例：数据大屏页面)H\x05R\x04full\x88\x01\x01\x12b\n" +
+	"\x05affix\x18\b \x01(\bBG\xbaGD\x92\x02A【菜单】是否固定在标签页中(首页通常是固定项)H\x06R\x05affix\x88\x01\x01\x128\n" +
+	"\x06params\x18\t \x03(\v2\x12.admin.RouteParamsB\f\xbaG\t\x92\x02\x06参数R\x06paramsB\b\n" +
 	"\x06_titleB\a\n" +
 	"\x05_iconB\r\n" +
 	"\v_alwaysShowB\t\n" +
@@ -706,10 +711,10 @@ const file_admin_auth_proto_rawDesc = "" +
 	"\n" +
 	"_keepAliveB\a\n" +
 	"\x05_fullB\b\n" +
-	"\x06_affix\"Q\n" +
-	"\vRouteParams\x12\x15\n" +
-	"\x03key\x18\x01 \x01(\tH\x00R\x03key\x88\x01\x01\x12\x19\n" +
-	"\x05value\x18\x02 \x01(\tH\x01R\x05value\x88\x01\x01B\x06\n" +
+	"\x06_affix\"i\n" +
+	"\vRouteParams\x12 \n" +
+	"\x03key\x18\x01 \x01(\tB\t\xbaG\x06\x92\x02\x03keyH\x00R\x03key\x88\x01\x01\x12&\n" +
+	"\x05value\x18\x02 \x01(\tB\v\xbaG\b\x92\x02\x05valueH\x01R\x05value\x88\x01\x01B\x06\n" +
 	"\x04_keyB\b\n" +
 	"\x06_value\"\xeb\x02\n" +
 	"\x0fUserProfileForm\x12+\n" +

@@ -72,10 +72,10 @@ func (c *UserAddressCase) GetUserAddress(ctx context.Context, id int64) (*app.Us
 		return nil, err
 	}
 	query := c.Query(ctx).UserAddress
-	userAddress, err := c.Find(ctx,
-		repo.Where(query.ID.Eq(id)),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(id)))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	userAddress, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +90,7 @@ func (c *UserAddressCase) CreateUserAddress(ctx context.Context, userAddress *ap
 	}
 	address := c.convertToModel(authInfo.UserId, userAddress)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		// 新地址勾选默认时，先清空当前用户已有默认地址。
 		if address.IsDefault {
 			// 新地址设为默认时，需要先清空当前用户的其他默认地址。
 			if err = c.clearDefaultAddress(ctx, authInfo.UserId, 0); err != nil {
@@ -113,6 +114,7 @@ func (c *UserAddressCase) UpdateUserAddress(ctx context.Context, userAddress *ap
 	address := c.convertToModel(authInfo.UserId, userAddress)
 
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		// 更新地址勾选默认时，先清空当前用户其他默认地址。
 		if address.IsDefault {
 			// 修改默认地址时，同样需要保证只有一条默认记录。
 			if err = c.clearDefaultAddress(ctx, authInfo.UserId, address.ID); err != nil {
@@ -138,10 +140,10 @@ func (c *UserAddressCase) DeleteUserAddress(ctx context.Context, id int64) error
 		return err
 	}
 	query := c.Query(ctx).UserAddress
-	return c.Delete(ctx,
-		repo.Where(query.ID.Eq(id)),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(id)))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	return c.Delete(ctx, opts...)
 }
 
 // 将用户地址模型转换为表单响应
@@ -159,11 +161,12 @@ func (c *UserAddressCase) convertToModel(userId int64, item *app.UserAddressForm
 }
 
 // clearDefaultAddress 清空指定用户的默认地址，可选择排除当前地址。
-func (c *UserAddressCase) clearDefaultAddress(ctx context.Context, userId, excludeID int64) error {
+func (c *UserAddressCase) clearDefaultAddress(ctx context.Context, userId, excludeId int64) error {
 	query := c.Query(ctx).UserAddress
 	do := query.WithContext(ctx).Where(query.UserID.Eq(userId), query.IsDefault.Is(true))
-	if excludeID > 0 {
-		do = do.Where(query.ID.Neq(excludeID))
+	// 排除当前正在操作的地址时，不更新该地址默认状态。
+	if excludeId > 0 {
+		do = do.Where(query.ID.Neq(excludeId))
 	}
 
 	res, err := do.Updates(map[string]interface{}{

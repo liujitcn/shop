@@ -33,6 +33,7 @@ func (c *PayBillCase) PagePayBill(ctx context.Context, req *admin.PagePayBillReq
 	query := c.Query(ctx).PayBill
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Order(query.BillDate.Asc()))
+	// 传入账单日期时，仅查询对应日期的支付账单。
 	if req.GetBillDate() != "" {
 		opts = append(opts, repo.Where(query.BillDate.Eq(req.GetBillDate())))
 	}

@@ -161,6 +161,7 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appApi.PaymentResou
 	svc := jsapi.JsapiApiService{Client: c.client}
 	resp, result, err := svc.QueryOrderByOutTradeNo(c.ctx, req)
 	if err != nil {
+		// 命中微信 API 错误结构时，优先识别可恢复的业务场景。
 		if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
 			// 订单在微信侧不存在时，按未支付状态返回，避免上层继续报错。
 			if apiErr.Code == "ORDER_NOT_EXIST" {
@@ -251,9 +252,11 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appApi.PaymentResou
 		}
 	}
 
+	// 微信支付成功时间存在时，统一转换成 protobuf 时间戳。
 	if successTime := trans.StringValue(resp.SuccessTime); successTime != "" {
 		// 微信支付返回 RFC3339 时间，这里统一转换为 protobuf 时间戳。
 		parsedTime, parseErr := time.Parse(time.RFC3339, successTime)
+		// 时间格式非法时，直接返回错误避免写入错误时间。
 		if parseErr != nil {
 			return nil, parseErr
 		}
@@ -360,7 +363,9 @@ func (c *WxPayCase) Notify(ctx context.Context) (*notify.Request, error) {
 		return nil, err
 	}
 	var httpReq *nethttp.Request
+	// 能从服务端上下文取到传输层信息时，继续尝试提取原始 HTTP 请求。
 	if info, ok := transport.FromServerContext(ctx); ok {
+		// 当前传输层为 HTTP 时，才能提取微信回调原始请求。
 		if htr, htrOk := info.(*http.Transport); htrOk {
 			httpReq = htr.Request()
 		}
@@ -388,7 +393,6 @@ func (c *WxPayCase) generatePaySign(timeStamp, nonceStr, packageStr string) stri
 
 	hashed := sha256.Sum256([]byte(signString))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, c.mchPrivateKey, crypto.SHA256, hashed[:])
-	// 本地签名失败时，返回空字符串交由上层按失败处理。
 	if err != nil {
 		return ""
 	}

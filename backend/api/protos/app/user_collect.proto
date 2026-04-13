@@ -43,39 +43,42 @@ service UserCollectService {
   }
 }
 
+// 收藏状态请求参数
 message IsCollectRequest{
   int64 goodsId = 1 [
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID
 }
 
+// 用户收藏分页查询条件
 message PageUserCollectRequest{
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 用户收藏分页响应
 message PageUserCollectResponse {
-  // 数据
-  repeated UserCollect list = 1;
-  // 总数
-  int32 total = 2;
+  repeated UserCollect list = 1 [
+    (gnostic.openapi.v3.property) = {description: "数据"}
+  ]; // 数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
-// 用户购物车
+// UserCollect表单
 message UserCollectForm {
   int64 goodsId = 1 [
     (gnostic.openapi.v3.property) = {description: "商品id"}
@@ -86,7 +89,7 @@ message UserCollectForm {
   ];  // 推荐上下文
 }
 
-// 用户收藏
+// UserCollect
 message UserCollect {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "用户收藏ID"}
@@ -108,18 +111,15 @@ message UserCollect {
     (gnostic.openapi.v3.property) = {description: "商品图片"}
   ]; // 商品图片
 
-  // 销量
   int64 saleNum = 40 [
     (gnostic.openapi.v3.property) = { description: "初始销量" }
-  ];
+  ]; // 销量
 
-  // 价格
   int64 price = 41 [
     (gnostic.openapi.v3.property) = { description: "价格" }
-  ];
+  ]; // 价格
 
-  // 加入时价格
   int64 joinPrice = 50 [
     (gnostic.openapi.v3.property) = { description: "加入时价格" }
-  ];
+  ]; // 加入时价格
 }

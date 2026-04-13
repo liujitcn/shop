@@ -28,7 +28,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 用户门店信息
+// 用户门店
 type UserStore struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 用户门店ID
@@ -137,7 +137,7 @@ func (x *UserStore) GetRemark() string {
 	return ""
 }
 
-// 用户门店信息
+// 用户门店表单
 type UserStoreForm struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                          // 用户门店ID

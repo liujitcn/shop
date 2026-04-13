@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package admin;
 
+import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 
 import "common/analytics.proto";
@@ -30,11 +31,24 @@ service GoodsAnalyticsService {
   }
 }
 
+// 商品分析汇总响应
 message GoodsAnalyticsSummaryResponse {
-  int64 newGoodsCount = 1;
-  int64 putOnGoodsRate = 2;
-  int64 activeGoodsCount = 3;
-  int64 activeGoodsRate = 4;
-  int64 saleCount = 5;
-  int64 saleGrowthRate = 6;
+  int64 newGoodsCount = 1 [
+    (gnostic.openapi.v3.property) = {description: "新增商品数"}
+  ]; // 新增商品数
+  int64 putOnGoodsRate = 2 [
+    (gnostic.openapi.v3.property) = {description: "上架商品占比"}
+  ]; // 上架商品占比
+  int64 activeGoodsCount = 3 [
+    (gnostic.openapi.v3.property) = {description: "活跃商品数"}
+  ]; // 活跃商品数
+  int64 activeGoodsRate = 4 [
+    (gnostic.openapi.v3.property) = {description: "活跃商品占比"}
+  ]; // 活跃商品占比
+  int64 saleCount = 5 [
+    (gnostic.openapi.v3.property) = {description: "销售件数"}
+  ]; // 销售件数
+  int64 saleGrowthRate = 6 [
+    (gnostic.openapi.v3.property) = {description: "销售增长率"}
+  ]; // 销售增长率
 }

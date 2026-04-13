@@ -33,7 +33,7 @@ type BaseCase struct {
 	rwLock         sync.RWMutex //异步数据锁
 }
 
-// NewBaseCase create a device service core data struct.
+// NewBaseCase 创建基础业务实例。
 func NewBaseCase(
 	ctx *bootstrap.Context,
 	cache cache.Cache,
@@ -50,6 +50,7 @@ func NewBaseCase(
 	sdk.Runtime.SetQueue(queue)
 
 	// 启动服务监控
+	// 配置了 pprof 时，启动运行时性能分析服务。
 	if pprof != nil {
 		pprof.Start()
 	}
@@ -69,6 +70,7 @@ func NewBaseCase(
 
 	cleanup := func() {
 		s.close()
+		// 启用了 pprof 时，清理阶段同步停止性能分析服务。
 		if pprof != nil {
 			pprof.Stop()
 		}
@@ -109,8 +111,11 @@ func (c *BaseCase) RebuildPolicyRule(ctx context.Context) error {
 	return c.casbinRuleCase.rebuildPolicyRule(ctx)
 }
 
+// close 关闭后台任务资源。
 func (c *BaseCase) close() {
 	c.closeOnce.Do(func() {
+		// 定时器存在时，先停止后再关闭退出信号。
+		// 已创建后台定时器时，先停止避免关闭后继续触发任务。
 		if c.taskTimer != nil {
 			c.taskTimer.Stop()
 		}

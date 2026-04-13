@@ -29,10 +29,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品规格列表查询条件
 type ListGoodsSpecRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商品id
-	GoodsId       int64 `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 商品id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,10 +74,10 @@ func (x *ListGoodsSpecRequest) GetGoodsId() int64 {
 	return 0
 }
 
+// 商品规格列表响应
 type ListGoodsSpecResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*GoodsSpec `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsSpec           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -119,14 +119,14 @@ func (x *ListGoodsSpecResponse) GetList() []*GoodsSpec {
 	return nil
 }
 
+// 商品规格
 type GoodsSpec struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 商品规格ID
-	// 商品id
-	GoodsId       int64    `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
-	Name          string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`  // 商品规格名称
-	Item          []string `protobuf:"bytes,4,rep,name=item,proto3" json:"item,omitempty"`  // 商品规格内容
-	Sort          int32    `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"` // 排序
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`           // 商品规格ID
+	GoodsId       int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 商品id
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`        // 商品规格名称
+	Item          []string               `protobuf:"bytes,4,rep,name=item,proto3" json:"item,omitempty"`        // 商品规格内容
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`       // 排序
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -202,9 +202,9 @@ const file_admin_goods_spec_proto_rawDesc = "" +
 	"\n" +
 	"\x16admin/goods_spec.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\"@\n" +
 	"\x14ListGoodsSpecRequest\x12(\n" +
-	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\"=\n" +
-	"\x15ListGoodsSpecResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsSpecR\x04list\"\xd9\x01\n" +
+	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\"Q\n" +
+	"\x15ListGoodsSpecResponse\x128\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsSpecB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"\xd9\x01\n" +
 	"\tGoodsSpec\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品规格IDR\x02id\x12(\n" +
 	"\agoodsId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12,\n" +

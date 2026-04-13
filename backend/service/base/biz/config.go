@@ -14,14 +14,16 @@ type ConfigCase struct {
 	*data.BaseConfigRepo
 }
 
-// NewConfigCase new a Config use case.
+// NewConfigCase 创建配置业务实例。
 func NewConfigCase(baseConfigRepo *data.BaseConfigRepo) *ConfigCase {
 	return &ConfigCase{
 		BaseConfigRepo: baseConfigRepo,
 	}
 }
 
+// GetConfig 查询系统配置。
 func (c *ConfigCase) GetConfig(ctx context.Context, req *base.ConfigRequest) (*base.ConfigResponse, error) {
+	// 配置位置缺失时，无法确定查询范围。
 	if req.GetSite() == 0 {
 		return nil, errors.New("位置不能为空")
 	}

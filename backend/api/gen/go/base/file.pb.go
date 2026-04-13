@@ -26,6 +26,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 批量上传文件请求参数
 type MultiUploadFileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Files         []*UploadFileInfo      `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"` // 文件名
@@ -70,6 +71,7 @@ func (x *MultiUploadFileRequest) GetFiles() []*UploadFileInfo {
 	return nil
 }
 
+// 批量上传文件响应
 type MultiUploadFileResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Files         []*FileInfo            `protobuf:"bytes,1,rep,name=files,proto3" json:"files,omitempty"` // 文件上传结果
@@ -114,6 +116,7 @@ func (x *MultiUploadFileResponse) GetFiles() []*FileInfo {
 	return nil
 }
 
+// 上传文件信息
 type UploadFileInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`       // 文件名
@@ -182,6 +185,7 @@ func (x *UploadFileInfo) GetContent() []byte {
 	return nil
 }
 
+// 下载文件请求参数
 type DownloadFileRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // 文件名
@@ -234,6 +238,7 @@ func (x *DownloadFileRequest) GetPath() string {
 	return ""
 }
 
+// File信息
 type FileInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`         // 文件路径

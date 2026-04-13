@@ -24,6 +24,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品分类列表查询条件
 type ListGoodsCategoryRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"` // 父节点ID
@@ -68,10 +69,10 @@ func (x *ListGoodsCategoryRequest) GetParentId() int64 {
 	return 0
 }
 
+// 商品分类列表响应
 type ListGoodsCategoryResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*GoodsCategory `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsCategory       `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -197,9 +198,9 @@ const file_app_goods_category_proto_rawDesc = "" +
 	"\x18app/goods_category.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x14app/goods_info.proto\"[\n" +
 	"\x18ListGoodsCategoryRequest\x122\n" +
 	"\bparentId\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDH\x00R\bparentId\x88\x01\x01B\v\n" +
-	"\t_parentId\"C\n" +
-	"\x19ListGoodsCategoryResponse\x12&\n" +
-	"\x04list\x18\x01 \x03(\v2\x12.app.GoodsCategoryR\x04list\"\x80\x02\n" +
+	"\t_parentId\"W\n" +
+	"\x19ListGoodsCategoryResponse\x12:\n" +
+	"\x04list\x18\x01 \x03(\v2\x12.app.GoodsCategoryB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"\x80\x02\n" +
 	"\rGoodsCategory\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品分类IDR\x02id\x12-\n" +
 	"\bparentId\x18\x02 \x01(\x03B\x11\xbaG\x0e\x92\x02\v父节点IDR\bparentId\x12,\n" +

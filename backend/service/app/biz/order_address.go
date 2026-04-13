@@ -44,9 +44,9 @@ func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAdd
 // findByOrderId 按订单编号查询订单地址
 func (c *OrderAddressCase) findByOrderId(ctx context.Context, orderId int64) (*app.OrderInfoResponse_Address, error) {
 	query := c.Query(ctx).OrderAddress
-	orderAddress, err := c.Find(ctx,
-		repo.Where(query.OrderID.Eq(orderId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	orderAddress, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -55,11 +55,11 @@ func (c *OrderAddressCase) findByOrderId(ctx context.Context, orderId int64) (*a
 
 // createByOrder 按用户地址创建订单地址快照
 func (c *OrderAddressCase) createByOrder(ctx context.Context, userId, orderId, addressId int64) error {
-	userAddressQuery := c.userAddressRepo.Query(ctx).UserAddress
-	userAddress, err := c.userAddressRepo.Find(ctx,
-		repo.Where(userAddressQuery.ID.Eq(addressId)),
-		repo.Where(userAddressQuery.UserID.Eq(userId)),
-	)
+	query := c.userAddressRepo.Query(ctx).UserAddress
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(addressId)))
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	userAddress, err := c.userAddressRepo.Find(ctx, opts...)
 	if err != nil {
 		return errors.New("地址错误")
 	}

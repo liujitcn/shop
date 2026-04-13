@@ -29,18 +29,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 热门专区分页查询条件
 type PageShopHotRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商城热门推荐标题
-	Title string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	// 商城热门推荐描述
-	Desc string `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`                               // 商城热门推荐标题
+	Desc          string                 `protobuf:"bytes,3,opt,name=desc,proto3" json:"desc,omitempty"`                                 // 商城热门推荐描述
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -110,12 +106,11 @@ func (x *PageShopHotRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 热门专区分页响应
 type PageShopHotResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*ShopHot `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopHot             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -164,18 +159,14 @@ func (x *PageShopHotResponse) GetTotal() int32 {
 	return 0
 }
 
+// 热门专区项分页查询条件
 type PageShopHotItemRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商城热门推荐id
-	HotId int64 `protobuf:"varint,2,opt,name=hotId,proto3" json:"hotId,omitempty"`
-	// 商城热门推荐属性标题
-	Title string `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	HotId         int64                  `protobuf:"varint,2,opt,name=hotId,proto3" json:"hotId,omitempty"`                              // 商城热门推荐id
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`                               // 商城热门推荐属性标题
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -245,12 +236,11 @@ func (x *PageShopHotItemRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 热门专区项分页响应
 type PageShopHotItemResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*ShopHotItem `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*ShopHotItem         `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -299,7 +289,7 @@ func (x *PageShopHotItemResponse) GetTotal() int32 {
 	return 0
 }
 
-// 商城热门推荐
+// 热门专区
 type ShopHot struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                             // 商城热门推荐ID
@@ -392,7 +382,7 @@ func (x *ShopHot) GetUpdatedAt() string {
 	return ""
 }
 
-// 商城热门推荐
+// 热门专区表单
 type ShopHotForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商城热门推荐ID
@@ -485,6 +475,7 @@ func (x *ShopHotForm) GetStatus() common.Status {
 	return common.Status(0)
 }
 
+// 热门专区项
 type ShopHotItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                              // 商城热门推荐ID
@@ -577,6 +568,7 @@ func (x *ShopHotItem) GetUpdatedAt() string {
 	return ""
 }
 
+// 热门专区项表单
 type ShopHotItemForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 商城热门推荐ID
@@ -672,20 +664,20 @@ const file_admin_shop_hot_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\x18\xbaG\x15\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00\x00\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"O\n" +
-	"\x13PageShopHotResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.admin.ShopHotR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xc8\x02\n" +
+	"\a_status\"q\n" +
+	"\x13PageShopHotResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.admin.ShopHotB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xc8\x02\n" +
 	"\x16PageShopHotItemRequest\x120\n" +
 	"\x05hotId\x18\x02 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐idR\x05hotId\x12:\n" +
 	"\x05title\x18\x03 \x01(\tB$\xbaG!\x92\x02\x1e商城热门推荐属性标题R\x05title\x129\n" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"W\n" +
-	"\x17PageShopHotItemResponse\x12&\n" +
-	"\x04list\x18\x01 \x03(\v2\x12.admin.ShopHotItemR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xdd\x02\n" +
+	"\a_status\"y\n" +
+	"\x17PageShopHotItemResponse\x12:\n" +
+	"\x04list\x18\x01 \x03(\v2\x12.admin.ShopHotItemB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xdd\x02\n" +
 	"\aShopHot\x12*\n" +
 	"\x02id\x18\x01 \x01(\x03B\x1a\xbaG\x17\x92\x02\x14商城热门推荐IDR\x02id\x124\n" +
 	"\x05title\x18\x02 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18商城热门推荐标题R\x05title\x122\n" +

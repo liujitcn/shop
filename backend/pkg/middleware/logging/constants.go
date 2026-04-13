@@ -5,10 +5,10 @@ const (
 	HeaderKeyReferer       = "Referer"
 	HeaderKeyAuthorization = "Authorization"
 
-	HeaderKeyXRequestID     = "X-Request-id"
-	HeaderKeyXFcRequestID   = "x-fc-request-id"
-	HeaderKeyXCorrelationID = "X-Correlation-ID"
+	HeaderKeyXRequestId     = "X-Request-id"
+	HeaderKeyXFcRequestId   = "x-fc-request-id"
+	HeaderKeyXCorrelationId = "X-Correlation-ID"
 	HeaderKeyXForwardedFor  = "X-Forwarded-For"
-	HeaderKeyXRealIP        = "X-Real-IP"
-	HeaderKeyXClientIP      = "X-Client-IP"
+	HeaderKeyXRealIp        = "X-Real-IP"
+	HeaderKeyXClientIp      = "X-Client-IP"
 )

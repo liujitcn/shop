@@ -28,9 +28,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 菜单树响应
 type TreeBaseMenuResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	List          []*BaseMenu            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	List          []*BaseMenu            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 菜单树
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -72,6 +73,7 @@ func (x *TreeBaseMenuResponse) GetList() []*BaseMenu {
 	return nil
 }
 
+// 菜单选项查询条件
 type OptionBaseMenuRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ParentId      *int64                 `protobuf:"varint,1,opt,name=parentId,proto3,oneof" json:"parentId,omitempty"` // 父级菜单ID
@@ -257,7 +259,7 @@ func (x *BaseMenu) GetChildren() []*BaseMenu {
 	return nil
 }
 
-// 菜单
+// 菜单表单
 type BaseMenuForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                    // 菜单ID
@@ -382,6 +384,7 @@ func (x *BaseMenuForm) GetStatus() common.Status {
 	return common.Status(0)
 }
 
+// 菜单元信息
 type BaseMenuMeta struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`                  //菜单标题
@@ -482,6 +485,7 @@ func (x *BaseMenuMeta) GetParams() []*BaseMenuParams {
 	return nil
 }
 
+// 菜单参数
 type BaseMenuParams struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Key           string                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`     //key
@@ -538,9 +542,9 @@ var File_admin_base_menu_proto protoreflect.FileDescriptor
 
 const file_admin_base_menu_proto_rawDesc = "" +
 	"\n" +
-	"\x15admin/base_menu.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\";\n" +
-	"\x14TreeBaseMenuResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseMenuR\x04list\"[\n" +
+	"\x15admin/base_menu.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\"L\n" +
+	"\x14TreeBaseMenuResponse\x124\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseMenuB\x0f\xbaG\f\x92\x02\t菜单树R\x04list\"[\n" +
 	"\x15OptionBaseMenuRequest\x125\n" +
 	"\bparentId\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01B\v\n" +
 	"\t_parentId\"\xe3\x05\n" +

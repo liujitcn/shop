@@ -26,6 +26,7 @@ service BaseLogService {
   }
 }
 
+// 日志分页查询条件
 message PageBaseLogRequest {
   repeated string requestTime = 3 [
     (gnostic.openapi.v3.property) = {description: "请求时间"}
@@ -36,35 +37,35 @@ message PageBaseLogRequest {
       description: "操作方法"
     }
   ]; // 操作方法
-  // 状态码
   optional int32 statusCode = 14 [
     (gnostic.openapi.v3.property) = {
       description: "状态码"
     }
-  ];
+  ]; // 状态码
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 日志分页响应
 message PageBaseLogResponse {
-  // 分页数据
-  repeated BaseLog list = 1;
-  // 总数
-  int32 total = 2;
+  repeated BaseLog list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
 // 日志

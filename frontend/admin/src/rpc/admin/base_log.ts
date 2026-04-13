@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Int64Value } from "../google/protobuf/wrappers";
 
+/** 日志分页查询条件 */
 export interface PageBaseLogRequest {
   /** 请求时间 */
   requestTime: string[];
@@ -22,6 +23,7 @@ export interface PageBaseLogRequest {
   pageSize: number;
 }
 
+/** 日志分页响应 */
 export interface PageBaseLogResponse {
   /** 分页数据 */
   list: BaseLog[];

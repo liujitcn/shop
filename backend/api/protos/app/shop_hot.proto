@@ -32,102 +32,101 @@ service ShopHotService {
   }
 }
 
+// 热门专区列表响应
 message ListShopHotResponse{
-  // 分页数据
-  repeated ShopHot list = 1;
+  repeated ShopHot list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
 }
 
+// 热门专区商品分页查询条件
 message PageShopHotGoodsRequest{
-  // 选项id
   int64 hotItemId = 1 [
     (gnostic.openapi.v3.property) = {
       description: "选项id",
     }
-  ];
+  ]; // 选项id
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 热门专区商品分页响应
 message PageShopHotGoodsResponse{
-  // 分页数据
-  repeated app.GoodsInfo list = 1;
-  // 总数
-  int32 total = 2;
+  repeated app.GoodsInfo list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 热门专区
 message ShopHot {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "主键id"}
-  ];
+  ]; // 主键id
   // 主键id
-  // 标题
   string title = 2 [
     (gnostic.openapi.v3.property) = {
       description: "标题",
     }
-  ];
-  // 描述
+  ]; // 标题
   string desc = 3 [
     (gnostic.openapi.v3.property) = {
       description: "描述",
     }
-  ];
-  // 图片链接
+  ]; // 描述
   repeated string picture = 4 [
     (gnostic.openapi.v3.property) = {
       description: "图片链接",
     }
-  ];
+  ]; // 图片链接
 }
 
+// 热门专区项列表响应
 message ListShopHotItemResponse {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "主键id"}
-  ];
+  ]; // 主键id
   // 主键id
-  // 标题
   string title = 2 [
     (gnostic.openapi.v3.property) = {
       description: "标题",
     }
-  ];
-  // 轮播图
+  ]; // 标题
   string banner = 3 [
     (gnostic.openapi.v3.property) = {
       description: "轮播图",
     }
-  ];
-  // 选项
+  ]; // 轮播图
   repeated ShopHotItem list = 4 [
     (gnostic.openapi.v3.property) = {
       description: "选项",
     }
-  ];
+  ]; // 选项
 }
 
+// 热门专区项
 message ShopHotItem {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "主键id"}
-  ];
+  ]; // 主键id
   // 主键id
-  // 标题
   string title = 2 [
     (gnostic.openapi.v3.property) = {
       description: "标题",
     }
-  ];
+  ]; // 标题
 }

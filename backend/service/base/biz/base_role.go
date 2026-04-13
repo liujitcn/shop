@@ -8,7 +8,7 @@ type BaseRoleCase struct {
 	*data.BaseRoleRepo
 }
 
-// NewBaseRoleCase new a BaseRole use case.
+// NewBaseRoleCase 创建基础角色业务实例。
 func NewBaseRoleCase(
 	baseRoleRepo *data.BaseRoleRepo,
 ) *BaseRoleCase {

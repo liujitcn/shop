@@ -66,6 +66,7 @@ func (s *BaseJobService) CreateBaseJob(ctx context.Context, req *admin.BaseJobFo
 	err := s.baseJobCase.CreateBaseJob(ctx, req)
 	if err != nil {
 		log.Error("CreateBaseJob err:", err.Error())
+		// 命中调用目标唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("调用目标重复")
 		}
@@ -79,6 +80,7 @@ func (s *BaseJobService) UpdateBaseJob(ctx context.Context, req *admin.BaseJobFo
 	err := s.baseJobCase.UpdateBaseJob(ctx, req)
 	if err != nil {
 		log.Error("UpdateBaseJob err:", err.Error())
+		// 命中调用目标唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("调用目标重复")
 		}

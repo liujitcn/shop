@@ -28,16 +28,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 用户门店分页查询条件
 type PageUserStoreRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 门店名称
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// 状态
-	Status *common.UserStoreStatus `protobuf:"varint,100,opt,name=status,proto3,enum=common.UserStoreStatus,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState  `protogen:"open.v1"`
+	Name          string                  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`                                          // 门店名称
+	Status        *common.UserStoreStatus `protobuf:"varint,100,opt,name=status,proto3,enum=common.UserStoreStatus,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                   `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                                 // 当前页码
+	PageSize      int64                   `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                               // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -100,12 +97,11 @@ func (x *PageUserStoreRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 用户门店分页响应
 type PageUserStoreResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*UserStore `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*UserStore           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -154,6 +150,7 @@ func (x *PageUserStoreResponse) GetTotal() int32 {
 	return 0
 }
 
+// AuditUserStore表单
 type AuditUserStoreForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 用户门店ID
@@ -214,7 +211,7 @@ func (x *AuditUserStoreForm) GetRemark() string {
 	return ""
 }
 
-// 用户门店信息
+// 用户门店
 type UserStore struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Id              int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 用户门店ID
@@ -341,10 +338,10 @@ const file_admin_user_store_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x17.common.UserStoreStatusB\x18\xbaG\x15\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00\x00\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
-	"\a_status\"S\n" +
-	"\x15PageUserStoreResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.admin.UserStoreR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xa2\x01\n" +
+	"\a_status\"u\n" +
+	"\x15PageUserStoreResponse\x128\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.admin.UserStoreB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa2\x01\n" +
 	"\x12AuditUserStoreForm\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户门店IDR\x02id\x12=\n" +
 	"\x06status\x183 \x01(\x0e2\x17.common.UserStoreStatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12'\n" +

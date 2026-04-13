@@ -7,11 +7,13 @@
 /* eslint-disable */
 import type { GoodsInfo } from "./goods_info";
 
+/** 商品分类列表查询条件 */
 export interface ListGoodsCategoryRequest {
   /** 父节点ID */
   parentId?: number | undefined;
 }
 
+/** 商品分类列表响应 */
 export interface ListGoodsCategoryResponse {
   /** 分页数据 */
   list: GoodsCategory[];

@@ -75,10 +75,10 @@ func (BaseUserName) EnumDescriptor() ([]byte, []int) {
 	return file_admin_base_user_proto_rawDescGZIP(), []int{0}
 }
 
+// 用户选项查询条件
 type OptionBaseUserRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 关键字
-	Keyword       string `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"` // 关键字
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -120,22 +120,16 @@ func (x *OptionBaseUserRequest) GetKeyword() string {
 	return ""
 }
 
+// 用户分页查询条件
 type PageBaseUserRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 用户账号
-	UserName string `protobuf:"bytes,2,opt,name=userName,proto3" json:"userName,omitempty"`
-	// 用户昵称
-	NickName string `protobuf:"bytes,3,opt,name=nickName,proto3" json:"nickName,omitempty"`
-	// 部门ID
-	DeptId *int64 `protobuf:"varint,5,opt,name=deptId,proto3,oneof" json:"deptId,omitempty"`
-	// 手机号
-	Phone string `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`
-	// 状态
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserName      string                 `protobuf:"bytes,2,opt,name=userName,proto3" json:"userName,omitempty"`                         // 用户账号
+	NickName      string                 `protobuf:"bytes,3,opt,name=nickName,proto3" json:"nickName,omitempty"`                         // 用户昵称
+	DeptId        *int64                 `protobuf:"varint,5,opt,name=deptId,proto3,oneof" json:"deptId,omitempty"`                      // 部门ID
+	Phone         string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`                               // 手机号
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -219,12 +213,11 @@ func (x *PageBaseUserRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 用户分页响应
 type PageBaseUserResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseUser `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseUser            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -406,7 +399,7 @@ func (x *BaseUser) GetUpdatedAt() string {
 	return ""
 }
 
-// 用户
+// 用户表单
 type BaseUserForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 用户ID
@@ -531,6 +524,7 @@ func (x *BaseUserForm) GetRemark() string {
 	return ""
 }
 
+// ResetBaseUserPwd请求参数
 type ResetBaseUserPwdRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`  // 用户ID
@@ -599,10 +593,10 @@ const file_admin_base_user_proto_rawDesc = "" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
 	"\a_deptIdB\t\n" +
-	"\a_status\"Q\n" +
-	"\x14PageBaseUserResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseUserR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xb0\x04\n" +
+	"\a_status\"s\n" +
+	"\x14PageBaseUserResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.admin.BaseUserB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xb0\x04\n" +
 	"\bBaseUser\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户IDR\x02id\x12.\n" +
 	"\buserName\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12.\n" +

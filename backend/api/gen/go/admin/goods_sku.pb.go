@@ -29,15 +29,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品 SKU 分页查询条件
 type PageGoodsSkuRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商品id
-	GoodsId int64  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
-	SkuCode string `protobuf:"bytes,5,opt,name=skuCode,proto3" json:"skuCode,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`     // 商品id
+	SkuCode       string                 `protobuf:"bytes,5,opt,name=skuCode,proto3" json:"skuCode,omitempty"`      // 商品SKU编号
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`   // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"` // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -100,12 +98,11 @@ func (x *PageGoodsSkuRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 商品 SKU 分页响应
 type PageGoodsSkuResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*GoodsSku `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsSku            `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -154,26 +151,19 @@ func (x *PageGoodsSkuResponse) GetTotal() int32 {
 	return 0
 }
 
+// 商品 SKU
 type GoodsSku struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 商品SKUID
-	// 商品id
-	GoodsId int64  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
-	Picture string `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"` // 商品图片
-	// SKU SKU组成，需要与 goods_spec 数组顺序对应
-	SpecItem []string `protobuf:"bytes,4,rep,name=specItem,proto3" json:"specItem,omitempty"`
-	// SKU编码
-	SkuCode string `protobuf:"bytes,5,opt,name=skuCode,proto3" json:"skuCode,omitempty"`
-	// 当前价格(分)
-	Price int64 `protobuf:"varint,6,opt,name=price,proto3" json:"price,omitempty"`
-	// 折扣价格（分）
-	DiscountPrice int64 `protobuf:"varint,7,opt,name=discountPrice,proto3" json:"discountPrice,omitempty"`
-	// 初始销量
-	InitSaleNum int64 `protobuf:"varint,8,opt,name=initSaleNum,proto3" json:"initSaleNum,omitempty"`
-	// 真实销售数量
-	RealSaleNum int64 `protobuf:"varint,9,opt,name=realSaleNum,proto3" json:"realSaleNum,omitempty"`
-	// 库存数量
-	Inventory     int64 `protobuf:"varint,10,opt,name=inventory,proto3" json:"inventory,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                       // 商品SKUID
+	GoodsId       int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`             // 商品id
+	Picture       string                 `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"`              // 商品图片
+	SpecItem      []string               `protobuf:"bytes,4,rep,name=specItem,proto3" json:"specItem,omitempty"`            // SKU SKU组成，需要与 goods_spec 数组顺序对应
+	SkuCode       string                 `protobuf:"bytes,5,opt,name=skuCode,proto3" json:"skuCode,omitempty"`              // SKU编码
+	Price         int64                  `protobuf:"varint,6,opt,name=price,proto3" json:"price,omitempty"`                 // 当前价格(分)
+	DiscountPrice int64                  `protobuf:"varint,7,opt,name=discountPrice,proto3" json:"discountPrice,omitempty"` // 折扣价格（分）
+	InitSaleNum   int64                  `protobuf:"varint,8,opt,name=initSaleNum,proto3" json:"initSaleNum,omitempty"`     // 初始销量
+	RealSaleNum   int64                  `protobuf:"varint,9,opt,name=realSaleNum,proto3" json:"realSaleNum,omitempty"`     // 真实销售数量
+	Inventory     int64                  `protobuf:"varint,10,opt,name=inventory,proto3" json:"inventory,omitempty"`        // 库存数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -287,10 +277,10 @@ const file_admin_goods_sku_proto_rawDesc = "" +
 	"\agoodsId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12/\n" +
 	"\askuCode\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f商品SKU编号R\askuCode\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"Q\n" +
-	"\x14PageGoodsSkuResponse\x12#\n" +
-	"\x04list\x18\x01 \x03(\v2\x0f.admin.GoodsSkuR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xaa\x04\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"s\n" +
+	"\x14PageGoodsSkuResponse\x127\n" +
+	"\x04list\x18\x01 \x03(\v2\x0f.admin.GoodsSkuB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xaa\x04\n" +
 	"\bGoodsSku\x12!\n" +
 	"\x02id\x18\x01 \x01(\x03B\x11\xbaG\x0e\x92\x02\v商品SKUIDR\x02id\x12(\n" +
 	"\agoodsId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12,\n" +

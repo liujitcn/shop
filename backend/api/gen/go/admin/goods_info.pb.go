@@ -29,10 +29,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品列表查询条件
 type ListGoodsInfoRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商品名称
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"` // 商品名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,10 +74,10 @@ func (x *ListGoodsInfoRequest) GetName() string {
 	return ""
 }
 
+// 商品列表响应
 type ListGoodsInfoResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*ListGoodsInfoResponse_GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState             `protogen:"open.v1"`
+	List          []*ListGoodsInfoResponse_GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -119,24 +119,18 @@ func (x *ListGoodsInfoResponse) GetList() []*ListGoodsInfoResponse_GoodsInfo {
 	return nil
 }
 
+// 商品分页查询条件
 type PageGoodsInfoRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分类id
-	CategoryId *int64 `protobuf:"varint,2,opt,name=categoryId,proto3,oneof" json:"categoryId,omitempty"`
-	// 商品名称
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	// 状态
-	Status *common.GoodsStatus `protobuf:"varint,100,opt,name=status,proto3,enum=common.GoodsStatus,oneof" json:"status,omitempty"`
-	// 库存预警类型：1 低库存，2 零库存
-	InventoryAlert *int32 `protobuf:"varint,103,opt,name=inventoryAlert,proto3,oneof" json:"inventoryAlert,omitempty"`
-	// 价格异常类型：1 价格配置异常
-	PriceAlert *int32 `protobuf:"varint,104,opt,name=priceAlert,proto3,oneof" json:"priceAlert,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	CategoryId     *int64                 `protobuf:"varint,2,opt,name=categoryId,proto3,oneof" json:"categoryId,omitempty"`                   // 分类id
+	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 商品名称
+	Status         *common.GoodsStatus    `protobuf:"varint,100,opt,name=status,proto3,enum=common.GoodsStatus,oneof" json:"status,omitempty"` // 状态
+	InventoryAlert *int32                 `protobuf:"varint,103,opt,name=inventoryAlert,proto3,oneof" json:"inventoryAlert,omitempty"`         // 库存预警类型：1 低库存，2 零库存
+	PriceAlert     *int32                 `protobuf:"varint,104,opt,name=priceAlert,proto3,oneof" json:"priceAlert,omitempty"`                 // 价格异常类型：1 价格配置异常
+	PageNum        int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                             // 当前页码
+	PageSize       int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                           // 每一页的行数
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *PageGoodsInfoRequest) Reset() {
@@ -218,12 +212,11 @@ func (x *PageGoodsInfoRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 商品分页响应
 type PageGoodsInfoResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*GoodsInfo `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsInfo           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -272,27 +265,23 @@ func (x *PageGoodsInfoResponse) GetTotal() int32 {
 	return 0
 }
 
+// Goods信息
 type GoodsInfo struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                 // 商品ID
-	CategoryId int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"` // 分类ID
-	Name       string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`              // 名称
-	Desc       string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`              // 描述
-	Picture    string                 `protobuf:"bytes,5,opt,name=picture,proto3" json:"picture,omitempty"`        // 商品图片
-	// 当前价格(分)
-	Price int64 `protobuf:"varint,40,opt,name=price,proto3" json:"price,omitempty"`
-	// 折扣价格（分）
-	DiscountPrice int64 `protobuf:"varint,41,opt,name=discountPrice,proto3" json:"discountPrice,omitempty"`
-	// 初始销量
-	InitSaleNum int64 `protobuf:"varint,42,opt,name=initSaleNum,proto3" json:"initSaleNum,omitempty"`
-	// 真实销售数量
-	RealSaleNum int64 `protobuf:"varint,43,opt,name=realSaleNum,proto3" json:"realSaleNum,omitempty"`
-	// 库存数量
-	Inventory     int64              `protobuf:"varint,44,opt,name=inventory,proto3" json:"inventory,omitempty"`
-	Status        common.GoodsStatus `protobuf:"varint,101,opt,name=status,proto3,enum=common.GoodsStatus" json:"status,omitempty"` // 状态
-	CreatedAt     string             `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`                    // 创建时间
-	UpdatedAt     string             `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`                    // 更新时间
-	CategoryName  string             `protobuf:"bytes,300,opt,name=categoryName,proto3" json:"categoryName,omitempty"`              // 分类名称
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品ID
+	CategoryId    int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"`                   // 分类ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 名称
+	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                // 描述
+	Picture       string                 `protobuf:"bytes,5,opt,name=picture,proto3" json:"picture,omitempty"`                          // 商品图片
+	Price         int64                  `protobuf:"varint,40,opt,name=price,proto3" json:"price,omitempty"`                            // 当前价格(分)
+	DiscountPrice int64                  `protobuf:"varint,41,opt,name=discountPrice,proto3" json:"discountPrice,omitempty"`            // 折扣价格（分）
+	InitSaleNum   int64                  `protobuf:"varint,42,opt,name=initSaleNum,proto3" json:"initSaleNum,omitempty"`                // 初始销量
+	RealSaleNum   int64                  `protobuf:"varint,43,opt,name=realSaleNum,proto3" json:"realSaleNum,omitempty"`                // 真实销售数量
+	Inventory     int64                  `protobuf:"varint,44,opt,name=inventory,proto3" json:"inventory,omitempty"`                    // 库存数量
+	Status        common.GoodsStatus     `protobuf:"varint,101,opt,name=status,proto3,enum=common.GoodsStatus" json:"status,omitempty"` // 状态
+	CreatedAt     string                 `protobuf:"bytes,200,opt,name=createdAt,proto3" json:"createdAt,omitempty"`                    // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,201,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`                    // 更新时间
+	CategoryName  string                 `protobuf:"bytes,300,opt,name=categoryName,proto3" json:"categoryName,omitempty"`              // 分类名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -425,21 +414,21 @@ func (x *GoodsInfo) GetCategoryName() string {
 	return ""
 }
 
+// 商品表单
 type GoodsInfoForm struct {
-	state      protoimpl.MessageState `protogen:"open.v1"`
-	Id         int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 商品ID
-	CategoryId *int64                 `protobuf:"varint,2,opt,name=categoryId,proto3,oneof" json:"categoryId,omitempty"`                  // 分类ID
-	Name       string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 名称
-	Desc       string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                     // 描述
-	Picture    string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`                              // 商品图片
-	Banner     []string               `protobuf:"bytes,31,rep,name=banner,proto3" json:"banner,omitempty"`                                // 轮播图
-	Detail     []string               `protobuf:"bytes,32,rep,name=detail,proto3" json:"detail,omitempty"`                                // 商品详情
-	Status     *common.GoodsStatus    `protobuf:"varint,51,opt,name=status,proto3,enum=common.GoodsStatus,oneof" json:"status,omitempty"` // 状态
-	PropList   []*GoodsProp           `protobuf:"bytes,100,rep,name=propList,proto3" json:"propList,omitempty"`                           // 商品属性
-	SkuList    []*GoodsSku            `protobuf:"bytes,101,rep,name=skuList,proto3" json:"skuList,omitempty"`                             // 商品SKU
-	SpecList   []*GoodsSpec           `protobuf:"bytes,102,rep,name=specList,proto3" json:"specList,omitempty"`                           // 商品规格
-	// 分类名称
-	CategoryName  string `protobuf:"bytes,300,opt,name=categoryName,proto3" json:"categoryName,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 商品ID
+	CategoryId    *int64                 `protobuf:"varint,2,opt,name=categoryId,proto3,oneof" json:"categoryId,omitempty"`                  // 分类ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 名称
+	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                     // 描述
+	Picture       string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`                              // 商品图片
+	Banner        []string               `protobuf:"bytes,31,rep,name=banner,proto3" json:"banner,omitempty"`                                // 轮播图
+	Detail        []string               `protobuf:"bytes,32,rep,name=detail,proto3" json:"detail,omitempty"`                                // 商品详情
+	Status        *common.GoodsStatus    `protobuf:"varint,51,opt,name=status,proto3,enum=common.GoodsStatus,oneof" json:"status,omitempty"` // 状态
+	PropList      []*GoodsProp           `protobuf:"bytes,100,rep,name=propList,proto3" json:"propList,omitempty"`                           // 商品属性
+	SkuList       []*GoodsSku            `protobuf:"bytes,101,rep,name=skuList,proto3" json:"skuList,omitempty"`                             // 商品SKU
+	SpecList      []*GoodsSpec           `protobuf:"bytes,102,rep,name=specList,proto3" json:"specList,omitempty"`                           // 商品规格
+	CategoryName  string                 `protobuf:"bytes,300,opt,name=categoryName,proto3" json:"categoryName,omitempty"`                   // 分类名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -558,13 +547,13 @@ func (x *GoodsInfoForm) GetCategoryName() string {
 	return ""
 }
 
+// Goods信息
 type ListGoodsInfoResponse_GoodsInfo struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`    // 商品ID
-	Name  string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"` // 名称
-	// 当前价格(分)
-	Price         int64  `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
-	CategoryName  string `protobuf:"bytes,4,opt,name=categoryName,proto3" json:"categoryName,omitempty"` // 分类名称
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                    // 商品ID
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                 // 名称
+	Price         int64                  `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`              // 当前价格(分)
+	CategoryName  string                 `protobuf:"bytes,4,opt,name=categoryName,proto3" json:"categoryName,omitempty"` // 分类名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -633,9 +622,9 @@ const file_admin_goods_info_proto_rawDesc = "" +
 	"\n" +
 	"\x16admin/goods_info.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x19google/protobuf/any.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\x1a\x11common/enum.proto\x1a\x16admin/goods_prop.proto\x1a\x15admin/goods_sku.proto\x1a\x16admin/goods_spec.proto\">\n" +
 	"\x14ListGoodsInfoRequest\x12&\n" +
-	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\"\x8a\x02\n" +
-	"\x15ListGoodsInfoResponse\x12:\n" +
-	"\x04list\x18\x01 \x03(\v2&.admin.ListGoodsInfoResponse.GoodsInfoR\x04list\x1a\xb4\x01\n" +
+	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\"\x9e\x02\n" +
+	"\x15ListGoodsInfoResponse\x12N\n" +
+	"\x04list\x18\x01 \x03(\v2&.admin.ListGoodsInfoResponse.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x1a\xb4\x01\n" +
 	"\tGoodsInfo\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12 \n" +
 	"\x04name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12-\n" +
@@ -656,10 +645,10 @@ const file_admin_goods_info_proto_rawDesc = "" +
 	"\v_categoryIdB\t\n" +
 	"\a_statusB\x11\n" +
 	"\x0f_inventoryAlertB\r\n" +
-	"\v_priceAlert\"S\n" +
-	"\x15PageGoodsInfoResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsInfoR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xbd\x05\n" +
+	"\v_priceAlert\"u\n" +
+	"\x15PageGoodsInfoResponse\x128\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xbd\x05\n" +
 	"\tGoodsInfo\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12.\n" +
 	"\n" +

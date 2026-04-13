@@ -32,7 +32,9 @@ func NewOrderAddressCase(baseCase *biz.BaseCase, orderAddressRepo *data.OrderAdd
 // FindFromByOrderId 按订单查询地址
 func (c *OrderAddressCase) FindFromByOrderId(ctx context.Context, orderId int64) (*admin.OrderAddress, error) {
 	query := c.Query(ctx).OrderAddress
-	item, err := c.Find(ctx, repo.Where(query.OrderID.Eq(orderId)))
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	item, err := c.Find(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -17,7 +17,7 @@ import (
 	"strings"
 
 	kratosMiddleware "github.com/go-kratos/kratos/v2/middleware"
-	kratosHTTP "github.com/go-kratos/kratos/v2/transport/http"
+	kratosHttp "github.com/go-kratos/kratos/v2/transport/http"
 	bootstrapConf "github.com/liujitcn/kratos-kit/api/gen/go/conf"
 	"github.com/liujitcn/kratos-kit/auth"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
@@ -30,6 +30,7 @@ import (
 
 type HttpMiddlewares []kratosMiddleware.Middleware
 
+// NewHttpMiddleware 创建 HTTP 服务统一中间件链。
 func NewHttpMiddleware(
 	ctx *bootstrap.Context,
 	authenticator authnEngine.Authenticator,
@@ -40,6 +41,7 @@ func NewHttpMiddleware(
 ) HttpMiddlewares {
 	var ms HttpMiddlewares
 	cfg := ctx.GetConfig()
+	// 开启日志中间件时，统一挂载请求日志与操作者解析逻辑。
 	if cfg != nil && cfg.Server != nil && cfg.Server.Http != nil && cfg.Server.Http.Middleware != nil && cfg.Server.Http.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))
 	}
@@ -47,6 +49,7 @@ func NewHttpMiddleware(
 	return ms
 }
 
+// NewHttpServer 创建 HTTP Server 并注册后端与前端静态路由。
 func NewHttpServer(
 	ctx *bootstrap.Context,
 	middlewares HttpMiddlewares,
@@ -97,8 +100,9 @@ func NewHttpServer(
 	config *base.ConfigService,
 	fileSvc *base.FileService,
 	login *base.LoginService,
-) (*kratosHTTP.Server, error) {
+) (*kratosHttp.Server, error) {
 	cfg := ctx.GetConfig()
+	// 未启用 HTTP 配置时，跳过 HTTP 服务创建。
 	if cfg == nil || cfg.Server == nil || cfg.Server.Http == nil {
 		return nil, nil
 	}
@@ -157,6 +161,7 @@ func NewHttpServer(
 	baseApi.RegisterLoginServiceHTTPServer(srv, login)
 
 	ossRootDirectory := "./data"
+	// 配置了本地 OSS 根目录时，优先使用配置值覆盖默认目录。
 	if cfg.GetOss() != nil && cfg.GetOss().GetRootDirectory() != "" {
 		ossRootDirectory = cfg.GetOss().GetRootDirectory()
 	}
@@ -168,6 +173,7 @@ func NewHttpServer(
 	// 自动发现本地 OSS 根目录下的前端入口，按子目录名称挂载为 SPA 路由。
 	registerLocalSPARoutes(srv, ossRootDirectory)
 
+	// 显式启用 Swagger 时，注册内存中的 OpenAPI 文档页面。
 	if cfg.GetServer().GetHttp().GetEnableSwagger() {
 		swaggerUI.RegisterSwaggerUIServerWithOption(
 			srv,
@@ -180,17 +186,19 @@ func NewHttpServer(
 }
 
 // registerLocalSPARoutes 扫描根目录下包含 index.html 的子目录，并按目录名注册单页应用路由。
-func registerLocalSPARoutes(srv *kratosHTTP.Server, rootDirectory string) {
+func registerLocalSPARoutes(srv *kratosHttp.Server, rootDirectory string) {
 	entries, err := os.ReadDir(rootDirectory)
 	if err != nil {
 		return
 	}
 	for _, entry := range entries {
+		// 仅处理目录，忽略根目录下的普通文件。
 		if !entry.IsDir() {
 			continue
 		}
 		var directoryName = entry.Name()
 		var indexPath = filepath.Join(rootDirectory, directoryName, "index.html")
+		// 子目录未提供入口页面时，不注册为单页应用。
 		if _, err = os.Stat(indexPath); err != nil {
 			continue
 		}
@@ -207,10 +215,12 @@ func newSPAHandler(webFS fs.FS, urlPrefix string) stdhttp.Handler {
 	return stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 		var relativePath = strings.TrimPrefix(r.URL.Path, urlPrefix)
 		relativePath = strings.TrimPrefix(relativePath, "/")
+		// 访问应用根路径时，直接返回入口页面。
 		if relativePath == "" {
 			stdhttp.ServeFileFS(w, r, webFS, "index.html")
 			return
 		}
+		// 命中真实静态文件时，交给文件服务直接返回。
 		if _, err := fs.Stat(webFS, relativePath); err == nil {
 			fileHandler.ServeHTTP(w, r)
 			return

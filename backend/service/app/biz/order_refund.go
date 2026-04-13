@@ -27,10 +27,10 @@ func NewOrderRefundCase(baseCase *biz.BaseCase, orderRefundRepo *data.OrderRefun
 
 // findRefundTimeByOrderId 查询订单退款时间
 func (c *OrderRefundCase) findRefundTimeByOrderId(ctx context.Context, orderId int64) (string, error) {
-	refundQuery := c.Query(ctx).OrderRefund
-	orderRefund, err := c.Find(ctx,
-		repo.Where(refundQuery.OrderID.Eq(orderId)),
-	)
+	query := c.Query(ctx).OrderRefund
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.OrderID.Eq(orderId)))
+	orderRefund, err := c.Find(ctx, opts...)
 	if err != nil {
 		return "", err
 	}

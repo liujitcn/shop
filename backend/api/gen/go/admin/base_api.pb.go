@@ -25,10 +25,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// API列表响应
 type ListBaseApiResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*BaseApi `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseApi             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -70,7 +70,7 @@ func (x *ListBaseApiResponse) GetList() []*BaseApi {
 	return nil
 }
 
-// 日志
+// API
 type BaseApi struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                  // API ID
@@ -167,9 +167,9 @@ var File_admin_base_api_proto protoreflect.FileDescriptor
 
 const file_admin_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x14admin/base_api.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"9\n" +
-	"\x13ListBaseApiResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.admin.BaseApiR\x04list\"\xb8\x02\n" +
+	"\x14admin/base_api.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"M\n" +
+	"\x13ListBaseApiResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.admin.BaseApiB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\"\xb8\x02\n" +
 	"\aBaseApi\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x121\n" +
 	"\vserviceName\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x124\n" +

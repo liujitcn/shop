@@ -67,6 +67,7 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 			category.Goods = make([]*app.GoodsInfo, 0, len(goodsInfoList))
 			for _, goodsInfo := range goodsInfoList {
 				price := goodsInfo.Price
+				// 会员用户访问分类时，优先展示会员价。
 				if member {
 					price = goodsInfo.DiscountPrice
 				}

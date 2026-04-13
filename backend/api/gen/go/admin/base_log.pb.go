@@ -27,16 +27,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 日志分页查询条件
 type PageBaseLogRequest struct {
-	state       protoimpl.MessageState `protogen:"open.v1"`
-	RequestTime []string               `protobuf:"bytes,3,rep,name=requestTime,proto3" json:"requestTime,omitempty"` // 请求时间
-	Operation   string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`     // 操作方法
-	// 状态码
-	StatusCode *int32 `protobuf:"varint,14,opt,name=statusCode,proto3,oneof" json:"statusCode,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestTime   []string               `protobuf:"bytes,3,rep,name=requestTime,proto3" json:"requestTime,omitempty"`       // 请求时间
+	Operation     string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`           // 操作方法
+	StatusCode    *int32                 `protobuf:"varint,14,opt,name=statusCode,proto3,oneof" json:"statusCode,omitempty"` // 状态码
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`            // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`          // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -106,12 +104,11 @@ func (x *PageBaseLogRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 日志分页响应
 type PageBaseLogResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseLog `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseLog             `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -418,10 +415,10 @@ const file_admin_base_log_proto_rawDesc = "" +
 	"statusCode\x88\x01\x01\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
 	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\r\n" +
-	"\v_statusCode\"O\n" +
-	"\x13PageBaseLogResponse\x12\"\n" +
-	"\x04list\x18\x01 \x03(\v2\x0e.admin.BaseLogR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xaf\n" +
+	"\v_statusCode\"q\n" +
+	"\x13PageBaseLogResponse\x126\n" +
+	"\x04list\x18\x01 \x03(\v2\x0e.admin.BaseLogB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xaf\n" +
 	"\n" +
 	"\aBaseLog\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b日志IDR\x02id\x12,\n" +

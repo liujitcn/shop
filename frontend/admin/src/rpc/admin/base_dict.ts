@@ -10,6 +10,7 @@ import type { Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 字典分页查询条件 */
 export interface PageBaseDictRequest {
   /** 字典编号 */
   code: string;
@@ -25,6 +26,7 @@ export interface PageBaseDictRequest {
   pageSize: number;
 }
 
+/** 字典分页响应 */
 export interface PageBaseDictResponse {
   /** 分页数据 */
   list: BaseDict[];
@@ -48,7 +50,7 @@ export interface BaseDict {
   updatedAt: string;
 }
 
-/** 字典 */
+/** 字典表单 */
 export interface BaseDictForm {
   /** 字典ID */
   id: number;
@@ -60,6 +62,7 @@ export interface BaseDictForm {
   status?: Status | undefined;
 }
 
+/** 字典属性分页查询条件 */
 export interface PageBaseDictItemRequest {
   /** 字典id */
   dictId: number;
@@ -75,6 +78,7 @@ export interface PageBaseDictItemRequest {
   pageSize: number;
 }
 
+/** 字典属性分页响应 */
 export interface PageBaseDictItemResponse {
   /** 分页数据 */
   list: BaseDictItem[];
@@ -82,11 +86,13 @@ export interface PageBaseDictItemResponse {
   total: number;
 }
 
+/** 字典列表响应 */
 export interface ListBaseDictResponse {
   /** 分页数据 */
   list: ListBaseDictResponse_BaseDict[];
 }
 
+/** 字典项 */
 export interface ListBaseDictResponse_BaseDictItem {
   /** 字典值 */
   value: string;
@@ -96,6 +102,7 @@ export interface ListBaseDictResponse_BaseDictItem {
   tagType: string;
 }
 
+/** 字典 */
 export interface ListBaseDictResponse_BaseDict {
   /** 字典编号 */
   code: string;
@@ -105,6 +112,7 @@ export interface ListBaseDictResponse_BaseDict {
   items: ListBaseDictResponse_BaseDictItem[];
 }
 
+/** 字典项 */
 export interface BaseDictItem {
   /** 字典ID */
   id: number;
@@ -126,6 +134,7 @@ export interface BaseDictItem {
   updatedAt: string;
 }
 
+/** 字典属性表单 */
 export interface BaseDictItemForm {
   /** 字典ID */
   id: number;

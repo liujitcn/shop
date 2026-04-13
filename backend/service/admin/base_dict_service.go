@@ -78,6 +78,7 @@ func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *admin.BaseDic
 	err := s.baseDictCase.CreateBaseDict(ctx, req)
 	if err != nil {
 		log.Error("CreateBaseDict err:", err.Error())
+		// 命中字典编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("字典编码重复")
 		}
@@ -91,6 +92,7 @@ func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *admin.BaseDic
 	err := s.baseDictCase.UpdateBaseDict(ctx, req)
 	if err != nil {
 		log.Error("UpdateBaseDict err:", err.Error())
+		// 命中字典编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("字典编码重复")
 		}
@@ -144,6 +146,7 @@ func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *admin.Bas
 	err := s.baseDictItemCase.CreateBaseDictItem(ctx, req)
 	if err != nil {
 		log.Error("CreateBaseDictItem err:", err.Error())
+		// 命中字典项编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("字典属性编码重复")
 		}
@@ -157,6 +160,7 @@ func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *admin.Bas
 	err := s.baseDictItemCase.UpdateBaseDictItem(ctx, req)
 	if err != nil {
 		log.Error("UpdateBaseDictItem err:", err.Error())
+		// 命中字典项编码唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("字典属性编码重复")
 		}

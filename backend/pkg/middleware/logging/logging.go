@@ -27,12 +27,12 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// Redacter defines how to log an object
+// Redacter 定义日志脱敏接口。
 type Redacter interface {
 	Redact() string
 }
 
-// Server is an server logging middleware.
+// Server 创建服务端访问日志中间件。
 func Server(_ log.Logger,
 	baseUserRepo *data.BaseUserRepo,
 	authenticator authnEngine.Authenticator,
@@ -43,15 +43,18 @@ func Server(_ log.Logger,
 			// 日志信息
 			baseLog := models.BaseLog{
 				RequestTime: startTime,
-				// default code
+				// 默认返回码按成功初始化，后续再根据实际错误覆盖。
 				StatusCode: int32(status.FromGRPCCode(codes.OK)),
 			}
+			// 当前上下文存在服务端传输信息时，补充访问日志的请求元数据。
 			if info, ok := transport.FromServerContext(ctx); ok {
 				baseLog.Operation = info.Operation()
 				var fullErr error
+				// 当前请求走 HTTP 传输层时，补充 HTTP 相关访问日志字段。
 				if htr, htrOk := info.(*http.Transport); htrOk {
 					baseLog.RequestID = getRequestId(htr.Request())
 					// 文件上传不存请求内容
+					// 文件上传和下载请求体通常较大，不记录请求体内容。
 					if !(htr.Operation() == base.OperationFileServiceMultiUploadFile || htr.Operation() == base.OperationFileServiceUploadFile || htr.Operation() == base.OperationFileServiceDownloadFile) {
 						baseLog.RequestBody = extractArgs(req)
 					}
@@ -63,6 +66,7 @@ func Server(_ log.Logger,
 					}
 					var headersBytes []byte
 					headersBytes, fullErr = json.Marshal(headersMap)
+					// 请求头序列化成功时，再写入日志字段。
 					if fullErr == nil {
 						baseLog.RequestHeader = string(headersBytes)
 					}
@@ -78,16 +82,21 @@ func Server(_ log.Logger,
 					baseLog.ClientIP = trans.Ptr(clientIp)
 					baseLog.Location = trans.Ptr(clientIpToLocation(clientIp))
 
+					// 登录接口优先从请求体回填用户名与用户编号。
 					if htr.Operation() == base.OperationLoginServiceLogin {
 						var loginRequest base.LoginRequest
+						// 登录请求体可正常解析时，继续提取登录用户名。
 						if fullErr = json.Unmarshal([]byte(baseLog.RequestBody), &loginRequest); fullErr == nil {
 							userName := loginRequest.GetUserName()
+							// 登录用户名存在时，继续回查基础用户信息。
 							if len(userName) > 0 {
 								baseLog.UserName = userName
 								var baseUser *models.BaseUser
-								baseUser, fullErr = baseUserRepo.Find(htr.Request().Context(),
-									repo.Where(baseUserRepo.Query(ctx).BaseUser.UserName.Eq(userName)),
-								)
+								query := baseUserRepo.Query(htr.Request().Context()).BaseUser
+								opts := make([]repo.QueryOption, 0, 1)
+								opts = append(opts, repo.Where(query.UserName.Eq(userName)))
+								baseUser, fullErr = baseUserRepo.Find(htr.Request().Context(), opts...)
+								// 基础用户回查成功时，补充用户编号。
 								if fullErr == nil {
 									baseLog.UserID = baseUser.ID
 								}
@@ -96,6 +105,7 @@ func Server(_ log.Logger,
 					} else {
 						authToken := htr.RequestHeader().Get(HeaderKeyAuthorization)
 						ut := extractAuthToken(authToken, authenticator)
+						// 非登录接口能解析出用户令牌时，回填登录态用户信息。
 						if ut != nil {
 							baseLog.UserID = ut.UserId
 							baseLog.UserName = ut.UserName
@@ -107,9 +117,11 @@ func Server(_ log.Logger,
 					ua := useragent.Parse(strUserAgent)
 
 					var deviceName string
+					// User-Agent 能识别设备名时，优先使用识别结果。
 					if ua.Device != "" {
 						deviceName = ua.Device
 					} else {
+						// 未识别设备名但属于桌面端时，统一标记为 PC。
 						if ua.Desktop {
 							deviceName = "PC"
 						}
@@ -126,16 +138,19 @@ func Server(_ log.Logger,
 			}
 			reply, err = handler(ctx, req)
 			baseLog.Success = err == nil
+			// 当前错误可转换为 Kratos 标准错误时，补充业务错误码和原因。
 			if se := errors.FromError(err); se != nil {
 				baseLog.StatusCode = se.Code
 				baseLog.Reason = se.Reason
 			}
 			baseLog.CostTime = time.Since(startTime).Milliseconds()
 			responseBytes, responseErr := json.Marshal(reply)
+			// 响应体序列化成功时，写入响应日志。
 			if responseErr == nil {
 				baseLog.Response = string(responseBytes)
 			}
 			level, stack := extractError(err)
+			// 存在堆栈信息时，追加到日志原因字段便于排查。
 			if len(stack) > 0 {
 				baseLog.Reason = fmt.Sprintf("[%s]%s", baseLog.Reason, stack)
 			}
@@ -170,6 +185,7 @@ func buildAccessLogLine(baseLog *models.BaseLog) string {
 // normalizeLogField 将日志字段压缩成单行文本。
 func normalizeLogField(value string) string {
 	value = strings.TrimSpace(value)
+	// 空值字段统一输出占位符，避免控制台日志字段缺失。
 	if value == "" {
 		return "-"
 	}
@@ -179,18 +195,20 @@ func normalizeLogField(value string) string {
 	return strings.Join(strings.Fields(value), " ")
 }
 
-// extractArgs returns the string of the req
+// extractArgs 提取请求体日志内容。
 func extractArgs(req interface{}) string {
+	// 请求对象实现脱敏接口时，优先使用脱敏后的字符串。
 	if redacter, ok := req.(Redacter); ok {
 		return redacter.Redact()
 	}
+	// 请求对象实现 Stringer 时，直接复用其字符串表示。
 	if stringer, ok := req.(fmt.Stringer); ok {
 		return stringer.String()
 	}
 	return fmt.Sprintf("%+v", req)
 }
 
-// extractError returns the string of the error
+// extractError 提取错误日志级别和堆栈信息。
 func extractError(err error) (log.Level, string) {
 	if err != nil {
 		return log.LevelError, fmt.Sprintf("%+v", err)

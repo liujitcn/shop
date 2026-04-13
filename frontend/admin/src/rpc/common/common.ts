@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 
+/** 状态设置请求参数 */
 export interface SetStatusRequest {
   /** 主键id */
   id: number;
@@ -13,10 +14,13 @@ export interface SetStatusRequest {
   status: number;
 }
 
+/** 树形选项响应 */
 export interface TreeOptionResponse {
+  /** 选项列表 */
   list: TreeOptionResponse_Option[];
 }
 
+/** 树形选项 */
 export interface TreeOptionResponse_Option {
   /** 选项名 */
   label: string;
@@ -28,10 +32,13 @@ export interface TreeOptionResponse_Option {
   children: TreeOptionResponse_Option[];
 }
 
+/** 下拉选项响应 */
 export interface SelectOptionResponse {
+  /** 选项列表 */
   list: SelectOptionResponse_Option[];
 }
 
+/** 下拉选项 */
 export interface SelectOptionResponse_Option {
   /** 选项名 */
   label: string;
@@ -41,10 +48,13 @@ export interface SelectOptionResponse_Option {
   disabled: boolean;
 }
 
+/** 应用树形选项响应 */
 export interface AppTreeOptionResponse {
+  /** 选项列表 */
   list: AppTreeOptionResponse_Option[];
 }
 
+/** 应用树形选项 */
 export interface AppTreeOptionResponse_Option {
   /** 值。必填 */
   value: string;

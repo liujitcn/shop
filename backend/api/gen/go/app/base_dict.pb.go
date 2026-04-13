@@ -25,10 +25,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 字典列表响应
 type ListBaseDictResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List          []*ListBaseDictResponse_Dict `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState       `protogen:"open.v1"`
+	List          []*ListBaseDictResponse_Dict `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 分页数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -70,6 +70,7 @@ func (x *ListBaseDictResponse) GetList() []*ListBaseDictResponse_Dict {
 	return nil
 }
 
+// 字典项
 type ListBaseDictResponse_DictItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         string                 `protobuf:"bytes,1,opt,name=value,proto3" json:"value,omitempty"` // 字典值
@@ -122,6 +123,7 @@ func (x *ListBaseDictResponse_DictItem) GetLabel() string {
 	return ""
 }
 
+// 字典
 type ListBaseDictResponse_Dict struct {
 	state         protoimpl.MessageState           `protogen:"open.v1"`
 	Code          string                           `protobuf:"bytes,1,opt,name=code,proto3" json:"code,omitempty"`   // 字典编号
@@ -186,9 +188,9 @@ var File_app_base_dict_proto protoreflect.FileDescriptor
 
 const file_app_base_dict_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/base_dict.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xd4\x02\n" +
-	"\x14ListBaseDictResponse\x122\n" +
-	"\x04list\x18\x01 \x03(\v2\x1e.app.ListBaseDictResponse.DictR\x04list\x1aa\n" +
+	"\x13app/base_dict.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xe8\x02\n" +
+	"\x14ListBaseDictResponse\x12F\n" +
+	"\x04list\x18\x01 \x03(\v2\x1e.app.ListBaseDictResponse.DictB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x1aa\n" +
 	"\bDictItem\x12(\n" +
 	"\x05value\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f字典项值R\x05value\x12+\n" +
 	"\x05label\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f字典项标签R\x05label\x1a\xa4\x01\n" +

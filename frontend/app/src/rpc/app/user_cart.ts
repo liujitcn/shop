@@ -9,12 +9,13 @@ import type { Empty } from "../google/protobuf/empty";
 import type { Int32Value, Int64Value } from "../google/protobuf/wrappers";
 import type { RecommendContext } from "./recommend";
 
+/** 用户购物车列表响应 */
 export interface ListUserCartResponse {
   /** 数据 */
   list: UserCart[];
 }
 
-/** 用户购物车 */
+/** UserCart */
 export interface UserCart {
   /** 用户购物车ID */
   id: number;
@@ -42,7 +43,7 @@ export interface UserCart {
   recommendContext: RecommendContext | undefined;
 }
 
-/** 用户购物车 */
+/** 创建购物车请求参数 */
 export interface CreateUserCartRequest {
   /** 规格id */
   goodsId: number;
@@ -54,7 +55,7 @@ export interface CreateUserCartRequest {
   recommendContext: RecommendContext | undefined;
 }
 
-/** 用户购物车 */
+/** 更新购物车请求参数 */
 export interface UpdateUserCartRequest {
   /** 购物车id */
   id: number;
@@ -62,6 +63,7 @@ export interface UpdateUserCartRequest {
   num: number;
 }
 
+/** SetUserCartStatus请求参数 */
 export interface SetUserCartStatusRequest {
   /** 购物车id */
   id: number;
@@ -69,6 +71,7 @@ export interface SetUserCartStatusRequest {
   isChecked: boolean;
 }
 
+/** 购物车全选设置请求参数 */
 export interface SelectedUserCartRequest {
   /** 是否选中 */
   isChecked: boolean;

@@ -29,16 +29,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 商品属性分页查询条件
 type PageGoodsPropRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 商品id
-	GoodsId int64 `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
-	// 商品属性名称
-	Label string `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId       int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`     // 商品id
+	Label         string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`          // 商品属性名称
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`   // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"` // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -101,12 +98,11 @@ func (x *PageGoodsPropRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 商品属性分页响应
 type PageGoodsPropResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*GoodsProp `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*GoodsProp           `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -155,15 +151,14 @@ func (x *PageGoodsPropResponse) GetTotal() int32 {
 	return 0
 }
 
+// 商品属性
 type GoodsProp struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Id    int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // 商品属性ID
-	// 商品id
-	GoodsId int64 `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"`
-	// 商品属性名称
-	Label         string `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`
-	Value         string `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"` // 商品属性value
-	Sort          int32  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`  // 排序
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`           // 商品属性ID
+	GoodsId       int64                  `protobuf:"varint,2,opt,name=goodsId,proto3" json:"goodsId,omitempty"` // 商品id
+	Label         string                 `protobuf:"bytes,3,opt,name=label,proto3" json:"label,omitempty"`      // 商品属性名称
+	Value         string                 `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`      // 商品属性value
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`       // 排序
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -242,10 +237,10 @@ const file_admin_goods_prop_proto_rawDesc = "" +
 	"\agoodsId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品idR\agoodsId\x12.\n" +
 	"\x05label\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品属性名称R\x05label\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12@\n" +
-	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"S\n" +
-	"\x15PageGoodsPropResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsPropR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\xe6\x01\n" +
+	"\bpageSize\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\"u\n" +
+	"\x15PageGoodsPropResponse\x128\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsPropB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xe6\x01\n" +
 	"\tGoodsProp\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e商品属性IDR\x02id\x122\n" +
 	"\agoodsId\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12商品规格名称R\agoodsId\x12.\n" +

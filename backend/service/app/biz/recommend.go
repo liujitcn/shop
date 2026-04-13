@@ -7,20 +7,12 @@ import (
 	"shop/pkg/gen/data"
 	recommendActor "shop/pkg/recommend/actor"
 	recommendEvent "shop/pkg/recommend/event"
-	appdto "shop/service/app/dto"
 
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/kratos-kit/auth"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
-
-func recommendUserID(actor *appdto.RecommendActor) int64 {
-	if actor == nil || actor.ActorType != recommendEvent.ActorTypeUser {
-		return 0
-	}
-	return actor.ActorId
-}
 
 // RecommendCase 推荐业务处理对象。
 type RecommendCase struct {
@@ -63,7 +55,8 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, req *em
 	}
 
 	// 匿名主体不存在或已经是同一个主体时，直接跳过绑定。
-	anonymousId := recommendActor.ExtractAnonymousID(ctx)
+	anonymousId := recommendActor.ExtractAnonymousId(ctx)
+	// 匿名主体缺失或已经与当前登录用户一致时，不需要执行主体归并。
 	if anonymousId <= 0 || anonymousId == authInfo.UserId {
 		return nil
 	}
@@ -98,25 +91,30 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	if pageSize <= 0 {
 		req.PageSize = 10
 	}
-	// 每次推荐请求都生成独立 requestID，用于后续曝光归因。
+	// 每次推荐请求都生成独立 requestId，用于后续曝光归因。
 	requestId := id.NewGUIDv7NoHyphen()
 	actor := recommendActor.Resolve(ctx)
 
 	list := make([]*app.GoodsInfo, 0)
 	total := int64(0)
-	sourceContext := map[string]any{
+	initSourceContext := map[string]any{
 		"orderId": req.GetOrderId(),
 	}
 	recallSources := make([]string, 0, 4)
-	var err error
 	// 匿名主体统一走公共推荐池，减少首页、购物车、我的三端内容分裂。
-	if actor.ActorType == recommendEvent.ActorTypeAnonymous {
-		list, total, recallSources, sourceContext, err = c.recommendRequestCase.listAnonymousRecommendGoods(ctx, actor, req)
-	} else {
-		list, total, recallSources, sourceContext, err = c.recommendRequestCase.listRecommendGoods(ctx, actor, req, recommendUserID(actor))
-	}
+	list, total, recallSources, sourceContext, err := func() ([]*app.GoodsInfo, int64, []string, map[string]any, error) {
+		// 匿名主体命中时，走匿名推荐链路。
+		if actor.ActorType == recommendEvent.ActorTypeAnonymous {
+			return c.recommendRequestCase.listAnonymousRecommendGoods(ctx, actor, req)
+		}
+		return c.recommendRequestCase.listRecommendGoods(ctx, actor, req, actor.UserId())
+	}()
 	if err != nil {
 		return nil, err
+	}
+	// 推荐链路未返回上下文时，回退到当前请求的基础上下文。
+	if sourceContext == nil {
+		sourceContext = initSourceContext
 	}
 	sourceContext["actorType"] = actor.ActorType
 	sourceContext["actorId"] = actor.ActorId

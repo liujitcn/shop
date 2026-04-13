@@ -35,7 +35,6 @@ ALTER TABLE `recommend_request` COMMENT '推荐请求记录信息';
 ALTER TABLE `recommend_request_item` COMMENT '推荐请求商品明细信息';
 ALTER TABLE `recommend_user_preference` COMMENT '用户偏好聚合信息';
 ALTER TABLE `recommend_user_goods_preference` COMMENT '用户商品偏好聚合信息';
-ALTER TABLE `recommend_goods_relation` COMMENT '商品关联聚合信息';
 ALTER TABLE `shop_banner` COMMENT '商城轮播图信息';
 ALTER TABLE `shop_hot` COMMENT '商城热门信息';
 ALTER TABLE `shop_hot_item` COMMENT '商城热门选项信息';

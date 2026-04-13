@@ -7,11 +7,13 @@
 /* eslint-disable */
 import type { StringValue } from "../google/protobuf/wrappers";
 
+/** 字典列表响应 */
 export interface ListBaseDictResponse {
   /** 分页数据 */
   list: ListBaseDictResponse_Dict[];
 }
 
+/** 字典项 */
 export interface ListBaseDictResponse_DictItem {
   /** 字典值 */
   value: string;
@@ -19,6 +21,7 @@ export interface ListBaseDictResponse_DictItem {
   label: string;
 }
 
+/** 字典 */
 export interface ListBaseDictResponse_Dict {
   /** 字典编号 */
   code: string;

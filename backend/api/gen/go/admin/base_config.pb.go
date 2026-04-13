@@ -29,18 +29,16 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 系统配置分页查询条件
 type PageBaseConfigRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	Site  *common.BaseConfigSite `protobuf:"varint,2,opt,name=site,proto3,enum=common.BaseConfigSite,oneof" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
-	Name  *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`                             // 配置名称
-	Type  *common.BaseConfigType `protobuf:"varint,4,opt,name=type,proto3,enum=common.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
-	Key   *string                `protobuf:"bytes,5,opt,name=key,proto3,oneof" json:"key,omitempty"`                               // 配置key
-	// 状态：枚举【Status】
-	Status *common.Status `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`
-	// 当前页码
-	PageNum int64 `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`
-	// 每一页的行数
-	PageSize      int64 `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Site          *common.BaseConfigSite `protobuf:"varint,2,opt,name=site,proto3,enum=common.BaseConfigSite,oneof" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
+	Name          *string                `protobuf:"bytes,3,opt,name=name,proto3,oneof" json:"name,omitempty"`                             // 配置名称
+	Type          *common.BaseConfigType `protobuf:"varint,4,opt,name=type,proto3,enum=common.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：枚举【BaseConfigType】
+	Key           *string                `protobuf:"bytes,5,opt,name=key,proto3,oneof" json:"key,omitempty"`                               // 配置key
+	Status        *common.Status         `protobuf:"varint,100,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"`   // 状态：枚举【Status】
+	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                          // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                        // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -124,12 +122,11 @@ func (x *PageBaseConfigRequest) GetPageSize() int64 {
 	return 0
 }
 
+// 系统配置分页响应
 type PageBaseConfigResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 分页数据
-	List []*BaseConfig `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
-	// 总数
-	Total         int32 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*BaseConfig          `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`    // 分页数据
+	Total         int32                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"` // 总数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -178,6 +175,7 @@ func (x *PageBaseConfigResponse) GetTotal() int32 {
 	return 0
 }
 
+// 系统配置
 type BaseConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                // 配置ID
@@ -286,6 +284,7 @@ func (x *BaseConfig) GetUpdatedAt() string {
 	return ""
 }
 
+// 系统配置表单
 type BaseConfigForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                      // 配置ID
@@ -395,10 +394,10 @@ const file_admin_base_config_proto_rawDesc = "" +
 	"\x05_nameB\a\n" +
 	"\x05_typeB\x06\n" +
 	"\x04_keyB\t\n" +
-	"\a_status\"U\n" +
-	"\x16PageBaseConfigResponse\x12%\n" +
-	"\x04list\x18\x01 \x03(\v2\x11.admin.BaseConfigR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total\"\x85\x04\n" +
+	"\a_status\"w\n" +
+	"\x16PageBaseConfigResponse\x129\n" +
+	"\x04list\x18\x01 \x03(\v2\x11.admin.BaseConfigB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x85\x04\n" +
 	"\n" +
 	"BaseConfig\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12U\n" +

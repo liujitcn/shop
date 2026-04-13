@@ -379,7 +379,6 @@ paths:
                     type: string
                 - name: status
                   in: query
-                  description: 状态：枚举【Status】
                   schema:
                     enum:
                         - UNKNOWN
@@ -389,12 +388,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -666,12 +663,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -705,17 +700,14 @@ paths:
             parameters:
                 - name: dictId
                   in: query
-                  description: 字典id
                   schema:
                     type: string
                 - name: label
                   in: query
-                  description: 字典属性名称
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -725,12 +717,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -937,17 +927,14 @@ paths:
             parameters:
                 - name: name
                   in: query
-                  description: 任务名称
                   schema:
                     type: string
                 - name: invokeTarget
                   in: query
-                  description: 调用目标
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -957,12 +944,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -1000,7 +985,6 @@ paths:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN_BJLS
@@ -1016,12 +1000,10 @@ paths:
                         type: string
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -1060,7 +1042,6 @@ paths:
             parameters:
                 - name: id
                   in: path
-                  description: 任务ID
                   required: true
                   schema:
                     type: string
@@ -1217,18 +1198,15 @@ paths:
                     type: string
                 - name: statusCode
                   in: query
-                  description: 状态码
                   schema:
                     type: integer
                     format: int32
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -1411,12 +1389,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -1565,27 +1541,22 @@ paths:
             parameters:
                 - name: userName
                   in: query
-                  description: 用户账号
                   schema:
                     type: string
                 - name: nickName
                   in: query
-                  description: 用户昵称
                   schema:
                     type: string
                 - name: deptId
                   in: query
-                  description: 部门ID
                   schema:
                     type: string
                 - name: phone
                   in: query
-                  description: 手机号
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -1595,12 +1566,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -1634,7 +1603,6 @@ paths:
             parameters:
                 - name: keyword
                   in: query
-                  description: 关键字
                   schema:
                     type: string
             responses:
@@ -1882,17 +1850,14 @@ paths:
             parameters:
                 - name: categoryId
                   in: query
-                  description: 分类id
                   schema:
                     type: string
                 - name: name
                   in: query
-                  description: 商品名称
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN_GS
@@ -1902,24 +1867,20 @@ paths:
                     format: enum
                 - name: inventoryAlert
                   in: query
-                  description: 库存预警类型：1 低库存，2 零库存
                   schema:
                     type: integer
                     format: int32
                 - name: priceAlert
                   in: query
-                  description: 价格异常类型：1 价格配置异常
                   schema:
                     type: integer
                     format: int32
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -1953,7 +1914,6 @@ paths:
             parameters:
                 - name: name
                   in: query
-                  description: 商品名称
                   schema:
                     type: string
             responses:
@@ -2052,22 +2012,18 @@ paths:
             parameters:
                 - name: goodsId
                   in: query
-                  description: 商品id
                   schema:
                     type: string
                 - name: label
                   in: query
-                  description: 商品属性名称
                   schema:
                     type: string
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -2159,7 +2115,6 @@ paths:
             parameters:
                 - name: goodsId
                   in: query
-                  description: 商品id
                   schema:
                     type: string
                 - name: skuCode
@@ -2168,12 +2123,10 @@ paths:
                     type: string
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -2234,7 +2187,6 @@ paths:
             parameters:
                 - name: goodsId
                   in: query
-                  description: 商品id
                   schema:
                     type: string
             responses:
@@ -2257,12 +2209,10 @@ paths:
                     type: string
                 - name: userId
                   in: query
-                  description: 用户id
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 订单状态
                   schema:
                     enum:
                         - UNKNOWN_OS
@@ -2301,12 +2251,10 @@ paths:
                         type: string
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -2443,12 +2391,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -2467,23 +2413,19 @@ paths:
             parameters:
                 - name: startDate
                   in: query
-                  description: 开始日期，格式：YYYY-MM-DD
                   schema:
                     type: string
                 - name: endDate
                   in: query
-                  description: 结束日期，格式：YYYY-MM-DD
                   schema:
                     type: string
                 - name: payType
                   in: query
-                  description: 支付方式：枚举【OrderPayType】，0 表示全部
                   schema:
                     type: integer
                     format: int32
                 - name: payChannel
                   in: query
-                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
                   schema:
                     type: integer
                     format: int32
@@ -2503,23 +2445,19 @@ paths:
             parameters:
                 - name: startDate
                   in: query
-                  description: 开始日期，格式：YYYY-MM-DD
                   schema:
                     type: string
                 - name: endDate
                   in: query
-                  description: 结束日期，格式：YYYY-MM-DD
                   schema:
                     type: string
                 - name: payType
                   in: query
-                  description: 支付方式：枚举【OrderPayType】，0 表示全部
                   schema:
                     type: integer
                     format: int32
                 - name: payChannel
                   in: query
-                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
                   schema:
                     type: integer
                     format: int32
@@ -2539,23 +2477,19 @@ paths:
             parameters:
                 - name: startMonth
                   in: query
-                  description: 开始月份，格式：YYYY-MM
                   schema:
                     type: string
                 - name: endMonth
                   in: query
-                  description: 结束月份，格式：YYYY-MM
                   schema:
                     type: string
                 - name: payType
                   in: query
-                  description: 支付方式：枚举【OrderPayType】，0 表示全部
                   schema:
                     type: integer
                     format: int32
                 - name: payChannel
                   in: query
-                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
                   schema:
                     type: integer
                     format: int32
@@ -2575,23 +2509,19 @@ paths:
             parameters:
                 - name: startMonth
                   in: query
-                  description: 开始月份，格式：YYYY-MM
                   schema:
                     type: string
                 - name: endMonth
                   in: query
-                  description: 结束月份，格式：YYYY-MM
                   schema:
                     type: string
                 - name: payType
                   in: query
-                  description: 支付方式：枚举【OrderPayType】，0 表示全部
                   schema:
                     type: integer
                     format: int32
                 - name: payChannel
                   in: query
-                  description: 支付渠道：枚举【OrderPayChannel】，0 表示全部
                   schema:
                     type: integer
                     format: int32
@@ -2611,7 +2541,6 @@ paths:
             parameters:
                 - name: site
                   in: query
-                  description: 位置：枚举【ShopBannerSite】
                   schema:
                     enum:
                         - UNKNOWN_SBS
@@ -2621,7 +2550,6 @@ paths:
                     format: enum
                 - name: type
                   in: query
-                  description: 跳转类型：枚举【ShopBannerType】
                   schema:
                     enum:
                         - UNKNOWN_SBT
@@ -2633,7 +2561,6 @@ paths:
                     format: enum
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -2643,12 +2570,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -2682,7 +2607,6 @@ paths:
             parameters:
                 - name: id
                   in: path
-                  description: 主键id
                   required: true
                   schema:
                     type: string
@@ -2763,17 +2687,14 @@ paths:
             parameters:
                 - name: title
                   in: query
-                  description: 商城热门推荐标题
                   schema:
                     type: string
                 - name: desc
                   in: query
-                  description: 商城热门推荐描述
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -2783,12 +2704,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -2822,17 +2741,14 @@ paths:
             parameters:
                 - name: hotId
                   in: query
-                  description: 商城热门推荐id
                   schema:
                     type: string
                 - name: title
                   in: query
-                  description: 商城热门推荐属性标题
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -2842,12 +2758,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -3041,12 +2955,10 @@ paths:
             parameters:
                 - name: label
                   in: query
-                  description: 标签
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN
@@ -3056,12 +2968,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -3095,7 +3005,6 @@ paths:
             parameters:
                 - name: id
                   in: path
-                  description: 服务ID
                   required: true
                   schema:
                     type: string
@@ -3176,12 +3085,10 @@ paths:
             parameters:
                 - name: name
                   in: query
-                  description: 门店名称
                   schema:
                     type: string
                 - name: status
                   in: query
-                  description: 状态
                   schema:
                     enum:
                         - UNKNOWN_USS
@@ -3192,12 +3099,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -3413,22 +3318,18 @@ paths:
             parameters:
                 - name: name
                   in: query
-                  description: 商品名
                   schema:
                     type: string
                 - name: categoryId
                   in: query
-                  description: 分类id
                   schema:
                     type: string
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -3467,7 +3368,6 @@ paths:
             parameters:
                 - name: status
                   in: query
-                  description: 订单状态
                   schema:
                     enum:
                         - UNKNOWN_OS
@@ -3482,12 +3382,10 @@ paths:
                     format: enum
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -3875,7 +3773,6 @@ paths:
             parameters:
                 - name: site
                   in: query
-                  description: 位置：枚举【ShopBannerSite】
                   schema:
                     type: integer
                     format: int32
@@ -3908,17 +3805,14 @@ paths:
             parameters:
                 - name: hotItemId
                   in: query
-                  description: 选项id
                   schema:
                     type: string
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -4168,12 +4062,10 @@ paths:
             parameters:
                 - name: pageNum
                   in: query
-                  description: 当前页码
                   schema:
                     type: string
                 - name: pageSize
                   in: query
-                  description: 每一页的行数
                   schema:
                     type: string
             responses:
@@ -4439,6 +4331,7 @@ components:
                 value:
                     type: string
                     description: 值
+            description: 占比分析项
         AnalyticsPieResponse:
             type: object
             properties:
@@ -4447,6 +4340,7 @@ components:
                     items:
                         $ref: '#/components/schemas/AnalyticsPieItem'
                     description: 饼图数据
+            description: Analytics占比响应
         AnalyticsRankItem:
             type: object
             properties:
@@ -4456,6 +4350,7 @@ components:
                 value:
                     type: string
                     description: 值
+            description: 排行分析项
         AnalyticsRankResponse:
             type: object
             properties:
@@ -4464,6 +4359,7 @@ components:
                     items:
                         $ref: '#/components/schemas/AnalyticsRankItem'
                     description: 排行列表
+            description: Analytics排行响应
         AnalyticsTrendResponse:
             type: object
             properties:
@@ -4482,6 +4378,7 @@ components:
                     items:
                         type: string
                     description: Y轴名称列表
+            description: Analytics趋势响应
         AnalyticsTrendSeries:
             type: object
             properties:
@@ -4504,6 +4401,7 @@ components:
                     type: integer
                     description: Y轴索引
                     format: int32
+            description: 趋势分析Series
         AppTreeOptionResponse:
             type: object
             properties:
@@ -4511,6 +4409,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/AppTreeOptionResponse_Option'
+                    description: 选项列表
+            description: 应用树形选项响应
         AppTreeOptionResponse_Option:
             type: object
             properties:
@@ -4531,6 +4431,7 @@ components:
                     items:
                         $ref: '#/components/schemas/AppTreeOptionResponse_Option'
                     description: 子节点树
+            description: 应用树形选项
         AuditUserStoreForm:
             type: object
             properties:
@@ -4549,6 +4450,7 @@ components:
                 remark:
                     type: string
                     description: 备注名
+            description: AuditUserStore表单
         BaseApi:
             type: object
             properties:
@@ -4573,7 +4475,7 @@ components:
                 path:
                     type: string
                     description: 请求地址
-            description: 日志
+            description: API
         BaseConfig:
             type: object
             properties:
@@ -4621,6 +4523,7 @@ components:
                 updatedAt:
                     type: string
                     description: 更新时间
+            description: 系统配置
         BaseConfigForm:
             type: object
             properties:
@@ -4662,6 +4565,7 @@ components:
                     type: string
                     description: 状态
                     format: enum
+            description: 系统配置表单
         BaseDept:
             type: object
             properties:
@@ -4728,7 +4632,7 @@ components:
                 remark:
                     type: string
                     description: 备注
-            description: 部门
+            description: 部门表单
         BaseDict:
             type: object
             properties:
@@ -4776,7 +4680,7 @@ components:
                     type: string
                     description: 状态
                     format: enum
-            description: 字典
+            description: 字典表单
         BaseDictItem:
             type: object
             properties:
@@ -4813,6 +4717,7 @@ components:
                 updatedAt:
                     type: string
                     description: 更新时间
+            description: 字典项
         BaseDictItemForm:
             type: object
             properties:
@@ -4843,6 +4748,7 @@ components:
                     type: string
                     description: 状态
                     format: enum
+            description: 字典属性表单
         BaseJob:
             type: object
             properties:
@@ -4891,6 +4797,7 @@ components:
                 value:
                     type: string
                     description: 值
+            description: 定时任务参数
         BaseJobForm:
             type: object
             properties:
@@ -4919,7 +4826,7 @@ components:
                     type: string
                     description: 状态
                     format: enum
-            description: 定时任务
+            description: 定时任务表单
         BaseJobLog:
             type: object
             properties:
@@ -5144,7 +5051,7 @@ components:
                     type: string
                     description: 状态
                     format: enum
-            description: 菜单
+            description: 菜单表单
         BaseMenuMeta:
             type: object
             properties:
@@ -5174,6 +5081,7 @@ components:
                     items:
                         $ref: '#/components/schemas/BaseMenuParams'
                     description: 参数
+            description: 菜单元信息
         BaseMenuParams:
             type: object
             properties:
@@ -5183,6 +5091,7 @@ components:
                 value:
                     type: string
                     description: 参数value
+            description: 菜单参数
         BaseRole:
             type: object
             properties:
@@ -5266,7 +5175,7 @@ components:
                 remark:
                     type: string
                     description: 备注
-            description: 角色
+            description: 角色表单
         BaseUser:
             type: object
             properties:
@@ -5365,7 +5274,7 @@ components:
                 remark:
                     type: string
                     description: 备注名
-            description: 用户
+            description: 用户表单
         CancelOrderInfoRequest:
             type: object
             properties:
@@ -5384,6 +5293,7 @@ components:
                     type: string
                     description: 取消原因
                     format: enum
+            description: 取消订单请求参数
         CaptchaResponse:
             type: object
             properties:
@@ -5393,6 +5303,7 @@ components:
                 captchaBase64:
                     type: string
                     description: 验证码base64
+            description: 验证码响应
         ConfigResponse:
             type: object
             properties:
@@ -5401,6 +5312,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ConfigResponse_Data'
                     description: 系统配置
+            description: 配置响应
         ConfigResponse_Data:
             type: object
             properties:
@@ -5410,6 +5322,7 @@ components:
                 value:
                     type: string
                     description: 配置value
+            description: 配置数据
         ConfirmOrderInfoResponse:
             type: object
             properties:
@@ -5423,7 +5336,7 @@ components:
                 clearCart:
                     type: boolean
                     description: 是否清空购物车
-            description: 确认订单信息信息
+            description: 确认订单响应
         CountOrderInfoResponse:
             type: object
             properties:
@@ -5432,7 +5345,7 @@ components:
                     items:
                         $ref: '#/components/schemas/CountOrderInfoResponse_Count'
                     description: 总数
-            description: 订单信息数量汇总
+            description: 订单数量汇总响应
         CountOrderInfoResponse_Count:
             type: object
             properties:
@@ -5453,6 +5366,7 @@ components:
                     type: integer
                     description: 订单数量
                     format: int32
+            description: 订单数量统计项
         CreateOrderInfoGoods:
             type: object
             properties:
@@ -5467,6 +5381,7 @@ components:
                     description: 数量
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
+            description: 下单商品
         CreateOrderInfoRequest:
             type: object
             properties:
@@ -5509,12 +5424,14 @@ components:
                     items:
                         $ref: '#/components/schemas/CreateOrderInfoGoods'
                     description: 商品信息
+            description: 创建订单请求参数
         CreateOrderInfoResponse:
             type: object
             properties:
                 orderId:
                     type: string
                     description: 订单id
+            description: 创建订单响应
         CreateUserCartRequest:
             type: object
             properties:
@@ -5529,13 +5446,14 @@ components:
                     description: 数量
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
-            description: 用户购物车
+            description: 创建购物车请求参数
         ExecBaseJobRequest:
             type: object
             properties:
                 id:
                     type: string
                     description: 主键id
+            description: ExecBaseJob请求参数
         FileInfo:
             type: object
             properties:
@@ -5548,21 +5466,29 @@ components:
                 extname:
                     type: string
                     description: 文件扩展名
+            description: File信息
         GoodsAnalyticsSummaryResponse:
             type: object
             properties:
                 newGoodsCount:
                     type: string
+                    description: 新增商品数
                 putOnGoodsRate:
                     type: string
+                    description: 上架商品占比
                 activeGoodsCount:
                     type: string
+                    description: 活跃商品数
                 activeGoodsRate:
                     type: string
+                    description: 活跃商品占比
                 saleCount:
                     type: string
+                    description: 销售件数
                 saleGrowthRate:
                     type: string
+                    description: 销售增长率
+            description: 商品分析汇总响应
         GoodsCategory:
             type: object
             properties:
@@ -5629,7 +5555,7 @@ components:
                     type: string
                     description: 菜单状态
                     format: enum
-            description: 商品分类
+            description: 商品分类表单
         GoodsInfo:
             type: object
             properties:
@@ -5680,6 +5606,7 @@ components:
                 categoryName:
                     type: string
                     description: 分类名称
+            description: Goods信息
         GoodsInfoForm:
             type: object
             properties:
@@ -5734,6 +5661,7 @@ components:
                 categoryName:
                     type: string
                     description: 分类名称
+            description: 商品表单
         GoodsInfoResponse:
             type: object
             properties:
@@ -5783,6 +5711,7 @@ components:
                     items:
                         $ref: '#/components/schemas/GoodsInfoResponse_Spec'
                     description: 商品规格
+            description: 商品详情响应
         GoodsInfoResponse_Prop:
             type: object
             properties:
@@ -5792,6 +5721,7 @@ components:
                 value:
                     type: string
                     description: 商品属性value
+            description: 商品属性
         GoodsInfoResponse_Sku:
             type: object
             properties:
@@ -5815,6 +5745,7 @@ components:
                 inventory:
                     type: string
                     description: 库存数量
+            description: 商品 SKU
         GoodsInfoResponse_Spec:
             type: object
             properties:
@@ -5826,6 +5757,7 @@ components:
                     items:
                         $ref: '#/components/schemas/Spec_Item'
                     description: 商品规格内容
+            description: 商品规格
         GoodsProp:
             type: object
             properties:
@@ -5845,6 +5777,7 @@ components:
                     type: integer
                     description: 排序
                     format: int32
+            description: 商品属性
         GoodsSku:
             type: object
             properties:
@@ -5880,6 +5813,7 @@ components:
                 inventory:
                     type: string
                     description: 库存数量
+            description: 商品 SKU
         GoodsSpec:
             type: object
             properties:
@@ -5901,12 +5835,14 @@ components:
                     type: integer
                     description: 排序
                     format: int32
+            description: 商品规格
         H5PayResponse:
             type: object
             properties:
                 h5Url:
                     type: string
                     description: 支付url
+            description: H5 支付响应
         JsapiPayResponse:
             type: object
             properties:
@@ -5925,6 +5861,7 @@ components:
                 paySign:
                     type: string
                     description: 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
+            description: 小程序支付响应
         ListBaseApiResponse:
             type: object
             properties:
@@ -5933,6 +5870,7 @@ components:
                     items:
                         $ref: '#/components/schemas/BaseApi'
                     description: 分页数据
+            description: API列表响应
         ListBaseDictResponse:
             type: object
             properties:
@@ -5941,6 +5879,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ListBaseDictResponse_BaseDict'
                     description: 分页数据
+            description: 字典列表响应
         ListBaseDictResponse_BaseDict:
             type: object
             properties:
@@ -5955,6 +5894,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ListBaseDictResponse_BaseDictItem'
                     description: 字典属性
+            description: 字典
         ListBaseDictResponse_BaseDictItem:
             type: object
             properties:
@@ -5967,6 +5907,7 @@ components:
                 tagType:
                     type: string
                     description: 标签类型，用于前端样式展示（如success、warning等）
+            description: 字典项
         ListGoodsCategoryResponse:
             type: object
             properties:
@@ -5975,6 +5916,7 @@ components:
                     items:
                         $ref: '#/components/schemas/GoodsCategory'
                     description: 分页数据
+            description: 商品分类列表响应
         ListGoodsInfoResponse:
             type: object
             properties:
@@ -5983,6 +5925,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ListGoodsInfoResponse_GoodsInfo'
                     description: 分页数据
+            description: 商品列表响应
         ListGoodsInfoResponse_GoodsInfo:
             type: object
             properties:
@@ -5998,6 +5941,7 @@ components:
                 categoryName:
                     type: string
                     description: 分类名称
+            description: Goods信息
         ListGoodsSpecResponse:
             type: object
             properties:
@@ -6006,6 +5950,7 @@ components:
                     items:
                         $ref: '#/components/schemas/GoodsSpec'
                     description: 分页数据
+            description: 商品规格列表响应
         ListShopBannerResponse:
             type: object
             properties:
@@ -6014,6 +5959,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ShopBanner'
                     description: 分页数据
+            description: 轮播图列表响应
         ListShopHotItemResponse:
             type: object
             properties:
@@ -6031,6 +5977,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ShopHotItem'
                     description: 选项
+            description: 热门专区项列表响应
         ListShopHotResponse:
             type: object
             properties:
@@ -6039,6 +5986,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ShopHot'
                     description: 分页数据
+            description: 热门专区列表响应
         ListShopServiceResponse:
             type: object
             properties:
@@ -6047,6 +5995,7 @@ components:
                     items:
                         $ref: '#/components/schemas/ShopService'
                     description: 列表数据
+            description: 商城服务列表响应
         ListUserAddressResponse:
             type: object
             properties:
@@ -6055,6 +6004,7 @@ components:
                     items:
                         $ref: '#/components/schemas/UserAddress'
                     description: 数据
+            description: 用户地址列表响应
         ListUserCartResponse:
             type: object
             properties:
@@ -6063,6 +6013,7 @@ components:
                     items:
                         $ref: '#/components/schemas/UserCart'
                     description: 数据
+            description: 用户购物车列表响应
         LoginRequest:
             type: object
             properties:
@@ -6078,7 +6029,7 @@ components:
                 captchaId:
                     type: string
                     description: 验证码Id
-            description: 用户后台登录 - 请求
+            description: 登录请求参数
         LoginResponse:
             type: object
             properties:
@@ -6095,7 +6046,7 @@ components:
                 expiresIn:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
-            description: 用户后台登录 - 回应
+            description: 登录响应
         MultiUploadFileRequest:
             type: object
             properties:
@@ -6104,6 +6055,7 @@ components:
                     items:
                         $ref: '#/components/schemas/UploadFileInfo'
                     description: 上传文件信息
+            description: 批量上传文件请求参数
         MultiUploadFileResponse:
             type: object
             properties:
@@ -6112,6 +6064,7 @@ components:
                     items:
                         $ref: '#/components/schemas/FileInfo'
                     description: 文件上传结果
+            description: 批量上传文件响应
         OrderAddress:
             type: object
             properties:
@@ -6129,22 +6082,29 @@ components:
                 detail:
                     type: string
                     description: 详细地址
-            description: 订单地址信息
+            description: 订单地址
         OrderAnalyticsSummaryResponse:
             type: object
             properties:
                 newOrderCount:
                     type: string
+                    description: 新增订单数
                 newOrderGrowthRate:
                     type: string
+                    description: 新增订单增长率
                 saleAmount:
                     type: string
+                    description: 销售额
                 averageOrderAmount:
                     type: string
+                    description: 客单价
                 orderUserCount:
                     type: string
+                    description: 下单用户数
                 repurchaseRate:
                     type: string
+                    description: 复购率
+            description: 订单分析汇总响应
         OrderCancel:
             type: object
             properties:
@@ -6163,7 +6123,7 @@ components:
                 createdAt:
                     type: string
                     description: 创建时间
-            description: 订单取消信息
+            description: 订单取消记录
         OrderDayReportItem:
             type: object
             properties:
@@ -6194,7 +6154,7 @@ components:
                 customerUnitPrice:
                     type: string
                     description: 客单价，单位分
-            description: 订单日报明细
+            description: 订单日报项
         OrderDayReportListResponse:
             type: object
             properties:
@@ -6203,7 +6163,7 @@ components:
                     items:
                         $ref: '#/components/schemas/OrderDayReportItem'
                     description: 日报明细
-            description: 订单日报明细列表响应
+            description: 订单日报列表响应
         OrderDayReportSummaryResponse:
             type: object
             properties:
@@ -6267,7 +6227,7 @@ components:
                 totalPayPrice:
                     type: string
                     description: 支付金额汇总
-            description: 订单商品信息
+            description: 订单商品
         OrderInfo:
             type: object
             properties:
@@ -6342,7 +6302,7 @@ components:
                 nickName:
                     type: string
                     description: 用户名
-            description: 订单信息表
+            description: Order信息
         OrderInfoRefundResponse:
             type: object
             properties:
@@ -6353,6 +6313,7 @@ components:
                     items:
                         $ref: '#/components/schemas/OrderRefund'
                     description: 退款信息
+            description: 订单Refund响应
         OrderInfoResponse:
             type: object
             properties:
@@ -6380,6 +6341,7 @@ components:
                     items:
                         $ref: '#/components/schemas/OrderRefund'
                     description: 退款信息
+            description: 订单详情响应
         OrderInfoShippedResponse:
             type: object
             properties:
@@ -6392,6 +6354,7 @@ components:
                     description: 商品信息
                 logistics:
                     $ref: '#/components/schemas/OrderLogistics'
+            description: 订单Shipped响应
         OrderLogistics:
             type: object
             properties:
@@ -6412,7 +6375,7 @@ components:
                 createdAt:
                     type: string
                     description: 创建时间
-            description: 订单物流信息
+            description: 订单物流
         OrderLogistics_Detail:
             type: object
             properties:
@@ -6422,6 +6385,7 @@ components:
                 text:
                     type: string
                     description: 动态
+            description: Detail
         OrderMonthReportItem:
             type: object
             properties:
@@ -6452,7 +6416,7 @@ components:
                 customerUnitPrice:
                     type: string
                     description: 客单价，单位分
-            description: 订单月报明细
+            description: 订单月报项
         OrderMonthReportListResponse:
             type: object
             properties:
@@ -6461,7 +6425,7 @@ components:
                     items:
                         $ref: '#/components/schemas/OrderMonthReportItem'
                     description: 月报明细
-            description: 订单月报名细列表响应
+            description: 订单月报列表响应
         OrderMonthReportSummaryResponse:
             type: object
             properties:
@@ -6529,7 +6493,7 @@ components:
                     type: string
                     description: 对账状态：枚举【OrderBillStatus】
                     format: enum
-            description: 订单支付信息
+            description: 订单支付
         OrderPayment_Amount:
             type: object
             properties:
@@ -6545,7 +6509,7 @@ components:
                 payerCurrency:
                     type: string
                     description: 【用户支付币种】 固定返回：CNY，代表人民币。
-            description: 订单金额信息，当支付成功时返回该字段
+            description: 支付金额信息
         OrderPayment_Payer:
             type: object
             properties:
@@ -6559,7 +6523,7 @@ components:
                 deviceId:
                     type: string
                     description: 【商户端设备号】门店号/收银设备ID
-            description: 场景信息
+            description: 支付场景信息
         OrderRefund:
             type: object
             properties:
@@ -6616,7 +6580,7 @@ components:
                     type: string
                     description: 对账状态：枚举【OrderBillStatus】
                     format: enum
-            description: 订单退款信息
+            description: 订单退款
         OrderRefund_Amount:
             type: object
             properties:
@@ -6632,13 +6596,14 @@ components:
                 payerRefund:
                     type: string
                     description: 【用户退款金额】单位：分
-            description: 【金额信息】
+            description: 退款金额信息
         OrderRepurchaseInfoRequest:
             type: object
             properties:
                 orderId:
                     type: string
                     description: 订单id
+            description: 再次购买订单请求参数
         OrderSummary:
             type: object
             properties:
@@ -6654,6 +6619,7 @@ components:
                 goodsNum:
                     type: string
                     description: 商品总数
+            description: Order汇总
         PageBaseConfigResponse:
             type: object
             properties:
@@ -6666,6 +6632,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 系统配置分页响应
         PageBaseDictItemResponse:
             type: object
             properties:
@@ -6678,6 +6645,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 字典属性分页响应
         PageBaseDictResponse:
             type: object
             properties:
@@ -6690,6 +6658,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 字典分页响应
         PageBaseJobLogResponse:
             type: object
             properties:
@@ -6702,6 +6671,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 定时任务日志分页响应
         PageBaseJobResponse:
             type: object
             properties:
@@ -6714,6 +6684,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 定时任务分页响应
         PageBaseLogResponse:
             type: object
             properties:
@@ -6726,6 +6697,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 日志分页响应
         PageBaseRoleResponse:
             type: object
             properties:
@@ -6738,6 +6710,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 角色分页响应
         PageBaseUserResponse:
             type: object
             properties:
@@ -6750,6 +6723,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 用户分页响应
         PageGoodsInfoResponse:
             type: object
             properties:
@@ -6762,6 +6736,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 商品分页响应
         PageGoodsPropResponse:
             type: object
             properties:
@@ -6774,6 +6749,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 商品属性分页响应
         PageGoodsSkuResponse:
             type: object
             properties:
@@ -6786,6 +6762,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 商品 SKU 分页响应
         PageOrderInfoResponse:
             type: object
             properties:
@@ -6798,6 +6775,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 订单分页响应
         PagePayBillResponse:
             type: object
             properties:
@@ -6810,6 +6788,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 支付账单分页响应
         PageShopBannerResponse:
             type: object
             properties:
@@ -6822,6 +6801,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 轮播图分页响应
         PageShopHotGoodsResponse:
             type: object
             properties:
@@ -6834,6 +6814,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 热门专区商品分页响应
         PageShopHotItemResponse:
             type: object
             properties:
@@ -6846,6 +6827,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 热门专区项分页响应
         PageShopHotResponse:
             type: object
             properties:
@@ -6858,6 +6840,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 热门专区分页响应
         PageShopServiceResponse:
             type: object
             properties:
@@ -6870,6 +6853,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 商城服务分页响应
         PageUserCollectResponse:
             type: object
             properties:
@@ -6882,6 +6866,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 用户收藏分页响应
         PageUserStoreResponse:
             type: object
             properties:
@@ -6894,6 +6879,7 @@ components:
                     type: integer
                     description: 总数
                     format: int32
+            description: 用户门店分页响应
         PayBill:
             type: object
             properties:
@@ -6943,24 +6929,28 @@ components:
                 orderId:
                     type: string
                     description: 订单id
+            description: 支付请求参数
         PhoneAuthRequest:
             type: object
             properties:
                 code:
                     type: string
                     description: 授权信息
+            description: 手机号授权请求参数
         PhoneAuthResponse:
             type: object
             properties:
                 phone:
                     type: string
                     description: 手机号
+            description: 手机号授权响应
         ReceiveOrderInfoRequest:
             type: object
             properties:
                 orderId:
                     type: string
                     description: 订单id
+            description: 确认收货请求参数
         RecommendContext:
             type: object
             properties:
@@ -6982,7 +6972,7 @@ components:
                     type: integer
                     description: 推荐位序号
                     format: int32
-            description: RecommendContext 推荐上下文。
+            description: 推荐上下文
         RecommendExposureReportRequest:
             type: object
             properties:
@@ -7005,7 +6995,7 @@ components:
                     items:
                         type: string
                     description: 曝光商品ID列表
-            description: RecommendExposureReportRequest 推荐曝光上报请求。
+            description: 推荐曝光上报请求参数
         RecommendGoodsActionItem:
             type: object
             properties:
@@ -7017,7 +7007,7 @@ components:
                     description: 商品数量
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
-            description: RecommendGoodsActionItem 推荐商品行为埋点商品项。
+            description: 推荐商品行为项
         RecommendGoodsActionReportRequest:
             type: object
             properties:
@@ -7038,7 +7028,7 @@ components:
                     items:
                         $ref: '#/components/schemas/RecommendGoodsActionItem'
                     description: 商品行为事件项
-            description: RecommendGoodsActionReportRequest 推荐商品行为上报请求。
+            description: 推荐商品行为上报请求参数
         RecommendGoodsResponse:
             type: object
             properties:
@@ -7046,6 +7036,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/GoodsInfo'
+                    description: 推荐商品列表
                 total:
                     type: integer
                     description: 总数
@@ -7053,14 +7044,14 @@ components:
                 requestId:
                     type: string
                     description: 推荐请求ID
-            description: RecommendGoodsResponse 查询推荐商品列表响应。
+            description: 推荐商品响应
         RefreshTokenRequest:
             type: object
             properties:
                 refreshToken:
                     type: string
                     description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
-            description: 用户刷新令牌 - 请求
+            description: 刷新令牌请求参数
         RefreshTokenResponse:
             type: object
             properties:
@@ -7077,7 +7068,7 @@ components:
                 expiresIn:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
-            description: 用户刷新令牌 - 回应
+            description: 刷新令牌响应
         RefundOrderInfoRequest:
             type: object
             properties:
@@ -7099,6 +7090,7 @@ components:
                 refundMoney:
                     type: string
                     description: 退款金额
+            description: 订单退款请求参数
         ResetBaseUserPwdRequest:
             type: object
             properties:
@@ -7108,6 +7100,7 @@ components:
                 pwd:
                     type: string
                     description: 密码
+            description: ResetBaseUserPwd请求参数
         RouteItem:
             type: object
             properties:
@@ -7130,35 +7123,47 @@ components:
                     items:
                         $ref: '#/components/schemas/RouteItem'
                     description: 子节点树
-            description: 路由项
+            description: Route项
         RouteMeta:
             type: object
             properties:
                 title:
                     type: string
+                    description: 菜单标题
                 icon:
                     type: string
+                    description: 菜单图标
                 alwaysShow:
                     type: boolean
+                    description: 【目录】只有一个子路由是否始终显示
                 hidden:
                     type: boolean
+                    description: 是否隐藏(true-是 false-否)
                 keepAlive:
                     type: boolean
+                    description: 【菜单】是否开启页面缓存
                 full:
                     type: boolean
+                    description: 【菜单】是否全屏(示例：数据大屏页面)
                 affix:
                     type: boolean
+                    description: 【菜单】是否固定在标签页中(首页通常是固定项)
                 params:
                     type: array
                     items:
                         $ref: '#/components/schemas/RouteParams'
+                    description: 参数
+            description: Route元信息
         RouteParams:
             type: object
             properties:
                 key:
                     type: string
+                    description: key
                 value:
                     type: string
+                    description: value
+            description: Route参数
         SelectOptionResponse:
             type: object
             properties:
@@ -7166,6 +7171,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/SelectOptionResponse_Option'
+                    description: 选项列表
+            description: 下拉选项响应
         SelectOptionResponse_Option:
             type: object
             properties:
@@ -7178,19 +7185,21 @@ components:
                 disabled:
                     type: boolean
                     description: 是否禁用
+            description: 下拉选项
         SelectedUserCartRequest:
             type: object
             properties:
                 isChecked:
                     type: boolean
                     description: 是否选中
+            description: 购物车全选设置请求参数
         SendUpdatePhoneCodeForm:
             type: object
             properties:
                 phone:
                     type: string
                     description: 手机号
-            description: 发送手机验证码表单
+            description: SendUpdatePhoneCode表单
         SetMenusRequest:
             type: object
             properties:
@@ -7202,6 +7211,7 @@ components:
                     items:
                         type: string
                     description: 分配的菜单列表
+            description: SetMenus请求参数
         SetStatusRequest:
             type: object
             properties:
@@ -7212,6 +7222,7 @@ components:
                     type: integer
                     description: 状态
                     format: int32
+            description: 状态设置请求参数
         SetUserCartStatusRequest:
             type: object
             properties:
@@ -7221,6 +7232,7 @@ components:
                 isChecked:
                     type: boolean
                     description: 是否选中
+            description: SetUserCartStatus请求参数
         ShippedOrderInfoRequest:
             type: object
             properties:
@@ -7236,6 +7248,7 @@ components:
                 contact:
                     type: string
                     description: 联系方式
+            description: ShippedOrder信息请求参数
         ShopBanner:
             type: object
             properties:
@@ -7284,6 +7297,7 @@ components:
                 updatedAt:
                     type: string
                     description: 更新时间
+            description: 轮播图
         ShopBannerForm:
             type: object
             properties:
@@ -7326,6 +7340,7 @@ components:
                     type: string
                     description: 状态：枚举【Status】
                     format: enum
+            description: 轮播图表单
         ShopHot:
             type: object
             properties:
@@ -7356,7 +7371,7 @@ components:
                 updatedAt:
                     type: string
                     description: 更新时间
-            description: 商城热门推荐
+            description: 热门专区
         ShopHotForm:
             type: object
             properties:
@@ -7389,7 +7404,7 @@ components:
                     type: string
                     description: 状态
                     format: enum
-            description: 商城热门推荐
+            description: 热门专区表单
         ShopHotItem:
             type: object
             properties:
@@ -7420,6 +7435,7 @@ components:
                 updatedAt:
                     type: string
                     description: 更新时间
+            description: 热门专区项
         ShopHotItemForm:
             type: object
             properties:
@@ -7449,6 +7465,7 @@ components:
                     type: string
                     description: 状态：枚举【Status】
                     format: enum
+            description: 热门专区项表单
         ShopService:
             type: object
             properties:
@@ -7479,6 +7496,7 @@ components:
                 updatedAt:
                     type: string
                     description: 更新时间
+            description: 商城服务
         ShopServiceForm:
             type: object
             properties:
@@ -7503,24 +7521,28 @@ components:
                     type: string
                     description: 状态：枚举【Status】
                     format: enum
+            description: 商城服务表单
         Spec_Item:
             type: object
             properties:
                 name:
                     type: string
                     description: 规格
+            description: 规格项
         StartBaseJobRequest:
             type: object
             properties:
                 id:
                     type: string
                     description: 主键id
+            description: StartBaseJob请求参数
         StopBaseJobRequest:
             type: object
             properties:
                 id:
                     type: string
                     description: 主键id
+            description: StopBaseJob请求参数
         StringValues:
             type: object
             properties:
@@ -7532,7 +7554,7 @@ components:
             description: |-
                 `string` 类型数组包装消息。
 
-                 `StringValues` 的 JSON 表示为字符串数组。
+                 StringValues
         TreeBaseDeptResponse:
             type: object
             properties:
@@ -7541,6 +7563,7 @@ components:
                     items:
                         $ref: '#/components/schemas/BaseDept'
                     description: 分页数据
+            description: 部门树响应
         TreeBaseMenuResponse:
             type: object
             properties:
@@ -7548,6 +7571,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/BaseMenu'
+                    description: 菜单树
+            description: 菜单树响应
         TreeGoodsCategoryResponse:
             type: object
             properties:
@@ -7556,6 +7581,7 @@ components:
                     items:
                         $ref: '#/components/schemas/GoodsCategory'
                     description: 分页数据
+            description: 商品分类树响应
         TreeOptionResponse:
             type: object
             properties:
@@ -7563,6 +7589,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/TreeOptionResponse_Option'
+                    description: 选项列表
+            description: 树形选项响应
         TreeOptionResponse_Option:
             type: object
             properties:
@@ -7580,6 +7608,7 @@ components:
                     items:
                         $ref: '#/components/schemas/TreeOptionResponse_Option'
                     description: 子节点树
+            description: 树形选项
         TreeRouteResponse:
             type: object
             properties:
@@ -7587,6 +7616,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/RouteItem'
+                    description: 路由列表
+            description: Route树响应
         UpdatePhoneForm:
             type: object
             properties:
@@ -7596,7 +7627,7 @@ components:
                 code:
                     type: string
                     description: 验证码
-            description: 修改手机表单
+            description: UpdatePhone表单
         UpdatePwdForm:
             type: object
             properties:
@@ -7609,7 +7640,7 @@ components:
                 confirmPwd:
                     type: string
                     description: 确认密码
-            description: 修改密码表单
+            description: UpdatePwd表单
         UpdateUserCartRequest:
             type: object
             properties:
@@ -7619,7 +7650,7 @@ components:
                 num:
                     type: string
                     description: 数量
-            description: 用户购物车
+            description: 更新购物车请求参数
         UpdateUserInfoRequest:
             type: object
             properties:
@@ -7633,6 +7664,7 @@ components:
                     type: integer
                     description: 性别
                     format: int32
+            description: UpdateUser信息请求参数
         UploadFileInfo:
             type: object
             properties:
@@ -7649,6 +7681,7 @@ components:
                     type: string
                     description: ' 二进制内容将通过 base64 编码传输'
                     format: bytes
+            description: 上传文件信息
         UserAddress:
             type: object
             properties:
@@ -7672,7 +7705,7 @@ components:
                 isDefault:
                     type: boolean
                     description: 是否默认
-            description: 用户地址
+            description: UserAddress
         UserAddressForm:
             type: object
             properties:
@@ -7701,22 +7734,29 @@ components:
                 isDefault:
                     type: boolean
                     description: 是否默认
-            description: 用户地址
+            description: UserAddress表单
         UserAnalyticsSummaryResponse:
             type: object
             properties:
                 newUserCount:
                     type: string
+                    description: 新增用户数
                 newUserGrowthRate:
                     type: string
+                    description: 新增用户增长率
                 orderUserCount:
                     type: string
+                    description: 下单用户数
                 orderUserConversionRate:
                     type: string
+                    description: 下单转化率
                 activeUserCount:
                     type: string
+                    description: 活跃用户数
                 activeUserCoverageRate:
                     type: string
+                    description: 活跃覆盖率
+            description: 用户分析汇总响应
         UserCart:
             type: object
             properties:
@@ -7757,7 +7797,7 @@ components:
                     description: 是否选中
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
-            description: 用户购物车
+            description: UserCart
         UserCollect:
             type: object
             properties:
@@ -7785,7 +7825,7 @@ components:
                 joinPrice:
                     type: string
                     description: 加入时价格
-            description: 用户收藏
+            description: UserCollect
         UserCollectForm:
             type: object
             properties:
@@ -7794,7 +7834,7 @@ components:
                     description: 商品id
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
-            description: 用户购物车
+            description: UserCollect表单
         UserInfo:
             type: object
             properties:
@@ -7819,6 +7859,7 @@ components:
                 deptName:
                     type: string
                     description: 部门名称
+            description: User信息
         UserProfileForm:
             type: object
             properties:
@@ -7847,6 +7888,7 @@ components:
                 createdAt:
                     type: string
                     description: 创建时间
+            description: 用户资料表单
         UserStore:
             type: object
             properties:
@@ -7892,7 +7934,7 @@ components:
                 phone:
                     type: string
                     description: 手机号
-            description: 用户门店信息
+            description: 用户门店
         UserStoreForm:
             type: object
             properties:
@@ -7925,7 +7967,7 @@ components:
                     items:
                         type: string
                     description: 省市区
-            description: 用户门店信息
+            description: 用户门店表单
         WorkspaceMetricsResponse:
             type: object
             properties:
@@ -7965,6 +8007,7 @@ components:
                 todaySaleGrowthRate:
                     type: string
                     description: 今日成交额较昨日增长率，百分比整数
+            description: 工作台指标响应
         WorkspaceRiskListResponse:
             type: object
             properties:
@@ -7977,6 +8020,7 @@ components:
                 abnormalPriceSkuCount:
                     type: string
                     description: 价格配置异常SKU数
+            description: 工作台风险提醒响应
         WorkspaceTodoListResponse:
             type: object
             properties:
@@ -7992,13 +8036,14 @@ components:
                 pendingPutOnGoodsCount:
                     type: string
                     description: 待上架商品数
+            description: 工作台待办响应
         WxLoginRequest:
             type: object
             properties:
                 code:
                     type: string
                     description: 用户登录凭据
-            description: 微信后台登录 - 请求
+            description: 微信登录请求参数
         WxLoginResponse:
             type: object
             properties:
@@ -8015,7 +8060,7 @@ components:
                 expiresIn:
                     type: string
                     description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
-            description: 微信后台登录 - 回应
+            description: 微信登录响应
 tags:
     - name: AuthService
       description: App用户登录认证服务

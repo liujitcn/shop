@@ -8,7 +8,7 @@
 import type { UserStoreStatus } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 
-/** 用户门店信息 */
+/** 用户门店 */
 export interface UserStore {
   /** 用户门店ID */
   id: number;
@@ -30,7 +30,7 @@ export interface UserStore {
   remark: string;
 }
 
-/** 用户门店信息 */
+/** 用户门店表单 */
 export interface UserStoreForm {
   /** 用户门店ID */
   id: number;

@@ -12,6 +12,7 @@ import (
 	sync "sync"
 	unsafe "unsafe"
 
+	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -24,14 +25,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 订单分析汇总响应
 type OrderAnalyticsSummaryResponse struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
-	NewOrderCount      int64                  `protobuf:"varint,1,opt,name=newOrderCount,proto3" json:"newOrderCount,omitempty"`
-	NewOrderGrowthRate int64                  `protobuf:"varint,2,opt,name=newOrderGrowthRate,proto3" json:"newOrderGrowthRate,omitempty"`
-	SaleAmount         int64                  `protobuf:"varint,3,opt,name=saleAmount,proto3" json:"saleAmount,omitempty"`
-	AverageOrderAmount int64                  `protobuf:"varint,4,opt,name=averageOrderAmount,proto3" json:"averageOrderAmount,omitempty"`
-	OrderUserCount     int64                  `protobuf:"varint,5,opt,name=orderUserCount,proto3" json:"orderUserCount,omitempty"`
-	RepurchaseRate     int64                  `protobuf:"varint,6,opt,name=repurchaseRate,proto3" json:"repurchaseRate,omitempty"`
+	NewOrderCount      int64                  `protobuf:"varint,1,opt,name=newOrderCount,proto3" json:"newOrderCount,omitempty"`           // 新增订单数
+	NewOrderGrowthRate int64                  `protobuf:"varint,2,opt,name=newOrderGrowthRate,proto3" json:"newOrderGrowthRate,omitempty"` // 新增订单增长率
+	SaleAmount         int64                  `protobuf:"varint,3,opt,name=saleAmount,proto3" json:"saleAmount,omitempty"`                 // 销售额
+	AverageOrderAmount int64                  `protobuf:"varint,4,opt,name=averageOrderAmount,proto3" json:"averageOrderAmount,omitempty"` // 客单价
+	OrderUserCount     int64                  `protobuf:"varint,5,opt,name=orderUserCount,proto3" json:"orderUserCount,omitempty"`         // 下单用户数
+	RepurchaseRate     int64                  `protobuf:"varint,6,opt,name=repurchaseRate,proto3" json:"repurchaseRate,omitempty"`         // 复购率
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -112,16 +114,16 @@ var File_admin_order_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_order_analytics_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/order_analytics.proto\x12\x05admin\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\x95\x02\n" +
-	"\x1dOrderAnalyticsSummaryResponse\x12$\n" +
-	"\rnewOrderCount\x18\x01 \x01(\x03R\rnewOrderCount\x12.\n" +
-	"\x12newOrderGrowthRate\x18\x02 \x01(\x03R\x12newOrderGrowthRate\x12\x1e\n" +
+	"\x1badmin/order_analytics.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\x93\x03\n" +
+	"\x1dOrderAnalyticsSummaryResponse\x12;\n" +
+	"\rnewOrderCount\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f新增订单数R\rnewOrderCount\x12K\n" +
+	"\x12newOrderGrowthRate\x18\x02 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15新增订单增长率R\x12newOrderGrowthRate\x12/\n" +
 	"\n" +
-	"saleAmount\x18\x03 \x01(\x03R\n" +
-	"saleAmount\x12.\n" +
-	"\x12averageOrderAmount\x18\x04 \x01(\x03R\x12averageOrderAmount\x12&\n" +
-	"\x0eorderUserCount\x18\x05 \x01(\x03R\x0eorderUserCount\x12&\n" +
-	"\x0erepurchaseRate\x18\x06 \x01(\x03R\x0erepurchaseRate2\xa3\x03\n" +
+	"saleAmount\x18\x03 \x01(\x03B\x0f\xbaG\f\x92\x02\t销售额R\n" +
+	"saleAmount\x12?\n" +
+	"\x12averageOrderAmount\x18\x04 \x01(\x03B\x0f\xbaG\f\x92\x02\t客单价R\x12averageOrderAmount\x12=\n" +
+	"\x0eorderUserCount\x18\x05 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f下单用户数R\x0eorderUserCount\x127\n" +
+	"\x0erepurchaseRate\x18\x06 \x01(\x03B\x0f\xbaG\f\x92\x02\t复购率R\x0erepurchaseRate2\xa3\x03\n" +
 	"\x15OrderAnalyticsService\x12\x8a\x01\n" +
 	"\x18GetOrderAnalyticsSummary\x12\x1c.common.AnalyticsTimeRequest\x1a$.admin.OrderAnalyticsSummaryResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/admin/analytics/order/summary\x12\x80\x01\n" +
 	"\x16GetOrderAnalyticsTrend\x12\x1c.common.AnalyticsTimeRequest\x1a\x1e.common.AnalyticsTrendResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/analytics/order/trend\x12z\n" +

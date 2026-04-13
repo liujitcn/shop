@@ -107,6 +107,7 @@ func (c *OrderAnalyticsCase) GetOrderAnalyticsPie(ctx context.Context, req *comm
 	items := make([]*commonApi.AnalyticsPieItem, 0, len(summary))
 	for _, item := range summary {
 		label, ok := statusLabelMap[item.Status]
+		// 字典缺少状态文案时，回退到状态码占位文本。
 		if !ok {
 			label = fmt.Sprintf("状态%d", item.Status)
 		}
@@ -115,6 +116,7 @@ func (c *OrderAnalyticsCase) GetOrderAnalyticsPie(ctx context.Context, req *comm
 	return &commonApi.AnalyticsPieResponse{Items: items}, nil
 }
 
+// countOrderBaseSummary 统计时间范围内订单数和销售额。
 func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt, endAt time.Time) (int64, int64, error) {
 	type row struct {
 		OrderCount int64 `gorm:"column:order_count"`
@@ -129,6 +131,7 @@ func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt,
 	return result.OrderCount, result.SaleAmount, err
 }
 
+// countDistinctOrderUsers 统计时间范围内下单用户数。
 func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
 	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().
@@ -139,6 +142,7 @@ func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startA
 	return count, err
 }
 
+// countRepurchaseUsers 统计时间范围内复购用户数。
 func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	type row struct {
 		Total int64 `gorm:"column:total"`
@@ -156,15 +160,21 @@ func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, startAt, 
 	return result.Total, err
 }
 
+// getOrderStatusLabelMap 查询订单状态字典映射。
 func (c *OrderAnalyticsCase) getOrderStatusLabelMap(ctx context.Context) (map[int32]string, error) {
 	dictQuery := c.baseDictCase.Query(ctx).BaseDict
-	baseDict, err := c.baseDictCase.Find(ctx, repo.Where(dictQuery.Code.Eq("order_status")))
+	dictOpts := make([]repo.QueryOption, 0, 1)
+	dictOpts = append(dictOpts, repo.Where(dictQuery.Code.Eq("order_status")))
+	baseDict, err := c.baseDictCase.Find(ctx, dictOpts...)
 	if err != nil {
 		return nil, err
 	}
 
 	dictItemQuery := c.baseDictItemCase.Query(ctx).BaseDictItem
-	baseDictItemList, err := c.baseDictItemCase.List(ctx, repo.Where(dictItemQuery.DictID.Eq(baseDict.ID)))
+	dictItemOpts := make([]repo.QueryOption, 0, 1)
+	dictItemOpts = append(dictItemOpts, repo.Where(dictItemQuery.DictID.Eq(baseDict.ID)))
+	var baseDictItemList []*models.BaseDictItem
+	baseDictItemList, err = c.baseDictItemCase.List(ctx, dictItemOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,6 +197,7 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 	axisData := make([]string, 0)
 	db := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB()
 
+	// 按不同统计维度生成趋势桶位和聚合查询。
 	switch timeType {
 	case commonApi.AnalyticsTimeType_YEAR:
 		var rows []*dto.OrderSummary
@@ -241,6 +252,7 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 	// 补齐缺失桶位，避免前端图表在空数据时出现断层。
 	for i := range axisData {
 		key := int64(i + 1)
+		// 当前桶位缺少聚合结果时，补一个空对象保证序列完整。
 		if _, ok := summaryMap[key]; !ok {
 			summaryMap[key] = &dto.OrderSummary{Key: key}
 		}
@@ -248,6 +260,7 @@ func (c *OrderAnalyticsCase) queryOrderSummary(ctx context.Context, timeType com
 	return summaryMap, axisData, nil
 }
 
+// queryOrderStatusSummary 查询指定时间范围内的订单状态分布。
 func (c *OrderAnalyticsCase) queryOrderStatusSummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.OrderStatusSummary, error) {
 	res := make([]*dto.OrderStatusSummary, 0)
 	err := c.orderInfoCase.Query(ctx).OrderInfo.WithContext(ctx).UnderlyingDB().

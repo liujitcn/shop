@@ -256,6 +256,7 @@ func (RefundResource_RefundStatus) EnumDescriptor() ([]byte, []int) {
 	return file_app_pay_proto_rawDescGZIP(), []int{4, 0}
 }
 
+// 支付请求参数
 type PayRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	OrderId       int64                  `protobuf:"varint,1,opt,name=orderId,proto3" json:"orderId,omitempty"` // 订单id
@@ -300,18 +301,14 @@ func (x *PayRequest) GetOrderId() int64 {
 	return 0
 }
 
+// 小程序支付响应
 type JsapiPayResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。
-	AppId string `protobuf:"bytes,1,opt,name=appId,proto3" json:"appId,omitempty"`
-	// Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。
-	TimeStamp string `protobuf:"bytes,2,opt,name=timeStamp,proto3" json:"timeStamp,omitempty"`
-	// 随机字符串，不长于32位。该值建议使用随机数算法生成。
-	NonceStr string `protobuf:"bytes,3,opt,name=nonceStr,proto3" json:"nonceStr,omitempty"`
-	// 订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。
-	Package string `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`
-	// 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
-	PaySign       string `protobuf:"bytes,5,opt,name=paySign,proto3" json:"paySign,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AppId         string                 `protobuf:"bytes,1,opt,name=appId,proto3" json:"appId,omitempty"`         // 填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。
+	TimeStamp     string                 `protobuf:"bytes,2,opt,name=timeStamp,proto3" json:"timeStamp,omitempty"` // Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。
+	NonceStr      string                 `protobuf:"bytes,3,opt,name=nonceStr,proto3" json:"nonceStr,omitempty"`   // 随机字符串，不长于32位。该值建议使用随机数算法生成。
+	Package       string                 `protobuf:"bytes,4,opt,name=package,proto3" json:"package,omitempty"`     // 订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。
+	PaySign       string                 `protobuf:"bytes,5,opt,name=paySign,proto3" json:"paySign,omitempty"`     // 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,10 +378,10 @@ func (x *JsapiPayResponse) GetPaySign() string {
 	return ""
 }
 
+// H5 支付响应
 type H5PayResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 支付url
-	H5Url         string `protobuf:"bytes,1,opt,name=h5Url,proto3" json:"h5Url,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	H5Url         string                 `protobuf:"bytes,1,opt,name=h5Url,proto3" json:"h5Url,omitempty"` // 支付url
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -426,32 +423,24 @@ func (x *H5PayResponse) GetH5Url() string {
 	return ""
 }
 
-// 支付资源数据
+// 支付结果
 type PaymentResource struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 【微信支付订单号】微信支付侧订单的唯一标识
-	TransactionId string                  `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	Amount        *PaymentResource_Amount `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`
-	// 【商户号】商户下单时传入的商户号
-	Mchid      string                     `protobuf:"bytes,3,opt,name=mchid,proto3" json:"mchid,omitempty"`
-	TradeState PaymentResource_TradeState `protobuf:"varint,4,opt,name=trade_state,json=tradeState,proto3,enum=app.PaymentResource_TradeState" json:"trade_state,omitempty"`
-	// 【银行类型】用户支付方式说明
-	BankType string `protobuf:"bytes,5,opt,name=bank_type,json=bankType,proto3" json:"bank_type,omitempty"`
-	// 【支付完成时间】用户完成支付的时间
-	SuccessTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`
-	Payer       *PaymentResource_Payer `protobuf:"bytes,8,opt,name=payer,proto3" json:"payer,omitempty"`
-	// 【商户订单号】商户系统内部订单号
-	OutTradeNo string `protobuf:"bytes,9,opt,name=out_trade_no,json=outTradeNo,proto3" json:"out_trade_no,omitempty"`
-	// 【公众账号ID】下单时传入的公众账号ID
-	Appid string `protobuf:"bytes,10,opt,name=appid,proto3" json:"appid,omitempty"`
-	// 【交易状态描述】状态详细说明
-	TradeStateDesc string                    `protobuf:"bytes,11,opt,name=trade_state_desc,json=tradeStateDesc,proto3" json:"trade_state_desc,omitempty"`
-	TradeType      PaymentResource_TradeType `protobuf:"varint,12,opt,name=trade_type,json=tradeType,proto3,enum=app.PaymentResource_TradeType" json:"trade_type,omitempty"`
-	// 【商户数据包】自定义数据包（<=128字符）
-	Attach        string                     `protobuf:"bytes,13,opt,name=attach,proto3" json:"attach,omitempty"`
-	SceneInfo     *PaymentResource_SceneInfo `protobuf:"bytes,14,opt,name=scene_info,json=sceneInfo,proto3" json:"scene_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state          protoimpl.MessageState     `protogen:"open.v1"`
+	TransactionId  string                     `protobuf:"bytes,1,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`                             // 【微信支付订单号】微信支付侧订单的唯一标识
+	Amount         *PaymentResource_Amount    `protobuf:"bytes,2,opt,name=amount,proto3" json:"amount,omitempty"`                                                                // 金额信息
+	Mchid          string                     `protobuf:"bytes,3,opt,name=mchid,proto3" json:"mchid,omitempty"`                                                                  // 【商户号】商户下单时传入的商户号
+	TradeState     PaymentResource_TradeState `protobuf:"varint,4,opt,name=trade_state,json=tradeState,proto3,enum=app.PaymentResource_TradeState" json:"trade_state,omitempty"` // 交易状态
+	BankType       string                     `protobuf:"bytes,5,opt,name=bank_type,json=bankType,proto3" json:"bank_type,omitempty"`                                            // 【银行类型】用户支付方式说明
+	SuccessTime    *timestamppb.Timestamp     `protobuf:"bytes,6,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`                                   // 【支付完成时间】用户完成支付的时间
+	Payer          *PaymentResource_Payer     `protobuf:"bytes,8,opt,name=payer,proto3" json:"payer,omitempty"`                                                                  // 支付者信息
+	OutTradeNo     string                     `protobuf:"bytes,9,opt,name=out_trade_no,json=outTradeNo,proto3" json:"out_trade_no,omitempty"`                                    // 【商户订单号】商户系统内部订单号
+	Appid          string                     `protobuf:"bytes,10,opt,name=appid,proto3" json:"appid,omitempty"`                                                                 // 【公众账号ID】下单时传入的公众账号ID
+	TradeStateDesc string                     `protobuf:"bytes,11,opt,name=trade_state_desc,json=tradeStateDesc,proto3" json:"trade_state_desc,omitempty"`                       // 【交易状态描述】状态详细说明
+	TradeType      PaymentResource_TradeType  `protobuf:"varint,12,opt,name=trade_type,json=tradeType,proto3,enum=app.PaymentResource_TradeType" json:"trade_type,omitempty"`    // 交易类型
+	Attach         string                     `protobuf:"bytes,13,opt,name=attach,proto3" json:"attach,omitempty"`                                                               // 【商户数据包】自定义数据包（<=128字符）
+	SceneInfo      *PaymentResource_SceneInfo `protobuf:"bytes,14,opt,name=scene_info,json=sceneInfo,proto3" json:"scene_info,omitempty"`                                        // 场景信息
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *PaymentResource) Reset() {
@@ -575,24 +564,18 @@ func (x *PaymentResource) GetSceneInfo() *PaymentResource_SceneInfo {
 	return nil
 }
 
+// 退款结果
 type RefundResource struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 【商户号】商户下单时传入的商户号
-	Mchid string `protobuf:"bytes,1,opt,name=mchid,proto3" json:"mchid,omitempty"`
-	// 【微信支付订单号】微信支付侧订单的唯一标识
-	TransactionId string `protobuf:"bytes,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`
-	// 【商户订单号】商户系统内部订单号
-	OutTradeNo string `protobuf:"bytes,3,opt,name=out_trade_no,json=outTradeNo,proto3" json:"out_trade_no,omitempty"`
-	// 【微信支付退款单号】微信侧生成的唯一退款标识
-	RefundId string `protobuf:"bytes,4,opt,name=refund_id,json=refundId,proto3" json:"refund_id,omitempty"`
-	// 【商户退款单号】商户系统内部退款单号
-	OutRefundNo  string                      `protobuf:"bytes,5,opt,name=out_refund_no,json=outRefundNo,proto3" json:"out_refund_no,omitempty"`
-	RefundStatus RefundResource_RefundStatus `protobuf:"varint,6,opt,name=refund_status,json=refundStatus,proto3,enum=app.RefundResource_RefundStatus" json:"refund_status,omitempty"`
-	// 【退款成功时间】
-	SuccessTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`
-	// 【退款入账账户】
-	UserReceivedAccount string                 `protobuf:"bytes,8,opt,name=user_received_account,json=userReceivedAccount,proto3" json:"user_received_account,omitempty"`
-	Amount              *RefundResource_Amount `protobuf:"bytes,9,opt,name=amount,proto3" json:"amount,omitempty"`
+	state               protoimpl.MessageState      `protogen:"open.v1"`
+	Mchid               string                      `protobuf:"bytes,1,opt,name=mchid,proto3" json:"mchid,omitempty"`                                                                         // 【商户号】商户下单时传入的商户号
+	TransactionId       string                      `protobuf:"bytes,2,opt,name=transaction_id,json=transactionId,proto3" json:"transaction_id,omitempty"`                                    // 【微信支付订单号】微信支付侧订单的唯一标识
+	OutTradeNo          string                      `protobuf:"bytes,3,opt,name=out_trade_no,json=outTradeNo,proto3" json:"out_trade_no,omitempty"`                                           // 【商户订单号】商户系统内部订单号
+	RefundId            string                      `protobuf:"bytes,4,opt,name=refund_id,json=refundId,proto3" json:"refund_id,omitempty"`                                                   // 【微信支付退款单号】微信侧生成的唯一退款标识
+	OutRefundNo         string                      `protobuf:"bytes,5,opt,name=out_refund_no,json=outRefundNo,proto3" json:"out_refund_no,omitempty"`                                        // 【商户退款单号】商户系统内部退款单号
+	RefundStatus        RefundResource_RefundStatus `protobuf:"varint,6,opt,name=refund_status,json=refundStatus,proto3,enum=app.RefundResource_RefundStatus" json:"refund_status,omitempty"` // 退款状态
+	SuccessTime         *timestamppb.Timestamp      `protobuf:"bytes,7,opt,name=success_time,json=successTime,proto3" json:"success_time,omitempty"`                                          // 【退款成功时间】
+	UserReceivedAccount string                      `protobuf:"bytes,8,opt,name=user_received_account,json=userReceivedAccount,proto3" json:"user_received_account,omitempty"`                // 【退款入账账户】
+	Amount              *RefundResource_Amount      `protobuf:"bytes,9,opt,name=amount,proto3" json:"amount,omitempty"`                                                                       // 金额信息
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -690,17 +673,13 @@ func (x *RefundResource) GetAmount() *RefundResource_Amount {
 	return nil
 }
 
-// 订单金额信息，当支付成功时返回该字段
+// 支付金额信息
 type PaymentResource_Amount struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
-	PayerTotal int64 `protobuf:"varint,1,opt,name=payer_total,json=payerTotal,proto3" json:"payer_total,omitempty"`
-	// 【总金额】订单总金额，单位为分，整型
-	Total int64 `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
-	// 【货币类型】固定返回：CNY，代表人民币
-	Currency string `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`
-	// 【用户支付币种】 固定返回：CNY，代表人民币。
-	PayerCurrency string `protobuf:"bytes,4,opt,name=payer_currency,json=payerCurrency,proto3" json:"payer_currency,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PayerTotal    int64                  `protobuf:"varint,1,opt,name=payer_total,json=payerTotal,proto3" json:"payer_total,omitempty"`         // 【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`                                     // 【总金额】订单总金额，单位为分，整型
+	Currency      string                 `protobuf:"bytes,3,opt,name=currency,proto3" json:"currency,omitempty"`                                // 【货币类型】固定返回：CNY，代表人民币
+	PayerCurrency string                 `protobuf:"bytes,4,opt,name=payer_currency,json=payerCurrency,proto3" json:"payer_currency,omitempty"` // 【用户支付币种】 固定返回：CNY，代表人民币。
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -765,9 +744,8 @@ func (x *PaymentResource_Amount) GetPayerCurrency() string {
 
 // 支付者信息
 type PaymentResource_Payer struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 【用户标识】用户在商户appid下的唯一标识
-	Openid        string `protobuf:"bytes,1,opt,name=openid,proto3" json:"openid,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Openid        string                 `protobuf:"bytes,1,opt,name=openid,proto3" json:"openid,omitempty"` // 【用户标识】用户在商户appid下的唯一标识
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -809,11 +787,10 @@ func (x *PaymentResource_Payer) GetOpenid() string {
 	return ""
 }
 
-// 场景信息
+// 支付场景信息
 type PaymentResource_SceneInfo struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 【商户端设备号】门店号/收银设备ID
-	DeviceId      string `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeviceId      string                 `protobuf:"bytes,1,opt,name=device_id,json=deviceId,proto3" json:"device_id,omitempty"` // 【商户端设备号】门店号/收银设备ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -855,17 +832,13 @@ func (x *PaymentResource_SceneInfo) GetDeviceId() string {
 	return ""
 }
 
-// 【金额信息】
+// 退款金额信息
 type RefundResource_Amount struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 【原订单金额】单位：分
-	Total int32 `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	// 【退款金额】单位：分
-	Refund int32 `protobuf:"varint,2,opt,name=refund,proto3" json:"refund,omitempty"`
-	// 【用户实际支付金额】单位：分
-	PayerTotal int32 `protobuf:"varint,3,opt,name=payer_total,json=payerTotal,proto3" json:"payer_total,omitempty"`
-	// 【用户退款金额】单位：分
-	PayerRefund   int32 `protobuf:"varint,4,opt,name=payer_refund,json=payerRefund,proto3" json:"payer_refund,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`                                // 【原订单金额】单位：分
+	Refund        int32                  `protobuf:"varint,2,opt,name=refund,proto3" json:"refund,omitempty"`                              // 【退款金额】单位：分
+	PayerTotal    int32                  `protobuf:"varint,3,opt,name=payer_total,json=payerTotal,proto3" json:"payer_total,omitempty"`    // 【用户实际支付金额】单位：分
+	PayerRefund   int32                  `protobuf:"varint,4,opt,name=payer_refund,json=payerRefund,proto3" json:"payer_refund,omitempty"` // 【用户退款金额】单位：分
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -935,44 +908,44 @@ const file_app_pay_proto_rawDesc = "" +
 	"\rapp/pay.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\"6\n" +
 	"\n" +
 	"PayRequest\x12(\n" +
-	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\x96\x01\n" +
-	"\x10JsapiPayResponse\x12\x14\n" +
-	"\x05appId\x18\x01 \x01(\tR\x05appId\x12\x1c\n" +
-	"\ttimeStamp\x18\x02 \x01(\tR\ttimeStamp\x12\x1a\n" +
-	"\bnonceStr\x18\x03 \x01(\tR\bnonceStr\x12\x18\n" +
-	"\apackage\x18\x04 \x01(\tR\apackage\x12\x18\n" +
-	"\apaySign\x18\x05 \x01(\tR\apaySign\"%\n" +
-	"\rH5PayResponse\x12\x14\n" +
-	"\x05h5Url\x18\x01 \x01(\tR\x05h5Url\"\x91\b\n" +
-	"\x0fPaymentResource\x12%\n" +
-	"\x0etransaction_id\x18\x01 \x01(\tR\rtransactionId\x123\n" +
-	"\x06amount\x18\x02 \x01(\v2\x1b.app.PaymentResource.AmountR\x06amount\x12\x14\n" +
-	"\x05mchid\x18\x03 \x01(\tR\x05mchid\x12@\n" +
-	"\vtrade_state\x18\x04 \x01(\x0e2\x1f.app.PaymentResource.TradeStateR\n" +
-	"tradeState\x12\x1b\n" +
-	"\tbank_type\x18\x05 \x01(\tR\bbankType\x12=\n" +
-	"\fsuccess_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\vsuccessTime\x120\n" +
-	"\x05payer\x18\b \x01(\v2\x1a.app.PaymentResource.PayerR\x05payer\x12 \n" +
-	"\fout_trade_no\x18\t \x01(\tR\n" +
-	"outTradeNo\x12\x14\n" +
+	"\aorderId\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\"\xeb\x06\n" +
+	"\x10JsapiPayResponse\x12\x95\x01\n" +
+	"\x05appId\x18\x01 \x01(\tB\x7f\xbaG|\x92\x02y填写下单时传入的appid，且必需与当前实际调起支付的公众号appid一致，否则无法调起支付。R\x05appId\x12\xcf\x01\n" +
+	"\ttimeStamp\x18\x02 \x01(\tB\xb0\x01\xbaG\xac\x01\x92\x02\xa8\x01Unix 时间戳，是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数。注意：常见时间戳为秒级或毫秒级，该处必需传秒级时间戳。R\ttimeStamp\x12o\n" +
+	"\bnonceStr\x18\x03 \x01(\tBS\xbaGP\x92\x02M随机字符串，不长于32位。该值建议使用随机数算法生成。R\bnonceStr\x12\x8f\x01\n" +
+	"\apackage\x18\x04 \x01(\tBu\xbaGr\x92\x02o订单详情扩展字符串，JSAPI下单接口返回的prepay_id参数值，提交格式如：prepay_id=***。R\apackage\x12\xe9\x01\n" +
+	"\apaySign\x18\x05 \x01(\tB\xce\x01\xbaG\xca\x01\x92\x02\xc6\x01签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339R\apaySign\"6\n" +
+	"\rH5PayResponse\x12%\n" +
+	"\x05h5Url\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t支付urlR\x05h5Url\"\xa3\x10\n" +
+	"\x0fPaymentResource\x12l\n" +
+	"\x0etransaction_id\x18\x01 \x01(\tBE\xbaGB\x92\x02?【微信支付订单号】微信支付侧订单的唯一标识R\rtransactionId\x12G\n" +
+	"\x06amount\x18\x02 \x01(\v2\x1b.app.PaymentResource.AmountB\x12\xbaG\x0f\x92\x02\f金额信息R\x06amount\x12L\n" +
+	"\x05mchid\x18\x03 \x01(\tB6\xbaG3\x92\x020【商户号】商户下单时传入的商户号R\x05mchid\x12T\n" +
+	"\vtrade_state\x18\x04 \x01(\x0e2\x1f.app.PaymentResource.TradeStateB\x12\xbaG\x0f\x92\x02\f交易状态R\n" +
+	"tradeState\x12M\n" +
+	"\tbank_type\x18\x05 \x01(\tB0\xbaG-\x92\x02*【银行类型】用户支付方式说明R\bbankType\x12x\n" +
+	"\fsuccess_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampB9\xbaG6\x92\x023【支付完成时间】用户完成支付的时间R\vsuccessTime\x12G\n" +
+	"\x05payer\x18\b \x01(\v2\x1a.app.PaymentResource.PayerB\x15\xbaG\x12\x92\x02\x0f支付者信息R\x05payer\x12X\n" +
+	"\fout_trade_no\x18\t \x01(\tB6\xbaG3\x92\x020【商户订单号】商户系统内部订单号R\n" +
+	"outTradeNo\x12P\n" +
 	"\x05appid\x18\n" +
-	" \x01(\tR\x05appid\x12(\n" +
-	"\x10trade_state_desc\x18\v \x01(\tR\x0etradeStateDesc\x12=\n" +
+	" \x01(\tB:\xbaG7\x92\x024【公众账号ID】下单时传入的公众账号IDR\x05appid\x12Z\n" +
+	"\x10trade_state_desc\x18\v \x01(\tB0\xbaG-\x92\x02*【交易状态描述】状态详细说明R\x0etradeStateDesc\x12Q\n" +
 	"\n" +
-	"trade_type\x18\f \x01(\x0e2\x1e.app.PaymentResource.TradeTypeR\ttradeType\x12\x16\n" +
-	"\x06attach\x18\r \x01(\tR\x06attach\x12=\n" +
+	"trade_type\x18\f \x01(\x0e2\x1e.app.PaymentResource.TradeTypeB\x12\xbaG\x0f\x92\x02\f交易类型R\ttradeType\x12V\n" +
+	"\x06attach\x18\r \x01(\tB>\xbaG;\x92\x028【商户数据包】自定义数据包（<=128字符）R\x06attach\x12Q\n" +
 	"\n" +
-	"scene_info\x18\x0e \x01(\v2\x1e.app.PaymentResource.SceneInfoR\tsceneInfo\x1a\x82\x01\n" +
-	"\x06Amount\x12\x1f\n" +
-	"\vpayer_total\x18\x01 \x01(\x03R\n" +
-	"payerTotal\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total\x12\x1a\n" +
-	"\bcurrency\x18\x03 \x01(\tR\bcurrency\x12%\n" +
-	"\x0epayer_currency\x18\x04 \x01(\tR\rpayerCurrency\x1a\x1f\n" +
-	"\x05Payer\x12\x16\n" +
-	"\x06openid\x18\x01 \x01(\tR\x06openid\x1a(\n" +
-	"\tSceneInfo\x12\x1b\n" +
-	"\tdevice_id\x18\x01 \x01(\tR\bdeviceId\"\x85\x01\n" +
+	"scene_info\x18\x0e \x01(\v2\x1e.app.PaymentResource.SceneInfoB\x12\xbaG\x0f\x92\x02\f场景信息R\tsceneInfo\x1a\xe3\x03\n" +
+	"\x06Amount\x12\xbb\x01\n" +
+	"\vpayer_total\x18\x01 \x01(\x03B\x99\x01\xbaG\x95\x01\x92\x02\x91\x01【用户支付金额】用户支付金额，整型，单位为分。（指使用优惠券的情况下，这里等于总金额-优惠券金额）R\n" +
+	"payerTotal\x12R\n" +
+	"\x05total\x18\x02 \x01(\x03B<\xbaG9\x92\x026【总金额】订单总金额，单位为分，整型R\x05total\x12X\n" +
+	"\bcurrency\x18\x03 \x01(\tB<\xbaG9\x92\x026【货币类型】固定返回：CNY，代表人民币R\bcurrency\x12m\n" +
+	"\x0epayer_currency\x18\x04 \x01(\tBF\xbaGC\x92\x02@【用户支付币种】 固定返回：CNY，代表人民币。R\rpayerCurrency\x1a_\n" +
+	"\x05Payer\x12V\n" +
+	"\x06openid\x18\x01 \x01(\tB>\xbaG;\x92\x028【用户标识】用户在商户appid下的唯一标识R\x06openid\x1a`\n" +
+	"\tSceneInfo\x12S\n" +
+	"\tdevice_id\x18\x01 \x01(\tB6\xbaG3\x92\x020【商户端设备号】门店号/收银设备IDR\bdeviceId\"\x85\x01\n" +
 	"\n" +
 	"TradeState\x12\x1b\n" +
 	"\x17TRADE_STATE_UNSPECIFIED\x10\x00\x12\v\n" +
@@ -995,24 +968,24 @@ const file_app_pay_proto_rawDesc = "" +
 	"\x03APP\x10\x03\x12\f\n" +
 	"\bMICROPAY\x10\x04\x12\b\n" +
 	"\x04MWEB\x10\x05\x12\v\n" +
-	"\aFACEPAY\x10\x06\"\x80\x05\n" +
-	"\x0eRefundResource\x12\x14\n" +
-	"\x05mchid\x18\x01 \x01(\tR\x05mchid\x12%\n" +
-	"\x0etransaction_id\x18\x02 \x01(\tR\rtransactionId\x12 \n" +
-	"\fout_trade_no\x18\x03 \x01(\tR\n" +
-	"outTradeNo\x12\x1b\n" +
-	"\trefund_id\x18\x04 \x01(\tR\brefundId\x12\"\n" +
-	"\rout_refund_no\x18\x05 \x01(\tR\voutRefundNo\x12E\n" +
-	"\rrefund_status\x18\x06 \x01(\x0e2 .app.RefundResource.RefundStatusR\frefundStatus\x12=\n" +
-	"\fsuccess_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\vsuccessTime\x122\n" +
-	"\x15user_received_account\x18\b \x01(\tR\x13userReceivedAccount\x122\n" +
-	"\x06amount\x18\t \x01(\v2\x1a.app.RefundResource.AmountR\x06amount\x1az\n" +
-	"\x06Amount\x12\x14\n" +
-	"\x05total\x18\x01 \x01(\x05R\x05total\x12\x16\n" +
-	"\x06refund\x18\x02 \x01(\x05R\x06refund\x12\x1f\n" +
-	"\vpayer_total\x18\x03 \x01(\x05R\n" +
-	"payerTotal\x12!\n" +
-	"\fpayer_refund\x18\x04 \x01(\x05R\vpayerRefund\"d\n" +
+	"\aFACEPAY\x10\x06\"\xd5\t\n" +
+	"\x0eRefundResource\x12L\n" +
+	"\x05mchid\x18\x01 \x01(\tB6\xbaG3\x92\x020【商户号】商户下单时传入的商户号R\x05mchid\x12l\n" +
+	"\x0etransaction_id\x18\x02 \x01(\tBE\xbaGB\x92\x02?【微信支付订单号】微信支付侧订单的唯一标识R\rtransactionId\x12X\n" +
+	"\fout_trade_no\x18\x03 \x01(\tB6\xbaG3\x92\x020【商户订单号】商户系统内部订单号R\n" +
+	"outTradeNo\x12e\n" +
+	"\trefund_id\x18\x04 \x01(\tBH\xbaGE\x92\x02B【微信支付退款单号】微信侧生成的唯一退款标识R\brefundId\x12`\n" +
+	"\rout_refund_no\x18\x05 \x01(\tB<\xbaG9\x92\x026【商户退款单号】商户系统内部退款单号R\voutRefundNo\x12Y\n" +
+	"\rrefund_status\x18\x06 \x01(\x0e2 .app.RefundResource.RefundStatusB\x12\xbaG\x0f\x92\x02\f退款状态R\frefundStatus\x12]\n" +
+	"\fsuccess_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampB\x1e\xbaG\x1b\x92\x02\x18【退款成功时间】R\vsuccessTime\x12R\n" +
+	"\x15user_received_account\x18\b \x01(\tB\x1e\xbaG\x1b\x92\x02\x18【退款入账账户】R\x13userReceivedAccount\x12F\n" +
+	"\x06amount\x18\t \x01(\v2\x1a.app.RefundResource.AmountB\x12\xbaG\x0f\x92\x02\f金额信息R\x06amount\x1a\xa7\x02\n" +
+	"\x06Amount\x12=\n" +
+	"\x05total\x18\x01 \x01(\x05B'\xbaG$\x92\x02!【原订单金额】单位：分R\x05total\x12<\n" +
+	"\x06refund\x18\x02 \x01(\x05B$\xbaG!\x92\x02\x1e【退款金额】单位：分R\x06refund\x12Q\n" +
+	"\vpayer_total\x18\x03 \x01(\x05B0\xbaG-\x92\x02*【用户实际支付金额】单位：分R\n" +
+	"payerTotal\x12M\n" +
+	"\fpayer_refund\x18\x04 \x01(\x05B*\xbaG'\x92\x02$【用户退款金额】单位：分R\vpayerRefund\"d\n" +
 	"\fRefundStatus\x12\x1d\n" +
 	"\x19REFUND_STATUS_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aSUCCESS\x10\x01\x12\n" +

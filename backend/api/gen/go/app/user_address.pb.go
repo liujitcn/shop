@@ -28,10 +28,10 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// 用户地址列表响应
 type ListUserAddressResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// 数据
-	List          []*UserAddress `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	List          []*UserAddress         `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"` // 数据
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -73,7 +73,7 @@ func (x *ListUserAddressResponse) GetList() []*UserAddress {
 	return nil
 }
 
-// 用户地址
+// UserAddress
 type UserAddress struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                // 用户地址ID
@@ -158,7 +158,7 @@ func (x *UserAddress) GetIsDefault() bool {
 	return false
 }
 
-// 用户地址
+// UserAddress表单
 type UserAddressForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                   // 用户地址ID
@@ -255,9 +255,9 @@ var File_app_user_address_proto protoreflect.FileDescriptor
 
 const file_app_user_address_proto_rawDesc = "" +
 	"\n" +
-	"\x16app/user_address.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\"?\n" +
-	"\x17ListUserAddressResponse\x12$\n" +
-	"\x04list\x18\x01 \x03(\v2\x10.app.UserAddressR\x04list\"\x9d\x02\n" +
+	"\x16app/user_address.proto\x12\x03app\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x13common/common.proto\"M\n" +
+	"\x17ListUserAddressResponse\x122\n" +
+	"\x04list\x18\x01 \x03(\v2\x10.app.UserAddressB\f\xbaG\t\x92\x02\x06数据R\x04list\"\x9d\x02\n" +
 	"\vUserAddress\x12$\n" +
 	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e用户地址IDR\x02id\x12+\n" +
 	"\breceiver\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\breceiver\x12,\n" +

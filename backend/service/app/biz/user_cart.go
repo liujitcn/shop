@@ -96,20 +96,24 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 	list := make([]*app.UserCart, 0)
 	for _, item := range all {
 		sku, ok1 := goodsSkuMap[item.SkuCode]
+		// 购物车引用的 SKU 已失效时，使用空 SKU 兜底避免列表组装失败。
 		if !ok1 {
 			sku = &models.GoodsSku{}
 		}
 		goods, ok2 := goodsInfoMap[item.GoodsID]
+		// 购物车引用的商品已失效时，使用空商品信息兜底避免列表组装失败。
 		if !ok2 {
 			goods = &models.GoodsInfo{}
 		}
 
 		picture := goods.Picture
+		// SKU 自带图片时，优先使用 SKU 图片展示。
 		if len(sku.Picture) > 0 {
 			picture = sku.Picture
 		}
 
 		price := sku.Price
+		// 会员用户优先展示会员价。
 		if member {
 			price = sku.DiscountPrice
 		}
@@ -148,22 +152,25 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	cartQuery := c.Query(ctx).UserCart
 	// 先查同一商品同一规格是否已在购物车中，存在则直接累加数量
 	var find *models.UserCart
-	find, err = c.Find(ctx,
-		repo.Where(cartQuery.UserID.Eq(authInfo.UserId)),
-		repo.Where(cartQuery.GoodsID.Eq(userCart.GetGoodsId())),
-		repo.Where(cartQuery.SkuCode.Eq(userCart.GetSkuCode())),
-	)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Where(cartQuery.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repo.Where(cartQuery.GoodsID.Eq(userCart.GetGoodsId())))
+	opts = append(opts, repo.Where(cartQuery.SkuCode.Eq(userCart.GetSkuCode())))
+	find, err = c.Find(ctx, opts...)
+	// 同规格购物车记录查询失败时，仅对“未找到”场景继续新增。
 	if err != nil {
+		// 购物车记录不存在时，按新增购物车逻辑处理。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			skuQuery := c.goodsSkuCase.Query(ctx).GoodsSku
 			var sku *models.GoodsSku
-			sku, err = c.goodsSkuCase.Find(ctx,
-				repo.Where(skuQuery.SkuCode.Eq(userCart.GetSkuCode())),
-			)
+			skuOpts := make([]repo.QueryOption, 0, 1)
+			skuOpts = append(skuOpts, repo.Where(skuQuery.SkuCode.Eq(userCart.GetSkuCode())))
+			sku, err = c.goodsSkuCase.Find(ctx, skuOpts...)
 			if err != nil {
 				return err
 			}
 			price := sku.Price
+			// 会员用户优先写入会员价。
 			if member {
 				price = sku.DiscountPrice
 			}
@@ -180,7 +187,6 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 				Position:  recommendContext.GetPosition(),
 			}
 			err = c.UserCartRepo.Create(ctx, userCartModel)
-			// 购物车创建失败时，不继续回写推荐行为，避免事实不一致。
 			if err != nil {
 				return err
 			}
@@ -197,14 +203,15 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	if find.Scene == 0 {
 		find.Scene = int32(recommendContext.GetScene())
 	}
+	// 历史购物车未记录请求编号时，补齐本次请求编号。
 	if find.RequestID == "" {
 		find.RequestID = recommendContext.GetRequestId()
 	}
+	// 历史购物车未记录位置信息时，补齐本次位置信息。
 	if find.Position == 0 {
 		find.Position = recommendContext.GetPosition()
 	}
 	err = c.UserCartRepo.UpdateById(ctx, find)
-	// 购物车更新失败时，不继续回写推荐行为，避免事实不一致。
 	if err != nil {
 		return err
 	}
@@ -290,9 +297,9 @@ func (c *UserCartCase) listGoodsIdsByUserId(ctx context.Context, userId int64) (
 	}
 
 	query := c.Query(ctx).UserCart
-	list, err := c.List(ctx,
-		repo.Where(query.UserID.Eq(userId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -15,41 +15,48 @@ enum AnalyticsSeriesType {
   LINE = 1;
 }
 
+// 分析时间请求参数
 message AnalyticsTimeRequest {
   AnalyticsTimeType timeType = 1 [
     (gnostic.openapi.v3.property) = {
       description: "时间类型",
     }
-  ];
+  ]; // 时间类型
 }
 
+// 趋势分析Series
 message AnalyticsTrendSeries {
-  string name = 1 [(gnostic.openapi.v3.property) = {description: "系列名称"}];
-  AnalyticsSeriesType type = 2 [(gnostic.openapi.v3.property) = {description: "图表类型"}];
-  repeated int64 data = 3 [(gnostic.openapi.v3.property) = {description: "数据数组"}];
-  int32 yAxisIndex = 4 [(gnostic.openapi.v3.property) = {description: "Y轴索引"}];
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "系列名称"}];  // 系列名称
+  AnalyticsSeriesType type = 2 [(gnostic.openapi.v3.property) = {description: "图表类型"}];  // 图表类型
+  repeated int64 data = 3 [(gnostic.openapi.v3.property) = {description: "数据数组"}];  // 数据数组
+  int32 yAxisIndex = 4 [(gnostic.openapi.v3.property) = {description: "Y轴索引"}];  // Y轴索引
 }
 
+// Analytics趋势响应
 message AnalyticsTrendResponse {
-  repeated string axis = 1 [(gnostic.openapi.v3.property) = {description: "坐标轴数据"}];
-  repeated AnalyticsTrendSeries series = 2 [(gnostic.openapi.v3.property) = {description: "系列列表"}];
-  repeated string yAxisNames = 3 [(gnostic.openapi.v3.property) = {description: "Y轴名称列表"}];
+  repeated string axis = 1 [(gnostic.openapi.v3.property) = {description: "坐标轴数据"}];  // 坐标轴数据
+  repeated AnalyticsTrendSeries series = 2 [(gnostic.openapi.v3.property) = {description: "系列列表"}];  // 系列列表
+  repeated string yAxisNames = 3 [(gnostic.openapi.v3.property) = {description: "Y轴名称列表"}];  // Y轴名称列表
 }
 
+// 排行分析项
 message AnalyticsRankItem {
-  string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}];
-  int64 value = 2 [(gnostic.openapi.v3.property) = {description: "值"}];
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}];  // 名称
+  int64 value = 2 [(gnostic.openapi.v3.property) = {description: "值"}];  // 值
 }
 
+// Analytics排行响应
 message AnalyticsRankResponse {
-  repeated AnalyticsRankItem items = 1 [(gnostic.openapi.v3.property) = {description: "排行列表"}];
+  repeated AnalyticsRankItem items = 1 [(gnostic.openapi.v3.property) = {description: "排行列表"}];  // 排行列表
 }
 
+// 占比分析项
 message AnalyticsPieItem {
-  string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}];
-  int64 value = 2 [(gnostic.openapi.v3.property) = {description: "值"}];
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}];  // 名称
+  int64 value = 2 [(gnostic.openapi.v3.property) = {description: "值"}];  // 值
 }
 
+// Analytics占比响应
 message AnalyticsPieResponse {
-  repeated AnalyticsPieItem items = 1 [(gnostic.openapi.v3.property) = {description: "饼图数据"}];
+  repeated AnalyticsPieItem items = 1 [(gnostic.openapi.v3.property) = {description: "饼图数据"}];  // 饼图数据
 }

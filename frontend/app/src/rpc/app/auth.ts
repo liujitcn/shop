@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { Empty } from "../google/protobuf/empty";
 
+/** User信息 */
 export interface UserInfo {
   /** 用户账号 */
   userName: string;
@@ -20,13 +21,13 @@ export interface UserInfo {
   avatar: string;
 }
 
-/** 微信后台登录 - 请求 */
+/** 微信登录请求参数 */
 export interface WxLoginRequest {
   /** 用户登录凭据 */
   code: string;
 }
 
-/** 微信后台登录 - 回应 */
+/** 微信登录响应 */
 export interface WxLoginResponse {
   /** 访问令牌，必选项。 */
   accessToken: string;
@@ -38,6 +39,7 @@ export interface WxLoginResponse {
   expiresIn: number;
 }
 
+/** UpdateUser信息请求参数 */
 export interface UpdateUserInfoRequest {
   /** 昵称 */
   nickName: string;
@@ -47,11 +49,13 @@ export interface UpdateUserInfoRequest {
   gender: number;
 }
 
+/** 手机号授权请求参数 */
 export interface PhoneAuthRequest {
   /** 授权信息 */
   code: string;
 }
 
+/** 手机号授权响应 */
 export interface PhoneAuthResponse {
   /** 手机号 */
   phone: string;

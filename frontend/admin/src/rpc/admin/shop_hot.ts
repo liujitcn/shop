@@ -10,6 +10,7 @@ import type { Status } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 
+/** 热门专区分页查询条件 */
 export interface PageShopHotRequest {
   /** 商城热门推荐标题 */
   title: string;
@@ -25,6 +26,7 @@ export interface PageShopHotRequest {
   pageSize: number;
 }
 
+/** 热门专区分页响应 */
 export interface PageShopHotResponse {
   /** 分页数据 */
   list: ShopHot[];
@@ -32,6 +34,7 @@ export interface PageShopHotResponse {
   total: number;
 }
 
+/** 热门专区项分页查询条件 */
 export interface PageShopHotItemRequest {
   /** 商城热门推荐id */
   hotId: number;
@@ -47,6 +50,7 @@ export interface PageShopHotItemRequest {
   pageSize: number;
 }
 
+/** 热门专区项分页响应 */
 export interface PageShopHotItemResponse {
   /** 分页数据 */
   list: ShopHotItem[];
@@ -54,7 +58,7 @@ export interface PageShopHotItemResponse {
   total: number;
 }
 
-/** 商城热门推荐 */
+/** 热门专区 */
 export interface ShopHot {
   /** 商城热门推荐ID */
   id: number;
@@ -72,7 +76,7 @@ export interface ShopHot {
   updatedAt: string;
 }
 
-/** 商城热门推荐 */
+/** 热门专区表单 */
 export interface ShopHotForm {
   /** 商城热门推荐ID */
   id: number;
@@ -90,6 +94,7 @@ export interface ShopHotForm {
   status?: Status | undefined;
 }
 
+/** 热门专区项 */
 export interface ShopHotItem {
   /** 商城热门推荐ID */
   id: number;
@@ -107,6 +112,7 @@ export interface ShopHotItem {
   updatedAt: string;
 }
 
+/** 热门专区项表单 */
 export interface ShopHotItemForm {
   /** 商城热门推荐ID */
   id: number;

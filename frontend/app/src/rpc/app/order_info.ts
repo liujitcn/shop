@@ -18,6 +18,7 @@ import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
 import type { RecommendContext } from "./recommend";
 
+/** 下单商品 */
 export interface CreateOrderInfoGoods {
   /** 商品id */
   goodsId: number;
@@ -29,7 +30,7 @@ export interface CreateOrderInfoGoods {
   recommendContext: RecommendContext | undefined;
 }
 
-/** 确认订单信息信息 */
+/** 确认订单响应 */
 export interface ConfirmOrderInfoResponse {
   /** 商品信息 */
   goods: OrderGoods[];
@@ -41,17 +42,19 @@ export interface ConfirmOrderInfoResponse {
   clearCart: boolean;
 }
 
+/** 再次购买订单请求参数 */
 export interface OrderRepurchaseInfoRequest {
   /** 订单id */
   orderId: number;
 }
 
-/** 订单信息数量汇总 */
+/** 订单数量汇总响应 */
 export interface CountOrderInfoResponse {
   /** 总数 */
   count: CountOrderInfoResponse_Count[];
 }
 
+/** 订单数量统计项 */
 export interface CountOrderInfoResponse_Count {
   /** 订单状态 */
   status: OrderStatus;
@@ -59,6 +62,7 @@ export interface CountOrderInfoResponse_Count {
   num: number;
 }
 
+/** 订单分页查询条件 */
 export interface PageOrderInfoRequest {
   /** 订单状态 */
   status: OrderStatus;
@@ -68,6 +72,7 @@ export interface PageOrderInfoRequest {
   pageSize: number;
 }
 
+/** 订单分页响应 */
 export interface PageOrderInfoResponse {
   /** 分页数据 */
   list: OrderInfo[];
@@ -75,6 +80,7 @@ export interface PageOrderInfoResponse {
   total: number;
 }
 
+/** 订单详情响应 */
 export interface OrderInfoResponse {
   /** 订单信息 */
   order:
@@ -92,6 +98,7 @@ export interface OrderInfoResponse {
   countdown: number;
 }
 
+/** 收货地址 */
 export interface OrderInfoResponse_Address {
   /** 联系人 */
   receiver: string;
@@ -103,6 +110,7 @@ export interface OrderInfoResponse_Address {
   detail: string;
 }
 
+/** 物流信息 */
 export interface OrderInfoResponse_Logistics {
   /** 物流公司名 */
   name: string;
@@ -114,6 +122,7 @@ export interface OrderInfoResponse_Logistics {
   detail: OrderInfoResponse_Logistics_Detail[];
 }
 
+/** Detail */
 export interface OrderInfoResponse_Logistics_Detail {
   /** 时间 */
   time: string;
@@ -121,6 +130,7 @@ export interface OrderInfoResponse_Logistics_Detail {
   text: string;
 }
 
+/** 创建订单请求参数 */
 export interface CreateOrderInfoRequest {
   /** 地址id */
   addressId: number;
@@ -138,11 +148,13 @@ export interface CreateOrderInfoRequest {
   goods: CreateOrderInfoGoods[];
 }
 
+/** 创建订单响应 */
 export interface CreateOrderInfoResponse {
   /** 订单id */
   orderId: number;
 }
 
+/** 取消订单请求参数 */
 export interface CancelOrderInfoRequest {
   /** 订单id */
   orderId: number;
@@ -150,6 +162,7 @@ export interface CancelOrderInfoRequest {
   reason: OrderCancelReason;
 }
 
+/** 订单退款请求参数 */
 export interface RefundOrderInfoRequest {
   /** 订单id */
   orderId: number;
@@ -157,11 +170,13 @@ export interface RefundOrderInfoRequest {
   reason: OrderRefundReason;
 }
 
+/** 确认收货请求参数 */
 export interface ReceiveOrderInfoRequest {
   /** 订单id */
   orderId: number;
 }
 
+/** 订单商品 */
 export interface OrderGoods {
   /** 商品ID */
   goodsId: number;
@@ -191,6 +206,7 @@ export interface OrderGoods {
   position: number;
 }
 
+/** Order信息 */
 export interface OrderInfo {
   /** 订单id */
   id: number;
@@ -228,6 +244,7 @@ export interface OrderInfo {
   goods: OrderGoods[];
 }
 
+/** Order汇总 */
 export interface OrderSummary {
   /** 实际支付金额 */
   payMoney: number;

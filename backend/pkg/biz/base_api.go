@@ -41,14 +41,17 @@ func (c *BaseApiCase) openApiDataToBaseApi(openApiData []byte) ([]*models.BaseAp
 
 	tagsMap := make(map[string]string, len(api.Tags))
 	for _, item := range api.Tags {
+		// Admin 标签统一补充终端前缀，便于后续服务归属映射。
 		if strings.HasPrefix(item.Description, "Admin") {
 			tagsMap[fmt.Sprintf("admin.%s", item.Name)] = item.Description
 			continue
 		}
+		// App 标签统一补充终端前缀，便于后续服务归属映射。
 		if strings.HasPrefix(item.Description, "App") {
 			tagsMap[fmt.Sprintf("app.%s", item.Name)] = item.Description
 			continue
 		}
+		// Base 标签统一补充终端前缀，便于后续服务归属映射。
 		if strings.HasPrefix(item.Description, "Base") {
 			tagsMap[fmt.Sprintf("base.%s", item.Name)] = item.Description
 			continue
@@ -59,21 +62,25 @@ func (c *BaseApiCase) openApiDataToBaseApi(openApiData []byte) ([]*models.BaseAp
 	baseApiList := make([]*models.BaseApi, 0)
 	for path, item := range api.Paths {
 		getApi := parseOperation(path, "GET", item.Get, tagsMap)
+		// 当前路径存在 GET 操作时，写入接口权限列表。
 		if getApi != nil {
 			baseApiList = append(baseApiList, getApi)
 		}
 
 		postApi := parseOperation(path, "POST", item.Post, tagsMap)
+		// 当前路径存在 POST 操作时，写入接口权限列表。
 		if postApi != nil {
 			baseApiList = append(baseApiList, postApi)
 		}
 
 		putApi := parseOperation(path, "PUT", item.Put, tagsMap)
+		// 当前路径存在 PUT 操作时，写入接口权限列表。
 		if putApi != nil {
 			baseApiList = append(baseApiList, putApi)
 		}
 
 		deleteApi := parseOperation(path, "DELETE", item.Delete, tagsMap)
+		// 当前路径存在 DELETE 操作时，写入接口权限列表。
 		if deleteApi != nil {
 			baseApiList = append(baseApiList, deleteApi)
 		}
@@ -99,6 +106,7 @@ func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.Bas
 
 	apiList := make([]*models.BaseApi, 0)
 	for _, item := range apis {
+		// 已存在的接口按主键更新，保留历史权限关联。
 		if id, ok := oldApiIdMap[item.Operation]; ok {
 			item.ID = id
 			err = c.UpdateById(ctx, item)
@@ -111,6 +119,7 @@ func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.Bas
 		apiList = append(apiList, item)
 	}
 
+	// 历史接口存在但 OpenAPI 已删除时，同步清理失效接口。
 	if len(oldApiIdMap) > 0 {
 		oldApiIds := make([]int64, 0, len(oldApiIdMap))
 		for _, id := range oldApiIdMap {
@@ -122,6 +131,7 @@ func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.Bas
 		}
 	}
 
+	// 没有新增接口时，无需再执行批量创建。
 	if len(apiList) == 0 {
 		return nil
 	}
@@ -130,23 +140,28 @@ func (c *BaseApiCase) batchCreateBaseApi(ctx context.Context, apis []*models.Bas
 
 // parseOperation 解析单个 openapi 操作项
 func parseOperation(path, method string, op *Operation, tagsMap map[string]string) *models.BaseApi {
+	// 操作项为空时，当前请求方法无需生成接口权限数据。
 	if op == nil {
 		return nil
 	}
 
 	var pkgName string
 	paths := strings.Split(path, "/")
+	// 优先从路径中提取终端前缀作为服务包名。
 	if len(paths) > 2 {
 		pkgName = paths[2]
 	}
+	// 非 admin/app 的路径统一归到 base 终端。
 	if pkgName != "admin" && pkgName != "app" {
 		pkgName = "base"
 	}
 
 	var serviceName string
 	var serviceDesc string
+	// 存在标签时，优先使用首个标签作为服务归属。
 	if len(op.Tags) > 0 {
 		serviceName = fmt.Sprintf("%s.%s", pkgName, op.Tags[0])
+		// 标签描述存在时，同步写入服务描述字段。
 		if value, ok := tagsMap[serviceName]; ok {
 			serviceDesc = value
 		}
@@ -156,7 +171,7 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 		ServiceName: serviceName,
 		ServiceDesc: serviceDesc,
 		Desc:        op.Description,
-		Operation:   fmt.Sprintf("/%s.%s", pkgName, strings.ReplaceAll(op.OperationID, "_", "/")),
+		Operation:   fmt.Sprintf("/%s.%s", pkgName, strings.ReplaceAll(op.OperationId, "_", "/")),
 		Method:      method,
 		Path:        path,
 	}
@@ -186,5 +201,5 @@ type TagsItem struct {
 type Operation struct {
 	Tags        []string `yaml:"tags"`
 	Description string   `yaml:"description"`
-	OperationID string   `yaml:"operationId"`
+	OperationId string   `yaml:"operationId"`
 }

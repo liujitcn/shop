@@ -63,6 +63,7 @@ func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *admin.Goods
 	err := s.goodsPropCase.CreateGoodsProp(ctx, req)
 	if err != nil {
 		log.Error("CreateGoodsProp err:", err.Error())
+		// 命中商品属性唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("商品属性重复")
 		}
@@ -76,6 +77,7 @@ func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *admin.Goods
 	err := s.goodsPropCase.UpdateGoodsProp(ctx, req)
 	if err != nil {
 		log.Error("UpdateGoodsProp err:", err.Error())
+		// 命中商品属性唯一索引冲突时，返回更明确的业务错误。
 		if errMySQL, ok := errors.AsType[*mysql.MySQLError](err); ok && errMySQL.Number == 1062 {
 			return nil, errors.New("商品属性重复")
 		}

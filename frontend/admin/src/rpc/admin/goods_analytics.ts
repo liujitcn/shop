@@ -7,12 +7,19 @@
 /* eslint-disable */
 import type { AnalyticsPieResponse, AnalyticsTimeRequest, AnalyticsTrendResponse } from "../common/analytics";
 
+/** 商品分析汇总响应 */
 export interface GoodsAnalyticsSummaryResponse {
+  /** 新增商品数 */
   newGoodsCount: number;
+  /** 上架商品占比 */
   putOnGoodsRate: number;
+  /** 活跃商品数 */
   activeGoodsCount: number;
+  /** 活跃商品占比 */
   activeGoodsRate: number;
+  /** 销售件数 */
   saleCount: number;
+  /** 销售增长率 */
   saleGrowthRate: number;
 }
 

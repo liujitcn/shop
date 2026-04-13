@@ -35,6 +35,7 @@ func (s *OrderSchedulerCase) AddSchedule(orderId int64, d time.Duration, cancelF
 
 // DeleteScheduled 删除订单自动取消调度任务
 func (s *OrderSchedulerCase) DeleteScheduled(orderId int64) {
+	// 命中已注册的定时器时，先停止再清理调度记录。
 	if timer, ok := s.timers.Load(orderId); ok {
 		timer.(*time.Timer).Stop()
 		log.Infof("order schedule delete %d", orderId)

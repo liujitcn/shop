@@ -89,8 +89,7 @@ func (c *BaseMenuCase) CreateBaseMenu(ctx context.Context, req *admin.BaseMenuFo
 func (c *BaseMenuCase) UpdateBaseMenu(ctx context.Context, req *admin.BaseMenuForm) error {
 	baseMenu := c.formMapper.ToEntity(req)
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		var err error
-		err = c.UpdateById(ctx, baseMenu)
+		err := c.UpdateById(ctx, baseMenu)
 		if err != nil {
 			return err
 		}
@@ -103,17 +102,19 @@ func (c *BaseMenuCase) DeleteBaseMenu(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	query := c.Query(ctx).BaseMenu
 	for _, menuId := range ids {
-		count, err := c.Count(ctx, repo.Where(query.ParentID.Eq(menuId)))
+		opts := make([]repo.QueryOption, 0, 1)
+		opts = append(opts, repo.Where(query.ParentID.Eq(menuId)))
+		count, err := c.Count(ctx, opts...)
 		if err != nil {
 			return err
 		}
+		// 仍然存在子菜单时，禁止删除当前节点。
 		if count > 0 {
 			return errors.New("删除菜单失败,下面有菜单")
 		}
 	}
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		var err error
-		err = c.DeleteByIds(ctx, ids)
+		err := c.DeleteByIds(ctx, ids)
 		if err != nil {
 			return err
 		}
@@ -133,6 +134,7 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *common.SetSta
 func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentId int64) []*admin.RouteItem {
 	list := make([]*admin.RouteItem, 0)
 	for _, menu := range menuList {
+		// 非当前父节点的菜单不参与当前层级路由构建。
 		if menu.ParentID != parentId {
 			continue
 		}
@@ -149,6 +151,7 @@ func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentId int6
 func (c *BaseMenuCase) buildBaseMenuTree(menuList []*models.BaseMenu, parentId int64) []*admin.BaseMenu {
 	res := make([]*admin.BaseMenu, 0)
 	for _, item := range menuList {
+		// 非当前父节点的菜单不参与当前层级树构建。
 		if item.ParentID != parentId {
 			continue
 		}
@@ -163,12 +166,14 @@ func (c *BaseMenuCase) buildBaseMenuTree(menuList []*models.BaseMenu, parentId i
 func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentId int64) []*common.TreeOptionResponse_Option {
 	res := make([]*common.TreeOptionResponse_Option, 0)
 	for _, item := range menuList {
+		// 非当前父节点的菜单不参与当前层级选项构建。
 		if item.ParentID != parentId {
 			continue
 		}
 
 		label := item.Name
 		route := c.routerMapper.ToDTO(item)
+		// 路由元信息存在标题时，优先使用前端路由标题作为展示名称。
 		if route != nil && route.GetMeta() != nil && route.GetMeta().GetTitle() != "" {
 			label = route.GetMeta().GetTitle()
 		}

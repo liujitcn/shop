@@ -68,6 +68,7 @@ service BaseConfigService {
   }
 }
 
+// 系统配置分页查询条件
 message PageBaseConfigRequest{
 
   optional common.BaseConfigSite site = 2 [
@@ -86,37 +87,38 @@ message PageBaseConfigRequest{
     (gnostic.openapi.v3.property) = {description: "配置key"}
   ];  // 配置key
 
-  // 状态：枚举【Status】
   optional common.Status status = 100 [
     (gnostic.openapi.v3.property) = {
       description: "状态：枚举【Status】",
     }
-  ];
+  ]; // 状态：枚举【Status】
 
-  // 当前页码
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",
       default: {number: 1}
     }
-  ];
+  ]; // 当前页码
 
-  // 每一页的行数
   int64 pageSize = 102 [
     (gnostic.openapi.v3.property) = {
       description: "每一页的行数",
       default: {number: 10}
     }
-  ];
+  ]; // 每一页的行数
 }
 
+// 系统配置分页响应
 message PageBaseConfigResponse{
-  // 分页数据
-  repeated BaseConfig list = 1;
-  // 总数
-  int32 total = 2;
+  repeated BaseConfig list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分页数据"}
+  ]; // 分页数据
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {description: "总数"}
+  ]; // 总数
 }
 
+// 系统配置
 message BaseConfig {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "配置ID"}
@@ -156,6 +158,7 @@ message BaseConfig {
   ];// 更新时间
 }
 
+// 系统配置表单
 message BaseConfigForm {
   int64 id = 1 [
     (gnostic.openapi.v3.property) = {description: "配置ID"}

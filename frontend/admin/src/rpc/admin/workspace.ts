@@ -6,40 +6,65 @@
 
 /* eslint-disable */
 
+/** 工作台指标查询条件 */
 export interface WorkspaceMetricsRequest {
 }
 
+/** 工作台指标响应 */
 export interface WorkspaceMetricsResponse {
+  /** 今日订单数 */
   todayOrderCount: number;
+  /** 今日订单较昨日增长率，百分比整数 */
   todayOrderGrowthRate: number;
+  /** 今日成交额，单位分 */
   todaySaleAmount: number;
+  /** 客单价，单位分 */
   averageOrderAmount: number;
+  /** 支付转化率，千分比 */
   payConversionRate: number;
+  /** 今日下单用户数 */
   todayOrderUserCount: number;
+  /** 复购占比，千分比 */
   repurchaseRate: number;
+  /** 今日新增用户数 */
   todayNewUserCount: number;
+  /** 今日商品销量 */
   todaySaleCount: number;
+  /** 今日动销商品数 */
   activeGoodsCount: number;
+  /** 今日新增商品数 */
   todayNewGoodsCount: number;
+  /** 今日成交额较昨日增长率，百分比整数 */
   todaySaleGrowthRate: number;
 }
 
+/** 工作台待办查询条件 */
 export interface WorkspaceTodoListRequest {
 }
 
+/** 工作台待办响应 */
 export interface WorkspaceTodoListResponse {
+  /** 待支付订单数 */
   pendingPayOrderCount: number;
+  /** 待发货订单数 */
   pendingShippedOrderCount: number;
+  /** 低库存SKU数 */
   lowInventorySkuCount: number;
+  /** 待上架商品数 */
   pendingPutOnGoodsCount: number;
 }
 
+/** 工作台风险提醒查询条件 */
 export interface WorkspaceRiskListRequest {
 }
 
+/** 工作台风险提醒响应 */
 export interface WorkspaceRiskListResponse {
+  /** 对账单异常数 */
   abnormalPayBillCount: number;
+  /** 零库存仍上架SKU数 */
   zeroInventoryPutOnSkuCount: number;
+  /** 价格配置异常SKU数 */
   abnormalPriceSkuCount: number;
 }
 
