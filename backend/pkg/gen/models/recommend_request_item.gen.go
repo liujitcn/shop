@@ -6,7 +6,7 @@ package models
 
 const TableNameRecommendRequestItem = "recommend_request_item"
 
-// RecommendRequestItem 推荐请求逐商品明细信息
+// RecommendRequestItem 推荐请求商品明细信息
 type RecommendRequestItem struct {
 	ID                    int64   `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                              // 主键ID
 	RecommendRequestID    int64   `gorm:"column:recommend_request_id;type:bigint;not null;index:idx_recommend_request_item_recommend_request_id_position,priority:1;comment:推荐请求主表ID" json:"recommend_request_id"` // 推荐请求主表ID

@@ -6,7 +6,7 @@ package models
 
 const TableNameRecommendExposureItem = "recommend_exposure_item"
 
-// RecommendExposureItem 推荐曝光逐商品明细信息
+// RecommendExposureItem 推荐曝光商品明细信息
 type RecommendExposureItem struct {
 	ID                  int64 `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                                  // 主键ID
 	RecommendExposureID int64 `gorm:"column:recommend_exposure_id;type:bigint;not null;index:idx_recommend_exposure_item_recommend_exposure_id_position,priority:1;comment:推荐曝光主表ID" json:"recommend_exposure_id"` // 推荐曝光主表ID

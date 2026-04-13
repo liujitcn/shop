@@ -48,7 +48,7 @@ func newRecommendRequestItem(db *gorm.DB, opts ...gen.DOOption) recommendRequest
 	return _recommendRequestItem
 }
 
-// recommendRequestItem 推荐请求逐商品明细信息
+// recommendRequestItem 推荐请求商品明细信息
 type recommendRequestItem struct {
 	recommendRequestItemDo recommendRequestItemDo
 

@@ -26,10 +26,10 @@
 
 ## 当前停留点
 
-- 当前阶段：批次 2，归因明细落库。
-- 当前任务：`B2-05` 批次 2 校验与回归。
-- 当前状态：`待确认`
-- 上次结束位置：`B2-01` 至 `B2-04` 已完成代码与校验，等待统一确认。
+- 当前阶段：批次 3，匿名绑定归因与重建任务。
+- 当前任务：`B3-02` 匿名绑定时写入绑定日志。
+- 当前状态：`未开始`
+- 上次结束位置：`B3-01` 已确认完成，已提交当前任务代码。
 
 ## 执行清单
 
@@ -42,12 +42,12 @@
 | B1-05 | 批次 1 | 支付成功后端回写 `ORDER_PAY`，并补幂等保护 | `backend/service/app/biz/pay.go` | 已完成 |
 | B1-06 | 批次 1 | 删除前端 `COLLECT`、`ADD_CART`、`ORDER_CREATE`、`ORDER_PAY` 上报 | `frontend/app/src/pages/goods/goods.vue` `frontend/app/src/pagesOrder/create/create.vue` `frontend/app/src/pagesOrder/payment/payment.vue` | 已完成 |
 | B1-07 | 批次 1 | 批次 1 校验与回归 | `backend` `frontend/app` | 已完成 |
-| B2-01 | 批次 2 | 新增 `recommend_request_item` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 待确认 |
-| B2-02 | 批次 2 | 推荐请求主表落库时同步写 `recommend_request_item` | `backend/service/app/biz/recommend_request.go` | 待确认 |
-| B2-03 | 批次 2 | 新增 `recommend_exposure_item` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 待确认 |
-| B2-04 | 批次 2 | 曝光上报时同步写 `recommend_exposure_item` | `backend/service/app/biz/recommend_exposure.go` | 待确认 |
-| B2-05 | 批次 2 | 批次 2 校验与回归 | `backend` | 待确认 |
-| B3-01 | 批次 3 | 新增 `recommend_actor_bind_log` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
+| B2-01 | 批次 2 | 新增 `recommend_request_item` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 已完成 |
+| B2-02 | 批次 2 | 推荐请求主表落库时同步写 `recommend_request_item` | `backend/service/app/biz/recommend_request.go` | 已完成 |
+| B2-03 | 批次 2 | 新增 `recommend_exposure_item` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 已完成 |
+| B2-04 | 批次 2 | 曝光上报时同步写 `recommend_exposure_item` | `backend/service/app/biz/recommend_exposure.go` | 已完成 |
+| B2-05 | 批次 2 | 批次 2 校验与回归 | `backend` | 已完成 |
+| B3-01 | 批次 3 | 新增 `recommend_actor_bind_log` 生成代码 | `backend/pkg/gen` | 已完成 |
 | B3-02 | 批次 3 | 匿名绑定时写入绑定日志 | `backend/service/app/biz/recommend.go` | 未开始 |
 | B3-03 | 批次 3 | 实现 `RecommendUserPreferenceRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 未开始 |
 | B3-04 | 批次 3 | 实现 `RecommendGoodsRelationRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 未开始 |
@@ -76,3 +76,6 @@
 - 2026-04-12：已执行 `backend/go test ./...`、`frontend/app/pnpm lint` 与 `frontend/app/pnpm tsc`，结果通过；`B1-07` 已确认完成，当前停留点推进到 `B2-01`。
 - 2026-04-12：完成 `B2-01` 至 `B2-04` 代码实现；已新增 `recommend_request_item`、`recommend_exposure_item`，主表改为瘦身并通过主表 ID 关联 item 表，同时将推荐请求、曝光、行为归因和推荐统计任务切到 item 表。
 - 2026-04-12：已执行 `backend/make wire` 与 `backend/go test ./...`，结果通过；当前停留点推进到 `B2-05`，等待确认。
+- 2026-04-13：`B2-01` 至 `B2-05` 已确认完成；执行记录已收口，当前停留点推进到 `B3-01`。
+- 2026-04-13：完成 `B3-01` 代码实现；已新增 `recommend_actor_bind_log` 最小事实表，仅保留 `anonymous_id`、`user_id`、`created_at`，同步本地 `shop_test` 建表，并重新生成 `backend/pkg/gen`，等待确认。
+- 2026-04-13：`B3-01` 已确认完成；按确认意见移除 `sql/default-data.sql` 中相关建表语句，本次仅提交 `backend/pkg/gen` 生成代码，当前停留点推进到 `B3-02`。

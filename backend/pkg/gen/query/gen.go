@@ -46,6 +46,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OrderRefund:                  newOrderRefund(db, opts...),
 		OrderStatDay:                 newOrderStatDay(db, opts...),
 		PayBill:                      newPayBill(db, opts...),
+		RecommendActorBindLog:        newRecommendActorBindLog(db, opts...),
 		RecommendExposure:            newRecommendExposure(db, opts...),
 		RecommendExposureItem:        newRecommendExposureItem(db, opts...),
 		RecommendGoodsAction:         newRecommendGoodsAction(db, opts...),
@@ -98,6 +99,7 @@ type Query struct {
 	OrderRefund                  orderRefund
 	OrderStatDay                 orderStatDay
 	PayBill                      payBill
+	RecommendActorBindLog        recommendActorBindLog
 	RecommendExposure            recommendExposure
 	RecommendExposureItem        recommendExposureItem
 	RecommendGoodsAction         recommendGoodsAction
@@ -151,6 +153,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OrderRefund:                  q.OrderRefund.clone(db),
 		OrderStatDay:                 q.OrderStatDay.clone(db),
 		PayBill:                      q.PayBill.clone(db),
+		RecommendActorBindLog:        q.RecommendActorBindLog.clone(db),
 		RecommendExposure:            q.RecommendExposure.clone(db),
 		RecommendExposureItem:        q.RecommendExposureItem.clone(db),
 		RecommendGoodsAction:         q.RecommendGoodsAction.clone(db),
@@ -211,6 +214,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OrderRefund:                  q.OrderRefund.replaceDB(db),
 		OrderStatDay:                 q.OrderStatDay.replaceDB(db),
 		PayBill:                      q.PayBill.replaceDB(db),
+		RecommendActorBindLog:        q.RecommendActorBindLog.replaceDB(db),
 		RecommendExposure:            q.RecommendExposure.replaceDB(db),
 		RecommendExposureItem:        q.RecommendExposureItem.replaceDB(db),
 		RecommendGoodsAction:         q.RecommendGoodsAction.replaceDB(db),
@@ -261,6 +265,7 @@ type queryCtx struct {
 	OrderRefund                  *orderRefundDo
 	OrderStatDay                 *orderStatDayDo
 	PayBill                      *payBillDo
+	RecommendActorBindLog        *recommendActorBindLogDo
 	RecommendExposure            *recommendExposureDo
 	RecommendExposureItem        *recommendExposureItemDo
 	RecommendGoodsAction         *recommendGoodsActionDo
@@ -311,6 +316,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OrderRefund:                  q.OrderRefund.WithContext(ctx),
 		OrderStatDay:                 q.OrderStatDay.WithContext(ctx),
 		PayBill:                      q.PayBill.WithContext(ctx),
+		RecommendActorBindLog:        q.RecommendActorBindLog.WithContext(ctx),
 		RecommendExposure:            q.RecommendExposure.WithContext(ctx),
 		RecommendExposureItem:        q.RecommendExposureItem.WithContext(ctx),
 		RecommendGoodsAction:         q.RecommendGoodsAction.WithContext(ctx),

@@ -37,7 +37,7 @@ func newRecommendExposureItem(db *gorm.DB, opts ...gen.DOOption) recommendExposu
 	return _recommendExposureItem
 }
 
-// recommendExposureItem 推荐曝光逐商品明细信息
+// recommendExposureItem 推荐曝光商品明细信息
 type recommendExposureItem struct {
 	recommendExposureItemDo recommendExposureItemDo
 
