@@ -216,7 +216,6 @@
   - `OrderMonthReportList`
   - `OrderMonthReportListRequest`
   - `OrderMonthReportListResponse`
-- 禁止 RPC 方法名或消息名出现 `Get`、`Create`、`Update`、`Delete` 等动词前缀。
 
 ## HTTP接口命名规范
 - 后续新增或修改 HTTP 接口路径时，必须遵循 RESTful API 协议，优先表达“资源”而不是“动作”。
