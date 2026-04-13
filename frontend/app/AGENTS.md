@@ -1,7 +1,7 @@
 # Codex 规则
 
 ## 适用范围
-- 本规则适用于当前目录 `/Users/liujun/workspace/shop/shop/frontend/app` 及其全部子目录。
+- 本规则适用于当前目录 `shop/frontend/app` 及其全部子目录。
 - 本规则仅针对当前 `uni-app` 前端项目，不覆盖同级 `admin`、`backend` 等其他子项目。
 
 ## 项目概览

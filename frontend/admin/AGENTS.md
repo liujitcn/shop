@@ -1,7 +1,7 @@
 # Codex 规则
 
 ## 适用范围
-- 本规则适用于当前仓库根目录及其全部子目录。
+- 本规则适用于当前目录 `shop/frontend/admin` 及其全部子目录。
 
 ## 页面开发约定
 - 后续新增或修改后台列表页时，优先参考 `src/views/shop/banner/index.vue` 的实现方式，保持“`ProTable + FormDialog + ProForm`”的统一结构。
