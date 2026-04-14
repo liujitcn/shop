@@ -150,6 +150,11 @@ func (*RecommendActorBindLog) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*RecommendEvalReport) TableComment() string {
+	return "推荐评估结果表"
+}
+
+// TableComment 返回表注释。
 func (*RecommendExposure) TableComment() string {
 	return "推荐曝光记录信息"
 }
@@ -172,6 +177,11 @@ func (*RecommendGoodsRelation) TableComment() string {
 // TableComment 返回表注释。
 func (*RecommendGoodsStatDay) TableComment() string {
 	return "推荐商品日统计表"
+}
+
+// TableComment 返回表注释。
+func (*RecommendModelVersion) TableComment() string {
+	return "推荐模型版本表"
 }
 
 // TableComment 返回表注释。

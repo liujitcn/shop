@@ -183,15 +183,15 @@
 
 ### 4. `recommend_eval_report`
 
-当前问题：
+当前状态：
 
-- README 和 `sql/default-data.sql` 已经出现 `RecommendEvalReport` 任务名。
-- 代码里没有对应执行器，也没有结果表。
+- `recommend_eval_report` 结果表已补齐。
+- `RecommendEvalReport` 执行器已接入任务列表并同步到 `sql/default-data.sql`。
 
-直接影响：
+当前剩余问题：
 
-- 没有表结构承接离线评估结果。
-- Precision / Recall / NDCG / CTR / CVR 等指标无法稳定沉淀。
+- 当前只沉淀场景级日汇总指标。
+- 还缺少面向管理端的评估看板、请求级 explain 查询和更细粒度实验分析。
 
 建议补表字段：
 
@@ -232,7 +232,6 @@
 - `scene`
 - `config_json`
 - `status`
-- `published_at`
 - `created_at`
 
 ## 二. 对接 Gorse MySQL 时最缺的标准化表

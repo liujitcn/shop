@@ -27,9 +27,9 @@
 ## 当前停留点
 
 - 当前阶段：批次 4，评估任务与版本记录。
-- 当前任务：`B4-01` 新增 `recommend_eval_report` 表结构与生成代码。
+- 当前任务：`B5-01` 定义推荐内部 `User / Item / Feedback / Context` 语义结构。
 - 当前状态：`未开始`
-- 上次结束位置：`B3-02` 至 `B3-05` 已确认完成，当前停留点推进到 `B4-01`。
+- 上次结束位置：`B4-03`、`B4-04` 已确认完成，下一步从 `B5-01` 开始。
 
 ## 执行清单
 
@@ -52,10 +52,10 @@
 | B3-03 | 批次 3 | 实现 `RecommendUserPreferenceRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 已完成 |
 | B3-04 | 批次 3 | 实现 `RecommendGoodsRelationRebuild` | `backend/pkg/job/task` `backend/service/app/biz` | 已完成 |
 | B3-05 | 批次 3 | 注册推荐重建任务并校验 | `backend/pkg/job/init.go` `backend/pkg/job/task/task.go` | 已完成 |
-| B4-01 | 批次 4 | 新增 `recommend_eval_report` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
-| B4-02 | 批次 4 | 新增 `recommend_model_version` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 未开始 |
-| B4-03 | 批次 4 | 实现 `RecommendEvalReport` 任务 | `backend/pkg/job/task` | 未开始 |
-| B4-04 | 批次 4 | 注册评估任务并校验 | `backend/pkg/job/init.go` `backend/pkg/job/task/task.go` | 未开始 |
+| B4-01 | 批次 4 | 新增 `recommend_eval_report` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 已完成 |
+| B4-02 | 批次 4 | 新增 `recommend_model_version` 表结构与生成代码 | `sql/default-data.sql` `backend/pkg/gen` | 已完成 |
+| B4-03 | 批次 4 | 实现 `RecommendEvalReport` 任务 | `backend/pkg/job/task` | 已完成 |
+| B4-04 | 批次 4 | 注册评估任务并校验 | `backend/pkg/job/init.go` `backend/pkg/job/task/task.go` | 已完成 |
 | B5-01 | 批次 5 | 定义推荐内部 `User / Item / Feedback / Context` 语义结构 | `backend/pkg/recommend` | 未开始 |
 | B5-02 | 批次 5 | 实现业务事实到推荐语义的代码适配层 | `backend/pkg/recommend` `backend/service/app/biz` | 未开始 |
 | B5-03 | 批次 5 | 梳理后续 Gorse 能力接入入口 | `backend/docs` `backend/pkg/recommend` | 未开始 |
@@ -82,3 +82,9 @@
 - 2026-04-13：完成 `B3-02` 代码实现；匿名主体归并到登录用户时，已在同一事务内写入 `recommend_actor_bind_log`，等待确认。
 - 2026-04-13：按确认意见新增 `RecommendActorBindLogCase`，统一收敛绑定日志保存、用户偏好重建、商品关联重建，并补齐 `RecommendUserPreferenceRebuild`、`RecommendGoodsRelationRebuild` 任务注册与初始化脚本，当前停留点推进到 `B3-05`。
 - 2026-04-14：`B3-02` 至 `B3-05` 已确认完成；执行记录已推进到 `B4-01`。
+- 2026-04-14：完成 `B4-01` 代码实现；已在本地 `shop_test` 建立 `recommend_eval_report`，同步更新 `sql/default-data.sql`，并通过 `make gorm-gen` 生成 `backend/pkg/gen` 产物，等待确认。
+- 2026-04-14：`B4-01` 已确认完成；当前停留点推进到 `B4-02`。
+- 2026-04-14：完成 `B4-02` 代码实现；已在本地 `shop_test` 建立 `recommend_model_version`，补齐 `sql/default-data.sql` 中 `recommend_eval_report` 与 `recommend_model_version` 建表语句，并按确认意见移除 `published_at` 后通过 `make gorm-gen` 生成 `backend/pkg/gen` 产物，等待确认。
+- 2026-04-14：`B4-02` 已确认完成；当前停留点推进到 `B4-03`。
+- 2026-04-14：完成 `B4-03`、`B4-04` 代码实现；已新增 `RecommendEvalReport` 任务，按天汇总请求、曝光、点击、下单、支付与 Precision / Recall / NDCG 指标，并同步注册任务、补齐默认任务脚本与 README，等待确认。
+- 2026-04-14：`B4-03`、`B4-04` 已确认完成；按确认意见不保留初始化脚本，当前停留点推进到 `B5-01`。

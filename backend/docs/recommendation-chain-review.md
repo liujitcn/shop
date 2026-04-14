@@ -117,19 +117,16 @@
 
 这意味着当前链路对“浏览、点击”更稳，对“成交转化”并不稳，严格来说还不是完整闭环。
 
-#### 3. README 和 SQL 已声明的任务，代码尚未实现
+#### 3. 推荐重建与评估任务已补齐
 
-当前代码实际注册的推荐任务只有：
+当前代码已注册的推荐任务包括：
 
 - `RecommendGoodsStatDay`
-
-但 `backend/README.md` 和 `sql/default-data.sql` 里已经出现了：
-
 - `RecommendEvalReport`
 - `RecommendUserPreferenceRebuild`
 - `RecommendGoodsRelationRebuild`
 
-仓库当前没有对应执行器，也没有在任务列表中注册。这说明“数据修复”和“效果评估”这两段闭环仍然是缺失的。
+这说明“数据修复”和“离线效果评估”已经具备基础执行器，但结果仍停留在离线日级汇总层。
 
 #### 4. 缺少效果评估与运营反馈
 
@@ -262,7 +259,7 @@ Gorse 的 master / worker / server 拆分，本质上解决了：
 如果目标是“先把当前链路真正闭合”，建议优先做下面三项：
 
 1. 把下单、支付推荐行为改成以后端订单事实自动回写，不再依赖前端埋点是否成功。
-2. 实现 `RecommendUserPreferenceRebuild`、`RecommendGoodsRelationRebuild`、`RecommendEvalReport`，补齐数据修复和效果评估。
+2. 在已落地 `RecommendUserPreferenceRebuild`、`RecommendGoodsRelationRebuild`、`RecommendEvalReport` 的基础上，继续补管理端看板、查询入口和更细粒度评估。
 3. 在匿名绑定登录后，增加原始行为重放或增量补偿逻辑，确保匿名行为能进入登录态画像。
 
 如果目标是“向 Gorse 靠拢”，第二阶段再考虑：

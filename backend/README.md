@@ -54,10 +54,7 @@ backend
 - `RecommendGoodsStatDay`：推荐商品日统计
 - `RecommendUserPreferenceRebuild`：推荐用户偏好重建，按绑定日志回放受影响用户，固定 30 天窗口
 - `RecommendGoodsRelationRebuild`：推荐商品关联重建，按绑定日志触发全量关系重建，固定 30 天窗口
-
-当前仍未实现的推荐任务：
-
-- `RecommendEvalReport`：推荐离线评估报告
+- `RecommendEvalReport`：推荐离线评估报告，按天生成场景级 CTR、CVR、Precision、Recall、NDCG 指标
 
 ## 环境要求
 

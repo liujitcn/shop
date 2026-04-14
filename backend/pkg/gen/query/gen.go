@@ -47,11 +47,13 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		OrderStatDay:                 newOrderStatDay(db, opts...),
 		PayBill:                      newPayBill(db, opts...),
 		RecommendActorBindLog:        newRecommendActorBindLog(db, opts...),
+		RecommendEvalReport:          newRecommendEvalReport(db, opts...),
 		RecommendExposure:            newRecommendExposure(db, opts...),
 		RecommendExposureItem:        newRecommendExposureItem(db, opts...),
 		RecommendGoodsAction:         newRecommendGoodsAction(db, opts...),
 		RecommendGoodsRelation:       newRecommendGoodsRelation(db, opts...),
 		RecommendGoodsStatDay:        newRecommendGoodsStatDay(db, opts...),
+		RecommendModelVersion:        newRecommendModelVersion(db, opts...),
 		RecommendRequest:             newRecommendRequest(db, opts...),
 		RecommendRequestItem:         newRecommendRequestItem(db, opts...),
 		RecommendUserGoodsPreference: newRecommendUserGoodsPreference(db, opts...),
@@ -100,11 +102,13 @@ type Query struct {
 	OrderStatDay                 orderStatDay
 	PayBill                      payBill
 	RecommendActorBindLog        recommendActorBindLog
+	RecommendEvalReport          recommendEvalReport
 	RecommendExposure            recommendExposure
 	RecommendExposureItem        recommendExposureItem
 	RecommendGoodsAction         recommendGoodsAction
 	RecommendGoodsRelation       recommendGoodsRelation
 	RecommendGoodsStatDay        recommendGoodsStatDay
+	RecommendModelVersion        recommendModelVersion
 	RecommendRequest             recommendRequest
 	RecommendRequestItem         recommendRequestItem
 	RecommendUserGoodsPreference recommendUserGoodsPreference
@@ -154,11 +158,13 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		OrderStatDay:                 q.OrderStatDay.clone(db),
 		PayBill:                      q.PayBill.clone(db),
 		RecommendActorBindLog:        q.RecommendActorBindLog.clone(db),
+		RecommendEvalReport:          q.RecommendEvalReport.clone(db),
 		RecommendExposure:            q.RecommendExposure.clone(db),
 		RecommendExposureItem:        q.RecommendExposureItem.clone(db),
 		RecommendGoodsAction:         q.RecommendGoodsAction.clone(db),
 		RecommendGoodsRelation:       q.RecommendGoodsRelation.clone(db),
 		RecommendGoodsStatDay:        q.RecommendGoodsStatDay.clone(db),
+		RecommendModelVersion:        q.RecommendModelVersion.clone(db),
 		RecommendRequest:             q.RecommendRequest.clone(db),
 		RecommendRequestItem:         q.RecommendRequestItem.clone(db),
 		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.clone(db),
@@ -215,11 +221,13 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		OrderStatDay:                 q.OrderStatDay.replaceDB(db),
 		PayBill:                      q.PayBill.replaceDB(db),
 		RecommendActorBindLog:        q.RecommendActorBindLog.replaceDB(db),
+		RecommendEvalReport:          q.RecommendEvalReport.replaceDB(db),
 		RecommendExposure:            q.RecommendExposure.replaceDB(db),
 		RecommendExposureItem:        q.RecommendExposureItem.replaceDB(db),
 		RecommendGoodsAction:         q.RecommendGoodsAction.replaceDB(db),
 		RecommendGoodsRelation:       q.RecommendGoodsRelation.replaceDB(db),
 		RecommendGoodsStatDay:        q.RecommendGoodsStatDay.replaceDB(db),
+		RecommendModelVersion:        q.RecommendModelVersion.replaceDB(db),
 		RecommendRequest:             q.RecommendRequest.replaceDB(db),
 		RecommendRequestItem:         q.RecommendRequestItem.replaceDB(db),
 		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.replaceDB(db),
@@ -266,11 +274,13 @@ type queryCtx struct {
 	OrderStatDay                 *orderStatDayDo
 	PayBill                      *payBillDo
 	RecommendActorBindLog        *recommendActorBindLogDo
+	RecommendEvalReport          *recommendEvalReportDo
 	RecommendExposure            *recommendExposureDo
 	RecommendExposureItem        *recommendExposureItemDo
 	RecommendGoodsAction         *recommendGoodsActionDo
 	RecommendGoodsRelation       *recommendGoodsRelationDo
 	RecommendGoodsStatDay        *recommendGoodsStatDayDo
+	RecommendModelVersion        *recommendModelVersionDo
 	RecommendRequest             *recommendRequestDo
 	RecommendRequestItem         *recommendRequestItemDo
 	RecommendUserGoodsPreference *recommendUserGoodsPreferenceDo
@@ -317,11 +327,13 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		OrderStatDay:                 q.OrderStatDay.WithContext(ctx),
 		PayBill:                      q.PayBill.WithContext(ctx),
 		RecommendActorBindLog:        q.RecommendActorBindLog.WithContext(ctx),
+		RecommendEvalReport:          q.RecommendEvalReport.WithContext(ctx),
 		RecommendExposure:            q.RecommendExposure.WithContext(ctx),
 		RecommendExposureItem:        q.RecommendExposureItem.WithContext(ctx),
 		RecommendGoodsAction:         q.RecommendGoodsAction.WithContext(ctx),
 		RecommendGoodsRelation:       q.RecommendGoodsRelation.WithContext(ctx),
 		RecommendGoodsStatDay:        q.RecommendGoodsStatDay.WithContext(ctx),
+		RecommendModelVersion:        q.RecommendModelVersion.WithContext(ctx),
 		RecommendRequest:             q.RecommendRequest.WithContext(ctx),
 		RecommendRequestItem:         q.RecommendRequestItem.WithContext(ctx),
 		RecommendUserGoodsPreference: q.RecommendUserGoodsPreference.WithContext(ctx),

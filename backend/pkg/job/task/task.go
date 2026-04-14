@@ -20,14 +20,16 @@ func NewTaskList(
 	recommendGoodsStatDay *RecommendGoodsStatDay,
 	recommendUserPreferenceRebuild *RecommendUserPreferenceRebuild,
 	recommendGoodsRelationRebuild *RecommendGoodsRelationRebuild,
+	recommendEvalReport *RecommendEvalReport,
 ) map[string]TaskExec {
-	taskMap := make(map[string]TaskExec, 6)
+	taskMap := make(map[string]TaskExec, 7)
 	registerTask(taskMap, tradeBill, "申请交易账单")
 	registerTask(taskMap, orderStatDay, "订单日汇总")
 	registerTask(taskMap, goodsStatDay, "商品日汇总")
 	registerTask(taskMap, recommendGoodsStatDay, "推荐商品日汇总")
 	registerTask(taskMap, recommendUserPreferenceRebuild, "推荐用户偏好重建")
 	registerTask(taskMap, recommendGoodsRelationRebuild, "推荐商品关联重建")
+	registerTask(taskMap, recommendEvalReport, "推荐离线评估报告")
 	return taskMap
 }
 
