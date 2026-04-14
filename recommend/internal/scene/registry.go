@@ -3,12 +3,13 @@ package scene
 import (
 	"context"
 	"fmt"
-	"recommend"
+	cachex "recommend/internal/cache"
+	"recommend/internal/core"
 	"recommend/internal/model"
 )
 
 // Pipeline 定义单个场景推荐流水线。
-type Pipeline func(context.Context, model.Request, recommend.Dependencies) ([]*model.Candidate, error)
+type Pipeline func(context.Context, model.Request, core.Dependencies, core.ServiceConfig, *cachex.PoolStore, *cachex.RuntimeStore) ([]*model.Candidate, error)
 
 // ResolvePipeline 返回指定场景对应的推荐流水线。
 func ResolvePipeline(scene model.Scene) (Pipeline, error) {

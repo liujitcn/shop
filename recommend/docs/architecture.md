@@ -9,7 +9,7 @@
 - 推荐事实主表落库
 - 商品、订单、购物车、收藏等业务主流程
 
-当前模块对外只暴露包级方法，不提供 `NewXXX` 构造器作为主入口。
+当前模块对外以 `recommend.New(...Option)` 创建的 `*Recommend` 实例作为统一入口，不再推荐使用散落的工具函数式调用。
 
 ## 总体职责
 
@@ -39,6 +39,7 @@
 
 ### 离线能力
 
+- `Rebuild(...)`
 - `BuildNonPersonalized(...)`
 - `BuildUserCandidate(...)`
 - `BuildGoodsRelation(...)`
@@ -51,12 +52,25 @@
 
 ### 根包
 
-- `recommend.go`：根包与错误定义
-- `build.go`：离线构建入口
-- `explain.go`：explain 入口
-- `evaluate.go`：离线评估入口
-- `sync.go`：运行态同步入口
-- `types.go`：公共 DTO、请求与结果结构
+- `recommend.go`：实例定义、option、默认配置与依赖装配
+- `build.go`：离线构建与 `Rebuild(...)` 入口
+- `explain.go`：实例 explain 入口
+- `evaluate.go`：实例离线评估入口
+- `sync.go`：实例在线推荐与运行态同步入口
+- `types.go`：公共 DTO、请求、结果和配置类型别名，对外保持稳定边界
+
+### internal/core
+
+根包和内部执行链路共用的公共类型边界。`engine`、`scene`、`recall`、`model` 统一依赖这一层，根包只做对外适配，不再反向被内部包引用。
+
+### internal/model
+
+`internal/model` 会保留一份与 `internal/core` 接近但不完全相同的内部运行态结构。两者不是无意义重复：
+
+- `internal/core` 负责公开 DTO 和内核共享边界
+- `internal/model` 负责归一化后的内部状态、方法和排序中间结果
+
+例如 `Request`、`Actor`、`Scene` 在 `model` 中会额外承载分页偏移、主体判断、场景字符串化这类仅服务内部执行链路的方法。
 
 ### contract
 
@@ -73,6 +87,16 @@
 
 推荐总入口，负责把场景、召回、排序、替换、缓存、explain 串起来。
 
+当前已经接通：
+
+- 在线推荐 trace 持久化
+- explain 回查转换
+- 运行态同步入口
+- 运行态曝光惩罚、复购惩罚回灌在线排序
+- 离线构建入口到 `pool.db` 的落库
+- 离线评估入口到统一指标结果的计算
+- 一键 `Rebuild(...)` 对多路离线构建和离线评估的统一编排
+
 ### internal/scene
 
 按商城业务场景组织 pipeline：
@@ -83,6 +107,11 @@
 - `profile`
 - `order_detail`
 - `order_paid`
+
+当前场景层会在单次请求内共享同一个 LevelDB manager，同时复用：
+
+- `pool.db` 的离线候选池
+- `runtime.db` 的惩罚态
 
 ### internal/recall
 
@@ -98,10 +127,28 @@
 - `user_to_user`
 - `collaborative`
 - `external`
+- `vector`
+
+当前已接通的读池优先召回：
+
+- `latest`、`scene_hot`、`global_hot` 优先读取匿名通用候选池，缺失或无法恢复来源分值时回退事实源
+- `user_goods_pref`、`user_category_pref` 优先读取用户候选池，缺失或无法恢复来源分值时回退事实源
+- `session_context` 优先读取 `runtime.db` 中的具体会话态或共享会话态，缺失时回退行为事实源
+- `user_to_user` 优先读取相似用户池中的商品项，缺失时回退事实源
+- `goods_relation` 优先读取商品关联池，缺失时回退事实源
+- `collaborative` 优先读取协同过滤池，缺失时回退事实源
+- `external` 优先读取外部推荐池，缺失时回退事实源
+
+候选池商品项当前会同时保留：
+
+- 合并后的总分
+- `source_scores` 形式的来源原始分值
+
+这样在线召回在消费离线合并池时，仍然可以恢复各路排序信号，不会把总分重复计入多路权重。
 
 ### internal/rank
 
-统一打分排序，第一阶段优先规则排序，同时预留 `fm`、`llm` 扩展位。
+统一打分排序，当前已支持实例级场景权重配置、类目打散上限配置、轻量 `fm` 学习排序和 `llm` 二阶段重排，同时保留 `custom` 排序模式入口。
 
 ### internal/replace
 
@@ -135,9 +182,25 @@
 
 离线物化缓存，负责从现有业务表和 `recommend_*` 表生成在线可直接消费的缓存结果。
 
+当前已经接通：
+
+- 非个性化池构建
+- 用户候选池构建
+- 商品关联池构建
+- 相似用户池构建
+- 协同过滤池构建
+- 外部推荐池构建
+- `Rebuild(...)` 对多类离线池构建的统一调度
+
 ### internal/evaluate
 
 离线评估能力，复用当前请求、曝光、行为事实表的评估口径。
+
+当前已经接通：
+
+- 按场景按天拉取请求、曝光、行为事实
+- precision / recall / NDCG 计算
+- CTR、下单率、支付率计算
 
 ## 代码结构
 
@@ -158,6 +221,7 @@ recommend
 │   └── cache.go
 ├── internal
 │   ├── engine
+│   ├── core
 │   ├── scene
 │   ├── recall
 │   ├── rank
@@ -171,7 +235,7 @@ recommend
 
 ## 切流原则
 
-- `backend/service/app/biz` 和 `backend/pkg/job` 直接调用 `shop/recommend`
+- `backend/service/app/biz` 和 `backend/pkg/job` 建议各自持有一个 `*recommend.Recommend` 实例
 - 不再围绕旧 `backend/pkg/recommend` 设计新能力
 - 新能力落地并完成切流后，删除旧 `backend/pkg/recommend/*`
 

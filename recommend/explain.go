@@ -1,8 +1,11 @@
 package recommend
 
-import "context"
+import (
+	"context"
+	"recommend/internal/engine"
+)
 
 // Explain 查询已持久化的推荐追踪结果。
-func Explain(_ context.Context, _ Dependencies, _ ExplainRequest) (*ExplainResult, error) {
-	return nil, ErrNotImplemented
+func (r *Recommend) Explain(ctx context.Context, request ExplainRequest) (*ExplainResult, error) {
+	return engine.Explain(ctx, r.dependencies, r.config, request)
 }

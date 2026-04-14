@@ -1,37 +1,55 @@
 package model
 
-import "recommend"
+import "recommend/internal/core"
 
-const defaultPageNum = 1
-const defaultPageSize = 10
+const (
+	// defaultPageNum 表示内部分页归一化时使用的默认页码。
+	defaultPageNum = 1
+	// defaultPageSize 表示内部分页归一化时使用的默认分页大小。
+	defaultPageSize = 10
+)
 
-// Pager 表示内部使用的分页信息。
+// Pager 表示内部归一化后的分页信息。
 type Pager struct {
-	PageNum  int32
+	// PageNum 表示分页页码。
+	PageNum int32
+	// PageSize 表示单页商品数量。
 	PageSize int32
 }
 
-// RequestContext 表示内部使用的推荐上下文。
+// RequestContext 表示内部归一化后的推荐上下文。
 type RequestContext struct {
-	RequestId        string
-	GoodsId          int64
-	OrderId          int64
-	CartGoodsIds     []int64
+	// RequestId 表示推荐请求编号。
+	RequestId string
+	// GoodsId 表示详情类场景的锚点商品编号。
+	GoodsId int64
+	// OrderId 表示订单类场景的订单编号。
+	OrderId int64
+	// CartGoodsIds 表示购物车场景的上下文商品编号集合。
+	CartGoodsIds []int64
+	// ExternalStrategy 表示外部推荐池策略标识。
 	ExternalStrategy string
-	Attributes       map[string]string
+	// Attributes 表示透传给内部召回和排序链路的扩展属性。
+	Attributes map[string]string
 }
 
-// Request 表示内部使用的推荐请求。
+// Request 表示进入推荐内核后的内部请求结构。
+// 这里保留与 core 接近的字段形态，但职责是承接归一化后的运行态数据和内部方法，不直接对外暴露。
 type Request struct {
-	Scene       Scene
-	Actor       Actor
-	Pager       Pager
-	Context     RequestContext
+	// Scene 表示当前请求场景。
+	Scene Scene
+	// Actor 表示当前请求主体。
+	Actor Actor
+	// Pager 表示当前请求分页参数。
+	Pager Pager
+	// Context 表示当前请求业务上下文。
+	Context RequestContext
+	// NeedExplain 表示当前请求是否要求持久化 explain 明细。
 	NeedExplain bool
 }
 
 // ResolveRequest 将公开请求转换为内部请求。
-func ResolveRequest(request recommend.RecommendRequest) Request {
+func ResolveRequest(request core.RecommendRequest) Request {
 	return Request{
 		Scene:       ResolveScene(request.Scene),
 		Actor:       ResolveActor(request.Actor),
@@ -54,7 +72,7 @@ func (r Request) Limit() int {
 }
 
 // resolvePager 归一化分页参数。
-func resolvePager(pager recommend.Pager) Pager {
+func resolvePager(pager core.Pager) Pager {
 	result := Pager{
 		PageNum:  pager.PageNum,
 		PageSize: pager.PageSize,
@@ -71,7 +89,7 @@ func resolvePager(pager recommend.Pager) Pager {
 }
 
 // resolveRequestContext 复制并归一化推荐上下文。
-func resolveRequestContext(context recommend.RecommendContext) RequestContext {
+func resolveRequestContext(context core.RecommendContext) RequestContext {
 	result := RequestContext{
 		RequestId:        context.RequestId,
 		GoodsId:          context.GoodsId,

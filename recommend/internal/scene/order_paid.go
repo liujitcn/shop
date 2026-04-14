@@ -2,13 +2,21 @@ package scene
 
 import (
 	"context"
-	"recommend"
+	cachex "recommend/internal/cache"
+	"recommend/internal/core"
 	"recommend/internal/model"
 	"recommend/internal/recall"
 )
 
 // runOrderPaidPipeline 执行支付完成推荐流水线。
-func runOrderPaidPipeline(ctx context.Context, request model.Request, dependencies recommend.Dependencies) ([]*model.Candidate, error) {
+func runOrderPaidPipeline(
+	ctx context.Context,
+	request model.Request,
+	dependencies core.Dependencies,
+	config core.ServiceConfig,
+	poolStore *cachex.PoolStore,
+	runtimeStore *cachex.RuntimeStore,
+) ([]*model.Candidate, error) {
 	anchorGoodsId, err := loadOrderAnchorGoodsId(ctx, dependencies, request.Context.OrderId)
 	if err != nil {
 		return nil, err
@@ -16,33 +24,49 @@ func runOrderPaidPipeline(ctx context.Context, request model.Request, dependenci
 	if anchorGoodsId > 0 {
 		request = withGoodsId(request, anchorGoodsId)
 	}
-	recallRequest := buildRecallRequest(request, dependencies)
+	recallRequest := buildRecallRequest(request, dependencies, poolStore, runtimeStore)
 
-	relationList, err := recall.RecallGoodsRelation(ctx, recallRequest)
+	var relationList []*model.Candidate
+	relationList, err = recall.RecallGoodsRelation(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	sceneHotList, err := recall.RecallSceneHot(ctx, recallRequest)
-	if err != nil {
-		return nil, err
-	}
-	externalList, err := recall.RecallExternal(ctx, recallRequest)
-	if err != nil {
-		return nil, err
-	}
-	userToUserList, err := recall.RecallUserToUser(ctx, recallRequest)
-	if err != nil {
-		return nil, err
-	}
-	collaborativeList, err := recall.RecallCollaborative(ctx, recallRequest)
-	if err != nil {
-		return nil, err
-	}
-	latestList, err := recall.RecallLatest(ctx, recallRequest)
+	var sceneHotList []*model.Candidate
+	sceneHotList, err = recall.RecallSceneHot(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	primary := mergeCandidates(relationList, sceneHotList, externalList, userToUserList, collaborativeList)
-	return finalizeCandidates(ctx, request, dependencies, primary, latestList)
+	var externalList []*model.Candidate
+	externalList, err = recall.RecallExternal(ctx, recallRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	var userToUserList []*model.Candidate
+	userToUserList, err = recall.RecallUserToUser(ctx, recallRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	var collaborativeList []*model.Candidate
+	collaborativeList, err = recall.RecallCollaborative(ctx, recallRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	var vectorList []*model.Candidate
+	vectorList, err = recall.RecallVector(ctx, recallRequest, config.Vector)
+	if err != nil {
+		return nil, err
+	}
+
+	var latestList []*model.Candidate
+	latestList, err = recall.RecallLatest(ctx, recallRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	primary := mergeCandidates(relationList, sceneHotList, externalList, userToUserList, collaborativeList, vectorList)
+	return finalizeCandidates(ctx, request, dependencies, config, runtimeStore, primary, latestList)
 }

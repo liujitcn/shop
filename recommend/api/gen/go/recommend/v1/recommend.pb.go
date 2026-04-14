@@ -110,11 +110,12 @@ func (x *CacheMeta) GetExpireAt() *timestamppb.Timestamp {
 // 推荐候选商品项
 type RecommendCandidateItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                  // 商品编号
-	Score         float64                `protobuf:"fixed64,2,opt,name=score,proto3" json:"score,omitempty"`                                    // 当前得分
-	RecallSources []string               `protobuf:"bytes,3,rep,name=recall_sources,json=recallSources,proto3" json:"recall_sources,omitempty"` // 召回来源
-	CategoryId    int64                  `protobuf:"varint,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`         // 分类编号
-	Trace         string                 `protobuf:"bytes,5,opt,name=trace,proto3" json:"trace,omitempty"`                                      // 调试追踪文本
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                                                                           // 商品编号
+	Score         float64                `protobuf:"fixed64,2,opt,name=score,proto3" json:"score,omitempty"`                                                                                                             // 当前得分
+	RecallSources []string               `protobuf:"bytes,3,rep,name=recall_sources,json=recallSources,proto3" json:"recall_sources,omitempty"`                                                                          // 召回来源
+	CategoryId    int64                  `protobuf:"varint,4,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`                                                                                  // 分类编号
+	Trace         string                 `protobuf:"bytes,5,opt,name=trace,proto3" json:"trace,omitempty"`                                                                                                               // 调试追踪文本
+	SourceScores  map[string]float64     `protobuf:"bytes,6,rep,name=source_scores,json=sourceScores,proto3" json:"source_scores,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"fixed64,2,opt,name=value"` // 各召回来源原始得分
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -182,6 +183,13 @@ func (x *RecommendCandidateItem) GetTrace() string {
 		return x.Trace
 	}
 	return ""
+}
+
+func (x *RecommendCandidateItem) GetSourceScores() map[string]float64 {
+	if x != nil {
+		return x.SourceScores
+	}
+	return nil
 }
 
 // 通用候选池
@@ -361,10 +369,11 @@ func (x *RecommendUserCandidatePool) GetItems() []*RecommendCandidateItem {
 
 // 相似用户候选池
 type RecommendUserNeighborPool struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	Meta            *CacheMeta             `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`                                                        // 元信息
-	UserId          int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                     // 用户编号
-	NeighborUserIds []int64                `protobuf:"varint,3,rep,packed,name=neighbor_user_ids,json=neighborUserIds,proto3" json:"neighbor_user_ids,omitempty"` // 相似用户编号列表
+	state           protoimpl.MessageState    `protogen:"open.v1"`
+	Meta            *CacheMeta                `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`                                                        // 元信息
+	UserId          int64                     `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                     // 用户编号
+	NeighborUserIds []int64                   `protobuf:"varint,3,rep,packed,name=neighbor_user_ids,json=neighborUserIds,proto3" json:"neighbor_user_ids,omitempty"` // 相似用户编号列表
+	Items           []*RecommendCandidateItem `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`                                                      // user-to-user 候选列表
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -416,6 +425,13 @@ func (x *RecommendUserNeighborPool) GetUserId() int64 {
 func (x *RecommendUserNeighborPool) GetNeighborUserIds() []int64 {
 	if x != nil {
 		return x.NeighborUserIds
+	}
+	return nil
+}
+
+func (x *RecommendUserNeighborPool) GetItems() []*RecommendCandidateItem {
+	if x != nil {
+		return x.Items
 	}
 	return nil
 }
@@ -542,6 +558,75 @@ func (x *RecommendExternalPool) GetItems() []*RecommendCandidateItem {
 	return nil
 }
 
+// 向量召回结果池
+type RecommendVectorPool struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Meta          *CacheMeta                `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`                               // 元信息
+	TargetType    string                    `protobuf:"bytes,2,opt,name=target_type,json=targetType,proto3" json:"target_type,omitempty"` // 向量目标类型
+	TargetId      int64                     `protobuf:"varint,3,opt,name=target_id,json=targetId,proto3" json:"target_id,omitempty"`      // 向量目标编号
+	Items         []*RecommendCandidateItem `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`                             // 向量召回候选列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendVectorPool) Reset() {
+	*x = RecommendVectorPool{}
+	mi := &file_recommend_v1_recommend_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendVectorPool) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendVectorPool) ProtoMessage() {}
+
+func (x *RecommendVectorPool) ProtoReflect() protoreflect.Message {
+	mi := &file_recommend_v1_recommend_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendVectorPool.ProtoReflect.Descriptor instead.
+func (*RecommendVectorPool) Descriptor() ([]byte, []int) {
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RecommendVectorPool) GetMeta() *CacheMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
+func (x *RecommendVectorPool) GetTargetType() string {
+	if x != nil {
+		return x.TargetType
+	}
+	return ""
+}
+
+func (x *RecommendVectorPool) GetTargetId() int64 {
+	if x != nil {
+		return x.TargetId
+	}
+	return 0
+}
+
+func (x *RecommendVectorPool) GetItems() []*RecommendCandidateItem {
+	if x != nil {
+		return x.Items
+	}
+	return nil
+}
+
 // 会话运行态
 type RecommendSessionState struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
@@ -555,7 +640,7 @@ type RecommendSessionState struct {
 
 func (x *RecommendSessionState) Reset() {
 	*x = RecommendSessionState{}
-	mi := &file_recommend_v1_recommend_proto_msgTypes[8]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -567,7 +652,7 @@ func (x *RecommendSessionState) String() string {
 func (*RecommendSessionState) ProtoMessage() {}
 
 func (x *RecommendSessionState) ProtoReflect() protoreflect.Message {
-	mi := &file_recommend_v1_recommend_proto_msgTypes[8]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -580,7 +665,7 @@ func (x *RecommendSessionState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendSessionState.ProtoReflect.Descriptor instead.
 func (*RecommendSessionState) Descriptor() ([]byte, []int) {
-	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{8}
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RecommendSessionState) GetMeta() *CacheMeta {
@@ -623,7 +708,7 @@ type RecommendPenaltyState struct {
 
 func (x *RecommendPenaltyState) Reset() {
 	*x = RecommendPenaltyState{}
-	mi := &file_recommend_v1_recommend_proto_msgTypes[9]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +720,7 @@ func (x *RecommendPenaltyState) String() string {
 func (*RecommendPenaltyState) ProtoMessage() {}
 
 func (x *RecommendPenaltyState) ProtoReflect() protoreflect.Message {
-	mi := &file_recommend_v1_recommend_proto_msgTypes[9]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +733,7 @@ func (x *RecommendPenaltyState) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendPenaltyState.ProtoReflect.Descriptor instead.
 func (*RecommendPenaltyState) Descriptor() ([]byte, []int) {
-	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{9}
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RecommendPenaltyState) GetMeta() *CacheMeta {
@@ -672,27 +757,258 @@ func (x *RecommendPenaltyState) GetRepeatPenalty() map[int64]float64 {
 	return nil
 }
 
+// 一阶特征权重
+type RecommendFeatureWeight struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Feature       string                 `protobuf:"bytes,1,opt,name=feature,proto3" json:"feature,omitempty"` // 特征名
+	Weight        float64                `protobuf:"fixed64,2,opt,name=weight,proto3" json:"weight,omitempty"` // 权重值
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendFeatureWeight) Reset() {
+	*x = RecommendFeatureWeight{}
+	mi := &file_recommend_v1_recommend_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendFeatureWeight) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendFeatureWeight) ProtoMessage() {}
+
+func (x *RecommendFeatureWeight) ProtoReflect() protoreflect.Message {
+	mi := &file_recommend_v1_recommend_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendFeatureWeight.ProtoReflect.Descriptor instead.
+func (*RecommendFeatureWeight) Descriptor() ([]byte, []int) {
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *RecommendFeatureWeight) GetFeature() string {
+	if x != nil {
+		return x.Feature
+	}
+	return ""
+}
+
+func (x *RecommendFeatureWeight) GetWeight() float64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+// 二阶交叉特征权重
+type RecommendInteractionWeight struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	LeftFeature   string                 `protobuf:"bytes,1,opt,name=left_feature,json=leftFeature,proto3" json:"left_feature,omitempty"`    // 左侧特征名
+	RightFeature  string                 `protobuf:"bytes,2,opt,name=right_feature,json=rightFeature,proto3" json:"right_feature,omitempty"` // 右侧特征名
+	Weight        float64                `protobuf:"fixed64,3,opt,name=weight,proto3" json:"weight,omitempty"`                               // 交叉权重
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendInteractionWeight) Reset() {
+	*x = RecommendInteractionWeight{}
+	mi := &file_recommend_v1_recommend_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendInteractionWeight) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendInteractionWeight) ProtoMessage() {}
+
+func (x *RecommendInteractionWeight) ProtoReflect() protoreflect.Message {
+	mi := &file_recommend_v1_recommend_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendInteractionWeight.ProtoReflect.Descriptor instead.
+func (*RecommendInteractionWeight) Descriptor() ([]byte, []int) {
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *RecommendInteractionWeight) GetLeftFeature() string {
+	if x != nil {
+		return x.LeftFeature
+	}
+	return ""
+}
+
+func (x *RecommendInteractionWeight) GetRightFeature() string {
+	if x != nil {
+		return x.RightFeature
+	}
+	return ""
+}
+
+func (x *RecommendInteractionWeight) GetWeight() float64 {
+	if x != nil {
+		return x.Weight
+	}
+	return 0
+}
+
+// 学习排序模型状态
+type RecommendRankingModelState struct {
+	state               protoimpl.MessageState        `protogen:"open.v1"`
+	Meta                *CacheMeta                    `protobuf:"bytes,1,opt,name=meta,proto3" json:"meta,omitempty"`                                                             // 元信息
+	ModelName           string                        `protobuf:"bytes,2,opt,name=model_name,json=modelName,proto3" json:"model_name,omitempty"`                                  // 模型名称
+	RankingMode         string                        `protobuf:"bytes,3,opt,name=ranking_mode,json=rankingMode,proto3" json:"ranking_mode,omitempty"`                            // 排序模式
+	SampleCount         int64                         `protobuf:"varint,4,opt,name=sample_count,json=sampleCount,proto3" json:"sample_count,omitempty"`                           // 训练样本数
+	PositiveSampleCount int64                         `protobuf:"varint,5,opt,name=positive_sample_count,json=positiveSampleCount,proto3" json:"positive_sample_count,omitempty"` // 正样本数
+	Bias                float64                       `protobuf:"fixed64,6,opt,name=bias,proto3" json:"bias,omitempty"`                                                           // 偏置项
+	LinearWeights       []*RecommendFeatureWeight     `protobuf:"bytes,7,rep,name=linear_weights,json=linearWeights,proto3" json:"linear_weights,omitempty"`                      // 一阶特征权重
+	InteractionWeights  []*RecommendInteractionWeight `protobuf:"bytes,8,rep,name=interaction_weights,json=interactionWeights,proto3" json:"interaction_weights,omitempty"`       // 二阶交叉权重
+	TrainedAt           *timestamppb.Timestamp        `protobuf:"bytes,9,opt,name=trained_at,json=trainedAt,proto3" json:"trained_at,omitempty"`                                  // 训练时间
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *RecommendRankingModelState) Reset() {
+	*x = RecommendRankingModelState{}
+	mi := &file_recommend_v1_recommend_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRankingModelState) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRankingModelState) ProtoMessage() {}
+
+func (x *RecommendRankingModelState) ProtoReflect() protoreflect.Message {
+	mi := &file_recommend_v1_recommend_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRankingModelState.ProtoReflect.Descriptor instead.
+func (*RecommendRankingModelState) Descriptor() ([]byte, []int) {
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *RecommendRankingModelState) GetMeta() *CacheMeta {
+	if x != nil {
+		return x.Meta
+	}
+	return nil
+}
+
+func (x *RecommendRankingModelState) GetModelName() string {
+	if x != nil {
+		return x.ModelName
+	}
+	return ""
+}
+
+func (x *RecommendRankingModelState) GetRankingMode() string {
+	if x != nil {
+		return x.RankingMode
+	}
+	return ""
+}
+
+func (x *RecommendRankingModelState) GetSampleCount() int64 {
+	if x != nil {
+		return x.SampleCount
+	}
+	return 0
+}
+
+func (x *RecommendRankingModelState) GetPositiveSampleCount() int64 {
+	if x != nil {
+		return x.PositiveSampleCount
+	}
+	return 0
+}
+
+func (x *RecommendRankingModelState) GetBias() float64 {
+	if x != nil {
+		return x.Bias
+	}
+	return 0
+}
+
+func (x *RecommendRankingModelState) GetLinearWeights() []*RecommendFeatureWeight {
+	if x != nil {
+		return x.LinearWeights
+	}
+	return nil
+}
+
+func (x *RecommendRankingModelState) GetInteractionWeights() []*RecommendInteractionWeight {
+	if x != nil {
+		return x.InteractionWeights
+	}
+	return nil
+}
+
+func (x *RecommendRankingModelState) GetTrainedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TrainedAt
+	}
+	return nil
+}
+
 // 评分明细
 type RecommendScoreDetail struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId         int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                          // 商品编号
-	FinalScore      float64                `protobuf:"fixed64,2,opt,name=final_score,json=finalScore,proto3" json:"final_score,omitempty"`                // 最终得分
-	RelationScore   float64                `protobuf:"fixed64,3,opt,name=relation_score,json=relationScore,proto3" json:"relation_score,omitempty"`       // 商品关联得分
-	UserGoodsScore  float64                `protobuf:"fixed64,4,opt,name=user_goods_score,json=userGoodsScore,proto3" json:"user_goods_score,omitempty"`  // 用户商品偏好得分
-	CategoryScore   float64                `protobuf:"fixed64,5,opt,name=category_score,json=categoryScore,proto3" json:"category_score,omitempty"`       // 用户类目偏好得分
-	SceneHotScore   float64                `protobuf:"fixed64,6,opt,name=scene_hot_score,json=sceneHotScore,proto3" json:"scene_hot_score,omitempty"`     // 场景热度得分
-	GlobalHotScore  float64                `protobuf:"fixed64,7,opt,name=global_hot_score,json=globalHotScore,proto3" json:"global_hot_score,omitempty"`  // 全站热度得分
-	FreshnessScore  float64                `protobuf:"fixed64,8,opt,name=freshness_score,json=freshnessScore,proto3" json:"freshness_score,omitempty"`    // 新鲜度得分
-	ExposurePenalty float64                `protobuf:"fixed64,9,opt,name=exposure_penalty,json=exposurePenalty,proto3" json:"exposure_penalty,omitempty"` // 曝光惩罚
-	RepeatPenalty   float64                `protobuf:"fixed64,10,opt,name=repeat_penalty,json=repeatPenalty,proto3" json:"repeat_penalty,omitempty"`      // 重复购买惩罚
-	RecallSources   []string               `protobuf:"bytes,11,rep,name=recall_sources,json=recallSources,proto3" json:"recall_sources,omitempty"`        // 召回来源
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId            int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                    // 商品编号
+	FinalScore         float64                `protobuf:"fixed64,2,opt,name=final_score,json=finalScore,proto3" json:"final_score,omitempty"`                          // 最终得分
+	RelationScore      float64                `protobuf:"fixed64,3,opt,name=relation_score,json=relationScore,proto3" json:"relation_score,omitempty"`                 // 商品关联得分
+	UserGoodsScore     float64                `protobuf:"fixed64,4,opt,name=user_goods_score,json=userGoodsScore,proto3" json:"user_goods_score,omitempty"`            // 用户商品偏好得分
+	CategoryScore      float64                `protobuf:"fixed64,5,opt,name=category_score,json=categoryScore,proto3" json:"category_score,omitempty"`                 // 用户类目偏好得分
+	SceneHotScore      float64                `protobuf:"fixed64,6,opt,name=scene_hot_score,json=sceneHotScore,proto3" json:"scene_hot_score,omitempty"`               // 场景热度得分
+	GlobalHotScore     float64                `protobuf:"fixed64,7,opt,name=global_hot_score,json=globalHotScore,proto3" json:"global_hot_score,omitempty"`            // 全站热度得分
+	FreshnessScore     float64                `protobuf:"fixed64,8,opt,name=freshness_score,json=freshnessScore,proto3" json:"freshness_score,omitempty"`              // 新鲜度得分
+	ExposurePenalty    float64                `protobuf:"fixed64,9,opt,name=exposure_penalty,json=exposurePenalty,proto3" json:"exposure_penalty,omitempty"`           // 曝光惩罚
+	RepeatPenalty      float64                `protobuf:"fixed64,10,opt,name=repeat_penalty,json=repeatPenalty,proto3" json:"repeat_penalty,omitempty"`                // 重复购买惩罚
+	RecallSources      []string               `protobuf:"bytes,11,rep,name=recall_sources,json=recallSources,proto3" json:"recall_sources,omitempty"`                  // 召回来源
+	SessionScore       float64                `protobuf:"fixed64,12,opt,name=session_score,json=sessionScore,proto3" json:"session_score,omitempty"`                   // 会话上下文得分
+	ExternalScore      float64                `protobuf:"fixed64,13,opt,name=external_score,json=externalScore,proto3" json:"external_score,omitempty"`                // 外部召回得分
+	CollaborativeScore float64                `protobuf:"fixed64,14,opt,name=collaborative_score,json=collaborativeScore,proto3" json:"collaborative_score,omitempty"` // 协同过滤得分
+	UserNeighborScore  float64                `protobuf:"fixed64,15,opt,name=user_neighbor_score,json=userNeighborScore,proto3" json:"user_neighbor_score,omitempty"`  // 相似用户得分
+	VectorScore        float64                `protobuf:"fixed64,16,opt,name=vector_score,json=vectorScore,proto3" json:"vector_score,omitempty"`                      // 向量召回得分
+	FmScore            float64                `protobuf:"fixed64,17,opt,name=fm_score,json=fmScore,proto3" json:"fm_score,omitempty"`                                  // FM 排序得分
+	LlmScore           float64                `protobuf:"fixed64,18,opt,name=llm_score,json=llmScore,proto3" json:"llm_score,omitempty"`                               // LLM 重排得分
+	RuleScore          float64                `protobuf:"fixed64,19,opt,name=rule_score,json=ruleScore,proto3" json:"rule_score,omitempty"`                            // 规则排序基础分
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RecommendScoreDetail) Reset() {
 	*x = RecommendScoreDetail{}
-	mi := &file_recommend_v1_recommend_proto_msgTypes[10]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -704,7 +1020,7 @@ func (x *RecommendScoreDetail) String() string {
 func (*RecommendScoreDetail) ProtoMessage() {}
 
 func (x *RecommendScoreDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_recommend_v1_recommend_proto_msgTypes[10]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -717,7 +1033,7 @@ func (x *RecommendScoreDetail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendScoreDetail.ProtoReflect.Descriptor instead.
 func (*RecommendScoreDetail) Descriptor() ([]byte, []int) {
-	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{10}
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *RecommendScoreDetail) GetGoodsId() int64 {
@@ -797,6 +1113,62 @@ func (x *RecommendScoreDetail) GetRecallSources() []string {
 	return nil
 }
 
+func (x *RecommendScoreDetail) GetSessionScore() float64 {
+	if x != nil {
+		return x.SessionScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetExternalScore() float64 {
+	if x != nil {
+		return x.ExternalScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetCollaborativeScore() float64 {
+	if x != nil {
+		return x.CollaborativeScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetUserNeighborScore() float64 {
+	if x != nil {
+		return x.UserNeighborScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetVectorScore() float64 {
+	if x != nil {
+		return x.VectorScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetFmScore() float64 {
+	if x != nil {
+		return x.FmScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetLlmScore() float64 {
+	if x != nil {
+		return x.LlmScore
+	}
+	return 0
+}
+
+func (x *RecommendScoreDetail) GetRuleScore() float64 {
+	if x != nil {
+		return x.RuleScore
+	}
+	return 0
+}
+
 // 推荐追踪步骤
 type RecommendTraceStep struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -809,7 +1181,7 @@ type RecommendTraceStep struct {
 
 func (x *RecommendTraceStep) Reset() {
 	*x = RecommendTraceStep{}
-	mi := &file_recommend_v1_recommend_proto_msgTypes[11]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -821,7 +1193,7 @@ func (x *RecommendTraceStep) String() string {
 func (*RecommendTraceStep) ProtoMessage() {}
 
 func (x *RecommendTraceStep) ProtoReflect() protoreflect.Message {
-	mi := &file_recommend_v1_recommend_proto_msgTypes[11]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -834,7 +1206,7 @@ func (x *RecommendTraceStep) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendTraceStep.ProtoReflect.Descriptor instead.
 func (*RecommendTraceStep) Descriptor() ([]byte, []int) {
-	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{11}
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *RecommendTraceStep) GetStage() string {
@@ -873,7 +1245,7 @@ type RecommendTraceDetail struct {
 
 func (x *RecommendTraceDetail) Reset() {
 	*x = RecommendTraceDetail{}
-	mi := &file_recommend_v1_recommend_proto_msgTypes[12]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -885,7 +1257,7 @@ func (x *RecommendTraceDetail) String() string {
 func (*RecommendTraceDetail) ProtoMessage() {}
 
 func (x *RecommendTraceDetail) ProtoReflect() protoreflect.Message {
-	mi := &file_recommend_v1_recommend_proto_msgTypes[12]
+	mi := &file_recommend_v1_recommend_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -898,7 +1270,7 @@ func (x *RecommendTraceDetail) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendTraceDetail.ProtoReflect.Descriptor instead.
 func (*RecommendTraceDetail) Descriptor() ([]byte, []int) {
-	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{12}
+	return file_recommend_v1_recommend_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *RecommendTraceDetail) GetMeta() *CacheMeta {
@@ -956,14 +1328,18 @@ const file_recommend_v1_recommend_proto_rawDesc = "" +
 	"\bactor_id\x18\x04 \x01(\x03R\aactorId\x129\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x127\n" +
-	"\texpire_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\"\xa7\x01\n" +
+	"\texpire_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\bexpireAt\"\xc5\x02\n" +
 	"\x16RecommendCandidateItem\x12\x19\n" +
 	"\bgoods_id\x18\x01 \x01(\x03R\agoodsId\x12\x14\n" +
 	"\x05score\x18\x02 \x01(\x01R\x05score\x12%\n" +
 	"\x0erecall_sources\x18\x03 \x03(\tR\rrecallSources\x12\x1f\n" +
 	"\vcategory_id\x18\x04 \x01(\x03R\n" +
 	"categoryId\x12\x14\n" +
-	"\x05trace\x18\x05 \x01(\tR\x05trace\"\x81\x01\n" +
+	"\x05trace\x18\x05 \x01(\tR\x05trace\x12[\n" +
+	"\rsource_scores\x18\x06 \x03(\v26.recommend.v1.RecommendCandidateItem.SourceScoresEntryR\fsourceScores\x1a?\n" +
+	"\x11SourceScoresEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\x01R\x05value:\x028\x01\"\x81\x01\n" +
 	"\x16RecommendCandidatePool\x12+\n" +
 	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12:\n" +
 	"\x05items\x18\x02 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\xac\x01\n" +
@@ -974,11 +1350,12 @@ const file_recommend_v1_recommend_proto_rawDesc = "" +
 	"\x1aRecommendUserCandidatePool\x12+\n" +
 	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12:\n" +
-	"\x05items\x18\x03 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\x8d\x01\n" +
+	"\x05items\x18\x03 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\xc9\x01\n" +
 	"\x19RecommendUserNeighborPool\x12+\n" +
 	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12*\n" +
-	"\x11neighbor_user_ids\x18\x03 \x03(\x03R\x0fneighborUserIds\"\x9e\x01\n" +
+	"\x11neighbor_user_ids\x18\x03 \x03(\x03R\x0fneighborUserIds\x12:\n" +
+	"\x05items\x18\x04 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\x9e\x01\n" +
 	"\x1aRecommendCollaborativePool\x12+\n" +
 	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12:\n" +
@@ -986,7 +1363,13 @@ const file_recommend_v1_recommend_proto_rawDesc = "" +
 	"\x15RecommendExternalPool\x12+\n" +
 	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12\x1a\n" +
 	"\bstrategy\x18\x02 \x01(\tR\bstrategy\x12:\n" +
-	"\x05items\x18\x03 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\xdf\x01\n" +
+	"\x05items\x18\x03 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\xbc\x01\n" +
+	"\x13RecommendVectorPool\x12+\n" +
+	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12\x1f\n" +
+	"\vtarget_type\x18\x02 \x01(\tR\n" +
+	"targetType\x12\x1b\n" +
+	"\ttarget_id\x18\x03 \x01(\x03R\btargetId\x12:\n" +
+	"\x05items\x18\x04 \x03(\v2$.recommend.v1.RecommendCandidateItemR\x05items\"\xdf\x01\n" +
 	"\x15RecommendSessionState\x12+\n" +
 	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x121\n" +
 	"\x15recent_view_goods_ids\x18\x02 \x03(\x03R\x12recentViewGoodsIds\x123\n" +
@@ -1001,7 +1384,26 @@ const file_recommend_v1_recommend_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\x01R\x05value:\x028\x01\x1a@\n" +
 	"\x12RepeatPenaltyEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x03R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\x01R\x05value:\x028\x01\"\xbe\x03\n" +
+	"\x05value\x18\x02 \x01(\x01R\x05value:\x028\x01\"J\n" +
+	"\x16RecommendFeatureWeight\x12\x18\n" +
+	"\afeature\x18\x01 \x01(\tR\afeature\x12\x16\n" +
+	"\x06weight\x18\x02 \x01(\x01R\x06weight\"|\n" +
+	"\x1aRecommendInteractionWeight\x12!\n" +
+	"\fleft_feature\x18\x01 \x01(\tR\vleftFeature\x12#\n" +
+	"\rright_feature\x18\x02 \x01(\tR\frightFeature\x12\x16\n" +
+	"\x06weight\x18\x03 \x01(\x01R\x06weight\"\xd9\x03\n" +
+	"\x1aRecommendRankingModelState\x12+\n" +
+	"\x04meta\x18\x01 \x01(\v2\x17.recommend.v1.CacheMetaR\x04meta\x12\x1d\n" +
+	"\n" +
+	"model_name\x18\x02 \x01(\tR\tmodelName\x12!\n" +
+	"\franking_mode\x18\x03 \x01(\tR\vrankingMode\x12!\n" +
+	"\fsample_count\x18\x04 \x01(\x03R\vsampleCount\x122\n" +
+	"\x15positive_sample_count\x18\x05 \x01(\x03R\x13positiveSampleCount\x12\x12\n" +
+	"\x04bias\x18\x06 \x01(\x01R\x04bias\x12K\n" +
+	"\x0elinear_weights\x18\a \x03(\v2$.recommend.v1.RecommendFeatureWeightR\rlinearWeights\x12Y\n" +
+	"\x13interaction_weights\x18\b \x03(\v2(.recommend.v1.RecommendInteractionWeightR\x12interactionWeights\x129\n" +
+	"\n" +
+	"trained_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\ttrainedAt\"\xe5\x05\n" +
 	"\x14RecommendScoreDetail\x12\x19\n" +
 	"\bgoods_id\x18\x01 \x01(\x03R\agoodsId\x12\x1f\n" +
 	"\vfinal_score\x18\x02 \x01(\x01R\n" +
@@ -1015,7 +1417,16 @@ const file_recommend_v1_recommend_proto_rawDesc = "" +
 	"\x10exposure_penalty\x18\t \x01(\x01R\x0fexposurePenalty\x12%\n" +
 	"\x0erepeat_penalty\x18\n" +
 	" \x01(\x01R\rrepeatPenalty\x12%\n" +
-	"\x0erecall_sources\x18\v \x03(\tR\rrecallSources\"_\n" +
+	"\x0erecall_sources\x18\v \x03(\tR\rrecallSources\x12#\n" +
+	"\rsession_score\x18\f \x01(\x01R\fsessionScore\x12%\n" +
+	"\x0eexternal_score\x18\r \x01(\x01R\rexternalScore\x12/\n" +
+	"\x13collaborative_score\x18\x0e \x01(\x01R\x12collaborativeScore\x12.\n" +
+	"\x13user_neighbor_score\x18\x0f \x01(\x01R\x11userNeighborScore\x12!\n" +
+	"\fvector_score\x18\x10 \x01(\x01R\vvectorScore\x12\x19\n" +
+	"\bfm_score\x18\x11 \x01(\x01R\afmScore\x12\x1b\n" +
+	"\tllm_score\x18\x12 \x01(\x01R\bllmScore\x12\x1d\n" +
+	"\n" +
+	"rule_score\x18\x13 \x01(\x01R\truleScore\"_\n" +
 	"\x12RecommendTraceStep\x12\x14\n" +
 	"\x05stage\x18\x01 \x01(\tR\x05stage\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12\x1b\n" +
@@ -1042,7 +1453,7 @@ func file_recommend_v1_recommend_proto_rawDescGZIP() []byte {
 	return file_recommend_v1_recommend_proto_rawDescData
 }
 
-var file_recommend_v1_recommend_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_recommend_v1_recommend_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_recommend_v1_recommend_proto_goTypes = []any{
 	(*CacheMeta)(nil),                  // 0: recommend.v1.CacheMeta
 	(*RecommendCandidateItem)(nil),     // 1: recommend.v1.RecommendCandidateItem
@@ -1052,41 +1463,54 @@ var file_recommend_v1_recommend_proto_goTypes = []any{
 	(*RecommendUserNeighborPool)(nil),  // 5: recommend.v1.RecommendUserNeighborPool
 	(*RecommendCollaborativePool)(nil), // 6: recommend.v1.RecommendCollaborativePool
 	(*RecommendExternalPool)(nil),      // 7: recommend.v1.RecommendExternalPool
-	(*RecommendSessionState)(nil),      // 8: recommend.v1.RecommendSessionState
-	(*RecommendPenaltyState)(nil),      // 9: recommend.v1.RecommendPenaltyState
-	(*RecommendScoreDetail)(nil),       // 10: recommend.v1.RecommendScoreDetail
-	(*RecommendTraceStep)(nil),         // 11: recommend.v1.RecommendTraceStep
-	(*RecommendTraceDetail)(nil),       // 12: recommend.v1.RecommendTraceDetail
-	nil,                                // 13: recommend.v1.RecommendPenaltyState.ExposurePenaltyEntry
-	nil,                                // 14: recommend.v1.RecommendPenaltyState.RepeatPenaltyEntry
-	(*timestamppb.Timestamp)(nil),      // 15: google.protobuf.Timestamp
+	(*RecommendVectorPool)(nil),        // 8: recommend.v1.RecommendVectorPool
+	(*RecommendSessionState)(nil),      // 9: recommend.v1.RecommendSessionState
+	(*RecommendPenaltyState)(nil),      // 10: recommend.v1.RecommendPenaltyState
+	(*RecommendFeatureWeight)(nil),     // 11: recommend.v1.RecommendFeatureWeight
+	(*RecommendInteractionWeight)(nil), // 12: recommend.v1.RecommendInteractionWeight
+	(*RecommendRankingModelState)(nil), // 13: recommend.v1.RecommendRankingModelState
+	(*RecommendScoreDetail)(nil),       // 14: recommend.v1.RecommendScoreDetail
+	(*RecommendTraceStep)(nil),         // 15: recommend.v1.RecommendTraceStep
+	(*RecommendTraceDetail)(nil),       // 16: recommend.v1.RecommendTraceDetail
+	nil,                                // 17: recommend.v1.RecommendCandidateItem.SourceScoresEntry
+	nil,                                // 18: recommend.v1.RecommendPenaltyState.ExposurePenaltyEntry
+	nil,                                // 19: recommend.v1.RecommendPenaltyState.RepeatPenaltyEntry
+	(*timestamppb.Timestamp)(nil),      // 20: google.protobuf.Timestamp
 }
 var file_recommend_v1_recommend_proto_depIdxs = []int32{
-	15, // 0: recommend.v1.CacheMeta.updated_at:type_name -> google.protobuf.Timestamp
-	15, // 1: recommend.v1.CacheMeta.expire_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: recommend.v1.RecommendCandidatePool.meta:type_name -> recommend.v1.CacheMeta
-	1,  // 3: recommend.v1.RecommendCandidatePool.items:type_name -> recommend.v1.RecommendCandidateItem
-	0,  // 4: recommend.v1.RecommendRelatedGoodsPool.meta:type_name -> recommend.v1.CacheMeta
-	1,  // 5: recommend.v1.RecommendRelatedGoodsPool.items:type_name -> recommend.v1.RecommendCandidateItem
-	0,  // 6: recommend.v1.RecommendUserCandidatePool.meta:type_name -> recommend.v1.CacheMeta
-	1,  // 7: recommend.v1.RecommendUserCandidatePool.items:type_name -> recommend.v1.RecommendCandidateItem
-	0,  // 8: recommend.v1.RecommendUserNeighborPool.meta:type_name -> recommend.v1.CacheMeta
-	0,  // 9: recommend.v1.RecommendCollaborativePool.meta:type_name -> recommend.v1.CacheMeta
-	1,  // 10: recommend.v1.RecommendCollaborativePool.items:type_name -> recommend.v1.RecommendCandidateItem
-	0,  // 11: recommend.v1.RecommendExternalPool.meta:type_name -> recommend.v1.CacheMeta
-	1,  // 12: recommend.v1.RecommendExternalPool.items:type_name -> recommend.v1.RecommendCandidateItem
-	0,  // 13: recommend.v1.RecommendSessionState.meta:type_name -> recommend.v1.CacheMeta
-	0,  // 14: recommend.v1.RecommendPenaltyState.meta:type_name -> recommend.v1.CacheMeta
-	13, // 15: recommend.v1.RecommendPenaltyState.exposure_penalty:type_name -> recommend.v1.RecommendPenaltyState.ExposurePenaltyEntry
-	14, // 16: recommend.v1.RecommendPenaltyState.repeat_penalty:type_name -> recommend.v1.RecommendPenaltyState.RepeatPenaltyEntry
-	0,  // 17: recommend.v1.RecommendTraceDetail.meta:type_name -> recommend.v1.CacheMeta
-	11, // 18: recommend.v1.RecommendTraceDetail.steps:type_name -> recommend.v1.RecommendTraceStep
-	10, // 19: recommend.v1.RecommendTraceDetail.score_details:type_name -> recommend.v1.RecommendScoreDetail
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	20, // 0: recommend.v1.CacheMeta.updated_at:type_name -> google.protobuf.Timestamp
+	20, // 1: recommend.v1.CacheMeta.expire_at:type_name -> google.protobuf.Timestamp
+	17, // 2: recommend.v1.RecommendCandidateItem.source_scores:type_name -> recommend.v1.RecommendCandidateItem.SourceScoresEntry
+	0,  // 3: recommend.v1.RecommendCandidatePool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 4: recommend.v1.RecommendCandidatePool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 5: recommend.v1.RecommendRelatedGoodsPool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 6: recommend.v1.RecommendRelatedGoodsPool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 7: recommend.v1.RecommendUserCandidatePool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 8: recommend.v1.RecommendUserCandidatePool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 9: recommend.v1.RecommendUserNeighborPool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 10: recommend.v1.RecommendUserNeighborPool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 11: recommend.v1.RecommendCollaborativePool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 12: recommend.v1.RecommendCollaborativePool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 13: recommend.v1.RecommendExternalPool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 14: recommend.v1.RecommendExternalPool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 15: recommend.v1.RecommendVectorPool.meta:type_name -> recommend.v1.CacheMeta
+	1,  // 16: recommend.v1.RecommendVectorPool.items:type_name -> recommend.v1.RecommendCandidateItem
+	0,  // 17: recommend.v1.RecommendSessionState.meta:type_name -> recommend.v1.CacheMeta
+	0,  // 18: recommend.v1.RecommendPenaltyState.meta:type_name -> recommend.v1.CacheMeta
+	18, // 19: recommend.v1.RecommendPenaltyState.exposure_penalty:type_name -> recommend.v1.RecommendPenaltyState.ExposurePenaltyEntry
+	19, // 20: recommend.v1.RecommendPenaltyState.repeat_penalty:type_name -> recommend.v1.RecommendPenaltyState.RepeatPenaltyEntry
+	0,  // 21: recommend.v1.RecommendRankingModelState.meta:type_name -> recommend.v1.CacheMeta
+	11, // 22: recommend.v1.RecommendRankingModelState.linear_weights:type_name -> recommend.v1.RecommendFeatureWeight
+	12, // 23: recommend.v1.RecommendRankingModelState.interaction_weights:type_name -> recommend.v1.RecommendInteractionWeight
+	20, // 24: recommend.v1.RecommendRankingModelState.trained_at:type_name -> google.protobuf.Timestamp
+	0,  // 25: recommend.v1.RecommendTraceDetail.meta:type_name -> recommend.v1.CacheMeta
+	15, // 26: recommend.v1.RecommendTraceDetail.steps:type_name -> recommend.v1.RecommendTraceStep
+	14, // 27: recommend.v1.RecommendTraceDetail.score_details:type_name -> recommend.v1.RecommendScoreDetail
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_recommend_v1_recommend_proto_init() }
@@ -1100,7 +1524,7 @@ func file_recommend_v1_recommend_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_recommend_v1_recommend_proto_rawDesc), len(file_recommend_v1_recommend_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

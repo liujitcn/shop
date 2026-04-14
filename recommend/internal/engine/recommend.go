@@ -2,16 +2,23 @@ package engine
 
 import (
 	"context"
-	"recommend"
+	"recommend/internal/core"
 	"recommend/internal/model"
 	"recommend/internal/scene"
 	"sort"
 )
 
 // Recommend 执行推荐主链路并返回对外结果。
-func Recommend(ctx context.Context, dependencies recommend.Dependencies, request recommend.RecommendRequest) (*recommend.RecommendResult, error) {
+func Recommend(ctx context.Context, dependencies core.Dependencies, config core.ServiceConfig, request core.RecommendRequest) (*core.RecommendResult, error) {
 	internalRequest := model.ResolveRequest(request)
-	candidates, err := scene.Run(ctx, internalRequest, dependencies)
+	traceId := internalRequest.Context.RequestId
+	// 调用方显式要求 explain 时，没有追踪编号会导致后续无法回查，因此在这里补一个兜底编号。
+	if internalRequest.NeedExplain && traceId == "" {
+		traceId = buildGeneratedTraceId()
+		internalRequest.Context.RequestId = traceId
+	}
+
+	candidates, err := scene.Run(ctx, internalRequest, dependencies, config)
 	if err != nil {
 		return nil, err
 	}
@@ -21,10 +28,16 @@ func Recommend(ctx context.Context, dependencies recommend.Dependencies, request
 	limit := internalRequest.Limit()
 	// 当前页偏移超出候选数量时，直接返回空页结果。
 	if offset >= len(candidates) {
-		return &recommend.RecommendResult{
-			TraceId: internalRequest.Context.RequestId,
+		result := &core.RecommendResult{
+			TraceId: traceId,
 			Total:   total,
-		}, nil
+		}
+		err = saveRecommendTrace(ctx, dependencies, config, internalRequest, traceId, candidates, nil)
+		// explain 被显式请求且实例开启严格 trace 持久化时，保存失败应直接暴露给调用方。
+		if err != nil && internalRequest.NeedExplain && config.Explain.StrictTracePersistence {
+			return nil, err
+		}
+		return result, nil
 	}
 
 	end := offset + limit
@@ -34,7 +47,7 @@ func Recommend(ctx context.Context, dependencies recommend.Dependencies, request
 	}
 
 	currentPage := candidates[offset:end]
-	items := make([]recommend.RecommendItem, 0, len(currentPage))
+	items := make([]core.RecommendItem, 0, len(currentPage))
 	goodsIds := make([]int64, 0, len(currentPage))
 	recallSourceMap := make(map[string]struct{})
 
@@ -43,7 +56,7 @@ func Recommend(ctx context.Context, dependencies recommend.Dependencies, request
 		for _, source := range recallSources {
 			recallSourceMap[source] = struct{}{}
 		}
-		items = append(items, recommend.RecommendItem{
+		items = append(items, core.RecommendItem{
 			GoodsId:       item.GoodsId(),
 			Score:         item.Score.FinalScore,
 			RecallSources: recallSources,
@@ -57,11 +70,18 @@ func Recommend(ctx context.Context, dependencies recommend.Dependencies, request
 	}
 	sort.Strings(recallSources)
 
-	return &recommend.RecommendResult{
-		TraceId:       internalRequest.Context.RequestId,
+	result := &core.RecommendResult{
+		TraceId:       traceId,
 		Total:         total,
 		Items:         items,
 		GoodsIds:      goodsIds,
 		RecallSources: recallSources,
-	}, nil
+	}
+
+	err = saveRecommendTrace(ctx, dependencies, config, internalRequest, traceId, candidates, currentPage)
+	// explain 被显式请求且实例开启严格 trace 持久化时，保存失败应直接暴露给调用方。
+	if err != nil && internalRequest.NeedExplain && config.Explain.StrictTracePersistence {
+		return nil, err
+	}
+	return result, nil
 }

@@ -1,8 +1,8 @@
 package replace
 
 import (
-	"recommend"
 	"recommend/contract"
+	"recommend/internal/core"
 	"recommend/internal/model"
 	"testing"
 )
@@ -21,8 +21,8 @@ func TestFilterUnavailableGoods(t *testing.T) {
 }
 
 func TestFilterContextGoods(t *testing.T) {
-	request := model.ResolveRequest(recommend.RecommendRequest{
-		Context: recommend.RecommendContext{
+	request := model.ResolveRequest(core.RecommendRequest{
+		Context: core.RecommendContext{
 			GoodsId:      1,
 			CartGoodsIds: []int64{3},
 		},

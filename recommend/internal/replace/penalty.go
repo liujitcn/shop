@@ -48,3 +48,22 @@ func ApplyRepeatPenalty(candidates []*model.Candidate, goodsIds []int64, penalty
 		}
 	}
 }
+
+// ApplyRepeatPenaltyMap 应用按商品粒度记录的重复购买惩罚。
+func ApplyRepeatPenaltyMap(candidates []*model.Candidate, penaltyMap map[int64]float64) {
+	if len(penaltyMap) == 0 {
+		return
+	}
+
+	for _, item := range candidates {
+		// 空候选或缺失商品实体时，当前候选无法继续参与惩罚计算。
+		if item == nil || item.Goods == nil {
+			continue
+		}
+		penalty, ok := penaltyMap[item.Goods.Id]
+		if !ok {
+			continue
+		}
+		item.Score.RepeatPenalty += penalty
+	}
+}

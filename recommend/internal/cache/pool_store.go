@@ -135,6 +135,26 @@ func (s *PoolStore) DeleteExternalPool(scene, strategy string, actorType int32, 
 	return s.deleteKey(cacheleveldb.ExternalPoolKey(scene, strategy, actorType, actorId))
 }
 
+// SaveVectorPool 保存向量召回池。
+func (s *PoolStore) SaveVectorPool(scene, targetType string, targetId int64, pool *recommendv1.RecommendVectorPool) error {
+	return s.putMessage(cacheleveldb.VectorPoolKey(scene, targetType, targetId), pool)
+}
+
+// GetVectorPool 读取向量召回池。
+func (s *PoolStore) GetVectorPool(scene, targetType string, targetId int64) (*recommendv1.RecommendVectorPool, error) {
+	pool := &recommendv1.RecommendVectorPool{}
+	err := s.loadMessage(cacheleveldb.VectorPoolKey(scene, targetType, targetId), pool)
+	if err != nil {
+		return nil, err
+	}
+	return pool, nil
+}
+
+// DeleteVectorPool 删除向量召回池。
+func (s *PoolStore) DeleteVectorPool(scene, targetType string, targetId int64) error {
+	return s.deleteKey(cacheleveldb.VectorPoolKey(scene, targetType, targetId))
+}
+
 // poolDb 返回候选池数据库实例。
 func (s *PoolStore) poolDb() driver.BinaryStore {
 	if s != nil && s.Driver != nil {

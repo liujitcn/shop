@@ -9,8 +9,10 @@ const (
 	keyPrefixUserNeighbor   = "pool:user_neighbor"
 	keyPrefixCollaborative  = "pool:collaborative"
 	keyPrefixExternal       = "pool:external"
+	keyPrefixVector         = "pool:vector"
 	keyPrefixSessionState   = "runtime:session"
 	keyPrefixPenaltyState   = "runtime:penalty"
+	keyPrefixRankingModel   = "runtime:ranking_model"
 	keyPrefixTraceDetail    = "trace:detail"
 	keyPrefixTraceByRequest = "trace:request"
 )
@@ -45,6 +47,11 @@ func ExternalPoolKey(scene, strategy string, actorType int32, actorId int64) []b
 	return []byte(fmt.Sprintf("%s:%s:%s:%d:%d", keyPrefixExternal, scene, strategy, actorType, actorId))
 }
 
+// VectorPoolKey 返回向量召回池的缓存键。
+func VectorPoolKey(scene, targetType string, targetId int64) []byte {
+	return []byte(fmt.Sprintf("%s:%s:%s:%d", keyPrefixVector, scene, targetType, targetId))
+}
+
 // SessionStateKey 返回会话态的缓存键。
 func SessionStateKey(actorType int32, actorId int64, sessionId string) []byte {
 	return []byte(fmt.Sprintf("%s:%d:%d:%s", keyPrefixSessionState, actorType, actorId, sessionId))
@@ -53,6 +60,11 @@ func SessionStateKey(actorType int32, actorId int64, sessionId string) []byte {
 // PenaltyStateKey 返回惩罚态的缓存键。
 func PenaltyStateKey(scene string, actorType int32, actorId int64) []byte {
 	return []byte(fmt.Sprintf("%s:%s:%d:%d", keyPrefixPenaltyState, scene, actorType, actorId))
+}
+
+// RankingModelStateKey 返回学习排序模型状态的缓存键。
+func RankingModelStateKey(scene, modelName string) []byte {
+	return []byte(fmt.Sprintf("%s:%s:%s", keyPrefixRankingModel, scene, modelName))
 }
 
 // TraceDetailKey 返回追踪详情的缓存键。

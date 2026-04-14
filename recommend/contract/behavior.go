@@ -7,20 +7,31 @@ import (
 
 // SessionEvent 表示会话召回所需的最近行为事件。
 type SessionEvent struct {
-	GoodsId   int64
+	// GoodsId 表示会话事件关联的商品编号。
+	GoodsId int64
+	// EventType 表示会话事件类型。
 	EventType string
+	// CreatedAt 表示会话事件发生时间。
 	CreatedAt time.Time
 }
 
 // BehaviorEvent 表示离线构建使用的历史行为事件。
 type BehaviorEvent struct {
+	// ActorType 表示事件主体类型。
 	ActorType int32
-	ActorId   int64
-	Scene     string
+	// ActorId 表示事件主体编号。
+	ActorId int64
+	// Scene 表示事件所属推荐场景。
+	Scene string
+	// RequestId 表示事件关联的推荐请求编号。
 	RequestId string
-	GoodsId   int64
+	// GoodsId 表示事件关联的商品编号。
+	GoodsId int64
+	// EventType 表示行为事件类型。
 	EventType string
-	GoodsNum  int64
+	// GoodsNum 表示事件关联的商品数量。
+	GoodsNum int64
+	// CreatedAt 表示事件发生时间。
 	CreatedAt time.Time
 }
 

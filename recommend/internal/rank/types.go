@@ -1,24 +1,17 @@
 package rank
 
+import "recommend/internal/core"
+
 // ScoreWeights 表示推荐排序使用的权重配置。
-type ScoreWeights struct {
-	RelationWeight      float64
-	UserGoodsWeight     float64
-	CategoryWeight      float64
-	SceneHotWeight      float64
-	GlobalHotWeight     float64
-	FreshnessWeight     float64
-	SessionWeight       float64
-	ExternalWeight      float64
-	CollaborativeWeight float64
-	UserNeighborWeight  float64
-	ExposurePenalty     float64
-	RepeatPenalty       float64
-}
+type ScoreWeights = core.ScoreWeights
 
 // RankOptions 表示排序阶段的可配置参数。
 type RankOptions struct {
+	// MaxPerCategory 表示主结果区内同一类目允许保留的最大数量。
 	MaxPerCategory int
 }
 
-const defaultMaxPerCategory = 2
+const (
+	// defaultMaxPerCategory 表示未显式配置时的默认类目打散上限。
+	defaultMaxPerCategory = 2
+)

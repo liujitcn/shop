@@ -6,7 +6,10 @@ import (
 	"time"
 )
 
-const freshnessWindowDays = 30.0
+const (
+	// freshnessWindowDays 表示新鲜度分值线性衰减使用的天数窗口。
+	freshnessWindowDays = 30.0
+)
 
 // ScoreCandidate 计算单个候选商品的最终得分。
 func ScoreCandidate(candidate *model.Candidate, weights ScoreWeights, scoreTime time.Time) float64 {
@@ -28,10 +31,12 @@ func ScoreCandidate(candidate *model.Candidate, weights ScoreWeights, scoreTime 
 		candidate.Score.SessionScore*weights.SessionWeight +
 		candidate.Score.ExternalScore*weights.ExternalWeight +
 		candidate.Score.CollaborativeScore*weights.CollaborativeWeight +
-		candidate.Score.UserNeighborScore*weights.UserNeighborWeight -
+		candidate.Score.UserNeighborScore*weights.UserNeighborWeight +
+		candidate.Score.VectorScore*weights.VectorWeight -
 		candidate.Score.ExposurePenalty*weights.ExposurePenalty -
 		candidate.Score.RepeatPenalty*weights.RepeatPenalty
 
+	candidate.Score.RuleScore = finalScore
 	candidate.Score.FinalScore = finalScore
 	return finalScore
 }

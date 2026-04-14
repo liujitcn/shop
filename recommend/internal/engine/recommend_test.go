@@ -2,14 +2,14 @@ package engine
 
 import (
 	"context"
-	"recommend"
 	"recommend/contract"
+	"recommend/internal/core"
 	"testing"
 	"time"
 )
 
 func TestRecommend(t *testing.T) {
-	dependencies := recommend.Dependencies{
+	dependencies := core.Dependencies{
 		Goods: &fakeGoodsSource{
 			goodsById: map[int64]*contract.Goods{
 				1: {Id: 1, CategoryId: 11, OnSale: true, InStock: true},
@@ -25,13 +25,13 @@ func TestRecommend(t *testing.T) {
 		Order:     &fakeOrderSource{},
 	}
 
-	result, err := Recommend(context.Background(), dependencies, recommend.RecommendRequest{
-		Scene: recommend.SceneHome,
-		Pager: recommend.Pager{
+	result, err := Recommend(context.Background(), dependencies, core.DefaultServiceConfig(), core.RecommendRequest{
+		Scene: core.SceneHome,
+		Pager: core.Pager{
 			PageNum:  1,
 			PageSize: 2,
 		},
-		Context: recommend.RecommendContext{
+		Context: core.RecommendContext{
 			RequestId: "trace-1",
 		},
 	})

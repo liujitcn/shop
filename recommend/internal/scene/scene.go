@@ -2,7 +2,9 @@ package scene
 
 import (
 	"context"
-	"recommend"
+	cachex "recommend/internal/cache"
+	cacheleveldb "recommend/internal/cache/leveldb"
+	"recommend/internal/core"
 	"recommend/internal/model"
 	"recommend/internal/rank"
 	"recommend/internal/recall"
@@ -10,19 +12,36 @@ import (
 	"time"
 )
 
-const recentPaidWindowDays = 15
+const (
+	// recentPaidWindowDays 表示重复购买惩罚回看的最近支付窗口天数。
+	recentPaidWindowDays = 15
+)
 
 // Run 执行指定场景的推荐流水线。
-func Run(ctx context.Context, request model.Request, dependencies recommend.Dependencies) ([]*model.Candidate, error) {
-	pipeline, err := ResolvePipeline(request.Scene)
+func Run(ctx context.Context, request model.Request, dependencies core.Dependencies, config core.ServiceConfig) ([]*model.Candidate, error) {
+	poolStore, runtimeStore, closeStores, err := openRecallStores(ctx, dependencies)
 	if err != nil {
 		return nil, err
 	}
-	return pipeline(ctx, request, dependencies)
+	defer func() {
+		_ = closeStores()
+	}()
+
+	var pipeline Pipeline
+	pipeline, err = ResolvePipeline(request.Scene)
+	if err != nil {
+		return nil, err
+	}
+	return pipeline(ctx, request, dependencies, config, poolStore, runtimeStore)
 }
 
 // buildRecallRequest 构建召回层使用的统一请求参数。
-func buildRecallRequest(request model.Request, dependencies recommend.Dependencies) recall.Request {
+func buildRecallRequest(
+	request model.Request,
+	dependencies core.Dependencies,
+	poolStore *cachex.PoolStore,
+	runtimeStore *cachex.RuntimeStore,
+) recall.Request {
 	return recall.Request{
 		Scene:         request.Scene,
 		Actor:         request.Actor,
@@ -30,14 +49,31 @@ func buildRecallRequest(request model.Request, dependencies recommend.Dependenci
 		Limit:         int32(request.Offset() + request.Limit()*4),
 		ReferenceTime: time.Now(),
 		Dependencies:  dependencies,
+		PoolStore:     poolStore,
+		RuntimeStore:  runtimeStore,
 	}
+}
+
+// openRecallStores 打开在线召回和运行态惩罚共用的缓存存储。
+func openRecallStores(ctx context.Context, dependencies core.Dependencies) (*cachex.PoolStore, *cachex.RuntimeStore, func() error, error) {
+	// 未配置缓存数据源时，在线召回直接回退到事实源。
+	if dependencies.Cache == nil {
+		return nil, nil, func() error { return nil }, nil
+	}
+	manager, err := cacheleveldb.OpenManager(ctx, dependencies.Cache)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	return &cachex.PoolStore{Driver: manager}, &cachex.RuntimeStore{Driver: manager}, manager.Close, nil
 }
 
 // finalizeCandidates 执行过滤、惩罚、排序和兜底补足。
 func finalizeCandidates(
 	ctx context.Context,
 	request model.Request,
-	dependencies recommend.Dependencies,
+	dependencies core.Dependencies,
+	config core.ServiceConfig,
+	runtimeStore *cachex.RuntimeStore,
 	primary []*model.Candidate,
 	fallback []*model.Candidate,
 ) ([]*model.Candidate, error) {
@@ -46,19 +82,37 @@ func finalizeCandidates(
 	fallback = replace.FilterUnavailableGoods(fallback)
 	fallback = replace.FilterContextGoods(request, fallback)
 
-	recentPaidGoodsIds, err := loadRecentPaidGoodsIds(ctx, request, dependencies)
+	exposurePenaltyMap, repeatPenaltyMap, err := loadRuntimePenaltyState(request, runtimeStore)
+	if err != nil {
+		return nil, err
+	}
+	replace.ApplyExposurePenalty(primary, exposurePenaltyMap)
+	replace.ApplyExposurePenalty(fallback, exposurePenaltyMap)
+	replace.ApplyRepeatPenaltyMap(primary, repeatPenaltyMap)
+	replace.ApplyRepeatPenaltyMap(fallback, repeatPenaltyMap)
+
+	var recentPaidGoodsIds []int64
+	recentPaidGoodsIds, err = loadRecentPaidGoodsIds(ctx, request, dependencies)
 	if err != nil {
 		return nil, err
 	}
 	replace.ApplyRepeatPenalty(primary, recentPaidGoodsIds, 1)
 	replace.ApplyRepeatPenalty(fallback, recentPaidGoodsIds, 1)
 
-	weights := rank.DefaultWeights(request.Scene)
+	weights := rank.ResolveWeights(request.Scene, config.Ranking)
 	rank.ScoreCandidates(primary, weights, time.Now())
 	rank.ScoreCandidates(fallback, weights, time.Now())
+	err = rank.ApplyRankingMode(ctx, request, dependencies, config, runtimeStore, primary)
+	if err != nil {
+		return nil, err
+	}
+	err = rank.ApplyRankingMode(ctx, request, dependencies, config, runtimeStore, fallback)
+	if err != nil {
+		return nil, err
+	}
 
-	primary = rank.RankCandidates(primary, rank.RankOptions{})
-	fallback = rank.RankCandidates(fallback, rank.RankOptions{})
+	primary = rank.RankCandidates(primary, rank.RankOptions{MaxPerCategory: config.Ranking.MaxPerCategory})
+	fallback = rank.RankCandidates(fallback, rank.RankOptions{MaxPerCategory: config.Ranking.MaxPerCategory})
 	return replace.MergeFallback(primary, fallback, request.Offset()+request.Limit()), nil
 }
 
@@ -115,6 +169,7 @@ func mergeCandidate(target *model.Candidate, source *model.Candidate) {
 	target.Score.ExternalScore += source.Score.ExternalScore
 	target.Score.CollaborativeScore += source.Score.CollaborativeScore
 	target.Score.UserNeighborScore += source.Score.UserNeighborScore
+	target.Score.VectorScore += source.Score.VectorScore
 	target.Score.ExposurePenalty += source.Score.ExposurePenalty
 	target.Score.RepeatPenalty += source.Score.RepeatPenalty
 
@@ -134,7 +189,7 @@ func withGoodsId(request model.Request, goodsId int64) model.Request {
 }
 
 // loadRecentPaidGoodsIds 加载最近已支付商品编号，用于重复购买惩罚。
-func loadRecentPaidGoodsIds(ctx context.Context, request model.Request, dependencies recommend.Dependencies) ([]int64, error) {
+func loadRecentPaidGoodsIds(ctx context.Context, request model.Request, dependencies core.Dependencies) ([]int64, error) {
 	// 匿名主体没有支付历史，不需要计算重复购买惩罚。
 	if !request.Actor.IsUser() {
 		return nil, nil
@@ -161,7 +216,7 @@ func loadRecentPaidGoodsIds(ctx context.Context, request model.Request, dependen
 }
 
 // loadOrderAnchorGoodsId 读取订单中的第一个有效商品编号，作为简化关联召回的锚点。
-func loadOrderAnchorGoodsId(ctx context.Context, dependencies recommend.Dependencies, orderId int64) (int64, error) {
+func loadOrderAnchorGoodsId(ctx context.Context, dependencies core.Dependencies, orderId int64) (int64, error) {
 	// 订单编号缺失时，无法从订单商品中选择锚点。
 	if orderId <= 0 {
 		return 0, nil

@@ -2,16 +2,16 @@
 
 ## service/app/biz 推荐链路
 
-以下现有业务对象后续需要调用 `recommend` 工具方法，而不是继续在业务层内拼推荐流程：
+以下现有业务对象后续需要持有 `*recommend.Recommend` 实例，而不是继续在业务层内拼推荐流程：
 
 - `backend/service/app/biz/recommend.go`
 - `backend/service/app/biz/recommend_request.go`
 
 ### 推荐查询
 
-建议后续由这两个位置调用统一入口：
+建议后续由这两个位置初始化并复用统一实例：
 
-- `recommend.Recommend(...)`
+- `svc.Recommend(...)`
 
 返回：
 
@@ -19,6 +19,11 @@
 - 召回来源
 - 评分明细
 - trace ID
+
+说明：
+
+- `recommend` 根包继续对 `backend` 暴露稳定 DTO 和配置类型。
+- 根包内部再把请求转换到 `internal/core`，由 `engine/scene/recall` 消费，避免 `backend` 接入层感知内部重构。
 
 随后仍由 `backend` 自己负责：
 
@@ -35,11 +40,11 @@
 - `backend/service/app/biz/recommend_goods_action.go`
 - `backend/service/app/biz/recommend_actor_bind_log.go`
 
-建议映射的工具入口：
+建议映射的实例方法：
 
-- `recommend.SyncExposure(...)`
-- `recommend.SyncBehavior(...)`
-- `recommend.SyncActorBind(...)`
+- `svc.SyncExposure(...)`
+- `svc.SyncBehavior(...)`
+- `svc.SyncActorBind(...)`
 
 同步内容包括：
 
@@ -47,6 +52,18 @@
 - `actor penalty`
 - trace 补充
 - 用户候选池失效或重建标记
+
+当前实现状态：
+
+- `SyncExposure(...)` 已落 `runtime.db` 的 `exposure_penalty`
+- `SyncBehavior(...)` 已落共享/会话态和复购惩罚
+- `SyncActorBind(...)` 已归并匿名主体到登录主体的共享会话态与场景惩罚
+- `Recommend(...)` 在线排序已读取运行态惩罚
+- `Recommend(...)` 在线召回已优先消费匿名通用候选池和用户候选池
+- `Recommend(...)` 在线召回已优先消费 `runtime.db` 中的会话态
+- `Recommend(...)` 在线召回已优先消费相似用户池中的 user-to-user 商品项
+- `Recommend(...)` 在线召回已优先消费商品关联池、协同过滤池、外部推荐池
+- `Explain(...)` 已可按 `traceId` / `requestId` 查询
 
 ## pkg/job 推荐任务
 
@@ -60,17 +77,34 @@
 建议衔接关系：
 
 - 推荐商品日统计完成后：
-  - `recommend.BuildNonPersonalized(...)`
+  - `svc.BuildNonPersonalized(...)`
 - 用户偏好重建完成后：
-  - `recommend.BuildUserCandidate(...)`
-  - `recommend.BuildUserToUser(...)`
-  - `recommend.BuildCollaborative(...)`
+  - `svc.BuildUserCandidate(...)`
+  - `svc.BuildUserToUser(...)`
+  - `svc.BuildCollaborative(...)`
+  - `svc.BuildVector(...)`
 - 商品关联重建完成后：
-  - `recommend.BuildGoodsRelation(...)`
+  - `svc.BuildGoodsRelation(...)`
+  - `svc.BuildVector(...)`
 - 活动池、营销池、人工池重建完成后：
-  - `recommend.BuildExternal(...)`
+  - `svc.BuildExternal(...)`
+- 推荐请求与行为事实累计到一定样本后：
+  - `svc.TrainRanking(...)`
 - 离线评估报告：
-  - `recommend.EvaluateOffline(...)`
+  - `svc.EvaluateOffline(...)`
+
+如果希望把多类离线池重建合并成一次调用，优先走：
+
+- `svc.Rebuild(...)`
+
+当前实现状态：
+
+- `BuildNonPersonalized(...)`、`BuildUserCandidate(...)`、`BuildGoodsRelation(...)`、`BuildUserToUser(...)`、`BuildCollaborative(...)`、`BuildExternal(...)`、`BuildVector(...)` 已可直接把候选结果写入 `pool.db`
+- `BuildNonPersonalized(...)`、`BuildUserCandidate(...)` 产出的候选池商品项已保留 `source_scores`，供在线恢复多路排序信号
+- `BuildUserToUser(...)` 产出的相似用户池已同时保留邻居列表和 user-to-user 商品项，供在线优先消费
+- `BuildGoodsRelation(...)`、`BuildCollaborative(...)`、`BuildExternal(...)`、`BuildVector(...)` 产出的离线池已被在线召回优先消费，池缺失时自动回退事实源
+- `TrainRanking(...)` 已可按场景读取 trace 与行为事实训练轻量 FM 模型，并在 `fm` 排序模式下被在线读取
+- `EvaluateOffline(...)` 已可直接按天返回场景级 `precision / recall / NDCG / CTR / rate` 指标
 
 ## 推荐工具不承担的职责
 
@@ -84,5 +118,5 @@
 
 ## 最终切流
 
-- `backend/service/app/biz` 与 `backend/pkg/job` 完成接入后，推荐主链路以 `shop/recommend` 为唯一工具入口
+- `backend/service/app/biz` 与 `backend/pkg/job` 完成接入后，推荐主链路以 `shop/recommend` 的实例 API 为唯一工具入口
 - 新链路稳定后，删除历史 `backend/pkg/recommend/*`

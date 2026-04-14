@@ -2,43 +2,71 @@ package scene
 
 import (
 	"context"
-	"recommend"
+	cachex "recommend/internal/cache"
+	"recommend/internal/core"
 	"recommend/internal/model"
 	"recommend/internal/recall"
 )
 
 // runHomePipeline 执行首页推荐流水线。
-func runHomePipeline(ctx context.Context, request model.Request, dependencies recommend.Dependencies) ([]*model.Candidate, error) {
-	recallRequest := buildRecallRequest(request, dependencies)
+func runHomePipeline(
+	ctx context.Context,
+	request model.Request,
+	dependencies core.Dependencies,
+	config core.ServiceConfig,
+	poolStore *cachex.PoolStore,
+	runtimeStore *cachex.RuntimeStore,
+) ([]*model.Candidate, error) {
+	recallRequest := buildRecallRequest(request, dependencies, poolStore, runtimeStore)
 	userGoodsList, err := recall.RecallUserGoodsPreference(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	userCategoryList, err := recall.RecallUserCategoryPreference(ctx, recallRequest)
+
+	var userCategoryList []*model.Candidate
+	userCategoryList, err = recall.RecallUserCategoryPreference(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	sceneHotList, err := recall.RecallSceneHot(ctx, recallRequest)
+
+	var sceneHotList []*model.Candidate
+	sceneHotList, err = recall.RecallSceneHot(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	globalHotList, err := recall.RecallGlobalHot(ctx, recallRequest)
+
+	var globalHotList []*model.Candidate
+	globalHotList, err = recall.RecallGlobalHot(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	externalList, err := recall.RecallExternal(ctx, recallRequest)
+
+	var externalList []*model.Candidate
+	externalList, err = recall.RecallExternal(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	userToUserList, err := recall.RecallUserToUser(ctx, recallRequest)
+
+	var userToUserList []*model.Candidate
+	userToUserList, err = recall.RecallUserToUser(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	collaborativeList, err := recall.RecallCollaborative(ctx, recallRequest)
+
+	var collaborativeList []*model.Candidate
+	collaborativeList, err = recall.RecallCollaborative(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
-	latestList, err := recall.RecallLatest(ctx, recallRequest)
+
+	var vectorList []*model.Candidate
+	vectorList, err = recall.RecallVector(ctx, recallRequest, config.Vector)
+	if err != nil {
+		return nil, err
+	}
+
+	var latestList []*model.Candidate
+	latestList, err = recall.RecallLatest(ctx, recallRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +79,7 @@ func runHomePipeline(ctx context.Context, request model.Request, dependencies re
 		externalList,
 		userToUserList,
 		collaborativeList,
+		vectorList,
 	)
-	return finalizeCandidates(ctx, request, dependencies, primary, latestList)
+	return finalizeCandidates(ctx, request, dependencies, config, runtimeStore, primary, latestList)
 }

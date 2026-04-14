@@ -7,10 +7,14 @@ import (
 
 // Candidate 表示推荐链路内部流转的候选商品。
 type Candidate struct {
-	Goods         *contract.Goods
-	Score         Score
+	// Goods 表示候选商品对应的商品实体。
+	Goods *contract.Goods
+	// Score 表示候选商品当前累积的评分信号。
+	Score Score
+	// RecallSources 表示命中当前候选的召回来源集合。
 	RecallSources map[string]struct{}
-	TraceReasons  []string
+	// TraceReasons 表示记录在候选上的调试解释文本。
+	TraceReasons []string
 }
 
 // BuildCandidate 根据商品实体创建候选对象。

@@ -55,6 +55,26 @@ func (s *RuntimeStore) DeletePenaltyState(scene string, actorType int32, actorId
 	return s.deleteKey(cacheleveldb.PenaltyStateKey(scene, actorType, actorId))
 }
 
+// SaveRankingModelState 保存学习排序模型状态。
+func (s *RuntimeStore) SaveRankingModelState(scene, modelName string, state *recommendv1.RecommendRankingModelState) error {
+	return s.putMessage(cacheleveldb.RankingModelStateKey(scene, modelName), state)
+}
+
+// GetRankingModelState 读取学习排序模型状态。
+func (s *RuntimeStore) GetRankingModelState(scene, modelName string) (*recommendv1.RecommendRankingModelState, error) {
+	state := &recommendv1.RecommendRankingModelState{}
+	err := s.loadMessage(cacheleveldb.RankingModelStateKey(scene, modelName), state)
+	if err != nil {
+		return nil, err
+	}
+	return state, nil
+}
+
+// DeleteRankingModelState 删除学习排序模型状态。
+func (s *RuntimeStore) DeleteRankingModelState(scene, modelName string) error {
+	return s.deleteKey(cacheleveldb.RankingModelStateKey(scene, modelName))
+}
+
 // runtimeDb 返回运行态数据库实例。
 func (s *RuntimeStore) runtimeDb() driver.BinaryStore {
 	if s != nil && s.Driver != nil {
