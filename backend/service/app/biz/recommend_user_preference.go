@@ -11,6 +11,7 @@ import (
 	"shop/pkg/gen/models"
 	recommendcore "shop/pkg/recommend/core"
 	recommendEvent "shop/pkg/recommend/event"
+	appDto "shop/service/app/dto"
 
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -39,11 +40,6 @@ func NewRecommendUserPreferenceCase(
 	}
 }
 
-type recommendUserPreferenceKey struct {
-	userId     int64
-	categoryId int64
-}
-
 // RebuildRecommendUserPreference 重建用户类目偏好聚合。
 func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context.Context, userIds []int64, windowDays int32) error {
 	// 没有命中重建用户时，无需继续重建类目偏好。
@@ -70,7 +66,8 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
 	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lte(endAt)))
 	actionOpts = append(actionOpts, repo.Order(actionQuery.CreatedAt.Asc()))
-	actionList, err := c.recommendGoodsActionRepo.List(ctx, actionOpts...)
+	var actionList []*models.RecommendGoodsAction
+	actionList, err = c.recommendGoodsActionRepo.List(ctx, actionOpts...)
 	if err != nil {
 		return err
 	}
@@ -89,6 +86,7 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 	}
 	goodsIds = recommendcore.DedupeInt64s(goodsIds)
 	goodsInfoMap := make(map[int64]*models.GoodsInfo, len(goodsIds))
+	// 当前窗口存在商品行为时，继续补齐商品到类目的映射关系。
 	if len(goodsIds) > 0 {
 		goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
 		goodsOpts := make([]repo.QueryOption, 0, 1)
@@ -102,7 +100,7 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 		}
 	}
 
-	preferenceMap := make(map[recommendUserPreferenceKey]*models.RecommendUserPreference)
+	preferenceMap := make(map[appDto.RecommendUserPreferenceKey]*models.RecommendUserPreference)
 	for _, item := range actionList {
 		// 非法行为明细不参与类目偏好重建。
 		if item == nil || item.ActorID <= 0 || item.GoodsID <= 0 {
@@ -121,9 +119,9 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 			continue
 		}
 
-		key := recommendUserPreferenceKey{
-			userId:     item.ActorID,
-			categoryId: goodsInfo.CategoryID,
+		key := appDto.RecommendUserPreferenceKey{
+			UserId:     item.ActorID,
+			CategoryId: goodsInfo.CategoryID,
 		}
 		entity, ok := preferenceMap[key]
 		// 当前用户类目组合首次出现时，先初始化重建实体。
@@ -144,6 +142,7 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 		if err != nil {
 			return err
 		}
+		// 当前行为时间更晚时，同步刷新类目偏好更新时间。
 		if item.CreatedAt.After(entity.UpdatedAt) {
 			entity.UpdatedAt = item.CreatedAt
 		}
@@ -153,6 +152,7 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 	for _, item := range preferenceMap {
 		list = append(list, item)
 	}
+	// 重建后没有生成有效类目偏好时，直接结束。
 	if len(list) == 0 {
 		return nil
 	}

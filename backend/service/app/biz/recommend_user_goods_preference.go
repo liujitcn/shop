@@ -11,6 +11,7 @@ import (
 	"shop/pkg/gen/models"
 	recommendCandidate "shop/pkg/recommend/candidate"
 	recommendEvent "shop/pkg/recommend/event"
+	appDto "shop/service/app/dto"
 
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -34,11 +35,6 @@ func NewRecommendUserGoodsPreferenceCase(
 		RecommendUserGoodsPreferenceRepo: recommendUserGoodsPreferenceRepo,
 		recommendGoodsActionRepo:         recommendGoodsActionRepo,
 	}
-}
-
-type recommendUserGoodsPreferenceKey struct {
-	userId  int64
-	goodsId int64
 }
 
 // RebuildRecommendUserGoodsPreference 重建用户商品偏好聚合。
@@ -67,7 +63,8 @@ func (c *RecommendUserGoodsPreferenceCase) RebuildRecommendUserGoodsPreference(c
 	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
 	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lte(endAt)))
 	actionOpts = append(actionOpts, repo.Order(actionQuery.CreatedAt.Asc()))
-	actionList, err := c.recommendGoodsActionRepo.List(ctx, actionOpts...)
+	var actionList []*models.RecommendGoodsAction
+	actionList, err = c.recommendGoodsActionRepo.List(ctx, actionOpts...)
 	if err != nil {
 		return err
 	}
@@ -76,7 +73,7 @@ func (c *RecommendUserGoodsPreferenceCase) RebuildRecommendUserGoodsPreference(c
 		return nil
 	}
 
-	preferenceMap := make(map[recommendUserGoodsPreferenceKey]*models.RecommendUserGoodsPreference)
+	preferenceMap := make(map[appDto.RecommendUserGoodsPreferenceKey]*models.RecommendUserGoodsPreference)
 	for _, item := range actionList {
 		// 非法行为明细不参与商品偏好重建。
 		if item == nil || item.ActorID <= 0 || item.GoodsID <= 0 {
@@ -89,9 +86,9 @@ func (c *RecommendUserGoodsPreferenceCase) RebuildRecommendUserGoodsPreference(c
 			continue
 		}
 
-		key := recommendUserGoodsPreferenceKey{
-			userId:  item.ActorID,
-			goodsId: item.GoodsID,
+		key := appDto.RecommendUserGoodsPreferenceKey{
+			UserId:  item.ActorID,
+			GoodsId: item.GoodsID,
 		}
 		entity, ok := preferenceMap[key]
 		// 当前用户商品组合首次出现时，先初始化重建实体。
@@ -117,6 +114,7 @@ func (c *RecommendUserGoodsPreferenceCase) RebuildRecommendUserGoodsPreference(c
 			entity.LastBehaviorType = eventType.String()
 			entity.LastBehaviorAt = item.CreatedAt
 		}
+		// 当前行为时间更晚时，同步刷新聚合更新时间。
 		if item.CreatedAt.After(entity.UpdatedAt) {
 			entity.UpdatedAt = item.CreatedAt
 		}
@@ -126,6 +124,7 @@ func (c *RecommendUserGoodsPreferenceCase) RebuildRecommendUserGoodsPreference(c
 	for _, item := range preferenceMap {
 		list = append(list, item)
 	}
+	// 重建后没有沉淀出有效偏好数据时，直接结束。
 	if len(list) == 0 {
 		return nil
 	}

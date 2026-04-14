@@ -88,19 +88,19 @@ func getStructName(ptr interface{}) string {
 	// 获取类型信息
 	t := reflect.TypeOf(ptr)
 
-	// 检查是否为指针
+	// 非指针执行器不符合任务注册约定，直接返回空名称。
 	if t.Kind() != reflect.Ptr {
 		return ""
 	}
 
-	// 解引用指针，获取指向的类型
+	// 解引用指针，获取指向的结构体类型。
 	t = t.Elem()
 
-	// 检查是否为结构体
+	// 非结构体指针不作为合法任务执行器。
 	if t.Kind() != reflect.Struct {
 		return ""
 	}
 
-	// 返回结构体名称
+	// 结构体名称作为任务注册名返回。
 	return t.Name()
 }

@@ -11,6 +11,7 @@ import (
 	"shop/pkg/gen/models"
 	recommendcore "shop/pkg/recommend/core"
 	recommendEvent "shop/pkg/recommend/event"
+	appDto "shop/service/app/dto"
 
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -42,17 +43,6 @@ func NewRecommendGoodsRelationCase(
 	}
 }
 
-type recommendGoodsRelationKey struct {
-	goodsId        int64
-	relatedGoodsId int64
-	relationType   string
-}
-
-type recommendOrderRelationGroupKey struct {
-	requestId string
-	eventType int32
-}
-
 // RebuildRecommendGoodsRelation 重建商品关联聚合。
 func (c *RecommendGoodsRelationCase) RebuildRecommendGoodsRelation(ctx context.Context, windowDays int32) error {
 	endAt := time.Now()
@@ -78,7 +68,8 @@ func (c *RecommendGoodsRelationCase) RebuildRecommendGoodsRelation(ctx context.C
 	)))
 	actionOpts = append(actionOpts, repo.Order(actionQuery.CreatedAt.Asc()))
 	actionOpts = append(actionOpts, repo.Order(actionQuery.ID.Asc()))
-	actionList, err := c.recommendGoodsActionRepo.List(ctx, actionOpts...)
+	var actionList []*models.RecommendGoodsAction
+	actionList, err = c.recommendGoodsActionRepo.List(ctx, actionOpts...)
 	if err != nil {
 		return err
 	}
@@ -87,13 +78,14 @@ func (c *RecommendGoodsRelationCase) RebuildRecommendGoodsRelation(ctx context.C
 		return nil
 	}
 
-	requestGoodsMap, err := c.loadRequestGoodsMap(ctx, actionList)
+	var requestGoodsMap map[string][]int64
+	requestGoodsMap, err = c.loadRequestGoodsMap(ctx, actionList)
 	if err != nil {
 		return err
 	}
 
-	relationMap := make(map[recommendGoodsRelationKey]*models.RecommendGoodsRelation)
-	orderGroupMap := make(map[recommendOrderRelationGroupKey][]*models.RecommendGoodsAction)
+	relationMap := make(map[appDto.RecommendGoodsRelationKey]*models.RecommendGoodsRelation)
+	orderGroupMap := make(map[appDto.RecommendOrderRelationGroupKey][]*models.RecommendGoodsAction)
 	for _, item := range actionList {
 		// 非法行为明细不参与商品关联重建。
 		if item == nil || item.GoodsID <= 0 {
@@ -114,7 +106,7 @@ func (c *RecommendGoodsRelationCase) RebuildRecommendGoodsRelation(ctx context.C
 
 		// 订单级行为按请求编号分组后统一沉淀整单共现关系。
 		if item.RequestID != "" {
-			key := recommendOrderRelationGroupKey{requestId: item.RequestID, eventType: item.EventType}
+			key := appDto.RecommendOrderRelationGroupKey{RequestId: item.RequestID, EventType: item.EventType}
 			orderGroupMap[key] = append(orderGroupMap[key], item)
 		}
 	}
@@ -146,6 +138,7 @@ func (c *RecommendGoodsRelationCase) RebuildRecommendGoodsRelation(ctx context.C
 	for _, item := range relationMap {
 		list = append(list, item)
 	}
+	// 当前窗口没有沉淀出有效关联结果时，直接结束重建。
 	if len(list) == 0 {
 		return nil
 	}
@@ -204,6 +197,7 @@ func (c *RecommendGoodsRelationCase) loadRequestGoodsMap(ctx context.Context, ac
 		if !ok || item.GoodsID <= 0 {
 			continue
 		}
+		// 当前请求编号首次出现时，先初始化商品集合。
 		if _, ok = requestGoodsSetMap[requestId]; !ok {
 			requestGoodsSetMap[requestId] = make(map[int64]struct{}, 4)
 		}
@@ -222,19 +216,20 @@ func (c *RecommendGoodsRelationCase) loadRequestGoodsMap(ctx context.Context, ac
 }
 
 // accumulateGoodsRelationEntity 累加单个方向的商品关联实体。
-func (c *RecommendGoodsRelationCase) accumulateGoodsRelationEntity(entityMap map[recommendGoodsRelationKey]*models.RecommendGoodsRelation, goodsId, relatedGoodsId int64, eventType common.RecommendGoodsActionType, eventTime time.Time, relationScore float64, windowDays int32) error {
+func (c *RecommendGoodsRelationCase) accumulateGoodsRelationEntity(entityMap map[appDto.RecommendGoodsRelationKey]*models.RecommendGoodsRelation, goodsId, relatedGoodsId int64, eventType common.RecommendGoodsActionType, eventTime time.Time, relationScore float64, windowDays int32) error {
 	// 非法商品或自关联商品不生成商品关系。
 	if goodsId <= 0 || relatedGoodsId <= 0 || goodsId == relatedGoodsId {
 		return nil
 	}
 
 	relationType := eventType.String()
-	key := recommendGoodsRelationKey{
-		goodsId:        goodsId,
-		relatedGoodsId: relatedGoodsId,
-		relationType:   relationType,
+	key := appDto.RecommendGoodsRelationKey{
+		GoodsId:        goodsId,
+		RelatedGoodsId: relatedGoodsId,
+		RelationType:   relationType,
 	}
 	entity, ok := entityMap[key]
+	// 当前方向关系首次出现时，先初始化聚合实体。
 	if !ok {
 		entity = &models.RecommendGoodsRelation{
 			GoodsID:        goodsId,
@@ -252,14 +247,16 @@ func (c *RecommendGoodsRelationCase) accumulateGoodsRelationEntity(entityMap map
 		relationScore = recommendEvent.RelationWeight(eventType)
 	}
 	entity.Score += relationScore
-	var err error
-	entity.Evidence, err = recommendEvent.AddBehaviorSummaryCount(entity.Evidence, eventType, int64(relationScore))
+	evidence, err := recommendEvent.AddBehaviorSummaryCount(entity.Evidence, eventType, int64(relationScore))
 	if err != nil {
 		return err
 	}
+	entity.Evidence = evidence
+	// 命中更早事件时间时，需要刷新聚合起始时间。
 	if eventTime.Before(entity.CreatedAt) {
 		entity.CreatedAt = eventTime
 	}
+	// 命中更晚事件时间时，需要刷新聚合更新时间。
 	if eventTime.After(entity.UpdatedAt) {
 		entity.UpdatedAt = eventTime
 	}

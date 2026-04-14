@@ -11,11 +11,8 @@ import (
 	"shop/pkg/gen/models"
 	recommendCore "shop/pkg/recommend/core"
 	recommendEvent "shop/pkg/recommend/event"
+	appDto "shop/service/app/dto"
 )
-
-type recommendActorBindLogUserRow struct {
-	UserID int64 `gorm:"column:user_id"`
-}
 
 // RecommendActorBindLogCase 推荐主体绑定日志业务处理对象。
 type RecommendActorBindLogCase struct {
@@ -72,12 +69,14 @@ func (c *RecommendActorBindLogCase) SaveRecommendActorBindLog(ctx context.Contex
 
 // RebuildRecommendUserPreference 重建绑定用户的推荐偏好聚合。
 func (c *RecommendActorBindLogCase) RebuildRecommendUserPreference(ctx context.Context, userIds []int64, windowDays int32) error {
-	windowDays, err := normalizeRecommendWindowDays(windowDays)
+	var err error
+	windowDays, err = normalizeRecommendWindowDays(windowDays)
 	if err != nil {
 		return err
 	}
 
-	rebuildUserIds, err := c.resolveBindUserIds(ctx, userIds, windowDays)
+	var rebuildUserIds []int64
+	rebuildUserIds, err = c.resolveBindUserIds(ctx, userIds, windowDays)
 	if err != nil {
 		return err
 	}
@@ -97,12 +96,14 @@ func (c *RecommendActorBindLogCase) RebuildRecommendUserPreference(ctx context.C
 
 // RebuildRecommendGoodsRelation 重建推荐商品关联聚合。
 func (c *RecommendActorBindLogCase) RebuildRecommendGoodsRelation(ctx context.Context, userIds []int64, windowDays int32) error {
-	windowDays, err := normalizeRecommendWindowDays(windowDays)
+	var err error
+	windowDays, err = normalizeRecommendWindowDays(windowDays)
 	if err != nil {
 		return err
 	}
 
-	rebuildUserIds, err := c.resolveBindUserIds(ctx, userIds, windowDays)
+	var rebuildUserIds []int64
+	rebuildUserIds, err = c.resolveBindUserIds(ctx, userIds, windowDays)
 	if err != nil {
 		return err
 	}
@@ -147,7 +148,7 @@ func (c *RecommendActorBindLogCase) resolveBindUserIds(ctx context.Context, user
 	endAt := time.Now()
 	startAt := endAt.AddDate(0, 0, -int(windowDays))
 	query := c.data.Query(ctx).RecommendActorBindLog
-	rows := make([]*recommendActorBindLogUserRow, 0)
+	rows := make([]*appDto.RecommendActorBindLogUserRow, 0)
 	err := query.WithContext(ctx).
 		Select(query.UserID).
 		Where(
@@ -163,10 +164,10 @@ func (c *RecommendActorBindLogCase) resolveBindUserIds(ctx context.Context, user
 	rebuildUserIds := make([]int64, 0, len(rows))
 	for _, item := range rows {
 		// 非法绑定日志不参与重建用户集合。
-		if item == nil || item.UserID <= 0 {
+		if item == nil || item.UserId <= 0 {
 			continue
 		}
-		rebuildUserIds = append(rebuildUserIds, item.UserID)
+		rebuildUserIds = append(rebuildUserIds, item.UserId)
 	}
 	return recommendCore.DedupeInt64s(rebuildUserIds), nil
 }
