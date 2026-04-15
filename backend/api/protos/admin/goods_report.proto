@@ -1,0 +1,309 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin商品报表服务
+service GoodsReportService {
+  // 查询商品月报汇总
+  rpc GoodsMonthReportSummary (GoodsMonthReportSummaryRequest) returns (GoodsMonthReportSummaryResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/report/goods/month/summary"
+    };
+  }
+
+  // 查询商品月报名细
+  rpc GoodsMonthReportList (GoodsMonthReportListRequest) returns (GoodsMonthReportListResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/report/goods/month/detail"
+    };
+  }
+
+  // 查询商品日报汇总
+  rpc GoodsDayReportSummary (GoodsDayReportSummaryRequest) returns (GoodsDayReportSummaryResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/report/goods/day/summary"
+    };
+  }
+
+  // 查询商品日报明细
+  rpc GoodsDayReportList (GoodsDayReportListRequest) returns (GoodsDayReportListResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/report/goods/day/detail"
+    };
+  }
+}
+
+// 商品月报汇总查询条件
+message GoodsMonthReportSummaryRequest {
+  string start_month = 1 [
+    json_name = "startMonth",
+    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"}
+  ]; // 开始月份，格式：YYYY-MM
+  string end_month = 2 [
+    json_name = "endMonth",
+    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"}
+  ]; // 结束月份，格式：YYYY-MM
+}
+
+// 商品月报列表请求参数
+message GoodsMonthReportListRequest {
+  string start_month = 1 [
+    json_name = "startMonth",
+    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"}
+  ]; // 开始月份，格式：YYYY-MM
+  string end_month = 2 [
+    json_name = "endMonth",
+    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"}
+  ]; // 结束月份，格式：YYYY-MM
+}
+
+// 商品月报汇总响应
+message GoodsMonthReportSummaryResponse {
+  int64 view_count = 1 [
+    json_name = "viewCount",
+    (gnostic.openapi.v3.property) = {description: "浏览次数"}
+  ]; // 浏览次数
+  int64 collect_count = 2 [
+    json_name = "collectCount",
+    (gnostic.openapi.v3.property) = {description: "收藏次数"}
+  ]; // 收藏次数
+  int64 cart_count = 3 [
+    json_name = "cartCount",
+    (gnostic.openapi.v3.property) = {description: "加购件数"}
+  ]; // 加购件数
+  int64 order_count = 4 [
+    json_name = "orderCount",
+    (gnostic.openapi.v3.property) = {description: "下单次数"}
+  ]; // 下单次数
+  int64 pay_count = 5 [
+    json_name = "payCount",
+    (gnostic.openapi.v3.property) = {description: "支付次数"}
+  ]; // 支付次数
+  int64 pay_goods_num = 6 [
+    json_name = "payGoodsNum",
+    (gnostic.openapi.v3.property) = {description: "支付件数"}
+  ]; // 支付件数
+  int64 pay_amount = 7 [
+    json_name = "payAmount",
+    (gnostic.openapi.v3.property) = {description: "支付金额，单位分"}
+  ]; // 支付金额，单位分
+  double score = 8 [
+    (gnostic.openapi.v3.property) = {description: "热度分"}
+  ]; // 热度分
+  int64 cart_conversion_rate = 9 [
+    json_name = "cartConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览加购转化率"}
+  ]; // 浏览加购转化率
+  int64 order_conversion_rate = 10 [
+    json_name = "orderConversionRate",
+    (gnostic.openapi.v3.property) = {description: "加购下单转化率"}
+  ]; // 加购下单转化率
+  int64 pay_conversion_rate = 11 [
+    json_name = "payConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览支付转化率"}
+  ]; // 浏览支付转化率
+  int64 pay_unit_price = 12 [
+    json_name = "payUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "件均成交价，单位分"}
+  ]; // 件均成交价，单位分
+}
+
+// 商品月报项
+message GoodsMonthReportItem {
+  string month = 1 [
+    (gnostic.openapi.v3.property) = {description: "月份，格式：YYYY-MM"}
+  ]; // 月份，格式：YYYY-MM
+  int64 view_count = 2 [
+    json_name = "viewCount",
+    (gnostic.openapi.v3.property) = {description: "浏览次数"}
+  ]; // 浏览次数
+  int64 collect_count = 3 [
+    json_name = "collectCount",
+    (gnostic.openapi.v3.property) = {description: "收藏次数"}
+  ]; // 收藏次数
+  int64 cart_count = 4 [
+    json_name = "cartCount",
+    (gnostic.openapi.v3.property) = {description: "加购件数"}
+  ]; // 加购件数
+  int64 order_count = 5 [
+    json_name = "orderCount",
+    (gnostic.openapi.v3.property) = {description: "下单次数"}
+  ]; // 下单次数
+  int64 pay_count = 6 [
+    json_name = "payCount",
+    (gnostic.openapi.v3.property) = {description: "支付次数"}
+  ]; // 支付次数
+  int64 pay_goods_num = 7 [
+    json_name = "payGoodsNum",
+    (gnostic.openapi.v3.property) = {description: "支付件数"}
+  ]; // 支付件数
+  int64 pay_amount = 8 [
+    json_name = "payAmount",
+    (gnostic.openapi.v3.property) = {description: "支付金额，单位分"}
+  ]; // 支付金额，单位分
+  double score = 9 [
+    (gnostic.openapi.v3.property) = {description: "热度分"}
+  ]; // 热度分
+  int64 cart_conversion_rate = 10 [
+    json_name = "cartConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览加购转化率"}
+  ]; // 浏览加购转化率
+  int64 order_conversion_rate = 11 [
+    json_name = "orderConversionRate",
+    (gnostic.openapi.v3.property) = {description: "加购下单转化率"}
+  ]; // 加购下单转化率
+  int64 pay_conversion_rate = 12 [
+    json_name = "payConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览支付转化率"}
+  ]; // 浏览支付转化率
+  int64 pay_unit_price = 13 [
+    json_name = "payUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "件均成交价，单位分"}
+  ]; // 件均成交价，单位分
+}
+
+// 商品月报列表响应
+message GoodsMonthReportListResponse {
+  repeated GoodsMonthReportItem items = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品月报明细"}
+  ]; // 商品月报明细
+}
+
+// 商品日报汇总查询条件
+message GoodsDayReportSummaryRequest {
+  string start_date = 1 [
+    json_name = "startDate",
+    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
+  ]; // 开始日期，格式：YYYY-MM-DD
+  string end_date = 2 [
+    json_name = "endDate",
+    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"}
+  ]; // 结束日期，格式：YYYY-MM-DD
+}
+
+// 商品日报列表请求参数
+message GoodsDayReportListRequest {
+  string start_date = 1 [
+    json_name = "startDate",
+    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
+  ]; // 开始日期，格式：YYYY-MM-DD
+  string end_date = 2 [
+    json_name = "endDate",
+    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"}
+  ]; // 结束日期，格式：YYYY-MM-DD
+}
+
+// 商品日报汇总响应
+message GoodsDayReportSummaryResponse {
+  int64 view_count = 1 [
+    json_name = "viewCount",
+    (gnostic.openapi.v3.property) = {description: "浏览次数"}
+  ]; // 浏览次数
+  int64 collect_count = 2 [
+    json_name = "collectCount",
+    (gnostic.openapi.v3.property) = {description: "收藏次数"}
+  ]; // 收藏次数
+  int64 cart_count = 3 [
+    json_name = "cartCount",
+    (gnostic.openapi.v3.property) = {description: "加购件数"}
+  ]; // 加购件数
+  int64 order_count = 4 [
+    json_name = "orderCount",
+    (gnostic.openapi.v3.property) = {description: "下单次数"}
+  ]; // 下单次数
+  int64 pay_count = 5 [
+    json_name = "payCount",
+    (gnostic.openapi.v3.property) = {description: "支付次数"}
+  ]; // 支付次数
+  int64 pay_goods_num = 6 [
+    json_name = "payGoodsNum",
+    (gnostic.openapi.v3.property) = {description: "支付件数"}
+  ]; // 支付件数
+  int64 pay_amount = 7 [
+    json_name = "payAmount",
+    (gnostic.openapi.v3.property) = {description: "支付金额，单位分"}
+  ]; // 支付金额，单位分
+  double score = 8 [
+    (gnostic.openapi.v3.property) = {description: "热度分"}
+  ]; // 热度分
+  int64 cart_conversion_rate = 9 [
+    json_name = "cartConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览加购转化率"}
+  ]; // 浏览加购转化率
+  int64 order_conversion_rate = 10 [
+    json_name = "orderConversionRate",
+    (gnostic.openapi.v3.property) = {description: "加购下单转化率"}
+  ]; // 加购下单转化率
+  int64 pay_conversion_rate = 11 [
+    json_name = "payConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览支付转化率"}
+  ]; // 浏览支付转化率
+  int64 pay_unit_price = 12 [
+    json_name = "payUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "件均成交价，单位分"}
+  ]; // 件均成交价，单位分
+}
+
+// 商品日报项
+message GoodsDayReportItem {
+  string day = 1 [
+    (gnostic.openapi.v3.property) = {description: "日期，格式：YYYY-MM-DD"}
+  ]; // 日期，格式：YYYY-MM-DD
+  int64 view_count = 2 [
+    json_name = "viewCount",
+    (gnostic.openapi.v3.property) = {description: "浏览次数"}
+  ]; // 浏览次数
+  int64 collect_count = 3 [
+    json_name = "collectCount",
+    (gnostic.openapi.v3.property) = {description: "收藏次数"}
+  ]; // 收藏次数
+  int64 cart_count = 4 [
+    json_name = "cartCount",
+    (gnostic.openapi.v3.property) = {description: "加购件数"}
+  ]; // 加购件数
+  int64 order_count = 5 [
+    json_name = "orderCount",
+    (gnostic.openapi.v3.property) = {description: "下单次数"}
+  ]; // 下单次数
+  int64 pay_count = 6 [
+    json_name = "payCount",
+    (gnostic.openapi.v3.property) = {description: "支付次数"}
+  ]; // 支付次数
+  int64 pay_goods_num = 7 [
+    json_name = "payGoodsNum",
+    (gnostic.openapi.v3.property) = {description: "支付件数"}
+  ]; // 支付件数
+  int64 pay_amount = 8 [
+    json_name = "payAmount",
+    (gnostic.openapi.v3.property) = {description: "支付金额，单位分"}
+  ]; // 支付金额，单位分
+  double score = 9 [
+    (gnostic.openapi.v3.property) = {description: "热度分"}
+  ]; // 热度分
+  int64 cart_conversion_rate = 10 [
+    json_name = "cartConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览加购转化率"}
+  ]; // 浏览加购转化率
+  int64 order_conversion_rate = 11 [
+    json_name = "orderConversionRate",
+    (gnostic.openapi.v3.property) = {description: "加购下单转化率"}
+  ]; // 加购下单转化率
+  int64 pay_conversion_rate = 12 [
+    json_name = "payConversionRate",
+    (gnostic.openapi.v3.property) = {description: "浏览支付转化率"}
+  ]; // 浏览支付转化率
+  int64 pay_unit_price = 13 [
+    json_name = "payUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "件均成交价，单位分"}
+  ]; // 件均成交价，单位分
+}
+
+// 商品日报列表响应
+message GoodsDayReportListResponse {
+  repeated GoodsDayReportItem items = 1 [
+    (gnostic.openapi.v3.property) = {description: "商品日报明细"}
+  ]; // 商品日报明细
+}
