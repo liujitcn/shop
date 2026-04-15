@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
+	"shop/api/gen/go/conf"
 	"shop/pkg/biz"
+	"shop/pkg/configs"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendCandidate "shop/pkg/recommend/candidate"
@@ -32,11 +34,13 @@ type RecommendRequestCase struct {
 	recommendGoodsRelationCase       *RecommendGoodsRelationCase
 	recommendGoodsStatDayCase        *RecommendGoodsStatDayCase
 	goodsStatDayCase                 *GoodsStatDayCase
+	goodsRecommendConfig             *conf.GoodsRecommendConfig
 }
 
 // NewRecommendRequestCase 创建推荐请求子业务处理对象。
 func NewRecommendRequestCase(
 	baseCase *biz.BaseCase,
+	shopConfig *conf.ShopConfig,
 	recommendRequestRepo *data.RecommendRequestRepo,
 	recommendRequestItemCase *RecommendRequestItemCase,
 	goodsInfoCase *GoodsInfoCase,
@@ -49,6 +53,7 @@ func NewRecommendRequestCase(
 	recommendGoodsStatDayCase *RecommendGoodsStatDayCase,
 	goodsStatDayCase *GoodsStatDayCase,
 ) *RecommendRequestCase {
+	goodsRecommendConfig := configs.ParseGoodsRecommendConfig(shopConfig)
 	return &RecommendRequestCase{
 		BaseCase:                         baseCase,
 		RecommendRequestRepo:             recommendRequestRepo,
@@ -62,6 +67,7 @@ func NewRecommendRequestCase(
 		recommendGoodsRelationCase:       recommendGoodsRelationCase,
 		recommendGoodsStatDayCase:        recommendGoodsStatDayCase,
 		goodsStatDayCase:                 goodsStatDayCase,
+		goodsRecommendConfig:             goodsRecommendConfig,
 	}
 }
 
@@ -240,7 +246,7 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		GlobalPopularityScores: globalPopularityScores,
 		SceneExposurePenalties: sceneExposurePenalties,
 		ActorExposurePenalties: actorExposurePenalties,
-	})
+	}, c.goodsRecommendConfig.GetAnonymousRank())
 	// 这里不仅排序，还会顺带做类目打散。
 	rankedGoods := recommendCandidate.RankGoods(candidates)
 	total := int64(len(rankedGoods))
@@ -563,7 +569,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 		SceneExposurePenalties: sceneExposurePenalties,
 		ActorExposurePenalties: actorExposurePenalties,
 		RecentPaidGoods:        recentPaidGoodsMap,
-	})
+	}, c.goodsRecommendConfig.GetPersonalizedRank())
 	// 这里同时完成最终排序和类目去扎堆。
 	rankedGoods := recommendCandidate.RankGoods(candidates)
 	total := int64(len(rankedGoods))

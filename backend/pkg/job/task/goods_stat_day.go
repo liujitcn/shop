@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"shop/api/gen/go/common"
+	"shop/api/gen/go/conf"
+	"shop/pkg/configs"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgUtils "shop/pkg/utils"
@@ -23,12 +25,14 @@ type GoodsStatDay struct {
 	userCartRepo             *data.UserCartRepo
 	orderInfoRepo            *data.OrderInfoRepo
 	orderGoodsRepo           *data.OrderGoodsRepo
+	goodsStatScoreConfig     *conf.GoodsStatScoreConfig
 	ctx                      context.Context
 }
 
 // NewGoodsStatDay 创建商品日统计任务实例。
 func NewGoodsStatDay(
 	tx data.Transaction,
+	shopConfig *conf.ShopConfig,
 	goodsStatDayRepo *data.GoodsStatDayRepo,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
 	userCollectRepo *data.UserCollectRepo,
@@ -36,8 +40,10 @@ func NewGoodsStatDay(
 	orderInfoRepo *data.OrderInfoRepo,
 	orderGoodsRepo *data.OrderGoodsRepo,
 ) *GoodsStatDay {
+	goodsRecommendConfig := configs.ParseGoodsRecommendConfig(shopConfig)
 	return &GoodsStatDay{
 		tx:                       tx,
+		goodsStatScoreConfig:     goodsRecommendConfig.GetGoodsStatScore(),
 		goodsStatDayRepo:         goodsStatDayRepo,
 		recommendGoodsActionRepo: recommendGoodsActionRepo,
 		userCollectRepo:          userCollectRepo,
@@ -211,13 +217,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 
 		list := make([]*models.GoodsStatDay, 0, len(statMap))
 		for _, item := range statMap {
-			item.Score = float64(item.ViewCount)*1.0 +
-				float64(item.CollectCount)*3.0 +
-				float64(item.CartCount)*4.0 +
-				float64(item.OrderCount)*6.0 +
-				float64(item.PayCount)*8.0 +
-				float64(item.PayGoodsNum)*1.0 +
-				float64(item.PayAmount)/10000.0
+			item.Score = t.calculateGoodsScore(item)
 			list = append(list, item)
 		}
 		// 没有统计结果时只保留清理动作，不再写入空数据。
@@ -231,4 +231,20 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	}
 
 	return []string{fmt.Sprintf("商品日统计完成: %s", statDate.Format("2006-01-02"))}, nil
+}
+
+// calculateGoodsScore 按当前配置计算商品热度分。
+func (t *GoodsStatDay) calculateGoodsScore(item *models.GoodsStatDay) float64 {
+	scoreConfig := t.goodsStatScoreConfig
+	// 运行时配置缺失时，回退默认权重，避免统计任务中断。
+	if scoreConfig == nil {
+		scoreConfig = configs.ParseGoodsRecommendConfig(nil).GetGoodsStatScore()
+	}
+	return float64(item.ViewCount)*scoreConfig.GetViewWeight() +
+		float64(item.CollectCount)*scoreConfig.GetCollectWeight() +
+		float64(item.CartCount)*scoreConfig.GetCartWeight() +
+		float64(item.OrderCount)*scoreConfig.GetOrderWeight() +
+		float64(item.PayCount)*scoreConfig.GetPayWeight() +
+		float64(item.PayGoodsNum)*scoreConfig.GetPayGoodsNumWeight() +
+		float64(item.PayAmount)*scoreConfig.GetPayAmountWeight()
 }

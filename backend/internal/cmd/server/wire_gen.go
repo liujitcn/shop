@@ -7,13 +7,6 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -28,10 +21,17 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
-)
 
-import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
+
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
+
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -137,7 +137,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	userCollectRepo := data.NewUserCollectRepo(dataData)
 	userCartRepo := data.NewUserCartRepo(dataData)
 	orderGoodsRepo := data.NewOrderGoodsRepo(dataData)
-	goodsStatDay := task.NewGoodsStatDay(transaction, goodsStatDayRepo, recommendGoodsActionRepo, userCollectRepo, userCartRepo, orderInfoRepo, orderGoodsRepo)
+	goodsStatDay := task.NewGoodsStatDay(transaction, shopConfig, goodsStatDayRepo, recommendGoodsActionRepo, userCollectRepo, userCartRepo, orderInfoRepo, orderGoodsRepo)
 	recommendGoodsStatDayRepo := data.NewRecommendGoodsStatDayRepo(dataData)
 	recommendRequestRepo := data.NewRecommendRequestRepo(dataData)
 	recommendRequestItemRepo := data.NewRecommendRequestItemRepo(dataData)
@@ -317,7 +317,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendExposureCase := biz2.NewRecommendExposureCase(baseCase, recommendExposureRepo, recommendExposureItemCase, recommendGoodsActionRepo)
 	recommendGoodsStatDayCase := biz2.NewRecommendGoodsStatDayCase(baseCase, recommendGoodsStatDayRepo)
 	goodsStatDayCase := biz2.NewGoodsStatDayCase(baseCase, goodsStatDayRepo)
-	recommendRequestCase := biz2.NewRecommendRequestCase(baseCase, recommendRequestRepo, recommendRequestItemCase, bizGoodsInfoCase, bizOrderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase)
+	recommendRequestCase := biz2.NewRecommendRequestCase(baseCase, shopConfig, recommendRequestRepo, recommendRequestItemCase, bizGoodsInfoCase, bizOrderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase)
 	recommendGoodsActionCase := biz2.NewRecommendGoodsActionCase(baseCase, transaction, recommendGoodsActionRepo, recommendRequestItemCase, recommendUserPreferenceCase, recommendUserGoodsPreferenceCase, recommendGoodsRelationCase, bizGoodsInfoCase)
 	recommendCase := biz2.NewRecommendCase(baseCase, transaction, recommendActorBindLogCase, recommendRequestCase, recommendExposureCase, recommendGoodsActionCase)
 	recommendService := app.NewRecommendService(recommendCase)

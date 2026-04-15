@@ -78,11 +78,12 @@ go run ./internal/cmd/server -conf ./configs
 | `configs/server.yaml` | HTTP / gRPC 配置 | HTTP `7001`，gRPC `6001`，默认启用 Swagger 与 pprof |
 | `configs/auth.yaml` | 鉴权配置 | 包含白名单接口与可选鉴权接口 |
 | `configs/oss.yaml` | 文件存储配置 | 默认 `type: local`，根目录 `./data` |
-| `configs/configs.yaml` | 商城业务配置 | 微信小程序与微信支付配置 |
+| `configs/configs.yaml` | 商城业务配置 | 微信小程序、微信支付、商品推荐权重配置 |
 
 补充说明：
 
 - `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
+- `configs/configs.yaml` 中的 `shop.recommend` 当前用于维护商品热度分落库权重、推荐排序权重、行为权重、排序参数、召回参数和主体曝光惩罚参数。
 - `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 
 ## 数据库初始化

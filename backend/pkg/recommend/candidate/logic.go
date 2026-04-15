@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"shop/api/gen/go/app"
+	"shop/api/gen/go/conf"
 	recommendCore "shop/pkg/recommend/core"
 	recommendRank "shop/pkg/recommend/rank"
 
@@ -11,16 +12,6 @@ import (
 )
 
 const (
-	PoolMultiplier        = 8
-	PoolMin               = 80
-	PoolMax               = 240
-	DefaultMaxPerCategory = 2
-
-	AnonymousRecallDays       = 30
-	StatLookbackDays          = 30
-	RecentPayPenaltyDays      = 15
-	ActorExposureLookbackDays = 7
-
 	RecallSourceRelation     = "relation"
 	RecallSourceUserGoods    = "user_goods"
 	RecallSourceProfile      = "profile"
@@ -29,6 +20,52 @@ const (
 	RecallSourceLatest       = "latest"
 	RecallSourceActorPenalty = "actor_penalty"
 )
+
+var (
+	PoolMultiplier int64 = 8
+	PoolMin        int64 = 80
+	PoolMax        int64 = 240
+
+	DefaultMaxPerCategory int = 2
+
+	AnonymousRecallDays       = 30
+	StatLookbackDays          = 30
+	RecentPayPenaltyDays      = 15
+	ActorExposureLookbackDays = 7
+
+	ActorNoClickExposureThreshold int64   = 3
+	ActorNoClickPenalty           float64 = 0.6
+	ActorLowCtrExposureThreshold  int64   = 5
+	ActorLowCtrPenalty            float64 = 0.3
+	ActorLowCtrThreshold          float64 = 0.05
+)
+
+// ApplyRecommendConfig 应用推荐召回与主体曝光惩罚配置。
+func ApplyRecommendConfig(cfg *conf.GoodsRecommendConfig) {
+	// 配置缺失时，保留当前默认召回参数。
+	if cfg == nil {
+		return
+	}
+	if cfg.GetRecall() != nil {
+		recallConfig := cfg.GetRecall()
+		PoolMultiplier = int64(recallConfig.GetPoolMultiplier())
+		PoolMin = int64(recallConfig.GetPoolMin())
+		PoolMax = int64(recallConfig.GetPoolMax())
+		DefaultMaxPerCategory = int(recallConfig.GetMaxPerCategory())
+		AnonymousRecallDays = int(recallConfig.GetAnonymousRecallDays())
+		StatLookbackDays = int(recallConfig.GetStatLookbackDays())
+		RecentPayPenaltyDays = int(recallConfig.GetRecentPayPenaltyDays())
+		ActorExposureLookbackDays = int(recallConfig.GetActorExposureLookbackDays())
+	}
+	if cfg.GetActorExposurePenalty() != nil {
+		penaltyConfig := cfg.GetActorExposurePenalty()
+		ActorNoClickExposureThreshold = int64(penaltyConfig.GetNoClickExposureThreshold())
+		ActorNoClickPenalty = penaltyConfig.GetNoClickPenalty()
+		ActorLowCtrExposureThreshold = int64(penaltyConfig.GetLowCtrExposureThreshold())
+		ActorLowCtrPenalty = penaltyConfig.GetLowCtrPenalty()
+		ActorLowCtrThreshold = penaltyConfig.GetLowCtrThreshold()
+	}
+}
 
 // PersonalizedSignals 表示登录态候选所需的评分信号。
 type PersonalizedSignals struct {
@@ -66,7 +103,11 @@ func ResolveCandidateLimit(pageNum, pageSize int64) int64 {
 }
 
 // BuildPersonalized 根据召回信号构建登录态候选集。
-func BuildPersonalized(goodsList []*app.GoodsInfo, signals PersonalizedSignals) map[int64]*recommendCore.Candidate {
+func BuildPersonalized(
+	goodsList []*app.GoodsInfo,
+	signals PersonalizedSignals,
+	rankWeightConfig *conf.GoodsRecommendPersonalizedRankWeightConfig,
+) map[int64]*recommendCore.Candidate {
 	candidates := make(map[int64]*recommendCore.Candidate, len(goodsList))
 	for _, item := range goodsList {
 		// 过滤空商品和非法商品，避免脏数据进入候选池。
@@ -89,15 +130,15 @@ func BuildPersonalized(goodsList []*app.GoodsInfo, signals PersonalizedSignals) 
 		if _, ok := signals.RecentPaidGoods[item.Id]; ok {
 			candidate.RepeatPenalty = 1.5
 		}
-		candidate.FinalScore = candidate.RelationScore*0.30 +
-			candidate.UserGoodsScore*0.25 +
-			candidate.ProfileScore*0.15 +
-			candidate.ScenePopularityScore*0.20 +
-			candidate.GlobalPopularityScore*0.10 +
-			candidate.FreshnessScore*0.10 -
-			candidate.ExposurePenalty -
-			candidate.ActorExposurePenalty -
-			candidate.RepeatPenalty
+		candidate.FinalScore = candidate.RelationScore*rankWeightConfig.GetRelationWeight() +
+			candidate.UserGoodsScore*rankWeightConfig.GetUserGoodsWeight() +
+			candidate.ProfileScore*rankWeightConfig.GetProfileWeight() +
+			candidate.ScenePopularityScore*rankWeightConfig.GetScenePopularityWeight() +
+			candidate.GlobalPopularityScore*rankWeightConfig.GetGlobalPopularityWeight() +
+			candidate.FreshnessScore*rankWeightConfig.GetFreshnessWeight() -
+			candidate.ExposurePenalty*rankWeightConfig.GetExposurePenaltyWeight() -
+			candidate.ActorExposurePenalty*rankWeightConfig.GetActorExposurePenaltyWeight() -
+			candidate.RepeatPenalty*rankWeightConfig.GetRepeatPenaltyWeight()
 
 		// 命中了商品关联召回时记录来源，便于 explain 返回。
 		if candidate.RelationScore > 0 {
@@ -134,7 +175,11 @@ func BuildPersonalized(goodsList []*app.GoodsInfo, signals PersonalizedSignals) 
 }
 
 // BuildAnonymous 根据公共信号构建匿名候选集。
-func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[int64]*recommendCore.Candidate {
+func BuildAnonymous(
+	goodsList []*app.GoodsInfo,
+	signals AnonymousSignals,
+	rankWeightConfig *conf.GoodsRecommendAnonymousRankWeightConfig,
+) map[int64]*recommendCore.Candidate {
 	candidates := make(map[int64]*recommendCore.Candidate, len(goodsList))
 	for _, item := range goodsList {
 		// 过滤空商品和非法商品，避免匿名候选池混入脏数据。
@@ -151,12 +196,12 @@ func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[in
 		candidate.FreshnessScore = recommendRank.CalculateFreshnessScore(item.UpdatedAt)
 		candidate.ExposurePenalty = signals.SceneExposurePenalties[item.Id]
 		candidate.ActorExposurePenalty = signals.ActorExposurePenalties[item.Id]
-		candidate.FinalScore = candidate.RelationScore*0.45 +
-			candidate.ScenePopularityScore*0.30 +
-			candidate.GlobalPopularityScore*0.15 +
-			candidate.FreshnessScore*0.10 -
-			candidate.ExposurePenalty -
-			candidate.ActorExposurePenalty
+		candidate.FinalScore = candidate.RelationScore*rankWeightConfig.GetRelationWeight() +
+			candidate.ScenePopularityScore*rankWeightConfig.GetScenePopularityWeight() +
+			candidate.GlobalPopularityScore*rankWeightConfig.GetGlobalPopularityWeight() +
+			candidate.FreshnessScore*rankWeightConfig.GetFreshnessWeight() -
+			candidate.ExposurePenalty*rankWeightConfig.GetExposurePenaltyWeight() -
+			candidate.ActorExposurePenalty*rankWeightConfig.GetActorExposurePenaltyWeight()
 
 		// 命中了商品关联召回时记录来源，便于详情页匿名推荐解释。
 		if candidate.RelationScore > 0 {

@@ -107,13 +107,15 @@ func (c *RecommendExposureCase) loadActorExposurePenalties(ctx context.Context, 
 		exposureCount := exposureCountMap[goodsId]
 		clickCount := clickCountMap[goodsId]
 		// 曝光明显偏高且没有点击时，直接下调该商品权重。
-		if exposureCount >= 3 && clickCount == 0 {
-			penalties[goodsId] = 0.6
+		if exposureCount >= recommendCandidate.ActorNoClickExposureThreshold && clickCount == 0 {
+			penalties[goodsId] = recommendCandidate.ActorNoClickPenalty
 			continue
 		}
 		// 曝光很高但点击率极低时，施加更强的曝光惩罚。
-		if exposureCount >= 5 && clickCount*20 < exposureCount {
-			penalties[goodsId] = 0.3
+		if exposureCount >= recommendCandidate.ActorLowCtrExposureThreshold &&
+			exposureCount > 0 &&
+			float64(clickCount)/float64(exposureCount) < recommendCandidate.ActorLowCtrThreshold {
+			penalties[goodsId] = recommendCandidate.ActorLowCtrPenalty
 		}
 	}
 	return penalties, nil

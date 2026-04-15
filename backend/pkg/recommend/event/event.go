@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"shop/api/gen/go/common"
+	"shop/api/gen/go/conf"
 )
 
 const (
@@ -11,9 +12,43 @@ const (
 
 	ActorTypeAnonymous = int32(0)
 	ActorTypeUser      = int32(1)
-
-	AggregateWindowDays = 30
 )
+
+var (
+	// AggregateWindowDays 推荐聚合统一窗口天数。
+	AggregateWindowDays int32 = 30
+	eventWeightConfig         = &conf.RecommendEventWeightConfig{
+		ClickWeight:       float64Ptr(3),
+		ViewWeight:        float64Ptr(2),
+		CollectWeight:     float64Ptr(4),
+		AddCartWeight:     float64Ptr(6),
+		OrderCreateWeight: float64Ptr(8),
+		OrderPayWeight:    float64Ptr(10),
+	}
+	relationWeightConfig = &conf.RecommendRelationWeightConfig{
+		ClickWeight:       float64Ptr(3),
+		ViewWeight:        float64Ptr(2),
+		OrderCreateWeight: float64Ptr(8),
+		OrderPayWeight:    float64Ptr(10),
+	}
+)
+
+// ApplyRecommendConfig 应用推荐行为相关运行时配置。
+func ApplyRecommendConfig(cfg *conf.GoodsRecommendConfig) {
+	// 配置缺失时，保留当前默认行为配置。
+	if cfg == nil {
+		return
+	}
+	if cfg.AggregateWindowDays != nil {
+		AggregateWindowDays = cfg.GetAggregateWindowDays()
+	}
+	if cfg.GetEventWeight() != nil {
+		eventWeightConfig = cfg.GetEventWeight()
+	}
+	if cfg.GetRelationWeight() != nil {
+		relationWeightConfig = cfg.GetRelationWeight()
+	}
+}
 
 // NormalizeGoodsNum 统一商品数量的权重下限。
 func NormalizeGoodsNum(goodsNum int64) float64 {
@@ -64,17 +99,17 @@ func EventWeight(eventType common.RecommendGoodsActionType) float64 {
 	// 按行为强弱映射登录态偏好聚合权重。
 	switch eventType {
 	case common.RecommendGoodsActionType_CLICK:
-		return 3
+		return eventWeightConfig.GetClickWeight()
 	case common.RecommendGoodsActionType_VIEW:
-		return 2
+		return eventWeightConfig.GetViewWeight()
 	case common.RecommendGoodsActionType_COLLECT:
-		return 4
+		return eventWeightConfig.GetCollectWeight()
 	case common.RecommendGoodsActionType_ADD_CART:
-		return 6
+		return eventWeightConfig.GetAddCartWeight()
 	case common.RecommendGoodsActionType_ORDER_CREATE:
-		return 8
+		return eventWeightConfig.GetOrderCreateWeight()
 	case common.RecommendGoodsActionType_ORDER_PAY:
-		return 10
+		return eventWeightConfig.GetOrderPayWeight()
 	default:
 		return 0
 	}
@@ -99,16 +134,21 @@ func RelationWeight(eventType common.RecommendGoodsActionType) float64 {
 	// 按行为强弱映射商品关联聚合权重。
 	switch eventType {
 	case common.RecommendGoodsActionType_CLICK:
-		return 3
+		return relationWeightConfig.GetClickWeight()
 	case common.RecommendGoodsActionType_VIEW:
-		return 2
+		return relationWeightConfig.GetViewWeight()
 	case common.RecommendGoodsActionType_ORDER_CREATE:
-		return 8
+		return relationWeightConfig.GetOrderCreateWeight()
 	case common.RecommendGoodsActionType_ORDER_PAY:
-		return 10
+		return relationWeightConfig.GetOrderPayWeight()
 	default:
 		return 0
 	}
+}
+
+// float64Ptr 返回 float64 指针，便于初始化默认 optional 字段。
+func float64Ptr(value float64) *float64 {
+	return &value
 }
 
 // AddBehaviorSummaryCount 累加 JSON 汇总中的行为计数。
