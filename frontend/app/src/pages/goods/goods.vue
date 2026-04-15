@@ -13,19 +13,47 @@ import type { RecommendContext } from '@/rpc/app/recommend'
 import { onLoad } from '@dcloudio/uni-app'
 import { useGuessList } from '@/composables'
 import { useRecommendStore, useUserStore } from '@/stores'
-import { computed, ref } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { formatSrc, formatPrice } from '@/utils'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/shop_service.ts'
 import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
-import { goodsDetailUrl, navigateToLogin, navigateToOrderCreate } from '@/utils/navigation'
+import {
+  goodsDetailUrl,
+  homeTabPage,
+  navigateToLogin,
+  navigateToOrderCreate,
+} from '@/utils/navigation'
 // 获取会员信息
 const userStore = useUserStore()
 const recommendStore = useRecommendStore()
+const pageInstance = getCurrentInstance()
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
+const topBarHeight = (safeAreaInsets?.top || 0) + 44
+const floatingHeaderHeight = topBarHeight
+const navFadeStart = 24
+const navFadeDistance = 150
+const sectionNavFadeStart = 88
+const sectionNavFadeDistance = 110
+// 分段切换以悬浮导航栏下沿作为“到顶”基准，保留极小容差避免浮点误差抖动。
+const sectionActiveTolerance = 2
+
+type SectionKey = 'goods' | 'detail' | 'recommend'
+
+type SectionTab = {
+  key: SectionKey
+  label: string
+  anchorId: string
+}
+
+const sectionTabs: SectionTab[] = [
+  { key: 'goods', label: '商品', anchorId: 'goods-section' },
+  { key: 'detail', label: '详情', anchorId: 'detail-section' },
+  { key: 'recommend', label: '推荐', anchorId: 'recommend-section' },
+]
 
 // 接收页面参数
 const query = defineProps<{
@@ -50,6 +78,47 @@ const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
 const serviceLabelList = computed(() => serviceList.value.map((item) => item.label))
 const { guessRef, onScrollToLower } = useGuessList()
+const scrollTop = ref(0)
+const scrollIntoView = ref('')
+const activeSection = ref<SectionKey>('goods')
+const sectionOffsetMap = ref<Record<SectionKey, number>>({
+  goods: 0,
+  detail: 0,
+  recommend: 0,
+})
+let measureTimer: ReturnType<typeof setTimeout> | undefined
+
+const clampProgress = (value: number) => {
+  return Math.min(1, Math.max(0, value))
+}
+
+const headerProgress = computed(() => {
+  return clampProgress((scrollTop.value - navFadeStart) / navFadeDistance)
+})
+
+const sectionNavProgress = computed(() => {
+  return clampProgress((scrollTop.value - sectionNavFadeStart) / sectionNavFadeDistance)
+})
+
+const headerStyle = computed(() => {
+  const progress = headerProgress.value
+  return `background-color: rgba(255, 255, 255, ${progress}); box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, ${0.05 * progress});`
+})
+
+const topBarContentStyle = computed(() => {
+  const progress = headerProgress.value
+  return `opacity: ${progress}; transform: translateY(${(1 - progress) * -8}px);`
+})
+
+const sectionNavStyle = computed(() => {
+  const progress = sectionNavProgress.value
+  return `opacity: ${progress}; transform: translateY(${(1 - progress) * -10}px); pointer-events: ${progress > 0.2 ? 'auto' : 'none'};`
+})
+
+const backButtonStyle = computed(() => {
+  const progress = headerProgress.value
+  return `color: ${progress > 0.55 ? '#111827' : '#ffffff'}; background-color: rgba(17, 24, 39, ${0.38 * (1 - progress)}); border-color: rgba(255, 255, 255, ${0.18 * (1 - progress)});`
+})
 
 const loadData = async () => {
   const ssRes = await defShopServiceService.ListShopService({})
@@ -81,6 +150,7 @@ const loadData = async () => {
       }
     }),
   }
+  scheduleMeasureSections()
 }
 
 // 页面加载
@@ -243,6 +313,107 @@ const onShareAppMessage = () => {
 const onShareTimeline = () => {
   return shareConfig.value
 }
+
+// 延迟重新测量分段位置，避免图片尚未渲染完成时拿到错误偏移。
+const scheduleMeasureSections = () => {
+  if (measureTimer) {
+    clearTimeout(measureTimer)
+  }
+  measureTimer = setTimeout(() => {
+    void measureSections()
+  }, 80)
+}
+
+// 读取三个分段在滚动容器中的偏移位置，供吸顶导航高亮和点击跳转使用。
+const measureSections = async () => {
+  await nextTick()
+  if (!pageInstance) {
+    return
+  }
+
+  await new Promise<void>((resolve) => {
+    const query = uni.createSelectorQuery().in(pageInstance)
+    query.select('.viewport').boundingClientRect()
+    sectionTabs.forEach((item) => {
+      query.select(`#${item.anchorId}`).boundingClientRect()
+    })
+    query.exec((result) => {
+      const viewportRect = result?.[0] as { top: number } | undefined
+      if (!viewportRect) {
+        resolve()
+        return
+      }
+
+      const nextOffsetMap = { ...sectionOffsetMap.value }
+      sectionTabs.forEach((item, index) => {
+        const rect = result?.[index + 1] as { top: number } | undefined
+        if (!rect) {
+          return
+        }
+        // 当前元素相对滚动容器顶部的位置，加上实时滚动值后得到内容区绝对偏移。
+        nextOffsetMap[item.key] = Math.max(0, rect.top - viewportRect.top + scrollTop.value)
+      })
+      sectionOffsetMap.value = nextOffsetMap
+      updateActiveSection(scrollTop.value)
+      resolve()
+    })
+  })
+}
+
+// 根据滚动位置切换当前分段。
+// 这里不做“提前高亮”，只有当对应分段到达导航栏下沿附近时才切换选中态。
+const updateActiveSection = (currentScrollTop: number) => {
+  const scrollThreshold = currentScrollTop + floatingHeaderHeight + sectionActiveTolerance
+  const recommendMeasured = sectionOffsetMap.value.recommend > sectionOffsetMap.value.detail
+
+  if (recommendMeasured && scrollThreshold >= sectionOffsetMap.value.recommend) {
+    activeSection.value = 'recommend'
+    return
+  }
+  // 详情分段同样只在锚点到达顶部时高亮。
+  if (scrollThreshold >= sectionOffsetMap.value.detail) {
+    activeSection.value = 'detail'
+    return
+  }
+  activeSection.value = 'goods'
+}
+
+// 点击导航时直接滚动到目标锚点。
+// 锚点本身通过负边距预留了头部高度，所以滚动结束后内容会自然停在导航栏下沿。
+const onTapSection = async (tab: SectionTab) => {
+  activeSection.value = tab.key
+  await measureSections()
+  scrollIntoView.value = ''
+  nextTick(() => {
+    scrollIntoView.value = tab.anchorId
+  })
+}
+
+// 滚动时同步吸顶导航显隐和高亮状态。
+const onScrollPage = (ev: { detail: { scrollTop: number } }) => {
+  scrollTop.value = ev.detail.scrollTop
+  updateActiveSection(scrollTop.value)
+}
+
+// 吸顶导航显示后，左侧返回按钮仍然保留，避免用户在中段内容里失去回退入口。
+const onNavigateBack = () => {
+  uni.navigateBack({
+    fail: () => {
+      uni.switchTab({ url: homeTabPage })
+    },
+  })
+}
+
+// 商品详情富文本图片会影响推荐分段位置，图片加载完成后重新测量。
+const onDetailImageLoad = () => {
+  scheduleMeasureSections()
+}
+
+onBeforeUnmount(() => {
+  if (measureTimer) {
+    clearTimeout(measureTimer)
+  }
+})
 </script>
 
 <template>
@@ -262,13 +433,39 @@ const onShareTimeline = () => {
     @add-cart="onAddCart"
     @buy-now="onBuyNow"
   />
+  <view v-if="goodsInfo" class="header" :style="headerStyle">
+    <view class="top-bar" :style="{ paddingTop: `${safeAreaInsets?.top || 0}px` }">
+      <view class="top-bar-side top-bar-side--back" :style="backButtonStyle" @tap="onNavigateBack">
+        <text class="top-bar-back">‹</text>
+      </view>
+      <view class="top-bar-content" :style="topBarContentStyle">
+        <view class="section-nav section-nav--inline" :style="sectionNavStyle">
+          <view
+            v-for="tab in sectionTabs"
+            :key="tab.key"
+            class="section-nav-item"
+            :class="{ active: activeSection === tab.key }"
+            @tap="onTapSection(tab)"
+          >
+            {{ tab.label }}
+          </view>
+        </view>
+      </view>
+      <view class="top-bar-side top-bar-side--placeholder"></view>
+    </view>
+  </view>
+
   <scroll-view
     v-if="goodsInfo"
     enable-back-to-top
     scroll-y
     class="viewport"
+    :scroll-into-view="scrollIntoView"
+    scroll-with-animation
+    @scroll="onScrollPage"
     @scrolltolower="onScrollToLower"
   >
+    <view id="goods-section" class="section-anchor" />
     <!-- 基本信息 -->
     <view class="goods">
       <!-- 商品主图 -->
@@ -312,6 +509,7 @@ const onShareTimeline = () => {
       </view>
     </view>
 
+    <view id="detail-section" class="section-anchor" />
     <!-- 商品详情 -->
     <view class="detail panel">
       <view class="title">
@@ -332,10 +530,12 @@ const onShareTimeline = () => {
           class="image"
           mode="widthFix"
           :src="formatSrc(item)"
+          @load="onDetailImageLoad"
         />
       </view>
     </view>
 
+    <view id="recommend-section" class="section-anchor" />
     <!-- 商品详情推荐 -->
     <XtxGuess
       ref="guessRef"
@@ -383,7 +583,117 @@ page {
 }
 
 .viewport {
+  flex: 1;
   background-color: #f4f4f4;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.top-bar {
+  height: v-bind('`${topBarHeight}px`');
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 24rpx;
+  padding-right: 24rpx;
+  box-sizing: border-box;
+}
+
+.top-bar-side {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.top-bar-side--back {
+  border: 1rpx solid transparent;
+  border-radius: 999rpx;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.top-bar-side--placeholder {
+  opacity: 0;
+}
+
+.top-bar-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.top-bar-back {
+  margin-top: -4rpx;
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.section-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.section-nav--inline {
+  height: 72rpx;
+}
+
+.section-nav-item {
+  position: relative;
+  padding: 0 34rpx;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: #7a7f87;
+  transition: color 0.2s ease;
+
+  &.active {
+    color: #1f2937;
+    font-weight: 600;
+  }
+
+  &.active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 6rpx;
+    width: 44rpx;
+    height: 5rpx;
+    border-radius: 999rpx;
+    background: #27ba9b;
+    transform: translateX(-50%);
+  }
+}
+
+.section-anchor {
+  // 通过“正高度 + 负外边距”给 scroll-into-view 预留悬浮头部空间。
+  height: v-bind('`${floatingHeaderHeight}px`');
+  margin-top: v-bind('`-${floatingHeaderHeight}px`');
+  pointer-events: none;
 }
 
 .panel {
