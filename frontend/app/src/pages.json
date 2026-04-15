@@ -71,6 +71,7 @@
     {
       "path": "pages/goods/goods",
       "style": {
+        "navigationStyle": "custom",
         "navigationBarTitleText": "商品详情"
       }
     },
