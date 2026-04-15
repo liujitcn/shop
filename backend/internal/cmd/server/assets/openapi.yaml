@@ -2545,7 +2545,7 @@ paths:
                   schema:
                     enum:
                         - UNKNOWN_SBT
-                        - GOODS_DETAIL
+                        - BANNER_GOODS_DETAIL
                         - CATEGORY_DETAIL
                         - WEB_VIEW
                         - MINI
@@ -3732,6 +3732,7 @@ paths:
                     enum:
                         - RECOMMEND_SCENE_UNKNOWN
                         - HOME
+                        - GOODS_DETAIL
                         - CART
                         - PROFILE
                         - ORDER_DETAIL
@@ -3739,6 +3740,10 @@ paths:
                     type: string
                     format: enum
                 - name: orderId
+                  in: query
+                  schema:
+                    type: string
+                - name: goodsId
                   in: query
                   schema:
                     type: string
@@ -6985,6 +6990,7 @@ components:
                     enum:
                         - RECOMMEND_SCENE_UNKNOWN
                         - HOME
+                        - GOODS_DETAIL
                         - CART
                         - PROFILE
                         - ORDER_DETAIL
@@ -7010,6 +7016,7 @@ components:
                     enum:
                         - RECOMMEND_SCENE_UNKNOWN
                         - HOME
+                        - GOODS_DETAIL
                         - CART
                         - PROFILE
                         - ORDER_DETAIL
@@ -7041,12 +7048,12 @@ components:
                 eventType:
                     enum:
                         - UNKNOWN_RGAT
+                        - CLICK
                         - VIEW
                         - COLLECT
                         - ADD_CART
                         - ORDER_CREATE
                         - ORDER_PAY
-                        - CLICK
                     type: string
                     description: 商品行为事件类型
                     format: enum
@@ -7317,7 +7324,7 @@ components:
                 type:
                     enum:
                         - UNKNOWN_SBT
-                        - GOODS_DETAIL
+                        - BANNER_GOODS_DETAIL
                         - CATEGORY_DETAIL
                         - WEB_VIEW
                         - MINI
@@ -7366,7 +7373,7 @@ components:
                 type:
                     enum:
                         - UNKNOWN_SBT
-                        - GOODS_DETAIL
+                        - BANNER_GOODS_DETAIL
                         - CATEGORY_DETAIL
                         - WEB_VIEW
                         - MINI

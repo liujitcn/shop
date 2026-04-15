@@ -21,7 +21,7 @@ const handleClick = (item: ShopBanner) => {
   }
 
   switch (item.type) {
-    case ShopBannerType.GOODS_DETAIL:
+    case ShopBannerType.BANNER_GOODS_DETAIL:
       uni.navigateTo({ url: `/pages/goods/goods?${item.href}` })
       return
     case ShopBannerType.CATEGORY_DETAIL:

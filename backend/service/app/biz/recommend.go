@@ -102,6 +102,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	total := int64(0)
 	initSourceContext := map[string]any{
 		"orderId": req.GetOrderId(),
+		"goodsId": req.GetGoodsId(),
 	}
 	recallSources := make([]string, 0, 4)
 	// 匿名主体统一走公共推荐池，减少首页、购物车、我的三端内容分裂。

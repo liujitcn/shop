@@ -64,6 +64,12 @@ message RecommendGoodsRequest {
     }
   ];  // 订单ID
 
+  int64 goodsId = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品ID",
+    }
+  ];  // 商品ID
+
   int64 pageNum = 101 [
     (gnostic.openapi.v3.property) = {
       description: "当前页码",

@@ -32,6 +32,7 @@ type RecommendGoodsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Scene         common.RecommendScene  `protobuf:"varint,1,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"` // 推荐场景
 	OrderId       int64                  `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`                        // 订单ID
+	GoodsId       int64                  `protobuf:"varint,3,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                        // 商品ID
 	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                      // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                    // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -78,6 +79,13 @@ func (x *RecommendGoodsRequest) GetScene() common.RecommendScene {
 func (x *RecommendGoodsRequest) GetOrderId() int64 {
 	if x != nil {
 		return x.OrderId
+	}
+	return 0
+}
+
+func (x *RecommendGoodsRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
 	}
 	return 0
 }
@@ -397,10 +405,11 @@ var File_app_recommend_proto protoreflect.FileDescriptor
 
 const file_app_recommend_proto_rawDesc = "" +
 	"\n" +
-	"\x13app/recommend.proto\x12\x03app\x1a\x14app/goods_info.proto\x1a\x11common/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xf9\x01\n" +
+	"\x13app/recommend.proto\x12\x03app\x1a\x14app/goods_info.proto\x1a\x11common/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1egoogle/protobuf/wrappers.proto\"\xa3\x02\n" +
 	"\x15RecommendGoodsRequest\x12@\n" +
 	"\x05scene\x18\x01 \x01(\x0e2\x16.common.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x12(\n" +
-	"\aorderId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x128\n" +
+	"\aorderId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12(\n" +
+	"\agoodsId\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x128\n" +
 	"\apageNum\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12:\n" +
 	"\bpageSize\x18f \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\f每页数量R\bpageSize\"\xae\x01\n" +
 	"\x16RecommendGoodsResponse\x12<\n" +

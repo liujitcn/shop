@@ -16,6 +16,8 @@ export interface RecommendGoodsRequest {
   scene: RecommendScene;
   /** 订单ID */
   orderId: number;
+  /** 商品ID */
+  goodsId: number;
   /** 当前页码 */
   pageNum: number;
   /** 每页数量 */

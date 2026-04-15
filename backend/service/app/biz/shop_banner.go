@@ -67,7 +67,7 @@ func (c *ShopBannerCase) convertToProto(ctx context.Context, item *models.ShopBa
 	var href string
 	// 按轮播图类型把后台配置值转换成前端可直接消费的跳转参数。
 	switch common.ShopBannerType(item.Type) {
-	case common.ShopBannerType_GOODS_DETAIL:
+	case common.ShopBannerType_BANNER_GOODS_DETAIL:
 		href = fmt.Sprintf("id=%s", item.Href)
 	case common.ShopBannerType_CATEGORY_DETAIL:
 		// 商城轮播图分类需要把分类 ID 转成前端可直接使用的跳转参数

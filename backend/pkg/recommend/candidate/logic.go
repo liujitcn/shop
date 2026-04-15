@@ -44,6 +44,7 @@ type PersonalizedSignals struct {
 
 // AnonymousSignals 表示匿名候选所需的评分信号。
 type AnonymousSignals struct {
+	RelationScores         map[int64]float64
 	ScenePopularityScores  map[int64]float64
 	GlobalPopularityScores map[int64]float64
 	SceneExposurePenalties map[int64]float64
@@ -142,19 +143,25 @@ func BuildAnonymous(goodsList []*app.GoodsInfo, signals AnonymousSignals) map[in
 		}
 		candidate := &recommendCore.Candidate{
 			Goods:         item,
-			RecallSources: make(map[string]struct{}, 4),
+			RecallSources: make(map[string]struct{}, 5),
 		}
+		candidate.RelationScore = signals.RelationScores[item.Id]
 		candidate.ScenePopularityScore = signals.ScenePopularityScores[item.Id]
 		candidate.GlobalPopularityScore = signals.GlobalPopularityScores[item.Id]
 		candidate.FreshnessScore = recommendRank.CalculateFreshnessScore(item.UpdatedAt)
 		candidate.ExposurePenalty = signals.SceneExposurePenalties[item.Id]
 		candidate.ActorExposurePenalty = signals.ActorExposurePenalties[item.Id]
-		candidate.FinalScore = candidate.ScenePopularityScore*0.55 +
-			candidate.GlobalPopularityScore*0.30 +
-			candidate.FreshnessScore*0.15 -
+		candidate.FinalScore = candidate.RelationScore*0.45 +
+			candidate.ScenePopularityScore*0.30 +
+			candidate.GlobalPopularityScore*0.15 +
+			candidate.FreshnessScore*0.10 -
 			candidate.ExposurePenalty -
 			candidate.ActorExposurePenalty
 
+		// 命中了商品关联召回时记录来源，便于详情页匿名推荐解释。
+		if candidate.RelationScore > 0 {
+			candidate.RecallSources[RecallSourceRelation] = struct{}{}
+		}
 		// 命中了场景热度召回时记录来源。
 		if candidate.ScenePopularityScore > 0 {
 			candidate.RecallSources[RecallSourceSceneHot] = struct{}{}

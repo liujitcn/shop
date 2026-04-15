@@ -139,7 +139,7 @@ const formFields = computed<ProFormField[]>(() => [
     component: "select",
     options: goodsInfoList.value.map(item => ({ label: item.name, value: String(item.id) })),
     props: { placeholder: "请选择" },
-    visible: model => model.type == ShopBannerType.GOODS_DETAIL
+    visible: model => model.type == ShopBannerType.BANNER_GOODS_DETAIL
   },
   {
     prop: "href",

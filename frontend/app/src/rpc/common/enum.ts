@@ -206,8 +206,8 @@ export enum ShopBannerSite {
 /** 轮播图类型 */
 export enum ShopBannerType {
   UNKNOWN_SBT = 0,
-  /** GOODS_DETAIL - 商品详情 */
-  GOODS_DETAIL = 1,
+  /** BANNER_GOODS_DETAIL - 商品详情 */
+  BANNER_GOODS_DETAIL = 1,
   /** CATEGORY_DETAIL - 分类详情 */
   CATEGORY_DETAIL = 2,
   /** WEB_VIEW - H5链接 */
@@ -233,30 +233,32 @@ export enum RecommendScene {
   RECOMMEND_SCENE_UNKNOWN = 0,
   /** HOME - 首页推荐场景 */
   HOME = 1,
+  /** GOODS_DETAIL - 商品详情推荐场景 */
+  GOODS_DETAIL = 2,
   /** CART - 购物车推荐场景 */
-  CART = 2,
+  CART = 3,
   /** PROFILE - 个人中心推荐场景 */
-  PROFILE = 3,
+  PROFILE = 4,
   /** ORDER_DETAIL - 订单详情推荐场景 */
-  ORDER_DETAIL = 4,
+  ORDER_DETAIL = 5,
   /** ORDER_PAID - 支付成功推荐场景 */
-  ORDER_PAID = 5,
+  ORDER_PAID = 6,
 }
 
 /** 推荐商品行为类型枚举 */
 export enum RecommendGoodsActionType {
   /** UNKNOWN_RGAT - 未指定商品行为类型 */
   UNKNOWN_RGAT = 0,
-  /** VIEW - 商品浏览事件 */
-  VIEW = 1,
-  /** COLLECT - 商品收藏事件 */
-  COLLECT = 2,
-  /** ADD_CART - 商品加购事件 */
-  ADD_CART = 3,
-  /** ORDER_CREATE - 下单事件 */
-  ORDER_CREATE = 4,
-  /** ORDER_PAY - 支付事件 */
-  ORDER_PAY = 5,
   /** CLICK - 推荐点击事件 */
-  CLICK = 6,
+  CLICK = 1,
+  /** VIEW - 商品浏览事件 */
+  VIEW = 2,
+  /** COLLECT - 商品收藏事件 */
+  COLLECT = 3,
+  /** ADD_CART - 商品加购事件 */
+  ADD_CART = 4,
+  /** ORDER_CREATE - 下单事件 */
+  ORDER_CREATE = 5,
+  /** ORDER_PAY - 支付事件 */
+  ORDER_PAY = 6,
 }

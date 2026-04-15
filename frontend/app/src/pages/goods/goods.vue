@@ -8,9 +8,10 @@ import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { defGoodsInfoService } from '@/api/app/goods_info.ts'
 import { defRecommendService } from '@/api/app/recommend'
-import type { GoodsInfo, GoodsInfoResponse } from '@/rpc/app/goods_info'
+import type { GoodsInfoResponse } from '@/rpc/app/goods_info'
 import type { RecommendContext } from '@/rpc/app/recommend'
 import { onLoad } from '@dcloudio/uni-app'
+import { useGuessList } from '@/composables'
 import { useRecommendStore, useUserStore } from '@/stores'
 import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
@@ -44,11 +45,11 @@ const recommendContext = {
 
 // 获取商品详情信息
 const goodsInfo = ref<GoodsInfoResponse>()
-const goodsInfoList = ref<GoodsInfo[]>([])
 const isCollect = ref<boolean>(false)
 const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
 const serviceLabelList = computed(() => serviceList.value.map((item) => item.label))
+const { guessRef, onScrollToLower } = useGuessList()
 
 const loadData = async () => {
   const ssRes = await defShopServiceService.ListShopService({})
@@ -57,13 +58,6 @@ const loadData = async () => {
     value: goodsId,
   })
   goodsInfo.value = res
-  const pageRes = await defGoodsInfoService.PageGoodsInfo({
-    name: '',
-    categoryId: res.categoryId,
-    pageNum: 1,
-    pageSize: 30,
-  })
-  goodsInfoList.value = pageRes.list || []
   // SKU组件所需格式
   localData.value = {
     _id: res.id,
@@ -268,7 +262,13 @@ const onShareTimeline = () => {
     @add-cart="onAddCart"
     @buy-now="onBuyNow"
   />
-  <scroll-view v-if="goodsInfo" enable-back-to-top scroll-y class="viewport">
+  <scroll-view
+    v-if="goodsInfo"
+    enable-back-to-top
+    scroll-y
+    class="viewport"
+    @scrolltolower="onScrollToLower"
+  >
     <!-- 基本信息 -->
     <view class="goods">
       <!-- 商品主图 -->
@@ -336,28 +336,13 @@ const onShareTimeline = () => {
       </view>
     </view>
 
-    <!-- 同类推荐 -->
-    <view class="similar panel">
-      <view class="title">
-        <text>同类推荐</text>
-      </view>
-      <view class="content">
-        <navigator
-          v-for="item in goodsInfoList"
-          :key="item.id"
-          class="goods"
-          hover-class="none"
-          :url="goodsDetailUrl(item.id)"
-        >
-          <image class="image" mode="aspectFill" :src="formatSrc(item.picture)" />
-          <view class="name ellipsis">{{ item.name }}</view>
-          <view class="price">
-            <text class="symbol">¥</text>
-            <text class="number">{{ formatPrice(item.price) }}</text>
-          </view>
-        </navigator>
-      </view>
-    </view>
+    <!-- 商品详情推荐 -->
+    <XtxGuess
+      ref="guessRef"
+      title="看了又看"
+      :scene="RecommendScene.GOODS_DETAIL"
+      :goods-id="goodsId"
+    />
   </scroll-view>
 
   <!-- 用户操作 -->
