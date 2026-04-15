@@ -5,7 +5,12 @@
 // source: admin/goods_analytics.proto
 
 /* eslint-disable */
-import type { AnalyticsPieResponse, AnalyticsTimeRequest, AnalyticsTrendResponse } from "../common/analytics";
+import type {
+  AnalyticsPieResponse,
+  AnalyticsRankResponse,
+  AnalyticsTimeRequest,
+  AnalyticsTrendResponse,
+} from "../common/analytics";
 
 /** 商品分析汇总响应 */
 export interface GoodsAnalyticsSummaryResponse {
@@ -21,6 +26,26 @@ export interface GoodsAnalyticsSummaryResponse {
   saleCount: number;
   /** 销售增长率 */
   saleGrowthRate: number;
+  /** 浏览次数 */
+  viewCount: number;
+  /** 收藏次数 */
+  collectCount: number;
+  /** 加购件数 */
+  cartCount: number;
+  /** 下单次数 */
+  orderCount: number;
+  /** 支付次数 */
+  payCount: number;
+  /** 支付金额，单位分 */
+  payAmount: number;
+  /** 浏览加购转化率 */
+  cartConversionRate: number;
+  /** 加购下单转化率 */
+  orderConversionRate: number;
+  /** 浏览支付转化率 */
+  payConversionRate: number;
+  /** 件均成交价，单位分 */
+  payUnitPrice: number;
 }
 
 /** Admin商品分析服务 */
@@ -31,4 +56,6 @@ export interface GoodsAnalyticsService {
   GetGoodsAnalyticsTrend(request: AnalyticsTimeRequest): Promise<AnalyticsTrendResponse>;
   /** 查询商品分类分布 */
   GetGoodsAnalyticsPie(request: AnalyticsTimeRequest): Promise<AnalyticsPieResponse>;
+  /** 查询商品支付排行 */
+  GetGoodsAnalyticsRank(request: AnalyticsTimeRequest): Promise<AnalyticsRankResponse>;
 }

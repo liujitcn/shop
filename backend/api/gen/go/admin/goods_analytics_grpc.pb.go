@@ -24,6 +24,7 @@ const (
 	GoodsAnalyticsService_GetGoodsAnalyticsSummary_FullMethodName = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsSummary"
 	GoodsAnalyticsService_GetGoodsAnalyticsTrend_FullMethodName   = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsTrend"
 	GoodsAnalyticsService_GetGoodsAnalyticsPie_FullMethodName     = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsPie"
+	GoodsAnalyticsService_GetGoodsAnalyticsRank_FullMethodName    = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsRank"
 )
 
 // GoodsAnalyticsServiceClient is the client API for GoodsAnalyticsService service.
@@ -38,6 +39,8 @@ type GoodsAnalyticsServiceClient interface {
 	GetGoodsAnalyticsTrend(ctx context.Context, in *common.AnalyticsTimeRequest, opts ...grpc.CallOption) (*common.AnalyticsTrendResponse, error)
 	// 查询商品分类分布
 	GetGoodsAnalyticsPie(ctx context.Context, in *common.AnalyticsTimeRequest, opts ...grpc.CallOption) (*common.AnalyticsPieResponse, error)
+	// 查询商品支付排行
+	GetGoodsAnalyticsRank(ctx context.Context, in *common.AnalyticsTimeRequest, opts ...grpc.CallOption) (*common.AnalyticsRankResponse, error)
 }
 
 type goodsAnalyticsServiceClient struct {
@@ -78,6 +81,16 @@ func (c *goodsAnalyticsServiceClient) GetGoodsAnalyticsPie(ctx context.Context, 
 	return out, nil
 }
 
+func (c *goodsAnalyticsServiceClient) GetGoodsAnalyticsRank(ctx context.Context, in *common.AnalyticsTimeRequest, opts ...grpc.CallOption) (*common.AnalyticsRankResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(common.AnalyticsRankResponse)
+	err := c.cc.Invoke(ctx, GoodsAnalyticsService_GetGoodsAnalyticsRank_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GoodsAnalyticsServiceServer is the server API for GoodsAnalyticsService service.
 // All implementations must embed UnimplementedGoodsAnalyticsServiceServer
 // for forward compatibility.
@@ -90,6 +103,8 @@ type GoodsAnalyticsServiceServer interface {
 	GetGoodsAnalyticsTrend(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsTrendResponse, error)
 	// 查询商品分类分布
 	GetGoodsAnalyticsPie(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsPieResponse, error)
+	// 查询商品支付排行
+	GetGoodsAnalyticsRank(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsRankResponse, error)
 	mustEmbedUnimplementedGoodsAnalyticsServiceServer()
 }
 
@@ -108,6 +123,9 @@ func (UnimplementedGoodsAnalyticsServiceServer) GetGoodsAnalyticsTrend(context.C
 }
 func (UnimplementedGoodsAnalyticsServiceServer) GetGoodsAnalyticsPie(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsPieResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGoodsAnalyticsPie not implemented")
+}
+func (UnimplementedGoodsAnalyticsServiceServer) GetGoodsAnalyticsRank(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsRankResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetGoodsAnalyticsRank not implemented")
 }
 func (UnimplementedGoodsAnalyticsServiceServer) mustEmbedUnimplementedGoodsAnalyticsServiceServer() {}
 func (UnimplementedGoodsAnalyticsServiceServer) testEmbeddedByValue()                               {}
@@ -184,6 +202,24 @@ func _GoodsAnalyticsService_GetGoodsAnalyticsPie_Handler(srv interface{}, ctx co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GoodsAnalyticsService_GetGoodsAnalyticsRank_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.AnalyticsTimeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GoodsAnalyticsServiceServer).GetGoodsAnalyticsRank(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GoodsAnalyticsService_GetGoodsAnalyticsRank_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GoodsAnalyticsServiceServer).GetGoodsAnalyticsRank(ctx, req.(*common.AnalyticsTimeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GoodsAnalyticsService_ServiceDesc is the grpc.ServiceDesc for GoodsAnalyticsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -202,6 +238,10 @@ var GoodsAnalyticsService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGoodsAnalyticsPie",
 			Handler:    _GoodsAnalyticsService_GetGoodsAnalyticsPie_Handler,
+		},
+		{
+			MethodName: "GetGoodsAnalyticsRank",
+			Handler:    _GoodsAnalyticsService_GetGoodsAnalyticsRank_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

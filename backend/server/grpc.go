@@ -58,6 +58,7 @@ func NewGRPCServer(
 	adminBaseRole *admin.BaseRoleService,
 	adminBaseUser *admin.BaseUserService,
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
+	adminGoodsReport *admin.GoodsReportService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
 	adminGoods *admin.GoodsInfoService,
@@ -115,6 +116,7 @@ func NewGRPCServer(
 	adminApi.RegisterBaseRoleServiceServer(srv, adminBaseRole)
 	adminApi.RegisterBaseUserServiceServer(srv, adminBaseUser)
 	adminApi.RegisterGoodsAnalyticsServiceServer(srv, adminGoodsAnalytics)
+	adminApi.RegisterGoodsReportServiceServer(srv, adminGoodsReport)
 	adminApi.RegisterGoodsCategoryServiceServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceServer(srv, adminGoodsProp)
 	adminApi.RegisterGoodsInfoServiceServer(srv, adminGoods)

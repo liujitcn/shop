@@ -1,7 +1,7 @@
 <template>
   <AnalyticsPageLayout
     title="商品分析"
-    description="按时间维度查看商品供给、动销效率与分类表现的汇总和趋势变化。"
+    description="按时间维度查看商品供给、行为转化与分类成交结构的汇总和趋势变化。"
     :period-label="activeTimeLabel"
     content-ratio="minmax(0, 1.25fr) minmax(320px, 0.9fr)"
   >
@@ -14,7 +14,7 @@
     </template>
 
     <GoodsTrendChart :time-type="activeTime" />
-    <GoodsCategoryChart :time-type="activeTime" />
+    <GoodsSidePanels :time-type="activeTime" />
   </AnalyticsPageLayout>
 </template>
 
@@ -23,7 +23,7 @@ import { computed, ref } from "vue";
 import { AnalyticsTimeType } from "@/rpc/common/analytics";
 import AnalyticsPageLayout from "../components/AnalyticsPageLayout.vue";
 import AnalyticsTimeTabs from "../components/AnalyticsTimeTabs.vue";
-import GoodsCategoryChart from "./components/GoodsCategoryChart.vue";
+import GoodsSidePanels from "./components/GoodsSidePanels.vue";
 import GoodsSummaryCards from "./components/GoodsSummaryCards.vue";
 import GoodsTrendChart from "./components/GoodsTrendChart.vue";
 

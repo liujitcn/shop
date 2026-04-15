@@ -61,6 +61,11 @@ func FormatAnalyticsAxis(timeType commonApi.AnalyticsTimeType, index int, startA
 
 // GetAnalyticsGroupExpr 返回聚合表达式和完整横轴数据。
 func GetAnalyticsGroupExpr(timeType commonApi.AnalyticsTimeType, startAt, endAt time.Time) (string, []string) {
+	return GetAnalyticsGroupExprByColumn(timeType, startAt, endAt, "created_at")
+}
+
+// GetAnalyticsGroupExprByColumn 返回指定时间字段的聚合表达式和完整横轴数据。
+func GetAnalyticsGroupExprByColumn(timeType commonApi.AnalyticsTimeType, startAt, endAt time.Time, columnName string) (string, []string) {
 	axis := make([]string, 0)
 	// 按统计维度返回 SQL 聚合表达式和完整横轴。
 	switch timeType {
@@ -68,18 +73,18 @@ func GetAnalyticsGroupExpr(timeType commonApi.AnalyticsTimeType, startAt, endAt 
 		for i := 0; i < 12; i++ {
 			axis = append(axis, FormatAnalyticsAxis(timeType, i, startAt))
 		}
-		return "MONTH(created_at)", axis
+		return "MONTH(" + columnName + ")", axis
 	case commonApi.AnalyticsTimeType_MONTH:
 		monthDays := endAt.AddDate(0, 0, -1).Day()
 		for i := 0; i < monthDays; i++ {
 			axis = append(axis, FormatAnalyticsAxis(timeType, i, startAt))
 		}
-		return "DAY(created_at)", axis
+		return "DAY(" + columnName + ")", axis
 	default:
 		for i := 0; i < 7; i++ {
 			axis = append(axis, FormatAnalyticsAxis(timeType, i, startAt))
 		}
-		return "WEEKDAY(created_at)+1", axis
+		return "WEEKDAY(" + columnName + ")+1", axis
 	}
 }
 

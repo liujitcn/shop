@@ -1,5 +1,5 @@
 <template>
-  <DataPanelCard title="分类销量分布" description="查看核心类目在当前周期内的销量结构。">
+  <DataPanelCard title="分类成交件数分布" description="查看核心类目在当前周期内的支付件数结构。">
     <ECharts :option="option" />
   </DataPanelCard>
 </template>
@@ -50,6 +50,7 @@ const option = computed<ECOption>(() => ({
   ]
 }));
 
+/** 加载商品分类分布数据。 */
 async function loadData(timeType: AnalyticsTimeType) {
   const data = await defGoodsAnalyticsService.GetGoodsAnalyticsPie({ timeType });
   Object.assign(pieData, data);

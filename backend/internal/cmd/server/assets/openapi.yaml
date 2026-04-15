@@ -29,6 +29,29 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AnalyticsPieResponse'
+    /api/admin/analytics/goods/rank:
+        get:
+            tags:
+                - GoodsAnalyticsService
+            description: 查询商品支付排行
+            operationId: GoodsAnalyticsService_GetGoodsAnalyticsRank
+            parameters:
+                - name: timeType
+                  in: query
+                  schema:
+                    enum:
+                        - WEEK
+                        - MONTH
+                        - YEAR
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AnalyticsRankResponse'
     /api/admin/analytics/goods/summary:
         get:
             tags:
@@ -2396,6 +2419,94 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PagePayBillResponse'
+    /api/admin/report/goods/day/detail:
+        get:
+            tags:
+                - GoodsReportService
+            description: 查询商品日报明细
+            operationId: GoodsReportService_GoodsDayReportList
+            parameters:
+                - name: startDate
+                  in: query
+                  schema:
+                    type: string
+                - name: endDate
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GoodsDayReportListResponse'
+    /api/admin/report/goods/day/summary:
+        get:
+            tags:
+                - GoodsReportService
+            description: 查询商品日报汇总
+            operationId: GoodsReportService_GoodsDayReportSummary
+            parameters:
+                - name: startDate
+                  in: query
+                  schema:
+                    type: string
+                - name: endDate
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GoodsDayReportSummaryResponse'
+    /api/admin/report/goods/month/detail:
+        get:
+            tags:
+                - GoodsReportService
+            description: 查询商品月报名细
+            operationId: GoodsReportService_GoodsMonthReportList
+            parameters:
+                - name: startMonth
+                  in: query
+                  schema:
+                    type: string
+                - name: endMonth
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GoodsMonthReportListResponse'
+    /api/admin/report/goods/month/summary:
+        get:
+            tags:
+                - GoodsReportService
+            description: 查询商品月报汇总
+            operationId: GoodsReportService_GoodsMonthReportSummary
+            parameters:
+                - name: startMonth
+                  in: query
+                  schema:
+                    type: string
+                - name: endMonth
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GoodsMonthReportSummaryResponse'
     /api/admin/report/order/day/detail:
         get:
             tags:
@@ -5534,6 +5645,36 @@ components:
                 saleGrowthRate:
                     type: string
                     description: 销售增长率
+                viewCount:
+                    type: string
+                    description: 浏览次数
+                collectCount:
+                    type: string
+                    description: 收藏次数
+                cartCount:
+                    type: string
+                    description: 加购件数
+                orderCount:
+                    type: string
+                    description: 下单次数
+                payCount:
+                    type: string
+                    description: 支付次数
+                payAmount:
+                    type: string
+                    description: 支付金额，单位分
+                cartConversionRate:
+                    type: string
+                    description: 浏览加购转化率
+                orderConversionRate:
+                    type: string
+                    description: 加购下单转化率
+                payConversionRate:
+                    type: string
+                    description: 浏览支付转化率
+                payUnitPrice:
+                    type: string
+                    description: 件均成交价，单位分
             description: 商品分析汇总响应
         GoodsCategory:
             type: object
@@ -5602,6 +5743,100 @@ components:
                     description: 菜单状态
                     format: enum
             description: 商品分类表单
+        GoodsDayReportItem:
+            type: object
+            properties:
+                day:
+                    type: string
+                    description: 日期，格式：YYYY-MM-DD
+                viewCount:
+                    type: string
+                    description: 浏览次数
+                collectCount:
+                    type: string
+                    description: 收藏次数
+                cartCount:
+                    type: string
+                    description: 加购件数
+                orderCount:
+                    type: string
+                    description: 下单次数
+                payCount:
+                    type: string
+                    description: 支付次数
+                payGoodsNum:
+                    type: string
+                    description: 支付件数
+                payAmount:
+                    type: string
+                    description: 支付金额，单位分
+                score:
+                    type: number
+                    description: 热度分
+                    format: double
+                cartConversionRate:
+                    type: string
+                    description: 浏览加购转化率
+                orderConversionRate:
+                    type: string
+                    description: 加购下单转化率
+                payConversionRate:
+                    type: string
+                    description: 浏览支付转化率
+                payUnitPrice:
+                    type: string
+                    description: 件均成交价，单位分
+            description: 商品日报项
+        GoodsDayReportListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoodsDayReportItem'
+                    description: 商品日报明细
+            description: 商品日报列表响应
+        GoodsDayReportSummaryResponse:
+            type: object
+            properties:
+                viewCount:
+                    type: string
+                    description: 浏览次数
+                collectCount:
+                    type: string
+                    description: 收藏次数
+                cartCount:
+                    type: string
+                    description: 加购件数
+                orderCount:
+                    type: string
+                    description: 下单次数
+                payCount:
+                    type: string
+                    description: 支付次数
+                payGoodsNum:
+                    type: string
+                    description: 支付件数
+                payAmount:
+                    type: string
+                    description: 支付金额，单位分
+                score:
+                    type: number
+                    description: 热度分
+                    format: double
+                cartConversionRate:
+                    type: string
+                    description: 浏览加购转化率
+                orderConversionRate:
+                    type: string
+                    description: 加购下单转化率
+                payConversionRate:
+                    type: string
+                    description: 浏览支付转化率
+                payUnitPrice:
+                    type: string
+                    description: 件均成交价，单位分
+            description: 商品日报汇总响应
         GoodsInfo:
             type: object
             properties:
@@ -5804,6 +6039,100 @@ components:
                         $ref: '#/components/schemas/Spec_Item'
                     description: 商品规格内容
             description: 商品规格
+        GoodsMonthReportItem:
+            type: object
+            properties:
+                month:
+                    type: string
+                    description: 月份，格式：YYYY-MM
+                viewCount:
+                    type: string
+                    description: 浏览次数
+                collectCount:
+                    type: string
+                    description: 收藏次数
+                cartCount:
+                    type: string
+                    description: 加购件数
+                orderCount:
+                    type: string
+                    description: 下单次数
+                payCount:
+                    type: string
+                    description: 支付次数
+                payGoodsNum:
+                    type: string
+                    description: 支付件数
+                payAmount:
+                    type: string
+                    description: 支付金额，单位分
+                score:
+                    type: number
+                    description: 热度分
+                    format: double
+                cartConversionRate:
+                    type: string
+                    description: 浏览加购转化率
+                orderConversionRate:
+                    type: string
+                    description: 加购下单转化率
+                payConversionRate:
+                    type: string
+                    description: 浏览支付转化率
+                payUnitPrice:
+                    type: string
+                    description: 件均成交价，单位分
+            description: 商品月报项
+        GoodsMonthReportListResponse:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoodsMonthReportItem'
+                    description: 商品月报明细
+            description: 商品月报列表响应
+        GoodsMonthReportSummaryResponse:
+            type: object
+            properties:
+                viewCount:
+                    type: string
+                    description: 浏览次数
+                collectCount:
+                    type: string
+                    description: 收藏次数
+                cartCount:
+                    type: string
+                    description: 加购件数
+                orderCount:
+                    type: string
+                    description: 下单次数
+                payCount:
+                    type: string
+                    description: 支付次数
+                payGoodsNum:
+                    type: string
+                    description: 支付件数
+                payAmount:
+                    type: string
+                    description: 支付金额，单位分
+                score:
+                    type: number
+                    description: 热度分
+                    format: double
+                cartConversionRate:
+                    type: string
+                    description: 浏览加购转化率
+                orderConversionRate:
+                    type: string
+                    description: 加购下单转化率
+                payConversionRate:
+                    type: string
+                    description: 浏览支付转化率
+                payUnitPrice:
+                    type: string
+                    description: 件均成交价，单位分
+            description: 商品月报汇总响应
         GoodsProp:
             type: object
             properties:
@@ -8097,9 +8426,9 @@ components:
             description: 工作台待办响应
 tags:
     - name: AuthService
-      description: App用户登录认证服务
-    - name: AuthService
       description: Admin用户登录认证服务
+    - name: AuthService
+      description: App用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -8133,11 +8462,13 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: Admin商品信息服务
-    - name: GoodsInfoService
       description: App商品信息服务
+    - name: GoodsInfoService
+      description: Admin商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
+    - name: GoodsReportService
+      description: Admin商品报表服务
     - name: GoodsSkuService
       description: Admin商品SKU服务
     - name: GoodsSpecService
@@ -8167,9 +8498,9 @@ tags:
     - name: ShopHotService
       description: App热门推荐服务
     - name: ShopServiceService
-      description: App商城服务
-    - name: ShopServiceService
       description: Admin商城服务
+    - name: ShopServiceService
+      description: App商城服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService

@@ -1,5 +1,5 @@
 <template>
-  <DataPanelCard title="商品销量趋势" description="按时间维度观察销量和动销商品数变化。" primary>
+  <DataPanelCard title="商品行为趋势" description="按时间维度观察浏览、加购、成交件数和支付金额变化。">
     <ECharts :option="option" />
   </DataPanelCard>
 </template>
@@ -22,8 +22,26 @@ const trendData = reactive<AnalyticsTrendResponse>({
   yAxisNames: []
 });
 
+/** 根据后端返回的 Y 轴名称动态构造图表坐标轴。 */
+const yAxisList = computed(() => {
+  const axisNames = trendData.yAxisNames.length ? trendData.yAxisNames : ["次数 / 件数"];
+  return axisNames.map((name, index) => ({
+    type: "value",
+    name,
+    position: index % 2 === 0 ? "left" : "right",
+    axisLabel: {
+      color: "#6d7b8f"
+    },
+    splitLine: {
+      lineStyle: {
+        color: index === 0 ? "#edf2f7" : "transparent"
+      }
+    }
+  }));
+});
+
 const option = computed<ECOption>(() => ({
-  color: ["#f08c2e", "#2d6cdf", "#15a87b"],
+  color: ["#2d6cdf", "#f08c2e", "#15a87b", "#d9485f"],
   tooltip: {
     trigger: "axis",
     axisPointer: {
@@ -55,30 +73,19 @@ const option = computed<ECOption>(() => ({
       }
     }
   },
-  yAxis: [
-    {
-      type: "value",
-      name: trendData.yAxisNames[0] || "销量",
-      axisLabel: {
-        color: "#6d7b8f"
-      },
-      splitLine: {
-        lineStyle: {
-          color: "#edf2f7"
-        }
-      }
-    }
-  ],
+  yAxis: yAxisList.value,
   series: trendData.series.map(item => ({
     name: item.name,
     type: item.type === 1 ? "line" : "bar",
     smooth: item.type === 1,
+    yAxisIndex: item.yAxisIndex ?? 0,
     barMaxWidth: item.type === 0 ? 18 : undefined,
     itemStyle: item.type === 0 ? { borderRadius: [8, 8, 0, 0] } : undefined,
     data: item.data
   }))
 }));
 
+/** 加载商品行为趋势数据。 */
 async function loadData(timeType: AnalyticsTimeType) {
   const data = await defGoodsAnalyticsService.GetGoodsAnalyticsTrend({ timeType });
   Object.assign(trendData, data);

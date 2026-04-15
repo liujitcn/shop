@@ -65,6 +65,7 @@ func NewHttpServer(
 	adminBaseRole *admin.BaseRoleService,
 	adminBaseUser *admin.BaseUserService,
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
+	adminGoodsReport *admin.GoodsReportService,
 	adminGoodsCategory *admin.GoodsCategoryService,
 	adminGoodsProp *admin.GoodsPropService,
 	adminGoods *admin.GoodsInfoService,
@@ -123,6 +124,7 @@ func NewHttpServer(
 	adminApi.RegisterBaseRoleServiceHTTPServer(srv, adminBaseRole)
 	adminApi.RegisterBaseUserServiceHTTPServer(srv, adminBaseUser)
 	adminApi.RegisterGoodsAnalyticsServiceHTTPServer(srv, adminGoodsAnalytics)
+	adminApi.RegisterGoodsReportServiceHTTPServer(srv, adminGoodsReport)
 	adminApi.RegisterGoodsCategoryServiceHTTPServer(srv, adminGoodsCategory)
 	adminApi.RegisterGoodsPropServiceHTTPServer(srv, adminGoodsProp)
 	adminApi.RegisterGoodsInfoServiceHTTPServer(srv, adminGoods)

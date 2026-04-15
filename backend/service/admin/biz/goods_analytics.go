@@ -3,31 +3,38 @@ package biz
 import (
 	"context"
 	"sort"
+	"strconv"
 	"time"
 
 	adminApi "shop/api/gen/go/admin"
 	commonApi "shop/api/gen/go/common"
+	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/service/admin/dto"
 	"shop/service/admin/utils"
 )
 
-// GoodsAnalyticsCase 商品分析业务
+// GoodsAnalyticsCase 商品分析业务。
 type GoodsAnalyticsCase struct {
 	goodsInfoCase     *GoodsInfoCase
 	goodsCategoryCase *GoodsCategoryCase
-	orderGoodsCase    *OrderGoodsCase
+	goodsStatDayRepo  *data.GoodsStatDayRepo
 }
 
-// NewGoodsAnalyticsCase 创建商品分析业务
-func NewGoodsAnalyticsCase(goodsInfoCase *GoodsInfoCase, goodsCategoryCase *GoodsCategoryCase, orderGoodsCase *OrderGoodsCase) *GoodsAnalyticsCase {
+// NewGoodsAnalyticsCase 创建商品分析业务。
+func NewGoodsAnalyticsCase(
+	goodsInfoCase *GoodsInfoCase,
+	goodsCategoryCase *GoodsCategoryCase,
+	goodsStatDayRepo *data.GoodsStatDayRepo,
+) *GoodsAnalyticsCase {
 	return &GoodsAnalyticsCase{
 		goodsInfoCase:     goodsInfoCase,
 		goodsCategoryCase: goodsCategoryCase,
-		orderGoodsCase:    orderGoodsCase,
+		goodsStatDayRepo:  goodsStatDayRepo,
 	}
 }
 
-// GetGoodsAnalyticsSummary 查询商品摘要指标
+// GetGoodsAnalyticsSummary 查询商品摘要指标。
 func (c *GoodsAnalyticsCase) GetGoodsAnalyticsSummary(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*adminApi.GoodsAnalyticsSummaryResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
 	prevStartAt, prevEndAt := utils.GetPreviousAnalyticsTimeRange(req.GetTimeType(), startAt)
@@ -61,18 +68,32 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsSummary(ctx context.Context, req *
 	if err != nil {
 		return nil, err
 	}
+	behaviorSummary, err := c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
+	if err != nil {
+		return nil, err
+	}
 
 	return &adminApi.GoodsAnalyticsSummaryResponse{
-		NewGoodsCount:    newGoodsCount,
-		PutOnGoodsRate:   utils.CalcRatio(putOnGoodsCount, totalGoodsCount),
-		ActiveGoodsCount: activeGoodsCount,
-		ActiveGoodsRate:  utils.CalcRatio(activeGoodsCount, totalGoodsCount),
-		SaleCount:        saleCount,
-		SaleGrowthRate:   utils.CalcGrowthRate(prevSaleCount, saleCount),
+		NewGoodsCount:       newGoodsCount,
+		PutOnGoodsRate:      utils.CalcRatio(putOnGoodsCount, totalGoodsCount),
+		ActiveGoodsCount:    activeGoodsCount,
+		ActiveGoodsRate:     utils.CalcRatio(activeGoodsCount, totalGoodsCount),
+		SaleCount:           saleCount,
+		SaleGrowthRate:      utils.CalcGrowthRate(prevSaleCount, saleCount),
+		ViewCount:           behaviorSummary.ViewCount,
+		CollectCount:        behaviorSummary.CollectCount,
+		CartCount:           behaviorSummary.CartCount,
+		OrderCount:          behaviorSummary.OrderCount,
+		PayCount:            behaviorSummary.PayCount,
+		PayAmount:           behaviorSummary.PayAmount,
+		CartConversionRate:  utils.CalcRatio(behaviorSummary.CartCount, behaviorSummary.ViewCount),
+		OrderConversionRate: utils.CalcRatio(behaviorSummary.OrderCount, behaviorSummary.CartCount),
+		PayConversionRate:   utils.CalcRatio(behaviorSummary.PayCount, behaviorSummary.ViewCount),
+		PayUnitPrice:        utils.CalcPerUnit(behaviorSummary.PayAmount, behaviorSummary.PayGoodsNum),
 	}, nil
 }
 
-// GetGoodsAnalyticsTrend 查询商品趋势
+// GetGoodsAnalyticsTrend 查询商品趋势。
 func (c *GoodsAnalyticsCase) GetGoodsAnalyticsTrend(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsTrendResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
 	summary, axis, err := c.queryGoodsTrendSummary(ctx, req.GetTimeType(), startAt, endAt)
@@ -80,31 +101,33 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsTrend(ctx context.Context, req *co
 		return nil, err
 	}
 
-	saleRow := make([]int64, 0, len(axis))
-	activeGoodsRow := make([]int64, 0, len(axis))
+	viewRow := make([]int64, 0, len(axis))
+	cartRow := make([]int64, 0, len(axis))
+	payGoodsRow := make([]int64, 0, len(axis))
+	payAmountRow := make([]int64, 0, len(axis))
 	for i := range axis {
 		key := int64(i + 1)
-		saleRow = append(saleRow, summary[key].saleCount)
-		activeGoodsRow = append(activeGoodsRow, summary[key].activeGoodsCount)
+		viewRow = append(viewRow, summary[key].ViewCount)
+		cartRow = append(cartRow, summary[key].CartCount)
+		payGoodsRow = append(payGoodsRow, summary[key].PayGoodsNum)
+		payAmountRow = append(payAmountRow, summary[key].PayAmount/100)
 	}
 
 	return &commonApi.AnalyticsTrendResponse{
 		Axis: axis,
 		Series: []*commonApi.AnalyticsTrendSeries{
-			{Name: "销量", Type: commonApi.AnalyticsSeriesType_BAR, Data: saleRow},
-			{Name: "动销商品数", Type: commonApi.AnalyticsSeriesType_LINE, Data: activeGoodsRow},
+			{Name: "浏览次数", Type: commonApi.AnalyticsSeriesType_LINE, Data: viewRow, YAxisIndex: 0},
+			{Name: "加购件数", Type: commonApi.AnalyticsSeriesType_LINE, Data: cartRow, YAxisIndex: 0},
+			{Name: "支付件数", Type: commonApi.AnalyticsSeriesType_BAR, Data: payGoodsRow, YAxisIndex: 0},
+			{Name: "支付金额（元）", Type: commonApi.AnalyticsSeriesType_BAR, Data: payAmountRow, YAxisIndex: 1},
 		},
-		YAxisNames: []string{"销量"},
+		YAxisNames: []string{"次数 / 件数", "金额（元）"},
 	}, nil
 }
 
-// GetGoodsAnalyticsPie 查询商品分类分布
+// GetGoodsAnalyticsPie 查询商品分类分布。
 func (c *GoodsAnalyticsCase) GetGoodsAnalyticsPie(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsPieResponse, error) {
 	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
-	var summary []*struct {
-		GoodsCount int64
-		CategoryId int64
-	}
 	summary, err := c.queryGoodsCategorySummary(ctx, startAt, endAt)
 	if err != nil {
 		return nil, err
@@ -120,6 +143,38 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsPie(ctx context.Context, req *comm
 		})
 	}
 	return &commonApi.AnalyticsPieResponse{Items: items}, nil
+}
+
+// GetGoodsAnalyticsRank 查询商品支付排行。
+func (c *GoodsAnalyticsCase) GetGoodsAnalyticsRank(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsRankResponse, error) {
+	startAt, endAt := utils.GetAnalyticsTimeRange(req.GetTimeType())
+	rows, err := c.queryGoodsRankRows(ctx, startAt, endAt, 10)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIds := make([]int64, 0, len(rows))
+	for _, item := range rows {
+		goodsIds = append(goodsIds, item.GoodsId)
+	}
+	nameMap, err := c.loadGoodsNameMap(ctx, goodsIds)
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]*commonApi.AnalyticsRankItem, 0, len(rows))
+	for _, item := range rows {
+		name := nameMap[item.GoodsId]
+		// 名称缺失时，回退成商品编号，避免排行出现空标签。
+		if name == "" {
+			name = "商品#" + strconv.FormatInt(item.GoodsId, 10)
+		}
+		items = append(items, &commonApi.AnalyticsRankItem{
+			Name:  name,
+			Value: item.PayAmount / 100,
+		})
+	}
+	return &commonApi.AnalyticsRankResponse{Items: items}, nil
 }
 
 // countNewGoods 统计时间范围内新增商品数。
@@ -152,78 +207,84 @@ func (c *GoodsAnalyticsCase) countPutOnGoods(ctx context.Context) (int64, error)
 // countDistinctActiveGoods 统计时间范围内动销商品数。
 func (c *GoodsAnalyticsCase) countDistinctActiveGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	var count int64
-	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
-		Model(&models.OrderGoods{}).
-		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
-		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
-		Distinct("order_goods.goods_id").
+	err := c.goodsStatDayRepo.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsStatDay{}).
+		Where("stat_date >= ? AND stat_date < ? AND pay_goods_num > 0", startAt, endAt).
+		Distinct("goods_id").
 		Count(&count).Error
 	return count, err
 }
 
 // countGoodsSaleNum 统计时间范围内商品销量。
 func (c *GoodsAnalyticsCase) countGoodsSaleNum(ctx context.Context, startAt, endAt time.Time) (int64, error) {
-	type row struct {
-		SaleCount int64 `gorm:"column:sale_count"`
+	summary, err := c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
+	if err != nil {
+		return 0, err
 	}
-	var result row
-	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
-		Model(&models.OrderGoods{}).
-		Select("COALESCE(SUM(order_goods.num),0) AS sale_count").
-		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
-		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
-		Scan(&result).Error
-	return result.SaleCount, err
+	return summary.PayGoodsNum, nil
 }
 
-type goodsTrendSummary struct {
-	saleCount        int64
-	activeGoodsCount int64
+// queryGoodsBehaviorSummary 查询商品行为汇总。
+func (c *GoodsAnalyticsCase) queryGoodsBehaviorSummary(ctx context.Context, startAt, endAt time.Time) (*dto.GoodsAnalyticsSummaryRow, error) {
+	row := &dto.GoodsAnalyticsSummaryRow{}
+	err := c.goodsStatDayRepo.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsStatDay{}).
+		Select(""+
+			"COALESCE(SUM(view_count), 0) AS view_count,"+
+			" COALESCE(SUM(collect_count), 0) AS collect_count,"+
+			" COALESCE(SUM(cart_count), 0) AS cart_count,"+
+			" COALESCE(SUM(order_count), 0) AS order_count,"+
+			" COALESCE(SUM(pay_count), 0) AS pay_count,"+
+			" COALESCE(SUM(pay_goods_num), 0) AS pay_goods_num,"+
+			" COALESCE(SUM(pay_amount), 0) AS pay_amount").
+		Where("stat_date >= ? AND stat_date < ?", startAt, endAt).
+		Scan(row).Error
+	return row, err
 }
 
 // queryGoodsTrendSummary 查询商品趋势汇总数据。
-func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(ctx context.Context, timeType commonApi.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]goodsTrendSummary, []string, error) {
-	type row struct {
-		Key              int64 `gorm:"column:key"`
-		SaleCount        int64 `gorm:"column:sale_count"`
-		ActiveGoodsCount int64 `gorm:"column:active_goods_count"`
-	}
-	rows := make([]*row, 0)
-	selectExpr, axis := utils.GetAnalyticsGroupExpr(timeType, startAt, endAt)
-	err := c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
-		Model(&models.OrderGoods{}).
-		Select(selectExpr+" AS `key`, COALESCE(SUM(order_goods.num),0) AS sale_count, COUNT(DISTINCT order_goods.goods_id) AS active_goods_count").
-		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
-		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
+func (c *GoodsAnalyticsCase) queryGoodsTrendSummary(
+	ctx context.Context,
+	timeType commonApi.AnalyticsTimeType,
+	startAt, endAt time.Time,
+) (map[int64]dto.GoodsAnalyticsTrendBucket, []string, error) {
+	rows := make([]*dto.GoodsAnalyticsTrendRow, 0)
+	selectExpr, axis := utils.GetAnalyticsGroupExprByColumn(timeType, startAt, endAt, "stat_date")
+	err := c.goodsStatDayRepo.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsStatDay{}).
+		Select(selectExpr+" AS `key`,"+
+			" COALESCE(SUM(view_count), 0) AS view_count,"+
+			" COALESCE(SUM(cart_count), 0) AS cart_count,"+
+			" COALESCE(SUM(pay_goods_num), 0) AS pay_goods_num,"+
+			" COALESCE(SUM(pay_amount), 0) AS pay_amount").
+		Where("stat_date >= ? AND stat_date < ?", startAt, endAt).
 		Group("`key`").
 		Scan(&rows).Error
 	if err != nil {
 		return nil, nil, err
 	}
 
-	res := make(map[int64]goodsTrendSummary, len(axis))
+	res := make(map[int64]dto.GoodsAnalyticsTrendBucket, len(axis))
 	for _, item := range rows {
-		res[item.Key] = goodsTrendSummary{
-			saleCount:        item.SaleCount,
-			activeGoodsCount: item.ActiveGoodsCount,
+		res[item.Key] = dto.GoodsAnalyticsTrendBucket{
+			ViewCount:   item.ViewCount,
+			CartCount:   item.CartCount,
+			PayGoodsNum: item.PayGoodsNum,
+			PayAmount:   item.PayAmount,
 		}
 	}
-	// 补齐空档位，保证前端图表序列长度与横轴一致。
 	for i := range axis {
 		key := int64(i + 1)
-		// 当前桶位缺少聚合结果时，补一个空对象保证序列完整。
+		// 当前桶位缺少聚合结果时，补齐空对象保证前端序列完整。
 		if _, ok := res[key]; !ok {
-			res[key] = goodsTrendSummary{}
+			res[key] = dto.GoodsAnalyticsTrendBucket{}
 		}
 	}
 	return res, axis, nil
 }
 
-// queryGoodsCategorySummary 查询商品分类销量分布。
-func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, startAt, endAt time.Time) ([]*struct {
-	GoodsCount int64
-	CategoryId int64
-}, error) {
+// queryGoodsCategorySummary 查询商品分类分布。
+func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsAnalyticsCategorySummaryRow, error) {
 	categoryList, err := c.goodsCategoryCase.List(ctx)
 	if err != nil {
 		return nil, err
@@ -245,16 +306,13 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 		}
 	}
 
-	rows := make([]*struct {
-		GoodsCount int64 `gorm:"column:goods_count"`
-		CategoryId int64 `gorm:"column:category_id"`
-	}, 0)
-	err = c.orderGoodsCase.Query(ctx).OrderGoods.WithContext(ctx).UnderlyingDB().
-		Model(&models.OrderGoods{}).
-		Select(models.TableNameGoodsInfo+".category_id, COALESCE(SUM(order_goods.num),0) AS goods_count").
-		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = order_goods.goods_id").
-		Joins("JOIN `"+models.TableNameOrderInfo+"` ON `"+models.TableNameOrderInfo+"`.id = order_goods.order_id").
-		Where("`"+models.TableNameOrderInfo+"`.created_at >= ? AND `"+models.TableNameOrderInfo+"`.created_at < ?", startAt, endAt).
+	rows := make([]*dto.GoodsAnalyticsCategorySummaryRow, 0)
+	err = c.goodsStatDayRepo.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsStatDay{}).
+		Select(models.TableNameGoodsInfo+".category_id, COALESCE(SUM("+models.TableNameGoodsStatDay+".pay_goods_num),0) AS goods_count").
+		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = "+models.TableNameGoodsStatDay+".goods_id").
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
+		Where(models.TableNameGoodsStatDay+".stat_date >= ? AND "+models.TableNameGoodsStatDay+".stat_date < ?", startAt, endAt).
 		Group(models.TableNameGoodsInfo + ".category_id").
 		Scan(&rows).Error
 	if err != nil {
@@ -263,21 +321,59 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 
 	rootCategoryCount := make(map[int64]int64)
 	for _, row := range rows {
-		// 将子分类销量汇总到一级分类，便于页面展示大类分布。
+		// 将子分类成交件数汇总到一级分类，便于页面展示类目结构。
 		rootId := getRootCategoryId(row.CategoryId)
 		rootCategoryCount[rootId] += row.GoodsCount
 	}
 
-	res := make([]*struct {
-		GoodsCount int64
-		CategoryId int64
-	}, 0, len(rootCategoryCount))
+	res := make([]*dto.GoodsAnalyticsCategorySummaryRow, 0, len(rootCategoryCount))
 	for categoryId, count := range rootCategoryCount {
-		res = append(res, &struct {
-			GoodsCount int64
-			CategoryId int64
-		}{GoodsCount: count, CategoryId: categoryId})
+		res = append(res, &dto.GoodsAnalyticsCategorySummaryRow{
+			CategoryId: categoryId,
+			GoodsCount: count,
+		})
 	}
-	sort.Slice(res, func(i, j int) bool { return res[i].GoodsCount > res[j].GoodsCount })
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].GoodsCount > res[j].GoodsCount
+	})
+	return res, nil
+}
+
+// queryGoodsRankRows 查询商品支付排行。
+func (c *GoodsAnalyticsCase) queryGoodsRankRows(ctx context.Context, startAt, endAt time.Time, limit int) ([]*dto.GoodsAnalyticsRankRow, error) {
+	rows := make([]*dto.GoodsAnalyticsRankRow, 0)
+	err := c.goodsStatDayRepo.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsStatDay{}).
+		Select("goods_id, COALESCE(SUM(pay_amount), 0) AS pay_amount").
+		Where("stat_date >= ? AND stat_date < ?", startAt, endAt).
+		Group("goods_id").
+		Order("pay_amount DESC").
+		Limit(limit).
+		Scan(&rows).Error
+	return rows, err
+}
+
+// loadGoodsNameMap 加载商品名称映射。
+func (c *GoodsAnalyticsCase) loadGoodsNameMap(ctx context.Context, goodsIds []int64) (map[int64]string, error) {
+	// 排行结果为空时，不需要回查商品名称。
+	if len(goodsIds) == 0 {
+		return map[int64]string{}, nil
+	}
+
+	rows := make([]*dto.GoodsNameRow, 0, len(goodsIds))
+	err := c.goodsInfoCase.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
+		Select("id, name").
+		Where("deleted_at IS NULL").
+		Where("id IN ?", goodsIds).
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[int64]string, len(rows))
+	for _, item := range rows {
+		res[item.GoodsId] = item.Name
+	}
 	return res, nil
 }

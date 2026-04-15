@@ -29,6 +29,13 @@ service GoodsAnalyticsService {
       get: "/api/admin/analytics/goods/pie"
     };
   }
+
+  // 查询商品支付排行
+  rpc GetGoodsAnalyticsRank (common.AnalyticsTimeRequest) returns (common.AnalyticsRankResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/analytics/goods/rank"
+    };
+  }
 }
 
 // 商品分析汇总响应
@@ -51,4 +58,34 @@ message GoodsAnalyticsSummaryResponse {
   int64 saleGrowthRate = 6 [
     (gnostic.openapi.v3.property) = {description: "销售增长率"}
   ]; // 销售增长率
+  int64 viewCount = 7 [
+    (gnostic.openapi.v3.property) = {description: "浏览次数"}
+  ]; // 浏览次数
+  int64 collectCount = 8 [
+    (gnostic.openapi.v3.property) = {description: "收藏次数"}
+  ]; // 收藏次数
+  int64 cartCount = 9 [
+    (gnostic.openapi.v3.property) = {description: "加购件数"}
+  ]; // 加购件数
+  int64 orderCount = 10 [
+    (gnostic.openapi.v3.property) = {description: "下单次数"}
+  ]; // 下单次数
+  int64 payCount = 11 [
+    (gnostic.openapi.v3.property) = {description: "支付次数"}
+  ]; // 支付次数
+  int64 payAmount = 12 [
+    (gnostic.openapi.v3.property) = {description: "支付金额，单位分"}
+  ]; // 支付金额，单位分
+  int64 cartConversionRate = 13 [
+    (gnostic.openapi.v3.property) = {description: "浏览加购转化率"}
+  ]; // 浏览加购转化率
+  int64 orderConversionRate = 14 [
+    (gnostic.openapi.v3.property) = {description: "加购下单转化率"}
+  ]; // 加购下单转化率
+  int64 payConversionRate = 15 [
+    (gnostic.openapi.v3.property) = {description: "浏览支付转化率"}
+  ]; // 浏览支付转化率
+  int64 payUnitPrice = 16 [
+    (gnostic.openapi.v3.property) = {description: "件均成交价，单位分"}
+  ]; // 件均成交价，单位分
 }

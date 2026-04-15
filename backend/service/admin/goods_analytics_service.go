@@ -58,3 +58,13 @@ func (s *GoodsAnalyticsService) GetGoodsAnalyticsPie(ctx context.Context, req *c
 	}
 	return res, nil
 }
+
+// GetGoodsAnalyticsRank 查询商品支付排行
+func (s *GoodsAnalyticsService) GetGoodsAnalyticsRank(ctx context.Context, req *commonApi.AnalyticsTimeRequest) (*commonApi.AnalyticsRankResponse, error) {
+	res, err := s.goodsAnalyticsCase.GetGoodsAnalyticsRank(ctx, req)
+	if err != nil {
+		log.Errorf("GetGoodsAnalyticsRank %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品支付排行失败")
+	}
+	return res, nil
+}

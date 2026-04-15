@@ -22,12 +22,15 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationGoodsAnalyticsServiceGetGoodsAnalyticsPie = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsPie"
+const OperationGoodsAnalyticsServiceGetGoodsAnalyticsRank = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsRank"
 const OperationGoodsAnalyticsServiceGetGoodsAnalyticsSummary = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsSummary"
 const OperationGoodsAnalyticsServiceGetGoodsAnalyticsTrend = "/admin.GoodsAnalyticsService/GetGoodsAnalyticsTrend"
 
 type GoodsAnalyticsServiceHTTPServer interface {
 	// GetGoodsAnalyticsPie 查询商品分类分布
 	GetGoodsAnalyticsPie(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsPieResponse, error)
+	// GetGoodsAnalyticsRank 查询商品支付排行
+	GetGoodsAnalyticsRank(context.Context, *common.AnalyticsTimeRequest) (*common.AnalyticsRankResponse, error)
 	// GetGoodsAnalyticsSummary 查询商品摘要指标
 	GetGoodsAnalyticsSummary(context.Context, *common.AnalyticsTimeRequest) (*GoodsAnalyticsSummaryResponse, error)
 	// GetGoodsAnalyticsTrend 查询商品趋势
@@ -39,6 +42,7 @@ func RegisterGoodsAnalyticsServiceHTTPServer(s *http.Server, srv GoodsAnalyticsS
 	r.GET("/api/admin/analytics/goods/summary", _GoodsAnalyticsService_GetGoodsAnalyticsSummary0_HTTP_Handler(srv))
 	r.GET("/api/admin/analytics/goods/trend", _GoodsAnalyticsService_GetGoodsAnalyticsTrend0_HTTP_Handler(srv))
 	r.GET("/api/admin/analytics/goods/pie", _GoodsAnalyticsService_GetGoodsAnalyticsPie0_HTTP_Handler(srv))
+	r.GET("/api/admin/analytics/goods/rank", _GoodsAnalyticsService_GetGoodsAnalyticsRank0_HTTP_Handler(srv))
 }
 
 func _GoodsAnalyticsService_GetGoodsAnalyticsSummary0_HTTP_Handler(srv GoodsAnalyticsServiceHTTPServer) func(ctx http.Context) error {
@@ -98,9 +102,30 @@ func _GoodsAnalyticsService_GetGoodsAnalyticsPie0_HTTP_Handler(srv GoodsAnalytic
 	}
 }
 
+func _GoodsAnalyticsService_GetGoodsAnalyticsRank0_HTTP_Handler(srv GoodsAnalyticsServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in common.AnalyticsTimeRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGoodsAnalyticsServiceGetGoodsAnalyticsRank)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetGoodsAnalyticsRank(ctx, req.(*common.AnalyticsTimeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*common.AnalyticsRankResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GoodsAnalyticsServiceHTTPClient interface {
 	// GetGoodsAnalyticsPie 查询商品分类分布
 	GetGoodsAnalyticsPie(ctx context.Context, req *common.AnalyticsTimeRequest, opts ...http.CallOption) (rsp *common.AnalyticsPieResponse, err error)
+	// GetGoodsAnalyticsRank 查询商品支付排行
+	GetGoodsAnalyticsRank(ctx context.Context, req *common.AnalyticsTimeRequest, opts ...http.CallOption) (rsp *common.AnalyticsRankResponse, err error)
 	// GetGoodsAnalyticsSummary 查询商品摘要指标
 	GetGoodsAnalyticsSummary(ctx context.Context, req *common.AnalyticsTimeRequest, opts ...http.CallOption) (rsp *GoodsAnalyticsSummaryResponse, err error)
 	// GetGoodsAnalyticsTrend 查询商品趋势
@@ -121,6 +146,20 @@ func (c *GoodsAnalyticsServiceHTTPClientImpl) GetGoodsAnalyticsPie(ctx context.C
 	pattern := "/api/admin/analytics/goods/pie"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationGoodsAnalyticsServiceGetGoodsAnalyticsPie))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetGoodsAnalyticsRank 查询商品支付排行
+func (c *GoodsAnalyticsServiceHTTPClientImpl) GetGoodsAnalyticsRank(ctx context.Context, in *common.AnalyticsTimeRequest, opts ...http.CallOption) (*common.AnalyticsRankResponse, error) {
+	var out common.AnalyticsRankResponse
+	pattern := "/api/admin/analytics/goods/rank"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationGoodsAnalyticsServiceGetGoodsAnalyticsRank))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

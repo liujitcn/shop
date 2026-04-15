@@ -27,15 +27,25 @@ const (
 
 // 商品分析汇总响应
 type GoodsAnalyticsSummaryResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	NewGoodsCount    int64                  `protobuf:"varint,1,opt,name=newGoodsCount,proto3" json:"newGoodsCount,omitempty"`       // 新增商品数
-	PutOnGoodsRate   int64                  `protobuf:"varint,2,opt,name=putOnGoodsRate,proto3" json:"putOnGoodsRate,omitempty"`     // 上架商品占比
-	ActiveGoodsCount int64                  `protobuf:"varint,3,opt,name=activeGoodsCount,proto3" json:"activeGoodsCount,omitempty"` // 活跃商品数
-	ActiveGoodsRate  int64                  `protobuf:"varint,4,opt,name=activeGoodsRate,proto3" json:"activeGoodsRate,omitempty"`   // 活跃商品占比
-	SaleCount        int64                  `protobuf:"varint,5,opt,name=saleCount,proto3" json:"saleCount,omitempty"`               // 销售件数
-	SaleGrowthRate   int64                  `protobuf:"varint,6,opt,name=saleGrowthRate,proto3" json:"saleGrowthRate,omitempty"`     // 销售增长率
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	NewGoodsCount       int64                  `protobuf:"varint,1,opt,name=newGoodsCount,proto3" json:"newGoodsCount,omitempty"`              // 新增商品数
+	PutOnGoodsRate      int64                  `protobuf:"varint,2,opt,name=putOnGoodsRate,proto3" json:"putOnGoodsRate,omitempty"`            // 上架商品占比
+	ActiveGoodsCount    int64                  `protobuf:"varint,3,opt,name=activeGoodsCount,proto3" json:"activeGoodsCount,omitempty"`        // 活跃商品数
+	ActiveGoodsRate     int64                  `protobuf:"varint,4,opt,name=activeGoodsRate,proto3" json:"activeGoodsRate,omitempty"`          // 活跃商品占比
+	SaleCount           int64                  `protobuf:"varint,5,opt,name=saleCount,proto3" json:"saleCount,omitempty"`                      // 销售件数
+	SaleGrowthRate      int64                  `protobuf:"varint,6,opt,name=saleGrowthRate,proto3" json:"saleGrowthRate,omitempty"`            // 销售增长率
+	ViewCount           int64                  `protobuf:"varint,7,opt,name=viewCount,proto3" json:"viewCount,omitempty"`                      // 浏览次数
+	CollectCount        int64                  `protobuf:"varint,8,opt,name=collectCount,proto3" json:"collectCount,omitempty"`                // 收藏次数
+	CartCount           int64                  `protobuf:"varint,9,opt,name=cartCount,proto3" json:"cartCount,omitempty"`                      // 加购件数
+	OrderCount          int64                  `protobuf:"varint,10,opt,name=orderCount,proto3" json:"orderCount,omitempty"`                   // 下单次数
+	PayCount            int64                  `protobuf:"varint,11,opt,name=payCount,proto3" json:"payCount,omitempty"`                       // 支付次数
+	PayAmount           int64                  `protobuf:"varint,12,opt,name=payAmount,proto3" json:"payAmount,omitempty"`                     // 支付金额，单位分
+	CartConversionRate  int64                  `protobuf:"varint,13,opt,name=cartConversionRate,proto3" json:"cartConversionRate,omitempty"`   // 浏览加购转化率
+	OrderConversionRate int64                  `protobuf:"varint,14,opt,name=orderConversionRate,proto3" json:"orderConversionRate,omitempty"` // 加购下单转化率
+	PayConversionRate   int64                  `protobuf:"varint,15,opt,name=payConversionRate,proto3" json:"payConversionRate,omitempty"`     // 浏览支付转化率
+	PayUnitPrice        int64                  `protobuf:"varint,16,opt,name=payUnitPrice,proto3" json:"payUnitPrice,omitempty"`               // 件均成交价，单位分
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *GoodsAnalyticsSummaryResponse) Reset() {
@@ -110,22 +120,106 @@ func (x *GoodsAnalyticsSummaryResponse) GetSaleGrowthRate() int64 {
 	return 0
 }
 
+func (x *GoodsAnalyticsSummaryResponse) GetViewCount() int64 {
+	if x != nil {
+		return x.ViewCount
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetCollectCount() int64 {
+	if x != nil {
+		return x.CollectCount
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetCartCount() int64 {
+	if x != nil {
+		return x.CartCount
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetOrderCount() int64 {
+	if x != nil {
+		return x.OrderCount
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetPayCount() int64 {
+	if x != nil {
+		return x.PayCount
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetPayAmount() int64 {
+	if x != nil {
+		return x.PayAmount
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetCartConversionRate() int64 {
+	if x != nil {
+		return x.CartConversionRate
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetOrderConversionRate() int64 {
+	if x != nil {
+		return x.OrderConversionRate
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetPayConversionRate() int64 {
+	if x != nil {
+		return x.PayConversionRate
+	}
+	return 0
+}
+
+func (x *GoodsAnalyticsSummaryResponse) GetPayUnitPrice() int64 {
+	if x != nil {
+		return x.PayUnitPrice
+	}
+	return 0
+}
+
 var File_admin_goods_analytics_proto protoreflect.FileDescriptor
 
 const file_admin_goods_analytics_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/goods_analytics.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\x96\x03\n" +
+	"\x1badmin/goods_analytics.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x16common/analytics.proto\"\x82\b\n" +
 	"\x1dGoodsAnalyticsSummaryResponse\x12;\n" +
 	"\rnewGoodsCount\x18\x01 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f新增商品数R\rnewGoodsCount\x12@\n" +
 	"\x0eputOnGoodsRate\x18\x02 \x01(\x03B\x18\xbaG\x15\x92\x02\x12上架商品占比R\x0eputOnGoodsRate\x12A\n" +
 	"\x10activeGoodsCount\x18\x03 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f活跃商品数R\x10activeGoodsCount\x12B\n" +
 	"\x0factiveGoodsRate\x18\x04 \x01(\x03B\x18\xbaG\x15\x92\x02\x12活跃商品占比R\x0factiveGoodsRate\x120\n" +
 	"\tsaleCount\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f销售件数R\tsaleCount\x12=\n" +
-	"\x0esaleGrowthRate\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f销售增长率R\x0esaleGrowthRate2\xa3\x03\n" +
+	"\x0esaleGrowthRate\x18\x06 \x01(\x03B\x15\xbaG\x12\x92\x02\x0f销售增长率R\x0esaleGrowthRate\x120\n" +
+	"\tviewCount\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f浏览次数R\tviewCount\x126\n" +
+	"\fcollectCount\x18\b \x01(\x03B\x12\xbaG\x0f\x92\x02\f收藏次数R\fcollectCount\x120\n" +
+	"\tcartCount\x18\t \x01(\x03B\x12\xbaG\x0f\x92\x02\f加购件数R\tcartCount\x122\n" +
+	"\n" +
+	"orderCount\x18\n" +
+	" \x01(\x03B\x12\xbaG\x0f\x92\x02\f下单次数R\n" +
+	"orderCount\x12.\n" +
+	"\bpayCount\x18\v \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付次数R\bpayCount\x12<\n" +
+	"\tpayAmount\x18\f \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12K\n" +
+	"\x12cartConversionRate\x18\r \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12M\n" +
+	"\x13orderConversionRate\x18\x0e \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12I\n" +
+	"\x11payConversionRate\x18\x0f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12E\n" +
+	"\fpayUnitPrice\x18\x10 \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice2\xa2\x04\n" +
 	"\x15GoodsAnalyticsService\x12\x8a\x01\n" +
 	"\x18GetGoodsAnalyticsSummary\x12\x1c.common.AnalyticsTimeRequest\x1a$.admin.GoodsAnalyticsSummaryResponse\"*\x82\xd3\xe4\x93\x02$\x12\"/api/admin/analytics/goods/summary\x12\x80\x01\n" +
 	"\x16GetGoodsAnalyticsTrend\x12\x1c.common.AnalyticsTimeRequest\x1a\x1e.common.AnalyticsTrendResponse\"(\x82\xd3\xe4\x93\x02\"\x12 /api/admin/analytics/goods/trend\x12z\n" +
-	"\x14GetGoodsAnalyticsPie\x12\x1c.common.AnalyticsTimeRequest\x1a\x1c.common.AnalyticsPieResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/goods/pieBk\n" +
+	"\x14GetGoodsAnalyticsPie\x12\x1c.common.AnalyticsTimeRequest\x1a\x1c.common.AnalyticsPieResponse\"&\x82\xd3\xe4\x93\x02 \x12\x1e/api/admin/analytics/goods/pie\x12}\n" +
+	"\x15GetGoodsAnalyticsRank\x12\x1c.common.AnalyticsTimeRequest\x1a\x1d.common.AnalyticsRankResponse\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/admin/analytics/goods/rankBk\n" +
 	"\tcom.adminB\x13GoodsAnalyticsProtoP\x01Z\x15shop/api/gen/go/admin\xa2\x02\x03AXX\xaa\x02\x05Admin\xca\x02\x05Admin\xe2\x02\x11Admin\\GPBMetadata\xea\x02\x05Adminb\x06proto3"
 
 var (
@@ -146,16 +240,19 @@ var file_admin_goods_analytics_proto_goTypes = []any{
 	(*common.AnalyticsTimeRequest)(nil),   // 1: common.AnalyticsTimeRequest
 	(*common.AnalyticsTrendResponse)(nil), // 2: common.AnalyticsTrendResponse
 	(*common.AnalyticsPieResponse)(nil),   // 3: common.AnalyticsPieResponse
+	(*common.AnalyticsRankResponse)(nil),  // 4: common.AnalyticsRankResponse
 }
 var file_admin_goods_analytics_proto_depIdxs = []int32{
 	1, // 0: admin.GoodsAnalyticsService.GetGoodsAnalyticsSummary:input_type -> common.AnalyticsTimeRequest
 	1, // 1: admin.GoodsAnalyticsService.GetGoodsAnalyticsTrend:input_type -> common.AnalyticsTimeRequest
 	1, // 2: admin.GoodsAnalyticsService.GetGoodsAnalyticsPie:input_type -> common.AnalyticsTimeRequest
-	0, // 3: admin.GoodsAnalyticsService.GetGoodsAnalyticsSummary:output_type -> admin.GoodsAnalyticsSummaryResponse
-	2, // 4: admin.GoodsAnalyticsService.GetGoodsAnalyticsTrend:output_type -> common.AnalyticsTrendResponse
-	3, // 5: admin.GoodsAnalyticsService.GetGoodsAnalyticsPie:output_type -> common.AnalyticsPieResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	1, // 3: admin.GoodsAnalyticsService.GetGoodsAnalyticsRank:input_type -> common.AnalyticsTimeRequest
+	0, // 4: admin.GoodsAnalyticsService.GetGoodsAnalyticsSummary:output_type -> admin.GoodsAnalyticsSummaryResponse
+	2, // 5: admin.GoodsAnalyticsService.GetGoodsAnalyticsTrend:output_type -> common.AnalyticsTrendResponse
+	3, // 6: admin.GoodsAnalyticsService.GetGoodsAnalyticsPie:output_type -> common.AnalyticsPieResponse
+	4, // 7: admin.GoodsAnalyticsService.GetGoodsAnalyticsRank:output_type -> common.AnalyticsRankResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

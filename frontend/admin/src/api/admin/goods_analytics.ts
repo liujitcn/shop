@@ -1,7 +1,12 @@
 import service from "@/utils/request";
 import type { GoodsAnalyticsService } from "@/rpc/admin/goods_analytics";
 import type { GoodsAnalyticsSummaryResponse } from "@/rpc/admin/goods_analytics";
-import type { AnalyticsPieResponse, AnalyticsTimeRequest, AnalyticsTrendResponse } from "@/rpc/common/analytics";
+import type {
+  AnalyticsPieResponse,
+  AnalyticsRankResponse,
+  AnalyticsTimeRequest,
+  AnalyticsTrendResponse
+} from "@/rpc/common/analytics";
 
 const ADMIN_ANALYTICS = "/admin/analytics";
 
@@ -29,6 +34,15 @@ export class GoodsAnalyticsServiceImpl implements GoodsAnalyticsService {
   GetGoodsAnalyticsPie(request: AnalyticsTimeRequest): Promise<AnalyticsPieResponse> {
     return service<AnalyticsTimeRequest, AnalyticsPieResponse>({
       url: `${ADMIN_ANALYTICS}/goods/pie`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询商品支付排行 */
+  GetGoodsAnalyticsRank(request: AnalyticsTimeRequest): Promise<AnalyticsRankResponse> {
+    return service<AnalyticsTimeRequest, AnalyticsRankResponse>({
+      url: `${ADMIN_ANALYTICS}/goods/rank`,
       method: "get",
       params: request
     });

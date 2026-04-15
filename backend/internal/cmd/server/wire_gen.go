@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -21,17 +28,10 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -220,9 +220,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	goodsSkuRepo := data.NewGoodsSkuRepo(dataData)
 	goodsSkuCase := biz3.NewGoodsSkuCase(baseCase, goodsSkuRepo)
 	goodsInfoCase := biz3.NewGoodsInfoCase(baseCase, transaction, goodsInfoRepo, goodsCategoryCase, goodsPropCase, goodsSpecCase, goodsSkuCase)
-	orderGoodsCase := biz3.NewOrderGoodsCase(baseCase, orderGoodsRepo)
-	goodsAnalyticsCase := biz3.NewGoodsAnalyticsCase(goodsInfoCase, goodsCategoryCase, orderGoodsCase)
+	goodsAnalyticsCase := biz3.NewGoodsAnalyticsCase(goodsInfoCase, goodsCategoryCase, goodsStatDayRepo)
 	goodsAnalyticsService := admin.NewGoodsAnalyticsService(goodsAnalyticsCase)
+	goodsReportCase := biz3.NewGoodsReportCase(baseCase, goodsStatDayRepo)
+	goodsReportService := admin.NewGoodsReportService(goodsReportCase)
 	goodsCategoryService := admin.NewGoodsCategoryService(goodsCategoryCase)
 	goodsPropService := admin.NewGoodsPropService(goodsPropCase)
 	goodsInfoService := admin.NewGoodsInfoService(goodsInfoCase)
@@ -232,6 +233,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderAddressCase := biz3.NewOrderAddressCase(baseCase, orderAddressRepo)
 	orderCancelRepo := data.NewOrderCancelRepo(dataData)
 	orderCancelCase := biz3.NewOrderCancelCase(baseCase, orderCancelRepo)
+	orderGoodsCase := biz3.NewOrderGoodsCase(baseCase, orderGoodsRepo)
 	orderLogisticsRepo := data.NewOrderLogisticsRepo(dataData)
 	orderLogisticsCase := biz3.NewOrderLogisticsCase(baseCase, orderLogisticsRepo)
 	orderPaymentCase := biz3.NewOrderPaymentCase(baseCase, orderPaymentRepo)
@@ -340,7 +342,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseUserCase2 := biz4.NewBaseUserCase(baseUserRepo)
 	loginCase := biz4.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2)
 	loginService := base.NewLoginService(loginCase)
-	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
+	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -349,7 +351,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	httpMiddlewares := server.NewHttpMiddleware(context, authenticator, baseUserRepo, engine, userToken, authentication_Jwt)
-	httpServer, err := server.NewHttpServer(context, httpMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
+	httpServer, err := server.NewHttpServer(context, httpMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
 	if err != nil {
 		cleanup4()
 		cleanup3()
