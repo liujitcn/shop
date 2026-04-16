@@ -43,6 +43,13 @@ backend
 - 行为链路已覆盖推荐请求、曝光、点击、浏览、收藏、加购、下单、支付。
 - 排序采用“场景关联 + 用户商品偏好 + 类目偏好 + 场景热度 + 全站热度 + 新鲜度”的统一组合，并带有重复购买降权、曝光惩罚和类目打散。
 - 推荐公共能力下沉在 `pkg/recommend`，推荐链路 DTO 统一放在 `service/app/dto`，商城推荐业务按 Case 拆分在 `service/app/biz`。
+
+当前推荐重构另外补充以下边界约定：
+
+- `pkg/recommend` 只允许放领域对象、纯逻辑、纯规则和纯编排，不允许放 Repo、GORM、SQL 条件拼装、查询桥接接口，也不允许设计查询数据库语义。
+- `service/app/biz` 只允许保留表名相关 Case，不允许继续新增 `recommendAnonymousCandidateLoader`、`recommendCategoryCandidateLoader` 这类非表名相关结构。
+- `RecommendCase` 不允许继续新增新的辅助方法承载推荐主链路细节，只允许引入并调用其他已有 Case。
+- 现有不符合上述边界的 loader / adapter 风格实现视为阶段 6 过渡代码，后续不再继续扩张，优先做收口和回退。
 - 当前阶段 2 已将商品行为投影器、用户商品偏好、用户类目偏好、商品关联以及推荐商品日统计的离线聚合统一收口到 `pkg/recommend/offline/aggregate`，`service/app/biz` 和 `pkg/job/task` 中的推荐聚合入口仅保留事实查询、删旧数据、调用聚合器和批量落库。
 - 当前阶段 3 已补齐推荐缓存 key 规范、`kratos-kit/cache` 适配层与 `hot`、`latest`、`similar_item` 三类结果的写缓存任务，并在在线推荐链路接入“缓存优先，未命中查库”的读取挂点；当前无 Redis 时走内存后端，有 Redis 时直接复用 Redis 发布缓存。
 - 推荐请求的在线排障字段会统一收口到 `sourceContext.onlineDebugContext`，当前已覆盖 `cacheHitSources`、`cacheReadContext`、`recallProbeContext`、`joinRecallContext`、`similarUserObservationContext` 等调试信息。
@@ -50,31 +57,11 @@ backend
 - 当前阶段 4 的灰度召回还会把 `joinRecallContext` 收口到 `onlineDebugContext`，用于区分“已并入候选”“实际进入候选池”“实际返回到当前页”三层命中情况。
 - 当前阶段 4 还会把相似用户探针的观测结果收口到 `onlineDebugContext.similarUserObservationContext`，用于查看相似用户偏好商品与当前候选、当前返回页，以及协同过滤和内容相似灰度结果的重合数量和覆盖率。
 - 当前阶段 4 和阶段 5 之间，在线读缓存与召回探针还会把版本号、版本发布时间、缓存发布时间、文档数量、请求返回数量等读取元信息收口到 `cacheReadContext` 与探针子上下文，便于排查“命中了哪一版缓存、这版缓存是什么时间写出来的、当前返回了多少条”。
-- 当前阶段 6 已开始把在线层纯逻辑从 `service/app/biz` 下沉到 `pkg/recommend/online`；首批已新增 `pkg/recommend/online/recall`，承接探针结果解析、灰度召回上下文归一化和相似用户观测逻辑，主推荐入口暂未切换。
-- 当前阶段 6 继续新增了 `pkg/recommend/online/planner`，用于承接匿名态和登录态请求的前置计划对象，把 `priority/category/recall/cache` 这些在线编排状态从 `service/app/biz/recommend_request.go` 收口到在线层，主推荐读取和结果落库流程暂未改写。
-- 当前阶段 6 还继续把 `CART`、`ORDER_*`、`GOODS_DETAIL`、`profile` 和 `latest` fallback 的场景级规划动作下沉到 `pkg/recommend/online/planner`，当前 `service/app/biz/recommend_request.go` 中的场景 `switch` 已开始只保留查库和桥接职责。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/planner.SceneInput`，用于承接购物车商品、订单商品、源商品、场景优先候选、类目补足和缓存命中来源等桥接输入，并统一构建 `orderId`、`goodsId`、`cartGoodsIds`、`orderGoodsIds`、`sourceGoodsIds` 等在线来源上下文字段。
-- 当前阶段 6 还继续把结果来源上下文和在线调试上下文的组装收口到 `pkg/recommend/online/planner`，匿名态与登录态现在都会先通过 planner 构建结果上下文，再由 planner 统一补 join recall 和 similar-user observation 调试字段。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/planner.ResultSnapshot`，用于承接 `candidateLimit`、`sceneHotGoodsIds`、`candidateGoodsIds`、`anonymousCandidateGoodsIds`、`returnedScoreDetails` 等结果快照字段，匿名态与登录态的最终来源上下文现在也开始通过 planner 结果对象统一构建。
-- 当前阶段 6 又继续补了候选池状态方法，用于承接类目补足候选、latest 候选、latest 排除集合、匿名态场景候选合并和登录态最终候选集合合并，`service/app/biz/recommend_request.go` 中这类纯集合状态和去重规则继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了候选池查询参数计划，用于承接类目补足查询参数、latest 查询参数和匿名态 latest fallback 判断，`service/app/biz/recommend_request.go` 中这类“是否需要查、查多少、排除哪些商品”的纯参数决策也开始通过 planner 统一组织。
-- 当前阶段 6 又继续补了共享候选池桥接查询方法，类目补足和 latest 兜底的商品 ID 提取逻辑已经开始复用统一实现，`service/app/biz/recommend_request.go` 中重复的查询拼装与结果提取代码进一步缩短。
-- 当前阶段 6 又继续补了匿名态 latest 回退商品列表桥接方法，把 latest fallback 的分页查询与总数返回逻辑继续从主链路函数里抽离，匿名态 latest 回退分支现在更接近“计划决策 + 桥接调用”的结构。
-- 当前阶段 6 又继续补了排序信号快照方法，用于承接匿名态与登录态候选商品列表的过滤、商品 ID 提取和类目 ID 提取，`service/app/biz/recommend_request.go` 中候选信号加载前的结果整理逻辑继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了分页 explain 快照方法，用于统一承接当前页召回来源列表、评分明细和返回商品编号提取，`service/app/biz/recommend_request.go` 中匿名态与登录态的 explain 组装循环继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了排序结果分页窗口快照方法，用于统一承接总数计算、分页窗口切片和空页判定，`service/app/biz/recommend_request.go` 中匿名态与登录态的分页窗口和空页分支继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了结果回写桥接方法，用于统一承接匿名态 latest fallback、匿名态空页、匿名态正常页、登录态空页和登录态正常页的 `ResultSnapshot` 构建与 `sourceContext` 回写，`service/app/biz/recommend_request.go` 中末尾结果回写分支继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了排序信号加载计划，用于统一承接匿名态与登录态的场景编号、候选商品编号、候选类目编号和关系分源商品编号，`service/app/biz/recommend_request.go` 中排序信号加载前的参数组织继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了领域信号桥接方法，用于统一承接匿名态 `AnonymousSignals` 与登录态 `PersonalizedSignals` 的组装，`service/app/biz/recommend_request.go` 中信号加载完成后的领域对象桥接继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了 explain 召回补标方法，用于统一承接匿名态内容相似灰度补标，以及登录态内容相似、协同过滤灰度补标，`service/app/biz/recommend_request.go` 中灰度召回 explain 补标逻辑继续从主链路函数里迁出。
-- 当前阶段 6 又继续补了共享分页桥接底层方法，用于统一承接类目补足、latest 候选和 latest fallback 的 `PageGoodsInfo` 调用、排除商品过滤和分页参数拼装，`service/app/biz/recommend_request.go` 中三类分页桥接查询的底层实现继续收口。
-- 当前阶段 6 已开始补 `pkg/recommend/online/record`，首批承接推荐请求主表 `sourceContext` 的持久化整理和在线调试上下文压缩，`service/app/biz/recommend_request.go` 中主表上下文裁剪逻辑已开始从保存函数里迁出。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/record` 的逐商品明细模型构建方法，用于统一承接 `returnedScoreDetails` 索引收敛、单商品召回来源回退和 `RecommendRequestItem` 列表组装，`service/app/biz/recommend_request_item.go` 中批量落库前的纯整理逻辑继续从业务层迁出。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/record` 的逐商品明细读取整理方法，用于统一承接关联商品编号提取和商品位次映射构建，`service/app/biz/recommend_request_item.go` 中按 requestId 回查明细后的纯循环整理逻辑继续从业务层迁出。
-- 当前阶段 6 又继续补了 `recommend_request_item.go` 的共享读桥接方法，用于统一承接 `requestId -> requestEntity` 和 `requestEntity.ID -> requestItemList` 的查询路径，关联商品、位次映射两条回查路径的重复查询拼装继续缩短。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/planner.ListGoodsIds`，统一承接 explain 快照、类目补足候选和 latest 候选的商品编号提取；`recommend_request.go` 里这类纯商品 ID 提取工具已继续从业务层迁出。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/planner.GoodsPoolPageSnapshot` 与 `GoodsPoolQuery` 的可执行判断方法，统一承接候选池分页桥接结果中的 `list/id/total` 提取和查询启用判断；`recommend_request.go` 里类目补足、latest 候选和 latest fallback 的结果侧分支继续从业务层迁出。
-- 当前阶段 6 又继续补了 `pkg/recommend/online/planner` 的场景输入构造方法，统一承接 `CART`、`ORDER_*`、`GOODS_DETAIL` 场景的 `SceneInput` 映射；`recommend_request.go` 里的场景分支当前进一步收敛为只保留查库和桥接调用。
+- 当前阶段 6 保留了 `pkg/recommend/online/recall`、`pkg/recommend/online/planner`、`pkg/recommend/online/feature`、`pkg/recommend/online/rank`、`pkg/recommend/online/record` 这些纯逻辑模块，分别承接探针上下文收口、请求计划状态、排序信号装配、分页 explain 和记录整理。
+- 当前阶段 6 已按最新边界完成一次代码收口：`service/app/biz/recommend_request.go` 重新直接调用 `GoodsInfoCase`、`GoodsStatDayCase`、`RecommendGoodsRelationCase`、`RecommendUserPreferenceCase`、`RecommendUserGoodsPreferenceCase` 等表级 Case 组织场景查询、类目补足、latest 兜底、信号读取和排序执行。
+- 原先为 `pkg/recommend` 适配而新增的 `recommendSceneLoader`、`recommendLatestLoader`、`recommendCategoryCandidateLoader`、`recommendAnonymousCandidateLoader`、`recommendCompositeCandidateLoader`、`recommendSimilarUserObservationLoader`、`recommendGoodsPoolPager`，以及 `pkg/recommend/online/cache`、`pkg/recommend/online/engine` 中的查询桥接实现，当前都已回退删除。
+- 当前 `pkg/recommend` 不再承载数据库查询计划、分页桥接参数、Repo 适配接口和 DB 读取语义；推荐查询职责重新收口到 `service/app/biz` 的表名 Case 与 `RecommendRequestCase`。
+- 当前 `RecommendCase` 继续只保留分页参数兜底、`requestId` 生成、请求落库和响应组装，不再承载新的推荐主链路细节。
 - 当前阶段 5 已补齐相似用户、协同过滤、内容相似三类离线训练与写缓存任务，首版直接复用现有偏好聚合和商品属性做轻量训练，训练结果按版本发布到推荐缓存。
 - 当前阶段 5 的写缓存任务已补最小运行摘要日志，会统一输出训练输入规模、版本数、发布子集合数、发布文档数、清理子集合数和总耗时，便于排查训练发布链路。
 - 当前阶段 5 的写缓存任务在失败时也会统一输出失败摘要，包含当前执行阶段、已统计的输入规模、已发布进度和清理进度，便于快速定位卡在哪一步。

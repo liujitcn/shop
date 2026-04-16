@@ -1,4 +1,4 @@
-package planner
+package rank
 
 import (
 	"sort"
@@ -6,13 +6,6 @@ import (
 	app "shop/api/gen/go/app"
 	recommendcore "shop/pkg/recommend/core"
 )
-
-// PageExplainSnapshot 表示当前页 explain 组装后的结果快照。
-type PageExplainSnapshot struct {
-	RecallSources    []string
-	ScoreDetails     []recommendcore.ScoreDetail
-	ReturnedGoodsIds []int64
-}
 
 // ListGoodsIds 提取商品列表中的有效商品编号。
 func ListGoodsIds(goodsList []*app.GoodsInfo) []int64 {

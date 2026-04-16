@@ -1,6 +1,9 @@
 package planner
 
-import recommendcore "shop/pkg/recommend/core"
+import (
+	recommendcore "shop/pkg/recommend/core"
+	recommendOnlineRank "shop/pkg/recommend/online/rank"
+)
 
 // ResultSnapshot 表示候选编排完成后需要写入来源上下文的结果快照。
 type ResultSnapshot struct {
@@ -11,12 +14,48 @@ type ResultSnapshot struct {
 	ReturnedScoreDetails       any
 }
 
+// LatestFallbackPayload 表示 latest fallback 返回阶段的上下文负载。
+type LatestFallbackPayload struct {
+	RecallSources []string
+	SourceContext map[string]any
+}
+
+// OnlineResultPayload 表示在线推荐结果阶段的返回负载。
+type OnlineResultPayload struct {
+	RecallSources []string
+	SourceContext map[string]any
+}
+
 // BuildAnonymousLatestResultSourceContext 构建匿名态 latest fallback 的来源上下文。
 func (p *RequestPlan) BuildAnonymousLatestResultSourceContext(sceneInput SceneInput, sceneHotGoodsIds []int64, probeContext map[string]any) map[string]any {
 	return p.BuildAnonymousResultSourceContext(sceneInput, ResultSnapshot{
 		CandidateLimit:   p.CandidateLimit,
 		SceneHotGoodsIds: sceneHotGoodsIds,
 	}, probeContext)
+}
+
+// BuildAnonymousLatestFallbackPayload 构建匿名态 latest fallback 的返回负载。
+func (p *RequestPlan) BuildAnonymousLatestFallbackPayload(sceneInput SceneInput, sceneHotGoodsIds []int64, probeContext map[string]any) LatestFallbackPayload {
+	return LatestFallbackPayload{
+		RecallSources: []string{"latest"},
+		SourceContext: p.BuildAnonymousLatestResultSourceContext(sceneInput, sceneHotGoodsIds, probeContext),
+	}
+}
+
+// BuildAnonymousEmptyOnlinePayload 构建匿名态空页返回负载。
+func (p *RequestPlan) BuildAnonymousEmptyOnlinePayload(sceneInput SceneInput, sceneHotGoodsIds []int64, snapshotCandidateGoodsIds []int64, debugCandidateGoodsIds []int64, probeContext map[string]any) OnlineResultPayload {
+	return OnlineResultPayload{
+		RecallSources: p.RecallSources,
+		SourceContext: p.BuildAnonymousEmptyOnlineResultContext(sceneInput, sceneHotGoodsIds, snapshotCandidateGoodsIds, debugCandidateGoodsIds, probeContext),
+	}
+}
+
+// BuildAnonymousPageOnlinePayload 构建匿名态正常页返回负载。
+func (p *RequestPlan) BuildAnonymousPageOnlinePayload(sceneInput SceneInput, sceneHotGoodsIds []int64, anonymousCandidateGoodsIds []int64, candidateGoodsIds []int64, explainSnapshot recommendOnlineRank.PageExplainSnapshot, probeContext map[string]any) OnlineResultPayload {
+	return OnlineResultPayload{
+		RecallSources: explainSnapshot.RecallSources,
+		SourceContext: p.BuildAnonymousPageOnlineResultContext(sceneInput, sceneHotGoodsIds, anonymousCandidateGoodsIds, candidateGoodsIds, explainSnapshot, probeContext),
+	}
 }
 
 // BuildAnonymousEmptyOnlineResultContext 构建匿名态空页结果的完整来源上下文。
@@ -30,7 +69,7 @@ func (p *RequestPlan) BuildAnonymousEmptyOnlineResultContext(sceneInput SceneInp
 }
 
 // BuildAnonymousPageOnlineResultContext 构建匿名态分页结果的完整来源上下文。
-func (p *RequestPlan) BuildAnonymousPageOnlineResultContext(sceneInput SceneInput, sceneHotGoodsIds []int64, anonymousCandidateGoodsIds []int64, candidateGoodsIds []int64, explainSnapshot PageExplainSnapshot, probeContext map[string]any) map[string]any {
+func (p *RequestPlan) BuildAnonymousPageOnlineResultContext(sceneInput SceneInput, sceneHotGoodsIds []int64, anonymousCandidateGoodsIds []int64, candidateGoodsIds []int64, explainSnapshot recommendOnlineRank.PageExplainSnapshot, probeContext map[string]any) map[string]any {
 	return p.BuildAnonymousOnlineResultContext(sceneInput, ResultSnapshot{
 		CandidateLimit:             p.CandidateLimit,
 		SceneHotGoodsIds:           sceneHotGoodsIds,
@@ -44,12 +83,28 @@ func (p *RequestPlan) BuildPersonalizedEmptyOnlineResultContext(sceneInput Scene
 	return p.BuildPersonalizedOnlineResultContext(sceneInput, ResultSnapshot{}, candidateGoodsIds, []int64{}, probeContext)
 }
 
+// BuildPersonalizedEmptyOnlinePayload 构建登录态空页返回负载。
+func (p *RequestPlan) BuildPersonalizedEmptyOnlinePayload(sceneInput SceneInput, candidateGoodsIds []int64, probeContext map[string]any) OnlineResultPayload {
+	return OnlineResultPayload{
+		RecallSources: []string{},
+		SourceContext: p.BuildPersonalizedEmptyOnlineResultContext(sceneInput, candidateGoodsIds, probeContext),
+	}
+}
+
 // BuildPersonalizedPageOnlineResultContext 构建登录态分页结果的完整来源上下文。
-func (p *RequestPlan) BuildPersonalizedPageOnlineResultContext(sceneInput SceneInput, candidateGoodsIds []int64, explainSnapshot PageExplainSnapshot, probeContext map[string]any) map[string]any {
+func (p *RequestPlan) BuildPersonalizedPageOnlineResultContext(sceneInput SceneInput, candidateGoodsIds []int64, explainSnapshot recommendOnlineRank.PageExplainSnapshot, probeContext map[string]any) map[string]any {
 	return p.BuildPersonalizedOnlineResultContext(sceneInput, ResultSnapshot{
 		CandidateLimit:       p.CandidateLimit,
 		ReturnedScoreDetails: explainSnapshot.ScoreDetails,
 	}, candidateGoodsIds, explainSnapshot.ReturnedGoodsIds, probeContext)
+}
+
+// BuildPersonalizedPageOnlinePayload 构建登录态正常页返回负载。
+func (p *RequestPlan) BuildPersonalizedPageOnlinePayload(sceneInput SceneInput, candidateGoodsIds []int64, explainSnapshot recommendOnlineRank.PageExplainSnapshot, probeContext map[string]any) OnlineResultPayload {
+	return OnlineResultPayload{
+		RecallSources: explainSnapshot.RecallSources,
+		SourceContext: p.BuildPersonalizedPageOnlineResultContext(sceneInput, candidateGoodsIds, explainSnapshot, probeContext),
+	}
 }
 
 // BuildAnonymousResultSourceContext 构建匿名态结果来源上下文。

@@ -28,8 +28,8 @@ type recommendSceneVersionInfo struct {
 
 // recommendCacheReadResult 表示一次缓存读取的结果与调试上下文。
 type recommendCacheReadResult struct {
-	ids         []int64
-	readContext map[string]any
+	Ids         []int64
+	ReadContext map[string]any
 }
 
 // loadRecommendSceneVersionInfo 查询当前场景启用的推荐缓存版本信息。
@@ -135,31 +135,18 @@ func newRecommendCacheReadResult(hitSource string, collection string, subset str
 		readContext["versionPublishedAt"] = versionPublishedAt.Format(time.RFC3339Nano)
 	}
 	return &recommendCacheReadResult{
-		ids:         []int64{},
-		readContext: readContext,
+		Ids:         []int64{},
+		ReadContext: readContext,
 	}
-}
-
-// appendRecommendCacheReadContext 合并缓存读取调试上下文。
-func appendRecommendCacheReadContext(sourceContext map[string]any, cacheReadContext map[string]any) map[string]any {
-	// 当前请求没有缓存读取上下文时，直接返回原来源上下文。
-	if len(cacheReadContext) == 0 {
-		return sourceContext
-	}
-	if sourceContext == nil {
-		sourceContext = make(map[string]any, 1)
-	}
-	sourceContext["cacheReadContext"] = cacheReadContext
-	return sourceContext
 }
 
 // mergeRecommendCacheReadResult 合并单次缓存读取结果。
 func mergeRecommendCacheReadResult(cacheReadContext map[string]any, result *recommendCacheReadResult) map[string]any {
 	// 当前没有读取结果时，不继续合并调试上下文。
-	if result == nil || len(result.readContext) == 0 {
+	if result == nil || len(result.ReadContext) == 0 {
 		return cacheReadContext
 	}
-	source, ok := result.readContext["source"].(string)
+	source, ok := result.ReadContext["source"].(string)
 	// 命中来源为空时，不写入调试上下文，避免产生匿名键。
 	if !ok || source == "" {
 		return cacheReadContext
@@ -167,7 +154,7 @@ func mergeRecommendCacheReadResult(cacheReadContext map[string]any, result *reco
 	if cacheReadContext == nil {
 		cacheReadContext = make(map[string]any, 1)
 	}
-	cacheReadContext[source] = result.readContext
+	cacheReadContext[source] = result.ReadContext
 	return cacheReadContext
 }
 
@@ -180,7 +167,7 @@ func (c *RecommendRequestCase) fillRecommendCacheReadMeta(result *recommendCache
 
 	documentCount, err := c.loadRecommendCacheDocumentCount(collection, subset)
 	if err == nil && documentCount >= 0 {
-		result.readContext["documentCount"] = documentCount
+		result.ReadContext["documentCount"] = documentCount
 	} else if err != nil {
 		// 元信息读取失败时只打日志，不影响主推荐链路。
 		log.Errorf("fillRecommendCacheReadMeta document_count %v", err)
@@ -188,7 +175,7 @@ func (c *RecommendRequestCase) fillRecommendCacheReadMeta(result *recommendCache
 
 	cacheUpdatedAt, updateErr := c.loadRecommendCacheUpdateTime(collection, subset)
 	if updateErr == nil && !cacheUpdatedAt.IsZero() {
-		result.readContext["cacheUpdatedAt"] = cacheUpdatedAt.Format(time.RFC3339Nano)
+		result.ReadContext["cacheUpdatedAt"] = cacheUpdatedAt.Format(time.RFC3339Nano)
 	} else if updateErr != nil {
 		// 元信息读取失败时只打日志，不影响主推荐链路。
 		log.Errorf("fillRecommendCacheReadMeta update_time %v", updateErr)
@@ -196,7 +183,7 @@ func (c *RecommendRequestCase) fillRecommendCacheReadMeta(result *recommendCache
 
 	digest, digestErr := c.loadRecommendCacheDigest(collection, subset)
 	if digestErr == nil && digest != "" {
-		result.readContext["digest"] = digest
+		result.ReadContext["digest"] = digest
 	} else if digestErr != nil {
 		// 元信息读取失败时只打日志，不影响主推荐链路。
 		log.Errorf("fillRecommendCacheReadMeta digest %v", digestErr)
@@ -256,8 +243,8 @@ func (c *RecommendRequestCase) listCachedInt64Ids(
 	result := newRecommendCacheReadResult(hitSource, collection, subset, version, versionPublishedAt, limit, len(excludeIds))
 	// 限制数量非法时，不需要继续读取缓存。
 	if limit <= 0 {
-		result.readContext["skipped"] = true
-		result.readContext["skipReason"] = "invalid_limit"
+		result.ReadContext["skipped"] = true
+		result.ReadContext["skipReason"] = "invalid_limit"
 		return result, nil
 	}
 
@@ -267,18 +254,18 @@ func (c *RecommendRequestCase) listCachedInt64Ids(
 	if searchEnd < int(limit)+len(excludeIds) {
 		searchEnd = int(limit) + len(excludeIds)
 	}
-	result.readContext["searchWindow"] = searchEnd
+	result.ReadContext["searchWindow"] = searchEnd
 	documents, err := c.recommendCacheStore.SearchScores(ctx, collectionKey, subset, 0, searchEnd)
 	if err != nil {
 		// 缓存对象不存在时直接回退查库，不把未命中当作异常。
 		if err == recommendCache.ErrObjectNotExist {
-			result.readContext["missReason"] = "object_not_exist"
+			result.ReadContext["missReason"] = "object_not_exist"
 			return result, nil
 		}
 		return nil, err
 	}
-	result.readContext["subsetExists"] = true
-	result.readContext["scannedCount"] = len(documents)
+	result.ReadContext["subsetExists"] = true
+	result.ReadContext["scannedCount"] = len(documents)
 	c.fillRecommendCacheReadMeta(result, collection, subset)
 
 	excludeIdMap := make(map[int64]struct{}, len(excludeIds))
@@ -304,11 +291,11 @@ func (c *RecommendRequestCase) listCachedInt64Ids(
 			break
 		}
 	}
-	result.ids = int64Ids
-	result.readContext["returnedCount"] = len(int64Ids)
+	result.Ids = int64Ids
+	result.ReadContext["returnedCount"] = len(int64Ids)
 	// 当前读取到了有效缓存结果时，补一条命中日志用于后续排查。
 	if len(int64Ids) > 0 {
-		result.readContext["hit"] = true
+		result.ReadContext["hit"] = true
 		log.Infof("recommend cache hit source=%s subset=%s count=%d", hitSource, subset, len(int64Ids))
 	}
 	return result, nil

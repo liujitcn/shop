@@ -27,14 +27,8 @@ func NewGoodsStatDayCase(baseCase *biz.BaseCase, goodsStatDayRepo *data.GoodsSta
 	}
 }
 
-// mergeAnonymousGoodsIds 合并场景热度与公共热度商品。
-func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGoodsIds []int64, startDate time.Time, limit int64) ([]int64, error) {
-	result := recommendCore.DedupeInt64s(sceneGoodsIds)
-	// 当前结果已达到限制数量时，直接截断返回。
-	if int64(len(result)) >= limit {
-		return result[:limit], nil
-	}
-
+// listGlobalHotGoodsIds 查询全站热度商品编号列表。
+func (c *GoodsStatDayCase) listGlobalHotGoodsIds(ctx context.Context, startDate time.Time, limit int64) ([]int64, error) {
 	query := c.GoodsStatDayRepo.Query(ctx).GoodsStatDay
 	opts := make([]repo.QueryOption, 0, 3)
 	opts = append(opts, repo.Where(query.StatDate.Gte(startDate)))
@@ -45,10 +39,11 @@ func (c *GoodsStatDayCase) mergeAnonymousGoodsIds(ctx context.Context, sceneGood
 		return nil, err
 	}
 
+	goodsIds := make([]int64, 0, len(list))
 	for _, item := range list {
-		result = append(result, item.GoodsID)
+		goodsIds = append(goodsIds, item.GoodsID)
 	}
-	return recommendCore.DedupeInt64s(result), nil
+	return recommendCore.DedupeInt64s(goodsIds), nil
 }
 
 // loadGlobalPopularityScores 加载全站热度分数。

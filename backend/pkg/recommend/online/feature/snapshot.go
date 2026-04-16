@@ -1,6 +1,10 @@
-package planner
+package feature
 
-import app "shop/api/gen/go/app"
+import (
+	app "shop/api/gen/go/app"
+	"shop/api/gen/go/common"
+	recommendDomain "shop/pkg/recommend/domain"
+)
 
 // SignalSnapshot 表示排序信号加载前的候选结果快照。
 type SignalSnapshot struct {
@@ -10,7 +14,7 @@ type SignalSnapshot struct {
 }
 
 // BuildAnonymousSignalSnapshot 构建匿名态排序信号加载前的候选结果快照。
-func (p *RequestPlan) BuildAnonymousSignalSnapshot(goodsList []*app.GoodsInfo) SignalSnapshot {
+func BuildAnonymousSignalSnapshot(request *recommendDomain.GoodsRequest, goodsList []*app.GoodsInfo) SignalSnapshot {
 	snapshot := SignalSnapshot{
 		GoodsList:   make([]*app.GoodsInfo, 0, len(goodsList)),
 		GoodsIds:    make([]int64, 0, len(goodsList)),
@@ -22,7 +26,7 @@ func (p *RequestPlan) BuildAnonymousSignalSnapshot(goodsList []*app.GoodsInfo) S
 			continue
 		}
 		// 商品详情场景不返回当前详情商品本身。
-		if p != nil && p.IsGoodsDetail() && p.Request.GoodsId > 0 && item.Id == p.Request.GoodsId {
+		if request != nil && request.Scene == common.RecommendScene_GOODS_DETAIL && request.GoodsId > 0 && item.Id == request.GoodsId {
 			continue
 		}
 		snapshot.GoodsList = append(snapshot.GoodsList, item)
@@ -32,7 +36,7 @@ func (p *RequestPlan) BuildAnonymousSignalSnapshot(goodsList []*app.GoodsInfo) S
 }
 
 // BuildPersonalizedSignalSnapshot 构建登录态排序信号加载前的候选结果快照。
-func (p *RequestPlan) BuildPersonalizedSignalSnapshot(goodsList []*app.GoodsInfo) SignalSnapshot {
+func BuildPersonalizedSignalSnapshot(goodsList []*app.GoodsInfo) SignalSnapshot {
 	snapshot := SignalSnapshot{
 		GoodsList:   make([]*app.GoodsInfo, 0, len(goodsList)),
 		GoodsIds:    make([]int64, 0, len(goodsList)),

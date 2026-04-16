@@ -6,7 +6,6 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	recommendActor "shop/pkg/recommend/actor"
-	recommendEvent "shop/pkg/recommend/event"
 
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/kratos-kit/auth"
@@ -98,26 +97,19 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	requestId := id.NewGUIDv7NoHyphen()
 	actor := recommendActor.Resolve(ctx)
 
-	list := make([]*app.GoodsInfo, 0)
-	total := int64(0)
 	initSourceContext := map[string]any{
 		"orderId": req.GetOrderId(),
 		"goodsId": req.GetGoodsId(),
 	}
-	recallSources := make([]string, 0, 4)
-	// 匿名主体统一走公共推荐池，减少首页、购物车、我的三端内容分裂。
-	list, total, recallSources, sourceContext, err := func() ([]*app.GoodsInfo, int64, []string, map[string]any, error) {
-		// 匿名主体命中时，走匿名推荐链路。
-		if actor.ActorType == recommendEvent.ActorTypeAnonymous {
-			return c.recommendRequestCase.listAnonymousRecommendGoods(ctx, actor, req)
-		}
-		return c.recommendRequestCase.listRecommendGoods(ctx, actor, req, actor.UserId())
-	}()
+	result, err := c.recommendRequestCase.executeRecommendGoods(ctx, actor, req)
 	if err != nil {
 		return nil, err
 	}
+	list := result.List
+	recallSources := result.RecallSources
+	sourceContext := result.NormalizeSourceContext()
 	// 推荐链路未返回上下文时，回退到当前请求的基础上下文。
-	if sourceContext == nil {
+	if len(sourceContext) == 0 {
 		sourceContext = initSourceContext
 	}
 	sourceContext["actorType"] = actor.ActorType
@@ -130,7 +122,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 
 	return &app.RecommendGoodsResponse{
 		List:      list,
-		Total:     int32(total),
+		Total:     int32(result.Total),
 		RequestId: requestId,
 	}, nil
 }

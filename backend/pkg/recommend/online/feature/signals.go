@@ -1,9 +1,9 @@
-package planner
+package feature
 
 import recommendDomain "shop/pkg/recommend/domain"
 
 // BuildAnonymousSignals 构建匿名态排序所需的领域信号对象。
-func (p *RequestPlan) BuildAnonymousSignals(
+func BuildAnonymousSignals(
 	relationScores map[int64]float64,
 	scenePopularityScores map[int64]float64,
 	globalPopularityScores map[int64]float64,
@@ -20,7 +20,7 @@ func (p *RequestPlan) BuildAnonymousSignals(
 }
 
 // BuildPersonalizedSignals 构建登录态排序所需的领域信号对象。
-func (p *RequestPlan) BuildPersonalizedSignals(
+func BuildPersonalizedSignals(
 	relationScores map[int64]float64,
 	userGoodsScores map[int64]float64,
 	profileScores map[int64]float64,

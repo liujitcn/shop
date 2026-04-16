@@ -187,13 +187,13 @@ func (c *RecommendRequestCase) buildRecommendRecallProbeContext(
 		if listErr != nil {
 			return nil, listErr
 		}
-		similarUserIds := similarUserResult.ids
+		similarUserIds := similarUserResult.Ids
 		probeContext["similarUser"] = map[string]any{
 			"enabled":          true,
 			"joinCandidate":    probeConfig.SimilarUser.ShouldJoinCandidate(),
 			"limit":            limit,
 			"userIds":          similarUserIds,
-			"cacheReadContext": similarUserResult.readContext,
+			"cacheReadContext": similarUserResult.ReadContext,
 		}
 		// 读取到了有效相似用户时，记录探针命中来源。
 		if len(similarUserIds) > 0 {
@@ -206,13 +206,13 @@ func (c *RecommendRequestCase) buildRecommendRecallProbeContext(
 		if listErr != nil {
 			return nil, listErr
 		}
-		goodsIds := collaborativeFilteringResult.ids
+		goodsIds := collaborativeFilteringResult.Ids
 		probeContext["collaborativeFiltering"] = map[string]any{
 			"enabled":          true,
 			"joinCandidate":    probeConfig.CollaborativeFiltering.ShouldJoinCandidate(),
 			"limit":            limit,
 			"goodsIds":         goodsIds,
-			"cacheReadContext": collaborativeFilteringResult.readContext,
+			"cacheReadContext": collaborativeFilteringResult.ReadContext,
 		}
 		// 读取到了有效协同过滤商品时，记录探针命中来源。
 		if len(goodsIds) > 0 {
@@ -225,13 +225,13 @@ func (c *RecommendRequestCase) buildRecommendRecallProbeContext(
 		if listErr != nil {
 			return nil, listErr
 		}
-		goodsIds := contentBasedResult.ids
+		goodsIds := contentBasedResult.Ids
 		probeContext["contentBased"] = map[string]any{
 			"enabled":          true,
 			"joinCandidate":    probeConfig.ContentBased.ShouldJoinCandidate(),
 			"limit":            limit,
 			"goodsIds":         goodsIds,
-			"cacheReadContext": contentBasedResult.readContext,
+			"cacheReadContext": contentBasedResult.ReadContext,
 		}
 		// 读取到了有效内容相似商品时，记录探针命中来源。
 		if len(goodsIds) > 0 {

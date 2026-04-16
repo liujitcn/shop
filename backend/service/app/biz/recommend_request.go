@@ -2,22 +2,24 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
+	"time"
+
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/api/gen/go/conf"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
-	"shop/pkg/gen/models"
 	recommendCache "shop/pkg/recommend/cache"
 	recommendCandidate "shop/pkg/recommend/candidate"
+	recommendCore "shop/pkg/recommend/core"
 	recommendDomain "shop/pkg/recommend/domain"
 	recommendEvent "shop/pkg/recommend/event"
+	recommendOnlineFeature "shop/pkg/recommend/online/feature"
 	recommendOnlinePlanner "shop/pkg/recommend/online/planner"
+	recommendOnlineRank "shop/pkg/recommend/online/rank"
 	recommendOnlineRecord "shop/pkg/recommend/online/record"
 	appDto "shop/service/app/dto"
-	"time"
 
 	"github.com/liujitcn/gorm-kit/repo"
 )
@@ -96,15 +98,8 @@ func (c *RecommendRequestCase) bindRecommendRequestActor(ctx context.Context, an
 
 // listAnonymousRecommendGoods 查询匿名推荐商品列表并执行统一排序。
 func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest) ([]*app.GoodsInfo, int64, []string, map[string]any, error) {
-	requestPlan := recommendOnlinePlanner.NewAnonymousRequestPlan(&recommendDomain.GoodsRequest{
-		Scene:    req.GetScene(),
-		OrderId:  req.GetOrderId(),
-		GoodsId:  req.GetGoodsId(),
-		PageNum:  req.GetPageNum(),
-		PageSize: req.GetPageSize(),
-	}, map[string]any{})
+	requestPlan := recommendOnlinePlanner.NewAnonymousRequestPlan(buildRecommendGoodsRequest(req), map[string]any{})
 	candidateLimit := requestPlan.CandidateLimit
-
 	// 匿名态只使用近一段时间内的热度数据。
 	startDate := time.Now().AddDate(0, 0, -recommendCandidate.AnonymousRecallDays)
 	probeContext, err := c.buildRecommendRecallProbeContext(ctx, int32(req.GetScene()), 0, req.GetGoodsId(), candidateLimit, []int64{req.GetGoodsId()})
@@ -112,15 +107,15 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		return nil, 0, nil, nil, err
 	}
 	requestPlan = recommendOnlinePlanner.NewAnonymousRequestPlan(&requestPlan.Request, probeContext)
+
 	sceneGoodsIds := make([]int64, 0)
 	sceneInput := recommendOnlinePlanner.SceneInput{}
-	sceneHotCacheResult := &recommendCacheReadResult{}
-	sceneHotCacheResult, err = c.listCachedSceneHotGoodsIds(ctx, int32(req.GetScene()), candidateLimit, nil)
+	sceneHotCacheResult, err := c.listCachedSceneHotGoodsIds(ctx, int32(req.GetScene()), candidateLimit, nil)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
 	requestPlan.MergeCacheReadContext(mergeRecommendCacheReadResult(nil, sceneHotCacheResult))
-	sceneGoodsIds = sceneHotCacheResult.ids
+	sceneGoodsIds = sceneHotCacheResult.Ids
 	// 场景热度缓存未命中时，回退到统计表查询。
 	if len(sceneGoodsIds) == 0 {
 		sceneGoodsIds, err = c.recommendGoodsStatDayCase.listSceneHotGoodsIds(ctx, req.GetScene(), startDate, candidateLimit)
@@ -136,32 +131,30 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 	case common.RecommendScene_GOODS_DETAIL:
 		// 没有商品编号时，无法恢复商品详情上下文。
 		if req.GetGoodsId() > 0 {
-			sourceGoodsIdList := []int64{req.GetGoodsId()}
-			similarItemCacheResult := &recommendCacheReadResult{}
-			similarItemCacheResult, err = c.listCachedSimilarItemGoodsIds(ctx, req.GetGoodsId(), candidateLimit, []int64{req.GetGoodsId()})
-			if err != nil {
-				return nil, 0, nil, nil, err
+			sourceGoodsIds := []int64{req.GetGoodsId()}
+			similarItemCacheResult, cacheErr := c.listCachedSimilarItemGoodsIds(ctx, req.GetGoodsId(), candidateLimit, sourceGoodsIds)
+			if cacheErr != nil {
+				return nil, 0, nil, nil, cacheErr
 			}
 			requestPlan.MergeCacheReadContext(mergeRecommendCacheReadResult(nil, similarItemCacheResult))
-			goodsDetailPriorityGoodsIds := similarItemCacheResult.ids
+			goodsDetailPriorityGoodsIds := similarItemCacheResult.Ids
 			// 相似商品缓存未命中时，回退到数据库关系召回。
 			if len(goodsDetailPriorityGoodsIds) == 0 {
-				goodsDetailPriorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, sourceGoodsIdList, candidateLimit)
+				goodsDetailPriorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, sourceGoodsIds, candidateLimit)
 				if err != nil {
 					return nil, 0, nil, nil, err
 				}
 			}
-			goodsDetailCategoryIds := make([]int64, 0)
-			goodsDetailCategoryIds, err = c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, sourceGoodsIdList)
-			if err != nil {
-				return nil, 0, nil, nil, err
+			goodsDetailCategoryIds, categoryErr := c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, sourceGoodsIds)
+			if categoryErr != nil {
+				return nil, 0, nil, nil, categoryErr
 			}
 			cacheHitSources := make([]string, 0, 1)
 			// 相似商品缓存命中时，记录当前详情场景使用了缓存桥接结果。
-			if len(similarItemCacheResult.ids) > 0 {
+			if len(similarItemCacheResult.Ids) > 0 {
 				cacheHitSources = append(cacheHitSources, recommendCacheHitGoodsDetail)
 			}
-			sceneInput = recommendOnlinePlanner.BuildGoodsDetailSceneInput(sourceGoodsIdList, goodsDetailPriorityGoodsIds, goodsDetailCategoryIds, cacheHitSources)
+			sceneInput = recommendOnlinePlanner.BuildGoodsDetailSceneInput(sourceGoodsIds, goodsDetailPriorityGoodsIds, goodsDetailCategoryIds, cacheHitSources)
 		}
 	}
 	requestPlan.ApplySceneInput(sceneInput)
@@ -170,48 +163,53 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		requestPlan.AddRecallSources("scene_hot")
 	}
 	requestPlan.NormalizeState()
-	categoryCandidateIdList := make([]int64, 0)
-	categoryQuery := requestPlan.BuildCategoryCandidateQuery()
-	// 存在类目候选时，按类目继续补足匿名候选池。
-	if categoryQuery.Enabled {
-		categoryCandidateIdList, err = c.pageCategoryCandidateGoodsIds(ctx, categoryQuery)
-		if err != nil {
-			return nil, 0, nil, nil, err
-		}
-	}
-	requestPlan.SetCategoryCandidateGoodsIds(categoryCandidateIdList)
-	// 场景热度与类目候选合并后，再交给全站热度兜底补足。
-	mergedSceneGoodsIds := requestPlan.BuildAnonymousMergedSceneGoodsIds(sceneGoodsIds)
-	candidateGoodsIds := make([]int64, 0)
-	candidateGoodsIds, err = c.goodsStatDayCase.mergeAnonymousGoodsIds(ctx, mergedSceneGoodsIds, startDate, candidateLimit)
+
+	categoryCandidateIds, err := c.pageCategoryCandidateGoodsIds(ctx, requestPlan.CategoryIds, requestPlan.ExcludeGoodsIds(), candidateLimit)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
+	requestPlan.SetCategoryCandidateGoodsIds(categoryCandidateIds)
+
+	// 场景热度与类目候选合并后，再交给全站热度兜底补足。
+	candidateGoodsIds := recommendCore.DedupeInt64s(requestPlan.BuildAnonymousMergedSceneGoodsIds(sceneGoodsIds))
+	// 当前候选池仍未达到上限时，再补全站热度商品。
+	if candidateLimit > 0 && int64(len(candidateGoodsIds)) < candidateLimit {
+		globalHotGoodsIds, listErr := c.goodsStatDayCase.listGlobalHotGoodsIds(ctx, startDate, candidateLimit)
+		if listErr != nil {
+			return nil, 0, nil, nil, listErr
+		}
+		candidateGoodsIds = recommendCore.DedupeInt64s(append(candidateGoodsIds, globalHotGoodsIds...))
+	}
+	// 合并后的匿名候选超过上限时，直接按候选上限截断。
+	if candidateLimit > 0 && int64(len(candidateGoodsIds)) > candidateLimit {
+		candidateGoodsIds = candidateGoodsIds[:candidateLimit]
+	}
 	// 场景热度和类目补足都没有数据，且强召回也为空时，才退回最新商品分页。
-	if requestPlan.ShouldFallbackToAnonymousLatest(candidateGoodsIds) {
-		latestQuery := requestPlan.BuildAnonymousLatestFallbackQuery()
-		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, int32(req.GetScene()), latestQuery.Limit, latestQuery.ExcludeGoodsIds)
+	if shouldFallbackToAnonymousLatest(requestPlan, candidateGoodsIds) {
+		latestExcludeGoodsIds := make([]int64, 0, 1)
+		// 商品详情场景回退到 latest 时，同样排除当前详情商品。
+		if requestPlan.IsGoodsDetail() && requestPlan.Request.GoodsId > 0 {
+			latestExcludeGoodsIds = append(latestExcludeGoodsIds, requestPlan.Request.GoodsId)
+		}
+		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, int32(req.GetScene()), candidateLimit, latestExcludeGoodsIds)
 		if cacheErr != nil {
 			return nil, 0, nil, nil, cacheErr
 		}
 		requestPlan.MergeCacheReadContext(mergeRecommendCacheReadResult(nil, latestCacheResult))
-		latestGoodsIds := latestCacheResult.ids
+		latestGoodsIds := latestCacheResult.Ids
 		// 最新榜缓存命中时，直接按缓存顺序返回商品列表。
 		if len(latestGoodsIds) > 0 {
 			requestPlan.AddCacheHitSource(recommendCacheHitLatest)
-			latestGoodsList := make([]*app.GoodsInfo, 0)
-			latestGoodsList, err = c.goodsInfoCase.listByGoodsIds(ctx, latestGoodsIds)
-			if err != nil {
-				return nil, 0, nil, nil, err
+			latestGoodsList, listErr := c.goodsInfoCase.listByGoodsIds(ctx, latestGoodsIds)
+			if listErr != nil {
+				return nil, 0, nil, nil, listErr
 			}
 			sourceContext := requestPlan.BuildAnonymousLatestResultSourceContext(sceneInput, sceneGoodsIds, probeContext)
 			return latestGoodsList, int64(len(latestGoodsList)), []string{"latest"}, sourceContext, nil
 		}
-		latestGoodsList := make([]*app.GoodsInfo, 0)
-		latestTotal := int64(0)
-		latestGoodsList, latestTotal, err = c.pageLatestFallbackGoods(ctx, latestQuery)
-		if err != nil {
-			return nil, 0, nil, nil, err
+		latestGoodsList, latestTotal, listErr := c.pageLatestFallbackGoods(ctx, latestExcludeGoodsIds, candidateLimit)
+		if listErr != nil {
+			return nil, 0, nil, nil, listErr
 		}
 		sourceContext := requestPlan.BuildAnonymousLatestResultSourceContext(sceneInput, sceneGoodsIds, probeContext)
 		return latestGoodsList, latestTotal, []string{"latest"}, sourceContext, nil
@@ -219,17 +217,16 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 	// 强召回商品优先排在匿名候选池前面，再做统一去重。
 	candidateGoodsIds = requestPlan.BuildAnonymousCandidateGoodsIds(candidateGoodsIds)
 
-	goodsList := make([]*app.GoodsInfo, 0)
-	goodsList, err = c.goodsInfoCase.listByGoodsIds(ctx, candidateGoodsIds)
+	goodsList, err := c.goodsInfoCase.listByGoodsIds(ctx, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	signalSnapshot := requestPlan.BuildAnonymousSignalSnapshot(goodsList)
+	signalSnapshot := recommendOnlineFeature.BuildAnonymousSignalSnapshot(&requestPlan.Request, goodsList)
 	filteredGoodsList := signalSnapshot.GoodsList
-	// 后续排序信号加载统一复用 planner 给出的参数计划。
-	signalLoadPlan := requestPlan.BuildAnonymousSignalLoadPlan(signalSnapshot)
+	// 后续排序信号加载统一复用 feature 给出的参数计划。
+	signalLoadPlan := recommendOnlineFeature.BuildAnonymousSignalLoadPlan(&requestPlan.Request, signalSnapshot)
 	// 后续的热度分、曝光惩罚都会按商品 ID 回填。
-	candidateGoodsIdList := signalLoadPlan.CandidateGoodsIds
+	candidateGoodsIds = signalLoadPlan.CandidateGoodsIds
 
 	relationScores := make(map[int64]float64)
 	// 商品详情场景存在源商品时，补充匿名关联分数。
@@ -239,23 +236,19 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 			return nil, 0, nil, nil, err
 		}
 	}
-	scenePopularityScores := make(map[int64]float64)
-	sceneExposurePenalties := make(map[int64]float64)
-	scenePopularityScores, sceneExposurePenalties, err = c.recommendGoodsStatDayCase.loadScenePopularitySignals(ctx, signalLoadPlan.Scene, candidateGoodsIdList)
+	scenePopularityScores, sceneExposurePenalties, err := c.recommendGoodsStatDayCase.loadScenePopularitySignals(ctx, signalLoadPlan.Scene, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	actorExposurePenalties := make(map[int64]float64)
-	actorExposurePenalties, err = c.recommendExposureCase.loadActorExposurePenalties(ctx, actor, signalLoadPlan.Scene, candidateGoodsIdList)
+	actorExposurePenalties, err := c.recommendExposureCase.loadActorExposurePenalties(ctx, actor, signalLoadPlan.Scene, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	globalPopularityScores := make(map[int64]float64)
-	globalPopularityScores, err = c.goodsStatDayCase.loadGlobalPopularityScores(ctx, candidateGoodsIdList)
+	globalPopularityScores, err := c.goodsStatDayCase.loadGlobalPopularityScores(ctx, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	anonymousSignals := requestPlan.BuildAnonymousSignals(
+	anonymousSignals := recommendOnlineFeature.BuildAnonymousSignals(
 		relationScores,
 		scenePopularityScores,
 		globalPopularityScores,
@@ -269,16 +262,16 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 	requestPlan.AppendAnonymousExplainRecallSources(candidates)
 	// 这里不仅排序，还会顺带做类目打散。
 	rankedGoods := recommendCandidate.RankGoods(candidates)
-	pageSnapshot := requestPlan.BuildRankedPageSnapshot(rankedGoods)
+	pageSnapshot := recommendOnlineRank.BuildRankedPageSnapshot(&requestPlan.Request, rankedGoods)
 	// 分页偏移超出候选集范围时，直接返回空页。
 	if pageSnapshot.IsEmptyPage {
-		sourceContext := requestPlan.BuildAnonymousEmptyOnlineResultContext(sceneInput, sceneGoodsIds, candidateGoodsIds, candidateGoodsIdList, probeContext)
+		sourceContext := requestPlan.BuildAnonymousEmptyOnlineResultContext(sceneInput, sceneGoodsIds, candidateGoodsIds, signalLoadPlan.CandidateGoodsIds, probeContext)
 		return []*app.GoodsInfo{}, pageSnapshot.Total, requestPlan.RecallSources, sourceContext, nil
 	}
 	pageGoods := pageSnapshot.PageGoods
 	// explain 只收集当前页，避免响应上下文过大。
-	explainSnapshot := recommendOnlinePlanner.BuildPageExplainSnapshot(pageGoods, candidates)
-	sourceContext := requestPlan.BuildAnonymousPageOnlineResultContext(sceneInput, sceneGoodsIds, candidateGoodsIds, candidateGoodsIdList, explainSnapshot, probeContext)
+	explainSnapshot := recommendOnlineRank.BuildPageExplainSnapshot(pageGoods, candidates)
+	sourceContext := requestPlan.BuildAnonymousPageOnlineResultContext(sceneInput, sceneGoodsIds, candidateGoodsIds, signalLoadPlan.CandidateGoodsIds, explainSnapshot, probeContext)
 	return pageGoods, pageSnapshot.Total, explainSnapshot.RecallSources, sourceContext, nil
 }
 
@@ -295,14 +288,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 		return []*app.GoodsInfo{}, 0, []string{}, map[string]any{}, nil
 	}
 
-	requestPlan := recommendOnlinePlanner.NewPersonalizedRequestPlan(&recommendDomain.GoodsRequest{
-		Scene:    req.GetScene(),
-		OrderId:  req.GetOrderId(),
-		GoodsId:  req.GetGoodsId(),
-		PageNum:  req.GetPageNum(),
-		PageSize: req.GetPageSize(),
-	}, map[string]any{})
-	// 分页越深，候选池越大，避免深页直接无货可排。
+	requestPlan := recommendOnlinePlanner.NewPersonalizedRequestPlan(buildRecommendGoodsRequest(req), map[string]any{})
 	candidateLimit := requestPlan.CandidateLimit
 	probeContext, err := c.buildRecommendRecallProbeContext(ctx, int32(req.GetScene()), userId, req.GetGoodsId(), candidateLimit, []int64{req.GetGoodsId()})
 	if err != nil {
@@ -311,131 +297,116 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	requestPlan = recommendOnlinePlanner.NewPersonalizedRequestPlan(&requestPlan.Request, probeContext)
 	// 相似用户当前仍只做观测，因此单独拉取一份偏好商品用于效果比对。
 	if len(requestPlan.SimilarUserIds) > 0 {
-		requestPlan.SimilarUserObservedGoodsIds, err = c.recommendUserGoodsPreferenceCase.listObservedGoodsIdsByUserIds(ctx, requestPlan.SimilarUserIds, candidateLimit, []int64{req.GetGoodsId()})
-		if err != nil {
-			return nil, 0, nil, nil, err
+		similarUserObservedGoodsIds, listErr := c.recommendUserGoodsPreferenceCase.listObservedGoodsIdsByUserIds(ctx, requestPlan.SimilarUserIds, candidateLimit, []int64{req.GetGoodsId()})
+		if listErr != nil {
+			return nil, 0, nil, nil, listErr
 		}
-		requestPlan.SetSimilarUserObservedGoodsIds(requestPlan.SimilarUserObservedGoodsIds)
+		requestPlan.SetSimilarUserObservedGoodsIds(similarUserObservedGoodsIds)
 	}
-	profileCategoryIdList := make([]int64, 0)
-	profileCategoryIdList, err = c.recommendUserPreferenceCase.listPreferredCategoryIds(ctx, userId, 3)
+	profileCategoryIds, err := c.recommendUserPreferenceCase.listPreferredCategoryIds(ctx, userId, 3)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
 
 	// 登录态优先消费当前页面最强的业务上下文。
-	// 按当前推荐场景决定优先使用哪类业务上下文做召回。
 	sceneInput := recommendOnlinePlanner.SceneInput{}
+	// 按当前推荐场景决定优先使用哪类业务上下文做召回。
 	switch req.GetScene() {
 	case common.RecommendScene_CART:
-		var cartGoodsIdList []int64
-		cartGoodsIdList, err = c.userCartCase.listGoodsIdsByUserId(ctx, userId)
-		if err != nil {
-			return nil, 0, nil, nil, err
+		cartGoodsIds, listErr := c.userCartCase.listGoodsIdsByUserId(ctx, userId)
+		if listErr != nil {
+			return nil, 0, nil, nil, listErr
 		}
-		sceneInput = recommendOnlinePlanner.BuildCartSceneInput(cartGoodsIdList, nil, nil)
+		sceneInput = recommendOnlinePlanner.BuildCartSceneInput(cartGoodsIds, nil, nil)
 		// 购物车存在商品时，继续做购物车关联召回。
-		if len(cartGoodsIdList) > 0 {
-			cartPriorityGoodsIds := make([]int64, 0)
-			cartPriorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, cartGoodsIdList, pageSize)
-			if err != nil {
-				return nil, 0, nil, nil, err
+		if len(cartGoodsIds) > 0 {
+			cartPriorityGoodsIds, relatedErr := c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, cartGoodsIds, pageSize)
+			if relatedErr != nil {
+				return nil, 0, nil, nil, relatedErr
 			}
-			cartCategoryIds := make([]int64, 0)
-			cartCategoryIds, err = c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, cartGoodsIdList)
-			if err != nil {
-				return nil, 0, nil, nil, err
+			cartCategoryIds, categoryErr := c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, cartGoodsIds)
+			if categoryErr != nil {
+				return nil, 0, nil, nil, categoryErr
 			}
-			sceneInput = recommendOnlinePlanner.BuildCartSceneInput(cartGoodsIdList, cartPriorityGoodsIds, cartCategoryIds)
+			sceneInput = recommendOnlinePlanner.BuildCartSceneInput(cartGoodsIds, cartPriorityGoodsIds, cartCategoryIds)
 		}
 	case common.RecommendScene_ORDER_DETAIL, common.RecommendScene_ORDER_PAID:
 		// 存在订单编号时，继续做订单关联召回。
 		if req.GetOrderId() > 0 {
-			var orderGoodsIdList []int64
-			orderGoodsIdList, err = c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
-			if err != nil {
-				return nil, 0, nil, nil, err
+			orderGoodsIds, listErr := c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
+			if listErr != nil {
+				return nil, 0, nil, nil, listErr
 			}
-			sceneInput = recommendOnlinePlanner.BuildOrderSceneInput(orderGoodsIdList, nil, nil)
-			orderPriorityGoodsIds := make([]int64, 0)
-			orderPriorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, orderGoodsIdList, pageSize)
-			if err != nil {
-				return nil, 0, nil, nil, err
+			sceneInput = recommendOnlinePlanner.BuildOrderSceneInput(orderGoodsIds, nil, nil)
+			orderPriorityGoodsIds, relatedErr := c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, orderGoodsIds, pageSize)
+			if relatedErr != nil {
+				return nil, 0, nil, nil, relatedErr
 			}
-			orderCategoryIds := make([]int64, 0)
-			orderCategoryIds, err = c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, orderGoodsIdList)
-			if err != nil {
-				return nil, 0, nil, nil, err
+			orderCategoryIds, categoryErr := c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, orderGoodsIds)
+			if categoryErr != nil {
+				return nil, 0, nil, nil, categoryErr
 			}
-			sceneInput = recommendOnlinePlanner.BuildOrderSceneInput(orderGoodsIdList, orderPriorityGoodsIds, orderCategoryIds)
+			sceneInput = recommendOnlinePlanner.BuildOrderSceneInput(orderGoodsIds, orderPriorityGoodsIds, orderCategoryIds)
 		}
 	case common.RecommendScene_GOODS_DETAIL:
 		// 存在商品编号时，继续做商品关联召回。
 		if req.GetGoodsId() > 0 {
-			sourceGoodsIdList := []int64{req.GetGoodsId()}
-			similarItemCacheResult := &recommendCacheReadResult{}
-			similarItemCacheResult, err = c.listCachedSimilarItemGoodsIds(ctx, req.GetGoodsId(), candidateLimit, []int64{req.GetGoodsId()})
-			if err != nil {
-				return nil, 0, nil, nil, err
+			sourceGoodsIds := []int64{req.GetGoodsId()}
+			similarItemCacheResult, cacheErr := c.listCachedSimilarItemGoodsIds(ctx, req.GetGoodsId(), candidateLimit, sourceGoodsIds)
+			if cacheErr != nil {
+				return nil, 0, nil, nil, cacheErr
 			}
 			requestPlan.MergeCacheReadContext(mergeRecommendCacheReadResult(nil, similarItemCacheResult))
-			goodsDetailPriorityGoodsIds := similarItemCacheResult.ids
+			goodsDetailPriorityGoodsIds := similarItemCacheResult.Ids
 			// 相似商品缓存未命中时，回退到数据库关系召回。
 			if len(goodsDetailPriorityGoodsIds) == 0 {
-				goodsDetailPriorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, sourceGoodsIdList, candidateLimit)
+				goodsDetailPriorityGoodsIds, err = c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, sourceGoodsIds, candidateLimit)
 				if err != nil {
 					return nil, 0, nil, nil, err
 				}
 			}
-			goodsDetailCategoryIds := make([]int64, 0)
-			goodsDetailCategoryIds, err = c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, sourceGoodsIdList)
-			if err != nil {
-				return nil, 0, nil, nil, err
+			goodsDetailCategoryIds, categoryErr := c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, sourceGoodsIds)
+			if categoryErr != nil {
+				return nil, 0, nil, nil, categoryErr
 			}
 			cacheHitSources := make([]string, 0, 1)
 			// 相似商品缓存命中时，记录当前详情场景使用了缓存桥接结果。
-			if len(similarItemCacheResult.ids) > 0 {
+			if len(similarItemCacheResult.Ids) > 0 {
 				cacheHitSources = append(cacheHitSources, recommendCacheHitGoodsDetail)
 			}
-			sceneInput = recommendOnlinePlanner.BuildGoodsDetailSceneInput(sourceGoodsIdList, goodsDetailPriorityGoodsIds, goodsDetailCategoryIds, cacheHitSources)
+			sceneInput = recommendOnlinePlanner.BuildGoodsDetailSceneInput(sourceGoodsIds, goodsDetailPriorityGoodsIds, goodsDetailCategoryIds, cacheHitSources)
 		}
 	}
 	requestPlan.ApplySceneInput(sceneInput)
 
 	// 用户画像只负责补足，不覆盖强场景召回。
-	// 用户画像命中类目时，合并到类目补足候选集中。
-	if len(profileCategoryIdList) > 0 {
-		requestPlan.ApplyProfileScene(profileCategoryIdList)
+	if len(profileCategoryIds) > 0 {
+		requestPlan.ApplyProfileScene(profileCategoryIds)
 	}
 	// 没有命中任何召回入口时，统一回退到 latest。
 	requestPlan.EnsureFallbackLatest()
-
 	// 这里统一去重，避免同一商品或类目重复参与候选计算。
 	requestPlan.NormalizeState()
-	categoryCandidateIdList := make([]int64, 0)
-	categoryQuery := requestPlan.BuildCategoryCandidateQuery()
-	// 存在类目候选时，按类目继续补足候选商品池。
-	if categoryQuery.Enabled {
-		categoryCandidateIdList, err = c.pageCategoryCandidateGoodsIds(ctx, categoryQuery)
-		if err != nil {
-			return nil, 0, nil, nil, err
-		}
+
+	categoryCandidateIds, err := c.pageCategoryCandidateGoodsIds(ctx, requestPlan.CategoryIds, requestPlan.ExcludeGoodsIds(), candidateLimit)
+	if err != nil {
+		return nil, 0, nil, nil, err
 	}
-	requestPlan.SetCategoryCandidateGoodsIds(categoryCandidateIdList)
-	latestCandidateIdList := make([]int64, 0)
-	latestQuery := requestPlan.BuildLatestCandidateQuery()
+	requestPlan.SetCategoryCandidateGoodsIds(categoryCandidateIds)
+
+	latestCandidateIds := make([]int64, 0)
 	// 候选池仍可扩充时，继续用 latest 召回做兜底补足。
-	if latestQuery.Enabled {
-		latestCacheResult := &recommendCacheReadResult{}
-		latestCacheResult, err = c.listCachedLatestGoodsIds(ctx, int32(req.GetScene()), latestQuery.Limit, latestQuery.ExcludeGoodsIds)
-		if err != nil {
-			return nil, 0, nil, nil, err
+	if candidateLimit > 0 {
+		latestExcludeGoodsIds := requestPlan.BuildLatestExcludeGoodsIds()
+		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, int32(req.GetScene()), candidateLimit, latestExcludeGoodsIds)
+		if cacheErr != nil {
+			return nil, 0, nil, nil, cacheErr
 		}
 		requestPlan.MergeCacheReadContext(mergeRecommendCacheReadResult(nil, latestCacheResult))
-		latestCandidateIdList = latestCacheResult.ids
+		latestCandidateIds = latestCacheResult.Ids
 		// 最新榜缓存未命中时，回退到数据库最新商品分页。
-		if len(latestCandidateIdList) == 0 {
-			latestCandidateIdList, err = c.pageLatestCandidateGoodsIds(ctx, latestQuery)
+		if len(latestCandidateIds) == 0 {
+			latestCandidateIds, err = c.pageLatestCandidateGoodsIds(ctx, latestExcludeGoodsIds, candidateLimit)
 			if err != nil {
 				return nil, 0, nil, nil, err
 			}
@@ -443,61 +414,52 @@ func (c *RecommendRequestCase) listRecommendGoods(
 			requestPlan.AddCacheHitSource(recommendCacheHitLatest)
 		}
 	}
-	requestPlan.SetLatestCandidateGoodsIds(latestCandidateIdList)
+	requestPlan.SetLatestCandidateGoodsIds(latestCandidateIds)
 
-	// 最终候选池按 强召回 + 类目补足 + latest 兜底 合并。
-	allCandidateIdList := requestPlan.BuildPersonalizedCandidateGoodsIds()
+	// 最终候选池按“强召回 + 类目补足 + latest 兜底”合并。
+	allCandidateIds := requestPlan.BuildPersonalizedCandidateGoodsIds()
 	// 候选商品池为空时，直接返回空结果。
-	if len(allCandidateIdList) == 0 {
+	if len(allCandidateIds) == 0 {
 		sourceContext := requestPlan.BuildPersonalizedOnlineResultContext(sceneInput, recommendOnlinePlanner.ResultSnapshot{}, []int64{}, []int64{}, probeContext)
 		return []*app.GoodsInfo{}, 0, []string{}, sourceContext, nil
 	}
 
-	goodsList := make([]*app.GoodsInfo, 0)
-	goodsList, err = c.goodsInfoCase.listByGoodsIds(ctx, allCandidateIdList)
+	goodsList, err := c.goodsInfoCase.listByGoodsIds(ctx, allCandidateIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	signalSnapshot := requestPlan.BuildPersonalizedSignalSnapshot(goodsList)
-	signalLoadPlan := requestPlan.BuildPersonalizedSignalLoadPlan(signalSnapshot)
+	signalSnapshot := recommendOnlineFeature.BuildPersonalizedSignalSnapshot(goodsList)
+	signalLoadPlan := recommendOnlineFeature.BuildPersonalizedSignalLoadPlan(&requestPlan.Request, requestPlan.PriorityGoodsIds, signalSnapshot)
 	// 这份商品 ID 用来对齐各种商品级排序信号。
-	candidateGoodsIdList := signalLoadPlan.CandidateGoodsIds
+	candidateGoodsIds := signalLoadPlan.CandidateGoodsIds
 	// 这份类目 ID 用来对齐画像类偏好分。
-	candidateCategoryIdList := signalLoadPlan.CandidateCategoryIds
+	candidateCategoryIds := signalLoadPlan.CandidateCategoryIds
 
-	relationScores := make(map[int64]float64)
-	relationScores, err = c.recommendGoodsRelationCase.loadRelationScores(ctx, signalLoadPlan.RelationSourceGoodsIds)
+	relationScores, err := c.recommendGoodsRelationCase.loadRelationScores(ctx, signalLoadPlan.RelationSourceGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	userGoodsScores := make(map[int64]float64)
-	recentPaidGoodsMap := make(map[int64]struct{})
-	userGoodsScores, recentPaidGoodsMap, err = c.recommendUserGoodsPreferenceCase.loadUserGoodsSignals(ctx, userId, candidateGoodsIdList)
+	userGoodsScores, recentPaidGoodsMap, err := c.recommendUserGoodsPreferenceCase.loadUserGoodsSignals(ctx, userId, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	actorExposurePenalties := make(map[int64]float64)
-	actorExposurePenalties, err = c.recommendExposureCase.loadActorExposurePenalties(ctx, actor, signalLoadPlan.Scene, candidateGoodsIdList)
+	actorExposurePenalties, err := c.recommendExposureCase.loadActorExposurePenalties(ctx, actor, signalLoadPlan.Scene, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	profileScores := make(map[int64]float64)
-	profileScores, err = c.recommendUserPreferenceCase.loadProfileScores(ctx, userId, candidateCategoryIdList)
+	profileScores, err := c.recommendUserPreferenceCase.loadProfileScores(ctx, userId, candidateCategoryIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	scenePopularityScores := make(map[int64]float64)
-	sceneExposurePenalties := make(map[int64]float64)
-	scenePopularityScores, sceneExposurePenalties, err = c.recommendGoodsStatDayCase.loadScenePopularitySignals(ctx, signalLoadPlan.Scene, candidateGoodsIdList)
+	scenePopularityScores, sceneExposurePenalties, err := c.recommendGoodsStatDayCase.loadScenePopularitySignals(ctx, signalLoadPlan.Scene, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	globalPopularityScores := make(map[int64]float64)
-	globalPopularityScores, err = c.goodsStatDayCase.loadGlobalPopularityScores(ctx, candidateGoodsIdList)
+	globalPopularityScores, err := c.goodsStatDayCase.loadGlobalPopularityScores(ctx, candidateGoodsIds)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
-	personalizedSignals := requestPlan.BuildPersonalizedSignals(
+	personalizedSignals := recommendOnlineFeature.BuildPersonalizedSignals(
 		relationScores,
 		userGoodsScores,
 		profileScores,
@@ -514,103 +476,143 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	requestPlan.AppendPersonalizedExplainRecallSources(candidates)
 	// 这里同时完成最终排序和类目去扎堆。
 	rankedGoods := recommendCandidate.RankGoods(candidates)
-	pageSnapshot := requestPlan.BuildRankedPageSnapshot(rankedGoods)
+	pageSnapshot := recommendOnlineRank.BuildRankedPageSnapshot(&requestPlan.Request, rankedGoods)
 	// 分页偏移超出候选集范围时，直接返回空页但保留总数。
 	if pageSnapshot.IsEmptyPage {
-		sourceContext := requestPlan.BuildPersonalizedEmptyOnlineResultContext(sceneInput, candidateGoodsIdList, probeContext)
+		sourceContext := requestPlan.BuildPersonalizedEmptyOnlineResultContext(sceneInput, candidateGoodsIds, probeContext)
 		return []*app.GoodsInfo{}, pageSnapshot.Total, []string{}, sourceContext, nil
 	}
 	pageGoods := pageSnapshot.PageGoods
 	// 当前页才需要 explain，整池 explain 没必要返回。
-	explainSnapshot := recommendOnlinePlanner.BuildPageExplainSnapshot(pageGoods, candidates)
-	sourceContext := requestPlan.BuildPersonalizedPageOnlineResultContext(sceneInput, candidateGoodsIdList, explainSnapshot, probeContext)
+	explainSnapshot := recommendOnlineRank.BuildPageExplainSnapshot(pageGoods, candidates)
+	sourceContext := requestPlan.BuildPersonalizedPageOnlineResultContext(sceneInput, candidateGoodsIds, explainSnapshot, probeContext)
 	return pageGoods, pageSnapshot.Total, explainSnapshot.RecallSources, sourceContext, nil
 }
 
+// executeRecommendGoods 执行统一推荐主流程。
+func (c *RecommendRequestCase) executeRecommendGoods(ctx context.Context, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest) (recommendDomain.PageResult, error) {
+	domainActor := toRecommendDomainActor(actor)
+	// 匿名主体统一走匿名推荐主链路，减少各场景内容分裂。
+	if domainActor.IsAnonymous() {
+		list, total, recallSources, sourceContext, err := c.listAnonymousRecommendGoods(ctx, actor, req)
+		if err != nil {
+			return recommendDomain.PageResult{}, err
+		}
+		return recommendDomain.PageResult{
+			List:          list,
+			Total:         total,
+			RecallSources: recallSources,
+			SourceContext: sourceContext,
+		}, nil
+	}
+
+	userId := int64(0)
+	// 当前主体存在时，继续提取登录用户编号给召回探针使用。
+	if actor != nil {
+		userId = actor.UserId()
+	}
+	list, total, recallSources, sourceContext, err := c.listRecommendGoods(ctx, actor, req, userId)
+	if err != nil {
+		return recommendDomain.PageResult{}, err
+	}
+	return recommendDomain.PageResult{
+		List:          list,
+		Total:         total,
+		RecallSources: recallSources,
+		SourceContext: sourceContext,
+	}, nil
+}
+
 // pageCategoryCandidateGoodsIds 按类目补足查询候选商品编号。
-func (c *RecommendRequestCase) pageCategoryCandidateGoodsIds(ctx context.Context, queryPlan recommendOnlinePlanner.GoodsPoolQuery) ([]int64, error) {
-	// 查询计划未启用或缺少必要参数时，直接返回空集合。
-	if !queryPlan.SupportsCategoryQuery() {
+func (c *RecommendRequestCase) pageCategoryCandidateGoodsIds(ctx context.Context, categoryIds []int64, excludeGoodsIds []int64, limit int64) ([]int64, error) {
+	// 查询条件未启用时，直接返回空集合。
+	if limit <= 0 || len(categoryIds) == 0 {
 		return []int64{}, nil
 	}
 	query := c.goodsInfoCase.GoodsInfoRepo.Query(ctx).GoodsInfo
-	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.CategoryID.In(queryPlan.CategoryIds...)))
-	pageResp, err := c.pageGoodsByQueryPlan(ctx, queryPlan, opts...)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.CategoryID.In(categoryIds...)))
+	pageResp, err := c.pageRecommendGoods(ctx, limit, excludeGoodsIds, opts...)
 	if err != nil {
 		return nil, err
 	}
-	// 类目补足阶段只需要商品编号进入后续候选池。
-	return recommendOnlinePlanner.BuildGoodsPoolPageSnapshot(pageResp).GoodsIds, nil
+	return recommendOnlineRank.ListGoodsIds(pageResp.List), nil
 }
 
 // pageLatestCandidateGoodsIds 按 latest 兜底查询候选商品编号。
-func (c *RecommendRequestCase) pageLatestCandidateGoodsIds(ctx context.Context, queryPlan recommendOnlinePlanner.GoodsPoolQuery) ([]int64, error) {
-	// 查询计划未启用或缺少必要参数时，直接返回空集合。
-	if !queryPlan.IsEnabled() {
+func (c *RecommendRequestCase) pageLatestCandidateGoodsIds(ctx context.Context, excludeGoodsIds []int64, limit int64) ([]int64, error) {
+	// 查询条件未启用时，直接返回空集合。
+	if limit <= 0 {
 		return []int64{}, nil
 	}
-	pageResp, err := c.pageGoodsByQueryPlan(ctx, queryPlan)
+	pageResp, err := c.pageRecommendGoods(ctx, limit, excludeGoodsIds)
 	if err != nil {
 		return nil, err
 	}
-	// latest 兜底阶段也只需要商品编号进入候选池。
-	return recommendOnlinePlanner.BuildGoodsPoolPageSnapshot(pageResp).GoodsIds, nil
+	return recommendOnlineRank.ListGoodsIds(pageResp.List), nil
 }
 
 // pageLatestFallbackGoods 按 latest 回退查询商品列表。
-func (c *RecommendRequestCase) pageLatestFallbackGoods(ctx context.Context, queryPlan recommendOnlinePlanner.GoodsPoolQuery) ([]*app.GoodsInfo, int64, error) {
-	// 查询计划未启用或缺少必要参数时，直接返回空结果。
-	if !queryPlan.IsEnabled() {
+func (c *RecommendRequestCase) pageLatestFallbackGoods(ctx context.Context, excludeGoodsIds []int64, limit int64) ([]*app.GoodsInfo, int64, error) {
+	// 查询条件未启用时，直接返回空结果。
+	if limit <= 0 {
 		return []*app.GoodsInfo{}, 0, nil
 	}
-	pageResp, err := c.pageGoodsByQueryPlan(ctx, queryPlan)
+	pageResp, err := c.pageRecommendGoods(ctx, limit, excludeGoodsIds)
 	if err != nil {
 		return nil, 0, err
 	}
-	pageSnapshot := recommendOnlinePlanner.BuildGoodsPoolPageSnapshot(pageResp)
-	return pageSnapshot.GoodsList, pageSnapshot.Total, nil
+	return pageResp.List, int64(pageResp.Total), nil
 }
 
-// pageGoodsByQueryPlan 按候选池查询计划执行统一分页桥接查询。
-func (c *RecommendRequestCase) pageGoodsByQueryPlan(ctx context.Context, queryPlan recommendOnlinePlanner.GoodsPoolQuery, extraOpts ...repo.QueryOption) (*app.PageGoodsInfoResponse, error) {
-	// 查询计划未启用或缺少必要参数时，直接返回空分页结果。
-	if !queryPlan.IsEnabled() {
-		return recommendOnlinePlanner.BuildEmptyGoodsPoolPageResponse(), nil
+// pageRecommendGoods 执行推荐候选分页查询。
+func (c *RecommendRequestCase) pageRecommendGoods(ctx context.Context, limit int64, excludeGoodsIds []int64, extraOpts ...repo.QueryOption) (*app.PageGoodsInfoResponse, error) {
+	// 查询上限非法时，直接返回空分页结果。
+	if limit <= 0 {
+		return &app.PageGoodsInfoResponse{
+			List:  []*app.GoodsInfo{},
+			Total: 0,
+		}, nil
 	}
 	query := c.goodsInfoCase.GoodsInfoRepo.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, len(extraOpts)+1)
 	opts = append(opts, extraOpts...)
 	// 当前存在排除商品时，不再让这些商品进入当前候选分页结果。
-	if len(queryPlan.ExcludeGoodsIds) > 0 {
-		opts = append(opts, repo.Where(query.ID.NotIn(queryPlan.ExcludeGoodsIds...)))
+	if len(excludeGoodsIds) > 0 {
+		opts = append(opts, repo.Where(query.ID.NotIn(excludeGoodsIds...)))
 	}
 	return c.goodsInfoCase.PageGoodsInfo(ctx, &app.PageGoodsInfoRequest{
 		PageNum:  1,
-		PageSize: queryPlan.Limit,
+		PageSize: limit,
 	}, opts...)
+}
+
+// buildRecommendGoodsRequest 将接口请求桥接为推荐领域请求对象。
+func buildRecommendGoodsRequest(req *app.RecommendGoodsRequest) *recommendDomain.GoodsRequest {
+	if req == nil {
+		return &recommendDomain.GoodsRequest{}
+	}
+	return &recommendDomain.GoodsRequest{
+		Scene:    req.GetScene(),
+		OrderId:  req.GetOrderId(),
+		GoodsId:  req.GetGoodsId(),
+		PageNum:  req.GetPageNum(),
+		PageSize: req.GetPageSize(),
+	}
 }
 
 // saveRecommendRequest 保存推荐请求记录。
 func (c *RecommendRequestCase) saveRecommendRequest(ctx context.Context, requestId string, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest, sourceContext map[string]any, list []*app.GoodsInfo, recallSources []string) error {
-	persistedSourceContext := recommendOnlineRecord.BuildPersistedSourceContext(sourceContext)
-	sourceContextJson, err := json.Marshal(persistedSourceContext)
+	createdAt := time.Now()
+	entity, err := recommendOnlineRecord.BuildRecommendRequestEntity(
+		requestId,
+		toRecommendDomainActor(actor),
+		buildRecommendGoodsRequest(req),
+		sourceContext,
+		createdAt,
+	)
 	if err != nil {
 		return err
-	}
-
-	createdAt := time.Now()
-	// 这条记录会被曝光、点击、下单链路按 requestId 回查。
-	entity := &models.RecommendRequest{
-		RequestID: requestId,
-		ActorType: actor.ActorType,
-		ActorID:   actor.ActorId,
-		Scene:     int32(req.GetScene()),
-		// 精简后的上下文仍然保留场景调试信息。
-		SourceContext: string(sourceContextJson),
-		PageNum:       int32(req.GetPageNum()),
-		PageSize:      int32(req.GetPageSize()),
-		CreatedAt:     createdAt,
 	}
 	return c.RecommendRequestRepo.Data.Transaction(ctx, func(ctx context.Context) error {
 		err = c.RecommendRequestRepo.Create(ctx, entity)
@@ -619,4 +621,25 @@ func (c *RecommendRequestCase) saveRecommendRequest(ctx context.Context, request
 		}
 		return c.recommendRequestItemCase.batchCreateByRecommendRequest(ctx, entity.ID, req, sourceContext, list, recallSources)
 	})
+}
+
+// toRecommendDomainActor 将应用层推荐主体桥接为领域主体对象。
+func toRecommendDomainActor(actor *appDto.RecommendActor) *recommendDomain.Actor {
+	// 主体为空时，不再继续构建领域主体对象。
+	if actor == nil {
+		return nil
+	}
+	return &recommendDomain.Actor{
+		ActorType: actor.ActorType,
+		ActorId:   actor.ActorId,
+	}
+}
+
+// shouldFallbackToAnonymousLatest 判断匿名态是否需要回退到 latest。
+func shouldFallbackToAnonymousLatest(plan *recommendOnlinePlanner.RequestPlan, candidateGoodsIds []int64) bool {
+	// 计划对象为空时，只要当前候选为空就允许回退。
+	if plan == nil {
+		return len(candidateGoodsIds) == 0
+	}
+	return len(candidateGoodsIds) == 0 && len(plan.PriorityGoodsIds) == 0
 }
