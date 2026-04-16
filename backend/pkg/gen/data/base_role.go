@@ -7,11 +7,10 @@ package data
 import (
 	"context"
 
-	"shop/pkg/gen/models"
-
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"shop/pkg/gen/models"
 )
 
 // BaseRoleRepo 定义 BaseRole 的基础仓储能力。
