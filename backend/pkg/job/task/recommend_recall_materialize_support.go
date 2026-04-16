@@ -418,6 +418,10 @@ func clearStaleVersionedSubsets(
 		if err != nil {
 			return 0, err
 		}
+		err = store.Del(recommendCache.DocumentCountKey(collection, subset))
+		if err != nil {
+			return 0, err
+		}
 		err = store.Del(recommendCache.UpdateTimeKey(collection, subset))
 		if err != nil {
 			return 0, err

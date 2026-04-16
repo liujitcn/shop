@@ -2,14 +2,13 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"shop/api/gen/go/app"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	recommendcore "shop/pkg/recommend/core"
+	recommendOnlineRecord "shop/pkg/recommend/online/record"
 
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -48,60 +47,14 @@ func (c *RecommendRequestItemCase) batchCreateByRecommendRequest(
 	if recommendRequestId <= 0 || req == nil || len(list) == 0 {
 		return nil
 	}
-
-	scoreDetailMap := make(map[int64]recommendcore.ScoreDetail)
-	// explain 明细存在时，先收敛成本次请求的商品评分索引。
-	if sourceContext != nil {
-		scoreDetails, ok := sourceContext["returnedScoreDetails"].([]recommendcore.ScoreDetail)
-		// explain 是当前请求可复用的逐商品排序解释时，才继续收敛成索引。
-		if ok {
-			for _, item := range scoreDetails {
-				// 商品编号非法的 explain 明细直接忽略，避免污染后续逐商品映射。
-				if item.GoodsId <= 0 {
-					continue
-				}
-				scoreDetailMap[item.GoodsId] = item
-			}
-		}
-	}
-
-	positionBase := (req.GetPageNum() - 1) * req.GetPageSize()
-	requestItemList := make([]*models.RecommendRequestItem, 0, len(list))
-	for index, item := range list {
-		// 非法商品结果直接跳过，避免脏数据写入逐商品明细表。
-		if item == nil || item.GetId() <= 0 {
-			continue
-		}
-
-		scoreDetail, ok := scoreDetailMap[item.GetId()]
-		itemRecallSources := recallSources
-		// 单商品 explain 存在时，优先落库该商品自己的召回来源。
-		if ok && len(scoreDetail.RecallSources) > 0 {
-			itemRecallSources = scoreDetail.RecallSources
-		}
-		recallSourceJson, err := json.Marshal(itemRecallSources)
-		// 召回来源序列化理论上不会失败，失败时回退为空数组，避免影响主流程。
-		if err != nil {
-			recallSourceJson = []byte("[]")
-		}
-
-		requestItemList = append(requestItemList, &models.RecommendRequestItem{
-			RecommendRequestID:    recommendRequestId,
-			GoodsID:               item.GetId(),
-			Position:              int32(positionBase + int64(index)),
-			RecallSource:          string(recallSourceJson),
-			FinalScore:            scoreDetail.FinalScore,
-			RelationScore:         scoreDetail.RelationScore,
-			UserGoodsScore:        scoreDetail.UserGoodsScore,
-			ProfileScore:          scoreDetail.ProfileScore,
-			ScenePopularityScore:  scoreDetail.ScenePopularityScore,
-			GlobalPopularityScore: scoreDetail.GlobalPopularityScore,
-			FreshnessScore:        scoreDetail.FreshnessScore,
-			ExposurePenalty:       scoreDetail.ExposurePenalty,
-			ActorExposurePenalty:  scoreDetail.ActorExposurePenalty,
-			RepeatPenalty:         scoreDetail.RepeatPenalty,
-		})
-	}
+	requestItemList := recommendOnlineRecord.BuildRecommendRequestItems(
+		recommendRequestId,
+		req.GetPageNum(),
+		req.GetPageSize(),
+		sourceContext,
+		list,
+		recallSources,
+	)
 	// 当前页没有有效逐商品明细时，只保留主请求记录。
 	if len(requestItemList) == 0 {
 		return nil
@@ -111,41 +64,11 @@ func (c *RecommendRequestItemCase) batchCreateByRecommendRequest(
 
 // listRelatedGoodsIdsByRequestId 读取推荐请求中与当前商品共同出现的其他商品。
 func (c *RecommendRequestItemCase) listRelatedGoodsIdsByRequestId(ctx context.Context, requestId string, goodsId int64) ([]int64, error) {
-	// 请求编号为空时，不需要继续回查逐商品明细。
-	if requestId == "" {
-		return []int64{}, nil
-	}
-
-	recommendRequestQuery := c.recommendRequestRepo.Query(ctx).RecommendRequest
-	requestOpts := make([]repo.QueryOption, 0, 1)
-	requestOpts = append(requestOpts, repo.Where(recommendRequestQuery.RequestID.Eq(requestId)))
-	requestEntity, err := c.recommendRequestRepo.Find(ctx, requestOpts...)
-	// 请求主表查询失败时，仅对“未找到”场景回退为空结果。
-	if err != nil {
-		// 请求主表不存在时，说明当前行为无法回查推荐链路。
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return []int64{}, nil
-		}
-		return nil, err
-	}
-
-	recommendRequestItemQuery := c.Query(ctx).RecommendRequestItem
-	requestItemOpts := make([]repo.QueryOption, 0, 1)
-	requestItemOpts = append(requestItemOpts, repo.Where(recommendRequestItemQuery.RecommendRequestID.Eq(requestEntity.ID)))
-	requestItemList, err := c.List(ctx, requestItemOpts...)
+	requestItemList, err := c.listRecommendRequestItemsByRequestId(ctx, requestId, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	relatedGoodsIds := make([]int64, 0, len(requestItemList))
-	for _, item := range requestItemList {
-		// 非法商品或当前商品自身都不参与关联商品集合。
-		if item.GoodsID <= 0 || item.GoodsID == goodsId {
-			continue
-		}
-		relatedGoodsIds = append(relatedGoodsIds, item.GoodsID)
-	}
-	return recommendcore.DedupeInt64s(relatedGoodsIds), nil
+	return recommendOnlineRecord.BuildRelatedGoodsIds(requestItemList, goodsId), nil
 }
 
 // loadPositionMapByRequestId 加载推荐请求中的商品位次映射。
@@ -155,34 +78,54 @@ func (c *RecommendRequestItemCase) loadPositionMapByRequestId(ctx context.Contex
 	if requestId == "" || len(goodsIds) == 0 {
 		return positionMap, nil
 	}
+	requestItemList, err := c.listRecommendRequestItemsByRequestId(ctx, requestId, goodsIds)
+	if err != nil {
+		return nil, err
+	}
+	return recommendOnlineRecord.BuildPositionMap(requestItemList, goodsIds), nil
+}
 
+// findRecommendRequestEntityByRequestId 按请求编号查询推荐请求主表。
+func (c *RecommendRequestItemCase) findRecommendRequestEntityByRequestId(ctx context.Context, requestId string) (*models.RecommendRequest, error) {
 	recommendRequestQuery := c.recommendRequestRepo.Query(ctx).RecommendRequest
 	requestOpts := make([]repo.QueryOption, 0, 1)
 	requestOpts = append(requestOpts, repo.Where(recommendRequestQuery.RequestID.Eq(requestId)))
 	requestEntity, err := c.recommendRequestRepo.Find(ctx, requestOpts...)
-	// 推荐请求不存在时，说明曝光无法回查到请求链路，直接退回空映射。
+	// 推荐请求不存在时，直接回退为空记录，避免影响回查主流程。
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return positionMap, nil
+		return nil, nil
 	}
 	if err != nil {
 		return nil, err
 	}
+	return requestEntity, nil
+}
 
+// listRecommendRequestItemsByRequestId 按请求编号查询推荐请求逐商品明细。
+func (c *RecommendRequestItemCase) listRecommendRequestItemsByRequestId(ctx context.Context, requestId string, goodsIds []int64) ([]*models.RecommendRequestItem, error) {
+	// 请求编号为空时，不需要继续回查推荐链路。
+	if requestId == "" {
+		return []*models.RecommendRequestItem{}, nil
+	}
+	requestEntity, err := c.findRecommendRequestEntityByRequestId(ctx, requestId)
+	if err != nil {
+		return nil, err
+	}
+	// 推荐请求不存在时，说明当前链路没有可复用的逐商品明细。
+	if requestEntity == nil {
+		return []*models.RecommendRequestItem{}, nil
+	}
+	return c.listRecommendRequestItems(ctx, requestEntity.ID, goodsIds)
+}
+
+// listRecommendRequestItems 按请求主表编号查询推荐请求逐商品明细。
+func (c *RecommendRequestItemCase) listRecommendRequestItems(ctx context.Context, recommendRequestId int64, goodsIds []int64) ([]*models.RecommendRequestItem, error) {
 	recommendRequestItemQuery := c.Query(ctx).RecommendRequestItem
 	requestItemOpts := make([]repo.QueryOption, 0, 2)
-	requestItemOpts = append(requestItemOpts, repo.Where(recommendRequestItemQuery.RecommendRequestID.Eq(requestEntity.ID)))
-	requestItemOpts = append(requestItemOpts, repo.Where(recommendRequestItemQuery.GoodsID.In(goodsIds...)))
-	requestItemList, err := c.List(ctx, requestItemOpts...)
-	if err != nil {
-		return nil, err
+	requestItemOpts = append(requestItemOpts, repo.Where(recommendRequestItemQuery.RecommendRequestID.Eq(recommendRequestId)))
+	// 当前存在商品编号过滤条件时，只回查指定商品的逐商品明细。
+	if len(goodsIds) > 0 {
+		requestItemOpts = append(requestItemOpts, repo.Where(recommendRequestItemQuery.GoodsID.In(goodsIds...)))
 	}
-
-	for _, item := range requestItemList {
-		// 非法商品位次明细直接跳过，避免污染曝光位次映射。
-		if item.GoodsID <= 0 {
-			continue
-		}
-		positionMap[item.GoodsID] = item.Position
-	}
-	return positionMap, nil
+	return c.List(ctx, requestItemOpts...)
 }

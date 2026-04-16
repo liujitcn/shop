@@ -129,6 +129,10 @@ func (m *Materializer) publishScores(ctx context.Context, collection, subset str
 	if err != nil {
 		return err
 	}
+	err = m.store.Set(recommendCache.DocumentCountKey(collection, subset), strconv.Itoa(len(documents)), 0)
+	if err != nil {
+		return err
+	}
 	return m.store.Set(recommendCache.UpdateTimeKey(collection, subset), time.Now().Format(time.RFC3339Nano), 0)
 }
 
@@ -139,6 +143,10 @@ func (m *Materializer) clearSubset(ctx context.Context, collectionKey, collectio
 		return err
 	}
 	err = m.store.Del(recommendCache.DigestKey(collection, subset))
+	if err != nil {
+		return err
+	}
+	err = m.store.Del(recommendCache.DocumentCountKey(collection, subset))
 	if err != nil {
 		return err
 	}

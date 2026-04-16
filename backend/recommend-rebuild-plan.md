@@ -89,7 +89,7 @@
 | 阶段 3 | 进行中 | 已补缓存 key 规范、缓存后端适配、首批写缓存任务调度，并接入 `hot`、`latest`、`similar_item` 在线缓存优先读取 |
 | 阶段 4 | 进行中 | 已补相似用户、协同过滤、内容相似探针和版本控制入口，并在 `GOODS_DETAIL` 接入首批灰度候选融合 |
 | 阶段 5 | 进行中 | 已补首批相似用户、协同过滤、内容相似训练与写缓存任务，排序模型仍待后续补齐 |
-| 阶段 6 | 未开始 | 依赖多路召回和版本驱动 |
+| 阶段 6 | 进行中 | 已开始将召回探针解析与请求计划对象下沉到 `pkg/recommend/online`，主链路尚未切换 |
 | 阶段 7 | 未开始 | 依赖阶段 5 的排序特征与模型产物 |
 | 阶段 8 | 未开始 | 依赖评估指标、训练版本、发布协议打通 |
 | 阶段 9 | 未开始 | 依赖前面阶段输出稳定指标和操作面 |
@@ -634,6 +634,32 @@ go test ./...
 | 2026-04-16 | 阶段 3 | 接入 `kratos-kit/cache` 推荐缓存适配层，并将 `RecommendHotMaterialize`、`RecommendLatestMaterialize`、`RecommendSimilarItemMaterialize` 注册到调度任务 | 否 | `cd backend/internal/cmd/server && GOCACHE=/tmp/shop-go-build-cache wire`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前已形成“聚合结果 -> 写缓存服务 -> 定时任务”闭环 |
 | 2026-04-16 | 阶段 3 | 在 `service/app/biz/recommend_request.go` 与 `service/app/biz/recommend_cache.go` 接入 `hot`、`latest`、`similar_item` 缓存优先读取，未命中回退原查库路径，并把 `cacheHitSources` 写入请求上下文 | 是 | `cd backend/internal/cmd/server && GOCACHE=/tmp/shop-go-build-cache wire`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍未抽离独立在线引擎，但阶段 3 的“写缓存 + 在线读取回退”闭环已经接通 |
 | 2026-04-16 | 阶段 5 | 为六类写缓存任务补统一失败摘要日志，并为“无启用版本”的跳过分支补统一摘要输出，任务异常或跳过时都能看到当前阶段、输入规模、发布进度、清理进度与耗时 | 否 | `cd backend/internal/cmd/server && GOCACHE=/tmp/shop-go-build-cache wire`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前先补齐训练发布链路排障信息，排序模型和调参链路仍待后续推进 |
+| 2026-04-16 | 阶段 5 / 阶段 6 准备 | 为写缓存元信息补 `document_count`，并在在线读缓存与召回探针中记录版本号、版本发布时间、缓存发布时间、文档数量、扫描数量、返回数量和命中状态，统一收口到 `onlineDebugContext` | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍未切主链路，只补阶段 6 灰度前必需的最小缓存观测字段 |
+| 2026-04-16 | 阶段 6 | 新增 `pkg/recommend/online/recall`，将探针结果解析、灰度召回上下文归一化和相似用户观测逻辑从 `service/app/biz` 抽离到在线层，主链路继续复用原入口 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前先做纯逻辑下沉，不改 `proto`、不切默认读链路 |
+| 2026-04-16 | 阶段 6 | 新增 `pkg/recommend/online/planner`，将匿名态和登录态的请求计划对象、灰度召回入池状态、缓存命中状态和来源上下文基础收口从 `service/app/biz/recommend_request.go` 下沉到在线层 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有查库、排序和落库流程，只收口阶段 6 需要复用的前置计划状态 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，将 `CART`、`ORDER_*`、`GOODS_DETAIL`、`profile` 和 `latest` fallback 的场景级规划动作从 `service/app/biz/recommend_request.go` 下沉到在线层 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍未拆统一在线引擎入口，但场景前置规划已经开始从大函数中的 `switch` 迁出 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增 `SceneInput` 场景桥接输入和基础来源上下文构建，把登录态与匿名态的场景原始数据映射、缓存命中来源回写和 `orderId/goodsId/cartGoodsIds/sourceGoodsIds` 调试字段继续从 `service/app/biz/recommend_request.go` 收口到在线层 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前 `recommend_request.go` 里的场景 `switch` 进一步收敛为“查原始数据 -> 调 planner”，但默认在线主链路仍未切换 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，将结果来源上下文与在线调试上下文的组装继续从 `service/app/biz/recommend_request.go` 下沉到在线层，统一承接 `BuildSceneResultSourceContext`、匿名态 join recall 上下文和登录态 similar-user observation 上下文的拼装 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前主链路仍保留查库、打分和落库，但来源上下文构建已进一步从业务入口函数里抽离 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增 `ResultSnapshot` 并把匿名态、登录态结果快照字段和最终来源上下文拼装继续从 `service/app/biz/recommend_request.go` 收口到在线层 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前主链路函数里仍保留候选查库与排序，但 `candidateLimit/sceneHotGoodsIds/anonymousCandidateGoodsIds/returnedScoreDetails` 这类结果字段已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增候选池状态方法，把类目补足候选、latest 候选、latest 排除集合、匿名态场景候选合并和登录态最终候选集合合并继续从 `service/app/biz/recommend_request.go` 收口到在线层 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前主链路里仍保留查库与排序信号加载，但候选池集合状态和去重合并规则已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增候选池查询参数计划，把类目补足查询参数、latest 查询参数和匿名态 latest fallback 判断继续从 `service/app/biz/recommend_request.go` 收口到在线层 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前 `recommend_request.go` 里仍保留具体查库桥接，但是否启用查询、使用哪组排除商品和使用哪组候选池上限，已开始通过 planner 统一决策 |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request.go`，新增共享候选池桥接查询方法，统一复用类目补足和 latest 兜底的商品 ID 提取逻辑，减少主链路中的重复查询拼装与结果提取代码 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍未把查库桥接整体迁到在线层，但主链路里重复的候选池桥接查询代码已开始收口到共享方法 |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request.go`，新增匿名态 latest 回退商品列表桥接方法，统一收口 latest fallback 的分页查询与总数返回逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有排序与落库流程，但匿名态 latest 回退分支已进一步收敛为“取计划 -> 调桥接 -> 回写上下文” |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增排序信号快照方法，统一收口匿名态与登录态候选商品列表的过滤、商品 ID 提取和类目 ID 提取逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有信号加载与排序流程，但候选信号加载前的结果整理逻辑已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增分页 explain 快照方法，统一收口当前页召回来源列表、评分明细和返回商品编号提取逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有排序与来源上下文写回流程，但分页 explain 组装逻辑已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增排序结果分页窗口快照方法，统一收口总数计算、分页窗口切片和空页判定逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有来源上下文写回流程，但匿名态与登录态的分页窗口和空页分支已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增结果回写桥接方法，统一收口匿名态 latest fallback、匿名态空页、匿名态正常页、登录态空页和登录态正常页的 `ResultSnapshot` 构建与 `sourceContext` 回写逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有排序与返回结果结构，但末尾结果回写分支已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增排序信号加载计划，统一收口匿名态与登录态的场景编号、候选商品编号、候选类目编号和关系分源商品编号组织逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有信号加载顺序与打分流程，但排序信号加载前的参数组织已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增领域信号桥接方法，统一收口匿名态 `AnonymousSignals` 与登录态 `PersonalizedSignals` 的组装逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有信号加载顺序与排序流程，但信号加载完成后的领域对象桥接已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/planner`，新增 explain 召回补标方法，统一收口匿名态内容相似灰度补标，以及登录态内容相似、协同过滤灰度补标逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有排序和 explain 输出结构，但灰度召回 explain 补标逻辑已开始通过 planner 统一组织 |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request.go`，新增共享分页桥接底层方法，统一收口类目补足、latest 候选和 latest fallback 的 `PageGoodsInfo` 调用、排除过滤和分页参数拼装 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留三类桥接查询的返回值差异，但其底层分页调用已开始复用统一桥接方法 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/record`，新增推荐请求主表 `sourceContext` 持久化整理方法，统一收口 explain 明细裁剪和在线调试上下文压缩逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有请求记录事务和 item 明细落库流程，但主表 `sourceContext` 的持久化整理已开始从业务入口函数里迁出 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/record`，新增推荐请求逐商品明细模型构建方法，统一收口 `returnedScoreDetails` 索引收敛、单商品召回来源回退和 `RecommendRequestItem` 列表组装逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有批量落库和请求回查流程，但逐商品明细模型的纯整理逻辑已开始从业务层迁出 |
+| 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/record`，新增推荐请求逐商品明细读取整理方法，统一收口关联商品编号提取和商品位次映射构建逻辑 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有 requestId 回查和明细查询流程，但回查后的纯循环整理逻辑已开始从业务层迁出 |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request_item.go`，新增共享读桥接方法，统一收口 `requestId -> requestEntity` 和 `requestEntity.ID -> requestItemList` 的查询路径 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留原有 requestId 回查语义和明细查询语义，但关联商品、位次映射两条读取路径的重复查询拼装已开始收口 |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request.go` 与 `recommend_request_item.go`，统一收口商品编号提取工具和按 `requestId` 读取逐商品明细的共享桥接入口 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留查库桥接在业务层，但 `recommend_request.go` 的纯商品 ID 提取工具和 `recommend_request_item.go` 的重复 requestId 读分支已进一步缩短 |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request.go`，统一收口候选池查询计划的可执行判断和分页桥接结果快照，减少类目补足、latest 候选和 latest fallback 的结果侧重复分支 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留查库桥接在业务层，但候选池查询结果的 `list/id/total` 提取与空计划判断已进一步迁到 planner |
+| 2026-04-16 | 阶段 6 | 继续压缩 `service/app/biz/recommend_request.go`，统一收口 `CART`、`ORDER_*`、`GOODS_DETAIL` 场景的 `SceneInput` 构造，减少场景分支中的字段赋值拼装 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./pkg/recommend/online/...`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍保留查库桥接在业务层，但场景分支中的 `SceneInput` 映射已进一步迁到 planner |
 
 ## 阶段结论记录
 
@@ -683,6 +709,7 @@ go test ./...
 - 已将灰度召回的排障信息写入 `joinRecallContext`，可以直接看到每类灰度召回“已并入候选”“实际进入候选池”“实际出现在当前页”的商品编号与来源列表。
 - 已将相似用户探针的观测结果写入 `similarUserObservationContext`，可以直接看到相似用户偏好商品 TopN 与当前候选、当前返回页，以及协同过滤、内容相似灰度结果的交集商品和覆盖率。
 - 已将上述在线排障字段统一收口到 `sourceContext.onlineDebugContext`，避免 `sourceContext` 顶层继续扩散调试字段。
+- 已为在线读缓存和召回探针补读取元信息，当前会记录版本号、版本发布时间、缓存发布时间、文档数量、扫描数量、返回数量和命中状态，便于定位“命中了哪一版缓存”和“当前缓存是否过旧”。
 - 当前探针已经有首批训练产物可读，下一步可以继续评估相似用户召回和更多场景的候选融合灰度。
 
 ### 阶段 5 当前进展
@@ -693,7 +720,41 @@ go test ./...
 - 已将三类任务注册到定时任务调度与依赖注入。
 - 已为 `hot`、`latest`、`similar_item`、`similar_user`、`collaborative_filtering`、`content_based` 六类写缓存任务补最小摘要日志；其中阶段 5 的训练发布任务会额外记录偏好记录数、候选用户数、候选商品数等输入规模，统一输出版本数、发布子集合数、发布文档数、清理子集合数和总耗时。
 - 已为上述六类写缓存任务补统一失败摘要日志，任务异常时会带出当前执行阶段、已累计的输入规模、已发布进度、已清理进度和耗时，便于直接定位失败卡点。
+- 已为写缓存元信息补 `document_count`，并在在线请求 `cacheReadContext` 中收口版本发布时间、缓存发布时间和文档数量，作为阶段 6 灰度切主链路前的最小观测基础。
 - 当前仍未补 CTR / CVR 轻量排序模型、调参任务和模型产物发布协议。
+
+### 阶段 6 当前进展
+
+- 已新增 `pkg/recommend/online/recall`，开始承接在线层的纯召回逻辑。
+- 已将探针结果解析、灰度召回上下文归一化和相似用户观测上下文从 `service/app/biz/recommend_recall_probe.go` 抽离到 `pkg/recommend/online/recall`。
+- 已新增 `pkg/recommend/online/planner`，用于承接请求计划对象、候选前置状态、缓存命中状态和来源上下文基础收口。
+- `service/app/biz/recommend_request.go` 的匿名态和登录态前置状态当前已统一改为通过 planner 对象流转，减少 `priority/category/recall/cache` 零散变量继续扩散。
+- `service/app/biz/recommend_request.go` 中 `CART`、`ORDER_*`、`GOODS_DETAIL`、`profile` 和 `latest` fallback 的场景级规划动作当前也已通过 planner 方法收口，开始从场景 `switch` 中剥离纯编排逻辑。
+- `pkg/recommend/online/planner` 当前已继续补 `SceneInput` 场景桥接输入，用于承接购物车商品、订单商品、源商品、场景优先候选、类目补足和缓存命中来源等原始输入；`recommend_request.go` 中的场景 `switch` 进一步收敛为只保留查库和桥接。
+- 在线来源上下文中的 `orderId`、`goodsId`、`cartGoodsIds`、`orderGoodsIds`、`sourceGoodsIds` 当前也已开始通过 planner 统一构建，避免这些调试字段继续散落在主链路函数中手工拼 map。
+- 结果来源上下文与在线调试上下文当前也已继续通过 planner 收口，匿名态和登录态都会先走 `BuildSceneResultSourceContext`，再由 planner 统一补 join recall 和 similar-user observation 调试字段，主链路里不再直接依赖 `online/recall` 组装这些上下文。
+- `pkg/recommend/online/planner` 当前又继续补了 `ResultSnapshot`，用于承接 `candidateLimit`、`sceneHotGoodsIds`、`candidateGoodsIds`、`anonymousCandidateGoodsIds`、`returnedScoreDetails` 等结果快照字段；匿名态和登录态的最终来源上下文当前已开始统一改成通过 planner 结果对象构建。
+- `pkg/recommend/online/planner` 当前又继续补了候选池状态方法，用于承接类目补足候选、latest 候选、latest 排除集合、匿名态场景候选合并和登录态最终候选集合合并；`recommend_request.go` 中这类纯集合状态和去重规则继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了候选池查询参数计划，用于承接类目补足查询参数、latest 查询参数和匿名态 latest fallback 判断；`recommend_request.go` 中这类“是否需要查、查多少、排除哪些商品”的纯参数决策继续从主链路函数里迁出。
+- `service/app/biz/recommend_request.go` 当前又继续补了共享候选池桥接查询方法，类目补足和 latest 兜底的商品 ID 提取逻辑已经开始复用统一实现，主链路里的重复查询拼装和结果提取代码进一步缩短。
+- `service/app/biz/recommend_request.go` 当前又继续补了匿名态 latest 回退商品列表桥接方法，把 latest fallback 的分页查询与总数返回统一收口到共享桥接层，主链路里的匿名态 latest 回退分支进一步缩短。
+- `pkg/recommend/online/planner` 当前又继续补了排序信号快照方法，用于承接匿名态与登录态候选商品列表的过滤、商品 ID 提取和类目 ID 提取；`recommend_request.go` 中候选信号加载前的结果整理逻辑继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了分页 explain 快照方法，用于统一承接当前页召回来源列表、评分明细和返回商品编号提取；`recommend_request.go` 中匿名态与登录态的 explain 组装循环继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了排序结果分页窗口快照方法，用于统一承接 `total`、`offset/end` 计算、当前页商品切片和空页判定；`recommend_request.go` 中匿名态与登录态的分页窗口与空页分支继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了结果回写桥接方法，用于统一承接匿名态 latest fallback、匿名态空页、匿名态正常页、登录态空页和登录态正常页的 `ResultSnapshot` 构建与 `sourceContext` 回写；`recommend_request.go` 中末尾结果回写分支继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了排序信号加载计划，用于统一承接匿名态与登录态的场景编号、候选商品编号、候选类目编号和关系分源商品编号；`recommend_request.go` 中排序信号加载前的参数组织继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了领域信号桥接方法，用于统一承接匿名态 `AnonymousSignals` 和登录态 `PersonalizedSignals` 的组装；`recommend_request.go` 中信号加载完成后的领域对象桥接继续从主链路函数里迁出。
+- `pkg/recommend/online/planner` 当前又继续补了 explain 召回补标方法，用于统一承接匿名态内容相似灰度补标，以及登录态内容相似、协同过滤灰度补标；`recommend_request.go` 中 `appendRecommendCandidateRecallSources` 的直接调用继续从主链路函数里迁出。
+- `service/app/biz/recommend_request.go` 当前又继续补了共享分页桥接底层方法，用于统一承接类目补足、latest 候选和 latest fallback 的 `PageGoodsInfo` 调用、排除商品过滤和分页参数拼装；主链路末尾仅保留返回值差异。
+- `pkg/recommend/online/record` 当前已开始承接结果记录前的纯整理逻辑，首批补了推荐请求主表 `sourceContext` 的精简与在线调试上下文收口；`saveRecommendRequest` 当前只保留序列化、事务和落库调用。
+- `pkg/recommend/online/record` 当前又继续补了推荐请求逐商品明细模型构建方法，用于统一承接 `returnedScoreDetails` 索引收敛、单商品召回来源回退和 `RecommendRequestItem` 列表组装；`recommend_request_item.go` 中批量落库前的纯整理逻辑继续从业务层迁出。
+- `pkg/recommend/online/record` 当前又继续补了推荐请求逐商品明细读取整理方法，用于统一承接关联商品编号提取和商品位次映射构建；`recommend_request_item.go` 中按 requestId 回查明细后的纯循环整理逻辑继续从业务层迁出。
+- `service/app/biz/recommend_request_item.go` 当前又继续补了共享读桥接方法，用于统一承接 `requestId -> requestEntity` 和 `requestEntity.ID -> requestItemList` 的查询路径；按 requestId 回查关联商品和位次映射的重复查询拼装继续缩短。
+- `pkg/recommend/online/planner` 当前又继续补了 `ListGoodsIds`，用于统一承接 explain 快照、类目补足候选和 latest 候选的商品编号提取；`recommend_request.go` 中本地的纯商品 ID 提取工具已继续从业务层迁出。
+- `pkg/recommend/online/planner` 当前又继续补了 `GoodsPoolPageSnapshot` 和 `GoodsPoolQuery` 的可执行判断方法，用于统一承接候选池分页桥接结果中的 `list/id/total` 提取和空计划判断；`recommend_request.go` 中类目补足、latest 候选和 latest fallback 的结果侧分支继续从业务层迁出。
+- `pkg/recommend/online/planner` 当前又继续补了 `BuildCartSceneInput`、`BuildOrderSceneInput` 和 `BuildGoodsDetailSceneInput`，用于统一承接 `CART`、`ORDER_*`、`GOODS_DETAIL` 场景的 `SceneInput` 映射；`recommend_request.go` 中场景分支里的字段赋值拼装继续从业务层迁出。
+- `service/app/biz/recommend_request.go` 当前改为调用在线层的召回辅助函数，先复用原主链路入口，避免在阶段 6 初期同时改接口编排和结果落库。
+- 当前仍未引入统一在线引擎入口、planner / recall / rank / record 分层和场景级灰度切换。
 
 ## 下阶段启动清单
 

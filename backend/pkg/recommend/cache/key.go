@@ -61,6 +61,11 @@ func UpdateTimeKey(collection, subset string) string {
 	return metadataKey(collection, subset, "update_time")
 }
 
+// DocumentCountKey 返回当前集合子集合的文档数量键。
+func DocumentCountKey(collection, subset string) string {
+	return metadataKey(collection, subset, "document_count")
+}
+
 // ScoreSubsetIndexKey 返回当前集合的子集合索引键。
 func ScoreSubsetIndexKey(collection string) string {
 	return Key(collection, GlobalMeta, scoreSubsetIndexSuffix)

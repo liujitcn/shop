@@ -267,6 +267,10 @@ func clearStaleSimilarItemSubsets(
 		if err != nil {
 			return 0, err
 		}
+		err = store.Del(recommendCache.DocumentCountKey(recommendCache.ItemToItem, subset))
+		if err != nil {
+			return 0, err
+		}
 		err = store.Del(recommendCache.UpdateTimeKey(recommendCache.ItemToItem, subset))
 		if err != nil {
 			return 0, err
