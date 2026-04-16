@@ -7,12 +7,22 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
 	"shop/pkg/job"
 	"shop/pkg/job/task"
 	"shop/pkg/middleware"
+	cache2 "shop/pkg/recommend/cache"
+	"shop/pkg/recommend/offline/aggregate"
+	"shop/pkg/recommend/offline/materialize"
 	"shop/pkg/wx"
 	"shop/server"
 	"shop/service/admin"
@@ -21,17 +31,10 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -155,10 +158,25 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendActorBindLogCase := biz2.NewRecommendActorBindLogCase(baseCase, dataData, transaction, recommendActorBindLogRepo, recommendUserPreferenceCase, recommendUserGoodsPreferenceCase, recommendGoodsRelationCase)
 	recommendUserPreferenceRebuild := task.NewRecommendUserPreferenceRebuild(recommendActorBindLogCase)
 	recommendGoodsRelationRebuild := task.NewRecommendGoodsRelationRebuild(recommendActorBindLogCase)
-	recommendEvalReportRepo := data.NewRecommendEvalReportRepo(dataData)
 	recommendModelVersionRepo := data.NewRecommendModelVersionRepo(dataData)
+	store, cleanup5, err := cache2.NewStore(data_Redis)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	materializer := materialize.NewMaterializer(store)
+	recommendHotMaterialize := task.NewRecommendHotMaterialize(recommendGoodsStatDayRepo, recommendModelVersionRepo, goodsInfoRepo, materializer)
+	recommendLatestMaterialize := task.NewRecommendLatestMaterialize(recommendModelVersionRepo, goodsInfoRepo, materializer)
+	recommendSimilarItemMaterialize := task.NewRecommendSimilarItemMaterialize(recommendGoodsRelationRepo, recommendModelVersionRepo, goodsInfoRepo, store, materializer)
+	recommendSimilarUserMaterialize := task.NewRecommendSimilarUserMaterialize(recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendModelVersionRepo, store, materializer)
+	recommendCollaborativeFilteringMaterialize := task.NewRecommendCollaborativeFilteringMaterialize(recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendModelVersionRepo, goodsInfoRepo, store, materializer)
+	recommendContentBasedMaterialize := task.NewRecommendContentBasedMaterialize(recommendModelVersionRepo, goodsInfoRepo, store, materializer)
+	recommendEvalReportRepo := data.NewRecommendEvalReportRepo(dataData)
 	recommendEvalReport := task.NewRecommendEvalReport(transaction, recommendEvalReportRepo, recommendModelVersionRepo, recommendRequestRepo, recommendRequestItemRepo, recommendExposureRepo, recommendExposureItemRepo, recommendGoodsActionRepo)
-	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendGoodsStatDay, recommendUserPreferenceRebuild, recommendGoodsRelationRebuild, recommendEvalReport)
+	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendGoodsStatDay, recommendUserPreferenceRebuild, recommendGoodsRelationRebuild, recommendHotMaterialize, recommendLatestMaterialize, recommendSimilarItemMaterialize, recommendSimilarUserMaterialize, recommendCollaborativeFilteringMaterialize, recommendContentBasedMaterialize, recommendEvalReport)
 	cronServer := job.NewCronServer(baseJobRepo, v)
 	authentication_Jwt := configs.ParseAuthnJwt(context)
 	authenticator := middleware.NewAuthenticator(authentication_Jwt)
@@ -171,6 +189,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizBaseApiCase := biz3.NewBaseApiCase(baseCase, baseApiRepo, authentication_Jwt)
 	bizCasbinRuleCase, err := biz3.NewCasbinRuleCase(baseCase, casbinRuleRepo, baseMenuRepo, baseRoleRepo, bizBaseApiCase, engine)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -189,6 +208,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseConfigCase := biz3.NewBaseConfigCase(baseCase, baseConfigRepo)
 	baseConfigService, err := admin.NewBaseConfigService(baseConfigCase)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -271,6 +291,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepo)
 	wxMiniApp, err := configs.ParseWxMiniApp(shopConfig)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -304,6 +325,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	payCase := biz2.NewPayCase(baseCase, transaction, orderInfoRepo, orderGoodsRepo, orderPaymentRepo, orderRefundRepo, orderSchedulerCase, wxPayCase)
 	bizOrderInfoCase, err := biz2.NewOrderInfoCase(baseCase, transaction, orderInfoRepo, bizOrderCancelCase, bizOrderGoodsCase, bizOrderAddressCase, bizOrderLogisticsCase, bizOrderPaymentCase, bizOrderRefundCase, bizGoodsInfoCase, bizGoodsSkuCase, userAddressCase, userCartCase, bizBaseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -317,8 +339,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendExposureCase := biz2.NewRecommendExposureCase(baseCase, recommendExposureRepo, recommendExposureItemCase, recommendGoodsActionRepo)
 	recommendGoodsStatDayCase := biz2.NewRecommendGoodsStatDayCase(baseCase, recommendGoodsStatDayRepo)
 	goodsStatDayCase := biz2.NewGoodsStatDayCase(baseCase, goodsStatDayRepo)
-	recommendRequestCase := biz2.NewRecommendRequestCase(baseCase, shopConfig, recommendRequestRepo, recommendRequestItemCase, bizGoodsInfoCase, bizOrderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase)
-	recommendGoodsActionCase := biz2.NewRecommendGoodsActionCase(baseCase, transaction, recommendGoodsActionRepo, recommendRequestItemCase, recommendUserPreferenceCase, recommendUserGoodsPreferenceCase, recommendGoodsRelationCase, bizGoodsInfoCase)
+	recommendRequestCase := biz2.NewRecommendRequestCase(baseCase, shopConfig, recommendRequestRepo, recommendRequestItemCase, bizGoodsInfoCase, bizOrderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase, recommendModelVersionRepo, store)
+	goodsActionProjector := aggregate.NewGoodsActionProjector(recommendUserPreferenceRepo, recommendUserGoodsPreferenceRepo, recommendGoodsRelationRepo, recommendRequestRepo, recommendRequestItemRepo, goodsInfoRepo)
+	recommendGoodsActionCase := biz2.NewRecommendGoodsActionCase(baseCase, transaction, recommendGoodsActionRepo, goodsActionProjector)
 	recommendCase := biz2.NewRecommendCase(baseCase, transaction, recommendActorBindLogCase, recommendRequestCase, recommendExposureCase, recommendGoodsActionCase)
 	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz2.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
@@ -344,6 +367,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	loginService := base.NewLoginService(loginCase)
 	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -353,6 +377,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	httpMiddlewares := server.NewHttpMiddleware(context, authenticator, baseUserRepo, engine, userToken, authentication_Jwt)
 	httpServer, err := server.NewHttpServer(context, httpMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService)
 	if err != nil {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()
@@ -361,6 +386,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	kratosApp := newApp(context, cronServer, grpcServer, httpServer)
 	return kratosApp, func() {
+		cleanup5()
 		cleanup4()
 		cleanup3()
 		cleanup2()

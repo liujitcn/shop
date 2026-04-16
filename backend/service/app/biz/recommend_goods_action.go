@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"shop/api/gen/go/app"
-	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/gen/data"
-	"shop/pkg/gen/models"
+	recommendDomain "shop/pkg/recommend/domain"
 	recommendEvent "shop/pkg/recommend/event"
+	recommendAggregate "shop/pkg/recommend/offline/aggregate"
 	"shop/pkg/utils"
 	appDto "shop/service/app/dto"
 
@@ -21,13 +21,9 @@ import (
 // RecommendGoodsActionCase 推荐商品行为业务处理对象。
 type RecommendGoodsActionCase struct {
 	*biz.BaseCase
-	tx data.Transaction
+	tx data.Transaction // 事务执行器，用于保证事实落库与投影更新按同一事务提交。
 	*data.RecommendGoodsActionRepo
-	recommendRequestItemCase         *RecommendRequestItemCase
-	recommendUserPreferenceCase      *RecommendUserPreferenceCase
-	recommendUserGoodsPreferenceCase *RecommendUserGoodsPreferenceCase
-	recommendGoodsRelationCase       *RecommendGoodsRelationCase
-	goodsInfoCase                    *GoodsInfoCase
+	goodsActionProjector *recommendAggregate.GoodsActionProjector // 商品行为投影器，推荐聚合逻辑统一下沉到 pkg/recommend。
 }
 
 // NewRecommendGoodsActionCase 创建推荐商品行为业务处理对象。
@@ -35,21 +31,13 @@ func NewRecommendGoodsActionCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
-	recommendRequestItemCase *RecommendRequestItemCase,
-	recommendUserPreferenceCase *RecommendUserPreferenceCase,
-	recommendUserGoodsPreferenceCase *RecommendUserGoodsPreferenceCase,
-	recommendGoodsRelationCase *RecommendGoodsRelationCase,
-	goodsInfoCase *GoodsInfoCase,
+	goodsActionProjector *recommendAggregate.GoodsActionProjector,
 ) *RecommendGoodsActionCase {
 	recommendGoodsActionCase := &RecommendGoodsActionCase{
-		BaseCase:                         baseCase,
-		tx:                               tx,
-		RecommendGoodsActionRepo:         recommendGoodsActionRepo,
-		recommendRequestItemCase:         recommendRequestItemCase,
-		recommendUserPreferenceCase:      recommendUserPreferenceCase,
-		recommendUserGoodsPreferenceCase: recommendUserGoodsPreferenceCase,
-		recommendGoodsRelationCase:       recommendGoodsRelationCase,
-		goodsInfoCase:                    goodsInfoCase,
+		BaseCase:                 baseCase,
+		tx:                       tx,
+		RecommendGoodsActionRepo: recommendGoodsActionRepo,
+		goodsActionProjector:     goodsActionProjector,
 	}
 	recommendGoodsActionCase.RegisterQueueConsumer(_const.RecommendGoodsActionEvent, recommendGoodsActionCase.saveRecommendGoodsActionEvent)
 	return recommendGoodsActionCase
@@ -81,60 +69,36 @@ func (c *RecommendGoodsActionCase) saveRecommendGoodsActionEvent(message queueDa
 	}
 
 	return c.tx.Transaction(context.TODO(), func(ctx context.Context) error {
+		// 先写入行为事实，再由 pkg/recommend 中的投影器更新聚合结果。
 		err = c.BatchCreate(ctx, list)
 		if err != nil {
 			return err
 		}
-
-		actor := event.RecommendActor
-		// 匿名主体不沉淀画像，只保留行为明细。
-		if actor == nil || actor.ActorType != recommendEvent.ActorTypeUser || actor.ActorId <= 0 {
-			return nil
-		}
-
-		eventType := event.EventType
-		// 无法识别的行为类型不参与后续聚合。
-		if eventType == common.RecommendGoodsActionType_UNKNOWN_RGAT {
-			return nil
-		}
-
-		isSingleGoodsEvent := recommendEvent.IsSingleGoodsEvent(eventType)
-		isOrderGoodsEvent := recommendEvent.IsOrderGoodsEvent(eventType)
-		// 非单商品且非订单级行为不参与后续聚合。
-		if !isSingleGoodsEvent && !isOrderGoodsEvent {
-			return nil
-		}
-
-		userId := actor.ActorId
-		for _, item := range list {
-			eventTime := item.CreatedAt
-			var goodsInfo *models.GoodsInfo
-			goodsInfo, err = c.goodsInfoCase.GoodsInfoRepo.FindById(ctx, item.GoodsID)
-			if err != nil {
-				return err
-			}
-			err = c.recommendUserGoodsPreferenceCase.upsertUserGoodsPreference(ctx, userId, item.GoodsID, eventType, eventTime, item.GoodsNum)
-			if err != nil {
-				return err
-			}
-			err = c.recommendUserPreferenceCase.upsertUserCategoryPreference(ctx, userId, goodsInfo.CategoryID, eventType, eventTime, item.GoodsNum)
-			if err != nil {
-				return err
-			}
-			// 单商品行为逐条沉淀商品关联。
-			if isSingleGoodsEvent {
-				err = c.upsertGoodsRelation(ctx, eventType, item.RequestID, item.GoodsID, item.GoodsNum, eventTime)
-				if err != nil {
-					return err
-				}
-			}
-		}
-		// 订单级行为统一按整单商品集合沉淀共现关系。
-		if isOrderGoodsEvent {
-			return c.recommendGoodsRelationCase.upsertOrderGoodsRelations(ctx, list, eventType, event.EventTime)
-		}
-		return nil
+		return c.goodsActionProjector.Project(ctx, c.buildGoodsActionProjectionEvent(event))
 	})
+}
+
+// buildGoodsActionProjectionEvent 将队列事件收敛为推荐聚合领域事件。
+func (c *RecommendGoodsActionCase) buildGoodsActionProjectionEvent(event *utils.RecommendGoodsActionEvent) *recommendDomain.GoodsActionProjectionEvent {
+	// 队列事件为空时，不构造领域事件对象。
+	if event == nil {
+		return nil
+	}
+
+	actorType := int32(0)
+	actorId := int64(0)
+	// 队列消息包含主体时，继续补齐领域事件主体信息。
+	if event.RecommendActor != nil {
+		actorType = event.RecommendActor.ActorType
+		actorId = event.RecommendActor.ActorId
+	}
+	return &recommendDomain.GoodsActionProjectionEvent{
+		ActorType:  actorType,
+		ActorId:    actorId,
+		EventType:  event.EventType,
+		EventTime:  event.EventTime,
+		GoodsItems: event.GoodsItems,
+	}
 }
 
 // bindRecommendGoodsActionActor 将匿名行为主体绑定为登录主体。
@@ -160,28 +124,4 @@ func (c *RecommendGoodsActionCase) publishRecommendGoodsActionEvent(actor *appDt
 	}
 
 	utils.DispatchRecommendGoodsActionEvent(actor, req, time.Now())
-}
-
-// upsertGoodsRelation 按同一次推荐请求的共同出现结果累计商品关联度。
-func (c *RecommendGoodsActionCase) upsertGoodsRelation(ctx context.Context, eventType common.RecommendGoodsActionType, requestId string, goodsId, goodsNum int64, eventTime time.Time) error {
-	// 请求编号为空时，无法回查同批推荐商品，不做关联聚合。
-	if requestId == "" {
-		return nil
-	}
-
-	relatedGoodsIds, err := c.recommendRequestItemCase.listRelatedGoodsIdsByRequestId(ctx, requestId, goodsId)
-	if err != nil {
-		return err
-	}
-	for _, relatedGoodsId := range relatedGoodsIds {
-		err = c.recommendGoodsRelationCase.upsertSingleGoodsRelation(ctx, relatedGoodsId, goodsId, eventType, eventTime, recommendEvent.NormalizeGoodsNum(goodsNum))
-		if err != nil {
-			return err
-		}
-		err = c.recommendGoodsRelationCase.upsertSingleGoodsRelation(ctx, goodsId, relatedGoodsId, eventType, eventTime, recommendEvent.NormalizeGoodsNum(goodsNum))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }

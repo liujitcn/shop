@@ -19,8 +19,8 @@
 
 ## 实现参照与复用原则
 
-- 内部实现参照仓库固定为 `/Users/liujun/workspace/github/gorse`，用于参考训练任务拆分、候选集合处理、缓存物化和评估口径；当前项目对外命名、目录命名和业务文案中不引入该名称。
-- 基础 KV / Hash 缓存统一优先复用 `github.com/liujitcn/kratos-kit/cache`，推荐层仅补齐排序集合、版本、物化发布等推荐专用语义。
+- 内部实现参照仓库固定为 `/Users/liujun/workspace/github/gorse`，用于参考训练任务拆分、候选集合处理、缓存写入和评估口径；当前项目对外命名、目录命名和业务文案中不引入该名称。
+- 基础 KV / Hash 缓存统一优先复用 `github.com/liujitcn/kratos-kit/cache`，推荐层仅补齐排序集合、版本、缓存发布等推荐专用语义。
 - 去重、排除集、候选集合并交等集合操作，优先使用 `github.com/deckarep/golang-set/v2 v2.8.0`，避免在业务层重复手写 `map` 去重逻辑。
 - 稠密布尔标记、可预测位图、训练阶段批量成员判定等位图场景，优先使用 `github.com/bits-and-blooms/bitset v1.24.4`，作为后续单机训练和评估阶段的基础位图组件。
 
@@ -56,7 +56,7 @@
 5. 模型排序：规则粗排 + 模型精排 + LLM TopN 二次重排。
 6. 更灵活的去重、惩罚、替换和多样性策略。
 7. 更完整的冷启动：匿名、新用户、新商品。
-8. 单机离线训练平台：聚合、训练、物化、发布。
+8. 单机离线训练平台：聚合、训练、写缓存、发布。
 9. 自动调参：用离线评估结果自动选择更优参数集。
 10. 版本驱动推荐：训练版本、缓存版本、在线策略联动。
 11. 离线缓存推荐：结果预生成并落推荐缓存，基础 KV / Hash 优先复用 `kratos-kit/cache`，后续在该模块补齐 `LevelDB` 实现，并保持兼容 `Redis`。
@@ -70,9 +70,9 @@
 | --- | --- | --- | --- |
 | 在线推荐主链路职责过重 | 阶段 1、阶段 6 | 阶段 1 已开始抽离领域边界，主链路尚未切换 | 统一领域对象、统一在线引擎入口、旧链路下线计划 |
 | 行为事实与聚合耦合 | 阶段 2 | 已开始拆分，当前仍保留原队列入口 | 事实事件对象、投影器、离线重建复用聚合函数 |
-| 缺少缓存优先和物化发布 | 阶段 3 | 尚未开始主实现 | 推荐缓存协议、物化任务、缓存版本规范、缓存命中指标 |
-| 缺少相似用户和协同过滤 | 阶段 4、阶段 5 | 尚未开始 | 相似用户召回、CF 召回、训练产物、候选缓存 |
-| 商品相似仍偏行为统计 | 阶段 4、阶段 5 | 当前只有关系召回 | 行为相似、属性相似、内容相似三类产物 |
+| 缺少缓存优先和写缓存发布 | 阶段 3 | 已完成 `hot`、`latest`、`similar_item` 三类结果的写缓存调度与在线读取挂点 | 推荐缓存协议、写缓存任务、缓存版本规范、缓存命中指标 |
+| 缺少相似用户和协同过滤 | 阶段 4、阶段 5 | 已接入按版本控制的相似用户与协同过滤召回探针，`GOODS_DETAIL` 可按版本灰度并入协同过滤候选 | 相似用户召回、CF 召回、训练产物、候选缓存 |
+| 商品相似仍偏行为统计 | 阶段 4、阶段 5 | 已接入内容相似探针读取挂点，`GOODS_DETAIL` 可按版本灰度并入内容相似候选 | 行为相似、属性相似、内容相似三类产物 |
 | 缺少模型排序 | 阶段 5、阶段 7 | 尚未开始 | CTR / CVR 轻量模型、排序特征、精排服务 |
 | 缺少自动调参与版本联动 | 阶段 8 | 尚未开始 | 参数搜索任务、评估结果回写、版本发布和回滚 |
 | 缺少推荐后台和监控 | 阶段 9 | 尚未开始 | 推荐任务后台、指标面板、发布记录、排障入口 |
@@ -86,13 +86,32 @@
 | 阶段 0 | 已完成 | 已完成建档、README 入口和基线固化 |
 | 阶段 1 | 已完成 | 领域对象与缓存边界已落到 `pkg/recommend` |
 | 阶段 2 | 进行中 | 商品行为投影器已下沉，其他聚合逻辑仍待继续收敛 |
-| 阶段 3 | 未开始 | 依赖阶段 2 继续收口后启动 |
-| 阶段 4 | 未开始 | 依赖缓存与训练产物承接 |
-| 阶段 5 | 未开始 | 依赖统一聚合输入和缓存物化边界 |
+| 阶段 3 | 进行中 | 已补缓存 key 规范、缓存后端适配、首批写缓存任务调度，并接入 `hot`、`latest`、`similar_item` 在线缓存优先读取 |
+| 阶段 4 | 进行中 | 已补相似用户、协同过滤、内容相似探针和版本控制入口，并在 `GOODS_DETAIL` 接入首批灰度候选融合 |
+| 阶段 5 | 进行中 | 已补首批相似用户、协同过滤、内容相似训练与写缓存任务，排序模型仍待后续补齐 |
 | 阶段 6 | 未开始 | 依赖多路召回和版本驱动 |
 | 阶段 7 | 未开始 | 依赖阶段 5 的排序特征与模型产物 |
 | 阶段 8 | 未开始 | 依赖评估指标、训练版本、发布协议打通 |
 | 阶段 9 | 未开始 | 依赖前面阶段输出稳定指标和操作面 |
+
+## 当前代码锚点
+
+为了避免后续推进时反复重新定位，先把当前推荐链路的主要落点固定下来：
+
+| 职责 | 当前文件 | 当前作用 | 后续阶段处理方式 |
+| --- | --- | --- | --- |
+| 在线推荐总入口 | `service/app/biz/recommend_request.go` | 同时承担场景规划、召回、候选合并、排序、明细落库 | 阶段 6 拆成 planner / recall / rank / record，多数逻辑迁到 `pkg/recommend/online` |
+| 在线缓存读取桥接 | `service/app/biz/recommend_cache.go` | 负责 `hot`、`latest`、`similar_item` 的缓存读取、版本回退和排除过滤 | 阶段 6 再迁到 `pkg/recommend/online/cache` |
+| 召回探针桥接 | `service/app/biz/recommend_recall_probe.go` | 负责按版本配置读取相似用户、协同过滤、内容相似三类召回探针，并把命中信息写入请求上下文 | 阶段 6 再迁到 `pkg/recommend/online/recall` |
+| 商品行为事实入口 | `service/app/biz/recommend_goods_action.go` | 消费队列、写 `recommend_goods_action`、调用投影器 | 阶段 2 保持这里只做事实入库和桥接，不继续扩展聚合细节 |
+| 实时投影器 | `pkg/recommend/offline/aggregate/goods_action_projector.go` | 把行为事实投影到用户偏好、商品偏好、商品关系 | 阶段 2 继续扩展为离线重建和实时更新共用聚合入口 |
+| 用户类目偏好重建 | `service/app/biz/recommend_user_preference.go` | 仍在 `biz` 层直接读事实表并重建聚合 | 阶段 2 继续下沉到 `pkg/recommend/offline/aggregate` |
+| 商品关联重建 | `service/app/biz/recommend_goods_relation.go` | 仍在 `biz` 层直接读事实表并重建商品关系 | 阶段 2 继续下沉到 `pkg/recommend/offline/aggregate` |
+| 候选构建 | `pkg/recommend/candidate/logic.go` | 已下沉匿名/登录态候选构建和基础打散排序 | 阶段 4 继续从“单函数候选构建”演进到多召回组合 |
+| 基础排序函数 | `pkg/recommend/rank/weight_ranker.go` | 负责当前规则排序中的新鲜度、曝光惩罚等基础分 | 阶段 7 在此基础上补模型精排和 LLM 重排挂点 |
+| 推荐缓存协议 | `pkg/recommend/cache/types.go`、`pkg/recommend/cache/key.go`、`pkg/recommend/cache/store.go` | 已定义推荐缓存语义、固定 key 前缀并接入基础缓存实现 | 阶段 3 在不改协议前提下继续补写缓存任务与读缓存桥接 |
+| 推荐领域对象 | `pkg/recommend/domain/*.go` | 已承载请求、上下文、候选、特征、结果、版本、行为事件 | 阶段 4 之后继续作为统一在线/离线边界 |
+| 依赖注入入口 | `service/app/init.go` | 汇总 `biz` 与 `pkg/recommend` 推荐依赖 | 新增在线引擎、缓存服务、写缓存任务时在这里接线 |
 
 ## 目标目录结构
 
@@ -231,7 +250,21 @@ backend/pkg/recommend/
 - 新行为写入不再和所有聚合逻辑强绑定在一个大事务里。
 - 离线重建和实时更新共用统一聚合函数或聚合服务。
 
-### 阶段 3：落地推荐专用缓存与物化层
+阶段 2 文件级执行清单：
+
+1. 保持 `service/app/biz/recommend_goods_action.go` 只负责“队列消费 -> 事实落库 -> 调用投影器”，不要再继续把偏好或关系聚合写回这个 Case。
+2. 继续扩展 `pkg/recommend/offline/aggregate/goods_action_projector.go`，把“实时投影”和“离线重建”需要复用的聚合函数沉到这里或其同级文件。
+3. 把 `service/app/biz/recommend_user_preference.go` 中的重建逻辑改成调用 `pkg/recommend/offline/aggregate`，避免 `biz` 层继续维护第二套聚合实现。
+4. 把 `service/app/biz/recommend_goods_relation.go` 中的重建逻辑改成调用 `pkg/recommend/offline/aggregate`，统一请求共现和订单共现的累计规则。
+5. 在阶段 2 内暂时不要改 `service/app/biz/recommend_request.go` 的在线读取路径，避免事实层拆分和在线链路改造叠在一起。
+
+阶段 2 完成后的代码形态要求：
+
+- `service/app/biz` 中的推荐 Case 只保留接口编排、任务入口、事实桥接。
+- 所有推荐聚合规则只在 `pkg/recommend/offline/aggregate` 维护一份。
+- 离线重建任务和实时投影调用同一套聚合函数，而不是各自复制一份规则。
+
+### 阶段 3：落地推荐专用缓存与写缓存层
 
 目标：
 
@@ -247,8 +280,8 @@ backend/pkg/recommend/
 - 后续在 `kratos-kit/cache` 中补齐 `LevelDB` 实现，再回接推荐缓存层。
 - 预留 `Redis` 缓存实现接入位。
 - 定义缓存 key 规范和版本规范。
-- 支持物化任务将结果写入缓存。
-- 在线引擎支持“缓存优先、在线补算兜底”。
+- 支持写缓存任务将结果写入缓存。
+- 在线引擎支持“缓存优先，未命中查库”。
 
 建议缓存内容：
 
@@ -271,22 +304,37 @@ backend/pkg/recommend/
 
 - 阶段 2 至少完成商品行为投影、用户类目偏好、用户商品偏好、商品关系三类聚合逻辑的下沉或桥接收口。
 - 在线推荐主链路暂不改协议，只增加缓存读写挂点。
-- 版本对象、缓存 key 规范和物化任务输入输出先在 `pkg/recommend` 内固定。
+- 版本对象、缓存 key 规范和写缓存任务输入输出先在 `pkg/recommend` 内固定。
 
 阶段 3 实施拆解：
 
 1. 先定义推荐缓存实体和缓存键构造器，固定用户推荐、相似商品、相似用户、热门榜、最新榜、协同过滤候选的 key 规范。
 2. 再补缓存读写适配层，基础 KV / Hash 直接复用 `kratos-kit/cache`，推荐层只补排序集合、多值列表、版本摘要这些语义。
-3. 再落物化任务，把热门榜、最新榜、相似商品等当前最容易稳定的结果先写入缓存。
-4. 然后在在线推荐链路增加“缓存命中优先，未命中补算”的只读挂点，先记录命中率，不切默认读取。
+3. 再落写缓存任务，把热门榜、最新榜、相似商品等当前最容易稳定的结果先写入缓存。
+4. 然后在在线推荐链路增加“缓存优先，未命中查库”的只读挂点，先记录命中来源和请求上下文，不急着重写在线引擎。
 5. 最后补版本发布和失效策略，确保新版本发布只影响对应 key 空间，不污染旧版本缓存。
 
 阶段 3 验证重点：
 
-- 同一版本下重复物化不会产生脏写和重复 key。
+- 同一版本下重复写缓存不会产生脏写和重复 key。
 - 缓存未命中时，旧在线现算结果保持不变。
 - 缓存命中后，推荐返回结构、曝光入库、行为回流不受影响。
-- 可按场景、按版本查看物化数量、发布时间和命中率。
+- 可按场景、按版本查看写缓存数量、发布时间和命中率。
+
+阶段 3 文件级执行清单：
+
+1. 基于 `pkg/recommend/cache/types.go`、`pkg/recommend/cache/key.go` 与 `pkg/recommend/cache/store.go` 固定缓存协议，不在业务 Case 中直接拼接缓存 key。
+2. 在 `pkg/recommend` 下新增写缓存与缓存读写承接目录，优先落到 `offline/materialize`、`online/cache` 或同等职责目录，不把缓存实现散落回 `service/app/biz`。
+3. 首批写缓存对象只覆盖 `hot`、`latest`、`similar_item` 三类稳定结果，避免一开始就把 `recommend`、`cf_candidate`、`llm_rerank` 全量做完。
+4. `service/app/biz/recommend_request.go` 在阶段 3 只允许增加“缓存读取挂点”和命中日志，不允许直接改造成全新在线引擎。
+5. 如需新增缓存服务或写缓存任务注入，统一在 `service/app/init.go` 接线，保证依赖入口单一。
+
+阶段 3 暂不处理项：
+
+- 不在本阶段引入协同过滤训练结果。
+- 不在本阶段引入相似用户缓存。
+- 不在本阶段替换 `RecommendGoods` 主流程。
+- 不在本阶段引入后台管理页面。
 
 ### 阶段 4：补齐召回层能力
 
@@ -313,6 +361,13 @@ backend/pkg/recommend/
 - 在线推荐可同时从多条召回链生成候选池。
 - 单个召回器的启停可由策略版本控制。
 
+当前进展补充：
+
+- 已为相似用户、协同过滤、内容相似三类召回补齐缓存键约定和读取探针。
+- 已支持从 `recommend_model_version.config_json.recall_probe` 读取探针启停和读取数量。
+- 当前探针命中信息会统一写入推荐请求 `sourceContext.onlineDebugContext`；其中 `recallProbeContext` 记录探针命中与配置，`joinRecallContext` 区分入池、入候选、入返回页三层命中，相似用户探针的 `similarUserObservationContext` 用于观测和当前候选、返回结果，以及协同过滤和内容相似灰度结果的重合情况。
+- 当前阶段仍缺训练产物写入任务，因此探针默认用于观测，不直接改主推荐结果。
+
 ### 阶段 5：补齐单机训练平台
 
 目标：
@@ -326,12 +381,20 @@ backend/pkg/recommend/
 - 协同过滤训练
 - CTR / CVR 轻量排序模型训练
 - 调参任务
-- 结果物化任务
+- 结果写缓存任务
 
 阶段完成标准：
 
 - 不再只有“重建表”和“统计报表”，而是有可用于在线推荐的训练产物。
 - 训练产物可落库、可缓存、可挂版本。
+
+当前进展补充：
+
+- 已新增相似用户、协同过滤、内容相似三类离线训练与写缓存任务。
+- 当前首版训练优先复用用户类目偏好、用户商品偏好、商品属性等现有聚合结果，不新引入库表。
+- 当前产物已可按启用版本发布到推荐缓存，并可直接被阶段 4 的召回探针读取。
+- 已为写缓存任务补统一失败摘要，任务异常时会带出当前执行阶段、输入规模、已发布子集合数、已清理子集合数和耗时，便于排查训练或发布卡点。
+- 当前仍未补 CTR / CVR 轻量排序模型、模型文件发布和自动调参链路。
 
 ### 阶段 6：重构在线引擎并灰度替换主链路
 
@@ -564,6 +627,13 @@ go test ./...
 | 2026-04-16 | 阶段 0 | 建立推荐系统重构开发计划文档，并在 README 增加入口 | 否 | 未执行代码验证，本次仅文档建档 | 当前项目基线仍保持不变 |
 | 2026-04-16 | 阶段 1 | 新增 `pkg/recommend/domain` 与 `pkg/recommend/cache` 基础协议，`core/types` 与 `candidate` 完成兼容转接 | 否 | `cd backend && go test ./...` 通过 | 基础 KV/Hash 明确优先复用 `kratos-kit/cache`，推荐层仅保留排序集合缓存协议 |
 | 2026-04-16 | 阶段 2 | 更新实现参照与集合库选型文档，并将商品行为投影器下沉到 `pkg/recommend/offline/aggregate`，`biz` 层仅保留事实入库与桥接 | 否 | `cd backend && go test ./...` 通过 | 当前不改变队列入口和主推荐读取链路，仅调整推荐聚合分层位置 |
+| 2026-04-16 | 阶段 2 / 阶段 3 | 补充当前代码锚点与阶段 2、阶段 3 文件级执行清单，明确后续优先改哪些文件、暂不改哪些文件 | 否 | `cd backend && go test ./...` 通过 | 本次仍为文档细化，不涉及在线推荐主流程变更 |
+| 2026-04-16 | 阶段 2 | 将 `recommend_user_goods_preference`、`recommend_user_preference`、`recommend_goods_relation` 的离线重建逻辑统一下沉到 `pkg/recommend/offline/aggregate`，`biz` 层仅保留删旧数据、调用聚合器和批量落库 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前未改在线推荐主读路径，仅继续收口聚合重建实现 |
+| 2026-04-16 | 阶段 2 | 将 `RecommendGoodsStatDay` 的按天聚合逻辑下沉到 `pkg/recommend/offline/aggregate`，任务文件仅保留日期解析、删旧数据和批量回写 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前推荐统计读路径不变，继续为阶段 3 缓存写入准备稳定聚合输入 |
+| 2026-04-16 | 阶段 3 | 新增推荐缓存 key 规范与写缓存服务，首批支持 `hot`、`latest`、`similar_item` 三类结果按统一协议发布到推荐缓存 | 否 | `cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仅补齐缓存命名和写缓存基础，尚未接入具体缓存后端和任务调度 |
+| 2026-04-16 | 阶段 3 | 接入 `kratos-kit/cache` 推荐缓存适配层，并将 `RecommendHotMaterialize`、`RecommendLatestMaterialize`、`RecommendSimilarItemMaterialize` 注册到调度任务 | 否 | `cd backend/internal/cmd/server && GOCACHE=/tmp/shop-go-build-cache wire`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前已形成“聚合结果 -> 写缓存服务 -> 定时任务”闭环 |
+| 2026-04-16 | 阶段 3 | 在 `service/app/biz/recommend_request.go` 与 `service/app/biz/recommend_cache.go` 接入 `hot`、`latest`、`similar_item` 缓存优先读取，未命中回退原查库路径，并把 `cacheHitSources` 写入请求上下文 | 是 | `cd backend/internal/cmd/server && GOCACHE=/tmp/shop-go-build-cache wire`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前仍未抽离独立在线引擎，但阶段 3 的“写缓存 + 在线读取回退”闭环已经接通 |
+| 2026-04-16 | 阶段 5 | 为六类写缓存任务补统一失败摘要日志，并为“无启用版本”的跳过分支补统一摘要输出，任务异常或跳过时都能看到当前阶段、输入规模、发布进度、清理进度与耗时 | 否 | `cd backend/internal/cmd/server && GOCACHE=/tmp/shop-go-build-cache wire`、`cd backend && GOCACHE=/tmp/shop-go-build-cache go test ./...` 通过 | 当前先补齐训练发布链路排障信息，排序模型和调参链路仍待后续推进 |
 
 ## 阶段结论记录
 
@@ -587,18 +657,50 @@ go test ./...
 
 - 已开始拆分推荐商品行为消费者内部职责，先把事实入库与投影更新分层。
 - 已将商品行为投影器下沉到 `pkg/recommend/offline/aggregate`，避免继续在 `service/app/biz` 扩展推荐聚合逻辑。
+- 已将 `recommend_user_goods_preference`、`recommend_user_preference`、`recommend_goods_relation` 的离线重建逻辑统一下沉到 `pkg/recommend/offline/aggregate`，`biz` 层只保留删旧数据、调用聚合器和批量落库。
+- 已将 `RecommendGoodsStatDay` 的按天聚合逻辑统一下沉到 `pkg/recommend/offline/aggregate`，`pkg/job/task` 中的任务入口只保留日期解析、删旧数据和批量回写。
 - 当前仍保留原有队列主题、事务入口和在线推荐主读路径，避免阶段 2 初期影响运行稳定性。
 - 集合去重优先库已固定为 `golang-set/v2`，位图实现优先库已固定为 `bitset`，并记录到长期规划中。
 - 已完成首轮代码回归验证，`cd backend && go test ./...` 通过。
 
+### 阶段 3 当前进展
+
+- 已补齐推荐缓存集合名、子集合、摘要键、更新时间键的统一命名规则。
+- 已新增 `pkg/recommend/offline/materialize` 写缓存模块，首批支持 `hot`、`latest`、`similar_item` 三类结果发布到统一缓存协议。
+- 已接入基于 `kratos-kit/cache` 的推荐缓存 store，当前无 Redis 时走内存后端，有 Redis 时直接复用 Redis。
+- 已将 `RecommendHotMaterialize`、`RecommendLatestMaterialize`、`RecommendSimilarItemMaterialize` 注册到定时任务调度。
+- 已把 `hot`、`latest`、`similar_item` 三类缓存优先读取挂到 `RecommendRequestCase`，未命中时回退原查库路径。
+- 已在推荐请求 `sourceContext` 中记录 `cacheHitSources`，便于排查当前结果命中了哪类缓存。
+- 当前仍未抽离独立在线引擎，也未补完整的缓存命中率指标面板。
+
+### 阶段 4 当前进展
+
+- 已新增 `service/app/biz/recommend_recall_probe.go`，用于按场景版本读取相似用户、协同过滤、内容相似三类召回探针。
+- 已在 `pkg/recommend/cache` 中补齐相似用户、协同过滤、内容相似三类缓存集合与子集合键约定。
+- 已在 `pkg/recommend/domain` 中补齐 `recall_probe` 配置结构，用于承接 `recommend_model_version.config_json` 内的版本化探针开关。
+- 已将探针读取结果写入推荐请求 `sourceContext`，并在探针上下文中补充 `joinCandidate` 标记，便于区分“只观测”和“参与候选”。
+- 已在 `GOODS_DETAIL` 场景接入首批灰度候选融合：匿名态可按版本并入内容相似，登录态可按版本并入内容相似和协同过滤；相似用户当前仍只做观测不直接并入候选。
+- 已将灰度召回的排障信息写入 `joinRecallContext`，可以直接看到每类灰度召回“已并入候选”“实际进入候选池”“实际出现在当前页”的商品编号与来源列表。
+- 已将相似用户探针的观测结果写入 `similarUserObservationContext`，可以直接看到相似用户偏好商品 TopN 与当前候选、当前返回页，以及协同过滤、内容相似灰度结果的交集商品和覆盖率。
+- 已将上述在线排障字段统一收口到 `sourceContext.onlineDebugContext`，避免 `sourceContext` 顶层继续扩散调试字段。
+- 当前探针已经有首批训练产物可读，下一步可以继续评估相似用户召回和更多场景的候选融合灰度。
+
+### 阶段 5 当前进展
+
+- 已新增 `RecommendSimilarUserMaterialize`，基于用户类目偏好重叠和商品偏好重叠训练相似用户结果，并按版本发布到 `user-to-user` 缓存。
+- 已新增 `RecommendCollaborativeFilteringMaterialize`，基于相似用户结果和邻居商品偏好聚合协同过滤候选，并按版本发布到 `collaborative-filtering` 缓存。
+- 已新增 `RecommendContentBasedMaterialize`，基于同类目商品的价格接近度与新鲜度接近度构建内容相似结果，并按版本发布到 `content-based` 缓存。
+- 已将三类任务注册到定时任务调度与依赖注入。
+- 已为 `hot`、`latest`、`similar_item`、`similar_user`、`collaborative_filtering`、`content_based` 六类写缓存任务补最小摘要日志；其中阶段 5 的训练发布任务会额外记录偏好记录数、候选用户数、候选商品数等输入规模，统一输出版本数、发布子集合数、发布文档数、清理子集合数和总耗时。
+- 已为上述六类写缓存任务补统一失败摘要日志，任务异常时会带出当前执行阶段、已累计的输入规模、已发布进度、已清理进度和耗时，便于直接定位失败卡点。
+- 当前仍未补 CTR / CVR 轻量排序模型、调参任务和模型产物发布协议。
+
 ## 下阶段启动清单
 
-阶段 2 继续收口与阶段 3 启动前，先完成以下准备：
+阶段 5 继续推进与阶段 6 启动前，先完成以下准备：
 
-- 明确推荐行为事实层与投影层的边界，优先从 `recommend_goods_action` 消费链路开始拆分。
-- 保持现有队列入口、在线推荐接口和推荐结果落库逻辑不变。
-- 抽离可复用的实时投影函数，后续供离线重建任务复用。
-- 继续把 `recommend_user_preference`、`recommend_user_goods_preference`、`recommend_goods_relation` 的离线重建逻辑对齐到 `pkg/recommend/offline/aggregate`。
-- 为阶段 3 的缓存物化层预留版本和缓存键对接点。
-- 明确首批物化对象只覆盖 `hot`、`latest`、`similar_item`，不在阶段 3 一次性引入所有缓存类型。
-- 为缓存命中率、物化耗时、版本发布时间补最小可观测字段，避免阶段 3 落地后仍然无法判断效果。
+- 保持现有队列入口、在线推荐接口和推荐结果落库逻辑不变，避免阶段 4 与主链路改造叠在一起。
+- 继续补缓存命中率、写缓存耗时、版本发布时间等最小可观测字段，避免探针接入后仍然无法判断效果。
+- 评估哪些探针可以先纳入候选融合灰度，优先选择风险较低的商品详情场景。
+- 继续补 CTR / CVR 轻量排序模型、调参任务和模型产物发布协议，避免阶段 5 只停留在召回训练。
+- 明确阶段 6 切主链路时的灰度范围、版本切换条件和回滚方式，避免探针和默认召回并线后难以排障。

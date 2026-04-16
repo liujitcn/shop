@@ -7,9 +7,10 @@ package data
 import (
 	"context"
 
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"shop/pkg/gen/models"
 	"shop/pkg/gen/query"
+
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 func init() {

@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, watch } from "vue";
+import type { YAXisComponentOption } from "echarts";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import { defGoodsAnalyticsService } from "@/api/admin/goods_analytics";
@@ -23,12 +24,12 @@ const trendData = reactive<AnalyticsTrendResponse>({
 });
 
 /** 根据后端返回的 Y 轴名称动态构造图表坐标轴。 */
-const yAxisList = computed(() => {
+const yAxisList = computed<YAXisComponentOption[]>(() => {
   const axisNames = trendData.yAxisNames.length ? trendData.yAxisNames : ["次数 / 件数"];
   return axisNames.map((name, index) => ({
-    type: "value",
+    type: "value" as const,
     name,
-    position: index % 2 === 0 ? "left" : "right",
+    position: index % 2 === 0 ? ("left" as const) : ("right" as const),
     axisLabel: {
       color: "#6d7b8f"
     },

@@ -6,6 +6,7 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/conf"
 	recommendCore "shop/pkg/recommend/core"
+	recommendDomain "shop/pkg/recommend/domain"
 	recommendRank "shop/pkg/recommend/rank"
 
 	_time "github.com/liujitcn/go-utils/time"
@@ -15,6 +16,8 @@ const (
 	RecallSourceRelation     = "relation"
 	RecallSourceUserGoods    = "user_goods"
 	RecallSourceProfile      = "profile"
+	RecallSourceContentBased = "content_based"
+	RecallSourceCF           = "collaborative_filtering"
 	RecallSourceSceneHot     = "scene_hot"
 	RecallSourceGlobalHot    = "global_hot"
 	RecallSourceLatest       = "latest"
@@ -67,26 +70,15 @@ func ApplyRecommendConfig(cfg *conf.GoodsRecommendConfig) {
 	}
 }
 
-// PersonalizedSignals 表示登录态候选所需的评分信号。
-type PersonalizedSignals struct {
-	RelationScores         map[int64]float64
-	UserGoodsScores        map[int64]float64
-	ProfileScores          map[int64]float64
-	ScenePopularityScores  map[int64]float64
-	GlobalPopularityScores map[int64]float64
-	SceneExposurePenalties map[int64]float64
-	ActorExposurePenalties map[int64]float64
-	RecentPaidGoods        map[int64]struct{}
-}
+// PersonalizedSignals 兼容旧引用，实际类型已下沉到领域层维护。
+// 阶段 4 召回层统一切换到领域对象后，可统一搜索 “阶段 4 后删除：兼容旧引用” 清理本别名。
+// 阶段 4 后删除：兼容旧引用。
+type PersonalizedSignals = recommendDomain.PersonalizedSignals
 
-// AnonymousSignals 表示匿名候选所需的评分信号。
-type AnonymousSignals struct {
-	RelationScores         map[int64]float64
-	ScenePopularityScores  map[int64]float64
-	GlobalPopularityScores map[int64]float64
-	SceneExposurePenalties map[int64]float64
-	ActorExposurePenalties map[int64]float64
-}
+// AnonymousSignals 兼容旧引用，实际类型已下沉到领域层维护。
+// 阶段 4 召回层统一切换到领域对象后，可统一搜索 “阶段 4 后删除：兼容旧引用” 清理本别名。
+// 阶段 4 后删除：兼容旧引用。
+type AnonymousSignals = recommendDomain.AnonymousSignals
 
 // ResolveCandidateLimit 计算当前分页请求的候选池大小。
 func ResolveCandidateLimit(pageNum, pageSize int64) int64 {

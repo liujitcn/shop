@@ -2,19 +2,17 @@ package biz
 
 import (
 	"context"
-	"errors"
-	"shop/api/gen/go/common"
+	"sort"
 	"time"
 
+	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
-	"shop/pkg/gen/models"
 	recommendCandidate "shop/pkg/recommend/candidate"
 	recommendEvent "shop/pkg/recommend/event"
-	appDto "shop/service/app/dto"
+	recommendAggregate "shop/pkg/recommend/offline/aggregate"
 
 	"github.com/liujitcn/gorm-kit/repo"
-	"gorm.io/gorm"
 )
 
 // RecommendUserGoodsPreferenceCase 推荐用户商品偏好业务处理对象。
@@ -44,85 +42,23 @@ func (c *RecommendUserGoodsPreferenceCase) RebuildRecommendUserGoodsPreference(c
 		return nil
 	}
 
-	endAt := time.Now()
-	startAt := endAt.AddDate(0, 0, -int(windowDays))
+	actionList, err := recommendAggregate.ListUserActionFacts(ctx, c.recommendGoodsActionRepo, userIds, windowDays)
+	if err != nil {
+		return err
+	}
 
 	preferenceQuery := c.Query(ctx).RecommendUserGoodsPreference
 	preferenceOpts := make([]repo.QueryOption, 0, 2)
 	preferenceOpts = append(preferenceOpts, repo.Where(preferenceQuery.UserID.In(userIds...)))
 	preferenceOpts = append(preferenceOpts, repo.Where(preferenceQuery.WindowDays.Eq(windowDays)))
-	err := c.Delete(ctx, preferenceOpts...)
+	err = c.Delete(ctx, preferenceOpts...)
 	if err != nil {
 		return err
 	}
 
-	actionQuery := c.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
-	actionOpts := make([]repo.QueryOption, 0, 5)
-	actionOpts = append(actionOpts, repo.Where(actionQuery.ActorType.Eq(recommendEvent.ActorTypeUser)))
-	actionOpts = append(actionOpts, repo.Where(actionQuery.ActorID.In(userIds...)))
-	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
-	actionOpts = append(actionOpts, repo.Where(actionQuery.CreatedAt.Lte(endAt)))
-	actionOpts = append(actionOpts, repo.Order(actionQuery.CreatedAt.Asc()))
-	var actionList []*models.RecommendGoodsAction
-	actionList, err = c.recommendGoodsActionRepo.List(ctx, actionOpts...)
+	list, err := recommendAggregate.RebuildUserGoodsPreferences(actionList, windowDays)
 	if err != nil {
 		return err
-	}
-	// 当前窗口没有行为数据时，只保留清理动作。
-	if len(actionList) == 0 {
-		return nil
-	}
-
-	preferenceMap := make(map[appDto.RecommendUserGoodsPreferenceKey]*models.RecommendUserGoodsPreference)
-	for _, item := range actionList {
-		// 非法行为明细不参与商品偏好重建。
-		if item == nil || item.ActorID <= 0 || item.GoodsID <= 0 {
-			continue
-		}
-
-		eventType := common.RecommendGoodsActionType(item.EventType)
-		// 无法识别的行为类型不参与商品偏好重建。
-		if eventType == common.RecommendGoodsActionType_UNKNOWN_RGAT {
-			continue
-		}
-
-		key := appDto.RecommendUserGoodsPreferenceKey{
-			UserId:  item.ActorID,
-			GoodsId: item.GoodsID,
-		}
-		entity, ok := preferenceMap[key]
-		// 当前用户商品组合首次出现时，先初始化重建实体。
-		if !ok {
-			entity = &models.RecommendUserGoodsPreference{
-				UserID:         item.ActorID,
-				GoodsID:        item.GoodsID,
-				LastBehaviorAt: item.CreatedAt,
-				WindowDays:     windowDays,
-				CreatedAt:      item.CreatedAt,
-				UpdatedAt:      item.CreatedAt,
-			}
-			preferenceMap[key] = entity
-		}
-
-		entity.Score += recommendEvent.EventWeight(eventType) * recommendEvent.NormalizeGoodsNum(item.GoodsNum)
-		entity.BehaviorSummary, err = recommendEvent.AddBehaviorSummaryCount(entity.BehaviorSummary, eventType, recommendEvent.NormalizeGoodsCount(item.GoodsNum))
-		if err != nil {
-			return err
-		}
-		// 当前行为时间更晚时，刷新最近行为信息。
-		if !item.CreatedAt.Before(entity.LastBehaviorAt) {
-			entity.LastBehaviorType = eventType.String()
-			entity.LastBehaviorAt = item.CreatedAt
-		}
-		// 当前行为时间更晚时，同步刷新聚合更新时间。
-		if item.CreatedAt.After(entity.UpdatedAt) {
-			entity.UpdatedAt = item.CreatedAt
-		}
-	}
-
-	list := make([]*models.RecommendUserGoodsPreference, 0, len(preferenceMap))
-	for _, item := range preferenceMap {
-		list = append(list, item)
 	}
 	// 重建后没有沉淀出有效偏好数据时，直接结束。
 	if len(list) == 0 {
@@ -162,52 +98,86 @@ func (c *RecommendUserGoodsPreferenceCase) loadUserGoodsSignals(ctx context.Cont
 	return scores, recentPaidGoodsMap, nil
 }
 
-// upsertUserGoodsPreference 累计用户对具体商品的偏好得分。
-func (c *RecommendUserGoodsPreferenceCase) upsertUserGoodsPreference(ctx context.Context, userId, goodsId int64, eventType common.RecommendGoodsActionType, eventTime time.Time, goodsNum int64) error {
+// listObservedGoodsIdsByUserIds 查询一组用户偏好商品的观测结果。
+func (c *RecommendUserGoodsPreferenceCase) listObservedGoodsIdsByUserIds(ctx context.Context, userIds []int64, limit int64, excludeGoodsIds []int64) ([]int64, error) {
+	// 观测用户为空或限制数量非法时，不需要继续查询。
+	if len(userIds) == 0 || limit <= 0 {
+		return []int64{}, nil
+	}
+
 	query := c.Query(ctx).RecommendUserGoodsPreference
 	opts := make([]repo.QueryOption, 0, 3)
-	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
-	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	opts = append(opts, repo.Where(query.UserID.In(userIds...)))
 	opts = append(opts, repo.Where(query.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
-
-	entity, err := c.Find(ctx, opts...)
-	// 除记录不存在外的查询异常都应中断聚合，避免覆盖脏数据。
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return err
+	// 需要排除的商品不参与相似用户观测结果。
+	if len(excludeGoodsIds) > 0 {
+		opts = append(opts, repo.Where(query.GoodsID.NotIn(excludeGoodsIds...)))
 	}
 
-	summaryJson := ""
-	score := recommendEvent.EventWeight(eventType) * recommendEvent.NormalizeGoodsNum(goodsNum)
-	// 已有聚合记录时，在原有分数和行为汇总上继续累加。
-	if entity != nil {
-		score += entity.Score
-		summaryJson = entity.BehaviorSummary
-	}
-	summaryJson, err = recommendEvent.AddBehaviorSummaryCount(summaryJson, eventType, recommendEvent.NormalizeGoodsCount(goodsNum))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
-		return err
+		return nil, err
+	}
+	// 没有命中任何偏好商品时，直接返回空结果。
+	if len(list) == 0 {
+		return []int64{}, nil
 	}
 
-	// 不存在历史记录时，创建新的商品偏好聚合数据。
-	if entity == nil || entity.ID == 0 {
-		return c.Create(ctx, &models.RecommendUserGoodsPreference{
-			UserID:           userId,
-			GoodsID:          goodsId,
-			Score:            score,
-			LastBehaviorType: eventType.String(),
-			LastBehaviorAt:   eventTime,
-			BehaviorSummary:  summaryJson,
-			WindowDays:       recommendEvent.AggregateWindowDays,
-			CreatedAt:        eventTime,
-			UpdatedAt:        eventTime,
-		})
+	type observedGoodsScore struct {
+		goodsId         int64
+		totalScore      float64
+		observedUserCnt int
+		lastBehaviorAt  time.Time
 	}
 
-	// 命中历史记录时，更新累计分数和最近行为信息。
-	entity.Score = score
-	entity.LastBehaviorType = eventType.String()
-	entity.LastBehaviorAt = eventTime
-	entity.BehaviorSummary = summaryJson
-	entity.UpdatedAt = eventTime
-	return c.UpdateById(ctx, entity)
+	scoreMap := make(map[int64]*observedGoodsScore)
+	for _, item := range list {
+		// 非法商品不参与相似用户观测统计。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+		scoreItem, ok := scoreMap[item.GoodsID]
+		if !ok {
+			scoreItem = &observedGoodsScore{
+				goodsId: item.GoodsID,
+			}
+			scoreMap[item.GoodsID] = scoreItem
+		}
+		scoreItem.totalScore += item.Score
+		scoreItem.observedUserCnt++
+		// 使用最近一次行为时间作为同分情况下的排序补充信号。
+		if item.LastBehaviorAt.After(scoreItem.lastBehaviorAt) {
+			scoreItem.lastBehaviorAt = item.LastBehaviorAt
+		}
+	}
+
+	scoreList := make([]*observedGoodsScore, 0, len(scoreMap))
+	for _, item := range scoreMap {
+		scoreList = append(scoreList, item)
+	}
+	sort.Slice(scoreList, func(i, j int) bool {
+		// 先按聚合偏好分倒序，保证更强偏好优先返回。
+		if scoreList[i].totalScore != scoreList[j].totalScore {
+			return scoreList[i].totalScore > scoreList[j].totalScore
+		}
+		// 聚合分相同的情况下，优先返回被更多相似用户共同偏好的商品。
+		if scoreList[i].observedUserCnt != scoreList[j].observedUserCnt {
+			return scoreList[i].observedUserCnt > scoreList[j].observedUserCnt
+		}
+		// 仍然相同时，优先返回最近有行为的商品。
+		if !scoreList[i].lastBehaviorAt.Equal(scoreList[j].lastBehaviorAt) {
+			return scoreList[i].lastBehaviorAt.After(scoreList[j].lastBehaviorAt)
+		}
+		return scoreList[i].goodsId < scoreList[j].goodsId
+	})
+
+	observedGoodsIds := make([]int64, 0, len(scoreList))
+	for _, item := range scoreList {
+		observedGoodsIds = append(observedGoodsIds, item.goodsId)
+		// 达到观测数量上限后，直接结束。
+		if int64(len(observedGoodsIds)) >= limit {
+			break
+		}
+	}
+	return observedGoodsIds, nil
 }

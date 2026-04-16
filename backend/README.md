@@ -43,10 +43,24 @@ backend
 - 行为链路已覆盖推荐请求、曝光、点击、浏览、收藏、加购、下单、支付。
 - 排序采用“场景关联 + 用户商品偏好 + 类目偏好 + 场景热度 + 全站热度 + 新鲜度”的统一组合，并带有重复购买降权、曝光惩罚和类目打散。
 - 推荐公共能力下沉在 `pkg/recommend`，推荐链路 DTO 统一放在 `service/app/dto`，商城推荐业务按 Case 拆分在 `service/app/biz`。
+- 当前阶段 2 已将商品行为投影器、用户商品偏好、用户类目偏好、商品关联以及推荐商品日统计的离线聚合统一收口到 `pkg/recommend/offline/aggregate`，`service/app/biz` 和 `pkg/job/task` 中的推荐聚合入口仅保留事实查询、删旧数据、调用聚合器和批量落库。
+- 当前阶段 3 已补齐推荐缓存 key 规范、`kratos-kit/cache` 适配层与 `hot`、`latest`、`similar_item` 三类结果的写缓存任务，并在在线推荐链路接入“缓存优先，未命中查库”的读取挂点；当前无 Redis 时走内存后端，有 Redis 时直接复用 Redis 发布缓存。
+- 推荐请求的在线排障字段会统一收口到 `sourceContext.onlineDebugContext`，当前已覆盖 `cacheHitSources`、`recallProbeContext`、`joinRecallContext`、`similarUserObservationContext` 等调试信息。
+- 当前阶段 4 已补齐相似用户、协同过滤、内容相似三类召回探针的缓存键约定与读取挂点；探针是否启用由 `recommend_model_version.config_json.recall_probe` 控制，当前会在 `onlineDebugContext.recallProbeContext` 中记录探针配置和观测结果，并支持通过 `join_candidate` 把低风险召回灰度并入 `GOODS_DETAIL` 场景候选池。
+- 当前阶段 4 的灰度召回还会把 `joinRecallContext` 收口到 `onlineDebugContext`，用于区分“已并入候选”“实际进入候选池”“实际返回到当前页”三层命中情况。
+- 当前阶段 4 还会把相似用户探针的观测结果收口到 `onlineDebugContext.similarUserObservationContext`，用于查看相似用户偏好商品与当前候选、当前返回页，以及协同过滤和内容相似灰度结果的重合数量和覆盖率。
+- 当前阶段 5 已补齐相似用户、协同过滤、内容相似三类离线训练与写缓存任务，首版直接复用现有偏好聚合和商品属性做轻量训练，训练结果按版本发布到推荐缓存。
+- 当前阶段 5 的写缓存任务已补最小运行摘要日志，会统一输出训练输入规模、版本数、发布子集合数、发布文档数、清理子集合数和总耗时，便于排查训练发布链路。
+- 当前阶段 5 的写缓存任务在失败时也会统一输出失败摘要，包含当前执行阶段、已统计的输入规模、已发布进度和清理进度，便于快速定位卡在哪一步。
 - 当前已维护的推荐域表包括：
   - 原始事实：`recommend_request`、`recommend_request_item`、`recommend_exposure`、`recommend_exposure_item`、`recommend_goods_action`
   - 聚合结果：`recommend_user_preference`、`recommend_user_goods_preference`、`recommend_goods_relation`、`recommend_goods_stat_day`
   - 重建与评估：`recommend_actor_bind_log`、`recommend_eval_report`、`recommend_model_version`
+
+推荐系统后续的重构与能力补齐计划见：
+
+- `backend/recommend-rebuild-plan.md`
+- `backend/recommend-vs-gorse.md`
 
 ## 推荐任务
 
@@ -55,6 +69,12 @@ backend
 - `RecommendGoodsStatDay`：推荐商品日统计
 - `RecommendUserPreferenceRebuild`：推荐用户偏好重建，固定 30 天窗口
 - `RecommendGoodsRelationRebuild`：推荐商品关联重建，固定 30 天窗口
+- `RecommendHotMaterialize`：推荐热门榜写缓存，按场景发布 `hot` 缓存
+- `RecommendLatestMaterialize`：推荐最新榜写缓存，按场景发布 `latest` 缓存
+- `RecommendSimilarItemMaterialize`：相似商品写缓存，按商品详情场景版本发布 `similar_item` 缓存
+- `RecommendSimilarUserMaterialize`：相似用户写缓存，按启用版本发布 `user-to-user` 缓存
+- `RecommendCollaborativeFilteringMaterialize`：协同过滤写缓存，按启用版本发布 `collaborative-filtering` 缓存
+- `RecommendContentBasedMaterialize`：内容相似写缓存，按启用版本发布 `content-based` 缓存
 - `RecommendEvalReport`：推荐离线评估报告，按天生成场景级 CTR、CVR、Precision、Recall、NDCG 指标
 
 ## 环境要求
