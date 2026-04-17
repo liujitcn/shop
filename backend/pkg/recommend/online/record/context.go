@@ -1,5 +1,7 @@
 package record
 
+import recommendDomain "shop/pkg/recommend/domain"
+
 // BuildPersistedSourceContext 构建推荐请求主表需要持久化的来源上下文。
 func BuildPersistedSourceContext(sourceContext map[string]any) map[string]any {
 	// 主表只保留排查请求所需的精简上下文，大体量 explain 明细下沉到 item 表。
@@ -18,6 +20,28 @@ func BuildPersistedSourceContext(sourceContext map[string]any) map[string]any {
 	return compactOnlineDebugContext(persistedSourceContext)
 }
 
+// AppendStrategyContext 为来源上下文补充排序阶段、发布和调参信息。
+func AppendStrategyContext(sourceContext map[string]any, sceneStrategyContext *recommendDomain.SceneStrategyContext, stageContext map[string]any) map[string]any {
+	// 来源上下文为空时，先初始化空映射，避免后续写入 panic。
+	if sourceContext == nil {
+		sourceContext = make(map[string]any, 3)
+	}
+	// 当前排序阶段存在时，再把阶段执行快照写入来源上下文。
+	if len(stageContext) > 0 {
+		sourceContext["rankingStageContext"] = stageContext
+	}
+	// 当前场景策略上下文存在时，再补版本发布与调参快照。
+	if sceneStrategyContext != nil {
+		if publishContext := sceneStrategyContext.BuildPublishContext(); len(publishContext) > 0 {
+			sourceContext["publishContext"] = publishContext
+		}
+		if tuneContext := sceneStrategyContext.BuildTuneContext(); len(tuneContext) > 0 {
+			sourceContext["tuneContext"] = tuneContext
+		}
+	}
+	return sourceContext
+}
+
 // compactOnlineDebugContext 收口推荐链路的在线排障上下文。
 func compactOnlineDebugContext(sourceContext map[string]any) map[string]any {
 	// 来源上下文为空时，不需要继续收口。
@@ -32,6 +56,9 @@ func compactOnlineDebugContext(sourceContext map[string]any) map[string]any {
 	mergeOnlineDebugField(onlineDebugContext, "observedRecallSources", sourceContext)
 	mergeOnlineDebugField(onlineDebugContext, "joinRecallContext", sourceContext)
 	mergeOnlineDebugField(onlineDebugContext, "similarUserObservationContext", sourceContext)
+	mergeOnlineDebugField(onlineDebugContext, "rankingStageContext", sourceContext)
+	mergeOnlineDebugField(onlineDebugContext, "publishContext", sourceContext)
+	mergeOnlineDebugField(onlineDebugContext, "tuneContext", sourceContext)
 	// 这些拉平字段已经被对应子上下文覆盖，不再保留顶层重复定义。
 	removeOnlineDebugField(sourceContext, "joinedRecallSources")
 	removeOnlineDebugField(sourceContext, "effectiveJoinRecallSources")

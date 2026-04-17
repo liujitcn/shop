@@ -55,8 +55,3 @@ func (c *RecallProbeStrategy) IsCollaborativeFilteringEnabled() bool {
 func (c *RecallProbeStrategy) IsContentBasedEnabled() bool {
 	return c != nil && c.ContentBased != nil && c.ContentBased.Enabled
 }
-
-// StrategyVersionConfig 表示版本配置中的扩展策略字段。
-type StrategyVersionConfig struct {
-	RecallProbe *RecallProbeStrategy `json:"recall_probe"` // 召回探针配置。
-}

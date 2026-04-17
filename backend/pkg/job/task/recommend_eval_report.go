@@ -92,6 +92,7 @@ func (t *RecommendEvalReport) Exec(args map[string]string) ([]string, error) {
 	endAt := reportDate.AddDate(0, 0, 1)
 
 	var reportList []*models.RecommendEvalReport
+	updatedTuneEvalCount := 0
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		reportQuery := t.recommendEvalReportRepo.Query(ctx).RecommendEvalReport
 		// 评估报告按天全量重算，先清掉当天旧数据再回写。
@@ -395,12 +396,26 @@ func (t *RecommendEvalReport) Exec(args map[string]string) ([]string, error) {
 		if len(reportList) == 0 {
 			return nil
 		}
-		return t.recommendEvalReportRepo.BatchCreate(ctx, reportList)
+		if err = t.recommendEvalReportRepo.BatchCreate(ctx, reportList); err != nil {
+			return err
+		}
+		updatedTuneEvalCount, err = writeRecommendTuneLatestEvalForSceneVersions(
+			ctx,
+			t.recommendModelVersionRepo,
+			strategyByScene,
+			reportList,
+		)
+		return err
 	})
 	if err != nil {
 		return []string{err.Error()}, err
 	}
-	return []string{fmt.Sprintf("推荐离线评估报告生成完成: %s, 场景数 %d", reportDate.Format(time.DateOnly), len(reportList))}, nil
+	return []string{fmt.Sprintf(
+		"推荐离线评估报告生成完成: %s, 场景数 %d, 评估回写 %d",
+		reportDate.Format(time.DateOnly),
+		len(reportList),
+		updatedTuneEvalCount,
+	)}, nil
 }
 
 // recommendEvalActionRelevance 返回离线评估使用的正反馈等级。

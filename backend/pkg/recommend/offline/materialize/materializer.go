@@ -113,6 +113,24 @@ func (m *Materializer) MaterializeContentBased(ctx context.Context, goodsId int6
 	return m.publishScores(ctx, recommendCache.ContentBased, recommendCache.ContentBasedSubset(goodsId, version), documents)
 }
 
+// MaterializeRanker 发布模型精排分数缓存。
+func (m *Materializer) MaterializeRanker(ctx context.Context, scene int32, actorType int32, actorId int64, version string, documents []recommendCache.Score) error {
+	// 场景非法时，不继续发布模型精排缓存。
+	if scene <= 0 {
+		return nil
+	}
+	return m.publishScores(ctx, recommendCache.Ranker, recommendCache.RankerSubset(scene, actorType, actorId, version), documents)
+}
+
+// MaterializeLlmRerank 发布 LLM 二次重排分数缓存。
+func (m *Materializer) MaterializeLlmRerank(ctx context.Context, scene int32, actorType int32, actorId int64, requestHash string, version string, documents []recommendCache.Score) error {
+	// 场景非法时，不继续发布 LLM 二次重排缓存。
+	if scene <= 0 {
+		return nil
+	}
+	return m.publishScores(ctx, recommendCache.LlmRerank, recommendCache.LlmRerankSubset(scene, actorType, actorId, requestHash, version), documents)
+}
+
 // publishScores 写入排序型缓存并补齐摘要与更新时间。
 func (m *Materializer) publishScores(ctx context.Context, collection, subset string, documents []recommendCache.Score) error {
 	collectionKey := recommendCache.CollectionKey(collection)

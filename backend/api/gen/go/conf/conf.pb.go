@@ -476,13 +476,14 @@ type GoodsRecommendPersonalizedRankWeightConfig struct {
 	state                      protoimpl.MessageState `protogen:"open.v1"`
 	RelationWeight             *float64               `protobuf:"fixed64,1,opt,name=relationWeight,proto3,oneof" json:"relationWeight,omitempty"`                         // 商品关联分权重
 	UserGoodsWeight            *float64               `protobuf:"fixed64,2,opt,name=userGoodsWeight,proto3,oneof" json:"userGoodsWeight,omitempty"`                       // 用户商品偏好权重
-	ProfileWeight              *float64               `protobuf:"fixed64,3,opt,name=profileWeight,proto3,oneof" json:"profileWeight,omitempty"`                           // 类目画像权重
-	ScenePopularityWeight      *float64               `protobuf:"fixed64,4,opt,name=scenePopularityWeight,proto3,oneof" json:"scenePopularityWeight,omitempty"`           // 场景热度权重
-	GlobalPopularityWeight     *float64               `protobuf:"fixed64,5,opt,name=globalPopularityWeight,proto3,oneof" json:"globalPopularityWeight,omitempty"`         // 全站热度权重
-	FreshnessWeight            *float64               `protobuf:"fixed64,6,opt,name=freshnessWeight,proto3,oneof" json:"freshnessWeight,omitempty"`                       // 新鲜度权重
-	ExposurePenaltyWeight      *float64               `protobuf:"fixed64,7,opt,name=exposurePenaltyWeight,proto3,oneof" json:"exposurePenaltyWeight,omitempty"`           // 场景曝光惩罚权重
-	ActorExposurePenaltyWeight *float64               `protobuf:"fixed64,8,opt,name=actorExposurePenaltyWeight,proto3,oneof" json:"actorExposurePenaltyWeight,omitempty"` // 主体曝光惩罚权重
-	RepeatPenaltyWeight        *float64               `protobuf:"fixed64,9,opt,name=repeatPenaltyWeight,proto3,oneof" json:"repeatPenaltyWeight,omitempty"`               // 重复购买惩罚权重
+	SimilarUserWeight          *float64               `protobuf:"fixed64,3,opt,name=similarUserWeight,proto3,oneof" json:"similarUserWeight,omitempty"`                   // 相似用户偏好权重
+	ProfileWeight              *float64               `protobuf:"fixed64,4,opt,name=profileWeight,proto3,oneof" json:"profileWeight,omitempty"`                           // 类目画像权重
+	ScenePopularityWeight      *float64               `protobuf:"fixed64,5,opt,name=scenePopularityWeight,proto3,oneof" json:"scenePopularityWeight,omitempty"`           // 场景热度权重
+	GlobalPopularityWeight     *float64               `protobuf:"fixed64,6,opt,name=globalPopularityWeight,proto3,oneof" json:"globalPopularityWeight,omitempty"`         // 全站热度权重
+	FreshnessWeight            *float64               `protobuf:"fixed64,7,opt,name=freshnessWeight,proto3,oneof" json:"freshnessWeight,omitempty"`                       // 新鲜度权重
+	ExposurePenaltyWeight      *float64               `protobuf:"fixed64,8,opt,name=exposurePenaltyWeight,proto3,oneof" json:"exposurePenaltyWeight,omitempty"`           // 场景曝光惩罚权重
+	ActorExposurePenaltyWeight *float64               `protobuf:"fixed64,9,opt,name=actorExposurePenaltyWeight,proto3,oneof" json:"actorExposurePenaltyWeight,omitempty"` // 主体曝光惩罚权重
+	RepeatPenaltyWeight        *float64               `protobuf:"fixed64,10,opt,name=repeatPenaltyWeight,proto3,oneof" json:"repeatPenaltyWeight,omitempty"`              // 重复购买惩罚权重
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
@@ -527,6 +528,13 @@ func (x *GoodsRecommendPersonalizedRankWeightConfig) GetRelationWeight() float64
 func (x *GoodsRecommendPersonalizedRankWeightConfig) GetUserGoodsWeight() float64 {
 	if x != nil && x.UserGoodsWeight != nil {
 		return *x.UserGoodsWeight
+	}
+	return 0
+}
+
+func (x *GoodsRecommendPersonalizedRankWeightConfig) GetSimilarUserWeight() float64 {
+	if x != nil && x.SimilarUserWeight != nil {
+		return *x.SimilarUserWeight
 	}
 	return 0
 }
@@ -1151,19 +1159,22 @@ const file_conf_conf_proto_rawDesc = "" +
 	"\n" +
 	"_payWeightB\x14\n" +
 	"\x12_payGoodsNumWeightB\x12\n" +
-	"\x10_payAmountWeight\"\xe6\a\n" +
+	"\x10_payAmountWeight\"\xcf\b\n" +
 	"*GoodsRecommendPersonalizedRankWeightConfig\x12H\n" +
 	"\x0erelationWeight\x18\x01 \x01(\x01B\x1b\xbaG\x18\x92\x02\x15商品关联分权重H\x00R\x0erelationWeight\x88\x01\x01\x12M\n" +
-	"\x0fuserGoodsWeight\x18\x02 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18用户商品偏好权重H\x01R\x0fuserGoodsWeight\x88\x01\x01\x12C\n" +
-	"\rprofileWeight\x18\x03 \x01(\x01B\x18\xbaG\x15\x92\x02\x12类目画像权重H\x02R\rprofileWeight\x88\x01\x01\x12S\n" +
-	"\x15scenePopularityWeight\x18\x04 \x01(\x01B\x18\xbaG\x15\x92\x02\x12场景热度权重H\x03R\x15scenePopularityWeight\x88\x01\x01\x12U\n" +
-	"\x16globalPopularityWeight\x18\x05 \x01(\x01B\x18\xbaG\x15\x92\x02\x12全站热度权重H\x04R\x16globalPopularityWeight\x88\x01\x01\x12D\n" +
-	"\x0ffreshnessWeight\x18\x06 \x01(\x01B\x15\xbaG\x12\x92\x02\x0f新鲜度权重H\x05R\x0ffreshnessWeight\x88\x01\x01\x12Y\n" +
-	"\x15exposurePenaltyWeight\x18\a \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18场景曝光惩罚权重H\x06R\x15exposurePenaltyWeight\x88\x01\x01\x12c\n" +
-	"\x1aactorExposurePenaltyWeight\x18\b \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18主体曝光惩罚权重H\aR\x1aactorExposurePenaltyWeight\x88\x01\x01\x12U\n" +
-	"\x13repeatPenaltyWeight\x18\t \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18重复购买惩罚权重H\bR\x13repeatPenaltyWeight\x88\x01\x01B\x11\n" +
+	"\x0fuserGoodsWeight\x18\x02 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18用户商品偏好权重H\x01R\x0fuserGoodsWeight\x88\x01\x01\x12Q\n" +
+	"\x11similarUserWeight\x18\x03 \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18相似用户偏好权重H\x02R\x11similarUserWeight\x88\x01\x01\x12C\n" +
+	"\rprofileWeight\x18\x04 \x01(\x01B\x18\xbaG\x15\x92\x02\x12类目画像权重H\x03R\rprofileWeight\x88\x01\x01\x12S\n" +
+	"\x15scenePopularityWeight\x18\x05 \x01(\x01B\x18\xbaG\x15\x92\x02\x12场景热度权重H\x04R\x15scenePopularityWeight\x88\x01\x01\x12U\n" +
+	"\x16globalPopularityWeight\x18\x06 \x01(\x01B\x18\xbaG\x15\x92\x02\x12全站热度权重H\x05R\x16globalPopularityWeight\x88\x01\x01\x12D\n" +
+	"\x0ffreshnessWeight\x18\a \x01(\x01B\x15\xbaG\x12\x92\x02\x0f新鲜度权重H\x06R\x0ffreshnessWeight\x88\x01\x01\x12Y\n" +
+	"\x15exposurePenaltyWeight\x18\b \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18场景曝光惩罚权重H\aR\x15exposurePenaltyWeight\x88\x01\x01\x12c\n" +
+	"\x1aactorExposurePenaltyWeight\x18\t \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18主体曝光惩罚权重H\bR\x1aactorExposurePenaltyWeight\x88\x01\x01\x12U\n" +
+	"\x13repeatPenaltyWeight\x18\n" +
+	" \x01(\x01B\x1e\xbaG\x1b\x92\x02\x18重复购买惩罚权重H\tR\x13repeatPenaltyWeight\x88\x01\x01B\x11\n" +
 	"\x0f_relationWeightB\x12\n" +
-	"\x10_userGoodsWeightB\x10\n" +
+	"\x10_userGoodsWeightB\x14\n" +
+	"\x12_similarUserWeightB\x10\n" +
 	"\x0e_profileWeightB\x18\n" +
 	"\x16_scenePopularityWeightB\x19\n" +
 	"\x17_globalPopularityWeightB\x12\n" +

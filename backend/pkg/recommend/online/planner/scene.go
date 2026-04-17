@@ -38,19 +38,32 @@ func (p *RequestPlan) ApplyGoodsDetailScene(priorityGoodsIds []int64, categoryId
 	}
 	p.AddPriorityGoodsIds(priorityGoodsIds)
 	p.AddCategoryIds(categoryIds)
-	// 商品详情页灰度接入内容相似召回时，记录对应召回来源。
+	// 商品详情页命中了业务上下文时，记录详情场景召回来源。
+	if len(priorityGoodsIds) > 0 || len(categoryIds) > 0 {
+		p.AddRecallSources("goods_detail")
+	}
+}
+
+// ApplyJoinRecall 将允许入池的灰度召回结果统一并入优先候选集合。
+func (p *RequestPlan) ApplyJoinRecall() {
+	// 计划对象为空时，无法继续合并灰度召回结果。
+	if p == nil {
+		return
+	}
+	// 相似用户观测结果允许入池时，补到优先候选集合。
+	if len(p.SimilarUserJoinGoodsIds) > 0 {
+		p.AddPriorityGoodsIds(p.SimilarUserJoinGoodsIds)
+		p.AddRecallSources(recommendCandidate.RecallSourceSimilarUser)
+	}
+	// 内容相似召回允许入池时，补到优先候选集合。
 	if len(p.ContentBasedJoinGoodsIds) > 0 {
 		p.AddPriorityGoodsIds(p.ContentBasedJoinGoodsIds)
 		p.AddRecallSources(recommendCandidate.RecallSourceContentBased)
 	}
-	// 商品详情页灰度接入协同过滤召回时，记录对应召回来源。
+	// 协同过滤召回允许入池时，补到优先候选集合。
 	if len(p.CollaborativeFilteringGoodsIds) > 0 {
 		p.AddPriorityGoodsIds(p.CollaborativeFilteringGoodsIds)
 		p.AddRecallSources(recommendCandidate.RecallSourceCF)
-	}
-	// 商品详情页命中了业务上下文时，记录详情场景召回来源。
-	if len(priorityGoodsIds) > 0 || len(categoryIds) > 0 || len(p.ContentBasedJoinGoodsIds) > 0 || len(p.CollaborativeFilteringGoodsIds) > 0 {
-		p.AddRecallSources("goods_detail")
 	}
 }
 

@@ -22,6 +22,7 @@ type RequestPlan struct {
 	JoinRecallGoodsIds             map[string][]int64
 	SimilarUserIds                 []int64
 	SimilarUserObservedGoodsIds    []int64
+	SimilarUserJoinGoodsIds        []int64
 	ContentBasedJoinGoodsIds       []int64
 	CollaborativeFilteringGoodsIds []int64
 }
@@ -105,13 +106,22 @@ func (p *RequestPlan) MergeCacheReadContext(cacheReadContext map[string]any) {
 	}
 }
 
-// SetSimilarUserObservedGoodsIds 设置相似用户观测商品列表。
-func (p *RequestPlan) SetSimilarUserObservedGoodsIds(goodsIds []int64) {
-	// 计划对象为空时，无法继续写入观测商品。
+// ApplySimilarUserObservation 设置相似用户观测结果，并按配置决定是否并入候选池。
+func (p *RequestPlan) ApplySimilarUserObservation(goodsIds []int64, joinCandidate bool) {
+	// 计划对象为空时，无法继续写入相似用户观测结果。
 	if p == nil {
 		return
 	}
-	p.SimilarUserObservedGoodsIds = recommendcore.DedupeInt64s(goodsIds)
+	observedGoodsIds := recommendcore.DedupeInt64s(goodsIds)
+	p.SimilarUserObservedGoodsIds = observedGoodsIds
+	// 当前观测结果不允许入池时，仅保留观测上下文。
+	if !joinCandidate || len(observedGoodsIds) == 0 {
+		p.SimilarUserJoinGoodsIds = []int64{}
+		delete(p.JoinRecallGoodsIds, recommendCandidate.RecallSourceSimilarUser)
+		return
+	}
+	p.SimilarUserJoinGoodsIds = observedGoodsIds
+	p.JoinRecallGoodsIds[recommendCandidate.RecallSourceSimilarUser] = observedGoodsIds
 }
 
 // NormalizeState 统一去重当前计划对象中的候选前置状态。
@@ -128,6 +138,7 @@ func (p *RequestPlan) NormalizeState() {
 	p.CacheHitSources = recommendcore.DedupeStrings(p.CacheHitSources)
 	p.SimilarUserIds = recommendcore.DedupeInt64s(p.SimilarUserIds)
 	p.SimilarUserObservedGoodsIds = recommendcore.DedupeInt64s(p.SimilarUserObservedGoodsIds)
+	p.SimilarUserJoinGoodsIds = recommendcore.DedupeInt64s(p.SimilarUserJoinGoodsIds)
 	p.ContentBasedJoinGoodsIds = recommendcore.DedupeInt64s(p.ContentBasedJoinGoodsIds)
 	p.CollaborativeFilteringGoodsIds = recommendcore.DedupeInt64s(p.CollaborativeFilteringGoodsIds)
 	p.JoinRecallGoodsIds = normalizeJoinRecallGoodsIds(p.JoinRecallGoodsIds)
@@ -145,6 +156,15 @@ func (p *RequestPlan) ExcludeGoodsIds() []int64 {
 		result = recommendcore.DedupeInt64s(append(result, p.Request.GoodsId))
 	}
 	return result
+}
+
+// ShouldFallbackToAnonymousLatest 判断匿名态是否需要回退到 latest。
+func (p *RequestPlan) ShouldFallbackToAnonymousLatest(candidateGoodsIds []int64) bool {
+	// 计划对象为空时，只要当前候选为空就允许回退。
+	if p == nil {
+		return len(candidateGoodsIds) == 0
+	}
+	return len(candidateGoodsIds) == 0 && len(p.PriorityGoodsIds) == 0
 }
 
 // BuildSourceContext 构建当前请求的基础来源上下文。
@@ -182,7 +202,7 @@ func newRequestPlan(request *recommendDomain.GoodsRequest) *RequestPlan {
 		Request:            normalizedRequest,
 		CandidateLimit:     recommendCandidate.ResolveCandidateLimit(normalizedRequest.PageNum, normalizedRequest.PageSize),
 		CacheReadContext:   make(map[string]any, 2),
-		JoinRecallGoodsIds: make(map[string][]int64, 2),
+		JoinRecallGoodsIds: make(map[string][]int64, 3),
 	}
 }
 

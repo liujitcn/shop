@@ -2,14 +2,19 @@ package biz
 
 import (
 	"context"
+	"errors"
+	"time"
 
+	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
 	recommendcore "shop/pkg/recommend/core"
 	recommendEvent "shop/pkg/recommend/event"
 	recommendAggregate "shop/pkg/recommend/offline/aggregate"
 
 	"github.com/liujitcn/gorm-kit/repo"
+	"gorm.io/gorm"
 )
 
 // RecommendUserPreferenceCase 推荐用户偏好业务处理对象。
@@ -17,7 +22,7 @@ type RecommendUserPreferenceCase struct {
 	*biz.BaseCase
 	*data.RecommendUserPreferenceRepo
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo
-	goodsInfoRepo            *data.GoodsInfoRepo
+	goodsInfoCase            *GoodsInfoCase
 }
 
 // NewRecommendUserPreferenceCase 创建推荐用户偏好业务处理对象。
@@ -25,13 +30,13 @@ func NewRecommendUserPreferenceCase(
 	baseCase *biz.BaseCase,
 	recommendUserPreferenceRepo *data.RecommendUserPreferenceRepo,
 	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
-	goodsInfoRepo *data.GoodsInfoRepo,
+	goodsInfoCase *GoodsInfoCase,
 ) *RecommendUserPreferenceCase {
 	return &RecommendUserPreferenceCase{
 		BaseCase:                    baseCase,
 		RecommendUserPreferenceRepo: recommendUserPreferenceRepo,
 		recommendGoodsActionRepo:    recommendGoodsActionRepo,
-		goodsInfoRepo:               goodsInfoRepo,
+		goodsInfoCase:               goodsInfoCase,
 	}
 }
 
@@ -42,7 +47,7 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 		return nil
 	}
 
-	actionList, err := recommendAggregate.ListUserActionFacts(ctx, c.recommendGoodsActionRepo, userIds, windowDays)
+	actionList, err := c.listUserActionFacts(ctx, userIds, windowDays)
 	if err != nil {
 		return err
 	}
@@ -56,7 +61,11 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 		return err
 	}
 
-	list, err := recommendAggregate.RebuildUserPreferences(ctx, c.goodsInfoRepo, actionList, windowDays)
+	goodsInfoMap, err := c.loadGoodsInfoMapByActionList(ctx, actionList)
+	if err != nil {
+		return err
+	}
+	list, err := recommendAggregate.RebuildUserPreferences(goodsInfoMap, actionList, windowDays)
 	if err != nil {
 		return err
 	}
@@ -65,6 +74,68 @@ func (c *RecommendUserPreferenceCase) RebuildRecommendUserPreference(ctx context
 		return nil
 	}
 	return c.BatchCreate(ctx, list)
+}
+
+// projectGoodsAction 将单条商品行为投影到用户类目偏好表。
+func (c *RecommendUserPreferenceCase) projectGoodsAction(ctx context.Context, userId int64, eventType common.RecommendGoodsActionType, item *models.RecommendGoodsAction) error {
+	// 空行为或非法商品编号时，不继续沉淀类目偏好。
+	if item == nil || item.GoodsID <= 0 {
+		return nil
+	}
+
+	goodsInfo, err := c.goodsInfoCase.FindById(ctx, item.GoodsID)
+	if err != nil {
+		return err
+	}
+	// 类目编号非法时，不产生类目偏好聚合记录。
+	if goodsInfo == nil || goodsInfo.CategoryID <= 0 {
+		return nil
+	}
+
+	query := c.Query(ctx).RecommendUserPreference
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	opts = append(opts, repo.Where(query.PreferenceType.Eq(recommendEvent.PreferenceTypeCategory)))
+	opts = append(opts, repo.Where(query.TargetID.Eq(goodsInfo.CategoryID)))
+	opts = append(opts, repo.Where(query.WindowDays.Eq(recommendEvent.AggregateWindowDays)))
+
+	entity, err := c.Find(ctx, opts...)
+	// 除记录不存在外的查询异常都应中断聚合，避免覆盖脏数据。
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	}
+
+	summaryJson := ""
+	score := recommendEvent.EventWeight(eventType) * recommendEvent.NormalizeGoodsNum(item.GoodsNum)
+	// 已有聚合记录时，在原有分数和行为汇总上继续累加。
+	if entity != nil {
+		score += entity.Score
+		summaryJson = entity.BehaviorSummary
+	}
+	summaryJson, err = recommendEvent.AddBehaviorSummaryCount(summaryJson, eventType, recommendEvent.NormalizeGoodsCount(item.GoodsNum))
+	if err != nil {
+		return err
+	}
+
+	// 不存在历史记录时，创建新的类目偏好聚合数据。
+	if entity == nil || entity.ID == 0 {
+		return c.Create(ctx, &models.RecommendUserPreference{
+			UserID:          userId,
+			PreferenceType:  recommendEvent.PreferenceTypeCategory,
+			TargetID:        goodsInfo.CategoryID,
+			Score:           score,
+			BehaviorSummary: summaryJson,
+			WindowDays:      recommendEvent.AggregateWindowDays,
+			CreatedAt:       item.CreatedAt,
+			UpdatedAt:       item.CreatedAt,
+		})
+	}
+
+	// 命中历史记录时，更新累计分数和行为汇总。
+	entity.Score = score
+	entity.BehaviorSummary = summaryJson
+	entity.UpdatedAt = item.CreatedAt
+	return c.UpdateById(ctx, entity)
 }
 
 // listPreferredCategoryIds 查询用户偏好的分类 ID 列表。
@@ -117,4 +188,43 @@ func (c *RecommendUserPreferenceCase) loadProfileScores(ctx context.Context, use
 		scores[item.TargetID] = item.Score
 	}
 	return scores, nil
+}
+
+// listUserActionFacts 读取用户类目偏好重建所需的行为事实。
+func (c *RecommendUserPreferenceCase) listUserActionFacts(ctx context.Context, userIds []int64, windowDays int32) ([]*models.RecommendGoodsAction, error) {
+	// 没有命中用户集合时，不需要继续查询行为事实。
+	if len(userIds) == 0 {
+		return []*models.RecommendGoodsAction{}, nil
+	}
+
+	endAt := time.Now()
+	startAt := endAt.AddDate(0, 0, -int(windowDays))
+	query := c.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
+	opts := make([]repo.QueryOption, 0, 5)
+	opts = append(opts, repo.Where(query.ActorType.Eq(recommendEvent.ActorTypeUser)))
+	opts = append(opts, repo.Where(query.ActorID.In(userIds...)))
+	opts = append(opts, repo.Where(query.CreatedAt.Gte(startAt)))
+	opts = append(opts, repo.Where(query.CreatedAt.Lte(endAt)))
+	opts = append(opts, repo.Order(query.CreatedAt.Asc()))
+	return c.recommendGoodsActionRepo.List(ctx, opts...)
+}
+
+// loadGoodsInfoMapByActionList 按行为事实补齐商品到类目的映射关系。
+func (c *RecommendUserPreferenceCase) loadGoodsInfoMapByActionList(ctx context.Context, actionList []*models.RecommendGoodsAction) (map[int64]*models.GoodsInfo, error) {
+	goodsIds := make([]int64, 0, len(actionList))
+	for _, item := range actionList {
+		// 非法商品不参与类目映射补齐。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+		goodsIds = append(goodsIds, item.GoodsID)
+	}
+	goodsInfoMap, err := c.goodsInfoCase.mapByGoodsIds(ctx, recommendcore.DedupeInt64s(goodsIds))
+	if err != nil {
+		return nil, err
+	}
+	if goodsInfoMap == nil {
+		return map[int64]*models.GoodsInfo{}, nil
+	}
+	return goodsInfoMap, nil
 }

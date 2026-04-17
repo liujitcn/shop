@@ -8,6 +8,7 @@ type ScoreDetail struct {
 	FinalScore            float64  `json:"finalScore"`                      // 最终排序分
 	RelationScore         float64  `json:"relationScore,omitempty"`         // 商品关系分
 	UserGoodsScore        float64  `json:"userGoodsScore,omitempty"`        // 用户商品偏好分
+	SimilarUserScore      float64  `json:"similarUserScore,omitempty"`      // 相似用户偏好分
 	ProfileScore          float64  `json:"profileScore,omitempty"`          // 用户类目画像分
 	ScenePopularityScore  float64  `json:"scenePopularityScore,omitempty"`  // 场景热度分
 	GlobalPopularityScore float64  `json:"globalPopularityScore,omitempty"` // 全站热度分
@@ -15,6 +16,9 @@ type ScoreDetail struct {
 	ExposurePenalty       float64  `json:"exposurePenalty,omitempty"`       // 场景曝光惩罚分
 	ActorExposurePenalty  float64  `json:"actorExposurePenalty,omitempty"`  // 主体曝光惩罚分
 	RepeatPenalty         float64  `json:"repeatPenalty,omitempty"`         // 重复推荐惩罚分
+	RuleScore             float64  `json:"ruleScore,omitempty"`             // 规则粗排得分
+	ModelScore            float64  `json:"modelScore,omitempty"`            // 模型精排得分
+	LlmScore              float64  `json:"llmScore,omitempty"`              // LLM 二次重排得分
 	RecallSources         []string `json:"recallSources,omitempty"`         // 当前商品命中的召回来源列表
 }
 

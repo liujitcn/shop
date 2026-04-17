@@ -50,8 +50,9 @@ func TestNewPersonalizedRequestPlan(t *testing.T) {
 	}
 	probeContext := map[string]any{
 		"similarUser": map[string]any{
-			"enabled": true,
-			"userIds": []int64{101, 102, 101},
+			"enabled":       true,
+			"joinCandidate": true,
+			"userIds":       []int64{101, 102, 101},
 		},
 		"contentBased": map[string]any{
 			"enabled":       true,
@@ -78,6 +79,30 @@ func TestNewPersonalizedRequestPlan(t *testing.T) {
 	// 内容相似灰度召回应写入 joinRecallGoodsIds。
 	if len(plan.JoinRecallGoodsIds[recommendCandidate.RecallSourceContentBased]) != 2 {
 		t.Fatalf("unexpected content based join recall goods ids: %+v", plan.JoinRecallGoodsIds)
+	}
+}
+
+// TestApplySimilarUserObservationAndJoinRecall 验证相似用户观测结果允许入池时会并入优先候选。
+func TestApplySimilarUserObservationAndJoinRecall(t *testing.T) {
+	plan := &RequestPlan{
+		JoinRecallGoodsIds: make(map[string][]int64, 1),
+	}
+
+	plan.ApplySimilarUserObservation([]int64{71, 72, 71}, true)
+	plan.ApplyJoinRecall()
+	plan.NormalizeState()
+
+	if len(plan.SimilarUserObservedGoodsIds) != 2 || plan.SimilarUserObservedGoodsIds[0] != 71 || plan.SimilarUserObservedGoodsIds[1] != 72 {
+		t.Fatalf("unexpected similar user observed goods ids: %+v", plan.SimilarUserObservedGoodsIds)
+	}
+	if len(plan.SimilarUserJoinGoodsIds) != 2 || plan.SimilarUserJoinGoodsIds[0] != 71 || plan.SimilarUserJoinGoodsIds[1] != 72 {
+		t.Fatalf("unexpected similar user join goods ids: %+v", plan.SimilarUserJoinGoodsIds)
+	}
+	if len(plan.JoinRecallGoodsIds[recommendCandidate.RecallSourceSimilarUser]) != 2 {
+		t.Fatalf("unexpected similar user join recall goods ids: %+v", plan.JoinRecallGoodsIds)
+	}
+	if len(plan.PriorityGoodsIds) != 2 || plan.PriorityGoodsIds[0] != 71 || plan.PriorityGoodsIds[1] != 72 {
+		t.Fatalf("unexpected priority goods ids: %+v", plan.PriorityGoodsIds)
 	}
 }
 
@@ -147,6 +172,7 @@ func TestApplySceneMethods(t *testing.T) {
 	plan.ApplyCartScene([]int64{11, 12}, []int64{21})
 	plan.ApplyOrderScene([]int64{13}, []int64{22, 23})
 	plan.ApplyGoodsDetailScene([]int64{14}, []int64{24})
+	plan.ApplyJoinRecall()
 	plan.ApplyProfileScene([]int64{31, 32})
 	plan.EnsureFallbackLatest()
 	plan.NormalizeState()

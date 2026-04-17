@@ -16,6 +16,7 @@ type RankingResult struct {
 	Candidates      map[int64]*recommendcore.Candidate
 	PageSnapshot    RankedPageSnapshot
 	ExplainSnapshot PageExplainSnapshot
+	StageContext    map[string]any
 }
 
 // ExecuteAnonymousRanking 执行匿名态候选构建、排序分页和 explain 快照组装。
@@ -25,12 +26,15 @@ func ExecuteAnonymousRanking(
 	signals recommendDomain.AnonymousSignals,
 	rankWeightConfig *conf.GoodsRecommendAnonymousRankWeightConfig,
 	marker CandidateMarker,
+	strategy *recommendDomain.StrategyVersionConfig,
+	stageScores StageScoreSet,
 ) RankingResult {
 	candidates := recommendCandidate.BuildAnonymous(goodsList, signals, rankWeightConfig)
 	// 当前存在附加标记逻辑时，在排序前补齐 explain 来源。
 	if marker != nil {
 		marker(candidates)
 	}
+	stageContext := ApplyRankingStrategy(candidates, strategy, stageScores)
 	rankedGoods := recommendCandidate.RankGoods(candidates)
 	pageSnapshot := BuildRankedPageSnapshot(request, rankedGoods)
 	explainSnapshot := BuildPageExplainSnapshot(pageSnapshot.PageGoods, candidates)
@@ -38,6 +42,7 @@ func ExecuteAnonymousRanking(
 		Candidates:      candidates,
 		PageSnapshot:    pageSnapshot,
 		ExplainSnapshot: explainSnapshot,
+		StageContext:    stageContext,
 	}
 }
 
@@ -48,12 +53,15 @@ func ExecutePersonalizedRanking(
 	signals recommendDomain.PersonalizedSignals,
 	rankWeightConfig *conf.GoodsRecommendPersonalizedRankWeightConfig,
 	marker CandidateMarker,
+	strategy *recommendDomain.StrategyVersionConfig,
+	stageScores StageScoreSet,
 ) RankingResult {
 	candidates := recommendCandidate.BuildPersonalized(goodsList, signals, rankWeightConfig)
 	// 当前存在附加标记逻辑时，在排序前补齐 explain 来源。
 	if marker != nil {
 		marker(candidates)
 	}
+	stageContext := ApplyRankingStrategy(candidates, strategy, stageScores)
 	rankedGoods := recommendCandidate.RankGoods(candidates)
 	pageSnapshot := BuildRankedPageSnapshot(request, rankedGoods)
 	explainSnapshot := BuildPageExplainSnapshot(pageSnapshot.PageGoods, candidates)
@@ -61,5 +69,6 @@ func ExecutePersonalizedRanking(
 		Candidates:      candidates,
 		PageSnapshot:    pageSnapshot,
 		ExplainSnapshot: explainSnapshot,
+		StageContext:    stageContext,
 	}
 }

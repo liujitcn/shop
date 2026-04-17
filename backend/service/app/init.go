@@ -1,7 +1,6 @@
 package app
 
 import (
-	recommendAggregate "shop/pkg/recommend/offline/aggregate"
 	"shop/service/app/biz"
 
 	"github.com/google/wire"
@@ -21,9 +20,9 @@ var ProviderSet = wire.NewSet(
 	biz.NewGoodsSkuCase,
 	biz.NewGoodsSpecCase,
 	biz.NewRecommendGoodsRelationCase,
+	biz.NewRecommendModelVersionCase,
 	biz.NewRecommendRequestItemCase,
 	biz.NewRecommendExposureItemCase,
-	recommendAggregate.NewGoodsActionProjector,
 	biz.NewRecommendGoodsActionCase,
 	biz.NewRecommendActorBindLogCase,
 	biz.NewRecommendUserGoodsPreferenceCase,

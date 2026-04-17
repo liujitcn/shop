@@ -25,6 +25,9 @@ var ProviderSet = wire.NewSet(
 	task.NewRecommendSimilarUserMaterialize,
 	task.NewRecommendCollaborativeFilteringMaterialize,
 	task.NewRecommendContentBasedMaterialize,
+	task.NewRecommendRankerMaterialize,
+	task.NewRecommendLlmRerankMaterialize,
 	task.NewRecommendEvalReport,
+	task.NewRecommendVersionPublish,
 	task.NewTaskList,
 )

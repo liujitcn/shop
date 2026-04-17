@@ -4,6 +4,7 @@ package domain
 type PersonalizedSignals struct {
 	RelationScores         map[int64]float64  // 商品关系分映射：商品编号 -> 分数
 	UserGoodsScores        map[int64]float64  // 用户商品偏好分映射：商品编号 -> 分数
+	SimilarUserScores      map[int64]float64  // 相似用户偏好分映射：商品编号 -> 分数
 	ProfileScores          map[int64]float64  // 用户类目画像分映射：类目编号 -> 分数
 	ScenePopularityScores  map[int64]float64  // 场景热度分映射：商品编号 -> 分数
 	GlobalPopularityScores map[int64]float64  // 全站热度分映射：商品编号 -> 分数

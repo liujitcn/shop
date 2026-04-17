@@ -123,25 +123,28 @@ message GoodsRecommendPersonalizedRankWeightConfig {
   optional double userGoodsWeight = 2 [
     (gnostic.openapi.v3.property) = {description: "用户商品偏好权重"}
   ]; // 用户商品偏好权重
-  optional double profileWeight = 3 [
+  optional double similarUserWeight = 3 [
+    (gnostic.openapi.v3.property) = {description: "相似用户偏好权重"}
+  ]; // 相似用户偏好权重
+  optional double profileWeight = 4 [
     (gnostic.openapi.v3.property) = {description: "类目画像权重"}
   ]; // 类目画像权重
-  optional double scenePopularityWeight = 4 [
+  optional double scenePopularityWeight = 5 [
     (gnostic.openapi.v3.property) = {description: "场景热度权重"}
   ]; // 场景热度权重
-  optional double globalPopularityWeight = 5 [
+  optional double globalPopularityWeight = 6 [
     (gnostic.openapi.v3.property) = {description: "全站热度权重"}
   ]; // 全站热度权重
-  optional double freshnessWeight = 6 [
+  optional double freshnessWeight = 7 [
     (gnostic.openapi.v3.property) = {description: "新鲜度权重"}
   ]; // 新鲜度权重
-  optional double exposurePenaltyWeight = 7 [
+  optional double exposurePenaltyWeight = 8 [
     (gnostic.openapi.v3.property) = {description: "场景曝光惩罚权重"}
   ]; // 场景曝光惩罚权重
-  optional double actorExposurePenaltyWeight = 8 [
+  optional double actorExposurePenaltyWeight = 9 [
     (gnostic.openapi.v3.property) = {description: "主体曝光惩罚权重"}
   ]; // 主体曝光惩罚权重
-  optional double repeatPenaltyWeight = 9 [
+  optional double repeatPenaltyWeight = 10 [
     (gnostic.openapi.v3.property) = {description: "重复购买惩罚权重"}
   ]; // 重复购买惩罚权重
 }

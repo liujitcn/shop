@@ -2419,6 +2419,87 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PagePayBillResponse'
+    /api/admin/recommend/model-version:
+        get:
+            tags:
+                - RecommendModelVersionService
+            description: 查询推荐版本分页列表
+            operationId: RecommendModelVersionService_PageRecommendModelVersion
+            parameters:
+                - name: modelName
+                  in: query
+                  schema:
+                    type: string
+                - name: modelType
+                  in: query
+                  schema:
+                    type: string
+                - name: version
+                  in: query
+                  schema:
+                    type: string
+                - name: scene
+                  in: query
+                  schema:
+                    enum:
+                        - RECOMMEND_SCENE_UNKNOWN
+                        - HOME
+                        - GOODS_DETAIL
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    format: enum
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    format: enum
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PageRecommendModelVersionResponse'
+    /api/admin/recommend/model-version/{id}/publish:
+        put:
+            tags:
+                - RecommendModelVersionService
+            description: 发布推荐版本
+            operationId: RecommendModelVersionService_PublishRecommendModelVersion
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateRecommendModelVersionPublishRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UpdateRecommendModelVersionPublishResponse'
     /api/admin/report/goods/day/detail:
         get:
             tags:
@@ -7171,6 +7252,19 @@ components:
                     description: 总数
                     format: int32
             description: 支付账单分页响应
+        PageRecommendModelVersionResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecommendModelVersion'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 推荐版本分页响应
         PageShopBannerResponse:
             type: object
             properties:
@@ -7408,6 +7502,184 @@ components:
                     type: string
                     description: 推荐请求ID
             description: 推荐商品响应
+        RecommendModelVersion:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                modelName:
+                    type: string
+                    description: 模型名称
+                modelType:
+                    type: string
+                    description: 模型类型
+                version:
+                    type: string
+                    description: 版本号
+                scene:
+                    enum:
+                        - RECOMMEND_SCENE_UNKNOWN
+                        - HOME
+                        - GOODS_DETAIL
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    description: 推荐场景
+                    format: enum
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                effectiveVersion:
+                    type: string
+                    description: 当前生效缓存版本
+                configJson:
+                    type: string
+                    description: 原始配置JSON
+                publish:
+                    $ref: '#/components/schemas/RecommendModelVersionPublishConfig'
+                tune:
+                    $ref: '#/components/schemas/RecommendModelVersionTuneConfig'
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+            description: 推荐版本分页项
+        RecommendModelVersionPublishConfig:
+            type: object
+            properties:
+                cacheVersion:
+                    type: string
+                    description: 缓存版本
+                rollbackVersion:
+                    type: string
+                    description: 回滚版本
+                grayRatio:
+                    type: number
+                    description: 灰度比例
+                    format: double
+                publishedBy:
+                    type: string
+                    description: 发布人
+                publishedReason:
+                    type: string
+                    description: 发布说明
+                publishedAt:
+                    type: string
+                    description: 最近发布时间
+            description: 推荐版本发布配置
+        RecommendModelVersionTuneConfig:
+            type: object
+            properties:
+                enabled:
+                    type: boolean
+                    description: 是否启用自动调参
+                targetMetric:
+                    type: string
+                    description: 目标指标
+                trialCount:
+                    type: integer
+                    description: 调参次数
+                    format: int32
+                latest:
+                    $ref: '#/components/schemas/RecommendModelVersionTuneLatestSummary'
+                latestEval:
+                    $ref: '#/components/schemas/RecommendModelVersionTuneLatestEvalSummary'
+            description: 推荐版本调参配置
+        RecommendModelVersionTuneLatestEvalSummary:
+            type: object
+            properties:
+                reportDate:
+                    type: string
+                    description: 评估日期
+                strategyName:
+                    type: string
+                    description: 策略名称
+                sampleSize:
+                    type: string
+                    description: 样本量
+                requestCount:
+                    type: string
+                    description: 请求数
+                exposureCount:
+                    type: string
+                    description: 曝光数
+                clickCount:
+                    type: string
+                    description: 点击数
+                orderCount:
+                    type: string
+                    description: 下单数
+                payCount:
+                    type: string
+                    description: 支付数
+                ctr:
+                    type: number
+                    description: 点击率
+                    format: double
+                cvr:
+                    type: number
+                    description: 转化率
+                    format: double
+                ndcg:
+                    type: number
+                    description: NDCG
+                    format: double
+                precision:
+                    type: number
+                    description: Precision
+                    format: double
+                recall:
+                    type: number
+                    description: Recall
+                    format: double
+            description: 最近一次评估日报摘要
+        RecommendModelVersionTuneLatestSummary:
+            type: object
+            properties:
+                task:
+                    type: string
+                    description: 训练任务名
+                modelType:
+                    type: string
+                    description: 模型类型
+                backend:
+                    type: string
+                    description: 训练后端
+                artifactDir:
+                    type: string
+                    description: 训练产物目录
+                trainedAt:
+                    type: string
+                    description: 训练完成时间
+                version:
+                    type: string
+                    description: 单版本训练对应版本号
+                versions:
+                    type: array
+                    items:
+                        type: string
+                    description: 多版本训练对应版本列表
+                bestValue:
+                    type: number
+                    description: 最优目标值
+                    format: double
+                score:
+                    type: object
+                    additionalProperties:
+                        type: number
+                        format: double
+                    description: 训练指标
+            description: 最近一次真实训练摘要
         RefreshTokenRequest:
             type: object
             properties:
@@ -7995,6 +8267,47 @@ components:
                         $ref: '#/components/schemas/RouteItem'
                     description: 路由列表
             description: Route树响应
+        UpdateRecommendModelVersionPublishRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 推荐版本ID
+                action:
+                    enum:
+                        - RECOMMEND_MODEL_VERSION_PUBLISH_ACTION_UNKNOWN
+                        - RECOMMEND_MODEL_VERSION_PUBLISH_ACTION_PUBLISH
+                        - RECOMMEND_MODEL_VERSION_PUBLISH_ACTION_SET_ROLLBACK
+                        - RECOMMEND_MODEL_VERSION_PUBLISH_ACTION_CLEAR_ROLLBACK
+                    type: string
+                    description: 发布动作
+                    format: enum
+                cacheVersion:
+                    type: string
+                    description: 缓存版本，留空时沿用动作默认行为
+                rollbackVersion:
+                    type: string
+                    description: 回滚版本，设置回滚动作时留空会默认使用当前选中版本
+                grayRatio:
+                    type: number
+                    description: 灰度比例
+                    format: double
+                publishedBy:
+                    type: string
+                    description: 发布人
+                publishedReason:
+                    type: string
+                    description: 发布说明
+            description: 推荐版本发布动作请求
+        UpdateRecommendModelVersionPublishResponse:
+            type: object
+            properties:
+                summary:
+                    type: array
+                    items:
+                        type: string
+                    description: 执行摘要
+            description: 推荐版本发布动作响应
         UploadFileInfo:
             type: object
             properties:
@@ -8438,9 +8751,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: Admin字典服务
-    - name: BaseDictService
       description: App字典服务
+    - name: BaseDictService
+      description: Admin字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -8462,9 +8775,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: App商品信息服务
-    - name: GoodsInfoService
       description: Admin商品信息服务
+    - name: GoodsInfoService
+      description: App商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsReportService
@@ -8487,6 +8800,8 @@ tags:
       description: Admin支付账单服务
     - name: PayService
       description: App支付服务
+    - name: RecommendModelVersionService
+      description: Admin 推荐版本管理服务
     - name: RecommendService
       description: App推荐服务
     - name: ShopBannerService
@@ -8494,13 +8809,13 @@ tags:
     - name: ShopBannerService
       description: App商城轮播图服务
     - name: ShopHotService
-      description: Admin商城热门推荐服务
-    - name: ShopHotService
       description: App热门推荐服务
-    - name: ShopServiceService
-      description: Admin商城服务
+    - name: ShopHotService
+      description: Admin商城热门推荐服务
     - name: ShopServiceService
       description: App商城服务
+    - name: ShopServiceService
+      description: Admin商城服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService
@@ -8510,8 +8825,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: App用户门店管理服务
-    - name: UserStoreService
       description: Admin用户门店管理服务
+    - name: UserStoreService
+      description: App用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

@@ -1,15 +1,10 @@
 package aggregate
 
 import (
-	"context"
 	"time"
 
 	"shop/api/gen/go/common"
-	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	recommendCore "shop/pkg/recommend/core"
-
-	"github.com/liujitcn/gorm-kit/repo"
 )
 
 type recommendGoodsStatDayKey struct {
@@ -24,19 +19,14 @@ type recommendGoodsPayKey struct {
 
 // BuildRecommendGoodsStatDays 按天聚合推荐请求、曝光和行为事实，生成推荐商品统计日快照。
 func BuildRecommendGoodsStatDays(
-	ctx context.Context,
 	statDate time.Time,
-	recommendRequestRepo *data.RecommendRequestRepo,
-	recommendRequestItemRepo *data.RecommendRequestItemRepo,
-	recommendExposureRepo *data.RecommendExposureRepo,
-	recommendExposureItemRepo *data.RecommendExposureItemRepo,
-	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
-	orderGoodsRepo *data.OrderGoodsRepo,
-) ([]*models.RecommendGoodsStatDay, error) {
-	startAt := statDate
-	endAt := statDate.AddDate(0, 0, 1)
-	var err error
-
+	requestList []*models.RecommendRequest,
+	requestItemList []*models.RecommendRequestItem,
+	exposureList []*models.RecommendExposure,
+	exposureItemList []*models.RecommendExposureItem,
+	actionList []*models.RecommendGoodsAction,
+	orderGoodsList []*models.OrderGoods,
+) []*models.RecommendGoodsStatDay {
 	statMap := make(map[recommendGoodsStatDayKey]*models.RecommendGoodsStatDay)
 	ensureStat := func(scene int32, goodsId int64) *models.RecommendGoodsStatDay {
 		key := recommendGoodsStatDayKey{scene: scene, goodsId: goodsId}
@@ -53,43 +43,33 @@ func BuildRecommendGoodsStatDays(
 		return item
 	}
 
-	var requestSceneMap map[int64]int32
-	var requestRecordIds []int64
-	requestSceneMap, requestRecordIds, err = loadRecommendRequestSceneMap(ctx, recommendRequestRepo, startAt, endAt)
-	if err != nil {
-		return nil, err
-	}
-	if len(requestRecordIds) > 0 {
-		err = accumulateRecommendRequestCounts(ctx, recommendRequestItemRepo, requestSceneMap, requestRecordIds, ensureStat)
-		if err != nil {
-			return nil, err
+	requestSceneMap := buildRecommendRequestSceneMap(requestList)
+	for _, item := range requestItemList {
+		// 逐商品明细无法匹配主表场景或商品非法时，直接跳过。
+		if item == nil || item.GoodsID <= 0 {
+			continue
 		}
-	}
-
-	var exposureSceneMap map[int64]int32
-	var exposureIds []int64
-	exposureSceneMap, exposureIds, err = loadRecommendExposureSceneMap(ctx, recommendExposureRepo, startAt, endAt)
-	if err != nil {
-		return nil, err
-	}
-	if len(exposureIds) > 0 {
-		err = accumulateRecommendExposureCounts(ctx, recommendExposureItemRepo, exposureSceneMap, exposureIds, ensureStat)
-		if err != nil {
-			return nil, err
+		scene, ok := requestSceneMap[item.RecommendRequestID]
+		if !ok {
+			continue
 		}
+		ensureStat(scene, item.GoodsID).RequestCount++
 	}
 
-	var actionList []*models.RecommendGoodsAction
-	actionList, err = loadRecommendGoodsActions(ctx, recommendGoodsActionRepo, startAt, endAt)
-	if err != nil {
-		return nil, err
-	}
-	var payAmountMap map[recommendGoodsPayKey]int64
-	payAmountMap, err = loadRecommendPayAmountMap(ctx, orderGoodsRepo, actionList)
-	if err != nil {
-		return nil, err
+	exposureSceneMap := buildRecommendExposureSceneMap(exposureList)
+	for _, item := range exposureItemList {
+		// 逐商品明细无法匹配主表场景或商品非法时，直接跳过。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+		scene, ok := exposureSceneMap[item.RecommendExposureID]
+		if !ok {
+			continue
+		}
+		ensureStat(scene, item.GoodsID).ExposureCount++
 	}
 
+	payAmountMap := buildRecommendPayAmountMap(orderGoodsList)
 	for _, item := range actionList {
 		// 非法商品不参与统计。
 		if item == nil || item.GoodsID <= 0 {
@@ -130,139 +110,37 @@ func BuildRecommendGoodsStatDays(
 		item.Score = calculateRecommendGoodsStatScore(item)
 		list = append(list, item)
 	}
-	return list, nil
+	return list
 }
 
-// loadRecommendRequestSceneMap 读取当天推荐请求主表并返回请求编号到场景的映射。
-func loadRecommendRequestSceneMap(ctx context.Context, recommendRequestRepo *data.RecommendRequestRepo, startAt, endAt time.Time) (map[int64]int32, []int64, error) {
-	query := recommendRequestRepo.Query(ctx).RecommendRequest
-	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.CreatedAt.Gte(startAt)))
-	opts = append(opts, repo.Where(query.CreatedAt.Lt(endAt)))
-	var err error
-	var requestList []*models.RecommendRequest
-	requestList, err = recommendRequestRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, nil, err
-	}
-
+// buildRecommendRequestSceneMap 按推荐请求主表构建请求编号到场景的映射。
+func buildRecommendRequestSceneMap(requestList []*models.RecommendRequest) map[int64]int32 {
 	requestSceneMap := make(map[int64]int32, len(requestList))
-	requestRecordIds := make([]int64, 0, len(requestList))
 	for _, item := range requestList {
 		// 非法请求主表记录直接跳过，避免污染 item 明细查询条件。
 		if item == nil || item.ID <= 0 {
 			continue
 		}
 		requestSceneMap[item.ID] = item.Scene
-		requestRecordIds = append(requestRecordIds, item.ID)
 	}
-	return requestSceneMap, requestRecordIds, nil
+	return requestSceneMap
 }
 
-// accumulateRecommendRequestCounts 累计推荐请求逐商品明细中的请求次数。
-func accumulateRecommendRequestCounts(ctx context.Context, recommendRequestItemRepo *data.RecommendRequestItemRepo, requestSceneMap map[int64]int32, requestRecordIds []int64, ensureStat func(scene int32, goodsId int64) *models.RecommendGoodsStatDay) error {
-	requestItemQuery := recommendRequestItemRepo.Query(ctx).RecommendRequestItem
-	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(requestItemQuery.RecommendRequestID.In(requestRecordIds...)))
-	var err error
-	var requestItemList []*models.RecommendRequestItem
-	requestItemList, err = recommendRequestItemRepo.List(ctx, opts...)
-	if err != nil {
-		return err
-	}
-	for _, item := range requestItemList {
-		scene, ok := requestSceneMap[item.RecommendRequestID]
-		// 逐商品明细无法匹配主表场景或商品非法时，直接跳过。
-		if !ok || item.GoodsID <= 0 {
-			continue
-		}
-		ensureStat(scene, item.GoodsID).RequestCount++
-	}
-	return nil
-}
-
-// loadRecommendExposureSceneMap 读取当天推荐曝光主表并返回曝光编号到场景的映射。
-func loadRecommendExposureSceneMap(ctx context.Context, recommendExposureRepo *data.RecommendExposureRepo, startAt, endAt time.Time) (map[int64]int32, []int64, error) {
-	query := recommendExposureRepo.Query(ctx).RecommendExposure
-	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.CreatedAt.Gte(startAt)))
-	opts = append(opts, repo.Where(query.CreatedAt.Lt(endAt)))
-	var err error
-	var exposureList []*models.RecommendExposure
-	exposureList, err = recommendExposureRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, nil, err
-	}
-
+// buildRecommendExposureSceneMap 按推荐曝光主表构建曝光编号到场景的映射。
+func buildRecommendExposureSceneMap(exposureList []*models.RecommendExposure) map[int64]int32 {
 	exposureSceneMap := make(map[int64]int32, len(exposureList))
-	exposureIds := make([]int64, 0, len(exposureList))
 	for _, item := range exposureList {
 		// 非法曝光主表记录直接跳过，避免污染 item 明细查询条件。
 		if item == nil || item.ID <= 0 {
 			continue
 		}
 		exposureSceneMap[item.ID] = item.Scene
-		exposureIds = append(exposureIds, item.ID)
 	}
-	return exposureSceneMap, exposureIds, nil
+	return exposureSceneMap
 }
 
-// accumulateRecommendExposureCounts 累计推荐曝光逐商品明细中的曝光次数。
-func accumulateRecommendExposureCounts(ctx context.Context, recommendExposureItemRepo *data.RecommendExposureItemRepo, exposureSceneMap map[int64]int32, exposureIds []int64, ensureStat func(scene int32, goodsId int64) *models.RecommendGoodsStatDay) error {
-	exposureItemQuery := recommendExposureItemRepo.Query(ctx).RecommendExposureItem
-	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(exposureItemQuery.RecommendExposureID.In(exposureIds...)))
-	var err error
-	var exposureItemList []*models.RecommendExposureItem
-	exposureItemList, err = recommendExposureItemRepo.List(ctx, opts...)
-	if err != nil {
-		return err
-	}
-	for _, item := range exposureItemList {
-		scene, ok := exposureSceneMap[item.RecommendExposureID]
-		// 逐商品明细无法匹配主表场景或商品非法时，直接跳过。
-		if !ok || item.GoodsID <= 0 {
-			continue
-		}
-		ensureStat(scene, item.GoodsID).ExposureCount++
-	}
-	return nil
-}
-
-// loadRecommendGoodsActions 读取当天推荐商品行为事实。
-func loadRecommendGoodsActions(ctx context.Context, recommendGoodsActionRepo *data.RecommendGoodsActionRepo, startAt, endAt time.Time) ([]*models.RecommendGoodsAction, error) {
-	query := recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
-	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.CreatedAt.Gte(startAt)))
-	opts = append(opts, repo.Where(query.CreatedAt.Lt(endAt)))
-	return recommendGoodsActionRepo.List(ctx, opts...)
-}
-
-// loadRecommendPayAmountMap 读取支付行为对应的订单商品支付金额。
-func loadRecommendPayAmountMap(ctx context.Context, orderGoodsRepo *data.OrderGoodsRepo, actionList []*models.RecommendGoodsAction) (map[recommendGoodsPayKey]int64, error) {
-	requestIds := make([]string, 0, len(actionList))
-	for _, item := range actionList {
-		// 只有支付事件需要回查订单商品金额。
-		if item == nil || item.EventType != int32(common.RecommendGoodsActionType_ORDER_PAY) || item.RequestID == "" {
-			continue
-		}
-		requestIds = append(requestIds, item.RequestID)
-	}
-	requestIds = recommendCore.DedupeStrings(requestIds)
-	if len(requestIds) == 0 {
-		return map[recommendGoodsPayKey]int64{}, nil
-	}
-
-	orderGoodsQuery := orderGoodsRepo.Query(ctx).OrderGoods
-	opts := make([]repo.QueryOption, 0, 1)
-	opts = append(opts, repo.Where(orderGoodsQuery.RequestID.In(requestIds...)))
-	var err error
-	var orderGoodsList []*models.OrderGoods
-	orderGoodsList, err = orderGoodsRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
+// buildRecommendPayAmountMap 按订单商品列表构建支付金额映射。
+func buildRecommendPayAmountMap(orderGoodsList []*models.OrderGoods) map[recommendGoodsPayKey]int64 {
 	payAmountMap := make(map[recommendGoodsPayKey]int64)
 	for _, item := range orderGoodsList {
 		// 非法请求或商品不参与统计。
@@ -272,7 +150,7 @@ func loadRecommendPayAmountMap(ctx context.Context, orderGoodsRepo *data.OrderGo
 		key := recommendGoodsPayKey{requestId: item.RequestID, goodsId: item.GoodsID}
 		payAmountMap[key] += item.TotalPayPrice
 	}
-	return payAmountMap, nil
+	return payAmountMap
 }
 
 // calculateRecommendGoodsStatScore 按当前固定口径计算推荐商品热度分。

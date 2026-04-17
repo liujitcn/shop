@@ -55,6 +55,7 @@ func BuildPageExplainSnapshot(pageGoods []*app.GoodsInfo, candidates map[int64]*
 			FinalScore:            candidate.FinalScore,
 			RelationScore:         candidate.RelationScore,
 			UserGoodsScore:        candidate.UserGoodsScore,
+			SimilarUserScore:      candidate.SimilarUserScore,
 			ProfileScore:          candidate.ProfileScore,
 			ScenePopularityScore:  candidate.ScenePopularityScore,
 			GlobalPopularityScore: candidate.GlobalPopularityScore,
@@ -62,6 +63,9 @@ func BuildPageExplainSnapshot(pageGoods []*app.GoodsInfo, candidates map[int64]*
 			ExposurePenalty:       candidate.ExposurePenalty,
 			ActorExposurePenalty:  candidate.ActorExposurePenalty,
 			RepeatPenalty:         candidate.RepeatPenalty,
+			RuleScore:             candidate.RuleScore,
+			ModelScore:            candidate.ModelScore,
+			LlmScore:              candidate.LlmScore,
 			RecallSources:         recallSources,
 		})
 	}

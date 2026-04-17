@@ -26,6 +26,24 @@ func (a *Actor) IsAnonymous() bool {
 	return a.ActorType == recommendEvent.ActorTypeAnonymous
 }
 
+// ResolveCacheActorType 返回缓存键构造需要的主体类型。
+func (a *Actor) ResolveCacheActorType() int32 {
+	// 主体为空时，统一按匿名主体处理。
+	if a == nil {
+		return recommendEvent.ActorTypeAnonymous
+	}
+	return a.ActorType
+}
+
+// ResolveCacheActorId 返回缓存键构造需要的主体编号。
+func (a *Actor) ResolveCacheActorId() int64 {
+	// 主体为空时，统一回退到 0，避免缓存键缺失。
+	if a == nil {
+		return 0
+	}
+	return a.ActorId
+}
+
 // RequestContext 表示一次推荐请求在领域层的上下文。
 type RequestContext struct {
 	RequestId     string         // 推荐请求编号

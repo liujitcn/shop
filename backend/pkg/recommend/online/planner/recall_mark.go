@@ -14,6 +14,7 @@ func (p *RequestPlan) AppendAnonymousExplainRecallSources(candidates map[int64]*
 // AppendPersonalizedExplainRecallSources 为登录态命中的候选商品补充 explain 召回来源。
 func (p *RequestPlan) AppendPersonalizedExplainRecallSources(candidates map[int64]*recommendcore.Candidate) {
 	// 登录态详情页当前会补内容相似与协同过滤两类灰度召回来源。
+	appendCandidateRecallSources(candidates, recommendCandidate.RecallSourceSimilarUser, p.SimilarUserJoinGoodsIds)
 	appendCandidateRecallSources(candidates, recommendCandidate.RecallSourceContentBased, p.ContentBasedJoinGoodsIds)
 	appendCandidateRecallSources(candidates, recommendCandidate.RecallSourceCF, p.CollaborativeFilteringGoodsIds)
 }

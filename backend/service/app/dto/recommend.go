@@ -1,6 +1,10 @@
 package dto
 
-import recommendEvent "shop/pkg/recommend/event"
+import (
+	app "shop/api/gen/go/app"
+	recommendDomain "shop/pkg/recommend/domain"
+	recommendEvent "shop/pkg/recommend/event"
+)
 
 // RecommendActor 表示推荐链路中的主体信息。
 type RecommendActor struct {
@@ -15,6 +19,32 @@ func (a *RecommendActor) UserId() int64 {
 		return 0
 	}
 	return a.ActorId
+}
+
+// ToDomainActor 将应用层推荐主体桥接为领域主体对象。
+func (a *RecommendActor) ToDomainActor() *recommendDomain.Actor {
+	// 主体为空时，不再继续构建领域主体对象。
+	if a == nil {
+		return nil
+	}
+	return &recommendDomain.Actor{
+		ActorType: a.ActorType,
+		ActorId:   a.ActorId,
+	}
+}
+
+// BuildRecommendGoodsRequest 将接口请求桥接为推荐领域请求对象。
+func BuildRecommendGoodsRequest(req *app.RecommendGoodsRequest) *recommendDomain.GoodsRequest {
+	if req == nil {
+		return &recommendDomain.GoodsRequest{}
+	}
+	return &recommendDomain.GoodsRequest{
+		Scene:    req.GetScene(),
+		OrderId:  req.GetOrderId(),
+		GoodsId:  req.GetGoodsId(),
+		PageNum:  req.GetPageNum(),
+		PageSize: req.GetPageSize(),
+	}
 }
 
 // RecommendActorBindLogUserRow 表示推荐主体绑定日志里的用户查询结果。

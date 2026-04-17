@@ -109,6 +109,11 @@ func ListSimilarUserProbeUserIds(probeContext map[string]any) []int64 {
 	return recommendcore.DedupeInt64s(userIds)
 }
 
+// ShouldJoinProbeCandidate 判断指定探针结果是否允许并入候选池。
+func ShouldJoinProbeCandidate(probeContext map[string]any, key string) bool {
+	return shouldJoinProbeCandidate(loadProbeItem(probeContext, key))
+}
+
 func divideObservedCount(numerator int, denominator int) float64 {
 	if denominator <= 0 || numerator <= 0 {
 		return 0

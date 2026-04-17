@@ -4,7 +4,7 @@
 
 本文档用于指导当前项目推荐系统的渐进式重构与能力补齐，目标是：
 
-- 以当前商城推荐链路为基础，逐步补齐 `recommend-vs-gorse.md` 差距对比表中的能力。
+- 以当前商城推荐链路为基础，逐步补齐 `recommend-capability-gap.md` 差距对比表中的能力。
 - 坚持“先底层、后上层；先并行、后替换；先可运行、后切主链路”的演进原则。
 - 在整个改造过程中保持项目始终可运行、可验证、可回滚。
 - 将阶段目标、替换顺序、验证方法、风险点、开发进度统一记录在案，便于中断后继续推进。
@@ -48,7 +48,7 @@
 
 ## 实现参照与复用原则
 
-- 内部实现参照仓库固定为 `/Users/liujun/workspace/github/gorse`，用于参考训练任务拆分、候选集合处理、缓存写入和评估口径；当前项目对外命名、目录命名和业务文案中不引入该名称。
+- 内部实现参照仓库固定为 `/Users/liujun/workspace/github/参考实现`，用于参考训练任务拆分、候选集合处理、缓存写入和评估口径；当前项目对外命名、目录命名和业务文案中不引入该名称。
 - 基础 KV / Hash 缓存统一优先复用 `github.com/liujitcn/kratos-kit/cache`，推荐层仅补齐排序集合、版本、缓存发布等推荐专用语义。
 - 去重、排除集、候选集合并交等集合操作，优先使用 `github.com/deckarep/golang-set/v2 v2.8.0`，避免在业务层重复手写 `map` 去重逻辑。
 - 稠密布尔标记、可预测位图、训练阶段批量成员判定等位图场景，优先使用 `github.com/bits-and-blooms/bitset v1.24.4`，作为后续单机训练和评估阶段的基础位图组件。
@@ -93,7 +93,7 @@
 
 ## 差距到阶段映射
 
-`recommend-vs-gorse.md` 里提到的主要差距，不是并列散点，而是要映射到固定阶段里逐项收敛。
+`recommend-capability-gap.md` 里提到的主要差距，不是并列散点，而是要映射到固定阶段里逐项收敛。
 
 | 差距项 | 对应阶段 | 当前状态 | 阶段输出物 |
 | --- | --- | --- | --- |
@@ -102,8 +102,8 @@
 | 缺少缓存优先和写缓存发布 | 阶段 3 | 已完成 `hot`、`latest`、`similar_item` 三类结果的写缓存调度与在线读取挂点 | 推荐缓存协议、写缓存任务、缓存版本规范、缓存命中指标 |
 | 缺少相似用户和协同过滤 | 阶段 4、阶段 5 | 已接入按版本控制的相似用户与协同过滤召回探针，`GOODS_DETAIL` 可按版本灰度并入协同过滤候选 | 相似用户召回、CF 召回、训练产物、候选缓存 |
 | 商品相似仍偏行为统计 | 阶段 4、阶段 5 | 已接入内容相似探针读取挂点，`GOODS_DETAIL` 可按版本灰度并入内容相似候选 | 行为相似、属性相似、内容相似三类产物 |
-| 缺少模型排序 | 阶段 5、阶段 7 | 尚未开始 | CTR / CVR 轻量模型、排序特征、精排服务 |
-| 缺少自动调参与版本联动 | 阶段 8 | 尚未开始 | 参数搜索任务、评估结果回写、版本发布和回滚 |
+| 缺少模型排序 | 阶段 5、阶段 7 | 进行中 | CTR / CVR 轻量模型、排序特征、精排服务 |
+| 缺少自动调参与版本联动 | 阶段 8 | 进行中 | 参数搜索任务、评估结果回写、版本发布和回滚 |
 | 缺少推荐后台和监控 | 阶段 9 | 尚未开始 | 推荐任务后台、指标面板、发布记录、排障入口 |
 
 ## 当前阶段状态
@@ -114,13 +114,13 @@
 | --- | --- | --- |
 | 阶段 0 | 已完成 | 已完成建档、README 入口和基线固化 |
 | 阶段 1 | 已完成 | 领域对象与缓存边界已落到 `pkg/recommend` |
-| 阶段 2 | 进行中 | 商品行为投影器已下沉，其他聚合逻辑仍待继续收敛 |
+| 阶段 2 | 进行中 | 离线聚合规则已收口为纯函数，实时投影与事实查询已回收到表级 Case / task |
 | 阶段 3 | 进行中 | 已补缓存 key 规范、缓存后端适配、首批写缓存任务调度，并接入 `hot`、`latest`、`similar_item` 在线缓存优先读取 |
 | 阶段 4 | 进行中 | 已补相似用户、协同过滤、内容相似探针和版本控制入口，并在 `GOODS_DETAIL` 接入首批灰度候选融合 |
 | 阶段 5 | 进行中 | 已补首批相似用户、协同过滤、内容相似训练与写缓存任务，排序模型仍待后续补齐 |
 | 阶段 6 | 进行中 | 已开始将召回探针解析、请求计划对象和信号装配下沉到 `pkg/recommend/online`，主链路尚未切换 |
-| 阶段 7 | 未开始 | 依赖阶段 5 的排序特征与模型产物 |
-| 阶段 8 | 未开始 | 依赖评估指标、训练版本、发布协议打通 |
+| 阶段 7 | 进行中 | 已补 参考实现 风格 `ranker.type=none|fm` 与 `llm_rerank` 版本配置、纯排序阶段执行器、线上读分闭环、离线快照发布任务，以及 AFM 真实训练产物写缓存与落盘 |
+| 阶段 8 | 进行中 | 已补 `publish` / `tune` 版本配置解析、有效缓存版本切换、在线调试上下文、按版本发布排序阶段缓存的任务入口，以及 AFM/BPR 自动调参与训练产物落到 `data` 目录，评估回写仍待接入 |
 | 阶段 9 | 未开始 | 依赖前面阶段输出稳定指标和操作面 |
 
 ## 当前代码锚点
@@ -130,12 +130,12 @@
 | 职责 | 当前文件 | 当前作用 | 后续阶段处理方式 |
 | --- | --- | --- | --- |
 | 在线推荐总入口 | `service/app/biz/recommend_request.go` | 负责直接调用表级 Case 组织场景规划、召回、候选合并、排序和明细落库 | 保持查询职责留在 `biz`，仅把纯逻辑继续收口到 `pkg/recommend/online` |
-| 在线缓存读取桥接 | `service/app/biz/recommend_cache.go` | 负责 `hot`、`latest`、`similar_item` 的缓存读取、版本回退和排除过滤 | 保持留在 `biz`，不再迁到 `pkg/recommend/online/cache` |
-| 召回探针桥接 | `service/app/biz/recommend_recall_probe.go` | 负责按版本配置读取相似用户、协同过滤、内容相似三类召回探针，并把命中信息写入请求上下文 | 保持缓存读取留在 `biz`，纯上下文收口继续复用 `pkg/recommend/online/recall` |
-| 商品行为事实入口 | `service/app/biz/recommend_goods_action.go` | 消费队列、写 `recommend_goods_action`、调用投影器 | 阶段 2 保持这里只做事实入库和桥接，不继续扩展聚合细节 |
-| 实时投影器 | `pkg/recommend/offline/aggregate/goods_action_projector.go` | 把行为事实投影到用户偏好、商品偏好、商品关系 | 阶段 2 继续扩展为离线重建和实时更新共用聚合入口 |
-| 用户类目偏好重建 | `service/app/biz/recommend_user_preference.go` | 仍在 `biz` 层直接读事实表并重建聚合 | 阶段 2 继续下沉到 `pkg/recommend/offline/aggregate` |
-| 商品关联重建 | `service/app/biz/recommend_goods_relation.go` | 仍在 `biz` 层直接读事实表并重建商品关系 | 阶段 2 继续下沉到 `pkg/recommend/offline/aggregate` |
+| 在线缓存读取桥接 | `service/app/biz/recommend_request.go` | 负责 `hot`、`latest`、`similar_item` 等缓存读取、版本回退、排除过滤和缓存元信息收口 | 保持缓存读取留在 `biz`，不再迁到 `pkg/recommend/online/cache` |
+| 召回探针与版本策略桥接 | `service/app/biz/recommend_model_version.go`、`service/app/biz/recommend_request.go` | 负责解析 `recommend_model_version.config_json` 中的 `recall_probe`、`ranker`、`llm_rerank`、`publish`、`tune`，并把探针与排序阶段命中信息写入请求上下文 | 保持版本读取和缓存读取留在表级 Case / `biz`，纯上下文与纯排序继续复用 `pkg/recommend/online` |
+| 商品行为事实入口 | `service/app/biz/recommend_goods_action.go` | 消费队列、写 `recommend_goods_action`，并调用 `recommend_user_*` / `recommend_goods_relation` 等表级 Case 完成实时投影 | 保持事实入库和投影事务留在 `biz`，不再新增独立投影器结构 |
+| 离线聚合规则 | `pkg/recommend/offline/aggregate/*.go` | 只保留用户偏好、商品关联、日统计等纯聚合和纯重建规则 | 后续继续保持输入为已准备好的事实或上下文快照，不回退到 Repo / 查询语义 |
+| 用户类目偏好重建 | `service/app/biz/recommend_user_preference.go` | 在 `biz` 层查询事实与商品上下文，再调用 `pkg/recommend/offline/aggregate` 纯重建规则 | 保持查询职责留在表级 Case，纯规则留在 `pkg/recommend` |
+| 商品关联重建 | `service/app/biz/recommend_goods_relation.go` | 在 `biz` 层查询行为事实与请求商品集合，再调用 `pkg/recommend/offline/aggregate` 纯重建规则 | 保持查询职责留在表级 Case，纯规则留在 `pkg/recommend` |
 | 候选构建 | `pkg/recommend/candidate/logic.go` | 已下沉匿名/登录态候选构建和基础打散排序 | 阶段 4 继续从“单函数候选构建”演进到多召回组合 |
 | 基础排序函数 | `pkg/recommend/rank/weight_ranker.go` | 负责当前规则排序中的新鲜度、曝光惩罚等基础分 | 阶段 7 在此基础上补模型精排和 LLM 重排挂点 |
 | 推荐缓存协议 | `pkg/recommend/cache/types.go`、`pkg/recommend/cache/key.go`、`pkg/recommend/cache/store.go` | 已定义推荐缓存语义、固定 key 前缀并接入基础缓存实现 | 阶段 3 在不改协议前提下继续补写缓存任务与读缓存桥接 |
@@ -295,10 +295,10 @@ backend/pkg/recommend/
 
 阶段 2 文件级执行清单：
 
-1. 保持 `service/app/biz/recommend_goods_action.go` 只负责“队列消费 -> 事实落库 -> 调用投影器”，不要再继续把偏好或关系聚合写回这个 Case。
-2. 继续扩展 `pkg/recommend/offline/aggregate/goods_action_projector.go`，把“实时投影”和“离线重建”需要复用的聚合函数沉到这里或其同级文件。
-3. 把 `service/app/biz/recommend_user_preference.go` 中的重建逻辑改成调用 `pkg/recommend/offline/aggregate`，避免 `biz` 层继续维护第二套聚合实现。
-4. 把 `service/app/biz/recommend_goods_relation.go` 中的重建逻辑改成调用 `pkg/recommend/offline/aggregate`，统一请求共现和订单共现的累计规则。
+1. 保持 `service/app/biz/recommend_goods_action.go` 负责“队列消费 -> 事实落库 -> 调用表级 Case 投影”，不要再引入独立投影器结构。
+2. 保持 `pkg/recommend/offline/aggregate` 只承载离线重建和日统计的纯聚合函数，不再放 Repo、GORM 和查询语义。
+3. 让 `service/app/biz/recommend_user_preference.go`、`recommend_user_goods_preference.go`、`recommend_goods_relation.go` 负责事实查询、删旧数据和批量落库，再调用 `pkg/recommend/offline/aggregate` 纯规则。
+4. 让 `pkg/job/task/recommend_goods_stat_day.go` 负责按天读取事实与批量回写，`pkg/recommend/offline/aggregate` 只保留纯统计口径。
 5. 在阶段 2 内暂时不要改 `service/app/biz/recommend_request.go` 的在线读取路径，避免事实层拆分和在线链路改造叠在一起。
 
 阶段 2 完成后的代码形态要求：
@@ -437,7 +437,7 @@ backend/pkg/recommend/
 - 当前首版训练优先复用用户类目偏好、用户商品偏好、商品属性等现有聚合结果，不新引入库表。
 - 当前产物已可按启用版本发布到推荐缓存，并可直接被阶段 4 的召回探针读取。
 - 已为写缓存任务补统一失败摘要，任务异常时会带出当前执行阶段、输入规模、已发布子集合数、已清理子集合数和耗时，便于排查训练或发布卡点。
-- 当前仍未补 CTR / CVR 轻量排序模型、模型文件发布和自动调参链路。
+- 当前仍未补更完整的排序评估回写、LLM 重排正式训练链和发布工作流。
 
 ### 阶段 6：重构在线引擎并灰度替换主链路
 
@@ -493,6 +493,16 @@ backend/pkg/recommend/
 
 - 当前项目具备“规则排序 + 模型排序 + 大模型重排”三层结构。
 
+当前进展补充：
+
+- 已在 `pkg/recommend/online/rank` 中补齐纯排序阶段执行器，当前统一按“规则粗排 -> ranker -> llm_rerank” 三段执行。
+- 已将 `recommend_request.go` 中匿名态和登录态的候选构建、排序分页与 explain 收口为 `ExecuteAnonymousRanking` / `ExecutePersonalizedRanking` 一次调用，阶段 6 主链路继续缩短。
+- 已在 `pkg/recommend/domain` 中补齐与 参考实现 对齐的 `ranker.type=none|fm` 版本配置结构，并保留 `llm_rerank.top_n`、`weight`、`cache_ttl_seconds` 等字段。
+- 已在评分明细中补充 `ruleScore`、`modelScore`、`llmScore`，便于后续排查模型精排和 LLM 重排的实际改写幅度。
+- 已在在线推荐链路补齐 `ranker` 与 `llm_rerank` 的缓存读取挂点：`ranker` 当前按 `scene + actor + version` 精确读取候选商品分数，`llm_rerank` 当前按 `scene + actor + request_hash + version` 读取当前请求的重排分数。
+- 已补 `RecommendRankerMaterialize` 与 `RecommendLlmRerankMaterialize` 两个离线快照发布任务，当前可把外部预计算的阶段分数 JSON 快照直接发布到 `ranker`、`llm_rerank` 版本缓存。
+- 当前模型得分与 LLM 得分虽然已经具备按版本读写缓存的最小闭环，但正式训练产物生成与自动刷新任务仍待后续补齐。
+
 ### 阶段 8：补齐自动调参与版本发布
 
 目标：
@@ -511,6 +521,15 @@ backend/pkg/recommend/
 
 - 推荐版本不是只记录，而是能驱动在线链路。
 - 评估结果能自动反馈到参数与版本管理。
+
+当前进展补充：
+
+- 已在 `recommend_model_version.config_json` 中补齐 `publish` 与 `tune` 结构，当前支持解析 `cache_version`、`rollback_version`、`gray_ratio`、`published_by`、`published_reason`、`published_at`、`target_metric`、`trial_count`，以及最近一次真实训练摘要 `tune.latest`、最近一次评估日报摘要 `tune.latest_eval` 等字段。
+- 当前在线缓存读取已开始受版本发布配置驱动：若当前启用版本显式配置 `rollback_version` 或 `cache_version`，读取侧会自动切到对应有效版本。
+- 当前推荐请求排障上下文已补 `rankingStageContext`、`publishContext`、`tuneContext`，可直接看到本次请求按哪一版策略执行、是否处于回滚态、当前调参目标，以及最近一次真实训练摘要和最近一次评估日报摘要。
+- 已补按显式版本发布 `ranker` 与 `llm_rerank` 缓存的任务入口，当前可直接验证“离线发布哪一版，在线读取哪一版”的版本联动闭环。
+- 当前已开始把评估日报摘要回写到版本配置，并新增 `RecommendVersionPublish` 任务承接正式切版本、发布元数据落库和快速回滚配置。
+- 当前后台已补 `RecommendModelVersionService` 接口，支持分页查看推荐版本、`publish` 配置、`tune.latest`、`tune.latest_eval` 摘要，并可按版本记录 `id` 执行正式发布、设置回滚版本和清空回滚版本动作；剩余更完整的后台操作面与发布审批流程继续作为阶段 8 后续工作推进。
 
 ### 阶段 9：补齐推荐后台与监控
 
@@ -724,6 +743,10 @@ go test ./...
 | 2026-04-16 | 阶段 6 | 继续扩展 `pkg/recommend/online/record`，将推荐请求主表实体构建与来源上下文序列化下沉到记录层，并让 `online/engine` 统一复用 `recommend/domain.PageResult` 作为领域返回对象 | 否 | `cd backend && go test ./...` 通过 | 当前主请求落库事务仍在业务层，但主表模型构建、上下文序列化和引擎返回对象已经进一步从 `service/app/biz` 迁出 |
 | 2026-04-16 | 计划纠偏 | 根据最新边界约定，补充“`pkg/recommend` 禁止 Repo/查询设计”“`service/app/biz` 禁止新增非表名相关结构”“`RecommendCase` 禁止继续新增辅助方法”等强约束，并明确阶段 6 后续不再沿 loader / adapter 路径继续扩张 | 否 | 本次为计划与说明文档更新，未执行代码验证 | 后续若继续阶段 6，优先做边界收口与回退，不再新增同类查询桥接结构 |
 | 2026-04-16 | 阶段 6 收口 | 按最新边界完成一次代码回退：删除 `service/app/biz` 中的 loader / pager / engine 适配结构，删除 `pkg/recommend/online/cache`、`pkg/recommend/online/engine`、`pkg/recommend/online/feature/loader`、`pkg/recommend/online/planner/query|observe` 等查询桥接实现，并将 `recommend_request.go` 改回直接调用表级 Case 组织查询 | 否 | 待本次代码改动完成后执行 `cd backend && go test ./...` | 当前 `pkg/recommend` 只保留 `recall/planner/feature/rank/record` 纯逻辑模块，查询职责重新收口到 `service/app/biz` |
+| 2026-04-17 | 阶段 6 / 7 / 8 | 继续按边界收口在线主链路：让 `recommend_request.go` 改为统一调用 `pkg/recommend/online/rank` 纯排序入口，并把 `recommend_model_version.config_json` 扩展到 `ranker`、`llm_rerank`、`publish`、`tune`，同时把排序阶段、发布版本和调参元数据收口到在线调试上下文 | 否 | `cd backend && go test ./pkg/recommend/...`、`cd backend && go test ./service/app/biz/...`、`cd backend && go test ./...` 通过 | 当前阶段 6 已继续压缩主链路排序细节，阶段 7 已具备 参考实现 风格 `none|fm` 精排配置和 LLM TopN 重排骨架，阶段 8 已具备版本驱动的有效缓存版本切换与发布/调参元数据解析；AFM/BPR 真实训练产物当前也已能写缓存并落到 `backend/data/recommend/train/...`，最近一次真实训练摘要也会回写到 `recommend_model_version.config_json.tune.latest`，后续主要剩评估回写和正式发布工作流 |
+| 2026-04-17 | 阶段 7 / 8 | 继续把版本策略接到线上可执行路径：在 `pkg/recommend/cache` 中补齐 `ranker` 与 `llm_rerank` 子集合规范、请求哈希和精确取分工具，并在 `recommend_request.go` 中按当前有效版本读取模型精排和 LLM 重排缓存分数后传给纯排序执行器 | 否 | `cd backend && go test ./pkg/recommend/cache ./pkg/recommend/online/rank ./pkg/recommend/domain`、`cd backend && go test ./service/app/biz/...`、`cd backend && go test ./...` 通过 | 当前阶段 7 已具备线上缓存读分闭环，AFM 真实训练产物当前也已能直接发布到 `ranker` 版本缓存；阶段 8 的版本发布配置当前也已经能驱动这些读分缓存的有效版本切换 |
+| 2026-04-17 | 阶段 7 / 8 | 继续补排序阶段的离线发布基础设施：在 `pkg/recommend/offline/materialize` 中新增 `ranker`、`llm_rerank` 发布方法，并在 `pkg/job/task` 中新增读取外部预计算 JSON 快照并发布到版本缓存的两个任务，支持可选清理当前版本旧子集合 | 否 | `cd backend && go test ./...` 通过 | 当前阶段 7 已具备线上读分与离线写分的最小闭环，AFM/BPR 真实训练结果当前也会同步落到 `backend/data/recommend/train/...`；阶段 8 剩余工作主要是评估回写与更完整的发布工作流 |
+| 2026-04-17 | 阶段 8 | 继续补最小后台操作面：新增 `admin.RecommendModelVersionService`，支持推荐版本分页查看 `publish` / `tune` 摘要，并按版本记录 `id` 触发正式发布、设置回滚版本和清空回滚版本动作，底层复用 `RecommendVersionPublish` 任务 | 否 | `cd backend && make api`、`cd backend/internal/cmd/server && GOCACHE=/Users/liujun/workspace/shop/shop/backend/.gocache wire`、`cd backend && GOCACHE=/Users/liujun/workspace/shop/shop/backend/.gocache go test ./service/admin/... ./server ./internal/cmd/server`、`cd backend && GOCACHE=/Users/liujun/workspace/shop/shop/backend/.gocache go test ./...` 通过 | 当前阶段 8 已具备最小后台版本操作入口，后续主要剩前端管理页、操作审计和更完整的发布审批流 |
 
 ## 阶段结论记录
 
@@ -746,9 +769,9 @@ go test ./...
 ### 阶段 2 当前进展
 
 - 已开始拆分推荐商品行为消费者内部职责，先把事实入库与投影更新分层。
-- 已将商品行为投影器下沉到 `pkg/recommend/offline/aggregate`，避免继续在 `service/app/biz` 扩展推荐聚合逻辑。
-- 已将 `recommend_user_goods_preference`、`recommend_user_preference`、`recommend_goods_relation` 的离线重建逻辑统一下沉到 `pkg/recommend/offline/aggregate`，`biz` 层只保留删旧数据、调用聚合器和批量落库。
-- 已将 `RecommendGoodsStatDay` 的按天聚合逻辑统一下沉到 `pkg/recommend/offline/aggregate`，`pkg/job/task` 中的任务入口只保留日期解析、删旧数据和批量回写。
+- 实时投影当前已重新收口到 `service/app/biz/recommend_goods_action.go`，由表级 Case 直接调用 `recommend_user_goods_preference`、`recommend_user_preference`、`recommend_goods_relation` 完成事务内更新，不再保留独立投影器结构。
+- 已将 `recommend_user_goods_preference`、`recommend_user_preference`、`recommend_goods_relation` 的离线重建规则统一收口到 `pkg/recommend/offline/aggregate` 纯函数，`biz` 层负责事实查询、删旧数据和批量落库。
+- 已将 `RecommendGoodsStatDay` 的按天聚合规则统一收口到 `pkg/recommend/offline/aggregate` 纯函数，`pkg/job/task` 中的任务入口负责事实查询、删旧数据和批量回写。
 - 当前仍保留原有队列主题、事务入口和在线推荐主读路径，避免阶段 2 初期影响运行稳定性。
 - 集合去重优先库已固定为 `golang-set/v2`，位图实现优先库已固定为 `bitset`，并记录到长期规划中。
 - 已完成首轮代码回归验证，`cd backend && go test ./...` 通过。
@@ -765,7 +788,7 @@ go test ./...
 
 ### 阶段 4 当前进展
 
-- 已新增 `service/app/biz/recommend_recall_probe.go`，用于按场景版本读取相似用户、协同过滤、内容相似三类召回探针。
+- 已将按场景版本读取相似用户、协同过滤、内容相似三类召回探针的逻辑重新收口到 `service/app/biz/recommend_request.go` 与 `service/app/biz/recommend_model_version.go`，不再保留独立的 `recommend_recall_probe.go` 适配文件。
 - 已在 `pkg/recommend/cache` 中补齐相似用户、协同过滤、内容相似三类缓存集合与子集合键约定。
 - 已在 `pkg/recommend/domain` 中补齐 `recall_probe` 配置结构，用于承接 `recommend_model_version.config_json` 内的版本化探针开关。
 - 已将探针读取结果写入推荐请求 `sourceContext`，并在探针上下文中补充 `joinCandidate` 标记，便于区分“只观测”和“参与候选”。

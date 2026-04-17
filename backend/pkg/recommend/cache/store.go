@@ -113,7 +113,22 @@ func (s *HashStore) Expire(key string, dur time.Duration) error {
 	if err != nil {
 		return err
 	}
-	return s.cache.Expire(key, normalizeExpire(dur))
+	err = s.cache.Expire(key, normalizeExpire(dur))
+	if err == nil {
+		return nil
+	}
+	normalizedErr := normalizeObjectError(err)
+	if normalizedErr != ErrObjectNotExist {
+		return normalizedErr
+	}
+
+	// 内存缓存把 Hash 与 String 分开存储，哈希键没有独立的 Expire 能力。
+	// 这里探测到哈希键实际存在时，按“底层不支持 TTL 但写入已成功”处理，避免本地链路被误判为失败。
+	_, hashErr := s.cache.HGetAll(key)
+	if hashErr == nil {
+		return nil
+	}
+	return normalizeObjectError(hashErr)
 }
 
 // Exists 判断普通缓存值是否存在。

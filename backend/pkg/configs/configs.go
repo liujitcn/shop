@@ -33,6 +33,7 @@ const (
 
 	defaultPersonalizedRelationWeight             = 0.30
 	defaultPersonalizedUserGoodsWeight            = 0.25
+	defaultPersonalizedSimilarUserWeight          = 0.25
 	defaultPersonalizedProfileWeight              = 0.15
 	defaultPersonalizedScenePopularityWeight      = 0.20
 	defaultPersonalizedGlobalPopularityWeight     = 0.10
@@ -151,6 +152,7 @@ func ParseGoodsRecommendConfig(cfg *conf.ShopConfig) *conf.GoodsRecommendConfig 
 		PersonalizedRank: &conf.GoodsRecommendPersonalizedRankWeightConfig{
 			RelationWeight:             float64Ptr(defaultPersonalizedRelationWeight),
 			UserGoodsWeight:            float64Ptr(defaultPersonalizedUserGoodsWeight),
+			SimilarUserWeight:          float64Ptr(defaultPersonalizedSimilarUserWeight),
 			ProfileWeight:              float64Ptr(defaultPersonalizedProfileWeight),
 			ScenePopularityWeight:      float64Ptr(defaultPersonalizedScenePopularityWeight),
 			GlobalPopularityWeight:     float64Ptr(defaultPersonalizedGlobalPopularityWeight),
@@ -279,6 +281,9 @@ func mergePersonalizedRankWeightConfig(target, source *conf.GoodsRecommendPerson
 	}
 	if source.UserGoodsWeight != nil {
 		target.UserGoodsWeight = source.UserGoodsWeight
+	}
+	if source.SimilarUserWeight != nil {
+		target.SimilarUserWeight = source.SimilarUserWeight
 	}
 	if source.ProfileWeight != nil {
 		target.ProfileWeight = source.ProfileWeight

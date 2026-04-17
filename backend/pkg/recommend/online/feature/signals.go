@@ -23,6 +23,7 @@ func BuildAnonymousSignals(
 func BuildPersonalizedSignals(
 	relationScores map[int64]float64,
 	userGoodsScores map[int64]float64,
+	similarUserScores map[int64]float64,
 	profileScores map[int64]float64,
 	scenePopularityScores map[int64]float64,
 	globalPopularityScores map[int64]float64,
@@ -33,6 +34,7 @@ func BuildPersonalizedSignals(
 	return recommendDomain.PersonalizedSignals{
 		RelationScores:         relationScores,
 		UserGoodsScores:        userGoodsScores,
+		SimilarUserScores:      similarUserScores,
 		ProfileScores:          profileScores,
 		ScenePopularityScores:  scenePopularityScores,
 		GlobalPopularityScores: globalPopularityScores,

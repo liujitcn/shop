@@ -15,6 +15,7 @@ import (
 const (
 	RecallSourceRelation     = "relation"
 	RecallSourceUserGoods    = "user_goods"
+	RecallSourceSimilarUser  = "similar_user"
 	RecallSourceProfile      = "profile"
 	RecallSourceContentBased = "content_based"
 	RecallSourceCF           = "collaborative_filtering"
@@ -108,10 +109,11 @@ func BuildPersonalized(
 		}
 		candidate := &recommendCore.Candidate{
 			Goods:         item,
-			RecallSources: make(map[string]struct{}, 6),
+			RecallSources: make(map[string]struct{}, 7),
 		}
 		candidate.RelationScore = signals.RelationScores[item.Id]
 		candidate.UserGoodsScore = signals.UserGoodsScores[item.Id]
+		candidate.SimilarUserScore = signals.SimilarUserScores[item.Id]
 		candidate.ProfileScore = signals.ProfileScores[item.CategoryId]
 		candidate.ScenePopularityScore = signals.ScenePopularityScores[item.Id]
 		candidate.GlobalPopularityScore = signals.GlobalPopularityScores[item.Id]
@@ -122,8 +124,9 @@ func BuildPersonalized(
 		if _, ok := signals.RecentPaidGoods[item.Id]; ok {
 			candidate.RepeatPenalty = 1.5
 		}
-		candidate.FinalScore = candidate.RelationScore*rankWeightConfig.GetRelationWeight() +
+		candidate.RuleScore = candidate.RelationScore*rankWeightConfig.GetRelationWeight() +
 			candidate.UserGoodsScore*rankWeightConfig.GetUserGoodsWeight() +
+			candidate.SimilarUserScore*rankWeightConfig.GetSimilarUserWeight() +
 			candidate.ProfileScore*rankWeightConfig.GetProfileWeight() +
 			candidate.ScenePopularityScore*rankWeightConfig.GetScenePopularityWeight() +
 			candidate.GlobalPopularityScore*rankWeightConfig.GetGlobalPopularityWeight() +
@@ -131,6 +134,7 @@ func BuildPersonalized(
 			candidate.ExposurePenalty*rankWeightConfig.GetExposurePenaltyWeight() -
 			candidate.ActorExposurePenalty*rankWeightConfig.GetActorExposurePenaltyWeight() -
 			candidate.RepeatPenalty*rankWeightConfig.GetRepeatPenaltyWeight()
+		candidate.FinalScore = candidate.RuleScore
 
 		// 命中了商品关联召回时记录来源，便于 explain 返回。
 		if candidate.RelationScore > 0 {
@@ -139,6 +143,10 @@ func BuildPersonalized(
 		// 命中了用户商品偏好召回时记录来源。
 		if candidate.UserGoodsScore > 0 {
 			candidate.RecallSources[RecallSourceUserGoods] = struct{}{}
+		}
+		// 命中了相似用户偏好召回时记录来源。
+		if candidate.SimilarUserScore > 0 {
+			candidate.RecallSources[RecallSourceSimilarUser] = struct{}{}
 		}
 		// 命中了类目画像召回时记录来源。
 		if candidate.ProfileScore > 0 {
@@ -188,12 +196,13 @@ func BuildAnonymous(
 		candidate.FreshnessScore = recommendRank.CalculateFreshnessScore(item.UpdatedAt)
 		candidate.ExposurePenalty = signals.SceneExposurePenalties[item.Id]
 		candidate.ActorExposurePenalty = signals.ActorExposurePenalties[item.Id]
-		candidate.FinalScore = candidate.RelationScore*rankWeightConfig.GetRelationWeight() +
+		candidate.RuleScore = candidate.RelationScore*rankWeightConfig.GetRelationWeight() +
 			candidate.ScenePopularityScore*rankWeightConfig.GetScenePopularityWeight() +
 			candidate.GlobalPopularityScore*rankWeightConfig.GetGlobalPopularityWeight() +
 			candidate.FreshnessScore*rankWeightConfig.GetFreshnessWeight() -
 			candidate.ExposurePenalty*rankWeightConfig.GetExposurePenaltyWeight() -
 			candidate.ActorExposurePenalty*rankWeightConfig.GetActorExposurePenaltyWeight()
+		candidate.FinalScore = candidate.RuleScore
 
 		// 命中了商品关联召回时记录来源，便于详情页匿名推荐解释。
 		if candidate.RelationScore > 0 {

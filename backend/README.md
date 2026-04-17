@@ -50,7 +50,7 @@ backend
 - `service/app/biz` 只允许保留表名相关 Case，不允许继续新增 `recommendAnonymousCandidateLoader`、`recommendCategoryCandidateLoader` 这类非表名相关结构。
 - `RecommendCase` 不允许继续新增新的辅助方法承载推荐主链路细节，只允许引入并调用其他已有 Case。
 - 现有不符合上述边界的 loader / adapter 风格实现视为阶段 6 过渡代码，后续不再继续扩张，优先做收口和回退。
-- 当前阶段 2 已将商品行为投影器、用户商品偏好、用户类目偏好、商品关联以及推荐商品日统计的离线聚合统一收口到 `pkg/recommend/offline/aggregate`，`service/app/biz` 和 `pkg/job/task` 中的推荐聚合入口仅保留事实查询、删旧数据、调用聚合器和批量落库。
+- 当前阶段 2 已将用户商品偏好、用户类目偏好、商品关联和推荐商品日统计的离线聚合规则统一收口到 `pkg/recommend/offline/aggregate` 纯函数；实时投影、事实查询和批量回写重新收口到 `service/app/biz` 的表级 Case 与 `pkg/job/task`。
 - 当前阶段 3 已补齐推荐缓存 key 规范、`kratos-kit/cache` 适配层与 `hot`、`latest`、`similar_item` 三类结果的写缓存任务，并在在线推荐链路接入“缓存优先，未命中查库”的读取挂点；当前无 Redis 时走内存后端，有 Redis 时直接复用 Redis 发布缓存。
 - 推荐请求的在线排障字段会统一收口到 `sourceContext.onlineDebugContext`，当前已覆盖 `cacheHitSources`、`cacheReadContext`、`recallProbeContext`、`joinRecallContext`、`similarUserObservationContext` 等调试信息。
 - 当前阶段 4 已补齐相似用户、协同过滤、内容相似三类召回探针的缓存键约定与读取挂点；探针是否启用由 `recommend_model_version.config_json.recall_probe` 控制，当前会在 `onlineDebugContext.recallProbeContext` 中记录探针配置和观测结果，并支持通过 `join_candidate` 把低风险召回灰度并入 `GOODS_DETAIL` 场景候选池。
@@ -59,10 +59,25 @@ backend
 - 当前阶段 4 和阶段 5 之间，在线读缓存与召回探针还会把版本号、版本发布时间、缓存发布时间、文档数量、请求返回数量等读取元信息收口到 `cacheReadContext` 与探针子上下文，便于排查“命中了哪一版缓存、这版缓存是什么时间写出来的、当前返回了多少条”。
 - 当前阶段 6 保留了 `pkg/recommend/online/recall`、`pkg/recommend/online/planner`、`pkg/recommend/online/feature`、`pkg/recommend/online/rank`、`pkg/recommend/online/record` 这些纯逻辑模块，分别承接探针上下文收口、请求计划状态、排序信号装配、分页 explain 和记录整理。
 - 当前阶段 6 已按最新边界完成一次代码收口：`service/app/biz/recommend_request.go` 重新直接调用 `GoodsInfoCase`、`GoodsStatDayCase`、`RecommendGoodsRelationCase`、`RecommendUserPreferenceCase`、`RecommendUserGoodsPreferenceCase` 等表级 Case 组织场景查询、类目补足、latest 兜底、信号读取和排序执行。
+- 当前阶段 6 又继续将匿名态和登录态的最终排序正式收口到 `pkg/recommend/online/rank` 纯函数入口，`recommend_request.go` 当前只负责查好数据、调用纯排序并回写结果上下文。
+- 当前阶段 7 已开始接入与 参考实现 对齐的排序配置命名：`recommend_model_version.config_json.ranker.type` 当前支持 `none` / `fm`，并预留 `llm_rerank.top_n`、`weight`、`cache_ttl_seconds` 等字段用于后续模型精排与 LLM TopN 重排。
+- 当前阶段 7 的评分明细已经补齐 `ruleScore`、`modelScore`、`llmScore` 三段记分字段，后续模型产物接入后可直接在请求明细里定位排序改写来源。
+- 当前阶段 7 又继续补上了线上读缓存挂点：`ranker` 当前按 `scene + actor + version` 读取模型精排分数缓存，`llm_rerank` 当前按 `scene + actor + request_hash + version` 读取 LLM 重排分数缓存，命中后会直接写入排序阶段。
+- 当前阶段 7 又补齐了 `llm_rerank` 的在线补算闭环：当版本缓存未命中且配置了 `RECOMMEND_OPENAI_API_KEY` 时，推荐链路会按 `request_hash` 对 TopN 候选执行实时 LLM 二次重排；提示词通过 `prompt_template` 渲染，`candidate_filter_expr`、`score_expr`、`score_script` 分别负责候选过滤、分数表达式和 JS 后处理，并支持按 `cache_ttl_seconds` 回写短 TTL 缓存。
+- 当前阶段 7 又补上了离线快照发布任务：`RecommendRankerMaterialize` 与 `RecommendLlmRerankMaterialize` 当前支持把外部预计算 JSON 快照直接发布到 `ranker`、`llm_rerank` 版本缓存，并可按参数决定是否清理当前版本旧子集合。
+- 当前阶段 8 已开始解析 `recommend_model_version.config_json.publish` 与 `tune`，当前支持 `cache_version`、`rollback_version`、`gray_ratio`、`published_by`、`published_reason`、`published_at`、`target_metric`、`trial_count`，以及最近一次真实训练摘要 `tune.latest`、最近一次评估日报摘要 `tune.latest_eval` 等字段，并会把 `rankingStageContext`、`publishContext`、`tuneContext` 收口到 `onlineDebugContext`。
+- 当前阶段 8 下，在线缓存读取已经会受版本发布配置驱动；若启用版本显式配置 `rollback_version` 或 `cache_version`，读取侧会切到对应有效版本。
+- 当前阶段 8 下，排序模型和 LLM 重排缓存已经具备“按发布版本写入、按有效版本读取”的最小闭环；协同过滤当前已补齐 BPR 真实训练与自动调参，模型精排当前已补齐 AFM 真实训练与自动调参，离线样本装配统一收口在 `data` 层。
+- 当前阶段 8 下，真实训练任务还会把 `model.json`、`publish_snapshot.json` 与 `manifest.json` 统一落到 `backend/data/recommend/train/...`，便于回溯某次训练的参数、指标和发布快照。
+- 当前阶段 8 下，`RecommendCollaborativeFilteringMaterialize` 与 `RecommendRankerMaterialize` 训练成功后还会把最近一次训练的模型类型、后端、指标、产物目录和训练时间回写到 `recommend_model_version.config_json.tune.latest`，方便线上 `tuneContext` 直接看到真实训练台账。
+- 当前阶段 8 下，`RecommendEvalReport` 日报任务生成完成后还会把最近一次场景级评估指标回写到 `recommend_model_version.config_json.tune.latest_eval`，方便线上 `tuneContext` 直接看到最近评估结果。
+- 当前阶段 8 下，`RecommendVersionPublish` 任务已支持正式切换启用版本、写入 `publish` 元数据并清理同场景旧启用版本，也支持只更新当前启用版本的 `cache_version` / `rollback_version` 做发布与快速回滚。
+- 当前阶段 8 下，后台已补 `RecommendModelVersionService` 接口，当前支持分页查看推荐版本、发布配置、调参摘要，并可按版本记录 `id` 执行正式发布、设置回滚版本和清空回滚版本动作。
+- 当前阶段 8 下，`sql/default-data.sql` 已默认补齐 6 个推荐场景的 `recommend_model_version` 种子数据，以及训练、评估、发布相关后台任务与“推荐版本管理”菜单入口，初始化数据库后可直接进入后台执行闭环操作。
 - 原先为 `pkg/recommend` 适配而新增的 `recommendSceneLoader`、`recommendLatestLoader`、`recommendCategoryCandidateLoader`、`recommendAnonymousCandidateLoader`、`recommendCompositeCandidateLoader`、`recommendSimilarUserObservationLoader`、`recommendGoodsPoolPager`，以及 `pkg/recommend/online/cache`、`pkg/recommend/online/engine` 中的查询桥接实现，当前都已回退删除。
 - 当前 `pkg/recommend` 不再承载数据库查询计划、分页桥接参数、Repo 适配接口和 DB 读取语义；推荐查询职责重新收口到 `service/app/biz` 的表名 Case 与 `RecommendRequestCase`。
 - 当前 `RecommendCase` 继续只保留分页参数兜底、`requestId` 生成、请求落库和响应组装，不再承载新的推荐主链路细节。
-- 当前阶段 5 已补齐相似用户、协同过滤、内容相似三类离线训练与写缓存任务，首版直接复用现有偏好聚合和商品属性做轻量训练，训练结果按版本发布到推荐缓存。
+- 当前阶段 5 已补齐相似用户、协同过滤、内容相似三类离线训练与写缓存任务，训练结果会按版本发布到推荐缓存；其中协同过滤当前已切到 BPR 真实训练链。
 - 当前阶段 5 的写缓存任务已补最小运行摘要日志，会统一输出训练输入规模、版本数、发布子集合数、发布文档数、清理子集合数和总耗时，便于排查训练发布链路。
 - 当前阶段 5 的写缓存任务在失败时也会统一输出失败摘要，包含当前执行阶段、已统计的输入规模、已发布进度和清理进度，便于快速定位卡在哪一步。
 - 当前已维护的推荐域表包括：
@@ -73,7 +88,7 @@ backend
 推荐系统后续的重构与能力补齐计划见：
 
 - `backend/recommend-rebuild-plan.md`
-- `backend/recommend-vs-gorse.md`
+- `backend/recommend-capability-gap.md`
 
 ## 推荐任务
 
@@ -86,9 +101,23 @@ backend
 - `RecommendLatestMaterialize`：推荐最新榜写缓存，按场景发布 `latest` 缓存
 - `RecommendSimilarItemMaterialize`：相似商品写缓存，按商品详情场景版本发布 `similar_item` 缓存
 - `RecommendSimilarUserMaterialize`：相似用户写缓存，按启用版本发布 `user-to-user` 缓存
-- `RecommendCollaborativeFilteringMaterialize`：协同过滤写缓存，按启用版本发布 `collaborative-filtering` 缓存
+- `RecommendCollaborativeFilteringMaterialize`：协同过滤写缓存，支持 BPR 真实训练与自动调参，按启用版本发布 `collaborative-filtering` 缓存
 - `RecommendContentBasedMaterialize`：内容相似写缓存，按启用版本发布 `content-based` 缓存
+- `RecommendRankerMaterialize`：模型精排分数写缓存，支持 AFM 真实训练与自动调参，也支持从外部预计算快照发布 `ranker` 版本缓存
+- `RecommendLlmRerankMaterialize`：LLM 二次重排分数写缓存，从外部预计算快照发布 `llm_rerank` 版本缓存
 - `RecommendEvalReport`：推荐离线评估报告，按天生成场景级 CTR、CVR、Precision、Recall、NDCG 指标
+- `RecommendVersionPublish`：推荐版本发布与回滚，支持切换启用版本并更新 `recommend_model_version.config_json.publish`
+
+初始化 SQL 当前还会默认注入：
+
+- 6 条推荐版本种子记录，覆盖首页、商品详情、购物车、个人中心、订单详情、支付成功 6 个场景
+- `RecommendHotMaterialize`、`RecommendLatestMaterialize`、`RecommendSimilarItemMaterialize`、`RecommendSimilarUserMaterialize`、`RecommendCollaborativeFilteringMaterialize`、`RecommendContentBasedMaterialize`、`RecommendRankerMaterialize`、`RecommendEvalReport`、`RecommendVersionPublish` 等默认任务
+- 一个默认禁用的 `RecommendLlmRerankMaterialize` 任务，占位后续外部快照发布场景
+
+训练任务写出的模型与发布快照目录：
+
+- `backend/data/recommend/train/collaborative_filtering/...`
+- `backend/data/recommend/train/ranker/...`
 
 ## 环境要求
 
@@ -117,6 +146,7 @@ go run ./internal/cmd/server -conf ./configs
 
 - `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
 - `configs/configs.yaml` 中的 `shop.recommend` 当前用于维护商品热度分落库权重、推荐排序权重、行为权重、排序参数、召回参数和主体曝光惩罚参数。
+- 在线 LLM 二次重排默认从环境变量 `RECOMMEND_OPENAI_API_KEY`、`RECOMMEND_OPENAI_BASE_URL`、`RECOMMEND_OPENAI_MODEL` 读取运行配置；场景版本配置 `recommend_model_version.config_json.llm_rerank` 额外支持 `system_prompt`、`prompt_template`、`candidate_filter_expr`、`score_expr`、`score_script`、`timeout_seconds`、`max_completion_tokens`、`temperature`。
 - `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 
 ## 数据库初始化

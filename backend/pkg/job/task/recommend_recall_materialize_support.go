@@ -12,6 +12,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	recommendCache "shop/pkg/recommend/cache"
+	recommendContent "shop/pkg/recommend/content"
 	recommendEvent "shop/pkg/recommend/event"
 
 	"github.com/liujitcn/gorm-kit/repo"
@@ -20,10 +21,6 @@ import (
 const (
 	// recommendSimilarUserGoodsWeight 表示商品偏好重叠在相似用户中的权重。
 	recommendSimilarUserGoodsWeight = 1.5
-	// recommendContentPriceWeight 表示价格接近度在内容相似中的权重。
-	recommendContentPriceWeight = 0.7
-	// recommendContentFreshnessWeight 表示新鲜度接近度在内容相似中的权重。
-	recommendContentFreshnessWeight = 0.3
 )
 
 // recommendNeighborScore 表示用户邻居分数及更新时间。
@@ -310,46 +307,44 @@ func buildCollaborativeFilteringMaterializeMap(
 
 // buildContentBasedMaterializeMap 基于商品属性构建内容相似结果。
 func buildContentBasedMaterializeMap(goodsList []*models.GoodsInfo, limit int64) map[int64][]recommendCache.Score {
-	goodsByCategory := make(map[int64][]*models.GoodsInfo)
+	documentList := make([]recommendContent.Document, 0, len(goodsList))
+	goodsMap := make(map[int64]*models.GoodsInfo, len(goodsList))
 	for _, item := range goodsList {
-		// 非法商品或非法类目不参与内容相似构建。
-		if item == nil || item.ID <= 0 || item.CategoryID <= 0 {
+		// 非法商品不参与内容相似构建。
+		if item == nil || item.ID <= 0 {
 			continue
 		}
-		goodsByCategory[item.CategoryID] = append(goodsByCategory[item.CategoryID], item)
+		documentList = append(documentList, recommendContent.Document{
+			Id:         item.ID,
+			CategoryId: item.CategoryID,
+			Name:       item.Name,
+			Desc:       item.Desc,
+			Detail:     item.Detail,
+			Price:      item.Price,
+			SaleNum:    item.InitSaleNum + item.RealSaleNum,
+			CreatedAt:  item.CreatedAt,
+			UpdatedAt:  item.UpdatedAt,
+		})
+		goodsMap[item.ID] = item
 	}
 
-	result := make(map[int64][]recommendCache.Score, len(goodsList))
-	for _, categoryGoodsList := range goodsByCategory {
-		for _, baseGoods := range categoryGoodsList {
-			// 基准商品为空时，不继续构建内容相似结果。
-			if baseGoods == nil {
+	similarityMap := recommendContent.BuildSimilarityMap(documentList, limit)
+	result := make(map[int64][]recommendCache.Score, len(similarityMap))
+	for goodsId, scoredList := range similarityMap {
+		cacheDocumentList := make([]recommendCache.Score, 0, len(scoredList))
+		for _, item := range scoredList {
+			targetGoods, exists := goodsMap[item.Id]
+			// 目标商品缺失或相似度非法时，不继续写入内容缓存。
+			if !exists || targetGoods == nil || item.Score <= 0 {
 				continue
 			}
-			documentList := make([]recommendCache.Score, 0, len(categoryGoodsList))
-			for _, targetGoods := range categoryGoodsList {
-				// 目标商品为空或就是当前商品时，不加入内容相似结果。
-				if targetGoods == nil || targetGoods.ID == baseGoods.ID {
-					continue
-				}
-				score := calculateContentBasedScore(baseGoods, targetGoods)
-				// 内容相似分数非法时，不加入缓存结果。
-				if score <= 0 {
-					continue
-				}
-				documentList = append(documentList, recommendCache.Score{
-					Id:        strconv.FormatInt(targetGoods.ID, 10),
-					Score:     score,
-					Timestamp: maxRecommendTime(targetGoods.UpdatedAt, targetGoods.CreatedAt),
-				})
-			}
-			recommendCache.SortDocuments(documentList)
-			// 内容相似结果超过上限时，只保留 TopN。
-			if int64(len(documentList)) > limit {
-				documentList = documentList[:limit]
-			}
-			result[baseGoods.ID] = documentList
+			cacheDocumentList = append(cacheDocumentList, recommendCache.Score{
+				Id:        strconv.FormatInt(item.Id, 10),
+				Score:     item.Score,
+				Timestamp: maxRecommendTime(targetGoods.UpdatedAt, targetGoods.CreatedAt),
+			})
 		}
+		result[goodsId] = cacheDocumentList
 	}
 	return result
 }
@@ -365,19 +360,6 @@ func countRecommendGoodsCategory(goodsList []*models.GoodsInfo) int {
 		categorySet[item.CategoryID] = struct{}{}
 	}
 	return len(categorySet)
-}
-
-// calculateContentBasedScore 计算两件商品的内容相似分数。
-func calculateContentBasedScore(baseGoods *models.GoodsInfo, targetGoods *models.GoodsInfo) float64 {
-	// 商品为空或类目不同的时候，不认为存在内容相似关系。
-	if baseGoods == nil || targetGoods == nil || baseGoods.CategoryID != targetGoods.CategoryID {
-		return 0
-	}
-	maxPrice := maxRecommendInt64(baseGoods.Price, targetGoods.Price, 1)
-	priceSimilarity := 1 - math.Min(1, math.Abs(float64(baseGoods.Price-targetGoods.Price))/float64(maxPrice))
-	dayDiff := math.Abs(baseGoods.CreatedAt.Sub(targetGoods.CreatedAt).Hours()) / 24
-	freshnessSimilarity := 1 / (1 + dayDiff/30)
-	return priceSimilarity*recommendContentPriceWeight + freshnessSimilarity*recommendContentFreshnessWeight
 }
 
 // clearStaleVersionedSubsets 清理指定集合下当前版本已经失效的子集合。

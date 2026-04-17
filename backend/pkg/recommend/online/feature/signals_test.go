@@ -39,16 +39,18 @@ func TestBuildAnonymousSignals(t *testing.T) {
 func TestBuildPersonalizedSignals(t *testing.T) {
 	relationScores := map[int64]float64{1: 1.2}
 	userGoodsScores := map[int64]float64{2: 2.3}
-	profileScores := map[int64]float64{3: 3.4}
-	scenePopularityScores := map[int64]float64{4: 4.5}
-	globalPopularityScores := map[int64]float64{5: 5.6}
-	sceneExposurePenalties := map[int64]float64{6: 0.6}
-	actorExposurePenalties := map[int64]float64{7: 0.7}
-	recentPaidGoods := map[int64]struct{}{8: {}}
+	similarUserScores := map[int64]float64{3: 3.4}
+	profileScores := map[int64]float64{4: 4.5}
+	scenePopularityScores := map[int64]float64{5: 5.6}
+	globalPopularityScores := map[int64]float64{6: 6.7}
+	sceneExposurePenalties := map[int64]float64{7: 0.6}
+	actorExposurePenalties := map[int64]float64{8: 0.7}
+	recentPaidGoods := map[int64]struct{}{9: {}}
 
 	signals := BuildPersonalizedSignals(
 		relationScores,
 		userGoodsScores,
+		similarUserScores,
 		profileScores,
 		scenePopularityScores,
 		globalPopularityScores,
@@ -63,22 +65,25 @@ func TestBuildPersonalizedSignals(t *testing.T) {
 	if signals.UserGoodsScores[2] != 2.3 {
 		t.Fatalf("unexpected user goods scores: %+v", signals.UserGoodsScores)
 	}
-	if signals.ProfileScores[3] != 3.4 {
+	if signals.SimilarUserScores[3] != 3.4 {
+		t.Fatalf("unexpected similar user scores: %+v", signals.SimilarUserScores)
+	}
+	if signals.ProfileScores[4] != 4.5 {
 		t.Fatalf("unexpected profile scores: %+v", signals.ProfileScores)
 	}
-	if signals.ScenePopularityScores[4] != 4.5 {
+	if signals.ScenePopularityScores[5] != 5.6 {
 		t.Fatalf("unexpected scene popularity scores: %+v", signals.ScenePopularityScores)
 	}
-	if signals.GlobalPopularityScores[5] != 5.6 {
+	if signals.GlobalPopularityScores[6] != 6.7 {
 		t.Fatalf("unexpected global popularity scores: %+v", signals.GlobalPopularityScores)
 	}
-	if signals.SceneExposurePenalties[6] != 0.6 {
+	if signals.SceneExposurePenalties[7] != 0.6 {
 		t.Fatalf("unexpected scene exposure penalties: %+v", signals.SceneExposurePenalties)
 	}
-	if signals.ActorExposurePenalties[7] != 0.7 {
+	if signals.ActorExposurePenalties[8] != 0.7 {
 		t.Fatalf("unexpected actor exposure penalties: %+v", signals.ActorExposurePenalties)
 	}
-	if _, ok := signals.RecentPaidGoods[8]; !ok {
+	if _, ok := signals.RecentPaidGoods[9]; !ok {
 		t.Fatalf("unexpected recent paid goods: %+v", signals.RecentPaidGoods)
 	}
 }

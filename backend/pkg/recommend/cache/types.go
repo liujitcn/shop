@@ -42,6 +42,18 @@ const (
 	ContentBasedDigest = "content-based_digest"
 	// ContentBasedUpdateTime 表示内容相似推荐更新时间键前缀。
 	ContentBasedUpdateTime = "content-based_update_time"
+	// Ranker 表示模型精排结果集合。
+	Ranker = "ranker"
+	// RankerDigest 表示模型精排结果摘要键前缀。
+	RankerDigest = "ranker_digest"
+	// RankerUpdateTime 表示模型精排结果更新时间键前缀。
+	RankerUpdateTime = "ranker_update_time"
+	// LlmRerank 表示 LLM 二次重排结果集合。
+	LlmRerank = "llm_rerank"
+	// LlmRerankDigest 表示 LLM 二次重排结果摘要键前缀。
+	LlmRerankDigest = "llm_rerank_digest"
+	// LlmRerankUpdateTime 表示 LLM 二次重排结果更新时间键前缀。
+	LlmRerankUpdateTime = "llm_rerank_update_time"
 	// Recommend 表示最终推荐结果集合。
 	Recommend = "recommend"
 	// RecommendDigest 表示最终推荐结果摘要键前缀。

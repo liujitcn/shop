@@ -51,6 +51,27 @@ func ContentBasedSubset(goodsId int64, version string) string {
 	return Key("goods", strconv.FormatInt(goodsId, 10), "version", NormalizeVersion(version))
 }
 
+// RankerSubset 返回模型精排结果子集合键。
+func RankerSubset(scene int32, actorType int32, actorId int64, version string) string {
+	return Key(
+		"scene", strconv.Itoa(int(scene)),
+		"actor_type", strconv.Itoa(int(actorType)),
+		"actor_id", strconv.FormatInt(actorId, 10),
+		"version", NormalizeVersion(version),
+	)
+}
+
+// LlmRerankSubset 返回 LLM 二次重排结果子集合键。
+func LlmRerankSubset(scene int32, actorType int32, actorId int64, requestHash string, version string) string {
+	return Key(
+		"scene", strconv.Itoa(int(scene)),
+		"actor_type", strconv.Itoa(int(actorType)),
+		"actor_id", strconv.FormatInt(actorId, 10),
+		"request_hash", NormalizeRequestHash(requestHash),
+		"version", NormalizeVersion(version),
+	)
+}
+
 // DigestKey 返回当前集合子集合的摘要键。
 func DigestKey(collection, subset string) string {
 	return metadataKey(collection, subset, "digest")
@@ -71,9 +92,23 @@ func ScoreSubsetIndexKey(collection string) string {
 	return Key(collection, GlobalMeta, scoreSubsetIndexSuffix)
 }
 
+// ScoreHashKey 返回当前集合子集合的排序文档哈希键。
+func ScoreHashKey(collection, subset string) string {
+	return Key(CollectionKey(collection), subset)
+}
+
 // NormalizeVersion 统一归一化缓存版本号。
 func NormalizeVersion(version string) string {
 	normalized := strings.TrimSpace(version)
+	if normalized == "" {
+		return DefaultVersion
+	}
+	return sanitizeKeyPart(normalized)
+}
+
+// NormalizeRequestHash 统一归一化请求哈希。
+func NormalizeRequestHash(requestHash string) string {
+	normalized := strings.TrimSpace(requestHash)
 	if normalized == "" {
 		return DefaultVersion
 	}

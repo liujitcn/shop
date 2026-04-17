@@ -11,6 +11,7 @@ type Candidate struct {
 	Goods                 *app.GoodsInfo      // 候选商品实体
 	RelationScore         float64             // 商品关系分
 	UserGoodsScore        float64             // 用户商品偏好分
+	SimilarUserScore      float64             // 相似用户偏好分
 	ProfileScore          float64             // 用户类目画像分
 	ScenePopularityScore  float64             // 场景热度分
 	GlobalPopularityScore float64             // 全站热度分
@@ -18,6 +19,9 @@ type Candidate struct {
 	ExposurePenalty       float64             // 场景曝光惩罚分
 	ActorExposurePenalty  float64             // 主体曝光惩罚分
 	RepeatPenalty         float64             // 重复推荐惩罚分
+	RuleScore             float64             // 规则粗排得分
+	ModelScore            float64             // 模型精排得分
+	LlmScore              float64             // LLM 二次重排得分
 	FinalScore            float64             // 最终排序分
 	RecallSources         map[string]struct{} // 命中的召回来源集合
 }
