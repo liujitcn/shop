@@ -40,7 +40,16 @@
             </div>
             <div class="goods-summary-card goods-summary-card--price">
               <span class="goods-summary-card__label">价格区间</span>
-              <strong class="goods-summary-card__value">{{ salePriceRangeText }}</strong>
+              <div class="goods-price-range-list">
+                <div class="goods-price-range-item">
+                  <span class="goods-price-range-item__label">原价</span>
+                  <strong class="goods-price-range-item__value">{{ originPriceRangeText }}</strong>
+                </div>
+                <div class="goods-price-range-item">
+                  <span class="goods-price-range-item__label">折后价</span>
+                  <strong class="goods-price-range-item__value">{{ discountPriceRangeText }}</strong>
+                </div>
+              </div>
             </div>
             <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('prop')">
               <span class="goods-summary-card__label">商品属性</span>
@@ -382,8 +391,11 @@ function buildPriceRangeText(priceList: number[]) {
   return `￥${formatPrice(minPrice)} - ￥${formatPrice(maxPrice)}`;
 }
 
-/** 汇总规格现价区间，便于在头部快速查看售价跨度。 */
-const salePriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.price ?? 0))));
+/** 汇总规格原价区间，便于在头部快速查看价格跨度。 */
+const originPriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.price ?? 0))));
+
+/** 汇总规格折后价区间，便于在头部直接对比优惠前后价格。 */
+const discountPriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.discountPrice ?? 0))));
 
 /** 页面分区和标签页映射，统一控制概览区跳转行为。 */
 const detailSectionMap: Record<GoodsDetailSectionKey, { tab: GoodsDetailTabName; targetRef: typeof skuSectionRef }> = {
@@ -629,6 +641,43 @@ onActivated(() => {
   font-size: 18px;
   font-weight: 700;
   line-height: 1.25;
+  color: var(--admin-page-text-primary);
+}
+
+.goods-summary-card--price {
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+.goods-price-range-list {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.goods-price-range-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.goods-price-range-item__label {
+  flex: 0 0 auto;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--admin-page-text-secondary);
+}
+
+.goods-price-range-item__value {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--admin-page-text-primary);
 }
 
