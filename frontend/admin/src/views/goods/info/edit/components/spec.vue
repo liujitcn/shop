@@ -93,7 +93,7 @@ function ensureSpecFormArrays() {
   }
 }
 
-/** 商品规格表格列配置。 */
+/** 规格项表格列配置。 */
 const specColumns: ColumnProps[] = [
   { type: "index", width: 50 },
   { prop: "name", label: "名称", minWidth: 160 },
@@ -341,7 +341,7 @@ function handleNext() {
   ensureSpecFormArrays();
 
   if (!formData.value.specList.length) {
-    ElMessage.warning("请先添加商品规格");
+    ElMessage.warning("请先添加规格项");
     return;
   }
 
@@ -352,7 +352,7 @@ function handleNext() {
 <style scoped lang="scss">
 .goods-edit-spec__card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }

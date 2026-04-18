@@ -12,210 +12,218 @@
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" :init-param="reportInitParam" />
 
     <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1080px" @close="handleCloseShippedDialog">
-      <el-card class="shipped-hero-card" shadow="never">
-        <div class="shipped-hero">
-          <div class="dialog-summary">
-            <div class="dialog-summary__label">订单发货摘要</div>
-            <p class="dialog-summary__desc">先确认收货地址与物流状态，再填写或查看物流信息。</p>
+      <div v-loading="dialogShipped.loading">
+        <el-card class="shipped-hero-card" shadow="never">
+          <div class="shipped-hero">
+            <div class="dialog-summary">
+              <div class="dialog-summary__label">订单发货摘要</div>
+              <p class="dialog-summary__desc">先确认收货地址与物流状态，再填写或查看物流信息。</p>
+            </div>
+            <div class="shipped-metrics">
+              <div class="shipped-metric-card">
+                <span class="shipped-metric-card__label">联系人</span>
+                <strong class="shipped-metric-card__value">{{ dataShipped.address?.receiver || "-" }}</strong>
+              </div>
+              <div class="shipped-metric-card">
+                <span class="shipped-metric-card__label">联系方式</span>
+                <strong class="shipped-metric-card__value">{{ dataShipped.address?.contact || "-" }}</strong>
+              </div>
+              <div class="shipped-metric-card">
+                <span class="shipped-metric-card__label">物流状态</span>
+                <strong class="shipped-metric-card__value">{{ dataShipped.logistics ? "已发货" : "待填写" }}</strong>
+              </div>
+              <div class="shipped-metric-card">
+                <span class="shipped-metric-card__label">物流单号</span>
+                <strong class="shipped-metric-card__value">{{ dataShipped.logistics?.no || formDataShipped.no || "-" }}</strong>
+              </div>
+            </div>
           </div>
-          <div class="shipped-metrics">
-            <div class="shipped-metric-card">
-              <span class="shipped-metric-card__label">联系人</span>
-              <strong class="shipped-metric-card__value">{{ dataShipped.address?.receiver || "-" }}</strong>
-            </div>
-            <div class="shipped-metric-card">
-              <span class="shipped-metric-card__label">联系方式</span>
-              <strong class="shipped-metric-card__value">{{ dataShipped.address?.contact || "-" }}</strong>
-            </div>
-            <div class="shipped-metric-card">
-              <span class="shipped-metric-card__label">物流状态</span>
-              <strong class="shipped-metric-card__value">{{ dataShipped.logistics ? "已发货" : "待填写" }}</strong>
-            </div>
-            <div class="shipped-metric-card">
-              <span class="shipped-metric-card__label">物流单号</span>
-              <strong class="shipped-metric-card__value">{{ dataShipped.logistics?.no || formDataShipped.no || "-" }}</strong>
-            </div>
-          </div>
-        </div>
-      </el-card>
-
-      <div class="shipped-detail-grid">
-        <el-card v-if="hasShippedAddressSection" class="shipped-section-card" shadow="never">
-          <template #header>
-            <div class="shipped-section-card__header">
-              <span>收货地址</span>
-            </div>
-          </template>
-
-          <el-descriptions :column="1" border class="shipped-descriptions">
-            <el-descriptions-item label="联系人">{{ dataShipped.address?.receiver }}</el-descriptions-item>
-            <el-descriptions-item label="联系方式">{{ dataShipped.address?.contact }}</el-descriptions-item>
-            <el-descriptions-item label="地区">{{ dataShipped.address?.address?.join(" / ") }}</el-descriptions-item>
-            <el-descriptions-item label="详细地址">{{ dataShipped.address?.detail }}</el-descriptions-item>
-          </el-descriptions>
         </el-card>
 
-        <el-card v-if="hasShippedLogisticsSection" class="shipped-section-card" shadow="never">
+        <div class="shipped-detail-grid">
+          <el-card v-if="hasShippedAddressSection" class="shipped-section-card" shadow="never">
+            <template #header>
+              <div class="shipped-section-card__header">
+                <span>收货地址</span>
+              </div>
+            </template>
+
+            <el-descriptions :column="1" border class="shipped-descriptions">
+              <el-descriptions-item label="联系人">{{ dataShipped.address?.receiver }}</el-descriptions-item>
+              <el-descriptions-item label="联系方式">{{ dataShipped.address?.contact }}</el-descriptions-item>
+              <el-descriptions-item label="地区">{{ dataShipped.address?.address?.join(" / ") }}</el-descriptions-item>
+              <el-descriptions-item label="详细地址">{{ dataShipped.address?.detail }}</el-descriptions-item>
+            </el-descriptions>
+          </el-card>
+
+          <el-card v-if="hasShippedLogisticsSection" class="shipped-section-card" shadow="never">
+            <template #header>
+              <div class="shipped-section-card__header">
+                <span>物流信息</span>
+              </div>
+            </template>
+
+            <el-descriptions :column="2" border class="shipped-descriptions">
+              <el-descriptions-item label="物流公司">{{ dataShipped.logistics?.name }}</el-descriptions-item>
+              <el-descriptions-item label="物流单号">{{ dataShipped.logistics?.no }}</el-descriptions-item>
+              <el-descriptions-item label="联系方式">{{ dataShipped.logistics?.contact }}</el-descriptions-item>
+              <el-descriptions-item label="发货时间">{{ dataShipped.logistics?.createdAt }}</el-descriptions-item>
+            </el-descriptions>
+
+            <el-timeline class="shipped-timeline">
+              <el-timeline-item
+                v-for="(detail, index) in dataShipped.logistics?.detail"
+                :key="index"
+                :timestamp="detail.time"
+                placement="top"
+              >
+                {{ detail.text }}
+              </el-timeline-item>
+            </el-timeline>
+          </el-card>
+        </div>
+
+        <el-card v-if="dataShipped.goods.length" class="shipped-section-card shipped-section-card--full" shadow="never">
           <template #header>
             <div class="shipped-section-card__header">
-              <span>物流信息</span>
+              <span>商品清单</span>
+              <span class="shipped-section-card__extra">{{ dataShipped.goods.length }} 项</span>
             </div>
           </template>
 
-          <el-descriptions :column="2" border class="shipped-descriptions">
-            <el-descriptions-item label="物流公司">{{ dataShipped.logistics?.name }}</el-descriptions-item>
-            <el-descriptions-item label="物流单号">{{ dataShipped.logistics?.no }}</el-descriptions-item>
-            <el-descriptions-item label="联系方式">{{ dataShipped.logistics?.contact }}</el-descriptions-item>
-            <el-descriptions-item label="发货时间">{{ dataShipped.logistics?.createdAt }}</el-descriptions-item>
-          </el-descriptions>
-
-          <el-timeline class="shipped-timeline">
-            <el-timeline-item
-              v-for="(detail, index) in dataShipped.logistics?.detail"
-              :key="index"
-              :timestamp="detail.time"
-              placement="top"
+          <div class="goods-list-table">
+            <ProTable
+              row-key="skuCode"
+              :data="dataShipped.goods"
+              :columns="shippedGoodsColumns"
+              :pagination="false"
+              :tool-button="false"
             >
-              {{ detail.text }}
-            </el-timeline-item>
-          </el-timeline>
+              <template #specItem="scope">{{ scope.row.specItem?.join(" ") }}</template>
+            </ProTable>
+          </div>
+        </el-card>
+
+        <el-card v-if="isShippedEditable" class="shipped-section-card shipped-section-card--full" shadow="never">
+          <template #header>
+            <div class="shipped-section-card__header">
+              <span>填写物流信息</span>
+            </div>
+          </template>
+
+          <ProForm
+            ref="dataFormRefShipped"
+            :model="formDataShipped"
+            :fields="shippedFormFields"
+            :rules="rulesShipped"
+            label-width="150px"
+          />
         </el-card>
       </div>
 
-      <el-card v-if="dataShipped.goods.length" class="shipped-section-card shipped-section-card--full" shadow="never">
-        <template #header>
-          <div class="shipped-section-card__header">
-            <span>商品清单</span>
-            <span class="shipped-section-card__extra">{{ dataShipped.goods.length }} 项</span>
-          </div>
-        </template>
-
-        <div class="goods-list-table">
-          <ProTable
-            row-key="skuCode"
-            :data="dataShipped.goods"
-            :columns="shippedGoodsColumns"
-            :pagination="false"
-            :tool-button="false"
-          >
-            <template #specItem="scope">{{ scope.row.specItem?.join(" ") }}</template>
-          </ProTable>
-        </div>
-      </el-card>
-
-      <el-card v-if="isShippedEditable" class="shipped-section-card shipped-section-card--full" shadow="never">
-        <template #header>
-          <div class="shipped-section-card__header">
-            <span>填写物流信息</span>
-          </div>
-        </template>
-
-        <ProForm
-          ref="dataFormRefShipped"
-          :model="formDataShipped"
-          :fields="shippedFormFields"
-          :rules="rulesShipped"
-          label-width="150px"
-        />
-      </el-card>
-
       <template #footer>
         <div class="dialog-footer">
-          <el-button v-if="isShippedEditable" type="primary" @click="handleShippedSubmitClick">确 定</el-button>
+          <el-button v-if="isShippedEditable" type="primary" :disabled="dialogShipped.loading" @click="handleShippedSubmitClick">
+            确 定
+          </el-button>
           <el-button @click="handleCloseShippedDialog">取 消</el-button>
         </div>
       </template>
     </ProDialog>
 
     <ProDialog v-model="dialogRefund.visible" :title="dialogRefund.title" width="1080px" @close="handleCloseRefundDialog">
-      <el-card class="refund-hero-card" shadow="never">
-        <div class="refund-hero">
-          <div class="dialog-summary">
-            <div class="dialog-summary__label">订单退款摘要</div>
-            <p class="dialog-summary__desc">先核对支付与对账信息，再决定是否发起退款或查看退款明细。</p>
+      <div v-loading="dialogRefund.loading">
+        <el-card class="refund-hero-card" shadow="never">
+          <div class="refund-hero">
+            <div class="dialog-summary">
+              <div class="dialog-summary__label">订单退款摘要</div>
+              <p class="dialog-summary__desc">先核对支付与对账信息，再决定是否发起退款或查看退款明细。</p>
+            </div>
+            <div class="refund-metrics">
+              <div class="refund-metric-card">
+                <span class="refund-metric-card__label">支付金额</span>
+                <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.payerTotal) }} 元</strong>
+              </div>
+              <div class="refund-metric-card">
+                <span class="refund-metric-card__label">订单总额</span>
+                <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</strong>
+              </div>
+              <div class="refund-metric-card">
+                <span class="refund-metric-card__label">支付状态</span>
+                <strong class="refund-metric-card__value">{{
+                  dataRefund.payment?.tradeStateDesc || dataRefund.payment?.tradeState || "-"
+                }}</strong>
+              </div>
+              <div class="refund-metric-card">
+                <span class="refund-metric-card__label">对帐状态</span>
+                <strong class="refund-metric-card__value">{{ dataRefund.payment ? "已获取" : "-" }}</strong>
+              </div>
+            </div>
           </div>
-          <div class="refund-metrics">
-            <div class="refund-metric-card">
-              <span class="refund-metric-card__label">支付金额</span>
-              <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.payerTotal) }} 元</strong>
-            </div>
-            <div class="refund-metric-card">
-              <span class="refund-metric-card__label">订单总额</span>
-              <strong class="refund-metric-card__value">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</strong>
-            </div>
-            <div class="refund-metric-card">
-              <span class="refund-metric-card__label">支付状态</span>
-              <strong class="refund-metric-card__value">{{
-                dataRefund.payment?.tradeStateDesc || dataRefund.payment?.tradeState || "-"
-              }}</strong>
-            </div>
-            <div class="refund-metric-card">
-              <span class="refund-metric-card__label">对帐状态</span>
-              <strong class="refund-metric-card__value">{{ dataRefund.payment ? "已获取" : "-" }}</strong>
-            </div>
-          </div>
-        </div>
-      </el-card>
+        </el-card>
 
-      <div class="refund-detail-grid">
-        <el-card v-if="hasRefundPaymentSection" class="refund-section-card" shadow="never">
+        <div class="refund-detail-grid">
+          <el-card v-if="hasRefundPaymentSection" class="refund-section-card" shadow="never">
+            <template #header>
+              <div class="refund-section-card__header">
+                <span>支付信息</span>
+              </div>
+            </template>
+            <el-descriptions :column="2" border class="refund-descriptions">
+              <el-descriptions-item label="三方订单号">{{ dataRefund.payment?.thirdOrderNo }}</el-descriptions-item>
+              <el-descriptions-item label="交易类型">{{ dataRefund.payment?.tradeType }}</el-descriptions-item>
+              <el-descriptions-item label="支付状态">{{ dataRefund.payment?.tradeState }}</el-descriptions-item>
+              <el-descriptions-item label="支付状态描述">{{ dataRefund.payment?.tradeStateDesc }}</el-descriptions-item>
+              <el-descriptions-item label="支付时间">{{ dataRefund.payment?.successTime }}</el-descriptions-item>
+              <el-descriptions-item label="支付金额">
+                {{ formatPrice(dataRefund.payment?.amount?.payerTotal) }} 元
+              </el-descriptions-item>
+              <el-descriptions-item label="总金额">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</el-descriptions-item>
+              <el-descriptions-item label="对帐状态" :span="2">
+                <DictLabel v-model="dataRefund.payment!.status" code="order_bill_status" />
+              </el-descriptions-item>
+            </el-descriptions>
+          </el-card>
+        </div>
+
+        <el-card v-if="isRefundEditable" class="refund-section-card refund-section-card--full" shadow="never">
           <template #header>
             <div class="refund-section-card__header">
-              <span>支付信息</span>
+              <span>填写退款信息</span>
             </div>
           </template>
-          <el-descriptions :column="2" border class="refund-descriptions">
-            <el-descriptions-item label="三方订单号">{{ dataRefund.payment?.thirdOrderNo }}</el-descriptions-item>
-            <el-descriptions-item label="交易类型">{{ dataRefund.payment?.tradeType }}</el-descriptions-item>
-            <el-descriptions-item label="支付状态">{{ dataRefund.payment?.tradeState }}</el-descriptions-item>
-            <el-descriptions-item label="支付状态描述">{{ dataRefund.payment?.tradeStateDesc }}</el-descriptions-item>
-            <el-descriptions-item label="支付时间">{{ dataRefund.payment?.successTime }}</el-descriptions-item>
-            <el-descriptions-item label="支付金额">
-              {{ formatPrice(dataRefund.payment?.amount?.payerTotal) }} 元
-            </el-descriptions-item>
-            <el-descriptions-item label="总金额">{{ formatPrice(dataRefund.payment?.amount?.total) }} 元</el-descriptions-item>
-            <el-descriptions-item label="对帐状态" :span="2">
-              <DictLabel v-model="dataRefund.payment!.status" code="order_bill_status" />
-            </el-descriptions-item>
-          </el-descriptions>
+
+          <ProForm
+            ref="dataFormRefRefund"
+            :model="formDataRefund"
+            :fields="refundFormFields"
+            :rules="rulesRefund"
+            label-width="150px"
+          />
+        </el-card>
+
+        <el-card v-if="dataRefund.refund.length" class="refund-section-card refund-section-card--full" shadow="never">
+          <template #header>
+            <div class="refund-section-card__header">
+              <span>退款信息</span>
+              <span class="refund-section-card__extra">{{ dataRefund.refund.length }} 条</span>
+            </div>
+          </template>
+          <ProTable
+            row-key="refundNo"
+            :data="dataRefund.refund"
+            :columns="refundColumns"
+            :pagination="false"
+            :tool-button="false"
+          />
         </el-card>
       </div>
 
-      <el-card v-if="isRefundEditable" class="refund-section-card refund-section-card--full" shadow="never">
-        <template #header>
-          <div class="refund-section-card__header">
-            <span>填写退款信息</span>
-          </div>
-        </template>
-
-        <ProForm
-          ref="dataFormRefRefund"
-          :model="formDataRefund"
-          :fields="refundFormFields"
-          :rules="rulesRefund"
-          label-width="150px"
-        />
-      </el-card>
-
-      <el-card v-if="dataRefund.refund.length" class="refund-section-card refund-section-card--full" shadow="never">
-        <template #header>
-          <div class="refund-section-card__header">
-            <span>退款信息</span>
-            <span class="refund-section-card__extra">{{ dataRefund.refund.length }} 条</span>
-          </div>
-        </template>
-        <ProTable
-          row-key="refundNo"
-          :data="dataRefund.refund"
-          :columns="refundColumns"
-          :pagination="false"
-          :tool-button="false"
-        />
-      </el-card>
-
       <template #footer>
         <div class="dialog-footer">
-          <el-button v-if="isRefundEditable" type="primary" @click="handleRefundSubmitClick">确 定</el-button>
+          <el-button v-if="isRefundEditable" type="primary" :disabled="dialogRefund.loading" @click="handleRefundSubmitClick">
+            确 定
+          </el-button>
           <el-button @click="handleCloseRefundDialog">取 消</el-button>
         </div>
       </template>
@@ -336,7 +344,9 @@ const reportSourceLabel = computed(() => {
 
 const dialogShipped = reactive({
   title: "发货详情",
-  visible: false
+  visible: false,
+  loading: false,
+  requestId: 0
 });
 
 const dataShipped = reactive<OrderInfoShipmentForm>({
@@ -407,7 +417,9 @@ const shippedFormFields = computed<ProFormField[]>(() => [
 
 const dialogRefund = reactive({
   title: "退款详情",
-  visible: false
+  visible: false,
+  loading: false,
+  requestId: 0
 });
 
 const dataRefund = reactive<OrderInfoRefundResponse>({
@@ -798,16 +810,32 @@ function handleOpenShippedDialog(orderId: number, title: string) {
   resetShippedDialog();
   dialogShipped.visible = true;
   dialogShipped.title = title;
-  defOrderInfoService.GetOrderInfoShipment({ value: orderId }).then(data => {
-    formDataShipped.orderId = orderId;
-    Object.assign(dataShipped, data);
-  });
+  dialogShipped.loading = true;
+  formDataShipped.orderId = orderId;
+  const requestId = ++dialogShipped.requestId;
+  defOrderInfoService
+    .GetOrderInfoShipment({ value: orderId })
+    .then(data => {
+      if (requestId !== dialogShipped.requestId || !dialogShipped.visible) return;
+      Object.assign(dataShipped, data);
+    })
+    .catch(() => {
+      if (requestId !== dialogShipped.requestId) return;
+      ElMessage.error(`${title}加载失败`);
+      dialogShipped.visible = false;
+    })
+    .finally(() => {
+      if (requestId !== dialogShipped.requestId) return;
+      dialogShipped.loading = false;
+    });
 }
 
 /**
  * 关闭发货弹窗并清理表单。
  */
 function handleCloseShippedDialog() {
+  dialogShipped.requestId += 1;
+  dialogShipped.loading = false;
   dialogShipped.visible = false;
   resetShippedDialog();
 }
@@ -872,16 +900,32 @@ function handleOpenRefundDialog(orderId: number, title: string) {
   resetRefundDialog();
   dialogRefund.visible = true;
   dialogRefund.title = title;
-  defOrderInfoService.GetOrderInfoRefund({ value: orderId }).then(data => {
-    formDataRefund.orderId = orderId;
-    Object.assign(dataRefund, data);
-  });
+  dialogRefund.loading = true;
+  formDataRefund.orderId = orderId;
+  const requestId = ++dialogRefund.requestId;
+  defOrderInfoService
+    .GetOrderInfoRefund({ value: orderId })
+    .then(data => {
+      if (requestId !== dialogRefund.requestId || !dialogRefund.visible) return;
+      Object.assign(dataRefund, data);
+    })
+    .catch(() => {
+      if (requestId !== dialogRefund.requestId) return;
+      ElMessage.error(`${title}加载失败`);
+      dialogRefund.visible = false;
+    })
+    .finally(() => {
+      if (requestId !== dialogRefund.requestId) return;
+      dialogRefund.loading = false;
+    });
 }
 
 /**
  * 关闭退款弹窗并清理表单。
  */
 function handleCloseRefundDialog() {
+  dialogRefund.requestId += 1;
+  dialogRefund.loading = false;
   dialogRefund.visible = false;
   resetRefundDialog();
 }
@@ -939,7 +983,7 @@ function handleOpenDetail(row: OrderInfo) {
 .shipped-hero-card,
 .shipped-section-card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -987,7 +1031,7 @@ function handleOpenDetail(row: OrderInfo) {
   gap: 8px;
   padding: 14px;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 
@@ -1047,14 +1091,14 @@ function handleOpenDetail(row: OrderInfo) {
 .shipped-timeline {
   margin-top: 20px;
   padding: 18px 18px 0;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 
 .refund-hero-card,
 .refund-section-card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -1079,7 +1123,7 @@ function handleOpenDetail(row: OrderInfo) {
   gap: 8px;
   padding: 14px;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 

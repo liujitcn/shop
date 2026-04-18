@@ -4,21 +4,22 @@
     <el-card class="goods-edit-head-card" shadow="never">
       <div class="goods-edit-head">
         <div class="goods-edit-head__intro">
+          <span class="goods-edit-head__eyebrow">商品信息汇总</span>
           <h1 class="goods-edit-head__title">{{ pageTitle }}</h1>
           <p class="goods-edit-head__subtitle">{{ pageSubtitle }}</p>
         </div>
 
         <div class="goods-edit-head__metrics">
           <div class="goods-edit-head__metric">
-            <span>属性</span>
+            <span>商品属性</span>
             <strong>{{ formData.propList.length }}</strong>
           </div>
           <div class="goods-edit-head__metric">
-            <span>规格</span>
+            <span>规格项</span>
             <strong>{{ formData.specList.length }}</strong>
           </div>
           <div class="goods-edit-head__metric">
-            <span>库存</span>
+            <span>总库存</span>
             <strong>{{ totalInventory }}</strong>
           </div>
         </div>
@@ -101,14 +102,14 @@ const state = reactive({
 
 const { loaded, active, formData } = toRefs(state);
 
-const stepList = ["商品信息", "商品属性", "商品规格", "库存设置"];
+const stepList = ["商品信息", "商品属性", "规格项", "商品规格"];
 
 /** 顶部标题，兼容新增与编辑场景。 */
 const pageTitle = computed(() => (goodsId.value ? "编辑商品" : "新增商品"));
 
 /** 顶部副标题，补充当前商品维护流程说明。 */
 const pageSubtitle = computed(() =>
-  goodsId.value ? "按步骤调整商品信息、属性、规格和库存。" : "按步骤完成商品信息、属性、规格和库存配置。"
+  goodsId.value ? "按步骤调整商品信息、属性、规格项和商品规格。" : "按步骤完成商品信息、属性、规格项和商品规格配置。"
 );
 
 /** 顶部库存汇总，便于快速查看当前商品库存总量。 */
@@ -244,7 +245,7 @@ onMounted(() => {
 .goods-edit-head-card,
 .goods-edit-steps-card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -273,8 +274,14 @@ onMounted(() => {
   min-width: 0;
 }
 
+.goods-edit-head__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--admin-page-text-secondary);
+}
+
 .goods-edit-head__title {
-  margin: 0;
+  margin: 6px 0 0;
   font-size: 22px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
@@ -300,7 +307,7 @@ onMounted(() => {
   min-width: 88px;
   padding: 10px 12px;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 
@@ -317,7 +324,7 @@ onMounted(() => {
 .goods-edit-steps-card :deep(.el-steps) {
   background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 
 .goods-edit-steps-card :deep(.el-step__title) {

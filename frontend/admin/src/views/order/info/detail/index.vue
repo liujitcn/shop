@@ -156,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onActivated, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
@@ -172,7 +172,8 @@ defineOptions({
 const route = useRoute();
 const loading = ref(false);
 
-const orderId = ref(route.params.orderId as unknown as number);
+const orderId = ref(0);
+const orderDetailRequestId = ref(0);
 const formData = reactive<OrderInfoResponse>({
   /** 订单信息 */
   order: undefined,
@@ -191,6 +192,26 @@ const formData = reactive<OrderInfoResponse>({
   /** 退款信息 */
   refund: []
 });
+
+/** 重置订单详情数据，避免切换订单时短暂显示旧内容。 */
+function resetOrderDetailForm() {
+  Object.assign(formData, {
+    order: undefined,
+    countdown: 0,
+    address: undefined,
+    cancel: undefined,
+    goods: [],
+    logistics: undefined,
+    payment: undefined,
+    refund: []
+  });
+}
+
+/** 从路由中同步订单ID，统一兼容 params 字符串场景。 */
+function syncOrderIdFromRoute() {
+  orderId.value = Number(route.params.orderId ?? 0);
+  return orderId.value;
+}
 
 /** 收货地址存在有效内容时才展示地址模块。 */
 const hasAddressSection = computed(() => {
@@ -259,26 +280,34 @@ const refundColumns: ColumnProps[] = [
 
 // 监听路由参数变化
 watch(
-  () => [route.params.orderId],
-  ([newOrderId]) => {
-    orderId.value = newOrderId as unknown as number;
-    if (orderId.value) {
-      handleQuery();
+  () => route.params.orderId,
+  () => {
+    const currentOrderId = syncOrderIdFromRoute();
+    if (!currentOrderId) {
+      resetOrderDetailForm();
+      return;
     }
-  }
+    handleQuery(currentOrderId);
+  },
+  { immediate: true }
 );
 
 // 查询
-function handleQuery() {
+function handleQuery(targetOrderId: number = orderId.value) {
+  if (!targetOrderId) return;
+  const requestId = ++orderDetailRequestId.value;
   loading.value = true;
   defOrderInfoService
     .GetOrderInfo({
-      value: orderId.value
+      value: targetOrderId
     })
     .then(data => {
+      if (requestId !== orderDetailRequestId.value) return;
+      resetOrderDetailForm();
       Object.assign(formData, data);
     })
     .finally(() => {
+      if (requestId !== orderDetailRequestId.value) return;
       loading.value = false;
     });
 }
@@ -300,8 +329,10 @@ async function handleCopyOrderNo(orderNo: string) {
   }
 }
 
-onMounted(() => {
-  handleQuery();
+onActivated(() => {
+  const currentOrderId = syncOrderIdFromRoute();
+  if (!currentOrderId || loading.value) return;
+  handleQuery(currentOrderId);
 });
 </script>
 
@@ -309,7 +340,7 @@ onMounted(() => {
 .detail-hero-card,
 .detail-section-card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -355,7 +386,7 @@ onMounted(() => {
   gap: 8px;
   padding: 14px;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 
@@ -420,7 +451,7 @@ onMounted(() => {
 .detail-timeline {
   margin-top: 20px;
   padding: 18px 18px 0;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 

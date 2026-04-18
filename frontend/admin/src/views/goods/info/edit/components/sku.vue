@@ -157,7 +157,7 @@ async function submitForm() {
   ensureSkuFormArrays();
 
   if (!formData.value.specList.length || !formData.value.skuList.length) {
-    ElMessage.warning("请先完成商品规格配置");
+    ElMessage.warning("请先完成规格项配置");
     return;
   }
 
@@ -239,7 +239,7 @@ async function submitForm() {
 <style scoped lang="scss">
 .goods-edit-stock__card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }

@@ -3,10 +3,10 @@
   <div v-loading="loading" class="app-container">
     <el-card class="goods-hero-card" shadow="never">
       <div class="goods-hero">
-        <div class="goods-hero__media">
+        <div class="goods-cover-panel">
           <el-image
             class="goods-cover-image"
-            :src="formData.picture"
+            :src="coverImageSrc"
             :preview-src-list="coverPreviewList"
             fit="cover"
             preview-teleported
@@ -17,56 +17,50 @@
           </el-image>
         </div>
 
-        <div class="goods-hero__content">
-          <div class="goods-hero__head">
-            <div class="goods-hero__title-wrap">
-              <span class="goods-hero__eyebrow">商品概览</span>
-              <h1 class="goods-hero__title">{{ formData.name || "-" }}</h1>
-            </div>
-            <el-tag :type="statusTagType" effect="light" round>{{ statusText }}</el-tag>
-          </div>
-
-          <p class="goods-hero__desc">{{ formData.desc || "暂无描述" }}</p>
-
+        <div class="goods-summary-panel">
           <div class="goods-summary-grid">
             <div class="goods-summary-card">
-              <span class="goods-summary-card__label">分类</span>
-              <strong class="goods-summary-card__value">{{ formData.categoryName || "-" }}</strong>
-            </div>
-            <div class="goods-summary-card">
-              <span class="goods-summary-card__label">SKU</span>
-              <strong class="goods-summary-card__value">{{ skuCount }} 个</strong>
-            </div>
-            <div class="goods-summary-card">
-              <span class="goods-summary-card__label">规格</span>
-              <strong class="goods-summary-card__value">{{ specCount }} 项</strong>
-            </div>
-            <div class="goods-summary-card">
-              <span class="goods-summary-card__label">库存</span>
+              <span class="goods-summary-card__label">总库存</span>
               <strong class="goods-summary-card__value">{{ totalInventory }}</strong>
             </div>
-          </div>
-
-          <div class="goods-quick-links">
-            <button type="button" class="goods-quick-link" @click="handleNavigateSection('banner')">
-              <span>轮播图</span>
-              <strong>{{ bannerCount }} 张</strong>
+            <div class="goods-summary-card">
+              <span class="goods-summary-card__label">销量</span>
+              <strong class="goods-summary-card__value">{{ totalSaleNum }}</strong>
+            </div>
+            <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('prop')">
+              <span class="goods-summary-card__label">商品属性</span>
+              <strong class="goods-summary-card__value">{{ propCount }} 项</strong>
             </button>
-            <button type="button" class="goods-quick-link" @click="handleNavigateSection('detail')">
-              <span>详情图</span>
-              <strong>{{ detailCount }} 张</strong>
+            <div class="goods-action-card">
+              <GoodsH5PreviewDrawer
+                :goods-id="goodsId"
+                class="goods-action-card__preview"
+                button-text="预览"
+                size="default"
+                plain
+                tooltip="预览"
+              />
+            </div>
+            <div class="goods-summary-card goods-summary-card--price">
+              <span class="goods-summary-card__label">价格区间</span>
+              <div class="goods-summary-card__price-list">
+                <div class="goods-summary-card__price-item">
+                  <span class="goods-summary-card__price-label">现价</span>
+                  <strong class="goods-summary-card__price-value">{{ salePriceRangeText }}</strong>
+                </div>
+                <div class="goods-summary-card__price-item">
+                  <span class="goods-summary-card__price-label">折扣价</span>
+                  <strong class="goods-summary-card__price-value">{{ discountPriceRangeText }}</strong>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('spec')">
+              <span class="goods-summary-card__label">规格项</span>
+              <strong class="goods-summary-card__value">{{ specCount }} 项</strong>
             </button>
-            <button type="button" class="goods-quick-link" @click="handleNavigateSection('prop')">
-              <span>属性</span>
-              <strong>{{ propCount }} 项</strong>
-            </button>
-            <button type="button" class="goods-quick-link" @click="handleNavigateSection('spec')">
-              <span>规格</span>
-              <strong>{{ specCount }} 项</strong>
-            </button>
-            <button type="button" class="goods-quick-link" @click="handleNavigateSection('sku')">
-              <span>库存</span>
-              <strong>{{ skuCount }} 行</strong>
+            <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('sku')">
+              <span class="goods-summary-card__label">商品规格</span>
+              <strong class="goods-summary-card__value">{{ skuCount }} 条</strong>
             </button>
           </div>
         </div>
@@ -74,110 +68,74 @@
     </el-card>
 
     <el-tabs v-model="activeTabName" class="goods-detail-tabs">
-      <el-tab-pane label="信息" name="basic">
-        <el-card class="detail-section-card" shadow="never">
-          <template #header>
-            <div class="detail-section-card__header">
-              <span>基础信息</span>
-            </div>
-          </template>
-
+      <el-tab-pane label="商品信息" name="basic">
+        <div class="card detail-tab-card">
           <el-descriptions :column="2" border class="goods-descriptions">
             <el-descriptions-item label="分类">{{ formData.categoryName || "-" }}</el-descriptions-item>
-            <el-descriptions-item label="状态">
-              <el-tag :type="statusTagType" effect="light" round>{{ statusText }}</el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="标题" :span="2">{{ formData.name || "-" }}</el-descriptions-item>
+            <el-descriptions-item label="标题">{{ formData.name || "-" }}</el-descriptions-item>
             <el-descriptions-item label="描述" :span="2">{{ formData.desc || "-" }}</el-descriptions-item>
-            <el-descriptions-item label="轮播图">{{ bannerCount }} 张</el-descriptions-item>
-            <el-descriptions-item label="详情图">{{ detailCount }} 张</el-descriptions-item>
-            <el-descriptions-item label="SKU">{{ skuCount }} 个</el-descriptions-item>
-            <el-descriptions-item label="库存">{{ totalInventory }}</el-descriptions-item>
           </el-descriptions>
-        </el-card>
 
-        <el-card ref="bannerSectionRef" class="detail-section-card" shadow="never">
-          <template #header>
-            <div class="detail-section-card__header">
-              <span>轮播图</span>
-              <span class="detail-section-card__extra">{{ bannerCount }} 张</span>
+          <div class="detail-media-grid">
+            <div class="detail-media-section">
+              <div class="detail-media-section__label">轮播图</div>
+              <div class="detail-media-list">
+                <el-image
+                  v-for="(img, index) in bannerImageList"
+                  :key="`banner-${index}`"
+                  class="detail-media-item"
+                  :src="img"
+                  :preview-src-list="bannerImageList"
+                  :initial-index="index"
+                  fit="cover"
+                  preview-teleported
+                >
+                  <template #error>
+                    <div class="detail-media-item__placeholder">图片加载失败</div>
+                  </template>
+                </el-image>
+                <div v-if="!bannerImageList.length" class="detail-media-empty">暂无轮播图</div>
+              </div>
             </div>
-          </template>
 
-          <div v-if="formData.banner.length" class="image-gallery">
-            <el-image
-              v-for="(img, index) in formData.banner"
-              :key="index"
-              class="image-gallery__item"
-              :src="img"
-              :preview-src-list="formData.banner"
-              :initial-index="index"
-              fit="cover"
-              preview-teleported
-            />
-          </div>
-          <el-empty v-else description="暂无轮播图" :image-size="90" />
-        </el-card>
-
-        <el-card ref="detailSectionRef" class="detail-section-card" shadow="never">
-          <template #header>
-            <div class="detail-section-card__header">
-              <span>详情图</span>
-              <span class="detail-section-card__extra">{{ detailCount }} 张</span>
+            <div class="detail-media-section">
+              <div class="detail-media-section__label">详情</div>
+              <div class="detail-media-list">
+                <el-image
+                  v-for="(img, index) in detailImageList"
+                  :key="`detail-${index}`"
+                  class="detail-media-item"
+                  :src="img"
+                  :preview-src-list="detailImageList"
+                  :initial-index="index"
+                  fit="cover"
+                  preview-teleported
+                >
+                  <template #error>
+                    <div class="detail-media-item__placeholder">图片加载失败</div>
+                  </template>
+                </el-image>
+                <div v-if="!detailImageList.length" class="detail-media-empty">暂无详情</div>
+              </div>
             </div>
-          </template>
-
-          <div v-if="formData.detail.length" class="detail-image-list">
-            <el-image
-              v-for="(img, index) in formData.detail"
-              :key="index"
-              class="detail-image-list__item"
-              :src="img"
-              :preview-src-list="formData.detail"
-              :initial-index="index"
-              fit="cover"
-              preview-teleported
-            />
           </div>
-          <el-empty v-else description="暂无详情图" :image-size="90" />
-        </el-card>
+        </div>
       </el-tab-pane>
 
-      <el-tab-pane label="属性" name="prop">
-        <el-card ref="propSectionRef" class="detail-table-card" shadow="never">
-          <template #header>
-            <div class="detail-section-card__header">
-              <span>商品属性</span>
-              <span class="detail-section-card__extra">{{ propCount }} 项</span>
-            </div>
-          </template>
-
+      <el-tab-pane label="商品属性" name="prop">
+        <div ref="propSectionRef" class="detail-tab-content detail-tab-content--table">
           <ProTable row-key="label" :data="formData.propList" :columns="propColumns" :pagination="false" :tool-button="false" />
-        </el-card>
+        </div>
       </el-tab-pane>
 
-      <el-tab-pane label="规格" name="spec">
-        <el-card ref="specSectionRef" class="detail-table-card" shadow="never">
-          <template #header>
-            <div class="detail-section-card__header">
-              <span>商品规格</span>
-              <span class="detail-section-card__extra">{{ specCount }} 项</span>
-            </div>
-          </template>
-
+      <el-tab-pane label="规格项" name="spec">
+        <div ref="specSectionRef" class="detail-tab-content detail-tab-content--table">
           <ProTable row-key="name" :data="formData.specList" :columns="specColumns" :pagination="false" :tool-button="false" />
-        </el-card>
+        </div>
       </el-tab-pane>
 
-      <el-tab-pane label="库存" name="sku">
-        <el-card ref="skuSectionRef" class="detail-table-card" shadow="never">
-          <template #header>
-            <div class="detail-section-card__header">
-              <span>SKU 库存</span>
-              <span class="detail-section-card__extra">{{ skuCount }} 行</span>
-            </div>
-          </template>
-
+      <el-tab-pane label="商品规格" name="sku">
+        <div ref="skuSectionRef" class="detail-tab-content detail-tab-content--table">
           <ProTable row-key="skuCode" :data="formData.skuList" :columns="skuColumns" :pagination="false" :tool-button="false">
             <template #picture="scope">
               <div class="sku-image-cell">
@@ -197,24 +155,23 @@
               </div>
             </template>
           </ProTable>
-        </el-card>
+        </div>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import { computed, nextTick, onActivated, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import GoodsH5PreviewDrawer from "../components/H5PreviewDrawer.vue";
 import { type GoodsInfoForm } from "@/rpc/admin/goods_info";
-import { type GoodsProp } from "@/rpc/admin/goods_prop";
 import { type GoodsSku } from "@/rpc/admin/goods_sku";
-import { type GoodsSpec } from "@/rpc/admin/goods_spec";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { GoodsStatus } from "@/rpc/common/enum";
-import { formatSrc } from "@/utils/utils";
+import { formatPrice } from "@/utils/utils";
 
 defineOptions({
   name: "GoodsDetail",
@@ -224,65 +181,164 @@ defineOptions({
 /** 扩展 SKU 行数据，兼容详情页动态规格列渲染。 */
 type GoodsSkuTableRow = GoodsSku & Record<string, string | number | string[] | undefined>;
 type GoodsDetailTabName = "basic" | "sku" | "spec" | "prop";
-type GoodsDetailSectionKey = "banner" | "detail" | "sku" | "spec" | "prop";
+type GoodsDetailSectionKey = "sku" | "spec" | "prop";
 
 const route = useRoute();
 const loading = ref(false);
-const goodsId = ref(route.query.goodsId as unknown as number);
+const goodsId = ref(0);
 const activeTabName = ref<GoodsDetailTabName>("basic");
-const bannerSectionRef = ref();
-const detailSectionRef = ref();
 const skuSectionRef = ref();
 const specSectionRef = ref();
 const propSectionRef = ref();
+const goodsDetailRequestId = ref(0);
 
-const propList = reactive<GoodsProp[]>([]);
-const skuList = reactive<GoodsSkuTableRow[]>([]);
-const specList = reactive<GoodsSpec[]>([]);
-const banner = reactive<string[]>([]);
-const detail = reactive<string[]>([]);
+/** 创建详情页商品默认值，避免切换记录时出现残留数据。 */
+function createDefaultGoodsDetailForm(): GoodsInfoForm {
+  return {
+    /** 商品ID */
+    id: 0,
+    /** 分类ID */
+    categoryId: undefined,
+    /** 名称 */
+    name: "",
+    /** 描述 */
+    desc: "",
+    /** 商品图片 */
+    picture: "",
+    /** 轮播图 */
+    banner: [],
+    /** 商品详情 */
+    detail: [],
+    /** 状态 */
+    status: GoodsStatus.PUT_ON,
+    /** 分类名称 */
+    categoryName: "",
+    /** 商品属性 */
+    propList: [],
+    /** 商品SKU */
+    skuList: [],
+    /** 商品规格 */
+    specList: []
+  };
+}
 
-const formData = reactive<GoodsInfoForm>({
-  /** 商品ID */
-  id: 0,
-  /** 分类ID */
-  categoryId: undefined,
-  /** 名称 */
-  name: "",
-  /** 描述 */
-  desc: "",
-  /** 商品图片 */
-  picture: "",
-  /** 轮播图 */
-  banner,
-  /** 商品详情 */
-  detail,
-  /** 状态 */
-  status: GoodsStatus.PUT_ON,
-  /** 分类名称 */
-  categoryName: "",
-  /** 商品属性 */
-  propList,
-  /** 商品SKU */
-  skuList,
-  /** 商品规格 */
-  specList
-});
+const formData = reactive<GoodsInfoForm>(createDefaultGoodsDetailForm());
+
+/** 将任意图片项提取为可渲染的地址字符串。 */
+function extractImageValue(image: unknown) {
+  if (typeof image === "string") {
+    return image.trim();
+  }
+  if (!image || typeof image !== "object") {
+    return "";
+  }
+
+  const imageRecord = image as Record<string, unknown>;
+  const candidateList = [imageRecord.url, imageRecord.imageUrl, imageRecord.src, imageRecord.value];
+  const matchedValue = candidateList.find(item => typeof item === "string" && item.trim());
+  return typeof matchedValue === "string" ? matchedValue.trim() : "";
+}
+
+/** 将图片字段统一转成数组，兼容 JSON 字符串、逗号分隔值与对象数组。 */
+function parseImageList(images: unknown): string[] {
+  if (Array.isArray(images)) {
+    return images.map(item => extractImageValue(item)).filter(Boolean);
+  }
+
+  if (images && typeof images === "object") {
+    const imageValue = extractImageValue(images);
+    return imageValue ? [imageValue] : [];
+  }
+
+  if (typeof images !== "string") {
+    return [];
+  }
+
+  const value = images.trim();
+  if (!value) {
+    return [];
+  }
+
+  if ((value.startsWith("[") && value.endsWith("]")) || (value.startsWith("{") && value.endsWith("}"))) {
+    try {
+      return parseImageList(JSON.parse(value));
+    } catch {
+      return [];
+    }
+  }
+
+  if (value.includes(",")) {
+    return value
+      .split(",")
+      .map(item => item.trim())
+      .filter(Boolean);
+  }
+
+  return [value];
+}
+
+/** 解析当前运行环境下的商品静态资源根地址，优先兼容本地 `/shop` 挂载。 */
+function resolveGoodsStaticBase() {
+  const configuredBase = String(import.meta.env.VITE_APP_STATIC_URL ?? "").trim();
+  if (configuredBase) {
+    if (/^https?:\/\//.test(configuredBase)) {
+      return configuredBase.replace(/\/$/, "");
+    }
+    return new URL(`${configuredBase.replace(/\/$/, "")}/`, `${window.location.origin}/`).toString().replace(/\/$/, "");
+  }
+  return `${window.location.origin}/shop`;
+}
+
+/** 统一补齐图片地址，兼容后端返回相对路径的场景。 */
+function normalizeImageSrc(image?: string) {
+  const value = String(image ?? "").trim();
+  if (!value) return "";
+  if (/^(https?:)?\/\//.test(value) || value.startsWith("data:") || value.startsWith("blob:")) {
+    return value;
+  }
+
+  const staticBase = resolveGoodsStaticBase();
+  if (value.startsWith("/shop/")) {
+    return new URL(value, `${window.location.origin}/`).toString();
+  }
+  if (value.startsWith("/")) {
+    return new URL(value.replace(/^\/+/, ""), `${staticBase}/`).toString();
+  }
+
+  const normalizedPath = value.replace(/^\.\/+/, "").replace(/^shop\/+/, "");
+  return new URL(normalizedPath, `${staticBase}/`).toString();
+}
+
+/** 统一规范化图片列表，避免缩略图和预览图地址不一致。 */
+function normalizeImageList(images: string[] = []) {
+  return images.map(item => normalizeImageSrc(item)).filter(Boolean);
+}
+
+/** 规范化详情页返回数据，兼容图片字段返回字符串场景。 */
+function normalizeGoodsDetailForm(data?: Partial<GoodsInfoForm>): GoodsInfoForm {
+  return {
+    ...createDefaultGoodsDetailForm(),
+    ...data,
+    picture: extractImageValue(data?.picture),
+    banner: parseImageList(data?.banner),
+    detail: parseImageList(data?.detail),
+    propList: Array.isArray(data?.propList) ? data.propList : [],
+    skuList: Array.isArray(data?.skuList) ? data.skuList : [],
+    specList: Array.isArray(data?.specList) ? data.specList : []
+  };
+}
+
+/** 统一计算主图地址。 */
+const coverImageSrc = computed(() => normalizeImageSrc(formData.picture));
 
 /** 统一计算主图预览列表，避免空图片时打开预览报错。 */
-const coverPreviewList = computed(() => (formData.picture ? [formData.picture] : []));
+const coverPreviewList = computed(() => (coverImageSrc.value ? [coverImageSrc.value] : []));
 
-/** 统一计算页面顶部商品状态文案。 */
-const statusText = computed(() => (formData.status === GoodsStatus.PUT_ON ? "上架" : "下架"));
+/** 统一计算轮播图缩略图与预览列表。 */
+const bannerImageList = computed(() => normalizeImageList(formData.banner));
 
-/** 统一计算页面顶部商品状态标签样式。 */
-const statusTagType = computed(() => (formData.status === GoodsStatus.PUT_ON ? "success" : "info"));
-
-/** 统计轮播图数量。 */
-const bannerCount = computed(() => formData.banner.length);
-
-/** 统计详情图数量。 */
-const detailCount = computed(() => formData.detail.length);
+/** 统一计算详情图缩略图与预览列表。 */
+const detailImageList = computed(() => normalizeImageList(formData.detail));
 
 /** 统计属性项数量。 */
 const propCount = computed(() => formData.propList.length);
@@ -290,20 +346,53 @@ const propCount = computed(() => formData.propList.length);
 /** 统计规格项数量。 */
 const specCount = computed(() => formData.specList.length);
 
-/** 统计 SKU 数量。 */
+/** 统计商品规格数量。 */
 const skuCount = computed(() => formData.skuList.length);
 
 /** 详情页按 SKU 汇总库存，避免额外维护聚合字段。 */
 const totalInventory = computed(() => formData.skuList.reduce((total, item) => total + Number(item.inventory ?? 0), 0));
 
+/** 详情页按 SKU 汇总真实销量，便于头部直接查看销售表现。 */
+const totalSaleNum = computed(() => formData.skuList.reduce((total, item) => total + Number(item.realSaleNum ?? 0), 0));
+
+/** 统一格式化规格价格区间，避免头部重复散落区间拼装逻辑。 */
+function buildPriceRangeText(priceList: number[]) {
+  const validPriceList = priceList.filter(price => price > 0);
+  if (!validPriceList.length) {
+    return "-";
+  }
+
+  const minPrice = Math.min(...validPriceList);
+  const maxPrice = Math.max(...validPriceList);
+  if (minPrice === maxPrice) {
+    return `￥${formatPrice(minPrice)}`;
+  }
+  return `￥${formatPrice(minPrice)} - ￥${formatPrice(maxPrice)}`;
+}
+
+/** 汇总规格现价区间，便于在头部快速查看售价跨度。 */
+const salePriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.price ?? 0))));
+
+/** 汇总规格折扣价区间，便于在头部同步查看优惠后的价格跨度。 */
+const discountPriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.discountPrice ?? 0))));
+
 /** 页面分区和标签页映射，统一控制概览区跳转行为。 */
-const detailSectionMap: Record<GoodsDetailSectionKey, { tab: GoodsDetailTabName; targetRef: typeof bannerSectionRef }> = {
-  banner: { tab: "basic", targetRef: bannerSectionRef },
-  detail: { tab: "basic", targetRef: detailSectionRef },
+const detailSectionMap: Record<GoodsDetailSectionKey, { tab: GoodsDetailTabName; targetRef: typeof skuSectionRef }> = {
   sku: { tab: "sku", targetRef: skuSectionRef },
   spec: { tab: "spec", targetRef: specSectionRef },
   prop: { tab: "prop", targetRef: propSectionRef }
 };
+
+/** 重置详情页表单，避免切换商品时残留上一条记录。 */
+function resetGoodsDetailForm() {
+  Object.assign(formData, createDefaultGoodsDetailForm());
+}
+
+/** 从路由中同步当前商品ID，统一兼容 query 字符串场景。 */
+function syncGoodsIdFromRoute() {
+  goodsId.value = Number(route.query.goodsId ?? 0);
+  return goodsId.value;
+}
 
 /** 商品属性明细表格列配置。 */
 const propColumns: ColumnProps[] = [
@@ -312,7 +401,7 @@ const propColumns: ColumnProps[] = [
   { prop: "sort", label: "排序", align: "right", minWidth: 100 }
 ];
 
-/** 商品规格明细表格列配置。 */
+/** 规格项明细表格列配置。 */
 const specColumns: ColumnProps[] = [
   { prop: "name", label: "名称", minWidth: 160 },
   {
@@ -324,7 +413,7 @@ const specColumns: ColumnProps[] = [
   { prop: "sort", label: "排序", align: "right", minWidth: 100 }
 ];
 
-/** 商品 SKU 明细表格列配置。 */
+/** 商品规格明细表格列配置。 */
 const skuColumns = computed<ColumnProps[]>(() => {
   // 根据规格定义动态拼接表头，保证不同商品规格也能完整展示。
   const dynamicSpecColumns = formData.specList.map((item, index) => ({
@@ -355,43 +444,49 @@ const skuColumns = computed<ColumnProps[]>(() => {
 // 监听路由参数变化，更新商品详情数据。
 watch(
   () => route.query.goodsId,
-  newGoodsId => {
-    goodsId.value = newGoodsId as unknown as number;
-    if (goodsId.value) {
-      handleQuery();
+  () => {
+    const currentGoodsId = syncGoodsIdFromRoute();
+    if (!currentGoodsId) {
+      resetGoodsDetailForm();
+      return;
     }
-  }
+    handleQuery(currentGoodsId);
+  },
+  { immediate: true }
 );
 
 /**
  * 查询商品详情，并将 SKU 规格项展开到平铺字段，便于表格动态列直接渲染。
  */
-function handleQuery() {
-  if (!goodsId.value) return;
+function handleQuery(targetGoodsId: number = goodsId.value) {
+  if (!targetGoodsId) return;
+  const requestId = ++goodsDetailRequestId.value;
   loading.value = true;
   defGoodsInfoService
     .GetGoodsInfo({
-      value: goodsId.value
+      value: targetGoodsId
     })
     .then(data => {
-      data.skuList.forEach(item => {
+      if (requestId !== goodsDetailRequestId.value) return;
+      const normalizedData = normalizeGoodsDetailForm(data);
+      normalizedData.skuList.forEach(item => {
         // 将规格数组转成扁平字段，避免在表格单元格里重复解析。
         item.specItem.forEach((spec, index) => {
           (item as GoodsSkuTableRow)[`specItem${index}`] = spec;
         });
       });
-      Object.assign(formData, data);
+      resetGoodsDetailForm();
+      Object.assign(formData, normalizedData);
     })
     .finally(() => {
+      if (requestId !== goodsDetailRequestId.value) return;
       loading.value = false;
     });
 }
 
 /** 统一补齐 SKU 规格图地址，兼容后端返回相对路径的场景。 */
 function getSkuPictureSrc(picture?: string) {
-  const value = String(picture ?? "").trim();
-  if (!value) return "";
-  return formatSrc(value);
+  return normalizeImageSrc(picture);
 }
 
 /** 统一生成规格图预览列表，避免图片为空时传入无效预览数据。 */
@@ -410,17 +505,17 @@ async function handleNavigateSection(sectionKey: GoodsDetailSectionKey) {
   sectionConfig.targetRef.value?.$el?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-onMounted(() => {
-  handleQuery();
+onActivated(() => {
+  const currentGoodsId = syncGoodsIdFromRoute();
+  if (!currentGoodsId || loading.value) return;
+  handleQuery(currentGoodsId);
 });
 </script>
 
 <style scoped lang="scss">
-.goods-hero-card,
-.detail-section-card,
-.detail-table-card {
+.goods-hero-card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -429,113 +524,139 @@ onMounted(() => {
   margin-bottom: 18px;
 }
 
-:deep(.goods-hero-card .el-card__body),
-:deep(.detail-section-card .el-card__body),
-:deep(.detail-table-card .el-card__body) {
+:deep(.goods-hero-card .el-card__body) {
   padding: 16px;
+}
+
+:deep(.goods-detail-tabs .el-tab-pane) {
+  padding: 16px 0 0;
 }
 
 .goods-hero {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
-  gap: 18px;
+  gap: 16px;
   align-items: stretch;
+}
+
+.goods-cover-panel {
+  display: flex;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: calc(var(--admin-page-radius) + 2px);
+  background: var(--admin-page-card-bg-soft);
 }
 
 .goods-cover-image {
   width: 100%;
   height: 100%;
-  min-height: 220px;
+  min-height: 184px;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-muted);
 }
 
-.goods-hero__content {
+.goods-summary-panel {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  min-height: 0;
   min-width: 0;
-}
-
-.goods-hero__head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.goods-hero__title-wrap {
-  min-width: 0;
-}
-
-.goods-hero__eyebrow {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--admin-page-text-secondary);
-}
-
-.goods-hero__title {
-  margin: 6px 0 0;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--admin-page-text-primary);
-}
-
-.goods-hero__desc {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.7;
-  color: var(--admin-page-text-secondary);
 }
 
 .goods-summary-grid {
   display: grid;
+  flex: 1;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  min-height: 204px;
 }
 
-.goods-summary-card,
-.goods-quick-link {
+.goods-summary-card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
+  justify-content: space-between;
+  min-height: 96px;
+  gap: 8px;
+  padding: 14px;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: calc(var(--admin-page-radius) + 2px);
   background: var(--admin-page-card-bg-soft);
 }
 
-.goods-summary-card__label,
-.goods-quick-link span {
-  font-size: 12px;
+.goods-summary-card__label {
+  font-size: 13px;
+  line-height: 1.4;
   color: var(--admin-page-text-secondary);
 }
 
-.goods-summary-card__value,
-.goods-quick-link strong {
-  font-size: 16px;
+.goods-summary-card__value {
+  font-size: 20px;
   font-weight: 700;
+  line-height: 1.2;
   color: var(--admin-page-text-primary);
 }
 
-.goods-quick-links {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 10px;
+.goods-summary-card--price {
+  grid-column: span 2;
 }
 
-.goods-quick-link {
+.goods-summary-card__price-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.goods-summary-card__price-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.goods-summary-card__price-label {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--admin-page-text-secondary);
+}
+
+.goods-summary-card__price-value {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--admin-page-text-primary);
+}
+
+.goods-summary-card--action {
   width: 100%;
+  appearance: none;
+  font: inherit;
   text-align: left;
   cursor: pointer;
   transition: border-color 0.2s ease;
 }
 
-.goods-quick-link:hover {
+.goods-summary-card--action:hover {
   border-color: var(--admin-page-card-border-muted);
+}
+
+.goods-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  border: 1px solid var(--admin-page-card-border-soft);
+  border-radius: calc(var(--admin-page-radius) + 2px);
+  background: var(--admin-page-card-bg-soft);
+}
+
+.goods-action-card :deep(.goods-h5-preview) {
+  width: 100%;
+}
+
+.goods-action-card :deep(.el-button) {
+  width: 100%;
+  justify-content: center;
 }
 
 .goods-detail-tabs :deep(.el-tabs__header) {
@@ -554,28 +675,80 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.detail-section-card {
-  margin-bottom: 16px;
+.detail-tab-content {
+  padding: 0;
 }
 
-.detail-table-card {
+.detail-tab-card {
   overflow: hidden;
 }
 
-.detail-section-card__header {
+.detail-media-grid {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 16px;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.detail-media-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detail-media-section__label {
+  font-size: 13px;
   font-weight: 600;
   color: var(--admin-page-text-primary);
 }
 
-.detail-section-card__extra {
-  font-size: 13px;
-  font-weight: 500;
+.detail-media-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.detail-media-item,
+.detail-media-empty {
+  width: 112px;
+  height: 112px;
+  overflow: hidden;
+  border: 1px solid var(--admin-page-card-border-muted);
+  border-radius: var(--admin-page-radius);
+  background: var(--admin-page-card-bg-muted);
+}
+
+.detail-media-item {
+  display: block;
+}
+
+.detail-media-item__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
   color: var(--admin-page-text-placeholder);
+  background: var(--admin-page-card-bg-muted);
+}
+
+.detail-media-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--admin-page-text-placeholder);
+}
+
+.detail-tab-content--table {
+  overflow: hidden;
 }
 
 .goods-descriptions :deep(.el-descriptions__label) {
@@ -585,33 +758,6 @@ onMounted(() => {
 
 .goods-descriptions :deep(.el-descriptions__cell) {
   padding: 10px 14px;
-}
-
-.image-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.image-gallery__item {
-  width: 100%;
-  height: 160px;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--admin-page-card-bg-muted);
-}
-
-.detail-image-list {
-  display: grid;
-  gap: 12px;
-}
-
-.detail-image-list__item {
-  width: 100%;
-  min-height: 240px;
-  overflow: hidden;
-  border-radius: 12px;
-  background: var(--admin-page-card-bg-muted);
 }
 
 .sku-image-cell {
@@ -624,7 +770,7 @@ onMounted(() => {
   height: 60px;
   overflow: hidden;
   border: 1px solid var(--admin-page-card-border-muted);
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-muted);
 }
 
@@ -640,7 +786,7 @@ onMounted(() => {
   text-align: center;
   color: var(--admin-page-text-placeholder);
   border: 1px solid var(--admin-page-card-border-muted);
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-muted);
 }
 
@@ -650,19 +796,20 @@ onMounted(() => {
   justify-content: center;
   width: 100%;
   height: 100%;
-  min-height: 180px;
+  min-height: 184px;
   font-size: 14px;
   color: var(--admin-page-text-placeholder);
   background: var(--admin-page-card-bg-muted);
 }
 
 @media (width <= 1200px) {
-  .goods-summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .goods-hero {
+    grid-template-columns: 200px minmax(0, 1fr);
   }
 
-  .goods-quick-links {
+  .goods-summary-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: auto;
   }
 }
 
@@ -674,16 +821,25 @@ onMounted(() => {
   .goods-cover-image {
     min-height: 260px;
   }
+
+  .goods-summary-grid {
+    min-height: auto;
+  }
 }
 
 @media (width <= 768px) {
-  .goods-summary-grid,
-  .goods-quick-links {
+  .goods-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 520px) {
+  .goods-summary-grid {
     grid-template-columns: 1fr;
   }
 
-  .detail-image-list__item {
-    min-height: 180px;
+  .goods-summary-card--price {
+    grid-column: span 1;
   }
 }
 </style>
