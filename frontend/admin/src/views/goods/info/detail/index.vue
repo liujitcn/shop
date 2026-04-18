@@ -399,7 +399,8 @@ function resetGoodsDetailForm() {
 
 /** 从路由中同步当前商品ID，统一兼容 query 字符串场景。 */
 function syncGoodsIdFromRoute() {
-  goodsId.value = Number(route.query.goodsId ?? 0);
+  // 优先使用路径参数，兼容少量历史 query 链接仍携带 goodsId 的场景。
+  goodsId.value = Number(route.params.goodsId ?? route.query.goodsId ?? 0);
   return goodsId.value;
 }
 
@@ -452,7 +453,7 @@ const skuColumns = computed<ColumnProps[]>(() => {
 
 // 监听路由参数变化，更新商品详情数据。
 watch(
-  () => route.query.goodsId,
+  () => [route.params.goodsId, route.query.goodsId],
   () => {
     const currentGoodsId = syncGoodsIdFromRoute();
     if (!currentGoodsId) {
@@ -539,7 +540,8 @@ onActivated(() => {
 
 .goods-hero {
   --goods-summary-panel-gap: 12px;
-  --goods-summary-card-gap: 16px;
+  --goods-summary-card-column-gap: 16px;
+  --goods-summary-card-row-gap: 16px;
   --goods-summary-card-height: 66px;
   --goods-summary-toolbar-height: 32px;
   display: grid;
@@ -553,7 +555,7 @@ onActivated(() => {
   box-sizing: border-box;
   height: calc(
     var(--goods-summary-toolbar-height) + var(--goods-summary-panel-gap) + var(--goods-summary-card-height) * 2 +
-      var(--goods-summary-card-gap)
+      var(--goods-summary-card-row-gap)
   );
   min-width: 0;
   padding: 8px;
@@ -596,11 +598,14 @@ onActivated(() => {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-auto-rows: var(--goods-summary-card-height);
-  gap: var(--goods-summary-card-gap);
+  // 显式统一概览卡片横向与纵向间距，避免视觉上出现“左右大、上下挤”的差异。
+  column-gap: var(--goods-summary-card-column-gap);
+  row-gap: var(--goods-summary-card-row-gap);
 }
 
 .goods-summary-card {
   display: flex;
+  box-sizing: border-box;
   flex-direction: column;
   justify-content: center;
   height: 100%;

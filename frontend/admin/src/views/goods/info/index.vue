@@ -394,6 +394,7 @@ function handleOpenSku(row: GoodsInfo) {
  * 打开商品详情页。
  */
 function handleOpenDetail(row: GoodsInfo) {
-  navigateTo(router, "/goods/detail", { goodsId: row.id, title: `【${row.name}】商品详情` });
+  // 商品详情页与订单详情统一改为路径参数传递商品ID，避免继续使用查询参数。
+  navigateTo(router, `/goods/detail/${row.id}`);
 }
 </script>
