@@ -1,28 +1,25 @@
 <!-- 商品编辑 -->
 <template>
   <div v-loading="loading" class="app-container">
-    <el-card class="goods-edit-hero-card" shadow="never">
-      <div class="goods-edit-hero">
-        <div class="goods-edit-hero__intro">
-          <span class="goods-edit-hero__label">商品编辑流程</span>
-          <div class="goods-edit-hero__main">
-            <h1 class="goods-edit-hero__title">{{ pageTitle }}</h1>
-            <p class="goods-edit-hero__desc">{{ pageDescription }}</p>
-          </div>
+    <el-card class="goods-edit-head-card" shadow="never">
+      <div class="goods-edit-head">
+        <div class="goods-edit-head__intro">
+          <h1 class="goods-edit-head__title">{{ pageTitle }}</h1>
+          <p class="goods-edit-head__subtitle">{{ pageSubtitle }}</p>
         </div>
 
-        <div class="goods-edit-metrics">
-          <div class="goods-edit-metric-card">
-            <span class="goods-edit-metric-card__label">商品属性</span>
-            <strong class="goods-edit-metric-card__value">{{ formData.propList.length }}</strong>
+        <div class="goods-edit-head__metrics">
+          <div class="goods-edit-head__metric">
+            <span>属性</span>
+            <strong>{{ formData.propList.length }}</strong>
           </div>
-          <div class="goods-edit-metric-card">
-            <span class="goods-edit-metric-card__label">商品规格</span>
-            <strong class="goods-edit-metric-card__value">{{ formData.specList.length }}</strong>
+          <div class="goods-edit-head__metric">
+            <span>规格</span>
+            <strong>{{ formData.specList.length }}</strong>
           </div>
-          <div class="goods-edit-metric-card">
-            <span class="goods-edit-metric-card__label">SKU 数量</span>
-            <strong class="goods-edit-metric-card__value">{{ formData.skuList.length }}</strong>
+          <div class="goods-edit-head__metric">
+            <span>库存</span>
+            <strong>{{ totalInventory }}</strong>
           </div>
         </div>
       </div>
@@ -30,16 +27,15 @@
 
     <el-card class="goods-edit-steps-card" shadow="never">
       <el-steps :active="active" process-status="finish" finish-status="success" simple>
-        <el-step title="填写商品信息" description="分类、标题、主图、轮播图、详情图与状态" />
-        <el-step title="设置商品属性" description="补充商品属性名称、属性值与排序" />
-        <el-step title="设置商品库存" description="维护规格、库存、价格、图片和销量" />
+        <el-step v-for="step in stepList" :key="step" :title="step" />
       </el-steps>
     </el-card>
 
     <div class="goods-edit-stage">
-      <info v-show="active == 0" v-if="loaded == true" v-model="formData" @prev="prev" @next="next" />
-      <prop v-show="active == 1" v-if="loaded == true" v-model="formData" @prev="prev" @next="next" />
-      <sku v-show="active == 2" v-if="loaded == true" v-model="formData" @prev="prev" @next="next" @reset-form="resetForm" />
+      <info v-show="active == 0" v-if="loaded" v-model="formData" @next="next" />
+      <prop v-show="active == 1" v-if="loaded" v-model="formData" @prev="prev" @next="next" />
+      <spec v-show="active == 2" v-if="loaded" v-model="formData" @prev="prev" @next="next" />
+      <sku v-show="active == 3" v-if="loaded" v-model="formData" @prev="prev" @reset-form="resetForm" />
     </div>
   </div>
 </template>
@@ -49,6 +45,7 @@ import { computed, onMounted, reactive, ref, toRefs, watch } from "vue";
 import { useRoute } from "vue-router";
 import info from "./components/info.vue";
 import prop from "./components/prop.vue";
+import spec from "./components/spec.vue";
 import sku from "./components/sku.vue";
 import type { GoodsInfoForm } from "@/rpc/admin/goods_info";
 import type { GoodsProp } from "@/rpc/admin/goods_prop";
@@ -62,9 +59,7 @@ defineOptions({
 });
 
 const route = useRoute();
-
 const loading = ref(false);
-
 const goodsId = ref(route.query.goodsId as unknown as number);
 
 const propList = reactive<GoodsProp[]>([]);
@@ -88,31 +83,37 @@ const state = reactive({
     /** 商品图片 */
     picture: "",
     /** 轮播图 */
-    banner: banner,
+    banner,
     /** 商品详情 */
-    detail: detail,
+    detail,
     /** 状态 */
     status: GoodsStatus.PUT_ON,
+    /** 分类名称 */
     categoryName: "",
     /** 商品属性 */
-    propList: propList,
+    propList,
     /** 商品SKU */
-    skuList: skuList,
+    skuList,
     /** 商品规格 */
-    specList: specList
+    specList
   } as GoodsInfoForm
 });
 
 const { loaded, active, formData } = toRefs(state);
 
-/** 当前页面标题，兼容新增与编辑场景。 */
+const stepList = ["商品信息", "商品属性", "商品规格", "库存设置"];
+
+/** 顶部标题，兼容新增与编辑场景。 */
 const pageTitle = computed(() => (goodsId.value ? "编辑商品" : "新增商品"));
 
-/** 当前页面说明文案，帮助运营快速理解三步编辑流程。 */
-const pageDescription = computed(() =>
-  goodsId.value
-    ? "按步骤更新商品信息、属性与库存，所有历史字段都会完整保留。"
-    : "按步骤完成商品基础信息、属性和库存维护，提交前不会丢失任何已填写内容。"
+/** 顶部副标题，补充当前商品维护流程说明。 */
+const pageSubtitle = computed(() =>
+  goodsId.value ? "按步骤调整商品信息、属性、规格和库存。" : "按步骤完成商品信息、属性、规格和库存配置。"
+);
+
+/** 顶部库存汇总，便于快速查看当前商品库存总量。 */
+const totalInventory = computed(() =>
+  (formData.value.skuList ?? []).reduce((total: number, item: Record<string, unknown>) => total + Number(item.inventory ?? 0), 0)
 );
 
 /** 创建商品表单默认值，确保数组字段始终可用。 */
@@ -158,34 +159,33 @@ function normalizeGoodsInfoForm(data?: Partial<GoodsInfoForm>): GoodsInfoForm {
   };
 }
 
-// 监听路由参数变化，更新商品属性
+// 监听路由参数变化，刷新当前商品编辑数据。
 watch(
-  () => [route.query.goodsId],
-  ([newGoodsId]) => {
+  () => route.query.goodsId,
+  newGoodsId => {
     goodsId.value = newGoodsId as unknown as number;
     handleQuery();
   }
 );
 
+/** 返回上一步，并在首步时保持不动。 */
 function prev() {
-  if (state.active-- <= 0) {
-    state.active = 0;
-  }
-}
-function next() {
-  if (state.active++ >= 2) {
-    state.active = 0;
-  }
+  state.active = Math.max(0, state.active - 1);
 }
 
-// 重置表单
+/** 前进到下一步，并在最后一步保持当前位置。 */
+function next() {
+  state.active = Math.min(stepList.length - 1, state.active + 1);
+}
+
+/** 重置商品编辑表单。 */
 function resetForm() {
   state.loaded = false;
   state.active = 0;
   Object.assign(state.formData, createDefaultFormData());
 }
 
-// 查询
+/** 查询商品详情，并兼容编辑态 SKU 的金额与规格字段格式。 */
 function handleQuery() {
   loading.value = true;
   if (goodsId.value) {
@@ -212,26 +212,27 @@ function handleQuery() {
           if (!item.inventory) {
             item.inventory = 0;
           }
-          // 将规格项转换为对象属性
+
+          // 将规格项展开为表格字段，便于后续库存步骤直接渲染动态列。
           const specItemObj: Record<string, string> = {};
           item.specItem.forEach((spec, index) => {
             specItemObj[`specItem${index}`] = spec;
           });
-          // 使用类型断言合并规格项对象
           Object.assign(item, specItemObj);
-          // 将 specItem 设置为空数组而不是删除它
           item.specItem = [];
         });
+
         Object.assign(state.formData, normalizedData);
         state.loaded = true;
       })
       .finally(() => {
         loading.value = false;
       });
-  } else {
-    state.loaded = true;
-    loading.value = false;
+    return;
   }
+
+  state.loaded = true;
+  loading.value = false;
 }
 
 onMounted(() => {
@@ -240,7 +241,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-.goods-edit-hero-card,
+.goods-edit-head-card,
 .goods-edit-steps-card {
   border: 1px solid var(--admin-page-card-border);
   border-radius: 16px;
@@ -248,90 +249,69 @@ onMounted(() => {
   box-shadow: var(--admin-page-shadow);
 }
 
-.goods-edit-hero-card {
-  margin-bottom: 18px;
+.goods-edit-head-card {
+  margin-bottom: 14px;
 }
 
-:deep(.goods-edit-hero-card .el-card__body),
+.goods-edit-steps-card {
+  margin-bottom: 14px;
+}
+
+:deep(.goods-edit-head-card .el-card__body),
 :deep(.goods-edit-steps-card .el-card__body) {
   padding: 16px 18px;
 }
 
-.goods-edit-hero {
+.goods-edit-head {
   display: flex;
   gap: 16px;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 0;
 }
 
-.goods-edit-hero__intro {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 8px;
+.goods-edit-head__intro {
   min-width: 0;
 }
 
-.goods-edit-hero__main {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 16px;
-  align-items: center;
-}
-
-.goods-edit-hero__label {
-  display: inline-flex;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--admin-page-text-secondary);
-}
-
-.goods-edit-hero__title {
+.goods-edit-head__title {
   margin: 0;
   font-size: 22px;
   font-weight: 700;
-  line-height: 1.2;
   color: var(--admin-page-text-primary);
 }
 
-.goods-edit-hero__desc {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.7;
+.goods-edit-head__subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
   color: var(--admin-page-text-secondary);
 }
 
-.goods-edit-metrics {
+.goods-edit-head__metrics {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.goods-edit-metric-card {
+.goods-edit-head__metric {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
-  min-width: 140px;
+  gap: 4px;
+  min-width: 88px;
+  padding: 10px 12px;
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 12px;
   background: var(--admin-page-card-bg-soft);
 }
 
-.goods-edit-metric-card__label {
-  font-size: 13px;
+.goods-edit-head__metric span {
+  font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
 
-.goods-edit-metric-card__value {
-  font-size: 20px;
-  font-weight: 700;
+.goods-edit-head__metric strong {
+  font-size: 18px;
   color: var(--admin-page-text-primary);
-}
-
-.goods-edit-steps-card {
-  margin-bottom: 16px;
 }
 
 .goods-edit-steps-card :deep(.el-steps) {
@@ -345,33 +325,15 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.goods-edit-steps-card :deep(.el-step__description) {
-  font-size: 12px;
-  line-height: 1.6;
-}
-
 .goods-edit-stage {
   min-height: 320px;
 }
 
-@media (width <= 992px) {
-  .goods-edit-hero {
+@media (width <= 768px) {
+  .goods-edit-head,
+  .goods-edit-head__metrics {
     flex-direction: column;
     align-items: stretch;
-  }
-
-  .goods-edit-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (width <= 768px) {
-  .goods-edit-hero__title {
-    font-size: 22px;
-  }
-
-  .goods-edit-metrics {
-    grid-template-columns: 1fr;
   }
 }
 </style>
