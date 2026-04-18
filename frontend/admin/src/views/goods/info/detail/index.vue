@@ -18,6 +18,17 @@
         </div>
 
         <div class="goods-summary-panel">
+          <div class="goods-summary-toolbar">
+            <GoodsH5PreviewDrawer
+              :goods-id="goodsId"
+              class="goods-summary-toolbar__preview"
+              button-text="预览"
+              size="default"
+              plain
+              tooltip="预览"
+            />
+          </div>
+
           <div class="goods-summary-grid">
             <div class="goods-summary-card">
               <span class="goods-summary-card__label">总库存</span>
@@ -27,116 +38,116 @@
               <span class="goods-summary-card__label">销量</span>
               <strong class="goods-summary-card__value">{{ totalSaleNum }}</strong>
             </div>
-            <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('prop')">
-              <span class="goods-summary-card__label">商品属性</span>
-              <strong class="goods-summary-card__value">{{ propCount }} 项</strong>
-            </button>
-            <div class="goods-action-card">
-              <GoodsH5PreviewDrawer
-                :goods-id="goodsId"
-                class="goods-action-card__preview"
-                button-text="预览"
-                size="default"
-                plain
-                tooltip="预览"
-              />
-            </div>
             <div class="goods-summary-card goods-summary-card--price">
               <span class="goods-summary-card__label">价格区间</span>
-              <div class="goods-summary-card__price-list">
-                <div class="goods-summary-card__price-item">
-                  <span class="goods-summary-card__price-label">现价</span>
-                  <strong class="goods-summary-card__price-value">{{ salePriceRangeText }}</strong>
-                </div>
-                <div class="goods-summary-card__price-item">
-                  <span class="goods-summary-card__price-label">折扣价</span>
-                  <strong class="goods-summary-card__price-value">{{ discountPriceRangeText }}</strong>
-                </div>
-              </div>
+              <strong class="goods-summary-card__value">{{ salePriceRangeText }}</strong>
             </div>
+            <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('prop')">
+              <span class="goods-summary-card__label">商品属性</span>
+              <strong class="goods-summary-card__value">{{ propCount }}</strong>
+            </button>
             <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('spec')">
               <span class="goods-summary-card__label">规格项</span>
-              <strong class="goods-summary-card__value">{{ specCount }} 项</strong>
+              <strong class="goods-summary-card__value">{{ specCount }}</strong>
             </button>
             <button type="button" class="goods-summary-card goods-summary-card--action" @click="handleNavigateSection('sku')">
               <span class="goods-summary-card__label">商品规格</span>
-              <strong class="goods-summary-card__value">{{ skuCount }} 条</strong>
+              <strong class="goods-summary-card__value">{{ skuCount }}</strong>
             </button>
           </div>
         </div>
       </div>
     </el-card>
 
-    <el-tabs v-model="activeTabName" class="goods-detail-tabs">
-      <el-tab-pane label="商品信息" name="basic">
-        <div class="card detail-tab-card">
-          <el-descriptions :column="2" border class="goods-descriptions">
-            <el-descriptions-item label="分类">{{ formData.categoryName || "-" }}</el-descriptions-item>
-            <el-descriptions-item label="标题">{{ formData.name || "-" }}</el-descriptions-item>
-            <el-descriptions-item label="描述" :span="2">{{ formData.desc || "-" }}</el-descriptions-item>
-          </el-descriptions>
-
-          <div class="detail-media-grid">
-            <div class="detail-media-section">
-              <div class="detail-media-section__label">轮播图</div>
-              <div class="detail-media-list">
-                <el-image
-                  v-for="(img, index) in bannerImageList"
-                  :key="`banner-${index}`"
-                  class="detail-media-item"
-                  :src="img"
-                  :preview-src-list="bannerImageList"
-                  :initial-index="index"
-                  fit="cover"
-                  preview-teleported
-                >
-                  <template #error>
-                    <div class="detail-media-item__placeholder">图片加载失败</div>
-                  </template>
-                </el-image>
-                <div v-if="!bannerImageList.length" class="detail-media-empty">暂无轮播图</div>
-              </div>
-            </div>
-
-            <div class="detail-media-section">
-              <div class="detail-media-section__label">详情</div>
-              <div class="detail-media-list">
-                <el-image
-                  v-for="(img, index) in detailImageList"
-                  :key="`detail-${index}`"
-                  class="detail-media-item"
-                  :src="img"
-                  :preview-src-list="detailImageList"
-                  :initial-index="index"
-                  fit="cover"
-                  preview-teleported
-                >
-                  <template #error>
-                    <div class="detail-media-item__placeholder">图片加载失败</div>
-                  </template>
-                </el-image>
-                <div v-if="!detailImageList.length" class="detail-media-empty">暂无详情</div>
-              </div>
+    <el-card class="goods-detail-panel" shadow="never">
+      <el-tabs v-model="activeTabName" class="goods-detail-tabs">
+        <el-tab-pane label="商品信息" name="basic">
+          <div class="detail-tab-panel detail-tab-panel--basic">
+            <div class="detail-info-panel">
+              <el-descriptions :column="2" border class="goods-descriptions">
+                <el-descriptions-item label="分类">{{ formData.categoryName || "-" }}</el-descriptions-item>
+                <el-descriptions-item label="上架状态">
+                  <DictLabel :model-value="formData.status" code="goods_status" size="default" />
+                </el-descriptions-item>
+                <el-descriptions-item label="标题" :span="2">{{ formData.name || "-" }}</el-descriptions-item>
+                <el-descriptions-item label="描述" :span="2">{{ formData.desc || "-" }}</el-descriptions-item>
+                <el-descriptions-item label="轮播图" :span="2">
+                  <div class="detail-media-list">
+                    <el-image
+                      v-for="(img, index) in bannerImageList"
+                      :key="`banner-${index}`"
+                      class="detail-media-item"
+                      :src="img"
+                      :preview-src-list="bannerImageList"
+                      :initial-index="index"
+                      fit="cover"
+                      preview-teleported
+                    >
+                      <template #error>
+                        <div class="detail-media-item__placeholder">图片加载失败</div>
+                      </template>
+                    </el-image>
+                    <div v-if="!bannerImageList.length" class="detail-media-empty">暂无轮播图</div>
+                  </div>
+                </el-descriptions-item>
+                <el-descriptions-item label="详情" :span="2">
+                  <div class="detail-media-list">
+                    <el-image
+                      v-for="(img, index) in detailImageList"
+                      :key="`detail-${index}`"
+                      class="detail-media-item"
+                      :src="img"
+                      :preview-src-list="detailImageList"
+                      :initial-index="index"
+                      fit="cover"
+                      preview-teleported
+                    >
+                      <template #error>
+                        <div class="detail-media-item__placeholder">图片加载失败</div>
+                      </template>
+                    </el-image>
+                    <div v-if="!detailImageList.length" class="detail-media-empty">暂无详情</div>
+                  </div>
+                </el-descriptions-item>
+              </el-descriptions>
             </div>
           </div>
-        </div>
-      </el-tab-pane>
+        </el-tab-pane>
 
-      <el-tab-pane label="商品属性" name="prop">
-        <div ref="propSectionRef" class="detail-tab-content detail-tab-content--table">
-          <ProTable row-key="label" :data="formData.propList" :columns="propColumns" :pagination="false" :tool-button="false" />
-        </div>
-      </el-tab-pane>
+        <el-tab-pane label="商品属性" name="prop">
+          <ProTable
+            ref="propSectionRef"
+            class="detail-table-content"
+            row-key="label"
+            :data="formData.propList"
+            :columns="propColumns"
+            :pagination="false"
+            :tool-button="false"
+          />
+        </el-tab-pane>
 
-      <el-tab-pane label="规格项" name="spec">
-        <div ref="specSectionRef" class="detail-tab-content detail-tab-content--table">
-          <ProTable row-key="name" :data="formData.specList" :columns="specColumns" :pagination="false" :tool-button="false" />
-        </div>
-      </el-tab-pane>
+        <el-tab-pane label="规格项" name="spec">
+          <ProTable
+            ref="specSectionRef"
+            class="detail-table-content"
+            row-key="name"
+            :data="formData.specList"
+            :columns="specColumns"
+            :pagination="false"
+            :tool-button="false"
+          />
+        </el-tab-pane>
 
-      <el-tab-pane label="商品规格" name="sku">
-        <div ref="skuSectionRef" class="detail-tab-content detail-tab-content--table">
-          <ProTable row-key="skuCode" :data="formData.skuList" :columns="skuColumns" :pagination="false" :tool-button="false">
+        <el-tab-pane label="商品规格" name="sku">
+          <ProTable
+            ref="skuSectionRef"
+            class="detail-table-content"
+            row-key="skuCode"
+            :data="formData.skuList"
+            :columns="skuColumns"
+            :pagination="false"
+            :tool-button="false"
+          >
             <template #picture="scope">
               <div class="sku-image-cell">
                 <el-image
@@ -155,9 +166,9 @@
               </div>
             </template>
           </ProTable>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+        </el-tab-pane>
+      </el-tabs>
+    </el-card>
   </div>
 </template>
 
@@ -165,6 +176,7 @@
 import { computed, nextTick, onActivated, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
+import DictLabel from "@/components/Dict/DictLabel.vue";
 import ProTable from "@/components/ProTable/index.vue";
 import GoodsH5PreviewDrawer from "../components/H5PreviewDrawer.vue";
 import { type GoodsInfoForm } from "@/rpc/admin/goods_info";
@@ -373,9 +385,6 @@ function buildPriceRangeText(priceList: number[]) {
 /** 汇总规格现价区间，便于在头部快速查看售价跨度。 */
 const salePriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.price ?? 0))));
 
-/** 汇总规格折扣价区间，便于在头部同步查看优惠后的价格跨度。 */
-const discountPriceRangeText = computed(() => buildPriceRangeText(formData.skuList.map(item => Number(item.discountPrice ?? 0))));
-
 /** 页面分区和标签页映射，统一控制概览区跳转行为。 */
 const detailSectionMap: Record<GoodsDetailSectionKey, { tab: GoodsDetailTabName; targetRef: typeof skuSectionRef }> = {
   sku: { tab: "sku", targetRef: skuSectionRef },
@@ -528,21 +537,26 @@ onActivated(() => {
   padding: 16px;
 }
 
-:deep(.goods-detail-tabs .el-tab-pane) {
-  padding: 16px 0 0;
-}
-
 .goods-hero {
+  --goods-summary-panel-gap: 12px;
+  --goods-summary-card-gap: 16px;
+  --goods-summary-card-height: 66px;
+  --goods-summary-toolbar-height: 32px;
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-columns: 200px minmax(0, 1fr);
   gap: 16px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .goods-cover-panel {
   display: flex;
+  box-sizing: border-box;
+  height: calc(
+    var(--goods-summary-toolbar-height) + var(--goods-summary-panel-gap) + var(--goods-summary-card-height) * 2 +
+      var(--goods-summary-card-gap)
+  );
   min-width: 0;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: calc(var(--admin-page-radius) + 2px);
   background: var(--admin-page-card-bg-soft);
@@ -551,7 +565,6 @@ onActivated(() => {
 .goods-cover-image {
   width: 100%;
   height: 100%;
-  min-height: 184px;
   overflow: hidden;
   border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-muted);
@@ -559,76 +572,63 @@ onActivated(() => {
 
 .goods-summary-panel {
   display: flex;
-  min-height: 0;
+  flex: 1;
   min-width: 0;
+  flex-direction: column;
+  gap: var(--goods-summary-panel-gap);
+  align-self: start;
+}
+
+.goods-summary-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.goods-summary-toolbar__preview {
+  flex: 0 0 auto;
+}
+
+.goods-summary-toolbar__preview :deep(.el-button) {
+  min-width: 96px;
 }
 
 .goods-summary-grid {
   display: grid;
-  flex: 1;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  min-height: 204px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: var(--goods-summary-card-height);
+  gap: var(--goods-summary-card-gap);
 }
 
 .goods-summary-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-height: 96px;
-  gap: 8px;
-  padding: 14px;
+  justify-content: center;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: 1px;
+  padding: 8px 12px;
+  overflow: hidden;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: calc(var(--admin-page-radius) + 2px);
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 
 .goods-summary-card__label {
-  font-size: 13px;
-  line-height: 1.4;
-  color: var(--admin-page-text-secondary);
-}
-
-.goods-summary-card__value {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--admin-page-text-primary);
-}
-
-.goods-summary-card--price {
-  grid-column: span 2;
-}
-
-.goods-summary-card__price-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.goods-summary-card__price-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.goods-summary-card__price-label {
   font-size: 12px;
   line-height: 1.4;
   color: var(--admin-page-text-secondary);
 }
 
-.goods-summary-card__price-value {
-  font-size: 14px;
+.goods-summary-card__value {
+  font-size: 18px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.25;
   color: var(--admin-page-text-primary);
 }
 
 .goods-summary-card--action {
-  width: 100%;
+  width: auto;
   appearance: none;
   font: inherit;
   text-align: left;
@@ -640,27 +640,20 @@ onActivated(() => {
   border-color: var(--admin-page-card-border-muted);
 }
 
-.goods-action-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px;
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: calc(var(--admin-page-radius) + 2px);
-  background: var(--admin-page-card-bg-soft);
+.goods-detail-panel {
+  border: 1px solid var(--admin-page-card-border);
+  border-radius: var(--admin-page-radius);
+  background: var(--admin-page-card-bg);
+  box-shadow: var(--admin-page-shadow);
 }
 
-.goods-action-card :deep(.goods-h5-preview) {
-  width: 100%;
-}
-
-.goods-action-card :deep(.el-button) {
-  width: 100%;
-  justify-content: center;
+:deep(.goods-detail-panel .el-card__body) {
+  padding: 0;
 }
 
 .goods-detail-tabs :deep(.el-tabs__header) {
-  margin-bottom: 14px;
+  margin: 0;
+  padding: 0 16px;
 }
 
 .goods-detail-tabs :deep(.el-tabs__nav-wrap::after) {
@@ -675,29 +668,30 @@ onActivated(() => {
   font-weight: 600;
 }
 
-.detail-tab-content {
+.goods-detail-tabs :deep(.el-tabs__content) {
   padding: 0;
 }
 
-.detail-tab-card {
-  overflow: hidden;
-}
-
-.detail-media-grid {
+.detail-tab-panel {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 16px;
 }
 
-.detail-media-section {
+.detail-tab-panel--basic {
+  padding: 16px;
+}
+
+.detail-info-panel {
+  display: block;
+}
+
+.detail-section-header {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.detail-media-section__label {
-  font-size: 13px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--admin-page-text-primary);
 }
@@ -747,12 +741,12 @@ onActivated(() => {
   color: var(--admin-page-text-placeholder);
 }
 
-.detail-tab-content--table {
-  overflow: hidden;
+.detail-table-content {
+  display: block;
 }
 
 .goods-descriptions :deep(.el-descriptions__label) {
-  width: 96px;
+  width: 110px;
   font-weight: 600;
 }
 
@@ -804,12 +798,7 @@ onActivated(() => {
 
 @media (width <= 1200px) {
   .goods-hero {
-    grid-template-columns: 200px minmax(0, 1fr);
-  }
-
-  .goods-summary-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    min-height: auto;
+    grid-template-columns: 180px minmax(0, 1fr);
   }
 }
 
@@ -818,12 +807,20 @@ onActivated(() => {
     grid-template-columns: 1fr;
   }
 
-  .goods-cover-image {
-    min-height: 260px;
+  .goods-cover-panel {
+    height: auto;
   }
 
-  .goods-summary-grid {
-    min-height: auto;
+  .goods-cover-image {
+    height: 220px;
+  }
+
+  .goods-summary-toolbar {
+    width: 100%;
+  }
+
+  .goods-summary-toolbar__preview :deep(.el-button) {
+    width: 100%;
   }
 }
 
@@ -836,10 +833,6 @@ onActivated(() => {
 @media (width <= 520px) {
   .goods-summary-grid {
     grid-template-columns: 1fr;
-  }
-
-  .goods-summary-card--price {
-    grid-column: span 1;
   }
 }
 </style>

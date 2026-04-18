@@ -8,13 +8,6 @@
     </el-tooltip>
 
     <el-drawer v-model="drawerVisible" title="H5预览" size="440px" append-to-body destroy-on-close>
-      <div class="goods-h5-preview__toolbar">
-        <el-input :model-value="previewUrl" readonly />
-        <div class="goods-h5-preview__actions">
-          <el-button type="primary" @click="handleOpenInNewWindow">新窗口打开</el-button>
-        </div>
-      </div>
-
       <div class="goods-h5-preview__phone-shell">
         <div class="goods-h5-preview__phone-head">
           <span class="goods-h5-preview__camera"></span>
@@ -22,8 +15,6 @@
         <iframe v-if="previewUrl" class="goods-h5-preview__frame" :src="previewUrl" title="商品H5预览" loading="lazy" />
         <el-empty v-else description="暂无可预览商品" :image-size="80" />
       </div>
-
-      <p class="goods-h5-preview__tip">当前预览展示的是已保存到商城端的商品详情效果。</p>
     </el-drawer>
   </div>
 </template>
@@ -38,11 +29,14 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 预览按钮类型，统一收敛为 Element Plus 支持的按钮枚举值。 */
+type PreviewButtonType = "" | "default" | "primary" | "success" | "warning" | "info" | "danger" | "text";
+
 const props = withDefaults(
   defineProps<{
     goodsId?: string | number;
     buttonText?: string;
-    buttonType?: string;
+    buttonType?: PreviewButtonType;
     plain?: boolean;
     size?: "large" | "default" | "small";
     circle?: boolean;
@@ -74,30 +68,9 @@ function handleOpenPreview() {
   }
   drawerVisible.value = true;
 }
-
-/** 在新窗口打开商城 H5 页面，便于对照真实环境查看。 */
-function handleOpenInNewWindow() {
-  if (!previewUrl.value) {
-    ElMessage.warning("请先保存商品后再预览 H5");
-    return;
-  }
-  window.open(previewUrl.value, "_blank", "noopener,noreferrer");
-}
 </script>
 
 <style scoped lang="scss">
-.goods-h5-preview__toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.goods-h5-preview__actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .goods-h5-preview__phone-shell {
   position: relative;
   padding: 18px 14px 14px;
@@ -128,13 +101,6 @@ function handleOpenInNewWindow() {
   background: #fff;
   border: none;
   border-radius: 18px;
-}
-
-.goods-h5-preview__tip {
-  margin: 12px 0 0;
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--admin-page-text-secondary);
 }
 
 @media (width <= 768px) {

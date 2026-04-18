@@ -3,12 +3,7 @@
   <div v-loading="loading" class="app-container">
     <el-card v-if="formData.order" class="detail-hero-card" shadow="never">
       <div class="detail-hero">
-        <div class="detail-overview">
-          <div>
-            <div class="detail-overview__label">订单详情</div>
-            <p class="detail-overview__desc">订单编号：{{ formData.order.orderNo }}</p>
-          </div>
-        </div>
+        <!-- 顶部摘要仅保留核心指标，避免与下方基础信息区重复展示订单标题和编号。 -->
         <div class="detail-metrics">
           <div class="detail-metric-card">
             <span class="detail-metric-card__label">支付金额</span>
@@ -162,6 +157,7 @@ import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { type OrderInfoResponse } from "@/rpc/admin/order_info";
 import { defOrderInfoService } from "@/api/admin/order_info";
+import { useTabsStore } from "@/stores/modules/tabs";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -170,6 +166,7 @@ defineOptions({
 });
 
 const route = useRoute();
+const tabsStore = useTabsStore();
 const loading = ref(false);
 
 const orderId = ref(0);
@@ -212,6 +209,9 @@ function syncOrderIdFromRoute() {
   orderId.value = Number(route.params.orderId ?? 0);
   return orderId.value;
 }
+
+/** 订单详情工作区标题固定为“订单详情”，避免依赖查询参数回填标题。 */
+const workspaceTitle = "订单详情";
 
 /** 收货地址存在有效内容时才展示地址模块。 */
 const hasAddressSection = computed(() => {
@@ -283,6 +283,7 @@ watch(
   () => route.params.orderId,
   () => {
     const currentOrderId = syncOrderIdFromRoute();
+    syncWorkspaceTitle();
     if (!currentOrderId) {
       resetOrderDetailForm();
       return;
@@ -291,6 +292,12 @@ watch(
   },
   { immediate: true }
 );
+
+/** 同步当前页签和浏览器标题，确保列表点击进入详情时无需刷新即可生效。 */
+function syncWorkspaceTitle() {
+  tabsStore.setTabsTitle(workspaceTitle);
+  document.title = `${workspaceTitle} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
+}
 
 // 查询
 function handleQuery(targetOrderId: number = orderId.value) {
@@ -330,6 +337,7 @@ async function handleCopyOrderNo(orderNo: string) {
 }
 
 onActivated(() => {
+  syncWorkspaceTitle();
   const currentOrderId = syncOrderIdFromRoute();
   if (!currentOrderId || loading.value) return;
   handleQuery(currentOrderId);
@@ -356,22 +364,6 @@ onActivated(() => {
 
 .detail-hero {
   display: block;
-}
-
-.detail-overview {
-  margin-bottom: 14px;
-}
-
-.detail-overview__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--admin-page-text-secondary);
-}
-
-.detail-overview__desc {
-  margin: 6px 0 0;
-  font-size: 14px;
-  color: var(--admin-page-text-primary);
 }
 
 .detail-metrics {

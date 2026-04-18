@@ -4,7 +4,6 @@
     <el-card class="goods-edit-head-card" shadow="never">
       <div class="goods-edit-head">
         <div class="goods-edit-head__intro">
-          <span class="goods-edit-head__eyebrow">商品信息汇总</span>
           <h1 class="goods-edit-head__title">{{ pageTitle }}</h1>
           <p class="goods-edit-head__subtitle">{{ pageSubtitle }}</p>
         </div>
@@ -53,6 +52,7 @@ import type { GoodsProp } from "@/rpc/admin/goods_prop";
 import type { GoodsSpec } from "@/rpc/admin/goods_spec";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { GoodsStatus } from "@/rpc/common/enum";
+import { useTabsStore } from "@/stores/modules/tabs";
 
 defineOptions({
   name: "GoodsEdit",
@@ -60,6 +60,7 @@ defineOptions({
 });
 
 const route = useRoute();
+const tabsStore = useTabsStore();
 const loading = ref(false);
 const goodsId = ref(route.query.goodsId as unknown as number);
 
@@ -104,8 +105,11 @@ const { loaded, active, formData } = toRefs(state);
 
 const stepList = ["商品信息", "商品属性", "规格项", "商品规格"];
 
-/** 顶部标题，兼容新增与编辑场景。 */
-const pageTitle = computed(() => (goodsId.value ? "编辑商品" : "新增商品"));
+/** 顶部标题，编辑态固定展示“商品编辑”，避免商品名过长影响阅读。 */
+const pageTitle = computed(() => (goodsId.value ? "商品编辑" : "新增商品"));
+
+/** 当前工作区标题与页面主标题保持一致，避免页签和浏览器标题带上商品名。 */
+const workspaceTitle = computed(() => pageTitle.value);
 
 /** 顶部副标题，补充当前商品维护流程说明。 */
 const pageSubtitle = computed(() =>
@@ -169,6 +173,15 @@ watch(
   }
 );
 
+// 监听页面标题来源变化，确保新增与编辑切换时页签标题及时同步。
+watch(
+  workspaceTitle,
+  () => {
+    syncWorkspaceTitle();
+  },
+  { immediate: true }
+);
+
 /** 返回上一步，并在首步时保持不动。 */
 function prev() {
   state.active = Math.max(0, state.active - 1);
@@ -184,6 +197,15 @@ function resetForm() {
   state.loaded = false;
   state.active = 0;
   Object.assign(state.formData, createDefaultFormData());
+}
+
+/** 同步当前页签和浏览器标题，避免编辑态仍显示默认“新增商品”。 */
+function syncWorkspaceTitle() {
+  const currentTitle = workspaceTitle.value;
+  tabsStore.setTabsTitle(currentTitle);
+  document.title = currentTitle
+    ? `${currentTitle} - ${import.meta.env.VITE_GLOB_APP_TITLE}`
+    : import.meta.env.VITE_GLOB_APP_TITLE;
 }
 
 /** 查询商品详情，并兼容编辑态 SKU 的金额与规格字段格式。 */
@@ -274,14 +296,8 @@ onMounted(() => {
   min-width: 0;
 }
 
-.goods-edit-head__eyebrow {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--admin-page-text-secondary);
-}
-
 .goods-edit-head__title {
-  margin: 6px 0 0;
+  margin: 0;
   font-size: 22px;
   font-weight: 700;
   color: var(--admin-page-text-primary);

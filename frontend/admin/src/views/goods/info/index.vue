@@ -304,7 +304,8 @@ watch(
  */
 function handleOpenDialog(row?: GoodsInfo) {
   if (row?.id) {
-    navigateTo(router, "/goods/edit", { goodsId: row.id, title: `【${row.name}】商品编辑` });
+    // 编辑页标题固定为“商品编辑”，跳转时不再额外携带商品名称。
+    navigateTo(router, "/goods/edit", { goodsId: row.id });
     return;
   }
 

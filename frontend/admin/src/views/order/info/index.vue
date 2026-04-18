@@ -975,7 +975,8 @@ function formatUser(userId: number) {
  * 打开订单详情页。
  */
 function handleOpenDetail(row: OrderInfo) {
-  navigateTo(router, `/order/detail/${row.id}`, { title: `【${row.orderNo}】订单详情` });
+  // 订单详情页标题固定为“订单详情”，跳转时不再额外携带标题查询参数。
+  navigateTo(router, `/order/detail/${row.id}`);
 }
 </script>
 
