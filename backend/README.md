@@ -85,10 +85,10 @@ backend
   - 聚合结果：`recommend_user_preference`、`recommend_user_goods_preference`、`recommend_goods_relation`、`recommend_goods_stat_day`
   - 重建与评估：`recommend_actor_bind_log`、`recommend_eval_report`、`recommend_model_version`
 
-推荐系统后续的重构与能力补齐计划见：
+推荐系统当前状态评估与单机低配置落地计划见：
 
-- `backend/recommend-rebuild-plan.md`
-- `backend/recommend-capability-gap.md`
+- `backend/recommend-status-vs-gorse.md`
+- `backend/recommend-single-node-plan.md`
 
 ## 推荐任务
 

@@ -46,6 +46,7 @@ import type { ProFormField } from "@/components/ProForm/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
+import { useDictStore } from "@/stores/modules/dict";
 import { defRecommendModelVersionService } from "@/api/admin/recommend_model_version";
 import {
   RecommendModelVersionPublishAction,
@@ -62,9 +63,19 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const dictStore = useDictStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const currentRow = ref<RecommendModelVersion>();
+const recommendSceneDictCode = "recommend_scene";
+const recommendSceneFallbackMap: Record<number, string> = {
+  [RecommendScene.HOME]: "首页",
+  [RecommendScene.GOODS_DETAIL]: "商品详情",
+  [RecommendScene.CART]: "购物车",
+  [RecommendScene.PROFILE]: "个人中心",
+  [RecommendScene.ORDER_DETAIL]: "订单详情",
+  [RecommendScene.ORDER_PAID]: "支付成功"
+};
 
 const dialog = reactive({
   visible: false,
@@ -88,18 +99,22 @@ const dialogFormData = reactive<UpdateRecommendModelVersionPublishRequest>({
   publishedReason: ""
 });
 
+/**
+ * 预加载推荐场景字典，确保筛选项和弹窗文案优先复用字典配置。
+ */
+async function initRecommendSceneDictionary() {
+  try {
+    await dictStore.loadDictionaries();
+  } catch (_error) {
+    // 字典加载失败时保留页面兜底文案，避免影响推荐版本管理主流程。
+  }
+}
+
+void initRecommendSceneDictionary();
+
 const statusOptions = [
   { label: "启用", value: Status.ENABLE },
   { label: "禁用", value: Status.DISABLE }
-];
-
-const sceneOptions = [
-  { label: "首页", value: RecommendScene.HOME },
-  { label: "商品详情", value: RecommendScene.GOODS_DETAIL },
-  { label: "购物车", value: RecommendScene.CART },
-  { label: "个人中心", value: RecommendScene.PROFILE },
-  { label: "订单详情", value: RecommendScene.ORDER_DETAIL },
-  { label: "支付成功", value: RecommendScene.ORDER_PAID }
 ];
 
 /** 当前弹窗字段配置。 */
@@ -188,14 +203,6 @@ const dialogRules = computed<FormRules>(() => ({
         ]
       : []
 }));
-
-/**
- * 渲染推荐场景标签。
- */
-function renderSceneCell(scope: RenderScope) {
-  const row = scope.row as RecommendModelVersion;
-  return renderTag(renderSceneText(row.scene), "primary");
-}
 
 /**
  * 渲染推荐版本状态标签。
@@ -342,7 +349,14 @@ function renderOperationCell(scope: RenderScope) {
 
 /** 推荐版本表格列配置。 */
 const columns: ColumnProps[] = [
-  { prop: "scene", label: "场景", minWidth: 120, search: { el: "select" }, enum: sceneOptions, render: renderSceneCell },
+  {
+    prop: "scene",
+    label: "场景",
+    minWidth: 120,
+    search: { el: "select" },
+    dictCode: recommendSceneDictCode,
+    dictValueType: "number"
+  },
   { prop: "modelName", label: "模型名称", minWidth: 160, search: { el: "input" } },
   { prop: "modelType", label: "模型类型", minWidth: 120, search: { el: "input" } },
   { prop: "version", label: "版本号", minWidth: 120, search: { el: "input" } },
@@ -483,25 +497,15 @@ function handleClearRollback(row: RecommendModelVersion) {
 }
 
 /**
- * 将推荐场景枚举转换为页面展示文案。
+ * 优先根据数据字典渲染推荐场景文案，缺失时退回页面兜底值。
  */
 function renderSceneText(scene?: RecommendScene) {
-  switch (scene) {
-    case RecommendScene.HOME:
-      return "首页";
-    case RecommendScene.GOODS_DETAIL:
-      return "商品详情";
-    case RecommendScene.CART:
-      return "购物车";
-    case RecommendScene.PROFILE:
-      return "个人中心";
-    case RecommendScene.ORDER_DETAIL:
-      return "订单详情";
-    case RecommendScene.ORDER_PAID:
-      return "支付成功";
-    default:
-      return "--";
-  }
+  if (scene === undefined || scene === RecommendScene.RECOMMEND_SCENE_UNKNOWN) return "--";
+
+  const matchedItem = dictStore.getDictionary(recommendSceneDictCode).find(dictItem => Number(dictItem.value) === Number(scene));
+  if (matchedItem?.label) return matchedItem.label;
+
+  return recommendSceneFallbackMap[Number(scene)] ?? "--";
 }
 
 /**

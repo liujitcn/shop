@@ -307,6 +307,6 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
  * 打开热门推荐选项页面。
  */
 function handleOpenShopHotItem(row: ShopHot) {
-  navigateTo(router, "/shop/hot-item", { hotId: row.id, title: `【${row.title}】热门推荐选项` });
+  navigateTo(router, "/recommend/hot-item", { hotId: row.id, title: `【${row.title}】热门推荐选项` });
 }
 </script>
