@@ -304,11 +304,12 @@ type StrategyVersionConfig struct {
 
 // SceneStrategyContext 表示某个场景当前生效的在线策略上下文。
 type SceneStrategyContext struct {
-	Scene              int32                  // 当前推荐场景。
-	Version            string                 // 当前场景启用版本。
-	EffectiveVersion   string                 // 当前场景实际读取的缓存版本。
-	VersionPublishedAt time.Time              // 当前版本发布时间。
-	Config             *StrategyVersionConfig // 当前版本扩展策略配置。
+	Scene              int32                     // 当前推荐场景。
+	Version            string                    // 当前场景启用版本。
+	EffectiveVersion   string                    // 当前场景实际读取的缓存版本。
+	VersionPublishedAt time.Time                 // 当前版本发布时间。
+	Config             *StrategyVersionConfig    // 当前版本扩展策略配置。
+	PublishResolution  *PublishVersionResolution // 当前请求命中的发布版本决策结果。
 }
 
 // BuildPublishContext 构建当前场景版本的发布调试上下文。
@@ -330,12 +331,29 @@ func (c *SceneStrategyContext) BuildPublishContext() map[string]any {
 	if c.Config == nil || c.Config.Publish == nil {
 		return publishContext
 	}
-	publishContext["grayRatio"] = c.Config.Publish.GrayRatio
 	if strings.TrimSpace(c.Config.Publish.CacheVersion) != "" {
 		publishContext["cacheVersion"] = strings.TrimSpace(c.Config.Publish.CacheVersion)
 	}
 	if strings.TrimSpace(c.Config.Publish.RollbackVersion) != "" {
 		publishContext["rollbackVersion"] = strings.TrimSpace(c.Config.Publish.RollbackVersion)
+	}
+	if c.PublishResolution != nil {
+		if c.PublishResolution.BaselineVersion != "" {
+			publishContext["baselineVersion"] = c.PublishResolution.BaselineVersion
+		}
+		if c.PublishResolution.GrayVersion != "" {
+			publishContext["grayVersion"] = c.PublishResolution.GrayVersion
+		}
+		publishContext["grayRatio"] = c.PublishResolution.GrayRatio
+		if c.PublishResolution.GrayEnabled {
+			publishContext["grayEnabled"] = true
+			publishContext["grayHit"] = c.PublishResolution.GrayHit
+			if c.PublishResolution.GrayBucketResolved {
+				publishContext["grayBucket"] = c.PublishResolution.GrayBucket
+			}
+		}
+	} else {
+		publishContext["grayRatio"] = c.Config.Publish.GrayRatio
 	}
 	if strings.TrimSpace(c.Config.Publish.PublishedBy) != "" {
 		publishContext["publishedBy"] = strings.TrimSpace(c.Config.Publish.PublishedBy)

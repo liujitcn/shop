@@ -26,8 +26,8 @@ func TestNewAnonymousRequestPlan(t *testing.T) {
 
 	plan := NewAnonymousRequestPlan(request, probeContext)
 
-	// 二页十条请求应继续放大候选池，保证更多商品可以参与后续分页。
-	if plan.CandidateLimit != 160 {
+	// 二页十条请求仍应复用最大候选池，避免前后页因为扩池发生内容回流。
+	if plan.CandidateLimit != recommendCandidate.PoolMax {
 		t.Fatalf("unexpected candidate limit: %d", plan.CandidateLimit)
 	}
 	// 内容相似灰度召回应当在计划对象里完成去重。

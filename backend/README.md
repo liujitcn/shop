@@ -66,8 +66,10 @@ backend
 - 当前阶段 7 又补齐了 `llm_rerank` 的在线补算闭环：当版本缓存未命中且配置了 `RECOMMEND_OPENAI_API_KEY` 时，推荐链路会按 `request_hash` 对 TopN 候选执行实时 LLM 二次重排；提示词通过 `prompt_template` 渲染，`candidate_filter_expr`、`score_expr`、`score_script` 分别负责候选过滤、分数表达式和 JS 后处理，并支持按 `cache_ttl_seconds` 回写短 TTL 缓存。
 - 当前阶段 7 又补上了离线快照发布任务：`RecommendRankerMaterialize` 与 `RecommendLlmRerankMaterialize` 当前支持把外部预计算 JSON 快照直接发布到 `ranker`、`llm_rerank` 版本缓存，并可按参数决定是否清理当前版本旧子集合。
 - 当前阶段 8 已开始解析 `recommend_model_version.config_json.publish` 与 `tune`，当前支持 `cache_version`、`rollback_version`、`gray_ratio`、`published_by`、`published_reason`、`published_at`、`target_metric`、`trial_count`，以及最近一次真实训练摘要 `tune.latest`、最近一次评估日报摘要 `tune.latest_eval` 等字段，并会把 `rankingStageContext`、`publishContext`、`tuneContext` 收口到 `onlineDebugContext`。
+- 当前阶段 8 下，`gray_ratio` 已不再只是展示字段；在线请求会基于 `userId` 或匿名 `actorId` 做稳定分桶，在 `publishContext` 中记录基线版本、灰度版本、命中结果和分桶编号。
 - 当前阶段 8 下，在线缓存读取已经会受版本发布配置驱动；若启用版本显式配置 `rollback_version` 或 `cache_version`，读取侧会切到对应有效版本。
 - 当前阶段 8 下，排序模型和 LLM 重排缓存已经具备“按发布版本写入、按有效版本读取”的最小闭环；协同过滤当前已补齐 BPR 真实训练与自动调参，模型精排当前已补齐 AFM 真实训练与自动调参，离线样本装配统一收口在 `data` 层。
+- 当前阶段 8 下，又补齐了 `recommend` 最终推荐结果缓存的最小闭环：新增 `RecommendResultMaterialize` 任务，当前按 `HOME + 登录态 + 活跃用户 + actor 实际生效版本` 预生成 TopN 最终推荐列表；在线首页登录态会优先读取最终推荐缓存，缓存 miss、商品失效或深分页超出缓存覆盖范围时再自动回退到原在线动态链路。
 - 当前阶段 8 下，真实训练任务还会把 `model.json`、`publish_snapshot.json` 与 `manifest.json` 统一落到 `backend/data/recommend/train/...`，便于回溯某次训练的参数、指标和发布快照。
 - 当前阶段 8 下，`RecommendCollaborativeFilteringMaterialize` 与 `RecommendRankerMaterialize` 训练成功后还会把最近一次训练的模型类型、后端、指标、产物目录和训练时间回写到 `recommend_model_version.config_json.tune.latest`，方便线上 `tuneContext` 直接看到真实训练台账。
 - 当前阶段 8 下，`RecommendEvalReport` 日报任务生成完成后还会把最近一次场景级评估指标回写到 `recommend_model_version.config_json.tune.latest_eval`，方便线上 `tuneContext` 直接看到最近评估结果。
@@ -104,6 +106,7 @@ backend
 - `RecommendCollaborativeFilteringMaterialize`：协同过滤写缓存，支持 BPR 真实训练与自动调参，按启用版本发布 `collaborative-filtering` 缓存
 - `RecommendContentBasedMaterialize`：内容相似写缓存，按启用版本发布 `content-based` 缓存
 - `RecommendRankerMaterialize`：模型精排分数写缓存，支持 AFM 真实训练与自动调参，也支持从外部预计算快照发布 `ranker` 版本缓存
+- `RecommendResultMaterialize`：首页登录态最终推荐结果写缓存，按活跃登录用户、`HOME` 场景和 actor 实际生效版本发布 `recommend` 缓存
 - `RecommendLlmRerankMaterialize`：LLM 二次重排分数写缓存，从外部预计算快照发布 `llm_rerank` 版本缓存
 - `RecommendEvalReport`：推荐离线评估报告，按天生成场景级 CTR、CVR、Precision、Recall、NDCG 指标
 - `RecommendVersionPublish`：推荐版本发布与回滚，支持切换启用版本并更新 `recommend_model_version.config_json.publish`
@@ -111,7 +114,7 @@ backend
 初始化 SQL 当前还会默认注入：
 
 - 6 条推荐版本种子记录，覆盖首页、商品详情、购物车、个人中心、订单详情、支付成功 6 个场景
-- `RecommendHotMaterialize`、`RecommendLatestMaterialize`、`RecommendSimilarItemMaterialize`、`RecommendSimilarUserMaterialize`、`RecommendCollaborativeFilteringMaterialize`、`RecommendContentBasedMaterialize`、`RecommendRankerMaterialize`、`RecommendEvalReport`、`RecommendVersionPublish` 等默认任务
+- `RecommendHotMaterialize`、`RecommendLatestMaterialize`、`RecommendSimilarItemMaterialize`、`RecommendSimilarUserMaterialize`、`RecommendCollaborativeFilteringMaterialize`、`RecommendContentBasedMaterialize`、`RecommendRankerMaterialize`、`RecommendResultMaterialize`、`RecommendEvalReport`、`RecommendVersionPublish` 等默认任务
 - 一个默认禁用的 `RecommendLlmRerankMaterialize` 任务，占位后续外部快照发布场景
 
 训练任务写出的模型与发布快照目录：

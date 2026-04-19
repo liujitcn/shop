@@ -61,6 +61,16 @@ func RankerSubset(scene int32, actorType int32, actorId int64, version string) s
 	)
 }
 
+// RecommendSubset 返回最终推荐结果子集合键。
+func RecommendSubset(scene int32, actorType int32, actorId int64, version string) string {
+	return Key(
+		"scene", strconv.Itoa(int(scene)),
+		"actor_type", strconv.Itoa(int(actorType)),
+		"actor_id", strconv.FormatInt(actorId, 10),
+		"version", NormalizeVersion(version),
+	)
+}
+
 // LlmRerankSubset 返回 LLM 二次重排结果子集合键。
 func LlmRerankSubset(scene int32, actorType int32, actorId int64, requestHash string, version string) string {
 	return Key(

@@ -122,6 +122,15 @@ func (m *Materializer) MaterializeRanker(ctx context.Context, scene int32, actor
 	return m.publishScores(ctx, recommendCache.Ranker, recommendCache.RankerSubset(scene, actorType, actorId, version), documents)
 }
 
+// MaterializeRecommend 发布最终推荐结果缓存。
+func (m *Materializer) MaterializeRecommend(ctx context.Context, scene int32, actorType int32, actorId int64, version string, documents []recommendCache.Score) error {
+	// 场景非法时，不继续发布最终推荐缓存。
+	if scene <= 0 {
+		return nil
+	}
+	return m.publishScores(ctx, recommendCache.Recommend, recommendCache.RecommendSubset(scene, actorType, actorId, version), documents)
+}
+
 // MaterializeLlmRerank 发布 LLM 二次重排分数缓存。
 func (m *Materializer) MaterializeLlmRerank(ctx context.Context, scene int32, actorType int32, actorId int64, requestHash string, version string, documents []recommendCache.Score) error {
 	// 场景非法时，不继续发布 LLM 二次重排缓存。

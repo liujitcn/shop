@@ -79,3 +79,33 @@ func TestMaterializeLlmRerank(t *testing.T) {
 		t.Fatalf("unexpected documents: %+v", documents)
 	}
 }
+
+// TestMaterializeRecommend 验证最终推荐结果缓存会写入用户子集合。
+func TestMaterializeRecommend(t *testing.T) {
+	store, cleanup, err := recommendCache.NewStore(nil)
+	if err != nil {
+		t.Fatalf("new store: %v", err)
+	}
+	defer cleanup()
+
+	materializer := NewMaterializer(store)
+	err = materializer.MaterializeRecommend(context.Background(), 1, 1, 28, "v3", []recommendCache.Score{
+		{Id: "5002", Score: 1, Timestamp: time.Time{}},
+		{Id: "5001", Score: 2, Timestamp: time.Time{}},
+	})
+	if err != nil {
+		t.Fatalf("materialize recommend: %v", err)
+	}
+
+	subset := recommendCache.RecommendSubset(1, 1, 28, "v3")
+	documents, err := store.SearchScores(context.Background(), recommendCache.CollectionKey(recommendCache.Recommend), subset, 0, 10)
+	if err != nil {
+		t.Fatalf("search scores: %v", err)
+	}
+	if len(documents) != 2 {
+		t.Fatalf("unexpected documents count: %d", len(documents))
+	}
+	if documents[0].Id != "5001" || documents[1].Id != "5002" {
+		t.Fatalf("unexpected documents order: %+v", documents)
+	}
+}

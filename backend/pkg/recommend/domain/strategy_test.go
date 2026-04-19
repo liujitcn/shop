@@ -23,6 +23,16 @@ func TestSceneStrategyContextBuildPublishContext(t *testing.T) {
 		Scene:            1,
 		Version:          "v2",
 		EffectiveVersion: "v1",
+		PublishResolution: &PublishVersionResolution{
+			BaselineVersion:    "v1",
+			GrayVersion:        "v2",
+			EffectiveVersion:   "v1",
+			GrayRatio:          0.5,
+			GrayEnabled:        true,
+			GrayHit:            false,
+			GrayBucket:         1234,
+			GrayBucketResolved: true,
+		},
 		Config: &StrategyVersionConfig{
 			Publish: &PublishStrategy{
 				CacheVersion:    "v2",
@@ -37,6 +47,51 @@ func TestSceneStrategyContextBuildPublishContext(t *testing.T) {
 
 	if contextMap["publishedAt"] != "2026-04-17T12:30:00Z" {
 		t.Fatalf("unexpected publish context: %+v", contextMap)
+	}
+	if contextMap["grayBucket"] != 1234 || contextMap["grayHit"] != false {
+		t.Fatalf("unexpected gray publish context: %+v", contextMap)
+	}
+}
+
+// TestPublishStrategyResolveVersionResolution 验证灰度版本解析会按主体稳定分桶。
+func TestPublishStrategyResolveVersionResolution(t *testing.T) {
+	strategy := &PublishStrategy{
+		CacheVersion:    "gray-v2",
+		RollbackVersion: "baseline-v1",
+		GrayRatio:       1,
+	}
+
+	firstResolution := strategy.ResolveVersionResolution(3, "online-v2", &Actor{
+		ActorType: 1,
+		ActorId:   18,
+	})
+	secondResolution := strategy.ResolveVersionResolution(3, "online-v2", &Actor{
+		ActorType: 1,
+		ActorId:   18,
+	})
+
+	if !firstResolution.GrayEnabled || !firstResolution.GrayHit {
+		t.Fatalf("unexpected gray resolution: %+v", firstResolution)
+	}
+	if firstResolution.EffectiveVersion != "gray-v2" || firstResolution.BaselineVersion != "baseline-v1" {
+		t.Fatalf("unexpected effective resolution: %+v", firstResolution)
+	}
+	if firstResolution.GrayBucket != secondResolution.GrayBucket {
+		t.Fatalf("unexpected unstable bucket: first=%+v second=%+v", firstResolution, secondResolution)
+	}
+}
+
+// TestPublishStrategyResolveVersionResolutionWithoutActor 验证缺少稳定主体时不会误命中灰度。
+func TestPublishStrategyResolveVersionResolutionWithoutActor(t *testing.T) {
+	strategy := &PublishStrategy{
+		CacheVersion:    "gray-v2",
+		RollbackVersion: "baseline-v1",
+		GrayRatio:       0.5,
+	}
+
+	resolution := strategy.ResolveVersionResolution(2, "online-v2", &Actor{})
+	if resolution.EffectiveVersion != "baseline-v1" || resolution.GrayHit || resolution.GrayBucketResolved {
+		t.Fatalf("unexpected anonymous gray resolution: %+v", resolution)
 	}
 }
 

@@ -8,8 +8,6 @@ import (
 	recommendCore "shop/pkg/recommend/core"
 	recommendDomain "shop/pkg/recommend/domain"
 	recommendRank "shop/pkg/recommend/rank"
-
-	_time "github.com/liujitcn/go-utils/time"
 )
 
 const (
@@ -97,12 +95,9 @@ func ResolveCandidateLimit(pageNum, pageSize int64) int64 {
 	if PoolMax > 0 && limit > PoolMax {
 		limit = PoolMax
 	}
-	// 当前页还落在软上限范围内时，继续按页码放大候选池，提升前几页排序质量。
-	if requiredLimit <= PoolMax {
-		limit = requiredLimit * PoolMultiplier
-		if PoolMax > 0 && limit > PoolMax {
-			limit = PoolMax
-		}
+	// 当前页仍落在软上限范围内时，优先固定使用同一批候选池，避免前后页因为扩池发生商品回流。
+	if PoolMax > 0 && requiredLimit <= PoolMax && limit < PoolMax {
+		limit = PoolMax
 	}
 	// 无论是否命中软上限，都必须保证当前页窗口可以被完整覆盖。
 	if limit < requiredLimit {
@@ -263,26 +258,7 @@ func RankGoods(candidates map[int64]*recommendCore.Candidate) []*app.GoodsInfo {
 		rankedCandidates = append(rankedCandidates, item)
 	}
 	sort.SliceStable(rankedCandidates, func(i, j int) bool {
-		// 最终分相同时，继续按次级指标打破并列顺序。
-		if rankedCandidates[i].FinalScore == rankedCandidates[j].FinalScore {
-			// 最终分相同时优先比较场景热度。
-			if rankedCandidates[i].ScenePopularityScore == rankedCandidates[j].ScenePopularityScore {
-				iUpdatedAt := _time.StringTimeToTime(rankedCandidates[i].Goods.UpdatedAt)
-				jUpdatedAt := _time.StringTimeToTime(rankedCandidates[j].Goods.UpdatedAt)
-				// 左侧时间为空时不抢占前位，避免空时间排到前面。
-				if iUpdatedAt == nil || iUpdatedAt.IsZero() {
-					return false
-				}
-				// 右侧时间为空时左侧优先，保证有更新时间的商品排序更稳定。
-				if jUpdatedAt == nil || jUpdatedAt.IsZero() {
-					return true
-				}
-				// 场景热度也相同时优先返回更新的商品。
-				return iUpdatedAt.After(*jUpdatedAt)
-			}
-			return rankedCandidates[i].ScenePopularityScore > rankedCandidates[j].ScenePopularityScore
-		}
-		return rankedCandidates[i].FinalScore > rankedCandidates[j].FinalScore
+		return recommendCore.ShouldCandidateRankAhead(rankedCandidates[i], rankedCandidates[j])
 	})
 
 	result := make([]*app.GoodsInfo, 0, len(rankedCandidates))

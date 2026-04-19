@@ -6,8 +6,6 @@ import (
 
 	recommendcore "shop/pkg/recommend/core"
 	recommendDomain "shop/pkg/recommend/domain"
-
-	_time "github.com/liujitcn/go-utils/time"
 )
 
 const (
@@ -216,24 +214,7 @@ func sortCandidatesByScore(candidates map[int64]*recommendcore.Candidate) []*rec
 		rankedCandidates = append(rankedCandidates, candidate)
 	}
 	sort.SliceStable(rankedCandidates, func(i, j int) bool {
-		// 最终分相同时，继续按场景热度和更新时间打破并列顺序。
-		if rankedCandidates[i].FinalScore == rankedCandidates[j].FinalScore {
-			if rankedCandidates[i].ScenePopularityScore == rankedCandidates[j].ScenePopularityScore {
-				iUpdatedAt := _time.StringTimeToTime(rankedCandidates[i].Goods.UpdatedAt)
-				jUpdatedAt := _time.StringTimeToTime(rankedCandidates[j].Goods.UpdatedAt)
-				// 左侧时间为空时，不抢占更靠前的位置。
-				if iUpdatedAt == nil || iUpdatedAt.IsZero() {
-					return false
-				}
-				// 右侧时间为空时，优先保留左侧候选。
-				if jUpdatedAt == nil || jUpdatedAt.IsZero() {
-					return true
-				}
-				return iUpdatedAt.After(*jUpdatedAt)
-			}
-			return rankedCandidates[i].ScenePopularityScore > rankedCandidates[j].ScenePopularityScore
-		}
-		return rankedCandidates[i].FinalScore > rankedCandidates[j].FinalScore
+		return recommendcore.ShouldCandidateRankAhead(rankedCandidates[i], rankedCandidates[j])
 	})
 	return rankedCandidates
 }

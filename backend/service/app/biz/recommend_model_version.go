@@ -53,8 +53,8 @@ func (c *RecommendModelVersionCase) loadEnabledSceneVersionEntity(ctx context.Co
 }
 
 // loadSceneCacheVersion 查询当前场景启用的缓存版本信息。
-func (c *RecommendModelVersionCase) loadSceneCacheVersion(ctx context.Context, scene int32) (string, time.Time, error) {
-	sceneStrategyContext, err := c.loadSceneStrategyContext(ctx, scene)
+func (c *RecommendModelVersionCase) loadSceneCacheVersion(ctx context.Context, scene int32, actor *recommendDomain.Actor) (string, time.Time, error) {
+	sceneStrategyContext, err := c.loadSceneStrategyContext(ctx, scene, actor)
 	if err != nil {
 		return "", time.Time{}, err
 	}
@@ -62,7 +62,7 @@ func (c *RecommendModelVersionCase) loadSceneCacheVersion(ctx context.Context, s
 }
 
 // loadSceneStrategyContext 查询当前场景启用的版本策略上下文。
-func (c *RecommendModelVersionCase) loadSceneStrategyContext(ctx context.Context, scene int32) (*recommendDomain.SceneStrategyContext, error) {
+func (c *RecommendModelVersionCase) loadSceneStrategyContext(ctx context.Context, scene int32, actor *recommendDomain.Actor) (*recommendDomain.SceneStrategyContext, error) {
 	entity, err := c.loadEnabledSceneVersionEntity(ctx, scene)
 	if err != nil {
 		return nil, err
@@ -100,8 +100,14 @@ func (c *RecommendModelVersionCase) loadSceneStrategyContext(ctx context.Context
 	}
 
 	effectiveVersion := version
+	var publishResolution *recommendDomain.PublishVersionResolution
 	if config.Publish != nil {
-		effectiveVersion = recommendCache.NormalizeVersion(config.Publish.ResolveEffectiveVersion(version))
+		resolution := config.Publish.ResolveVersionResolution(scene, version, actor)
+		resolution.BaselineVersion = recommendCache.NormalizeVersion(resolution.BaselineVersion)
+		resolution.GrayVersion = recommendCache.NormalizeVersion(resolution.GrayVersion)
+		resolution.EffectiveVersion = recommendCache.NormalizeVersion(resolution.EffectiveVersion)
+		effectiveVersion = resolution.EffectiveVersion
+		publishResolution = &resolution
 	}
 	return &recommendDomain.SceneStrategyContext{
 		Scene:              scene,
@@ -109,12 +115,13 @@ func (c *RecommendModelVersionCase) loadSceneStrategyContext(ctx context.Context
 		EffectiveVersion:   effectiveVersion,
 		VersionPublishedAt: versionPublishedAt,
 		Config:             config,
+		PublishResolution:  publishResolution,
 	}, nil
 }
 
 // loadRecommendRecallProbeConfig 查询当前场景启用的召回探针配置。
-func (c *RecommendModelVersionCase) loadRecommendRecallProbeConfig(ctx context.Context, scene int32) (string, time.Time, *recommendDomain.RecallProbeStrategy, error) {
-	sceneStrategyContext, err := c.loadSceneStrategyContext(ctx, scene)
+func (c *RecommendModelVersionCase) loadRecommendRecallProbeConfig(ctx context.Context, scene int32, actor *recommendDomain.Actor) (string, time.Time, *recommendDomain.RecallProbeStrategy, error) {
+	sceneStrategyContext, err := c.loadSceneStrategyContext(ctx, scene, actor)
 	if err != nil {
 		return "", time.Time{}, nil, err
 	}

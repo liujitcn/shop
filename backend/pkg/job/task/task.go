@@ -28,11 +28,12 @@ func NewTaskList(
 	recommendCollaborativeFilteringMaterialize *RecommendCollaborativeFilteringMaterialize,
 	recommendContentBasedMaterialize *RecommendContentBasedMaterialize,
 	recommendRankerMaterialize *RecommendRankerMaterialize,
+	recommendResultMaterialize *RecommendResultMaterialize,
 	recommendLlmRerankMaterialize *RecommendLlmRerankMaterialize,
 	recommendEvalReport *RecommendEvalReport,
 	recommendVersionPublish *RecommendVersionPublish,
 ) map[string]TaskExec {
-	taskMap := make(map[string]TaskExec, 16)
+	taskMap := make(map[string]TaskExec, 17)
 	registerTask(taskMap, tradeBill, "申请交易账单")
 	registerTask(taskMap, orderStatDay, "订单日汇总")
 	registerTask(taskMap, goodsStatDay, "商品日汇总")
@@ -46,6 +47,7 @@ func NewTaskList(
 	registerTask(taskMap, recommendCollaborativeFilteringMaterialize, "推荐协同过滤写缓存")
 	registerTask(taskMap, recommendContentBasedMaterialize, "推荐内容相似写缓存")
 	registerTask(taskMap, recommendRankerMaterialize, "推荐模型精排分数写缓存")
+	registerTask(taskMap, recommendResultMaterialize, "首页登录态最终推荐结果写缓存")
 	registerTask(taskMap, recommendLlmRerankMaterialize, "推荐 LLM 二次重排分数写缓存")
 	registerTask(taskMap, recommendEvalReport, "推荐离线评估报告")
 	registerTask(taskMap, recommendVersionPublish, "推荐版本发布与回滚")

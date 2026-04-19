@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -23,17 +30,10 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -183,11 +183,20 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendCollaborativeFilteringMaterialize := task.NewRecommendCollaborativeFilteringMaterialize(recommendGoodsActionRepo, recommendModelVersionRepo, goodsInfoRepo, store, materializer)
 	recommendContentBasedMaterialize := task.NewRecommendContentBasedMaterialize(recommendModelVersionRepo, goodsInfoRepo, store, materializer)
 	recommendRankerMaterialize := task.NewRecommendRankerMaterialize(recommendModelVersionRepo, recommendRequestRepo, recommendRequestItemRepo, recommendGoodsActionRepo, goodsInfoRepo, store, materializer)
+	orderGoodsCase := biz2.NewOrderGoodsCase(baseCase, orderGoodsRepo, goodsInfoCase, goodsSkuCase)
+	userCartCase := biz2.NewUserCartCase(baseCase, userCartRepo, goodsInfoCase, goodsSkuCase)
+	recommendExposureItemCase := biz2.NewRecommendExposureItemCase(baseCase, recommendExposureItemRepo, recommendExposureRepo, recommendRequestItemCase)
+	recommendExposureCase := biz2.NewRecommendExposureCase(baseCase, recommendExposureRepo, recommendExposureItemCase, recommendGoodsActionRepo)
+	recommendGoodsStatDayCase := biz2.NewRecommendGoodsStatDayCase(baseCase, recommendGoodsStatDayRepo)
+	goodsStatDayCase := biz2.NewGoodsStatDayCase(baseCase, goodsStatDayRepo)
+	recommendModelVersionCase := biz2.NewRecommendModelVersionCase(baseCase, recommendModelVersionRepo)
+	recommendRequestCase := biz2.NewRecommendRequestCase(baseCase, shopConfig, recommendRequestRepo, recommendRequestItemCase, goodsInfoCase, orderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase, recommendModelVersionCase, store)
+	recommendResultMaterialize := task.NewRecommendResultMaterialize(recommendRequestCase, recommendRequestRepo, recommendGoodsActionRepo, store, materializer)
 	recommendLlmRerankMaterialize := task.NewRecommendLlmRerankMaterialize(store, materializer)
 	recommendEvalReportRepo := data.NewRecommendEvalReportRepo(dataData)
 	recommendEvalReport := task.NewRecommendEvalReport(transaction, recommendEvalReportRepo, recommendModelVersionRepo, recommendRequestRepo, recommendRequestItemRepo, recommendExposureRepo, recommendExposureItemRepo, recommendGoodsActionRepo)
 	recommendVersionPublish := task.NewRecommendVersionPublish(transaction, recommendModelVersionRepo)
-	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendGoodsStatDay, recommendUserPreferenceRebuild, recommendGoodsRelationRebuild, recommendHotMaterialize, recommendLatestMaterialize, recommendSimilarItemMaterialize, recommendSimilarUserMaterialize, recommendCollaborativeFilteringMaterialize, recommendContentBasedMaterialize, recommendRankerMaterialize, recommendLlmRerankMaterialize, recommendEvalReport, recommendVersionPublish)
+	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendGoodsStatDay, recommendUserPreferenceRebuild, recommendGoodsRelationRebuild, recommendHotMaterialize, recommendLatestMaterialize, recommendSimilarItemMaterialize, recommendSimilarUserMaterialize, recommendCollaborativeFilteringMaterialize, recommendContentBasedMaterialize, recommendRankerMaterialize, recommendResultMaterialize, recommendLlmRerankMaterialize, recommendEvalReport, recommendVersionPublish)
 	cronServer := job.NewCronServer(baseJobRepo, v)
 	authentication_Jwt := configs.ParseAuthnJwt(context)
 	authenticator := middleware.NewAuthenticator(authentication_Jwt)
@@ -260,12 +269,12 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderAddressCase := biz3.NewOrderAddressCase(baseCase, orderAddressRepo)
 	orderCancelRepo := data.NewOrderCancelRepo(dataData)
 	orderCancelCase := biz3.NewOrderCancelCase(baseCase, orderCancelRepo)
-	orderGoodsCase := biz3.NewOrderGoodsCase(baseCase, orderGoodsRepo)
+	bizOrderGoodsCase := biz3.NewOrderGoodsCase(baseCase, orderGoodsRepo)
 	orderLogisticsRepo := data.NewOrderLogisticsRepo(dataData)
 	orderLogisticsCase := biz3.NewOrderLogisticsCase(baseCase, orderLogisticsRepo)
 	orderPaymentCase := biz3.NewOrderPaymentCase(baseCase, orderPaymentRepo)
 	orderRefundCase := biz3.NewOrderRefundCase(baseCase, orderRefundRepo)
-	orderInfoCase := biz3.NewOrderInfoCase(baseCase, transaction, orderAddressCase, orderInfoRepo, orderCancelCase, orderGoodsCase, orderLogisticsCase, orderPaymentCase, orderRefundCase, baseUserCase, baseDictItemCase, wxPayCase)
+	orderInfoCase := biz3.NewOrderInfoCase(baseCase, transaction, orderAddressCase, orderInfoRepo, orderCancelCase, bizOrderGoodsCase, orderLogisticsCase, orderPaymentCase, orderRefundCase, baseUserCase, baseDictItemCase, wxPayCase)
 	orderAnalyticsCase := biz3.NewOrderAnalyticsCase(orderInfoCase, baseDictCase, baseDictItemCase)
 	orderAnalyticsService := admin.NewOrderAnalyticsService(orderAnalyticsCase)
 	orderReportCase := biz3.NewOrderReportCase(baseCase, orderStatDayRepo)
@@ -273,8 +282,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderInfoService := admin.NewOrderInfoService(orderInfoCase)
 	payBillCase := biz3.NewPayBillCase(baseCase, payBillRepo)
 	payBillService := admin.NewPayBillService(payBillCase)
-	recommendModelVersionCase := biz3.NewRecommendModelVersionCase(baseCase, recommendModelVersionRepo, recommendVersionPublish)
-	recommendModelVersionService := admin.NewRecommendModelVersionService(recommendModelVersionCase)
+	bizRecommendModelVersionCase := biz3.NewRecommendModelVersionCase(baseCase, recommendModelVersionRepo, recommendVersionPublish)
+	recommendModelVersionService := admin.NewRecommendModelVersionService(bizRecommendModelVersionCase)
 	shopBannerRepo := data.NewShopBannerRepo(dataData)
 	shopBannerCase := biz3.NewShopBannerCase(baseCase, shopBannerRepo)
 	shopBannerService := admin.NewShopBannerService(shopBannerCase)
@@ -293,7 +302,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseAreaRepo := data.NewBaseAreaRepo(dataData)
 	userStoreCase := biz3.NewUserStoreCase(baseCase, transaction, userStoreRepo, baseAreaRepo, baseUserCase, baseRoleCase)
 	userStoreService := admin.NewUserStoreService(userStoreCase)
-	workspaceCase := biz3.NewWorkspaceCase(orderInfoCase, baseUserCase, orderGoodsCase, bizGoodsInfoCase, bizGoodsSkuCase, payBillCase)
+	workspaceCase := biz3.NewWorkspaceCase(orderInfoCase, baseUserCase, bizOrderGoodsCase, bizGoodsInfoCase, bizGoodsSkuCase, payBillCase)
 	workspaceService := admin.NewWorkspaceService(workspaceCase)
 	bizBaseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepo)
 	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepo)
@@ -318,17 +327,15 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	appGoodsCategoryService := app.NewGoodsCategoryService(bizGoodsCategoryCase)
 	appGoodsInfoService := app.NewGoodsInfoService(goodsInfoCase)
 	bizOrderCancelCase := biz2.NewOrderCancelCase(baseCase, orderCancelRepo)
-	bizOrderGoodsCase := biz2.NewOrderGoodsCase(baseCase, orderGoodsRepo, goodsInfoCase, goodsSkuCase)
 	userAddressRepo := data.NewUserAddressRepo(dataData)
 	bizOrderAddressCase := biz2.NewOrderAddressCase(baseCase, orderAddressRepo, userAddressRepo, baseAreaCase)
 	bizOrderLogisticsCase := biz2.NewOrderLogisticsCase(baseCase, orderLogisticsRepo)
 	bizOrderPaymentCase := biz2.NewOrderPaymentCase(baseCase, orderPaymentRepo)
 	bizOrderRefundCase := biz2.NewOrderRefundCase(baseCase, orderRefundRepo)
 	userAddressCase := biz2.NewUserAddressCase(baseCase, transaction, userAddressRepo, baseAreaCase)
-	userCartCase := biz2.NewUserCartCase(baseCase, userCartRepo, goodsInfoCase, goodsSkuCase)
 	orderSchedulerCase := biz2.NewOrderSchedulerCase(baseCase)
 	payCase := biz2.NewPayCase(baseCase, transaction, orderInfoRepo, orderGoodsRepo, orderPaymentRepo, orderRefundRepo, orderSchedulerCase, wxPayCase)
-	bizOrderInfoCase, err := biz2.NewOrderInfoCase(baseCase, transaction, orderInfoRepo, bizOrderCancelCase, bizOrderGoodsCase, bizOrderAddressCase, bizOrderLogisticsCase, bizOrderPaymentCase, bizOrderRefundCase, goodsInfoCase, goodsSkuCase, userAddressCase, userCartCase, bizBaseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
+	bizOrderInfoCase, err := biz2.NewOrderInfoCase(baseCase, transaction, orderInfoRepo, bizOrderCancelCase, orderGoodsCase, bizOrderAddressCase, bizOrderLogisticsCase, bizOrderPaymentCase, bizOrderRefundCase, goodsInfoCase, goodsSkuCase, userAddressCase, userCartCase, bizBaseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
 	if err != nil {
 		cleanup5()
 		cleanup4()
@@ -339,12 +346,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	appOrderInfoService := app.NewOrderInfoService(bizOrderInfoCase)
 	payService := app.NewPayService(payCase)
-	recommendExposureItemCase := biz2.NewRecommendExposureItemCase(baseCase, recommendExposureItemRepo, recommendExposureRepo, recommendRequestItemCase)
-	recommendExposureCase := biz2.NewRecommendExposureCase(baseCase, recommendExposureRepo, recommendExposureItemCase, recommendGoodsActionRepo)
-	recommendGoodsStatDayCase := biz2.NewRecommendGoodsStatDayCase(baseCase, recommendGoodsStatDayRepo)
-	goodsStatDayCase := biz2.NewGoodsStatDayCase(baseCase, goodsStatDayRepo)
-	bizRecommendModelVersionCase := biz2.NewRecommendModelVersionCase(baseCase, recommendModelVersionRepo)
-	recommendRequestCase := biz2.NewRecommendRequestCase(baseCase, shopConfig, recommendRequestRepo, recommendRequestItemCase, goodsInfoCase, bizOrderGoodsCase, userCartCase, recommendExposureCase, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase, recommendGoodsStatDayCase, goodsStatDayCase, bizRecommendModelVersionCase, store)
 	recommendGoodsActionCase := biz2.NewRecommendGoodsActionCase(baseCase, transaction, recommendGoodsActionRepo, recommendUserGoodsPreferenceCase, recommendUserPreferenceCase, recommendGoodsRelationCase)
 	recommendCase := biz2.NewRecommendCase(baseCase, transaction, recommendActorBindLogCase, recommendRequestCase, recommendExposureCase, recommendGoodsActionCase)
 	recommendService := app.NewRecommendService(recommendCase)

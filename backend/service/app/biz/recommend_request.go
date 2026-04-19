@@ -86,6 +86,11 @@ func NewRecommendRequestCase(
 	}
 }
 
+// recommendExecuteOptions 表示一次推荐执行的附加控制项。
+type recommendExecuteOptions struct {
+	PreferCachedRecommend bool // 是否优先读取最终推荐缓存。
+}
+
 // bindRecommendRequestActor 将匿名请求主体绑定为登录主体。
 func (c *RecommendRequestCase) bindRecommendRequestActor(ctx context.Context, anonymousId, userId int64) error {
 	query := c.RecommendRequestRepo.Data.Query(ctx).RecommendRequest
@@ -103,11 +108,12 @@ func (c *RecommendRequestCase) bindRecommendRequestActor(ctx context.Context, an
 
 // listAnonymousRecommendGoods 查询匿名推荐商品列表并执行统一排序。
 func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest) ([]*app.GoodsInfo, int64, []string, map[string]any, error) {
+	domainActor := actor.ToDomainActor()
 	requestPlan := recommendOnlinePlanner.NewAnonymousRequestPlan(appDto.BuildRecommendGoodsRequest(req), map[string]any{})
 	candidateLimit := requestPlan.CandidateLimit
 	// 匿名态只使用近一段时间内的热度数据。
 	startDate := time.Now().AddDate(0, 0, -recommendCandidate.AnonymousRecallDays)
-	sceneStrategyContext, err := c.recommendModelVersionCase.loadSceneStrategyContext(ctx, int32(req.GetScene()))
+	sceneStrategyContext, err := c.recommendModelVersionCase.loadSceneStrategyContext(ctx, int32(req.GetScene()), domainActor)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
@@ -119,7 +125,7 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 
 	sceneGoodsIds := make([]int64, 0)
 	sceneInput := recommendOnlinePlanner.SceneInput{}
-	sceneHotCacheResult, err := c.listCachedSceneHotGoodsIds(ctx, int32(req.GetScene()), candidateLimit, nil)
+	sceneHotCacheResult, err := c.listCachedSceneHotGoodsIds(ctx, domainActor, int32(req.GetScene()), candidateLimit, []int64{req.GetGoodsId()})
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
@@ -141,7 +147,7 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		// 没有商品编号时，无法恢复商品详情上下文。
 		if req.GetGoodsId() > 0 {
 			sourceGoodsIds := []int64{req.GetGoodsId()}
-			similarItemCacheResult, cacheErr := c.listCachedSimilarItemGoodsIds(ctx, req.GetGoodsId(), candidateLimit, sourceGoodsIds)
+			similarItemCacheResult, cacheErr := c.listCachedSimilarItemGoodsIds(ctx, domainActor, req.GetGoodsId(), candidateLimit, sourceGoodsIds)
 			if cacheErr != nil {
 				return nil, 0, nil, nil, cacheErr
 			}
@@ -174,22 +180,27 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		requestPlan.AddRecallSources("scene_hot")
 	}
 	requestPlan.NormalizeState()
+	sourceExcludeGoodsIds := recommendCore.DedupeInt64s(sceneInput.SourceGoodsIds)
+	totalGoodsCount, err := c.countRecommendGoods(ctx, sourceExcludeGoodsIds)
+	if err != nil {
+		return nil, 0, nil, nil, err
+	}
 
-	categoryCandidateIds, err := c.pageCategoryCandidateGoodsIds(ctx, requestPlan.CategoryIds, requestPlan.ExcludeGoodsIds(), candidateLimit)
+	categoryCandidateIds, err := c.pageCategoryCandidateGoodsIds(ctx, requestPlan.CategoryIds, mergeRecommendExcludeGoodsIds(requestPlan.ExcludeGoodsIds(), sourceExcludeGoodsIds), candidateLimit)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
 	requestPlan.SetCategoryCandidateGoodsIds(categoryCandidateIds)
 
 	// 场景热度与类目候选合并后，再交给全站热度兜底补足。
-	candidateGoodsIds := recommendCore.DedupeInt64s(requestPlan.BuildAnonymousMergedSceneGoodsIds(sceneGoodsIds))
+	candidateGoodsIds := filterRecommendGoodsIds(requestPlan.BuildAnonymousMergedSceneGoodsIds(sceneGoodsIds), sourceExcludeGoodsIds)
 	// 当前候选池仍未达到上限时，再补全站热度商品。
 	if candidateLimit > 0 && int64(len(candidateGoodsIds)) < candidateLimit {
 		globalHotGoodsIds, listErr := c.goodsStatDayCase.listGlobalHotGoodsIds(ctx, startDate, candidateLimit)
 		if listErr != nil {
 			return nil, 0, nil, nil, listErr
 		}
-		candidateGoodsIds = recommendCore.DedupeInt64s(append(candidateGoodsIds, globalHotGoodsIds...))
+		candidateGoodsIds = filterRecommendGoodsIds(append(candidateGoodsIds, globalHotGoodsIds...), sourceExcludeGoodsIds)
 	}
 	// 合并后的匿名候选超过上限时，直接按候选上限截断。
 	if candidateLimit > 0 && int64(len(candidateGoodsIds)) > candidateLimit {
@@ -197,12 +208,8 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 	}
 	// 场景热度和类目补足都没有数据，且强召回也为空时，才退回最新商品分页。
 	if requestPlan.ShouldFallbackToAnonymousLatest(candidateGoodsIds) {
-		latestExcludeGoodsIds := make([]int64, 0, 1)
-		// 商品详情场景回退到 latest 时，同样排除当前详情商品。
-		if requestPlan.IsGoodsDetail() && requestPlan.Request.GoodsId > 0 {
-			latestExcludeGoodsIds = append(latestExcludeGoodsIds, requestPlan.Request.GoodsId)
-		}
-		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, int32(req.GetScene()), candidateLimit, latestExcludeGoodsIds)
+		latestExcludeGoodsIds := mergeRecommendExcludeGoodsIds(sourceExcludeGoodsIds)
+		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, domainActor, int32(req.GetScene()), candidateLimit, latestExcludeGoodsIds)
 		if cacheErr != nil {
 			return nil, 0, nil, nil, cacheErr
 		}
@@ -215,7 +222,7 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 			if listErr != nil {
 				return nil, 0, nil, nil, listErr
 			}
-			pageSnapshot := buildRecommendPageSnapshot(&requestPlan.Request, latestGoodsList, int64(len(latestGoodsList)))
+			pageSnapshot := buildRecommendPageSnapshot(&requestPlan.Request, latestGoodsList, totalGoodsCount)
 			payload := requestPlan.BuildAnonymousLatestFallbackPayload(sceneInput, sceneGoodsIds, probeContext)
 			payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, nil)
 			return pageSnapshot.PageGoods, pageSnapshot.Total, payload.RecallSources, payload.SourceContext, nil
@@ -226,10 +233,10 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 		}
 		payload := requestPlan.BuildAnonymousLatestFallbackPayload(sceneInput, sceneGoodsIds, probeContext)
 		payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, nil)
-		return latestGoodsList, latestTotal, payload.RecallSources, payload.SourceContext, nil
+		return latestGoodsList, resolveRecommendResultTotal(totalGoodsCount, latestTotal), payload.RecallSources, payload.SourceContext, nil
 	}
 	// 强召回商品优先排在匿名候选池前面，再做统一去重。
-	candidateGoodsIds = requestPlan.BuildAnonymousCandidateGoodsIds(candidateGoodsIds)
+	candidateGoodsIds = filterRecommendGoodsIds(requestPlan.BuildAnonymousCandidateGoodsIds(candidateGoodsIds), sourceExcludeGoodsIds)
 
 	goodsList, err := c.goodsInfoCase.listByGoodsIds(ctx, candidateGoodsIds)
 	if err != nil {
@@ -296,14 +303,21 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 	if pageSnapshot.IsEmptyPage {
 		payload := requestPlan.BuildAnonymousEmptyOnlinePayload(sceneInput, sceneGoodsIds, candidateGoodsIds, signalLoadPlan.CandidateGoodsIds, probeContext)
 		payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, rankingResult.StageContext)
-		return []*app.GoodsInfo{}, pageSnapshot.Total, payload.RecallSources, payload.SourceContext, nil
+		return []*app.GoodsInfo{}, resolveRecommendResultTotal(totalGoodsCount, pageSnapshot.Total), payload.RecallSources, payload.SourceContext, nil
 	}
 	pageGoods := pageSnapshot.PageGoods
 	// explain 只收集当前页，避免响应上下文过大。
 	explainSnapshot := rankingResult.ExplainSnapshot
 	payload := requestPlan.BuildAnonymousPageOnlinePayload(sceneInput, sceneGoodsIds, candidateGoodsIds, signalLoadPlan.CandidateGoodsIds, explainSnapshot, probeContext)
 	payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, rankingResult.StageContext)
-	return pageGoods, pageSnapshot.Total, payload.RecallSources, payload.SourceContext, nil
+	return pageGoods, resolveRecommendResultTotal(totalGoodsCount, pageSnapshot.Total), payload.RecallSources, payload.SourceContext, nil
+}
+
+// BuildOnlineRecommendPageResult 直接执行在线动态推荐链路，不读取最终推荐缓存。
+func (c *RecommendRequestCase) BuildOnlineRecommendPageResult(ctx context.Context, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest) (recommendDomain.PageResult, error) {
+	return c.executeRecommendGoodsWithOptions(ctx, actor, req, recommendExecuteOptions{
+		PreferCachedRecommend: false,
+	})
 }
 
 // listRecommendGoods 查询推荐商品列表并执行统一排序。
@@ -312,16 +326,27 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	actor *appDto.RecommendActor,
 	req *app.RecommendGoodsRequest,
 	userId int64,
+	options recommendExecuteOptions,
 ) ([]*app.GoodsInfo, int64, []string, map[string]any, error) {
-	pageSize := req.GetPageSize()
 	// 每页数量非法时，直接返回空结果避免继续构造候选集。
-	if pageSize <= 0 {
+	if req.GetPageSize() <= 0 {
 		return []*app.GoodsInfo{}, 0, []string{}, map[string]any{}, nil
+	}
+	// 首页登录态优先读取最终推荐缓存，命中后直接返回当前页。
+	if options.PreferCachedRecommend {
+		cachedPageResult, cacheHit, err := c.listCachedRecommendPageResult(ctx, actor, req, userId)
+		if err != nil {
+			return nil, 0, nil, nil, err
+		}
+		// 当前页已经被最终推荐缓存覆盖时，不再继续执行实时召回与排序。
+		if cacheHit {
+			return cachedPageResult.List, cachedPageResult.Total, cachedPageResult.RecallSources, cachedPageResult.SourceContext, nil
+		}
 	}
 
 	requestPlan := recommendOnlinePlanner.NewPersonalizedRequestPlan(appDto.BuildRecommendGoodsRequest(req), map[string]any{})
 	candidateLimit := requestPlan.CandidateLimit
-	sceneStrategyContext, err := c.recommendModelVersionCase.loadSceneStrategyContext(ctx, int32(req.GetScene()))
+	sceneStrategyContext, err := c.recommendModelVersionCase.loadSceneStrategyContext(ctx, int32(req.GetScene()), actor.ToDomainActor())
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
@@ -360,7 +385,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 		sceneInput = recommendOnlinePlanner.BuildCartSceneInput(cartGoodsIds, nil, nil)
 		// 购物车存在商品时，继续做购物车关联召回。
 		if len(cartGoodsIds) > 0 {
-			cartPriorityGoodsIds, relatedErr := c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, cartGoodsIds, pageSize)
+			cartPriorityGoodsIds, relatedErr := c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, cartGoodsIds, candidateLimit)
 			if relatedErr != nil {
 				return nil, 0, nil, nil, relatedErr
 			}
@@ -378,7 +403,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 				return nil, 0, nil, nil, listErr
 			}
 			sceneInput = recommendOnlinePlanner.BuildOrderSceneInput(orderGoodsIds, nil, nil)
-			orderPriorityGoodsIds, relatedErr := c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, orderGoodsIds, pageSize)
+			orderPriorityGoodsIds, relatedErr := c.recommendGoodsRelationCase.listRelatedGoodsIds(ctx, orderGoodsIds, candidateLimit)
 			if relatedErr != nil {
 				return nil, 0, nil, nil, relatedErr
 			}
@@ -392,7 +417,7 @@ func (c *RecommendRequestCase) listRecommendGoods(
 		// 存在商品编号时，继续做商品关联召回。
 		if req.GetGoodsId() > 0 {
 			sourceGoodsIds := []int64{req.GetGoodsId()}
-			similarItemCacheResult, cacheErr := c.listCachedSimilarItemGoodsIds(ctx, req.GetGoodsId(), candidateLimit, sourceGoodsIds)
+			similarItemCacheResult, cacheErr := c.listCachedSimilarItemGoodsIds(ctx, actor.ToDomainActor(), req.GetGoodsId(), candidateLimit, sourceGoodsIds)
 			if cacheErr != nil {
 				return nil, 0, nil, nil, cacheErr
 			}
@@ -429,8 +454,13 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	requestPlan.EnsureFallbackLatest()
 	// 这里统一去重，避免同一商品或类目重复参与候选计算。
 	requestPlan.NormalizeState()
+	sourceExcludeGoodsIds := recommendCore.DedupeInt64s(sceneInput.SourceGoodsIds)
+	totalGoodsCount, err := c.countRecommendGoods(ctx, sourceExcludeGoodsIds)
+	if err != nil {
+		return nil, 0, nil, nil, err
+	}
 
-	categoryCandidateIds, err := c.pageCategoryCandidateGoodsIds(ctx, requestPlan.CategoryIds, requestPlan.ExcludeGoodsIds(), candidateLimit)
+	categoryCandidateIds, err := c.pageCategoryCandidateGoodsIds(ctx, requestPlan.CategoryIds, mergeRecommendExcludeGoodsIds(requestPlan.ExcludeGoodsIds(), sourceExcludeGoodsIds), candidateLimit)
 	if err != nil {
 		return nil, 0, nil, nil, err
 	}
@@ -439,8 +469,8 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	latestCandidateIds := make([]int64, 0)
 	// 候选池仍可扩充时，继续用 latest 召回做兜底补足。
 	if candidateLimit > 0 {
-		latestExcludeGoodsIds := requestPlan.BuildLatestExcludeGoodsIds()
-		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, int32(req.GetScene()), candidateLimit, latestExcludeGoodsIds)
+		latestExcludeGoodsIds := mergeRecommendExcludeGoodsIds(requestPlan.BuildLatestExcludeGoodsIds(), sourceExcludeGoodsIds)
+		latestCacheResult, cacheErr := c.listCachedLatestGoodsIds(ctx, actor.ToDomainActor(), int32(req.GetScene()), candidateLimit, latestExcludeGoodsIds)
 		if cacheErr != nil {
 			return nil, 0, nil, nil, cacheErr
 		}
@@ -459,12 +489,12 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	requestPlan.SetLatestCandidateGoodsIds(latestCandidateIds)
 
 	// 最终候选池按“强召回 + 类目补足 + latest 兜底”合并。
-	allCandidateIds := requestPlan.BuildPersonalizedCandidateGoodsIds()
+	allCandidateIds := filterRecommendGoodsIds(requestPlan.BuildPersonalizedCandidateGoodsIds(), sourceExcludeGoodsIds)
 	// 候选商品池为空时，直接返回空结果。
 	if len(allCandidateIds) == 0 {
 		payload := requestPlan.BuildPersonalizedEmptyOnlinePayload(sceneInput, []int64{}, probeContext)
 		payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, nil)
-		return []*app.GoodsInfo{}, 0, payload.RecallSources, payload.SourceContext, nil
+		return []*app.GoodsInfo{}, totalGoodsCount, payload.RecallSources, payload.SourceContext, nil
 	}
 
 	goodsList, err := c.goodsInfoCase.listByGoodsIds(ctx, allCandidateIds)
@@ -540,18 +570,131 @@ func (c *RecommendRequestCase) listRecommendGoods(
 	if pageSnapshot.IsEmptyPage {
 		payload := requestPlan.BuildPersonalizedEmptyOnlinePayload(sceneInput, candidateGoodsIds, probeContext)
 		payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, rankingResult.StageContext)
-		return []*app.GoodsInfo{}, pageSnapshot.Total, payload.RecallSources, payload.SourceContext, nil
+		return []*app.GoodsInfo{}, resolveRecommendResultTotal(totalGoodsCount, pageSnapshot.Total), payload.RecallSources, payload.SourceContext, nil
 	}
 	pageGoods := pageSnapshot.PageGoods
 	// 当前页才需要 explain，整池 explain 没必要返回。
 	explainSnapshot := rankingResult.ExplainSnapshot
 	payload := requestPlan.BuildPersonalizedPageOnlinePayload(sceneInput, candidateGoodsIds, explainSnapshot, probeContext)
 	payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, rankingResult.StageContext)
-	return pageGoods, pageSnapshot.Total, payload.RecallSources, payload.SourceContext, nil
+	return pageGoods, resolveRecommendResultTotal(totalGoodsCount, pageSnapshot.Total), payload.RecallSources, payload.SourceContext, nil
+}
+
+// shouldPreferCachedRecommend 判断当前请求是否允许优先读取最终推荐缓存。
+func shouldPreferCachedRecommend(actor *appDto.RecommendActor, req *app.RecommendGoodsRequest, userId int64) bool {
+	// 缺少登录主体、请求或用户编号时，不读取最终推荐缓存。
+	if actor == nil || req == nil || userId <= 0 {
+		return false
+	}
+	// 当前最小版最终推荐缓存只覆盖首页登录态。
+	if req.GetScene() != common.RecommendScene_HOME {
+		return false
+	}
+	return true
+}
+
+// listCachedRecommendPageResult 读取首页登录态最终推荐缓存，并在页码超出覆盖范围时回退到在线链路。
+func (c *RecommendRequestCase) listCachedRecommendPageResult(
+	ctx context.Context,
+	actor *appDto.RecommendActor,
+	req *app.RecommendGoodsRequest,
+	userId int64,
+) (recommendDomain.PageResult, bool, error) {
+	// 当前请求不在最终推荐缓存覆盖范围时，直接回退到原在线链路。
+	if !shouldPreferCachedRecommend(actor, req, userId) {
+		return recommendDomain.PageResult{}, false, nil
+	}
+
+	requestedCount := req.GetPageNum() * req.GetPageSize()
+	// 请求窗口非法时，不继续读取最终推荐缓存。
+	if requestedCount <= 0 {
+		return recommendDomain.PageResult{}, false, nil
+	}
+
+	domainActor := actor.ToDomainActor()
+	// 缺少领域主体时，无法生成稳定缓存子集合键。
+	if domainActor == nil {
+		return recommendDomain.PageResult{}, false, nil
+	}
+
+	sceneStrategyContext, err := c.recommendModelVersionCase.loadSceneStrategyContext(ctx, int32(req.GetScene()), domainActor)
+	if err != nil {
+		return recommendDomain.PageResult{}, false, err
+	}
+	requestPlan := recommendOnlinePlanner.NewPersonalizedRequestPlan(appDto.BuildRecommendGoodsRequest(req), map[string]any{})
+	cacheResult, err := c.listCachedGoodsIds(
+		ctx,
+		recommendCache.Recommend,
+		recommendCache.RecommendSubset(
+			int32(req.GetScene()),
+			domainActor.ResolveCacheActorType(),
+			domainActor.ResolveCacheActorId(),
+			sceneStrategyContext.EffectiveVersion,
+		),
+		recommendCacheHitRecommend,
+		sceneStrategyContext.EffectiveVersion,
+		sceneStrategyContext.VersionPublishedAt,
+		requestedCount,
+		nil,
+	)
+	if err != nil {
+		return recommendDomain.PageResult{}, false, err
+	}
+	requestPlan.MergeCacheReadContext(recommendCache.MergeReadContext(nil, cacheResult))
+
+	pageOffset := int((req.GetPageNum() - 1) * req.GetPageSize())
+	// 当前最终推荐缓存没有命中，或当前页已经超出缓存覆盖范围时，回退到实时链路。
+	if len(cacheResult.Ids) == 0 || pageOffset >= len(cacheResult.Ids) {
+		return recommendDomain.PageResult{}, false, nil
+	}
+
+	pageEnd := pageOffset + int(req.GetPageSize())
+	// 当前页只取缓存实际覆盖到的窗口，避免切片越界。
+	if pageEnd > len(cacheResult.Ids) {
+		pageEnd = len(cacheResult.Ids)
+	}
+	pageGoodsIds := cacheResult.Ids[pageOffset:pageEnd]
+	goodsList, err := c.goodsInfoCase.listByGoodsIds(ctx, pageGoodsIds)
+	if err != nil {
+		return recommendDomain.PageResult{}, false, err
+	}
+	// 最终推荐缓存命中但商品已经下架或缺失时，回退到实时链路补齐当前页。
+	if len(goodsList) != len(pageGoodsIds) {
+		return recommendDomain.PageResult{}, false, nil
+	}
+
+	totalGoodsCount, err := c.countRecommendGoods(ctx, nil)
+	if err != nil {
+		return recommendDomain.PageResult{}, false, err
+	}
+
+	requestPlan.AddCacheHitSource(recommendCacheHitRecommend)
+	returnedGoodsIds := recommendOnlineRank.ListGoodsIds(goodsList)
+	sourceContext := requestPlan.BuildPersonalizedOnlineResultContext(
+		recommendOnlinePlanner.SceneInput{},
+		recommendOnlinePlanner.ResultSnapshot{},
+		cacheResult.Ids,
+		returnedGoodsIds,
+		map[string]any{},
+	)
+	sourceContext = recommendOnlineRecord.AppendStrategyContext(sourceContext, sceneStrategyContext, nil)
+	return recommendDomain.PageResult{
+		List:          goodsList,
+		Total:         totalGoodsCount,
+		RecallSources: []string{recommendCacheHitRecommend},
+		SourceContext: sourceContext,
+	}, true, nil
 }
 
 // executeRecommendGoods 执行统一推荐主流程。
 func (c *RecommendRequestCase) executeRecommendGoods(ctx context.Context, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest) (recommendDomain.PageResult, error) {
+	return c.executeRecommendGoodsWithOptions(ctx, actor, req, recommendExecuteOptions{
+		PreferCachedRecommend: true,
+	})
+}
+
+// executeRecommendGoodsWithOptions 按指定控制项执行统一推荐主流程。
+func (c *RecommendRequestCase) executeRecommendGoodsWithOptions(ctx context.Context, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest, options recommendExecuteOptions) (recommendDomain.PageResult, error) {
 	domainActor := actor.ToDomainActor()
 	// 匿名主体统一走匿名推荐主链路，减少各场景内容分裂。
 	if domainActor.IsAnonymous() {
@@ -572,7 +715,7 @@ func (c *RecommendRequestCase) executeRecommendGoods(ctx context.Context, actor 
 	if actor != nil {
 		userId = actor.UserId()
 	}
-	list, total, recallSources, sourceContext, err := c.listRecommendGoods(ctx, actor, req, userId)
+	list, total, recallSources, sourceContext, err := c.listRecommendGoods(ctx, actor, req, userId, options)
 	if err != nil {
 		return recommendDomain.PageResult{}, err
 	}
@@ -627,6 +770,18 @@ func (c *RecommendRequestCase) pageLatestFallbackGoods(ctx context.Context, requ
 	return pageSnapshot.PageGoods, pageSnapshot.Total, nil
 }
 
+// countRecommendGoods 统计当前推荐链路仍可返回的商品总数。
+func (c *RecommendRequestCase) countRecommendGoods(ctx context.Context, excludeGoodsIds []int64) (int64, error) {
+	query := c.goodsInfoCase.GoodsInfoRepo.Query(ctx).GoodsInfo
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
+	// 源商品或已消费商品需要从最终推荐全集中排除，避免 total 与实际返回不一致。
+	if len(excludeGoodsIds) > 0 {
+		opts = append(opts, repo.Where(query.ID.NotIn(excludeGoodsIds...)))
+	}
+	return c.goodsInfoCase.Count(ctx, opts...)
+}
+
 // pageRecommendGoods 执行推荐候选分页查询。
 func (c *RecommendRequestCase) pageRecommendGoods(ctx context.Context, limit int64, excludeGoodsIds []int64, extraOpts ...repo.QueryOption) (*app.PageGoodsInfoResponse, error) {
 	// 查询上限非法时，直接返回空分页结果。
@@ -661,6 +816,48 @@ func buildRecommendPageSnapshot(request *recommendDomain.GoodsRequest, goodsList
 	return pageSnapshot
 }
 
+// resolveRecommendResultTotal 统一收口推荐接口返回的真实总数。
+func resolveRecommendResultTotal(realTotal int64, fallbackTotal int64) int64 {
+	// 上游已经计算出全量可推荐商品数时，优先返回真实总数。
+	if realTotal > 0 {
+		return realTotal
+	}
+	return fallbackTotal
+}
+
+// mergeRecommendExcludeGoodsIds 合并多组排除商品编号并做稳定去重。
+func mergeRecommendExcludeGoodsIds(groups ...[]int64) []int64 {
+	mergedGoodsIds := make([]int64, 0)
+	for _, group := range groups {
+		if len(group) == 0 {
+			continue
+		}
+		mergedGoodsIds = append(mergedGoodsIds, group...)
+	}
+	return recommendCore.DedupeInt64s(mergedGoodsIds)
+}
+
+// filterRecommendGoodsIds 过滤推荐候选中的排除商品，避免源商品重新回流到结果里。
+func filterRecommendGoodsIds(goodsIds []int64, excludeGoodsIds []int64) []int64 {
+	dedupedGoodsIds := recommendCore.DedupeInt64s(goodsIds)
+	// 当前没有排除商品时，只返回稳定去重后的候选集合。
+	if len(excludeGoodsIds) == 0 {
+		return dedupedGoodsIds
+	}
+	excludeGoodsMap := make(map[int64]struct{}, len(excludeGoodsIds))
+	for _, goodsId := range excludeGoodsIds {
+		excludeGoodsMap[goodsId] = struct{}{}
+	}
+	filteredGoodsIds := make([]int64, 0, len(dedupedGoodsIds))
+	for _, goodsId := range dedupedGoodsIds {
+		if _, exists := excludeGoodsMap[goodsId]; exists {
+			continue
+		}
+		filteredGoodsIds = append(filteredGoodsIds, goodsId)
+	}
+	return filteredGoodsIds
+}
+
 // saveRecommendRequest 保存推荐请求记录。
 func (c *RecommendRequestCase) saveRecommendRequest(ctx context.Context, requestId string, actor *appDto.RecommendActor, req *app.RecommendGoodsRequest, sourceContext map[string]any, list []*app.GoodsInfo, recallSources []string) error {
 	createdAt := time.Now()
@@ -690,6 +887,8 @@ const (
 	recommendCacheHitSceneHot = "scene_hot_cache"
 	// recommendCacheHitLatest 表示最新榜缓存命中。
 	recommendCacheHitLatest = "latest_cache"
+	// recommendCacheHitRecommend 表示最终推荐缓存命中。
+	recommendCacheHitRecommend = "recommend_cache"
 	// recommendCacheHitRanker 表示模型精排缓存命中。
 	recommendCacheHitRanker = "ranker_cache"
 	// recommendCacheHitLlmRerank 表示 LLM 二次重排缓存命中。
@@ -706,8 +905,8 @@ const (
 )
 
 // listCachedSceneHotGoodsIds 读取场景热门榜缓存商品。
-func (c *RecommendRequestCase) listCachedSceneHotGoodsIds(ctx context.Context, scene int32, limit int64, excludeGoodsIds []int64) (*recommendDomain.CacheReadResult, error) {
-	version, versionPublishedAt, err := c.recommendModelVersionCase.loadSceneCacheVersion(ctx, scene)
+func (c *RecommendRequestCase) listCachedSceneHotGoodsIds(ctx context.Context, actor *recommendDomain.Actor, scene int32, limit int64, excludeGoodsIds []int64) (*recommendDomain.CacheReadResult, error) {
+	version, versionPublishedAt, err := c.recommendModelVersionCase.loadSceneCacheVersion(ctx, scene, actor)
 	if err != nil {
 		return nil, err
 	}
@@ -724,8 +923,8 @@ func (c *RecommendRequestCase) listCachedSceneHotGoodsIds(ctx context.Context, s
 }
 
 // listCachedLatestGoodsIds 读取场景最新榜缓存商品。
-func (c *RecommendRequestCase) listCachedLatestGoodsIds(ctx context.Context, scene int32, limit int64, excludeGoodsIds []int64) (*recommendDomain.CacheReadResult, error) {
-	version, versionPublishedAt, err := c.recommendModelVersionCase.loadSceneCacheVersion(ctx, scene)
+func (c *RecommendRequestCase) listCachedLatestGoodsIds(ctx context.Context, actor *recommendDomain.Actor, scene int32, limit int64, excludeGoodsIds []int64) (*recommendDomain.CacheReadResult, error) {
+	version, versionPublishedAt, err := c.recommendModelVersionCase.loadSceneCacheVersion(ctx, scene, actor)
 	if err != nil {
 		return nil, err
 	}
@@ -742,7 +941,7 @@ func (c *RecommendRequestCase) listCachedLatestGoodsIds(ctx context.Context, sce
 }
 
 // listCachedSimilarItemGoodsIds 读取相似商品缓存。
-func (c *RecommendRequestCase) listCachedSimilarItemGoodsIds(ctx context.Context, goodsId int64, limit int64, excludeGoodsIds []int64) (*recommendDomain.CacheReadResult, error) {
+func (c *RecommendRequestCase) listCachedSimilarItemGoodsIds(ctx context.Context, actor *recommendDomain.Actor, goodsId int64, limit int64, excludeGoodsIds []int64) (*recommendDomain.CacheReadResult, error) {
 	// 商品编号非法时，不需要继续读取相似商品缓存。
 	if goodsId <= 0 {
 		return recommendCache.NewReadResult(
@@ -756,7 +955,7 @@ func (c *RecommendRequestCase) listCachedSimilarItemGoodsIds(ctx context.Context
 		), nil
 	}
 
-	version, versionPublishedAt, err := c.recommendModelVersionCase.loadSceneCacheVersion(ctx, int32(common.RecommendScene_GOODS_DETAIL))
+	version, versionPublishedAt, err := c.recommendModelVersionCase.loadSceneCacheVersion(ctx, int32(common.RecommendScene_GOODS_DETAIL), actor)
 	if err != nil {
 		return nil, err
 	}

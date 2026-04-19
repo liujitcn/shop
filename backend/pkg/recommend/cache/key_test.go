@@ -19,3 +19,12 @@ func TestRankerSubset(t *testing.T) {
 		t.Fatalf("unexpected ranker subset: %s", subset)
 	}
 }
+
+// TestRecommendSubset 验证最终推荐结果子集合键的拼接结果。
+func TestRecommendSubset(t *testing.T) {
+	subset := RecommendSubset(1, 1, 28, " v3 ")
+	expected := "scene/1/actor_type/1/actor_id/28/version/v3"
+	if subset != expected {
+		t.Fatalf("unexpected recommend subset: %s", subset)
+	}
+}
