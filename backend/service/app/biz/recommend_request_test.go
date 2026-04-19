@@ -15,6 +15,50 @@ import (
 	recommendDomain "shop/pkg/recommend/domain"
 )
 
+// TestBuildRecommendPageSnapshot 验证推荐回退列表会按请求分页窗口切片。
+func TestBuildRecommendPageSnapshot(t *testing.T) {
+	goodsList := make([]*app.GoodsInfo, 0, 80)
+	for index := int64(1); index <= 80; index++ {
+		goodsList = append(goodsList, &app.GoodsInfo{Id: index})
+	}
+
+	pageSnapshot := buildRecommendPageSnapshot(&recommendDomain.GoodsRequest{
+		PageNum:  1,
+		PageSize: 10,
+	}, goodsList, 80)
+	if len(pageSnapshot.PageGoods) != 10 {
+		t.Fatalf("unexpected page goods count: %d", len(pageSnapshot.PageGoods))
+	}
+	if pageSnapshot.PageGoods[0].Id != 1 || pageSnapshot.PageGoods[9].Id != 10 {
+		t.Fatalf("unexpected page goods ids: %+v", pageSnapshot.PageGoods)
+	}
+	if pageSnapshot.Total != 80 {
+		t.Fatalf("unexpected total: %d", pageSnapshot.Total)
+	}
+}
+
+// TestBuildRecommendPageSnapshotKeepsRealTotal 验证分页切片后仍保留真实总数。
+func TestBuildRecommendPageSnapshotKeepsRealTotal(t *testing.T) {
+	goodsList := make([]*app.GoodsInfo, 0, 80)
+	for index := int64(1); index <= 80; index++ {
+		goodsList = append(goodsList, &app.GoodsInfo{Id: index})
+	}
+
+	pageSnapshot := buildRecommendPageSnapshot(&recommendDomain.GoodsRequest{
+		PageNum:  2,
+		PageSize: 10,
+	}, goodsList, 120)
+	if len(pageSnapshot.PageGoods) != 10 {
+		t.Fatalf("unexpected page goods count: %d", len(pageSnapshot.PageGoods))
+	}
+	if pageSnapshot.PageGoods[0].Id != 11 || pageSnapshot.PageGoods[9].Id != 20 {
+		t.Fatalf("unexpected page goods ids: %+v", pageSnapshot.PageGoods)
+	}
+	if pageSnapshot.Total != 120 {
+		t.Fatalf("unexpected total: %d", pageSnapshot.Total)
+	}
+}
+
 // TestLoadCachedLlmRerankScoresLiveFallback 验证缓存 miss 时会走在线重排并回写缓存。
 func TestLoadCachedLlmRerankScoresLiveFallback(t *testing.T) {
 	store, cleanup, err := recommendCache.NewStore(nil)

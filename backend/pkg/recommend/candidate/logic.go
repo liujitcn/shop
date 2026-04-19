@@ -83,14 +83,30 @@ type AnonymousSignals = recommendDomain.AnonymousSignals
 
 // ResolveCandidateLimit 计算当前分页请求的候选池大小。
 func ResolveCandidateLimit(pageNum, pageSize int64) int64 {
-	limit := pageNum * pageSize * PoolMultiplier
+	// 分页参数非法时，直接返回空候选池，避免继续放大无效查询。
+	if pageNum <= 0 || pageSize <= 0 {
+		return 0
+	}
+	requiredLimit := pageNum * pageSize
+	limit := pageSize * PoolMultiplier
 	// 候选池过小时，回退到系统允许的最小容量。
 	if limit < PoolMin {
 		limit = PoolMin
 	}
-	// 候选池过大时，截断到系统允许的最大容量。
-	if limit > PoolMax {
+	// 单页分页配置已经超过软上限时，仍按软上限收口，避免单次请求过大。
+	if PoolMax > 0 && limit > PoolMax {
 		limit = PoolMax
+	}
+	// 当前页还落在软上限范围内时，继续按页码放大候选池，提升前几页排序质量。
+	if requiredLimit <= PoolMax {
+		limit = requiredLimit * PoolMultiplier
+		if PoolMax > 0 && limit > PoolMax {
+			limit = PoolMax
+		}
+	}
+	// 无论是否命中软上限，都必须保证当前页窗口可以被完整覆盖。
+	if limit < requiredLimit {
+		limit = requiredLimit
 	}
 	return limit
 }

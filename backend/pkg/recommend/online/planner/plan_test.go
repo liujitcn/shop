@@ -26,7 +26,7 @@ func TestNewAnonymousRequestPlan(t *testing.T) {
 
 	plan := NewAnonymousRequestPlan(request, probeContext)
 
-	// 二页十条请求在当前候选池参数下应扩到 160。
+	// 二页十条请求应继续放大候选池，保证更多商品可以参与后续分页。
 	if plan.CandidateLimit != 160 {
 		t.Fatalf("unexpected candidate limit: %d", plan.CandidateLimit)
 	}

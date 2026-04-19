@@ -6,7 +6,9 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	recommendActor "shop/pkg/recommend/actor"
+	recommendOnlineRank "shop/pkg/recommend/online/rank"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/kratos-kit/auth"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -119,6 +121,21 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	if err != nil {
 		return nil, err
 	}
+	log.Infof(
+		"RecommendGoods requestId=%s scene=%d pageNum=%d pageSize=%d orderId=%d goodsId=%d actorType=%d actorId=%d listCount=%d total=%d goodsIds=%v recallSources=%v",
+		requestId,
+		req.GetScene(),
+		req.GetPageNum(),
+		req.GetPageSize(),
+		req.GetOrderId(),
+		req.GetGoodsId(),
+		actor.ActorType,
+		actor.ActorId,
+		len(list),
+		result.Total,
+		recommendOnlineRank.ListGoodsIds(list),
+		recallSources,
+	)
 
 	return &app.RecommendGoodsResponse{
 		List:      list,

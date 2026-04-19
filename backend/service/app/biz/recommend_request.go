@@ -215,11 +215,12 @@ func (c *RecommendRequestCase) listAnonymousRecommendGoods(ctx context.Context, 
 			if listErr != nil {
 				return nil, 0, nil, nil, listErr
 			}
+			pageSnapshot := buildRecommendPageSnapshot(&requestPlan.Request, latestGoodsList, int64(len(latestGoodsList)))
 			payload := requestPlan.BuildAnonymousLatestFallbackPayload(sceneInput, sceneGoodsIds, probeContext)
 			payload.SourceContext = recommendOnlineRecord.AppendStrategyContext(payload.SourceContext, sceneStrategyContext, nil)
-			return latestGoodsList, int64(len(latestGoodsList)), payload.RecallSources, payload.SourceContext, nil
+			return pageSnapshot.PageGoods, pageSnapshot.Total, payload.RecallSources, payload.SourceContext, nil
 		}
-		latestGoodsList, latestTotal, listErr := c.pageLatestFallbackGoods(ctx, latestExcludeGoodsIds, candidateLimit)
+		latestGoodsList, latestTotal, listErr := c.pageLatestFallbackGoods(ctx, &requestPlan.Request, latestExcludeGoodsIds, candidateLimit)
 		if listErr != nil {
 			return nil, 0, nil, nil, listErr
 		}
@@ -613,7 +614,7 @@ func (c *RecommendRequestCase) pageLatestCandidateGoodsIds(ctx context.Context, 
 }
 
 // pageLatestFallbackGoods 按 latest 回退查询商品列表。
-func (c *RecommendRequestCase) pageLatestFallbackGoods(ctx context.Context, excludeGoodsIds []int64, limit int64) ([]*app.GoodsInfo, int64, error) {
+func (c *RecommendRequestCase) pageLatestFallbackGoods(ctx context.Context, request *recommendDomain.GoodsRequest, excludeGoodsIds []int64, limit int64) ([]*app.GoodsInfo, int64, error) {
 	// 查询条件未启用时，直接返回空结果。
 	if limit <= 0 {
 		return []*app.GoodsInfo{}, 0, nil
@@ -622,7 +623,8 @@ func (c *RecommendRequestCase) pageLatestFallbackGoods(ctx context.Context, excl
 	if err != nil {
 		return nil, 0, err
 	}
-	return pageResp.List, int64(pageResp.Total), nil
+	pageSnapshot := buildRecommendPageSnapshot(request, pageResp.List, int64(pageResp.Total))
+	return pageSnapshot.PageGoods, pageSnapshot.Total, nil
 }
 
 // pageRecommendGoods 执行推荐候选分页查询。
@@ -645,6 +647,18 @@ func (c *RecommendRequestCase) pageRecommendGoods(ctx context.Context, limit int
 		PageNum:  1,
 		PageSize: limit,
 	}, opts...)
+}
+
+// buildRecommendPageSnapshot 根据请求分页窗口切分候选列表，并保留调用方传入的真实总数。
+func buildRecommendPageSnapshot(request *recommendDomain.GoodsRequest, goodsList []*app.GoodsInfo, total int64) recommendOnlineRank.RankedPageSnapshot {
+	pageSnapshot := recommendOnlineRank.BuildRankedPageSnapshot(request, goodsList)
+	// 上游没有提供真实总数时，回退到当前候选列表长度，避免响应 total 丢失。
+	if total <= 0 {
+		total = int64(len(goodsList))
+	}
+	// 响应 total 优先透传真实总数，保证前端可以继续请求后续分页。
+	pageSnapshot.Total = total
+	return pageSnapshot
 }
 
 // saveRecommendRequest 保存推荐请求记录。
