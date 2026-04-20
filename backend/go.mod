@@ -8,6 +8,7 @@ require (
 	github.com/google/gnostic v0.7.1
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
+	github.com/gorse-io/gorse-go v0.5.0-alpha.3
 	github.com/liujitcn/go-utils v0.0.23
 	github.com/liujitcn/go-utils/crypto v0.0.8
 	github.com/liujitcn/go-utils/geoip v0.0.1
@@ -162,6 +163,7 @@ require (
 	github.com/vearutop/statigz v1.5.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.3 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
 	go.opentelemetry.io/otel v1.42.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.42.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.42.0 // indirect

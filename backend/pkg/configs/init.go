@@ -9,6 +9,7 @@ var ProviderSet = wire.NewSet(
 	NewShopConfig,
 	ParseWxMiniApp,
 	ParseWxPay,
+	ParseGorse,
 	ParseOss,
 	ParseData,
 	ParseDatabase,

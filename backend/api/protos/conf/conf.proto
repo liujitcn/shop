@@ -21,6 +21,9 @@ message ShopConfig {
   WxPay wxPay = 2 [
     (gnostic.openapi.v3.property) = {description: "微信支付参数"}
   ]; // 微信支付参数
+  Gorse gorse = 3 [
+    (gnostic.openapi.v3.property) = {description: "推荐配置"}
+  ]; // 推荐配置
 }
 
 // WxMiniApp
@@ -52,6 +55,15 @@ message WxPay {
     (gnostic.openapi.v3.property) = {description: "商户证书路径"}
   ]; // 商户证书路径
   string mchAPIv3Key = 82 [
+    (gnostic.openapi.v3.property) = {description: "api 密钥"}
+  ]; // api 密钥
+}
+
+message Gorse {
+  string entryPoint = 1 [
+    (gnostic.openapi.v3.property) = {description: "请求地址"}
+  ]; // 请求地址
+  string apiKey = 2 [
     (gnostic.openapi.v3.property) = {description: "api 密钥"}
   ]; // api 密钥
 }

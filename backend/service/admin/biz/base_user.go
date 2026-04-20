@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"shop/pkg/gorse"
 	"strings"
 
 	"shop/api/gen/go/admin"
@@ -27,12 +28,14 @@ type BaseUserCase struct {
 	baseRoleCase *BaseRoleCase
 	baseDeptCase *BaseDeptCase
 	baseMenuCase *BaseMenuCase
+	gorse        *gorse.Gorse
 	formMapper   *mapper.CopierMapper[admin.BaseUserForm, models.BaseUser]
 	mapper       *mapper.CopierMapper[admin.BaseUser, models.BaseUser]
 }
 
 // NewBaseUserCase 创建用户业务实例
-func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, baseDeptRepo *data.BaseDeptRepo, baseRoleCase *BaseRoleCase, baseDeptCase *BaseDeptCase, baseMenuCase *BaseMenuCase) *BaseUserCase {
+func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, baseDeptRepo *data.BaseDeptRepo, baseRoleCase *BaseRoleCase, baseDeptCase *BaseDeptCase, baseMenuCase *BaseMenuCase,
+	gorse *gorse.Gorse) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:     baseCase,
 		BaseUserRepo: baseUserRepo,
@@ -40,6 +43,7 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, ba
 		baseRoleCase: baseRoleCase,
 		baseDeptCase: baseDeptCase,
 		baseMenuCase: baseMenuCase,
+		gorse:        gorse,
 		formMapper:   mapper.NewCopierMapper[admin.BaseUserForm, models.BaseUser](),
 		mapper:       mapper.NewCopierMapper[admin.BaseUser, models.BaseUser](),
 	}

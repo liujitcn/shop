@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"shop/pkg/gorse"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
@@ -24,6 +25,7 @@ type GoodsInfoCase struct {
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSkuCase      *GoodsSkuCase
+	gorse             *gorse.Gorse
 	formMapper        *_mapper.CopierMapper[admin.GoodsInfoForm, models.GoodsInfo]
 	mapper            *_mapper.CopierMapper[admin.GoodsInfo, models.GoodsInfo]
 }
@@ -35,7 +37,8 @@ const (
 )
 
 // NewGoodsInfoCase 创建商品业务实例
-func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo *data.GoodsInfoRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase) *GoodsInfoCase {
+func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo *data.GoodsInfoRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase,
+	gorse *gorse.Gorse) *GoodsInfoCase {
 	formMapper := _mapper.NewCopierMapper[admin.GoodsInfoForm, models.GoodsInfo]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	mapper := _mapper.NewCopierMapper[admin.GoodsInfo, models.GoodsInfo]()
@@ -47,6 +50,7 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
 		goodsSkuCase:      goodsSkuCase,
+		gorse:             gorse,
 		formMapper:        formMapper,
 		mapper:            mapper,
 	}

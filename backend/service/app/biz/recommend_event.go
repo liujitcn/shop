@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"shop/pkg/gorse"
 	"time"
 
 	"shop/api/gen/go/app"
@@ -22,6 +23,7 @@ type RecommendEventCase struct {
 	*biz.BaseCase
 	*data.RecommendEventRepo
 	recommendRequestCase *RecommendRequestCase
+	gorse                *gorse.Gorse
 }
 
 // NewRecommendEventCase 创建推荐事件业务处理对象。
@@ -29,11 +31,13 @@ func NewRecommendEventCase(
 	baseCase *biz.BaseCase,
 	recommendEventRepo *data.RecommendEventRepo,
 	recommendRequestCase *RecommendRequestCase,
+	gorse *gorse.Gorse,
 ) *RecommendEventCase {
 	c := &RecommendEventCase{
 		BaseCase:             baseCase,
 		RecommendEventRepo:   recommendEventRepo,
 		recommendRequestCase: recommendRequestCase,
+		gorse:                gorse,
 	}
 
 	// 注册推荐事件异步消费者，统一承接后端事实回写。

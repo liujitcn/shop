@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"shop/pkg/gorse"
 	"time"
 
 	"shop/pkg/biz"
@@ -34,6 +35,7 @@ type AuthCase struct {
 	baseRoleCase *BaseRoleCase
 	baseDeptCase *BaseDeptCase
 	wxMiniApp    *conf.WxMiniApp
+	gorse        *gorse.Gorse
 }
 
 // NewAuthCase 创建登录认证业务处理对象
@@ -44,6 +46,7 @@ func NewAuthCase(
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	wxMiniApp *conf.WxMiniApp,
+	gorse *gorse.Gorse,
 ) *AuthCase {
 	return &AuthCase{
 		BaseCase:     baseCase,
@@ -52,6 +55,7 @@ func NewAuthCase(
 		baseRoleCase: baseRoleCase,
 		baseDeptCase: baseDeptCase,
 		wxMiniApp:    wxMiniApp,
+		gorse:        gorse,
 	}
 }
 

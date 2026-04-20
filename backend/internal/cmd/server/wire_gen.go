@@ -7,9 +7,17 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
+	"shop/pkg/gorse"
 	"shop/pkg/job"
 	"shop/pkg/job/task"
 	"shop/pkg/middleware"
@@ -21,17 +29,10 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -160,7 +161,16 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseRoleCase := biz2.NewBaseRoleCase(baseCase, transaction, baseRoleRepo, bizCasbinRuleCase)
 	baseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepo)
 	baseMenuCase := biz2.NewBaseMenuCase(baseCase, transaction, baseMenuRepo, bizCasbinRuleCase)
-	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepo, baseDeptRepo, baseRoleCase, baseDeptCase, baseMenuCase)
+	confGorse, err := configs.ParseGorse(shopConfig)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	gorseGorse := gorse.NewGorse(confGorse)
+	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepo, baseDeptRepo, baseRoleCase, baseDeptCase, baseMenuCase, gorseGorse)
 	fileCase := biz3.NewFileCase(ossOSS)
 	authCase := biz2.NewAuthCase(baseCase, baseUserCase, baseRoleCase, baseDeptCase, baseMenuCase, fileCase)
 	authService := admin.NewAuthService(authCase)
@@ -200,7 +210,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	goodsSpecCase := biz2.NewGoodsSpecCase(baseCase, goodsSpecRepo)
 	goodsSkuRepo := data.NewGoodsSkuRepo(dataData)
 	goodsSkuCase := biz2.NewGoodsSkuCase(baseCase, goodsSkuRepo)
-	goodsInfoCase := biz2.NewGoodsInfoCase(baseCase, transaction, goodsInfoRepo, goodsCategoryCase, goodsPropCase, goodsSpecCase, goodsSkuCase)
+	goodsInfoCase := biz2.NewGoodsInfoCase(baseCase, transaction, goodsInfoRepo, goodsCategoryCase, goodsPropCase, goodsSpecCase, goodsSkuCase, gorseGorse)
 	goodsAnalyticsCase := biz2.NewGoodsAnalyticsCase(goodsInfoCase, goodsCategoryCase, goodsStatDayRepo)
 	goodsAnalyticsService := admin.NewGoodsAnalyticsService(goodsAnalyticsCase)
 	goodsReportCase := biz2.NewGoodsReportCase(baseCase, goodsStatDayRepo)
@@ -243,7 +253,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	userAnalyticsService := admin.NewUserAnalyticsService(userAnalyticsCase)
 	userStoreRepo := data.NewUserStoreRepo(dataData)
 	baseAreaRepo := data.NewBaseAreaRepo(dataData)
-	userStoreCase := biz2.NewUserStoreCase(baseCase, transaction, userStoreRepo, baseAreaRepo, baseUserCase, baseRoleCase)
+	userStoreCase := biz2.NewUserStoreCase(baseCase, transaction, userStoreRepo, baseAreaRepo, baseUserCase, baseRoleCase, gorseGorse)
 	userStoreService := admin.NewUserStoreService(userStoreCase)
 	workspaceCase := biz2.NewWorkspaceCase(orderInfoCase, baseUserCase, orderGoodsCase, goodsInfoCase, goodsSkuCase, payBillCase)
 	workspaceService := admin.NewWorkspaceService(workspaceCase)
@@ -258,7 +268,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	bizAuthCase := biz4.NewAuthCase(baseCase, userToken, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, wxMiniApp)
+	bizAuthCase := biz4.NewAuthCase(baseCase, userToken, bizBaseUserCase, bizBaseRoleCase, bizBaseDeptCase, wxMiniApp, gorseGorse)
 	appAuthService := app.NewAuthService(bizAuthCase)
 	baseAreaCase := biz4.NewBaseAreaCase(baseCase, baseAreaRepo)
 	baseAreaService := app.NewBaseAreaService(baseAreaCase)
@@ -295,10 +305,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	payService := app.NewPayService(payCase)
 	recommendAnonymousActorRepo := data.NewRecommendAnonymousActorRepo(dataData)
 	recommendRequestRepo := data.NewRecommendRequestRepo(dataData)
-	recommendAnonymousActorCase := biz4.NewRecommendAnonymousActorCase(baseCase, transaction, recommendAnonymousActorRepo, recommendRequestRepo, recommendEventRepo)
+	recommendAnonymousActorCase := biz4.NewRecommendAnonymousActorCase(baseCase, transaction, recommendAnonymousActorRepo, recommendRequestRepo, recommendEventRepo, gorseGorse)
 	recommendRequestItemRepo := data.NewRecommendRequestItemRepo(dataData)
 	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, transaction, recommendRequestRepo, recommendRequestItemRepo)
-	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase)
+	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase, gorseGorse)
 	userCollectCase := biz4.NewUserCollectCase(baseCase, userCollectRepo, bizGoodsInfoCase, bizGoodsSkuCase)
 	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase)
 	recommendService := app.NewRecommendService(recommendCase)

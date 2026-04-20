@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"shop/pkg/gorse"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
@@ -23,11 +24,13 @@ type UserStoreCase struct {
 	baseAreaRepo *data.BaseAreaRepo
 	baseUserCase *BaseUserCase
 	baseRoleCase *BaseRoleCase
+	gorse        *gorse.Gorse
 	mapper       *mapper.CopierMapper[admin.UserStore, models.UserStore]
 }
 
 // NewUserStoreCase 创建门店申请业务实例
-func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo *data.UserStoreRepo, baseAreaRepo *data.BaseAreaRepo, baseUserCase *BaseUserCase, baseRoleCase *BaseRoleCase) *UserStoreCase {
+func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo *data.UserStoreRepo, baseAreaRepo *data.BaseAreaRepo, baseUserCase *BaseUserCase, baseRoleCase *BaseRoleCase,
+	gorse *gorse.Gorse) *UserStoreCase {
 	userStoreMapper := mapper.NewCopierMapper[admin.UserStore, models.UserStore]()
 	userStoreMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &UserStoreCase{
@@ -37,6 +40,7 @@ func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo
 		baseAreaRepo:  baseAreaRepo,
 		baseUserCase:  baseUserCase,
 		baseRoleCase:  baseRoleCase,
+		gorse:         gorse,
 		mapper:        userStoreMapper,
 	}
 }

@@ -69,36 +69,13 @@ func ParseWxPay(cfg *conf.ShopConfig) (*conf.WxPay, error) {
 	return wxPay, nil
 }
 
-// resolveFilePath 解析配置中的证书文件路径。
-func resolveFilePath(path string) (string, bool) {
-	// 绝对路径存在时直接返回原路径。
-	if filepath.IsAbs(path) {
-		// 绝对路径对应文件存在时，直接返回原路径。
-		if _, statErr := os.Stat(path); statErr == nil {
-			return path, true
-		}
-		return path, false
+func ParseGorse(cfg *conf.ShopConfig) (*conf.Gorse, error) {
+	gorse := cfg.GetGorse()
+	// 缺少推荐配置时，直接返回配置错误。
+	if gorse == nil {
+		return nil, errorsx.Internal("推荐配置信息错误")
 	}
-
-	candidates := []string{
-		path,
-		filepath.Join("server", path),
-		filepath.Join("..", path),
-		filepath.Join("..", "..", path),
-		filepath.Join("..", "..", "..", path),
-		filepath.Join("..", "server", path),
-		filepath.Join(filepath.Dir(os.Args[0]), "..", path),
-		filepath.Join(filepath.Dir(os.Args[0]), "..", "..", path),
-	}
-
-	for _, p := range candidates {
-		cleaned := filepath.Clean(p)
-		// 命中可用文件后，立即返回标准化路径。
-		if _, statErr := os.Stat(cleaned); statErr == nil {
-			return cleaned, true
-		}
-	}
-	return path, false
+	return gorse, nil
 }
 
 // ParsePayTimeout 解析支付超时时间。
@@ -178,4 +155,36 @@ func ParseAuthnJwt(ctx *bootstrap.Context) *bootstrapConf.Authentication_Jwt {
 		}
 	}
 	return cfg.GetAuthn().GetJwt()
+}
+
+// resolveFilePath 解析配置中的证书文件路径。
+func resolveFilePath(path string) (string, bool) {
+	// 绝对路径存在时直接返回原路径。
+	if filepath.IsAbs(path) {
+		// 绝对路径对应文件存在时，直接返回原路径。
+		if _, statErr := os.Stat(path); statErr == nil {
+			return path, true
+		}
+		return path, false
+	}
+
+	candidates := []string{
+		path,
+		filepath.Join("server", path),
+		filepath.Join("..", path),
+		filepath.Join("..", "..", path),
+		filepath.Join("..", "..", "..", path),
+		filepath.Join("..", "server", path),
+		filepath.Join(filepath.Dir(os.Args[0]), "..", path),
+		filepath.Join(filepath.Dir(os.Args[0]), "..", "..", path),
+	}
+
+	for _, p := range candidates {
+		cleaned := filepath.Clean(p)
+		// 命中可用文件后，立即返回标准化路径。
+		if _, statErr := os.Stat(cleaned); statErr == nil {
+			return cleaned, true
+		}
+	}
+	return path, false
 }

@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"shop/pkg/gorse"
 	"strconv"
 	"strings"
 	"time"
@@ -28,6 +29,7 @@ type RecommendAnonymousActorCase struct {
 	*data.RecommendAnonymousActorRepo
 	recommendRequestRepo *data.RecommendRequestRepo
 	recommendEventRepo   *data.RecommendEventRepo
+	gorse                *gorse.Gorse
 }
 
 // NewRecommendAnonymousActorCase 创建推荐匿名主体业务处理对象。
@@ -37,6 +39,7 @@ func NewRecommendAnonymousActorCase(
 	recommendAnonymousActorRepo *data.RecommendAnonymousActorRepo,
 	recommendRequestRepo *data.RecommendRequestRepo,
 	recommendEventRepo *data.RecommendEventRepo,
+	gorse *gorse.Gorse,
 ) *RecommendAnonymousActorCase {
 	return &RecommendAnonymousActorCase{
 		BaseCase:                    baseCase,
@@ -44,6 +47,7 @@ func NewRecommendAnonymousActorCase(
 		RecommendAnonymousActorRepo: recommendAnonymousActorRepo,
 		recommendRequestRepo:        recommendRequestRepo,
 		recommendEventRepo:          recommendEventRepo,
+		gorse:                       gorse,
 	}
 }
 
