@@ -6,9 +6,6 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	_const "shop/pkg/const"
-	"shop/pkg/gen/models"
-	recommendEvent "shop/pkg/recommend/event"
-	appDto "shop/service/app/dto"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/kratos-kit/sdk"
@@ -16,16 +13,28 @@ import (
 
 // RecommendGoodsActionEvent 表示推荐商品行为事件。
 type RecommendGoodsActionEvent struct {
-	RecommendActor *appDto.RecommendActor          // 推荐主体信息
+	RecommendActor *app.RecommendActor             // 推荐主体信息
 	EventType      common.RecommendGoodsActionType // 商品行为事件类型
 	EventTime      time.Time                       // 事件发生时间
-	GoodsItems     []*models.RecommendGoodsAction  // 商品行为列表
+	GoodsItems     []*RecommendGoodsActionItem     // 商品行为列表
 }
 
 // RecommendExposureEvent 推荐曝光队列事件。
 type RecommendExposureEvent struct {
-	Exposure *models.RecommendExposure // 推荐曝光信息
-	GoodsIds []int64                   // 曝光商品列表
+	RecommendActor *app.RecommendActor // 推荐主体信息
+	RequestId      string              // 推荐请求 ID
+	Scene          int32               // 推荐场景
+	GoodsIds       []int64             // 曝光商品列表
+	EventTime      time.Time           // 事件发生时间
+}
+
+// RecommendGoodsActionItem 表示推荐行为事件里的单商品事实。
+type RecommendGoodsActionItem struct {
+	GoodsId   int64  // 商品编号
+	GoodsNum  int64  // 商品数量
+	Scene     int32  // 推荐场景
+	RequestId string // 推荐请求 ID
+	Position  int32  // 推荐位次
 }
 
 // AddQueue 向运行时队列追加异步消息。
@@ -54,26 +63,23 @@ func AddQueue(queue _const.Queue, data any) {
 	}
 }
 
-func DispatchRecommendExposureEvent(actor *appDto.RecommendActor, req *app.RecommendExposureReportRequest) {
+func DispatchRecommendExposureEvent(actor *app.RecommendActor, req *app.RecommendExposureReportRequest) {
 	// 空请求直接忽略，避免埋点接口影响主流程。
 	if req == nil {
 		return
 	}
 
 	AddQueue(_const.RecommendExposureEvent, &RecommendExposureEvent{
-		Exposure: &models.RecommendExposure{
-			RequestID: req.GetRequestId(),
-			ActorType: actor.ActorType,
-			ActorID:   actor.ActorId,
-			Scene:     int32(req.GetScene()),
-			CreatedAt: time.Now(),
-		},
-		GoodsIds: req.GetGoodsIds(),
+		RecommendActor: actor,
+		RequestId:      req.GetRequestId(),
+		Scene:          int32(req.GetScene()),
+		GoodsIds:       req.GetGoodsIds(),
+		EventTime:      time.Now(),
 	})
 }
 
 // DispatchRecommendGoodsActionEvent 将后端事实转换为推荐行为事件并投递到队列。
-func DispatchRecommendGoodsActionEvent(actor *appDto.RecommendActor, req *app.RecommendGoodsActionReportRequest, eventTime time.Time) {
+func DispatchRecommendGoodsActionEvent(actor *app.RecommendActor, req *app.RecommendGoodsActionReportRequest, eventTime time.Time) {
 	// 请求体为空时，无法继续构建行为事件。
 	if req == nil {
 		return
@@ -95,23 +101,28 @@ func DispatchRecommendGoodsActionEvent(actor *appDto.RecommendActor, req *app.Re
 	}
 
 	goodsItems := req.GetGoodsItems()
-	recommendGoodsActions := make([]*models.RecommendGoodsAction, 0, len(goodsItems))
+	recommendGoodsActions := make([]*RecommendGoodsActionItem, 0, len(goodsItems))
 	for _, item := range goodsItems {
 		// 商品项为空或商品 ID 非法时，直接跳过当前行为项。
 		if item == nil || item.GetGoodsId() <= 0 {
 			continue
 		}
 		recommendContext := item.GetRecommendContext()
-		recommendGoodsActions = append(recommendGoodsActions, &models.RecommendGoodsAction{
-			ActorType: actor.ActorType,
-			ActorID:   actor.ActorId,
-			EventType: int32(eventType),
-			GoodsID:   item.GetGoodsId(),
-			GoodsNum:  recommendEvent.NormalizeGoodsCount(item.GetGoodsNum()),
-			Scene:     int32(recommendContext.GetScene()),
-			RequestID: recommendContext.GetRequestId(),
-			Position:  recommendContext.GetPosition(),
-			CreatedAt: eventTime,
+		scene := int32(0)
+		requestId := ""
+		position := int32(0)
+		// 商品行为携带了推荐上下文时，继续补齐请求归因字段。
+		if recommendContext != nil {
+			scene = int32(recommendContext.GetScene())
+			requestId = recommendContext.GetRequestId()
+			position = recommendContext.GetPosition()
+		}
+		recommendGoodsActions = append(recommendGoodsActions, &RecommendGoodsActionItem{
+			GoodsId:   item.GetGoodsId(),
+			GoodsNum:  item.GetGoodsNum(),
+			Scene:     scene,
+			RequestId: requestId,
+			Position:  position,
 		})
 	}
 	// 没有有效商品明细时，不返回空行为事件。

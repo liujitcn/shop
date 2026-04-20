@@ -5,12 +5,8 @@ import (
 	"shop/api/gen/go/app"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
-	recommendActor "shop/pkg/recommend/actor"
-	recommendOnlineRank "shop/pkg/recommend/online/rank"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/id"
-	"github.com/liujitcn/kratos-kit/auth"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -18,29 +14,17 @@ import (
 // RecommendCase 推荐业务处理对象。
 type RecommendCase struct {
 	*biz.BaseCase
-	tx                        data.Transaction
-	recommendActorBindLogCase *RecommendActorBindLogCase
-	recommendRequestCase      *RecommendRequestCase
-	recommendExposureCase     *RecommendExposureCase
-	recommendGoodsActionCase  *RecommendGoodsActionCase
+	tx data.Transaction
 }
 
 // NewRecommendCase 创建推荐业务处理对象。
 func NewRecommendCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
-	recommendActorBindLogCase *RecommendActorBindLogCase,
-	recommendRequestCase *RecommendRequestCase,
-	recommendExposureCase *RecommendExposureCase,
-	recommendGoodsActionCase *RecommendGoodsActionCase,
 ) *RecommendCase {
 	return &RecommendCase{
-		BaseCase:                  baseCase,
-		tx:                        tx,
-		recommendActorBindLogCase: recommendActorBindLogCase,
-		recommendRequestCase:      recommendRequestCase,
-		recommendExposureCase:     recommendExposureCase,
-		recommendGoodsActionCase:  recommendGoodsActionCase,
+		BaseCase: baseCase,
+		tx:       tx,
 	}
 }
 
@@ -52,108 +36,20 @@ func (c *RecommendCase) RecommendAnonymousActor(_ context.Context, _ *emptypb.Em
 
 // BindRecommendAnonymousActor 绑定匿名推荐主体到当前登录用户。
 func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, req *emptypb.Empty) error {
-	authInfo, err := auth.FromContext(ctx)
-	// 当前上下文没有登录用户时，不需要执行匿名主体归并。
-	if err != nil || authInfo == nil || authInfo.UserId <= 0 {
-		return nil
-	}
-
-	// 匿名主体不存在或已经是同一个主体时，直接跳过绑定。
-	anonymousId := recommendActor.ExtractAnonymousId(ctx)
-	// 匿名主体缺失或已经与当前登录用户一致时，不需要执行主体归并。
-	if anonymousId <= 0 || anonymousId == authInfo.UserId {
-		return nil
-	}
-
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err = c.recommendRequestCase.bindRecommendRequestActor(ctx, anonymousId, authInfo.UserId)
-		if err != nil {
-			return err
-		}
-		err = c.recommendExposureCase.bindRecommendExposureActor(ctx, anonymousId, authInfo.UserId)
-		if err != nil {
-			return err
-		}
-		err = c.recommendGoodsActionCase.bindRecommendGoodsActionActor(ctx, anonymousId, authInfo.UserId)
-		if err != nil {
-			return err
-		}
-		return c.recommendActorBindLogCase.SaveRecommendActorBindLog(ctx, anonymousId, authInfo.UserId)
-	})
+	return nil
 }
 
 // RecommendGoods 查询推荐商品列表。
 func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGoodsRequest) (*app.RecommendGoodsResponse, error) {
-	// 统一兜底分页参数，避免前端漏传导致查询异常。
-	pageNum := req.GetPageNum()
-	// 页码非法时回退到首页，保证分页查询始终可执行。
-	if pageNum <= 0 {
-		req.PageNum = 1
-	}
-	pageSize := req.GetPageSize()
-	// 每页数量非法时使用默认值，避免查全表或空分页。
-	if pageSize <= 0 {
-		req.PageSize = 10
-	}
-	// 每次推荐请求都生成独立 requestId，用于后续曝光归因。
-	requestId := id.NewGUIDv7NoHyphen()
-	actor := recommendActor.Resolve(ctx)
-
-	initSourceContext := map[string]any{
-		"orderId": req.GetOrderId(),
-		"goodsId": req.GetGoodsId(),
-	}
-	result, err := c.recommendRequestCase.executeRecommendGoods(ctx, actor, req)
-	if err != nil {
-		return nil, err
-	}
-	list := result.List
-	recallSources := result.RecallSources
-	sourceContext := result.NormalizeSourceContext()
-	// 推荐链路未返回上下文时，回退到当前请求的基础上下文。
-	if len(sourceContext) == 0 {
-		sourceContext = initSourceContext
-	}
-	sourceContext["actorType"] = actor.ActorType
-	sourceContext["actorId"] = actor.ActorId
-
-	err = c.recommendRequestCase.saveRecommendRequest(ctx, requestId, actor, req, sourceContext, list, recallSources)
-	if err != nil {
-		return nil, err
-	}
-	log.Infof(
-		"RecommendGoods requestId=%s scene=%d pageNum=%d pageSize=%d orderId=%d goodsId=%d actorType=%d actorId=%d listCount=%d total=%d goodsIds=%v recallSources=%v",
-		requestId,
-		req.GetScene(),
-		req.GetPageNum(),
-		req.GetPageSize(),
-		req.GetOrderId(),
-		req.GetGoodsId(),
-		actor.ActorType,
-		actor.ActorId,
-		len(list),
-		result.Total,
-		recommendOnlineRank.ListGoodsIds(list),
-		recallSources,
-	)
-
-	return &app.RecommendGoodsResponse{
-		List:      list,
-		Total:     int32(result.Total),
-		RequestId: requestId,
-	}, nil
+	return &app.RecommendGoodsResponse{}, nil
 }
 
 // RecommendExposureReport 上报推荐曝光事件。
 func (c *RecommendCase) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) error {
-	actor := recommendActor.Resolve(ctx)
-	c.recommendExposureCase.publishRecommendExposureEvent(actor, req)
 	return nil
 }
 
 // RecommendGoodsActionReport 上报推荐商品行为事件。
 func (c *RecommendCase) RecommendGoodsActionReport(ctx context.Context, req *app.RecommendGoodsActionReportRequest) error {
-	actor := recommendActor.Resolve(ctx)
-	c.recommendGoodsActionCase.publishRecommendGoodsActionEvent(actor, req)
 	return nil
 }

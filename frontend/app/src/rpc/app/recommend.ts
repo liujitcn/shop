@@ -5,7 +5,7 @@
 // source: app/recommend.proto
 
 /* eslint-disable */
-import type { RecommendGoodsActionType, RecommendScene } from "../common/enum";
+import type { RecommendActorType, RecommendGoodsActionType, RecommendScene } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
@@ -70,6 +70,14 @@ export interface RecommendGoodsActionReportRequest {
   eventType: RecommendGoodsActionType;
   /** 商品行为事件项 */
   goodsItems: RecommendGoodsActionItem[];
+}
+
+/** 推荐主体信息 */
+export interface RecommendActor {
+  /** 推荐主体类型 */
+  ActorType: RecommendActorType;
+  /** 推荐主体ID */
+  ActorId: number;
 }
 
 /** App推荐服务 */

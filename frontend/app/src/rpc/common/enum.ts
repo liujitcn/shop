@@ -264,3 +264,13 @@ export enum RecommendGoodsActionType {
   /** ORDER_PAY - 支付事件 */
   ORDER_PAY = 6,
 }
+
+/** 推荐主体类型枚举 */
+export enum RecommendActorType {
+  /** UNKNOWN_RAT - 未指定主体类型 */
+  UNKNOWN_RAT = 0,
+  /** ANONYMOUS - 匿名用户 */
+  ANONYMOUS = 1,
+  /** USER - 用户 */
+  USER = 2,
+}

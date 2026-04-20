@@ -3,12 +3,9 @@ package task
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"time"
 
 	"shop/pkg/errorsx"
-	recommendCandidate "shop/pkg/recommend/candidate"
-	recommendEvent "shop/pkg/recommend/event"
 
 	_time "github.com/liujitcn/go-utils/time"
 )
@@ -18,39 +15,11 @@ func NewTaskList(
 	tradeBill *TradeBill,
 	orderStatDay *OrderStatDay,
 	goodsStatDay *GoodsStatDay,
-	recommendGoodsStatDay *RecommendGoodsStatDay,
-	recommendUserPreferenceRebuild *RecommendUserPreferenceRebuild,
-	recommendGoodsRelationRebuild *RecommendGoodsRelationRebuild,
-	recommendHotMaterialize *RecommendHotMaterialize,
-	recommendLatestMaterialize *RecommendLatestMaterialize,
-	recommendSimilarItemMaterialize *RecommendSimilarItemMaterialize,
-	recommendSimilarUserMaterialize *RecommendSimilarUserMaterialize,
-	recommendCollaborativeFilteringMaterialize *RecommendCollaborativeFilteringMaterialize,
-	recommendContentBasedMaterialize *RecommendContentBasedMaterialize,
-	recommendRankerMaterialize *RecommendRankerMaterialize,
-	recommendResultMaterialize *RecommendResultMaterialize,
-	recommendLlmRerankMaterialize *RecommendLlmRerankMaterialize,
-	recommendEvalReport *RecommendEvalReport,
-	recommendVersionPublish *RecommendVersionPublish,
 ) map[string]TaskExec {
 	taskMap := make(map[string]TaskExec, 17)
 	registerTask(taskMap, tradeBill, "申请交易账单")
 	registerTask(taskMap, orderStatDay, "订单日汇总")
 	registerTask(taskMap, goodsStatDay, "商品日汇总")
-	registerTask(taskMap, recommendGoodsStatDay, "推荐商品日汇总")
-	registerTask(taskMap, recommendUserPreferenceRebuild, "推荐用户偏好重建")
-	registerTask(taskMap, recommendGoodsRelationRebuild, "推荐商品关联重建")
-	registerTask(taskMap, recommendHotMaterialize, "推荐热门榜写缓存")
-	registerTask(taskMap, recommendLatestMaterialize, "推荐最新榜写缓存")
-	registerTask(taskMap, recommendSimilarItemMaterialize, "推荐相似商品写缓存")
-	registerTask(taskMap, recommendSimilarUserMaterialize, "推荐相似用户写缓存")
-	registerTask(taskMap, recommendCollaborativeFilteringMaterialize, "推荐协同过滤写缓存")
-	registerTask(taskMap, recommendContentBasedMaterialize, "推荐内容相似写缓存")
-	registerTask(taskMap, recommendRankerMaterialize, "推荐模型精排分数写缓存")
-	registerTask(taskMap, recommendResultMaterialize, "首页登录态最终推荐结果写缓存")
-	registerTask(taskMap, recommendLlmRerankMaterialize, "推荐 LLM 二次重排分数写缓存")
-	registerTask(taskMap, recommendEvalReport, "推荐离线评估报告")
-	registerTask(taskMap, recommendVersionPublish, "推荐版本发布与回滚")
 	return taskMap
 }
 
@@ -86,42 +55,6 @@ func parseStatDateArg(value string) (time.Time, error) {
 		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("statDate 格式错误，支持 %s 或 %s", _time.DateLayout, _time.Layout))
 	}
 	return *statTime, nil
-}
-
-// parseRecommendWindowDaysArg 解析推荐重建窗口参数。
-func parseRecommendWindowDaysArg(value string) (int32, error) {
-	// 未传窗口参数时，默认使用固定 30 天窗口。
-	if value == "" {
-		return recommendEvent.AggregateWindowDays, nil
-	}
-
-	windowDays, err := strconv.Atoi(value)
-	if err != nil {
-		return 0, errorsx.InvalidArgument("windowDays 格式错误")
-	}
-	// 当前推荐重建任务只支持固定 30 天窗口，避免任务结果与在线查询口径分叉。
-	if int32(windowDays) != recommendEvent.AggregateWindowDays {
-		return 0, errorsx.InvalidArgument(fmt.Sprintf("windowDays 当前仅支持 %d", recommendEvent.AggregateWindowDays))
-	}
-	return int32(windowDays), nil
-}
-
-// parseRecommendMaterializeLimitArg 解析推荐写缓存数量参数。
-func parseRecommendMaterializeLimitArg(value string) (int64, error) {
-	// 未传数量限制时，默认发布候选池最大条数。
-	if value == "" {
-		return recommendCandidate.PoolMax, nil
-	}
-
-	limit, err := strconv.ParseInt(value, 10, 64)
-	if err != nil {
-		return 0, errorsx.InvalidArgument("limit 格式错误")
-	}
-	// 写缓存数量需要大于零，避免生成空范围。
-	if limit <= 0 {
-		return 0, errorsx.InvalidArgument("limit 必须大于 0")
-	}
-	return limit, nil
 }
 
 // getStructName 获取结构体指针对应的结构体名称。

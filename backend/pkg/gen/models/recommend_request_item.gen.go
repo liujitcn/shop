@@ -4,25 +4,26 @@
 
 package models
 
+import (
+	"time"
+)
+
 const TableNameRecommendRequestItem = "recommend_request_item"
 
-// RecommendRequestItem 推荐请求商品明细信息
+// RecommendRequestItem 推荐请求返回商品明细表
 type RecommendRequestItem struct {
-	ID                    int64   `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                              // 主键ID
-	RecommendRequestID    int64   `gorm:"column:recommend_request_id;type:bigint;not null;index:idx_recommend_request_item_recommend_request_id_position,priority:1;comment:推荐请求主表ID" json:"recommend_request_id"` // 推荐请求主表ID
-	GoodsID               int64   `gorm:"column:goods_id;type:bigint;not null;index:idx_recommend_request_item_goods_id,priority:1;comment:商品ID" json:"goods_id"`                                                  // 商品ID
-	Position              int32   `gorm:"column:position;type:int;not null;index:idx_recommend_request_item_recommend_request_id_position,priority:2;comment:推荐位序号" json:"position"`                               // 推荐位序号
-	RecallSource          string  `gorm:"column:recall_source;type:json;comment:商品级召回来源JSON" json:"recall_source"`                                                                                                 // 商品级召回来源JSON
-	FinalScore            float64 `gorm:"column:final_score;type:double;not null;comment:最终得分" json:"final_score"`                                                                                                 // 最终得分
-	RelationScore         float64 `gorm:"column:relation_score;type:double;not null;comment:关联得分" json:"relation_score"`                                                                                           // 关联得分
-	UserGoodsScore        float64 `gorm:"column:user_goods_score;type:double;not null;comment:用户商品偏好得分" json:"user_goods_score"`                                                                                   // 用户商品偏好得分
-	ProfileScore          float64 `gorm:"column:profile_score;type:double;not null;comment:用户画像得分" json:"profile_score"`                                                                                           // 用户画像得分
-	ScenePopularityScore  float64 `gorm:"column:scene_popularity_score;type:double;not null;comment:场景热度得分" json:"scene_popularity_score"`                                                                         // 场景热度得分
-	GlobalPopularityScore float64 `gorm:"column:global_popularity_score;type:double;not null;comment:全站热度得分" json:"global_popularity_score"`                                                                       // 全站热度得分
-	FreshnessScore        float64 `gorm:"column:freshness_score;type:double;not null;comment:新鲜度得分" json:"freshness_score"`                                                                                        // 新鲜度得分
-	ExposurePenalty       float64 `gorm:"column:exposure_penalty;type:double;not null;comment:场景曝光惩罚得分" json:"exposure_penalty"`                                                                                   // 场景曝光惩罚得分
-	ActorExposurePenalty  float64 `gorm:"column:actor_exposure_penalty;type:double;not null;comment:主体曝光惩罚得分" json:"actor_exposure_penalty"`                                                                       // 主体曝光惩罚得分
-	RepeatPenalty         float64 `gorm:"column:repeat_penalty;type:double;not null;comment:重复购买惩罚得分" json:"repeat_penalty"`                                                                                       // 重复购买惩罚得分
+	ID                 int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                              // 主键ID
+	RecommendRequestID int64     `gorm:"column:recommend_request_id;type:bigint;not null;index:idx_recommend_request_item_recommend_request_id_position,priority:1;comment:推荐请求主表ID" json:"recommend_request_id"` // 推荐请求主表ID
+	GoodsID            int64     `gorm:"column:goods_id;type:bigint;not null;index:idx_recommend_request_item_goods_id_created_at,priority:1;comment:商品ID" json:"goods_id"`                                       // 商品ID
+	Position           int32     `gorm:"column:position;type:int;not null;index:idx_recommend_request_item_recommend_request_id_position,priority:2;comment:推荐位序号" json:"position"`                               // 推荐位序号
+	RecallSource       string    `gorm:"column:recall_source;type:varchar(64);comment:召回来源" json:"recall_source"`                                                                                                 // 召回来源
+	StrategyCode       string    `gorm:"column:strategy_code;type:varchar(64);comment:策略编码" json:"strategy_code"`                                                                                                 // 策略编码
+	Score              float64   `gorm:"column:score;type:double;comment:最终分数" json:"score"`                                                                                                                      // 最终分数
+	IsExposed          int32     `gorm:"column:is_exposed;type:tinyint;not null;comment:是否已曝光" json:"is_exposed"`                                                                                                 // 是否已曝光
+	IsClicked          int32     `gorm:"column:is_clicked;type:tinyint;not null;comment:是否已点击" json:"is_clicked"`                                                                                                 // 是否已点击
+	IsConverted        int32     `gorm:"column:is_converted;type:tinyint;not null;comment:是否已转化" json:"is_converted"`                                                                                             // 是否已转化
+	CreatedAt          time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_recommend_request_item_goods_id_created_at,priority:2;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`       // 创建时间
+	UpdatedAt          time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                                       // 更新时间
 }
 
 // TableName RecommendRequestItem's table name

@@ -7,10 +7,8 @@ import (
 	"shop/api/gen/go/app"
 	"shop/pkg/configs"
 	"shop/pkg/errorsx"
-	recommendEvent "shop/pkg/recommend/event"
 	pkgUtils "shop/pkg/utils"
 	"shop/pkg/wx"
-	appDto "shop/service/app/dto"
 	"strconv"
 	"strings"
 	"time"
@@ -540,8 +538,8 @@ func (c *PayCase) dispatchRecommendGoodsActionEvent(userId int64, goodsList []*m
 	}
 
 	// 支付行为只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
-	pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
-		ActorType: recommendEvent.ActorTypeUser,
+	pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
+		ActorType: common.RecommendActorType_USER,
 		ActorId:   userId,
 	}, &app.RecommendGoodsActionReportRequest{
 		EventType:  common.RecommendGoodsActionType_ORDER_PAY,

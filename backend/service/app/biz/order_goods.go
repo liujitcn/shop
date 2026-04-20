@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	recommendCore "shop/pkg/recommend/core"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
@@ -13,6 +12,7 @@ import (
 	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
+	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -109,7 +109,7 @@ func (c *OrderGoodsCase) listGoodsIdsByOrderId(ctx context.Context, orderId int6
 	for _, item := range list {
 		goodsIds = append(goodsIds, item.GoodsID)
 	}
-	return recommendCore.DedupeInt64s(goodsIds), nil
+	return _slice.Unique(goodsIds), nil
 }
 
 // convertToModelList 将下单商品列表转换为模型列表

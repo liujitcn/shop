@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"shop/api/gen/go/common"
 	"shop/api/gen/go/conf"
-	"shop/pkg/configs"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgUtils "shop/pkg/utils"
@@ -18,15 +16,14 @@ import (
 
 // GoodsStatDay 商品日统计任务。
 type GoodsStatDay struct {
-	tx                       data.Transaction
-	goodsStatDayRepo         *data.GoodsStatDayRepo
-	recommendGoodsActionRepo *data.RecommendGoodsActionRepo
-	userCollectRepo          *data.UserCollectRepo
-	userCartRepo             *data.UserCartRepo
-	orderInfoRepo            *data.OrderInfoRepo
-	orderGoodsRepo           *data.OrderGoodsRepo
-	goodsStatScoreConfig     *conf.GoodsStatScoreConfig
-	ctx                      context.Context
+	tx                         data.Transaction
+	goodsStatDayRepo           *data.GoodsStatDayRepo
+	recommendFeedbackEventRepo *data.RecommendFeedbackEventRepo
+	userCollectRepo            *data.UserCollectRepo
+	userCartRepo               *data.UserCartRepo
+	orderInfoRepo              *data.OrderInfoRepo
+	orderGoodsRepo             *data.OrderGoodsRepo
+	ctx                        context.Context
 }
 
 // NewGoodsStatDay 创建商品日统计任务实例。
@@ -34,23 +31,21 @@ func NewGoodsStatDay(
 	tx data.Transaction,
 	shopConfig *conf.ShopConfig,
 	goodsStatDayRepo *data.GoodsStatDayRepo,
-	recommendGoodsActionRepo *data.RecommendGoodsActionRepo,
+	recommendFeedbackEventRepo *data.RecommendFeedbackEventRepo,
 	userCollectRepo *data.UserCollectRepo,
 	userCartRepo *data.UserCartRepo,
 	orderInfoRepo *data.OrderInfoRepo,
 	orderGoodsRepo *data.OrderGoodsRepo,
 ) *GoodsStatDay {
-	goodsRecommendConfig := configs.ParseGoodsRecommendConfig(shopConfig)
 	return &GoodsStatDay{
-		tx:                       tx,
-		goodsStatScoreConfig:     goodsRecommendConfig.GetGoodsStatScore(),
-		goodsStatDayRepo:         goodsStatDayRepo,
-		recommendGoodsActionRepo: recommendGoodsActionRepo,
-		userCollectRepo:          userCollectRepo,
-		userCartRepo:             userCartRepo,
-		orderInfoRepo:            orderInfoRepo,
-		orderGoodsRepo:           orderGoodsRepo,
-		ctx:                      context.Background(),
+		tx:                         tx,
+		goodsStatDayRepo:           goodsStatDayRepo,
+		recommendFeedbackEventRepo: recommendFeedbackEventRepo,
+		userCollectRepo:            userCollectRepo,
+		userCartRepo:               userCartRepo,
+		orderInfoRepo:              orderInfoRepo,
+		orderGoodsRepo:             orderGoodsRepo,
+		ctx:                        context.Background(),
 	}
 }
 
@@ -91,13 +86,13 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return item
 		}
 
-		actionQuery := t.recommendGoodsActionRepo.Query(ctx).RecommendGoodsAction
+		actionQuery := t.recommendFeedbackEventRepo.Query(ctx).RecommendFeedbackEvent
 		opts = make([]repo.QueryOption, 0, 3)
-		opts = append(opts, repo.Where(actionQuery.CreatedAt.Gte(startAt)))
-		opts = append(opts, repo.Where(actionQuery.CreatedAt.Lt(endAt)))
-		opts = append(opts, repo.Where(actionQuery.EventType.Eq(int32(common.RecommendGoodsActionType_VIEW))))
-		var viewList []*models.RecommendGoodsAction
-		viewList, err = t.recommendGoodsActionRepo.List(ctx, opts...)
+		opts = append(opts, repo.Where(actionQuery.EventAt.Gte(startAt)))
+		opts = append(opts, repo.Where(actionQuery.EventAt.Lt(endAt)))
+		opts = append(opts, repo.Where(actionQuery.FeedbackType.Eq("view")))
+		var viewList []*models.RecommendFeedbackEvent
+		viewList, err = t.recommendFeedbackEventRepo.List(ctx, opts...)
 		if err != nil {
 			return err
 		}
@@ -217,7 +212,6 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 
 		list := make([]*models.GoodsStatDay, 0, len(statMap))
 		for _, item := range statMap {
-			item.Score = t.calculateGoodsScore(item)
 			list = append(list, item)
 		}
 		// 没有统计结果时只保留清理动作，不再写入空数据。
@@ -231,20 +225,4 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	}
 
 	return []string{fmt.Sprintf("商品日统计完成: %s", statDate.Format("2006-01-02"))}, nil
-}
-
-// calculateGoodsScore 按当前配置计算商品热度分。
-func (t *GoodsStatDay) calculateGoodsScore(item *models.GoodsStatDay) float64 {
-	scoreConfig := t.goodsStatScoreConfig
-	// 运行时配置缺失时，回退默认权重，避免统计任务中断。
-	if scoreConfig == nil {
-		scoreConfig = configs.ParseGoodsRecommendConfig(nil).GetGoodsStatScore()
-	}
-	return float64(item.ViewCount)*scoreConfig.GetViewWeight() +
-		float64(item.CollectCount)*scoreConfig.GetCollectWeight() +
-		float64(item.CartCount)*scoreConfig.GetCartWeight() +
-		float64(item.OrderCount)*scoreConfig.GetOrderWeight() +
-		float64(item.PayCount)*scoreConfig.GetPayWeight() +
-		float64(item.PayGoodsNum)*scoreConfig.GetPayGoodsNumWeight() +
-		float64(item.PayAmount)*scoreConfig.GetPayAmountWeight()
 }

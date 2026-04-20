@@ -10,17 +10,23 @@ import (
 
 const TableNameRecommendRequest = "recommend_request"
 
-// RecommendRequest 推荐请求记录信息
+// RecommendRequest 推荐请求事实表
 type RecommendRequest struct {
-	ID            int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                                 // 主键ID
-	RequestID     string    `gorm:"column:request_id;type:varchar(64);not null;uniqueIndex:uk_request_id,priority:1;comment:推荐请求ID" json:"request_id"`                                                          // 推荐请求ID
-	ActorType     int32     `gorm:"column:actor_type;type:tinyint;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:1;comment:主体类型：0匿名 1登录用户" json:"actor_type"`                  // 主体类型：0匿名 1登录用户
-	ActorID       int64     `gorm:"column:actor_id;type:bigint;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:2;comment:主体ID：匿名ID或用户ID" json:"actor_id"`                       // 主体ID：匿名ID或用户ID
-	Scene         int32     `gorm:"column:scene;type:tinyint;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:3;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                   // 推荐场景：枚举【RecommendScene】
-	SourceContext string    `gorm:"column:source_context;type:json;comment:场景上下文JSON" json:"source_context"`                                                                                                    // 场景上下文JSON
-	PageNum       int32     `gorm:"column:page_num;type:int;not null;default:1;comment:页码" json:"page_num"`                                                                                                     // 页码
-	PageSize      int32     `gorm:"column:page_size;type:int;not null;default:10;comment:分页大小" json:"page_size"`                                                                                                // 分页大小
-	CreatedAt     time.Time `gorm:"column:created_at;type:datetime;not null;index:idx_recommend_request_actor_type_actor_id_scene_created,priority:4;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"` // 创建时间
+	ID            int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                                                                                              // 主键ID
+	RequestID     string    `gorm:"column:request_id;type:varchar(64);not null;uniqueIndex:unique_recommend_request,priority:1;comment:推荐请求ID" json:"request_id"`                                                                                                            // 推荐请求ID
+	ActorType     int32     `gorm:"column:actor_type;type:tinyint;not null;index:idx_recommend_request_actor_type_actor_id_requested_at,priority:1;comment:主体类型：0匿名 1登录用户" json:"actor_type"`                                                                                // 主体类型：0匿名 1登录用户
+	ActorID       int64     `gorm:"column:actor_id;type:bigint;not null;index:idx_recommend_request_actor_type_actor_id_requested_at,priority:2;comment:主体ID：匿名ID或用户ID" json:"actor_id"`                                                                                     // 主体ID：匿名ID或用户ID
+	Scene         int32     `gorm:"column:scene;type:tinyint;not null;index:idx_recommend_request_scene_requested_at,priority:1;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                                                               // 推荐场景：枚举【RecommendScene】
+	AnchorGoodsID int64     `gorm:"column:anchor_goods_id;type:bigint;comment:锚点商品ID" json:"anchor_goods_id"`                                                                                                                                                                // 锚点商品ID
+	PageNum       int32     `gorm:"column:page_num;type:int;not null;default:1;comment:页码" json:"page_num"`                                                                                                                                                                  // 页码
+	PageSize      int32     `gorm:"column:page_size;type:int;not null;default:10;comment:分页大小" json:"page_size"`                                                                                                                                                             // 分页大小
+	StrategyCode  string    `gorm:"column:strategy_code;type:varchar(64);comment:策略编码" json:"strategy_code"`                                                                                                                                                                 // 策略编码
+	Status        int32     `gorm:"column:status;type:tinyint;not null;default:1;comment:请求状态：1成功 2降级 3失败" json:"status"`                                                                                                                                                    // 请求状态：1成功 2降级 3失败
+	ResultCount   int32     `gorm:"column:result_count;type:int;not null;comment:返回条数" json:"result_count"`                                                                                                                                                                  // 返回条数
+	ExtJSON       string    `gorm:"column:ext_json;type:json;comment:扩展上下文JSON" json:"ext_json"`                                                                                                                                                                             // 扩展上下文JSON
+	RequestedAt   time.Time `gorm:"column:requested_at;type:datetime;not null;index:idx_recommend_request_actor_type_actor_id_requested_at,priority:3;index:idx_recommend_request_scene_requested_at,priority:2;default:CURRENT_TIMESTAMP;comment:请求时间" json:"requested_at"` // 请求时间
+	CreatedAt     time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                                                                                                                       // 创建时间
+	UpdatedAt     time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                                                                                                       // 更新时间
 }
 
 // TableName RecommendRequest's table name

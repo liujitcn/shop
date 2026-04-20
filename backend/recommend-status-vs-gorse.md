@@ -1,375 +1,108 @@
-# 推荐模块现状与 gorse 核心能力差距评估（单机低配版）
+# 推荐接入现状（gorse 版）
 
-## 文档目的
+## 当前目标
 
-本文档用于沉淀当前 `shop` 项目推荐模块的真实状态，并以 [`gorse`](https://github.com/gorse-io/gorse) 作为对照，说明：
+当前仓库已经从“系统内置推荐”切换为“业务后端保留最小事实链路，推荐结果交给 gorse”。
 
-- 当前项目的推荐链路是否已经形成业务闭环
-- 当前项目距离推荐引擎平台化能力还差哪些关键能力
-- 在单机、低配置服务器场景下，哪些能力值得优先补，哪些能力应当延后
+当前阶段的重点不是把 gorse 全量能力一次性接完，而是先保证：
 
-本文档只讨论“推荐核心能力”与“推荐工程落地方式”，不讨论商城通用业务功能。
+- 后端不再依赖旧推荐表和旧离线任务
+- 商城推荐接口、曝光埋点、行为埋点继续可用
+- 项目能正常编译、测试、启动
+- 后续接 gorse 时不需要重做推荐上下文和归因表结构
 
-## 结论摘要
+## 当前保留的数据表
 
-### 一：按业务视角判断，当前项目已经基本闭环
+推荐域当前只保留以下 6 张表：
 
-当前项目已经具备一条完整的推荐业务闭环：
+1. `recommend_request`
+2. `recommend_request_item`
+3. `recommend_actor_bind_log`
+4. `recommend_feedback_event`
+5. `recommend_strategy_release`
+6. `recommend_metrics_day`
 
-1. 前端发起推荐请求
-2. 后端生成 `requestId` 并返回推荐结果
-3. 前端回传曝光、点击、浏览
-4. 收藏、加购、下单、支付继续透传 `recommendContext`
-5. 后端把这些行为沉淀为推荐事实
-6. 定时任务重建偏好、商品关联、商品统计
-7. 定时任务训练或物化相似用户、协同过滤、内容相似、精排分数
-8. 在线链路读取缓存、补齐召回、执行排序、继续写回评估样本
+补充说明：
 
-从“商城推荐能否自循环”这个角度看，当前项目不是半成品，而是已经可以持续积累行为数据、持续迭代推荐结果的系统。
+- `goods_stat_day` 继续保留，但它属于商城商品统计表，不属于 gorse 推荐域事实表。
+- 旧的 `recommend_model_version`、`recommend_eval_report`、`recommend_exposure`、`recommend_exposure_item`、`recommend_goods_action`、`recommend_goods_relation`、`recommend_user_preference`、`recommend_user_goods_preference` 已经不再是当前方案的一部分。
 
-### 二：按推荐平台视角判断，当前项目还没有达到 gorse 的平台闭环
+## 当前后端职责
 
-和 gorse 相比，当前项目更像“围绕商城业务定制的一套推荐系统”，而不是“通用推荐引擎平台”。
+### 1. 推荐请求
 
-当前差距主要集中在四类能力，但其中前两类已经补到“最小可用版”：
+- 入口：`backend/service/app/biz/recommend_request.go`
+- 当前会为首页、商品详情、购物车、我的、下单、支付成功等场景生成 `requestId`
+- 当前先从 `recommend_strategy_release` 读取场景策略码
+- 当前在 gorse API 尚未完全接入时，先使用商品分页兜底返回，保证接口不报错
+- 返回结果同时写入 `recommend_request` 和 `recommend_request_item`
 
-- 最终推荐结果离线预生成已经补到最小版，但目前只覆盖 `HOME` 登录态活跃用户
-- 灰度实验已经补到最小版，但目前只支持单场景、双版本、稳定分桶
-- 仍缺少推荐专用控制台、运行面板和缓存巡检能力
-- 仍缺少更通用的内容表示、外部推荐器接入和多节点工程形态
+### 2. 曝光与行为反馈
 
-## 当前项目已具备的核心能力
+- 曝光入口：`backend/service/app/biz/recommend_exposure.go`
+- 行为入口：`backend/service/app/biz/recommend_goods_action.go`
+- 当前统一写入 `recommend_feedback_event`
+- 已覆盖曝光、点击、浏览、收藏、加购、下单、支付
+- 若命中 `requestId + goodsId`，会回填 `request_item_id` 和 `position`
 
-### 一：主体与行为链路已经完整
+### 3. 匿名主体绑定
 
-当前项目已经支持匿名主体和登录主体两类推荐身份：
+- 入口：`backend/service/app/biz/recommend_actor_bind_log.go`
+- 登录后会把匿名主体下的推荐请求和反馈事件改绑到登录主体
+- 同时写入 `recommend_actor_bind_log`
 
-- 匿名主体通过 `X-Recommend-Anonymous-Id` 透传
-- 登录后会把匿名主体绑定到用户主体
-- 推荐行为已经覆盖 `request -> exposure -> click -> view -> collect -> cart -> order -> pay`
+### 4. 商品统计
 
-对应实现可在以下位置看到：
+- 任务：`backend/pkg/job/task/goods_stat_day.go`
+- 当前从 `recommend_feedback_event` 的 `view` 事件读取浏览数据
+- 再结合 `user_collect`、`user_cart`、`order_info`、`order_goods` 汇总到 `goods_stat_day`
 
-- `backend/service/app/biz/recommend.go`
-- `backend/service/app/biz/recommend_request.go`
-- `backend/service/app/biz/recommend_exposure.go`
-- `backend/service/app/biz/recommend_goods_action.go`
-- `frontend/app/src/api/app/recommend.ts`
-- `frontend/app/src/components/XtxGuess.vue`
+## 当前 gorse 接入边界
 
-### 二：离线聚合与训练任务已经形成体系
+当前仓库对 gorse 的边界约定如下：
 
-当前项目不是只有在线现算，还已经接入一组推荐定时任务：
+- gorse 的部署入口位于仓库根目录 `gorse/docker-compose.yml`
+- gorse 配置文件位于 `gorse/config/config.toml`
+- 场景到 gorse 策略码的映射由 `recommend_strategy_release` 维护
+- 后端现阶段先保留请求留痕和反馈留痕，不再在本地训练、发布、评估推荐模型
 
-- `RecommendGoodsStatDay`
-- `RecommendUserPreferenceRebuild`
-- `RecommendGoodsRelationRebuild`
-- `RecommendHotMaterialize`
-- `RecommendLatestMaterialize`
-- `RecommendSimilarItemMaterialize`
-- `RecommendSimilarUserMaterialize`
-- `RecommendCollaborativeFilteringMaterialize`
-- `RecommendContentBasedMaterialize`
-- `RecommendRankerMaterialize`
-- `RecommendResultMaterialize`
-- `RecommendLlmRerankMaterialize`
-- `RecommendEvalReport`
-- `RecommendVersionPublish`
+## 分步骤接入建议
 
-这些任务已经在 `sql/default-data.sql` 中给出初始化配置，说明当前推荐链路已经不是“代码里有能力，但没有运行入口”的状态。
+### 第一步：先保证后端链路稳定
 
-### 三：在线推荐已经不是单一路径
+- 保持当前 6 张推荐表结构
+- 保持 `RecommendGoods`、曝光、行为、匿名绑定接口可用
+- 让项目先稳定启动，避免继续依赖旧推荐表和旧任务
 
-当前在线推荐至少已经具备以下能力：
+### 第二步：启动 gorse 基础服务
 
-- 首页登录态最终推荐缓存优先读取
-- 场景召回
-- 热门榜与最新榜兜底
-- 商品相似召回
-- 相似用户召回探针
-- 协同过滤召回探针
-- 内容相似召回探针
-- 规则排序
-- AFM 精排分数读取
-- LLM 二次重排缓存读取与在线补算降级
+- 使用 `gorse/docker-compose.yml` 启动 master、server、worker
+- 根据实际环境调整 `gorse/config/config.toml`
+- 确认 gorse 能正常接收用户、物品、反馈数据
 
-在线主流程集中在：
+### 第三步：把反馈事件同步给 gorse
 
-- `backend/service/app/biz/recommend_request.go`
-- `backend/pkg/recommend/online/planner`
-- `backend/pkg/recommend/online/feature`
-- `backend/pkg/recommend/online/rank`
+- 以 `recommend_feedback_event` 为后端统一事实表
+- 将曝光、点击、收藏、加购、下单、支付等事件转换为 gorse 需要的反馈类型
+- 匿名主体和登录主体统一通过当前 actor 体系映射
 
-### 四：后台已经有版本与评估入口
+### 第四步：把推荐请求切到 gorse
 
-当前后台已具备推荐版本管理页，可以查看：
+- 在 `recommend_request.go` 中把当前商品分页兜底替换为 gorse 推荐接口调用
+- 继续保留 `recommend_request` 和 `recommend_request_item` 的落库逻辑
+- 保证前端仍然拿到稳定的 `requestId` 和 `recommendContext`
 
-- 场景
-- 模型名和模型类型
-- 当前启用版本
-- 生效缓存版本
-- 最近训练摘要
-- 最近评估摘要
-- 发布、设置回滚、清空回滚
+### 第五步：再补充指标与运维
 
-对应位置：
+- 使用 `recommend_metrics_day` 做场景级指标日报
+- 后续如需要，再增加 gorse 同步状态、失败重试、对账任务
 
-- `frontend/admin/src/views/recommend/model-version/index.vue`
-- `backend/service/admin/biz/recommend_model_version.go`
+## 当前结论
 
-## 与 gorse 核心能力的差距
+当前后端已经完成“先去掉旧内置推荐依赖、保留 gorse 接入最小骨架”的收口工作。
 
-下表只关注推荐核心能力，不比较商城业务差异。
+这套状态的特点是：
 
-| 能力项 | 当前项目 | gorse | 判断 |
-| --- | --- | --- | --- |
-| 用户/商品/反馈采集 | 已具备，且链路完整 | 已具备 | 当前项目已达标 |
-| 热门榜、最新榜 | 已具备 | 已具备 | 当前项目已达标 |
-| Item-to-Item | 已具备 | 已具备 | 当前项目已达标 |
-| User-to-User | 已具备 | 已具备 | 当前项目已达标 |
-| 协同过滤 | 已具备 BPR 训练与缓存发布 | 已具备 | 当前项目已达标但偏业务内嵌 |
-| 排序模型 | 已具备 AFM 精排与调参 | 已具备 CTR/ranker 体系 | 当前项目已可用 |
-| LLM TopN 重排 | 已具备配置与缓存发布能力 | gorse 核心不依赖此项 | 当前项目是附加能力 |
-| 最终推荐结果离线预生成 | 已补最小版：`HOME` 登录态活跃用户离线预生成，在线优先读 `recommend` 缓存，深分页回退在线链路 | Worker 批量生成推荐结果 | 当前项目已补最小可用版 |
-| 推荐在线服务形态 | 单体服务内动态组召回和排序 | 独立 server + worker + master | 当前项目平台化不足 |
-| 灰度实验/A-B | 已支持基于 `userId` / `actorId` 的稳定分桶，单场景双版本灰度放量 | 更偏平台化实验与替换能力 | 当前项目已补最小可用版 |
-| 推荐专用控制台 | 只有版本页，没有完整运维面板 | 有 dashboard | 当前项目明显缺失 |
-| 内容表示能力 | 文本/类目/价格/销量等轻量向量 | 更容易接 embedding 与多模态 | 当前项目扩展性不足 |
-| 外部推荐器接入 | 基本没有通用层 | 支持更灵活的替换与扩展 | 当前项目缺失 |
-| 多节点部署形态 | 暂无 | 原生支持 master/worker/server 分层 | 当前项目缺失 |
-
-## 当前项目最关键的真实短板
-
-### 一：最终推荐列表缓存已经补到最小版，但还不是全场景直出
-
-当前代码中，`recommend` 集合已经不再只是协议预留，当前已经落地：
-
-- `backend/pkg/recommend/cache/types.go`
-- `backend/pkg/recommend/offline/materialize/materializer.go`
-- `backend/pkg/job/task/recommend_result_materialize.go`
-- `backend/service/app/biz/recommend_request.go`
-
-当前最小版能力已经包括：
-
-- 夜间任务为活跃登录用户预生成 `HOME` 场景最终推荐列表
-- 缓存子集合按 `scene + actor + version` 发布
-- 在线 `HOME` 登录态优先直读最终推荐缓存
-- 深分页超出缓存覆盖范围时，自动回退原在线动态链路
-- 接口 `total` 继续返回真实可推荐商品总数，而不是缓存 TopN 总数
-
-但和 gorse 相比，当前仍然只是“最小可用版”，还没有做到：
-
-- 全量登录用户覆盖
-- 匿名主体覆盖
-- `GOODS_DETAIL`、`CART`、`ORDER_DETAIL`、`ORDER_PAID` 等长尾场景覆盖
-- 超过离线 TopN 后仍然继续直读最终推荐缓存
-- 独立 worker 大规模批量产出全用户结果
-
-因此当前和 gorse 的差异，已经不再是“完全没有最终推荐缓存”，而是“只补了首页登录态的轻量版”。
-
-### 二：`grayRatio` 已经变成运行时能力，但还不是通用实验平台
-
-当前版本配置中的这些字段已经真实参与运行时决策：
-
-- `cacheVersion`
-- `rollbackVersion`
-- `grayRatio`
-
-当前在线请求会：
-
-- 基于 `userId` 或匿名 `actorId` 做稳定哈希分桶
-- 在 `baselineVersion` 与 `grayVersion` 间做双版本放量
-- 在 `publishContext` 中记录 `grayHit`、`grayBucket`、`effectiveVersion`
-
-这说明当前系统已经从“版本配置模型”进入了“最小实验模型”。
-
-但和 gorse 或更通用的实验平台相比，当前仍然缺：
-
-- 多实验并行
-- 多层实验叠加
-- 通用实验编排
-- 更完整的版本效果对比工作台
-
-### 三：后台有版本页，但没有推荐运维面板
-
-当前后台能看版本和最近训练摘要，这是很好的基础，但还缺：
-
-- 推荐任务最近一次运行状态
-- 当前缓存命中率
-- 各场景推荐请求量、曝光量、点击量、支付量走势
-- 版本对比
-- 训练产物巡检
-- 缓存子集合巡检
-- 在线降级与失败告警
-
-这类能力在低资源环境下同样重要，因为单机部署更怕“出故障但没人知道”。
-
-### 四：内容相似能力偏轻量，暂时不是通用内容层
-
-当前内容相似主要来自：
-
-- 商品名称
-- 商品描述
-- 商品详情文本
-- 类目
-- 价格分桶
-- 销量分桶
-- 时间分桶
-
-它适合当前商城场景，但还不等价于：
-
-- embedding 驱动的内容相似
-- 图片/文本多模态相似
-- 统一内容特征服务
-
-因此在新商品冷启动和跨品类泛化能力上，和 gorse 还有距离。
-
-## 单机低配置场景下的取舍原则
-
-本文默认部署约束如下：
-
-- 单机部署
-- CPU 较少
-- 内存较小
-- 不额外引入复杂集群组件
-- 推荐请求量中低
-- 业务优先于平台完整性
-
-在这个前提下，不建议直接照搬 gorse 的完整工程形态。
-
-### 一：不追求拆成 master / worker / server 三套服务
-
-单机低配置场景下，优先保留当前“单体服务 + 定时任务”的形态，原因如下：
-
-- 当前项目已经有 `base_job` 任务体系
-- 当前推荐任务已接入依赖注入与统一任务调度
-- 强行拆服务会引入更多部署、监控、网络和故障成本
-
-因此更适合的策略是：
-
-- 保留单体服务
-- 在单体内继续增强离线任务和缓存发布
-- 用任务隔离重训练、物化和评估，而不是先拆进程
-
-### 二：不追求“一上来就给全量用户做最终推荐离线预生成”
-
-全量用户预生成最终推荐列表是对标 gorse 的关键能力，但在低配置机器上应当做选择：
-
-- 先只覆盖登录用户
-- 先只覆盖 `HOME` 主场景
-- 先只覆盖活跃用户
-- 先只保留较小的 TopN
-- 先按日或低频批量生成
-
-不建议第一阶段就做：
-
-- 全量用户
-- 全场景
-- 高频实时重算
-- 大 TopN
-
-### 三：LLM 二次重排不应作为单机方案的核心依赖
-
-LLM 能提升部分结果质量，但在单机低配置方案里，它更适合：
-
-- 保持默认关闭
-- 只作为人工实验能力
-- 或只消费离线快照
-
-不适合作为主链路强依赖，原因如下：
-
-- 增加外部依赖与成本
-- 增加超时与降级复杂度
-- 对单机场景的稳定性收益不如最终推荐缓存明显
-
-### 四：实验系统先做“最小可用”，不要一开始做平台化 A-B
-
-低配置阶段更适合做的灰度方案是：
-
-- 基于 `userId` 或匿名 `actorId` 的稳定哈希分桶
-- 只支持单场景、双版本对比
-- 只支持固定比例放量
-- 结果回流到已有离线评估口径
-
-不建议第一阶段就做：
-
-- 多实验并行
-- 多层实验叠加
-- 通用实验平台
-- 独立实验服务
-
-## 单机低配场景下的目标形态
-
-在单机低配置前提下，推荐系统更现实的目标不是“做成 gorse”，而是“做成可长期运行、可回溯、可逐步增强的轻量版推荐系统”。
-
-建议目标形态如下：
-
-### 第一层：保留当前在线动态推荐链路
-
-继续保留：
-
-- 在线组召回
-- 在线读中间缓存
-- 在线执行排序
-- 在线回写 request 与行为事实
-
-因为这条链当前已经稳定存在，且能覆盖匿名和长尾场景。
-
-### 第二层：新增有限范围的最终推荐离线缓存
-
-当前已经补到以下范围：
-
-- 登录用户
-- `HOME` 场景
-- 活跃用户
-- 夜间离线任务
-- Top 100 左右
-
-在线请求命中最终缓存则直读，未命中则回退当前在线链路。
-
-### 第三层：补最小可用实验与运维能力
-
-当前实验能力已经补到以下范围：
-
-- 稳定分桶
-- 单场景双版本
-
-当前仍建议补：
-
-- 推荐任务运行摘要
-- 缓存命中摘要
-- 场景级效果面板
-
-这样可以在不增加太多系统复杂度的前提下，把推荐系统从“能跑”推进到“可运营”。
-
-## 最终判断
-
-### 当前项目已经具备的部分
-
-- 已有业务闭环
-- 已有离线聚合
-- 已有多路召回
-- 已有排序模型
-- 已有评估报表
-- 已有版本配置
-- 已有首页登录态最终推荐缓存最小版
-- 已有真实灰度分流最小版
-
-### 当前项目还缺的部分
-
-- 全量用户、全场景的最终推荐结果离线预生成
-- 通用实验平台与更丰富的版本对比能力
-- 推荐专用控制台与运维面板
-- 更通用的内容特征与外部推荐器扩展
-
-### 对单机低配置场景的建议
-
-不建议直接追求 gorse 的完整平台形态，建议优先走下面这条路线：
-
-1. 先把当前推荐闭环稳住
-2. 再把“有限范围的最终推荐缓存”扩大到更多用户和场景
-3. 再把最小可用灰度扩成更完整的实验能力
-4. 再补推荐运维与效果面板
-5. 最后再考虑更重的 embedding、外部推荐器和多进程拆分
-
-这个路线更符合当前项目基础，也更适合低资源服务器长期运行。
+- 项目可以先不依赖旧推荐表和旧离线任务
+- 推荐埋点链路仍然完整
+- 后续接 gorse 时，不需要再重做前端推荐上下文和行为归因结构

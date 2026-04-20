@@ -37,9 +37,7 @@ func newGoodsStatDay(db *gorm.DB, opts ...gen.DOOption) goodsStatDay {
 	_goodsStatDay.PayCount = field.NewInt64(tableName, "pay_count")
 	_goodsStatDay.PayGoodsNum = field.NewInt64(tableName, "pay_goods_num")
 	_goodsStatDay.PayAmount = field.NewInt64(tableName, "pay_amount")
-	_goodsStatDay.Score = field.NewFloat64(tableName, "score")
-	_goodsStatDay.CreatedAt = field.NewTime(tableName, "created_at")
-	_goodsStatDay.UpdatedAt = field.NewTime(tableName, "updated_at")
+	_goodsStatDay.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_goodsStatDay.fillFieldMap()
 
@@ -51,19 +49,17 @@ type goodsStatDay struct {
 	goodsStatDayDo goodsStatDayDo
 
 	ALL          field.Asterisk
-	ID           field.Int64   // 主键ID
-	StatDate     field.Time    // 统计日期
-	GoodsID      field.Int64   // 商品ID
-	ViewCount    field.Int64   // 浏览次数
-	CollectCount field.Int64   // 收藏次数
-	CartCount    field.Int64   // 加购次数
-	OrderCount   field.Int64   // 下单次数
-	PayCount     field.Int64   // 支付次数
-	PayGoodsNum  field.Int64   // 支付商品件数
-	PayAmount    field.Int64   // 支付金额
-	Score        field.Float64 // 推荐得分
-	CreatedAt    field.Time    // 创建时间
-	UpdatedAt    field.Time    // 更新时间
+	ID           field.Int64 // 主键ID
+	StatDate     field.Time  // 统计日期
+	GoodsID      field.Int64 // 商品ID
+	ViewCount    field.Int64 // 浏览次数
+	CollectCount field.Int64 // 收藏次数
+	CartCount    field.Int64 // 加购次数
+	OrderCount   field.Int64 // 下单次数
+	PayCount     field.Int64 // 支付次数
+	PayGoodsNum  field.Int64 // 支付商品件数
+	PayAmount    field.Int64 // 支付金额
+	DeletedAt    field.Field // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -90,9 +86,7 @@ func (g *goodsStatDay) updateTableName(table string) *goodsStatDay {
 	g.PayCount = field.NewInt64(table, "pay_count")
 	g.PayGoodsNum = field.NewInt64(table, "pay_goods_num")
 	g.PayAmount = field.NewInt64(table, "pay_amount")
-	g.Score = field.NewFloat64(table, "score")
-	g.CreatedAt = field.NewTime(table, "created_at")
-	g.UpdatedAt = field.NewTime(table, "updated_at")
+	g.DeletedAt = field.NewField(table, "deleted_at")
 
 	g.fillFieldMap()
 
@@ -121,7 +115,7 @@ func (g *goodsStatDay) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (g *goodsStatDay) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 13)
+	g.fieldMap = make(map[string]field.Expr, 11)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["stat_date"] = g.StatDate
 	g.fieldMap["goods_id"] = g.GoodsID
@@ -132,9 +126,7 @@ func (g *goodsStatDay) fillFieldMap() {
 	g.fieldMap["pay_count"] = g.PayCount
 	g.fieldMap["pay_goods_num"] = g.PayGoodsNum
 	g.fieldMap["pay_amount"] = g.PayAmount
-	g.fieldMap["score"] = g.Score
-	g.fieldMap["created_at"] = g.CreatedAt
-	g.fieldMap["updated_at"] = g.UpdatedAt
+	g.fieldMap["deleted_at"] = g.DeletedAt
 }
 
 func (g goodsStatDay) clone(db *gorm.DB) goodsStatDay {

@@ -183,3 +183,10 @@ enum RecommendGoodsActionType{
   ORDER_CREATE = 5; // 下单事件
   ORDER_PAY = 6; // 支付事件
 }
+
+// 推荐主体类型枚举
+enum RecommendActorType {
+  UNKNOWN_RAT = 0; // 未指定主体类型
+  ANONYMOUS = 1; // 匿名用户
+  USER = 2; // 用户
+}

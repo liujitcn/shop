@@ -146,62 +146,32 @@ func (*PayBill) TableComment() string {
 
 // TableComment 返回表注释。
 func (*RecommendActorBindLog) TableComment() string {
-	return "推荐主体绑定日志信息"
+	return "推荐主体绑定日志表"
 }
 
 // TableComment 返回表注释。
-func (*RecommendEvalReport) TableComment() string {
-	return "推荐评估结果表"
+func (*RecommendFeedbackEvent) TableComment() string {
+	return "推荐反馈事件表"
 }
 
 // TableComment 返回表注释。
-func (*RecommendExposure) TableComment() string {
-	return "推荐曝光记录信息"
-}
-
-// TableComment 返回表注释。
-func (*RecommendExposureItem) TableComment() string {
-	return "推荐曝光商品明细信息"
-}
-
-// TableComment 返回表注释。
-func (*RecommendGoodsAction) TableComment() string {
-	return "推荐商品行为明细信息"
-}
-
-// TableComment 返回表注释。
-func (*RecommendGoodsRelation) TableComment() string {
-	return "商品关联聚合信息"
-}
-
-// TableComment 返回表注释。
-func (*RecommendGoodsStatDay) TableComment() string {
-	return "推荐商品日统计表"
-}
-
-// TableComment 返回表注释。
-func (*RecommendModelVersion) TableComment() string {
-	return "推荐模型版本表"
+func (*RecommendMetricsDay) TableComment() string {
+	return "推荐指标日报表"
 }
 
 // TableComment 返回表注释。
 func (*RecommendRequest) TableComment() string {
-	return "推荐请求记录信息"
+	return "推荐请求事实表"
 }
 
 // TableComment 返回表注释。
 func (*RecommendRequestItem) TableComment() string {
-	return "推荐请求商品明细信息"
+	return "推荐请求返回商品明细表"
 }
 
 // TableComment 返回表注释。
-func (*RecommendUserGoodsPreference) TableComment() string {
-	return "用户商品偏好聚合信息"
-}
-
-// TableComment 返回表注释。
-func (*RecommendUserPreference) TableComment() string {
-	return "用户偏好聚合信息"
+func (*RecommendStrategyRelease) TableComment() string {
+	return "推荐策略发布表"
 }
 
 // TableComment 返回表注释。

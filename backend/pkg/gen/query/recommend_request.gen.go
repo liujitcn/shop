@@ -32,17 +32,23 @@ func newRecommendRequest(db *gorm.DB, opts ...gen.DOOption) recommendRequest {
 	_recommendRequest.ActorType = field.NewInt32(tableName, "actor_type")
 	_recommendRequest.ActorID = field.NewInt64(tableName, "actor_id")
 	_recommendRequest.Scene = field.NewInt32(tableName, "scene")
-	_recommendRequest.SourceContext = field.NewString(tableName, "source_context")
+	_recommendRequest.AnchorGoodsID = field.NewInt64(tableName, "anchor_goods_id")
 	_recommendRequest.PageNum = field.NewInt32(tableName, "page_num")
 	_recommendRequest.PageSize = field.NewInt32(tableName, "page_size")
+	_recommendRequest.StrategyCode = field.NewString(tableName, "strategy_code")
+	_recommendRequest.Status = field.NewInt32(tableName, "status")
+	_recommendRequest.ResultCount = field.NewInt32(tableName, "result_count")
+	_recommendRequest.ExtJSON = field.NewString(tableName, "ext_json")
+	_recommendRequest.RequestedAt = field.NewTime(tableName, "requested_at")
 	_recommendRequest.CreatedAt = field.NewTime(tableName, "created_at")
+	_recommendRequest.UpdatedAt = field.NewTime(tableName, "updated_at")
 
 	_recommendRequest.fillFieldMap()
 
 	return _recommendRequest
 }
 
-// recommendRequest 推荐请求记录信息
+// recommendRequest 推荐请求事实表
 type recommendRequest struct {
 	recommendRequestDo recommendRequestDo
 
@@ -52,10 +58,16 @@ type recommendRequest struct {
 	ActorType     field.Int32  // 主体类型：0匿名 1登录用户
 	ActorID       field.Int64  // 主体ID：匿名ID或用户ID
 	Scene         field.Int32  // 推荐场景：枚举【RecommendScene】
-	SourceContext field.String // 场景上下文JSON
+	AnchorGoodsID field.Int64  // 锚点商品ID
 	PageNum       field.Int32  // 页码
 	PageSize      field.Int32  // 分页大小
+	StrategyCode  field.String // 策略编码
+	Status        field.Int32  // 请求状态：1成功 2降级 3失败
+	ResultCount   field.Int32  // 返回条数
+	ExtJSON       field.String // 扩展上下文JSON
+	RequestedAt   field.Time   // 请求时间
 	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -77,10 +89,16 @@ func (r *recommendRequest) updateTableName(table string) *recommendRequest {
 	r.ActorType = field.NewInt32(table, "actor_type")
 	r.ActorID = field.NewInt64(table, "actor_id")
 	r.Scene = field.NewInt32(table, "scene")
-	r.SourceContext = field.NewString(table, "source_context")
+	r.AnchorGoodsID = field.NewInt64(table, "anchor_goods_id")
 	r.PageNum = field.NewInt32(table, "page_num")
 	r.PageSize = field.NewInt32(table, "page_size")
+	r.StrategyCode = field.NewString(table, "strategy_code")
+	r.Status = field.NewInt32(table, "status")
+	r.ResultCount = field.NewInt32(table, "result_count")
+	r.ExtJSON = field.NewString(table, "ext_json")
+	r.RequestedAt = field.NewTime(table, "requested_at")
 	r.CreatedAt = field.NewTime(table, "created_at")
+	r.UpdatedAt = field.NewTime(table, "updated_at")
 
 	r.fillFieldMap()
 
@@ -109,16 +127,22 @@ func (r *recommendRequest) GetFieldByName(fieldName string) (field.OrderExpr, bo
 }
 
 func (r *recommendRequest) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 9)
+	r.fieldMap = make(map[string]field.Expr, 15)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["request_id"] = r.RequestID
 	r.fieldMap["actor_type"] = r.ActorType
 	r.fieldMap["actor_id"] = r.ActorID
 	r.fieldMap["scene"] = r.Scene
-	r.fieldMap["source_context"] = r.SourceContext
+	r.fieldMap["anchor_goods_id"] = r.AnchorGoodsID
 	r.fieldMap["page_num"] = r.PageNum
 	r.fieldMap["page_size"] = r.PageSize
+	r.fieldMap["strategy_code"] = r.StrategyCode
+	r.fieldMap["status"] = r.Status
+	r.fieldMap["result_count"] = r.ResultCount
+	r.fieldMap["ext_json"] = r.ExtJSON
+	r.fieldMap["requested_at"] = r.RequestedAt
 	r.fieldMap["created_at"] = r.CreatedAt
+	r.fieldMap["updated_at"] = r.UpdatedAt
 }
 
 func (r recommendRequest) clone(db *gorm.DB) recommendRequest {

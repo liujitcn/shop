@@ -1174,6 +1174,56 @@ func (RecommendGoodsActionType) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{20}
 }
 
+// 推荐主体类型枚举
+type RecommendActorType int32
+
+const (
+	RecommendActorType_UNKNOWN_RAT RecommendActorType = 0 // 未指定主体类型
+	RecommendActorType_ANONYMOUS   RecommendActorType = 1 // 匿名用户
+	RecommendActorType_USER        RecommendActorType = 2 // 用户
+)
+
+// Enum value maps for RecommendActorType.
+var (
+	RecommendActorType_name = map[int32]string{
+		0: "UNKNOWN_RAT",
+		1: "ANONYMOUS",
+		2: "USER",
+	}
+	RecommendActorType_value = map[string]int32{
+		"UNKNOWN_RAT": 0,
+		"ANONYMOUS":   1,
+		"USER":        2,
+	}
+)
+
+func (x RecommendActorType) Enum() *RecommendActorType {
+	p := new(RecommendActorType)
+	*p = x
+	return p
+}
+
+func (x RecommendActorType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RecommendActorType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_enum_proto_enumTypes[21].Descriptor()
+}
+
+func (RecommendActorType) Type() protoreflect.EnumType {
+	return &file_common_enum_proto_enumTypes[21]
+}
+
+func (x RecommendActorType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RecommendActorType.Descriptor instead.
+func (RecommendActorType) EnumDescriptor() ([]byte, []int) {
+	return file_common_enum_proto_rawDescGZIP(), []int{21}
+}
+
 var File_common_enum_proto protoreflect.FileDescriptor
 
 const file_common_enum_proto_rawDesc = "" +
@@ -1310,7 +1360,11 @@ const file_common_enum_proto_rawDesc = "" +
 	"\aCOLLECT\x10\x03\x12\f\n" +
 	"\bADD_CART\x10\x04\x12\x10\n" +
 	"\fORDER_CREATE\x10\x05\x12\r\n" +
-	"\tORDER_PAY\x10\x06Bg\n" +
+	"\tORDER_PAY\x10\x06*>\n" +
+	"\x12RecommendActorType\x12\x0f\n" +
+	"\vUNKNOWN_RAT\x10\x00\x12\r\n" +
+	"\tANONYMOUS\x10\x01\x12\b\n" +
+	"\x04USER\x10\x02Bg\n" +
 	"\n" +
 	"com.commonB\tEnumProtoP\x01Z\x16shop/api/gen/go/common\xa2\x02\x03CXX\xaa\x02\x06Common\xca\x02\x06Common\xe2\x02\x12Common\\GPBMetadata\xea\x02\x06Commonb\x06proto3"
 
@@ -1326,7 +1380,7 @@ func file_common_enum_proto_rawDescGZIP() []byte {
 	return file_common_enum_proto_rawDescData
 }
 
-var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 21)
+var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 22)
 var file_common_enum_proto_goTypes = []any{
 	(Status)(0),                   // 0: common.Status
 	(BaseConfigSite)(0),           // 1: common.BaseConfigSite
@@ -1349,6 +1403,7 @@ var file_common_enum_proto_goTypes = []any{
 	(PayBillStatus)(0),            // 18: common.PayBillStatus
 	(RecommendScene)(0),           // 19: common.RecommendScene
 	(RecommendGoodsActionType)(0), // 20: common.RecommendGoodsActionType
+	(RecommendActorType)(0),       // 21: common.RecommendActorType
 }
 var file_common_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1368,7 +1423,7 @@ func file_common_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_enum_proto_rawDesc), len(file_common_enum_proto_rawDesc)),
-			NumEnums:      21,
+			NumEnums:      22,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

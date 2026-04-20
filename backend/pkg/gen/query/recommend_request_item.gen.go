@@ -32,42 +32,36 @@ func newRecommendRequestItem(db *gorm.DB, opts ...gen.DOOption) recommendRequest
 	_recommendRequestItem.GoodsID = field.NewInt64(tableName, "goods_id")
 	_recommendRequestItem.Position = field.NewInt32(tableName, "position")
 	_recommendRequestItem.RecallSource = field.NewString(tableName, "recall_source")
-	_recommendRequestItem.FinalScore = field.NewFloat64(tableName, "final_score")
-	_recommendRequestItem.RelationScore = field.NewFloat64(tableName, "relation_score")
-	_recommendRequestItem.UserGoodsScore = field.NewFloat64(tableName, "user_goods_score")
-	_recommendRequestItem.ProfileScore = field.NewFloat64(tableName, "profile_score")
-	_recommendRequestItem.ScenePopularityScore = field.NewFloat64(tableName, "scene_popularity_score")
-	_recommendRequestItem.GlobalPopularityScore = field.NewFloat64(tableName, "global_popularity_score")
-	_recommendRequestItem.FreshnessScore = field.NewFloat64(tableName, "freshness_score")
-	_recommendRequestItem.ExposurePenalty = field.NewFloat64(tableName, "exposure_penalty")
-	_recommendRequestItem.ActorExposurePenalty = field.NewFloat64(tableName, "actor_exposure_penalty")
-	_recommendRequestItem.RepeatPenalty = field.NewFloat64(tableName, "repeat_penalty")
+	_recommendRequestItem.StrategyCode = field.NewString(tableName, "strategy_code")
+	_recommendRequestItem.Score = field.NewFloat64(tableName, "score")
+	_recommendRequestItem.IsExposed = field.NewInt32(tableName, "is_exposed")
+	_recommendRequestItem.IsClicked = field.NewInt32(tableName, "is_clicked")
+	_recommendRequestItem.IsConverted = field.NewInt32(tableName, "is_converted")
+	_recommendRequestItem.CreatedAt = field.NewTime(tableName, "created_at")
+	_recommendRequestItem.UpdatedAt = field.NewTime(tableName, "updated_at")
 
 	_recommendRequestItem.fillFieldMap()
 
 	return _recommendRequestItem
 }
 
-// recommendRequestItem 推荐请求商品明细信息
+// recommendRequestItem 推荐请求返回商品明细表
 type recommendRequestItem struct {
 	recommendRequestItemDo recommendRequestItemDo
 
-	ALL                   field.Asterisk
-	ID                    field.Int64   // 主键ID
-	RecommendRequestID    field.Int64   // 推荐请求主表ID
-	GoodsID               field.Int64   // 商品ID
-	Position              field.Int32   // 推荐位序号
-	RecallSource          field.String  // 商品级召回来源JSON
-	FinalScore            field.Float64 // 最终得分
-	RelationScore         field.Float64 // 关联得分
-	UserGoodsScore        field.Float64 // 用户商品偏好得分
-	ProfileScore          field.Float64 // 用户画像得分
-	ScenePopularityScore  field.Float64 // 场景热度得分
-	GlobalPopularityScore field.Float64 // 全站热度得分
-	FreshnessScore        field.Float64 // 新鲜度得分
-	ExposurePenalty       field.Float64 // 场景曝光惩罚得分
-	ActorExposurePenalty  field.Float64 // 主体曝光惩罚得分
-	RepeatPenalty         field.Float64 // 重复购买惩罚得分
+	ALL                field.Asterisk
+	ID                 field.Int64   // 主键ID
+	RecommendRequestID field.Int64   // 推荐请求主表ID
+	GoodsID            field.Int64   // 商品ID
+	Position           field.Int32   // 推荐位序号
+	RecallSource       field.String  // 召回来源
+	StrategyCode       field.String  // 策略编码
+	Score              field.Float64 // 最终分数
+	IsExposed          field.Int32   // 是否已曝光
+	IsClicked          field.Int32   // 是否已点击
+	IsConverted        field.Int32   // 是否已转化
+	CreatedAt          field.Time    // 创建时间
+	UpdatedAt          field.Time    // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -89,16 +83,13 @@ func (r *recommendRequestItem) updateTableName(table string) *recommendRequestIt
 	r.GoodsID = field.NewInt64(table, "goods_id")
 	r.Position = field.NewInt32(table, "position")
 	r.RecallSource = field.NewString(table, "recall_source")
-	r.FinalScore = field.NewFloat64(table, "final_score")
-	r.RelationScore = field.NewFloat64(table, "relation_score")
-	r.UserGoodsScore = field.NewFloat64(table, "user_goods_score")
-	r.ProfileScore = field.NewFloat64(table, "profile_score")
-	r.ScenePopularityScore = field.NewFloat64(table, "scene_popularity_score")
-	r.GlobalPopularityScore = field.NewFloat64(table, "global_popularity_score")
-	r.FreshnessScore = field.NewFloat64(table, "freshness_score")
-	r.ExposurePenalty = field.NewFloat64(table, "exposure_penalty")
-	r.ActorExposurePenalty = field.NewFloat64(table, "actor_exposure_penalty")
-	r.RepeatPenalty = field.NewFloat64(table, "repeat_penalty")
+	r.StrategyCode = field.NewString(table, "strategy_code")
+	r.Score = field.NewFloat64(table, "score")
+	r.IsExposed = field.NewInt32(table, "is_exposed")
+	r.IsClicked = field.NewInt32(table, "is_clicked")
+	r.IsConverted = field.NewInt32(table, "is_converted")
+	r.CreatedAt = field.NewTime(table, "created_at")
+	r.UpdatedAt = field.NewTime(table, "updated_at")
 
 	r.fillFieldMap()
 
@@ -127,22 +118,19 @@ func (r *recommendRequestItem) GetFieldByName(fieldName string) (field.OrderExpr
 }
 
 func (r *recommendRequestItem) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 15)
+	r.fieldMap = make(map[string]field.Expr, 12)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["recommend_request_id"] = r.RecommendRequestID
 	r.fieldMap["goods_id"] = r.GoodsID
 	r.fieldMap["position"] = r.Position
 	r.fieldMap["recall_source"] = r.RecallSource
-	r.fieldMap["final_score"] = r.FinalScore
-	r.fieldMap["relation_score"] = r.RelationScore
-	r.fieldMap["user_goods_score"] = r.UserGoodsScore
-	r.fieldMap["profile_score"] = r.ProfileScore
-	r.fieldMap["scene_popularity_score"] = r.ScenePopularityScore
-	r.fieldMap["global_popularity_score"] = r.GlobalPopularityScore
-	r.fieldMap["freshness_score"] = r.FreshnessScore
-	r.fieldMap["exposure_penalty"] = r.ExposurePenalty
-	r.fieldMap["actor_exposure_penalty"] = r.ActorExposurePenalty
-	r.fieldMap["repeat_penalty"] = r.RepeatPenalty
+	r.fieldMap["strategy_code"] = r.StrategyCode
+	r.fieldMap["score"] = r.Score
+	r.fieldMap["is_exposed"] = r.IsExposed
+	r.fieldMap["is_clicked"] = r.IsClicked
+	r.fieldMap["is_converted"] = r.IsConverted
+	r.fieldMap["created_at"] = r.CreatedAt
+	r.fieldMap["updated_at"] = r.UpdatedAt
 }
 
 func (r recommendRequestItem) clone(db *gorm.DB) recommendRequestItem {

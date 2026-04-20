@@ -6,25 +6,25 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const TableNameGoodsStatDay = "goods_stat_day"
 
 // GoodsStatDay 商品日统计表
 type GoodsStatDay struct {
-	ID           int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                                                                            // 主键ID
-	StatDate     time.Time `gorm:"column:stat_date;type:date;not null;uniqueIndex:unique_goods_stat_day,priority:1;index:idx_goods_stat_day_goods_id_stat_date,priority:2;comment:统计日期" json:"stat_date"` // 统计日期
-	GoodsID      int64     `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:unique_goods_stat_day,priority:2;index:idx_goods_stat_day_goods_id_stat_date,priority:1;comment:商品ID" json:"goods_id"` // 商品ID
-	ViewCount    int64     `gorm:"column:view_count;type:bigint;not null;comment:浏览次数" json:"view_count"`                                                                                                 // 浏览次数
-	CollectCount int64     `gorm:"column:collect_count;type:bigint;not null;comment:收藏次数" json:"collect_count"`                                                                                           // 收藏次数
-	CartCount    int64     `gorm:"column:cart_count;type:bigint;not null;comment:加购次数" json:"cart_count"`                                                                                                 // 加购次数
-	OrderCount   int64     `gorm:"column:order_count;type:bigint;not null;comment:下单次数" json:"order_count"`                                                                                               // 下单次数
-	PayCount     int64     `gorm:"column:pay_count;type:bigint;not null;comment:支付次数" json:"pay_count"`                                                                                                   // 支付次数
-	PayGoodsNum  int64     `gorm:"column:pay_goods_num;type:bigint;not null;comment:支付商品件数" json:"pay_goods_num"`                                                                                         // 支付商品件数
-	PayAmount    int64     `gorm:"column:pay_amount;type:bigint;not null;comment:支付金额" json:"pay_amount"`                                                                                                 // 支付金额
-	Score        float64   `gorm:"column:score;type:decimal(14,4);not null;default:0.0000;comment:推荐得分" json:"score"`                                                                                     // 推荐得分
-	CreatedAt    time.Time `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                                                     // 创建时间
-	UpdatedAt    time.Time `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                                     // 更新时间
+	ID           int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:主键ID" json:"id"`                                     // 主键ID
+	StatDate     time.Time      `gorm:"column:stat_date;type:date;not null;uniqueIndex:unique_goods_stat_day,priority:1;comment:统计日期" json:"stat_date"` // 统计日期
+	GoodsID      int64          `gorm:"column:goods_id;type:bigint;not null;uniqueIndex:unique_goods_stat_day,priority:2;comment:商品ID" json:"goods_id"` // 商品ID
+	ViewCount    int64          `gorm:"column:view_count;type:bigint;comment:浏览次数" json:"view_count"`                                                   // 浏览次数
+	CollectCount int64          `gorm:"column:collect_count;type:bigint;comment:收藏次数" json:"collect_count"`                                             // 收藏次数
+	CartCount    int64          `gorm:"column:cart_count;type:bigint;comment:加购次数" json:"cart_count"`                                                   // 加购次数
+	OrderCount   int64          `gorm:"column:order_count;type:bigint;comment:下单次数" json:"order_count"`                                                 // 下单次数
+	PayCount     int64          `gorm:"column:pay_count;type:bigint;comment:支付次数" json:"pay_count"`                                                     // 支付次数
+	PayGoodsNum  int64          `gorm:"column:pay_goods_num;type:bigint;comment:支付商品件数" json:"pay_goods_num"`                                           // 支付商品件数
+	PayAmount    int64          `gorm:"column:pay_amount;type:bigint;comment:支付金额" json:"pay_amount"`                                                   // 支付金额
+	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;index:idx_goods_stat_day_deleted_at,priority:1;comment:删除时间" json:"deleted_at"`  // 删除时间
 }
 
 // TableName GoodsStatDay's table name

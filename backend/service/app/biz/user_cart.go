@@ -8,14 +8,12 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	recommendcore "shop/pkg/recommend/core"
-	recommendEvent "shop/pkg/recommend/event"
 	pkgUtils "shop/pkg/utils"
-	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 	"time"
 
 	"github.com/liujitcn/go-utils/mapper"
+	_slice "github.com/liujitcn/go-utils/slice"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -308,7 +306,7 @@ func (c *UserCartCase) listGoodsIdsByUserId(ctx context.Context, userId int64) (
 	for _, item := range list {
 		goodsIds = append(goodsIds, item.GoodsID)
 	}
-	return recommendcore.DedupeInt64s(goodsIds), nil
+	return _slice.Unique(goodsIds), nil
 }
 
 // dispatchRecommendGoodsActionEvent 根据购物车落库事实回写推荐加购行为。
@@ -323,8 +321,8 @@ func (c *UserCartCase) dispatchRecommendGoodsActionEvent(userId, goodsId, goodsN
 	}
 
 	// 只在购物车写库成功后回写推荐加购行为，确保推荐链路与后端事实一致。
-	pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
-		ActorType: recommendEvent.ActorTypeUser,
+	pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
+		ActorType: common.RecommendActorType_USER,
 		ActorId:   userId,
 	}, &app.RecommendGoodsActionReportRequest{
 		EventType: common.RecommendGoodsActionType_ADD_CART,

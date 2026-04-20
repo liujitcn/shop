@@ -159,5 +159,14 @@ message RecommendGoodsActionReportRequest {
   repeated RecommendGoodsActionItem goodsItems = 2 [
     (gnostic.openapi.v3.property) = {description: "商品行为事件项"}
   ];  // 商品行为事件项
+}
 
+// 推荐主体信息
+message RecommendActor {
+  common.RecommendActorType ActorType = 1 [
+    (gnostic.openapi.v3.property) = {description: "推荐主体类型"}
+  ];  // 推荐主体类型
+  int64 ActorId = 2 [
+    (gnostic.openapi.v3.property) = {description: "推荐主体类型"}
+  ];  // 推荐主体ID
 }

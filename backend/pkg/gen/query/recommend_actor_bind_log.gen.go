@@ -30,22 +30,30 @@ func newRecommendActorBindLog(db *gorm.DB, opts ...gen.DOOption) recommendActorB
 	_recommendActorBindLog.ID = field.NewInt64(tableName, "id")
 	_recommendActorBindLog.AnonymousID = field.NewInt64(tableName, "anonymous_id")
 	_recommendActorBindLog.UserID = field.NewInt64(tableName, "user_id")
+	_recommendActorBindLog.BindType = field.NewString(tableName, "bind_type")
+	_recommendActorBindLog.ExtJSON = field.NewString(tableName, "ext_json")
+	_recommendActorBindLog.BindAt = field.NewTime(tableName, "bind_at")
 	_recommendActorBindLog.CreatedAt = field.NewTime(tableName, "created_at")
+	_recommendActorBindLog.UpdatedAt = field.NewTime(tableName, "updated_at")
 
 	_recommendActorBindLog.fillFieldMap()
 
 	return _recommendActorBindLog
 }
 
-// recommendActorBindLog 推荐主体绑定日志信息
+// recommendActorBindLog 推荐主体绑定日志表
 type recommendActorBindLog struct {
 	recommendActorBindLogDo recommendActorBindLogDo
 
 	ALL         field.Asterisk
-	ID          field.Int64 // 主键ID
-	AnonymousID field.Int64 // 匿名主体ID
-	UserID      field.Int64 // 登录用户ID
-	CreatedAt   field.Time  // 创建时间
+	ID          field.Int64  // 主键ID
+	AnonymousID field.Int64  // 匿名主体ID
+	UserID      field.Int64  // 登录用户ID
+	BindType    field.String // 绑定类型
+	ExtJSON     field.String // 扩展信息JSON
+	BindAt      field.Time   // 绑定时间
+	CreatedAt   field.Time   // 创建时间
+	UpdatedAt   field.Time   // 更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -65,7 +73,11 @@ func (r *recommendActorBindLog) updateTableName(table string) *recommendActorBin
 	r.ID = field.NewInt64(table, "id")
 	r.AnonymousID = field.NewInt64(table, "anonymous_id")
 	r.UserID = field.NewInt64(table, "user_id")
+	r.BindType = field.NewString(table, "bind_type")
+	r.ExtJSON = field.NewString(table, "ext_json")
+	r.BindAt = field.NewTime(table, "bind_at")
 	r.CreatedAt = field.NewTime(table, "created_at")
+	r.UpdatedAt = field.NewTime(table, "updated_at")
 
 	r.fillFieldMap()
 
@@ -94,11 +106,15 @@ func (r *recommendActorBindLog) GetFieldByName(fieldName string) (field.OrderExp
 }
 
 func (r *recommendActorBindLog) fillFieldMap() {
-	r.fieldMap = make(map[string]field.Expr, 4)
+	r.fieldMap = make(map[string]field.Expr, 8)
 	r.fieldMap["id"] = r.ID
 	r.fieldMap["anonymous_id"] = r.AnonymousID
 	r.fieldMap["user_id"] = r.UserID
+	r.fieldMap["bind_type"] = r.BindType
+	r.fieldMap["ext_json"] = r.ExtJSON
+	r.fieldMap["bind_at"] = r.BindAt
 	r.fieldMap["created_at"] = r.CreatedAt
+	r.fieldMap["updated_at"] = r.UpdatedAt
 }
 
 func (r recommendActorBindLog) clone(db *gorm.DB) recommendActorBindLog {

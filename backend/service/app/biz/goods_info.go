@@ -7,13 +7,13 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	recommendCore "shop/pkg/recommend/core"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
+	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repo"
 )
 
@@ -198,10 +198,11 @@ func (c *GoodsInfoCase) listCategoryIdsByGoodsIds(ctx context.Context, goodsIds 
 	}
 
 	categoryIds := make([]int64, 0, len(list))
+
 	for _, item := range list {
 		categoryIds = append(categoryIds, item.CategoryID)
 	}
-	return recommendCore.DedupeInt64s(categoryIds), nil
+	return _slice.Unique(categoryIds), nil
 }
 
 // 按商品编号批量查询并组装映射

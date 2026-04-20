@@ -15,10 +15,8 @@ import (
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
-	recommendEvent "shop/pkg/recommend/event"
 	pkgUtils "shop/pkg/utils"
 	"shop/pkg/wx"
-	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -840,8 +838,8 @@ func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(payType common.OrderPa
 			GoodsItems: goodsItems,
 		}
 		// 订单创建事务提交成功后，再按落库事实回写推荐下单行为。
-		pkgUtils.DispatchRecommendGoodsActionEvent(&appDto.RecommendActor{
-			ActorType: recommendEvent.ActorTypeUser,
+		pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
+			ActorType: common.RecommendActorType_USER,
 			ActorId:   userId,
 		}, orderCreateReport, eventTime)
 	}
