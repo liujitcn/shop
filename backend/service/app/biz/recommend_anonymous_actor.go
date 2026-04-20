@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -25,6 +26,8 @@ type RecommendAnonymousActorCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.RecommendAnonymousActorRepo
+	recommendRequestRepo *data.RecommendRequestRepo
+	recommendEventRepo   *data.RecommendEventRepo
 }
 
 // NewRecommendAnonymousActorCase 创建推荐匿名主体业务处理对象。
@@ -32,11 +35,15 @@ func NewRecommendAnonymousActorCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	recommendAnonymousActorRepo *data.RecommendAnonymousActorRepo,
+	recommendRequestRepo *data.RecommendRequestRepo,
+	recommendEventRepo *data.RecommendEventRepo,
 ) *RecommendAnonymousActorCase {
 	return &RecommendAnonymousActorCase{
 		BaseCase:                    baseCase,
 		tx:                          tx,
 		RecommendAnonymousActorRepo: recommendAnonymousActorRepo,
+		recommendRequestRepo:        recommendRequestRepo,
+		recommendEventRepo:          recommendEventRepo,
 	}
 }
 
@@ -144,24 +151,81 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 				if createErr != nil {
 					return errorsx.Internal("绑定匿名推荐主体失败").WithCause(createErr)
 				}
-				return nil
+			} else {
+				return errorsx.Internal("绑定匿名推荐主体失败").WithCause(err)
 			}
-			return errorsx.Internal("绑定匿名推荐主体失败").WithCause(err)
+		} else {
+			// 匿名主体已绑定到其他用户时，不允许再串联到当前账号。
+			if actor.UserID > 0 && actor.UserID != userId {
+				return errorsx.Conflict("匿名推荐主体已绑定其他用户")
+			}
+
+			updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
+				UserID:    userId,
+				UpdatedAt: now,
+				BindAt:    now,
+			}, opts...)
+			if updateErr != nil {
+				return errorsx.Internal("绑定匿名推荐主体失败").WithCause(updateErr)
+			}
 		}
 
-		// 匿名主体已绑定到其他用户时，不允许再串联到当前账号。
-		if actor.UserID > 0 && actor.UserID != userId {
-			return errorsx.Conflict("匿名推荐主体已绑定其他用户")
-		}
-
-		updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
-			UserID:    userId,
-			UpdatedAt: now,
-			BindAt:    now,
-		}, opts...)
-		if updateErr != nil {
-			return errorsx.Internal("绑定匿名推荐主体失败").WithCause(updateErr)
+		// 匿名主体完成绑定后，需要把匿名阶段积累的推荐历史一并迁移到登录用户。
+		err = c.rebindRecommendActorHistory(ctx, userId, anonymousId)
+		if err != nil {
+			return err
 		}
 		return nil
 	})
+}
+
+// rebindRecommendActorHistory 将匿名主体下的推荐历史迁移到登录用户。
+func (c *RecommendAnonymousActorCase) rebindRecommendActorHistory(ctx context.Context, userId, anonymousId int64) error {
+	err := c.rebindRecommendRequestActor(ctx, userId, anonymousId)
+	if err != nil {
+		return err
+	}
+	return c.rebindRecommendEventActor(ctx, userId, anonymousId)
+}
+
+// rebindRecommendRequestActor 将匿名主体下的推荐请求记录迁移到登录用户。
+func (c *RecommendAnonymousActorCase) rebindRecommendRequestActor(ctx context.Context, userId, anonymousId int64) error {
+	// 用户编号或匿名主体编号非法时，不存在可迁移的推荐请求记录。
+	if userId <= 0 || anonymousId <= 0 {
+		return nil
+	}
+
+	query := c.recommendRequestRepo.Query(ctx).RecommendRequest
+	res, err := query.WithContext(ctx).Where(
+		query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS)),
+		query.ActorID.Eq(anonymousId),
+	).Updates(map[string]interface{}{
+		"actor_type": int32(common.RecommendActorType_USER),
+		"actor_id":   userId,
+	})
+	if err != nil {
+		return errorsx.Internal("迁移匿名推荐请求失败").WithCause(err)
+	}
+	return res.Error
+}
+
+// rebindRecommendEventActor 将匿名主体下的推荐事件记录迁移到登录用户。
+func (c *RecommendAnonymousActorCase) rebindRecommendEventActor(ctx context.Context, userId, anonymousId int64) error {
+	// 用户编号或匿名主体编号非法时，不存在可迁移的推荐事件记录。
+	if userId <= 0 || anonymousId <= 0 {
+		return nil
+	}
+
+	query := c.recommendEventRepo.Query(ctx).RecommendEvent
+	res, err := query.WithContext(ctx).Where(
+		query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS)),
+		query.ActorID.Eq(anonymousId),
+	).Updates(map[string]interface{}{
+		"actor_type": int32(common.RecommendActorType_USER),
+		"actor_id":   userId,
+	})
+	if err != nil {
+		return errorsx.Internal("迁移匿名推荐事件失败").WithCause(err)
+	}
+	return res.Error
 }

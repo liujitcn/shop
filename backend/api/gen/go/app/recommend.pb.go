@@ -173,6 +173,91 @@ func (x *RecommendGoodsResponse) GetRequestId() int64 {
 	return 0
 }
 
+// 推荐请求上下文
+type RecommendRequestContext struct {
+	state           protoimpl.MessageState              `protogen:"open.v1"`
+	GoodsId         int64                               `protobuf:"varint,1,opt,name=goods_id,proto3" json:"goods_id,omitempty"`                                                    // 当前推荐请求的锚点商品编号
+	OrderId         int64                               `protobuf:"varint,2,opt,name=order_id,proto3" json:"order_id,omitempty"`                                                    // 当前推荐请求关联的订单编号
+	ContextGoodsIds []int64                             `protobuf:"varint,3,rep,packed,name=context_goods_ids,proto3" json:"context_goods_ids,omitempty"`                           // 当前推荐计算使用的上下文商品编号列表
+	StrategyType    common.RecommendRequestStrategyType `protobuf:"varint,5,opt,name=strategy_type,proto3,enum=common.RecommendRequestStrategyType" json:"strategy_type,omitempty"` // 当前命中的本地兜底策略
+	Source          common.RecommendRequestSource       `protobuf:"varint,6,opt,name=source,proto3,enum=common.RecommendRequestSource" json:"source,omitempty"`                     // 当前结果来源
+	Status          common.RecommendRequestStatus       `protobuf:"varint,7,opt,name=status,proto3,enum=common.RecommendRequestStatus" json:"status,omitempty"`                     // 当前请求执行状态
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *RecommendRequestContext) Reset() {
+	*x = RecommendRequestContext{}
+	mi := &file_app_recommend_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRequestContext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRequestContext) ProtoMessage() {}
+
+func (x *RecommendRequestContext) ProtoReflect() protoreflect.Message {
+	mi := &file_app_recommend_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRequestContext.ProtoReflect.Descriptor instead.
+func (*RecommendRequestContext) Descriptor() ([]byte, []int) {
+	return file_app_recommend_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RecommendRequestContext) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *RecommendRequestContext) GetOrderId() int64 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+func (x *RecommendRequestContext) GetContextGoodsIds() []int64 {
+	if x != nil {
+		return x.ContextGoodsIds
+	}
+	return nil
+}
+
+func (x *RecommendRequestContext) GetStrategyType() common.RecommendRequestStrategyType {
+	if x != nil {
+		return x.StrategyType
+	}
+	return common.RecommendRequestStrategyType(0)
+}
+
+func (x *RecommendRequestContext) GetSource() common.RecommendRequestSource {
+	if x != nil {
+		return x.Source
+	}
+	return common.RecommendRequestSource(0)
+}
+
+func (x *RecommendRequestContext) GetStatus() common.RecommendRequestStatus {
+	if x != nil {
+		return x.Status
+	}
+	return common.RecommendRequestStatus(0)
+}
+
 // 推荐上下文
 type RecommendContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -185,7 +270,7 @@ type RecommendContext struct {
 
 func (x *RecommendContext) Reset() {
 	*x = RecommendContext{}
-	mi := &file_app_recommend_proto_msgTypes[2]
+	mi := &file_app_recommend_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -197,7 +282,7 @@ func (x *RecommendContext) String() string {
 func (*RecommendContext) ProtoMessage() {}
 
 func (x *RecommendContext) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[2]
+	mi := &file_app_recommend_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -210,7 +295,7 @@ func (x *RecommendContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendContext.ProtoReflect.Descriptor instead.
 func (*RecommendContext) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{2}
+	return file_app_recommend_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RecommendContext) GetScene() common.RecommendScene {
@@ -245,7 +330,7 @@ type RecommendEventContext struct {
 
 func (x *RecommendEventContext) Reset() {
 	*x = RecommendEventContext{}
-	mi := &file_app_recommend_proto_msgTypes[3]
+	mi := &file_app_recommend_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -257,7 +342,7 @@ func (x *RecommendEventContext) String() string {
 func (*RecommendEventContext) ProtoMessage() {}
 
 func (x *RecommendEventContext) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[3]
+	mi := &file_app_recommend_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -270,7 +355,7 @@ func (x *RecommendEventContext) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendEventContext.ProtoReflect.Descriptor instead.
 func (*RecommendEventContext) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{3}
+	return file_app_recommend_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RecommendEventContext) GetScene() common.RecommendScene {
@@ -299,7 +384,7 @@ type RecommendEventItem struct {
 
 func (x *RecommendEventItem) Reset() {
 	*x = RecommendEventItem{}
-	mi := &file_app_recommend_proto_msgTypes[4]
+	mi := &file_app_recommend_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -311,7 +396,7 @@ func (x *RecommendEventItem) String() string {
 func (*RecommendEventItem) ProtoMessage() {}
 
 func (x *RecommendEventItem) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[4]
+	mi := &file_app_recommend_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -324,7 +409,7 @@ func (x *RecommendEventItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendEventItem.ProtoReflect.Descriptor instead.
 func (*RecommendEventItem) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{4}
+	return file_app_recommend_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RecommendEventItem) GetGoodsId() int64 {
@@ -360,7 +445,7 @@ type RecommendEventReportRequest struct {
 
 func (x *RecommendEventReportRequest) Reset() {
 	*x = RecommendEventReportRequest{}
-	mi := &file_app_recommend_proto_msgTypes[5]
+	mi := &file_app_recommend_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -372,7 +457,7 @@ func (x *RecommendEventReportRequest) String() string {
 func (*RecommendEventReportRequest) ProtoMessage() {}
 
 func (x *RecommendEventReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[5]
+	mi := &file_app_recommend_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -385,7 +470,7 @@ func (x *RecommendEventReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendEventReportRequest.ProtoReflect.Descriptor instead.
 func (*RecommendEventReportRequest) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{5}
+	return file_app_recommend_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RecommendEventReportRequest) GetEventType() common.RecommendEventType {
@@ -420,7 +505,7 @@ type RecommendActor struct {
 
 func (x *RecommendActor) Reset() {
 	*x = RecommendActor{}
-	mi := &file_app_recommend_proto_msgTypes[6]
+	mi := &file_app_recommend_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -432,7 +517,7 @@ func (x *RecommendActor) String() string {
 func (*RecommendActor) ProtoMessage() {}
 
 func (x *RecommendActor) ProtoReflect() protoreflect.Message {
-	mi := &file_app_recommend_proto_msgTypes[6]
+	mi := &file_app_recommend_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -445,7 +530,7 @@ func (x *RecommendActor) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendActor.ProtoReflect.Descriptor instead.
 func (*RecommendActor) Descriptor() ([]byte, []int) {
-	return file_app_recommend_proto_rawDescGZIP(), []int{6}
+	return file_app_recommend_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *RecommendActor) GetActorType() common.RecommendActorType {
@@ -477,7 +562,14 @@ const file_app_recommend_proto_rawDesc = "" +
 	"\x16RecommendGoodsResponse\x12<\n" +
 	"\x04list\x18\x01 \x03(\v2\x0e.app.GoodsInfoB\x18\xbaG\x15\x92\x02\x12推荐商品列表R\x04list\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x122\n" +
-	"\trequestId\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xbb\x01\n" +
+	"\trequestId\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\"\xd0\x04\n" +
+	"\x17RecommendRequestContext\x12I\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B-\xbaG*\x92\x02'当前推荐请求的锚点商品编号R\bgoods_id\x12I\n" +
+	"\border_id\x18\x02 \x01(\x03B-\xbaG*\x92\x02'当前推荐请求关联的订单编号R\border_id\x12j\n" +
+	"\x11context_goods_ids\x18\x03 \x03(\x03B<\xbaG9\x92\x026当前推荐计算使用的上下文商品编号列表R\x11context_goods_ids\x12s\n" +
+	"\rstrategy_type\x18\x05 \x01(\x0e2$.common.RecommendRequestStrategyTypeB'\xbaG$\x92\x02!当前命中的本地兜底策略R\rstrategy_type\x12P\n" +
+	"\x06source\x18\x06 \x01(\x0e2\x1e.common.RecommendRequestSourceB\x18\xbaG\x15\x92\x02\x12当前结果来源R\x06source\x12V\n" +
+	"\x06status\x18\a \x01(\x0e2\x1e.common.RecommendRequestStatusB\x1e\xbaG\x1b\x92\x02\x18当前请求执行状态R\x06statusJ\x04\b\x04\x10\x05R\x0econtext_source\"\xbb\x01\n" +
 	"\x10RecommendContext\x12@\n" +
 	"\x05scene\x18\x01 \x01(\x0e2\x16.common.RecommendSceneB\x12\xbaG\x0f\x92\x02\f推荐场景R\x05scene\x122\n" +
 	"\trequestId\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x121\n" +
@@ -515,44 +607,51 @@ func file_app_recommend_proto_rawDescGZIP() []byte {
 	return file_app_recommend_proto_rawDescData
 }
 
-var file_app_recommend_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_app_recommend_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_app_recommend_proto_goTypes = []any{
-	(*RecommendGoodsRequest)(nil),       // 0: app.RecommendGoodsRequest
-	(*RecommendGoodsResponse)(nil),      // 1: app.RecommendGoodsResponse
-	(*RecommendContext)(nil),            // 2: app.RecommendContext
-	(*RecommendEventContext)(nil),       // 3: app.RecommendEventContext
-	(*RecommendEventItem)(nil),          // 4: app.RecommendEventItem
-	(*RecommendEventReportRequest)(nil), // 5: app.RecommendEventReportRequest
-	(*RecommendActor)(nil),              // 6: app.RecommendActor
-	(common.RecommendScene)(0),          // 7: common.RecommendScene
-	(*GoodsInfo)(nil),                   // 8: app.GoodsInfo
-	(common.RecommendEventType)(0),      // 9: common.RecommendEventType
-	(common.RecommendActorType)(0),      // 10: common.RecommendActorType
-	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
-	(*wrapperspb.Int64Value)(nil),       // 12: google.protobuf.Int64Value
+	(*RecommendGoodsRequest)(nil),            // 0: app.RecommendGoodsRequest
+	(*RecommendGoodsResponse)(nil),           // 1: app.RecommendGoodsResponse
+	(*RecommendRequestContext)(nil),          // 2: app.RecommendRequestContext
+	(*RecommendContext)(nil),                 // 3: app.RecommendContext
+	(*RecommendEventContext)(nil),            // 4: app.RecommendEventContext
+	(*RecommendEventItem)(nil),               // 5: app.RecommendEventItem
+	(*RecommendEventReportRequest)(nil),      // 6: app.RecommendEventReportRequest
+	(*RecommendActor)(nil),                   // 7: app.RecommendActor
+	(common.RecommendScene)(0),               // 8: common.RecommendScene
+	(*GoodsInfo)(nil),                        // 9: app.GoodsInfo
+	(common.RecommendRequestStrategyType)(0), // 10: common.RecommendRequestStrategyType
+	(common.RecommendRequestSource)(0),       // 11: common.RecommendRequestSource
+	(common.RecommendRequestStatus)(0),       // 12: common.RecommendRequestStatus
+	(common.RecommendEventType)(0),           // 13: common.RecommendEventType
+	(common.RecommendActorType)(0),           // 14: common.RecommendActorType
+	(*emptypb.Empty)(nil),                    // 15: google.protobuf.Empty
+	(*wrapperspb.Int64Value)(nil),            // 16: google.protobuf.Int64Value
 }
 var file_app_recommend_proto_depIdxs = []int32{
-	7,  // 0: app.RecommendGoodsRequest.scene:type_name -> common.RecommendScene
-	8,  // 1: app.RecommendGoodsResponse.list:type_name -> app.GoodsInfo
-	7,  // 2: app.RecommendContext.scene:type_name -> common.RecommendScene
-	7,  // 3: app.RecommendEventContext.scene:type_name -> common.RecommendScene
-	9,  // 4: app.RecommendEventReportRequest.eventType:type_name -> common.RecommendEventType
-	3,  // 5: app.RecommendEventReportRequest.recommendContext:type_name -> app.RecommendEventContext
-	4,  // 6: app.RecommendEventReportRequest.items:type_name -> app.RecommendEventItem
-	10, // 7: app.RecommendActor.ActorType:type_name -> common.RecommendActorType
-	11, // 8: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
-	11, // 9: app.RecommendService.BindRecommendAnonymousActor:input_type -> google.protobuf.Empty
-	0,  // 10: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
-	5,  // 11: app.RecommendService.RecommendEventReport:input_type -> app.RecommendEventReportRequest
-	12, // 12: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
-	11, // 13: app.RecommendService.BindRecommendAnonymousActor:output_type -> google.protobuf.Empty
-	1,  // 14: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
-	11, // 15: app.RecommendService.RecommendEventReport:output_type -> google.protobuf.Empty
-	12, // [12:16] is the sub-list for method output_type
-	8,  // [8:12] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	8,  // 0: app.RecommendGoodsRequest.scene:type_name -> common.RecommendScene
+	9,  // 1: app.RecommendGoodsResponse.list:type_name -> app.GoodsInfo
+	10, // 2: app.RecommendRequestContext.strategy_type:type_name -> common.RecommendRequestStrategyType
+	11, // 3: app.RecommendRequestContext.source:type_name -> common.RecommendRequestSource
+	12, // 4: app.RecommendRequestContext.status:type_name -> common.RecommendRequestStatus
+	8,  // 5: app.RecommendContext.scene:type_name -> common.RecommendScene
+	8,  // 6: app.RecommendEventContext.scene:type_name -> common.RecommendScene
+	13, // 7: app.RecommendEventReportRequest.eventType:type_name -> common.RecommendEventType
+	4,  // 8: app.RecommendEventReportRequest.recommendContext:type_name -> app.RecommendEventContext
+	5,  // 9: app.RecommendEventReportRequest.items:type_name -> app.RecommendEventItem
+	14, // 10: app.RecommendActor.ActorType:type_name -> common.RecommendActorType
+	15, // 11: app.RecommendService.RecommendAnonymousActor:input_type -> google.protobuf.Empty
+	15, // 12: app.RecommendService.BindRecommendAnonymousActor:input_type -> google.protobuf.Empty
+	0,  // 13: app.RecommendService.RecommendGoods:input_type -> app.RecommendGoodsRequest
+	6,  // 14: app.RecommendService.RecommendEventReport:input_type -> app.RecommendEventReportRequest
+	16, // 15: app.RecommendService.RecommendAnonymousActor:output_type -> google.protobuf.Int64Value
+	15, // 16: app.RecommendService.BindRecommendAnonymousActor:output_type -> google.protobuf.Empty
+	1,  // 17: app.RecommendService.RecommendGoods:output_type -> app.RecommendGoodsResponse
+	15, // 18: app.RecommendService.RecommendEventReport:output_type -> google.protobuf.Empty
+	15, // [15:19] is the sub-list for method output_type
+	11, // [11:15] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_app_recommend_proto_init() }
@@ -567,7 +666,7 @@ func file_app_recommend_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_recommend_proto_rawDesc), len(file_app_recommend_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

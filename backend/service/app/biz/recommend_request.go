@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"shop/api/gen/go/app"
@@ -10,10 +9,10 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	appDto "shop/service/app/dto"
 
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repo"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // RecommendRequestCase 推荐请求业务处理对象。
@@ -69,9 +68,9 @@ func (c *RecommendRequestCase) resolveRecommendRequestId(ctx context.Context, ac
 		return id.GenSnowflakeID(), nil
 	}
 
-	contextRecord := &appDto.RecommendRequestContextRecord{}
+	contextRecord := &app.RecommendRequestContext{}
 	// 历史请求上下文无法解析时，回退为新的推荐会话，避免错误串联翻页请求。
-	if requestModel.ContextJSON != "" && json.Unmarshal([]byte(requestModel.ContextJSON), contextRecord) != nil {
+	if requestModel.ContextJSON != "" && (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal([]byte(requestModel.ContextJSON), contextRecord) != nil {
 		return id.GenSnowflakeID(), nil
 	}
 	// 锚点商品或订单变化时，当前请求已不属于同一推荐会话。
@@ -87,12 +86,12 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 	actor *app.RecommendActor,
 	requestId int64,
 	req *app.RecommendGoodsRequest,
-	contextRecord *appDto.RecommendRequestContextRecord,
+	contextRecord *app.RecommendRequestContext,
 	goodsList []*app.GoodsInfo,
 	total int64,
 	pageNum, pageSize int64,
 ) error {
-	contextBytes, err := json.Marshal(contextRecord)
+	contextBytes, err := (protojson.MarshalOptions{UseProtoNames: true}).Marshal(contextRecord)
 	if err != nil {
 		return errorsx.Internal("序列化推荐上下文失败").WithCause(err)
 	}

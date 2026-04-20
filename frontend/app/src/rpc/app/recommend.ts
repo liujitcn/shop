@@ -5,7 +5,14 @@
 // source: app/recommend.proto
 
 /* eslint-disable */
-import type { RecommendActorType, RecommendEventType, RecommendScene } from "../common/enum";
+import type {
+  RecommendActorType,
+  RecommendEventType,
+  RecommendRequestSource,
+  RecommendRequestStatus,
+  RecommendRequestStrategyType,
+  RecommendScene,
+} from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
@@ -34,6 +41,22 @@ export interface RecommendGoodsResponse {
   total: number;
   /** 推荐请求ID */
   requestId: number;
+}
+
+/** 推荐请求上下文 */
+export interface RecommendRequestContext {
+  /** 当前推荐请求的锚点商品编号 */
+  goods_id: number;
+  /** 当前推荐请求关联的订单编号 */
+  order_id: number;
+  /** 当前推荐计算使用的上下文商品编号列表 */
+  context_goods_ids: number[];
+  /** 当前命中的本地兜底策略 */
+  strategy_type: RecommendRequestStrategyType;
+  /** 当前结果来源 */
+  source: RecommendRequestSource;
+  /** 当前请求执行状态 */
+  status: RecommendRequestStatus;
 }
 
 /** 推荐上下文 */

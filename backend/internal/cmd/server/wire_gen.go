@@ -7,13 +7,6 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -28,10 +21,17 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
-)
 
-import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
+
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
+
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -294,8 +294,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	appOrderInfoService := app.NewOrderInfoService(bizOrderInfoCase)
 	payService := app.NewPayService(payCase)
 	recommendAnonymousActorRepo := data.NewRecommendAnonymousActorRepo(dataData)
-	recommendAnonymousActorCase := biz4.NewRecommendAnonymousActorCase(baseCase, transaction, recommendAnonymousActorRepo)
 	recommendRequestRepo := data.NewRecommendRequestRepo(dataData)
+	recommendAnonymousActorCase := biz4.NewRecommendAnonymousActorCase(baseCase, transaction, recommendAnonymousActorRepo, recommendRequestRepo, recommendEventRepo)
 	recommendRequestItemRepo := data.NewRecommendRequestItemRepo(dataData)
 	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, transaction, recommendRequestRepo, recommendRequestItemRepo)
 	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase)

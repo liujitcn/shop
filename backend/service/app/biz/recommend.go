@@ -9,7 +9,6 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
-	appDto "shop/service/app/dto"
 
 	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -113,16 +112,14 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	}
 
 	pageNum, pageSize := normalizeRecommendPage(req.GetPageNum(), req.GetPageSize())
-	var contextGoodsIds []int64
-	contextSource := ""
-	contextGoodsIds, contextSource, err = c.listRecommendContextGoodsIds(ctx, actor, req)
+	contextGoodsIds, err := c.listRecommendContextGoodsIds(ctx, actor, req)
 	if err != nil {
 		return nil, err
 	}
 
 	var recommendGoodsIds []int64
 	total := int64(0)
-	strategyType := ""
+	strategyType := common.RecommendRequestStrategyType_UNKNOWN_RRST
 	recommendGoodsIds, total, strategyType, err = c.listRecommendGoodsIds(ctx, contextGoodsIds, pageNum, pageSize)
 	if err != nil {
 		return nil, err
@@ -137,14 +134,13 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	if err != nil {
 		return nil, err
 	}
-	contextRecord := &appDto.RecommendRequestContextRecord{
+	contextRecord := &app.RecommendRequestContext{
 		GoodsId:         req.GetGoodsId(),
 		OrderId:         req.GetOrderId(),
 		ContextGoodsIds: contextGoodsIds,
-		ContextSource:   contextSource,
 		StrategyType:    strategyType,
-		Source:          "local",
-		Status:          "success",
+		Source:          common.RecommendRequestSource_LOCAL,
+		Status:          common.RecommendRequestStatus_REQUEST_SUCCESS,
 	}
 	err = c.recommendRequestCase.saveRecommendRequest(ctx, actor, requestId, req, contextRecord, goodsList, total, pageNum, pageSize)
 	if err != nil {
@@ -207,24 +203,28 @@ func (c *RecommendCase) resolveRecommendActor(ctx context.Context, allowAnonymou
 }
 
 // listRecommendContextGoodsIds 查询当前推荐请求的上下文商品编号列表。
-func (c *RecommendCase) listRecommendContextGoodsIds(ctx context.Context, actor *app.RecommendActor, req *app.RecommendGoodsRequest) ([]int64, string, error) {
+func (c *RecommendCase) listRecommendContextGoodsIds(
+	ctx context.Context,
+	actor *app.RecommendActor,
+	req *app.RecommendGoodsRequest,
+) ([]int64, error) {
 	scene := req.GetScene()
 
 	switch scene {
 	case common.RecommendScene_GOODS_DETAIL:
 		// 商品详情场景优先以当前商品作为锚点。
 		if req.GetGoodsId() > 0 {
-			return []int64{req.GetGoodsId()}, "goods_detail", nil
+			return []int64{req.GetGoodsId()}, nil
 		}
 	case common.RecommendScene_CART:
 		// 登录态购物车页优先读取购物车商品做上下文。
 		if actor != nil && actor.GetActorType() == common.RecommendActorType_USER {
 			goodsIds, cartErr := c.userCartCase.listGoodsIdsByUserId(ctx, actor.GetActorId())
 			if cartErr != nil {
-				return nil, "", cartErr
+				return nil, cartErr
 			}
 			if len(goodsIds) > 0 {
-				return goodsIds, "cart", nil
+				return goodsIds, nil
 			}
 		}
 	case common.RecommendScene_PROFILE:
@@ -232,10 +232,10 @@ func (c *RecommendCase) listRecommendContextGoodsIds(ctx context.Context, actor 
 		if actor != nil && actor.GetActorType() == common.RecommendActorType_USER {
 			goodsIds, collectErr := c.userCollectCase.listGoodsIdsByUserId(ctx, actor.GetActorId(), recommendRecentHistoryLimit)
 			if collectErr != nil {
-				return nil, "", collectErr
+				return nil, collectErr
 			}
 			if len(goodsIds) > 0 {
-				return goodsIds, "collect", nil
+				return goodsIds, nil
 			}
 		}
 	case common.RecommendScene_ORDER_DETAIL, common.RecommendScene_ORDER_PAID:
@@ -243,10 +243,10 @@ func (c *RecommendCase) listRecommendContextGoodsIds(ctx context.Context, actor 
 		if req.GetOrderId() > 0 {
 			goodsIds, orderErr := c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
 			if orderErr != nil {
-				return nil, "", orderErr
+				return nil, orderErr
 			}
 			if len(goodsIds) > 0 {
-				return goodsIds, "order", nil
+				return goodsIds, nil
 			}
 		}
 	}
@@ -255,35 +255,39 @@ func (c *RecommendCase) listRecommendContextGoodsIds(ctx context.Context, actor 
 	if actor != nil && actor.GetActorId() > 0 {
 		goodsIds, recentErr := c.recommendEventCase.listRecentRecommendEventGoodsIds(ctx, actor)
 		if recentErr != nil {
-			return nil, "", recentErr
+			return nil, recentErr
 		}
 		if len(goodsIds) > 0 {
-			return goodsIds, "recent_event", nil
+			return goodsIds, nil
 		}
 	}
-	return []int64{}, "", nil
+	return []int64{}, nil
 }
 
 // listRecommendGoodsIds 按上下文查询兜底推荐商品编号。
-func (c *RecommendCase) listRecommendGoodsIds(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, string, error) {
+func (c *RecommendCase) listRecommendGoodsIds(
+	ctx context.Context,
+	contextGoodsIds []int64,
+	pageNum, pageSize int64,
+) ([]int64, int64, common.RecommendRequestStrategyType, error) {
 	contextGoodsIds = sanitizeGoodsIds(contextGoodsIds)
 	// 有上下文商品时，优先按同类目兜底推荐。
 	if len(contextGoodsIds) > 0 {
 		goodsIds, total, categoryErr := c.pageRecommendGoodsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
 		if categoryErr != nil {
-			return nil, 0, "", categoryErr
+			return nil, 0, common.RecommendRequestStrategyType_UNKNOWN_RRST, categoryErr
 		}
 		// 同类目存在可推荐商品时，直接返回当前策略结果。
 		if total > 0 {
-			return goodsIds, total, "category_fallback", nil
+			return goodsIds, total, common.RecommendRequestStrategyType_CATEGORY_FALLBACK, nil
 		}
 	}
 
 	goodsIds, total, latestErr := c.pageLatestRecommendGoods(ctx, contextGoodsIds, pageNum, pageSize)
 	if latestErr != nil {
-		return nil, 0, "", latestErr
+		return nil, 0, common.RecommendRequestStrategyType_UNKNOWN_RRST, latestErr
 	}
-	return goodsIds, total, "latest_fallback", nil
+	return goodsIds, total, common.RecommendRequestStrategyType_LATEST_FALLBACK, nil
 }
 
 // pageRecommendGoodsByCategory 按上下文商品类目分页查询推荐商品。

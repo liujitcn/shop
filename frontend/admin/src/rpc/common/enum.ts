@@ -276,3 +276,35 @@ export enum RecommendActorType {
   /** USER - 用户 */
   USER = 2,
 }
+
+/** 推荐请求策略枚举 */
+export enum RecommendRequestStrategyType {
+  /** UNKNOWN_RRST - 未指定推荐请求策略 */
+  UNKNOWN_RRST = 0,
+  /** CATEGORY_FALLBACK - 同类目兜底 */
+  CATEGORY_FALLBACK = 1,
+  /** LATEST_FALLBACK - 最新热销兜底 */
+  LATEST_FALLBACK = 2,
+}
+
+/** 推荐请求结果来源枚举 */
+export enum RecommendRequestSource {
+  /** UNKNOWN_RRSO - 未指定推荐请求结果来源 */
+  UNKNOWN_RRSO = 0,
+  /** LOCAL - 本地兜底结果 */
+  LOCAL = 1,
+  /** GORSE - Gorse 推荐结果 */
+  GORSE = 2,
+}
+
+/** 推荐请求执行状态枚举 */
+export enum RecommendRequestStatus {
+  /** UNKNOWN_RRQS - 未指定推荐请求执行状态 */
+  UNKNOWN_RRQS = 0,
+  /** REQUEST_SUCCESS - 执行成功 */
+  REQUEST_SUCCESS = 1,
+  /** REQUEST_FALLBACK - 发生兜底 */
+  REQUEST_FALLBACK = 2,
+  /** REQUEST_FAILED - 执行失败 */
+  REQUEST_FAILED = 3,
+}

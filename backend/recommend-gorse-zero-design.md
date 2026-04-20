@@ -242,7 +242,6 @@ CREATE TABLE `recommend_anonymous_actor` (
   "gorse_recommender": "item-to-item/goods_relation",
   "source": "gorse",
   "context_goods_ids": [1001, 1002, 1003],
-  "context_source": "cart",
   "status": "fallback",
   "error_msg": "gorse timeout"
 }
@@ -251,11 +250,10 @@ CREATE TABLE `recommend_anonymous_actor` (
 建议为 `context_json` 约定固定记录结构，可以用 proto 语义约束，但不进入当前对外接口：
 
 ```proto
-message RecommendRequestContextRecord {
+message RecommendRequestContext {
   int64 goods_id = 1;  // 商品ID
   int64 order_id = 2;  // 订单ID
   repeated int64 context_goods_ids = 3;  // 上下文商品ID列表
-  string context_source = 4;  // 上下文来源
   string strategy_type = 5;  // 策略类型
   string gorse_recommender = 6;  // 命中的推荐器名称
   string source = 7;  // 结果来源：gorse、fallback
