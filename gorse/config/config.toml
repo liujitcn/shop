@@ -1,0 +1,98 @@
+[database]
+# 对齐当前项目的本地开发方式，默认通过宿主机暴露端口访问 MySQL / Redis，
+# 避免依赖 Docker bridge 下不稳定的固定容器 IP。
+data_store = "mysql://root:112233@tcp(host.docker.internal:3306)/shop_gorse?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms"
+cache_store = "redis://default:112233@host.docker.internal:6379/0"
+
+master_host = "0.0.0.0"
+master_port = 8086
+http_host = "0.0.0.0"
+http_port = 8088
+
+[database.mysql]
+max_open_conns = 25
+max_idle_conns = 25
+conn_max_lifetime = "300s"
+
+[master]
+n_jobs = 1
+meta_timeout = "10s"
+
+[server]
+default_n = 10
+
+[recommend]
+# 对齐当前系统“近 30 天活跃用户”为主的个性化口径。
+active_user_ttl = 30
+
+[recommend.data_source]
+# 对齐当前商城推荐行为口径：
+# exposure 作为 read feedback；
+# click / view / collect / add_cart / order_create / order_pay 作为 positive feedback。
+positive_feedback_types = ["click", "view", "collect", "add_cart", "order_create", "order_pay"]
+read_feedback_types = ["exposure"]
+# 保留 90 天正反馈，兼顾当前系统协同过滤的较长观察窗口；
+# 30 天热度口径在下方 non-personalized recommender 中单独控制。
+positive_feedback_ttl = "90d"
+item_ttl = "0"
+
+[[recommend.non-personalized]]
+# 对齐当前系统事件权重：
+# click=3、view=2、collect=4、add_cart=6、order_create=8、order_pay=10。
+name = "hot_30d"
+score = "count(feedback, .FeedbackType == 'click' && (now() - .Timestamp).Hours() < 24 * 30) * 3 + count(feedback, .FeedbackType == 'view' && (now() - .Timestamp).Hours() < 24 * 30) * 2 + count(feedback, .FeedbackType == 'collect' && (now() - .Timestamp).Hours() < 24 * 30) * 4 + count(feedback, .FeedbackType == 'add_cart' && (now() - .Timestamp).Hours() < 24 * 30) * 6 + count(feedback, .FeedbackType == 'order_create' && (now() - .Timestamp).Hours() < 24 * 30) * 8 + count(feedback, .FeedbackType == 'order_pay' && (now() - .Timestamp).Hours() < 24 * 30) * 10"
+filter = "!item.IsHidden"
+
+[[recommend.item-to-item]]
+# 对齐当前“商品关联/相似商品”能力，使用共同正反馈用户生成相似商品。
+name = "goods_relation"
+type = "users"
+
+[[recommend.user-to-user]]
+# 对齐当前“相似用户”召回能力，使用共同正反馈商品生成相似用户。
+name = "similar_users"
+type = "items"
+
+[recommend.collaborative]
+# 对齐当前单机场景：开启矩阵分解，按天训练、按周调参。
+type = "mf"
+fit_period = "24h"
+fit_epoch = 120
+optimize_period = "168h"
+optimize_trials = 8
+
+[recommend.collaborative.early_stopping]
+patience = 10
+
+[recommend.replacement]
+# 对齐当前系统的曝光惩罚与已消费降权思路，避免同一商品频繁回流。
+enable_replacement = true
+positive_replacement_decay = 0.2
+read_replacement_decay = 0.4
+
+[recommend.ranker]
+# 对齐当前“协同过滤 + 相似商品 + 相似用户 + 热门 + 最新”混合候选思路。
+type = "fm"
+cache_expire = "120h"
+recommenders = [
+  "collaborative",
+  "item-to-item/goods_relation",
+  "user-to-user/similar_users",
+  "non-personalized/hot_30d",
+  "latest",
+]
+fit_period = "24h"
+fit_epoch = 40
+optimize_period = "168h"
+optimize_trials = 8
+
+[recommend.ranker.early_stopping]
+patience = 10
+
+[recommend.fallback]
+# 个性化候选不足时，优先走 30 天热榜，再回退到最新商品。
+recommenders = ["non-personalized/hot_30d", "latest"]
+
+[blob]
+# 持久化训练产物，避免容器重建后每次重新冷启动。
+uri = "/var/lib/gorse/blob"
