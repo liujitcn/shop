@@ -39,7 +39,7 @@ const tips = ref('')
 
 const buildGoodsDetailUrl = (
   goodsId: number,
-  query: { scene?: RecommendScene; requestId?: string; index?: number },
+  query: { scene?: RecommendScene; requestId?: number; index?: number },
 ) => {
   return goodsDetailUrl({
     id: goodsId,
@@ -392,9 +392,9 @@ const onConfirmPopup = async () => {
             class="navigator"
             :url="
               buildGoodsDetailUrl(item.goodsId, {
-                scene: item.scene,
-                requestId: item.requestId,
-                index: item.position,
+                scene: item.recommendContext?.scene,
+                requestId: item.recommendContext?.requestId,
+                index: item.recommendContext?.position,
               })
             "
             hover-class="none"

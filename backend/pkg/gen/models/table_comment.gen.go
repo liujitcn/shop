@@ -145,6 +145,26 @@ func (*PayBill) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*RecommendAnonymousActor) TableComment() string {
+	return "推荐匿名主体信息"
+}
+
+// TableComment 返回表注释。
+func (*RecommendEvent) TableComment() string {
+	return "推荐行为事件信息"
+}
+
+// TableComment 返回表注释。
+func (*RecommendRequest) TableComment() string {
+	return "推荐请求记录信息"
+}
+
+// TableComment 返回表注释。
+func (*RecommendRequestItem) TableComment() string {
+	return "推荐请求结果明细信息"
+}
+
+// TableComment 返回表注释。
 func (*ShopBanner) TableComment() string {
 	return "商城轮播图信息"
 }

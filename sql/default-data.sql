@@ -1,3 +1,13 @@
+ALTER TABLE `recommend_anonymous_actor`
+  CHANGE COLUMN `generated_at` `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  CHANGE COLUMN `last_seen_at` `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  DROP INDEX `idx_recommend_anonymous_actor_last_seen_at`,
+  ADD INDEX `idx_recommend_anonymous_actor_updated_at` (`updated_at`);
+
+ALTER TABLE `recommend_request`
+  DROP INDEX `unique_recommend_request`,
+  ADD INDEX `idx_recommend_request_request_id` (`request_id`);
+
 TRUNCATE TABLE `base_api`;
 INSERT INTO `base_api` (`id`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (1, 'admin.AuthService', 'Admin用户登录认证服务', '获取已经登录的用户按钮', '/admin.AuthService/GetUserButton', 'GET', '/api/admin/auth/button', NULL);
 INSERT INTO `base_api` (`id`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (2, 'admin.AuthService', 'Admin用户登录认证服务', '获取已经登录的用户的数据', '/admin.AuthService/GetUserInfo', 'GET', '/api/admin/auth/user', NULL);
@@ -256,7 +266,7 @@ INSERT INTO `base_dict` (`id`, `code`, `name`, `status`, `created_by`, `updated_
 INSERT INTO `base_dict` (`id`, `code`, `name`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (5010, 'shop_banner_type', '商城轮播图类型', 1, 1, 1, '2025-03-17 02:18:17', '2025-03-17 02:18:17', NULL);
 INSERT INTO `base_dict` (`id`, `code`, `name`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (6000, 'pay_bill_status', '支付对账单状态', 1, 1, 1, '2025-04-22 13:43:34', '2025-04-22 13:43:37', NULL);
 INSERT INTO `base_dict` (`id`, `code`, `name`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (7000, 'recommend_scene', '推荐场景', 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict` (`id`, `code`, `name`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (7010, 'recommend_goods_action_type', '推荐商品行为类型', 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
+INSERT INTO `base_dict` (`id`, `code`, `name`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (7010, 'recommend_event_type', '推荐事件类型', 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
 
 TRUNCATE TABLE `base_dict_item`;
 INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 1, '1', '启用', 'success', 1, 1, 1, 1, '2025-03-13 09:52:30', '2025-03-13 09:52:30', NULL);
@@ -329,12 +339,13 @@ INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `so
 INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70004, 7000, '4', '个人中心', '', 4, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
 INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70005, 7000, '5', '订单详情', '', 5, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
 INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70006, 7000, '6', '支付成功', '', 6, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70101, 7010, '1', '点击', '', 1, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70102, 7010, '2', '浏览', '', 2, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70103, 7010, '3', '收藏', '', 3, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70104, 7010, '4', '加购', '', 4, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70105, 7010, '5', '下单', '', 5, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
-INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70106, 7010, '6', '支付', '', 6, 1, 1, 1, '2026-04-18 00:00:00', '2026-04-18 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70101, 7010, '1', '曝光', '', 1, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70102, 7010, '2', '点击', '', 2, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70103, 7010, '3', '浏览', '', 3, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70104, 7010, '4', '收藏', '', 4, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70105, 7010, '5', '加购', '', 5, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70106, 7010, '6', '下单', '', 6, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
+INSERT INTO `base_dict_item` (`id`, `dict_id`, `value`, `label`, `tag_type`, `sort`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (70107, 7010, '7', '支付', '', 7, 1, 1, 1, '2026-04-20 00:00:00', '2026-04-20 00:00:00', NULL);
 
 TRUNCATE TABLE `base_job`;
 INSERT INTO `base_job` (`id`, `name`, `invoke_target`, `args`, `cron_expression`, `status`, `entry_id`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, '申请交易账单', 'TradeBill', '[{\"key\":\"billDate\"}]', '0 0 1 * * ?', 1, 0, 1, 1, '2025-04-21 10:52:17', '2026-04-06 07:31:57', NULL);

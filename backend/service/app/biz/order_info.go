@@ -477,7 +477,7 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *app.Create
 	if err != nil {
 		return nil, err
 	}
-	c.dispatchRecommendGoodsActionEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderInfo.CreatedAt)
+	c.dispatchRecommendOrderEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderInfo.CreatedAt)
 	// 为在线支付订单增加超时自动取消任务
 	if orderInfo.Status == int32(common.OrderStatus_CREATED) {
 		// 延迟时间使用支付超时配置
@@ -797,50 +797,51 @@ func (c *OrderInfoCase) updateByIds(ctx context.Context, userId int64, ids []int
 	)
 }
 
-// dispatchRecommendGoodsActionEvent 根据已落库订单事实回写推荐下单行为。
-func (c *OrderInfoCase) dispatchRecommendGoodsActionEvent(payType common.OrderPayType, userId int64, goodsList []*app.CreateOrderInfoGoods, eventTime time.Time) {
-	// 主体编号非法或订单商品为空时，无法构建可归因的推荐下单行为。
+// dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。
+func (c *OrderInfoCase) dispatchRecommendOrderEvent(payType common.OrderPayType, userId int64, goodsList []*app.CreateOrderInfoGoods, eventTime time.Time) {
+	// 主体编号非法或订单商品为空时，无法构建可归因的推荐下单事件。
 	if userId <= 0 || len(goodsList) == 0 {
 		return
 	}
 
-	goodsItems := make([]*app.RecommendGoodsActionItem, 0, len(goodsList))
-	for _, item := range goodsList {
-		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
-		if item == nil || item.GetGoodsId() <= 0 {
-			continue
-		}
-		recommendContext := item.GetRecommendContext()
-		// 下单项未携带推荐上下文时，回退到空上下文，避免后续空指针。
-		if recommendContext == nil {
-			recommendContext = &app.RecommendContext{}
-		}
-		goodsItems = append(goodsItems, &app.RecommendGoodsActionItem{
-			GoodsId:          item.GetGoodsId(),
-			GoodsNum:         item.GetNum(),
-			RecommendContext: recommendContext,
-		})
-	}
-	// 没有有效商品项时，不生成空上报请求。
-	if len(goodsItems) == 0 {
-		return
-	}
-
-	eventTypeList := make([]common.RecommendGoodsActionType, 0)
-	eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_CREATE)
+	eventTypeList := make([]common.RecommendEventType, 0, 2)
+	eventTypeList = append(eventTypeList, common.RecommendEventType_ORDER_CREATE)
 	// 货到付款订单在创建时同步回写支付行为。
 	if payType == common.OrderPayType_CASH_ON_DELIVERY {
-		eventTypeList = append(eventTypeList, common.RecommendGoodsActionType_ORDER_PAY)
+		eventTypeList = append(eventTypeList, common.RecommendEventType_ORDER_PAY)
 	}
-	for _, item := range eventTypeList {
-		orderCreateReport := &app.RecommendGoodsActionReportRequest{
-			EventType:  item,
-			GoodsItems: goodsItems,
+
+	for _, eventType := range eventTypeList {
+		for _, goodsItem := range goodsList {
+			// 非法商品项直接跳过，避免把脏数据写入推荐链路。
+			if goodsItem == nil || goodsItem.GetGoodsId() <= 0 {
+				continue
+			}
+			recommendContext := goodsItem.GetRecommendContext()
+			// 下单项未携带推荐上下文时，回退到空上下文，避免后续空指针。
+			if recommendContext == nil {
+				recommendContext = &app.RecommendContext{}
+			}
+
+			orderEventReport := &app.RecommendEventReportRequest{
+				EventType: eventType,
+				RecommendContext: &app.RecommendEventContext{
+					Scene:     recommendContext.GetScene(),
+					RequestId: recommendContext.GetRequestId(),
+				},
+				Items: []*app.RecommendEventItem{
+					{
+						GoodsId:  goodsItem.GetGoodsId(),
+						GoodsNum: goodsItem.GetNum(),
+						Position: recommendContext.GetPosition(),
+					},
+				},
+			}
+			// 订单创建事务提交成功后，再按落库事实回写推荐下单事件。
+			pkgUtils.DispatchRecommendEvent(&app.RecommendActor{
+				ActorType: common.RecommendActorType_USER,
+				ActorId:   userId,
+			}, orderEventReport, eventTime)
 		}
-		// 订单创建事务提交成功后，再按落库事实回写推荐下单行为。
-		pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
-			ActorType: common.RecommendActorType_USER,
-			ActorId:   userId,
-		}, orderCreateReport, eventTime)
 	}
 }

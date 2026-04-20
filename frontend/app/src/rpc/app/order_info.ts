@@ -12,7 +12,6 @@ import type {
   OrderPayType,
   OrderRefundReason,
   OrderStatus,
-  RecommendScene,
 } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value, StringValue } from "../google/protobuf/wrappers";
@@ -234,12 +233,8 @@ export interface OrderGoods {
   totalPrice: number;
   /** 支付金额汇总 */
   totalPayPrice: number;
-  /** 推荐场景 */
-  scene: RecommendScene;
-  /** 推荐请求ID */
-  requestId: string;
-  /** 推荐位序号 */
-  position: number;
+  /** 推荐上下文 */
+  recommendContext: RecommendContext | undefined;
 }
 
 /** Order信息 */

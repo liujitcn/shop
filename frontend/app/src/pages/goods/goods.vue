@@ -19,12 +19,13 @@ import ServicePanel from './components/ServicePanel.vue'
 import { formatSrc, formatPrice } from '@/utils'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/shop_service.ts'
-import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { RecommendEventType, RecommendScene } from '@/rpc/common/enum'
 import {
   goodsDetailUrl,
   homeTabPage,
   navigateToLogin,
   navigateToOrderCreate,
+  parseRecommendRouteQuery,
 } from '@/utils/navigation'
 // 获取会员信息
 const userStore = useUserStore()
@@ -63,16 +64,18 @@ const query = defineProps<{
   index?: string
 }>()
 const goodsId = Number(query.id)
-const routeScene = query.scene ? (Number(query.scene) as RecommendScene) : undefined
-// 当前页直接复用入口路由上的原始推荐参数，不在这里做额外转换。
-const recommendContext = {
-  scene: routeScene,
-  requestId: query.requestId,
-  position: query.index,
-} as unknown as RecommendContext
+const routeRecommendQuery = parseRecommendRouteQuery(query)
+const routeScene = routeRecommendQuery.scene
+// 当前页统一把路由里的推荐参数转换成标准推荐上下文。
+const recommendContext: RecommendContext = {
+  scene: routeScene ?? RecommendScene.UNKNOWN_RS,
+  requestId: routeRecommendQuery.requestId ?? 0,
+  position: routeRecommendQuery.index ?? 0,
+}
 
 // 获取商品详情信息
 const goodsInfo = ref<GoodsInfoResponse>()
+const loadErrorMessage = ref('')
 const isCollect = ref<boolean>(false)
 const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
@@ -121,36 +124,50 @@ const backButtonStyle = computed(() => {
 })
 
 const loadData = async () => {
-  const ssRes = await defShopServiceService.ListShopService({})
-  serviceList.value = ssRes.list || []
-  const res = await defGoodsInfoService.GetGoodsInfo({
-    value: goodsId,
-  })
-  goodsInfo.value = res
-  // SKU组件所需格式
-  localData.value = {
-    _id: res.id,
-    name: res.name,
-    goods_thumb: res.picture,
-    spec_list: res.specList.map((v) => {
-      return {
-        name: v.name,
-        list: v.item,
-      }
-    }),
-    sku_list: res.skuList.map((v) => {
-      return {
-        _id: v.skuCode,
-        goods_id: res.id,
-        goods_name: res.name,
-        image: v.picture,
-        price: v.price, // 注意：需要乘以 100
-        stock: v.inventory,
-        sku_name_arr: v.specItem,
-      }
-    }),
+  // 路由商品编号非法时，不再继续请求详情接口，但保留返回能力。
+  if (!Number.isFinite(goodsId) || goodsId <= 0) {
+    goodsInfo.value = undefined
+    loadErrorMessage.value = '商品参数无效'
+    return
   }
-  scheduleMeasureSections()
+
+  loadErrorMessage.value = ''
+  try {
+    const ssRes = await defShopServiceService.ListShopService({})
+    serviceList.value = ssRes.list || []
+    const res = await defGoodsInfoService.GetGoodsInfo({
+      value: goodsId,
+    })
+    goodsInfo.value = res
+    // SKU组件所需格式
+    localData.value = {
+      _id: res.id,
+      name: res.name,
+      goods_thumb: res.picture,
+      spec_list: res.specList.map((v) => {
+        return {
+          name: v.name,
+          list: v.item,
+        }
+      }),
+      sku_list: res.skuList.map((v) => {
+        return {
+          _id: v.skuCode,
+          goods_id: res.id,
+          goods_name: res.name,
+          image: v.picture,
+          price: v.price, // 注意：需要乘以 100
+          stock: v.inventory,
+          sku_name_arr: v.specItem,
+        }
+      }),
+    }
+    scheduleMeasureSections()
+  } catch (error) {
+    goodsInfo.value = undefined
+    loadErrorMessage.value = '商品详情加载失败'
+    console.error(error)
+  }
 }
 
 // 页面加载
@@ -159,13 +176,17 @@ onLoad(() => {
   void (async () => {
     try {
       await recommendStore.getAnonymousId()
-      await defRecommendService.RecommendGoodsActionReport({
-        eventType: RecommendGoodsActionType.VIEW,
-        goodsItems: [
+      await defRecommendService.RecommendEventReport({
+        eventType: RecommendEventType.VIEW,
+        recommendContext: {
+          scene: recommendContext.scene,
+          requestId: recommendContext.requestId,
+        },
+        items: [
           {
             goodsId,
             goodsNum: 1,
-            recommendContext,
+            position: recommendContext.position,
           },
         ],
       })
@@ -276,8 +297,8 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     skuCode: ev._id,
     num: ev.buy_num,
     scene: routeScene,
-    requestId: query.requestId,
-    index: query.index,
+    requestId: routeRecommendQuery.requestId,
+    index: routeRecommendQuery.index,
   })
 }
 // 收藏
@@ -409,6 +430,11 @@ const onDetailImageLoad = () => {
   scheduleMeasureSections()
 }
 
+// 详情加载失败时，允许用户原地重试而不用手动退出页面。
+const onRetryLoad = () => {
+  void loadData()
+}
+
 onBeforeUnmount(() => {
   if (measureTimer) {
     clearTimeout(measureTimer)
@@ -433,13 +459,13 @@ onBeforeUnmount(() => {
     @add-cart="onAddCart"
     @buy-now="onBuyNow"
   />
-  <view v-if="goodsInfo" class="header" :style="headerStyle">
+  <view class="header" :style="headerStyle">
     <view class="top-bar" :style="{ paddingTop: `${safeAreaInsets?.top || 0}px` }">
       <view class="top-bar-side top-bar-side--back" :style="backButtonStyle" @tap="onNavigateBack">
         <text class="top-bar-back">‹</text>
       </view>
       <view class="top-bar-content" :style="topBarContentStyle">
-        <view class="section-nav section-nav--inline" :style="sectionNavStyle">
+        <view v-if="goodsInfo" class="section-nav section-nav--inline" :style="sectionNavStyle">
           <view
             v-for="tab in sectionTabs"
             :key="tab.key"

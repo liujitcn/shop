@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	_const "shop/pkg/const"
 	"strconv"
 
@@ -10,8 +9,8 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	pkgUtils "shop/pkg/utils"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -87,25 +86,15 @@ func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*admin.Ba
 
 // saveJobLog 保存任务日志队列消息。
 func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
-	rb, err := json.Marshal(message.Values)
+	baseJobLog, err := pkgUtils.DecodeQueueData[models.BaseJobLog](message)
 	if err != nil {
-		log.Errorf("json Marshal error, %s", err.Error())
 		return err
 	}
-	var m map[string]*models.BaseJobLog
-	err = json.Unmarshal(rb, &m)
-	if err != nil {
-		log.Errorf("json Unmarshal error, %s", err.Error())
-		return err
+	// 队列消息里没有有效任务日志实体时，直接忽略当前消息。
+	if baseJobLog == nil {
+		return nil
 	}
-	// 队列消息携带任务日志实体时，落库保存执行日志。
-	if baseJobLog, ok := m["data"]; ok {
-		err = c.Create(context.TODO(), baseJobLog)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return c.Create(context.TODO(), baseJobLog)
 }
 
 // toBaseJobLog 转换任务日志响应

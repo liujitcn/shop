@@ -25,8 +25,7 @@ const (
 	RecommendService_RecommendAnonymousActor_FullMethodName     = "/app.RecommendService/RecommendAnonymousActor"
 	RecommendService_BindRecommendAnonymousActor_FullMethodName = "/app.RecommendService/BindRecommendAnonymousActor"
 	RecommendService_RecommendGoods_FullMethodName              = "/app.RecommendService/RecommendGoods"
-	RecommendService_RecommendExposureReport_FullMethodName     = "/app.RecommendService/RecommendExposureReport"
-	RecommendService_RecommendGoodsActionReport_FullMethodName  = "/app.RecommendService/RecommendGoodsActionReport"
+	RecommendService_RecommendEventReport_FullMethodName        = "/app.RecommendService/RecommendEventReport"
 )
 
 // RecommendServiceClient is the client API for RecommendService service.
@@ -41,10 +40,8 @@ type RecommendServiceClient interface {
 	BindRecommendAnonymousActor(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询推荐商品列表
 	RecommendGoods(ctx context.Context, in *RecommendGoodsRequest, opts ...grpc.CallOption) (*RecommendGoodsResponse, error)
-	// 上报推荐曝光事件
-	RecommendExposureReport(ctx context.Context, in *RecommendExposureReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 上报推荐商品行为事件
-	RecommendGoodsActionReport(ctx context.Context, in *RecommendGoodsActionReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 上报推荐事件
+	RecommendEventReport(ctx context.Context, in *RecommendEventReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type recommendServiceClient struct {
@@ -85,20 +82,10 @@ func (c *recommendServiceClient) RecommendGoods(ctx context.Context, in *Recomme
 	return out, nil
 }
 
-func (c *recommendServiceClient) RecommendExposureReport(ctx context.Context, in *RecommendExposureReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendServiceClient) RecommendEventReport(ctx context.Context, in *RecommendEventReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendService_RecommendExposureReport_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendServiceClient) RecommendGoodsActionReport(ctx context.Context, in *RecommendGoodsActionReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendService_RecommendGoodsActionReport_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RecommendService_RecommendEventReport_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,10 +104,8 @@ type RecommendServiceServer interface {
 	BindRecommendAnonymousActor(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// 查询推荐商品列表
 	RecommendGoods(context.Context, *RecommendGoodsRequest) (*RecommendGoodsResponse, error)
-	// 上报推荐曝光事件
-	RecommendExposureReport(context.Context, *RecommendExposureReportRequest) (*emptypb.Empty, error)
-	// 上报推荐商品行为事件
-	RecommendGoodsActionReport(context.Context, *RecommendGoodsActionReportRequest) (*emptypb.Empty, error)
+	// 上报推荐事件
+	RecommendEventReport(context.Context, *RecommendEventReportRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedRecommendServiceServer()
 }
 
@@ -140,11 +125,8 @@ func (UnimplementedRecommendServiceServer) BindRecommendAnonymousActor(context.C
 func (UnimplementedRecommendServiceServer) RecommendGoods(context.Context, *RecommendGoodsRequest) (*RecommendGoodsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RecommendGoods not implemented")
 }
-func (UnimplementedRecommendServiceServer) RecommendExposureReport(context.Context, *RecommendExposureReportRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method RecommendExposureReport not implemented")
-}
-func (UnimplementedRecommendServiceServer) RecommendGoodsActionReport(context.Context, *RecommendGoodsActionReportRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method RecommendGoodsActionReport not implemented")
+func (UnimplementedRecommendServiceServer) RecommendEventReport(context.Context, *RecommendEventReportRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method RecommendEventReport not implemented")
 }
 func (UnimplementedRecommendServiceServer) mustEmbedUnimplementedRecommendServiceServer() {}
 func (UnimplementedRecommendServiceServer) testEmbeddedByValue()                          {}
@@ -221,38 +203,20 @@ func _RecommendService_RecommendGoods_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendService_RecommendExposureReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendExposureReportRequest)
+func _RecommendService_RecommendEventReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendEventReportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendServiceServer).RecommendExposureReport(ctx, in)
+		return srv.(RecommendServiceServer).RecommendEventReport(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendService_RecommendExposureReport_FullMethodName,
+		FullMethod: RecommendService_RecommendEventReport_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendServiceServer).RecommendExposureReport(ctx, req.(*RecommendExposureReportRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _RecommendService_RecommendGoodsActionReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendGoodsActionReportRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(RecommendServiceServer).RecommendGoodsActionReport(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: RecommendService_RecommendGoodsActionReport_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendServiceServer).RecommendGoodsActionReport(ctx, req.(*RecommendGoodsActionReportRequest))
+		return srv.(RecommendServiceServer).RecommendEventReport(ctx, req.(*RecommendEventReportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -277,12 +241,8 @@ var RecommendService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RecommendService_RecommendGoods_Handler,
 		},
 		{
-			MethodName: "RecommendExposureReport",
-			Handler:    _RecommendService_RecommendExposureReport_Handler,
-		},
-		{
-			MethodName: "RecommendGoodsActionReport",
-			Handler:    _RecommendService_RecommendGoodsActionReport_Handler,
+			MethodName: "RecommendEventReport",
+			Handler:    _RecommendService_RecommendEventReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

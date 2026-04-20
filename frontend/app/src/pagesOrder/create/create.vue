@@ -19,7 +19,12 @@ import { defUserAddressService } from '@/api/app/user_address'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
 import { RecommendScene } from '@/rpc/common/enum'
-import { goodsDetailUrl, orderDetailUrl, redirectToOrderPayment } from '@/utils/navigation'
+import {
+  goodsDetailUrl,
+  orderDetailUrl,
+  parseRecommendRouteQuery,
+  redirectToOrderPayment,
+} from '@/utils/navigation'
 
 const addressStore = useAddressStore()
 
@@ -69,12 +74,14 @@ const query = defineProps<{
   requestId?: string
   index?: string
 }>()
-const routeScene = query.scene ? (Number(query.scene) as RecommendScene) : undefined
-const recommendContext = {
-  scene: routeScene,
-  requestId: query.requestId,
-  position: query.index,
-} as unknown as RecommendContext
+const routeRecommendQuery = parseRecommendRouteQuery(query)
+const routeScene = routeRecommendQuery.scene
+// 下单页统一使用解析后的推荐上下文，避免把路由字符串直接透传到接口层。
+const recommendContext: RecommendContext = {
+  scene: routeScene ?? RecommendScene.UNKNOWN_RS,
+  requestId: routeRecommendQuery.requestId ?? 0,
+  position: routeRecommendQuery.index ?? 0,
+}
 
 /** 构建订单提交商品项。 */
 const buildOrderRequestGoods = (item: OrderGoods): CreateOrderInfoGoods => {
@@ -82,11 +89,7 @@ const buildOrderRequestGoods = (item: OrderGoods): CreateOrderInfoGoods => {
     goodsId: item.goodsId,
     skuCode: item.skuCode,
     num: item.num,
-    recommendContext: {
-      scene: item.scene,
-      requestId: item.requestId,
-      position: item.position,
-    } as unknown as RecommendContext,
+    recommendContext: item.recommendContext,
   }
 }
 
@@ -244,9 +247,9 @@ const onOrderSubmitOk = computed(() => {
         :url="
           goodsDetailUrl({
             id: item.goodsId,
-            scene: item.scene,
-            requestId: item.requestId,
-            index: item.position,
+            scene: item.recommendContext?.scene,
+            requestId: item.recommendContext?.requestId,
+            index: item.recommendContext?.position,
           })
         "
         class="item"

@@ -5,7 +5,7 @@
 // source: app/recommend.proto
 
 /* eslint-disable */
-import type { RecommendActorType, RecommendGoodsActionType, RecommendScene } from "../common/enum";
+import type { RecommendActorType, RecommendEventType, RecommendScene } from "../common/enum";
 import type { Empty } from "../google/protobuf/empty";
 import type { Int64Value } from "../google/protobuf/wrappers";
 import type { GoodsInfo } from "./goods_info";
@@ -18,6 +18,8 @@ export interface RecommendGoodsRequest {
   orderId: number;
   /** 商品ID */
   goodsId: number;
+  /** 推荐请求ID */
+  requestId: number;
   /** 当前页码 */
   pageNum: number;
   /** 每页数量 */
@@ -31,7 +33,7 @@ export interface RecommendGoodsResponse {
   /** 总数 */
   total: number;
   /** 推荐请求ID */
-  requestId: string;
+  requestId: number;
 }
 
 /** 推荐上下文 */
@@ -39,37 +41,39 @@ export interface RecommendContext {
   /** 推荐场景 */
   scene: RecommendScene;
   /** 推荐请求ID */
-  requestId: string;
+  requestId: number;
   /** 推荐位序号 */
   position: number;
 }
 
-/** 推荐商品行为项 */
-export interface RecommendGoodsActionItem {
+/** 推荐事件归因上下文 */
+export interface RecommendEventContext {
+  /** 推荐场景 */
+  scene: RecommendScene;
+  /** 推荐请求ID */
+  requestId: number;
+}
+
+/** 推荐事件商品项 */
+export interface RecommendEventItem {
   /** 商品ID */
   goodsId: number;
   /** 商品数量 */
   goodsNum: number;
-  /** 推荐上下文 */
-  recommendContext: RecommendContext | undefined;
+  /** 推荐位序号 */
+  position: number;
 }
 
-/** 推荐曝光上报请求参数 */
-export interface RecommendExposureReportRequest {
-  /** 推荐请求ID */
-  requestId: string;
-  /** 推荐场景 */
-  scene: RecommendScene;
-  /** 曝光商品ID列表 */
-  goodsIds: number[];
-}
-
-/** 推荐商品行为上报请求参数 */
-export interface RecommendGoodsActionReportRequest {
-  /** 商品行为事件类型 */
-  eventType: RecommendGoodsActionType;
-  /** 商品行为事件项 */
-  goodsItems: RecommendGoodsActionItem[];
+/** 推荐事件上报请求参数 */
+export interface RecommendEventReportRequest {
+  /** 推荐事件类型 */
+  eventType: RecommendEventType;
+  /** 推荐归因上下文 */
+  recommendContext:
+    | RecommendEventContext
+    | undefined;
+  /** 推荐事件商品项 */
+  items: RecommendEventItem[];
 }
 
 /** 推荐主体信息 */
@@ -88,8 +92,6 @@ export interface RecommendService {
   BindRecommendAnonymousActor(request: Empty): Promise<Empty>;
   /** 查询推荐商品列表 */
   RecommendGoods(request: RecommendGoodsRequest): Promise<RecommendGoodsResponse>;
-  /** 上报推荐曝光事件 */
-  RecommendExposureReport(request: RecommendExposureReportRequest): Promise<Empty>;
-  /** 上报推荐商品行为事件 */
-  RecommendGoodsActionReport(request: RecommendGoodsActionReportRequest): Promise<Empty>;
+  /** 上报推荐事件 */
+  RecommendEventReport(request: RecommendEventReportRequest): Promise<Empty>;
 }

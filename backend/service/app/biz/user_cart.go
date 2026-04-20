@@ -188,8 +188,8 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 			if err != nil {
 				return err
 			}
-			// 新增购物车成功后，按本次加购数量回写推荐加购行为。
-			c.dispatchRecommendGoodsActionEvent(authInfo.UserId, userCart.GetGoodsId(), userCart.GetNum(), recommendContext)
+			// 新增购物车成功后，按本次加购数量回写推荐加购事件。
+			c.dispatchRecommendAddCartEvent(authInfo.UserId, userCart.GetGoodsId(), userCart.GetNum(), recommendContext)
 			return nil
 		}
 		return err
@@ -202,7 +202,7 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 		find.Scene = int32(recommendContext.GetScene())
 	}
 	// 历史购物车未记录请求编号时，补齐本次请求编号。
-	if find.RequestID == "" {
+	if find.RequestID == 0 {
 		find.RequestID = recommendContext.GetRequestId()
 	}
 	// 历史购物车未记录位置信息时，补齐本次位置信息。
@@ -213,8 +213,8 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	if err != nil {
 		return err
 	}
-	// 已有购物车累加成功后，仍按本次新增数量回写推荐加购行为。
-	c.dispatchRecommendGoodsActionEvent(authInfo.UserId, userCart.GetGoodsId(), userCart.GetNum(), recommendContext)
+	// 已有购物车累加成功后，仍按本次新增数量回写推荐加购事件。
+	c.dispatchRecommendAddCartEvent(authInfo.UserId, userCart.GetGoodsId(), userCart.GetNum(), recommendContext)
 	return nil
 }
 
@@ -309,9 +309,9 @@ func (c *UserCartCase) listGoodsIdsByUserId(ctx context.Context, userId int64) (
 	return _slice.Unique(goodsIds), nil
 }
 
-// dispatchRecommendGoodsActionEvent 根据购物车落库事实回写推荐加购行为。
-func (c *UserCartCase) dispatchRecommendGoodsActionEvent(userId, goodsId, goodsNum int64, recommendContext *app.RecommendContext) {
-	// 用户编号、商品编号或加购数量非法时，无法构建可归因的推荐加购行为。
+// dispatchRecommendAddCartEvent 根据购物车落库事实回写推荐加购事件。
+func (c *UserCartCase) dispatchRecommendAddCartEvent(userId, goodsId, goodsNum int64, recommendContext *app.RecommendContext) {
+	// 用户编号、商品编号或加购数量非法时，无法构建可归因的推荐加购事件。
 	if userId <= 0 || goodsId <= 0 || goodsNum <= 0 {
 		return
 	}
@@ -320,17 +320,21 @@ func (c *UserCartCase) dispatchRecommendGoodsActionEvent(userId, goodsId, goodsN
 		recommendContext = &app.RecommendContext{}
 	}
 
-	// 只在购物车写库成功后回写推荐加购行为，确保推荐链路与后端事实一致。
-	pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
+	// 只在购物车写库成功后回写推荐加购事件，确保推荐链路与后端事实一致。
+	pkgUtils.DispatchRecommendEvent(&app.RecommendActor{
 		ActorType: common.RecommendActorType_USER,
 		ActorId:   userId,
-	}, &app.RecommendGoodsActionReportRequest{
-		EventType: common.RecommendGoodsActionType_ADD_CART,
-		GoodsItems: []*app.RecommendGoodsActionItem{
+	}, &app.RecommendEventReportRequest{
+		EventType: common.RecommendEventType_ADD_CART,
+		RecommendContext: &app.RecommendEventContext{
+			Scene:     recommendContext.GetScene(),
+			RequestId: recommendContext.GetRequestId(),
+		},
+		Items: []*app.RecommendEventItem{
 			{
-				GoodsId:          goodsId,
-				GoodsNum:         goodsNum,
-				RecommendContext: recommendContext,
+				GoodsId:  goodsId,
+				GoodsNum: goodsNum,
+				Position: recommendContext.GetPosition(),
 			},
 		},
 	}, time.Time{})

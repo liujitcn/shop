@@ -25,7 +25,7 @@ type OrderGoods struct {
 	TotalPrice    int64          `gorm:"column:total_price;type:bigint;comment:当前金额汇总" json:"total_price"`                                                                                      // 当前金额汇总
 	TotalPayPrice int64          `gorm:"column:total_pay_price;type:bigint;comment:支付金额汇总" json:"total_pay_price"`                                                                              // 支付金额汇总
 	Scene         int32          `gorm:"column:scene;type:tinyint;comment:推荐场景：枚举【RecommendScene】" json:"scene"`                                                                                // 推荐场景：枚举【RecommendScene】
-	RequestID     string         `gorm:"column:request_id;type:varchar(64);comment:推荐请求ID" json:"request_id"`                                                                                   // 推荐请求ID
+	RequestID     int64          `gorm:"column:request_id;type:bigint;comment:推荐请求ID" json:"request_id"`                                                                                        // 推荐请求ID
 	Position      int32          `gorm:"column:position;type:int;comment:推荐位序号" json:"position"`                                                                                                // 推荐位序号
 	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                        // 删除时间
 }

@@ -398,7 +398,7 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 	}
 	// 只有首次支付成功才回写 ORDER_PAY，避免重复通知产生重复推荐事实。
 	if shouldReportOrderPay {
-		c.dispatchRecommendGoodsActionEvent(orderInfo.UserID, orderGoodsList, trans.TimeValue(successTime))
+		c.dispatchRecommendPayEvent(orderInfo.UserID, orderGoodsList, trans.TimeValue(successTime))
 	}
 	return nil
 }
@@ -509,40 +509,37 @@ func (c *PayCase) markOrderPaid(ctx context.Context, orderId, userId int64) (boo
 	return true, res.Error
 }
 
-// dispatchRecommendGoodsActionEvent 根据已支付订单商品快照回写推荐支付行为。
-func (c *PayCase) dispatchRecommendGoodsActionEvent(userId int64, goodsList []*models.OrderGoods, eventTime time.Time) {
-	// 主体编号非法或订单商品为空时，无法构建可归因的推荐支付行为。
+// dispatchRecommendPayEvent 根据已支付订单商品快照回写推荐支付事件。
+func (c *PayCase) dispatchRecommendPayEvent(userId int64, goodsList []*models.OrderGoods, eventTime time.Time) {
+	// 主体编号非法或订单商品为空时，无法构建可归因的推荐支付事件。
 	if userId <= 0 || len(goodsList) == 0 {
 		return
 	}
 
-	goodsItems := make([]*app.RecommendGoodsActionItem, 0, len(goodsList))
 	for _, item := range goodsList {
 		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
 		if item == nil || item.GoodsID <= 0 {
 			continue
 		}
-		goodsItems = append(goodsItems, &app.RecommendGoodsActionItem{
-			GoodsId:  item.GoodsID,
-			GoodsNum: item.Num,
-			RecommendContext: &app.RecommendContext{
+		payEventReport := &app.RecommendEventReportRequest{
+			EventType: common.RecommendEventType_ORDER_PAY,
+			RecommendContext: &app.RecommendEventContext{
 				Scene:     common.RecommendScene(item.Scene),
 				RequestId: item.RequestID,
-				Position:  item.Position,
 			},
-		})
-	}
-	// 没有有效商品项时，不生成空上报请求。
-	if len(goodsItems) == 0 {
-		return
-	}
+			Items: []*app.RecommendEventItem{
+				{
+					GoodsId:  item.GoodsID,
+					GoodsNum: item.Num,
+					Position: item.Position,
+				},
+			},
+		}
 
-	// 支付行为只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
-	pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
-		ActorType: common.RecommendActorType_USER,
-		ActorId:   userId,
-	}, &app.RecommendGoodsActionReportRequest{
-		EventType:  common.RecommendGoodsActionType_ORDER_PAY,
-		GoodsItems: goodsItems,
-	}, eventTime)
+		// 支付事件只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
+		pkgUtils.DispatchRecommendEvent(&app.RecommendActor{
+			ActorType: common.RecommendActorType_USER,
+			ActorId:   userId,
+		}, payEventReport, eventTime)
+	}
 }

@@ -24,21 +24,18 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationRecommendServiceBindRecommendAnonymousActor = "/app.RecommendService/BindRecommendAnonymousActor"
 const OperationRecommendServiceRecommendAnonymousActor = "/app.RecommendService/RecommendAnonymousActor"
-const OperationRecommendServiceRecommendExposureReport = "/app.RecommendService/RecommendExposureReport"
+const OperationRecommendServiceRecommendEventReport = "/app.RecommendService/RecommendEventReport"
 const OperationRecommendServiceRecommendGoods = "/app.RecommendService/RecommendGoods"
-const OperationRecommendServiceRecommendGoodsActionReport = "/app.RecommendService/RecommendGoodsActionReport"
 
 type RecommendServiceHTTPServer interface {
 	// BindRecommendAnonymousActor 绑定匿名推荐主体到当前登录用户
 	BindRecommendAnonymousActor(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// RecommendAnonymousActor 获取匿名推荐主体
 	RecommendAnonymousActor(context.Context, *emptypb.Empty) (*wrapperspb.Int64Value, error)
-	// RecommendExposureReport 上报推荐曝光事件
-	RecommendExposureReport(context.Context, *RecommendExposureReportRequest) (*emptypb.Empty, error)
+	// RecommendEventReport 上报推荐事件
+	RecommendEventReport(context.Context, *RecommendEventReportRequest) (*emptypb.Empty, error)
 	// RecommendGoods 查询推荐商品列表
 	RecommendGoods(context.Context, *RecommendGoodsRequest) (*RecommendGoodsResponse, error)
-	// RecommendGoodsActionReport 上报推荐商品行为事件
-	RecommendGoodsActionReport(context.Context, *RecommendGoodsActionReportRequest) (*emptypb.Empty, error)
 }
 
 func RegisterRecommendServiceHTTPServer(s *http.Server, srv RecommendServiceHTTPServer) {
@@ -46,8 +43,7 @@ func RegisterRecommendServiceHTTPServer(s *http.Server, srv RecommendServiceHTTP
 	r.GET("/api/app/recommend/actor/anonymous", _RecommendService_RecommendAnonymousActor0_HTTP_Handler(srv))
 	r.POST("/api/app/recommend/actor/binding", _RecommendService_BindRecommendAnonymousActor0_HTTP_Handler(srv))
 	r.GET("/api/app/recommend/goods", _RecommendService_RecommendGoods0_HTTP_Handler(srv))
-	r.POST("/api/app/recommend/event/exposure", _RecommendService_RecommendExposureReport0_HTTP_Handler(srv))
-	r.POST("/api/app/recommend/event/goods", _RecommendService_RecommendGoodsActionReport0_HTTP_Handler(srv))
+	r.POST("/api/app/recommend/event", _RecommendService_RecommendEventReport0_HTTP_Handler(srv))
 }
 
 func _RecommendService_RecommendAnonymousActor0_HTTP_Handler(srv RecommendServiceHTTPServer) func(ctx http.Context) error {
@@ -110,40 +106,18 @@ func _RecommendService_RecommendGoods0_HTTP_Handler(srv RecommendServiceHTTPServ
 	}
 }
 
-func _RecommendService_RecommendExposureReport0_HTTP_Handler(srv RecommendServiceHTTPServer) func(ctx http.Context) error {
+func _RecommendService_RecommendEventReport0_HTTP_Handler(srv RecommendServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in RecommendExposureReportRequest
+		var in RecommendEventReportRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationRecommendServiceRecommendExposureReport)
+		http.SetOperation(ctx, OperationRecommendServiceRecommendEventReport)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RecommendExposureReport(ctx, req.(*RecommendExposureReportRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _RecommendService_RecommendGoodsActionReport0_HTTP_Handler(srv RecommendServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in RecommendGoodsActionReportRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationRecommendServiceRecommendGoodsActionReport)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RecommendGoodsActionReport(ctx, req.(*RecommendGoodsActionReportRequest))
+			return srv.RecommendEventReport(ctx, req.(*RecommendEventReportRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -159,12 +133,10 @@ type RecommendServiceHTTPClient interface {
 	BindRecommendAnonymousActor(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// RecommendAnonymousActor 获取匿名推荐主体
 	RecommendAnonymousActor(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *wrapperspb.Int64Value, err error)
-	// RecommendExposureReport 上报推荐曝光事件
-	RecommendExposureReport(ctx context.Context, req *RecommendExposureReportRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// RecommendEventReport 上报推荐事件
+	RecommendEventReport(ctx context.Context, req *RecommendEventReportRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// RecommendGoods 查询推荐商品列表
 	RecommendGoods(ctx context.Context, req *RecommendGoodsRequest, opts ...http.CallOption) (rsp *RecommendGoodsResponse, err error)
-	// RecommendGoodsActionReport 上报推荐商品行为事件
-	RecommendGoodsActionReport(ctx context.Context, req *RecommendGoodsActionReportRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type RecommendServiceHTTPClientImpl struct {
@@ -203,12 +175,12 @@ func (c *RecommendServiceHTTPClientImpl) RecommendAnonymousActor(ctx context.Con
 	return &out, nil
 }
 
-// RecommendExposureReport 上报推荐曝光事件
-func (c *RecommendServiceHTTPClientImpl) RecommendExposureReport(ctx context.Context, in *RecommendExposureReportRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+// RecommendEventReport 上报推荐事件
+func (c *RecommendServiceHTTPClientImpl) RecommendEventReport(ctx context.Context, in *RecommendEventReportRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/api/app/recommend/event/exposure"
+	pattern := "/api/app/recommend/event"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationRecommendServiceRecommendExposureReport))
+	opts = append(opts, http.Operation(OperationRecommendServiceRecommendEventReport))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -225,20 +197,6 @@ func (c *RecommendServiceHTTPClientImpl) RecommendGoods(ctx context.Context, in 
 	opts = append(opts, http.Operation(OperationRecommendServiceRecommendGoods))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// RecommendGoodsActionReport 上报推荐商品行为事件
-func (c *RecommendServiceHTTPClientImpl) RecommendGoodsActionReport(ctx context.Context, in *RecommendGoodsActionReportRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
-	pattern := "/api/app/recommend/event/goods"
-	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationRecommendServiceRecommendGoodsActionReport))
-	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

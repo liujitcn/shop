@@ -28,5 +28,4 @@ authn:
       match:
         - "/app.RecommendService/RecommendAnonymousActor"
         - "/app.RecommendService/RecommendGoods"
-        - "/app.RecommendService/RecommendExposureReport"
-        - "/app.RecommendService/RecommendGoodsActionReport"
+        - "/app.RecommendService/RecommendEventReport"

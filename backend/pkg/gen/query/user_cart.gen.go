@@ -34,7 +34,7 @@ func newUserCart(db *gorm.DB, opts ...gen.DOOption) userCart {
 	_userCart.Num = field.NewInt64(tableName, "num")
 	_userCart.Price = field.NewInt64(tableName, "price")
 	_userCart.Scene = field.NewInt32(tableName, "scene")
-	_userCart.RequestID = field.NewString(tableName, "request_id")
+	_userCart.RequestID = field.NewInt64(tableName, "request_id")
 	_userCart.Position = field.NewInt32(tableName, "position")
 	_userCart.IsChecked = field.NewBool(tableName, "is_checked")
 	_userCart.CreatedAt = field.NewTime(tableName, "created_at")
@@ -58,7 +58,7 @@ type userCart struct {
 	Num       field.Int64  // 数量
 	Price     field.Int64  // 加入时单价
 	Scene     field.Int32  // 推荐场景：枚举【RecommendScene】
-	RequestID field.String // 推荐请求ID
+	RequestID field.Int64  // 推荐请求ID
 	Position  field.Int32  // 推荐位序号
 	IsChecked field.Bool   // 是否选中
 	CreatedAt field.Time   // 创建时间
@@ -87,7 +87,7 @@ func (u *userCart) updateTableName(table string) *userCart {
 	u.Num = field.NewInt64(table, "num")
 	u.Price = field.NewInt64(table, "price")
 	u.Scene = field.NewInt32(table, "scene")
-	u.RequestID = field.NewString(table, "request_id")
+	u.RequestID = field.NewInt64(table, "request_id")
 	u.Position = field.NewInt32(table, "position")
 	u.IsChecked = field.NewBool(table, "is_checked")
 	u.CreatedAt = field.NewTime(table, "created_at")

@@ -1054,19 +1054,19 @@ func (PayBillStatus) EnumDescriptor() ([]byte, []int) {
 type RecommendScene int32
 
 const (
-	RecommendScene_RECOMMEND_SCENE_UNKNOWN RecommendScene = 0 // 未指定推荐场景
-	RecommendScene_HOME                    RecommendScene = 1 // 首页推荐场景
-	RecommendScene_GOODS_DETAIL            RecommendScene = 2 // 商品详情推荐场景
-	RecommendScene_CART                    RecommendScene = 3 // 购物车推荐场景
-	RecommendScene_PROFILE                 RecommendScene = 4 // 个人中心推荐场景
-	RecommendScene_ORDER_DETAIL            RecommendScene = 5 // 订单详情推荐场景
-	RecommendScene_ORDER_PAID              RecommendScene = 6 // 支付成功推荐场景
+	RecommendScene_UNKNOWN_RS   RecommendScene = 0 // 未指定推荐场景
+	RecommendScene_HOME         RecommendScene = 1 // 首页推荐场景
+	RecommendScene_GOODS_DETAIL RecommendScene = 2 // 商品详情推荐场景
+	RecommendScene_CART         RecommendScene = 3 // 购物车推荐场景
+	RecommendScene_PROFILE      RecommendScene = 4 // 个人中心推荐场景
+	RecommendScene_ORDER_DETAIL RecommendScene = 5 // 订单详情推荐场景
+	RecommendScene_ORDER_PAID   RecommendScene = 6 // 支付成功推荐场景
 )
 
 // Enum value maps for RecommendScene.
 var (
 	RecommendScene_name = map[int32]string{
-		0: "RECOMMEND_SCENE_UNKNOWN",
+		0: "UNKNOWN_RS",
 		1: "HOME",
 		2: "GOODS_DETAIL",
 		3: "CART",
@@ -1075,13 +1075,13 @@ var (
 		6: "ORDER_PAID",
 	}
 	RecommendScene_value = map[string]int32{
-		"RECOMMEND_SCENE_UNKNOWN": 0,
-		"HOME":                    1,
-		"GOODS_DETAIL":            2,
-		"CART":                    3,
-		"PROFILE":                 4,
-		"ORDER_DETAIL":            5,
-		"ORDER_PAID":              6,
+		"UNKNOWN_RS":   0,
+		"HOME":         1,
+		"GOODS_DETAIL": 2,
+		"CART":         3,
+		"PROFILE":      4,
+		"ORDER_DETAIL": 5,
+		"ORDER_PAID":   6,
 	}
 )
 
@@ -1112,65 +1112,68 @@ func (RecommendScene) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{19}
 }
 
-// 推荐商品行为类型枚举
-type RecommendGoodsActionType int32
+// 推荐事件类型枚举
+type RecommendEventType int32
 
 const (
-	RecommendGoodsActionType_UNKNOWN_RGAT RecommendGoodsActionType = 0 // 未指定商品行为类型
-	RecommendGoodsActionType_CLICK        RecommendGoodsActionType = 1 // 推荐点击事件
-	RecommendGoodsActionType_VIEW         RecommendGoodsActionType = 2 // 商品浏览事件
-	RecommendGoodsActionType_COLLECT      RecommendGoodsActionType = 3 // 商品收藏事件
-	RecommendGoodsActionType_ADD_CART     RecommendGoodsActionType = 4 // 商品加购事件
-	RecommendGoodsActionType_ORDER_CREATE RecommendGoodsActionType = 5 // 下单事件
-	RecommendGoodsActionType_ORDER_PAY    RecommendGoodsActionType = 6 // 支付事件
+	RecommendEventType_UNKNOWN_RET  RecommendEventType = 0 // 未指定推荐事件类型
+	RecommendEventType_EXPOSURE     RecommendEventType = 1 // 推荐曝光事件
+	RecommendEventType_CLICK        RecommendEventType = 2 // 推荐点击事件
+	RecommendEventType_VIEW         RecommendEventType = 3 // 商品浏览事件
+	RecommendEventType_COLLECT      RecommendEventType = 4 // 商品收藏事件
+	RecommendEventType_ADD_CART     RecommendEventType = 5 // 商品加购事件
+	RecommendEventType_ORDER_CREATE RecommendEventType = 6 // 下单事件
+	RecommendEventType_ORDER_PAY    RecommendEventType = 7 // 支付事件
 )
 
-// Enum value maps for RecommendGoodsActionType.
+// Enum value maps for RecommendEventType.
 var (
-	RecommendGoodsActionType_name = map[int32]string{
-		0: "UNKNOWN_RGAT",
-		1: "CLICK",
-		2: "VIEW",
-		3: "COLLECT",
-		4: "ADD_CART",
-		5: "ORDER_CREATE",
-		6: "ORDER_PAY",
+	RecommendEventType_name = map[int32]string{
+		0: "UNKNOWN_RET",
+		1: "EXPOSURE",
+		2: "CLICK",
+		3: "VIEW",
+		4: "COLLECT",
+		5: "ADD_CART",
+		6: "ORDER_CREATE",
+		7: "ORDER_PAY",
 	}
-	RecommendGoodsActionType_value = map[string]int32{
-		"UNKNOWN_RGAT": 0,
-		"CLICK":        1,
-		"VIEW":         2,
-		"COLLECT":      3,
-		"ADD_CART":     4,
-		"ORDER_CREATE": 5,
-		"ORDER_PAY":    6,
+	RecommendEventType_value = map[string]int32{
+		"UNKNOWN_RET":  0,
+		"EXPOSURE":     1,
+		"CLICK":        2,
+		"VIEW":         3,
+		"COLLECT":      4,
+		"ADD_CART":     5,
+		"ORDER_CREATE": 6,
+		"ORDER_PAY":    7,
 	}
 )
 
-func (x RecommendGoodsActionType) Enum() *RecommendGoodsActionType {
-	p := new(RecommendGoodsActionType)
+func (x RecommendEventType) Enum() *RecommendEventType {
+	p := new(RecommendEventType)
 	*p = x
 	return p
 }
 
-func (x RecommendGoodsActionType) String() string {
+func (x RecommendEventType) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (RecommendGoodsActionType) Descriptor() protoreflect.EnumDescriptor {
+func (RecommendEventType) Descriptor() protoreflect.EnumDescriptor {
 	return file_common_enum_proto_enumTypes[20].Descriptor()
 }
 
-func (RecommendGoodsActionType) Type() protoreflect.EnumType {
+func (RecommendEventType) Type() protoreflect.EnumType {
 	return &file_common_enum_proto_enumTypes[20]
 }
 
-func (x RecommendGoodsActionType) Number() protoreflect.EnumNumber {
+func (x RecommendEventType) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use RecommendGoodsActionType.Descriptor instead.
-func (RecommendGoodsActionType) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use RecommendEventType.Descriptor instead.
+func (RecommendEventType) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{20}
 }
 
@@ -1343,24 +1346,26 @@ const file_common_enum_proto_rawDesc = "" +
 	"\n" +
 	"NO_COMPARE\x10\x01\x12\f\n" +
 	"\bNO_ERROR\x10\x02\x12\r\n" +
-	"\tHAS_ERROR\x10\x03*\x82\x01\n" +
-	"\x0eRecommendScene\x12\x1b\n" +
-	"\x17RECOMMEND_SCENE_UNKNOWN\x10\x00\x12\b\n" +
+	"\tHAS_ERROR\x10\x03*u\n" +
+	"\x0eRecommendScene\x12\x0e\n" +
+	"\n" +
+	"UNKNOWN_RS\x10\x00\x12\b\n" +
 	"\x04HOME\x10\x01\x12\x10\n" +
 	"\fGOODS_DETAIL\x10\x02\x12\b\n" +
 	"\x04CART\x10\x03\x12\v\n" +
 	"\aPROFILE\x10\x04\x12\x10\n" +
 	"\fORDER_DETAIL\x10\x05\x12\x0e\n" +
 	"\n" +
-	"ORDER_PAID\x10\x06*}\n" +
-	"\x18RecommendGoodsActionType\x12\x10\n" +
-	"\fUNKNOWN_RGAT\x10\x00\x12\t\n" +
-	"\x05CLICK\x10\x01\x12\b\n" +
-	"\x04VIEW\x10\x02\x12\v\n" +
-	"\aCOLLECT\x10\x03\x12\f\n" +
-	"\bADD_CART\x10\x04\x12\x10\n" +
-	"\fORDER_CREATE\x10\x05\x12\r\n" +
-	"\tORDER_PAY\x10\x06*>\n" +
+	"ORDER_PAID\x10\x06*\x84\x01\n" +
+	"\x12RecommendEventType\x12\x0f\n" +
+	"\vUNKNOWN_RET\x10\x00\x12\f\n" +
+	"\bEXPOSURE\x10\x01\x12\t\n" +
+	"\x05CLICK\x10\x02\x12\b\n" +
+	"\x04VIEW\x10\x03\x12\v\n" +
+	"\aCOLLECT\x10\x04\x12\f\n" +
+	"\bADD_CART\x10\x05\x12\x10\n" +
+	"\fORDER_CREATE\x10\x06\x12\r\n" +
+	"\tORDER_PAY\x10\a*>\n" +
 	"\x12RecommendActorType\x12\x0f\n" +
 	"\vUNKNOWN_RAT\x10\x00\x12\r\n" +
 	"\tANONYMOUS\x10\x01\x12\b\n" +
@@ -1382,28 +1387,28 @@ func file_common_enum_proto_rawDescGZIP() []byte {
 
 var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 22)
 var file_common_enum_proto_goTypes = []any{
-	(Status)(0),                   // 0: common.Status
-	(BaseConfigSite)(0),           // 1: common.BaseConfigSite
-	(BaseConfigType)(0),           // 2: common.BaseConfigType
-	(BaseJobLogStatus)(0),         // 3: common.BaseJobLogStatus
-	(BaseMenuType)(0),             // 4: common.BaseMenuType
-	(BaseRoleDataScope)(0),        // 5: common.BaseRoleDataScope
-	(BaseUserGender)(0),           // 6: common.BaseUserGender
-	(UserStoreStatus)(0),          // 7: common.UserStoreStatus
-	(GoodsStatus)(0),              // 8: common.GoodsStatus
-	(OrderStatus)(0),              // 9: common.OrderStatus
-	(OrderPayType)(0),             // 10: common.OrderPayType
-	(OrderPayChannel)(0),          // 11: common.OrderPayChannel
-	(OrderDeliveryTime)(0),        // 12: common.OrderDeliveryTime
-	(OrderCancelReason)(0),        // 13: common.OrderCancelReason
-	(OrderBillStatus)(0),          // 14: common.OrderBillStatus
-	(OrderRefundReason)(0),        // 15: common.OrderRefundReason
-	(ShopBannerSite)(0),           // 16: common.ShopBannerSite
-	(ShopBannerType)(0),           // 17: common.ShopBannerType
-	(PayBillStatus)(0),            // 18: common.PayBillStatus
-	(RecommendScene)(0),           // 19: common.RecommendScene
-	(RecommendGoodsActionType)(0), // 20: common.RecommendGoodsActionType
-	(RecommendActorType)(0),       // 21: common.RecommendActorType
+	(Status)(0),             // 0: common.Status
+	(BaseConfigSite)(0),     // 1: common.BaseConfigSite
+	(BaseConfigType)(0),     // 2: common.BaseConfigType
+	(BaseJobLogStatus)(0),   // 3: common.BaseJobLogStatus
+	(BaseMenuType)(0),       // 4: common.BaseMenuType
+	(BaseRoleDataScope)(0),  // 5: common.BaseRoleDataScope
+	(BaseUserGender)(0),     // 6: common.BaseUserGender
+	(UserStoreStatus)(0),    // 7: common.UserStoreStatus
+	(GoodsStatus)(0),        // 8: common.GoodsStatus
+	(OrderStatus)(0),        // 9: common.OrderStatus
+	(OrderPayType)(0),       // 10: common.OrderPayType
+	(OrderPayChannel)(0),    // 11: common.OrderPayChannel
+	(OrderDeliveryTime)(0),  // 12: common.OrderDeliveryTime
+	(OrderCancelReason)(0),  // 13: common.OrderCancelReason
+	(OrderBillStatus)(0),    // 14: common.OrderBillStatus
+	(OrderRefundReason)(0),  // 15: common.OrderRefundReason
+	(ShopBannerSite)(0),     // 16: common.ShopBannerSite
+	(ShopBannerType)(0),     // 17: common.ShopBannerType
+	(PayBillStatus)(0),      // 18: common.PayBillStatus
+	(RecommendScene)(0),     // 19: common.RecommendScene
+	(RecommendEventType)(0), // 20: common.RecommendEventType
+	(RecommendActorType)(0), // 21: common.RecommendActorType
 }
 var file_common_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

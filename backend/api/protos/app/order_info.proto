@@ -411,17 +411,9 @@ message OrderGoods {
     (gnostic.openapi.v3.property) = { description: "支付金额汇总" }
   ]; // 支付金额汇总
 
-  common.RecommendScene scene = 45 [
-    (gnostic.openapi.v3.property) = {description: "推荐场景"}
-  ]; // 推荐场景
-
-  string requestId = 46 [
-    (gnostic.openapi.v3.property) = {description: "推荐请求ID"}
-  ]; // 推荐请求ID
-
-  int32 position = 47 [
-    (gnostic.openapi.v3.property) = {description: "推荐位序号"}
-  ]; // 推荐位序号
+  RecommendContext recommendContext = 45 [
+    (gnostic.openapi.v3.property) = {description: "推荐上下文"}
+  ]; // 推荐上下文
 }
 
 // Order信息

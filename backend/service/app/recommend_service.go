@@ -59,22 +59,12 @@ func (s *RecommendService) RecommendGoods(ctx context.Context, req *app.Recommen
 	return res, nil
 }
 
-// RecommendExposureReport 上报推荐曝光事件。
-func (s *RecommendService) RecommendExposureReport(ctx context.Context, req *app.RecommendExposureReportRequest) (*emptypb.Empty, error) {
-	err := s.recommendCase.RecommendExposureReport(ctx, req)
+// RecommendEventReport 上报推荐事件。
+func (s *RecommendService) RecommendEventReport(ctx context.Context, req *app.RecommendEventReportRequest) (*emptypb.Empty, error) {
+	err := s.recommendCase.RecommendEventReport(ctx, req)
 	if err != nil {
-		log.Errorf("RecommendExposureReport %v", err)
-		return nil, errorsx.WrapInternal(err, "上报推荐曝光失败")
-	}
-	return &emptypb.Empty{}, nil
-}
-
-// RecommendGoodsActionReport 上报推荐商品行为事件。
-func (s *RecommendService) RecommendGoodsActionReport(ctx context.Context, req *app.RecommendGoodsActionReportRequest) (*emptypb.Empty, error) {
-	err := s.recommendCase.RecommendGoodsActionReport(ctx, req)
-	if err != nil {
-		log.Errorf("RecommendGoodsActionReport %v", err)
-		return nil, errorsx.WrapInternal(err, "上报推荐商品行为失败")
+		log.Errorf("RecommendEventReport %v", err)
+		return nil, errorsx.WrapInternal(err, "上报推荐事件失败")
 	}
 	return &emptypb.Empty{}, nil
 }

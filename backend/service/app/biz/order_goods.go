@@ -59,7 +59,7 @@ func (c *OrderGoodsCase) mapByOrderIds(ctx context.Context, orderIds []int64) (m
 			if !ok {
 				v = make([]*app.OrderGoods, 0)
 			}
-			v = append(v, c.mapper.ToDTO(item))
+			v = append(v, c.toOrderGoods(item))
 
 			res[item.OrderID] = v
 		}
@@ -78,7 +78,7 @@ func (c *OrderGoodsCase) listByOrderId(ctx context.Context, orderId int64) ([]*a
 	}
 	list := make([]*app.OrderGoods, 0)
 	for _, item := range all {
-		list = append(list, c.mapper.ToDTO(item))
+		list = append(list, c.toOrderGoods(item))
 	}
 	return list, nil
 }
@@ -134,7 +134,18 @@ func (c *OrderGoodsCase) convertToProtoByCreateOrderInfoGoods(ctx context.Contex
 	if err != nil {
 		return nil, err
 	}
-	return c.mapper.ToDTO(model), nil
+	return c.toOrderGoods(model), nil
+}
+
+// toOrderGoods 转换订单商品响应并补齐推荐上下文。
+func (c *OrderGoodsCase) toOrderGoods(item *models.OrderGoods) *app.OrderGoods {
+	orderGoods := c.mapper.ToDTO(item)
+	orderGoods.RecommendContext = &app.RecommendContext{
+		Scene:     common.RecommendScene(item.Scene),
+		RequestId: item.RequestID,
+		Position:  item.Position,
+	}
+	return orderGoods
 }
 
 // 将下单商品请求转换为订单商品模型
@@ -171,6 +182,10 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		payPrice = goodsSku.DiscountPrice
 	}
 	recommendContext := goods.GetRecommendContext()
+	// 下单商品未携带推荐上下文时，统一回退到空上下文，避免空指针并保持订单快照结构稳定。
+	if recommendContext == nil {
+		recommendContext = &app.RecommendContext{}
+	}
 
 	res := &models.OrderGoods{
 		GoodsID:       goodsInfo.ID,

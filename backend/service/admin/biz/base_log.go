@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	_const "shop/pkg/const"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	pkgUtils "shop/pkg/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_time "github.com/liujitcn/go-utils/time"
@@ -89,21 +89,15 @@ func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*admin.BaseLog,
 
 // saveLog 保存日志队列消息
 func (c *BaseLogCase) saveLog(message queueData.Message) error {
-	rawBody, err := json.Marshal(message.Values)
+	baseLog, err := pkgUtils.DecodeQueueData[models.BaseLog](message)
 	if err != nil {
 		return err
 	}
-
-	var payload map[string]*models.BaseLog
-	err = json.Unmarshal(rawBody, &payload)
-	if err != nil {
-		return err
+	// 队列消息里没有有效日志实体时，直接忽略当前消息。
+	if baseLog == nil {
+		return nil
 	}
-	// 队列消息携带访问日志实体时，落库保存日志。
-	if baseLog, ok := payload["data"]; ok {
-		return c.Create(context.TODO(), baseLog)
-	}
-	return nil
+	return c.Create(context.TODO(), baseLog)
 }
 
 // toBaseLog 转换日志响应数据

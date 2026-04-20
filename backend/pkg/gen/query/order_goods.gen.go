@@ -40,7 +40,7 @@ func newOrderGoods(db *gorm.DB, opts ...gen.DOOption) orderGoods {
 	_orderGoods.TotalPrice = field.NewInt64(tableName, "total_price")
 	_orderGoods.TotalPayPrice = field.NewInt64(tableName, "total_pay_price")
 	_orderGoods.Scene = field.NewInt32(tableName, "scene")
-	_orderGoods.RequestID = field.NewString(tableName, "request_id")
+	_orderGoods.RequestID = field.NewInt64(tableName, "request_id")
 	_orderGoods.Position = field.NewInt32(tableName, "position")
 	_orderGoods.DeletedAt = field.NewField(tableName, "deleted_at")
 
@@ -67,7 +67,7 @@ type orderGoods struct {
 	TotalPrice    field.Int64  // 当前金额汇总
 	TotalPayPrice field.Int64  // 支付金额汇总
 	Scene         field.Int32  // 推荐场景：枚举【RecommendScene】
-	RequestID     field.String // 推荐请求ID
+	RequestID     field.Int64  // 推荐请求ID
 	Position      field.Int32  // 推荐位序号
 	DeletedAt     field.Field  // 删除时间
 
@@ -99,7 +99,7 @@ func (o *orderGoods) updateTableName(table string) *orderGoods {
 	o.TotalPrice = field.NewInt64(table, "total_price")
 	o.TotalPayPrice = field.NewInt64(table, "total_pay_price")
 	o.Scene = field.NewInt32(table, "scene")
-	o.RequestID = field.NewString(table, "request_id")
+	o.RequestID = field.NewInt64(table, "request_id")
 	o.Position = field.NewInt32(table, "position")
 	o.DeletedAt = field.NewField(table, "deleted_at")
 

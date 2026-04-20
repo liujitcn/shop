@@ -5,21 +5,23 @@ import { formatPrice, formatSrc } from '@/utils'
 import { getCurrentInstance, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import type { GoodsInfo } from '@/rpc/app/goods_info'
 import type {
-  RecommendContext,
-  RecommendExposureReportRequest,
+  RecommendEventItem,
   RecommendGoodsRequest,
   RecommendGoodsResponse,
 } from '@/rpc/app/recommend'
-import { RecommendGoodsActionType, RecommendScene } from '@/rpc/common/enum'
+import { RecommendEventType, RecommendScene } from '@/rpc/common/enum'
 import { goodsDetailUrl } from '@/utils/navigation'
 
 type GuessGoods = GoodsInfo & {
   recommendRequestId: RecommendGoodsResponse['requestId']
   recommendScene: RecommendScene
-  recommendIndex: RecommendContext['position']
+  recommendIndex: number
 }
 
-type RecommendExposureBatch = RecommendExposureReportRequest & {
+type RecommendExposureBatch = {
+  requestId: RecommendGoodsResponse['requestId']
+  scene: RecommendScene
+  items: RecommendEventItem[]
   /** 当前批次是否已经上报过曝光。 */
   exposed: boolean
 }
@@ -46,6 +48,7 @@ const pageParams: RecommendGoodsRequest = {
   goodsId: props.goodsId,
   pageNum: 1,
   pageSize: 10,
+  requestId: 0,
 }
 // 猜你喜欢的列表
 const guessList = ref<GuessGoods[]>([])
@@ -78,12 +81,18 @@ const getHomeGoodsGuessLikeData = async () => {
     recommendScene: sceneValue,
     recommendIndex: startIndex + index,
   }))
+  // 首次返回请求编号后，后续翻页继续复用同一推荐会话。
+  pageParams.requestId = res.requestId || pageParams.requestId
   guessList.value.push(...list)
-  if (res.requestId && list.length > 0) {
+  if (res.requestId > 0 && list.length > 0) {
     exposureBatches.value.push({
       requestId: res.requestId,
       scene: sceneValue,
-      goodsIds: list.map((item) => item.id),
+      items: list.map((item) => ({
+        goodsId: item.id,
+        goodsNum: 1,
+        position: item.recommendIndex,
+      })),
       exposed: false,
     })
   }
@@ -100,6 +109,7 @@ const getHomeGoodsGuessLikeData = async () => {
 // 重置数据
 const resetData = () => {
   pageParams.pageNum = 1
+  pageParams.requestId = 0
   guessList.value = []
   finish.value = false
   exposureBatches.value = []
@@ -111,16 +121,19 @@ const reportExposure = async () => {
     return
   }
   for (const batch of exposureBatches.value) {
-    if (batch.exposed || !batch.requestId || batch.goodsIds.length === 0) {
+    if (batch.exposed || !batch.requestId || batch.items.length === 0) {
       continue
     }
     batch.exposed = true
     try {
       await recommendStore.getAnonymousId()
-      await defRecommendService.RecommendExposureReport({
-        requestId: batch.requestId,
-        scene: batch.scene,
-        goodsIds: batch.goodsIds,
+      await defRecommendService.RecommendEventReport({
+        eventType: RecommendEventType.EXPOSURE,
+        recommendContext: {
+          requestId: batch.requestId,
+          scene: batch.scene,
+        },
+        items: batch.items,
       })
     } catch (error) {
       batch.exposed = false
@@ -132,17 +145,17 @@ const reportExposure = async () => {
 const onTapGoods = async (item: GuessGoods) => {
   try {
     await recommendStore.getAnonymousId()
-    await defRecommendService.RecommendGoodsActionReport({
-      eventType: RecommendGoodsActionType.CLICK,
-      goodsItems: [
+    await defRecommendService.RecommendEventReport({
+      eventType: RecommendEventType.CLICK,
+      recommendContext: {
+        scene: item.recommendScene,
+        requestId: item.recommendRequestId,
+      },
+      items: [
         {
           goodsId: item.id,
           goodsNum: 1,
-          recommendContext: {
-            scene: item.recommendScene,
-            requestId: item.recommendRequestId,
-            position: item.recommendIndex,
-          },
+          position: item.recommendIndex,
         },
       ],
     })

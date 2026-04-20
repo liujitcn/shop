@@ -1,7 +1,6 @@
 import { http } from '@/utils/http'
 import type {
-  RecommendExposureReportRequest,
-  RecommendGoodsActionReportRequest,
+  RecommendEventReportRequest,
   RecommendGoodsRequest,
   RecommendGoodsResponse,
   RecommendService,
@@ -44,23 +43,12 @@ export class RecommendServiceImpl implements RecommendService {
     })
   }
 
-  /** 上报推荐曝光事件 */
-  RecommendExposureReport(request: RecommendExposureReportRequest): Promise<Empty> {
+  /** 上报推荐事件 */
+  RecommendEventReport(request: RecommendEventReportRequest): Promise<Empty> {
     return http<Empty>({
-      url: `${RECOMMEND_URL}/event/exposure`,
+      url: `${RECOMMEND_URL}/event`,
       method: 'POST',
       // 埋点接口和推荐查询共用同一份匿名标识。
-      header: useRecommendStore().buildAnonymousHeader(),
-      data: request,
-    })
-  }
-
-  /** 上报推荐商品行为事件 */
-  RecommendGoodsActionReport(request: RecommendGoodsActionReportRequest): Promise<Empty> {
-    return http<Empty>({
-      url: `${RECOMMEND_URL}/event/goods`,
-      method: 'POST',
-      // 行为上报需要和曝光、查询落在同一个匿名主体上。
       header: useRecommendStore().buildAnonymousHeader(),
       data: request,
     })

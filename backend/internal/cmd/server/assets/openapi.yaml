@@ -3798,33 +3798,17 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/app/recommend/event/exposure:
+    /api/app/recommend/event:
         post:
             tags:
                 - RecommendService
-            description: 上报推荐曝光事件
-            operationId: RecommendService_RecommendExposureReport
+            description: 上报推荐事件
+            operationId: RecommendService_RecommendEventReport
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RecommendExposureReportRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/app/recommend/event/goods:
-        post:
-            tags:
-                - RecommendService
-            description: 上报推荐商品行为事件
-            operationId: RecommendService_RecommendGoodsActionReport
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/RecommendGoodsActionReportRequest'
+                            $ref: '#/components/schemas/RecommendEventReportRequest'
                 required: true
             responses:
                 "200":
@@ -3841,7 +3825,7 @@ paths:
                   in: query
                   schema:
                     enum:
-                        - RECOMMEND_SCENE_UNKNOWN
+                        - UNKNOWN_RS
                         - HOME
                         - GOODS_DETAIL
                         - CART
@@ -3855,6 +3839,10 @@ paths:
                   schema:
                     type: string
                 - name: goodsId
+                  in: query
+                  schema:
+                    type: string
+                - name: requestId
                   in: query
                   schema:
                     type: string
@@ -7317,7 +7305,7 @@ components:
             properties:
                 scene:
                     enum:
-                        - RECOMMEND_SCENE_UNKNOWN
+                        - UNKNOWN_RS
                         - HOME
                         - GOODS_DETAIL
                         - CART
@@ -7335,15 +7323,12 @@ components:
                     description: 推荐位序号
                     format: int32
             description: 推荐上下文
-        RecommendExposureReportRequest:
+        RecommendEventContext:
             type: object
             properties:
-                requestId:
-                    type: string
-                    description: 推荐请求ID
                 scene:
                     enum:
-                        - RECOMMEND_SCENE_UNKNOWN
+                        - UNKNOWN_RS
                         - HOME
                         - GOODS_DETAIL
                         - CART
@@ -7353,13 +7338,11 @@ components:
                     type: string
                     description: 推荐场景
                     format: enum
-                goodsIds:
-                    type: array
-                    items:
-                        type: string
-                    description: 曝光商品ID列表
-            description: 推荐曝光上报请求参数
-        RecommendGoodsActionItem:
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+            description: 推荐事件归因上下文
+        RecommendEventItem:
             type: object
             properties:
                 goodsId:
@@ -7368,15 +7351,18 @@ components:
                 goodsNum:
                     type: string
                     description: 商品数量
-                recommendContext:
-                    $ref: '#/components/schemas/RecommendContext'
-            description: 推荐商品行为项
-        RecommendGoodsActionReportRequest:
+                position:
+                    type: integer
+                    description: 推荐位序号
+                    format: int32
+            description: 推荐事件商品项
+        RecommendEventReportRequest:
             type: object
             properties:
                 eventType:
                     enum:
-                        - UNKNOWN_RGAT
+                        - UNKNOWN_RET
+                        - EXPOSURE
                         - CLICK
                         - VIEW
                         - COLLECT
@@ -7384,14 +7370,16 @@ components:
                         - ORDER_CREATE
                         - ORDER_PAY
                     type: string
-                    description: 商品行为事件类型
+                    description: 推荐事件类型
                     format: enum
-                goodsItems:
+                recommendContext:
+                    $ref: '#/components/schemas/RecommendEventContext'
+                items:
                     type: array
                     items:
-                        $ref: '#/components/schemas/RecommendGoodsActionItem'
-                    description: 商品行为事件项
-            description: 推荐商品行为上报请求参数
+                        $ref: '#/components/schemas/RecommendEventItem'
+                    description: 推荐事件商品项
+            description: 推荐事件上报请求参数
         RecommendGoodsResponse:
             type: object
             properties:

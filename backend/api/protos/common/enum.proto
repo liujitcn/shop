@@ -164,7 +164,7 @@ enum PayBillStatus{
 
 // 推荐场景枚举
 enum RecommendScene{
-  RECOMMEND_SCENE_UNKNOWN = 0; // 未指定推荐场景
+  UNKNOWN_RS = 0; // 未指定推荐场景
   HOME = 1; // 首页推荐场景
   GOODS_DETAIL = 2; // 商品详情推荐场景
   CART = 3; // 购物车推荐场景
@@ -173,15 +173,16 @@ enum RecommendScene{
   ORDER_PAID = 6; // 支付成功推荐场景
 }
 
-// 推荐商品行为类型枚举
-enum RecommendGoodsActionType{
-  UNKNOWN_RGAT = 0; // 未指定商品行为类型
-  CLICK = 1; // 推荐点击事件
-  VIEW = 2; // 商品浏览事件
-  COLLECT = 3; // 商品收藏事件
-  ADD_CART = 4; // 商品加购事件
-  ORDER_CREATE = 5; // 下单事件
-  ORDER_PAY = 6; // 支付事件
+// 推荐事件类型枚举
+enum RecommendEventType {
+  UNKNOWN_RET = 0; // 未指定推荐事件类型
+  EXPOSURE = 1; // 推荐曝光事件
+  CLICK = 2; // 推荐点击事件
+  VIEW = 3; // 商品浏览事件
+  COLLECT = 4; // 商品收藏事件
+  ADD_CART = 5; // 商品加购事件
+  ORDER_CREATE = 6; // 下单事件
+  ORDER_PAY = 7; // 支付事件
 }
 
 // 推荐主体类型枚举

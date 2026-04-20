@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/liujitcn/go-utils/mapper"
+	_slice "github.com/liujitcn/go-utils/slice"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
 	"gorm.io/gorm"
@@ -153,8 +154,8 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 		if err != nil {
 			return err
 		}
-		// 收藏成功后，按后端事实回写推荐收藏行为。
-		c.dispatchRecommendGoodsActionEvent(authInfo.UserId, userCollect.GetGoodsId(), recommendContext)
+		// 收藏成功后，按后端事实回写推荐收藏事件。
+		c.dispatchRecommendCollectEvent(authInfo.UserId, userCollect.GetGoodsId(), recommendContext)
 		return nil
 	}
 
@@ -195,9 +196,36 @@ func (c *UserCollectCase) findByUserIdAndGoodsId(ctx context.Context, userId, go
 	return find != nil && find.ID > 0, nil
 }
 
-// dispatchRecommendGoodsActionEvent 根据收藏落库事实回写推荐收藏行为。
-func (c *UserCollectCase) dispatchRecommendGoodsActionEvent(userId, goodsId int64, recommendContext *app.RecommendContext) {
-	// 用户编号或商品编号非法时，无法构建可归因的推荐收藏行为。
+// listGoodsIdsByUserId 查询用户收藏商品 ID 列表。
+func (c *UserCollectCase) listGoodsIdsByUserId(ctx context.Context, userId int64, limit int) ([]int64, error) {
+	// 用户编号非法时，不存在可用收藏上下文。
+	if userId <= 0 {
+		return []int64{}, nil
+	}
+
+	query := c.Query(ctx).UserCollect
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	// 仅在传入正数限制时，按条数裁剪最近收藏上下文。
+	if limit > 0 {
+		opts = append(opts, repo.Limit(limit))
+	}
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIds := make([]int64, 0, len(list))
+	for _, item := range list {
+		goodsIds = append(goodsIds, item.GoodsID)
+	}
+	return _slice.Unique(goodsIds), nil
+}
+
+// dispatchRecommendCollectEvent 根据收藏落库事实回写推荐收藏事件。
+func (c *UserCollectCase) dispatchRecommendCollectEvent(userId, goodsId int64, recommendContext *app.RecommendContext) {
+	// 用户编号或商品编号非法时，无法构建可归因的推荐收藏事件。
 	if userId <= 0 || goodsId <= 0 {
 		return
 	}
@@ -206,17 +234,21 @@ func (c *UserCollectCase) dispatchRecommendGoodsActionEvent(userId, goodsId int6
 		recommendContext = &app.RecommendContext{}
 	}
 
-	// 只在收藏记录写库成功后回写推荐收藏行为，确保推荐链路与后端事实一致。
-	pkgUtils.DispatchRecommendGoodsActionEvent(&app.RecommendActor{
+	// 只在收藏记录写库成功后回写推荐收藏事件，确保推荐链路与后端事实一致。
+	pkgUtils.DispatchRecommendEvent(&app.RecommendActor{
 		ActorType: common.RecommendActorType_USER,
 		ActorId:   userId,
-	}, &app.RecommendGoodsActionReportRequest{
-		EventType: common.RecommendGoodsActionType_COLLECT,
-		GoodsItems: []*app.RecommendGoodsActionItem{
+	}, &app.RecommendEventReportRequest{
+		EventType: common.RecommendEventType_COLLECT,
+		RecommendContext: &app.RecommendEventContext{
+			Scene:     recommendContext.GetScene(),
+			RequestId: recommendContext.GetRequestId(),
+		},
+		Items: []*app.RecommendEventItem{
 			{
-				GoodsId:          goodsId,
-				GoodsNum:         1,
-				RecommendContext: recommendContext,
+				GoodsId:  goodsId,
+				GoodsNum: 1,
+				Position: recommendContext.GetPosition(),
 			},
 		},
 	}, time.Time{})

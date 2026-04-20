@@ -4,11 +4,17 @@ import { RecommendScene } from '@/rpc/common/enum'
 type QueryValue = string | number | boolean | null | undefined
 /** 用于统一拼接页面 query 的键值对象。 */
 type QueryRecord = Record<string, QueryValue>
+/** 推荐路由上下文字段。 */
+export type RecommendRouteQuery = {
+  scene?: RecommendScene | string | number
+  requestId?: string | number
+  index?: string | number
+}
 /** 商品详情页支持的入参。 */
 type GoodsDetailQuery = {
   id: string | number
   scene?: RecommendScene
-  requestId?: string
+  requestId?: string | number
   index?: string | number
 }
 
@@ -26,7 +32,7 @@ type OrderCreateQuery = {
   num?: string | number
   orderId?: string | number
   scene?: RecommendScene
-  requestId?: string
+  requestId?: string | number
   index?: string | number
 }
 
@@ -69,21 +75,51 @@ const normalizeRecommendScene = (scene?: RecommendScene) => {
   return scene
 }
 
+/** 统一清洗推荐请求编号，避免把空值或非法值写入路由。 */
+const normalizeRecommendRequestId = (requestId?: string | number) => {
+  if (requestId === undefined || requestId === null || requestId === '') {
+    return undefined
+  }
+  const value = Number(requestId)
+  if (!Number.isFinite(value) || value <= 0) {
+    return undefined
+  }
+  return value
+}
+
+/** 统一解析路由里的推荐上下文字段。 */
+export const parseRecommendRouteQuery = (query: RecommendRouteQuery) => {
+  const sceneValue =
+    query.scene === undefined || query.scene === null || query.scene === ''
+      ? undefined
+      : Number(query.scene)
+  const scene =
+    sceneValue !== undefined && Number.isFinite(sceneValue)
+      ? (sceneValue as RecommendScene)
+      : undefined
+  const indexValue =
+    query.index === undefined || query.index === null || query.index === ''
+      ? undefined
+      : Number(query.index)
+  const index = indexValue !== undefined && Number.isFinite(indexValue) ? indexValue : undefined
+
+  return {
+    scene: scene === RecommendScene.UNKNOWN_RS ? undefined : scene,
+    requestId: normalizeRecommendRequestId(query.requestId),
+    index,
+  }
+}
+
 /** 统一清洗推荐相关的路由参数，避免页面侧重复处理默认值。 */
-const normalizeRecommendRouteQuery = (query: {
-  scene?: RecommendScene
-  requestId?: string
-  index?: string | number
-}) => {
-  const scene = query.scene === RecommendScene.RECOMMEND_SCENE_UNKNOWN ? undefined : query.scene
-  const requestId = query.requestId?.trim() ? query.requestId : undefined
+const normalizeRecommendRouteQuery = (query: RecommendRouteQuery) => {
+  const { scene, requestId, index } = parseRecommendRouteQuery(query)
   const hasRecommendContext =
-    scene !== undefined || requestId !== undefined || isValidQueryValue(query.index)
+    scene !== undefined || requestId !== undefined || isValidQueryValue(index)
 
   return {
     scene: normalizeRecommendScene(scene),
     requestId,
-    index: hasRecommendContext ? (isValidQueryValue(query.index) ? query.index : 0) : undefined,
+    index: hasRecommendContext ? (isValidQueryValue(index) ? index : 0) : undefined,
   }
 }
 

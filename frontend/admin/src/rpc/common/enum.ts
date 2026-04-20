@@ -231,8 +231,8 @@ export enum PayBillStatus {
 
 /** 推荐场景枚举 */
 export enum RecommendScene {
-  /** RECOMMEND_SCENE_UNKNOWN - 未指定推荐场景 */
-  RECOMMEND_SCENE_UNKNOWN = 0,
+  /** UNKNOWN_RS - 未指定推荐场景 */
+  UNKNOWN_RS = 0,
   /** HOME - 首页推荐场景 */
   HOME = 1,
   /** GOODS_DETAIL - 商品详情推荐场景 */
@@ -247,22 +247,24 @@ export enum RecommendScene {
   ORDER_PAID = 6,
 }
 
-/** 推荐商品行为类型枚举 */
-export enum RecommendGoodsActionType {
-  /** UNKNOWN_RGAT - 未指定商品行为类型 */
-  UNKNOWN_RGAT = 0,
+/** 推荐事件类型枚举 */
+export enum RecommendEventType {
+  /** UNKNOWN_RET - 未指定推荐事件类型 */
+  UNKNOWN_RET = 0,
+  /** EXPOSURE - 推荐曝光事件 */
+  EXPOSURE = 1,
   /** CLICK - 推荐点击事件 */
-  CLICK = 1,
+  CLICK = 2,
   /** VIEW - 商品浏览事件 */
-  VIEW = 2,
+  VIEW = 3,
   /** COLLECT - 商品收藏事件 */
-  COLLECT = 3,
+  COLLECT = 4,
   /** ADD_CART - 商品加购事件 */
-  ADD_CART = 4,
+  ADD_CART = 5,
   /** ORDER_CREATE - 下单事件 */
-  ORDER_CREATE = 5,
+  ORDER_CREATE = 6,
   /** ORDER_PAY - 支付事件 */
-  ORDER_PAY = 6,
+  ORDER_PAY = 7,
 }
 
 /** 推荐主体类型枚举 */

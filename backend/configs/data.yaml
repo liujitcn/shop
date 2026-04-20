@@ -12,8 +12,8 @@ data:
     max_open_connections: 25
     connection_max_lifetime: 300s
 
-  redis:
-    addr:
-      - 127.0.0.1:6379
-    password: "112233"
-    db: 1
+#  redis:
+#    addr:
+#      - 127.0.0.1:6379
+#    password: "112233"
+#    db: 1

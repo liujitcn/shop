@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"shop/api/gen/go/conf"
+	"shop/api/gen/go/common"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgUtils "shop/pkg/utils"
@@ -16,36 +16,35 @@ import (
 
 // GoodsStatDay 商品日统计任务。
 type GoodsStatDay struct {
-	tx               data.Transaction
-	goodsStatDayRepo *data.GoodsStatDayRepo
-	//recommendFeedbackEventRepo *data.RecommendFeedbackEventRepo
-	userCollectRepo *data.UserCollectRepo
-	userCartRepo    *data.UserCartRepo
-	orderInfoRepo   *data.OrderInfoRepo
-	orderGoodsRepo  *data.OrderGoodsRepo
-	ctx             context.Context
+	tx                 data.Transaction
+	goodsStatDayRepo   *data.GoodsStatDayRepo
+	recommendEventRepo *data.RecommendEventRepo
+	userCollectRepo    *data.UserCollectRepo
+	userCartRepo       *data.UserCartRepo
+	orderInfoRepo      *data.OrderInfoRepo
+	orderGoodsRepo     *data.OrderGoodsRepo
+	ctx                context.Context
 }
 
 // NewGoodsStatDay 创建商品日统计任务实例。
 func NewGoodsStatDay(
 	tx data.Transaction,
-	shopConfig *conf.ShopConfig,
 	goodsStatDayRepo *data.GoodsStatDayRepo,
-	//recommendFeedbackEventRepo *data.RecommendFeedbackEventRepo,
+	recommendEventRepo *data.RecommendEventRepo,
 	userCollectRepo *data.UserCollectRepo,
 	userCartRepo *data.UserCartRepo,
 	orderInfoRepo *data.OrderInfoRepo,
 	orderGoodsRepo *data.OrderGoodsRepo,
 ) *GoodsStatDay {
 	return &GoodsStatDay{
-		tx:               tx,
-		goodsStatDayRepo: goodsStatDayRepo,
-		//recommendFeedbackEventRepo: recommendFeedbackEventRepo,
-		userCollectRepo: userCollectRepo,
-		userCartRepo:    userCartRepo,
-		orderInfoRepo:   orderInfoRepo,
-		orderGoodsRepo:  orderGoodsRepo,
-		ctx:             context.Background(),
+		tx:                 tx,
+		goodsStatDayRepo:   goodsStatDayRepo,
+		recommendEventRepo: recommendEventRepo,
+		userCollectRepo:    userCollectRepo,
+		userCartRepo:       userCartRepo,
+		orderInfoRepo:      orderInfoRepo,
+		orderGoodsRepo:     orderGoodsRepo,
+		ctx:                context.Background(),
 	}
 }
 
@@ -86,23 +85,24 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return item
 		}
 
-		//actionQuery := t.recommendFeedbackEventRepo.Query(ctx).RecommendFeedbackEvent
-		//opts = make([]repo.QueryOption, 0, 3)
-		//opts = append(opts, repo.Where(actionQuery.EventAt.Gte(startAt)))
-		//opts = append(opts, repo.Where(actionQuery.EventAt.Lt(endAt)))
-		//opts = append(opts, repo.Where(actionQuery.FeedbackType.Eq("view")))
-		//var viewList []*models.RecommendFeedbackEvent
-		//viewList, err = t.recommendFeedbackEventRepo.List(ctx, opts...)
-		//if err != nil {
-		//	return err
-		//}
-		//for _, item := range viewList {
-		//	// 非法商品不参与统计。
-		//	if item.GoodsID <= 0 {
-		//		continue
-		//	}
-		//	ensureStat(item.GoodsID).ViewCount++
-		//}
+		actionQuery := t.recommendEventRepo.Query(ctx).RecommendEvent
+		opts = make([]repo.QueryOption, 0, 3)
+		opts = append(opts, repo.Where(actionQuery.EventAt.Gte(startAt)))
+		opts = append(opts, repo.Where(actionQuery.EventAt.Lt(endAt)))
+		// 浏览数统一从推荐事件表里的 VIEW 事件口径汇总。
+		opts = append(opts, repo.Where(actionQuery.EventType.Eq(int32(common.RecommendEventType_VIEW))))
+		var viewList []*models.RecommendEvent
+		viewList, err = t.recommendEventRepo.List(ctx, opts...)
+		if err != nil {
+			return err
+		}
+		for _, item := range viewList {
+			// 非法商品不参与统计。
+			if item.GoodsID <= 0 {
+				continue
+			}
+			ensureStat(item.GoodsID).ViewCount++
+		}
 
 		collectQuery := t.userCollectRepo.Query(ctx).UserCollect
 		opts = make([]repo.QueryOption, 0, 2)
