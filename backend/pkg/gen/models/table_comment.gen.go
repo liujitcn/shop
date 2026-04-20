@@ -145,36 +145,6 @@ func (*PayBill) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*RecommendActorBindLog) TableComment() string {
-	return "推荐主体绑定日志表"
-}
-
-// TableComment 返回表注释。
-func (*RecommendFeedbackEvent) TableComment() string {
-	return "推荐反馈事件表"
-}
-
-// TableComment 返回表注释。
-func (*RecommendMetricsDay) TableComment() string {
-	return "推荐指标日报表"
-}
-
-// TableComment 返回表注释。
-func (*RecommendRequest) TableComment() string {
-	return "推荐请求事实表"
-}
-
-// TableComment 返回表注释。
-func (*RecommendRequestItem) TableComment() string {
-	return "推荐请求返回商品明细表"
-}
-
-// TableComment 返回表注释。
-func (*RecommendStrategyRelease) TableComment() string {
-	return "推荐策略发布表"
-}
-
-// TableComment 返回表注释。
 func (*ShopBanner) TableComment() string {
 	return "商城轮播图信息"
 }

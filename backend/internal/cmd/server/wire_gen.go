@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -21,17 +28,10 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -133,11 +133,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	orderInfoRepo := data.NewOrderInfoRepo(dataData)
 	orderStatDay := task.NewOrderStatDay(transaction, orderStatDayRepo, orderInfoRepo)
 	goodsStatDayRepo := data.NewGoodsStatDayRepo(dataData)
-	recommendFeedbackEventRepo := data.NewRecommendFeedbackEventRepo(dataData)
 	userCollectRepo := data.NewUserCollectRepo(dataData)
 	userCartRepo := data.NewUserCartRepo(dataData)
 	orderGoodsRepo := data.NewOrderGoodsRepo(dataData)
-	goodsStatDay := task.NewGoodsStatDay(transaction, shopConfig, goodsStatDayRepo, recommendFeedbackEventRepo, userCollectRepo, userCartRepo, orderInfoRepo, orderGoodsRepo)
+	goodsStatDay := task.NewGoodsStatDay(transaction, shopConfig, goodsStatDayRepo, userCollectRepo, userCartRepo, orderInfoRepo, orderGoodsRepo)
 	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay)
 	cronServer := job.NewCronServer(baseJobRepo, v)
 	authentication_Jwt := configs.ParseAuthnJwt(context)
