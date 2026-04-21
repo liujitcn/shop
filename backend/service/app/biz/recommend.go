@@ -329,13 +329,66 @@ func (c *RecommendCase) listOnlineRecommendGoodsIds(
 	contextGoodsIds = sanitizeGoodsIds(contextGoodsIds)
 	// 存在上下文商品时，优先按会话推荐获取“当前场景相关”的结果。
 	if len(contextGoodsIds) > 0 {
-		return c.recommend.SessionRecommendGoodsIds(ctx, contextGoodsIds, pageNum, pageSize)
+		return c.pageVisibleOnlineRecommendGoodsIds(ctx, pageNum, pageSize, func(ctx context.Context, limit int64) ([]int64, bool, error) {
+			return c.recommend.ListSessionRecommendGoodsIds(ctx, contextGoodsIds, limit)
+		})
 	}
 	// 匿名主体不走用户维度推荐系统推荐，没有上下文时直接回退本地兜底。
 	if actor.GetActorType() != common.RecommendActorType_USER {
 		return []int64{}, 0, nil
 	}
-	return c.recommend.GetRecommendGoodsIds(ctx, actor, pageNum, pageSize)
+	return c.pageVisibleOnlineRecommendGoodsIds(ctx, pageNum, pageSize, func(ctx context.Context, limit int64) ([]int64, bool, error) {
+		return c.recommend.ListRecommendGoodsIds(ctx, actor, limit)
+	})
+}
+
+// pageVisibleOnlineRecommendGoodsIds 按可展示商品重新切分页，避免在线推荐翻页出现空页。
+func (c *RecommendCase) pageVisibleOnlineRecommendGoodsIds(
+	ctx context.Context,
+	pageNum, pageSize int64,
+	loadGoodsIds func(context.Context, int64) ([]int64, bool, error),
+) ([]int64, int64, error) {
+	startIndex := (pageNum - 1) * pageSize
+	endIndex := pageNum * pageSize
+	limit := endIndex + 1
+	for {
+		rawGoodsIds, hasMore, err := loadGoodsIds(ctx, limit)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		visibleGoodsIds, err := c.goodsInfoCase.listAvailableGoodsIds(ctx, rawGoodsIds)
+		if err != nil {
+			return nil, 0, err
+		}
+		// 可展示商品已经覆盖到当前页末尾，或推荐系统已没有更多原始结果时，可以基于当前可见集合直接切页。
+		if int64(len(visibleGoodsIds)) >= endIndex || !hasMore {
+			// 当前页起点已经超过已知可展示结果时，仅在远端仍可能有后续结果时保留翻页信号。
+			if startIndex >= int64(len(visibleGoodsIds)) {
+				if hasMore {
+					return []int64{}, startIndex + 1, nil
+				}
+				return []int64{}, int64(len(visibleGoodsIds)), nil
+			}
+
+			pageEndIndex := endIndex
+			// 已知可展示结果不足一整页时，只截取当前实际存在的数据范围。
+			if pageEndIndex > int64(len(visibleGoodsIds)) {
+				pageEndIndex = int64(len(visibleGoodsIds))
+			}
+
+			pageGoodsIds := append([]int64(nil), visibleGoodsIds[int(startIndex):int(pageEndIndex)]...)
+			total := startIndex + int64(len(pageGoodsIds))
+			// 当前页后面仍有已知可展示商品，或推荐系统还存在未扫描的原始结果时，向前端保留“还有下一页”的信号。
+			if int64(len(visibleGoodsIds)) > pageEndIndex || hasMore {
+				total++
+			}
+			return pageGoodsIds, total, nil
+		}
+
+		// 当前可展示商品还不足当前页时，继续向后扩窗拉取原始推荐结果补齐本页。
+		limit += pageSize
+	}
 }
 
 // pageRecommendGoodsByCategory 按上下文商品类目分页查询推荐商品。
