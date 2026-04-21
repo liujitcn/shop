@@ -137,7 +137,8 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 		return nil, err
 	}
 
-	requestId, err := c.recommendRequestCase.resolveRecommendRequestId(ctx, actor, req)
+	var requestId int64
+	requestId, err = c.recommendRequestCase.resolveRecommendRequestId(ctx, actor, req)
 	if err != nil {
 		return nil, err
 	}
@@ -278,24 +279,27 @@ func (c *RecommendCase) listRecommendGoodsIds(
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
 ) ([]int64, int64, common.RecommendRequestSource, common.RecommendRequestStatus, common.RecommendRequestStrategyType, error) {
+	var err error
+	var goodsIds []int64
+	var total int64
 	// 当前存在推荐系统客户端时，优先尝试走在线推荐结果。
 	if c.recommend != nil {
-		recommendGoodsIds, recommendTotal, recommendErr := c.listOnlineRecommendGoodsIds(ctx, actor, contextGoodsIds, pageNum, pageSize)
-		if recommendErr != nil {
-			log.Errorf("listOnlineRecommendGoodsIds %v", recommendErr)
+		goodsIds, total, err = c.listOnlineRecommendGoodsIds(ctx, actor, contextGoodsIds, pageNum, pageSize)
+		if err != nil {
+			log.Errorf("listOnlineRecommendGoodsIds %v", err)
 		}
 		// 推荐系统返回了有效结果时，优先使用在线推荐结果。
-		if recommendErr == nil && len(recommendGoodsIds) > 0 {
-			return recommendGoodsIds, recommendTotal, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
+		if err == nil && len(goodsIds) > 0 {
+			return goodsIds, total, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
 		}
 	}
 
 	contextGoodsIds = sanitizeGoodsIds(contextGoodsIds)
 	// 有上下文商品时，优先按同类目兜底推荐。
 	if len(contextGoodsIds) > 0 {
-		goodsIds, total, categoryErr := c.pageRecommendGoodsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
-		if categoryErr != nil {
-			return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, categoryErr
+		goodsIds, total, err = c.pageRecommendGoodsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
+		if err != nil {
+			return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
 		}
 		// 同类目存在可推荐商品时，直接返回当前策略结果。
 		if total > 0 {
@@ -303,9 +307,9 @@ func (c *RecommendCase) listRecommendGoodsIds(
 		}
 	}
 
-	goodsIds, total, latestErr := c.pageLatestRecommendGoods(ctx, contextGoodsIds, pageNum, pageSize)
-	if latestErr != nil {
-		return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, latestErr
+	goodsIds, total, err = c.pageLatestRecommendGoods(ctx, contextGoodsIds, pageNum, pageSize)
+	if err != nil {
+		return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
 	}
 	return goodsIds, total, common.RecommendRequestSource_LOCAL, common.RecommendRequestStatus_REQUEST_FALLBACK, common.RecommendRequestStrategyType_LATEST_FALLBACK, nil
 }

@@ -10,6 +10,7 @@ import (
 	"shop/pkg/gen/data"
 	pkgRecommend "shop/pkg/recommend"
 
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/gorm-kit/repo"
 )
@@ -66,7 +67,7 @@ func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
 func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 	query := t.baseUserRepo.Query(t.ctx).BaseUser
 	total := 0
-	existingUserIds, err := t.recommend.LoadBaseUserIds(t.ctx, batchSize)
+	existingUserIds, err := t.recommend.LoadUserIds(t.ctx, batchSize)
 	if err != nil {
 		return total, fmt.Errorf("加载推荐系统用户索引失败: %w", err)
 	}
@@ -88,7 +89,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 			break
 		}
 
-		err = t.recommend.SyncBaseUsers(t.ctx, userList, existingUserIds, staleUserIds)
+		err = t.recommend.SyncBaseUserList(t.ctx, userList, existingUserIds, staleUserIds)
 		if err != nil {
 			return total, fmt.Errorf("同步推荐系统用户数据失败: %w", err)
 		}
@@ -98,7 +99,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 			break
 		}
 	}
-	err = t.recommend.DeleteBaseUsers(t.ctx, staleUserIds)
+	err = t.recommend.DeleteUserIds(t.ctx, staleUserIds)
 	if err != nil {
 		return total, fmt.Errorf("清理推荐系统冗余用户数据失败: %w", err)
 	}
@@ -109,7 +110,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 	query := t.goodsInfoRepo.Query(t.ctx).GoodsInfo
 	total := 0
-	existingItemIds, err := t.recommend.LoadGoodsInfoIds(t.ctx, batchSize)
+	existingItemIds, err := t.recommend.LoadGoodsIds(t.ctx, batchSize)
 	if err != nil {
 		return total, fmt.Errorf("加载推荐系统商品索引失败: %w", err)
 	}
@@ -131,7 +132,7 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 			break
 		}
 
-		err = t.recommend.SyncGoodsInfos(t.ctx, goodsList, existingItemIds, staleItemIds)
+		err = t.recommend.SyncGoodsInfoList(t.ctx, goodsList, existingItemIds, staleItemIds)
 		if err != nil {
 			return total, fmt.Errorf("同步推荐系统商品数据失败: %w", err)
 		}
@@ -141,7 +142,7 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 			break
 		}
 	}
-	err = t.recommend.DeleteGoodsInfos(t.ctx, staleItemIds)
+	err = t.recommend.DeleteGoodIds(t.ctx, staleItemIds)
 	if err != nil {
 		return total, fmt.Errorf("清理推荐系统冗余商品数据失败: %w", err)
 	}
@@ -167,10 +168,9 @@ func parsePositiveIntArg(rawValue string, defaultValue int, argName string) (int
 }
 
 // cloneIdSet 复制一份编号集合，避免后续清理候选和存在索引互相污染。
-func cloneIdSet(source map[string]struct{}) map[string]struct{} {
-	cloned := make(map[string]struct{}, len(source))
-	for id := range source {
-		cloned[id] = struct{}{}
+func cloneIdSet(source mapset.Set[string]) mapset.Set[string] {
+	if source == nil {
+		return mapset.NewThreadUnsafeSet[string]()
 	}
-	return cloned
+	return source.Clone()
 }

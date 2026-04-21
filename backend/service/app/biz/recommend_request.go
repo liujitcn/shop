@@ -148,26 +148,3 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 		return nil
 	})
 }
-
-// listRecommendRequestPositionMap 查询请求明细中的推荐位序号映射。
-func (c *RecommendRequestCase) listRecommendRequestPositionMap(ctx context.Context, requestId int64, goodsIds []int64) (map[int64]int32, error) {
-	positionMap := make(map[int64]int32)
-	// 推荐请求编号为空或商品列表为空时，不存在可回查的位置信息。
-	if requestId <= 0 || len(goodsIds) == 0 {
-		return positionMap, nil
-	}
-
-	query := c.RecommendRequestItemRepo.Query(ctx).RecommendRequestItem
-	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.RequestID.Eq(requestId)))
-	opts = append(opts, repo.Where(query.GoodsID.In(goodsIds...)))
-	list, err := c.RecommendRequestItemRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, item := range list {
-		positionMap[item.GoodsID] = item.Position
-	}
-	return positionMap, nil
-}

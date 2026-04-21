@@ -14,7 +14,6 @@ import (
 	"shop/pkg/gen/models"
 	pkgQueue "shop/pkg/queue"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
@@ -154,10 +153,7 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 	}
 
 	// 本地推荐事件落库成功后，再异步投递到推荐系统，避免推荐系统异常阻塞主流程。
-	err = c.syncRecommendEventToRecommend(ctx, actor, req, eventTime)
-	if err != nil {
-		log.Errorf("syncRecommendEventToRecommend %v", err)
-	}
+	pkgQueue.DispatchRecommendEventList(eventList)
 	return nil
 }
 
@@ -202,18 +198,4 @@ func (c *RecommendEventCase) listRecentRecommendEventGoodsIds(ctx context.Contex
 		goodsIds = append(goodsIds, item.GoodsID)
 	}
 	return goodsIds, nil
-}
-
-// syncRecommendEventToRecommend 将推荐事件异步投递到推荐系统。
-func (c *RecommendEventCase) syncRecommendEventToRecommend(
-	ctx context.Context,
-	actor *app.RecommendActor,
-	req *app.RecommendEventReportRequest,
-	eventTime time.Time,
-) error {
-	// 未注入推荐系统客户端时，直接跳过外部推荐事件投递。
-	if c.recommend == nil {
-		return nil
-	}
-	return c.recommend.InsertRecommendEvent(ctx, actor, req, eventTime)
 }
