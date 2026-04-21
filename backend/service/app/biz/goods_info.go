@@ -145,6 +145,37 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInf
 	}, nil
 }
 
+// listAvailableGoodsIds 按商品 ID 顺序过滤出当前可展示的商品编号。
+func (c *GoodsInfoCase) listAvailableGoodsIds(ctx context.Context, goodsIds []int64) ([]int64, error) {
+	result := make([]int64, 0, len(goodsIds))
+	// 没有候选商品时，无需访问数据库。
+	if len(goodsIds) == 0 {
+		return result, nil
+	}
+
+	query := c.GoodsInfoRepo.Query(ctx).GoodsInfo
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.In(goodsIds...)))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIdSet := make(map[int64]struct{}, len(list))
+	for _, item := range list {
+		goodsIdSet[item.ID] = struct{}{}
+	}
+	for _, goodsId := range goodsIds {
+		// 推荐结果里的商品已下架或不存在时，直接跳过当前无效商品。
+		if _, ok := goodsIdSet[goodsId]; !ok {
+			continue
+		}
+		result = append(result, goodsId)
+	}
+	return result, nil
+}
+
 // listByGoodsIds 按商品 ID 顺序查询商品信息。
 func (c *GoodsInfoCase) listByGoodsIds(ctx context.Context, goodsIds []int64) ([]*app.GoodsInfo, error) {
 	// 是否会员

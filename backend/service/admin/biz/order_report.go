@@ -94,16 +94,13 @@ func (c *OrderReportCase) OrderMonthReportList(ctx context.Context, req *adminAp
 	}
 
 	items := make([]*adminApi.OrderMonthReportItem, 0)
-	cursor := startMonth
-	for !cursor.After(endMonth) {
-		monthKey := cursor.Format("2006-01")
+	for _, monthKey := range buildDescMonthKeys(startMonth, endMonth) {
 		row, ok := rowMap[monthKey]
 		// 当前月份没有统计数据时，补空行保证月份连续。
 		if !ok {
 			row = &dto.OrderMonthReportRow{Month: monthKey}
 		}
 		items = append(items, c.toOrderMonthReportItem(row))
-		cursor = cursor.AddDate(0, 1, 0)
 	}
 
 	return &adminApi.OrderMonthReportListResponse{
@@ -172,16 +169,13 @@ func (c *OrderReportCase) OrderDayReportList(ctx context.Context, req *adminApi.
 	}
 
 	items := make([]*adminApi.OrderDayReportItem, 0)
-	cursor := startDate
-	for !cursor.After(endDate) {
-		dayKey := cursor.Format("2006-01-02")
+	for _, dayKey := range buildDescDayKeys(startDate, endDate) {
 		row, ok := rowMap[dayKey]
 		// 当前日期没有统计数据时，补空行保证日期连续。
 		if !ok {
 			row = &dto.OrderDayReportRow{Day: dayKey}
 		}
 		items = append(items, c.toOrderDayReportItem(row))
-		cursor = cursor.AddDate(0, 0, 1)
 	}
 
 	return &adminApi.OrderDayReportListResponse{
@@ -222,6 +216,13 @@ func (c *OrderReportCase) parseDate(date string) (time.Time, error) {
 // queryOrderMonthReportRows 查询月报聚合数据。
 func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderMonthReportRow, error) {
 	rows := make([]*dto.OrderMonthReportRow, 0)
+	sql, args := c.buildOrderMonthReportQuery(payType, payChannel, startAt, endAt)
+	err := c.Query(ctx).OrderStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
+	return rows, err
+}
+
+// buildOrderMonthReportQuery 构建订单月报聚合查询。
+func (c *OrderReportCase) buildOrderMonthReportQuery(payType, payChannel int32, startAt, endAt time.Time) (string, []any) {
 	sql := "" +
 		"SELECT DATE_FORMAT(stat_date, '%Y-%m') AS month," +
 		" COALESCE(SUM(paid_order_count), 0) AS paid_order_count," +
@@ -245,14 +246,20 @@ func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType
 	}
 	sql += "" +
 		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m')" +
-		" ORDER BY month ASC"
-	err := c.Query(ctx).OrderStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
-	return rows, err
+		" ORDER BY month DESC"
+	return sql, args
 }
 
 // queryOrderDayReportRows 查询日报聚合数据。
 func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderDayReportRow, error) {
 	rows := make([]*dto.OrderDayReportRow, 0)
+	sql, args := c.buildOrderDayReportQuery(payType, payChannel, startAt, endAt)
+	err := c.Query(ctx).OrderStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
+	return rows, err
+}
+
+// buildOrderDayReportQuery 构建订单日报聚合查询。
+func (c *OrderReportCase) buildOrderDayReportQuery(payType, payChannel int32, startAt, endAt time.Time) (string, []any) {
 	sql := "" +
 		"SELECT DATE_FORMAT(stat_date, '%Y-%m-%d') AS day," +
 		" COALESCE(SUM(paid_order_count), 0) AS paid_order_count," +
@@ -276,9 +283,8 @@ func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, 
 	}
 	sql += "" +
 		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m-%d')" +
-		" ORDER BY day ASC"
-	err := c.Query(ctx).OrderStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
-	return rows, err
+		" ORDER BY day DESC"
+	return sql, args
 }
 
 // appendMonthReportSummary 累加月报区间汇总。

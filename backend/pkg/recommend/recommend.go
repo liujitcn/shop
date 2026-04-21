@@ -342,38 +342,55 @@ func (g *Recommend) DeleteGoodsIds(ctx context.Context, staleItemIds mapset.Set[
 	return deleteErr
 }
 
-// GetRecommendGoodsIds 查询用户维度推荐商品编号列表。
-func (g *Recommend) GetRecommendGoodsIds(ctx context.Context, actor *app.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
+// ListRecommendGoodsIds 查询当前用户前 N 条原始推荐商品编号。
+func (g *Recommend) ListRecommendGoodsIds(ctx context.Context, actor *app.RecommendActor, limit int64) ([]int64, bool, error) {
 	// 客户端未启用、推荐主体无效或主体不是登录用户时，直接返回空推荐结果。
 	if !g.Enabled() || actor == nil || actor.GetActorId() <= 0 {
-		return []int64{}, 0, nil
+		return []int64{}, false, nil
 	}
 	// 匿名主体不走用户维度的推荐系统推荐。
 	if actor.GetActorType() != common.RecommendActorType_USER {
-		return []int64{}, 0, nil
+		return []int64{}, false, nil
 	}
 	// 调用方未显式传入上下文时，回退到默认上下文继续查询。
 	if ctx == nil {
 		ctx = context.TODO()
 	}
+	// 请求上限非法时，直接返回空结果，避免远端收到无效参数。
+	if limit <= 0 {
+		return []int64{}, false, nil
+	}
 
-	offset := int((pageNum - 1) * pageSize)
-	rawIds, err := g.gorseClient.GetRecommend(ctx, strconv.FormatInt(actor.GetActorId(), 10), "", int(pageSize)+1, offset)
+	rawIds, err := g.gorseClient.GetRecommend(ctx, strconv.FormatInt(actor.GetActorId(), 10), "", int(limit)+1, 0)
+	if err != nil {
+		return nil, false, err
+	}
+	return g.buildRecommendGoodsIds(rawIds, limit)
+}
+
+// GetRecommendGoodsIds 查询用户维度推荐商品编号列表。
+func (g *Recommend) GetRecommendGoodsIds(ctx context.Context, actor *app.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
+	limit := pageNum*pageSize + 1
+	rawIds, hasMore, err := g.ListRecommendGoodsIds(ctx, actor, limit)
 	if err != nil {
 		return nil, 0, err
 	}
-	return g.buildRecommendPageResult(rawIds, pageNum, pageSize)
+	return g.buildRecommendPageResult(rawIds, hasMore, pageNum, pageSize)
 }
 
-// SessionRecommendGoodsIds 查询会话级推荐商品编号列表。
-func (g *Recommend) SessionRecommendGoodsIds(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
+// ListSessionRecommendGoodsIds 查询当前会话前 N 条原始推荐商品编号。
+func (g *Recommend) ListSessionRecommendGoodsIds(ctx context.Context, contextGoodsIds []int64, limit int64) ([]int64, bool, error) {
 	// 客户端未启用或上下文商品为空时，直接返回空会话推荐结果。
 	if !g.Enabled() || len(contextGoodsIds) == 0 {
-		return []int64{}, 0, nil
+		return []int64{}, false, nil
 	}
 	// 调用方未显式传入上下文时，回退到默认上下文继续查询。
 	if ctx == nil {
 		ctx = context.TODO()
+	}
+	// 请求上限非法时，直接返回空结果，避免远端收到无效参数。
+	if limit <= 0 {
+		return []int64{}, false, nil
 	}
 
 	cleanGoodsIds := make([]int64, 0, len(contextGoodsIds))
@@ -383,14 +400,16 @@ func (g *Recommend) SessionRecommendGoodsIds(ctx context.Context, contextGoodsId
 		if goodsId <= 0 {
 			continue
 		}
+		// 同一个上下文商品只保留一次，避免会话推荐被重复反馈放大。
 		if _, ok := excludedGoods[goodsId]; ok {
 			continue
 		}
 		excludedGoods[goodsId] = struct{}{}
 		cleanGoodsIds = append(cleanGoodsIds, goodsId)
 	}
+	// 清洗后没有有效上下文商品时，无需继续调用远端推荐。
 	if len(cleanGoodsIds) == 0 {
-		return []int64{}, 0, nil
+		return []int64{}, false, nil
 	}
 
 	now := time.Now()
@@ -404,9 +423,9 @@ func (g *Recommend) SessionRecommendGoodsIds(ctx context.Context, contextGoodsId
 		})
 	}
 
-	scores, err := g.gorseClient.SessionRecommend(ctx, feedbacks, int(pageNum*pageSize)+1)
+	scores, err := g.gorseClient.SessionRecommend(ctx, feedbacks, int(limit)+1)
 	if err != nil {
-		return nil, 0, err
+		return nil, false, err
 	}
 
 	rawIds := make([]string, 0, len(scores))
@@ -416,12 +435,23 @@ func (g *Recommend) SessionRecommendGoodsIds(ctx context.Context, contextGoodsId
 		if convErr != nil || goodsId <= 0 {
 			continue
 		}
+		// 会话推荐结果不应该再次出现上下文商品本身，命中时直接过滤掉。
 		if _, ok := excludedGoods[goodsId]; ok {
 			continue
 		}
 		rawIds = append(rawIds, score.Id)
 	}
-	return g.buildRecommendPageResult(rawIds, pageNum, pageSize)
+	return g.buildRecommendGoodsIds(rawIds, limit)
+}
+
+// SessionRecommendGoodsIds 查询会话级推荐商品编号列表。
+func (g *Recommend) SessionRecommendGoodsIds(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
+	limit := pageNum*pageSize + 1
+	rawIds, hasMore, err := g.ListSessionRecommendGoodsIds(ctx, contextGoodsIds, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+	return g.buildRecommendPageResult(rawIds, hasMore, pageNum, pageSize)
 }
 
 // consumeSyncBaseUser 消费用户同步队列并发送到推荐系统。
@@ -656,10 +686,10 @@ func (g *Recommend) buildRecommendItem(goods *models.GoodsInfo) (client.Item, cl
 	}
 }
 
-// buildRecommendPageResult 将推荐系统返回结果转换为项目分页结果。
-func (g *Recommend) buildRecommendPageResult(rawIds []string, pageNum, pageSize int64) ([]int64, int64, error) {
-	offset := (pageNum - 1) * pageSize
+// buildRecommendGoodsIds 清洗推荐系统返回的原始商品编号列表。
+func (g *Recommend) buildRecommendGoodsIds(rawIds []string, limit int64) ([]int64, bool, error) {
 	goodsIds := make([]int64, 0, len(rawIds))
+	seenGoodsIds := make(map[int64]struct{}, len(rawIds))
 	for _, rawId := range rawIds {
 		goodsId, err := strconv.ParseInt(rawId, 10, 64)
 		// 推荐系统返回了非法商品编号时，直接跳过当前无效值，避免整批结果回退成本地兜底。
@@ -670,14 +700,45 @@ func (g *Recommend) buildRecommendPageResult(rawIds []string, pageNum, pageSize 
 		if goodsId <= 0 {
 			continue
 		}
+		// 推荐系统偶发返回重复商品时，仅保留首次命中的结果，避免前端分页出现重复卡片。
+		if _, ok := seenGoodsIds[goodsId]; ok {
+			continue
+		}
+		seenGoodsIds[goodsId] = struct{}{}
 		goodsIds = append(goodsIds, goodsId)
 	}
 
-	hasMore := int64(0)
-	// 当前页多取到 1 条时，说明后续仍存在下一页数据。
-	if int64(len(goodsIds)) > pageSize {
-		hasMore = 1
-		goodsIds = goodsIds[:pageSize]
+	hasMore := false
+	// 当前结果超过请求上限时，说明远端至少还存在一条后续原始推荐结果。
+	if int64(len(goodsIds)) > limit {
+		hasMore = true
+		goodsIds = goodsIds[:limit]
 	}
-	return goodsIds, offset + int64(len(goodsIds)) + hasMore, nil
+	return goodsIds, hasMore, nil
+}
+
+// buildRecommendPageResult 将推荐系统返回结果转换为项目分页结果。
+func (g *Recommend) buildRecommendPageResult(goodsIds []int64, hasMore bool, pageNum, pageSize int64) ([]int64, int64, error) {
+	startIndex := (pageNum - 1) * pageSize
+	// 当前页起点已经超过已知结果时，仅在仍有后续数据时保留翻页信号。
+	if startIndex >= int64(len(goodsIds)) {
+		if hasMore {
+			return []int64{}, startIndex + 1, nil
+		}
+		return []int64{}, int64(len(goodsIds)), nil
+	}
+
+	endIndex := startIndex + pageSize
+	// 已知结果不足一整页时，只截取当前实际存在的数据范围。
+	if endIndex > int64(len(goodsIds)) {
+		endIndex = int64(len(goodsIds))
+	}
+
+	pageGoodsIds := append([]int64(nil), goodsIds[int(startIndex):int(endIndex)]...)
+	total := startIndex + int64(len(pageGoodsIds))
+	// 当前页后面仍有已知结果，或远端还存在未加载结果时，向前端保留“还有下一页”的信号。
+	if int64(len(goodsIds)) > endIndex || hasMore {
+		total++
+	}
+	return pageGoodsIds, total, nil
 }
