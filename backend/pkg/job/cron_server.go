@@ -138,12 +138,16 @@ func (c *CronServer) RunJob(_ context.Context, baseJob *models.BaseJob) error {
 
 	invokeTarget, err := c.lookupTaskExec(baseJob.InvokeTarget)
 	if err != nil {
+		// 立即执行在进入任务体前失败时，也要补充失败日志，方便排查配置问题。
+		LogJobFailureWithInput(baseJob.ID, baseJob.Args, err)
 		return err
 	}
 
 	argsMap := make(map[string]string)
 	argsMap, err = parseJobArgs(baseJob.Args)
 	if err != nil {
+		// 参数解析失败时，保留原始入参到任务日志，便于定位非法配置。
+		LogJobFailureWithInput(baseJob.ID, baseJob.Args, err)
 		return err
 	}
 

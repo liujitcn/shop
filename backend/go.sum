@@ -385,10 +385,10 @@ github.com/liujitcn/kratos-kit/oss v0.0.5 h1:v0A0XxewgClXiHo3gCj4Il/yo9EEgYf5Emh
 github.com/liujitcn/kratos-kit/oss v0.0.5/go.mod h1:m0hfLYFFQMMUgGusAaunP+eldoYv7U9Pl51MNibtMog=
 github.com/liujitcn/kratos-kit/pprof v0.0.3 h1:qcszFR0NwYaV3P/eUh9gZqlFd7d+1SzglodQ/dklcdw=
 github.com/liujitcn/kratos-kit/pprof v0.0.3/go.mod h1:F4IZHSPtTPVbTbqUR8AcCXnizOygqQ0c8cL8YeYH7GY=
-github.com/liujitcn/kratos-kit/queue v0.0.9 h1:yiWPuU+LTvqIHEmCfKpReJguVyspWhIaPXwJnFc8ttw=
-github.com/liujitcn/kratos-kit/queue v0.0.9/go.mod h1:XYkSx8pDxQq8rRVWvg4ETxXMJ8NBQmonw5i55ZYrvKE=
-github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.5 h1:BebGWAKGBuYCuyxfYC3MQQCeGiOK2tfcBGrTbn+usVc=
-github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.5/go.mod h1:l99Q4NqeyJOJFrtz4GW67vFV3+DXFpE82G8ZmZ24omw=
+github.com/liujitcn/kratos-kit/queue v0.0.11 h1:gQEkQaXL9EZHePhyLXrUpu/qFxIRBaNVdMLepbRsvkU=
+github.com/liujitcn/kratos-kit/queue v0.0.11/go.mod h1:5AL8FJAkwQZarLcWsUsGFHJXrv3x7ThKEGzFEffpz4E=
+github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.6 h1:p/DFYlDefWAA8kvPapmjwtEWr2dqTamSeXCvZcMJwmY=
+github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.6/go.mod h1:l99Q4NqeyJOJFrtz4GW67vFV3+DXFpE82G8ZmZ24omw=
 github.com/liujitcn/kratos-kit/registry v0.0.6 h1:p+QNV0fMM7P9C5iq7YKfRPK5iF3XuM7UDQoJauqstc0=
 github.com/liujitcn/kratos-kit/registry v0.0.6/go.mod h1:2NSTvYHGZi0Pd76hEYthj+QYtvjcHEcrtiJQK2c6QTk=
 github.com/liujitcn/kratos-kit/rpc v0.0.4 h1:oh6XE5xbPHhbtEBbNPgjQBMgNhSGiAc6+NHavMGxJps=

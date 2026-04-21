@@ -72,6 +72,7 @@ go run ./internal/cmd/server --conf ./configs
 - `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
 - `configs/data.yaml` 中的 `redis.addr` 需要使用数组格式，例如 `addr: [\"127.0.0.1:6379\"]`，否则启动时会在配置解析阶段报错。
 - 推荐系统的运行参数不在 `backend/configs` 下维护，而是在仓库根目录 `gorse/config/config.toml` 和 `gorse/docker-compose.yml` 中维护。
+- 本地启用推荐系统时，`backend/configs/configs_local.yaml` 中的 `shop.recommend.entryPoint` 需要指向 `http://127.0.0.1:8088`；`8088` 对应 Gorse HTTP API 端口，`8086` 不是当前 Go 客户端要访问的入口。
 - 业务侧写入推荐系统的用户、商品、推荐反馈当前通过 `pkg/queue` 异步投递，默认不阻塞主业务写库链路。
 - 商城端推荐查询由 `service/app/biz/recommend.go` 统一承接，请求留痕落到 `recommend_request` / `recommend_request_item`，事件留痕落到 `recommend_event`。
 - 在线推荐优先走 Gorse 用户推荐或会话推荐，未命中时回退到同类目商品和最新热销商品。

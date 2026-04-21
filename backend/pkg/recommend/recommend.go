@@ -505,10 +505,10 @@ func (g *Recommend) consumeRecommendEvent(message queueData.Message) error {
 		feedbacks = append(feedbacks, client.Feedback{
 			FeedbackType: common.RecommendEventType(item.EventType).String(),
 			// 回放事件必须写回原始登录用户，不能把所有反馈都错误归并到固定主体。
-			UserId:       strconv.FormatInt(item.ActorID, 10),
-			ItemId:       strconv.FormatInt(item.GoodsID, 10),
-			Value:        value,
-			Timestamp:    timestamp,
+			UserId:    strconv.FormatInt(item.ActorID, 10),
+			ItemId:    strconv.FormatInt(item.GoodsID, 10),
+			Value:     value,
+			Timestamp: timestamp,
 		})
 	}
 	if len(feedbacks) == 0 {
@@ -552,14 +552,12 @@ func (g *Recommend) buildRecommendUser(user *models.BaseUser) (client.User, clie
 	}
 
 	labels := map[string]interface{}{
-		"user_id":    user.ID,
-		"user_name":  user.UserName,
-		"role_id":    user.RoleID,
-		"dept_id":    user.DeptID,
-		"gender":     user.Gender,
-		"status":     user.Status,
-		"has_phone":  user.Phone != "",
-		"has_openid": user.Openid != "",
+		"user_id":   user.ID,
+		"user_name": user.UserName,
+		"role_id":   user.RoleID,
+		"dept_id":   user.DeptID,
+		"gender":    user.Gender,
+		"status":    user.Status,
 	}
 	return client.User{
 			UserId:  strconv.FormatInt(user.ID, 10),

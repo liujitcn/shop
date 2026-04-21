@@ -30,7 +30,7 @@ require (
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.4
 	github.com/liujitcn/kratos-kit/oss v0.0.5
 	github.com/liujitcn/kratos-kit/pprof v0.0.3
-	github.com/liujitcn/kratos-kit/queue v0.0.9
+	github.com/liujitcn/kratos-kit/queue v0.0.11
 	github.com/liujitcn/kratos-kit/rpc v0.0.4
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.2
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.2
@@ -117,7 +117,7 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.8 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.2 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.10 // indirect
-	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/registry v0.0.6 // indirect
 	github.com/liujitcn/kratos-kit/tracer v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.1 // indirect

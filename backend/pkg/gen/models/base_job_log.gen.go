@@ -14,7 +14,7 @@ const TableNameBaseJobLog = "base_job_log"
 type BaseJobLog struct {
 	ID          int64     `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:任务日志ID" json:"id"`                  // 任务日志ID
 	JobID       int64     `gorm:"column:job_id;type:bigint;index:idx_base_job_log_job_id,priority:1;comment:任务ID" json:"job_id"` // 任务ID
-	Input       string    `gorm:"column:input;type:varchar(255);comment:执行参数" json:"input"`                                      // 执行参数
+	Input       string    `gorm:"column:input;type:varchar(1024);comment:执行参数" json:"input"`                                     // 执行参数
 	Output      string    `gorm:"column:output;type:text;comment:输出结果" json:"output"`                                            // 输出结果
 	Error       string    `gorm:"column:error;type:text;comment:错误信息" json:"error"`                                              // 错误信息
 	Status      int32     `gorm:"column:status;type:tinyint;comment:状态：枚举【BaseJobLogStatus】" json:"status"`                      // 状态：枚举【BaseJobLogStatus】
