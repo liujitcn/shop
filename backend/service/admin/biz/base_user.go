@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"fmt"
-	"shop/pkg/gorse"
 	"strings"
 
 	"shop/api/gen/go/admin"
@@ -13,8 +12,8 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	pkgQueue "shop/pkg/queue"
 
-	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -29,14 +28,13 @@ type BaseUserCase struct {
 	baseRoleCase *BaseRoleCase
 	baseDeptCase *BaseDeptCase
 	baseMenuCase *BaseMenuCase
-	gorse        *gorse.Gorse
 	formMapper   *mapper.CopierMapper[admin.BaseUserForm, models.BaseUser]
 	mapper       *mapper.CopierMapper[admin.BaseUser, models.BaseUser]
 }
 
 // NewBaseUserCase 创建用户业务实例
 func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, baseDeptRepo *data.BaseDeptRepo, baseRoleCase *BaseRoleCase, baseDeptCase *BaseDeptCase, baseMenuCase *BaseMenuCase,
-	gorse *gorse.Gorse) *BaseUserCase {
+) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:     baseCase,
 		BaseUserRepo: baseUserRepo,
@@ -44,7 +42,6 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepo, ba
 		baseRoleCase: baseRoleCase,
 		baseDeptCase: baseDeptCase,
 		baseMenuCase: baseMenuCase,
-		gorse:        gorse,
 		formMapper:   mapper.NewCopierMapper[admin.BaseUserForm, models.BaseUser](),
 		mapper:       mapper.NewCopierMapper[admin.BaseUser, models.BaseUser](),
 	}
@@ -164,8 +161,8 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	if err != nil {
 		return err
 	}
-	// 用户写库成功后，再异步同步用户画像到 Gorse。
-	c.syncBaseUserToGorse(ctx, baseUser)
+	// 用户写库成功后，再异步同步用户画像到推荐系统。
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
 	return nil
 }
 
@@ -185,8 +182,8 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	if err != nil {
 		return err
 	}
-	// 用户更新成功后，再按最新数据库快照同步到 Gorse。
-	c.syncBaseUserToGorseById(ctx, req.GetId())
+	// 用户更新成功后，再按最新数据库快照同步到推荐系统。
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
 	return nil
 }
 
@@ -207,10 +204,8 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	// 用户删除成功后，再异步清理 Gorse 中的用户主体。
-	for _, id := range ids {
-		c.deleteBaseUserFromGorse(ctx, id)
-	}
+	// 用户删除成功后，再异步清理推荐系统中的用户主体。
+	pkgQueue.DispatchRecommendDeleteBaseUser(ids)
 	return nil
 }
 
@@ -224,15 +219,13 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetSta
 	if baseUser.UserName == _const.BaseUserName_Super {
 		return errorsx.PermissionDenied("设置状态失败，不能操作超级管理员")
 	}
-	err = c.UpdateById(ctx, &models.BaseUser{
-		ID:     req.GetId(),
-		Status: req.GetStatus(),
-	})
+	baseUser.Status = req.GetStatus()
+	err = c.UpdateById(ctx, baseUser)
 	if err != nil {
 		return err
 	}
-	// 用户状态变更成功后，再同步最新状态到 Gorse。
-	c.syncBaseUserToGorseById(ctx, req.GetId())
+	// 用户状态变更成功后，再同步最新状态到推荐系统。
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
 	return nil
 }
 
@@ -272,37 +265,4 @@ func (c *BaseUserCase) getDefaultPassword(userName, phone string) string {
 	}
 	prefix = fmt.Sprintf("%-4s", prefix)
 	return fmt.Sprintf("%s@%s", userName, prefix)
-}
-
-// syncBaseUserToGorse 异步同步用户画像到 Gorse。
-func (c *BaseUserCase) syncBaseUserToGorse(ctx context.Context, user *models.BaseUser) {
-	// 未注入 Gorse 客户端时，直接跳过用户画像同步。
-	if c.gorse == nil {
-		return
-	}
-	_ = c.gorse.SyncBaseUser(ctx, user)
-}
-
-// syncBaseUserToGorseById 按用户编号同步最新用户画像到 Gorse。
-func (c *BaseUserCase) syncBaseUserToGorseById(ctx context.Context, userId int64) {
-	// 用户编号非法时，当前同步请求无效。
-	if userId <= 0 {
-		return
-	}
-
-	user, err := c.FindById(ctx, userId)
-	if err != nil {
-		log.Errorf("syncBaseUserToGorseById %v", err)
-		return
-	}
-	c.syncBaseUserToGorse(ctx, user)
-}
-
-// deleteBaseUserFromGorse 异步删除 Gorse 中的用户主体。
-func (c *BaseUserCase) deleteBaseUserFromGorse(ctx context.Context, userId int64) {
-	// 未注入 Gorse 客户端时，直接跳过用户主体删除。
-	if c.gorse == nil {
-		return
-	}
-	_ = c.gorse.DeleteBaseUser(ctx, userId)
 }

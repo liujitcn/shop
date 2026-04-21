@@ -2,7 +2,7 @@ package biz
 
 import (
 	"context"
-	"shop/pkg/gorse"
+	pkgRecommend "shop/pkg/recommend"
 	"time"
 
 	"shop/api/gen/go/app"
@@ -24,7 +24,7 @@ type RecommendEventCase struct {
 	*biz.BaseCase
 	*data.RecommendEventRepo
 	recommendRequestCase *RecommendRequestCase
-	gorse                *gorse.Gorse
+	recommend            *pkgRecommend.Recommend
 }
 
 // NewRecommendEventCase 创建推荐事件业务处理对象。
@@ -32,13 +32,13 @@ func NewRecommendEventCase(
 	baseCase *biz.BaseCase,
 	recommendEventRepo *data.RecommendEventRepo,
 	recommendRequestCase *RecommendRequestCase,
-	gorse *gorse.Gorse,
+	recommend *pkgRecommend.Recommend,
 ) *RecommendEventCase {
 	c := &RecommendEventCase{
 		BaseCase:             baseCase,
 		RecommendEventRepo:   recommendEventRepo,
 		recommendRequestCase: recommendRequestCase,
-		gorse:                gorse,
+		recommend:            recommend,
 	}
 
 	// 注册推荐事件异步消费者，统一承接后端事实回写。
@@ -153,10 +153,10 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 		return errorsx.Internal("保存推荐事件失败").WithCause(err)
 	}
 
-	// 本地推荐事件落库成功后，再异步投递到 Gorse，避免推荐系统异常阻塞主流程。
-	err = c.syncRecommendEventToGorse(ctx, actor, req, eventTime)
+	// 本地推荐事件落库成功后，再异步投递到推荐系统，避免推荐系统异常阻塞主流程。
+	err = c.syncRecommendEventToRecommend(ctx, actor, req, eventTime)
 	if err != nil {
-		log.Errorf("syncRecommendEventToGorse %v", err)
+		log.Errorf("syncRecommendEventToRecommend %v", err)
 	}
 	return nil
 }
@@ -204,16 +204,16 @@ func (c *RecommendEventCase) listRecentRecommendEventGoodsIds(ctx context.Contex
 	return goodsIds, nil
 }
 
-// syncRecommendEventToGorse 将推荐事件异步投递到 Gorse。
-func (c *RecommendEventCase) syncRecommendEventToGorse(
+// syncRecommendEventToRecommend 将推荐事件异步投递到推荐系统。
+func (c *RecommendEventCase) syncRecommendEventToRecommend(
 	ctx context.Context,
 	actor *app.RecommendActor,
 	req *app.RecommendEventReportRequest,
 	eventTime time.Time,
 ) error {
-	// 未注入 Gorse 客户端时，直接跳过外部推荐事件投递。
-	if c.gorse == nil {
+	// 未注入推荐系统客户端时，直接跳过外部推荐事件投递。
+	if c.recommend == nil {
 		return nil
 	}
-	return c.gorse.InsertRecommendEvent(ctx, actor, req, eventTime)
+	return c.recommend.InsertRecommendEvent(ctx, actor, req, eventTime)
 }

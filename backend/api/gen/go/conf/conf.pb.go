@@ -75,7 +75,7 @@ type ShopConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	WxMiniApp     *WxMiniApp             `protobuf:"bytes,1,opt,name=wxMiniApp,proto3" json:"wxMiniApp,omitempty"` // 小程序登录参数
 	WxPay         *WxPay                 `protobuf:"bytes,2,opt,name=wxPay,proto3" json:"wxPay,omitempty"`         // 微信支付参数
-	Gorse         *Gorse                 `protobuf:"bytes,3,opt,name=gorse,proto3" json:"gorse,omitempty"`         // 推荐配置
+	Recommend     *Recommend             `protobuf:"bytes,3,opt,name=recommend,proto3" json:"recommend,omitempty"` // 推荐配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -124,9 +124,9 @@ func (x *ShopConfig) GetWxPay() *WxPay {
 	return nil
 }
 
-func (x *ShopConfig) GetGorse() *Gorse {
+func (x *ShopConfig) GetRecommend() *Recommend {
 	if x != nil {
-		return x.Gorse
+		return x.Recommend
 	}
 	return nil
 }
@@ -269,7 +269,7 @@ func (x *WxPay) GetMchAPIv3Key() string {
 	return ""
 }
 
-type Gorse struct {
+type Recommend struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EntryPoint    string                 `protobuf:"bytes,1,opt,name=entryPoint,proto3" json:"entryPoint,omitempty"` // 请求地址
 	ApiKey        string                 `protobuf:"bytes,2,opt,name=apiKey,proto3" json:"apiKey,omitempty"`         // api 密钥
@@ -277,20 +277,20 @@ type Gorse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Gorse) Reset() {
-	*x = Gorse{}
+func (x *Recommend) Reset() {
+	*x = Recommend{}
 	mi := &file_conf_conf_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Gorse) String() string {
+func (x *Recommend) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Gorse) ProtoMessage() {}
+func (*Recommend) ProtoMessage() {}
 
-func (x *Gorse) ProtoReflect() protoreflect.Message {
+func (x *Recommend) ProtoReflect() protoreflect.Message {
 	mi := &file_conf_conf_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -302,19 +302,19 @@ func (x *Gorse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Gorse.ProtoReflect.Descriptor instead.
-func (*Gorse) Descriptor() ([]byte, []int) {
+// Deprecated: Use Recommend.ProtoReflect.Descriptor instead.
+func (*Recommend) Descriptor() ([]byte, []int) {
 	return file_conf_conf_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Gorse) GetEntryPoint() string {
+func (x *Recommend) GetEntryPoint() string {
 	if x != nil {
 		return x.EntryPoint
 	}
 	return ""
 }
 
-func (x *Gorse) GetApiKey() string {
+func (x *Recommend) GetApiKey() string {
 	if x != nil {
 		return x.ApiKey
 	}
@@ -327,12 +327,12 @@ const file_conf_conf_proto_rawDesc = "" +
 	"\n" +
 	"\x0fconf/conf.proto\x12\x04conf\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1cgoogle/protobuf/struct.proto\"M\n" +
 	"\x11ShopConfigWrapper\x128\n" +
-	"\x04shop\x18\x01 \x01(\v2\x10.conf.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\xcc\x01\n" +
+	"\x04shop\x18\x01 \x01(\v2\x10.conf.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\xd8\x01\n" +
 	"\n" +
 	"ShopConfig\x12J\n" +
 	"\twxMiniApp\x18\x01 \x01(\v2\x0f.conf.WxMiniAppB\x1b\xbaG\x18\x92\x02\x15小程序登录参数R\twxMiniApp\x12;\n" +
-	"\x05wxPay\x18\x02 \x01(\v2\v.conf.WxPayB\x18\xbaG\x15\x92\x02\x12微信支付参数R\x05wxPay\x125\n" +
-	"\x05gorse\x18\x03 \x01(\v2\v.conf.GorseB\x12\xbaG\x0f\x92\x02\f推荐配置R\x05gorse\"g\n" +
+	"\x05wxPay\x18\x02 \x01(\v2\v.conf.WxPayB\x18\xbaG\x15\x92\x02\x12微信支付参数R\x05wxPay\x12A\n" +
+	"\trecommend\x18\x03 \x01(\v2\x0f.conf.RecommendB\x12\xbaG\x0f\x92\x02\f推荐配置R\trecommend\"g\n" +
 	"\tWxMiniApp\x12+\n" +
 	"\x05appid\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序 AppIDR\x05appid\x12-\n" +
 	"\x06secret\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序密钥R\x06secret\"\xba\x02\n" +
@@ -343,8 +343,8 @@ const file_conf_conf_proto_rawDesc = "" +
 	"\tmchCertSn\x18P \x01(\tB\x1b\xbaG\x18\x92\x02\x15商户证书序列号R\tmchCertSn\x12:\n" +
 	"\vmchCertPath\x18Q \x01(\tB\x18\xbaG\x15\x92\x02\x12商户证书路径R\vmchCertPath\x122\n" +
 	"\vmchAPIv3Key\x18R \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"api 密钥R\vmchAPIv3Key\"e\n" +
-	"\x05Gorse\x122\n" +
+	"api 密钥R\vmchAPIv3Key\"i\n" +
+	"\tRecommend\x122\n" +
 	"\n" +
 	"entryPoint\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\n" +
 	"entryPoint\x12(\n" +
@@ -370,13 +370,13 @@ var file_conf_conf_proto_goTypes = []any{
 	(*ShopConfig)(nil),        // 1: conf.ShopConfig
 	(*WxMiniApp)(nil),         // 2: conf.WxMiniApp
 	(*WxPay)(nil),             // 3: conf.WxPay
-	(*Gorse)(nil),             // 4: conf.Gorse
+	(*Recommend)(nil),         // 4: conf.Recommend
 }
 var file_conf_conf_proto_depIdxs = []int32{
 	1, // 0: conf.ShopConfigWrapper.shop:type_name -> conf.ShopConfig
 	2, // 1: conf.ShopConfig.wxMiniApp:type_name -> conf.WxMiniApp
 	3, // 2: conf.ShopConfig.wxPay:type_name -> conf.WxPay
-	4, // 3: conf.ShopConfig.gorse:type_name -> conf.Gorse
+	4, // 3: conf.ShopConfig.recommend:type_name -> conf.Recommend
 	4, // [4:4] is the sub-list for method output_type
 	4, // [4:4] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

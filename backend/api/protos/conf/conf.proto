@@ -21,7 +21,7 @@ message ShopConfig {
   WxPay wxPay = 2 [
     (gnostic.openapi.v3.property) = {description: "微信支付参数"}
   ]; // 微信支付参数
-  Gorse gorse = 3 [
+  Recommend recommend = 3 [
     (gnostic.openapi.v3.property) = {description: "推荐配置"}
   ]; // 推荐配置
 }
@@ -59,7 +59,7 @@ message WxPay {
   ]; // api 密钥
 }
 
-message Gorse {
+message Recommend {
   string entryPoint = 1 [
     (gnostic.openapi.v3.property) = {description: "请求地址"}
   ]; // 请求地址

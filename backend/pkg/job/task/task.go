@@ -15,11 +15,13 @@ func NewTaskList(
 	tradeBill *TradeBill,
 	orderStatDay *OrderStatDay,
 	goodsStatDay *GoodsStatDay,
+	recommendSync *RecommendSync,
 ) map[string]TaskExec {
 	taskMap := make(map[string]TaskExec, 17)
 	registerTask(taskMap, tradeBill, "申请交易账单")
 	registerTask(taskMap, orderStatDay, "订单日汇总")
 	registerTask(taskMap, goodsStatDay, "商品日汇总")
+	registerTask(taskMap, recommendSync, "推荐系统主数据同步")
 	return taskMap
 }
 

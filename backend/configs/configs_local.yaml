@@ -9,6 +9,6 @@ shop:
     mchCertSn: 2982E87ACED7C699480DE498D3CFA6F5B04ED9EB
     mchCertPath: certs/apiclient_key.pem
     mchAPIv3Key: Dv7Dq9Zx4nR2fL8sK3pYw6Tg1HbJ5mNc
-  gorse:
+  recommend:
     entryPoint: http://127.0.0.1:8086
     apiKey:

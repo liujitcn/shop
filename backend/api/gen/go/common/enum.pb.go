@@ -1283,7 +1283,7 @@ type RecommendRequestSource int32
 const (
 	RecommendRequestSource_UNKNOWN_RRSO RecommendRequestSource = 0 // 未指定推荐请求结果来源
 	RecommendRequestSource_LOCAL        RecommendRequestSource = 1 // 本地兜底结果
-	RecommendRequestSource_GORSE        RecommendRequestSource = 2 // Gorse 推荐结果
+	RecommendRequestSource_RECOMMEND    RecommendRequestSource = 2 // 推荐系统结果
 )
 
 // Enum value maps for RecommendRequestSource.
@@ -1291,12 +1291,12 @@ var (
 	RecommendRequestSource_name = map[int32]string{
 		0: "UNKNOWN_RRSO",
 		1: "LOCAL",
-		2: "GORSE",
+		2: "RECOMMEND",
 	}
 	RecommendRequestSource_value = map[string]int32{
 		"UNKNOWN_RRSO": 0,
 		"LOCAL":        1,
-		"GORSE":        2,
+		"RECOMMEND":    2,
 	}
 )
 
@@ -1526,11 +1526,11 @@ const file_common_enum_proto_rawDesc = "" +
 	"\x1cRecommendRequestStrategyType\x12\x10\n" +
 	"\fUNKNOWN_RRST\x10\x00\x12\x15\n" +
 	"\x11CATEGORY_FALLBACK\x10\x01\x12\x13\n" +
-	"\x0fLATEST_FALLBACK\x10\x02*@\n" +
+	"\x0fLATEST_FALLBACK\x10\x02*D\n" +
 	"\x16RecommendRequestSource\x12\x10\n" +
 	"\fUNKNOWN_RRSO\x10\x00\x12\t\n" +
-	"\x05LOCAL\x10\x01\x12\t\n" +
-	"\x05GORSE\x10\x02*i\n" +
+	"\x05LOCAL\x10\x01\x12\r\n" +
+	"\tRECOMMEND\x10\x02*i\n" +
 	"\x16RecommendRequestStatus\x12\x10\n" +
 	"\fUNKNOWN_RRQS\x10\x00\x12\x13\n" +
 	"\x0fREQUEST_SUCCESS\x10\x01\x12\x14\n" +

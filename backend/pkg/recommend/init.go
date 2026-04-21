@@ -1,4 +1,4 @@
-package gorse
+package recommend
 
 import (
 	"github.com/google/wire"
@@ -6,5 +6,5 @@ import (
 
 // ProviderSet 汇总配置层依赖注入提供者。
 var ProviderSet = wire.NewSet(
-	NewGorse,
+	NewRecommend,
 )

@@ -27,7 +27,8 @@ func AddQueue(queueName _const.Queue, data any) {
 		return
 	}
 
-	message, err := sdk.Runtime.GetStreamMessage("", messageData)
+	var message queueData.Message
+	message, err = sdk.Runtime.GetStreamMessage("", messageData)
 	// 底层消息对象构造失败时，只记录日志，不影响主流程。
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())

@@ -3,7 +3,8 @@ package biz
 import (
 	"context"
 	"fmt"
-	"shop/pkg/gorse"
+	"shop/pkg/errorsx"
+	pkgQueue "shop/pkg/queue"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
@@ -11,7 +12,6 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/log"
 	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -26,7 +26,6 @@ type GoodsInfoCase struct {
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSkuCase      *GoodsSkuCase
-	gorse             *gorse.Gorse
 	formMapper        *_mapper.CopierMapper[admin.GoodsInfoForm, models.GoodsInfo]
 	mapper            *_mapper.CopierMapper[admin.GoodsInfo, models.GoodsInfo]
 }
@@ -39,7 +38,7 @@ const (
 
 // NewGoodsInfoCase 创建商品业务实例
 func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo *data.GoodsInfoRepo, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSkuCase *GoodsSkuCase,
-	gorse *gorse.Gorse) *GoodsInfoCase {
+) *GoodsInfoCase {
 	formMapper := _mapper.NewCopierMapper[admin.GoodsInfoForm, models.GoodsInfo]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	mapper := _mapper.NewCopierMapper[admin.GoodsInfo, models.GoodsInfo]()
@@ -51,7 +50,6 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo
 		goodsPropCase:     goodsPropCase,
 		goodsSpecCase:     goodsSpecCase,
 		goodsSkuCase:      goodsSkuCase,
-		gorse:             gorse,
 		formMapper:        formMapper,
 		mapper:            mapper,
 	}
@@ -252,9 +250,8 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*admin.Good
 
 // CreateGoodsInfo 创建商品
 func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) error {
-	goodsId := int64(0)
+	goodsInfo := c.formMapper.ToEntity(req)
 	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
-		goodsInfo := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			// 首个 SKU 的价格作为商品主价格展示。
@@ -271,8 +268,6 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		if err != nil {
 			return err
 		}
-		goodsId = goodsInfo.ID
-
 		err = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
 		if err != nil {
 			return err
@@ -286,15 +281,15 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 	if err != nil {
 		return err
 	}
-	// 商品创建成功后，再异步同步最新商品快照到 Gorse。
-	c.syncGoodsInfoToGorseById(ctx, goodsId)
+	// 商品创建成功后，再异步同步最新商品快照到推荐系统。
+	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
 	return nil
 }
 
 // UpdateGoodsInfo 更新商品
 func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInfoForm) error {
+	goodsInfo := c.formMapper.ToEntity(req)
 	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
-		goodsInfo := c.formMapper.ToEntity(req)
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			// 首个 SKU 的价格作为商品主价格展示。
@@ -329,8 +324,8 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 	if err != nil {
 		return err
 	}
-	// 商品更新成功后，再异步同步最新商品快照到 Gorse。
-	c.syncGoodsInfoToGorseById(ctx, req.GetId())
+	// 商品更新成功后，再异步同步最新商品快照到推荐系统。
+	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
 	return nil
 }
 
@@ -349,10 +344,8 @@ func (c *GoodsInfoCase) DeleteGoodsInfo(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
-	// 商品删除成功后，再异步清理 Gorse 中的商品主体。
-	for _, goodsId := range ids {
-		c.deleteGoodsInfoFromGorse(ctx, goodsId)
-	}
+	// 商品删除成功后，再异步清理推荐系统中的商品主体。
+	pkgQueue.DispatchRecommendDeleteGoodsInfo(ids)
 	return nil
 }
 
@@ -365,8 +358,13 @@ func (c *GoodsInfoCase) SetGoodsInfoStatus(ctx context.Context, req *common.SetS
 	if err != nil {
 		return err
 	}
-	// 商品状态变更成功后，再异步同步最新状态到 Gorse。
-	c.syncGoodsInfoToGorseById(ctx, req.GetId())
+	var goodsInfo *models.GoodsInfo
+	goodsInfo, err = c.FindById(ctx, req.GetId())
+	if err != nil {
+		return errorsx.ResourceNotFound("商品信息不存在").WithCause(err)
+	}
+	// 商品状态变更成功后，再异步同步最新状态到推荐系统。
+	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
 	return nil
 }
 
@@ -489,33 +487,4 @@ func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]strin
 		res[id] = name
 	}
 	return res, nil
-}
-
-// syncGoodsInfoToGorseById 按商品编号同步最新商品快照到 Gorse。
-func (c *GoodsInfoCase) syncGoodsInfoToGorseById(ctx context.Context, goodsId int64) {
-	// 商品编号非法时，当前同步请求无效。
-	if goodsId <= 0 {
-		return
-	}
-	// 未注入 Gorse 客户端时，直接跳过商品同步。
-	if c.gorse == nil {
-		return
-	}
-
-	goodsInfo, err := c.FindById(ctx, goodsId)
-	if err != nil {
-		log.Errorf("syncGoodsInfoToGorseById %v", err)
-		return
-	}
-
-	_ = c.gorse.SyncGoodsInfo(ctx, goodsInfo)
-}
-
-// deleteGoodsInfoFromGorse 异步删除 Gorse 中的商品主体。
-func (c *GoodsInfoCase) deleteGoodsInfoFromGorse(ctx context.Context, goodsId int64) {
-	// 未注入 Gorse 客户端时，直接跳过商品主体删除。
-	if c.gorse == nil {
-		return
-	}
-	_ = c.gorse.DeleteGoodsInfo(ctx, goodsId)
 }

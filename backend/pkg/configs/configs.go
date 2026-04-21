@@ -69,13 +69,14 @@ func ParseWxPay(cfg *conf.ShopConfig) (*conf.WxPay, error) {
 	return wxPay, nil
 }
 
-func ParseGorse(cfg *conf.ShopConfig) (*conf.Gorse, error) {
-	gorse := cfg.GetGorse()
+// ParseRecommend 解析推荐配置。
+func ParseRecommend(cfg *conf.ShopConfig) (*conf.Recommend, error) {
+	recommend := cfg.GetRecommend()
 	// 缺少推荐配置时，直接返回配置错误。
-	if gorse == nil {
+	if recommend == nil {
 		return nil, errorsx.Internal("推荐配置信息错误")
 	}
-	return gorse, nil
+	return recommend, nil
 }
 
 // ParsePayTimeout 解析支付超时时间。

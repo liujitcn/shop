@@ -3,7 +3,8 @@ package biz
 import (
 	"context"
 	"errors"
-	"shop/pkg/gorse"
+	pkgQueue "shop/pkg/queue"
+	pkgRecommend "shop/pkg/recommend"
 	"strconv"
 	"strings"
 	"time"
@@ -30,7 +31,7 @@ type RecommendAnonymousActorCase struct {
 	*data.RecommendAnonymousActorRepo
 	recommendRequestRepo *data.RecommendRequestRepo
 	recommendEventRepo   *data.RecommendEventRepo
-	gorse                *gorse.Gorse
+	recommend            *pkgRecommend.Recommend
 }
 
 // NewRecommendAnonymousActorCase 创建推荐匿名主体业务处理对象。
@@ -40,7 +41,7 @@ func NewRecommendAnonymousActorCase(
 	recommendAnonymousActorRepo *data.RecommendAnonymousActorRepo,
 	recommendRequestRepo *data.RecommendRequestRepo,
 	recommendEventRepo *data.RecommendEventRepo,
-	gorse *gorse.Gorse,
+	recommend *pkgRecommend.Recommend,
 ) *RecommendAnonymousActorCase {
 	return &RecommendAnonymousActorCase{
 		BaseCase:                    baseCase,
@@ -48,7 +49,7 @@ func NewRecommendAnonymousActorCase(
 		RecommendAnonymousActorRepo: recommendAnonymousActorRepo,
 		recommendRequestRepo:        recommendRequestRepo,
 		recommendEventRepo:          recommendEventRepo,
-		gorse:                       gorse,
+		recommend:                   recommend,
 	}
 }
 
@@ -142,25 +143,26 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 		return err
 	}
 
-	needReplayToGorse := true
+	needReplayToRecommend := true
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		now := time.Now()
 		query := c.Query(ctx).RecommendAnonymousActor
 		opts := make([]repo.QueryOption, 0, 1)
 		opts = append(opts, repo.Where(query.AnonymousID.Eq(anonymousId)))
-		actor, err := c.Find(ctx, opts...)
+		var actor *models.RecommendAnonymousActor
+		actor, err = c.Find(ctx, opts...)
 		if err != nil {
 			// 记录不存在时，按“创建并绑定”路径补齐匿名主体。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				createErr := query.WithContext(ctx).Create(&models.RecommendAnonymousActor{
+				err = query.WithContext(ctx).Create(&models.RecommendAnonymousActor{
 					AnonymousID: anonymousId,
 					UserID:      userId,
 					CreatedAt:   now,
 					UpdatedAt:   now,
 					BindAt:      now,
 				})
-				if createErr != nil {
-					return errorsx.Internal("绑定匿名推荐主体失败").WithCause(createErr)
+				if err != nil {
+					return errorsx.Internal("绑定匿名推荐主体失败").WithCause(err)
 				}
 			} else {
 				return errorsx.Internal("绑定匿名推荐主体失败").WithCause(err)
@@ -172,24 +174,24 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 			}
 			// 匿名主体已经绑定到当前用户时，只刷新绑定时间，不再重复迁移历史。
 			if actor.UserID == userId {
-				needReplayToGorse = false
-				updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
+				needReplayToRecommend = false
+				err = c.Update(ctx, &models.RecommendAnonymousActor{
 					UpdatedAt: now,
 					BindAt:    now,
 				}, opts...)
-				if updateErr != nil {
-					return errorsx.Internal("绑定匿名推荐主体失败").WithCause(updateErr)
+				if err != nil {
+					return errorsx.Internal("绑定匿名推荐主体失败").WithCause(err)
 				}
 				return nil
 			}
 
-			updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
+			err = c.Update(ctx, &models.RecommendAnonymousActor{
 				UserID:    userId,
 				UpdatedAt: now,
 				BindAt:    now,
 			}, opts...)
-			if updateErr != nil {
-				return errorsx.Internal("绑定匿名推荐主体失败").WithCause(updateErr)
+			if err != nil {
+				return errorsx.Internal("绑定匿名推荐主体失败").WithCause(err)
 			}
 		}
 
@@ -204,11 +206,11 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 		return err
 	}
 
-	// 匿名历史首次迁移成功后，再异步把匿名阶段行为重放到登录用户的 Gorse 主体下。
-	if needReplayToGorse {
-		err = c.syncRecommendActorHistoryToGorse(ctx, userId, anonymousEventList)
+	// 匿名历史首次迁移成功后，再异步把匿名阶段行为重放到登录用户的推荐系统主体下。
+	if needReplayToRecommend {
+		err = c.syncRecommendActorHistoryToRecommend(userId, anonymousEventList)
 		if err != nil {
-			log.Errorf("syncRecommendActorHistoryToGorse %v", err)
+			log.Errorf("syncRecommendActorHistoryToRecommend %v", err)
 		}
 	}
 	return nil
@@ -237,17 +239,34 @@ func (c *RecommendAnonymousActorCase) listRecommendEventsByActor(
 	return list, nil
 }
 
-// syncRecommendActorHistoryToGorse 异步回放匿名阶段历史到登录用户。
-func (c *RecommendAnonymousActorCase) syncRecommendActorHistoryToGorse(
-	ctx context.Context,
+// syncRecommendActorHistoryToRecommend 异步回放匿名阶段历史到登录用户。
+func (c *RecommendAnonymousActorCase) syncRecommendActorHistoryToRecommend(
 	userId int64,
 	eventList []*models.RecommendEvent,
 ) error {
-	// 未注入 Gorse 客户端、用户编号非法或历史事件为空时，无需继续回放历史。
-	if c.gorse == nil || userId <= 0 || len(eventList) == 0 {
+	// 未注入推荐系统客户端、用户编号非法或历史事件为空时，无需继续回放历史。
+	if c.recommend == nil || userId <= 0 || len(eventList) == 0 {
 		return nil
 	}
-	return c.gorse.ReplayRecommendEvents(ctx, common.RecommendActorType_USER, userId, eventList)
+
+	replayEventList := make([]*models.RecommendEvent, 0, len(eventList))
+	for _, item := range eventList {
+		// 匿名历史写入推荐系统前，先改写成登录用户主体，避免匿名身份继续向下游投递。
+		if item == nil {
+			continue
+		}
+		replayEvent := *item
+		replayEvent.ActorType = int32(common.RecommendActorType_USER)
+		replayEvent.ActorID = userId
+		replayEventList = append(replayEventList, &replayEvent)
+	}
+	if len(replayEventList) == 0 {
+		return nil
+	}
+
+	pkgQueue.DispatchRecommendEventList(replayEventList)
+
+	return nil
 }
 
 // rebindRecommendActorHistory 将匿名主体下的推荐历史迁移到登录用户。

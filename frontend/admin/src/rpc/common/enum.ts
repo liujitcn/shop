@@ -293,8 +293,8 @@ export enum RecommendRequestSource {
   UNKNOWN_RRSO = 0,
   /** LOCAL - 本地兜底结果 */
   LOCAL = 1,
-  /** GORSE - Gorse 推荐结果 */
-  GORSE = 2,
+  /** RECOMMEND - 推荐系统结果 */
+  RECOMMEND = 2,
 }
 
 /** 推荐请求执行状态枚举 */

@@ -27,29 +27,19 @@ type RecommendEventItem struct {
 
 // DispatchRecommendEvent 将推荐事件转换为队列消息并投递到本地推荐事件链路。
 func DispatchRecommendEvent(actor *app.RecommendActor, req *app.RecommendEventReportRequest, eventTime time.Time) {
-	event := buildRecommendEventReportEvent(actor, req, eventTime)
-	// 当前请求无法构造成有效推荐事件时，不再继续投递。
-	if event == nil {
-		return
-	}
-	AddQueue(_const.RecommendEventReport, event)
-}
-
-// buildRecommendEventReportEvent 构建推荐事件队列载荷。
-func buildRecommendEventReportEvent(actor *app.RecommendActor, req *app.RecommendEventReportRequest, eventTime time.Time) *RecommendEventReportEvent {
 	// 请求体为空时，无法继续构建事件消息。
 	if req == nil {
-		return nil
+		return
 	}
 	// 主体缺失或主体 ID 非法时，不投递无法归因的行为事件。
-	if actor == nil || actor.GetActorId() <= 0 {
-		return nil
+	if actor == nil || actor.ActorId <= 0 {
+		return
 	}
 
 	eventType := req.GetEventType()
 	// 未知行为类型不投递，避免污染后续聚合口径。
 	if eventType == common.RecommendEventType_UNKNOWN_RET {
-		return nil
+		return
 	}
 
 	// 调用方未显式传入事件时间时，统一回退到当前时间。
@@ -81,15 +71,15 @@ func buildRecommendEventReportEvent(actor *app.RecommendActor, req *app.Recommen
 	}
 	// 当前请求没有有效商品项时，不再继续投递队列消息。
 	if len(recommendEventItems) == 0 {
-		return nil
+		return
 	}
 
-	return &RecommendEventReportEvent{
+	AddQueue(_const.RecommendEventReport, &RecommendEventReportEvent{
 		RecommendActor: actor,
 		EventType:      eventType,
 		Scene:          scene,
 		RequestId:      requestId,
 		EventTime:      eventTime,
 		Items:          recommendEventItems,
-	}
+	})
 }

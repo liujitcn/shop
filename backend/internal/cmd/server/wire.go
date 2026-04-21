@@ -7,9 +7,9 @@ import (
 	pkgBiz "shop/pkg/biz"
 	pkgConfigs "shop/pkg/configs"
 	pkgGenData "shop/pkg/gen/data"
-	pkgGorse "shop/pkg/gorse"
 	pkgJob "shop/pkg/job"
 	pkgMiddleware "shop/pkg/middleware"
+	pkgRecommend "shop/pkg/recommend"
 	pkgWx "shop/pkg/wx"
 	"shop/server"
 	"shop/service/admin"
@@ -30,7 +30,7 @@ func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 		pkgBiz.ProviderSet,
 		pkgConfigs.ProviderSet,
 		pkgGenData.ProviderSet,
-		pkgGorse.ProviderSet,
+		pkgRecommend.ProviderSet,
 		pkgMiddleware.ProviderSet,
 		admin.ProviderSet,
 		app.ProviderSet,

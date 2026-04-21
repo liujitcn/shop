@@ -9,7 +9,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
-	pkgGorse "shop/pkg/gorse"
+	pkgRecommend "shop/pkg/recommend"
 
 	"github.com/go-kratos/kratos/v2/log"
 	_slice "github.com/liujitcn/go-utils/slice"
@@ -31,7 +31,7 @@ type RecommendCase struct {
 	userCartCase                *UserCartCase
 	userCollectCase             *UserCollectCase
 	goodsInfoCase               *GoodsInfoCase
-	gorse                       *pkgGorse.Gorse
+	recommend                   *pkgRecommend.Recommend
 }
 
 // NewRecommendCase 创建推荐业务处理对象。
@@ -44,7 +44,7 @@ func NewRecommendCase(
 	userCartCase *UserCartCase,
 	userCollectCase *UserCollectCase,
 	goodsInfoCase *GoodsInfoCase,
-	gorse *pkgGorse.Gorse,
+	recommend *pkgRecommend.Recommend,
 ) *RecommendCase {
 	return &RecommendCase{
 		BaseCase:                    baseCase,
@@ -55,7 +55,7 @@ func NewRecommendCase(
 		userCartCase:                userCartCase,
 		userCollectCase:             userCollectCase,
 		goodsInfoCase:               goodsInfoCase,
-		gorse:                       gorse,
+		recommend:                   recommend,
 	}
 }
 
@@ -278,15 +278,15 @@ func (c *RecommendCase) listRecommendGoodsIds(
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
 ) ([]int64, int64, common.RecommendRequestSource, common.RecommendRequestStatus, common.RecommendRequestStrategyType, error) {
-	// 当前存在 Gorse 客户端时，优先尝试走在线推荐结果。
-	if c.gorse != nil {
-		gorseGoodsIds, gorseTotal, gorseErr := c.listGorseRecommendGoodsIds(ctx, actor, contextGoodsIds, pageNum, pageSize)
-		if gorseErr != nil {
-			log.Errorf("listGorseRecommendGoodsIds %v", gorseErr)
+	// 当前存在推荐系统客户端时，优先尝试走在线推荐结果。
+	if c.recommend != nil {
+		recommendGoodsIds, recommendTotal, recommendErr := c.listOnlineRecommendGoodsIds(ctx, actor, contextGoodsIds, pageNum, pageSize)
+		if recommendErr != nil {
+			log.Errorf("listOnlineRecommendGoodsIds %v", recommendErr)
 		}
-		// Gorse 返回了有效结果时，优先使用在线推荐结果。
-		if gorseErr == nil && len(gorseGoodsIds) > 0 {
-			return gorseGoodsIds, gorseTotal, common.RecommendRequestSource_GORSE, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
+		// 推荐系统返回了有效结果时，优先使用在线推荐结果。
+		if recommendErr == nil && len(recommendGoodsIds) > 0 {
+			return recommendGoodsIds, recommendTotal, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
 		}
 	}
 
@@ -310,14 +310,14 @@ func (c *RecommendCase) listRecommendGoodsIds(
 	return goodsIds, total, common.RecommendRequestSource_LOCAL, common.RecommendRequestStatus_REQUEST_FALLBACK, common.RecommendRequestStrategyType_LATEST_FALLBACK, nil
 }
 
-// listGorseRecommendGoodsIds 优先查询 Gorse 在线推荐结果。
-func (c *RecommendCase) listGorseRecommendGoodsIds(
+// listOnlineRecommendGoodsIds 优先查询推荐系统在线推荐结果。
+func (c *RecommendCase) listOnlineRecommendGoodsIds(
 	ctx context.Context,
 	actor *app.RecommendActor,
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
 ) ([]int64, int64, error) {
-	// 没有可用推荐主体时，当前请求无法走 Gorse 推荐。
+	// 没有可用推荐主体时，当前请求无法走推荐系统推荐。
 	if actor == nil || actor.GetActorId() <= 0 {
 		return []int64{}, 0, nil
 	}
@@ -325,13 +325,13 @@ func (c *RecommendCase) listGorseRecommendGoodsIds(
 	contextGoodsIds = sanitizeGoodsIds(contextGoodsIds)
 	// 存在上下文商品时，优先按会话推荐获取“当前场景相关”的结果。
 	if len(contextGoodsIds) > 0 {
-		return c.gorse.SessionRecommendGoodsIds(ctx, contextGoodsIds, pageNum, pageSize)
+		return c.recommend.SessionRecommendGoodsIds(ctx, contextGoodsIds, pageNum, pageSize)
 	}
-	// 匿名主体不走用户维度 Gorse 推荐，没有上下文时直接回退本地兜底。
+	// 匿名主体不走用户维度推荐系统推荐，没有上下文时直接回退本地兜底。
 	if actor.GetActorType() != common.RecommendActorType_USER {
 		return []int64{}, 0, nil
 	}
-	return c.gorse.GetRecommendGoodsIds(ctx, actor, pageNum, pageSize)
+	return c.recommend.GetRecommendGoodsIds(ctx, actor, pageNum, pageSize)
 }
 
 // pageRecommendGoodsByCategory 按上下文商品类目分页查询推荐商品。

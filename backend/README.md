@@ -34,6 +34,14 @@ backend
 - 商城管理能力：商品分类、商品信息、规格、属性、SKU、轮播图、热门推荐、商城服务、门店管理。
 - 商城端能力：分类、商品详情、购物车、收藏、地址、订单、支付、门店认证。
 - 统计分析：工作台、用户分析、商品分析、商品月报、商品日报、订单分析、订单月报、订单日报、支付账单。
+- 推荐能力：推荐行为异步投递推荐系统，并通过定时任务全量同步登录用户与商品快照。
+
+## 默认定时任务
+
+- `TradeBill`：每日 `01:00` 申请交易账单。
+- `OrderStatDay`：每日 `00:10` 汇总订单日报。
+- `GoodsStatDay`：每日 `00:20` 汇总商品日报。
+- `RecommendSync`：服务启动成功后会自动异步执行一次，且每日 `01:30` 再做全量同步；同步过程中会清理推荐系统中已在本地删除的用户与商品，默认参数 `batchSize=200`，未启用推荐系统时自动跳过。
 
 
 ## 环境要求
@@ -63,8 +71,8 @@ go run ./internal/cmd/server --conf ./configs
 
 - `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
 - `configs/data.yaml` 中的 `redis.addr` 需要使用数组格式，例如 `addr: [\"127.0.0.1:6379\"]`，否则启动时会在配置解析阶段报错。
-- gorse 的运行参数不在 `backend/configs` 下维护，而是在仓库根目录 `gorse/config/config.toml` 和 `gorse/docker-compose.yml` 中维护。
-- 业务侧写入 Gorse 的用户、商品、推荐反馈当前通过 `pkg/queue` 异步投递，默认不阻塞主业务写库链路。
+- 推荐系统的运行参数不在 `backend/configs` 下维护，而是在仓库根目录 `gorse/config/config.toml` 和 `gorse/docker-compose.yml` 中维护。
+- 业务侧写入推荐系统的用户、商品、推荐反馈当前通过 `pkg/queue` 异步投递，默认不阻塞主业务写库链路。
 - `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 
 ## 数据库初始化

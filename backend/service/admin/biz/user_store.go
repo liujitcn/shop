@@ -2,7 +2,8 @@ package biz
 
 import (
 	"context"
-	"shop/pkg/gorse"
+	"shop/pkg/errorsx"
+	pkgQueue "shop/pkg/queue"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
@@ -24,13 +25,12 @@ type UserStoreCase struct {
 	baseAreaRepo *data.BaseAreaRepo
 	baseUserCase *BaseUserCase
 	baseRoleCase *BaseRoleCase
-	gorse        *gorse.Gorse
 	mapper       *mapper.CopierMapper[admin.UserStore, models.UserStore]
 }
 
 // NewUserStoreCase 创建门店申请业务实例
 func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo *data.UserStoreRepo, baseAreaRepo *data.BaseAreaRepo, baseUserCase *BaseUserCase, baseRoleCase *BaseRoleCase,
-	gorse *gorse.Gorse) *UserStoreCase {
+) *UserStoreCase {
 	userStoreMapper := mapper.NewCopierMapper[admin.UserStore, models.UserStore]()
 	userStoreMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &UserStoreCase{
@@ -40,7 +40,6 @@ func NewUserStoreCase(baseCase *biz.BaseCase, tx data.Transaction, userStoreRepo
 		baseAreaRepo:  baseAreaRepo,
 		baseUserCase:  baseUserCase,
 		baseRoleCase:  baseRoleCase,
-		gorse:         gorse,
 		mapper:        userStoreMapper,
 	}
 }
@@ -156,8 +155,13 @@ func (c *UserStoreCase) AuditUserStore(ctx context.Context, req *admin.AuditUser
 	if err != nil {
 		return err
 	}
-	// 门店审核会影响用户角色，审核成功后再异步同步最新用户画像到 Gorse。
-	c.baseUserCase.syncBaseUserToGorseById(ctx, userStore.UserID)
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindById(ctx, req.GetId())
+	if err != nil {
+		return errorsx.ResourceNotFound("用户信息不存在").WithCause(err)
+	}
+	// 门店审核会影响用户角色，审核成功后再异步同步最新用户画像到推荐系统。
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
 	return nil
 }
 
