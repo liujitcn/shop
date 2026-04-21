@@ -14,6 +14,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -136,7 +137,13 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 		return nil
 	}
 
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	anonymousEventList, err := c.listRecommendEventsByActor(ctx, common.RecommendActorType_ANONYMOUS, anonymousId)
+	if err != nil {
+		return err
+	}
+
+	needReplayToGorse := true
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		now := time.Now()
 		query := c.Query(ctx).RecommendAnonymousActor
 		opts := make([]repo.QueryOption, 0, 1)
@@ -163,6 +170,18 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 			if actor.UserID > 0 && actor.UserID != userId {
 				return errorsx.Conflict("匿名推荐主体已绑定其他用户")
 			}
+			// 匿名主体已经绑定到当前用户时，只刷新绑定时间，不再重复迁移历史。
+			if actor.UserID == userId {
+				needReplayToGorse = false
+				updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
+					UpdatedAt: now,
+					BindAt:    now,
+				}, opts...)
+				if updateErr != nil {
+					return errorsx.Internal("绑定匿名推荐主体失败").WithCause(updateErr)
+				}
+				return nil
+			}
 
 			updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
 				UserID:    userId,
@@ -181,6 +200,54 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	// 匿名历史首次迁移成功后，再异步把匿名阶段行为重放到登录用户的 Gorse 主体下。
+	if needReplayToGorse {
+		err = c.syncRecommendActorHistoryToGorse(ctx, userId, anonymousEventList)
+		if err != nil {
+			log.Errorf("syncRecommendActorHistoryToGorse %v", err)
+		}
+	}
+	return nil
+}
+
+// listRecommendEventsByActor 查询指定推荐主体的历史事件列表。
+func (c *RecommendAnonymousActorCase) listRecommendEventsByActor(
+	ctx context.Context,
+	actorType common.RecommendActorType,
+	actorId int64,
+) ([]*models.RecommendEvent, error) {
+	// 推荐主体编号非法时，不存在可迁移的历史事件。
+	if actorId <= 0 {
+		return []*models.RecommendEvent{}, nil
+	}
+
+	query := c.recommendEventRepo.Query(ctx).RecommendEvent
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Order(query.EventAt.Desc()))
+	opts = append(opts, repo.Where(query.ActorType.Eq(int32(actorType))))
+	opts = append(opts, repo.Where(query.ActorID.Eq(actorId)))
+	list, err := c.recommendEventRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, errorsx.Internal("查询匿名推荐事件失败").WithCause(err)
+	}
+	return list, nil
+}
+
+// syncRecommendActorHistoryToGorse 异步回放匿名阶段历史到登录用户。
+func (c *RecommendAnonymousActorCase) syncRecommendActorHistoryToGorse(
+	ctx context.Context,
+	userId int64,
+	eventList []*models.RecommendEvent,
+) error {
+	// 未注入 Gorse 客户端、用户编号非法或历史事件为空时，无需继续回放历史。
+	if c.gorse == nil || userId <= 0 || len(eventList) == 0 {
+		return nil
+	}
+	return c.gorse.ReplayRecommendEvents(ctx, common.RecommendActorType_USER, userId, eventList)
 }
 
 // rebindRecommendActorHistory 将匿名主体下的推荐历史迁移到登录用户。

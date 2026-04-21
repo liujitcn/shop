@@ -124,7 +124,7 @@ func (c *UserStoreCase) AuditUserStore(ctx context.Context, req *admin.AuditUser
 		return err
 	}
 
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.UpdateById(ctx, &models.UserStore{
 			ID:     req.GetId(),
 			Status: int32(req.GetStatus()),
@@ -153,6 +153,12 @@ func (c *UserStoreCase) AuditUserStore(ctx context.Context, req *admin.AuditUser
 			RoleID: baseRole.ID,
 		})
 	})
+	if err != nil {
+		return err
+	}
+	// 门店审核会影响用户角色，审核成功后再异步同步最新用户画像到 Gorse。
+	c.baseUserCase.syncBaseUserToGorseById(ctx, userStore.UserID)
+	return nil
 }
 
 // toUserStore 转换门店申请响应

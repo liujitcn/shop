@@ -4,8 +4,6 @@
 //   protoc               unknown
 // source: common/error.proto
 
-/* eslint-disable */
-
 export enum ErrorReason {
   /** INVALID_ARGUMENT - 请求参数错误 */
   INVALID_ARGUMENT = 0,

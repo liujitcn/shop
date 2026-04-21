@@ -19,6 +19,7 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/rpc"
+	"github.com/liujitcn/kratos-kit/rpc/middleware/requestid"
 )
 
 type GrpcMiddlewares []middleware.Middleware
@@ -34,6 +35,8 @@ func NewGrpcMiddleware(
 ) GrpcMiddlewares {
 	var ms GrpcMiddlewares
 	cfg := ctx.GetConfig()
+	// 先补齐请求标识，再进入访问日志中间件，确保日志能读取到统一 request_id。
+	ms = append(ms, requestid.NewRequestIDMiddleware())
 	// 开启日志中间件时，统一挂载请求日志与操作者解析逻辑。
 	if cfg != nil && cfg.Server != nil && cfg.Server.Grpc != nil && cfg.Server.Grpc.Middleware != nil && cfg.Server.Grpc.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))

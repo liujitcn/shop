@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"context"
 	"net"
 	"net/http"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/liujitcn/go-utils/geoip/qqwry"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
+	"github.com/liujitcn/kratos-kit/rpc/middleware/requestid"
 )
 
 var ipClient = qqwry.NewClient()
@@ -114,7 +116,12 @@ func getIPFromRemoteAddr(hostAddress string) string {
 }
 
 // getRequestId 获取请求ID
-func getRequestId(request *http.Request) string {
+func getRequestId(ctx context.Context, request *http.Request) string {
+	// 先读取请求上下文中的 request_id，优先复用统一中间件生成的值。
+	if requestId := requestid.GetRequestID(ctx); requestId != "" {
+		return requestId
+	}
+
 	// 请求对象为空时，无法继续解析请求标识。
 	if request == nil {
 		return ""

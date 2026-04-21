@@ -8,7 +8,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	pkgUtils "shop/pkg/utils"
+	pkgQueue "shop/pkg/queue"
 	"shop/service/app/utils"
 	"time"
 
@@ -235,7 +235,7 @@ func (c *UserCollectCase) dispatchRecommendCollectEvent(userId, goodsId int64, r
 	}
 
 	// 只在收藏记录写库成功后回写推荐收藏事件，确保推荐链路与后端事实一致。
-	pkgUtils.DispatchRecommendEvent(&app.RecommendActor{
+	pkgQueue.DispatchRecommendEvent(&app.RecommendActor{
 		ActorType: common.RecommendActorType_USER,
 		ActorId:   userId,
 	}, &app.RecommendEventReportRequest{

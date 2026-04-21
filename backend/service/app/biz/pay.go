@@ -7,7 +7,7 @@ import (
 	"shop/api/gen/go/app"
 	"shop/pkg/configs"
 	"shop/pkg/errorsx"
-	pkgUtils "shop/pkg/utils"
+	pkgQueue "shop/pkg/queue"
 	"shop/pkg/wx"
 	"strconv"
 	"strings"
@@ -537,7 +537,7 @@ func (c *PayCase) dispatchRecommendPayEvent(userId int64, goodsList []*models.Or
 		}
 
 		// 支付事件只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
-		pkgUtils.DispatchRecommendEvent(&app.RecommendActor{
+		pkgQueue.DispatchRecommendEvent(&app.RecommendActor{
 			ActorType: common.RecommendActorType_USER,
 			ActorId:   userId,
 		}, payEventReport, eventTime)

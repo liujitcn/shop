@@ -9,7 +9,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	pkgUtils "shop/pkg/utils"
+	pkgQueue "shop/pkg/queue"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_time "github.com/liujitcn/go-utils/time"
@@ -89,7 +89,7 @@ func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*admin.BaseLog,
 
 // saveLog 保存日志队列消息
 func (c *BaseLogCase) saveLog(message queueData.Message) error {
-	baseLog, err := pkgUtils.DecodeQueueData[models.BaseLog](message)
+	baseLog, err := pkgQueue.DecodeQueueData[models.BaseLog](message)
 	if err != nil {
 		return err
 	}

@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"shop/api/gen/go/base"
 	"shop/pkg/gen/data"
-	"shop/pkg/utils"
+	pkgQueue "shop/pkg/queue"
 	"strings"
 	"time"
 
@@ -25,6 +25,8 @@ import (
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	"github.com/mileusna/useragent"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 )
 
 // Redacter 定义日志脱敏接口。
@@ -52,7 +54,7 @@ func Server(_ log.Logger,
 				var fullErr error
 				// 当前请求走 HTTP 传输层时，补充 HTTP 相关访问日志字段。
 				if htr, htrOk := info.(*http.Transport); htrOk {
-					baseLog.RequestID = getRequestId(htr.Request())
+					baseLog.RequestID = getRequestId(ctx, htr.Request())
 					// 文件上传不存请求内容
 					// 文件上传和下载请求体通常较大，不记录请求体内容。
 					if !(htr.Operation() == base.OperationFileServiceMultiUploadFile || htr.Operation() == base.OperationFileServiceUploadFile || htr.Operation() == base.OperationFileServiceDownloadFile) {
@@ -155,7 +157,7 @@ func Server(_ log.Logger,
 				baseLog.Reason = fmt.Sprintf("[%s]%s", baseLog.Reason, stack)
 			}
 			// 写入日志
-			utils.AddQueue(_const.Log, &baseLog)
+			pkgQueue.AddQueue(_const.Log, &baseLog)
 			logLine := buildAccessLogLine(&baseLog)
 			// 错误请求使用错误级别输出，便于在控制台快速筛选异常请求。
 			if level == log.LevelError {
@@ -197,15 +199,21 @@ func normalizeLogField(value string) string {
 
 // extractArgs 提取请求体日志内容。
 func extractArgs(req interface{}) string {
-	// 请求对象实现脱敏接口时，优先使用脱敏后的字符串。
+	requestBody, err := marshalRequestBody(req)
+	// 请求对象能正常序列化时，统一按 JSON 写入日志，便于后台直接格式化展示。
+	if err == nil {
+		return string(requestBody)
+	}
+
+	// 请求对象实现脱敏接口但无法直接序列化时，回退记录脱敏后的 JSON 字符串。
 	if redacter, ok := req.(Redacter); ok {
-		return redacter.Redact()
+		return marshalFallbackText(redacter.Redact())
 	}
-	// 请求对象实现 Stringer 时，直接复用其字符串表示。
+	// 请求对象实现 Stringer 时，回退复用其字符串表示。
 	if stringer, ok := req.(fmt.Stringer); ok {
-		return stringer.String()
+		return marshalFallbackText(stringer.String())
 	}
-	return fmt.Sprintf("%+v", req)
+	return marshalFallbackText(fmt.Sprintf("%+v", req))
 }
 
 // extractError 提取错误日志级别和堆栈信息。
@@ -214,4 +222,31 @@ func extractError(err error) (log.Level, string) {
 		return log.LevelError, fmt.Sprintf("%+v", err)
 	}
 	return log.LevelInfo, ""
+}
+
+// marshalRequestBody 将请求对象统一序列化成 JSON。
+func marshalRequestBody(req interface{}) ([]byte, error) {
+	// 空请求统一写成空对象，避免日志字段出现空串。
+	if req == nil {
+		return []byte("{}"), nil
+	}
+
+	// Proto 请求优先使用 protojson，确保 GET 参数也能落成标准 JSON。
+	if message, ok := req.(proto.Message); ok {
+		return protojson.MarshalOptions{
+			UseProtoNames:   false,
+			EmitUnpopulated: false,
+		}.Marshal(message)
+	}
+
+	return json.Marshal(req)
+}
+
+// marshalFallbackText 将兜底文本包装成合法 JSON 字符串。
+func marshalFallbackText(text string) string {
+	textBytes, err := json.Marshal(strings.TrimSpace(text))
+	if err != nil {
+		return strings.TrimSpace(text)
+	}
+	return string(textBytes)
 }

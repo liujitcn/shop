@@ -14,6 +14,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -159,7 +160,13 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	}
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = password
-	return c.Create(ctx, baseUser)
+	err = c.Create(ctx, baseUser)
+	if err != nil {
+		return err
+	}
+	// 用户写库成功后，再异步同步用户画像到 Gorse。
+	c.syncBaseUserToGorse(ctx, baseUser)
+	return nil
 }
 
 // UpdateBaseUser 更新用户
@@ -174,7 +181,13 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	}
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = oldBaseUser.Password
-	return c.UpdateById(ctx, baseUser)
+	err = c.UpdateById(ctx, baseUser)
+	if err != nil {
+		return err
+	}
+	// 用户更新成功后，再按最新数据库快照同步到 Gorse。
+	c.syncBaseUserToGorseById(ctx, req.GetId())
+	return nil
 }
 
 // DeleteBaseUser 删除用户
@@ -190,7 +203,15 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 			return errorsx.PermissionDenied("删除用户失败，不能操作超级管理员")
 		}
 	}
-	return c.DeleteByIds(ctx, ids)
+	err = c.DeleteByIds(ctx, ids)
+	if err != nil {
+		return err
+	}
+	// 用户删除成功后，再异步清理 Gorse 中的用户主体。
+	for _, id := range ids {
+		c.deleteBaseUserFromGorse(ctx, id)
+	}
+	return nil
 }
 
 // SetBaseUserStatus 设置用户状态
@@ -203,10 +224,16 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetSta
 	if baseUser.UserName == _const.BaseUserName_Super {
 		return errorsx.PermissionDenied("设置状态失败，不能操作超级管理员")
 	}
-	return c.UpdateById(ctx, &models.BaseUser{
+	err = c.UpdateById(ctx, &models.BaseUser{
 		ID:     req.GetId(),
 		Status: req.GetStatus(),
 	})
+	if err != nil {
+		return err
+	}
+	// 用户状态变更成功后，再同步最新状态到 Gorse。
+	c.syncBaseUserToGorseById(ctx, req.GetId())
+	return nil
 }
 
 // ResetBaseUserPassword 重置用户密码
@@ -245,4 +272,37 @@ func (c *BaseUserCase) getDefaultPassword(userName, phone string) string {
 	}
 	prefix = fmt.Sprintf("%-4s", prefix)
 	return fmt.Sprintf("%s@%s", userName, prefix)
+}
+
+// syncBaseUserToGorse 异步同步用户画像到 Gorse。
+func (c *BaseUserCase) syncBaseUserToGorse(ctx context.Context, user *models.BaseUser) {
+	// 未注入 Gorse 客户端时，直接跳过用户画像同步。
+	if c.gorse == nil {
+		return
+	}
+	_ = c.gorse.SyncBaseUser(ctx, user)
+}
+
+// syncBaseUserToGorseById 按用户编号同步最新用户画像到 Gorse。
+func (c *BaseUserCase) syncBaseUserToGorseById(ctx context.Context, userId int64) {
+	// 用户编号非法时，当前同步请求无效。
+	if userId <= 0 {
+		return
+	}
+
+	user, err := c.FindById(ctx, userId)
+	if err != nil {
+		log.Errorf("syncBaseUserToGorseById %v", err)
+		return
+	}
+	c.syncBaseUserToGorse(ctx, user)
+}
+
+// deleteBaseUserFromGorse 异步删除 Gorse 中的用户主体。
+func (c *BaseUserCase) deleteBaseUserFromGorse(ctx context.Context, userId int64) {
+	// 未注入 Gorse 客户端时，直接跳过用户主体删除。
+	if c.gorse == nil {
+		return
+	}
+	_ = c.gorse.DeleteBaseUser(ctx, userId)
 }

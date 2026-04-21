@@ -310,7 +310,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, transaction, recommendRequestRepo, recommendRequestItemRepo)
 	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase, gorseGorse)
 	userCollectCase := biz4.NewUserCollectCase(baseCase, userCollectRepo, bizGoodsInfoCase, bizGoodsSkuCase)
-	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase)
+	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase, gorseGorse)
 	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
 	appShopBannerService := app.NewShopBannerService(bizShopBannerCase)

@@ -64,6 +64,7 @@ go run ./internal/cmd/server --conf ./configs
 - `configs/configs.yaml` 中的微信配置当前要求非空，联调阶段可先填占位值。
 - `configs/data.yaml` 中的 `redis.addr` 需要使用数组格式，例如 `addr: [\"127.0.0.1:6379\"]`，否则启动时会在配置解析阶段报错。
 - gorse 的运行参数不在 `backend/configs` 下维护，而是在仓库根目录 `gorse/config/config.toml` 和 `gorse/docker-compose.yml` 中维护。
+- 业务侧写入 Gorse 的用户、商品、推荐反馈当前通过 `pkg/queue` 异步投递，默认不阻塞主业务写库链路。
 - `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 
 ## 数据库初始化

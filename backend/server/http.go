@@ -25,6 +25,7 @@ import (
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/rpc"
+	"github.com/liujitcn/kratos-kit/rpc/middleware/requestid"
 	swaggerUI "github.com/liujitcn/kratos-kit/swagger-ui"
 )
 
@@ -41,6 +42,8 @@ func NewHttpMiddleware(
 ) HttpMiddlewares {
 	var ms HttpMiddlewares
 	cfg := ctx.GetConfig()
+	// 先补齐请求标识，再进入访问日志中间件，确保日志能读取到统一 request_id。
+	ms = append(ms, requestid.NewRequestIDMiddleware())
 	// 开启日志中间件时，统一挂载请求日志与操作者解析逻辑。
 	if cfg != nil && cfg.Server != nil && cfg.Server.Http != nil && cfg.Server.Http.Middleware != nil && cfg.Server.Http.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))

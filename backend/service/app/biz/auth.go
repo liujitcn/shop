@@ -108,6 +108,8 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *app.WechatLoginRequest)
 	if user.Status != int32(common.Status_ENABLE) {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
+	// 登录成功前，异步同步用户画像到 Gorse，保证推荐主体随登录链路逐步补齐。
+	c.syncBaseUserToGorse(ctx, user)
 
 	// 登录凭证需要补齐角色和部门信息
 	var role *models.BaseRole
@@ -182,6 +184,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *app.UserProfileFo
 	if err != nil {
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
+	originalAvatar := oldBaseUser.Avatar
 
 	baseUser := &models.BaseUser{
 		ID:       authInfo.UserId,
@@ -193,15 +196,20 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *app.UserProfileFo
 	if err = c.baseUserCase.UpdateById(ctx, baseUser); err != nil {
 		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
+	oldBaseUser.NickName = baseUser.NickName
+	oldBaseUser.Gender = baseUser.Gender
+	oldBaseUser.Avatar = baseUser.Avatar
+	// 用户资料写库成功后，再异步同步最新画像到 Gorse。
+	c.syncBaseUserToGorse(ctx, oldBaseUser)
 
 	// 删除被替换的旧头像文件
 	oss := sdk.Runtime.GetOSS()
 	// OSS 可用时，尝试清理被替换掉的历史头像文件。
 	if oss != nil {
 		// 新头像为空或发生变更时，旧头像文件需要尝试删除。
-		if baseUser.Avatar == "" || oldBaseUser.Avatar != baseUser.Avatar {
+		if baseUser.Avatar == "" || originalAvatar != baseUser.Avatar {
 			// 头像文件删除失败时，只记录日志不影响主流程。
-			if err = oss.DeleteFile(oldBaseUser.Avatar); err != nil {
+			if err = oss.DeleteFile(originalAvatar); err != nil {
 				log.Error("deleteFile err:", err.Error())
 			}
 		}
@@ -275,8 +283,23 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequ
 	if err = c.baseUserCase.UpdateById(ctx, user); err != nil {
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
+	var currentUser *models.BaseUser
+	currentUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
+	if err == nil {
+		// 手机号绑定成功后，再异步同步最新用户画像到 Gorse。
+		c.syncBaseUserToGorse(ctx, currentUser)
+	}
 
 	return &app.BindUserPhoneResponse{
 		Phone: _string.DesensitizePhone(user.Phone),
 	}, nil
+}
+
+// syncBaseUserToGorse 异步同步当前用户画像到 Gorse。
+func (c *AuthCase) syncBaseUserToGorse(ctx context.Context, user *models.BaseUser) {
+	// 未注入 Gorse 客户端时，直接跳过用户画像同步。
+	if c.gorse == nil {
+		return
+	}
+	_ = c.gorse.SyncBaseUser(ctx, user)
 }

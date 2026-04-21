@@ -2,7 +2,7 @@ package job
 
 import (
 	"shop/pkg/job/task"
-	"shop/pkg/utils"
+	pkgQueue "shop/pkg/queue"
 	"strings"
 	"time"
 
@@ -44,7 +44,7 @@ func (e *ExecJob) Execute() error {
 	// 执行时间
 	baseJobLog.ProcessTime = int32(time.Since(baseJobLog.ExecuteTime).Milliseconds())
 	// 加入日志队列
-	utils.AddQueue(_const.JobLog, baseJobLog)
+	pkgQueue.AddQueue(_const.JobLog, baseJobLog)
 	return err
 }
 

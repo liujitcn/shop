@@ -12,8 +12,9 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	pkgUtils "shop/pkg/utils"
+	pkgQueue "shop/pkg/queue"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 )
@@ -47,7 +48,7 @@ func NewRecommendEventCase(
 
 // saveRecommendEventReport 消费推荐事件队列并持久化到本地。
 func (c *RecommendEventCase) saveRecommendEventReport(message queueData.Message) error {
-	recommendEvent, err := pkgUtils.DecodeQueueData[pkgUtils.RecommendEventReportEvent](message)
+	recommendEvent, err := pkgQueue.DecodeQueueData[pkgQueue.RecommendEventReportEvent](message)
 	if err != nil {
 		return err
 	}
@@ -151,6 +152,12 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 	if err != nil {
 		return errorsx.Internal("保存推荐事件失败").WithCause(err)
 	}
+
+	// 本地推荐事件落库成功后，再异步投递到 Gorse，避免推荐系统异常阻塞主流程。
+	err = c.syncRecommendEventToGorse(ctx, actor, req, eventTime)
+	if err != nil {
+		log.Errorf("syncRecommendEventToGorse %v", err)
+	}
 	return nil
 }
 
@@ -195,4 +202,18 @@ func (c *RecommendEventCase) listRecentRecommendEventGoodsIds(ctx context.Contex
 		goodsIds = append(goodsIds, item.GoodsID)
 	}
 	return goodsIds, nil
+}
+
+// syncRecommendEventToGorse 将推荐事件异步投递到 Gorse。
+func (c *RecommendEventCase) syncRecommendEventToGorse(
+	ctx context.Context,
+	actor *app.RecommendActor,
+	req *app.RecommendEventReportRequest,
+	eventTime time.Time,
+) error {
+	// 未注入 Gorse 客户端时，直接跳过外部推荐事件投递。
+	if c.gorse == nil {
+		return nil
+	}
+	return c.gorse.InsertRecommendEvent(ctx, actor, req, eventTime)
 }
