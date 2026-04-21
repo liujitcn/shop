@@ -18,10 +18,10 @@ func NewTaskList(
 	recommendSync *RecommendSync,
 ) map[string]TaskExec {
 	taskMap := make(map[string]TaskExec, 17)
-	registerTask(taskMap, tradeBill, "申请交易账单")
-	registerTask(taskMap, orderStatDay, "订单日汇总")
-	registerTask(taskMap, goodsStatDay, "商品日汇总")
-	registerTask(taskMap, recommendSync, "推荐系统主数据同步")
+	registerTask(taskMap, tradeBill)
+	registerTask(taskMap, orderStatDay)
+	registerTask(taskMap, goodsStatDay)
+	registerTask(taskMap, recommendSync)
 	return taskMap
 }
 
@@ -31,17 +31,11 @@ type TaskExec interface {
 }
 
 // registerTask 注册单个定时任务执行器。
-func registerTask(taskMap map[string]TaskExec, exec TaskExec, taskDesc string) {
+func registerTask(taskMap map[string]TaskExec, exec TaskExec) {
 	taskName := getStructName(exec)
-	// 任务名为空时，说明执行器类型不符合结构体指针约定。
-	if taskName == "" {
-		panic(fmt.Sprintf("%s task name is empty", taskDesc))
+	if taskName != "" {
+		taskMap[taskName] = exec
 	}
-	// 同名任务已经存在时，直接中断启动避免被错误覆盖。
-	if _, ok := taskMap[taskName]; ok {
-		panic(fmt.Sprintf("%s task already exists", taskDesc))
-	}
-	taskMap[taskName] = exec
 }
 
 // parseStatDateArg 解析统计日期参数，兼容日期与日期时间格式。
