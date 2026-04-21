@@ -35,6 +35,8 @@ export const useRecommendStore = defineStore(
       }
 
       await defRecommendService.BindRecommendAnonymousActor({})
+      // 匿名历史完成绑定后，立即清空本地匿名主体，避免后续游客会话继续复用已绑定账号的标识。
+      anonymousId.value = 0
     }
 
     /** 统一生成推荐请求头，避免业务侧重复拼接 header。 */
@@ -54,11 +56,17 @@ export const useRecommendStore = defineStore(
       }
     }
 
+    /** 清空本地缓存的匿名推荐主体。 */
+    const resetAnonymousId = () => {
+      anonymousId.value = 0
+    }
+
     return {
       anonymousId,
       getAnonymousId,
       bindAnonymousActor,
       buildAnonymousHeader,
+      resetAnonymousId,
     }
   },
   {

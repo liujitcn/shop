@@ -12,7 +12,8 @@
 - 下单、支付结果、订单列表、订单详情
 - 个人中心、设置、门店认证
 - WebView 页面承载协议等内容
-- 推荐链路已覆盖商品详情、猜你喜欢、订单确认和支付成功页，前端统一通过 `src/api/app/recommend.ts` 与 `src/composables/useRecommend.ts` 透传推荐上下文。
+- 推荐链路已覆盖首页猜你喜欢、购物车、个人中心、商品详情、订单确认、订单详情和支付成功页。
+- 前端推荐能力当前集中在 `src/api/app/recommend.ts`、`src/stores/modules/recommend.ts`、`src/utils/navigation.ts` 与 `src/components/XtxGuess.vue`，统一处理匿名主体、推荐上下文透传和曝光/点击埋点。
 
 ## 技术栈
 

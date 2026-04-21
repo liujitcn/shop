@@ -3,9 +3,9 @@
 `shop` 是一个前后端分离的商城项目，仓库包含：
 
 - `backend`：基于 Go + Kratos 的后端服务，提供 HTTP、gRPC、OpenAPI、上传和静态资源能力。
-- `recommend`：独立维护的商城推荐工具模块，沉淀推荐设计文档、缓存协议与后续推荐逻辑实现。
 - `frontend/admin`：基于 Vue 3 + Vite + Element Plus 的管理后台。
 - `frontend/app`：基于 uni-app + Vue 3 + TypeScript 的商城端，支持微信小程序与 H5，保留 App 构建能力。
+- `gorse`：推荐系统本地部署与运行配置。
 - `sql`：初始化数据、权限数据、地区数据和演示商品数据。
 
 ## 主要能力
@@ -17,11 +17,14 @@
 ## 推荐能力
 
 - 已支持匿名与登录两类推荐主体，匿名主体通过 `X-Recommend-Anonymous-Id` 透传。
-- 推荐主链路已覆盖 `request -> exposure -> click -> view -> collect -> cart -> order -> pay`。
-- 推荐排序已升级为“混合候选召回 + 统一打分排序 + 基础打散/降权”，同时支持评分明细回写。
-- 推荐工具能力已规划收敛到 `recommend` 模块，由 `backend/service/app/biz` 与 `backend/pkg/job` 直接调用；历史 `backend/pkg/recommend` 为后续切流删除项。
-- 商城前端推荐上下文、跳转与埋点辅助统一收敛到 `frontend/app/src/api/app/recommend.ts` 与 `frontend/app/src/composables/useRecommend.ts`。
-- 后台已提供推荐商品日统计、离线评估、用户偏好重建、商品关联重建任务。
+- 推荐主链路已覆盖 `request -> exposure -> click -> view -> collect -> cart -> order -> pay`，其中：
+  - `request`、`exposure`、`click`、`view` 由商城前端调用 `/api/app/recommend/*` 完成。
+  - `collect`、`cart`、`order`、`pay` 由后端在真实业务写库成功后异步回写，避免前端埋点与业务事实不一致。
+- 推荐请求会落到本地 `recommend_request` / `recommend_request_item`，推荐事件会落到本地 `recommend_event`，形成可追踪的归因链路。
+- 在线推荐优先走 `backend/pkg/recommend` 对 Gorse 的用户推荐或会话推荐；未命中时回退到同类目商品和最新热销商品。
+- 匿名推荐历史会在登录后绑定到当前用户，并把匿名阶段积累的行为回放到登录用户画像。
+- 商城前端推荐相关实现目前集中在 `frontend/app/src/api/app/recommend.ts`、`frontend/app/src/stores/modules/recommend.ts`、`frontend/app/src/utils/navigation.ts`、`frontend/app/src/components/XtxGuess.vue`。
+- 推荐系统部署与配置位于仓库根目录 `gorse`，后端通过定时任务 `RecommendSync` 和异步队列同步用户、商品与行为反馈。
 
 ## 目录结构
 
@@ -34,11 +37,11 @@
 │   ├── configs               # 配置文件
 │   ├── api                   # proto、buf、生成代码
 │   └── data                  # 本地静态资源与上传目录
-├── recommend                 # 商城推荐工具模块（设计、协议、缓存与后续实现）
 ├── frontend
 │   ├── admin                 # 管理后台
 │   ├── app                   # uni-app 商城端
 │   └── Makefile              # 前端常用命令封装
+├── gorse                     # 推荐系统本地部署配置
 └── sql                       # 初始化 SQL
 ```
 

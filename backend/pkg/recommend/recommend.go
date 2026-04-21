@@ -484,7 +484,6 @@ func (g *Recommend) consumeRecommendEvent(message queueData.Message) error {
 	}
 
 	ctx := context.TODO()
-	targetUserId := int64(0)
 	feedbacks := make([]client.Feedback, 0, len(*eventList))
 	for _, item := range *eventList {
 		// 历史事件为空、商品编号非法或事件类型未知时，直接跳过当前无效事件。
@@ -505,7 +504,8 @@ func (g *Recommend) consumeRecommendEvent(message queueData.Message) error {
 
 		feedbacks = append(feedbacks, client.Feedback{
 			FeedbackType: common.RecommendEventType(item.EventType).String(),
-			UserId:       strconv.FormatInt(targetUserId, 10),
+			// 回放事件必须写回原始登录用户，不能把所有反馈都错误归并到固定主体。
+			UserId:       strconv.FormatInt(item.ActorID, 10),
 			ItemId:       strconv.FormatInt(item.GoodsID, 10),
 			Value:        value,
 			Timestamp:    timestamp,

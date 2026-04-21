@@ -152,6 +152,8 @@ export const useUserStore = defineStore(
       return new Promise<void>((resolve) => {
         clearToken()
         userInfo.value = undefined
+        // 退出登录后同步清空已缓存的匿名主体，避免后续游客会话复用旧账号绑定过的推荐标识。
+        useRecommendStore().resetAnonymousId()
         resolve()
       })
     }
