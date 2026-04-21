@@ -18,8 +18,6 @@ type GoodsMonthReportRow struct {
 	PayGoodsNum int64 `gorm:"column:pay_goods_num"`
 	// PayAmount 支付金额，单位分
 	PayAmount int64 `gorm:"column:pay_amount"`
-	// Score 热度分
-	Score float64 `gorm:"column:score"`
 }
 
 // GoodsDayReportRow 商品日报聚合行。
@@ -40,6 +38,4 @@ type GoodsDayReportRow struct {
 	PayGoodsNum int64 `gorm:"column:pay_goods_num"`
 	// PayAmount 支付金额，单位分
 	PayAmount int64 `gorm:"column:pay_amount"`
-	// Score 热度分
-	Score float64 `gorm:"column:score"`
 }

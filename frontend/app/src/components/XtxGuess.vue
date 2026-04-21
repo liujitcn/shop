@@ -68,18 +68,21 @@ const getHomeGoodsGuessLikeData = async () => {
   if (finish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
+  const requestPageNum = pageParams.pageNum
+  const requestPageSize = pageParams.pageSize
+  // 推荐位序号需要和后端 request_id 会话内的分页位次保持一致，不能直接按当前已渲染条数累加。
+  const requestStartIndex = (requestPageNum - 1) * requestPageSize
   pageParams.scene = props.scene
   pageParams.orderId = props.orderId
   pageParams.goodsId = props.goodsId
   await recommendStore.getAnonymousId()
   const res = await defRecommendService.RecommendGoods(pageParams)
-  const startIndex = guessList.value.length
   const sceneValue = props.scene
   const list = (res.list || []).map((item, index) => ({
     ...item,
     recommendRequestId: res.requestId,
     recommendScene: sceneValue,
-    recommendIndex: startIndex + index,
+    recommendIndex: requestStartIndex + index,
   }))
   // 首次返回请求编号后，后续翻页继续复用同一推荐会话。
   pageParams.requestId = res.requestId || pageParams.requestId
@@ -97,9 +100,10 @@ const getHomeGoodsGuessLikeData = async () => {
     })
   }
   // 分页条件
-  if (guessList.value.length < res.total) {
+  const requestEndIndex = requestStartIndex + list.length
+  if (requestEndIndex < res.total) {
     // 页码累加
-    pageParams.pageNum++
+    pageParams.pageNum = requestPageNum + 1
   } else {
     finish.value = true
   }

@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	pkgRecommend "shop/pkg/recommend"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"gorm.io/gorm"
 )
 
 // RecommendEventCase 推荐事件业务处理对象。
@@ -111,6 +113,7 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 	recommendContext := req.GetRecommendContext()
 	scene := int32(0)
 	requestId := int64(0)
+	eventType := req.GetEventType()
 	// 请求携带推荐归因上下文时，再补齐场景和请求编号。
 	if recommendContext != nil {
 		scene = int32(recommendContext.GetScene())
@@ -129,16 +132,30 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 		if goodsNum <= 0 {
 			goodsNum = 1
 		}
+		position := item.GetPosition()
+		// 后端事实事件优先按 request_id + goods_id 回查推荐结果位置，保证收藏、加购、下单、支付和推荐请求明细一致。
+		if eventType != common.RecommendEventType_EXPOSURE && eventType != common.RecommendEventType_CLICK {
+			positionValue, positionErr := c.resolveRecommendEventPosition(
+				ctx,
+				requestId,
+				item.GetGoodsId(),
+				position,
+			)
+			if positionErr != nil {
+				return positionErr
+			}
+			position = positionValue
+		}
 
 		eventList = append(eventList, &models.RecommendEvent{
 			ActorType: int32(actor.GetActorType()),
 			ActorID:   actor.GetActorId(),
 			Scene:     scene,
-			EventType: int32(req.GetEventType()),
+			EventType: int32(eventType),
 			GoodsID:   item.GetGoodsId(),
 			GoodsNum:  int32(goodsNum),
 			RequestID: requestId,
-			Position:  item.GetPosition(),
+			Position:  position,
 			EventAt:   eventTime,
 		})
 	}
@@ -155,6 +172,39 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 	// 本地推荐事件落库成功后，再异步投递到推荐系统，避免推荐系统异常阻塞主流程。
 	pkgQueue.DispatchRecommendEventList(eventList)
 	return nil
+}
+
+// resolveRecommendEventPosition 根据推荐请求结果明细回查事件位置。
+func (c *RecommendEventCase) resolveRecommendEventPosition(
+	ctx context.Context,
+	requestId, goodsId int64,
+	currentPosition int32,
+) (int32, error) {
+	// 推荐请求编号或商品编号非法时，没有可回查的位置明细，直接保留调用方传入值。
+	if requestId <= 0 || goodsId <= 0 {
+		return currentPosition, nil
+	}
+	// 未注入推荐请求仓储时，无法继续回查位置，直接保留当前值。
+	if c.recommendRequestCase == nil || c.recommendRequestCase.RecommendRequestItemRepo == nil {
+		return currentPosition, nil
+	}
+
+	query := c.recommendRequestCase.RecommendRequestItemRepo.Query(ctx).RecommendRequestItem
+	opts := make([]repo.QueryOption, 0, 4)
+	opts = append(opts, repo.Where(query.RequestID.Eq(requestId)))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	// 同一推荐会话里商品理论上应尽量保持唯一，这里按最小位置回查，优先保留首次曝光位次。
+	opts = append(opts, repo.Order(query.Position.Asc()))
+	opts = append(opts, repo.Limit(1))
+	requestItem, err := c.recommendRequestCase.RecommendRequestItemRepo.Find(ctx, opts...)
+	if err != nil {
+		// 请求明细不存在时，直接回退到调用方传入的位置，不额外中断主流程。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return currentPosition, nil
+		}
+		return 0, errorsx.Internal("查询推荐结果位置失败").WithCause(err)
+	}
+	return requestItem.Position, nil
 }
 
 // listRecentRecommendEventGoodsIds 查询当前主体最近的推荐行为商品编号列表。

@@ -142,7 +142,7 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 			break
 		}
 	}
-	err = t.recommend.DeleteGoodIds(t.ctx, staleItemIds)
+	err = t.recommend.DeleteGoodsIds(t.ctx, staleItemIds)
 	if err != nil {
 		return total, fmt.Errorf("清理推荐系统冗余商品数据失败: %w", err)
 	}

@@ -418,11 +418,17 @@ const onScrollPage = (ev: { detail: { scrollTop: number } }) => {
 
 // 吸顶导航显示后，左侧返回按钮仍然保留，避免用户在中段内容里失去回退入口。
 const onNavigateBack = () => {
-  uni.navigateBack({
-    fail: () => {
-      uni.switchTab({ url: homeTabPage })
-    },
-  })
+  const pages = getCurrentPages()
+  // 详情页支持分享、扫码、冷启动直达，这些场景没有上一页时直接回首页。
+  if (pages.length > 1) {
+    uni.navigateBack({
+      fail: () => {
+        uni.switchTab({ url: homeTabPage })
+      },
+    })
+    return
+  }
+  uni.switchTab({ url: homeTabPage })
 }
 
 // 商品详情富文本图片会影响推荐分段位置，图片加载完成后重新测量。

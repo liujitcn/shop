@@ -1,6 +1,11 @@
 <template>
   <div v-loading="loading" class="goods-day-report">
-    <AnalyticsPageLayout title="商品日报" description="" period-label="" content-ratio="minmax(0, 1fr)">
+    <AnalyticsPageLayout
+      title=""
+      description="按日查看商品浏览、加购、下单与支付表现，支持按月份筛选与导出。"
+      period-label=""
+      content-ratio="minmax(0, 1fr)"
+    >
       <template #toolbar>
         <div class="report-toolbar">
           <el-date-picker v-model="monthValue" type="month" placeholder="选择月份" value-format="YYYY-MM" />
@@ -54,9 +59,6 @@
             <el-table-column prop="payConversionRate" label="浏览支付率" min-width="120" align="right">
               <template #default="{ row }">{{ formatRatio(row.payConversionRate) }}</template>
             </el-table-column>
-            <el-table-column prop="score" label="热度分" min-width="120" align="right">
-              <template #default="{ row }">{{ formatScore(row.score) }}</template>
-            </el-table-column>
           </el-table>
         </div>
       </article>
@@ -73,7 +75,7 @@ import { computed, reactive, ref, watch } from "vue";
 import dayjs from "dayjs";
 import { useRoute } from "vue-router";
 import { ElMessage } from "element-plus";
-import { Box, Document, Goods, Money, Tickets, TrendCharts } from "@element-plus/icons-vue";
+import { Box, Goods, Money, Tickets, TrendCharts } from "@element-plus/icons-vue";
 import ECharts from "@/components/ECharts/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import AnalyticsMetricCards, {
@@ -100,7 +102,6 @@ const emptySummary = (): GoodsDayReportSummaryResponse => ({
   payCount: 0,
   payGoodsNum: 0,
   payAmount: 0,
-  score: 0,
   cartConversionRate: 0,
   orderConversionRate: 0,
   payConversionRate: 0,
@@ -127,16 +128,6 @@ function normalizeNumber(value: unknown) {
   return 0;
 }
 
-/** 统一将接口返回的分数字段转成浮点数。 */
-function normalizeScore(value: unknown) {
-  if (typeof value === "number") return Number.isFinite(value) ? value : 0;
-  if (typeof value === "string") {
-    const parsedValue = Number(value);
-    return Number.isFinite(parsedValue) ? parsedValue : 0;
-  }
-  return 0;
-}
-
 /** 统一整理商品日报项，兼容蛇形和驼峰字段。 */
 function normalizeReportItem(payload: Partial<GoodsDayReportItem> | undefined): GoodsDayReportItem {
   const source = (payload ?? {}) as Partial<GoodsDayReportItem> & Record<string, unknown>;
@@ -149,7 +140,6 @@ function normalizeReportItem(payload: Partial<GoodsDayReportItem> | undefined): 
     payCount: normalizeNumber(source.payCount ?? source.pay_count),
     payGoodsNum: normalizeNumber(source.payGoodsNum ?? source.pay_goods_num),
     payAmount: normalizeNumber(source.payAmount ?? source.pay_amount),
-    score: normalizeScore(source.score),
     cartConversionRate: normalizeNumber(source.cartConversionRate ?? source.cart_conversion_rate),
     orderConversionRate: normalizeNumber(source.orderConversionRate ?? source.order_conversion_rate),
     payConversionRate: normalizeNumber(source.payConversionRate ?? source.pay_conversion_rate),
@@ -171,7 +161,6 @@ function normalizeSummaryResponse(payload: unknown): GoodsDayReportSummaryRespon
     payCount: normalizeNumber(source.payCount ?? source.pay_count),
     payGoodsNum: normalizeNumber(source.payGoodsNum ?? source.pay_goods_num),
     payAmount: normalizeNumber(source.payAmount ?? source.pay_amount),
-    score: normalizeScore(source.score),
     cartConversionRate: normalizeNumber(source.cartConversionRate ?? source.cart_conversion_rate),
     orderConversionRate: normalizeNumber(source.orderConversionRate ?? source.order_conversion_rate),
     payConversionRate: normalizeNumber(source.payConversionRate ?? source.pay_conversion_rate),
@@ -190,11 +179,6 @@ function normalizeListResponse(payload: unknown): GoodsDayReportItem[] {
 /** 统一将千分比指标格式化成 1 位小数百分比。 */
 function formatRatio(value: number) {
   return `${(value / 10).toFixed(1)}%`;
-}
-
-/** 统一格式化热度分，保留两位小数。 */
-function formatScore(value: number) {
-  return Number(value ?? 0).toFixed(2);
 }
 
 const metricItems = computed<AnalyticsMetricCardItem[]>(() => [
@@ -239,22 +223,12 @@ const metricItems = computed<AnalyticsMetricCardItem[]>(() => [
     icon: TrendCharts
   },
   {
-    key: "payGoodsNum",
-    label: "支付件数",
-    labelTooltip: "按当前日报区间汇总支付成功的商品件数。",
-    value: String(reportSummary.value.payGoodsNum),
-    footLabel: "件均成交价",
-    footValue: `${formatPrice(reportSummary.value.payUnitPrice)} 元`,
-    color: "#7c4dff",
-    icon: Document
-  },
-  {
     key: "payAmount",
     label: "支付金额",
     labelTooltip: "按当前日报区间汇总支付成功金额。",
     value: `${formatPrice(reportSummary.value.payAmount)} 元`,
-    footLabel: "热度分",
-    footValue: formatScore(reportSummary.value.score),
+    footLabel: "支付件数",
+    footValue: String(reportSummary.value.payGoodsNum),
     color: "#00838f",
     icon: Money
   }
@@ -395,8 +369,7 @@ function handleExport() {
     "支付次数",
     "支付件数",
     "支付金额（元）",
-    "浏览支付率",
-    "热度分"
+    "浏览支付率"
   ];
   const rows = report.items.map(item => [
     item.day,
@@ -407,8 +380,7 @@ function handleExport() {
     item.payCount,
     item.payGoodsNum,
     formatPrice(item.payAmount),
-    formatRatio(item.payConversionRate),
-    formatScore(item.score)
+    formatRatio(item.payConversionRate)
   ]);
   const summaryRow = [
     "合计",
@@ -419,8 +391,7 @@ function handleExport() {
     reportSummary.value.payCount,
     reportSummary.value.payGoodsNum,
     formatPrice(reportSummary.value.payAmount),
-    formatRatio(reportSummary.value.payConversionRate),
-    formatScore(reportSummary.value.score)
+    formatRatio(reportSummary.value.payConversionRate)
   ];
 
   const csvContent = [headers, ...rows, summaryRow]

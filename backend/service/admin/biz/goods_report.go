@@ -215,6 +215,21 @@ func (c *GoodsReportCase) parseDate(date string) (time.Time, error) {
 // queryGoodsMonthReportRows 查询商品月报聚合数据。
 func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsMonthReportRow, error) {
 	rows := make([]*dto.GoodsMonthReportRow, 0)
+	sql, args := c.buildGoodsMonthReportQuery(startAt, endAt)
+	err := c.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
+	return rows, err
+}
+
+// queryGoodsDayReportRows 查询商品日报聚合数据。
+func (c *GoodsReportCase) queryGoodsDayReportRows(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsDayReportRow, error) {
+	rows := make([]*dto.GoodsDayReportRow, 0)
+	sql, args := c.buildGoodsDayReportQuery(startAt, endAt)
+	err := c.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, args...).Scan(&rows).Error
+	return rows, err
+}
+
+// buildGoodsMonthReportQuery 构建商品月报聚合查询。
+func (c *GoodsReportCase) buildGoodsMonthReportQuery(startAt, endAt time.Time) (string, []any) {
 	sql := "" +
 		"SELECT DATE_FORMAT(stat_date, '%Y-%m') AS month," +
 		" COALESCE(SUM(view_count), 0) AS view_count," +
@@ -223,19 +238,16 @@ func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, startAt
 		" COALESCE(SUM(order_count), 0) AS order_count," +
 		" COALESCE(SUM(pay_count), 0) AS pay_count," +
 		" COALESCE(SUM(pay_goods_num), 0) AS pay_goods_num," +
-		" COALESCE(SUM(pay_amount), 0) AS pay_amount," +
-		" COALESCE(SUM(score), 0) AS score" +
+		" COALESCE(SUM(pay_amount), 0) AS pay_amount" +
 		" FROM " + models.TableNameGoodsStatDay +
-		" WHERE stat_date >= ? AND stat_date < ?" +
+		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?" +
 		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m')" +
 		" ORDER BY month ASC"
-	err := c.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&rows).Error
-	return rows, err
+	return sql, []any{startAt, endAt}
 }
 
-// queryGoodsDayReportRows 查询商品日报聚合数据。
-func (c *GoodsReportCase) queryGoodsDayReportRows(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsDayReportRow, error) {
-	rows := make([]*dto.GoodsDayReportRow, 0)
+// buildGoodsDayReportQuery 构建商品日报聚合查询。
+func (c *GoodsReportCase) buildGoodsDayReportQuery(startAt, endAt time.Time) (string, []any) {
 	sql := "" +
 		"SELECT DATE_FORMAT(stat_date, '%Y-%m-%d') AS day," +
 		" COALESCE(SUM(view_count), 0) AS view_count," +
@@ -244,14 +256,12 @@ func (c *GoodsReportCase) queryGoodsDayReportRows(ctx context.Context, startAt, 
 		" COALESCE(SUM(order_count), 0) AS order_count," +
 		" COALESCE(SUM(pay_count), 0) AS pay_count," +
 		" COALESCE(SUM(pay_goods_num), 0) AS pay_goods_num," +
-		" COALESCE(SUM(pay_amount), 0) AS pay_amount," +
-		" COALESCE(SUM(score), 0) AS score" +
+		" COALESCE(SUM(pay_amount), 0) AS pay_amount" +
 		" FROM " + models.TableNameGoodsStatDay +
-		" WHERE stat_date >= ? AND stat_date < ?" +
+		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?" +
 		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m-%d')" +
 		" ORDER BY day ASC"
-	err := c.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().Raw(sql, startAt, endAt).Scan(&rows).Error
-	return rows, err
+	return sql, []any{startAt, endAt}
 }
 
 // appendMonthReportSummary 累加商品月报区间汇总。
@@ -263,7 +273,6 @@ func (c *GoodsReportCase) appendMonthReportSummary(summary *adminApi.GoodsMonthR
 	summary.PayCount += item.PayCount
 	summary.PayGoodsNum += item.PayGoodsNum
 	summary.PayAmount += item.PayAmount
-	summary.Score += item.Score
 }
 
 // toGoodsMonthReportItem 转换商品月报行数据。
@@ -293,7 +302,6 @@ func (c *GoodsReportCase) appendDayReportSummary(summary *adminApi.GoodsDayRepor
 	summary.PayCount += item.PayCount
 	summary.PayGoodsNum += item.PayGoodsNum
 	summary.PayAmount += item.PayAmount
-	summary.Score += item.Score
 }
 
 // toGoodsDayReportItem 转换商品日报行数据。

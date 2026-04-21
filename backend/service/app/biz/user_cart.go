@@ -197,6 +197,8 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 
 	// 更新
 	find.Num += userCart.GetNum()
+	// 推荐位序号从 0 开始，不能把 position=0 误判成“缺失”，这里以 request_id 是否缺失作为补齐依据。
+	shouldFillPosition := find.RequestID == 0 && recommendContext.GetRequestId() > 0
 	// 购物车已有推荐上下文时优先保留，仅在缺失字段上补齐本次上下文。
 	if find.Scene == 0 {
 		find.Scene = int32(recommendContext.GetScene())
@@ -205,8 +207,8 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	if find.RequestID == 0 {
 		find.RequestID = recommendContext.GetRequestId()
 	}
-	// 历史购物车未记录位置信息时，补齐本次位置信息。
-	if find.Position == 0 {
+	// 只有历史记录未绑定过推荐请求时，才补齐本次位置信息，避免把首位推荐的 position=0 错当成空值覆盖掉。
+	if shouldFillPosition {
 		find.Position = recommendContext.GetPosition()
 	}
 	err = c.UserCartRepo.UpdateById(ctx, find)

@@ -38,8 +38,6 @@ export interface GoodsMonthReportSummaryResponse {
   payGoodsNum: number;
   /** 支付金额，单位分 */
   payAmount: number;
-  /** 热度分 */
-  score: number;
   /** 浏览加购转化率 */
   cartConversionRate: number;
   /** 加购下单转化率 */
@@ -68,8 +66,6 @@ export interface GoodsMonthReportItem {
   payGoodsNum: number;
   /** 支付金额，单位分 */
   payAmount: number;
-  /** 热度分 */
-  score: number;
   /** 浏览加购转化率 */
   cartConversionRate: number;
   /** 加购下单转化率 */
@@ -118,8 +114,6 @@ export interface GoodsDayReportSummaryResponse {
   payGoodsNum: number;
   /** 支付金额，单位分 */
   payAmount: number;
-  /** 热度分 */
-  score: number;
   /** 浏览加购转化率 */
   cartConversionRate: number;
   /** 加购下单转化率 */
@@ -148,8 +142,6 @@ export interface GoodsDayReportItem {
   payGoodsNum: number;
   /** 支付金额，单位分 */
   payAmount: number;
-  /** 热度分 */
-  score: number;
   /** 浏览加购转化率 */
   cartConversionRate: number;
   /** 加购下单转化率 */

@@ -2,9 +2,11 @@
   <div>
     <el-card class="analytics-card analytics-card--summary" shadow="never">
       <div class="analytics-toolbar">
-        <div>
-          <h2 class="analytics-title">{{ title }}</h2>
-          <p class="analytics-desc">{{ description }}</p>
+        <div v-if="hasHeaderText">
+          <h2 v-if="title" class="analytics-title">{{ title }}</h2>
+          <p v-if="description" class="analytics-desc" :class="{ 'analytics-desc--compact': !title }">
+            {{ description }}
+          </p>
         </div>
         <div class="analytics-toolbar__tabs">
           <slot name="toolbar" />
@@ -24,15 +26,21 @@ import { computed } from "vue";
 
 const props = withDefaults(
   defineProps<{
-    title: string;
-    description: string;
-    periodLabel: string;
+    title?: string;
+    description?: string;
+    periodLabel?: string;
     contentRatio?: string;
   }>(),
   {
+    title: "",
+    description: "",
+    periodLabel: "",
     contentRatio: "minmax(0, 1.25fr) minmax(320px, 0.9fr)"
   }
 );
+
+/** 统一控制页头文案显隐，避免空标题或空描述继续占位。 */
+const hasHeaderText = computed(() => Boolean(props.title || props.description));
 
 const chartColumns = computed(() => props.contentRatio);
 </script>
@@ -73,6 +81,10 @@ const chartColumns = computed(() => props.contentRatio);
   margin: 8px 0 0;
   color: var(--admin-page-text-secondary);
   line-height: 1.7;
+}
+
+.analytics-desc--compact {
+  margin-top: 0;
 }
 
 .analytics-toolbar__tabs {

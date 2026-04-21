@@ -286,17 +286,17 @@ func (c *RecommendAnonymousActorCase) rebindRecommendRequestActor(ctx context.Co
 	}
 
 	query := c.recommendRequestRepo.Query(ctx).RecommendRequest
-	res, err := query.WithContext(ctx).Where(
-		query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS)),
-		query.ActorID.Eq(anonymousId),
-	).Updates(map[string]interface{}{
-		"actor_type": int32(common.RecommendActorType_USER),
-		"actor_id":   userId,
-	})
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS))))
+	opts = append(opts, repo.Where(query.ActorID.Eq(anonymousId)))
+	err := c.recommendRequestRepo.Update(ctx, &models.RecommendRequest{
+		ActorType: int32(common.RecommendActorType_USER),
+		ActorID:   userId,
+	}, opts...)
 	if err != nil {
 		return errorsx.Internal("迁移匿名推荐请求失败").WithCause(err)
 	}
-	return res.Error
+	return nil
 }
 
 // rebindRecommendEventActor 将匿名主体下的推荐事件记录迁移到登录用户。
@@ -307,15 +307,15 @@ func (c *RecommendAnonymousActorCase) rebindRecommendEventActor(ctx context.Cont
 	}
 
 	query := c.recommendEventRepo.Query(ctx).RecommendEvent
-	res, err := query.WithContext(ctx).Where(
-		query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS)),
-		query.ActorID.Eq(anonymousId),
-	).Updates(map[string]interface{}{
-		"actor_type": int32(common.RecommendActorType_USER),
-		"actor_id":   userId,
-	})
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS))))
+	opts = append(opts, repo.Where(query.ActorID.Eq(anonymousId)))
+	err := c.recommendEventRepo.Update(ctx, &models.RecommendEvent{
+		ActorType: int32(common.RecommendActorType_USER),
+		ActorID:   userId,
+	}, opts...)
 	if err != nil {
 		return errorsx.Internal("迁移匿名推荐事件失败").WithCause(err)
 	}
-	return res.Error
+	return nil
 }

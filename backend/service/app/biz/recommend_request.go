@@ -40,6 +40,15 @@ func NewRecommendRequestCase(
 
 // resolveRecommendRequestId 解析本次推荐请求应使用的请求编号。
 func (c *RecommendRequestCase) resolveRecommendRequestId(ctx context.Context, actor *app.RecommendActor, req *app.RecommendGoodsRequest) (int64, error) {
+	// 推荐主体缺失或主体编号非法时，当前请求无法复用历史推荐会话。
+	if actor == nil || actor.GetActorId() <= 0 {
+		return 0, errorsx.InvalidArgument("推荐主体不能为空")
+	}
+	// 推荐请求为空时，无法继续解析会话编号。
+	if req == nil {
+		return 0, errorsx.InvalidArgument("推荐请求不能为空")
+	}
+
 	requestId := req.GetRequestId()
 	// 首次请求未携带请求编号时，直接生成新的推荐会话编号。
 	if requestId <= 0 {
@@ -91,6 +100,19 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 	total int64,
 	pageNum, pageSize int64,
 ) error {
+	// 推荐主体缺失或主体编号非法时，当前请求日志无法归因。
+	if actor == nil || actor.GetActorId() <= 0 {
+		return errorsx.InvalidArgument("推荐主体不能为空")
+	}
+	// 推荐请求为空时，无法继续保存推荐日志。
+	if req == nil {
+		return errorsx.InvalidArgument("推荐请求不能为空")
+	}
+	// 推荐上下文缺失时，回退到空上下文，保持日志结构稳定。
+	if contextRecord == nil {
+		contextRecord = &app.RecommendRequestContext{}
+	}
+
 	contextBytes, err := (protojson.MarshalOptions{UseProtoNames: true}).Marshal(contextRecord)
 	if err != nil {
 		return errorsx.Internal("序列化推荐上下文失败").WithCause(err)

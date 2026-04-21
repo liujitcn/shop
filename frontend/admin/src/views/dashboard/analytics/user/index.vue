@@ -1,6 +1,6 @@
 <template>
   <AnalyticsPageLayout
-    title="用户分析"
+    title=""
     description="按时间维度查看用户增长、转化与行为覆盖的汇总和趋势变化。"
     :period-label="activeTimeLabel"
     content-ratio="minmax(0, 1.25fr) minmax(320px, 0.9fr)"

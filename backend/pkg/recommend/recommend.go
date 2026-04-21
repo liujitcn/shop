@@ -26,6 +26,12 @@ type Recommend struct {
 
 // NewRecommend 创建推荐系统客户端包装。
 func NewRecommend(cfg *conf.Recommend) *Recommend {
+	// 推荐配置缺失时，直接关闭推荐系统链路并走本地兜底。
+	if cfg == nil {
+		pkgQueue.SetRecommendEnabled(false)
+		return &Recommend{}
+	}
+
 	entryPoint := strings.TrimSpace(cfg.GetEntryPoint())
 	// 未配置入口地址时，直接返回空客户端并在业务侧走本地兜底。
 	if entryPoint == "" {
@@ -310,8 +316,8 @@ func (g *Recommend) SyncGoodsInfoList(ctx context.Context, goodsList []*models.G
 	return nil
 }
 
-// DeleteGoodIds 删除推荐系统中多余的商品主体。
-func (g *Recommend) DeleteGoodIds(ctx context.Context, staleItemIds mapset.Set[string]) error {
+// DeleteGoodsIds 删除推荐系统中多余的商品主体。
+func (g *Recommend) DeleteGoodsIds(ctx context.Context, staleItemIds mapset.Set[string]) error {
 	// 客户端未启用或没有待删除商品时，直接跳过当前清理批次。
 	if !g.Enabled() || staleItemIds == nil || staleItemIds.IsEmpty() {
 		return nil
@@ -346,6 +352,10 @@ func (g *Recommend) GetRecommendGoodsIds(ctx context.Context, actor *app.Recomme
 	if actor.GetActorType() != common.RecommendActorType_USER {
 		return []int64{}, 0, nil
 	}
+	// 调用方未显式传入上下文时，回退到默认上下文继续查询。
+	if ctx == nil {
+		ctx = context.TODO()
+	}
 
 	offset := int((pageNum - 1) * pageSize)
 	rawIds, err := g.gorseClient.GetRecommend(ctx, strconv.FormatInt(actor.GetActorId(), 10), "", int(pageSize)+1, offset)
@@ -360,6 +370,10 @@ func (g *Recommend) SessionRecommendGoodsIds(ctx context.Context, contextGoodsId
 	// 客户端未启用或上下文商品为空时，直接返回空会话推荐结果。
 	if !g.Enabled() || len(contextGoodsIds) == 0 {
 		return []int64{}, 0, nil
+	}
+	// 调用方未显式传入上下文时，回退到默认上下文继续查询。
+	if ctx == nil {
+		ctx = context.TODO()
 	}
 
 	cleanGoodsIds := make([]int64, 0, len(contextGoodsIds))
@@ -435,10 +449,14 @@ func (g *Recommend) consumeDeleteBaseUser(message queueData.Message) error {
 	}
 
 	// 推荐系统接口会在删除用户主体时一并级联删除该用户下的反馈数据。
+	var deleteErr error
 	for _, userId := range *userIds {
 		_, err = g.gorseClient.DeleteUser(context.TODO(), strconv.FormatInt(userId, 10))
+		if err != nil {
+			deleteErr = errors.Join(deleteErr, err)
+		}
 	}
-	return err
+	return deleteErr
 }
 
 // consumeSyncGoodsInfo 消费商品同步队列并发送到推荐系统。
@@ -466,10 +484,14 @@ func (g *Recommend) consumeDeleteGoodsInfo(message queueData.Message) error {
 	}
 
 	// 推荐系统接口会在删除商品主体时一并级联删除该商品下的反馈数据。
+	var deleteErr error
 	for _, goodsId := range *goodsIds {
 		_, err = g.gorseClient.DeleteItem(context.TODO(), strconv.FormatInt(goodsId, 10))
+		if err != nil {
+			deleteErr = errors.Join(deleteErr, err)
+		}
 	}
-	return err
+	return deleteErr
 }
 
 // consumeRecommendEvent 消费历史回放队列并发送到推荐系统。
@@ -640,8 +662,9 @@ func (g *Recommend) buildRecommendPageResult(rawIds []string, pageNum, pageSize 
 	goodsIds := make([]int64, 0, len(rawIds))
 	for _, rawId := range rawIds {
 		goodsId, err := strconv.ParseInt(rawId, 10, 64)
+		// 推荐系统返回了非法商品编号时，直接跳过当前无效值，避免整批结果回退成本地兜底。
 		if err != nil {
-			return nil, 0, err
+			continue
 		}
 		// 返回结果里包含非法商品编号时，直接跳过当前无效值。
 		if goodsId <= 0 {

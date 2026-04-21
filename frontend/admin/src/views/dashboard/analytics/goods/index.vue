@@ -1,9 +1,9 @@
 <template>
   <AnalyticsPageLayout
-    title="商品分析"
+    title=""
     description="按时间维度查看商品供给、行为转化与分类成交结构的汇总和趋势变化。"
     :period-label="activeTimeLabel"
-    content-ratio="minmax(0, 1.25fr) minmax(320px, 0.9fr)"
+    content-ratio="minmax(0, 1fr) minmax(0, 1fr)"
   >
     <template #toolbar>
       <AnalyticsTimeTabs v-model="activeTime" />
@@ -13,8 +13,8 @@
       <GoodsSummaryCards :time-type="activeTime" />
     </template>
 
-    <GoodsTrendChart :time-type="activeTime" />
-    <GoodsSidePanels :time-type="activeTime" />
+    <GoodsTrendChart class="goods-analytics__trend" :time-type="activeTime" />
+    <GoodsSidePanels class="goods-analytics__panels" :time-type="activeTime" />
   </AnalyticsPageLayout>
 </template>
 
@@ -44,3 +44,11 @@ const activeTimeLabel = computed(() => {
   }
 });
 </script>
+
+<style scoped lang="scss">
+/* 商品行为趋势独占首行，底部两个图表保持同排均分。 */
+.goods-analytics__trend,
+.goods-analytics__panels {
+  grid-column: 1 / -1;
+}
+</style>

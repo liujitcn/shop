@@ -140,7 +140,6 @@ type GoodsMonthReportSummaryResponse struct {
 	PayCount            int64                  `protobuf:"varint,5,opt,name=pay_count,json=payCount,proto3" json:"pay_count,omitempty"`                                     // 支付次数
 	PayGoodsNum         int64                  `protobuf:"varint,6,opt,name=pay_goods_num,json=payGoodsNum,proto3" json:"pay_goods_num,omitempty"`                          // 支付件数
 	PayAmount           int64                  `protobuf:"varint,7,opt,name=pay_amount,json=payAmount,proto3" json:"pay_amount,omitempty"`                                  // 支付金额，单位分
-	Score               float64                `protobuf:"fixed64,8,opt,name=score,proto3" json:"score,omitempty"`                                                          // 热度分
 	CartConversionRate  int64                  `protobuf:"varint,9,opt,name=cart_conversion_rate,json=cartConversionRate,proto3" json:"cart_conversion_rate,omitempty"`     // 浏览加购转化率
 	OrderConversionRate int64                  `protobuf:"varint,10,opt,name=order_conversion_rate,json=orderConversionRate,proto3" json:"order_conversion_rate,omitempty"` // 加购下单转化率
 	PayConversionRate   int64                  `protobuf:"varint,11,opt,name=pay_conversion_rate,json=payConversionRate,proto3" json:"pay_conversion_rate,omitempty"`       // 浏览支付转化率
@@ -228,13 +227,6 @@ func (x *GoodsMonthReportSummaryResponse) GetPayAmount() int64 {
 	return 0
 }
 
-func (x *GoodsMonthReportSummaryResponse) GetScore() float64 {
-	if x != nil {
-		return x.Score
-	}
-	return 0
-}
-
 func (x *GoodsMonthReportSummaryResponse) GetCartConversionRate() int64 {
 	if x != nil {
 		return x.CartConversionRate
@@ -274,7 +266,6 @@ type GoodsMonthReportItem struct {
 	PayCount            int64                  `protobuf:"varint,6,opt,name=pay_count,json=payCount,proto3" json:"pay_count,omitempty"`                                     // 支付次数
 	PayGoodsNum         int64                  `protobuf:"varint,7,opt,name=pay_goods_num,json=payGoodsNum,proto3" json:"pay_goods_num,omitempty"`                          // 支付件数
 	PayAmount           int64                  `protobuf:"varint,8,opt,name=pay_amount,json=payAmount,proto3" json:"pay_amount,omitempty"`                                  // 支付金额，单位分
-	Score               float64                `protobuf:"fixed64,9,opt,name=score,proto3" json:"score,omitempty"`                                                          // 热度分
 	CartConversionRate  int64                  `protobuf:"varint,10,opt,name=cart_conversion_rate,json=cartConversionRate,proto3" json:"cart_conversion_rate,omitempty"`    // 浏览加购转化率
 	OrderConversionRate int64                  `protobuf:"varint,11,opt,name=order_conversion_rate,json=orderConversionRate,proto3" json:"order_conversion_rate,omitempty"` // 加购下单转化率
 	PayConversionRate   int64                  `protobuf:"varint,12,opt,name=pay_conversion_rate,json=payConversionRate,proto3" json:"pay_conversion_rate,omitempty"`       // 浏览支付转化率
@@ -365,13 +356,6 @@ func (x *GoodsMonthReportItem) GetPayGoodsNum() int64 {
 func (x *GoodsMonthReportItem) GetPayAmount() int64 {
 	if x != nil {
 		return x.PayAmount
-	}
-	return 0
-}
-
-func (x *GoodsMonthReportItem) GetScore() float64 {
-	if x != nil {
-		return x.Score
 	}
 	return 0
 }
@@ -565,7 +549,6 @@ type GoodsDayReportSummaryResponse struct {
 	PayCount            int64                  `protobuf:"varint,5,opt,name=pay_count,json=payCount,proto3" json:"pay_count,omitempty"`                                     // 支付次数
 	PayGoodsNum         int64                  `protobuf:"varint,6,opt,name=pay_goods_num,json=payGoodsNum,proto3" json:"pay_goods_num,omitempty"`                          // 支付件数
 	PayAmount           int64                  `protobuf:"varint,7,opt,name=pay_amount,json=payAmount,proto3" json:"pay_amount,omitempty"`                                  // 支付金额，单位分
-	Score               float64                `protobuf:"fixed64,8,opt,name=score,proto3" json:"score,omitempty"`                                                          // 热度分
 	CartConversionRate  int64                  `protobuf:"varint,9,opt,name=cart_conversion_rate,json=cartConversionRate,proto3" json:"cart_conversion_rate,omitempty"`     // 浏览加购转化率
 	OrderConversionRate int64                  `protobuf:"varint,10,opt,name=order_conversion_rate,json=orderConversionRate,proto3" json:"order_conversion_rate,omitempty"` // 加购下单转化率
 	PayConversionRate   int64                  `protobuf:"varint,11,opt,name=pay_conversion_rate,json=payConversionRate,proto3" json:"pay_conversion_rate,omitempty"`       // 浏览支付转化率
@@ -653,13 +636,6 @@ func (x *GoodsDayReportSummaryResponse) GetPayAmount() int64 {
 	return 0
 }
 
-func (x *GoodsDayReportSummaryResponse) GetScore() float64 {
-	if x != nil {
-		return x.Score
-	}
-	return 0
-}
-
 func (x *GoodsDayReportSummaryResponse) GetCartConversionRate() int64 {
 	if x != nil {
 		return x.CartConversionRate
@@ -699,7 +675,6 @@ type GoodsDayReportItem struct {
 	PayCount            int64                  `protobuf:"varint,6,opt,name=pay_count,json=payCount,proto3" json:"pay_count,omitempty"`                                     // 支付次数
 	PayGoodsNum         int64                  `protobuf:"varint,7,opt,name=pay_goods_num,json=payGoodsNum,proto3" json:"pay_goods_num,omitempty"`                          // 支付件数
 	PayAmount           int64                  `protobuf:"varint,8,opt,name=pay_amount,json=payAmount,proto3" json:"pay_amount,omitempty"`                                  // 支付金额，单位分
-	Score               float64                `protobuf:"fixed64,9,opt,name=score,proto3" json:"score,omitempty"`                                                          // 热度分
 	CartConversionRate  int64                  `protobuf:"varint,10,opt,name=cart_conversion_rate,json=cartConversionRate,proto3" json:"cart_conversion_rate,omitempty"`    // 浏览加购转化率
 	OrderConversionRate int64                  `protobuf:"varint,11,opt,name=order_conversion_rate,json=orderConversionRate,proto3" json:"order_conversion_rate,omitempty"` // 加购下单转化率
 	PayConversionRate   int64                  `protobuf:"varint,12,opt,name=pay_conversion_rate,json=payConversionRate,proto3" json:"pay_conversion_rate,omitempty"`       // 浏览支付转化率
@@ -794,13 +769,6 @@ func (x *GoodsDayReportItem) GetPayAmount() int64 {
 	return 0
 }
 
-func (x *GoodsDayReportItem) GetScore() float64 {
-	if x != nil {
-		return x.Score
-	}
-	return 0
-}
-
 func (x *GoodsDayReportItem) GetCartConversionRate() int64 {
 	if x != nil {
 		return x.CartConversionRate
@@ -886,7 +854,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\x1bGoodsMonthReportListRequest\x12F\n" +
 	"\vstart_month\x18\x01 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
 	"startMonth\x12B\n" +
-	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\"\xfa\x05\n" +
+	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\"\xe0\x05\n" +
 	"\x1fGoodsMonthReportSummaryResponse\x121\n" +
 	"\n" +
 	"view_count\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f浏览次数R\tviewCount\x127\n" +
@@ -898,13 +866,12 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\tpay_count\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付次数R\bpayCount\x126\n" +
 	"\rpay_goods_num\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付件数R\vpayGoodsNum\x12=\n" +
 	"\n" +
-	"pay_amount\x18\a \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12%\n" +
-	"\x05score\x18\b \x01(\x01B\x0f\xbaG\f\x92\x02\t热度分R\x05score\x12M\n" +
+	"pay_amount\x18\a \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12M\n" +
 	"\x14cart_conversion_rate\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\xa6\x06\n" +
+	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\b\x10\tR\x05score\"\x8c\x06\n" +
 	"\x14GoodsMonthReportItem\x125\n" +
 	"\x05month\x18\x01 \x01(\tB\x1f\xbaG\x1c\x92\x02\x19月份，格式：YYYY-MMR\x05month\x121\n" +
 	"\n" +
@@ -917,13 +884,13 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\tpay_count\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付次数R\bpayCount\x126\n" +
 	"\rpay_goods_num\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付件数R\vpayGoodsNum\x12=\n" +
 	"\n" +
-	"pay_amount\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12%\n" +
-	"\x05score\x18\t \x01(\x01B\x0f\xbaG\f\x92\x02\t热度分R\x05score\x12M\n" +
+	"pay_amount\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12M\n" +
 	"\x14cart_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"k\n" +
+	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\t\x10\n" +
+	"R\x05score\"k\n" +
 	"\x1cGoodsMonthReportListResponse\x12K\n" +
 	"\x05items\x18\x01 \x03(\v2\x1b.admin.GoodsMonthReportItemB\x18\xbaG\x15\x92\x02\x12商品月报明细R\x05items\"\xac\x01\n" +
 	"\x1cGoodsDayReportSummaryRequest\x12G\n" +
@@ -933,7 +900,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\x19GoodsDayReportListRequest\x12G\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xf8\x05\n" +
+	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xde\x05\n" +
 	"\x1dGoodsDayReportSummaryResponse\x121\n" +
 	"\n" +
 	"view_count\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f浏览次数R\tviewCount\x127\n" +
@@ -945,13 +912,12 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\tpay_count\x18\x05 \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付次数R\bpayCount\x126\n" +
 	"\rpay_goods_num\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付件数R\vpayGoodsNum\x12=\n" +
 	"\n" +
-	"pay_amount\x18\a \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12%\n" +
-	"\x05score\x18\b \x01(\x01B\x0f\xbaG\f\x92\x02\t热度分R\x05score\x12M\n" +
+	"pay_amount\x18\a \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12M\n" +
 	"\x14cart_conversion_rate\x18\t \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\xa3\x06\n" +
+	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\b\x10\tR\x05score\"\x89\x06\n" +
 	"\x12GoodsDayReportItem\x124\n" +
 	"\x03day\x18\x01 \x01(\tB\"\xbaG\x1f\x92\x02\x1c日期，格式：YYYY-MM-DDR\x03day\x121\n" +
 	"\n" +
@@ -964,13 +930,13 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\tpay_count\x18\x06 \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付次数R\bpayCount\x126\n" +
 	"\rpay_goods_num\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f支付件数R\vpayGoodsNum\x12=\n" +
 	"\n" +
-	"pay_amount\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12%\n" +
-	"\x05score\x18\t \x01(\x01B\x0f\xbaG\f\x92\x02\t热度分R\x05score\x12M\n" +
+	"pay_amount\x18\b \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18支付金额，单位分R\tpayAmount\x12M\n" +
 	"\x14cart_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"g\n" +
+	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\t\x10\n" +
+	"R\x05score\"g\n" +
 	"\x1aGoodsDayReportListResponse\x12I\n" +
 	"\x05items\x18\x01 \x03(\v2\x19.admin.GoodsDayReportItemB\x18\xbaG\x15\x92\x02\x12商品日报明细R\x05items2\xd8\x04\n" +
 	"\x12GoodsReportService\x12\x97\x01\n" +

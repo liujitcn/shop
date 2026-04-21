@@ -71,10 +71,14 @@ func ParseWxPay(cfg *conf.ShopConfig) (*conf.WxPay, error) {
 
 // ParseRecommend 解析推荐配置。
 func ParseRecommend(cfg *conf.ShopConfig) (*conf.Recommend, error) {
+	// 商城配置缺失时，回退到空推荐配置，后续由业务侧自动走本地兜底。
+	if cfg == nil {
+		return &conf.Recommend{}, nil
+	}
 	recommend := cfg.GetRecommend()
-	// 缺少推荐配置时，直接返回配置错误。
+	// 缺少推荐配置时，回退到空推荐配置，避免因未启用推荐系统导致服务启动失败。
 	if recommend == nil {
-		return nil, errorsx.Internal("推荐配置信息错误")
+		return &conf.Recommend{}, nil
 	}
 	return recommend, nil
 }

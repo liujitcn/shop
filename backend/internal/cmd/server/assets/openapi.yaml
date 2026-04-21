@@ -5758,10 +5758,6 @@ components:
                 payAmount:
                     type: string
                     description: 支付金额，单位分
-                score:
-                    type: number
-                    description: 热度分
-                    format: double
                 cartConversionRate:
                     type: string
                     description: 浏览加购转化率
@@ -5808,10 +5804,6 @@ components:
                 payAmount:
                     type: string
                     description: 支付金额，单位分
-                score:
-                    type: number
-                    description: 热度分
-                    format: double
                 cartConversionRate:
                     type: string
                     description: 浏览加购转化率
@@ -6054,10 +6046,6 @@ components:
                 payAmount:
                     type: string
                     description: 支付金额，单位分
-                score:
-                    type: number
-                    description: 热度分
-                    format: double
                 cartConversionRate:
                     type: string
                     description: 浏览加购转化率
@@ -6104,10 +6092,6 @@ components:
                 payAmount:
                     type: string
                     description: 支付金额，单位分
-                score:
-                    type: number
-                    description: 热度分
-                    format: double
                 cartConversionRate:
                     type: string
                     description: 浏览加购转化率
