@@ -147,13 +147,8 @@ func Server(_ log.Logger,
 				baseLog.Reason = se.Reason
 			}
 			baseLog.CostTime = time.Since(startTime).Milliseconds()
-			var responseBytes []byte
-			var responseErr error
-			// 响应体序列化成功时，写入响应日志。
-			responseBytes, responseErr = json.Marshal(reply)
-			if responseErr == nil {
-				baseLog.Response = string(responseBytes)
-			}
+			// 响应日志统一交给独立提取器处理，便于对大列表和大树结构做摘要。
+			baseLog.Response = extractResponse(reply)
 			level, stack := extractError(err)
 			// 存在堆栈信息时，追加到日志原因字段便于排查。
 			if len(stack) > 0 {

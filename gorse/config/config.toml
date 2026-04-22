@@ -2,7 +2,8 @@
 # 对齐当前项目的本地开发方式，默认通过宿主机暴露端口访问 MySQL / Redis，
 # 避免依赖 Docker bridge 下不稳定的固定容器 IP。
 data_store = "mysql://root:112233@tcp(host.docker.internal:3306)/shop_gorse?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms"
-cache_store = "redis://default:112233@host.docker.internal:6379/0"
+cache_store = "mysql://root:112233@tcp(host.docker.internal:3306)/shop_gorse?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms"
+#cache_store = "redis://default:112233@host.docker.internal:6379/0"
 
 [database.mysql]
 # 显式沿用官方默认的低隔离级别，降低推荐写入和训练扫描之间的锁竞争。

@@ -6,6 +6,9 @@ import (
 	"net/url"
 	"strconv"
 
+	"shop/api/gen/go/app"
+	"shop/api/gen/go/common"
+
 	client "github.com/gorse-io/gorse-go"
 )
 
@@ -61,6 +64,30 @@ func (r *OnlineNamedReceiver) GetItemToItemGoodsIds(ctx context.Context, recomme
 		return nil, 0, err
 	}
 	return r.recommend.buildPageResultFromScores(scores, limit, pageNum, pageSize, map[int64]struct{}{goodsId: {}})
+}
+
+// GetUserToUserGoodsIds 查询命名 user-to-user 推荐器结果。
+func (r *OnlineNamedReceiver) GetUserToUserGoodsIds(ctx context.Context, recommenderName string, actor *app.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
+	// 客户端未启用、推荐器名称为空、主体为空或主体不是登录用户时，直接返回空结果。
+	if !r.Enabled() || recommenderName == "" || actor == nil || actor.GetActorId() <= 0 {
+		return []int64{}, 0, nil
+	}
+	// user-to-user 只服务登录用户，匿名主体没有稳定的用户画像可供相似用户召回。
+	if actor.GetActorType() != common.RecommendActorType_USER {
+		return []int64{}, 0, nil
+	}
+	limit := pageNum*pageSize + 1
+	// 请求上限非法时，直接返回空结果。
+	if limit <= 0 {
+		return []int64{}, 0, nil
+	}
+
+	path := fmt.Sprintf("/api/user-to-user/%s/%d?%s", url.PathEscape(recommenderName), actor.GetActorId(), r.recommend.buildPaginationQuery(limit))
+	scores, err := r.recommend.requestScores(ctx, path)
+	if err != nil {
+		return nil, 0, err
+	}
+	return r.recommend.buildPageResultFromScores(scores, limit, pageNum, pageSize, nil)
 }
 
 // GetNonPersonalizedGoodsIds 查询命名非个性化推荐器结果。

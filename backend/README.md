@@ -75,7 +75,7 @@ go run ./internal/cmd/server --conf ./configs
 - 本地启用推荐系统时，`backend/configs/configs_local.yaml` 中的 `shop.recommend.entryPoint` 需要指向 `http://127.0.0.1:8088`；`8088` 对应 Gorse HTTP API 端口，`8086` 不是当前 Go 客户端要访问的入口。
 - 业务侧写入推荐系统的用户、商品、推荐反馈当前通过 `pkg/queue` 异步投递，默认不阻塞主业务写库链路。
 - 商城端推荐查询由 `service/app/biz/recommend.go` 统一承接，请求留痕落到 `recommend_request` / `recommend_request_item`，事件留痕落到 `recommend_event`。
-- 在线推荐优先走 Gorse 用户推荐或会话推荐，未命中时回退到同类目商品和最新热销商品。
+- 在线推荐会按场景优先走 Gorse 用户推荐、`user-to-user/similar_users`、会话推荐、商品相似推荐与命名热榜，未命中时再回退到同类目商品和最新热销商品。
 - 收藏、加购、下单、支付等事件由后端在真实业务落库成功后回写；匿名历史在登录绑定时会迁移到登录用户并重放到推荐系统。
 - `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 
