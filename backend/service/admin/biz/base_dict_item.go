@@ -6,6 +6,7 @@ import (
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -78,13 +79,29 @@ func (c *BaseDictItemCase) GetBaseDictItem(ctx context.Context, id int64) (*admi
 // CreateBaseDictItem 创建字典项
 func (c *BaseDictItemCase) CreateBaseDictItem(ctx context.Context, req *admin.BaseDictItemForm) error {
 	baseDictItem := c.formMapper.ToEntity(req)
-	return c.Create(ctx, baseDictItem)
+	err := c.Create(ctx, baseDictItem)
+	if err != nil {
+		// 命中字典项编码唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateBaseDictItem 更新字典项
 func (c *BaseDictItemCase) UpdateBaseDictItem(ctx context.Context, req *admin.BaseDictItemForm) error {
 	baseDictItem := c.formMapper.ToEntity(req)
-	return c.UpdateById(ctx, baseDictItem)
+	err := c.UpdateById(ctx, baseDictItem)
+	if err != nil {
+		// 命中字典项编码唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // DeleteBaseDictItem 删除字典项

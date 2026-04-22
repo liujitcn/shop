@@ -5,6 +5,7 @@ import (
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/job"
@@ -85,14 +86,30 @@ func (c *BaseJobCase) GetBaseJob(ctx context.Context, id int64) (*admin.BaseJobF
 func (c *BaseJobCase) CreateBaseJob(ctx context.Context, req *admin.BaseJobForm) error {
 	baseJob := c.formMapper.ToEntity(req)
 	baseJob.Args = _string.ConvertAnyToJsonString(req.GetArgs())
-	return c.Create(ctx, baseJob)
+	err := c.Create(ctx, baseJob)
+	if err != nil {
+		// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateBaseJob 更新定时任务
 func (c *BaseJobCase) UpdateBaseJob(ctx context.Context, req *admin.BaseJobForm) error {
 	baseJob := c.formMapper.ToEntity(req)
 	baseJob.Args = _string.ConvertAnyToJsonString(req.GetArgs())
-	return c.UpdateById(ctx, baseJob)
+	err := c.UpdateById(ctx, baseJob)
+	if err != nil {
+		// 命中调用目标唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // DeleteBaseJob 删除定时任务

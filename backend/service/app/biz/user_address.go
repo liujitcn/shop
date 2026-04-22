@@ -122,10 +122,10 @@ func (c *UserAddressCase) UpdateUserAddress(ctx context.Context, userAddress *ap
 			}
 		}
 		query := c.Query(ctx).UserAddress
-		err = c.UserAddressRepo.Update(ctx, address,
-			repo.Where(query.ID.Eq(address.ID)),
-			repo.Where(query.UserID.Eq(authInfo.UserId)),
-		)
+		opts := make([]repo.QueryOption, 0, 2)
+		opts = append(opts, repo.Where(query.ID.Eq(address.ID)))
+		opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+		err = c.UserAddressRepo.Update(ctx, address, opts...)
 		if err != nil {
 			return err
 		}

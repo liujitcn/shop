@@ -97,11 +97,7 @@ func (c *UserStoreCase) UpdateUserStore(ctx context.Context, form *app.UserStore
 	}
 	// 更新前先保留旧数据，供后续清理被替换的图片使用
 	userStore := c.convertToModel(authInfo.UserId, form)
-	err = c.Update(ctx,
-		userStore,
-		repo.Where(query.ID.Eq(form.GetId())),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	err = c.Update(ctx, userStore, opts...)
 	if err != nil {
 		return err
 	}

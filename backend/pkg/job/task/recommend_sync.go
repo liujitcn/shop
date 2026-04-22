@@ -3,11 +3,11 @@ package task
 import (
 	"context"
 	"fmt"
-	"shop/pkg/gen/models"
 	"strconv"
 
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
 	pkgRecommend "shop/pkg/recommend"
 
 	mapset "github.com/deckarep/golang-set/v2"
@@ -21,16 +21,24 @@ const recommendSyncDefaultBatchSize = 200
 type RecommendSync struct {
 	baseUserRepo  *data.BaseUserRepo
 	goodsInfoRepo *data.GoodsInfoRepo
-	recommend     *pkgRecommend.Recommend
+	userSync      *pkgRecommend.UserSyncReceiver
+	goodsSync     *pkgRecommend.GoodsSyncReceiver
 	ctx           context.Context
 }
 
 // NewRecommendSync 创建推荐系统主数据同步任务实例。
-func NewRecommendSync(baseUserRepo *data.BaseUserRepo, goodsInfoRepo *data.GoodsInfoRepo, recommendClient *pkgRecommend.Recommend) *RecommendSync {
+func NewRecommendSync(
+	baseUserRepo *data.BaseUserRepo,
+	goodsInfoRepo *data.GoodsInfoRepo,
+	userSync *pkgRecommend.UserSyncReceiver,
+	goodsSync *pkgRecommend.GoodsSyncReceiver,
+	_ *pkgRecommend.QueueReceiver,
+) *RecommendSync {
 	return &RecommendSync{
 		baseUserRepo:  baseUserRepo,
 		goodsInfoRepo: goodsInfoRepo,
-		recommend:     recommendClient,
+		userSync:      userSync,
+		goodsSync:     goodsSync,
 		ctx:           context.Background(),
 	}
 }
@@ -40,7 +48,7 @@ func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
 	log.Infof("Job RecommendSync Exec %+v", args)
 
 	// 推荐系统未启用时，只记录跳过结果，避免空配置导致任务报错。
-	if t.recommend == nil || !t.recommend.Enabled() {
+	if !t.userSync.Enabled() || !t.goodsSync.Enabled() {
 		return []string{"推荐系统未启用，已跳过主数据同步"}, nil
 	}
 
@@ -67,7 +75,7 @@ func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
 func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 	query := t.baseUserRepo.Query(t.ctx).BaseUser
 	total := 0
-	existingUserIds, err := t.recommend.LoadUserIds(t.ctx, batchSize)
+	existingUserIds, err := t.userSync.LoadIds(t.ctx, batchSize)
 	if err != nil {
 		return total, fmt.Errorf("加载推荐系统用户索引失败: %w", err)
 	}
@@ -89,7 +97,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 			break
 		}
 
-		err = t.recommend.SyncBaseUserList(t.ctx, userList, existingUserIds, staleUserIds)
+		err = t.userSync.SyncList(t.ctx, userList, existingUserIds, staleUserIds)
 		if err != nil {
 			return total, fmt.Errorf("同步推荐系统用户数据失败: %w", err)
 		}
@@ -99,7 +107,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 			break
 		}
 	}
-	err = t.recommend.DeleteUserIds(t.ctx, staleUserIds)
+	err = t.userSync.DeleteIds(t.ctx, staleUserIds)
 	if err != nil {
 		return total, fmt.Errorf("清理推荐系统冗余用户数据失败: %w", err)
 	}
@@ -110,7 +118,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 	query := t.goodsInfoRepo.Query(t.ctx).GoodsInfo
 	total := 0
-	existingItemIds, err := t.recommend.LoadGoodsIds(t.ctx, batchSize)
+	existingItemIds, err := t.goodsSync.LoadIds(t.ctx, batchSize)
 	if err != nil {
 		return total, fmt.Errorf("加载推荐系统商品索引失败: %w", err)
 	}
@@ -132,7 +140,7 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 			break
 		}
 
-		err = t.recommend.SyncGoodsInfoList(t.ctx, goodsList, existingItemIds, staleItemIds)
+		err = t.goodsSync.SyncList(t.ctx, goodsList, existingItemIds, staleItemIds)
 		if err != nil {
 			return total, fmt.Errorf("同步推荐系统商品数据失败: %w", err)
 		}
@@ -142,7 +150,7 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 			break
 		}
 	}
-	err = t.recommend.DeleteGoodsIds(t.ctx, staleItemIds)
+	err = t.goodsSync.DeleteIds(t.ctx, staleItemIds)
 	if err != nil {
 		return total, fmt.Errorf("清理推荐系统冗余商品数据失败: %w", err)
 	}

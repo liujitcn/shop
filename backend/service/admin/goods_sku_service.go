@@ -59,10 +59,6 @@ func (s *GoodsSkuService) UpdateGoodsSku(ctx context.Context, req *admin.GoodsSk
 	err := s.goodsSkuCase.UpdateGoodsSku(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateGoodsSku %v", err)
-		// 命中 SKU 编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新商品SKU失败")
 	}
 	return new(emptypb.Empty), nil

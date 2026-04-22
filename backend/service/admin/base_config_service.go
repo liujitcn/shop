@@ -80,10 +80,6 @@ func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *admin.Bas
 	err := s.baseConfigCase.CreateBaseConfig(ctx, req)
 	if err != nil {
 		log.Errorf("CreateBaseConfig %v", err)
-		// 命中配置键唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建系统配置失败")
 	}
 	return new(emptypb.Empty), nil
@@ -94,10 +90,6 @@ func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *admin.Bas
 	err := s.baseConfigCase.UpdateBaseConfig(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateBaseConfig %v", err)
-		// 命中配置键唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新系统配置失败")
 	}
 	return new(emptypb.Empty), nil

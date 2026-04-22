@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"shop/pkg/errorsx"
 	pkgQueue "shop/pkg/queue"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	"github.com/go-sql-driver/mysql"
 	_mapper "github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repo"
@@ -268,7 +270,7 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		return c.batchCreateGoodsSku(ctx, goodsInfo.ID, skuList)
 	})
 	if err != nil {
-		return err
+		return c.wrapGoodsInfoDuplicateConflict(err)
 	}
 	// 商品创建成功后，再异步同步最新商品快照到推荐系统。
 	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
@@ -311,7 +313,7 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		return c.batchCreateGoodsSku(ctx, goodsInfo.ID, skuList)
 	})
 	if err != nil {
-		return err
+		return c.wrapGoodsInfoDuplicateConflict(err)
 	}
 	// 商品更新成功后，再异步同步最新商品快照到推荐系统。
 	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
@@ -369,6 +371,32 @@ func (c *GoodsInfoCase) GoodsPropCaseList(ctx context.Context, goodsId int64) ([
 // GoodsSkuCaseList 查询商品规格项列表
 func (c *GoodsInfoCase) GoodsSkuCaseList(ctx context.Context, goodsId int64) ([]*admin.GoodsSku, error) {
 	return c.goodsSkuCase.ListGoodsSkuByGoodsId(ctx, goodsId)
+}
+
+// wrapGoodsInfoDuplicateConflict 把商品及其子表的唯一索引冲突转换成稳定业务错误。
+func (c *GoodsInfoCase) wrapGoodsInfoDuplicateConflict(err error) error {
+	// 非唯一索引冲突时，直接透传原始错误给上层统一处理。
+	if !errorsx.IsMySQLDuplicateKey(err) {
+		return err
+	}
+
+	var mysqlErr *mysql.MySQLError
+	// 无法提取底层 MySQL 错误明细时，退化为通用唯一约束冲突。
+	if !errors.As(err, &mysqlErr) {
+		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
+	}
+
+	// 根据唯一索引落在哪张子表上，返回对应的业务冲突错误。
+	switch {
+	case strings.Contains(mysqlErr.Message, models.TableNameGoodsProp):
+		return errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
+	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSku):
+		return errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
+	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSpec):
+		return errorsx.UniqueConflict("商品规格重复", "goods_spec", "name", "unique_goods_spec").WithCause(err)
+	default:
+		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
+	}
 }
 
 // deleteGoodsChildren 删除商品子表数据

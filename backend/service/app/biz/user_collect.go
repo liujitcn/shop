@@ -160,10 +160,10 @@ func (c *UserCollectCase) CreateUserCollect(ctx context.Context, userCollect *ap
 	}
 
 	// 删除
-	return c.Delete(ctx,
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-		repo.Where(query.GoodsID.Eq(userCollect.GetGoodsId())),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(userCollect.GetGoodsId())))
+	return c.Delete(ctx, opts...)
 }
 
 // DeleteUserCollect 删除用户收藏
@@ -173,10 +173,10 @@ func (c *UserCollectCase) DeleteUserCollect(ctx context.Context, ids string) err
 		return err
 	}
 	query := c.Query(ctx).UserCollect
-	return c.Delete(ctx,
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-		repo.Where(query.ID.In(_string.ConvertStringToInt64Array(ids)...)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repo.Where(query.ID.In(_string.ConvertStringToInt64Array(ids)...)))
+	return c.Delete(ctx, opts...)
 }
 
 // 按用户编号和商品编号判断是否已收藏

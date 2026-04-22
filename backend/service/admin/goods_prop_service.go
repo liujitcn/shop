@@ -62,10 +62,6 @@ func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *admin.Goods
 	err := s.goodsPropCase.CreateGoodsProp(ctx, req)
 	if err != nil {
 		log.Errorf("CreateGoodsProp %v", err)
-		// 命中商品属性唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建商品属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -76,10 +72,6 @@ func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *admin.Goods
 	err := s.goodsPropCase.UpdateGoodsProp(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateGoodsProp %v", err)
-		// 命中商品属性唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新商品属性失败")
 	}
 	return new(emptypb.Empty), nil

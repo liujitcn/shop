@@ -5,6 +5,7 @@ import (
 
 	"shop/api/gen/go/admin"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -69,13 +70,29 @@ func (c *GoodsPropCase) GetGoodsProp(ctx context.Context, id int64) (*admin.Good
 // CreateGoodsProp 创建商品属性
 func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *admin.GoodsProp) error {
 	goodsProp := c.mapper.ToEntity(req)
-	return c.Create(ctx, goodsProp)
+	err := c.Create(ctx, goodsProp)
+	if err != nil {
+		// 命中商品属性唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateGoodsProp 更新商品属性
 func (c *GoodsPropCase) UpdateGoodsProp(ctx context.Context, req *admin.GoodsProp) error {
 	goodsProp := c.mapper.ToEntity(req)
-	return c.UpdateById(ctx, goodsProp)
+	err := c.UpdateById(ctx, goodsProp)
+	if err != nil {
+		// 命中商品属性唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // ListGoodsPropByGoodsId 按商品查询属性列表

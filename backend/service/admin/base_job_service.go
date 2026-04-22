@@ -65,10 +65,6 @@ func (s *BaseJobService) CreateBaseJob(ctx context.Context, req *admin.BaseJobFo
 	err := s.baseJobCase.CreateBaseJob(ctx, req)
 	if err != nil {
 		log.Errorf("CreateBaseJob %v", err)
-		// 命中调用目标唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建定时任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -79,10 +75,6 @@ func (s *BaseJobService) UpdateBaseJob(ctx context.Context, req *admin.BaseJobFo
 	err := s.baseJobCase.UpdateBaseJob(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateBaseJob %v", err)
-		// 命中调用目标唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("调用目标重复", "base_job", "invoke_target", "unique_base_job").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新定时任务失败")
 	}
 	return new(emptypb.Empty), nil

@@ -159,6 +159,10 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	baseUser.Password = password
 	err = c.Create(ctx, baseUser)
 	if err != nil {
+		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
+		}
 		return err
 	}
 	// 用户写库成功后，再异步同步用户画像到推荐系统。
@@ -180,6 +184,10 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *admin.BaseUserFo
 	baseUser.Password = oldBaseUser.Password
 	err = c.UpdateById(ctx, baseUser)
 	if err != nil {
+		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
+		}
 		return err
 	}
 	// 用户更新成功后，再按最新数据库快照同步到推荐系统。

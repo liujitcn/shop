@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/configs"
 	"shop/pkg/gen/data"
@@ -22,17 +29,10 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -150,7 +150,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	recommendRecommend := recommend.NewRecommend(confRecommend)
-	recommendSync := task.NewRecommendSync(baseUserRepo, goodsInfoRepo, recommendRecommend)
+	userSyncReceiver := recommend.NewUserSyncReceiver(recommendRecommend)
+	goodsSyncReceiver := recommend.NewGoodsSyncReceiver(recommendRecommend)
+	queueReceiver := recommend.NewQueueReceiver(recommendRecommend, userSyncReceiver, goodsSyncReceiver)
+	recommendSync := task.NewRecommendSync(baseUserRepo, goodsInfoRepo, userSyncReceiver, goodsSyncReceiver, queueReceiver)
 	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendSync)
 	cronServer := job.NewCronServer(baseJobRepo, v)
 	authentication_Jwt := configs.ParseAuthnJwt(context)
@@ -306,12 +309,16 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	payService := app.NewPayService(payCase)
 	recommendAnonymousActorRepo := data.NewRecommendAnonymousActorRepo(dataData)
 	recommendRequestRepo := data.NewRecommendRequestRepo(dataData)
-	recommendAnonymousActorCase := biz4.NewRecommendAnonymousActorCase(baseCase, transaction, recommendAnonymousActorRepo, recommendRequestRepo, recommendEventRepo, recommendRecommend)
+	recommendAnonymousActorCase := biz4.NewRecommendAnonymousActorCase(baseCase, transaction, recommendAnonymousActorRepo, recommendRequestRepo, recommendEventRepo)
 	recommendRequestItemRepo := data.NewRecommendRequestItemRepo(dataData)
 	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, transaction, recommendRequestRepo, recommendRequestItemRepo)
-	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase, recommendRecommend)
+	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase)
 	userCollectCase := biz4.NewUserCollectCase(baseCase, userCollectRepo, bizGoodsInfoCase, bizGoodsSkuCase)
-	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase, recommendRecommend)
+	onlineUserReceiver := recommend.NewOnlineUserReceiver(recommendRecommend)
+	onlineSessionReceiver := recommend.NewOnlineSessionReceiver(recommendRecommend)
+	onlineNamedReceiver := recommend.NewOnlineNamedReceiver(recommendRecommend)
+	onlineChainReceiver := recommend.NewOnlineChainReceiver(recommendRecommend, onlineUserReceiver, onlineSessionReceiver, onlineNamedReceiver)
+	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase, onlineChainReceiver)
 	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
 	appShopBannerService := app.NewShopBannerService(bizShopBannerCase)

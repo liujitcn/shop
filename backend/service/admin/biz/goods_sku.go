@@ -5,6 +5,7 @@ import (
 
 	"shop/api/gen/go/admin"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -66,7 +67,15 @@ func (c *GoodsSkuCase) GetGoodsSku(ctx context.Context, id int64) (*admin.GoodsS
 
 // UpdateGoodsSku 更新商品规格项
 func (c *GoodsSkuCase) UpdateGoodsSku(ctx context.Context, req *admin.GoodsSku) error {
-	return c.UpdateById(ctx, c.toGoodsSkuModel(req))
+	err := c.UpdateById(ctx, c.toGoodsSkuModel(req))
+	if err != nil {
+		// 命中 SKU 编码唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // ListGoodsSkuByGoodsId 按商品查询规格项列表

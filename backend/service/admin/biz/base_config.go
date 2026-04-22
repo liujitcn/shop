@@ -6,6 +6,7 @@ import (
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -109,6 +110,10 @@ func (c *BaseConfigCase) CreateBaseConfig(ctx context.Context, req *admin.BaseCo
 	entity := c.formMapper.ToEntity(req)
 	err := c.Create(ctx, entity)
 	if err != nil {
+		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
+		}
 		return err
 	}
 	err = c.syncBaseConfigCache(entity)
@@ -128,6 +133,10 @@ func (c *BaseConfigCase) UpdateBaseConfig(ctx context.Context, req *admin.BaseCo
 	entity := c.formMapper.ToEntity(req)
 	err = c.UpdateById(ctx, entity)
 	if err != nil {
+		// 命中配置键唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("配置key重复", "base_config", "key", "unique_base_config").WithCause(err)
+		}
 		return err
 	}
 

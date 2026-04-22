@@ -791,10 +791,10 @@ func (c *OrderInfoCase) updateByIds(ctx context.Context, userId int64, ids []int
 		return nil
 	}
 	query := c.Query(ctx).OrderInfo
-	return c.Update(ctx, entity,
-		repo.Where(query.ID.In(ids...)),
-		repo.Where(query.UserID.Eq(userId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.In(ids...)))
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	return c.Update(ctx, entity, opts...)
 }
 
 // dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。

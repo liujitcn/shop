@@ -31,7 +31,7 @@ type RecommendCase struct {
 	userCartCase                *UserCartCase
 	userCollectCase             *UserCollectCase
 	goodsInfoCase               *GoodsInfoCase
-	recommend                   *pkgRecommend.Recommend
+	onlineChain                 *pkgRecommend.OnlineChainReceiver
 }
 
 // NewRecommendCase 创建推荐业务处理对象。
@@ -44,7 +44,7 @@ func NewRecommendCase(
 	userCartCase *UserCartCase,
 	userCollectCase *UserCollectCase,
 	goodsInfoCase *GoodsInfoCase,
-	recommend *pkgRecommend.Recommend,
+	onlineChain *pkgRecommend.OnlineChainReceiver,
 ) *RecommendCase {
 	return &RecommendCase{
 		BaseCase:                    baseCase,
@@ -55,7 +55,7 @@ func NewRecommendCase(
 		userCartCase:                userCartCase,
 		userCollectCase:             userCollectCase,
 		goodsInfoCase:               goodsInfoCase,
-		recommend:                   recommend,
+		onlineChain:                 onlineChain,
 	}
 }
 
@@ -225,7 +225,6 @@ func (c *RecommendCase) listRecommendContextGoodsIds(
 	actor *app.RecommendActor,
 	req *app.RecommendGoodsRequest,
 ) ([]int64, error) {
-	var err error
 	goodsIds := make([]int64, 0)
 	switch req.GetScene() {
 	case common.RecommendScene_GOODS_DETAIL:
@@ -236,34 +235,38 @@ func (c *RecommendCase) listRecommendContextGoodsIds(
 	case common.RecommendScene_CART:
 		// 登录态购物车页优先读取购物车商品做上下文。
 		if actor != nil && actor.GetActorType() == common.RecommendActorType_USER {
-			goodsIds, err = c.userCartCase.listGoodsIdsByUserId(ctx, actor.GetActorId())
-			if err != nil {
-				return nil, err
+			list, loadErr := c.userCartCase.listGoodsIdsByUserId(ctx, actor.GetActorId())
+			if loadErr != nil {
+				return nil, loadErr
 			}
+			goodsIds = list
 		}
 	case common.RecommendScene_PROFILE:
 		// 个人中心优先读取收藏商品做兴趣上下文。
 		if actor != nil && actor.GetActorType() == common.RecommendActorType_USER {
-			goodsIds, err = c.userCollectCase.listGoodsIdsByUserId(ctx, actor.GetActorId(), recommendRecentHistoryLimit)
-			if err != nil {
-				return nil, err
+			list, loadErr := c.userCollectCase.listGoodsIdsByUserId(ctx, actor.GetActorId(), recommendRecentHistoryLimit)
+			if loadErr != nil {
+				return nil, loadErr
 			}
+			goodsIds = list
 		}
 	case common.RecommendScene_ORDER_DETAIL, common.RecommendScene_ORDER_PAID:
 		// 订单详情与支付成功页优先读取订单商品做上下文。
 		if req.GetOrderId() > 0 {
-			goodsIds, err = c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
-			if err != nil {
-				return nil, err
+			list, loadErr := c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
+			if loadErr != nil {
+				return nil, loadErr
 			}
+			goodsIds = list
 		}
 	default:
 		// 业务场景没有稳定上下文时，再回退到最近推荐行为商品。
 		if actor != nil && actor.GetActorId() > 0 {
-			goodsIds, err = c.recommendEventCase.listRecentRecommendEventGoodsIds(ctx, actor)
-			if err != nil {
-				return nil, err
+			list, loadErr := c.recommendEventCase.listRecentRecommendEventGoodsIds(ctx, actor)
+			if loadErr != nil {
+				return nil, loadErr
 			}
+			goodsIds = list
 		}
 	}
 
@@ -277,26 +280,23 @@ func (c *RecommendCase) listRecommendGoodsIds(
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
 ) ([]int64, int64, common.RecommendRequestSource, common.RecommendRequestStatus, common.RecommendRequestStrategyType, error) {
-	var err error
-	var goodsIds []int64
-	var total int64
-	// 当前存在推荐系统客户端时，优先尝试走在线推荐结果。
-	if c.recommend != nil {
-		goodsIds, total, err = c.pageGoodsIdsByOnlineRecommend(ctx, actor, contextGoodsIds, pageNum, pageSize)
-		if err != nil {
-			log.Errorf("pageGoodsIdsByOnlineRecommend %v", err)
+	// 当前推荐系统链路已启用时，优先尝试走在线推荐结果。
+	if c.onlineChain.Enabled() {
+		goodsIds, total, onlineErr := c.pageGoodsIdsByOnlineRecommend(ctx, actor, contextGoodsIds, pageNum, pageSize)
+		if onlineErr != nil {
+			log.Errorf("pageGoodsIdsByOnlineRecommend %v", onlineErr)
 		}
 		// 推荐系统返回了有效结果时，优先使用在线推荐结果。
-		if err == nil && len(goodsIds) > 0 {
+		if onlineErr == nil && len(goodsIds) > 0 {
 			return goodsIds, total, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
 		}
 	}
 
 	// 有上下文商品时，优先按同类目兜底推荐。
 	if len(contextGoodsIds) > 0 {
-		goodsIds, total, err = c.pageGoodsIdsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
-		if err != nil {
-			return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
+		goodsIds, total, categoryErr := c.pageGoodsIdsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
+		if categoryErr != nil {
+			return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, categoryErr
 		}
 		// 同类目存在可推荐商品时，直接返回当前策略结果。
 		if total > 0 {
@@ -304,9 +304,9 @@ func (c *RecommendCase) listRecommendGoodsIds(
 		}
 	}
 
-	goodsIds, total, err = c.pageGoodsIdsByLatest(ctx, contextGoodsIds, pageNum, pageSize)
-	if err != nil {
-		return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
+	goodsIds, total, latestErr := c.pageGoodsIdsByLatest(ctx, contextGoodsIds, pageNum, pageSize)
+	if latestErr != nil {
+		return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, latestErr
 	}
 	return goodsIds, total, common.RecommendRequestSource_LOCAL, common.RecommendRequestStatus_REQUEST_FALLBACK, common.RecommendRequestStrategyType_LATEST_FALLBACK, nil
 }

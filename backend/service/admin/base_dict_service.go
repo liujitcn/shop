@@ -77,10 +77,6 @@ func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *admin.BaseDic
 	err := s.baseDictCase.CreateBaseDict(ctx, req)
 	if err != nil {
 		log.Errorf("CreateBaseDict %v", err)
-		// 命中字典编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建字典失败")
 	}
 	return new(emptypb.Empty), nil
@@ -91,10 +87,6 @@ func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *admin.BaseDic
 	err := s.baseDictCase.UpdateBaseDict(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateBaseDict %v", err)
-		// 命中字典编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新字典失败")
 	}
 	return new(emptypb.Empty), nil
@@ -145,10 +137,6 @@ func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *admin.Bas
 	err := s.baseDictItemCase.CreateBaseDictItem(ctx, req)
 	if err != nil {
 		log.Errorf("CreateBaseDictItem %v", err)
-		// 命中字典项编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建字典属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -159,10 +147,6 @@ func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *admin.Bas
 	err := s.baseDictItemCase.UpdateBaseDictItem(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateBaseDictItem %v", err)
-		// 命中字典项编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("字典属性编码重复", "base_dict_item", "value", "unique_base_dict").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新字典属性失败")
 	}
 	return new(emptypb.Empty), nil

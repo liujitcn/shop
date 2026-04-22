@@ -53,9 +53,9 @@ func (c *UserCartCase) CountUserCart(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 	query := c.Query(ctx).UserCart
-	return c.Count(ctx,
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	return c.Count(ctx, opts...)
 }
 
 // ListUserCart 查询用户购物车列表
@@ -269,10 +269,7 @@ func (c *UserCartCase) UpdateUserCart(ctx context.Context, req *app.UserCartForm
 	return c.Update(ctx, &models.UserCart{
 		ID:  req.GetId(),
 		Num: req.GetNum(),
-	},
-		repo.Where(query.ID.Eq(req.GetId())),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	}, opts...)
 }
 
 // DeleteUserCart 删除用户购物车
@@ -282,10 +279,10 @@ func (c *UserCartCase) DeleteUserCart(ctx context.Context, id int64) error {
 		return err
 	}
 	query := c.Query(ctx).UserCart
-	return c.Delete(ctx,
-		repo.Where(query.ID.Eq(id)),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(id)))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	return c.Delete(ctx, opts...)
 }
 
 // SetUserCartStatus 设置购物车选中状态
@@ -295,13 +292,13 @@ func (c *UserCartCase) SetUserCartStatus(ctx context.Context, req *app.SetUserCa
 		return err
 	}
 	query := c.Query(ctx).UserCart
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(req.GetId())))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
 	return c.Update(ctx, &models.UserCart{
 		ID:        req.GetId(),
 		IsChecked: req.GetIsChecked(),
-	},
-		repo.Where(query.ID.Eq(req.GetId())),
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	}, opts...)
 }
 
 // SetUserCartSelection 设置购物车全选状态
@@ -311,21 +308,21 @@ func (c *UserCartCase) SetUserCartSelection(ctx context.Context, isChecked bool)
 		return err
 	}
 	query := c.Query(ctx).UserCart
+	opts := make([]repo.QueryOption, 0, 1)
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
 	return c.Update(ctx, &models.UserCart{
 		IsChecked: isChecked,
-	},
-		repo.Where(query.UserID.Eq(authInfo.UserId)),
-	)
+	}, opts...)
 }
 
 // 按用户编号、商品编号和规格编码删除购物车商品
 func (c *UserCartCase) deleteByUserIdAndGoodsIdAndSkuCode(ctx context.Context, userId, goodsId int64, skuCode string) error {
 	query := c.Query(ctx).UserCart
-	return c.Delete(ctx,
-		repo.Where(query.UserID.Eq(userId)),
-		repo.Where(query.GoodsID.Eq(goodsId)),
-		repo.Where(query.SkuCode.Eq(skuCode)),
-	)
+	opts := make([]repo.QueryOption, 0, 3)
+	opts = append(opts, repo.Where(query.UserID.Eq(userId)))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	opts = append(opts, repo.Where(query.SkuCode.Eq(skuCode)))
+	return c.Delete(ctx, opts...)
 }
 
 // listGoodsIdsByUserId 查询指定用户购物车中的商品 ID 列表。

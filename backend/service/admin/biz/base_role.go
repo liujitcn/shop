@@ -105,6 +105,10 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *admin.BaseRoleFo
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err := c.Create(ctx, baseRole)
 		if err != nil {
+			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
+			}
 			return err
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
@@ -127,6 +131,10 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *admin.BaseRoleFo
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.UpdateById(ctx, baseRole)
 		if err != nil {
+			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
+			if errorsx.IsMySQLDuplicateKey(err) {
+				return errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
+			}
 			return err
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)

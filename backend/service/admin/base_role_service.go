@@ -72,10 +72,6 @@ func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *admin.BaseRol
 	err := s.baseRoleCase.CreateBaseRole(ctx, req)
 	if err != nil {
 		log.Errorf("CreateBaseRole %v", err)
-		// 命中角色编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建角色失败")
 	}
 	return new(emptypb.Empty), nil
@@ -86,10 +82,6 @@ func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *admin.BaseRol
 	err := s.baseRoleCase.UpdateBaseRole(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateBaseRole %v", err)
-		// 命中角色编码唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新角色失败")
 	}
 	return new(emptypb.Empty), nil

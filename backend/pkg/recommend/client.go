@@ -1,0 +1,99 @@
+package recommend
+
+import (
+	"context"
+	"fmt"
+	stdhttp "net/http"
+	"strings"
+
+	"shop/api/gen/go/conf"
+	pkgQueue "shop/pkg/queue"
+
+	client "github.com/gorse-io/gorse-go"
+	_http "github.com/liujitcn/go-utils/http"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+)
+
+// Recommend 表示推荐系统基础客户端，统一承载公共配置和通用请求能力。
+type Recommend struct {
+	gorseClient *client.GorseClient
+	entryPoint  string
+	apiKey      string
+	httpClient  *_http.Client
+}
+
+// NewRecommend 创建推荐系统基础客户端。
+func NewRecommend(cfg *conf.Recommend) *Recommend {
+	// 推荐配置缺失时，直接关闭推荐系统链路并走本地兜底。
+	if cfg == nil {
+		pkgQueue.SetRecommendEnabled(false)
+		return &Recommend{}
+	}
+
+	entryPoint := strings.TrimSpace(cfg.GetEntryPoint())
+	// 未配置入口地址时，直接关闭推荐系统链路并走本地兜底。
+	if entryPoint == "" {
+		pkgQueue.SetRecommendEnabled(false)
+		return &Recommend{}
+	}
+
+	httpClientOptions := make([]_http.ClientOption, 0, 3)
+	httpClientOptions = append(httpClientOptions, _http.WithBaseURL(entryPoint))
+	httpClientOptions = append(httpClientOptions, _http.WithHTTPClient(&stdhttp.Client{
+		Transport: otelhttp.NewTransport(stdhttp.DefaultTransport),
+	}))
+	// 当前配置了 API Key 时，通过默认请求头统一透传给 Gorse。
+	if strings.TrimSpace(cfg.GetApiKey()) != "" {
+		httpClientOptions = append(httpClientOptions, _http.WithDefaultHeader("X-API-Key", cfg.GetApiKey()))
+	}
+
+	pkgQueue.SetRecommendEnabled(true)
+	return &Recommend{
+		gorseClient: client.NewGorseClient(entryPoint, cfg.GetApiKey()),
+		entryPoint:  entryPoint,
+		apiKey:      cfg.GetApiKey(),
+		httpClient:  _http.NewClient(httpClientOptions...),
+	}
+}
+
+// Enabled 判断当前推荐系统基础客户端是否可用。
+func (r *Recommend) Enabled() bool {
+	return r.gorseClient != nil
+}
+
+// defaultContext 统一兜底推荐请求上下文。
+func (r *Recommend) defaultContext(ctx context.Context) context.Context {
+	// 调用方未显式传入上下文时，回退到默认上下文继续执行远端请求。
+	if ctx == nil {
+		return context.TODO()
+	}
+	return ctx
+}
+
+// requestScores 通过原始 HTTP API 请求评分列表结果。
+func (r *Recommend) requestScores(ctx context.Context, path string) ([]client.Score, error) {
+	// 客户端未启用、入口地址缺失或请求路径为空时，直接返回空结果。
+	if !r.Enabled() || r.httpClient == nil || strings.TrimSpace(r.entryPoint) == "" || strings.TrimSpace(path) == "" {
+		return []client.Score{}, nil
+	}
+
+	resp, err := r.httpClient.Do(stdhttp.MethodGet, path, _http.WithContext(r.defaultContext(ctx)))
+	if err != nil {
+		return nil, err
+	}
+	// 远端返回非成功状态码时，直接抛出响应体内容，方便业务侧定位配置或路径问题。
+	if resp.StatusCode != stdhttp.StatusOK {
+		return nil, fmt.Errorf("gorse request failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(resp.String()))
+	}
+
+	scores := make([]client.Score, 0)
+	// 远端请求成功但响应为空时，直接返回空评分列表。
+	if len(resp.Body) == 0 {
+		return scores, nil
+	}
+	err = resp.DecodeJSON(&scores)
+	if err != nil {
+		return nil, err
+	}
+	return scores, nil
+}

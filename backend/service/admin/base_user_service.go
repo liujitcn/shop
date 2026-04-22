@@ -72,10 +72,6 @@ func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *admin.BaseUse
 	err := s.baseUserCase.CreateBaseUser(ctx, req)
 	if err != nil {
 		log.Errorf("CreateBaseUser %v", err)
-		// 命中用户账号唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "创建用户失败")
 	}
 	return new(emptypb.Empty), nil
@@ -86,10 +82,6 @@ func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *admin.BaseUse
 	err := s.baseUserCase.UpdateBaseUser(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateBaseUser %v", err)
-		// 命中用户账号唯一索引冲突时，返回更明确的业务错误。
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("用户账号重复", "base_user", "user_name", "unique_base_user").WithCause(err)
-		}
 		return nil, errorsx.WrapInternal(err, "更新用户失败")
 	}
 	return new(emptypb.Empty), nil

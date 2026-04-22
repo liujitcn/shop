@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	pkgQueue "shop/pkg/queue"
-	pkgRecommend "shop/pkg/recommend"
 	"strconv"
 	"strings"
 	"time"
@@ -31,7 +30,6 @@ type RecommendAnonymousActorCase struct {
 	*data.RecommendAnonymousActorRepo
 	recommendRequestRepo *data.RecommendRequestRepo
 	recommendEventRepo   *data.RecommendEventRepo
-	recommend            *pkgRecommend.Recommend
 }
 
 // NewRecommendAnonymousActorCase 创建推荐匿名主体业务处理对象。
@@ -41,7 +39,6 @@ func NewRecommendAnonymousActorCase(
 	recommendAnonymousActorRepo *data.RecommendAnonymousActorRepo,
 	recommendRequestRepo *data.RecommendRequestRepo,
 	recommendEventRepo *data.RecommendEventRepo,
-	recommend *pkgRecommend.Recommend,
 ) *RecommendAnonymousActorCase {
 	return &RecommendAnonymousActorCase{
 		BaseCase:                    baseCase,
@@ -49,7 +46,6 @@ func NewRecommendAnonymousActorCase(
 		RecommendAnonymousActorRepo: recommendAnonymousActorRepo,
 		recommendRequestRepo:        recommendRequestRepo,
 		recommendEventRepo:          recommendEventRepo,
-		recommend:                   recommend,
 	}
 }
 
@@ -244,8 +240,8 @@ func (c *RecommendAnonymousActorCase) syncRecommendActorHistoryToRecommend(
 	userId int64,
 	eventList []*models.RecommendEvent,
 ) error {
-	// 未注入推荐系统客户端、用户编号非法或历史事件为空时，无需继续回放历史。
-	if c.recommend == nil || userId <= 0 || len(eventList) == 0 {
+	// 用户编号非法或历史事件为空时，无需继续回放历史。
+	if userId <= 0 || len(eventList) == 0 {
 		return nil
 	}
 

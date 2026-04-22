@@ -130,13 +130,29 @@ func (c *BaseDictCase) GetBaseDict(ctx context.Context, id int64) (*admin.BaseDi
 // CreateBaseDict 创建字典
 func (c *BaseDictCase) CreateBaseDict(ctx context.Context, req *admin.BaseDictForm) error {
 	baseDict := c.formMapper.ToEntity(req)
-	return c.Create(ctx, baseDict)
+	err := c.Create(ctx, baseDict)
+	if err != nil {
+		// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // UpdateBaseDict 更新字典
 func (c *BaseDictCase) UpdateBaseDict(ctx context.Context, req *admin.BaseDictForm) error {
 	baseDict := c.formMapper.ToEntity(req)
-	return c.UpdateById(ctx, baseDict)
+	err := c.UpdateById(ctx, baseDict)
+	if err != nil {
+		// 命中字典编码唯一索引冲突时，返回稳定的业务冲突错误。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("字典编码重复", "base_dict", "code", "unique_base_dict").WithCause(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // DeleteBaseDict 删除字典
