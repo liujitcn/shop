@@ -270,7 +270,7 @@ type BaseMenuForm struct {
 	Component     string                 `protobuf:"bytes,6,opt,name=component,proto3" json:"component,omitempty"`                       // 组件路径
 	Redirect      string                 `protobuf:"bytes,7,opt,name=redirect,proto3" json:"redirect,omitempty"`                         // 重定向地址
 	Meta          *BaseMenuMeta          `protobuf:"bytes,8,opt,name=meta,proto3" json:"meta,omitempty"`                                 // 路由元信息
-	Apis          []string               `protobuf:"bytes,9,rep,name=apis,proto3" json:"apis,omitempty"`                                 // 分配的API列表
+	Api           []string               `protobuf:"bytes,9,rep,name=api,proto3" json:"api,omitempty"`                                   // 分配的API列表
 	Sort          int32                  `protobuf:"varint,50,opt,name=sort,proto3" json:"sort,omitempty"`                               // 排序
 	Status        *common.Status         `protobuf:"varint,101,opt,name=status,proto3,enum=common.Status,oneof" json:"status,omitempty"` // 状态
 	unknownFields protoimpl.UnknownFields
@@ -363,9 +363,9 @@ func (x *BaseMenuForm) GetMeta() *BaseMenuMeta {
 	return nil
 }
 
-func (x *BaseMenuForm) GetApis() []string {
+func (x *BaseMenuForm) GetApi() []string {
 	if x != nil {
-		return x.Apis
+		return x.Api
 	}
 	return nil
 }
@@ -561,7 +561,7 @@ const file_admin_base_menu_proto_rawDesc = "" +
 	"\x06status\x18d \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x121\n" +
 	"\tcreatedAt\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\tupdatedAt\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12=\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x0f.admin.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\xa0\x05\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x0f.admin.BaseMenuB\x0f\xbaG\f\x92\x02\t子菜单R\bchildren\"\x9e\x05\n" +
 	"\fBaseMenuForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b菜单IDR\x02id\x125\n" +
 	"\bparentId\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级菜单IDH\x00R\bparentId\x88\x01\x01\x12A\n" +
@@ -570,8 +570,8 @@ const file_admin_base_menu_proto_rawDesc = "" +
 	"\x04name\x18\x05 \x01(\tBi\xbaGf\x92\x02c路由命名，然后我们可以使用 name 而不是 path 来传递 to 属性给 <router-link>。R\x04name\x120\n" +
 	"\tcomponent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f组件路径R\tcomponent\x121\n" +
 	"\bredirect\x18\a \x01(\tB\x15\xbaG\x12\x92\x02\x0f重定向地址R\bredirect\x12>\n" +
-	"\x04meta\x18\b \x01(\v2\x13.admin.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12,\n" +
-	"\x04apis\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x04apis\x12 \n" +
+	"\x04meta\x18\b \x01(\v2\x13.admin.BaseMenuMetaB\x15\xbaG\x12\x92\x02\x0f路由元信息R\x04meta\x12*\n" +
+	"\x03api\x18\t \x03(\tB\x18\xbaG\x15\x92\x02\x12分配的API列表R\x03api\x12 \n" +
 	"\x04sort\x182 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x129\n" +
 	"\x06status\x18e \x01(\x0e2\x0e.common.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\v\n" +
 	"\t_parentIdB\a\n" +

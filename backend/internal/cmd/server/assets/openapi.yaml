@@ -5136,7 +5136,7 @@ components:
                     description: 重定向地址
                 meta:
                     $ref: '#/components/schemas/BaseMenuMeta'
-                apis:
+                api:
                     type: array
                     items:
                         type: string
@@ -5824,8 +5824,10 @@ components:
                     type: string
                     description: 商品ID
                 categoryId:
-                    type: string
-                    description: 分类ID
+                    type: array
+                    items:
+                        type: string
+                    description: 分类ID列表
                 name:
                     type: string
                     description: 名称
@@ -5875,8 +5877,10 @@ components:
                     type: string
                     description: 商品ID
                 categoryId:
-                    type: string
-                    description: 分类ID
+                    type: array
+                    items:
+                        type: string
+                    description: 分类ID列表
                 name:
                     type: string
                     description: 名称
@@ -5930,8 +5934,10 @@ components:
                     type: string
                     description: 商品ID
                 categoryId:
-                    type: string
-                    description: 分类ID
+                    type: array
+                    items:
+                        type: string
+                    description: 分类ID列表
                 name:
                     type: string
                     description: 名称

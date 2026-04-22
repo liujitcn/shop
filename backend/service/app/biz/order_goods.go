@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"strconv"
 
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
@@ -179,13 +178,9 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		return nil, err
 	}
 	// 当前规格库存不足时，直接阻止继续创建订单。
-	if goodsSku.Inventory < goods.Num {
-		return nil, errorsx.StateConflict(
-			"商品库存不足",
-			"goods_sku",
-			strconv.FormatInt(goodsSku.Inventory, 10),
-			strconv.FormatInt(goods.Num, 10),
-		)
+	err = c.goodsSkuCase.ensureEnoughInventory(goodsSku, goods.Num)
+	if err != nil {
+		return nil, err
 	}
 	picture := goodsInfo.Picture
 	// 规格图存在时，优先使用规格图作为订单商品展示图。

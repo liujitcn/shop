@@ -79,7 +79,7 @@ export interface BaseMenuForm {
     | BaseMenuMeta
     | undefined;
   /** 分配的API列表 */
-  apis: string[];
+  api: string[];
   /** 排序 */
   sort: number;
   /** 状态 */

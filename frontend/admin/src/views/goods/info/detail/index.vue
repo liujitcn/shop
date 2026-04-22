@@ -218,8 +218,8 @@ function createDefaultGoodsDetailForm(): GoodsInfoForm {
   return {
     /** 商品ID */
     id: 0,
-    /** 分类ID */
-    categoryId: undefined,
+    /** 分类ID列表 */
+    categoryId: [],
     /** 名称 */
     name: "",
     /** 描述 */
@@ -340,6 +340,7 @@ function normalizeGoodsDetailForm(data?: Partial<GoodsInfoForm>): GoodsInfoForm 
   return {
     ...createDefaultGoodsDetailForm(),
     ...data,
+    categoryId: Array.isArray(data?.categoryId) ? data.categoryId : [],
     picture: extractImageValue(data?.picture),
     banner: parseImageList(data?.banner),
     detail: parseImageList(data?.detail),

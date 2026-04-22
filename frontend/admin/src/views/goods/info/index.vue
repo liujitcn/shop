@@ -81,6 +81,8 @@ const goodsStatusOptions = [
   { label: "上架", value: GoodsStatus.PUT_ON },
   { label: "下架", value: GoodsStatus.PULL_OFF }
 ];
+// 多分类场景下分类名称会更长，适当放宽列表列宽避免首屏截断过早。
+const goodsCategoryColumnMinWidth = 220;
 
 /** 商品表格列配置。 */
 const columns: ColumnProps[] = [
@@ -98,7 +100,7 @@ const columns: ColumnProps[] = [
     }
   },
   { prop: "name", label: "商品名称", minWidth: 200, search: { el: "input" } },
-  { prop: "categoryName", label: "分类", minWidth: 140 },
+  { prop: "categoryName", label: "分类", minWidth: goodsCategoryColumnMinWidth, showOverflowTooltip: true },
   { prop: "desc", label: "商品描述", minWidth: 200 },
   { prop: "inventory", label: "总库存", minWidth: 100, align: "right" },
   {

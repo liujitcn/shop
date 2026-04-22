@@ -42,10 +42,10 @@ active_user_ttl = 30
 
 [recommend.data_source]
 # 对齐当前商城推荐行为口径：
-# EXPOSURE 作为 read feedback；
-# CLICK / VIEW / COLLECT / ADD_CART / ORDER_CREATE / ORDER_PAY 作为 positive feedback。
-positive_feedback_types = ["CLICK", "VIEW", "COLLECT", "ADD_CART", "ORDER_CREATE", "ORDER_PAY"]
-read_feedback_types = ["EXPOSURE"]
+# EXPOSURE / VIEW 作为 read feedback；
+# CLICK / COLLECT / ADD_CART / ORDER_CREATE / ORDER_PAY 作为 positive feedback。
+positive_feedback_types = ["CLICK", "COLLECT", "ADD_CART", "ORDER_CREATE", "ORDER_PAY"]
+read_feedback_types = ["EXPOSURE", "VIEW"]
 # 保留 90 天正反馈，兼顾当前系统协同过滤的较长观察窗口；
 # 30 天热度口径在下方 non-personalized recommender 中单独控制。
 positive_feedback_ttl = 90
@@ -56,6 +56,20 @@ item_ttl = 0
 # CLICK=3、VIEW=2、COLLECT=4、ADD_CART=6、ORDER_CREATE=8、ORDER_PAY=10。
 name = "hot_30d"
 score = "count(feedback, .FeedbackType == 'CLICK' && (now() - .Timestamp).Hours() < 24 * 30) * 3 + count(feedback, .FeedbackType == 'VIEW' && (now() - .Timestamp).Hours() < 24 * 30) * 2 + count(feedback, .FeedbackType == 'COLLECT' && (now() - .Timestamp).Hours() < 24 * 30) * 4 + count(feedback, .FeedbackType == 'ADD_CART' && (now() - .Timestamp).Hours() < 24 * 30) * 6 + count(feedback, .FeedbackType == 'ORDER_CREATE' && (now() - .Timestamp).Hours() < 24 * 30) * 8 + count(feedback, .FeedbackType == 'ORDER_PAY' && (now() - .Timestamp).Hours() < 24 * 30) * 10"
+filter = "!item.IsHidden"
+
+[[recommend.non-personalized]]
+# 对齐“大家都在买 / 热门好物推荐”的近期热度语义，
+# 保持与 hot_30d 相同的事件权重，但观察窗口收缩到 7 天。
+name = "hot_7d"
+score = "count(feedback, .FeedbackType == 'CLICK' && (now() - .Timestamp).Hours() < 24 * 7) * 3 + count(feedback, .FeedbackType == 'VIEW' && (now() - .Timestamp).Hours() < 24 * 7) * 2 + count(feedback, .FeedbackType == 'COLLECT' && (now() - .Timestamp).Hours() < 24 * 7) * 4 + count(feedback, .FeedbackType == 'ADD_CART' && (now() - .Timestamp).Hours() < 24 * 7) * 6 + count(feedback, .FeedbackType == 'ORDER_CREATE' && (now() - .Timestamp).Hours() < 24 * 7) * 8 + count(feedback, .FeedbackType == 'ORDER_PAY' && (now() - .Timestamp).Hours() < 24 * 7) * 10"
+filter = "!item.IsHidden"
+
+[[recommend.non-personalized]]
+# 对齐订单详情与支付成功页的购买导向兜底语义，
+# 弱化浏览热度，强化支付、下单和加购等成交相关行为。
+name = "hot_pay_30d"
+score = "count(feedback, .FeedbackType == 'CLICK' && (now() - .Timestamp).Hours() < 24 * 30) * 2 + count(feedback, .FeedbackType == 'COLLECT' && (now() - .Timestamp).Hours() < 24 * 30) * 4 + count(feedback, .FeedbackType == 'ADD_CART' && (now() - .Timestamp).Hours() < 24 * 30) * 6 + count(feedback, .FeedbackType == 'ORDER_CREATE' && (now() - .Timestamp).Hours() < 24 * 30) * 9 + count(feedback, .FeedbackType == 'ORDER_PAY' && (now() - .Timestamp).Hours() < 24 * 30) * 12"
 filter = "!item.IsHidden"
 
 [[recommend.item-to-item]]
@@ -86,13 +100,14 @@ positive_replacement_decay = 0.2
 read_replacement_decay = 0.4
 
 [recommend.ranker]
-# 对齐当前“协同过滤 + 相似商品 + 相似用户 + 热门 + 最新”混合候选思路。
+# 对齐当前“协同过滤 + 相似商品 + 相似用户 + 近期热门 + 稳定热门 + 最新”混合候选思路。
 type = "fm"
 cache_expire = "120h"
 recommenders = [
   "collaborative",
   "item-to-item/goods_relation",
   "user-to-user/similar_users",
+  "non-personalized/hot_7d",
   "non-personalized/hot_30d",
   "latest",
 ]
@@ -105,8 +120,8 @@ optimize_trials = 8
 patience = 10
 
 [recommend.fallback]
-# 个性化候选不足时，优先走 30 天热榜，再回退到最新商品。
-recommenders = ["non-personalized/hot_30d", "latest"]
+# 个性化候选不足时，优先走近 7 天热榜，再走 30 天热榜，最后回退到最新商品。
+recommenders = ["non-personalized/hot_7d", "non-personalized/hot_30d", "latest"]
 
 [blob]
 # 持久化训练产物，避免容器重建后每次重新冷启动。

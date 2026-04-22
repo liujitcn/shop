@@ -196,7 +196,7 @@ message BaseMenuForm {
     }
   ]; // 路由元信息
 
-  repeated string apis = 9 [
+  repeated string api = 9 [
     (gnostic.openapi.v3.property) = {description: "分配的API列表"}
   ];  // 分配的API列表
 

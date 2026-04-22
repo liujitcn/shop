@@ -6,6 +6,7 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgQueue "shop/pkg/queue"
@@ -68,7 +69,8 @@ func (c *UserCartCase) ListUserCart(ctx context.Context) (*app.ListUserCartRespo
 	opts := make([]repo.QueryOption, 0, 2)
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
-	all, err := c.List(ctx, opts...)
+	var all []*models.UserCart
+	all, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,28 +144,34 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 		return err
 	}
 	member := utils.IsMemberByAuthInfo(authInfo)
+	// 购物车数量非法时，直接拦截当前请求。
+	if userCart.GetNum() <= 0 {
+		return errorsx.InvalidArgument("商品购买数量必须大于0")
+	}
 	recommendContext := userCart.GetRecommendContext()
 	// 加购请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
 	if recommendContext == nil {
 		recommendContext = &app.RecommendContext{}
 	}
-	cartQuery := c.Query(ctx).UserCart
+	query := c.Query(ctx).UserCart
 	// 先查同一商品同一规格是否已在购物车中，存在则直接累加数量
 	var find *models.UserCart
 	opts := make([]repo.QueryOption, 0, 3)
-	opts = append(opts, repo.Where(cartQuery.UserID.Eq(authInfo.UserId)))
-	opts = append(opts, repo.Where(cartQuery.GoodsID.Eq(userCart.GetGoodsId())))
-	opts = append(opts, repo.Where(cartQuery.SkuCode.Eq(userCart.GetSkuCode())))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repo.Where(query.GoodsID.Eq(userCart.GetGoodsId())))
+	opts = append(opts, repo.Where(query.SkuCode.Eq(userCart.GetSkuCode())))
 	find, err = c.Find(ctx, opts...)
 	// 同规格购物车记录查询失败时，仅对“未找到”场景继续新增。
 	if err != nil {
 		// 购物车记录不存在时，按新增购物车逻辑处理。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			skuQuery := c.goodsSkuCase.Query(ctx).GoodsSku
 			var sku *models.GoodsSku
-			skuOpts := make([]repo.QueryOption, 0, 1)
-			skuOpts = append(skuOpts, repo.Where(skuQuery.SkuCode.Eq(userCart.GetSkuCode())))
-			sku, err = c.goodsSkuCase.Find(ctx, skuOpts...)
+			sku, err = c.goodsSkuCase.findByGoodsIdAndSkuCode(ctx, userCart.GetGoodsId(), userCart.GetSkuCode())
+			if err != nil {
+				return err
+			}
+			// 新增购物车前，先校验本次数量不超过当前规格库存。
+			err = c.goodsSkuCase.ensureEnoughInventory(sku, userCart.GetNum())
 			if err != nil {
 				return err
 			}
@@ -196,7 +204,18 @@ func (c *UserCartCase) CreateUserCart(ctx context.Context, userCart *app.CreateU
 	}
 
 	// 更新
-	find.Num += userCart.GetNum()
+	var sku *models.GoodsSku
+	sku, err = c.goodsSkuCase.findByGoodsIdAndSkuCode(ctx, userCart.GetGoodsId(), userCart.GetSkuCode())
+	if err != nil {
+		return err
+	}
+	nextNum := find.Num + userCart.GetNum()
+	// 已有购物车累加数量前，先校验累加后的总数量不超过库存。
+	err = c.goodsSkuCase.ensureEnoughInventory(sku, nextNum)
+	if err != nil {
+		return err
+	}
+	find.Num = nextNum
 	// 购物车已有推荐上下文时优先保留，仅在缺失字段上补齐本次上下文。
 	if find.Scene == 0 {
 		find.Scene = int32(recommendContext.GetScene())
@@ -224,7 +243,29 @@ func (c *UserCartCase) UpdateUserCart(ctx context.Context, req *app.UserCartForm
 	if err != nil {
 		return err
 	}
+	// 购物车数量非法时，直接拦截当前请求。
+	if req.GetNum() <= 0 {
+		return errorsx.InvalidArgument("商品购买数量必须大于0")
+	}
 	query := c.Query(ctx).UserCart
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.ID.Eq(req.GetId())))
+	opts = append(opts, repo.Where(query.UserID.Eq(authInfo.UserId)))
+	var userCart *models.UserCart
+	userCart, err = c.Find(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	var goodsSku *models.GoodsSku
+	goodsSku, err = c.goodsSkuCase.findByGoodsIdAndSkuCode(ctx, userCart.GoodsID, userCart.SkuCode)
+	if err != nil {
+		return err
+	}
+	// 手动改数量前，先校验目标数量不超过当前库存。
+	err = c.goodsSkuCase.ensureEnoughInventory(goodsSku, req.GetNum())
+	if err != nil {
+		return err
+	}
 	return c.Update(ctx, &models.UserCart{
 		ID:  req.GetId(),
 		Num: req.GetNum(),

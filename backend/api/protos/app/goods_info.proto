@@ -125,9 +125,9 @@ message GoodsInfoResponse {
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID
 
-  int64 categoryId = 2 [
-    (gnostic.openapi.v3.property) = {description: "分类ID"}
-  ];  // 分类ID
+  repeated int64 categoryId = 2 [
+    (gnostic.openapi.v3.property) = {description: "分类ID列表"}
+  ];  // 分类ID列表
 
   string name = 3 [
     (gnostic.openapi.v3.property) = {description: "名称"}
@@ -176,9 +176,9 @@ message GoodsInfo {
     (gnostic.openapi.v3.property) = {description: "商品ID"}
   ];  // 商品ID
 
-  int64 categoryId = 2 [
-    (gnostic.openapi.v3.property) = {description: "分类ID"}
-  ];  // 分类ID
+  repeated int64 categoryId = 2 [
+    (gnostic.openapi.v3.property) = {description: "分类ID列表"}
+  ];  // 分类ID列表
 
   string name = 4 [
     (gnostic.openapi.v3.property) = {description: "名称"}

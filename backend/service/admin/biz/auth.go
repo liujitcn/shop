@@ -361,7 +361,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *admin.UserPhoneForm
 	err = sdk.Runtime.GetCache().Del(cacheKey)
 	// 验证码缓存删除失败时，只记录日志不影响主流程。
 	if err != nil {
-		log.Errorf("删除修改手机号验证码缓存失败")
+		log.Errorf("删除修改手机号验证码缓存失败 %v", err)
 	}
 	return nil
 }

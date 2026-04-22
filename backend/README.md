@@ -176,6 +176,8 @@ make docker-build
 
 - `Makefile` 里的 `run` 目标仍然指向旧入口 `./cmd/server`，当前不要直接使用。
 - 当前可用启动命令是 `go run ./internal/cmd/server --conf ./configs`。
+- 当前商品信息表 `goods_info.category_id` 使用 JSON 数组存储多分类。
+- 当前商品总库存字段 `goods_info.inventory` 由商品 SKU 库存汇总维护，演示商品 SQL 也已直接写入汇总后的库存值。
 
 ## Docker 打包
 

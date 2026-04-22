@@ -68,7 +68,8 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsSummary(ctx context.Context, req *
 	if err != nil {
 		return nil, err
 	}
-	behaviorSummary, err := c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
+	behaviorSummary := &dto.GoodsAnalyticsSummaryRow{}
+	behaviorSummary, err = c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +158,8 @@ func (c *GoodsAnalyticsCase) GetGoodsAnalyticsRank(ctx context.Context, req *com
 	for _, item := range rows {
 		goodsIds = append(goodsIds, item.GoodsId)
 	}
-	nameMap, err := c.loadGoodsNameMap(ctx, goodsIds)
+	nameMap := make(map[int64]string)
+	nameMap, err = c.loadGoodsNameMap(ctx, goodsIds)
 	if err != nil {
 		return nil, err
 	}
@@ -309,20 +311,31 @@ func (c *GoodsAnalyticsCase) queryGoodsCategorySummary(ctx context.Context, star
 	rows := make([]*dto.GoodsAnalyticsCategorySummaryRow, 0)
 	err = c.goodsStatDayRepo.Query(ctx).GoodsStatDay.WithContext(ctx).UnderlyingDB().
 		Model(&models.GoodsStatDay{}).
-		Select(models.TableNameGoodsInfo+".category_id, COALESCE(SUM("+models.TableNameGoodsStatDay+".pay_goods_num),0) AS goods_count").
+		Select(models.TableNameGoodsStatDay+".goods_id, goods_category_item.category_id, COALESCE(SUM("+models.TableNameGoodsStatDay+".pay_goods_num),0) AS goods_count").
 		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = "+models.TableNameGoodsStatDay+".goods_id").
+		Joins("JOIN JSON_TABLE("+models.TableNameGoodsInfo+".category_id, '$[*]' COLUMNS (category_id BIGINT PATH '$')) AS goods_category_item ON TRUE").
 		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
 		Where(models.TableNameGoodsStatDay+".stat_date >= ? AND "+models.TableNameGoodsStatDay+".stat_date < ?", startAt, endAt).
-		Group(models.TableNameGoodsInfo + ".category_id").
+		Group(models.TableNameGoodsStatDay + ".goods_id, goods_category_item.category_id").
 		Scan(&rows).Error
 	if err != nil {
 		return nil, err
 	}
 
 	rootCategoryCount := make(map[int64]int64)
+	goodsRootMap := make(map[int64]map[int64]struct{})
 	for _, row := range rows {
 		// 将子分类成交件数汇总到一级分类，便于页面展示类目结构。
 		rootId := getRootCategoryId(row.CategoryId)
+		// 同一商品命中同一一级分类的多个子分类时，只累计一次成交件数，避免根分类重复放大。
+		if _, ok := goodsRootMap[row.GoodsId]; !ok {
+			goodsRootMap[row.GoodsId] = make(map[int64]struct{})
+		}
+		// 当前商品已经累计过该一级分类时，直接跳过重复类目。
+		if _, ok := goodsRootMap[row.GoodsId][rootId]; ok {
+			continue
+		}
+		goodsRootMap[row.GoodsId][rootId] = struct{}{}
 		rootCategoryCount[rootId] += row.GoodsCount
 	}
 

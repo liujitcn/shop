@@ -84,7 +84,7 @@ func (c *FileCase) MultiDeleteFile(oldFile, newFile []string) {
 			err := c.OSS.DeleteFile(item)
 			// 单个旧文件删除失败时，只记录日志继续处理剩余文件。
 			if err != nil {
-				log.Error("MultiDeleteFile err:", err.Error())
+				log.Errorf("MultiDeleteFile %v", err)
 			}
 		}
 	}
@@ -98,7 +98,7 @@ func (c *FileCase) DeleteFile(oldFile string, newFile string) {
 		err := c.OSS.DeleteFile(oldFile)
 		// 删除单个旧文件失败时，只记录日志不阻断调用方流程。
 		if err != nil {
-			log.Error("DeleteFile err:", err.Error())
+			log.Errorf("DeleteFile %v", err)
 		}
 	}
 }

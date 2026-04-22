@@ -31,8 +31,8 @@ export interface PageGoodsInfoResponse {
 export interface GoodsInfoResponse {
   /** 商品ID */
   id: number;
-  /** 分类ID */
-  categoryId: number;
+  /** 分类ID列表 */
+  categoryId: number[];
   /** 名称 */
   name: string;
   /** 描述 */
@@ -97,8 +97,8 @@ export interface GoodsInfoResponse_Sku {
 export interface GoodsInfo {
   /** 商品ID */
   id: number;
-  /** 分类ID */
-  categoryId: number;
+  /** 分类ID列表 */
+  categoryId: number[];
   /** 名称 */
   name: string;
   /** 描述 */

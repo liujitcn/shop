@@ -207,7 +207,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *app.UserProfileFo
 		if baseUser.Avatar == "" || originalAvatar != baseUser.Avatar {
 			// 头像文件删除失败时，只记录日志不影响主流程。
 			if err = oss.DeleteFile(originalAvatar); err != nil {
-				log.Error("deleteFile err:", err.Error())
+				log.Errorf("DeleteFile %v", err)
 			}
 		}
 	}
@@ -242,7 +242,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequ
 		// 新 access token 缓存失败时，只记录日志不影响主流程。
 		err = sdk.Runtime.GetCache().Set(cacheKeyWxAccessToken, accessToken, time.Duration(token.ExpiresIn-300))
 		if err != nil {
-			log.Error("cache set accessToken err:", err.Error())
+			log.Errorf("SetWxAccessTokenCache %v", err)
 		}
 	}
 

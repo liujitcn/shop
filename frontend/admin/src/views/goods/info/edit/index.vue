@@ -76,8 +76,8 @@ const state = reactive({
   formData: {
     /** 商品ID */
     id: 0,
-    /** 分类ID */
-    categoryId: undefined,
+    /** 分类ID列表 */
+    categoryId: [],
     /** 名称 */
     name: "",
     /** 描述 */
@@ -126,8 +126,8 @@ function createDefaultFormData(): GoodsInfoForm {
   return {
     /** 商品ID */
     id: 0,
-    /** 分类ID */
-    categoryId: undefined,
+    /** 分类ID列表 */
+    categoryId: [],
     /** 名称 */
     name: "",
     /** 描述 */
@@ -156,6 +156,7 @@ function normalizeGoodsInfoForm(data?: Partial<GoodsInfoForm>): GoodsInfoForm {
   return {
     ...createDefaultFormData(),
     ...data,
+    categoryId: Array.isArray(data?.categoryId) ? data.categoryId : [],
     banner: Array.isArray(data?.banner) ? data.banner : [],
     detail: Array.isArray(data?.detail) ? data.detail : [],
     propList: Array.isArray(data?.propList) ? data.propList : [],

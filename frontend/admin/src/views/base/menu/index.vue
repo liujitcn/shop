@@ -110,7 +110,7 @@ function createDefaultMenuForm(): MenuFormState {
     component: "",
     redirect: "",
     meta: createDefaultMenuMeta(),
-    apis: [],
+    api: [],
     sort: 1,
     status: Status.ENABLE
   };
@@ -440,7 +440,7 @@ const formFields = computed<ProFormField[]>(() => [
     visible: model => model.type === BaseMenuType.MENU
   },
   {
-    prop: "apis",
+    prop: "api",
     label: "API 列表",
     component: "transfer",
     slotName: "apiTransferItem",
@@ -568,13 +568,13 @@ function resolveElementIcon(icon?: string) {
 /**
  * 将菜单接口返回的 API 字段统一转换为穿梭框可识别的 operation 列表。
  */
-function normalizeMenuApis(apis?: unknown[]) {
-  if (!Array.isArray(apis)) return [];
+function normalizeMenuApiSelection(api?: unknown[]) {
+  if (!Array.isArray(api)) return [];
 
   const apiOperationSet = new Set(apiList.value.map(item => item.operation));
   const apiIdMap = new Map(apiList.value.map(item => [String(item.id), item.operation]));
 
-  return apis
+  return api
     .map(item => {
       if (typeof item === "string") {
         if (apiOperationSet.has(item)) return item;
@@ -611,7 +611,7 @@ function normalizeMenuForm(data?: Partial<BaseMenuForm>): MenuFormState {
     parentId: data?.parentId ?? 0,
     type: data?.type ?? BaseMenuType.FOLDER,
     status: data?.status ?? Status.ENABLE,
-    apis: normalizeMenuApis(data?.apis),
+    api: normalizeMenuApiSelection(data?.api),
     sort: data?.sort ?? 1,
     meta: normalizedMeta
   };
@@ -657,7 +657,7 @@ function buildSubmitPayload(): BaseMenuForm {
   if (payload.type === BaseMenuType.FOLDER) {
     payload.name = "";
     payload.component = "Layout";
-    payload.apis = [];
+    payload.api = [];
     payload.meta.keepAlive = false;
     payload.meta.full = false;
     payload.meta.affix = false;
@@ -668,7 +668,7 @@ function buildSubmitPayload(): BaseMenuForm {
     payload.name = "";
     payload.component = "";
     payload.redirect = "";
-    payload.apis = [];
+    payload.api = [];
     payload.meta.keepAlive = false;
     payload.meta.full = false;
     payload.meta.affix = false;

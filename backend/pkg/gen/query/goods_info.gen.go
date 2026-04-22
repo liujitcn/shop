@@ -28,7 +28,7 @@ func newGoodsInfo(db *gorm.DB, opts ...gen.DOOption) goodsInfo {
 	tableName := _goodsInfo.goodsInfoDo.TableName()
 	_goodsInfo.ALL = field.NewAsterisk(tableName)
 	_goodsInfo.ID = field.NewInt64(tableName, "id")
-	_goodsInfo.CategoryID = field.NewInt64(tableName, "category_id")
+	_goodsInfo.CategoryID = field.NewString(tableName, "category_id")
 	_goodsInfo.Name = field.NewString(tableName, "name")
 	_goodsInfo.Desc = field.NewString(tableName, "desc")
 	_goodsInfo.Picture = field.NewString(tableName, "picture")
@@ -57,7 +57,7 @@ type goodsInfo struct {
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 商品ID
-	CategoryID    field.Int64  // 商品分类ID
+	CategoryID    field.String // 商品分类ID列表
 	Name          field.String // 商品名称
 	Desc          field.String // 商品描述
 	Picture       field.String // 商品图片
@@ -91,7 +91,7 @@ func (g goodsInfo) As(alias string) *goodsInfo {
 func (g *goodsInfo) updateTableName(table string) *goodsInfo {
 	g.ALL = field.NewAsterisk(table)
 	g.ID = field.NewInt64(table, "id")
-	g.CategoryID = field.NewInt64(table, "category_id")
+	g.CategoryID = field.NewString(table, "category_id")
 	g.Name = field.NewString(table, "name")
 	g.Desc = field.NewString(table, "desc")
 	g.Picture = field.NewString(table, "picture")

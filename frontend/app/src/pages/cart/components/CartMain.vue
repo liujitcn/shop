@@ -30,10 +30,93 @@ const userStore = useUserStore()
 const cartList = ref<UserCart[]>([])
 // 优化购物车空列表状态，默认展示列表
 const showCartList = ref(false)
+type CartSyncResult = {
+  synced: boolean
+  adjustedCount: number
+  uncheckedCount: number
+}
+
+/** 把购物车列表写回页面状态。 */
+const applyCartList = (list: UserCart[]) => {
+  cartList.value = list
+  showCartList.value = cartList.value.length > 0
+}
+
+/** 同步购物车里已经失效的库存数量，避免进入结算页后统一报库存不足。 */
+const syncCartInventory = async (list: UserCart[]): Promise<CartSyncResult> => {
+  const requestList: Promise<unknown>[] = []
+  let adjustedCount = 0
+  let uncheckedCount = 0
+
+  list.forEach((item) => {
+    // 已无库存的勾选商品先取消勾选，避免继续参与结算。
+    if (item.inventory <= 0) {
+      if (item.isChecked) {
+        uncheckedCount += 1
+        requestList.push(
+          defUserCartService.SetUserCartStatus({
+            id: item.id,
+            isChecked: false,
+          }),
+        )
+      }
+      return
+    }
+    // 购物车数量超过当前库存时，先把数量压回库存上限。
+    if (item.num > item.inventory) {
+      adjustedCount += 1
+      requestList.push(
+        defUserCartService.UpdateUserCart({
+          id: item.id,
+          num: item.inventory,
+        }),
+      )
+    }
+  })
+
+  if (!requestList.length) {
+    return {
+      synced: false,
+      adjustedCount,
+      uncheckedCount,
+    }
+  }
+
+  await Promise.allSettled(requestList)
+  return {
+    synced: true,
+    adjustedCount,
+    uncheckedCount,
+  }
+}
+
+/** 库存同步后给用户一个轻提示，说明购物车已被自动纠正。 */
+const showCartSyncToast = async (result: CartSyncResult) => {
+  if (!result.synced) {
+    return
+  }
+  let title = '购物车已按库存更新'
+  // 只有无库存商品被取消勾选时，单独提示勾选状态变化。
+  if (result.adjustedCount === 0 && result.uncheckedCount > 0) {
+    title = '无库存商品已取消勾选'
+  }
+  await uni.showToast({
+    icon: 'none',
+    title,
+  })
+}
+
 const getUserCartData = async () => {
   const res = await defUserCartService.ListUserCart({})
-  cartList.value = res.list || []
-  showCartList.value = cartList.value.length > 0
+  const list = res.list || []
+  const syncResult = await syncCartInventory(list)
+  if (syncResult.synced) {
+    const latestRes = await defUserCartService.ListUserCart({})
+    applyCartList(latestRes.list || [])
+    await showCartSyncToast(syncResult)
+    return
+  }
+  applyCartList(list)
 }
 
 // 初始化调用: 页面显示触发
@@ -61,11 +144,15 @@ const onDeleteCart = (id: number) => {
 }
 
 // 修改商品数量
-const onChangeCount = (ev: InputNumberBoxEvent) => {
-  defUserCartService.UpdateUserCart({
-    id: Number(ev.index),
-    num: ev.value,
-  })
+const onChangeCount = async (ev: InputNumberBoxEvent) => {
+  try {
+    await defUserCartService.UpdateUserCart({
+      id: Number(ev.index),
+      num: ev.value,
+    })
+  } catch {
+    await getUserCartData()
+  }
 }
 
 // 修改选中状态-单品修改
@@ -97,6 +184,10 @@ const onChangeSelectedAll = () => {
 const selectedCartList = computed(() => {
   return cartList.value.filter((v) => v.isChecked)
 })
+// 勾选商品里只要存在超库存或无库存，就不应该继续进入结算页。
+const hasInvalidSelectedCart = computed(() => {
+  return selectedCartList.value.some((item) => item.inventory <= 0 || item.num > item.inventory)
+})
 
 // 计算选中总件数
 const selectedCartListCount = computed(() => {
@@ -111,15 +202,23 @@ const selectedCartListMoney = computed(() => {
 })
 
 // 结算按钮
-const gotoPayment = () => {
+const gotoPayment = async () => {
   if (!userStore.userInfo) {
     navigateToLogin()
     return
   }
+  await getUserCartData()
   if (selectedCartListCount.value === 0) {
     return uni.showToast({
       icon: 'none',
       title: '请选择商品',
+    })
+  }
+  // 重新拉取购物车后，仍有异常库存时先阻止结算，避免下单页直接报错。
+  if (hasInvalidSelectedCart.value) {
+    return uni.showToast({
+      icon: 'none',
+      title: '部分商品库存不足，请调整后再结算',
     })
   }
   // 跳转到结算页

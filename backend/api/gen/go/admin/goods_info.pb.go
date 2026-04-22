@@ -269,7 +269,7 @@ func (x *PageGoodsInfoResponse) GetTotal() int32 {
 type GoodsInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                   // 商品ID
-	CategoryId    int64                  `protobuf:"varint,2,opt,name=categoryId,proto3" json:"categoryId,omitempty"`                   // 分类ID
+	CategoryId    []int64                `protobuf:"varint,2,rep,packed,name=categoryId,proto3" json:"categoryId,omitempty"`            // 分类ID列表
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                // 名称
 	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                // 描述
 	Picture       string                 `protobuf:"bytes,5,opt,name=picture,proto3" json:"picture,omitempty"`                          // 商品图片
@@ -323,11 +323,11 @@ func (x *GoodsInfo) GetId() int64 {
 	return 0
 }
 
-func (x *GoodsInfo) GetCategoryId() int64 {
+func (x *GoodsInfo) GetCategoryId() []int64 {
 	if x != nil {
 		return x.CategoryId
 	}
-	return 0
+	return nil
 }
 
 func (x *GoodsInfo) GetName() string {
@@ -418,7 +418,7 @@ func (x *GoodsInfo) GetCategoryName() string {
 type GoodsInfoForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 商品ID
-	CategoryId    *int64                 `protobuf:"varint,2,opt,name=categoryId,proto3,oneof" json:"categoryId,omitempty"`                  // 分类ID
+	CategoryId    []int64                `protobuf:"varint,2,rep,packed,name=categoryId,proto3" json:"categoryId,omitempty"`                 // 分类ID列表
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 名称
 	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                     // 描述
 	Picture       string                 `protobuf:"bytes,30,opt,name=picture,proto3" json:"picture,omitempty"`                              // 商品图片
@@ -470,11 +470,11 @@ func (x *GoodsInfoForm) GetId() int64 {
 	return 0
 }
 
-func (x *GoodsInfoForm) GetCategoryId() int64 {
-	if x != nil && x.CategoryId != nil {
-		return *x.CategoryId
+func (x *GoodsInfoForm) GetCategoryId() []int64 {
+	if x != nil {
+		return x.CategoryId
 	}
-	return 0
+	return nil
 }
 
 func (x *GoodsInfoForm) GetName() string {
@@ -648,11 +648,11 @@ const file_admin_goods_info_proto_rawDesc = "" +
 	"\v_priceAlert\"u\n" +
 	"\x15PageGoodsInfoResponse\x128\n" +
 	"\x04list\x18\x01 \x03(\v2\x10.admin.GoodsInfoB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xbd\x05\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xc3\x05\n" +
 	"\tGoodsInfo\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12.\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x124\n" +
 	"\n" +
-	"categoryId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类IDR\n" +
+	"categoryId\x18\x02 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e分类ID列表R\n" +
 	"categoryId\x12 \n" +
 	"\x04name\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12 \n" +
 	"\x04desc\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x12,\n" +
@@ -665,23 +665,22 @@ const file_admin_goods_info_proto_rawDesc = "" +
 	"\x06status\x18e \x01(\x0e2\x13.common.GoodsStatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x121\n" +
 	"\tcreatedAt\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\tupdatedAt\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x127\n" +
-	"\fcategoryName\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xfe\x04\n" +
+	"\fcategoryName\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xf0\x04\n" +
 	"\rGoodsInfoForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x123\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x124\n" +
 	"\n" +
-	"categoryId\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类IDH\x00R\n" +
-	"categoryId\x88\x01\x01\x12 \n" +
+	"categoryId\x18\x02 \x03(\x03B\x14\xbaG\x11\x92\x02\x0e分类ID列表R\n" +
+	"categoryId\x12 \n" +
 	"\x04name\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12 \n" +
 	"\x04desc\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\x04desc\x12,\n" +
 	"\apicture\x18\x1e \x01(\tB\x12\xbaG\x0f\x92\x02\f商品图片R\apicture\x12'\n" +
 	"\x06banner\x18\x1f \x03(\tB\x0f\xbaG\f\x92\x02\t轮播图R\x06banner\x12*\n" +
 	"\x06detail\x18  \x03(\tB\x12\xbaG\x0f\x92\x02\f商品详情R\x06detail\x12>\n" +
-	"\x06status\x183 \x01(\x0e2\x13.common.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12@\n" +
+	"\x06status\x183 \x01(\x0e2\x13.common.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x12@\n" +
 	"\bpropList\x18d \x03(\v2\x10.admin.GoodsPropB\x12\xbaG\x0f\x92\x02\f商品属性R\bpropList\x12:\n" +
 	"\askuList\x18e \x03(\v2\x0f.admin.GoodsSkuB\x0f\xbaG\f\x92\x02\t商品SKUR\askuList\x12@\n" +
 	"\bspecList\x18f \x03(\v2\x10.admin.GoodsSpecB\x12\xbaG\x0f\x92\x02\f商品规格R\bspecList\x127\n" +
-	"\fcategoryName\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryNameB\r\n" +
-	"\v_categoryIdB\t\n" +
+	"\fcategoryName\x18\xac\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryNameB\t\n" +
 	"\a_status2\x90\x06\n" +
 	"\x10GoodsInfoService\x12v\n" +
 	"\x0fOptionGoodsInfo\x12\x1d.admin.OptionGoodsInfoRequest\x1a\x1e.admin.OptionGoodsInfoResponse\"$\x82\xd3\xe4\x93\x02\x1e\x12\x1c/api/admin/goods/info/option\x12i\n" +

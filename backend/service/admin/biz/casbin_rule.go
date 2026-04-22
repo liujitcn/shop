@@ -91,9 +91,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	query := c.Query(ctx).CasbinRule
 	opts := make([]repo.QueryOption, 0, 1)
 	opts = append(opts, repo.Where(query.V0.Eq(baseRole.Code)))
-	err := c.Delete(ctx, opts...)
-	if err != nil {
-		return err
+	rebuildErr := c.Delete(ctx, opts...)
+	if rebuildErr != nil {
+		return rebuildErr
 	}
 
 	menuIds := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
@@ -103,23 +103,24 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	}
 
 	var baseMenuList []*models.BaseMenu
-	baseMenuList, err = c.baseMenuRepo.ListByIds(ctx, menuIds)
-	if err != nil {
-		return err
+	baseMenuList, rebuildErr = c.baseMenuRepo.ListByIds(ctx, menuIds)
+	if rebuildErr != nil {
+		return rebuildErr
 	}
 
 	operations := make([]string, 0)
 	for _, item := range baseMenuList {
-		operations = append(operations, _string.ConvertJsonStringToStringArray(item.Apis)...)
+		operations = append(operations, _string.ConvertJsonStringToStringArray(item.API)...)
 	}
 	// 菜单未配置接口权限时，只需要刷新内存权限策略。
 	if len(operations) == 0 {
 		return c.RebuildPolicyRule(ctx)
 	}
 
-	allApiList, err := c.baseApiCase.List(ctx)
-	if err != nil {
-		return err
+	var allApiList []*models.BaseApi
+	allApiList, rebuildErr = c.baseApiCase.List(ctx)
+	if rebuildErr != nil {
+		return rebuildErr
 	}
 
 	casbinRuleList := make([]*models.CasbinRule, 0)
@@ -138,9 +139,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	}
 	// 命中接口规则时，批量写入角色权限规则。
 	if len(casbinRuleList) > 0 {
-		err = c.BatchCreate(ctx, casbinRuleList)
-		if err != nil {
-			return err
+		rebuildErr = c.BatchCreate(ctx, casbinRuleList)
+		if rebuildErr != nil {
+			return rebuildErr
 		}
 	}
 	return c.RebuildPolicyRule(ctx)

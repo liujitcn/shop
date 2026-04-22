@@ -81,6 +81,45 @@ func (c *GoodsSkuCase) listByGoodsId(ctx context.Context, goodsId int64, member 
 	return list, nil
 }
 
+// findByGoodsIdAndSkuCode 按商品编号和规格编码查询规格。
+func (c *GoodsSkuCase) findByGoodsIdAndSkuCode(ctx context.Context, goodsId int64, skuCode string) (*models.GoodsSku, error) {
+	query := c.Query(ctx).GoodsSku
+	opts := make([]repo.QueryOption, 0, 2)
+	opts = append(opts, repo.Where(query.GoodsID.Eq(goodsId)))
+	opts = append(opts, repo.Where(query.SkuCode.Eq(skuCode)))
+	goodsSku, err := c.Find(ctx, opts...)
+	if err != nil {
+		// 规格不存在时，在 biz 层返回稳定可判断的资源不存在错误。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("商品规格不存在").WithCause(err)
+		}
+		return nil, err
+	}
+	return goodsSku, nil
+}
+
+// ensureEnoughInventory 校验规格库存是否满足目标数量。
+func (c *GoodsSkuCase) ensureEnoughInventory(goodsSku *models.GoodsSku, num int64) error {
+	// 规格记录缺失时，直接返回资源不存在。
+	if goodsSku == nil {
+		return errorsx.ResourceNotFound("商品规格不存在")
+	}
+	// 购买数量非法时，直接拦截当前请求。
+	if num <= 0 {
+		return errorsx.InvalidArgument("商品购买数量必须大于0")
+	}
+	// 当前规格库存不足时，返回结构化冲突错误，便于前端稳定提示。
+	if goodsSku.Inventory < num {
+		return errorsx.StateConflict(
+			"商品库存不足",
+			"goods_sku",
+			strconv.FormatInt(goodsSku.Inventory, 10),
+			strconv.FormatInt(num, 10),
+		)
+	}
+	return nil
+}
+
 // 增加规格销量并扣减库存
 func (c *GoodsSkuCase) addSaleNum(ctx context.Context, skuCode string, num int64) error {
 	query := c.Query(ctx).GoodsSku
@@ -102,7 +141,7 @@ func (c *GoodsSkuCase) addSaleNum(ctx context.Context, skuCode string, num int64
 		// 规格已经不存在时，当前下单请求不应继续执行。
 		if findErr != nil {
 			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.ResourceNotFound("商品规格不存在")
+				return errorsx.ResourceNotFound("商品规格不存在").WithCause(findErr)
 			}
 			return findErr
 		}
@@ -137,7 +176,7 @@ func (c *GoodsSkuCase) subSaleNum(ctx context.Context, skuCode string, num int64
 		// 规格记录缺失时，当前库存回退已经无法可靠执行。
 		if findErr != nil {
 			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.Internal("商品库存回退失败，商品规格不存在")
+				return errorsx.Internal("商品库存回退失败，商品规格不存在").WithCause(findErr)
 			}
 			return findErr
 		}

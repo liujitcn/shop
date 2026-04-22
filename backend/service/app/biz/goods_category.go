@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
@@ -26,12 +27,14 @@ type GoodsCategoryCase struct {
 
 // NewGoodsCategoryCase 创建商品分类业务处理对象
 func NewGoodsCategoryCase(baseCase *biz.BaseCase, goodsCategoryRepo *data.GoodsCategoryRepo, goodsInfoRepo *data.GoodsInfoRepo) *GoodsCategoryCase {
+	goodsMapper := mapper.NewCopierMapper[app.GoodsInfo, models.GoodsInfo]()
+	goodsMapper.AppendConverters(mapper.NewJSONTypeConverter[[]int64]().NewConverterPair())
 	return &GoodsCategoryCase{
 		BaseCase:          baseCase,
 		GoodsCategoryRepo: goodsCategoryRepo,
 		goodsInfoRepo:     goodsInfoRepo,
 		mapper:            mapper.NewCopierMapper[app.GoodsCategory, models.GoodsCategory](),
-		goodsMapper:       mapper.NewCopierMapper[app.GoodsInfo, models.GoodsInfo](),
+		goodsMapper:       goodsMapper,
 	}
 }
 
@@ -54,13 +57,20 @@ func (c *GoodsCategoryCase) ListGoodsCategory(ctx context.Context, req *app.List
 		category := c.mapper.ToDTO(item)
 		// 二级分类需要同时返回分类下的推荐商品
 		if category.ParentId > 0 {
-			goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
+			categoryIdsJSON := make([]byte, 0)
+			categoryIdsJSON, err = json.Marshal([]int64{category.Id})
+			if err != nil {
+				return nil, err
+			}
 			var goodsInfoList []*models.GoodsInfo
-			goodsOpts := make([]repo.QueryOption, 0, 3)
-			goodsOpts = append(goodsOpts, repo.Order(goodsQuery.CreatedAt.Desc()))
-			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.CategoryID.Eq(category.Id)))
-			goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
-			goodsInfoList, _, err = c.goodsInfoRepo.Page(ctx, 1, 9, goodsOpts...)
+			err = c.goodsInfoRepo.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+				Model(&models.GoodsInfo{}).
+				Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
+				Where(models.TableNameGoodsInfo+".status = ?", int32(common.GoodsStatus_PUT_ON)).
+				Where("JSON_OVERLAPS("+models.TableNameGoodsInfo+".category_id, CAST(? AS JSON))", string(categoryIdsJSON)).
+				Order(models.TableNameGoodsInfo + ".created_at DESC").
+				Limit(9).
+				Find(&goodsInfoList).Error
 			if err != nil {
 				return nil, err
 			}

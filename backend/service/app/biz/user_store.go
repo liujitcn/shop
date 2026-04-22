@@ -138,7 +138,7 @@ func (c *UserStoreCase) multiDeleteFileByString(oldFile string, newFile []string
 			if len(newFile) == 0 || !slices.Contains(newFile, item) {
 				// 单个旧文件删除失败时，仅记录日志不影响主流程。
 				if err := oss.DeleteFile(item); err != nil {
-					log.Error("multiDeleteFile err:", err.Error())
+					log.Errorf("MultiDeleteFile %v", err)
 				}
 			}
 		}

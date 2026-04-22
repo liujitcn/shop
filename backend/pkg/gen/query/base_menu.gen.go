@@ -35,7 +35,7 @@ func newBaseMenu(db *gorm.DB, opts ...gen.DOOption) baseMenu {
 	_baseMenu.Component = field.NewString(tableName, "component")
 	_baseMenu.Redirect = field.NewString(tableName, "redirect")
 	_baseMenu.Meta = field.NewString(tableName, "meta")
-	_baseMenu.Apis = field.NewString(tableName, "apis")
+	_baseMenu.API = field.NewString(tableName, "api")
 	_baseMenu.Sort = field.NewInt32(tableName, "sort")
 	_baseMenu.Status = field.NewInt32(tableName, "status")
 	_baseMenu.CreatedBy = field.NewInt64(tableName, "created_by")
@@ -62,7 +62,7 @@ type baseMenu struct {
 	Component field.String // 前端页面组件
 	Redirect  field.String // 重定向地址
 	Meta      field.String // 前端页面组件
-	Apis      field.String // 分配的API列表
+	API       field.String // 分配的API列表
 	Sort      field.Int32  // 排序
 	Status    field.Int32  // 状态：枚举【Status】
 	CreatedBy field.Int64  // 创建人ID
@@ -94,7 +94,7 @@ func (b *baseMenu) updateTableName(table string) *baseMenu {
 	b.Component = field.NewString(table, "component")
 	b.Redirect = field.NewString(table, "redirect")
 	b.Meta = field.NewString(table, "meta")
-	b.Apis = field.NewString(table, "apis")
+	b.API = field.NewString(table, "api")
 	b.Sort = field.NewInt32(table, "sort")
 	b.Status = field.NewInt32(table, "status")
 	b.CreatedBy = field.NewInt64(table, "created_by")
@@ -135,7 +135,7 @@ func (b *baseMenu) fillFieldMap() {
 	b.fieldMap["component"] = b.Component
 	b.fieldMap["redirect"] = b.Redirect
 	b.fieldMap["meta"] = b.Meta
-	b.fieldMap["apis"] = b.Apis
+	b.fieldMap["api"] = b.API
 	b.fieldMap["sort"] = b.Sort
 	b.fieldMap["status"] = b.Status
 	b.fieldMap["created_by"] = b.CreatedBy

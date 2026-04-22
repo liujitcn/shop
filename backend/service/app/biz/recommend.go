@@ -332,13 +332,22 @@ func (c *RecommendCase) pageGoodsIdsByCategory(ctx context.Context, contextGoods
 	if len(categoryIds) == 0 {
 		return []int64{}, 0, nil
 	}
+	var goodsIdList []int64
+	goodsIdList, err = c.goodsInfoCase.findGoodsIdsByCategoryIds(ctx, categoryIds)
+	if err != nil {
+		return nil, 0, err
+	}
+	// 分类条件无命中商品时，当前策略没有可用候选集。
+	if len(goodsIdList) == 0 {
+		return []int64{}, 0, nil
+	}
 
 	query := c.goodsInfoCase.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 5)
 	opts = append(opts, repo.Order(query.RealSaleNum.Desc()))
 	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
-	opts = append(opts, repo.Where(query.CategoryID.In(categoryIds...)))
+	opts = append(opts, repo.Where(query.ID.In(goodsIdList...)))
 	opts = append(opts, repo.Where(query.ID.NotIn(contextGoodsIds...)))
 	var list []*models.GoodsInfo
 	total := int64(0)

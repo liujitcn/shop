@@ -22,7 +22,7 @@ type BaseMenu struct {
 	Component string         `gorm:"column:component;type:varchar(255);comment:前端页面组件" json:"component"`                                                                                        // 前端页面组件
 	Redirect  string         `gorm:"column:redirect;type:varchar(255);comment:重定向地址" json:"redirect"`                                                                                           // 重定向地址
 	Meta      string         `gorm:"column:meta;type:json;comment:前端页面组件" json:"meta"`                                                                                                          // 前端页面组件
-	Apis      string         `gorm:"column:apis;type:json;comment:分配的API列表" json:"apis"`                                                                                                        // 分配的API列表
+	API       string         `gorm:"column:api;type:json;comment:分配的API列表" json:"api"`                                                                                                          // 分配的API列表
 	Sort      int32          `gorm:"column:sort;type:int;comment:排序" json:"sort"`                                                                                                               // 排序
 	Status    int32          `gorm:"column:status;type:tinyint;comment:状态：枚举【Status】" json:"status"`                                                                                            // 状态：枚举【Status】
 	CreatedBy int64          `gorm:"column:created_by;type:bigint;comment:创建人ID" json:"created_by"`                                                                                             // 创建人ID

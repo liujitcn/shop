@@ -75,8 +75,8 @@ export interface PageGoodsInfoResponse {
 export interface GoodsInfo {
   /** 商品ID */
   id: number;
-  /** 分类ID */
-  categoryId: number;
+  /** 分类ID列表 */
+  categoryId: number[];
   /** 名称 */
   name: string;
   /** 描述 */
@@ -107,10 +107,8 @@ export interface GoodsInfo {
 export interface GoodsInfoForm {
   /** 商品ID */
   id: number;
-  /** 分类ID */
-  categoryId?:
-    | number
-    | undefined;
+  /** 分类ID列表 */
+  categoryId: number[];
   /** 名称 */
   name: string;
   /** 描述 */

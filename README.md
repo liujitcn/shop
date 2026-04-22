@@ -13,6 +13,7 @@
 - 管理端：登录认证、菜单权限、用户/角色/部门/岗位、字典、系统配置、日志、工作台与数据分析。
 - 商城端：首页、分类、搜索、商品详情、热门推荐、个性化推荐、购物车、收藏、地址、订单、支付结果、门店认证。
 - 后端：管理端接口、商城端接口、文件上传、Swagger UI、OpenAPI 文档、静态资源托管。
+- 商品能力：`goods_info.category_id` 已支持 JSON 多分类，`goods_info.inventory` 维护商品总库存并与 SKU 库存汇总保持一致。
 
 ## 推荐能力
 
@@ -94,6 +95,10 @@ mysql -uroot -p shop_test < sql/base_area.sql
 ```bash
 mysql -uroot -p shop_test < sql/shop.sql
 ```
+
+说明：
+
+- `sql/shop.sql` 中的商品演示数据已经直接使用 JSON 分类数组，并写入按 `goods_sku.inventory` 汇总后的商品总库存。
 
 默认后台账号：
 

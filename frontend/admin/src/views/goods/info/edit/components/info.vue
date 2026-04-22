@@ -73,7 +73,19 @@ const formFields = computed<ProFormField[]>(() => [
     component: "tree-select",
     options: goodsCategoryOptions.value as unknown as Array<{ label: string; value: string | number; children?: any[] }>,
     colSpan: 8,
-    props: { placeholder: "请选择分类", filterable: true, style: { width: "100%" } }
+    props: {
+      placeholder: "请选择商品分类",
+      filterable: true,
+      multiple: true,
+      showCheckbox: true,
+      checkStrictly: true,
+      collapseTags: true,
+      collapseTagsTooltip: true,
+      maxCollapseTags: 2,
+      nodeKey: "value",
+      props: { label: "label", children: "children" },
+      style: { width: "100%" }
+    }
   },
   {
     prop: "name",

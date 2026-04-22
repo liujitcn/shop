@@ -2,9 +2,11 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
@@ -44,7 +46,9 @@ func NewGoodsInfoCase(
 ) *GoodsInfoCase {
 	responseMapper := mapper.NewCopierMapper[app.GoodsInfoResponse, models.GoodsInfo]()
 	responseMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+	responseMapper.AppendConverters(mapper.NewJSONTypeConverter[[]int64]().NewConverterPair())
 	listMapper := mapper.NewCopierMapper[app.GoodsInfo, models.GoodsInfo]()
+	listMapper.AppendConverters(mapper.NewJSONTypeConverter[[]int64]().NewConverterPair())
 	return &GoodsInfoCase{
 		BaseCase:          baseCase,
 		GoodsInfoRepo:     goodsInfoRepo,
@@ -101,36 +105,32 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*app.GoodsI
 func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *app.PageGoodsInfoRequest, extraOpts ...repo.QueryOption) (*app.PageGoodsInfoResponse, error) {
 	// 是否会员
 	member := utils.IsMember(ctx)
-	query := c.Query(ctx)
-	goodsQuery := query.GoodsInfo
+	query := c.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 5+len(extraOpts))
-	opts = append(opts, repo.Order(goodsQuery.CreatedAt.Desc()))
-	opts = append(opts, repo.Where(goodsQuery.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
+	opts = append(opts, repo.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
 
 	// 传入商品名称时，按名称模糊匹配商品。
 	if req.GetName() != "" {
-		opts = append(opts, repo.Where(goodsQuery.Name.Like("%"+req.GetName()+"%")))
+		opts = append(opts, repo.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
 
 	// 传入分类时，按分类或分类树范围过滤商品。
 	if req.GetCategoryId() > 0 {
-		// 顶级分类需要展开为其子分类后再查询商品分类 ID
-		category, err := c.goodsCategoryRepo.FindById(ctx, req.GetCategoryId())
-		if err != nil {
-			return nil, err
+		categoryIds, categoryErr := c.buildCategoryFilterIds(ctx, req.GetCategoryId())
+		if categoryErr != nil {
+			return nil, categoryErr
 		}
-
-		// 顶级分类需要展开到全部子分类一起查询。
-		if category.ParentID == 0 {
-			categoryQuery := query.GoodsCategory
-			opts = append(opts, repo.Join(
-				categoryQuery,
-				categoryQuery.ID.EqCol(goodsQuery.CategoryID),
-				categoryQuery.Path.Like(fmt.Sprintf("%s%%", category.Path+"/")),
-			))
-		} else {
-			opts = append(opts, repo.Where(goodsQuery.CategoryID.Eq(req.GetCategoryId())))
+		goodsIds := make([]int64, 0)
+		goodsIds, categoryErr = c.findGoodsIdsByCategoryIds(ctx, categoryIds)
+		if categoryErr != nil {
+			return nil, categoryErr
 		}
+		// 分类条件无命中商品时，直接返回空分页结果。
+		if len(goodsIds) == 0 {
+			return &app.PageGoodsInfoResponse{List: []*app.GoodsInfo{}, Total: 0}, nil
+		}
+		opts = append(opts, repo.Where(query.ID.In(goodsIds...)))
 	}
 	opts = append(opts, extraOpts...)
 	page, count, err := c.GoodsInfoRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -235,9 +235,81 @@ func (c *GoodsInfoCase) listCategoryIdsByGoodsIds(ctx context.Context, goodsIds 
 	categoryIds := make([]int64, 0, len(list))
 
 	for _, item := range list {
-		categoryIds = append(categoryIds, item.CategoryID)
+		categoryIds = append(categoryIds, c.parseCategoryIds(item.CategoryID)...)
 	}
 	return _slice.Unique(categoryIds), nil
+}
+
+// buildCategoryFilterIds 构建分类筛选范围。
+func (c *GoodsInfoCase) buildCategoryFilterIds(ctx context.Context, categoryId int64) ([]int64, error) {
+	// 先校验分类存在，避免按无效分类编号继续查询商品。
+	_, err := c.goodsCategoryRepo.FindById(ctx, categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	var categoryList []*models.GoodsCategory
+	categoryList, err = c.goodsCategoryRepo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	childMap := make(map[int64][]int64, len(categoryList))
+	for _, item := range categoryList {
+		childMap[item.ParentID] = append(childMap[item.ParentID], item.ID)
+	}
+
+	categoryIds := []int64{categoryId}
+	queue := []int64{categoryId}
+	for len(queue) > 0 {
+		currentId := queue[0]
+		queue = queue[1:]
+
+		childIds := childMap[currentId]
+		// 当前分类没有子分类时，继续展开下一项待处理分类。
+		if len(childIds) == 0 {
+			continue
+		}
+		categoryIds = append(categoryIds, childIds...)
+		queue = append(queue, childIds...)
+	}
+	return categoryIds, nil
+}
+
+// findGoodsIdsByCategoryIds 查询命中分类集合的商品编号。
+func (c *GoodsInfoCase) findGoodsIdsByCategoryIds(ctx context.Context, categoryIds []int64) ([]int64, error) {
+	// 没有分类编号时，不需要继续访问数据库查询商品。
+	if len(categoryIds) == 0 {
+		return []int64{}, nil
+	}
+
+	categoryIdsJSON, err := json.Marshal(categoryIds)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIds := make([]int64, 0)
+	err = c.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
+		Where("JSON_OVERLAPS("+models.TableNameGoodsInfo+".category_id, CAST(? AS JSON))", string(categoryIdsJSON)).
+		Pluck(models.TableNameGoodsInfo+".id", &goodsIds).Error
+	return goodsIds, err
+}
+
+// parseCategoryIds 解析商品分类编号列表。
+func (c *GoodsInfoCase) parseCategoryIds(rawCategoryIds string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if strings.TrimSpace(rawCategoryIds) == "" {
+		return []int64{}
+	}
+
+	categoryIds := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免单条脏数据影响推荐与分类查询。
+	if err := json.Unmarshal([]byte(rawCategoryIds), &categoryIds); err != nil {
+		return []int64{}
+	}
+	return categoryIds
 }
 
 // 按商品编号批量查询并组装映射
@@ -272,7 +344,7 @@ func (c *GoodsInfoCase) addSaleNum(ctx context.Context, goodsId, num int64) erro
 		// 商品已经不存在时，当前下单请求不应继续执行。
 		if findErr != nil {
 			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.ResourceNotFound("商品不存在")
+				return errorsx.ResourceNotFound("商品不存在").WithCause(findErr)
 			}
 			return findErr
 		}
@@ -305,7 +377,7 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsId, num int64) erro
 		// 商品记录缺失时，当前库存回退已经无法可靠执行。
 		if findErr != nil {
 			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.Internal("商品库存回退失败，商品不存在")
+				return errorsx.Internal("商品库存回退失败，商品不存在").WithCause(findErr)
 			}
 			return findErr
 		}

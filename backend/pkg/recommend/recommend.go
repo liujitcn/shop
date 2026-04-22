@@ -2,6 +2,7 @@ package recommend
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	_const "shop/pkg/const"
 	"strconv"
@@ -117,9 +118,9 @@ func (g *Recommend) SyncBaseUserList(ctx context.Context, userList []*models.Bas
 			if user == nil || user.ID <= 0 {
 				continue
 			}
-			err := g.syncBaseUser(ctx, user)
-			if err != nil {
-				return err
+			syncErr := g.syncBaseUser(ctx, user)
+			if syncErr != nil {
+				return syncErr
 			}
 		}
 		return nil
@@ -140,9 +141,9 @@ func (g *Recommend) SyncBaseUserList(ctx context.Context, userList []*models.Bas
 		recommendUser, userPatch := g.buildRecommendUser(user)
 		// 远端已经存在时，直接走单条更新，避免重复插入失败后再回退。
 		if existingUserIds.ContainsOne(recommendUser.UserId) {
-			_, err := g.gorseClient.UpdateUser(ctx, recommendUser.UserId, userPatch)
-			if err != nil {
-				return err
+			_, updateErr := g.gorseClient.UpdateUser(ctx, recommendUser.UserId, userPatch)
+			if updateErr != nil {
+				return updateErr
 			}
 			continue
 		}
@@ -258,9 +259,9 @@ func (g *Recommend) SyncGoodsInfoList(ctx context.Context, goodsList []*models.G
 			if goods == nil || goods.ID <= 0 {
 				continue
 			}
-			err := g.syncGoodsInfo(ctx, goods)
-			if err != nil {
-				return err
+			syncErr := g.syncGoodsInfo(ctx, goods)
+			if syncErr != nil {
+				return syncErr
 			}
 		}
 		return nil
@@ -280,9 +281,9 @@ func (g *Recommend) SyncGoodsInfoList(ctx context.Context, goodsList []*models.G
 		}
 		// 远端已经存在时，直接走单条更新，避免重复插入失败后再回退。
 		if existingItemIds.ContainsOne(recommendItem.ItemId) {
-			_, err := g.gorseClient.UpdateItem(ctx, recommendItem.ItemId, itemPatch)
-			if err != nil {
-				return err
+			_, updateErr := g.gorseClient.UpdateItem(ctx, recommendItem.ItemId, itemPatch)
+			if updateErr != nil {
+				return updateErr
 			}
 			continue
 		}
@@ -648,10 +649,13 @@ func (g *Recommend) syncGoodsInfo(ctx context.Context, goods *models.GoodsInfo) 
 
 // buildRecommendItem 构建推荐系统商品写入载荷。
 func (g *Recommend) buildRecommendItem(goods *models.GoodsInfo) (client.Item, client.ItemPatch) {
-	categories := make([]string, 0, 1)
-	// 商品存在分类时，把分类编号作为推荐系统分类维度同步。
-	if goods.CategoryID > 0 {
-		categories = append(categories, strconv.FormatInt(goods.CategoryID, 10))
+	categoryIds := g.parseCategoryIds(goods.CategoryID)
+	categories := make([]string, 0, len(categoryIds))
+	for _, categoryId := range categoryIds {
+		// 商品存在分类时，把分类编号作为推荐系统分类维度同步。
+		if categoryId > 0 {
+			categories = append(categories, strconv.FormatInt(categoryId, 10))
+		}
 	}
 
 	timestamp := goods.UpdatedAt
@@ -671,7 +675,7 @@ func (g *Recommend) buildRecommendItem(goods *models.GoodsInfo) (client.Item, cl
 		Comment:    goods.Name,
 		Labels: map[string]interface{}{
 			"goods_id":       goods.ID,
-			"category_id":    goods.CategoryID,
+			"category_id":    categoryIds,
 			"status":         goods.Status,
 			"price":          goods.Price,
 			"discount_price": goods.DiscountPrice,
@@ -685,6 +689,21 @@ func (g *Recommend) buildRecommendItem(goods *models.GoodsInfo) (client.Item, cl
 		Labels:     item.Labels,
 		Comment:    new(item.Comment),
 	}
+}
+
+// parseCategoryIds 解析商品分类编号列表。
+func (g *Recommend) parseCategoryIds(rawCategoryIds string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if strings.TrimSpace(rawCategoryIds) == "" {
+		return []int64{}
+	}
+
+	categoryIds := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免单条商品脏数据阻塞整批推荐同步。
+	if err := json.Unmarshal([]byte(rawCategoryIds), &categoryIds); err != nil {
+		return []int64{}
+	}
+	return categoryIds
 }
 
 // buildRecommendGoodsIds 清洗推荐系统返回的原始商品编号列表。

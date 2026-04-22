@@ -2,9 +2,10 @@ package biz
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"shop/pkg/errorsx"
 	pkgQueue "shop/pkg/queue"
+	"strings"
 
 	"shop/api/gen/go/admin"
 	"shop/api/gen/go/common"
@@ -41,7 +42,9 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo
 ) *GoodsInfoCase {
 	formMapper := _mapper.NewCopierMapper[admin.GoodsInfoForm, models.GoodsInfo]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
+	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]int64]().NewConverterPair())
 	mapper := _mapper.NewCopierMapper[admin.GoodsInfo, models.GoodsInfo]()
+	mapper.AppendConverters(_mapper.NewJSONTypeConverter[[]int64]().NewConverterPair())
 	return &GoodsInfoCase{
 		BaseCase:          baseCase,
 		tx:                tx,
@@ -70,7 +73,8 @@ func (c *GoodsInfoCase) OptionGoodsInfo(ctx context.Context, req *admin.OptionGo
 		return nil, err
 	}
 
-	categoryNames, err := c.getCategoryNameMap(ctx)
+	categoryNames := make(map[int64]string)
+	categoryNames, err = c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +85,7 @@ func (c *GoodsInfoCase) OptionGoodsInfo(ctx context.Context, req *admin.OptionGo
 			Id:           item.ID,
 			Name:         item.Name,
 			Price:        item.Price,
-			CategoryName: categoryNames[item.CategoryID],
+			CategoryName: c.buildCategoryNameText(c.parseCategoryIds(item.CategoryID), categoryNames),
 		})
 	}
 	return &admin.OptionGoodsInfoResponse{List: resList}, nil
@@ -98,37 +102,29 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 	}
 	// 指定分类时，按分类层级筛选商品。
 	if req.CategoryId != nil && req.GetCategoryId() > 0 {
-		category, err := c.goodsCategoryCase.FindById(ctx, req.GetCategoryId())
-		if err != nil {
-			return nil, err
+		categoryIdList, categoryErr := c.buildCategoryFilterIds(ctx, req.GetCategoryId())
+		if categoryErr != nil {
+			return nil, categoryErr
 		}
-		// 一级分类需要同时包含全部子分类商品。
-		if category.ParentID == 0 {
-			categoryQuery := c.goodsCategoryCase.Query(ctx).GoodsCategory
-			var categoryList []*models.GoodsCategory
-			categoryOpts := make([]repo.QueryOption, 0, 1)
-			categoryOpts = append(categoryOpts, repo.Where(categoryQuery.Path.Like(category.Path+"/"+fmt.Sprintf("%d", category.ID)+"%")))
-			categoryList, err := c.goodsCategoryCase.List(ctx, categoryOpts...)
-			if err != nil {
-				return nil, err
-			}
-			categoryIdList := []int64{category.ID}
-			for _, item := range categoryList {
-				categoryIdList = append(categoryIdList, item.ID)
-			}
-			opts = append(opts, repo.Where(query.CategoryID.In(categoryIdList...)))
-		} else {
-			opts = append(opts, repo.Where(query.CategoryID.Eq(req.GetCategoryId())))
+		goodsIdList := make([]int64, 0)
+		goodsIdList, categoryErr = c.findGoodsIdsByCategoryIds(ctx, categoryIdList)
+		if categoryErr != nil {
+			return nil, categoryErr
 		}
+		// 分类条件无命中商品时，直接返回空分页结果。
+		if len(goodsIdList) == 0 {
+			return &admin.PageGoodsInfoResponse{List: []*admin.GoodsInfo{}, Total: 0}, nil
+		}
+		opts = append(opts, repo.Where(query.ID.In(goodsIdList...)))
 	}
 	if req.Status != nil {
 		opts = append(opts, repo.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
 	// 指定库存预警时，先筛出符合预警条件的商品集合。
 	if req.InventoryAlert != nil {
-		goodsIdList, err := c.findGoodsIdsByInventoryAlert(ctx, req.GetInventoryAlert())
-		if err != nil {
-			return nil, err
+		goodsIdList, inventoryErr := c.findGoodsIdsByInventoryAlert(ctx, req.GetInventoryAlert())
+		if inventoryErr != nil {
+			return nil, inventoryErr
 		}
 		// 预警条件无命中商品时，直接返回空分页结果。
 		if len(goodsIdList) == 0 {
@@ -138,9 +134,9 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 	}
 	// 异常价格预警只在指定预警类型时生效。
 	if req.PriceAlert != nil && req.GetPriceAlert() == goodsPriceAlertAbnormal {
-		goodsIdList, err := c.findGoodsIdsByAbnormalPrice(ctx)
-		if err != nil {
-			return nil, err
+		goodsIdList, priceErr := c.findGoodsIdsByAbnormalPrice(ctx)
+		if priceErr != nil {
+			return nil, priceErr
 		}
 		// 异常价格条件无命中商品时，直接返回空分页结果。
 		if len(goodsIdList) == 0 {
@@ -154,7 +150,8 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 		return nil, err
 	}
 
-	categoryNames, err := c.getCategoryNameMap(ctx)
+	categoryNames := make(map[int64]string)
+	categoryNames, err = c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -162,7 +159,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *admin.PageGoodsI
 	resList := make([]*admin.GoodsInfo, 0, len(list))
 	for _, item := range list {
 		goodsInfo := c.mapper.ToDTO(item)
-		goodsInfo.CategoryName = categoryNames[item.CategoryID]
+		goodsInfo.CategoryName = c.buildCategoryNameText(c.parseCategoryIds(item.CategoryID), categoryNames)
 		resList = append(resList, goodsInfo)
 	}
 	return &admin.PageGoodsInfoResponse{List: resList, Total: int32(total)}, nil
@@ -216,20 +213,12 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*admin.Good
 	}
 
 	goodsForm := c.formMapper.ToDTO(goodsInfo)
-
-	category, err := c.goodsCategoryCase.FindById(ctx, goodsInfo.CategoryID)
-	// 分类存在时，补齐商品所属分类名称。
-	if err == nil {
-		goodsForm.CategoryName = category.Name
-		// 二级分类需要同时拼接父分类名称。
-		if category.ParentID > 0 {
-			parentCategory, err := c.goodsCategoryCase.FindById(ctx, category.ParentID)
-			// 父分类存在时，返回“父/子”形式的完整分类名称。
-			if err == nil {
-				goodsForm.CategoryName = fmt.Sprintf("%s/%s", parentCategory.Name, category.Name)
-			}
-		}
+	categoryNames := make(map[int64]string)
+	categoryNames, err = c.getCategoryNameMap(ctx)
+	if err != nil {
+		return nil, err
 	}
+	goodsForm.CategoryName = c.buildCategoryNameText(c.parseCategoryIds(goodsInfo.CategoryID), categoryNames)
 
 	goodsForm.PropList, err = c.GoodsPropCaseList(ctx, goodsForm.Id)
 	if err != nil {
@@ -264,17 +253,17 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 			goodsInfo.Inventory += sku.Inventory
 		}
 
-		err := c.Create(ctx, goodsInfo)
-		if err != nil {
-			return err
+		txErr := c.Create(ctx, goodsInfo)
+		if txErr != nil {
+			return txErr
 		}
-		err = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
-		if err != nil {
-			return err
+		txErr = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
+		if txErr != nil {
+			return txErr
 		}
-		err = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
-		if err != nil {
-			return err
+		txErr = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
+		if txErr != nil {
+			return txErr
 		}
 		return c.batchCreateGoodsSku(ctx, goodsInfo.ID, skuList)
 	})
@@ -302,22 +291,22 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 			goodsInfo.Inventory += sku.Inventory
 		}
 
-		err := c.UpdateById(ctx, goodsInfo)
-		if err != nil {
-			return err
+		txErr := c.UpdateById(ctx, goodsInfo)
+		if txErr != nil {
+			return txErr
 		}
 
-		err = c.deleteGoodsChildren(ctx, []int64{goodsInfo.ID})
-		if err != nil {
-			return err
+		txErr = c.deleteGoodsChildren(ctx, []int64{goodsInfo.ID})
+		if txErr != nil {
+			return txErr
 		}
-		err = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
-		if err != nil {
-			return err
+		txErr = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
+		if txErr != nil {
+			return txErr
 		}
-		err = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
-		if err != nil {
-			return err
+		txErr = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
+		if txErr != nil {
+			return txErr
 		}
 		return c.batchCreateGoodsSku(ctx, goodsInfo.ID, skuList)
 	})
@@ -333,9 +322,9 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 func (c *GoodsInfoCase) DeleteGoodsInfo(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
 	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.DeleteByIds(ctx, ids)
-		if err != nil {
-			return err
+		txErr := c.DeleteByIds(ctx, ids)
+		if txErr != nil {
+			return txErr
 		}
 
 		// 删除商品后需要同步清理属性、规格和 SKU 等子数据
@@ -453,6 +442,95 @@ func (c *GoodsInfoCase) batchCreateGoodsSku(ctx context.Context, goodsId int64, 
 		})
 	}
 	return c.goodsSkuCase.BatchCreate(ctx, entities)
+}
+
+// buildCategoryFilterIds 构建分类筛选范围。
+func (c *GoodsInfoCase) buildCategoryFilterIds(ctx context.Context, categoryId int64) ([]int64, error) {
+	// 先校验分类存在，避免后续按无效分类编号继续查询商品。
+	_, err := c.goodsCategoryCase.FindById(ctx, categoryId)
+	if err != nil {
+		return nil, err
+	}
+
+	var categoryList []*models.GoodsCategory
+	categoryList, err = c.goodsCategoryCase.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	childMap := make(map[int64][]int64, len(categoryList))
+	for _, item := range categoryList {
+		childMap[item.ParentID] = append(childMap[item.ParentID], item.ID)
+	}
+
+	categoryIdList := []int64{categoryId}
+	queue := []int64{categoryId}
+	for len(queue) > 0 {
+		currentId := queue[0]
+		queue = queue[1:]
+
+		childIds := childMap[currentId]
+		// 当前分类没有子分类时，继续展开下一项待处理分类。
+		if len(childIds) == 0 {
+			continue
+		}
+		categoryIdList = append(categoryIdList, childIds...)
+		queue = append(queue, childIds...)
+	}
+	return categoryIdList, nil
+}
+
+// findGoodsIdsByCategoryIds 查询命中分类集合的商品编号。
+func (c *GoodsInfoCase) findGoodsIdsByCategoryIds(ctx context.Context, categoryIds []int64) ([]int64, error) {
+	// 没有分类编号时，不需要继续访问数据库查询商品。
+	if len(categoryIds) == 0 {
+		return []int64{}, nil
+	}
+
+	categoryIdsJSON, err := json.Marshal(categoryIds)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIdList := make([]int64, 0)
+	err = c.Query(ctx).GoodsInfo.WithContext(ctx).UnderlyingDB().
+		Model(&models.GoodsInfo{}).
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
+		Where("JSON_OVERLAPS("+models.TableNameGoodsInfo+".category_id, CAST(? AS JSON))", string(categoryIdsJSON)).
+		Pluck(models.TableNameGoodsInfo+".id", &goodsIdList).Error
+	return goodsIdList, err
+}
+
+// parseCategoryIds 解析商品分类编号列表。
+func (c *GoodsInfoCase) parseCategoryIds(rawCategoryIds string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if strings.TrimSpace(rawCategoryIds) == "" {
+		return []int64{}
+	}
+
+	categoryIds := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
+	if err := json.Unmarshal([]byte(rawCategoryIds), &categoryIds); err != nil {
+		return []int64{}
+	}
+	return categoryIds
+}
+
+// buildCategoryNameText 构建商品分类展示文本。
+func (c *GoodsInfoCase) buildCategoryNameText(categoryIds []int64, categoryNameMap map[int64]string) string {
+	// 商品没有配置分类时，直接返回空展示文本。
+	if len(categoryIds) == 0 {
+		return ""
+	}
+
+	nameList := make([]string, 0, len(categoryIds))
+	for _, categoryId := range categoryIds {
+		// 分类名称存在时，按商品配置顺序拼接展示文本。
+		if name, ok := categoryNameMap[categoryId]; ok && name != "" {
+			nameList = append(nameList, name)
+		}
+	}
+	return strings.Join(nameList, "、")
 }
 
 // getCategoryNameMap 查询分类名称映射
