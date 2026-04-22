@@ -107,26 +107,26 @@ func (c *RecommendAnonymousActorCase) ensureRecommendAnonymousActor(ctx context.
 	if err != nil {
 		// 记录不存在时，补建匿名主体并写入首次活跃时间。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			createErr := query.WithContext(ctx).
+			err = query.WithContext(ctx).
 				Omit(query.UserID, query.BindAt).
 				Create(&models.RecommendAnonymousActor{
 					AnonymousID: anonymousId,
 					CreatedAt:   now,
 					UpdatedAt:   now,
 				})
-			if createErr != nil {
-				return errorsx.Internal("保存匿名推荐主体失败").WithCause(createErr)
+			if err != nil {
+				return errorsx.Internal("保存匿名推荐主体失败").WithCause(err)
 			}
 			return nil
 		}
 		return errorsx.Internal("查询匿名推荐主体失败").WithCause(err)
 	}
 
-	updateErr := c.Update(ctx, &models.RecommendAnonymousActor{
+	err = c.Update(ctx, &models.RecommendAnonymousActor{
 		UpdatedAt: now,
 	}, opts...)
-	if updateErr != nil {
-		return errorsx.Internal("更新匿名推荐主体失败").WithCause(updateErr)
+	if err != nil {
+		return errorsx.Internal("更新匿名推荐主体失败").WithCause(err)
 	}
 	return nil
 }

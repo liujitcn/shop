@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading" class="order-month-report">
     <AnalyticsPageLayout
-      title=""
+      title="订单月报"
       description="按月份查看成交、退款、净销售额与客单价变化，支持下钻到日报。"
       period-label=""
       content-ratio="minmax(0, 1fr)"

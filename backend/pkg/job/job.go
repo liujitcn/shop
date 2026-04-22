@@ -23,7 +23,7 @@ type ExecJob struct {
 }
 
 // Execute 执行任务并写入任务日志。
-func (e *ExecJob) Execute() (execErr error) {
+func (e *ExecJob) Execute() (err error) {
 	baseJobLog := models.BaseJobLog{
 		JobID:       e.JobId,                                // 定时任务id
 		Input:       _string.ConvertAnyToJsonString(e.Args), // 任务参数
@@ -34,12 +34,12 @@ func (e *ExecJob) Execute() (execErr error) {
 	defer func() {
 		// 任务执行发生 panic 时，统一转成失败日志并返回错误。
 		if panicValue := recover(); panicValue != nil {
-			execErr = fmt.Errorf("任务执行异常: %v", panicValue)
+			err = fmt.Errorf("任务执行异常: %v", panicValue)
 		}
 
-		if execErr != nil {
+		if err != nil {
 			e.Status = common.BaseJobLogStatus_FAIL
-			e.ErrMsg = execErr.Error()
+			e.ErrMsg = err.Error()
 		} else {
 			e.Status = common.BaseJobLogStatus_SUCCESS
 			e.ErrMsg = ""
@@ -51,8 +51,8 @@ func (e *ExecJob) Execute() (execErr error) {
 		pkgQueue.AddQueue(_const.JobLog, baseJobLog)
 	}()
 
-	ret, execErr = e.InvokeTarget.Exec(e.Args)
-	return execErr
+	ret, err = e.InvokeTarget.Exec(e.Args)
+	return err
 }
 
 // LogJobFailureWithInput 使用原始入参记录任务失败日志。

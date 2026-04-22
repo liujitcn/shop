@@ -99,9 +99,9 @@ const getHomeGoodsGuessLikeData = async () => {
       exposed: false,
     })
   }
-  // 分页条件
-  const requestEndIndex = requestStartIndex + list.length
-  if (requestEndIndex < res.total) {
+  // 推荐结果可能因为商品下架而出现“本页条数变少”，这里按累计已加载条数判断是否还有下一页。
+  const loadedCount = guessList.value.length
+  if (loadedCount < res.total) {
     // 页码累加
     pageParams.pageNum = requestPageNum + 1
   } else {

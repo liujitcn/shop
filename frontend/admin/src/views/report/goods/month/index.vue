@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading" class="goods-month-report">
     <AnalyticsPageLayout
-      title=""
+      title="商品月报"
       description="按月份查看商品浏览、加购、下单与支付表现，支持下钻到日报。"
       period-label=""
       content-ratio="minmax(0, 1fr)"

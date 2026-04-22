@@ -854,7 +854,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\x1bGoodsMonthReportListRequest\x12F\n" +
 	"\vstart_month\x18\x01 \x01(\tB%\xbaG\"\x92\x02\x1f开始月份，格式：YYYY-MMR\n" +
 	"startMonth\x12B\n" +
-	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\"\xe0\x05\n" +
+	"\tend_month\x18\x02 \x01(\tB%\xbaG\"\x92\x02\x1f结束月份，格式：YYYY-MMR\bendMonth\"\xd3\x05\n" +
 	"\x1fGoodsMonthReportSummaryResponse\x121\n" +
 	"\n" +
 	"view_count\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f浏览次数R\tviewCount\x127\n" +
@@ -871,7 +871,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\x15order_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\b\x10\tR\x05score\"\x8c\x06\n" +
+	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\xff\x05\n" +
 	"\x14GoodsMonthReportItem\x125\n" +
 	"\x05month\x18\x01 \x01(\tB\x1f\xbaG\x1c\x92\x02\x19月份，格式：YYYY-MMR\x05month\x121\n" +
 	"\n" +
@@ -889,8 +889,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\t\x10\n" +
-	"R\x05score\"k\n" +
+	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"k\n" +
 	"\x1cGoodsMonthReportListResponse\x12K\n" +
 	"\x05items\x18\x01 \x03(\v2\x1b.admin.GoodsMonthReportItemB\x18\xbaG\x15\x92\x02\x12商品月报明细R\x05items\"\xac\x01\n" +
 	"\x1cGoodsDayReportSummaryRequest\x12G\n" +
@@ -900,7 +899,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\x19GoodsDayReportListRequest\x12G\n" +
 	"\n" +
 	"start_date\x18\x01 \x01(\tB(\xbaG%\x92\x02\"开始日期，格式：YYYY-MM-DDR\tstartDate\x12C\n" +
-	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xde\x05\n" +
+	"\bend_date\x18\x02 \x01(\tB(\xbaG%\x92\x02\"结束日期，格式：YYYY-MM-DDR\aendDate\"\xd1\x05\n" +
 	"\x1dGoodsDayReportSummaryResponse\x121\n" +
 	"\n" +
 	"view_count\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f浏览次数R\tviewCount\x127\n" +
@@ -917,7 +916,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	"\x15order_conversion_rate\x18\n" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\b\x10\tR\x05score\"\x89\x06\n" +
+	"\x0epay_unit_price\x18\f \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"\xfc\x05\n" +
 	"\x12GoodsDayReportItem\x124\n" +
 	"\x03day\x18\x01 \x01(\tB\"\xbaG\x1f\x92\x02\x1c日期，格式：YYYY-MM-DDR\x03day\x121\n" +
 	"\n" +
@@ -935,8 +934,7 @@ const file_admin_goods_report_proto_rawDesc = "" +
 	" \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览加购转化率R\x12cartConversionRate\x12O\n" +
 	"\x15order_conversion_rate\x18\v \x01(\x03B\x1b\xbaG\x18\x92\x02\x15加购下单转化率R\x13orderConversionRate\x12K\n" +
 	"\x13pay_conversion_rate\x18\f \x01(\x03B\x1b\xbaG\x18\x92\x02\x15浏览支付转化率R\x11payConversionRate\x12G\n" +
-	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPriceJ\x04\b\t\x10\n" +
-	"R\x05score\"g\n" +
+	"\x0epay_unit_price\x18\r \x01(\x03B!\xbaG\x1e\x92\x02\x1b件均成交价，单位分R\fpayUnitPrice\"g\n" +
 	"\x1aGoodsDayReportListResponse\x12I\n" +
 	"\x05items\x18\x01 \x03(\v2\x19.admin.GoodsDayReportItemB\x18\xbaG\x15\x92\x02\x12商品日报明细R\x05items2\xd8\x04\n" +
 	"\x12GoodsReportService\x12\x97\x01\n" +

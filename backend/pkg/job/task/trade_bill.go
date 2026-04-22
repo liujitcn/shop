@@ -73,7 +73,8 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 	}
 	// 未指定账单日期时，默认回退到前一天执行对账。
 	if now == nil {
-		now = new(time.Now().AddDate(0, 0, -1))
+		defaultBillDate := time.Now().AddDate(0, 0, -1)
+		now = &defaultBillDate
 	}
 
 	billDate := _time.TimeToDateString(*now)
@@ -93,8 +94,8 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 	} else {
 		ret = append(ret, refund...)
 	}
-	// 下载账单
-	return ret, nil
+	// 任一账单核对失败时，都需要把失败状态返回给任务调度器。
+	return ret, errors.Join(err1, err2)
 }
 
 // payment 核对支付账单
@@ -180,8 +181,11 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 			key := fmt.Sprintf("%s_%s", record[6], record[5])
 			// 记录在数据库不存在，暂时记录日期，后续在做处理
 			if v, ok := paymentMap[key]; ok {
-				var orderPaymentAmount admin.OrderPayment_Amount
-				_ = json.Unmarshal([]byte(v.Amount), &orderPaymentAmount)
+				orderPaymentAmount, parseErr := parseOrderPaymentAmount(v.Amount)
+				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
+				if parseErr != nil {
+					return ret, parseErr
+				}
 				// 支付金额和状态一致
 				if v.TradeState == record[9] && orderPaymentAmount.GetPayerTotal() == amount {
 					v.Status = 2
@@ -198,8 +202,11 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		for _, v := range paymentMap {
 			payBill.TotalCount += 1
-			var orderPaymentAmount admin.OrderPayment_Amount
-			_ = json.Unmarshal([]byte(v.Amount), &orderPaymentAmount)
+			orderPaymentAmount, parseErr := parseOrderPaymentAmount(v.Amount)
+			// 金额 JSON 解析失败时，终止当前事务，避免错误金额写入账单汇总。
+			if parseErr != nil {
+				return parseErr
+			}
 			payBill.TotalAmount += orderPaymentAmount.GetPayerTotal()
 			err = t.orderPaymentRepo.UpdateById(ctx, v)
 			if err != nil {
@@ -307,8 +314,11 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 			key := fmt.Sprintf("%s_%s_%s_%s", record[6], record[5], record[17], record[16])
 			// 记录在数据库不存在，暂时记录日期，后续在做处理
 			if v, ok := refundMap[key]; ok {
-				var orderRefundAmount admin.OrderRefund_Amount
-				_ = json.Unmarshal([]byte(v.Amount), &orderRefundAmount)
+				orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
+				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
+				if parseErr != nil {
+					return ret, parseErr
+				}
 				// 支付金额和状态一致
 				if v.RefundState == record[21] && orderRefundAmount.GetPayerRefund() == amount {
 					v.Status = 2
@@ -325,8 +335,11 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		for _, v := range refundMap {
 			payBill.TotalCount += 1
-			var orderRefundAmount admin.OrderRefund_Amount
-			_ = json.Unmarshal([]byte(v.Amount), &orderRefundAmount)
+			orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
+			// 金额 JSON 解析失败时，终止当前事务，避免错误金额写入账单汇总。
+			if parseErr != nil {
+				return parseErr
+			}
 			payBill.TotalAmount += orderRefundAmount.GetPayerRefund()
 			err = t.orderRefundRepo.UpdateById(ctx, v)
 			if err != nil {
@@ -348,6 +361,26 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 		return ret, err
 	}
 	return ret, nil
+}
+
+// parseOrderPaymentAmount 解析支付金额 JSON。
+func parseOrderPaymentAmount(rawAmount string) (*admin.OrderPayment_Amount, error) {
+	var orderPaymentAmount admin.OrderPayment_Amount
+	err := json.Unmarshal([]byte(rawAmount), &orderPaymentAmount)
+	if err != nil {
+		return nil, errorsx.Internal("解析支付账单金额失败").WithCause(err)
+	}
+	return &orderPaymentAmount, nil
+}
+
+// parseOrderRefundAmount 解析退款金额 JSON。
+func parseOrderRefundAmount(rawAmount string) (*admin.OrderRefund_Amount, error) {
+	var orderRefundAmount admin.OrderRefund_Amount
+	err := json.Unmarshal([]byte(rawAmount), &orderRefundAmount)
+	if err != nil {
+		return nil, errorsx.Internal("解析退款账单金额失败").WithCause(err)
+	}
+	return &orderRefundAmount, nil
 }
 
 // downloadBill 下载并初始化对账单记录

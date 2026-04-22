@@ -93,7 +93,8 @@ func (c *GoodsReportCase) GoodsMonthReportList(ctx context.Context, req *adminAp
 	}
 
 	items := make([]*adminApi.GoodsMonthReportItem, 0)
-	for _, monthKey := range buildDescMonthKeys(startMonth, endMonth) {
+	for cursor := startMonth; !cursor.After(endMonth); cursor = cursor.AddDate(0, 1, 0) {
+		monthKey := cursor.Format("2006-01")
 		row, ok := rowMap[monthKey]
 		// 当前月份没有统计数据时，补空行保证月份连续。
 		if !ok {
@@ -164,7 +165,8 @@ func (c *GoodsReportCase) GoodsDayReportList(ctx context.Context, req *adminApi.
 	}
 
 	items := make([]*adminApi.GoodsDayReportItem, 0)
-	for _, dayKey := range buildDescDayKeys(startDate, endDate) {
+	for cursor := startDate; !cursor.After(endDate); cursor = cursor.AddDate(0, 0, 1) {
+		dayKey := cursor.Format("2006-01-02")
 		row, ok := rowMap[dayKey]
 		// 当前日期没有统计数据时，补空行保证日期连续。
 		if !ok {
@@ -236,7 +238,7 @@ func (c *GoodsReportCase) buildGoodsMonthReportQuery(startAt, endAt time.Time) (
 		" FROM " + models.TableNameGoodsStatDay +
 		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?" +
 		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m')" +
-		" ORDER BY month DESC"
+		" ORDER BY month"
 	return sql, []any{startAt, endAt}
 }
 
@@ -254,7 +256,7 @@ func (c *GoodsReportCase) buildGoodsDayReportQuery(startAt, endAt time.Time) (st
 		" FROM " + models.TableNameGoodsStatDay +
 		" WHERE deleted_at IS NULL AND stat_date >= ? AND stat_date < ?" +
 		" GROUP BY DATE_FORMAT(stat_date, '%Y-%m-%d')" +
-		" ORDER BY day DESC"
+		" ORDER BY day"
 	return sql, []any{startAt, endAt}
 }
 

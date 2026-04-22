@@ -2,9 +2,12 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strconv"
 
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -15,6 +18,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repo"
+	"gorm.io/gorm"
 )
 
 // GoodsInfoCase 商品业务处理对象
@@ -257,14 +261,27 @@ func (c *GoodsInfoCase) addSaleNum(ctx context.Context, goodsId, num int64) erro
 		"inventory":     query.Inventory.Sub(num),
 	}
 	res, err := query.WithContext(ctx).
-		Where(query.ID.Eq(goodsId)).
+		Where(query.ID.Eq(goodsId), query.Inventory.Gte(num)).
 		Updates(updates)
 	if err != nil {
 		return err
 	}
-	// 未命中任何商品记录时，视为无需更新直接返回。
+	// 未命中更新时，需要把“商品不存在”和“库存不足”区分成可判断的业务错误。
 	if res.RowsAffected == 0 {
-		return nil
+		goodsInfo, findErr := c.FindById(ctx, goodsId)
+		// 商品已经不存在时，当前下单请求不应继续执行。
+		if findErr != nil {
+			if errors.Is(findErr, gorm.ErrRecordNotFound) {
+				return errorsx.ResourceNotFound("商品不存在")
+			}
+			return findErr
+		}
+		return errorsx.StateConflict(
+			"商品库存不足",
+			"goods_info",
+			strconv.FormatInt(goodsInfo.Inventory, 10),
+			strconv.FormatInt(num, 10),
+		)
 	}
 	return res.Error
 }
@@ -282,9 +299,24 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsId, num int64) erro
 	if err != nil {
 		return err
 	}
-	// 未命中任何商品记录时，视为无需更新直接返回。
+	// 回退未命中时，说明商品已不存在或销量聚合数据已经异常。
 	if res.RowsAffected == 0 {
-		return nil
+		goodsInfo, findErr := c.FindById(ctx, goodsId)
+		// 商品记录缺失时，当前库存回退已经无法可靠执行。
+		if findErr != nil {
+			if errors.Is(findErr, gorm.ErrRecordNotFound) {
+				return errorsx.Internal("商品库存回退失败，商品不存在")
+			}
+			return findErr
+		}
+		return errorsx.Internal(
+			fmt.Sprintf(
+				"商品库存回退失败，商品销量数据异常：goodsId=%d，当前销量=%d，回退数量=%d",
+				goodsId,
+				goodsInfo.RealSaleNum,
+				num,
+			),
+		)
 	}
 	return res.Error
 

@@ -225,10 +225,11 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequ
 	accessToken, err = sdk.Runtime.GetCache().Get(cacheKeyWxAccessToken)
 	// 本地缓存未命中 access token 时，回源微信重新获取。
 	if err != nil {
-		token, tokenErr := utils.GetAccessToken(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret())
+		var token *utils.WxAccessToken
+		token, err = utils.GetAccessToken(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret())
 		// 微信 access token 获取失败时，直接返回授权失败。
-		if tokenErr != nil {
-			return nil, errorsx.Internal("手机号授权失败").WithCause(tokenErr)
+		if err != nil {
+			return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 		}
 		// 微信侧返回 access token 业务错误时，直接返回授权失败。
 		if token.ErrCode != 0 {
@@ -239,8 +240,9 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequ
 		}
 		accessToken = token.AccessToken
 		// 新 access token 缓存失败时，只记录日志不影响主流程。
-		if cacheErr := sdk.Runtime.GetCache().Set(cacheKeyWxAccessToken, accessToken, time.Duration(token.ExpiresIn-300)); cacheErr != nil {
-			log.Error("cache set accessToken err:", cacheErr.Error())
+		err = sdk.Runtime.GetCache().Set(cacheKeyWxAccessToken, accessToken, time.Duration(token.ExpiresIn-300))
+		if err != nil {
+			log.Error("cache set accessToken err:", err.Error())
 		}
 	}
 

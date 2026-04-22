@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading" class="order-day-report">
     <AnalyticsPageLayout
-      title=""
+      title="订单日报"
       description="按日查看成交、退款、净销售额与支付用户变化，支持按支付方式与渠道筛选。"
       period-label=""
       content-ratio="minmax(0, 1fr)"

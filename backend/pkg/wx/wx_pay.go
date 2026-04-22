@@ -256,10 +256,11 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appApi.PaymentResou
 	// 微信支付成功时间存在时，统一转换成 protobuf 时间戳。
 	if successTime := trans.StringValue(resp.SuccessTime); successTime != "" {
 		// 微信支付返回 RFC3339 时间，这里统一转换为 protobuf 时间戳。
-		parsedTime, parseErr := time.Parse(time.RFC3339, successTime)
+		var parsedTime time.Time
+		parsedTime, err = time.Parse(time.RFC3339, successTime)
 		// 时间格式非法时，直接返回错误避免写入错误时间。
-		if parseErr != nil {
-			return nil, parseErr
+		if err != nil {
+			return nil, err
 		}
 		paymentResource.SuccessTime = timestamppb.New(parsedTime)
 	}

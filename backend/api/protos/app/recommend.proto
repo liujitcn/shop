@@ -104,9 +104,6 @@ message RecommendGoodsResponse {
 
 // 推荐请求上下文
 message RecommendRequestContext {
-  reserved 4;
-  reserved "context_source";
-
   int64 goods_id = 1 [
     json_name = "goods_id",
     (gnostic.openapi.v3.property) = {description: "当前推荐请求的锚点商品编号"}

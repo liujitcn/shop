@@ -43,7 +43,8 @@ func (c *CronServer) Start(ctx context.Context) error {
 	// 任务重载失败时，回滚当前 cron 服务启动状态。
 	if err != nil {
 		// 停服失败只记录日志，原始重载错误仍然优先返回。
-		if stopErr := c.Stop(ctx); stopErr != nil {
+		stopErr := c.Stop(ctx)
+		if stopErr != nil {
 			log.Errorf("cron server stop failed, err=%v", stopErr)
 		}
 		return err
@@ -87,8 +88,8 @@ func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) erro
 			Args:         copyJobArgs(argsMap),
 			InvokeTarget: invokeTarget,
 		}
-		execErr := execJob.Execute()
 		// 单次调度执行失败时，仅记录错误日志，不影响后续调度。
+		execErr := execJob.Execute()
 		if execErr != nil {
 			log.Errorf("cron job execute failed, jobId=%d err=%v", jobId, execErr)
 		}
@@ -186,8 +187,8 @@ func (c *CronServer) reloadJobs(ctx context.Context) error {
 		err = c.StartJob(ctx, item)
 		// 重载启用任务失败时，直接中断启动流程。
 		if err != nil {
-			rollbackErr := c.rollbackStartedJobs(ctx, startedJobs)
 			// 回滚失败时仅记录日志，优先保留原始启动错误。
+			rollbackErr := c.rollbackStartedJobs(ctx, startedJobs)
 			if rollbackErr != nil {
 				log.Errorf("cron rollback started jobs failed, err=%v", rollbackErr)
 			}

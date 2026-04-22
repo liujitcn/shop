@@ -78,43 +78,51 @@ func (c *ShopHotItemCase) ListShopHotItem(ctx context.Context, id int64) (*app.L
 func (c *ShopHotItemCase) PageShopHotGoods(ctx context.Context, req *app.PageShopHotGoodsRequest) (*app.PageShopHotGoodsResponse, error) {
 	// 是否会员
 	member := utils.IsMember(ctx)
-	// 先查询专区和商品关系，再批量回表查询商品详情
-	hotGoodsQuery := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods
-	hotGoodsOpts := make([]repo.QueryOption, 0, 2)
-	hotGoodsOpts = append(hotGoodsOpts, repo.Order(hotGoodsQuery.Sort.Asc()))
-	hotGoodsOpts = append(hotGoodsOpts, repo.Where(hotGoodsQuery.HotItemID.Eq(req.HotItemId)))
-	hotGoodsList, count, err := c.shopHotGoodsRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), hotGoodsOpts...)
+	list := make([]*app.GoodsInfo, 0)
+	offset, limit := repo.PageOffsetLimit(req.GetPageNum(), req.GetPageSize())
+	baseDB := c.shopHotGoodsRepo.Query(ctx).ShopHotGoods.WithContext(ctx).UnderlyingDB().
+		Table(models.TableNameShopHotGoods+" AS hot_goods").
+		Joins("JOIN "+models.TableNameGoodsInfo+" ON "+models.TableNameGoodsInfo+".id = hot_goods.goods_id").
+		Where("hot_goods.hot_item_id = ?", req.GetHotItemId()).
+		Where(models.TableNameGoodsInfo+".deleted_at IS NULL").
+		Where(models.TableNameGoodsInfo+".status = ?", int32(common.GoodsStatus_PUT_ON))
+
+	count := int64(0)
+	// 热门推荐总数必须只统计当前仍可展示的上架商品，避免把已下架商品继续算进分页。
+	err := baseDB.Count(&count).Error
 	if err != nil {
 		return nil, err
 	}
-	list := make([]*app.GoodsInfo, 0)
-	// 当前页存在热门商品关联记录时，再批量回表查询商品详情。
-	if count > 0 {
-		goodsIds := make([]int64, 0, len(hotGoodsList))
-		for _, item := range hotGoodsList {
-			goodsIds = append(goodsIds, item.GoodsID)
+	// 当前分组没有可展示商品时，直接返回空分页结果。
+	if count == 0 {
+		return &app.PageShopHotGoodsResponse{
+			List:  list,
+			Total: 0,
+		}, nil
+	}
+
+	all := make([]*models.GoodsInfo, 0)
+	// 直接按推荐位顺序查询当前仍可展示的商品，避免二次回表后把下架商品重新掺进结果。
+	err = baseDB.
+		Select(models.TableNameGoodsInfo + ".*").
+		Order("hot_goods.sort ASC").
+		Order(models.TableNameGoodsInfo + ".created_at DESC").
+		Offset(int(offset)).
+		Limit(int(limit)).
+		Scan(&all).Error
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range all {
+		price := item.Price
+		// 会员访问时，优先展示会员价。
+		if member {
+			price = item.DiscountPrice
 		}
-		var all []*models.GoodsInfo
-		goodsQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
-		goodsOpts := make([]repo.QueryOption, 0, 3)
-		goodsOpts = append(goodsOpts, repo.Order(goodsQuery.CreatedAt.Desc()))
-		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.ID.In(goodsIds...)))
-		goodsOpts = append(goodsOpts, repo.Where(goodsQuery.Status.Eq(int32(common.Status_ENABLE))))
-		all, err = c.goodsInfoRepo.List(ctx, goodsOpts...)
-		if err != nil {
-			return nil, err
-		}
-		for _, item := range all {
-			price := item.Price
-			// 会员访问时，优先展示会员价。
-			if member {
-				price = item.DiscountPrice
-			}
-			goodsInfo := c.goodsMapper.ToDTO(item)
-			goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
-			goodsInfo.Price = price
-			list = append(list, goodsInfo)
-		}
+		goodsInfo := c.goodsMapper.ToDTO(item)
+		goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
+		goodsInfo.Price = price
+		list = append(list, goodsInfo)
 	}
 	return &app.PageShopHotGoodsResponse{
 		List:  list,

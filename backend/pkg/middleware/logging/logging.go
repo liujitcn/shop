@@ -67,8 +67,8 @@ func Server(_ log.Logger,
 						headersMap[key] = htr.RequestHeader().Get(key)
 					}
 					var headersBytes []byte
-					headersBytes, fullErr = json.Marshal(headersMap)
 					// 请求头序列化成功时，再写入日志字段。
+					headersBytes, fullErr = json.Marshal(headersMap)
 					if fullErr == nil {
 						baseLog.RequestHeader = string(headersBytes)
 					}
@@ -88,7 +88,8 @@ func Server(_ log.Logger,
 					if htr.Operation() == base.OperationLoginServiceLogin {
 						var loginRequest base.LoginRequest
 						// 登录请求体可正常解析时，继续提取登录用户名。
-						if fullErr = json.Unmarshal([]byte(baseLog.RequestBody), &loginRequest); fullErr == nil {
+						fullErr = json.Unmarshal([]byte(baseLog.RequestBody), &loginRequest)
+						if fullErr == nil {
 							userName := loginRequest.GetUserName()
 							// 登录用户名存在时，继续回查基础用户信息。
 							if len(userName) > 0 {
@@ -97,8 +98,8 @@ func Server(_ log.Logger,
 								query := baseUserRepo.Query(htr.Request().Context()).BaseUser
 								opts := make([]repo.QueryOption, 0, 1)
 								opts = append(opts, repo.Where(query.UserName.Eq(userName)))
-								baseUser, fullErr = baseUserRepo.Find(htr.Request().Context(), opts...)
 								// 基础用户回查成功时，补充用户编号。
+								baseUser, fullErr = baseUserRepo.Find(htr.Request().Context(), opts...)
 								if fullErr == nil {
 									baseLog.UserID = baseUser.ID
 								}
@@ -146,8 +147,10 @@ func Server(_ log.Logger,
 				baseLog.Reason = se.Reason
 			}
 			baseLog.CostTime = time.Since(startTime).Milliseconds()
-			responseBytes, responseErr := json.Marshal(reply)
+			var responseBytes []byte
+			var responseErr error
 			// 响应体序列化成功时，写入响应日志。
+			responseBytes, responseErr = json.Marshal(reply)
 			if responseErr == nil {
 				baseLog.Response = string(responseBytes)
 			}

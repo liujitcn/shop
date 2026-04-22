@@ -115,9 +115,18 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *app.RecommendGo
 	if err != nil {
 		return nil, err
 	}
+	pageNum, pageSize := req.GetPageNum(), req.GetPageSize()
+	// 页码非法时，统一回退到第 1 页。
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	// 每页条数非法时，统一回退到 10 条。
+	if pageSize <= 0 {
+		pageSize = 10
+	}
 
-	pageNum, pageSize := normalizeRecommendPage(req.GetPageNum(), req.GetPageSize())
-	contextGoodsIds, err := c.listRecommendContextGoodsIds(ctx, actor, req)
+	contextGoodsIds := make([]int64, 0)
+	contextGoodsIds, err = c.listRecommendContextGoodsIds(ctx, actor, req)
 	if err != nil {
 		return nil, err
 	}
@@ -216,60 +225,49 @@ func (c *RecommendCase) listRecommendContextGoodsIds(
 	actor *app.RecommendActor,
 	req *app.RecommendGoodsRequest,
 ) ([]int64, error) {
-	scene := req.GetScene()
-
-	switch scene {
+	var err error
+	goodsIds := make([]int64, 0)
+	switch req.GetScene() {
 	case common.RecommendScene_GOODS_DETAIL:
 		// 商品详情场景优先以当前商品作为锚点。
 		if req.GetGoodsId() > 0 {
-			return []int64{req.GetGoodsId()}, nil
+			goodsIds = append(goodsIds, req.GetGoodsId())
 		}
 	case common.RecommendScene_CART:
 		// 登录态购物车页优先读取购物车商品做上下文。
 		if actor != nil && actor.GetActorType() == common.RecommendActorType_USER {
-			goodsIds, cartErr := c.userCartCase.listGoodsIdsByUserId(ctx, actor.GetActorId())
-			if cartErr != nil {
-				return nil, cartErr
-			}
-			if len(goodsIds) > 0 {
-				return goodsIds, nil
+			goodsIds, err = c.userCartCase.listGoodsIdsByUserId(ctx, actor.GetActorId())
+			if err != nil {
+				return nil, err
 			}
 		}
 	case common.RecommendScene_PROFILE:
 		// 个人中心优先读取收藏商品做兴趣上下文。
 		if actor != nil && actor.GetActorType() == common.RecommendActorType_USER {
-			goodsIds, collectErr := c.userCollectCase.listGoodsIdsByUserId(ctx, actor.GetActorId(), recommendRecentHistoryLimit)
-			if collectErr != nil {
-				return nil, collectErr
-			}
-			if len(goodsIds) > 0 {
-				return goodsIds, nil
+			goodsIds, err = c.userCollectCase.listGoodsIdsByUserId(ctx, actor.GetActorId(), recommendRecentHistoryLimit)
+			if err != nil {
+				return nil, err
 			}
 		}
 	case common.RecommendScene_ORDER_DETAIL, common.RecommendScene_ORDER_PAID:
 		// 订单详情与支付成功页优先读取订单商品做上下文。
 		if req.GetOrderId() > 0 {
-			goodsIds, orderErr := c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
-			if orderErr != nil {
-				return nil, orderErr
+			goodsIds, err = c.orderGoodsCase.listGoodsIdsByOrderId(ctx, req.GetOrderId())
+			if err != nil {
+				return nil, err
 			}
-			if len(goodsIds) > 0 {
-				return goodsIds, nil
+		}
+	default:
+		// 业务场景没有稳定上下文时，再回退到最近推荐行为商品。
+		if actor != nil && actor.GetActorId() > 0 {
+			goodsIds, err = c.recommendEventCase.listRecentRecommendEventGoodsIds(ctx, actor)
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
 
-	// 业务场景没有稳定上下文时，再回退到最近推荐行为商品。
-	if actor != nil && actor.GetActorId() > 0 {
-		goodsIds, recentErr := c.recommendEventCase.listRecentRecommendEventGoodsIds(ctx, actor)
-		if recentErr != nil {
-			return nil, recentErr
-		}
-		if len(goodsIds) > 0 {
-			return goodsIds, nil
-		}
-	}
-	return []int64{}, nil
+	return _slice.Unique(goodsIds), nil
 }
 
 // listRecommendGoodsIds 优先查询在线推荐并在必要时回退到本地兜底。
@@ -284,9 +282,9 @@ func (c *RecommendCase) listRecommendGoodsIds(
 	var total int64
 	// 当前存在推荐系统客户端时，优先尝试走在线推荐结果。
 	if c.recommend != nil {
-		goodsIds, total, err = c.listOnlineRecommendGoodsIds(ctx, actor, contextGoodsIds, pageNum, pageSize)
+		goodsIds, total, err = c.pageGoodsIdsByOnlineRecommend(ctx, actor, contextGoodsIds, pageNum, pageSize)
 		if err != nil {
-			log.Errorf("listOnlineRecommendGoodsIds %v", err)
+			log.Errorf("pageGoodsIdsByOnlineRecommend %v", err)
 		}
 		// 推荐系统返回了有效结果时，优先使用在线推荐结果。
 		if err == nil && len(goodsIds) > 0 {
@@ -294,10 +292,9 @@ func (c *RecommendCase) listRecommendGoodsIds(
 		}
 	}
 
-	contextGoodsIds = sanitizeGoodsIds(contextGoodsIds)
 	// 有上下文商品时，优先按同类目兜底推荐。
 	if len(contextGoodsIds) > 0 {
-		goodsIds, total, err = c.pageRecommendGoodsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
+		goodsIds, total, err = c.pageGoodsIdsByCategory(ctx, contextGoodsIds, pageNum, pageSize)
 		if err != nil {
 			return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
 		}
@@ -307,92 +304,26 @@ func (c *RecommendCase) listRecommendGoodsIds(
 		}
 	}
 
-	goodsIds, total, err = c.pageLatestRecommendGoods(ctx, contextGoodsIds, pageNum, pageSize)
+	goodsIds, total, err = c.pageGoodsIdsByLatest(ctx, contextGoodsIds, pageNum, pageSize)
 	if err != nil {
 		return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
 	}
 	return goodsIds, total, common.RecommendRequestSource_LOCAL, common.RecommendRequestStatus_REQUEST_FALLBACK, common.RecommendRequestStrategyType_LATEST_FALLBACK, nil
 }
 
-// listOnlineRecommendGoodsIds 优先查询推荐系统在线推荐结果。
-func (c *RecommendCase) listOnlineRecommendGoodsIds(
+// pageGoodsIdsByOnlineRecommend 优先查询推荐系统在线推荐结果。
+func (c *RecommendCase) pageGoodsIdsByOnlineRecommend(
 	ctx context.Context,
 	actor *app.RecommendActor,
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
 ) ([]int64, int64, error) {
 	// 没有可用推荐主体时，当前请求无法走推荐系统推荐。
-	if actor == nil || actor.GetActorId() <= 0 {
-		return []int64{}, 0, nil
-	}
-
-	contextGoodsIds = sanitizeGoodsIds(contextGoodsIds)
-	// 存在上下文商品时，优先按会话推荐获取“当前场景相关”的结果。
-	if len(contextGoodsIds) > 0 {
-		return c.pageVisibleOnlineRecommendGoodsIds(ctx, pageNum, pageSize, func(ctx context.Context, limit int64) ([]int64, bool, error) {
-			return c.recommend.ListSessionRecommendGoodsIds(ctx, contextGoodsIds, limit)
-		})
-	}
-	// 匿名主体不走用户维度推荐系统推荐，没有上下文时直接回退本地兜底。
-	if actor.GetActorType() != common.RecommendActorType_USER {
-		return []int64{}, 0, nil
-	}
-	return c.pageVisibleOnlineRecommendGoodsIds(ctx, pageNum, pageSize, func(ctx context.Context, limit int64) ([]int64, bool, error) {
-		return c.recommend.ListRecommendGoodsIds(ctx, actor, limit)
-	})
+	return []int64{}, 0, nil
 }
 
-// pageVisibleOnlineRecommendGoodsIds 按可展示商品重新切分页，避免在线推荐翻页出现空页。
-func (c *RecommendCase) pageVisibleOnlineRecommendGoodsIds(
-	ctx context.Context,
-	pageNum, pageSize int64,
-	loadGoodsIds func(context.Context, int64) ([]int64, bool, error),
-) ([]int64, int64, error) {
-	startIndex := (pageNum - 1) * pageSize
-	endIndex := pageNum * pageSize
-	limit := endIndex + 1
-	for {
-		rawGoodsIds, hasMore, err := loadGoodsIds(ctx, limit)
-		if err != nil {
-			return nil, 0, err
-		}
-
-		visibleGoodsIds, err := c.goodsInfoCase.listAvailableGoodsIds(ctx, rawGoodsIds)
-		if err != nil {
-			return nil, 0, err
-		}
-		// 可展示商品已经覆盖到当前页末尾，或推荐系统已没有更多原始结果时，可以基于当前可见集合直接切页。
-		if int64(len(visibleGoodsIds)) >= endIndex || !hasMore {
-			// 当前页起点已经超过已知可展示结果时，仅在远端仍可能有后续结果时保留翻页信号。
-			if startIndex >= int64(len(visibleGoodsIds)) {
-				if hasMore {
-					return []int64{}, startIndex + 1, nil
-				}
-				return []int64{}, int64(len(visibleGoodsIds)), nil
-			}
-
-			pageEndIndex := endIndex
-			// 已知可展示结果不足一整页时，只截取当前实际存在的数据范围。
-			if pageEndIndex > int64(len(visibleGoodsIds)) {
-				pageEndIndex = int64(len(visibleGoodsIds))
-			}
-
-			pageGoodsIds := append([]int64(nil), visibleGoodsIds[int(startIndex):int(pageEndIndex)]...)
-			total := startIndex + int64(len(pageGoodsIds))
-			// 当前页后面仍有已知可展示商品，或推荐系统还存在未扫描的原始结果时，向前端保留“还有下一页”的信号。
-			if int64(len(visibleGoodsIds)) > pageEndIndex || hasMore {
-				total++
-			}
-			return pageGoodsIds, total, nil
-		}
-
-		// 当前可展示商品还不足当前页时，继续向后扩窗拉取原始推荐结果补齐本页。
-		limit += pageSize
-	}
-}
-
-// pageRecommendGoodsByCategory 按上下文商品类目分页查询推荐商品。
-func (c *RecommendCase) pageRecommendGoodsByCategory(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
+// pageGoodsIdsByCategory 按上下文商品类目分页查询推荐商品。
+func (c *RecommendCase) pageGoodsIdsByCategory(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
 	categoryIds, err := c.goodsInfoCase.listCategoryIdsByGoodsIds(ctx, contextGoodsIds)
 	if err != nil {
 		return nil, 0, err
@@ -423,8 +354,8 @@ func (c *RecommendCase) pageRecommendGoodsByCategory(ctx context.Context, contex
 	return goodsIds, total, nil
 }
 
-// pageLatestRecommendGoods 按最新热度分页查询推荐商品。
-func (c *RecommendCase) pageLatestRecommendGoods(ctx context.Context, excludedGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
+// pageGoodsIdsByLatest 按最新热度分页查询推荐商品。
+func (c *RecommendCase) pageGoodsIdsByLatest(ctx context.Context, excludedGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
 	query := c.goodsInfoCase.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.RealSaleNum.Desc()))
@@ -444,30 +375,4 @@ func (c *RecommendCase) pageLatestRecommendGoods(ctx context.Context, excludedGo
 		goodsIds = append(goodsIds, item.ID)
 	}
 	return goodsIds, total, nil
-}
-
-// sanitizeGoodsIds 清洗商品编号列表并保持原始顺序。
-func sanitizeGoodsIds(goodsIds []int64) []int64 {
-	result := make([]int64, 0, len(goodsIds))
-	for _, goodsId := range goodsIds {
-		// 商品编号非法时，直接跳过当前无效值。
-		if goodsId <= 0 {
-			continue
-		}
-		result = append(result, goodsId)
-	}
-	return _slice.Unique(result)
-}
-
-// normalizeRecommendPage 统一处理推荐分页参数。
-func normalizeRecommendPage(pageNum, pageSize int64) (int64, int64) {
-	// 页码非法时，统一回退到第 1 页。
-	if pageNum <= 0 {
-		pageNum = 1
-	}
-	// 每页条数非法时，统一回退到 10 条。
-	if pageSize <= 0 {
-		pageSize = 10
-	}
-	return pageNum, pageSize
 }

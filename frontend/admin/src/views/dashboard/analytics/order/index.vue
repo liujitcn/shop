@@ -1,6 +1,6 @@
 <template>
   <AnalyticsPageLayout
-    title=""
+    title="订单分析"
     description="按时间维度查看订单规模、成交结果与状态结构的汇总和趋势变化。"
     :period-label="activeTimeLabel"
     content-ratio="minmax(0, 1.25fr) minmax(320px, 0.9fr)"

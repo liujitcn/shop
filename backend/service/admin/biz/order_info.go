@@ -191,13 +191,13 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *admin.RefundOr
 	if err != nil {
 		return err
 	}
-	// 当前订单状态不支持退款时，直接返回业务错误。
-	if !(orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED) || orderInfo.Status == int32(common.OrderStatus_REFUNDING)) {
+	// 只有待收货或已完成订单才允许后台发起退款，已退款订单禁止再次退款。
+	if !(orderInfo.Status == int32(common.OrderStatus_SHIPPED) || orderInfo.Status == int32(common.OrderStatus_RECEIVED)) {
 		return errorsx.StateConflict(
 			fmt.Sprintf("订单状态错误：【%s】", common.OrderStatus_name[orderInfo.Status]),
 			"order_info",
 			common.OrderStatus(orderInfo.Status).String(),
-			"SHIPPED|RECEIVED|REFUNDING",
+			"SHIPPED|RECEIVED",
 		)
 	}
 

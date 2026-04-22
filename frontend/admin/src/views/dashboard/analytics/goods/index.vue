@@ -1,6 +1,6 @@
 <template>
   <AnalyticsPageLayout
-    title=""
+    title="商品分析"
     description="按时间维度查看商品供给、行为转化与分类成交结构的汇总和趋势变化。"
     :period-label="activeTimeLabel"
     content-ratio="minmax(0, 1fr) minmax(0, 1fr)"

@@ -62,8 +62,6 @@ message GoodsMonthReportListRequest {
 
 // 商品月报汇总响应
 message GoodsMonthReportSummaryResponse {
-  reserved 8;
-  reserved "score";
   int64 view_count = 1 [
     json_name = "viewCount",
     (gnostic.openapi.v3.property) = {description: "浏览次数"}
@@ -112,8 +110,6 @@ message GoodsMonthReportSummaryResponse {
 
 // 商品月报项
 message GoodsMonthReportItem {
-  reserved 9;
-  reserved "score";
   string month = 1 [
     (gnostic.openapi.v3.property) = {description: "月份，格式：YYYY-MM"}
   ]; // 月份，格式：YYYY-MM
@@ -196,8 +192,6 @@ message GoodsDayReportListRequest {
 
 // 商品日报汇总响应
 message GoodsDayReportSummaryResponse {
-  reserved 8;
-  reserved "score";
   int64 view_count = 1 [
     json_name = "viewCount",
     (gnostic.openapi.v3.property) = {description: "浏览次数"}
@@ -246,8 +240,6 @@ message GoodsDayReportSummaryResponse {
 
 // 商品日报项
 message GoodsDayReportItem {
-  reserved 9;
-  reserved "score";
   string day = 1 [
     (gnostic.openapi.v3.property) = {description: "日期，格式：YYYY-MM-DD"}
   ]; // 日期，格式：YYYY-MM-DD

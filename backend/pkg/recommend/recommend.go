@@ -430,9 +430,10 @@ func (g *Recommend) ListSessionRecommendGoodsIds(ctx context.Context, contextGoo
 
 	rawIds := make([]string, 0, len(scores))
 	for _, score := range scores {
-		goodsId, convErr := strconv.ParseInt(score.Id, 10, 64)
+		var goodsId int64
+		goodsId, err = strconv.ParseInt(score.Id, 10, 64)
 		// 推荐系统返回了非法商品编号或上下文商品本身时，直接跳过当前结果。
-		if convErr != nil || goodsId <= 0 {
+		if err != nil || goodsId <= 0 {
 			continue
 		}
 		// 会话推荐结果不应该再次出现上下文商品本身，命中时直接过滤掉。

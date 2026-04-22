@@ -63,8 +63,8 @@ func (a *BillService) DownloadBill(ctx context.Context, downloadUrl string) ([]b
 	var body []byte
 	body, err = io.ReadAll(httpResp.Body)
 	defer func(body io.ReadCloser) {
-		closeErr := body.Close()
 		// 关闭响应体失败时，仅记录日志，不覆盖主流程错误。
+		closeErr := body.Close()
 		if closeErr != nil {
 			log.Errorf("failed to close body: %v", closeErr)
 		}

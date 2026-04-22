@@ -157,9 +157,10 @@ func (c *GoodsCategoryCase) NameMap(ctx context.Context, parentId *int64) map[in
 		paths := strings.Split(path, "/")
 		pathName := make([]string, 0, len(paths))
 		for _, item := range paths {
-			value, convErr := strconv.ParseInt(item, 10, 64)
+			var value int64
+			value, err = strconv.ParseInt(item, 10, 64)
 			// 非法路径片段直接跳过，避免影响剩余路径解析。
-			if convErr != nil {
+			if err != nil {
 				continue
 			}
 			// 命中分类名称时，按路径顺序拼接展示名称。

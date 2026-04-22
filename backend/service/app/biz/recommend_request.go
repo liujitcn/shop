@@ -121,7 +121,7 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
 		requestAt := time.Now()
 		// 无论是否复用同一个 request_id，每次请求都新增一条推荐日志，保留真实分页轨迹。
-		createErr := c.RecommendRequestRepo.Create(ctx, &models.RecommendRequest{
+		err = c.RecommendRequestRepo.Create(ctx, &models.RecommendRequest{
 			RequestID:   requestId,
 			ActorType:   int32(actor.GetActorType()),
 			ActorID:     actor.GetActorId(),
@@ -132,19 +132,19 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 			ContextJSON: string(contextBytes),
 			RequestAt:   requestAt,
 		})
-		if createErr != nil {
-			return errorsx.Internal("保存推荐请求失败").WithCause(createErr)
+		if err != nil {
+			return errorsx.Internal("保存推荐请求失败").WithCause(err)
 		}
 
 		startPosition := (pageNum - 1) * pageSize
-		itemQuery := c.RecommendRequestItemRepo.Query(ctx).RecommendRequestItem
-		itemClearOpts := make([]repo.QueryOption, 0, 3)
-		itemClearOpts = append(itemClearOpts, repo.Where(itemQuery.RequestID.Eq(requestId)))
-		itemClearOpts = append(itemClearOpts, repo.Where(itemQuery.Position.Gte(int32(startPosition))))
-		itemClearOpts = append(itemClearOpts, repo.Where(itemQuery.Position.Lt(int32(startPosition+pageSize))))
-		clearErr := c.RecommendRequestItemRepo.Delete(ctx, itemClearOpts...)
-		if clearErr != nil {
-			return errorsx.Internal("清理推荐请求结果失败").WithCause(clearErr)
+		query := c.RecommendRequestItemRepo.Query(ctx).RecommendRequestItem
+		opts := make([]repo.QueryOption, 0, 3)
+		opts = append(opts, repo.Where(query.RequestID.Eq(requestId)))
+		opts = append(opts, repo.Where(query.Position.Gte(int32(startPosition))))
+		opts = append(opts, repo.Where(query.Position.Lt(int32(startPosition+pageSize))))
+		err = c.RecommendRequestItemRepo.Delete(ctx, opts...)
+		if err != nil {
+			return errorsx.Internal("清理推荐请求结果失败").WithCause(err)
 		}
 
 		itemList := make([]*models.RecommendRequestItem, 0, len(goodsList))
@@ -163,9 +163,9 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 		if len(itemList) == 0 {
 			return nil
 		}
-		batchErr := c.RecommendRequestItemRepo.BatchCreate(ctx, itemList)
-		if batchErr != nil {
-			return errorsx.Internal("保存推荐请求结果失败").WithCause(batchErr)
+		err = c.RecommendRequestItemRepo.BatchCreate(ctx, itemList)
+		if err != nil {
+			return errorsx.Internal("保存推荐请求结果失败").WithCause(err)
 		}
 		return nil
 	})

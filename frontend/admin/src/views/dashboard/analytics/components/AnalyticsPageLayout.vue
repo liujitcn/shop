@@ -2,11 +2,9 @@
   <div>
     <el-card class="analytics-card analytics-card--summary" shadow="never">
       <div class="analytics-toolbar">
-        <div v-if="hasHeaderText">
-          <h2 v-if="title" class="analytics-title">{{ title }}</h2>
-          <p v-if="description" class="analytics-desc" :class="{ 'analytics-desc--compact': !title }">
-            {{ description }}
-          </p>
+        <div class="analytics-toolbar__content">
+          <h2 class="analytics-title">{{ title }}</h2>
+          <p v-if="description" class="analytics-desc">{{ description }}</p>
         </div>
         <div class="analytics-toolbar__tabs">
           <slot name="toolbar" />
@@ -24,24 +22,25 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const props = withDefaults(
-  defineProps<{
-    title?: string;
-    description?: string;
-    periodLabel?: string;
-    contentRatio?: string;
-  }>(),
-  {
-    title: "",
-    description: "",
-    periodLabel: "",
-    contentRatio: "minmax(0, 1.25fr) minmax(320px, 0.9fr)"
-  }
-);
+/** 分析页布局组件入参。 */
+type AnalyticsPageLayoutProps = {
+  /** 页头标题，必须显式传入，不再兼容空标题。 */
+  title: string;
+  /** 页头说明文案。 */
+  description?: string;
+  /** 当前筛选周期标签，预留给页面侧透传使用。 */
+  periodLabel?: string;
+  /** 图表区栅格列宽比例。 */
+  contentRatio?: string;
+};
 
-/** 统一控制页头文案显隐，避免空标题或空描述继续占位。 */
-const hasHeaderText = computed(() => Boolean(props.title || props.description));
+const props = withDefaults(defineProps<AnalyticsPageLayoutProps>(), {
+  description: "",
+  periodLabel: "",
+  contentRatio: "minmax(0, 1.25fr) minmax(320px, 0.9fr)"
+});
 
+/** 统一控制图表区栅格比例，页面侧只需要传入布局字符串。 */
 const chartColumns = computed(() => props.contentRatio);
 </script>
 
@@ -69,6 +68,10 @@ const chartColumns = computed(() => props.contentRatio);
   margin-bottom: 16px;
 }
 
+.analytics-toolbar__content {
+  min-width: 0;
+}
+
 .analytics-title {
   margin: 0;
   font-size: 22px;
@@ -81,10 +84,6 @@ const chartColumns = computed(() => props.contentRatio);
   margin: 8px 0 0;
   color: var(--admin-page-text-secondary);
   line-height: 1.7;
-}
-
-.analytics-desc--compact {
-  margin-top: 0;
 }
 
 .analytics-toolbar__tabs {

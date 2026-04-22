@@ -1,7 +1,7 @@
 <template>
   <div v-loading="loading" class="goods-day-report">
     <AnalyticsPageLayout
-      title=""
+      title="商品日报"
       description="按日查看商品浏览、加购、下单与支付表现，支持按月份筛选与导出。"
       period-label=""
       content-ratio="minmax(0, 1fr)"
