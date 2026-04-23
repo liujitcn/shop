@@ -78,6 +78,7 @@ func NewHttpServer(
 	adminOrderReport *admin.OrderReportService,
 	adminOrder *admin.OrderInfoService,
 	adminPayBill *admin.PayBillService,
+	adminRecommendRemote *admin.RecommendRemoteService,
 	adminShopBanner *admin.ShopBannerService,
 	adminShopHot *admin.ShopHotService,
 	adminShopService *admin.ShopServiceService,
@@ -137,6 +138,7 @@ func NewHttpServer(
 	adminApi.RegisterOrderReportServiceHTTPServer(srv, adminOrderReport)
 	adminApi.RegisterOrderInfoServiceHTTPServer(srv, adminOrder)
 	adminApi.RegisterPayBillServiceHTTPServer(srv, adminPayBill)
+	adminApi.RegisterRecommendRemoteServiceHTTPServer(srv, adminRecommendRemote)
 	adminApi.RegisterShopBannerServiceHTTPServer(srv, adminShopBanner)
 	adminApi.RegisterShopHotServiceHTTPServer(srv, adminShopHot)
 	adminApi.RegisterShopServiceServiceHTTPServer(srv, adminShopService)
