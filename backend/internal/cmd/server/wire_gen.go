@@ -20,7 +20,7 @@ import (
 	"shop/pkg/job"
 	"shop/pkg/job/task"
 	"shop/pkg/middleware"
-	"shop/pkg/recommend"
+	"shop/pkg/recommend/remote"
 	"shop/pkg/wx"
 	"shop/server"
 	"shop/service/admin"
@@ -141,7 +141,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	goodsStatDay := task.NewGoodsStatDay(transaction, goodsStatDayRepo, recommendEventRepo, userCollectRepo, userCartRepo, orderInfoRepo, orderGoodsRepo)
 	baseUserRepo := data.NewBaseUserRepo(dataData)
 	goodsInfoRepo := data.NewGoodsInfoRepo(dataData)
-	confRecommend, err := configs.ParseRecommend(shopConfig)
+	recommend, err := configs.ParseRecommend(shopConfig)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -149,10 +149,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	recommendRecommend := recommend.NewRecommend(confRecommend)
-	userSyncReceiver := recommend.NewUserSyncReceiver(recommendRecommend)
-	goodsSyncReceiver := recommend.NewGoodsSyncReceiver(recommendRecommend)
-	queueReceiver := recommend.NewQueueReceiver(recommendRecommend, userSyncReceiver, goodsSyncReceiver)
+	remoteRecommend := remote.NewRecommend(recommend)
+	userSyncReceiver := remote.NewUserSyncReceiver(remoteRecommend)
+	goodsSyncReceiver := remote.NewGoodsSyncReceiver(remoteRecommend)
+	queueReceiver := remote.NewQueueReceiver(remoteRecommend, baseUserRepo, goodsInfoRepo, userSyncReceiver, goodsSyncReceiver)
 	recommendSync := task.NewRecommendSync(baseUserRepo, goodsInfoRepo, userSyncReceiver, goodsSyncReceiver, queueReceiver)
 	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendSync)
 	cronServer := job.NewCronServer(baseJobRepo, v)
@@ -314,10 +314,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	recommendRequestCase := biz4.NewRecommendRequestCase(baseCase, transaction, recommendRequestRepo, recommendRequestItemRepo)
 	recommendEventCase := biz4.NewRecommendEventCase(baseCase, recommendEventRepo, recommendRequestCase)
 	userCollectCase := biz4.NewUserCollectCase(baseCase, userCollectRepo, bizGoodsInfoCase, bizGoodsSkuCase)
-	onlineUserReceiver := recommend.NewOnlineUserReceiver(recommendRecommend)
-	onlineSessionReceiver := recommend.NewOnlineSessionReceiver(recommendRecommend)
-	onlineNamedReceiver := recommend.NewOnlineNamedReceiver(recommendRecommend)
-	onlineChainReceiver := recommend.NewOnlineChainReceiver(recommendRecommend, onlineUserReceiver, onlineSessionReceiver, onlineNamedReceiver)
+	onlineUserReceiver := remote.NewOnlineUserReceiver(remoteRecommend)
+	onlineSessionReceiver := remote.NewOnlineSessionReceiver(remoteRecommend)
+	onlineNamedReceiver := remote.NewOnlineNamedReceiver(remoteRecommend)
+	onlineChainReceiver := remote.NewOnlineChainReceiver(remoteRecommend, onlineUserReceiver, onlineSessionReceiver, onlineNamedReceiver)
 	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase, onlineChainReceiver)
 	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)

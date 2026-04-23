@@ -273,7 +273,7 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		return c.wrapGoodsInfoDuplicateConflict(err)
 	}
 	// 商品创建成功后，再异步同步最新商品快照到推荐系统。
-	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
+	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo.ID)
 	return nil
 }
 
@@ -316,7 +316,7 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *admin.GoodsInf
 		return c.wrapGoodsInfoDuplicateConflict(err)
 	}
 	// 商品更新成功后，再异步同步最新商品快照到推荐系统。
-	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
+	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo.ID)
 	return nil
 }
 
@@ -349,13 +349,8 @@ func (c *GoodsInfoCase) SetGoodsInfoStatus(ctx context.Context, req *common.SetS
 	if err != nil {
 		return err
 	}
-	var goodsInfo *models.GoodsInfo
-	goodsInfo, err = c.FindById(ctx, req.GetId())
-	if err != nil {
-		return errorsx.ResourceNotFound("商品信息不存在").WithCause(err)
-	}
 	// 商品状态变更成功后，再异步同步最新状态到推荐系统。
-	pkgQueue.DispatchRecommendSyncGoodsInfo(goodsInfo)
+	pkgQueue.DispatchRecommendSyncGoodsInfo(req.GetId())
 	return nil
 }
 

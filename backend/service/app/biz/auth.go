@@ -106,7 +106,7 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *app.WechatLoginRequest)
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
 	// 登录成功前，异步同步用户画像到推荐系统，保证推荐主体随登录链路逐步补齐。
-	pkgQueue.DispatchRecommendSyncBaseUser(user)
+	pkgQueue.DispatchRecommendSyncBaseUser(user.ID)
 
 	// 登录凭证需要补齐角色和部门信息
 	var role *models.BaseRole
@@ -193,11 +193,8 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *app.UserProfileFo
 	if err = c.baseUserCase.UpdateById(ctx, baseUser); err != nil {
 		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
 	}
-	oldBaseUser.NickName = baseUser.NickName
-	oldBaseUser.Gender = baseUser.Gender
-	oldBaseUser.Avatar = baseUser.Avatar
 	// 用户资料写库成功后，再异步同步最新画像到推荐系统。
-	pkgQueue.DispatchRecommendSyncBaseUser(oldBaseUser)
+	pkgQueue.DispatchRecommendSyncBaseUser(authInfo.UserId)
 
 	// 删除被替换的旧头像文件
 	oss := sdk.Runtime.GetOSS()
@@ -282,12 +279,8 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *app.BindUserPhoneRequ
 	if err = c.baseUserCase.UpdateById(ctx, user); err != nil {
 		return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 	}
-	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindById(ctx, authInfo.UserId)
-	if err == nil {
-		// 手机号绑定成功后，再异步同步最新用户画像到推荐系统。
-		pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
-	}
+	// 手机号绑定成功后，再异步同步最新用户画像到推荐系统。
+	pkgQueue.DispatchRecommendSyncBaseUser(authInfo.UserId)
 
 	return &app.BindUserPhoneResponse{
 		Phone: _string.DesensitizePhone(user.Phone),

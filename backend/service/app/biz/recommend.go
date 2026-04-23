@@ -9,7 +9,7 @@ import (
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
-	pkgRecommend "shop/pkg/recommend"
+	pkgRecommend "shop/pkg/recommend/remote"
 
 	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repo"

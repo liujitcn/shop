@@ -1,4 +1,4 @@
-package recommend
+package remote
 
 import (
 	"context"

@@ -13,13 +13,13 @@ func SetRecommendEnabled(enabled bool) {
 	recommendEnabled.Store(enabled)
 }
 
-// DispatchRecommendSyncBaseUser 将用户快照投递到推荐系统异步同步链路。
-func DispatchRecommendSyncBaseUser(user *models.BaseUser) {
-	// 用户为空或用户编号非法时，当前同步请求无效。
-	if user == nil || user.ID <= 0 || !recommendEnabled.Load() {
+// DispatchRecommendSyncBaseUser 将用户主键投递到推荐系统异步同步链路。
+func DispatchRecommendSyncBaseUser(userId int64) {
+	// 用户编号非法时，当前同步请求无效。
+	if userId <= 0 || !recommendEnabled.Load() {
 		return
 	}
-	AddQueue(_const.RecommendSyncBaseUser, user)
+	AddQueue(_const.RecommendSyncBaseUser, userId)
 }
 
 // DispatchRecommendDeleteBaseUser 将用户删除事件投递到推荐系统异步同步链路。
@@ -31,13 +31,13 @@ func DispatchRecommendDeleteBaseUser(userIds []int64) {
 	AddQueue(_const.RecommendDeleteBaseUser, userIds)
 }
 
-// DispatchRecommendSyncGoodsInfo 将商品快照投递到推荐系统异步同步链路。
-func DispatchRecommendSyncGoodsInfo(goods *models.GoodsInfo) {
-	// 商品为空或商品编号非法时，当前同步请求无效。
-	if goods == nil || goods.ID <= 0 || !recommendEnabled.Load() {
+// DispatchRecommendSyncGoodsInfo 将商品主键投递到推荐系统异步同步链路。
+func DispatchRecommendSyncGoodsInfo(goodsId int64) {
+	// 商品编号非法时，当前同步请求无效。
+	if goodsId <= 0 || !recommendEnabled.Load() {
 		return
 	}
-	AddQueue(_const.RecommendSyncGoodsInfo, goods)
+	AddQueue(_const.RecommendSyncGoodsInfo, goodsId)
 }
 
 // DispatchRecommendDeleteGoodsInfo 将商品删除事件投递到推荐系统异步同步链路。

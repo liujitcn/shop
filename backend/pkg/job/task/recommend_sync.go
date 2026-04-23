@@ -8,7 +8,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	pkgRecommend "shop/pkg/recommend"
+	pkgRecommend "shop/pkg/recommend/remote"
 
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/go-kratos/kratos/v2/log"

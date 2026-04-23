@@ -1,4 +1,4 @@
-package recommend
+package remote
 
 import (
 	"context"
@@ -8,27 +8,39 @@ import (
 
 	"shop/api/gen/go/common"
 	_const "shop/pkg/const"
+	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgQueue "shop/pkg/queue"
 
 	client "github.com/gorse-io/gorse-go"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/sdk"
+	"gorm.io/gorm"
 )
 
 // QueueReceiver 表示推荐系统队列消费接收器。
 type QueueReceiver struct {
-	recommend *Recommend
-	userSync  *UserSyncReceiver
-	goodsSync *GoodsSyncReceiver
+	recommend     *Recommend
+	baseUserRepo  *data.BaseUserRepo
+	goodsInfoRepo *data.GoodsInfoRepo
+	userSync      *UserSyncReceiver
+	goodsSync     *GoodsSyncReceiver
 }
 
 // NewQueueReceiver 构建队列消费接收器并完成内部订阅初始化。
-func NewQueueReceiver(recommend *Recommend, userSync *UserSyncReceiver, goodsSync *GoodsSyncReceiver) *QueueReceiver {
+func NewQueueReceiver(
+	recommend *Recommend,
+	baseUserRepo *data.BaseUserRepo,
+	goodsInfoRepo *data.GoodsInfoRepo,
+	userSync *UserSyncReceiver,
+	goodsSync *GoodsSyncReceiver,
+) *QueueReceiver {
 	receiver := &QueueReceiver{
-		recommend: recommend,
-		userSync:  userSync,
-		goodsSync: goodsSync,
+		recommend:     recommend,
+		baseUserRepo:  baseUserRepo,
+		goodsInfoRepo: goodsInfoRepo,
+		userSync:      userSync,
+		goodsSync:     goodsSync,
 	}
 	receiver.initSubscriber()
 	return receiver
@@ -59,17 +71,31 @@ func (r *QueueReceiver) initSubscriber() {
 	queueRuntime.Register(string(_const.RecommendEvent), r.consumeRecommendEvent)
 }
 
-// consumeSyncBaseUser 消费用户同步队列并发送到推荐系统。
+// consumeSyncBaseUser 消费用户同步队列并按主键补全后发送到推荐系统。
 func (r *QueueReceiver) consumeSyncBaseUser(message queueData.Message) error {
-	user, err := pkgQueue.DecodeQueueData[models.BaseUser](message)
+	userId, err := pkgQueue.DecodeQueueData[int64](message)
 	if err != nil {
 		return err
 	}
-	// 推荐系统未启用或队列消息里没有有效用户快照时，直接忽略当前消息。
-	if user == nil || user.ID <= 0 || !r.Enabled() {
+	// 推荐系统未启用或队列消息里没有有效用户编号时，直接忽略当前消息。
+	if userId == nil || *userId <= 0 || !r.Enabled() {
 		return nil
 	}
-	return r.userSync.sync(context.TODO(), user)
+
+	var baseUser *models.BaseUser
+	baseUser, err = r.baseUserRepo.FindById(context.TODO(), *userId)
+	// 当前用户在消息消费前已被删除时，直接跳过即可，避免把删除后的空数据再次推送到推荐系统。
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	// 查询结果为空或用户编号非法时，说明当前消息已经失效。
+	if baseUser == nil || baseUser.ID <= 0 {
+		return nil
+	}
+	return r.userSync.sync(context.TODO(), baseUser)
 }
 
 // consumeDeleteBaseUser 消费用户删除队列并发送到推荐系统。
@@ -94,17 +120,31 @@ func (r *QueueReceiver) consumeDeleteBaseUser(message queueData.Message) error {
 	return deleteErr
 }
 
-// consumeSyncGoodsInfo 消费商品同步队列并发送到推荐系统。
+// consumeSyncGoodsInfo 消费商品同步队列并按主键补全后发送到推荐系统。
 func (r *QueueReceiver) consumeSyncGoodsInfo(message queueData.Message) error {
-	goods, err := pkgQueue.DecodeQueueData[models.GoodsInfo](message)
+	goodsId, err := pkgQueue.DecodeQueueData[int64](message)
 	if err != nil {
 		return err
 	}
-	// 推荐系统未启用或队列消息里没有有效商品快照时，直接忽略当前消息。
-	if goods == nil || goods.ID <= 0 || !r.Enabled() {
+	// 推荐系统未启用或队列消息里没有有效商品编号时，直接忽略当前消息。
+	if goodsId == nil || *goodsId <= 0 || !r.Enabled() {
 		return nil
 	}
-	return r.goodsSync.sync(context.TODO(), goods)
+
+	var goodsInfo *models.GoodsInfo
+	goodsInfo, err = r.goodsInfoRepo.FindById(context.TODO(), *goodsId)
+	// 当前商品在消息消费前已被删除时，直接跳过即可，避免把删除后的空数据再次推送到推荐系统。
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	// 查询结果为空或商品编号非法时，说明当前消息已经失效。
+	if goodsInfo == nil || goodsInfo.ID <= 0 {
+		return nil
+	}
+	return r.goodsSync.sync(context.TODO(), goodsInfo)
 }
 
 // consumeDeleteGoodsInfo 消费商品删除队列并发送到推荐系统。

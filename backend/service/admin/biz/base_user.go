@@ -166,7 +166,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *admin.BaseUserFo
 		return err
 	}
 	// 用户写库成功后，再异步同步用户画像到推荐系统。
-	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser.ID)
 	return nil
 }
 
@@ -191,7 +191,7 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *admin.BaseUserFo
 		return err
 	}
 	// 用户更新成功后，再按最新数据库快照同步到推荐系统。
-	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser.ID)
 	return nil
 }
 
@@ -233,7 +233,7 @@ func (c *BaseUserCase) SetBaseUserStatus(ctx context.Context, req *common.SetSta
 		return err
 	}
 	// 用户状态变更成功后，再同步最新状态到推荐系统。
-	pkgQueue.DispatchRecommendSyncBaseUser(baseUser)
+	pkgQueue.DispatchRecommendSyncBaseUser(baseUser.ID)
 	return nil
 }
 
