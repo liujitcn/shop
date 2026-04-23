@@ -11,7 +11,6 @@ import (
 	"shop/pkg/gen/models"
 	pkgRecommend "shop/pkg/recommend"
 
-	"github.com/go-kratos/kratos/v2/log"
 	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repo"
 	"github.com/liujitcn/kratos-kit/auth"
@@ -284,13 +283,13 @@ func (c *RecommendCase) listRecommendGoodsIds(
 ) ([]int64, int64, common.RecommendRequestSource, common.RecommendRequestStatus, common.RecommendRequestStrategyType, error) {
 	// 当前推荐系统链路已启用时，优先尝试走在线推荐结果。
 	if c.onlineChain.Enabled() {
-		goodsIds, total, err := c.pageGoodsIdsByOnlineRecommend(ctx, scene, goodsId, actor, contextGoodsIds, pageNum, pageSize)
+		result, err := c.onlineChain.ExecuteOnlinePlan(ctx, scene, actor, goodsId, contextGoodsIds, pageNum, pageSize)
 		if err != nil {
-			log.Errorf("pageGoodsIdsByOnlineRecommend %v", err)
+			return nil, 0, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
 		}
 		// 推荐系统返回了有效结果时，优先使用在线推荐结果。
-		if err == nil && len(goodsIds) > 0 {
-			return goodsIds, total, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
+		if len(result.GoodsIds) > 0 {
+			return result.GoodsIds, result.Total, common.RecommendRequestSource_RECOMMEND, common.RecommendRequestStatus_REQUEST_SUCCESS, common.RecommendRequestStrategyType_UNKNOWN_RRST, nil
 		}
 	}
 
@@ -311,26 +310,6 @@ func (c *RecommendCase) listRecommendGoodsIds(
 		return nil, 0, common.RecommendRequestSource_UNKNOWN_RRSO, common.RecommendRequestStatus_UNKNOWN_RRQS, common.RecommendRequestStrategyType_UNKNOWN_RRST, err
 	}
 	return goodsIds, total, common.RecommendRequestSource_LOCAL, common.RecommendRequestStatus_REQUEST_FALLBACK, common.RecommendRequestStrategyType_LATEST_FALLBACK, nil
-}
-
-// pageGoodsIdsByOnlineRecommend 优先查询推荐系统在线推荐结果。
-func (c *RecommendCase) pageGoodsIdsByOnlineRecommend(
-	ctx context.Context,
-	scene common.RecommendScene,
-	goodsId int64,
-	actor *app.RecommendActor,
-	contextGoodsIds []int64,
-	pageNum, pageSize int64,
-) ([]int64, int64, error) {
-	result, err := c.onlineChain.ExecuteOnlinePlan(ctx, scene, actor, goodsId, contextGoodsIds, pageNum, pageSize)
-	if err != nil {
-		return nil, 0, err
-	}
-	// 在线责任链未命中结果时，交由业务侧继续走本地兜底。
-	if result == nil || len(result.GoodsIds) == 0 {
-		return []int64{}, 0, nil
-	}
-	return result.GoodsIds, result.Total, nil
 }
 
 // pageGoodsIdsByCategory 按上下文商品类目分页查询推荐商品。
