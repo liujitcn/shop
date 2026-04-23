@@ -1,0 +1,425 @@
+syntax = "proto3";
+
+package admin;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+import "common/enum.proto";
+
+// Admin推荐请求服务
+service RecommendRequestService {
+  // 查询推荐请求分页列表
+  rpc PageRecommendRequest (PageRecommendRequestRequest) returns (PageRecommendRequestResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/recommend/request"
+    };
+  }
+
+  // 查询推荐请求详情
+  rpc GetRecommendRequest (google.protobuf.Int64Value) returns (RecommendRequestDetailResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/recommend/request/{value}"
+    };
+  }
+
+  // 查询推荐请求商品关联事件
+  rpc GetRecommendRequestEvent (GetRecommendRequestEventRequest) returns (GetRecommendRequestEventResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/recommend/request/{request_record_id}/event"
+    };
+  }
+}
+
+// 推荐请求分页查询条件
+message PageRecommendRequestRequest {
+  optional string requestId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求ID",
+    }
+  ]; // 推荐请求ID
+
+  optional int32 actorType = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体类型：字典【recommend_actor_type】",
+    }
+  ]; // 主体类型：字典【recommend_actor_type】
+
+  optional int64 actorId = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体编号（仅内部定位使用）",
+    }
+  ]; // 主体编号（仅内部定位使用）
+
+  optional common.RecommendScene scene = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐场景：字典【recommend_scene】",
+    }
+  ]; // 推荐场景：字典【recommend_scene】
+
+  repeated string requestAt = 100 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求时间",
+    }
+  ]; // 请求时间
+
+  int64 pageNum = 101 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前页码",
+      default: {number: 1}
+    }
+  ]; // 当前页码
+
+  int64 pageSize = 102 [
+    (gnostic.openapi.v3.property) = {
+      description: "每一页的行数",
+      default: {number: 10}
+    }
+  ]; // 每一页的行数
+}
+
+// 推荐请求分页响应
+message PageRecommendRequestResponse {
+  repeated RecommendRequest list = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "分页数据",
+    }
+  ]; // 分页数据
+
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "总数",
+    }
+  ]; // 总数
+}
+
+// 推荐请求
+message RecommendRequest {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "主键ID",
+    }
+  ]; // 主键ID
+
+  string requestId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求ID",
+    }
+  ]; // 推荐请求ID
+
+  int32 actorType = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体类型：字典【recommend_actor_type】",
+    }
+  ]; // 主体类型：字典【recommend_actor_type】
+
+  int64 actorId = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体编号（仅内部定位使用）",
+    }
+  ]; // 主体编号（仅内部定位使用）
+
+  common.RecommendScene scene = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐场景：字典【recommend_scene】",
+    }
+  ]; // 推荐场景：字典【recommend_scene】
+
+  int32 pageNum = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "页码",
+    }
+  ]; // 页码
+
+  int32 pageSize = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "分页大小",
+    }
+  ]; // 分页大小
+
+  int32 total = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "本次返回总数",
+    }
+  ]; // 本次返回总数
+
+  string strategy = 9 [
+    (gnostic.openapi.v3.property) = {
+      description: "命中的推荐策略",
+    }
+  ]; // 命中的推荐策略
+
+  string providerName = 10 [
+    (gnostic.openapi.v3.property) = {
+      description: "最终命中的推荐器",
+    }
+  ]; // 最终命中的推荐器
+
+  string requestAt = 11 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求时间",
+    }
+  ]; // 请求时间
+
+  string actorInfo = 12 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体信息",
+    }
+  ]; // 主体信息
+}
+
+// 推荐请求详情响应
+message RecommendRequestDetailResponse {
+  RecommendRequest request = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "请求基础信息",
+    }
+  ]; // 请求基础信息
+
+  RecommendRequestContext context = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐上下文信息",
+    }
+  ]; // 推荐上下文信息
+
+  repeated RecommendRequestItem itemList = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前请求页的推荐商品列表",
+    }
+  ]; // 当前请求页的推荐商品列表
+}
+
+// 推荐请求上下文信息
+message RecommendRequestContext {
+  int64 goodsId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "锚点商品ID",
+    }
+  ]; // 锚点商品ID
+
+  int64 orderId = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "关联订单ID",
+    }
+  ]; // 关联订单ID
+
+  repeated int64 contextGoodsIds = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "上下文商品ID列表",
+    }
+  ]; // 上下文商品ID列表
+
+  string strategy = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "命中的推荐策略",
+    }
+  ]; // 命中的推荐策略
+
+  string providerName = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "上下文记录的推荐器",
+    }
+  ]; // 上下文记录的推荐器
+
+  string finalProviderName = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "最终命中的推荐器",
+    }
+  ]; // 最终命中的推荐器
+
+  repeated RecommendRequestTrace trace = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求链路轨迹",
+    }
+  ]; // 推荐请求链路轨迹
+
+  string rawJson = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "原始上下文JSON",
+    }
+  ]; // 原始上下文JSON
+}
+
+// 推荐请求链路轨迹
+message RecommendRequestTrace {
+  string providerName = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐器名称",
+    }
+  ]; // 推荐器名称
+
+  int32 resultCount = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前推荐器返回的商品数量",
+    }
+  ]; // 当前推荐器返回的商品数量
+
+  bool hit = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前推荐器是否命中",
+    }
+  ]; // 当前推荐器是否命中
+
+  string errorMsg = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前推荐器错误信息",
+    }
+  ]; // 当前推荐器错误信息
+
+  bool isFinal = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前推荐器是否为最终命中的推荐器",
+    }
+  ]; // 当前推荐器是否为最终命中的推荐器
+}
+
+// 推荐请求商品信息
+message RecommendRequestItem {
+  int64 goodsId = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品ID",
+    }
+  ]; // 商品ID
+
+  int32 position = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "结果位置",
+    }
+  ]; // 结果位置
+
+  string goodsName = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品名称",
+    }
+  ]; // 商品名称
+
+  string picture = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品图片",
+    }
+  ]; // 商品图片
+
+  int64 price = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "当前价格（分）",
+    }
+  ]; // 当前价格（分）
+
+  int64 discountPrice = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "折扣价格（分）",
+    }
+  ]; // 折扣价格（分）
+
+  common.GoodsStatus goodsStatus = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品状态：枚举【GoodsStatus】",
+    }
+  ]; // 商品状态：枚举【GoodsStatus】
+
+  int64 eventCount = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "关联事件条数",
+    }
+  ]; // 关联事件条数
+}
+
+// 推荐请求事件查询条件
+message GetRecommendRequestEventRequest {
+  int64 request_record_id = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求记录ID",
+    }
+  ]; // 推荐请求记录ID
+
+  int64 goods_id = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品ID",
+    }
+  ]; // 商品ID
+
+  int32 position = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "结果位置",
+    }
+  ]; // 结果位置
+}
+
+// 推荐请求事件响应
+message GetRecommendRequestEventResponse {
+  repeated RecommendEvent list = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "事件数据",
+    }
+  ]; // 事件数据
+
+  int32 total = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "总数",
+    }
+  ]; // 总数
+}
+
+// 推荐事件
+message RecommendEvent {
+  int64 id = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "主键ID",
+    }
+  ]; // 主键ID
+
+  int32 actorType = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体类型：字典【recommend_actor_type】",
+    }
+  ]; // 主体类型：字典【recommend_actor_type】
+
+  int64 actorId = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "主体编号（仅内部定位使用）",
+    }
+  ]; // 主体编号（仅内部定位使用）
+
+  common.RecommendScene scene = 4 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐场景：字典【recommend_scene】",
+    }
+  ]; // 推荐场景：字典【recommend_scene】
+
+  common.RecommendEventType eventType = 5 [
+    (gnostic.openapi.v3.property) = {
+      description: "事件类型：枚举【RecommendEventType】",
+    }
+  ]; // 事件类型：枚举【RecommendEventType】
+
+  int64 goodsId = 6 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品ID",
+    }
+  ]; // 商品ID
+
+  int32 goodsNum = 7 [
+    (gnostic.openapi.v3.property) = {
+      description: "商品数量",
+    }
+  ]; // 商品数量
+
+  string requestId = 8 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐请求ID",
+    }
+  ]; // 推荐请求ID
+
+  int32 position = 9 [
+    (gnostic.openapi.v3.property) = {
+      description: "结果位置",
+    }
+  ]; // 结果位置
+
+  string eventAt = 10 [
+    (gnostic.openapi.v3.property) = {
+      description: "事件时间",
+    }
+  ]; // 事件时间
+}

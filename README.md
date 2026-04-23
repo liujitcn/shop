@@ -6,11 +6,12 @@
 - `frontend/admin`：基于 Vue 3 + Vite + Element Plus 的管理后台。
 - `frontend/app`：基于 uni-app + Vue 3 + TypeScript 的商城端，支持微信小程序与 H5，保留 App 构建能力。
 - `gorse`：推荐系统本地部署与运行配置。
+- `docs`：仓库级设计文档与方案沉淀。
 - `sql`：初始化数据、权限数据、地区数据和演示商品数据。
 
 ## 主要能力
 
-- 管理端：登录认证、菜单权限、用户/角色/部门/岗位、字典、系统配置、日志、工作台与数据分析。
+- 管理端：登录认证、菜单权限、用户/角色/部门/岗位、字典、系统配置、日志、工作台、数据分析与推荐请求分析。
 - 商城端：首页、分类、搜索、商品详情、热门推荐、个性化推荐、购物车、收藏、地址、订单、支付结果、门店认证。
 - 后端：管理端接口、商城端接口、文件上传、Swagger UI、OpenAPI 文档、静态资源托管。
 - 商品能力：`goods_info.category_id` 已支持 JSON 多分类，`goods_info.inventory` 维护商品总库存并与 SKU 库存汇总保持一致。
@@ -39,6 +40,7 @@
 │   ├── configs               # 配置文件
 │   ├── api                   # proto、buf、生成代码
 │   └── data                  # 本地静态资源与上传目录
+├── docs                      # 仓库级设计文档
 ├── frontend
 │   ├── admin                 # 管理后台
 │   ├── app                   # uni-app 商城端
@@ -167,6 +169,7 @@ make -C frontend build
 
 ## 说明
 
+- 商品评价功能设计文档见 `docs/goods-comment-design.md`。
 - 更详细的服务说明见 `backend/README.md`。
 - 管理端说明见 `frontend/admin/README.md`。
 - 商城端说明见 `frontend/app/README.md`。

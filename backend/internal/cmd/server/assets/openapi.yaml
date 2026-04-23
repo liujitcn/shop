@@ -2702,6 +2702,108 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/admin/recommend/request:
+        get:
+            tags:
+                - RecommendRequestService
+            description: 查询推荐请求分页列表
+            operationId: RecommendRequestService_PageRecommendRequest
+            parameters:
+                - name: requestId
+                  in: query
+                  schema:
+                    type: string
+                - name: actorType
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: actorId
+                  in: query
+                  schema:
+                    type: string
+                - name: scene
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_RS
+                        - HOME
+                        - GOODS_DETAIL
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    format: enum
+                - name: requestAt
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PageRecommendRequestResponse'
+    /api/admin/recommend/request/{requestRecordId}/event:
+        get:
+            tags:
+                - RecommendRequestService
+            description: 查询推荐请求商品关联事件
+            operationId: RecommendRequestService_GetRecommendRequestEvent
+            parameters:
+                - name: requestRecordId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: goodsId
+                  in: query
+                  schema:
+                    type: string
+                - name: position
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetRecommendRequestEventResponse'
+    /api/admin/recommend/request/{value}:
+        get:
+            tags:
+                - RecommendRequestService
+            description: 查询推荐请求详情
+            operationId: RecommendRequestService_GetRecommendRequest
+            parameters:
+                - name: value
+                  in: path
+                  description: The int64 value.
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecommendRequestDetailResponse'
     /api/admin/report/goods/day/detail:
         get:
             tags:
@@ -5895,6 +5997,19 @@ components:
                     type: string
                     description: 文件扩展名
             description: File信息
+        GetRecommendRequestEventResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecommendEvent'
+                    description: 事件数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 推荐请求事件响应
         GoodsAnalyticsSummaryResponse:
             type: object
             properties:
@@ -7432,6 +7547,19 @@ components:
                     description: 总数
                     format: int32
             description: 支付账单分页响应
+        PageRecommendRequestResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecommendRequest'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 推荐请求分页响应
         PageShopBannerResponse:
             type: object
             properties:
@@ -7596,6 +7724,62 @@ components:
                     description: 推荐位序号
                     format: int32
             description: 推荐上下文
+        RecommendEvent:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                actorType:
+                    type: integer
+                    description: 主体类型：字典【recommend_actor_type】
+                    format: int32
+                actorId:
+                    type: string
+                    description: 主体编号（仅内部定位使用）
+                scene:
+                    enum:
+                        - UNKNOWN_RS
+                        - HOME
+                        - GOODS_DETAIL
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    description: 推荐场景：字典【recommend_scene】
+                    format: enum
+                eventType:
+                    enum:
+                        - UNKNOWN_RET
+                        - EXPOSURE
+                        - CLICK
+                        - VIEW
+                        - COLLECT
+                        - ADD_CART
+                        - ORDER_CREATE
+                        - ORDER_PAY
+                    type: string
+                    description: 事件类型：枚举【RecommendEventType】
+                    format: enum
+                goodsId:
+                    type: string
+                    description: 商品ID
+                goodsNum:
+                    type: integer
+                    description: 商品数量
+                    format: int32
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                position:
+                    type: integer
+                    description: 结果位置
+                    format: int32
+                eventAt:
+                    type: string
+                    description: 事件时间
+            description: 推荐事件
         RecommendEventContext:
             type: object
             properties:
@@ -7694,6 +7878,158 @@ components:
                     type: string
                     description: JSON内容
             description: 远程推荐JSON响应
+        RecommendRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 主键ID
+                requestId:
+                    type: string
+                    description: 推荐请求ID
+                actorType:
+                    type: integer
+                    description: 主体类型：字典【recommend_actor_type】
+                    format: int32
+                actorId:
+                    type: string
+                    description: 主体编号（仅内部定位使用）
+                scene:
+                    enum:
+                        - UNKNOWN_RS
+                        - HOME
+                        - GOODS_DETAIL
+                        - CART
+                        - PROFILE
+                        - ORDER_DETAIL
+                        - ORDER_PAID
+                    type: string
+                    description: 推荐场景：字典【recommend_scene】
+                    format: enum
+                pageNum:
+                    type: integer
+                    description: 页码
+                    format: int32
+                pageSize:
+                    type: integer
+                    description: 分页大小
+                    format: int32
+                total:
+                    type: integer
+                    description: 本次返回总数
+                    format: int32
+                strategy:
+                    type: string
+                    description: 命中的推荐策略
+                providerName:
+                    type: string
+                    description: 最终命中的推荐器
+                requestAt:
+                    type: string
+                    description: 请求时间
+                actorInfo:
+                    type: string
+                    description: 主体信息
+            description: 推荐请求
+        RecommendRequestContext:
+            type: object
+            properties:
+                goodsId:
+                    type: string
+                    description: 锚点商品ID
+                orderId:
+                    type: string
+                    description: 关联订单ID
+                contextGoodsIds:
+                    type: array
+                    items:
+                        type: string
+                    description: 上下文商品ID列表
+                strategy:
+                    type: string
+                    description: 命中的推荐策略
+                providerName:
+                    type: string
+                    description: 上下文记录的推荐器
+                finalProviderName:
+                    type: string
+                    description: 最终命中的推荐器
+                trace:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecommendRequestTrace'
+                    description: 推荐请求链路轨迹
+                rawJson:
+                    type: string
+                    description: 原始上下文JSON
+            description: 推荐请求上下文信息
+        RecommendRequestDetailResponse:
+            type: object
+            properties:
+                request:
+                    $ref: '#/components/schemas/RecommendRequest'
+                context:
+                    $ref: '#/components/schemas/RecommendRequestContext'
+                itemList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecommendRequestItem'
+                    description: 当前请求页的推荐商品列表
+            description: 推荐请求详情响应
+        RecommendRequestItem:
+            type: object
+            properties:
+                goodsId:
+                    type: string
+                    description: 商品ID
+                position:
+                    type: integer
+                    description: 结果位置
+                    format: int32
+                goodsName:
+                    type: string
+                    description: 商品名称
+                picture:
+                    type: string
+                    description: 商品图片
+                price:
+                    type: string
+                    description: 当前价格（分）
+                discountPrice:
+                    type: string
+                    description: 折扣价格（分）
+                goodsStatus:
+                    enum:
+                        - UNKNOWN_GS
+                        - PUT_ON
+                        - PULL_OFF
+                    type: string
+                    description: 商品状态：枚举【GoodsStatus】
+                    format: enum
+                eventCount:
+                    type: string
+                    description: 关联事件条数
+            description: 推荐请求商品信息
+        RecommendRequestTrace:
+            type: object
+            properties:
+                providerName:
+                    type: string
+                    description: 推荐器名称
+                resultCount:
+                    type: integer
+                    description: 当前推荐器返回的商品数量
+                    format: int32
+                hit:
+                    type: boolean
+                    description: 当前推荐器是否命中
+                errorMsg:
+                    type: string
+                    description: 当前推荐器错误信息
+                isFinal:
+                    type: boolean
+                    description: 当前推荐器是否为最终命中的推荐器
+            description: 推荐请求链路轨迹
         RefreshTokenRequest:
             type: object
             properties:
@@ -8724,9 +9060,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -8748,9 +9084,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: Admin商品信息服务
-    - name: GoodsInfoService
       description: App商品信息服务
+    - name: GoodsInfoService
+      description: Admin商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsReportService
@@ -8775,12 +9111,14 @@ tags:
       description: App支付服务
     - name: RecommendRemoteService
       description: Admin远程推荐服务
+    - name: RecommendRequestService
+      description: Admin推荐请求服务
     - name: RecommendService
       description: App推荐服务
     - name: ShopBannerService
-      description: Admin商城轮播图服务
-    - name: ShopBannerService
       description: App商城轮播图服务
+    - name: ShopBannerService
+      description: Admin商城轮播图服务
     - name: ShopHotService
       description: App热门推荐服务
     - name: ShopHotService
