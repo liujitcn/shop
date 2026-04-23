@@ -6,18 +6,18 @@ import (
 	"shop/api/gen/go/common"
 )
 
-// LocalExploreReceiver 表示本地探索推荐接收器。
-type LocalExploreReceiver struct {
+// ExploreReceiver 表示本地探索推荐接收器。
+type ExploreReceiver struct {
 	recommend *Recommend
 }
 
-// NewLocalExploreReceiver 创建本地探索推荐接收器。
-func NewLocalExploreReceiver(recommend *Recommend) *LocalExploreReceiver {
-	return &LocalExploreReceiver{recommend: recommend}
+// NewExploreReceiver 创建本地探索推荐接收器。
+func NewExploreReceiver(recommend *Recommend) *ExploreReceiver {
+	return &ExploreReceiver{recommend: recommend}
 }
 
 // GetGoodsPage 查询全量商品探索推荐分页结果。
-func (r *LocalExploreReceiver) GetGoodsPage(
+func (r *ExploreReceiver) GetGoodsPage(
 	ctx context.Context,
 	scene common.RecommendScene,
 	requestId int64,

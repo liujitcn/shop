@@ -11,23 +11,23 @@ import (
 	client "github.com/gorse-io/gorse-go"
 )
 
-// OnlineNamedReceiver 表示命名推荐器接收器，负责邻近、命名召回和非个性化推荐。
-type OnlineNamedReceiver struct {
+// NamedReceiver 表示命名推荐器接收器，负责邻近、命名召回和非个性化推荐。
+type NamedReceiver struct {
 	recommend *Recommend
 }
 
-// NewOnlineNamedReceiver 创建命名推荐器接收器。
-func NewOnlineNamedReceiver(recommend *Recommend) *OnlineNamedReceiver {
-	return &OnlineNamedReceiver{recommend: recommend}
+// NewNamedReceiver 创建命名推荐器接收器。
+func NewNamedReceiver(recommend *Recommend) *NamedReceiver {
+	return &NamedReceiver{recommend: recommend}
 }
 
 // Enabled 判断当前命名推荐器接收器是否可用。
-func (r *OnlineNamedReceiver) Enabled() bool {
+func (r *NamedReceiver) Enabled() bool {
 	return r.recommend.Enabled()
 }
 
 // GetNeighborsGoodsIds 查询单商品邻近推荐列表。
-func (r *OnlineNamedReceiver) GetNeighborsGoodsIds(ctx context.Context, goodsId, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *NamedReceiver) GetNeighborsGoodsIds(ctx context.Context, goodsId, pageNum, pageSize int64) ([]int64, int64, error) {
 	// 客户端未启用或商品编号非法时，直接返回空结果。
 	if !r.Enabled() || goodsId <= 0 {
 		return []int64{}, 0, nil
@@ -46,7 +46,7 @@ func (r *OnlineNamedReceiver) GetNeighborsGoodsIds(ctx context.Context, goodsId,
 }
 
 // GetItemToItemGoodsIds 查询命名 item-to-item 推荐器结果。
-func (r *OnlineNamedReceiver) GetItemToItemGoodsIds(ctx context.Context, recommenderName string, goodsId, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *NamedReceiver) GetItemToItemGoodsIds(ctx context.Context, recommenderName string, goodsId, pageNum, pageSize int64) ([]int64, int64, error) {
 	// 客户端未启用、推荐器名称为空或商品编号非法时，直接返回空结果。
 	if !r.Enabled() || recommenderName == "" || goodsId <= 0 {
 		return []int64{}, 0, nil
@@ -66,7 +66,7 @@ func (r *OnlineNamedReceiver) GetItemToItemGoodsIds(ctx context.Context, recomme
 }
 
 // GetUserToUserGoodsIds 查询命名 user-to-user 推荐器结果。
-func (r *OnlineNamedReceiver) GetUserToUserGoodsIds(ctx context.Context, recommenderName string, actor *dto.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *NamedReceiver) GetUserToUserGoodsIds(ctx context.Context, recommenderName string, actor *dto.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
 	// 客户端未启用、推荐器名称为空、主体为空或主体不是登录用户时，直接返回空结果。
 	if !r.Enabled() || recommenderName == "" || !actor.IsValid() {
 		return []int64{}, 0, nil
@@ -90,7 +90,7 @@ func (r *OnlineNamedReceiver) GetUserToUserGoodsIds(ctx context.Context, recomme
 }
 
 // GetNonPersonalizedGoodsIds 查询命名非个性化推荐器结果。
-func (r *OnlineNamedReceiver) GetNonPersonalizedGoodsIds(ctx context.Context, recommenderName string, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *NamedReceiver) GetNonPersonalizedGoodsIds(ctx context.Context, recommenderName string, pageNum, pageSize int64) ([]int64, int64, error) {
 	// 客户端未启用或推荐器名称为空时，直接返回空结果。
 	if !r.Enabled() || recommenderName == "" {
 		return []int64{}, 0, nil
@@ -109,7 +109,7 @@ func (r *OnlineNamedReceiver) GetNonPersonalizedGoodsIds(ctx context.Context, re
 	return r.recommend.buildPageResultFromScores(scores, limit, pageNum, pageSize, nil)
 }
 
-// resolveAnchorGoodsId 解析当前在线推荐使用的锚点商品编号。
+// resolveAnchorGoodsId 解析当前远程推荐使用的锚点商品编号。
 func (r *Recommend) resolveAnchorGoodsId(goodsId int64, contextGoodsIds []int64) int64 {
 	// 当前请求显式传入锚点商品时，优先使用该商品。
 	if goodsId > 0 {

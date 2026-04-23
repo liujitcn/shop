@@ -7,55 +7,55 @@ import (
 	"shop/pkg/recommend/dto"
 )
 
-// RemoteProviderName 表示在线推荐 provider 标识。
-type RemoteProviderName string
+// ProviderName 表示远程推荐 provider 标识。
+type ProviderName string
 
 const (
 	// GetRecommend 表示登录用户个性化推荐，对应 Gorse 的 GetRecommend API。
-	GetRecommend RemoteProviderName = "recommend"
+	GetRecommend ProviderName = "recommend"
 	// UserToUserSimilarUsers 表示命名 user-to-user/similar_users 推荐器。
-	UserToUserSimilarUsers RemoteProviderName = "user_to_user.similar_users"
+	UserToUserSimilarUsers ProviderName = "user_to_user.similar_users"
 	// Session 表示会话级推荐，对应 Gorse 的 SessionRecommend API。
-	Session RemoteProviderName = "session"
+	Session ProviderName = "session"
 	// Neighbors 表示相邻商品推荐，对应 Gorse 的 GetNeighbors API。
-	Neighbors RemoteProviderName = "neighbors"
+	Neighbors ProviderName = "neighbors"
 	// ItemToItemGoodsRelation 表示命名 item-to-item/goods_relation 推荐器。
-	ItemToItemGoodsRelation RemoteProviderName = "item_to_item.goods_relation"
+	ItemToItemGoodsRelation ProviderName = "item_to_item.goods_relation"
 	// NonPersonalizedHot30d 表示命名 non-personalized/hot_30d 推荐器。
-	NonPersonalizedHot30d RemoteProviderName = "non_personalized.hot_30d"
+	NonPersonalizedHot30d ProviderName = "non_personalized.hot_30d"
 	// NonPersonalizedHot7d 表示命名 non-personalized/hot_7d 推荐器。
-	NonPersonalizedHot7d RemoteProviderName = "non_personalized.hot_7d"
+	NonPersonalizedHot7d ProviderName = "non_personalized.hot_7d"
 	// NonPersonalizedHotPay30d 表示命名 non-personalized/hot_pay_30d 推荐器。
-	NonPersonalizedHotPay30d RemoteProviderName = "non_personalized.hot_pay_30d"
+	NonPersonalizedHotPay30d ProviderName = "non_personalized.hot_pay_30d"
 	// Latest 表示最新商品推荐，对应 Gorse 的 GetLatestItems API。
-	Latest RemoteProviderName = "latest"
+	Latest ProviderName = "latest"
 )
 
-// OnlineChainReceiver 表示在线推荐责任链接收器。
-type OnlineChainReceiver struct {
-	recommend     *Recommend
-	onlineUser    *OnlineUserReceiver
-	onlineSession *OnlineSessionReceiver
-	onlineNamed   *OnlineNamedReceiver
+// ChainReceiver 表示远程推荐责任链接收器。
+type ChainReceiver struct {
+	recommend *Recommend
+	user      *UserReceiver
+	session   *SessionReceiver
+	named     *NamedReceiver
 }
 
-// NewOnlineChainReceiver 创建在线推荐责任链接收器。
-func NewOnlineChainReceiver(recommend *Recommend, onlineUser *OnlineUserReceiver, onlineSession *OnlineSessionReceiver, onlineNamed *OnlineNamedReceiver) *OnlineChainReceiver {
-	return &OnlineChainReceiver{
-		recommend:     recommend,
-		onlineUser:    onlineUser,
-		onlineSession: onlineSession,
-		onlineNamed:   onlineNamed,
+// NewChainReceiver 创建远程推荐责任链接收器。
+func NewChainReceiver(recommend *Recommend, user *UserReceiver, session *SessionReceiver, named *NamedReceiver) *ChainReceiver {
+	return &ChainReceiver{
+		recommend: recommend,
+		user:      user,
+		session:   session,
+		named:     named,
 	}
 }
 
-// Enabled 判断当前在线推荐责任链接收器是否可用。
-func (r *OnlineChainReceiver) Enabled() bool {
+// Enabled 判断当前远程推荐责任链接收器是否可用。
+func (r *ChainReceiver) Enabled() bool {
 	return r.recommend.Enabled()
 }
 
-// ExecuteOnlinePlan 按场景组装步骤并执行在线推荐责任链。
-func (r *OnlineChainReceiver) ExecuteOnlinePlan(
+// ExecutePlan 按场景组装步骤并执行远程推荐责任链。
+func (r *ChainReceiver) ExecutePlan(
 	ctx context.Context,
 	scene common.RecommendScene,
 	actor *dto.RecommendActor,
@@ -73,7 +73,7 @@ func (r *OnlineChainReceiver) ExecuteOnlinePlan(
 		return result, nil
 	}
 
-	chain := r.buildOnlineRecommendChain(scene, actor)
+	chain := r.buildRecommendChain(scene, actor)
 	// 推荐责任链为空时，直接返回空结果，交由业务侧继续走本地兜底。
 	if len(chain) == 0 {
 		return result, nil
@@ -119,15 +119,15 @@ func (r *OnlineChainReceiver) ExecuteOnlinePlan(
 	return result, nil
 }
 
-// buildOnlineRecommendChain 按场景构建在线推荐责任链。
-func (r *OnlineChainReceiver) buildOnlineRecommendChain(scene common.RecommendScene, actor *dto.RecommendActor) []RemoteProviderName {
+// buildRecommendChain 按场景构建远程推荐责任链。
+func (r *ChainReceiver) buildRecommendChain(scene common.RecommendScene, actor *dto.RecommendActor) []ProviderName {
 	// 推荐主体缺失或主体编号非法时，当前请求无法走推荐系统推荐。
 	if !actor.IsValid() {
-		return []RemoteProviderName{}
+		return []ProviderName{}
 	}
 
 	isLogin := actor.IsUser()
-	steps := make([]RemoteProviderName, 0, 6)
+	steps := make([]ProviderName, 0, 6)
 	switch scene {
 	case common.RecommendScene_HOME:
 		// 首页
@@ -206,42 +206,42 @@ func (r *OnlineChainReceiver) buildOnlineRecommendChain(scene common.RecommendSc
 	return steps
 }
 
-// buildProviders 构建在线推荐 provider 注册表。
-func (r *OnlineChainReceiver) buildProviders(
+// buildProviders 构建远程推荐 provider 注册表。
+func (r *ChainReceiver) buildProviders(
 	actor *dto.RecommendActor,
 	goodsId int64,
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
-) map[RemoteProviderName]func(ctx context.Context) ([]int64, int64, error) {
-	return map[RemoteProviderName]func(ctx context.Context) ([]int64, int64, error){
+) map[ProviderName]func(ctx context.Context) ([]int64, int64, error) {
+	return map[ProviderName]func(ctx context.Context) ([]int64, int64, error){
 		GetRecommend: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineUser.GetGoodsIds(ctx, actor, pageNum, pageSize)
+			return r.user.GetGoodsIds(ctx, actor, pageNum, pageSize)
 		},
 		UserToUserSimilarUsers: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineNamed.GetUserToUserGoodsIds(ctx, "similar_users", actor, pageNum, pageSize)
+			return r.named.GetUserToUserGoodsIds(ctx, "similar_users", actor, pageNum, pageSize)
 		},
 		Session: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineSession.GetGoodsIds(ctx, contextGoodsIds, pageNum, pageSize)
+			return r.session.GetGoodsIds(ctx, contextGoodsIds, pageNum, pageSize)
 		},
 		Neighbors: func(ctx context.Context) ([]int64, int64, error) {
 			anchorGoodsId := r.recommend.resolveAnchorGoodsId(goodsId, contextGoodsIds)
-			return r.onlineNamed.GetNeighborsGoodsIds(ctx, anchorGoodsId, pageNum, pageSize)
+			return r.named.GetNeighborsGoodsIds(ctx, anchorGoodsId, pageNum, pageSize)
 		},
 		ItemToItemGoodsRelation: func(ctx context.Context) ([]int64, int64, error) {
 			anchorGoodsId := r.recommend.resolveAnchorGoodsId(goodsId, contextGoodsIds)
-			return r.onlineNamed.GetItemToItemGoodsIds(ctx, "goods_relation", anchorGoodsId, pageNum, pageSize)
+			return r.named.GetItemToItemGoodsIds(ctx, "goods_relation", anchorGoodsId, pageNum, pageSize)
 		},
 		NonPersonalizedHot30d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineNamed.GetNonPersonalizedGoodsIds(ctx, "hot_30d", pageNum, pageSize)
+			return r.named.GetNonPersonalizedGoodsIds(ctx, "hot_30d", pageNum, pageSize)
 		},
 		NonPersonalizedHot7d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineNamed.GetNonPersonalizedGoodsIds(ctx, "hot_7d", pageNum, pageSize)
+			return r.named.GetNonPersonalizedGoodsIds(ctx, "hot_7d", pageNum, pageSize)
 		},
 		NonPersonalizedHotPay30d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineNamed.GetNonPersonalizedGoodsIds(ctx, "hot_pay_30d", pageNum, pageSize)
+			return r.named.GetNonPersonalizedGoodsIds(ctx, "hot_pay_30d", pageNum, pageSize)
 		},
 		Latest: func(ctx context.Context) ([]int64, int64, error) {
-			return r.onlineSession.GetLatestGoodsIds(ctx, pageNum, pageSize)
+			return r.session.GetLatestGoodsIds(ctx, pageNum, pageSize)
 		},
 	}
 }

@@ -8,40 +8,40 @@ import (
 )
 
 type localPlan struct {
-	providerName LocalProviderName
+	providerName ProviderName
 	scoreWeight  localScoreWeight
 }
 
-// LocalChainReceiver 表示本地推荐责任链接收器。
-type LocalChainReceiver struct {
-	recommend    *Recommend
-	localContext *LocalContextReceiver
-	localHot     *LocalHotReceiver
-	localExplore *LocalExploreReceiver
+// ChainReceiver 表示本地推荐责任链接收器。
+type ChainReceiver struct {
+	recommend       *Recommend
+	contextReceiver *ContextReceiver
+	hot             *HotReceiver
+	explore         *ExploreReceiver
 }
 
-// NewLocalChainReceiver 创建本地推荐责任链接收器。
-func NewLocalChainReceiver(
+// NewChainReceiver 创建本地推荐责任链接收器。
+func NewChainReceiver(
 	recommend *Recommend,
-	localContext *LocalContextReceiver,
-	localHot *LocalHotReceiver,
-	localExplore *LocalExploreReceiver,
-) *LocalChainReceiver {
-	return &LocalChainReceiver{
-		recommend:    recommend,
-		localContext: localContext,
-		localHot:     localHot,
-		localExplore: localExplore,
+	contextReceiver *ContextReceiver,
+	hot *HotReceiver,
+	explore *ExploreReceiver,
+) *ChainReceiver {
+	return &ChainReceiver{
+		recommend:       recommend,
+		contextReceiver: contextReceiver,
+		hot:             hot,
+		explore:         explore,
 	}
 }
 
 // Enabled 判断当前本地推荐责任链接收器是否可用。
-func (r *LocalChainReceiver) Enabled() bool {
+func (r *ChainReceiver) Enabled() bool {
 	return r != nil && r.recommend != nil && r.recommend.Enabled()
 }
 
-// ExecuteLocalPlan 按场景执行单一的本地推荐策略。
-func (r *LocalChainReceiver) ExecuteLocalPlan(
+// ExecutePlan 按场景执行单一的本地推荐策略。
+func (r *ChainReceiver) ExecutePlan(
 	ctx context.Context,
 	scene common.RecommendScene,
 	actor *dto.RecommendActor,
@@ -69,7 +69,7 @@ func (r *LocalChainReceiver) ExecuteLocalPlan(
 		normalizedContextGoodsIds = append(normalizedContextGoodsIds, goodsId)
 	}
 
-	plan := r.buildLocalRecommendPlan(scene, actor, normalizedContextGoodsIds)
+	plan := r.buildRecommendPlan(scene, actor, normalizedContextGoodsIds)
 	// 当前场景没有可执行的本地推荐器时，直接返回空结果。
 	if plan.providerName == "" {
 		return result, nil
@@ -111,8 +111,8 @@ func (r *LocalChainReceiver) ExecuteLocalPlan(
 	return result, nil
 }
 
-// buildLocalRecommendPlan 按场景构建单一的本地推荐方案。
-func (r *LocalChainReceiver) buildLocalRecommendPlan(
+// buildRecommendPlan 按场景构建单一的本地推荐方案。
+func (r *ChainReceiver) buildRecommendPlan(
 	scene common.RecommendScene,
 	actor *dto.RecommendActor,
 	contextGoodsIds []int64,
@@ -211,28 +211,28 @@ func (r *LocalChainReceiver) buildLocalRecommendPlan(
 }
 
 // buildProviders 构建本地推荐 provider 注册表。
-func (r *LocalChainReceiver) buildProviders(
+func (r *ChainReceiver) buildProviders(
 	scene common.RecommendScene,
 	requestId int64,
 	contextGoodsIds []int64,
 	plan *localPlan,
 	pageNum, pageSize int64,
-) map[LocalProviderName]func(ctx context.Context) ([]int64, int64, error) {
-	return map[LocalProviderName]func(ctx context.Context) ([]int64, int64, error){
+) map[ProviderName]func(ctx context.Context) ([]int64, int64, error) {
+	return map[ProviderName]func(ctx context.Context) ([]int64, int64, error){
 		ContextCategory7d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.localContext.GetGoodsPage(ctx, contextGoodsIds, 7, plan.scoreWeight, pageNum, pageSize)
+			return r.contextReceiver.GetGoodsPage(ctx, contextGoodsIds, 7, plan.scoreWeight, pageNum, pageSize)
 		},
 		ContextCategory30d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.localContext.GetGoodsPage(ctx, contextGoodsIds, 30, plan.scoreWeight, pageNum, pageSize)
+			return r.contextReceiver.GetGoodsPage(ctx, contextGoodsIds, 30, plan.scoreWeight, pageNum, pageSize)
 		},
 		NonPersonalizedHot7d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.localHot.GetGoodsPage(ctx, contextGoodsIds, 7, plan.scoreWeight, pageNum, pageSize)
+			return r.hot.GetGoodsPage(ctx, contextGoodsIds, 7, plan.scoreWeight, pageNum, pageSize)
 		},
 		NonPersonalizedHot30d: func(ctx context.Context) ([]int64, int64, error) {
-			return r.localHot.GetGoodsPage(ctx, contextGoodsIds, 30, plan.scoreWeight, pageNum, pageSize)
+			return r.hot.GetGoodsPage(ctx, contextGoodsIds, 30, plan.scoreWeight, pageNum, pageSize)
 		},
 		ExploreAllGoods: func(ctx context.Context) ([]int64, int64, error) {
-			return r.localExplore.GetGoodsPage(ctx, scene, requestId, contextGoodsIds, pageNum, pageSize)
+			return r.explore.GetGoodsPage(ctx, scene, requestId, contextGoodsIds, pageNum, pageSize)
 		},
 	}
 }

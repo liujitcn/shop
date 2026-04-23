@@ -25,10 +25,6 @@ type localScoreWeight struct {
 	payGoodsWeight float64
 }
 
-type recommendGoodsRow struct {
-	GoodsId int64 `gorm:"column:goods_id"` // 商品编号
-}
-
 // Recommend 表示本地推荐基础客户端。
 type Recommend struct {
 	goodsInfoRepo    *data.GoodsInfoRepo
@@ -82,17 +78,16 @@ func (r *Recommend) ListRankedGoodsPage(
 	scoreWeight localScoreWeight,
 	pageNum, pageSize int64,
 ) ([]int64, int64, error) {
-	rows := make([]*recommendGoodsRow, 0)
+	goodsIds := make([]int64, 0)
 	// 页码或每页条数非法时，不再继续查询热度结果。
 	if pageNum <= 0 || pageSize <= 0 {
 		return []int64{}, 0, nil
 	}
 
 	startAt, endAt := r.buildStatRange(statDays)
-	goodsQuery := r.goodsInfoRepo.Query(ctx).GoodsInfo.As("g")
-	statQuery := r.goodsStatDayRepo.Query(ctx).GoodsStatDay.As("s")
+	goodsQuery := r.goodsInfoRepo.Query(ctx).GoodsInfo
+	statQuery := r.goodsStatDayRepo.Query(ctx).GoodsStatDay
 	opts := make([]repo.QueryOption, 0, 8)
-	opts = append(opts, repo.Select(goodsQuery.ID.As("goods_id")))
 	opts = append(opts, repo.LeftJoin(
 		statQuery,
 		statQuery.GoodsID.EqCol(goodsQuery.ID),
@@ -137,11 +132,11 @@ func (r *Recommend) ListRankedGoodsPage(
 	if err != nil {
 		return nil, 0, err
 	}
-	err = dao.Offset(pageOffset).Limit(int(pageSize)).Scan(&rows)
+	goodsIds, err = r.scanSelectedGoodsIds(dao, goodsQuery.ID, pageOffset, int(pageSize))
 	if err != nil {
 		return nil, 0, err
 	}
-	return r.convertGoodsRowToIds(rows), total, nil
+	return goodsIds, total, nil
 }
 
 // ListExploreGoodsPage 查询探索曝光候选池商品分页结果。
@@ -150,15 +145,14 @@ func (r *Recommend) ListExploreGoodsPage(
 	excludedGoodsIds []int64,
 	seed, pageNum, pageSize int64,
 ) ([]int64, int64, error) {
-	rows := make([]*recommendGoodsRow, 0)
+	goodsIds := make([]int64, 0)
 	// 页码或每页条数非法时，不再继续查询探索结果。
 	if pageNum <= 0 || pageSize <= 0 {
 		return []int64{}, 0, nil
 	}
 
-	query := r.goodsInfoRepo.Query(ctx).GoodsInfo.As("g")
+	query := r.goodsInfoRepo.Query(ctx).GoodsInfo
 	opts := make([]repo.QueryOption, 0, 5)
-	opts = append(opts, repo.Select(query.ID.As("goods_id")))
 	opts = append(opts, repo.Where(query.DeletedAt.IsNull()))
 	opts = append(opts, repo.Where(query.Status.Eq(int32(common.GoodsStatus_PUT_ON))))
 	// 存在上下文商品时，从探索池里排除当前上下文商品。
@@ -177,11 +171,11 @@ func (r *Recommend) ListExploreGoodsPage(
 	if err != nil {
 		return nil, 0, err
 	}
-	err = dao.Offset(pageOffset).Limit(int(pageSize)).Scan(&rows)
+	goodsIds, err = r.scanSelectedGoodsIds(dao, query.ID, pageOffset, int(pageSize))
 	if err != nil {
 		return nil, 0, err
 	}
-	return r.convertGoodsRowToIds(rows), total, nil
+	return goodsIds, total, nil
 }
 
 // buildStatRange 构建本地热度统计时间窗口。
@@ -239,17 +233,28 @@ func (r *Recommend) buildExploreExpr(goodsId field.Int64, seed int64) field.Int6
 	return goodsId.Mul(131).Add(seed).Mod(1000003)
 }
 
-// convertGoodsRowToIds 将查询结果转换为商品编号列表。
-func (r *Recommend) convertGoodsRowToIds(rows []*recommendGoodsRow) []int64 {
-	goodsIds := make([]int64, 0, len(rows))
-	for _, item := range rows {
-		// 查询结果里的非法商品编号不参与候选池构建。
-		if item == nil || item.GoodsId <= 0 {
-			continue
-		}
-		goodsIds = append(goodsIds, item.GoodsId)
+// scanSelectedGoodsIds 扫描单列商品编号查询结果。
+func (r *Recommend) scanSelectedGoodsIds(dao gen.Dao, goodsIdField field.Int64, pageOffset, pageSize int) ([]int64, error) {
+	goodsIds := make([]int64, 0)
+	rows, err := dao.Select(goodsIdField).Offset(pageOffset).Limit(pageSize).Rows()
+	if err != nil {
+		return nil, err
 	}
-	return goodsIds
+	defer rows.Close()
+
+	for rows.Next() {
+		goodsId := int64(0)
+		err = rows.Scan(&goodsId)
+		if err != nil {
+			return nil, err
+		}
+		goodsIds = append(goodsIds, goodsId)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return goodsIds, nil
 }
 
 // parseCategoryIds 解析商品分类编号列表。

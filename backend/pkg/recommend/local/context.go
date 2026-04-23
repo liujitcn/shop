@@ -2,18 +2,18 @@ package local
 
 import "context"
 
-// LocalContextReceiver 表示本地上下文推荐接收器。
-type LocalContextReceiver struct {
+// ContextReceiver 表示本地上下文推荐接收器。
+type ContextReceiver struct {
 	recommend *Recommend
 }
 
-// NewLocalContextReceiver 创建本地上下文推荐接收器。
-func NewLocalContextReceiver(recommend *Recommend) *LocalContextReceiver {
-	return &LocalContextReceiver{recommend: recommend}
+// NewContextReceiver 创建本地上下文推荐接收器。
+func NewContextReceiver(recommend *Recommend) *ContextReceiver {
+	return &ContextReceiver{recommend: recommend}
 }
 
 // GetGoodsPage 查询上下文类目推荐商品分页结果。
-func (r *LocalContextReceiver) GetGoodsPage(
+func (r *ContextReceiver) GetGoodsPage(
 	ctx context.Context,
 	contextGoodsIds []int64,
 	statDays int,

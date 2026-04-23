@@ -10,23 +10,23 @@ import (
 	client "github.com/gorse-io/gorse-go"
 )
 
-// OnlineSessionReceiver 表示会话级在线推荐接收器。
-type OnlineSessionReceiver struct {
+// SessionReceiver 表示会话级远程推荐接收器。
+type SessionReceiver struct {
 	recommend *Recommend
 }
 
-// NewOnlineSessionReceiver 创建会话级在线推荐接收器。
-func NewOnlineSessionReceiver(recommend *Recommend) *OnlineSessionReceiver {
-	return &OnlineSessionReceiver{recommend: recommend}
+// NewSessionReceiver 创建会话级远程推荐接收器。
+func NewSessionReceiver(recommend *Recommend) *SessionReceiver {
+	return &SessionReceiver{recommend: recommend}
 }
 
-// Enabled 判断当前会话级在线推荐接收器是否可用。
-func (r *OnlineSessionReceiver) Enabled() bool {
+// Enabled 判断当前会话级远程推荐接收器是否可用。
+func (r *SessionReceiver) Enabled() bool {
 	return r.recommend.Enabled()
 }
 
 // ListGoodsIds 查询当前会话前 N 条原始推荐商品编号。
-func (r *OnlineSessionReceiver) ListGoodsIds(ctx context.Context, contextGoodsIds []int64, limit int64) ([]int64, bool, error) {
+func (r *SessionReceiver) ListGoodsIds(ctx context.Context, contextGoodsIds []int64, limit int64) ([]int64, bool, error) {
 	// 客户端未启用或上下文商品为空时，直接返回空会话推荐结果。
 	if !r.Enabled() || len(contextGoodsIds) == 0 {
 		return []int64{}, false, nil
@@ -66,7 +66,7 @@ func (r *OnlineSessionReceiver) ListGoodsIds(ctx context.Context, contextGoodsId
 }
 
 // GetGoodsIds 查询会话级推荐商品编号列表。
-func (r *OnlineSessionReceiver) GetGoodsIds(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *SessionReceiver) GetGoodsIds(ctx context.Context, contextGoodsIds []int64, pageNum, pageSize int64) ([]int64, int64, error) {
 	limit := pageNum*pageSize + 1
 	rawIds, hasMore, err := r.ListGoodsIds(ctx, contextGoodsIds, limit)
 	if err != nil {
@@ -76,7 +76,7 @@ func (r *OnlineSessionReceiver) GetGoodsIds(ctx context.Context, contextGoodsIds
 }
 
 // GetLatestGoodsIds 查询最新商品推荐列表。
-func (r *OnlineSessionReceiver) GetLatestGoodsIds(ctx context.Context, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *SessionReceiver) GetLatestGoodsIds(ctx context.Context, pageNum, pageSize int64) ([]int64, int64, error) {
 	// 客户端未启用时，直接返回空结果，由业务侧继续走本地兜底。
 	if !r.Enabled() {
 		return []int64{}, 0, nil
@@ -103,7 +103,7 @@ func (r *OnlineSessionReceiver) GetLatestGoodsIds(ctx context.Context, pageNum, 
 }
 
 // cleanContextGoodsIds 清洗会话上下文商品编号列表。
-func (r *OnlineSessionReceiver) cleanContextGoodsIds(contextGoodsIds []int64) []int64 {
+func (r *SessionReceiver) cleanContextGoodsIds(contextGoodsIds []int64) []int64 {
 	cleanGoodsIds := make([]int64, 0, len(contextGoodsIds))
 	excludedGoods := make(map[int64]struct{}, len(contextGoodsIds))
 	for _, goodsId := range contextGoodsIds {

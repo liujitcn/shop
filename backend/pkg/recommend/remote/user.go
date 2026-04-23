@@ -7,23 +7,23 @@ import (
 	"shop/pkg/recommend/dto"
 )
 
-// OnlineUserReceiver 表示登录用户在线推荐接收器。
-type OnlineUserReceiver struct {
+// UserReceiver 表示登录用户远程推荐接收器。
+type UserReceiver struct {
 	recommend *Recommend
 }
 
-// NewOnlineUserReceiver 创建登录用户在线推荐接收器。
-func NewOnlineUserReceiver(recommend *Recommend) *OnlineUserReceiver {
-	return &OnlineUserReceiver{recommend: recommend}
+// NewUserReceiver 创建登录用户远程推荐接收器。
+func NewUserReceiver(recommend *Recommend) *UserReceiver {
+	return &UserReceiver{recommend: recommend}
 }
 
-// Enabled 判断当前登录用户在线推荐接收器是否可用。
-func (r *OnlineUserReceiver) Enabled() bool {
+// Enabled 判断当前登录用户远程推荐接收器是否可用。
+func (r *UserReceiver) Enabled() bool {
 	return r.recommend.Enabled()
 }
 
 // ListGoodsIds 查询当前用户前 N 条原始推荐商品编号。
-func (r *OnlineUserReceiver) ListGoodsIds(ctx context.Context, actor *dto.RecommendActor, limit int64) ([]int64, bool, error) {
+func (r *UserReceiver) ListGoodsIds(ctx context.Context, actor *dto.RecommendActor, limit int64) ([]int64, bool, error) {
 	// 客户端未启用、推荐主体无效或主体不是登录用户时，直接返回空推荐结果。
 	if !r.Enabled() || !actor.IsValid() {
 		return []int64{}, false, nil
@@ -45,7 +45,7 @@ func (r *OnlineUserReceiver) ListGoodsIds(ctx context.Context, actor *dto.Recomm
 }
 
 // GetGoodsIds 查询用户维度推荐商品编号列表。
-func (r *OnlineUserReceiver) GetGoodsIds(ctx context.Context, actor *dto.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
+func (r *UserReceiver) GetGoodsIds(ctx context.Context, actor *dto.RecommendActor, pageNum, pageSize int64) ([]int64, int64, error) {
 	limit := pageNum*pageSize + 1
 	rawIds, hasMore, err := r.ListGoodsIds(ctx, actor, limit)
 	if err != nil {

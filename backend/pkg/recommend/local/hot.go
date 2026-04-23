@@ -2,18 +2,18 @@ package local
 
 import "context"
 
-// LocalHotReceiver 表示本地热度推荐接收器。
-type LocalHotReceiver struct {
+// HotReceiver 表示本地热度推荐接收器。
+type HotReceiver struct {
 	recommend *Recommend
 }
 
-// NewLocalHotReceiver 创建本地热度推荐接收器。
-func NewLocalHotReceiver(recommend *Recommend) *LocalHotReceiver {
-	return &LocalHotReceiver{recommend: recommend}
+// NewHotReceiver 创建本地热度推荐接收器。
+func NewHotReceiver(recommend *Recommend) *HotReceiver {
+	return &HotReceiver{recommend: recommend}
 }
 
 // GetGoodsPage 查询全站热度推荐商品分页结果。
-func (r *LocalHotReceiver) GetGoodsPage(
+func (r *HotReceiver) GetGoodsPage(
 	ctx context.Context,
 	excludedGoodsIds []int64,
 	statDays int,

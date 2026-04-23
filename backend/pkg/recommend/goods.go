@@ -12,12 +12,12 @@ import (
 
 // GoodsReceiver 表示推荐商品统一入口。
 type GoodsReceiver struct {
-	remoteChain *pkgRemote.OnlineChainReceiver
-	localChain  *pkgLocal.LocalChainReceiver
+	remoteChain *pkgRemote.ChainReceiver
+	localChain  *pkgLocal.ChainReceiver
 }
 
 // NewGoodsReceiver 创建推荐商品统一入口。
-func NewGoodsReceiver(remoteChain *pkgRemote.OnlineChainReceiver, localChain *pkgLocal.LocalChainReceiver) *GoodsReceiver {
+func NewGoodsReceiver(remoteChain *pkgRemote.ChainReceiver, localChain *pkgLocal.ChainReceiver) *GoodsReceiver {
 	return &GoodsReceiver{
 		remoteChain: remoteChain,
 		localChain:  localChain,
@@ -37,7 +37,7 @@ func (r *GoodsReceiver) RecommendGoods(ctx context.Context, req *dto.GoodsReques
 
 	// 当前配置了远端推荐链路时，统一只走远端推荐，不再混入本地来源。
 	if r.remoteChain != nil && r.remoteChain.Enabled() {
-		return r.remoteChain.ExecuteOnlinePlan(
+		return r.remoteChain.ExecutePlan(
 			ctx,
 			req.Scene,
 			req.Actor,
@@ -47,7 +47,7 @@ func (r *GoodsReceiver) RecommendGoods(ctx context.Context, req *dto.GoodsReques
 			req.PageSize,
 		)
 	}
-	return r.localChain.ExecuteLocalPlan(
+	return r.localChain.ExecutePlan(
 		ctx,
 		req.Scene,
 		req.Actor,
