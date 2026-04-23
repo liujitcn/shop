@@ -40,7 +40,7 @@ func (r *UserSyncReceiver) LoadIds(ctx context.Context, pageSize int) (mapset.Se
 	userIdSet := mapset.NewThreadUnsafeSetWithSize[string](pageSize)
 	cursor := ""
 	for {
-		iterator, err := r.recommend.gorseClient.GetUsers(r.recommend.defaultContext(ctx), pageSize, cursor)
+		iterator, err := r.recommend.gorseClient.GetUsers(ctx, pageSize, cursor)
 		if err != nil {
 			return nil, err
 		}
@@ -66,8 +66,6 @@ func (r *UserSyncReceiver) SyncList(ctx context.Context, userList []*models.Base
 	if !r.Enabled() {
 		return nil
 	}
-	ctx = r.recommend.defaultContext(ctx)
-
 	// 未传远端索引时，回退到单条 upsert 逻辑保证兼容性。
 	if existingUserIds == nil {
 		for _, user := range userList {
@@ -140,8 +138,6 @@ func (r *UserSyncReceiver) DeleteIds(ctx context.Context, staleUserIds mapset.Se
 	if !r.Enabled() || staleUserIds == nil || staleUserIds.IsEmpty() {
 		return nil
 	}
-	ctx = r.recommend.defaultContext(ctx)
-
 	var deleteErr error
 	for userId := range staleUserIds.Iter() {
 		// 待删除编号为空时，直接跳过当前无效主体。
@@ -163,8 +159,6 @@ func (r *UserSyncReceiver) sync(ctx context.Context, user *models.BaseUser) erro
 	if !r.Enabled() || user == nil || user.ID <= 0 {
 		return nil
 	}
-	ctx = r.recommend.defaultContext(ctx)
-
 	recommendUser, userPatch := r.buildPayload(user)
 	_, err := r.recommend.gorseClient.InsertUser(ctx, recommendUser)
 	if err == nil {

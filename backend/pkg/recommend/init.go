@@ -1,6 +1,7 @@
 package recommend
 
 import (
+	pkgLocal "shop/pkg/recommend/local"
 	pkgRemote "shop/pkg/recommend/remote"
 
 	"github.com/google/wire"
@@ -16,4 +17,10 @@ var ProviderSet = wire.NewSet(
 	pkgRemote.NewOnlineNamedReceiver,
 	pkgRemote.NewOnlineChainReceiver,
 	pkgRemote.NewQueueReceiver,
+	pkgLocal.NewRecommend,
+	pkgLocal.NewLocalContextReceiver,
+	pkgLocal.NewLocalHotReceiver,
+	pkgLocal.NewLocalExploreReceiver,
+	pkgLocal.NewLocalChainReceiver,
+	NewGoodsReceiver,
 )

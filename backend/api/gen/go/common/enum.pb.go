@@ -1177,209 +1177,6 @@ func (RecommendEventType) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{20}
 }
 
-// 推荐主体类型枚举
-type RecommendActorType int32
-
-const (
-	RecommendActorType_UNKNOWN_RAT RecommendActorType = 0 // 未指定主体类型
-	RecommendActorType_ANONYMOUS   RecommendActorType = 1 // 匿名用户
-	RecommendActorType_USER        RecommendActorType = 2 // 用户
-)
-
-// Enum value maps for RecommendActorType.
-var (
-	RecommendActorType_name = map[int32]string{
-		0: "UNKNOWN_RAT",
-		1: "ANONYMOUS",
-		2: "USER",
-	}
-	RecommendActorType_value = map[string]int32{
-		"UNKNOWN_RAT": 0,
-		"ANONYMOUS":   1,
-		"USER":        2,
-	}
-)
-
-func (x RecommendActorType) Enum() *RecommendActorType {
-	p := new(RecommendActorType)
-	*p = x
-	return p
-}
-
-func (x RecommendActorType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RecommendActorType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_enum_proto_enumTypes[21].Descriptor()
-}
-
-func (RecommendActorType) Type() protoreflect.EnumType {
-	return &file_common_enum_proto_enumTypes[21]
-}
-
-func (x RecommendActorType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RecommendActorType.Descriptor instead.
-func (RecommendActorType) EnumDescriptor() ([]byte, []int) {
-	return file_common_enum_proto_rawDescGZIP(), []int{21}
-}
-
-// 推荐请求策略枚举
-type RecommendRequestStrategyType int32
-
-const (
-	RecommendRequestStrategyType_UNKNOWN_RRST      RecommendRequestStrategyType = 0 // 未指定推荐请求策略
-	RecommendRequestStrategyType_CATEGORY_FALLBACK RecommendRequestStrategyType = 1 // 同类目兜底
-	RecommendRequestStrategyType_LATEST_FALLBACK   RecommendRequestStrategyType = 2 // 最新热销兜底
-)
-
-// Enum value maps for RecommendRequestStrategyType.
-var (
-	RecommendRequestStrategyType_name = map[int32]string{
-		0: "UNKNOWN_RRST",
-		1: "CATEGORY_FALLBACK",
-		2: "LATEST_FALLBACK",
-	}
-	RecommendRequestStrategyType_value = map[string]int32{
-		"UNKNOWN_RRST":      0,
-		"CATEGORY_FALLBACK": 1,
-		"LATEST_FALLBACK":   2,
-	}
-)
-
-func (x RecommendRequestStrategyType) Enum() *RecommendRequestStrategyType {
-	p := new(RecommendRequestStrategyType)
-	*p = x
-	return p
-}
-
-func (x RecommendRequestStrategyType) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RecommendRequestStrategyType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_enum_proto_enumTypes[22].Descriptor()
-}
-
-func (RecommendRequestStrategyType) Type() protoreflect.EnumType {
-	return &file_common_enum_proto_enumTypes[22]
-}
-
-func (x RecommendRequestStrategyType) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RecommendRequestStrategyType.Descriptor instead.
-func (RecommendRequestStrategyType) EnumDescriptor() ([]byte, []int) {
-	return file_common_enum_proto_rawDescGZIP(), []int{22}
-}
-
-// 推荐请求结果来源枚举
-type RecommendRequestSource int32
-
-const (
-	RecommendRequestSource_UNKNOWN_RRSO RecommendRequestSource = 0 // 未指定推荐请求结果来源
-	RecommendRequestSource_LOCAL        RecommendRequestSource = 1 // 本地兜底结果
-	RecommendRequestSource_RECOMMEND    RecommendRequestSource = 2 // 推荐系统结果
-)
-
-// Enum value maps for RecommendRequestSource.
-var (
-	RecommendRequestSource_name = map[int32]string{
-		0: "UNKNOWN_RRSO",
-		1: "LOCAL",
-		2: "RECOMMEND",
-	}
-	RecommendRequestSource_value = map[string]int32{
-		"UNKNOWN_RRSO": 0,
-		"LOCAL":        1,
-		"RECOMMEND":    2,
-	}
-)
-
-func (x RecommendRequestSource) Enum() *RecommendRequestSource {
-	p := new(RecommendRequestSource)
-	*p = x
-	return p
-}
-
-func (x RecommendRequestSource) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RecommendRequestSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_enum_proto_enumTypes[23].Descriptor()
-}
-
-func (RecommendRequestSource) Type() protoreflect.EnumType {
-	return &file_common_enum_proto_enumTypes[23]
-}
-
-func (x RecommendRequestSource) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RecommendRequestSource.Descriptor instead.
-func (RecommendRequestSource) EnumDescriptor() ([]byte, []int) {
-	return file_common_enum_proto_rawDescGZIP(), []int{23}
-}
-
-// 推荐请求执行状态枚举
-type RecommendRequestStatus int32
-
-const (
-	RecommendRequestStatus_UNKNOWN_RRQS     RecommendRequestStatus = 0 // 未指定推荐请求执行状态
-	RecommendRequestStatus_REQUEST_SUCCESS  RecommendRequestStatus = 1 // 执行成功
-	RecommendRequestStatus_REQUEST_FALLBACK RecommendRequestStatus = 2 // 发生兜底
-	RecommendRequestStatus_REQUEST_FAILED   RecommendRequestStatus = 3 // 执行失败
-)
-
-// Enum value maps for RecommendRequestStatus.
-var (
-	RecommendRequestStatus_name = map[int32]string{
-		0: "UNKNOWN_RRQS",
-		1: "REQUEST_SUCCESS",
-		2: "REQUEST_FALLBACK",
-		3: "REQUEST_FAILED",
-	}
-	RecommendRequestStatus_value = map[string]int32{
-		"UNKNOWN_RRQS":     0,
-		"REQUEST_SUCCESS":  1,
-		"REQUEST_FALLBACK": 2,
-		"REQUEST_FAILED":   3,
-	}
-)
-
-func (x RecommendRequestStatus) Enum() *RecommendRequestStatus {
-	p := new(RecommendRequestStatus)
-	*p = x
-	return p
-}
-
-func (x RecommendRequestStatus) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (RecommendRequestStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_enum_proto_enumTypes[24].Descriptor()
-}
-
-func (RecommendRequestStatus) Type() protoreflect.EnumType {
-	return &file_common_enum_proto_enumTypes[24]
-}
-
-func (x RecommendRequestStatus) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use RecommendRequestStatus.Descriptor instead.
-func (RecommendRequestStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_enum_proto_rawDescGZIP(), []int{24}
-}
-
 var File_common_enum_proto protoreflect.FileDescriptor
 
 const file_common_enum_proto_rawDesc = "" +
@@ -1518,24 +1315,7 @@ const file_common_enum_proto_rawDesc = "" +
 	"\aCOLLECT\x10\x04\x12\f\n" +
 	"\bADD_CART\x10\x05\x12\x10\n" +
 	"\fORDER_CREATE\x10\x06\x12\r\n" +
-	"\tORDER_PAY\x10\a*>\n" +
-	"\x12RecommendActorType\x12\x0f\n" +
-	"\vUNKNOWN_RAT\x10\x00\x12\r\n" +
-	"\tANONYMOUS\x10\x01\x12\b\n" +
-	"\x04USER\x10\x02*\\\n" +
-	"\x1cRecommendRequestStrategyType\x12\x10\n" +
-	"\fUNKNOWN_RRST\x10\x00\x12\x15\n" +
-	"\x11CATEGORY_FALLBACK\x10\x01\x12\x13\n" +
-	"\x0fLATEST_FALLBACK\x10\x02*D\n" +
-	"\x16RecommendRequestSource\x12\x10\n" +
-	"\fUNKNOWN_RRSO\x10\x00\x12\t\n" +
-	"\x05LOCAL\x10\x01\x12\r\n" +
-	"\tRECOMMEND\x10\x02*i\n" +
-	"\x16RecommendRequestStatus\x12\x10\n" +
-	"\fUNKNOWN_RRQS\x10\x00\x12\x13\n" +
-	"\x0fREQUEST_SUCCESS\x10\x01\x12\x14\n" +
-	"\x10REQUEST_FALLBACK\x10\x02\x12\x12\n" +
-	"\x0eREQUEST_FAILED\x10\x03Bg\n" +
+	"\tORDER_PAY\x10\aBg\n" +
 	"\n" +
 	"com.commonB\tEnumProtoP\x01Z\x16shop/api/gen/go/common\xa2\x02\x03CXX\xaa\x02\x06Common\xca\x02\x06Common\xe2\x02\x12Common\\GPBMetadata\xea\x02\x06Commonb\x06proto3"
 
@@ -1551,33 +1331,29 @@ func file_common_enum_proto_rawDescGZIP() []byte {
 	return file_common_enum_proto_rawDescData
 }
 
-var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 25)
+var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 21)
 var file_common_enum_proto_goTypes = []any{
-	(Status)(0),                       // 0: common.Status
-	(BaseConfigSite)(0),               // 1: common.BaseConfigSite
-	(BaseConfigType)(0),               // 2: common.BaseConfigType
-	(BaseJobLogStatus)(0),             // 3: common.BaseJobLogStatus
-	(BaseMenuType)(0),                 // 4: common.BaseMenuType
-	(BaseRoleDataScope)(0),            // 5: common.BaseRoleDataScope
-	(BaseUserGender)(0),               // 6: common.BaseUserGender
-	(UserStoreStatus)(0),              // 7: common.UserStoreStatus
-	(GoodsStatus)(0),                  // 8: common.GoodsStatus
-	(OrderStatus)(0),                  // 9: common.OrderStatus
-	(OrderPayType)(0),                 // 10: common.OrderPayType
-	(OrderPayChannel)(0),              // 11: common.OrderPayChannel
-	(OrderDeliveryTime)(0),            // 12: common.OrderDeliveryTime
-	(OrderCancelReason)(0),            // 13: common.OrderCancelReason
-	(OrderBillStatus)(0),              // 14: common.OrderBillStatus
-	(OrderRefundReason)(0),            // 15: common.OrderRefundReason
-	(ShopBannerSite)(0),               // 16: common.ShopBannerSite
-	(ShopBannerType)(0),               // 17: common.ShopBannerType
-	(PayBillStatus)(0),                // 18: common.PayBillStatus
-	(RecommendScene)(0),               // 19: common.RecommendScene
-	(RecommendEventType)(0),           // 20: common.RecommendEventType
-	(RecommendActorType)(0),           // 21: common.RecommendActorType
-	(RecommendRequestStrategyType)(0), // 22: common.RecommendRequestStrategyType
-	(RecommendRequestSource)(0),       // 23: common.RecommendRequestSource
-	(RecommendRequestStatus)(0),       // 24: common.RecommendRequestStatus
+	(Status)(0),             // 0: common.Status
+	(BaseConfigSite)(0),     // 1: common.BaseConfigSite
+	(BaseConfigType)(0),     // 2: common.BaseConfigType
+	(BaseJobLogStatus)(0),   // 3: common.BaseJobLogStatus
+	(BaseMenuType)(0),       // 4: common.BaseMenuType
+	(BaseRoleDataScope)(0),  // 5: common.BaseRoleDataScope
+	(BaseUserGender)(0),     // 6: common.BaseUserGender
+	(UserStoreStatus)(0),    // 7: common.UserStoreStatus
+	(GoodsStatus)(0),        // 8: common.GoodsStatus
+	(OrderStatus)(0),        // 9: common.OrderStatus
+	(OrderPayType)(0),       // 10: common.OrderPayType
+	(OrderPayChannel)(0),    // 11: common.OrderPayChannel
+	(OrderDeliveryTime)(0),  // 12: common.OrderDeliveryTime
+	(OrderCancelReason)(0),  // 13: common.OrderCancelReason
+	(OrderBillStatus)(0),    // 14: common.OrderBillStatus
+	(OrderRefundReason)(0),  // 15: common.OrderRefundReason
+	(ShopBannerSite)(0),     // 16: common.ShopBannerSite
+	(ShopBannerType)(0),     // 17: common.ShopBannerType
+	(PayBillStatus)(0),      // 18: common.PayBillStatus
+	(RecommendScene)(0),     // 19: common.RecommendScene
+	(RecommendEventType)(0), // 20: common.RecommendEventType
 }
 var file_common_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1597,7 +1373,7 @@ func file_common_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_enum_proto_rawDesc), len(file_common_enum_proto_rawDesc)),
-			NumEnums:      25,
+			NumEnums:      21,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

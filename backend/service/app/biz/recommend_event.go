@@ -12,6 +12,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgQueue "shop/pkg/queue"
+	"shop/pkg/recommend/dto"
 
 	"github.com/liujitcn/gorm-kit/repo"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -83,7 +84,7 @@ func (c *RecommendEventCase) saveRecommendEventReport(message queueData.Message)
 // persistRecommendEventReport 持久化推荐事件。
 func (c *RecommendEventCase) persistRecommendEventReport(
 	ctx context.Context,
-	actor *app.RecommendActor,
+	actor *dto.RecommendActor,
 	req *app.RecommendEventReportRequest,
 	eventTime time.Time,
 ) error {
@@ -92,7 +93,7 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 		return nil
 	}
 	// 主体缺失或主体编号非法时，当前事件无法归因。
-	if actor == nil || actor.GetActorId() <= 0 {
+	if actor == nil || !actor.IsValid() {
 		return errorsx.InvalidArgument("推荐主体不能为空")
 	}
 	// 事件类型未知时，不写入推荐事件表。
@@ -127,8 +128,8 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 		}
 
 		eventList = append(eventList, &models.RecommendEvent{
-			ActorType: int32(actor.GetActorType()),
-			ActorID:   actor.GetActorId(),
+			ActorType: int32(actor.ActorType),
+			ActorID:   actor.ActorId,
 			Scene:     scene,
 			EventType: int32(req.GetEventType()),
 			GoodsID:   item.GetGoodsId(),
@@ -154,18 +155,18 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 }
 
 // listRecentRecommendEventGoodsIds 查询当前主体最近的推荐行为商品编号列表。
-func (c *RecommendEventCase) listRecentRecommendEventGoodsIds(ctx context.Context, actor *app.RecommendActor) ([]int64, error) {
+func (c *RecommendEventCase) listRecentRecommendEventGoodsIds(ctx context.Context, actor *dto.RecommendActor) ([]int64, error) {
 	goodsIds := make([]int64, 0)
 	// 主体缺失或主体编号非法时，不存在可用的最近行为上下文。
-	if actor == nil || actor.GetActorId() <= 0 {
+	if actor == nil || !actor.IsValid() {
 		return goodsIds, nil
 	}
 
 	query := c.RecommendEventRepo.Query(ctx).RecommendEvent
 	opts := make([]repo.QueryOption, 0, 4)
 	opts = append(opts, repo.Order(query.EventAt.Desc()))
-	opts = append(opts, repo.Where(query.ActorType.Eq(int32(actor.GetActorType()))))
-	opts = append(opts, repo.Where(query.ActorID.Eq(actor.GetActorId())))
+	opts = append(opts, repo.Where(query.ActorType.Eq(int32(actor.ActorType))))
+	opts = append(opts, repo.Where(query.ActorID.Eq(actor.ActorId)))
 	// 最近行为上下文仅使用能体现兴趣偏好的事件，不包含曝光。
 	opts = append(opts, repo.Where(query.EventType.In(
 		int32(common.RecommendEventType_CLICK),

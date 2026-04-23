@@ -44,7 +44,7 @@ func (r *GoodsSyncReceiver) LoadIds(ctx context.Context, pageSize int) (mapset.S
 	itemIdSet := mapset.NewThreadUnsafeSetWithSize[string](pageSize)
 	cursor := ""
 	for {
-		iterator, err := r.recommend.gorseClient.GetItems(r.recommend.defaultContext(ctx), pageSize, cursor)
+		iterator, err := r.recommend.gorseClient.GetItems(ctx, pageSize, cursor)
 		if err != nil {
 			return nil, err
 		}
@@ -70,8 +70,6 @@ func (r *GoodsSyncReceiver) SyncList(ctx context.Context, goodsList []*models.Go
 	if !r.Enabled() {
 		return nil
 	}
-	ctx = r.recommend.defaultContext(ctx)
-
 	// 未传远端索引时，回退到单条 upsert 逻辑保证兼容性。
 	if existingItemIds == nil {
 		for _, goods := range goodsList {
@@ -143,8 +141,6 @@ func (r *GoodsSyncReceiver) DeleteIds(ctx context.Context, staleItemIds mapset.S
 	if !r.Enabled() || staleItemIds == nil || staleItemIds.IsEmpty() {
 		return nil
 	}
-	ctx = r.recommend.defaultContext(ctx)
-
 	var deleteErr error
 	for itemId := range staleItemIds.Iter() {
 		// 待删除编号为空时，直接跳过当前无效主体。
@@ -166,8 +162,6 @@ func (r *GoodsSyncReceiver) sync(ctx context.Context, goods *models.GoodsInfo) e
 	if !r.Enabled() || goods == nil || goods.ID <= 0 {
 		return nil
 	}
-	ctx = r.recommend.defaultContext(ctx)
-
 	item, itemPatch := r.buildPayload(goods)
 	_, err := r.recommend.gorseClient.InsertItem(ctx, item)
 	if err == nil {

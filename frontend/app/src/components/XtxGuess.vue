@@ -99,9 +99,16 @@ const getHomeGoodsGuessLikeData = async () => {
       exposed: false,
     })
   }
-  // 推荐结果可能因为商品下架而出现“本页条数变少”，这里按累计已加载条数判断是否还有下一页。
   const loadedCount = guessList.value.length
-  if (loadedCount < res.total) {
+  // 后端返回了精确总数时，优先按总数分页；本地推荐未额外统计总数时，再退回到满页判断。
+  if (res.total > 0) {
+    if (loadedCount < res.total) {
+      // 页码累加
+      pageParams.pageNum = requestPageNum + 1
+    } else {
+      finish.value = true
+    }
+  } else if (list.length >= requestPageSize) {
     // 页码累加
     pageParams.pageNum = requestPageNum + 1
   } else {

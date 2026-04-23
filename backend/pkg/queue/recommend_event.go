@@ -6,11 +6,12 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	_const "shop/pkg/const"
+	"shop/pkg/recommend/dto"
 )
 
 // RecommendEventReportEvent 表示推荐事件队列消息。
 type RecommendEventReportEvent struct {
-	RecommendActor *app.RecommendActor       // 推荐主体信息
+	RecommendActor *dto.RecommendActor       // 推荐主体信息
 	EventType      common.RecommendEventType // 推荐事件类型
 	Scene          int32                     // 推荐场景
 	RequestId      int64                     // 推荐请求 ID
@@ -26,13 +27,13 @@ type RecommendEventItem struct {
 }
 
 // DispatchRecommendEvent 将推荐事件转换为队列消息并投递到本地推荐事件链路。
-func DispatchRecommendEvent(actor *app.RecommendActor, req *app.RecommendEventReportRequest, eventTime time.Time) {
+func DispatchRecommendEvent(actor *dto.RecommendActor, req *app.RecommendEventReportRequest, eventTime time.Time) {
 	// 请求体为空时，无法继续构建事件消息。
 	if req == nil {
 		return
 	}
 	// 主体缺失或主体 ID 非法时，不投递无法归因的行为事件。
-	if actor == nil || actor.ActorId <= 0 {
+	if actor == nil || !actor.IsValid() {
 		return
 	}
 

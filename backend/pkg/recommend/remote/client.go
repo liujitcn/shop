@@ -61,15 +61,6 @@ func (r *Recommend) Enabled() bool {
 	return r.gorseClient != nil
 }
 
-// defaultContext 统一兜底推荐请求上下文。
-func (r *Recommend) defaultContext(ctx context.Context) context.Context {
-	// 调用方未显式传入上下文时，回退到默认上下文继续执行远端请求。
-	if ctx == nil {
-		return context.TODO()
-	}
-	return ctx
-}
-
 // requestScores 通过原始 HTTP API 请求评分列表结果。
 func (r *Recommend) requestScores(ctx context.Context, path string) ([]client.Score, error) {
 	// 客户端未启用、入口地址缺失或请求路径为空时，直接返回空结果。
@@ -77,7 +68,7 @@ func (r *Recommend) requestScores(ctx context.Context, path string) ([]client.Sc
 		return []client.Score{}, nil
 	}
 
-	resp, err := r.httpClient.Do(stdhttp.MethodGet, path, _http.WithContext(r.defaultContext(ctx)))
+	resp, err := r.httpClient.Do(stdhttp.MethodGet, path, _http.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}

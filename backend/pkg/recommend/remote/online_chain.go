@@ -3,57 +3,33 @@ package remote
 import (
 	"context"
 
-	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
+	"shop/pkg/recommend/dto"
 )
 
-// OnlineProviderName 表示在线推荐 provider 标识。
-type OnlineProviderName string
+// RemoteProviderName 表示在线推荐 provider 标识。
+type RemoteProviderName string
 
 const (
 	// GetRecommend 表示登录用户个性化推荐，对应 Gorse 的 GetRecommend API。
-	GetRecommend OnlineProviderName = "recommend"
+	GetRecommend RemoteProviderName = "recommend"
 	// UserToUserSimilarUsers 表示命名 user-to-user/similar_users 推荐器。
-	UserToUserSimilarUsers OnlineProviderName = "user_to_user.similar_users"
+	UserToUserSimilarUsers RemoteProviderName = "user_to_user.similar_users"
 	// Session 表示会话级推荐，对应 Gorse 的 SessionRecommend API。
-	Session OnlineProviderName = "session"
+	Session RemoteProviderName = "session"
 	// Neighbors 表示相邻商品推荐，对应 Gorse 的 GetNeighbors API。
-	Neighbors OnlineProviderName = "neighbors"
+	Neighbors RemoteProviderName = "neighbors"
 	// ItemToItemGoodsRelation 表示命名 item-to-item/goods_relation 推荐器。
-	ItemToItemGoodsRelation OnlineProviderName = "item_to_item.goods_relation"
+	ItemToItemGoodsRelation RemoteProviderName = "item_to_item.goods_relation"
 	// NonPersonalizedHot30d 表示命名 non-personalized/hot_30d 推荐器。
-	NonPersonalizedHot30d OnlineProviderName = "non_personalized.hot_30d"
+	NonPersonalizedHot30d RemoteProviderName = "non_personalized.hot_30d"
 	// NonPersonalizedHot7d 表示命名 non-personalized/hot_7d 推荐器。
-	NonPersonalizedHot7d OnlineProviderName = "non_personalized.hot_7d"
+	NonPersonalizedHot7d RemoteProviderName = "non_personalized.hot_7d"
 	// NonPersonalizedHotPay30d 表示命名 non-personalized/hot_pay_30d 推荐器。
-	NonPersonalizedHotPay30d OnlineProviderName = "non_personalized.hot_pay_30d"
+	NonPersonalizedHotPay30d RemoteProviderName = "non_personalized.hot_pay_30d"
 	// Latest 表示最新商品推荐，对应 Gorse 的 GetLatestItems API。
-	Latest OnlineProviderName = "latest"
+	Latest RemoteProviderName = "latest"
 )
-
-// OnlineRecommendTrace 表示责任链执行轨迹。
-type OnlineRecommendTrace struct {
-	// ProviderName 表示当前轨迹对应的推荐提供方。
-	ProviderName OnlineProviderName
-	// ResultCount 表示当前提供方返回的商品数量。
-	ResultCount int
-	// Hit 表示当前提供方是否成功命中推荐结果。
-	Hit bool
-	// ErrorMsg 表示当前提供方执行失败时的错误信息。
-	ErrorMsg string
-}
-
-// OnlineRecommendResult 表示在线推荐执行结果。
-type OnlineRecommendResult struct {
-	// GoodsIds 表示最终命中的商品编号列表。
-	GoodsIds []int64
-	// Total 表示最终命中结果的总数。
-	Total int64
-	// ProviderName 表示最终命中的推荐提供方。
-	ProviderName OnlineProviderName
-	// Trace 表示整条责任链的执行轨迹。
-	Trace []*OnlineRecommendTrace
-}
 
 // OnlineChainReceiver 表示在线推荐责任链接收器。
 type OnlineChainReceiver struct {
@@ -82,14 +58,15 @@ func (r *OnlineChainReceiver) Enabled() bool {
 func (r *OnlineChainReceiver) ExecuteOnlinePlan(
 	ctx context.Context,
 	scene common.RecommendScene,
-	actor *app.RecommendActor,
+	actor *dto.RecommendActor,
 	goodsId int64,
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
-) (*OnlineRecommendResult, error) {
-	result := &OnlineRecommendResult{
+) (*dto.GoodsResult, error) {
+	result := &dto.GoodsResult{
 		GoodsIds: []int64{},
-		Trace:    make([]*OnlineRecommendTrace, 0),
+		Strategy: dto.RemoteStrategy,
+		Trace:    make([]*dto.GoodsTrace, 0),
 	}
 	// 责任链接收器未启用时，直接返回空结果，交由业务侧继续走本地兜底。
 	if !r.Enabled() {
@@ -108,16 +85,16 @@ func (r *OnlineChainReceiver) ExecuteOnlinePlan(
 		execute, ok := providers[providerName]
 		// 当前 provider 未注册时，记录轨迹后继续后续步骤。
 		if !ok {
-			result.Trace = append(result.Trace, &OnlineRecommendTrace{
-				ProviderName: providerName,
+			result.Trace = append(result.Trace, &dto.GoodsTrace{
+				ProviderName: string(providerName),
 				ErrorMsg:     "provider not registered",
 			})
 			continue
 		}
 
 		goodsIds, total, err := execute(ctx)
-		trace := &OnlineRecommendTrace{
-			ProviderName: providerName,
+		trace := &dto.GoodsTrace{
+			ProviderName: string(providerName),
 			ResultCount:  len(goodsIds),
 			Hit:          err == nil && len(goodsIds) > 0,
 		}
@@ -136,21 +113,21 @@ func (r *OnlineChainReceiver) ExecuteOnlinePlan(
 
 		result.GoodsIds = goodsIds
 		result.Total = total
-		result.ProviderName = providerName
+		result.ProviderName = string(providerName)
 		return result, nil
 	}
 	return result, nil
 }
 
 // buildOnlineRecommendChain 按场景构建在线推荐责任链。
-func (r *OnlineChainReceiver) buildOnlineRecommendChain(scene common.RecommendScene, actor *app.RecommendActor) []OnlineProviderName {
+func (r *OnlineChainReceiver) buildOnlineRecommendChain(scene common.RecommendScene, actor *dto.RecommendActor) []RemoteProviderName {
 	// 推荐主体缺失或主体编号非法时，当前请求无法走推荐系统推荐。
-	if actor == nil || actor.GetActorId() <= 0 {
-		return []OnlineProviderName{}
+	if !actor.IsValid() {
+		return []RemoteProviderName{}
 	}
 
-	isLogin := actor.GetActorType() == common.RecommendActorType_USER
-	steps := make([]OnlineProviderName, 0, 6)
+	isLogin := actor.IsUser()
+	steps := make([]RemoteProviderName, 0, 6)
 	switch scene {
 	case common.RecommendScene_HOME:
 		// 首页
@@ -231,12 +208,12 @@ func (r *OnlineChainReceiver) buildOnlineRecommendChain(scene common.RecommendSc
 
 // buildProviders 构建在线推荐 provider 注册表。
 func (r *OnlineChainReceiver) buildProviders(
-	actor *app.RecommendActor,
+	actor *dto.RecommendActor,
 	goodsId int64,
 	contextGoodsIds []int64,
 	pageNum, pageSize int64,
-) map[OnlineProviderName]func(ctx context.Context) ([]int64, int64, error) {
-	return map[OnlineProviderName]func(ctx context.Context) ([]int64, int64, error){
+) map[RemoteProviderName]func(ctx context.Context) ([]int64, int64, error) {
+	return map[RemoteProviderName]func(ctx context.Context) ([]int64, int64, error){
 		GetRecommend: func(ctx context.Context) ([]int64, int64, error) {
 			return r.onlineUser.GetGoodsIds(ctx, actor, pageNum, pageSize)
 		},

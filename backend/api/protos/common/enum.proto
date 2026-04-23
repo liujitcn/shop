@@ -184,32 +184,3 @@ enum RecommendEventType {
   ORDER_CREATE = 6; // 下单事件
   ORDER_PAY = 7; // 支付事件
 }
-
-// 推荐主体类型枚举
-enum RecommendActorType {
-  UNKNOWN_RAT = 0; // 未指定主体类型
-  ANONYMOUS = 1; // 匿名用户
-  USER = 2; // 用户
-}
-
-// 推荐请求策略枚举
-enum RecommendRequestStrategyType {
-  UNKNOWN_RRST = 0; // 未指定推荐请求策略
-  CATEGORY_FALLBACK = 1; // 同类目兜底
-  LATEST_FALLBACK = 2; // 最新热销兜底
-}
-
-// 推荐请求结果来源枚举
-enum RecommendRequestSource {
-  UNKNOWN_RRSO = 0; // 未指定推荐请求结果来源
-  LOCAL = 1; // 本地兜底结果
-  RECOMMEND = 2; // 推荐系统结果
-}
-
-// 推荐请求执行状态枚举
-enum RecommendRequestStatus {
-  UNKNOWN_RRQS = 0; // 未指定推荐请求执行状态
-  REQUEST_SUCCESS = 1; // 执行成功
-  REQUEST_FALLBACK = 2; // 发生兜底
-  REQUEST_FAILED = 3; // 执行失败
-}

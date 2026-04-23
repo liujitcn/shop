@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"shop/api/gen/go/app"
@@ -9,10 +10,10 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/recommend/dto"
 
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/gorm-kit/repo"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 // RecommendRequestCase 推荐请求业务处理对象。
@@ -39,17 +40,13 @@ func NewRecommendRequestCase(
 }
 
 // resolveRecommendRequestId 解析本次推荐请求应使用的请求编号。
-func (c *RecommendRequestCase) resolveRecommendRequestId(ctx context.Context, actor *app.RecommendActor, req *app.RecommendGoodsRequest) (int64, error) {
+func (c *RecommendRequestCase) resolveRecommendRequestId(ctx context.Context, req *dto.GoodsRequest) (int64, error) {
 	// 推荐主体缺失或主体编号非法时，当前请求无法复用历史推荐会话。
-	if actor == nil || actor.GetActorId() <= 0 {
+	if req == nil || !req.Actor.IsValid() {
 		return 0, errorsx.InvalidArgument("推荐主体不能为空")
 	}
-	// 推荐请求为空时，无法继续解析会话编号。
-	if req == nil {
-		return 0, errorsx.InvalidArgument("推荐请求不能为空")
-	}
 
-	requestId := req.GetRequestId()
+	requestId := req.RequestId
 	// 首次请求未携带请求编号时，直接生成新的推荐会话编号。
 	if requestId <= 0 {
 		return id.GenSnowflakeID(), nil
@@ -73,17 +70,17 @@ func (c *RecommendRequestCase) resolveRecommendRequestId(ctx context.Context, ac
 	requestModel := requestList[0]
 
 	// 推荐请求主体或场景发生变化时，不允许继续复用旧的推荐会话。
-	if requestModel.ActorType != int32(actor.GetActorType()) || requestModel.ActorID != actor.GetActorId() || requestModel.Scene != int32(req.GetScene()) {
+	if requestModel.ActorType != int32(req.Actor.ActorType) || requestModel.ActorID != req.Actor.ActorId || requestModel.Scene != int32(req.Scene) {
 		return id.GenSnowflakeID(), nil
 	}
 
-	contextRecord := &app.RecommendRequestContext{}
+	contextRecord := &dto.RecommendContext{}
 	// 历史请求上下文无法解析时，回退为新的推荐会话，避免错误串联翻页请求。
-	if requestModel.ContextJSON != "" && (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal([]byte(requestModel.ContextJSON), contextRecord) != nil {
+	if requestModel.ContextJSON != "" && json.Unmarshal([]byte(requestModel.ContextJSON), contextRecord) != nil {
 		return id.GenSnowflakeID(), nil
 	}
 	// 锚点商品或订单变化时，当前请求已不属于同一推荐会话。
-	if contextRecord.GoodsId != req.GetGoodsId() || contextRecord.OrderId != req.GetOrderId() {
+	if contextRecord.GoodsId != req.GoodsId || contextRecord.OrderId != req.OrderId {
 		return id.GenSnowflakeID(), nil
 	}
 	return requestId, nil
@@ -92,28 +89,21 @@ func (c *RecommendRequestCase) resolveRecommendRequestId(ctx context.Context, ac
 // saveRecommendRequest 保存推荐请求主记录与结果明细。
 func (c *RecommendRequestCase) saveRecommendRequest(
 	ctx context.Context,
-	actor *app.RecommendActor,
-	requestId int64,
-	req *app.RecommendGoodsRequest,
-	contextRecord *app.RecommendRequestContext,
+	req *dto.GoodsRequest,
+	contextRecord *dto.RecommendContext,
 	goodsList []*app.GoodsInfo,
 	total int64,
-	pageNum, pageSize int64,
 ) error {
 	// 推荐主体缺失或主体编号非法时，当前请求日志无法归因。
-	if actor == nil || actor.GetActorId() <= 0 {
+	if req == nil || !req.Actor.IsValid() {
 		return errorsx.InvalidArgument("推荐主体不能为空")
-	}
-	// 推荐请求为空时，无法继续保存推荐日志。
-	if req == nil {
-		return errorsx.InvalidArgument("推荐请求不能为空")
 	}
 	// 推荐上下文缺失时，回退到空上下文，保持日志结构稳定。
 	if contextRecord == nil {
-		contextRecord = &app.RecommendRequestContext{}
+		contextRecord = &dto.RecommendContext{}
 	}
 
-	contextBytes, err := (protojson.MarshalOptions{UseProtoNames: true}).Marshal(contextRecord)
+	contextBytes, err := json.Marshal(contextRecord)
 	if err != nil {
 		return errorsx.Internal("序列化推荐上下文失败").WithCause(err)
 	}
@@ -122,12 +112,12 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 		requestAt := time.Now()
 		// 无论是否复用同一个 request_id，每次请求都新增一条推荐日志，保留真实分页轨迹。
 		err = c.RecommendRequestRepo.Create(ctx, &models.RecommendRequest{
-			RequestID:   requestId,
-			ActorType:   int32(actor.GetActorType()),
-			ActorID:     actor.GetActorId(),
-			Scene:       int32(req.GetScene()),
-			PageNum:     int32(pageNum),
-			PageSize:    int32(pageSize),
+			RequestID:   req.RequestId,
+			ActorType:   int32(req.Actor.ActorType),
+			ActorID:     req.Actor.ActorId,
+			Scene:       int32(req.Scene),
+			PageNum:     int32(req.PageNum),
+			PageSize:    int32(req.PageSize),
 			Total:       int32(total),
 			ContextJSON: string(contextBytes),
 			RequestAt:   requestAt,
@@ -136,12 +126,12 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 			return errorsx.Internal("保存推荐请求失败").WithCause(err)
 		}
 
-		startPosition := (pageNum - 1) * pageSize
+		startPosition := (req.PageNum - 1) * req.PageSize
 		query := c.RecommendRequestItemRepo.Query(ctx).RecommendRequestItem
 		opts := make([]repo.QueryOption, 0, 3)
-		opts = append(opts, repo.Where(query.RequestID.Eq(requestId)))
+		opts = append(opts, repo.Where(query.RequestID.Eq(req.RequestId)))
 		opts = append(opts, repo.Where(query.Position.Gte(int32(startPosition))))
-		opts = append(opts, repo.Where(query.Position.Lt(int32(startPosition+pageSize))))
+		opts = append(opts, repo.Where(query.Position.Lt(int32(startPosition+req.PageSize))))
 		err = c.RecommendRequestItemRepo.Delete(ctx, opts...)
 		if err != nil {
 			return errorsx.Internal("清理推荐请求结果失败").WithCause(err)
@@ -154,7 +144,7 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 				continue
 			}
 			itemList = append(itemList, &models.RecommendRequestItem{
-				RequestID: requestId,
+				RequestID: req.RequestId,
 				GoodsID:   item.GetId(),
 				Position:  int32(startPosition + int64(idx)),
 			})

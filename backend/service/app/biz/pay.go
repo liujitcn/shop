@@ -8,6 +8,7 @@ import (
 	"shop/pkg/configs"
 	"shop/pkg/errorsx"
 	pkgQueue "shop/pkg/queue"
+	"shop/pkg/recommend/dto"
 	"shop/pkg/wx"
 	"strconv"
 	"strings"
@@ -537,8 +538,8 @@ func (c *PayCase) dispatchRecommendPayEvent(userId int64, goodsList []*models.Or
 		}
 
 		// 支付事件只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
-		pkgQueue.DispatchRecommendEvent(&app.RecommendActor{
-			ActorType: common.RecommendActorType_USER,
+		pkgQueue.DispatchRecommendEvent(&dto.RecommendActor{
+			ActorType: dto.UserActorType,
 			ActorId:   userId,
 		}, payEventReport, eventTime)
 	}

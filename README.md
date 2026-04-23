@@ -22,7 +22,7 @@
   - `request`、`exposure`、`click`、`view` 由商城前端调用 `/api/app/recommend/*` 完成。
   - `collect`、`cart`、`order`、`pay` 由后端在真实业务写库成功后异步回写，避免前端埋点与业务事实不一致。
 - 推荐请求会落到本地 `recommend_request` / `recommend_request_item`，推荐事件会落到本地 `recommend_event`，形成可追踪的归因链路。
-- 在线推荐会按场景优先走 `backend/pkg/recommend` 对 Gorse 的用户推荐、`user-to-user/similar_users`、会话推荐、商品相似推荐与命名热榜；未命中时再回退到同类目商品和最新热销商品。
+- 商城端推荐查询统一通过 `backend/pkg/recommend` 入口路由；配置 Gorse 时按场景执行在线推荐链路，未配置 Gorse 时执行本地场景推荐链路，本地链路会组合上下文类目、商品热度与探索曝光商品。
 - 匿名推荐历史会在登录后绑定到当前用户，并把匿名阶段积累的行为回放到登录用户画像。
 - 商城前端推荐相关实现目前集中在 `frontend/app/src/api/app/recommend.ts`、`frontend/app/src/stores/modules/recommend.ts`、`frontend/app/src/utils/navigation.ts`、`frontend/app/src/components/XtxGuess.vue`。
 - 推荐系统部署与配置位于仓库根目录 `gorse`，后端通过定时任务 `RecommendSync` 和异步队列同步用户、商品与行为反馈。

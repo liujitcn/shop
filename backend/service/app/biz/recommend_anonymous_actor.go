@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	pkgQueue "shop/pkg/queue"
+	"shop/pkg/recommend/dto"
 	"strconv"
 	"strings"
 	"time"
 
-	"shop/api/gen/go/common"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -134,7 +134,7 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 		return nil
 	}
 
-	anonymousEventList, err := c.listRecommendEventsByActor(ctx, common.RecommendActorType_ANONYMOUS, anonymousId)
+	anonymousEventList, err := c.listRecommendEventsByActor(ctx, dto.AnonymousActorType, anonymousId)
 	if err != nil {
 		return err
 	}
@@ -215,7 +215,7 @@ func (c *RecommendAnonymousActorCase) bindRecommendAnonymousActor(ctx context.Co
 // listRecommendEventsByActor 查询指定推荐主体的历史事件列表。
 func (c *RecommendAnonymousActorCase) listRecommendEventsByActor(
 	ctx context.Context,
-	actorType common.RecommendActorType,
+	actorType dto.RecommendActorType,
 	actorId int64,
 ) ([]*models.RecommendEvent, error) {
 	// 推荐主体编号非法时，不存在可迁移的历史事件。
@@ -252,7 +252,7 @@ func (c *RecommendAnonymousActorCase) syncRecommendActorHistoryToRecommend(
 			continue
 		}
 		replayEvent := *item
-		replayEvent.ActorType = int32(common.RecommendActorType_USER)
+		replayEvent.ActorType = int32(dto.UserActorType)
 		replayEvent.ActorID = userId
 		replayEventList = append(replayEventList, &replayEvent)
 	}
@@ -283,10 +283,10 @@ func (c *RecommendAnonymousActorCase) rebindRecommendRequestActor(ctx context.Co
 
 	query := c.recommendRequestRepo.Query(ctx).RecommendRequest
 	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS))))
+	opts = append(opts, repo.Where(query.ActorType.Eq(int32(dto.AnonymousActorType))))
 	opts = append(opts, repo.Where(query.ActorID.Eq(anonymousId)))
 	err := c.recommendRequestRepo.Update(ctx, &models.RecommendRequest{
-		ActorType: int32(common.RecommendActorType_USER),
+		ActorType: int32(dto.UserActorType),
 		ActorID:   userId,
 	}, opts...)
 	if err != nil {
@@ -304,10 +304,10 @@ func (c *RecommendAnonymousActorCase) rebindRecommendEventActor(ctx context.Cont
 
 	query := c.recommendEventRepo.Query(ctx).RecommendEvent
 	opts := make([]repo.QueryOption, 0, 2)
-	opts = append(opts, repo.Where(query.ActorType.Eq(int32(common.RecommendActorType_ANONYMOUS))))
+	opts = append(opts, repo.Where(query.ActorType.Eq(int32(dto.AnonymousActorType))))
 	opts = append(opts, repo.Where(query.ActorID.Eq(anonymousId)))
 	err := c.recommendEventRepo.Update(ctx, &models.RecommendEvent{
-		ActorType: int32(common.RecommendActorType_USER),
+		ActorType: int32(dto.UserActorType),
 		ActorID:   userId,
 	}, opts...)
 	if err != nil {

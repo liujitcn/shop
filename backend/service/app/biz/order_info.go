@@ -16,6 +16,7 @@ import (
 	"shop/api/gen/go/app"
 	"shop/api/gen/go/common"
 	pkgQueue "shop/pkg/queue"
+	"shop/pkg/recommend/dto"
 	"shop/pkg/wx"
 	"shop/service/app/utils"
 
@@ -838,8 +839,8 @@ func (c *OrderInfoCase) dispatchRecommendOrderEvent(payType common.OrderPayType,
 				},
 			}
 			// 订单创建事务提交成功后，再按落库事实回写推荐下单事件。
-			pkgQueue.DispatchRecommendEvent(&app.RecommendActor{
-				ActorType: common.RecommendActorType_USER,
+			pkgQueue.DispatchRecommendEvent(&dto.RecommendActor{
+				ActorType: dto.UserActorType,
 				ActorId:   userId,
 			}, orderEventReport, eventTime)
 		}

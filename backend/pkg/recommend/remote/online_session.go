@@ -58,7 +58,7 @@ func (r *OnlineSessionReceiver) ListGoodsIds(ctx context.Context, contextGoodsId
 		})
 	}
 
-	scores, err := r.recommend.gorseClient.SessionRecommend(r.recommend.defaultContext(ctx), feedbacks, int(limit)+1)
+	scores, err := r.recommend.gorseClient.SessionRecommend(ctx, feedbacks, int(limit)+1)
 	if err != nil {
 		return nil, false, err
 	}
@@ -87,7 +87,7 @@ func (r *OnlineSessionReceiver) GetLatestGoodsIds(ctx context.Context, pageNum, 
 		return []int64{}, 0, nil
 	}
 
-	scores, err := r.recommend.gorseClient.GetLatestItems(r.recommend.defaultContext(ctx), "", "", int(limit)+1, 0)
+	scores, err := r.recommend.gorseClient.GetLatestItems(ctx, "", "", int(limit)+1, 0)
 	if err != nil {
 		return nil, 0, err
 	}

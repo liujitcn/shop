@@ -124,6 +124,10 @@ shop-admin
 └── vite.config.ts
 ```
 
+## 项目文档
+
+- `docs/gorse-remote-recommend-design.md`：远程推荐 Gorse 管理平台功能设计文档，梳理后台可承接的运行总览、场景策略、同步、事件、调试、发布与告警能力。
+
 ## 通用展示组件
 
 - `src/components/Card/DataPanelCard.vue`：通用数据展示卡片，用于图表、表格摘要等带标题的内容块。

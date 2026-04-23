@@ -20,6 +20,8 @@ import (
 	"shop/pkg/job"
 	"shop/pkg/job/task"
 	"shop/pkg/middleware"
+	"shop/pkg/recommend"
+	"shop/pkg/recommend/local"
 	"shop/pkg/recommend/remote"
 	"shop/pkg/wx"
 	"shop/server"
@@ -141,7 +143,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	goodsStatDay := task.NewGoodsStatDay(transaction, goodsStatDayRepo, recommendEventRepo, userCollectRepo, userCartRepo, orderInfoRepo, orderGoodsRepo)
 	baseUserRepo := data.NewBaseUserRepo(dataData)
 	goodsInfoRepo := data.NewGoodsInfoRepo(dataData)
-	recommend, err := configs.ParseRecommend(shopConfig)
+	confRecommend, err := configs.ParseRecommend(shopConfig)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -149,7 +151,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	remoteRecommend := remote.NewRecommend(recommend)
+	remoteRecommend := remote.NewRecommend(confRecommend)
 	userSyncReceiver := remote.NewUserSyncReceiver(remoteRecommend)
 	goodsSyncReceiver := remote.NewGoodsSyncReceiver(remoteRecommend)
 	queueReceiver := remote.NewQueueReceiver(remoteRecommend, baseUserRepo, goodsInfoRepo, userSyncReceiver, goodsSyncReceiver)
@@ -318,7 +320,13 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	onlineSessionReceiver := remote.NewOnlineSessionReceiver(remoteRecommend)
 	onlineNamedReceiver := remote.NewOnlineNamedReceiver(remoteRecommend)
 	onlineChainReceiver := remote.NewOnlineChainReceiver(remoteRecommend, onlineUserReceiver, onlineSessionReceiver, onlineNamedReceiver)
-	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase, onlineChainReceiver)
+	localRecommend := local.NewRecommend(goodsInfoRepo, goodsStatDayRepo)
+	localContextReceiver := local.NewLocalContextReceiver(localRecommend)
+	localHotReceiver := local.NewLocalHotReceiver(localRecommend)
+	localExploreReceiver := local.NewLocalExploreReceiver(localRecommend)
+	localChainReceiver := local.NewLocalChainReceiver(localRecommend, localContextReceiver, localHotReceiver, localExploreReceiver)
+	goodsReceiver := recommend.NewGoodsReceiver(onlineChainReceiver, localChainReceiver)
+	recommendCase := biz4.NewRecommendCase(baseCase, recommendAnonymousActorCase, recommendRequestCase, recommendEventCase, bizOrderGoodsCase, userCartCase, userCollectCase, bizGoodsInfoCase, goodsReceiver)
 	recommendService := app.NewRecommendService(recommendCase)
 	bizShopBannerCase := biz4.NewShopBannerCase(baseCase, shopBannerRepo, bizGoodsCategoryCase)
 	appShopBannerService := app.NewShopBannerService(bizShopBannerCase)

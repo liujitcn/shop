@@ -11,6 +11,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgQueue "shop/pkg/queue"
+	"shop/pkg/recommend/dto"
 
 	client "github.com/gorse-io/gorse-go"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -184,7 +185,7 @@ func (r *QueueReceiver) consumeRecommendEvent(message queueData.Message) error {
 	feedbacks := make([]client.Feedback, 0, len(*eventList))
 	for _, item := range *eventList {
 		// 历史事件为空、商品编号非法或事件类型未知时，直接跳过当前无效事件。
-		if item == nil || item.ActorID <= 0 || item.ActorType != int32(common.RecommendActorType_USER) || item.GoodsID <= 0 || item.EventType == int32(common.RecommendEventType_UNKNOWN_RET) {
+		if item == nil || item.ActorID <= 0 || item.ActorType != int32(dto.UserActorType) || item.GoodsID <= 0 || item.EventType == int32(common.RecommendEventType_UNKNOWN_RET) {
 			continue
 		}
 

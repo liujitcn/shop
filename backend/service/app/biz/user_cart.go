@@ -10,6 +10,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	pkgQueue "shop/pkg/queue"
+	"shop/pkg/recommend/dto"
 	"shop/service/app/utils"
 	"time"
 
@@ -359,8 +360,8 @@ func (c *UserCartCase) dispatchRecommendAddCartEvent(userId, goodsId, goodsNum i
 	}
 
 	// 只在购物车写库成功后回写推荐加购事件，确保推荐链路与后端事实一致。
-	pkgQueue.DispatchRecommendEvent(&app.RecommendActor{
-		ActorType: common.RecommendActorType_USER,
+	pkgQueue.DispatchRecommendEvent(&dto.RecommendActor{
+		ActorType: dto.UserActorType,
 		ActorId:   userId,
 	}, &app.RecommendEventReportRequest{
 		EventType: common.RecommendEventType_ADD_CART,
