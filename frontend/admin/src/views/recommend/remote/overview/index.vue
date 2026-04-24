@@ -1,5 +1,5 @@
 <template>
-  <div class="remote-overview-page">
+  <el-space direction="vertical" fill>
     <OverviewStatsGrid :loading="statsLoading" :stats="statCards" />
     <OverviewPerformancePanel ref="performancePanelRef" :positive-feedback-types="positiveFeedbackTypes" />
     <OverviewRecommendationTable
@@ -8,7 +8,7 @@
       :categories="categories"
       :cache-size="cacheSize"
     />
-  </div>
+  </el-space>
 </template>
 
 <script setup lang="ts">
@@ -119,11 +119,3 @@ onMounted(() => {
   loadOverview();
 });
 </script>
-
-<style scoped lang="scss">
-.remote-overview-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-</style>

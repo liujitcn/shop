@@ -64,6 +64,51 @@ func (c *RecommendRemoteCase) GetRecommendRemoteDashboardItems(ctx context.Conte
 	return c.requestJSONWithLastModified(ctx, stdhttp.MethodGet, path, c.buildDashboardItemsQueries(req), "")
 }
 
+// GetRecommendRemoteRecommendations 查询远程推荐结果。
+func (c *RecommendRemoteCase) GetRecommendRemoteRecommendations(ctx context.Context, req *adminApi.RecommendRemoteRecommendRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	path, err := c.resolveRecommendPath(req)
+	if err != nil {
+		return nil, err
+	}
+	return c.requestJSON(ctx, stdhttp.MethodGet, path, c.buildRecommendQueries(req), "")
+}
+
+// GetRecommendRemoteNeighbors 查询远程相似内容。
+func (c *RecommendRemoteCase) GetRecommendRemoteNeighbors(ctx context.Context, req *adminApi.RecommendRemoteNeighborRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	path, err := c.resolveNeighborPath(req)
+	if err != nil {
+		return nil, err
+	}
+	return c.requestJSON(ctx, stdhttp.MethodGet, path, c.buildNeighborQueries(req), "")
+}
+
+// PageRecommendRemoteFeedback 查询远程推荐反馈列表。
+func (c *RecommendRemoteCase) PageRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteFeedbackRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	path, err := c.resolveFeedbackPath(req)
+	if err != nil {
+		return nil, err
+	}
+	return c.requestJSON(ctx, stdhttp.MethodGet, path, c.buildFeedbackQueries(req), "")
+}
+
+// ImportRecommendRemoteFeedback 写入远程推荐反馈。
+func (c *RecommendRemoteCase) ImportRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteJsonRequest) error {
+	body, err := c.normalizeJSONBody(req.GetJson())
+	if err != nil {
+		return err
+	}
+	return c.requestNoContent(ctx, stdhttp.MethodPost, "/api/feedback", nil, body)
+}
+
+// DeleteRecommendRemoteFeedback 删除远程推荐反馈。
+func (c *RecommendRemoteCase) DeleteRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteFeedbackDeleteRequest) error {
+	path, err := c.resolveFeedbackDeletePath(req)
+	if err != nil {
+		return err
+	}
+	return c.requestNoContent(ctx, stdhttp.MethodDelete, path, nil, "")
+}
+
 // PageRecommendRemoteUsers 查询远程推荐用户列表。
 func (c *RecommendRemoteCase) PageRecommendRemoteUsers(ctx context.Context, req *adminApi.RecommendRemoteCursorRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
 	return c.requestJSON(ctx, stdhttp.MethodGet, "/api/users", c.buildCursorQueries(req, recommendRemoteDefaultListSize), "")
@@ -252,6 +297,50 @@ func (c *RecommendRemoteCase) buildDashboardItemsQueries(req *adminApi.Recommend
 	return queries
 }
 
+// buildRecommendQueries 构建推荐结果查询参数。
+func (c *RecommendRemoteCase) buildRecommendQueries(req *adminApi.RecommendRemoteRecommendRequest) map[string]string {
+	queries := c.buildSizedQueries(req.GetN(), req.GetOffset(), recommendRemoteDefaultListSize)
+	// 非个性化或协同过滤查询可通过 user-id 过滤用户已读商品。
+	if strings.TrimSpace(req.GetId()) != "" {
+		queries["user-id"] = strings.TrimSpace(req.GetId())
+	}
+	// 指定写回类型时，Gorse 会把推荐结果写回为对应反馈类型。
+	if strings.TrimSpace(req.GetWriteBackType()) != "" {
+		queries["write-back-type"] = strings.TrimSpace(req.GetWriteBackType())
+	}
+	// 指定候选集时，透传给远程推荐引擎做候选商品约束。
+	if strings.TrimSpace(req.GetCandidates()) != "" {
+		queries["candidates"] = strings.TrimSpace(req.GetCandidates())
+	}
+	return queries
+}
+
+// buildNeighborQueries 构建相似内容查询参数。
+func (c *RecommendRemoteCase) buildNeighborQueries(req *adminApi.RecommendRemoteNeighborRequest) map[string]string {
+	return c.buildSizedQueries(req.GetN(), req.GetOffset(), recommendRemoteDefaultListSize)
+}
+
+// buildFeedbackQueries 构建反馈列表查询参数。
+func (c *RecommendRemoteCase) buildFeedbackQueries(req *adminApi.RecommendRemoteFeedbackRequest) map[string]string {
+	queries := c.buildCursorQueries(&adminApi.RecommendRemoteCursorRequest{
+		Cursor: req.GetCursor(),
+		N:      req.GetN(),
+	}, recommendRemoteDefaultListSize)
+	return queries
+}
+
+// buildSizedQueries 构建支持数量和偏移量的查询参数。
+func (c *RecommendRemoteCase) buildSizedQueries(size int64, offset int64, defaultSize int64) map[string]string {
+	queries := map[string]string{
+		"n": strconv.FormatInt(c.resolveListSize(size, defaultSize), 10),
+	}
+	// 指定偏移量时，从远程推荐缓存的对应位置开始读取。
+	if offset > 0 {
+		queries["offset"] = strconv.FormatInt(offset, 10)
+	}
+	return queries
+}
+
 // buildDataQueries 构建数据导出查询参数。
 func (c *RecommendRemoteCase) buildDataQueries(req *adminApi.RecommendRemoteDataRequest) map[string]string {
 	size := c.resolveListSize(req.GetN(), recommendRemoteDefaultExportSize)
@@ -323,6 +412,165 @@ func (c *RecommendRemoteCase) escapeDashboardRecommender(recommender string) str
 		segments[i] = remote.EscapePathSegment(segment)
 	}
 	return strings.Join(segments, "/")
+}
+
+// resolveRecommendPath 解析推荐查询对应的 Gorse 原生接口路径。
+func (c *RecommendRemoteCase) resolveRecommendPath(req *adminApi.RecommendRemoteRecommendRequest) (string, error) {
+	// 请求为空时，无法判断推荐查询类型。
+	if req == nil {
+		return "", errorsx.InvalidArgument("远程推荐查询条件不能为空")
+	}
+	recommendType := strings.ToLower(strings.TrimSpace(req.GetType()))
+	category := strings.TrimSpace(req.GetCategory())
+	// 根据管理端选择的推荐类型映射到远程推荐原生接口。
+	switch {
+	case recommendType == "", recommendType == "recommend":
+		return c.buildRequiredIdPath("/api/recommend", req.GetId(), category, "用户编号不能为空")
+	case recommendType == "latest", recommendType == "popular":
+		return c.buildOptionalCategoryPath("/api/"+recommendType, category), nil
+	case recommendType == "collaborative", recommendType == "collaborative-filtering":
+		return c.buildRequiredIdPath("/api/collaborative-filtering", req.GetId(), category, "用户编号不能为空")
+	case strings.HasPrefix(recommendType, "item-to-item/"):
+		name := strings.TrimPrefix(recommendType, "item-to-item/")
+		return c.buildNamedRequiredIdPath("/api/item-to-item", name, req.GetId(), category, "商品编号不能为空")
+	case strings.HasPrefix(recommendType, "user-to-user/"):
+		name := strings.TrimPrefix(recommendType, "user-to-user/")
+		return c.buildNamedRequiredIdPath("/api/user-to-user", name, req.GetId(), "", "用户编号不能为空")
+	default:
+		return "", errorsx.InvalidArgument("不支持的远程推荐类型")
+	}
+}
+
+// resolveNeighborPath 解析相似内容查询对应的 Gorse 原生接口路径。
+func (c *RecommendRemoteCase) resolveNeighborPath(req *adminApi.RecommendRemoteNeighborRequest) (string, error) {
+	// 请求为空时，无法判断相似内容查询类型。
+	if req == nil {
+		return "", errorsx.InvalidArgument("远程相似内容查询条件不能为空")
+	}
+	neighborType := strings.ToLower(strings.TrimSpace(req.GetType()))
+	category := strings.TrimSpace(req.GetCategory())
+	// 根据相似内容类型映射到远程推荐原生接口。
+	switch {
+	case neighborType == "", neighborType == "item":
+		return c.buildRequiredMiddlePath("/api/item", req.GetId(), "neighbors", category, "商品编号不能为空")
+	case neighborType == "user":
+		return c.buildRequiredMiddlePath("/api/user", req.GetId(), "neighbors", "", "用户编号不能为空")
+	case strings.HasPrefix(neighborType, "item-to-item/"):
+		name := strings.TrimPrefix(neighborType, "item-to-item/")
+		return c.buildNamedRequiredIdPath("/api/item-to-item", name, req.GetId(), category, "商品编号不能为空")
+	case strings.HasPrefix(neighborType, "user-to-user/"):
+		name := strings.TrimPrefix(neighborType, "user-to-user/")
+		return c.buildNamedRequiredIdPath("/api/user-to-user", name, req.GetId(), "", "用户编号不能为空")
+	default:
+		return "", errorsx.InvalidArgument("不支持的远程相似内容类型")
+	}
+}
+
+// resolveFeedbackPath 解析反馈查询对应的 Gorse 原生接口路径。
+func (c *RecommendRemoteCase) resolveFeedbackPath(req *adminApi.RecommendRemoteFeedbackRequest) (string, error) {
+	// 请求为空时，默认查询反馈列表。
+	if req == nil {
+		return "/api/feedback", nil
+	}
+	feedbackType := strings.TrimSpace(req.GetFeedbackType())
+	userId := strings.TrimSpace(req.GetUserId())
+	itemId := strings.TrimSpace(req.GetItemId())
+	// 查询指定用户和商品的指定反馈类型时，使用最精确的反馈详情接口。
+	if feedbackType != "" && userId != "" && itemId != "" {
+		path := "/api/feedback/" + remote.EscapePathSegment(feedbackType) + "/" + remote.EscapePathSegment(userId) + "/" + remote.EscapePathSegment(itemId)
+		return path, nil
+	}
+	// 查询指定用户和商品的全部反馈时，使用用户商品二元反馈接口。
+	if userId != "" && itemId != "" {
+		path := "/api/feedback/" + remote.EscapePathSegment(userId) + "/" + remote.EscapePathSegment(itemId)
+		return path, nil
+	}
+	// 查询指定用户下的某类反馈时，使用用户反馈分类接口。
+	if userId != "" && feedbackType != "" {
+		path := "/api/user/" + remote.EscapePathSegment(userId) + "/feedback/" + remote.EscapePathSegment(feedbackType)
+		return path, nil
+	}
+	// 查询指定用户下的全部反馈时，使用用户反馈接口。
+	if userId != "" {
+		path := "/api/user/" + remote.EscapePathSegment(userId) + "/feedback"
+		return path, nil
+	}
+	return "/api/feedback", nil
+}
+
+// resolveFeedbackDeletePath 解析反馈删除对应的 Gorse 原生接口路径。
+func (c *RecommendRemoteCase) resolveFeedbackDeletePath(req *adminApi.RecommendRemoteFeedbackDeleteRequest) (string, error) {
+	// 请求为空时，无法定位要删除的反馈。
+	if req == nil {
+		return "", errorsx.InvalidArgument("反馈删除条件不能为空")
+	}
+	userId := strings.TrimSpace(req.GetUserId())
+	itemId := strings.TrimSpace(req.GetItemId())
+	feedbackType := strings.TrimSpace(req.GetFeedbackType())
+	// 用户或商品为空时，无法定位要删除的反馈关系。
+	if userId == "" || itemId == "" {
+		return "", errorsx.InvalidArgument("用户编号和商品编号不能为空")
+	}
+	// 指定反馈类型时，只删除该类型反馈。
+	if feedbackType != "" {
+		path := "/api/feedback/" + remote.EscapePathSegment(feedbackType) + "/" + remote.EscapePathSegment(userId) + "/" + remote.EscapePathSegment(itemId)
+		return path, nil
+	}
+	path := "/api/feedback/" + remote.EscapePathSegment(userId) + "/" + remote.EscapePathSegment(itemId)
+	return path, nil
+}
+
+// buildRequiredIdPath 构建带必填主体编号和可选分类的路径。
+func (c *RecommendRemoteCase) buildRequiredIdPath(basePath string, rawId string, category string, emptyMessage string) (string, error) {
+	id := strings.TrimSpace(rawId)
+	// 主体编号为空时，远程推荐无法定位查询对象。
+	if id == "" {
+		return "", errorsx.InvalidArgument(emptyMessage)
+	}
+	path := basePath + "/" + remote.EscapePathSegment(id)
+	// 分类为空时，查询全局推荐结果。
+	if strings.TrimSpace(category) == "" {
+		return path, nil
+	}
+	return path + "/" + remote.EscapePathSegment(strings.TrimSpace(category)), nil
+}
+
+// buildNamedRequiredIdPath 构建命名推荐器路径。
+func (c *RecommendRemoteCase) buildNamedRequiredIdPath(basePath string, rawName string, rawId string, category string, emptyMessage string) (string, error) {
+	name := strings.TrimSpace(rawName)
+	// 推荐器名称为空时，远程命名推荐器无法定位。
+	if name == "" {
+		return "", errorsx.InvalidArgument("推荐器名称不能为空")
+	}
+	path, err := c.buildRequiredIdPath(basePath+"/"+remote.EscapePathSegment(name), rawId, category, emptyMessage)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
+// buildRequiredMiddlePath 构建中间带资源动作的路径。
+func (c *RecommendRemoteCase) buildRequiredMiddlePath(basePath string, rawId string, action string, category string, emptyMessage string) (string, error) {
+	id := strings.TrimSpace(rawId)
+	// 主体编号为空时，远程相似内容无法定位查询对象。
+	if id == "" {
+		return "", errorsx.InvalidArgument(emptyMessage)
+	}
+	path := basePath + "/" + remote.EscapePathSegment(id) + "/" + remote.EscapePathSegment(action)
+	// 分类为空时，查询全局相似内容。
+	if strings.TrimSpace(category) == "" {
+		return path, nil
+	}
+	return path + "/" + remote.EscapePathSegment(strings.TrimSpace(category)), nil
+}
+
+// buildOptionalCategoryPath 构建可选分类路径。
+func (c *RecommendRemoteCase) buildOptionalCategoryPath(basePath string, category string) string {
+	// 分类为空时，查询全局结果。
+	if strings.TrimSpace(category) == "" {
+		return basePath
+	}
+	return basePath + "/" + remote.EscapePathSegment(strings.TrimSpace(category))
 }
 
 // normalizeJSONBody 校验并清洗 JSON 请求体。

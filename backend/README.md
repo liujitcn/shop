@@ -77,7 +77,7 @@ go run ./internal/cmd/server --conf ./configs
 - 商城端推荐查询由 `service/app/biz/recommend.go` 统一承接，请求留痕落到 `recommend_request` / `recommend_request_item`，事件留痕落到 `recommend_event`。
 - 商城端推荐查询统一通过 `pkg/recommend` 入口路由；配置了 Gorse 时始终只走在线推荐，未配置 Gorse 时统一改走本地场景推荐，本地链路会组合上下文类目、商品热度与探索曝光商品。
 - 管理端本地推荐请求接口由 `admin.RecommendRequestService` 承接，用于分页查询推荐请求、查看单次请求链路详情，以及按商品查看关联的 `recommend_event` 数据。
-- 管理端远程推荐接口由 `admin.RecommendRemoteService` 承接，只代理概览、任务、用户、商品、高级调试、推荐编排与推荐配置相关原生接口，API Key 不下发到前端。
+- 管理端远程推荐接口由 `admin.RecommendRemoteService` 承接，代理概览、任务、用户、商品、推荐调试、相似内容、反馈管理、数据导入导出、推荐编排与推荐配置相关原生接口，API Key 不下发到前端。
 - 收藏、加购、下单、支付等事件由后端在真实业务落库成功后回写；匿名历史在登录绑定时会迁移到登录用户并重放到推荐系统。
 - `GET /api/admin/base/api` 返回给菜单管理的接口列表时，会自动过滤 `configs/auth.yaml` 中配置为白名单或可选鉴权的接口。
 

@@ -43,6 +43,62 @@ export interface RecommendRemoteDashboardItemsRequest {
   end: number;
 }
 
+/** 远程推荐查询条件 */
+export interface RecommendRemoteRecommendRequest {
+  /** 推荐类型 */
+  type: string;
+  /** 主体编号 */
+  id: string;
+  /** 分类 */
+  category: string;
+  /** 返回数量 */
+  n: number;
+  /** 偏移量 */
+  offset: number;
+  /** 写回反馈类型 */
+  writeBackType: string;
+  /** 候选商品编号，逗号分隔 */
+  candidates: string;
+}
+
+/** 远程相似内容查询条件 */
+export interface RecommendRemoteNeighborRequest {
+  /** 相似类型 */
+  type: string;
+  /** 主体编号 */
+  id: string;
+  /** 分类 */
+  category: string;
+  /** 返回数量 */
+  n: number;
+  /** 偏移量 */
+  offset: number;
+}
+
+/** 远程推荐反馈查询条件 */
+export interface RecommendRemoteFeedbackRequest {
+  /** 游标 */
+  cursor: string;
+  /** 返回数量 */
+  n: number;
+  /** 反馈类型 */
+  feedbackType: string;
+  /** 用户编号 */
+  userId: string;
+  /** 商品编号 */
+  itemId: string;
+}
+
+/** 远程推荐反馈删除条件 */
+export interface RecommendRemoteFeedbackDeleteRequest {
+  /** 反馈类型 */
+  feedbackType: string;
+  /** 用户编号 */
+  userId: string;
+  /** 商品编号 */
+  itemId: string;
+}
+
 /** 远程推荐数据查询条件 */
 export interface RecommendRemoteDataRequest {
   /** 数据类型 */
@@ -87,6 +143,16 @@ export interface RecommendRemoteService {
   GetRecommendRemoteTimeseries(request: RecommendRemoteNameRequest): Promise<RecommendRemoteJsonResponse>;
   /** 查询远程推荐仪表盘推荐商品 */
   GetRecommendRemoteDashboardItems(request: RecommendRemoteDashboardItemsRequest): Promise<RecommendRemoteJsonResponse>;
+  /** 查询远程推荐结果 */
+  GetRecommendRemoteRecommendations(request: RecommendRemoteRecommendRequest): Promise<RecommendRemoteJsonResponse>;
+  /** 查询远程相似内容 */
+  GetRecommendRemoteNeighbors(request: RecommendRemoteNeighborRequest): Promise<RecommendRemoteJsonResponse>;
+  /** 查询远程推荐反馈列表 */
+  PageRecommendRemoteFeedback(request: RecommendRemoteFeedbackRequest): Promise<RecommendRemoteJsonResponse>;
+  /** 写入远程推荐反馈 */
+  ImportRecommendRemoteFeedback(request: RecommendRemoteJsonRequest): Promise<Empty>;
+  /** 删除远程推荐反馈 */
+  DeleteRecommendRemoteFeedback(request: RecommendRemoteFeedbackDeleteRequest): Promise<Empty>;
   /** 查询远程推荐用户列表 */
   PageRecommendRemoteUsers(request: RecommendRemoteCursorRequest): Promise<RecommendRemoteJsonResponse>;
   /** 查询远程推荐用户 */

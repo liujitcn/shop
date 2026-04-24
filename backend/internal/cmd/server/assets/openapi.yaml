@@ -2513,6 +2513,77 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+    /api/admin/recommend/remote/feedback:
+        get:
+            tags:
+                - RecommendRemoteService
+            description: 查询远程推荐反馈列表
+            operationId: RecommendRemoteService_PageRecommendRemoteFeedback
+            parameters:
+                - name: cursor
+                  in: query
+                  schema:
+                    type: string
+                - name: n
+                  in: query
+                  schema:
+                    type: string
+                - name: feedbackType
+                  in: query
+                  schema:
+                    type: string
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: itemId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+        post:
+            tags:
+                - RecommendRemoteService
+            description: 写入远程推荐反馈
+            operationId: RecommendRemoteService_ImportRecommendRemoteFeedback
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RecommendRemoteJsonRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - RecommendRemoteService
+            description: 删除远程推荐反馈
+            operationId: RecommendRemoteService_DeleteRecommendRemoteFeedback
+            parameters:
+                - name: feedbackType
+                  in: query
+                  schema:
+                    type: string
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+                - name: itemId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/admin/recommend/remote/flow/config:
         get:
             tags:
@@ -2623,12 +2694,88 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/admin/recommend/remote/neighbors:
+        get:
+            tags:
+                - RecommendRemoteService
+            description: 查询远程相似内容
+            operationId: RecommendRemoteService_GetRecommendRemoteNeighbors
+            parameters:
+                - name: type
+                  in: query
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: n
+                  in: query
+                  schema:
+                    type: string
+                - name: offset
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
     /api/admin/recommend/remote/overview:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐概览
             operationId: RecommendRemoteService_GetRecommendRemoteOverview
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+    /api/admin/recommend/remote/recommendations:
+        get:
+            tags:
+                - RecommendRemoteService
+            description: 查询远程推荐结果
+            operationId: RecommendRemoteService_GetRecommendRemoteRecommendations
+            parameters:
+                - name: type
+                  in: query
+                  schema:
+                    type: string
+                - name: id
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: n
+                  in: query
+                  schema:
+                    type: string
+                - name: offset
+                  in: query
+                  schema:
+                    type: string
+                - name: writeBackType
+                  in: query
+                  schema:
+                    type: string
+                - name: candidates
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK

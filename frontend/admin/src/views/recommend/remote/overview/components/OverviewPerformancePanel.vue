@@ -152,6 +152,7 @@ const queryColumns = computed<ColumnProps[]>(() => [
     label: "指标",
     search: {
       el: "select",
+      span: 2,
       props: {
         placeholder: "请选择指标",
         filterable: true,

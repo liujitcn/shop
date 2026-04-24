@@ -3,11 +3,15 @@ import type {
   RecommendRemoteCursorRequest,
   RecommendRemoteDashboardItemsRequest,
   RecommendRemoteDataRequest,
+  RecommendRemoteFeedbackDeleteRequest,
+  RecommendRemoteFeedbackRequest,
   RecommendRemoteIdRequest,
   RecommendRemoteImportRequest,
   RecommendRemoteJsonRequest,
   RecommendRemoteJsonResponse,
+  RecommendRemoteNeighborRequest,
   RecommendRemoteNameRequest,
+  RecommendRemoteRecommendRequest,
   RecommendRemoteService
 } from "@/rpc/admin/recommend_remote";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -65,6 +69,51 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
         category: request.category,
         end: request.end
       }
+    });
+  }
+
+  /** 查询远程推荐结果。 */
+  GetRecommendRemoteRecommendations(request: RecommendRemoteRecommendRequest): Promise<RecommendRemoteJsonResponse> {
+    return service<RecommendRemoteRecommendRequest, RecommendRemoteJsonResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/recommendations`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询远程相似内容。 */
+  GetRecommendRemoteNeighbors(request: RecommendRemoteNeighborRequest): Promise<RecommendRemoteJsonResponse> {
+    return service<RecommendRemoteNeighborRequest, RecommendRemoteJsonResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/neighbors`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 查询远程推荐反馈列表。 */
+  PageRecommendRemoteFeedback(request: RecommendRemoteFeedbackRequest): Promise<RecommendRemoteJsonResponse> {
+    return service<RecommendRemoteFeedbackRequest, RecommendRemoteJsonResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/feedback`,
+      method: "get",
+      params: request
+    });
+  }
+
+  /** 写入远程推荐反馈。 */
+  ImportRecommendRemoteFeedback(request: RecommendRemoteJsonRequest): Promise<Empty> {
+    return service<RecommendRemoteJsonRequest, Empty>({
+      url: `${RECOMMEND_REMOTE_URL}/feedback`,
+      method: "post",
+      data: request
+    });
+  }
+
+  /** 删除远程推荐反馈。 */
+  DeleteRecommendRemoteFeedback(request: RecommendRemoteFeedbackDeleteRequest): Promise<Empty> {
+    return service<RecommendRemoteFeedbackDeleteRequest, Empty>({
+      url: `${RECOMMEND_REMOTE_URL}/feedback`,
+      method: "delete",
+      params: request
     });
   }
 

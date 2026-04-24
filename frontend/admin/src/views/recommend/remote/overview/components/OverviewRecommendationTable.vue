@@ -168,6 +168,7 @@ const queryColumns = computed<ColumnProps[]>(() => [
     label: "推荐器",
     search: {
       el: "select",
+      span: 2,
       props: {
         placeholder: "请选择推荐器",
         filterable: true,
@@ -181,6 +182,7 @@ const queryColumns = computed<ColumnProps[]>(() => [
     label: "分类",
     search: {
       el: "select",
+      span: 2,
       props: {
         placeholder: "全部分类",
         filterable: true,

@@ -77,6 +77,56 @@ func (s *RecommendRemoteService) GetRecommendRemoteDashboardItems(ctx context.Co
 	return res, nil
 }
 
+// GetRecommendRemoteRecommendations 查询远程推荐结果。
+func (s *RecommendRemoteService) GetRecommendRemoteRecommendations(ctx context.Context, req *adminApi.RecommendRemoteRecommendRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	res, err := s.recommendRemoteCase.GetRecommendRemoteRecommendations(ctx, req)
+	if err != nil {
+		log.Errorf("GetRecommendRemoteRecommendations %v", err)
+		return nil, errorsx.WrapInternal(err, "查询远程推荐结果失败")
+	}
+	return res, nil
+}
+
+// GetRecommendRemoteNeighbors 查询远程相似内容。
+func (s *RecommendRemoteService) GetRecommendRemoteNeighbors(ctx context.Context, req *adminApi.RecommendRemoteNeighborRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	res, err := s.recommendRemoteCase.GetRecommendRemoteNeighbors(ctx, req)
+	if err != nil {
+		log.Errorf("GetRecommendRemoteNeighbors %v", err)
+		return nil, errorsx.WrapInternal(err, "查询远程相似内容失败")
+	}
+	return res, nil
+}
+
+// PageRecommendRemoteFeedback 查询远程推荐反馈列表。
+func (s *RecommendRemoteService) PageRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteFeedbackRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	res, err := s.recommendRemoteCase.PageRecommendRemoteFeedback(ctx, req)
+	if err != nil {
+		log.Errorf("PageRecommendRemoteFeedback %v", err)
+		return nil, errorsx.WrapInternal(err, "查询远程推荐反馈列表失败")
+	}
+	return res, nil
+}
+
+// ImportRecommendRemoteFeedback 写入远程推荐反馈。
+func (s *RecommendRemoteService) ImportRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteJsonRequest) (*emptypb.Empty, error) {
+	err := s.recommendRemoteCase.ImportRecommendRemoteFeedback(ctx, req)
+	if err != nil {
+		log.Errorf("ImportRecommendRemoteFeedback %v", err)
+		return nil, errorsx.WrapInternal(err, "写入远程推荐反馈失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
+// DeleteRecommendRemoteFeedback 删除远程推荐反馈。
+func (s *RecommendRemoteService) DeleteRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteFeedbackDeleteRequest) (*emptypb.Empty, error) {
+	err := s.recommendRemoteCase.DeleteRecommendRemoteFeedback(ctx, req)
+	if err != nil {
+		log.Errorf("DeleteRecommendRemoteFeedback %v", err)
+		return nil, errorsx.WrapInternal(err, "删除远程推荐反馈失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
 // PageRecommendRemoteUsers 查询远程推荐用户列表。
 func (s *RecommendRemoteService) PageRecommendRemoteUsers(ctx context.Context, req *adminApi.RecommendRemoteCursorRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
 	res, err := s.recommendRemoteCase.PageRecommendRemoteUsers(ctx, req)

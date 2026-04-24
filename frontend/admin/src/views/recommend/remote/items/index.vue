@@ -1,135 +1,108 @@
 <template>
-  <div class="remote-page remote-items-page">
-    <el-card class="remote-hero-card" shadow="never">
-      <div class="remote-hero-card__content">
-        <p>Gorse Dashboard</p>
-        <h2>推荐商品</h2>
-        <span>按 Gorse Items 页面展示商品编号、分类、隐藏状态、标签、时间戳与描述。</span>
-      </div>
-      <div class="remote-hero-card__actions">
-        <el-button :loading="loading" @click="loadItems(false)">刷新</el-button>
-      </div>
-    </el-card>
-
-    <el-card class="remote-toolbar-card" shadow="never">
-      <el-form :inline="true" :model="query" @submit.prevent>
-        <el-form-item label="商品编号">
-          <el-input v-model.trim="query.id" clearable placeholder="输入完整商品编号查询" @keyup.enter="loadItems(true)" />
-        </el-form-item>
-        <el-form-item label="返回数量">
-          <el-input-number v-model="query.n" :min="1" :max="200" :step="10" controls-position="right" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :loading="loading" @click="loadItems(true)">查询</el-button>
-          <el-button :disabled="!hasPreviousPage" :loading="loading" @click="loadPreviousPage">上一页</el-button>
-          <el-button :disabled="!nextCursor" :loading="loading" @click="loadNextPage">下一页</el-button>
-          <el-button @click="resetQuery">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
-
-    <el-card class="remote-section-card" shadow="never">
-      <template #header>
-        <div class="remote-section-card__header">
-          <strong>Items</strong>
-          <span>当前页 {{ list.length }} 条</span>
+  <div class="table-box">
+    <ProTable
+      ref="proTable"
+      row-key="__rowKey"
+      :columns="columns"
+      :request-api="requestItemTable"
+      :pagination="false"
+      :search-col="searchCol"
+    >
+      <template #categories="{ row }">
+        <el-space v-if="row.categories.length" wrap>
+          <el-tag v-for="category in row.categories" :key="String(category)" effect="plain" type="info">
+            {{ formatRemoteCell(category) }}
+          </el-tag>
+        </el-space>
+        <span v-else>--</span>
+      </template>
+      <template #labels="{ row }">
+        <el-space v-if="row.labels.length" wrap>
+          <el-tag v-for="label in row.labels" :key="String(label)" effect="plain">{{ formatRemoteCell(label) }}</el-tag>
+        </el-space>
+        <span v-else>--</span>
+      </template>
+      <template #isHidden="{ row }">
+        <el-tag :type="row.isHidden ? 'danger' : 'success'" effect="light">{{ row.isHidden ? "已隐藏" : "展示中" }}</el-tag>
+      </template>
+      <template #operation="{ row }">
+        <el-space>
+          <el-button :icon="View" link type="primary" @click="openDetail(row)">详情</el-button>
+          <el-button :icon="Pointer" link type="primary" @click="openNeighbors(row)">相似</el-button>
+          <el-button :icon="Delete" link type="danger" @click="deleteItem(row)">删除</el-button>
+        </el-space>
+      </template>
+      <template #pagination>
+        <div class="el-pagination">
+          <el-space>
+            <span>游标分页</span>
+            <el-tag effect="plain" type="info">当前页 {{ currentPageSize }} 条</el-tag>
+            <span>每页条数</span>
+            <el-input-number
+              v-model="pageSize"
+              :min="1"
+              :max="200"
+              :step="10"
+              controls-position="right"
+              @change="resetCursorPage"
+            />
+            <el-button :disabled="!hasPreviousPage" @click="loadPreviousPage">上一页</el-button>
+            <el-button :disabled="!nextCursor" type="primary" @click="loadNextPage">下一页</el-button>
+          </el-space>
         </div>
       </template>
-
-      <el-table v-loading="loading" :data="list" :row-key="getItemId" border>
-        <el-table-column label="商品编号" min-width="180">
-          <template #default="{ row }">{{ getItemId(row) || "--" }}</template>
-        </el-table-column>
-        <el-table-column label="分类" min-width="220">
-          <template #default="{ row }">
-            <div v-if="getItemCategories(row).length" class="remote-tag-list">
-              <el-tag v-for="category in getItemCategories(row)" :key="String(category)" effect="plain" type="info">
-                {{ formatRemoteCell(category) }}
-              </el-tag>
-            </div>
-            <span v-else>--</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="隐藏" min-width="100" align="center">
-          <template #default="{ row }">
-            <el-tag :type="isItemHidden(row) ? 'warning' : 'success'" effect="light">
-              {{ isItemHidden(row) ? "隐藏" : "展示" }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="时间戳" min-width="180">
-          <template #default="{ row }">{{
-            formatRemoteDateTime(resolveRemoteValue(row, ["Timestamp", "timestamp", "CreatedAt", "createdAt"]))
-          }}</template>
-        </el-table-column>
-        <el-table-column label="标签" min-width="220">
-          <template #default="{ row }">
-            <div v-if="getItemLabels(row).length" class="remote-tag-list">
-              <el-tag v-for="label in getItemLabels(row)" :key="String(label)" effect="plain">{{
-                formatRemoteCell(label)
-              }}</el-tag>
-            </div>
-            <span v-else>--</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="描述" min-width="180">
-          <template #default="{ row }">{{
-            formatRemoteCell(resolveRemoteValue(row, ["Comment", "comment", "Description", "description"]))
-          }}</template>
-        </el-table-column>
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
-            <el-button link type="primary" @click="openDetail(row)">详情</el-button>
-            <el-button link type="danger" @click="deleteItem(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    </ProTable>
 
     <el-drawer v-model="detailVisible" title="商品详情" size="50%">
-      <div v-loading="detailLoading" class="remote-detail-drawer">
+      <el-space v-loading="detailLoading" direction="vertical" fill>
         <el-descriptions :column="1" border>
           <el-descriptions-item label="商品编号">{{ getItemId(detailData) || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="隐藏状态">
-            <el-tag :type="isItemHidden(detailData) ? 'warning' : 'success'" effect="light">
-              {{ isItemHidden(detailData) ? "隐藏" : "展示" }}
+          <el-descriptions-item label="是否隐藏">
+            <el-tag :type="isItemHidden(detailData) ? 'danger' : 'success'" effect="light">
+              {{ isItemHidden(detailData) ? "已隐藏" : "展示中" }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="时间戳">
-            {{ formatRemoteDateTime(resolveRemoteValue(detailData, ["Timestamp", "timestamp", "CreatedAt", "createdAt"])) }}
+          <el-descriptions-item label="最后更新">
+            {{
+              formatRemoteDateTime(resolveRemoteValue(detailData, ["Timestamp", "timestamp", "LastUpdateTime", "lastUpdateTime"]))
+            }}
+          </el-descriptions-item>
+          <el-descriptions-item label="分类">
+            <el-space v-if="getItemCategories(detailData).length" wrap>
+              <el-tag v-for="category in getItemCategories(detailData)" :key="String(category)" effect="plain" type="info">
+                {{ formatRemoteCell(category) }}
+              </el-tag>
+            </el-space>
+            <span v-else>--</span>
+          </el-descriptions-item>
+          <el-descriptions-item label="标签">
+            <el-space v-if="getItemLabels(detailData).length" wrap>
+              <el-tag v-for="label in getItemLabels(detailData)" :key="String(label)" effect="plain">{{
+                formatRemoteCell(label)
+              }}</el-tag>
+            </el-space>
+            <span v-else>--</span>
           </el-descriptions-item>
           <el-descriptions-item label="描述">
             {{ formatRemoteCell(resolveRemoteValue(detailData, ["Comment", "comment", "Description", "description"])) }}
           </el-descriptions-item>
-          <el-descriptions-item label="分类">
-            <div v-if="getItemCategories(detailData).length" class="remote-tag-list">
-              <el-tag v-for="category in getItemCategories(detailData)" :key="String(category)" effect="plain" type="info">
-                {{ formatRemoteCell(category) }}
-              </el-tag>
-            </div>
-            <span v-else>--</span>
-          </el-descriptions-item>
-          <el-descriptions-item label="标签">
-            <div v-if="getItemLabels(detailData).length" class="remote-tag-list">
-              <el-tag v-for="label in getItemLabels(detailData)" :key="String(label)" effect="plain">{{
-                formatRemoteCell(label)
-              }}</el-tag>
-            </div>
-            <span v-else>--</span>
-          </el-descriptions-item>
         </el-descriptions>
 
-        <el-card class="remote-sub-card" shadow="never">
+        <el-card shadow="never">
           <template #header><strong>商品记录</strong></template>
-          <pre class="remote-code-block">{{ stringifyRemoteValue(detailData) }}</pre>
+          <el-input :model-value="stringifyRemoteValue(detailData)" type="textarea" :rows="12" readonly />
         </el-card>
-      </div>
+      </el-space>
     </el-drawer>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
+import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import ProTable from "@/components/ProTable/index.vue";
+import { Delete, Pointer, View } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
@@ -146,29 +119,112 @@ import {
   type RemoteRecord
 } from "../utils";
 
-defineOptions({
-  name: "RecommendRemoteItems"
-});
+defineOptions({ name: "RecommendRemoteItems" });
+
+/** 推荐商品表格行。 */
+interface ItemRow extends RemoteRecord {
+  /** 表格稳定行键。 */
+  __rowKey: string;
+  /** 商品编号。 */
+  itemId: string;
+  /** 分类集合。 */
+  categories: unknown[];
+  /** 标签集合。 */
+  labels: unknown[];
+  /** 是否隐藏。 */
+  isHidden: boolean;
+  /** 描述。 */
+  comment: string;
+  /** 更新时间。 */
+  updateTime: string;
+}
 
 const itemIdKeys = ["ItemId", "itemId", "item_id", "Id", "id"];
-
-const query = reactive({
-  id: "",
-  cursor: "",
-  n: 20
-});
-
-const loading = ref(false);
+const router = useRouter();
+const proTable = ref<ProTableInstance>();
 const detailLoading = ref(false);
 const detailVisible = ref(false);
+const currentDetailId = ref("");
+const detailData = ref<RemoteRecord>({});
 const nextCursor = ref("");
 const cursorStack = ref<string[]>([]);
-const currentDetailId = ref("");
-const list = ref<RemoteRecord[]>([]);
-const detailData = ref<RemoteRecord>({});
+const pageSize = ref(20);
+const currentPageSize = ref(0);
+const searchCol = { xs: 1, sm: 2, md: 3, lg: 6, xl: 6 };
 
 /** 是否存在上一页游标。 */
 const hasPreviousPage = computed(() => cursorStack.value.length > 0);
+
+/** 商品表格列配置。 */
+const columns: ColumnProps[] = [
+  {
+    prop: "id",
+    label: "商品编号",
+    minWidth: 180,
+    search: { el: "input", span: 2, props: { placeholder: "输入完整商品编号查询" } },
+    isShow: false
+  },
+  { prop: "itemId", label: "商品编号", minWidth: 180, align: "left" },
+  { prop: "categories", label: "分类", minWidth: 220, align: "left" },
+  { prop: "labels", label: "标签", minWidth: 260, align: "left" },
+  { prop: "isHidden", label: "状态", minWidth: 120 },
+  { prop: "comment", label: "描述", minWidth: 220, align: "left" },
+  { prop: "updateTime", label: "更新时间", minWidth: 180 },
+  { prop: "operation", label: "操作", width: 240, fixed: "right" }
+];
+
+/** 查询远程推荐商品列表或单个商品。 */
+async function requestItemTable(params: { id?: string; cursor?: string }) {
+  try {
+    const id = String(params.id ?? "").trim();
+    if (id) {
+      const data = await defRecommendRemoteService.GetRecommendRemoteItem({ id });
+      const records = normalizeRemoteRecordList(parseRemoteJson(data.json));
+      nextCursor.value = "";
+      currentPageSize.value = records.length;
+      return { data: records.map(normalizeItemRow) };
+    }
+
+    const data = await defRecommendRemoteService.PageRecommendRemoteItems({
+      id: "",
+      cursor: params.cursor ?? "",
+      n: pageSize.value
+    });
+    const page = parseRemoteCursorList(data.json, ["Items", "items"]);
+    nextCursor.value = page.cursor;
+    currentPageSize.value = page.list.length;
+    return { data: page.list.map(normalizeItemRow) };
+  } catch (error) {
+    ElMessage.error("加载远程推荐商品失败");
+    throw error;
+  }
+}
+
+/** 将远程商品记录转换为表格行。 */
+function normalizeItemRow(row: RemoteRecord, index: number): ItemRow {
+  return {
+    ...row,
+    __rowKey: `${getItemId(row) || index}-${index}`,
+    itemId: getItemId(row),
+    categories: getItemCategories(row),
+    labels: getItemLabels(row),
+    isHidden: isItemHidden(row),
+    comment: formatRemoteCell(resolveRemoteValue(row, ["Comment", "comment", "Description", "description"])),
+    updateTime: formatRemoteDateTime(resolveRemoteValue(row, ["Timestamp", "timestamp", "LastUpdateTime", "lastUpdateTime"]))
+  };
+}
+
+/** 将单条或列表响应转换为远程记录列表。 */
+function normalizeRemoteRecordList(value: unknown) {
+  if (Array.isArray(value)) return value.filter(isRemoteRecord);
+  if (isRemoteRecord(value)) return [value];
+  return [];
+}
+
+/** 判断值是否为远程推荐记录。 */
+function isRemoteRecord(value: unknown): value is RemoteRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 /** 读取远程商品编号。 */
 function getItemId(row: RemoteRecord) {
@@ -190,69 +246,36 @@ function isItemHidden(row: RemoteRecord) {
   return resolveRemoteBoolean(row, ["IsHidden", "isHidden", "is_hidden"]);
 }
 
-/** 加载远程推荐商品列表或单个商品。 */
-async function loadItems(resetCursor = false) {
-  if (resetCursor) {
-    query.cursor = "";
-    cursorStack.value = [];
-  }
-  loading.value = true;
-  try {
-    // 输入商品编号时直接查询单个商品，保持与 Gorse Items 搜索一致。
-    if (query.id) {
-      const data = await defRecommendRemoteService.GetRecommendRemoteItem({ id: query.id });
-      const record = parseRemoteJson(data.json);
-      list.value = typeof record === "object" && record !== null && !Array.isArray(record) ? [record as RemoteRecord] : [];
-      nextCursor.value = "";
-      return;
-    }
-
-    const data = await defRecommendRemoteService.PageRecommendRemoteItems({
-      id: "",
-      cursor: query.cursor,
-      n: query.n
-    });
-    const page = parseRemoteCursorList(data.json, ["Items", "items"]);
-    list.value = page.list;
-    nextCursor.value = page.cursor;
-  } catch (error) {
-    ElMessage.error("加载远程推荐商品失败");
-    throw error;
-  } finally {
-    loading.value = false;
-  }
-}
-
 /** 加载下一页远程商品。 */
-async function loadNextPage() {
+function loadNextPage() {
   if (!nextCursor.value) {
     ElMessage.warning("暂无下一页数据");
     return;
   }
-  cursorStack.value.push(query.cursor);
-  query.cursor = nextCursor.value;
-  await loadItems(false);
+  cursorStack.value.push(String(proTable.value?.searchParam.cursor ?? ""));
+  proTable.value!.searchParam.cursor = nextCursor.value;
+  proTable.value?.getTableList();
 }
 
 /** 加载上一页远程商品。 */
-async function loadPreviousPage() {
+function loadPreviousPage() {
   const previousCursor = cursorStack.value.pop();
-  // 没有上一页游标时，当前已经是第一页。
   if (previousCursor === undefined) {
     ElMessage.warning("暂无上一页数据");
     return;
   }
-  query.cursor = previousCursor;
-  await loadItems(false);
+  proTable.value!.searchParam.cursor = previousCursor;
+  proTable.value?.getTableList();
 }
 
-/** 重置查询条件并重新加载商品列表。 */
-function resetQuery() {
-  query.id = "";
-  query.cursor = "";
-  query.n = 20;
+/** 重置游标分页并刷新第一页。 */
+function resetCursorPage() {
   cursorStack.value = [];
-  loadItems(true);
+  nextCursor.value = "";
+  if (proTable.value) {
+    proTable.value.searchParam.cursor = "";
+  }
+  proTable.value?.getTableList();
 }
 
 /** 打开远程商品详情。 */
@@ -265,6 +288,16 @@ async function openDetail(row: RemoteRecord) {
   currentDetailId.value = id;
   detailVisible.value = true;
   await reloadDetail();
+}
+
+/** 打开当前商品的相似内容页。 */
+function openNeighbors(row: RemoteRecord) {
+  const id = getItemId(row);
+  if (!id) {
+    ElMessage.warning("商品编号为空，无法查看相似内容");
+    return;
+  }
+  router.push({ path: "/recommend/remote/neighbors", query: { type: "item", id } });
 }
 
 /** 重新加载当前远程商品详情。 */
@@ -299,112 +332,11 @@ async function deleteItem(row: RemoteRecord) {
   });
   await defRecommendRemoteService.DeleteRecommendRemoteItem({ id });
   ElMessage.success("删除远程推荐商品成功");
-  await loadItems(false);
+  proTable.value?.getTableList();
 }
 
 /** 转义确认输入使用的正则特殊字符。 */
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-
-onMounted(() => {
-  loadItems(true);
-});
 </script>
-
-<style scoped lang="scss">
-.remote-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.remote-hero-card,
-.remote-toolbar-card,
-.remote-section-card,
-.remote-sub-card {
-  border-color: var(--admin-page-card-border);
-  background: var(--admin-page-card-bg);
-  box-shadow: var(--admin-page-shadow);
-}
-
-.remote-hero-card {
-  background: radial-gradient(circle at top right, var(--el-color-primary-light-9), transparent 38%), var(--admin-page-card-bg);
-
-  :deep(.el-card__body) {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  &__content p {
-    margin: 0 0 6px;
-    color: var(--el-color-primary);
-    font-weight: 600;
-  }
-
-  &__content h2 {
-    margin: 0 0 8px;
-    color: var(--admin-page-text-primary);
-    font-size: 26px;
-  }
-
-  &__content span {
-    color: var(--admin-page-text-secondary);
-  }
-}
-
-.remote-toolbar-card :deep(.el-form-item) {
-  margin-bottom: 0;
-}
-
-.remote-section-card__header {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  justify-content: space-between;
-
-  strong {
-    color: var(--admin-page-text-primary);
-  }
-
-  span {
-    color: var(--admin-page-text-secondary);
-    font-size: 13px;
-  }
-}
-
-.remote-tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.remote-detail-drawer {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.remote-code-block {
-  max-height: 360px;
-  padding: 14px;
-  overflow: auto;
-  color: var(--admin-page-text-primary);
-  font-size: 13px;
-  line-height: 1.7;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: var(--el-fill-color-lighter);
-  border: 1px solid var(--el-border-color-lighter);
-  border-radius: 10px;
-}
-
-@media (max-width: 900px) {
-  .remote-hero-card :deep(.el-card__body) {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-</style>

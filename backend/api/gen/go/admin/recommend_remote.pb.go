@@ -7,14 +7,15 @@
 package admin
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
 )
 
 const (
@@ -252,6 +253,314 @@ func (x *RecommendRemoteDashboardItemsRequest) GetEnd() int64 {
 	return 0
 }
 
+// 远程推荐查询条件
+type RecommendRemoteRecommendRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`                                          // 推荐类型
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`                                              // 主体编号
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`                                  // 分类
+	N             int64                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`                                               // 返回数量
+	Offset        int64                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`                                     // 偏移量
+	WriteBackType string                 `protobuf:"bytes,6,opt,name=write_back_type,json=writeBackType,proto3" json:"write_back_type,omitempty"` // 写回反馈类型
+	Candidates    string                 `protobuf:"bytes,7,opt,name=candidates,proto3" json:"candidates,omitempty"`                              // 候选商品编号，逗号分隔
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendRemoteRecommendRequest) Reset() {
+	*x = RecommendRemoteRecommendRequest{}
+	mi := &file_admin_recommend_remote_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRemoteRecommendRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRemoteRecommendRequest) ProtoMessage() {}
+
+func (x *RecommendRemoteRecommendRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_recommend_remote_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRemoteRecommendRequest.ProtoReflect.Descriptor instead.
+func (*RecommendRemoteRecommendRequest) Descriptor() ([]byte, []int) {
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RecommendRemoteRecommendRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *RecommendRemoteRecommendRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RecommendRemoteRecommendRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *RecommendRemoteRecommendRequest) GetN() int64 {
+	if x != nil {
+		return x.N
+	}
+	return 0
+}
+
+func (x *RecommendRemoteRecommendRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+func (x *RecommendRemoteRecommendRequest) GetWriteBackType() string {
+	if x != nil {
+		return x.WriteBackType
+	}
+	return ""
+}
+
+func (x *RecommendRemoteRecommendRequest) GetCandidates() string {
+	if x != nil {
+		return x.Candidates
+	}
+	return ""
+}
+
+// 远程相似内容查询条件
+type RecommendRemoteNeighborRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`         // 相似类型
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`             // 主体编号
+	Category      string                 `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"` // 分类
+	N             int64                  `protobuf:"varint,4,opt,name=n,proto3" json:"n,omitempty"`              // 返回数量
+	Offset        int64                  `protobuf:"varint,5,opt,name=offset,proto3" json:"offset,omitempty"`    // 偏移量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendRemoteNeighborRequest) Reset() {
+	*x = RecommendRemoteNeighborRequest{}
+	mi := &file_admin_recommend_remote_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRemoteNeighborRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRemoteNeighborRequest) ProtoMessage() {}
+
+func (x *RecommendRemoteNeighborRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_recommend_remote_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRemoteNeighborRequest.ProtoReflect.Descriptor instead.
+func (*RecommendRemoteNeighborRequest) Descriptor() ([]byte, []int) {
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *RecommendRemoteNeighborRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *RecommendRemoteNeighborRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *RecommendRemoteNeighborRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *RecommendRemoteNeighborRequest) GetN() int64 {
+	if x != nil {
+		return x.N
+	}
+	return 0
+}
+
+func (x *RecommendRemoteNeighborRequest) GetOffset() int64 {
+	if x != nil {
+		return x.Offset
+	}
+	return 0
+}
+
+// 远程推荐反馈查询条件
+type RecommendRemoteFeedbackRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cursor        string                 `protobuf:"bytes,1,opt,name=cursor,proto3" json:"cursor,omitempty"`                                 // 游标
+	N             int64                  `protobuf:"varint,2,opt,name=n,proto3" json:"n,omitempty"`                                          // 返回数量
+	FeedbackType  string                 `protobuf:"bytes,3,opt,name=feedback_type,json=feedbackType,proto3" json:"feedback_type,omitempty"` // 反馈类型
+	UserId        string                 `protobuf:"bytes,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                   // 用户编号
+	ItemId        string                 `protobuf:"bytes,5,opt,name=item_id,json=itemId,proto3" json:"item_id,omitempty"`                   // 商品编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendRemoteFeedbackRequest) Reset() {
+	*x = RecommendRemoteFeedbackRequest{}
+	mi := &file_admin_recommend_remote_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRemoteFeedbackRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRemoteFeedbackRequest) ProtoMessage() {}
+
+func (x *RecommendRemoteFeedbackRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_recommend_remote_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRemoteFeedbackRequest.ProtoReflect.Descriptor instead.
+func (*RecommendRemoteFeedbackRequest) Descriptor() ([]byte, []int) {
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *RecommendRemoteFeedbackRequest) GetCursor() string {
+	if x != nil {
+		return x.Cursor
+	}
+	return ""
+}
+
+func (x *RecommendRemoteFeedbackRequest) GetN() int64 {
+	if x != nil {
+		return x.N
+	}
+	return 0
+}
+
+func (x *RecommendRemoteFeedbackRequest) GetFeedbackType() string {
+	if x != nil {
+		return x.FeedbackType
+	}
+	return ""
+}
+
+func (x *RecommendRemoteFeedbackRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RecommendRemoteFeedbackRequest) GetItemId() string {
+	if x != nil {
+		return x.ItemId
+	}
+	return ""
+}
+
+// 远程推荐反馈删除条件
+type RecommendRemoteFeedbackDeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	FeedbackType  string                 `protobuf:"bytes,1,opt,name=feedback_type,json=feedbackType,proto3" json:"feedback_type,omitempty"` // 反馈类型
+	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                   // 用户编号
+	ItemId        string                 `protobuf:"bytes,3,opt,name=item_id,json=itemId,proto3" json:"item_id,omitempty"`                   // 商品编号
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendRemoteFeedbackDeleteRequest) Reset() {
+	*x = RecommendRemoteFeedbackDeleteRequest{}
+	mi := &file_admin_recommend_remote_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRemoteFeedbackDeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRemoteFeedbackDeleteRequest) ProtoMessage() {}
+
+func (x *RecommendRemoteFeedbackDeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_recommend_remote_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRemoteFeedbackDeleteRequest.ProtoReflect.Descriptor instead.
+func (*RecommendRemoteFeedbackDeleteRequest) Descriptor() ([]byte, []int) {
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *RecommendRemoteFeedbackDeleteRequest) GetFeedbackType() string {
+	if x != nil {
+		return x.FeedbackType
+	}
+	return ""
+}
+
+func (x *RecommendRemoteFeedbackDeleteRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RecommendRemoteFeedbackDeleteRequest) GetItemId() string {
+	if x != nil {
+		return x.ItemId
+	}
+	return ""
+}
+
 // 远程推荐数据查询条件
 type RecommendRemoteDataRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -264,7 +573,7 @@ type RecommendRemoteDataRequest struct {
 
 func (x *RecommendRemoteDataRequest) Reset() {
 	*x = RecommendRemoteDataRequest{}
-	mi := &file_admin_recommend_remote_proto_msgTypes[4]
+	mi := &file_admin_recommend_remote_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -276,7 +585,7 @@ func (x *RecommendRemoteDataRequest) String() string {
 func (*RecommendRemoteDataRequest) ProtoMessage() {}
 
 func (x *RecommendRemoteDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_recommend_remote_proto_msgTypes[4]
+	mi := &file_admin_recommend_remote_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -289,7 +598,7 @@ func (x *RecommendRemoteDataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendRemoteDataRequest.ProtoReflect.Descriptor instead.
 func (*RecommendRemoteDataRequest) Descriptor() ([]byte, []int) {
-	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{4}
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *RecommendRemoteDataRequest) GetType() string {
@@ -324,7 +633,7 @@ type RecommendRemoteImportRequest struct {
 
 func (x *RecommendRemoteImportRequest) Reset() {
 	*x = RecommendRemoteImportRequest{}
-	mi := &file_admin_recommend_remote_proto_msgTypes[5]
+	mi := &file_admin_recommend_remote_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -336,7 +645,7 @@ func (x *RecommendRemoteImportRequest) String() string {
 func (*RecommendRemoteImportRequest) ProtoMessage() {}
 
 func (x *RecommendRemoteImportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_recommend_remote_proto_msgTypes[5]
+	mi := &file_admin_recommend_remote_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -349,7 +658,7 @@ func (x *RecommendRemoteImportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendRemoteImportRequest.ProtoReflect.Descriptor instead.
 func (*RecommendRemoteImportRequest) Descriptor() ([]byte, []int) {
-	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{5}
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *RecommendRemoteImportRequest) GetType() string {
@@ -376,7 +685,7 @@ type RecommendRemoteJsonRequest struct {
 
 func (x *RecommendRemoteJsonRequest) Reset() {
 	*x = RecommendRemoteJsonRequest{}
-	mi := &file_admin_recommend_remote_proto_msgTypes[6]
+	mi := &file_admin_recommend_remote_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -388,7 +697,7 @@ func (x *RecommendRemoteJsonRequest) String() string {
 func (*RecommendRemoteJsonRequest) ProtoMessage() {}
 
 func (x *RecommendRemoteJsonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_recommend_remote_proto_msgTypes[6]
+	mi := &file_admin_recommend_remote_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +710,7 @@ func (x *RecommendRemoteJsonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendRemoteJsonRequest.ProtoReflect.Descriptor instead.
 func (*RecommendRemoteJsonRequest) Descriptor() ([]byte, []int) {
-	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{6}
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RecommendRemoteJsonRequest) GetJson() string {
@@ -422,7 +731,7 @@ type RecommendRemoteJsonResponse struct {
 
 func (x *RecommendRemoteJsonResponse) Reset() {
 	*x = RecommendRemoteJsonResponse{}
-	mi := &file_admin_recommend_remote_proto_msgTypes[7]
+	mi := &file_admin_recommend_remote_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -434,7 +743,7 @@ func (x *RecommendRemoteJsonResponse) String() string {
 func (*RecommendRemoteJsonResponse) ProtoMessage() {}
 
 func (x *RecommendRemoteJsonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_recommend_remote_proto_msgTypes[7]
+	mi := &file_admin_recommend_remote_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -447,7 +756,7 @@ func (x *RecommendRemoteJsonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendRemoteJsonResponse.ProtoReflect.Descriptor instead.
 func (*RecommendRemoteJsonResponse) Descriptor() ([]byte, []int) {
-	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{7}
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RecommendRemoteJsonResponse) GetJson() string {
@@ -482,7 +791,33 @@ const file_admin_recommend_remote_proto_rawDesc = "" +
 	"$RecommendRemoteDashboardItemsRequest\x12B\n" +
 	"\vrecommender\x18\x01 \x01(\tB \xbaG\x1d\x8a\x02\b\x1a\x06latest\x92\x02\x0f推荐器名称R\vrecommender\x12(\n" +
 	"\bcategory\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x120\n" +
-	"\x03end\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00Y@\x92\x02\f结束位置R\x03end\"\xa2\x01\n" +
+	"\x03end\x18\x03 \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00Y@\x92\x02\f结束位置R\x03end\"\x87\x03\n" +
+	"\x1fRecommendRemoteRecommendRequest\x124\n" +
+	"\x04type\x18\x01 \x01(\tB \xbaG\x1d\x8a\x02\v\x1a\trecommend\x92\x02\f推荐类型R\x04type\x12\"\n" +
+	"\x02id\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f主体编号R\x02id\x12(\n" +
+	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12,\n" +
+	"\x01n\x18\x04 \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\f返回数量R\x01n\x12'\n" +
+	"\x06offset\x18\x05 \x01(\x03B\x0f\xbaG\f\x92\x02\t偏移量R\x06offset\x12@\n" +
+	"\x0fwrite_back_type\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12写回反馈类型R\rwriteBackType\x12G\n" +
+	"\n" +
+	"candidates\x18\a \x01(\tB'\xbaG$\x92\x02!候选商品编号，逗号分隔R\n" +
+	"candidates\"\xf6\x01\n" +
+	"\x1eRecommendRemoteNeighborRequest\x12/\n" +
+	"\x04type\x18\x01 \x01(\tB\x1b\xbaG\x18\x8a\x02\x06\x1a\x04item\x92\x02\f相似类型R\x04type\x12\"\n" +
+	"\x02id\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f主体编号R\x02id\x12(\n" +
+	"\bcategory\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06分类R\bcategory\x12,\n" +
+	"\x01n\x18\x04 \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\f返回数量R\x01n\x12'\n" +
+	"\x06offset\x18\x05 \x01(\x03B\x0f\xbaG\f\x92\x02\t偏移量R\x06offset\"\x87\x02\n" +
+	"\x1eRecommendRemoteFeedbackRequest\x12$\n" +
+	"\x06cursor\x18\x01 \x01(\tB\f\xbaG\t\x92\x02\x06游标R\x06cursor\x12,\n" +
+	"\x01n\x18\x02 \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\f返回数量R\x01n\x127\n" +
+	"\rfeedback_type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\ffeedbackType\x12+\n" +
+	"\auser_id\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x12+\n" +
+	"\aitem_id\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x06itemId\"\xb9\x01\n" +
+	"$RecommendRemoteFeedbackDeleteRequest\x127\n" +
+	"\rfeedback_type\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f反馈类型R\ffeedbackType\x12+\n" +
+	"\auser_id\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户编号R\x06userId\x12+\n" +
+	"\aitem_id\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品编号R\x06itemId\"\xa2\x01\n" +
 	"\x1aRecommendRemoteDataRequest\x120\n" +
 	"\x04type\x18\x01 \x01(\tB\x1c\xbaG\x19\x8a\x02\a\x1a\x05users\x92\x02\f数据类型R\x04type\x12$\n" +
 	"\x06cursor\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06游标R\x06cursor\x12,\n" +
@@ -497,13 +832,18 @@ const file_admin_recommend_remote_proto_rawDesc = "" +
 	"\x1bRecommendRemoteJsonResponse\x12$\n" +
 	"\x04json\x18\x01 \x01(\tB\x10\xbaG\r\x92\x02\n" +
 	"JSON内容R\x04json\x12=\n" +
-	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\flastModified2\xa6\x14\n" +
+	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\flastModified2\xa3\x1a\n" +
 	"\x16RecommendRemoteService\x12\x86\x01\n" +
 	"\x1aGetRecommendRemoteOverview\x12\x16.google.protobuf.Empty\x1a\".admin.RecommendRemoteJsonResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/admin/recommend/remote/overview\x12\x80\x01\n" +
 	"\x17GetRecommendRemoteTasks\x12\x16.google.protobuf.Empty\x1a\".admin.RecommendRemoteJsonResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/admin/recommend/remote/tasks\x12\x8a\x01\n" +
 	"\x1cGetRecommendRemoteCategories\x12\x16.google.protobuf.Empty\x1a\".admin.RecommendRemoteJsonResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/admin/recommend/remote/categories\x12\x9c\x01\n" +
 	"\x1cGetRecommendRemoteTimeseries\x12!.admin.RecommendRemoteNameRequest\x1a\".admin.RecommendRemoteJsonResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/admin/recommend/remote/timeseries/{name}\x12\xa2\x01\n" +
-	" GetRecommendRemoteDashboardItems\x12+.admin.RecommendRemoteDashboardItemsRequest\x1a\".admin.RecommendRemoteJsonResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/recommend/remote/dashboard\x12\x8e\x01\n" +
+	" GetRecommendRemoteDashboardItems\x12+.admin.RecommendRemoteDashboardItemsRequest\x1a\".admin.RecommendRemoteJsonResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/recommend/remote/dashboard\x12\xa4\x01\n" +
+	"!GetRecommendRemoteRecommendations\x12&.admin.RecommendRemoteRecommendRequest\x1a\".admin.RecommendRemoteJsonResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/admin/recommend/remote/recommendations\x12\x97\x01\n" +
+	"\x1bGetRecommendRemoteNeighbors\x12%.admin.RecommendRemoteNeighborRequest\x1a\".admin.RecommendRemoteJsonResponse\"-\x82\xd3\xe4\x93\x02'\x12%/api/admin/recommend/remote/neighbors\x12\x96\x01\n" +
+	"\x1bPageRecommendRemoteFeedback\x12%.admin.RecommendRemoteFeedbackRequest\x1a\".admin.RecommendRemoteJsonResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/admin/recommend/remote/feedback\x12\x8b\x01\n" +
+	"\x1dImportRecommendRemoteFeedback\x12!.admin.RecommendRemoteJsonRequest\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02):\x01*\"$/api/admin/recommend/remote/feedback\x12\x92\x01\n" +
+	"\x1dDeleteRecommendRemoteFeedback\x12+.admin.RecommendRemoteFeedbackDeleteRequest\x1a\x16.google.protobuf.Empty\",\x82\xd3\xe4\x93\x02&*$/api/admin/recommend/remote/feedback\x12\x8e\x01\n" +
 	"\x18PageRecommendRemoteUsers\x12#.admin.RecommendRemoteCursorRequest\x1a\".admin.RecommendRemoteJsonResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/admin/recommend/remote/users\x12\x8d\x01\n" +
 	"\x16GetRecommendRemoteUser\x12\x1f.admin.RecommendRemoteIdRequest\x1a\".admin.RecommendRemoteJsonResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/admin/recommend/remote/users/{id}\x12\x84\x01\n" +
 	"\x19DeleteRecommendRemoteUser\x12\x1f.admin.RecommendRemoteIdRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(*&/api/admin/recommend/remote/users/{id}\x12\x8e\x01\n" +
@@ -531,57 +871,71 @@ func file_admin_recommend_remote_proto_rawDescGZIP() []byte {
 	return file_admin_recommend_remote_proto_rawDescData
 }
 
-var file_admin_recommend_remote_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_admin_recommend_remote_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_admin_recommend_remote_proto_goTypes = []any{
 	(*RecommendRemoteCursorRequest)(nil),         // 0: admin.RecommendRemoteCursorRequest
 	(*RecommendRemoteIdRequest)(nil),             // 1: admin.RecommendRemoteIdRequest
 	(*RecommendRemoteNameRequest)(nil),           // 2: admin.RecommendRemoteNameRequest
 	(*RecommendRemoteDashboardItemsRequest)(nil), // 3: admin.RecommendRemoteDashboardItemsRequest
-	(*RecommendRemoteDataRequest)(nil),           // 4: admin.RecommendRemoteDataRequest
-	(*RecommendRemoteImportRequest)(nil),         // 5: admin.RecommendRemoteImportRequest
-	(*RecommendRemoteJsonRequest)(nil),           // 6: admin.RecommendRemoteJsonRequest
-	(*RecommendRemoteJsonResponse)(nil),          // 7: admin.RecommendRemoteJsonResponse
-	(*emptypb.Empty)(nil),                        // 8: google.protobuf.Empty
+	(*RecommendRemoteRecommendRequest)(nil),      // 4: admin.RecommendRemoteRecommendRequest
+	(*RecommendRemoteNeighborRequest)(nil),       // 5: admin.RecommendRemoteNeighborRequest
+	(*RecommendRemoteFeedbackRequest)(nil),       // 6: admin.RecommendRemoteFeedbackRequest
+	(*RecommendRemoteFeedbackDeleteRequest)(nil), // 7: admin.RecommendRemoteFeedbackDeleteRequest
+	(*RecommendRemoteDataRequest)(nil),           // 8: admin.RecommendRemoteDataRequest
+	(*RecommendRemoteImportRequest)(nil),         // 9: admin.RecommendRemoteImportRequest
+	(*RecommendRemoteJsonRequest)(nil),           // 10: admin.RecommendRemoteJsonRequest
+	(*RecommendRemoteJsonResponse)(nil),          // 11: admin.RecommendRemoteJsonResponse
+	(*emptypb.Empty)(nil),                        // 12: google.protobuf.Empty
 }
 var file_admin_recommend_remote_proto_depIdxs = []int32{
-	8,  // 0: admin.RecommendRemoteService.GetRecommendRemoteOverview:input_type -> google.protobuf.Empty
-	8,  // 1: admin.RecommendRemoteService.GetRecommendRemoteTasks:input_type -> google.protobuf.Empty
-	8,  // 2: admin.RecommendRemoteService.GetRecommendRemoteCategories:input_type -> google.protobuf.Empty
+	12, // 0: admin.RecommendRemoteService.GetRecommendRemoteOverview:input_type -> google.protobuf.Empty
+	12, // 1: admin.RecommendRemoteService.GetRecommendRemoteTasks:input_type -> google.protobuf.Empty
+	12, // 2: admin.RecommendRemoteService.GetRecommendRemoteCategories:input_type -> google.protobuf.Empty
 	2,  // 3: admin.RecommendRemoteService.GetRecommendRemoteTimeseries:input_type -> admin.RecommendRemoteNameRequest
 	3,  // 4: admin.RecommendRemoteService.GetRecommendRemoteDashboardItems:input_type -> admin.RecommendRemoteDashboardItemsRequest
-	0,  // 5: admin.RecommendRemoteService.PageRecommendRemoteUsers:input_type -> admin.RecommendRemoteCursorRequest
-	1,  // 6: admin.RecommendRemoteService.GetRecommendRemoteUser:input_type -> admin.RecommendRemoteIdRequest
-	1,  // 7: admin.RecommendRemoteService.DeleteRecommendRemoteUser:input_type -> admin.RecommendRemoteIdRequest
-	0,  // 8: admin.RecommendRemoteService.PageRecommendRemoteItems:input_type -> admin.RecommendRemoteCursorRequest
-	1,  // 9: admin.RecommendRemoteService.GetRecommendRemoteItem:input_type -> admin.RecommendRemoteIdRequest
-	1,  // 10: admin.RecommendRemoteService.DeleteRecommendRemoteItem:input_type -> admin.RecommendRemoteIdRequest
-	4,  // 11: admin.RecommendRemoteService.ExportRecommendRemoteData:input_type -> admin.RecommendRemoteDataRequest
-	5,  // 12: admin.RecommendRemoteService.ImportRecommendRemoteData:input_type -> admin.RecommendRemoteImportRequest
-	8,  // 13: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
-	6,  // 14: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:input_type -> admin.RecommendRemoteJsonRequest
-	8,  // 15: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
-	8,  // 16: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:input_type -> google.protobuf.Empty
-	8,  // 17: admin.RecommendRemoteService.GetRecommendRemoteConfig:input_type -> google.protobuf.Empty
-	7,  // 18: admin.RecommendRemoteService.GetRecommendRemoteOverview:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 19: admin.RecommendRemoteService.GetRecommendRemoteTasks:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 20: admin.RecommendRemoteService.GetRecommendRemoteCategories:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 21: admin.RecommendRemoteService.GetRecommendRemoteTimeseries:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 22: admin.RecommendRemoteService.GetRecommendRemoteDashboardItems:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 23: admin.RecommendRemoteService.PageRecommendRemoteUsers:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 24: admin.RecommendRemoteService.GetRecommendRemoteUser:output_type -> admin.RecommendRemoteJsonResponse
-	8,  // 25: admin.RecommendRemoteService.DeleteRecommendRemoteUser:output_type -> google.protobuf.Empty
-	7,  // 26: admin.RecommendRemoteService.PageRecommendRemoteItems:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 27: admin.RecommendRemoteService.GetRecommendRemoteItem:output_type -> admin.RecommendRemoteJsonResponse
-	8,  // 28: admin.RecommendRemoteService.DeleteRecommendRemoteItem:output_type -> google.protobuf.Empty
-	7,  // 29: admin.RecommendRemoteService.ExportRecommendRemoteData:output_type -> admin.RecommendRemoteJsonResponse
-	8,  // 30: admin.RecommendRemoteService.ImportRecommendRemoteData:output_type -> google.protobuf.Empty
-	7,  // 31: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:output_type -> admin.RecommendRemoteJsonResponse
-	8,  // 32: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
-	8,  // 33: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
-	7,  // 34: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:output_type -> admin.RecommendRemoteJsonResponse
-	7,  // 35: admin.RecommendRemoteService.GetRecommendRemoteConfig:output_type -> admin.RecommendRemoteJsonResponse
-	18, // [18:36] is the sub-list for method output_type
-	0,  // [0:18] is the sub-list for method input_type
+	4,  // 5: admin.RecommendRemoteService.GetRecommendRemoteRecommendations:input_type -> admin.RecommendRemoteRecommendRequest
+	5,  // 6: admin.RecommendRemoteService.GetRecommendRemoteNeighbors:input_type -> admin.RecommendRemoteNeighborRequest
+	6,  // 7: admin.RecommendRemoteService.PageRecommendRemoteFeedback:input_type -> admin.RecommendRemoteFeedbackRequest
+	10, // 8: admin.RecommendRemoteService.ImportRecommendRemoteFeedback:input_type -> admin.RecommendRemoteJsonRequest
+	7,  // 9: admin.RecommendRemoteService.DeleteRecommendRemoteFeedback:input_type -> admin.RecommendRemoteFeedbackDeleteRequest
+	0,  // 10: admin.RecommendRemoteService.PageRecommendRemoteUsers:input_type -> admin.RecommendRemoteCursorRequest
+	1,  // 11: admin.RecommendRemoteService.GetRecommendRemoteUser:input_type -> admin.RecommendRemoteIdRequest
+	1,  // 12: admin.RecommendRemoteService.DeleteRecommendRemoteUser:input_type -> admin.RecommendRemoteIdRequest
+	0,  // 13: admin.RecommendRemoteService.PageRecommendRemoteItems:input_type -> admin.RecommendRemoteCursorRequest
+	1,  // 14: admin.RecommendRemoteService.GetRecommendRemoteItem:input_type -> admin.RecommendRemoteIdRequest
+	1,  // 15: admin.RecommendRemoteService.DeleteRecommendRemoteItem:input_type -> admin.RecommendRemoteIdRequest
+	8,  // 16: admin.RecommendRemoteService.ExportRecommendRemoteData:input_type -> admin.RecommendRemoteDataRequest
+	9,  // 17: admin.RecommendRemoteService.ImportRecommendRemoteData:input_type -> admin.RecommendRemoteImportRequest
+	12, // 18: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
+	10, // 19: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:input_type -> admin.RecommendRemoteJsonRequest
+	12, // 20: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
+	12, // 21: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:input_type -> google.protobuf.Empty
+	12, // 22: admin.RecommendRemoteService.GetRecommendRemoteConfig:input_type -> google.protobuf.Empty
+	11, // 23: admin.RecommendRemoteService.GetRecommendRemoteOverview:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 24: admin.RecommendRemoteService.GetRecommendRemoteTasks:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 25: admin.RecommendRemoteService.GetRecommendRemoteCategories:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 26: admin.RecommendRemoteService.GetRecommendRemoteTimeseries:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 27: admin.RecommendRemoteService.GetRecommendRemoteDashboardItems:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 28: admin.RecommendRemoteService.GetRecommendRemoteRecommendations:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 29: admin.RecommendRemoteService.GetRecommendRemoteNeighbors:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 30: admin.RecommendRemoteService.PageRecommendRemoteFeedback:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 31: admin.RecommendRemoteService.ImportRecommendRemoteFeedback:output_type -> google.protobuf.Empty
+	12, // 32: admin.RecommendRemoteService.DeleteRecommendRemoteFeedback:output_type -> google.protobuf.Empty
+	11, // 33: admin.RecommendRemoteService.PageRecommendRemoteUsers:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 34: admin.RecommendRemoteService.GetRecommendRemoteUser:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 35: admin.RecommendRemoteService.DeleteRecommendRemoteUser:output_type -> google.protobuf.Empty
+	11, // 36: admin.RecommendRemoteService.PageRecommendRemoteItems:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 37: admin.RecommendRemoteService.GetRecommendRemoteItem:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 38: admin.RecommendRemoteService.DeleteRecommendRemoteItem:output_type -> google.protobuf.Empty
+	11, // 39: admin.RecommendRemoteService.ExportRecommendRemoteData:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 40: admin.RecommendRemoteService.ImportRecommendRemoteData:output_type -> google.protobuf.Empty
+	11, // 41: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 42: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
+	12, // 43: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
+	11, // 44: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:output_type -> admin.RecommendRemoteJsonResponse
+	11, // 45: admin.RecommendRemoteService.GetRecommendRemoteConfig:output_type -> admin.RecommendRemoteJsonResponse
+	23, // [23:46] is the sub-list for method output_type
+	0,  // [0:23] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -598,7 +952,7 @@ func file_admin_recommend_remote_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_recommend_remote_proto_rawDesc), len(file_admin_recommend_remote_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

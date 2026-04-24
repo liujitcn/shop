@@ -8,6 +8,7 @@ package admin
 
 import (
 	context "context"
+
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -20,6 +21,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationRecommendRemoteServiceDeleteRecommendRemoteFeedback = "/admin.RecommendRemoteService/DeleteRecommendRemoteFeedback"
 const OperationRecommendRemoteServiceDeleteRecommendRemoteItem = "/admin.RecommendRemoteService/DeleteRecommendRemoteItem"
 const OperationRecommendRemoteServiceDeleteRecommendRemoteUser = "/admin.RecommendRemoteService/DeleteRecommendRemoteUser"
 const OperationRecommendRemoteServiceExportRecommendRemoteData = "/admin.RecommendRemoteService/ExportRecommendRemoteData"
@@ -29,17 +31,23 @@ const OperationRecommendRemoteServiceGetRecommendRemoteDashboardItems = "/admin.
 const OperationRecommendRemoteServiceGetRecommendRemoteFlowConfig = "/admin.RecommendRemoteService/GetRecommendRemoteFlowConfig"
 const OperationRecommendRemoteServiceGetRecommendRemoteFlowSchema = "/admin.RecommendRemoteService/GetRecommendRemoteFlowSchema"
 const OperationRecommendRemoteServiceGetRecommendRemoteItem = "/admin.RecommendRemoteService/GetRecommendRemoteItem"
+const OperationRecommendRemoteServiceGetRecommendRemoteNeighbors = "/admin.RecommendRemoteService/GetRecommendRemoteNeighbors"
 const OperationRecommendRemoteServiceGetRecommendRemoteOverview = "/admin.RecommendRemoteService/GetRecommendRemoteOverview"
+const OperationRecommendRemoteServiceGetRecommendRemoteRecommendations = "/admin.RecommendRemoteService/GetRecommendRemoteRecommendations"
 const OperationRecommendRemoteServiceGetRecommendRemoteTasks = "/admin.RecommendRemoteService/GetRecommendRemoteTasks"
 const OperationRecommendRemoteServiceGetRecommendRemoteTimeseries = "/admin.RecommendRemoteService/GetRecommendRemoteTimeseries"
 const OperationRecommendRemoteServiceGetRecommendRemoteUser = "/admin.RecommendRemoteService/GetRecommendRemoteUser"
 const OperationRecommendRemoteServiceImportRecommendRemoteData = "/admin.RecommendRemoteService/ImportRecommendRemoteData"
+const OperationRecommendRemoteServiceImportRecommendRemoteFeedback = "/admin.RecommendRemoteService/ImportRecommendRemoteFeedback"
+const OperationRecommendRemoteServicePageRecommendRemoteFeedback = "/admin.RecommendRemoteService/PageRecommendRemoteFeedback"
 const OperationRecommendRemoteServicePageRecommendRemoteItems = "/admin.RecommendRemoteService/PageRecommendRemoteItems"
 const OperationRecommendRemoteServicePageRecommendRemoteUsers = "/admin.RecommendRemoteService/PageRecommendRemoteUsers"
 const OperationRecommendRemoteServiceResetRecommendRemoteFlowConfig = "/admin.RecommendRemoteService/ResetRecommendRemoteFlowConfig"
 const OperationRecommendRemoteServiceSaveRecommendRemoteFlowConfig = "/admin.RecommendRemoteService/SaveRecommendRemoteFlowConfig"
 
 type RecommendRemoteServiceHTTPServer interface {
+	// DeleteRecommendRemoteFeedback 删除远程推荐反馈
+	DeleteRecommendRemoteFeedback(context.Context, *RecommendRemoteFeedbackDeleteRequest) (*emptypb.Empty, error)
 	// DeleteRecommendRemoteItem 删除远程推荐商品
 	DeleteRecommendRemoteItem(context.Context, *RecommendRemoteIdRequest) (*emptypb.Empty, error)
 	// DeleteRecommendRemoteUser 删除远程推荐用户
@@ -58,8 +66,12 @@ type RecommendRemoteServiceHTTPServer interface {
 	GetRecommendRemoteFlowSchema(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteItem 查询远程推荐商品
 	GetRecommendRemoteItem(context.Context, *RecommendRemoteIdRequest) (*RecommendRemoteJsonResponse, error)
+	// GetRecommendRemoteNeighbors 查询远程相似内容
+	GetRecommendRemoteNeighbors(context.Context, *RecommendRemoteNeighborRequest) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteOverview 查询远程推荐概览
 	GetRecommendRemoteOverview(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	// GetRecommendRemoteRecommendations 查询远程推荐结果
+	GetRecommendRemoteRecommendations(context.Context, *RecommendRemoteRecommendRequest) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteTasks 查询远程推荐任务状态
 	GetRecommendRemoteTasks(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteTimeseries 查询远程推荐时间序列
@@ -68,6 +80,10 @@ type RecommendRemoteServiceHTTPServer interface {
 	GetRecommendRemoteUser(context.Context, *RecommendRemoteIdRequest) (*RecommendRemoteJsonResponse, error)
 	// ImportRecommendRemoteData 导入远程推荐数据
 	ImportRecommendRemoteData(context.Context, *RecommendRemoteImportRequest) (*emptypb.Empty, error)
+	// ImportRecommendRemoteFeedback 写入远程推荐反馈
+	ImportRecommendRemoteFeedback(context.Context, *RecommendRemoteJsonRequest) (*emptypb.Empty, error)
+	// PageRecommendRemoteFeedback 查询远程推荐反馈列表
+	PageRecommendRemoteFeedback(context.Context, *RecommendRemoteFeedbackRequest) (*RecommendRemoteJsonResponse, error)
 	// PageRecommendRemoteItems 查询远程推荐商品列表
 	PageRecommendRemoteItems(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error)
 	// PageRecommendRemoteUsers 查询远程推荐用户列表
@@ -85,6 +101,11 @@ func RegisterRecommendRemoteServiceHTTPServer(s *http.Server, srv RecommendRemot
 	r.GET("/api/admin/recommend/remote/categories", _RecommendRemoteService_GetRecommendRemoteCategories0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/timeseries/{name}", _RecommendRemoteService_GetRecommendRemoteTimeseries0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/dashboard", _RecommendRemoteService_GetRecommendRemoteDashboardItems0_HTTP_Handler(srv))
+	r.GET("/api/admin/recommend/remote/recommendations", _RecommendRemoteService_GetRecommendRemoteRecommendations0_HTTP_Handler(srv))
+	r.GET("/api/admin/recommend/remote/neighbors", _RecommendRemoteService_GetRecommendRemoteNeighbors0_HTTP_Handler(srv))
+	r.GET("/api/admin/recommend/remote/feedback", _RecommendRemoteService_PageRecommendRemoteFeedback0_HTTP_Handler(srv))
+	r.POST("/api/admin/recommend/remote/feedback", _RecommendRemoteService_ImportRecommendRemoteFeedback0_HTTP_Handler(srv))
+	r.DELETE("/api/admin/recommend/remote/feedback", _RecommendRemoteService_DeleteRecommendRemoteFeedback0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/users", _RecommendRemoteService_PageRecommendRemoteUsers0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/users/{id}", _RecommendRemoteService_GetRecommendRemoteUser0_HTTP_Handler(srv))
 	r.DELETE("/api/admin/recommend/remote/users/{id}", _RecommendRemoteService_DeleteRecommendRemoteUser0_HTTP_Handler(srv))
@@ -194,6 +215,104 @@ func _RecommendRemoteService_GetRecommendRemoteDashboardItems0_HTTP_Handler(srv 
 			return err
 		}
 		reply := out.(*RecommendRemoteJsonResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRemoteService_GetRecommendRemoteRecommendations0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemoteRecommendRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServiceGetRecommendRemoteRecommendations)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetRecommendRemoteRecommendations(ctx, req.(*RecommendRemoteRecommendRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RecommendRemoteJsonResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRemoteService_GetRecommendRemoteNeighbors0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemoteNeighborRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServiceGetRecommendRemoteNeighbors)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetRecommendRemoteNeighbors(ctx, req.(*RecommendRemoteNeighborRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RecommendRemoteJsonResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRemoteService_PageRecommendRemoteFeedback0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemoteFeedbackRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServicePageRecommendRemoteFeedback)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageRecommendRemoteFeedback(ctx, req.(*RecommendRemoteFeedbackRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RecommendRemoteJsonResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRemoteService_ImportRecommendRemoteFeedback0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemoteJsonRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServiceImportRecommendRemoteFeedback)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ImportRecommendRemoteFeedback(ctx, req.(*RecommendRemoteJsonRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRemoteService_DeleteRecommendRemoteFeedback0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemoteFeedbackDeleteRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServiceDeleteRecommendRemoteFeedback)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteRecommendRemoteFeedback(ctx, req.(*RecommendRemoteFeedbackDeleteRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -464,6 +583,8 @@ func _RecommendRemoteService_GetRecommendRemoteConfig0_HTTP_Handler(srv Recommen
 }
 
 type RecommendRemoteServiceHTTPClient interface {
+	// DeleteRecommendRemoteFeedback 删除远程推荐反馈
+	DeleteRecommendRemoteFeedback(ctx context.Context, req *RecommendRemoteFeedbackDeleteRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteRecommendRemoteItem 删除远程推荐商品
 	DeleteRecommendRemoteItem(ctx context.Context, req *RecommendRemoteIdRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteRecommendRemoteUser 删除远程推荐用户
@@ -482,8 +603,12 @@ type RecommendRemoteServiceHTTPClient interface {
 	GetRecommendRemoteFlowSchema(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteItem 查询远程推荐商品
 	GetRecommendRemoteItem(ctx context.Context, req *RecommendRemoteIdRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
+	// GetRecommendRemoteNeighbors 查询远程相似内容
+	GetRecommendRemoteNeighbors(ctx context.Context, req *RecommendRemoteNeighborRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteOverview 查询远程推荐概览
 	GetRecommendRemoteOverview(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
+	// GetRecommendRemoteRecommendations 查询远程推荐结果
+	GetRecommendRemoteRecommendations(ctx context.Context, req *RecommendRemoteRecommendRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteTasks 查询远程推荐任务状态
 	GetRecommendRemoteTasks(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteTimeseries 查询远程推荐时间序列
@@ -492,6 +617,10 @@ type RecommendRemoteServiceHTTPClient interface {
 	GetRecommendRemoteUser(ctx context.Context, req *RecommendRemoteIdRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// ImportRecommendRemoteData 导入远程推荐数据
 	ImportRecommendRemoteData(ctx context.Context, req *RecommendRemoteImportRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// ImportRecommendRemoteFeedback 写入远程推荐反馈
+	ImportRecommendRemoteFeedback(ctx context.Context, req *RecommendRemoteJsonRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// PageRecommendRemoteFeedback 查询远程推荐反馈列表
+	PageRecommendRemoteFeedback(ctx context.Context, req *RecommendRemoteFeedbackRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// PageRecommendRemoteItems 查询远程推荐商品列表
 	PageRecommendRemoteItems(ctx context.Context, req *RecommendRemoteCursorRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// PageRecommendRemoteUsers 查询远程推荐用户列表
@@ -508,6 +637,20 @@ type RecommendRemoteServiceHTTPClientImpl struct {
 
 func NewRecommendRemoteServiceHTTPClient(client *http.Client) RecommendRemoteServiceHTTPClient {
 	return &RecommendRemoteServiceHTTPClientImpl{client}
+}
+
+// DeleteRecommendRemoteFeedback 删除远程推荐反馈
+func (c *RecommendRemoteServiceHTTPClientImpl) DeleteRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteFeedbackDeleteRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/admin/recommend/remote/feedback"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServiceDeleteRecommendRemoteFeedback))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // DeleteRecommendRemoteItem 删除远程推荐商品
@@ -636,12 +779,40 @@ func (c *RecommendRemoteServiceHTTPClientImpl) GetRecommendRemoteItem(ctx contex
 	return &out, nil
 }
 
+// GetRecommendRemoteNeighbors 查询远程相似内容
+func (c *RecommendRemoteServiceHTTPClientImpl) GetRecommendRemoteNeighbors(ctx context.Context, in *RecommendRemoteNeighborRequest, opts ...http.CallOption) (*RecommendRemoteJsonResponse, error) {
+	var out RecommendRemoteJsonResponse
+	pattern := "/api/admin/recommend/remote/neighbors"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServiceGetRecommendRemoteNeighbors))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // GetRecommendRemoteOverview 查询远程推荐概览
 func (c *RecommendRemoteServiceHTTPClientImpl) GetRecommendRemoteOverview(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*RecommendRemoteJsonResponse, error) {
 	var out RecommendRemoteJsonResponse
 	pattern := "/api/admin/recommend/remote/overview"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRecommendRemoteServiceGetRecommendRemoteOverview))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetRecommendRemoteRecommendations 查询远程推荐结果
+func (c *RecommendRemoteServiceHTTPClientImpl) GetRecommendRemoteRecommendations(ctx context.Context, in *RecommendRemoteRecommendRequest, opts ...http.CallOption) (*RecommendRemoteJsonResponse, error) {
+	var out RecommendRemoteJsonResponse
+	pattern := "/api/admin/recommend/remote/recommendations"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServiceGetRecommendRemoteRecommendations))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -700,6 +871,34 @@ func (c *RecommendRemoteServiceHTTPClientImpl) ImportRecommendRemoteData(ctx con
 	opts = append(opts, http.Operation(OperationRecommendRemoteServiceImportRecommendRemoteData))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ImportRecommendRemoteFeedback 写入远程推荐反馈
+func (c *RecommendRemoteServiceHTTPClientImpl) ImportRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteJsonRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/admin/recommend/remote/feedback"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServiceImportRecommendRemoteFeedback))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PageRecommendRemoteFeedback 查询远程推荐反馈列表
+func (c *RecommendRemoteServiceHTTPClientImpl) PageRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteFeedbackRequest, opts ...http.CallOption) (*RecommendRemoteJsonResponse, error) {
+	var out RecommendRemoteJsonResponse
+	pattern := "/api/admin/recommend/remote/feedback"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServicePageRecommendRemoteFeedback))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
