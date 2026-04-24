@@ -537,7 +537,7 @@ initializePage();
 .report-card {
   padding: 18px;
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -572,7 +572,7 @@ initializePage();
   cursor: pointer;
   background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
   transition:
     color 0.2s ease,
     background-color 0.2s ease,

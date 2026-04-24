@@ -417,7 +417,7 @@ watch(
 
 .workspace-card {
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
@@ -504,7 +504,7 @@ watch(
 
 .metric-card {
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 14px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
   transition:
     border-color 0.2s ease,
@@ -625,7 +625,7 @@ watch(
   padding: 16px 18px;
   text-align: left;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 14px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
   transition:
     border-color 0.2s ease,
@@ -650,7 +650,7 @@ watch(
   font-weight: 700;
   color: var(--admin-page-accent-soft-text);
   background: var(--admin-page-badge-bg);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 
 .todo-item strong,
@@ -700,7 +700,7 @@ watch(
   padding: 16px 18px;
   text-align: left;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 14px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
   transition:
     border-color 0.2s ease,
@@ -723,7 +723,7 @@ watch(
   padding: 0 10px;
   font-size: 12px;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
 }
 
 .risk-item__tag--danger {

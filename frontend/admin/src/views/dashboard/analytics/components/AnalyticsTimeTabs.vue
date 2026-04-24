@@ -44,7 +44,7 @@ function handleUpdate(value: string | number) {
   padding: 4px;
   background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
 }
 
 .analytics-tabs__item {
@@ -52,7 +52,7 @@ function handleUpdate(value: string | number) {
   height: 32px;
   padding: 0 14px;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--admin-page-radius);
   background: transparent;
   box-sizing: border-box;
   font-size: 14px;

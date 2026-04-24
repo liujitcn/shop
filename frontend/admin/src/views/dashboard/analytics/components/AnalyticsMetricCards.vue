@@ -81,7 +81,7 @@ const gridTemplateColumns = computed(() => {
 .summary-card {
   padding: 14px;
   border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: 12px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
 }
 
@@ -121,7 +121,7 @@ const gridTemplateColumns = computed(() => {
   width: 36px;
   height: 36px;
   color: var(--el-color-white);
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
   background: var(--card-accent);
 }
 
