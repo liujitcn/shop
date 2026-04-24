@@ -1,5 +1,5 @@
 <template>
-  <div v-if="columns.length" class="card table-search">
+  <div v-if="columns.length" class="card table-search" :class="{ 'table-search--no-operation': !showOperation }">
     <el-form ref="formRef" :model="searchParam">
       <Grid ref="gridRef" :collapsed="collapsed" :gap="[20, 0]" :cols="searchCol">
         <GridItem v-for="(item, index) in columns" :key="item.prop" v-bind="getResponsive(item)" :index="index">
@@ -16,7 +16,7 @@
             <SearchFormItem :column="item" :search-param="searchParam" />
           </el-form-item>
         </GridItem>
-        <GridItem suffix>
+        <GridItem v-if="showOperation" suffix>
           <div class="operation">
             <el-button type="primary" :icon="Search" @click="search"> 搜索 </el-button>
             <el-button :icon="Delete" @click="reset"> 重置 </el-button>
@@ -47,12 +47,14 @@ interface ProTableProps {
   searchCol: number | Record<BreakPoint, number>;
   search: (params: any) => void; // 搜索方法
   reset: (params: any) => void; // 重置方法
+  showOperation?: boolean; // 是否展示搜索、重置等操作按钮
 }
 
 // 默认值
 const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
-  searchParam: () => ({})
+  searchParam: () => ({}),
+  showOperation: true
 });
 
 // 获取响应式设置
@@ -92,3 +94,11 @@ const showCollapse = computed(() => {
   return show;
 });
 </script>
+
+<style scoped lang="scss">
+.table-search--no-operation {
+  :deep(.el-form-item) {
+    margin-bottom: 0;
+  }
+}
+</style>

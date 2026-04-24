@@ -38,7 +38,7 @@ const cardClass = computed(() => ({
 .data-panel-card {
   padding: 18px;
   border: 1px solid var(--admin-page-card-border);
-  border-radius: 16px;
+  border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
