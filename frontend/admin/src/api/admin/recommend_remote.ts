@@ -1,6 +1,7 @@
 import service from "@/utils/request";
 import type {
   RecommendRemoteCursorRequest,
+  RecommendRemoteDashboardItemsRequest,
   RecommendRemoteDataRequest,
   RecommendRemoteIdRequest,
   RecommendRemoteImportRequest,
@@ -46,7 +47,24 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   GetRecommendRemoteTimeseries(request: RecommendRemoteNameRequest): Promise<RecommendRemoteJsonResponse> {
     return service<RecommendRemoteNameRequest, RecommendRemoteJsonResponse>({
       url: `${RECOMMEND_REMOTE_URL}/timeseries/${encodeURIComponent(request.name)}`,
-      method: "get"
+      method: "get",
+      params: {
+        begin: request.begin,
+        end: request.end
+      }
+    });
+  }
+
+  /** 查询远程推荐仪表盘推荐商品。 */
+  GetRecommendRemoteDashboardItems(request: RecommendRemoteDashboardItemsRequest): Promise<RecommendRemoteJsonResponse> {
+    return service<RecommendRemoteDashboardItemsRequest, RecommendRemoteJsonResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/dashboard`,
+      method: "get",
+      params: {
+        recommender: request.recommender,
+        category: request.category,
+        end: request.end
+      }
     });
   }
 

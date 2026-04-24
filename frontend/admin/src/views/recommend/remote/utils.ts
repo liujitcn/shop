@@ -171,6 +171,29 @@ export function formatRemoteCell(value: unknown) {
   return String(value);
 }
 
+/** 按 Gorse Dashboard 表格风格折叠展示复杂对象。 */
+export function foldRemoteValue(value: unknown): string {
+  // 空值直接使用后台统一占位，避免 JSON.stringify(undefined) 造成空白单元格。
+  if (value === undefined || value === null) return "--";
+  // 数组标签过多时，保持 Gorse 原始管理端的前 5 项折叠策略。
+  if (Array.isArray(value)) {
+    if (value.length > 5 && typeof value[0] === "number") {
+      return `[${value
+        .slice(0, 5)
+        .map(item => foldRemoteValue(item))
+        .join(", ")}, ...]`;
+    }
+    return `[${value.map(item => foldRemoteValue(item)).join(", ")}]`;
+  }
+  // 对象字段按单行 JSON 风格展示，避免标签列撑破布局。
+  if (isRemoteRecord(value)) {
+    return `{${Object.entries(value)
+      .map(([key, item]) => `"${key}": ${foldRemoteValue(item)}`)
+      .join(", ")}}`;
+  }
+  return JSON.stringify(value) ?? String(value);
+}
+
 /** 将远程时间字段格式化为后台统一时间文案。 */
 export function formatRemoteDateTime(value: unknown) {
   const text = resolveString(value);

@@ -8,7 +8,6 @@ package admin
 
 import (
 	context "context"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -26,6 +25,7 @@ const OperationRecommendRemoteServiceDeleteRecommendRemoteUser = "/admin.Recomme
 const OperationRecommendRemoteServiceExportRecommendRemoteData = "/admin.RecommendRemoteService/ExportRecommendRemoteData"
 const OperationRecommendRemoteServiceGetRecommendRemoteCategories = "/admin.RecommendRemoteService/GetRecommendRemoteCategories"
 const OperationRecommendRemoteServiceGetRecommendRemoteConfig = "/admin.RecommendRemoteService/GetRecommendRemoteConfig"
+const OperationRecommendRemoteServiceGetRecommendRemoteDashboardItems = "/admin.RecommendRemoteService/GetRecommendRemoteDashboardItems"
 const OperationRecommendRemoteServiceGetRecommendRemoteFlowConfig = "/admin.RecommendRemoteService/GetRecommendRemoteFlowConfig"
 const OperationRecommendRemoteServiceGetRecommendRemoteFlowSchema = "/admin.RecommendRemoteService/GetRecommendRemoteFlowSchema"
 const OperationRecommendRemoteServiceGetRecommendRemoteItem = "/admin.RecommendRemoteService/GetRecommendRemoteItem"
@@ -50,6 +50,8 @@ type RecommendRemoteServiceHTTPServer interface {
 	GetRecommendRemoteCategories(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteConfig 查询远程推荐配置
 	GetRecommendRemoteConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	// GetRecommendRemoteDashboardItems 查询远程推荐仪表盘推荐商品
+	GetRecommendRemoteDashboardItems(context.Context, *RecommendRemoteDashboardItemsRequest) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteFlowConfig 查询推荐编排配置
 	GetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
 	// GetRecommendRemoteFlowSchema 查询推荐编排配置结构
@@ -82,6 +84,7 @@ func RegisterRecommendRemoteServiceHTTPServer(s *http.Server, srv RecommendRemot
 	r.GET("/api/admin/recommend/remote/tasks", _RecommendRemoteService_GetRecommendRemoteTasks0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/categories", _RecommendRemoteService_GetRecommendRemoteCategories0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/timeseries/{name}", _RecommendRemoteService_GetRecommendRemoteTimeseries0_HTTP_Handler(srv))
+	r.GET("/api/admin/recommend/remote/dashboard", _RecommendRemoteService_GetRecommendRemoteDashboardItems0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/users", _RecommendRemoteService_PageRecommendRemoteUsers0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/users/{id}", _RecommendRemoteService_GetRecommendRemoteUser0_HTTP_Handler(srv))
 	r.DELETE("/api/admin/recommend/remote/users/{id}", _RecommendRemoteService_DeleteRecommendRemoteUser0_HTTP_Handler(srv))
@@ -166,6 +169,25 @@ func _RecommendRemoteService_GetRecommendRemoteTimeseries0_HTTP_Handler(srv Reco
 		http.SetOperation(ctx, OperationRecommendRemoteServiceGetRecommendRemoteTimeseries)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
 			return srv.GetRecommendRemoteTimeseries(ctx, req.(*RecommendRemoteNameRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RecommendRemoteJsonResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _RecommendRemoteService_GetRecommendRemoteDashboardItems0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemoteDashboardItemsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServiceGetRecommendRemoteDashboardItems)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetRecommendRemoteDashboardItems(ctx, req.(*RecommendRemoteDashboardItemsRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
@@ -452,6 +474,8 @@ type RecommendRemoteServiceHTTPClient interface {
 	GetRecommendRemoteCategories(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteConfig 查询远程推荐配置
 	GetRecommendRemoteConfig(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
+	// GetRecommendRemoteDashboardItems 查询远程推荐仪表盘推荐商品
+	GetRecommendRemoteDashboardItems(ctx context.Context, req *RecommendRemoteDashboardItemsRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteFlowConfig 查询推荐编排配置
 	GetRecommendRemoteFlowConfig(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// GetRecommendRemoteFlowSchema 查询推荐编排配置结构
@@ -548,6 +572,20 @@ func (c *RecommendRemoteServiceHTTPClientImpl) GetRecommendRemoteConfig(ctx cont
 	pattern := "/api/admin/recommend/remote/config"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationRecommendRemoteServiceGetRecommendRemoteConfig))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetRecommendRemoteDashboardItems 查询远程推荐仪表盘推荐商品
+func (c *RecommendRemoteServiceHTTPClientImpl) GetRecommendRemoteDashboardItems(ctx context.Context, in *RecommendRemoteDashboardItemsRequest, opts ...http.CallOption) (*RecommendRemoteJsonResponse, error) {
+	var out RecommendRemoteJsonResponse
+	pattern := "/api/admin/recommend/remote/dashboard"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServiceGetRecommendRemoteDashboardItems))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

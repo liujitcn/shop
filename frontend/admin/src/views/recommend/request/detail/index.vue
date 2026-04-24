@@ -4,7 +4,9 @@
       <div class="detail-summary-grid">
         <div class="detail-summary-card">
           <span class="detail-summary-card__label">最终推荐器</span>
-          <strong class="detail-summary-card__value">{{ finalProviderName }}</strong>
+          <strong class="detail-summary-card__value">
+            <RecommendProviderLabel :strategy="strategyValue" :provider-name="finalProviderName" />
+          </strong>
         </div>
         <div class="detail-summary-card">
           <span class="detail-summary-card__label">命中策略</span>
@@ -81,12 +83,14 @@
                           <el-tag v-else type="info" effect="light">未命中</el-tag>
                         </div>
                       </div>
-                      <el-tooltip :content="item.providerName || '未命名推荐器'" effect="light" placement="top">
-                        <div class="trace-flow__title">
-                          <span class="trace-flow__title-label">推荐器</span>
-                          <span class="trace-flow__name">{{ item.providerName || "未命名推荐器" }}</span>
-                        </div>
-                      </el-tooltip>
+                      <div class="trace-flow__title">
+                        <span class="trace-flow__title-label">推荐器</span>
+                        <RecommendProviderLabel
+                          class="trace-flow__name"
+                          :strategy="strategyValue"
+                          :provider-name="item.providerName"
+                        />
+                      </div>
                       <div class="trace-flow__body">
                         <div class="trace-flow__metric">
                           <span>返回数量</span>
@@ -110,7 +114,9 @@
                 </div>
 
                 <el-descriptions :column="1" border class="detail-descriptions">
-                  <el-descriptions-item label="上下文推荐器">{{ detailData.context?.providerName || "--" }}</el-descriptions-item>
+                  <el-descriptions-item label="上下文推荐器">
+                    <RecommendProviderLabel :strategy="strategyValue" :provider-name="detailData.context?.providerName" />
+                  </el-descriptions-item>
                 </el-descriptions>
 
                 <div class="detail-json">
@@ -183,6 +189,7 @@ import { useRoute, useRouter } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import ProTable from "@/components/ProTable/index.vue";
+import RecommendProviderLabel from "@/views/recommend/request/components/ProviderLabel.vue";
 import RecommendRequestEventDialog from "@/views/recommend/request/detail/components/EventDialog.vue";
 import { defRecommendRequestService } from "@/api/admin/recommend_request";
 import type { RecommendRequestDetailResponse, RecommendRequestItem, RecommendRequestTrace } from "@/rpc/admin/recommend_request";

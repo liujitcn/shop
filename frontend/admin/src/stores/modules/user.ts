@@ -91,8 +91,13 @@ export const useUserStore = defineStore({
     },
     /** 退出登录 */
     async logout() {
-      await defLoginService.Logout({});
-      this.clearAuthData();
+      try {
+        await defLoginService.Logout({});
+      } catch {
+        // 退出接口返回异常时，前端仍需清理本地登录态，避免用户卡在当前会话。
+      } finally {
+        this.clearAuthData();
+      }
     }
   },
   persist: piniaPersistConfig("shop-user")

@@ -64,6 +64,24 @@ func (r *Recommend) Enabled() bool {
 
 // RequestJSON 通过远程推荐引擎原生 HTTP API 请求 JSON 内容。
 func (r *Recommend) RequestJSON(ctx context.Context, method, path string, queries map[string]string, body string) ([]byte, error) {
+	resp, err := r.requestJSONResponse(ctx, method, path, queries, body)
+	if err != nil {
+		return nil, err
+	}
+	return normalizeJSONBody(resp.Body), nil
+}
+
+// RequestJSONWithLastModified 通过远程推荐引擎原生 HTTP API 请求 JSON 内容和最后更新时间。
+func (r *Recommend) RequestJSONWithLastModified(ctx context.Context, method, path string, queries map[string]string, body string) ([]byte, string, error) {
+	resp, err := r.requestJSONResponse(ctx, method, path, queries, body)
+	if err != nil {
+		return nil, "", err
+	}
+	return normalizeJSONBody(resp.Body), resp.Header.Get("Last-Modified"), nil
+}
+
+// requestJSONResponse 通过远程推荐引擎原生 HTTP API 请求响应对象。
+func (r *Recommend) requestJSONResponse(ctx context.Context, method, path string, queries map[string]string, body string) (*_http.Response, error) {
 	// 客户端未启用时，管理端无法继续代理远程推荐引擎请求。
 	if !r.Enabled() || r.httpClient == nil || strings.TrimSpace(r.entryPoint) == "" {
 		return nil, fmt.Errorf("remote recommend client is not enabled")
@@ -96,11 +114,16 @@ func (r *Recommend) RequestJSON(ctx context.Context, method, path string, querie
 	if resp.StatusCode < stdhttp.StatusOK || resp.StatusCode >= stdhttp.StatusMultipleChoices {
 		return nil, fmt.Errorf("remote recommend request failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(resp.String()))
 	}
-	// 成功响应体为空时，统一返回空对象，方便管理端 JSON 面板展示。
-	if len(resp.Body) == 0 {
-		return []byte("{}"), nil
+	return resp, nil
+}
+
+// normalizeJSONBody 标准化远程推荐引擎 JSON 响应体。
+func normalizeJSONBody(body []byte) []byte {
+	// 成功响应体为空时，统一返回空对象，方便管理端展示。
+	if len(body) == 0 {
+		return []byte("{}")
 	}
-	return resp.Body, nil
+	return body
 }
 
 // EscapePathSegment 转义远程推荐引擎路径片段。

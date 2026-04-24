@@ -1,6 +1,10 @@
 <template>
   <div class="table-box">
-    <ProTable row-key="id" :columns="columns" :request-api="requestRecommendRequestTable" />
+    <ProTable row-key="id" :columns="columns" :request-api="requestRecommendRequestTable">
+      <template #providerName="scope">
+        <RecommendProviderLabel :strategy="scope.row.strategy" :provider-name="scope.row.providerName" />
+      </template>
+    </ProTable>
   </div>
 </template>
 
@@ -9,6 +13,7 @@ import { View } from "@element-plus/icons-vue";
 import { useRouter } from "vue-router";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import RecommendProviderLabel from "@/views/recommend/request/components/ProviderLabel.vue";
 import { defRecommendRequestService } from "@/api/admin/recommend_request";
 import type { PageRecommendRequestRequest, RecommendRequest } from "@/rpc/admin/recommend_request";
 import { buildPageRequest } from "@/utils/proTable";
@@ -39,7 +44,7 @@ const columns: ColumnProps[] = [
     dictCode: "recommend_strategy",
     search: { el: "select" }
   },
-  { prop: "providerName", label: "最终推荐器", minWidth: 180 },
+  { prop: "providerName", label: "最终推荐器", minWidth: 200, showOverflowTooltip: false },
   { prop: "pageNum", label: "页码", minWidth: 90, align: "right" },
   { prop: "pageSize", label: "分页大小", minWidth: 100, align: "right" },
   { prop: "total", label: "本次返回总数", minWidth: 130, align: "right" },

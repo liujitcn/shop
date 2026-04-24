@@ -27,6 +27,20 @@ export interface RecommendRemoteIdRequest {
 export interface RecommendRemoteNameRequest {
   /** 名称 */
   name: string;
+  /** 开始时间 */
+  begin: string;
+  /** 结束时间 */
+  end: string;
+}
+
+/** 远程推荐仪表盘推荐商品查询条件 */
+export interface RecommendRemoteDashboardItemsRequest {
+  /** 推荐器名称 */
+  recommender: string;
+  /** 分类 */
+  category: string;
+  /** 结束位置 */
+  end: number;
 }
 
 /** 远程推荐数据查询条件 */
@@ -57,6 +71,8 @@ export interface RecommendRemoteJsonRequest {
 export interface RecommendRemoteJsonResponse {
   /** JSON内容 */
   json: string;
+  /** 最后更新时间 */
+  lastModified: string;
 }
 
 /** Admin远程推荐服务 */
@@ -69,6 +85,8 @@ export interface RecommendRemoteService {
   GetRecommendRemoteCategories(request: Empty): Promise<RecommendRemoteJsonResponse>;
   /** 查询远程推荐时间序列 */
   GetRecommendRemoteTimeseries(request: RecommendRemoteNameRequest): Promise<RecommendRemoteJsonResponse>;
+  /** 查询远程推荐仪表盘推荐商品 */
+  GetRecommendRemoteDashboardItems(request: RecommendRemoteDashboardItemsRequest): Promise<RecommendRemoteJsonResponse>;
   /** 查询远程推荐用户列表 */
   PageRecommendRemoteUsers(request: RecommendRemoteCursorRequest): Promise<RecommendRemoteJsonResponse>;
   /** 查询远程推荐用户 */

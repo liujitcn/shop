@@ -8,7 +8,6 @@ package admin
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,23 +20,24 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RecommendRemoteService_GetRecommendRemoteOverview_FullMethodName     = "/admin.RecommendRemoteService/GetRecommendRemoteOverview"
-	RecommendRemoteService_GetRecommendRemoteTasks_FullMethodName        = "/admin.RecommendRemoteService/GetRecommendRemoteTasks"
-	RecommendRemoteService_GetRecommendRemoteCategories_FullMethodName   = "/admin.RecommendRemoteService/GetRecommendRemoteCategories"
-	RecommendRemoteService_GetRecommendRemoteTimeseries_FullMethodName   = "/admin.RecommendRemoteService/GetRecommendRemoteTimeseries"
-	RecommendRemoteService_PageRecommendRemoteUsers_FullMethodName       = "/admin.RecommendRemoteService/PageRecommendRemoteUsers"
-	RecommendRemoteService_GetRecommendRemoteUser_FullMethodName         = "/admin.RecommendRemoteService/GetRecommendRemoteUser"
-	RecommendRemoteService_DeleteRecommendRemoteUser_FullMethodName      = "/admin.RecommendRemoteService/DeleteRecommendRemoteUser"
-	RecommendRemoteService_PageRecommendRemoteItems_FullMethodName       = "/admin.RecommendRemoteService/PageRecommendRemoteItems"
-	RecommendRemoteService_GetRecommendRemoteItem_FullMethodName         = "/admin.RecommendRemoteService/GetRecommendRemoteItem"
-	RecommendRemoteService_DeleteRecommendRemoteItem_FullMethodName      = "/admin.RecommendRemoteService/DeleteRecommendRemoteItem"
-	RecommendRemoteService_ExportRecommendRemoteData_FullMethodName      = "/admin.RecommendRemoteService/ExportRecommendRemoteData"
-	RecommendRemoteService_ImportRecommendRemoteData_FullMethodName      = "/admin.RecommendRemoteService/ImportRecommendRemoteData"
-	RecommendRemoteService_GetRecommendRemoteFlowConfig_FullMethodName   = "/admin.RecommendRemoteService/GetRecommendRemoteFlowConfig"
-	RecommendRemoteService_SaveRecommendRemoteFlowConfig_FullMethodName  = "/admin.RecommendRemoteService/SaveRecommendRemoteFlowConfig"
-	RecommendRemoteService_ResetRecommendRemoteFlowConfig_FullMethodName = "/admin.RecommendRemoteService/ResetRecommendRemoteFlowConfig"
-	RecommendRemoteService_GetRecommendRemoteFlowSchema_FullMethodName   = "/admin.RecommendRemoteService/GetRecommendRemoteFlowSchema"
-	RecommendRemoteService_GetRecommendRemoteConfig_FullMethodName       = "/admin.RecommendRemoteService/GetRecommendRemoteConfig"
+	RecommendRemoteService_GetRecommendRemoteOverview_FullMethodName       = "/admin.RecommendRemoteService/GetRecommendRemoteOverview"
+	RecommendRemoteService_GetRecommendRemoteTasks_FullMethodName          = "/admin.RecommendRemoteService/GetRecommendRemoteTasks"
+	RecommendRemoteService_GetRecommendRemoteCategories_FullMethodName     = "/admin.RecommendRemoteService/GetRecommendRemoteCategories"
+	RecommendRemoteService_GetRecommendRemoteTimeseries_FullMethodName     = "/admin.RecommendRemoteService/GetRecommendRemoteTimeseries"
+	RecommendRemoteService_GetRecommendRemoteDashboardItems_FullMethodName = "/admin.RecommendRemoteService/GetRecommendRemoteDashboardItems"
+	RecommendRemoteService_PageRecommendRemoteUsers_FullMethodName         = "/admin.RecommendRemoteService/PageRecommendRemoteUsers"
+	RecommendRemoteService_GetRecommendRemoteUser_FullMethodName           = "/admin.RecommendRemoteService/GetRecommendRemoteUser"
+	RecommendRemoteService_DeleteRecommendRemoteUser_FullMethodName        = "/admin.RecommendRemoteService/DeleteRecommendRemoteUser"
+	RecommendRemoteService_PageRecommendRemoteItems_FullMethodName         = "/admin.RecommendRemoteService/PageRecommendRemoteItems"
+	RecommendRemoteService_GetRecommendRemoteItem_FullMethodName           = "/admin.RecommendRemoteService/GetRecommendRemoteItem"
+	RecommendRemoteService_DeleteRecommendRemoteItem_FullMethodName        = "/admin.RecommendRemoteService/DeleteRecommendRemoteItem"
+	RecommendRemoteService_ExportRecommendRemoteData_FullMethodName        = "/admin.RecommendRemoteService/ExportRecommendRemoteData"
+	RecommendRemoteService_ImportRecommendRemoteData_FullMethodName        = "/admin.RecommendRemoteService/ImportRecommendRemoteData"
+	RecommendRemoteService_GetRecommendRemoteFlowConfig_FullMethodName     = "/admin.RecommendRemoteService/GetRecommendRemoteFlowConfig"
+	RecommendRemoteService_SaveRecommendRemoteFlowConfig_FullMethodName    = "/admin.RecommendRemoteService/SaveRecommendRemoteFlowConfig"
+	RecommendRemoteService_ResetRecommendRemoteFlowConfig_FullMethodName   = "/admin.RecommendRemoteService/ResetRecommendRemoteFlowConfig"
+	RecommendRemoteService_GetRecommendRemoteFlowSchema_FullMethodName     = "/admin.RecommendRemoteService/GetRecommendRemoteFlowSchema"
+	RecommendRemoteService_GetRecommendRemoteConfig_FullMethodName         = "/admin.RecommendRemoteService/GetRecommendRemoteConfig"
 )
 
 // RecommendRemoteServiceClient is the client API for RecommendRemoteService service.
@@ -54,6 +54,8 @@ type RecommendRemoteServiceClient interface {
 	GetRecommendRemoteCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
 	// 查询远程推荐时间序列
 	GetRecommendRemoteTimeseries(ctx context.Context, in *RecommendRemoteNameRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	// 查询远程推荐仪表盘推荐商品
+	GetRecommendRemoteDashboardItems(ctx context.Context, in *RecommendRemoteDashboardItemsRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
 	// 查询远程推荐用户列表
 	PageRecommendRemoteUsers(ctx context.Context, in *RecommendRemoteCursorRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
 	// 查询远程推荐用户
@@ -124,6 +126,16 @@ func (c *recommendRemoteServiceClient) GetRecommendRemoteTimeseries(ctx context.
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RecommendRemoteJsonResponse)
 	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteTimeseries_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendRemoteServiceClient) GetRecommendRemoteDashboardItems(ctx context.Context, in *RecommendRemoteDashboardItemsRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RecommendRemoteJsonResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteDashboardItems_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -274,6 +286,8 @@ type RecommendRemoteServiceServer interface {
 	GetRecommendRemoteCategories(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
 	// 查询远程推荐时间序列
 	GetRecommendRemoteTimeseries(context.Context, *RecommendRemoteNameRequest) (*RecommendRemoteJsonResponse, error)
+	// 查询远程推荐仪表盘推荐商品
+	GetRecommendRemoteDashboardItems(context.Context, *RecommendRemoteDashboardItemsRequest) (*RecommendRemoteJsonResponse, error)
 	// 查询远程推荐用户列表
 	PageRecommendRemoteUsers(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error)
 	// 查询远程推荐用户
@@ -321,6 +335,9 @@ func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteCategories(co
 }
 func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteTimeseries(context.Context, *RecommendRemoteNameRequest) (*RecommendRemoteJsonResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteTimeseries not implemented")
+}
+func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteDashboardItems(context.Context, *RecommendRemoteDashboardItemsRequest) (*RecommendRemoteJsonResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteDashboardItems not implemented")
 }
 func (UnimplementedRecommendRemoteServiceServer) PageRecommendRemoteUsers(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageRecommendRemoteUsers not implemented")
@@ -451,6 +468,24 @@ func _RecommendRemoteService_GetRecommendRemoteTimeseries_Handler(srv interface{
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteTimeseries(ctx, req.(*RecommendRemoteNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RecommendRemoteService_GetRecommendRemoteDashboardItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendRemoteDashboardItemsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteDashboardItems(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendRemoteService_GetRecommendRemoteDashboardItems_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteDashboardItems(ctx, req.(*RecommendRemoteDashboardItemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -711,6 +746,10 @@ var RecommendRemoteService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetRecommendRemoteTimeseries",
 			Handler:    _RecommendRemoteService_GetRecommendRemoteTimeseries_Handler,
+		},
+		{
+			MethodName: "GetRecommendRemoteDashboardItems",
+			Handler:    _RecommendRemoteService_GetRecommendRemoteDashboardItems_Handler,
 		},
 		{
 			MethodName: "PageRecommendRemoteUsers",

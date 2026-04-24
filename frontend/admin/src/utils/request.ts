@@ -50,6 +50,15 @@ function shouldSkipAuthExpiredPrompt(config?: InternalAxiosRequestConfig) {
   return AUTH_EXPIRED_EXCLUDED_URL_SET.has(requestUrl);
 }
 
+/** 判断当前请求是否需要静默掉错误提示。 */
+function shouldSkipErrorMessage(config?: InternalAxiosRequestConfig) {
+  if (!config) return false;
+
+  const requestUrl = config.url ?? "";
+  const requestMethod = String(config.method ?? "").toLowerCase();
+  return requestUrl === AUTH_URL && requestMethod === "delete";
+}
+
 /** 读取访问令牌过期时间 */
 function getTokenExpiresAt() {
   return getUserStore().tokenExpiresAt;
@@ -135,12 +144,14 @@ service.interceptors.response.use(
     if ((status === 401 || status === 403 || code === 401 || code === 403) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
       handleAuthExpired();
     } else if (error.response?.data) {
-      if (message) {
-        ElMessage.error(message);
-      } else {
-        ElMessage.error("系统出错");
+      if (!shouldSkipErrorMessage(requestConfig)) {
+        if (message) {
+          ElMessage.error(message);
+        } else {
+          ElMessage.error("系统出错");
+        }
       }
-    } else {
+    } else if (!shouldSkipErrorMessage(requestConfig)) {
       ElMessage.error(error.message || "系统出错");
     }
     return Promise.reject(error.message);

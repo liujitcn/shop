@@ -36,6 +36,13 @@ service RecommendRemoteService {
     };
   }
 
+  // 查询远程推荐仪表盘推荐商品
+  rpc GetRecommendRemoteDashboardItems (RecommendRemoteDashboardItemsRequest) returns (RecommendRemoteJsonResponse) {
+    option (google.api.http) = {
+      get: "/api/admin/recommend/remote/dashboard"
+    };
+  }
+
   // 查询远程推荐用户列表
   rpc PageRecommendRemoteUsers (RecommendRemoteCursorRequest) returns (RecommendRemoteJsonResponse) {
     option (google.api.http) = {
@@ -168,6 +175,41 @@ message RecommendRemoteNameRequest {
       description: "名称",
     }
   ]; // 名称
+
+  string begin = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "开始时间",
+    }
+  ]; // 开始时间
+
+  string end = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "结束时间",
+    }
+  ]; // 结束时间
+}
+
+// 远程推荐仪表盘推荐商品查询条件
+message RecommendRemoteDashboardItemsRequest {
+  string recommender = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "推荐器名称",
+      default: {string: "latest"}
+    }
+  ]; // 推荐器名称
+
+  string category = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "分类",
+    }
+  ]; // 分类
+
+  int64 end = 3 [
+    (gnostic.openapi.v3.property) = {
+      description: "结束位置",
+      default: {number: 100}
+    }
+  ]; // 结束位置
 }
 
 // 远程推荐数据查询条件
@@ -225,4 +267,10 @@ message RecommendRemoteJsonResponse {
       description: "JSON内容",
     }
   ]; // JSON内容
+
+  string last_modified = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "最后更新时间",
+    }
+  ]; // 最后更新时间
 }

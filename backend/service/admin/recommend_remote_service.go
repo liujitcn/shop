@@ -67,6 +67,16 @@ func (s *RecommendRemoteService) GetRecommendRemoteTimeseries(ctx context.Contex
 	return res, nil
 }
 
+// GetRecommendRemoteDashboardItems 查询远程推荐仪表盘推荐商品。
+func (s *RecommendRemoteService) GetRecommendRemoteDashboardItems(ctx context.Context, req *adminApi.RecommendRemoteDashboardItemsRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	res, err := s.recommendRemoteCase.GetRecommendRemoteDashboardItems(ctx, req)
+	if err != nil {
+		log.Errorf("GetRecommendRemoteDashboardItems %v", err)
+		return nil, errorsx.WrapInternal(err, "查询远程推荐仪表盘推荐商品失败")
+	}
+	return res, nil
+}
+
 // PageRecommendRemoteUsers 查询远程推荐用户列表。
 func (s *RecommendRemoteService) PageRecommendRemoteUsers(ctx context.Context, req *adminApi.RecommendRemoteCursorRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
 	res, err := s.recommendRemoteCase.PageRecommendRemoteUsers(ctx, req)

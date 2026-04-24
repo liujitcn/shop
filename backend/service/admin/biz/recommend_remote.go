@@ -51,7 +51,17 @@ func (c *RecommendRemoteCase) GetRecommendRemoteTimeseries(ctx context.Context, 
 		return nil, err
 	}
 	path := "/api/dashboard/timeseries/" + remote.EscapePathSegment(name)
-	return c.requestJSON(ctx, stdhttp.MethodGet, path, nil, "")
+	return c.requestJSON(ctx, stdhttp.MethodGet, path, c.buildTimeseriesQueries(req), "")
+}
+
+// GetRecommendRemoteDashboardItems 查询远程推荐仪表盘推荐商品。
+func (c *RecommendRemoteCase) GetRecommendRemoteDashboardItems(ctx context.Context, req *adminApi.RecommendRemoteDashboardItemsRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
+	recommender, err := c.requireRecommender(req)
+	if err != nil {
+		return nil, err
+	}
+	path := "/api/dashboard/" + c.escapeDashboardRecommender(recommender)
+	return c.requestJSONWithLastModified(ctx, stdhttp.MethodGet, path, c.buildDashboardItemsQueries(req), "")
 }
 
 // PageRecommendRemoteUsers 查询远程推荐用户列表。
@@ -119,7 +129,8 @@ func (c *RecommendRemoteCase) ImportRecommendRemoteData(ctx context.Context, req
 	if err != nil {
 		return err
 	}
-	body, err := c.normalizeJSONBody(req.GetJson())
+	var body string
+	body, err = c.normalizeJSONBody(req.GetJson())
 	if err != nil {
 		return err
 	}
@@ -166,6 +177,22 @@ func (c *RecommendRemoteCase) requestJSON(ctx context.Context, method, path stri
 	}, nil
 }
 
+// requestJSONWithLastModified 请求远程推荐引擎并返回 JSON 字符串和最后更新时间。
+func (c *RecommendRemoteCase) requestJSONWithLastModified(ctx context.Context, method, path string, queries map[string]string, body string) (*adminApi.RecommendRemoteJsonResponse, error) {
+	// 远程推荐客户端未注入时，说明服务启动配置不完整。
+	if c.recommend == nil {
+		return nil, errorsx.Internal("远程推荐客户端未初始化")
+	}
+	data, lastModified, err := c.recommend.RequestJSONWithLastModified(ctx, method, path, queries, body)
+	if err != nil {
+		return nil, err
+	}
+	return &adminApi.RecommendRemoteJsonResponse{
+		Json:         string(data),
+		LastModified: lastModified,
+	}, nil
+}
+
 // requestNoContent 请求远程推荐引擎并忽略响应内容。
 func (c *RecommendRemoteCase) requestNoContent(ctx context.Context, method, path string, queries map[string]string, body string) error {
 	_, err := c.requestRaw(ctx, method, path, queries, body)
@@ -194,6 +221,33 @@ func (c *RecommendRemoteCase) buildCursorQueries(req *adminApi.RecommendRemoteCu
 	// 传入编号关键字时，保留给远程接口做原生筛选。
 	if strings.TrimSpace(req.GetId()) != "" {
 		queries["id"] = strings.TrimSpace(req.GetId())
+	}
+	return queries
+}
+
+// buildTimeseriesQueries 构建远程时间序列查询参数。
+func (c *RecommendRemoteCase) buildTimeseriesQueries(req *adminApi.RecommendRemoteNameRequest) map[string]string {
+	queries := make(map[string]string, 2)
+	// 传入开始时间时，按 Gorse Dashboard 查询指定时间窗口。
+	if strings.TrimSpace(req.GetBegin()) != "" {
+		queries["begin"] = strings.TrimSpace(req.GetBegin())
+	}
+	// 传入结束时间时，按 Gorse Dashboard 查询指定时间窗口。
+	if strings.TrimSpace(req.GetEnd()) != "" {
+		queries["end"] = strings.TrimSpace(req.GetEnd())
+	}
+	return queries
+}
+
+// buildDashboardItemsQueries 构建仪表盘推荐商品查询参数。
+func (c *RecommendRemoteCase) buildDashboardItemsQueries(req *adminApi.RecommendRemoteDashboardItemsRequest) map[string]string {
+	size := c.resolveListSize(req.GetEnd(), recommendRemoteDefaultExportSize)
+	queries := map[string]string{
+		"end": strconv.FormatInt(size, 10),
+	}
+	// 选择分类时，只查询当前分类下的推荐商品。
+	if strings.TrimSpace(req.GetCategory()) != "" {
+		queries["category"] = strings.TrimSpace(req.GetCategory())
 	}
 	return queries
 }
@@ -248,6 +302,29 @@ func (c *RecommendRemoteCase) requireName(req *adminApi.RecommendRemoteNameReque
 	return name, nil
 }
 
+// requireRecommender 校验远程推荐仪表盘推荐器名称。
+func (c *RecommendRemoteCase) requireRecommender(req *adminApi.RecommendRemoteDashboardItemsRequest) (string, error) {
+	// 请求为空时，无法定位远程推荐器。
+	if req == nil {
+		return "", errorsx.InvalidArgument("远程推荐器名称不能为空")
+	}
+	recommender := strings.TrimSpace(req.GetRecommender())
+	// 推荐器名称为空时，默认使用 Gorse Dashboard 的 latest 推荐器。
+	if recommender == "" {
+		return "latest", nil
+	}
+	return recommender, nil
+}
+
+// escapeDashboardRecommender 转义仪表盘推荐器路径。
+func (c *RecommendRemoteCase) escapeDashboardRecommender(recommender string) string {
+	segments := strings.Split(recommender, "/")
+	for i, segment := range segments {
+		segments[i] = remote.EscapePathSegment(segment)
+	}
+	return strings.Join(segments, "/")
+}
+
 // normalizeJSONBody 校验并清洗 JSON 请求体。
 func (c *RecommendRemoteCase) normalizeJSONBody(raw string) (string, error) {
 	body := strings.TrimSpace(raw)
@@ -267,8 +344,10 @@ func (c *RecommendRemoteCase) resolveDataPath(dataType string) (string, error) {
 	normalizedType := strings.ToLower(strings.TrimSpace(dataType))
 	// 根据管理端支持的数据类型映射到远程推荐原生数据接口。
 	switch normalizedType {
+	// 未传类型或选择用户时，代理到 Gorse 用户数据接口。
 	case "", "user", "users":
 		return "/api/users", nil
+	// 选择商品时，代理到 Gorse 商品数据接口。
 	case "item", "items":
 		return "/api/items", nil
 	default:

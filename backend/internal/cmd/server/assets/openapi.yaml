@@ -2487,6 +2487,32 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+    /api/admin/recommend/remote/dashboard:
+        get:
+            tags:
+                - RecommendRemoteService
+            description: 查询远程推荐仪表盘推荐商品
+            operationId: RecommendRemoteService_GetRecommendRemoteDashboardItems
+            parameters:
+                - name: recommender
+                  in: query
+                  schema:
+                    type: string
+                - name: category
+                  in: query
+                  schema:
+                    type: string
+                - name: end
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
     /api/admin/recommend/remote/flow/config:
         get:
             tags:
@@ -2633,6 +2659,14 @@ paths:
                 - name: name
                   in: path
                   required: true
+                  schema:
+                    type: string
+                - name: begin
+                  in: query
+                  schema:
+                    type: string
+                - name: end
+                  in: query
                   schema:
                     type: string
             responses:
@@ -7885,6 +7919,9 @@ components:
                 json:
                     type: string
                     description: JSON内容
+                lastModified:
+                    type: string
+                    description: 最后更新时间
             description: 远程推荐JSON响应
         RecommendRequest:
             type: object
