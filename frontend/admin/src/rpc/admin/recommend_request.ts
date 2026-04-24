@@ -5,7 +5,13 @@
 // source: admin/recommend_request.proto
 
 /* eslint-disable */
-import type { GoodsStatus, RecommendEventType, RecommendScene } from "../common/enum";
+import type {
+  GoodsStatus,
+  RecommendActorType,
+  RecommendEventType,
+  RecommendScene,
+  RecommendStrategy,
+} from "../common/enum";
 import type { Int64Value } from "../google/protobuf/wrappers";
 
 /** 推荐请求分页查询条件 */
@@ -16,7 +22,7 @@ export interface PageRecommendRequestRequest {
     | undefined;
   /** 主体类型：字典【recommend_actor_type】 */
   actorType?:
-    | number
+    | RecommendActorType
     | undefined;
   /** 主体编号（仅内部定位使用） */
   actorId?:
@@ -49,7 +55,7 @@ export interface RecommendRequest {
   /** 推荐请求ID */
   requestId: string;
   /** 主体类型：字典【recommend_actor_type】 */
-  actorType: number;
+  actorType: RecommendActorType;
   /** 主体编号（仅内部定位使用） */
   actorId: number;
   /** 推荐场景：字典【recommend_scene】 */
@@ -60,14 +66,14 @@ export interface RecommendRequest {
   pageSize: number;
   /** 本次返回总数 */
   total: number;
-  /** 命中的推荐策略 */
-  strategy: string;
+  /** 命中的推荐策略：字典【recommend_strategy】 */
+  strategy: RecommendStrategy;
   /** 最终命中的推荐器 */
   providerName: string;
   /** 请求时间 */
   requestAt: string;
-  /** 主体信息 */
-  actorInfo: string;
+  /** 主体名称 */
+  actorName: string;
 }
 
 /** 推荐请求详情响应 */
@@ -92,8 +98,8 @@ export interface RecommendRequestContext {
   orderId: number;
   /** 上下文商品ID列表 */
   contextGoodsIds: number[];
-  /** 命中的推荐策略 */
-  strategy: string;
+  /** 命中的推荐策略：字典【recommend_strategy】 */
+  strategy: RecommendStrategy;
   /** 上下文记录的推荐器 */
   providerName: string;
   /** 最终命中的推荐器 */
@@ -161,7 +167,7 @@ export interface RecommendEvent {
   /** 主键ID */
   id: number;
   /** 主体类型：字典【recommend_actor_type】 */
-  actorType: number;
+  actorType: RecommendActorType;
   /** 主体编号（仅内部定位使用） */
   actorId: number;
   /** 推荐场景：字典【recommend_scene】 */

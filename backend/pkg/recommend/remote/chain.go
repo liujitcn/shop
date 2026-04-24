@@ -65,7 +65,7 @@ func (r *ChainReceiver) ExecutePlan(
 ) (*dto.GoodsResult, error) {
 	result := &dto.GoodsResult{
 		GoodsIds: []int64{},
-		Strategy: dto.RemoteStrategy,
+		Strategy: common.RecommendStrategy_REMOTE_STRATEGY,
 		Trace:    make([]*dto.GoodsTrace, 0),
 	}
 	// 责任链接收器未启用时，直接返回空结果，交由业务侧继续走本地兜底。

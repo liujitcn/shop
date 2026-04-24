@@ -26,21 +26,21 @@ type GoodsRequest struct {
 
 // GoodsResult 表示统一推荐商品查询结果。
 type GoodsResult struct {
-	GoodsIds     []int64           // 推荐商品编号列表
-	Total        int64             // 推荐结果总数
-	Strategy     RecommendStrategy // 当前命中的推荐策略
-	ProviderName string            // 命中的推荐提供方
-	Trace        []*GoodsTrace     // 推荐执行轨迹
+	GoodsIds     []int64                  // 推荐商品编号列表
+	Total        int64                    // 推荐结果总数
+	Strategy     common.RecommendStrategy // 当前命中的推荐策略
+	ProviderName string                   // 命中的推荐提供方
+	Trace        []*GoodsTrace            // 推荐执行轨迹
 }
 
 // RecommendContext 表示推荐请求主表未单独存储的附加上下文。
 type RecommendContext struct {
-	GoodsId         int64             `json:"goods_id"`                    // 当前推荐请求的锚点商品编号
-	OrderId         int64             `json:"order_id"`                    // 当前推荐请求关联的订单编号
-	ContextGoodsIds []int64           `json:"context_goods_ids,omitempty"` // 当前推荐计算使用的上下文商品编号列表
-	Strategy        RecommendStrategy `json:"strategy,omitempty"`          // 当前命中的推荐策略
-	ProviderName    string            `json:"provider_name,omitempty"`     // 当前命中的推荐提供方
-	Trace           []*GoodsTrace     `json:"trace,omitempty"`             // 当前推荐链路执行轨迹
+	GoodsId         int64                    `json:"goods_id"`                    // 当前推荐请求的锚点商品编号
+	OrderId         int64                    `json:"order_id"`                    // 当前推荐请求关联的订单编号
+	ContextGoodsIds []int64                  `json:"context_goods_ids,omitempty"` // 当前推荐计算使用的上下文商品编号列表
+	Strategy        common.RecommendStrategy `json:"strategy,omitempty"`          // 当前命中的推荐策略
+	ProviderName    string                   `json:"provider_name,omitempty"`     // 当前命中的推荐提供方
+	Trace           []*GoodsTrace            `json:"trace,omitempty"`             // 当前推荐链路执行轨迹
 }
 
 // NewRecommendRequestContext 创建推荐请求附加上下文。

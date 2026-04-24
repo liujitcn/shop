@@ -81,7 +81,7 @@ func (c *RecommendEventCase) toRecommendEvent(item *models.RecommendEvent) *admi
 
 	return &admin.RecommendEvent{
 		Id:        item.ID,
-		ActorType: item.ActorType,
+		ActorType: common.RecommendActorType(item.ActorType),
 		ActorId:   item.ActorID,
 		Scene:     common.RecommendScene(item.Scene),
 		EventType: common.RecommendEventType(item.EventType),

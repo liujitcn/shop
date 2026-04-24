@@ -92,6 +92,12 @@ mysql -uroot -p shop_test < sql/casbin_rule.sql
 mysql -uroot -p shop_test < sql/base_area.sql
 ```
 
+若数据库已导入过旧版权限初始化数据，可补执行：
+
+```bash
+mysql -uroot -p shop_test < sql/patch-recommend-request-detail-menu.sql
+```
+
 如需演示商品数据，再执行：
 
 ```bash

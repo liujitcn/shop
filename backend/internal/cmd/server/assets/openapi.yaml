@@ -2716,8 +2716,12 @@ paths:
                 - name: actorType
                   in: query
                   schema:
-                    type: integer
-                    format: int32
+                    enum:
+                        - UNKNOWN_RAT
+                        - ANONYMOUS_ACTOR
+                        - USER_ACTOR
+                    type: string
+                    format: enum
                 - name: actorId
                   in: query
                   schema:
@@ -7731,9 +7735,13 @@ components:
                     type: string
                     description: 主键ID
                 actorType:
-                    type: integer
+                    enum:
+                        - UNKNOWN_RAT
+                        - ANONYMOUS_ACTOR
+                        - USER_ACTOR
+                    type: string
                     description: 主体类型：字典【recommend_actor_type】
-                    format: int32
+                    format: enum
                 actorId:
                     type: string
                     description: 主体编号（仅内部定位使用）
@@ -7888,9 +7896,13 @@ components:
                     type: string
                     description: 推荐请求ID
                 actorType:
-                    type: integer
+                    enum:
+                        - UNKNOWN_RAT
+                        - ANONYMOUS_ACTOR
+                        - USER_ACTOR
+                    type: string
                     description: 主体类型：字典【recommend_actor_type】
-                    format: int32
+                    format: enum
                 actorId:
                     type: string
                     description: 主体编号（仅内部定位使用）
@@ -7919,17 +7931,22 @@ components:
                     description: 本次返回总数
                     format: int32
                 strategy:
+                    enum:
+                        - UNKNOWN_RST
+                        - REMOTE_STRATEGY
+                        - LOCAL_STRATEGY
                     type: string
-                    description: 命中的推荐策略
+                    description: 命中的推荐策略：字典【recommend_strategy】
+                    format: enum
                 providerName:
                     type: string
                     description: 最终命中的推荐器
                 requestAt:
                     type: string
                     description: 请求时间
-                actorInfo:
+                actorName:
                     type: string
-                    description: 主体信息
+                    description: 主体名称
             description: 推荐请求
         RecommendRequestContext:
             type: object
@@ -7946,8 +7963,13 @@ components:
                         type: string
                     description: 上下文商品ID列表
                 strategy:
+                    enum:
+                        - UNKNOWN_RST
+                        - REMOTE_STRATEGY
+                        - LOCAL_STRATEGY
                     type: string
-                    description: 命中的推荐策略
+                    description: 命中的推荐策略：字典【recommend_strategy】
+                    format: enum
                 providerName:
                     type: string
                     description: 上下文记录的推荐器

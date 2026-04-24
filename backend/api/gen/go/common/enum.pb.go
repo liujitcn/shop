@@ -1112,6 +1112,106 @@ func (RecommendScene) EnumDescriptor() ([]byte, []int) {
 	return file_common_enum_proto_rawDescGZIP(), []int{19}
 }
 
+// 推荐主体类型枚举
+type RecommendActorType int32
+
+const (
+	RecommendActorType_UNKNOWN_RAT     RecommendActorType = 0 // 未指定推荐主体类型
+	RecommendActorType_ANONYMOUS_ACTOR RecommendActorType = 1 // 匿名推荐主体
+	RecommendActorType_USER_ACTOR      RecommendActorType = 2 // 登录用户推荐主体
+)
+
+// Enum value maps for RecommendActorType.
+var (
+	RecommendActorType_name = map[int32]string{
+		0: "UNKNOWN_RAT",
+		1: "ANONYMOUS_ACTOR",
+		2: "USER_ACTOR",
+	}
+	RecommendActorType_value = map[string]int32{
+		"UNKNOWN_RAT":     0,
+		"ANONYMOUS_ACTOR": 1,
+		"USER_ACTOR":      2,
+	}
+)
+
+func (x RecommendActorType) Enum() *RecommendActorType {
+	p := new(RecommendActorType)
+	*p = x
+	return p
+}
+
+func (x RecommendActorType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RecommendActorType) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_enum_proto_enumTypes[20].Descriptor()
+}
+
+func (RecommendActorType) Type() protoreflect.EnumType {
+	return &file_common_enum_proto_enumTypes[20]
+}
+
+func (x RecommendActorType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RecommendActorType.Descriptor instead.
+func (RecommendActorType) EnumDescriptor() ([]byte, []int) {
+	return file_common_enum_proto_rawDescGZIP(), []int{20}
+}
+
+// 推荐策略枚举
+type RecommendStrategy int32
+
+const (
+	RecommendStrategy_UNKNOWN_RST     RecommendStrategy = 0 // 未指定推荐策略
+	RecommendStrategy_REMOTE_STRATEGY RecommendStrategy = 1 // 远端推荐策略
+	RecommendStrategy_LOCAL_STRATEGY  RecommendStrategy = 2 // 本地同类目推荐策略
+)
+
+// Enum value maps for RecommendStrategy.
+var (
+	RecommendStrategy_name = map[int32]string{
+		0: "UNKNOWN_RST",
+		1: "REMOTE_STRATEGY",
+		2: "LOCAL_STRATEGY",
+	}
+	RecommendStrategy_value = map[string]int32{
+		"UNKNOWN_RST":     0,
+		"REMOTE_STRATEGY": 1,
+		"LOCAL_STRATEGY":  2,
+	}
+)
+
+func (x RecommendStrategy) Enum() *RecommendStrategy {
+	p := new(RecommendStrategy)
+	*p = x
+	return p
+}
+
+func (x RecommendStrategy) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (RecommendStrategy) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_enum_proto_enumTypes[21].Descriptor()
+}
+
+func (RecommendStrategy) Type() protoreflect.EnumType {
+	return &file_common_enum_proto_enumTypes[21]
+}
+
+func (x RecommendStrategy) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use RecommendStrategy.Descriptor instead.
+func (RecommendStrategy) EnumDescriptor() ([]byte, []int) {
+	return file_common_enum_proto_rawDescGZIP(), []int{21}
+}
+
 // 推荐事件类型枚举
 type RecommendEventType int32
 
@@ -1161,11 +1261,11 @@ func (x RecommendEventType) String() string {
 }
 
 func (RecommendEventType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_enum_proto_enumTypes[20].Descriptor()
+	return file_common_enum_proto_enumTypes[22].Descriptor()
 }
 
 func (RecommendEventType) Type() protoreflect.EnumType {
-	return &file_common_enum_proto_enumTypes[20]
+	return &file_common_enum_proto_enumTypes[22]
 }
 
 func (x RecommendEventType) Number() protoreflect.EnumNumber {
@@ -1174,7 +1274,7 @@ func (x RecommendEventType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RecommendEventType.Descriptor instead.
 func (RecommendEventType) EnumDescriptor() ([]byte, []int) {
-	return file_common_enum_proto_rawDescGZIP(), []int{20}
+	return file_common_enum_proto_rawDescGZIP(), []int{22}
 }
 
 var File_common_enum_proto protoreflect.FileDescriptor
@@ -1306,7 +1406,16 @@ const file_common_enum_proto_rawDesc = "" +
 	"\aPROFILE\x10\x04\x12\x10\n" +
 	"\fORDER_DETAIL\x10\x05\x12\x0e\n" +
 	"\n" +
-	"ORDER_PAID\x10\x06*\x84\x01\n" +
+	"ORDER_PAID\x10\x06*J\n" +
+	"\x12RecommendActorType\x12\x0f\n" +
+	"\vUNKNOWN_RAT\x10\x00\x12\x13\n" +
+	"\x0fANONYMOUS_ACTOR\x10\x01\x12\x0e\n" +
+	"\n" +
+	"USER_ACTOR\x10\x02*M\n" +
+	"\x11RecommendStrategy\x12\x0f\n" +
+	"\vUNKNOWN_RST\x10\x00\x12\x13\n" +
+	"\x0fREMOTE_STRATEGY\x10\x01\x12\x12\n" +
+	"\x0eLOCAL_STRATEGY\x10\x02*\x84\x01\n" +
 	"\x12RecommendEventType\x12\x0f\n" +
 	"\vUNKNOWN_RET\x10\x00\x12\f\n" +
 	"\bEXPOSURE\x10\x01\x12\t\n" +
@@ -1331,7 +1440,7 @@ func file_common_enum_proto_rawDescGZIP() []byte {
 	return file_common_enum_proto_rawDescData
 }
 
-var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 21)
+var file_common_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 23)
 var file_common_enum_proto_goTypes = []any{
 	(Status)(0),             // 0: common.Status
 	(BaseConfigSite)(0),     // 1: common.BaseConfigSite
@@ -1353,7 +1462,9 @@ var file_common_enum_proto_goTypes = []any{
 	(ShopBannerType)(0),     // 17: common.ShopBannerType
 	(PayBillStatus)(0),      // 18: common.PayBillStatus
 	(RecommendScene)(0),     // 19: common.RecommendScene
-	(RecommendEventType)(0), // 20: common.RecommendEventType
+	(RecommendActorType)(0), // 20: common.RecommendActorType
+	(RecommendStrategy)(0),  // 21: common.RecommendStrategy
+	(RecommendEventType)(0), // 22: common.RecommendEventType
 }
 var file_common_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1373,7 +1484,7 @@ func file_common_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_enum_proto_rawDesc), len(file_common_enum_proto_rawDesc)),
-			NumEnums:      21,
+			NumEnums:      23,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

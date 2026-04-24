@@ -28,14 +28,14 @@ const (
 
 // 推荐请求分页查询条件
 type PageRecommendRequestRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	RequestId     *string                `protobuf:"bytes,1,opt,name=requestId,proto3,oneof" json:"requestId,omitempty"`                     // 推荐请求ID
-	ActorType     *int32                 `protobuf:"varint,2,opt,name=actorType,proto3,oneof" json:"actorType,omitempty"`                    // 主体类型：字典【recommend_actor_type】
-	ActorId       *int64                 `protobuf:"varint,3,opt,name=actorId,proto3,oneof" json:"actorId,omitempty"`                        // 主体编号（仅内部定位使用）
-	Scene         *common.RecommendScene `protobuf:"varint,4,opt,name=scene,proto3,enum=common.RecommendScene,oneof" json:"scene,omitempty"` // 推荐场景：字典【recommend_scene】
-	RequestAt     []string               `protobuf:"bytes,100,rep,name=requestAt,proto3" json:"requestAt,omitempty"`                         // 请求时间
-	PageNum       int64                  `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                            // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                          // 每一页的行数
+	state         protoimpl.MessageState     `protogen:"open.v1"`
+	RequestId     *string                    `protobuf:"bytes,1,opt,name=requestId,proto3,oneof" json:"requestId,omitempty"`                                 // 推荐请求ID
+	ActorType     *common.RecommendActorType `protobuf:"varint,2,opt,name=actorType,proto3,enum=common.RecommendActorType,oneof" json:"actorType,omitempty"` // 主体类型：字典【recommend_actor_type】
+	ActorId       *int64                     `protobuf:"varint,3,opt,name=actorId,proto3,oneof" json:"actorId,omitempty"`                                    // 主体编号（仅内部定位使用）
+	Scene         *common.RecommendScene     `protobuf:"varint,4,opt,name=scene,proto3,enum=common.RecommendScene,oneof" json:"scene,omitempty"`             // 推荐场景：字典【recommend_scene】
+	RequestAt     []string                   `protobuf:"bytes,100,rep,name=requestAt,proto3" json:"requestAt,omitempty"`                                     // 请求时间
+	PageNum       int64                      `protobuf:"varint,101,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                                        // 当前页码
+	PageSize      int64                      `protobuf:"varint,102,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                                      // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -77,11 +77,11 @@ func (x *PageRecommendRequestRequest) GetRequestId() string {
 	return ""
 }
 
-func (x *PageRecommendRequestRequest) GetActorType() int32 {
+func (x *PageRecommendRequestRequest) GetActorType() common.RecommendActorType {
 	if x != nil && x.ActorType != nil {
 		return *x.ActorType
 	}
-	return 0
+	return common.RecommendActorType(0)
 }
 
 func (x *PageRecommendRequestRequest) GetActorId() int64 {
@@ -174,19 +174,19 @@ func (x *PageRecommendRequestResponse) GetTotal() int32 {
 
 // 推荐请求
 type RecommendRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // 主键ID
-	RequestId     string                 `protobuf:"bytes,2,opt,name=requestId,proto3" json:"requestId,omitempty"`                     // 推荐请求ID
-	ActorType     int32                  `protobuf:"varint,3,opt,name=actorType,proto3" json:"actorType,omitempty"`                    // 主体类型：字典【recommend_actor_type】
-	ActorId       int64                  `protobuf:"varint,4,opt,name=actorId,proto3" json:"actorId,omitempty"`                        // 主体编号（仅内部定位使用）
-	Scene         common.RecommendScene  `protobuf:"varint,5,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"` // 推荐场景：字典【recommend_scene】
-	PageNum       int32                  `protobuf:"varint,6,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                        // 页码
-	PageSize      int32                  `protobuf:"varint,7,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                      // 分页大小
-	Total         int32                  `protobuf:"varint,8,opt,name=total,proto3" json:"total,omitempty"`                            // 本次返回总数
-	Strategy      string                 `protobuf:"bytes,9,opt,name=strategy,proto3" json:"strategy,omitempty"`                       // 命中的推荐策略
-	ProviderName  string                 `protobuf:"bytes,10,opt,name=providerName,proto3" json:"providerName,omitempty"`              // 最终命中的推荐器
-	RequestAt     string                 `protobuf:"bytes,11,opt,name=requestAt,proto3" json:"requestAt,omitempty"`                    // 请求时间
-	ActorInfo     string                 `protobuf:"bytes,12,opt,name=actorInfo,proto3" json:"actorInfo,omitempty"`                    // 主体信息
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 主键ID
+	RequestId     string                    `protobuf:"bytes,2,opt,name=requestId,proto3" json:"requestId,omitempty"`                                 // 推荐请求ID
+	ActorType     common.RecommendActorType `protobuf:"varint,3,opt,name=actorType,proto3,enum=common.RecommendActorType" json:"actorType,omitempty"` // 主体类型：字典【recommend_actor_type】
+	ActorId       int64                     `protobuf:"varint,4,opt,name=actorId,proto3" json:"actorId,omitempty"`                                    // 主体编号（仅内部定位使用）
+	Scene         common.RecommendScene     `protobuf:"varint,5,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"`             // 推荐场景：字典【recommend_scene】
+	PageNum       int32                     `protobuf:"varint,6,opt,name=pageNum,proto3" json:"pageNum,omitempty"`                                    // 页码
+	PageSize      int32                     `protobuf:"varint,7,opt,name=pageSize,proto3" json:"pageSize,omitempty"`                                  // 分页大小
+	Total         int32                     `protobuf:"varint,8,opt,name=total,proto3" json:"total,omitempty"`                                        // 本次返回总数
+	Strategy      common.RecommendStrategy  `protobuf:"varint,9,opt,name=strategy,proto3,enum=common.RecommendStrategy" json:"strategy,omitempty"`    // 命中的推荐策略：字典【recommend_strategy】
+	ProviderName  string                    `protobuf:"bytes,10,opt,name=providerName,proto3" json:"providerName,omitempty"`                          // 最终命中的推荐器
+	RequestAt     string                    `protobuf:"bytes,11,opt,name=requestAt,proto3" json:"requestAt,omitempty"`                                // 请求时间
+	ActorName     string                    `protobuf:"bytes,12,opt,name=actorName,proto3" json:"actorName,omitempty"`                                // 主体名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -235,11 +235,11 @@ func (x *RecommendRequest) GetRequestId() string {
 	return ""
 }
 
-func (x *RecommendRequest) GetActorType() int32 {
+func (x *RecommendRequest) GetActorType() common.RecommendActorType {
 	if x != nil {
 		return x.ActorType
 	}
-	return 0
+	return common.RecommendActorType(0)
 }
 
 func (x *RecommendRequest) GetActorId() int64 {
@@ -277,11 +277,11 @@ func (x *RecommendRequest) GetTotal() int32 {
 	return 0
 }
 
-func (x *RecommendRequest) GetStrategy() string {
+func (x *RecommendRequest) GetStrategy() common.RecommendStrategy {
 	if x != nil {
 		return x.Strategy
 	}
-	return ""
+	return common.RecommendStrategy(0)
 }
 
 func (x *RecommendRequest) GetProviderName() string {
@@ -298,9 +298,9 @@ func (x *RecommendRequest) GetRequestAt() string {
 	return ""
 }
 
-func (x *RecommendRequest) GetActorInfo() string {
+func (x *RecommendRequest) GetActorName() string {
 	if x != nil {
-		return x.ActorInfo
+		return x.ActorName
 	}
 	return ""
 }
@@ -369,14 +369,14 @@ func (x *RecommendRequestDetailResponse) GetItemList() []*RecommendRequestItem {
 // 推荐请求上下文信息
 type RecommendRequestContext struct {
 	state             protoimpl.MessageState   `protogen:"open.v1"`
-	GoodsId           int64                    `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                        // 锚点商品ID
-	OrderId           int64                    `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`                        // 关联订单ID
-	ContextGoodsIds   []int64                  `protobuf:"varint,3,rep,packed,name=contextGoodsIds,proto3" json:"contextGoodsIds,omitempty"` // 上下文商品ID列表
-	Strategy          string                   `protobuf:"bytes,4,opt,name=strategy,proto3" json:"strategy,omitempty"`                       // 命中的推荐策略
-	ProviderName      string                   `protobuf:"bytes,5,opt,name=providerName,proto3" json:"providerName,omitempty"`               // 上下文记录的推荐器
-	FinalProviderName string                   `protobuf:"bytes,6,opt,name=finalProviderName,proto3" json:"finalProviderName,omitempty"`     // 最终命中的推荐器
-	Trace             []*RecommendRequestTrace `protobuf:"bytes,7,rep,name=trace,proto3" json:"trace,omitempty"`                             // 推荐请求链路轨迹
-	RawJson           string                   `protobuf:"bytes,8,opt,name=rawJson,proto3" json:"rawJson,omitempty"`                         // 原始上下文JSON
+	GoodsId           int64                    `protobuf:"varint,1,opt,name=goodsId,proto3" json:"goodsId,omitempty"`                                 // 锚点商品ID
+	OrderId           int64                    `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`                                 // 关联订单ID
+	ContextGoodsIds   []int64                  `protobuf:"varint,3,rep,packed,name=contextGoodsIds,proto3" json:"contextGoodsIds,omitempty"`          // 上下文商品ID列表
+	Strategy          common.RecommendStrategy `protobuf:"varint,4,opt,name=strategy,proto3,enum=common.RecommendStrategy" json:"strategy,omitempty"` // 命中的推荐策略：字典【recommend_strategy】
+	ProviderName      string                   `protobuf:"bytes,5,opt,name=providerName,proto3" json:"providerName,omitempty"`                        // 上下文记录的推荐器
+	FinalProviderName string                   `protobuf:"bytes,6,opt,name=finalProviderName,proto3" json:"finalProviderName,omitempty"`              // 最终命中的推荐器
+	Trace             []*RecommendRequestTrace `protobuf:"bytes,7,rep,name=trace,proto3" json:"trace,omitempty"`                                      // 推荐请求链路轨迹
+	RawJson           string                   `protobuf:"bytes,8,opt,name=rawJson,proto3" json:"rawJson,omitempty"`                                  // 原始上下文JSON
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -432,11 +432,11 @@ func (x *RecommendRequestContext) GetContextGoodsIds() []int64 {
 	return nil
 }
 
-func (x *RecommendRequestContext) GetStrategy() string {
+func (x *RecommendRequestContext) GetStrategy() common.RecommendStrategy {
 	if x != nil {
 		return x.Strategy
 	}
-	return ""
+	return common.RecommendStrategy(0)
 }
 
 func (x *RecommendRequestContext) GetProviderName() string {
@@ -763,7 +763,7 @@ func (x *GetRecommendRequestEventResponse) GetTotal() int32 {
 type RecommendEvent struct {
 	state         protoimpl.MessageState    `protogen:"open.v1"`
 	Id            int64                     `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                              // 主键ID
-	ActorType     int32                     `protobuf:"varint,2,opt,name=actorType,proto3" json:"actorType,omitempty"`                                // 主体类型：字典【recommend_actor_type】
+	ActorType     common.RecommendActorType `protobuf:"varint,2,opt,name=actorType,proto3,enum=common.RecommendActorType" json:"actorType,omitempty"` // 主体类型：字典【recommend_actor_type】
 	ActorId       int64                     `protobuf:"varint,3,opt,name=actorId,proto3" json:"actorId,omitempty"`                                    // 主体编号（仅内部定位使用）
 	Scene         common.RecommendScene     `protobuf:"varint,4,opt,name=scene,proto3,enum=common.RecommendScene" json:"scene,omitempty"`             // 推荐场景：字典【recommend_scene】
 	EventType     common.RecommendEventType `protobuf:"varint,5,opt,name=eventType,proto3,enum=common.RecommendEventType" json:"eventType,omitempty"` // 事件类型：枚举【RecommendEventType】
@@ -813,11 +813,11 @@ func (x *RecommendEvent) GetId() int64 {
 	return 0
 }
 
-func (x *RecommendEvent) GetActorType() int32 {
+func (x *RecommendEvent) GetActorType() common.RecommendActorType {
 	if x != nil {
 		return x.ActorType
 	}
-	return 0
+	return common.RecommendActorType(0)
 }
 
 func (x *RecommendEvent) GetActorId() int64 {
@@ -880,10 +880,10 @@ var File_admin_recommend_request_proto protoreflect.FileDescriptor
 
 const file_admin_recommend_request_proto_rawDesc = "" +
 	"\n" +
-	"\x1dadmin/recommend_request.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11common/enum.proto\"\xc3\x04\n" +
+	"\x1dadmin/recommend_request.proto\x12\x05admin\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a\x11common/enum.proto\"\xdf\x04\n" +
 	"\x1bPageRecommendRequestRequest\x127\n" +
-	"\trequestId\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDH\x00R\trequestId\x88\x01\x01\x12X\n" +
-	"\tactorType\x18\x02 \x01(\x05B5\xbaG2\x92\x02/主体类型：字典【recommend_actor_type】H\x01R\tactorType\x88\x01\x01\x12L\n" +
+	"\trequestId\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDH\x00R\trequestId\x88\x01\x01\x12t\n" +
+	"\tactorType\x18\x02 \x01(\x0e2\x1a.common.RecommendActorTypeB5\xbaG2\x92\x02/主体类型：字典【recommend_actor_type】H\x01R\tactorType\x88\x01\x01\x12L\n" +
 	"\aactorId\x18\x03 \x01(\x03B-\xbaG*\x92\x02'主体编号（仅内部定位使用）H\x02R\aactorId\x88\x01\x01\x12c\n" +
 	"\x05scene\x18\x04 \x01(\x0e2\x16.common.RecommendSceneB0\xbaG-\x92\x02*推荐场景：字典【recommend_scene】H\x03R\x05scene\x88\x01\x01\x120\n" +
 	"\trequestAt\x18d \x03(\tB\x12\xbaG\x0f\x92\x02\f请求时间R\trequestAt\x128\n" +
@@ -898,30 +898,30 @@ const file_admin_recommend_request_proto_rawDesc = "" +
 	"\x06_scene\"\x83\x01\n" +
 	"\x1cPageRecommendRequestResponse\x12?\n" +
 	"\x04list\x18\x01 \x03(\v2\x17.admin.RecommendRequestB\x12\xbaG\x0f\x92\x02\f分页数据R\x04list\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xcd\x05\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa5\x06\n" +
 	"\x10RecommendRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x122\n" +
-	"\trequestId\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12S\n" +
-	"\tactorType\x18\x03 \x01(\x05B5\xbaG2\x92\x02/主体类型：字典【recommend_actor_type】R\tactorType\x12G\n" +
+	"\trequestId\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e推荐请求IDR\trequestId\x12o\n" +
+	"\tactorType\x18\x03 \x01(\x0e2\x1a.common.RecommendActorTypeB5\xbaG2\x92\x02/主体类型：字典【recommend_actor_type】R\tactorType\x12G\n" +
 	"\aactorId\x18\x04 \x01(\x03B-\xbaG*\x92\x02'主体编号（仅内部定位使用）R\aactorId\x12^\n" +
 	"\x05scene\x18\x05 \x01(\x0e2\x16.common.RecommendSceneB0\xbaG-\x92\x02*推荐场景：字典【recommend_scene】R\x05scene\x12&\n" +
 	"\apageNum\x18\x06 \x01(\x05B\f\xbaG\t\x92\x02\x06页码R\apageNum\x12.\n" +
 	"\bpageSize\x18\a \x01(\x05B\x12\xbaG\x0f\x92\x02\f分页大小R\bpageSize\x12.\n" +
-	"\x05total\x18\b \x01(\x05B\x18\xbaG\x15\x92\x02\x12本次返回总数R\x05total\x127\n" +
-	"\bstrategy\x18\t \x01(\tB\x1b\xbaG\x18\x92\x02\x15命中的推荐策略R\bstrategy\x12B\n" +
+	"\x05total\x18\b \x01(\x05B\x18\xbaG\x15\x92\x02\x12本次返回总数R\x05total\x12s\n" +
+	"\bstrategy\x18\t \x01(\x0e2\x19.common.RecommendStrategyB<\xbaG9\x92\x026命中的推荐策略：字典【recommend_strategy】R\bstrategy\x12B\n" +
 	"\fproviderName\x18\n" +
 	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最终命中的推荐器R\fproviderName\x120\n" +
 	"\trequestAt\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f请求时间R\trequestAt\x120\n" +
-	"\tactorInfo\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f主体信息R\tactorInfo\"\xa9\x02\n" +
+	"\tactorName\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f主体名称R\tactorName\"\xa9\x02\n" +
 	"\x1eRecommendRequestDetailResponse\x12K\n" +
 	"\arequest\x18\x01 \x01(\v2\x17.admin.RecommendRequestB\x18\xbaG\x15\x92\x02\x12请求基础信息R\arequest\x12U\n" +
 	"\acontext\x18\x02 \x01(\v2\x1e.admin.RecommendRequestContextB\x1b\xbaG\x18\x92\x02\x15推荐上下文信息R\acontext\x12c\n" +
-	"\bitemList\x18\x03 \x03(\v2\x1b.admin.RecommendRequestItemB*\xbaG'\x92\x02$当前请求页的推荐商品列表R\bitemList\"\x99\x04\n" +
+	"\bitemList\x18\x03 \x03(\v2\x1b.admin.RecommendRequestItemB*\xbaG'\x92\x02$当前请求页的推荐商品列表R\bitemList\"\xd5\x04\n" +
 	"\x17RecommendRequestContext\x12.\n" +
 	"\agoodsId\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e锚点商品IDR\agoodsId\x12.\n" +
 	"\aorderId\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e关联订单IDR\aorderId\x12G\n" +
-	"\x0fcontextGoodsIds\x18\x03 \x03(\x03B\x1d\xbaG\x1a\x92\x02\x17上下文商品ID列表R\x0fcontextGoodsIds\x127\n" +
-	"\bstrategy\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15命中的推荐策略R\bstrategy\x12E\n" +
+	"\x0fcontextGoodsIds\x18\x03 \x03(\x03B\x1d\xbaG\x1a\x92\x02\x17上下文商品ID列表R\x0fcontextGoodsIds\x12s\n" +
+	"\bstrategy\x18\x04 \x01(\x0e2\x19.common.RecommendStrategyB<\xbaG9\x92\x026命中的推荐策略：字典【recommend_strategy】R\bstrategy\x12E\n" +
 	"\fproviderName\x18\x05 \x01(\tB!\xbaG\x1e\x92\x02\x1b上下文记录的推荐器R\fproviderName\x12L\n" +
 	"\x11finalProviderName\x18\x06 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18最终命中的推荐器R\x11finalProviderName\x12R\n" +
 	"\x05trace\x18\a \x03(\v2\x1c.admin.RecommendRequestTraceB\x1e\xbaG\x1b\x92\x02\x18推荐请求链路轨迹R\x05trace\x123\n" +
@@ -949,10 +949,10 @@ const file_admin_recommend_request_proto_rawDesc = "" +
 	"\bposition\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f结果位置R\bposition\"\x85\x01\n" +
 	" GetRecommendRequestEventResponse\x12=\n" +
 	"\x04list\x18\x01 \x03(\v2\x15.admin.RecommendEventB\x12\xbaG\x0f\x92\x02\f事件数据R\x04list\x12\"\n" +
-	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\x89\x05\n" +
+	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"\xa5\x05\n" +
 	"\x0eRecommendEvent\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12S\n" +
-	"\tactorType\x18\x02 \x01(\x05B5\xbaG2\x92\x02/主体类型：字典【recommend_actor_type】R\tactorType\x12G\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b主键IDR\x02id\x12o\n" +
+	"\tactorType\x18\x02 \x01(\x0e2\x1a.common.RecommendActorTypeB5\xbaG2\x92\x02/主体类型：字典【recommend_actor_type】R\tactorType\x12G\n" +
 	"\aactorId\x18\x03 \x01(\x03B-\xbaG*\x92\x02'主体编号（仅内部定位使用）R\aactorId\x12^\n" +
 	"\x05scene\x18\x04 \x01(\x0e2\x16.common.RecommendSceneB0\xbaG-\x92\x02*推荐场景：字典【recommend_scene】R\x05scene\x12m\n" +
 	"\teventType\x18\x05 \x01(\x0e2\x1a.common.RecommendEventTypeB3\xbaG0\x92\x02-事件类型：枚举【RecommendEventType】R\teventType\x12(\n" +
@@ -992,34 +992,41 @@ var file_admin_recommend_request_proto_goTypes = []any{
 	(*GetRecommendRequestEventRequest)(nil),  // 7: admin.GetRecommendRequestEventRequest
 	(*GetRecommendRequestEventResponse)(nil), // 8: admin.GetRecommendRequestEventResponse
 	(*RecommendEvent)(nil),                   // 9: admin.RecommendEvent
-	(common.RecommendScene)(0),               // 10: common.RecommendScene
-	(common.GoodsStatus)(0),                  // 11: common.GoodsStatus
-	(common.RecommendEventType)(0),           // 12: common.RecommendEventType
-	(*wrapperspb.Int64Value)(nil),            // 13: google.protobuf.Int64Value
+	(common.RecommendActorType)(0),           // 10: common.RecommendActorType
+	(common.RecommendScene)(0),               // 11: common.RecommendScene
+	(common.RecommendStrategy)(0),            // 12: common.RecommendStrategy
+	(common.GoodsStatus)(0),                  // 13: common.GoodsStatus
+	(common.RecommendEventType)(0),           // 14: common.RecommendEventType
+	(*wrapperspb.Int64Value)(nil),            // 15: google.protobuf.Int64Value
 }
 var file_admin_recommend_request_proto_depIdxs = []int32{
-	10, // 0: admin.PageRecommendRequestRequest.scene:type_name -> common.RecommendScene
-	2,  // 1: admin.PageRecommendRequestResponse.list:type_name -> admin.RecommendRequest
-	10, // 2: admin.RecommendRequest.scene:type_name -> common.RecommendScene
-	2,  // 3: admin.RecommendRequestDetailResponse.request:type_name -> admin.RecommendRequest
-	4,  // 4: admin.RecommendRequestDetailResponse.context:type_name -> admin.RecommendRequestContext
-	6,  // 5: admin.RecommendRequestDetailResponse.itemList:type_name -> admin.RecommendRequestItem
-	5,  // 6: admin.RecommendRequestContext.trace:type_name -> admin.RecommendRequestTrace
-	11, // 7: admin.RecommendRequestItem.goodsStatus:type_name -> common.GoodsStatus
-	9,  // 8: admin.GetRecommendRequestEventResponse.list:type_name -> admin.RecommendEvent
-	10, // 9: admin.RecommendEvent.scene:type_name -> common.RecommendScene
-	12, // 10: admin.RecommendEvent.eventType:type_name -> common.RecommendEventType
-	0,  // 11: admin.RecommendRequestService.PageRecommendRequest:input_type -> admin.PageRecommendRequestRequest
-	13, // 12: admin.RecommendRequestService.GetRecommendRequest:input_type -> google.protobuf.Int64Value
-	7,  // 13: admin.RecommendRequestService.GetRecommendRequestEvent:input_type -> admin.GetRecommendRequestEventRequest
-	1,  // 14: admin.RecommendRequestService.PageRecommendRequest:output_type -> admin.PageRecommendRequestResponse
-	3,  // 15: admin.RecommendRequestService.GetRecommendRequest:output_type -> admin.RecommendRequestDetailResponse
-	8,  // 16: admin.RecommendRequestService.GetRecommendRequestEvent:output_type -> admin.GetRecommendRequestEventResponse
-	14, // [14:17] is the sub-list for method output_type
-	11, // [11:14] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	10, // 0: admin.PageRecommendRequestRequest.actorType:type_name -> common.RecommendActorType
+	11, // 1: admin.PageRecommendRequestRequest.scene:type_name -> common.RecommendScene
+	2,  // 2: admin.PageRecommendRequestResponse.list:type_name -> admin.RecommendRequest
+	10, // 3: admin.RecommendRequest.actorType:type_name -> common.RecommendActorType
+	11, // 4: admin.RecommendRequest.scene:type_name -> common.RecommendScene
+	12, // 5: admin.RecommendRequest.strategy:type_name -> common.RecommendStrategy
+	2,  // 6: admin.RecommendRequestDetailResponse.request:type_name -> admin.RecommendRequest
+	4,  // 7: admin.RecommendRequestDetailResponse.context:type_name -> admin.RecommendRequestContext
+	6,  // 8: admin.RecommendRequestDetailResponse.itemList:type_name -> admin.RecommendRequestItem
+	12, // 9: admin.RecommendRequestContext.strategy:type_name -> common.RecommendStrategy
+	5,  // 10: admin.RecommendRequestContext.trace:type_name -> admin.RecommendRequestTrace
+	13, // 11: admin.RecommendRequestItem.goodsStatus:type_name -> common.GoodsStatus
+	9,  // 12: admin.GetRecommendRequestEventResponse.list:type_name -> admin.RecommendEvent
+	10, // 13: admin.RecommendEvent.actorType:type_name -> common.RecommendActorType
+	11, // 14: admin.RecommendEvent.scene:type_name -> common.RecommendScene
+	14, // 15: admin.RecommendEvent.eventType:type_name -> common.RecommendEventType
+	0,  // 16: admin.RecommendRequestService.PageRecommendRequest:input_type -> admin.PageRecommendRequestRequest
+	15, // 17: admin.RecommendRequestService.GetRecommendRequest:input_type -> google.protobuf.Int64Value
+	7,  // 18: admin.RecommendRequestService.GetRecommendRequestEvent:input_type -> admin.GetRecommendRequestEventRequest
+	1,  // 19: admin.RecommendRequestService.PageRecommendRequest:output_type -> admin.PageRecommendRequestResponse
+	3,  // 20: admin.RecommendRequestService.GetRecommendRequest:output_type -> admin.RecommendRequestDetailResponse
+	8,  // 21: admin.RecommendRequestService.GetRecommendRequestEvent:output_type -> admin.GetRecommendRequestEventResponse
+	19, // [19:22] is the sub-list for method output_type
+	16, // [16:19] is the sub-list for method input_type
+	16, // [16:16] is the sub-list for extension type_name
+	16, // [16:16] is the sub-list for extension extendee
+	0,  // [0:16] is the sub-list for field type_name
 }
 
 func init() { file_admin_recommend_request_proto_init() }

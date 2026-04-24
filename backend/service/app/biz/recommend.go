@@ -196,7 +196,7 @@ func (c *RecommendCase) resolveRecommendActor(ctx context.Context, allowAnonymou
 	// 当前请求已登录时，优先使用登录用户作为推荐主体。
 	if err == nil && authInfo != nil && authInfo.UserId > 0 {
 		return &dto.RecommendActor{
-			ActorType: dto.UserActorType,
+			ActorType: common.RecommendActorType_USER_ACTOR,
 			ActorId:   authInfo.UserId,
 		}, nil
 	}
@@ -219,7 +219,7 @@ func (c *RecommendCase) resolveRecommendActor(ctx context.Context, allowAnonymou
 		return nil, err
 	}
 	return &dto.RecommendActor{
-		ActorType: dto.AnonymousActorType,
+		ActorType: common.RecommendActorType_ANONYMOUS_ACTOR,
 		ActorId:   anonymousId,
 	}, nil
 }

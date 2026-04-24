@@ -51,7 +51,7 @@ func (r *ChainReceiver) ExecutePlan(
 ) (*dto.GoodsResult, error) {
 	result := &dto.GoodsResult{
 		GoodsIds: []int64{},
-		Strategy: dto.LocalStrategy,
+		Strategy: common.RecommendStrategy_LOCAL_STRATEGY,
 		Trace:    make([]*dto.GoodsTrace, 0),
 	}
 	// 本地推荐链路未启用时，直接返回空结果。

@@ -192,6 +192,7 @@ import { type GoodsInfoForm } from "@/rpc/admin/goods_info";
 import { type GoodsSku } from "@/rpc/admin/goods_sku";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { GoodsStatus } from "@/rpc/common/enum";
+import { useTabsStore } from "@/stores/modules/tabs";
 import { formatPrice } from "@/utils/utils";
 
 defineOptions({
@@ -205,6 +206,7 @@ type GoodsDetailTabName = "basic" | "sku" | "spec" | "prop";
 type GoodsDetailSectionKey = "sku" | "spec" | "prop";
 
 const route = useRoute();
+const tabsStore = useTabsStore();
 const loading = ref(false);
 const goodsId = ref(0);
 const activeTabName = ref<GoodsDetailTabName>("basic");
@@ -212,6 +214,14 @@ const skuSectionRef = ref();
 const specSectionRef = ref();
 const propSectionRef = ref();
 const goodsDetailRequestId = ref(0);
+
+/** 商品详情工作区标题固定为“商品详情”，避免跨页面跳转时沿用旧标题。 */
+const workspaceTitle = "商品详情";
+
+/** 判断当前是否仍停留在商品详情页，避免离开后继续改写其他页面标题。 */
+function isCurrentGoodsDetailRoute() {
+  return route.name === "GoodsDetail" || route.path.includes("/goods/detail/");
+}
 
 /** 创建详情页商品默认值，避免切换记录时出现残留数据。 */
 function createDefaultGoodsDetailForm(): GoodsInfoForm {
@@ -464,11 +474,19 @@ const skuColumns = computed<ColumnProps[]>(() => {
   ];
 });
 
+/** 同步当前页签和浏览器标题，确保从其他业务页跳转进来也显示为“商品详情”。 */
+function syncWorkspaceTitle() {
+  tabsStore.setTabsTitle(workspaceTitle);
+  document.title = `${workspaceTitle} - ${import.meta.env.VITE_GLOB_APP_TITLE}`;
+}
+
 // 监听路由参数变化，更新商品详情数据。
 watch(
   () => [route.params.goodsId, route.query.goodsId],
   () => {
+    if (!isCurrentGoodsDetailRoute()) return;
     const currentGoodsId = syncGoodsIdFromRoute();
+    syncWorkspaceTitle();
     if (!currentGoodsId) {
       resetGoodsDetailForm();
       return;
@@ -529,6 +547,8 @@ async function handleNavigateSection(sectionKey: GoodsDetailSectionKey) {
 }
 
 onActivated(() => {
+  if (!isCurrentGoodsDetailRoute()) return;
+  syncWorkspaceTitle();
   const currentGoodsId = syncGoodsIdFromRoute();
   if (!currentGoodsId || loading.value) return;
   handleQuery(currentGoodsId);

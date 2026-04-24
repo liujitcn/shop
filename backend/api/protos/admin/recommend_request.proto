@@ -40,7 +40,7 @@ message PageRecommendRequestRequest {
     }
   ]; // 推荐请求ID
 
-  optional int32 actorType = 2 [
+  optional common.RecommendActorType actorType = 2 [
     (gnostic.openapi.v3.property) = {
       description: "主体类型：字典【recommend_actor_type】",
     }
@@ -108,7 +108,7 @@ message RecommendRequest {
     }
   ]; // 推荐请求ID
 
-  int32 actorType = 3 [
+  common.RecommendActorType actorType = 3 [
     (gnostic.openapi.v3.property) = {
       description: "主体类型：字典【recommend_actor_type】",
     }
@@ -144,11 +144,11 @@ message RecommendRequest {
     }
   ]; // 本次返回总数
 
-  string strategy = 9 [
+  common.RecommendStrategy strategy = 9 [
     (gnostic.openapi.v3.property) = {
-      description: "命中的推荐策略",
+      description: "命中的推荐策略：字典【recommend_strategy】",
     }
-  ]; // 命中的推荐策略
+  ]; // 命中的推荐策略：字典【recommend_strategy】
 
   string providerName = 10 [
     (gnostic.openapi.v3.property) = {
@@ -162,11 +162,11 @@ message RecommendRequest {
     }
   ]; // 请求时间
 
-  string actorInfo = 12 [
+  string actorName = 12 [
     (gnostic.openapi.v3.property) = {
-      description: "主体信息",
+      description: "主体名称",
     }
-  ]; // 主体信息
+  ]; // 主体名称
 }
 
 // 推荐请求详情响应
@@ -210,11 +210,11 @@ message RecommendRequestContext {
     }
   ]; // 上下文商品ID列表
 
-  string strategy = 4 [
+  common.RecommendStrategy strategy = 4 [
     (gnostic.openapi.v3.property) = {
-      description: "命中的推荐策略",
+      description: "命中的推荐策略：字典【recommend_strategy】",
     }
-  ]; // 命中的推荐策略
+  ]; // 命中的推荐策略：字典【recommend_strategy】
 
   string providerName = 5 [
     (gnostic.openapi.v3.property) = {
@@ -369,7 +369,7 @@ message RecommendEvent {
     }
   ]; // 主键ID
 
-  int32 actorType = 2 [
+  common.RecommendActorType actorType = 2 [
     (gnostic.openapi.v3.property) = {
       description: "主体类型：字典【recommend_actor_type】",
     }

@@ -247,6 +247,26 @@ export enum RecommendScene {
   ORDER_PAID = 6,
 }
 
+/** 推荐主体类型枚举 */
+export enum RecommendActorType {
+  /** UNKNOWN_RAT - 未指定推荐主体类型 */
+  UNKNOWN_RAT = 0,
+  /** ANONYMOUS_ACTOR - 匿名推荐主体 */
+  ANONYMOUS_ACTOR = 1,
+  /** USER_ACTOR - 登录用户推荐主体 */
+  USER_ACTOR = 2,
+}
+
+/** 推荐策略枚举 */
+export enum RecommendStrategy {
+  /** UNKNOWN_RST - 未指定推荐策略 */
+  UNKNOWN_RST = 0,
+  /** REMOTE_STRATEGY - 远端推荐策略 */
+  REMOTE_STRATEGY = 1,
+  /** LOCAL_STRATEGY - 本地同类目推荐策略 */
+  LOCAL_STRATEGY = 2,
+}
+
 /** 推荐事件类型枚举 */
 export enum RecommendEventType {
   /** UNKNOWN_RET - 未指定推荐事件类型 */

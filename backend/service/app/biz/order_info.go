@@ -840,7 +840,7 @@ func (c *OrderInfoCase) dispatchRecommendOrderEvent(payType common.OrderPayType,
 			}
 			// 订单创建事务提交成功后，再按落库事实回写推荐下单事件。
 			pkgQueue.DispatchRecommendEvent(&dto.RecommendActor{
-				ActorType: dto.UserActorType,
+				ActorType: common.RecommendActorType_USER_ACTOR,
 				ActorId:   userId,
 			}, orderEventReport, eventTime)
 		}

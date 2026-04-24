@@ -64,8 +64,8 @@ func (c *RecommendRequestCase) PageRecommendRequest(ctx context.Context, req *ad
 		}
 	}
 	// 传入主体类型时，仅查询指定主体类型的请求记录。
-	if req.ActorType != nil && req.GetActorType() > 0 {
-		opts = append(opts, repo.Where(query.ActorType.Eq(req.GetActorType())))
+	if req.ActorType != nil && req.GetActorType() > common.RecommendActorType_UNKNOWN_RAT {
+		opts = append(opts, repo.Where(query.ActorType.Eq(int32(req.GetActorType()))))
 	}
 	// 传入主体编号时，仅查询指定主体的请求记录。
 	if req.ActorId != nil && req.GetActorId() > 0 {
@@ -96,14 +96,14 @@ func (c *RecommendRequestCase) PageRecommendRequest(ctx context.Context, req *ad
 		return nil, err
 	}
 
-	actorInfoMap, err := c.getRecommendActorInfoMap(ctx, list)
+	actorNameMap, err := c.getRecommendActorNameMap(ctx, list)
 	if err != nil {
 		return nil, err
 	}
 
 	resList := make([]*admin.RecommendRequest, 0, len(list))
 	for _, item := range list {
-		resList = append(resList, c.toRecommendRequest(item, actorInfoMap[item.ActorID]))
+		resList = append(resList, c.toRecommendRequest(item, actorNameMap[item.ActorID]))
 	}
 	return &admin.PageRecommendRequestResponse{
 		List:  resList,
@@ -124,7 +124,7 @@ func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64
 	}
 
 	contextRecord := c.parseRecommendContext(requestModel.ContextJSON)
-	actorInfoMap, err := c.getRecommendActorInfoMap(ctx, []*models.RecommendRequest{requestModel})
+	actorNameMap, err := c.getRecommendActorNameMap(ctx, []*models.RecommendRequest{requestModel})
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +134,7 @@ func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64
 	}
 
 	return &admin.RecommendRequestDetailResponse{
-		Request:  c.toRecommendRequest(requestModel, actorInfoMap[requestModel.ActorID]),
+		Request:  c.toRecommendRequest(requestModel, actorNameMap[requestModel.ActorID]),
 		Context:  c.toRecommendRequestContext(contextRecord, requestModel.ContextJSON),
 		ItemList: itemList,
 	}, nil
@@ -165,39 +165,27 @@ func (c *RecommendRequestCase) GetRecommendRequestEvent(
 }
 
 // toRecommendRequest 转换推荐请求分页响应数据。
-func (c *RecommendRequestCase) toRecommendRequest(item *models.RecommendRequest, actorInfo string) *admin.RecommendRequest {
+func (c *RecommendRequestCase) toRecommendRequest(item *models.RecommendRequest, actorName string) *admin.RecommendRequest {
 	// 请求实体为空时，回退到空响应结构，避免列表渲染空指针。
 	if item == nil {
 		return &admin.RecommendRequest{}
 	}
 
 	contextRecord := c.parseRecommendContext(item.ContextJSON)
-	resolvedActorId := item.ActorID
-	resolvedActorInfo := actorInfo
-	// 匿名主体不再返回主体编号，但会回退为统一的主体信息文案。
-	if item.ActorType != int32(recommendDto.UserActorType) {
-		resolvedActorId = 0
-		// 匿名主体统一展示为“匿名”，避免后台误把匿名标识识别为真实用户。
-		resolvedActorInfo = "匿名"
-	}
-	// 登录主体没有可读名称时，回退到稳定占位文案，避免页面出现空白。
-	if item.ActorType == int32(recommendDto.UserActorType) && resolvedActorInfo == "" {
-		resolvedActorInfo = "用户"
-	}
 
 	return &admin.RecommendRequest{
 		Id:           item.ID,
 		RequestId:    strconv.FormatInt(item.RequestID, 10),
-		ActorType:    item.ActorType,
-		ActorId:      resolvedActorId,
+		ActorType:    common.RecommendActorType(item.ActorType),
+		ActorId:      item.ActorID,
 		Scene:        common.RecommendScene(item.Scene),
 		PageNum:      item.PageNum,
 		PageSize:     item.PageSize,
 		Total:        item.Total,
-		Strategy:     string(contextRecord.Strategy),
+		Strategy:     contextRecord.Strategy,
 		ProviderName: c.resolveFinalProviderName(contextRecord),
 		RequestAt:    _time.TimeToTimeString(item.RequestAt),
-		ActorInfo:    resolvedActorInfo,
+		ActorName:    actorName,
 	}
 }
 
@@ -231,7 +219,7 @@ func (c *RecommendRequestCase) toRecommendRequestContext(
 		GoodsId:           contextRecord.GoodsId,
 		OrderId:           contextRecord.OrderId,
 		ContextGoodsIds:   append([]int64(nil), contextRecord.ContextGoodsIds...),
-		Strategy:          string(contextRecord.Strategy),
+		Strategy:          contextRecord.Strategy,
 		ProviderName:      contextRecord.ProviderName,
 		FinalProviderName: finalProviderName,
 		Trace:             traceList,
@@ -282,22 +270,22 @@ func (c *RecommendRequestCase) resolveFinalProviderName(contextRecord *recommend
 	return ""
 }
 
-// getRecommendActorInfoMap 构建推荐主体信息映射。
-func (c *RecommendRequestCase) getRecommendActorInfoMap(
+// getRecommendActorNameMap 构建推荐主体名称映射。
+func (c *RecommendRequestCase) getRecommendActorNameMap(
 	ctx context.Context,
 	requestList []*models.RecommendRequest,
 ) (map[int64]string, error) {
-	actorInfoMap := make(map[int64]string)
+	actorNameMap := make(map[int64]string)
 	// 请求列表为空时，无需继续查询主体信息。
 	if len(requestList) == 0 {
-		return actorInfoMap, nil
+		return actorNameMap, nil
 	}
 
 	userIdSet := make(map[int64]struct{}, len(requestList))
 	userIds := make([]int64, 0, len(requestList))
 	for _, item := range requestList {
 		// 仅登录用户主体需要回查主体信息，匿名主体统一走固定文案。
-		if item == nil || item.ActorType != int32(recommendDto.UserActorType) || item.ActorID <= 0 {
+		if item == nil || item.ActorType != int32(common.RecommendActorType_USER_ACTOR) || item.ActorID <= 0 {
 			continue
 		}
 		if _, ok := userIdSet[item.ActorID]; ok {
@@ -308,7 +296,7 @@ func (c *RecommendRequestCase) getRecommendActorInfoMap(
 	}
 	// 当前页没有登录用户主体时，无需继续查询主体信息。
 	if len(userIds) == 0 {
-		return actorInfoMap, nil
+		return actorNameMap, nil
 	}
 
 	query := c.baseUserRepo.Query(ctx).BaseUser
@@ -322,13 +310,13 @@ func (c *RecommendRequestCase) getRecommendActorInfoMap(
 		if item == nil || item.ID <= 0 {
 			continue
 		}
-		actorInfoMap[item.ID] = c.resolveRecommendActorInfo(item)
+		actorNameMap[item.ID] = c.resolveRecommendActorName(item)
 	}
-	return actorInfoMap, nil
+	return actorNameMap, nil
 }
 
-// resolveRecommendActorInfo 解析推荐主体展示信息。
-func (c *RecommendRequestCase) resolveRecommendActorInfo(user *models.BaseUser) string {
+// resolveRecommendActorName 解析推荐主体名称。
+func (c *RecommendRequestCase) resolveRecommendActorName(user *models.BaseUser) string {
 	// 用户为空时，不存在可展示的姓名。
 	if user == nil {
 		return ""

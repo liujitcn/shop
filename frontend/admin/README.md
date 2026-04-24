@@ -156,17 +156,20 @@ shop-admin
 
 其中推荐相关后台入口当前已覆盖：
 
-- 推荐请求分页列表与详情查看
+- 推荐请求分页列表与详情页查看
+- 推荐请求详情页改为页面跳转，并通过 tab 展示请求信息、链路与上下文、推荐商品
 - 推荐请求链路轨迹、最终推荐器与上下文查看
-- 推荐商品关联的 recommend_event 数据查看
+- 推荐商品关联的 recommend_event 数据通过独立弹窗查看，默认展示当前商品事件明细
 - 远程推荐概览、任务状态查看
+- 远程推荐概览、任务、用户、商品、配置与编排页面已参照 Gorse 管理端改为后台可视化展示，避免直接把接口 JSON 作为主内容输出
 - 远程推荐用户、商品列表与详情查看
 - 远程推荐用户、商品删除
 - 远程推荐数据导入导出
 - 推荐编排配置查看、保存与重置
 - 远程推荐配置查看
 - 推荐管理页面目录统一收敛在 `src/views/recommend`
-- 推荐请求页面目录收敛在 `src/views/recommend/request`
+- 推荐请求页面目录收敛在 `src/views/recommend/request`，详情页位于 `src/views/recommend/request/detail`
+- 推荐请求详情页路由由菜单数据动态下发，旧库可通过 `sql/patch-recommend-request-detail-menu.sql` 补齐
 - 远程推荐页面目录统一收敛在 `src/views/recommend/remote`
 
 ## 上传类型约定

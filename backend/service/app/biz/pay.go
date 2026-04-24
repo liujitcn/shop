@@ -539,7 +539,7 @@ func (c *PayCase) dispatchRecommendPayEvent(userId int64, goodsList []*models.Or
 
 		// 支付事件只在订单真实支付成功后回写，确保推荐链路与后端事实一致。
 		pkgQueue.DispatchRecommendEvent(&dto.RecommendActor{
-			ActorType: dto.UserActorType,
+			ActorType: common.RecommendActorType_USER_ACTOR,
 			ActorId:   userId,
 		}, payEventReport, eventTime)
 	}

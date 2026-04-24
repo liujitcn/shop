@@ -361,7 +361,7 @@ func (c *UserCartCase) dispatchRecommendAddCartEvent(userId, goodsId, goodsNum i
 
 	// 只在购物车写库成功后回写推荐加购事件，确保推荐链路与后端事实一致。
 	pkgQueue.DispatchRecommendEvent(&dto.RecommendActor{
-		ActorType: dto.UserActorType,
+		ActorType: common.RecommendActorType_USER_ACTOR,
 		ActorId:   userId,
 	}, &app.RecommendEventReportRequest{
 		EventType: common.RecommendEventType_ADD_CART,
