@@ -42,7 +42,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewRecommendEventCase,
 	biz.NewRecommendRequestItemCase,
 	biz.NewRecommendRequestCase,
-	biz.NewRecommendRemoteCase,
+	biz.NewRemoteCase,
 	biz.NewShopBannerCase,
 	biz.NewShopHotCase,
 	biz.NewShopHotItemCase,

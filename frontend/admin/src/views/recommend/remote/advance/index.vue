@@ -143,7 +143,6 @@ import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
   formatRemoteCell,
   formatRemoteDateTime,
-  parseRemoteCursorList,
   resolveRemoteBoolean,
   resolveRemoteId,
   resolveRemoteValue,
@@ -151,7 +150,7 @@ import {
 } from "../utils";
 
 defineOptions({
-  name: "RecommendRemoteAdvance"
+  name: "RemoteAdvance"
 });
 
 /** 高级数据类型选项。 */
@@ -198,14 +197,13 @@ function handleTypeChange() {
 async function exportData() {
   exportLoading.value = true;
   try {
-    const data = await defRecommendRemoteService.ExportRecommendRemoteData({
+    const data = await defRecommendRemoteService.ExportData({
       type: form.type,
       cursor: form.cursor,
       n: form.n
     });
-    const page = parseRemoteCursorList(data.json, form.type === "users" ? ["Users", "users"] : ["Items", "items"]);
-    exportRows.value = page.list;
-    exportNextCursor.value = page.cursor;
+    exportRows.value = data.list.map(item => (item.raw ?? item) as RemoteRecord);
+    exportNextCursor.value = data.cursor;
   } catch (error) {
     ElMessage.error("导出远程推荐数据失败");
     throw error;
@@ -246,7 +244,7 @@ async function importData() {
 
   importLoading.value = true;
   try {
-    await defRecommendRemoteService.ImportRecommendRemoteData({
+    await defRecommendRemoteService.ImportData({
       type: form.type,
       json: body
     });
@@ -288,7 +286,7 @@ async function purgeData() {
 
   purgeLoading.value = true;
   try {
-    await defRecommendRemoteService.PurgeRecommendRemoteData({ checkList: purgeConfirmItems });
+    await defRecommendRemoteService.PurgeData({ checkList: purgeConfirmItems });
     ElMessage.success("远程推荐数据已清空");
     purgeDialogVisible.value = false;
     handleTypeChange();

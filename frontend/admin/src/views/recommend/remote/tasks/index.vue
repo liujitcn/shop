@@ -26,17 +26,10 @@ import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interf
 import ProTable from "@/components/ProTable/index.vue";
 import { ElMessage } from "element-plus";
 import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
-import {
-  formatRemoteCell,
-  formatRemoteDateTime,
-  parseRemoteRecordList,
-  resolveRemoteNumber,
-  resolveRemoteValue,
-  type RemoteRecord
-} from "../utils";
+import { formatRemoteCell, formatRemoteDateTime, resolveRemoteNumber, resolveRemoteValue, type RemoteRecord } from "../utils";
 
 defineOptions({
-  name: "RecommendRemoteTasks"
+  name: "Tasks"
 });
 
 /** 任务表格行。 */
@@ -67,9 +60,9 @@ const columns: ColumnProps[] = [
 /** 查询远程推荐任务表格。 */
 async function requestTaskTable() {
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteTasks({});
+    const data = await defRecommendRemoteService.GetTask({});
     return {
-      data: parseRemoteRecordList(data.json, ["Tasks", "tasks", "Nodes", "nodes"]).map(normalizeTaskRow)
+      data: data.list.map(item => normalizeTaskRow((item.raw ?? item) as RemoteRecord, data.list.indexOf(item)))
     };
   } catch (error) {
     ElMessage.error("加载任务状态失败");

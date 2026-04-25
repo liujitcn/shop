@@ -86,9 +86,6 @@ import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
   formatRemoteCell,
   formatRemoteDateTime,
-  parseRemoteCursorList,
-  parseRemoteJson,
-  parseRemoteRecord,
   resolveRemoteArray,
   resolveRemoteId,
   resolveRemoteValue,
@@ -96,7 +93,7 @@ import {
   type RemoteRecord
 } from "../utils";
 
-defineOptions({ name: "RecommendRemoteUsers" });
+defineOptions({ name: "Users" });
 
 /** 推荐用户表格行。 */
 interface UserRow extends RemoteRecord {
@@ -152,22 +149,21 @@ async function requestUserTable(params: { id?: string; cursor?: string }) {
   try {
     const id = String(params.id ?? "").trim();
     if (id) {
-      const data = await defRecommendRemoteService.GetRecommendRemoteUser({ id });
-      const records = normalizeRemoteRecordList(parseRemoteJson(data.json));
+      const data = await defRecommendRemoteService.GetUser({ id });
+      const records = normalizeRemoteRecordList((data.raw ?? data) as RemoteRecord);
       nextCursor.value = "";
       currentPageSize.value = records.length;
       return { data: records.map(normalizeUserRow) };
     }
 
-    const data = await defRecommendRemoteService.PageRecommendRemoteUsers({
+    const data = await defRecommendRemoteService.PageUser({
       id: "",
       cursor: params.cursor ?? "",
       n: pageSize.value
     });
-    const page = parseRemoteCursorList(data.json, ["Users", "users"]);
-    nextCursor.value = page.cursor;
-    currentPageSize.value = page.list.length;
-    return { data: page.list.map(normalizeUserRow) };
+    nextCursor.value = data.cursor;
+    currentPageSize.value = data.list.length;
+    return { data: data.list.map(item => normalizeUserRow((item.raw ?? item) as RemoteRecord, data.list.indexOf(item))) };
   } catch (error) {
     ElMessage.error("加载远程推荐用户失败");
     throw error;
@@ -189,13 +185,13 @@ function normalizeUserRow(row: RemoteRecord, index: number): UserRow {
 
 /** 将单条或列表响应转换为远程记录列表。 */
 function normalizeRemoteRecordList(value: unknown) {
-  if (Array.isArray(value)) return value.filter(isRemoteRecord);
-  if (isRemoteRecord(value)) return [value];
+  if (Array.isArray(value)) return value.filter(isRecord);
+  if (isRecord(value)) return [value];
   return [];
 }
 
 /** 判断值是否为远程推荐记录。 */
-function isRemoteRecord(value: unknown): value is RemoteRecord {
+function isRecord(value: unknown): value is RemoteRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -315,8 +311,8 @@ async function reloadDetail() {
 
   detailLoading.value = true;
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteUser({ id: currentDetailId.value });
-    detailData.value = parseRemoteRecord(data.json);
+    const data = await defRecommendRemoteService.GetUser({ id: currentDetailId.value });
+    detailData.value = (data.raw ?? data) as RemoteRecord;
   } catch (error) {
     ElMessage.error("加载用户详情失败");
     throw error;
@@ -339,7 +335,7 @@ async function deleteUser(row: RemoteRecord) {
     inputErrorMessage: "用户编号不匹配",
     type: "warning"
   });
-  await defRecommendRemoteService.DeleteRecommendRemoteUser({ id });
+  await defRecommendRemoteService.DeleteUser({ id });
   ElMessage.success("删除远程推荐用户成功");
   proTable.value?.getTableList();
 }

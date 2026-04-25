@@ -1,18 +1,29 @@
 import service from "@/utils/request";
 import type {
-  RecommendRemoteCursorRequest,
-  RecommendRemoteDashboardItemsRequest,
-  RecommendRemoteDataRequest,
-  RecommendRemoteFeedbackDeleteRequest,
-  RecommendRemoteFeedbackRequest,
-  RecommendRemoteIdRequest,
-  RecommendRemoteImportRequest,
-  RecommendRemoteJsonRequest,
-  RecommendRemoteJsonResponse,
-  RecommendRemoteNeighborRequest,
-  RecommendRemoteNameRequest,
-  RecommendRemotePurgeRequest,
-  RecommendRemoteRecommendRequest,
+  CursorRequest,
+  DashboardItemsRequest,
+  DataRequest,
+  FeedbackDeleteRequest,
+  FeedbackRequest,
+  IdRequest,
+  ImportRequest,
+  JsonRequest,
+  CategoriesResponse,
+  ConfigResponse,
+  DataPageResponse,
+  FeedbackPageResponse,
+  Item,
+  ItemsPageResponse,
+  OverviewResponse,
+  RecordsResponse,
+  TasksResponse,
+  TimeseriesResponse,
+  User,
+  UsersPageResponse,
+  NeighborRequest,
+  NameRequest,
+  PurgeRequest,
+  RecommendationRequest,
   RecommendRemoteService
 } from "@/rpc/admin/recommend_remote";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -22,8 +33,8 @@ const RECOMMEND_REMOTE_URL = "/admin/recommend/remote";
 /** 远程推荐管理服务。 */
 export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   /** 查询远程推荐概览。 */
-  GetRecommendRemoteOverview(request: Empty): Promise<RecommendRemoteJsonResponse> {
-    return service<Empty, RecommendRemoteJsonResponse>({
+  GetOverview(request: Empty): Promise<OverviewResponse> {
+    return service<Empty, OverviewResponse>({
       url: `${RECOMMEND_REMOTE_URL}/overview`,
       method: "get",
       params: request
@@ -31,26 +42,26 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询远程推荐任务状态。 */
-  GetRecommendRemoteTasks(request: Empty): Promise<RecommendRemoteJsonResponse> {
-    return service<Empty, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/tasks`,
+  GetTask(request: Empty): Promise<TasksResponse> {
+    return service<Empty, TasksResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/task`,
       method: "get",
       params: request
     });
   }
 
   /** 查询远程推荐分类。 */
-  GetRecommendRemoteCategories(request: Empty): Promise<RecommendRemoteJsonResponse> {
-    return service<Empty, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/categories`,
+  GetCategory(request: Empty): Promise<CategoriesResponse> {
+    return service<Empty, CategoriesResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/category`,
       method: "get",
       params: request
     });
   }
 
   /** 查询远程推荐时间序列。 */
-  GetRecommendRemoteTimeseries(request: RecommendRemoteNameRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteNameRequest, RecommendRemoteJsonResponse>({
+  GetTimeseries(request: NameRequest): Promise<TimeseriesResponse> {
+    return service<NameRequest, TimeseriesResponse>({
       url: `${RECOMMEND_REMOTE_URL}/timeseries/${encodeURIComponent(request.name)}`,
       method: "get",
       params: {
@@ -61,8 +72,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询远程推荐仪表盘推荐商品。 */
-  GetRecommendRemoteDashboardItems(request: RecommendRemoteDashboardItemsRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteDashboardItemsRequest, RecommendRemoteJsonResponse>({
+  GetDashboardItems(request: DashboardItemsRequest): Promise<RecordsResponse> {
+    return service<DashboardItemsRequest, RecordsResponse>({
       url: `${RECOMMEND_REMOTE_URL}/dashboard`,
       method: "get",
       params: {
@@ -74,26 +85,26 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询远程推荐结果。 */
-  GetRecommendRemoteRecommendations(request: RecommendRemoteRecommendRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteRecommendRequest, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/recommendations`,
+  GetRecommendation(request: RecommendationRequest): Promise<RecordsResponse> {
+    return service<RecommendationRequest, RecordsResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/recommendation`,
       method: "get",
       params: request
     });
   }
 
   /** 查询远程相似内容。 */
-  GetRecommendRemoteNeighbors(request: RecommendRemoteNeighborRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteNeighborRequest, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/neighbors`,
+  GetNeighbor(request: NeighborRequest): Promise<RecordsResponse> {
+    return service<NeighborRequest, RecordsResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/neighbor`,
       method: "get",
       params: request
     });
   }
 
   /** 查询远程推荐反馈列表。 */
-  PageRecommendRemoteFeedback(request: RecommendRemoteFeedbackRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteFeedbackRequest, RecommendRemoteJsonResponse>({
+  PageFeedback(request: FeedbackRequest): Promise<FeedbackPageResponse> {
+    return service<FeedbackRequest, FeedbackPageResponse>({
       url: `${RECOMMEND_REMOTE_URL}/feedback`,
       method: "get",
       params: request
@@ -101,8 +112,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 写入远程推荐反馈。 */
-  ImportRecommendRemoteFeedback(request: RecommendRemoteJsonRequest): Promise<Empty> {
-    return service<RecommendRemoteJsonRequest, Empty>({
+  ImportFeedback(request: JsonRequest): Promise<Empty> {
+    return service<JsonRequest, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/feedback`,
       method: "post",
       data: request
@@ -110,8 +121,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 删除远程推荐反馈。 */
-  DeleteRecommendRemoteFeedback(request: RecommendRemoteFeedbackDeleteRequest): Promise<Empty> {
-    return service<RecommendRemoteFeedbackDeleteRequest, Empty>({
+  DeleteFeedback(request: FeedbackDeleteRequest): Promise<Empty> {
+    return service<FeedbackDeleteRequest, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/feedback`,
       method: "delete",
       params: request
@@ -119,58 +130,58 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询远程推荐用户列表。 */
-  PageRecommendRemoteUsers(request: RecommendRemoteCursorRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteCursorRequest, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/users`,
+  PageUser(request: CursorRequest): Promise<UsersPageResponse> {
+    return service<CursorRequest, UsersPageResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/user`,
       method: "get",
       params: request
     });
   }
 
   /** 查询远程推荐用户。 */
-  GetRecommendRemoteUser(request: RecommendRemoteIdRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteIdRequest, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/users/${encodeURIComponent(request.id)}`,
+  GetUser(request: IdRequest): Promise<User> {
+    return service<IdRequest, User>({
+      url: `${RECOMMEND_REMOTE_URL}/user/${encodeURIComponent(request.id)}`,
       method: "get"
     });
   }
 
   /** 删除远程推荐用户。 */
-  DeleteRecommendRemoteUser(request: RecommendRemoteIdRequest): Promise<Empty> {
-    return service<RecommendRemoteIdRequest, Empty>({
-      url: `${RECOMMEND_REMOTE_URL}/users/${encodeURIComponent(request.id)}`,
+  DeleteUser(request: IdRequest): Promise<Empty> {
+    return service<IdRequest, Empty>({
+      url: `${RECOMMEND_REMOTE_URL}/user/${encodeURIComponent(request.id)}`,
       method: "delete"
     });
   }
 
   /** 查询远程推荐商品列表。 */
-  PageRecommendRemoteItems(request: RecommendRemoteCursorRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteCursorRequest, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/items`,
+  PageItem(request: CursorRequest): Promise<ItemsPageResponse> {
+    return service<CursorRequest, ItemsPageResponse>({
+      url: `${RECOMMEND_REMOTE_URL}/item`,
       method: "get",
       params: request
     });
   }
 
   /** 查询远程推荐商品。 */
-  GetRecommendRemoteItem(request: RecommendRemoteIdRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteIdRequest, RecommendRemoteJsonResponse>({
-      url: `${RECOMMEND_REMOTE_URL}/items/${encodeURIComponent(request.id)}`,
+  GetItem(request: IdRequest): Promise<Item> {
+    return service<IdRequest, Item>({
+      url: `${RECOMMEND_REMOTE_URL}/item/${encodeURIComponent(request.id)}`,
       method: "get"
     });
   }
 
   /** 删除远程推荐商品。 */
-  DeleteRecommendRemoteItem(request: RecommendRemoteIdRequest): Promise<Empty> {
-    return service<RecommendRemoteIdRequest, Empty>({
-      url: `${RECOMMEND_REMOTE_URL}/items/${encodeURIComponent(request.id)}`,
+  DeleteItem(request: IdRequest): Promise<Empty> {
+    return service<IdRequest, Empty>({
+      url: `${RECOMMEND_REMOTE_URL}/item/${encodeURIComponent(request.id)}`,
       method: "delete"
     });
   }
 
   /** 导出远程推荐数据。 */
-  ExportRecommendRemoteData(request: RecommendRemoteDataRequest): Promise<RecommendRemoteJsonResponse> {
-    return service<RecommendRemoteDataRequest, RecommendRemoteJsonResponse>({
+  ExportData(request: DataRequest): Promise<DataPageResponse> {
+    return service<DataRequest, DataPageResponse>({
       url: `${RECOMMEND_REMOTE_URL}/advance/export`,
       method: "get",
       params: request
@@ -178,8 +189,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 导入远程推荐数据。 */
-  ImportRecommendRemoteData(request: RecommendRemoteImportRequest): Promise<Empty> {
-    return service<RecommendRemoteImportRequest, Empty>({
+  ImportData(request: ImportRequest): Promise<Empty> {
+    return service<ImportRequest, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/advance/import`,
       method: "post",
       data: request
@@ -187,8 +198,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 清空远程推荐数据。 */
-  PurgeRecommendRemoteData(request: RecommendRemotePurgeRequest): Promise<Empty> {
-    return service<RecommendRemotePurgeRequest, Empty>({
+  PurgeData(request: PurgeRequest): Promise<Empty> {
+    return service<PurgeRequest, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/advance/purge`,
       method: "post",
       data: request
@@ -196,8 +207,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询推荐编排配置。 */
-  GetRecommendRemoteFlowConfig(request: Empty): Promise<RecommendRemoteJsonResponse> {
-    return service<Empty, RecommendRemoteJsonResponse>({
+  GetFlowConfig(request: Empty): Promise<ConfigResponse> {
+    return service<Empty, ConfigResponse>({
       url: `${RECOMMEND_REMOTE_URL}/flow/config`,
       method: "get",
       params: request
@@ -205,8 +216,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 保存推荐编排配置。 */
-  SaveRecommendRemoteFlowConfig(request: RecommendRemoteJsonRequest): Promise<Empty> {
-    return service<RecommendRemoteJsonRequest, Empty>({
+  SaveFlowConfig(request: JsonRequest): Promise<Empty> {
+    return service<JsonRequest, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/flow/config`,
       method: "post",
       data: request
@@ -214,7 +225,7 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 重置推荐编排配置。 */
-  ResetRecommendRemoteFlowConfig(request: Empty): Promise<Empty> {
+  ResetFlowConfig(request: Empty): Promise<Empty> {
     return service<Empty, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/flow/config`,
       method: "delete",
@@ -223,8 +234,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询推荐编排配置结构。 */
-  GetRecommendRemoteFlowSchema(request: Empty): Promise<RecommendRemoteJsonResponse> {
-    return service<Empty, RecommendRemoteJsonResponse>({
+  GetFlowSchema(request: Empty): Promise<ConfigResponse> {
+    return service<Empty, ConfigResponse>({
       url: `${RECOMMEND_REMOTE_URL}/flow/schema`,
       method: "get",
       params: request
@@ -232,8 +243,8 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   }
 
   /** 查询远程推荐配置。 */
-  GetRecommendRemoteConfig(request: Empty): Promise<RecommendRemoteJsonResponse> {
-    return service<Empty, RecommendRemoteJsonResponse>({
+  GetConfig(request: Empty): Promise<ConfigResponse> {
+    return service<Empty, ConfigResponse>({
       url: `${RECOMMEND_REMOTE_URL}/config`,
       method: "get",
       params: request

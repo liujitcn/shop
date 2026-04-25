@@ -28,7 +28,6 @@ import SearchForm from "@/components/SearchForm/index.vue";
 import type { ECOption } from "@/components/ECharts/config";
 import type { ColumnProps } from "@/components/ProTable/interface";
 import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
-import { parseRemoteRecordList, resolveRemoteNumber, resolveRemoteValue } from "../../utils";
 
 /** 推荐性能图表入参。 */
 interface OverviewPerformancePanelProps {
@@ -228,12 +227,9 @@ async function loadPerformance() {
   try {
     const selected = performanceOptions.value.find(item => item.name === performanceQuery.metric) ?? performanceOptions.value[0];
     const { begin, end } = buildPerformanceDateRange();
-    const data = await defRecommendRemoteService.GetRecommendRemoteTimeseries({ name: selected.name, begin, end });
-    const list = parseRemoteRecordList(data.json, ["Timeseries", "timeseries", "Items", "items", "Values", "values"]);
-    performanceData.axis = list.map((item, index) =>
-      formatPerformanceAxis(resolveRemoteValue(item, ["Timestamp", "timestamp"]), index)
-    );
-    performanceData.values = list.map(item => resolveRemoteNumber(item, ["Value", "value"]).toFixed(5));
+    const data = await defRecommendRemoteService.GetTimeseries({ name: selected.name, begin, end });
+    performanceData.axis = data.points.map((item, index) => formatPerformanceAxis(item.timestamp, index));
+    performanceData.values = data.points.map(item => item.value.toFixed(5));
     performanceData.label = selected.label;
   } catch (error) {
     ElMessage.error("加载推荐性能失败");

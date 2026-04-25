@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { formatJson } from "@/utils/utils";
+import type { Category, TimeseriesPoint } from "@/rpc/admin/recommend_remote";
 
 /** 远程推荐原始记录。 */
 export type RemoteRecord = Record<string, unknown>;
@@ -15,7 +16,7 @@ export interface RemoteCursorList<T extends RemoteRecord = RemoteRecord> {
 }
 
 /** 远程推荐时间序列指标配置。 */
-export interface RemoteTimeseriesMetricConfig {
+export interface TimeseriesMetricConfig {
   /** 远程指标名称。 */
   name: string;
   /** 页面展示名称。 */
@@ -25,7 +26,7 @@ export interface RemoteTimeseriesMetricConfig {
 }
 
 /** 远程推荐时间序列指标数据。 */
-export interface RemoteTimeseriesMetric extends RemoteTimeseriesMetricConfig {
+export interface TimeseriesMetric extends TimeseriesMetricConfig {
   /** 横轴时间。 */
   axis: string[];
   /** 指标值集合。 */
@@ -39,7 +40,7 @@ export interface RemoteTimeseriesMetric extends RemoteTimeseriesMetricConfig {
 }
 
 /** 远程推荐分类行。 */
-export interface RemoteCategoryRow {
+export interface CategoryRow {
   /** 分类名称。 */
   name: string;
   /** 分类数量。 */
@@ -67,7 +68,7 @@ export interface RemoteConfigField {
 }
 
 /** Gorse 管理端概览页使用的时间序列指标。 */
-export const remoteOverviewMetrics: RemoteTimeseriesMetricConfig[] = [
+export const remoteOverviewMetrics: TimeseriesMetricConfig[] = [
   { name: "num_users", label: "用户数", description: "当前推荐引擎用户总量" },
   { name: "num_items", label: "商品数", description: "当前推荐引擎商品总量" },
   { name: "num_feedback", label: "反馈数", description: "累计反馈行为总量" },
@@ -94,32 +95,37 @@ export function stringifyRemoteValue(value: unknown) {
   return JSON.stringify(value ?? {}, null, 2);
 }
 
+/** 将远程对象格式化为 JSON 字符串。 */
+export function formatRemoteObject(value: unknown) {
+  return formatJson(JSON.stringify(value ?? {}, null, 2));
+}
+
 /** 将远程推荐响应解析为游标列表。 */
 export function parseRemoteCursorList(json: string, listKeys: string[]): RemoteCursorList {
   const raw = parseRemoteJson(json);
-  const record = isRemoteRecord(raw) ? raw : {};
+  const record = isRecord(raw) ? raw : {};
   const list = resolveList(record, listKeys);
   const cursor = resolveString(resolveRemoteValue(record, ["Cursor", "cursor"]));
   return { list, cursor, raw };
 }
 
 /** 将远程推荐响应解析为记录列表。 */
-export function parseRemoteRecordList(json: string, listKeys: string[] = []) {
+export function parseRecordList(json: string, listKeys: string[] = []) {
   const raw = parseRemoteJson(json);
-  if (Array.isArray(raw)) return raw.filter(isRemoteRecord);
-  const record = isRemoteRecord(raw) ? raw : {};
+  if (Array.isArray(raw)) return raw.filter(isRecord);
+  const record = isRecord(raw) ? raw : {};
   const list = resolveList(record, listKeys);
   if (list.length > 0) return list;
-  return Object.values(record).find(Array.isArray)?.filter(isRemoteRecord) ?? [];
+  return Object.values(record).find(Array.isArray)?.filter(isRecord) ?? [];
 }
 
 /** 将远程推荐响应解析为单条记录。 */
-export function parseRemoteRecord(json: string, recordKeys: string[] = []) {
+export function parseRecord(json: string, recordKeys: string[] = []) {
   const raw = parseRemoteJson(json);
-  if (!isRemoteRecord(raw)) return {};
+  if (!isRecord(raw)) return {};
   for (const key of recordKeys) {
     const value = raw[key];
-    if (isRemoteRecord(value)) return value;
+    if (isRecord(value)) return value;
   }
   return raw;
 }
@@ -186,7 +192,7 @@ export function foldRemoteValue(value: unknown): string {
     return `[${value.map(item => foldRemoteValue(item)).join(", ")}]`;
   }
   // 对象字段按单行 JSON 风格展示，避免标签列撑破布局。
-  if (isRemoteRecord(value)) {
+  if (isRecord(value)) {
     return `{${Object.entries(value)
       .map(([key, item]) => `"${key}": ${foldRemoteValue(item)}`)
       .join(", ")}}`;
@@ -215,12 +221,12 @@ export function parseRemoteTimeseries(json: string) {
   const raw = parseRemoteJson(json);
   const list = Array.isArray(raw)
     ? raw
-    : parseRemoteRecordList(json, ["Timeseries", "timeseries", "Items", "items", "Values", "values"]);
+    : parseRecordList(json, ["Timeseries", "timeseries", "Items", "items", "Values", "values"]);
   const axis: string[] = [];
   const values: number[] = [];
 
   list.forEach((item, index) => {
-    if (isRemoteRecord(item)) {
+    if (isRecord(item)) {
       const value = resolveRemoteValue(item, ["Value", "value", "Count", "count"]);
       const timestamp = resolveRemoteValue(item, ["Timestamp", "timestamp", "Time", "time", "Date", "date"]);
       values.push(resolveRemoteNumber({ value }, ["value"]));
@@ -235,7 +241,7 @@ export function parseRemoteTimeseries(json: string) {
 }
 
 /** 构建时间序列指标卡片数据。 */
-export function buildRemoteTimeseriesMetric(config: RemoteTimeseriesMetricConfig, json: string): RemoteTimeseriesMetric {
+export function buildTimeseriesMetric(config: TimeseriesMetricConfig, json: string): TimeseriesMetric {
   const timeseries = parseRemoteTimeseries(json);
   const current = timeseries.values.at(-1) ?? 0;
   const previous = timeseries.values.length > 1 ? (timeseries.values.at(-2) ?? 0) : current;
@@ -250,30 +256,60 @@ export function buildRemoteTimeseriesMetric(config: RemoteTimeseriesMetricConfig
   };
 }
 
+/** 根据类型化时间序列点构建指标卡片数据。 */
+export function buildTimeseriesMetricFromPoints(config: TimeseriesMetricConfig, points: TimeseriesPoint[]): TimeseriesMetric {
+  const values = points.map(item => item.value || 0);
+  const current = values.at(-1) ?? 0;
+  const previous = values.length > 1 ? (values.at(-2) ?? 0) : current;
+  const diff = current - previous;
+  return {
+    ...config,
+    axis: points.map((item, index) => formatTimeseriesAxis(item.timestamp, index)),
+    values,
+    current,
+    diff,
+    increase: diff >= 0
+  };
+}
+
 /** 解析远程推荐分类响应。 */
-export function parseRemoteCategories(json: string): RemoteCategoryRow[] {
+export function parseRemoteCategories(json: string): CategoryRow[] {
   const raw = parseRemoteJson(json);
   if (Array.isArray(raw)) {
     return raw.map((item, index) => normalizeCategoryRow(item, index)).filter(item => item.name);
   }
-  if (!isRemoteRecord(raw)) return [];
+  if (!isRecord(raw)) return [];
   const list = resolveList(raw, ["Categories", "categories", "Items", "items", "List", "list"]);
   if (list.length > 0) return list.map((item, index) => normalizeCategoryRow(item, index)).filter(item => item.name);
   return Object.entries(raw).map(([name, count]) => ({ name, count: formatRemoteCell(count) }));
 }
 
+/** 将类型化远程分类转换为页面行。 */
+export function buildCategoryRows(list: Category[]): CategoryRow[] {
+  return list.map(item => ({ name: item.name, count: item.count || "--" })).filter(item => item.name);
+}
+
 /** 解析远程配置分组，按 Gorse 设置页结构展示。 */
 export function parseRemoteConfigSections(json: string): RemoteConfigSection[] {
   const raw = parseRemoteJson(json);
-  if (!isRemoteRecord(raw)) return [];
+  if (!isRecord(raw)) return [];
   return Object.entries(raw).map(([name, value]) => ({
     name,
     fields: buildConfigFields(value)
   }));
 }
 
+/** 将类型化远程配置转换为页面分组。 */
+export function buildRemoteConfigSections(config: RemoteRecord | undefined): RemoteConfigSection[] {
+  if (!config) return [];
+  return Object.entries(config).map(([name, value]) => ({
+    name,
+    fields: buildConfigFields(value)
+  }));
+}
+
 /** 判断值是否为远程推荐记录。 */
-export function isRemoteRecord(value: unknown): value is RemoteRecord {
+export function isRecord(value: unknown): value is RemoteRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -281,7 +317,7 @@ export function isRemoteRecord(value: unknown): value is RemoteRecord {
 function resolveList(record: RemoteRecord, listKeys: string[]) {
   for (const key of listKeys) {
     const value = record[key];
-    if (Array.isArray(value)) return value.filter(isRemoteRecord);
+    if (Array.isArray(value)) return value.filter(isRecord);
   }
   return [];
 }
@@ -302,8 +338,8 @@ function formatTimeseriesAxis(value: unknown, index: number) {
 }
 
 /** 将远程分类项规范成页面行。 */
-function normalizeCategoryRow(value: unknown, index: number): RemoteCategoryRow {
-  if (!isRemoteRecord(value)) {
+function normalizeCategoryRow(value: unknown, index: number): CategoryRow {
+  if (!isRecord(value)) {
     return {
       name: resolveString(value) || `分类${index + 1}`,
       count: "--"
@@ -319,7 +355,7 @@ function normalizeCategoryRow(value: unknown, index: number): RemoteCategoryRow 
 
 /** 将远程配置结构转换为字段列表。 */
 function buildConfigFields(value: unknown): RemoteConfigField[] {
-  if (isRemoteRecord(value)) {
+  if (isRecord(value)) {
     return Object.entries(value).map(([name, fieldValue]) => ({
       name,
       value: fieldValue,
@@ -339,7 +375,7 @@ function buildConfigFields(value: unknown): RemoteConfigField[] {
 
 /** 判断配置值是否需要多行展示。 */
 function isComplexConfigValue(value: unknown) {
-  return Array.isArray(value) || isRemoteRecord(value);
+  return Array.isArray(value) || isRecord(value);
 }
 
 /** 格式化配置字段值。 */

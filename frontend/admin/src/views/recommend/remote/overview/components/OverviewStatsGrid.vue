@@ -14,14 +14,14 @@
 </template>
 
 <script setup lang="ts">
-import { formatRemoteNumber, type RemoteTimeseriesMetric } from "../../utils";
+import { formatRemoteNumber, type TimeseriesMetric } from "../../utils";
 
 /** 概览统计卡片入参。 */
 interface OverviewStatsGridProps {
   /** 是否正在加载统计数据。 */
   loading?: boolean;
   /** 统计卡片数据。 */
-  stats: RemoteTimeseriesMetric[];
+  stats: TimeseriesMetric[];
 }
 
 withDefaults(defineProps<OverviewStatsGridProps>(), {

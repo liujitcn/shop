@@ -17,251 +17,251 @@ const _ = grpc.SupportPackageIsVersion7
 // RecommendRemoteService Admin远程推荐服务。
 type RecommendRemoteService struct {
 	adminApi.UnimplementedRecommendRemoteServiceServer
-	recommendRemoteCase *biz.RecommendRemoteCase
+	remoteCase *biz.RemoteCase
 }
 
 // NewRecommendRemoteService 创建Admin远程推荐服务。
-func NewRecommendRemoteService(recommendRemoteCase *biz.RecommendRemoteCase) *RecommendRemoteService {
+func NewRecommendRemoteService(remoteCase *biz.RemoteCase) *RecommendRemoteService {
 	return &RecommendRemoteService{
-		recommendRemoteCase: recommendRemoteCase,
+		remoteCase: remoteCase,
 	}
 }
 
-// GetRecommendRemoteOverview 查询远程推荐概览。
-func (s *RecommendRemoteService) GetRecommendRemoteOverview(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteOverview(ctx)
+// GetOverview 查询远程推荐概览。
+func (s *RecommendRemoteService) GetOverview(ctx context.Context, _ *emptypb.Empty) (*adminApi.OverviewResponse, error) {
+	res, err := s.remoteCase.GetOverview(ctx)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteOverview %v", err)
+		log.Errorf("GetOverview %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐概览失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteTasks 查询远程推荐任务状态。
-func (s *RecommendRemoteService) GetRecommendRemoteTasks(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteTasks(ctx)
+// GetTask 查询远程推荐任务状态。
+func (s *RecommendRemoteService) GetTask(ctx context.Context, _ *emptypb.Empty) (*adminApi.TasksResponse, error) {
+	res, err := s.remoteCase.GetTask(ctx)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteTasks %v", err)
+		log.Errorf("GetTask %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐任务状态失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteCategories 查询远程推荐分类。
-func (s *RecommendRemoteService) GetRecommendRemoteCategories(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteCategories(ctx)
+// GetCategory 查询远程推荐分类。
+func (s *RecommendRemoteService) GetCategory(ctx context.Context, _ *emptypb.Empty) (*adminApi.CategoriesResponse, error) {
+	res, err := s.remoteCase.GetCategory(ctx)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteCategories %v", err)
+		log.Errorf("GetCategory %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐分类失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteTimeseries 查询远程推荐时间序列。
-func (s *RecommendRemoteService) GetRecommendRemoteTimeseries(ctx context.Context, req *adminApi.RecommendRemoteNameRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteTimeseries(ctx, req)
+// GetTimeseries 查询远程推荐时间序列。
+func (s *RecommendRemoteService) GetTimeseries(ctx context.Context, req *adminApi.NameRequest) (*adminApi.TimeseriesResponse, error) {
+	res, err := s.remoteCase.GetTimeseries(ctx, req)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteTimeseries %v", err)
+		log.Errorf("GetTimeseries %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐时间序列失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteDashboardItems 查询远程推荐仪表盘推荐商品。
-func (s *RecommendRemoteService) GetRecommendRemoteDashboardItems(ctx context.Context, req *adminApi.RecommendRemoteDashboardItemsRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteDashboardItems(ctx, req)
+// GetDashboardItems 查询远程推荐仪表盘推荐商品。
+func (s *RecommendRemoteService) GetDashboardItems(ctx context.Context, req *adminApi.DashboardItemsRequest) (*adminApi.RecordsResponse, error) {
+	res, err := s.remoteCase.GetDashboardItems(ctx, req)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteDashboardItems %v", err)
+		log.Errorf("GetDashboardItems %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐仪表盘推荐商品失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteRecommendations 查询远程推荐结果。
-func (s *RecommendRemoteService) GetRecommendRemoteRecommendations(ctx context.Context, req *adminApi.RecommendRemoteRecommendRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteRecommendations(ctx, req)
+// GetRecommendation 查询远程推荐结果。
+func (s *RecommendRemoteService) GetRecommendation(ctx context.Context, req *adminApi.RecommendationRequest) (*adminApi.RecordsResponse, error) {
+	res, err := s.remoteCase.GetRecommendation(ctx, req)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteRecommendations %v", err)
+		log.Errorf("GetRecommendation %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐结果失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteNeighbors 查询远程相似内容。
-func (s *RecommendRemoteService) GetRecommendRemoteNeighbors(ctx context.Context, req *adminApi.RecommendRemoteNeighborRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteNeighbors(ctx, req)
+// GetNeighbor 查询远程相似内容。
+func (s *RecommendRemoteService) GetNeighbor(ctx context.Context, req *adminApi.NeighborRequest) (*adminApi.RecordsResponse, error) {
+	res, err := s.remoteCase.GetNeighbor(ctx, req)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteNeighbors %v", err)
+		log.Errorf("GetNeighbor %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程相似内容失败")
 	}
 	return res, nil
 }
 
-// PageRecommendRemoteFeedback 查询远程推荐反馈列表。
-func (s *RecommendRemoteService) PageRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteFeedbackRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.PageRecommendRemoteFeedback(ctx, req)
+// PageFeedback 查询远程推荐反馈列表。
+func (s *RecommendRemoteService) PageFeedback(ctx context.Context, req *adminApi.FeedbackRequest) (*adminApi.FeedbackPageResponse, error) {
+	res, err := s.remoteCase.PageFeedback(ctx, req)
 	if err != nil {
-		log.Errorf("PageRecommendRemoteFeedback %v", err)
+		log.Errorf("PageFeedback %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐反馈列表失败")
 	}
 	return res, nil
 }
 
-// ImportRecommendRemoteFeedback 写入远程推荐反馈。
-func (s *RecommendRemoteService) ImportRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteJsonRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.ImportRecommendRemoteFeedback(ctx, req)
+// ImportFeedback 写入远程推荐反馈。
+func (s *RecommendRemoteService) ImportFeedback(ctx context.Context, req *adminApi.JsonRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.ImportFeedback(ctx, req)
 	if err != nil {
-		log.Errorf("ImportRecommendRemoteFeedback %v", err)
+		log.Errorf("ImportFeedback %v", err)
 		return nil, errorsx.WrapInternal(err, "写入远程推荐反馈失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// DeleteRecommendRemoteFeedback 删除远程推荐反馈。
-func (s *RecommendRemoteService) DeleteRecommendRemoteFeedback(ctx context.Context, req *adminApi.RecommendRemoteFeedbackDeleteRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.DeleteRecommendRemoteFeedback(ctx, req)
+// DeleteFeedback 删除远程推荐反馈。
+func (s *RecommendRemoteService) DeleteFeedback(ctx context.Context, req *adminApi.FeedbackDeleteRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.DeleteFeedback(ctx, req)
 	if err != nil {
-		log.Errorf("DeleteRecommendRemoteFeedback %v", err)
+		log.Errorf("DeleteFeedback %v", err)
 		return nil, errorsx.WrapInternal(err, "删除远程推荐反馈失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// PageRecommendRemoteUsers 查询远程推荐用户列表。
-func (s *RecommendRemoteService) PageRecommendRemoteUsers(ctx context.Context, req *adminApi.RecommendRemoteCursorRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.PageRecommendRemoteUsers(ctx, req)
+// PageUser 查询远程推荐用户列表。
+func (s *RecommendRemoteService) PageUser(ctx context.Context, req *adminApi.CursorRequest) (*adminApi.UsersPageResponse, error) {
+	res, err := s.remoteCase.PageUser(ctx, req)
 	if err != nil {
-		log.Errorf("PageRecommendRemoteUsers %v", err)
+		log.Errorf("PageUser %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐用户列表失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteUser 查询远程推荐用户。
-func (s *RecommendRemoteService) GetRecommendRemoteUser(ctx context.Context, req *adminApi.RecommendRemoteIdRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteUser(ctx, req)
+// GetUser 查询远程推荐用户。
+func (s *RecommendRemoteService) GetUser(ctx context.Context, req *adminApi.IdRequest) (*adminApi.User, error) {
+	res, err := s.remoteCase.GetUser(ctx, req)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteUser %v", err)
+		log.Errorf("GetUser %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐用户失败")
 	}
 	return res, nil
 }
 
-// DeleteRecommendRemoteUser 删除远程推荐用户。
-func (s *RecommendRemoteService) DeleteRecommendRemoteUser(ctx context.Context, req *adminApi.RecommendRemoteIdRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.DeleteRecommendRemoteUser(ctx, req)
+// DeleteUser 删除远程推荐用户。
+func (s *RecommendRemoteService) DeleteUser(ctx context.Context, req *adminApi.IdRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.DeleteUser(ctx, req)
 	if err != nil {
-		log.Errorf("DeleteRecommendRemoteUser %v", err)
+		log.Errorf("DeleteUser %v", err)
 		return nil, errorsx.WrapInternal(err, "删除远程推荐用户失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// PageRecommendRemoteItems 查询远程推荐商品列表。
-func (s *RecommendRemoteService) PageRecommendRemoteItems(ctx context.Context, req *adminApi.RecommendRemoteCursorRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.PageRecommendRemoteItems(ctx, req)
+// PageItem 查询远程推荐商品列表。
+func (s *RecommendRemoteService) PageItem(ctx context.Context, req *adminApi.CursorRequest) (*adminApi.ItemsPageResponse, error) {
+	res, err := s.remoteCase.PageItem(ctx, req)
 	if err != nil {
-		log.Errorf("PageRecommendRemoteItems %v", err)
+		log.Errorf("PageItem %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐商品列表失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteItem 查询远程推荐商品。
-func (s *RecommendRemoteService) GetRecommendRemoteItem(ctx context.Context, req *adminApi.RecommendRemoteIdRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteItem(ctx, req)
+// GetItem 查询远程推荐商品。
+func (s *RecommendRemoteService) GetItem(ctx context.Context, req *adminApi.IdRequest) (*adminApi.Item, error) {
+	res, err := s.remoteCase.GetItem(ctx, req)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteItem %v", err)
+		log.Errorf("GetItem %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐商品失败")
 	}
 	return res, nil
 }
 
-// DeleteRecommendRemoteItem 删除远程推荐商品。
-func (s *RecommendRemoteService) DeleteRecommendRemoteItem(ctx context.Context, req *adminApi.RecommendRemoteIdRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.DeleteRecommendRemoteItem(ctx, req)
+// DeleteItem 删除远程推荐商品。
+func (s *RecommendRemoteService) DeleteItem(ctx context.Context, req *adminApi.IdRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.DeleteItem(ctx, req)
 	if err != nil {
-		log.Errorf("DeleteRecommendRemoteItem %v", err)
+		log.Errorf("DeleteItem %v", err)
 		return nil, errorsx.WrapInternal(err, "删除远程推荐商品失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// ExportRecommendRemoteData 导出远程推荐数据。
-func (s *RecommendRemoteService) ExportRecommendRemoteData(ctx context.Context, req *adminApi.RecommendRemoteDataRequest) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.ExportRecommendRemoteData(ctx, req)
+// ExportData 导出远程推荐数据。
+func (s *RecommendRemoteService) ExportData(ctx context.Context, req *adminApi.DataRequest) (*adminApi.DataPageResponse, error) {
+	res, err := s.remoteCase.ExportData(ctx, req)
 	if err != nil {
-		log.Errorf("ExportRecommendRemoteData %v", err)
+		log.Errorf("ExportData %v", err)
 		return nil, errorsx.WrapInternal(err, "导出远程推荐数据失败")
 	}
 	return res, nil
 }
 
-// ImportRecommendRemoteData 导入远程推荐数据。
-func (s *RecommendRemoteService) ImportRecommendRemoteData(ctx context.Context, req *adminApi.RecommendRemoteImportRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.ImportRecommendRemoteData(ctx, req)
+// ImportData 导入远程推荐数据。
+func (s *RecommendRemoteService) ImportData(ctx context.Context, req *adminApi.ImportRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.ImportData(ctx, req)
 	if err != nil {
-		log.Errorf("ImportRecommendRemoteData %v", err)
+		log.Errorf("ImportData %v", err)
 		return nil, errorsx.WrapInternal(err, "导入远程推荐数据失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// PurgeRecommendRemoteData 清空远程推荐数据。
-func (s *RecommendRemoteService) PurgeRecommendRemoteData(ctx context.Context, req *adminApi.RecommendRemotePurgeRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.PurgeRecommendRemoteData(ctx, req)
+// PurgeData 清空远程推荐数据。
+func (s *RecommendRemoteService) PurgeData(ctx context.Context, req *adminApi.PurgeRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.PurgeData(ctx, req)
 	if err != nil {
-		log.Errorf("PurgeRecommendRemoteData %v", err)
+		log.Errorf("PurgeData %v", err)
 		return nil, errorsx.WrapInternal(err, "清空远程推荐数据失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// GetRecommendRemoteFlowConfig 查询推荐编排配置。
-func (s *RecommendRemoteService) GetRecommendRemoteFlowConfig(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteFlowConfig(ctx)
+// GetFlowConfig 查询推荐编排配置。
+func (s *RecommendRemoteService) GetFlowConfig(ctx context.Context, _ *emptypb.Empty) (*adminApi.ConfigResponse, error) {
+	res, err := s.remoteCase.GetFlowConfig(ctx)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteFlowConfig %v", err)
+		log.Errorf("GetFlowConfig %v", err)
 		return nil, errorsx.WrapInternal(err, "查询推荐编排配置失败")
 	}
 	return res, nil
 }
 
-// SaveRecommendRemoteFlowConfig 保存推荐编排配置。
-func (s *RecommendRemoteService) SaveRecommendRemoteFlowConfig(ctx context.Context, req *adminApi.RecommendRemoteJsonRequest) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.SaveRecommendRemoteFlowConfig(ctx, req)
+// SaveFlowConfig 保存推荐编排配置。
+func (s *RecommendRemoteService) SaveFlowConfig(ctx context.Context, req *adminApi.JsonRequest) (*emptypb.Empty, error) {
+	err := s.remoteCase.SaveFlowConfig(ctx, req)
 	if err != nil {
-		log.Errorf("SaveRecommendRemoteFlowConfig %v", err)
+		log.Errorf("SaveFlowConfig %v", err)
 		return nil, errorsx.WrapInternal(err, "保存推荐编排配置失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// ResetRecommendRemoteFlowConfig 重置推荐编排配置。
-func (s *RecommendRemoteService) ResetRecommendRemoteFlowConfig(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
-	err := s.recommendRemoteCase.ResetRecommendRemoteFlowConfig(ctx)
+// ResetFlowConfig 重置推荐编排配置。
+func (s *RecommendRemoteService) ResetFlowConfig(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	err := s.remoteCase.ResetFlowConfig(ctx)
 	if err != nil {
-		log.Errorf("ResetRecommendRemoteFlowConfig %v", err)
+		log.Errorf("ResetFlowConfig %v", err)
 		return nil, errorsx.WrapInternal(err, "重置推荐编排配置失败")
 	}
 	return new(emptypb.Empty), nil
 }
 
-// GetRecommendRemoteFlowSchema 查询推荐编排配置结构。
-func (s *RecommendRemoteService) GetRecommendRemoteFlowSchema(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteFlowSchema(ctx)
+// GetFlowSchema 查询推荐编排配置结构。
+func (s *RecommendRemoteService) GetFlowSchema(ctx context.Context, _ *emptypb.Empty) (*adminApi.ConfigResponse, error) {
+	res, err := s.remoteCase.GetFlowSchema(ctx)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteFlowSchema %v", err)
+		log.Errorf("GetFlowSchema %v", err)
 		return nil, errorsx.WrapInternal(err, "查询推荐编排配置结构失败")
 	}
 	return res, nil
 }
 
-// GetRecommendRemoteConfig 查询远程推荐配置。
-func (s *RecommendRemoteService) GetRecommendRemoteConfig(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
-	res, err := s.recommendRemoteCase.GetRecommendRemoteConfig(ctx)
+// GetConfig 查询远程推荐配置。
+func (s *RecommendRemoteService) GetConfig(ctx context.Context, _ *emptypb.Empty) (*adminApi.ConfigResponse, error) {
+	res, err := s.remoteCase.GetConfig(ctx)
 	if err != nil {
-		log.Errorf("GetRecommendRemoteConfig %v", err)
+		log.Errorf("GetConfig %v", err)
 		return nil, errorsx.WrapInternal(err, "查询远程推荐配置失败")
 	}
 	return res, nil

@@ -109,10 +109,10 @@ import ECharts from "@/components/ECharts/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
-import { formatRemoteJson, parseRemoteCursorList, parseRemoteJson, type RemoteRecord } from "../utils";
+import { formatRemoteJson, type RemoteRecord } from "../utils";
 
 defineOptions({
-  name: "RecommendRemoteFlow"
+  name: "RemoteFlow"
 });
 
 type RemoteConfigRecord = Record<string | number, unknown>;
@@ -766,8 +766,8 @@ function resetNodeDialog() {
 async function loadFlow() {
   loading.value = true;
   try {
-    const config = await defRecommendRemoteService.GetRecommendRemoteFlowConfig({});
-    rawConfig.value = cloneValue(parseRemoteJson(config.json)) as RemoteConfigRecord;
+    const config = await defRecommendRemoteService.GetFlowConfig({});
+    rawConfig.value = cloneValue(config.config ?? {}) as RemoteConfigRecord;
     selectedNodeID.value = "";
     nodeDialogVisible.value = false;
     nodePositions.value = {};
@@ -782,7 +782,7 @@ async function loadFlow() {
 async function saveFlow() {
   saving.value = true;
   try {
-    await defRecommendRemoteService.SaveRecommendRemoteFlowConfig({ json: formatRemoteJson(JSON.stringify(rawConfig.value)) });
+    await defRecommendRemoteService.SaveFlowConfig({ json: formatRemoteJson(JSON.stringify(rawConfig.value)) });
     ElMessage.success("推荐编排保存成功");
     await loadFlow();
   } catch (error) {
@@ -802,7 +802,7 @@ async function resetFlow() {
 
   resetting.value = true;
   try {
-    await defRecommendRemoteService.ResetRecommendRemoteFlowConfig({});
+    await defRecommendRemoteService.ResetFlowConfig({});
     ElMessage.success("推荐编排已重置");
     await loadFlow();
   } catch (error) {
@@ -822,14 +822,13 @@ function handleDataTypeChange() {
 async function exportData() {
   exportLoading.value = true;
   try {
-    const data = await defRecommendRemoteService.ExportRecommendRemoteData({
+    const data = await defRecommendRemoteService.ExportData({
       type: dataForm.type,
       cursor: dataForm.cursor,
       n: dataForm.n
     });
-    const page = parseRemoteCursorList(data.json, dataForm.type === "users" ? ["Users", "users"] : ["Items", "items"]);
-    exportRows.value = page.list;
-    exportNextCursor.value = page.cursor;
+    exportRows.value = data.list.map(item => (item.raw ?? item) as RemoteRecord);
+    exportNextCursor.value = data.cursor;
   } catch (error) {
     ElMessage.error("导出远程推荐数据失败");
     throw error;
@@ -868,7 +867,7 @@ async function importData() {
 
   importLoading.value = true;
   try {
-    await defRecommendRemoteService.ImportRecommendRemoteData({
+    await defRecommendRemoteService.ImportData({
       type: dataForm.type,
       json: body
     });

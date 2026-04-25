@@ -37,10 +37,10 @@
 import { onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
-import { parseRemoteConfigSections, type RemoteConfigSection } from "../utils";
+import { buildRemoteConfigSections, type RemoteConfigSection } from "../utils";
 
 defineOptions({
-  name: "RecommendRemoteConfig"
+  name: "RemoteConfig"
 });
 
 const loading = ref(false);
@@ -50,8 +50,8 @@ const configSections = ref<RemoteConfigSection[]>([]);
 async function loadConfig() {
   loading.value = true;
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteConfig({});
-    configSections.value = parseRemoteConfigSections(data.json);
+    const data = await defRecommendRemoteService.GetConfig({});
+    configSections.value = buildRemoteConfigSections(data.config);
   } catch (error) {
     ElMessage.error("加载推荐配置失败");
     throw error;

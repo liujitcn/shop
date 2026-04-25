@@ -23,7 +23,7 @@ import { computed } from "vue";
 import { formatRemoteJson } from "../utils";
 
 defineOptions({
-  name: "RecommendRemoteJsonPanel"
+  name: "RemoteJsonPanel"
 });
 
 /** JSON 面板入参。 */

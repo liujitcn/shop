@@ -2424,7 +2424,7 @@ paths:
             tags:
                 - RecommendRemoteService
             description: 导出远程推荐数据
-            operationId: RecommendRemoteService_ExportRecommendRemoteData
+            operationId: RecommendRemoteService_ExportData
             parameters:
                 - name: type
                   in: query
@@ -2444,18 +2444,18 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/DataPageResponse'
     /api/admin/recommend/remote/advance/import:
         post:
             tags:
                 - RecommendRemoteService
             description: 导入远程推荐数据
-            operationId: RecommendRemoteService_ImportRecommendRemoteData
+            operationId: RecommendRemoteService_ImportData
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RecommendRemoteImportRequest'
+                            $ref: '#/components/schemas/ImportRequest'
                 required: true
             responses:
                 "200":
@@ -2466,49 +2466,49 @@ paths:
             tags:
                 - RecommendRemoteService
             description: 清空远程推荐数据
-            operationId: RecommendRemoteService_PurgeRecommendRemoteData
+            operationId: RecommendRemoteService_PurgeData
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RecommendRemotePurgeRequest'
+                            $ref: '#/components/schemas/PurgeRequest'
                 required: true
             responses:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/recommend/remote/categories:
+    /api/admin/recommend/remote/category:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐分类
-            operationId: RecommendRemoteService_GetRecommendRemoteCategories
+            operationId: RecommendRemoteService_GetCategory
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/CategoriesResponse'
     /api/admin/recommend/remote/config:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐配置
-            operationId: RecommendRemoteService_GetRecommendRemoteConfig
+            operationId: RecommendRemoteService_GetConfig
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/ConfigResponse'
     /api/admin/recommend/remote/dashboard:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐仪表盘推荐商品
-            operationId: RecommendRemoteService_GetRecommendRemoteDashboardItems
+            operationId: RecommendRemoteService_GetDashboardItems
             parameters:
                 - name: recommender
                   in: query
@@ -2528,13 +2528,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/RecordsResponse'
     /api/admin/recommend/remote/feedback:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐反馈列表
-            operationId: RecommendRemoteService_PageRecommendRemoteFeedback
+            operationId: RecommendRemoteService_PageFeedback
             parameters:
                 - name: cursor
                   in: query
@@ -2562,17 +2562,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/FeedbackPageResponse'
         post:
             tags:
                 - RecommendRemoteService
             description: 写入远程推荐反馈
-            operationId: RecommendRemoteService_ImportRecommendRemoteFeedback
+            operationId: RecommendRemoteService_ImportFeedback
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RecommendRemoteJsonRequest'
+                            $ref: '#/components/schemas/JsonRequest'
                 required: true
             responses:
                 "200":
@@ -2582,7 +2582,7 @@ paths:
             tags:
                 - RecommendRemoteService
             description: 删除远程推荐反馈
-            operationId: RecommendRemoteService_DeleteRecommendRemoteFeedback
+            operationId: RecommendRemoteService_DeleteFeedback
             parameters:
                 - name: feedbackType
                   in: query
@@ -2605,24 +2605,24 @@ paths:
             tags:
                 - RecommendRemoteService
             description: 查询推荐编排配置
-            operationId: RecommendRemoteService_GetRecommendRemoteFlowConfig
+            operationId: RecommendRemoteService_GetFlowConfig
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/ConfigResponse'
         post:
             tags:
                 - RecommendRemoteService
             description: 保存推荐编排配置
-            operationId: RecommendRemoteService_SaveRecommendRemoteFlowConfig
+            operationId: RecommendRemoteService_SaveFlowConfig
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RecommendRemoteJsonRequest'
+                            $ref: '#/components/schemas/JsonRequest'
                 required: true
             responses:
                 "200":
@@ -2632,7 +2632,7 @@ paths:
             tags:
                 - RecommendRemoteService
             description: 重置推荐编排配置
-            operationId: RecommendRemoteService_ResetRecommendRemoteFlowConfig
+            operationId: RecommendRemoteService_ResetFlowConfig
             responses:
                 "200":
                     description: OK
@@ -2642,20 +2642,20 @@ paths:
             tags:
                 - RecommendRemoteService
             description: 查询推荐编排配置结构
-            operationId: RecommendRemoteService_GetRecommendRemoteFlowSchema
+            operationId: RecommendRemoteService_GetFlowSchema
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
-    /api/admin/recommend/remote/items:
+                                $ref: '#/components/schemas/ConfigResponse'
+    /api/admin/recommend/remote/item:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐商品列表
-            operationId: RecommendRemoteService_PageRecommendRemoteItems
+            operationId: RecommendRemoteService_PageItem
             parameters:
                 - name: cursor
                   in: query
@@ -2675,13 +2675,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
-    /api/admin/recommend/remote/items/{id}:
+                                $ref: '#/components/schemas/ItemsPageResponse'
+    /api/admin/recommend/remote/item/{id}:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐商品
-            operationId: RecommendRemoteService_GetRecommendRemoteItem
+            operationId: RecommendRemoteService_GetItem
             parameters:
                 - name: id
                   in: path
@@ -2694,12 +2694,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/Item'
         delete:
             tags:
                 - RecommendRemoteService
             description: 删除远程推荐商品
-            operationId: RecommendRemoteService_DeleteRecommendRemoteItem
+            operationId: RecommendRemoteService_DeleteItem
             parameters:
                 - name: id
                   in: path
@@ -2710,12 +2710,12 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/admin/recommend/remote/neighbors:
+    /api/admin/recommend/remote/neighbor:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程相似内容
-            operationId: RecommendRemoteService_GetRecommendRemoteNeighbors
+            operationId: RecommendRemoteService_GetNeighbor
             parameters:
                 - name: type
                   in: query
@@ -2743,26 +2743,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/RecordsResponse'
     /api/admin/recommend/remote/overview:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐概览
-            operationId: RecommendRemoteService_GetRecommendRemoteOverview
+            operationId: RecommendRemoteService_GetOverview
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
-    /api/admin/recommend/remote/recommendations:
+                                $ref: '#/components/schemas/OverviewResponse'
+    /api/admin/recommend/remote/recommendation:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐结果
-            operationId: RecommendRemoteService_GetRecommendRemoteRecommendations
+            operationId: RecommendRemoteService_GetRecommendation
             parameters:
                 - name: type
                   in: query
@@ -2798,26 +2798,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
-    /api/admin/recommend/remote/tasks:
+                                $ref: '#/components/schemas/RecordsResponse'
+    /api/admin/recommend/remote/task:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐任务状态
-            operationId: RecommendRemoteService_GetRecommendRemoteTasks
+            operationId: RecommendRemoteService_GetTask
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/TasksResponse'
     /api/admin/recommend/remote/timeseries/{name}:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐时间序列
-            operationId: RecommendRemoteService_GetRecommendRemoteTimeseries
+            operationId: RecommendRemoteService_GetTimeseries
             parameters:
                 - name: name
                   in: path
@@ -2838,13 +2838,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
-    /api/admin/recommend/remote/users:
+                                $ref: '#/components/schemas/TimeseriesResponse'
+    /api/admin/recommend/remote/user:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐用户列表
-            operationId: RecommendRemoteService_PageRecommendRemoteUsers
+            operationId: RecommendRemoteService_PageUser
             parameters:
                 - name: cursor
                   in: query
@@ -2864,13 +2864,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
-    /api/admin/recommend/remote/users/{id}:
+                                $ref: '#/components/schemas/UsersPageResponse'
+    /api/admin/recommend/remote/user/{id}:
         get:
             tags:
                 - RecommendRemoteService
             description: 查询远程推荐用户
-            operationId: RecommendRemoteService_GetRecommendRemoteUser
+            operationId: RecommendRemoteService_GetUser
             parameters:
                 - name: id
                   in: path
@@ -2883,12 +2883,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/RecommendRemoteJsonResponse'
+                                $ref: '#/components/schemas/User'
         delete:
             tags:
                 - RecommendRemoteService
             description: 删除远程推荐用户
-            operationId: RecommendRemoteService_DeleteRecommendRemoteUser
+            operationId: RecommendRemoteService_DeleteUser
             parameters:
                 - name: id
                   in: path
@@ -6035,25 +6035,34 @@ components:
                     type: string
                     description: 验证码base64
             description: 验证码响应
+        CategoriesResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Category'
+                    description: 分类列表
+            description: 远程推荐分类响应
+        Category:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 分类名称
+                count:
+                    type: string
+                    description: 分类数量
+                raw:
+                    $ref: '#/components/schemas/GoogleProtobufValue'
+            description: 远程推荐分类
         ConfigResponse:
             type: object
             properties:
-                data:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/ConfigResponse_Data'
-                    description: 系统配置
-            description: 配置响应
-        ConfigResponse_Data:
-            type: object
-            properties:
-                key:
-                    type: string
-                    description: 配置key
-                value:
-                    type: string
-                    description: 配置value
-            description: 配置数据
+                config:
+                    type: object
+                    description: 配置内容
+            description: 远程推荐配置响应
         ConfirmOrderInfoResponse:
             type: object
             properties:
@@ -6178,6 +6187,18 @@ components:
                 recommendContext:
                     $ref: '#/components/schemas/RecommendContext'
             description: 创建购物车请求参数
+        DataPageResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResultRecord'
+                    description: 数据列表
+                cursor:
+                    type: string
+                    description: 下一页游标
+            description: 远程推荐数据分页响应
         ExecuteBaseJobRequest:
             type: object
             properties:
@@ -6185,6 +6206,39 @@ components:
                     type: string
                     description: 主键id
             description: 执行任务请求参数
+        Feedback:
+            type: object
+            properties:
+                feedbackType:
+                    type: string
+                    description: 反馈类型
+                userId:
+                    type: string
+                    description: 用户编号
+                itemId:
+                    type: string
+                    description: 商品编号
+                timestamp:
+                    type: string
+                    description: 反馈时间
+                detail:
+                    $ref: '#/components/schemas/GoogleProtobufValue'
+                raw:
+                    type: object
+                    description: 原始扩展字段
+            description: 远程推荐反馈
+        FeedbackPageResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Feedback'
+                    description: 反馈列表
+                cursor:
+                    type: string
+                    description: 下一页游标
+            description: 远程推荐反馈分页响应
         FileInfo:
             type: object
             properties:
@@ -6788,6 +6842,8 @@ components:
                     description: 排序
                     format: int32
             description: 商品规格
+        GoogleProtobufValue:
+            description: Represents a dynamically typed value which can be either null, a number, a string, a boolean, a recursive struct value, or a list of values.
         H5PayRequest:
             type: object
             properties:
@@ -6802,6 +6858,58 @@ components:
                     type: string
                     description: 支付url
             description: H5 支付响应
+        ImportRequest:
+            type: object
+            properties:
+                type:
+                    type: string
+                    default: users
+                    description: 数据类型
+                json:
+                    type: string
+                    description: JSON内容
+            description: 远程推荐导入内容
+        Item:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 商品编号
+                categories:
+                    type: array
+                    items:
+                        type: string
+                    description: 分类列表
+                labels:
+                    type: array
+                    items:
+                        type: string
+                    description: 标签列表
+                comment:
+                    type: string
+                    description: 备注
+                isHidden:
+                    type: boolean
+                    description: 是否隐藏
+                timestamp:
+                    type: string
+                    description: 时间
+                raw:
+                    type: object
+                    description: 原始扩展字段
+            description: 远程推荐商品
+        ItemsPageResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Item'
+                    description: 商品列表
+                cursor:
+                    type: string
+                    description: 下一页游标
+            description: 远程推荐商品分页响应
         JsapiPayRequest:
             type: object
             properties:
@@ -6828,6 +6936,13 @@ components:
                     type: string
                     description: 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
             description: 小程序支付响应
+        JsonRequest:
+            type: object
+            properties:
+                json:
+                    type: string
+                    description: JSON内容
+            description: 远程推荐JSON请求
         ListBaseApiResponse:
             type: object
             properties:
@@ -7579,6 +7694,18 @@ components:
                     type: string
                     description: 商品总数
             description: Order汇总
+        OverviewResponse:
+            type: object
+            properties:
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TimeseriesMetric'
+                    description: 统计指标列表
+                config:
+                    type: object
+                    description: 概览配置
+            description: 远程推荐概览响应
         PageBaseConfigResponse:
             type: object
             properties:
@@ -7895,6 +8022,15 @@ components:
                     description: 对账状态：枚举【PayBillStatus】
                     format: enum
             description: 支付账单
+        PurgeRequest:
+            type: object
+            properties:
+                checkList:
+                    type: array
+                    items:
+                        type: string
+                    description: 确认清空项
+            description: 远程推荐清空数据条件
         ReceiveOrderInfoRequest:
             type: object
             properties:
@@ -8058,43 +8194,6 @@ components:
                     type: string
                     description: 推荐请求ID
             description: 推荐商品响应
-        RecommendRemoteImportRequest:
-            type: object
-            properties:
-                type:
-                    type: string
-                    default: users
-                    description: 数据类型
-                json:
-                    type: string
-                    description: JSON内容
-            description: 远程推荐导入内容
-        RecommendRemoteJsonRequest:
-            type: object
-            properties:
-                json:
-                    type: string
-                    description: JSON内容
-            description: 远程推荐JSON请求
-        RecommendRemoteJsonResponse:
-            type: object
-            properties:
-                json:
-                    type: string
-                    description: JSON内容
-                lastModified:
-                    type: string
-                    description: 最后更新时间
-            description: 远程推荐JSON响应
-        RecommendRemotePurgeRequest:
-            type: object
-            properties:
-                checkList:
-                    type: array
-                    items:
-                        type: string
-                    description: 确认清空项
-            description: 远程推荐清空数据条件
         RecommendRequest:
             type: object
             properties:
@@ -8261,6 +8360,18 @@ components:
                     type: boolean
                     description: 当前推荐器是否为最终命中的推荐器
             description: 推荐请求链路轨迹
+        RecordsResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ResultRecord'
+                    description: 记录列表
+                lastModified:
+                    type: string
+                    description: 最后更新时间
+            description: 远程推荐记录响应
         RefreshTokenRequest:
             type: object
             properties:
@@ -8338,6 +8449,36 @@ components:
                     type: string
                     description: 密码
             description: 重置用户密码请求参数
+        ResultRecord:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 编号
+                categories:
+                    type: array
+                    items:
+                        type: string
+                    description: 分类列表
+                labels:
+                    $ref: '#/components/schemas/GoogleProtobufValue'
+                comment:
+                    type: string
+                    description: 描述
+                timestamp:
+                    type: string
+                    description: 时间
+                score:
+                    type: number
+                    description: 分数
+                    format: double
+                isHidden:
+                    type: boolean
+                    description: 是否隐藏
+                raw:
+                    type: object
+                    description: 原始扩展字段
+            description: 远程推荐记录
         RouteItem:
             type: object
             properties:
@@ -8785,6 +8926,75 @@ components:
                 `string` 类型数组包装消息。
 
                  StringValues
+        Task:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 任务名称
+                status:
+                    type: string
+                    description: 任务状态
+                total:
+                    type: string
+                    description: 总数
+                count:
+                    type: string
+                    description: 已处理数量
+                error:
+                    type: string
+                    description: 错误信息
+                startTime:
+                    type: string
+                    description: 开始时间
+                finishTime:
+                    type: string
+                    description: 结束时间
+                raw:
+                    type: object
+                    description: 原始扩展字段
+            description: 远程推荐任务
+        TasksResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Task'
+                    description: 任务列表
+            description: 远程推荐任务响应
+        TimeseriesMetric:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 指标名称
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TimeseriesPoint'
+                    description: 指标点列表
+            description: 远程推荐统计指标
+        TimeseriesPoint:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                    description: 时间
+                value:
+                    type: number
+                    description: 数值
+                    format: double
+            description: 远程推荐时间序列点
+        TimeseriesResponse:
+            type: object
+            properties:
+                points:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TimeseriesPoint'
+                    description: 时间序列点列表
+            description: 远程推荐时间序列响应
         TreeBaseDeptResponse:
             type: object
             properties:
@@ -8865,6 +9075,30 @@ components:
                     description: ' 二进制内容将通过 base64 编码传输'
                     format: bytes
             description: 上传文件信息
+        User:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 用户编号
+                labels:
+                    type: array
+                    items:
+                        type: string
+                    description: 用户标签
+                subscribe:
+                    type: string
+                    description: 订阅分类
+                comment:
+                    type: string
+                    description: 备注
+                lastUpdateTime:
+                    type: string
+                    description: 最后更新时间
+                raw:
+                    type: object
+                    description: 原始扩展字段
+            description: 远程推荐用户
         UserAddress:
             type: object
             properties:
@@ -9184,6 +9418,18 @@ components:
                         type: string
                     description: 省市区
             description: 用户门店表单
+        UsersPageResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                    description: 用户列表
+                cursor:
+                    type: string
+                    description: 下一页游标
+            description: 远程推荐用户分页响应
         WechatLoginRequest:
             type: object
             properties:

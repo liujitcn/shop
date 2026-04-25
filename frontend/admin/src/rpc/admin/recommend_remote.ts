@@ -8,7 +8,7 @@
 import type { Empty } from "../google/protobuf/empty";
 
 /** 远程推荐游标查询条件 */
-export interface RecommendRemoteCursorRequest {
+export interface CursorRequest {
   /** 游标 */
   cursor: string;
   /** 返回数量 */
@@ -18,13 +18,13 @@ export interface RecommendRemoteCursorRequest {
 }
 
 /** 远程推荐编号查询条件 */
-export interface RecommendRemoteIdRequest {
+export interface IdRequest {
   /** 编号 */
   id: string;
 }
 
 /** 远程推荐名称查询条件 */
-export interface RecommendRemoteNameRequest {
+export interface NameRequest {
   /** 名称 */
   name: string;
   /** 开始时间 */
@@ -34,7 +34,7 @@ export interface RecommendRemoteNameRequest {
 }
 
 /** 远程推荐仪表盘推荐商品查询条件 */
-export interface RecommendRemoteDashboardItemsRequest {
+export interface DashboardItemsRequest {
   /** 推荐器名称 */
   recommender: string;
   /** 分类 */
@@ -44,7 +44,7 @@ export interface RecommendRemoteDashboardItemsRequest {
 }
 
 /** 远程推荐查询条件 */
-export interface RecommendRemoteRecommendRequest {
+export interface RecommendationRequest {
   /** 推荐类型 */
   type: string;
   /** 主体编号 */
@@ -62,7 +62,7 @@ export interface RecommendRemoteRecommendRequest {
 }
 
 /** 远程相似内容查询条件 */
-export interface RecommendRemoteNeighborRequest {
+export interface NeighborRequest {
   /** 相似类型 */
   type: string;
   /** 主体编号 */
@@ -76,7 +76,7 @@ export interface RecommendRemoteNeighborRequest {
 }
 
 /** 远程推荐反馈查询条件 */
-export interface RecommendRemoteFeedbackRequest {
+export interface FeedbackRequest {
   /** 游标 */
   cursor: string;
   /** 返回数量 */
@@ -90,7 +90,7 @@ export interface RecommendRemoteFeedbackRequest {
 }
 
 /** 远程推荐反馈删除条件 */
-export interface RecommendRemoteFeedbackDeleteRequest {
+export interface FeedbackDeleteRequest {
   /** 反馈类型 */
   feedbackType: string;
   /** 用户编号 */
@@ -100,7 +100,7 @@ export interface RecommendRemoteFeedbackDeleteRequest {
 }
 
 /** 远程推荐数据查询条件 */
-export interface RecommendRemoteDataRequest {
+export interface DataRequest {
   /** 数据类型 */
   type: string;
   /** 游标 */
@@ -110,7 +110,7 @@ export interface RecommendRemoteDataRequest {
 }
 
 /** 远程推荐导入内容 */
-export interface RecommendRemoteImportRequest {
+export interface ImportRequest {
   /** 数据类型 */
   type: string;
   /** JSON内容 */
@@ -118,73 +118,257 @@ export interface RecommendRemoteImportRequest {
 }
 
 /** 远程推荐清空数据条件 */
-export interface RecommendRemotePurgeRequest {
+export interface PurgeRequest {
   /** 确认清空项 */
   checkList: string[];
 }
 
 /** 远程推荐JSON请求 */
-export interface RecommendRemoteJsonRequest {
+export interface JsonRequest {
   /** JSON内容 */
   json: string;
 }
 
-/** 远程推荐JSON响应 */
-export interface RecommendRemoteJsonResponse {
-  /** JSON内容 */
-  json: string;
+/** 远程推荐概览响应 */
+export interface OverviewResponse {
+  /** 统计指标列表 */
+  metrics: TimeseriesMetric[];
+  /** 概览配置 */
+  config: { [key: string]: any } | undefined;
+}
+
+/** 远程推荐统计指标 */
+export interface TimeseriesMetric {
+  /** 指标名称 */
+  name: string;
+  /** 指标点列表 */
+  points: TimeseriesPoint[];
+}
+
+/** 远程推荐时间序列响应 */
+export interface TimeseriesResponse {
+  /** 时间序列点列表 */
+  points: TimeseriesPoint[];
+}
+
+/** 远程推荐时间序列点 */
+export interface TimeseriesPoint {
+  /** 时间 */
+  timestamp: string;
+  /** 数值 */
+  value: number;
+}
+
+/** 远程推荐任务响应 */
+export interface TasksResponse {
+  /** 任务列表 */
+  list: Task[];
+}
+
+/** 远程推荐任务 */
+export interface Task {
+  /** 任务名称 */
+  name: string;
+  /** 任务状态 */
+  status: string;
+  /** 总数 */
+  total: number;
+  /** 已处理数量 */
+  count: number;
+  /** 错误信息 */
+  error: string;
+  /** 开始时间 */
+  startTime: string;
+  /** 结束时间 */
+  finishTime: string;
+  /** 原始扩展字段 */
+  raw: { [key: string]: any } | undefined;
+}
+
+/** 远程推荐分类响应 */
+export interface CategoriesResponse {
+  /** 分类列表 */
+  list: Category[];
+}
+
+/** 远程推荐分类 */
+export interface Category {
+  /** 分类名称 */
+  name: string;
+  /** 分类数量 */
+  count: string;
+  /** 原始扩展字段 */
+  raw: any | undefined;
+}
+
+/** 远程推荐记录响应 */
+export interface RecordsResponse {
+  /** 记录列表 */
+  list: ResultRecord[];
   /** 最后更新时间 */
   lastModified: string;
+}
+
+/** 远程推荐记录 */
+export interface ResultRecord {
+  /** 编号 */
+  id: string;
+  /** 分类列表 */
+  categories: string[];
+  /** 标签 */
+  labels:
+    | any
+    | undefined;
+  /** 描述 */
+  comment: string;
+  /** 时间 */
+  timestamp: string;
+  /** 分数 */
+  score: number;
+  /** 是否隐藏 */
+  isHidden: boolean;
+  /** 原始扩展字段 */
+  raw: { [key: string]: any } | undefined;
+}
+
+/** 远程推荐反馈分页响应 */
+export interface FeedbackPageResponse {
+  /** 反馈列表 */
+  list: Feedback[];
+  /** 下一页游标 */
+  cursor: string;
+}
+
+/** 远程推荐反馈 */
+export interface Feedback {
+  /** 反馈类型 */
+  feedbackType: string;
+  /** 用户编号 */
+  userId: string;
+  /** 商品编号 */
+  itemId: string;
+  /** 反馈时间 */
+  timestamp: string;
+  /** 反馈详情 */
+  detail:
+    | any
+    | undefined;
+  /** 原始扩展字段 */
+  raw: { [key: string]: any } | undefined;
+}
+
+/** 远程推荐用户分页响应 */
+export interface UsersPageResponse {
+  /** 用户列表 */
+  list: User[];
+  /** 下一页游标 */
+  cursor: string;
+}
+
+/** 远程推荐用户 */
+export interface User {
+  /** 用户编号 */
+  id: string;
+  /** 用户标签 */
+  labels: string[];
+  /** 订阅分类 */
+  subscribe: string;
+  /** 备注 */
+  comment: string;
+  /** 最后更新时间 */
+  lastUpdateTime: string;
+  /** 原始扩展字段 */
+  raw: { [key: string]: any } | undefined;
+}
+
+/** 远程推荐商品分页响应 */
+export interface ItemsPageResponse {
+  /** 商品列表 */
+  list: Item[];
+  /** 下一页游标 */
+  cursor: string;
+}
+
+/** 远程推荐商品 */
+export interface Item {
+  /** 商品编号 */
+  id: string;
+  /** 分类列表 */
+  categories: string[];
+  /** 标签列表 */
+  labels: string[];
+  /** 备注 */
+  comment: string;
+  /** 是否隐藏 */
+  isHidden: boolean;
+  /** 时间 */
+  timestamp: string;
+  /** 原始扩展字段 */
+  raw: { [key: string]: any } | undefined;
+}
+
+/** 远程推荐数据分页响应 */
+export interface DataPageResponse {
+  /** 数据列表 */
+  list: ResultRecord[];
+  /** 下一页游标 */
+  cursor: string;
+}
+
+/** 远程推荐配置响应 */
+export interface ConfigResponse {
+  /** 配置内容 */
+  config: { [key: string]: any } | undefined;
 }
 
 /** Admin远程推荐服务 */
 export interface RecommendRemoteService {
   /** 查询远程推荐概览 */
-  GetRecommendRemoteOverview(request: Empty): Promise<RecommendRemoteJsonResponse>;
+  GetOverview(request: Empty): Promise<OverviewResponse>;
   /** 查询远程推荐任务状态 */
-  GetRecommendRemoteTasks(request: Empty): Promise<RecommendRemoteJsonResponse>;
+  GetTask(request: Empty): Promise<TasksResponse>;
   /** 查询远程推荐分类 */
-  GetRecommendRemoteCategories(request: Empty): Promise<RecommendRemoteJsonResponse>;
+  GetCategory(request: Empty): Promise<CategoriesResponse>;
   /** 查询远程推荐时间序列 */
-  GetRecommendRemoteTimeseries(request: RecommendRemoteNameRequest): Promise<RecommendRemoteJsonResponse>;
+  GetTimeseries(request: NameRequest): Promise<TimeseriesResponse>;
   /** 查询远程推荐仪表盘推荐商品 */
-  GetRecommendRemoteDashboardItems(request: RecommendRemoteDashboardItemsRequest): Promise<RecommendRemoteJsonResponse>;
+  GetDashboardItems(request: DashboardItemsRequest): Promise<RecordsResponse>;
   /** 查询远程推荐结果 */
-  GetRecommendRemoteRecommendations(request: RecommendRemoteRecommendRequest): Promise<RecommendRemoteJsonResponse>;
+  GetRecommendation(request: RecommendationRequest): Promise<RecordsResponse>;
   /** 查询远程相似内容 */
-  GetRecommendRemoteNeighbors(request: RecommendRemoteNeighborRequest): Promise<RecommendRemoteJsonResponse>;
+  GetNeighbor(request: NeighborRequest): Promise<RecordsResponse>;
   /** 查询远程推荐反馈列表 */
-  PageRecommendRemoteFeedback(request: RecommendRemoteFeedbackRequest): Promise<RecommendRemoteJsonResponse>;
+  PageFeedback(request: FeedbackRequest): Promise<FeedbackPageResponse>;
   /** 写入远程推荐反馈 */
-  ImportRecommendRemoteFeedback(request: RecommendRemoteJsonRequest): Promise<Empty>;
+  ImportFeedback(request: JsonRequest): Promise<Empty>;
   /** 删除远程推荐反馈 */
-  DeleteRecommendRemoteFeedback(request: RecommendRemoteFeedbackDeleteRequest): Promise<Empty>;
+  DeleteFeedback(request: FeedbackDeleteRequest): Promise<Empty>;
   /** 查询远程推荐用户列表 */
-  PageRecommendRemoteUsers(request: RecommendRemoteCursorRequest): Promise<RecommendRemoteJsonResponse>;
+  PageUser(request: CursorRequest): Promise<UsersPageResponse>;
   /** 查询远程推荐用户 */
-  GetRecommendRemoteUser(request: RecommendRemoteIdRequest): Promise<RecommendRemoteJsonResponse>;
+  GetUser(request: IdRequest): Promise<User>;
   /** 删除远程推荐用户 */
-  DeleteRecommendRemoteUser(request: RecommendRemoteIdRequest): Promise<Empty>;
+  DeleteUser(request: IdRequest): Promise<Empty>;
   /** 查询远程推荐商品列表 */
-  PageRecommendRemoteItems(request: RecommendRemoteCursorRequest): Promise<RecommendRemoteJsonResponse>;
+  PageItem(request: CursorRequest): Promise<ItemsPageResponse>;
   /** 查询远程推荐商品 */
-  GetRecommendRemoteItem(request: RecommendRemoteIdRequest): Promise<RecommendRemoteJsonResponse>;
+  GetItem(request: IdRequest): Promise<Item>;
   /** 删除远程推荐商品 */
-  DeleteRecommendRemoteItem(request: RecommendRemoteIdRequest): Promise<Empty>;
+  DeleteItem(request: IdRequest): Promise<Empty>;
   /** 导出远程推荐数据 */
-  ExportRecommendRemoteData(request: RecommendRemoteDataRequest): Promise<RecommendRemoteJsonResponse>;
+  ExportData(request: DataRequest): Promise<DataPageResponse>;
   /** 导入远程推荐数据 */
-  ImportRecommendRemoteData(request: RecommendRemoteImportRequest): Promise<Empty>;
+  ImportData(request: ImportRequest): Promise<Empty>;
   /** 清空远程推荐数据 */
-  PurgeRecommendRemoteData(request: RecommendRemotePurgeRequest): Promise<Empty>;
+  PurgeData(request: PurgeRequest): Promise<Empty>;
   /** 查询推荐编排配置 */
-  GetRecommendRemoteFlowConfig(request: Empty): Promise<RecommendRemoteJsonResponse>;
+  GetFlowConfig(request: Empty): Promise<ConfigResponse>;
   /** 保存推荐编排配置 */
-  SaveRecommendRemoteFlowConfig(request: RecommendRemoteJsonRequest): Promise<Empty>;
+  SaveFlowConfig(request: JsonRequest): Promise<Empty>;
   /** 重置推荐编排配置 */
-  ResetRecommendRemoteFlowConfig(request: Empty): Promise<Empty>;
+  ResetFlowConfig(request: Empty): Promise<Empty>;
   /** 查询推荐编排配置结构 */
-  GetRecommendRemoteFlowSchema(request: Empty): Promise<RecommendRemoteJsonResponse>;
+  GetFlowSchema(request: Empty): Promise<ConfigResponse>;
   /** 查询远程推荐配置 */
-  GetRecommendRemoteConfig(request: Empty): Promise<RecommendRemoteJsonResponse>;
+  GetConfig(request: Empty): Promise<ConfigResponse>;
 }

@@ -108,9 +108,6 @@ import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
   formatRemoteCell,
   formatRemoteDateTime,
-  parseRemoteCursorList,
-  parseRemoteJson,
-  parseRemoteRecord,
   resolveRemoteArray,
   resolveRemoteBoolean,
   resolveRemoteId,
@@ -119,7 +116,7 @@ import {
   type RemoteRecord
 } from "../utils";
 
-defineOptions({ name: "RecommendRemoteItems" });
+defineOptions({ name: "Items" });
 
 /** 推荐商品表格行。 */
 interface ItemRow extends RemoteRecord {
@@ -178,22 +175,21 @@ async function requestItemTable(params: { id?: string; cursor?: string }) {
   try {
     const id = String(params.id ?? "").trim();
     if (id) {
-      const data = await defRecommendRemoteService.GetRecommendRemoteItem({ id });
-      const records = normalizeRemoteRecordList(parseRemoteJson(data.json));
+      const data = await defRecommendRemoteService.GetItem({ id });
+      const records = normalizeRemoteRecordList((data.raw ?? data) as RemoteRecord);
       nextCursor.value = "";
       currentPageSize.value = records.length;
       return { data: records.map(normalizeItemRow) };
     }
 
-    const data = await defRecommendRemoteService.PageRecommendRemoteItems({
+    const data = await defRecommendRemoteService.PageItem({
       id: "",
       cursor: params.cursor ?? "",
       n: pageSize.value
     });
-    const page = parseRemoteCursorList(data.json, ["Items", "items"]);
-    nextCursor.value = page.cursor;
-    currentPageSize.value = page.list.length;
-    return { data: page.list.map(normalizeItemRow) };
+    nextCursor.value = data.cursor;
+    currentPageSize.value = data.list.length;
+    return { data: data.list.map(item => normalizeItemRow((item.raw ?? item) as RemoteRecord, data.list.indexOf(item))) };
   } catch (error) {
     ElMessage.error("加载远程推荐商品失败");
     throw error;
@@ -216,13 +212,13 @@ function normalizeItemRow(row: RemoteRecord, index: number): ItemRow {
 
 /** 将单条或列表响应转换为远程记录列表。 */
 function normalizeRemoteRecordList(value: unknown) {
-  if (Array.isArray(value)) return value.filter(isRemoteRecord);
-  if (isRemoteRecord(value)) return [value];
+  if (Array.isArray(value)) return value.filter(isRecord);
+  if (isRecord(value)) return [value];
   return [];
 }
 
 /** 判断值是否为远程推荐记录。 */
-function isRemoteRecord(value: unknown): value is RemoteRecord {
+function isRecord(value: unknown): value is RemoteRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
@@ -306,8 +302,8 @@ async function reloadDetail() {
 
   detailLoading.value = true;
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteItem({ id: currentDetailId.value });
-    detailData.value = parseRemoteRecord(data.json);
+    const data = await defRecommendRemoteService.GetItem({ id: currentDetailId.value });
+    detailData.value = (data.raw ?? data) as RemoteRecord;
   } catch (error) {
     ElMessage.error("加载商品详情失败");
     throw error;
@@ -330,7 +326,7 @@ async function deleteItem(row: RemoteRecord) {
     inputErrorMessage: "商品编号不匹配",
     type: "warning"
   });
-  await defRecommendRemoteService.DeleteRecommendRemoteItem({ id });
+  await defRecommendRemoteService.DeleteItem({ id });
   ElMessage.success("删除远程推荐商品成功");
   proTable.value?.getTableList();
 }

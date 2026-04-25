@@ -19,23 +19,22 @@ import OverviewPerformancePanel from "./components/OverviewPerformancePanel.vue"
 import OverviewRecommendationTable from "./components/OverviewRecommendationTable.vue";
 import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
-  buildRemoteTimeseriesMetric,
-  parseRemoteCategories,
-  parseRemoteJson,
+  buildTimeseriesMetricFromPoints,
+  buildCategoryRows,
   remoteOverviewMetrics,
   resolveRemoteArray,
   resolveRemoteNumber,
   resolveRemoteValue,
   type RemoteRecord,
-  type RemoteTimeseriesMetric
+  type TimeseriesMetric
 } from "../utils";
 
 defineOptions({
-  name: "RecommendRemoteOverview"
+  name: "RemoteOverview"
 });
 
 const statsLoading = ref(false);
-const statCards = ref<RemoteTimeseriesMetric[]>(remoteOverviewMetrics.map(item => buildRemoteTimeseriesMetric(item, "[]")));
+const statCards = ref<TimeseriesMetric[]>(remoteOverviewMetrics.map(item => buildTimeseriesMetricFromPoints(item, [])));
 const positiveFeedbackTypes = ref<string[]>([]);
 const recommenders = ref<string[]>(["latest"]);
 const categories = ref<string[]>([]);
@@ -54,8 +53,8 @@ async function loadOverview() {
 /** 加载远程推荐配置，用于反馈类型、缓存数量和非个性化推荐器。 */
 async function loadConfig() {
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteConfig({});
-    const config = parseRemoteJson(data.json) as RemoteRecord;
+    const data = await defRecommendRemoteService.GetConfig({});
+    const config = data.config ?? {};
     const recommend = resolveRemoteValue(config, ["recommend"]);
     const database = resolveRemoteValue(config, ["database"]);
     if (typeof database === "object" && database !== null) {
@@ -89,12 +88,10 @@ async function loadStats() {
   statsLoading.value = true;
   try {
     const responses = await Promise.all(
-      remoteOverviewMetrics.map(item =>
-        defRecommendRemoteService.GetRecommendRemoteTimeseries({ name: item.name, begin: "", end: "" })
-      )
+      remoteOverviewMetrics.map(item => defRecommendRemoteService.GetTimeseries({ name: item.name, begin: "", end: "" }))
     );
     statCards.value = remoteOverviewMetrics.map((item, index) =>
-      buildRemoteTimeseriesMetric(item, responses[index]?.json ?? "[]")
+      buildTimeseriesMetricFromPoints(item, responses[index]?.points ?? [])
     );
   } catch (error) {
     ElMessage.error("加载概览统计失败");
@@ -107,8 +104,8 @@ async function loadStats() {
 /** 加载远程推荐分类下拉。 */
 async function loadCategories() {
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteCategories({});
-    categories.value = parseRemoteCategories(data.json).map(item => item.name);
+    const data = await defRecommendRemoteService.GetCategory({});
+    categories.value = buildCategoryRows(data.list).map(item => item.name);
   } catch (error) {
     ElMessage.error("加载推荐分类失败");
     throw error;

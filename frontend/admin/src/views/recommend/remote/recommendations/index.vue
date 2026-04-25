@@ -97,16 +97,15 @@ import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
   foldRemoteValue,
   formatRemoteCell,
-  formatRemoteJson,
-  parseRemoteCategories,
-  parseRemoteRecordList,
+  formatRemoteObject,
+  buildCategoryRows,
   resolveRemoteArray,
   resolveRemoteId,
   resolveRemoteValue,
   type RemoteRecord
 } from "../utils";
 
-defineOptions({ name: "RecommendRemoteRecommendations" });
+defineOptions({ name: "RemoteRecommendations" });
 
 interface SelectOption {
   label: string;
@@ -150,8 +149,8 @@ async function loadOptions() {
 
 /** 从远程配置中提取命名推荐器。 */
 async function loadConfigOptions() {
-  const data = await defRecommendRemoteService.GetRecommendRemoteConfig({});
-  const config = JSON.parse(data.json || "{}");
+  const data = await defRecommendRemoteService.GetConfig({});
+  const config = data.config ?? {};
   const recommend = config.recommend ?? config.Recommend ?? {};
   const itemToItem = Array.isArray(recommend["item-to-item"]) ? recommend["item-to-item"] : [];
   const userToUser = Array.isArray(recommend["user-to-user"]) ? recommend["user-to-user"] : [];
@@ -169,9 +168,9 @@ async function loadConfigOptions() {
 
 /** 加载远程分类选项。 */
 async function loadCategoryOptions() {
-  const data = await defRecommendRemoteService.GetRecommendRemoteCategories({});
+  const data = await defRecommendRemoteService.GetCategory({});
   categoryOptions.value = [{ label: "全部分类", value: "" }].concat(
-    parseRemoteCategories(data.json).map(item => ({ label: item.name, value: item.name }))
+    buildCategoryRows(data.list).map(item => ({ label: item.name, value: item.name }))
   );
 }
 
@@ -183,9 +182,9 @@ async function loadRecommendations() {
   }
   loading.value = true;
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteRecommendations({ ...query });
-    rawJson.value = formatRemoteJson(data.json || "[]");
-    list.value = parseRemoteRecordList(data.json, ["Items", "items", "Results", "results", "Recommendations", "recommendations"]);
+    const data = await defRecommendRemoteService.GetRecommendation({ ...query });
+    rawJson.value = formatRemoteObject(data.list);
+    list.value = data.list.map(item => (item.raw ?? item) as RemoteRecord);
   } catch (error) {
     ElMessage.error("查询远程推荐结果失败");
     throw error;

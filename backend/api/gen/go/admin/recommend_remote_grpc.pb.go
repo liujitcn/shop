@@ -21,30 +21,30 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	RecommendRemoteService_GetRecommendRemoteOverview_FullMethodName        = "/admin.RecommendRemoteService/GetRecommendRemoteOverview"
-	RecommendRemoteService_GetRecommendRemoteTasks_FullMethodName           = "/admin.RecommendRemoteService/GetRecommendRemoteTasks"
-	RecommendRemoteService_GetRecommendRemoteCategories_FullMethodName      = "/admin.RecommendRemoteService/GetRecommendRemoteCategories"
-	RecommendRemoteService_GetRecommendRemoteTimeseries_FullMethodName      = "/admin.RecommendRemoteService/GetRecommendRemoteTimeseries"
-	RecommendRemoteService_GetRecommendRemoteDashboardItems_FullMethodName  = "/admin.RecommendRemoteService/GetRecommendRemoteDashboardItems"
-	RecommendRemoteService_GetRecommendRemoteRecommendations_FullMethodName = "/admin.RecommendRemoteService/GetRecommendRemoteRecommendations"
-	RecommendRemoteService_GetRecommendRemoteNeighbors_FullMethodName       = "/admin.RecommendRemoteService/GetRecommendRemoteNeighbors"
-	RecommendRemoteService_PageRecommendRemoteFeedback_FullMethodName       = "/admin.RecommendRemoteService/PageRecommendRemoteFeedback"
-	RecommendRemoteService_ImportRecommendRemoteFeedback_FullMethodName     = "/admin.RecommendRemoteService/ImportRecommendRemoteFeedback"
-	RecommendRemoteService_DeleteRecommendRemoteFeedback_FullMethodName     = "/admin.RecommendRemoteService/DeleteRecommendRemoteFeedback"
-	RecommendRemoteService_PageRecommendRemoteUsers_FullMethodName          = "/admin.RecommendRemoteService/PageRecommendRemoteUsers"
-	RecommendRemoteService_GetRecommendRemoteUser_FullMethodName            = "/admin.RecommendRemoteService/GetRecommendRemoteUser"
-	RecommendRemoteService_DeleteRecommendRemoteUser_FullMethodName         = "/admin.RecommendRemoteService/DeleteRecommendRemoteUser"
-	RecommendRemoteService_PageRecommendRemoteItems_FullMethodName          = "/admin.RecommendRemoteService/PageRecommendRemoteItems"
-	RecommendRemoteService_GetRecommendRemoteItem_FullMethodName            = "/admin.RecommendRemoteService/GetRecommendRemoteItem"
-	RecommendRemoteService_DeleteRecommendRemoteItem_FullMethodName         = "/admin.RecommendRemoteService/DeleteRecommendRemoteItem"
-	RecommendRemoteService_ExportRecommendRemoteData_FullMethodName         = "/admin.RecommendRemoteService/ExportRecommendRemoteData"
-	RecommendRemoteService_ImportRecommendRemoteData_FullMethodName         = "/admin.RecommendRemoteService/ImportRecommendRemoteData"
-	RecommendRemoteService_PurgeRecommendRemoteData_FullMethodName          = "/admin.RecommendRemoteService/PurgeRecommendRemoteData"
-	RecommendRemoteService_GetRecommendRemoteFlowConfig_FullMethodName      = "/admin.RecommendRemoteService/GetRecommendRemoteFlowConfig"
-	RecommendRemoteService_SaveRecommendRemoteFlowConfig_FullMethodName     = "/admin.RecommendRemoteService/SaveRecommendRemoteFlowConfig"
-	RecommendRemoteService_ResetRecommendRemoteFlowConfig_FullMethodName    = "/admin.RecommendRemoteService/ResetRecommendRemoteFlowConfig"
-	RecommendRemoteService_GetRecommendRemoteFlowSchema_FullMethodName      = "/admin.RecommendRemoteService/GetRecommendRemoteFlowSchema"
-	RecommendRemoteService_GetRecommendRemoteConfig_FullMethodName          = "/admin.RecommendRemoteService/GetRecommendRemoteConfig"
+	RecommendRemoteService_GetOverview_FullMethodName       = "/admin.RecommendRemoteService/GetOverview"
+	RecommendRemoteService_GetTask_FullMethodName           = "/admin.RecommendRemoteService/GetTask"
+	RecommendRemoteService_GetCategory_FullMethodName       = "/admin.RecommendRemoteService/GetCategory"
+	RecommendRemoteService_GetTimeseries_FullMethodName     = "/admin.RecommendRemoteService/GetTimeseries"
+	RecommendRemoteService_GetDashboardItems_FullMethodName = "/admin.RecommendRemoteService/GetDashboardItems"
+	RecommendRemoteService_GetRecommendation_FullMethodName = "/admin.RecommendRemoteService/GetRecommendation"
+	RecommendRemoteService_GetNeighbor_FullMethodName       = "/admin.RecommendRemoteService/GetNeighbor"
+	RecommendRemoteService_PageFeedback_FullMethodName      = "/admin.RecommendRemoteService/PageFeedback"
+	RecommendRemoteService_ImportFeedback_FullMethodName    = "/admin.RecommendRemoteService/ImportFeedback"
+	RecommendRemoteService_DeleteFeedback_FullMethodName    = "/admin.RecommendRemoteService/DeleteFeedback"
+	RecommendRemoteService_PageUser_FullMethodName          = "/admin.RecommendRemoteService/PageUser"
+	RecommendRemoteService_GetUser_FullMethodName           = "/admin.RecommendRemoteService/GetUser"
+	RecommendRemoteService_DeleteUser_FullMethodName        = "/admin.RecommendRemoteService/DeleteUser"
+	RecommendRemoteService_PageItem_FullMethodName          = "/admin.RecommendRemoteService/PageItem"
+	RecommendRemoteService_GetItem_FullMethodName           = "/admin.RecommendRemoteService/GetItem"
+	RecommendRemoteService_DeleteItem_FullMethodName        = "/admin.RecommendRemoteService/DeleteItem"
+	RecommendRemoteService_ExportData_FullMethodName        = "/admin.RecommendRemoteService/ExportData"
+	RecommendRemoteService_ImportData_FullMethodName        = "/admin.RecommendRemoteService/ImportData"
+	RecommendRemoteService_PurgeData_FullMethodName         = "/admin.RecommendRemoteService/PurgeData"
+	RecommendRemoteService_GetFlowConfig_FullMethodName     = "/admin.RecommendRemoteService/GetFlowConfig"
+	RecommendRemoteService_SaveFlowConfig_FullMethodName    = "/admin.RecommendRemoteService/SaveFlowConfig"
+	RecommendRemoteService_ResetFlowConfig_FullMethodName   = "/admin.RecommendRemoteService/ResetFlowConfig"
+	RecommendRemoteService_GetFlowSchema_FullMethodName     = "/admin.RecommendRemoteService/GetFlowSchema"
+	RecommendRemoteService_GetConfig_FullMethodName         = "/admin.RecommendRemoteService/GetConfig"
 )
 
 // RecommendRemoteServiceClient is the client API for RecommendRemoteService service.
@@ -54,53 +54,53 @@ const (
 // Admin远程推荐服务
 type RecommendRemoteServiceClient interface {
 	// 查询远程推荐概览
-	GetRecommendRemoteOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*OverviewResponse, error)
 	// 查询远程推荐任务状态
-	GetRecommendRemoteTasks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetTask(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TasksResponse, error)
 	// 查询远程推荐分类
-	GetRecommendRemoteCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetCategory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CategoriesResponse, error)
 	// 查询远程推荐时间序列
-	GetRecommendRemoteTimeseries(ctx context.Context, in *RecommendRemoteNameRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetTimeseries(ctx context.Context, in *NameRequest, opts ...grpc.CallOption) (*TimeseriesResponse, error)
 	// 查询远程推荐仪表盘推荐商品
-	GetRecommendRemoteDashboardItems(ctx context.Context, in *RecommendRemoteDashboardItemsRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetDashboardItems(ctx context.Context, in *DashboardItemsRequest, opts ...grpc.CallOption) (*RecordsResponse, error)
 	// 查询远程推荐结果
-	GetRecommendRemoteRecommendations(ctx context.Context, in *RecommendRemoteRecommendRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetRecommendation(ctx context.Context, in *RecommendationRequest, opts ...grpc.CallOption) (*RecordsResponse, error)
 	// 查询远程相似内容
-	GetRecommendRemoteNeighbors(ctx context.Context, in *RecommendRemoteNeighborRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetNeighbor(ctx context.Context, in *NeighborRequest, opts ...grpc.CallOption) (*RecordsResponse, error)
 	// 查询远程推荐反馈列表
-	PageRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteFeedbackRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	PageFeedback(ctx context.Context, in *FeedbackRequest, opts ...grpc.CallOption) (*FeedbackPageResponse, error)
 	// 写入远程推荐反馈
-	ImportRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteJsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ImportFeedback(ctx context.Context, in *JsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 删除远程推荐反馈
-	DeleteRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteFeedbackDeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteFeedback(ctx context.Context, in *FeedbackDeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询远程推荐用户列表
-	PageRecommendRemoteUsers(ctx context.Context, in *RecommendRemoteCursorRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	PageUser(ctx context.Context, in *CursorRequest, opts ...grpc.CallOption) (*UsersPageResponse, error)
 	// 查询远程推荐用户
-	GetRecommendRemoteUser(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetUser(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*User, error)
 	// 删除远程推荐用户
-	DeleteRecommendRemoteUser(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteUser(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询远程推荐商品列表
-	PageRecommendRemoteItems(ctx context.Context, in *RecommendRemoteCursorRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	PageItem(ctx context.Context, in *CursorRequest, opts ...grpc.CallOption) (*ItemsPageResponse, error)
 	// 查询远程推荐商品
-	GetRecommendRemoteItem(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetItem(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Item, error)
 	// 删除远程推荐商品
-	DeleteRecommendRemoteItem(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteItem(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 导出远程推荐数据
-	ExportRecommendRemoteData(ctx context.Context, in *RecommendRemoteDataRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	ExportData(ctx context.Context, in *DataRequest, opts ...grpc.CallOption) (*DataPageResponse, error)
 	// 导入远程推荐数据
-	ImportRecommendRemoteData(ctx context.Context, in *RecommendRemoteImportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ImportData(ctx context.Context, in *ImportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 清空远程推荐数据
-	PurgeRecommendRemoteData(ctx context.Context, in *RecommendRemotePurgeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PurgeData(ctx context.Context, in *PurgeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询推荐编排配置
-	GetRecommendRemoteFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
 	// 保存推荐编排配置
-	SaveRecommendRemoteFlowConfig(ctx context.Context, in *RecommendRemoteJsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SaveFlowConfig(ctx context.Context, in *JsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 重置推荐编排配置
-	ResetRecommendRemoteFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	ResetFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询推荐编排配置结构
-	GetRecommendRemoteFlowSchema(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetFlowSchema(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
 	// 查询远程推荐配置
-	GetRecommendRemoteConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
+	GetConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
 }
 
 type recommendRemoteServiceClient struct {
@@ -111,240 +111,240 @@ func NewRecommendRemoteServiceClient(cc grpc.ClientConnInterface) RecommendRemot
 	return &recommendRemoteServiceClient{cc}
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*OverviewResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteOverview_FullMethodName, in, out, cOpts...)
+	out := new(OverviewResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetOverview_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteTasks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetTask(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*TasksResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteTasks_FullMethodName, in, out, cOpts...)
+	out := new(TasksResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetTask_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetCategory(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CategoriesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteCategories_FullMethodName, in, out, cOpts...)
+	out := new(CategoriesResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetCategory_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteTimeseries(ctx context.Context, in *RecommendRemoteNameRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetTimeseries(ctx context.Context, in *NameRequest, opts ...grpc.CallOption) (*TimeseriesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteTimeseries_FullMethodName, in, out, cOpts...)
+	out := new(TimeseriesResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetTimeseries_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteDashboardItems(ctx context.Context, in *RecommendRemoteDashboardItemsRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetDashboardItems(ctx context.Context, in *DashboardItemsRequest, opts ...grpc.CallOption) (*RecordsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteDashboardItems_FullMethodName, in, out, cOpts...)
+	out := new(RecordsResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetDashboardItems_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteRecommendations(ctx context.Context, in *RecommendRemoteRecommendRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetRecommendation(ctx context.Context, in *RecommendationRequest, opts ...grpc.CallOption) (*RecordsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteRecommendations_FullMethodName, in, out, cOpts...)
+	out := new(RecordsResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendation_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteNeighbors(ctx context.Context, in *RecommendRemoteNeighborRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetNeighbor(ctx context.Context, in *NeighborRequest, opts ...grpc.CallOption) (*RecordsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteNeighbors_FullMethodName, in, out, cOpts...)
+	out := new(RecordsResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetNeighbor_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) PageRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteFeedbackRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) PageFeedback(ctx context.Context, in *FeedbackRequest, opts ...grpc.CallOption) (*FeedbackPageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_PageRecommendRemoteFeedback_FullMethodName, in, out, cOpts...)
+	out := new(FeedbackPageResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_PageFeedback_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) ImportRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteJsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendRemoteServiceClient) ImportFeedback(ctx context.Context, in *JsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_ImportRecommendRemoteFeedback_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_ImportFeedback_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) DeleteRecommendRemoteFeedback(ctx context.Context, in *RecommendRemoteFeedbackDeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendRemoteServiceClient) DeleteFeedback(ctx context.Context, in *FeedbackDeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_DeleteRecommendRemoteFeedback_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_DeleteFeedback_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) PageRecommendRemoteUsers(ctx context.Context, in *RecommendRemoteCursorRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) PageUser(ctx context.Context, in *CursorRequest, opts ...grpc.CallOption) (*UsersPageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_PageRecommendRemoteUsers_FullMethodName, in, out, cOpts...)
+	out := new(UsersPageResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_PageUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteUser(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetUser(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*User, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteUser_FullMethodName, in, out, cOpts...)
+	out := new(User)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) DeleteRecommendRemoteUser(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_DeleteRecommendRemoteUser_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendRemoteServiceClient) PageRecommendRemoteItems(ctx context.Context, in *RecommendRemoteCursorRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_PageRecommendRemoteItems_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendRemoteServiceClient) GetRecommendRemoteItem(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteItem_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendRemoteServiceClient) DeleteRecommendRemoteItem(ctx context.Context, in *RecommendRemoteIdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendRemoteServiceClient) DeleteUser(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_DeleteRecommendRemoteItem_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_DeleteUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) ExportRecommendRemoteData(ctx context.Context, in *RecommendRemoteDataRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) PageItem(ctx context.Context, in *CursorRequest, opts ...grpc.CallOption) (*ItemsPageResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_ExportRecommendRemoteData_FullMethodName, in, out, cOpts...)
+	out := new(ItemsPageResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_PageItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) ImportRecommendRemoteData(ctx context.Context, in *RecommendRemoteImportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendRemoteServiceClient) GetItem(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*Item, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_ImportRecommendRemoteData_FullMethodName, in, out, cOpts...)
+	out := new(Item)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) PurgeRecommendRemoteData(ctx context.Context, in *RecommendRemotePurgeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_PurgeRecommendRemoteData_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendRemoteServiceClient) GetRecommendRemoteFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteFlowConfig_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *recommendRemoteServiceClient) SaveRecommendRemoteFlowConfig(ctx context.Context, in *RecommendRemoteJsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendRemoteServiceClient) DeleteItem(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_SaveRecommendRemoteFlowConfig_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_DeleteItem_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) ResetRecommendRemoteFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *recommendRemoteServiceClient) ExportData(ctx context.Context, in *DataRequest, opts ...grpc.CallOption) (*DataPageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DataPageResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_ExportData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendRemoteServiceClient) ImportData(ctx context.Context, in *ImportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_ResetRecommendRemoteFlowConfig_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_ImportData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteFlowSchema(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) PurgeData(ctx context.Context, in *PurgeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteFlowSchema_FullMethodName, in, out, cOpts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_PurgeData_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *recommendRemoteServiceClient) GetRecommendRemoteConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
+func (c *recommendRemoteServiceClient) GetFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RecommendRemoteJsonResponse)
-	err := c.cc.Invoke(ctx, RecommendRemoteService_GetRecommendRemoteConfig_FullMethodName, in, out, cOpts...)
+	out := new(ConfigResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetFlowConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendRemoteServiceClient) SaveFlowConfig(ctx context.Context, in *JsonRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_SaveFlowConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendRemoteServiceClient) ResetFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_ResetFlowConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendRemoteServiceClient) GetFlowSchema(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetFlowSchema_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *recommendRemoteServiceClient) GetConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ConfigResponse)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_GetConfig_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -358,53 +358,53 @@ func (c *recommendRemoteServiceClient) GetRecommendRemoteConfig(ctx context.Cont
 // Admin远程推荐服务
 type RecommendRemoteServiceServer interface {
 	// 查询远程推荐概览
-	GetRecommendRemoteOverview(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	GetOverview(context.Context, *emptypb.Empty) (*OverviewResponse, error)
 	// 查询远程推荐任务状态
-	GetRecommendRemoteTasks(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	GetTask(context.Context, *emptypb.Empty) (*TasksResponse, error)
 	// 查询远程推荐分类
-	GetRecommendRemoteCategories(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	GetCategory(context.Context, *emptypb.Empty) (*CategoriesResponse, error)
 	// 查询远程推荐时间序列
-	GetRecommendRemoteTimeseries(context.Context, *RecommendRemoteNameRequest) (*RecommendRemoteJsonResponse, error)
+	GetTimeseries(context.Context, *NameRequest) (*TimeseriesResponse, error)
 	// 查询远程推荐仪表盘推荐商品
-	GetRecommendRemoteDashboardItems(context.Context, *RecommendRemoteDashboardItemsRequest) (*RecommendRemoteJsonResponse, error)
+	GetDashboardItems(context.Context, *DashboardItemsRequest) (*RecordsResponse, error)
 	// 查询远程推荐结果
-	GetRecommendRemoteRecommendations(context.Context, *RecommendRemoteRecommendRequest) (*RecommendRemoteJsonResponse, error)
+	GetRecommendation(context.Context, *RecommendationRequest) (*RecordsResponse, error)
 	// 查询远程相似内容
-	GetRecommendRemoteNeighbors(context.Context, *RecommendRemoteNeighborRequest) (*RecommendRemoteJsonResponse, error)
+	GetNeighbor(context.Context, *NeighborRequest) (*RecordsResponse, error)
 	// 查询远程推荐反馈列表
-	PageRecommendRemoteFeedback(context.Context, *RecommendRemoteFeedbackRequest) (*RecommendRemoteJsonResponse, error)
+	PageFeedback(context.Context, *FeedbackRequest) (*FeedbackPageResponse, error)
 	// 写入远程推荐反馈
-	ImportRecommendRemoteFeedback(context.Context, *RecommendRemoteJsonRequest) (*emptypb.Empty, error)
+	ImportFeedback(context.Context, *JsonRequest) (*emptypb.Empty, error)
 	// 删除远程推荐反馈
-	DeleteRecommendRemoteFeedback(context.Context, *RecommendRemoteFeedbackDeleteRequest) (*emptypb.Empty, error)
+	DeleteFeedback(context.Context, *FeedbackDeleteRequest) (*emptypb.Empty, error)
 	// 查询远程推荐用户列表
-	PageRecommendRemoteUsers(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error)
+	PageUser(context.Context, *CursorRequest) (*UsersPageResponse, error)
 	// 查询远程推荐用户
-	GetRecommendRemoteUser(context.Context, *RecommendRemoteIdRequest) (*RecommendRemoteJsonResponse, error)
+	GetUser(context.Context, *IdRequest) (*User, error)
 	// 删除远程推荐用户
-	DeleteRecommendRemoteUser(context.Context, *RecommendRemoteIdRequest) (*emptypb.Empty, error)
+	DeleteUser(context.Context, *IdRequest) (*emptypb.Empty, error)
 	// 查询远程推荐商品列表
-	PageRecommendRemoteItems(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error)
+	PageItem(context.Context, *CursorRequest) (*ItemsPageResponse, error)
 	// 查询远程推荐商品
-	GetRecommendRemoteItem(context.Context, *RecommendRemoteIdRequest) (*RecommendRemoteJsonResponse, error)
+	GetItem(context.Context, *IdRequest) (*Item, error)
 	// 删除远程推荐商品
-	DeleteRecommendRemoteItem(context.Context, *RecommendRemoteIdRequest) (*emptypb.Empty, error)
+	DeleteItem(context.Context, *IdRequest) (*emptypb.Empty, error)
 	// 导出远程推荐数据
-	ExportRecommendRemoteData(context.Context, *RecommendRemoteDataRequest) (*RecommendRemoteJsonResponse, error)
+	ExportData(context.Context, *DataRequest) (*DataPageResponse, error)
 	// 导入远程推荐数据
-	ImportRecommendRemoteData(context.Context, *RecommendRemoteImportRequest) (*emptypb.Empty, error)
+	ImportData(context.Context, *ImportRequest) (*emptypb.Empty, error)
 	// 清空远程推荐数据
-	PurgeRecommendRemoteData(context.Context, *RecommendRemotePurgeRequest) (*emptypb.Empty, error)
+	PurgeData(context.Context, *PurgeRequest) (*emptypb.Empty, error)
 	// 查询推荐编排配置
-	GetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	GetFlowConfig(context.Context, *emptypb.Empty) (*ConfigResponse, error)
 	// 保存推荐编排配置
-	SaveRecommendRemoteFlowConfig(context.Context, *RecommendRemoteJsonRequest) (*emptypb.Empty, error)
+	SaveFlowConfig(context.Context, *JsonRequest) (*emptypb.Empty, error)
 	// 重置推荐编排配置
-	ResetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	ResetFlowConfig(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// 查询推荐编排配置结构
-	GetRecommendRemoteFlowSchema(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	GetFlowSchema(context.Context, *emptypb.Empty) (*ConfigResponse, error)
 	// 查询远程推荐配置
-	GetRecommendRemoteConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
+	GetConfig(context.Context, *emptypb.Empty) (*ConfigResponse, error)
 	mustEmbedUnimplementedRecommendRemoteServiceServer()
 }
 
@@ -415,77 +415,77 @@ type RecommendRemoteServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRecommendRemoteServiceServer struct{}
 
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteOverview(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteOverview not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetOverview(context.Context, *emptypb.Empty) (*OverviewResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetOverview not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteTasks(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteTasks not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetTask(context.Context, *emptypb.Empty) (*TasksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTask not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteCategories(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteCategories not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetCategory(context.Context, *emptypb.Empty) (*CategoriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCategory not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteTimeseries(context.Context, *RecommendRemoteNameRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteTimeseries not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetTimeseries(context.Context, *NameRequest) (*TimeseriesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetTimeseries not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteDashboardItems(context.Context, *RecommendRemoteDashboardItemsRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteDashboardItems not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetDashboardItems(context.Context, *DashboardItemsRequest) (*RecordsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDashboardItems not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteRecommendations(context.Context, *RecommendRemoteRecommendRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteRecommendations not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetRecommendation(context.Context, *RecommendationRequest) (*RecordsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetRecommendation not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteNeighbors(context.Context, *RecommendRemoteNeighborRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteNeighbors not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetNeighbor(context.Context, *NeighborRequest) (*RecordsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetNeighbor not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) PageRecommendRemoteFeedback(context.Context, *RecommendRemoteFeedbackRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageRecommendRemoteFeedback not implemented")
+func (UnimplementedRecommendRemoteServiceServer) PageFeedback(context.Context, *FeedbackRequest) (*FeedbackPageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageFeedback not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) ImportRecommendRemoteFeedback(context.Context, *RecommendRemoteJsonRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ImportRecommendRemoteFeedback not implemented")
+func (UnimplementedRecommendRemoteServiceServer) ImportFeedback(context.Context, *JsonRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ImportFeedback not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) DeleteRecommendRemoteFeedback(context.Context, *RecommendRemoteFeedbackDeleteRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRecommendRemoteFeedback not implemented")
+func (UnimplementedRecommendRemoteServiceServer) DeleteFeedback(context.Context, *FeedbackDeleteRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteFeedback not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) PageRecommendRemoteUsers(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageRecommendRemoteUsers not implemented")
+func (UnimplementedRecommendRemoteServiceServer) PageUser(context.Context, *CursorRequest) (*UsersPageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageUser not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteUser(context.Context, *RecommendRemoteIdRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteUser not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetUser(context.Context, *IdRequest) (*User, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) DeleteRecommendRemoteUser(context.Context, *RecommendRemoteIdRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRecommendRemoteUser not implemented")
+func (UnimplementedRecommendRemoteServiceServer) DeleteUser(context.Context, *IdRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) PageRecommendRemoteItems(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method PageRecommendRemoteItems not implemented")
+func (UnimplementedRecommendRemoteServiceServer) PageItem(context.Context, *CursorRequest) (*ItemsPageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageItem not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteItem(context.Context, *RecommendRemoteIdRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteItem not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetItem(context.Context, *IdRequest) (*Item, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetItem not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) DeleteRecommendRemoteItem(context.Context, *RecommendRemoteIdRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method DeleteRecommendRemoteItem not implemented")
+func (UnimplementedRecommendRemoteServiceServer) DeleteItem(context.Context, *IdRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteItem not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) ExportRecommendRemoteData(context.Context, *RecommendRemoteDataRequest) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ExportRecommendRemoteData not implemented")
+func (UnimplementedRecommendRemoteServiceServer) ExportData(context.Context, *DataRequest) (*DataPageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExportData not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) ImportRecommendRemoteData(context.Context, *RecommendRemoteImportRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ImportRecommendRemoteData not implemented")
+func (UnimplementedRecommendRemoteServiceServer) ImportData(context.Context, *ImportRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ImportData not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) PurgeRecommendRemoteData(context.Context, *RecommendRemotePurgeRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method PurgeRecommendRemoteData not implemented")
+func (UnimplementedRecommendRemoteServiceServer) PurgeData(context.Context, *PurgeRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method PurgeData not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteFlowConfig not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetFlowConfig(context.Context, *emptypb.Empty) (*ConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFlowConfig not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) SaveRecommendRemoteFlowConfig(context.Context, *RecommendRemoteJsonRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SaveRecommendRemoteFlowConfig not implemented")
+func (UnimplementedRecommendRemoteServiceServer) SaveFlowConfig(context.Context, *JsonRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SaveFlowConfig not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) ResetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method ResetRecommendRemoteFlowConfig not implemented")
+func (UnimplementedRecommendRemoteServiceServer) ResetFlowConfig(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResetFlowConfig not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteFlowSchema(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteFlowSchema not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetFlowSchema(context.Context, *emptypb.Empty) (*ConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetFlowSchema not implemented")
 }
-func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteConfig not implemented")
+func (UnimplementedRecommendRemoteServiceServer) GetConfig(context.Context, *emptypb.Empty) (*ConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetConfig not implemented")
 }
 func (UnimplementedRecommendRemoteServiceServer) mustEmbedUnimplementedRecommendRemoteServiceServer() {
 }
@@ -509,434 +509,434 @@ func RegisterRecommendRemoteServiceServer(s grpc.ServiceRegistrar, srv Recommend
 	s.RegisterService(&RecommendRemoteService_ServiceDesc, srv)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_GetOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteOverview(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetOverview(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteOverview_FullMethodName,
+		FullMethod: RecommendRemoteService_GetOverview_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteOverview(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).GetOverview(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_GetTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteTasks(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetTask(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteTasks_FullMethodName,
+		FullMethod: RecommendRemoteService_GetTask_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteTasks(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).GetTask(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_GetCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteCategories(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetCategory(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteCategories_FullMethodName,
+		FullMethod: RecommendRemoteService_GetCategory_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteCategories(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).GetCategory(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteTimeseries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteNameRequest)
+func _RecommendRemoteService_GetTimeseries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NameRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteTimeseries(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetTimeseries(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteTimeseries_FullMethodName,
+		FullMethod: RecommendRemoteService_GetTimeseries_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteTimeseries(ctx, req.(*RecommendRemoteNameRequest))
+		return srv.(RecommendRemoteServiceServer).GetTimeseries(ctx, req.(*NameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteDashboardItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteDashboardItemsRequest)
+func _RecommendRemoteService_GetDashboardItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DashboardItemsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteDashboardItems(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetDashboardItems(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteDashboardItems_FullMethodName,
+		FullMethod: RecommendRemoteService_GetDashboardItems_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteDashboardItems(ctx, req.(*RecommendRemoteDashboardItemsRequest))
+		return srv.(RecommendRemoteServiceServer).GetDashboardItems(ctx, req.(*DashboardItemsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteRecommendations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteRecommendRequest)
+func _RecommendRemoteService_GetRecommendation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteRecommendations(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetRecommendation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteRecommendations_FullMethodName,
+		FullMethod: RecommendRemoteService_GetRecommendation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteRecommendations(ctx, req.(*RecommendRemoteRecommendRequest))
+		return srv.(RecommendRemoteServiceServer).GetRecommendation(ctx, req.(*RecommendationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteNeighbors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteNeighborRequest)
+func _RecommendRemoteService_GetNeighbor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(NeighborRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteNeighbors(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetNeighbor(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteNeighbors_FullMethodName,
+		FullMethod: RecommendRemoteService_GetNeighbor_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteNeighbors(ctx, req.(*RecommendRemoteNeighborRequest))
+		return srv.(RecommendRemoteServiceServer).GetNeighbor(ctx, req.(*NeighborRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_PageRecommendRemoteFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteFeedbackRequest)
+func _RecommendRemoteService_PageFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FeedbackRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).PageRecommendRemoteFeedback(ctx, in)
+		return srv.(RecommendRemoteServiceServer).PageFeedback(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_PageRecommendRemoteFeedback_FullMethodName,
+		FullMethod: RecommendRemoteService_PageFeedback_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).PageRecommendRemoteFeedback(ctx, req.(*RecommendRemoteFeedbackRequest))
+		return srv.(RecommendRemoteServiceServer).PageFeedback(ctx, req.(*FeedbackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_ImportRecommendRemoteFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteJsonRequest)
+func _RecommendRemoteService_ImportFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JsonRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).ImportRecommendRemoteFeedback(ctx, in)
+		return srv.(RecommendRemoteServiceServer).ImportFeedback(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_ImportRecommendRemoteFeedback_FullMethodName,
+		FullMethod: RecommendRemoteService_ImportFeedback_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).ImportRecommendRemoteFeedback(ctx, req.(*RecommendRemoteJsonRequest))
+		return srv.(RecommendRemoteServiceServer).ImportFeedback(ctx, req.(*JsonRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_DeleteRecommendRemoteFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteFeedbackDeleteRequest)
+func _RecommendRemoteService_DeleteFeedback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FeedbackDeleteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).DeleteRecommendRemoteFeedback(ctx, in)
+		return srv.(RecommendRemoteServiceServer).DeleteFeedback(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_DeleteRecommendRemoteFeedback_FullMethodName,
+		FullMethod: RecommendRemoteService_DeleteFeedback_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).DeleteRecommendRemoteFeedback(ctx, req.(*RecommendRemoteFeedbackDeleteRequest))
+		return srv.(RecommendRemoteServiceServer).DeleteFeedback(ctx, req.(*FeedbackDeleteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_PageRecommendRemoteUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteCursorRequest)
+func _RecommendRemoteService_PageUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CursorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).PageRecommendRemoteUsers(ctx, in)
+		return srv.(RecommendRemoteServiceServer).PageUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_PageRecommendRemoteUsers_FullMethodName,
+		FullMethod: RecommendRemoteService_PageUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).PageRecommendRemoteUsers(ctx, req.(*RecommendRemoteCursorRequest))
+		return srv.(RecommendRemoteServiceServer).PageUser(ctx, req.(*CursorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteIdRequest)
+func _RecommendRemoteService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteUser(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteUser_FullMethodName,
+		FullMethod: RecommendRemoteService_GetUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteUser(ctx, req.(*RecommendRemoteIdRequest))
+		return srv.(RecommendRemoteServiceServer).GetUser(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_DeleteRecommendRemoteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteIdRequest)
+func _RecommendRemoteService_DeleteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).DeleteRecommendRemoteUser(ctx, in)
+		return srv.(RecommendRemoteServiceServer).DeleteUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_DeleteRecommendRemoteUser_FullMethodName,
+		FullMethod: RecommendRemoteService_DeleteUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).DeleteRecommendRemoteUser(ctx, req.(*RecommendRemoteIdRequest))
+		return srv.(RecommendRemoteServiceServer).DeleteUser(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_PageRecommendRemoteItems_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteCursorRequest)
+func _RecommendRemoteService_PageItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CursorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).PageRecommendRemoteItems(ctx, in)
+		return srv.(RecommendRemoteServiceServer).PageItem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_PageRecommendRemoteItems_FullMethodName,
+		FullMethod: RecommendRemoteService_PageItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).PageRecommendRemoteItems(ctx, req.(*RecommendRemoteCursorRequest))
+		return srv.(RecommendRemoteServiceServer).PageItem(ctx, req.(*CursorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteIdRequest)
+func _RecommendRemoteService_GetItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteItem(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetItem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteItem_FullMethodName,
+		FullMethod: RecommendRemoteService_GetItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteItem(ctx, req.(*RecommendRemoteIdRequest))
+		return srv.(RecommendRemoteServiceServer).GetItem(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_DeleteRecommendRemoteItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteIdRequest)
+func _RecommendRemoteService_DeleteItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(IdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).DeleteRecommendRemoteItem(ctx, in)
+		return srv.(RecommendRemoteServiceServer).DeleteItem(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_DeleteRecommendRemoteItem_FullMethodName,
+		FullMethod: RecommendRemoteService_DeleteItem_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).DeleteRecommendRemoteItem(ctx, req.(*RecommendRemoteIdRequest))
+		return srv.(RecommendRemoteServiceServer).DeleteItem(ctx, req.(*IdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_ExportRecommendRemoteData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteDataRequest)
+func _RecommendRemoteService_ExportData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).ExportRecommendRemoteData(ctx, in)
+		return srv.(RecommendRemoteServiceServer).ExportData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_ExportRecommendRemoteData_FullMethodName,
+		FullMethod: RecommendRemoteService_ExportData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).ExportRecommendRemoteData(ctx, req.(*RecommendRemoteDataRequest))
+		return srv.(RecommendRemoteServiceServer).ExportData(ctx, req.(*DataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_ImportRecommendRemoteData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteImportRequest)
+func _RecommendRemoteService_ImportData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).ImportRecommendRemoteData(ctx, in)
+		return srv.(RecommendRemoteServiceServer).ImportData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_ImportRecommendRemoteData_FullMethodName,
+		FullMethod: RecommendRemoteService_ImportData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).ImportRecommendRemoteData(ctx, req.(*RecommendRemoteImportRequest))
+		return srv.(RecommendRemoteServiceServer).ImportData(ctx, req.(*ImportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_PurgeRecommendRemoteData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemotePurgeRequest)
+func _RecommendRemoteService_PurgeData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PurgeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).PurgeRecommendRemoteData(ctx, in)
+		return srv.(RecommendRemoteServiceServer).PurgeData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_PurgeRecommendRemoteData_FullMethodName,
+		FullMethod: RecommendRemoteService_PurgeData_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).PurgeRecommendRemoteData(ctx, req.(*RecommendRemotePurgeRequest))
+		return srv.(RecommendRemoteServiceServer).PurgeData(ctx, req.(*PurgeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_GetFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteFlowConfig(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetFlowConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteFlowConfig_FullMethodName,
+		FullMethod: RecommendRemoteService_GetFlowConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteFlowConfig(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).GetFlowConfig(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_SaveRecommendRemoteFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RecommendRemoteJsonRequest)
+func _RecommendRemoteService_SaveFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JsonRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).SaveRecommendRemoteFlowConfig(ctx, in)
+		return srv.(RecommendRemoteServiceServer).SaveFlowConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_SaveRecommendRemoteFlowConfig_FullMethodName,
+		FullMethod: RecommendRemoteService_SaveFlowConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).SaveRecommendRemoteFlowConfig(ctx, req.(*RecommendRemoteJsonRequest))
+		return srv.(RecommendRemoteServiceServer).SaveFlowConfig(ctx, req.(*JsonRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_ResetRecommendRemoteFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_ResetFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).ResetRecommendRemoteFlowConfig(ctx, in)
+		return srv.(RecommendRemoteServiceServer).ResetFlowConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_ResetRecommendRemoteFlowConfig_FullMethodName,
+		FullMethod: RecommendRemoteService_ResetFlowConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).ResetRecommendRemoteFlowConfig(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).ResetFlowConfig(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteFlowSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_GetFlowSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteFlowSchema(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetFlowSchema(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteFlowSchema_FullMethodName,
+		FullMethod: RecommendRemoteService_GetFlowSchema_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteFlowSchema(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).GetFlowSchema(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RecommendRemoteService_GetRecommendRemoteConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RecommendRemoteService_GetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteConfig(ctx, in)
+		return srv.(RecommendRemoteServiceServer).GetConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RecommendRemoteService_GetRecommendRemoteConfig_FullMethodName,
+		FullMethod: RecommendRemoteService_GetConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RecommendRemoteServiceServer).GetRecommendRemoteConfig(ctx, req.(*emptypb.Empty))
+		return srv.(RecommendRemoteServiceServer).GetConfig(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -949,100 +949,100 @@ var RecommendRemoteService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RecommendRemoteServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetRecommendRemoteOverview",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteOverview_Handler,
+			MethodName: "GetOverview",
+			Handler:    _RecommendRemoteService_GetOverview_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteTasks",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteTasks_Handler,
+			MethodName: "GetTask",
+			Handler:    _RecommendRemoteService_GetTask_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteCategories",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteCategories_Handler,
+			MethodName: "GetCategory",
+			Handler:    _RecommendRemoteService_GetCategory_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteTimeseries",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteTimeseries_Handler,
+			MethodName: "GetTimeseries",
+			Handler:    _RecommendRemoteService_GetTimeseries_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteDashboardItems",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteDashboardItems_Handler,
+			MethodName: "GetDashboardItems",
+			Handler:    _RecommendRemoteService_GetDashboardItems_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteRecommendations",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteRecommendations_Handler,
+			MethodName: "GetRecommendation",
+			Handler:    _RecommendRemoteService_GetRecommendation_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteNeighbors",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteNeighbors_Handler,
+			MethodName: "GetNeighbor",
+			Handler:    _RecommendRemoteService_GetNeighbor_Handler,
 		},
 		{
-			MethodName: "PageRecommendRemoteFeedback",
-			Handler:    _RecommendRemoteService_PageRecommendRemoteFeedback_Handler,
+			MethodName: "PageFeedback",
+			Handler:    _RecommendRemoteService_PageFeedback_Handler,
 		},
 		{
-			MethodName: "ImportRecommendRemoteFeedback",
-			Handler:    _RecommendRemoteService_ImportRecommendRemoteFeedback_Handler,
+			MethodName: "ImportFeedback",
+			Handler:    _RecommendRemoteService_ImportFeedback_Handler,
 		},
 		{
-			MethodName: "DeleteRecommendRemoteFeedback",
-			Handler:    _RecommendRemoteService_DeleteRecommendRemoteFeedback_Handler,
+			MethodName: "DeleteFeedback",
+			Handler:    _RecommendRemoteService_DeleteFeedback_Handler,
 		},
 		{
-			MethodName: "PageRecommendRemoteUsers",
-			Handler:    _RecommendRemoteService_PageRecommendRemoteUsers_Handler,
+			MethodName: "PageUser",
+			Handler:    _RecommendRemoteService_PageUser_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteUser",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteUser_Handler,
+			MethodName: "GetUser",
+			Handler:    _RecommendRemoteService_GetUser_Handler,
 		},
 		{
-			MethodName: "DeleteRecommendRemoteUser",
-			Handler:    _RecommendRemoteService_DeleteRecommendRemoteUser_Handler,
+			MethodName: "DeleteUser",
+			Handler:    _RecommendRemoteService_DeleteUser_Handler,
 		},
 		{
-			MethodName: "PageRecommendRemoteItems",
-			Handler:    _RecommendRemoteService_PageRecommendRemoteItems_Handler,
+			MethodName: "PageItem",
+			Handler:    _RecommendRemoteService_PageItem_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteItem",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteItem_Handler,
+			MethodName: "GetItem",
+			Handler:    _RecommendRemoteService_GetItem_Handler,
 		},
 		{
-			MethodName: "DeleteRecommendRemoteItem",
-			Handler:    _RecommendRemoteService_DeleteRecommendRemoteItem_Handler,
+			MethodName: "DeleteItem",
+			Handler:    _RecommendRemoteService_DeleteItem_Handler,
 		},
 		{
-			MethodName: "ExportRecommendRemoteData",
-			Handler:    _RecommendRemoteService_ExportRecommendRemoteData_Handler,
+			MethodName: "ExportData",
+			Handler:    _RecommendRemoteService_ExportData_Handler,
 		},
 		{
-			MethodName: "ImportRecommendRemoteData",
-			Handler:    _RecommendRemoteService_ImportRecommendRemoteData_Handler,
+			MethodName: "ImportData",
+			Handler:    _RecommendRemoteService_ImportData_Handler,
 		},
 		{
-			MethodName: "PurgeRecommendRemoteData",
-			Handler:    _RecommendRemoteService_PurgeRecommendRemoteData_Handler,
+			MethodName: "PurgeData",
+			Handler:    _RecommendRemoteService_PurgeData_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteFlowConfig",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteFlowConfig_Handler,
+			MethodName: "GetFlowConfig",
+			Handler:    _RecommendRemoteService_GetFlowConfig_Handler,
 		},
 		{
-			MethodName: "SaveRecommendRemoteFlowConfig",
-			Handler:    _RecommendRemoteService_SaveRecommendRemoteFlowConfig_Handler,
+			MethodName: "SaveFlowConfig",
+			Handler:    _RecommendRemoteService_SaveFlowConfig_Handler,
 		},
 		{
-			MethodName: "ResetRecommendRemoteFlowConfig",
-			Handler:    _RecommendRemoteService_ResetRecommendRemoteFlowConfig_Handler,
+			MethodName: "ResetFlowConfig",
+			Handler:    _RecommendRemoteService_ResetFlowConfig_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteFlowSchema",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteFlowSchema_Handler,
+			MethodName: "GetFlowSchema",
+			Handler:    _RecommendRemoteService_GetFlowSchema_Handler,
 		},
 		{
-			MethodName: "GetRecommendRemoteConfig",
-			Handler:    _RecommendRemoteService_GetRecommendRemoteConfig_Handler,
+			MethodName: "GetConfig",
+			Handler:    _RecommendRemoteService_GetConfig_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

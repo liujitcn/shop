@@ -101,15 +101,14 @@ import { defRecommendRemoteService } from "@/api/admin/recommend_remote";
 import {
   foldRemoteValue,
   formatRemoteDateTime,
-  formatRemoteJson,
-  parseRemoteCursorList,
+  formatRemoteObject,
   resolveRemoteId,
   resolveRemoteValue,
   stringifyRemoteValue,
   type RemoteRecord
 } from "../utils";
 
-defineOptions({ name: "RecommendRemoteFeedback" });
+defineOptions({ name: "Feedback" });
 
 const feedbackTypeKeys = ["FeedbackType", "feedbackType", "feedback_type", "Type", "type"];
 const userIdKeys = ["UserId", "userId", "user_id"];
@@ -141,11 +140,10 @@ async function loadFeedback(resetCursor: boolean) {
   }
   loading.value = true;
   try {
-    const data = await defRecommendRemoteService.PageRecommendRemoteFeedback({ ...query });
-    rawJson.value = formatRemoteJson(data.json || "[]");
-    const parsed = parseRemoteCursorList(data.json, ["Feedback", "feedback", "Items", "items", "List", "list"]);
-    list.value = parsed.list;
-    nextCursor.value = parsed.cursor;
+    const data = await defRecommendRemoteService.PageFeedback({ ...query });
+    rawJson.value = formatRemoteObject(data.list);
+    list.value = data.list.map(item => (item.raw ?? item) as RemoteRecord);
+    nextCursor.value = data.cursor;
   } catch (error) {
     ElMessage.error("加载远程推荐反馈失败");
     throw error;
@@ -200,7 +198,7 @@ async function importFeedback() {
   });
   importLoading.value = true;
   try {
-    await defRecommendRemoteService.ImportRecommendRemoteFeedback({ json: body });
+    await defRecommendRemoteService.ImportFeedback({ json: body });
     ElMessage.success("导入远程推荐反馈成功");
     await loadFeedback(true);
   } catch (error) {
@@ -225,7 +223,7 @@ async function deleteFeedback(row: RemoteRecord) {
     cancelButtonText: "取消",
     type: "warning"
   });
-  await defRecommendRemoteService.DeleteRecommendRemoteFeedback({ feedbackType, userId, itemId });
+  await defRecommendRemoteService.DeleteFeedback({ feedbackType, userId, itemId });
   ElMessage.success("删除远程推荐反馈成功");
   await loadFeedback(false);
 }

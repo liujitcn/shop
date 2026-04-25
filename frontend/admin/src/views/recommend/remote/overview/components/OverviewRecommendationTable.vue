@@ -61,7 +61,6 @@ import { useDictStore } from "@/stores/modules/dict";
 import {
   foldRemoteValue,
   formatRemoteCell,
-  parseRemoteRecordList,
   resolveRemoteArray,
   resolveRemoteId,
   resolveRemoteValue,
@@ -237,14 +236,14 @@ async function loadDictionaryOptions() {
 /** 查询非个性化推荐表格数据。 */
 async function requestRecommendedItemsTable() {
   try {
-    const data = await defRecommendRemoteService.GetRecommendRemoteDashboardItems({
+    const data = await defRecommendRemoteService.GetDashboardItems({
       recommender: queryForm.recommender || "latest",
       category: queryForm.category || "",
       end: props.cacheSize || 100
     });
     lastModified.value = data.lastModified;
     return {
-      data: parseRemoteRecordList(data.json).map(normalizeRecommendedItem)
+      data: data.list.map(item => normalizeRecommendedItem((item.raw ?? item) as RemoteRecord, data.list.indexOf(item)))
     };
   } catch (error) {
     ElMessage.error("加载非个性化推荐失败");

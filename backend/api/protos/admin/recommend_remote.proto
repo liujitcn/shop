@@ -5,67 +5,68 @@ package admin;
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
 
 // Admin远程推荐服务
 service RecommendRemoteService {
   // 查询远程推荐概览
-  rpc GetRecommendRemoteOverview (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
+  rpc GetOverview (google.protobuf.Empty) returns (OverviewResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/overview"
     };
   }
 
   // 查询远程推荐任务状态
-  rpc GetRecommendRemoteTasks (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
+  rpc GetTask (google.protobuf.Empty) returns (TasksResponse) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/tasks"
+      get: "/api/admin/recommend/remote/task"
     };
   }
 
   // 查询远程推荐分类
-  rpc GetRecommendRemoteCategories (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
+  rpc GetCategory (google.protobuf.Empty) returns (CategoriesResponse) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/categories"
+      get: "/api/admin/recommend/remote/category"
     };
   }
 
   // 查询远程推荐时间序列
-  rpc GetRecommendRemoteTimeseries (RecommendRemoteNameRequest) returns (RecommendRemoteJsonResponse) {
+  rpc GetTimeseries (NameRequest) returns (TimeseriesResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/timeseries/{name}"
     };
   }
 
   // 查询远程推荐仪表盘推荐商品
-  rpc GetRecommendRemoteDashboardItems (RecommendRemoteDashboardItemsRequest) returns (RecommendRemoteJsonResponse) {
+  rpc GetDashboardItems (DashboardItemsRequest) returns (RecordsResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/dashboard"
     };
   }
 
   // 查询远程推荐结果
-  rpc GetRecommendRemoteRecommendations (RecommendRemoteRecommendRequest) returns (RecommendRemoteJsonResponse) {
+  rpc GetRecommendation (RecommendationRequest) returns (RecordsResponse) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/recommendations"
+      get: "/api/admin/recommend/remote/recommendation"
     };
   }
 
   // 查询远程相似内容
-  rpc GetRecommendRemoteNeighbors (RecommendRemoteNeighborRequest) returns (RecommendRemoteJsonResponse) {
+  rpc GetNeighbor (NeighborRequest) returns (RecordsResponse) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/neighbors"
+      get: "/api/admin/recommend/remote/neighbor"
     };
   }
 
   // 查询远程推荐反馈列表
-  rpc PageRecommendRemoteFeedback (RecommendRemoteFeedbackRequest) returns (RecommendRemoteJsonResponse) {
+  rpc PageFeedback (FeedbackRequest) returns (FeedbackPageResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/feedback"
     };
   }
 
   // 写入远程推荐反馈
-  rpc ImportRecommendRemoteFeedback (RecommendRemoteJsonRequest) returns (google.protobuf.Empty) {
+  rpc ImportFeedback (JsonRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/recommend/remote/feedback"
       body: "*"
@@ -73,63 +74,63 @@ service RecommendRemoteService {
   }
 
   // 删除远程推荐反馈
-  rpc DeleteRecommendRemoteFeedback (RecommendRemoteFeedbackDeleteRequest) returns (google.protobuf.Empty) {
+  rpc DeleteFeedback (FeedbackDeleteRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/admin/recommend/remote/feedback"
     };
   }
 
   // 查询远程推荐用户列表
-  rpc PageRecommendRemoteUsers (RecommendRemoteCursorRequest) returns (RecommendRemoteJsonResponse) {
+  rpc PageUser (CursorRequest) returns (UsersPageResponse) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/users"
+      get: "/api/admin/recommend/remote/user"
     };
   }
 
   // 查询远程推荐用户
-  rpc GetRecommendRemoteUser (RecommendRemoteIdRequest) returns (RecommendRemoteJsonResponse) {
+  rpc GetUser (IdRequest) returns (User) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/users/{id}"
+      get: "/api/admin/recommend/remote/user/{id}"
     };
   }
 
   // 删除远程推荐用户
-  rpc DeleteRecommendRemoteUser (RecommendRemoteIdRequest) returns (google.protobuf.Empty) {
+  rpc DeleteUser (IdRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/admin/recommend/remote/users/{id}"
+      delete: "/api/admin/recommend/remote/user/{id}"
     };
   }
 
   // 查询远程推荐商品列表
-  rpc PageRecommendRemoteItems (RecommendRemoteCursorRequest) returns (RecommendRemoteJsonResponse) {
+  rpc PageItem (CursorRequest) returns (ItemsPageResponse) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/items"
+      get: "/api/admin/recommend/remote/item"
     };
   }
 
   // 查询远程推荐商品
-  rpc GetRecommendRemoteItem (RecommendRemoteIdRequest) returns (RecommendRemoteJsonResponse) {
+  rpc GetItem (IdRequest) returns (Item) {
     option (google.api.http) = {
-      get: "/api/admin/recommend/remote/items/{id}"
+      get: "/api/admin/recommend/remote/item/{id}"
     };
   }
 
   // 删除远程推荐商品
-  rpc DeleteRecommendRemoteItem (RecommendRemoteIdRequest) returns (google.protobuf.Empty) {
+  rpc DeleteItem (IdRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      delete: "/api/admin/recommend/remote/items/{id}"
+      delete: "/api/admin/recommend/remote/item/{id}"
     };
   }
 
   // 导出远程推荐数据
-  rpc ExportRecommendRemoteData (RecommendRemoteDataRequest) returns (RecommendRemoteJsonResponse) {
+  rpc ExportData (DataRequest) returns (DataPageResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/advance/export"
     };
   }
 
   // 导入远程推荐数据
-  rpc ImportRecommendRemoteData (RecommendRemoteImportRequest) returns (google.protobuf.Empty) {
+  rpc ImportData (ImportRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/recommend/remote/advance/import"
       body: "*"
@@ -137,7 +138,7 @@ service RecommendRemoteService {
   }
 
   // 清空远程推荐数据
-  rpc PurgeRecommendRemoteData (RecommendRemotePurgeRequest) returns (google.protobuf.Empty) {
+  rpc PurgeData (PurgeRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/recommend/remote/advance/purge"
       body: "*"
@@ -145,14 +146,14 @@ service RecommendRemoteService {
   }
 
   // 查询推荐编排配置
-  rpc GetRecommendRemoteFlowConfig (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
+  rpc GetFlowConfig (google.protobuf.Empty) returns (ConfigResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/flow/config"
     };
   }
 
   // 保存推荐编排配置
-  rpc SaveRecommendRemoteFlowConfig (RecommendRemoteJsonRequest) returns (google.protobuf.Empty) {
+  rpc SaveFlowConfig (JsonRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/admin/recommend/remote/flow/config"
       body: "*"
@@ -160,21 +161,21 @@ service RecommendRemoteService {
   }
 
   // 重置推荐编排配置
-  rpc ResetRecommendRemoteFlowConfig (google.protobuf.Empty) returns (google.protobuf.Empty) {
+  rpc ResetFlowConfig (google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/admin/recommend/remote/flow/config"
     };
   }
 
   // 查询推荐编排配置结构
-  rpc GetRecommendRemoteFlowSchema (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
+  rpc GetFlowSchema (google.protobuf.Empty) returns (ConfigResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/flow/schema"
     };
   }
 
   // 查询远程推荐配置
-  rpc GetRecommendRemoteConfig (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
+  rpc GetConfig (google.protobuf.Empty) returns (ConfigResponse) {
     option (google.api.http) = {
       get: "/api/admin/recommend/remote/config"
     };
@@ -182,7 +183,7 @@ service RecommendRemoteService {
 }
 
 // 远程推荐游标查询条件
-message RecommendRemoteCursorRequest {
+message CursorRequest {
   string cursor = 1 [
     (gnostic.openapi.v3.property) = {
       description: "游标",
@@ -204,7 +205,7 @@ message RecommendRemoteCursorRequest {
 }
 
 // 远程推荐编号查询条件
-message RecommendRemoteIdRequest {
+message IdRequest {
   string id = 1 [
     (gnostic.openapi.v3.property) = {
       description: "编号",
@@ -213,7 +214,7 @@ message RecommendRemoteIdRequest {
 }
 
 // 远程推荐名称查询条件
-message RecommendRemoteNameRequest {
+message NameRequest {
   string name = 1 [
     (gnostic.openapi.v3.property) = {
       description: "名称",
@@ -234,7 +235,7 @@ message RecommendRemoteNameRequest {
 }
 
 // 远程推荐仪表盘推荐商品查询条件
-message RecommendRemoteDashboardItemsRequest {
+message DashboardItemsRequest {
   string recommender = 1 [
     (gnostic.openapi.v3.property) = {
       description: "推荐器名称",
@@ -257,7 +258,7 @@ message RecommendRemoteDashboardItemsRequest {
 }
 
 // 远程推荐查询条件
-message RecommendRemoteRecommendRequest {
+message RecommendationRequest {
   string type = 1 [
     (gnostic.openapi.v3.property) = {
       description: "推荐类型",
@@ -304,7 +305,7 @@ message RecommendRemoteRecommendRequest {
 }
 
 // 远程相似内容查询条件
-message RecommendRemoteNeighborRequest {
+message NeighborRequest {
   string type = 1 [
     (gnostic.openapi.v3.property) = {
       description: "相似类型",
@@ -339,7 +340,7 @@ message RecommendRemoteNeighborRequest {
 }
 
 // 远程推荐反馈查询条件
-message RecommendRemoteFeedbackRequest {
+message FeedbackRequest {
   string cursor = 1 [
     (gnostic.openapi.v3.property) = {
       description: "游标",
@@ -373,7 +374,7 @@ message RecommendRemoteFeedbackRequest {
 }
 
 // 远程推荐反馈删除条件
-message RecommendRemoteFeedbackDeleteRequest {
+message FeedbackDeleteRequest {
   string feedback_type = 1 [
     (gnostic.openapi.v3.property) = {
       description: "反馈类型",
@@ -394,7 +395,7 @@ message RecommendRemoteFeedbackDeleteRequest {
 }
 
 // 远程推荐数据查询条件
-message RecommendRemoteDataRequest {
+message DataRequest {
   string type = 1 [
     (gnostic.openapi.v3.property) = {
       description: "数据类型",
@@ -417,7 +418,7 @@ message RecommendRemoteDataRequest {
 }
 
 // 远程推荐导入内容
-message RecommendRemoteImportRequest {
+message ImportRequest {
   string type = 1 [
     (gnostic.openapi.v3.property) = {
       description: "数据类型",
@@ -433,7 +434,7 @@ message RecommendRemoteImportRequest {
 }
 
 // 远程推荐清空数据条件
-message RecommendRemotePurgeRequest {
+message PurgeRequest {
   repeated string check_list = 1 [
     (gnostic.openapi.v3.property) = {
       description: "确认清空项",
@@ -442,7 +443,7 @@ message RecommendRemotePurgeRequest {
 }
 
 // 远程推荐JSON请求
-message RecommendRemoteJsonRequest {
+message JsonRequest {
   string json = 1 [
     (gnostic.openapi.v3.property) = {
       description: "JSON内容",
@@ -450,17 +451,166 @@ message RecommendRemoteJsonRequest {
   ]; // JSON内容
 }
 
-// 远程推荐JSON响应
-message RecommendRemoteJsonResponse {
-  string json = 1 [
+// 远程推荐概览响应
+message OverviewResponse {
+  repeated TimeseriesMetric metrics = 1 [
+    (gnostic.openapi.v3.property) = {description: "统计指标列表"}
+  ]; // 统计指标列表
+
+  google.protobuf.Struct config = 2 [
+    (gnostic.openapi.v3.property) = {description: "概览配置"}
+  ]; // 概览配置
+}
+
+// 远程推荐统计指标
+message TimeseriesMetric {
+  string name = 1 [
     (gnostic.openapi.v3.property) = {
-      description: "JSON内容",
+      description: "指标名称",
     }
-  ]; // JSON内容
+  ]; // 指标名称
+
+  repeated TimeseriesPoint points = 2 [
+    (gnostic.openapi.v3.property) = {description: "指标点列表"}
+  ]; // 指标点列表
+}
+
+// 远程推荐时间序列响应
+message TimeseriesResponse {
+  repeated TimeseriesPoint points = 1 [
+    (gnostic.openapi.v3.property) = {description: "时间序列点列表"}
+  ]; // 时间序列点列表
+}
+
+// 远程推荐时间序列点
+message TimeseriesPoint {
+  string timestamp = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "时间",
+    }
+  ]; // 时间
+
+  double value = 2 [
+    (gnostic.openapi.v3.property) = {
+      description: "数值",
+    }
+  ]; // 数值
+}
+
+// 远程推荐任务响应
+message TasksResponse {
+  repeated Task list = 1 [
+    (gnostic.openapi.v3.property) = {description: "任务列表"}
+  ]; // 任务列表
+}
+
+// 远程推荐任务
+message Task {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "任务名称"}]; // 任务名称
+  string status = 2 [(gnostic.openapi.v3.property) = {description: "任务状态"}]; // 任务状态
+  int64 total = 3 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+  int64 count = 4 [(gnostic.openapi.v3.property) = {description: "已处理数量"}]; // 已处理数量
+  string error = 5 [(gnostic.openapi.v3.property) = {description: "错误信息"}]; // 错误信息
+  string start_time = 6 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  string finish_time = 7 [(gnostic.openapi.v3.property) = {description: "结束时间"}]; // 结束时间
+  google.protobuf.Struct raw = 100 [(gnostic.openapi.v3.property) = {description: "原始扩展字段"}]; // 原始扩展字段
+}
+
+// 远程推荐分类响应
+message CategoriesResponse {
+  repeated Category list = 1 [
+    (gnostic.openapi.v3.property) = {description: "分类列表"}
+  ]; // 分类列表
+}
+
+// 远程推荐分类
+message Category {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+  string count = 2 [(gnostic.openapi.v3.property) = {description: "分类数量"}]; // 分类数量
+  google.protobuf.Value raw = 100 [(gnostic.openapi.v3.property) = {description: "原始扩展字段"}]; // 原始扩展字段
+}
+
+// 远程推荐记录响应
+message RecordsResponse {
+  repeated ResultRecord list = 1 [
+    (gnostic.openapi.v3.property) = {description: "记录列表"}
+  ]; // 记录列表
 
   string last_modified = 2 [
     (gnostic.openapi.v3.property) = {
       description: "最后更新时间",
     }
   ]; // 最后更新时间
+}
+
+// 远程推荐记录
+message ResultRecord {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "编号"}]; // 编号
+  repeated string categories = 2 [(gnostic.openapi.v3.property) = {description: "分类列表"}]; // 分类列表
+  google.protobuf.Value labels = 3 [(gnostic.openapi.v3.property) = {description: "标签"}]; // 标签
+  string comment = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+  string timestamp = 5 [(gnostic.openapi.v3.property) = {description: "时间"}]; // 时间
+  double score = 6 [(gnostic.openapi.v3.property) = {description: "分数"}]; // 分数
+  bool is_hidden = 7 [(gnostic.openapi.v3.property) = {description: "是否隐藏"}]; // 是否隐藏
+  google.protobuf.Struct raw = 100 [(gnostic.openapi.v3.property) = {description: "原始扩展字段"}]; // 原始扩展字段
+}
+
+// 远程推荐反馈分页响应
+message FeedbackPageResponse {
+  repeated Feedback list = 1 [(gnostic.openapi.v3.property) = {description: "反馈列表"}]; // 反馈列表
+  string cursor = 2 [(gnostic.openapi.v3.property) = {description: "下一页游标"}]; // 下一页游标
+}
+
+// 远程推荐反馈
+message Feedback {
+  string feedback_type = 1 [(gnostic.openapi.v3.property) = {description: "反馈类型"}]; // 反馈类型
+  string user_id = 2 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+  string item_id = 3 [(gnostic.openapi.v3.property) = {description: "商品编号"}]; // 商品编号
+  string timestamp = 4 [(gnostic.openapi.v3.property) = {description: "反馈时间"}]; // 反馈时间
+  google.protobuf.Value detail = 5 [(gnostic.openapi.v3.property) = {description: "反馈详情"}]; // 反馈详情
+  google.protobuf.Struct raw = 100 [(gnostic.openapi.v3.property) = {description: "原始扩展字段"}]; // 原始扩展字段
+}
+
+// 远程推荐用户分页响应
+message UsersPageResponse {
+  repeated User list = 1 [(gnostic.openapi.v3.property) = {description: "用户列表"}]; // 用户列表
+  string cursor = 2 [(gnostic.openapi.v3.property) = {description: "下一页游标"}]; // 下一页游标
+}
+
+// 远程推荐用户
+message User {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+  repeated string labels = 2 [(gnostic.openapi.v3.property) = {description: "用户标签"}]; // 用户标签
+  string subscribe = 3 [(gnostic.openapi.v3.property) = {description: "订阅分类"}]; // 订阅分类
+  string comment = 4 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  string last_update_time = 5 [(gnostic.openapi.v3.property) = {description: "最后更新时间"}]; // 最后更新时间
+  google.protobuf.Struct raw = 100 [(gnostic.openapi.v3.property) = {description: "原始扩展字段"}]; // 原始扩展字段
+}
+
+// 远程推荐商品分页响应
+message ItemsPageResponse {
+  repeated Item list = 1 [(gnostic.openapi.v3.property) = {description: "商品列表"}]; // 商品列表
+  string cursor = 2 [(gnostic.openapi.v3.property) = {description: "下一页游标"}]; // 下一页游标
+}
+
+// 远程推荐商品
+message Item {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "商品编号"}]; // 商品编号
+  repeated string categories = 2 [(gnostic.openapi.v3.property) = {description: "分类列表"}]; // 分类列表
+  repeated string labels = 3 [(gnostic.openapi.v3.property) = {description: "标签列表"}]; // 标签列表
+  string comment = 4 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
+  bool is_hidden = 5 [(gnostic.openapi.v3.property) = {description: "是否隐藏"}]; // 是否隐藏
+  string timestamp = 6 [(gnostic.openapi.v3.property) = {description: "时间"}]; // 时间
+  google.protobuf.Struct raw = 100 [(gnostic.openapi.v3.property) = {description: "原始扩展字段"}]; // 原始扩展字段
+}
+
+// 远程推荐数据分页响应
+message DataPageResponse {
+  repeated ResultRecord list = 1 [(gnostic.openapi.v3.property) = {description: "数据列表"}]; // 数据列表
+  string cursor = 2 [(gnostic.openapi.v3.property) = {description: "下一页游标"}]; // 下一页游标
+}
+
+// 远程推荐配置响应
+message ConfigResponse {
+  google.protobuf.Struct config = 1 [(gnostic.openapi.v3.property) = {description: "配置内容"}]; // 配置内容
 }
