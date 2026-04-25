@@ -2461,6 +2461,22 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/admin/recommend/remote/advance/purge:
+        post:
+            tags:
+                - RecommendRemoteService
+            description: 清空远程推荐数据
+            operationId: RecommendRemoteService_PurgeRecommendRemoteData
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RecommendRemotePurgeRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/admin/recommend/remote/categories:
         get:
             tags:
@@ -8070,6 +8086,15 @@ components:
                     type: string
                     description: 最后更新时间
             description: 远程推荐JSON响应
+        RecommendRemotePurgeRequest:
+            type: object
+            properties:
+                checkList:
+                    type: array
+                    items:
+                        type: string
+                    description: 确认清空项
+            description: 远程推荐清空数据条件
         RecommendRequest:
             type: object
             properties:

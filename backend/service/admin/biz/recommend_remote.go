@@ -182,6 +182,19 @@ func (c *RecommendRemoteCase) ImportRecommendRemoteData(ctx context.Context, req
 	return c.requestNoContent(ctx, stdhttp.MethodPost, path, nil, body)
 }
 
+// PurgeRecommendRemoteData 清空远程推荐数据。
+func (c *RecommendRemoteCase) PurgeRecommendRemoteData(ctx context.Context, req *adminApi.RecommendRemotePurgeRequest) error {
+	checkList := c.normalizePurgeCheckList(req.GetCheckList())
+	// 未完成全部确认项时，拒绝代理危险清空请求。
+	if len(checkList) != 4 {
+		return errorsx.InvalidArgument("请先确认清空用户、商品、反馈和缓存数据")
+	}
+	queries := map[string]string{
+		"check_list": strings.Join(checkList, ","),
+	}
+	return c.requestNoContent(ctx, stdhttp.MethodPost, "/api/purge", queries, "")
+}
+
 // GetRecommendRemoteFlowConfig 查询推荐编排配置。
 func (c *RecommendRemoteCase) GetRecommendRemoteFlowConfig(ctx context.Context) (*adminApi.RecommendRemoteJsonResponse, error) {
 	return c.requestJSON(ctx, stdhttp.MethodGet, "/api/dashboard/config", nil, "")
@@ -601,4 +614,29 @@ func (c *RecommendRemoteCase) resolveDataPath(dataType string) (string, error) {
 	default:
 		return "", errorsx.InvalidArgument("数据类型仅支持用户或商品")
 	}
+}
+
+// normalizePurgeCheckList 校验并标准化远程推荐清空确认项。
+func (c *RecommendRemoteCase) normalizePurgeCheckList(values []string) []string {
+	requiredSet := map[string]struct{}{
+		"delete_users":    {},
+		"delete_items":    {},
+		"delete_feedback": {},
+		"delete_cache":    {},
+	}
+	checkList := make([]string, 0, len(requiredSet))
+	seenSet := make(map[string]struct{}, len(requiredSet))
+	for _, value := range values {
+		normalizedValue := strings.ToLower(strings.TrimSpace(value))
+		if _, ok := requiredSet[normalizedValue]; !ok {
+			continue
+		}
+		// 同一确认项重复传入时，仅保留一次，避免远程参数冗余。
+		if _, ok := seenSet[normalizedValue]; ok {
+			continue
+		}
+		seenSet[normalizedValue] = struct{}{}
+		checkList = append(checkList, normalizedValue)
+	}
+	return checkList
 }

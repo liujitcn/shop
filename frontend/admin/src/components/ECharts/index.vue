@@ -18,6 +18,7 @@ interface Props {
   width?: number | string;
   height?: number | string;
   onClick?: (event: ECElementEvent) => any;
+  onMouseup?: (event: ECElementEvent) => any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,6 +46,7 @@ watch(props, () => {
 });
 
 const handleClick = (event: ECElementEvent) => props.onClick && props.onClick(event);
+const handleMouseup = (event: ECElementEvent) => props.onMouseup && props.onMouseup(event);
 
 const init = () => {
   if (!chartRef.value) return;
@@ -57,6 +59,7 @@ const init = () => {
       })
     );
     chartInstance.value.on("click", handleClick);
+    chartInstance.value.on("mouseup", handleMouseup);
     draw();
   }
 };

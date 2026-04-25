@@ -117,6 +117,12 @@ export interface RecommendRemoteImportRequest {
   json: string;
 }
 
+/** 远程推荐清空数据条件 */
+export interface RecommendRemotePurgeRequest {
+  /** 确认清空项 */
+  checkList: string[];
+}
+
 /** 远程推荐JSON请求 */
 export interface RecommendRemoteJsonRequest {
   /** JSON内容 */
@@ -169,6 +175,8 @@ export interface RecommendRemoteService {
   ExportRecommendRemoteData(request: RecommendRemoteDataRequest): Promise<RecommendRemoteJsonResponse>;
   /** 导入远程推荐数据 */
   ImportRecommendRemoteData(request: RecommendRemoteImportRequest): Promise<Empty>;
+  /** 清空远程推荐数据 */
+  PurgeRecommendRemoteData(request: RecommendRemotePurgeRequest): Promise<Empty>;
   /** 查询推荐编排配置 */
   GetRecommendRemoteFlowConfig(request: Empty): Promise<RecommendRemoteJsonResponse>;
   /** 保存推荐编排配置 */

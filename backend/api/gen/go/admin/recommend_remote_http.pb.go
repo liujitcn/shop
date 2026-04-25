@@ -42,6 +42,7 @@ const OperationRecommendRemoteServiceImportRecommendRemoteFeedback = "/admin.Rec
 const OperationRecommendRemoteServicePageRecommendRemoteFeedback = "/admin.RecommendRemoteService/PageRecommendRemoteFeedback"
 const OperationRecommendRemoteServicePageRecommendRemoteItems = "/admin.RecommendRemoteService/PageRecommendRemoteItems"
 const OperationRecommendRemoteServicePageRecommendRemoteUsers = "/admin.RecommendRemoteService/PageRecommendRemoteUsers"
+const OperationRecommendRemoteServicePurgeRecommendRemoteData = "/admin.RecommendRemoteService/PurgeRecommendRemoteData"
 const OperationRecommendRemoteServiceResetRecommendRemoteFlowConfig = "/admin.RecommendRemoteService/ResetRecommendRemoteFlowConfig"
 const OperationRecommendRemoteServiceSaveRecommendRemoteFlowConfig = "/admin.RecommendRemoteService/SaveRecommendRemoteFlowConfig"
 
@@ -88,6 +89,8 @@ type RecommendRemoteServiceHTTPServer interface {
 	PageRecommendRemoteItems(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error)
 	// PageRecommendRemoteUsers 查询远程推荐用户列表
 	PageRecommendRemoteUsers(context.Context, *RecommendRemoteCursorRequest) (*RecommendRemoteJsonResponse, error)
+	// PurgeRecommendRemoteData 清空远程推荐数据
+	PurgeRecommendRemoteData(context.Context, *RecommendRemotePurgeRequest) (*emptypb.Empty, error)
 	// ResetRecommendRemoteFlowConfig 重置推荐编排配置
 	ResetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	// SaveRecommendRemoteFlowConfig 保存推荐编排配置
@@ -114,6 +117,7 @@ func RegisterRecommendRemoteServiceHTTPServer(s *http.Server, srv RecommendRemot
 	r.DELETE("/api/admin/recommend/remote/items/{id}", _RecommendRemoteService_DeleteRecommendRemoteItem0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/advance/export", _RecommendRemoteService_ExportRecommendRemoteData0_HTTP_Handler(srv))
 	r.POST("/api/admin/recommend/remote/advance/import", _RecommendRemoteService_ImportRecommendRemoteData0_HTTP_Handler(srv))
+	r.POST("/api/admin/recommend/remote/advance/purge", _RecommendRemoteService_PurgeRecommendRemoteData0_HTTP_Handler(srv))
 	r.GET("/api/admin/recommend/remote/flow/config", _RecommendRemoteService_GetRecommendRemoteFlowConfig0_HTTP_Handler(srv))
 	r.POST("/api/admin/recommend/remote/flow/config", _RecommendRemoteService_SaveRecommendRemoteFlowConfig0_HTTP_Handler(srv))
 	r.DELETE("/api/admin/recommend/remote/flow/config", _RecommendRemoteService_ResetRecommendRemoteFlowConfig0_HTTP_Handler(srv))
@@ -484,6 +488,28 @@ func _RecommendRemoteService_ImportRecommendRemoteData0_HTTP_Handler(srv Recomme
 	}
 }
 
+func _RecommendRemoteService_PurgeRecommendRemoteData0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecommendRemotePurgeRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationRecommendRemoteServicePurgeRecommendRemoteData)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PurgeRecommendRemoteData(ctx, req.(*RecommendRemotePurgeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _RecommendRemoteService_GetRecommendRemoteFlowConfig0_HTTP_Handler(srv RecommendRemoteServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in emptypb.Empty
@@ -625,6 +651,8 @@ type RecommendRemoteServiceHTTPClient interface {
 	PageRecommendRemoteItems(ctx context.Context, req *RecommendRemoteCursorRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
 	// PageRecommendRemoteUsers 查询远程推荐用户列表
 	PageRecommendRemoteUsers(ctx context.Context, req *RecommendRemoteCursorRequest, opts ...http.CallOption) (rsp *RecommendRemoteJsonResponse, err error)
+	// PurgeRecommendRemoteData 清空远程推荐数据
+	PurgeRecommendRemoteData(ctx context.Context, req *RecommendRemotePurgeRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// ResetRecommendRemoteFlowConfig 重置推荐编排配置
 	ResetRecommendRemoteFlowConfig(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SaveRecommendRemoteFlowConfig 保存推荐编排配置
@@ -927,6 +955,20 @@ func (c *RecommendRemoteServiceHTTPClientImpl) PageRecommendRemoteUsers(ctx cont
 	opts = append(opts, http.Operation(OperationRecommendRemoteServicePageRecommendRemoteUsers))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PurgeRecommendRemoteData 清空远程推荐数据
+func (c *RecommendRemoteServiceHTTPClientImpl) PurgeRecommendRemoteData(ctx context.Context, in *RecommendRemotePurgeRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/admin/recommend/remote/advance/purge"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationRecommendRemoteServicePurgeRecommendRemoteData))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

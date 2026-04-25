@@ -207,6 +207,16 @@ func (s *RecommendRemoteService) ImportRecommendRemoteData(ctx context.Context, 
 	return new(emptypb.Empty), nil
 }
 
+// PurgeRecommendRemoteData 清空远程推荐数据。
+func (s *RecommendRemoteService) PurgeRecommendRemoteData(ctx context.Context, req *adminApi.RecommendRemotePurgeRequest) (*emptypb.Empty, error) {
+	err := s.recommendRemoteCase.PurgeRecommendRemoteData(ctx, req)
+	if err != nil {
+		log.Errorf("PurgeRecommendRemoteData %v", err)
+		return nil, errorsx.WrapInternal(err, "清空远程推荐数据失败")
+	}
+	return new(emptypb.Empty), nil
+}
+
 // GetRecommendRemoteFlowConfig 查询推荐编排配置。
 func (s *RecommendRemoteService) GetRecommendRemoteFlowConfig(ctx context.Context, _ *emptypb.Empty) (*adminApi.RecommendRemoteJsonResponse, error) {
 	res, err := s.recommendRemoteCase.GetRecommendRemoteFlowConfig(ctx)

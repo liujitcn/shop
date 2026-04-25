@@ -39,6 +39,7 @@ const (
 	RecommendRemoteService_DeleteRecommendRemoteItem_FullMethodName         = "/admin.RecommendRemoteService/DeleteRecommendRemoteItem"
 	RecommendRemoteService_ExportRecommendRemoteData_FullMethodName         = "/admin.RecommendRemoteService/ExportRecommendRemoteData"
 	RecommendRemoteService_ImportRecommendRemoteData_FullMethodName         = "/admin.RecommendRemoteService/ImportRecommendRemoteData"
+	RecommendRemoteService_PurgeRecommendRemoteData_FullMethodName          = "/admin.RecommendRemoteService/PurgeRecommendRemoteData"
 	RecommendRemoteService_GetRecommendRemoteFlowConfig_FullMethodName      = "/admin.RecommendRemoteService/GetRecommendRemoteFlowConfig"
 	RecommendRemoteService_SaveRecommendRemoteFlowConfig_FullMethodName     = "/admin.RecommendRemoteService/SaveRecommendRemoteFlowConfig"
 	RecommendRemoteService_ResetRecommendRemoteFlowConfig_FullMethodName    = "/admin.RecommendRemoteService/ResetRecommendRemoteFlowConfig"
@@ -88,6 +89,8 @@ type RecommendRemoteServiceClient interface {
 	ExportRecommendRemoteData(ctx context.Context, in *RecommendRemoteDataRequest, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
 	// 导入远程推荐数据
 	ImportRecommendRemoteData(ctx context.Context, in *RecommendRemoteImportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 清空远程推荐数据
+	PurgeRecommendRemoteData(ctx context.Context, in *RecommendRemotePurgeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 查询推荐编排配置
 	GetRecommendRemoteFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error)
 	// 保存推荐编排配置
@@ -288,6 +291,16 @@ func (c *recommendRemoteServiceClient) ImportRecommendRemoteData(ctx context.Con
 	return out, nil
 }
 
+func (c *recommendRemoteServiceClient) PurgeRecommendRemoteData(ctx context.Context, in *RecommendRemotePurgeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, RecommendRemoteService_PurgeRecommendRemoteData_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *recommendRemoteServiceClient) GetRecommendRemoteFlowConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*RecommendRemoteJsonResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RecommendRemoteJsonResponse)
@@ -380,6 +393,8 @@ type RecommendRemoteServiceServer interface {
 	ExportRecommendRemoteData(context.Context, *RecommendRemoteDataRequest) (*RecommendRemoteJsonResponse, error)
 	// 导入远程推荐数据
 	ImportRecommendRemoteData(context.Context, *RecommendRemoteImportRequest) (*emptypb.Empty, error)
+	// 清空远程推荐数据
+	PurgeRecommendRemoteData(context.Context, *RecommendRemotePurgeRequest) (*emptypb.Empty, error)
 	// 查询推荐编排配置
 	GetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error)
 	// 保存推荐编排配置
@@ -453,6 +468,9 @@ func (UnimplementedRecommendRemoteServiceServer) ExportRecommendRemoteData(conte
 }
 func (UnimplementedRecommendRemoteServiceServer) ImportRecommendRemoteData(context.Context, *RecommendRemoteImportRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method ImportRecommendRemoteData not implemented")
+}
+func (UnimplementedRecommendRemoteServiceServer) PurgeRecommendRemoteData(context.Context, *RecommendRemotePurgeRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method PurgeRecommendRemoteData not implemented")
 }
 func (UnimplementedRecommendRemoteServiceServer) GetRecommendRemoteFlowConfig(context.Context, *emptypb.Empty) (*RecommendRemoteJsonResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetRecommendRemoteFlowConfig not implemented")
@@ -815,6 +833,24 @@ func _RecommendRemoteService_ImportRecommendRemoteData_Handler(srv interface{}, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RecommendRemoteService_PurgeRecommendRemoteData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendRemotePurgeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RecommendRemoteServiceServer).PurgeRecommendRemoteData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RecommendRemoteService_PurgeRecommendRemoteData_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RecommendRemoteServiceServer).PurgeRecommendRemoteData(ctx, req.(*RecommendRemotePurgeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RecommendRemoteService_GetRecommendRemoteFlowConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -983,6 +1019,10 @@ var RecommendRemoteService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ImportRecommendRemoteData",
 			Handler:    _RecommendRemoteService_ImportRecommendRemoteData_Handler,
+		},
+		{
+			MethodName: "PurgeRecommendRemoteData",
+			Handler:    _RecommendRemoteService_PurgeRecommendRemoteData_Handler,
 		},
 		{
 			MethodName: "GetRecommendRemoteFlowConfig",

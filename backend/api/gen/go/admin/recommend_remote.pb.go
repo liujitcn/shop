@@ -675,6 +675,51 @@ func (x *RecommendRemoteImportRequest) GetJson() string {
 	return ""
 }
 
+// 远程推荐清空数据条件
+type RecommendRemotePurgeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CheckList     []string               `protobuf:"bytes,1,rep,name=check_list,json=checkList,proto3" json:"check_list,omitempty"` // 确认清空项
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RecommendRemotePurgeRequest) Reset() {
+	*x = RecommendRemotePurgeRequest{}
+	mi := &file_admin_recommend_remote_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RecommendRemotePurgeRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RecommendRemotePurgeRequest) ProtoMessage() {}
+
+func (x *RecommendRemotePurgeRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_recommend_remote_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RecommendRemotePurgeRequest.ProtoReflect.Descriptor instead.
+func (*RecommendRemotePurgeRequest) Descriptor() ([]byte, []int) {
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RecommendRemotePurgeRequest) GetCheckList() []string {
+	if x != nil {
+		return x.CheckList
+	}
+	return nil
+}
+
 // 远程推荐JSON请求
 type RecommendRemoteJsonRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -685,7 +730,7 @@ type RecommendRemoteJsonRequest struct {
 
 func (x *RecommendRemoteJsonRequest) Reset() {
 	*x = RecommendRemoteJsonRequest{}
-	mi := &file_admin_recommend_remote_proto_msgTypes[10]
+	mi := &file_admin_recommend_remote_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -697,7 +742,7 @@ func (x *RecommendRemoteJsonRequest) String() string {
 func (*RecommendRemoteJsonRequest) ProtoMessage() {}
 
 func (x *RecommendRemoteJsonRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_recommend_remote_proto_msgTypes[10]
+	mi := &file_admin_recommend_remote_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -710,7 +755,7 @@ func (x *RecommendRemoteJsonRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendRemoteJsonRequest.ProtoReflect.Descriptor instead.
 func (*RecommendRemoteJsonRequest) Descriptor() ([]byte, []int) {
-	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{10}
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RecommendRemoteJsonRequest) GetJson() string {
@@ -731,7 +776,7 @@ type RecommendRemoteJsonResponse struct {
 
 func (x *RecommendRemoteJsonResponse) Reset() {
 	*x = RecommendRemoteJsonResponse{}
-	mi := &file_admin_recommend_remote_proto_msgTypes[11]
+	mi := &file_admin_recommend_remote_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -743,7 +788,7 @@ func (x *RecommendRemoteJsonResponse) String() string {
 func (*RecommendRemoteJsonResponse) ProtoMessage() {}
 
 func (x *RecommendRemoteJsonResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_recommend_remote_proto_msgTypes[11]
+	mi := &file_admin_recommend_remote_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -756,7 +801,7 @@ func (x *RecommendRemoteJsonResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RecommendRemoteJsonResponse.ProtoReflect.Descriptor instead.
 func (*RecommendRemoteJsonResponse) Descriptor() ([]byte, []int) {
-	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{11}
+	return file_admin_recommend_remote_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RecommendRemoteJsonResponse) GetJson() string {
@@ -825,14 +870,17 @@ const file_admin_recommend_remote_proto_rawDesc = "" +
 	"\x1cRecommendRemoteImportRequest\x120\n" +
 	"\x04type\x18\x01 \x01(\tB\x1c\xbaG\x19\x8a\x02\a\x1a\x05users\x92\x02\f数据类型R\x04type\x12$\n" +
 	"\x04json\x18\x02 \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"JSON内容R\x04json\"B\n" +
+	"JSON内容R\x04json\"S\n" +
+	"\x1bRecommendRemotePurgeRequest\x124\n" +
+	"\n" +
+	"check_list\x18\x01 \x03(\tB\x15\xbaG\x12\x92\x02\x0f确认清空项R\tcheckList\"B\n" +
 	"\x1aRecommendRemoteJsonRequest\x12$\n" +
 	"\x04json\x18\x01 \x01(\tB\x10\xbaG\r\x92\x02\n" +
 	"JSON内容R\x04json\"\x82\x01\n" +
 	"\x1bRecommendRemoteJsonResponse\x12$\n" +
 	"\x04json\x18\x01 \x01(\tB\x10\xbaG\r\x92\x02\n" +
 	"JSON内容R\x04json\x12=\n" +
-	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\flastModified2\xa3\x1a\n" +
+	"\rlast_modified\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\flastModified2\xb2\x1b\n" +
 	"\x16RecommendRemoteService\x12\x86\x01\n" +
 	"\x1aGetRecommendRemoteOverview\x12\x16.google.protobuf.Empty\x1a\".admin.RecommendRemoteJsonResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/admin/recommend/remote/overview\x12\x80\x01\n" +
 	"\x17GetRecommendRemoteTasks\x12\x16.google.protobuf.Empty\x1a\".admin.RecommendRemoteJsonResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/admin/recommend/remote/tasks\x12\x8a\x01\n" +
@@ -851,7 +899,8 @@ const file_admin_recommend_remote_proto_rawDesc = "" +
 	"\x16GetRecommendRemoteItem\x12\x1f.admin.RecommendRemoteIdRequest\x1a\".admin.RecommendRemoteJsonResponse\".\x82\xd3\xe4\x93\x02(\x12&/api/admin/recommend/remote/items/{id}\x12\x84\x01\n" +
 	"\x19DeleteRecommendRemoteItem\x12\x1f.admin.RecommendRemoteIdRequest\x1a\x16.google.protobuf.Empty\".\x82\xd3\xe4\x93\x02(*&/api/admin/recommend/remote/items/{id}\x12\x96\x01\n" +
 	"\x19ExportRecommendRemoteData\x12!.admin.RecommendRemoteDataRequest\x1a\".admin.RecommendRemoteJsonResponse\"2\x82\xd3\xe4\x93\x02,\x12*/api/admin/recommend/remote/advance/export\x12\x8f\x01\n" +
-	"\x19ImportRecommendRemoteData\x12#.admin.RecommendRemoteImportRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/api/admin/recommend/remote/advance/import\x12\x8b\x01\n" +
+	"\x19ImportRecommendRemoteData\x12#.admin.RecommendRemoteImportRequest\x1a\x16.google.protobuf.Empty\"5\x82\xd3\xe4\x93\x02/:\x01*\"*/api/admin/recommend/remote/advance/import\x12\x8c\x01\n" +
+	"\x18PurgeRecommendRemoteData\x12\".admin.RecommendRemotePurgeRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x01*\")/api/admin/recommend/remote/advance/purge\x12\x8b\x01\n" +
 	"\x1cGetRecommendRemoteFlowConfig\x12\x16.google.protobuf.Empty\x1a\".admin.RecommendRemoteJsonResponse\"/\x82\xd3\xe4\x93\x02)\x12'/api/admin/recommend/remote/flow/config\x12\x8e\x01\n" +
 	"\x1dSaveRecommendRemoteFlowConfig\x12!.admin.RecommendRemoteJsonRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/api/admin/recommend/remote/flow/config\x12\x81\x01\n" +
 	"\x1eResetRecommendRemoteFlowConfig\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"/\x82\xd3\xe4\x93\x02)*'/api/admin/recommend/remote/flow/config\x12\x8b\x01\n" +
@@ -871,7 +920,7 @@ func file_admin_recommend_remote_proto_rawDescGZIP() []byte {
 	return file_admin_recommend_remote_proto_rawDescData
 }
 
-var file_admin_recommend_remote_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_admin_recommend_remote_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_admin_recommend_remote_proto_goTypes = []any{
 	(*RecommendRemoteCursorRequest)(nil),         // 0: admin.RecommendRemoteCursorRequest
 	(*RecommendRemoteIdRequest)(nil),             // 1: admin.RecommendRemoteIdRequest
@@ -883,20 +932,21 @@ var file_admin_recommend_remote_proto_goTypes = []any{
 	(*RecommendRemoteFeedbackDeleteRequest)(nil), // 7: admin.RecommendRemoteFeedbackDeleteRequest
 	(*RecommendRemoteDataRequest)(nil),           // 8: admin.RecommendRemoteDataRequest
 	(*RecommendRemoteImportRequest)(nil),         // 9: admin.RecommendRemoteImportRequest
-	(*RecommendRemoteJsonRequest)(nil),           // 10: admin.RecommendRemoteJsonRequest
-	(*RecommendRemoteJsonResponse)(nil),          // 11: admin.RecommendRemoteJsonResponse
-	(*emptypb.Empty)(nil),                        // 12: google.protobuf.Empty
+	(*RecommendRemotePurgeRequest)(nil),          // 10: admin.RecommendRemotePurgeRequest
+	(*RecommendRemoteJsonRequest)(nil),           // 11: admin.RecommendRemoteJsonRequest
+	(*RecommendRemoteJsonResponse)(nil),          // 12: admin.RecommendRemoteJsonResponse
+	(*emptypb.Empty)(nil),                        // 13: google.protobuf.Empty
 }
 var file_admin_recommend_remote_proto_depIdxs = []int32{
-	12, // 0: admin.RecommendRemoteService.GetRecommendRemoteOverview:input_type -> google.protobuf.Empty
-	12, // 1: admin.RecommendRemoteService.GetRecommendRemoteTasks:input_type -> google.protobuf.Empty
-	12, // 2: admin.RecommendRemoteService.GetRecommendRemoteCategories:input_type -> google.protobuf.Empty
+	13, // 0: admin.RecommendRemoteService.GetRecommendRemoteOverview:input_type -> google.protobuf.Empty
+	13, // 1: admin.RecommendRemoteService.GetRecommendRemoteTasks:input_type -> google.protobuf.Empty
+	13, // 2: admin.RecommendRemoteService.GetRecommendRemoteCategories:input_type -> google.protobuf.Empty
 	2,  // 3: admin.RecommendRemoteService.GetRecommendRemoteTimeseries:input_type -> admin.RecommendRemoteNameRequest
 	3,  // 4: admin.RecommendRemoteService.GetRecommendRemoteDashboardItems:input_type -> admin.RecommendRemoteDashboardItemsRequest
 	4,  // 5: admin.RecommendRemoteService.GetRecommendRemoteRecommendations:input_type -> admin.RecommendRemoteRecommendRequest
 	5,  // 6: admin.RecommendRemoteService.GetRecommendRemoteNeighbors:input_type -> admin.RecommendRemoteNeighborRequest
 	6,  // 7: admin.RecommendRemoteService.PageRecommendRemoteFeedback:input_type -> admin.RecommendRemoteFeedbackRequest
-	10, // 8: admin.RecommendRemoteService.ImportRecommendRemoteFeedback:input_type -> admin.RecommendRemoteJsonRequest
+	11, // 8: admin.RecommendRemoteService.ImportRecommendRemoteFeedback:input_type -> admin.RecommendRemoteJsonRequest
 	7,  // 9: admin.RecommendRemoteService.DeleteRecommendRemoteFeedback:input_type -> admin.RecommendRemoteFeedbackDeleteRequest
 	0,  // 10: admin.RecommendRemoteService.PageRecommendRemoteUsers:input_type -> admin.RecommendRemoteCursorRequest
 	1,  // 11: admin.RecommendRemoteService.GetRecommendRemoteUser:input_type -> admin.RecommendRemoteIdRequest
@@ -906,36 +956,38 @@ var file_admin_recommend_remote_proto_depIdxs = []int32{
 	1,  // 15: admin.RecommendRemoteService.DeleteRecommendRemoteItem:input_type -> admin.RecommendRemoteIdRequest
 	8,  // 16: admin.RecommendRemoteService.ExportRecommendRemoteData:input_type -> admin.RecommendRemoteDataRequest
 	9,  // 17: admin.RecommendRemoteService.ImportRecommendRemoteData:input_type -> admin.RecommendRemoteImportRequest
-	12, // 18: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
-	10, // 19: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:input_type -> admin.RecommendRemoteJsonRequest
-	12, // 20: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
-	12, // 21: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:input_type -> google.protobuf.Empty
-	12, // 22: admin.RecommendRemoteService.GetRecommendRemoteConfig:input_type -> google.protobuf.Empty
-	11, // 23: admin.RecommendRemoteService.GetRecommendRemoteOverview:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 24: admin.RecommendRemoteService.GetRecommendRemoteTasks:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 25: admin.RecommendRemoteService.GetRecommendRemoteCategories:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 26: admin.RecommendRemoteService.GetRecommendRemoteTimeseries:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 27: admin.RecommendRemoteService.GetRecommendRemoteDashboardItems:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 28: admin.RecommendRemoteService.GetRecommendRemoteRecommendations:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 29: admin.RecommendRemoteService.GetRecommendRemoteNeighbors:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 30: admin.RecommendRemoteService.PageRecommendRemoteFeedback:output_type -> admin.RecommendRemoteJsonResponse
-	12, // 31: admin.RecommendRemoteService.ImportRecommendRemoteFeedback:output_type -> google.protobuf.Empty
-	12, // 32: admin.RecommendRemoteService.DeleteRecommendRemoteFeedback:output_type -> google.protobuf.Empty
-	11, // 33: admin.RecommendRemoteService.PageRecommendRemoteUsers:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 34: admin.RecommendRemoteService.GetRecommendRemoteUser:output_type -> admin.RecommendRemoteJsonResponse
-	12, // 35: admin.RecommendRemoteService.DeleteRecommendRemoteUser:output_type -> google.protobuf.Empty
-	11, // 36: admin.RecommendRemoteService.PageRecommendRemoteItems:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 37: admin.RecommendRemoteService.GetRecommendRemoteItem:output_type -> admin.RecommendRemoteJsonResponse
-	12, // 38: admin.RecommendRemoteService.DeleteRecommendRemoteItem:output_type -> google.protobuf.Empty
-	11, // 39: admin.RecommendRemoteService.ExportRecommendRemoteData:output_type -> admin.RecommendRemoteJsonResponse
-	12, // 40: admin.RecommendRemoteService.ImportRecommendRemoteData:output_type -> google.protobuf.Empty
-	11, // 41: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:output_type -> admin.RecommendRemoteJsonResponse
-	12, // 42: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
-	12, // 43: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
-	11, // 44: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:output_type -> admin.RecommendRemoteJsonResponse
-	11, // 45: admin.RecommendRemoteService.GetRecommendRemoteConfig:output_type -> admin.RecommendRemoteJsonResponse
-	23, // [23:46] is the sub-list for method output_type
-	0,  // [0:23] is the sub-list for method input_type
+	10, // 18: admin.RecommendRemoteService.PurgeRecommendRemoteData:input_type -> admin.RecommendRemotePurgeRequest
+	13, // 19: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
+	11, // 20: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:input_type -> admin.RecommendRemoteJsonRequest
+	13, // 21: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:input_type -> google.protobuf.Empty
+	13, // 22: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:input_type -> google.protobuf.Empty
+	13, // 23: admin.RecommendRemoteService.GetRecommendRemoteConfig:input_type -> google.protobuf.Empty
+	12, // 24: admin.RecommendRemoteService.GetRecommendRemoteOverview:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 25: admin.RecommendRemoteService.GetRecommendRemoteTasks:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 26: admin.RecommendRemoteService.GetRecommendRemoteCategories:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 27: admin.RecommendRemoteService.GetRecommendRemoteTimeseries:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 28: admin.RecommendRemoteService.GetRecommendRemoteDashboardItems:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 29: admin.RecommendRemoteService.GetRecommendRemoteRecommendations:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 30: admin.RecommendRemoteService.GetRecommendRemoteNeighbors:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 31: admin.RecommendRemoteService.PageRecommendRemoteFeedback:output_type -> admin.RecommendRemoteJsonResponse
+	13, // 32: admin.RecommendRemoteService.ImportRecommendRemoteFeedback:output_type -> google.protobuf.Empty
+	13, // 33: admin.RecommendRemoteService.DeleteRecommendRemoteFeedback:output_type -> google.protobuf.Empty
+	12, // 34: admin.RecommendRemoteService.PageRecommendRemoteUsers:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 35: admin.RecommendRemoteService.GetRecommendRemoteUser:output_type -> admin.RecommendRemoteJsonResponse
+	13, // 36: admin.RecommendRemoteService.DeleteRecommendRemoteUser:output_type -> google.protobuf.Empty
+	12, // 37: admin.RecommendRemoteService.PageRecommendRemoteItems:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 38: admin.RecommendRemoteService.GetRecommendRemoteItem:output_type -> admin.RecommendRemoteJsonResponse
+	13, // 39: admin.RecommendRemoteService.DeleteRecommendRemoteItem:output_type -> google.protobuf.Empty
+	12, // 40: admin.RecommendRemoteService.ExportRecommendRemoteData:output_type -> admin.RecommendRemoteJsonResponse
+	13, // 41: admin.RecommendRemoteService.ImportRecommendRemoteData:output_type -> google.protobuf.Empty
+	13, // 42: admin.RecommendRemoteService.PurgeRecommendRemoteData:output_type -> google.protobuf.Empty
+	12, // 43: admin.RecommendRemoteService.GetRecommendRemoteFlowConfig:output_type -> admin.RecommendRemoteJsonResponse
+	13, // 44: admin.RecommendRemoteService.SaveRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
+	13, // 45: admin.RecommendRemoteService.ResetRecommendRemoteFlowConfig:output_type -> google.protobuf.Empty
+	12, // 46: admin.RecommendRemoteService.GetRecommendRemoteFlowSchema:output_type -> admin.RecommendRemoteJsonResponse
+	12, // 47: admin.RecommendRemoteService.GetRecommendRemoteConfig:output_type -> admin.RecommendRemoteJsonResponse
+	24, // [24:48] is the sub-list for method output_type
+	0,  // [0:24] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name
@@ -952,7 +1004,7 @@ func file_admin_recommend_remote_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_recommend_remote_proto_rawDesc), len(file_admin_recommend_remote_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

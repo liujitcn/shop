@@ -136,6 +136,14 @@ service RecommendRemoteService {
     };
   }
 
+  // 清空远程推荐数据
+  rpc PurgeRecommendRemoteData (RecommendRemotePurgeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/admin/recommend/remote/advance/purge"
+      body: "*"
+    };
+  }
+
   // 查询推荐编排配置
   rpc GetRecommendRemoteFlowConfig (google.protobuf.Empty) returns (RecommendRemoteJsonResponse) {
     option (google.api.http) = {
@@ -422,6 +430,15 @@ message RecommendRemoteImportRequest {
       description: "JSON内容",
     }
   ]; // JSON内容
+}
+
+// 远程推荐清空数据条件
+message RecommendRemotePurgeRequest {
+  repeated string check_list = 1 [
+    (gnostic.openapi.v3.property) = {
+      description: "确认清空项",
+    }
+  ]; // 确认清空项
 }
 
 // 远程推荐JSON请求

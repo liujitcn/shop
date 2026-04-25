@@ -11,6 +11,7 @@ import type {
   RecommendRemoteJsonResponse,
   RecommendRemoteNeighborRequest,
   RecommendRemoteNameRequest,
+  RecommendRemotePurgeRequest,
   RecommendRemoteRecommendRequest,
   RecommendRemoteService
 } from "@/rpc/admin/recommend_remote";
@@ -180,6 +181,15 @@ export class RecommendRemoteServiceImpl implements RecommendRemoteService {
   ImportRecommendRemoteData(request: RecommendRemoteImportRequest): Promise<Empty> {
     return service<RecommendRemoteImportRequest, Empty>({
       url: `${RECOMMEND_REMOTE_URL}/advance/import`,
+      method: "post",
+      data: request
+    });
+  }
+
+  /** 清空远程推荐数据。 */
+  PurgeRecommendRemoteData(request: RecommendRemotePurgeRequest): Promise<Empty> {
+    return service<RecommendRemotePurgeRequest, Empty>({
+      url: `${RECOMMEND_REMOTE_URL}/advance/purge`,
       method: "post",
       data: request
     });

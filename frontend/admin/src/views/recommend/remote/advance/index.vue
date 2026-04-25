@@ -102,6 +102,37 @@
         </el-table-column>
       </el-table>
     </el-card>
+
+    <el-card class="remote-section-card remote-danger-card" shadow="never">
+      <template #header>
+        <div class="remote-section-card__header">
+          <strong>Danger Zone</strong>
+          <span>清空远程推荐数据存储与缓存</span>
+        </div>
+      </template>
+      <div class="remote-danger-action">
+        <el-button type="danger" plain :loading="purgeLoading" @click="openPurgeDialog">Purge Database</el-button>
+        <span>Purge all data in data storage and cache storage.</span>
+      </div>
+    </el-card>
+
+    <el-dialog v-model="purgeDialogVisible" title="Are you absolutely sure?" width="560px" append-to-body>
+      <div class="remote-purge-dialog">
+        <p>This action <strong>cannot</strong> be undone. This will permanently:</p>
+        <el-checkbox-group v-model="purgeCheckList" class="remote-purge-dialog__checks">
+          <el-checkbox label="delete_users">Delete all users.</el-checkbox>
+          <el-checkbox label="delete_items">Delete all items.</el-checkbox>
+          <el-checkbox label="delete_feedback">Delete all feedbacks.</el-checkbox>
+          <el-checkbox label="delete_cache">Delete all caches.</el-checkbox>
+        </el-checkbox-group>
+      </div>
+      <template #footer>
+        <el-button @click="purgeDialogVisible = false">取消</el-button>
+        <el-button type="danger" plain :disabled="!canPurgeData" :loading="purgeLoading" @click="purgeData">
+          I understand the consequences, purge all data
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -147,9 +178,14 @@ const importLoading = ref(false);
 const exportRows = ref<RemoteRecord[]>([]);
 const exportNextCursor = ref("");
 const importJson = ref("[]");
+const purgeLoading = ref(false);
+const purgeDialogVisible = ref(false);
+const purgeCheckList = ref<string[]>([]);
 
 /** 当前选择的数据类型文案。 */
 const selectedDataTypeLabel = computed(() => dataTypes.find(item => item.value === form.type)?.label ?? "用户数据");
+const canPurgeData = computed(() => purgeCheckList.value.length === purgeConfirmItems.length);
+const purgeConfirmItems = ["delete_users", "delete_items", "delete_feedback", "delete_cache"];
 
 /** 切换数据类型时清空导出预览与游标。 */
 function handleTypeChange() {
@@ -230,6 +266,39 @@ function getExportRowId(row: RemoteRecord) {
     ? resolveRemoteId(row, ["UserId", "userId", "user_id", "Id", "id"])
     : resolveRemoteId(row, ["ItemId", "itemId", "item_id", "Id", "id"]);
 }
+
+/** 打开远程推荐清空确认弹窗。 */
+function openPurgeDialog() {
+  purgeCheckList.value = [];
+  purgeDialogVisible.value = true;
+}
+
+/** 清空远程推荐用户、商品、反馈和缓存数据。 */
+async function purgeData() {
+  if (!canPurgeData.value) {
+    ElMessage.warning("请先勾选全部清空确认项");
+    return;
+  }
+
+  await ElMessageBox.confirm("是否确定清空远程推荐全部用户、商品、反馈和缓存？该操作不可恢复。", "危险操作", {
+    confirmButtonText: "确认清空",
+    cancelButtonText: "取消",
+    type: "error"
+  });
+
+  purgeLoading.value = true;
+  try {
+    await defRecommendRemoteService.PurgeRecommendRemoteData({ checkList: purgeConfirmItems });
+    ElMessage.success("远程推荐数据已清空");
+    purgeDialogVisible.value = false;
+    handleTypeChange();
+  } catch (error) {
+    ElMessage.error("清空远程推荐数据失败");
+    throw error;
+  } finally {
+    purgeLoading.value = false;
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -295,6 +364,42 @@ function getExportRowId(row: RemoteRecord) {
   }
 }
 
+.remote-danger-card {
+  :deep(.el-card__header) {
+    border-bottom-color: var(--el-color-danger-light-7);
+  }
+}
+
+.remote-danger-action {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+
+  span {
+    color: var(--admin-page-text-secondary);
+  }
+}
+
+.remote-purge-dialog {
+  p {
+    margin: 0 0 16px;
+    color: var(--admin-page-text-secondary);
+    font-size: 16px;
+    line-height: 1.7;
+
+    strong {
+      color: var(--el-color-danger);
+    }
+  }
+
+  &__checks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
 @media (max-width: 900px) {
   .remote-hero-card :deep(.el-card__body) {
     align-items: flex-start;
@@ -302,6 +407,10 @@ function getExportRowId(row: RemoteRecord) {
   }
 
   .remote-advance-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .remote-danger-action {
     grid-template-columns: 1fr;
   }
 }
