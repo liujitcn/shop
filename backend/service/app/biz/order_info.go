@@ -297,13 +297,23 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		return nil, err
 	}
 
-	orderIDs := make([]int64, 0)
+	orderIDs := make([]int64, 0, len(page))
+	refundOrderIDs := make([]int64, 0)
 	for _, item := range page {
 		orderIDs = append(orderIDs, item.ID)
+		// 售后列表展示“已退款”依赖退款成功时间，分页接口需要批量补齐。
+		if item.Status == _const.ORDER_STATUS_REFUNDING {
+			refundOrderIDs = append(refundOrderIDs, item.ID)
+		}
 	}
 
 	orderGoodsMap := make(map[int64][]*appv1.OrderGoods)
 	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
+	if err != nil {
+		return nil, err
+	}
+	refundTimeMap := make(map[int64]string)
+	refundTimeMap, err = c.orderRefundCase.mapRefundTimeByOrderIDs(ctx, refundOrderIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -314,6 +324,10 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		// 命中订单商品映射时，补齐当前订单的商品列表。
 		if v, ok := orderGoodsMap[orderInfo.Id]; ok {
 			orderInfo.Goods = v
+		}
+		// 已退款订单需要返回退款成功时间，前端据此区分处理中和已退款。
+		if v, ok := refundTimeMap[orderInfo.Id]; ok {
+			orderInfo.RefundTime = v
 		}
 		list = append(list, orderInfo)
 	}

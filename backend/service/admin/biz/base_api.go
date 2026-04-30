@@ -13,6 +13,8 @@ import (
 	"shop/pkg/gen/models"
 
 	"github.com/liujitcn/go-utils/mapper"
+	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gen"
 )
 
 // BaseAPICase 接口业务实例
@@ -33,9 +35,87 @@ func NewBaseAPICase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository,
 	}
 }
 
-// ListBaseAPIs 查询接口列表
+// PageBaseAPIs 分页查询接口列表
+func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApisRequest) (*adminv1.PageBaseApisResponse, error) {
+	query := c.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 9)
+	opts = append(opts, repository.Order(query.ID.Desc()))
+	// 传入服务名关键字时，按服务名模糊匹配。
+	if req.GetServiceName() != "" {
+		opts = append(opts, repository.Where(query.ServiceName.Like("%"+req.GetServiceName()+"%")))
+	}
+	// 传入服务描述关键字时，按服务描述模糊匹配。
+	if req.GetServiceDesc() != "" {
+		opts = append(opts, repository.Where(query.ServiceDesc.Like("%"+req.GetServiceDesc()+"%")))
+	}
+	// 传入描述关键字时，按接口描述模糊匹配。
+	if req.GetDesc() != "" {
+		opts = append(opts, repository.Where(query.Desc.Like("%"+req.GetDesc()+"%")))
+	}
+	// 传入操作方法关键字时，按操作方法模糊匹配。
+	if req.GetOperation() != "" {
+		opts = append(opts, repository.Where(query.Operation.Like("%"+req.GetOperation()+"%")))
+	}
+	// 传入请求方式时，按请求方式精确匹配。
+	if req.GetMethod() != "" {
+		opts = append(opts, repository.Where(query.Method.Eq(req.GetMethod())))
+	}
+	// 传入请求地址关键字时，按请求地址模糊匹配。
+	if req.GetPath() != "" {
+		opts = append(opts, repository.Where(query.Path.Like("%"+req.GetPath()+"%")))
+	}
+	if req.McpEnabled != nil {
+		opts = append(opts, repository.Where(query.McpEnabled.Is(req.GetMcpEnabled())))
+	}
+
+	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	baseAPIs := make([]*adminv1.BaseApi, 0, len(list))
+	for _, item := range list {
+		baseAPI := c.mapper.ToDTO(item)
+		baseAPIs = append(baseAPIs, baseAPI)
+	}
+
+	return &adminv1.PageBaseApisResponse{
+		BaseApis: baseAPIs,
+		Total:    int32(total),
+	}, nil
+}
+
+// GetBaseAPI 根据主键查询接口详情
+func (c *BaseAPICase) GetBaseAPI(ctx context.Context, id int64) (*adminv1.BaseApi, error) {
+	query := c.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(id)))
+
+	baseAPI, err := c.Find(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.mapper.ToDTO(baseAPI), nil
+}
+
+// SetBaseAPIMcpEnabled 设置接口 MCP 启用状态
+func (c *BaseAPICase) SetBaseAPIMcpEnabled(ctx context.Context, req *adminv1.SetBaseApiMcpEnabledRequest) error {
+	query := c.Query(ctx).BaseAPI
+	conditions := make([]gen.Condition, 0, 1)
+	conditions = append(conditions, query.ID.Eq(req.GetId()))
+	_, err := query.WithContext(ctx).
+		Where(conditions...).
+		UpdateSimple(query.McpEnabled.Value(req.GetMcpEnabled()))
+	return err
+}
+
+// ListBaseAPIs 查询菜单分配接口选项列表
 func (c *BaseAPICase) ListBaseAPIs(ctx context.Context, _ *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
-	list, err := c.List(ctx)
+	query := c.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}

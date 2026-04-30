@@ -77,8 +77,13 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 	}
 
 	oldAPIIDMap := make(map[string][]int64, len(oldAPIList))
+	oldAPIByOperation := make(map[string]*models.BaseAPI, len(oldAPIList))
 	for _, oldAPI := range oldAPIList {
 		oldAPIIDMap[oldAPI.Operation] = append(oldAPIIDMap[oldAPI.Operation], oldAPI.ID)
+		// 同一个 operation 存在重复历史数据时，首条记录作为保留记录。
+		if _, ok := oldAPIByOperation[oldAPI.Operation]; !ok {
+			oldAPIByOperation[oldAPI.Operation] = oldAPI
+		}
 	}
 
 	apiList := make([]*models.BaseAPI, 0)
@@ -87,6 +92,10 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 		// 已存在的接口按主键更新，保留历史权限关联。
 		if ids, ok := oldAPIIDMap[item.Operation]; ok && len(ids) > 0 {
 			item.ID = ids[0]
+			if oldAPI := oldAPIByOperation[item.Operation]; oldAPI != nil {
+				// 同步 OpenAPI 元数据时保留原来的 MCP 开关，避免刷新接口覆盖人工配置。
+				item.McpEnabled = oldAPI.McpEnabled
+			}
 			err = c.UpdateByID(ctx, item)
 			if err != nil {
 				return err

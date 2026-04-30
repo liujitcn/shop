@@ -37,3 +37,15 @@ server:
       enable_validate: false
       enable_metadata: true
       enable_circuit_breaker: false
+
+  sse:
+    addr: :7002
+    path: /events
+    codec: json
+    timeout: 10s
+    event_ttl: 300s
+    auto_stream: true
+    auto_reply: true
+
+  mcp:
+    routes: []

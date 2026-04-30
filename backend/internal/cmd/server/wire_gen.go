@@ -396,7 +396,23 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	kratosApp := newApp(context, cronServer, grpcServer, httpServer)
+	sseServer, err := server.NewSseServer(context)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	mcpServer, err := server.NewMcpServer(context, baseAPIRepository)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	kratosApp := newApp(context, cronServer, grpcServer, httpServer, sseServer, mcpServer)
 	return kratosApp, func() {
 		cleanup4()
 		cleanup3()

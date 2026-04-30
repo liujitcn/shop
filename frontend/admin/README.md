@@ -27,7 +27,7 @@ frontend/admin
 
 ## 页面模块
 
-- `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务等系统管理。
+- `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理等系统管理。
 - `views/dashboard`：工作台与分析页。
 - `views/goods`：商品分类、商品信息、属性、SKU。
 - `views/shop`：轮播图、商城服务、热门推荐。

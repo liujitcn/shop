@@ -381,17 +381,18 @@ func (c *CommentInfoCase) UpdateStatus(ctx context.Context, commentID int64, sta
 	return nil
 }
 
-// BuildCommentedOrderGoodsMap 按订单商品关联键构建已评价集合。
-func (c *CommentInfoCase) BuildCommentedOrderGoodsMap(ctx context.Context, orderIDs []int64) (map[string]bool, error) {
+// BuildCommentedOrderGoodsMap 按当前用户的订单商品关联键构建已评价集合。
+func (c *CommentInfoCase) BuildCommentedOrderGoodsMap(ctx context.Context, userID int64, orderIDs []int64) (map[string]bool, error) {
 	commentedOrderGoodsMap := make(map[string]bool)
-	// 订单编号列表为空时，直接返回空集合。
-	if len(orderIDs) == 0 {
+	// 用户编号非法或订单编号列表为空时，直接返回空集合。
+	if userID <= 0 || len(orderIDs) == 0 {
 		return commentedOrderGoodsMap, nil
 	}
 
 	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Unscoped())
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Where(query.OrderID.In(orderIDs...)))
 	commentList, err := c.List(ctx, opts...)
 	if err != nil {
@@ -403,11 +404,17 @@ func (c *CommentInfoCase) BuildCommentedOrderGoodsMap(ctx context.Context, order
 	return commentedOrderGoodsMap, nil
 }
 
-// IsOrderGoodsCommented 判断订单商品是否已经评价。
-func (c *CommentInfoCase) IsOrderGoodsCommented(ctx context.Context, orderID int64, goodsID int64, skuCode string) (bool, error) {
+// IsOrderGoodsCommented 判断当前用户订单商品是否已经评价。
+func (c *CommentInfoCase) IsOrderGoodsCommented(ctx context.Context, userID int64, orderID int64, goodsID int64, skuCode string) (bool, error) {
+	// 用户编号非法时，不命中任何已评价记录。
+	if userID <= 0 {
+		return false, nil
+	}
+
 	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 4)
+	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Unscoped())
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
 	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
 	opts = append(opts, repository.Where(query.SKUCode.Eq(strings.TrimSpace(skuCode))))
@@ -418,10 +425,10 @@ func (c *CommentInfoCase) IsOrderGoodsCommented(ctx context.Context, orderID int
 	return count > 0, nil
 }
 
-// AreAllOrderGoodsCommented 判断订单下商品是否全部完成评价。
-func (c *CommentInfoCase) AreAllOrderGoodsCommented(ctx context.Context, orderGoodsList []*models.OrderGoods) (bool, error) {
+// AreAllOrderGoodsCommented 判断当前用户订单下商品是否全部完成评价。
+func (c *CommentInfoCase) AreAllOrderGoodsCommented(ctx context.Context, userID int64, orderGoodsList []*models.OrderGoods) (bool, error) {
 	// 订单商品列表为空时，不视为已全部评价。
-	if len(orderGoodsList) == 0 {
+	if userID <= 0 || len(orderGoodsList) == 0 {
 		return false, nil
 	}
 
@@ -430,7 +437,7 @@ func (c *CommentInfoCase) AreAllOrderGoodsCommented(ctx context.Context, orderGo
 		expectedCommentMap[utils.BuildOrderGoodsCommentKey(item.OrderID, item.GoodsID, item.SKUCode)] = true
 	}
 
-	commentedOrderGoodsMap, err := c.BuildCommentedOrderGoodsMap(ctx, []int64{orderGoodsList[0].OrderID})
+	commentedOrderGoodsMap, err := c.BuildCommentedOrderGoodsMap(ctx, userID, []int64{orderGoodsList[0].OrderID})
 	if err != nil {
 		return false, err
 	}

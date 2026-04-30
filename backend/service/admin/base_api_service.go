@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const _ = grpc.SupportPackageIsVersion7
@@ -34,12 +35,45 @@ func NewBaseApiService(
 	}
 }
 
-// ListBaseApis 查询API列表
+// PageBaseApis 分页查询API列表
+func (s *BaseApiService) PageBaseApis(ctx context.Context, req *adminv1.PageBaseApisRequest) (*adminv1.PageBaseApisResponse, error) {
+	list, err := s.baseAPICase.PageBaseAPIs(ctx, req)
+	if err != nil {
+		log.Errorf("PageBaseApis %v", err)
+		return nil, errorsx.WrapInternal(err, "分页查询API列表失败")
+	}
+
+	return list, nil
+}
+
+// GetBaseApi 查询API详情
+func (s *BaseApiService) GetBaseApi(ctx context.Context, req *adminv1.GetBaseApiRequest) (*adminv1.BaseApi, error) {
+	baseAPI, err := s.baseAPICase.GetBaseAPI(ctx, req.GetId())
+	if err != nil {
+		log.Errorf("GetBaseApi %v", err)
+		return nil, errorsx.WrapInternal(err, "查询API详情失败")
+	}
+
+	return baseAPI, nil
+}
+
+// SetBaseApiMcpEnabled 设置API MCP启用状态
+func (s *BaseApiService) SetBaseApiMcpEnabled(ctx context.Context, req *adminv1.SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.SetBaseAPIMcpEnabled(ctx, req)
+	if err != nil {
+		log.Errorf("SetBaseApiMcpEnabled %v", err)
+		return nil, errorsx.WrapInternal(err, "设置API MCP启用状态失败")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+// ListBaseApis 查询菜单分配API选项列表
 func (s *BaseApiService) ListBaseApis(ctx context.Context, req *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
 	list, err := s.baseAPICase.ListBaseAPIs(ctx, req)
 	if err != nil {
 		log.Errorf("ListBaseApis %v", err)
-		return nil, errorsx.WrapInternal(err, "查询API列表失败")
+		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
 	}
 
 	return list, nil

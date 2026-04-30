@@ -11,6 +11,7 @@ import (
 
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,16 +21,47 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationBaseApiServiceGetBaseApi = "/admin.v1.BaseApiService/GetBaseApi"
 const OperationBaseApiServiceListBaseApis = "/admin.v1.BaseApiService/ListBaseApis"
+const OperationBaseApiServicePageBaseApis = "/admin.v1.BaseApiService/PageBaseApis"
+const OperationBaseApiServiceSetBaseApiMcpEnabled = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
 
 type BaseApiServiceHTTPServer interface {
-	// ListBaseApis 查询API列表
+	// GetBaseApi 查询API详情
+	GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error)
+	// ListBaseApis 查询菜单分配API选项列表
 	ListBaseApis(context.Context, *ListBaseApisRequest) (*ListBaseApisResponse, error)
+	// PageBaseApis 分页查询API列表
+	PageBaseApis(context.Context, *PageBaseApisRequest) (*PageBaseApisResponse, error)
+	// SetBaseApiMcpEnabled 设置API MCP启用状态
+	SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/v1/admin/base/api", _BaseApiService_ListBaseApis0_HTTP_Handler(srv))
+	r.GET("/api/v1/admin/base/api", _BaseApiService_PageBaseApis0_HTTP_Handler(srv))
+	r.GET("/api/v1/admin/base/api/option", _BaseApiService_ListBaseApis0_HTTP_Handler(srv))
+	r.GET("/api/v1/admin/base/api/{id}", _BaseApiService_GetBaseApi0_HTTP_Handler(srv))
+	r.PUT("/api/v1/admin/base/api/{id}/mcp-enabled", _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv))
+}
+
+func _BaseApiService_PageBaseApis0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PageBaseApisRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseApiServicePageBaseApis)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageBaseApis(ctx, req.(*PageBaseApisRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageBaseApisResponse)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _BaseApiService_ListBaseApis0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
@@ -51,9 +83,62 @@ func _BaseApiService_ListBaseApis0_HTTP_Handler(srv BaseApiServiceHTTPServer) fu
 	}
 }
 
+func _BaseApiService_GetBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBaseApiRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseApiServiceGetBaseApi)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBaseApi(ctx, req.(*GetBaseApiRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BaseApi)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseApiMcpEnabledRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiMcpEnabled)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseApiMcpEnabled(ctx, req.(*SetBaseApiMcpEnabledRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseApiServiceHTTPClient interface {
-	// ListBaseApis 查询API列表
+	// GetBaseApi 查询API详情
+	GetBaseApi(ctx context.Context, req *GetBaseApiRequest, opts ...http.CallOption) (rsp *BaseApi, err error)
+	// ListBaseApis 查询菜单分配API选项列表
 	ListBaseApis(ctx context.Context, req *ListBaseApisRequest, opts ...http.CallOption) (rsp *ListBaseApisResponse, err error)
+	// PageBaseApis 分页查询API列表
+	PageBaseApis(ctx context.Context, req *PageBaseApisRequest, opts ...http.CallOption) (rsp *PageBaseApisResponse, err error)
+	// SetBaseApiMcpEnabled 设置API MCP启用状态
+	SetBaseApiMcpEnabled(ctx context.Context, req *SetBaseApiMcpEnabledRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseApiServiceHTTPClientImpl struct {
@@ -64,14 +149,56 @@ func NewBaseApiServiceHTTPClient(client *http.Client) BaseApiServiceHTTPClient {
 	return &BaseApiServiceHTTPClientImpl{client}
 }
 
-// ListBaseApis 查询API列表
+// GetBaseApi 查询API详情
+func (c *BaseApiServiceHTTPClientImpl) GetBaseApi(ctx context.Context, in *GetBaseApiRequest, opts ...http.CallOption) (*BaseApi, error) {
+	var out BaseApi
+	pattern := "/api/v1/admin/base/api/{id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBaseApiServiceGetBaseApi))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// ListBaseApis 查询菜单分配API选项列表
 func (c *BaseApiServiceHTTPClientImpl) ListBaseApis(ctx context.Context, in *ListBaseApisRequest, opts ...http.CallOption) (*ListBaseApisResponse, error) {
 	var out ListBaseApisResponse
-	pattern := "/api/v1/admin/base/api"
+	pattern := "/api/v1/admin/base/api/option"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBaseApiServiceListBaseApis))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PageBaseApis 分页查询API列表
+func (c *BaseApiServiceHTTPClientImpl) PageBaseApis(ctx context.Context, in *PageBaseApisRequest, opts ...http.CallOption) (*PageBaseApisResponse, error) {
+	var out PageBaseApisResponse
+	pattern := "/api/v1/admin/base/api"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBaseApiServicePageBaseApis))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SetBaseApiMcpEnabled 设置API MCP启用状态
+func (c *BaseApiServiceHTTPClientImpl) SetBaseApiMcpEnabled(ctx context.Context, in *SetBaseApiMcpEnabledRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/api/{id}/mcp-enabled"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBaseApiServiceSetBaseApiMcpEnabled))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

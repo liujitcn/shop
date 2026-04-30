@@ -4,15 +4,78 @@ package admin.v1;
 
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 
 // AdminAPI服务
 service BaseApiService {
-  // 查询API列表
-  rpc ListBaseApis(ListBaseApisRequest) returns (ListBaseApisResponse) {
+  // 分页查询API列表
+  rpc PageBaseApis(PageBaseApisRequest) returns (PageBaseApisResponse) {
     option (google.api.http) = {
       get: "/api/v1/admin/base/api"
     };
   }
+
+  // 查询菜单分配API选项列表
+  rpc ListBaseApis(ListBaseApisRequest) returns (ListBaseApisResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/api/option"
+    };
+  }
+
+  // 查询API详情
+  rpc GetBaseApi(GetBaseApiRequest) returns (BaseApi) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/base/api/{id}"
+    };
+  }
+
+  // 设置API MCP启用状态
+  rpc SetBaseApiMcpEnabled(SetBaseApiMcpEnabledRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/api/{id}/mcp-enabled"
+      body: "*"
+    };
+  }
+}
+
+// API分页查询条件
+message PageBaseApisRequest {
+  optional string service_name = 1 [(gnostic.openapi.v3.property) = {description: "服务名"}]; // 服务名
+
+  optional string service_desc = 2 [(gnostic.openapi.v3.property) = {description: "服务描述"}]; // 服务描述
+
+  optional string desc = 3 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  optional string operation = 4 [(gnostic.openapi.v3.property) = {description: "操作方法"}]; // 操作方法
+
+  optional string method = 5 [(gnostic.openapi.v3.property) = {description: "请求方式"}]; // 请求方式
+
+  optional string path = 6 [(gnostic.openapi.v3.property) = {description: "请求地址"}]; // 请求地址
+
+  optional bool mcp_enabled = 7 [(gnostic.openapi.v3.property) = {description: "是否暴露为MCP工具"}]; // 是否暴露为MCP工具
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}]; // 每页数量
+}
+
+// API分页查询响应
+message PageBaseApisResponse {
+  repeated BaseApi base_apis = 1 [(gnostic.openapi.v3.property) = {description: "API列表"}]; // API列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// API详情查询条件
+message GetBaseApiRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+}
+
+// API MCP启用状态设置条件
+message SetBaseApiMcpEnabledRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  bool mcp_enabled = 2 [(gnostic.openapi.v3.property) = {description: "是否暴露为MCP工具"}]; // 是否暴露为MCP工具
 }
 
 // API列表查询条件
@@ -38,4 +101,12 @@ message BaseApi {
   string method = 6 [(gnostic.openapi.v3.property) = {description: "请求方式"}]; // 请求方法
 
   string path = 7 [(gnostic.openapi.v3.property) = {description: "请求地址"}]; // 请求地址
+
+  bool mcp_enabled = 8 [(gnostic.openapi.v3.property) = {description: "是否暴露为MCP工具"}]; // 是否暴露为MCP工具
+
+  string input_schema = 9 [(gnostic.openapi.v3.property) = {description: "接口入参JSON Schema"}]; // 接口入参JSON Schema
+
+  string arg_mapping = 10 [(gnostic.openapi.v3.property) = {description: "接口参数位置映射"}]; // 接口参数位置映射
+
+  string output_schema = 11 [(gnostic.openapi.v3.property) = {description: "接口返回JSON Schema"}]; // 接口返回JSON Schema
 }

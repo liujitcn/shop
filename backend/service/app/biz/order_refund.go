@@ -36,3 +36,24 @@ func (c *OrderRefundCase) findRefundTimeByOrderID(ctx context.Context, orderID i
 	}
 	return _time.TimeToTimeString(orderRefund.SuccessTime), nil
 }
+
+// mapRefundTimeByOrderIDs 按订单编号批量查询退款成功时间映射。
+func (c *OrderRefundCase) mapRefundTimeByOrderIDs(ctx context.Context, orderIDs []int64) (map[int64]string, error) {
+	res := make(map[int64]string)
+	// 没有退款订单时直接返回空映射，避免执行无意义查询。
+	if len(orderIDs) == 0 {
+		return res, nil
+	}
+
+	query := c.Query(ctx).OrderRefund
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.OrderID.In(orderIDs...)))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	for _, item := range list {
+		res[item.OrderID] = _time.TimeToTimeString(item.SuccessTime)
+	}
+	return res, nil
+}

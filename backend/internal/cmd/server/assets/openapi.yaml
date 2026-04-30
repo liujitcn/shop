@@ -365,7 +365,57 @@ paths:
         get:
             tags:
                 - BaseApiService
-            description: 查询API列表
+            description: 分页查询API列表
+            operationId: BaseApiService_PageBaseApis
+            parameters:
+                - name: serviceName
+                  in: query
+                  schema:
+                    type: string
+                - name: serviceDesc
+                  in: query
+                  schema:
+                    type: string
+                - name: desc
+                  in: query
+                  schema:
+                    type: string
+                - name: operation
+                  in: query
+                  schema:
+                    type: string
+                - name: method
+                  in: query
+                  schema:
+                    type: string
+                - name: path
+                  in: query
+                  schema:
+                    type: string
+                - name: mcpEnabled
+                  in: query
+                  schema:
+                    type: boolean
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PageBaseApisResponse'
+    /api/v1/admin/base/api/option:
+        get:
+            tags:
+                - BaseApiService
+            description: 查询菜单分配API选项列表
             operationId: BaseApiService_ListBaseApis
             responses:
                 "200":
@@ -374,6 +424,47 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListBaseApisResponse'
+    /api/v1/admin/base/api/{id}:
+        get:
+            tags:
+                - BaseApiService
+            description: 查询API详情
+            operationId: BaseApiService_GetBaseApi
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BaseApi'
+    /api/v1/admin/base/api/{id}/mcp-enabled:
+        put:
+            tags:
+                - BaseApiService
+            description: 设置API MCP启用状态
+            operationId: BaseApiService_SetBaseApiMcpEnabled
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetBaseApiMcpEnabledRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/config:
         get:
             tags:
@@ -5563,6 +5654,18 @@ components:
                 path:
                     type: string
                     description: 请求地址
+                mcpEnabled:
+                    type: boolean
+                    description: 是否暴露为MCP工具
+                inputSchema:
+                    type: string
+                    description: 接口入参JSON Schema
+                argMapping:
+                    type: string
+                    description: 接口参数位置映射
+                outputSchema:
+                    type: string
+                    description: 接口返回JSON Schema
             description: API
         BaseConfig:
             type: object
@@ -8917,6 +9020,19 @@ components:
                     type: string
                     description: 商品总数
             description: Order汇总
+        PageBaseApisResponse:
+            type: object
+            properties:
+                baseApis:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BaseApi'
+                    description: API列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: API分页查询响应
         PageBaseConfigsResponse:
             type: object
             properties:
@@ -10234,6 +10350,16 @@ components:
                     type: string
                     description: 手机号
             description: 发送手机号验证码请求参数
+        SetBaseApiMcpEnabledRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: API ID
+                mcpEnabled:
+                    type: boolean
+                    description: 是否暴露为MCP工具
+            description: API MCP启用状态设置条件
         SetBaseConfigStatusRequest:
             type: object
             properties:

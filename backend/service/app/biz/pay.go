@@ -451,7 +451,7 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 				return err
 			}
 		}
-		// 退款成功时，同步把订单推进到退款中状态。
+		// 退款成功时，同步把订单标记为售后/已退款状态。
 		if orderRefund.RefundState == appv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS).String() {
 			orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
 			orderOpts := make([]repository.QueryOption, 0, 2)

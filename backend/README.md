@@ -1,6 +1,6 @@
 # backend
 
-`backend` 是商城项目的 Go 后端服务，基于 `Kratos` 组织 HTTP / gRPC 接口、数据库访问、文件上传、静态资源托管、定时任务、推荐同步和 OpenAPI 文档。
+`backend` 是商城项目的 Go 后端服务，基于 `Kratos` 组织 HTTP / gRPC / SSE / MCP 接口、数据库访问、文件上传、静态资源托管、定时任务、推荐同步和 OpenAPI 文档。
 
 ## 目录职责
 
@@ -29,7 +29,7 @@ backend
 
 | 文件 | 作用 |
 | --- | --- |
-| `configs/server.yaml` | HTTP / gRPC 端口、超时、CORS、Swagger、pprof、HTTP 中间件。 |
+| `configs/server.yaml` | HTTP / gRPC / SSE / MCP 端口、超时、CORS、Swagger、pprof、HTTP 中间件。 |
 | `configs/data.yaml` | MySQL 连接、自动迁移、连接池、Redis 预留配置。 |
 | `configs/oss.yaml` | 本地文件存储根目录，默认 `./data`。 |
 | `configs/auth.yaml` | 登录认证、JWT、权限等基础配置。 |
@@ -65,6 +65,7 @@ go run ./internal/cmd/server -conf ./configs
 
 - HTTP：`http://localhost:7001`
 - gRPC：`localhost:6001`
+- SSE：`http://localhost:7002/events`
 - Swagger UI：`http://localhost:7001/docs/`
 - OpenAPI：`http://localhost:7001/docs/openapi.yaml`
 
@@ -126,6 +127,10 @@ make gen
 - `internal/cmd/server/assets/openapi.yaml`
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
+
+## MCP 工具暴露
+
+后端会从 `base_api` 表读取已启用 `mcp_enabled` 的接口，并根据 OpenAPI 元数据生成 MCP 工具定义。管理后台的“系统管理 / API 管理”页面可查看接口入参、参数映射、出参 Schema，并切换接口是否暴露为 MCP 工具。
 
 ## 静态资源
 

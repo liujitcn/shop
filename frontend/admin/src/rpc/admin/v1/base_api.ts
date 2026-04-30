@@ -5,6 +5,65 @@
 // source: admin/v1/base_api.proto
 
 /* eslint-disable */
+import type { Empty } from "../../google/protobuf/empty";
+
+/** API分页查询条件 */
+export interface PageBaseApisRequest {
+  /** 服务名 */
+  service_name?:
+    | string
+    | undefined;
+  /** 服务描述 */
+  service_desc?:
+    | string
+    | undefined;
+  /** 描述 */
+  desc?:
+    | string
+    | undefined;
+  /** 操作方法 */
+  operation?:
+    | string
+    | undefined;
+  /** 请求方式 */
+  method?:
+    | string
+    | undefined;
+  /** 请求地址 */
+  path?:
+    | string
+    | undefined;
+  /** 是否暴露为MCP工具 */
+  mcp_enabled?:
+    | boolean
+    | undefined;
+  /** 页码 */
+  page_num: number;
+  /** 每页数量 */
+  page_size: number;
+}
+
+/** API分页查询响应 */
+export interface PageBaseApisResponse {
+  /** API列表 */
+  base_apis: BaseApi[];
+  /** 总数 */
+  total: number;
+}
+
+/** API详情查询条件 */
+export interface GetBaseApiRequest {
+  /** API ID */
+  id: number;
+}
+
+/** API MCP启用状态设置条件 */
+export interface SetBaseApiMcpEnabledRequest {
+  /** API ID */
+  id: number;
+  /** 是否暴露为MCP工具 */
+  mcp_enabled: boolean;
+}
 
 /** API列表查询条件 */
 export interface ListBaseApisRequest {
@@ -32,10 +91,24 @@ export interface BaseApi {
   method: string;
   /** 请求地址 */
   path: string;
+  /** 是否暴露为MCP工具 */
+  mcp_enabled: boolean;
+  /** 接口入参JSON Schema */
+  input_schema: string;
+  /** 接口参数位置映射 */
+  arg_mapping: string;
+  /** 接口返回JSON Schema */
+  output_schema: string;
 }
 
 /** AdminAPI服务 */
 export interface BaseApiService {
-  /** 查询API列表 */
+  /** 分页查询API列表 */
+  PageBaseApis(request: PageBaseApisRequest): Promise<PageBaseApisResponse>;
+  /** 查询菜单分配API选项列表 */
   ListBaseApis(request: ListBaseApisRequest): Promise<ListBaseApisResponse>;
+  /** 查询API详情 */
+  GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi>;
+  /** 设置API MCP启用状态 */
+  SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty>;
 }

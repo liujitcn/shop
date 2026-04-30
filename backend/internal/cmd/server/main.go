@@ -9,9 +9,12 @@ import (
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	"github.com/go-kratos/kratos/v2"
+	kratosTransport "github.com/go-kratos/kratos/v2/transport"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/liujitcn/kratos-kit/bootstrap"
+	mcpServer "github.com/liujitcn/kratos-kit/transport/mcp"
+	sseServer "github.com/liujitcn/kratos-kit/transport/sse"
 
 	//_ "github.com/liujitcn/kratos-kit/database/gorm/driver/bigquery"
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
@@ -55,12 +58,26 @@ func newApp(
 	cron *job.CronServer,
 	gs *grpc.Server,
 	hs *http.Server,
+	ss *sseServer.Server,
+	ms *mcpServer.Server,
 ) *kratos.App {
-	return bootstrap.NewApp(ctx,
-		cron,
-		gs,
-		hs,
-	)
+	servers := make([]kratosTransport.Server, 0, 5)
+	if cron != nil {
+		servers = append(servers, cron)
+	}
+	if gs != nil {
+		servers = append(servers, gs)
+	}
+	if hs != nil {
+		servers = append(servers, hs)
+	}
+	if ss != nil {
+		servers = append(servers, ss)
+	}
+	if ms != nil {
+		servers = append(servers, ms)
+	}
+	return bootstrap.NewApp(ctx, servers...)
 }
 
 // main 作为服务启动入口，负责执行应用启动并在失败时中止进程。

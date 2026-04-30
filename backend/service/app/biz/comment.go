@@ -429,7 +429,7 @@ func (c *CommentCase) PagePendingCommentGoods(ctx context.Context, req *appv1.Pa
 	commentedOrderGoodsMap := make(map[string]bool)
 	// 当前批次存在待评价订单时，预先批量查询已评价商品关联键集合。
 	if len(orderIDs) > 0 {
-		commentedOrderGoodsMap, err = c.commentInfoCase.BuildCommentedOrderGoodsMap(ctx, orderIDs)
+		commentedOrderGoodsMap, err = c.commentInfoCase.BuildCommentedOrderGoodsMap(ctx, authInfo.UserId, orderIDs)
 		if err != nil {
 			return nil, err
 		}
@@ -553,7 +553,7 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *appv1.CreateCommen
 	}
 	// 当前订单商品已经评价过时，不允许继续重复评价。
 	isCommented := false
-	isCommented, err = c.commentInfoCase.IsOrderGoodsCommented(ctx, req.GetOrderId(), req.GetGoodsId(), req.GetSkuCode())
+	isCommented, err = c.commentInfoCase.IsOrderGoodsCommented(ctx, authInfo.UserId, req.GetOrderId(), req.GetGoodsId(), req.GetSkuCode())
 	if err != nil {
 		return nil, err
 	}
@@ -583,7 +583,7 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *appv1.CreateCommen
 			return err
 		}
 
-		orderCompleted, err = c.commentInfoCase.AreAllOrderGoodsCommented(txCtx, allOrderGoodsList)
+		orderCompleted, err = c.commentInfoCase.AreAllOrderGoodsCommented(txCtx, authInfo.UserId, allOrderGoodsList)
 		if err != nil {
 			return err
 		}
