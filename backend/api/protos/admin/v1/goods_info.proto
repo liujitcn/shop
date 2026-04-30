@@ -1,0 +1,204 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "admin/v1/goods_prop.proto";
+import "admin/v1/goods_sku.proto";
+import "admin/v1/goods_spec.proto";
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin商品信息服务
+service GoodsInfoService {
+  // 查询商品信息下拉选择
+  rpc OptionGoodsInfos(OptionGoodsInfosRequest) returns (OptionGoodsInfosResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/goods/info/option"
+    };
+  }
+
+  // 查询商品信息列表
+  rpc PageGoodsInfos(PageGoodsInfosRequest) returns (PageGoodsInfosResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/goods/info"
+    };
+  }
+
+  // 查询商品信息
+  rpc GetGoodsInfo(GetGoodsInfoRequest) returns (GoodsInfoForm) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/goods/info/{id}"
+    };
+  }
+
+  // 创建商品信息
+  rpc CreateGoodsInfo(CreateGoodsInfoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/goods/info"
+      body: "goods_info"
+    };
+  }
+
+  // 更新商品信息
+  rpc UpdateGoodsInfo(UpdateGoodsInfoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/goods/info/{id}"
+      body: "goods_info"
+    };
+  }
+
+  // 删除商品信息
+  rpc DeleteGoodsInfo(DeleteGoodsInfoRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/goods/info/{ids}"
+    };
+  }
+
+  // 设置状态
+  rpc SetGoodsInfoStatus(SetGoodsInfoStatusRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/goods/info/{id}/status"
+      body: "*"
+    };
+  }
+}
+
+// 商品选项查询条件
+message OptionGoodsInfosRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "商品名称"}]; // 商品名称
+}
+
+// 商品选项响应
+message OptionGoodsInfosResponse {
+  // 商品选项
+  message GoodsInfo {
+    int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+    string name = 2 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+    int64 price = 3 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
+
+    string category_name = 4 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+  }
+
+  repeated GoodsInfo goods_infos = 1 [(gnostic.openapi.v3.property) = {description: "商品选项列表"}]; // 商品选项列表
+}
+
+// 商品列表查询条件
+message PageGoodsInfosRequest {
+  optional int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类id"}]; // 分类id
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品名称"}]; // 商品名称
+
+  optional .common.v1.GoodsStatus status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+
+  optional int32 inventory_alert = 103 [(gnostic.openapi.v3.property) = {description: "库存预警类型：1 低库存，2 零库存"}]; // 库存预警类型：1 低库存，2 零库存
+
+  optional int32 price_alert = 104 [(gnostic.openapi.v3.property) = {description: "价格异常类型：1 价格配置异常"}]; // 价格异常类型：1 价格配置异常
+}
+
+// 商品列表响应
+message PageGoodsInfosResponse {
+  repeated GoodsInfo goods_infos = 1 [(gnostic.openapi.v3.property) = {description: "商品列表"}]; // 商品列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 商品详情查询条件
+message GetGoodsInfoRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+}
+
+// 商品创建条件
+message CreateGoodsInfoRequest {
+  GoodsInfoForm goods_info = 1 [(gnostic.openapi.v3.property) = {description: "商品表单"}]; // 商品表单
+}
+
+// 商品更新条件
+message UpdateGoodsInfoRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  GoodsInfoForm goods_info = 2 [(gnostic.openapi.v3.property) = {description: "商品表单"}]; // 商品表单
+}
+
+// 商品删除条件
+message DeleteGoodsInfoRequest {
+  string ids = 1 [(gnostic.openapi.v3.property) = {description: "商品ID列表，多个用逗号分隔"}]; // 商品ID列表，多个用逗号分隔
+}
+
+// 商品状态设置条件
+message SetGoodsInfoStatusRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  .common.v1.GoodsStatus status = 2 [(gnostic.openapi.v3.property) = {description: "状态：枚举【GoodsStatus】"}]; // 状态：枚举【GoodsStatus】
+}
+
+// 商品信息
+message GoodsInfo {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  repeated int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  string picture = 5 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+  int64 price = 40 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
+
+  int64 discount_price = 41 [(gnostic.openapi.v3.property) = {description: "折扣价格（分）"}]; // 折扣价格（分）
+
+  int64 init_sale_num = 42 [(gnostic.openapi.v3.property) = {description: "初始销量"}]; // 初始销量
+
+  int64 real_sale_num = 43 [(gnostic.openapi.v3.property) = {description: "真实销售数量"}]; // 真实销售数量
+
+  int64 inventory = 44 [(gnostic.openapi.v3.property) = {description: "库存数量"}]; // 库存数量
+
+  .common.v1.GoodsStatus status = 101 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  string created_at = 200 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+
+  string category_name = 300 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+}
+
+// 商品表单
+message GoodsInfoForm {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  repeated int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+  repeated string banner = 31 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
+
+  repeated string detail = 32 [(gnostic.openapi.v3.property) = {description: "商品详情"}]; // 商品详情
+
+  optional .common.v1.GoodsStatus status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+
+  repeated GoodsProp prop_list = 100 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
+
+  repeated GoodsSku sku_list = 101 [(gnostic.openapi.v3.property) = {description: "商品SKU"}]; // 商品SKU
+
+  repeated GoodsSpec spec_list = 102 [(gnostic.openapi.v3.property) = {description: "商品规格"}]; // 商品规格
+
+  string category_name = 300 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
+}

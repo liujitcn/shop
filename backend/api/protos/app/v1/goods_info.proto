@@ -1,0 +1,129 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// App商品信息服务
+service GoodsInfoService {
+  // 查询商品信息分页列表
+  rpc PageGoodsInfo(PageGoodsInfoRequest) returns (PageGoodsInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/goods/info"
+    };
+  }
+
+  // 查询商品信息
+  rpc GetGoodsInfo(GetGoodsInfoRequest) returns (GoodsInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/goods/info/{id}"
+    };
+  }
+}
+
+// 商品详情查询条件
+message GetGoodsInfoRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+}
+
+// 商品分页查询条件
+message PageGoodsInfoRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "商品名"}]; // 商品名
+  int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类id"}]; // 分类id
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 商品分页响应
+message PageGoodsInfoResponse {
+  repeated GoodsInfo goods_infos = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 商品详情响应
+message GoodsInfoResponse {
+  // 商品属性
+  message Prop {
+    string label = 1 [(gnostic.openapi.v3.property) = {description: "商品属性名称"}]; // 商品属性名称
+    string value = 2 [(gnostic.openapi.v3.property) = {description: "商品属性value"}]; // 商品属性value
+  }
+
+  // 商品规格
+  message Spec {
+    // 规格项
+    message Item {
+      string name = 1 [(gnostic.openapi.v3.property) = {description: "规格"}]; // 规格
+    }
+
+    string name = 1 [(gnostic.openapi.v3.property) = {description: "商品规格名称"}]; // 商品规格名称
+
+    repeated Item item = 2 [(gnostic.openapi.v3.property) = {description: "商品规格内容"}]; // 商品规格内容
+  }
+
+  // 商品 SKU
+  message Sku {
+    string picture = 2 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+    repeated string spec_item = 3 [(gnostic.openapi.v3.property) = {description: "SKU SKU组成，注意：需要与 goods_spec 数组顺序对应"}]; // SKU SKU组成，需要与 goods_spec 数组顺序对应
+
+    string sku_code = 4 [(gnostic.openapi.v3.property) = {description: "SKU编码"}]; // SKU编码
+
+    int64 price = 5 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
+
+    int64 sale_num = 6 [(gnostic.openapi.v3.property) = {description: "销量"}]; // 销量
+
+    int64 inventory = 7 [(gnostic.openapi.v3.property) = {description: "库存数量"}]; // 库存数量
+  }
+
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  repeated int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  int64 price = 5 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
+
+  int64 sale_num = 6 [(gnostic.openapi.v3.property) = {description: "销量"}]; // 销量
+
+  string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+  repeated string banner = 31 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
+
+  repeated string detail = 32 [(gnostic.openapi.v3.property) = {description: "商品详情"}]; // 商品详情
+
+  repeated Prop prop_list = 100 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
+
+  repeated Sku sku_list = 101 [(gnostic.openapi.v3.property) = {description: "商品SKU"}]; // 商品SKU
+
+  repeated Spec spec_list = 102 [(gnostic.openapi.v3.property) = {description: "商品规格"}]; // 商品规格
+}
+
+// Goods信息
+message GoodsInfo {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  repeated int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 5 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+  int64 sale_num = 40 [(gnostic.openapi.v3.property) = {description: "初始销量"}]; // 销量
+
+  int64 price = 41 [(gnostic.openapi.v3.property) = {description: "价格"}]; // 价格
+
+  string updated_at = 201 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
+}

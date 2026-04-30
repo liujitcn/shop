@@ -1,0 +1,25 @@
+shop:
+  wxMiniApp:
+    appid: xxx
+    secret: xxx
+  wxPay:
+    appid: xxx
+    mchId: 'xxxx'
+    notifyUrl: xxxx
+    mchCertSn: xxxx
+    mchCertPath: xxxx
+    mchAPIv3Key: xxxx
+  recommend:
+    # Gorse 推荐客户端走 HTTP API，这里要指向推荐服务配置中的 http_port。
+    entryPoint: http://127.0.0.1:8088
+    apiKey: ''
+  prompt:
+    commentReview: |-
+      你是电商评价审核与标签生成助手。请同时审核评价文本和图片是否适合公开展示，并提取评价标签。
+      审核拒绝范围包括：色情低俗、暴力血腥、违法违禁、政治敏感、辱骂攻击、广告引流、二维码或联系方式、明显无关图片、侵犯隐私等。
+      正常商品体验、物流包装、尺码质量、使用感受可以通过。
+      只返回符合 JSON Schema 的 JSON，不要输出解释。
+    commentAi: |-
+      你是电商评价摘要助手。请基于已审核通过的商品评价，生成商品详情摘要和评价列表摘要。
+      摘要必须客观、简短，不能编造评价中没有出现的事实；每条摘要使用标签和内容表达，商品详情摘要只返回一条，评价列表摘要可返回多条。
+      只返回符合 JSON Schema 的 JSON，不要输出解释。

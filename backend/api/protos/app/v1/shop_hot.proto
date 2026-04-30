@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/goods_info.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// App热门推荐服务
+service ShopHotService {
+  // 查询热门推荐列表
+  rpc ListShopHots(ListShopHotsRequest) returns (ListShopHotsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/shop/hot"
+    };
+  }
+
+  // 查询热门推荐选项
+  rpc ListShopHotItems(ListShopHotItemsRequest) returns (ListShopHotItemsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/shop/hot/{id}/item"
+    };
+  }
+
+  // 查询热门推荐商品
+  rpc PageShopHotGoods(PageShopHotGoodsRequest) returns (PageShopHotGoodsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/shop/hot/item/{hot_item_id}/goods"
+    };
+  }
+}
+
+// 热门专区列表查询条件
+message ListShopHotsRequest {}
+
+// 热门专区列表响应
+message ListShopHotsResponse {
+  repeated ShopHot shop_hots = 1 [(gnostic.openapi.v3.property) = {description: "热门专区列表"}]; // 热门专区列表
+}
+
+// 热门专区项列表查询条件
+message ListShopHotItemsRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "热门专区ID"}]; // 热门专区ID
+}
+
+// 热门专区商品分页查询条件
+message PageShopHotGoodsRequest {
+  int64 hot_item_id = 1 [(gnostic.openapi.v3.property) = {description: "选项ID"}]; // 选项ID
+
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 热门专区商品分页响应
+message PageShopHotGoodsResponse {
+  repeated GoodsInfo goods_infos = 1 [(gnostic.openapi.v3.property) = {description: "商品分页数据"}]; // 商品分页数据
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 热门专区
+message ShopHot {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "标题"}]; // 标题
+
+  string desc = 3 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  repeated string picture = 4 [(gnostic.openapi.v3.property) = {description: "图片链接"}]; // 图片链接
+}
+
+// 热门专区项列表响应
+message ListShopHotItemsResponse {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "标题"}]; // 标题
+
+  string banner = 3 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
+
+  repeated ShopHotItem shop_hot_items = 4 [(gnostic.openapi.v3.property) = {description: "热门专区选项"}]; // 热门专区选项
+}
+
+// 热门专区项
+message ShopHotItem {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "主键ID"}]; // 主键ID
+
+  string title = 2 [(gnostic.openapi.v3.property) = {description: "标题"}]; // 标题
+}

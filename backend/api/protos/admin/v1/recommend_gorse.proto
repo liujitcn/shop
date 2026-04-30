@@ -1,0 +1,1084 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin Gorse 推荐服务
+service RecommendGorseService {
+  // 查询 Gorse 推荐时间序列
+  rpc GetTimeSeries(GetTimeSeriesRequest) returns (TimeSeriesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/timeseries/{name}"
+    };
+  }
+
+  // 查询 Gorse 推荐分类
+  rpc OptionCategories(OptionCategoriesRequest) returns (OptionCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/category/option"
+    };
+  }
+
+  // 查询 Gorse 推荐仪表盘推荐商品
+  rpc ListDashboardItems(ListDashboardItemsRequest) returns (ListDashboardItemsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/dashboard"
+    };
+  }
+
+  // 查询 Gorse 推荐任务状态
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/task"
+    };
+  }
+
+  // 查询 Gorse 推荐用户列表
+  rpc PageUsers(PageUsersRequest) returns (PageUsersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/user"
+    };
+  }
+
+  // 查询 Gorse 推荐用户
+  rpc GetUser(GetUserRequest) returns (UserResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/user/{id}"
+    };
+  }
+
+  // 删除 Gorse 推荐用户
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/recommend/gorse/user/{id}"
+    };
+  }
+
+  // 查询 Gorse 推荐相似用户
+  rpc GetUserSimilar(GetUserSimilarRequest) returns (UserSimilarResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/user/{id}/similar"
+    };
+  }
+
+  // 查询 Gorse 推荐用户反馈
+  rpc GetUserFeedback(GetUserFeedbackRequest) returns (FeedbackResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/user/{id}/feedback"
+    };
+  }
+
+  // 查询 Gorse 推荐用户推荐结果
+  rpc GetUserRecommend(GetUserRecommendRequest) returns (ItemListResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/user/{id}/recommend"
+    };
+  }
+
+  // 查询 Gorse 推荐商品列表
+  rpc PageItems(PageItemsRequest) returns (PageItemsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/item"
+    };
+  }
+
+  // 查询 Gorse 推荐商品
+  rpc GetItem(GetItemRequest) returns (Item) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/item/{id}"
+    };
+  }
+
+  // 删除 Gorse 推荐商品
+  rpc DeleteItem(DeleteItemRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/recommend/gorse/item/{id}"
+    };
+  }
+
+  // 查询 Gorse 推荐相似商品
+  rpc GetItemSimilar(GetItemSimilarRequest) returns (ItemListResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/item/{id}/similar"
+    };
+  }
+
+  // 导出 Gorse 推荐数据
+  rpc ExportData(ExportDataRequest) returns (ExportDataResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/export"
+    };
+  }
+
+  // 导入 Gorse 推荐数据
+  rpc ImportData(ImportDataRequest) returns (ImportDataResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/recommend/gorse/import"
+      body: "*"
+    };
+  }
+
+  // 查询 Gorse 推荐配置
+  rpc GetConfig(GetConfigRequest) returns (ConfigResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/recommend/gorse/config"
+    };
+  }
+
+  // 保存 Gorse 推荐配置
+  rpc SaveConfig(SaveConfigRequest) returns (ConfigResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/recommend/gorse/config"
+      body: "config"
+    };
+  }
+
+  // 重置 Gorse 推荐配置
+  rpc ResetConfig(ResetConfigRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/admin/recommend/gorse/config"
+    };
+  }
+
+  // 预览 Gorse 推荐外部推荐脚本
+  rpc PreviewExternal(PreviewExternalRequest) returns (PreviewExternalResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/recommend/gorse/external/preview"
+      body: "*"
+    };
+  }
+
+  // 预览 Gorse 推荐排序提示词
+  rpc PreviewRankerPrompt(PreviewRankerPromptRequest) returns (PreviewRankerPromptResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/admin/recommend/gorse/ranker/prompt"
+      body: "*"
+    };
+  }
+}
+
+// 外部推荐脚本预览请求
+message PreviewExternalRequest {
+  string user_id = 1 [
+    json_name = "userId",
+    (gnostic.openapi.v3.property) = {description: "用户编号"}
+  ]; // 用户编号
+
+  string script = 2 [(gnostic.openapi.v3.property) = {description: "外部推荐脚本"}]; // 外部推荐脚本
+}
+
+// 外部推荐脚本预览响应
+message PreviewExternalResponse {
+  repeated string items = 1 [(gnostic.openapi.v3.property) = {description: "推荐商品编号列表"}]; // 推荐商品编号列表
+}
+
+// 排序提示词预览请求
+message PreviewRankerPromptRequest {
+  string user_id = 1 [
+    json_name = "userId",
+    (gnostic.openapi.v3.property) = {description: "用户编号"}
+  ]; // 用户编号
+
+  string query_template = 2 [
+    json_name = "queryTemplate",
+    (gnostic.openapi.v3.property) = {description: "查询模板"}
+  ]; // 查询模板
+
+  string document_template = 3 [
+    json_name = "documentTemplate",
+    (gnostic.openapi.v3.property) = {description: "文档模板"}
+  ]; // 文档模板
+}
+
+// 排序提示词预览响应
+message PreviewRankerPromptResponse {
+  string query = 1 [(gnostic.openapi.v3.property) = {description: "查询提示词"}]; // 查询提示词
+
+  repeated string documents = 2 [(gnostic.openapi.v3.property) = {description: "文档提示词列表"}]; // 文档提示词列表
+}
+
+// Gorse 推荐导出数据查询条件
+message ExportDataRequest {
+  .common.v1.AdvanceDataType data_type = 1 [(gnostic.openapi.v3.property) = {description: "数据类型：枚举【AdvanceDataType】"}]; // 数据类型：枚举【AdvanceDataType】
+}
+
+// Gorse 推荐导出数据响应
+message ExportDataResponse {
+  string file_name = 1 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
+
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "JSONL文件内容"}]; // JSONL文件内容
+}
+
+// Gorse 推荐导入数据请求
+message ImportDataRequest {
+  .common.v1.AdvanceDataType data_type = 1 [(gnostic.openapi.v3.property) = {description: "数据类型：枚举【AdvanceDataType】"}]; // 数据类型：枚举【AdvanceDataType】
+
+  string file_name = 2 [(gnostic.openapi.v3.property) = {description: "文件名"}]; // 文件名
+
+  string content = 3 [(gnostic.openapi.v3.property) = {description: "JSONL文件内容"}]; // JSONL文件内容
+}
+
+// Gorse 推荐导入数据响应
+message ImportDataResponse {
+  int32 success_count = 1 [(gnostic.openapi.v3.property) = {description: "成功导入数量"}]; // 成功导入数量
+}
+
+// Gorse 推荐名称查询条件
+message GetTimeSeriesRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  string begin = 2 [(gnostic.openapi.v3.property) = {description: "开始时间"}]; // 开始时间
+  string end = 3 [(gnostic.openapi.v3.property) = {description: "结束时间"}]; // 结束时间
+}
+
+// Gorse 推荐仪表盘推荐商品查询条件
+message ListDashboardItemsRequest {
+  string recommender = 1 [(gnostic.openapi.v3.property) = {description: "推荐器名称"}]; // 推荐器名称
+  string category = 2 [(gnostic.openapi.v3.property) = {description: "分类"}]; // 分类
+  int32 end = 3 [(gnostic.openapi.v3.property) = {description: "结束位置"}]; // 结束位置
+}
+
+// Gorse 推荐分类查询条件
+message OptionCategoriesRequest {}
+
+// Gorse 推荐分类响应
+message OptionCategoriesResponse {
+  repeated string categories = 1 [(gnostic.openapi.v3.property) = {description: "分类列表"}]; // 分类列表
+}
+
+// Gorse 推荐仪表盘推荐商品响应
+message ListDashboardItemsResponse {
+  repeated Item items = 1 [
+    json_name = "Items",
+    (gnostic.openapi.v3.property) = {description: "商品列表"}
+  ]; // 商品列表
+  string last_modified = 2 [
+    json_name = "LastModified",
+    (gnostic.openapi.v3.property) = {description: "最后更新时间"}
+  ]; // 最后更新时间
+}
+
+// Gorse 推荐时间序列响应
+message TimeSeriesResponse {
+  repeated TimeSeriesPoint points = 1 [
+    json_name = "Points",
+    (gnostic.openapi.v3.property) = {description: "时间序列点列表"}
+  ]; // 时间序列点列表
+}
+
+// Gorse 推荐时间序列点
+message TimeSeriesPoint {
+  string name = 1 [
+    json_name = "Name",
+    (gnostic.openapi.v3.property) = {description: "名称"}
+  ]; // 名称
+  string timestamp = 2 [
+    json_name = "Timestamp",
+    (gnostic.openapi.v3.property) = {description: "时间"}
+  ]; // 时间
+  double value = 3 [
+    json_name = "Value",
+    (gnostic.openapi.v3.property) = {description: "数值"}
+  ]; // 数值
+}
+
+// Gorse 推荐相似用户查询条件
+message GetUserSimilarRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+  string recommender = 2 [(gnostic.openapi.v3.property) = {description: "推荐器名称"}]; // 推荐器名称
+  string category = 3 [(gnostic.openapi.v3.property) = {description: "分类"}]; // 分类
+}
+
+// Gorse 推荐相似商品查询条件
+message GetItemSimilarRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "商品编号"}]; // 商品编号
+  string recommender = 2 [(gnostic.openapi.v3.property) = {description: "推荐器名称"}]; // 推荐器名称
+  string category = 3 [(gnostic.openapi.v3.property) = {description: "分类"}]; // 分类
+}
+
+// Gorse 推荐用户反馈查询条件
+message GetUserFeedbackRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+  string feedback_type = 2 [
+    json_name = "feedback_type",
+    (gnostic.openapi.v3.property) = {description: "反馈类型"}
+  ]; // 反馈类型
+  int32 offset = 3 [(gnostic.openapi.v3.property) = {description: "偏移量"}]; // 偏移量
+  int32 n = 4 [(gnostic.openapi.v3.property) = {description: "查询数量"}]; // 查询数量
+}
+
+// Gorse 推荐用户推荐查询条件
+message GetUserRecommendRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+  string recommender = 2 [(gnostic.openapi.v3.property) = {description: "推荐器名称"}]; // 推荐器名称
+  string category = 3 [(gnostic.openapi.v3.property) = {description: "分类"}]; // 分类
+  int32 n = 4 [(gnostic.openapi.v3.property) = {description: "查询数量"}]; // 查询数量
+}
+
+// Gorse 推荐任务状态查询条件
+message ListTasksRequest {}
+
+// Gorse 推荐任务状态响应
+message ListTasksResponse {
+  repeated Task tasks = 1 [
+    json_name = "Tasks",
+    (gnostic.openapi.v3.property) = {description: "任务状态列表"}
+  ]; // 任务状态列表
+}
+
+// Gorse 推荐任务状态
+message Task {
+  string tracer = 1 [
+    json_name = "Tracer",
+    (gnostic.openapi.v3.property) = {description: "执行节点"}
+  ]; // 执行节点
+  string name = 2 [
+    json_name = "Name",
+    (gnostic.openapi.v3.property) = {description: "任务名称"}
+  ]; // 任务名称
+  string status = 3 [
+    json_name = "Status",
+    (gnostic.openapi.v3.property) = {description: "任务状态"}
+  ]; // 任务状态
+  string error = 4 [
+    json_name = "Error",
+    (gnostic.openapi.v3.property) = {description: "错误信息"}
+  ]; // 错误信息
+  int64 count = 5 [
+    json_name = "Count",
+    (gnostic.openapi.v3.property) = {description: "当前进度"}
+  ]; // 当前进度
+  int64 total = 6 [
+    json_name = "Total",
+    (gnostic.openapi.v3.property) = {description: "总进度"}
+  ]; // 总进度
+  string start_time = 7 [
+    json_name = "StartTime",
+    (gnostic.openapi.v3.property) = {description: "开始时间"}
+  ]; // 开始时间
+  string finish_time = 8 [
+    json_name = "FinishTime",
+    (gnostic.openapi.v3.property) = {description: "结束时间"}
+  ]; // 结束时间
+}
+
+// Gorse 推荐用户列表查询条件
+message PageUsersRequest {
+  string cursor = 1 [(gnostic.openapi.v3.property) = {description: "分页游标"}]; // 分页游标
+  int32 n = 2 [(gnostic.openapi.v3.property) = {description: "查询数量"}]; // 查询数量
+}
+
+// Gorse 推荐用户查询条件
+message GetUserRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+}
+
+// Gorse 推荐用户删除条件
+message DeleteUserRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "用户编号"}]; // 用户编号
+}
+
+// Gorse 推荐用户分页响应
+message PageUsersResponse {
+  string cursor = 1 [
+    json_name = "Cursor",
+    (gnostic.openapi.v3.property) = {description: "下一页游标"}
+  ]; // 下一页游标
+  repeated UserResponse users = 2 [
+    json_name = "Users",
+    (gnostic.openapi.v3.property) = {description: "用户列表"}
+  ]; // 用户列表
+}
+
+// Gorse 推荐相似用户响应
+message UserSimilarResponse {
+  repeated UserResponse users = 1 [
+    json_name = "Users",
+    (gnostic.openapi.v3.property) = {description: "相似用户列表"}
+  ]; // 相似用户列表
+}
+
+// Gorse 推荐用户
+message UserResponse {
+  string user_id = 1 [
+    json_name = "UserId",
+    (gnostic.openapi.v3.property) = {description: "用户编号"}
+  ]; // 用户编号
+  UserLabel labels = 2 [
+    json_name = "Labels",
+    (gnostic.openapi.v3.property) = {description: "标签信息"}
+  ]; // 标签信息
+  string comment = 3 [
+    json_name = "Comment",
+    (gnostic.openapi.v3.property) = {description: "备注"}
+  ]; // 备注
+  string last_active_time = 4 [
+    json_name = "LastActiveTime",
+    (gnostic.openapi.v3.property) = {description: "最后活跃时间"}
+  ]; // 最后活跃时间
+  string last_update_time = 5 [
+    json_name = "LastUpdateTime",
+    (gnostic.openapi.v3.property) = {description: "最后更新时间"}
+  ]; // 最后更新时间
+  double score = 6 [
+    json_name = "Score",
+    (gnostic.openapi.v3.property) = {description: "分数"}
+  ]; // 分数
+}
+
+// Gorse 推荐用户标签信息
+message UserLabel {
+  int64 dept_id = 1 [
+    json_name = "dept_id",
+    (gnostic.openapi.v3.property) = {description: "部门编号"}
+  ]; // 部门编号
+  int32 gender = 2 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
+  int64 role_id = 3 [
+    json_name = "role_id",
+    (gnostic.openapi.v3.property) = {description: "角色编号"}
+  ]; // 角色编号
+  int32 status = 4 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+}
+
+// Gorse 推荐商品列表查询条件
+message PageItemsRequest {
+  string cursor = 1 [(gnostic.openapi.v3.property) = {description: "分页游标"}]; // 分页游标
+  int32 n = 2 [(gnostic.openapi.v3.property) = {description: "查询数量"}]; // 查询数量
+}
+
+// Gorse 推荐商品查询条件
+message GetItemRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "商品编号"}]; // 商品编号
+}
+
+// Gorse 推荐商品删除条件
+message DeleteItemRequest {
+  string id = 1 [(gnostic.openapi.v3.property) = {description: "商品编号"}]; // 商品编号
+}
+
+// Gorse 推荐商品分页响应
+message PageItemsResponse {
+  string cursor = 1 [
+    json_name = "Cursor",
+    (gnostic.openapi.v3.property) = {description: "下一页游标"}
+  ]; // 下一页游标
+  repeated Item items = 2 [
+    json_name = "Items",
+    (gnostic.openapi.v3.property) = {description: "商品列表"}
+  ]; // 商品列表
+}
+
+// Gorse 推荐商品列表响应
+message ItemListResponse {
+  repeated Item items = 1 [
+    json_name = "Items",
+    (gnostic.openapi.v3.property) = {description: "商品列表"}
+  ]; // 商品列表
+}
+
+// Gorse 推荐商品
+message Item {
+  string item_id = 1 [
+    json_name = "ItemId",
+    (gnostic.openapi.v3.property) = {description: "商品编号"}
+  ]; // 商品编号
+  bool is_hidden = 2 [
+    json_name = "IsHidden",
+    (gnostic.openapi.v3.property) = {description: "是否隐藏"}
+  ]; // 是否隐藏
+  repeated string categories = 3 [
+    json_name = "Categories",
+    (gnostic.openapi.v3.property) = {description: "分类列表"}
+  ]; // 分类列表
+  string timestamp = 4 [
+    json_name = "Timestamp",
+    (gnostic.openapi.v3.property) = {description: "时间"}
+  ]; // 时间
+  ItemLabel labels = 5 [
+    json_name = "Labels",
+    (gnostic.openapi.v3.property) = {description: "标签信息"}
+  ]; // 标签信息
+  string comment = 6 [
+    json_name = "Comment",
+    (gnostic.openapi.v3.property) = {description: "备注"}
+  ]; // 备注
+  double score = 7 [
+    json_name = "Score",
+    (gnostic.openapi.v3.property) = {description: "分数"}
+  ]; // 分数
+}
+
+// Gorse 推荐商品标签信息
+message ItemLabel {
+  string desc = 1 [
+    json_name = "desc",
+    (gnostic.openapi.v3.property) = {description: "商品描述"}
+  ]; // 商品描述
+  int64 discount_price = 2 [
+    json_name = "discount_price",
+    (gnostic.openapi.v3.property) = {description: "折扣价"}
+  ]; // 折扣价
+  int64 inventory = 4 [(gnostic.openapi.v3.property) = {description: "库存"}]; // 库存
+  int64 price = 5 [(gnostic.openapi.v3.property) = {description: "原价"}]; // 原价
+  int32 status = 6 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+}
+
+// Gorse 推荐反馈响应
+message FeedbackResponse {
+  repeated Feedback feedback = 1 [
+    json_name = "Feedback",
+    (gnostic.openapi.v3.property) = {description: "反馈列表"}
+  ]; // 反馈列表
+}
+
+// Gorse 推荐反馈
+message Feedback {
+  string feedback_type = 1 [
+    json_name = "FeedbackType",
+    (gnostic.openapi.v3.property) = {description: "反馈类型"}
+  ]; // 反馈类型
+  string user_id = 2 [
+    json_name = "UserId",
+    (gnostic.openapi.v3.property) = {description: "用户编号"}
+  ]; // 用户编号
+  Item item = 3 [
+    json_name = "Item",
+    (gnostic.openapi.v3.property) = {description: "反馈商品"}
+  ]; // 反馈商品
+  double value = 4 [
+    json_name = "Value",
+    (gnostic.openapi.v3.property) = {description: "反馈值"}
+  ]; // 反馈值
+  string timestamp = 5 [
+    json_name = "Timestamp",
+    (gnostic.openapi.v3.property) = {description: "时间"}
+  ]; // 时间
+  string comment = 6 [
+    json_name = "Comment",
+    (gnostic.openapi.v3.property) = {description: "备注"}
+  ]; // 备注
+}
+
+// Gorse 推荐配置查询条件
+message GetConfigRequest {}
+
+// Gorse 推荐配置保存条件
+message SaveConfigRequest {
+  ConfigResponse config = 1 [(gnostic.openapi.v3.property) = {description: "Gorse 推荐配置"}]; // Gorse 推荐配置
+}
+
+// Gorse 推荐配置重置条件
+message ResetConfigRequest {}
+
+// Gorse 推荐配置响应
+message ConfigResponse {
+  Database database = 1 [(gnostic.openapi.v3.property) = {description: "数据库配置"}]; // 数据库配置
+  Master master = 2 [(gnostic.openapi.v3.property) = {description: "主节点配置"}]; // 主节点配置
+  Server server = 3 [(gnostic.openapi.v3.property) = {description: "服务配置"}]; // 服务配置
+  Recommend recommend = 4 [(gnostic.openapi.v3.property) = {description: "推荐配置"}]; // 推荐配置
+  Blob blob = 5 [(gnostic.openapi.v3.property) = {description: "Blob存储配置"}]; // Blob存储配置
+  Tracing tracing = 6 [(gnostic.openapi.v3.property) = {description: "链路追踪配置"}]; // 链路追踪配置
+  Oidc oidc = 7 [
+    json_name = "oidc",
+    (gnostic.openapi.v3.property) = {description: "OIDC认证配置"}
+  ]; // OIDC认证配置
+  Openai openai = 8 [
+    json_name = "openai",
+    (gnostic.openapi.v3.property) = {description: "OpenAI配置"}
+  ]; // OpenAI配置
+
+  // Gorse 推荐数据库配置
+  message Database {
+    string data_store = 1 [
+      json_name = "data_store",
+      (gnostic.openapi.v3.property) = {description: "数据存储数据库"}
+    ]; // 数据存储数据库
+    string cache_store = 2 [
+      json_name = "cache_store",
+      (gnostic.openapi.v3.property) = {description: "缓存存储数据库"}
+    ]; // 缓存存储数据库
+    string table_prefix = 3 [
+      json_name = "table_prefix",
+      (gnostic.openapi.v3.property) = {description: "数据库表名前缀"}
+    ]; // 数据库表名前缀
+    string cache_table_prefix = 4 [
+      json_name = "cache_table_prefix",
+      (gnostic.openapi.v3.property) = {description: "缓存表名前缀"}
+    ]; // 缓存表名前缀
+    string data_table_prefix = 5 [
+      json_name = "data_table_prefix",
+      (gnostic.openapi.v3.property) = {description: "数据表名前缀"}
+    ]; // 数据表名前缀
+    Mysql mysql = 6 [
+      json_name = "mysql",
+      (gnostic.openapi.v3.property) = {description: "MySQL配置"}
+    ]; // MySQL配置
+    Postgres postgres = 7 [(gnostic.openapi.v3.property) = {description: "PostgreSQL配置"}]; // PostgreSQL配置
+    Redis redis = 8 [(gnostic.openapi.v3.property) = {description: "Redis配置"}]; // Redis配置
+
+    // MySQL配置
+    message Mysql {
+      string isolation_level = 1 [
+        json_name = "isolation_level",
+        (gnostic.openapi.v3.property) = {description: "事务隔离级别"}
+      ]; // 事务隔离级别
+      int32 max_open_conns = 2 [
+        json_name = "max_open_conns",
+        (gnostic.openapi.v3.property) = {description: "最大打开连接数"}
+      ]; // 最大打开连接数
+      int32 max_idle_conns = 3 [
+        json_name = "max_idle_conns",
+        (gnostic.openapi.v3.property) = {description: "最大空闲连接数"}
+      ]; // 最大空闲连接数
+      string conn_max_lifetime = 4 [
+        json_name = "conn_max_lifetime",
+        (gnostic.openapi.v3.property) = {description: "连接最长复用时间"}
+      ]; // 连接最长复用时间
+    }
+
+    // PostgreSQL配置
+    message Postgres {
+      int32 max_open_conns = 1 [
+        json_name = "max_open_conns",
+        (gnostic.openapi.v3.property) = {description: "最大打开连接数"}
+      ]; // 最大打开连接数
+      int32 max_idle_conns = 2 [
+        json_name = "max_idle_conns",
+        (gnostic.openapi.v3.property) = {description: "最大空闲连接数"}
+      ]; // 最大空闲连接数
+      string conn_max_lifetime = 3 [
+        json_name = "conn_max_lifetime",
+        (gnostic.openapi.v3.property) = {description: "连接最长复用时间"}
+      ]; // 连接最长复用时间
+    }
+
+    // Redis配置
+    message Redis {
+      int32 max_search_results = 1 [
+        json_name = "max_search_results",
+        (gnostic.openapi.v3.property) = {description: "最大搜索结果数"}
+      ]; // 最大搜索结果数
+    }
+  }
+
+  // Gorse 推荐主节点配置
+  message Master {
+    string host = 1 [(gnostic.openapi.v3.property) = {description: "gRPC监听地址"}]; // gRPC监听地址
+    int32 port = 2 [(gnostic.openapi.v3.property) = {description: "gRPC监听端口"}]; // gRPC监听端口
+    bool ssl_mode = 3 [
+      json_name = "ssl_mode",
+      (gnostic.openapi.v3.property) = {description: "是否启用gRPC SSL"}
+    ]; // 是否启用gRPC SSL
+    string ssl_ca = 4 [
+      json_name = "ssl_ca",
+      (gnostic.openapi.v3.property) = {description: "gRPC SSL证书颁发机构"}
+    ]; // gRPC SSL证书颁发机构
+    string ssl_cert = 5 [
+      json_name = "ssl_cert",
+      (gnostic.openapi.v3.property) = {description: "gRPC SSL证书"}
+    ]; // gRPC SSL证书
+    string ssl_key = 6 [
+      json_name = "ssl_key",
+      (gnostic.openapi.v3.property) = {description: "gRPC SSL证书密钥"}
+    ]; // gRPC SSL证书密钥
+    string http_host = 7 [
+      json_name = "http_host",
+      (gnostic.openapi.v3.property) = {description: "HTTP监听地址"}
+    ]; // HTTP监听地址
+    int32 http_port = 8 [
+      json_name = "http_port",
+      (gnostic.openapi.v3.property) = {description: "HTTP监听端口"}
+    ]; // HTTP监听端口
+    repeated string http_cors_domains = 9 [
+      json_name = "http_cors_domains",
+      (gnostic.openapi.v3.property) = {description: "HTTP CORS允许域名"}
+    ]; // HTTP CORS允许域名
+    repeated string http_cors_methods = 10 [
+      json_name = "http_cors_methods",
+      (gnostic.openapi.v3.property) = {description: "HTTP CORS允许方法"}
+    ]; // HTTP CORS允许方法
+    int32 n_jobs = 11 [
+      json_name = "n_jobs",
+      (gnostic.openapi.v3.property) = {description: "工作线程数"}
+    ]; // 工作线程数
+    string meta_timeout = 12 [
+      json_name = "meta_timeout",
+      (gnostic.openapi.v3.property) = {description: "元数据超时时间"}
+    ]; // 元数据超时时间
+    string dashboard_user_name = 13 [
+      json_name = "dashboard_user_name",
+      (gnostic.openapi.v3.property) = {description: "仪表盘登录用户名"}
+    ]; // 仪表盘登录用户名
+    string dashboard_password = 14 [
+      json_name = "dashboard_password",
+      (gnostic.openapi.v3.property) = {description: "仪表盘登录密码"}
+    ]; // 仪表盘登录密码
+    bool dashboard_redacted = 15 [
+      json_name = "dashboard_redacted",
+      (gnostic.openapi.v3.property) = {description: "是否隐藏仪表盘敏感信息"}
+    ]; // 是否隐藏仪表盘敏感信息
+    string admin_api_key = 16 [
+      json_name = "admin_api_key",
+      (gnostic.openapi.v3.property) = {description: "管理员API密钥"}
+    ]; // 管理员API密钥
+  }
+
+  // Gorse 推荐服务配置
+  message Server {
+    int32 default_n = 1 [
+      json_name = "default_n",
+      (gnostic.openapi.v3.property) = {description: "默认返回物品数量"}
+    ]; // 默认返回物品数量
+    string api_key = 2 [
+      json_name = "api_key",
+      (gnostic.openapi.v3.property) = {description: "RESTful API密钥"}
+    ]; // RESTful API密钥
+    string clock_error = 3 [
+      json_name = "clock_error",
+      (gnostic.openapi.v3.property) = {description: "集群时钟误差"}
+    ]; // 集群时钟误差
+    bool auto_insert_user = 4 [
+      json_name = "auto_insert_user",
+      (gnostic.openapi.v3.property) = {description: "插入反馈时自动插入新用户"}
+    ]; // 插入反馈时自动插入新用户
+    bool auto_insert_item = 5 [
+      json_name = "auto_insert_item",
+      (gnostic.openapi.v3.property) = {description: "插入反馈时自动插入新物品"}
+    ]; // 插入反馈时自动插入新物品
+    string cache_expire = 6 [
+      json_name = "cache_expire",
+      (gnostic.openapi.v3.property) = {description: "服务端缓存过期时间"}
+    ]; // 服务端缓存过期时间
+  }
+
+  // Gorse 推荐算法配置
+  message Recommend {
+    int32 cache_size = 1 [
+      json_name = "cache_size",
+      (gnostic.openapi.v3.property) = {description: "缓存元素数量"}
+    ]; // 缓存元素数量
+    string cache_expire = 2 [
+      json_name = "cache_expire",
+      (gnostic.openapi.v3.property) = {description: "推荐缓存过期时间"}
+    ]; // 推荐缓存过期时间
+    int32 context_size = 3 [
+      json_name = "context_size",
+      (gnostic.openapi.v3.property) = {description: "在线推荐上下文大小"}
+    ]; // 在线推荐上下文大小
+    int32 active_user_ttl = 4 [
+      json_name = "active_user_ttl",
+      (gnostic.openapi.v3.property) = {description: "活跃用户生存时间"}
+    ]; // 活跃用户生存时间
+    DataSource data_source = 5 [
+      json_name = "data_source",
+      (gnostic.openapi.v3.property) = {description: "数据源配置"}
+    ]; // 数据源配置
+    repeated NonPersonalized non_personalized = 6 [
+      json_name = "non-personalized",
+      (gnostic.openapi.v3.property) = {description: "非个性化推荐器"}
+    ]; // 非个性化推荐器
+    repeated ItemToItem item_to_item = 7 [
+      json_name = "item-to-item",
+      (gnostic.openapi.v3.property) = {description: "物品相似推荐器"}
+    ]; // 物品相似推荐器
+    repeated UserToUser user_to_user = 8 [
+      json_name = "user-to-user",
+      (gnostic.openapi.v3.property) = {description: "用户相似推荐器"}
+    ]; // 用户相似推荐器
+    repeated External external = 9 [(gnostic.openapi.v3.property) = {description: "外部推荐器"}]; // 外部推荐器
+    Collaborative collaborative = 10 [(gnostic.openapi.v3.property) = {description: "协同过滤配置"}]; // 协同过滤配置
+    Replacement replacement = 11 [(gnostic.openapi.v3.property) = {description: "替换配置"}]; // 替换配置
+    Ranker ranker = 12 [(gnostic.openapi.v3.property) = {description: "排序器配置"}]; // 排序器配置
+    Fallback fallback = 13 [(gnostic.openapi.v3.property) = {description: "回退推荐配置"}]; // 回退推荐配置
+
+    // 推荐数据源配置
+    message DataSource {
+      repeated string positive_feedback_types = 1 [
+        json_name = "positive_feedback_types",
+        (gnostic.openapi.v3.property) = {description: "正向反馈类型"}
+      ]; // 正向反馈类型
+      repeated string read_feedback_types = 2 [
+        json_name = "read_feedback_types",
+        (gnostic.openapi.v3.property) = {description: "已读反馈类型"}
+      ]; // 已读反馈类型
+      repeated string negative_feedback_types = 3 [
+        json_name = "negative_feedback_types",
+        (gnostic.openapi.v3.property) = {description: "负反馈类型"}
+      ]; // 负反馈类型
+      int32 positive_feedback_ttl = 4 [
+        json_name = "positive_feedback_ttl",
+        (gnostic.openapi.v3.property) = {description: "正向反馈生存时间"}
+      ]; // 正向反馈生存时间
+      int32 item_ttl = 5 [
+        json_name = "item_ttl",
+        (gnostic.openapi.v3.property) = {description: "物品生存时间"}
+      ]; // 物品生存时间
+    }
+
+    // 非个性化推荐器配置
+    message NonPersonalized {
+      string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+      string score = 2 [(gnostic.openapi.v3.property) = {description: "评分函数"}]; // 评分函数
+      string filter = 3 [(gnostic.openapi.v3.property) = {description: "筛选函数"}]; // 筛选函数
+    }
+
+    // 物品相似推荐器配置
+    message ItemToItem {
+      string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+      string type = 2 [(gnostic.openapi.v3.property) = {description: "相似度类型"}]; // 相似度类型
+      string column = 3 [(gnostic.openapi.v3.property) = {description: "相似度字段"}]; // 相似度字段
+      string prompt = 4 [(gnostic.openapi.v3.property) = {description: "提示词"}]; // 提示词
+    }
+
+    // 用户相似推荐器配置
+    message UserToUser {
+      string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+      string type = 2 [(gnostic.openapi.v3.property) = {description: "相似度类型"}]; // 相似度类型
+      string column = 3 [(gnostic.openapi.v3.property) = {description: "相似度字段"}]; // 相似度字段
+    }
+
+    // 外部推荐器配置
+    message External {
+      string name = 1 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+      string script = 2 [(gnostic.openapi.v3.property) = {description: "外部推荐脚本"}]; // 外部推荐脚本
+    }
+
+    // 协同过滤配置
+    message Collaborative {
+      string type = 1 [(gnostic.openapi.v3.property) = {description: "协同过滤类型"}]; // 协同过滤类型
+      string fit_period = 2 [
+        json_name = "fit_period",
+        (gnostic.openapi.v3.property) = {description: "模型训练周期"}
+      ]; // 模型训练周期
+      int32 fit_epoch = 3 [
+        json_name = "fit_epoch",
+        (gnostic.openapi.v3.property) = {description: "模型训练轮数"}
+      ]; // 模型训练轮数
+      string optimize_period = 4 [
+        json_name = "optimize_period",
+        (gnostic.openapi.v3.property) = {description: "模型搜索周期"}
+      ]; // 模型搜索周期
+      int32 optimize_trials = 5 [
+        json_name = "optimize_trials",
+        (gnostic.openapi.v3.property) = {description: "模型搜索试验次数"}
+      ]; // 模型搜索试验次数
+      EarlyStopping early_stopping = 6 [
+        json_name = "early_stopping",
+        (gnostic.openapi.v3.property) = {description: "早停配置"}
+      ]; // 早停配置
+    }
+
+    // 早停配置
+    message EarlyStopping {
+      int32 patience = 1 [(gnostic.openapi.v3.property) = {description: "停止前等待轮数"}]; // 停止前等待轮数
+    }
+
+    // 推荐替换配置
+    message Replacement {
+      bool enable_replacement = 1 [
+        json_name = "enable_replacement",
+        (gnostic.openapi.v3.property) = {description: "是否启用已读物品替换"}
+      ]; // 是否启用已读物品替换
+      double positive_replacement_decay = 2 [
+        json_name = "positive_replacement_decay",
+        (gnostic.openapi.v3.property) = {description: "正向反馈替换衰减"}
+      ]; // 正向反馈替换衰减
+      double read_replacement_decay = 3 [
+        json_name = "read_replacement_decay",
+        (gnostic.openapi.v3.property) = {description: "已读反馈替换衰减"}
+      ]; // 已读反馈替换衰减
+    }
+
+    // 排序器配置
+    message Ranker {
+      string type = 1 [(gnostic.openapi.v3.property) = {description: "排序器类型"}]; // 排序器类型
+      string cache_expire = 2 [
+        json_name = "cache_expire",
+        (gnostic.openapi.v3.property) = {description: "不活跃用户推荐刷新周期"}
+      ]; // 不活跃用户推荐刷新周期
+      repeated string recommenders = 3 [(gnostic.openapi.v3.property) = {description: "排序前候选推荐器"}]; // 排序前候选推荐器
+      string fit_period = 4 [
+        json_name = "fit_period",
+        (gnostic.openapi.v3.property) = {description: "模型拟合周期"}
+      ]; // 模型拟合周期
+      int32 fit_epoch = 5 [
+        json_name = "fit_epoch",
+        (gnostic.openapi.v3.property) = {description: "模型拟合轮数"}
+      ]; // 模型拟合轮数
+      string optimize_period = 6 [
+        json_name = "optimize_period",
+        (gnostic.openapi.v3.property) = {description: "超参数优化周期"}
+      ]; // 超参数优化周期
+      int32 optimize_trials = 7 [
+        json_name = "optimize_trials",
+        (gnostic.openapi.v3.property) = {description: "超参数优化次数"}
+      ]; // 超参数优化次数
+      string query_template = 8 [
+        json_name = "queryTemplate",
+        (gnostic.openapi.v3.property) = {description: "大语言模型重排查询模板"}
+      ]; // 大语言模型重排查询模板
+      string document_template = 9 [
+        json_name = "documentTemplate",
+        (gnostic.openapi.v3.property) = {description: "大语言模型重排文档模板"}
+      ]; // 大语言模型重排文档模板
+      EarlyStopping early_stopping = 10 [
+        json_name = "early_stopping",
+        (gnostic.openapi.v3.property) = {description: "早停配置"}
+      ]; // 早停配置
+      RerankerApi reranker_api = 11 [
+        json_name = "reranker_api",
+        (gnostic.openapi.v3.property) = {description: "重排API配置"}
+      ]; // 重排API配置
+
+      // 重排 API 配置
+      message RerankerApi {
+        string auth_token = 1 [
+          json_name = "auth_token",
+          (gnostic.openapi.v3.property) = {description: "重排API密钥"}
+        ]; // 重排API密钥
+        string model = 2 [(gnostic.openapi.v3.property) = {description: "重排模型"}]; // 重排模型
+        string url = 3 [
+          json_name = "url",
+          (gnostic.openapi.v3.property) = {description: "重排API地址"}
+        ]; // 重排API地址
+      }
+    }
+
+    // 回退推荐配置
+    message Fallback {
+      repeated string recommenders = 1 [(gnostic.openapi.v3.property) = {description: "个性化推荐用尽时的推荐来源"}]; // 个性化推荐用尽时的推荐来源
+    }
+  }
+
+  // Blob存储配置
+  message Blob {
+    string uri = 1 [(gnostic.openapi.v3.property) = {description: "Blob URI"}]; // Blob URI
+    S3 s3 = 2 [
+      json_name = "s3",
+      (gnostic.openapi.v3.property) = {description: "S3配置"}
+    ]; // S3配置
+    Gcs gcs = 3 [
+      json_name = "gcs",
+      (gnostic.openapi.v3.property) = {description: "GCS配置"}
+    ]; // GCS配置
+    Azure azure = 4 [(gnostic.openapi.v3.property) = {description: "Azure Blob配置"}]; // Azure Blob配置
+
+    // S3配置
+    message S3 {
+      string endpoint = 1 [(gnostic.openapi.v3.property) = {description: "AWS S3端点"}]; // AWS S3端点
+      string access_key_id = 2 [
+        json_name = "access_key_id",
+        (gnostic.openapi.v3.property) = {description: "访问密钥ID"}
+      ]; // 访问密钥ID
+      string secret_access_key = 3 [
+        json_name = "secret_access_key",
+        (gnostic.openapi.v3.property) = {description: "秘密访问密钥"}
+      ]; // 秘密访问密钥
+    }
+
+    // GCS配置
+    message Gcs {
+      string credentials_file = 1 [
+        json_name = "credentials_file",
+        (gnostic.openapi.v3.property) = {description: "凭据文件路径"}
+      ]; // 凭据文件路径
+    }
+
+    // Azure Blob配置
+    message Azure {
+      string endpoint = 1 [(gnostic.openapi.v3.property) = {description: "端点"}]; // 端点
+      string account_name = 2 [
+        json_name = "account_name",
+        (gnostic.openapi.v3.property) = {description: "账户名称"}
+      ]; // 账户名称
+      string account_key = 3 [
+        json_name = "account_key",
+        (gnostic.openapi.v3.property) = {description: "账户密钥"}
+      ]; // 账户密钥
+      string connection_string = 4 [
+        json_name = "connection_string",
+        (gnostic.openapi.v3.property) = {description: "连接字符串"}
+      ]; // 连接字符串
+    }
+  }
+
+  // 链路追踪配置
+  message Tracing {
+    bool enable_tracing = 1 [
+      json_name = "enable_tracing",
+      (gnostic.openapi.v3.property) = {description: "是否启用REST API追踪"}
+    ]; // 是否启用REST API追踪
+    string exporter = 2 [(gnostic.openapi.v3.property) = {description: "追踪导出器类型"}]; // 追踪导出器类型
+    string collector_endpoint = 3 [
+      json_name = "collector_endpoint",
+      (gnostic.openapi.v3.property) = {description: "追踪收集器端点"}
+    ]; // 追踪收集器端点
+    string sampler = 4 [(gnostic.openapi.v3.property) = {description: "追踪采样器类型"}]; // 追踪采样器类型
+    double ratio = 5 [(gnostic.openapi.v3.property) = {description: "采样比率"}]; // 采样比率
+  }
+
+  // OIDC认证配置
+  message Oidc {
+    bool enable = 1 [(gnostic.openapi.v3.property) = {description: "是否启用OIDC认证"}]; // 是否启用OIDC认证
+    string issuer = 2 [(gnostic.openapi.v3.property) = {description: "OAuth提供商颁发者"}]; // OAuth提供商颁发者
+    string client_id = 3 [
+      json_name = "client_id",
+      (gnostic.openapi.v3.property) = {description: "OAuth应用公共标识符"}
+    ]; // OAuth应用公共标识符
+    string client_secret = 4 [
+      json_name = "client_secret",
+      (gnostic.openapi.v3.property) = {description: "OAuth令牌访问权限"}
+    ]; // OAuth令牌访问权限
+    string redirect_url = 5 [
+      json_name = "redirect_url",
+      (gnostic.openapi.v3.property) = {description: "认证后重定向地址"}
+    ]; // 认证后重定向地址
+  }
+
+  // OpenAI配置
+  message Openai {
+    string base_url = 1 [
+      json_name = "base_url",
+      (gnostic.openapi.v3.property) = {description: "基础地址"}
+    ]; // 基础地址
+    string auth_token = 2 [
+      json_name = "auth_token",
+      (gnostic.openapi.v3.property) = {description: "认证令牌"}
+    ]; // 认证令牌
+    string chat_completion_model = 3 [
+      json_name = "chat_completion_model",
+      (gnostic.openapi.v3.property) = {description: "对话模型"}
+    ]; // 对话模型
+    int32 chat_completion_rpm = 4 [
+      json_name = "chat_completion_rpm",
+      (gnostic.openapi.v3.property) = {description: "对话每分钟请求数"}
+    ]; // 对话每分钟请求数
+    int32 chat_completion_tpm = 5 [
+      json_name = "chat_completion_tpm",
+      (gnostic.openapi.v3.property) = {description: "对话每分钟Token数"}
+    ]; // 对话每分钟Token数
+    string embedding_model = 6 [
+      json_name = "embedding_model",
+      (gnostic.openapi.v3.property) = {description: "Embedding模型"}
+    ]; // Embedding模型
+    int32 embedding_dimensions = 7 [
+      json_name = "embedding_dimensions",
+      (gnostic.openapi.v3.property) = {description: "Embedding维度"}
+    ]; // Embedding维度
+    int32 embedding_rpm = 8 [
+      json_name = "embedding_rpm",
+      (gnostic.openapi.v3.property) = {description: "Embedding每分钟请求数"}
+    ]; // Embedding每分钟请求数
+    int32 embedding_tpm = 9 [
+      json_name = "embedding_tpm",
+      (gnostic.openapi.v3.property) = {description: "Embedding每分钟Token数"}
+    ]; // Embedding每分钟Token数
+    string log_file = 10 [
+      json_name = "log_file",
+      (gnostic.openapi.v3.property) = {description: "日志文件"}
+    ]; // 日志文件
+  }
+}

@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "common/v1/analytics.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin商品分析服务
+service GoodsAnalyticsService {
+  // 查询商品摘要指标
+  rpc SummaryGoodsAnalytics(SummaryGoodsAnalyticsRequest) returns (SummaryGoodsAnalyticsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/goods/summary"
+    };
+  }
+
+  // 查询商品趋势
+  rpc TrendGoodsAnalytics(TrendGoodsAnalyticsRequest) returns (.common.v1.AnalyticsTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/goods/trend"
+    };
+  }
+
+  // 查询商品分类分布
+  rpc PieGoodsAnalytics(PieGoodsAnalyticsRequest) returns (.common.v1.AnalyticsPieResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/goods/pie"
+    };
+  }
+
+  // 查询商品支付排行
+  rpc RankGoodsAnalytics(RankGoodsAnalyticsRequest) returns (.common.v1.AnalyticsRankResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/goods/rank"
+    };
+  }
+}
+
+// 商品摘要指标查询条件
+message SummaryGoodsAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 商品趋势查询条件
+message TrendGoodsAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 商品分类分布查询条件
+message PieGoodsAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 商品支付排行查询条件
+message RankGoodsAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 商品分析汇总响应
+message SummaryGoodsAnalyticsResponse {
+  int64 new_goods_count = 1 [(gnostic.openapi.v3.property) = {description: "新增商品数"}]; // 新增商品数
+  int64 put_on_goods_rate = 2 [(gnostic.openapi.v3.property) = {description: "上架商品占比"}]; // 上架商品占比
+  int64 active_goods_count = 3 [(gnostic.openapi.v3.property) = {description: "活跃商品数"}]; // 活跃商品数
+  int64 active_goods_rate = 4 [(gnostic.openapi.v3.property) = {description: "活跃商品占比"}]; // 活跃商品占比
+  int64 sale_count = 5 [(gnostic.openapi.v3.property) = {description: "销售件数"}]; // 销售件数
+  int64 sale_growth_rate = 6 [(gnostic.openapi.v3.property) = {description: "销售增长率"}]; // 销售增长率
+  int64 view_count = 7 [(gnostic.openapi.v3.property) = {description: "浏览次数"}]; // 浏览次数
+  int64 collect_count = 8 [(gnostic.openapi.v3.property) = {description: "收藏次数"}]; // 收藏次数
+  int64 cart_count = 9 [(gnostic.openapi.v3.property) = {description: "加购件数"}]; // 加购件数
+  int64 order_count = 10 [(gnostic.openapi.v3.property) = {description: "下单次数"}]; // 下单次数
+  int64 pay_count = 11 [(gnostic.openapi.v3.property) = {description: "支付次数"}]; // 支付次数
+  int64 pay_amount = 12 [(gnostic.openapi.v3.property) = {description: "支付金额，单位分"}]; // 支付金额，单位分
+  int64 cart_conversion_rate = 13 [(gnostic.openapi.v3.property) = {description: "浏览加购转化率"}]; // 浏览加购转化率
+  int64 order_conversion_rate = 14 [(gnostic.openapi.v3.property) = {description: "加购下单转化率"}]; // 加购下单转化率
+  int64 pay_conversion_rate = 15 [(gnostic.openapi.v3.property) = {description: "浏览支付转化率"}]; // 浏览支付转化率
+  int64 pay_unit_price = 16 [(gnostic.openapi.v3.property) = {description: "件均成交价，单位分"}]; // 件均成交价，单位分
+}

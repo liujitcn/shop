@@ -1,0 +1,34 @@
+authn:
+  jwt:
+    secret: Shop@Server
+    accessTokenExpires: 3600000s
+    refreshTokenExpires: 36000s
+    whiteList:
+      prefix:
+      regex:
+      path:
+      match:
+        - "/base.v1.ConfigService/GetConfig"
+        - "/base.v1.LoginService/Captcha"
+        - "/base.v1.LoginService/Login"
+        - "/app.v1.AuthService/WechatLogin"
+        - "/app.v1.GoodsCategoryService/ListGoodsCategories"
+        - "/app.v1.GoodsInfoService/PageGoodsInfo"
+        - "/app.v1.GoodsInfoService/GetGoodsInfo"
+        - "/app.v1.ShopBannerService/ListShopBanners"
+        - "/app.v1.ShopHotService/ListShopHots"
+        - "/app.v1.ShopHotService/ListShopHotItems"
+        - "/app.v1.ShopServiceService/ListShopServices"
+        - "/app.v1.ShopHotService/PageShopHotGoods"
+        - "/app.v1.PayService/PayNotify"
+    optionalAuth:
+      prefix:
+      regex:
+      path:
+      match:
+        - "/app.v1.CommentService/GoodsCommentOverview"
+        - "/app.v1.CommentService/PageGoodsComment"
+        - "/app.v1.CommentService/PageCommentDiscussion"
+        - "/app.v1.RecommendService/RecommendAnonymousActor"
+        - "/app.v1.RecommendService/RecommendGoods"
+        - "/app.v1.RecommendService/RecommendEventReport"

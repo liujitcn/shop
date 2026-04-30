@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Admin用户门店管理服务
+service UserStoreService {
+  // 查询用户门店列表
+  rpc PageUserStores(PageUserStoresRequest) returns (PageUserStoresResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/user/store"
+    };
+  }
+
+  // 查询用户门店
+  rpc GetUserStore(GetUserStoreRequest) returns (UserStore) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/user/store/{id}"
+    };
+  }
+
+  // 门店认证
+  rpc AuditUserStore(AuditUserStoreRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/user/store/{id}/audit"
+      body: "*"
+    };
+  }
+}
+
+// 用户门店列表查询条件
+message PageUserStoresRequest {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "门店名称"}]; // 门店名称
+  optional .common.v1.UserStoreStatus status = 100 [(gnostic.openapi.v3.property) = {
+    description: "状态"
+    default: {number: 0}
+  }]; // 状态
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 用户门店列表响应
+message PageUserStoresResponse {
+  repeated UserStore user_stores = 1 [(gnostic.openapi.v3.property) = {description: "用户门店列表"}]; // 用户门店列表
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 用户门店查询条件
+message GetUserStoreRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户门店ID"}]; // 用户门店ID
+}
+
+// 门店认证请求参数
+message AuditUserStoreRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户门店ID"}]; // 用户门店ID
+  .common.v1.UserStoreStatus status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  string remark = 52 [(gnostic.openapi.v3.property) = {description: "备注名"}]; // 备注名
+}
+
+// 用户门店
+message UserStore {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户门店ID"}]; // 用户门店ID
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "门店名称"}]; // 门店名称
+  repeated string address = 3 [(gnostic.openapi.v3.property) = {description: "省市区"}]; // 省市区
+  string detail = 4 [(gnostic.openapi.v3.property) = {description: "详细地址"}]; // 详细地址
+  repeated string picture = 5 [(gnostic.openapi.v3.property) = {description: "门店照片"}]; // 门店照片
+  repeated string business_license = 6 [(gnostic.openapi.v3.property) = {description: "营业执照"}]; // 营业执照
+  .common.v1.UserStoreStatus status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  string remark = 52 [(gnostic.openapi.v3.property) = {description: "备注名"}]; // 备注名
+  string nick_name = 100 [(gnostic.openapi.v3.property) = {description: "联系人"}]; // 联系人
+  string phone = 101 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
+}

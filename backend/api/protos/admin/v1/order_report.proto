@@ -1,0 +1,273 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin订单报表服务
+service OrderReportService {
+  // 查询订单月报汇总
+  rpc SummaryOrderMonthReport(SummaryOrderMonthReportRequest) returns (SummaryOrderMonthReportResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/report/order/month/summary"
+    };
+  }
+
+  // 查询订单月报明细
+  rpc ListOrderMonthReports(ListOrderMonthReportsRequest) returns (ListOrderMonthReportsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/report/order/month"
+    };
+  }
+
+  // 查询订单日报汇总
+  rpc SummaryOrderDayReport(SummaryOrderDayReportRequest) returns (SummaryOrderDayReportResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/report/order/day/summary"
+    };
+  }
+
+  // 查询订单日报明细
+  rpc ListOrderDayReports(ListOrderDayReportsRequest) returns (ListOrderDayReportsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/report/order/day"
+    };
+  }
+}
+
+// 订单月报汇总查询条件
+message SummaryOrderMonthReportRequest {
+  string start_month = 1 [
+    json_name = "startMonth",
+    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"}
+  ]; // 开始月份，格式：YYYY-MM
+  string end_month = 2 [
+    json_name = "endMonth",
+    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"}
+  ]; // 结束月份，格式：YYYY-MM
+  int32 pay_type = 3 [
+    json_name = "payType",
+    (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
+  ]; // 支付方式：枚举【OrderPayType】，0 表示全部
+  int32 pay_channel = 4 [
+    json_name = "payChannel",
+    (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
+  ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+}
+
+// 订单月报列表请求参数
+message ListOrderMonthReportsRequest {
+  string start_month = 1 [
+    json_name = "startMonth",
+    (gnostic.openapi.v3.property) = {description: "开始月份，格式：YYYY-MM"}
+  ]; // 开始月份，格式：YYYY-MM
+  string end_month = 2 [
+    json_name = "endMonth",
+    (gnostic.openapi.v3.property) = {description: "结束月份，格式：YYYY-MM"}
+  ]; // 结束月份，格式：YYYY-MM
+  int32 pay_type = 3 [
+    json_name = "payType",
+    (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
+  ]; // 支付方式：枚举【OrderPayType】，0 表示全部
+  int32 pay_channel = 4 [
+    json_name = "payChannel",
+    (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
+  ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+}
+
+// 订单月报汇总响应
+message SummaryOrderMonthReportResponse {
+  int64 paid_order_count = 1 [
+    json_name = "paidOrderCount",
+    (gnostic.openapi.v3.property) = {description: "支付成功订单数"}
+  ]; // 支付成功订单数
+  int64 paid_order_amount = 2 [
+    json_name = "paidOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "支付成功金额，单位分"}
+  ]; // 支付成功金额，单位分
+  int64 refund_order_count = 3 [
+    json_name = "refundOrderCount",
+    (gnostic.openapi.v3.property) = {description: "退款成功订单数"}
+  ]; // 退款成功订单数
+  int64 refund_order_amount = 4 [
+    json_name = "refundOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "退款成功金额，单位分"}
+  ]; // 退款成功金额，单位分
+  int64 net_order_amount = 5 [
+    json_name = "netOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "净销售额，单位分"}
+  ]; // 净销售额，单位分
+  int64 paid_user_count = 6 [
+    json_name = "paidUserCount",
+    (gnostic.openapi.v3.property) = {description: "支付用户数"}
+  ]; // 支付用户数
+  int64 goods_count = 7 [
+    json_name = "goodsCount",
+    (gnostic.openapi.v3.property) = {description: "商品件数"}
+  ]; // 商品件数
+  int64 customer_unit_price = 8 [
+    json_name = "customerUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "客单价，单位分"}
+  ]; // 客单价，单位分
+}
+
+// 订单月报项
+message OrderMonthReportItem {
+  string month = 1 [(gnostic.openapi.v3.property) = {description: "月份，格式：YYYY-MM"}]; // 月份，格式：YYYY-MM
+  int64 paid_order_count = 2 [
+    json_name = "paidOrderCount",
+    (gnostic.openapi.v3.property) = {description: "支付成功订单数"}
+  ]; // 支付成功订单数
+  int64 paid_order_amount = 3 [
+    json_name = "paidOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "支付成功金额，单位分"}
+  ]; // 支付成功金额，单位分
+  int64 refund_order_count = 4 [
+    json_name = "refundOrderCount",
+    (gnostic.openapi.v3.property) = {description: "退款成功订单数"}
+  ]; // 退款成功订单数
+  int64 refund_order_amount = 5 [
+    json_name = "refundOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "退款成功金额，单位分"}
+  ]; // 退款成功金额，单位分
+  int64 net_order_amount = 6 [
+    json_name = "netOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "净销售额，单位分"}
+  ]; // 净销售额，单位分
+  int64 paid_user_count = 7 [
+    json_name = "paidUserCount",
+    (gnostic.openapi.v3.property) = {description: "支付用户数"}
+  ]; // 支付用户数
+  int64 goods_count = 8 [
+    json_name = "goodsCount",
+    (gnostic.openapi.v3.property) = {description: "商品件数"}
+  ]; // 商品件数
+  int64 customer_unit_price = 9 [
+    json_name = "customerUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "客单价，单位分"}
+  ]; // 客单价，单位分
+}
+
+// 订单月报列表响应
+message ListOrderMonthReportsResponse {
+  repeated OrderMonthReportItem order_month_reports = 1 [(gnostic.openapi.v3.property) = {description: "月报明细"}]; // 月报明细
+}
+
+// 订单日报汇总查询条件
+message SummaryOrderDayReportRequest {
+  string start_date = 1 [
+    json_name = "startDate",
+    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
+  ]; // 开始日期，格式：YYYY-MM-DD
+  string end_date = 2 [
+    json_name = "endDate",
+    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"}
+  ]; // 结束日期，格式：YYYY-MM-DD
+  int32 pay_type = 3 [
+    json_name = "payType",
+    (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
+  ]; // 支付方式：枚举【OrderPayType】，0 表示全部
+  int32 pay_channel = 4 [
+    json_name = "payChannel",
+    (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
+  ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+}
+
+// 订单日报列表请求参数
+message ListOrderDayReportsRequest {
+  string start_date = 1 [
+    json_name = "startDate",
+    (gnostic.openapi.v3.property) = {description: "开始日期，格式：YYYY-MM-DD"}
+  ]; // 开始日期，格式：YYYY-MM-DD
+  string end_date = 2 [
+    json_name = "endDate",
+    (gnostic.openapi.v3.property) = {description: "结束日期，格式：YYYY-MM-DD"}
+  ]; // 结束日期，格式：YYYY-MM-DD
+  int32 pay_type = 3 [
+    json_name = "payType",
+    (gnostic.openapi.v3.property) = {description: "支付方式：枚举【OrderPayType】，0 表示全部"}
+  ]; // 支付方式：枚举【OrderPayType】，0 表示全部
+  int32 pay_channel = 4 [
+    json_name = "payChannel",
+    (gnostic.openapi.v3.property) = {description: "支付渠道：枚举【OrderPayChannel】，0 表示全部"}
+  ]; // 支付渠道：枚举【OrderPayChannel】，0 表示全部
+}
+
+// 订单日报汇总响应
+message SummaryOrderDayReportResponse {
+  int64 paid_order_count = 1 [
+    json_name = "paidOrderCount",
+    (gnostic.openapi.v3.property) = {description: "支付成功订单数"}
+  ]; // 支付成功订单数
+  int64 paid_order_amount = 2 [
+    json_name = "paidOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "支付成功金额，单位分"}
+  ]; // 支付成功金额，单位分
+  int64 refund_order_count = 3 [
+    json_name = "refundOrderCount",
+    (gnostic.openapi.v3.property) = {description: "退款成功订单数"}
+  ]; // 退款成功订单数
+  int64 refund_order_amount = 4 [
+    json_name = "refundOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "退款成功金额，单位分"}
+  ]; // 退款成功金额，单位分
+  int64 net_order_amount = 5 [
+    json_name = "netOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "净销售额，单位分"}
+  ]; // 净销售额，单位分
+  int64 paid_user_count = 6 [
+    json_name = "paidUserCount",
+    (gnostic.openapi.v3.property) = {description: "支付用户数"}
+  ]; // 支付用户数
+  int64 goods_count = 7 [
+    json_name = "goodsCount",
+    (gnostic.openapi.v3.property) = {description: "商品件数"}
+  ]; // 商品件数
+  int64 customer_unit_price = 8 [
+    json_name = "customerUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "客单价，单位分"}
+  ]; // 客单价，单位分
+}
+
+// 订单日报项
+message OrderDayReportItem {
+  string day = 1 [(gnostic.openapi.v3.property) = {description: "日期，格式：YYYY-MM-DD"}]; // 日期，格式：YYYY-MM-DD
+  int64 paid_order_count = 2 [
+    json_name = "paidOrderCount",
+    (gnostic.openapi.v3.property) = {description: "支付成功订单数"}
+  ]; // 支付成功订单数
+  int64 paid_order_amount = 3 [
+    json_name = "paidOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "支付成功金额，单位分"}
+  ]; // 支付成功金额，单位分
+  int64 refund_order_count = 4 [
+    json_name = "refundOrderCount",
+    (gnostic.openapi.v3.property) = {description: "退款成功订单数"}
+  ]; // 退款成功订单数
+  int64 refund_order_amount = 5 [
+    json_name = "refundOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "退款成功金额，单位分"}
+  ]; // 退款成功金额，单位分
+  int64 net_order_amount = 6 [
+    json_name = "netOrderAmount",
+    (gnostic.openapi.v3.property) = {description: "净销售额，单位分"}
+  ]; // 净销售额，单位分
+  int64 paid_user_count = 7 [
+    json_name = "paidUserCount",
+    (gnostic.openapi.v3.property) = {description: "支付用户数"}
+  ]; // 支付用户数
+  int64 goods_count = 8 [
+    json_name = "goodsCount",
+    (gnostic.openapi.v3.property) = {description: "商品件数"}
+  ]; // 商品件数
+  int64 customer_unit_price = 9 [
+    json_name = "customerUnitPrice",
+    (gnostic.openapi.v3.property) = {description: "客单价，单位分"}
+  ]; // 客单价，单位分
+}
+
+// 订单日报列表响应
+message ListOrderDayReportsResponse {
+  repeated OrderDayReportItem order_day_reports = 1 [(gnostic.openapi.v3.property) = {description: "日报明细"}]; // 日报明细
+}

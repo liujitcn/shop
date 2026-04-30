@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "common/v1/analytics.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin用户分析服务
+service UserAnalyticsService {
+  // 查询用户摘要指标
+  rpc SummaryUserAnalytics(SummaryUserAnalyticsRequest) returns (SummaryUserAnalyticsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/user/summary"
+    };
+  }
+
+  // 查询用户趋势
+  rpc TrendUserAnalytics(TrendUserAnalyticsRequest) returns (.common.v1.AnalyticsTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/user/trend"
+    };
+  }
+
+  // 查询用户行为覆盖排行
+  rpc RankUserAnalytics(RankUserAnalyticsRequest) returns (.common.v1.AnalyticsRankResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/user/rank"
+    };
+  }
+}
+
+// 用户摘要指标查询条件
+message SummaryUserAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 用户趋势查询条件
+message TrendUserAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 用户行为覆盖排行查询条件
+message RankUserAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 用户分析汇总响应
+message SummaryUserAnalyticsResponse {
+  int64 new_user_count = 1 [(gnostic.openapi.v3.property) = {description: "新增用户数"}]; // 新增用户数
+  int64 new_user_growth_rate = 2 [(gnostic.openapi.v3.property) = {description: "新增用户增长率"}]; // 新增用户增长率
+  int64 order_user_count = 3 [(gnostic.openapi.v3.property) = {description: "下单用户数"}]; // 下单用户数
+  int64 order_user_conversion_rate = 4 [(gnostic.openapi.v3.property) = {description: "下单转化率"}]; // 下单转化率
+  int64 active_user_count = 5 [(gnostic.openapi.v3.property) = {description: "活跃用户数"}]; // 活跃用户数
+  int64 active_user_coverage_rate = 6 [(gnostic.openapi.v3.property) = {description: "活跃覆盖率"}]; // 活跃覆盖率
+}

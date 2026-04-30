@@ -1,0 +1,161 @@
+import { ComponentPublicInstance, Ref, VNode } from "vue";
+import { BreakPoint, Responsive } from "@/components/Grid/interface";
+import { TableColumnCtx } from "element-plus/es/components/table/src/table-column/defaults";
+import { ProTableProps } from "@/components/ProTable/index.vue";
+import ProTable from "@/components/ProTable/index.vue";
+
+type DefaultRow = Record<string, any>;
+
+export interface EnumProps {
+  label?: string; // 选项框显示的文字
+  value?: string | number | boolean | any[]; // 选项框值
+  disabled?: boolean; // 是否禁用此选项
+  tagType?: string; // 当 tag 为 true 时，此选择会指定 tag 显示类型
+  children?: EnumProps[]; // 为树形选择时，可以通过 children 属性指定子选项
+  [key: string]: any;
+}
+
+export type TypeProps = "index" | "selection" | "radio" | "expand" | "sort";
+
+export type SearchType =
+  | "input"
+  | "input-number"
+  | "select"
+  | "select-v2"
+  | "tree-select"
+  | "cascader"
+  | "date-picker"
+  | "time-picker"
+  | "time-select"
+  | "switch"
+  | "slider";
+
+export type DictValueType = "string" | "number";
+
+export type SearchRenderScope = {
+  searchParam: { [key: string]: any };
+  placeholder: string;
+  clearable: boolean;
+  options: EnumProps[];
+  data: EnumProps[];
+};
+
+export type SearchProps = {
+  el?: SearchType; // 当前项搜索框的类型
+  label?: string; // 当前项搜索框的 label
+  props?: any; // 搜索项参数，根据 element plus 官方文档来传递，该属性所有值会透传到组件
+  key?: string; // 当搜索项 key 不为 prop 属性时，可通过 key 指定
+  tooltip?: string; // 搜索提示
+  order?: number; // 搜索项排序（从大到小）
+  span?: number; // 搜索项所占用的列数，默认为 1 列
+  offset?: number; // 搜索字段左侧偏移列数
+  defaultValue?: string | number | boolean | any[] | Ref<any>; // 搜索项默认值
+  render?: (scope: SearchRenderScope) => VNode; // 自定义搜索内容渲染（tsx语法）
+} & Partial<Record<BreakPoint, Responsive>>;
+
+export type FieldNamesProps = {
+  label: string;
+  value: string;
+  children?: string;
+};
+
+export type RenderScope<T extends DefaultRow = DefaultRow> = {
+  row: T;
+  $index: number;
+  column: TableColumnCtx<T>;
+  [key: string]: any;
+};
+
+export type HeaderRenderScope<T extends DefaultRow = DefaultRow> = {
+  $index: number;
+  column: TableColumnCtx<T>;
+  [key: string]: any;
+};
+
+export type CellType = "image" | "status" | "actions" | "money";
+
+export type ColumnActionParams<T extends DefaultRow = DefaultRow> =
+  | Record<string, any>
+  | ((scope: RenderScope<T>) => Record<string, any>);
+
+export type HeaderActionScope<T extends DefaultRow = DefaultRow> = {
+  selectedList: T[];
+  selectedListIds: Array<string | number>;
+  isSelected: boolean;
+};
+
+export type HeaderActionParams<T extends DefaultRow = DefaultRow> =
+  | Record<string, any>
+  | ((scope: HeaderActionScope<T>) => Record<string, any>);
+
+export interface ImageCellProps<T extends DefaultRow = DefaultRow> {
+  src?: string | ((scope: RenderScope<T>) => string);
+  previewSrc?: string | ((scope: RenderScope<T>) => string);
+  width?: number | string;
+  height?: number | string;
+  previewWidth?: number | string;
+  previewHeight?: number | string;
+}
+
+export interface StatusCellProps<T extends DefaultRow = DefaultRow> {
+  activeValue: string | number | boolean;
+  inactiveValue: string | number | boolean;
+  activeText?: string;
+  inactiveText?: string;
+  disabled?: boolean | ((scope: RenderScope<T>) => boolean);
+  beforeChange?: (scope: RenderScope<T>, params?: Record<string, any>) => boolean | Promise<boolean>;
+  onChange?: (value: string | number | boolean, scope: RenderScope<T>, params?: Record<string, any>) => void | Promise<void>;
+  params?: ColumnActionParams<T>;
+}
+
+export interface MoneyCellProps<T extends DefaultRow = DefaultRow> {
+  value?: number | string | ((scope: RenderScope<T>) => number | string | undefined | null);
+  prefix?: string;
+  suffix?: string;
+}
+
+export interface TableActionProps<T extends DefaultRow = DefaultRow> {
+  label: string;
+  icon?: any;
+  type?: "primary" | "success" | "warning" | "danger" | "info";
+  link?: boolean;
+  disabled?: boolean | ((scope: RenderScope<T>) => boolean);
+  hidden?: boolean | ((scope: RenderScope<T>) => boolean);
+  params?: ColumnActionParams<T>;
+  onClick: (scope: RenderScope<T>, params?: Record<string, any>) => void | Promise<void>;
+}
+
+export interface HeaderActionProps<T extends DefaultRow = DefaultRow> {
+  label: string;
+  icon?: any;
+  type?: "primary" | "success" | "warning" | "danger" | "info";
+  disabled?: boolean | ((scope: HeaderActionScope<T>) => boolean);
+  hidden?: boolean | ((scope: HeaderActionScope<T>) => boolean);
+  params?: HeaderActionParams<T>;
+  onClick: (scope: HeaderActionScope<T>, params?: Record<string, any>) => void | Promise<void>;
+}
+
+export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
+  Omit<TableColumnCtx<T>, "type" | "children" | "renderCell" | "renderHeader">
+> {
+  type?: TypeProps; // 列类型
+  cellType?: CellType; // 预置单元格类型
+  tag?: boolean | Ref<boolean>; // 是否是标签展示
+  isShow?: boolean | Ref<boolean>; // 是否显示在表格当中
+  isSetting?: boolean | Ref<boolean>; // 是否在 ColSetting 中可配置
+  search?: SearchProps | undefined; // 搜索项配置
+  dictCode?: string; // 字典编码，配置后优先使用 Dict / DictLabel 组件
+  dictValueType?: DictValueType; // 字典值类型
+  enum?: EnumProps[] | Ref<EnumProps[]> | ((params?: any) => Promise<any>); // 枚举字典
+  isFilterEnum?: boolean | Ref<boolean>; // 当前单元格值是否根据 enum 格式化（示例：enum 只作为搜索项数据）
+  fieldNames?: FieldNamesProps; // 指定 label && value && children 的 key 值
+  headerRender?: (scope: HeaderRenderScope<T>) => VNode; // 自定义表头内容渲染（tsx语法）
+  render?: (scope: RenderScope<T>) => VNode | string; // 自定义单元格内容渲染（tsx语法）
+  imageProps?: ImageCellProps<T>; // 图片列配置
+  statusProps?: StatusCellProps<T>; // 状态列配置
+  moneyProps?: MoneyCellProps<T>; // 金额列配置
+  actions?: TableActionProps<T>[]; // 操作按钮配置
+  _children?: ColumnProps<T>[]; // 多级表头
+}
+
+export type ProTableInstance = Omit<InstanceType<typeof ProTable>, keyof ComponentPublicInstance | keyof ProTableProps>;

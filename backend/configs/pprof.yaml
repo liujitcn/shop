@@ -1,0 +1,5 @@
+pprof:
+  type: pyroscope
+  pyroscope:
+    applicationName: shop-server
+    serverAddress: http://localhost:4040

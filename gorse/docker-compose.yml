@@ -1,0 +1,16 @@
+services:
+  gorse:
+    image: zhenghaoz/gorse-in-one:latest
+    container_name: gorse
+    restart: unless-stopped
+    network_mode: bridge
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8086:8086"
+      - "8088:8088"
+    volumes:
+      - ./config:/etc/gorse/config
+      - ./data:/var/lib/gorse
+    command: >
+      --config /etc/gorse/config/config.toml

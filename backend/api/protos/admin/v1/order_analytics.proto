@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "common/v1/analytics.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Admin订单分析服务
+service OrderAnalyticsService {
+  // 查询订单摘要指标
+  rpc SummaryOrderAnalytics(SummaryOrderAnalyticsRequest) returns (SummaryOrderAnalyticsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/order/summary"
+    };
+  }
+
+  // 查询订单趋势
+  rpc TrendOrderAnalytics(TrendOrderAnalyticsRequest) returns (.common.v1.AnalyticsTrendResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/order/trend"
+    };
+  }
+
+  // 查询订单状态分布
+  rpc PieOrderAnalytics(PieOrderAnalyticsRequest) returns (.common.v1.AnalyticsPieResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/analytics/order/pie"
+    };
+  }
+}
+
+// 订单摘要指标查询条件
+message SummaryOrderAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 订单趋势查询条件
+message TrendOrderAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 订单状态分布查询条件
+message PieOrderAnalyticsRequest {
+  .common.v1.AnalyticsTimeType time_type = 1 [(gnostic.openapi.v3.property) = {description: "时间类型"}]; // 时间类型
+}
+
+// 订单分析汇总响应
+message SummaryOrderAnalyticsResponse {
+  int64 new_order_count = 1 [(gnostic.openapi.v3.property) = {description: "新增订单数"}]; // 新增订单数
+  int64 new_order_growth_rate = 2 [(gnostic.openapi.v3.property) = {description: "新增订单增长率"}]; // 新增订单增长率
+  int64 sale_amount = 3 [(gnostic.openapi.v3.property) = {description: "销售额"}]; // 销售额
+  int64 average_order_amount = 4 [(gnostic.openapi.v3.property) = {description: "客单价"}]; // 客单价
+  int64 order_user_count = 5 [(gnostic.openapi.v3.property) = {description: "下单用户数"}]; // 下单用户数
+  int64 repurchase_rate = 6 [(gnostic.openapi.v3.property) = {description: "复购率"}]; // 复购率
+}

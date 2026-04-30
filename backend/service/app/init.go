@@ -1,0 +1,68 @@
+package app
+
+import (
+	"shop/service/app/biz"
+
+	"github.com/google/wire"
+)
+
+// ProviderSet 汇总商城端服务依赖注入提供者。
+var ProviderSet = wire.NewSet(
+	biz.NewAuthCase,
+	biz.NewBaseAreaCase,
+	biz.NewBaseDeptCase,
+	biz.NewBaseDictCase,
+	biz.NewBaseDictItemCase,
+	biz.NewBaseRoleCase,
+	biz.NewBaseUserCase,
+	biz.NewCommentInfoCase,
+	biz.NewCommentAiCase,
+	biz.NewCommentTagCase,
+	biz.NewCommentReviewCase,
+	biz.NewCommentDiscussionCase,
+	biz.NewCommentReactionCase,
+	biz.NewCommentCase,
+	biz.NewGoodsCategoryCase,
+	biz.NewGoodsPropCase,
+	biz.NewGoodsSKUCase,
+	biz.NewGoodsSpecCase,
+	biz.NewGoodsInfoCase,
+	biz.NewOrderInfoCase,
+	biz.NewOrderAddressCase,
+	biz.NewOrderCancelCase,
+	biz.NewOrderGoodsCase,
+	biz.NewOrderLogisticsCase,
+	biz.NewOrderPaymentCase,
+	biz.NewOrderRefundCase,
+	biz.NewOrderSchedulerCase,
+	biz.NewPayCase,
+	biz.NewRecommendAnonymousActorCase,
+	biz.NewRecommendRequestCase,
+	biz.NewRecommendEventCase,
+	biz.NewRecommendCase,
+	biz.NewShopBannerCase,
+	biz.NewShopHotCase,
+	biz.NewShopHotItemCase,
+	biz.NewShopServiceCase,
+	biz.NewUserAddressCase,
+	biz.NewUserCartCase,
+	biz.NewUserCollectCase,
+	biz.NewUserStoreCase,
+
+	NewAuthService,
+	NewBaseAreaService,
+	NewBaseDictService,
+	NewCommentService,
+	NewGoodsCategoryService,
+	NewGoodsInfoService,
+	NewOrderInfoService,
+	NewPayService,
+	NewRecommendService,
+	NewShopBannerService,
+	NewShopHotService,
+	NewShopServiceService,
+	NewUserAddressService,
+	NewUserCartService,
+	NewUserCollectService,
+	NewUserStoreService,
+)

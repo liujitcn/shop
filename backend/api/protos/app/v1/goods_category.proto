@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/goods_info.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// App商品分类服务
+service GoodsCategoryService {
+  // 查询商品分类列表
+  rpc ListGoodsCategories(ListGoodsCategoriesRequest) returns (ListGoodsCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/goods/category"
+    };
+  }
+}
+
+// 商品分类列表查询条件
+message ListGoodsCategoriesRequest {
+  optional int64 parent_id = 1 [(gnostic.openapi.v3.property) = {description: "父节点ID"}]; // 父节点ID
+}
+
+// 商品分类列表响应
+message ListGoodsCategoriesResponse {
+  repeated GoodsCategory goods_categories = 1 [(gnostic.openapi.v3.property) = {description: "分页数据"}]; // 分页数据
+}
+
+// 商品分类
+message GoodsCategory {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品分类ID"}]; // 商品分类ID
+
+  int64 parent_id = 2 [(gnostic.openapi.v3.property) = {description: "父节点ID"}]; // 父节点ID
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品分类名称"}]; // 商品分类名称
+
+  string picture = 4 [(gnostic.openapi.v3.property) = {description: "商品分类图片"}]; // 商品分类图片
+
+  repeated GoodsInfo goods = 101 [(gnostic.openapi.v3.property) = {description: "商品列表"}]; // 商品列表
+}

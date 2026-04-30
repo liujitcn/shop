@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package app.v1;
+
+import "app/v1/recommend.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// App用户收藏管理服务
+service UserCollectService {
+  // 查询用户收藏列表
+  rpc PageUserCollects(PageUserCollectsRequest) returns (PageUserCollectsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/user/collect"
+    };
+  }
+
+  // 查询用户是否收藏
+  rpc GetIsCollect(GetIsCollectRequest) returns (GetIsCollectResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/user/collect/status"
+    };
+  }
+
+  // 创建用户收藏
+  rpc CreateUserCollect(CreateUserCollectRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/api/v1/app/user/collect"
+      body: "user_collect"
+    };
+  }
+
+  // 删除用户收藏
+  rpc DeleteUserCollect(DeleteUserCollectRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/api/v1/app/user/collect/{ids}"
+    };
+  }
+}
+
+// 用户收藏状态查询条件
+message GetIsCollectRequest {
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+}
+
+// 用户收藏状态响应
+message GetIsCollectResponse {
+  bool is_collected = 1 [(gnostic.openapi.v3.property) = {description: "是否已收藏"}]; // 是否已收藏
+}
+
+// 用户收藏列表查询条件
+message PageUserCollectsRequest {
+  int64 page_num = 101 [(gnostic.openapi.v3.property) = {
+    description: "当前页码"
+    default: {number: 1}
+  }]; // 当前页码
+
+  int64 page_size = 102 [(gnostic.openapi.v3.property) = {
+    description: "每一页的行数"
+    default: {number: 10}
+  }]; // 每一页的行数
+}
+
+// 用户收藏列表响应
+message PageUserCollectsResponse {
+  repeated UserCollect user_collects = 1 [(gnostic.openapi.v3.property) = {description: "用户收藏列表"}]; // 用户收藏列表
+
+  int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
+}
+
+// 创建用户收藏请求参数
+message CreateUserCollectRequest {
+  UserCollectForm user_collect = 1 [(gnostic.openapi.v3.property) = {description: "用户收藏"}]; // 用户收藏
+}
+
+// 删除用户收藏请求参数
+message DeleteUserCollectRequest {
+  string ids = 1 [(gnostic.openapi.v3.property) = {description: "用户收藏ID列表"}]; // 用户收藏ID列表
+}
+
+// 用户收藏表单
+message UserCollectForm {
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  RecommendContext recommend_context = 2 [(gnostic.openapi.v3.property) = {description: "推荐上下文"}]; // 推荐上下文
+}
+
+// 用户收藏
+message UserCollect {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "用户收藏ID"}]; // 用户收藏ID
+
+  int64 goods_id = 2 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+  int64 sale_num = 40 [(gnostic.openapi.v3.property) = {description: "销量"}]; // 销量
+
+  int64 price = 41 [(gnostic.openapi.v3.property) = {description: "价格"}]; // 价格
+
+  int64 join_price = 50 [(gnostic.openapi.v3.property) = {description: "加入时价格"}]; // 加入时价格
+}

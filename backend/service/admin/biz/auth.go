@@ -1,0 +1,432 @@
+package biz
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"math/rand/v2"
+	"regexp"
+	"strings"
+	"time"
+
+	adminv1 "shop/api/gen/go/admin/v1"
+	commonv1 "shop/api/gen/go/common/v1"
+	"shop/pkg/biz"
+	_const "shop/pkg/const"
+	"shop/pkg/errorsx"
+	"shop/pkg/gen/models"
+	baseBiz "shop/service/base/biz"
+
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-kit/sdk"
+	"gorm.io/gorm"
+)
+
+const UPDATE_PHONE_CODE_CACHE_PREFIX = "admin:update:phone:code:"
+
+var phoneRegexp = regexp.MustCompile(`^1[3-9]\d{9}$`)
+
+// AuthCase 认证业务实例
+type AuthCase struct {
+	*biz.BaseCase
+	baseUserCase   *BaseUserCase
+	baseRoleCase   *BaseRoleCase
+	baseDeptCase   *BaseDeptCase
+	baseMenuCase   *BaseMenuCase
+	fileCase       *baseBiz.FileCase
+	userInfoMapper *mapper.CopierMapper[
+		adminv1.UserInfoForm,
+		models.BaseUser,
+	]
+	profileMapper *mapper.CopierMapper[
+		adminv1.UserProfileForm,
+		models.BaseUser,
+	]
+}
+
+// NewAuthCase 创建认证业务实例
+func NewAuthCase(
+	baseCase *biz.BaseCase,
+	baseUserCase *BaseUserCase,
+	baseRoleCase *BaseRoleCase,
+	baseDeptCase *BaseDeptCase,
+	baseMenuCase *BaseMenuCase,
+	fileCase *baseBiz.FileCase,
+) *AuthCase {
+	return &AuthCase{
+		BaseCase:     baseCase,
+		baseUserCase: baseUserCase,
+		baseRoleCase: baseRoleCase,
+		baseDeptCase: baseDeptCase,
+		baseMenuCase: baseMenuCase,
+		fileCase:     fileCase,
+		userInfoMapper: mapper.NewCopierMapper[
+			adminv1.UserInfoForm,
+			models.BaseUser,
+		](),
+		profileMapper: mapper.NewCopierMapper[
+			adminv1.UserProfileForm,
+			models.BaseUser,
+		](),
+	}
+}
+
+// GetUserInfo 获取用户信息
+func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	// 用户被停用时，不允许继续访问后台信息。
+	if baseUser.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("账号已被禁用")
+	}
+
+	// 查询角色信息
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
+	}
+
+	// 查询部门信息
+	var baseDept *models.BaseDept
+	baseDept, err = c.baseDeptCase.FindByID(ctx, baseUser.DeptID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
+	}
+
+	res := c.userInfoMapper.ToDTO(baseUser)
+	res.RoleCode = baseRole.Code
+	res.RoleName = baseRole.Name
+	res.DeptName = baseDept.Name
+	return res, nil
+}
+
+// TreeUserMenus 获取用户菜单
+func (c *AuthCase) TreeUserMenus(ctx context.Context) (*adminv1.TreeRouteResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindByID(ctx, authInfo.RoleId)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
+	}
+	// 角色被停用时，不允许继续获取菜单。
+	if baseRole.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("角色已被禁用")
+	}
+
+	query := c.baseMenuCase.Query(ctx).BaseMenu
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Type.In(
+		_const.BASE_MENU_TYPE_FOLDER,
+		_const.BASE_MENU_TYPE_MENU,
+		_const.BASE_MENU_TYPE_EXT_LINK,
+	)))
+	// 非超级管理员仅允许查看角色菜单里配置过的菜单。
+	if baseRole.Code != _const.BASE_ROLE_CODE_SUPER {
+		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
+		// 角色未配置任何菜单时，直接返回空菜单树。
+		if len(ids) == 0 {
+			return &adminv1.TreeRouteResponse{Routes: []*adminv1.RouteItem{}}, nil
+		}
+		opts = append(opts, repository.Where(query.ID.In(ids...)))
+	}
+
+	var menuList []*models.BaseMenu
+	menuList, err = c.baseMenuCase.List(ctx, opts...)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
+	}
+
+	list := c.baseMenuCase.buildRouteTree(menuList, 0)
+	return &adminv1.TreeRouteResponse{Routes: list}, nil
+}
+
+// ListUserButtons 获取用户按钮
+func (c *AuthCase) ListUserButtons(ctx context.Context) (*commonv1.StringValues, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	// 用户被停用时，不允许继续获取按钮权限。
+	if baseUser.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("账号已被禁用")
+	}
+
+	// 查询角色信息
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	if err != nil {
+		return nil, errorsx.Internal("查询用户按钮权限失败").WithCause(err)
+	}
+
+	query := c.baseMenuCase.Query(ctx).BaseMenu
+
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	opts = append(opts, repository.Where(query.Type.In(_const.BASE_MENU_TYPE_BUTTON)))
+	// 非超级管理员仅允许查看角色菜单里配置过的按钮。
+	if baseRole.Code != _const.BASE_ROLE_CODE_SUPER {
+		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
+		// 角色未配置任何按钮时，直接返回空按钮集。
+		if len(ids) == 0 {
+			return &commonv1.StringValues{}, nil
+		}
+		opts = append(opts, repository.Where(query.ID.In(ids...)))
+	}
+
+	var baseMenus []*models.BaseMenu
+	baseMenus, err = c.baseMenuCase.List(ctx, opts...)
+	if err != nil {
+		return nil, errorsx.Internal("查询用户按钮权限失败").WithCause(err)
+	}
+
+	permission := make([]string, 0, len(baseMenus))
+	for _, item := range baseMenus {
+		permission = append(permission, item.Path)
+	}
+
+	return &commonv1.StringValues{
+		Value: permission,
+	}, nil
+}
+
+// GetUserProfile 获取用户资料
+func (c *AuthCase) GetUserProfile(ctx context.Context) (*adminv1.UserProfileForm, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	// 用户被停用时，不允许继续获取个人资料。
+	if baseUser.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("账号已被禁用")
+	}
+
+	var baseRole *models.BaseRole
+	baseRole, err = c.baseRoleCase.FindByID(ctx, baseUser.RoleID)
+	if err != nil {
+		return nil, errorsx.Internal("获取个人资料失败").WithCause(err)
+	}
+
+	var baseDept *models.BaseDept
+	baseDept, err = c.baseDeptCase.FindByID(ctx, baseUser.DeptID)
+	if err != nil {
+		return nil, errorsx.Internal("获取个人资料失败").WithCause(err)
+	}
+
+	res := c.profileMapper.ToDTO(baseUser)
+	res.RoleName = baseRole.Name
+	res.DeptName = baseDept.Name
+	return res, nil
+}
+
+// UpdateUserProfile 更新用户资料
+func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *adminv1.UserProfileForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+
+	var oldBaseUser *models.BaseUser
+	oldBaseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	baseUser := models.BaseUser{
+		ID:       authInfo.UserId,
+		UserName: req.GetUserName(),
+		NickName: req.GetNickName(),
+		Avatar:   req.GetAvatar(),
+		Gender:   req.GetGender(),
+	}
+	err = c.baseUserCase.UpdateByID(ctx, &baseUser)
+	if err != nil {
+		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
+	}
+	// 删除图片
+	c.fileCase.DeleteFile(oldBaseUser.Avatar, baseUser.Avatar)
+
+	return nil
+}
+
+// SendPhoneCode 发送更新手机号验证码
+func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCodeRequest) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 手机号格式非法时，不继续发送验证码。
+	if !phoneRegexp.MatchString(req.GetPhone()) {
+		return errorsx.InvalidArgument("手机号格式错误")
+	}
+
+	var userID int64
+	userID, err = c.findUserIDByPhone(ctx, req.GetPhone())
+	// 手机号占用查询异常时，统一返回发送失败。
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errorsx.Internal("发送验证码失败").WithCause(err)
+	}
+	// 手机号已绑定其他用户时，不允许继续发送验证码。
+	if userID > 0 && userID != authInfo.UserId {
+		return errorsx.Conflict("手机号已被占用").WithMetadata(map[string]string{
+			errorsx.METADATA_KEY_CONFLICT_TYPE: errorsx.CONFLICT_TYPE_UNIQUE_VIOLATION,
+			errorsx.METADATA_KEY_RESOURCE:      "base_user",
+			errorsx.METADATA_KEY_FIELD:         "phone",
+		})
+	}
+
+	code := fmt.Sprintf("%06d", rand.IntN(1000000))
+	err = sdk.Runtime.GetCache().Set(c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone()), code, 5*time.Minute)
+	if err != nil {
+		return errorsx.Internal("发送验证码失败").WithCause(err)
+	}
+
+	// 当前先将验证码写入日志，后续接入短信渠道时替换这里
+	log.Infof("send update phone code userID=%d phone=%s code=%s", authInfo.UserId, req.GetPhone(), code)
+	return nil
+}
+
+// UpdateUserPhone 更新用户手机号
+func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 手机号格式非法时，不允许继续修改。
+	if !phoneRegexp.MatchString(req.GetPhone()) {
+		return errorsx.InvalidArgument("手机号格式错误")
+	}
+	// 验证码为空时，不允许继续修改。
+	if strings.TrimSpace(req.GetCode()) == "" {
+		return errorsx.InvalidArgument("验证码不能为空")
+	}
+
+	cacheKey := c.makeUpdatePhoneCodeCacheKey(authInfo.UserId, req.GetPhone())
+	var cacheCode string
+	cacheCode, err = sdk.Runtime.GetCache().Get(cacheKey)
+	// 验证码不存在或已过期时，直接返回业务错误。
+	if err != nil || cacheCode == "" {
+		return errorsx.InvalidArgument("验证码已过期")
+	}
+	// 验证码不匹配时，直接返回业务错误。
+	if cacheCode != req.GetCode() {
+		return errorsx.InvalidArgument("验证码错误")
+	}
+
+	var userID int64
+	userID, err = c.findUserIDByPhone(ctx, req.GetPhone())
+	// 手机号占用查询异常时，统一返回修改失败。
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return errorsx.Internal("修改手机号失败").WithCause(err)
+	}
+	// 手机号已绑定其他用户时，不允许继续修改。
+	if userID > 0 && userID != authInfo.UserId {
+		return errorsx.Conflict("手机号已被占用").WithMetadata(map[string]string{
+			errorsx.METADATA_KEY_CONFLICT_TYPE: errorsx.CONFLICT_TYPE_UNIQUE_VIOLATION,
+			errorsx.METADATA_KEY_RESOURCE:      "base_user",
+			errorsx.METADATA_KEY_FIELD:         "phone",
+		})
+	}
+
+	err = c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
+		ID:    authInfo.UserId,
+		Phone: req.GetPhone(),
+	})
+	if err != nil {
+		return errorsx.Internal("修改手机号失败").WithCause(err)
+	}
+
+	err = sdk.Runtime.GetCache().Del(cacheKey)
+	// 验证码缓存删除失败时，只记录日志不影响主流程。
+	if err != nil {
+		log.Errorf("删除修改手机号验证码缓存失败 %v", err)
+	}
+	return nil
+}
+
+// UpdateUserPassword 更新用户密码
+func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPasswordForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 原密码为空时，不允许继续修改。
+	if strings.TrimSpace(req.GetOldPwd()) == "" {
+		return errorsx.InvalidArgument("原密码不能为空")
+	}
+	// 新密码为空时，不允许继续修改。
+	if strings.TrimSpace(req.GetNewPwd()) == "" {
+		return errorsx.InvalidArgument("新密码不能为空")
+	}
+	// 两次输入密码不一致时，不允许继续修改。
+	if req.GetNewPwd() != req.GetConfirmPwd() {
+		return errorsx.InvalidArgument("两次输入的密码不一致")
+	}
+
+	var baseUser *models.BaseUser
+	baseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+
+	err = crypto.Verify(req.GetOldPwd(), baseUser.Password)
+	if err != nil {
+		return errorsx.InvalidArgument("原密码错误")
+	}
+
+	var encrypted string
+	encrypted, err = crypto.Encrypt(req.GetNewPwd())
+	if err != nil {
+		return errorsx.Internal("修改密码失败").WithCause(err)
+	}
+
+	return c.baseUserCase.UpdateByID(ctx, &models.BaseUser{
+		ID:       authInfo.UserId,
+		Password: encrypted,
+	})
+}
+
+// makeUpdatePhoneCodeCacheKey 生成更新手机号验证码缓存键
+func (c *AuthCase) makeUpdatePhoneCodeCacheKey(userID int64, phone string) string {
+	return fmt.Sprintf("%s%d:%s", UPDATE_PHONE_CODE_CACHE_PREFIX, userID, phone)
+}
+
+// findUserIDByPhone 根据手机号查询用户ID
+func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, error) {
+	query := c.baseUserCase.Query(ctx).BaseUser
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Phone.Eq(phone)))
+	baseUser, err := c.baseUserCase.Find(ctx, opts...)
+	if err != nil {
+		return 0, err
+	}
+	return baseUser.ID, nil
+}

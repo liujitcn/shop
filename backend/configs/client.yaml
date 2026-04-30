@@ -1,0 +1,8 @@
+client:
+  llm:
+    # 默认不配置密钥和模型，配置有效密钥和模型后自动启用。
+    baseUrl: https://api.openai.com/v1
+    apiKey: ''
+    model: ''
+    maxOutputTokens: 1024
+    temperature: 0.2

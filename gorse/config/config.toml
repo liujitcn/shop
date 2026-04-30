@@ -1,0 +1,144 @@
+[database]
+# 对齐当前项目的本地开发方式，默认通过宿主机暴露端口访问 MySQL / Redis，
+# 避免依赖 Docker bridge 下不稳定的固定容器 IP。
+data_store = "mysql://root:112233@tcp(host.docker.internal:3306)/shop_gorse?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms"
+cache_store = "mysql://root:112233@tcp(host.docker.internal:3306)/shop_gorse?charset=utf8mb4&parseTime=True&loc=Local&timeout=1000ms"
+#cache_store = "redis://default:112233@host.docker.internal:6379/0"
+
+[database.mysql]
+# 显式沿用官方默认的低隔离级别，降低推荐写入和训练扫描之间的锁竞争。
+isolation_level = "READ-UNCOMMITTED"
+max_open_conns = 25
+max_idle_conns = 25
+conn_max_lifetime = "300s"
+
+[master]
+# 对齐官方配置结构，统一把 gRPC / HTTP 监听地址放在 master 段下维护。
+host = "0.0.0.0"
+port = 8086
+http_host = "0.0.0.0"
+http_port = 8088
+n_jobs = 1
+meta_timeout = "10s"
+# 给本地 dashboard 增加基础登录鉴权，避免默认无凭证暴露。
+dashboard_user_name = "admin"
+dashboard_password = "Shop@2026"
+# 单独配置管理员 API 密钥，供后台代理管理接口时使用。
+admin_api_key = "Shop@2026"
+
+[server]
+default_n = 10
+# 给 RESTful API 增加访问密钥，便于服务端调用时显式鉴权。
+api_key = "Shop@2026"
+# 对齐官方默认值，给集群节点留出少量时间偏差容忍。
+clock_error = "5s"
+# 当前项目走显式同步主数据，但保留自动补建能力，避免先写反馈再补数据时直接失败。
+auto_insert_user = true
+auto_insert_item = true
+# 服务端推荐缓存保持较短失效时间，兼顾结果稳定性与更新及时性。
+cache_expire = "10s"
+
+[recommend]
+# 对齐官方推荐缓存结构，缓存更多结果页，减少频繁回源计算。
+cache_size = 100
+# 推荐缓存保留 72 小时，兼顾热门结果复用与行为更新后的刷新速度。
+cache_expire = "72h"
+# 在线推荐最多读取最近 100 条上下文，沿用官方建议值。
+context_size = 100
+# 对齐当前系统“近 30 天活跃用户”为主的个性化口径。
+active_user_ttl = 30
+
+[recommend.data_source]
+# 对齐当前商城推荐行为口径：
+# EXPOSURE / VIEW 作为 read feedback；
+# CLICK / COLLECT / ADD_CART / ORDER_CREATE / ORDER_PAY 作为 positive feedback。
+positive_feedback_types = ["CLICK", "COLLECT", "ADD_CART", "ORDER_CREATE", "ORDER_PAY"]
+read_feedback_types = ["EXPOSURE", "VIEW"]
+# 保留 90 天正反馈，兼顾当前系统协同过滤的较长观察窗口；
+# 30 天热度口径在下方 non-personalized recommender 中单独控制。
+positive_feedback_ttl = 90
+item_ttl = 0
+
+[[recommend.non-personalized]]
+# 对齐当前系统事件权重：
+# CLICK=3、VIEW=2、COLLECT=4、ADD_CART=6、ORDER_CREATE=8、ORDER_PAY=10。
+name = "hot_30d"
+score = "count(feedback, .FeedbackType == 'CLICK' && (now() - .Timestamp).Hours() < 24 * 30) * 3 + count(feedback, .FeedbackType == 'VIEW' && (now() - .Timestamp).Hours() < 24 * 30) * 2 + count(feedback, .FeedbackType == 'COLLECT' && (now() - .Timestamp).Hours() < 24 * 30) * 4 + count(feedback, .FeedbackType == 'ADD_CART' && (now() - .Timestamp).Hours() < 24 * 30) * 6 + count(feedback, .FeedbackType == 'ORDER_CREATE' && (now() - .Timestamp).Hours() < 24 * 30) * 8 + count(feedback, .FeedbackType == 'ORDER_PAY' && (now() - .Timestamp).Hours() < 24 * 30) * 10"
+filter = "!item.IsHidden"
+
+[[recommend.non-personalized]]
+# 对齐“大家都在买 / 热门好物推荐”的近期热度语义，
+# 保持与 hot_30d 相同的事件权重，但观察窗口收缩到 7 天。
+name = "hot_7d"
+score = "count(feedback, .FeedbackType == 'CLICK' && (now() - .Timestamp).Hours() < 24 * 7) * 3 + count(feedback, .FeedbackType == 'VIEW' && (now() - .Timestamp).Hours() < 24 * 7) * 2 + count(feedback, .FeedbackType == 'COLLECT' && (now() - .Timestamp).Hours() < 24 * 7) * 4 + count(feedback, .FeedbackType == 'ADD_CART' && (now() - .Timestamp).Hours() < 24 * 7) * 6 + count(feedback, .FeedbackType == 'ORDER_CREATE' && (now() - .Timestamp).Hours() < 24 * 7) * 8 + count(feedback, .FeedbackType == 'ORDER_PAY' && (now() - .Timestamp).Hours() < 24 * 7) * 10"
+filter = "!item.IsHidden"
+
+[[recommend.non-personalized]]
+# 对齐订单详情与支付成功页的购买导向兜底语义，
+# 弱化浏览热度，强化支付、下单和加购等成交相关行为。
+name = "hot_pay_30d"
+score = "count(feedback, .FeedbackType == 'CLICK' && (now() - .Timestamp).Hours() < 24 * 30) * 2 + count(feedback, .FeedbackType == 'COLLECT' && (now() - .Timestamp).Hours() < 24 * 30) * 4 + count(feedback, .FeedbackType == 'ADD_CART' && (now() - .Timestamp).Hours() < 24 * 30) * 6 + count(feedback, .FeedbackType == 'ORDER_CREATE' && (now() - .Timestamp).Hours() < 24 * 30) * 9 + count(feedback, .FeedbackType == 'ORDER_PAY' && (now() - .Timestamp).Hours() < 24 * 30) * 12"
+filter = "!item.IsHidden"
+
+[[recommend.item-to-item]]
+# 对齐当前“商品关联/相似商品”能力，使用共同正反馈用户生成相似商品。
+name = "goods_relation"
+type = "users"
+
+[[recommend.user-to-user]]
+# 对齐当前“相似用户”召回能力，使用共同正反馈商品生成相似用户。
+name = "similar_users"
+type = "items"
+
+[recommend.collaborative]
+# 对齐当前单机场景：开启矩阵分解，按天训练、按周调参。
+type = "mf"
+fit_period = "24h"
+fit_epoch = 120
+optimize_period = "168h"
+optimize_trials = 8
+
+[recommend.collaborative.early_stopping]
+patience = 10
+
+[recommend.replacement]
+# 对齐当前系统的曝光惩罚与已消费降权思路，避免同一商品频繁回流。
+enable_replacement = true
+positive_replacement_decay = 0.2
+read_replacement_decay = 0.4
+
+[recommend.ranker]
+# 对齐当前“协同过滤 + 相似商品 + 相似用户 + 近期热门 + 稳定热门 + 最新”混合候选思路。
+type = "fm"
+cache_expire = "120h"
+recommenders = [
+  "collaborative",
+  "item-to-item/goods_relation",
+  "user-to-user/similar_users",
+  "non-personalized/hot_7d",
+  "non-personalized/hot_30d",
+  "latest",
+]
+fit_period = "24h"
+fit_epoch = 40
+optimize_period = "168h"
+optimize_trials = 8
+
+[recommend.ranker.early_stopping]
+patience = 10
+
+[recommend.fallback]
+# 个性化候选不足时，优先走近 7 天热榜，再走 30 天热榜，最后回退到最新商品。
+recommenders = ["non-personalized/hot_7d", "non-personalized/hot_30d", "latest"]
+
+[blob]
+# 持久化训练产物，避免容器重建后每次重新冷启动。
+uri = "/var/lib/gorse/blob"
+
+[openai]
+# OpenAI 兼容 LLM 服务地址，供后续 LLM ranker 使用。
+base_url = "http://subapi.openclawrouter.site/v1"
+# 当前项目使用的 LLM 服务密钥。
+auth_token = "sk-a0fee846dccb5ac3ceaf4ba8eab95bac0a126d8fe454c64362bc04b95925beb7"
+# 当前项目接入的对话模型。
+chat_completion_model = "GPT-5.4"

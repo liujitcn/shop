@@ -1,0 +1,185 @@
+import type { UserProfileForm, WechatLoginRequest } from '@/rpc/app/v1/auth'
+import type { LoginRequest } from '@/rpc/base/v1/login'
+import { defAuthService } from '@/api/app/auth'
+import { defLoginService } from '@/api/base/login'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { useRecommendStore } from './recommend'
+import {
+  setToken,
+  setRefreshToken,
+  getRefreshToken,
+  clearToken,
+  setTokenExpiresIn,
+} from '@/utils/auth'
+
+// 定义 Store
+export const useUserStore = defineStore(
+  'user',
+  () => {
+    // 会员信息
+    const userInfo = ref<UserProfileForm>()
+
+    /**
+     * 登录
+     *
+     * @param request
+     * @returns
+     */
+    function login(request: LoginRequest) {
+      return new Promise<void>((resolve, reject) => {
+        defLoginService
+          .Login(request)
+          .then((data) => {
+            const { token_type, access_token, refresh_token, expires_in } = data
+            setToken(token_type + ' ' + access_token) // Bearer eyJhbGciOiJIUzI1NiJ9.xxx.xxx
+            setRefreshToken(refresh_token)
+            setTokenExpiresIn(expires_in)
+            useRecommendStore()
+              .bindAnonymousActor()
+              .catch((error) => {
+                console.warn('bindAnonymousActor failed', error)
+              })
+              .finally(() => {
+                resolve()
+              })
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    }
+
+    /**
+     * 微信登录
+     *
+     * @param request
+     * @returns
+     */
+    function wechatLogin(request: WechatLoginRequest) {
+      return new Promise<void>((resolve, reject) => {
+        defAuthService
+          .WechatLogin(request)
+          .then((data) => {
+            const { token_type, access_token, refresh_token, expires_in } = data
+            setToken(token_type + ' ' + access_token)
+            setRefreshToken(refresh_token)
+            setTokenExpiresIn(expires_in)
+            useRecommendStore()
+              .bindAnonymousActor()
+              .catch((error) => {
+                console.warn('bindAnonymousActor failed', error)
+              })
+              .finally(() => {
+                resolve()
+              })
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    }
+
+    /**
+     * 获取用户资料
+     */
+    function getUserProfile() {
+      return new Promise<UserProfileForm>((resolve, reject) => {
+        defAuthService
+          .GetUserProfile({})
+          .then((data) => {
+            if (!data) {
+              reject('Verification failed, please Login again.')
+              return
+            }
+            userInfo.value = data
+            resolve(data)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    }
+
+    /**
+     * 登出
+     */
+    function logout() {
+      return new Promise<void>((resolve, reject) => {
+        defLoginService
+          .Logout({})
+          .then(() => {
+            clearUserData().then(() => {
+              resolve()
+            })
+          })
+          .catch((error) => {
+            reject(error)
+          })
+      })
+    }
+
+    /**
+     * 刷新 token
+     */
+    function refreshToken() {
+      const refreshToken = getRefreshToken()
+      return new Promise<void>((resolve, reject) => {
+        defLoginService
+          .RefreshToken({
+            refresh_token: refreshToken,
+          })
+          .then((data) => {
+            const { token_type, access_token, refresh_token, expires_in } = data
+            setToken(token_type + ' ' + access_token)
+            setRefreshToken(refresh_token)
+            setTokenExpiresIn(expires_in)
+            resolve()
+          })
+          .catch((error) => {
+            console.log(' refreshToken  刷新失败', error)
+            reject(error)
+          })
+      })
+    }
+
+    /**
+     * 清理用户数据
+     *
+     * @returns
+     */
+    function clearUserData() {
+      return new Promise<void>((resolve) => {
+        clearToken()
+        userInfo.value = undefined
+        // 退出登录后同步清空已缓存的匿名主体，避免后续游客会话复用旧账号绑定过的推荐标识。
+        useRecommendStore().resetAnonymousId()
+        resolve()
+      })
+    }
+    return {
+      userInfo,
+      getUserProfile,
+      login,
+      wechatLogin,
+      logout,
+      clearUserData,
+      refreshToken,
+    }
+  },
+  {
+    // 网页端配置
+    // persist: true,
+    // 小程序端配置
+    persist: {
+      storage: {
+        getItem(key) {
+          return uni.getStorageSync(key)
+        },
+        setItem(key, value) {
+          uni.setStorageSync(key, value)
+        },
+      },
+    },
+  },
+)
