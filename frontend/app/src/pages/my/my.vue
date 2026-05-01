@@ -7,6 +7,7 @@ import { defBaseDictService } from '@/api/app/base_dict'
 import { computed, ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/v1/order_info'
 import { formatSrc } from '@/utils'
+import { getToken } from '@/utils/auth'
 import { navigateToLogin, orderListUrl } from '@/utils/navigation'
 import { OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
 // 获取屏幕边界到安全区域距离
@@ -48,9 +49,19 @@ const orderCount = ref<OrderCountEntry[]>([
 ])
 // 获取会员信息
 const userStore = useUserStore()
+// 判断当前是否仍具备加载个人订单数据的登录态。
+const canLoadOrderData = () => Boolean(userStore.userInfo && getToken())
 const getOrderData = async () => {
+  if (!canLoadOrderData()) {
+    return
+  }
+
   const numMap = new Map<number, number>()
   const res = await defOrderService.CountOrderInfo({})
+  if (!canLoadOrderData()) {
+    return
+  }
+
   if (res.counts) {
     res.counts.map((item) => {
       numMap.set(item.status, item.num)
@@ -97,7 +108,7 @@ const getOrderEntryUrl = (status: OrderStatus) => {
 
 // 初始化调用: 页面显示触发
 onShow(() => {
-  if (userStore.userInfo) {
+  if (canLoadOrderData()) {
     getOrderData()
   }
 })

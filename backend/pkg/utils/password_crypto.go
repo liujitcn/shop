@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"strings"
@@ -50,27 +49,32 @@ func GeneratePasswordPublicKey(scene commonv1.PasswordCryptoScene) (*basev1.Pass
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
-	privateKeyPEM, err := rsaCrypto.ExportPrivateKeyPKCS8()
+	var privateKeyPEM string
+	privateKeyPEM, err = rsaCrypto.ExportPrivateKeyPKCS8()
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
-	publicKeyPEM, err := rsaCrypto.ExportPublicKeyPKIX()
+	var publicKeyPEM string
+	publicKeyPEM, err = rsaCrypto.ExportPublicKeyPKIX()
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
 
 	keyID := uuid.NewString()
-	nonce, err := randomBase64(16)
+	var nonceBytes []byte
+	nonceBytes, err = utilscrypto.GenerateAESKey(16)
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
+	nonce := base64.StdEncoding.EncodeToString(nonceBytes)
 	record := passwordCryptoKeyRecord{
 		PrivateKey: privateKeyPEM,
 		Nonce:      nonce,
 		Scene:      scene.String(),
 		Algorithm:  passwordCryptoAlgorithm,
 	}
-	recordBytes, err := json.Marshal(record)
+	var recordBytes []byte
+	recordBytes, err = json.Marshal(record)
 	if err != nil {
 		return nil, errorsx.Internal("生成密码临时密钥失败").WithCause(err)
 	}
@@ -134,23 +138,28 @@ func DecryptPassword(password *commonv1.PasswordCrypto, scene commonv1.PasswordC
 		return "", errorsx.InvalidArgument("密码密钥算法不支持")
 	}
 
-	rsaCrypto, err := utilscrypto.NewRSACryptoFromPrivateKeyPEM(record.PrivateKey)
+	var rsaCrypto *utilscrypto.RSACrypto
+	rsaCrypto, err = utilscrypto.NewRSACryptoFromPrivateKeyPEM(record.PrivateKey)
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码密钥无效").WithCause(err)
 	}
-	aesKey, err := rsaCrypto.DecryptBytes(password.GetEncryptedKey())
+	var aesKey []byte
+	aesKey, err = rsaCrypto.DecryptBytes(password.GetEncryptedKey())
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码密钥解密失败").WithCause(err)
 	}
-	iv, err := base64.StdEncoding.DecodeString(password.GetIv())
+	var iv []byte
+	iv, err = base64.StdEncoding.DecodeString(password.GetIv())
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码初始化向量无效").WithCause(err)
 	}
-	ciphertext, err := base64.StdEncoding.DecodeString(password.GetCiphertext())
+	var ciphertext []byte
+	ciphertext, err = base64.StdEncoding.DecodeString(password.GetCiphertext())
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码密文无效").WithCause(err)
 	}
-	plaintext, err := utilscrypto.AesGCMDecrypt(ciphertext, aesKey, iv)
+	var plaintext []byte
+	plaintext, err = utilscrypto.AesGCMDecrypt(ciphertext, aesKey, iv)
 	if err != nil {
 		return "", errorsx.InvalidArgument("密码解密失败").WithCause(err)
 	}
@@ -160,14 +169,4 @@ func DecryptPassword(password *commonv1.PasswordCrypto, scene commonv1.PasswordC
 // makePasswordCryptoCacheKey 生成临时密码密钥缓存键。
 func makePasswordCryptoCacheKey(keyID string) string {
 	return passwordCryptoKeyPrefix + keyID
-}
-
-// randomBase64 生成指定字节长度的 base64 随机字符串。
-func randomBase64(length int) (string, error) {
-	buffer := make([]byte, length)
-	_, err := rand.Read(buffer)
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(buffer), nil
 }

@@ -1,20 +1,36 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores'
+import { ref } from 'vue'
 
 const MY_COMMENT_PAGE = '/pagesOrder/comment/center?tab=done'
 const userStore = useUserStore()
+const logoutLoading = ref(false)
 // 退出登录
 const onLogout = () => {
+  if (logoutLoading.value) {
+    return
+  }
   // 模态弹窗
   uni.showModal({
     content: '是否退出登录？',
     confirmColor: '#27BA9B',
-    success: (res) => {
-      if (res.confirm) {
-        // 清理用户信息
-        userStore.logout()
-        // 返回上一页
+    success: async (res) => {
+      if (!res.confirm) {
+        return
+      }
+
+      logoutLoading.value = true
+      try {
+        // 先完成退出和本地登录态清理，再返回个人中心，避免 onShow 读取到旧登录态。
+        await userStore.logout()
         uni.navigateBack()
+      } catch (error) {
+        await uni.showToast({
+          icon: 'none',
+          title: '退出登录失败',
+        })
+      } finally {
+        logoutLoading.value = false
       }
     },
   })
