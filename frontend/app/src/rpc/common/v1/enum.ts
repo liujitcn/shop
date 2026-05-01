@@ -94,6 +94,20 @@ export enum UserStoreStatus {
   APPROVED = 3,
 }
 
+/** 密码加密场景枚举 */
+export enum PasswordCryptoScene {
+  /** UNKNOWN_PCS - 未指定密码加密场景 */
+  UNKNOWN_PCS = 0,
+  /** LOGIN - 登录密码加密场景 */
+  LOGIN = 1,
+  /** CREATE_BASE_USER - 新增后台用户密码加密场景 */
+  CREATE_BASE_USER = 2,
+  /** RESET_BASE_USER_PASSWORD - 重置后台用户密码加密场景 */
+  RESET_BASE_USER_PASSWORD = 3,
+  /** UPDATE_USER_PASSWORD - 个人修改密码加密场景 */
+  UPDATE_USER_PASSWORD = 4,
+}
+
 /** 商品状态 */
 export enum GoodsStatus {
   UNKNOWN_GS = 0,

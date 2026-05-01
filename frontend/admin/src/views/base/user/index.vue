@@ -77,6 +77,17 @@ import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/r
 import { Status } from "@/rpc/common/v1/enum";
 import { normalizeSelectedIds } from "@/utils/proTable";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, validatePasswordStrengthValue } from "@/utils/passwordStrength";
+import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
+
+interface BaseUserFormState extends Omit<BaseUserForm, "pwd"> {
+  /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
+  pwd: string;
+}
+
+interface ResetBaseUserPasswordFormState extends Omit<ResetBaseUserPasswordRequest, "pwd"> {
+  /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
+  pwd: string;
+}
 
 defineOptions({
   name: "BaseUser",
@@ -108,7 +119,7 @@ const resetPwdDialog = reactive({
   title: "重置密码"
 });
 
-const formData = reactive<BaseUserForm>({
+const formData = reactive<BaseUserFormState>({
   /** 用户ID */
   id: 0,
   /** 用户账号 */
@@ -132,7 +143,7 @@ const formData = reactive<BaseUserForm>({
   /** 备注名 */
   remark: ""
 });
-const resetPwdForm = reactive<ResetBaseUserPasswordRequest>({
+const resetPwdForm = reactive<ResetBaseUserPasswordFormState>({
   id: 0,
   pwd: ""
 });
@@ -466,11 +477,12 @@ function resetForm() {
 /**
  * 确认重置用户密码，并复用统一密码强度校验。
  */
-function handleConfirmResetPassword() {
-  resetPwdFormDialogRef.value?.validate()?.then(valid => {
+async function handleConfirmResetPassword() {
+  resetPwdFormDialogRef.value?.validate()?.then(async valid => {
     if (!valid) return;
 
-    defBaseUserService.ResetBaseUserPassword({ ...resetPwdForm }).then(() => {
+    const pwd = await encryptPassword(resetPwdForm.pwd, PASSWORD_CRYPTO_SCENE.RESET_BASE_USER_PASSWORD);
+    defBaseUserService.ResetBaseUserPassword({ id: resetPwdForm.id, pwd }).then(() => {
       ElMessage.success(`重置密码成功\n用户名称：${resetPwdTargetName.value}`);
       handleCloseResetPasswordDialog();
     });
@@ -481,13 +493,17 @@ function handleConfirmResetPassword() {
  * 提交用户表单，使用防抖避免重复提交。
  */
 const handleSubmit = useDebounceFn(() => {
-  formDialogRef.value?.validate()?.then(valid => {
+  formDialogRef.value?.validate()?.then(async valid => {
     if (!valid) return;
 
-    const submitData = JSON.parse(JSON.stringify(formData)) as BaseUserForm;
+    const submitData = JSON.parse(JSON.stringify(formData)) as BaseUserFormState;
+    const baseUser = {
+      ...submitData,
+      pwd: submitData.id ? undefined : await encryptPassword(submitData.pwd, PASSWORD_CRYPTO_SCENE.CREATE_BASE_USER)
+    } as BaseUserForm;
     const request = submitData.id
-      ? defBaseUserService.UpdateBaseUser({ base_user: submitData })
-      : defBaseUserService.CreateBaseUser({ base_user: submitData });
+      ? defBaseUserService.UpdateBaseUser({ base_user: baseUser })
+      : defBaseUserService.CreateBaseUser({ base_user: baseUser });
     request.then(() => {
       ElMessage.success(submitData.id ? "修改用户成功" : "新增用户成功");
       handleCloseDialog();

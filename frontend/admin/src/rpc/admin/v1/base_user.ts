@@ -7,6 +7,7 @@
 /* eslint-disable */
 import type { SelectOptionResponse } from "../../common/v1/common";
 import type { BaseUserGender, Status } from "../../common/v1/enum";
+import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 用户选项查询条件 */
@@ -124,7 +125,9 @@ export interface BaseUserForm {
   /** 手机号 */
   phone: string;
   /** 密码 */
-  pwd: string;
+  pwd:
+    | PasswordCrypto
+    | undefined;
   /** 性别 */
   gender?:
     | BaseUserGender
@@ -144,7 +147,7 @@ export interface ResetBaseUserPasswordRequest {
   /** 用户ID */
   id: number;
   /** 密码 */
-  pwd: string;
+  pwd: PasswordCrypto | undefined;
 }
 
 /** Admin用户管理服务 */

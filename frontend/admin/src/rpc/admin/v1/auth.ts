@@ -5,7 +5,7 @@
 // source: admin/v1/auth.proto
 
 /* eslint-disable */
-import type { StringValues } from "../../common/v1/types";
+import type { PasswordCrypto, StringValues } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 获取登录用户信息请求参数 */
@@ -159,11 +159,11 @@ export interface UserProfileForm {
 /** 用户密码表单 */
 export interface UserPasswordForm {
   /** 原密码 */
-  old_pwd: string;
+  old_pwd:
+    | PasswordCrypto
+    | undefined;
   /** 新密码 */
-  new_pwd: string;
-  /** 确认密码 */
-  confirm_pwd: string;
+  new_pwd: PasswordCrypto | undefined;
 }
 
 /** 发送手机号验证码请求参数 */

@@ -59,12 +59,22 @@ import type { UserPasswordForm } from "@/rpc/admin/v1/auth";
 import { useUserStore } from "@/stores/modules/user";
 import { ElMessage } from "element-plus";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, getPasswordStrength, validatePasswordStrengthValue } from "@/utils/passwordStrength";
+import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
+
+interface UserPasswordFormState {
+  /** 原密码明文只保留在前端表单中，提交前转换为密码密文。 */
+  old_pwd: string;
+  /** 新密码明文只保留在前端表单中，提交前转换为密码密文。 */
+  new_pwd: string;
+  /** 确认密码只用于前端一致性校验，不提交后端。 */
+  confirm_pwd: string;
+}
 
 const router = useRouter();
 const userStore = useUserStore();
 const passwordFormRef = ref<ProFormInstance>();
 const submitLoading = ref(false);
-const passwordForm = reactive<UserPasswordForm>({
+const passwordForm = reactive<UserPasswordFormState>({
   old_pwd: "",
   new_pwd: "",
   confirm_pwd: ""
@@ -102,7 +112,13 @@ async function handleSubmitPassword() {
 
   submitLoading.value = true;
   try {
-    await defAuthService.UpdateUserPassword({ user_password: passwordForm });
+    const oldPwd = await encryptPassword(passwordForm.old_pwd, PASSWORD_CRYPTO_SCENE.UPDATE_USER_PASSWORD);
+    const newPwd = await encryptPassword(passwordForm.new_pwd, PASSWORD_CRYPTO_SCENE.UPDATE_USER_PASSWORD);
+    const userPassword: UserPasswordForm = {
+      old_pwd: oldPwd,
+      new_pwd: newPwd
+    };
+    await defAuthService.UpdateUserPassword({ user_password: userPassword });
     ElMessage.success("密码修改成功，请重新登录");
     resetPasswordForm();
     await forceRelogin();

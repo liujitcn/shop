@@ -790,9 +790,8 @@ func (x *UserProfileForm) GetCreatedAt() string {
 // 用户密码表单
 type UserPasswordForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OldPwd        string                 `protobuf:"bytes,1,opt,name=old_pwd,json=oldPwd,proto3" json:"old_pwd,omitempty"`             // 原密码
-	NewPwd        string                 `protobuf:"bytes,2,opt,name=new_pwd,json=newPwd,proto3" json:"new_pwd,omitempty"`             // 新密码
-	ConfirmPwd    string                 `protobuf:"bytes,3,opt,name=confirm_pwd,json=confirmPwd,proto3" json:"confirm_pwd,omitempty"` // 确认密码
+	OldPwd        *v1.PasswordCrypto     `protobuf:"bytes,1,opt,name=old_pwd,json=oldPwd,proto3" json:"old_pwd,omitempty"` // 原密码
+	NewPwd        *v1.PasswordCrypto     `protobuf:"bytes,2,opt,name=new_pwd,json=newPwd,proto3" json:"new_pwd,omitempty"` // 新密码
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -827,25 +826,18 @@ func (*UserPasswordForm) Descriptor() ([]byte, []int) {
 	return file_admin_v1_auth_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *UserPasswordForm) GetOldPwd() string {
+func (x *UserPasswordForm) GetOldPwd() *v1.PasswordCrypto {
 	if x != nil {
 		return x.OldPwd
 	}
-	return ""
+	return nil
 }
 
-func (x *UserPasswordForm) GetNewPwd() string {
+func (x *UserPasswordForm) GetNewPwd() *v1.PasswordCrypto {
 	if x != nil {
 		return x.NewPwd
 	}
-	return ""
-}
-
-func (x *UserPasswordForm) GetConfirmPwd() string {
-	if x != nil {
-		return x.ConfirmPwd
-	}
-	return ""
+	return nil
 }
 
 // 发送手机号验证码请求参数
@@ -1018,12 +1010,10 @@ const file_admin_v1_auth_proto_rawDesc = "" +
 	" \x01(\tB\x0f\xbaG\f\x92\x02\t角色名R\broleName\x12,\n" +
 	"\tdept_name\x18\v \x01(\tB\x0f\xbaG\f\x92\x02\t部门名R\bdeptName\x122\n" +
 	"\n" +
-	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\x9b\x01\n" +
-	"\x10UserPasswordForm\x12(\n" +
-	"\aold_pwd\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t原密码R\x06oldPwd\x12(\n" +
-	"\anew_pwd\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd\x123\n" +
-	"\vconfirm_pwd\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f确认密码R\n" +
-	"confirmPwd\"=\n" +
+	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\x9c\x01\n" +
+	"\x10UserPasswordForm\x12C\n" +
+	"\aold_pwd\x18\x01 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t原密码R\x06oldPwd\x12C\n" +
+	"\anew_pwd\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x0f\xbaG\f\x92\x02\t新密码R\x06newPwd\"=\n" +
 	"\x14SendPhoneCodeRequest\x12%\n" +
 	"\x05phone\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\"[\n" +
 	"\rUserPhoneForm\x12%\n" +
@@ -1071,8 +1061,9 @@ var file_admin_v1_auth_proto_goTypes = []any{
 	(*UserPasswordForm)(nil),          // 13: admin.v1.UserPasswordForm
 	(*SendPhoneCodeRequest)(nil),      // 14: admin.v1.SendPhoneCodeRequest
 	(*UserPhoneForm)(nil),             // 15: admin.v1.UserPhoneForm
-	(*v1.StringValues)(nil),           // 16: common.v1.StringValues
-	(*emptypb.Empty)(nil),             // 17: google.protobuf.Empty
+	(*v1.PasswordCrypto)(nil),         // 16: common.v1.PasswordCrypto
+	(*v1.StringValues)(nil),           // 17: common.v1.StringValues
+	(*emptypb.Empty)(nil),             // 18: google.protobuf.Empty
 }
 var file_admin_v1_auth_proto_depIdxs = []int32{
 	12, // 0: admin.v1.UpdateUserProfileRequest.user_profile:type_name -> admin.v1.UserProfileForm
@@ -1082,27 +1073,29 @@ var file_admin_v1_auth_proto_depIdxs = []int32{
 	10, // 4: admin.v1.RouteItem.meta:type_name -> admin.v1.RouteMeta
 	9,  // 5: admin.v1.RouteItem.children:type_name -> admin.v1.RouteItem
 	11, // 6: admin.v1.RouteMeta.params:type_name -> admin.v1.RouteParams
-	0,  // 7: admin.v1.AuthService.GetUserInfo:input_type -> admin.v1.GetUserInfoRequest
-	1,  // 8: admin.v1.AuthService.TreeUserMenus:input_type -> admin.v1.TreeUserMenusRequest
-	2,  // 9: admin.v1.AuthService.ListUserButtons:input_type -> admin.v1.ListUserButtonsRequest
-	3,  // 10: admin.v1.AuthService.GetUserProfile:input_type -> admin.v1.GetUserProfileRequest
-	4,  // 11: admin.v1.AuthService.UpdateUserProfile:input_type -> admin.v1.UpdateUserProfileRequest
-	14, // 12: admin.v1.AuthService.SendPhoneCode:input_type -> admin.v1.SendPhoneCodeRequest
-	5,  // 13: admin.v1.AuthService.UpdateUserPhone:input_type -> admin.v1.UpdateUserPhoneRequest
-	6,  // 14: admin.v1.AuthService.UpdateUserPassword:input_type -> admin.v1.UpdateUserPasswordRequest
-	7,  // 15: admin.v1.AuthService.GetUserInfo:output_type -> admin.v1.UserInfoForm
-	8,  // 16: admin.v1.AuthService.TreeUserMenus:output_type -> admin.v1.TreeRouteResponse
-	16, // 17: admin.v1.AuthService.ListUserButtons:output_type -> common.v1.StringValues
-	12, // 18: admin.v1.AuthService.GetUserProfile:output_type -> admin.v1.UserProfileForm
-	17, // 19: admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
-	17, // 20: admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
-	17, // 21: admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
-	17, // 22: admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
-	15, // [15:23] is the sub-list for method output_type
-	7,  // [7:15] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	16, // 7: admin.v1.UserPasswordForm.old_pwd:type_name -> common.v1.PasswordCrypto
+	16, // 8: admin.v1.UserPasswordForm.new_pwd:type_name -> common.v1.PasswordCrypto
+	0,  // 9: admin.v1.AuthService.GetUserInfo:input_type -> admin.v1.GetUserInfoRequest
+	1,  // 10: admin.v1.AuthService.TreeUserMenus:input_type -> admin.v1.TreeUserMenusRequest
+	2,  // 11: admin.v1.AuthService.ListUserButtons:input_type -> admin.v1.ListUserButtonsRequest
+	3,  // 12: admin.v1.AuthService.GetUserProfile:input_type -> admin.v1.GetUserProfileRequest
+	4,  // 13: admin.v1.AuthService.UpdateUserProfile:input_type -> admin.v1.UpdateUserProfileRequest
+	14, // 14: admin.v1.AuthService.SendPhoneCode:input_type -> admin.v1.SendPhoneCodeRequest
+	5,  // 15: admin.v1.AuthService.UpdateUserPhone:input_type -> admin.v1.UpdateUserPhoneRequest
+	6,  // 16: admin.v1.AuthService.UpdateUserPassword:input_type -> admin.v1.UpdateUserPasswordRequest
+	7,  // 17: admin.v1.AuthService.GetUserInfo:output_type -> admin.v1.UserInfoForm
+	8,  // 18: admin.v1.AuthService.TreeUserMenus:output_type -> admin.v1.TreeRouteResponse
+	17, // 19: admin.v1.AuthService.ListUserButtons:output_type -> common.v1.StringValues
+	12, // 20: admin.v1.AuthService.GetUserProfile:output_type -> admin.v1.UserProfileForm
+	18, // 21: admin.v1.AuthService.UpdateUserProfile:output_type -> google.protobuf.Empty
+	18, // 22: admin.v1.AuthService.SendPhoneCode:output_type -> google.protobuf.Empty
+	18, // 23: admin.v1.AuthService.UpdateUserPhone:output_type -> google.protobuf.Empty
+	18, // 24: admin.v1.AuthService.UpdateUserPassword:output_type -> google.protobuf.Empty
+	17, // [17:25] is the sub-list for method output_type
+	9,  // [9:17] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_admin_v1_auth_proto_init() }

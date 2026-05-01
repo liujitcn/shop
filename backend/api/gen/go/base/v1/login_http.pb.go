@@ -24,6 +24,7 @@ const _ = http.SupportPackageIsVersion1
 const OperationLoginServiceCaptcha = "/base.v1.LoginService/Captcha"
 const OperationLoginServiceLogin = "/base.v1.LoginService/Login"
 const OperationLoginServiceLogout = "/base.v1.LoginService/Logout"
+const OperationLoginServicePasswordPublicKey = "/base.v1.LoginService/PasswordPublicKey"
 const OperationLoginServiceRefreshToken = "/base.v1.LoginService/RefreshToken"
 
 type LoginServiceHTTPServer interface {
@@ -33,6 +34,8 @@ type LoginServiceHTTPServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	// Logout 登出
 	Logout(context.Context, *LogoutRequest) (*emptypb.Empty, error)
+	// PasswordPublicKey 获取密码临时公钥
+	PasswordPublicKey(context.Context, *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error)
 	// RefreshToken 刷新认证令牌
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
 }
@@ -40,6 +43,7 @@ type LoginServiceHTTPServer interface {
 func RegisterLoginServiceHTTPServer(s *http.Server, srv LoginServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/v1/base/captcha", _LoginService_Captcha0_HTTP_Handler(srv))
+	r.GET("/api/v1/base/password-public-key", _LoginService_PasswordPublicKey0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/session", _LoginService_Logout0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/token", _LoginService_RefreshToken0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/session", _LoginService_Login0_HTTP_Handler(srv))
@@ -60,6 +64,25 @@ func _LoginService_Captcha0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx ht
 			return err
 		}
 		reply := out.(*CaptchaResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _LoginService_PasswordPublicKey0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in PasswordPublicKeyRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationLoginServicePasswordPublicKey)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PasswordPublicKey(ctx, req.(*PasswordPublicKeyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PasswordPublicKeyResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -134,6 +157,8 @@ type LoginServiceHTTPClient interface {
 	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginResponse, err error)
 	// Logout 登出
 	Logout(ctx context.Context, req *LogoutRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// PasswordPublicKey 获取密码临时公钥
+	PasswordPublicKey(ctx context.Context, req *PasswordPublicKeyRequest, opts ...http.CallOption) (rsp *PasswordPublicKeyResponse, err error)
 	// RefreshToken 刷新认证令牌
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest, opts ...http.CallOption) (rsp *RefreshTokenResponse, err error)
 }
@@ -182,6 +207,20 @@ func (c *LoginServiceHTTPClientImpl) Logout(ctx context.Context, in *LogoutReque
 	opts = append(opts, http.Operation(OperationLoginServiceLogout))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PasswordPublicKey 获取密码临时公钥
+func (c *LoginServiceHTTPClientImpl) PasswordPublicKey(ctx context.Context, in *PasswordPublicKeyRequest, opts ...http.CallOption) (*PasswordPublicKeyResponse, error) {
+	var out PasswordPublicKeyResponse
+	pattern := "/api/v1/base/password-public-key"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationLoginServicePasswordPublicKey))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -446,6 +446,62 @@ func (UserStoreStatus) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{7}
 }
 
+// 密码加密场景枚举
+type PasswordCryptoScene int32
+
+const (
+	PasswordCryptoScene_UNKNOWN_PCS              PasswordCryptoScene = 0 // 未指定密码加密场景
+	PasswordCryptoScene_LOGIN                    PasswordCryptoScene = 1 // 登录密码加密场景
+	PasswordCryptoScene_CREATE_BASE_USER         PasswordCryptoScene = 2 // 新增后台用户密码加密场景
+	PasswordCryptoScene_RESET_BASE_USER_PASSWORD PasswordCryptoScene = 3 // 重置后台用户密码加密场景
+	PasswordCryptoScene_UPDATE_USER_PASSWORD     PasswordCryptoScene = 4 // 个人修改密码加密场景
+)
+
+// Enum value maps for PasswordCryptoScene.
+var (
+	PasswordCryptoScene_name = map[int32]string{
+		0: "UNKNOWN_PCS",
+		1: "LOGIN",
+		2: "CREATE_BASE_USER",
+		3: "RESET_BASE_USER_PASSWORD",
+		4: "UPDATE_USER_PASSWORD",
+	}
+	PasswordCryptoScene_value = map[string]int32{
+		"UNKNOWN_PCS":              0,
+		"LOGIN":                    1,
+		"CREATE_BASE_USER":         2,
+		"RESET_BASE_USER_PASSWORD": 3,
+		"UPDATE_USER_PASSWORD":     4,
+	}
+)
+
+func (x PasswordCryptoScene) Enum() *PasswordCryptoScene {
+	p := new(PasswordCryptoScene)
+	*p = x
+	return p
+}
+
+func (x PasswordCryptoScene) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PasswordCryptoScene) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[8].Descriptor()
+}
+
+func (PasswordCryptoScene) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[8]
+}
+
+func (x PasswordCryptoScene) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PasswordCryptoScene.Descriptor instead.
+func (PasswordCryptoScene) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{8}
+}
+
 // 商品状态
 type GoodsStatus int32
 
@@ -480,11 +536,11 @@ func (x GoodsStatus) String() string {
 }
 
 func (GoodsStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[8].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[9].Descriptor()
 }
 
 func (GoodsStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[8]
+	return &file_common_v1_enum_proto_enumTypes[9]
 }
 
 func (x GoodsStatus) Number() protoreflect.EnumNumber {
@@ -493,7 +549,7 @@ func (x GoodsStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use GoodsStatus.Descriptor instead.
 func (GoodsStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{8}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{9}
 }
 
 // 订单状态
@@ -548,11 +604,11 @@ func (x OrderStatus) String() string {
 }
 
 func (OrderStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[9].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[10].Descriptor()
 }
 
 func (OrderStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[9]
+	return &file_common_v1_enum_proto_enumTypes[10]
 }
 
 func (x OrderStatus) Number() protoreflect.EnumNumber {
@@ -561,7 +617,7 @@ func (x OrderStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderStatus.Descriptor instead.
 func (OrderStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{9}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{10}
 }
 
 // 订单支付方式
@@ -598,11 +654,11 @@ func (x OrderPayType) String() string {
 }
 
 func (OrderPayType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[10].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[11].Descriptor()
 }
 
 func (OrderPayType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[10]
+	return &file_common_v1_enum_proto_enumTypes[11]
 }
 
 func (x OrderPayType) Number() protoreflect.EnumNumber {
@@ -611,7 +667,7 @@ func (x OrderPayType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderPayType.Descriptor instead.
 func (OrderPayType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{10}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{11}
 }
 
 // 订单支付渠道
@@ -648,11 +704,11 @@ func (x OrderPayChannel) String() string {
 }
 
 func (OrderPayChannel) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[11].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[12].Descriptor()
 }
 
 func (OrderPayChannel) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[11]
+	return &file_common_v1_enum_proto_enumTypes[12]
 }
 
 func (x OrderPayChannel) Number() protoreflect.EnumNumber {
@@ -661,7 +717,7 @@ func (x OrderPayChannel) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderPayChannel.Descriptor instead.
 func (OrderPayChannel) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{11}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{12}
 }
 
 // 订单配送时间
@@ -701,11 +757,11 @@ func (x OrderDeliveryTime) String() string {
 }
 
 func (OrderDeliveryTime) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[12].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[13].Descriptor()
 }
 
 func (OrderDeliveryTime) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[12]
+	return &file_common_v1_enum_proto_enumTypes[13]
 }
 
 func (x OrderDeliveryTime) Number() protoreflect.EnumNumber {
@@ -714,7 +770,7 @@ func (x OrderDeliveryTime) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderDeliveryTime.Descriptor instead.
 func (OrderDeliveryTime) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{12}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{13}
 }
 
 // 订单取消原因
@@ -763,11 +819,11 @@ func (x OrderCancelReason) String() string {
 }
 
 func (OrderCancelReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[13].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[14].Descriptor()
 }
 
 func (OrderCancelReason) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[13]
+	return &file_common_v1_enum_proto_enumTypes[14]
 }
 
 func (x OrderCancelReason) Number() protoreflect.EnumNumber {
@@ -776,7 +832,7 @@ func (x OrderCancelReason) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderCancelReason.Descriptor instead.
 func (OrderCancelReason) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{13}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{14}
 }
 
 // 订单对帐状态
@@ -816,11 +872,11 @@ func (x OrderBillStatus) String() string {
 }
 
 func (OrderBillStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[14].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[15].Descriptor()
 }
 
 func (OrderBillStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[14]
+	return &file_common_v1_enum_proto_enumTypes[15]
 }
 
 func (x OrderBillStatus) Number() protoreflect.EnumNumber {
@@ -829,7 +885,7 @@ func (x OrderBillStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderBillStatus.Descriptor instead.
 func (OrderBillStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{14}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{15}
 }
 
 // 订单退款原因
@@ -878,11 +934,11 @@ func (x OrderRefundReason) String() string {
 }
 
 func (OrderRefundReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[15].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[16].Descriptor()
 }
 
 func (OrderRefundReason) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[15]
+	return &file_common_v1_enum_proto_enumTypes[16]
 }
 
 func (x OrderRefundReason) Number() protoreflect.EnumNumber {
@@ -891,7 +947,7 @@ func (x OrderRefundReason) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use OrderRefundReason.Descriptor instead.
 func (OrderRefundReason) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{15}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{16}
 }
 
 // 轮播图位置
@@ -928,11 +984,11 @@ func (x ShopBannerSite) String() string {
 }
 
 func (ShopBannerSite) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[16].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[17].Descriptor()
 }
 
 func (ShopBannerSite) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[16]
+	return &file_common_v1_enum_proto_enumTypes[17]
 }
 
 func (x ShopBannerSite) Number() protoreflect.EnumNumber {
@@ -941,7 +997,7 @@ func (x ShopBannerSite) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ShopBannerSite.Descriptor instead.
 func (ShopBannerSite) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{16}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{17}
 }
 
 // 轮播图类型
@@ -984,11 +1040,11 @@ func (x ShopBannerType) String() string {
 }
 
 func (ShopBannerType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[17].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[18].Descriptor()
 }
 
 func (ShopBannerType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[17]
+	return &file_common_v1_enum_proto_enumTypes[18]
 }
 
 func (x ShopBannerType) Number() protoreflect.EnumNumber {
@@ -997,7 +1053,7 @@ func (x ShopBannerType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ShopBannerType.Descriptor instead.
 func (ShopBannerType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{17}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{18}
 }
 
 // 支付对账单状态
@@ -1037,11 +1093,11 @@ func (x PayBillStatus) String() string {
 }
 
 func (PayBillStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[18].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[19].Descriptor()
 }
 
 func (PayBillStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[18]
+	return &file_common_v1_enum_proto_enumTypes[19]
 }
 
 func (x PayBillStatus) Number() protoreflect.EnumNumber {
@@ -1050,7 +1106,7 @@ func (x PayBillStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use PayBillStatus.Descriptor instead.
 func (PayBillStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{18}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{19}
 }
 
 // 推荐场景枚举
@@ -1099,11 +1155,11 @@ func (x RecommendScene) String() string {
 }
 
 func (RecommendScene) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[19].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[20].Descriptor()
 }
 
 func (RecommendScene) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[19]
+	return &file_common_v1_enum_proto_enumTypes[20]
 }
 
 func (x RecommendScene) Number() protoreflect.EnumNumber {
@@ -1112,7 +1168,7 @@ func (x RecommendScene) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RecommendScene.Descriptor instead.
 func (RecommendScene) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{19}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{20}
 }
 
 // 推荐主体类型枚举
@@ -1149,11 +1205,11 @@ func (x RecommendActorType) String() string {
 }
 
 func (RecommendActorType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[20].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[21].Descriptor()
 }
 
 func (RecommendActorType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[20]
+	return &file_common_v1_enum_proto_enumTypes[21]
 }
 
 func (x RecommendActorType) Number() protoreflect.EnumNumber {
@@ -1162,7 +1218,7 @@ func (x RecommendActorType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RecommendActorType.Descriptor instead.
 func (RecommendActorType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{20}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{21}
 }
 
 // 推荐策略枚举
@@ -1199,11 +1255,11 @@ func (x RecommendStrategy) String() string {
 }
 
 func (RecommendStrategy) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[21].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[22].Descriptor()
 }
 
 func (RecommendStrategy) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[21]
+	return &file_common_v1_enum_proto_enumTypes[22]
 }
 
 func (x RecommendStrategy) Number() protoreflect.EnumNumber {
@@ -1212,7 +1268,7 @@ func (x RecommendStrategy) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RecommendStrategy.Descriptor instead.
 func (RecommendStrategy) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{21}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{22}
 }
 
 // 推荐事件类型枚举
@@ -1264,11 +1320,11 @@ func (x RecommendEventType) String() string {
 }
 
 func (RecommendEventType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[22].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[23].Descriptor()
 }
 
 func (RecommendEventType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[22]
+	return &file_common_v1_enum_proto_enumTypes[23]
 }
 
 func (x RecommendEventType) Number() protoreflect.EnumNumber {
@@ -1277,7 +1333,7 @@ func (x RecommendEventType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use RecommendEventType.Descriptor instead.
 func (RecommendEventType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{22}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{23}
 }
 
 // Gorse 推荐高级调试数据类型
@@ -1317,11 +1373,11 @@ func (x AdvanceDataType) String() string {
 }
 
 func (AdvanceDataType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[23].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[24].Descriptor()
 }
 
 func (AdvanceDataType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[23]
+	return &file_common_v1_enum_proto_enumTypes[24]
 }
 
 func (x AdvanceDataType) Number() protoreflect.EnumNumber {
@@ -1330,7 +1386,7 @@ func (x AdvanceDataType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use AdvanceDataType.Descriptor instead.
 func (AdvanceDataType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{23}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{24}
 }
 
 // 评价审核状态
@@ -1370,11 +1426,11 @@ func (x CommentStatus) String() string {
 }
 
 func (CommentStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[24].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[25].Descriptor()
 }
 
 func (CommentStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[24]
+	return &file_common_v1_enum_proto_enumTypes[25]
 }
 
 func (x CommentStatus) Number() protoreflect.EnumNumber {
@@ -1383,7 +1439,7 @@ func (x CommentStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentStatus.Descriptor instead.
 func (CommentStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{24}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{25}
 }
 
 // 评价审核记录目标类型
@@ -1420,11 +1476,11 @@ func (x CommentReviewTargetType) String() string {
 }
 
 func (CommentReviewTargetType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[25].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[26].Descriptor()
 }
 
 func (CommentReviewTargetType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[25]
+	return &file_common_v1_enum_proto_enumTypes[26]
 }
 
 func (x CommentReviewTargetType) Number() protoreflect.EnumNumber {
@@ -1433,7 +1489,7 @@ func (x CommentReviewTargetType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentReviewTargetType.Descriptor instead.
 func (CommentReviewTargetType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{25}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{26}
 }
 
 // 评价审核记录审核类型
@@ -1470,11 +1526,11 @@ func (x CommentReviewType) String() string {
 }
 
 func (CommentReviewType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[26].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[27].Descriptor()
 }
 
 func (CommentReviewType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[26]
+	return &file_common_v1_enum_proto_enumTypes[27]
 }
 
 func (x CommentReviewType) Number() protoreflect.EnumNumber {
@@ -1483,7 +1539,7 @@ func (x CommentReviewType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentReviewType.Descriptor instead.
 func (CommentReviewType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{26}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{27}
 }
 
 // 评价审核记录结果
@@ -1523,11 +1579,11 @@ func (x CommentReviewStatus) String() string {
 }
 
 func (CommentReviewStatus) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[27].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[28].Descriptor()
 }
 
 func (CommentReviewStatus) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[27]
+	return &file_common_v1_enum_proto_enumTypes[28]
 }
 
 func (x CommentReviewStatus) Number() protoreflect.EnumNumber {
@@ -1536,7 +1592,7 @@ func (x CommentReviewStatus) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentReviewStatus.Descriptor instead.
 func (CommentReviewStatus) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{27}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{28}
 }
 
 // 评价AI摘要场景
@@ -1573,11 +1629,11 @@ func (x CommentAiScene) String() string {
 }
 
 func (CommentAiScene) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[28].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[29].Descriptor()
 }
 
 func (CommentAiScene) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[28]
+	return &file_common_v1_enum_proto_enumTypes[29]
 }
 
 func (x CommentAiScene) Number() protoreflect.EnumNumber {
@@ -1586,7 +1642,7 @@ func (x CommentAiScene) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentAiScene.Descriptor instead.
 func (CommentAiScene) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{28}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{29}
 }
 
 // 评价互动目标类型
@@ -1626,11 +1682,11 @@ func (x CommentReactionTargetType) String() string {
 }
 
 func (CommentReactionTargetType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[29].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[30].Descriptor()
 }
 
 func (CommentReactionTargetType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[29]
+	return &file_common_v1_enum_proto_enumTypes[30]
 }
 
 func (x CommentReactionTargetType) Number() protoreflect.EnumNumber {
@@ -1639,7 +1695,7 @@ func (x CommentReactionTargetType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentReactionTargetType.Descriptor instead.
 func (CommentReactionTargetType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{29}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{30}
 }
 
 // 评价互动类型
@@ -1676,11 +1732,11 @@ func (x CommentReactionType) String() string {
 }
 
 func (CommentReactionType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[30].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[31].Descriptor()
 }
 
 func (CommentReactionType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[30]
+	return &file_common_v1_enum_proto_enumTypes[31]
 }
 
 func (x CommentReactionType) Number() protoreflect.EnumNumber {
@@ -1689,7 +1745,7 @@ func (x CommentReactionType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentReactionType.Descriptor instead.
 func (CommentReactionType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{30}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{31}
 }
 
 // 评价筛选类型
@@ -1735,11 +1791,11 @@ func (x CommentFilterType) String() string {
 }
 
 func (CommentFilterType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[31].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[32].Descriptor()
 }
 
 func (CommentFilterType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[31]
+	return &file_common_v1_enum_proto_enumTypes[32]
 }
 
 func (x CommentFilterType) Number() protoreflect.EnumNumber {
@@ -1748,7 +1804,7 @@ func (x CommentFilterType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentFilterType.Descriptor instead.
 func (CommentFilterType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{31}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{32}
 }
 
 // 评价排序类型
@@ -1782,11 +1838,11 @@ func (x CommentSortType) String() string {
 }
 
 func (CommentSortType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[32].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[33].Descriptor()
 }
 
 func (CommentSortType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[32]
+	return &file_common_v1_enum_proto_enumTypes[33]
 }
 
 func (x CommentSortType) Number() protoreflect.EnumNumber {
@@ -1795,7 +1851,7 @@ func (x CommentSortType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use CommentSortType.Descriptor instead.
 func (CommentSortType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{32}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{33}
 }
 
 // 支付通知资源类型
@@ -1829,11 +1885,11 @@ func (x ResourceType) String() string {
 }
 
 func (ResourceType) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_enum_proto_enumTypes[33].Descriptor()
+	return file_common_v1_enum_proto_enumTypes[34].Descriptor()
 }
 
 func (ResourceType) Type() protoreflect.EnumType {
-	return &file_common_v1_enum_proto_enumTypes[33]
+	return &file_common_v1_enum_proto_enumTypes[34]
 }
 
 func (x ResourceType) Number() protoreflect.EnumNumber {
@@ -1842,7 +1898,7 @@ func (x ResourceType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ResourceType.Descriptor instead.
 func (ResourceType) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_enum_proto_rawDescGZIP(), []int{33}
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{34}
 }
 
 var File_common_v1_enum_proto protoreflect.FileDescriptor
@@ -1895,7 +1951,13 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\vUNKNOWN_USS\x10\x00\x12\x12\n" +
 	"\x0ePENDING_REVIEW\x10\x01\x12\x11\n" +
 	"\rFAILED_REVIEW\x10\x02\x12\f\n" +
-	"\bAPPROVED\x10\x03*7\n" +
+	"\bAPPROVED\x10\x03*\x7f\n" +
+	"\x13PasswordCryptoScene\x12\x0f\n" +
+	"\vUNKNOWN_PCS\x10\x00\x12\t\n" +
+	"\x05LOGIN\x10\x01\x12\x14\n" +
+	"\x10CREATE_BASE_USER\x10\x02\x12\x1c\n" +
+	"\x18RESET_BASE_USER_PASSWORD\x10\x03\x12\x18\n" +
+	"\x14UPDATE_USER_PASSWORD\x10\x04*7\n" +
 	"\vGoodsStatus\x12\x0e\n" +
 	"\n" +
 	"UNKNOWN_GS\x10\x00\x12\n" +
@@ -2063,7 +2125,7 @@ func file_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_common_v1_enum_proto_rawDescData
 }
 
-var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 34)
+var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 35)
 var file_common_v1_enum_proto_goTypes = []any{
 	(Status)(0),                    // 0: common.v1.Status
 	(BaseConfigSite)(0),            // 1: common.v1.BaseConfigSite
@@ -2073,32 +2135,33 @@ var file_common_v1_enum_proto_goTypes = []any{
 	(BaseRoleDataScope)(0),         // 5: common.v1.BaseRoleDataScope
 	(BaseUserGender)(0),            // 6: common.v1.BaseUserGender
 	(UserStoreStatus)(0),           // 7: common.v1.UserStoreStatus
-	(GoodsStatus)(0),               // 8: common.v1.GoodsStatus
-	(OrderStatus)(0),               // 9: common.v1.OrderStatus
-	(OrderPayType)(0),              // 10: common.v1.OrderPayType
-	(OrderPayChannel)(0),           // 11: common.v1.OrderPayChannel
-	(OrderDeliveryTime)(0),         // 12: common.v1.OrderDeliveryTime
-	(OrderCancelReason)(0),         // 13: common.v1.OrderCancelReason
-	(OrderBillStatus)(0),           // 14: common.v1.OrderBillStatus
-	(OrderRefundReason)(0),         // 15: common.v1.OrderRefundReason
-	(ShopBannerSite)(0),            // 16: common.v1.ShopBannerSite
-	(ShopBannerType)(0),            // 17: common.v1.ShopBannerType
-	(PayBillStatus)(0),             // 18: common.v1.PayBillStatus
-	(RecommendScene)(0),            // 19: common.v1.RecommendScene
-	(RecommendActorType)(0),        // 20: common.v1.RecommendActorType
-	(RecommendStrategy)(0),         // 21: common.v1.RecommendStrategy
-	(RecommendEventType)(0),        // 22: common.v1.RecommendEventType
-	(AdvanceDataType)(0),           // 23: common.v1.AdvanceDataType
-	(CommentStatus)(0),             // 24: common.v1.CommentStatus
-	(CommentReviewTargetType)(0),   // 25: common.v1.CommentReviewTargetType
-	(CommentReviewType)(0),         // 26: common.v1.CommentReviewType
-	(CommentReviewStatus)(0),       // 27: common.v1.CommentReviewStatus
-	(CommentAiScene)(0),            // 28: common.v1.CommentAiScene
-	(CommentReactionTargetType)(0), // 29: common.v1.CommentReactionTargetType
-	(CommentReactionType)(0),       // 30: common.v1.CommentReactionType
-	(CommentFilterType)(0),         // 31: common.v1.CommentFilterType
-	(CommentSortType)(0),           // 32: common.v1.CommentSortType
-	(ResourceType)(0),              // 33: common.v1.ResourceType
+	(PasswordCryptoScene)(0),       // 8: common.v1.PasswordCryptoScene
+	(GoodsStatus)(0),               // 9: common.v1.GoodsStatus
+	(OrderStatus)(0),               // 10: common.v1.OrderStatus
+	(OrderPayType)(0),              // 11: common.v1.OrderPayType
+	(OrderPayChannel)(0),           // 12: common.v1.OrderPayChannel
+	(OrderDeliveryTime)(0),         // 13: common.v1.OrderDeliveryTime
+	(OrderCancelReason)(0),         // 14: common.v1.OrderCancelReason
+	(OrderBillStatus)(0),           // 15: common.v1.OrderBillStatus
+	(OrderRefundReason)(0),         // 16: common.v1.OrderRefundReason
+	(ShopBannerSite)(0),            // 17: common.v1.ShopBannerSite
+	(ShopBannerType)(0),            // 18: common.v1.ShopBannerType
+	(PayBillStatus)(0),             // 19: common.v1.PayBillStatus
+	(RecommendScene)(0),            // 20: common.v1.RecommendScene
+	(RecommendActorType)(0),        // 21: common.v1.RecommendActorType
+	(RecommendStrategy)(0),         // 22: common.v1.RecommendStrategy
+	(RecommendEventType)(0),        // 23: common.v1.RecommendEventType
+	(AdvanceDataType)(0),           // 24: common.v1.AdvanceDataType
+	(CommentStatus)(0),             // 25: common.v1.CommentStatus
+	(CommentReviewTargetType)(0),   // 26: common.v1.CommentReviewTargetType
+	(CommentReviewType)(0),         // 27: common.v1.CommentReviewType
+	(CommentReviewStatus)(0),       // 28: common.v1.CommentReviewStatus
+	(CommentAiScene)(0),            // 29: common.v1.CommentAiScene
+	(CommentReactionTargetType)(0), // 30: common.v1.CommentReactionTargetType
+	(CommentReactionType)(0),       // 31: common.v1.CommentReactionType
+	(CommentFilterType)(0),         // 32: common.v1.CommentFilterType
+	(CommentSortType)(0),           // 33: common.v1.CommentSortType
+	(ResourceType)(0),              // 34: common.v1.ResourceType
 }
 var file_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -2118,7 +2181,7 @@ func file_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_enum_proto_rawDesc), len(file_common_v1_enum_proto_rawDesc)),
-			NumEnums:      34,
+			NumEnums:      35,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

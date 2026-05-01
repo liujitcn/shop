@@ -181,11 +181,9 @@ message UserProfileForm {
 
 // 用户密码表单
 message UserPasswordForm {
-  string old_pwd = 1 [(gnostic.openapi.v3.property) = {description: "原密码"}]; // 原密码
+  .common.v1.PasswordCrypto old_pwd = 1 [(gnostic.openapi.v3.property) = {description: "原密码"}]; // 原密码
 
-  string new_pwd = 2 [(gnostic.openapi.v3.property) = {description: "新密码"}]; // 新密码
-
-  string confirm_pwd = 3 [(gnostic.openapi.v3.property) = {description: "确认密码"}]; // 确认密码
+  .common.v1.PasswordCrypto new_pwd = 2 [(gnostic.openapi.v3.property) = {description: "新密码"}]; // 新密码
 }
 
 // 发送手机号验证码请求参数

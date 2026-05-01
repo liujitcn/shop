@@ -7,7 +7,9 @@ import (
 	"shop/pkg/errorsx"
 
 	basev1 "shop/api/gen/go/base/v1"
+	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/gen/models"
+	"shop/pkg/utils"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
@@ -50,6 +52,11 @@ func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*b
 		CaptchaId:     id,
 		CaptchaBase64: b64s,
 	}, err
+}
+
+// PasswordPublicKey 生成密码加密临时公钥。
+func (c *LoginCase) PasswordPublicKey(ctx context.Context, req *basev1.PasswordPublicKeyRequest) (*basev1.PasswordPublicKeyResponse, error) {
+	return utils.GeneratePasswordPublicKey(req.GetScene())
 }
 
 // Logout 退出登录。
@@ -115,7 +122,12 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if user.Status != 1 {
 		return nil, errorsx.PermissionDenied("账号已被禁用")
 	}
-	err = crypto.Verify(req.GetPassword(), user.Password)
+	var password string
+	password, err = utils.DecryptPassword(req.GetPassword(), commonv1.PasswordCryptoScene_LOGIN)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("用户名或密码错误").WithCause(err)
+	}
+	err = crypto.Verify(password, user.Password)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}

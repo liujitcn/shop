@@ -5,10 +5,18 @@
 // source: base/v1/login.proto
 
 /* eslint-disable */
+import type { PasswordCryptoScene } from "../../common/v1/enum";
+import type { PasswordCrypto } from "../../common/v1/types";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** 验证码获取条件 */
 export interface CaptchaRequest {
+}
+
+/** 密码临时公钥获取条件 */
+export interface PasswordPublicKeyRequest {
+  /** 使用场景 */
+  scene: PasswordCryptoScene;
 }
 
 /** 登出请求条件 */
@@ -21,6 +29,20 @@ export interface CaptchaResponse {
   captcha_id: string;
   /** 验证码base64 */
   captcha_base64: string;
+}
+
+/** 密码临时公钥响应 */
+export interface PasswordPublicKeyResponse {
+  /** 临时密钥ID */
+  key_id: string;
+  /** 临时公钥 */
+  public_key: string;
+  /** 加密算法 */
+  algorithm: string;
+  /** 随机值 */
+  nonce: string;
+  /** 有效时间，单位秒 */
+  expires_in: number;
 }
 
 /** 刷新令牌请求参数 */
@@ -46,7 +68,9 @@ export interface LoginRequest {
   /** 用户名，必选项。 */
   user_name: string;
   /** 用户的密码，必选项。 */
-  password: string;
+  password:
+    | PasswordCrypto
+    | undefined;
   /** 验证码 */
   captcha_code: string;
   /** 验证码Id */
@@ -69,6 +93,8 @@ export interface LoginResponse {
 export interface LoginService {
   /** 验证码 */
   Captcha(request: CaptchaRequest): Promise<CaptchaResponse>;
+  /** 获取密码临时公钥 */
+  PasswordPublicKey(request: PasswordPublicKeyRequest): Promise<PasswordPublicKeyResponse>;
   /** 登出 */
   Logout(request: LogoutRequest): Promise<Empty>;
   /** 刷新认证令牌 */

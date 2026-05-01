@@ -13,6 +13,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
+	"shop/pkg/utils"
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
@@ -146,13 +147,20 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
-	passwordStr := req.GetPwd()
+	var passwordStr string
+	var err error
 	// 未显式传入密码时，回退到系统默认密码规则。
-	if passwordStr == "" {
+	if req.GetPwd() == nil {
 		passwordStr = c.getDefaultPassword(req.GetUserName(), req.GetPhone())
+	} else {
+		passwordStr, err = utils.DecryptPassword(req.GetPwd(), commonv1.PasswordCryptoScene_CREATE_BASE_USER)
+		if err != nil {
+			return err
+		}
 	}
 
-	password, err := crypto.Encrypt(passwordStr)
+	var password string
+	password, err = crypto.Encrypt(passwordStr)
 	if err != nil {
 		return err
 	}
@@ -249,10 +257,15 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 		return errorsx.PermissionDenied("重置密码失败，不能操作超级管理员")
 	}
 
-	passwordStr := req.GetPwd()
+	var passwordStr string
 	// 未显式传入密码时，回退到系统默认密码规则。
-	if passwordStr == "" {
+	if req.GetPwd() == nil {
 		passwordStr = c.getDefaultPassword(baseUser.UserName, baseUser.Phone)
+	} else {
+		passwordStr, err = utils.DecryptPassword(req.GetPwd(), commonv1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD)
+		if err != nil {
+			return err
+		}
 	}
 
 	var password string

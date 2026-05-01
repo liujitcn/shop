@@ -335,8 +335,8 @@ github.com/lithammer/shortuuid/v4 v4.2.0 h1:LMFOzVB3996a7b8aBuEXxqOBflbfPQAiVzkI
 github.com/lithammer/shortuuid/v4 v4.2.0/go.mod h1:D5noHZ2oFw/YaKCfGy0YxyE7M0wMbezmMjPdhyEFe6Y=
 github.com/liujitcn/go-utils v0.0.27 h1:l2WIMcplL5VzK+vVBel8dfPs7/OG1SLADRFiPRvS4+4=
 github.com/liujitcn/go-utils v0.0.27/go.mod h1:nZ6f5LYGWrBNtIGg1djfwLvoswv2P8UZQwMoHWJ1jxw=
-github.com/liujitcn/go-utils/crypto v0.0.8 h1:7MR8I7tHCiy+LyGKUJsqX0FNDLPPX497tpnlT1Cw1yU=
-github.com/liujitcn/go-utils/crypto v0.0.8/go.mod h1:/crQqoUHEiX7kHxfQnGq7GQRwK6dfPfXcpWbTWUPK8E=
+github.com/liujitcn/go-utils/crypto v0.0.9 h1:2bL3AENs6Q98qXtlIg4pBljFBAEfXpbLZQrguChOf3M=
+github.com/liujitcn/go-utils/crypto v0.0.9/go.mod h1:/crQqoUHEiX7kHxfQnGq7GQRwK6dfPfXcpWbTWUPK8E=
 github.com/liujitcn/go-utils/geoip v0.0.2 h1:LAzcQ4HzQ9xFCEt4da2iZe7p0PNP7JZidDDVZKq/uaQ=
 github.com/liujitcn/go-utils/geoip v0.0.2/go.mod h1:m8vD01rqR+3H3aK6taD/pFCLYx5dv50Rqz663yb/UmE=
 github.com/liujitcn/go-utils/http v0.0.2 h1:Ifs2X3EDDXkpL0VQWhA/7nK4lVdzvoeYdIKcbiUSc3I=

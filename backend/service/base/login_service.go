@@ -46,6 +46,16 @@ func (s *LoginService) Captcha(ctx context.Context, req *basev1.CaptchaRequest) 
 	return res, nil
 }
 
+// PasswordPublicKey 获取密码临时公钥
+func (s *LoginService) PasswordPublicKey(ctx context.Context, req *basev1.PasswordPublicKeyRequest) (*basev1.PasswordPublicKeyResponse, error) {
+	res, err := s.loginCase.PasswordPublicKey(ctx, req)
+	if err != nil {
+		log.Errorf("PasswordPublicKey %v", err)
+		return nil, errorsx.WrapInternal(err, "获取密码临时公钥失败")
+	}
+	return res, nil
+}
+
 // Logout 登出
 func (s *LoginService) Logout(ctx context.Context, req *basev1.LogoutRequest) (*emptypb.Empty, error) {
 	err := s.loginCase.Logout(ctx, req)

@@ -5460,6 +5460,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/MultiUploadFileResponse'
+    /api/v1/base/password-public-key:
+        get:
+            tags:
+                - LoginService
+            description: 获取密码临时公钥
+            operationId: LoginService_PasswordPublicKey
+            parameters:
+                - name: scene
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_PCS
+                        - LOGIN
+                        - CREATE_BASE_USER
+                        - RESET_BASE_USER_PASSWORD
+                        - UPDATE_USER_PASSWORD
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PasswordPublicKeyResponse'
     /api/v1/base/session:
         post:
             tags:
@@ -6440,8 +6465,7 @@ components:
                     type: string
                     description: 手机号
                 pwd:
-                    type: string
-                    description: 密码
+                    $ref: '#/components/schemas/PasswordCrypto'
                 gender:
                     enum:
                         - UNKNOWN_BUG
@@ -8452,8 +8476,7 @@ components:
                     type: string
                     description: 用户名
                 password:
-                    type: string
-                    description: 用户密码
+                    $ref: '#/components/schemas/PasswordCrypto'
                 captchaCode:
                     type: string
                     description: 验证码
@@ -9480,6 +9503,47 @@ components:
                         $ref: '#/components/schemas/UserResponse'
                     description: 用户列表
             description: Gorse 推荐用户分页响应
+        PasswordCrypto:
+            type: object
+            properties:
+                keyId:
+                    type: string
+                    description: 临时密钥ID
+                nonce:
+                    type: string
+                    description: 随机值
+                algorithm:
+                    type: string
+                    description: 加密算法
+                encryptedKey:
+                    type: string
+                    description: 加密后的对称密钥
+                iv:
+                    type: string
+                    description: 初始化向量
+                ciphertext:
+                    type: string
+                    description: 密码加密数据
+            description: 密码密文。
+        PasswordPublicKeyResponse:
+            type: object
+            properties:
+                keyId:
+                    type: string
+                    description: 临时密钥ID
+                publicKey:
+                    type: string
+                    description: 临时公钥
+                algorithm:
+                    type: string
+                    description: 加密算法
+                nonce:
+                    type: string
+                    description: 随机值
+                expiresIn:
+                    type: string
+                    description: 有效时间，单位秒
+            description: 密码临时公钥响应
         PayBill:
             type: object
             properties:
@@ -10196,8 +10260,7 @@ components:
                     type: string
                     description: 用户ID
                 pwd:
-                    type: string
-                    description: 密码
+                    $ref: '#/components/schemas/PasswordCrypto'
             description: 重置用户密码请求参数
         RouteItem:
             type: object
@@ -11576,14 +11639,9 @@ components:
             type: object
             properties:
                 oldPwd:
-                    type: string
-                    description: 原密码
+                    $ref: '#/components/schemas/PasswordCrypto'
                 newPwd:
-                    type: string
-                    description: 新密码
-                confirmPwd:
-                    type: string
-                    description: 确认密码
+                    $ref: '#/components/schemas/PasswordCrypto'
             description: 用户密码表单
         UserPhoneForm:
             type: object

@@ -32,6 +32,7 @@ const baseURL = `${requestOrigin}${normalizedApiBasePath}`
 const SESSION_URL = '/v1/base/session'
 const REFRESH_TOKEN_URL = '/v1/base/token'
 const CAPTCHA_URL = '/v1/base/captcha'
+const PASSWORD_PUBLIC_KEY_URL = '/v1/base/password-public-key'
 const LEGACY_AUTH_URL = '/auth'
 const LEGACY_REFRESH_TOKEN_URL = `${LEGACY_AUTH_URL}/token`
 const LEGACY_CAPTCHA_URL = '/login/captcha'
@@ -40,6 +41,7 @@ const NO_AUTH_URL_SET = new Set([
   SESSION_URL,
   REFRESH_TOKEN_URL,
   CAPTCHA_URL,
+  PASSWORD_PUBLIC_KEY_URL,
   LEGACY_AUTH_URL,
   LEGACY_CAPTCHA_URL,
   LEGACY_REFRESH_TOKEN_URL,
@@ -47,6 +49,7 @@ const NO_AUTH_URL_SET = new Set([
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
   CAPTCHA_URL,
+  PASSWORD_PUBLIC_KEY_URL,
   LEGACY_AUTH_URL,
   LEGACY_CAPTCHA_URL,
 ])

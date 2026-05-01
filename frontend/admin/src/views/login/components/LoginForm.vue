@@ -55,6 +55,7 @@ import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { isUnmatchedRoute, navigateTo } from "@/utils/router";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
+import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 
 const router = useRouter();
 const route = useRoute();
@@ -73,7 +74,14 @@ const loginRules = reactive({
 });
 
 const loading = ref(false);
-const loginForm = reactive<LoginRequest>({
+interface LoginFormState {
+  user_name: string;
+  password: string;
+  captcha_code: string;
+  captcha_id: string;
+}
+
+const loginForm = reactive<LoginFormState>({
   user_name: "",
   password: "",
   captcha_code: "",
@@ -118,8 +126,15 @@ const handleLogin = (formEl: FormInstance | undefined) => {
     if (!valid) return;
     loading.value = true;
     try {
+      const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.LOGIN);
+      const loginRequest: LoginRequest = {
+        user_name: loginForm.user_name,
+        password,
+        captcha_code: loginForm.captcha_code,
+        captcha_id: loginForm.captcha_id
+      };
       // 1.执行登录接口
-      await userStore.login({ ...loginForm });
+      await userStore.login(loginRequest);
 
       // 2.获取用户信息
       await userStore.getUserInfo();

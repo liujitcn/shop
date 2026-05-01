@@ -57,3 +57,18 @@ message BytesValues {
   // 值列表。
   repeated bytes value = 1 [(gnostic.openapi.v3.property) = {description: "值"}]; // 值
 }
+
+// 密码密文。
+message PasswordCrypto {
+  string key_id = 1 [(gnostic.openapi.v3.property) = {description: "临时密钥ID"}]; // 临时密钥ID
+
+  string nonce = 2 [(gnostic.openapi.v3.property) = {description: "随机值"}]; // 随机值
+
+  string algorithm = 3 [(gnostic.openapi.v3.property) = {description: "加密算法"}]; // 加密算法
+
+  string encrypted_key = 4 [(gnostic.openapi.v3.property) = {description: "加密后的对称密钥"}]; // 加密后的对称密钥
+
+  string iv = 5 [(gnostic.openapi.v3.property) = {description: "初始化向量"}]; // 初始化向量
+
+  string ciphertext = 6 [(gnostic.openapi.v3.property) = {description: "密码加密数据"}]; // 密码加密数据
+}

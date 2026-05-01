@@ -7,6 +7,7 @@ import { ref } from 'vue'
 import { defLoginService } from '@/api/base/login'
 import defaultLogo from '@/static/images/logo_icon.png'
 import { homeTabPage } from '@/utils/navigation'
+import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '@/utils/passwordCrypto'
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
@@ -76,10 +77,11 @@ const getCaptcha = () => {
 // 传统表单登录。
 const form = ref<LoginRequest>({
   user_name: '',
-  password: '',
+  password: undefined,
   captcha_id: '',
   captcha_code: '',
 })
+const passwordValue = ref('')
 // 表单提交
 const onSubmit = async () => {
   if (!form.value.user_name) {
@@ -89,7 +91,7 @@ const onSubmit = async () => {
     })
     return
   }
-  if (!form.value.password) {
+  if (!passwordValue.value) {
     await uni.showToast({
       icon: 'none',
       title: '请输入密码',
@@ -107,8 +109,12 @@ const onSubmit = async () => {
   if (!isAgreed) {
     return
   }
+  const password = await encryptPassword(passwordValue.value, PASSWORD_CRYPTO_SCENE.LOGIN)
   userStore
-    .login(form.value)
+    .login({
+      ...form.value,
+      password,
+    })
     .then(() => {
       void loginSuccess()
     })
@@ -200,7 +206,7 @@ onLoad(async () => {
           placeholder="请输入用户名/手机号码"
         />
         <input
-          v-model="form.password"
+          v-model="passwordValue"
           class="input"
           type="text"
           password

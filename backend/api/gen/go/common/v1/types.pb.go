@@ -437,6 +437,91 @@ func (x *BytesValues) GetValue() [][]byte {
 	return nil
 }
 
+// 密码密文。
+type PasswordCrypto struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	KeyId         string                 `protobuf:"bytes,1,opt,name=key_id,json=keyId,proto3" json:"key_id,omitempty"`                      // 临时密钥ID
+	Nonce         string                 `protobuf:"bytes,2,opt,name=nonce,proto3" json:"nonce,omitempty"`                                   // 随机值
+	Algorithm     string                 `protobuf:"bytes,3,opt,name=algorithm,proto3" json:"algorithm,omitempty"`                           // 加密算法
+	EncryptedKey  string                 `protobuf:"bytes,4,opt,name=encrypted_key,json=encryptedKey,proto3" json:"encrypted_key,omitempty"` // 加密后的对称密钥
+	Iv            string                 `protobuf:"bytes,5,opt,name=iv,proto3" json:"iv,omitempty"`                                         // 初始化向量
+	Ciphertext    string                 `protobuf:"bytes,6,opt,name=ciphertext,proto3" json:"ciphertext,omitempty"`                         // 密码加密数据
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PasswordCrypto) Reset() {
+	*x = PasswordCrypto{}
+	mi := &file_common_v1_types_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PasswordCrypto) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PasswordCrypto) ProtoMessage() {}
+
+func (x *PasswordCrypto) ProtoReflect() protoreflect.Message {
+	mi := &file_common_v1_types_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PasswordCrypto.ProtoReflect.Descriptor instead.
+func (*PasswordCrypto) Descriptor() ([]byte, []int) {
+	return file_common_v1_types_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *PasswordCrypto) GetKeyId() string {
+	if x != nil {
+		return x.KeyId
+	}
+	return ""
+}
+
+func (x *PasswordCrypto) GetNonce() string {
+	if x != nil {
+		return x.Nonce
+	}
+	return ""
+}
+
+func (x *PasswordCrypto) GetAlgorithm() string {
+	if x != nil {
+		return x.Algorithm
+	}
+	return ""
+}
+
+func (x *PasswordCrypto) GetEncryptedKey() string {
+	if x != nil {
+		return x.EncryptedKey
+	}
+	return ""
+}
+
+func (x *PasswordCrypto) GetIv() string {
+	if x != nil {
+		return x.Iv
+	}
+	return ""
+}
+
+func (x *PasswordCrypto) GetCiphertext() string {
+	if x != nil {
+		return x.Ciphertext
+	}
+	return ""
+}
+
 var File_common_v1_types_proto protoreflect.FileDescriptor
 
 const file_common_v1_types_proto_rawDesc = "" +
@@ -460,7 +545,16 @@ const file_common_v1_types_proto_rawDesc = "" +
 	"\fStringValues\x12\x1f\n" +
 	"\x05value\x18\x01 \x03(\tB\t\xbaG\x06\x92\x02\x03值R\x05value\".\n" +
 	"\vBytesValues\x12\x1f\n" +
-	"\x05value\x18\x01 \x03(\fB\t\xbaG\x06\x92\x02\x03值R\x05valueB\x84\x01\n" +
+	"\x05value\x18\x01 \x03(\fB\t\xbaG\x06\x92\x02\x03值R\x05value\"\xbc\x02\n" +
+	"\x0ePasswordCrypto\x12+\n" +
+	"\x06key_id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e临时密钥IDR\x05keyId\x12%\n" +
+	"\x05nonce\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t随机值R\x05nonce\x120\n" +
+	"\talgorithm\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f加密算法R\talgorithm\x12C\n" +
+	"\rencrypted_key\x18\x04 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18加密后的对称密钥R\fencryptedKey\x12%\n" +
+	"\x02iv\x18\x05 \x01(\tB\x15\xbaG\x12\x92\x02\x0f初始化向量R\x02iv\x128\n" +
+	"\n" +
+	"ciphertext\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12密码加密数据R\n" +
+	"ciphertextB\x84\x01\n" +
 	"\rcom.common.v1B\n" +
 	"TypesProtoP\x01Z\"shop/api/gen/go/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
 	"Common::V1b\x06proto3"
@@ -477,17 +571,18 @@ func file_common_v1_types_proto_rawDescGZIP() []byte {
 	return file_common_v1_types_proto_rawDescData
 }
 
-var file_common_v1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_common_v1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_common_v1_types_proto_goTypes = []any{
-	(*DoubleValues)(nil), // 0: common.v1.DoubleValues
-	(*FloatValues)(nil),  // 1: common.v1.FloatValues
-	(*Int64Values)(nil),  // 2: common.v1.Int64Values
-	(*UInt64Values)(nil), // 3: common.v1.UInt64Values
-	(*Int32Values)(nil),  // 4: common.v1.Int32Values
-	(*UInt32Values)(nil), // 5: common.v1.UInt32Values
-	(*BoolValues)(nil),   // 6: common.v1.BoolValues
-	(*StringValues)(nil), // 7: common.v1.StringValues
-	(*BytesValues)(nil),  // 8: common.v1.BytesValues
+	(*DoubleValues)(nil),   // 0: common.v1.DoubleValues
+	(*FloatValues)(nil),    // 1: common.v1.FloatValues
+	(*Int64Values)(nil),    // 2: common.v1.Int64Values
+	(*UInt64Values)(nil),   // 3: common.v1.UInt64Values
+	(*Int32Values)(nil),    // 4: common.v1.Int32Values
+	(*UInt32Values)(nil),   // 5: common.v1.UInt32Values
+	(*BoolValues)(nil),     // 6: common.v1.BoolValues
+	(*StringValues)(nil),   // 7: common.v1.StringValues
+	(*BytesValues)(nil),    // 8: common.v1.BytesValues
+	(*PasswordCrypto)(nil), // 9: common.v1.PasswordCrypto
 }
 var file_common_v1_types_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -508,7 +603,7 @@ func file_common_v1_types_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_types_proto_rawDesc), len(file_common_v1_types_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

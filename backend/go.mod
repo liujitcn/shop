@@ -13,7 +13,7 @@ require (
 	github.com/google/wire v0.7.0
 	github.com/gorse-io/gorse-go v0.5.0-alpha.3
 	github.com/liujitcn/go-utils v0.0.27
-	github.com/liujitcn/go-utils/crypto v0.0.8
+	github.com/liujitcn/go-utils/crypto v0.0.9
 	github.com/liujitcn/go-utils/geoip v0.0.2
 	github.com/liujitcn/go-utils/http v0.0.2
 	github.com/liujitcn/gorm-kit v0.0.28

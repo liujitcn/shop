@@ -59,3 +59,19 @@ export interface BytesValues {
   /** 值列表。 */
   value: Uint8Array[];
 }
+
+/** 密码密文。 */
+export interface PasswordCrypto {
+  /** 临时密钥ID */
+  key_id: string;
+  /** 随机值 */
+  nonce: string;
+  /** 加密算法 */
+  algorithm: string;
+  /** 加密后的对称密钥 */
+  encrypted_key: string;
+  /** 初始化向量 */
+  iv: string;
+  /** 密码加密数据 */
+  ciphertext: string;
+}

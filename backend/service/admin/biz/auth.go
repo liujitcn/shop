@@ -15,6 +15,7 @@ import (
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/models"
+	"shop/pkg/utils"
 	baseBiz "shop/service/base/biz"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -378,17 +379,15 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	if err != nil {
 		return err
 	}
-	// 原密码为空时，不允许继续修改。
-	if strings.TrimSpace(req.GetOldPwd()) == "" {
-		return errorsx.InvalidArgument("原密码不能为空")
+	var oldPwd string
+	oldPwd, err = utils.DecryptPassword(req.GetOldPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	if err != nil {
+		return err
 	}
-	// 新密码为空时，不允许继续修改。
-	if strings.TrimSpace(req.GetNewPwd()) == "" {
-		return errorsx.InvalidArgument("新密码不能为空")
-	}
-	// 两次输入密码不一致时，不允许继续修改。
-	if req.GetNewPwd() != req.GetConfirmPwd() {
-		return errorsx.InvalidArgument("两次输入的密码不一致")
+	var newPwd string
+	newPwd, err = utils.DecryptPassword(req.GetNewPwd(), commonv1.PasswordCryptoScene_UPDATE_USER_PASSWORD)
+	if err != nil {
+		return err
 	}
 
 	var baseUser *models.BaseUser
@@ -397,13 +396,13 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
 	}
 
-	err = crypto.Verify(req.GetOldPwd(), baseUser.Password)
+	err = crypto.Verify(oldPwd, baseUser.Password)
 	if err != nil {
 		return errorsx.InvalidArgument("原密码错误")
 	}
 
 	var encrypted string
-	encrypted, err = crypto.Encrypt(req.GetNewPwd())
+	encrypted, err = crypto.Encrypt(newPwd)
 	if err != nil {
 		return errorsx.Internal("修改密码失败").WithCause(err)
 	}

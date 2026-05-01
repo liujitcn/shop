@@ -10,6 +10,7 @@ authn:
       match:
         - "/base.v1.ConfigService/GetConfig"
         - "/base.v1.LoginService/Captcha"
+        - "/base.v1.LoginService/PasswordPublicKey"
         - "/base.v1.LoginService/Login"
         - "/app.v1.AuthService/WechatLogin"
         - "/app.v1.GoodsCategoryService/ListGoodsCategories"
