@@ -16,6 +16,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/workspaceevent"
 	"shop/pkg/wx"
 	"shop/pkg/wx/bill"
 
@@ -227,6 +228,7 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 		ret = append(ret, err.Error())
 		return ret, err
 	}
+	workspaceevent.Publish(t.ctx, workspaceevent.ReasonPayBillChecked, workspaceevent.AreaRisk)
 
 	return ret, nil
 }
@@ -360,6 +362,7 @@ func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
 		ret = append(ret, err.Error())
 		return ret, err
 	}
+	workspaceevent.Publish(t.ctx, workspaceevent.ReasonPayBillChecked, workspaceevent.AreaRisk)
 	return ret, nil
 }
 

@@ -33,12 +33,11 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.9
 	github.com/liujitcn/kratos-kit/pprof v0.0.7
 	github.com/liujitcn/kratos-kit/queue v0.0.15
-	github.com/liujitcn/kratos-kit/rpc v0.0.8
+	github.com/liujitcn/kratos-kit/rpc v0.0.9
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.4
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.5
-	github.com/liujitcn/kratos-kit/transport/mcp v0.0.5
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.2
-	github.com/liujitcn/kratos-kit/utils v0.0.11
+	github.com/liujitcn/kratos-kit/transport/mcp v0.0.6
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.3
 	github.com/mark3labs/mcp-go v0.49.0
 	github.com/mileusna/useragent v1.3.5
 	github.com/robfig/cron/v3 v3.0.1
@@ -129,6 +128,7 @@ require (
 	github.com/liujitcn/kratos-kit/tracing v0.0.3 // indirect
 	github.com/liujitcn/kratos-kit/transport v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/utils v0.0.11 // indirect
 	github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

@@ -16,6 +16,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/workspaceevent"
 	"shop/pkg/wx"
 
 	"github.com/liujitcn/go-utils/mapper"
@@ -254,7 +255,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *adminv1.Refund
 		orderRefund.Amount = "{}"
 	}
 
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.orderRefundCase.Create(ctx, orderRefund)
 		if err != nil {
 			return err
@@ -264,6 +265,11 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *adminv1.Refund
 			Status: _const.ORDER_STATUS_REFUNDING,
 		})
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
+	return nil
 }
 
 // GetOrderInfoShipment 获取订单发货信息
@@ -369,7 +375,7 @@ func (c *OrderInfoCase) ShipOrderInfo(ctx context.Context, req *adminv1.ShipOrde
 		}
 	}
 
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.orderLogisticsCase.Create(ctx, &models.OrderLogistics{
 			OrderID: orderInfo.ID,
 			Name:    req.GetName(),
@@ -385,6 +391,11 @@ func (c *OrderInfoCase) ShipOrderInfo(ctx context.Context, req *adminv1.ShipOrde
 			Status: _const.ORDER_STATUS_SHIPPED,
 		})
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo)
+	return nil
 }
 
 // getOrderUserMap 查询订单用户映射

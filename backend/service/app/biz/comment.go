@@ -16,6 +16,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/llm"
 	"shop/pkg/queue"
+	"shop/pkg/workspaceevent"
 	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 
@@ -306,6 +307,7 @@ func (c *CommentCase) CreateCommentDiscussion(ctx context.Context, req *appv1.Cr
 		return nil, err
 	}
 	queue.DispatchCommentAudit(_const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo)
 
 	response := &appv1.CreateCommentDiscussionResponse{
 		DiscussionCount: commentInfo.DiscussionCount,
@@ -599,6 +601,14 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *appv1.CreateCommen
 		return nil, err
 	}
 	queue.DispatchCommentAudit(_const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID)
+	workspaceevent.Publish(
+		ctx,
+		workspaceevent.ReasonCommentChanged,
+		workspaceevent.AreaMetrics,
+		workspaceevent.AreaTodo,
+		workspaceevent.AreaRisk,
+		workspaceevent.AreaPendingComments,
+	)
 
 	return &appv1.CreateCommentResponse{
 		CommentId:      record.ID,
@@ -636,6 +646,15 @@ func (c *CommentCase) DeleteComment(ctx context.Context, commentID int64) error 
 	if err != nil {
 		return err
 	}
+	workspaceevent.Publish(
+		ctx,
+		workspaceevent.ReasonCommentChanged,
+		workspaceevent.AreaMetrics,
+		workspaceevent.AreaTodo,
+		workspaceevent.AreaRisk,
+		workspaceevent.AreaReputation,
+		workspaceevent.AreaPendingComments,
+	)
 	return nil
 }
 
@@ -746,6 +765,7 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 		return err
 	}
 	queue.DispatchCommentAiRefresh(record.GoodsID)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaRisk, workspaceevent.AreaReputation, workspaceevent.AreaPendingComments)
 	return nil
 }
 
@@ -756,13 +776,18 @@ func (c *CommentCase) rejectCommentByAI(ctx context.Context, record *models.Comm
 	if reason == "" {
 		reason = "LLM审核不通过"
 	}
-	return c.transaction(ctx, func(txCtx context.Context) error {
+	err := c.transaction(ctx, func(txCtx context.Context) error {
 		err := c.commentInfoCase.UpdateStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
 		if err != nil {
 			return err
 		}
 		return c.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason)
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaRisk, workspaceevent.AreaPendingComments)
+	return nil
 }
 
 // auditDiscussion 执行单条讨论的 AI 审核流程。
@@ -824,6 +849,7 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 	if findErr == nil {
 		queue.DispatchCommentAiRefresh(commentInfo.GoodsID)
 	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaReputation)
 	return nil
 }
 
@@ -834,7 +860,7 @@ func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.C
 	if reason == "" {
 		reason = "LLM审核不通过"
 	}
-	return c.transaction(ctx, func(txCtx context.Context) error {
+	err := c.transaction(ctx, func(txCtx context.Context) error {
 		err := c.updateDiscussionStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
 		if err != nil {
 			return err
@@ -845,6 +871,11 @@ func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.C
 		}
 		return c.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason)
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo)
+	return nil
 }
 
 // consumeCommentAiRefresh 消费商品评价 AI 摘要刷新队列。
@@ -896,7 +927,12 @@ func (c *CommentCase) refreshGoodsCommentAi(ctx context.Context, goodsID int64) 
 	if err != nil {
 		return err
 	}
-	return c.commentAiCase.UpsertGoodsCommentAi(ctx, goodsID, result)
+	err = c.commentAiCase.UpsertGoodsCommentAi(ctx, goodsID, result)
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaReputation)
+	return nil
 }
 
 // tagNamesByIDs 根据标签编号查询标签名称，失败时降级为空列表避免影响摘要主流程。

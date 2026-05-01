@@ -14,6 +14,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/queue"
 	"shop/pkg/recommend/dto"
+	"shop/pkg/workspaceevent"
 	"shop/pkg/wx"
 
 	commonv1 "shop/api/gen/go/common/v1"
@@ -395,6 +396,7 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 	// 只有首次支付成功才回写 ORDER_PAY，避免重复通知产生重复推荐事实。
 	if shouldReportOrderPay {
 		c.dispatchRecommendPayEvent(orderInfo.UserID, orderGoodsList, trans.TimeValue(successTime))
+		workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	}
 	return nil
 }
@@ -438,7 +440,7 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 	orderRefund.Amount = _string.ConvertAnyToJsonString(refundResource.GetAmount())
 	orderRefund.Status = 1
 
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		// 添加退款信息
 		if orderRefund.ID == 0 {
 			err = c.orderRefundRepo.Create(ctx, orderRefund)
@@ -461,6 +463,11 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo)
+	return nil
 }
 
 // findByOrderNo 根据订单号查询订单

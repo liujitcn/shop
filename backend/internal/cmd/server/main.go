@@ -13,8 +13,6 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/liujitcn/kratos-kit/bootstrap"
-	mcpServer "github.com/liujitcn/kratos-kit/transport/mcp"
-	sseServer "github.com/liujitcn/kratos-kit/transport/sse"
 
 	//_ "github.com/liujitcn/kratos-kit/database/gorm/driver/bigquery"
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
@@ -58,10 +56,8 @@ func newApp(
 	cron *job.CronServer,
 	gs *grpc.Server,
 	hs *http.Server,
-	ss *sseServer.Server,
-	ms *mcpServer.Server,
 ) *kratos.App {
-	servers := make([]kratosTransport.Server, 0, 5)
+	servers := make([]kratosTransport.Server, 0, 3)
 	if cron != nil {
 		servers = append(servers, cron)
 	}
@@ -70,12 +66,6 @@ func newApp(
 	}
 	if hs != nil {
 		servers = append(servers, hs)
-	}
-	if ss != nil {
-		servers = append(servers, ss)
-	}
-	if ms != nil {
-		servers = append(servers, ms)
 	}
 	return bootstrap.NewApp(ctx, servers...)
 }

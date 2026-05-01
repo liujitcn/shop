@@ -395,8 +395,8 @@ github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.8 h1:1FBwyWXFXRkkX7SLCA02Wp
 github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.8/go.mod h1:SCPU1IITsJYkxWrncmsh6fkcK7IIPLCgePSyqjQ6lWc=
 github.com/liujitcn/kratos-kit/registry v0.0.12 h1:DYHxeWVghdvBeWzOIlz4u9/dVCfYtKRPNPw7d+X2oXE=
 github.com/liujitcn/kratos-kit/registry v0.0.12/go.mod h1:D3LUiZgfw6tLfr/v0vVjAf8hB+KkI2lR5TDzf6TB4xU=
-github.com/liujitcn/kratos-kit/rpc v0.0.8 h1:UIzX9OMMadlm/3P5Fbcda8SI3nn+oo5z5NHWbh+DcUQ=
-github.com/liujitcn/kratos-kit/rpc v0.0.8/go.mod h1:t//Ydus0fOAQVtwkIvlwGpU7gdVDuLRZygvPMo6oROg=
+github.com/liujitcn/kratos-kit/rpc v0.0.9 h1:Xm+QcwFmA+FWZt8qzbWjHTCQvio/3aTGAVryfkog/70=
+github.com/liujitcn/kratos-kit/rpc v0.0.9/go.mod h1:toyAJw4fPwoEMx5R0kuoQc6hd7a7k/VflmQ9OtocvwY=
 github.com/liujitcn/kratos-kit/swagger-ui v0.0.4 h1:Gc3utDp80STMCQ3abBBcihibEoNzJgMPSpFzy+CYaT8=
 github.com/liujitcn/kratos-kit/swagger-ui v0.0.4/go.mod h1:Fj6TmK+p+jIQLy34FFRtq/1QiEM5A0KzkjL1z4nJ8VY=
 github.com/liujitcn/kratos-kit/tracer v0.0.9 h1:zIEXibCB/xQWS/OI10aXbY3KawVEUmT7XbJ8QllpYD8=
@@ -409,10 +409,10 @@ github.com/liujitcn/kratos-kit/transport/cron v0.0.5 h1:UyQ6+ngBMfisBCBa9Y4tskUE
 github.com/liujitcn/kratos-kit/transport/cron v0.0.5/go.mod h1:vcVPW0fo6C9oyIs4cCN4DNKvhkKe+wNNU2Qts3xwTFk=
 github.com/liujitcn/kratos-kit/transport/keepalive v0.0.5 h1:LIlQOrWwnynBVpyoWZYO0LeUZCEA6JUYgDF9jQa4D9Y=
 github.com/liujitcn/kratos-kit/transport/keepalive v0.0.5/go.mod h1:lXzxX0ag1YpaxE18Eq15n2A6JugN/QJprhkZZKQ2PAU=
-github.com/liujitcn/kratos-kit/transport/mcp v0.0.5 h1:0kBFKsJVpd7uK3YxNay0LlO8kxTQV+v4ERN15bC4EU8=
-github.com/liujitcn/kratos-kit/transport/mcp v0.0.5/go.mod h1:C8erXYKvPN7ZX2v/Xbmc89lYpb3lLAjgyDTkThex1iY=
-github.com/liujitcn/kratos-kit/transport/sse v0.0.2 h1:15J+if1s7nd679p04nAku4B931rLSrPoenb4wqBlE5A=
-github.com/liujitcn/kratos-kit/transport/sse v0.0.2/go.mod h1:kURAx/XvrA0D8YuyMPlHLYKx/wvJVvGcTopmZV5UwoA=
+github.com/liujitcn/kratos-kit/transport/mcp v0.0.6 h1:DO4f92ot+omDDYHUUFbts2NG+GOtobls19xX8Q+/kbo=
+github.com/liujitcn/kratos-kit/transport/mcp v0.0.6/go.mod h1:C8erXYKvPN7ZX2v/Xbmc89lYpb3lLAjgyDTkThex1iY=
+github.com/liujitcn/kratos-kit/transport/sse v0.0.3 h1:ijV31kKuUDlfvkvcwqLK7Gi7Oguq1M62ydgdsRSuROk=
+github.com/liujitcn/kratos-kit/transport/sse v0.0.3/go.mod h1:kURAx/XvrA0D8YuyMPlHLYKx/wvJVvGcTopmZV5UwoA=
 github.com/liujitcn/kratos-kit/utils v0.0.11 h1:SF5qcpJMcKhbBihwtIAQdZjA6oZo1vN6zjEuYJWiEDU=
 github.com/liujitcn/kratos-kit/utils v0.0.11/go.mod h1:3pVEM8HfVBjiEmkhNuNddob+3hTlJN2aMOc1gILfqVg=
 github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0/go.mod h1:zJYVVT2jmtg6P3p1VtQj7WsuWi/y4VnjVBn7F8KPB3I=

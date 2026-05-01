@@ -29,7 +29,7 @@ backend
 
 | 文件 | 作用 |
 | --- | --- |
-| `configs/server.yaml` | HTTP / gRPC / SSE / MCP 端口、超时、CORS、Swagger、pprof、HTTP 中间件。 |
+| `configs/server.yaml` | HTTP / gRPC / SSE 端口、超时、CORS、Swagger、pprof、HTTP 中间件。 |
 | `configs/data.yaml` | MySQL 连接、自动迁移、连接池、Redis 预留配置。 |
 | `configs/oss.yaml` | 本地文件存储根目录，默认 `./data`。 |
 | `configs/auth.yaml` | 登录认证、JWT、权限等基础配置。 |
@@ -65,7 +65,7 @@ go run ./internal/cmd/server -conf ./configs
 
 - HTTP：`http://localhost:7001`
 - gRPC：`localhost:6001`
-- SSE：`http://localhost:7002/events`
+- SSE：`http://localhost:7001/events`
 - Swagger UI：`http://localhost:7001/docs/`
 - OpenAPI：`http://localhost:7001/docs/openapi.yaml`
 
@@ -130,7 +130,11 @@ make gen
 
 ## MCP 工具暴露
 
-后端会从 `base_api` 表读取已启用 `mcp_enabled` 的接口，并根据 OpenAPI 元数据生成 MCP 工具定义。管理后台的“系统管理 / API 管理”页面可查看接口入参、参数映射、出参 Schema，并切换接口是否暴露为 MCP 工具。
+后端会从 `base_api` 表读取接口元数据，并根据 OpenAPI 元数据生成 MCP 工具定义。管理后台的“系统管理 / API 管理”页面可查看接口入参、参数映射、出参 Schema，并切换接口是否暴露为 MCP 工具。
+
+MCP 工具列表在客户端执行 `tools/list` 时会按当前 `base_api.mcp_enabled` 动态过滤；工具调用前也会再次检查开关，禁用后不会继续转发到后端 HTTP 接口。工具调用内部复用本服务 HTTP 接口，默认转发到 `server.http.addr` 解析出的本地地址，并复用 HTTP 服务超时时间。
+
+当前后端会把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务的 `/mcp` 路径，不再额外监听独立端口。例如 `server.http.addr = :7001` 时，MCP 地址为 `http://127.0.0.1:7001/mcp`。
 
 ## 静态资源
 

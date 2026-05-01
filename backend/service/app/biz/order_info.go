@@ -19,6 +19,7 @@ import (
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/queue"
 	"shop/pkg/recommend/dto"
+	"shop/pkg/workspaceevent"
 	"shop/pkg/wx"
 	"shop/service/app/utils"
 
@@ -503,6 +504,7 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *appv1.Crea
 		return nil, err
 	}
 	c.dispatchRecommendOrderEvent(request.PayType, authInfo.UserId, request.GetGoods(), orderInfo.CreatedAt)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	// 为在线支付订单增加超时自动取消任务
 	if orderInfo.Status == _const.ORDER_STATUS_CREATED {
 		// 延迟时间使用支付超时配置
@@ -559,7 +561,12 @@ func (c *OrderInfoCase) CancelOrderInfo(ctx context.Context, req *appv1.CancelOr
 	if err != nil {
 		return err
 	}
-	return c.cancelOrder(ctx, authInfo.UserId, req)
+	err = c.cancelOrder(ctx, authInfo.UserId, req)
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
+	return nil
 }
 
 // RefundOrderInfo 申请订单退款
@@ -656,7 +663,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 		orderRefund.Amount = "{}"
 	}
 	orderIDs := []int64{req.GetOrderId()}
-	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		// 退款成功后保存退款记录
 		err = c.orderRefundCase.Create(ctx, orderRefund)
 		if err != nil {
@@ -666,6 +673,11 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 			Status: _const.ORDER_STATUS_REFUNDING,
 		})
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
+	return nil
 }
 
 // ReceiveOrderInfo 确认收货
@@ -691,9 +703,14 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *appv1.Receive
 	}
 
 	orderIDs := []int64{req.GetOrderId()}
-	return c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
+	err = c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
 		Status: _const.ORDER_STATUS_WAIT_REVIEW,
 	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo)
+	return nil
 }
 
 // 将订单模型转换为接口响应

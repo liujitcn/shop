@@ -8,6 +8,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/workspaceevent"
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -76,6 +77,7 @@ func (c *GoodsSKUCase) UpdateGoodsSKU(ctx context.Context, req *adminv1.GoodsSku
 		}
 		return err
 	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 

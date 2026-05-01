@@ -11,6 +11,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
+	"shop/pkg/workspaceevent"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -241,6 +242,15 @@ func (c *CommentInfoCase) SetCommentInfoStatus(ctx context.Context, req *adminv1
 	if int32(req.GetStatus()) == _const.COMMENT_STATUS_APPROVED || commentInfo.Status == _const.COMMENT_STATUS_APPROVED {
 		queue.DispatchCommentAiRefresh(commentInfo.GoodsID)
 	}
+	workspaceevent.Publish(
+		ctx,
+		workspaceevent.ReasonCommentChanged,
+		workspaceevent.AreaMetrics,
+		workspaceevent.AreaTodo,
+		workspaceevent.AreaRisk,
+		workspaceevent.AreaReputation,
+		workspaceevent.AreaPendingComments,
+	)
 	return nil
 }
 

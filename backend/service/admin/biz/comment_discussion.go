@@ -12,6 +12,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
+	"shop/pkg/workspaceevent"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -126,6 +127,7 @@ func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, 
 			queue.DispatchCommentAiRefresh(commentInfo.GoodsID)
 		}
 	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaReputation)
 	return nil
 }
 

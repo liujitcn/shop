@@ -91,7 +91,7 @@ func (*CommentReaction) TableComment() string {
 
 // TableComment 返回表注释。
 func (*CommentReview) TableComment() string {
-	return "评价统一审核记录"
+	return "评价审核信息"
 }
 
 // TableComment 返回表注释。

@@ -145,7 +145,7 @@ defineOptions({
   inheritAttrs: false
 });
 
-import { computed, h, onMounted, reactive, ref, resolveComponent, watch } from "vue";
+import { computed, h, onBeforeUnmount, onMounted, reactive, ref, resolveComponent, watch } from "vue";
 import { useRouter, type RouteLocationRaw } from "vue-router";
 import type { ColumnProps, RenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
@@ -158,9 +158,10 @@ import type {
   WorkspacePendingComment
 } from "@/rpc/admin/v1/workspace";
 import { useUserStore } from "@/stores/modules/user";
-import { CommentStatus, GoodsStatus, OrderStatus, PayBillStatus } from "@/rpc/common/v1/enum";
+import { CommentStatus, GoodsStatus, OrderStatus, PayBillStatus, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
+import { subscribeSseRefresh, type SseStop } from "@/utils/sse";
 import defaultAvatar from "@/assets/images/avatar.png";
 
 /** 工作台指标卡片。 */
@@ -231,6 +232,16 @@ const userStore = useUserStore();
 const loading = ref(false);
 const avatarSrc = ref(defaultAvatar);
 const pendingComments = ref<WorkspacePendingComment[]>([]);
+const workspaceRefreshTargets: SseRefreshTarget[] = [
+  SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS,
+  SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO,
+  SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_RISK,
+  SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_REPUTATION,
+  SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_PENDING_COMMENTS
+];
+let stopWorkspaceSse: SseStop | null = null;
+let workspaceRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+let queuedRefreshTargets = new Set<SseRefreshTarget>();
 
 const metrics = reactive<SummaryWorkspaceMetricsResponse>({
   today_order_count: 0,
@@ -582,28 +593,43 @@ function handleNavigate(path: RouteLocationRaw) {
   void navigateTo(router, String(path.path ?? ""), (path.query ?? {}) as Record<string, string | number>);
 }
 
-/** 加载工作台数据。 */
+/** 加载工作台顶部指标。 */
+async function loadWorkspaceMetrics() {
+  const response = await defWorkspaceService.SummaryWorkspaceMetrics({});
+  Object.assign(metrics, response);
+}
+
+/** 加载工作台待处理事项。 */
+async function loadWorkspaceTodo() {
+  const response = await defWorkspaceService.SummaryWorkspaceTodo({});
+  Object.assign(todoSummary, response);
+}
+
+/** 加载工作台风险提醒。 */
+async function loadWorkspaceRisk() {
+  const response = await defWorkspaceService.SummaryWorkspaceRisk({});
+  Object.assign(riskSummary, response);
+}
+
+/** 加载工作台口碑洞察。 */
+async function loadWorkspaceReputation() {
+  const response = await defWorkspaceService.SummaryWorkspaceReputation({});
+  Object.assign(reputationSummary, response);
+}
+
+/** 加载工作台待审核评价。 */
+async function loadWorkspacePendingComments() {
+  const response = await defWorkspaceService.ListWorkspacePendingComments({ limit: 5 });
+  pendingComments.value = response.pending_comments ?? [];
+}
+
+/** 加载工作台全部数据。 */
 async function loadWorkspaceData() {
   loading.value = true;
   try {
-    const [metricsResult, todoResult, riskResult, reputationResult, pendingCommentResult] = await Promise.allSettled([
-      defWorkspaceService.SummaryWorkspaceMetrics({}),
-      defWorkspaceService.SummaryWorkspaceTodo({}),
-      defWorkspaceService.SummaryWorkspaceRisk({}),
-      defWorkspaceService.SummaryWorkspaceReputation({}),
-      defWorkspaceService.ListWorkspacePendingComments({ limit: 5 })
-    ]);
-
-    if (metricsResult.status === "fulfilled") Object.assign(metrics, metricsResult.value);
-    if (todoResult.status === "fulfilled") Object.assign(todoSummary, todoResult.value);
-    if (riskResult.status === "fulfilled") Object.assign(riskSummary, riskResult.value);
-    if (reputationResult.status === "fulfilled") Object.assign(reputationSummary, reputationResult.value);
-    if (pendingCommentResult.status === "fulfilled") pendingComments.value = pendingCommentResult.value.pending_comments ?? [];
-
+    const results = await refreshWorkspaceTargets(workspaceRefreshTargets);
     // 任一接口失败时保留已成功数据，避免工作台整页空白。
-    if (
-      [metricsResult, todoResult, riskResult, reputationResult, pendingCommentResult].some(item => item.status === "rejected")
-    ) {
+    if (results.some(item => item.status === "rejected")) {
       ElMessage.warning("部分工作台数据加载失败，请稍后重试");
     }
   } finally {
@@ -611,8 +637,78 @@ async function loadWorkspaceData() {
   }
 }
 
+/** 按目标静默刷新工作台数据。 */
+async function refreshWorkspaceTargets(targets: SseRefreshTarget[]) {
+  const normalizedTargets = normalizeRefreshTargets(targets);
+  const tasks = normalizedTargets.map(target => loadWorkspaceTarget(target));
+  return Promise.allSettled(tasks);
+}
+
+/** 加载单个工作台刷新目标。 */
+function loadWorkspaceTarget(target: SseRefreshTarget) {
+  switch (target) {
+    case SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS:
+      return loadWorkspaceMetrics();
+    case SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_TODO:
+      return loadWorkspaceTodo();
+    case SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_RISK:
+      return loadWorkspaceRisk();
+    case SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_REPUTATION:
+      return loadWorkspaceReputation();
+    case SseRefreshTarget.SSE_REFRESH_TARGET_ADMIN_WORKSPACE_PENDING_COMMENTS:
+      return loadWorkspacePendingComments();
+    default:
+      return Promise.resolve();
+  }
+}
+
+/** 去重并过滤需要刷新的工作台目标。 */
+function normalizeRefreshTargets(targets: SseRefreshTarget[]) {
+  return [...new Set(targets.filter(target => workspaceRefreshTargets.includes(target)))];
+}
+
+/** 订阅工作台刷新事件。 */
+function startWorkspaceSse() {
+  stopWorkspaceSse = subscribeSseRefresh(SseStream.SSE_STREAM_ADMIN, payload => {
+    queueWorkspaceRefresh(payload.targets.filter(isWorkspaceRefreshTarget));
+  });
+}
+
+/** 判断推送目标是否属于工作台当前支持的刷新目标。 */
+function isWorkspaceRefreshTarget(target: SseRefreshTarget) {
+  return workspaceRefreshTargets.includes(target);
+}
+
+/** 将短时间内的刷新目标合并，避免连续事件造成接口抖动。 */
+function queueWorkspaceRefresh(targets: SseRefreshTarget[]) {
+  normalizeRefreshTargets(targets).forEach(target => queuedRefreshTargets.add(target));
+  if (queuedRefreshTargets.size === 0) {
+    return;
+  }
+
+  if (workspaceRefreshTimer) {
+    clearTimeout(workspaceRefreshTimer);
+  }
+  workspaceRefreshTimer = setTimeout(() => {
+    const targets = [...queuedRefreshTargets];
+    queuedRefreshTargets = new Set<SseRefreshTarget>();
+    workspaceRefreshTimer = null;
+    void refreshWorkspaceTargets(targets);
+  }, 300);
+}
+
 onMounted(() => {
+  startWorkspaceSse();
   void loadWorkspaceData();
+});
+
+onBeforeUnmount(() => {
+  if (workspaceRefreshTimer) {
+    clearTimeout(workspaceRefreshTimer);
+    workspaceRefreshTimer = null;
+  }
+  stopWorkspaceSse?.();
+  stopWorkspaceSse = null;
 });
 
 watch(

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"shop/pkg/errorsx"
 	"shop/pkg/queue"
+	"shop/pkg/workspaceevent"
 	"strings"
 
 	adminv1 "shop/api/gen/go/admin/v1"
@@ -302,6 +303,7 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 	}
 	// 商品创建成功后，再异步同步最新商品快照到推荐系统。
 	queue.DispatchRecommendSyncGoodsInfo(goodsInfo.ID)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 
@@ -345,6 +347,7 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 	}
 	// 商品更新成功后，再异步同步最新商品快照到推荐系统。
 	queue.DispatchRecommendSyncGoodsInfo(goodsInfo.ID)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 
@@ -365,6 +368,7 @@ func (c *GoodsInfoCase) DeleteGoodsInfo(ctx context.Context, id string) error {
 	}
 	// 商品删除成功后，再异步清理推荐系统中的商品主体。
 	queue.DispatchRecommendDeleteGoodsInfo(ids)
+	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 
@@ -379,6 +383,7 @@ func (c *GoodsInfoCase) SetGoodsInfoStatus(ctx context.Context, req *adminv1.Set
 	}
 	// 商品状态变更成功后，再异步同步最新状态到推荐系统。
 	queue.DispatchRecommendSyncGoodsInfo(req.GetId())
+	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 

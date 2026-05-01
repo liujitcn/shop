@@ -12,7 +12,7 @@ import (
 
 const TableNameCommentReview = "comment_review"
 
-// CommentReview 评价统一审核记录
+// CommentReview 评价审核信息
 type CommentReview struct {
 	ID           int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:审核记录ID" json:"id"`                                                                                                                                                                                                     // 审核记录ID
 	TargetType   int32          `gorm:"column:target_type;type:tinyint;not null;index:idx_comment_review_target_type_target_id_created_at,priority:1;comment:审核目标类型：枚举【CommentReviewTargetType】" json:"target_type"`                                                                                                      // 审核目标类型：枚举【CommentReviewTargetType】
