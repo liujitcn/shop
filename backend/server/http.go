@@ -175,7 +175,9 @@ func NewHTTPServer(
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
 	base.RegisterFileServiceHTTPServer(srv, fileSvc)
 	basev1.RegisterLoginServiceHTTPServer(srv, login)
+	// MCP 需要保留 Streamable HTTP 的原始请求体和流式响应，使用自定义 HTTP 适配器。
 	base.RegisterMcpServiceHTTPServer(srv, mcpSvc)
+	// SSE 需要直接写入事件流响应，使用自定义 HTTP 适配器避免默认 JSON 响应。
 	base.RegisterSseServiceHTTPServer(srv, sseSvc)
 
 	ossRootDirectory := "./data"
