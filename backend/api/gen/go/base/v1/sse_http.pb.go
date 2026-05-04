@@ -31,6 +31,7 @@ type SseServiceHTTPServer interface {
 func RegisterSseServiceHTTPServer(s *http.Server, srv SseServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/events/{stream}", _SseService_SubscribeSse0_HTTP_Handler(srv))
+	r.GET("/events", _SseService_SubscribeSse1_HTTP_Handler(srv))
 }
 
 func _SseService_SubscribeSse0_HTTP_Handler(srv SseServiceHTTPServer) func(ctx http.Context) error {
@@ -40,6 +41,25 @@ func _SseService_SubscribeSse0_HTTP_Handler(srv SseServiceHTTPServer) func(ctx h
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationSseServiceSubscribeSse)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SubscribeSse(ctx, req.(*SubscribeSseRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _SseService_SubscribeSse1_HTTP_Handler(srv SseServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SubscribeSseRequest
+		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationSseServiceSubscribeSse)
@@ -71,7 +91,7 @@ func NewSseServiceHTTPClient(client *http.Client) SseServiceHTTPClient {
 // SubscribeSse 订阅SSE事件流
 func (c *SseServiceHTTPClientImpl) SubscribeSse(ctx context.Context, in *SubscribeSseRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/events/{stream}"
+	pattern := "/events"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSseServiceSubscribeSse))
 	opts = append(opts, http.PathTemplate(pattern))

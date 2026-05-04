@@ -379,9 +379,23 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseUserCase2 := biz3.NewBaseUserCase(baseUserRepository)
 	loginCase := biz3.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2)
 	loginService := base.NewLoginService(loginCase)
-	mcpCase := biz3.NewMcpCase()
+	mcpCase, err := biz3.NewMcpCase(context, baseAPIRepository)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	mcpService := base.NewMcpService(mcpCase)
-	sseCase := biz3.NewSseCase()
+	sseCase, err := biz3.NewSseCase(context, authenticator)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
 	sseService := base.NewSseService(sseCase)
 	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService, mcpService, sseService)
 	if err != nil {
@@ -392,23 +406,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	httpMiddlewares := server.NewHTTPMiddleware(context, authenticator, baseUserRepository, engine, userToken, authentication_Jwt)
-	mcpHTTPHandler, err := server.NewMcpHTTPHandler(context, baseAPIRepository)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	sseHTTPHandler, err := server.NewSseHTTPHandler(context, authenticator)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
-	httpServer, err := server.NewHTTPServer(context, httpMiddlewares, mcpHTTPHandler, sseHTTPHandler, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService, mcpService, sseService)
+	httpServer, err := server.NewHTTPServer(context, httpMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, configService, fileService, loginService, mcpService, sseService)
 	if err != nil {
 		cleanup4()
 		cleanup3()

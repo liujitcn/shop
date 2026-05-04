@@ -5532,6 +5532,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RefreshTokenResponse'
+    /events:
+        get:
+            tags:
+                - SseService
+            description: 订阅SSE事件流
+            operationId: SseService_SubscribeSse
+            parameters:
+                - name: stream
+                  in: query
+                  schema:
+                    enum:
+                        - SSE_STREAM_UNSPECIFIED
+                        - SSE_STREAM_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /events/{stream}:
         get:
             tags:
@@ -5546,6 +5565,60 @@ paths:
                     enum:
                         - SSE_STREAM_UNSPECIFIED
                         - SSE_STREAM_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /mcp:
+        get:
+            tags:
+                - McpService
+            description: 处理MCP Streamable HTTP请求
+            operationId: McpService_HandleMcp
+            parameters:
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_MCP_TERMINAL
+                        - MCP_TERMINAL_APP
+                        - MCP_TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        post:
+            tags:
+                - McpService
+            description: 处理MCP Streamable HTTP请求
+            operationId: McpService_HandleMcp
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/HandleMcpRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - McpService
+            description: 处理MCP Streamable HTTP请求
+            operationId: McpService_HandleMcp
+            parameters:
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_MCP_TERMINAL
+                        - MCP_TERMINAL_APP
+                        - MCP_TERMINAL_ADMIN
                     type: string
                     format: enum
             responses:

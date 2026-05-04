@@ -25,8 +25,11 @@ type McpServiceHTTPServer interface {
 
 func RegisterMcpServiceHTTPServer(s *http.Server, srv McpServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/mcp", _McpService_HandleMcp0_HTTP_Handler(srv))
 	r.GET("/mcp/{terminal}", _McpService_HandleMcp0_HTTP_Handler(srv))
+	r.DELETE("/mcp", _McpService_HandleMcp1_HTTP_Handler(srv))
 	r.DELETE("/mcp/{terminal}", _McpService_HandleMcp1_HTTP_Handler(srv))
+	r.POST("/mcp", _McpService_HandleMcp2_HTTP_Handler(srv))
 	r.POST("/mcp/{terminal}", _McpService_HandleMcp2_HTTP_Handler(srv))
 }
 
@@ -47,8 +50,8 @@ func _McpService_HandleMcp0_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
+		_ = out.(*emptypb.Empty)
+		return nil
 	}
 }
 
@@ -69,17 +72,14 @@ func _McpService_HandleMcp1_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
+		_ = out.(*emptypb.Empty)
+		return nil
 	}
 }
 
 func _McpService_HandleMcp2_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.HandleMcpRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -94,8 +94,8 @@ func _McpService_HandleMcp2_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
+		_ = out.(*emptypb.Empty)
+		return nil
 	}
 }
 

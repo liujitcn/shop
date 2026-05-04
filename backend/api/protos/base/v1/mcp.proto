@@ -12,8 +12,18 @@ service McpService {
   // 处理MCP Streamable HTTP请求
   rpc HandleMcp(HandleMcpRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/mcp/{terminal}"
+      post: "/mcp"
       body: "*"
+      additional_bindings {
+        get: "/mcp"
+      }
+      additional_bindings {
+        delete: "/mcp"
+      }
+      additional_bindings {
+        post: "/mcp/{terminal}"
+        body: "*"
+      }
       additional_bindings {
         get: "/mcp/{terminal}"
       }

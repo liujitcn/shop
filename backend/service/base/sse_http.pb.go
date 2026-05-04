@@ -25,6 +25,7 @@ type SseServiceHTTPServer interface {
 
 func RegisterSseServiceHTTPServer(s *http.Server, srv SseServiceHTTPServer) {
 	r := s.Route("/")
+	r.GET("/events", _SseService_SubscribeSse0_HTTP_Handler(srv))
 	r.GET("/events/{stream}", _SseService_SubscribeSse0_HTTP_Handler(srv))
 }
 
@@ -45,8 +46,8 @@ func _SseService_SubscribeSse0_HTTP_Handler(srv SseServiceHTTPServer) func(ctx h
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
+		_ = out.(*emptypb.Empty)
+		return nil
 	}
 }
 

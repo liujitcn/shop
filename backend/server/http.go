@@ -57,8 +57,6 @@ func NewHTTPMiddleware(
 func NewHTTPServer(
 	ctx *bootstrap.Context,
 	middlewares HTTPMiddlewares,
-	mcpHTTPHandler *McpHTTPHandler,
-	sseHTTPHandler *SseHTTPHandler,
 
 	adminAuth *admin.AuthService,
 	adminBaseAPI *admin.BaseApiService,
@@ -124,15 +122,6 @@ func NewHTTPServer(
 	if err != nil {
 		return nil, err
 	}
-
-	// MCP 复用当前 HTTP 服务端口，通过 /mcp 暴露 Streamable HTTP 入口。
-	mcpRoute := srv.Route("/")
-	mcpHandler := standardHTTPHandler(mcpHTTPHandler.Handler)
-	mcpRoute.POST(mcpDefaultEndpointPath, mcpHandler)
-	mcpRoute.GET(mcpDefaultEndpointPath, mcpHandler)
-	mcpRoute.DELETE(mcpDefaultEndpointPath, mcpHandler)
-	// SSE 复用当前 HTTP 服务端口，通过 /events 暴露工作台局部刷新入口。
-	srv.Route("/").GET(defaultSsePath, standardHTTPHandler(sseHTTPHandler.Handler))
 
 	adminv1.RegisterAuthServiceHTTPServer(srv, adminAuth)
 	adminv1.RegisterBaseApiServiceHTTPServer(srv, adminBaseAPI)
@@ -212,14 +201,6 @@ func NewHTTPServer(
 	}
 
 	return srv, nil
-}
-
-// standardHTTPHandler 将标准 HTTP 处理器适配为 Kratos HTTP handler。
-func standardHTTPHandler(handler stdhttp.Handler) kratosHTTP.HandlerFunc {
-	return func(ctx kratosHTTP.Context) error {
-		handler.ServeHTTP(ctx.Response(), ctx.Request())
-		return nil
-	}
 }
 
 // registerLocalSPARoutes 扫描根目录下包含 index.html 的子目录，并按目录名注册单页应用路由。

@@ -77,10 +77,10 @@ const file_base_v1_mcp_proto_rawDesc = "" +
 	"\n" +
 	"\x11base/v1/mcp.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Z\n" +
 	"\x10HandleMcpRequest\x12F\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x16.common.v1.McpTerminalB\x12\xbaG\x0f\x92\x02\f终端类型R\bterminal2\x8f\x01\n" +
+	"\bterminal\x18\x01 \x01(\x0e2\x16.common.v1.McpTerminalB\x12\xbaG\x0f\x92\x02\f终端类型R\bterminal2\xaa\x01\n" +
 	"\n" +
-	"McpService\x12\x80\x01\n" +
-	"\tHandleMcp\x12\x19.base.v1.HandleMcpRequest\x1a\x16.google.protobuf.Empty\"@\x82\xd3\xe4\x93\x02::\x01*Z\x11\x12\x0f/mcp/{terminal}Z\x11*\x0f/mcp/{terminal}\"\x0f/mcp/{terminal}Bt\n" +
+	"McpService\x12\x9b\x01\n" +
+	"\tHandleMcp\x12\x19.base.v1.HandleMcpRequest\x1a\x16.google.protobuf.Empty\"[\x82\xd3\xe4\x93\x02U:\x01*Z\x06\x12\x04/mcpZ\x06*\x04/mcpZ\x14:\x01*\"\x0f/mcp/{terminal}Z\x11\x12\x0f/mcp/{terminal}Z\x11*\x0f/mcp/{terminal}\"\x04/mcpBt\n" +
 	"\vcom.base.v1B\bMcpProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
 var (
