@@ -5532,6 +5532,93 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/RefreshTokenResponse'
+    /events/{stream}:
+        get:
+            tags:
+                - SseService
+            description: 订阅SSE事件流
+            operationId: SseService_SubscribeSse
+            parameters:
+                - name: stream
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - SSE_STREAM_UNSPECIFIED
+                        - SSE_STREAM_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /mcp/{terminal}:
+        get:
+            tags:
+                - McpService
+            description: 处理MCP Streamable HTTP请求
+            operationId: McpService_HandleMcp
+            parameters:
+                - name: terminal
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - UNKNOWN_MCP_TERMINAL
+                        - MCP_TERMINAL_APP
+                        - MCP_TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        post:
+            tags:
+                - McpService
+            description: 处理MCP Streamable HTTP请求
+            operationId: McpService_HandleMcp
+            parameters:
+                - name: terminal
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - UNKNOWN_MCP_TERMINAL
+                        - MCP_TERMINAL_APP
+                        - MCP_TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/HandleMcpRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+        delete:
+            tags:
+                - McpService
+            description: 处理MCP Streamable HTTP请求
+            operationId: McpService_HandleMcp
+            parameters:
+                - name: terminal
+                  in: path
+                  required: true
+                  schema:
+                    enum:
+                        - UNKNOWN_MCP_TERMINAL
+                        - MCP_TERMINAL_APP
+                        - MCP_TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content: {}
 components:
     schemas:
         AnalyticsPieItem:
@@ -8182,6 +8269,18 @@ components:
                     type: string
                     description: 支付url
             description: H5 支付响应
+        HandleMcpRequest:
+            type: object
+            properties:
+                terminal:
+                    enum:
+                        - UNKNOWN_MCP_TERMINAL
+                        - MCP_TERMINAL_APP
+                        - MCP_TERMINAL_ADMIN
+                    type: string
+                    description: 终端类型
+                    format: enum
+            description: MCP请求参数
         ImportDataRequest:
             type: object
             properties:
@@ -11890,9 +11989,9 @@ tags:
     - name: GoodsAnalyticsService
       description: Admin商品分析服务
     - name: GoodsCategoryService
-      description: Admin商品分类服务
-    - name: GoodsCategoryService
       description: App商品分类服务
+    - name: GoodsCategoryService
+      description: Admin商品分类服务
     - name: GoodsInfoService
       description: Admin商品信息服务
     - name: GoodsInfoService
@@ -11907,6 +12006,8 @@ tags:
       description: Admin商品规格服务
     - name: LoginService
       description: Base登录公共服务
+    - name: McpService
+      description: Base MCP服务
     - name: OrderAnalyticsService
       description: Admin订单分析服务
     - name: OrderInfoService
@@ -11926,17 +12027,19 @@ tags:
     - name: RecommendService
       description: App推荐服务
     - name: ShopBannerService
-      description: Admin商城轮播图服务
-    - name: ShopBannerService
       description: App商城轮播图服务
-    - name: ShopHotService
-      description: Admin商城热门推荐服务
+    - name: ShopBannerService
+      description: Admin商城轮播图服务
     - name: ShopHotService
       description: App热门推荐服务
-    - name: ShopServiceService
-      description: Admin商城服务
+    - name: ShopHotService
+      description: Admin商城热门推荐服务
     - name: ShopServiceService
       description: App商城服务说明服务
+    - name: ShopServiceService
+      description: Admin商城服务
+    - name: SseService
+      description: Base SSE服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService

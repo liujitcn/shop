@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "common/v1/enum.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// Base MCP服务
+service McpService {
+  // 处理MCP Streamable HTTP请求
+  rpc HandleMcp(HandleMcpRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/mcp/{terminal}"
+      body: "*"
+      additional_bindings {
+        get: "/mcp/{terminal}"
+      }
+      additional_bindings {
+        delete: "/mcp/{terminal}"
+      }
+    };
+  }
+}
+
+// MCP请求参数
+message HandleMcpRequest {
+  common.v1.McpTerminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型"}]; // 终端类型
+}

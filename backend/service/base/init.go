@@ -14,8 +14,12 @@ var ProviderSet = wire.NewSet(
 	biz.NewConfigCase,
 	biz.NewFileCase,
 	biz.NewLoginCase,
+	biz.NewMcpCase,
+	biz.NewSseCase,
 
 	NewConfigService,
 	NewFileService,
 	NewLoginService,
+	NewMcpService,
+	NewSseService,
 )

@@ -111,6 +111,8 @@ func NewHTTPServer(
 	config *base.ConfigService,
 	fileSvc *base.FileService,
 	login *base.LoginService,
+	mcpSvc *base.McpService,
+	sseSvc *base.SseService,
 ) (*kratosHTTP.Server, error) {
 	cfg := ctx.GetConfig()
 	// 未启用 HTTP 配置时，跳过 HTTP 服务创建。
@@ -184,6 +186,8 @@ func NewHTTPServer(
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
 	base.RegisterFileServiceHTTPServer(srv, fileSvc)
 	basev1.RegisterLoginServiceHTTPServer(srv, login)
+	base.RegisterMcpServiceHTTPServer(srv, mcpSvc)
+	base.RegisterSseServiceHTTPServer(srv, sseSvc)
 
 	ossRootDirectory := "./data"
 	// 配置了本地 OSS 根目录时，优先使用配置值覆盖默认目录。

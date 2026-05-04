@@ -468,3 +468,13 @@ export enum ResourceType {
   /** REFUND - 退款 */
   REFUND = 1,
 }
+
+/** MCP终端类型 */
+export enum McpTerminal {
+  /** UNKNOWN_MCP_TERMINAL - 未知终端 */
+  UNKNOWN_MCP_TERMINAL = 0,
+  /** MCP_TERMINAL_APP - 移动端 */
+  MCP_TERMINAL_APP = 1,
+  /** MCP_TERMINAL_ADMIN - 管理端 */
+  MCP_TERMINAL_ADMIN = 2,
+}

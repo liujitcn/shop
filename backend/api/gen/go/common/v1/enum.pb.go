@@ -2110,6 +2110,56 @@ func (ResourceType) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{38}
 }
 
+// MCP终端类型
+type McpTerminal int32
+
+const (
+	McpTerminal_UNKNOWN_MCP_TERMINAL McpTerminal = 0 // 未知终端
+	McpTerminal_MCP_TERMINAL_APP     McpTerminal = 1 // 移动端
+	McpTerminal_MCP_TERMINAL_ADMIN   McpTerminal = 2 // 管理端
+)
+
+// Enum value maps for McpTerminal.
+var (
+	McpTerminal_name = map[int32]string{
+		0: "UNKNOWN_MCP_TERMINAL",
+		1: "MCP_TERMINAL_APP",
+		2: "MCP_TERMINAL_ADMIN",
+	}
+	McpTerminal_value = map[string]int32{
+		"UNKNOWN_MCP_TERMINAL": 0,
+		"MCP_TERMINAL_APP":     1,
+		"MCP_TERMINAL_ADMIN":   2,
+	}
+)
+
+func (x McpTerminal) Enum() *McpTerminal {
+	p := new(McpTerminal)
+	*p = x
+	return p
+}
+
+func (x McpTerminal) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (McpTerminal) Descriptor() protoreflect.EnumDescriptor {
+	return file_common_v1_enum_proto_enumTypes[39].Descriptor()
+}
+
+func (McpTerminal) Type() protoreflect.EnumType {
+	return &file_common_v1_enum_proto_enumTypes[39]
+}
+
+func (x McpTerminal) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use McpTerminal.Descriptor instead.
+func (McpTerminal) EnumDescriptor() ([]byte, []int) {
+	return file_common_v1_enum_proto_rawDescGZIP(), []int{39}
+}
+
 var File_common_v1_enum_proto protoreflect.FileDescriptor
 
 const file_common_v1_enum_proto_rawDesc = "" +
@@ -2337,7 +2387,11 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\fResourceType\x12\x0f\n" +
 	"\vTRANSACTION\x10\x00\x12\n" +
 	"\n" +
-	"\x06REFUND\x10\x01B\x83\x01\n" +
+	"\x06REFUND\x10\x01*U\n" +
+	"\vMcpTerminal\x12\x18\n" +
+	"\x14UNKNOWN_MCP_TERMINAL\x10\x00\x12\x14\n" +
+	"\x10MCP_TERMINAL_APP\x10\x01\x12\x16\n" +
+	"\x12MCP_TERMINAL_ADMIN\x10\x02B\x83\x01\n" +
 	"\rcom.common.v1B\tEnumProtoP\x01Z\"shop/api/gen/go/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
 	"Common::V1b\x06proto3"
 
@@ -2353,7 +2407,7 @@ func file_common_v1_enum_proto_rawDescGZIP() []byte {
 	return file_common_v1_enum_proto_rawDescData
 }
 
-var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 39)
+var file_common_v1_enum_proto_enumTypes = make([]protoimpl.EnumInfo, 40)
 var file_common_v1_enum_proto_goTypes = []any{
 	(Status)(0),                    // 0: common.v1.Status
 	(BaseConfigSite)(0),            // 1: common.v1.BaseConfigSite
@@ -2394,6 +2448,7 @@ var file_common_v1_enum_proto_goTypes = []any{
 	(CommentFilterType)(0),         // 36: common.v1.CommentFilterType
 	(CommentSortType)(0),           // 37: common.v1.CommentSortType
 	(ResourceType)(0),              // 38: common.v1.ResourceType
+	(McpTerminal)(0),               // 39: common.v1.McpTerminal
 }
 var file_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -2413,7 +2468,7 @@ func file_common_v1_enum_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_enum_proto_rawDesc), len(file_common_v1_enum_proto_rawDesc)),
-			NumEnums:      39,
+			NumEnums:      40,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   0,

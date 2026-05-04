@@ -102,6 +102,8 @@ func NewGRPCServer(
 	config *base.ConfigService,
 	file *base.FileService,
 	login *base.LoginService,
+	mcp *base.McpService,
+	sse *base.SseService,
 ) (*grpc.Server, error) {
 	cfg := ctx.GetConfig()
 	// 未启用 GRPC 配置时，跳过 GRPC 服务创建。
@@ -164,6 +166,8 @@ func NewGRPCServer(
 	basev1.RegisterConfigServiceServer(srv, config)
 	basev1.RegisterFileServiceServer(srv, file)
 	basev1.RegisterLoginServiceServer(srv, login)
+	basev1.RegisterMcpServiceServer(srv, mcp)
+	basev1.RegisterSseServiceServer(srv, sse)
 
 	return srv, nil
 }

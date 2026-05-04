@@ -320,3 +320,10 @@ enum ResourceType {
   TRANSACTION = 0; // 支付
   REFUND = 1; // 退款
 }
+
+// MCP终端类型
+enum McpTerminal {
+  UNKNOWN_MCP_TERMINAL = 0; // 未知终端
+  MCP_TERMINAL_APP = 1; // 移动端
+  MCP_TERMINAL_ADMIN = 2; // 管理端
+}
