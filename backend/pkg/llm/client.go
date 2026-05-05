@@ -70,17 +70,18 @@ func (c *Client) Model() string {
 func (c *Client) ReviewComment(ctx context.Context, req CommentReviewRequest) (*CommentReviewResult, error) {
 	content := strings.TrimSpace(req.Content)
 	imageURLs := cleanStringList(req.ImageURLs)
+	imageData := cleanCommentReviewImageData(req.ImageData)
 	// 文本和图片都为空时，视为无公开风险，调用方可结合评分直接处理。
-	if content == "" && len(imageURLs) == 0 {
+	if content == "" && len(imageURLs) == 0 && len(imageData) == 0 {
 		return &CommentReviewResult{Approved: true}, nil
 	}
 
-	parts := make([]any, 0, len(imageURLs)+1)
+	parts := make([]any, 0, len(imageURLs)+len(imageData)+1)
 	payload := map[string]any{
 		"goodsName":  strings.TrimSpace(req.GoodsName),
 		"skuDesc":    strings.TrimSpace(req.SKUDesc),
 		"content":    content,
-		"imageCount": len(imageURLs),
+		"imageCount": len(imageURLs) + len(imageData),
 	}
 	rawPayload, err := json.Marshal(payload)
 	if err != nil {
@@ -95,6 +96,13 @@ func (c *Client) ReviewComment(ctx context.Context, req CommentReviewRequest) (*
 			MIMEType: imageMimeType(imageURL),
 		})
 	}
+	for _, image := range imageData {
+		parts = append(parts, blades.DataPart{
+			Name:     image.Name,
+			Bytes:    image.Bytes,
+			MIMEType: imageDataMimeType(image.MIMEType, image.Name),
+		})
+	}
 
 	var schema *jsonschema.Schema
 	schema, err = jsonschema.For[CommentReviewResult](nil)
@@ -106,6 +114,27 @@ func (c *Client) ReviewComment(ctx context.Context, req CommentReviewRequest) (*
 	if err != nil {
 		return nil, err
 	}
+	c.normalizeCommentReviewResult(result)
+	if c.commentReviewNeedsConcreteReason(result) {
+		retryParts := append([]any(nil), parts...)
+		retryParts = append(retryParts, "上一次审核结果缺少具体不通过原因。请重新审核：如果不通过，riskReason 必须说明违规类别、命中的文本片段或图片序号、具体判定依据，例如“图片1疑似色情低俗：出现裸露身体部位，不适合公开展示”。不要只写“内容安全风险”或“审核不通过”。")
+		err = c.generateStructured(ctx, c.commentReviewInstruction, retryParts, schema, result)
+		if err != nil {
+			return nil, err
+		}
+		c.normalizeCommentReviewResult(result)
+	}
+	if c.commentReviewNeedsConcreteReason(result) {
+		return nil, fmt.Errorf("llm review rejected without concrete reason")
+	}
+	return result, nil
+}
+
+// normalizeCommentReviewResult 规范化评论审核结果。
+func (c *Client) normalizeCommentReviewResult(result *CommentReviewResult) {
+	if result == nil {
+		return
+	}
 	result.RiskReason = strings.TrimSpace(result.RiskReason)
 	result.Tags = cleanStringList(result.Tags)
 	// 模型可能返回过多标签，最多保留 5 个用于前台展示。
@@ -116,7 +145,14 @@ func (c *Client) ReviewComment(ctx context.Context, req CommentReviewRequest) (*
 	if result.TextRisk || result.ImageRisk {
 		result.Approved = false
 	}
-	return result, nil
+}
+
+// commentReviewNeedsConcreteReason 判断拒绝结果是否缺少具体原因。
+func (c *Client) commentReviewNeedsConcreteReason(result *CommentReviewResult) bool {
+	if result == nil || result.Approved {
+		return false
+	}
+	return !hasConcreteReviewReason(result.RiskReason)
 }
 
 // GenerateCommentAi 生成商品评价 AI 摘要数据。
@@ -199,6 +235,74 @@ func (c *Client) generateStructured(
 		return fmt.Errorf("decode llm structured response: %w", err)
 	}
 	return nil
+}
+
+// imageDataMimeType 按图片字节元信息推断 MIME 类型。
+func imageDataMimeType(rawMIMEType string, name string) blades.MIMEType {
+	cleanMIMEType := strings.ToLower(strings.TrimSpace(rawMIMEType))
+	// 调用方已经提供图片 MIME 类型时，优先使用该值。
+	if strings.HasPrefix(cleanMIMEType, "image/png") {
+		return blades.MIMEImagePNG
+	}
+	// 调用方已经提供图片 MIME 类型时，优先使用该值。
+	if strings.HasPrefix(cleanMIMEType, "image/webp") {
+		return blades.MIMEImageWEBP
+	}
+	// 调用方已经提供图片 MIME 类型时，优先使用该值。
+	if strings.HasPrefix(cleanMIMEType, "image/jpeg") || strings.HasPrefix(cleanMIMEType, "image/jpg") {
+		return blades.MIMEImageJPEG
+	}
+	return imageMimeType(name)
+}
+
+// cleanCommentReviewImageData 清理评论审核图片字节列表。
+func cleanCommentReviewImageData(values []CommentReviewImageData) []CommentReviewImageData {
+	result := make([]CommentReviewImageData, 0, len(values))
+	for index, value := range values {
+		// 图片字节为空时无法参与多模态审核。
+		if len(value.Bytes) == 0 {
+			continue
+		}
+		value.Name = strings.TrimSpace(value.Name)
+		if value.Name == "" {
+			value.Name = fmt.Sprintf("comment-image-%d", index+1)
+		}
+		value.MIMEType = strings.TrimSpace(value.MIMEType)
+		result = append(result, value)
+	}
+	return result
+}
+
+// hasConcreteReviewReason 判断审核原因是否包含具体违规线索。
+func hasConcreteReviewReason(reason string) bool {
+	reason = strings.TrimSpace(reason)
+	if reason == "" {
+		return false
+	}
+	genericReasons := []string{
+		"审核不通过",
+		"LLM审核不通过",
+		"内容安全风险",
+		"评价内容未通过内容安全审核",
+		"评价文本命中内容安全风险",
+		"评价图片命中内容安全风险",
+	}
+	for _, genericReason := range genericReasons {
+		// 完全等于泛化文案时，不能作为可解释拒绝原因。
+		if strings.EqualFold(reason, genericReason) {
+			return false
+		}
+	}
+	evidenceKeywords := []string{
+		"色情", "低俗", "裸露", "暴力", "血腥", "违法", "违禁", "政治", "辱骂", "攻击", "广告", "引流", "二维码", "联系方式", "隐私", "无关",
+		"文本", "片段", "图片", "第", "疑似", "出现", "包含", "涉及", "命中",
+	}
+	for _, keyword := range evidenceKeywords {
+		if strings.Contains(reason, keyword) {
+			return true
+		}
+	}
+	return len([]rune(reason)) >= 12
 }
 
 // imageMimeType 按图片地址推断 MIME 类型。

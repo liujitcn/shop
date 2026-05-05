@@ -3,6 +3,9 @@ package biz
 import (
 	"context"
 	"fmt"
+	"net"
+	"net/url"
+	"path"
 	"strconv"
 	"strings"
 
@@ -23,6 +26,7 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gen"
 )
 
@@ -724,11 +728,17 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置")
 	}
 
+	imageURLs, imageData, err := c.buildCommentReviewImages(record.Img)
+	if err != nil {
+		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error())
+	}
+
 	result, err := c.llmClient.ReviewComment(ctx, llm.CommentReviewRequest{
 		GoodsName: record.GoodsNameSnapshot,
 		SKUDesc:   record.SKUDescSnapshot,
 		Content:   record.Content,
-		ImageURLs: _string.ConvertJsonStringToStringArray(record.Img),
+		ImageURLs: imageURLs,
+		ImageData: imageData,
 	})
 	if err != nil {
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error())
@@ -738,9 +748,116 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空")
 	}
 	if !result.Approved {
+		if !commentReviewHasConcreteReason(result) {
+			return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, "LLM审核不通过但未返回具体违规原因")
+		}
 		return c.rejectCommentByAI(ctx, record, result)
 	}
 	return c.approveCommentByAI(ctx, record, result)
+}
+
+// buildCommentReviewImages 构建评价审核使用的图片输入。
+func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []llm.CommentReviewImageData, error) {
+	images := _string.ConvertJsonStringToStringArray(rawImages)
+	imageURLs := make([]string, 0, len(images))
+	imageData := make([]llm.CommentReviewImageData, 0, len(images))
+	for _, image := range images {
+		cleanImage := strings.TrimSpace(image)
+		// 图片地址为空时跳过无效项。
+		if cleanImage == "" {
+			continue
+		}
+		// 绝对地址和 data URL 可直接交给模型服务识别。
+		if isLLMImageURL(cleanImage) {
+			imageURLs = append(imageURLs, cleanImage)
+			continue
+		}
+		bytes, err := c.readCommentReviewImage(commentReviewImagePath(cleanImage))
+		if err != nil {
+			return nil, nil, err
+		}
+		imageData = append(imageData, llm.CommentReviewImageData{
+			Name:     path.Base(cleanImage),
+			Bytes:    bytes,
+			MIMEType: commentReviewImageMIMEType(cleanImage),
+		})
+	}
+	return imageURLs, imageData, nil
+}
+
+// readCommentReviewImage 读取评价审核本地或对象存储图片内容。
+func (c *CommentCase) readCommentReviewImage(imagePath string) ([]byte, error) {
+	oss := sdk.Runtime.GetOSS()
+	if oss == nil {
+		return nil, fmt.Errorf("OSS未初始化，无法读取评价图片 %s", imagePath)
+	}
+	bytes, err := oss.GetFileByte(imagePath)
+	if err != nil {
+		return nil, fmt.Errorf("读取评价图片失败 %s: %w", imagePath, err)
+	}
+	if len(bytes) == 0 {
+		return nil, fmt.Errorf("评价图片内容为空 %s", imagePath)
+	}
+	return bytes, nil
+}
+
+// isLLMImageURL 判断图片地址是否可直接作为多模态 URL 输入。
+func isLLMImageURL(imageURL string) bool {
+	parsedURL, err := url.Parse(strings.TrimSpace(imageURL))
+	if err != nil {
+		return false
+	}
+	// HTTP(S) 绝对地址和 data URL 是 OpenAI 兼容 image_url 接口可识别的格式。
+	switch strings.ToLower(parsedURL.Scheme) {
+	case "http", "https":
+		return parsedURL.Host != "" && !isLocalShopImageURL(parsedURL)
+	case "data":
+		return strings.HasPrefix(strings.ToLower(strings.TrimSpace(imageURL)), "data:image/")
+	default:
+		return false
+	}
+}
+
+// commentReviewImagePath 提取评价图片在 OSS 中的对象路径。
+func commentReviewImagePath(imagePath string) string {
+	parsedURL, err := url.Parse(strings.TrimSpace(imagePath))
+	if err != nil || parsedURL.Scheme == "" {
+		return imagePath
+	}
+	return parsedURL.Path
+}
+
+// isLocalShopImageURL 判断图片是否为本服务托管的本地静态资源。
+func isLocalShopImageURL(parsedURL *url.URL) bool {
+	if parsedURL == nil || !strings.HasPrefix(parsedURL.Path, "/shop/") {
+		return false
+	}
+	host := strings.TrimSpace(parsedURL.Hostname())
+	ip := net.ParseIP(host)
+	// 本机或内网地址无法被远端模型服务访问，需要转为图片字节输入。
+	if ip != nil {
+		return ip.IsLoopback() || ip.IsPrivate()
+	}
+	return strings.EqualFold(host, "localhost")
+}
+
+// commentReviewImageMIMEType 按图片路径推断审核图片 MIME 类型。
+func commentReviewImageMIMEType(imagePath string) string {
+	lowerPath := strings.ToLower(strings.TrimSpace(imagePath))
+	queryIndex := strings.Index(lowerPath, "?")
+	// 图片路径携带查询参数时，先剔除查询部分再判断扩展名。
+	if queryIndex >= 0 {
+		lowerPath = lowerPath[:queryIndex]
+	}
+	// 按常见图片扩展名推断 MIME 类型，未知格式默认按 JPEG 处理。
+	switch {
+	case strings.HasSuffix(lowerPath, ".png"):
+		return "image/png"
+	case strings.HasSuffix(lowerPath, ".webp"):
+		return "image/webp"
+	default:
+		return "image/jpeg"
+	}
 }
 
 // approveCommentByAI 将评价审核通过结果写入业务表和审核记录。
@@ -771,17 +888,14 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 
 // rejectCommentByAI 将评价审核不通过结果写入业务表和审核记录。
 func (c *CommentCase) rejectCommentByAI(ctx context.Context, record *models.CommentInfo, result *llm.CommentReviewResult) error {
-	reason := strings.TrimSpace(result.RiskReason)
-	// 模型没有给出明确原因时，使用统一兜底文案方便后台识别。
-	if reason == "" {
-		reason = "LLM审核不通过"
-	}
+	reason := commentReviewRejectReason(result)
+	tags := commentReviewTags(result)
 	err := c.transaction(ctx, func(txCtx context.Context) error {
 		err := c.commentInfoCase.UpdateStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
 		if err != nil {
 			return err
 		}
-		return c.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason)
+		return c.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, tags, reason)
 	})
 	if err != nil {
 		return err
@@ -820,6 +934,9 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空")
 	}
 	if !result.Approved {
+		if !commentReviewHasConcreteReason(result) {
+			return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, "LLM审核不通过但未返回具体违规原因")
+		}
 		return c.rejectDiscussionByAI(ctx, record, result)
 	}
 	return c.approveDiscussionByAI(ctx, record, result)
@@ -855,11 +972,8 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 
 // rejectDiscussionByAI 将讨论审核不通过结果写入业务表和审核记录。
 func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *llm.CommentReviewResult) error {
-	reason := strings.TrimSpace(result.RiskReason)
-	// 模型没有给出明确原因时，使用统一兜底文案方便后台识别。
-	if reason == "" {
-		reason = "LLM审核不通过"
-	}
+	reason := commentReviewRejectReason(result)
+	tags := commentReviewTags(result)
 	err := c.transaction(ctx, func(txCtx context.Context) error {
 		err := c.updateDiscussionStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
 		if err != nil {
@@ -869,7 +983,7 @@ func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.C
 		if err != nil {
 			return err
 		}
-		return c.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason)
+		return c.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, tags, reason)
 	})
 	if err != nil {
 		return err
@@ -1044,6 +1158,52 @@ func formatCommentStatus(status int32) string {
 	default:
 		return fmt.Sprintf("未知状态%d", status)
 	}
+}
+
+// commentReviewRejectReason 根据审核结果生成不通过原因。
+func commentReviewRejectReason(result *llm.CommentReviewResult) string {
+	if result == nil {
+		return "审核服务未返回结果，无法确认内容安全"
+	}
+	reason := strings.TrimSpace(result.RiskReason)
+	if reason != "" {
+		return reason
+	}
+	return "LLM审核不通过但未返回具体违规原因"
+}
+
+// commentReviewHasConcreteReason 判断审核结果是否带有具体违规原因。
+func commentReviewHasConcreteReason(result *llm.CommentReviewResult) bool {
+	if result == nil {
+		return false
+	}
+	reason := strings.TrimSpace(result.RiskReason)
+	if reason == "" {
+		return false
+	}
+	genericReasons := []string{
+		"审核不通过",
+		"LLM审核不通过",
+		"内容安全风险",
+		"评价内容未通过内容安全审核",
+		"评价文本命中内容安全风险",
+		"评价图片命中内容安全风险",
+	}
+	for _, genericReason := range genericReasons {
+		// 完全等于泛化文案时，不允许作为拒绝原因落库。
+		if strings.EqualFold(reason, genericReason) {
+			return false
+		}
+	}
+	return true
+}
+
+// commentReviewTags 获取审核结果标签。
+func commentReviewTags(result *llm.CommentReviewResult) []string {
+	if result == nil {
+		return nil
+	}
+	return result.Tags
 }
 
 // transaction 使用仓库统一事务执行评论写入逻辑。
