@@ -46,6 +46,8 @@ const (
 	mcpArgPositionBody   = "body"
 )
 
+type mcpTerminalContextKey struct{}
+
 type mcpArgMappingItem struct {
 	Name        string `json:"name"`
 	Position    string `json:"position"`
@@ -143,13 +145,18 @@ func (h *McpCase) HandleMcp(ctx context.Context, req *basev1.HandleMcpRequest) (
 	if !ok || r == nil {
 		return nil, errorsx.InvalidArgument("MCP请求仅支持HTTP访问")
 	}
-	h.Handler.ServeHTTP(w, h.normalizeMcpRequest(r))
+	h.Handler.ServeHTTP(w, h.normalizeMcpRequest(r, req.GetTerminal()))
 	return &emptypb.Empty{}, nil
 }
 
 // normalizeMcpRequest 将兼容路由统一转换为 MCP 处理器期望的固定路径。
-func (h *McpCase) normalizeMcpRequest(r *http.Request) *http.Request {
-	clonedRequest := r.Clone(r.Context())
+func (h *McpCase) normalizeMcpRequest(r *http.Request, terminal string) *http.Request {
+	terminal = h.normalizeTerminal(terminal)
+	requestContext := r.Context()
+	if terminal != "" {
+		requestContext = context.WithValue(requestContext, mcpTerminalContextKey{}, terminal)
+	}
+	clonedRequest := r.Clone(requestContext)
 	urlCopy := *r.URL
 	urlCopy.Path = mcpDefaultEndpointPath
 	urlCopy.RawPath = ""
@@ -157,11 +164,23 @@ func (h *McpCase) normalizeMcpRequest(r *http.Request) *http.Request {
 	return clonedRequest
 }
 
+// normalizeTerminal 规范化 MCP 终端短名。
+func (h *McpCase) normalizeTerminal(terminal string) string {
+	switch strings.ToLower(strings.TrimSpace(terminal)) {
+	case "app", "mcp_terminal_app":
+		return "app"
+	case "admin", "mcp_terminal_admin":
+		return "admin"
+	default:
+		return ""
+	}
+}
+
 // registerBaseAPITools 注册 base_api 中的 MCP 工具。
 func (h *McpCase) registerBaseAPITools() error {
 	var err error
 	var apiList []*models.BaseAPI
-	apiList, err = h.listBaseAPIs(context.Background(), false)
+	apiList, err = h.listBaseAPIs(context.Background(), false, "")
 	if err != nil {
 		return err
 	}
@@ -201,11 +220,15 @@ func (h *McpCase) registerBaseAPITools() error {
 }
 
 // listBaseAPIs 查询 base_api 接口元数据。
-func (h *McpCase) listBaseAPIs(ctx context.Context, onlyMcpEnabled bool) ([]*models.BaseAPI, error) {
+func (h *McpCase) listBaseAPIs(ctx context.Context, onlyMcpEnabled bool, terminal string) ([]*models.BaseAPI, error) {
 	query := h.baseAPIRepo.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	if onlyMcpEnabled {
 		opts = append(opts, repository.Where(query.McpEnabled.Is(true)))
+	}
+	terminal = h.normalizeTerminal(terminal)
+	if terminal != "" {
+		opts = append(opts, repository.Where(query.Path.Like("/api/v1/"+terminal+"/%")))
 	}
 	opts = append(opts, repository.Order(query.ServiceName.Asc(), query.Operation.Asc()))
 	return h.baseAPIRepo.List(ctx, opts...)
@@ -216,7 +239,8 @@ func (h *McpCase) filterTools(ctx context.Context, tools []mcp.Tool) []mcp.Tool 
 	if len(tools) == 0 {
 		return nil
 	}
-	apiList, err := h.listBaseAPIs(ctx, true)
+	terminal, _ := ctx.Value(mcpTerminalContextKey{}).(string)
+	apiList, err := h.listBaseAPIs(ctx, true, terminal)
 	if err != nil {
 		log.Errorf("刷新 MCP 工具列表失败 err=%v", err)
 		return nil
@@ -255,6 +279,10 @@ func (h *McpCase) buildToolResult(ctx context.Context, baseAPI *models.BaseAPI, 
 	err = h.ensureBaseAPIEnabled(ctx, baseAPI)
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
+	}
+	terminal, ok := ctx.Value(mcpTerminalContextKey{}).(string)
+	if !ok || !h.matchBaseAPITerminal(baseAPI, terminal) {
+		return mcp.NewToolResultError("MCP 工具不属于当前终端"), nil
 	}
 	// 未配置 HTTP 服务地址时，仅返回工具元数据，避免 MCP 调用误判为空响应。
 	if h.httpEndpoint == "" {
@@ -323,6 +351,18 @@ func (h *McpCase) buildToolResult(ctx context.Context, baseAPI *models.BaseAPI, 
 		result.IsError = true
 	}
 	return result, nil
+}
+
+// matchBaseAPITerminal 判断接口是否属于当前 MCP 终端。
+func (h *McpCase) matchBaseAPITerminal(baseAPI *models.BaseAPI, terminal string) bool {
+	terminal = h.normalizeTerminal(terminal)
+	if terminal == "" {
+		return true
+	}
+	if baseAPI == nil {
+		return false
+	}
+	return strings.HasPrefix(baseAPI.Path, "/api/v1/"+terminal+"/")
 }
 
 // buildToolDefinition 根据接口元数据构建 MCP 工具名、描述和入参 Schema。

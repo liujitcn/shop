@@ -8,7 +8,6 @@ package basev1
 
 import (
 	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
 	sync "sync"
 	unsafe "unsafe"
 
@@ -29,7 +28,7 @@ const (
 // MCP请求参数
 type HandleMcpRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Terminal      v1.McpTerminal         `protobuf:"varint,1,opt,name=terminal,proto3,enum=common.v1.McpTerminal" json:"terminal,omitempty"` // 终端类型
+	Terminal      string                 `protobuf:"bytes,1,opt,name=terminal,proto3" json:"terminal,omitempty"` // 终端类型，支持 app 或 admin
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -64,20 +63,20 @@ func (*HandleMcpRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_mcp_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *HandleMcpRequest) GetTerminal() v1.McpTerminal {
+func (x *HandleMcpRequest) GetTerminal() string {
 	if x != nil {
 		return x.Terminal
 	}
-	return v1.McpTerminal(0)
+	return ""
 }
 
 var File_base_v1_mcp_proto protoreflect.FileDescriptor
 
 const file_base_v1_mcp_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/mcp.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Z\n" +
-	"\x10HandleMcpRequest\x12F\n" +
-	"\bterminal\x18\x01 \x01(\x0e2\x16.common.v1.McpTerminalB\x12\xbaG\x0f\x92\x02\f终端类型R\bterminal2\xaa\x01\n" +
+	"\x11base/v1/mcp.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Y\n" +
+	"\x10HandleMcpRequest\x12E\n" +
+	"\bterminal\x18\x01 \x01(\tB)\xbaG&\x92\x02#终端类型，支持 app 或 adminR\bterminal2\xaa\x01\n" +
 	"\n" +
 	"McpService\x12\x9b\x01\n" +
 	"\tHandleMcp\x12\x19.base.v1.HandleMcpRequest\x1a\x16.google.protobuf.Empty\"[\x82\xd3\xe4\x93\x02U:\x01*Z\x06\x12\x04/mcpZ\x06*\x04/mcpZ\x14:\x01*\"\x0f/mcp/{terminal}Z\x11\x12\x0f/mcp/{terminal}Z\x11*\x0f/mcp/{terminal}\"\x04/mcpBt\n" +
@@ -98,18 +97,16 @@ func file_base_v1_mcp_proto_rawDescGZIP() []byte {
 var file_base_v1_mcp_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_base_v1_mcp_proto_goTypes = []any{
 	(*HandleMcpRequest)(nil), // 0: base.v1.HandleMcpRequest
-	(v1.McpTerminal)(0),      // 1: common.v1.McpTerminal
-	(*emptypb.Empty)(nil),    // 2: google.protobuf.Empty
+	(*emptypb.Empty)(nil),    // 1: google.protobuf.Empty
 }
 var file_base_v1_mcp_proto_depIdxs = []int32{
-	1, // 0: base.v1.HandleMcpRequest.terminal:type_name -> common.v1.McpTerminal
-	0, // 1: base.v1.McpService.HandleMcp:input_type -> base.v1.HandleMcpRequest
-	2, // 2: base.v1.McpService.HandleMcp:output_type -> google.protobuf.Empty
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: base.v1.McpService.HandleMcp:input_type -> base.v1.HandleMcpRequest
+	1, // 1: base.v1.McpService.HandleMcp:output_type -> google.protobuf.Empty
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
+	0, // [0:0] is the sub-list for extension type_name
+	0, // [0:0] is the sub-list for extension extendee
+	0, // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_mcp_proto_init() }

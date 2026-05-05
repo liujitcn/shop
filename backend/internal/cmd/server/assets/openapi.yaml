@@ -5581,12 +5581,7 @@ paths:
                 - name: terminal
                   in: query
                   schema:
-                    enum:
-                        - UNKNOWN_MCP_TERMINAL
-                        - MCP_TERMINAL_APP
-                        - MCP_TERMINAL_ADMIN
                     type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -5615,12 +5610,7 @@ paths:
                 - name: terminal
                   in: query
                   schema:
-                    enum:
-                        - UNKNOWN_MCP_TERMINAL
-                        - MCP_TERMINAL_APP
-                        - MCP_TERMINAL_ADMIN
                     type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -5636,12 +5626,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                    enum:
-                        - UNKNOWN_MCP_TERMINAL
-                        - MCP_TERMINAL_APP
-                        - MCP_TERMINAL_ADMIN
                     type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -5656,12 +5641,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                    enum:
-                        - UNKNOWN_MCP_TERMINAL
-                        - MCP_TERMINAL_APP
-                        - MCP_TERMINAL_ADMIN
                     type: string
-                    format: enum
             requestBody:
                 content:
                     application/json:
@@ -5682,12 +5662,7 @@ paths:
                   in: path
                   required: true
                   schema:
-                    enum:
-                        - UNKNOWN_MCP_TERMINAL
-                        - MCP_TERMINAL_APP
-                        - MCP_TERMINAL_ADMIN
                     type: string
-                    format: enum
             responses:
                 "200":
                     description: OK
@@ -8346,13 +8321,8 @@ components:
             type: object
             properties:
                 terminal:
-                    enum:
-                        - UNKNOWN_MCP_TERMINAL
-                        - MCP_TERMINAL_APP
-                        - MCP_TERMINAL_ADMIN
                     type: string
-                    description: 终端类型
-                    format: enum
+                    description: 终端类型，支持 app 或 admin
             description: MCP请求参数
         ImportDataRequest:
             type: object
