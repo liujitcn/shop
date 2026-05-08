@@ -20,7 +20,7 @@
 | 模块 | 改动定位 | 说明 |
 | --- | --- | --- |
 | `backend` | Agent 运行时、统一接口契约、工具注册、会话和审计 | 统一承载模型、Agent、工具策略、会话和工具调用记录。 |
-| `frontend/admin` | 后台助手页面、全局助手抽屉、工具治理页面 | 复用 Element Plus、ProTable、FormDialog、ProForm、现有请求封装。 |
+| `frontend/admin` | 后台全局悬浮助手、弹窗会话、工具治理页面 | 复用 Element Plus、Element Plus X、ProTable、FormDialog、ProForm、现有请求封装。 |
 | `frontend/app` | 商城端导购助手、场景入口、聊天页面 | 复用 uni-app、uni-ui、Xtx 组件、Pinia、现有请求封装。 |
 | `sql` | 表结构、菜单、接口权限、初始化策略 | 所有新增表、菜单和接口权限落到 `sql/default-data.sql`。 |
 | `docs` | 设计与使用说明 | 同步 README 和专题设计文档。 |
@@ -40,7 +40,7 @@
 | 模型接入 | 复用 `pkg/llm` OpenAI Provider | 不改现有评价审核和 AI 摘要链路。 |
 | 工具接入 | 复用已生成的 `*_agent_tool.go` | 第一版全量注册工具，按风险分级自动执行或确认执行。 |
 | 权限校验 | 继续使用现有 token、角色、接口权限和业务校验 | Agent 层不绕过现有认证鉴权。 |
-| 管理后台 | 使用 Element Plus X 实现聊天主体 | 先做后台助手页面或全局抽屉，验证交互。 |
+| 管理后台 | 使用 Element Plus X 实现聊天主体 | 先做全局悬浮入口和弹窗助手，验证交互。 |
 
 ### 第一版暂不包含
 
@@ -50,6 +50,7 @@
 - 不做工具调用审计页面。
 - 不做长期会话保存。
 - 不做商城端 Agent 聊天页。
+- 不新增固定菜单入口；第一版以全局悬浮按钮进入。
 - 不把写操作和高风险工具永久禁用；第一版通过静态策略和内存确认单控制执行。
 
 ### 第一版限制
@@ -493,8 +494,8 @@ message SendAgentMessageResponse {
 
 | 能力 | 复用内容 | 用法 |
 | --- | --- | --- |
-| 页面框架 | Vue 3、Vite、TypeScript、Pinia | 新增 `src/views/agent` 页面域。 |
-| UI 组件 | Element Plus、`@element-plus/icons-vue` | 聊天、抽屉、表格、确认弹窗、标签、时间线。 |
+| 页面框架 | Vue 3、Vite、TypeScript、Pinia | 第一版挂在现有 Layout，不新增固定菜单页；后续再补 `src/views/agent` 管理页面。 |
+| UI 组件 | Element Plus、`@element-plus/icons-vue` | 弹窗、卡片、标签、输入框、表格、确认弹窗。 |
 | 表格 | `ProTable` | 会话列表、工具策略、工具调用审计。 |
 | 表单弹窗 | `FormDialog`、`ProForm` | 工具策略编辑、风险等级调整。 |
 | 请求 | `src/utils/request.ts` | 新增 `src/api/admin/agent.ts`。 |
@@ -507,7 +508,7 @@ message SendAgentMessageResponse {
 
 | 组件 / 方案 | GitHub | 适配度 | 结论 |
 | --- | --- | --- | --- |
-| Element Plus `Drawer`、`Input`、`Scrollbar`、`Timeline`、`Tag`、`Button` | https://github.com/element-plus/element-plus | 高 | 与当前后台完全一致，适合作为默认实现。官方 `Drawer` 支持 `v-model`、右侧抽屉、嵌套和自定义 header；适合全局助手抽屉。 |
+| Element Plus `Dialog`、`Card`、`Input`、`Scrollbar`、`Tag`、`Button` | https://github.com/element-plus/element-plus | 高 | 与当前后台完全一致，适合作为默认实现。第一版入口是可拖动悬浮按钮，点击后打开居中弹窗，不作为左侧菜单页面。 |
 | `Element Plus X` / `vue-element-plus-x` | https://github.com/element-plus-x/Element-Plus-X | 高 | 基于 Vue 3 + Element Plus 的企业级 AI 组件库，提供 `Bubble`、`BubbleList`、`Sender`、`Conversations` 等 AI 对话组件，支持 Markdown、打字机效果和按需引入。与当前后台技术栈最贴合，应作为后台聊天主体首选。 |
 | `deep-chat` | https://github.com/OvidijusParsiunas/deep-chat | 高 | GitHub 约 3k+ star，框架无关 Web Component，支持自定义请求、Readable Stream、自定义按钮，适合 AI Chat 场景。可嵌入 Vue3，但样式与工具确认卡片需要二次封装。 |
 | `vue-advanced-chat` | https://github.com/advanced-chat/vue-advanced-chat | 中 | GitHub 约 2k star，Vue 可注册 Web Component，提供房间、消息、输入、附件、表情、移动端布局等完整 IM 能力。适合会话/消息 UI，但偏 IM，不是专门 Agent 工具流。 |
@@ -517,7 +518,7 @@ message SendAgentMessageResponse {
 推荐策略：
 
 1. 后台聊天主体首选 `Element Plus X`：它直接基于 Element Plus 设计体系，能最大限度减少主题割裂和二次封装。
-2. 全局抽屉、策略管理、调用审计、工具确认卡片仍复用 Element Plus + 项目现有 ProTable/FormDialog/ProForm。
+2. 全局悬浮按钮、助手弹窗、策略管理、调用审计、工具确认卡片仍复用 Element Plus + 项目现有 ProTable/FormDialog/ProForm。
 3. `deep-chat` 作为备选：如果后续发现 Element Plus X 的流式请求或自定义工具卡片能力不足，再评估它的 Web Component 方案。
 4. 如果更看重会话房间、附件、表情和移动端聊天布局，可以评估 `vue-advanced-chat`，但需要裁剪 IM 色彩和房间概念。
 5. `AI Elements Vue` 的 `tool`、`confirmation`、`reasoning`、`code-block` 设计值得参考；当前项目不建议直接引入 shadcn-vue/Tailwind 体系。
@@ -525,7 +526,7 @@ message SendAgentMessageResponse {
 
 参考资料：
 
-- Element Plus Drawer 文档：https://element-plus.org/en-US/component/drawer
+- Element Plus Dialog 文档：https://element-plus.org/en-US/component/dialog
 - Element Plus 组件总览：https://element-plus.org/en-US/component/overview
 - Element Plus X：https://github.com/element-plus-x/Element-Plus-X
 - Element Plus X 文档：https://element-plus-x.com/en/
@@ -536,56 +537,68 @@ message SendAgentMessageResponse {
 ### 页面结构
 
 ```text
-frontend/admin/src/views/agent
-├── assistant
-│   └── index.vue              # 智能助手独立页面
-├── session
-│   └── index.vue              # 会话管理
-├── tool-policy
-│   └── index.vue              # 工具策略管理
-└── audit
-    └── index.vue              # 工具调用审计
-
 frontend/admin/src/components/Agent
-├── AgentDrawer.vue            # 全局右侧助手抽屉
+├── AgentFloatButton.vue       # 全局悬浮入口，默认右下角，可拖动
+├── AgentAssistantDialog.vue    # 全局助手弹窗，不占用菜单页面
 ├── AgentChatPanel.vue         # 聊天主体
 ├── AgentMessageList.vue       # 消息列表
 ├── AgentMessageInput.vue      # 输入区
 ├── AgentToolCallTimeline.vue  # 工具调用时间线
 ├── AgentConfirmCard.vue       # 工具确认卡片
 └── AgentContextBar.vue        # 当前页面上下文条
+
+frontend/admin/src/views/agent
+├── session
+│   └── index.vue              # 后续会话管理
+├── tool-policy
+│   └── index.vue              # 后续工具策略管理
+└── audit
+    └── index.vue              # 后续工具调用审计
 ```
 
-`AgentDrawer` 可挂在 `layouts/components/Header/ToolBarRight.vue` 或 Layout 内，保持全局可唤起。独立页面用于长会话、审计和历史回放。
+`AgentFloatButton` 挂在 Layout 内，默认展示在右下角，支持拖动并记住当前位置；点击后打开 `AgentAssistantDialog`。入口不作为固定菜单页展示，是否显示由按钮权限控制，例如 `agent:assistant:open`。会话管理、工具策略和审计页面属于后续治理能力，不影响第一版弹窗助手落地。
+
+### 管理后台入口权限
+
+- 悬浮按钮通过现有按钮权限控制，不直接写死展示。
+- 推荐按钮权限编码：`agent:assistant:open`。
+- 用户没有该按钮权限时，不渲染悬浮按钮，也不能通过前端入口打开弹窗。
+- 后端 `/api/v1/agent/...` 仍继续做 token、接口权限、角色和 Agent 工具策略校验，前端按钮权限只负责入口展示。
+- 悬浮按钮位置保存在本地，例如 `localStorage`，不需要第一版落库。
 
 ### 管理后台原型
 
-#### 全局助手抽屉
+设计图文件：[agent-admin-design.svg](assets/agent-admin-design.svg)
+
+![智能 Agent 管理后台设计图](assets/agent-admin-design.svg)
+
+#### 全局助手弹窗
 
 ```text
-┌──────────────────────────────────────────────┐
-│ 当前页面：订单管理 / 待发货                   │
-│ Agent：运营助手        场景：订单风险分析     │
-├──────────────────────────────────────────────┤
-│ 用户：今天有哪些履约风险？                   │
-│                                              │
-│ 助手：我会先检查待发货订单、退款中订单和任务 │
-│      状态，然后给出优先级。                  │
-│                                              │
-│ 工具调用                                    │
-│  ✓ 查询工作台风险提醒     82ms              │
-│  ✓ 查询订单分析汇总       104ms             │
-│  ✓ 查询任务状态           66ms              │
-│                                              │
-│ 结论                                       │
-│ 1. 待发货订单 12 单，其中 3 单超过 24 小时。 │
-│ 2. 退款中订单 2 单，需要核对支付账单。       │
-│ 3. 推荐同步任务正常，不影响商品曝光。        │
-│                                              │
-│ [查看订单] [生成处理清单]                    │
-├──────────────────────────────────────────────┤
-│ 输入问题...                           [发送] │
-└──────────────────────────────────────────────┘
+后台 Layout 右下角悬浮按钮
+┌────┐
+│ AI │  受 `agent:assistant:open` 按钮权限控制，可拖动
+└────┘
+
+点击后打开弹窗
+┌──────────────────────────────────────────────────────────────┐
+│ 智能助手                                      admin  online  × │
+├───────────────┬──────────────────────────────┬───────────────┤
+│ 会话           │ 今日经营风险                  │ 上下文         │
+│ 搜索           │ 用户：今天有哪些履约风险？     │ terminal admin │
+│ 今日经营风险   │                              │ scene workspace│
+│ 推荐链路排查   │ 助手：已查询工作台、订单分析   │               │
+│ 评价审核建议   │ 和待审核评价，正在整理优先级。 │ 确认执行       │
+│               │                              │ execute_job    │
+│               │ 工具调用                      │ HIGH_RISK      │
+│               │ ✓ workspace_summary_risk 82ms │ [拒绝] [确认] │
+│               │ ✓ order_analytics_summary104ms│               │
+│               │                              │ 第一版         │
+│               │ 结论：待发货超时 3 单，退款中  │ /api/v1/agent  │
+│               │ 2 单，待审核评价 8 条。        │ 内存会话       │
+│               │                              │ 全量工具       │
+│               │ 输入问题或要执行的操作  [发送] │               │
+└───────────────┴──────────────────────────────┴───────────────┘
 ```
 
 #### 工具确认卡片
@@ -896,7 +909,7 @@ sequenceDiagram
 | `src/components/ProTable` | `ProTable` | 会话、策略、审计表格。 |
 | `src/components/Dialog/FormDialog.vue` | `FormDialog` | 工具策略编辑。 |
 | `src/components/ProForm` | `ProForm` | 策略表单。 |
-| Element Plus | `el-drawer` | 全局助手抽屉。 |
+| Element Plus | `el-dialog` | 全局助手弹窗。 |
 | Element Plus | `el-timeline` | 工具调用过程。 |
 | Element Plus | `el-popconfirm` / `ElMessageBox` | 高危操作确认。 |
 | Element Plus | `el-tag` | 风险等级、状态、终端。 |
@@ -929,8 +942,8 @@ sequenceDiagram
 
 - 执行 `pnpm lint:eslint`。
 - 执行 `pnpm type:check` 或对应构建命令。
-- 验证亮色、暗黑、灰色、色弱模式下抽屉、聊天、表格不重叠。
-- 验证全局抽屉在工作台、订单、商品、推荐页面都能携带正确上下文。
+- 验证亮色、暗黑、灰色、色弱模式下弹窗、聊天、表格不重叠。
+- 验证全局助手弹窗在工作台、订单、商品、推荐页面都能携带正确上下文。
 
 ### 商城端
 
@@ -957,7 +970,7 @@ sequenceDiagram
 4. 在 `pkg/llm` 暴露 ModelProvider，新增 `pkg/agent` 运行时。
 5. 新增 `server/agent.go`，注册并按策略过滤生成工具。
 6. 第一版先在代码中初始化静态工具策略，全量注册工具，按风险分级自动执行或确认执行。
-7. 完成管理后台助手页面、全局抽屉、工具策略和审计页面。
+7. 完成管理后台悬浮入口、助手弹窗、工具策略和审计页面。
 8. 完成商城端聊天页、商品/购物车/订单/我的页面入口。
 9. 更新 `sql/default-data.sql`、README 和专题文档链接。
 10. 执行后端、管理后台、商城端验证命令，并记录无法通过项。
