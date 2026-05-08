@@ -130,11 +130,11 @@ make gen
 
 ## MCP 工具暴露
 
-后端会从 `base_api` 表读取接口元数据，并根据 OpenAPI 元数据生成 MCP 工具定义。管理后台的“系统管理 / API 管理”页面可查看接口入参、参数映射、出参 Schema，并切换接口是否暴露为 MCP 工具。
+后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表只保存接口元数据、`mcp_tool_name` 和 `mcp_enabled` 开关；管理后台的“系统管理 / API 管理”页面可查看工具名，并切换接口是否暴露为 MCP 工具。
 
-MCP 工具列表在客户端执行 `tools/list` 时会按当前 `base_api.mcp_enabled` 动态过滤；工具调用前也会再次检查开关，禁用后不会继续转发到后端 HTTP 接口。工具调用内部复用本服务 HTTP 接口，默认转发到 `server.http.addr` 解析出的本地地址，并复用 HTTP 服务超时时间。
+MCP 工具调用时会按工具名查询 `base_api.mcp_tool_name`，再检查 `mcp_enabled` 和当前终端归属；未启用或不属于当前终端时不会执行。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
 
-当前后端会把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务的 `/mcp` 路径，不再额外监听独立端口。例如 `server.http.addr = :7001` 时，MCP 地址为 `http://127.0.0.1:7001/mcp`。
+当前后端会按 `server.mcp.transport: TRANSPORT_IN_PROCESS` 把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务，并通过 `/mcp/{terminal}` 按服务关键字过滤工具。例如 `server.http.addr = :7001` 时，管理端 MCP 地址为 `http://127.0.0.1:7001/mcp/admin`。
 
 ## 静态资源
 

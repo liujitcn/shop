@@ -161,7 +161,7 @@ import { useUserStore } from "@/stores/modules/user";
 import { CommentStatus, GoodsStatus, OrderStatus, PayBillStatus, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
-import { subscribeSseRefresh, type SseStop } from "@/utils/sse";
+import { subscribeSseRefresh, type SseStop } from "@/api/base/sse";
 import defaultAvatar from "@/assets/images/avatar.png";
 
 /** 工作台指标卡片。 */

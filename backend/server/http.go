@@ -11,8 +11,6 @@ import (
 	"shop/internal/cmd/server/assets"
 	"shop/pkg/gen/data"
 	"shop/pkg/middleware/logging"
-	"shop/service/admin"
-	"shop/service/app"
 	"shop/service/base"
 	"strings"
 
@@ -57,58 +55,7 @@ func NewHTTPMiddleware(
 func NewHTTPServer(
 	ctx *bootstrap.Context,
 	middlewares HTTPMiddlewares,
-
-	adminAuth *admin.AuthService,
-	adminBaseAPI *admin.BaseApiService,
-	adminBaseConfig *admin.BaseConfigService,
-	adminBaseDept *admin.BaseDeptService,
-	adminBaseDict *admin.BaseDictService,
-	adminBaseJob *admin.BaseJobService,
-	adminBaseLog *admin.BaseLogService,
-	adminBaseMenu *admin.BaseMenuService,
-	adminBaseRole *admin.BaseRoleService,
-	adminBaseUser *admin.BaseUserService,
-	adminCommentInfo *admin.CommentInfoService,
-	adminGoodsAnalytics *admin.GoodsAnalyticsService,
-	adminGoodsReport *admin.GoodsReportService,
-	adminGoodsCategory *admin.GoodsCategoryService,
-	adminGoodsProp *admin.GoodsPropService,
-	adminGoods *admin.GoodsInfoService,
-	adminGoodsSKU *admin.GoodsSkuService,
-	adminGoodsSpec *admin.GoodsSpecService,
-	adminOrderAnalytics *admin.OrderAnalyticsService,
-	adminOrderReport *admin.OrderReportService,
-	adminOrder *admin.OrderInfoService,
-	adminPayBill *admin.PayBillService,
-	adminRecommendRequest *admin.RecommendRequestService,
-	adminRecommendGorse *admin.RecommendGorseService,
-	adminShopBanner *admin.ShopBannerService,
-	adminShopHot *admin.ShopHotService,
-	adminShopService *admin.ShopServiceService,
-	adminUserAnalytics *admin.UserAnalyticsService,
-	adminUserStore *admin.UserStoreService,
-	adminWorkspace *admin.WorkspaceService,
-
-	appAuth *app.AuthService,
-	appBaseArea *app.BaseAreaService,
-	appBaseDict *app.BaseDictService,
-	appComment *app.CommentService,
-	appGoodsCategory *app.GoodsCategoryService,
-	appGoods *app.GoodsInfoService,
-	appOrder *app.OrderInfoService,
-	appPay *app.PayService,
-	appRecommend *app.RecommendService,
-	appShopBanner *app.ShopBannerService,
-	appShopHot *app.ShopHotService,
-	appShopService *app.ShopServiceService,
-	appUserAddress *app.UserAddressService,
-	appUserCart *app.UserCartService,
-	appUserCollect *app.UserCollectService,
-	appUserStore *app.UserStoreService,
-
-	config *base.ConfigService,
-	fileSvc *base.FileService,
-	login *base.LoginService,
+	services *ServerServices,
 	mcpSvc *base.McpService,
 	sseSvc *base.SseService,
 ) (*kratosHTTP.Server, error) {
@@ -123,60 +70,61 @@ func NewHTTPServer(
 		return nil, err
 	}
 
-	adminv1.RegisterAuthServiceHTTPServer(srv, adminAuth)
-	adminv1.RegisterBaseApiServiceHTTPServer(srv, adminBaseAPI)
-	adminv1.RegisterBaseConfigServiceHTTPServer(srv, adminBaseConfig)
-	adminv1.RegisterBaseDeptServiceHTTPServer(srv, adminBaseDept)
-	adminv1.RegisterBaseDictServiceHTTPServer(srv, adminBaseDict)
-	adminv1.RegisterBaseJobServiceHTTPServer(srv, adminBaseJob)
-	adminv1.RegisterBaseLogServiceHTTPServer(srv, adminBaseLog)
-	adminv1.RegisterBaseMenuServiceHTTPServer(srv, adminBaseMenu)
-	adminv1.RegisterBaseRoleServiceHTTPServer(srv, adminBaseRole)
-	adminv1.RegisterBaseUserServiceHTTPServer(srv, adminBaseUser)
-	adminv1.RegisterCommentInfoServiceHTTPServer(srv, adminCommentInfo)
-	adminv1.RegisterGoodsAnalyticsServiceHTTPServer(srv, adminGoodsAnalytics)
-	adminv1.RegisterGoodsReportServiceHTTPServer(srv, adminGoodsReport)
-	adminv1.RegisterGoodsCategoryServiceHTTPServer(srv, adminGoodsCategory)
-	adminv1.RegisterGoodsPropServiceHTTPServer(srv, adminGoodsProp)
-	adminv1.RegisterGoodsInfoServiceHTTPServer(srv, adminGoods)
-	adminv1.RegisterGoodsSkuServiceHTTPServer(srv, adminGoodsSKU)
-	adminv1.RegisterGoodsSpecServiceHTTPServer(srv, adminGoodsSpec)
-	adminv1.RegisterOrderAnalyticsServiceHTTPServer(srv, adminOrderAnalytics)
-	adminv1.RegisterOrderReportServiceHTTPServer(srv, adminOrderReport)
-	adminv1.RegisterOrderInfoServiceHTTPServer(srv, adminOrder)
-	adminv1.RegisterPayBillServiceHTTPServer(srv, adminPayBill)
-	adminv1.RegisterRecommendRequestServiceHTTPServer(srv, adminRecommendRequest)
-	adminv1.RegisterRecommendGorseServiceHTTPServer(srv, adminRecommendGorse)
-	adminv1.RegisterShopBannerServiceHTTPServer(srv, adminShopBanner)
-	adminv1.RegisterShopHotServiceHTTPServer(srv, adminShopHot)
-	adminv1.RegisterShopServiceServiceHTTPServer(srv, adminShopService)
-	adminv1.RegisterUserAnalyticsServiceHTTPServer(srv, adminUserAnalytics)
-	adminv1.RegisterUserStoreServiceHTTPServer(srv, adminUserStore)
-	adminv1.RegisterWorkspaceServiceHTTPServer(srv, adminWorkspace)
+	adminv1.RegisterAuthServiceHTTPServer(srv, services.adminAuth)
+	adminv1.RegisterBaseApiServiceHTTPServer(srv, services.adminBaseAPI)
+	adminv1.RegisterBaseConfigServiceHTTPServer(srv, services.adminBaseConfig)
+	adminv1.RegisterBaseDeptServiceHTTPServer(srv, services.adminBaseDept)
+	adminv1.RegisterBaseDictServiceHTTPServer(srv, services.adminBaseDict)
+	adminv1.RegisterBaseJobServiceHTTPServer(srv, services.adminBaseJob)
+	adminv1.RegisterBaseLogServiceHTTPServer(srv, services.adminBaseLog)
+	adminv1.RegisterBaseMenuServiceHTTPServer(srv, services.adminBaseMenu)
+	adminv1.RegisterBaseRoleServiceHTTPServer(srv, services.adminBaseRole)
+	adminv1.RegisterBaseUserServiceHTTPServer(srv, services.adminBaseUser)
+	adminv1.RegisterCommentInfoServiceHTTPServer(srv, services.adminCommentInfo)
+	adminv1.RegisterGoodsAnalyticsServiceHTTPServer(srv, services.adminGoodsAnalytics)
+	adminv1.RegisterGoodsReportServiceHTTPServer(srv, services.adminGoodsReport)
+	adminv1.RegisterGoodsCategoryServiceHTTPServer(srv, services.adminGoodsCategory)
+	adminv1.RegisterGoodsPropServiceHTTPServer(srv, services.adminGoodsProp)
+	adminv1.RegisterGoodsInfoServiceHTTPServer(srv, services.adminGoods)
+	adminv1.RegisterGoodsSkuServiceHTTPServer(srv, services.adminGoodsSKU)
+	adminv1.RegisterGoodsSpecServiceHTTPServer(srv, services.adminGoodsSpec)
+	adminv1.RegisterOrderAnalyticsServiceHTTPServer(srv, services.adminOrderAnalytics)
+	adminv1.RegisterOrderReportServiceHTTPServer(srv, services.adminOrderReport)
+	adminv1.RegisterOrderInfoServiceHTTPServer(srv, services.adminOrder)
+	adminv1.RegisterPayBillServiceHTTPServer(srv, services.adminPayBill)
+	adminv1.RegisterRecommendRequestServiceHTTPServer(srv, services.adminRecommendRequest)
+	adminv1.RegisterRecommendGorseServiceHTTPServer(srv, services.adminRecommendGorse)
+	adminv1.RegisterShopBannerServiceHTTPServer(srv, services.adminShopBanner)
+	adminv1.RegisterShopHotServiceHTTPServer(srv, services.adminShopHot)
+	adminv1.RegisterShopServiceServiceHTTPServer(srv, services.adminShopService)
+	adminv1.RegisterUserAnalyticsServiceHTTPServer(srv, services.adminUserAnalytics)
+	adminv1.RegisterUserStoreServiceHTTPServer(srv, services.adminUserStore)
+	adminv1.RegisterWorkspaceServiceHTTPServer(srv, services.adminWorkspace)
 
-	appv1.RegisterAuthServiceHTTPServer(srv, appAuth)
-	appv1.RegisterBaseAreaServiceHTTPServer(srv, appBaseArea)
-	appv1.RegisterBaseDictServiceHTTPServer(srv, appBaseDict)
-	appv1.RegisterCommentServiceHTTPServer(srv, appComment)
-	appv1.RegisterGoodsCategoryServiceHTTPServer(srv, appGoodsCategory)
-	appv1.RegisterGoodsInfoServiceHTTPServer(srv, appGoods)
-	appv1.RegisterOrderInfoServiceHTTPServer(srv, appOrder)
-	appv1.RegisterPayServiceHTTPServer(srv, appPay)
-	appv1.RegisterRecommendServiceHTTPServer(srv, appRecommend)
-	appv1.RegisterShopBannerServiceHTTPServer(srv, appShopBanner)
-	appv1.RegisterShopHotServiceHTTPServer(srv, appShopHot)
-	appv1.RegisterShopServiceServiceHTTPServer(srv, appShopService)
-	appv1.RegisterUserAddressServiceHTTPServer(srv, appUserAddress)
-	appv1.RegisterUserCartServiceHTTPServer(srv, appUserCart)
-	appv1.RegisterUserCollectServiceHTTPServer(srv, appUserCollect)
-	appv1.RegisterUserStoreServiceHTTPServer(srv, appUserStore)
+	appv1.RegisterAuthServiceHTTPServer(srv, services.appAuth)
+	appv1.RegisterBaseAreaServiceHTTPServer(srv, services.appBaseArea)
+	appv1.RegisterBaseDictServiceHTTPServer(srv, services.appBaseDict)
+	appv1.RegisterCommentServiceHTTPServer(srv, services.appComment)
+	appv1.RegisterGoodsCategoryServiceHTTPServer(srv, services.appGoodsCategory)
+	appv1.RegisterGoodsInfoServiceHTTPServer(srv, services.appGoods)
+	appv1.RegisterOrderInfoServiceHTTPServer(srv, services.appOrder)
+	appv1.RegisterPayServiceHTTPServer(srv, services.appPay)
+	appv1.RegisterRecommendServiceHTTPServer(srv, services.appRecommend)
+	appv1.RegisterShopBannerServiceHTTPServer(srv, services.appShopBanner)
+	appv1.RegisterShopHotServiceHTTPServer(srv, services.appShopHot)
+	appv1.RegisterShopServiceServiceHTTPServer(srv, services.appShopService)
+	appv1.RegisterUserAddressServiceHTTPServer(srv, services.appUserAddress)
+	appv1.RegisterUserCartServiceHTTPServer(srv, services.appUserCart)
+	appv1.RegisterUserCollectServiceHTTPServer(srv, services.appUserCollect)
+	appv1.RegisterUserStoreServiceHTTPServer(srv, services.appUserStore)
 
-	basev1.RegisterConfigServiceHTTPServer(srv, config)
+	basev1.RegisterConfigServiceHTTPServer(srv, services.config)
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
-	base.RegisterFileServiceHTTPServer(srv, fileSvc)
-	basev1.RegisterLoginServiceHTTPServer(srv, login)
+	base.RegisterFileServiceHTTPServer(srv, services.file)
+	basev1.RegisterLoginServiceHTTPServer(srv, services.login)
 	// MCP 需要保留 Streamable HTTP 的原始请求体和流式响应，使用自定义 HTTP 适配器。
 	base.RegisterMcpServiceHTTPServer(srv, mcpSvc)
+
 	// SSE 需要直接写入事件流响应，使用自定义 HTTP 适配器避免默认 JSON 响应。
 	base.RegisterSseServiceHTTPServer(srv, sseSvc)
 

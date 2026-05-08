@@ -28,7 +28,7 @@ const (
 // MCP请求参数
 type HandleMcpRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Terminal      string                 `protobuf:"bytes,1,opt,name=terminal,proto3" json:"terminal,omitempty"` // 终端类型，支持 app 或 admin
+	Terminal      string                 `protobuf:"bytes,1,opt,name=terminal,proto3" json:"terminal,omitempty"` // 服务筛选关键字，必填，支持 app、admin 或任意服务关键字
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,12 +74,12 @@ var File_base_v1_mcp_proto protoreflect.FileDescriptor
 
 const file_base_v1_mcp_proto_rawDesc = "" +
 	"\n" +
-	"\x11base/v1/mcp.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Y\n" +
-	"\x10HandleMcpRequest\x12E\n" +
-	"\bterminal\x18\x01 \x01(\tB)\xbaG&\x92\x02#终端类型，支持 app 或 adminR\bterminal2\xaa\x01\n" +
+	"\x11base/v1/mcp.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x82\x01\n" +
+	"\x10HandleMcpRequest\x12n\n" +
+	"\bterminal\x18\x01 \x01(\tBR\xbaGO\x92\x02L服务筛选关键字，必填，支持 app、admin 或任意服务关键字R\bterminal2\x8f\x01\n" +
 	"\n" +
-	"McpService\x12\x9b\x01\n" +
-	"\tHandleMcp\x12\x19.base.v1.HandleMcpRequest\x1a\x16.google.protobuf.Empty\"[\x82\xd3\xe4\x93\x02U:\x01*Z\x06\x12\x04/mcpZ\x06*\x04/mcpZ\x14:\x01*\"\x0f/mcp/{terminal}Z\x11\x12\x0f/mcp/{terminal}Z\x11*\x0f/mcp/{terminal}\"\x04/mcpBt\n" +
+	"McpService\x12\x80\x01\n" +
+	"\tHandleMcp\x12\x19.base.v1.HandleMcpRequest\x1a\x16.google.protobuf.Empty\"@\x82\xd3\xe4\x93\x02::\x01*Z\x11\x12\x0f/mcp/{terminal}Z\x11*\x0f/mcp/{terminal}\"\x0f/mcp/{terminal}Bt\n" +
 	"\vcom.base.v1B\bMcpProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
 var (

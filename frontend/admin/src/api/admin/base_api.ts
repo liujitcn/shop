@@ -1,7 +1,9 @@
 import service from "@/utils/request";
 import {
   type BaseApi,
+  type BaseApiDoc,
   type BaseApiService,
+  type GetBaseApiDocRequest,
   type GetBaseApiRequest,
   type ListBaseApisRequest,
   type ListBaseApisResponse,
@@ -37,6 +39,14 @@ export class BaseApiServiceImpl implements BaseApiService {
   GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi> {
     return service<GetBaseApiRequest, BaseApi>({
       url: `${BASE_API_URL}/${request.id}`,
+      method: "get"
+    });
+  }
+
+  /** 查询API文档 */
+  GetBaseApiDoc(request: GetBaseApiDocRequest): Promise<BaseApiDoc> {
+    return service<GetBaseApiDocRequest, BaseApiDoc>({
+      url: `${BASE_API_URL}/${request.id}/doc`,
       method: "get"
     });
   }

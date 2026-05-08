@@ -45,7 +45,7 @@ func newCommentReview(db *gorm.DB, opts ...gen.DOOption) commentReview {
 	return _commentReview
 }
 
-// commentReview 评价统一审核记录
+// commentReview 评价审核信息
 type commentReview struct {
 	commentReviewDo commentReviewDo
 

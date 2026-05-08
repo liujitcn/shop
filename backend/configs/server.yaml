@@ -1,6 +1,6 @@
 server:
   http:
-    addr: :7001
+    addr: :7002
     timeout: 10s
     enable_swagger: true
     enable_pprof: true
@@ -28,7 +28,7 @@ server:
       enable_metadata: true
 
   grpc:
-    addr: 0.0.0.0:6001
+    addr: 0.0.0.0:6002
     timeout: 10s
     middleware:
       enable_recovery: true
@@ -37,3 +37,15 @@ server:
       enable_validate: false
       enable_metadata: true
       enable_circuit_breaker: false
+
+  mcp:
+    transport: TRANSPORT_IN_PROCESS
+    path: /mcp
+
+  sse:
+    path: /events
+    codec: json
+    timeout: 10s
+    event_ttl: 300s
+    auto_stream: true
+    auto_reply: true

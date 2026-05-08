@@ -28,15 +28,16 @@ const (
 // API分页查询条件
 type PageBaseApisRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceName   *string                `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"` // 服务名
-	ServiceDesc   *string                `protobuf:"bytes,2,opt,name=service_desc,json=serviceDesc,proto3,oneof" json:"service_desc,omitempty"` // 服务描述
-	Desc          *string                `protobuf:"bytes,3,opt,name=desc,proto3,oneof" json:"desc,omitempty"`                                  // 描述
-	Operation     *string                `protobuf:"bytes,4,opt,name=operation,proto3,oneof" json:"operation,omitempty"`                        // 操作方法
-	Method        *string                `protobuf:"bytes,5,opt,name=method,proto3,oneof" json:"method,omitempty"`                              // 请求方式
-	Path          *string                `protobuf:"bytes,6,opt,name=path,proto3,oneof" json:"path,omitempty"`                                  // 请求地址
-	McpEnabled    *bool                  `protobuf:"varint,7,opt,name=mcp_enabled,json=mcpEnabled,proto3,oneof" json:"mcp_enabled,omitempty"`   // 是否暴露为MCP工具
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                // 页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`             // 每页数量
+	ServiceName   *string                `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`   // 服务名
+	ServiceDesc   *string                `protobuf:"bytes,2,opt,name=service_desc,json=serviceDesc,proto3,oneof" json:"service_desc,omitempty"`   // 服务描述
+	Desc          *string                `protobuf:"bytes,3,opt,name=desc,proto3,oneof" json:"desc,omitempty"`                                    // 描述
+	Operation     *string                `protobuf:"bytes,4,opt,name=operation,proto3,oneof" json:"operation,omitempty"`                          // 操作方法
+	Method        *string                `protobuf:"bytes,5,opt,name=method,proto3,oneof" json:"method,omitempty"`                                // 请求方式
+	Path          *string                `protobuf:"bytes,6,opt,name=path,proto3,oneof" json:"path,omitempty"`                                    // 请求地址
+	McpEnabled    *bool                  `protobuf:"varint,7,opt,name=mcp_enabled,json=mcpEnabled,proto3,oneof" json:"mcp_enabled,omitempty"`     // 是否暴露为MCP工具
+	McpToolName   *string                `protobuf:"bytes,8,opt,name=mcp_tool_name,json=mcpToolName,proto3,oneof" json:"mcp_tool_name,omitempty"` // MCP工具名
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                  // 页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`               // 每页数量
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -118,6 +119,13 @@ func (x *PageBaseApisRequest) GetMcpEnabled() bool {
 		return *x.McpEnabled
 	}
 	return false
+}
+
+func (x *PageBaseApisRequest) GetMcpToolName() string {
+	if x != nil && x.McpToolName != nil {
+		return *x.McpToolName
+	}
+	return ""
 }
 
 func (x *PageBaseApisRequest) GetPageNum() int64 {
@@ -232,6 +240,51 @@ func (x *GetBaseApiRequest) GetId() int64 {
 	return 0
 }
 
+// API文档查询条件
+type GetBaseApiDocRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // API ID
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBaseApiDocRequest) Reset() {
+	*x = GetBaseApiDocRequest{}
+	mi := &file_admin_v1_base_api_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBaseApiDocRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBaseApiDocRequest) ProtoMessage() {}
+
+func (x *GetBaseApiDocRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_v1_base_api_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBaseApiDocRequest.ProtoReflect.Descriptor instead.
+func (*GetBaseApiDocRequest) Descriptor() ([]byte, []int) {
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetBaseApiDocRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
 // API MCP启用状态设置条件
 type SetBaseApiMcpEnabledRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -243,7 +296,7 @@ type SetBaseApiMcpEnabledRequest struct {
 
 func (x *SetBaseApiMcpEnabledRequest) Reset() {
 	*x = SetBaseApiMcpEnabledRequest{}
-	mi := &file_admin_v1_base_api_proto_msgTypes[3]
+	mi := &file_admin_v1_base_api_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -255,7 +308,7 @@ func (x *SetBaseApiMcpEnabledRequest) String() string {
 func (*SetBaseApiMcpEnabledRequest) ProtoMessage() {}
 
 func (x *SetBaseApiMcpEnabledRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_v1_base_api_proto_msgTypes[3]
+	mi := &file_admin_v1_base_api_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -268,7 +321,7 @@ func (x *SetBaseApiMcpEnabledRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetBaseApiMcpEnabledRequest.ProtoReflect.Descriptor instead.
 func (*SetBaseApiMcpEnabledRequest) Descriptor() ([]byte, []int) {
-	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{3}
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SetBaseApiMcpEnabledRequest) GetId() int64 {
@@ -294,7 +347,7 @@ type ListBaseApisRequest struct {
 
 func (x *ListBaseApisRequest) Reset() {
 	*x = ListBaseApisRequest{}
-	mi := &file_admin_v1_base_api_proto_msgTypes[4]
+	mi := &file_admin_v1_base_api_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -306,7 +359,7 @@ func (x *ListBaseApisRequest) String() string {
 func (*ListBaseApisRequest) ProtoMessage() {}
 
 func (x *ListBaseApisRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_v1_base_api_proto_msgTypes[4]
+	mi := &file_admin_v1_base_api_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -319,7 +372,7 @@ func (x *ListBaseApisRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBaseApisRequest.ProtoReflect.Descriptor instead.
 func (*ListBaseApisRequest) Descriptor() ([]byte, []int) {
-	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{4}
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{5}
 }
 
 // API列表响应
@@ -332,7 +385,7 @@ type ListBaseApisResponse struct {
 
 func (x *ListBaseApisResponse) Reset() {
 	*x = ListBaseApisResponse{}
-	mi := &file_admin_v1_base_api_proto_msgTypes[5]
+	mi := &file_admin_v1_base_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -344,7 +397,7 @@ func (x *ListBaseApisResponse) String() string {
 func (*ListBaseApisResponse) ProtoMessage() {}
 
 func (x *ListBaseApisResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_v1_base_api_proto_msgTypes[5]
+	mi := &file_admin_v1_base_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -357,7 +410,7 @@ func (x *ListBaseApisResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListBaseApisResponse.ProtoReflect.Descriptor instead.
 func (*ListBaseApisResponse) Descriptor() ([]byte, []int) {
-	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{5}
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListBaseApisResponse) GetBaseApis() []*BaseApi {
@@ -370,24 +423,22 @@ func (x *ListBaseApisResponse) GetBaseApis() []*BaseApi {
 // API
 type BaseApi struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // API ID
-	ServiceName   string                 `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`     // 服务名
-	ServiceDesc   string                 `protobuf:"bytes,3,opt,name=service_desc,json=serviceDesc,proto3" json:"service_desc,omitempty"`     // 服务描述
-	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                      // 描述
-	Operation     string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                            // 操作方法
-	Method        string                 `protobuf:"bytes,6,opt,name=method,proto3" json:"method,omitempty"`                                  // 请求方法
-	Path          string                 `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`                                      // 请求地址
-	McpEnabled    bool                   `protobuf:"varint,8,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`       // 是否暴露为MCP工具
-	InputSchema   string                 `protobuf:"bytes,9,opt,name=input_schema,json=inputSchema,proto3" json:"input_schema,omitempty"`     // 接口入参JSON Schema
-	ArgMapping    string                 `protobuf:"bytes,10,opt,name=arg_mapping,json=argMapping,proto3" json:"arg_mapping,omitempty"`       // 接口参数位置映射
-	OutputSchema  string                 `protobuf:"bytes,11,opt,name=output_schema,json=outputSchema,proto3" json:"output_schema,omitempty"` // 接口返回JSON Schema
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // API ID
+	ServiceName   string                 `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`   // 服务名
+	ServiceDesc   string                 `protobuf:"bytes,3,opt,name=service_desc,json=serviceDesc,proto3" json:"service_desc,omitempty"`   // 服务描述
+	Desc          string                 `protobuf:"bytes,4,opt,name=desc,proto3" json:"desc,omitempty"`                                    // 描述
+	Operation     string                 `protobuf:"bytes,5,opt,name=operation,proto3" json:"operation,omitempty"`                          // 操作方法
+	Method        string                 `protobuf:"bytes,6,opt,name=method,proto3" json:"method,omitempty"`                                // 请求方法
+	Path          string                 `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`                                    // 请求地址
+	McpEnabled    bool                   `protobuf:"varint,8,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`     // 是否暴露为MCP工具
+	McpToolName   string                 `protobuf:"bytes,9,opt,name=mcp_tool_name,json=mcpToolName,proto3" json:"mcp_tool_name,omitempty"` // MCP工具名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BaseApi) Reset() {
 	*x = BaseApi{}
-	mi := &file_admin_v1_base_api_proto_msgTypes[6]
+	mi := &file_admin_v1_base_api_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -399,7 +450,7 @@ func (x *BaseApi) String() string {
 func (*BaseApi) ProtoMessage() {}
 
 func (x *BaseApi) ProtoReflect() protoreflect.Message {
-	mi := &file_admin_v1_base_api_proto_msgTypes[6]
+	mi := &file_admin_v1_base_api_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -412,7 +463,7 @@ func (x *BaseApi) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BaseApi.ProtoReflect.Descriptor instead.
 func (*BaseApi) Descriptor() ([]byte, []int) {
-	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{6}
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *BaseApi) GetId() int64 {
@@ -471,32 +522,281 @@ func (x *BaseApi) GetMcpEnabled() bool {
 	return false
 }
 
-func (x *BaseApi) GetInputSchema() string {
+func (x *BaseApi) GetMcpToolName() string {
 	if x != nil {
-		return x.InputSchema
+		return x.McpToolName
 	}
 	return ""
 }
 
-func (x *BaseApi) GetArgMapping() string {
+// API文档
+type BaseApiDoc struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                     // API ID
+	Summary       string                 `protobuf:"bytes,2,opt,name=summary,proto3" json:"summary,omitempty"`                            // 摘要
+	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`                    // 描述
+	Parameters    []*BaseApiDocSchema    `protobuf:"bytes,4,rep,name=parameters,proto3" json:"parameters,omitempty"`                      // 请求参数
+	RequestBody   *BaseApiDocSchema      `protobuf:"bytes,5,opt,name=request_body,json=requestBody,proto3" json:"request_body,omitempty"` // 请求体
+	Responses     []*BaseApiDocResponse  `protobuf:"bytes,6,rep,name=responses,proto3" json:"responses,omitempty"`                        // 返回值
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseApiDoc) Reset() {
+	*x = BaseApiDoc{}
+	mi := &file_admin_v1_base_api_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseApiDoc) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseApiDoc) ProtoMessage() {}
+
+func (x *BaseApiDoc) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_v1_base_api_proto_msgTypes[8]
 	if x != nil {
-		return x.ArgMapping
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseApiDoc.ProtoReflect.Descriptor instead.
+func (*BaseApiDoc) Descriptor() ([]byte, []int) {
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *BaseApiDoc) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseApiDoc) GetSummary() string {
+	if x != nil {
+		return x.Summary
 	}
 	return ""
 }
 
-func (x *BaseApi) GetOutputSchema() string {
+func (x *BaseApiDoc) GetDescription() string {
 	if x != nil {
-		return x.OutputSchema
+		return x.Description
 	}
 	return ""
+}
+
+func (x *BaseApiDoc) GetParameters() []*BaseApiDocSchema {
+	if x != nil {
+		return x.Parameters
+	}
+	return nil
+}
+
+func (x *BaseApiDoc) GetRequestBody() *BaseApiDocSchema {
+	if x != nil {
+		return x.RequestBody
+	}
+	return nil
+}
+
+func (x *BaseApiDoc) GetResponses() []*BaseApiDocResponse {
+	if x != nil {
+		return x.Responses
+	}
+	return nil
+}
+
+// API文档Schema
+type BaseApiDocSchema struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`               // 字段名
+	Path          string                 `protobuf:"bytes,2,opt,name=path,proto3" json:"path,omitempty"`               // 字段路径
+	In            string                 `protobuf:"bytes,3,opt,name=in,proto3" json:"in,omitempty"`                   // 参数位置
+	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`               // 字段类型
+	Format        string                 `protobuf:"bytes,5,opt,name=format,proto3" json:"format,omitempty"`           // 字段格式
+	Required      bool                   `protobuf:"varint,6,opt,name=required,proto3" json:"required,omitempty"`      // 是否必填
+	Description   string                 `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"` // 字段描述
+	Ref           string                 `protobuf:"bytes,8,opt,name=ref,proto3" json:"ref,omitempty"`                 // 引用类型
+	Enum          []string               `protobuf:"bytes,9,rep,name=enum,proto3" json:"enum,omitempty"`               // 枚举值
+	Children      []*BaseApiDocSchema    `protobuf:"bytes,10,rep,name=children,proto3" json:"children,omitempty"`      // 子字段
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseApiDocSchema) Reset() {
+	*x = BaseApiDocSchema{}
+	mi := &file_admin_v1_base_api_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseApiDocSchema) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseApiDocSchema) ProtoMessage() {}
+
+func (x *BaseApiDocSchema) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_v1_base_api_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseApiDocSchema.ProtoReflect.Descriptor instead.
+func (*BaseApiDocSchema) Descriptor() ([]byte, []int) {
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *BaseApiDocSchema) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetIn() string {
+	if x != nil {
+		return x.In
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetFormat() string {
+	if x != nil {
+		return x.Format
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetRequired() bool {
+	if x != nil {
+		return x.Required
+	}
+	return false
+}
+
+func (x *BaseApiDocSchema) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetRef() string {
+	if x != nil {
+		return x.Ref
+	}
+	return ""
+}
+
+func (x *BaseApiDocSchema) GetEnum() []string {
+	if x != nil {
+		return x.Enum
+	}
+	return nil
+}
+
+func (x *BaseApiDocSchema) GetChildren() []*BaseApiDocSchema {
+	if x != nil {
+		return x.Children
+	}
+	return nil
+}
+
+// API文档响应
+type BaseApiDocResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`           // 状态码
+	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"` // 响应描述
+	Body          *BaseApiDocSchema      `protobuf:"bytes,3,opt,name=body,proto3" json:"body,omitempty"`               // 响应体
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BaseApiDocResponse) Reset() {
+	*x = BaseApiDocResponse{}
+	mi := &file_admin_v1_base_api_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BaseApiDocResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BaseApiDocResponse) ProtoMessage() {}
+
+func (x *BaseApiDocResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_admin_v1_base_api_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BaseApiDocResponse.ProtoReflect.Descriptor instead.
+func (*BaseApiDocResponse) Descriptor() ([]byte, []int) {
+	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *BaseApiDocResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *BaseApiDocResponse) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *BaseApiDocResponse) GetBody() *BaseApiDocSchema {
+	if x != nil {
+		return x.Body
+	}
+	return nil
 }
 
 var File_admin_v1_base_api_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x17admin/v1/base_api.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc3\x04\n" +
+	"\x17admin/v1/base_api.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x92\x05\n" +
 	"\x13PageBaseApisRequest\x127\n" +
 	"\fservice_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名H\x00R\vserviceName\x88\x01\x01\x12:\n" +
 	"\fservice_desc\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f服务描述H\x01R\vserviceDesc\x88\x01\x01\x12%\n" +
@@ -505,7 +805,8 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\x06method\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求方式H\x04R\x06method\x88\x01\x01\x12+\n" +
 	"\x04path\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址H\x05R\x04path\x88\x01\x01\x12D\n" +
 	"\vmcp_enabled\x18\a \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否暴露为MCP工具H\x06R\n" +
-	"mcpEnabled\x88\x01\x01\x12'\n" +
+	"mcpEnabled\x88\x01\x01\x12;\n" +
+	"\rmcp_tool_name\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\fMCP工具名H\aR\vmcpToolName\x88\x01\x01\x12'\n" +
 	"\bpage_num\x18e \x01(\x03B\f\xbaG\t\x92\x02\x06页码R\apageNum\x12/\n" +
 	"\tpage_size\x18f \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSizeB\x0f\n" +
 	"\r_service_nameB\x0f\n" +
@@ -515,11 +816,14 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"_operationB\t\n" +
 	"\a_methodB\a\n" +
 	"\x05_pathB\x0e\n" +
-	"\f_mcp_enabled\"{\n" +
+	"\f_mcp_enabledB\x10\n" +
+	"\x0e_mcp_tool_name\"{\n" +
 	"\x14PageBaseApisResponse\x12?\n" +
 	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"1\n" +
 	"\x11GetBaseApiRequest\x12\x1c\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\"4\n" +
+	"\x14GetBaseApiDocRequest\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\"|\n" +
 	"\x1bSetBaseApiMcpEnabledRequest\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12?\n" +
@@ -527,7 +831,7 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"mcpEnabled\"\x15\n" +
 	"\x13ListBaseApisRequest\"W\n" +
 	"\x14ListBaseApisResponse\x12?\n" +
-	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xc2\x04\n" +
+	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xb3\x03\n" +
 	"\aBaseApi\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x122\n" +
 	"\fservice_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x125\n" +
@@ -537,17 +841,40 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\x06method\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求方式R\x06method\x12&\n" +
 	"\x04path\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\x04path\x12?\n" +
 	"\vmcp_enabled\x18\b \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否暴露为MCP工具R\n" +
-	"mcpEnabled\x12@\n" +
-	"\finput_schema\x18\t \x01(\tB\x1d\xbaG\x1a\x92\x02\x17接口入参JSON SchemaR\vinputSchema\x12?\n" +
-	"\varg_mapping\x18\n" +
-	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18接口参数位置映射R\n" +
-	"argMapping\x12B\n" +
-	"\routput_schema\x18\v \x01(\tB\x1d\xbaG\x1a\x92\x02\x17接口返回JSON SchemaR\foutputSchema2\xe4\x03\n" +
+	"mcpEnabled\x126\n" +
+	"\rmcp_tool_name\x18\t \x01(\tB\x12\xbaG\x0f\x92\x02\fMCP工具名R\vmcpToolName\"\xef\x02\n" +
+	"\n" +
+	"BaseApiDoc\x12\x1c\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12&\n" +
+	"\asummary\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06摘要R\asummary\x12.\n" +
+	"\vdescription\x18\x03 \x01(\tB\f\xbaG\t\x92\x02\x06描述R\vdescription\x12N\n" +
+	"\n" +
+	"parameters\x18\x04 \x03(\v2\x1a.admin.v1.BaseApiDocSchemaB\x12\xbaG\x0f\x92\x02\f请求参数R\n" +
+	"parameters\x12N\n" +
+	"\frequest_body\x18\x05 \x01(\v2\x1a.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t请求体R\vrequestBody\x12K\n" +
+	"\tresponses\x18\x06 \x03(\v2\x1c.admin.v1.BaseApiDocResponseB\x0f\xbaG\f\x92\x02\t返回值R\tresponses\"\xd1\x03\n" +
+	"\x10BaseApiDocSchema\x12#\n" +
+	"\x04name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t字段名R\x04name\x12&\n" +
+	"\x04path\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f字段路径R\x04path\x12\"\n" +
+	"\x02in\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f参数位置R\x02in\x12&\n" +
+	"\x04type\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f字段类型R\x04type\x12*\n" +
+	"\x06format\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f字段格式R\x06format\x12.\n" +
+	"\brequired\x18\x06 \x01(\bB\x12\xbaG\x0f\x92\x02\f是否必填R\brequired\x124\n" +
+	"\vdescription\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f字段描述R\vdescription\x12$\n" +
+	"\x03ref\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f引用类型R\x03ref\x12#\n" +
+	"\x04enum\x18\t \x03(\tB\x0f\xbaG\f\x92\x02\t枚举值R\x04enum\x12G\n" +
+	"\bchildren\x18\n" +
+	" \x03(\v2\x1a.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t子字段R\bchildren\"\xb4\x01\n" +
+	"\x12BaseApiDocResponse\x12'\n" +
+	"\x06status\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t状态码R\x06status\x124\n" +
+	"\vdescription\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f响应描述R\vdescription\x12?\n" +
+	"\x04body\x18\x03 \x01(\v2\x1a.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t响应体R\x04body2\xd4\x04\n" +
 	"\x0eBaseApiService\x12m\n" +
 	"\fPageBaseApis\x12\x1d.admin.v1.PageBaseApisRequest\x1a\x1e.admin.v1.PageBaseApisResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/api\x12t\n" +
 	"\fListBaseApis\x12\x1d.admin.v1.ListBaseApisRequest\x1a\x1e.admin.v1.ListBaseApisResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/base/api/option\x12a\n" +
 	"\n" +
-	"GetBaseApi\x12\x1b.admin.v1.GetBaseApiRequest\x1a\x11.admin.v1.BaseApi\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/api/{id}\x12\x89\x01\n" +
+	"GetBaseApi\x12\x1b.admin.v1.GetBaseApiRequest\x1a\x11.admin.v1.BaseApi\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/api/{id}\x12n\n" +
+	"\rGetBaseApiDoc\x12\x1e.admin.v1.GetBaseApiDocRequest\x1a\x14.admin.v1.BaseApiDoc\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/api/{id}/doc\x12\x89\x01\n" +
 	"\x14SetBaseApiMcpEnabled\x12%.admin.v1.SetBaseApiMcpEnabledRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/v1/admin/base/api/{id}/mcp-enabledB\x7f\n" +
 	"\fcom.admin.v1B\fBaseApiProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
@@ -563,33 +890,44 @@ func file_admin_v1_base_api_proto_rawDescGZIP() []byte {
 	return file_admin_v1_base_api_proto_rawDescData
 }
 
-var file_admin_v1_base_api_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_admin_v1_base_api_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_admin_v1_base_api_proto_goTypes = []any{
 	(*PageBaseApisRequest)(nil),         // 0: admin.v1.PageBaseApisRequest
 	(*PageBaseApisResponse)(nil),        // 1: admin.v1.PageBaseApisResponse
 	(*GetBaseApiRequest)(nil),           // 2: admin.v1.GetBaseApiRequest
-	(*SetBaseApiMcpEnabledRequest)(nil), // 3: admin.v1.SetBaseApiMcpEnabledRequest
-	(*ListBaseApisRequest)(nil),         // 4: admin.v1.ListBaseApisRequest
-	(*ListBaseApisResponse)(nil),        // 5: admin.v1.ListBaseApisResponse
-	(*BaseApi)(nil),                     // 6: admin.v1.BaseApi
-	(*emptypb.Empty)(nil),               // 7: google.protobuf.Empty
+	(*GetBaseApiDocRequest)(nil),        // 3: admin.v1.GetBaseApiDocRequest
+	(*SetBaseApiMcpEnabledRequest)(nil), // 4: admin.v1.SetBaseApiMcpEnabledRequest
+	(*ListBaseApisRequest)(nil),         // 5: admin.v1.ListBaseApisRequest
+	(*ListBaseApisResponse)(nil),        // 6: admin.v1.ListBaseApisResponse
+	(*BaseApi)(nil),                     // 7: admin.v1.BaseApi
+	(*BaseApiDoc)(nil),                  // 8: admin.v1.BaseApiDoc
+	(*BaseApiDocSchema)(nil),            // 9: admin.v1.BaseApiDocSchema
+	(*BaseApiDocResponse)(nil),          // 10: admin.v1.BaseApiDocResponse
+	(*emptypb.Empty)(nil),               // 11: google.protobuf.Empty
 }
 var file_admin_v1_base_api_proto_depIdxs = []int32{
-	6, // 0: admin.v1.PageBaseApisResponse.base_apis:type_name -> admin.v1.BaseApi
-	6, // 1: admin.v1.ListBaseApisResponse.base_apis:type_name -> admin.v1.BaseApi
-	0, // 2: admin.v1.BaseApiService.PageBaseApis:input_type -> admin.v1.PageBaseApisRequest
-	4, // 3: admin.v1.BaseApiService.ListBaseApis:input_type -> admin.v1.ListBaseApisRequest
-	2, // 4: admin.v1.BaseApiService.GetBaseApi:input_type -> admin.v1.GetBaseApiRequest
-	3, // 5: admin.v1.BaseApiService.SetBaseApiMcpEnabled:input_type -> admin.v1.SetBaseApiMcpEnabledRequest
-	1, // 6: admin.v1.BaseApiService.PageBaseApis:output_type -> admin.v1.PageBaseApisResponse
-	5, // 7: admin.v1.BaseApiService.ListBaseApis:output_type -> admin.v1.ListBaseApisResponse
-	6, // 8: admin.v1.BaseApiService.GetBaseApi:output_type -> admin.v1.BaseApi
-	7, // 9: admin.v1.BaseApiService.SetBaseApiMcpEnabled:output_type -> google.protobuf.Empty
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	7,  // 0: admin.v1.PageBaseApisResponse.base_apis:type_name -> admin.v1.BaseApi
+	7,  // 1: admin.v1.ListBaseApisResponse.base_apis:type_name -> admin.v1.BaseApi
+	9,  // 2: admin.v1.BaseApiDoc.parameters:type_name -> admin.v1.BaseApiDocSchema
+	9,  // 3: admin.v1.BaseApiDoc.request_body:type_name -> admin.v1.BaseApiDocSchema
+	10, // 4: admin.v1.BaseApiDoc.responses:type_name -> admin.v1.BaseApiDocResponse
+	9,  // 5: admin.v1.BaseApiDocSchema.children:type_name -> admin.v1.BaseApiDocSchema
+	9,  // 6: admin.v1.BaseApiDocResponse.body:type_name -> admin.v1.BaseApiDocSchema
+	0,  // 7: admin.v1.BaseApiService.PageBaseApis:input_type -> admin.v1.PageBaseApisRequest
+	5,  // 8: admin.v1.BaseApiService.ListBaseApis:input_type -> admin.v1.ListBaseApisRequest
+	2,  // 9: admin.v1.BaseApiService.GetBaseApi:input_type -> admin.v1.GetBaseApiRequest
+	3,  // 10: admin.v1.BaseApiService.GetBaseApiDoc:input_type -> admin.v1.GetBaseApiDocRequest
+	4,  // 11: admin.v1.BaseApiService.SetBaseApiMcpEnabled:input_type -> admin.v1.SetBaseApiMcpEnabledRequest
+	1,  // 12: admin.v1.BaseApiService.PageBaseApis:output_type -> admin.v1.PageBaseApisResponse
+	6,  // 13: admin.v1.BaseApiService.ListBaseApis:output_type -> admin.v1.ListBaseApisResponse
+	7,  // 14: admin.v1.BaseApiService.GetBaseApi:output_type -> admin.v1.BaseApi
+	8,  // 15: admin.v1.BaseApiService.GetBaseApiDoc:output_type -> admin.v1.BaseApiDoc
+	11, // 16: admin.v1.BaseApiService.SetBaseApiMcpEnabled:output_type -> google.protobuf.Empty
+	12, // [12:17] is the sub-list for method output_type
+	7,  // [7:12] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_admin_v1_base_api_proto_init() }
@@ -604,7 +942,7 @@ func file_admin_v1_base_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_admin_v1_base_api_proto_rawDesc), len(file_admin_v1_base_api_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

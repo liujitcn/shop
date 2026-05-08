@@ -3,7 +3,7 @@
   <div class="table-box">
     <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestBaseApiTable" />
 
-    <el-drawer v-model="detailDrawer.visible" title="API 详情" size="60%" @close="handleCloseDetail">
+    <el-drawer v-model="detailDrawer.visible" title="API 详情" size="70%" @close="handleCloseDetail">
       <el-descriptions v-if="detailData" :column="1" border>
         <el-descriptions-item label="服务名">{{ detailData.service_name }}</el-descriptions-item>
         <el-descriptions-item label="服务描述">{{ detailData.service_desc }}</el-descriptions-item>
@@ -11,12 +11,78 @@
         <el-descriptions-item label="操作方法">{{ detailData.operation }}</el-descriptions-item>
         <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
         <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
+        <el-descriptions-item label="MCP工具名">{{ detailData.mcp_tool_name }}</el-descriptions-item>
+        <el-descriptions-item label="MCP工具">{{ detailData.mcp_enabled ? "启用" : "禁用" }}</el-descriptions-item>
       </el-descriptions>
 
-      <div class="schema-list">
-        <section v-for="item in schemaItems" :key="item.prop" class="schema-item">
-          <h4>{{ item.label }}</h4>
-          <pre><code>{{ item.content }}</code></pre>
+      <div v-if="detailDoc" class="api-doc">
+        <section class="api-doc-section">
+          <div class="api-doc-title">请求参数</div>
+          <el-table
+            v-if="detailDoc.parameters.length > 0"
+            :data="detailDoc.parameters"
+            row-key="path"
+            default-expand-all
+            :tree-props="{ children: 'children' }"
+          >
+            <el-table-column prop="path" label="字段" min-width="220" />
+            <el-table-column prop="in" label="位置" width="90" />
+            <el-table-column label="类型" min-width="180">
+              <template #default="{ row }">{{ formatSchemaType(row) }}</template>
+            </el-table-column>
+            <el-table-column label="必填" width="80">
+              <template #default="{ row }">{{ row.required ? "是" : "否" }}</template>
+            </el-table-column>
+            <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
+          </el-table>
+          <el-empty v-else description="无请求参数" :image-size="72" />
+        </section>
+
+        <section class="api-doc-section">
+          <div class="api-doc-title">请求体</div>
+          <el-table
+            v-if="requestBodyRows.length > 0"
+            :data="requestBodyRows"
+            row-key="path"
+            default-expand-all
+            :tree-props="{ children: 'children' }"
+          >
+            <el-table-column prop="path" label="字段" min-width="220" />
+            <el-table-column label="类型" min-width="180">
+              <template #default="{ row }">{{ formatSchemaType(row) }}</template>
+            </el-table-column>
+            <el-table-column label="必填" width="80">
+              <template #default="{ row }">{{ row.required ? "是" : "否" }}</template>
+            </el-table-column>
+            <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
+          </el-table>
+          <el-empty v-else description="无请求体" :image-size="72" />
+        </section>
+
+        <section class="api-doc-section">
+          <div class="api-doc-title">返回值</div>
+          <el-collapse v-if="detailDoc.responses.length > 0">
+            <el-collapse-item v-for="response in detailDoc.responses" :key="response.status" :name="response.status">
+              <template #title>
+                <span class="api-doc-response-title">{{ response.status }} {{ response.description }}</span>
+              </template>
+              <el-table
+                v-if="responseBodyRows(response).length > 0"
+                :data="responseBodyRows(response)"
+                row-key="path"
+                default-expand-all
+                :tree-props="{ children: 'children' }"
+              >
+                <el-table-column prop="path" label="字段" min-width="220" />
+                <el-table-column label="类型" min-width="180">
+                  <template #default="{ row }">{{ formatSchemaType(row) }}</template>
+                </el-table-column>
+                <el-table-column prop="description" label="说明" min-width="240" show-overflow-tooltip />
+              </el-table>
+              <el-empty v-else description="无响应体" :image-size="72" />
+            </el-collapse-item>
+          </el-collapse>
+          <el-empty v-else description="无返回值" :image-size="72" />
         </section>
       </div>
     </el-drawer>
@@ -31,7 +97,7 @@ import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interf
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseApiService } from "@/api/admin/base_api";
-import type { BaseApi, PageBaseApisRequest } from "@/rpc/admin/v1/base_api";
+import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApisRequest } from "@/rpc/admin/v1/base_api";
 import { buildPageRequest } from "@/utils/proTable";
 
 defineOptions({
@@ -39,23 +105,16 @@ defineOptions({
   inheritAttrs: false
 });
 
-/** JSON Schema 展示项。 */
-interface SchemaItem {
-  /** 字段名 */
-  prop: keyof Pick<BaseApi, "input_schema" | "arg_mapping" | "output_schema">;
-  /** 展示标题 */
-  label: string;
-  /** 格式化后的展示内容 */
-  content: string;
-}
-
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const detailData = ref<BaseApi>();
+const detailDoc = ref<BaseApiDoc>();
 
 const detailDrawer = reactive({
   visible: false
 });
+
+const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
 
 const mcpEnabledOptions = [
   { label: "启用", value: true },
@@ -70,6 +129,7 @@ const columns: ColumnProps[] = [
   { prop: "operation", label: "操作方法", minWidth: 260, search: { el: "input" } },
   { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
   { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
+  { prop: "mcp_tool_name", label: "MCP工具名", minWidth: 260, search: { el: "input" } },
   {
     prop: "mcp_enabled",
     label: "MCP工具",
@@ -105,13 +165,6 @@ const columns: ColumnProps[] = [
   }
 ];
 
-/** 详情抽屉中的 Schema 展示项。 */
-const schemaItems = computed<SchemaItem[]>(() => [
-  { prop: "input_schema", label: "入参 Schema", content: formatJSON(detailData.value?.input_schema) },
-  { prop: "arg_mapping", label: "参数映射", content: formatJSON(detailData.value?.arg_mapping) },
-  { prop: "output_schema", label: "出参 Schema", content: formatJSON(detailData.value?.output_schema) }
-]);
-
 /**
  * 请求 API 分页列表，并由 ProTable 统一维护分页与搜索参数。
  */
@@ -128,10 +181,15 @@ function refreshTable() {
 }
 
 /**
- * 打开 API 详情抽屉，详情接口返回完整 JSON Schema 字段。
+ * 打开 API 详情抽屉。
  */
 async function handleOpenDetail(apiId: number) {
-  detailData.value = await defBaseApiService.GetBaseApi({ id: apiId });
+  const [baseApi, baseApiDoc] = await Promise.all([
+    defBaseApiService.GetBaseApi({ id: apiId }),
+    defBaseApiService.GetBaseApiDoc({ id: apiId })
+  ]);
+  detailData.value = baseApi;
+  detailDoc.value = baseApiDoc;
   detailDrawer.visible = true;
 }
 
@@ -141,6 +199,32 @@ async function handleOpenDetail(apiId: number) {
 function handleCloseDetail() {
   detailDrawer.visible = false;
   detailData.value = undefined;
+  detailDoc.value = undefined;
+}
+
+/**
+ * 将可选 Schema 转成表格行。
+ */
+function schemaRows(schema?: BaseApiDocSchema) {
+  return schema ? [schema] : [];
+}
+
+/**
+ * 获取响应体表格行。
+ */
+function responseBodyRows(response: BaseApiDocResponse) {
+  return schemaRows(response.body);
+}
+
+/**
+ * 格式化 Schema 类型，补充格式、引用类型与枚举值。
+ */
+function formatSchemaType(schema: BaseApiDocSchema) {
+  const values = [schema.type];
+  if (schema.format) values.push(`<${schema.format}>`);
+  if (schema.ref) values.push(schema.ref);
+  if (schema.enum.length > 0) values.push(schema.enum.join(" | "));
+  return values.filter(Boolean).join(" ");
 }
 
 /**
@@ -164,41 +248,26 @@ async function handleBeforeSetMcpEnabled(row: BaseApi) {
     return false;
   }
 }
-
-/**
- * 尽量格式化 JSON 字符串；非 JSON 内容保持原样，空值展示占位。
- */
-function formatJSON(value?: string) {
-  if (!value) return "--";
-  try {
-    return JSON.stringify(JSON.parse(value), null, 2);
-  } catch {
-    // 后端若返回非标准 JSON 字符串，也保留原文方便排查。
-    return value;
-  }
-}
 </script>
 
 <style scoped lang="scss">
-.schema-list {
-  margin-top: 16px;
+.api-doc {
+  margin-top: 18px;
 }
 
-.schema-item {
-  margin-bottom: 16px;
+.api-doc-section {
+  margin-top: 20px;
+}
 
-  h4 {
-    margin: 0 0 8px;
-    font-size: 14px;
-  }
+.api-doc-title {
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
 
-  pre {
-    max-height: 320px;
-    padding: 12px;
-    overflow: auto;
-    border-radius: 4px;
-    background: var(--el-fill-color-light);
-    color: var(--el-text-color-primary);
-  }
+.api-doc-response-title {
+  font-weight: 500;
+  color: var(--el-text-color-primary);
 }
 </style>

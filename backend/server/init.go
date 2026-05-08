@@ -7,6 +7,9 @@ import (
 // ProviderSet 汇总服务端依赖注入提供者。
 var ProviderSet = wire.NewSet(
 	NewHTTPMiddleware,
+	NewServerServices,
+	NewMCPHandler,
+	NewSSEHandler,
 	NewGRPCMiddleware,
 	NewGRPCServer,
 	NewHTTPServer,

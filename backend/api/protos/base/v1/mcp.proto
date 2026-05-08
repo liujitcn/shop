@@ -11,18 +11,8 @@ service McpService {
   // 处理MCP Streamable HTTP请求
   rpc HandleMcp(HandleMcpRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      post: "/mcp"
+      post: "/mcp/{terminal}"
       body: "*"
-      additional_bindings {
-        get: "/mcp"
-      }
-      additional_bindings {
-        delete: "/mcp"
-      }
-      additional_bindings {
-        post: "/mcp/{terminal}"
-        body: "*"
-      }
       additional_bindings {
         get: "/mcp/{terminal}"
       }
@@ -35,5 +25,5 @@ service McpService {
 
 // MCP请求参数
 message HandleMcpRequest {
-  string terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型，支持 app 或 admin"}]; // 终端类型，支持 app 或 admin
+  string terminal = 1 [(gnostic.openapi.v3.property) = {description: "服务筛选关键字，必填，支持 app、admin 或任意服务关键字"}]; // 服务筛选关键字，必填，支持 app、admin 或任意服务关键字
 }

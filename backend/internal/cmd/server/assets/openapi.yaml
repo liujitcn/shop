@@ -396,6 +396,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: mcpToolName
+                  in: query
+                  schema:
+                    type: string
                 - name: pageNum
                   in: query
                   schema:
@@ -443,6 +447,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/BaseApi'
+    /api/v1/admin/base/api/{id}/doc:
+        get:
+            tags:
+                - BaseApiService
+            description: 查询API文档
+            operationId: BaseApiService_GetBaseApiDoc
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BaseApiDoc'
     /api/v1/admin/base/api/{id}/mcp-enabled:
         put:
             tags:
@@ -5551,70 +5574,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /events/{stream}:
-        get:
-            tags:
-                - SseService
-            description: 订阅SSE事件流
-            operationId: SseService_SubscribeSse
-            parameters:
-                - name: stream
-                  in: path
-                  required: true
-                  schema:
-                    enum:
-                        - SSE_STREAM_UNSPECIFIED
-                        - SSE_STREAM_ADMIN
-                    type: string
-                    format: enum
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /mcp:
-        get:
-            tags:
-                - McpService
-            description: 处理MCP Streamable HTTP请求
-            operationId: McpService_HandleMcp
-            parameters:
-                - name: terminal
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-        post:
-            tags:
-                - McpService
-            description: 处理MCP Streamable HTTP请求
-            operationId: McpService_HandleMcp
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/HandleMcpRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-        delete:
-            tags:
-                - McpService
-            description: 处理MCP Streamable HTTP请求
-            operationId: McpService_HandleMcp
-            parameters:
-                - name: terminal
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content: {}
     /mcp/{terminal}:
         get:
             tags:
@@ -5817,16 +5776,85 @@ components:
                 mcpEnabled:
                     type: boolean
                     description: 是否暴露为MCP工具
-                inputSchema:
+                mcpToolName:
                     type: string
-                    description: 接口入参JSON Schema
-                argMapping:
-                    type: string
-                    description: 接口参数位置映射
-                outputSchema:
-                    type: string
-                    description: 接口返回JSON Schema
+                    description: MCP工具名
             description: API
+        BaseApiDoc:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: API ID
+                summary:
+                    type: string
+                    description: 摘要
+                description:
+                    type: string
+                    description: 描述
+                parameters:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BaseApiDocSchema'
+                    description: 请求参数
+                requestBody:
+                    $ref: '#/components/schemas/BaseApiDocSchema'
+                responses:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BaseApiDocResponse'
+                    description: 返回值
+            description: API文档
+        BaseApiDocResponse:
+            type: object
+            properties:
+                status:
+                    type: string
+                    description: 状态码
+                description:
+                    type: string
+                    description: 响应描述
+                body:
+                    $ref: '#/components/schemas/BaseApiDocSchema'
+            description: API文档响应
+        BaseApiDocSchema:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 字段名
+                path:
+                    type: string
+                    description: 字段路径
+                in:
+                    type: string
+                    description: 参数位置
+                type:
+                    type: string
+                    description: 字段类型
+                format:
+                    type: string
+                    description: 字段格式
+                required:
+                    type: boolean
+                    description: 是否必填
+                description:
+                    type: string
+                    description: 字段描述
+                ref:
+                    type: string
+                    description: 引用类型
+                enum:
+                    type: array
+                    items:
+                        type: string
+                    description: 枚举值
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BaseApiDocSchema'
+                    description: 子字段
+            description: API文档Schema
         BaseConfig:
             type: object
             properties:
@@ -8322,7 +8350,7 @@ components:
             properties:
                 terminal:
                     type: string
-                    description: 终端类型，支持 app 或 admin
+                    description: 服务筛选关键字，必填，支持 app、admin 或任意服务关键字
             description: MCP请求参数
         ImportDataRequest:
             type: object

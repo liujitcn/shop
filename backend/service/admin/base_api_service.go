@@ -57,6 +57,17 @@ func (s *BaseApiService) GetBaseApi(ctx context.Context, req *adminv1.GetBaseApi
 	return baseAPI, nil
 }
 
+// GetBaseApiDoc 查询API文档
+func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *adminv1.GetBaseApiDocRequest) (*adminv1.BaseApiDoc, error) {
+	baseAPIDoc, err := s.baseAPICase.GetBaseAPIDoc(ctx, req.GetId())
+	if err != nil {
+		log.Errorf("GetBaseApiDoc %v", err)
+		return nil, errorsx.WrapInternal(err, "查询API文档失败")
+	}
+
+	return baseAPIDoc, nil
+}
+
 // SetBaseApiMcpEnabled 设置API MCP启用状态
 func (s *BaseApiService) SetBaseApiMcpEnabled(ctx context.Context, req *adminv1.SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.SetBaseAPIMcpEnabled(ctx, req)

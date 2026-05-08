@@ -29,15 +29,13 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 	_baseAPI.ALL = field.NewAsterisk(tableName)
 	_baseAPI.ID = field.NewInt64(tableName, "id")
 	_baseAPI.McpEnabled = field.NewBool(tableName, "mcp_enabled")
+	_baseAPI.McpToolName = field.NewString(tableName, "mcp_tool_name")
 	_baseAPI.ServiceName = field.NewString(tableName, "service_name")
 	_baseAPI.ServiceDesc = field.NewString(tableName, "service_desc")
 	_baseAPI.Desc = field.NewString(tableName, "desc")
 	_baseAPI.Operation = field.NewString(tableName, "operation")
 	_baseAPI.Method = field.NewString(tableName, "method")
 	_baseAPI.Path = field.NewString(tableName, "path")
-	_baseAPI.InputSchema = field.NewString(tableName, "input_schema")
-	_baseAPI.ArgMapping = field.NewString(tableName, "arg_mapping")
-	_baseAPI.OutputSchema = field.NewString(tableName, "output_schema")
 	_baseAPI.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_baseAPI.fillFieldMap()
@@ -49,19 +47,17 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 type baseAPI struct {
 	baseAPIDo baseAPIDo
 
-	ALL          field.Asterisk
-	ID           field.Int64  // API ID
-	McpEnabled   field.Bool   // 是否暴露为MCP工具
-	ServiceName  field.String // 服务名
-	ServiceDesc  field.String // 服务描述
-	Desc         field.String // 描述
-	Operation    field.String // 操作方法
-	Method       field.String // 请求方式
-	Path         field.String // 请求地址
-	InputSchema  field.String // 接口入参JSON Schema
-	ArgMapping   field.String // 接口参数位置映射
-	OutputSchema field.String // 接口返回JSON Schema
-	DeletedAt    field.Field  // 删除时间
+	ALL         field.Asterisk
+	ID          field.Int64  // API ID
+	McpEnabled  field.Bool   // 是否暴露为MCP工具
+	McpToolName field.String // MCP工具名
+	ServiceName field.String // 服务名
+	ServiceDesc field.String // 服务描述
+	Desc        field.String // 描述
+	Operation   field.String // 操作方法
+	Method      field.String // 请求方式
+	Path        field.String // 请求地址
+	DeletedAt   field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -80,15 +76,13 @@ func (b *baseAPI) updateTableName(table string) *baseAPI {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
 	b.McpEnabled = field.NewBool(table, "mcp_enabled")
+	b.McpToolName = field.NewString(table, "mcp_tool_name")
 	b.ServiceName = field.NewString(table, "service_name")
 	b.ServiceDesc = field.NewString(table, "service_desc")
 	b.Desc = field.NewString(table, "desc")
 	b.Operation = field.NewString(table, "operation")
 	b.Method = field.NewString(table, "method")
 	b.Path = field.NewString(table, "path")
-	b.InputSchema = field.NewString(table, "input_schema")
-	b.ArgMapping = field.NewString(table, "arg_mapping")
-	b.OutputSchema = field.NewString(table, "output_schema")
 	b.DeletedAt = field.NewField(table, "deleted_at")
 
 	b.fillFieldMap()
@@ -114,18 +108,16 @@ func (b *baseAPI) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseAPI) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 10)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["mcp_enabled"] = b.McpEnabled
+	b.fieldMap["mcp_tool_name"] = b.McpToolName
 	b.fieldMap["service_name"] = b.ServiceName
 	b.fieldMap["service_desc"] = b.ServiceDesc
 	b.fieldMap["desc"] = b.Desc
 	b.fieldMap["operation"] = b.Operation
 	b.fieldMap["method"] = b.Method
 	b.fieldMap["path"] = b.Path
-	b.fieldMap["input_schema"] = b.InputSchema
-	b.fieldMap["arg_mapping"] = b.ArgMapping
-	b.fieldMap["output_schema"] = b.OutputSchema
 	b.fieldMap["deleted_at"] = b.DeletedAt
 }
 

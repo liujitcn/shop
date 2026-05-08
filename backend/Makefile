@@ -26,6 +26,16 @@ plugin:
 	@go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	@go install github.com/envoyproxy/protoc-gen-validate@latest
 	@go install github.com/liujitcn/kratos-kit/cmd/protoc-gen-go-service@latest
+	@if [ -d ../../kratos-kit/cmd/protoc-gen-go-agent-tool ]; then \
+		cd ../../kratos-kit/cmd/protoc-gen-go-agent-tool && go install .; \
+	else \
+		go install github.com/liujitcn/kratos-kit/cmd/protoc-gen-go-agent-tool@latest; \
+	fi
+	@if [ -d ../../kratos-kit/cmd/protoc-gen-go-mcp-tool ]; then \
+		cd ../../kratos-kit/cmd/protoc-gen-go-mcp-tool && go install .; \
+	else \
+		go install github.com/liujitcn/kratos-kit/cmd/protoc-gen-go-mcp-tool@latest; \
+	fi
 	@go install github.com/go-kratos/protoc-gen-typescript-http@latest
 
 # 安装命令行工具
@@ -39,36 +49,49 @@ cli:
 
 # 使用 goimports 统一整理 Go 代码的 import 与格式
 fmt:
+	@echo "==> 格式化 Go 代码"
 	@goimports -w $$(rg --files -g '*.go')
+	@echo "==> Go 代码格式化完成"
 
 # 生成 GORM 代码
 gorm-gen:
+	@echo "==> 生成 GORM 代码"
 	gen -base_path=pkg/gen -source='root:112233@tcp(127.0.0.1:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
+	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
 wire: fmt
+	@echo "==> 生成 wire 依赖注入代码"
 	@cd internal/cmd/server && \
 	wire
+	@echo "==> wire 依赖注入代码生成完成"
 
 # 生成 protobuf 的 Go 代码
 api:
+	@echo "==> 生成 protobuf Go 代码"
 	@cd api && \
 	buf generate
+	@echo "==> protobuf Go 代码生成完成"
 
 # 生成 OpenAPI v3 文档
 openapi:
+	@echo "==> 生成 OpenAPI v3 文档"
 	@cd api && \
 	buf generate --template buf.openapi.gen.yaml --exclude-path protos/conf
+	@echo "==> OpenAPI v3 文档生成完成"
 
 # 生成 TypeScript 代码
 ts:
+	@echo "==> 生成 TypeScript RPC 代码"
 	@test -n "$(TS_PROTO_BIN)" || (echo "protoc-gen-ts_proto not found. Run pnpm install in frontend/admin or frontend/app, or install ts-proto globally." && exit 1)
 	@cd api && \
 	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.admin.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/app && \
 	PATH="$(TS_PROTO_BIN_DIR):$$PATH" buf generate --template buf.app.typescript.gen.yaml --exclude-path protos/conf --exclude-path protos/admin
+	@echo "==> TypeScript RPC 代码生成完成"
 
 # 一键生成全部接口产物（Go 代码 + OpenAPI 文档 + TypeScript 代码）
 gen: api openapi ts fmt
+	@echo "==> 全部接口产物生成完成"
 
 # 启动应用
 run: api openapi

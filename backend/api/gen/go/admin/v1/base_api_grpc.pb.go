@@ -24,6 +24,7 @@ const (
 	BaseApiService_PageBaseApis_FullMethodName         = "/admin.v1.BaseApiService/PageBaseApis"
 	BaseApiService_ListBaseApis_FullMethodName         = "/admin.v1.BaseApiService/ListBaseApis"
 	BaseApiService_GetBaseApi_FullMethodName           = "/admin.v1.BaseApiService/GetBaseApi"
+	BaseApiService_GetBaseApiDoc_FullMethodName        = "/admin.v1.BaseApiService/GetBaseApiDoc"
 	BaseApiService_SetBaseApiMcpEnabled_FullMethodName = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
 )
 
@@ -39,6 +40,8 @@ type BaseApiServiceClient interface {
 	ListBaseApis(ctx context.Context, in *ListBaseApisRequest, opts ...grpc.CallOption) (*ListBaseApisResponse, error)
 	// 查询API详情
 	GetBaseApi(ctx context.Context, in *GetBaseApiRequest, opts ...grpc.CallOption) (*BaseApi, error)
+	// 查询API文档
+	GetBaseApiDoc(ctx context.Context, in *GetBaseApiDocRequest, opts ...grpc.CallOption) (*BaseApiDoc, error)
 	// 设置API MCP启用状态
 	SetBaseApiMcpEnabled(ctx context.Context, in *SetBaseApiMcpEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -81,6 +84,16 @@ func (c *baseApiServiceClient) GetBaseApi(ctx context.Context, in *GetBaseApiReq
 	return out, nil
 }
 
+func (c *baseApiServiceClient) GetBaseApiDoc(ctx context.Context, in *GetBaseApiDocRequest, opts ...grpc.CallOption) (*BaseApiDoc, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BaseApiDoc)
+	err := c.cc.Invoke(ctx, BaseApiService_GetBaseApiDoc_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *baseApiServiceClient) SetBaseApiMcpEnabled(ctx context.Context, in *SetBaseApiMcpEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -103,6 +116,8 @@ type BaseApiServiceServer interface {
 	ListBaseApis(context.Context, *ListBaseApisRequest) (*ListBaseApisResponse, error)
 	// 查询API详情
 	GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error)
+	// 查询API文档
+	GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error)
 	// 设置API MCP启用状态
 	SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseApiServiceServer()
@@ -123,6 +138,9 @@ func (UnimplementedBaseApiServiceServer) ListBaseApis(context.Context, *ListBase
 }
 func (UnimplementedBaseApiServiceServer) GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBaseApi not implemented")
+}
+func (UnimplementedBaseApiServiceServer) GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBaseApiDoc not implemented")
 }
 func (UnimplementedBaseApiServiceServer) SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseApiMcpEnabled not implemented")
@@ -202,6 +220,24 @@ func _BaseApiService_GetBaseApi_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseApiService_GetBaseApiDoc_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBaseApiDocRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseApiServiceServer).GetBaseApiDoc(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseApiService_GetBaseApiDoc_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseApiServiceServer).GetBaseApiDoc(ctx, req.(*GetBaseApiDocRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _BaseApiService_SetBaseApiMcpEnabled_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SetBaseApiMcpEnabledRequest)
 	if err := dec(in); err != nil {
@@ -238,6 +274,10 @@ var BaseApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBaseApi",
 			Handler:    _BaseApiService_GetBaseApi_Handler,
+		},
+		{
+			MethodName: "GetBaseApiDoc",
+			Handler:    _BaseApiService_GetBaseApiDoc_Handler,
 		},
 		{
 			MethodName: "SetBaseApiMcpEnabled",

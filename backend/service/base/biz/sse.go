@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -19,7 +18,6 @@ import (
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/rpc"
 	sseServer "github.com/liujitcn/kratos-kit/transport/sse"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -27,9 +25,6 @@ import (
 const (
 	sseAccessTokenQuery = "access_token"
 	sseTokenQuery       = "token"
-	defaultSsePath      = "/events"
-	defaultSseCodec     = "json"
-	defaultSseEventTTL  = 300 * time.Second
 )
 
 // SseCase 处理 SSE 公共业务。
@@ -37,32 +32,22 @@ type SseCase struct {
 	http.Handler
 
 	authenticator authnEngine.Authenticator
+	path          string
 }
 
 // NewSseCase 创建 SSE 业务实例。
-func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator) (*SseCase, error) {
+func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator, sseSrv *sseServer.Server) (*SseCase, error) {
 	handler := &SseCase{
 		authenticator: authenticator,
+		path:          "/events",
 	}
 	cfg := ctx.GetConfig()
 	// 未启用 HTTP 服务时，不创建 SSE HTTP 处理器。
 	if cfg == nil || cfg.Server == nil || cfg.Server.Http == nil {
 		return handler, nil
 	}
-	options := []sseServer.ServerOption{
-		sseServer.WithPath(defaultSsePath),
-		sseServer.WithCodec(defaultSseCodec),
-		sseServer.WithEventTTL(defaultSseEventTTL),
-		sseServer.WithAutoStream(true),
-		sseServer.WithAutoReply(true),
-	}
-	if cfg.Server.Http.Timeout != nil {
-		options = append(options, sseServer.WithTimeout(cfg.Server.Http.Timeout.AsDuration()))
-	}
-
-	sseSrv, err := rpc.CreateSseHandler(cfg, options...)
-	if err != nil {
-		return nil, err
+	if cfg.Server.Sse != nil && cfg.Server.Sse.GetPath() != "" {
+		handler.path = cfg.Server.Sse.GetPath()
 	}
 	streamID := sseServer.StreamID(workspaceevent.StreamID(workspaceevent.StreamAdmin))
 	sseSrv.CreateStream(streamID)
@@ -105,7 +90,8 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 	if !ok || w == nil {
 		return nil, errorsx.InvalidArgument("SSE订阅仅支持HTTP访问")
 	}
-	r, ok := kratosHTTP.RequestFromServerContext(ctx)
+	var r *http.Request
+	r, ok = kratosHTTP.RequestFromServerContext(ctx)
 	if !ok || r == nil {
 		return nil, errorsx.InvalidArgument("SSE订阅仅支持HTTP访问")
 	}
@@ -115,12 +101,12 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 
 // normalizeSubscribeRequest 将路径参数中的流标识转换为 SSE 处理器使用的查询参数。
 func (h *SseCase) normalizeSubscribeRequest(r *http.Request, req *basev1.SubscribeSseRequest) *http.Request {
-	if r.URL.Path == defaultSsePath && r.URL.Query().Get("stream") != "" {
+	if r.URL.Query().Get("stream") != "" {
 		return r
 	}
 	clonedRequest := r.Clone(r.Context())
 	urlCopy := *r.URL
-	urlCopy.Path = defaultSsePath
+	urlCopy.Path = h.path
 	urlCopy.RawPath = ""
 	query := urlCopy.Query()
 	if query.Get("stream") == "" {

@@ -2,12 +2,15 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
 	adminv1 "shop/api/gen/go/admin/v1"
+	"shop/internal/cmd/server/assets"
 	"shop/pkg/biz"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
@@ -15,6 +18,11 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen"
+)
+
+const (
+	baseAPIDocJSONMediaType = "application/json"
+	baseAPIDocMaxDepth      = 8
 )
 
 // BaseAPICase 接口业务实例
@@ -38,7 +46,7 @@ func NewBaseAPICase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository,
 // PageBaseAPIs 分页查询接口列表
 func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApisRequest) (*adminv1.PageBaseApisResponse, error) {
 	query := c.Query(ctx).BaseAPI
-	opts := make([]repository.QueryOption, 0, 9)
+	opts := make([]repository.QueryOption, 0, 10)
 	opts = append(opts, repository.Order(query.ID.Desc()))
 	// 传入服务名关键字时，按服务名模糊匹配。
 	if req.GetServiceName() != "" {
@@ -66,6 +74,10 @@ func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApi
 	}
 	if req.McpEnabled != nil {
 		opts = append(opts, repository.Where(query.McpEnabled.Is(req.GetMcpEnabled())))
+	}
+	// 传入 MCP 工具名时，按工具名模糊匹配。
+	if req.GetMcpToolName() != "" {
+		opts = append(opts, repository.Where(query.McpToolName.Like("%"+req.GetMcpToolName()+"%")))
 	}
 
 	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -97,6 +109,36 @@ func (c *BaseAPICase) GetBaseAPI(ctx context.Context, id int64) (*adminv1.BaseAp
 	}
 
 	return c.mapper.ToDTO(baseAPI), nil
+}
+
+// GetBaseAPIDoc 查询接口 OpenAPI 文档
+func (c *BaseAPICase) GetBaseAPIDoc(ctx context.Context, id int64) (*adminv1.BaseApiDoc, error) {
+	query := c.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(id)))
+
+	baseAPI, err := c.Find(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	api, err := biz.ParseOpenAPI(assets.OpenAPIData)
+	if err != nil {
+		return nil, err
+	}
+	operation := api.Operation(baseAPI.Path, baseAPI.Method)
+	if operation == nil {
+		return nil, fmt.Errorf("openapi operation not found: %s %s", baseAPI.Method, baseAPI.Path)
+	}
+
+	return &adminv1.BaseApiDoc{
+		Id:          baseAPI.ID,
+		Summary:     operation.Summary,
+		Description: operation.Description,
+		Parameters:  buildBaseAPIDocParameters(api, operation.Parameters),
+		RequestBody: buildBaseAPIDocRequestBody(api, operation.RequestBody),
+		Responses:   buildBaseAPIDocResponses(api, operation.Responses),
+	}, nil
 }
 
 // SetBaseAPIMcpEnabled 设置接口 MCP 启用状态
@@ -135,6 +177,149 @@ func (c *BaseAPICase) ListBaseAPIs(ctx context.Context, _ *adminv1.ListBaseApisR
 	}
 
 	return &adminv1.ListBaseApisResponse{BaseApis: baseAPIs}, nil
+}
+
+// buildBaseAPIDocParameters 构建请求参数文档。
+func buildBaseAPIDocParameters(api *biz.OpenAPI, parameters []biz.Parameter) []*adminv1.BaseApiDocSchema {
+	items := make([]*adminv1.BaseApiDocSchema, 0, len(parameters))
+	for _, parameter := range parameters {
+		item := buildBaseAPIDocSchema(api, parameter.Name, parameter.Name, parameter.In, parameter.Required, parameter.Schema, 0)
+		if parameter.Description != "" {
+			item.Description = parameter.Description
+		}
+		items = append(items, item)
+	}
+	return items
+}
+
+// buildBaseAPIDocRequestBody 构建请求体文档。
+func buildBaseAPIDocRequestBody(api *biz.OpenAPI, requestBody *biz.RequestBody) *adminv1.BaseApiDocSchema {
+	if requestBody == nil {
+		return nil
+	}
+	schema := selectBaseAPIDocContentSchema(requestBody.Content)
+	if schema == nil {
+		return nil
+	}
+	item := buildBaseAPIDocSchema(api, "body", "body", "body", requestBody.Required, *schema, 0)
+	if requestBody.Description != "" {
+		item.Description = requestBody.Description
+	}
+	return item
+}
+
+// buildBaseAPIDocResponses 构建响应文档。
+func buildBaseAPIDocResponses(api *biz.OpenAPI, responses map[string]biz.Response) []*adminv1.BaseApiDocResponse {
+	items := make([]*adminv1.BaseApiDocResponse, 0, len(responses))
+	statuses := make([]string, 0, len(responses))
+	for status := range responses {
+		statuses = append(statuses, status)
+	}
+	sort.Strings(statuses)
+	for _, status := range statuses {
+		response := responses[status]
+		schema := selectBaseAPIDocContentSchema(response.Content)
+		item := &adminv1.BaseApiDocResponse{
+			Status:      status,
+			Description: response.Description,
+		}
+		if schema != nil {
+			item.Body = buildBaseAPIDocSchema(api, "body", "body", "body", false, *schema, 0)
+		}
+		items = append(items, item)
+	}
+	return items
+}
+
+// buildBaseAPIDocSchema 展开 OpenAPI Schema 为前端可直接渲染的字段树。
+func buildBaseAPIDocSchema(api *biz.OpenAPI, name, path, in string, required bool, schema biz.Schema, depth int) *adminv1.BaseApiDocSchema {
+	schema, refName := dereferenceBaseAPIDocSchema(api, schema)
+	item := &adminv1.BaseApiDocSchema{
+		Name:        name,
+		Path:        path,
+		In:          in,
+		Type:        schema.Type,
+		Format:      schema.Format,
+		Required:    required,
+		Description: schema.Description,
+		Ref:         refName,
+		Enum:        schema.Enum,
+	}
+	if item.Type == "" {
+		item.Type = inferBaseAPIDocSchemaType(schema)
+	}
+	if depth >= baseAPIDocMaxDepth {
+		return item
+	}
+	if schema.Items != nil {
+		child := buildBaseAPIDocSchema(api, name+"[]", path+"[]", in, false, *schema.Items, depth+1)
+		item.Children = []*adminv1.BaseApiDocSchema{child}
+	}
+	if len(schema.Properties) > 0 {
+		requiredFields := make(map[string]bool, len(schema.Required))
+		for _, field := range schema.Required {
+			requiredFields[field] = true
+		}
+		item.Children = make([]*adminv1.BaseApiDocSchema, 0, len(schema.Properties))
+		fieldNames := make([]string, 0, len(schema.Properties))
+		for fieldName := range schema.Properties {
+			fieldNames = append(fieldNames, fieldName)
+		}
+		sort.Strings(fieldNames)
+		for _, fieldName := range fieldNames {
+			fieldSchema := schema.Properties[fieldName]
+			fieldPath := fieldName
+			if path != "" {
+				fieldPath = path + "." + fieldName
+			}
+			item.Children = append(item.Children, buildBaseAPIDocSchema(api, fieldName, fieldPath, in, requiredFields[fieldName], fieldSchema, depth+1))
+		}
+	}
+	return item
+}
+
+// selectBaseAPIDocContentSchema 选择可展示的 JSON Schema。
+func selectBaseAPIDocContentSchema(content map[string]biz.MediaType) *biz.Schema {
+	if len(content) == 0 {
+		return nil
+	}
+	if media, ok := content[baseAPIDocJSONMediaType]; ok {
+		return &media.Schema
+	}
+	for _, media := range content {
+		return &media.Schema
+	}
+	return nil
+}
+
+// dereferenceBaseAPIDocSchema 解析本地组件引用。
+func dereferenceBaseAPIDocSchema(api *biz.OpenAPI, schema biz.Schema) (biz.Schema, string) {
+	refName := strings.TrimPrefix(schema.Ref, "#/components/schemas/")
+	if refName == "" || api == nil {
+		return schema, refName
+	}
+	refSchema, ok := api.Components.Schemas[refName]
+	if !ok {
+		return schema, refName
+	}
+	if refSchema.Description == "" {
+		refSchema.Description = schema.Description
+	}
+	return refSchema, refName
+}
+
+// inferBaseAPIDocSchemaType 推断缺省 Schema 类型。
+func inferBaseAPIDocSchemaType(schema biz.Schema) string {
+	if len(schema.Properties) > 0 {
+		return "object"
+	}
+	if schema.Items != nil {
+		return "array"
+	}
+	if schema.Ref != "" {
+		return "object"
+	}
+	return "string"
 }
 
 // matchAuthWhiteList 按认证白名单规则匹配当前接口操作名。

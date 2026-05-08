@@ -5,13 +5,12 @@
 // source: base/v1/mcp.proto
 
 /* eslint-disable */
-import type { McpTerminal } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
 /** MCP请求参数 */
 export interface HandleMcpRequest {
-  /** 终端类型 */
-  terminal: McpTerminal;
+  /** 服务筛选关键字，必填，支持 app、admin 或任意服务关键字 */
+  terminal: string;
 }
 
 /** Base MCP服务 */

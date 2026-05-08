@@ -2,23 +2,14 @@ package biz
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"sort"
 	"strings"
 
+	kitutils "github.com/liujitcn/kratos-kit/utils"
 	"gopkg.in/yaml.v3"
-)
-
-const (
-	openAPIStatusOK       = "200"
-	openAPIStatusCreated  = "201"
-	openAPIStatusAccepted = "202"
-	openAPIStatusNoBody   = "204"
-	openAPIStatusDefault  = "default"
-	openAPIJSONMediaType  = "application/json"
 )
 
 // BaseAPICase 接口业务实例。
@@ -33,8 +24,7 @@ func NewBaseAPICase(baseAPIRepo *data.BaseAPIRepository) *BaseAPICase {
 
 // openAPIDataToBaseAPI 将 OpenAPI 文档转换为接口模型。
 func (c *BaseAPICase) openAPIDataToBaseAPI(openAPIData []byte) ([]*models.BaseAPI, error) {
-	var api OpenAPI
-	err := yaml.Unmarshal(openAPIData, &api)
+	api, err := ParseOpenAPI(openAPIData)
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +122,39 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 	return c.BatchCreate(ctx, apiList)
 }
 
+// ParseOpenAPI 解析 OpenAPI 文档。
+func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
+	var api OpenAPI
+	err := yaml.Unmarshal(openAPIData, &api)
+	if err != nil {
+		return nil, err
+	}
+	return &api, nil
+}
+
+// Operation 按 path 和 method 获取 OpenAPI 操作定义。
+func (api *OpenAPI) Operation(path, method string) *Operation {
+	if api == nil {
+		return nil
+	}
+	item, ok := api.Paths[path]
+	if !ok {
+		return nil
+	}
+	switch method {
+	case "GET":
+		return item.Get
+	case "POST":
+		return item.Post
+	case "PUT":
+		return item.Put
+	case "DELETE":
+		return item.Delete
+	default:
+		return nil
+	}
+}
+
 // parseOperation 解析单个 OpenAPI 操作项。
 func parseOperation(path, method string, op *Operation, tagsMap map[string]string) (*models.BaseAPI, error) {
 	// 操作项为空时，当前请求方法无需生成接口权限数据。
@@ -151,13 +174,9 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 		return nil, nil
 	}
 
-	inputSchema, argMapping, outputSchema, err := buildOpenAPIMetadata(op)
-	if err != nil {
-		return nil, err
-	}
-
 	serviceName := fmt.Sprintf("%s.%s", packageName, serviceTag)
 	serviceDesc := tagsMap[serviceName]
+	operation := fmt.Sprintf("/%s.%s/%s", packageName, serviceTag, methodName)
 	// 存在标签时，优先使用首个标签作为服务归属。
 	if len(op.Tags) > 0 {
 		serviceName = fmt.Sprintf("%s.%s", packageName, op.Tags[0])
@@ -168,209 +187,15 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 	}
 
 	return &models.BaseAPI{
-		ServiceName:  serviceName,
-		ServiceDesc:  serviceDesc,
-		Desc:         operationDescription(op),
-		Operation:    fmt.Sprintf("/%s.%s/%s", packageName, serviceTag, methodName),
-		Method:       method,
-		Path:         path,
-		InputSchema:  inputSchema,
-		ArgMapping:   argMapping,
-		OutputSchema: outputSchema,
+		McpEnabled:  true,
+		McpToolName: kitutils.ToolNameFromRPCPath(operation),
+		ServiceName: serviceName,
+		ServiceDesc: serviceDesc,
+		Desc:        operationDescription(op),
+		Operation:   operation,
+		Method:      method,
+		Path:        path,
 	}, nil
-}
-
-// buildOpenAPIMetadata 根据 OpenAPI 操作项构建接口 Schema 与参数映射。
-func buildOpenAPIMetadata(op *Operation) (string, string, string, error) {
-	properties := make(map[string]any)
-	required := make([]string, 0)
-	argMappings := make([]ArgMappingItem, 0)
-
-	for _, parameter := range op.Parameters {
-		property := buildParameterSchema(parameter)
-		properties[parameter.Name] = property
-		// 必填参数需要同步写入 JSON Schema required 列表。
-		if parameter.Required {
-			required = append(required, parameter.Name)
-		}
-		argMappings = append(argMappings, ArgMappingItem{
-			Name:        parameter.Name,
-			Position:    parameter.In,
-			Required:    parameter.Required,
-			Type:        schemaType(property),
-			Description: schemaDescription(parameter.Description, property),
-		})
-	}
-
-	bodySchema := selectRequestBodySchema(op.RequestBody)
-	// 存在请求体时，统一以 body 参数承载，便于 MCP 调用层按位置转发。
-	if bodySchema != nil {
-		properties["body"] = bodySchema
-		// 请求体标记为必填时，同步写入 JSON Schema required 列表。
-		if op.RequestBody.Required {
-			required = append(required, "body")
-		}
-		argMappings = append(argMappings, ArgMappingItem{
-			Name:        "body",
-			Position:    "body",
-			Required:    op.RequestBody.Required,
-			Type:        schemaType(bodySchema),
-			Description: schemaDescription(op.RequestBody.Description, bodySchema),
-		})
-	}
-
-	inputSchema := map[string]any{
-		"type":       "object",
-		"properties": properties,
-		"required":   required,
-	}
-	inputSchemaBytes, err := json.Marshal(inputSchema)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	var argMappingBytes []byte
-	argMappingBytes, err = json.Marshal(argMappings)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	outputSchema := selectResponseSchema(op.Responses)
-	// 响应没有结构化 body 时，使用空对象避免 JSON 字段写入空字符串。
-	if outputSchema == nil {
-		outputSchema = map[string]any{}
-	}
-	var outputSchemaBytes []byte
-	outputSchemaBytes, err = json.Marshal(outputSchema)
-	if err != nil {
-		return "", "", "", err
-	}
-
-	return string(inputSchemaBytes), string(argMappingBytes), string(outputSchemaBytes), nil
-}
-
-// buildParameterSchema 构建单个参数的 JSON Schema。
-func buildParameterSchema(parameter Parameter) map[string]any {
-	schema := cloneSchema(parameter.Schema)
-	// 参数 schema 缺少类型时，默认按字符串处理，避免生成无类型参数。
-	if len(schema) == 0 {
-		schema["type"] = "string"
-	}
-	// OpenAPI 参数描述优先补入 JSON Schema，方便 MCP 客户端展示。
-	if parameter.Description != "" {
-		if _, ok := schema["description"]; !ok {
-			schema["description"] = parameter.Description
-		}
-	}
-	return schema
-}
-
-// cloneSchema 复制 OpenAPI Schema，避免补充 description 时修改原始结构。
-func cloneSchema(schema map[string]any) map[string]any {
-	result := make(map[string]any, len(schema)+1)
-	for key, value := range schema {
-		result[key] = value
-	}
-	return result
-}
-
-// selectRequestBodySchema 选择请求体中的首个可用 JSON Schema。
-func selectRequestBodySchema(requestBody *RequestBody) map[string]any {
-	// 请求体为空时，当前接口没有 body 参数。
-	if requestBody == nil {
-		return nil
-	}
-	return selectContentSchema(requestBody.Content)
-}
-
-// selectResponseSchema 选择 2xx 或默认响应中的 JSON Schema。
-func selectResponseSchema(responses map[string]Response) map[string]any {
-	// 响应定义为空时，当前接口没有可记录的输出结构。
-	if len(responses) == 0 {
-		return nil
-	}
-
-	preferredStatuses := []string{openAPIStatusOK, openAPIStatusCreated, openAPIStatusAccepted, openAPIStatusNoBody, openAPIStatusDefault}
-	for _, status := range preferredStatuses {
-		response, ok := responses[status]
-		// 优先响应状态存在时，尝试读取对应 content schema。
-		if ok {
-			schema := selectContentSchema(response.Content)
-			if schema != nil {
-				return schema
-			}
-		}
-	}
-
-	statuses := make([]string, 0, len(responses))
-	for status := range responses {
-		// 兜底只从 2xx 响应中选择输出结构，避免错误响应污染正常返回 Schema。
-		if strings.HasPrefix(status, "2") {
-			statuses = append(statuses, status)
-		}
-	}
-	sort.Strings(statuses)
-	for _, status := range statuses {
-		response := responses[status]
-		schema := selectContentSchema(response.Content)
-		if schema != nil {
-			return schema
-		}
-	}
-	return nil
-}
-
-// selectContentSchema 从 content 中选择 JSON Schema。
-func selectContentSchema(content map[string]MediaType) map[string]any {
-	// content 为空时，当前请求或响应没有结构化内容。
-	if len(content) == 0 {
-		return nil
-	}
-
-	jsonMedia, ok := content[openAPIJSONMediaType]
-	// 优先选择 application/json，保持与当前接口默认编解码一致。
-	if ok && len(jsonMedia.Schema) > 0 {
-		return cloneSchema(jsonMedia.Schema)
-	}
-
-	mediaTypes := make([]string, 0, len(content))
-	for mediaType := range content {
-		mediaTypes = append(mediaTypes, mediaType)
-	}
-	sort.Strings(mediaTypes)
-	for _, mediaType := range mediaTypes {
-		media := content[mediaType]
-		// JSON 媒体类型不存在时，按稳定顺序选择首个带 Schema 的内容定义。
-		if len(media.Schema) > 0 {
-			return cloneSchema(media.Schema)
-		}
-	}
-	return nil
-}
-
-// schemaType 获取 Schema 类型描述。
-func schemaType(schema map[string]any) string {
-	value, ok := schema["type"].(string)
-	// Schema 显式声明类型时，直接复用 OpenAPI 类型。
-	if ok && value != "" {
-		return value
-	}
-	_, ok = schema["$ref"]
-	// 引用类型默认按 object 处理。
-	if ok {
-		return "object"
-	}
-	return "string"
-}
-
-// schemaDescription 获取参数描述。
-func schemaDescription(defaultDescription string, schema map[string]any) string {
-	value, ok := schema["description"].(string)
-	// Schema 已存在描述时，优先使用 Schema 描述。
-	if ok && value != "" {
-		return value
-	}
-	return defaultDescription
 }
 
 // operationDescription 获取接口描述。
@@ -450,8 +275,9 @@ func parseOperationID(operationID string) (string, string) {
 
 // OpenAPI 描述 OpenAPI 文档结构。
 type OpenAPI struct {
-	Paths map[string]PathItem `yaml:"paths"`
-	Tags  []TagsItem          `yaml:"tags"`
+	Paths      map[string]PathItem `yaml:"paths"`
+	Tags       []TagsItem          `yaml:"tags"`
+	Components Components          `yaml:"components"`
 }
 
 // PathItem 描述单个路径的请求方法。
@@ -485,13 +311,18 @@ type Operation struct {
 	Responses   map[string]Response `yaml:"responses"`
 }
 
-// Parameter 描述 OpenAPI 参数项。
+// Components 描述 OpenAPI 组件定义。
+type Components struct {
+	Schemas map[string]Schema `yaml:"schemas"`
+}
+
+// Parameter 描述 OpenAPI 请求参数。
 type Parameter struct {
-	Name        string         `yaml:"name"`
-	In          string         `yaml:"in"`
-	Description string         `yaml:"description"`
-	Required    bool           `yaml:"required"`
-	Schema      map[string]any `yaml:"schema"`
+	Name        string `yaml:"name"`
+	In          string `yaml:"in"`
+	Description string `yaml:"description"`
+	Required    bool   `yaml:"required"`
+	Schema      Schema `yaml:"schema"`
 }
 
 // RequestBody 描述 OpenAPI 请求体。
@@ -501,22 +332,25 @@ type RequestBody struct {
 	Content     map[string]MediaType `yaml:"content"`
 }
 
-// Response 描述 OpenAPI 响应项。
+// Response 描述 OpenAPI 响应。
 type Response struct {
 	Description string               `yaml:"description"`
 	Content     map[string]MediaType `yaml:"content"`
 }
 
-// MediaType 描述 OpenAPI 媒体类型内容。
+// MediaType 描述 OpenAPI 媒体类型。
 type MediaType struct {
-	Schema map[string]any `yaml:"schema"`
+	Schema Schema `yaml:"schema"`
 }
 
-// ArgMappingItem 描述接口参数位置映射。
-type ArgMappingItem struct {
-	Name        string `json:"name"`
-	Position    string `json:"position"`
-	Required    bool   `json:"required"`
-	Type        string `json:"type"`
-	Description string `json:"description,omitempty"`
+// Schema 描述 OpenAPI Schema。
+type Schema struct {
+	Ref         string            `yaml:"$ref"`
+	Type        string            `yaml:"type"`
+	Format      string            `yaml:"format"`
+	Description string            `yaml:"description"`
+	Enum        []string          `yaml:"enum"`
+	Required    []string          `yaml:"required"`
+	Properties  map[string]Schema `yaml:"properties"`
+	Items       *Schema           `yaml:"items"`
 }

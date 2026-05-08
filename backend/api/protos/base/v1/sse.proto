@@ -13,9 +13,6 @@ service SseService {
   rpc SubscribeSse(SubscribeSseRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       get: "/events"
-      additional_bindings {
-        get: "/events/{stream}"
-      }
     };
   }
 }

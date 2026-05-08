@@ -37,6 +37,10 @@ export interface PageBaseApisRequest {
   mcp_enabled?:
     | boolean
     | undefined;
+  /** MCP工具名 */
+  mcp_tool_name?:
+    | string
+    | undefined;
   /** 页码 */
   page_num: number;
   /** 每页数量 */
@@ -53,6 +57,12 @@ export interface PageBaseApisResponse {
 
 /** API详情查询条件 */
 export interface GetBaseApiRequest {
+  /** API ID */
+  id: number;
+}
+
+/** API文档查询条件 */
+export interface GetBaseApiDocRequest {
   /** API ID */
   id: number;
 }
@@ -93,12 +103,60 @@ export interface BaseApi {
   path: string;
   /** 是否暴露为MCP工具 */
   mcp_enabled: boolean;
-  /** 接口入参JSON Schema */
-  input_schema: string;
-  /** 接口参数位置映射 */
-  arg_mapping: string;
-  /** 接口返回JSON Schema */
-  output_schema: string;
+  /** MCP工具名 */
+  mcp_tool_name: string;
+}
+
+/** API文档 */
+export interface BaseApiDoc {
+  /** API ID */
+  id: number;
+  /** 摘要 */
+  summary: string;
+  /** 描述 */
+  description: string;
+  /** 请求参数 */
+  parameters: BaseApiDocSchema[];
+  /** 请求体 */
+  request_body:
+    | BaseApiDocSchema
+    | undefined;
+  /** 返回值 */
+  responses: BaseApiDocResponse[];
+}
+
+/** API文档Schema */
+export interface BaseApiDocSchema {
+  /** 字段名 */
+  name: string;
+  /** 字段路径 */
+  path: string;
+  /** 参数位置 */
+  in: string;
+  /** 字段类型 */
+  type: string;
+  /** 字段格式 */
+  format: string;
+  /** 是否必填 */
+  required: boolean;
+  /** 字段描述 */
+  description: string;
+  /** 引用类型 */
+  ref: string;
+  /** 枚举值 */
+  enum: string[];
+  /** 子字段 */
+  children: BaseApiDocSchema[];
+}
+
+/** API文档响应 */
+export interface BaseApiDocResponse {
+  /** 状态码 */
+  status: string;
+  /** 响应描述 */
+  description: string;
+  /** 响应体 */
+  body: BaseApiDocSchema | undefined;
 }
 
 /** AdminAPI服务 */
@@ -109,6 +167,8 @@ export interface BaseApiService {
   ListBaseApis(request: ListBaseApisRequest): Promise<ListBaseApisResponse>;
   /** 查询API详情 */
   GetBaseApi(request: GetBaseApiRequest): Promise<BaseApi>;
+  /** 查询API文档 */
+  GetBaseApiDoc(request: GetBaseApiDocRequest): Promise<BaseApiDoc>;
   /** 设置API MCP启用状态 */
   SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty>;
 }

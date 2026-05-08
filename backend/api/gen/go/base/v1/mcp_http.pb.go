@@ -30,18 +30,18 @@ type McpServiceHTTPServer interface {
 
 func RegisterMcpServiceHTTPServer(s *http.Server, srv McpServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/mcp", _McpService_HandleMcp0_HTTP_Handler(srv))
-	r.DELETE("/mcp", _McpService_HandleMcp1_HTTP_Handler(srv))
+	r.GET("/mcp/{terminal}", _McpService_HandleMcp0_HTTP_Handler(srv))
+	r.DELETE("/mcp/{terminal}", _McpService_HandleMcp1_HTTP_Handler(srv))
 	r.POST("/mcp/{terminal}", _McpService_HandleMcp2_HTTP_Handler(srv))
-	r.GET("/mcp/{terminal}", _McpService_HandleMcp3_HTTP_Handler(srv))
-	r.DELETE("/mcp/{terminal}", _McpService_HandleMcp4_HTTP_Handler(srv))
-	r.POST("/mcp", _McpService_HandleMcp5_HTTP_Handler(srv))
 }
 
 func _McpService_HandleMcp0_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in HandleMcpRequest
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
@@ -61,6 +61,9 @@ func _McpService_HandleMcp1_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 	return func(ctx http.Context) error {
 		var in HandleMcpRequest
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
@@ -101,72 +104,6 @@ func _McpService_HandleMcp2_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 	}
 }
 
-func _McpService_HandleMcp3_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in HandleMcpRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.HandleMcp(ctx, req.(*HandleMcpRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _McpService_HandleMcp4_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in HandleMcpRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindVars(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.HandleMcp(ctx, req.(*HandleMcpRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _McpService_HandleMcp5_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in HandleMcpRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationMcpServiceHandleMcp)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.HandleMcp(ctx, req.(*HandleMcpRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
 type McpServiceHTTPClient interface {
 	// HandleMcp 处理MCP Streamable HTTP请求
 	HandleMcp(ctx context.Context, req *HandleMcpRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
@@ -183,7 +120,7 @@ func NewMcpServiceHTTPClient(client *http.Client) McpServiceHTTPClient {
 // HandleMcp 处理MCP Streamable HTTP请求
 func (c *McpServiceHTTPClientImpl) HandleMcp(ctx context.Context, in *HandleMcpRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
 	var out emptypb.Empty
-	pattern := "/mcp"
+	pattern := "/mcp/{terminal}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationMcpServiceHandleMcp))
 	opts = append(opts, http.PathTemplate(pattern))

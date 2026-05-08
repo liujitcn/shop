@@ -49,14 +49,15 @@ plugins:
 #    opt:
 #      - paths=source_relative # 使用相对路径
 
-  # 使用go-grpc插件生成gRPC blades tool 代码
-  - local: protoc-gen-go-blades-tool
+  # 使用go-grpc插件生成 Agent Tool 代码
+  - local: protoc-gen-go-agent-tool
     out: gen/go
     opt:
       - paths=source_relative
 
-  # 使用go-grpc插件生成gRPC MCP 本地 Tool 生成
-  - local: protoc-gen-go-mcp-local-tool
+  # 使用go-grpc插件生成 MCP Tool 代码
+  - local: protoc-gen-go-mcp-tool
     out: gen/go
+    strategy: all
     opt:
       - paths=source_relative

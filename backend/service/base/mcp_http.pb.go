@@ -25,11 +25,8 @@ type McpServiceHTTPServer interface {
 
 func RegisterMcpServiceHTTPServer(s *http.Server, srv McpServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/mcp", _McpService_HandleMcp0_HTTP_Handler(srv))
 	r.GET("/mcp/{terminal}", _McpService_HandleMcp0_HTTP_Handler(srv))
-	r.DELETE("/mcp", _McpService_HandleMcp1_HTTP_Handler(srv))
 	r.DELETE("/mcp/{terminal}", _McpService_HandleMcp1_HTTP_Handler(srv))
-	r.POST("/mcp", _McpService_HandleMcp2_HTTP_Handler(srv))
 	r.POST("/mcp/{terminal}", _McpService_HandleMcp2_HTTP_Handler(srv))
 }
 
@@ -97,9 +94,4 @@ func _McpService_HandleMcp2_HTTP_Handler(srv McpServiceHTTPServer) func(ctx http
 		_ = out.(*emptypb.Empty)
 		return nil
 	}
-}
-
-type McpServiceHTTPClient interface {
-	// HandleMcp 处理MCP Streamable HTTP请求
-	HandleMcp(ctx context.Context, req *basev1.HandleMcpRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }

@@ -22,6 +22,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationBaseApiServiceGetBaseApi = "/admin.v1.BaseApiService/GetBaseApi"
+const OperationBaseApiServiceGetBaseApiDoc = "/admin.v1.BaseApiService/GetBaseApiDoc"
 const OperationBaseApiServiceListBaseApis = "/admin.v1.BaseApiService/ListBaseApis"
 const OperationBaseApiServicePageBaseApis = "/admin.v1.BaseApiService/PageBaseApis"
 const OperationBaseApiServiceSetBaseApiMcpEnabled = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
@@ -29,6 +30,8 @@ const OperationBaseApiServiceSetBaseApiMcpEnabled = "/admin.v1.BaseApiService/Se
 type BaseApiServiceHTTPServer interface {
 	// GetBaseApi 查询API详情
 	GetBaseApi(context.Context, *GetBaseApiRequest) (*BaseApi, error)
+	// GetBaseApiDoc 查询API文档
+	GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error)
 	// ListBaseApis 查询菜单分配API选项列表
 	ListBaseApis(context.Context, *ListBaseApisRequest) (*ListBaseApisResponse, error)
 	// PageBaseApis 分页查询API列表
@@ -42,6 +45,7 @@ func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServ
 	r.GET("/api/v1/admin/base/api", _BaseApiService_PageBaseApis0_HTTP_Handler(srv))
 	r.GET("/api/v1/admin/base/api/option", _BaseApiService_ListBaseApis0_HTTP_Handler(srv))
 	r.GET("/api/v1/admin/base/api/{id}", _BaseApiService_GetBaseApi0_HTTP_Handler(srv))
+	r.GET("/api/v1/admin/base/api/{id}/doc", _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv))
 	r.PUT("/api/v1/admin/base/api/{id}/mcp-enabled", _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv))
 }
 
@@ -105,6 +109,28 @@ func _BaseApiService_GetBaseApi0_HTTP_Handler(srv BaseApiServiceHTTPServer) func
 	}
 }
 
+func _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetBaseApiDocRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseApiServiceGetBaseApiDoc)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetBaseApiDoc(ctx, req.(*GetBaseApiDocRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BaseApiDoc)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in SetBaseApiMcpEnabledRequest
@@ -133,6 +159,8 @@ func _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv BaseApiServiceHTTPSe
 type BaseApiServiceHTTPClient interface {
 	// GetBaseApi 查询API详情
 	GetBaseApi(ctx context.Context, req *GetBaseApiRequest, opts ...http.CallOption) (rsp *BaseApi, err error)
+	// GetBaseApiDoc 查询API文档
+	GetBaseApiDoc(ctx context.Context, req *GetBaseApiDocRequest, opts ...http.CallOption) (rsp *BaseApiDoc, err error)
 	// ListBaseApis 查询菜单分配API选项列表
 	ListBaseApis(ctx context.Context, req *ListBaseApisRequest, opts ...http.CallOption) (rsp *ListBaseApisResponse, err error)
 	// PageBaseApis 分页查询API列表
@@ -155,6 +183,20 @@ func (c *BaseApiServiceHTTPClientImpl) GetBaseApi(ctx context.Context, in *GetBa
 	pattern := "/api/v1/admin/base/api/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationBaseApiServiceGetBaseApi))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetBaseApiDoc 查询API文档
+func (c *BaseApiServiceHTTPClientImpl) GetBaseApiDoc(ctx context.Context, in *GetBaseApiDocRequest, opts ...http.CallOption) (*BaseApiDoc, error) {
+	var out BaseApiDoc
+	pattern := "/api/v1/admin/base/api/{id}/doc"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationBaseApiServiceGetBaseApiDoc))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

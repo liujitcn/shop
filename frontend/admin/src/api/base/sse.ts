@@ -1,5 +1,9 @@
+import type { SubscribeSseRequest } from "@/rpc/base/v1/sse";
 import { SseEvent, SseRefreshReason, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
+import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
+
+const SSE_URL = "/events";
 
 /** SSE 取消订阅函数。 */
 export type SseStop = () => void;
@@ -19,7 +23,52 @@ export interface SseRefreshPayload {
 /** SSE 刷新事件处理函数。 */
 export type SseRefreshHandler = (payload: SseRefreshPayload) => void;
 
-const DEFAULT_SSE_PATH = "/events";
+/** SSE 订阅连接配置。 */
+export interface SubscribeSseOptions {
+  /** 是否携带跨域凭据。 */
+  withCredentials?: boolean;
+}
+
+/** Base SSE 服务。 */
+export class SseServiceImpl {
+  /** 创建 SSE 订阅连接。 */
+  SubscribeSse(request: SubscribeSseRequest, options?: SubscribeSseOptions): EventSource | null {
+    if (typeof window === "undefined" || typeof EventSource === "undefined") {
+      return null;
+    }
+
+    const url = this.buildSubscribeURL(request);
+    if (!url) {
+      return null;
+    }
+
+    return new EventSource(url, {
+      withCredentials: options?.withCredentials
+    });
+  }
+
+  /** 构建 SSE 订阅地址。 */
+  private buildSubscribeURL(request: SubscribeSseRequest) {
+    const token = this.getAccessToken();
+    if (!token) {
+      return "";
+    }
+
+    const url = new URL(SSE_URL, window.location.origin);
+    url.searchParams.set("stream", String(request.stream));
+    url.searchParams.set("access_token", token);
+    return url.toString();
+  }
+
+  /** 读取适配 EventSource 查询参数传递的访问令牌。 */
+  private getAccessToken() {
+    const userStore = useUserStore(pinia);
+    const value = userStore.token.trim();
+    return value.replace(/^Bearer\s+/i, "");
+  }
+}
+
+export const defSseService = new SseServiceImpl();
 
 /** 订阅 SSE 页面刷新事件。 */
 export function subscribeSseRefresh(stream: SseStream, handler: SseRefreshHandler): SseStop {
@@ -33,16 +82,9 @@ export function subscribeSseEvent<T>(
   parser: (raw: string) => T | null,
   handler: (payload: T) => void
 ): SseStop {
-  if (typeof window === "undefined" || typeof EventSource === "undefined") {
-    return () => undefined;
-  }
+  const source = defSseService.SubscribeSse({ stream });
+  if (!source) return () => undefined;
 
-  const url = buildSseURL(stream);
-  if (!url) {
-    return () => undefined;
-  }
-
-  const source = new EventSource(url);
   const listener = (message: MessageEvent<string>) => {
     const payload = parser(message.data);
     if (!payload) return;
@@ -55,20 +97,6 @@ export function subscribeSseEvent<T>(
     source.removeEventListener(eventName, listener);
     source.close();
   };
-}
-
-/** 构建 SSE 订阅地址。 */
-function buildSseURL(stream: SseStream) {
-  const userStore = useUserStore();
-  const token = stripBearerPrefix(userStore.token);
-  if (!token) {
-    return "";
-  }
-
-  const url = new URL(DEFAULT_SSE_PATH, window.location.origin);
-  url.searchParams.set("stream", toSseStreamID(stream));
-  url.searchParams.set("access_token", token);
-  return url.toString();
 }
 
 /** 解析 SSE 刷新事件负载。 */
@@ -88,18 +116,7 @@ function parseSseRefreshPayload(raw: string): SseRefreshPayload | null {
   }
 }
 
-/** 将 SSE 流枚举转换为传输层流标识。 */
-function toSseStreamID(stream: SseStream) {
-  return String(stream);
-}
-
 /** 将 SSE 事件枚举转换为 EventSource 事件名称。 */
 function toSseEventName(event: SseEvent) {
   return String(event);
-}
-
-/** 去除令牌中的 Bearer 前缀，适配 EventSource 只能通过 URL 传参的限制。 */
-function stripBearerPrefix(token: string) {
-  const value = token.trim();
-  return value.replace(/^Bearer\s+/i, "");
 }

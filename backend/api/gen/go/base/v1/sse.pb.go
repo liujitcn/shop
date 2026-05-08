@@ -77,10 +77,10 @@ const file_base_v1_sse_proto_rawDesc = "" +
 	"\n" +
 	"\x11base/v1/sse.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"Q\n" +
 	"\x13SubscribeSseRequest\x12:\n" +
-	"\x06stream\x18\x01 \x01(\x0e2\x14.common.v1.SseStreamB\f\xbaG\t\x92\x02\x06SSE流R\x06stream2w\n" +
+	"\x06stream\x18\x01 \x01(\x0e2\x14.common.v1.SseStreamB\f\xbaG\t\x92\x02\x06SSE流R\x06stream2c\n" +
 	"\n" +
-	"SseService\x12i\n" +
-	"\fSubscribeSse\x12\x1c.base.v1.SubscribeSseRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1dZ\x12\x12\x10/events/{stream}\x12\a/eventsBt\n" +
+	"SseService\x12U\n" +
+	"\fSubscribeSse\x12\x1c.base.v1.SubscribeSseRequest\x1a\x16.google.protobuf.Empty\"\x0f\x82\xd3\xe4\x93\x02\t\x12\a/eventsBt\n" +
 	"\vcom.base.v1B\bSseProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
 var (
