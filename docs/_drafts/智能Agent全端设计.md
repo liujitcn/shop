@@ -1,5 +1,7 @@
 # 智能 Agent 全端设计
 
+> 临时设计稿：本文档在功能开发与验证期间暂存于 `docs/_drafts`。等 Agent 功能完成、表结构和前后端交互稳定后，再迁移到正式 `docs` 目录，并同步更新 README 与专题文档索引。
+
 ## 文档目标
 
 本文档说明商城项目基于 `github.com/go-kratos/blades` 建设全端智能 Agent 能力的完整方案，覆盖后端运行时、工具治理、数据库表结构、管理后台、商城端、权限审计、原型交互和验证方式。
@@ -24,6 +26,63 @@
 | `docs` | 设计与使用说明 | 同步 README 和专题设计文档。 |
 
 由于该能力横跨后端、后台、移动端、SQL 和文档，正式开发前必须先确认本设计范围。
+
+## 第一版临时实现范围
+
+第一版目标是先打通“后台 Element Plus X 聊天体验 -> 统一 Agent 接口 -> Blades Runner -> 生成工具调用 -> 自然语言结果”的主链路，暂不引入数据库表和工具策略管理页面。
+
+### 第一版包含
+
+| 模块 | 内容 | 说明 |
+| --- | --- | --- |
+| 后端统一接口 | `base/v1/agent.proto`、`/api/v1/agent/...` | 先提供创建会话、发送消息、查询内存消息等核心接口。 |
+| 后端运行时 | `pkg/agent.Manager`、`ToolRegistry`、`StaticToolPolicy` | 会话、消息和工具调用记录暂存在进程内存。 |
+| 模型接入 | 复用 `pkg/llm` OpenAI Provider | 不改现有评价审核和 AI 摘要链路。 |
+| 工具接入 | 复用已生成的 `*_agent_tool.go` | 第一版全量注册工具，按风险分级自动执行或确认执行。 |
+| 权限校验 | 继续使用现有 token、角色、接口权限和业务校验 | Agent 层不绕过现有认证鉴权。 |
+| 管理后台 | 使用 Element Plus X 实现聊天主体 | 先做后台助手页面或全局抽屉，验证交互。 |
+
+### 第一版暂不包含
+
+- 不新增 `agent_session`、`agent_message`、`agent_tool_policy`、`agent_tool_call` 等数据库表。
+- 不修改 `sql/default-data.sql` 中的 Agent 表结构初始化。
+- 不做工具策略管理页面。
+- 不做工具调用审计页面。
+- 不做长期会话保存。
+- 不做商城端 Agent 聊天页。
+- 不把写操作和高风险工具永久禁用；第一版通过静态策略和内存确认单控制执行。
+
+### 第一版限制
+
+- 服务重启后会话和消息丢失。
+- 多实例部署时会话不共享。
+- 工具策略需要改代码调整。
+- 无法长期追溯工具调用详情。
+- 写操作确认单保存在内存，服务重启后未确认任务会丢失。
+
+这些限制是可接受的，因为第一版用于验证产品交互和 Agent 工具链。等链路稳定后，再按本文后续章节迁移到落库、策略管理、审计和全端入口。
+
+### 第一版工具执行策略
+
+第一版需要接入全部已生成 Agent 工具，而不是只接查询工具。工具执行按静态风险策略处理：
+
+| 风险等级 | 第一版行为 | 说明 |
+| --- | --- | --- |
+| `READ` | 自动执行 | 查询、列表、统计、详情等只读工具直接调用。 |
+| `SUGGEST` | 自动执行 | 只生成建议或预览，不改变业务数据。 |
+| `WRITE_CONFIRM` | 生成内存确认单，用户确认后执行 | 创建、更新、改状态等写操作进入确认流程。 |
+| `HIGH_RISK_CONFIRM` | 生成强确认单，限制角色后执行 | 发货、退款、执行任务、批量变更等高风险工具。 |
+| `FORBIDDEN` | 不执行 | 明确不允许 Agent 触发的工具，例如密钥读取、破坏性删除等。 |
+
+静态策略可以先通过工具名、HTTP Method、RPC 方法名前缀推断：
+
+- `Get`、`List`、`Page`、`Summary`、`Trend`、`Pie`、`Option` 默认为 `READ`。
+- `Preview`、`Export`、`Doc` 默认为 `SUGGEST` 或 `READ`，按实际副作用确认。
+- `Create`、`Update`、`Set`、`Save`、`Refresh` 默认为 `WRITE_CONFIRM`。
+- `Delete`、`Refund`、`Pay`、`Ship`、`Execute`、`Start`、`Stop` 默认为 `HIGH_RISK_CONFIRM`。
+- 无法识别的工具默认进入 `WRITE_CONFIRM`，避免模型自动执行未知副作用。
+
+确认执行时仍然调用原有 Service 方法，因此现有 token、角色、接口权限、业务状态校验都会继续生效。Agent 静态策略只是在模型调用前增加一道执行门槛，不替代业务校验。
 
 ## 总体架构
 
@@ -88,14 +147,11 @@ backend
 │       ├── confirm.go             # ToolConfirm：确认单生成与执行
 │       └── dto.go                 # 运行时内部 DTO
 ├── server
-│   └── agent_tools.go             # 类似 mcp.go，集中注册 Agent Tools
+│   └── agent.go                   # 类似 mcp.go，集中注册 Agent Tools 并创建 Agent 运行时
 ├── service
-│   ├── admin
-│   │   ├── agent_service.go       # 管理端 Agent 服务
-│   │   └── biz/agent.go           # 管理端 Agent Case
-│   └── app
-│       ├── agent_service.go       # 商城端 Agent 服务
-│       └── biz/agent.go           # 商城端 Agent Case
+│   └── base
+│       ├── agent_service.go       # 统一 Base Agent 服务
+│       └── biz/agent.go           # 统一 Agent Case，按 terminal 分流工具链
 └── api/protos
     └── base/v1/agent.proto          # 统一 Agent 接口、消息、会话、工具调用结构
 ```
@@ -736,22 +792,28 @@ Agent 会话创建时由前端传入上下文：
 
 ### 商城端默认工具集
 
-优先启用：
+第一版同样全量注册商城端已生成 Agent 工具，但按当前用户、匿名主体、业务归属和风险策略控制执行：
 
 - 商品：`GoodsInfoServiceAgentTools`
 - 分类：`GoodsCategoryServiceAgentTools`
 - 热门推荐：`ShopHotServiceAgentTools`
 - 商城服务：`ShopServiceServiceAgentTools`
 - 推荐：`RecommendServiceAgentTools`
-- 评价公开查询：`CommentServiceAgentTools` 中的查询类工具
-- 当前用户订单：`OrderInfoServiceAgentTools` 中的当前用户查询类工具
-- 购物车和收藏：查询类工具，写操作只做页面跳转
+- 评价：`CommentServiceAgentTools`
+- 当前用户订单：`OrderInfoServiceAgentTools`
+- 购物车：`UserCartServiceAgentTools`
+- 收藏：`UserCollectServiceAgentTools`
+- 地址：`UserAddressServiceAgentTools`
+- 支付：`PayServiceAgentTools`
+- 用户门店：`UserStoreServiceAgentTools`
 
-禁止启用：
+执行边界：
 
-- 非当前用户数据。
-- 支付执行、退款提交、删除订单、提交评价等需要业务页面确认的动作。
-- 后台管理端工具。
+- 非当前用户数据禁止访问。
+- 后台管理端工具禁止出现在商城端工具链。
+- 商品、分类、热门、服务、推荐、评价公开数据可自动查询。
+- 购物车、收藏、地址、订单、评价、门店等写操作必须通过确认。
+- 支付、退款、删除订单、提交评价等高风险动作必须强确认，并优先回到现有业务页面完成最终确认；若后端工具直接执行，也必须保留当前 Service 的业务状态校验。
 
 ## Prompt 设计
 
@@ -893,8 +955,8 @@ sequenceDiagram
 2. 定义统一的 `base/v1/agent.proto`。
 3. 执行生成命令，补后端 Case、Service、Wire。
 4. 在 `pkg/llm` 暴露 ModelProvider，新增 `pkg/agent` 运行时。
-5. 新增 `server/agent_tools.go`，注册并按策略过滤生成工具。
-6. 初始化 `agent_tool_policy`，默认启用查询工具，写操作默认确认或禁用。
+5. 新增 `server/agent.go`，注册并按策略过滤生成工具。
+6. 第一版先在代码中初始化静态工具策略，全量注册工具，按风险分级自动执行或确认执行。
 7. 完成管理后台助手页面、全局抽屉、工具策略和审计页面。
 8. 完成商城端聊天页、商品/购物车/订单/我的页面入口。
 9. 更新 `sql/default-data.sql`、README 和专题文档链接。
