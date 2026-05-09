@@ -1,24 +1,53 @@
 <!-- 评论讨论审核列表 -->
 <template>
-  <ProTable
-    ref="proTable"
-    row-key="id"
-    :columns="columns"
-    :request-api="requestDiscussionTable"
-    :init-param="initParam"
-    :tool-button="false"
-  />
+  <div class="discussion-table">
+    <ProTable
+      ref="proTable"
+      row-key="id"
+      :columns="columns"
+      :request-api="requestDiscussionTable"
+      :init-param="initParam"
+      :tool-button="false"
+    />
+
+    <el-dialog
+      v-model="reviewDialog.visible"
+      title="讨论审核记录"
+      width="720px"
+      destroy-on-close
+      @closed="handleResetReviewDialog"
+    >
+      <div v-if="reviewDialog.row" class="discussion-review-dialog">
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="用户昵称">
+            {{ reviewDialog.row.user_name_snapshot || "-" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="回复对象">
+            {{ reviewDialog.row.reply_to_display_name || "-" }}
+          </el-descriptions-item>
+          <el-descriptions-item label="讨论内容">
+            <div class="discussion-review-dialog__content">
+              {{ reviewDialog.row.content || "暂无讨论内容" }}
+            </div>
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <ReviewTimeline :review-list="reviewDialog.list" :loading="reviewDialog.loading" />
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defCommentInfoService } from "@/api/admin/comment_info";
-import type { CommentDiscussion, PageCommentDiscussionsRequest } from "@/rpc/admin/v1/comment_info";
-import { CommentStatus } from "@/rpc/common/v1/enum";
+import type { CommentDiscussion, CommentReview, PageCommentDiscussionsRequest } from "@/rpc/admin/v1/comment_info";
+import { CommentReviewTargetType, CommentStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
+import ReviewTimeline from "../review/ReviewTimeline.vue";
 
 /** 评论讨论组件入参。 */
 interface DiscussionProps {
@@ -34,8 +63,26 @@ const emit = defineEmits<{
   audited: [];
 }>();
 
+/** 讨论审核记录弹窗状态。 */
+type ReviewDialogState = {
+  /** 弹窗是否显示 */
+  visible: boolean;
+  /** 审核记录是否加载中 */
+  loading: boolean;
+  /** 当前查看的讨论记录 */
+  row?: CommentDiscussion;
+  /** 审核记录列表 */
+  list: CommentReview[];
+};
+
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
+const reviewDialog = reactive<ReviewDialogState>({
+  visible: false,
+  loading: false,
+  row: undefined,
+  list: []
+});
 
 const initParam = computed<Partial<PageCommentDiscussionsRequest>>(() => {
   const params: Partial<PageCommentDiscussionsRequest> = {
@@ -96,12 +143,20 @@ const columns: ColumnProps[] = [
     cellType: "actions",
     actions: [
       {
+        label: "审核记录",
+        type: "primary",
+        link: true,
+        icon: View,
+        hidden: () => !BUTTONS.value["comment:detail"],
+        onClick: scope => handleOpenReviewDialog(scope.row as CommentDiscussion)
+      },
+      {
         label: "通过",
         type: "success",
         link: true,
         icon: CircleCheck,
         hidden: scope =>
-          !BUTTONS.value["comment:status"] || (scope.row as CommentDiscussion).status === CommentStatus.APPROVED_CS,
+          !BUTTONS.value["comment:status"] || (scope.row as CommentDiscussion).status !== CommentStatus.PENDING_REVIEW_CS,
         onClick: scope => handleApproveDiscussion(scope.row as CommentDiscussion)
       },
       {
@@ -110,7 +165,7 @@ const columns: ColumnProps[] = [
         link: true,
         icon: CircleClose,
         hidden: scope =>
-          !BUTTONS.value["comment:status"] || (scope.row as CommentDiscussion).status === CommentStatus.REJECTED_CS,
+          !BUTTONS.value["comment:status"] || (scope.row as CommentDiscussion).status !== CommentStatus.PENDING_REVIEW_CS,
         onClick: scope => handleRejectDiscussion(scope.row as CommentDiscussion)
       }
     ]
@@ -140,6 +195,30 @@ async function requestDiscussionTable(params: Record<string, any>) {
 /** 刷新评论讨论表格。 */
 function refreshTable() {
   proTable.value?.getTableList();
+}
+
+/** 打开讨论审核记录弹窗。 */
+async function handleOpenReviewDialog(row: CommentDiscussion) {
+  reviewDialog.row = row;
+  reviewDialog.visible = true;
+  reviewDialog.loading = true;
+  reviewDialog.list = [];
+  try {
+    const data = await defCommentInfoService.ListCommentReviews({
+      target_type: CommentReviewTargetType.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION,
+      target_id: row.id
+    });
+    reviewDialog.list = data.comment_reviews ?? [];
+  } finally {
+    reviewDialog.loading = false;
+  }
+}
+
+/** 关闭后重置讨论审核记录弹窗。 */
+function handleResetReviewDialog() {
+  if (reviewDialog.loading) return;
+  reviewDialog.row = undefined;
+  reviewDialog.list = [];
 }
 
 /** 审核通过单条评论讨论。 */
@@ -187,3 +266,17 @@ async function handleRejectDiscussion(row: CommentDiscussion) {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.discussion-review-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__content {
+    line-height: 1.6;
+    color: var(--admin-page-text-primary);
+    white-space: pre-wrap;
+  }
+}
+</style>

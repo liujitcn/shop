@@ -14,7 +14,7 @@
         <div class="comment-summary-panel">
           <div class="comment-summary-toolbar">
             <el-button
-              v-if="BUTTONS['comment:status'] && comment.status !== CommentStatus.APPROVED_CS"
+              v-if="BUTTONS['comment:status'] && comment.status === CommentStatus.PENDING_REVIEW_CS"
               :loading="approveLoading"
               type="success"
               @click="handleApproveComment"
@@ -22,7 +22,7 @@
               通过评论
             </el-button>
             <el-button
-              v-if="BUTTONS['comment:status'] && comment.status !== CommentStatus.REJECTED_CS"
+              v-if="BUTTONS['comment:status'] && comment.status === CommentStatus.PENDING_REVIEW_CS"
               :loading="approveLoading"
               type="danger"
               @click="handleRejectComment"
@@ -134,29 +134,7 @@
 
         <el-tab-pane label="审核记录" name="review">
           <div class="detail-tab-panel">
-            <el-timeline v-if="reviewList.length" class="review-timeline">
-              <el-timeline-item
-                v-for="item in reviewList"
-                :key="item.id"
-                :timestamp="item.created_at || '-'"
-                :type="reviewTimelineType(item.status)"
-              >
-                <div class="review-card">
-                  <div class="review-card__title">
-                    <el-tag size="small" :type="item.type === 1 ? 'primary' : 'warning'">
-                      {{ item.type === 1 ? "AI审核" : "人工审核" }}
-                    </el-tag>
-                    <el-tag size="small" :type="reviewStatusTagType(item.status)">{{ reviewStatusText(item.status) }}</el-tag>
-                    <span class="review-card__operator">{{ item.operator_name || "-" }}</span>
-                  </div>
-                  <div v-if="item.tags?.length" class="review-card__tags">
-                    <el-tag v-for="tag in item.tags" :key="`${item.id}-${tag}`" size="small" type="info">{{ tag }}</el-tag>
-                  </div>
-                  <div class="review-card__reason">{{ item.reason || "无备注" }}</div>
-                </div>
-              </el-timeline-item>
-            </el-timeline>
-            <div v-else class="detail-text-empty">暂无审核记录</div>
+            <ReviewTimeline :review-list="reviewList" />
           </div>
         </el-tab-pane>
 
@@ -194,6 +172,7 @@ import type {
 import { CommentStatus } from "@/rpc/common/v1/enum";
 import { formatSrc } from "@/utils/utils";
 import DiscussionList from "../components/discussion/index.vue";
+import ReviewTimeline from "../components/review/ReviewTimeline.vue";
 
 defineOptions({
   name: "CommentDetail",
@@ -412,30 +391,6 @@ async function handleRejectComment() {
   } finally {
     approveLoading.value = false;
   }
-}
-
-/** 审核记录状态文案。 */
-function reviewStatusText(status: number) {
-  if (status === 1) return "通过";
-  if (status === 2) return "不通过";
-  if (status === 3) return "异常";
-  return "未知";
-}
-
-/** 审核记录状态标签样式。 */
-function reviewStatusTagType(status: number) {
-  if (status === 1) return "success";
-  if (status === 2) return "danger";
-  if (status === 3) return "warning";
-  return "info";
-}
-
-/** 审核记录时间线样式。 */
-function reviewTimelineType(status: number) {
-  if (status === 1) return "success";
-  if (status === 2) return "danger";
-  if (status === 3) return "warning";
-  return "info";
 }
 
 /** 格式化图片地址。 */
@@ -693,40 +648,6 @@ onActivated(() => {
 
 .ai-content-text {
   min-width: 0;
-  color: var(--admin-page-text-primary);
-  white-space: pre-wrap;
-}
-
-.review-timeline {
-  padding-left: 4px;
-}
-
-.review-card {
-  padding: 12px;
-  border: 1px solid var(--admin-page-card-border-soft);
-  border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
-}
-
-.review-card__title,
-.review-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.review-card__operator {
-  color: var(--admin-page-text-secondary);
-}
-
-.review-card__tags {
-  margin-top: 10px;
-}
-
-.review-card__reason {
-  margin-top: 10px;
-  line-height: 1.6;
   color: var(--admin-page-text-primary);
   white-space: pre-wrap;
 }

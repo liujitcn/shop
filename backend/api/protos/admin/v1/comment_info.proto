@@ -24,6 +24,13 @@ service CommentInfoService {
     };
   }
 
+  // 查询评论审核记录列表
+  rpc ListCommentReviews(ListCommentReviewsRequest) returns (ListCommentReviewsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/admin/comment/info/review"
+    };
+  }
+
   // 查询评论详情
   rpc GetCommentInfo(GetCommentInfoRequest) returns (CommentInfoDetail) {
     option (google.api.http) = {
@@ -54,12 +61,6 @@ service CommentInfoService {
     };
   }
 
-  // 查询评论审核记录列表
-  rpc ListCommentReviews(ListCommentReviewsRequest) returns (ListCommentReviewsResponse) {
-    option (google.api.http) = {
-      get: "/api/v1/admin/comment/info/review"
-    };
-  }
 }
 
 // 评论分页查询条件

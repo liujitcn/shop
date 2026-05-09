@@ -5386,6 +5386,120 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/base/agent/session:
+        get:
+            tags:
+                - AgentService
+            description: 查询 AI 助理会话列表
+            operationId: AgentService_ListAgentSessions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAgentSessionsResponse'
+        post:
+            tags:
+                - AgentService
+            description: 创建 AI 助理会话
+            operationId: AgentService_CreateAgentSession
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateAgentSessionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AgentSession'
+    /api/v1/base/agent/session/{id}:
+        put:
+            tags:
+                - AgentService
+            description: 更新 AI 助理会话
+            operationId: AgentService_UpdateAgentSession
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateAgentSessionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AgentSession'
+        delete:
+            tags:
+                - AgentService
+            description: 删除 AI 助理会话
+            operationId: AgentService_DeleteAgentSession
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/agent/session/{sessionId}/message:
+        get:
+            tags:
+                - AgentService
+            description: 查询 AI 助理消息列表
+            operationId: AgentService_ListAgentMessages
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAgentMessagesResponse'
+        post:
+            tags:
+                - AgentService
+            description: 发送 AI 助理消息
+            operationId: AgentService_SendAgentMessage
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SendAgentMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendAgentMessageResponse'
     /api/v1/base/captcha:
         get:
             tags:
@@ -5628,6 +5742,91 @@ paths:
                     content: {}
 components:
     schemas:
+        AgentAttachment:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 附件ID
+                name:
+                    type: string
+                    description: 附件名称
+                size:
+                    type: string
+                    description: 附件大小
+            description: AI 助理附件
+        AgentMessage:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 消息ID
+                role:
+                    type: string
+                    description: 消息角色
+                kind:
+                    type: string
+                    description: 消息类型
+                content:
+                    type: string
+                    description: 消息内容
+                attachments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AgentAttachment'
+                    description: 附件列表
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AgentTool'
+                    description: 工具列表
+                confirmTitle:
+                    type: string
+                    description: 确认标题
+                confirmLines:
+                    type: array
+                    items:
+                        type: string
+                    description: 确认内容
+                createdAt:
+                    type: string
+                    description: 创建时间
+                    format: date-time
+            description: AI 助理消息
+        AgentSession:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 会话ID
+                title:
+                    type: string
+                    description: 会话标题
+                scene:
+                    type: string
+                    description: 会话场景
+                summary:
+                    type: string
+                    description: 会话摘要
+                toolCount:
+                    type: integer
+                    description: 工具数量
+                    format: int32
+                updatedAt:
+                    type: string
+                    description: 更新时间
+                    format: date-time
+            description: AI 助理会话
+        AgentTool:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 工具名称
+                elapsed:
+                    type: string
+                    description: 耗时
+            description: AI 助理工具调用
         AnalyticsPieItem:
             type: object
             properties:
@@ -7569,6 +7768,16 @@ components:
                     description: 购物车数量
                     format: int32
             description: 用户购物车数量响应
+        CreateAgentSessionRequest:
+            type: object
+            properties:
+                title:
+                    type: string
+                    description: 会话标题
+                scene:
+                    type: string
+                    description: 会话场景
+            description: AI 助理会话创建请求
         CreateCommentDiscussionRequest:
             type: object
             properties:
@@ -8467,6 +8676,24 @@ components:
                     type: string
                     description: 签名，使用字段appId、timeStamp、nonceStr、package计算得出的签名值 注意：取值RSA格式。详细参考JSAPI调起支付签名https://pay.weixin.qq.com/doc/v3/merchant/4012365339
             description: 小程序支付响应
+        ListAgentMessagesResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AgentMessage'
+                    description: 消息列表
+            description: AI 助理消息列表响应
+        ListAgentSessionsResponse:
+            type: object
+            properties:
+                sessions:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AgentSession'
+                    description: 会话列表
+            description: AI 助理会话列表响应
         ListBaseApisResponse:
             type: object
             properties:
@@ -10582,6 +10809,32 @@ components:
                     type: boolean
                     description: 是否禁用
             description: 下拉选项
+        SendAgentMessageRequest:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                    description: 会话ID
+                content:
+                    type: string
+                    description: 消息内容
+                attachments:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AgentAttachment'
+                    description: 附件列表
+            description: AI 助理消息发送请求
+        SendAgentMessageResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AgentMessage'
+                    description: 新增消息列表
+                session:
+                    $ref: '#/components/schemas/AgentSession'
+            description: AI 助理消息发送响应
         SendPhoneCodeRequest:
             type: object
             properties:
@@ -11604,6 +11857,16 @@ components:
                         $ref: '#/components/schemas/RouteItem'
                     description: 路由列表
             description: Route树响应
+        UpdateAgentSessionRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 会话ID
+                title:
+                    type: string
+                    description: 会话标题
+            description: AI 助理会话更新请求
         UploadFileInfo:
             type: object
             properties:
@@ -12029,6 +12292,8 @@ components:
                     description: 提及次数
             description: 工作台口碑高频标签
 tags:
+    - name: AgentService
+      description: Base AI 助理服务
     - name: AuthService
       description: Admin用户登录认证服务
     - name: AuthService
@@ -12066,9 +12331,9 @@ tags:
     - name: GoodsAnalyticsService
       description: Admin商品分析服务
     - name: GoodsCategoryService
-      description: App商品分类服务
-    - name: GoodsCategoryService
       description: Admin商品分类服务
+    - name: GoodsCategoryService
+      description: App商品分类服务
     - name: GoodsInfoService
       description: Admin商品信息服务
     - name: GoodsInfoService
@@ -12112,9 +12377,9 @@ tags:
     - name: ShopHotService
       description: Admin商城热门推荐服务
     - name: ShopServiceService
-      description: App商城服务说明服务
-    - name: ShopServiceService
       description: Admin商城服务
+    - name: ShopServiceService
+      description: App商城服务说明服务
     - name: SseService
       description: Base SSE服务
     - name: UserAddressService
@@ -12126,8 +12391,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: App用户门店管理服务
-    - name: UserStoreService
       description: Admin用户门店管理服务
+    - name: UserStoreService
+      description: App用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

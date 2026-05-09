@@ -29,6 +29,12 @@ func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoService
 		return nil, err
 	}
 	ts = append(ts, getGoodsCommentInfoTool)
+	var listCommentReviewsTool tools.Tool
+	listCommentReviewsTool, err = NewCommentInfoServiceListCommentReviewsAgentTool(commentInfoServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listCommentReviewsTool)
 	var getCommentInfoTool tools.Tool
 	getCommentInfoTool, err = NewCommentInfoServiceGetCommentInfoAgentTool(commentInfoServiceServer)
 	if err != nil {
@@ -53,12 +59,6 @@ func NewCommentInfoServiceAgentTools(commentInfoServiceServer CommentInfoService
 		return nil, err
 	}
 	ts = append(ts, setCommentDiscussionStatusTool)
-	var listCommentReviewsTool tools.Tool
-	listCommentReviewsTool, err = NewCommentInfoServiceListCommentReviewsAgentTool(commentInfoServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, listCommentReviewsTool)
 	return ts, nil
 }
 
@@ -86,6 +86,20 @@ func NewCommentInfoServiceGetGoodsCommentInfoAgentTool(commentInfoServiceServer 
 				req = &GetGoodsCommentInfoRequest{}
 			}
 			return commentInfoServiceServer.GetGoodsCommentInfo(ctx, req)
+		},
+	)
+}
+
+// NewCommentInfoServiceListCommentReviewsAgentTool 创建查询评论审核记录列表的 Agent Tool。
+func NewCommentInfoServiceListCommentReviewsAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"admin_v1_comment_info_service_list_comment_reviews",
+		"查询评论审核记录列表",
+		func(ctx context.Context, req *ListCommentReviewsRequest) (*ListCommentReviewsResponse, error) {
+			if req == nil {
+				req = &ListCommentReviewsRequest{}
+			}
+			return commentInfoServiceServer.ListCommentReviews(ctx, req)
 		},
 	)
 }
@@ -142,20 +156,6 @@ func NewCommentInfoServiceSetCommentDiscussionStatusAgentTool(commentInfoService
 				req = &SetCommentDiscussionStatusRequest{}
 			}
 			return commentInfoServiceServer.SetCommentDiscussionStatus(ctx, req)
-		},
-	)
-}
-
-// NewCommentInfoServiceListCommentReviewsAgentTool 创建查询评论审核记录列表的 Agent Tool。
-func NewCommentInfoServiceListCommentReviewsAgentTool(commentInfoServiceServer CommentInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
-		"admin_v1_comment_info_service_list_comment_reviews",
-		"查询评论审核记录列表",
-		func(ctx context.Context, req *ListCommentReviewsRequest) (*ListCommentReviewsResponse, error) {
-			if req == nil {
-				req = &ListCommentReviewsRequest{}
-			}
-			return commentInfoServiceServer.ListCommentReviews(ctx, req)
 		},
 	)
 }

@@ -50,11 +50,11 @@ func RegisterCommentInfoServiceHTTPServer(s *http.Server, srv CommentInfoService
 	r := s.Route("/")
 	r.GET("/api/v1/admin/comment/info", _CommentInfoService_PageCommentInfos0_HTTP_Handler(srv))
 	r.GET("/api/v1/admin/comment/info/goods/{goods_id}", _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv))
+	r.GET("/api/v1/admin/comment/info/review", _CommentInfoService_ListCommentReviews0_HTTP_Handler(srv))
 	r.GET("/api/v1/admin/comment/info/{id}", _CommentInfoService_GetCommentInfo0_HTTP_Handler(srv))
 	r.PUT("/api/v1/admin/comment/info/{id}/status", _CommentInfoService_SetCommentInfoStatus0_HTTP_Handler(srv))
 	r.GET("/api/v1/admin/comment/info/{comment_id}/discussion", _CommentInfoService_PageCommentDiscussions0_HTTP_Handler(srv))
 	r.PUT("/api/v1/admin/comment/info/discussion/{id}/status", _CommentInfoService_SetCommentDiscussionStatus0_HTTP_Handler(srv))
-	r.GET("/api/v1/admin/comment/info/review", _CommentInfoService_ListCommentReviews0_HTTP_Handler(srv))
 }
 
 func _CommentInfoService_PageCommentInfos0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
@@ -94,6 +94,25 @@ func _CommentInfoService_GetGoodsCommentInfo0_HTTP_Handler(srv CommentInfoServic
 			return err
 		}
 		reply := out.(*GoodsCommentInfoResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CommentInfoService_ListCommentReviews0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in ListCommentReviewsRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCommentInfoServiceListCommentReviews)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.ListCommentReviews(ctx, req.(*ListCommentReviewsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*ListCommentReviewsResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -188,25 +207,6 @@ func _CommentInfoService_SetCommentDiscussionStatus0_HTTP_Handler(srv CommentInf
 			return err
 		}
 		reply := out.(*emptypb.Empty)
-		return ctx.Result(200, reply)
-	}
-}
-
-func _CommentInfoService_ListCommentReviews0_HTTP_Handler(srv CommentInfoServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in ListCommentReviewsRequest
-		if err := ctx.BindQuery(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationCommentInfoServiceListCommentReviews)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.ListCommentReviews(ctx, req.(*ListCommentReviewsRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*ListCommentReviewsResponse)
 		return ctx.Result(200, reply)
 	}
 }

@@ -158,7 +158,8 @@ const columns: ColumnProps[] = [
         type: "success",
         link: true,
         icon: CircleCheck,
-        hidden: scope => !BUTTONS.value["comment:status"] || (scope.row as CommentInfo).status === CommentStatus.APPROVED_CS,
+        hidden: scope =>
+          !BUTTONS.value["comment:status"] || (scope.row as CommentInfo).status !== CommentStatus.PENDING_REVIEW_CS,
         onClick: scope => handleApproveComment(scope.row as CommentInfo)
       },
       {
@@ -166,7 +167,8 @@ const columns: ColumnProps[] = [
         type: "danger",
         link: true,
         icon: CircleClose,
-        hidden: scope => !BUTTONS.value["comment:status"] || (scope.row as CommentInfo).status === CommentStatus.REJECTED_CS,
+        hidden: scope =>
+          !BUTTONS.value["comment:status"] || (scope.row as CommentInfo).status !== CommentStatus.PENDING_REVIEW_CS,
         onClick: scope => handleRejectComment(scope.row as CommentInfo)
       }
     ]

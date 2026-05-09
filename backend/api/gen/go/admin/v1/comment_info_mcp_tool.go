@@ -17,11 +17,11 @@ import (
 func RegisterCommentInfoServiceMCPTools(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
 	RegisterCommentInfoServicePageCommentInfosMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceGetGoodsCommentInfoMCPTool(mcpServer, commentInfoServiceServer)
+	RegisterCommentInfoServiceListCommentReviewsMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceGetCommentInfoMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceSetCommentInfoStatusMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServicePageCommentDiscussionsMCPTool(mcpServer, commentInfoServiceServer)
 	RegisterCommentInfoServiceSetCommentDiscussionStatusMCPTool(mcpServer, commentInfoServiceServer)
-	RegisterCommentInfoServiceListCommentReviewsMCPTool(mcpServer, commentInfoServiceServer)
 }
 
 // RegisterCommentInfoServicePageCommentInfosMCPTool 注册查询评论分页列表的 MCP Tool。
@@ -58,6 +58,27 @@ func RegisterCommentInfoServiceGetGoodsCommentInfoMCPTool(mcpServer *mcp.Server,
 				input = &GetGoodsCommentInfoRequest{}
 			}
 			reply, err := commentInfoServiceServer.GetGoodsCommentInfo(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterCommentInfoServiceListCommentReviewsMCPTool 注册查询评论审核记录列表的 MCP Tool。
+func RegisterCommentInfoServiceListCommentReviewsMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
+	mcp.AddTool[*ListCommentReviewsRequest, *ListCommentReviewsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "admin_v1_comment_info_service_list_comment_reviews",
+			Description: "查询评论审核记录列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCommentReviewsRequest) (*mcp.CallToolResult, *ListCommentReviewsResponse, error) {
+			if input == nil {
+				input = &ListCommentReviewsRequest{}
+			}
+			reply, err := commentInfoServiceServer.ListCommentReviews(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -142,27 +163,6 @@ func RegisterCommentInfoServiceSetCommentDiscussionStatusMCPTool(mcpServer *mcp.
 				input = &SetCommentDiscussionStatusRequest{}
 			}
 			reply, err := commentInfoServiceServer.SetCommentDiscussionStatus(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterCommentInfoServiceListCommentReviewsMCPTool 注册查询评论审核记录列表的 MCP Tool。
-func RegisterCommentInfoServiceListCommentReviewsMCPTool(mcpServer *mcp.Server, commentInfoServiceServer CommentInfoServiceServer) {
-	mcp.AddTool[*ListCommentReviewsRequest, *ListCommentReviewsResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "admin_v1_comment_info_service_list_comment_reviews",
-			Description: "查询评论审核记录列表",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *ListCommentReviewsRequest) (*mcp.CallToolResult, *ListCommentReviewsResponse, error) {
-			if input == nil {
-				input = &ListCommentReviewsRequest{}
-			}
-			reply, err := commentInfoServiceServer.ListCommentReviews(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

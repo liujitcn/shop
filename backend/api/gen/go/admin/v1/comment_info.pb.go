@@ -1662,12 +1662,12 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\tupdatedAt2\x87\b\n" +
 	"\x12CommentInfoService\x12}\n" +
 	"\x10PageCommentInfos\x12!.admin.v1.PageCommentInfosRequest\x1a\".admin.v1.PageCommentInfosResponse\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/admin/comment/info\x12\x94\x01\n" +
-	"\x13GetGoodsCommentInfo\x12$.admin.v1.GetGoodsCommentInfoRequest\x1a\".admin.v1.GoodsCommentInfoResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/admin/comment/info/goods/{goods_id}\x12w\n" +
+	"\x13GetGoodsCommentInfo\x12$.admin.v1.GetGoodsCommentInfoRequest\x1a\".admin.v1.GoodsCommentInfoResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/admin/comment/info/goods/{goods_id}\x12\x8a\x01\n" +
+	"\x12ListCommentReviews\x12#.admin.v1.ListCommentReviewsRequest\x1a$.admin.v1.ListCommentReviewsResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/comment/info/review\x12w\n" +
 	"\x0eGetCommentInfo\x12\x1f.admin.v1.GetCommentInfoRequest\x1a\x1b.admin.v1.CommentInfoDetail\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/comment/info/{id}\x12\x88\x01\n" +
 	"\x14SetCommentInfoStatus\x12%.admin.v1.SetCommentInfoStatusRequest\x1a\x16.google.protobuf.Empty\"1\x82\xd3\xe4\x93\x02+:\x01*\x1a&/api/v1/admin/comment/info/{id}/status\x12\xa7\x01\n" +
 	"\x16PageCommentDiscussions\x12'.admin.v1.PageCommentDiscussionsRequest\x1a(.admin.v1.PageCommentDiscussionsResponse\":\x82\xd3\xe4\x93\x024\x122/api/v1/admin/comment/info/{comment_id}/discussion\x12\x9f\x01\n" +
-	"\x1aSetCommentDiscussionStatus\x12+.admin.v1.SetCommentDiscussionStatusRequest\x1a\x16.google.protobuf.Empty\"<\x82\xd3\xe4\x93\x026:\x01*\x1a1/api/v1/admin/comment/info/discussion/{id}/status\x12\x8a\x01\n" +
-	"\x12ListCommentReviews\x12#.admin.v1.ListCommentReviewsRequest\x1a$.admin.v1.ListCommentReviewsResponse\")\x82\xd3\xe4\x93\x02#\x12!/api/v1/admin/comment/info/reviewB\x83\x01\n" +
+	"\x1aSetCommentDiscussionStatus\x12+.admin.v1.SetCommentDiscussionStatusRequest\x1a\x16.google.protobuf.Empty\"<\x82\xd3\xe4\x93\x026:\x01*\x1a1/api/v1/admin/comment/info/discussion/{id}/statusB\x83\x01\n" +
 	"\fcom.admin.v1B\x10CommentInfoProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -1736,18 +1736,18 @@ var file_admin_v1_comment_info_proto_depIdxs = []int32{
 	22, // 23: admin.v1.CommentReview.status:type_name -> common.v1.CommentReviewStatus
 	0,  // 24: admin.v1.CommentInfoService.PageCommentInfos:input_type -> admin.v1.PageCommentInfosRequest
 	2,  // 25: admin.v1.CommentInfoService.GetGoodsCommentInfo:input_type -> admin.v1.GetGoodsCommentInfoRequest
-	3,  // 26: admin.v1.CommentInfoService.GetCommentInfo:input_type -> admin.v1.GetCommentInfoRequest
-	4,  // 27: admin.v1.CommentInfoService.SetCommentInfoStatus:input_type -> admin.v1.SetCommentInfoStatusRequest
-	12, // 28: admin.v1.CommentInfoService.PageCommentDiscussions:input_type -> admin.v1.PageCommentDiscussionsRequest
-	5,  // 29: admin.v1.CommentInfoService.SetCommentDiscussionStatus:input_type -> admin.v1.SetCommentDiscussionStatusRequest
-	6,  // 30: admin.v1.CommentInfoService.ListCommentReviews:input_type -> admin.v1.ListCommentReviewsRequest
+	6,  // 26: admin.v1.CommentInfoService.ListCommentReviews:input_type -> admin.v1.ListCommentReviewsRequest
+	3,  // 27: admin.v1.CommentInfoService.GetCommentInfo:input_type -> admin.v1.GetCommentInfoRequest
+	4,  // 28: admin.v1.CommentInfoService.SetCommentInfoStatus:input_type -> admin.v1.SetCommentInfoStatusRequest
+	12, // 29: admin.v1.CommentInfoService.PageCommentDiscussions:input_type -> admin.v1.PageCommentDiscussionsRequest
+	5,  // 30: admin.v1.CommentInfoService.SetCommentDiscussionStatus:input_type -> admin.v1.SetCommentDiscussionStatusRequest
 	1,  // 31: admin.v1.CommentInfoService.PageCommentInfos:output_type -> admin.v1.PageCommentInfosResponse
 	9,  // 32: admin.v1.CommentInfoService.GetGoodsCommentInfo:output_type -> admin.v1.GoodsCommentInfoResponse
-	8,  // 33: admin.v1.CommentInfoService.GetCommentInfo:output_type -> admin.v1.CommentInfoDetail
-	23, // 34: admin.v1.CommentInfoService.SetCommentInfoStatus:output_type -> google.protobuf.Empty
-	13, // 35: admin.v1.CommentInfoService.PageCommentDiscussions:output_type -> admin.v1.PageCommentDiscussionsResponse
-	23, // 36: admin.v1.CommentInfoService.SetCommentDiscussionStatus:output_type -> google.protobuf.Empty
-	7,  // 37: admin.v1.CommentInfoService.ListCommentReviews:output_type -> admin.v1.ListCommentReviewsResponse
+	7,  // 33: admin.v1.CommentInfoService.ListCommentReviews:output_type -> admin.v1.ListCommentReviewsResponse
+	8,  // 34: admin.v1.CommentInfoService.GetCommentInfo:output_type -> admin.v1.CommentInfoDetail
+	23, // 35: admin.v1.CommentInfoService.SetCommentInfoStatus:output_type -> google.protobuf.Empty
+	13, // 36: admin.v1.CommentInfoService.PageCommentDiscussions:output_type -> admin.v1.PageCommentDiscussionsResponse
+	23, // 37: admin.v1.CommentInfoService.SetCommentDiscussionStatus:output_type -> google.protobuf.Empty
 	31, // [31:38] is the sub-list for method output_type
 	24, // [24:31] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name

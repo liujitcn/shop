@@ -323,6 +323,8 @@ export interface CommentInfoService {
   PageCommentInfos(request: PageCommentInfosRequest): Promise<PageCommentInfosResponse>;
   /** 按商品查询评论聚合信息 */
   GetGoodsCommentInfo(request: GetGoodsCommentInfoRequest): Promise<GoodsCommentInfoResponse>;
+  /** 查询评论审核记录列表 */
+  ListCommentReviews(request: ListCommentReviewsRequest): Promise<ListCommentReviewsResponse>;
   /** 查询评论详情 */
   GetCommentInfo(request: GetCommentInfoRequest): Promise<CommentInfoDetail>;
   /** 设置评论审核状态 */
@@ -331,6 +333,4 @@ export interface CommentInfoService {
   PageCommentDiscussions(request: PageCommentDiscussionsRequest): Promise<PageCommentDiscussionsResponse>;
   /** 设置评论讨论审核状态 */
   SetCommentDiscussionStatus(request: SetCommentDiscussionStatusRequest): Promise<Empty>;
-  /** 查询评论审核记录列表 */
-  ListCommentReviews(request: ListCommentReviewsRequest): Promise<ListCommentReviewsResponse>;
 }

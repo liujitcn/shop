@@ -337,7 +337,8 @@ const onOpenCommentPage = () => {
 
 .comment-tags {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12rpx 10rpx;
   margin: 18rpx 0;
 }
 
