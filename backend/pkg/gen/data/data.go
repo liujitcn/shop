@@ -14,6 +14,8 @@ import (
 
 func init() {
 	databaseGorm.RegisterMigrateModels(
+		new(models.AiAssistantMessage),
+		new(models.AiAssistantSession),
 		new(models.BaseAPI),
 		new(models.BaseArea),
 		new(models.BaseConfig),

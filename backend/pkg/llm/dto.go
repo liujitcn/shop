@@ -81,3 +81,37 @@ type CommentAiContentItem struct {
 	// Content 摘要内容。
 	Content string `json:"content" jsonschema:"摘要内容"`
 }
+
+// AiAssistantMessage 表示 AI 助手上下文消息。
+type AiAssistantMessage struct {
+	// Role 消息角色。
+	Role string `json:"role"`
+	// Content 消息文本内容。
+	Content string `json:"content"`
+}
+
+// AiAssistantAttachment 表示 AI 助手附件元数据。
+type AiAssistantAttachment struct {
+	// Name 附件名称。
+	Name string `json:"name"`
+	// Size 附件大小。
+	Size int64 `json:"size"`
+}
+
+// AiAssistantRequest 表示 AI 助手问答请求。
+type AiAssistantRequest struct {
+	// Terminal 当前终端：admin/app。
+	Terminal string `json:"terminal"`
+	// Scene 当前会话场景。
+	Scene string `json:"scene"`
+	// UserName 当前登录用户名称。
+	UserName string `json:"userName"`
+	// SessionTitle 当前会话标题。
+	SessionTitle string `json:"sessionTitle"`
+	// Content 当前用户输入。
+	Content string `json:"content"`
+	// History 历史消息。
+	History []AiAssistantMessage `json:"history"`
+	// Attachments 当前输入附件。
+	Attachments []AiAssistantAttachment `json:"attachments"`
+}

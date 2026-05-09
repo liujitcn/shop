@@ -19,6 +19,7 @@ type Client struct {
 	provider                 blades.ModelProvider
 	commentReviewInstruction string
 	commentAIInstruction     string
+	aiAssistantInstruction   string
 }
 
 // NewClient 创建大模型客户端。
@@ -48,6 +49,7 @@ func NewClient(bootstrapCfg *bootstrapConfigv1.Client_Llm, cfg *configv1.Prompt)
 	if cfg != nil {
 		client.commentReviewInstruction = strings.TrimSpace(cfg.GetCommentReview())
 		client.commentAIInstruction = strings.TrimSpace(cfg.GetCommentAi())
+		client.aiAssistantInstruction = strings.TrimSpace(cfg.GetAiAssistant())
 	}
 	return client
 }
@@ -181,6 +183,69 @@ func (c *Client) GenerateCommentAi(ctx context.Context, req CommentAiRequest) (*
 	result.Overview.Content = limitCommentAiContentItems(result.Overview.Content, 1, "AI 总结")
 	result.List.Content = limitCommentAiContentItems(result.List.Content, 4, "")
 	return result, nil
+}
+
+// GenerateAiAssistantReply 生成 AI 助手文本回复。
+func (c *Client) GenerateAiAssistantReply(ctx context.Context, req AiAssistantRequest) (string, int64, error) {
+	// 客户端配置不完整时，调用方无法继续发起大模型请求。
+	if !c.Enabled() {
+		return "", 0, fmt.Errorf("llm client is not configured")
+	}
+	// AI 助手必须配置系统提示词，避免空规则回复。
+	if strings.TrimSpace(c.aiAssistantInstruction) == "" {
+		return "", 0, fmt.Errorf("ai assistant instruction is empty")
+	}
+
+	parts := make([]any, 0, len(req.Attachments)+1)
+	payload := map[string]any{
+		"terminal":     strings.TrimSpace(req.Terminal),
+		"scene":        strings.TrimSpace(req.Scene),
+		"userName":     strings.TrimSpace(req.UserName),
+		"sessionTitle": strings.TrimSpace(req.SessionTitle),
+		"content":      strings.TrimSpace(req.Content),
+		"attachments":  req.Attachments,
+	}
+	rawPayload, err := json.Marshal(payload)
+	if err != nil {
+		parts = append(parts, strings.TrimSpace(req.Content))
+	} else {
+		parts = append(parts, "请结合当前系统上下文回复用户问题：\n"+string(rawPayload))
+	}
+
+	messages := make([]*blades.Message, 0, len(req.History)+1)
+	for _, item := range req.History {
+		content := strings.TrimSpace(item.Content)
+		if content == "" {
+			continue
+		}
+		switch strings.ToLower(strings.TrimSpace(item.Role)) {
+		case "assistant":
+			messages = append(messages, blades.AssistantMessage(content))
+		case "system":
+			messages = append(messages, blades.SystemMessage(content))
+		default:
+			messages = append(messages, blades.UserMessage(content))
+		}
+	}
+	messages = append(messages, blades.UserMessage(parts...))
+
+	response, err := c.provider.Generate(ctx, &blades.ModelRequest{
+		Instruction: blades.SystemMessage(c.aiAssistantInstruction),
+		Messages:    messages,
+	})
+	if err != nil {
+		return "", 0, fmt.Errorf("request ai assistant reply: %w", err)
+	}
+	// 服务商返回空消息时，无法解析文本回复。
+	if response == nil || response.Message == nil {
+		return "", 0, fmt.Errorf("ai assistant response is empty")
+	}
+
+	reply := strings.TrimSpace(response.Message.Text())
+	if reply == "" {
+		return "", 0, fmt.Errorf("ai assistant response content is empty")
+	}
+	return reply, response.Message.TokenUsage.TotalTokens, nil
 }
 
 // generateStructured 按 JSON Schema 调用大模型并反序列化结构化结果。

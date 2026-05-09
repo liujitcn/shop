@@ -333,6 +333,7 @@ type Prompt struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommentReview string                 `protobuf:"bytes,1,opt,name=comment_review,json=commentReview,proto3" json:"comment_review,omitempty"` // AI评论提示词
 	CommentAi     string                 `protobuf:"bytes,2,opt,name=comment_ai,json=commentAi,proto3" json:"comment_ai,omitempty"`             // AI汇总提示词
+	AiAssistant   string                 `protobuf:"bytes,3,opt,name=ai_assistant,json=aiAssistant,proto3" json:"ai_assistant,omitempty"`       // AI助手提示词
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -381,6 +382,13 @@ func (x *Prompt) GetCommentAi() string {
 	return ""
 }
 
+func (x *Prompt) GetAiAssistant() string {
+	if x != nil {
+		return x.AiAssistant
+	}
+	return ""
+}
+
 var File_config_v1_shop_config_proto protoreflect.FileDescriptor
 
 const file_config_v1_shop_config_proto_rawDesc = "" +
@@ -410,11 +418,12 @@ const file_config_v1_shop_config_proto_rawDesc = "" +
 	"\ventry_point\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\n" +
 	"entryPoint\x12)\n" +
 	"\aapi_key\x18\x02 \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"api 密钥R\x06apiKey\"\x80\x01\n" +
+	"api 密钥R\x06apiKey\"\xbc\x01\n" +
 	"\x06Prompt\x12>\n" +
 	"\x0ecomment_review\x18\x01 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI评论提示词R\rcommentReview\x126\n" +
 	"\n" +
-	"comment_ai\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI汇总提示词R\tcommentAiB\x89\x01\n" +
+	"comment_ai\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI汇总提示词R\tcommentAi\x12:\n" +
+	"\fai_assistant\x18\x03 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI助手提示词R\vaiAssistantB\x89\x01\n" +
 	"\rcom.config.v1B\x0fShopConfigProtoP\x01Z\"shop/api/gen/go/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
 	"Config::V1b\x06proto3"
 

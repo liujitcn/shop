@@ -99,6 +99,7 @@ func NewGRPCServer(
 	appUserCollect *app.UserCollectService,
 	appUserStore *app.UserStoreService,
 
+	aiAssistant *base.AiAssistantService,
 	config *base.ConfigService,
 	file *base.FileService,
 	login *base.LoginService,
@@ -163,6 +164,7 @@ func NewGRPCServer(
 	appv1.RegisterUserCollectServiceServer(srv, appUserCollect)
 	appv1.RegisterUserStoreServiceServer(srv, appUserStore)
 
+	basev1.RegisterAiAssistantServiceServer(srv, aiAssistant)
 	basev1.RegisterConfigServiceServer(srv, config)
 	basev1.RegisterFileServiceServer(srv, file)
 	basev1.RegisterLoginServiceServer(srv, login)

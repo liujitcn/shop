@@ -5,6 +5,16 @@
 package models
 
 // TableComment 返回表注释。
+func (*AiAssistantMessage) TableComment() string {
+	return "AI助手消息表"
+}
+
+// TableComment 返回表注释。
+func (*AiAssistantSession) TableComment() string {
+	return "AI助手会话表"
+}
+
+// TableComment 返回表注释。
 func (*BaseAPI) TableComment() string {
 	return "API信息"
 }

@@ -71,6 +71,7 @@ func registerMCPTools(mcpSrv *mcpserver.Server, services *ServerServices) {
 	appv1.RegisterUserCollectServiceMCPTools(mcpServer, services.appUserCollect)
 	appv1.RegisterUserStoreServiceMCPTools(mcpServer, services.appUserStore)
 
+	basev1.RegisterAiAssistantServiceMCPTools(mcpServer, services.aiAssistant)
 	basev1.RegisterConfigServiceMCPTools(mcpServer, services.config)
 	basev1.RegisterFileServiceMCPTools(mcpServer, services.file)
 	basev1.RegisterLoginServiceMCPTools(mcpServer, services.login)

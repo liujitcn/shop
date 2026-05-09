@@ -37,6 +37,7 @@ frontend/admin
 - `views/pay`：交易账单。
 - `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
 - `views/user`：门店管理。
+- `views/dashboard/assistant`：管理后台 AI助手页面主体，包含会话列表、聊天区与输入区。
 
 ## 环境要求
 
@@ -138,6 +139,12 @@ src/rpc
 这些文件由后端目录的 `make ts` 生成。新增或调整接口时，应优先修改后端 `backend/api/protos`，再执行生成命令，不要在 `src/rpc` 中手写等价类型。
 
 业务页面可以按现有模式在 `src/api` 中封装接口调用，也可以直接复用生成的 RPC 客户端，具体以当前页面风格为准。
+
+当前管理后台 AI 助手会复用：
+
+- `src/api/base/ai_assistant.ts`：AI 助手会话、消息、发送、重命名、删除接口封装。
+- `src/views/dashboard/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
+- `src/views/dashboard/assistant/index.vue`：左侧菜单中的 AI助手页面入口。
 
 ## 开发约定
 

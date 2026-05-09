@@ -68,4 +68,6 @@ export interface Prompt {
   comment_review: string;
   /** AI汇总提示词 */
   comment_ai: string;
+  /** AI助手提示词 */
+  ai_assistant: string;
 }

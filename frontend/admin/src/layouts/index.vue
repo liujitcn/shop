@@ -3,7 +3,6 @@
   <el-watermark id="watermark" :font="font" :content="watermarkContent">
     <component :is="LayoutComponents[layout]" />
     <ThemeDrawer />
-    <AgentAssistant />
   </el-watermark>
 </template>
 
@@ -12,7 +11,6 @@ import { computed, reactive, watch, type Component } from "vue";
 import { LayoutType } from "@/stores/interface";
 import { useGlobalStore } from "@/stores/modules/global";
 import { useConfigStore } from "@/stores/modules/config";
-import AgentAssistant from "@/components/Agent/AgentAssistant.vue";
 import ThemeDrawer from "./components/ThemeDrawer/index.vue";
 import LayoutVertical from "./LayoutVertical/index.vue";
 import LayoutClassic from "./LayoutClassic/index.vue";

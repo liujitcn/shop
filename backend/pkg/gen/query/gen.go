@@ -18,6 +18,8 @@ import (
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
 		db:                      db,
+		AiAssistantMessage:      newAiAssistantMessage(db, opts...),
+		AiAssistantSession:      newAiAssistantSession(db, opts...),
 		BaseAPI:                 newBaseAPI(db, opts...),
 		BaseArea:                newBaseArea(db, opts...),
 		BaseConfig:              newBaseConfig(db, opts...),
@@ -71,6 +73,8 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 type Query struct {
 	db *gorm.DB
 
+	AiAssistantMessage      aiAssistantMessage
+	AiAssistantSession      aiAssistantSession
 	BaseAPI                 baseAPI
 	BaseArea                baseArea
 	BaseConfig              baseConfig
@@ -125,6 +129,8 @@ func (q *Query) Available() bool { return q.db != nil }
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
+		AiAssistantMessage:      q.AiAssistantMessage.clone(db),
+		AiAssistantSession:      q.AiAssistantSession.clone(db),
 		BaseAPI:                 q.BaseAPI.clone(db),
 		BaseArea:                q.BaseArea.clone(db),
 		BaseConfig:              q.BaseConfig.clone(db),
@@ -186,6 +192,8 @@ func (q *Query) WriteDB() *Query {
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
 		db:                      db,
+		AiAssistantMessage:      q.AiAssistantMessage.replaceDB(db),
+		AiAssistantSession:      q.AiAssistantSession.replaceDB(db),
 		BaseAPI:                 q.BaseAPI.replaceDB(db),
 		BaseArea:                q.BaseArea.replaceDB(db),
 		BaseConfig:              q.BaseConfig.replaceDB(db),
@@ -237,6 +245,8 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 }
 
 type queryCtx struct {
+	AiAssistantMessage      *aiAssistantMessageDo
+	AiAssistantSession      *aiAssistantSessionDo
 	BaseAPI                 *baseAPIDo
 	BaseArea                *baseAreaDo
 	BaseConfig              *baseConfigDo
@@ -288,6 +298,8 @@ type queryCtx struct {
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
+		AiAssistantMessage:      q.AiAssistantMessage.WithContext(ctx),
+		AiAssistantSession:      q.AiAssistantSession.WithContext(ctx),
 		BaseAPI:                 q.BaseAPI.WithContext(ctx),
 		BaseArea:                q.BaseArea.WithContext(ctx),
 		BaseConfig:              q.BaseConfig.WithContext(ctx),

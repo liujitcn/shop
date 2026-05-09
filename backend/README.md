@@ -128,6 +128,8 @@ make gen
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
 
+当前 `base` 公共接口内已包含当前系统专用 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；回复优先复用 `github.com/go-kratos/blades` 接入的大模型客户端，未配置模型时回退为本地兜底回复，用于当前系统 AI 助手在管理端与后续移动端入口复用。
+
 ## MCP 工具暴露
 
 后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表只保存接口元数据、`mcp_tool_name` 和 `mcp_enabled` 开关；管理后台的“系统管理 / API 管理”页面可查看工具名，并切换接口是否暴露为 MCP 工具。

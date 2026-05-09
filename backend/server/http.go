@@ -118,6 +118,7 @@ func NewHTTPServer(
 	appv1.RegisterUserCollectServiceHTTPServer(srv, services.appUserCollect)
 	appv1.RegisterUserStoreServiceHTTPServer(srv, services.appUserStore)
 
+	basev1.RegisterAiAssistantServiceHTTPServer(srv, services.aiAssistant)
 	basev1.RegisterConfigServiceHTTPServer(srv, services.config)
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
 	base.RegisterFileServiceHTTPServer(srv, services.file)

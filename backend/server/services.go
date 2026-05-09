@@ -56,9 +56,10 @@ type ServerServices struct {
 	appUserCollect   *app.UserCollectService
 	appUserStore     *app.UserStoreService
 
-	config *base.ConfigService
-	file   *base.FileService
-	login  *base.LoginService
+	aiAssistant *base.AiAssistantService
+	config      *base.ConfigService
+	file        *base.FileService
+	login       *base.LoginService
 }
 
 // NewServerServices 创建 HTTP 与 MCP 服务注册表。
@@ -111,6 +112,7 @@ func NewServerServices(
 	appUserCollect *app.UserCollectService,
 	appUserStore *app.UserStoreService,
 
+	aiAssistant *base.AiAssistantService,
 	config *base.ConfigService,
 	file *base.FileService,
 	login *base.LoginService,
@@ -162,6 +164,7 @@ func NewServerServices(
 		appUserCart:           appUserCart,
 		appUserCollect:        appUserCollect,
 		appUserStore:          appUserStore,
+		aiAssistant:           aiAssistant,
 		config:                config,
 		file:                  file,
 		login:                 login,

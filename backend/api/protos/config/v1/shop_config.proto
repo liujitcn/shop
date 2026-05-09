@@ -49,4 +49,6 @@ message Prompt {
   string comment_review = 1 [(gnostic.openapi.v3.property) = {description: "AI评论提示词"}]; // AI评论提示词
 
   string comment_ai = 2 [(gnostic.openapi.v3.property) = {description: "AI汇总提示词"}]; // AI汇总提示词
+
+  string ai_assistant = 3 [(gnostic.openapi.v3.property) = {description: "AI助手提示词"}]; // AI助手提示词
 }
