@@ -180,6 +180,10 @@ message CommentDiscussionItem {
   int32 like_count = 7 [(gnostic.openapi.v3.property) = {description: "点赞数"}]; // 点赞数
 
   .common.v1.CommentReactionType reaction_type = 8 [(gnostic.openapi.v3.property) = {description: "当前用户互动类型：枚举【CommentReactionType】"}]; // 当前用户互动类型：枚举【CommentReactionType】
+
+  int64 parent_id = 9 [(gnostic.openapi.v3.property) = {description: "所属主讨论ID，一级讨论为空"}]; // 所属主讨论ID，一级讨论为空
+
+  int64 reply_to_discussion_id = 10 [(gnostic.openapi.v3.property) = {description: "被回复讨论ID，可为空"}]; // 被回复讨论ID，可为空
 }
 
 // 待评价商品展示项

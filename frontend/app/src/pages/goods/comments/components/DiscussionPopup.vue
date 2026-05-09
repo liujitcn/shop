@@ -32,13 +32,46 @@ const isSubmitting = ref(false)
 const commentDraft = ref('')
 const replyTargetName = ref('')
 const replyTargetDiscussionId = ref(0)
+const replyParentDiscussionId = ref(0)
 const commentInputFocus = ref(false)
+const expandedDiscussionIds = ref<number[]>([])
 
 const currentReviewId = computed(() => props.reviewId || 0)
 const discussionCount = computed(() => discussionTotal.value)
 
+interface DiscussionThreadItem {
+  root: CommentDiscussionItem
+  replies: CommentDiscussionItem[]
+}
+
 const commentPlaceholder = computed(() => {
   return replyTargetName.value ? `回复 ${replyTargetName.value}` : '说说你的想法～'
+})
+
+const discussionThreads = computed<DiscussionThreadItem[]>(() => {
+  const threadMap = new Map<number, DiscussionThreadItem>()
+  const replyList: CommentDiscussionItem[] = []
+
+  discussionList.value.forEach((item) => {
+    if (!item.parent_id) {
+      threadMap.set(item.id, {
+        root: item,
+        replies: [],
+      })
+      return
+    }
+    replyList.push(item)
+  })
+
+  replyList.forEach((item) => {
+    const thread = threadMap.get(item.parent_id)
+    if (!thread) {
+      return
+    }
+    thread.replies.push(item)
+  })
+
+  return Array.from(threadMap.values())
 })
 
 const ensureLogin = () => {
@@ -119,8 +152,10 @@ watch(
     }
     replyTargetName.value = ''
     replyTargetDiscussionId.value = 0
+    replyParentDiscussionId.value = 0
     commentDraft.value = ''
     commentInputFocus.value = false
+    expandedDiscussionIds.value = []
     void loadDiscussionData(true)
   },
 )
@@ -137,9 +172,25 @@ const focusCommentInput = () => {
 }
 
 const onReplyTo = (item: CommentDiscussionItem) => {
+  const parentDiscussionId = item.parent_id || item.id
+  replyParentDiscussionId.value = parentDiscussionId
   replyTargetDiscussionId.value = item.id
   replyTargetName.value = getDiscussionUserName(item)
   focusCommentInput()
+}
+
+const isDiscussionExpanded = (discussionId: number) => {
+  return expandedDiscussionIds.value.includes(discussionId)
+}
+
+const onToggleDiscussionReplies = (discussionId: number) => {
+  if (isDiscussionExpanded(discussionId)) {
+    expandedDiscussionIds.value = expandedDiscussionIds.value.filter(
+      (item) => item !== discussionId,
+    )
+    return
+  }
+  expandedDiscussionIds.value = [...expandedDiscussionIds.value, discussionId]
 }
 
 const onDiscussionToLower = () => {
@@ -165,7 +216,7 @@ const onSubmitDiscussion = async () => {
     const res = await defCommentService.CreateCommentDiscussion({
       comment_id: currentReviewId.value,
       content,
-      parent_id: replyTargetDiscussionId.value || 0,
+      parent_id: replyParentDiscussionId.value || 0,
       reply_to_discussion_id: replyTargetDiscussionId.value || 0,
       is_anonymous: false,
     })
@@ -178,6 +229,7 @@ const onSubmitDiscussion = async () => {
     commentDraft.value = ''
     replyTargetName.value = ''
     replyTargetDiscussionId.value = 0
+    replyParentDiscussionId.value = 0
     commentInputFocus.value = false
     void uni.showToast({ title: '讨论已提交，审核通过后展示', icon: 'none' })
     onClose()
@@ -226,34 +278,91 @@ const onToggleLike = async (item: CommentDiscussionItem) => {
       </view>
 
       <scroll-view scroll-y class="discussion-scroll" @scrolltolower="onDiscussionToLower">
-        <view v-if="discussionList.length" class="discussion-list">
-          <view v-for="item in discussionList" :key="item.id" class="discussion-item">
-            <image class="discussion-avatar" :src="getDiscussionAvatar(item)" mode="aspectFill" />
-            <view class="discussion-main">
-              <view class="discussion-head">
-                <view class="discussion-user">
-                  <text class="discussion-name">{{ getDiscussionUserName(item) }}</text>
-                  <text v-if="getDiscussionRole(item)" class="discussion-role">{{
-                    getDiscussionRole(item)
-                  }}</text>
+        <view v-if="discussionThreads.length" class="discussion-list">
+          <view v-for="thread in discussionThreads" :key="thread.root.id" class="discussion-thread">
+            <view class="discussion-item">
+              <image
+                class="discussion-avatar"
+                :src="getDiscussionAvatar(thread.root)"
+                mode="aspectFill"
+              />
+              <view class="discussion-main">
+                <view class="discussion-head">
+                  <view class="discussion-user">
+                    <text class="discussion-name">{{ getDiscussionUserName(thread.root) }}</text>
+                    <text v-if="getDiscussionRole(thread.root)" class="discussion-role">{{
+                      getDiscussionRole(thread.root)
+                    }}</text>
+                  </view>
+                  <view
+                    class="discussion-like"
+                    :class="{
+                      active: isDiscussionReactionActive(thread.root, CommentReactionType.LIKE),
+                    }"
+                    @tap="onToggleLike(thread.root)"
+                  >
+                    <view class="discussion-like-icon" />
+                    <text>{{ thread.root.like_count || '赞' }}</text>
+                  </view>
+                </view>
+
+                <view class="discussion-content">{{ thread.root.content }}</view>
+                <view class="discussion-meta">
+                  {{ thread.root.date_text }} <text @tap="onReplyTo(thread.root)">回复</text>
                 </view>
                 <view
-                  class="discussion-like"
-                  :class="{ active: isDiscussionReactionActive(item, CommentReactionType.LIKE) }"
-                  @tap="onToggleLike(item)"
+                  v-if="thread.replies.length"
+                  class="discussion-expand-row"
+                  @tap="onToggleDiscussionReplies(thread.root.id)"
                 >
-                  <view class="discussion-like-icon" />
-                  <text>{{ item.like_count || '赞' }}</text>
+                  <text class="discussion-expand-line" />
+                  <text class="discussion-expand-text">{{
+                    isDiscussionExpanded(thread.root.id) ? '收起' : '展开'
+                  }}</text>
                 </view>
               </view>
+            </view>
 
-              <view class="discussion-content">
-                <text v-if="item.reply_to_display_name" class="discussion-reply-prefix"
-                  >回复 {{ item.reply_to_display_name }}：</text
-                >{{ item.content }}
-              </view>
-              <view class="discussion-meta">
-                {{ item.date_text }} <text @tap="onReplyTo(item)">回复</text>
+            <view v-if="isDiscussionExpanded(thread.root.id)" class="discussion-reply-list">
+              <view
+                v-for="reply in thread.replies"
+                :key="reply.id"
+                class="discussion-item discussion-item--reply"
+              >
+                <image
+                  class="discussion-avatar"
+                  :src="getDiscussionAvatar(reply)"
+                  mode="aspectFill"
+                />
+                <view class="discussion-main">
+                  <view class="discussion-head">
+                    <view class="discussion-user">
+                      <text class="discussion-name">{{ getDiscussionUserName(reply) }}</text>
+                      <text v-if="getDiscussionRole(reply)" class="discussion-role">{{
+                        getDiscussionRole(reply)
+                      }}</text>
+                    </view>
+                    <view
+                      class="discussion-like"
+                      :class="{
+                        active: isDiscussionReactionActive(reply, CommentReactionType.LIKE),
+                      }"
+                      @tap="onToggleLike(reply)"
+                    >
+                      <view class="discussion-like-icon" />
+                      <text>{{ reply.like_count || '赞' }}</text>
+                    </view>
+                  </view>
+
+                  <view class="discussion-content">
+                    <text v-if="reply.reply_to_display_name" class="discussion-reply-prefix"
+                      >回复 {{ reply.reply_to_display_name }}：</text
+                    >{{ reply.content }}
+                  </view>
+                  <view class="discussion-meta">
+                    {{ reply.date_text }} <text @tap="onReplyTo(reply)">回复</text>
+                  </view>
+                </view>
               </view>
             </view>
           </view>
@@ -363,9 +472,22 @@ const onToggleLike = async (item: CommentDiscussionItem) => {
   padding-bottom: 16rpx;
 }
 
+.discussion-thread {
+  border-bottom: 1rpx solid #f3f4f6;
+}
+
+.discussion-thread:last-child {
+  border-bottom: 0;
+}
+
 .discussion-item {
   display: flex;
   padding: 22rpx 32rpx;
+}
+
+.discussion-item--reply {
+  padding-top: 18rpx;
+  padding-bottom: 18rpx;
 }
 
 .discussion-avatar {
@@ -461,6 +583,29 @@ const onToggleLike = async (item: CommentDiscussionItem) => {
   text {
     color: #777;
   }
+}
+
+.discussion-expand-row {
+  display: flex;
+  align-items: center;
+  margin-top: 18rpx;
+  color: #8f96a3;
+}
+
+.discussion-expand-line {
+  width: 54rpx;
+  height: 2rpx;
+  margin-right: 16rpx;
+  background-color: #d5d9e0;
+}
+
+.discussion-expand-text {
+  font-size: 26rpx;
+  line-height: 1;
+}
+
+.discussion-reply-list {
+  padding: 0 0 8rpx 82rpx;
 }
 
 .discussion-loading-more {

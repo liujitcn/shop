@@ -129,6 +129,10 @@ export interface CommentDiscussionItem {
   like_count: number;
   /** 当前用户互动类型：枚举【CommentReactionType】 */
   reaction_type: CommentReactionType;
+  /** 所属主讨论ID，一级讨论为空 */
+  parent_id: number;
+  /** 被回复讨论ID，可为空 */
+  reply_to_discussion_id: number;
 }
 
 /** 待评价商品展示项 */

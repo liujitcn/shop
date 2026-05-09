@@ -522,17 +522,19 @@ func (x *CommentAi) GetReactionType() v1.CommentReactionType {
 
 // 评价讨论展示项
 type CommentDiscussionItem struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Id                 int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                            // 讨论ID
-	CommentId          int64                  `protobuf:"varint,2,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                                             // 评价ID
-	User               *CommentUserView       `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`                                                                         // 讨论用户展示信息
-	Content            string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                                                                   // 讨论内容
-	ReplyToDisplayName string                 `protobuf:"bytes,5,opt,name=reply_to_display_name,json=replyToDisplayName,proto3" json:"reply_to_display_name,omitempty"`               // 被回复人的展示名称
-	DateText           string                 `protobuf:"bytes,6,opt,name=date_text,json=dateText,proto3" json:"date_text,omitempty"`                                                 // 前端展示日期
-	LikeCount          int32                  `protobuf:"varint,7,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`                                             // 点赞数
-	ReactionType       v1.CommentReactionType `protobuf:"varint,8,opt,name=reaction_type,json=reactionType,proto3,enum=common.v1.CommentReactionType" json:"reaction_type,omitempty"` // 当前用户互动类型：枚举【CommentReactionType】
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state               protoimpl.MessageState `protogen:"open.v1"`
+	Id                  int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                            // 讨论ID
+	CommentId           int64                  `protobuf:"varint,2,opt,name=comment_id,json=commentId,proto3" json:"comment_id,omitempty"`                                             // 评价ID
+	User                *CommentUserView       `protobuf:"bytes,3,opt,name=user,proto3" json:"user,omitempty"`                                                                         // 讨论用户展示信息
+	Content             string                 `protobuf:"bytes,4,opt,name=content,proto3" json:"content,omitempty"`                                                                   // 讨论内容
+	ReplyToDisplayName  string                 `protobuf:"bytes,5,opt,name=reply_to_display_name,json=replyToDisplayName,proto3" json:"reply_to_display_name,omitempty"`               // 被回复人的展示名称
+	DateText            string                 `protobuf:"bytes,6,opt,name=date_text,json=dateText,proto3" json:"date_text,omitempty"`                                                 // 前端展示日期
+	LikeCount           int32                  `protobuf:"varint,7,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`                                             // 点赞数
+	ReactionType        v1.CommentReactionType `protobuf:"varint,8,opt,name=reaction_type,json=reactionType,proto3,enum=common.v1.CommentReactionType" json:"reaction_type,omitempty"` // 当前用户互动类型：枚举【CommentReactionType】
+	ParentId            int64                  `protobuf:"varint,9,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`                                                // 所属主讨论ID，一级讨论为空
+	ReplyToDiscussionId int64                  `protobuf:"varint,10,opt,name=reply_to_discussion_id,json=replyToDiscussionId,proto3" json:"reply_to_discussion_id,omitempty"`          // 被回复讨论ID，可为空
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *CommentDiscussionItem) Reset() {
@@ -619,6 +621,20 @@ func (x *CommentDiscussionItem) GetReactionType() v1.CommentReactionType {
 		return x.ReactionType
 	}
 	return v1.CommentReactionType(0)
+}
+
+func (x *CommentDiscussionItem) GetParentId() int64 {
+	if x != nil {
+		return x.ParentId
+	}
+	return 0
+}
+
+func (x *CommentDiscussionItem) GetReplyToDiscussionId() int64 {
+	if x != nil {
+		return x.ReplyToDiscussionId
+	}
+	return 0
 }
 
 // 待评价商品展示项
@@ -1950,7 +1966,7 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"\n" +
 	"like_count\x18\x03 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
 	"\rdislike_count\x18\x04 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\x12\x85\x01\n" +
-	"\rreaction_type\x18\x05 \x01(\x0e2\x1e.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\"\xa6\x04\n" +
+	"\rreaction_type\x18\x05 \x01(\x0e2\x1e.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\"\xcb\x05\n" +
 	"\x15CommentDiscussionItem\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b讨论IDR\x02id\x12-\n" +
 	"\n" +
@@ -1961,7 +1977,10 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"\tdate_text\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12前端展示日期R\bdateText\x12.\n" +
 	"\n" +
 	"like_count\x18\a \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x12\x85\x01\n" +
-	"\rreaction_type\x18\b \x01(\x0e2\x1e.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\"\xf3\x02\n" +
+	"\rreaction_type\x18\b \x01(\x0e2\x1e.common.v1.CommentReactionTypeB@\xbaG=\x92\x02:当前用户互动类型：枚举【CommentReactionType】R\freactionType\x12I\n" +
+	"\tparent_id\x18\t \x01(\x03B,\xbaG)\x92\x02&所属主讨论ID，一级讨论为空R\bparentId\x12X\n" +
+	"\x16reply_to_discussion_id\x18\n" +
+	" \x01(\x03B#\xbaG \x92\x02\x1d被回复讨论ID，可为空R\x13replyToDiscussionId\"\xf3\x02\n" +
 	"\x17PendingCommentGoodsItem\x12)\n" +
 	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x121\n" +

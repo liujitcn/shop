@@ -6903,6 +6903,12 @@ components:
                     type: string
                     description: 当前用户互动类型：枚举【CommentReactionType】
                     format: enum
+                parentId:
+                    type: string
+                    description: 所属主讨论ID，一级讨论为空
+                replyToDiscussionId:
+                    type: string
+                    description: 被回复讨论ID，可为空
             description: 评价讨论展示项
         CommentFilterItem:
             type: object

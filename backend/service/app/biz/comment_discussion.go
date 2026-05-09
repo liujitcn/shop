@@ -72,10 +72,33 @@ func (c *CommentDiscussionCase) PageCommentDiscussion(
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.CommentID.Eq(commentID)))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
+	opts = append(opts, repository.Where(query.ParentID.Eq(0)))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	recordList, total, err := c.Page(ctx, pageNum, pageSize, opts...)
+	rootRecordList, total, err := c.Page(ctx, pageNum, pageSize, opts...)
 	if err != nil {
 		return nil, 0, err
+	}
+
+	recordList := rootRecordList
+	if len(rootRecordList) > 0 {
+		rootDiscussionIDs := make([]int64, 0, len(rootRecordList))
+		for _, record := range rootRecordList {
+			rootDiscussionIDs = append(rootDiscussionIDs, record.ID)
+		}
+
+		replyQuery := c.Query(ctx).CommentDiscussion
+		replyOpts := make([]repository.QueryOption, 0, 4)
+		replyOpts = append(replyOpts, repository.Where(replyQuery.CommentID.Eq(commentID)))
+		replyOpts = append(replyOpts, repository.Where(replyQuery.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
+		replyOpts = append(replyOpts, repository.Where(replyQuery.ParentID.In(rootDiscussionIDs...)))
+		replyOpts = append(replyOpts, repository.Order(replyQuery.CreatedAt.Asc()))
+
+		var replyRecordList []*models.CommentDiscussion
+		replyRecordList, err = c.List(ctx, replyOpts...)
+		if err != nil {
+			return nil, 0, err
+		}
+		recordList = append(recordList, replyRecordList...)
 	}
 
 	var userReactionTypeMap map[int64]int32
@@ -239,6 +262,8 @@ func (c *CommentDiscussionCase) buildDiscussionItem(
 	item.ReplyToDisplayName = record.ReplyToDisplayName
 	item.DateText = record.CreatedAt.Format("01-02 15:04")
 	item.LikeCount = record.LikeCount
+	item.ParentId = record.ParentID
+	item.ReplyToDiscussionId = record.ReplyToDiscussionID
 	reactionType := userReactionTypeMap[record.ID]
 	item.ReactionType = commonv1.CommentReactionType(reactionType)
 	return item
