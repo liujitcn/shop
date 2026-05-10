@@ -144,6 +144,7 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
 <style scoped lang="scss">
 .agent-chat-panel {
   display: flex;
+  height: 100%;
   min-width: 0;
   min-height: 0;
   padding: 20px 0 24px;
@@ -184,12 +185,15 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
   min-height: 0;
   width: min(960px, calc(100% - 72px));
   margin: 0 auto;
+  overflow: hidden;
 }
 
 .agent-chat-empty {
   display: flex;
+  flex: 1;
   width: min(1100px, calc(100% - 96px));
   margin: 0 auto;
+  min-height: 0;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -219,6 +223,7 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
 .agent-message-list {
   flex: 1;
   min-height: 0;
+  overflow: auto;
   padding: 8px 0 0;
 }
 
@@ -270,6 +275,7 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
 }
 
 .agent-sender-wrap {
+  flex: 0 0 auto;
   width: min(760px, calc(100% - 72px));
   margin: 0 auto;
   padding: 18px 0 0;

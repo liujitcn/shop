@@ -391,7 +391,8 @@ onMounted(() => {
 .ai-assistant-page {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  min-height: calc(100vh - 128px);
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-divider-strong);
@@ -456,7 +457,8 @@ onMounted(() => {
 @media screen and (max-width: 768px) {
   .ai-assistant-page {
     grid-template-columns: 1fr;
-    min-height: calc(100vh - 126px);
+    height: 100%;
+    min-height: 0;
   }
 
   .agent-session-collapsed {

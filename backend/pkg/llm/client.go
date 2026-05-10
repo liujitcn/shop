@@ -22,6 +22,8 @@ type Client struct {
 	aiAssistantInstruction   string
 }
 
+const defaultAiAssistantInstruction = `你是商城管理系统内的 AI 助手，请优先结合当前系统上下文回答用户问题。`
+
 // NewClient 创建大模型客户端。
 func NewClient(bootstrapCfg *bootstrapConfigv1.Client_Llm, cfg *configv1.Prompt) *Client {
 	client := &Client{}
@@ -50,6 +52,8 @@ func NewClient(bootstrapCfg *bootstrapConfigv1.Client_Llm, cfg *configv1.Prompt)
 		client.commentReviewInstruction = strings.TrimSpace(cfg.GetCommentReview())
 		client.commentAIInstruction = strings.TrimSpace(cfg.GetCommentAi())
 		client.aiAssistantInstruction = strings.TrimSpace(cfg.GetAiAssistant())
+	} else {
+		client.aiAssistantInstruction = defaultAiAssistantInstruction
 	}
 	return client
 }

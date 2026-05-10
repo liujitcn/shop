@@ -12,6 +12,7 @@
       :trigger-config="triggerConfig"
       :select-config="selectConfig"
       :tip-config="false"
+      @change="handleInputChange"
       @submit="handleSubmit"
       @paste-file="handlePasteFile"
     >
@@ -137,6 +138,7 @@ const emit = defineEmits<{
 
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
 const fileInputRef = ref<HTMLInputElement>();
+const inputText = ref("");
 const selectedAttachments = ref<AiAssistantAttachment[]>([]);
 const uploading = ref(false);
 
@@ -166,23 +168,28 @@ const attachmentItems = computed<FilesCardProps[]>(() =>
 );
 
 const isSubmitDisabled = computed(() => {
-  const inputText = senderRef.value?.getModelValue().text.trim() ?? "";
-  return !inputText && selectedAttachments.value.length === 0;
+  return !inputText.value.trim() && selectedAttachments.value.length === 0;
 });
 
 /** 读取输入内容并发送给父组件。 */
 function handleSubmit() {
   if (uploading.value) return;
-  const inputText = senderRef.value?.getModelValue().text.trim() ?? "";
-  if (!inputText && selectedAttachments.value.length === 0) return;
+  const trimmedText = inputText.value.trim();
+  if (!trimmedText && selectedAttachments.value.length === 0) return;
 
   emit("submit", {
-    text: inputText || "请结合附件内容继续分析",
+    text: trimmedText || "请结合附件内容继续分析",
     attachments: [...selectedAttachments.value]
   });
+  inputText.value = "";
   selectedAttachments.value = [];
   senderRef.value?.clear();
   resetFileInput();
+}
+
+/** 同步输入器内部文本，保证发送按钮禁用态能实时响应。 */
+function handleInputChange() {
+  inputText.value = senderRef.value?.getModelValue().text ?? "";
 }
 
 /** 打开本地文件选择框。 */

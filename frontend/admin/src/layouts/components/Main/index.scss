@@ -1,4 +1,8 @@
 .el-main {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex-direction: column;
   box-sizing: border-box;
   padding: 10px 12px;
   overflow-x: hidden;
