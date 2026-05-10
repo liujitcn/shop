@@ -25,6 +25,7 @@ const OperationAiAssistantServiceCreateAiAssistantSession = "/base.v1.AiAssistan
 const OperationAiAssistantServiceDeleteAiAssistantSession = "/base.v1.AiAssistantService/DeleteAiAssistantSession"
 const OperationAiAssistantServiceListAiAssistantMessages = "/base.v1.AiAssistantService/ListAiAssistantMessages"
 const OperationAiAssistantServiceListAiAssistantSessions = "/base.v1.AiAssistantService/ListAiAssistantSessions"
+const OperationAiAssistantServiceOperateAiAssistantConfirm = "/base.v1.AiAssistantService/OperateAiAssistantConfirm"
 const OperationAiAssistantServiceSendAiAssistantMessage = "/base.v1.AiAssistantService/SendAiAssistantMessage"
 const OperationAiAssistantServiceUpdateAiAssistantSession = "/base.v1.AiAssistantService/UpdateAiAssistantSession"
 
@@ -37,6 +38,8 @@ type AiAssistantServiceHTTPServer interface {
 	ListAiAssistantMessages(context.Context, *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error)
 	// ListAiAssistantSessions 查询 AI 助手会话列表
 	ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error)
+	// OperateAiAssistantConfirm 处理 AI 助手确认卡动作
+	OperateAiAssistantConfirm(context.Context, *OperateAiAssistantConfirmRequest) (*OperateAiAssistantConfirmResponse, error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
 	// UpdateAiAssistantSession 更新 AI 助手会话
@@ -51,6 +54,7 @@ func RegisterAiAssistantServiceHTTPServer(s *http.Server, srv AiAssistantService
 	r.DELETE("/api/v1/base/ai/assistant/session/{id}", _AiAssistantService_DeleteAiAssistantSession0_HTTP_Handler(srv))
 	r.GET("/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantService_ListAiAssistantMessages0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantService_SendAiAssistantMessage0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/assistant/session/{session_id}/confirm/{message_id}", _AiAssistantService_OperateAiAssistantConfirm0_HTTP_Handler(srv))
 }
 
 func _AiAssistantService_ListAiAssistantSessions0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
@@ -188,6 +192,31 @@ func _AiAssistantService_SendAiAssistantMessage0_HTTP_Handler(srv AiAssistantSer
 	}
 }
 
+func _AiAssistantService_OperateAiAssistantConfirm0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in OperateAiAssistantConfirmRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAssistantServiceOperateAiAssistantConfirm)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.OperateAiAssistantConfirm(ctx, req.(*OperateAiAssistantConfirmRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*OperateAiAssistantConfirmResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AiAssistantServiceHTTPClient interface {
 	// CreateAiAssistantSession 创建 AI 助手会话
 	CreateAiAssistantSession(ctx context.Context, req *CreateAiAssistantSessionRequest, opts ...http.CallOption) (rsp *AiAssistantSession, err error)
@@ -197,6 +226,8 @@ type AiAssistantServiceHTTPClient interface {
 	ListAiAssistantMessages(ctx context.Context, req *ListAiAssistantMessagesRequest, opts ...http.CallOption) (rsp *ListAiAssistantMessagesResponse, err error)
 	// ListAiAssistantSessions 查询 AI 助手会话列表
 	ListAiAssistantSessions(ctx context.Context, req *ListAiAssistantSessionsRequest, opts ...http.CallOption) (rsp *ListAiAssistantSessionsResponse, err error)
+	// OperateAiAssistantConfirm 处理 AI 助手确认卡动作
+	OperateAiAssistantConfirm(ctx context.Context, req *OperateAiAssistantConfirmRequest, opts ...http.CallOption) (rsp *OperateAiAssistantConfirmResponse, err error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(ctx context.Context, req *SendAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
 	// UpdateAiAssistantSession 更新 AI 助手会话
@@ -261,6 +292,20 @@ func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantSessions(ctx context.C
 	opts = append(opts, http.Operation(OperationAiAssistantServiceListAiAssistantSessions))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// OperateAiAssistantConfirm 处理 AI 助手确认卡动作
+func (c *AiAssistantServiceHTTPClientImpl) OperateAiAssistantConfirm(ctx context.Context, in *OperateAiAssistantConfirmRequest, opts ...http.CallOption) (*OperateAiAssistantConfirmResponse, error) {
+	var out OperateAiAssistantConfirmResponse
+	pattern := "/api/v1/base/ai/assistant/session/{session_id}/confirm/{message_id}"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAiAssistantServiceOperateAiAssistantConfirm))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

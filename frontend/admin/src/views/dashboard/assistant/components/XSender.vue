@@ -79,12 +79,50 @@
 <script setup lang="ts" name="XSender">
 import { computed, ref } from "vue";
 import { Attachments, XSender as BaseXSender } from "vue-element-plus-x";
+import type { FilesCardProps, FilesType } from "vue-element-plus-x/types/components/FilesCard/types";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
+import { defFileService } from "@/api/base/file";
 import type { AiAssistantAttachment } from "@/rpc/base/v1/ai_assistant";
+import type { FileInfo } from "@/rpc/base/v1/file";
 
 type SubmitPayload = {
   text: string;
   attachments: AiAssistantAttachment[];
+};
+
+type MentionItem = {
+  id: string;
+  name: string;
+  avatar?: string | URL;
+  pinyin?: string;
+};
+
+type MentionConfig = {
+  dialogTitle: string;
+  callEvery?: boolean;
+  everyText?: string;
+  asyncMatch?: (matchStr: string) => Promise<MentionItem[]>;
+  emptyText?: string;
+  options?: MentionItem[];
+};
+
+type TriggerConfig = {
+  dialogTitle: string;
+  keyMap?: string[];
+  key: string;
+  options: Array<{ id: string; name: string; pinyin?: string }>;
+};
+
+type SelectConfig = {
+  dialogTitle: string;
+  key: string;
+  options: Array<{ id: string; name: string; preview?: string | URL }>;
+  multiple?: boolean;
+  emptyText?: string;
+  showSearch?: boolean;
+  placeholder?: string;
+  searchEmptyText?: string;
 };
 
 defineProps<{
@@ -100,25 +138,28 @@ const emit = defineEmits<{
 const senderRef = ref<InstanceType<typeof BaseXSender>>();
 const fileInputRef = ref<HTMLInputElement>();
 const selectedAttachments = ref<AiAssistantAttachment[]>([]);
+const uploading = ref(false);
 
-const mentionConfig = {
+const mentionConfig: MentionConfig = {
+  dialogTitle: "智能提示",
   options: []
 };
 
-const triggerConfig: [] = [];
+const triggerConfig: TriggerConfig[] = [];
 
-const selectConfig: [] = [];
+const selectConfig: SelectConfig[] = [];
 
 const actionHintText = computed(() => {
   if (selectedAttachments.value.length) return `已选 ${selectedAttachments.value.length} 个附件`;
   return "可上传附件后继续提问";
 });
 
-const attachmentItems = computed(() =>
+const attachmentItems = computed<FilesCardProps[]>(() =>
   selectedAttachments.value.map(item => ({
     uid: item.id,
     name: item.name,
     fileSize: item.size,
+    url: item.url,
     fileType: resolveFileType(item.name),
     showDelIcon: true
   }))
@@ -131,6 +172,7 @@ const isSubmitDisabled = computed(() => {
 
 /** 读取输入内容并发送给父组件。 */
 function handleSubmit() {
+  if (uploading.value) return;
   const inputText = senderRef.value?.getModelValue().text.trim() ?? "";
   if (!inputText && selectedAttachments.value.length === 0) return;
 
@@ -148,31 +190,49 @@ function handleSelectAttachment() {
   fileInputRef.value?.click();
 }
 
-/** 将本地文件列表转换为输入器的附件展示结构。 */
-function handleFileChange(event: Event) {
+/** 将本地文件列表上传后同步到输入器附件区。 */
+async function handleFileChange(event: Event) {
   const target = event.target as HTMLInputElement;
-  mergeAttachments(Array.from(target.files ?? []));
+  await uploadAttachments(Array.from(target.files ?? []));
 }
 
 /** 处理粘贴文件，和点击上传保持同一份附件状态。 */
-function handlePasteFile(firstFile: File, fileList: FileList) {
-  mergeAttachments([firstFile, ...Array.from(fileList).slice(1)]);
+async function handlePasteFile(firstFile: File, fileList: FileList) {
+  await uploadAttachments([firstFile, ...Array.from(fileList).slice(1)]);
 }
 
-/** 合并附件并按文件标识去重。 */
-function mergeAttachments(files: File[]) {
+/** 上传附件并按文件地址去重。 */
+async function uploadAttachments(files: File[]) {
   if (!files.length) return;
+  uploading.value = true;
+  try {
+    const response = await defFileService.MultiUploadFile(files, "assistant");
+    const fileMap = new Map(files.map(file => [buildFileIdentity(file.name, file.size), file]));
+    const attachmentMap = new Map(selectedAttachments.value.map(item => [item.url || item.id, item]));
+    response?.files?.forEach(item => {
+      const attachment = buildAttachmentItem(
+        item.url || "",
+        item.name || "",
+        fileMap.get(buildFileIdentity(item.name || "", resolveUploadedFileSize(item)))
+      );
+      attachmentMap.set(attachment.url || attachment.id, attachment);
+    });
+    selectedAttachments.value = Array.from(attachmentMap.values());
+  } catch {
+    ElMessage.error("附件上传失败");
+  } finally {
+    uploading.value = false;
+    resetFileInput();
+  }
+}
 
-  const attachmentMap = new Map(selectedAttachments.value.map(item => [item.id, item]));
-  files.forEach(file => {
-    const attachment = buildAttachmentItem(file);
-    attachmentMap.set(attachment.id, attachment);
-  });
-  selectedAttachments.value = Array.from(attachmentMap.values());
+/** 为上传前后的文件建立稳定索引，避免同名不同文件互相覆盖。 */
+function buildFileIdentity(name: string, size: number) {
+  return `${name}-${size}`;
 }
 
 /** 根据文件后缀推断文件卡片类型，优先复用组件自带图标表现。 */
-function resolveFileType(fileName: string) {
+function resolveFileType(fileName: string): FilesType {
   const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
   if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension)) return "image";
   if (["xls", "xlsx", "csv"].includes(extension)) return "excel";
@@ -187,12 +247,20 @@ function resolveFileType(fileName: string) {
   return "file";
 }
 
-/** 根据文件对象构建附件展示项。 */
-function buildAttachmentItem(file: File): AiAssistantAttachment {
+/** 从上传返回对象中读取文件大小；当前后端未返回大小时退回 0。 */
+function resolveUploadedFileSize(file: FileInfo) {
+  void file;
+  return 0;
+}
+
+/** 根据上传结果构建附件展示项。 */
+function buildAttachmentItem(url: string, name: string, file?: File): AiAssistantAttachment {
   return {
-    id: `${file.name}-${file.size}-${file.lastModified}`,
-    name: file.name,
-    size: file.size
+    id: url || `${name}-${file?.size ?? 0}-${file?.lastModified ?? Date.now()}`,
+    name,
+    size: file?.size ?? 0,
+    url,
+    mime_type: file?.type ?? ""
   };
 }
 

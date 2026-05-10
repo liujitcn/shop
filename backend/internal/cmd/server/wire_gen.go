@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/biz"
 	"shop/pkg/config"
 	"shop/pkg/gen/data"
@@ -25,17 +32,10 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -372,15 +372,25 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizUserStoreCase := biz4.NewUserStoreCase(baseCase, transaction, userStoreRepository, baseAreaCase)
 	appUserStoreService := app.NewUserStoreService(bizUserStoreCase)
 	aiAssistantSessionRepository := data.NewAiAssistantSessionRepository(dataData)
+	aiAssistantSessionCase := biz3.NewAiAssistantSessionCase(baseCase, aiAssistantSessionRepository)
 	aiAssistantMessageRepository := data.NewAiAssistantMessageRepository(dataData)
-	aiAssistantCase := biz3.NewAiAssistantCase(baseCase, aiAssistantSessionRepository, aiAssistantMessageRepository, baseUserRepository, llmClient)
+	aiAssistantMessageCase := biz3.NewAiAssistantMessageCase(aiAssistantMessageRepository)
+	baseUserCase2 := biz3.NewBaseUserCase(baseUserRepository)
+	aiAssistantToolRuntime, err := server.NewAiAssistantToolRuntime(workspaceService, orderInfoService)
+	if err != nil {
+		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	aiAssistantCase := biz3.NewAiAssistantCase(baseCase, aiAssistantSessionCase, aiAssistantMessageCase, baseUserCase2, llmClient, aiAssistantToolRuntime)
 	aiAssistantService := base.NewAiAssistantService(aiAssistantCase)
 	configCase := biz3.NewConfigCase(baseConfigRepository)
 	configService := base.NewConfigService(configCase)
 	fileService := base.NewFileService(fileCase)
 	baseDeptCase2 := biz3.NewBaseDeptCase(baseDeptRepository)
 	baseRoleCase2 := biz3.NewBaseRoleCase(baseRoleRepository)
-	baseUserCase2 := biz3.NewBaseUserCase(baseUserRepository)
 	loginCase := biz3.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2)
 	loginService := base.NewLoginService(loginCase)
 	serverServices := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, aiAssistantService, configService, fileService, loginService)

@@ -86,3 +86,13 @@ func (s *AiAssistantService) SendAiAssistantMessage(ctx context.Context, req *ba
 	}
 	return res, nil
 }
+
+// OperateAiAssistantConfirm 处理 AI 助手确认卡动作。
+func (s *AiAssistantService) OperateAiAssistantConfirm(ctx context.Context, req *basev1.OperateAiAssistantConfirmRequest) (*basev1.OperateAiAssistantConfirmResponse, error) {
+	res, err := s.aiAssistantCase.OperateAiAssistantConfirm(ctx, req)
+	if err != nil {
+		log.Errorf("OperateAiAssistantConfirm %v", err)
+		return nil, errorsx.WrapInternal(err, "处理AI助手确认动作失败")
+	}
+	return res, nil
+}

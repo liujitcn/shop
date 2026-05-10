@@ -8,6 +8,8 @@ import (
 
 // ProviderSet 汇总基础服务依赖注入提供者。
 var ProviderSet = wire.NewSet(
+	biz.NewAiAssistantSessionCase,
+	biz.NewAiAssistantMessageCase,
 	biz.NewAiAssistantCase,
 	biz.NewBaseDeptCase,
 	biz.NewBaseRoleCase,

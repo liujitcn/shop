@@ -53,6 +53,12 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 		return nil, err
 	}
 	ts = append(ts, sendAiAssistantMessageTool)
+	var operateAiAssistantConfirmTool tools.Tool
+	operateAiAssistantConfirmTool, err = NewAiAssistantServiceOperateAiAssistantConfirmAgentTool(aiAssistantServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, operateAiAssistantConfirmTool)
 	return ts, nil
 }
 
@@ -136,6 +142,20 @@ func NewAiAssistantServiceSendAiAssistantMessageAgentTool(aiAssistantServiceServ
 				req = &SendAiAssistantMessageRequest{}
 			}
 			return aiAssistantServiceServer.SendAiAssistantMessage(ctx, req)
+		},
+	)
+}
+
+// NewAiAssistantServiceOperateAiAssistantConfirmAgentTool 创建处理 AI 助手确认卡动作的 Agent Tool。
+func NewAiAssistantServiceOperateAiAssistantConfirmAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_assistant_service_operate_ai_assistant_confirm",
+		"处理 AI 助手确认卡动作",
+		func(ctx context.Context, req *OperateAiAssistantConfirmRequest) (*OperateAiAssistantConfirmResponse, error) {
+			if req == nil {
+				req = &OperateAiAssistantConfirmRequest{}
+			}
+			return aiAssistantServiceServer.OperateAiAssistantConfirm(ctx, req)
 		},
 	)
 }

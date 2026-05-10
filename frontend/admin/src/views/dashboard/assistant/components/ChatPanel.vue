@@ -26,8 +26,19 @@
               v-else-if="item.kind === 'confirm'"
               :title="item.confirmTitle || '待确认操作'"
               :lines="item.confirmLines || []"
+              :form-fields="item.confirmFormFields || []"
+              :form-values="item.confirmFormValues || {}"
+              :state="item.confirmState || 'pending'"
+              :disabled="sending"
+              @action="handleConfirmAction(item, $event)"
             />
             <div v-else class="agent-message-body">
+              <div v-if="item.role !== 'user' && (item.reply_source || item.model || item.fallback)" class="agent-message-meta">
+                <span class="agent-message-meta__tag">
+                  {{ item.fallback ? "降级回复" : item.reply_source === "tool" ? "工具辅助" : "模型回复" }}
+                </span>
+                <span v-if="item.model" class="agent-message-meta__model">{{ item.model }}</span>
+              </div>
               <div class="agent-message-content">{{ item.content }}</div>
               <div v-if="item.attachments?.length" class="agent-message-attachments">
                 <div v-for="attachment in item.attachments" :key="attachment.id" class="agent-message-attachment">
@@ -56,18 +67,33 @@ import ConfirmCard from "./ConfirmCard.vue";
 import ToolCard from "./ToolCard.vue";
 import XSender from "./XSender.vue";
 
-type ChatMessageItem = AiAssistantMessage & {
+export type ChatMessageItem = AiAssistantMessage & {
+  key: string;
   placement: "start" | "end";
   variant?: "filled" | "borderless" | "outlined" | "shadow";
   shape?: "round" | "corner";
   maxWidth?: string;
   confirmTitle?: string;
   confirmLines?: string[];
+  confirmFormFields?: Array<{
+    prop: string;
+    label: string;
+    placeholder: string;
+    required?: boolean;
+  }>;
+  confirmFormValues?: Record<string, string>;
+  confirmState?: "pending" | "processing" | "confirmed" | "rejected";
 };
 
 type SubmitPayload = {
   text: string;
   attachments: AiAssistantAttachment[];
+};
+
+type ConfirmAction = "confirm" | "reject";
+type ConfirmActionPayload = {
+  action: ConfirmAction;
+  formValues: Record<string, string>;
 };
 
 const props = defineProps<{
@@ -82,6 +108,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 提交输入框内容。 */
   submit: [payload: SubmitPayload];
+  /** 处理确认卡操作。 */
+  confirmAction: [payload: { action: ConfirmAction; message: ChatMessageItem; formValues: Record<string, string> }];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -105,6 +133,11 @@ const welcomeTitle = computed(() => {
 /** 读取输入框内容并提交给父组件。 */
 function handleSubmit(payload: SubmitPayload) {
   emit("submit", payload);
+}
+
+/** 透传确认卡动作到页面，统一由页面接管消息流。 */
+function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPayload) {
+  emit("confirmAction", { ...payload, message });
 }
 </script>
 
@@ -198,6 +231,24 @@ function handleSubmit(payload: SubmitPayload) {
   display: flex;
   gap: 10px;
   flex-direction: column;
+}
+
+.agent-message-meta {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--admin-page-text-secondary);
+}
+
+.agent-message-meta__tag {
+  padding: 2px 8px;
+  background: var(--el-fill-color-light);
+  border-radius: 999px;
+}
+
+.agent-message-meta__model {
+  opacity: 0.85;
 }
 
 .agent-message-attachments {

@@ -21,12 +21,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiAssistantService_ListAiAssistantSessions_FullMethodName  = "/base.v1.AiAssistantService/ListAiAssistantSessions"
-	AiAssistantService_CreateAiAssistantSession_FullMethodName = "/base.v1.AiAssistantService/CreateAiAssistantSession"
-	AiAssistantService_UpdateAiAssistantSession_FullMethodName = "/base.v1.AiAssistantService/UpdateAiAssistantSession"
-	AiAssistantService_DeleteAiAssistantSession_FullMethodName = "/base.v1.AiAssistantService/DeleteAiAssistantSession"
-	AiAssistantService_ListAiAssistantMessages_FullMethodName  = "/base.v1.AiAssistantService/ListAiAssistantMessages"
-	AiAssistantService_SendAiAssistantMessage_FullMethodName   = "/base.v1.AiAssistantService/SendAiAssistantMessage"
+	AiAssistantService_ListAiAssistantSessions_FullMethodName   = "/base.v1.AiAssistantService/ListAiAssistantSessions"
+	AiAssistantService_CreateAiAssistantSession_FullMethodName  = "/base.v1.AiAssistantService/CreateAiAssistantSession"
+	AiAssistantService_UpdateAiAssistantSession_FullMethodName  = "/base.v1.AiAssistantService/UpdateAiAssistantSession"
+	AiAssistantService_DeleteAiAssistantSession_FullMethodName  = "/base.v1.AiAssistantService/DeleteAiAssistantSession"
+	AiAssistantService_ListAiAssistantMessages_FullMethodName   = "/base.v1.AiAssistantService/ListAiAssistantMessages"
+	AiAssistantService_SendAiAssistantMessage_FullMethodName    = "/base.v1.AiAssistantService/SendAiAssistantMessage"
+	AiAssistantService_OperateAiAssistantConfirm_FullMethodName = "/base.v1.AiAssistantService/OperateAiAssistantConfirm"
 )
 
 // AiAssistantServiceClient is the client API for AiAssistantService service.
@@ -47,6 +48,8 @@ type AiAssistantServiceClient interface {
 	ListAiAssistantMessages(ctx context.Context, in *ListAiAssistantMessagesRequest, opts ...grpc.CallOption) (*ListAiAssistantMessagesResponse, error)
 	// 发送 AI 助手消息
 	SendAiAssistantMessage(ctx context.Context, in *SendAiAssistantMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
+	// 处理 AI 助手确认卡动作
+	OperateAiAssistantConfirm(ctx context.Context, in *OperateAiAssistantConfirmRequest, opts ...grpc.CallOption) (*OperateAiAssistantConfirmResponse, error)
 }
 
 type aiAssistantServiceClient struct {
@@ -117,6 +120,16 @@ func (c *aiAssistantServiceClient) SendAiAssistantMessage(ctx context.Context, i
 	return out, nil
 }
 
+func (c *aiAssistantServiceClient) OperateAiAssistantConfirm(ctx context.Context, in *OperateAiAssistantConfirmRequest, opts ...grpc.CallOption) (*OperateAiAssistantConfirmResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OperateAiAssistantConfirmResponse)
+	err := c.cc.Invoke(ctx, AiAssistantService_OperateAiAssistantConfirm_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AiAssistantServiceServer is the server API for AiAssistantService service.
 // All implementations must embed UnimplementedAiAssistantServiceServer
 // for forward compatibility.
@@ -135,6 +148,8 @@ type AiAssistantServiceServer interface {
 	ListAiAssistantMessages(context.Context, *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error)
 	// 发送 AI 助手消息
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
+	// 处理 AI 助手确认卡动作
+	OperateAiAssistantConfirm(context.Context, *OperateAiAssistantConfirmRequest) (*OperateAiAssistantConfirmResponse, error)
 	mustEmbedUnimplementedAiAssistantServiceServer()
 }
 
@@ -162,6 +177,9 @@ func (UnimplementedAiAssistantServiceServer) ListAiAssistantMessages(context.Con
 }
 func (UnimplementedAiAssistantServiceServer) SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SendAiAssistantMessage not implemented")
+}
+func (UnimplementedAiAssistantServiceServer) OperateAiAssistantConfirm(context.Context, *OperateAiAssistantConfirmRequest) (*OperateAiAssistantConfirmResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method OperateAiAssistantConfirm not implemented")
 }
 func (UnimplementedAiAssistantServiceServer) mustEmbedUnimplementedAiAssistantServiceServer() {}
 func (UnimplementedAiAssistantServiceServer) testEmbeddedByValue()                            {}
@@ -292,6 +310,24 @@ func _AiAssistantService_SendAiAssistantMessage_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiAssistantService_OperateAiAssistantConfirm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OperateAiAssistantConfirmRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiAssistantServiceServer).OperateAiAssistantConfirm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiAssistantService_OperateAiAssistantConfirm_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiAssistantServiceServer).OperateAiAssistantConfirm(ctx, req.(*OperateAiAssistantConfirmRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AiAssistantService_ServiceDesc is the grpc.ServiceDesc for AiAssistantService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -322,6 +358,10 @@ var AiAssistantService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendAiAssistantMessage",
 			Handler:    _AiAssistantService_SendAiAssistantMessage_Handler,
+		},
+		{
+			MethodName: "OperateAiAssistantConfirm",
+			Handler:    _AiAssistantService_OperateAiAssistantConfirm_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

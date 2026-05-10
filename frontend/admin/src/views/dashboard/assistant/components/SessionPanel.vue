@@ -66,16 +66,13 @@
 import { computed } from "vue";
 import { DArrowLeft, Delete, EditPen, MoreFilled, Search } from "@element-plus/icons-vue";
 import { Conversations } from "vue-element-plus-x";
+import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
 import Icon from "./Icon.vue";
 
 type SessionAction = "rename" | "delete";
 
-type SessionListItem = {
-  id: string;
-  title: string;
+type SessionListItem = AiAssistantSession & {
   label: string;
-  summary: string;
-  scene: string;
 };
 
 const props = defineProps<{

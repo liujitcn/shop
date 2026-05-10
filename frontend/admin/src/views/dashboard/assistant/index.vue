@@ -15,7 +15,13 @@
       </button>
       <span class="agent-session-collapsed__label">最近对话</span>
     </div>
-    <ChatPanel :active-session="activeSession" :messages="currentMessages" :sending="sending" @submit="handleSubmit" />
+    <ChatPanel
+      :active-session="activeSession"
+      :messages="currentMessages"
+      :sending="sending"
+      @submit="handleSubmit"
+      @confirm-action="handleConfirmAction"
+    />
   </div>
 </template>
 
@@ -27,6 +33,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { defAiAssistantService } from "@/api/base/ai_assistant";
 import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
 import ChatPanel from "./components/ChatPanel.vue";
+import type { ChatMessageItem } from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
 
 defineOptions({
@@ -39,20 +46,15 @@ type SessionListItem = AiAssistantSession & {
   label: string;
 };
 
-type ChatMessageItem = AiAssistantMessage & {
-  key: string;
-  placement: "start" | "end";
-  content: string;
-  variant?: "filled" | "borderless" | "outlined" | "shadow";
-  shape?: "round" | "corner";
-  maxWidth?: string;
-  confirmTitle?: string;
-  confirmLines?: string[];
-};
-
 type SubmitPayload = {
   text: string;
   attachments: AiAssistantAttachment[];
+};
+
+type ConfirmActionPayload = {
+  action: "confirm" | "reject";
+  message: ChatMessageItem;
+  formValues: Record<string, string>;
 };
 
 const sessionKeyword = ref("");
@@ -120,7 +122,9 @@ async function handleSubmit(payload: SubmitPayload) {
       attachments: payload.attachments.map(item => ({
         id: item.id,
         name: item.name,
-        size: item.size
+        size: item.size,
+        url: item.url,
+        mime_type: item.mime_type
       }))
     });
 
@@ -131,6 +135,28 @@ async function handleSubmit(payload: SubmitPayload) {
     // 错误提示已由统一请求拦截器处理，这里仅拦截未捕获 Promise，避免页面继续抛红。
   } finally {
     sending.value = false;
+  }
+}
+
+/** 处理确认卡动作，并继续复用现有消息发送链路。 */
+async function handleConfirmAction(payload: ConfirmActionPayload) {
+  const sessionID = activeSessionID.value;
+  if (!sessionID || sending.value) return;
+  if (payload.action === "confirm" && !validateConfirmForm(payload.message, payload.formValues)) return;
+
+  updateConfirmMessageState(sessionID, payload.message.id, "processing");
+  try {
+    const response = await defAiAssistantService.OperateAiAssistantConfirm({
+      session_id: sessionID,
+      message_id: payload.message.id,
+      action: payload.action === "confirm" ? "approve" : "reject",
+      form_json: JSON.stringify(payload.formValues ?? {})
+    });
+
+    mergeSessionMessages(sessionID, normalizeMessageList(response?.messages));
+    if (response?.session) upsertSession(response.session);
+  } catch {
+    updateConfirmMessageState(sessionID, payload.message.id, "pending");
   }
 }
 
@@ -230,11 +256,85 @@ function mapMessageItem(message: AiAssistantMessage): ChatMessageItem {
     placement: message.role === "user" ? "end" : "start",
     confirmTitle: message.confirm_title,
     confirmLines: message.confirm_lines,
+    confirmFormFields: resolveConfirmFormFields(message),
+    confirmFormValues: {},
+    confirmState: resolveConfirmState(message),
+    reply_source: String(message.reply_source ?? ""),
+    model: String(message.model ?? ""),
+    fallback: Boolean(message.fallback),
+    fallback_reason: String(message.fallback_reason ?? ""),
     variant: message.role === "user" ? "filled" : message.kind === "tool" || message.kind === "confirm" ? "outlined" : "filled",
     shape: "round",
     maxWidth:
       message.kind === "confirm" ? "360px" : message.kind === "tool" ? "430px" : message.role === "user" ? "380px" : "440px"
   };
+}
+
+/** 根据后端消息状态映射确认卡展示状态。 */
+function resolveConfirmState(message: AiAssistantMessage): ChatMessageItem["confirmState"] {
+  if (message.kind !== "confirm") return undefined;
+  switch (String(message.confirm_status ?? "")) {
+    case "approved":
+      return "confirmed";
+    case "rejected":
+      return "rejected";
+    default:
+      return "pending";
+  }
+}
+
+/** 从工具输入里提取确认卡表单字段，兼容当前消息协议未单独暴露表单结构的阶段。 */
+function resolveConfirmFormFields(message: AiAssistantMessage) {
+  if (message.kind !== "confirm") return [];
+  if (!message.confirm_action.includes("shipment")) return [];
+  return [
+    { prop: "name", label: "物流公司名称", placeholder: "请输入物流公司名称", required: true },
+    { prop: "no", label: "物流单号", placeholder: "请输入物流单号", required: true },
+    { prop: "contact", label: "联系方式", placeholder: "请输入联系方式", required: true }
+  ];
+}
+
+/** 提交确认前校验必填表单，避免空值请求直达后端。 */
+function validateConfirmForm(message: ChatMessageItem, formValues: Record<string, string>) {
+  const requiredFields = message.confirmFormFields?.filter(field => field.required) ?? [];
+  for (const field of requiredFields) {
+    if (!String(formValues?.[field.prop] ?? "").trim()) {
+      ElMessage.warning(`请填写${field.label}`);
+      return false;
+    }
+  }
+  return true;
+}
+
+/** 更新当前会话中指定确认消息的状态，保持交互反馈及时可见。 */
+function updateConfirmMessageState(sessionID: string, messageID: string, confirmState: ChatMessageItem["confirmState"]) {
+  const sessionMessages = messages.value[sessionID] ?? [];
+  messages.value[sessionID] = sessionMessages.map(item =>
+    item.id === messageID
+      ? {
+          ...item,
+          confirmState
+        }
+      : item
+  );
+}
+
+/** 合并后端返回的最新消息，优先用新消息覆盖同 ID 的旧状态。 */
+function mergeSessionMessages(sessionID: string, nextMessages: ChatMessageItem[]) {
+  if (!nextMessages.length) return;
+  const mergedMap = new Map<string, ChatMessageItem>();
+  (messages.value[sessionID] ?? []).forEach(item => {
+    mergedMap.set(item.id, item);
+  });
+  nextMessages.forEach(item => {
+    mergedMap.set(item.id, item);
+  });
+  messages.value[sessionID] = Array.from(mergedMap.values()).sort((left, right) => {
+    const leftTime = resolveTimestamp(left.created_at);
+    const rightTime = resolveTimestamp(right.created_at);
+    if (leftTime === rightTime) return Number(left.id) - Number(right.id);
+    return leftTime - rightTime;
+  });
 }
 
 /** 兜底清洗会话数据，避免接口空值导致页面初始化报错。 */

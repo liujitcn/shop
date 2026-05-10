@@ -146,6 +146,12 @@ src/rpc
 - `src/views/dashboard/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
 - `src/views/dashboard/assistant/index.vue`：左侧菜单中的 AI助手页面入口。
 
+当前助手页实现说明：
+
+- 会话列表、消息流、输入器与附件区分别复用 `Conversations`、`BubbleList`、`XSender`、`Attachments` 的现有模式。
+- 附件发送会透传 `id/name/size/url/mime_type`，用于后端读取真实文件内容参与模型推理。
+- 工具调用卡与确认卡为页面自定义业务组件，其中确认卡已接入页面消息流，可在前端先完成确认/拒绝交互闭环。
+
 ## 开发约定
 
 - 后台列表页优先延续 `ProTable + FormDialog + ProForm` 的页面结构。

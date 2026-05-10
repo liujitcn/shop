@@ -1,25 +1,23 @@
 package biz
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"strconv"
+	"mime"
 	"strings"
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
-	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/llm"
+	baseDTO "shop/service/base/dto"
 
-	"github.com/liujitcn/gorm-kit/repository"
+	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
-	"gorm.io/gorm"
 )
 
 const (
@@ -34,33 +32,49 @@ const (
 	aiAssistantRoleAssistant = "assistant"
 
 	aiAssistantKindText    = "text"
+	aiAssistantKindTool    = "tool"
+	aiAssistantKindConfirm = "confirm"
 	aiAssistantPreviewSize = 18
 	aiAssistantHistorySize = 12
 )
 
+type aiAssistantReplyMeta struct {
+	ReplySource    string                           `json:"reply_source"`
+	Model          string                           `json:"model"`
+	Fallback       bool                             `json:"fallback"`
+	FallbackReason string                           `json:"fallback_reason"`
+	Confirm        *baseDTO.AiAssistantConfirmState `json:"confirm,omitempty"`
+}
+
 // AiAssistantCase 管理当前系统 AI 助手会话与消息。
 type AiAssistantCase struct {
 	*biz.BaseCase
-	*data.AiAssistantSessionRepository
-	aiAssistantMessageRepo *data.AiAssistantMessageRepository
-	baseUserRepo           *data.BaseUserRepository
+	aiAssistantSessionCase *AiAssistantSessionCase
+	aiAssistantMessageCase *AiAssistantMessageCase
+	baseUserCase           *BaseUserCase
 	llmClient              *llm.Client
+	toolRuntime            AiAssistantToolRuntime
 }
 
 // NewAiAssistantCase 创建 AI 助手业务实例。
 func NewAiAssistantCase(
 	baseCase *biz.BaseCase,
-	aiAssistantSessionRepo *data.AiAssistantSessionRepository,
-	aiAssistantMessageRepo *data.AiAssistantMessageRepository,
-	baseUserRepo *data.BaseUserRepository,
+	aiAssistantSessionCase *AiAssistantSessionCase,
+	aiAssistantMessageCase *AiAssistantMessageCase,
+	baseUserCase *BaseUserCase,
 	llmClient *llm.Client,
+	toolRuntime AiAssistantToolRuntime,
 ) *AiAssistantCase {
+	if toolRuntime == nil {
+		toolRuntime = NewNoopAiAssistantToolRuntime()
+	}
 	return &AiAssistantCase{
-		BaseCase:                     baseCase,
-		AiAssistantSessionRepository: aiAssistantSessionRepo,
-		aiAssistantMessageRepo:       aiAssistantMessageRepo,
-		baseUserRepo:                 baseUserRepo,
-		llmClient:                    llmClient,
+		BaseCase:               baseCase,
+		aiAssistantSessionCase: aiAssistantSessionCase,
+		aiAssistantMessageCase: aiAssistantMessageCase,
+		baseUserCase:           baseUserCase,
+		llmClient:              llmClient,
+		toolRuntime:            toolRuntime,
 	}
 }
 
@@ -72,19 +86,14 @@ func (c *AiAssistantCase) ListAiAssistantSessions(ctx context.Context, req *base
 	}
 
 	terminal := normalizeAiAssistantTerminal(req.GetTerminal())
-	query := c.Query(ctx).AiAssistantSession
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	opts = append(opts, repository.Where(query.Terminal.Eq(terminal)))
-	opts = append(opts, repository.Order(query.LastMessageAt.Desc(), query.ID.Desc()))
-	list, err := c.List(ctx, opts...)
+	list, err := c.aiAssistantSessionCase.ListByUserAndTerminal(ctx, authInfo.UserId, terminal)
 	if err != nil {
 		return nil, err
 	}
 
 	sessions := make([]*basev1.AiAssistantSession, 0, len(list))
 	for _, item := range list {
-		sessions = append(sessions, c.toAiAssistantSessionDTO(item))
+		sessions = append(sessions, c.aiAssistantSessionCase.ToDTO(item))
 	}
 	return &basev1.ListAiAssistantSessionsResponse{Sessions: sessions}, nil
 }
@@ -113,14 +122,11 @@ func (c *AiAssistantCase) CreateAiAssistantSession(ctx context.Context, req *bas
 		CreatedAt:     now,
 		UpdatedAt:     now,
 	}
-	err = c.Create(ctx, model)
+	err = c.aiAssistantSessionCase.CreateSession(ctx, model)
 	if err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("AI助手会话创建失败", "ai_assistant_session", "id", "")
-		}
 		return nil, err
 	}
-	return c.toAiAssistantSessionDTO(model), nil
+	return c.aiAssistantSessionCase.ToDTO(model), nil
 }
 
 // UpdateAiAssistantSession 更新当前用户的会话标题。
@@ -134,20 +140,12 @@ func (c *AiAssistantCase) UpdateAiAssistantSession(ctx context.Context, req *bas
 	if err != nil {
 		return nil, err
 	}
-	query := c.Query(ctx).AiAssistantSession
 	now := time.Now()
-	_, err = query.WithContext(ctx).
-		Where(query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.Title.Value(title),
-			query.UpdatedAt.Value(now),
-		)
+	err = c.aiAssistantSessionCase.UpdateTitle(ctx, session, title, now)
 	if err != nil {
 		return nil, err
 	}
-	session.Title = title
-	session.UpdatedAt = now
-	return c.toAiAssistantSessionDTO(session), nil
+	return c.aiAssistantSessionCase.ToDTO(session), nil
 }
 
 // DeleteAiAssistantSession 删除当前用户的会话。
@@ -156,10 +154,7 @@ func (c *AiAssistantCase) DeleteAiAssistantSession(ctx context.Context, req *bas
 	if err != nil {
 		return nil, err
 	}
-	query := c.Query(ctx).AiAssistantSession
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(session.ID)))
-	err = c.AiAssistantSessionRepository.Delete(ctx, opts...)
+	err = c.aiAssistantSessionCase.DeleteSession(ctx, session.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -173,18 +168,14 @@ func (c *AiAssistantCase) ListAiAssistantMessages(ctx context.Context, req *base
 		return nil, err
 	}
 
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
-	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
-	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
+	list, err := c.aiAssistantMessageCase.ListBySessionID(ctx, session.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	messages := make([]*basev1.AiAssistantMessage, 0, len(list))
 	for _, item := range list {
-		messages = append(messages, c.toAiAssistantMessageDTO(item))
+		messages = append(messages, c.aiAssistantMessageCase.ToDTO(item))
 	}
 	return &basev1.ListAiAssistantMessagesResponse{Messages: messages}, nil
 }
@@ -200,6 +191,10 @@ func (c *AiAssistantCase) SendAiAssistantMessage(ctx context.Context, req *basev
 	attachments := normalizeAiAssistantAttachments(req.GetAttachments())
 	if content == "" && len(attachments) == 0 {
 		return nil, errorsx.InvalidArgument("消息内容不能为空")
+	}
+	llmAttachments, err := c.buildAiAssistantLLMAttachments(ctx, attachments)
+	if err != nil {
+		return nil, err
 	}
 
 	userName, err := c.findAiAssistantUserName(ctx, session.UserID)
@@ -220,62 +215,142 @@ func (c *AiAssistantCase) SendAiAssistantMessage(ctx context.Context, req *basev
 		CreatedAt:        now,
 		UpdatedAt:        now,
 	}
-	err = c.aiAssistantMessageRepo.Create(ctx, userMessage)
+	err = c.aiAssistantMessageCase.CreateMessage(ctx, userMessage)
 	if err != nil {
 		return nil, err
 	}
 
-	history, err := c.buildAiAssistantHistory(ctx, session.ID)
+	history, err := c.aiAssistantMessageCase.BuildHistory(ctx, session.ID, aiAssistantHistorySize)
 	if err != nil {
 		return nil, err
 	}
-	replyText, tokenUsage, err := c.generateAiAssistantReply(ctx, session, userName, content, attachments, history)
+	reply, err := c.generateAiAssistantReply(ctx, session, userName, content, attachments, llmAttachments, history)
 	if err != nil {
-		replyText = buildAiAssistantFallbackReply(session.Scene, content, attachments)
-		tokenUsage = 0
+		reply = &llm.AiAssistantResponse{
+			Content:        buildAiAssistantFallbackReply(session.Scene, content, attachments),
+			TokenUsage:     0,
+			Source:         "fallback",
+			Model:          c.llmClient.Model(),
+			Fallback:       true,
+			FallbackReason: err.Error(),
+			Tools:          []llm.AiAssistantToolCall{},
+		}
 	}
 
-	assistantMessage := &models.AiAssistantMessage{
-		SessionID:        session.ID,
-		UserID:           session.UserID,
-		Role:             aiAssistantRoleAssistant,
-		Kind:             aiAssistantKindText,
-		Content:          replyText,
-		AttachmentsJSON:  mustMarshalAiAssistantAttachments(nil),
-		ToolsJSON:        marshalAiAssistantTools(nil),
-		ConfirmLinesJSON: marshalAiAssistantConfirmLines(nil),
-		TokenUsage:       int32(tokenUsage),
-		CreatedAt:        now,
-		UpdatedAt:        now,
-	}
-	err = c.aiAssistantMessageRepo.Create(ctx, assistantMessage)
+	responseMessages := make([]*basev1.AiAssistantMessage, 0, 3)
+	responseMessages = append(responseMessages, c.aiAssistantMessageCase.ToDTO(userMessage))
+	assistantMessage, confirmMessage, err := c.createAiAssistantReplyMessages(ctx, session, reply, now)
 	if err != nil {
 		return nil, err
+	}
+	responseMessages = append(responseMessages, c.aiAssistantMessageCase.ToDTO(assistantMessage))
+	if confirmMessage != nil {
+		responseMessages = append(responseMessages, c.aiAssistantMessageCase.ToDTO(confirmMessage))
 	}
 
 	summary := buildAiAssistantDynamicSummary(session.Scene, content, attachments)
-	_, err = c.Query(ctx).AiAssistantSession.WithContext(ctx).
-		Where(c.Query(ctx).AiAssistantSession.ID.Eq(session.ID)).
-		UpdateSimple(
-			c.Query(ctx).AiAssistantSession.Summary.Value(summary),
-			c.Query(ctx).AiAssistantSession.ToolCount.Value(int32(0)),
-			c.Query(ctx).AiAssistantSession.LastMessageAt.Value(now),
-			c.Query(ctx).AiAssistantSession.UpdatedAt.Value(now),
-		)
+	err = c.aiAssistantSessionCase.TouchSession(ctx, session, summary, int32(len(reply.Tools)), now)
 	if err != nil {
 		return nil, err
 	}
-	session.Summary = summary
-	session.ToolCount = 0
-	session.LastMessageAt = now
-	session.UpdatedAt = now
 
 	return &basev1.SendAiAssistantMessageResponse{
+		Messages: responseMessages,
+		Session:  c.aiAssistantSessionCase.ToDTO(session),
+	}, nil
+}
+
+// OperateAiAssistantConfirm 处理确认卡的确认或拒绝动作。
+func (c *AiAssistantCase) OperateAiAssistantConfirm(ctx context.Context, req *basev1.OperateAiAssistantConfirmRequest) (*basev1.OperateAiAssistantConfirmResponse, error) {
+	session, err := c.findAiAssistantSessionByID(ctx, req.GetSessionId())
+	if err != nil {
+		return nil, err
+	}
+
+	message, err := c.findAiAssistantMessageByID(ctx, session.ID, req.GetMessageId())
+	if err != nil {
+		return nil, err
+	}
+	confirmState := parseAiAssistantReplyMeta(message.Content).Confirm
+	if confirmState == nil {
+		return nil, errorsx.InvalidArgument("当前消息不支持确认操作")
+	}
+	if confirmState.Status != baseDTO.AiAssistantConfirmStatusPending {
+		return nil, errorsx.StateConflict("确认卡已处理，无需重复操作", "ai_assistant_confirm", confirmState.Status, baseDTO.AiAssistantConfirmStatusPending)
+	}
+
+	action := normalizeAiAssistantConfirmAction(req.GetAction())
+	confirmResult, err := c.toolRuntime.ExecuteConfirm(ctx, AiAssistantConfirmRuntimeInput{
+		SessionID: req.GetSessionId(),
+		MessageID: req.GetMessageId(),
+		Action:    action,
+		Confirm:   confirmState,
+		FormJSON:  strings.TrimSpace(req.GetFormJson()),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	if confirmResult == nil {
+		confirmResult = &AiAssistantConfirmRuntimeResult{
+			Status:  baseDTO.AiAssistantConfirmStatusFailed,
+			Summary: "确认动作未返回结果",
+			Reply:   "确认动作暂未完成，请稍后重试。",
+		}
+	}
+
+	confirmState.Status = normalizeAiAssistantConfirmStatus(confirmResult.Status)
+	if strings.TrimSpace(confirmResult.Summary) != "" {
+		confirmState.Summary = strings.TrimSpace(confirmResult.Summary)
+	}
+
+	now := time.Now()
+	messageMeta := parseAiAssistantReplyMeta(message.Content)
+	message.Content = marshalAiAssistantReplyContent(&llm.AiAssistantResponse{
+		Content:        parseAiAssistantReplyContent(message.Content),
+		Source:         messageMeta.ReplySource,
+		Model:          messageMeta.Model,
+		Fallback:       messageMeta.Fallback,
+		FallbackReason: messageMeta.FallbackReason,
+		Confirm:        toLLMConfirmRequest(confirmState, message.ConfirmTitle, parseAiAssistantConfirmLines(message.ConfirmLinesJSON)),
+	})
+	message.ToolsJSON = marshalAiAssistantTools(toAiAssistantToolsDTO(confirmResult.Tools))
+	message.UpdatedAt = now
+
+	err = c.aiAssistantMessageCase.UpdateReplyMeta(ctx, message)
+	if err != nil {
+		return nil, err
+	}
+
+	assistantReplyMessage := &models.AiAssistantMessage{
+		SessionID:        session.ID,
+		UserID:           session.UserID,
+		Role:             aiAssistantRoleAssistant,
+		Kind:             resolveAiAssistantReplyKind(confirmResult.Tools),
+		Content:          marshalAiAssistantReplyContent(&llm.AiAssistantResponse{Content: strings.TrimSpace(confirmResult.Reply), Source: "tool", Model: c.llmClient.Model()}),
+		AttachmentsJSON:  mustMarshalAiAssistantAttachments(nil),
+		ToolsJSON:        marshalAiAssistantTools(toAiAssistantToolsDTO(confirmResult.Tools)),
+		ConfirmLinesJSON: marshalAiAssistantConfirmLines(nil),
+		TokenUsage:       0,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+	}
+	err = c.aiAssistantMessageCase.CreateMessage(ctx, assistantReplyMessage)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.aiAssistantSessionCase.RefreshLastMessageAt(ctx, session, now)
+	if err != nil {
+		return nil, err
+	}
+
+	return &basev1.OperateAiAssistantConfirmResponse{
 		Messages: []*basev1.AiAssistantMessage{
-			c.toAiAssistantMessageDTO(userMessage),
-			c.toAiAssistantMessageDTO(assistantMessage),
+			c.aiAssistantMessageCase.ToDTO(message),
+			c.aiAssistantMessageCase.ToDTO(assistantReplyMessage),
 		},
-		Session: c.toAiAssistantSessionDTO(session),
+		Session: c.aiAssistantSessionCase.ToDTO(session),
 	}, nil
 }
 
@@ -285,68 +360,17 @@ func (c *AiAssistantCase) findAiAssistantSessionByID(ctx context.Context, rawID 
 	if err != nil {
 		return nil, err
 	}
-	sessionID, err := strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
-	if err != nil || sessionID <= 0 {
-		return nil, errorsx.InvalidArgument("会话编号不合法")
-	}
+	return c.aiAssistantSessionCase.FindByUserAndRawID(ctx, authInfo.UserId, rawID)
+}
 
-	query := c.Query(ctx).AiAssistantSession
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(sessionID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	session, err := c.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("会话不存在")
-		}
-		return nil, err
-	}
-	return session, nil
+// findAiAssistantMessageByID 查询指定会话下的消息。
+func (c *AiAssistantCase) findAiAssistantMessageByID(ctx context.Context, sessionID int64, rawID string) (*models.AiAssistantMessage, error) {
+	return c.aiAssistantMessageCase.FindBySessionAndRawID(ctx, sessionID, rawID)
 }
 
 // findAiAssistantUserName 查询当前会话所属用户名称。
 func (c *AiAssistantCase) findAiAssistantUserName(ctx context.Context, userID int64) (string, error) {
-	query := c.baseUserRepo.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(userID)))
-	opts = append(opts, repository.Limit(1))
-	list, err := c.baseUserRepo.List(ctx, opts...)
-	if err != nil {
-		return "", err
-	}
-	if len(list) == 0 {
-		return "", errorsx.ResourceNotFound("用户不存在")
-	}
-	if strings.TrimSpace(list[0].NickName) != "" {
-		return list[0].NickName, nil
-	}
-	return list[0].UserName, nil
-}
-
-// buildAiAssistantHistory 构造本次问答的历史消息上下文。
-func (c *AiAssistantCase) buildAiAssistantHistory(ctx context.Context, sessionID int64) ([]llm.AiAssistantMessage, error) {
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(aiAssistantHistorySize))
-	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	history := make([]llm.AiAssistantMessage, 0, len(list))
-	for index := len(list) - 1; index >= 0; index-- {
-		item := list[index]
-		if strings.TrimSpace(item.Content) == "" {
-			continue
-		}
-		history = append(history, llm.AiAssistantMessage{
-			Role:    item.Role,
-			Content: item.Content,
-		})
-	}
-	return history, nil
+	return c.baseUserCase.FindDisplayNameByID(ctx, userID)
 }
 
 // generateAiAssistantReply 生成当前消息的 AI 助手回复。
@@ -356,17 +380,20 @@ func (c *AiAssistantCase) generateAiAssistantReply(
 	userName string,
 	content string,
 	attachments []*basev1.AiAssistantAttachment,
+	llmAttachments []llm.AiAssistantAttachment,
 	history []llm.AiAssistantMessage,
-) (string, int64, error) {
-	llmAttachments := make([]llm.AiAssistantAttachment, 0, len(attachments))
-	for _, item := range attachments {
-		llmAttachments = append(llmAttachments, llm.AiAssistantAttachment{
-			Name: item.GetName(),
-			Size: item.GetSize(),
-		})
+) (*llm.AiAssistantResponse, error) {
+	toolResult, err := c.toolRuntime.RunToolCalls(ctx, AiAssistantToolRuntimeInput{
+		Scene:        session.Scene,
+		Terminal:     session.Terminal,
+		SessionTitle: session.Title,
+		Content:      content,
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	reply, tokenUsage, err := c.llmClient.GenerateAiAssistantReply(ctx, llm.AiAssistantRequest{
+	request := llm.AiAssistantRequest{
 		Terminal:     session.Terminal,
 		Scene:        session.Scene,
 		UserName:     userName,
@@ -374,47 +401,88 @@ func (c *AiAssistantCase) generateAiAssistantReply(
 		Content:      strings.TrimSpace(content),
 		History:      history,
 		Attachments:  llmAttachments,
-	})
+	}
+	if toolResult != nil && strings.TrimSpace(toolResult.PromptAugment) != "" {
+		request.Content = strings.TrimSpace(content) + "\n\n系统工具结果：\n" + strings.TrimSpace(toolResult.PromptAugment)
+	}
+	response, err := c.llmClient.GenerateAiAssistantResponse(ctx, request)
 	if err == nil {
-		return reply, tokenUsage, nil
+		if toolResult != nil && len(toolResult.Tools) > 0 {
+			response.Source = "tool"
+			response.Tools = append([]llm.AiAssistantToolCall(nil), toolResult.Tools...)
+		}
+		if toolResult != nil && toolResult.Confirm != nil {
+			response.Confirm = toLLMConfirmRequestFromDTO(toolResult.Confirm)
+		}
+		return response, nil
 	}
 
 	// 当前系统先以“可用优先”为主，只要模型调用链异常，就统一降级到本地兜底回复，避免聊天接口直接失败。
-	return buildAiAssistantFallbackReply(session.Scene, content, attachments), 0, nil
+	fallback := &llm.AiAssistantResponse{
+		Content:        buildAiAssistantFallbackReply(session.Scene, content, attachments),
+		TokenUsage:     0,
+		Source:         "fallback",
+		Model:          c.llmClient.Model(),
+		Fallback:       true,
+		FallbackReason: err.Error(),
+	}
+	if toolResult != nil && len(toolResult.Tools) > 0 {
+		fallback.Tools = append([]llm.AiAssistantToolCall(nil), toolResult.Tools...)
+	}
+	if toolResult != nil && toolResult.Confirm != nil {
+		fallback.Confirm = toLLMConfirmRequestFromDTO(toolResult.Confirm)
+	}
+	return fallback, nil
 }
 
-// toAiAssistantSessionDTO 转换会话模型到接口对象。
-func (c *AiAssistantCase) toAiAssistantSessionDTO(model *models.AiAssistantSession) *basev1.AiAssistantSession {
-	if model == nil {
-		return nil
+// createAiAssistantReplyMessages 按回复内容落库助手消息与确认卡消息。
+func (c *AiAssistantCase) createAiAssistantReplyMessages(ctx context.Context, session *models.AiAssistantSession, reply *llm.AiAssistantResponse, now time.Time) (*models.AiAssistantMessage, *models.AiAssistantMessage, error) {
+	assistantMessage := &models.AiAssistantMessage{
+		SessionID:        session.ID,
+		UserID:           session.UserID,
+		Role:             aiAssistantRoleAssistant,
+		Kind:             resolveAiAssistantReplyKind(reply.Tools),
+		Content:          marshalAiAssistantReplyContent(reply),
+		AttachmentsJSON:  mustMarshalAiAssistantAttachments(nil),
+		ToolsJSON:        marshalAiAssistantTools(toAiAssistantToolsDTO(reply.Tools)),
+		ConfirmLinesJSON: marshalAiAssistantConfirmLines(nil),
+		TokenUsage:       int32(reply.TokenUsage),
+		CreatedAt:        now,
+		UpdatedAt:        now,
 	}
-	return &basev1.AiAssistantSession{
-		Id:        strconv.FormatInt(model.ID, 10),
-		Title:     model.Title,
-		Scene:     model.Scene,
-		Summary:   model.Summary,
-		ToolCount: model.ToolCount,
-		UpdatedAt: timestamppb.New(model.UpdatedAt),
-		Terminal:  model.Terminal,
+	err := c.aiAssistantMessageCase.CreateMessage(ctx, assistantMessage)
+	if err != nil {
+		return nil, nil, err
 	}
-}
 
-// toAiAssistantMessageDTO 转换消息模型到接口对象。
-func (c *AiAssistantCase) toAiAssistantMessageDTO(model *models.AiAssistantMessage) *basev1.AiAssistantMessage {
-	if model == nil {
-		return nil
+	var confirmMessage *models.AiAssistantMessage
+	if reply != nil && reply.Confirm != nil {
+		confirmReply := &llm.AiAssistantResponse{
+			Content: "",
+			Source:  "tool",
+			Model:   c.llmClient.Model(),
+			Confirm: reply.Confirm,
+		}
+		confirmMessage = &models.AiAssistantMessage{
+			SessionID:        session.ID,
+			UserID:           session.UserID,
+			Role:             aiAssistantRoleAssistant,
+			Kind:             aiAssistantKindConfirm,
+			Content:          marshalAiAssistantReplyContent(confirmReply),
+			AttachmentsJSON:  mustMarshalAiAssistantAttachments(nil),
+			ToolsJSON:        marshalAiAssistantTools(nil),
+			ConfirmTitle:     strings.TrimSpace(reply.Confirm.Title),
+			ConfirmLinesJSON: marshalAiAssistantConfirmLines(reply.Confirm.Lines),
+			TokenUsage:       0,
+			CreatedAt:        now,
+			UpdatedAt:        now,
+		}
+		err = c.aiAssistantMessageCase.CreateMessage(ctx, confirmMessage)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
-	return &basev1.AiAssistantMessage{
-		Id:           strconv.FormatInt(model.ID, 10),
-		Role:         model.Role,
-		Kind:         model.Kind,
-		Content:      model.Content,
-		Attachments:  parseAiAssistantAttachments(model.AttachmentsJSON),
-		Tools:        parseAiAssistantTools(model.ToolsJSON),
-		ConfirmTitle: model.ConfirmTitle,
-		ConfirmLines: parseAiAssistantConfirmLines(model.ConfirmLinesJSON),
-		CreatedAt:    timestamppb.New(model.CreatedAt),
-	}
+	return assistantMessage, confirmMessage, nil
 }
 
 // normalizeAiAssistantScene 规范化会话场景。
@@ -451,12 +519,264 @@ func normalizeAiAssistantAttachments(values []*basev1.AiAssistantAttachment) []*
 			name = "未命名附件"
 		}
 		result = append(result, &basev1.AiAssistantAttachment{
-			Id:   strings.TrimSpace(item.GetId()),
-			Name: name,
-			Size: item.GetSize(),
+			Id:       strings.TrimSpace(item.GetId()),
+			Name:     name,
+			Size:     item.GetSize(),
+			Url:      strings.TrimSpace(item.GetUrl()),
+			MimeType: strings.TrimSpace(item.GetMimeType()),
 		})
 	}
 	return result
+}
+
+// buildAiAssistantLLMAttachments 读取附件内容，构造模型输入附件。
+func (c *AiAssistantCase) buildAiAssistantLLMAttachments(ctx context.Context, attachments []*basev1.AiAssistantAttachment) ([]llm.AiAssistantAttachment, error) {
+	if len(attachments) == 0 {
+		return []llm.AiAssistantAttachment{}, nil
+	}
+	ossClient := sdk.Runtime.GetOSS()
+	result := make([]llm.AiAssistantAttachment, 0, len(attachments))
+	if ossClient == nil {
+		for _, item := range attachments {
+			if item == nil {
+				continue
+			}
+			result = append(result, llm.AiAssistantAttachment{
+				Name:     item.GetName(),
+				Size:     item.GetSize(),
+				URL:      item.GetUrl(),
+				MIMEType: detectAiAssistantAttachmentMIME(item.GetName(), item.GetMimeType()),
+			})
+		}
+		return result, nil
+	}
+	for _, item := range attachments {
+		if item == nil {
+			continue
+		}
+		next := llm.AiAssistantAttachment{
+			Name:     item.GetName(),
+			Size:     item.GetSize(),
+			URL:      item.GetUrl(),
+			MIMEType: detectAiAssistantAttachmentMIME(item.GetName(), item.GetMimeType()),
+		}
+		if strings.TrimSpace(next.URL) != "" {
+			fileBytes, err := ossClient.GetFileByte(next.URL)
+			if err != nil {
+				return nil, errorsx.Internal("读取 AI 助手附件失败").WithCause(err)
+			}
+			next.Content = extractAttachmentText(fileBytes, next.MIMEType)
+			next.Bytes = fileBytes
+		}
+		result = append(result, next)
+	}
+	return result, nil
+}
+
+// resolveAiAssistantReplyKind 根据工具调用记录判断消息类型。
+func resolveAiAssistantReplyKind(toolCalls []llm.AiAssistantToolCall) string {
+	if len(toolCalls) > 0 {
+		return aiAssistantKindTool
+	}
+	return aiAssistantKindText
+}
+
+// marshalAiAssistantReplyContent 序列化助手回复内容与元信息。
+func marshalAiAssistantReplyContent(response *llm.AiAssistantResponse) string {
+	if response == nil {
+		return ""
+	}
+	payload := map[string]any{
+		"content":         strings.TrimSpace(response.Content),
+		"reply_source":    strings.TrimSpace(response.Source),
+		"model":           strings.TrimSpace(response.Model),
+		"fallback":        response.Fallback,
+		"fallback_reason": strings.TrimSpace(response.FallbackReason),
+	}
+	if response.Confirm != nil {
+		payload["confirm"] = map[string]any{
+			"status":      normalizeAiAssistantConfirmStatus(response.Confirm.Status),
+			"action":      strings.TrimSpace(response.Confirm.Action),
+			"summary":     strings.TrimSpace(response.Confirm.Summary),
+			"payload":     response.Confirm.Payload,
+			"form_schema": response.Confirm.FormSchema,
+		}
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return strings.TrimSpace(response.Content)
+	}
+	return string(raw)
+}
+
+// parseAiAssistantReplyContent 解析助手回复正文。
+func parseAiAssistantReplyContent(raw string) string {
+	if strings.TrimSpace(raw) == "" {
+		return ""
+	}
+	payload := make(map[string]any)
+	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+		return raw
+	}
+	return strings.TrimSpace(fmt.Sprint(payload["content"]))
+}
+
+// parseAiAssistantReplyMeta 解析助手回复元信息。
+func parseAiAssistantReplyMeta(raw string) aiAssistantReplyMeta {
+	meta := aiAssistantReplyMeta{}
+	if strings.TrimSpace(raw) == "" {
+		return meta
+	}
+	payload := make(map[string]any)
+	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+		return meta
+	}
+	meta.ReplySource = strings.TrimSpace(fmt.Sprint(payload["reply_source"]))
+	meta.Model = strings.TrimSpace(fmt.Sprint(payload["model"]))
+	meta.Fallback = payload["fallback"] == true
+	meta.FallbackReason = strings.TrimSpace(fmt.Sprint(payload["fallback_reason"]))
+	meta.Confirm = parseAiAssistantConfirmPayload(payload["confirm"])
+	return meta
+}
+
+// parseAiAssistantConfirmState 解析确认状态。
+func parseAiAssistantConfirmState(raw string) *baseDTO.AiAssistantConfirmState {
+	return parseAiAssistantReplyMeta(raw).Confirm
+}
+
+func aiAssistantConfirmAction(raw string) string {
+	confirm := parseAiAssistantConfirmState(raw)
+	if confirm == nil {
+		return ""
+	}
+	return confirm.Action
+}
+
+func aiAssistantConfirmStatus(raw string) string {
+	confirm := parseAiAssistantConfirmState(raw)
+	if confirm == nil {
+		return ""
+	}
+	return confirm.Status
+}
+
+func aiAssistantConfirmSummary(raw string) string {
+	confirm := parseAiAssistantConfirmState(raw)
+	if confirm == nil {
+		return ""
+	}
+	return confirm.Summary
+}
+
+// toAiAssistantToolsDTO 转换工具调用记录为协议结构。
+func toAiAssistantToolsDTO(toolCalls []llm.AiAssistantToolCall) []*basev1.AiAssistantTool {
+	result := make([]*basev1.AiAssistantTool, 0, len(toolCalls))
+	for _, item := range toolCalls {
+		result = append(result, &basev1.AiAssistantTool{
+			Name:         item.Name,
+			Elapsed:      item.Elapsed,
+			Summary:      item.Summary,
+			Status:       item.Status,
+			ErrorMessage: item.ErrorMessage,
+			Input:        item.Input,
+		})
+	}
+	return result
+}
+
+// toAiAssistantToolCalls 转换工具展示对象为内部记录。
+func toAiAssistantToolCalls(tools []*basev1.AiAssistantTool) []llm.AiAssistantToolCall {
+	result := make([]llm.AiAssistantToolCall, 0, len(tools))
+	for _, item := range tools {
+		if item == nil {
+			continue
+		}
+		result = append(result, llm.AiAssistantToolCall{
+			Name:         item.GetName(),
+			Status:       item.GetStatus(),
+			Elapsed:      item.GetElapsed(),
+			Input:        item.GetInput(),
+			Summary:      item.GetSummary(),
+			ErrorMessage: item.GetErrorMessage(),
+		})
+	}
+	return result
+}
+
+func toLLMConfirmRequestFromDTO(confirm *baseDTO.AiAssistantConfirmRequest) *llm.AiAssistantConfirmRequest {
+	if confirm == nil {
+		return nil
+	}
+	return &llm.AiAssistantConfirmRequest{
+		Title:      confirm.Title,
+		Lines:      append([]string(nil), confirm.Lines...),
+		Status:     baseDTO.AiAssistantConfirmStatusPending,
+		Action:     confirm.Action,
+		Summary:    confirm.Summary,
+		Payload:    append([]byte(nil), confirm.Payload...),
+		FormSchema: toLLMConfirmFormSchema(confirm.FormSchema),
+	}
+}
+
+func toLLMConfirmRequest(state *baseDTO.AiAssistantConfirmState, title string, lines []string) *llm.AiAssistantConfirmRequest {
+	if state == nil {
+		return nil
+	}
+	return &llm.AiAssistantConfirmRequest{
+		Title:      title,
+		Lines:      append([]string(nil), lines...),
+		Status:     normalizeAiAssistantConfirmStatus(state.Status),
+		Action:     state.Action,
+		Summary:    state.Summary,
+		Payload:    append([]byte(nil), state.Payload...),
+		FormSchema: toLLMConfirmFormSchema(state.FormSchema),
+	}
+}
+
+func toLLMConfirmFormSchema(fields []baseDTO.AiAssistantConfirmFormField) []map[string]any {
+	result := make([]map[string]any, 0, len(fields))
+	for _, field := range fields {
+		result = append(result, map[string]any{
+			"prop":        field.Prop,
+			"label":       field.Label,
+			"placeholder": field.Placeholder,
+			"required":    field.Required,
+		})
+	}
+	return result
+}
+
+// detectAiAssistantAttachmentMIME 规范化附件 MIME 类型。
+func detectAiAssistantAttachmentMIME(fileName string, rawMIMEType string) string {
+	if strings.TrimSpace(rawMIMEType) != "" {
+		return strings.TrimSpace(rawMIMEType)
+	}
+	return mime.TypeByExtension(strings.ToLower(pathExt(fileName)))
+}
+
+// pathExt 提取文件扩展名。
+func pathExt(fileName string) string {
+	index := strings.LastIndex(strings.TrimSpace(fileName), ".")
+	if index < 0 {
+		return ""
+	}
+	return fileName[index:]
+}
+
+// extractAttachmentText 提取文本类附件内容。
+func extractAttachmentText(fileBytes []byte, mimeType string) string {
+	if len(fileBytes) == 0 {
+		return ""
+	}
+	cleanMIMEType := strings.ToLower(strings.TrimSpace(mimeType))
+	if strings.HasPrefix(cleanMIMEType, "text/") || strings.Contains(cleanMIMEType, "json") || strings.Contains(cleanMIMEType, "xml") || strings.Contains(cleanMIMEType, "csv") {
+		text := strings.TrimSpace(string(bytes.TrimSpace(fileBytes)))
+		if len([]rune(text)) > 4000 {
+			return string([]rune(text)[:4000])
+		}
+		return text
+	}
+	return ""
 }
 
 // buildAiAssistantDefaultSummary 生成默认场景摘要。
@@ -535,9 +855,11 @@ func mustMarshalAiAssistantAttachments(attachments []*basev1.AiAssistantAttachme
 	payload := make([]map[string]any, 0, len(attachments))
 	for _, item := range attachments {
 		payload = append(payload, map[string]any{
-			"id":   item.GetId(),
-			"name": item.GetName(),
-			"size": item.GetSize(),
+			"id":        item.GetId(),
+			"name":      item.GetName(),
+			"size":      item.GetSize(),
+			"url":       item.GetUrl(),
+			"mime_type": item.GetMimeType(),
 		})
 	}
 	raw, err := json.Marshal(payload)
@@ -552,8 +874,12 @@ func marshalAiAssistantTools(tools []*basev1.AiAssistantTool) string {
 	payload := make([]map[string]any, 0, len(tools))
 	for _, item := range tools {
 		payload = append(payload, map[string]any{
-			"name":    item.GetName(),
-			"elapsed": item.GetElapsed(),
+			"name":          item.GetName(),
+			"elapsed":       item.GetElapsed(),
+			"summary":       item.GetSummary(),
+			"status":        item.GetStatus(),
+			"error_message": item.GetErrorMessage(),
+			"input":         item.GetInput(),
 		})
 	}
 	raw, err := json.Marshal(payload)
@@ -580,9 +906,11 @@ func parseAiAssistantAttachments(raw string) []*basev1.AiAssistantAttachment {
 		return []*basev1.AiAssistantAttachment{}
 	}
 	type attachmentPayload struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-		Size int64  `json:"size"`
+		ID       string `json:"id"`
+		Name     string `json:"name"`
+		Size     int64  `json:"size"`
+		URL      string `json:"url"`
+		MIMEType string `json:"mime_type"`
 	}
 	values := make([]attachmentPayload, 0)
 	if err := json.Unmarshal([]byte(raw), &values); err != nil {
@@ -591,9 +919,11 @@ func parseAiAssistantAttachments(raw string) []*basev1.AiAssistantAttachment {
 	result := make([]*basev1.AiAssistantAttachment, 0, len(values))
 	for _, item := range values {
 		result = append(result, &basev1.AiAssistantAttachment{
-			Id:   item.ID,
-			Name: item.Name,
-			Size: item.Size,
+			Id:       item.ID,
+			Name:     item.Name,
+			Size:     item.Size,
+			Url:      item.URL,
+			MimeType: item.MIMEType,
 		})
 	}
 	return result
@@ -605,8 +935,12 @@ func parseAiAssistantTools(raw string) []*basev1.AiAssistantTool {
 		return []*basev1.AiAssistantTool{}
 	}
 	type toolPayload struct {
-		Name    string `json:"name"`
-		Elapsed string `json:"elapsed"`
+		Name         string `json:"name"`
+		Elapsed      string `json:"elapsed"`
+		Summary      string `json:"summary"`
+		Status       string `json:"status"`
+		ErrorMessage string `json:"error_message"`
+		Input        string `json:"input"`
 	}
 	values := make([]toolPayload, 0)
 	if err := json.Unmarshal([]byte(raw), &values); err != nil {
@@ -615,11 +949,55 @@ func parseAiAssistantTools(raw string) []*basev1.AiAssistantTool {
 	result := make([]*basev1.AiAssistantTool, 0, len(values))
 	for _, item := range values {
 		result = append(result, &basev1.AiAssistantTool{
-			Name:    item.Name,
-			Elapsed: item.Elapsed,
+			Name:         item.Name,
+			Elapsed:      item.Elapsed,
+			Summary:      item.Summary,
+			Status:       item.Status,
+			ErrorMessage: item.ErrorMessage,
+			Input:        item.Input,
 		})
 	}
 	return result
+}
+
+func parseAiAssistantConfirmPayload(value any) *baseDTO.AiAssistantConfirmState {
+	if value == nil {
+		return nil
+	}
+	raw, err := json.Marshal(value)
+	if err != nil {
+		return nil
+	}
+	confirm := &baseDTO.AiAssistantConfirmState{}
+	if err = json.Unmarshal(raw, confirm); err != nil {
+		return nil
+	}
+	confirm.Status = normalizeAiAssistantConfirmStatus(confirm.Status)
+	confirm.Action = strings.TrimSpace(confirm.Action)
+	confirm.Summary = strings.TrimSpace(confirm.Summary)
+	return confirm
+}
+
+func normalizeAiAssistantConfirmAction(action string) string {
+	switch strings.TrimSpace(strings.ToLower(action)) {
+	case "reject":
+		return "reject"
+	default:
+		return "approve"
+	}
+}
+
+func normalizeAiAssistantConfirmStatus(status string) string {
+	switch strings.TrimSpace(status) {
+	case baseDTO.AiAssistantConfirmStatusApproved:
+		return baseDTO.AiAssistantConfirmStatusApproved
+	case baseDTO.AiAssistantConfirmStatusRejected:
+		return baseDTO.AiAssistantConfirmStatusRejected
+	case baseDTO.AiAssistantConfirmStatusFailed:
+		return baseDTO.AiAssistantConfirmStatusFailed
+	default:
+		return baseDTO.AiAssistantConfirmStatusPending
+	}
 }
 
 // parseAiAssistantConfirmLines 反序列化确认信息。

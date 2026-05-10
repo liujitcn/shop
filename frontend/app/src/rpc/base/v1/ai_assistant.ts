@@ -74,6 +74,26 @@ export interface SendAiAssistantMessageResponse {
   session: AiAssistantSession | undefined;
 }
 
+/** AI 助手确认动作请求 */
+export interface OperateAiAssistantConfirmRequest {
+  /** 会话ID */
+  session_id: string;
+  /** 确认消息ID */
+  message_id: string;
+  /** 动作类型：approve/reject */
+  action: string;
+  /** 确认表单JSON */
+  form_json: string;
+}
+
+/** AI 助手确认动作响应 */
+export interface OperateAiAssistantConfirmResponse {
+  /** 本次更新后的消息列表 */
+  messages: AiAssistantMessage[];
+  /** 最新会话信息 */
+  session: AiAssistantSession | undefined;
+}
+
 /** AI 助手会话 */
 export interface AiAssistantSession {
   /** 会话ID */
@@ -113,7 +133,23 @@ export interface AiAssistantMessage {
   /** 确认内容 */
   confirm_lines: string[];
   /** 创建时间 */
-  created_at: Timestamp | undefined;
+  created_at:
+    | Timestamp
+    | undefined;
+  /** 回复来源：llm/fallback/tool */
+  reply_source: string;
+  /** 回复使用的模型名称 */
+  model: string;
+  /** 是否为降级回复 */
+  fallback: boolean;
+  /** 降级原因 */
+  fallback_reason: string;
+  /** 确认动作编码 */
+  confirm_action: string;
+  /** 确认状态：pending/approved/rejected/failed */
+  confirm_status: string;
+  /** 确认状态摘要 */
+  confirm_summary: string;
 }
 
 /** AI 助手附件 */
@@ -124,6 +160,10 @@ export interface AiAssistantAttachment {
   name: string;
   /** 附件大小 */
   size: number;
+  /** 附件地址 */
+  url: string;
+  /** 附件 MIME 类型 */
+  mime_type: string;
 }
 
 /** AI 助手工具调用 */
@@ -132,6 +172,14 @@ export interface AiAssistantTool {
   name: string;
   /** 耗时 */
   elapsed: string;
+  /** 结果摘要 */
+  summary: string;
+  /** 执行状态：success/failed */
+  status: string;
+  /** 失败原因 */
+  error_message: string;
+  /** 入参摘要 */
+  input: string;
 }
 
 /** Base AI 助手服务 */
@@ -148,4 +196,6 @@ export interface AiAssistantService {
   ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse>;
   /** 发送 AI 助手消息 */
   SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse>;
+  /** 处理 AI 助手确认卡动作 */
+  OperateAiAssistantConfirm(request: OperateAiAssistantConfirmRequest): Promise<OperateAiAssistantConfirmResponse>;
 }

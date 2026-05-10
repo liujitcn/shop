@@ -211,6 +211,18 @@ func (c *Client) GenerateAiAssistantReply(ctx context.Context, req AiAssistantRe
 	} else {
 		parts = append(parts, "请结合当前系统上下文回复用户问题：\n"+string(rawPayload))
 	}
+	for _, item := range req.Attachments {
+		if strings.TrimSpace(item.Content) != "" {
+			parts = append(parts, fmt.Sprintf("附件《%s》提取内容：\n%s", item.Name, item.Content))
+		}
+		if len(item.Bytes) > 0 && strings.HasPrefix(strings.ToLower(strings.TrimSpace(item.MIMEType)), "image/") {
+			parts = append(parts, blades.DataPart{
+				Name:     item.Name,
+				Bytes:    item.Bytes,
+				MIMEType: imageDataMimeType(item.MIMEType, item.Name),
+			})
+		}
+	}
 
 	messages := make([]*blades.Message, 0, len(req.History)+1)
 	for _, item := range req.History {
@@ -246,6 +258,21 @@ func (c *Client) GenerateAiAssistantReply(ctx context.Context, req AiAssistantRe
 		return "", 0, fmt.Errorf("ai assistant response content is empty")
 	}
 	return reply, response.Message.TokenUsage.TotalTokens, nil
+}
+
+// GenerateAiAssistantResponse 生成 AI 助手回复结果。
+func (c *Client) GenerateAiAssistantResponse(ctx context.Context, req AiAssistantRequest) (*AiAssistantResponse, error) {
+	reply, tokenUsage, err := c.GenerateAiAssistantReply(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return &AiAssistantResponse{
+		Content:    reply,
+		TokenUsage: tokenUsage,
+		Source:     "llm",
+		Model:      c.Model(),
+		Fallback:   false,
+	}, nil
 }
 
 // generateStructured 按 JSON Schema 调用大模型并反序列化结构化结果。

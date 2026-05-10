@@ -5462,6 +5462,36 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/base/ai/assistant/session/{sessionId}/confirm/{messageId}:
+        post:
+            tags:
+                - AiAssistantService
+            description: 处理 AI 助手确认卡动作
+            operationId: AiAssistantService_OperateAiAssistantConfirm
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/OperateAiAssistantConfirmRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OperateAiAssistantConfirmResponse'
     /api/v1/base/ai/assistant/session/{sessionId}/message:
         get:
             tags:
@@ -5759,6 +5789,12 @@ components:
                 size:
                     type: string
                     description: 附件大小
+                url:
+                    type: string
+                    description: 附件地址
+                mimeType:
+                    type: string
+                    description: 附件 MIME 类型
             description: AI 助手附件
         AiAssistantMessage:
             type: object
@@ -5797,6 +5833,27 @@ components:
                     type: string
                     description: 创建时间
                     format: date-time
+                replySource:
+                    type: string
+                    description: 回复来源：llm/fallback/tool
+                model:
+                    type: string
+                    description: 回复使用的模型名称
+                fallback:
+                    type: boolean
+                    description: 是否为降级回复
+                fallbackReason:
+                    type: string
+                    description: 降级原因
+                confirmAction:
+                    type: string
+                    description: 确认动作编码
+                confirmStatus:
+                    type: string
+                    description: 确认状态：pending/approved/rejected/failed
+                confirmSummary:
+                    type: string
+                    description: 确认状态摘要
             description: AI 助手消息
         AiAssistantSession:
             type: object
@@ -5834,6 +5891,18 @@ components:
                 elapsed:
                     type: string
                     description: 耗时
+                summary:
+                    type: string
+                    description: 结果摘要
+                status:
+                    type: string
+                    description: 执行状态：success/failed
+                errorMessage:
+                    type: string
+                    description: 失败原因
+                input:
+                    type: string
+                    description: 入参摘要
             description: AI 助手工具调用
         AnalyticsPieItem:
             type: object
@@ -8933,6 +9002,33 @@ components:
                         $ref: '#/components/schemas/FileInfo'
                     description: 文件上传结果
             description: 批量上传文件响应
+        OperateAiAssistantConfirmRequest:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                    description: 会话ID
+                messageId:
+                    type: string
+                    description: 确认消息ID
+                action:
+                    type: string
+                    description: 动作类型：approve/reject
+                formJson:
+                    type: string
+                    description: 确认表单JSON
+            description: AI 助手确认动作请求
+        OperateAiAssistantConfirmResponse:
+            type: object
+            properties:
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AiAssistantMessage'
+                    description: 本次更新后的消息列表
+                session:
+                    $ref: '#/components/schemas/AiAssistantSession'
+            description: AI 助手确认动作响应
         OptionBaseDictsResponse:
             type: object
             properties:

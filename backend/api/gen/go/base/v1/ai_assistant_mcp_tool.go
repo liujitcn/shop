@@ -21,6 +21,7 @@ func RegisterAiAssistantServiceMCPTools(mcpServer *mcp.Server, aiAssistantServic
 	RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceListAiAssistantMessagesMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceSendAiAssistantMessageMCPTool(mcpServer, aiAssistantServiceServer)
+	RegisterAiAssistantServiceOperateAiAssistantConfirmMCPTool(mcpServer, aiAssistantServiceServer)
 }
 
 // RegisterAiAssistantServiceListAiAssistantSessionsMCPTool 注册查询 AI 助手会话列表的 MCP Tool。
@@ -141,6 +142,27 @@ func RegisterAiAssistantServiceSendAiAssistantMessageMCPTool(mcpServer *mcp.Serv
 				input = &SendAiAssistantMessageRequest{}
 			}
 			reply, err := aiAssistantServiceServer.SendAiAssistantMessage(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiAssistantServiceOperateAiAssistantConfirmMCPTool 注册处理 AI 助手确认卡动作的 MCP Tool。
+func RegisterAiAssistantServiceOperateAiAssistantConfirmMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
+	mcp.AddTool[*OperateAiAssistantConfirmRequest, *OperateAiAssistantConfirmResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_ai_assistant_service_operate_ai_assistant_confirm",
+			Description: "处理 AI 助手确认卡动作",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *OperateAiAssistantConfirmRequest) (*mcp.CallToolResult, *OperateAiAssistantConfirmResponse, error) {
+			if input == nil {
+				input = &OperateAiAssistantConfirmRequest{}
+			}
+			reply, err := aiAssistantServiceServer.OperateAiAssistantConfirm(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

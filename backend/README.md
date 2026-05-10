@@ -128,7 +128,7 @@ make gen
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
 
-当前 `base` 公共接口内已包含当前系统专用 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；回复优先复用 `github.com/go-kratos/blades` 接入的大模型客户端，未配置模型时回退为本地兜底回复，用于当前系统 AI 助手在管理端与后续移动端入口复用。
+当前 `base` 公共接口内已包含当前系统专用 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；回复优先复用 `github.com/go-kratos/blades` 接入的大模型客户端，并在消息结构内返回回复来源、模型名、是否降级和降级原因。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取文本类附件内容、读取图片字节并通过 `blades.DataPart` 参与推理；未配置模型或模型调用失败时会明确回退为本地兜底回复。
 
 ## MCP 工具暴露
 
@@ -180,7 +180,7 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手也会读取已上传附件中的文本类内容和图片字节参与推理。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
 ## 设计文档
 
