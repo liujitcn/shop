@@ -7,19 +7,15 @@
 package main
 
 import (
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
+	"shop/pkg/agent/assistant"
+	"shop/pkg/agent/comment"
+	"shop/pkg/agent/provider"
+	"shop/pkg/agent/stream"
 	"shop/pkg/biz"
 	"shop/pkg/config"
 	"shop/pkg/gen/data"
 	"shop/pkg/job"
 	"shop/pkg/job/task"
-	"shop/pkg/llm"
 	"shop/pkg/middleware"
 	"shop/pkg/recommend"
 	"shop/pkg/recommend/gorse"
@@ -32,10 +28,17 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
-)
 
-import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
+
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
+
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -333,9 +336,10 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	client_Llm := config.ParseLLM(context)
+	chatClient := provider.NewChatClient(client_Llm)
 	prompt := config.ParsePrompt(shopConfig)
-	llmClient := llm.NewClient(client_Llm, prompt)
-	commentCase := biz4.NewCommentCase(baseCase, transaction, bizCommentInfoCase, bizCommentAiCase, bizCommentTagCase, bizCommentReviewCase, bizCommentDiscussionCase, commentReactionCase, bizOrderInfoCase, bizOrderGoodsCase, bizBaseUserCase, llmClient)
+	runtime := comment.NewRuntime(chatClient, prompt)
+	commentCase := biz4.NewCommentCase(baseCase, transaction, bizCommentInfoCase, bizCommentAiCase, bizCommentTagCase, bizCommentReviewCase, bizCommentDiscussionCase, commentReactionCase, bizOrderInfoCase, bizOrderGoodsCase, bizBaseUserCase, runtime)
 	commentService := app.NewCommentService(commentCase)
 	bizGoodsCategoryCase := biz4.NewGoodsCategoryCase(baseCase, goodsCategoryRepository, goodsInfoRepository)
 	appGoodsCategoryService := app.NewGoodsCategoryService(bizGoodsCategoryCase)
@@ -376,7 +380,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	aiAssistantMessageRepository := data.NewAiAssistantMessageRepository(dataData)
 	aiAssistantMessageCase := biz3.NewAiAssistantMessageCase(aiAssistantMessageRepository)
 	baseUserCase2 := biz3.NewBaseUserCase(baseUserRepository)
-	aiAssistantToolRuntime, err := server.NewAiAssistantToolRuntime(workspaceService, orderInfoService)
+	assistantRuntime := assistant.NewRuntime(chatClient, prompt)
+	sseServer, err := server.NewSSEHandler(context)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -384,7 +389,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	aiAssistantCase := biz3.NewAiAssistantCase(baseCase, aiAssistantSessionCase, aiAssistantMessageCase, baseUserCase2, llmClient, aiAssistantToolRuntime)
+	publisher := stream.NewPublisher(sseServer)
+	aiAssistantCase := biz3.NewAiAssistantCase(baseCase, transaction, aiAssistantSessionCase, aiAssistantMessageCase, baseUserCase2, assistantRuntime, publisher)
 	aiAssistantService := base.NewAiAssistantService(aiAssistantCase)
 	configCase := biz3.NewConfigCase(baseConfigRepository)
 	configService := base.NewConfigService(configCase)
@@ -411,14 +417,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	mcpService := base.NewMcpService(mcpCase)
-	sseServer, err := server.NewSSEHandler(context)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	sseCase, err := biz3.NewSseCase(context, authenticator, sseServer)
 	if err != nil {
 		cleanup4()

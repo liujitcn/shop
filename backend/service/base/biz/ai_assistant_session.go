@@ -8,6 +8,7 @@ import (
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
+	"shop/pkg/agent/assistant"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -36,7 +37,7 @@ func NewAiAssistantSessionCase(baseCase *biz.BaseCase, aiAssistantSessionRepo *d
 }
 
 // ListByUserAndTerminal 按用户与终端查询会话列表。
-func (c *AiAssistantSessionCase) ListByUserAndTerminal(ctx context.Context, userID int64, terminal string) ([]*models.AiAssistantSession, error) {
+func (c *AiAssistantSessionCase) ListByUserAndTerminal(ctx context.Context, userID int64, terminal int32) ([]*models.AiAssistantSession, error) {
 	query := c.Query(ctx).AiAssistantSession
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
@@ -149,5 +150,6 @@ func (c *AiAssistantSessionCase) ToDTO(model *models.AiAssistantSession) *basev1
 	session := c.mapper.ToDTO(model)
 	session.Id = strconv.FormatInt(model.ID, 10)
 	session.UpdatedAt = timestamppb.New(model.UpdatedAt)
+	session.Terminal = assistant.NormalizeTerminalEnum(model.Terminal)
 	return session
 }

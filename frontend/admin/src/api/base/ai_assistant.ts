@@ -4,8 +4,6 @@ import type {
   AiAssistantSession,
   CreateAiAssistantSessionRequest,
   DeleteAiAssistantSessionRequest,
-  OperateAiAssistantConfirmRequest,
-  OperateAiAssistantConfirmResponse,
   ListAiAssistantMessagesRequest,
   ListAiAssistantMessagesResponse,
   ListAiAssistantSessionsRequest,
@@ -69,15 +67,6 @@ export class AiAssistantServiceImpl implements AiAssistantService {
   SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
     return service<SendAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
-      method: "post",
-      data: request
-    });
-  }
-
-  /** 处理 AI 助手确认卡动作。 */
-  OperateAiAssistantConfirm(request: OperateAiAssistantConfirmRequest): Promise<OperateAiAssistantConfirmResponse> {
-    return service<OperateAiAssistantConfirmRequest, OperateAiAssistantConfirmResponse>({
-      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/confirm/${request.message_id}`,
       method: "post",
       data: request
     });

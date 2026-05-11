@@ -16,7 +16,7 @@ const TableNameAiAssistantSession = "ai_assistant_session"
 type AiAssistantSession struct {
 	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:会话ID" json:"id"`                                                                                                               // 会话ID
 	UserID        int64          `gorm:"column:user_id;type:bigint;not null;index:idx_ai_assistant_session_user_id_terminal_last_message_at,priority:1;comment:所属用户ID" json:"user_id"`                                             // 所属用户ID
-	Terminal      string         `gorm:"column:terminal;type:varchar(20);not null;index:idx_ai_assistant_session_user_id_terminal_last_message_at,priority:2;default:admin;comment:终端类型：admin/app" json:"terminal"`                // 终端类型：admin/app
+	Terminal      int32          `gorm:"column:terminal;type:tinyint;not null;index:idx_ai_assistant_session_user_id_terminal_last_message_at,priority:2;default:2;comment:终端类型：枚举【Terminal】" json:"terminal"`                     // 终端类型：枚举【Terminal】
 	Title         string         `gorm:"column:title;type:varchar(100);not null;comment:会话标题" json:"title"`                                                                                                                        // 会话标题
 	Scene         string         `gorm:"column:scene;type:varchar(50);not null;index:idx_ai_assistant_session_scene,priority:1;default:workspace;comment:会话场景" json:"scene"`                                                       // 会话场景
 	Summary       string         `gorm:"column:summary;type:varchar(255);not null;comment:会话摘要" json:"summary"`                                                                                                                    // 会话摘要

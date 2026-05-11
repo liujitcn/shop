@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package base.v1;
 
+import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
@@ -53,19 +54,11 @@ service AiAssistantService {
       body: "*"
     };
   }
-
-  // 处理 AI 助手确认卡动作
-  rpc OperateAiAssistantConfirm(OperateAiAssistantConfirmRequest) returns (OperateAiAssistantConfirmResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/base/ai/assistant/session/{session_id}/confirm/{message_id}"
-      body: "*"
-    };
-  }
 }
 
 // AI 助手会话列表查询条件
 message ListAiAssistantSessionsRequest {
-  string terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：admin/app"}]; // 终端类型：admin/app
+  .common.v1.Terminal terminal = 1 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手会话列表响应
@@ -79,7 +72,7 @@ message CreateAiAssistantSessionRequest {
 
   string scene = 2 [(gnostic.openapi.v3.property) = {description: "会话场景"}]; // 会话场景
 
-  string terminal = 3 [(gnostic.openapi.v3.property) = {description: "终端类型：admin/app"}]; // 终端类型：admin/app
+  .common.v1.Terminal terminal = 3 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手会话更新请求
@@ -111,29 +104,13 @@ message SendAiAssistantMessageRequest {
   string content = 2 [(gnostic.openapi.v3.property) = {description: "消息内容"}]; // 消息内容
 
   repeated AiAssistantAttachment attachments = 3 [(gnostic.openapi.v3.property) = {description: "附件列表"}]; // 附件列表
+
+  string client_message_id = 4 [(gnostic.openapi.v3.property) = {description: "前端本地消息ID，用于流式回复关联"}]; // 前端本地消息ID，用于流式回复关联
 }
 
 // AI 助手消息发送响应
 message SendAiAssistantMessageResponse {
   repeated AiAssistantMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "新增消息列表"}]; // 新增消息列表
-
-  AiAssistantSession session = 2 [(gnostic.openapi.v3.property) = {description: "最新会话信息"}]; // 最新会话信息
-}
-
-// AI 助手确认动作请求
-message OperateAiAssistantConfirmRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
-
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "确认消息ID"}]; // 确认消息ID
-
-  string action = 3 [(gnostic.openapi.v3.property) = {description: "动作类型：approve/reject"}]; // 动作类型：approve/reject
-
-  string form_json = 4 [(gnostic.openapi.v3.property) = {description: "确认表单JSON"}]; // 确认表单JSON
-}
-
-// AI 助手确认动作响应
-message OperateAiAssistantConfirmResponse {
-  repeated AiAssistantMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "本次更新后的消息列表"}]; // 本次更新后的消息列表
 
   AiAssistantSession session = 2 [(gnostic.openapi.v3.property) = {description: "最新会话信息"}]; // 最新会话信息
 }
@@ -152,7 +129,7 @@ message AiAssistantSession {
 
   google.protobuf.Timestamp updated_at = 6 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
-  string terminal = 7 [(gnostic.openapi.v3.property) = {description: "终端类型：admin/app"}]; // 终端类型：admin/app
+  .common.v1.Terminal terminal = 7 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手消息
@@ -167,27 +144,15 @@ message AiAssistantMessage {
 
   repeated AiAssistantAttachment attachments = 5 [(gnostic.openapi.v3.property) = {description: "附件列表"}]; // 附件列表
 
-  repeated AiAssistantTool tools = 6 [(gnostic.openapi.v3.property) = {description: "工具列表"}]; // 工具列表
+  google.protobuf.Timestamp created_at = 6 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
 
-  string confirm_title = 7 [(gnostic.openapi.v3.property) = {description: "确认标题"}]; // 确认标题
+  string reply_source = 7 [(gnostic.openapi.v3.property) = {description: "回复来源：llm/fallback"}]; // 回复来源：llm/fallback
 
-  repeated string confirm_lines = 8 [(gnostic.openapi.v3.property) = {description: "确认内容"}]; // 确认内容
+  string model = 8 [(gnostic.openapi.v3.property) = {description: "回复使用的模型名称"}]; // 回复使用的模型名称
 
-  google.protobuf.Timestamp created_at = 9 [(gnostic.openapi.v3.property) = {description: "创建时间"}]; // 创建时间
+  bool fallback = 9 [(gnostic.openapi.v3.property) = {description: "是否为降级回复"}]; // 是否为降级回复
 
-  string reply_source = 10 [(gnostic.openapi.v3.property) = {description: "回复来源：llm/fallback/tool"}]; // 回复来源：llm/fallback/tool
-
-  string model = 11 [(gnostic.openapi.v3.property) = {description: "回复使用的模型名称"}]; // 回复使用的模型名称
-
-  bool fallback = 12 [(gnostic.openapi.v3.property) = {description: "是否为降级回复"}]; // 是否为降级回复
-
-  string fallback_reason = 13 [(gnostic.openapi.v3.property) = {description: "降级原因"}]; // 降级原因
-
-  string confirm_action = 14 [(gnostic.openapi.v3.property) = {description: "确认动作编码"}]; // 确认动作编码
-
-  string confirm_status = 15 [(gnostic.openapi.v3.property) = {description: "确认状态：pending/approved/rejected/failed"}]; // 确认状态：pending/approved/rejected/failed
-
-  string confirm_summary = 16 [(gnostic.openapi.v3.property) = {description: "确认状态摘要"}]; // 确认状态摘要
+  string fallback_reason = 10 [(gnostic.openapi.v3.property) = {description: "降级原因"}]; // 降级原因
 }
 
 // AI 助手附件
@@ -201,19 +166,4 @@ message AiAssistantAttachment {
   string url = 4 [(gnostic.openapi.v3.property) = {description: "附件地址"}]; // 附件地址
 
   string mime_type = 5 [(gnostic.openapi.v3.property) = {description: "附件 MIME 类型"}]; // 附件 MIME 类型
-}
-
-// AI 助手工具调用
-message AiAssistantTool {
-  string name = 1 [(gnostic.openapi.v3.property) = {description: "工具名称"}]; // 工具名称
-
-  string elapsed = 2 [(gnostic.openapi.v3.property) = {description: "耗时"}]; // 耗时
-
-  string summary = 3 [(gnostic.openapi.v3.property) = {description: "结果摘要"}]; // 结果摘要
-
-  string status = 4 [(gnostic.openapi.v3.property) = {description: "执行状态：success/failed"}]; // 执行状态：success/failed
-
-  string error_message = 5 [(gnostic.openapi.v3.property) = {description: "失败原因"}]; // 失败原因
-
-  string input = 6 [(gnostic.openapi.v3.property) = {description: "入参摘要"}]; // 入参摘要
 }

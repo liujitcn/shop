@@ -5396,7 +5396,12 @@ paths:
                 - name: terminal
                   in: query
                   schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
                     type: string
+                    format: enum
             responses:
                 "200":
                     description: OK
@@ -5462,36 +5467,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/base/ai/assistant/session/{sessionId}/confirm/{messageId}:
-        post:
-            tags:
-                - AiAssistantService
-            description: 处理 AI 助手确认卡动作
-            operationId: AiAssistantService_OperateAiAssistantConfirm
-            parameters:
-                - name: sessionId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-                - name: messageId
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/OperateAiAssistantConfirmRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/OperateAiAssistantConfirmResponse'
     /api/v1/base/ai/assistant/session/{sessionId}/message:
         get:
             tags:
@@ -5716,7 +5691,8 @@ paths:
                   schema:
                     enum:
                         - SSE_STREAM_UNSPECIFIED
-                        - SSE_STREAM_ADMIN
+                        - SSE_STREAM_ADMIN_WORKSPACE
+                        - SSE_STREAM_ADMIN_AI_ASSISTANT
                     type: string
                     format: enum
             responses:
@@ -5816,26 +5792,13 @@ components:
                     items:
                         $ref: '#/components/schemas/AiAssistantAttachment'
                     description: 附件列表
-                tools:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/AiAssistantTool'
-                    description: 工具列表
-                confirmTitle:
-                    type: string
-                    description: 确认标题
-                confirmLines:
-                    type: array
-                    items:
-                        type: string
-                    description: 确认内容
                 createdAt:
                     type: string
                     description: 创建时间
                     format: date-time
                 replySource:
                     type: string
-                    description: 回复来源：llm/fallback/tool
+                    description: 回复来源：llm/fallback
                 model:
                     type: string
                     description: 回复使用的模型名称
@@ -5845,15 +5808,6 @@ components:
                 fallbackReason:
                     type: string
                     description: 降级原因
-                confirmAction:
-                    type: string
-                    description: 确认动作编码
-                confirmStatus:
-                    type: string
-                    description: 确认状态：pending/approved/rejected/failed
-                confirmSummary:
-                    type: string
-                    description: 确认状态摘要
             description: AI 助手消息
         AiAssistantSession:
             type: object
@@ -5879,31 +5833,14 @@ components:
                     description: 更新时间
                     format: date-time
                 terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
                     type: string
-                    description: 终端类型：admin/app
+                    description: 终端类型：枚举【Terminal】
+                    format: enum
             description: AI 助手会话
-        AiAssistantTool:
-            type: object
-            properties:
-                name:
-                    type: string
-                    description: 工具名称
-                elapsed:
-                    type: string
-                    description: 耗时
-                summary:
-                    type: string
-                    description: 结果摘要
-                status:
-                    type: string
-                    description: 执行状态：success/failed
-                errorMessage:
-                    type: string
-                    description: 失败原因
-                input:
-                    type: string
-                    description: 入参摘要
-            description: AI 助手工具调用
         AnalyticsPieItem:
             type: object
             properties:
@@ -7855,8 +7792,13 @@ components:
                     type: string
                     description: 会话场景
                 terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
                     type: string
-                    description: 终端类型：admin/app
+                    description: 终端类型：枚举【Terminal】
+                    format: enum
             description: AI 助手会话创建请求
         CreateCommentDiscussionRequest:
             type: object
@@ -9002,33 +8944,6 @@ components:
                         $ref: '#/components/schemas/FileInfo'
                     description: 文件上传结果
             description: 批量上传文件响应
-        OperateAiAssistantConfirmRequest:
-            type: object
-            properties:
-                sessionId:
-                    type: string
-                    description: 会话ID
-                messageId:
-                    type: string
-                    description: 确认消息ID
-                action:
-                    type: string
-                    description: 动作类型：approve/reject
-                formJson:
-                    type: string
-                    description: 确认表单JSON
-            description: AI 助手确认动作请求
-        OperateAiAssistantConfirmResponse:
-            type: object
-            properties:
-                messages:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/AiAssistantMessage'
-                    description: 本次更新后的消息列表
-                session:
-                    $ref: '#/components/schemas/AiAssistantSession'
-            description: AI 助手确认动作响应
         OptionBaseDictsResponse:
             type: object
             properties:
@@ -10930,6 +10845,9 @@ components:
                     items:
                         $ref: '#/components/schemas/AiAssistantAttachment'
                     description: 附件列表
+                clientMessageId:
+                    type: string
+                    description: 前端本地消息ID，用于流式回复关联
             description: AI 助手消息发送请求
         SendAiAssistantMessageResponse:
             type: object

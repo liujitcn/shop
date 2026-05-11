@@ -7,6 +7,7 @@
       :sessions="filteredSessions"
       @change="handleSessionChange"
       @action="handleSessionAction"
+      @create="handleCreateSession"
       @toggle-collapse="toggleSessionPanel"
     />
     <div v-else class="agent-session-collapsed">
@@ -15,56 +16,54 @@
       </button>
       <span class="agent-session-collapsed__label">最近对话</span>
     </div>
-    <ChatPanel
-      :active-session="activeSession"
-      :messages="currentMessages"
-      :sending="sending"
-      @submit="handleSubmit"
-      @confirm-action="handleConfirmAction"
-    />
+    <ChatPanel :active-session="activeSession" :messages="currentMessages" :sending="sending" @submit="handleSubmit" />
   </div>
 </template>
 
 <script setup lang="ts">
 import "vue-element-plus-x/styles/index.css";
-import { computed, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { DArrowRight } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { defAiAssistantService } from "@/api/base/ai_assistant";
-import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
+import {
+  subscribeAiAssistantDelta,
+  subscribeAiAssistantError,
+  subscribeAiAssistantFinish,
+  type SseAiAssistantPayload
+} from "@/api/base/sse";
+import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
+import { Terminal } from "@/rpc/common/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
-import type { ChatMessageItem } from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
+import {
+  appendStreamingDelta,
+  createLocalUserMessage,
+  createThinkingMessage,
+  markStreamingError,
+  markThinkingMessageFailed,
+  normalizeMessageList,
+  normalizeSession,
+  normalizeSessionList,
+  resolveTimestamp,
+  replacePendingMessages,
+  sortMessages
+} from "./message";
+import type { ChatMessageItem, SessionAction, SessionListItem, SubmitPayload } from "./types";
 
 defineOptions({
-  name: "DashboardAssistant"
+  name: "AiAssistant"
 });
-
-type SessionAction = "rename" | "delete";
-
-type SessionListItem = AiAssistantSession & {
-  label: string;
-};
-
-type SubmitPayload = {
-  text: string;
-  attachments: AiAssistantAttachment[];
-};
-
-type ConfirmActionPayload = {
-  action: "confirm" | "reject";
-  message: ChatMessageItem;
-  formValues: Record<string, string>;
-};
 
 const sessionKeyword = ref("");
 const activeSessionID = ref("");
 const sessionPanelCollapsed = ref(false);
 const sending = ref(false);
 const loadingSessions = ref(false);
-const loadingMessages = ref(false);
+const loadingSessionID = ref("");
 const sessions = ref<AiAssistantSession[]>([]);
 const messages = ref<Record<string, ChatMessageItem[]>>({});
+const sseStops: Array<() => void> = [];
 
 const sessionItems = computed<SessionListItem[]>(() =>
   sessions.value.map(item => ({
@@ -109,16 +108,36 @@ async function handleSessionAction(payload: { action: SessionAction; item: Sessi
   }
 }
 
+/** 主动创建新的会话，并切换到刚创建的会话。 */
+async function handleCreateSession() {
+  const sessionID = await createSession();
+  if (!sessionID) return;
+  activeSessionID.value = sessionID;
+  messages.value[sessionID] = [];
+  ElMessage.success("已创建新会话");
+}
+
 /** 提交用户输入并同步消息流。 */
 async function handleSubmit(payload: SubmitPayload) {
-  const sessionID = await ensureActiveSession();
-  if (!sessionID) return;
-
+  // 已有发送中的请求时，直接忽略重复提交，避免同一轮输入被并发发送多次。
+  if (sending.value) return;
   sending.value = true;
+
+  const sessionID = await ensureActiveSession();
+  if (!sessionID) {
+    sending.value = false;
+    return;
+  }
+
+  const clientMessageId = payload.clientMessageId || `assistant-stream-${Date.now()}`;
+  const localUserMessage = createLocalUserMessage(payload);
+  const thinkingMessage = createThinkingMessage(clientMessageId);
+  messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
   try {
     const response = await defAiAssistantService.SendAiAssistantMessage({
       session_id: sessionID,
       content: payload.text,
+      client_message_id: clientMessageId,
       attachments: payload.attachments.map(item => ({
         id: item.id,
         name: item.name,
@@ -129,35 +148,38 @@ async function handleSubmit(payload: SubmitPayload) {
     });
 
     const nextMessages = normalizeMessageList(response?.messages);
-    messages.value[sessionID] = [...(messages.value[sessionID] ?? []), ...nextMessages];
-    if (response?.session) upsertSession(response.session);
+    messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], nextMessages);
+    if (response?.session) upsertSession(normalizeSession(response.session));
   } catch {
-    // 错误提示已由统一请求拦截器处理，这里仅拦截未捕获 Promise，避免页面继续抛红。
+    messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? []);
   } finally {
     sending.value = false;
   }
 }
 
-/** 处理确认卡动作，并继续复用现有消息发送链路。 */
-async function handleConfirmAction(payload: ConfirmActionPayload) {
-  const sessionID = activeSessionID.value;
-  if (!sessionID || sending.value) return;
-  if (payload.action === "confirm" && !validateConfirmForm(payload.message, payload.formValues)) return;
+/** 处理 AI 助手流式文本增量。 */
+function handleAiAssistantDelta(payload: SseAiAssistantPayload) {
+  const sessionID = String(payload.session_id ?? "");
+  if (!sessionID || !messages.value[sessionID]) return;
+  messages.value[sessionID] = appendStreamingDelta(messages.value[sessionID] ?? [], payload);
+}
 
-  updateConfirmMessageState(sessionID, payload.message.id, "processing");
-  try {
-    const response = await defAiAssistantService.OperateAiAssistantConfirm({
-      session_id: sessionID,
-      message_id: payload.message.id,
-      action: payload.action === "confirm" ? "approve" : "reject",
-      form_json: JSON.stringify(payload.formValues ?? {})
-    });
-
-    mergeSessionMessages(sessionID, normalizeMessageList(response?.messages));
-    if (response?.session) upsertSession(response.session);
-  } catch {
-    updateConfirmMessageState(sessionID, payload.message.id, "pending");
+/** 处理 AI 助手流式结束事件。 */
+function handleAiAssistantFinish(payload: SseAiAssistantPayload) {
+  const sessionID = String(payload.session_id ?? "");
+  if (!sessionID) return;
+  const nextMessages = normalizeMessageList(payload.messages as never[]);
+  messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], nextMessages);
+  if (payload.session) {
+    upsertSession(normalizeSession(payload.session as AiAssistantSession));
   }
+}
+
+/** 处理 AI 助手流式异常事件。 */
+function handleAiAssistantError(payload: SseAiAssistantPayload) {
+  const sessionID = String(payload.session_id ?? "");
+  if (!sessionID || !messages.value[sessionID]) return;
+  messages.value[sessionID] = markStreamingError(messages.value[sessionID] ?? [], payload);
 }
 
 /** 首次打开时加载会话列表，并拉取当前会话消息。 */
@@ -166,7 +188,7 @@ async function ensureSessionsLoaded() {
 
   loadingSessions.value = true;
   try {
-    const response = await defAiAssistantService.ListAiAssistantSessions({ terminal: "admin" });
+    const response = await defAiAssistantService.ListAiAssistantSessions({ terminal: Terminal.TERMINAL_ADMIN });
     sessions.value = normalizeSessionList(response?.sessions);
     const sessionID = await ensureActiveSession();
     if (sessionID) await loadMessages(sessionID);
@@ -179,16 +201,21 @@ async function ensureSessionsLoaded() {
 
 /** 加载指定会话的消息记录。 */
 async function loadMessages(sessionID: string) {
-  if (!sessionID || loadingMessages.value) return;
+  if (!sessionID) return;
 
-  loadingMessages.value = true;
+  loadingSessionID.value = sessionID;
   try {
     const response = await defAiAssistantService.ListAiAssistantMessages({ session_id: sessionID });
+    if (loadingSessionID.value !== sessionID) return;
     messages.value[sessionID] = normalizeMessageList(response?.messages);
   } catch {
-    messages.value[sessionID] = [];
+    if (loadingSessionID.value === sessionID) {
+      messages.value[sessionID] = [];
+    }
   } finally {
-    loadingMessages.value = false;
+    if (loadingSessionID.value === sessionID) {
+      loadingSessionID.value = "";
+    }
   }
 }
 
@@ -203,7 +230,7 @@ async function handleRenameSession(item: AiAssistantSession) {
   });
 
   const session = await defAiAssistantService.UpdateAiAssistantSession({ id: item.id, title: value.trim() });
-  upsertSession(session);
+  upsertSession(normalizeSession(session));
   ElMessage.success("会话已重命名");
 }
 
@@ -235,131 +262,20 @@ async function ensureActiveSession() {
   }
   if (activeSessionID.value) return activeSessionID.value;
 
-  const session = await defAiAssistantService.CreateAiAssistantSession({
-    title: "新对话",
-    scene: "workspace",
-    terminal: "admin"
-  });
-  const normalizedSession = normalizeSession(session);
-  upsertSession(normalizedSession);
-  activeSessionID.value = normalizedSession.id;
+  activeSessionID.value = (await createSession()) ?? "";
   return activeSessionID.value;
 }
 
-/** 映射后端消息结构到页面气泡结构。 */
-function mapMessageItem(message: AiAssistantMessage): ChatMessageItem {
-  const normalizedContent = String(message.content ?? "");
-  return {
-    ...message,
-    key: message.id,
-    content: normalizedContent,
-    placement: message.role === "user" ? "end" : "start",
-    confirmTitle: message.confirm_title,
-    confirmLines: message.confirm_lines,
-    confirmFormFields: resolveConfirmFormFields(message),
-    confirmFormValues: {},
-    confirmState: resolveConfirmState(message),
-    reply_source: String(message.reply_source ?? ""),
-    model: String(message.model ?? ""),
-    fallback: Boolean(message.fallback),
-    fallback_reason: String(message.fallback_reason ?? ""),
-    variant: message.role === "user" ? "filled" : message.kind === "tool" || message.kind === "confirm" ? "outlined" : "filled",
-    shape: "round",
-    maxWidth:
-      message.kind === "confirm" ? "360px" : message.kind === "tool" ? "430px" : message.role === "user" ? "380px" : "440px"
-  };
-}
-
-/** 根据后端消息状态映射确认卡展示状态。 */
-function resolveConfirmState(message: AiAssistantMessage): ChatMessageItem["confirmState"] {
-  if (message.kind !== "confirm") return undefined;
-  switch (String(message.confirm_status ?? "")) {
-    case "approved":
-      return "confirmed";
-    case "rejected":
-      return "rejected";
-    default:
-      return "pending";
-  }
-}
-
-/** 从工具输入里提取确认卡表单字段，兼容当前消息协议未单独暴露表单结构的阶段。 */
-function resolveConfirmFormFields(message: AiAssistantMessage) {
-  if (message.kind !== "confirm") return [];
-  if (!message.confirm_action.includes("shipment")) return [];
-  return [
-    { prop: "name", label: "物流公司名称", placeholder: "请输入物流公司名称", required: true },
-    { prop: "no", label: "物流单号", placeholder: "请输入物流单号", required: true },
-    { prop: "contact", label: "联系方式", placeholder: "请输入联系方式", required: true }
-  ];
-}
-
-/** 提交确认前校验必填表单，避免空值请求直达后端。 */
-function validateConfirmForm(message: ChatMessageItem, formValues: Record<string, string>) {
-  const requiredFields = message.confirmFormFields?.filter(field => field.required) ?? [];
-  for (const field of requiredFields) {
-    if (!String(formValues?.[field.prop] ?? "").trim()) {
-      ElMessage.warning(`请填写${field.label}`);
-      return false;
-    }
-  }
-  return true;
-}
-
-/** 更新当前会话中指定确认消息的状态，保持交互反馈及时可见。 */
-function updateConfirmMessageState(sessionID: string, messageID: string, confirmState: ChatMessageItem["confirmState"]) {
-  const sessionMessages = messages.value[sessionID] ?? [];
-  messages.value[sessionID] = sessionMessages.map(item =>
-    item.id === messageID
-      ? {
-          ...item,
-          confirmState
-        }
-      : item
-  );
-}
-
-/** 合并后端返回的最新消息，优先用新消息覆盖同 ID 的旧状态。 */
-function mergeSessionMessages(sessionID: string, nextMessages: ChatMessageItem[]) {
-  if (!nextMessages.length) return;
-  const mergedMap = new Map<string, ChatMessageItem>();
-  (messages.value[sessionID] ?? []).forEach(item => {
-    mergedMap.set(item.id, item);
+/** 创建新的助手会话，并同步到本地列表。 */
+async function createSession() {
+  const session = await defAiAssistantService.CreateAiAssistantSession({
+    title: "新对话",
+    scene: "workspace",
+    terminal: Terminal.TERMINAL_ADMIN
   });
-  nextMessages.forEach(item => {
-    mergedMap.set(item.id, item);
-  });
-  messages.value[sessionID] = Array.from(mergedMap.values()).sort((left, right) => {
-    const leftTime = resolveTimestamp(left.created_at);
-    const rightTime = resolveTimestamp(right.created_at);
-    if (leftTime === rightTime) return Number(left.id) - Number(right.id);
-    return leftTime - rightTime;
-  });
-}
-
-/** 兜底清洗会话数据，避免接口空值导致页面初始化报错。 */
-function normalizeSession(session?: Partial<AiAssistantSession> | null): AiAssistantSession {
-  return {
-    id: String(session?.id ?? ""),
-    title: String(session?.title ?? "新对话"),
-    scene: String(session?.scene ?? "workspace"),
-    summary: String(session?.summary ?? ""),
-    tool_count: Number(session?.tool_count ?? 0),
-    updated_at: session?.updated_at,
-    terminal: String(session?.terminal ?? "admin")
-  };
-}
-
-/** 将会话列表统一收敛为可安全渲染的数组。 */
-function normalizeSessionList(list?: AiAssistantSession[] | null) {
-  if (!Array.isArray(list)) return [];
-  return list.map(item => normalizeSession(item)).filter(item => item.id);
-}
-
-/** 将消息列表统一收敛为可安全渲染的数组。 */
-function normalizeMessageList(list?: AiAssistantMessage[] | null) {
-  if (!Array.isArray(list)) return [];
-  return list.filter(Boolean).map(item => mapMessageItem(item));
+  const normalizedSession = normalizeSession(session);
+  upsertSession(normalizedSession);
+  return normalizedSession.id;
 }
 
 /** 更新或插入会话，并按更新时间排序。 */
@@ -373,22 +289,25 @@ function upsertSession(session: AiAssistantSession) {
   });
 }
 
-/** 将 protobuf 时间戳转为毫秒时间。 */
-function resolveTimestamp(timestamp?: { seconds?: number; nanos?: number }) {
-  if (!timestamp) return 0;
-  const seconds = Number(timestamp.seconds ?? 0);
-  const nanos = Number(timestamp.nanos ?? 0);
-  return seconds * 1000 + Math.floor(nanos / 1_000_000);
-}
-
 /** 页面加载后主动准备首个会话，避免进入菜单后仍需额外点击。 */
 onMounted(() => {
+  sseStops.push(subscribeAiAssistantDelta(handleAiAssistantDelta));
+  sseStops.push(subscribeAiAssistantFinish(handleAiAssistantFinish));
+  sseStops.push(subscribeAiAssistantError(handleAiAssistantError));
   void ensureSessionsLoaded();
+});
+
+onBeforeUnmount(() => {
+  while (sseStops.length > 0) {
+    const stop = sseStops.pop();
+    stop?.();
+  }
 });
 </script>
 
 <style scoped lang="scss">
 .ai-assistant-page {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
   height: 100%;

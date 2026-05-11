@@ -4,11 +4,11 @@
 package main
 
 import (
+	"shop/pkg/agent"
 	"shop/pkg/biz"
 	"shop/pkg/config"
 	"shop/pkg/gen/data"
 	"shop/pkg/job"
-	"shop/pkg/llm"
 	"shop/pkg/middleware"
 	"shop/pkg/recommend"
 	"shop/pkg/wx"
@@ -29,10 +29,10 @@ func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 		job.ProviderSet,
 		wx.ProviderSet,
 		biz.ProviderSet,
+		agent.ProviderSet,
 		config.ProviderSet,
 		data.ProviderSet,
 		recommend.ProviderSet,
-		llm.ProviderSet,
 		middleware.ProviderSet,
 		admin.ProviderSet,
 		app.ProviderSet,

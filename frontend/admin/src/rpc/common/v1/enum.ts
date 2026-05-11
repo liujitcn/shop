@@ -307,8 +307,10 @@ export enum RecommendEventType {
 export enum SseStream {
   /** SSE_STREAM_UNSPECIFIED - 未指定 SSE 流 */
   SSE_STREAM_UNSPECIFIED = 0,
-  /** SSE_STREAM_ADMIN - 管理后台 SSE 流 */
-  SSE_STREAM_ADMIN = 1,
+  /** SSE_STREAM_ADMIN_WORKSPACE - 管理后台工作台 SSE 流 */
+  SSE_STREAM_ADMIN_WORKSPACE = 1,
+  /** SSE_STREAM_ADMIN_AI_ASSISTANT - 管理后台 AI 助手 SSE 流 */
+  SSE_STREAM_ADMIN_AI_ASSISTANT = 2,
 }
 
 /** SSE 事件枚举 */
@@ -317,6 +319,12 @@ export enum SseEvent {
   SSE_EVENT_UNSPECIFIED = 0,
   /** SSE_EVENT_PAGE_REFRESH - 页面局部刷新事件 */
   SSE_EVENT_PAGE_REFRESH = 1,
+  /** SSE_EVENT_AI_ASSISTANT_DELTA - AI 助手流式文本增量事件 */
+  SSE_EVENT_AI_ASSISTANT_DELTA = 2,
+  /** SSE_EVENT_AI_ASSISTANT_FINISH - AI 助手流式回复完成事件 */
+  SSE_EVENT_AI_ASSISTANT_FINISH = 3,
+  /** SSE_EVENT_AI_ASSISTANT_ERROR - AI 助手流式回复异常事件 */
+  SSE_EVENT_AI_ASSISTANT_ERROR = 4,
 }
 
 /** SSE 刷新目标枚举 */
@@ -469,12 +477,12 @@ export enum ResourceType {
   REFUND = 1,
 }
 
-/** MCP终端类型 */
-export enum McpTerminal {
-  /** UNKNOWN_MCP_TERMINAL - 未知终端 */
-  UNKNOWN_MCP_TERMINAL = 0,
-  /** MCP_TERMINAL_APP - 移动端 */
-  MCP_TERMINAL_APP = 1,
-  /** MCP_TERMINAL_ADMIN - 管理端 */
-  MCP_TERMINAL_ADMIN = 2,
+/** 终端类型 */
+export enum Terminal {
+  /** TERMINAL_UNSPECIFIED - 未知终端 */
+  TERMINAL_UNSPECIFIED = 0,
+  /** TERMINAL_APP - 移动端 */
+  TERMINAL_APP = 1,
+  /** TERMINAL_ADMIN - 管理端 */
+  TERMINAL_ADMIN = 2,
 }

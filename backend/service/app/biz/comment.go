@@ -13,11 +13,11 @@ import (
 
 	appv1 "shop/api/gen/go/app/v1"
 	commonv1 "shop/api/gen/go/common/v1"
+	"shop/pkg/agent/comment"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-	"shop/pkg/llm"
 	"shop/pkg/queue"
 	"shop/pkg/workspaceevent"
 	appDto "shop/service/app/dto"
@@ -43,7 +43,7 @@ type CommentCase struct {
 	orderInfoCase         *OrderInfoCase
 	orderGoodsCase        *OrderGoodsCase
 	baseUserCase          *BaseUserCase
-	llmClient             *llm.Client
+	commentRuntime        *comment.Runtime
 }
 
 // NewCommentCase 创建评价业务编排对象。
@@ -59,7 +59,7 @@ func NewCommentCase(
 	orderInfoCase *OrderInfoCase,
 	orderGoodsCase *OrderGoodsCase,
 	baseUserCase *BaseUserCase,
-	llmClient *llm.Client,
+	commentRuntime *comment.Runtime,
 ) *CommentCase {
 	c := &CommentCase{
 		BaseCase:              baseCase,
@@ -73,7 +73,7 @@ func NewCommentCase(
 		orderInfoCase:         orderInfoCase,
 		orderGoodsCase:        orderGoodsCase,
 		baseUserCase:          baseUserCase,
-		llmClient:             llmClient,
+		commentRuntime:        commentRuntime,
 	}
 	// 注册评价审核与 AI 摘要刷新异步消费者，避免提交评价时阻塞用户主流程。
 	c.RegisterQueueConsumer(_const.COMMENT_AUDIT, c.consumeCommentAudit)
@@ -724,7 +724,7 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 	if record.Status != _const.COMMENT_STATUS_PENDING_REVIEW {
 		return nil
 	}
-	if !c.llmClient.Enabled() {
+	if !c.commentRuntime.Enabled() {
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置")
 	}
 
@@ -733,7 +733,7 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error())
 	}
 
-	result, err := c.llmClient.ReviewComment(ctx, llm.CommentReviewRequest{
+	result, err := c.commentRuntime.ReviewComment(ctx, comment.ReviewRequest{
 		GoodsName: record.GoodsNameSnapshot,
 		SKUDesc:   record.SKUDescSnapshot,
 		Content:   record.Content,
@@ -757,10 +757,10 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 }
 
 // buildCommentReviewImages 构建评价审核使用的图片输入。
-func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []llm.CommentReviewImageData, error) {
+func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []comment.ReviewImageData, error) {
 	images := _string.ConvertJsonStringToStringArray(rawImages)
 	imageURLs := make([]string, 0, len(images))
-	imageData := make([]llm.CommentReviewImageData, 0, len(images))
+	imageData := make([]comment.ReviewImageData, 0, len(images))
 	for _, image := range images {
 		cleanImage := strings.TrimSpace(image)
 		// 图片地址为空时跳过无效项。
@@ -776,7 +776,7 @@ func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []ll
 		if err != nil {
 			return nil, nil, err
 		}
-		imageData = append(imageData, llm.CommentReviewImageData{
+		imageData = append(imageData, comment.ReviewImageData{
 			Name:     path.Base(cleanImage),
 			Bytes:    bytes,
 			MIMEType: commentReviewImageMIMEType(cleanImage),
@@ -861,7 +861,7 @@ func commentReviewImageMIMEType(imagePath string) string {
 }
 
 // approveCommentByAI 将评价审核通过结果写入业务表和审核记录。
-func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.CommentInfo, result *llm.CommentReviewResult) error {
+func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.CommentInfo, result *comment.ReviewResult) error {
 	cleanTags := cleanCommentTagNames(result.Tags)
 	err := c.transaction(ctx, func(txCtx context.Context) error {
 		tagIDs, tagNames, upsertErr := c.commentTagCase.UpsertTagsByNames(txCtx, record.GoodsID, cleanTags)
@@ -887,7 +887,7 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 }
 
 // rejectCommentByAI 将评价审核不通过结果写入业务表和审核记录。
-func (c *CommentCase) rejectCommentByAI(ctx context.Context, record *models.CommentInfo, result *llm.CommentReviewResult) error {
+func (c *CommentCase) rejectCommentByAI(ctx context.Context, record *models.CommentInfo, result *comment.ReviewResult) error {
 	reason := commentReviewRejectReason(result)
 	tags := commentReviewTags(result)
 	err := c.transaction(ctx, func(txCtx context.Context) error {
@@ -918,11 +918,11 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 	if err != nil {
 		return err
 	}
-	if !c.llmClient.Enabled() {
+	if !c.commentRuntime.Enabled() {
 		return c.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置")
 	}
 
-	result, err := c.llmClient.ReviewComment(ctx, llm.CommentReviewRequest{
+	result, err := c.commentRuntime.ReviewComment(ctx, comment.ReviewRequest{
 		GoodsName: commentInfo.GoodsNameSnapshot,
 		SKUDesc:   commentInfo.SKUDescSnapshot,
 		Content:   record.Content,
@@ -943,7 +943,7 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 }
 
 // approveDiscussionByAI 将讨论审核通过结果写入业务表和审核记录。
-func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *llm.CommentReviewResult) error {
+func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *comment.ReviewResult) error {
 	err := c.transaction(ctx, func(txCtx context.Context) error {
 		err := c.updateDiscussionStatus(txCtx, record.ID, _const.COMMENT_STATUS_APPROVED)
 		if err != nil {
@@ -971,7 +971,7 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 }
 
 // rejectDiscussionByAI 将讨论审核不通过结果写入业务表和审核记录。
-func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *llm.CommentReviewResult) error {
+func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *comment.ReviewResult) error {
 	reason := commentReviewRejectReason(result)
 	tags := commentReviewTags(result)
 	err := c.transaction(ctx, func(txCtx context.Context) error {
@@ -1008,7 +1008,7 @@ func (c *CommentCase) consumeCommentAiRefresh(message queueData.Message) error {
 // refreshGoodsCommentAi 基于审核通过评价刷新商品 AI 摘要。
 func (c *CommentCase) refreshGoodsCommentAi(ctx context.Context, goodsID int64) error {
 	// LLM 未配置时不刷新摘要，前台继续使用旧摘要或空摘要降级。
-	if !c.llmClient.Enabled() {
+	if !c.commentRuntime.Enabled() {
 		return nil
 	}
 	commentList, err := c.commentInfoCase.listApprovedByGoodsID(ctx, goodsID)
@@ -1021,12 +1021,12 @@ func (c *CommentCase) refreshGoodsCommentAi(ctx context.Context, goodsID int64) 
 	}
 
 	goodsName := ""
-	comments := make([]llm.CommentAiComment, 0, len(commentList))
+	comments := make([]comment.CommentAiComment, 0, len(commentList))
 	for _, item := range commentList {
 		if goodsName == "" {
 			goodsName = item.GoodsNameSnapshot
 		}
-		comments = append(comments, llm.CommentAiComment{
+		comments = append(comments, comment.CommentAiComment{
 			Content:       item.Content,
 			GoodsScore:    item.GoodsScore,
 			PackageScore:  item.PackageScore,
@@ -1034,7 +1034,7 @@ func (c *CommentCase) refreshGoodsCommentAi(ctx context.Context, goodsID int64) 
 			Tags:          c.tagNamesByIDs(ctx, item.GoodsID, _string.ConvertJsonStringToInt64Array(item.TagID)),
 		})
 	}
-	result, err := c.llmClient.GenerateCommentAi(ctx, llm.CommentAiRequest{
+	result, err := c.commentRuntime.GenerateCommentAi(ctx, comment.CommentAiRequest{
 		GoodsName: goodsName,
 		Comments:  comments,
 	})
@@ -1071,7 +1071,7 @@ func (c *CommentCase) tagNamesByIDs(ctx context.Context, goodsID int64, tagIDs [
 
 // createAIReview 创建 AI 审核记录。
 func (c *CommentCase) createAIReview(ctx context.Context, targetType int32, targetID int64, status int32, tags []string, reason string) error {
-	operatorName := c.llmClient.Model()
+	operatorName := c.commentRuntime.Model()
 	// 模型名称为空时，使用统一名称区分 AI 审核来源。
 	if operatorName == "" {
 		operatorName = "LLM"
@@ -1161,7 +1161,7 @@ func formatCommentStatus(status int32) string {
 }
 
 // commentReviewRejectReason 根据审核结果生成不通过原因。
-func commentReviewRejectReason(result *llm.CommentReviewResult) string {
+func commentReviewRejectReason(result *comment.ReviewResult) string {
 	if result == nil {
 		return "审核服务未返回结果，无法确认内容安全"
 	}
@@ -1173,7 +1173,7 @@ func commentReviewRejectReason(result *llm.CommentReviewResult) string {
 }
 
 // commentReviewHasConcreteReason 判断审核结果是否带有具体违规原因。
-func commentReviewHasConcreteReason(result *llm.CommentReviewResult) bool {
+func commentReviewHasConcreteReason(result *comment.ReviewResult) bool {
 	if result == nil {
 		return false
 	}
@@ -1199,7 +1199,7 @@ func commentReviewHasConcreteReason(result *llm.CommentReviewResult) bool {
 }
 
 // commentReviewTags 获取审核结果标签。
-func commentReviewTags(result *llm.CommentReviewResult) []string {
+func commentReviewTags(result *comment.ReviewResult) []string {
 	if result == nil {
 		return nil
 	}

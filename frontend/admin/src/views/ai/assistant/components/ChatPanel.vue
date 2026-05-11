@@ -21,25 +21,21 @@
       <div class="agent-chat-content">
         <BubbleList class="agent-message-list" :list="bubbleList" max-height="100%" :auto-scroll="true">
           <template #content="{ item }">
-            <ToolCard v-if="item.kind === 'tool'" :tools="item.tools || []" />
-            <ConfirmCard
-              v-else-if="item.kind === 'confirm'"
-              :title="item.confirmTitle || '待确认操作'"
-              :lines="item.confirmLines || []"
-              :form-fields="item.confirmFormFields || []"
-              :form-values="item.confirmFormValues || {}"
-              :state="item.confirmState || 'pending'"
-              :disabled="sending"
-              @action="handleConfirmAction(item, $event)"
-            />
-            <div v-else class="agent-message-body">
-              <div v-if="item.role !== 'user' && (item.reply_source || item.model || item.fallback)" class="agent-message-meta">
-                <span class="agent-message-meta__tag">
-                  {{ item.fallback ? "降级回复" : item.reply_source === "tool" ? "工具辅助" : "模型回复" }}
+            <div class="agent-message-body">
+              <div v-if="item.role !== 'user' && (item.replySourceTag || item.model || item.fallback)" class="agent-message-meta">
+                <span
+                  v-if="item.replySourceTag"
+                  class="agent-message-meta__tag"
+                  :class="resolveTagClass(item.replySourceTag.tone)"
+                >
+                  {{ item.replySourceTag.text }}
                 </span>
                 <span v-if="item.model" class="agent-message-meta__model">{{ item.model }}</span>
               </div>
-              <div class="agent-message-content">{{ item.content }}</div>
+              <div class="agent-message-content" :class="{ 'is-thinking': item.progressState === 'streaming' }">
+                <span>{{ item.content }}</span>
+                <span v-if="item.progressState === 'streaming'" class="agent-thinking-dots"> <i></i><i></i><i></i> </span>
+              </div>
               <div v-if="item.attachments?.length" class="agent-message-attachments">
                 <div v-for="attachment in item.attachments" :key="attachment.id" class="agent-message-attachment">
                   <el-icon><Paperclip /></el-icon>
@@ -62,38 +58,13 @@
 import { computed } from "vue";
 import { BubbleList } from "vue-element-plus-x";
 import { Paperclip } from "@element-plus/icons-vue";
-import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
-import ConfirmCard from "./ConfirmCard.vue";
-import ToolCard from "./ToolCard.vue";
+import type { AiAssistantAttachment, AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
 import XSender from "./XSender.vue";
-
-export type ChatMessageItem = AiAssistantMessage & {
-  key: string;
-  placement: "start" | "end";
-  variant?: "filled" | "borderless" | "outlined" | "shadow";
-  shape?: "round" | "corner";
-  maxWidth?: string;
-  confirmTitle?: string;
-  confirmLines?: string[];
-  confirmFormFields?: Array<{
-    prop: string;
-    label: string;
-    placeholder: string;
-    required?: boolean;
-  }>;
-  confirmFormValues?: Record<string, string>;
-  confirmState?: "pending" | "processing" | "confirmed" | "rejected";
-};
+import type { ChatMessageItem, ReplySourceTag } from "../types";
 
 type SubmitPayload = {
   text: string;
   attachments: AiAssistantAttachment[];
-};
-
-type ConfirmAction = "confirm" | "reject";
-type ConfirmActionPayload = {
-  action: ConfirmAction;
-  formValues: Record<string, string>;
 };
 
 const props = defineProps<{
@@ -108,8 +79,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 提交输入框内容。 */
   submit: [payload: SubmitPayload];
-  /** 处理确认卡操作。 */
-  confirmAction: [payload: { action: ConfirmAction; message: ChatMessageItem; formValues: Record<string, string> }];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -135,15 +104,17 @@ function handleSubmit(payload: SubmitPayload) {
   emit("submit", payload);
 }
 
-/** 透传确认卡动作到页面，统一由页面接管消息流。 */
-function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPayload) {
-  emit("confirmAction", { ...payload, message });
+/** 统一回复来源标签配色。 */
+function resolveTagClass(tone?: ReplySourceTag["tone"]) {
+  return tone ? `is-${tone}` : "";
 }
 </script>
 
 <style scoped lang="scss">
 .agent-chat-panel {
+  box-sizing: border-box;
   display: flex;
+  position: relative;
   height: 100%;
   min-width: 0;
   min-height: 0;
@@ -159,6 +130,7 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
 }
 
 .agent-chat-header {
+  flex: 0 0 auto;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -186,6 +158,7 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
   width: min(960px, calc(100% - 72px));
   margin: 0 auto;
   overflow: hidden;
+  padding-bottom: 168px;
 }
 
 .agent-chat-empty {
@@ -224,12 +197,18 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 8px 0 0;
+  padding: 8px 0 24px;
 }
 
 .agent-message-content {
   line-height: 24px;
   white-space: pre-wrap;
+}
+
+.agent-message-content.is-thinking {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .agent-message-body {
@@ -252,8 +231,47 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
   border-radius: 999px;
 }
 
+.agent-message-meta__tag.is-primary {
+  color: var(--el-color-primary);
+}
+
+.agent-message-meta__tag.is-success {
+  color: var(--el-color-success);
+}
+
+.agent-message-meta__tag.is-warning {
+  color: var(--el-color-warning);
+}
+
+.agent-message-meta__tag.is-info {
+  color: var(--admin-page-text-secondary);
+}
+
 .agent-message-meta__model {
   opacity: 0.85;
+}
+
+.agent-thinking-dots {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+
+  i {
+    width: 6px;
+    height: 6px;
+    display: inline-block;
+    background: currentcolor;
+    border-radius: 50%;
+    animation: thinking-bounce 1.2s infinite ease-in-out;
+  }
+
+  i:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+
+  i:nth-child(3) {
+    animation-delay: 0.3s;
+  }
 }
 
 .agent-message-attachments {
@@ -275,10 +293,15 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
 }
 
 .agent-sender-wrap {
-  flex: 0 0 auto;
+  position: absolute;
+  right: 0;
+  bottom: 24px;
+  left: 0;
   width: min(760px, calc(100% - 72px));
   margin: 0 auto;
-  padding: 18px 0 0;
+  padding: 0;
+  z-index: 1;
+  background: var(--admin-page-card-bg);
 }
 
 @media screen and (max-width: 768px) {
@@ -307,6 +330,19 @@ function handleConfirmAction(message: ChatMessageItem, payload: ConfirmActionPay
 
   .agent-chat-empty__sender {
     width: 100%;
+  }
+}
+
+@keyframes thinking-bounce {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
   }
 }
 </style>

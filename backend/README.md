@@ -128,7 +128,16 @@ make gen
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
 
-当前 `base` 公共接口内已包含当前系统专用 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；回复优先复用 `github.com/go-kratos/blades` 接入的大模型客户端，并在消息结构内返回回复来源、模型名、是否降级和降级原因。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取文本类附件内容、读取图片字节并通过 `blades.DataPart` 参与推理；未配置模型或模型调用失败时会明确回退为本地兜底回复。
+当前 `base` 公共接口内已包含当前系统专用 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/go-kratos/blades` 的 `Agent + Runner` 机制，并明确使用以下能力：
+
+- `session / state`：每个后台会话在服务端映射为独立的 Blades Session，当前终端、场景、用户名称、会话标题、摘要等状态会注入到 session state。
+- `memory`：附件中的文本内容会写入 Blades Memory，并通过内置 `Memory` 工具供助手在回答时检索。
+- `prompts`：AI 助手提示词来自商城配置 `prompt.ai_assistant`，并结合 session state 以模板形式渲染。
+- `runstream`：管理端 AI 助手通过 `/events` 上的 SSE 流推送增量文本，按后台用户隔离专属 stream，避免不同管理员之间互串回复内容。
+
+其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
+
+当前阶段助手主流程先聚焦“稳定对话”，消息结构以普通文本回复为主；业务工具执行、确认卡动作等能力已从默认主链移出，后续在主流程稳定后再按场景追加。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取文本类附件内容并注入记忆上下文。
 
 ## MCP 工具暴露
 

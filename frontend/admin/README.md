@@ -29,6 +29,7 @@ frontend/admin
 
 - `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理等系统管理。
 - `views/dashboard`：工作台与分析页。
+- `views/ai`：AI 助手、AI 图片、AI 视频等 AI 能力页面。
 - `views/goods`：商品分类、商品信息、属性、SKU。
 - `views/shop`：轮播图、商城服务、热门推荐。
 - `views/order`：订单管理。
@@ -37,7 +38,6 @@ frontend/admin
 - `views/pay`：交易账单。
 - `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
 - `views/user`：门店管理。
-- `views/dashboard/assistant`：管理后台 AI助手页面主体，包含会话列表、聊天区与输入区。
 
 ## 环境要求
 
@@ -143,14 +143,14 @@ src/rpc
 当前管理后台 AI 助手会复用：
 
 - `src/api/base/ai_assistant.ts`：AI 助手会话、消息、发送、重命名、删除接口封装。
-- `src/views/dashboard/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
-- `src/views/dashboard/assistant/index.vue`：左侧菜单中的 AI助手页面入口。
+- `src/views/ai/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI 助手页面。
+- `src/views/ai/assistant/index.vue`：AI 菜单下的 AI 助手页面入口。
 
 当前助手页实现说明：
 
 - 会话列表、消息流、输入器与附件区分别复用 `Conversations`、`BubbleList`、`XSender`、`Attachments` 的现有模式。
 - 附件发送会透传 `id/name/size/url/mime_type`，用于后端读取真实文件内容参与模型推理。
-- 工具调用卡与确认卡为页面自定义业务组件，其中确认卡已接入页面消息流，可在前端先完成确认/拒绝交互闭环。
+- 聊天区会先本地回显用户消息，再显示助手“思考中”占位态；助手回复会通过 SSE 流式逐段渲染，最终再与服务端正式消息收敛，并按 `reply_source` 区分模型回答、工具回答和降级回复。
 
 ## 开发约定
 

@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	// StreamAdmin 表示管理后台通用 SSE 流。
-	StreamAdmin = commonv1.SseStream_SSE_STREAM_ADMIN
+	// StreamAdminWorkspace 表示管理后台工作台 SSE 流。
+	StreamAdminWorkspace = commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE
 	// EventWorkspaceRefresh 表示工作台局部刷新事件。
 	EventWorkspaceRefresh = commonv1.SseEvent_SSE_EVENT_PAGE_REFRESH
 	// AreaMetrics 表示工作台顶部指标区域。

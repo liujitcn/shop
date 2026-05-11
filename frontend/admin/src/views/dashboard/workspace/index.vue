@@ -669,7 +669,7 @@ function normalizeRefreshTargets(targets: SseRefreshTarget[]) {
 
 /** 订阅工作台刷新事件。 */
 function startWorkspaceSse() {
-  stopWorkspaceSse = subscribeSseRefresh(SseStream.SSE_STREAM_ADMIN, payload => {
+  stopWorkspaceSse = subscribeSseRefresh(SseStream.SSE_STREAM_ADMIN_WORKSPACE, payload => {
     queueWorkspaceRefresh(payload.targets.filter(isWorkspaceRefreshTarget));
   });
 }

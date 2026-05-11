@@ -29,7 +29,7 @@ func newAiAssistantSession(db *gorm.DB, opts ...gen.DOOption) aiAssistantSession
 	_aiAssistantSession.ALL = field.NewAsterisk(tableName)
 	_aiAssistantSession.ID = field.NewInt64(tableName, "id")
 	_aiAssistantSession.UserID = field.NewInt64(tableName, "user_id")
-	_aiAssistantSession.Terminal = field.NewString(tableName, "terminal")
+	_aiAssistantSession.Terminal = field.NewInt32(tableName, "terminal")
 	_aiAssistantSession.Title = field.NewString(tableName, "title")
 	_aiAssistantSession.Scene = field.NewString(tableName, "scene")
 	_aiAssistantSession.Summary = field.NewString(tableName, "summary")
@@ -51,7 +51,7 @@ type aiAssistantSession struct {
 	ALL           field.Asterisk
 	ID            field.Int64  // 会话ID
 	UserID        field.Int64  // 所属用户ID
-	Terminal      field.String // 终端类型：admin/app
+	Terminal      field.Int32  // 终端类型：枚举【Terminal】
 	Title         field.String // 会话标题
 	Scene         field.String // 会话场景
 	Summary       field.String // 会话摘要
@@ -78,7 +78,7 @@ func (a *aiAssistantSession) updateTableName(table string) *aiAssistantSession {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewInt64(table, "id")
 	a.UserID = field.NewInt64(table, "user_id")
-	a.Terminal = field.NewString(table, "terminal")
+	a.Terminal = field.NewInt32(table, "terminal")
 	a.Title = field.NewString(table, "title")
 	a.Scene = field.NewString(table, "scene")
 	a.Summary = field.NewString(table, "summary")

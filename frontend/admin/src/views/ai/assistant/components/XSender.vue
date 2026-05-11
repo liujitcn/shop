@@ -85,7 +85,6 @@ import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-v
 import { ElMessage } from "element-plus";
 import { defFileService } from "@/api/base/file";
 import type { AiAssistantAttachment } from "@/rpc/base/v1/ai_assistant";
-import type { FileInfo } from "@/rpc/base/v1/file";
 
 type SubmitPayload = {
   text: string;
@@ -214,14 +213,16 @@ async function uploadAttachments(files: File[]) {
   uploading.value = true;
   try {
     const response = await defFileService.MultiUploadFile(files, "assistant");
-    const fileMap = new Map(files.map(file => [buildFileIdentity(file.name, file.size), file]));
+    const fileMap = new Map<string, File[]>();
+    files.forEach(file => {
+      const group = fileMap.get(file.name) ?? [];
+      group.push(file);
+      fileMap.set(file.name, group);
+    });
     const attachmentMap = new Map(selectedAttachments.value.map(item => [item.url || item.id, item]));
     response?.files?.forEach(item => {
-      const attachment = buildAttachmentItem(
-        item.url || "",
-        item.name || "",
-        fileMap.get(buildFileIdentity(item.name || "", resolveUploadedFileSize(item)))
-      );
+      const matchedFile = fileMap.get(item.name || "")?.shift();
+      const attachment = buildAttachmentItem(item.url || "", item.name || "", matchedFile);
       attachmentMap.set(attachment.url || attachment.id, attachment);
     });
     selectedAttachments.value = Array.from(attachmentMap.values());
@@ -231,11 +232,6 @@ async function uploadAttachments(files: File[]) {
     uploading.value = false;
     resetFileInput();
   }
-}
-
-/** 为上传前后的文件建立稳定索引，避免同名不同文件互相覆盖。 */
-function buildFileIdentity(name: string, size: number) {
-  return `${name}-${size}`;
 }
 
 /** 根据文件后缀推断文件卡片类型，优先复用组件自带图标表现。 */
@@ -252,12 +248,6 @@ function resolveFileType(fileName: string): FilesType {
   if (["md", "markdown"].includes(extension)) return "mark";
   if (["txt", "log"].includes(extension)) return "txt";
   return "file";
-}
-
-/** 从上传返回对象中读取文件大小；当前后端未返回大小时退回 0。 */
-function resolveUploadedFileSize(file: FileInfo) {
-  void file;
-  return 0;
 }
 
 /** 根据上传结果构建附件展示项。 */

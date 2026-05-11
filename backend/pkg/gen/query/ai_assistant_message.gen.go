@@ -35,8 +35,6 @@ func newAiAssistantMessage(db *gorm.DB, opts ...gen.DOOption) aiAssistantMessage
 	_aiAssistantMessage.Content = field.NewString(tableName, "content")
 	_aiAssistantMessage.AttachmentsJSON = field.NewString(tableName, "attachments_json")
 	_aiAssistantMessage.ToolsJSON = field.NewString(tableName, "tools_json")
-	_aiAssistantMessage.ConfirmTitle = field.NewString(tableName, "confirm_title")
-	_aiAssistantMessage.ConfirmLinesJSON = field.NewString(tableName, "confirm_lines_json")
 	_aiAssistantMessage.TokenUsage = field.NewInt32(tableName, "token_usage")
 	_aiAssistantMessage.CreatedAt = field.NewTime(tableName, "created_at")
 	_aiAssistantMessage.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -51,21 +49,19 @@ func newAiAssistantMessage(db *gorm.DB, opts ...gen.DOOption) aiAssistantMessage
 type aiAssistantMessage struct {
 	aiAssistantMessageDo aiAssistantMessageDo
 
-	ALL              field.Asterisk
-	ID               field.Int64  // 消息ID
-	SessionID        field.Int64  // 会话ID
-	UserID           field.Int64  // 所属用户ID
-	Role             field.String // 消息角色:user/assistant/system
-	Kind             field.String // 消息类型:text/tool/confirm
-	Content          field.String // 消息正文
-	AttachmentsJSON  field.String // 附件JSON
-	ToolsJSON        field.String // 工具JSON
-	ConfirmTitle     field.String // 确认标题
-	ConfirmLinesJSON field.String // 确认信息JSON
-	TokenUsage       field.Int32  // 本次消息token消耗
-	CreatedAt        field.Time   // 创建时间
-	UpdatedAt        field.Time   // 更新时间
-	DeletedAt        field.Field  // 删除时间
+	ALL             field.Asterisk
+	ID              field.Int64  // 消息ID
+	SessionID       field.Int64  // 会话ID
+	UserID          field.Int64  // 所属用户ID
+	Role            field.String // 消息角色:user/assistant/system
+	Kind            field.String // 消息类型:text/tool/confirm
+	Content         field.String // 消息正文
+	AttachmentsJSON field.String // 附件JSON
+	ToolsJSON       field.String // 工具JSON
+	TokenUsage      field.Int32  // 本次消息token消耗
+	CreatedAt       field.Time   // 创建时间
+	UpdatedAt       field.Time   // 更新时间
+	DeletedAt       field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -90,8 +86,6 @@ func (a *aiAssistantMessage) updateTableName(table string) *aiAssistantMessage {
 	a.Content = field.NewString(table, "content")
 	a.AttachmentsJSON = field.NewString(table, "attachments_json")
 	a.ToolsJSON = field.NewString(table, "tools_json")
-	a.ConfirmTitle = field.NewString(table, "confirm_title")
-	a.ConfirmLinesJSON = field.NewString(table, "confirm_lines_json")
 	a.TokenUsage = field.NewInt32(table, "token_usage")
 	a.CreatedAt = field.NewTime(table, "created_at")
 	a.UpdatedAt = field.NewTime(table, "updated_at")
@@ -124,7 +118,7 @@ func (a *aiAssistantMessage) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *aiAssistantMessage) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 14)
+	a.fieldMap = make(map[string]field.Expr, 12)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["session_id"] = a.SessionID
 	a.fieldMap["user_id"] = a.UserID
@@ -133,8 +127,6 @@ func (a *aiAssistantMessage) fillFieldMap() {
 	a.fieldMap["content"] = a.Content
 	a.fieldMap["attachments_json"] = a.AttachmentsJSON
 	a.fieldMap["tools_json"] = a.ToolsJSON
-	a.fieldMap["confirm_title"] = a.ConfirmTitle
-	a.fieldMap["confirm_lines_json"] = a.ConfirmLinesJSON
 	a.fieldMap["token_usage"] = a.TokenUsage
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt

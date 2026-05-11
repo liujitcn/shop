@@ -2,8 +2,8 @@
   <aside class="agent-session-panel">
     <div class="agent-session-brand">
       <div class="agent-session-brand__main">
-        <Icon class="agent-session-brand__icon" />
         <div class="agent-session-brand__copy">
+          <div class="agent-session-brand__title">AI助手</div>
           <div class="agent-session-brand__desc">经营问答与辅助处理</div>
         </div>
       </div>
@@ -22,7 +22,13 @@
       @update:model-value="handleKeywordUpdate"
     />
     <div class="agent-divider"></div>
-    <div class="agent-panel-title">最近对话</div>
+    <div class="agent-panel-header">
+      <div class="agent-panel-title">最近对话</div>
+      <button class="agent-panel-create" type="button" aria-label="新建会话" @click="handleCreateSession">
+        <el-icon><Plus /></el-icon>
+        <span>新建</span>
+      </button>
+    </div>
     <Conversations
       v-model:active="activeID"
       class="agent-conversations"
@@ -64,10 +70,9 @@
 
 <script setup lang="ts" name="SessionPanel">
 import { computed } from "vue";
-import { DArrowLeft, Delete, EditPen, MoreFilled, Search } from "@element-plus/icons-vue";
+import { DArrowLeft, Delete, EditPen, MoreFilled, Plus, Search } from "@element-plus/icons-vue";
 import { Conversations } from "vue-element-plus-x";
 import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
-import Icon from "./Icon.vue";
 
 type SessionAction = "rename" | "delete";
 
@@ -93,6 +98,8 @@ const emit = defineEmits<{
   change: [item: SessionListItem];
   /** 会话操作菜单。 */
   action: [payload: { action: SessionAction; item: SessionListItem }];
+  /** 创建新的会话。 */
+  create: [];
   /** 收起会话栏。 */
   toggleCollapse: [];
 }>();
@@ -115,6 +122,11 @@ function handleSessionChange(item: SessionListItem) {
 /** 透传会话项操作，后续由父组件接入真实重命名和删除。 */
 function handleAction(action: SessionAction, item: SessionListItem) {
   emit("action", { action, item });
+}
+
+/** 通知父组件创建新的会话。 */
+function handleCreateSession() {
+  emit("create");
 }
 </script>
 
@@ -147,20 +159,23 @@ function handleAction(action: SessionAction, item: SessionListItem) {
 
 .agent-session-brand__main {
   display: flex;
-  gap: 14px;
   min-width: 0;
   align-items: center;
-}
-
-.agent-session-brand__icon {
-  flex: 0 0 auto;
 }
 
 .agent-session-brand__copy {
   min-width: 0;
 }
 
+.agent-session-brand__title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  color: var(--admin-page-text-primary);
+}
+
 .agent-session-brand__desc {
+  margin-top: 2px;
   font-size: 13px;
   font-weight: 600;
   line-height: 20px;
@@ -195,11 +210,40 @@ function handleAction(action: SessionAction, item: SessionListItem) {
   background: var(--el-border-color-lighter);
 }
 
-.agent-panel-title {
+.agent-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 18px 0 14px;
+}
+
+.agent-panel-title {
   font-size: 14px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
+}
+
+.agent-panel-create {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--el-color-primary);
+  cursor: pointer;
+  background: var(--el-color-primary-light-9);
+  border: 0;
+  border-radius: 999px;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover {
+    color: var(--el-color-primary-dark-2);
+    background: var(--el-color-primary-light-8);
+  }
 }
 
 .agent-divider {

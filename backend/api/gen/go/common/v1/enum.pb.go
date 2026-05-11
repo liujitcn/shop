@@ -1340,19 +1340,22 @@ func (RecommendEventType) EnumDescriptor() ([]byte, []int) {
 type SseStream int32
 
 const (
-	SseStream_SSE_STREAM_UNSPECIFIED SseStream = 0 // 未指定 SSE 流
-	SseStream_SSE_STREAM_ADMIN       SseStream = 1 // 管理后台 SSE 流
+	SseStream_SSE_STREAM_UNSPECIFIED        SseStream = 0 // 未指定 SSE 流
+	SseStream_SSE_STREAM_ADMIN_WORKSPACE    SseStream = 1 // 管理后台工作台 SSE 流
+	SseStream_SSE_STREAM_ADMIN_AI_ASSISTANT SseStream = 2 // 管理后台 AI 助手 SSE 流
 )
 
 // Enum value maps for SseStream.
 var (
 	SseStream_name = map[int32]string{
 		0: "SSE_STREAM_UNSPECIFIED",
-		1: "SSE_STREAM_ADMIN",
+		1: "SSE_STREAM_ADMIN_WORKSPACE",
+		2: "SSE_STREAM_ADMIN_AI_ASSISTANT",
 	}
 	SseStream_value = map[string]int32{
-		"SSE_STREAM_UNSPECIFIED": 0,
-		"SSE_STREAM_ADMIN":       1,
+		"SSE_STREAM_UNSPECIFIED":        0,
+		"SSE_STREAM_ADMIN_WORKSPACE":    1,
+		"SSE_STREAM_ADMIN_AI_ASSISTANT": 2,
 	}
 )
 
@@ -1387,8 +1390,11 @@ func (SseStream) EnumDescriptor() ([]byte, []int) {
 type SseEvent int32
 
 const (
-	SseEvent_SSE_EVENT_UNSPECIFIED  SseEvent = 0 // 未指定 SSE 事件
-	SseEvent_SSE_EVENT_PAGE_REFRESH SseEvent = 1 // 页面局部刷新事件
+	SseEvent_SSE_EVENT_UNSPECIFIED         SseEvent = 0 // 未指定 SSE 事件
+	SseEvent_SSE_EVENT_PAGE_REFRESH        SseEvent = 1 // 页面局部刷新事件
+	SseEvent_SSE_EVENT_AI_ASSISTANT_DELTA  SseEvent = 2 // AI 助手流式文本增量事件
+	SseEvent_SSE_EVENT_AI_ASSISTANT_FINISH SseEvent = 3 // AI 助手流式回复完成事件
+	SseEvent_SSE_EVENT_AI_ASSISTANT_ERROR  SseEvent = 4 // AI 助手流式回复异常事件
 )
 
 // Enum value maps for SseEvent.
@@ -1396,10 +1402,16 @@ var (
 	SseEvent_name = map[int32]string{
 		0: "SSE_EVENT_UNSPECIFIED",
 		1: "SSE_EVENT_PAGE_REFRESH",
+		2: "SSE_EVENT_AI_ASSISTANT_DELTA",
+		3: "SSE_EVENT_AI_ASSISTANT_FINISH",
+		4: "SSE_EVENT_AI_ASSISTANT_ERROR",
 	}
 	SseEvent_value = map[string]int32{
-		"SSE_EVENT_UNSPECIFIED":  0,
-		"SSE_EVENT_PAGE_REFRESH": 1,
+		"SSE_EVENT_UNSPECIFIED":         0,
+		"SSE_EVENT_PAGE_REFRESH":        1,
+		"SSE_EVENT_AI_ASSISTANT_DELTA":  2,
+		"SSE_EVENT_AI_ASSISTANT_FINISH": 3,
+		"SSE_EVENT_AI_ASSISTANT_ERROR":  4,
 	}
 )
 
@@ -2110,53 +2122,53 @@ func (ResourceType) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{38}
 }
 
-// MCP终端类型
-type McpTerminal int32
+// 终端类型
+type Terminal int32
 
 const (
-	McpTerminal_UNKNOWN_MCP_TERMINAL McpTerminal = 0 // 未知终端
-	McpTerminal_MCP_TERMINAL_APP     McpTerminal = 1 // 移动端
-	McpTerminal_MCP_TERMINAL_ADMIN   McpTerminal = 2 // 管理端
+	Terminal_TERMINAL_UNSPECIFIED Terminal = 0 // 未知终端
+	Terminal_TERMINAL_APP         Terminal = 1 // 移动端
+	Terminal_TERMINAL_ADMIN       Terminal = 2 // 管理端
 )
 
-// Enum value maps for McpTerminal.
+// Enum value maps for Terminal.
 var (
-	McpTerminal_name = map[int32]string{
-		0: "UNKNOWN_MCP_TERMINAL",
-		1: "MCP_TERMINAL_APP",
-		2: "MCP_TERMINAL_ADMIN",
+	Terminal_name = map[int32]string{
+		0: "TERMINAL_UNSPECIFIED",
+		1: "TERMINAL_APP",
+		2: "TERMINAL_ADMIN",
 	}
-	McpTerminal_value = map[string]int32{
-		"UNKNOWN_MCP_TERMINAL": 0,
-		"MCP_TERMINAL_APP":     1,
-		"MCP_TERMINAL_ADMIN":   2,
+	Terminal_value = map[string]int32{
+		"TERMINAL_UNSPECIFIED": 0,
+		"TERMINAL_APP":         1,
+		"TERMINAL_ADMIN":       2,
 	}
 )
 
-func (x McpTerminal) Enum() *McpTerminal {
-	p := new(McpTerminal)
+func (x Terminal) Enum() *Terminal {
+	p := new(Terminal)
 	*p = x
 	return p
 }
 
-func (x McpTerminal) String() string {
+func (x Terminal) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (McpTerminal) Descriptor() protoreflect.EnumDescriptor {
+func (Terminal) Descriptor() protoreflect.EnumDescriptor {
 	return file_common_v1_enum_proto_enumTypes[39].Descriptor()
 }
 
-func (McpTerminal) Type() protoreflect.EnumType {
+func (Terminal) Type() protoreflect.EnumType {
 	return &file_common_v1_enum_proto_enumTypes[39]
 }
 
-func (x McpTerminal) Number() protoreflect.EnumNumber {
+func (x Terminal) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use McpTerminal.Descriptor instead.
-func (McpTerminal) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use Terminal.Descriptor instead.
+func (Terminal) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{39}
 }
 
@@ -2314,13 +2326,17 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\aCOLLECT\x10\x04\x12\f\n" +
 	"\bADD_CART\x10\x05\x12\x10\n" +
 	"\fORDER_CREATE\x10\x06\x12\r\n" +
-	"\tORDER_PAY\x10\a*=\n" +
+	"\tORDER_PAY\x10\a*j\n" +
 	"\tSseStream\x12\x1a\n" +
-	"\x16SSE_STREAM_UNSPECIFIED\x10\x00\x12\x14\n" +
-	"\x10SSE_STREAM_ADMIN\x10\x01*A\n" +
+	"\x16SSE_STREAM_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aSSE_STREAM_ADMIN_WORKSPACE\x10\x01\x12!\n" +
+	"\x1dSSE_STREAM_ADMIN_AI_ASSISTANT\x10\x02*\xa8\x01\n" +
 	"\bSseEvent\x12\x19\n" +
 	"\x15SSE_EVENT_UNSPECIFIED\x10\x00\x12\x1a\n" +
-	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01*\xac\x02\n" +
+	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01\x12 \n" +
+	"\x1cSSE_EVENT_AI_ASSISTANT_DELTA\x10\x02\x12!\n" +
+	"\x1dSSE_EVENT_AI_ASSISTANT_FINISH\x10\x03\x12 \n" +
+	"\x1cSSE_EVENT_AI_ASSISTANT_ERROR\x10\x04*\xac\x02\n" +
 	"\x10SseRefreshTarget\x12\"\n" +
 	"\x1eSSE_REFRESH_TARGET_UNSPECIFIED\x10\x00\x12.\n" +
 	"*SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS\x10\x01\x12+\n" +
@@ -2387,11 +2403,11 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\fResourceType\x12\x0f\n" +
 	"\vTRANSACTION\x10\x00\x12\n" +
 	"\n" +
-	"\x06REFUND\x10\x01*U\n" +
-	"\vMcpTerminal\x12\x18\n" +
-	"\x14UNKNOWN_MCP_TERMINAL\x10\x00\x12\x14\n" +
-	"\x10MCP_TERMINAL_APP\x10\x01\x12\x16\n" +
-	"\x12MCP_TERMINAL_ADMIN\x10\x02B\x83\x01\n" +
+	"\x06REFUND\x10\x01*J\n" +
+	"\bTerminal\x12\x18\n" +
+	"\x14TERMINAL_UNSPECIFIED\x10\x00\x12\x10\n" +
+	"\fTERMINAL_APP\x10\x01\x12\x12\n" +
+	"\x0eTERMINAL_ADMIN\x10\x02B\x83\x01\n" +
 	"\rcom.common.v1B\tEnumProtoP\x01Z\"shop/api/gen/go/common/v1;commonv1\xa2\x02\x03CXX\xaa\x02\tCommon.V1\xca\x02\tCommon\\V1\xe2\x02\x15Common\\V1\\GPBMetadata\xea\x02\n" +
 	"Common::V1b\x06proto3"
 
@@ -2448,7 +2464,7 @@ var file_common_v1_enum_proto_goTypes = []any{
 	(CommentFilterType)(0),         // 36: common.v1.CommentFilterType
 	(CommentSortType)(0),           // 37: common.v1.CommentSortType
 	(ResourceType)(0),              // 38: common.v1.ResourceType
-	(McpTerminal)(0),               // 39: common.v1.McpTerminal
+	(Terminal)(0),                  // 39: common.v1.Terminal
 }
 var file_common_v1_enum_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

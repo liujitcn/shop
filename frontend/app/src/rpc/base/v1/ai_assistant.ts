@@ -5,13 +5,14 @@
 // source: base/v1/ai_assistant.proto
 
 /* eslint-disable */
+import type { Terminal } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 
 /** AI 助手会话列表查询条件 */
 export interface ListAiAssistantSessionsRequest {
-  /** 终端类型：admin/app */
-  terminal: string;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
 }
 
 /** AI 助手会话列表响应 */
@@ -26,8 +27,8 @@ export interface CreateAiAssistantSessionRequest {
   title: string;
   /** 会话场景 */
   scene: string;
-  /** 终端类型：admin/app */
-  terminal: string;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
 }
 
 /** AI 助手会话更新请求 */
@@ -64,31 +65,13 @@ export interface SendAiAssistantMessageRequest {
   content: string;
   /** 附件列表 */
   attachments: AiAssistantAttachment[];
+  /** 前端本地消息ID，用于流式回复关联 */
+  client_message_id: string;
 }
 
 /** AI 助手消息发送响应 */
 export interface SendAiAssistantMessageResponse {
   /** 新增消息列表 */
-  messages: AiAssistantMessage[];
-  /** 最新会话信息 */
-  session: AiAssistantSession | undefined;
-}
-
-/** AI 助手确认动作请求 */
-export interface OperateAiAssistantConfirmRequest {
-  /** 会话ID */
-  session_id: string;
-  /** 确认消息ID */
-  message_id: string;
-  /** 动作类型：approve/reject */
-  action: string;
-  /** 确认表单JSON */
-  form_json: string;
-}
-
-/** AI 助手确认动作响应 */
-export interface OperateAiAssistantConfirmResponse {
-  /** 本次更新后的消息列表 */
   messages: AiAssistantMessage[];
   /** 最新会话信息 */
   session: AiAssistantSession | undefined;
@@ -110,8 +93,8 @@ export interface AiAssistantSession {
   updated_at:
     | Timestamp
     | undefined;
-  /** 终端类型：admin/app */
-  terminal: string;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
 }
 
 /** AI 助手消息 */
@@ -126,17 +109,11 @@ export interface AiAssistantMessage {
   content: string;
   /** 附件列表 */
   attachments: AiAssistantAttachment[];
-  /** 工具列表 */
-  tools: AiAssistantTool[];
-  /** 确认标题 */
-  confirm_title: string;
-  /** 确认内容 */
-  confirm_lines: string[];
   /** 创建时间 */
   created_at:
     | Timestamp
     | undefined;
-  /** 回复来源：llm/fallback/tool */
+  /** 回复来源：llm/fallback */
   reply_source: string;
   /** 回复使用的模型名称 */
   model: string;
@@ -144,12 +121,6 @@ export interface AiAssistantMessage {
   fallback: boolean;
   /** 降级原因 */
   fallback_reason: string;
-  /** 确认动作编码 */
-  confirm_action: string;
-  /** 确认状态：pending/approved/rejected/failed */
-  confirm_status: string;
-  /** 确认状态摘要 */
-  confirm_summary: string;
 }
 
 /** AI 助手附件 */
@@ -166,22 +137,6 @@ export interface AiAssistantAttachment {
   mime_type: string;
 }
 
-/** AI 助手工具调用 */
-export interface AiAssistantTool {
-  /** 工具名称 */
-  name: string;
-  /** 耗时 */
-  elapsed: string;
-  /** 结果摘要 */
-  summary: string;
-  /** 执行状态：success/failed */
-  status: string;
-  /** 失败原因 */
-  error_message: string;
-  /** 入参摘要 */
-  input: string;
-}
-
 /** Base AI 助手服务 */
 export interface AiAssistantService {
   /** 查询 AI 助手会话列表 */
@@ -196,6 +151,4 @@ export interface AiAssistantService {
   ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse>;
   /** 发送 AI 助手消息 */
   SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse>;
-  /** 处理 AI 助手确认卡动作 */
-  OperateAiAssistantConfirm(request: OperateAiAssistantConfirmRequest): Promise<OperateAiAssistantConfirmResponse>;
 }

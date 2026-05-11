@@ -10,6 +10,7 @@ import (
 
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
+	"shop/pkg/agent/stream"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/workspaceevent"
@@ -49,15 +50,17 @@ func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator,
 	if cfg.Server.Sse != nil && cfg.Server.Sse.GetPath() != "" {
 		handler.path = cfg.Server.Sse.GetPath()
 	}
-	streamID := sseServer.StreamID(workspaceevent.StreamID(workspaceevent.StreamAdmin))
+	streamID := sseServer.StreamID(workspaceevent.StreamID(workspaceevent.StreamAdminWorkspace))
 	sseSrv.CreateStream(streamID)
 
 	handler.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !handler.isAuthorizedRequest(r) {
+		userToken, ok := handler.authorizeRequest(r)
+		if !ok {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
+		handler.rewriteStreamQuery(r, userToken.UserId)
 		sseSrv.ServeHTTP(w, r)
 	})
 	workspaceevent.SetPublisher(func(ctx context.Context, payload workspaceevent.RefreshPayload) error {
@@ -66,7 +69,7 @@ func NewSseCase(ctx *bootstrap.Context, authenticator authnEngine.Authenticator,
 		if err != nil {
 			return fmt.Errorf("marshal workspace refresh payload: %w", err)
 		}
-		sseSrv.Publish(ctx, sseServer.StreamID(workspaceevent.StreamID(workspaceevent.StreamAdmin)), &sseServer.Event{
+		sseSrv.Publish(ctx, sseServer.StreamID(workspaceevent.StreamID(workspaceevent.StreamAdminWorkspace)), &sseServer.Event{
 			Event: []byte(workspaceevent.EventID(workspaceevent.EventWorkspaceRefresh)),
 			Data:  data,
 		})
@@ -81,8 +84,8 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 		return nil, errorsx.Internal("SSE服务未初始化")
 	}
 	switch req.GetStream() {
-	// 当前仅支持管理后台工作台刷新流。
-	case commonv1.SseStream_SSE_STREAM_ADMIN:
+	// 当前支持管理后台工作台刷新流和 AI 助手流。
+	case commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE, commonv1.SseStream_SSE_STREAM_ADMIN_AI_ASSISTANT:
 	default:
 		return nil, errorsx.InvalidArgument("SSE流不支持")
 	}
@@ -110,15 +113,52 @@ func (h *SseCase) normalizeSubscribeRequest(r *http.Request, req *basev1.Subscri
 	urlCopy.RawPath = ""
 	query := urlCopy.Query()
 	if query.Get("stream") == "" {
-		query.Set("stream", strconv.FormatInt(int64(req.GetStream()), 10))
+		authInfo, err := h.authenticatorFromRequest(r)
+		if err == nil && authInfo != nil {
+			streamID := stream.ResolveAdminStreamID(req.GetStream(), authInfo.UserId)
+			if streamID != "" {
+				query.Set("stream", streamID)
+			}
+		}
+		if query.Get("stream") == "" {
+			query.Set("stream", strconv.FormatInt(int64(req.GetStream()), 10))
+		}
 	}
 	urlCopy.RawQuery = query.Encode()
 	clonedRequest.URL = &urlCopy
 	return clonedRequest
 }
 
-// isAuthorizedRequest 判断当前 SSE 请求是否来自后台登录用户。
-func (h *SseCase) isAuthorizedRequest(r *http.Request) bool {
+// rewriteStreamQuery 将通用 SSE 流标识改写为当前管理员可订阅的实际流标识。
+func (h *SseCase) rewriteStreamQuery(r *http.Request, userID int64) {
+	if r == nil || r.URL == nil || userID <= 0 {
+		return
+	}
+	rawStreamID := r.URL.Query().Get("stream")
+	streamID := stream.ParseAdminStream(rawStreamID, userID)
+	if strings.TrimSpace(streamID) == "" {
+		return
+	}
+	query := r.URL.Query()
+	query.Set("stream", streamID)
+	r.URL.RawQuery = query.Encode()
+}
+
+// authorizeRequest 判断当前 SSE 请求是否来自后台登录用户，并返回用户信息。
+func (h *SseCase) authorizeRequest(r *http.Request) (*authData.UserTokenPayload, bool) {
+	userToken, err := h.authenticatorFromRequest(r)
+	if err != nil || userToken == nil || userToken.UserId == 0 {
+		return nil, false
+	}
+	// 工作台只面向管理后台，商城端用户和游客令牌不能订阅后台刷新流。
+	if userToken.RoleCode == _const.BASE_ROLE_CODE_USER || userToken.RoleCode == _const.BASE_ROLE_CODE_GUEST {
+		return nil, false
+	}
+	return userToken, true
+}
+
+// authenticatorFromRequest 从 SSE 请求中解析并校验后台登录用户。
+func (h *SseCase) authenticatorFromRequest(r *http.Request) (*authData.UserTokenPayload, error) {
 	token := strings.TrimSpace(r.URL.Query().Get(sseAccessTokenQuery))
 	if token == "" {
 		token = strings.TrimSpace(r.URL.Query().Get(sseTokenQuery))
@@ -127,7 +167,7 @@ func (h *SseCase) isAuthorizedRequest(r *http.Request) bool {
 		token = strings.TrimSpace(r.Header.Get(authnEngine.HeaderAuthorize))
 	}
 	if token == "" {
-		return false
+		return nil, errorsx.Unauthenticated("SSE访问令牌为空")
 	}
 	if len(token) >= len(authnEngine.BearerWord)+1 && strings.EqualFold(token[:len(authnEngine.BearerWord)+1], authnEngine.BearerWord+" ") {
 		token = strings.TrimSpace(token[len(authnEngine.BearerWord)+1:])
@@ -135,16 +175,12 @@ func (h *SseCase) isAuthorizedRequest(r *http.Request) bool {
 
 	authClaims, err := h.authenticator.AuthenticateToken(token)
 	if err != nil || authClaims == nil {
-		return false
+		return nil, errorsx.Unauthenticated("SSE访问令牌无效").WithCause(err)
 	}
 	var userToken *authData.UserTokenPayload
 	userToken, err = authData.NewUserTokenPayloadWithClaims(authClaims)
 	if err != nil || userToken == nil || userToken.UserId == 0 {
-		return false
+		return nil, errorsx.Unauthenticated("SSE访问令牌无效").WithCause(err)
 	}
-	// 工作台只面向管理后台，商城端用户和游客令牌不能订阅后台刷新流。
-	if userToken.RoleCode == _const.BASE_ROLE_CODE_USER || userToken.RoleCode == _const.BASE_ROLE_CODE_GUEST {
-		return false
-	}
-	return true
+	return userToken, nil
 }
