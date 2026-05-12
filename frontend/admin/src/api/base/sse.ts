@@ -74,8 +74,7 @@ export class SseServiceImpl {
       return "";
     }
 
-    const url = new URL(SSE_URL, window.location.origin);
-    url.searchParams.set("stream", String(request.stream));
+    const url = new URL(`${SSE_URL}/${request.stream}`, window.location.origin);
     url.searchParams.set("access_token", token);
     return url.toString();
   }

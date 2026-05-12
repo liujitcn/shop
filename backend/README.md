@@ -65,7 +65,7 @@ go run ./internal/cmd/server -conf ./configs
 
 - HTTP：`http://localhost:7001`
 - gRPC：`localhost:6001`
-- SSE：`http://localhost:7001/events`
+- SSE：`http://localhost:7001/events/1`
 - Swagger UI：`http://localhost:7001/docs/`
 - OpenAPI：`http://localhost:7001/docs/openapi.yaml`
 
@@ -133,7 +133,7 @@ make gen
 - `session / state`：每个后台会话在服务端映射为独立的 Blades Session，当前终端、场景、用户名称、会话标题、摘要等状态会注入到 session state。
 - `memory`：附件中的文本内容会写入 Blades Memory，并通过内置 `Memory` 工具供助手在回答时检索。
 - `prompts`：AI 助手提示词来自商城配置 `prompt.ai_assistant`，并结合 session state 以模板形式渲染。
-- `runstream`：管理端 AI 助手通过 `/events` 上的 SSE 流推送增量文本，按后台用户隔离专属 stream，避免不同管理员之间互串回复内容。
+- `runstream`：管理端 AI 助手通过 `/events/{stream}` 上的 SSE 流推送增量文本，按后台用户隔离专属 stream，避免不同管理员之间互串回复内容。
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 

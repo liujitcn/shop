@@ -25,13 +25,16 @@ type SseServiceHTTPServer interface {
 
 func RegisterSseServiceHTTPServer(s *http.Server, srv SseServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/events", _SseService_SubscribeSse0_HTTP_Handler(srv))
+	r.GET("/events/{stream}", _SseService_SubscribeSse0_HTTP_Handler(srv))
 }
 
 func _SseService_SubscribeSse0_HTTP_Handler(srv SseServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in basev1.SubscribeSseRequest
 		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
 		http.SetOperation(ctx, OperationSseServiceSubscribeSse)

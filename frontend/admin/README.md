@@ -68,7 +68,7 @@ pnpm install
 
 ```text
 /api  -> http://localhost:7001
-/events -> http://localhost:7001
+/events/* -> http://localhost:7001
 /shop -> http://localhost:7001
 ```
 

@@ -104,7 +104,7 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 
 // normalizeSubscribeRequest 将路径参数中的流标识转换为 SSE 处理器使用的查询参数。
 func (h *SseCase) normalizeSubscribeRequest(r *http.Request, req *basev1.SubscribeSseRequest) *http.Request {
-	if r.URL.Query().Get("stream") != "" {
+	if r.URL.Query().Get("stream") != "" && r.URL.Path == h.path {
 		return r
 	}
 	clonedRequest := r.Clone(r.Context())
@@ -113,16 +113,7 @@ func (h *SseCase) normalizeSubscribeRequest(r *http.Request, req *basev1.Subscri
 	urlCopy.RawPath = ""
 	query := urlCopy.Query()
 	if query.Get("stream") == "" {
-		authInfo, err := h.authenticatorFromRequest(r)
-		if err == nil && authInfo != nil {
-			streamID := stream.ResolveAdminStreamID(req.GetStream(), authInfo.UserId)
-			if streamID != "" {
-				query.Set("stream", streamID)
-			}
-		}
-		if query.Get("stream") == "" {
-			query.Set("stream", strconv.FormatInt(int64(req.GetStream()), 10))
-		}
+		query.Set("stream", strconv.FormatInt(int64(req.GetStream()), 10))
 	}
 	urlCopy.RawQuery = query.Encode()
 	clonedRequest.URL = &urlCopy
