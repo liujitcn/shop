@@ -38,7 +38,7 @@ require (
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.5
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.7
 	github.com/liujitcn/kratos-kit/transport/sse v0.0.4
-	github.com/liujitcn/kratos-kit/utils v0.0.11
+	github.com/liujitcn/kratos-kit/utils v0.0.12
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
 	github.com/robfig/cron/v3 v3.0.1
@@ -215,5 +215,3 @@ require (
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect
 	gorm.io/plugin/prometheus v0.1.0 // indirect
 )
-
-replace github.com/liujitcn/kratos-kit/utils => ../../kratos-kit/utils

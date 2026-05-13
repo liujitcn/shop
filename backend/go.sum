@@ -411,6 +411,8 @@ github.com/liujitcn/kratos-kit/transport/mcp v0.0.7 h1:Q/iUbNOo4Wkb4w9MwC/qENY3A
 github.com/liujitcn/kratos-kit/transport/mcp v0.0.7/go.mod h1:aF8Lax4GXDpxu4O9aZAir5L7zWT4ogtjeqvL4dZThQ4=
 github.com/liujitcn/kratos-kit/transport/sse v0.0.4 h1:2mhNAChf+B6XEZK7XG6G0eB1n4w3SWqF0pb0w6TgqKc=
 github.com/liujitcn/kratos-kit/transport/sse v0.0.4/go.mod h1:kURAx/XvrA0D8YuyMPlHLYKx/wvJVvGcTopmZV5UwoA=
+github.com/liujitcn/kratos-kit/utils v0.0.12 h1:HuAMcpYYAGW8mj67SWfWX80Z2tOGobnKm/6SvbOnVBo=
+github.com/liujitcn/kratos-kit/utils v0.0.12/go.mod h1:3pVEM8HfVBjiEmkhNuNddob+3hTlJN2aMOc1gILfqVg=
 github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0/go.mod h1:zJYVVT2jmtg6P3p1VtQj7WsuWi/y4VnjVBn7F8KPB3I=
 github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a h1:N9zuLhTvBSRt0gWSiJswwQ2HqDmtX/ZCDJURnKUt1Ik=
 github.com/lufia/plan9stats v0.0.0-20230326075908-cb1d2100619a/go.mod h1:JKx41uQRwqlTZabZc+kILPrO/3jlKnQ2Z8b7YiVw5cE=
