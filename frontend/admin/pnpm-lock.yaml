@@ -14,6 +14,9 @@ importers:
       '@logicflow/core':
         specifier: ^2.2.1
         version: 2.2.1
+      '@microsoft/fetch-event-source':
+        specifier: ^2.0.1
+        version: 2.0.1
       '@vueuse/core':
         specifier: ^10.11.0
         version: 10.11.1(vue@3.5.31(typescript@5.5.4))
@@ -1101,6 +1104,9 @@ packages:
 
   '@logicflow/core@2.2.1':
     resolution: {integrity: sha512-VzLPrCrT4eXnOLjoGQ5v4GUSay3+6rd3YNZD0qOJw4vME5e4WjQ5fd+hKK2zlIzgdRI4D54dXiEFJrS6xdV6yQ==}
+
+  '@microsoft/fetch-event-source@2.0.1':
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3014,7 +3020,6 @@ packages:
   glob@11.1.0:
     resolution: {integrity: sha512-vuNwKSaKiqm7g0THUBu2x7ckSs3XJLXE+2ssL7/MfTGPLLcrJQ/4Uq1CjPTtO5cCIiRxqvN6Twy1qOwhL0Xjcw==}
     engines: {node: 20 || >=22}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@7.2.3:
@@ -6627,6 +6632,8 @@ snapshots:
       mousetrap: 1.6.5
       preact: 10.29.0
       uuid: 9.0.1
+
+  '@microsoft/fetch-event-source@2.0.1': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:

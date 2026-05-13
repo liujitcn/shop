@@ -55,22 +55,6 @@ func ResolveAdminStreamID(stream commonv1.SseStream, userID int64) string {
 	}
 }
 
-// ParseAdminStream 解析直接传入的 stream 查询参数。
-func ParseAdminStream(raw string, userID int64) string {
-	raw = strings.TrimSpace(raw)
-	if raw == "" {
-		return ""
-	}
-	if raw == AdminAssistantStreamID(userID) {
-		return raw
-	}
-	streamValue, err := strconv.ParseInt(raw, 10, 32)
-	if err != nil {
-		return raw
-	}
-	return ResolveAdminStreamID(commonv1.SseStream(streamValue), userID)
-}
-
 // PublishDelta 发布 AI 助手流式增量文本。
 func (p *Publisher) PublishDelta(ctx context.Context, userID int64, sessionID string, clientMessageID string, delta string) error {
 	if p == nil || p.sse == nil || strings.TrimSpace(delta) == "" {
@@ -115,14 +99,6 @@ func (p *Publisher) PublishError(ctx context.Context, userID int64, sessionID st
 	})
 }
 
-// EnsureAdminAssistantStream 确保后台用户的 AI 助手流已创建。
-func (p *Publisher) EnsureAdminAssistantStream(userID int64) {
-	if p == nil || p.sse == nil || userID <= 0 {
-		return
-	}
-	p.sse.CreateStream(sseServer.StreamID(AdminAssistantStreamID(userID)))
-}
-
 func (p *Publisher) publish(ctx context.Context, userID int64, event commonv1.SseEvent, payload Payload) error {
 	if userID <= 0 {
 		return nil
@@ -134,7 +110,6 @@ func (p *Publisher) publish(ctx context.Context, userID int64, event commonv1.Ss
 		return err
 	}
 	streamID := sseServer.StreamID(AdminAssistantStreamID(userID))
-	p.sse.CreateStream(streamID)
 	p.sse.Publish(ctx, streamID, &sseServer.Event{
 		Event: []byte(strconv.FormatInt(int64(event), 10)),
 		Data:  data,

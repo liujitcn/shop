@@ -37,7 +37,7 @@ require (
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.4
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.5
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.7
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.3
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.4
 	github.com/liujitcn/kratos-kit/utils v0.0.11
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0

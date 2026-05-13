@@ -194,10 +194,8 @@ func (c *AiAssistantCase) SendAiAssistantMessage(ctx context.Context, req *basev
 		return nil, err
 	}
 	clientMessageID := strings.TrimSpace(req.GetClientMessageId())
-	if c.streamPublisher != nil {
-		c.streamPublisher.EnsureAdminAssistantStream(session.UserID)
-	}
-	reply, err := c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, func(delta string) {
+	var reply *assistant.Response
+	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, func(delta string) {
 		if c.streamPublisher == nil {
 			return
 		}
@@ -281,14 +279,16 @@ func (c *AiAssistantCase) generateAiAssistantReply(
 			History:      history,
 			Attachments:  assistantAttachments,
 		}
+		var err error
+		var response *assistant.Response
 		if onDelta != nil {
-			response, err := c.assistantRuntime.RunStream(ctx, input, onDelta)
+			response, err = c.assistantRuntime.RunStream(ctx, input, onDelta)
 			if err == nil {
 				return response, nil
 			}
 			return c.buildAiAssistantFallbackResponse(session, content, attachments, err), nil
 		}
-		response, err := c.assistantRuntime.Run(ctx, input)
+		response, err = c.assistantRuntime.Run(ctx, input)
 		if err == nil {
 			return response, nil
 		}

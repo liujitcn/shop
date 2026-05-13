@@ -1,3 +1,4 @@
+import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@/rpc/base/v1/sse";
 import { SseEvent, SseRefreshReason, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
 import pinia from "@/stores";
@@ -43,17 +44,29 @@ export interface SseAiAssistantPayload {
 /** SSE 刷新事件处理函数。 */
 export type SseRefreshHandler = (payload: SseRefreshPayload) => void;
 
-/** SSE 订阅连接配置。 */
-export interface SubscribeSseOptions {
-  /** 是否携带跨域凭据。 */
-  withCredentials?: boolean;
+/** 同一条 SSE 流的共享连接记录。 */
+interface SharedSseConnection {
+  /** 关闭当前 SSE 连接。 */
+  close: () => void;
+  /** 已注册的事件监听器。 */
+  listeners: Map<string, Set<(message: EventSourceMessage) => void>>;
+  /** 当前流上已绑定的事件监听器数量。 */
+  refCount: number;
 }
+
+/** SSE 不可恢复异常。 */
+class SseFatalError extends Error {}
+
+/** SSE 可重试异常。 */
+class SseRetriableError extends Error {}
 
 /** Base SSE 服务。 */
 export class SseServiceImpl {
-  /** 创建 SSE 订阅连接。 */
-  SubscribeSse(request: SubscribeSseRequest, options?: SubscribeSseOptions): EventSource | null {
-    if (typeof window === "undefined" || typeof EventSource === "undefined") {
+  private readonly sharedConnections = new Map<string, SharedSseConnection>();
+
+  /** 创建或复用 SSE 订阅连接。 */
+  SubscribeSse(request: SubscribeSseRequest): SharedSseConnection | null {
+    if (typeof window === "undefined" || typeof AbortController === "undefined") {
       return null;
     }
 
@@ -62,28 +75,118 @@ export class SseServiceImpl {
       return null;
     }
 
-    return new EventSource(url, {
-      withCredentials: options?.withCredentials
-    });
+    const connectionKey = this.buildConnectionKey(request);
+    const cachedConnection = this.sharedConnections.get(connectionKey);
+    if (cachedConnection) {
+      return cachedConnection;
+    }
+
+    const controller = new AbortController();
+    const listeners = new Map<string, Set<(message: EventSourceMessage) => void>>();
+    const connection: SharedSseConnection = {
+      close: () => controller.abort(),
+      listeners,
+      refCount: 0
+    };
+    this.sharedConnections.set(connectionKey, connection);
+    void this.openFetchEventSource(connectionKey, url, controller, connection);
+    return connection;
+  }
+
+  /** 释放 SSE 共享连接。 */
+  ReleaseSse(request: SubscribeSseRequest) {
+    const connectionKey = this.buildConnectionKey(request);
+    const cachedConnection = this.sharedConnections.get(connectionKey);
+    if (!cachedConnection) {
+      return;
+    }
+    cachedConnection.refCount -= 1;
+    if (cachedConnection.refCount > 0) {
+      return;
+    }
+    cachedConnection.close();
+    this.sharedConnections.delete(connectionKey);
   }
 
   /** 构建 SSE 订阅地址。 */
   private buildSubscribeURL(request: SubscribeSseRequest) {
-    const token = this.getAccessToken();
-    if (!token) {
-      return "";
-    }
-
     const url = new URL(`${SSE_URL}/${request.stream}`, window.location.origin);
-    url.searchParams.set("access_token", token);
     return url.toString();
   }
 
-  /** 读取适配 EventSource 查询参数传递的访问令牌。 */
+  /** 构建 SSE 共享连接键。 */
+  private buildConnectionKey(request: SubscribeSseRequest) {
+    return String(request.stream);
+  }
+
+  /** 打开基于 fetch 的 SSE 长连接。 */
+  private async openFetchEventSource(
+    connectionKey: string,
+    url: string,
+    controller: AbortController,
+    connection: SharedSseConnection
+  ) {
+    const accessToken = this.getAccessToken();
+    if (!accessToken) {
+      this.sharedConnections.delete(connectionKey);
+      return;
+    }
+
+    try {
+      await fetchEventSource(url, {
+        method: "GET",
+        signal: controller.signal,
+        openWhenHidden: true,
+        headers: {
+          Accept: EventStreamContentType,
+          Authorization: accessToken
+        },
+        async onopen(response) {
+          const contentType = response.headers.get("content-type") ?? "";
+          if (response.ok && contentType.startsWith(EventStreamContentType)) {
+            return;
+          }
+          if (response.status === 401 || response.status === 403) {
+            throw new SseFatalError("SSE 认证已失效");
+          }
+          throw new SseRetriableError(`SSE 连接失败: ${response.status}`);
+        },
+        onmessage: message => {
+          const eventName = message.event || "";
+          if (!eventName) {
+            return;
+          }
+          const eventListeners = connection.listeners.get(eventName);
+          if (!eventListeners || eventListeners.size === 0) {
+            return;
+          }
+          eventListeners.forEach(listener => listener(message));
+        },
+        onclose: () => {
+          throw new SseRetriableError("SSE 连接已关闭");
+        },
+        onerror: error => {
+          if (controller.signal.aborted) {
+            return;
+          }
+          if (error instanceof SseFatalError) {
+            throw error;
+          }
+          return 1000;
+        }
+      });
+    } catch {
+      if (controller.signal.aborted) {
+        return;
+      }
+      this.sharedConnections.delete(connectionKey);
+    }
+  }
+
+  /** 读取请求头使用的访问令牌。 */
   private getAccessToken() {
     const userStore = useUserStore(pinia);
-    const value = userStore.token.trim();
-    return value.replace(/^Bearer\s+/i, "");
+    return userStore.token.trim();
   }
 }
 
@@ -131,20 +234,32 @@ export function subscribeSseEvent<T>(
   parser: (raw: string) => T | null,
   handler: (payload: T) => void
 ): SseStop {
-  const source = defSseService.SubscribeSse({ stream });
-  if (!source) return () => undefined;
+  const request = { stream };
+  const connection = defSseService.SubscribeSse(request);
+  if (!connection) return () => undefined;
 
-  const listener = (message: MessageEvent<string>) => {
+  connection.refCount += 1;
+  const eventName = toSseEventName(event);
+  let eventListeners = connection.listeners.get(eventName);
+  if (!eventListeners) {
+    eventListeners = new Set();
+    connection.listeners.set(eventName, eventListeners);
+  }
+
+  const listener = (message: EventSourceMessage) => {
     const payload = parser(message.data);
     if (!payload) return;
     handler(payload);
   };
-  const eventName = toSseEventName(event);
-  source.addEventListener(eventName, listener);
+  eventListeners.add(listener);
 
   return () => {
-    source.removeEventListener(eventName, listener);
-    source.close();
+    const currentListeners = connection.listeners.get(eventName);
+    currentListeners?.delete(listener);
+    if (currentListeners && currentListeners.size === 0) {
+      connection.listeners.delete(eventName);
+    }
+    defSseService.ReleaseSse(request);
   };
 }
 
