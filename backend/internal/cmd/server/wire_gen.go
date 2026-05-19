@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/agent/assistant"
 	"shop/pkg/agent/comment"
 	"shop/pkg/agent/provider"
@@ -27,17 +34,10 @@ import (
 	biz4 "shop/service/app/biz"
 	"shop/service/base"
 	biz3 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -384,7 +384,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	aiAssistantService := base.NewAiAssistantService(aiAssistantSessionCase, aiAssistantMessageCase)
 	aiAssistantMessageService := base.NewAiAssistantMessageService(aiAssistantMessageCase)
 	imageClient := provider.NewImageClient(client_Llm)
-	aiImageCase := biz3.NewAiImageCase(imageClient, chatClient, ossOSS)
+	aiImageRepository := data.NewAiImageRepository(dataData)
+	aiImageCase := biz3.NewAiImageCase(baseCase, imageClient, chatClient, ossOSS, aiImageRepository)
 	aiImageService := base.NewAiImageService(aiImageCase)
 	configCase := biz3.NewConfigCase(baseConfigRepository)
 	configService := base.NewConfigService(configCase)

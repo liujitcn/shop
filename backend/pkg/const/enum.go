@@ -35,6 +35,19 @@ const (
 )
 
 const (
+	// AI_IMAGE_STATUS_PENDING 表示 AI 图片已创建，等待队列消费。
+	AI_IMAGE_STATUS_PENDING = int32(1)
+	// AI_IMAGE_STATUS_RUNNING 表示 AI 图片正在调用模型生成。
+	AI_IMAGE_STATUS_RUNNING = int32(2)
+	// AI_IMAGE_STATUS_SUCCESS 表示 AI 图片已成功生成。
+	AI_IMAGE_STATUS_SUCCESS = int32(3)
+	// AI_IMAGE_STATUS_FAILED 表示 AI 图片生成失败。
+	AI_IMAGE_STATUS_FAILED = int32(4)
+	// AI_IMAGE_STATUS_TIMEOUT 表示 AI 图片生成超时。
+	AI_IMAGE_STATUS_TIMEOUT = int32(5)
+)
+
+const (
 	// BASE_MENU_TYPE_FOLDER 表示目录节点，仅用于组织菜单层级，不直接承载具体页面。
 	BASE_MENU_TYPE_FOLDER = int32(commonv1.BaseMenuType_FOLDER)
 	// BASE_MENU_TYPE_MENU 表示菜单节点，通常对应一个可访问的后台页面或路由。

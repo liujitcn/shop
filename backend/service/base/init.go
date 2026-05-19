@@ -1,6 +1,7 @@
 package base
 
 import (
+	"shop/pkg/gen/data"
 	"shop/service/base/biz"
 
 	"github.com/google/wire"
@@ -11,6 +12,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewAiAssistantSessionCase,
 	biz.NewAiAssistantMessageCase,
 	biz.NewAiImageCase,
+	data.NewAiImageRepository,
 	biz.NewBaseDeptCase,
 	biz.NewBaseRoleCase,
 	biz.NewBaseUserCase,

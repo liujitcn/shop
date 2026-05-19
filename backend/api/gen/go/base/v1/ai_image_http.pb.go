@@ -8,7 +8,6 @@ package basev1
 
 import (
 	context "context"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 )
@@ -20,40 +19,118 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationAiImageServiceGenerateAiImage = "/base.v1.AiImageService/GenerateAiImage"
+const OperationAiImageServiceCreateAiImageTask = "/base.v1.AiImageService/CreateAiImageTask"
+const OperationAiImageServiceGetAiImageTask = "/base.v1.AiImageService/GetAiImageTask"
+const OperationAiImageServicePageAiImageTasks = "/base.v1.AiImageService/PageAiImageTasks"
 const OperationAiImageServicePolishAiImagePrompt = "/base.v1.AiImageService/PolishAiImagePrompt"
+const OperationAiImageServiceRetryAiImageTask = "/base.v1.AiImageService/RetryAiImageTask"
 
 type AiImageServiceHTTPServer interface {
-	// GenerateAiImage 生成 AI 图片
-	GenerateAiImage(context.Context, *GenerateAiImageRequest) (*GenerateAiImageResponse, error)
+	// CreateAiImageTask 创建 AI 图片
+	CreateAiImageTask(context.Context, *CreateAiImageTaskRequest) (*AiImageTask, error)
+	// GetAiImageTask 查询 AI 图片
+	GetAiImageTask(context.Context, *GetAiImageTaskRequest) (*AiImageTask, error)
+	// PageAiImageTasks 分页查询 AI 图片
+	PageAiImageTasks(context.Context, *PageAiImageTasksRequest) (*PageAiImageTasksResponse, error)
 	// PolishAiImagePrompt 润色 AI 图片提示词
 	PolishAiImagePrompt(context.Context, *PolishAiImagePromptRequest) (*PolishAiImagePromptResponse, error)
+	// RetryAiImageTask 重试 AI 图片生成
+	RetryAiImageTask(context.Context, *RetryAiImageTaskRequest) (*AiImageTask, error)
 }
 
 func RegisterAiImageServiceHTTPServer(s *http.Server, srv AiImageServiceHTTPServer) {
 	r := s.Route("/")
-	r.POST("/api/v1/base/ai/image/generation", _AiImageService_GenerateAiImage0_HTTP_Handler(srv))
+	r.GET("/api/v1/base/ai/image/task", _AiImageService_PageAiImageTasks0_HTTP_Handler(srv))
+	r.GET("/api/v1/base/ai/image/task/{id}", _AiImageService_GetAiImageTask0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/image/task", _AiImageService_CreateAiImageTask0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/image/task/{id}/retry", _AiImageService_RetryAiImageTask0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/image/prompt/polish", _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv))
 }
 
-func _AiImageService_GenerateAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+func _AiImageService_PageAiImageTasks0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GenerateAiImageRequest
+		var in PageAiImageTasksRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiImageServicePageAiImageTasks)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.PageAiImageTasks(ctx, req.(*PageAiImageTasksRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*PageAiImageTasksResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiImageService_GetAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetAiImageTaskRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiImageServiceGetAiImageTask)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetAiImageTask(ctx, req.(*GetAiImageTaskRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AiImageTask)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiImageService_CreateAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateAiImageTaskRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiImageServiceGenerateAiImage)
+		http.SetOperation(ctx, OperationAiImageServiceCreateAiImageTask)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GenerateAiImage(ctx, req.(*GenerateAiImageRequest))
+			return srv.CreateAiImageTask(ctx, req.(*CreateAiImageTaskRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GenerateAiImageResponse)
+		reply := out.(*AiImageTask)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiImageService_RetryAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RetryAiImageTaskRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiImageServiceRetryAiImageTask)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RetryAiImageTask(ctx, req.(*RetryAiImageTaskRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AiImageTask)
 		return ctx.Result(200, reply)
 	}
 }
@@ -81,10 +158,16 @@ func _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv AiImageServiceHTTPSer
 }
 
 type AiImageServiceHTTPClient interface {
-	// GenerateAiImage 生成 AI 图片
-	GenerateAiImage(ctx context.Context, req *GenerateAiImageRequest, opts ...http.CallOption) (rsp *GenerateAiImageResponse, err error)
+	// CreateAiImageTask 创建 AI 图片
+	CreateAiImageTask(ctx context.Context, req *CreateAiImageTaskRequest, opts ...http.CallOption) (rsp *AiImageTask, err error)
+	// GetAiImageTask 查询 AI 图片
+	GetAiImageTask(ctx context.Context, req *GetAiImageTaskRequest, opts ...http.CallOption) (rsp *AiImageTask, err error)
+	// PageAiImageTasks 分页查询 AI 图片
+	PageAiImageTasks(ctx context.Context, req *PageAiImageTasksRequest, opts ...http.CallOption) (rsp *PageAiImageTasksResponse, err error)
 	// PolishAiImagePrompt 润色 AI 图片提示词
 	PolishAiImagePrompt(ctx context.Context, req *PolishAiImagePromptRequest, opts ...http.CallOption) (rsp *PolishAiImagePromptResponse, err error)
+	// RetryAiImageTask 重试 AI 图片生成
+	RetryAiImageTask(ctx context.Context, req *RetryAiImageTaskRequest, opts ...http.CallOption) (rsp *AiImageTask, err error)
 }
 
 type AiImageServiceHTTPClientImpl struct {
@@ -95,14 +178,42 @@ func NewAiImageServiceHTTPClient(client *http.Client) AiImageServiceHTTPClient {
 	return &AiImageServiceHTTPClientImpl{client}
 }
 
-// GenerateAiImage 生成 AI 图片
-func (c *AiImageServiceHTTPClientImpl) GenerateAiImage(ctx context.Context, in *GenerateAiImageRequest, opts ...http.CallOption) (*GenerateAiImageResponse, error) {
-	var out GenerateAiImageResponse
-	pattern := "/api/v1/base/ai/image/generation"
+// CreateAiImageTask 创建 AI 图片
+func (c *AiImageServiceHTTPClientImpl) CreateAiImageTask(ctx context.Context, in *CreateAiImageTaskRequest, opts ...http.CallOption) (*AiImageTask, error) {
+	var out AiImageTask
+	pattern := "/api/v1/base/ai/image/task"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAiImageServiceGenerateAiImage))
+	opts = append(opts, http.Operation(OperationAiImageServiceCreateAiImageTask))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetAiImageTask 查询 AI 图片
+func (c *AiImageServiceHTTPClientImpl) GetAiImageTask(ctx context.Context, in *GetAiImageTaskRequest, opts ...http.CallOption) (*AiImageTask, error) {
+	var out AiImageTask
+	pattern := "/api/v1/base/ai/image/task/{id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAiImageServiceGetAiImageTask))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// PageAiImageTasks 分页查询 AI 图片
+func (c *AiImageServiceHTTPClientImpl) PageAiImageTasks(ctx context.Context, in *PageAiImageTasksRequest, opts ...http.CallOption) (*PageAiImageTasksResponse, error) {
+	var out PageAiImageTasksResponse
+	pattern := "/api/v1/base/ai/image/task"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAiImageServicePageAiImageTasks))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +226,20 @@ func (c *AiImageServiceHTTPClientImpl) PolishAiImagePrompt(ctx context.Context, 
 	pattern := "/api/v1/base/ai/image/prompt/polish"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAiImageServicePolishAiImagePrompt))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RetryAiImageTask 重试 AI 图片生成
+func (c *AiImageServiceHTTPClientImpl) RetryAiImageTask(ctx context.Context, in *RetryAiImageTaskRequest, opts ...http.CallOption) (*AiImageTask, error) {
+	var out AiImageTask
+	pattern := "/api/v1/base/ai/image/task/{id}/retry"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAiImageServiceRetryAiImageTask))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

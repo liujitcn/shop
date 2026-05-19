@@ -17,6 +17,7 @@ func init() {
 	databaseGorm.RegisterMigrateModels(
 		new(models.AiAssistantMessage),
 		new(models.AiAssistantSession),
+		new(models.AiImage),
 		new(models.BaseAPI),
 		new(models.BaseArea),
 		new(models.BaseConfig),

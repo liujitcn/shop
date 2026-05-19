@@ -8,29 +8,94 @@ package basev1
 
 import (
 	context "context"
-
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 // RegisterAiImageServiceMCPTools 注册Base AI 图片服务的 MCP Tool。
 func RegisterAiImageServiceMCPTools(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
-	RegisterAiImageServiceGenerateAiImageMCPTool(mcpServer, aiImageServiceServer)
+	RegisterAiImageServicePageAiImageTasksMCPTool(mcpServer, aiImageServiceServer)
+	RegisterAiImageServiceGetAiImageTaskMCPTool(mcpServer, aiImageServiceServer)
+	RegisterAiImageServiceCreateAiImageTaskMCPTool(mcpServer, aiImageServiceServer)
+	RegisterAiImageServiceRetryAiImageTaskMCPTool(mcpServer, aiImageServiceServer)
 	RegisterAiImageServicePolishAiImagePromptMCPTool(mcpServer, aiImageServiceServer)
 }
 
-// RegisterAiImageServiceGenerateAiImageMCPTool 注册生成 AI 图片的 MCP Tool。
-func RegisterAiImageServiceGenerateAiImageMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
-	mcp.AddTool[*GenerateAiImageRequest, *GenerateAiImageResponse](
+// RegisterAiImageServicePageAiImageTasksMCPTool 注册分页查询 AI 图片的 MCP Tool。
+func RegisterAiImageServicePageAiImageTasksMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
+	mcp.AddTool[*PageAiImageTasksRequest, *PageAiImageTasksResponse](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "base_v1_ai_image_service_generate_ai_image",
-			Description: "生成 AI 图片",
+			Name:        "base_v1_ai_image_service_page_ai_image_tasks",
+			Description: "分页查询 AI 图片",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *GenerateAiImageRequest) (*mcp.CallToolResult, *GenerateAiImageResponse, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *PageAiImageTasksRequest) (*mcp.CallToolResult, *PageAiImageTasksResponse, error) {
 			if input == nil {
-				input = &GenerateAiImageRequest{}
+				input = &PageAiImageTasksRequest{}
 			}
-			reply, err := aiImageServiceServer.GenerateAiImage(ctx, input)
+			reply, err := aiImageServiceServer.PageAiImageTasks(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiImageServiceGetAiImageTaskMCPTool 注册查询 AI 图片的 MCP Tool。
+func RegisterAiImageServiceGetAiImageTaskMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
+	mcp.AddTool[*GetAiImageTaskRequest, *AiImageTask](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_ai_image_service_get_ai_image_task",
+			Description: "查询 AI 图片",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GetAiImageTaskRequest) (*mcp.CallToolResult, *AiImageTask, error) {
+			if input == nil {
+				input = &GetAiImageTaskRequest{}
+			}
+			reply, err := aiImageServiceServer.GetAiImageTask(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiImageServiceCreateAiImageTaskMCPTool 注册创建 AI 图片的 MCP Tool。
+func RegisterAiImageServiceCreateAiImageTaskMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
+	mcp.AddTool[*CreateAiImageTaskRequest, *AiImageTask](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_ai_image_service_create_ai_image_task",
+			Description: "创建 AI 图片",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiImageTaskRequest) (*mcp.CallToolResult, *AiImageTask, error) {
+			if input == nil {
+				input = &CreateAiImageTaskRequest{}
+			}
+			reply, err := aiImageServiceServer.CreateAiImageTask(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiImageServiceRetryAiImageTaskMCPTool 注册重试 AI 图片生成的 MCP Tool。
+func RegisterAiImageServiceRetryAiImageTaskMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
+	mcp.AddTool[*RetryAiImageTaskRequest, *AiImageTask](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_ai_image_service_retry_ai_image_task",
+			Description: "重试 AI 图片生成",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryAiImageTaskRequest) (*mcp.CallToolResult, *AiImageTask, error) {
+			if input == nil {
+				input = &RetryAiImageTaskRequest{}
+			}
+			reply, err := aiImageServiceServer.RetryAiImageTask(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

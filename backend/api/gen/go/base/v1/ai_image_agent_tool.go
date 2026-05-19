@@ -8,7 +8,6 @@ package basev1
 
 import (
 	context "context"
-
 	tools "github.com/go-kratos/blades/tools"
 )
 
@@ -16,12 +15,30 @@ import (
 func NewAiImageServiceAgentTools(aiImageServiceServer AiImageServiceServer) ([]tools.Tool, error) {
 	var ts []tools.Tool
 	var err error
-	var generateAiImageTool tools.Tool
-	generateAiImageTool, err = NewAiImageServiceGenerateAiImageAgentTool(aiImageServiceServer)
+	var pageAiImageTasksTool tools.Tool
+	pageAiImageTasksTool, err = NewAiImageServicePageAiImageTasksAgentTool(aiImageServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, generateAiImageTool)
+	ts = append(ts, pageAiImageTasksTool)
+	var getAiImageTaskTool tools.Tool
+	getAiImageTaskTool, err = NewAiImageServiceGetAiImageTaskAgentTool(aiImageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, getAiImageTaskTool)
+	var createAiImageTaskTool tools.Tool
+	createAiImageTaskTool, err = NewAiImageServiceCreateAiImageTaskAgentTool(aiImageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createAiImageTaskTool)
+	var retryAiImageTaskTool tools.Tool
+	retryAiImageTaskTool, err = NewAiImageServiceRetryAiImageTaskAgentTool(aiImageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, retryAiImageTaskTool)
 	var polishAiImagePromptTool tools.Tool
 	polishAiImagePromptTool, err = NewAiImageServicePolishAiImagePromptAgentTool(aiImageServiceServer)
 	if err != nil {
@@ -31,16 +48,58 @@ func NewAiImageServiceAgentTools(aiImageServiceServer AiImageServiceServer) ([]t
 	return ts, nil
 }
 
-// NewAiImageServiceGenerateAiImageAgentTool 创建生成 AI 图片的 Agent Tool。
-func NewAiImageServiceGenerateAiImageAgentTool(aiImageServiceServer AiImageServiceServer) (tools.Tool, error) {
+// NewAiImageServicePageAiImageTasksAgentTool 创建分页查询 AI 图片的 Agent Tool。
+func NewAiImageServicePageAiImageTasksAgentTool(aiImageServiceServer AiImageServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
-		"base_v1_ai_image_service_generate_ai_image",
-		"生成 AI 图片",
-		func(ctx context.Context, req *GenerateAiImageRequest) (*GenerateAiImageResponse, error) {
+		"base_v1_ai_image_service_page_ai_image_tasks",
+		"分页查询 AI 图片",
+		func(ctx context.Context, req *PageAiImageTasksRequest) (*PageAiImageTasksResponse, error) {
 			if req == nil {
-				req = &GenerateAiImageRequest{}
+				req = &PageAiImageTasksRequest{}
 			}
-			return aiImageServiceServer.GenerateAiImage(ctx, req)
+			return aiImageServiceServer.PageAiImageTasks(ctx, req)
+		},
+	)
+}
+
+// NewAiImageServiceGetAiImageTaskAgentTool 创建查询 AI 图片的 Agent Tool。
+func NewAiImageServiceGetAiImageTaskAgentTool(aiImageServiceServer AiImageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_image_service_get_ai_image_task",
+		"查询 AI 图片",
+		func(ctx context.Context, req *GetAiImageTaskRequest) (*AiImageTask, error) {
+			if req == nil {
+				req = &GetAiImageTaskRequest{}
+			}
+			return aiImageServiceServer.GetAiImageTask(ctx, req)
+		},
+	)
+}
+
+// NewAiImageServiceCreateAiImageTaskAgentTool 创建创建 AI 图片的 Agent Tool。
+func NewAiImageServiceCreateAiImageTaskAgentTool(aiImageServiceServer AiImageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_image_service_create_ai_image_task",
+		"创建 AI 图片",
+		func(ctx context.Context, req *CreateAiImageTaskRequest) (*AiImageTask, error) {
+			if req == nil {
+				req = &CreateAiImageTaskRequest{}
+			}
+			return aiImageServiceServer.CreateAiImageTask(ctx, req)
+		},
+	)
+}
+
+// NewAiImageServiceRetryAiImageTaskAgentTool 创建重试 AI 图片生成的 Agent Tool。
+func NewAiImageServiceRetryAiImageTaskAgentTool(aiImageServiceServer AiImageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_image_service_retry_ai_image_task",
+		"重试 AI 图片生成",
+		func(ctx context.Context, req *RetryAiImageTaskRequest) (*AiImageTask, error) {
+			if req == nil {
+				req = &RetryAiImageTaskRequest{}
+			}
+			return aiImageServiceServer.RetryAiImageTask(ctx, req)
 		},
 	)
 }

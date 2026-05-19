@@ -141,9 +141,9 @@ make gen
 
 AI 助手默认使用 `pkg/agent/provider` 内的 OpenAI Responses Provider，并启用 OpenAI 内置 `web_search` 工具；这类模式适合回答新闻、天气、金价、行情等强实时问题。该能力要求配置的 `baseUrl` 支持 OpenAI Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
 
-AI 图片生成接口位于 `/api/v1/base/ai/image/generation`，通过 `pkg/agent/provider.ImageClient` 复用 `github.com/go-kratos/blades/contrib/openai` 的图片生成 Provider。接口会返回 `request_id` 生成批次编号；保存到 OSS 时目录为 `/shop/ai/images/{yyyy/mm/dd}/{request_id}`，图片结果会返回 `storage_path` 便于追溯素材来源。提示词润色接口位于 `/api/v1/base/ai/image/prompt/polish`，复用 `client.llm` 对话模型把用户输入整理成更适合文生图的中文提示词。
+AI 图片生成已改为异步队列模式，资源接口位于 `/api/v1/base/ai/image/task`：列表使用 `GET /task`，详情使用 `GET /task/{id}`，创建使用 `POST /task`，失败或超时后可通过 `POST /task/{id}/retry` 重新投递队列。创建记录会先写入 `ai_image`，再投递 `ai_image_generate_queue` 后台生成；调用模型的参数快照会保存到 `params_json`，不保存密钥等敏感配置。生成状态为 `1` 待处理、`2` 生成中、`3` 成功、`4` 失败、`5` 超时。
 
-AI 图片记录建议落到独立 `ai_image` 表，字段应覆盖 `request_id`、`user_id`、原始提示词、实际提示词、模型参数、`revised_prompt`、图片 URL、`storage_path`、MIME 类型、字节大小、生成时间与软删除字段。当前开发环境数据库未连通时不要手写 `pkg/gen` 产物；恢复连接后先把表结构落到 `shop_test`，再执行 `make gorm-gen` 生成仓储并接入历史列表。
+图片生成仍通过 `pkg/agent/provider.ImageClient` 复用 `github.com/go-kratos/blades/contrib/openai` 的图片生成 Provider。生成成功后会回写 `request_id` 批次编号与 `image_urls_json` 图片结果；保存到 OSS 时目录为 `/shop/ai/images/{yyyy/mm/dd}/{request_id}`，图片结果会返回 `storage_path` 便于追溯素材来源。提示词润色接口仍位于 `/api/v1/base/ai/image/prompt/polish`，复用 `client.llm` 对话模型把用户输入整理成更适合文生图的中文提示词。
 
 ## MCP 工具暴露
 

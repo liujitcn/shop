@@ -5,9 +5,41 @@
 // source: base/v1/ai_image.proto
 
 /* eslint-disable */
+import type { Terminal } from "../../common/v1/enum";
+import type { Timestamp } from "../../google/protobuf/timestamp";
 
-/** AI 图片生成请求 */
-export interface GenerateAiImageRequest {
+/** AI 图片分页查询条件 */
+export interface PageAiImageTasksRequest {
+  /** 生成状态：1待处理，2生成中，3成功，4失败，5超时 */
+  status?:
+    | number
+    | undefined;
+  /** 关键词，匹配提示词或批次编号 */
+  keyword: string;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
+  /** 当前页码 */
+  page_num: number;
+  /** 每一页的行数 */
+  page_size: number;
+}
+
+/** AI 图片分页响应 */
+export interface PageAiImageTasksResponse {
+  /** AI 图片列表 */
+  tasks: AiImageTask[];
+  /** 总数 */
+  total: number;
+}
+
+/** AI 图片详情查询条件 */
+export interface GetAiImageTaskRequest {
+  /** 图片ID */
+  id: string;
+}
+
+/** AI 图片创建请求 */
+export interface CreateAiImageTaskRequest {
   /** 图片生成提示词 */
   prompt: string;
   /** 图片模型名称 */
@@ -30,6 +62,14 @@ export interface GenerateAiImageRequest {
   save_output: boolean;
   /** 是否先润色提示词再生成 */
   polish_prompt: boolean;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
+}
+
+/** AI 图片重试请求 */
+export interface RetryAiImageTaskRequest {
+  /** 图片ID */
+  id: string;
 }
 
 /** AI 图片提示词润色请求 */
@@ -50,20 +90,62 @@ export interface PolishAiImagePromptResponse {
   model: string;
 }
 
-/** AI 图片生成响应 */
-export interface GenerateAiImageResponse {
-  /** 图片列表 */
-  images: AiImage[];
-  /** 图片模型名称 */
-  model: string;
+/** AI 图片生成记录 */
+export interface AiImageTask {
+  /** 图片ID */
+  id: string;
   /** 图片生成提示词 */
   prompt: string;
-  /** 模型生成时间戳 */
-  created: number;
-  /** 生成批次编号 */
-  request_id: string;
   /** 原始图片提示词 */
   original_prompt: string;
+  /** 图片模型名称 */
+  model: string;
+  /** 图片尺寸 */
+  size: string;
+  /** 图片质量 */
+  quality: string;
+  /** 图片风格 */
+  style: string;
+  /** 背景模式 */
+  background: string;
+  /** 输出格式 */
+  output_format: string;
+  /** 响应格式 */
+  response_format: string;
+  /** 生成数量 */
+  n: number;
+  /** 是否保存生成图片到对象存储 */
+  save_output: boolean;
+  /** 是否先润色提示词再生成 */
+  polish_prompt: boolean;
+  /** 生成状态：1待处理，2生成中，3成功，4失败，5超时 */
+  status: number;
+  /** 图片列表 */
+  images: AiImage[];
+  /** 失败或超时原因 */
+  error_message: string;
+  /** 已重试次数 */
+  retry_count: number;
+  /** 生成批次编号 */
+  request_id: string;
+  /** 模型生成时间戳 */
+  created: number;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
+  /** 开始生成时间 */
+  started_at:
+    | Timestamp
+    | undefined;
+  /** 生成结束时间 */
+  finished_at:
+    | Timestamp
+    | undefined;
+  /** 创建时间 */
+  created_at:
+    | Timestamp
+    | undefined;
+  /** 更新时间 */
+  updated_at: Timestamp | undefined;
 }
 
 /** AI 图片结果 */
@@ -88,8 +170,14 @@ export interface AiImage {
 
 /** Base AI 图片服务 */
 export interface AiImageService {
-  /** 生成 AI 图片 */
-  GenerateAiImage(request: GenerateAiImageRequest): Promise<GenerateAiImageResponse>;
+  /** 分页查询 AI 图片 */
+  PageAiImageTasks(request: PageAiImageTasksRequest): Promise<PageAiImageTasksResponse>;
+  /** 查询 AI 图片 */
+  GetAiImageTask(request: GetAiImageTaskRequest): Promise<AiImageTask>;
+  /** 创建 AI 图片 */
+  CreateAiImageTask(request: CreateAiImageTaskRequest): Promise<AiImageTask>;
+  /** 重试 AI 图片生成 */
+  RetryAiImageTask(request: RetryAiImageTaskRequest): Promise<AiImageTask>;
   /** 润色 AI 图片提示词 */
   PolishAiImagePrompt(request: PolishAiImagePromptRequest): Promise<PolishAiImagePromptResponse>;
 }

@@ -8,7 +8,6 @@ package basev1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,7 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiImageService_GenerateAiImage_FullMethodName     = "/base.v1.AiImageService/GenerateAiImage"
+	AiImageService_PageAiImageTasks_FullMethodName    = "/base.v1.AiImageService/PageAiImageTasks"
+	AiImageService_GetAiImageTask_FullMethodName      = "/base.v1.AiImageService/GetAiImageTask"
+	AiImageService_CreateAiImageTask_FullMethodName   = "/base.v1.AiImageService/CreateAiImageTask"
+	AiImageService_RetryAiImageTask_FullMethodName    = "/base.v1.AiImageService/RetryAiImageTask"
 	AiImageService_PolishAiImagePrompt_FullMethodName = "/base.v1.AiImageService/PolishAiImagePrompt"
 )
 
@@ -30,8 +32,14 @@ const (
 //
 // Base AI 图片服务
 type AiImageServiceClient interface {
-	// 生成 AI 图片
-	GenerateAiImage(ctx context.Context, in *GenerateAiImageRequest, opts ...grpc.CallOption) (*GenerateAiImageResponse, error)
+	// 分页查询 AI 图片
+	PageAiImageTasks(ctx context.Context, in *PageAiImageTasksRequest, opts ...grpc.CallOption) (*PageAiImageTasksResponse, error)
+	// 查询 AI 图片
+	GetAiImageTask(ctx context.Context, in *GetAiImageTaskRequest, opts ...grpc.CallOption) (*AiImageTask, error)
+	// 创建 AI 图片
+	CreateAiImageTask(ctx context.Context, in *CreateAiImageTaskRequest, opts ...grpc.CallOption) (*AiImageTask, error)
+	// 重试 AI 图片生成
+	RetryAiImageTask(ctx context.Context, in *RetryAiImageTaskRequest, opts ...grpc.CallOption) (*AiImageTask, error)
 	// 润色 AI 图片提示词
 	PolishAiImagePrompt(ctx context.Context, in *PolishAiImagePromptRequest, opts ...grpc.CallOption) (*PolishAiImagePromptResponse, error)
 }
@@ -44,10 +52,40 @@ func NewAiImageServiceClient(cc grpc.ClientConnInterface) AiImageServiceClient {
 	return &aiImageServiceClient{cc}
 }
 
-func (c *aiImageServiceClient) GenerateAiImage(ctx context.Context, in *GenerateAiImageRequest, opts ...grpc.CallOption) (*GenerateAiImageResponse, error) {
+func (c *aiImageServiceClient) PageAiImageTasks(ctx context.Context, in *PageAiImageTasksRequest, opts ...grpc.CallOption) (*PageAiImageTasksResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GenerateAiImageResponse)
-	err := c.cc.Invoke(ctx, AiImageService_GenerateAiImage_FullMethodName, in, out, cOpts...)
+	out := new(PageAiImageTasksResponse)
+	err := c.cc.Invoke(ctx, AiImageService_PageAiImageTasks_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiImageServiceClient) GetAiImageTask(ctx context.Context, in *GetAiImageTaskRequest, opts ...grpc.CallOption) (*AiImageTask, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AiImageTask)
+	err := c.cc.Invoke(ctx, AiImageService_GetAiImageTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiImageServiceClient) CreateAiImageTask(ctx context.Context, in *CreateAiImageTaskRequest, opts ...grpc.CallOption) (*AiImageTask, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AiImageTask)
+	err := c.cc.Invoke(ctx, AiImageService_CreateAiImageTask_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiImageServiceClient) RetryAiImageTask(ctx context.Context, in *RetryAiImageTaskRequest, opts ...grpc.CallOption) (*AiImageTask, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AiImageTask)
+	err := c.cc.Invoke(ctx, AiImageService_RetryAiImageTask_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +108,14 @@ func (c *aiImageServiceClient) PolishAiImagePrompt(ctx context.Context, in *Poli
 //
 // Base AI 图片服务
 type AiImageServiceServer interface {
-	// 生成 AI 图片
-	GenerateAiImage(context.Context, *GenerateAiImageRequest) (*GenerateAiImageResponse, error)
+	// 分页查询 AI 图片
+	PageAiImageTasks(context.Context, *PageAiImageTasksRequest) (*PageAiImageTasksResponse, error)
+	// 查询 AI 图片
+	GetAiImageTask(context.Context, *GetAiImageTaskRequest) (*AiImageTask, error)
+	// 创建 AI 图片
+	CreateAiImageTask(context.Context, *CreateAiImageTaskRequest) (*AiImageTask, error)
+	// 重试 AI 图片生成
+	RetryAiImageTask(context.Context, *RetryAiImageTaskRequest) (*AiImageTask, error)
 	// 润色 AI 图片提示词
 	PolishAiImagePrompt(context.Context, *PolishAiImagePromptRequest) (*PolishAiImagePromptResponse, error)
 	mustEmbedUnimplementedAiImageServiceServer()
@@ -84,8 +128,17 @@ type AiImageServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiImageServiceServer struct{}
 
-func (UnimplementedAiImageServiceServer) GenerateAiImage(context.Context, *GenerateAiImageRequest) (*GenerateAiImageResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GenerateAiImage not implemented")
+func (UnimplementedAiImageServiceServer) PageAiImageTasks(context.Context, *PageAiImageTasksRequest) (*PageAiImageTasksResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PageAiImageTasks not implemented")
+}
+func (UnimplementedAiImageServiceServer) GetAiImageTask(context.Context, *GetAiImageTaskRequest) (*AiImageTask, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAiImageTask not implemented")
+}
+func (UnimplementedAiImageServiceServer) CreateAiImageTask(context.Context, *CreateAiImageTaskRequest) (*AiImageTask, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateAiImageTask not implemented")
+}
+func (UnimplementedAiImageServiceServer) RetryAiImageTask(context.Context, *RetryAiImageTaskRequest) (*AiImageTask, error) {
+	return nil, status.Error(codes.Unimplemented, "method RetryAiImageTask not implemented")
 }
 func (UnimplementedAiImageServiceServer) PolishAiImagePrompt(context.Context, *PolishAiImagePromptRequest) (*PolishAiImagePromptResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PolishAiImagePrompt not implemented")
@@ -111,20 +164,74 @@ func RegisterAiImageServiceServer(s grpc.ServiceRegistrar, srv AiImageServiceSer
 	s.RegisterService(&AiImageService_ServiceDesc, srv)
 }
 
-func _AiImageService_GenerateAiImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GenerateAiImageRequest)
+func _AiImageService_PageAiImageTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PageAiImageTasksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AiImageServiceServer).GenerateAiImage(ctx, in)
+		return srv.(AiImageServiceServer).PageAiImageTasks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AiImageService_GenerateAiImage_FullMethodName,
+		FullMethod: AiImageService_PageAiImageTasks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AiImageServiceServer).GenerateAiImage(ctx, req.(*GenerateAiImageRequest))
+		return srv.(AiImageServiceServer).PageAiImageTasks(ctx, req.(*PageAiImageTasksRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiImageService_GetAiImageTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAiImageTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiImageServiceServer).GetAiImageTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiImageService_GetAiImageTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiImageServiceServer).GetAiImageTask(ctx, req.(*GetAiImageTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiImageService_CreateAiImageTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAiImageTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiImageServiceServer).CreateAiImageTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiImageService_CreateAiImageTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiImageServiceServer).CreateAiImageTask(ctx, req.(*CreateAiImageTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiImageService_RetryAiImageTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetryAiImageTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiImageServiceServer).RetryAiImageTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiImageService_RetryAiImageTask_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiImageServiceServer).RetryAiImageTask(ctx, req.(*RetryAiImageTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -155,8 +262,20 @@ var AiImageService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AiImageServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GenerateAiImage",
-			Handler:    _AiImageService_GenerateAiImage_Handler,
+			MethodName: "PageAiImageTasks",
+			Handler:    _AiImageService_PageAiImageTasks_Handler,
+		},
+		{
+			MethodName: "GetAiImageTask",
+			Handler:    _AiImageService_GetAiImageTask_Handler,
+		},
+		{
+			MethodName: "CreateAiImageTask",
+			Handler:    _AiImageService_CreateAiImageTask_Handler,
+		},
+		{
+			MethodName: "RetryAiImageTask",
+			Handler:    _AiImageService_RetryAiImageTask_Handler,
 		},
 		{
 			MethodName: "PolishAiImagePrompt",
