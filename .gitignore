@@ -64,3 +64,5 @@ web/
 service_tmp/
 /backend/data/
 /gorse/data/
+
+.pnpm-store/

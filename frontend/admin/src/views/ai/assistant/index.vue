@@ -22,24 +22,23 @@
 
 <script setup lang="ts">
 import "vue-element-plus-x/styles/index.css";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useXStream } from "vue-element-plus-x";
 import { DArrowRight } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { defAiAssistantService } from "@/api/base/ai_assistant";
-import {
-  subscribeAiAssistantDelta,
-  subscribeAiAssistantError,
-  subscribeAiAssistantFinish,
-  type SseAiAssistantPayload
-} from "@/api/base/sse";
-import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
+import { defAiAssistantMessageService } from "@/api/base/ai_assistant_message";
+import { defAiAssistantSessionService } from "@/api/base/ai_assistant_session";
+import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 import { Terminal } from "@/rpc/common/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
 import {
   appendStreamingDelta,
+  buildStreamMessageKey,
   createLocalUserMessage,
   createThinkingMessage,
+  ensureStreamingMessage,
+  hasStreamingDelta,
   markStreamingError,
   markThinkingMessageFailed,
   normalizeMessageList,
@@ -49,7 +48,8 @@ import {
   replacePendingMessages,
   sortMessages
 } from "./message";
-import type { ChatMessageItem, SessionAction, SessionListItem, SubmitPayload } from "./types";
+import { normalizeAiAssistantStreamItem } from "./stream";
+import type { AiAssistantStreamEvent, AiAssistantStreamPayload, ChatMessageItem, SessionAction, SubmitPayload } from "./types";
 
 defineOptions({
   name: "AiAssistant"
@@ -63,19 +63,15 @@ const loadingSessions = ref(false);
 const loadingSessionID = ref("");
 const sessions = ref<AiAssistantSession[]>([]);
 const messages = ref<Record<string, ChatMessageItem[]>>({});
-const sseStops: Array<() => void> = [];
-
-const sessionItems = computed<SessionListItem[]>(() =>
-  sessions.value.map(item => ({
-    ...item,
-    label: item.title
-  }))
-);
+const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>();
+const { startStream, cancel: cancelStream, data: streamData, error: streamError } = useXStream();
+let pendingDeltaFrame = 0;
+let consumedStreamItemCount = 0;
 
 const filteredSessions = computed(() => {
   const keyword = sessionKeyword.value.trim();
-  if (!keyword) return sessionItems.value;
-  return sessionItems.value.filter(item => item.title.includes(keyword) || item.scene.includes(keyword));
+  if (!keyword) return sessions.value;
+  return sessions.value.filter(item => item.title.includes(keyword) || item.summary.includes(keyword));
 });
 
 const activeSession = computed(() => sessions.value.find(item => item.id === activeSessionID.value) ?? sessions.value[0]);
@@ -83,7 +79,7 @@ const activeSession = computed(() => sessions.value.find(item => item.id === act
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? []);
 
 /** 切换会话时同步当前活动会话。 */
-function handleSessionChange(item: SessionListItem) {
+function handleSessionChange(item: AiAssistantSession) {
   activeSessionID.value = item.id;
   void loadMessages(item.id);
 }
@@ -94,7 +90,7 @@ function toggleSessionPanel() {
 }
 
 /** 处理会话项菜单动作，接入真实重命名与删除接口。 */
-async function handleSessionAction(payload: { action: SessionAction; item: SessionListItem }) {
+async function handleSessionAction(payload: { action: SessionAction; item: AiAssistantSession }) {
   try {
     if (payload.action === "rename") {
       await handleRenameSession(payload.item);
@@ -130,11 +126,14 @@ async function handleSubmit(payload: SubmitPayload) {
   }
 
   const clientMessageId = payload.clientMessageId || `assistant-stream-${Date.now()}`;
-  const localUserMessage = createLocalUserMessage(payload);
-  const thinkingMessage = createThinkingMessage(clientMessageId);
+  const localUserMessage = createLocalUserMessage({ ...payload, clientMessageId });
+  const thinkingMessage = createThinkingMessage(clientMessageId, { sessionID });
   messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
   try {
-    const response = await defAiAssistantService.SendAiAssistantMessage({
+    consumedStreamItemCount = 0;
+    // useXStream 每次 startStream 会重置内部 data；这里提前对齐游标，避免旧数据长度影响本轮消费。
+    streamData.value = [];
+    const response = await defAiAssistantMessageService.SendAiAssistantMessage({
       session_id: sessionID,
       content: payload.text,
       client_message_id: clientMessageId,
@@ -147,39 +146,118 @@ async function handleSubmit(payload: SubmitPayload) {
       }))
     });
 
-    const nextMessages = normalizeMessageList(response?.messages);
-    messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], nextMessages);
-    if (response?.session) upsertSession(normalizeSession(response.session));
+    if (!response.body) {
+      throw new Error("AI 助手流式响应为空");
+    }
+    await startStream({ readableStream: response.body });
+    consumeStreamItems();
+    if (streamError.value) {
+      throw streamError.value;
+    }
   } catch {
-    messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? []);
+    messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
+      sessionID,
+      clientMessageID: clientMessageId
+    });
   } finally {
     sending.value = false;
   }
 }
 
 /** 处理 AI 助手流式文本增量。 */
-function handleAiAssistantDelta(payload: SseAiAssistantPayload) {
-  const sessionID = String(payload.session_id ?? "");
-  if (!sessionID || !messages.value[sessionID]) return;
-  messages.value[sessionID] = appendStreamingDelta(messages.value[sessionID] ?? [], payload);
+function handleAiAssistantDelta(payload: AiAssistantStreamPayload) {
+  if (!hasStreamingDelta(payload)) return;
+  queueAiAssistantDelta(payload);
 }
 
 /** 处理 AI 助手流式结束事件。 */
-function handleAiAssistantFinish(payload: SseAiAssistantPayload) {
+function handleAiAssistantFinish(payload: AiAssistantStreamPayload) {
   const sessionID = String(payload.session_id ?? "");
   if (!sessionID) return;
+  flushAiAssistantDelta();
   const nextMessages = normalizeMessageList(payload.messages as never[]);
-  messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], nextMessages);
+  const current = messages.value[sessionID] ?? [];
+  const clientMessageID = String(payload.client_message_id ?? "");
+  const streamKey = buildStreamMessageKey(sessionID, clientMessageID);
+  const hasLocalStreamingMessages = current.some(item => item.streamKey === streamKey && item.localOnly);
+  messages.value[sessionID] =
+    nextMessages.length || !hasLocalStreamingMessages ? replacePendingMessages(current, nextMessages, payload) : current;
   if (payload.session) {
     upsertSession(normalizeSession(payload.session as AiAssistantSession));
   }
 }
 
 /** 处理 AI 助手流式异常事件。 */
-function handleAiAssistantError(payload: SseAiAssistantPayload) {
+function handleAiAssistantError(payload: AiAssistantStreamPayload) {
   const sessionID = String(payload.session_id ?? "");
   if (!sessionID || !messages.value[sessionID]) return;
+  flushAiAssistantDelta();
+  messages.value[sessionID] = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
   messages.value[sessionID] = markStreamingError(messages.value[sessionID] ?? [], payload);
+}
+
+/** 根据 useXStream 解析结果派发 AI 助手 direct stream 事件。 */
+function handleAiAssistantStreamEvent(event: AiAssistantStreamEvent) {
+  switch (event.event) {
+    case "delta":
+      handleAiAssistantDelta(event.payload);
+      break;
+    case "finish":
+      handleAiAssistantFinish(event.payload);
+      break;
+    case "error":
+      handleAiAssistantError(event.payload);
+      break;
+  }
+}
+
+/** 消费 useXStream 追加的数据项，避免同一个 SSE 片段被重复处理。 */
+function consumeStreamItems() {
+  const items = streamData.value.slice(consumedStreamItemCount);
+  consumedStreamItemCount = streamData.value.length;
+  for (const item of items) {
+    const event = normalizeAiAssistantStreamItem(item);
+    if (!event) continue;
+    handleAiAssistantStreamEvent(event);
+  }
+}
+
+/** 合并同一帧内的流式分片，减少频繁重排导致的卡顿。 */
+function queueAiAssistantDelta(payload: AiAssistantStreamPayload) {
+  const sessionID = String(payload.session_id ?? "");
+  const clientMessageID = String(payload.client_message_id ?? "");
+  if (!sessionID || !clientMessageID || !messages.value[sessionID]) return;
+
+  const key = buildStreamMessageKey(sessionID, clientMessageID);
+  const cachedPayload = pendingDeltaMap.get(key);
+  pendingDeltaMap.set(key, {
+    ...payload,
+    delta: `${cachedPayload?.delta ?? ""}${payload.delta ?? ""}`
+  });
+
+  if (pendingDeltaFrame) return;
+  pendingDeltaFrame = window.requestAnimationFrame(() => {
+    pendingDeltaFrame = 0;
+    flushAiAssistantDelta();
+  });
+}
+
+/** 立即刷新已缓存的流式分片。 */
+function flushAiAssistantDelta() {
+  if (pendingDeltaFrame) {
+    window.cancelAnimationFrame(pendingDeltaFrame);
+    pendingDeltaFrame = 0;
+  }
+  if (pendingDeltaMap.size === 0) return;
+
+  const payloadList = Array.from(pendingDeltaMap.values());
+  pendingDeltaMap.clear();
+  for (const payload of payloadList) {
+    const sessionID = String(payload.session_id ?? "");
+    if (!sessionID || !messages.value[sessionID]) continue;
+    const streamingMessages = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
+    messages.value[sessionID] = appendStreamingDelta(streamingMessages, payload);
+  }
 }
 
 /** 首次打开时加载会话列表，并拉取当前会话消息。 */
@@ -188,7 +266,7 @@ async function ensureSessionsLoaded() {
 
   loadingSessions.value = true;
   try {
-    const response = await defAiAssistantService.ListAiAssistantSessions({ terminal: Terminal.TERMINAL_ADMIN });
+    const response = await defAiAssistantSessionService.ListAiAssistantSessions({ terminal: Terminal.TERMINAL_ADMIN });
     sessions.value = normalizeSessionList(response?.sessions);
     const sessionID = await ensureActiveSession();
     if (sessionID) await loadMessages(sessionID);
@@ -205,7 +283,7 @@ async function loadMessages(sessionID: string) {
 
   loadingSessionID.value = sessionID;
   try {
-    const response = await defAiAssistantService.ListAiAssistantMessages({ session_id: sessionID });
+    const response = await defAiAssistantMessageService.ListAiAssistantMessages({ session_id: sessionID });
     if (loadingSessionID.value !== sessionID) return;
     messages.value[sessionID] = normalizeMessageList(response?.messages);
   } catch {
@@ -229,7 +307,7 @@ async function handleRenameSession(item: AiAssistantSession) {
     inputErrorMessage: "请输入会话名称"
   });
 
-  const session = await defAiAssistantService.UpdateAiAssistantSession({ id: item.id, title: value.trim() });
+  const session = await defAiAssistantSessionService.UpdateAiAssistantSession({ id: item.id, title: value.trim() });
   upsertSession(normalizeSession(session));
   ElMessage.success("会话已重命名");
 }
@@ -242,7 +320,7 @@ async function handleDeleteSession(item: AiAssistantSession) {
     type: "warning"
   });
 
-  await defAiAssistantService.DeleteAiAssistantSession({ id: item.id });
+  await defAiAssistantSessionService.DeleteAiAssistantSession({ id: item.id });
   sessions.value = sessions.value.filter(session => session.id !== item.id);
   delete messages.value[item.id];
 
@@ -268,9 +346,8 @@ async function ensureActiveSession() {
 
 /** 创建新的助手会话，并同步到本地列表。 */
 async function createSession() {
-  const session = await defAiAssistantService.CreateAiAssistantSession({
+  const session = await defAiAssistantSessionService.CreateAiAssistantSession({
     title: "新对话",
-    scene: "workspace",
     terminal: Terminal.TERMINAL_ADMIN
   });
   const normalizedSession = normalizeSession(session);
@@ -291,17 +368,25 @@ function upsertSession(session: AiAssistantSession) {
 
 /** 页面加载后主动准备首个会话，避免进入菜单后仍需额外点击。 */
 onMounted(() => {
-  sseStops.push(subscribeAiAssistantDelta(handleAiAssistantDelta));
-  sseStops.push(subscribeAiAssistantFinish(handleAiAssistantFinish));
-  sseStops.push(subscribeAiAssistantError(handleAiAssistantError));
   void ensureSessionsLoaded();
 });
 
+/** 监听 useXStream 数据长度变化，逐条处理 direct stream SSE 事件。 */
+watch(
+  () => streamData.value.length,
+  () => {
+    consumeStreamItems();
+  },
+  { flush: "sync" }
+);
+
 onBeforeUnmount(() => {
-  while (sseStops.length > 0) {
-    const stop = sseStops.pop();
-    stop?.();
+  cancelStream();
+  if (pendingDeltaFrame) {
+    window.cancelAnimationFrame(pendingDeltaFrame);
+    pendingDeltaFrame = 0;
   }
+  pendingDeltaMap.clear();
 });
 </script>
 

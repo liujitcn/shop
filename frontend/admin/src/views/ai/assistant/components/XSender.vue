@@ -5,12 +5,9 @@
       class="agent-sender"
       variant="updown"
       submit-type="enter"
-      placeholder="输入问题、处理建议或指定商品 / 订单"
+      placeholder="输入任何问题，或上传附件后继续提问"
       :loading="sending"
       :clearable="true"
-      :mention-config="mentionConfig"
-      :trigger-config="triggerConfig"
-      :select-config="selectConfig"
       :tip-config="false"
       @change="handleInputChange"
       @submit="handleSubmit"
@@ -30,26 +27,19 @@
         <div class="agent-prefix-actions">
           <el-popover placement="top-start" :width="236" trigger="click" popper-class="agent-sender-popover">
             <template #reference>
-              <button class="agent-icon-button" type="button" aria-label="上传附件">
-                <el-icon><Paperclip /></el-icon>
+              <button class="agent-icon-button" type="button" :disabled="sending || uploading" aria-label="上传附件">
+                <el-icon :class="{ 'is-loading': uploading }">
+                  <Loading v-if="uploading" />
+                  <Paperclip v-else />
+                </el-icon>
               </button>
             </template>
             <div class="agent-popover-card">
-              <div class="agent-popover-title">上传文件或图片</div>
-              <div class="agent-popover-desc">可先补充截图、表格或文档，后续再接统一附件接口。</div>
-              <button class="agent-popover-action" type="button" @click="handleSelectAttachment">选择本地文件</button>
-            </div>
-          </el-popover>
-
-          <el-popover placement="top" :width="220" trigger="click" popper-class="agent-sender-popover">
-            <template #reference>
-              <button class="agent-icon-button" type="button" aria-label="语音输入">
-                <el-icon><Microphone /></el-icon>
+              <div class="agent-popover-title">上传附件</div>
+              <div class="agent-popover-desc">可补充图片、表格或文档，发送后用于当前问题分析。</div>
+              <button class="agent-popover-action" type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
+                {{ uploading ? "上传中..." : "选择本地文件" }}
               </button>
-            </template>
-            <div class="agent-popover-card">
-              <div class="agent-popover-title">语音输入</div>
-              <div class="agent-popover-desc">麦克风入口先预留，首版暂不接浏览器录音与权限申请。</div>
             </div>
           </el-popover>
 
@@ -58,74 +48,73 @@
       </template>
 
       <template #action-list>
-        <el-tooltip content="发送" placement="top">
-          <button
-            class="agent-send-button"
-            type="button"
-            :disabled="sending || isSubmitDisabled"
-            aria-label="发送"
-            @click="handleSubmit"
-          >
-            <el-icon v-if="!sending"><Promotion /></el-icon>
-            <el-icon v-else class="is-loading"><Loading /></el-icon>
-          </button>
-        </el-tooltip>
+        <div class="agent-sender-actions">
+          <el-tooltip :content="recording ? '停止语音输入' : '语音输入'" placement="top">
+            <button
+              class="agent-icon-button"
+              :class="{ 'is-active': recording }"
+              type="button"
+              :disabled="sending"
+              :aria-pressed="recording"
+              :aria-label="recording ? '停止语音输入' : '语音输入'"
+              @click="handleToggleRecord"
+            >
+              <el-icon :class="{ 'is-loading': recording }">
+                <Loading v-if="recording" />
+                <Microphone v-else />
+              </el-icon>
+            </button>
+          </el-tooltip>
+          <el-tooltip content="发送" placement="top">
+            <button
+              class="agent-send-button"
+              type="button"
+              :disabled="sending || uploading || recording || isSubmitDisabled"
+              aria-label="发送"
+              @click="handleSubmit()"
+            >
+              <el-icon v-if="!sending"><Promotion /></el-icon>
+              <el-icon v-else class="is-loading"><Loading /></el-icon>
+            </button>
+          </el-tooltip>
+        </div>
       </template>
     </BaseXSender>
 
-    <input ref="fileInputRef" class="agent-file-input" type="file" multiple @change="handleFileChange" />
+    <input
+      ref="fileInputRef"
+      class="agent-file-input"
+      type="file"
+      multiple
+      :accept="acceptedAttachmentTypes"
+      @change="handleFileChange"
+    />
   </div>
 </template>
 
 <script setup lang="ts" name="XSender">
-import { computed, ref } from "vue";
-import { Attachments, XSender as BaseXSender } from "vue-element-plus-x";
-import type { FilesCardProps, FilesType } from "vue-element-plus-x/types/components/FilesCard/types";
+import { computed, ref, watch } from "vue";
+import { Attachments, useRecord, XSender as BaseXSender } from "vue-element-plus-x";
+import type { FilesCardProps } from "vue-element-plus-x/types/components/FilesCard/types";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { defFileService } from "@/api/base/file";
-import type { AiAssistantAttachment } from "@/rpc/base/v1/ai_assistant";
+import type { AiAssistantAttachment } from "@/rpc/base/v1/ai_assistant_session";
+import { buildAssistantAttachmentFileCard } from "../attachment";
 
 type SubmitPayload = {
   text: string;
   attachments: AiAssistantAttachment[];
 };
 
-type MentionItem = {
-  id: string;
-  name: string;
-  avatar?: string | URL;
-  pinyin?: string;
+/** 语音识别错误的最小字段，兼容浏览器事件和不支持错误。 */
+type RecordError = {
+  code?: number;
+  error?: string;
+  message?: string;
 };
 
-type MentionConfig = {
-  dialogTitle: string;
-  callEvery?: boolean;
-  everyText?: string;
-  asyncMatch?: (matchStr: string) => Promise<MentionItem[]>;
-  emptyText?: string;
-  options?: MentionItem[];
-};
-
-type TriggerConfig = {
-  dialogTitle: string;
-  keyMap?: string[];
-  key: string;
-  options: Array<{ id: string; name: string; pinyin?: string }>;
-};
-
-type SelectConfig = {
-  dialogTitle: string;
-  key: string;
-  options: Array<{ id: string; name: string; preview?: string | URL }>;
-  multiple?: boolean;
-  emptyText?: string;
-  showSearch?: boolean;
-  placeholder?: string;
-  searchEmptyText?: string;
-};
-
-defineProps<{
+const props = defineProps<{
   /** 消息发送加载状态。 */
   sending: boolean;
 }>();
@@ -140,39 +129,66 @@ const fileInputRef = ref<HTMLInputElement>();
 const inputText = ref("");
 const selectedAttachments = ref<AiAssistantAttachment[]>([]);
 const uploading = ref(false);
+const maxAttachmentCount = 6;
+const maxAttachmentSizeMB = 20;
+const maxAttachmentSize = maxAttachmentSizeMB * 1024 * 1024;
+const acceptedAttachmentTypes = [
+  ".txt",
+  ".md",
+  ".markdown",
+  ".log",
+  ".json",
+  ".xml",
+  ".csv",
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".xls",
+  ".xlsx",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp"
+].join(",");
 
-const mentionConfig: MentionConfig = {
-  dialogTitle: "智能提示",
-  options: []
-};
-
-const triggerConfig: TriggerConfig[] = [];
-
-const selectConfig: SelectConfig[] = [];
+const {
+  loading: recording,
+  start: startRecord,
+  stop: stopRecord,
+  value: recordText
+} = useRecord({
+  onEnd: handleRecordEnd,
+  onError: handleRecordError
+});
 
 const actionHintText = computed(() => {
+  if (recording.value) return "正在识别语音...";
+  if (uploading.value) return "附件上传中...";
   if (selectedAttachments.value.length) return `已选 ${selectedAttachments.value.length} 个附件`;
-  return "可上传附件后继续提问";
+  return "可上传附件";
 });
 
 const attachmentItems = computed<FilesCardProps[]>(() =>
-  selectedAttachments.value.map(item => ({
-    uid: item.id,
-    name: item.name,
-    fileSize: item.size,
-    url: item.url,
-    fileType: resolveFileType(item.name),
-    showDelIcon: true
-  }))
+  selectedAttachments.value.map(item =>
+    buildAssistantAttachmentFileCard(item, {
+      showDelIcon: true,
+      maxWidth: "220px"
+    })
+  )
 );
 
 const isSubmitDisabled = computed(() => {
-  return !inputText.value.trim() && selectedAttachments.value.length === 0;
+  return uploading.value || (!inputText.value.trim() && selectedAttachments.value.length === 0);
 });
 
 /** 读取输入内容并发送给父组件。 */
 function handleSubmit() {
   if (uploading.value) return;
+  if (recording.value) {
+    stopRecord();
+    return;
+  }
   const trimmedText = inputText.value.trim();
   if (!trimmedText && selectedAttachments.value.length === 0) return;
 
@@ -186,6 +202,82 @@ function handleSubmit() {
   resetFileInput();
 }
 
+/** 切换浏览器语音识别状态。 */
+function handleToggleRecord() {
+  if (recording.value) {
+    stopRecord();
+    return;
+  }
+  startRecord();
+}
+
+/** 语音识别结束后保留当前识别文本。 */
+function handleRecordEnd(result: string) {
+  setRecordText(result);
+}
+
+/** 处理语音识别失败，提示浏览器不支持或麦克风授权异常。 */
+function handleRecordError(error: RecordError) {
+  const message = resolveRecordErrorMessage(error);
+  ElMessage.warning(message);
+}
+
+/** 将识别文本与识别前内容合并后写回输入器。 */
+function setRecordText(recordText: string) {
+  const normalizedRecordText = normalizeRecordText(recordText);
+  if (!normalizedRecordText) return;
+  senderRef.value?.setText(normalizedRecordText);
+  inputText.value = normalizedRecordText;
+}
+
+/** 标准化语音识别文本，压掉多余空白。 */
+function normalizeRecordText(recordText: string) {
+  return collapseCumulativeRecordText(recordText.replace(/\s+/g, " ").trim());
+}
+
+/** 压缩 useRecord 在中文连续识别时返回的前缀累计文本。 */
+function collapseCumulativeRecordText(text: string) {
+  if (text.length < 4) return text;
+  for (let candidateLength = 2; candidateLength <= Math.floor(text.length / 2); candidateLength++) {
+    const candidate = text.slice(-candidateLength);
+    const matchResult = matchCumulativeRecordCandidate(text, candidate);
+    if (matchResult.matched && (matchResult.hasPartial || matchResult.segmentCount >= 3)) {
+      return candidate;
+    }
+  }
+  return text;
+}
+
+/** 判断文本是否由同一识别结果的前缀片段累计组成。 */
+function matchCumulativeRecordCandidate(text: string, candidate: string) {
+  let index = 0;
+  let segmentCount = 0;
+  let hasPartial = false;
+  while (index < text.length) {
+    let matchedLength = 0;
+    const maxLength = Math.min(candidate.length, text.length - index);
+    for (let length = maxLength; length >= 1; length--) {
+      if (candidate.startsWith(text.slice(index, index + length))) {
+        matchedLength = length;
+        break;
+      }
+    }
+    if (!matchedLength) return { matched: false, segmentCount, hasPartial };
+    if (matchedLength < candidate.length) hasPartial = true;
+    segmentCount++;
+    index += matchedLength;
+  }
+  return { matched: true, segmentCount, hasPartial };
+}
+
+/** 根据浏览器语音识别错误类型生成用户可理解的提示。 */
+function resolveRecordErrorMessage(error: RecordError) {
+  if (error.code === -1) return "当前浏览器不支持语音识别";
+  const errorName = error.error ?? "";
+  if (["not-allowed", "service-not-allowed", "permission-denied"].includes(errorName)) return "麦克风授权失败，请检查浏览器权限";
+  return "语音识别失败，请稍后重试";
+}
+
 /** 同步输入器内部文本，保证发送按钮禁用态能实时响应。 */
 function handleInputChange() {
   inputText.value = senderRef.value?.getModelValue().text ?? "";
@@ -193,6 +285,7 @@ function handleInputChange() {
 
 /** 打开本地文件选择框。 */
 function handleSelectAttachment() {
+  if (uploading.value || props.sending) return;
   fileInputRef.value?.click();
 }
 
@@ -209,12 +302,14 @@ async function handlePasteFile(firstFile: File, fileList: FileList) {
 
 /** 上传附件并按文件地址去重。 */
 async function uploadAttachments(files: File[]) {
-  if (!files.length) return;
+  if (uploading.value || props.sending) return;
+  const uploadFiles = filterUploadFiles(files);
+  if (!uploadFiles.length) return;
   uploading.value = true;
   try {
-    const response = await defFileService.MultiUploadFile(files, "assistant");
+    const response = await defFileService.MultiUploadFile(uploadFiles, "assistant");
     const fileMap = new Map<string, File[]>();
-    files.forEach(file => {
+    uploadFiles.forEach(file => {
       const group = fileMap.get(file.name) ?? [];
       group.push(file);
       fileMap.set(file.name, group);
@@ -226,6 +321,9 @@ async function uploadAttachments(files: File[]) {
       attachmentMap.set(attachment.url || attachment.id, attachment);
     });
     selectedAttachments.value = Array.from(attachmentMap.values());
+    if (response?.files?.length) {
+      ElMessage.success(`已上传 ${response.files.length} 个附件`);
+    }
   } catch {
     ElMessage.error("附件上传失败");
   } finally {
@@ -234,20 +332,24 @@ async function uploadAttachments(files: File[]) {
   }
 }
 
-/** 根据文件后缀推断文件卡片类型，优先复用组件自带图标表现。 */
-function resolveFileType(fileName: string): FilesType {
-  const extension = fileName.split(".").pop()?.toLowerCase() ?? "";
-  if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(extension)) return "image";
-  if (["xls", "xlsx", "csv"].includes(extension)) return "excel";
-  if (["doc", "docx"].includes(extension)) return "word";
-  if (["ppt", "pptx"].includes(extension)) return "ppt";
-  if (extension === "pdf") return "pdf";
-  if (["zip", "rar", "7z"].includes(extension)) return "zip";
-  if (["mp3", "wav", "m4a"].includes(extension)) return "audio";
-  if (["mp4", "mov", "avi"].includes(extension)) return "video";
-  if (["md", "markdown"].includes(extension)) return "mark";
-  if (["txt", "log"].includes(extension)) return "txt";
-  return "file";
+/** 过滤不符合数量和大小约束的附件。 */
+function filterUploadFiles(files: File[]) {
+  const remainingCount = maxAttachmentCount - selectedAttachments.value.length;
+  if (remainingCount <= 0) {
+    ElMessage.warning(`最多上传 ${maxAttachmentCount} 个附件`);
+    return [];
+  }
+  const validFiles = files.filter(file => {
+    if (file.size > maxAttachmentSize) {
+      ElMessage.warning(`附件「${file.name}」超过 ${maxAttachmentSizeMB}MB，已跳过`);
+      return false;
+    }
+    return true;
+  });
+  if (validFiles.length > remainingCount) {
+    ElMessage.warning(`最多还能选择 ${remainingCount} 个附件，已自动截取`);
+  }
+  return validFiles.slice(0, remainingCount);
 }
 
 /** 根据上传结果构建附件展示项。 */
@@ -261,22 +363,26 @@ function buildAttachmentItem(url: string, name: string, file?: File): AiAssistan
   };
 }
 
-/** 删除单个已选附件。 */
-function handleRemoveAttachment(attachmentID: string) {
-  selectedAttachments.value = selectedAttachments.value.filter(item => item.id !== attachmentID);
-  if (!selectedAttachments.value.length) resetFileInput();
-}
-
 /** 复用 Attachments 删除事件，保持附件状态与组件展示同步。 */
 function handleDeleteCard(item: { uid?: string | number }) {
   if (!item.uid) return;
-  handleRemoveAttachment(String(item.uid));
+  selectedAttachments.value = selectedAttachments.value.filter(attachment => attachment.id !== String(item.uid));
+  if (!selectedAttachments.value.length) resetFileInput();
 }
 
 /** 清空文件输入框，保证重复选择同名文件时仍能触发 change。 */
 function resetFileInput() {
   if (fileInputRef.value) fileInputRef.value.value = "";
 }
+
+/** 按 useRecord 文档监听识别文本，并同步到 XSender。 */
+watch(
+  recordText,
+  value => {
+    setRecordText(value);
+  },
+  { deep: true }
+);
 </script>
 
 <style scoped lang="scss">
@@ -286,7 +392,7 @@ function resetFileInput() {
 
 .agent-sender {
   :deep(.elx-x-sender) {
-    border-radius: calc(var(--admin-page-radius) + 2px);
+    border-radius: var(--admin-page-radius);
     box-shadow: none;
   }
 
@@ -294,7 +400,7 @@ function resetFileInput() {
     padding: 8px 10px 10px;
     background: var(--admin-page-card-bg);
     border: 1px solid var(--admin-page-card-border);
-    border-radius: calc(var(--admin-page-radius) + 2px);
+    border-radius: var(--admin-page-radius);
   }
 
   :deep(.elx-x-sender__content--variant-updown) {
@@ -328,12 +434,15 @@ function resetFileInput() {
 .agent-attachments {
   padding: 12px 12px 0;
 
-  :deep(.elx-attachments-list) {
-    gap: 8px;
-  }
-
   :deep(.elx-files-card) {
     max-width: 220px;
+    border-radius: var(--admin-page-radius);
+  }
+
+  :deep(.elx-files-card-img),
+  :deep(.elx-files-card__image-preview),
+  :deep(.elx-files-card-delete-icon) {
+    border-radius: var(--admin-page-radius);
   }
 }
 
@@ -342,6 +451,12 @@ function resetFileInput() {
   gap: 10px;
   align-items: center;
   min-height: 36px;
+}
+
+.agent-sender-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .agent-icon-button,
@@ -353,9 +468,9 @@ function resetFileInput() {
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--el-border-color);
-  border-radius: 50%;
+  border-radius: var(--admin-page-radius);
   transition:
     color 0.2s ease,
     border-color 0.2s ease,
@@ -367,17 +482,23 @@ function resetFileInput() {
     background: var(--el-color-primary-light-9);
     border-color: var(--el-color-primary-light-5);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
 }
 
 .agent-send-button {
   color: var(--el-color-primary);
-  background: #effaf7;
-  border-color: #b7ece1;
+  background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-5);
+}
 
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
+.agent-icon-button.is-active {
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border-color: var(--el-color-primary-light-5);
 }
 
 .agent-action-text {
@@ -396,7 +517,7 @@ function resetFileInput() {
 
 :global(.agent-sender-popover) {
   padding: 0 !important;
-  border-radius: 16px !important;
+  border-radius: var(--admin-page-radius) !important;
 }
 
 .agent-popover-card {
@@ -426,7 +547,12 @@ function resetFileInput() {
   cursor: pointer;
   background: var(--el-color-primary-light-9);
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--admin-page-radius);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
 }
 
 :global(.agent-sender-popover.el-popover) {

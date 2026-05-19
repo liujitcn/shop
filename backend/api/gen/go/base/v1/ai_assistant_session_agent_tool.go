@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-agent-tool v0.0.1
 // - protoc                    (unknown)
-// source: base/v1/ai_assistant.proto
+// source: base/v1/ai_assistant_session.proto
 
 package basev1
 
@@ -13,7 +13,7 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewAiAssistantServiceAgentTools 创建Base AI 助手服务的 Agent Tool。
+// NewAiAssistantServiceAgentTools 创建Base AI 助手会话服务的 Agent Tool。
 func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantServiceServer) ([]tools.Tool, error) {
 	var ts []tools.Tool
 	var err error
@@ -47,12 +47,6 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 		return nil, err
 	}
 	ts = append(ts, listAiAssistantMessagesTool)
-	var sendAiAssistantMessageTool tools.Tool
-	sendAiAssistantMessageTool, err = NewAiAssistantServiceSendAiAssistantMessageAgentTool(aiAssistantServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, sendAiAssistantMessageTool)
 	return ts, nil
 }
 
@@ -70,11 +64,11 @@ func NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceSer
 	)
 }
 
-// NewAiAssistantServiceCreateAiAssistantSessionAgentTool 创建创建 AI 助手会话的 Agent Tool。
+// NewAiAssistantServiceCreateAiAssistantSessionAgentTool 创建创建 AI 助手会话 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 Agent Tool。
 func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
 		"base_v1_ai_assistant_service_create_ai_assistant_session",
-		"创建 AI 助手会话",
+		"创建 AI 助手会话 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
 		func(ctx context.Context, req *CreateAiAssistantSessionRequest) (*AiAssistantSession, error) {
 			if req == nil {
 				req = &CreateAiAssistantSessionRequest{}
@@ -84,11 +78,11 @@ func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceSe
 	)
 }
 
-// NewAiAssistantServiceUpdateAiAssistantSessionAgentTool 创建更新 AI 助手会话的 Agent Tool。
+// NewAiAssistantServiceUpdateAiAssistantSessionAgentTool 创建更新 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 Agent Tool。
 func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
 		"base_v1_ai_assistant_service_update_ai_assistant_session",
-		"更新 AI 助手会话",
+		"更新 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
 		func(ctx context.Context, req *UpdateAiAssistantSessionRequest) (*AiAssistantSession, error) {
 			if req == nil {
 				req = &UpdateAiAssistantSessionRequest{}
@@ -98,11 +92,11 @@ func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceSe
 	)
 }
 
-// NewAiAssistantServiceDeleteAiAssistantSessionAgentTool 创建删除 AI 助手会话的 Agent Tool。
+// NewAiAssistantServiceDeleteAiAssistantSessionAgentTool 创建删除 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 Agent Tool。
 func NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
 		"base_v1_ai_assistant_service_delete_ai_assistant_session",
-		"删除 AI 助手会话",
+		"删除 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
 		func(ctx context.Context, req *DeleteAiAssistantSessionRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &DeleteAiAssistantSessionRequest{}
@@ -122,20 +116,6 @@ func NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceSer
 				req = &ListAiAssistantMessagesRequest{}
 			}
 			return aiAssistantServiceServer.ListAiAssistantMessages(ctx, req)
-		},
-	)
-}
-
-// NewAiAssistantServiceSendAiAssistantMessageAgentTool 创建发送 AI 助手消息的 Agent Tool。
-func NewAiAssistantServiceSendAiAssistantMessageAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
-		"base_v1_ai_assistant_service_send_ai_assistant_message",
-		"发送 AI 助手消息",
-		func(ctx context.Context, req *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
-			if req == nil {
-				req = &SendAiAssistantMessageRequest{}
-			}
-			return aiAssistantServiceServer.SendAiAssistantMessage(ctx, req)
 		},
 	)
 }

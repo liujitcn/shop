@@ -1,10 +1,15 @@
-import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
-import type { SseAiAssistantPayload } from "@/api/base/sse";
+import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 import { Terminal } from "@/rpc/common/v1/enum";
-import type { ChatMessageItem, ReplySourceTag } from "./types";
+import type { AiAssistantStreamPayload, ChatMessageItem, ReplySourceTag } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "assistant-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "assistant-user-local";
+const THINKING_MESSAGE_CONTENT = "正在整理回复...";
+
+/** 生成流式消息分组键，确保同一轮回复只更新当前占位气泡。 */
+export function buildStreamMessageKey(sessionID: string, clientMessageID: string) {
+  return [sessionID, clientMessageID].join(":");
+}
 
 /** 计算消息角色排序权重，确保同一轮对话里用户问题先于助手回答。 */
 function resolveRoleOrder(role?: string) {
@@ -24,7 +29,6 @@ export function normalizeSession(session?: Partial<AiAssistantSession> | null): 
   return {
     id: String(session?.id ?? ""),
     title: String(session?.title ?? "新对话"),
-    scene: String(session?.scene ?? "workspace"),
     summary: String(session?.summary ?? ""),
     tool_count: Number(session?.tool_count ?? 0),
     updated_at: session?.updated_at,
@@ -66,7 +70,7 @@ export function mapMessageItem(message: AiAssistantMessage): ChatMessageItem {
     fallback: Boolean(message.fallback),
     fallback_reason: String(message.fallback_reason ?? ""),
     variant: message.role === "user" ? "filled" : "outlined",
-    shape: "round",
+    shape: "corner",
     progressState: "idle",
     replySourceTag: resolveReplySourceTag(message),
     maxWidth: message.role === "user" ? "380px" : "460px"
@@ -80,7 +84,11 @@ export function normalizeMessageList(list?: AiAssistantMessage[] | null) {
 }
 
 /** 创建本地用户回显消息。 */
-export function createLocalUserMessage(payload: { text: string; attachments: AiAssistantAttachment[] }) {
+export function createLocalUserMessage(payload: {
+  text: string;
+  attachments: AiAssistantAttachment[];
+  clientMessageId?: string;
+}) {
   const now = new Date();
   const message = mapMessageItem({
     id: `${LOCAL_USER_MESSAGE_ID_PREFIX}-${now.getTime()}`,
@@ -99,17 +107,19 @@ export function createLocalUserMessage(payload: { text: string; attachments: AiA
   });
   // 本地回显消息只用于等待服务端响应，收到正式消息后需要被替换掉，避免同一问题展示两遍。
   message.localOnly = true;
+  message.clientMessageId = payload.clientMessageId;
   return message;
 }
 
 /** 创建助手思考中的占位消息。 */
-export function createThinkingMessage(clientMessageId?: string) {
+export function createThinkingMessage(clientMessageId?: string, options?: { sessionID?: string }) {
   const now = new Date();
+  const streamKey = options?.sessionID && clientMessageId ? buildStreamMessageKey(options.sessionID, clientMessageId) : undefined;
   const message = mapMessageItem({
-    id: clientMessageId || `${THINKING_MESSAGE_ID_PREFIX}-${now.getTime()}`,
+    id: streamKey || clientMessageId || `${THINKING_MESSAGE_ID_PREFIX}-${now.getTime()}`,
     role: "assistant",
     kind: "text",
-    content: "正在整理回复...",
+    content: THINKING_MESSAGE_CONTENT,
     attachments: [],
     created_at: {
       seconds: Math.floor(now.getTime() / 1000),
@@ -122,8 +132,27 @@ export function createThinkingMessage(clientMessageId?: string) {
   });
   message.progressState = "streaming";
   message.localOnly = true;
+  message.clientMessageId = clientMessageId;
+  message.streamKey = streamKey;
   message.replySourceTag = { text: "思考中", tone: "info" };
   return message;
+}
+
+/** 确保当前轮次存在流式占位消息。 */
+export function ensureStreamingMessage(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
+  const sessionID = String(payload.session_id ?? "");
+  const clientMessageID = String(payload.client_message_id ?? "");
+  if (!sessionID || !clientMessageID) return current;
+
+  const streamKey = buildStreamMessageKey(sessionID, clientMessageID);
+  if (current.some(item => item.streamKey === streamKey)) return current;
+
+  return sortMessages([
+    ...current,
+    createThinkingMessage(clientMessageID, {
+      sessionID
+    })
+  ]);
 }
 
 /** 将消息按创建时间排序。 */
@@ -140,9 +169,21 @@ export function sortMessages(list: ChatMessageItem[]) {
   });
 }
 
-/** 去掉本地占位消息，并拼入服务端返回。 */
-export function replacePendingMessages(current: ChatMessageItem[], nextMessages: ChatMessageItem[]) {
-  const stableMessages = current.filter(item => !item.localOnly);
+/** 去掉当前轮次的本地占位消息，并拼入服务端返回。 */
+export function replacePendingMessages(
+  current: ChatMessageItem[],
+  nextMessages: ChatMessageItem[],
+  payload?: AiAssistantStreamPayload
+) {
+  const streamKey = payload && buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.client_message_id ?? ""));
+  const stableMessages = current.filter(item => {
+    if (!item.localOnly) return true;
+    if (payload?.client_message_id && item.role === "user" && item.clientMessageId === payload.client_message_id) {
+      return !nextMessages.some(message => message.role === "user");
+    }
+    if (!streamKey) return false;
+    return item.streamKey !== streamKey;
+  });
   const messageMap = new Map<string, ChatMessageItem>();
 
   for (const item of stableMessages) {
@@ -155,10 +196,16 @@ export function replacePendingMessages(current: ChatMessageItem[], nextMessages:
   return sortMessages(Array.from(messageMap.values()));
 }
 
-/** 标记思考中消息失败。 */
-export function markThinkingMessageFailed(current: ChatMessageItem[]) {
+/** 标记思考中消息失败，可按当前轮次限定失败范围。 */
+export function markThinkingMessageFailed(
+  current: ChatMessageItem[],
+  options?: { sessionID?: string; clientMessageID?: string }
+) {
+  const streamKey =
+    options?.sessionID && options.clientMessageID ? buildStreamMessageKey(options.sessionID, options.clientMessageID) : "";
   return current.map<ChatMessageItem>(item => {
     if (!item.localOnly || item.progressState !== "streaming") return item;
+    if (streamKey && item.streamKey !== streamKey) return item;
     return {
       ...item,
       progressState: "failed",
@@ -168,11 +215,18 @@ export function markThinkingMessageFailed(current: ChatMessageItem[]) {
   });
 }
 
+/** 判断流式增量是否包含可追加内容。 */
+export function hasStreamingDelta(payload: Pick<AiAssistantStreamPayload, "delta">) {
+  return payload.delta !== undefined && payload.delta !== "";
+}
+
 /** 将流式文本增量追加到本地占位消息。 */
-export function appendStreamingDelta(current: ChatMessageItem[], payload: SseAiAssistantPayload) {
+export function appendStreamingDelta(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
+  if (!hasStreamingDelta(payload)) return current;
+  const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.client_message_id ?? ""));
   return current.map<ChatMessageItem>(item => {
-    if (item.id !== payload.client_message_id || !item.localOnly) return item;
-    const baseContent = item.content === "正在整理回复..." ? "" : item.content;
+    if (item.streamKey !== streamKey || !item.localOnly) return item;
+    const baseContent = item.content === THINKING_MESSAGE_CONTENT ? "" : item.content;
     const nextContent = `${baseContent}${payload.delta ?? ""}`;
     return {
       ...item,
@@ -184,9 +238,10 @@ export function appendStreamingDelta(current: ChatMessageItem[], payload: SseAiA
 }
 
 /** 根据流式异常事件更新本地占位消息。 */
-export function markStreamingError(current: ChatMessageItem[], payload: SseAiAssistantPayload) {
+export function markStreamingError(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
+  const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.client_message_id ?? ""));
   return current.map<ChatMessageItem>(item => {
-    if (item.id !== payload.client_message_id || !item.localOnly) return item;
+    if (item.streamKey !== streamKey || !item.localOnly) return item;
     return {
       ...item,
       progressState: "failed",

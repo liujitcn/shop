@@ -5412,7 +5412,10 @@ paths:
         post:
             tags:
                 - AiAssistantService
-            description: 创建 AI 助手会话
+            description: |-
+                创建 AI 助手会话
+                 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+                 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
             operationId: AiAssistantService_CreateAiAssistantSession
             requestBody:
                 content:
@@ -5431,7 +5434,9 @@ paths:
         put:
             tags:
                 - AiAssistantService
-            description: 更新 AI 助手会话
+            description: |-
+                更新 AI 助手会话
+                 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
             operationId: AiAssistantService_UpdateAiAssistantSession
             parameters:
                 - name: id
@@ -5455,7 +5460,9 @@ paths:
         delete:
             tags:
                 - AiAssistantService
-            description: 删除 AI 助手会话
+            description: |-
+                删除 AI 助手会话
+                 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
             operationId: AiAssistantService_DeleteAiAssistantSession
             parameters:
                 - name: id
@@ -5488,9 +5495,9 @@ paths:
                                 $ref: '#/components/schemas/ListAiAssistantMessagesResponse'
         post:
             tags:
-                - AiAssistantService
+                - AiAssistantMessageService
             description: 发送 AI 助手消息
-            operationId: AiAssistantService_SendAiAssistantMessage
+            operationId: AiAssistantMessageService_SendAiAssistantMessage
             parameters:
                 - name: sessionId
                   in: path
@@ -5510,6 +5517,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SendAiAssistantMessageResponse'
+    /api/v1/base/ai/image/generation:
+        post:
+            tags:
+                - AiImageService
+            description: 生成 AI 图片
+            operationId: AiImageService_GenerateAiImage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/GenerateAiImageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GenerateAiImageResponse'
+    /api/v1/base/ai/image/prompt/polish:
+        post:
+            tags:
+                - AiImageService
+            description: 润色 AI 图片提示词
+            operationId: AiImageService_PolishAiImagePrompt
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PolishAiImagePromptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PolishAiImagePromptResponse'
     /api/v1/base/captcha:
         get:
             tags:
@@ -5693,7 +5738,6 @@ paths:
                     enum:
                         - SSE_STREAM_UNSPECIFIED
                         - SSE_STREAM_ADMIN_WORKSPACE
-                        - SSE_STREAM_ADMIN_AI_ASSISTANT
                     type: string
                     format: enum
             responses:
@@ -5819,9 +5863,6 @@ components:
                 title:
                     type: string
                     description: 会话标题
-                scene:
-                    type: string
-                    description: 会话场景
                 summary:
                     type: string
                     description: 会话摘要
@@ -5842,6 +5883,34 @@ components:
                     description: 终端类型：枚举【Terminal】
                     format: enum
             description: AI 助手会话
+        AiImage:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 图片名称
+                url:
+                    type: string
+                    description: 图片地址
+                mimeType:
+                    type: string
+                    description: 图片 MIME 类型
+                size:
+                    type: string
+                    description: 图片字节大小
+                revisedPrompt:
+                    type: string
+                    description: 模型修订后的提示词
+                saved:
+                    type: boolean
+                    description: 是否已保存到对象存储
+                storagePath:
+                    type: string
+                    description: 对象存储目录
+                requestId:
+                    type: string
+                    description: 生成批次编号
+            description: AI 图片结果
         AnalyticsPieItem:
             type: object
             properties:
@@ -7789,9 +7858,6 @@ components:
                 title:
                     type: string
                     description: 会话标题
-                scene:
-                    type: string
-                    description: 会话场景
                 terminal:
                     enum:
                         - TERMINAL_UNSPECIFIED
@@ -8061,6 +8127,67 @@ components:
                     type: string
                     description: 文件扩展名
             description: File信息
+        GenerateAiImageRequest:
+            type: object
+            properties:
+                prompt:
+                    type: string
+                    description: 图片生成提示词
+                model:
+                    type: string
+                    description: 图片模型名称
+                size:
+                    type: string
+                    description: 图片尺寸
+                quality:
+                    type: string
+                    description: 图片质量
+                style:
+                    type: string
+                    description: 图片风格
+                background:
+                    type: string
+                    description: 背景模式
+                outputFormat:
+                    type: string
+                    description: 输出格式
+                responseFormat:
+                    type: string
+                    description: 响应格式
+                n:
+                    type: string
+                    description: 生成数量
+                saveOutput:
+                    type: boolean
+                    description: 是否保存生成图片到对象存储
+                polishPrompt:
+                    type: boolean
+                    description: 是否先润色提示词再生成
+            description: AI 图片生成请求
+        GenerateAiImageResponse:
+            type: object
+            properties:
+                images:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AiImage'
+                    description: 图片列表
+                model:
+                    type: string
+                    description: 图片模型名称
+                prompt:
+                    type: string
+                    description: 图片生成提示词
+                created:
+                    type: string
+                    description: 模型生成时间戳
+                requestId:
+                    type: string
+                    description: 生成批次编号
+                originalPrompt:
+                    type: string
+                    description: 原始图片提示词
+            description: AI 图片生成响应
         GetConfigResponse:
             type: object
             properties:
@@ -10042,6 +10169,29 @@ components:
                     type: string
                     description: 待评价卡片提示文案
             description: 待评价商品展示项
+        PolishAiImagePromptRequest:
+            type: object
+            properties:
+                prompt:
+                    type: string
+                    description: 原始图片提示词
+                scene:
+                    type: string
+                    description: 图片使用场景
+            description: AI 图片提示词润色请求
+        PolishAiImagePromptResponse:
+            type: object
+            properties:
+                prompt:
+                    type: string
+                    description: 润色后的图片提示词
+                originalPrompt:
+                    type: string
+                    description: 原始图片提示词
+                model:
+                    type: string
+                    description: 润色模型名称
+            description: AI 图片提示词润色响应
         PreviewExternalRequest:
             type: object
             properties:
@@ -12318,12 +12468,16 @@ components:
                     description: 提及次数
             description: 工作台口碑高频标签
 tags:
+    - name: AiAssistantMessageService
+      description: Base AI 助手消息服务
     - name: AiAssistantService
-      description: Base AI 助手服务
-    - name: AuthService
-      description: Admin用户登录认证服务
+      description: Base AI 助手会话服务
+    - name: AiImageService
+      description: Base AI 图片服务
     - name: AuthService
       description: App用户登录认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -12379,9 +12533,9 @@ tags:
     - name: OrderAnalyticsService
       description: Admin订单分析服务
     - name: OrderInfoService
-      description: App订单信息服务
-    - name: OrderInfoService
       description: Admin订单信息服务
+    - name: OrderInfoService
+      description: App订单信息服务
     - name: OrderReportService
       description: Admin订单报表服务
     - name: PayBillService

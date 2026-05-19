@@ -50,7 +50,7 @@ cli:
 # 使用 goimports 统一整理 Go 代码的 import 与格式
 fmt:
 	@echo "==> 格式化 Go 代码"
-	@goimports -w $$(rg --files -g '*.go')
+	@find . -type f -name '*.go' -exec goimports -w {} +
 	@echo "==> Go 代码格式化完成"
 
 # 生成 GORM 代码

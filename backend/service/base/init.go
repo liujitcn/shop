@@ -10,7 +10,7 @@ import (
 var ProviderSet = wire.NewSet(
 	biz.NewAiAssistantSessionCase,
 	biz.NewAiAssistantMessageCase,
-	biz.NewAiAssistantCase,
+	biz.NewAiImageCase,
 	biz.NewBaseDeptCase,
 	biz.NewBaseRoleCase,
 	biz.NewBaseUserCase,
@@ -21,6 +21,8 @@ var ProviderSet = wire.NewSet(
 	biz.NewSseCase,
 
 	NewAiAssistantService,
+	NewAiAssistantMessageService,
+	NewAiImageService,
 	NewConfigService,
 	NewFileService,
 	NewLoginService,

@@ -29,7 +29,7 @@ frontend/admin
 
 - `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理等系统管理。
 - `views/dashboard`：工作台与分析页。
-- `views/ai`：AI 助手、AI 图片、AI 视频等 AI 能力页面。
+- `views/ai`：AI助手、AI 图片生成等 AI 能力页面。
 - `views/goods`：商品分类、商品信息、属性、SKU。
 - `views/shop`：轮播图、商城服务、热门推荐。
 - `views/order`：订单管理。
@@ -140,16 +140,24 @@ src/rpc
 
 业务页面可以按现有模式在 `src/api` 中封装接口调用，也可以直接复用生成的 RPC 客户端，具体以当前页面风格为准。
 
-当前管理后台 AI 助手会复用：
+当前管理后台 AI助手会复用：
 
-- `src/api/base/ai_assistant.ts`：AI 助手会话、消息、发送、重命名、删除接口封装。
-- `src/views/ai/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI 助手页面。
-- `src/views/ai/assistant/index.vue`：AI 菜单下的 AI 助手页面入口。
+- `src/api/base/ai_assistant_session.ts`：助手会话查询、创建、重命名和删除接口封装。
+- `src/api/base/ai_assistant_message.ts`：助手消息查询和流式发送接口封装。
+- `src/views/ai/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
+- `src/views/ai/assistant/index.vue`：AI 菜单下的 AI助手页面入口。
+- `src/api/base/ai_image.ts`：AI 图片生成接口封装。
+- `src/views/ai/image/index.vue`：AI 菜单下的 AI 图片生成页面入口，支持提示词 AI 润色、生成前自动润色、模型、尺寸、质量、格式、数量和保存到素材目录；生成结果会展示批次号和对象存储目录。
 
 当前助手页实现说明：
 
-- 会话列表、消息流、输入器与附件区分别复用 `Conversations`、`BubbleList`、`XSender`、`Attachments` 的现有模式。
+- 当前 `vue-element-plus-x` 通过 `file:./vendor/vue-element-plus-x` 引用本地最新源码包；业务代码仍统一从 `vue-element-plus-x` 导入，后续切回官方 npm tag 时不需要调整页面 import。
+- 会话列表、消息流、输入器、附件区和 Markdown 回复分别复用 `Conversations`、`BubbleList`、`Sender`、`Attachments`、`XMarkdown`。
 - 附件发送会透传 `id/name/size/url/mime_type`，用于后端读取真实文件内容参与模型推理。
+- 输入器支持点击回形针选择附件、直接粘贴文件和浏览器语音输入；当前限制最多 6 个附件，单个附件不超过 20MB。
+- 附件卡片支持预览：图片使用大图预览，PDF、Word、Excel 等其它文件通过浏览器新窗口打开。
+- 图片附件会由服务端读取为多模态视觉输入发送给模型；文本、Markdown、日志、JSON、XML、CSV 等文本类附件会读取正文后随本轮问题发送给模型。PDF、Word、Excel 等文档当前先上传、展示并保存元信息，暂不解析正文。
+- 助手回复使用 `vue-element-plus-x` 的 `XMarkdown` 渲染 Markdown，支持标题、列表、表格、引用和代码块；用户消息仍按纯文本展示，避免把原始输入误解析为 Markdown。
 - 聊天区会先本地回显用户消息，再显示助手“思考中”占位态；助手回复会通过 SSE 流式逐段渲染，最终再与服务端正式消息收敛，并按 `reply_source` 区分模型回答、工具回答和降级回复。
 
 ## 开发约定

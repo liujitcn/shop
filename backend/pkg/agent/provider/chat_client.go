@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/blades"
 	openaiProvider "github.com/go-kratos/blades/contrib/openai"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
+	"github.com/openai/openai-go/v3/shared"
 )
 
 // ChatClient 表示智能体对话模型客户端。
@@ -26,7 +27,7 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 	if baseURL == "" || apiKey == "" || model == "" {
 		return client
 	}
-	providerConfig := openaiProvider.Config{
+	client.provider = openaiProvider.NewModel(model, openaiProvider.Config{
 		BaseURL:          baseURL,
 		APIKey:           apiKey,
 		Seed:             bootstrapCfg.GetSeed(),
@@ -36,8 +37,9 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 		Temperature:      bootstrapCfg.GetTemperature(),
 		TopP:             bootstrapCfg.GetTopP(),
 		StopSequences:    bootstrapCfg.GetStopSequences(),
-	}
-	client.provider = openaiProvider.NewModel(model, providerConfig)
+		ExtraFields:      llmExtraFields(bootstrapCfg),
+		ReasoningEffort:  shared.ReasoningEffort(strings.TrimSpace(bootstrapCfg.GetReasoningEffort())),
+	})
 	return client
 }
 

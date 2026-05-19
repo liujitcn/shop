@@ -17,19 +17,21 @@ const _ = grpc.SupportPackageIsVersion7
 // AiAssistantService AI 助手公共服务。
 type AiAssistantService struct {
 	basev1.UnimplementedAiAssistantServiceServer
-	aiAssistantCase *biz.AiAssistantCase
+	aiAssistantSessionCase *biz.AiAssistantSessionCase
+	aiAssistantMessageCase *biz.AiAssistantMessageCase
 }
 
 // NewAiAssistantService 创建 AI 助手公共服务。
-func NewAiAssistantService(aiAssistantCase *biz.AiAssistantCase) *AiAssistantService {
+func NewAiAssistantService(aiAssistantSessionCase *biz.AiAssistantSessionCase, aiAssistantMessageCase *biz.AiAssistantMessageCase) *AiAssistantService {
 	return &AiAssistantService{
-		aiAssistantCase: aiAssistantCase,
+		aiAssistantSessionCase: aiAssistantSessionCase,
+		aiAssistantMessageCase: aiAssistantMessageCase,
 	}
 }
 
 // ListAiAssistantSessions 查询 AI 助手会话列表。
 func (s *AiAssistantService) ListAiAssistantSessions(ctx context.Context, req *basev1.ListAiAssistantSessionsRequest) (*basev1.ListAiAssistantSessionsResponse, error) {
-	res, err := s.aiAssistantCase.ListAiAssistantSessions(ctx, req)
+	res, err := s.aiAssistantSessionCase.ListAiAssistantSessions(ctx, req)
 	if err != nil {
 		log.Errorf("ListAiAssistantSessions %v", err)
 		return nil, errorsx.WrapInternal(err, "查询AI助手会话失败")
@@ -39,7 +41,7 @@ func (s *AiAssistantService) ListAiAssistantSessions(ctx context.Context, req *b
 
 // CreateAiAssistantSession 创建 AI 助手会话。
 func (s *AiAssistantService) CreateAiAssistantSession(ctx context.Context, req *basev1.CreateAiAssistantSessionRequest) (*basev1.AiAssistantSession, error) {
-	res, err := s.aiAssistantCase.CreateAiAssistantSession(ctx, req)
+	res, err := s.aiAssistantSessionCase.CreateAiAssistantSession(ctx, req)
 	if err != nil {
 		log.Errorf("CreateAiAssistantSession %v", err)
 		return nil, errorsx.WrapInternal(err, "创建AI助手会话失败")
@@ -49,7 +51,7 @@ func (s *AiAssistantService) CreateAiAssistantSession(ctx context.Context, req *
 
 // UpdateAiAssistantSession 更新 AI 助手会话。
 func (s *AiAssistantService) UpdateAiAssistantSession(ctx context.Context, req *basev1.UpdateAiAssistantSessionRequest) (*basev1.AiAssistantSession, error) {
-	res, err := s.aiAssistantCase.UpdateAiAssistantSession(ctx, req)
+	res, err := s.aiAssistantSessionCase.UpdateAiAssistantSession(ctx, req)
 	if err != nil {
 		log.Errorf("UpdateAiAssistantSession %v", err)
 		return nil, errorsx.WrapInternal(err, "更新AI助手会话失败")
@@ -59,7 +61,7 @@ func (s *AiAssistantService) UpdateAiAssistantSession(ctx context.Context, req *
 
 // DeleteAiAssistantSession 删除 AI 助手会话。
 func (s *AiAssistantService) DeleteAiAssistantSession(ctx context.Context, req *basev1.DeleteAiAssistantSessionRequest) (*emptypb.Empty, error) {
-	res, err := s.aiAssistantCase.DeleteAiAssistantSession(ctx, req)
+	res, err := s.aiAssistantSessionCase.DeleteAiAssistantSession(ctx, req)
 	if err != nil {
 		log.Errorf("DeleteAiAssistantSession %v", err)
 		return nil, errorsx.WrapInternal(err, "删除AI助手会话失败")
@@ -69,20 +71,10 @@ func (s *AiAssistantService) DeleteAiAssistantSession(ctx context.Context, req *
 
 // ListAiAssistantMessages 查询 AI 助手消息列表。
 func (s *AiAssistantService) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
-	res, err := s.aiAssistantCase.ListAiAssistantMessages(ctx, req)
+	res, err := s.aiAssistantMessageCase.ListAiAssistantMessages(ctx, req)
 	if err != nil {
 		log.Errorf("ListAiAssistantMessages %v", err)
 		return nil, errorsx.WrapInternal(err, "查询AI助手消息失败")
-	}
-	return res, nil
-}
-
-// SendAiAssistantMessage 发送 AI 助手消息。
-func (s *AiAssistantService) SendAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
-	res, err := s.aiAssistantCase.SendAiAssistantMessage(ctx, req)
-	if err != nil {
-		log.Errorf("SendAiAssistantMessage %v", err)
-		return nil, errorsx.WrapInternal(err, "发送AI助手消息失败")
 	}
 	return res, nil
 }

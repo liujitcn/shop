@@ -43,7 +43,6 @@ type Response struct {
 // RuntimeInput 表示 AI 助手运行时输入。
 type RuntimeInput struct {
 	Terminal     string
-	Scene        string
 	UserName     string
 	SessionTitle string
 	SessionID    string

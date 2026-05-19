@@ -9,7 +9,6 @@ import (
 
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
-	"shop/pkg/agent/stream"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/workspaceevent"
@@ -60,8 +59,8 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 		return nil, errorsx.Internal("SSE服务未初始化")
 	}
 	switch req.GetStream() {
-	// 当前支持管理后台工作台刷新流和 AI 助手流。
-	case commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE, commonv1.SseStream_SSE_STREAM_ADMIN_AI_ASSISTANT:
+	// 当前通用 SSE 仅支持管理后台工作台刷新流。
+	case commonv1.SseStream_SSE_STREAM_ADMIN_WORKSPACE:
 	default:
 		return nil, errorsx.InvalidArgument("SSE流不支持")
 	}
@@ -74,18 +73,14 @@ func (h *SseCase) SubscribeSse(ctx context.Context, req *basev1.SubscribeSseRequ
 	if !ok || r == nil {
 		return nil, errorsx.InvalidArgument("SSE订阅仅支持HTTP访问")
 	}
-	userToken, authorized := h.authorizeRequest(r)
+	_, authorized := h.authorizeRequest(r)
 	if !authorized {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return nil, nil
 	}
 
-	streamID := stream.ResolveAdminStreamID(req.GetStream(), userToken.UserId)
-	if strings.TrimSpace(streamID) == "" {
-		return nil, errorsx.InvalidArgument("SSE流不支持")
-	}
-	h.sse.ServeStreamHTTP(w, r, sseServer.StreamID(streamID))
+	h.sse.ServeStreamHTTP(w, r, sseServer.StreamID(workspaceevent.StreamID(req.GetStream())))
 	return &emptypb.Empty{}, nil
 }
 

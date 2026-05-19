@@ -31,7 +31,6 @@ func newAiAssistantSession(db *gorm.DB, opts ...gen.DOOption) aiAssistantSession
 	_aiAssistantSession.UserID = field.NewInt64(tableName, "user_id")
 	_aiAssistantSession.Terminal = field.NewInt32(tableName, "terminal")
 	_aiAssistantSession.Title = field.NewString(tableName, "title")
-	_aiAssistantSession.Scene = field.NewString(tableName, "scene")
 	_aiAssistantSession.Summary = field.NewString(tableName, "summary")
 	_aiAssistantSession.ToolCount = field.NewInt32(tableName, "tool_count")
 	_aiAssistantSession.LastMessageAt = field.NewTime(tableName, "last_message_at")
@@ -53,7 +52,6 @@ type aiAssistantSession struct {
 	UserID        field.Int64  // 所属用户ID
 	Terminal      field.Int32  // 终端类型：枚举【Terminal】
 	Title         field.String // 会话标题
-	Scene         field.String // 会话场景
 	Summary       field.String // 会话摘要
 	ToolCount     field.Int32  // 最近一次回复工具数
 	LastMessageAt field.Time   // 最后消息时间
@@ -80,7 +78,6 @@ func (a *aiAssistantSession) updateTableName(table string) *aiAssistantSession {
 	a.UserID = field.NewInt64(table, "user_id")
 	a.Terminal = field.NewInt32(table, "terminal")
 	a.Title = field.NewString(table, "title")
-	a.Scene = field.NewString(table, "scene")
 	a.Summary = field.NewString(table, "summary")
 	a.ToolCount = field.NewInt32(table, "tool_count")
 	a.LastMessageAt = field.NewTime(table, "last_message_at")
@@ -115,12 +112,11 @@ func (a *aiAssistantSession) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *aiAssistantSession) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 11)
+	a.fieldMap = make(map[string]field.Expr, 10)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["user_id"] = a.UserID
 	a.fieldMap["terminal"] = a.Terminal
 	a.fieldMap["title"] = a.Title
-	a.fieldMap["scene"] = a.Scene
 	a.fieldMap["summary"] = a.Summary
 	a.fieldMap["tool_count"] = a.ToolCount
 	a.fieldMap["last_message_at"] = a.LastMessageAt

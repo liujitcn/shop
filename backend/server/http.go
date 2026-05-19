@@ -119,6 +119,9 @@ func NewHTTPServer(
 	appv1.RegisterUserStoreServiceHTTPServer(srv, services.appUserStore)
 
 	basev1.RegisterAiAssistantServiceHTTPServer(srv, services.aiAssistant)
+	// AI 助手消息发送使用直连 SSE，避免占用工作台共用 /events 流。
+	base.RegisterAiAssistantMessageServiceHTTPServer(srv, services.aiAssistantMessage)
+	basev1.RegisterAiImageServiceHTTPServer(srv, services.aiImage)
 	basev1.RegisterConfigServiceHTTPServer(srv, services.config)
 	// 文件上传需要兼容 uni.uploadFile 的 multipart/form-data 请求，使用自定义 HTTP 适配器。
 	base.RegisterFileServiceHTTPServer(srv, services.file)

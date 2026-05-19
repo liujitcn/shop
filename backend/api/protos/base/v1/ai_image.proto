@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Base AI 图片服务
+service AiImageService {
+  // 生成 AI 图片
+  rpc GenerateAiImage(GenerateAiImageRequest) returns (GenerateAiImageResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/image/generation"
+      body: "*"
+    };
+  }
+
+  // 润色 AI 图片提示词
+  rpc PolishAiImagePrompt(PolishAiImagePromptRequest) returns (PolishAiImagePromptResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/image/prompt/polish"
+      body: "*"
+    };
+  }
+}
+
+// AI 图片生成请求
+message GenerateAiImageRequest {
+  string prompt = 1 [(gnostic.openapi.v3.property) = {description: "图片生成提示词"}]; // 图片生成提示词
+
+  string model = 2 [(gnostic.openapi.v3.property) = {description: "图片模型名称"}]; // 图片模型名称
+
+  string size = 3 [(gnostic.openapi.v3.property) = {description: "图片尺寸"}]; // 图片尺寸
+
+  string quality = 4 [(gnostic.openapi.v3.property) = {description: "图片质量"}]; // 图片质量
+
+  string style = 5 [(gnostic.openapi.v3.property) = {description: "图片风格"}]; // 图片风格
+
+  string background = 6 [(gnostic.openapi.v3.property) = {description: "背景模式"}]; // 背景模式
+
+  string output_format = 7 [(gnostic.openapi.v3.property) = {description: "输出格式"}]; // 输出格式
+
+  string response_format = 8 [(gnostic.openapi.v3.property) = {description: "响应格式"}]; // 响应格式
+
+  int64 n = 9 [(gnostic.openapi.v3.property) = {description: "生成数量"}]; // 生成数量
+
+  bool save_output = 10 [(gnostic.openapi.v3.property) = {description: "是否保存生成图片到对象存储"}]; // 是否保存生成图片到对象存储
+
+  bool polish_prompt = 11 [(gnostic.openapi.v3.property) = {description: "是否先润色提示词再生成"}]; // 是否先润色提示词再生成
+}
+
+// AI 图片提示词润色请求
+message PolishAiImagePromptRequest {
+  string prompt = 1 [(gnostic.openapi.v3.property) = {description: "原始图片提示词"}]; // 原始图片提示词
+
+  string scene = 2 [(gnostic.openapi.v3.property) = {description: "图片使用场景"}]; // 图片使用场景
+}
+
+// AI 图片提示词润色响应
+message PolishAiImagePromptResponse {
+  string prompt = 1 [(gnostic.openapi.v3.property) = {description: "润色后的图片提示词"}]; // 润色后的图片提示词
+
+  string original_prompt = 2 [(gnostic.openapi.v3.property) = {description: "原始图片提示词"}]; // 原始图片提示词
+
+  string model = 3 [(gnostic.openapi.v3.property) = {description: "润色模型名称"}]; // 润色模型名称
+}
+
+// AI 图片生成响应
+message GenerateAiImageResponse {
+  repeated AiImage images = 1 [(gnostic.openapi.v3.property) = {description: "图片列表"}]; // 图片列表
+
+  string model = 2 [(gnostic.openapi.v3.property) = {description: "图片模型名称"}]; // 图片模型名称
+
+  string prompt = 3 [(gnostic.openapi.v3.property) = {description: "图片生成提示词"}]; // 图片生成提示词
+
+  int64 created = 4 [(gnostic.openapi.v3.property) = {description: "模型生成时间戳"}]; // 模型生成时间戳
+
+  string request_id = 5 [(gnostic.openapi.v3.property) = {description: "生成批次编号"}]; // 生成批次编号
+
+  string original_prompt = 6 [(gnostic.openapi.v3.property) = {description: "原始图片提示词"}]; // 原始图片提示词
+}
+
+// AI 图片结果
+message AiImage {
+  string name = 1 [(gnostic.openapi.v3.property) = {description: "图片名称"}]; // 图片名称
+
+  string url = 2 [(gnostic.openapi.v3.property) = {description: "图片地址"}]; // 图片地址
+
+  string mime_type = 3 [(gnostic.openapi.v3.property) = {description: "图片 MIME 类型"}]; // 图片 MIME 类型
+
+  int64 size = 4 [(gnostic.openapi.v3.property) = {description: "图片字节大小"}]; // 图片字节大小
+
+  string revised_prompt = 5 [(gnostic.openapi.v3.property) = {description: "模型修订后的提示词"}]; // 模型修订后的提示词
+
+  bool saved = 6 [(gnostic.openapi.v3.property) = {description: "是否已保存到对象存储"}]; // 是否已保存到对象存储
+
+  string storage_path = 7 [(gnostic.openapi.v3.property) = {description: "对象存储目录"}]; // 对象存储目录
+
+  string request_id = 8 [(gnostic.openapi.v3.property) = {description: "生成批次编号"}]; // 生成批次编号
+}

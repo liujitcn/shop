@@ -3,8 +3,8 @@
     <div class="agent-session-brand">
       <div class="agent-session-brand__main">
         <div class="agent-session-brand__copy">
-          <div class="agent-session-brand__title">AI助手</div>
-          <div class="agent-session-brand__desc">经营问答与辅助处理</div>
+          <div class="agent-session-brand__title">AI 助手</div>
+          <div class="agent-session-brand__desc">通用问答与内容处理</div>
         </div>
       </div>
       <el-tooltip content="收起会话栏" placement="top">
@@ -34,34 +34,21 @@
       class="agent-conversations"
       :items="sessions"
       row-key="id"
-      label-key="label"
+      label-key="title"
+      :menu="sessionMenus"
       :show-tooltip="true"
+      :show-built-in-menu="true"
+      show-built-in-menu-type="hover"
       :label-height="72"
       @change="handleSessionChange"
+      @menu-command="handleMenuCommand"
     >
       <template #label="{ item }">
         <div class="agent-session-item">
           <div class="agent-session-main">
-            <div class="agent-session-name">{{ item.label }}</div>
+            <div class="agent-session-name">{{ item.title }}</div>
             <div class="agent-session-meta">{{ item.summary }}</div>
           </div>
-          <el-dropdown trigger="click" @command="command => handleAction(command as SessionAction, item)">
-            <button class="agent-session-more" type="button" aria-label="更多操作" @click.stop>
-              <el-icon><MoreFilled /></el-icon>
-            </button>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="rename">
-                  <el-icon><EditPen /></el-icon>
-                  重命名
-                </el-dropdown-item>
-                <el-dropdown-item command="delete">
-                  <el-icon><Delete /></el-icon>
-                  删除
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
         </div>
       </template>
     </Conversations>
@@ -70,15 +57,12 @@
 
 <script setup lang="ts" name="SessionPanel">
 import { computed } from "vue";
-import { DArrowLeft, Delete, EditPen, MoreFilled, Plus, Search } from "@element-plus/icons-vue";
 import { Conversations } from "vue-element-plus-x";
-import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
+import type { ConversationMenu, ConversationMenuCommand } from "vue-element-plus-x/types/components/Conversations/types";
+import { DArrowLeft, Delete, EditPen, Plus, Search } from "@element-plus/icons-vue";
+import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 
 type SessionAction = "rename" | "delete";
-
-type SessionListItem = AiAssistantSession & {
-  label: string;
-};
 
 const props = defineProps<{
   /** 当前活动会话编号。 */
@@ -86,7 +70,7 @@ const props = defineProps<{
   /** 会话搜索关键词。 */
   keyword: string;
   /** 过滤后的会话列表。 */
-  sessions: SessionListItem[];
+  sessions: AiAssistantSession[];
 }>();
 
 const emit = defineEmits<{
@@ -95,9 +79,9 @@ const emit = defineEmits<{
   /** 更新搜索关键词。 */
   "update:keyword": [value: string];
   /** 通知父组件会话已切换。 */
-  change: [item: SessionListItem];
+  change: [item: AiAssistantSession];
   /** 会话操作菜单。 */
-  action: [payload: { action: SessionAction; item: SessionListItem }];
+  action: [payload: { action: SessionAction; item: AiAssistantSession }];
   /** 创建新的会话。 */
   create: [];
   /** 收起会话栏。 */
@@ -109,18 +93,36 @@ const activeID = computed({
   set: value => emit("update:active", value)
 });
 
+const sessionMenus: ConversationMenu[] = [
+  {
+    label: "重命名",
+    key: "rename",
+    icon: EditPen,
+    command: "rename"
+  },
+  {
+    label: "删除",
+    key: "delete",
+    icon: Delete,
+    divided: true,
+    command: "delete"
+  }
+];
+
 /** 同步搜索关键词。 */
 function handleKeywordUpdate(value: string) {
   emit("update:keyword", value);
 }
 
 /** 同步当前会话，并保留 Conversations 的完整变更对象。 */
-function handleSessionChange(item: SessionListItem) {
+function handleSessionChange(item: AiAssistantSession) {
   emit("change", item);
 }
 
-/** 透传会话项操作，后续由父组件接入真实重命名和删除。 */
-function handleAction(action: SessionAction, item: SessionListItem) {
+/** 透传 Conversations 内置菜单操作，后续由父组件接入真实重命名和删除。 */
+function handleMenuCommand(command: ConversationMenuCommand, item: AiAssistantSession) {
+  const action = String(command ?? "") as SessionAction;
+  if (action !== "rename" && action !== "delete") return;
   emit("action", { action, item });
 }
 
@@ -144,7 +146,7 @@ function handleCreateSession() {
   :deep(.el-input__wrapper) {
     padding: 10px 14px;
     background: var(--el-fill-color-light);
-    border-radius: calc(var(--admin-page-radius) + 2px);
+    border-radius: var(--admin-page-radius);
     box-shadow: none;
   }
 }
@@ -235,7 +237,7 @@ function handleCreateSession() {
   cursor: pointer;
   background: var(--el-color-primary-light-9);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
@@ -261,14 +263,39 @@ function handleCreateSession() {
   }
 
   :deep(.elx-conversations-item) {
+    position: relative;
     padding: 0;
     background: transparent;
-    border: 0;
-    border-radius: calc(var(--admin-page-radius) + 2px);
+    border: 1px solid transparent;
+    border-radius: var(--admin-page-radius);
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
-  :deep(.elx-conversations-item.is-active) {
-    background: var(--el-fill-color-light);
+  :deep(.elx-conversations-item:not(:last-child)::after) {
+    position: absolute;
+    right: 16px;
+    bottom: -6px;
+    left: 16px;
+    height: 1px;
+    content: "";
+    background: var(--el-border-color-lighter);
+  }
+
+  :deep(.elx-conversations-item--active) {
+    background: var(--el-color-primary-light-9);
+    border-color: var(--el-color-primary-light-5);
+    box-shadow: inset 3px 0 0 var(--el-color-primary);
+  }
+
+  :deep(.elx-conversations-item--active .agent-session-name) {
+    color: var(--el-color-primary);
+  }
+
+  :deep(.elx-conversations-item--active .agent-session-meta) {
+    color: var(--admin-page-text-primary);
   }
 }
 
@@ -279,7 +306,7 @@ function handleCreateSession() {
   min-width: 0;
   min-height: 76px;
   padding: 14px 16px;
-  border-radius: calc(var(--admin-page-radius) + 2px);
+  border-radius: var(--admin-page-radius);
 }
 
 .agent-session-main {
@@ -305,28 +332,6 @@ function handleCreateSession() {
   color: var(--admin-page-text-secondary);
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.agent-session-more {
-  display: inline-flex;
-  width: 34px;
-  height: 34px;
-  flex: 0 0 auto;
-  color: var(--admin-page-text-secondary);
-  visibility: hidden;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  border: 0;
-  border-radius: 10px;
-}
-
-.agent-conversations {
-  :deep(.elx-conversations-item:hover .agent-session-more),
-  :deep(.elx-conversations-item.is-active .agent-session-more) {
-    visibility: visible;
-  }
 }
 
 @media screen and (max-width: 768px) {

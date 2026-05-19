@@ -6,3 +6,4 @@ client:
     model: ''
     maxOutputTokens: 1024
     temperature: 0.2
+    reasoningEffort: xhigh

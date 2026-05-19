@@ -1,7 +1,7 @@
 server:
   http:
     addr: :7001
-    timeout: 10s
+    timeout: 0s
     enable_swagger: true
     enable_pprof: true
     cors:

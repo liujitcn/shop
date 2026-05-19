@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-mcp-tool v0.0.1
 // - protoc                  (unknown)
-// source: base/v1/ai_assistant.proto
+// source: base/v1/ai_assistant_session.proto
 
 package basev1
 
@@ -13,14 +13,13 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterAiAssistantServiceMCPTools 注册Base AI 助手服务的 MCP Tool。
+// RegisterAiAssistantServiceMCPTools 注册Base AI 助手会话服务的 MCP Tool。
 func RegisterAiAssistantServiceMCPTools(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
 	RegisterAiAssistantServiceListAiAssistantSessionsMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceCreateAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceUpdateAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool(mcpServer, aiAssistantServiceServer)
 	RegisterAiAssistantServiceListAiAssistantMessagesMCPTool(mcpServer, aiAssistantServiceServer)
-	RegisterAiAssistantServiceSendAiAssistantMessageMCPTool(mcpServer, aiAssistantServiceServer)
 }
 
 // RegisterAiAssistantServiceListAiAssistantSessionsMCPTool 注册查询 AI 助手会话列表的 MCP Tool。
@@ -44,13 +43,13 @@ func RegisterAiAssistantServiceListAiAssistantSessionsMCPTool(mcpServer *mcp.Ser
 	)
 }
 
-// RegisterAiAssistantServiceCreateAiAssistantSessionMCPTool 注册创建 AI 助手会话的 MCP Tool。
+// RegisterAiAssistantServiceCreateAiAssistantSessionMCPTool 注册创建 AI 助手会话 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 MCP Tool。
 func RegisterAiAssistantServiceCreateAiAssistantSessionMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
 	mcp.AddTool[*CreateAiAssistantSessionRequest, *AiAssistantSession](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_assistant_service_create_ai_assistant_session",
-			Description: "创建 AI 助手会话",
+			Description: "创建 AI 助手会话 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
 		},
 		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiAssistantSessionRequest) (*mcp.CallToolResult, *AiAssistantSession, error) {
 			if input == nil {
@@ -65,13 +64,13 @@ func RegisterAiAssistantServiceCreateAiAssistantSessionMCPTool(mcpServer *mcp.Se
 	)
 }
 
-// RegisterAiAssistantServiceUpdateAiAssistantSessionMCPTool 注册更新 AI 助手会话的 MCP Tool。
+// RegisterAiAssistantServiceUpdateAiAssistantSessionMCPTool 注册更新 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 MCP Tool。
 func RegisterAiAssistantServiceUpdateAiAssistantSessionMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
 	mcp.AddTool[*UpdateAiAssistantSessionRequest, *AiAssistantSession](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_assistant_service_update_ai_assistant_session",
-			Description: "更新 AI 助手会话",
+			Description: "更新 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
 		},
 		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateAiAssistantSessionRequest) (*mcp.CallToolResult, *AiAssistantSession, error) {
 			if input == nil {
@@ -86,13 +85,13 @@ func RegisterAiAssistantServiceUpdateAiAssistantSessionMCPTool(mcpServer *mcp.Se
 	)
 }
 
-// RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool 注册删除 AI 助手会话的 MCP Tool。
+// RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool 注册删除 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 MCP Tool。
 func RegisterAiAssistantServiceDeleteAiAssistantSessionMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
 	mcp.AddTool[*DeleteAiAssistantSessionRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_assistant_service_delete_ai_assistant_session",
-			Description: "删除 AI 助手会话",
+			Description: "删除 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
 		},
 		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiAssistantSessionRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
@@ -120,27 +119,6 @@ func RegisterAiAssistantServiceListAiAssistantMessagesMCPTool(mcpServer *mcp.Ser
 				input = &ListAiAssistantMessagesRequest{}
 			}
 			reply, err := aiAssistantServiceServer.ListAiAssistantMessages(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
-}
-
-// RegisterAiAssistantServiceSendAiAssistantMessageMCPTool 注册发送 AI 助手消息的 MCP Tool。
-func RegisterAiAssistantServiceSendAiAssistantMessageMCPTool(mcpServer *mcp.Server, aiAssistantServiceServer AiAssistantServiceServer) {
-	mcp.AddTool[*SendAiAssistantMessageRequest, *SendAiAssistantMessageResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "base_v1_ai_assistant_service_send_ai_assistant_message",
-			Description: "发送 AI 助手消息",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SendAiAssistantMessageRequest) (*mcp.CallToolResult, *SendAiAssistantMessageResponse, error) {
-			if input == nil {
-				input = &SendAiAssistantMessageRequest{}
-			}
-			reply, err := aiAssistantServiceServer.SendAiAssistantMessage(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

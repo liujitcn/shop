@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-// Base AI 助手服务
+// Base AI 助手会话服务
 service AiAssistantService {
   // 查询 AI 助手会话列表
   rpc ListAiAssistantSessions(ListAiAssistantSessionsRequest) returns (ListAiAssistantSessionsResponse) {
@@ -18,6 +18,8 @@ service AiAssistantService {
   }
 
   // 创建 AI 助手会话
+  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc CreateAiAssistantSession(CreateAiAssistantSessionRequest) returns (AiAssistantSession) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/assistant/session"
@@ -26,6 +28,7 @@ service AiAssistantService {
   }
 
   // 更新 AI 助手会话
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc UpdateAiAssistantSession(UpdateAiAssistantSessionRequest) returns (AiAssistantSession) {
     option (google.api.http) = {
       put: "/api/v1/base/ai/assistant/session/{id}"
@@ -34,6 +37,7 @@ service AiAssistantService {
   }
 
   // 删除 AI 助手会话
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc DeleteAiAssistantSession(DeleteAiAssistantSessionRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete: "/api/v1/base/ai/assistant/session/{id}"
@@ -44,14 +48,6 @@ service AiAssistantService {
   rpc ListAiAssistantMessages(ListAiAssistantMessagesRequest) returns (ListAiAssistantMessagesResponse) {
     option (google.api.http) = {
       get: "/api/v1/base/ai/assistant/session/{session_id}/message"
-    };
-  }
-
-  // 发送 AI 助手消息
-  rpc SendAiAssistantMessage(SendAiAssistantMessageRequest) returns (SendAiAssistantMessageResponse) {
-    option (google.api.http) = {
-      post: "/api/v1/base/ai/assistant/session/{session_id}/message"
-      body: "*"
     };
   }
 }
@@ -70,9 +66,7 @@ message ListAiAssistantSessionsResponse {
 message CreateAiAssistantSessionRequest {
   string title = 1 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题
 
-  string scene = 2 [(gnostic.openapi.v3.property) = {description: "会话场景"}]; // 会话场景
-
-  .common.v1.Terminal terminal = 3 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+  .common.v1.Terminal terminal = 2 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手会话更新请求
@@ -97,39 +91,19 @@ message ListAiAssistantMessagesResponse {
   repeated AiAssistantMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "消息列表"}]; // 消息列表
 }
 
-// AI 助手消息发送请求
-message SendAiAssistantMessageRequest {
-  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
-
-  string content = 2 [(gnostic.openapi.v3.property) = {description: "消息内容"}]; // 消息内容
-
-  repeated AiAssistantAttachment attachments = 3 [(gnostic.openapi.v3.property) = {description: "附件列表"}]; // 附件列表
-
-  string client_message_id = 4 [(gnostic.openapi.v3.property) = {description: "前端本地消息ID，用于流式回复关联"}]; // 前端本地消息ID，用于流式回复关联
-}
-
-// AI 助手消息发送响应
-message SendAiAssistantMessageResponse {
-  repeated AiAssistantMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "新增消息列表"}]; // 新增消息列表
-
-  AiAssistantSession session = 2 [(gnostic.openapi.v3.property) = {description: "最新会话信息"}]; // 最新会话信息
-}
-
 // AI 助手会话
 message AiAssistantSession {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
 
   string title = 2 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题
 
-  string scene = 3 [(gnostic.openapi.v3.property) = {description: "会话场景"}]; // 会话场景
+  string summary = 3 [(gnostic.openapi.v3.property) = {description: "会话摘要"}]; // 会话摘要
 
-  string summary = 4 [(gnostic.openapi.v3.property) = {description: "会话摘要"}]; // 会话摘要
+  int32 tool_count = 4 [(gnostic.openapi.v3.property) = {description: "工具数量"}]; // 工具数量
 
-  int32 tool_count = 5 [(gnostic.openapi.v3.property) = {description: "工具数量"}]; // 工具数量
+  google.protobuf.Timestamp updated_at = 5 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
 
-  google.protobuf.Timestamp updated_at = 6 [(gnostic.openapi.v3.property) = {description: "更新时间"}]; // 更新时间
-
-  .common.v1.Terminal terminal = 7 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+  .common.v1.Terminal terminal = 6 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 助手消息

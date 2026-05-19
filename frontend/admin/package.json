@@ -38,6 +38,7 @@
     "@element-plus/icons-vue": "^2.3.1",
     "@logicflow/core": "^2.2.1",
     "@microsoft/fetch-event-source": "^2.0.1",
+    "@shikijs/core": "^3.17.1",
     "@vueuse/core": "^10.11.0",
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",
@@ -48,6 +49,7 @@
     "echarts": "^5.5.1",
     "echarts-liquidfill": "^3.1.0",
     "element-plus": "^2.7.6",
+    "hook-fetch": "^2.3.2",
     "md5": "^2.3.0",
     "mitt": "^3.0.1",
     "nprogress": "^0.2.0",
@@ -57,9 +59,10 @@
     "screenfull": "^6.0.2",
     "sortablejs": "^1.15.2",
     "vue": "^3.4.31",
-    "vue-element-plus-x": "^2.0.1",
+    "vue-element-plus-x": "^2.0.3",
     "vue-router": "^4.4.0",
-    "vuedraggable": "^4.1.0"
+    "vuedraggable": "^4.1.0",
+    "x-markdown-vue": "^0.0.200"
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
@@ -97,6 +100,7 @@
     "stylelint-config-recommended-vue": "^1.5.0",
     "stylelint-config-standard": "^36.0.0",
     "stylelint-config-standard-scss": "^13.1.0",
+    "ts-proto": "^2.11.8",
     "typescript": "5.5.4",
     "unplugin-auto-import": "^21.0.0",
     "unplugin-vue-components": "^32.0.0",

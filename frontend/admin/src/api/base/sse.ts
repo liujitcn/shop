@@ -21,26 +21,6 @@ export interface SseRefreshPayload {
   occurred_at: string;
 }
 
-/** AI 助手流式事件负载。 */
-export interface SseAiAssistantPayload {
-  /** 事件名称。 */
-  event: SseEvent;
-  /** 会话 ID。 */
-  session_id: string;
-  /** 前端本地消息 ID，用于关联流式占位消息。 */
-  client_message_id: string;
-  /** 本次新增的文本分片。 */
-  delta?: string;
-  /** 流式完成后的最终消息列表。 */
-  messages?: unknown[];
-  /** 流式完成后的最新会话。 */
-  session?: unknown;
-  /** 异常提示。 */
-  error_message?: string;
-  /** 事件发生时间。 */
-  occurred_at: string;
-}
-
 /** SSE 刷新事件处理函数。 */
 export type SseRefreshHandler = (payload: SseRefreshPayload) => void;
 
@@ -197,36 +177,6 @@ export function subscribeSseRefresh(stream: SseStream, handler: SseRefreshHandle
   return subscribeSseEvent(stream, SseEvent.SSE_EVENT_PAGE_REFRESH, raw => parseSseRefreshPayload(raw), handler);
 }
 
-/** 订阅 AI 助手流式文本增量事件。 */
-export function subscribeAiAssistantDelta(handler: (payload: SseAiAssistantPayload) => void): SseStop {
-  return subscribeSseEvent(
-    SseStream.SSE_STREAM_ADMIN_AI_ASSISTANT,
-    SseEvent.SSE_EVENT_AI_ASSISTANT_DELTA,
-    raw => parseAiAssistantPayload(raw, SseEvent.SSE_EVENT_AI_ASSISTANT_DELTA),
-    handler
-  );
-}
-
-/** 订阅 AI 助手流式完成事件。 */
-export function subscribeAiAssistantFinish(handler: (payload: SseAiAssistantPayload) => void): SseStop {
-  return subscribeSseEvent(
-    SseStream.SSE_STREAM_ADMIN_AI_ASSISTANT,
-    SseEvent.SSE_EVENT_AI_ASSISTANT_FINISH,
-    raw => parseAiAssistantPayload(raw, SseEvent.SSE_EVENT_AI_ASSISTANT_FINISH),
-    handler
-  );
-}
-
-/** 订阅 AI 助手流式异常事件。 */
-export function subscribeAiAssistantError(handler: (payload: SseAiAssistantPayload) => void): SseStop {
-  return subscribeSseEvent(
-    SseStream.SSE_STREAM_ADMIN_AI_ASSISTANT,
-    SseEvent.SSE_EVENT_AI_ASSISTANT_ERROR,
-    raw => parseAiAssistantPayload(raw, SseEvent.SSE_EVENT_AI_ASSISTANT_ERROR),
-    handler
-  );
-}
-
 /** 订阅指定 SSE 事件。 */
 export function subscribeSseEvent<T>(
   stream: SseStream,
@@ -272,23 +222,6 @@ function parseSseRefreshPayload(raw: string): SseRefreshPayload | null {
   try {
     const payload = JSON.parse(raw) as SseRefreshPayload;
     if (payload.event !== SseEvent.SSE_EVENT_PAGE_REFRESH || !Array.isArray(payload.targets)) {
-      return null;
-    }
-    return payload;
-  } catch {
-    return null;
-  }
-}
-
-/** 解析 AI 助手流式事件负载。 */
-function parseAiAssistantPayload(raw: string, event: SseEvent): SseAiAssistantPayload | null {
-  if (!raw) {
-    return null;
-  }
-
-  try {
-    const payload = JSON.parse(raw) as SseAiAssistantPayload;
-    if (payload.event !== event || !payload.session_id || !payload.client_message_id) {
       return null;
     }
     return payload;

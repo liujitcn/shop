@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package base.v1;
+
+import "base/v1/ai_assistant_session.proto";
+import "gnostic/openapi/v3/annotations.proto";
+import "google/api/annotations.proto";
+
+// Base AI 助手消息服务
+service AiAssistantMessageService {
+  // 发送 AI 助手消息
+  rpc SendAiAssistantMessage(SendAiAssistantMessageRequest) returns (SendAiAssistantMessageResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/assistant/session/{session_id}/message"
+      body: "*"
+    };
+  }
+}
+
+// AI 助手消息发送请求
+message SendAiAssistantMessageRequest {
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
+
+  string content = 2 [(gnostic.openapi.v3.property) = {description: "消息内容"}]; // 消息内容
+
+  repeated AiAssistantAttachment attachments = 3 [(gnostic.openapi.v3.property) = {description: "附件列表"}]; // 附件列表
+
+  string client_message_id = 4 [(gnostic.openapi.v3.property) = {description: "前端本地消息ID，用于流式回复关联"}]; // 前端本地消息ID，用于流式回复关联
+}
+
+// AI 助手消息发送响应
+message SendAiAssistantMessageResponse {
+  repeated AiAssistantMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "新增消息列表"}]; // 新增消息列表
+
+  AiAssistantSession session = 2 [(gnostic.openapi.v3.property) = {description: "最新会话信息"}]; // 最新会话信息
+}

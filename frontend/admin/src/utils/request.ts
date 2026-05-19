@@ -88,7 +88,7 @@ function getTokenExpiresAt() {
 let isHandlingAuthExpired = false;
 
 /** 统一处理认证失效 */
-function handleAuthExpired() {
+export function handleAuthExpired() {
   if (isHandlingAuthExpired) {
     return;
   }

@@ -1,23 +1,18 @@
 import service from "@/utils/request";
 import type {
-  AiAssistantService,
   AiAssistantSession,
   CreateAiAssistantSessionRequest,
   DeleteAiAssistantSessionRequest,
-  ListAiAssistantMessagesRequest,
-  ListAiAssistantMessagesResponse,
   ListAiAssistantSessionsRequest,
   ListAiAssistantSessionsResponse,
-  SendAiAssistantMessageRequest,
-  SendAiAssistantMessageResponse,
   UpdateAiAssistantSessionRequest
-} from "@/rpc/base/v1/ai_assistant";
+} from "@/rpc/base/v1/ai_assistant_session";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
 
-/** AI 助手公共服务。 */
-export class AiAssistantServiceImpl implements AiAssistantService {
+/** AI 助手会话服务。 */
+export class AiAssistantSessionServiceImpl {
   /** 查询 AI 助手会话列表。 */
   ListAiAssistantSessions(request: ListAiAssistantSessionsRequest): Promise<ListAiAssistantSessionsResponse> {
     return service<ListAiAssistantSessionsRequest, ListAiAssistantSessionsResponse>({
@@ -53,24 +48,6 @@ export class AiAssistantServiceImpl implements AiAssistantService {
       params: request
     });
   }
-
-  /** 查询 AI 助手消息列表。 */
-  ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse> {
-    return service<ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse>({
-      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
-      method: "get",
-      params: request
-    });
-  }
-
-  /** 发送 AI 助手消息。 */
-  SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
-    return service<SendAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
-      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
-      method: "post",
-      data: request
-    });
-  }
 }
 
-export const defAiAssistantService = new AiAssistantServiceImpl();
+export const defAiAssistantSessionService = new AiAssistantSessionServiceImpl();

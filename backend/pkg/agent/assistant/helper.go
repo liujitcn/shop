@@ -12,13 +12,6 @@ import (
 )
 
 const (
-	// SceneWorkspace 表示工作台场景。
-	SceneWorkspace = "workspace"
-	// SceneRecommend 表示推荐分析场景。
-	SceneRecommend = "recommend"
-	// SceneComment 表示评价分析场景。
-	SceneComment = "comment"
-
 	// TerminalAdmin 表示管理端。
 	TerminalAdmin int32 = 2
 	// TerminalApp 表示商城端。
@@ -49,18 +42,6 @@ type replyPayload struct {
 	Model          string `json:"model"`
 	Fallback       bool   `json:"fallback"`
 	FallbackReason string `json:"fallback_reason"`
-}
-
-// NormalizeScene 规范化会话场景。
-func NormalizeScene(scene string) string {
-	switch strings.TrimSpace(scene) {
-	case SceneRecommend:
-		return SceneRecommend
-	case SceneComment:
-		return SceneComment
-	default:
-		return SceneWorkspace
-	}
 }
 
 // NormalizeTerminal 规范化终端类型。
@@ -115,36 +96,21 @@ func NormalizeAttachments(values []*basev1.AiAssistantAttachment) []*basev1.AiAs
 	return result
 }
 
-// BuildDefaultSummary 生成默认场景摘要。
-func BuildDefaultSummary(scene string) string {
-	switch NormalizeScene(scene) {
-	case SceneRecommend:
-		return "推荐分析 · 新会话"
-	case SceneComment:
-		return "评价中心 · 新会话"
-	default:
-		return "工作台 · 新会话"
-	}
+// BuildDefaultSummary 生成默认会话摘要。
+func BuildDefaultSummary() string {
+	return "新对话"
 }
 
 // BuildDynamicSummary 根据当前问题更新会话摘要。
-func BuildDynamicSummary(scene string, content string, attachments []*basev1.AiAssistantAttachment) string {
+func BuildDynamicSummary(content string, attachments []*basev1.AiAssistantAttachment) string {
 	preview := NormalizePreview(content)
 	if preview == "" && len(attachments) > 0 {
 		preview = fmt.Sprintf("%d 个附件", len(attachments))
 	}
 	if preview == "" {
-		return BuildDefaultSummary(scene)
+		return BuildDefaultSummary()
 	}
-
-	switch NormalizeScene(scene) {
-	case SceneRecommend:
-		return "推荐分析 · " + preview
-	case SceneComment:
-		return "评价中心 · " + preview
-	default:
-		return "工作台 · " + preview
-	}
+	return preview
 }
 
 // BuildUserContent 在只有附件时补一条可读提示。
@@ -159,18 +125,11 @@ func BuildUserContent(content string, attachments []*basev1.AiAssistantAttachmen
 }
 
 // BuildFallbackReply 在未启用大模型时返回本地兜底文本。
-func BuildFallbackReply(scene string, content string, attachments []*basev1.AiAssistantAttachment) string {
+func BuildFallbackReply(content string, attachments []*basev1.AiAssistantAttachment) string {
 	if len(attachments) > 0 {
-		return fmt.Sprintf("已收到你的问题和 %d 个附件。我会结合当前系统场景继续整理分析结果。", len(attachments))
+		return fmt.Sprintf("已收到你的问题和 %d 个附件，但当前大模型暂时不可用，无法生成完整回复，请稍后再试。", len(attachments))
 	}
-	switch NormalizeScene(scene) {
-	case SceneRecommend:
-		return fmt.Sprintf("已收到推荐分析请求：%s。我会围绕推荐链路、热门兜底和曝光波动继续整理建议。", NormalizePreview(content))
-	case SceneComment:
-		return fmt.Sprintf("已收到评价分析请求：%s。我会优先关注待审核评价、讨论内容和异常风险。", NormalizePreview(content))
-	default:
-		return fmt.Sprintf("已收到工作台分析请求：%s。我会围绕订单、评价和经营风险继续整理结果。", NormalizePreview(content))
-	}
+	return fmt.Sprintf("已收到你的问题：%s。但当前大模型暂时不可用，无法生成完整回复，请稍后再试。", NormalizePreview(content))
 }
 
 // NormalizePreview 截断摘要预览文本。
@@ -191,7 +150,13 @@ func DetectAttachmentMIME(fileName string, rawMIMEType string) string {
 	if strings.TrimSpace(rawMIMEType) != "" {
 		return strings.TrimSpace(rawMIMEType)
 	}
-	return mime.TypeByExtension(strings.ToLower(pathExt(fileName)))
+	extension := strings.ToLower(pathExt(fileName))
+	switch extension {
+	case ".md", ".markdown", ".log":
+		return "text/plain; charset=utf-8"
+	default:
+		return mime.TypeByExtension(extension)
+	}
 }
 
 // ExtractAttachmentText 提取文本类附件内容。

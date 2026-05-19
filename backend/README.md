@@ -128,16 +128,22 @@ make gen
 - `../frontend/admin/src/rpc`
 - `../frontend/app/src/rpc`
 
-当前 `base` 公共接口内已包含当前系统专用 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/go-kratos/blades` 的 `Agent + Runner` 机制，并明确使用以下能力：
+当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/go-kratos/blades` 的 `Agent + Runner` 机制，并明确使用以下能力：
 
 - `session / state`：每个后台会话在服务端映射为独立的 Blades Session，当前终端、场景、用户名称、会话标题、摘要等状态会注入到 session state。
-- `memory`：附件中的文本内容会写入 Blades Memory，并通过内置 `Memory` 工具供助手在回答时检索。
+- `chat-only`：AI 助手默认按通用纯聊天模式工作，不注册 MCP、业务工具或 Blades Memory 工具，任何主题都可以直接用模型能力回答。
 - `prompts`：AI 助手提示词来自商城配置 `prompt.ai_assistant`，并结合 session state 以模板形式渲染。
 - `runstream`：管理端 AI 助手通过 `/events/{stream}` 上的 SSE 流推送增量文本，按后台用户隔离专属 stream，避免不同管理员之间互串回复内容。
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 
-当前阶段助手主流程先聚焦“稳定对话”，消息结构以普通文本回复为主；业务工具执行、确认卡动作等能力已从默认主链移出，后续在主流程稳定后再按场景追加。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取文本类附件内容并注入记忆上下文。
+当前阶段助手主流程先聚焦“通用纯聊天”，消息结构以普通文本回复为主；业务工具执行、确认卡动作、MCP 调用等能力已从默认主链移出，后续在主流程稳定后再按场景追加。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本类附件内容会直接拼入当前用户消息供模型参考。
+
+AI 助手默认使用 `pkg/agent/provider` 内的 OpenAI Responses Provider，并启用 OpenAI 内置 `web_search` 工具；这类模式适合回答新闻、天气、金价、行情等强实时问题。该能力要求配置的 `baseUrl` 支持 OpenAI Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
+
+AI 图片生成接口位于 `/api/v1/base/ai/image/generation`，通过 `pkg/agent/provider.ImageClient` 复用 `github.com/go-kratos/blades/contrib/openai` 的图片生成 Provider。接口会返回 `request_id` 生成批次编号；保存到 OSS 时目录为 `/shop/ai/images/{yyyy/mm/dd}/{request_id}`，图片结果会返回 `storage_path` 便于追溯素材来源。提示词润色接口位于 `/api/v1/base/ai/image/prompt/polish`，复用 `client.llm` 对话模型把用户输入整理成更适合文生图的中文提示词。
+
+AI 图片记录建议落到独立 `ai_image` 表，字段应覆盖 `request_id`、`user_id`、原始提示词、实际提示词、模型参数、`revised_prompt`、图片 URL、`storage_path`、MIME 类型、字节大小、生成时间与软删除字段。当前开发环境数据库未连通时不要手写 `pkg/gen` 产物；恢复连接后先把表结构落到 `shop_test`，再执行 `make gorm-gen` 生成仓储并接入历史列表。
 
 ## MCP 工具暴露
 
@@ -189,7 +195,7 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手也会读取已上传附件中的文本类内容和图片字节参与推理。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手当前按纯聊天模式读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息；AI 图片生成复用同一组 `baseUrl/apiKey` 并默认使用 `gpt-image-2`。实时问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `xhigh`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，若走 sub2api/Codex 中转需以中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
 ## 设计文档
 

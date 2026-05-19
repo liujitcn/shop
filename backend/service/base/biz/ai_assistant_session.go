@@ -16,6 +16,7 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
@@ -36,30 +37,110 @@ func NewAiAssistantSessionCase(baseCase *biz.BaseCase, aiAssistantSessionRepo *d
 	}
 }
 
-// ListByUserAndTerminal 按用户与终端查询会话列表。
-func (c *AiAssistantSessionCase) ListByUserAndTerminal(ctx context.Context, userID int64, terminal int32) ([]*models.AiAssistantSession, error) {
+// ListAiAssistantSessions 查询当前用户的 AI 助手会话列表。
+func (c *AiAssistantSessionCase) ListAiAssistantSessions(ctx context.Context, req *basev1.ListAiAssistantSessionsRequest) (*basev1.ListAiAssistantSessionsResponse, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	terminal := assistant.NormalizeTerminal(req.GetTerminal())
 	query := c.Query(ctx).AiAssistantSession
 	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Where(query.Terminal.Eq(terminal)))
 	opts = append(opts, repository.Order(query.LastMessageAt.Desc(), query.ID.Desc()))
-	return c.List(ctx, opts...)
-}
-
-// CreateSession 创建 AI 助手会话。
-func (c *AiAssistantSessionCase) CreateSession(ctx context.Context, model *models.AiAssistantSession) error {
-	err := c.Create(ctx, model)
+	list, err := c.List(ctx, opts...)
 	if err != nil {
-		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("AI助手会话创建失败", "ai_assistant_session", "id", "")
-		}
-		return err
+		return nil, err
 	}
-	return nil
+
+	sessions := make([]*basev1.AiAssistantSession, 0, len(list))
+	for _, item := range list {
+		sessions = append(sessions, c.ToDTO(item))
+	}
+	return &basev1.ListAiAssistantSessionsResponse{Sessions: sessions}, nil
 }
 
-// FindByUserAndRawID 按用户与字符串会话编号查询会话。
-func (c *AiAssistantSessionCase) FindByUserAndRawID(ctx context.Context, userID int64, rawID string) (*models.AiAssistantSession, error) {
+// CreateAiAssistantSession 创建当前用户的新会话。
+func (c *AiAssistantSessionCase) CreateAiAssistantSession(ctx context.Context, req *basev1.CreateAiAssistantSessionRequest) (*basev1.AiAssistantSession, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	title := strings.TrimSpace(req.GetTitle())
+	if title == "" {
+		title = "新对话"
+	}
+	now := time.Now()
+	model := &models.AiAssistantSession{
+		UserID:        authInfo.UserId,
+		Terminal:      assistant.NormalizeTerminal(req.GetTerminal()),
+		Title:         title,
+		Summary:       assistant.BuildDefaultSummary(),
+		ToolCount:     0,
+		LastMessageAt: now,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+	if err = c.Create(ctx, model); err != nil {
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return nil, errorsx.UniqueConflict("AI助手会话创建失败", "ai_assistant_session", "id", "")
+		}
+		return nil, err
+	}
+	return c.ToDTO(model), nil
+}
+
+// UpdateAiAssistantSession 更新当前用户的会话标题。
+func (c *AiAssistantSessionCase) UpdateAiAssistantSession(ctx context.Context, req *basev1.UpdateAiAssistantSessionRequest) (*basev1.AiAssistantSession, error) {
+	title := strings.TrimSpace(req.GetTitle())
+	if title == "" {
+		return nil, errorsx.InvalidArgument("会话标题不能为空")
+	}
+
+	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now()
+	query := c.Query(ctx).AiAssistantSession
+	_, err = query.WithContext(ctx).
+		Where(query.ID.Eq(session.ID)).
+		UpdateSimple(
+			query.Title.Value(title),
+			query.UpdatedAt.Value(now),
+		)
+	if err != nil {
+		return nil, err
+	}
+	session.Title = title
+	session.UpdatedAt = now
+	return c.ToDTO(session), nil
+}
+
+// DeleteAiAssistantSession 删除当前用户的会话。
+func (c *AiAssistantSessionCase) DeleteAiAssistantSession(ctx context.Context, req *basev1.DeleteAiAssistantSessionRequest) (*emptypb.Empty, error) {
+	session, err := c.FindCurrentUserSessionByRawID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+	query := c.Query(ctx).AiAssistantSession
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(session.ID)))
+	if err = c.Delete(ctx, opts...); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// FindCurrentUserSessionByRawID 按当前用户与字符串会话编号查询会话。
+func (c *AiAssistantSessionCase) FindCurrentUserSessionByRawID(ctx context.Context, rawID string) (*models.AiAssistantSession, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
 	sessionID, err := strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
 	if err != nil || sessionID <= 0 {
 		return nil, errorsx.InvalidArgument("会话编号不合法")
@@ -68,7 +149,7 @@ func (c *AiAssistantSessionCase) FindByUserAndRawID(ctx context.Context, userID 
 	query := c.Query(ctx).AiAssistantSession
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(sessionID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	session, err := c.Find(ctx, opts...)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -77,31 +158,6 @@ func (c *AiAssistantSessionCase) FindByUserAndRawID(ctx context.Context, userID 
 		return nil, err
 	}
 	return session, nil
-}
-
-// UpdateTitle 更新会话标题。
-func (c *AiAssistantSessionCase) UpdateTitle(ctx context.Context, session *models.AiAssistantSession, title string, now time.Time) error {
-	query := c.Query(ctx).AiAssistantSession
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(session.ID)).
-		UpdateSimple(
-			query.Title.Value(title),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	session.Title = title
-	session.UpdatedAt = now
-	return nil
-}
-
-// DeleteSession 删除会话。
-func (c *AiAssistantSessionCase) DeleteSession(ctx context.Context, sessionID int64) error {
-	query := c.Query(ctx).AiAssistantSession
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(sessionID)))
-	return c.Delete(ctx, opts...)
 }
 
 // TouchSession 更新会话摘要、工具数与最后消息时间。

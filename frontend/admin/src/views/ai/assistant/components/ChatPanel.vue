@@ -3,9 +3,9 @@
     <template v-if="isEmptyState">
       <div class="agent-chat-empty">
         <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
-        <div class="agent-chat-empty__desc">可直接提问，也可以上传附件后继续分析当前系统内容。</div>
+        <div class="agent-chat-empty__desc">可直接提问，也可以上传附件一起分析。</div>
         <div class="agent-chat-empty__sender">
-          <XSender :sending="sending" @submit="handleSubmit" />
+          <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
         </div>
       </div>
     </template>
@@ -32,15 +32,19 @@
                 </span>
                 <span v-if="item.model" class="agent-message-meta__model">{{ item.model }}</span>
               </div>
-              <div class="agent-message-content" :class="{ 'is-thinking': item.progressState === 'streaming' }">
-                <span>{{ item.content }}</span>
+              <div
+                class="agent-message-content"
+                :class="{
+                  'is-thinking': item.progressState === 'streaming',
+                  'is-user': item.role === 'user'
+                }"
+              >
+                <AiMarkdown v-if="item.role !== 'user'" :content="item.content" :streaming="item.progressState === 'streaming'" />
+                <span v-else>{{ item.content }}</span>
                 <span v-if="item.progressState === 'streaming'" class="agent-thinking-dots"> <i></i><i></i><i></i> </span>
               </div>
               <div v-if="item.attachments?.length" class="agent-message-attachments">
-                <div v-for="attachment in item.attachments" :key="attachment.id" class="agent-message-attachment">
-                  <el-icon><Paperclip /></el-icon>
-                  <span>{{ attachment.name }}</span>
-                </div>
+                <Attachments :items="buildMessageAttachmentItems(item.attachments)" overflow="wrap" :hide-upload="true" />
               </div>
             </div>
           </template>
@@ -48,7 +52,7 @@
       </div>
 
       <div class="agent-sender-wrap">
-        <XSender :sending="sending" @submit="handleSubmit" />
+        <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
       </div>
     </template>
   </main>
@@ -56,10 +60,12 @@
 
 <script setup lang="ts" name="ChatPanel">
 import { computed } from "vue";
-import { BubbleList } from "vue-element-plus-x";
-import { Paperclip } from "@element-plus/icons-vue";
-import type { AiAssistantAttachment, AiAssistantSession } from "@/rpc/base/v1/ai_assistant";
+import { Attachments, BubbleList } from "vue-element-plus-x";
+import type { FilesCardProps } from "vue-element-plus-x/types/components/FilesCard/types";
+import type { AiAssistantAttachment, AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 import XSender from "./XSender.vue";
+import AiMarkdown from "./AiMarkdown.vue";
+import { buildAssistantAttachmentFileCard } from "../attachment";
 import type { ChatMessageItem, ReplySourceTag } from "../types";
 
 type SubmitPayload = {
@@ -83,6 +89,8 @@ const emit = defineEmits<{
 
 const isEmptyState = computed(() => props.messages.length === 0);
 
+const senderKey = computed(() => props.activeSession?.id || "empty-session");
+
 const bubbleList = computed<ChatMessageItem[]>(() =>
   (props.messages ?? []).map(item => ({
     ...item,
@@ -94,9 +102,9 @@ const bubbleList = computed<ChatMessageItem[]>(() =>
 
 const welcomeTitle = computed(() => {
   const hour = new Date().getHours();
-  if (hour < 12) return "上午好，我是 AI 助手";
-  if (hour < 18) return "下午好，我是 AI 助手";
-  return "晚上好，我是 AI 助手";
+  if (hour < 12) return "上午好，我是通用 AI 助手";
+  if (hour < 18) return "下午好，我是通用 AI 助手";
+  return "晚上好，我是通用 AI 助手";
 });
 
 /** 读取输入框内容并提交给父组件。 */
@@ -107,6 +115,15 @@ function handleSubmit(payload: SubmitPayload) {
 /** 统一回复来源标签配色。 */
 function resolveTagClass(tone?: ReplySourceTag["tone"]) {
   return tone ? `is-${tone}` : "";
+}
+
+/** 构建消息附件卡片，统一交给 Attachments / FilesCard 处理图片预览。 */
+function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): FilesCardProps[] {
+  return attachments.map(attachment =>
+    buildAssistantAttachmentFileCard(attachment, {
+      maxWidth: "240px"
+    })
+  );
 }
 </script>
 
@@ -198,10 +215,29 @@ function resolveTagClass(tone?: ReplySourceTag["tone"]) {
   min-height: 0;
   overflow: auto;
   padding: 8px 0 24px;
+
+  :deep(.elx-bubble__content) {
+    border-radius: var(--admin-page-radius);
+  }
+
+  :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content--corner),
+  :deep(.elx-bubble--end .elx-bubble__content-wrapper .elx-bubble__content--corner) {
+    border-start-start-radius: var(--admin-page-radius);
+    border-start-end-radius: var(--admin-page-radius);
+  }
+
+  :deep(.elx-bubble-list__boundary-content),
+  :deep(.elx-bubble-list__embedded-item) {
+    border-radius: var(--admin-page-radius);
+  }
 }
 
 .agent-message-content {
   line-height: 24px;
+  min-width: 0;
+}
+
+.agent-message-content.is-user {
   white-space: pre-wrap;
 }
 
@@ -228,7 +264,7 @@ function resolveTagClass(tone?: ReplySourceTag["tone"]) {
 .agent-message-meta__tag {
   padding: 2px 8px;
   background: var(--el-fill-color-light);
-  border-radius: 999px;
+  border-radius: var(--admin-page-radius);
 }
 
 .agent-message-meta__tag.is-primary {
@@ -275,21 +311,15 @@ function resolveTagClass(tone?: ReplySourceTag["tone"]) {
 }
 
 .agent-message-attachments {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+  :deep(.elx-files-card) {
+    border-radius: var(--admin-page-radius);
+  }
 
-.agent-message-attachment {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  padding: 7px 12px;
-  font-size: 12px;
-  color: var(--admin-page-text-secondary);
-  background: rgb(255 255 255 / 78%);
-  border: 1px solid var(--el-border-color-light);
-  border-radius: 999px;
+  :deep(.elx-files-card-img),
+  :deep(.elx-files-card__image-preview),
+  :deep(.elx-files-card-delete-icon) {
+    border-radius: var(--admin-page-radius);
+  }
 }
 
 .agent-sender-wrap {

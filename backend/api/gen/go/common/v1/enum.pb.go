@@ -1340,9 +1340,8 @@ func (RecommendEventType) EnumDescriptor() ([]byte, []int) {
 type SseStream int32
 
 const (
-	SseStream_SSE_STREAM_UNSPECIFIED        SseStream = 0 // 未指定 SSE 流
-	SseStream_SSE_STREAM_ADMIN_WORKSPACE    SseStream = 1 // 管理后台工作台 SSE 流
-	SseStream_SSE_STREAM_ADMIN_AI_ASSISTANT SseStream = 2 // 管理后台 AI 助手 SSE 流
+	SseStream_SSE_STREAM_UNSPECIFIED     SseStream = 0 // 未指定 SSE 流
+	SseStream_SSE_STREAM_ADMIN_WORKSPACE SseStream = 1 // 管理后台工作台 SSE 流
 )
 
 // Enum value maps for SseStream.
@@ -1350,12 +1349,10 @@ var (
 	SseStream_name = map[int32]string{
 		0: "SSE_STREAM_UNSPECIFIED",
 		1: "SSE_STREAM_ADMIN_WORKSPACE",
-		2: "SSE_STREAM_ADMIN_AI_ASSISTANT",
 	}
 	SseStream_value = map[string]int32{
-		"SSE_STREAM_UNSPECIFIED":        0,
-		"SSE_STREAM_ADMIN_WORKSPACE":    1,
-		"SSE_STREAM_ADMIN_AI_ASSISTANT": 2,
+		"SSE_STREAM_UNSPECIFIED":     0,
+		"SSE_STREAM_ADMIN_WORKSPACE": 1,
 	}
 )
 
@@ -1390,11 +1387,8 @@ func (SseStream) EnumDescriptor() ([]byte, []int) {
 type SseEvent int32
 
 const (
-	SseEvent_SSE_EVENT_UNSPECIFIED         SseEvent = 0 // 未指定 SSE 事件
-	SseEvent_SSE_EVENT_PAGE_REFRESH        SseEvent = 1 // 页面局部刷新事件
-	SseEvent_SSE_EVENT_AI_ASSISTANT_DELTA  SseEvent = 2 // AI 助手流式文本增量事件
-	SseEvent_SSE_EVENT_AI_ASSISTANT_FINISH SseEvent = 3 // AI 助手流式回复完成事件
-	SseEvent_SSE_EVENT_AI_ASSISTANT_ERROR  SseEvent = 4 // AI 助手流式回复异常事件
+	SseEvent_SSE_EVENT_UNSPECIFIED  SseEvent = 0 // 未指定 SSE 事件
+	SseEvent_SSE_EVENT_PAGE_REFRESH SseEvent = 1 // 页面局部刷新事件
 )
 
 // Enum value maps for SseEvent.
@@ -1402,16 +1396,10 @@ var (
 	SseEvent_name = map[int32]string{
 		0: "SSE_EVENT_UNSPECIFIED",
 		1: "SSE_EVENT_PAGE_REFRESH",
-		2: "SSE_EVENT_AI_ASSISTANT_DELTA",
-		3: "SSE_EVENT_AI_ASSISTANT_FINISH",
-		4: "SSE_EVENT_AI_ASSISTANT_ERROR",
 	}
 	SseEvent_value = map[string]int32{
-		"SSE_EVENT_UNSPECIFIED":         0,
-		"SSE_EVENT_PAGE_REFRESH":        1,
-		"SSE_EVENT_AI_ASSISTANT_DELTA":  2,
-		"SSE_EVENT_AI_ASSISTANT_FINISH": 3,
-		"SSE_EVENT_AI_ASSISTANT_ERROR":  4,
+		"SSE_EVENT_UNSPECIFIED":  0,
+		"SSE_EVENT_PAGE_REFRESH": 1,
 	}
 )
 
@@ -2326,17 +2314,13 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\aCOLLECT\x10\x04\x12\f\n" +
 	"\bADD_CART\x10\x05\x12\x10\n" +
 	"\fORDER_CREATE\x10\x06\x12\r\n" +
-	"\tORDER_PAY\x10\a*j\n" +
+	"\tORDER_PAY\x10\a*G\n" +
 	"\tSseStream\x12\x1a\n" +
 	"\x16SSE_STREAM_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aSSE_STREAM_ADMIN_WORKSPACE\x10\x01\x12!\n" +
-	"\x1dSSE_STREAM_ADMIN_AI_ASSISTANT\x10\x02*\xa8\x01\n" +
+	"\x1aSSE_STREAM_ADMIN_WORKSPACE\x10\x01*A\n" +
 	"\bSseEvent\x12\x19\n" +
 	"\x15SSE_EVENT_UNSPECIFIED\x10\x00\x12\x1a\n" +
-	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01\x12 \n" +
-	"\x1cSSE_EVENT_AI_ASSISTANT_DELTA\x10\x02\x12!\n" +
-	"\x1dSSE_EVENT_AI_ASSISTANT_FINISH\x10\x03\x12 \n" +
-	"\x1cSSE_EVENT_AI_ASSISTANT_ERROR\x10\x04*\xac\x02\n" +
+	"\x16SSE_EVENT_PAGE_REFRESH\x10\x01*\xac\x02\n" +
 	"\x10SseRefreshTarget\x12\"\n" +
 	"\x1eSSE_REFRESH_TARGET_UNSPECIFIED\x10\x00\x12.\n" +
 	"*SSE_REFRESH_TARGET_ADMIN_WORKSPACE_METRICS\x10\x01\x12+\n" +
