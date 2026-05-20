@@ -12,6 +12,10 @@ TS_PROTO_BIN ?= $(or \
 	$(lastword $(wildcard $(HOME)/.nvm/versions/node/*/bin/protoc-gen-ts_proto)) \
 )
 TS_PROTO_BIN_DIR := $(dir $(TS_PROTO_BIN))
+GEN_BIN ?= $(or \
+	$(shell command -v gen 2>/dev/null), \
+	$(shell GOBIN=$$(go env GOBIN); GOPATH=$$(go env GOPATH); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN/gen"; else printf '%s' "$$GOPATH/bin/gen"; fi) \
+)
 
 # 初始化开发环境
 init: plugin cli
@@ -46,6 +50,11 @@ cli:
 	@go install entgo.io/ent/cmd/ent@latest
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@go install golang.org/x/tools/cmd/goimports@latest
+	@if [ -d ../../gorm-kit/gen ]; then \
+		cd ../../gorm-kit/gen && go install .; \
+	else \
+		go install github.com/liujitcn/gorm-kit/gen@latest; \
+	fi
 
 # 使用 goimports 统一整理 Go 代码的 import 与格式
 fmt:
@@ -56,7 +65,8 @@ fmt:
 # 生成 GORM 代码
 gorm-gen:
 	@echo "==> 生成 GORM 代码"
-	gen -base_path=pkg/gen -source='root:112233@tcp(127.0.0.1:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
+	@test -x "$(GEN_BIN)" || (echo "gen not found. Run make cli first." && exit 1)
+	$(GEN_BIN) -base_path=pkg/gen -source='root:112233@tcp(127.0.0.1:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码
