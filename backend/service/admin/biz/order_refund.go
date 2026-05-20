@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/biz"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gorm"
 )
 
 // OrderRefundCase 订单退款业务实例
@@ -37,6 +39,10 @@ func (c *OrderRefundCase) FindFromByOrderID(ctx context.Context, orderID int64) 
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
+		// 订单未产生退款记录时返回空列表，避免订单详情整体失败。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []*adminv1.OrderRefund{}, nil
+		}
 		return nil, err
 	}
 

@@ -54,7 +54,7 @@ const formData: any = computed({
 const state = reactive({
   goodsCategoryOptions: [] as Array<TreeOptionResponse_Option>,
   rules: {
-    categoryId: [{ required: true, message: "请选择商品分类", trigger: "change" }],
+    category_id: [{ required: true, message: "请选择商品分类", trigger: "change" }],
     name: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
     desc: [{ required: true, message: "请输入商品描述", trigger: "blur" }],
     picture: [{ required: true, message: "请上传商品主图", trigger: "change" }],
@@ -68,7 +68,7 @@ const { goodsCategoryOptions, rules } = toRefs(state);
 /** 商品信息表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
   {
-    prop: "categoryId",
+    prop: "category_id",
     label: "分类",
     component: "tree-select",
     options: goodsCategoryOptions.value as unknown as Array<{ label: string; value: string | number; children?: any[] }>,

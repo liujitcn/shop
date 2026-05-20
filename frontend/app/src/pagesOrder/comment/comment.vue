@@ -54,6 +54,9 @@ const canPublish = computed(() => {
 
 const routeOrderId = computed(() => toNumber(query.order_id))
 const routeGoodsId = computed(() => toNumber(query.goods_id))
+const routeGoodsName = computed(() => decodeURIComponent(String(query.goods_name || '')).trim())
+const routeSkuDesc = computed(() => decodeURIComponent(String(query.sku_desc || '')).trim())
+const routeGoodsPicture = computed(() => String(query.goods_picture || '').trim())
 const onNavigateBack = () => {
   const pages = getCurrentPages()
   if (pages.length > 1) {
@@ -182,6 +185,19 @@ const onRemoveImage = (index: number) => {
     </view>
 
     <scroll-view scroll-y class="review-body">
+      <view v-if="routeGoodsName || routeGoodsPicture" class="review-goods-card">
+        <image
+          v-if="routeGoodsPicture"
+          class="review-goods-image"
+          :src="routeGoodsPicture"
+          mode="aspectFill"
+        />
+        <view class="review-goods-meta">
+          <view class="review-goods-name ellipsis-2">{{ routeGoodsName || '待评价商品' }}</view>
+          <view v-if="routeSkuDesc" class="review-goods-spec">{{ routeSkuDesc }}</view>
+        </view>
+      </view>
+
       <view class="editor-card">
         <view class="editor-head">
           <view class="editor-title">分享真实体验</view>
@@ -331,11 +347,45 @@ page {
 
 .editor-card,
 .rating-card,
+.review-goods-card,
 .anonymous-card {
   margin: 20rpx;
   border-radius: 10rpx;
   background-color: #fff;
   box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.03);
+}
+
+.review-goods-card {
+  display: flex;
+  gap: 20rpx;
+  padding: 22rpx;
+}
+
+.review-goods-image {
+  width: 128rpx;
+  height: 128rpx;
+  flex: 0 0 128rpx;
+  border-radius: 8rpx;
+  background-color: #f3f3f3;
+}
+
+.review-goods-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.review-goods-name {
+  font-size: 28rpx;
+  line-height: 1.45;
+  color: #333;
+  font-weight: 600;
+}
+
+.review-goods-spec {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.35;
+  color: #888;
 }
 
 .editor-card {

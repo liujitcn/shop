@@ -68,13 +68,14 @@ const goodsCategoryOptions = ref<CategoryOption[]>([]);
 
 const initParam = computed<PageShopBannersRequest>(() => {
   const status = Number(route.query.status ?? 0);
-  return {
-    site: undefined,
-    type: undefined,
+  const params: PageShopBannersRequest = {
     status: status > 0 ? status : undefined,
     page_num: 1,
     page_size: 10
   };
+  // 不写入 site/type 的 undefined 默认值，避免 ProTable 查询时覆盖用户选择的筛选条件。
+  if (status <= 0) delete params.status;
+  return params;
 });
 
 watch(
@@ -261,10 +262,23 @@ function categoryOption(oldCategories: TreeOptionResponse_Option[]): CategoryOpt
 }
 
 /**
+ * 将轮播图枚举筛选参数转成后端可识别的数字值。
+ */
+function normalizeBannerEnumFilter(value: unknown) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : undefined;
+}
+
+/**
  * 请求轮播图列表，并由 ProTable 统一管理分页和筛选。
  */
 async function requestShopBannerTable(params: PageShopBannersRequest) {
-  const data = await defShopBannerService.PageShopBanners(buildPageRequest(params));
+  const requestParams = buildPageRequest(params);
+  requestParams.site = normalizeBannerEnumFilter(requestParams.site) as PageShopBannersRequest["site"];
+  requestParams.type = normalizeBannerEnumFilter(requestParams.type) as PageShopBannersRequest["type"];
+  requestParams.status = normalizeBannerEnumFilter(requestParams.status) as PageShopBannersRequest["status"];
+  const data = await defShopBannerService.PageShopBanners(requestParams);
   const compatData = data as typeof data & { shopBanners?: typeof data.shop_banners; list?: typeof data.shop_banners };
   // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
   const list = compatData.shop_banners ?? compatData.shopBanners ?? compatData.list ?? [];

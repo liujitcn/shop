@@ -5,7 +5,7 @@
         <el-button type="success" icon="plus" @click="handleOpenGoodsSpecDialog()">添加规格</el-button>
       </div>
 
-      <ProTable :data="formData.specList" :columns="specColumns" :pagination="false" :tool-button="false">
+      <ProTable :data="formData.spec_list" :columns="specColumns" :pagination="false" :tool-button="false">
         <template #operation="scope">
           <el-button type="primary" size="small" link icon="edit" @click="handleOpenGoodsSpecDialog(scope.$index, scope.row)">
             编辑
@@ -53,14 +53,14 @@ defineOptions({
 
 type SkuItem = Record<string, any> & {
   id: number;
-  skuCode: string;
+  sku_code: string;
   price: number;
-  discountPrice: number;
-  initSaleNum: number;
-  realSaleNum: number;
+  discount_price: number;
+  init_sale_num: number;
+  real_sale_num: number;
   inventory: number;
   picture?: string;
-  specItem?: string[];
+  spec_item?: string[];
 };
 
 const emit = defineEmits(["prev", "next", "update:modelValue"]);
@@ -81,15 +81,15 @@ const formData: any = computed({
 });
 
 /** 判断当前字段是否为动态生成的规格项字段。 */
-const isDynamicSpecItemKey = (key: string) => /^specItem\d+$/.test(key);
+const isDynamicSpecItemKey = (key: string) => /^spec_item\d+$/.test(key);
 
 /** 确保规格和 SKU 数组始终存在，避免编辑态出现空值报错。 */
 function ensureSpecFormArrays() {
-  if (!Array.isArray(formData.value.specList)) {
-    formData.value.specList = [];
+  if (!Array.isArray(formData.value.spec_list)) {
+    formData.value.spec_list = [];
   }
-  if (!Array.isArray(formData.value.skuList)) {
-    formData.value.skuList = [];
+  if (!Array.isArray(formData.value.sku_list)) {
+    formData.value.sku_list = [];
   }
 }
 
@@ -190,12 +190,12 @@ async function handleGoodsSpecSubmit() {
     ensureSpecFormArrays();
     const specFormData = JSON.parse(JSON.stringify(specDialog.specFormData));
     if (specDialog.index >= 0) {
-      formData.value.specList[specDialog.index] = specFormData;
+      formData.value.spec_list[specDialog.index] = specFormData;
     } else {
-      formData.value.specList.push(specFormData);
+      formData.value.spec_list.push(specFormData);
     }
 
-    formData.value.specList.sort((item1: GoodsSpec, item2: GoodsSpec) => item1.sort - item2.sort);
+    formData.value.spec_list.sort((item1: GoodsSpec, item2: GoodsSpec) => item1.sort - item2.sort);
     generateSkuList();
     ElMessage.success("保存规格成功");
     handleCloseGoodsSpecDialog();
@@ -207,7 +207,7 @@ async function handleGoodsSpecSubmit() {
 /** 删除规格后同步刷新 SKU 组合。 */
 function handleDeleteGoodsSpec(index: number) {
   ensureSpecFormArrays();
-  formData.value.specList.splice(index, 1);
+  formData.value.spec_list.splice(index, 1);
   generateSkuList();
 }
 
@@ -273,7 +273,7 @@ const isSubset = (subset: Set<string>, superset: Set<string>): boolean => {
 /** 合并旧 SKU 行里的非规格字段，保留运营已经填写过的业务数据。 */
 const mergeNonSpecProperties = (newItem: SkuItem, oldItem: SkuItem, mergeFn?: (aVal: any, bVal: any, key: string) => any) => {
   Object.keys(oldItem).forEach(key => {
-    if (!isDynamicSpecItemKey(key) && key !== "specItem") {
+    if (!isDynamicSpecItemKey(key) && key !== "spec_item") {
       const oldVal = oldItem[key];
       if (key in newItem) {
         newItem[key] = mergeFn ? mergeFn(newItem[key], oldVal, key) : oldVal;
@@ -294,13 +294,13 @@ function cartesianIterative<T>(arrays: T[][]): T[][] {
 /** 按当前规格定义重新生成 SKU 列表。 */
 function generateSkuList() {
   ensureSpecFormArrays();
-  if (!formData.value.specList.length) {
-    formData.value.skuList = [];
+  if (!formData.value.spec_list.length) {
+    formData.value.sku_list = [];
     return;
   }
 
-  const oldSkuList = formData.value.skuList;
-  const specItem = formData.value.specList.map((spec: GoodsSpec) => spec.item);
+  const oldSkuList = formData.value.sku_list;
+  const specItem = formData.value.spec_list.map((spec: GoodsSpec) => spec.item);
   const combinations = cartesianIterative(specItem);
   const newSkuList: SkuItem[] = [];
 
@@ -309,26 +309,26 @@ function generateSkuList() {
       /** 商品SKUID */
       id: 0,
       /** SKU编码 */
-      skuCode: "",
+      sku_code: "",
       /** 当前价格(分) */
       price: 0,
       /** 折扣价格（分） */
-      discountPrice: 0,
+      discount_price: 0,
       /** 初始销量 */
-      initSaleNum: 0,
+      init_sale_num: 0,
       /** 真实销售数量 */
-      realSaleNum: 0,
+      real_sale_num: 0,
       /** 库存数量 */
       inventory: 0
     } as SkuItem;
 
     comb.forEach((value, index) => {
-      sku[`specItem${index}`] = value;
+      sku[`spec_item${index}`] = value;
     });
     newSkuList.push(sku);
   });
 
-  formData.value.skuList = mergeArraysByGoodsSpecItem(newSkuList, oldSkuList);
+  formData.value.sku_list = mergeArraysByGoodsSpecItem(newSkuList, oldSkuList);
 }
 
 /** 返回上一步。 */
@@ -340,7 +340,7 @@ function handlePrev() {
 function handleNext() {
   ensureSpecFormArrays();
 
-  if (!formData.value.specList.length) {
+  if (!formData.value.spec_list.length) {
     ElMessage.warning("请先添加规格项");
     return;
   }

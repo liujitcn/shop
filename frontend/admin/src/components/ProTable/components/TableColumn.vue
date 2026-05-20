@@ -19,6 +19,7 @@ const ElSwitch = resolveComponent("el-switch");
 const ElButton = resolveComponent("el-button");
 const ElTableColumn = resolveComponent("el-table-column");
 const ElTag = resolveComponent("el-tag");
+const ElText = resolveComponent("el-text");
 
 /**
  * 透传给 Element Plus 前移除图标组件上的响应式代理，避免 Vue 对组件对象发出性能告警。
@@ -100,22 +101,28 @@ const renderImageCell = (item: ColumnProps, scope: RenderScope<any>) => {
   if (!src || src === "--") return "--";
   const thumbWidth = typeof imageProps.width === "number" ? `${imageProps.width}px` : (imageProps.width ?? "60px");
   const thumbHeight = typeof imageProps.height === "number" ? `${imageProps.height}px` : (imageProps.height ?? "60px");
-  return h(ElImage, {
-    src,
-    previewSrcList: [previewSrc],
-    previewTeleported: true,
-    zoomRate: 1.2,
-    maxScale: 7,
-    minScale: 0.2,
-    showProgress: true,
-    initialIndex: 0,
-    fit: "cover",
-    style: {
-      width: thumbWidth,
-      height: thumbHeight,
-      borderRadius: "4px"
+  return h(
+    ElImage,
+    {
+      src,
+      previewSrcList: [previewSrc],
+      previewTeleported: true,
+      zoomRate: 1.2,
+      maxScale: 7,
+      minScale: 0.2,
+      showProgress: true,
+      initialIndex: 0,
+      fit: "cover",
+      style: {
+        width: thumbWidth,
+        height: thumbHeight,
+        borderRadius: "4px"
+      }
+    },
+    {
+      error: () => h(ElText, { type: "info", size: "small" }, () => "无图")
     }
-  });
+  );
 };
 
 /**

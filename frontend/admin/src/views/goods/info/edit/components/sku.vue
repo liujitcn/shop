@@ -185,6 +185,10 @@ async function submitForm() {
   }
 
   const submitsData = JSON.parse(JSON.stringify(formData.value));
+  delete submitsData.propList;
+  delete submitsData.specList;
+  delete submitsData.skuList;
+  delete submitsData.categoryId;
   const sku_list = submitsData.sku_list;
 
   // 提交前把动态规格列重新收敛成接口需要的 spec_item 数组。

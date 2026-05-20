@@ -3,7 +3,7 @@ import { useGuessList } from '@/composables'
 import { defOrderService } from '@/api/app/order_info.ts'
 import type { OrderInfoResponse } from '@/rpc/app/v1/order_info'
 import { onLoad, onReady } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
 import { OrderCancelReason, OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
@@ -37,6 +37,8 @@ const reason = ref('')
 const title = ref('')
 // tips
 const tips = ref('')
+const isLoadingOrder = ref(false)
+const loadOrderError = ref('')
 
 const buildGoodsDetailUrl = (
   goods_id: number,
@@ -128,18 +130,29 @@ onReady(() => {
 
 // 获取订单详情
 const orderData = ref<OrderInfoResponse>()
+const hasOrderData = computed(() => Boolean(orderData.value?.order))
 const getUserOrderById = async () => {
-  if (!query.internal) {
-    const res = await defOrderService.GetOrderInfoIdByOrderNo({
-      order_no: String(query.id),
+  isLoadingOrder.value = true
+  loadOrderError.value = ''
+  orderData.value = undefined
+  try {
+    if (!query.internal) {
+      const res = await defOrderService.GetOrderInfoIdByOrderNo({
+        order_no: String(query.id),
+      })
+      order_id.value = res.order_id
+    } else {
+      order_id.value = Number(query.id)
+    }
+    orderData.value = await defOrderService.GetOrderInfoById({
+      id: order_id.value,
     })
-    order_id.value = res.order_id
-  } else {
-    order_id.value = Number(query.id)
+  } catch {
+    // 接口失败时保持空态，避免骨架屏或旧数据被误认为真实订单详情。
+    loadOrderError.value = '订单查询失败'
+  } finally {
+    isLoadingOrder.value = false
   }
-  orderData.value = await defOrderService.GetOrderInfoById({
-    id: order_id.value,
-  })
 }
 const getDictData = async () => {
   const orderStatusCode = 'order_status'
@@ -333,7 +346,7 @@ const onRefundSuccess = async () => {
     class="viewport"
     @scrolltolower="onScrollToLower"
   >
-    <template v-if="orderData">
+    <template v-if="hasOrderData && orderData">
       <!-- 订单状态 -->
       <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
         <!-- 待付款状态:展示倒计时 -->
@@ -531,9 +544,19 @@ const onRefundSuccess = async () => {
         </view>
       </view>
     </template>
-    <template v-else>
+    <template v-else-if="isLoadingOrder">
       <!-- 骨架屏组件 -->
       <PageSkeleton />
+    </template>
+    <template v-else>
+      <view class="order-empty">
+        <image class="order-empty__image" src="/static/images/empty_order.png" mode="aspectFit" />
+        <view class="order-empty__title">{{ loadOrderError || '订单不存在' }}</view>
+        <view class="order-empty__desc">请返回订单列表重新选择订单</view>
+        <navigator class="order-empty__button" :url="orderListUrl(0)" hover-class="none">
+          查看订单列表
+        </navigator>
+      </view>
     </template>
   </scroll-view>
   <!-- 取消订单弹窗 -->
@@ -924,6 +947,45 @@ page {
     color: #fff;
     background-color: #27ba9b;
   }
+}
+
+.order-empty {
+  min-height: calc(100vh - 160rpx);
+  padding: 220rpx 48rpx 80rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.order-empty__image {
+  width: 220rpx;
+  height: 220rpx;
+  margin-bottom: 32rpx;
+}
+
+.order-empty__title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.order-empty__desc {
+  margin-top: 14rpx;
+  font-size: 26rpx;
+  color: #888;
+}
+
+.order-empty__button {
+  margin-top: 40rpx;
+  width: 240rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  border-radius: 72rpx;
+  background-color: #27ba9b;
+  color: #fff;
+  font-size: 26rpx;
 }
 
 .popup-root {

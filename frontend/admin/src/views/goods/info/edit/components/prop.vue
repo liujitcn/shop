@@ -6,21 +6,21 @@
       </div>
 
       <el-form ref="dataFormRef" :model="formData" :rules="rules" :inline="true">
-        <ProTable row-key="sort" :data="formData.propList" :columns="columns" :pagination="false" :tool-button="false">
+        <ProTable row-key="sort" :data="formData.prop_list" :columns="columns" :pagination="false" :tool-button="false">
           <template #label="scope">
-            <el-form-item :prop="'propList[' + scope.$index + '].label'" :rules="rules.label">
+            <el-form-item :prop="'prop_list[' + scope.$index + '].label'" :rules="rules.label">
               <el-input v-model="scope.row.label" placeholder="请输入属性名称" />
             </el-form-item>
           </template>
 
           <template #value="scope">
-            <el-form-item :prop="'propList[' + scope.$index + '].value'" :rules="rules.value">
+            <el-form-item :prop="'prop_list[' + scope.$index + '].value'" :rules="rules.value">
               <el-input v-model="scope.row.value" type="textarea" :rows="2" placeholder="请输入属性内容" resize="none" />
             </el-form-item>
           </template>
 
           <template #sort="scope">
-            <el-form-item :prop="'propList[' + scope.$index + '].sort'" :rules="rules.sort">
+            <el-form-item :prop="'prop_list[' + scope.$index + '].sort'" :rules="rules.sort">
               <el-input-number v-model="scope.row.sort" controls-position="right" :min="1" :precision="0" :step="1" />
             </el-form-item>
           </template>
@@ -71,8 +71,8 @@ const formData: any = computed({
 
 /** 确保商品属性数组始终存在，避免编辑时空值报错。 */
 function ensurePropList() {
-  if (!Array.isArray(formData.value.propList)) {
-    formData.value.propList = [];
+  if (!Array.isArray(formData.value.prop_list)) {
+    formData.value.prop_list = [];
   }
 }
 
@@ -98,7 +98,7 @@ const columns: ColumnProps[] = [
 /** 新增一行空属性。 */
 function handleAdd() {
   ensurePropList();
-  formData.value.propList.push({
+  formData.value.prop_list.push({
     sort: 1
   });
 }
@@ -106,7 +106,7 @@ function handleAdd() {
 /** 删除指定属性。 */
 function handleRemove(index: number) {
   ensurePropList();
-  formData.value.propList.splice(index, 1);
+  formData.value.prop_list.splice(index, 1);
 }
 
 /** 返回上一步。 */
@@ -118,7 +118,7 @@ function handlePrev() {
 function handleNext() {
   ensurePropList();
 
-  const hasInvalidProp = formData.value.propList.some((item: Record<string, unknown>) => {
+  const hasInvalidProp = formData.value.prop_list.some((item: Record<string, unknown>) => {
     const label = String(item.label ?? "").trim();
     const value = String(item.value ?? "").trim();
     const sort = Number(item.sort ?? 0);

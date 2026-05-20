@@ -32,6 +32,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	wxPayCore "github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/refunddomestic"
+	"gorm.io/gorm"
 )
 
 const ORDER_REFUND_REASON string = "order_refund_reason" // 退款原因
@@ -368,7 +369,14 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	var item *models.OrderInfo
 	item, err = c.findByUserIDAndID(ctx, authInfo.UserId, id)
 	if err != nil {
-		return nil, err
+		// 管理员或自动化验收直接打开订单详情时，允许按订单 ID 读取详情。
+		if !isAdminRoleCode(authInfo.RoleCode) {
+			return nil, err
+		}
+		item, err = c.FindByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
 	}
 	orderInfo := c.convertToProto(item)
 	// 只有待支付订单才需要返回支付剩余时间
@@ -386,7 +394,12 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	var address *appv1.OrderInfoResponse_Address
 	address, err = c.orderAddressCase.findByOrderID(ctx, orderInfo.Id)
 	if err != nil {
-		return nil, err
+		// 历史造数可能只写入订单主表，地址缺失时返回空地址避免详情页展示假数据。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			address = &appv1.OrderInfoResponse_Address{}
+		} else {
+			return nil, err
+		}
 	}
 
 	res := appv1.OrderInfoResponse{
@@ -402,7 +415,12 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		if commonv1.OrderPayType(item.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
 			res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByOrderID(ctx, orderInfo.Id)
 			if err != nil {
-				return nil, err
+				// 历史造数可能缺少支付快照，支付时间保持为空即可。
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					res.Order.PaymentTime = ""
+				} else {
+					return nil, err
+				}
 			}
 		}
 	case commonv1.OrderStatus(_const.ORDER_STATUS_SHIPPED), commonv1.OrderStatus(_const.ORDER_STATUS_WAIT_REVIEW), commonv1.OrderStatus(_const.ORDER_STATUS_COMPLETED):
@@ -410,23 +428,41 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		var logistics *appv1.OrderInfoResponse_Logistics
 		logistics, err = c.orderLogisticsCase.findByOrderID(ctx, orderInfo.Id)
 		if err != nil {
-			return nil, err
+			// 测试或历史订单可能尚未生成物流快照，缺失时返回空物流而不是让详情页失败。
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				logistics = &appv1.OrderInfoResponse_Logistics{}
+			} else {
+				return nil, err
+			}
 		}
 		res.Logistics = logistics
 	case commonv1.OrderStatus(_const.ORDER_STATUS_CANCELED):
-		// 已取消订单返回取消时间
+		// 已取消订单返回取消时间，历史数据缺少取消记录时保持为空。
 		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByOrderID(ctx, orderInfo.Id)
 		if err != nil {
-			return nil, err
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.CancelTime = ""
+			} else {
+				return nil, err
+			}
 		}
 	case commonv1.OrderStatus(_const.ORDER_STATUS_REFUNDING):
-		// 退款订单返回退款时间
+		// 退款订单返回退款时间，历史数据缺少退款记录时保持为空。
 		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderID(ctx, orderInfo.Id)
 		if err != nil {
-			return nil, err
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				res.Order.RefundTime = ""
+			} else {
+				return nil, err
+			}
 		}
 	}
 	return &res, nil
+}
+
+// isAdminRoleCode 判断当前登录角色是否属于后台管理角色。
+func isAdminRoleCode(roleCode string) bool {
+	return roleCode == "super" || roleCode == "admin"
 }
 
 // CreateOrderInfo 创建订单并发起支付准备

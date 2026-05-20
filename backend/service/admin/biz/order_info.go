@@ -148,11 +148,12 @@ func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*adminv1.Or
 	if err != nil {
 		return nil, err
 	}
-	res.Cancel, err = c.orderCancelCase.FindFromByOrderID(ctx, orderInfo.ID)
+	res.Goods, err = c.orderGoodsCase.FindFromByOrderID(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
-	res.Goods, err = c.orderGoodsCase.FindFromByOrderID(ctx, orderInfo.ID)
+	// 取消、物流、支付、退款记录不是所有订单状态都会生成，详情页按存在情况补齐。
+	res.Cancel, err = c.orderCancelCase.FindFromByOrderID(ctx, orderInfo.ID)
 	if err != nil {
 		return nil, err
 	}
