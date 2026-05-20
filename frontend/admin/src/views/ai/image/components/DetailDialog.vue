@@ -122,10 +122,10 @@ async function handleConfirm() {
   }
   retrying.value = true;
   try {
-    image.value = await defAiImageService.RetryAiImage({ id: image.value.id });
+    await defAiImageService.RetryAiImage({ id: image.value.id });
     ElMessage.success("已重新提交生成");
     clearPollTimer();
-    timer = window.setTimeout(() => void loadImage(), 1000);
+    await loadImage();
   } finally {
     retrying.value = false;
   }

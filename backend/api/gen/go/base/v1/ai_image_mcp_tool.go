@@ -66,13 +66,13 @@ func RegisterAiImageServiceGetAiImageMCPTool(mcpServer *mcp.Server, aiImageServi
 
 // RegisterAiImageServiceCreateAiImageMCPTool 注册创建 AI 图片的 MCP Tool。
 func RegisterAiImageServiceCreateAiImageMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
-	mcp.AddTool[*CreateAiImageRequest, *AiImage](
+	mcp.AddTool[*CreateAiImageRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_image_service_create_ai_image",
 			Description: "创建 AI 图片",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiImageRequest) (*mcp.CallToolResult, *AiImage, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateAiImageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
 				input = &CreateAiImageRequest{}
 			}
@@ -108,13 +108,13 @@ func RegisterAiImageServiceDeleteAiImageMCPTool(mcpServer *mcp.Server, aiImageSe
 
 // RegisterAiImageServiceRetryAiImageMCPTool 注册重试 AI 图片生成的 MCP Tool。
 func RegisterAiImageServiceRetryAiImageMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
-	mcp.AddTool[*RetryAiImageRequest, *AiImage](
+	mcp.AddTool[*RetryAiImageRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_image_service_retry_ai_image",
 			Description: "重试 AI 图片生成",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryAiImageRequest) (*mcp.CallToolResult, *AiImage, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryAiImageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
 				input = &RetryAiImageRequest{}
 			}

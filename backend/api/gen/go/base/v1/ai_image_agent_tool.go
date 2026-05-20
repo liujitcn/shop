@@ -88,7 +88,7 @@ func NewAiImageServiceCreateAiImageAgentTool(aiImageServiceServer AiImageService
 	return tools.NewFunc(
 		"base_v1_ai_image_service_create_ai_image",
 		"创建 AI 图片",
-		func(ctx context.Context, req *CreateAiImageRequest) (*AiImage, error) {
+		func(ctx context.Context, req *CreateAiImageRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &CreateAiImageRequest{}
 			}
@@ -116,7 +116,7 @@ func NewAiImageServiceRetryAiImageAgentTool(aiImageServiceServer AiImageServiceS
 	return tools.NewFunc(
 		"base_v1_ai_image_service_retry_ai_image",
 		"重试 AI 图片生成",
-		func(ctx context.Context, req *RetryAiImageRequest) (*AiImage, error) {
+		func(ctx context.Context, req *RetryAiImageRequest) (*emptypb.Empty, error) {
 			if req == nil {
 				req = &RetryAiImageRequest{}
 			}

@@ -5578,10 +5578,7 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AiImage'
+                    content: {}
     /api/v1/base/ai/image/prompt/polish:
         post:
             tags:
@@ -5657,10 +5654,7 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AiImage'
+                    content: {}
     /api/v1/base/captcha:
         get:
             tags:

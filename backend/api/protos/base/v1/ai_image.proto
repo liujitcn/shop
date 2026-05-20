@@ -25,7 +25,7 @@ service AiImageService {
   }
 
   // 创建 AI 图片
-  rpc CreateAiImage(CreateAiImageRequest) returns (AiImage) {
+  rpc CreateAiImage(CreateAiImageRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/image"
       body: "*"
@@ -40,7 +40,7 @@ service AiImageService {
   }
 
   // 重试 AI 图片生成
-  rpc RetryAiImage(RetryAiImageRequest) returns (AiImage) {
+  rpc RetryAiImage(RetryAiImageRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/image/{id}/retry"
       body: "*"

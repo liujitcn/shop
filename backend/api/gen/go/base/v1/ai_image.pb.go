@@ -995,14 +995,14 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\aSUCCESS\x10\x03\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x04\x12\v\n" +
-	"\aTIMEOUT\x10\x052\xad\x05\n" +
+	"\aTIMEOUT\x10\x052\xb9\x05\n" +
 	"\x0eAiImageService\x12j\n" +
 	"\fPageAiImages\x12\x1c.base.v1.PageAiImagesRequest\x1a\x1d.base.v1.PageAiImagesResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/base/ai/image\x12^\n" +
 	"\n" +
-	"GetAiImage\x12\x1a.base.v1.GetAiImageRequest\x1a\x10.base.v1.AiImage\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/ai/image/{id}\x12b\n" +
-	"\rCreateAiImage\x12\x1d.base.v1.CreateAiImageRequest\x1a\x10.base.v1.AiImage\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/base/ai/image\x12k\n" +
-	"\rDeleteAiImage\x12\x1d.base.v1.DeleteAiImageRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/base/ai/image/{ids}\x12k\n" +
-	"\fRetryAiImage\x12\x1c.base.v1.RetryAiImageRequest\x1a\x10.base.v1.AiImage\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/base/ai/image/{id}/retry\x12\x90\x01\n" +
+	"GetAiImage\x12\x1a.base.v1.GetAiImageRequest\x1a\x10.base.v1.AiImage\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/ai/image/{id}\x12h\n" +
+	"\rCreateAiImage\x12\x1d.base.v1.CreateAiImageRequest\x1a\x16.google.protobuf.Empty\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/base/ai/image\x12k\n" +
+	"\rDeleteAiImage\x12\x1d.base.v1.DeleteAiImageRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/base/ai/image/{ids}\x12q\n" +
+	"\fRetryAiImage\x12\x1c.base.v1.RetryAiImageRequest\x1a\x16.google.protobuf.Empty\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/base/ai/image/{id}/retry\x12\x90\x01\n" +
 	"\x13PolishAiImagePrompt\x12#.base.v1.PolishAiImagePromptRequest\x1a$.base.v1.PolishAiImagePromptResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/api/v1/base/ai/image/prompt/polishBx\n" +
 	"\vcom.base.v1B\fAiImageProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
 
@@ -1055,9 +1055,9 @@ var file_base_v1_ai_image_proto_depIdxs = []int32{
 	7,  // 15: base.v1.AiImageService.PolishAiImagePrompt:input_type -> base.v1.PolishAiImagePromptRequest
 	2,  // 16: base.v1.AiImageService.PageAiImages:output_type -> base.v1.PageAiImagesResponse
 	9,  // 17: base.v1.AiImageService.GetAiImage:output_type -> base.v1.AiImage
-	9,  // 18: base.v1.AiImageService.CreateAiImage:output_type -> base.v1.AiImage
+	13, // 18: base.v1.AiImageService.CreateAiImage:output_type -> google.protobuf.Empty
 	13, // 19: base.v1.AiImageService.DeleteAiImage:output_type -> google.protobuf.Empty
-	9,  // 20: base.v1.AiImageService.RetryAiImage:output_type -> base.v1.AiImage
+	13, // 20: base.v1.AiImageService.RetryAiImage:output_type -> google.protobuf.Empty
 	8,  // 21: base.v1.AiImageService.PolishAiImagePrompt:output_type -> base.v1.PolishAiImagePromptResponse
 	16, // [16:22] is the sub-list for method output_type
 	10, // [10:16] is the sub-list for method input_type

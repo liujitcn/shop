@@ -36,8 +36,8 @@ export class AiImageServiceImpl implements AiImageService {
   }
 
   /** 创建 AI 图片。 */
-  CreateAiImage(request: CreateAiImageRequest): Promise<AiImage> {
-    return service<CreateAiImageRequest, AiImage>({
+  CreateAiImage(request: CreateAiImageRequest): Promise<Empty> {
+    return service<CreateAiImageRequest, Empty>({
       url: AI_IMAGE_URL,
       method: "post",
       data: request
@@ -53,8 +53,8 @@ export class AiImageServiceImpl implements AiImageService {
   }
 
   /** 重试 AI 图片生成。 */
-  RetryAiImage(request: RetryAiImageRequest): Promise<AiImage> {
-    return service<RetryAiImageRequest, AiImage>({
+  RetryAiImage(request: RetryAiImageRequest): Promise<Empty> {
+    return service<RetryAiImageRequest, Empty>({
       url: `${AI_IMAGE_URL}/${request.id}/retry`,
       method: "post",
       data: request

@@ -48,7 +48,7 @@ func (s *AiImageService) GetAiImage(ctx context.Context, req *basev1.GetAiImageR
 }
 
 // CreateAiImage 创建 AI 图片。
-func (s *AiImageService) CreateAiImage(ctx context.Context, req *basev1.CreateAiImageRequest) (*basev1.AiImage, error) {
+func (s *AiImageService) CreateAiImage(ctx context.Context, req *basev1.CreateAiImageRequest) (*emptypb.Empty, error) {
 	res, err := s.aiImageCase.CreateAiImage(ctx, req)
 	if err != nil {
 		log.Errorf("CreateAiImage %v", err)
@@ -68,7 +68,7 @@ func (s *AiImageService) DeleteAiImage(ctx context.Context, req *basev1.DeleteAi
 }
 
 // RetryAiImage 重试 AI 图片生成。
-func (s *AiImageService) RetryAiImage(ctx context.Context, req *basev1.RetryAiImageRequest) (*basev1.AiImage, error) {
+func (s *AiImageService) RetryAiImage(ctx context.Context, req *basev1.RetryAiImageRequest) (*emptypb.Empty, error) {
 	res, err := s.aiImageCase.RetryAiImage(ctx, req)
 	if err != nil {
 		log.Errorf("RetryAiImage %v", err)

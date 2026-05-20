@@ -190,11 +190,11 @@ export interface AiImageService {
   /** 查询 AI 图片 */
   GetAiImage(request: GetAiImageRequest): Promise<AiImage>;
   /** 创建 AI 图片 */
-  CreateAiImage(request: CreateAiImageRequest): Promise<AiImage>;
+  CreateAiImage(request: CreateAiImageRequest): Promise<Empty>;
   /** 删除 AI 图片 */
   DeleteAiImage(request: DeleteAiImageRequest): Promise<Empty>;
   /** 重试 AI 图片生成 */
-  RetryAiImage(request: RetryAiImageRequest): Promise<AiImage>;
+  RetryAiImage(request: RetryAiImageRequest): Promise<Empty>;
   /** 润色 AI 图片提示词 */
   PolishAiImagePrompt(request: PolishAiImagePromptRequest): Promise<PolishAiImagePromptResponse>;
 }

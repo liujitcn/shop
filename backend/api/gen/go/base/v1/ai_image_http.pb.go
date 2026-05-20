@@ -29,7 +29,7 @@ const OperationAiImageServiceRetryAiImage = "/base.v1.AiImageService/RetryAiImag
 
 type AiImageServiceHTTPServer interface {
 	// CreateAiImage 创建 AI 图片
-	CreateAiImage(context.Context, *CreateAiImageRequest) (*AiImage, error)
+	CreateAiImage(context.Context, *CreateAiImageRequest) (*emptypb.Empty, error)
 	// DeleteAiImage 删除 AI 图片
 	DeleteAiImage(context.Context, *DeleteAiImageRequest) (*emptypb.Empty, error)
 	// GetAiImage 查询 AI 图片
@@ -39,7 +39,7 @@ type AiImageServiceHTTPServer interface {
 	// PolishAiImagePrompt 润色 AI 图片提示词
 	PolishAiImagePrompt(context.Context, *PolishAiImagePromptRequest) (*PolishAiImagePromptResponse, error)
 	// RetryAiImage 重试 AI 图片生成
-	RetryAiImage(context.Context, *RetryAiImageRequest) (*AiImage, error)
+	RetryAiImage(context.Context, *RetryAiImageRequest) (*emptypb.Empty, error)
 }
 
 func RegisterAiImageServiceHTTPServer(s *http.Server, srv AiImageServiceHTTPServer) {
@@ -110,7 +110,7 @@ func _AiImageService_CreateAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) f
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiImage)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -157,7 +157,7 @@ func _AiImageService_RetryAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) fu
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiImage)
+		reply := out.(*emptypb.Empty)
 		return ctx.Result(200, reply)
 	}
 }
@@ -186,7 +186,7 @@ func _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv AiImageServiceHTTPSer
 
 type AiImageServiceHTTPClient interface {
 	// CreateAiImage 创建 AI 图片
-	CreateAiImage(ctx context.Context, req *CreateAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
+	CreateAiImage(ctx context.Context, req *CreateAiImageRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// DeleteAiImage 删除 AI 图片
 	DeleteAiImage(ctx context.Context, req *DeleteAiImageRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetAiImage 查询 AI 图片
@@ -196,7 +196,7 @@ type AiImageServiceHTTPClient interface {
 	// PolishAiImagePrompt 润色 AI 图片提示词
 	PolishAiImagePrompt(ctx context.Context, req *PolishAiImagePromptRequest, opts ...http.CallOption) (rsp *PolishAiImagePromptResponse, err error)
 	// RetryAiImage 重试 AI 图片生成
-	RetryAiImage(ctx context.Context, req *RetryAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
+	RetryAiImage(ctx context.Context, req *RetryAiImageRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type AiImageServiceHTTPClientImpl struct {
@@ -208,8 +208,8 @@ func NewAiImageServiceHTTPClient(client *http.Client) AiImageServiceHTTPClient {
 }
 
 // CreateAiImage 创建 AI 图片
-func (c *AiImageServiceHTTPClientImpl) CreateAiImage(ctx context.Context, in *CreateAiImageRequest, opts ...http.CallOption) (*AiImage, error) {
-	var out AiImage
+func (c *AiImageServiceHTTPClientImpl) CreateAiImage(ctx context.Context, in *CreateAiImageRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/v1/base/ai/image"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAiImageServiceCreateAiImage))
@@ -278,8 +278,8 @@ func (c *AiImageServiceHTTPClientImpl) PolishAiImagePrompt(ctx context.Context, 
 }
 
 // RetryAiImage 重试 AI 图片生成
-func (c *AiImageServiceHTTPClientImpl) RetryAiImage(ctx context.Context, in *RetryAiImageRequest, opts ...http.CallOption) (*AiImage, error) {
-	var out AiImage
+func (c *AiImageServiceHTTPClientImpl) RetryAiImage(ctx context.Context, in *RetryAiImageRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
 	pattern := "/api/v1/base/ai/image/{id}/retry"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAiImageServiceRetryAiImage))
