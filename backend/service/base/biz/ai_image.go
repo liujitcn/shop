@@ -97,7 +97,11 @@ func (c *AiImageCase) PageAiImages(ctx context.Context, req *basev1.PageAiImages
 	}
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
 
-	list, total, err := c.aiImageRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var (
+		list  []*models.AiImage
+		total int64
+	)
+	list, total, err = c.aiImageRepo.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}

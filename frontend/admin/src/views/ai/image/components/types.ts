@@ -2,9 +2,6 @@ import { AiImageStatus, type AiImageResult, type CreateAiImageRequest } from "@/
 import type { ProFormOption } from "@/components/ProForm/interface";
 import type { EnumProps } from "@/components/ProTable/interface";
 
-/** AI 图片模型名称。 */
-export const AI_IMAGE_MODEL = "gpt-image-2";
-
 /** AI 图片状态展示配置。 */
 export const aiImageStatusOptions: Array<EnumProps & { type: "primary" | "success" | "warning" | "danger" | "info" }> = [
   { label: "待处理", value: AiImageStatus.PENDING, tagType: "info", type: "info" },

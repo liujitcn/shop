@@ -22,7 +22,6 @@ import { defAiImageService } from "@/api/base/ai_image";
 import { Terminal } from "@/rpc/common/v1/enum";
 import GenerateForm from "./GenerateForm.vue";
 import type { GenerateFormModel } from "./types";
-import { AI_IMAGE_MODEL } from "./types";
 import { createDefaultGenerateForm } from "./utils";
 
 defineOptions({
@@ -52,7 +51,7 @@ async function handleSubmit() {
   try {
     const image = await defAiImageService.CreateAiImage({
       prompt: form.prompt.trim(),
-      model: AI_IMAGE_MODEL,
+      model: "",
       size: form.size,
       quality: form.quality,
       style: "",
