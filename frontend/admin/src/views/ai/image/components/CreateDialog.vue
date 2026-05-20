@@ -35,7 +35,7 @@ defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
-  created: [imageId: string];
+  created: [];
 }>();
 
 const formRef = ref<InstanceType<typeof GenerateForm>>();
@@ -49,7 +49,7 @@ async function handleSubmit() {
 
   submitting.value = true;
   try {
-    const image = await defAiImageService.CreateAiImage({
+    await defAiImageService.CreateAiImage({
       prompt: form.prompt.trim(),
       model: "",
       size: form.size,
@@ -65,7 +65,7 @@ async function handleSubmit() {
     });
     ElMessage.success("已提交AI图片生成");
     emit("update:modelValue", false);
-    emit("created", image.id);
+    emit("created");
   } finally {
     submitting.value = false;
   }

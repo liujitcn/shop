@@ -11,9 +11,6 @@
       <span class="ai-image-loading__spark ai-image-loading__spark--three" />
       <span class="ai-image-loading__scan" />
     </div>
-    <div class="ai-image-loading__stages" aria-hidden="true">
-      <span v-for="stage in generatingStages" :key="stage">{{ stage }}</span>
-    </div>
     <div class="ai-image-loading__dots" aria-hidden="true">
       <span />
       <span />
@@ -21,7 +18,6 @@
     </div>
     <div class="ai-image-loading__text">
       <strong>正在生成图片</strong>
-      <small>模型正在构图、补光和渲染细节</small>
     </div>
   </div>
 </template>
@@ -32,9 +28,6 @@ import { Picture } from "@element-plus/icons-vue";
 defineOptions({
   name: "GeneratingPreview"
 });
-
-/** 图片生成过程阶段文案。 */
-const generatingStages = ["构图", "补光", "细节", "出图"];
 </script>
 
 <style scoped lang="scss">
@@ -156,27 +149,11 @@ const generatingStages = ["构图", "补光", "细节", "出图"];
   animation: scanImage 2.2s ease-in-out infinite;
 }
 
-.ai-image-loading__stages {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.ai-image-loading__stages span {
-  padding: 3px 9px;
-  font-size: 12px;
-  color: var(--admin-page-text-secondary);
-  background: var(--admin-page-card-bg);
-  border: 1px solid var(--admin-page-card-border);
-  border-radius: 999px;
-}
-
 .ai-image-loading__dots {
   display: flex;
   gap: 6px;
   justify-content: center;
-  margin-top: 14px;
+  margin-top: 20px;
 }
 
 .ai-image-loading__dots span {
@@ -204,10 +181,6 @@ const generatingStages = ["构图", "补光", "细节", "出图"];
 
 .ai-image-loading__text strong {
   color: var(--admin-page-text-primary);
-}
-
-.ai-image-loading__text small {
-  color: var(--admin-page-text-secondary);
 }
 
 @keyframes scanImage {

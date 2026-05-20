@@ -136,10 +136,9 @@ function refreshTable() {
   proTable.value?.getTableList();
 }
 
-/** 创建图片后打开详情弹窗查看生成进度。 */
-function handleCreatedImage(imageId: string) {
+/** 创建图片后刷新列表，避免自动跳到详情打断当前操作。 */
+function handleCreatedImage() {
   refreshTable();
-  handleOpenDetail(imageId);
 }
 
 /** 打开 AI 图片详情。 */
