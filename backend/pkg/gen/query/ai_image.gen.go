@@ -47,7 +47,6 @@ func newAiImage(db *gorm.DB, opts ...gen.DOOption) aiImage {
 	_aiImage.ImageUrlsJSON = field.NewString(tableName, "image_urls_json")
 	_aiImage.ErrorMessage = field.NewString(tableName, "error_message")
 	_aiImage.RetryCount = field.NewInt32(tableName, "retry_count")
-	_aiImage.RequestID = field.NewString(tableName, "request_id")
 	_aiImage.Created = field.NewInt32(tableName, "created")
 	_aiImage.StartedAt = field.NewTime(tableName, "started_at")
 	_aiImage.FinishedAt = field.NewTime(tableName, "finished_at")
@@ -85,7 +84,6 @@ type aiImage struct {
 	ImageUrlsJSON  field.String // 生成图片地址JSON
 	ErrorMessage   field.String // 失败或超时原因
 	RetryCount     field.Int32  // 已重试次数
-	RequestID      field.String // 生成批次编号
 	Created        field.Int32  // 模型生成时间戳
 	StartedAt      field.Time   // 开始生成时间
 	FinishedAt     field.Time   // 生成结束时间
@@ -128,7 +126,6 @@ func (a *aiImage) updateTableName(table string) *aiImage {
 	a.ImageUrlsJSON = field.NewString(table, "image_urls_json")
 	a.ErrorMessage = field.NewString(table, "error_message")
 	a.RetryCount = field.NewInt32(table, "retry_count")
-	a.RequestID = field.NewString(table, "request_id")
 	a.Created = field.NewInt32(table, "created")
 	a.StartedAt = field.NewTime(table, "started_at")
 	a.FinishedAt = field.NewTime(table, "finished_at")
@@ -159,7 +156,7 @@ func (a *aiImage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *aiImage) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 27)
+	a.fieldMap = make(map[string]field.Expr, 26)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["user_id"] = a.UserID
 	a.fieldMap["terminal"] = a.Terminal
@@ -180,7 +177,6 @@ func (a *aiImage) fillFieldMap() {
 	a.fieldMap["image_urls_json"] = a.ImageUrlsJSON
 	a.fieldMap["error_message"] = a.ErrorMessage
 	a.fieldMap["retry_count"] = a.RetryCount
-	a.fieldMap["request_id"] = a.RequestID
 	a.fieldMap["created"] = a.Created
 	a.fieldMap["started_at"] = a.StartedAt
 	a.fieldMap["finished_at"] = a.FinishedAt
