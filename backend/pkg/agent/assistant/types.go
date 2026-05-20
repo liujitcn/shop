@@ -42,12 +42,20 @@ type Response struct {
 
 // RuntimeInput 表示 AI 助手运行时输入。
 type RuntimeInput struct {
-	Terminal     string
-	UserName     string
+	// Terminal 终端标识。
+	Terminal string
+	// UserName 当前用户展示名称。
+	UserName string
+	// SessionTitle 当前会话标题。
 	SessionTitle string
-	SessionID    string
-	Summary      string
-	Content      string
-	Attachments  []Attachment
-	History      []Message
+	// SessionID 当前会话编号。
+	SessionID string
+	// Summary 当前会话摘要。
+	Summary string
+	// Content 本轮用户文本内容。
+	Content string
+	// Attachments 本轮用户附件列表。
+	Attachments []Attachment
+	// History 会话历史消息。
+	History []Message
 }

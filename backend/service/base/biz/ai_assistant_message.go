@@ -65,7 +65,8 @@ func (c *AiAssistantMessageCase) ListAiAssistantMessages(ctx context.Context, re
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
 	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
-	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
+	var list []*models.AiAssistantMessage
+	list, err = c.aiAssistantMessageRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +96,8 @@ func (c *AiAssistantMessageCase) SendAiAssistantMessage(ctx context.Context, req
 		return nil, err
 	}
 
-	userName, err := c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
+	var userName string
+	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +173,8 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	if err != nil {
 		return err
 	}
-	userName, err := c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
+	var userName string
+	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
 	if err != nil {
 		return err
 	}
@@ -292,6 +295,7 @@ func (c *AiAssistantMessageCase) generateAiAssistantReply(
 	history []assistant.Message,
 	onDelta func(string),
 ) (*assistant.Response, error) {
+	var err error
 	if c.assistantRuntime != nil {
 		input := assistant.RuntimeInput{
 			Terminal:     assistant.NormalizeTerminalString(session.Terminal),
@@ -303,7 +307,6 @@ func (c *AiAssistantMessageCase) generateAiAssistantReply(
 			History:      history,
 			Attachments:  assistantAttachments,
 		}
-		var err error
 		var response *assistant.Response
 		if onDelta != nil {
 			response, err = c.assistantRuntime.RunStream(ctx, input, onDelta)
@@ -319,7 +322,7 @@ func (c *AiAssistantMessageCase) generateAiAssistantReply(
 		return c.buildAiAssistantFallbackResponse(content, attachments, err), nil
 	}
 
-	err := errorsx.Internal("AI助手运行时未初始化")
+	err = errorsx.Internal("AI助手运行时未初始化")
 	return c.buildAiAssistantFallbackResponse(content, attachments, err), err
 }
 

@@ -200,7 +200,8 @@ func ParseReplyContent(raw string) string {
 		return ""
 	}
 	payload := replyPayload{}
-	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+	err := json.Unmarshal([]byte(raw), &payload)
+	if err != nil {
 		return raw
 	}
 	return strings.TrimSpace(payload.Content)
@@ -213,7 +214,8 @@ func ParseReplyMeta(raw string) ReplyMeta {
 		return meta
 	}
 	payload := replyPayload{}
-	if err := json.Unmarshal([]byte(raw), &payload); err != nil {
+	err := json.Unmarshal([]byte(raw), &payload)
+	if err != nil {
 		return meta
 	}
 	meta.ReplySource = strings.TrimSpace(payload.ReplySource)
@@ -255,7 +257,8 @@ func ParseAttachments(raw string) []*basev1.AiAssistantAttachment {
 		MIMEType string `json:"mime_type"`
 	}
 	values := make([]attachmentPayload, 0)
-	if err := json.Unmarshal([]byte(raw), &values); err != nil {
+	err := json.Unmarshal([]byte(raw), &values)
+	if err != nil {
 		return []*basev1.AiAssistantAttachment{}
 	}
 	result := make([]*basev1.AiAssistantAttachment, 0, len(values))

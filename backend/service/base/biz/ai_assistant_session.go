@@ -50,7 +50,8 @@ func (c *AiAssistantSessionCase) ListAiAssistantSessions(ctx context.Context, re
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Where(query.Terminal.Eq(terminal)))
 	opts = append(opts, repository.Order(query.LastMessageAt.Desc(), query.ID.Desc()))
-	list, err := c.List(ctx, opts...)
+	var list []*models.AiAssistantSession
+	list, err = c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +142,8 @@ func (c *AiAssistantSessionCase) FindCurrentUserSessionByRawID(ctx context.Conte
 	if err != nil {
 		return nil, err
 	}
-	sessionID, err := strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
+	var sessionID int64
+	sessionID, err = strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
 	if err != nil || sessionID <= 0 {
 		return nil, errorsx.InvalidArgument("会话编号不合法")
 	}
@@ -150,7 +152,8 @@ func (c *AiAssistantSessionCase) FindCurrentUserSessionByRawID(ctx context.Conte
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(sessionID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	session, err := c.Find(ctx, opts...)
+	var session *models.AiAssistantSession
+	session, err = c.Find(ctx, opts...)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.ResourceNotFound("会话不存在")

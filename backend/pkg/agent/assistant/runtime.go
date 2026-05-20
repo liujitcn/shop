@@ -139,6 +139,7 @@ func (r *Runtime) buildSession(ctx context.Context, input RuntimeInput) (blades.
 	session.SetState(stateUserName, strings.TrimSpace(input.UserName))
 	session.SetState(stateSessionTitle, strings.TrimSpace(input.SessionTitle))
 	session.SetState(stateSummary, strings.TrimSpace(input.Summary))
+	var err error
 	for _, item := range input.History {
 		content := strings.TrimSpace(item.Content)
 		if content == "" {
@@ -146,15 +147,18 @@ func (r *Runtime) buildSession(ctx context.Context, input RuntimeInput) (blades.
 		}
 		switch strings.ToLower(strings.TrimSpace(item.Role)) {
 		case RoleAssistant:
-			if err := session.Append(ctx, blades.AssistantMessage(content)); err != nil {
+			err = session.Append(ctx, blades.AssistantMessage(content))
+			if err != nil {
 				return nil, err
 			}
 		case "system":
-			if err := session.Append(ctx, blades.SystemMessage(content)); err != nil {
+			err = session.Append(ctx, blades.SystemMessage(content))
+			if err != nil {
 				return nil, err
 			}
 		default:
-			if err := session.Append(ctx, blades.UserMessage(content)); err != nil {
+			err = session.Append(ctx, blades.UserMessage(content))
+			if err != nil {
 				return nil, err
 			}
 		}

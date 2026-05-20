@@ -12,14 +12,22 @@ const defaultImageModel = "gpt-image-2"
 
 // ImageGenerateOptions 表示单次图片生成可覆盖的模型参数。
 type ImageGenerateOptions struct {
-	Model          string
-	Background     string
-	Size           string
-	Quality        string
+	// Model 模型名称。
+	Model string
+	// Background 图片背景模式。
+	Background string
+	// Size 图片尺寸。
+	Size string
+	// Quality 图片质量。
+	Quality string
+	// ResponseFormat 响应格式。
 	ResponseFormat string
-	OutputFormat   string
-	Style          string
-	N              int64
+	// OutputFormat 输出图片格式。
+	OutputFormat string
+	// Style 图片风格。
+	Style string
+	// N 生成图片数量。
+	N int64
 }
 
 // ImageClient 表示 AI 图片生成模型客户端。

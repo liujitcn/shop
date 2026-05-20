@@ -58,8 +58,7 @@ const formFields: ProFormField[] = [
     colSpan: 8,
     props: { min: 1, max: 4, controlsPosition: "right" }
   },
-  { prop: "background", label: "背景", component: "segmented", options: imageBackgroundOptions, colSpan: 16 },
-  { prop: "save_output", label: "", checkboxLabel: "保存到素材目录", component: "checkbox", colSpan: 24 }
+  { prop: "background", label: "背景", component: "segmented", options: imageBackgroundOptions, colSpan: 16 }
 ];
 
 /** 润色当前图片提示词。 */

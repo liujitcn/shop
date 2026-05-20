@@ -59,7 +59,7 @@ async function handleSubmit() {
       output_format: form.output_format,
       response_format: "",
       n: Number(form.n || 1),
-      save_output: form.save_output,
+      save_output: true,
       polish_prompt: form.polish_prompt,
       terminal: Terminal.TERMINAL_ADMIN
     });

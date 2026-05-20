@@ -24,7 +24,6 @@ export function createDefaultGenerateForm(): GenerateFormModel {
     background: "auto",
     output_format: "png",
     n: 1,
-    save_output: true,
     polish_prompt: false
   };
 }

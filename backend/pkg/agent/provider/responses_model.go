@@ -19,13 +19,21 @@ import (
 
 // ResponsesConfig 表示 OpenAI Responses 模型配置。
 type ResponsesConfig struct {
-	BaseURL         string
-	APIKey          string
+	// BaseURL OpenAI 兼容接口基础地址。
+	BaseURL string
+	// APIKey OpenAI 兼容接口密钥。
+	APIKey string
+	// MaxOutputTokens 最大输出 token 数。
 	MaxOutputTokens int64
-	Temperature     float64
-	TopP            float64
-	ExtraFields     map[string]any
-	RequestOptions  []option.RequestOption
+	// Temperature 采样温度。
+	Temperature float64
+	// TopP 核采样参数。
+	TopP float64
+	// ExtraFields 额外透传字段。
+	ExtraFields map[string]any
+	// RequestOptions OpenAI SDK 请求选项。
+	RequestOptions []option.RequestOption
+	// ReasoningEffort 推理强度。
 	ReasoningEffort shared.ReasoningEffort
 }
 
@@ -231,8 +239,10 @@ func (m *ResponsesModel) responseToModelResponse(response *responses.Response, f
 	if response == nil && strings.TrimSpace(fallbackText) == "" {
 		return nil, fmt.Errorf("responses api returned empty response")
 	}
+	var err error
 	if response != nil {
-		if err := responseError(*response); err != nil {
+		err = responseError(*response)
+		if err != nil {
 			return nil, err
 		}
 	}

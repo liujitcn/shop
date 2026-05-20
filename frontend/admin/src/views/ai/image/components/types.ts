@@ -46,7 +46,7 @@ export const imageBackgroundOptions: ProFormOption[] = [
 /** AI 图片生成表单。 */
 export type GenerateFormModel = Pick<
   CreateAiImageRequest,
-  "prompt" | "size" | "quality" | "background" | "output_format" | "n" | "save_output" | "polish_prompt"
+  "prompt" | "size" | "quality" | "background" | "output_format" | "n" | "polish_prompt"
 >;
 
 /** 图片卡片展示项。 */
