@@ -12,11 +12,11 @@ import (
 
 const TableNameAiImage = "ai_image"
 
-// AiImage AI图片生成表
+// AiImage AI图片生成信息
 type AiImage struct {
 	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:图片ID" json:"id"`                                                                                                                                  // 图片ID
 	UserID         int64          `gorm:"column:user_id;type:bigint;not null;index:idx_ai_image_user_id_terminal_created_at,priority:1;comment:所属用户ID" json:"user_id"`                                                                                 // 所属用户ID
-	Terminal       int32          `gorm:"column:terminal;type:tinyint;not null;index:idx_ai_image_user_id_terminal_created_at,priority:2;default:2;comment:终端类型：枚举【Terminal】" json:"terminal"`                                                         // 终端类型：枚举【Terminal】
+	Terminal       int32          `gorm:"column:terminal;type:tinyint;not null;index:idx_ai_image_user_id_terminal_created_at,priority:2;default:2;comment:终端类型：1移动端，2管理端" json:"terminal"`                                                            // 终端类型：1移动端，2管理端
 	Prompt         string         `gorm:"column:prompt;type:text;not null;comment:图片生成提示词" json:"prompt"`                                                                                                                                              // 图片生成提示词
 	OriginalPrompt string         `gorm:"column:original_prompt;type:text;comment:原始图片提示词" json:"original_prompt"`                                                                                                                                     // 原始图片提示词
 	Model          string         `gorm:"column:model;type:varchar(100);not null;comment:图片生成模型" json:"model"`                                                                                                                                         // 图片生成模型
@@ -30,7 +30,7 @@ type AiImage struct {
 	SaveOutput     bool           `gorm:"column:save_output;type:tinyint(1);not null;default:1;comment:是否保存生成图片到对象存储" json:"save_output"`                                                                                                              // 是否保存生成图片到对象存储
 	PolishPrompt   bool           `gorm:"column:polish_prompt;type:tinyint(1);not null;comment:是否先润色提示词再生成" json:"polish_prompt"`                                                                                                                      // 是否先润色提示词再生成
 	ParamsJSON     string         `gorm:"column:params_json;type:json;comment:完整生成参数JSON" json:"params_json"`                                                                                                                                          // 完整生成参数JSON
-	Status         int32          `gorm:"column:status;type:tinyint;not null;index:idx_ai_image_status_created_at,priority:1;default:1;comment:生成状态：1待处理，2生成中，3成功，4失败，5超时" json:"status"`                                                              // 生成状态：1待处理，2生成中，3成功，4失败，5超时
+	Status         int32          `gorm:"column:status;type:tinyint;not null;index:idx_ai_image_status_created_at,priority:1;default:1;comment:生成状态：枚举【AiImageStatus】" json:"status"`                                                                  // 生成状态：枚举【AiImageStatus】
 	ImageUrlsJSON  string         `gorm:"column:image_urls_json;type:json;comment:生成图片地址JSON" json:"image_urls_json"`                                                                                                                                  // 生成图片地址JSON
 	ErrorMessage   string         `gorm:"column:error_message;type:varchar(1000);not null;comment:失败或超时原因" json:"error_message"`                                                                                                                       // 失败或超时原因
 	RetryCount     int32          `gorm:"column:retry_count;type:int;not null;comment:已重试次数" json:"retry_count"`                                                                                                                                       // 已重试次数

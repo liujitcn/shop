@@ -1,39 +1,3 @@
-CREATE TABLE IF NOT EXISTS `ai_image` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '图片ID',
-  `user_id` bigint NOT NULL COMMENT '所属用户ID',
-  `terminal` tinyint NOT NULL DEFAULT '2' COMMENT '终端类型：1移动端，2管理端',
-  `prompt` text NOT NULL COMMENT '图片生成提示词',
-  `original_prompt` text COMMENT '原始图片提示词',
-  `model` varchar(100) NOT NULL DEFAULT '' COMMENT '图片生成模型',
-  `size` varchar(50) NOT NULL DEFAULT '' COMMENT '图片尺寸',
-  `quality` varchar(50) NOT NULL DEFAULT '' COMMENT '图片质量',
-  `style` varchar(50) NOT NULL DEFAULT '' COMMENT '图片风格',
-  `background` varchar(50) NOT NULL DEFAULT '' COMMENT '背景模式',
-  `output_format` varchar(50) NOT NULL DEFAULT '' COMMENT '输出格式',
-  `response_format` varchar(50) NOT NULL DEFAULT '' COMMENT '响应格式',
-  `image_count` int NOT NULL DEFAULT '1' COMMENT '生成图片数量',
-  `save_output` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否保存生成图片到对象存储',
-  `polish_prompt` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否先润色提示词再生成',
-  `params_json` json DEFAULT NULL COMMENT '完整生成参数JSON',
-  `status` tinyint NOT NULL DEFAULT '1' COMMENT '生成状态：枚举【AiImageStatus】',
-  `image_urls_json` json DEFAULT NULL COMMENT '生成图片地址JSON',
-  `error_message` varchar(1000) NOT NULL DEFAULT '' COMMENT '失败或超时原因',
-  `retry_count` int NOT NULL DEFAULT '0' COMMENT '已重试次数',
-  `request_id` varchar(64) NOT NULL DEFAULT '' COMMENT '生成批次编号',
-  `created` int NOT NULL DEFAULT '0' COMMENT '模型生成时间戳',
-  `started_at` datetime DEFAULT NULL COMMENT '开始生成时间',
-  `finished_at` datetime DEFAULT NULL COMMENT '生成结束时间',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `deleted_at` datetime DEFAULT NULL COMMENT '删除时间',
-  PRIMARY KEY (`id`),
-  KEY `idx_ai_image_status_created_at` (`status`,`created_at`),
-  KEY `idx_ai_image_user_id_terminal_created_at` (`user_id`,`terminal`,`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='AI图片生成表';
-
-ALTER TABLE `ai_image`
-  MODIFY COLUMN `status` tinyint NOT NULL DEFAULT '1' COMMENT '生成状态：枚举【AiImageStatus】';
-
 TRUNCATE TABLE `base_api`;
 INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (1, 1, 'admin_v1_auth_service_get_user_info', 'admin.v1.AuthService', 'Admin用户登录认证服务', '获取已经登录的用户的数据', '/admin.v1.AuthService/GetUserInfo', 'GET', '/api/v1/admin/auth/user', NULL);
 INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (2, 1, 'admin_v1_auth_service_get_user_profile', 'admin.v1.AuthService', 'Admin用户登录认证服务', '获取个人中心用户信息', '/admin.v1.AuthService/GetUserProfile', 'GET', '/api/v1/admin/auth/profile', NULL);
@@ -289,20 +253,20 @@ INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `s
 INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (252, 1, 'base_v1_ai_assistant_service_list_ai_assistant_messages', 'base.v1.AiAssistantService', 'Base AI 助手会话服务', '查询 AI 助手消息列表', '/base.v1.AiAssistantService/ListAiAssistantMessages', 'GET', '/api/v1/base/ai/assistant/session/{sessionId}/message', NULL);
 INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (253, 1, 'base_v1_ai_assistant_service_list_ai_assistant_sessions', 'base.v1.AiAssistantService', 'Base AI 助手会话服务', '查询 AI 助手会话列表', '/base.v1.AiAssistantService/ListAiAssistantSessions', 'GET', '/api/v1/base/ai/assistant/session', NULL);
 INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (254, 1, 'base_v1_ai_assistant_service_update_ai_assistant_session', 'base.v1.AiAssistantService', 'Base AI 助手会话服务', '更新 AI 助手会话\n buf:lint:ignore RPC_RESPONSE_STANDARD_NAME', '/base.v1.AiAssistantService/UpdateAiAssistantSession', 'PUT', '/api/v1/base/ai/assistant/session/{id}', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (255, 1, 'base_v1_ai_image_service_page_ai_images', 'base.v1.AiImageService', 'Base AI 图片服务', '分页查询 AI 图片', '/base.v1.AiImageService/PageAiImages', 'GET', '/api/v1/base/ai/image', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (255, 1, 'base_v1_ai_image_service_create_ai_image', 'base.v1.AiImageService', 'Base AI 图片服务', '创建 AI 图片', '/base.v1.AiImageService/CreateAiImage', 'POST', '/api/v1/base/ai/image', NULL);
 INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (256, 1, 'base_v1_ai_image_service_get_ai_image', 'base.v1.AiImageService', 'Base AI 图片服务', '查询 AI 图片', '/base.v1.AiImageService/GetAiImage', 'GET', '/api/v1/base/ai/image/{id}', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (266, 1, 'base_v1_ai_image_service_create_ai_image', 'base.v1.AiImageService', 'Base AI 图片服务', '创建 AI 图片', '/base.v1.AiImageService/CreateAiImage', 'POST', '/api/v1/base/ai/image', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (267, 1, 'base_v1_ai_image_service_retry_ai_image', 'base.v1.AiImageService', 'Base AI 图片服务', '重试 AI 图片生成', '/base.v1.AiImageService/RetryAiImage', 'POST', '/api/v1/base/ai/image/{id}/retry', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (268, 1, 'base_v1_ai_image_service_polish_ai_image_prompt', 'base.v1.AiImageService', 'Base AI 图片服务', '润色 AI 图片提示词', '/base.v1.AiImageService/PolishAiImagePrompt', 'POST', '/api/v1/base/ai/image/prompt/polish', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (257, 1, 'base_v1_config_service_get_config', 'base.v1.ConfigService', 'Base系统配置公共服务', '获取系统配置', '/base.v1.ConfigService/GetConfig', 'GET', '/api/v1/base/config', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (258, 1, 'base_v1_file_service_download_file', 'base.v1.FileService', 'Base文件服务', '下载文件', '/base.v1.FileService/DownloadFile', 'GET', '/api/v1/base/file', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (259, 1, 'base_v1_file_service_multi_upload_file', 'base.v1.FileService', 'Base文件服务', '多个文件上传', '/base.v1.FileService/MultiUploadFile', 'POST', '/api/v1/base/file/multi', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (260, 1, 'base_v1_file_service_upload_file', 'base.v1.FileService', 'Base文件服务', '单个文件上传', '/base.v1.FileService/UploadFile', 'POST', '/api/v1/base/file', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (261, 1, 'base_v1_login_service_captcha', 'base.v1.LoginService', 'Base登录公共服务', '验证码', '/base.v1.LoginService/Captcha', 'GET', '/api/v1/base/captcha', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (262, 1, 'base_v1_login_service_login', 'base.v1.LoginService', 'Base登录公共服务', '登录', '/base.v1.LoginService/Login', 'POST', '/api/v1/base/session', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (263, 1, 'base_v1_login_service_logout', 'base.v1.LoginService', 'Base登录公共服务', '登出', '/base.v1.LoginService/Logout', 'DELETE', '/api/v1/base/session', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (264, 1, 'base_v1_login_service_password_public_key', 'base.v1.LoginService', 'Base登录公共服务', '获取密码临时公钥', '/base.v1.LoginService/PasswordPublicKey', 'GET', '/api/v1/base/password-public-key', NULL);
-INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (265, 1, 'base_v1_login_service_refresh_token', 'base.v1.LoginService', 'Base登录公共服务', '刷新认证令牌', '/base.v1.LoginService/RefreshToken', 'POST', '/api/v1/base/token', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (257, 1, 'base_v1_ai_image_service_page_ai_images', 'base.v1.AiImageService', 'Base AI 图片服务', '分页查询 AI 图片', '/base.v1.AiImageService/PageAiImages', 'GET', '/api/v1/base/ai/image', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (258, 1, 'base_v1_ai_image_service_polish_ai_image_prompt', 'base.v1.AiImageService', 'Base AI 图片服务', '润色 AI 图片提示词', '/base.v1.AiImageService/PolishAiImagePrompt', 'POST', '/api/v1/base/ai/image/prompt/polish', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (259, 1, 'base_v1_ai_image_service_retry_ai_image', 'base.v1.AiImageService', 'Base AI 图片服务', '重试 AI 图片生成', '/base.v1.AiImageService/RetryAiImage', 'POST', '/api/v1/base/ai/image/{id}/retry', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (260, 1, 'base_v1_config_service_get_config', 'base.v1.ConfigService', 'Base系统配置公共服务', '获取系统配置', '/base.v1.ConfigService/GetConfig', 'GET', '/api/v1/base/config', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (261, 1, 'base_v1_file_service_download_file', 'base.v1.FileService', 'Base文件服务', '下载文件', '/base.v1.FileService/DownloadFile', 'GET', '/api/v1/base/file', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (262, 1, 'base_v1_file_service_multi_upload_file', 'base.v1.FileService', 'Base文件服务', '多个文件上传', '/base.v1.FileService/MultiUploadFile', 'POST', '/api/v1/base/file/multi', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (263, 1, 'base_v1_file_service_upload_file', 'base.v1.FileService', 'Base文件服务', '单个文件上传', '/base.v1.FileService/UploadFile', 'POST', '/api/v1/base/file', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (264, 1, 'base_v1_login_service_captcha', 'base.v1.LoginService', 'Base登录公共服务', '验证码', '/base.v1.LoginService/Captcha', 'GET', '/api/v1/base/captcha', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (265, 1, 'base_v1_login_service_login', 'base.v1.LoginService', 'Base登录公共服务', '登录', '/base.v1.LoginService/Login', 'POST', '/api/v1/base/session', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (266, 1, 'base_v1_login_service_logout', 'base.v1.LoginService', 'Base登录公共服务', '登出', '/base.v1.LoginService/Logout', 'DELETE', '/api/v1/base/session', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (267, 1, 'base_v1_login_service_password_public_key', 'base.v1.LoginService', 'Base登录公共服务', '获取密码临时公钥', '/base.v1.LoginService/PasswordPublicKey', 'GET', '/api/v1/base/password-public-key', NULL);
+INSERT INTO `base_api` (`id`, `mcp_enabled`, `mcp_tool_name`, `service_name`, `service_desc`, `desc`, `operation`, `method`, `path`, `deleted_at`) VALUES (268, 1, 'base_v1_login_service_refresh_token', 'base.v1.LoginService', 'Base登录公共服务', '刷新认证令牌', '/base.v1.LoginService/RefreshToken', 'POST', '/api/v1/base/token', NULL);
 
 TRUNCATE TABLE `base_config`;
 INSERT INTO `base_config` (`id`, `site`, `name`, `type`, `key`, `value`, `status`, `created_by`, `updated_by`, `created_at`, `updated_at`, `deleted_at`) VALUES (1000, 1, '支付超时时间（单位：分钟）', 1, 'payTimeout', '30', 1, 1, 1, '2025-04-24 09:55:48', '2025-04-24 09:55:48', NULL);

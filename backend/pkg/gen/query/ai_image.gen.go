@@ -60,14 +60,14 @@ func newAiImage(db *gorm.DB, opts ...gen.DOOption) aiImage {
 	return _aiImage
 }
 
-// aiImage AI图片生成表
+// aiImage AI图片生成信息
 type aiImage struct {
 	aiImageDo aiImageDo
 
 	ALL            field.Asterisk
 	ID             field.Int64  // 图片ID
 	UserID         field.Int64  // 所属用户ID
-	Terminal       field.Int32  // 终端类型：枚举【Terminal】
+	Terminal       field.Int32  // 终端类型：1移动端，2管理端
 	Prompt         field.String // 图片生成提示词
 	OriginalPrompt field.String // 原始图片提示词
 	Model          field.String // 图片生成模型
@@ -81,7 +81,7 @@ type aiImage struct {
 	SaveOutput     field.Bool   // 是否保存生成图片到对象存储
 	PolishPrompt   field.Bool   // 是否先润色提示词再生成
 	ParamsJSON     field.String // 完整生成参数JSON
-	Status         field.Int32  // 生成状态：1待处理，2生成中，3成功，4失败，5超时
+	Status         field.Int32  // 生成状态：枚举【AiImageStatus】
 	ImageUrlsJSON  field.String // 生成图片地址JSON
 	ErrorMessage   field.String // 失败或超时原因
 	RetryCount     field.Int32  // 已重试次数
@@ -141,9 +141,7 @@ func (a *aiImage) updateTableName(table string) *aiImage {
 	return a
 }
 
-func (a *aiImage) WithContext(ctx context.Context) *aiImageDo {
-	return a.aiImageDo.WithContext(ctx)
-}
+func (a *aiImage) WithContext(ctx context.Context) *aiImageDo { return a.aiImageDo.WithContext(ctx) }
 
 func (a aiImage) TableName() string { return a.aiImageDo.TableName() }
 
