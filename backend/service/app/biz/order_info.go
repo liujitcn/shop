@@ -369,7 +369,7 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	var item *models.OrderInfo
 	item, err = c.findByUserIDAndID(ctx, authInfo.UserId, id)
 	if err != nil {
-		// 管理员或自动化验收直接打开订单详情时，允许按订单 ID 读取详情。
+		// 管理员查看订单详情时，允许按订单 ID 读取详情。
 		if !isAdminRoleCode(authInfo.RoleCode) {
 			return nil, err
 		}
@@ -394,7 +394,7 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	var address *appv1.OrderInfoResponse_Address
 	address, err = c.orderAddressCase.findByOrderID(ctx, orderInfo.Id)
 	if err != nil {
-		// 历史造数可能只写入订单主表，地址缺失时返回空地址避免详情页展示假数据。
+		// 地址信息缺失时返回空地址，保持订单详情主体信息可展示。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			address = &appv1.OrderInfoResponse_Address{}
 		} else {
@@ -415,7 +415,7 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		if commonv1.OrderPayType(item.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
 			res.Order.PaymentTime, err = c.orderPaymentCase.findPaymentTimeByOrderID(ctx, orderInfo.Id)
 			if err != nil {
-				// 历史造数可能缺少支付快照，支付时间保持为空即可。
+				// 支付记录缺失时，支付时间保持为空。
 				if errors.Is(err, gorm.ErrRecordNotFound) {
 					res.Order.PaymentTime = ""
 				} else {
@@ -428,7 +428,7 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		var logistics *appv1.OrderInfoResponse_Logistics
 		logistics, err = c.orderLogisticsCase.findByOrderID(ctx, orderInfo.Id)
 		if err != nil {
-			// 测试或历史订单可能尚未生成物流快照，缺失时返回空物流而不是让详情页失败。
+			// 物流信息缺失时返回空物流，保持订单详情主体信息可展示。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				logistics = &appv1.OrderInfoResponse_Logistics{}
 			} else {
@@ -437,7 +437,7 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 		}
 		res.Logistics = logistics
 	case commonv1.OrderStatus(_const.ORDER_STATUS_CANCELED):
-		// 已取消订单返回取消时间，历史数据缺少取消记录时保持为空。
+		// 已取消订单返回取消时间，取消记录缺失时保持为空。
 		res.Order.CancelTime, err = c.orderCancelCase.findCancelTimeByOrderID(ctx, orderInfo.Id)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -447,7 +447,7 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 			}
 		}
 	case commonv1.OrderStatus(_const.ORDER_STATUS_REFUNDING):
-		// 退款订单返回退款时间，历史数据缺少退款记录时保持为空。
+		// 退款订单返回退款时间，退款记录缺失时保持为空。
 		res.Order.RefundTime, err = c.orderRefundCase.findRefundTimeByOrderID(ctx, orderInfo.Id)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {

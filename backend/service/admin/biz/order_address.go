@@ -38,7 +38,7 @@ func (c *OrderAddressCase) FindFromByOrderID(ctx context.Context, orderID int64)
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
 	item, err := c.Find(ctx, opts...)
 	if err != nil {
-		// 历史或测试订单可能没有地址快照，返回空对象避免订单详情整体失败。
+		// 订单未记录地址信息时返回空对象，保持详情主体信息可展示。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return &adminv1.OrderAddress{}, nil
 		}

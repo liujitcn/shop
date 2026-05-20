@@ -39,7 +39,7 @@ func (c *OrderRefundCase) FindFromByOrderID(ctx context.Context, orderID int64) 
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
 	list, err := c.List(ctx, opts...)
 	if err != nil {
-		// 订单未产生退款记录时返回空列表，避免订单详情整体失败。
+		// 订单未产生退款记录时返回空列表，保持详情主体信息可展示。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []*adminv1.OrderRefund{}, nil
 		}
