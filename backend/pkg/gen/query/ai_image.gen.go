@@ -28,7 +28,6 @@ func newAiImage(db *gorm.DB, opts ...gen.DOOption) aiImage {
 	tableName := _aiImage.aiImageDo.TableName()
 	_aiImage.ALL = field.NewAsterisk(tableName)
 	_aiImage.ID = field.NewInt64(tableName, "id")
-	_aiImage.UserID = field.NewInt64(tableName, "user_id")
 	_aiImage.Terminal = field.NewInt32(tableName, "terminal")
 	_aiImage.Prompt = field.NewString(tableName, "prompt")
 	_aiImage.OriginalPrompt = field.NewString(tableName, "original_prompt")
@@ -50,8 +49,8 @@ func newAiImage(db *gorm.DB, opts ...gen.DOOption) aiImage {
 	_aiImage.Created = field.NewInt32(tableName, "created")
 	_aiImage.StartedAt = field.NewTime(tableName, "started_at")
 	_aiImage.FinishedAt = field.NewTime(tableName, "finished_at")
+	_aiImage.CreatedBy = field.NewInt64(tableName, "created_by")
 	_aiImage.CreatedAt = field.NewTime(tableName, "created_at")
-	_aiImage.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_aiImage.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_aiImage.fillFieldMap()
@@ -65,7 +64,6 @@ type aiImage struct {
 
 	ALL            field.Asterisk
 	ID             field.Int64  // 图片ID
-	UserID         field.Int64  // 所属用户ID
 	Terminal       field.Int32  // 终端类型：1移动端，2管理端
 	Prompt         field.String // 图片生成提示词
 	OriginalPrompt field.String // 原始图片提示词
@@ -87,8 +85,8 @@ type aiImage struct {
 	Created        field.Int32  // 模型生成时间戳
 	StartedAt      field.Time   // 开始生成时间
 	FinishedAt     field.Time   // 生成结束时间
+	CreatedBy      field.Int64  // 创建人ID
 	CreatedAt      field.Time   // 创建时间
-	UpdatedAt      field.Time   // 更新时间
 	DeletedAt      field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
@@ -107,7 +105,6 @@ func (a aiImage) As(alias string) *aiImage {
 func (a *aiImage) updateTableName(table string) *aiImage {
 	a.ALL = field.NewAsterisk(table)
 	a.ID = field.NewInt64(table, "id")
-	a.UserID = field.NewInt64(table, "user_id")
 	a.Terminal = field.NewInt32(table, "terminal")
 	a.Prompt = field.NewString(table, "prompt")
 	a.OriginalPrompt = field.NewString(table, "original_prompt")
@@ -129,8 +126,8 @@ func (a *aiImage) updateTableName(table string) *aiImage {
 	a.Created = field.NewInt32(table, "created")
 	a.StartedAt = field.NewTime(table, "started_at")
 	a.FinishedAt = field.NewTime(table, "finished_at")
+	a.CreatedBy = field.NewInt64(table, "created_by")
 	a.CreatedAt = field.NewTime(table, "created_at")
-	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
 
 	a.fillFieldMap()
@@ -156,9 +153,8 @@ func (a *aiImage) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (a *aiImage) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 26)
+	a.fieldMap = make(map[string]field.Expr, 25)
 	a.fieldMap["id"] = a.ID
-	a.fieldMap["user_id"] = a.UserID
 	a.fieldMap["terminal"] = a.Terminal
 	a.fieldMap["prompt"] = a.Prompt
 	a.fieldMap["original_prompt"] = a.OriginalPrompt
@@ -180,8 +176,8 @@ func (a *aiImage) fillFieldMap() {
 	a.fieldMap["created"] = a.Created
 	a.fieldMap["started_at"] = a.StartedAt
 	a.fieldMap["finished_at"] = a.FinishedAt
+	a.fieldMap["created_by"] = a.CreatedBy
 	a.fieldMap["created_at"] = a.CreatedAt
-	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
 }
 

@@ -141,7 +141,7 @@ make gen
 
 AI 助手默认使用 `pkg/agent/provider` 内的 OpenAI Responses Provider，并启用 OpenAI 内置 `web_search` 工具；这类模式适合回答新闻、天气、金价、行情等强实时问题。该能力要求配置的 `baseUrl` 支持 OpenAI Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
 
-AI 图片生成已改为异步队列模式，资源接口位于 `/api/v1/base/ai/image`：列表使用 `GET /api/v1/base/ai/image`，详情使用 `GET /api/v1/base/ai/image/{id}`，创建使用 `POST /api/v1/base/ai/image`，失败或超时后可通过 `POST /api/v1/base/ai/image/{id}/retry` 重新投递队列。创建记录会先写入 `ai_image`，再投递 `ai_image_generate_queue` 后台生成；调用模型的参数快照会保存到 `params_json`，不保存密钥等敏感配置。生成状态使用 `base.v1.AiImageStatus` 枚举：`PENDING` 待处理、`RUNNING` 生成中、`SUCCESS` 成功、`FAILED` 失败、`TIMEOUT` 超时。
+AI 图片生成已改为异步队列模式，资源接口位于 `/api/v1/base/ai/image`：列表使用 `GET /api/v1/base/ai/image`，详情使用 `GET /api/v1/base/ai/image/{id}`，创建使用 `POST /api/v1/base/ai/image`，删除使用 `DELETE /api/v1/base/ai/image/{ids}`，失败或超时后可通过 `POST /api/v1/base/ai/image/{id}/retry` 重新投递队列。创建记录会先写入 `ai_image`，再投递 `ai_image_generate_queue` 后台生成；调用模型的参数快照会保存到 `params_json`，不保存密钥等敏感配置。生成状态使用 `base.v1.AiImageStatus` 枚举：`PENDING` 待处理、`RUNNING` 生成中、`SUCCESS` 成功、`FAILED` 失败、`TIMEOUT` 超时。
 
 图片生成仍通过 `pkg/agent/provider.ImageClient` 复用 `github.com/go-kratos/blades/contrib/openai` 的图片生成 Provider。生成成功后会回写 `image_urls_json` 图片结果；保存到 OSS 时目录为 `/shop/ai/images/{yyyy/mm/dd}`，图片结果会返回 `storage_path` 便于追溯素材来源。提示词润色接口仍位于 `/api/v1/base/ai/image/prompt/polish`，复用 `client.llm` 对话模型把用户输入整理成更适合文生图的中文提示词。
 

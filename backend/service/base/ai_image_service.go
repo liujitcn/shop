@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const _ = grpc.SupportPackageIsVersion7
@@ -52,6 +53,16 @@ func (s *AiImageService) CreateAiImage(ctx context.Context, req *basev1.CreateAi
 	if err != nil {
 		log.Errorf("CreateAiImage %v", err)
 		return nil, errorsx.WrapInternal(err, "创建AI图片失败")
+	}
+	return res, nil
+}
+
+// DeleteAiImage 删除 AI 图片。
+func (s *AiImageService) DeleteAiImage(ctx context.Context, req *basev1.DeleteAiImageRequest) (*emptypb.Empty, error) {
+	res, err := s.aiImageCase.DeleteAiImage(ctx, req)
+	if err != nil {
+		log.Errorf("DeleteAiImage %v", err)
+		return nil, errorsx.WrapInternal(err, "删除AI图片失败")
 	}
 	return res, nil
 }

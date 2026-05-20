@@ -6,6 +6,7 @@
 
 /* eslint-disable */
 import type { Terminal } from "../../common/v1/enum";
+import type { Empty } from "../../google/protobuf/empty";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 
 /** AI 图片生成状态 */
@@ -52,6 +53,12 @@ export interface PageAiImagesResponse {
 export interface GetAiImageRequest {
   /** 图片ID */
   id: string;
+}
+
+/** AI 图片删除请求 */
+export interface DeleteAiImageRequest {
+  /** 图片ID列表，多个用逗号分隔 */
+  ids: string;
 }
 
 /** AI 图片创建请求 */
@@ -155,11 +162,7 @@ export interface AiImage {
     | Timestamp
     | undefined;
   /** 创建时间 */
-  created_at:
-    | Timestamp
-    | undefined;
-  /** 更新时间 */
-  updated_at: Timestamp | undefined;
+  created_at: Timestamp | undefined;
 }
 
 /** AI 图片结果 */
@@ -188,6 +191,8 @@ export interface AiImageService {
   GetAiImage(request: GetAiImageRequest): Promise<AiImage>;
   /** 创建 AI 图片 */
   CreateAiImage(request: CreateAiImageRequest): Promise<AiImage>;
+  /** 删除 AI 图片 */
+  DeleteAiImage(request: DeleteAiImageRequest): Promise<Empty>;
   /** 重试 AI 图片生成 */
   RetryAiImage(request: RetryAiImageRequest): Promise<AiImage>;
   /** 润色 AI 图片提示词 */

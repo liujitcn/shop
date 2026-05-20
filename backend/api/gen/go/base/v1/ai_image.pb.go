@@ -11,6 +11,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	v1 "shop/api/gen/go/common/v1"
@@ -259,6 +260,51 @@ func (x *GetAiImageRequest) GetId() string {
 	return ""
 }
 
+// AI 图片删除请求
+type DeleteAiImageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ids           string                 `protobuf:"bytes,1,opt,name=ids,proto3" json:"ids,omitempty"` // 图片ID列表，多个用逗号分隔
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteAiImageRequest) Reset() {
+	*x = DeleteAiImageRequest{}
+	mi := &file_base_v1_ai_image_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteAiImageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteAiImageRequest) ProtoMessage() {}
+
+func (x *DeleteAiImageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_image_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteAiImageRequest.ProtoReflect.Descriptor instead.
+func (*DeleteAiImageRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteAiImageRequest) GetIds() string {
+	if x != nil {
+		return x.Ids
+	}
+	return ""
+}
+
 // AI 图片创建请求
 type CreateAiImageRequest struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
@@ -280,7 +326,7 @@ type CreateAiImageRequest struct {
 
 func (x *CreateAiImageRequest) Reset() {
 	*x = CreateAiImageRequest{}
-	mi := &file_base_v1_ai_image_proto_msgTypes[3]
+	mi := &file_base_v1_ai_image_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -292,7 +338,7 @@ func (x *CreateAiImageRequest) String() string {
 func (*CreateAiImageRequest) ProtoMessage() {}
 
 func (x *CreateAiImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_image_proto_msgTypes[3]
+	mi := &file_base_v1_ai_image_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -305,7 +351,7 @@ func (x *CreateAiImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAiImageRequest.ProtoReflect.Descriptor instead.
 func (*CreateAiImageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{3}
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateAiImageRequest) GetPrompt() string {
@@ -402,7 +448,7 @@ type RetryAiImageRequest struct {
 
 func (x *RetryAiImageRequest) Reset() {
 	*x = RetryAiImageRequest{}
-	mi := &file_base_v1_ai_image_proto_msgTypes[4]
+	mi := &file_base_v1_ai_image_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -414,7 +460,7 @@ func (x *RetryAiImageRequest) String() string {
 func (*RetryAiImageRequest) ProtoMessage() {}
 
 func (x *RetryAiImageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_image_proto_msgTypes[4]
+	mi := &file_base_v1_ai_image_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -427,7 +473,7 @@ func (x *RetryAiImageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryAiImageRequest.ProtoReflect.Descriptor instead.
 func (*RetryAiImageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{4}
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RetryAiImageRequest) GetId() string {
@@ -448,7 +494,7 @@ type PolishAiImagePromptRequest struct {
 
 func (x *PolishAiImagePromptRequest) Reset() {
 	*x = PolishAiImagePromptRequest{}
-	mi := &file_base_v1_ai_image_proto_msgTypes[5]
+	mi := &file_base_v1_ai_image_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +506,7 @@ func (x *PolishAiImagePromptRequest) String() string {
 func (*PolishAiImagePromptRequest) ProtoMessage() {}
 
 func (x *PolishAiImagePromptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_image_proto_msgTypes[5]
+	mi := &file_base_v1_ai_image_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +519,7 @@ func (x *PolishAiImagePromptRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolishAiImagePromptRequest.ProtoReflect.Descriptor instead.
 func (*PolishAiImagePromptRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{5}
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PolishAiImagePromptRequest) GetPrompt() string {
@@ -502,7 +548,7 @@ type PolishAiImagePromptResponse struct {
 
 func (x *PolishAiImagePromptResponse) Reset() {
 	*x = PolishAiImagePromptResponse{}
-	mi := &file_base_v1_ai_image_proto_msgTypes[6]
+	mi := &file_base_v1_ai_image_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -514,7 +560,7 @@ func (x *PolishAiImagePromptResponse) String() string {
 func (*PolishAiImagePromptResponse) ProtoMessage() {}
 
 func (x *PolishAiImagePromptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_image_proto_msgTypes[6]
+	mi := &file_base_v1_ai_image_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -527,7 +573,7 @@ func (x *PolishAiImagePromptResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PolishAiImagePromptResponse.ProtoReflect.Descriptor instead.
 func (*PolishAiImagePromptResponse) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{6}
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PolishAiImagePromptResponse) GetPrompt() string {
@@ -576,14 +622,13 @@ type AiImage struct {
 	StartedAt      *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`                // 开始生成时间
 	FinishedAt     *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`             // 生成结束时间
 	CreatedAt      *timestamppb.Timestamp `protobuf:"bytes,23,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                // 创建时间
-	UpdatedAt      *timestamppb.Timestamp `protobuf:"bytes,24,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                // 更新时间
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *AiImage) Reset() {
 	*x = AiImage{}
-	mi := &file_base_v1_ai_image_proto_msgTypes[7]
+	mi := &file_base_v1_ai_image_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -595,7 +640,7 @@ func (x *AiImage) String() string {
 func (*AiImage) ProtoMessage() {}
 
 func (x *AiImage) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_image_proto_msgTypes[7]
+	mi := &file_base_v1_ai_image_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,7 +653,7 @@ func (x *AiImage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiImage.ProtoReflect.Descriptor instead.
 func (*AiImage) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{7}
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *AiImage) GetId() string {
@@ -765,13 +810,6 @@ func (x *AiImage) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
-func (x *AiImage) GetUpdatedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return nil
-}
-
 // AI 图片结果
 type AiImageResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -788,7 +826,7 @@ type AiImageResult struct {
 
 func (x *AiImageResult) Reset() {
 	*x = AiImageResult{}
-	mi := &file_base_v1_ai_image_proto_msgTypes[8]
+	mi := &file_base_v1_ai_image_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +838,7 @@ func (x *AiImageResult) String() string {
 func (*AiImageResult) ProtoMessage() {}
 
 func (x *AiImageResult) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_image_proto_msgTypes[8]
+	mi := &file_base_v1_ai_image_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +851,7 @@ func (x *AiImageResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AiImageResult.ProtoReflect.Descriptor instead.
 func (*AiImageResult) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{8}
+	return file_base_v1_ai_image_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AiImageResult) GetName() string {
@@ -869,7 +907,7 @@ var File_base_v1_ai_image_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\n" +
-	"\x16base/v1/ai_image.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9c\x03\n" +
+	"\x16base/v1/ai_image.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9c\x03\n" +
 	"\x13PageAiImagesRequest\x12c\n" +
 	"\x06status\x18\x01 \x01(\x0e2\x16.base.v1.AiImageStatusB.\xbaG+\x92\x02(生成状态：枚举【AiImageStatus】H\x00R\x06status\x88\x01\x01\x12;\n" +
 	"\akeyword\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b关键词，匹配提示词R\akeyword\x12Z\n" +
@@ -881,7 +919,9 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\x06images\x18\x01 \x03(\v2\x10.base.v1.AiImageB\x15\xbaG\x12\x92\x02\x0fAI 图片列表R\x06images\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"3\n" +
 	"\x11GetAiImageRequest\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b图片IDR\x02id\"\xc1\x05\n" +
+	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b图片IDR\x02id\"V\n" +
+	"\x14DeleteAiImageRequest\x12>\n" +
+	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&图片ID列表，多个用逗号分隔R\x03ids\"\xc1\x05\n" +
 	"\x14CreateAiImageRequest\x123\n" +
 	"\x06prompt\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15图片生成提示词R\x06prompt\x12.\n" +
 	"\x05model\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12图片模型名称R\x05model\x12&\n" +
@@ -907,7 +947,8 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\x1bPolishAiImagePromptResponse\x129\n" +
 	"\x06prompt\x18\x01 \x01(\tB!\xbaG\x1e\x92\x02\x1b润色后的图片提示词R\x06prompt\x12D\n" +
 	"\x0foriginal_prompt\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15原始图片提示词R\x0eoriginalPrompt\x12.\n" +
-	"\x05model\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12润色模型名称R\x05model\"\xb9\v\n" +
+	"\x05model\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12润色模型名称R\x05model\"\xea\n" +
+	"\n" +
 	"\aAiImage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b图片IDR\x02id\x123\n" +
 	"\x06prompt\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15图片生成提示词R\x06prompt\x12D\n" +
@@ -938,9 +979,7 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\vfinished_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampB\x18\xbaG\x15\x92\x02\x12生成结束时间R\n" +
 	"finishedAt\x12M\n" +
 	"\n" +
-	"created_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12M\n" +
-	"\n" +
-	"updated_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x85\x03\n" +
+	"created_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\"\x85\x03\n" +
 	"\rAiImageResult\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f图片名称R\x04name\x12$\n" +
 	"\x03url\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f图片地址R\x03url\x125\n" +
@@ -956,12 +995,13 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\aSUCCESS\x10\x03\x12\n" +
 	"\n" +
 	"\x06FAILED\x10\x04\x12\v\n" +
-	"\aTIMEOUT\x10\x052\xc0\x04\n" +
+	"\aTIMEOUT\x10\x052\xad\x05\n" +
 	"\x0eAiImageService\x12j\n" +
 	"\fPageAiImages\x12\x1c.base.v1.PageAiImagesRequest\x1a\x1d.base.v1.PageAiImagesResponse\"\x1d\x82\xd3\xe4\x93\x02\x17\x12\x15/api/v1/base/ai/image\x12^\n" +
 	"\n" +
 	"GetAiImage\x12\x1a.base.v1.GetAiImageRequest\x1a\x10.base.v1.AiImage\"\"\x82\xd3\xe4\x93\x02\x1c\x12\x1a/api/v1/base/ai/image/{id}\x12b\n" +
 	"\rCreateAiImage\x12\x1d.base.v1.CreateAiImageRequest\x1a\x10.base.v1.AiImage\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/base/ai/image\x12k\n" +
+	"\rDeleteAiImage\x12\x1d.base.v1.DeleteAiImageRequest\x1a\x16.google.protobuf.Empty\"#\x82\xd3\xe4\x93\x02\x1d*\x1b/api/v1/base/ai/image/{ids}\x12k\n" +
 	"\fRetryAiImage\x12\x1c.base.v1.RetryAiImageRequest\x1a\x10.base.v1.AiImage\"+\x82\xd3\xe4\x93\x02%:\x01*\" /api/v1/base/ai/image/{id}/retry\x12\x90\x01\n" +
 	"\x13PolishAiImagePrompt\x12#.base.v1.PolishAiImagePromptRequest\x1a$.base.v1.PolishAiImagePromptResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/api/v1/base/ai/image/prompt/polishBx\n" +
 	"\vcom.base.v1B\fAiImageProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
@@ -979,48 +1019,51 @@ func file_base_v1_ai_image_proto_rawDescGZIP() []byte {
 }
 
 var file_base_v1_ai_image_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_base_v1_ai_image_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_base_v1_ai_image_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_base_v1_ai_image_proto_goTypes = []any{
 	(AiImageStatus)(0),                  // 0: base.v1.AiImageStatus
 	(*PageAiImagesRequest)(nil),         // 1: base.v1.PageAiImagesRequest
 	(*PageAiImagesResponse)(nil),        // 2: base.v1.PageAiImagesResponse
 	(*GetAiImageRequest)(nil),           // 3: base.v1.GetAiImageRequest
-	(*CreateAiImageRequest)(nil),        // 4: base.v1.CreateAiImageRequest
-	(*RetryAiImageRequest)(nil),         // 5: base.v1.RetryAiImageRequest
-	(*PolishAiImagePromptRequest)(nil),  // 6: base.v1.PolishAiImagePromptRequest
-	(*PolishAiImagePromptResponse)(nil), // 7: base.v1.PolishAiImagePromptResponse
-	(*AiImage)(nil),                     // 8: base.v1.AiImage
-	(*AiImageResult)(nil),               // 9: base.v1.AiImageResult
-	(v1.Terminal)(0),                    // 10: common.v1.Terminal
-	(*timestamppb.Timestamp)(nil),       // 11: google.protobuf.Timestamp
+	(*DeleteAiImageRequest)(nil),        // 4: base.v1.DeleteAiImageRequest
+	(*CreateAiImageRequest)(nil),        // 5: base.v1.CreateAiImageRequest
+	(*RetryAiImageRequest)(nil),         // 6: base.v1.RetryAiImageRequest
+	(*PolishAiImagePromptRequest)(nil),  // 7: base.v1.PolishAiImagePromptRequest
+	(*PolishAiImagePromptResponse)(nil), // 8: base.v1.PolishAiImagePromptResponse
+	(*AiImage)(nil),                     // 9: base.v1.AiImage
+	(*AiImageResult)(nil),               // 10: base.v1.AiImageResult
+	(v1.Terminal)(0),                    // 11: common.v1.Terminal
+	(*timestamppb.Timestamp)(nil),       // 12: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),               // 13: google.protobuf.Empty
 }
 var file_base_v1_ai_image_proto_depIdxs = []int32{
 	0,  // 0: base.v1.PageAiImagesRequest.status:type_name -> base.v1.AiImageStatus
-	10, // 1: base.v1.PageAiImagesRequest.terminal:type_name -> common.v1.Terminal
-	8,  // 2: base.v1.PageAiImagesResponse.images:type_name -> base.v1.AiImage
-	10, // 3: base.v1.CreateAiImageRequest.terminal:type_name -> common.v1.Terminal
+	11, // 1: base.v1.PageAiImagesRequest.terminal:type_name -> common.v1.Terminal
+	9,  // 2: base.v1.PageAiImagesResponse.images:type_name -> base.v1.AiImage
+	11, // 3: base.v1.CreateAiImageRequest.terminal:type_name -> common.v1.Terminal
 	0,  // 4: base.v1.AiImage.status:type_name -> base.v1.AiImageStatus
-	9,  // 5: base.v1.AiImage.images:type_name -> base.v1.AiImageResult
-	10, // 6: base.v1.AiImage.terminal:type_name -> common.v1.Terminal
-	11, // 7: base.v1.AiImage.started_at:type_name -> google.protobuf.Timestamp
-	11, // 8: base.v1.AiImage.finished_at:type_name -> google.protobuf.Timestamp
-	11, // 9: base.v1.AiImage.created_at:type_name -> google.protobuf.Timestamp
-	11, // 10: base.v1.AiImage.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 11: base.v1.AiImageService.PageAiImages:input_type -> base.v1.PageAiImagesRequest
-	3,  // 12: base.v1.AiImageService.GetAiImage:input_type -> base.v1.GetAiImageRequest
-	4,  // 13: base.v1.AiImageService.CreateAiImage:input_type -> base.v1.CreateAiImageRequest
-	5,  // 14: base.v1.AiImageService.RetryAiImage:input_type -> base.v1.RetryAiImageRequest
-	6,  // 15: base.v1.AiImageService.PolishAiImagePrompt:input_type -> base.v1.PolishAiImagePromptRequest
+	10, // 5: base.v1.AiImage.images:type_name -> base.v1.AiImageResult
+	11, // 6: base.v1.AiImage.terminal:type_name -> common.v1.Terminal
+	12, // 7: base.v1.AiImage.started_at:type_name -> google.protobuf.Timestamp
+	12, // 8: base.v1.AiImage.finished_at:type_name -> google.protobuf.Timestamp
+	12, // 9: base.v1.AiImage.created_at:type_name -> google.protobuf.Timestamp
+	1,  // 10: base.v1.AiImageService.PageAiImages:input_type -> base.v1.PageAiImagesRequest
+	3,  // 11: base.v1.AiImageService.GetAiImage:input_type -> base.v1.GetAiImageRequest
+	5,  // 12: base.v1.AiImageService.CreateAiImage:input_type -> base.v1.CreateAiImageRequest
+	4,  // 13: base.v1.AiImageService.DeleteAiImage:input_type -> base.v1.DeleteAiImageRequest
+	6,  // 14: base.v1.AiImageService.RetryAiImage:input_type -> base.v1.RetryAiImageRequest
+	7,  // 15: base.v1.AiImageService.PolishAiImagePrompt:input_type -> base.v1.PolishAiImagePromptRequest
 	2,  // 16: base.v1.AiImageService.PageAiImages:output_type -> base.v1.PageAiImagesResponse
-	8,  // 17: base.v1.AiImageService.GetAiImage:output_type -> base.v1.AiImage
-	8,  // 18: base.v1.AiImageService.CreateAiImage:output_type -> base.v1.AiImage
-	8,  // 19: base.v1.AiImageService.RetryAiImage:output_type -> base.v1.AiImage
-	7,  // 20: base.v1.AiImageService.PolishAiImagePrompt:output_type -> base.v1.PolishAiImagePromptResponse
-	16, // [16:21] is the sub-list for method output_type
-	11, // [11:16] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	9,  // 17: base.v1.AiImageService.GetAiImage:output_type -> base.v1.AiImage
+	9,  // 18: base.v1.AiImageService.CreateAiImage:output_type -> base.v1.AiImage
+	13, // 19: base.v1.AiImageService.DeleteAiImage:output_type -> google.protobuf.Empty
+	9,  // 20: base.v1.AiImageService.RetryAiImage:output_type -> base.v1.AiImage
+	8,  // 21: base.v1.AiImageService.PolishAiImagePrompt:output_type -> base.v1.PolishAiImagePromptResponse
+	16, // [16:22] is the sub-list for method output_type
+	10, // [10:16] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_base_v1_ai_image_proto_init() }
@@ -1035,7 +1078,7 @@ func file_base_v1_ai_image_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_image_proto_rawDesc), len(file_base_v1_ai_image_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

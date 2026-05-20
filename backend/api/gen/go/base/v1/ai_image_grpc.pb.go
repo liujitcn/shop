@@ -8,10 +8,10 @@ package basev1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,6 +23,7 @@ const (
 	AiImageService_PageAiImages_FullMethodName        = "/base.v1.AiImageService/PageAiImages"
 	AiImageService_GetAiImage_FullMethodName          = "/base.v1.AiImageService/GetAiImage"
 	AiImageService_CreateAiImage_FullMethodName       = "/base.v1.AiImageService/CreateAiImage"
+	AiImageService_DeleteAiImage_FullMethodName       = "/base.v1.AiImageService/DeleteAiImage"
 	AiImageService_RetryAiImage_FullMethodName        = "/base.v1.AiImageService/RetryAiImage"
 	AiImageService_PolishAiImagePrompt_FullMethodName = "/base.v1.AiImageService/PolishAiImagePrompt"
 )
@@ -39,6 +40,8 @@ type AiImageServiceClient interface {
 	GetAiImage(ctx context.Context, in *GetAiImageRequest, opts ...grpc.CallOption) (*AiImage, error)
 	// 创建 AI 图片
 	CreateAiImage(ctx context.Context, in *CreateAiImageRequest, opts ...grpc.CallOption) (*AiImage, error)
+	// 删除 AI 图片
+	DeleteAiImage(ctx context.Context, in *DeleteAiImageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 重试 AI 图片生成
 	RetryAiImage(ctx context.Context, in *RetryAiImageRequest, opts ...grpc.CallOption) (*AiImage, error)
 	// 润色 AI 图片提示词
@@ -83,6 +86,16 @@ func (c *aiImageServiceClient) CreateAiImage(ctx context.Context, in *CreateAiIm
 	return out, nil
 }
 
+func (c *aiImageServiceClient) DeleteAiImage(ctx context.Context, in *DeleteAiImageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, AiImageService_DeleteAiImage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aiImageServiceClient) RetryAiImage(ctx context.Context, in *RetryAiImageRequest, opts ...grpc.CallOption) (*AiImage, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AiImage)
@@ -115,6 +128,8 @@ type AiImageServiceServer interface {
 	GetAiImage(context.Context, *GetAiImageRequest) (*AiImage, error)
 	// 创建 AI 图片
 	CreateAiImage(context.Context, *CreateAiImageRequest) (*AiImage, error)
+	// 删除 AI 图片
+	DeleteAiImage(context.Context, *DeleteAiImageRequest) (*emptypb.Empty, error)
 	// 重试 AI 图片生成
 	RetryAiImage(context.Context, *RetryAiImageRequest) (*AiImage, error)
 	// 润色 AI 图片提示词
@@ -137,6 +152,9 @@ func (UnimplementedAiImageServiceServer) GetAiImage(context.Context, *GetAiImage
 }
 func (UnimplementedAiImageServiceServer) CreateAiImage(context.Context, *CreateAiImageRequest) (*AiImage, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateAiImage not implemented")
+}
+func (UnimplementedAiImageServiceServer) DeleteAiImage(context.Context, *DeleteAiImageRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteAiImage not implemented")
 }
 func (UnimplementedAiImageServiceServer) RetryAiImage(context.Context, *RetryAiImageRequest) (*AiImage, error) {
 	return nil, status.Error(codes.Unimplemented, "method RetryAiImage not implemented")
@@ -219,6 +237,24 @@ func _AiImageService_CreateAiImage_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiImageService_DeleteAiImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAiImageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiImageServiceServer).DeleteAiImage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiImageService_DeleteAiImage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiImageServiceServer).DeleteAiImage(ctx, req.(*DeleteAiImageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AiImageService_RetryAiImage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RetryAiImageRequest)
 	if err := dec(in); err != nil {
@@ -273,6 +309,10 @@ var AiImageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateAiImage",
 			Handler:    _AiImageService_CreateAiImage_Handler,
+		},
+		{
+			MethodName: "DeleteAiImage",
+			Handler:    _AiImageService_DeleteAiImage_Handler,
 		},
 		{
 			MethodName: "RetryAiImage",

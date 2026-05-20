@@ -8,9 +8,9 @@ package basev1
 
 import (
 	context "context"
-
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,6 +21,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationAiImageServiceCreateAiImage = "/base.v1.AiImageService/CreateAiImage"
+const OperationAiImageServiceDeleteAiImage = "/base.v1.AiImageService/DeleteAiImage"
 const OperationAiImageServiceGetAiImage = "/base.v1.AiImageService/GetAiImage"
 const OperationAiImageServicePageAiImages = "/base.v1.AiImageService/PageAiImages"
 const OperationAiImageServicePolishAiImagePrompt = "/base.v1.AiImageService/PolishAiImagePrompt"
@@ -29,6 +30,8 @@ const OperationAiImageServiceRetryAiImage = "/base.v1.AiImageService/RetryAiImag
 type AiImageServiceHTTPServer interface {
 	// CreateAiImage 创建 AI 图片
 	CreateAiImage(context.Context, *CreateAiImageRequest) (*AiImage, error)
+	// DeleteAiImage 删除 AI 图片
+	DeleteAiImage(context.Context, *DeleteAiImageRequest) (*emptypb.Empty, error)
 	// GetAiImage 查询 AI 图片
 	GetAiImage(context.Context, *GetAiImageRequest) (*AiImage, error)
 	// PageAiImages 分页查询 AI 图片
@@ -44,6 +47,7 @@ func RegisterAiImageServiceHTTPServer(s *http.Server, srv AiImageServiceHTTPServ
 	r.GET("/api/v1/base/ai/image", _AiImageService_PageAiImages0_HTTP_Handler(srv))
 	r.GET("/api/v1/base/ai/image/{id}", _AiImageService_GetAiImage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/image", _AiImageService_CreateAiImage0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/base/ai/image/{ids}", _AiImageService_DeleteAiImage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/image/{id}/retry", _AiImageService_RetryAiImage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/image/prompt/polish", _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv))
 }
@@ -111,6 +115,28 @@ func _AiImageService_CreateAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) f
 	}
 }
 
+func _AiImageService_DeleteAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteAiImageRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiImageServiceDeleteAiImage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteAiImage(ctx, req.(*DeleteAiImageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _AiImageService_RetryAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in RetryAiImageRequest
@@ -161,6 +187,8 @@ func _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv AiImageServiceHTTPSer
 type AiImageServiceHTTPClient interface {
 	// CreateAiImage 创建 AI 图片
 	CreateAiImage(ctx context.Context, req *CreateAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
+	// DeleteAiImage 删除 AI 图片
+	DeleteAiImage(ctx context.Context, req *DeleteAiImageRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// GetAiImage 查询 AI 图片
 	GetAiImage(ctx context.Context, req *GetAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
 	// PageAiImages 分页查询 AI 图片
@@ -187,6 +215,20 @@ func (c *AiImageServiceHTTPClientImpl) CreateAiImage(ctx context.Context, in *Cr
 	opts = append(opts, http.Operation(OperationAiImageServiceCreateAiImage))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// DeleteAiImage 删除 AI 图片
+func (c *AiImageServiceHTTPClientImpl) DeleteAiImage(ctx context.Context, in *DeleteAiImageRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/base/ai/image/{ids}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAiImageServiceDeleteAiImage))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -24,9 +24,11 @@ import (
 
 	"github.com/go-kratos/blades"
 	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/oss"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -77,7 +79,7 @@ func (c *AiImageCase) PageAiImages(ctx context.Context, req *basev1.PageAiImages
 
 	query := c.aiImageRepo.Query(ctx).AiImage
 	opts := make([]repository.QueryOption, 0, 6)
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repository.Where(query.CreatedBy.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Where(query.Terminal.Eq(assistant.NormalizeTerminal(req.GetTerminal()))))
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
@@ -116,6 +118,26 @@ func (c *AiImageCase) GetAiImage(ctx context.Context, req *basev1.GetAiImageRequ
 	return c.toImageDTO(image), nil
 }
 
+// DeleteAiImage 删除当前用户创建的 AI 图片。
+func (c *AiImageCase) DeleteAiImage(ctx context.Context, req *basev1.DeleteAiImageRequest) (*emptypb.Empty, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	ids := _string.ConvertStringToInt64Array(req.GetIds())
+	if len(ids) == 0 {
+		return nil, errorsx.InvalidArgument("图片编号不能为空")
+	}
+	query := c.aiImageRepo.Query(ctx).AiImage
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.In(ids...)))
+	opts = append(opts, repository.Where(query.CreatedBy.Eq(authInfo.UserId)))
+	if err = c.aiImageRepo.Delete(ctx, opts...); err != nil {
+		return nil, err
+	}
+	return &emptypb.Empty{}, nil
+}
+
 // CreateAiImage 创建 AI 图片生成记录并异步投递队列。
 func (c *AiImageCase) CreateAiImage(ctx context.Context, req *basev1.CreateAiImageRequest) (*basev1.AiImage, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -149,7 +171,6 @@ func (c *AiImageCase) RetryAiImage(ctx context.Context, req *basev1.RetryAiImage
 			fmt.Sprintf("%d|%d", _const.AI_IMAGE_STATUS_FAILED, _const.AI_IMAGE_STATUS_TIMEOUT),
 		)
 	}
-	now := time.Now()
 	query := c.aiImageRepo.Query(ctx).AiImage
 	_, err = query.WithContext(ctx).
 		Where(query.ID.Eq(image.ID)).
@@ -158,7 +179,6 @@ func (c *AiImageCase) RetryAiImage(ctx context.Context, req *basev1.RetryAiImage
 			query.ErrorMessage.Value(""),
 			query.StartedAt.Null(),
 			query.FinishedAt.Null(),
-			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return nil, err
@@ -167,7 +187,6 @@ func (c *AiImageCase) RetryAiImage(ctx context.Context, req *basev1.RetryAiImage
 	image.ErrorMessage = ""
 	image.StartedAt = time.Time{}
 	image.FinishedAt = time.Time{}
-	image.UpdatedAt = now
 	queue.DispatchAiImageGenerate(image.ID)
 	return c.toImageDTO(image), nil
 }
@@ -275,7 +294,7 @@ func (c *AiImageCase) buildAiImage(userID int64, req *basev1.CreateAiImageReques
 	}
 	now := time.Now()
 	image := &models.AiImage{
-		UserID:         userID,
+		CreatedBy:      userID,
 		Terminal:       assistant.NormalizeTerminal(req.GetTerminal()),
 		Prompt:         originalPrompt,
 		OriginalPrompt: originalPrompt,
@@ -293,7 +312,6 @@ func (c *AiImageCase) buildAiImage(userID int64, req *basev1.CreateAiImageReques
 		Status:         _const.AI_IMAGE_STATUS_PENDING,
 		ImageUrlsJSON:  "[]",
 		CreatedAt:      now,
-		UpdatedAt:      now,
 	}
 	if !retry && !req.GetSaveOutput() {
 		image.SaveOutput = false
@@ -373,7 +391,6 @@ func (c *AiImageCase) updateImageRunning(ctx context.Context, imageID int64, sta
 		UpdateSimple(
 			query.Status.Value(_const.AI_IMAGE_STATUS_RUNNING),
 			query.StartedAt.Value(startedAt),
-			query.UpdatedAt.Value(startedAt),
 		)
 	return err
 }
@@ -395,7 +412,6 @@ func (c *AiImageCase) markImageSuccess(ctx context.Context, imageID int64, respo
 			query.Created.Value(int32(response.GetCreated())),
 			query.ErrorMessage.Value(""),
 			query.FinishedAt.Value(now),
-			query.UpdatedAt.Value(now),
 		)
 	return err
 }
@@ -415,7 +431,6 @@ func (c *AiImageCase) markImageFailed(ctx context.Context, imageID int64, genera
 			query.ErrorMessage.Value(limitAiImageErrorMessage(generateErr)),
 			query.RetryCount.Add(1),
 			query.FinishedAt.Value(now),
-			query.UpdatedAt.Value(now),
 		)
 	return err
 }
@@ -434,7 +449,7 @@ func (c *AiImageCase) findCurrentUserImageByRawID(ctx context.Context, rawID str
 	query := c.aiImageRepo.Query(ctx).AiImage
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(imageID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
+	opts = append(opts, repository.Where(query.CreatedBy.Eq(authInfo.UserId)))
 	var image *models.AiImage
 	image, err = c.aiImageRepo.Find(ctx, opts...)
 	if err != nil {
@@ -461,7 +476,6 @@ func (c *AiImageCase) toImageDTO(image *models.AiImage) *basev1.AiImage {
 	dto.StartedAt = timeToTimestamp(image.StartedAt)
 	dto.FinishedAt = timeToTimestamp(image.FinishedAt)
 	dto.CreatedAt = timeToTimestamp(image.CreatedAt)
-	dto.UpdatedAt = timeToTimestamp(image.UpdatedAt)
 	return dto
 }
 

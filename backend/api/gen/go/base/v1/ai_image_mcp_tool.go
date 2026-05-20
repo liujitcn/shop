@@ -8,8 +8,8 @@ package basev1
 
 import (
 	context "context"
-
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // RegisterAiImageServiceMCPTools 注册Base AI 图片服务的 MCP Tool。
@@ -17,6 +17,7 @@ func RegisterAiImageServiceMCPTools(mcpServer *mcp.Server, aiImageServiceServer 
 	RegisterAiImageServicePageAiImagesMCPTool(mcpServer, aiImageServiceServer)
 	RegisterAiImageServiceGetAiImageMCPTool(mcpServer, aiImageServiceServer)
 	RegisterAiImageServiceCreateAiImageMCPTool(mcpServer, aiImageServiceServer)
+	RegisterAiImageServiceDeleteAiImageMCPTool(mcpServer, aiImageServiceServer)
 	RegisterAiImageServiceRetryAiImageMCPTool(mcpServer, aiImageServiceServer)
 	RegisterAiImageServicePolishAiImagePromptMCPTool(mcpServer, aiImageServiceServer)
 }
@@ -76,6 +77,27 @@ func RegisterAiImageServiceCreateAiImageMCPTool(mcpServer *mcp.Server, aiImageSe
 				input = &CreateAiImageRequest{}
 			}
 			reply, err := aiImageServiceServer.CreateAiImage(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterAiImageServiceDeleteAiImageMCPTool 注册删除 AI 图片的 MCP Tool。
+func RegisterAiImageServiceDeleteAiImageMCPTool(mcpServer *mcp.Server, aiImageServiceServer AiImageServiceServer) {
+	mcp.AddTool[*DeleteAiImageRequest, *emptypb.Empty](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_ai_image_service_delete_ai_image",
+			Description: "删除 AI 图片",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *DeleteAiImageRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+			if input == nil {
+				input = &DeleteAiImageRequest{}
+			}
+			reply, err := aiImageServiceServer.DeleteAiImage(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

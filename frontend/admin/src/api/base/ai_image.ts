@@ -3,6 +3,7 @@ import type {
   AiImage,
   AiImageService,
   CreateAiImageRequest,
+  DeleteAiImageRequest,
   GetAiImageRequest,
   PageAiImagesRequest,
   PageAiImagesResponse,
@@ -10,6 +11,7 @@ import type {
   PolishAiImagePromptResponse,
   RetryAiImageRequest
 } from "@/rpc/base/v1/ai_image";
+import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const AI_IMAGE_URL = "/v1/base/ai/image";
 const AI_IMAGE_PROMPT_POLISH_URL = "/v1/base/ai/image/prompt/polish";
@@ -39,6 +41,14 @@ export class AiImageServiceImpl implements AiImageService {
       url: AI_IMAGE_URL,
       method: "post",
       data: request
+    });
+  }
+
+  /** 删除 AI 图片。 */
+  DeleteAiImage(request: DeleteAiImageRequest): Promise<Empty> {
+    return service<DeleteAiImageRequest, Empty>({
+      url: `${AI_IMAGE_URL}/${request.ids}`,
+      method: "delete"
     });
   }
 

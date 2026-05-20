@@ -16,18 +16,18 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { CirclePlus, Refresh, View } from "@element-plus/icons-vue";
+import { CirclePlus, Delete, Refresh, View } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { defAiImageService } from "@/api/base/ai_image";
 import type { AiImage, PageAiImagesRequest } from "@/rpc/base/v1/ai_image";
 import { Terminal } from "@/rpc/common/v1/enum";
-import { buildPageRequest } from "@/utils/proTable";
+import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { formatSrc } from "@/utils/utils";
 import CreateDialog from "./components/CreateDialog.vue";
 import DetailDialog from "./components/DetailDialog.vue";
 import { aiImageStatusOptions } from "./components/types";
-import { formatTimestamp } from "./components/utils";
+import { formatTimestamp, isRetryableStatus } from "./components/utils";
 
 defineOptions({
   name: "AiImage"
@@ -48,6 +48,7 @@ const initParam = computed<PageAiImagesRequest>(() => ({
 
 /** AI 图片表格列配置。 */
 const columns: ColumnProps[] = [
+  { type: "selection", width: 55 },
   {
     prop: "images",
     label: "图片",
@@ -92,16 +93,31 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 110,
+    width: 190,
     fixed: "right",
     cellType: "actions",
     actions: [
+      {
+        label: "重试",
+        type: "warning",
+        link: true,
+        icon: Refresh,
+        hidden: scope => !isRetryableStatus((scope.row as AiImage).status),
+        onClick: scope => handleRetry(scope.row as AiImage)
+      },
       {
         label: "详情",
         type: "primary",
         link: true,
         icon: View,
         onClick: scope => handleOpenDetail((scope.row as AiImage).id)
+      },
+      {
+        label: "删除",
+        type: "danger",
+        link: true,
+        icon: Delete,
+        onClick: scope => handleDelete(scope.row as AiImage)
       }
     ]
   }
@@ -118,10 +134,11 @@ const headerActions: HeaderActionProps[] = [
     }
   },
   {
-    label: "刷新",
-    type: "primary",
-    icon: Refresh,
-    onClick: () => refreshTable()
+    label: "删除",
+    type: "danger",
+    icon: Delete,
+    disabled: scope => !scope.selectedList.length,
+    onClick: scope => handleDelete(scope.selectedList as AiImage[])
   }
 ];
 
@@ -145,6 +162,51 @@ function handleCreatedImage() {
 function handleOpenDetail(imageId: string) {
   activeImageId.value = imageId;
   detailVisible.value = true;
+}
+
+/** 从列表重新提交失败或超时的 AI 图片生成。 */
+async function handleRetry(row: AiImage) {
+  await defAiImageService.RetryAiImage({ id: row.id });
+  ElMessage.success("已重新提交生成");
+  refreshTable();
+}
+
+/** 删除 AI 图片，兼容单条删除与批量删除。 */
+function handleDelete(selected?: number | string | Array<number | string> | AiImage | AiImage[]) {
+  const imageList = Array.isArray(selected)
+    ? (selected.filter(item => typeof item === "object") as AiImage[])
+    : selected && typeof selected === "object"
+      ? [selected as AiImage]
+      : [];
+  const imageIds = (
+    imageList.length ? imageList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
+  ).join(",");
+  if (!imageIds) {
+    ElMessage.warning("请勾选删除项");
+    return;
+  }
+
+  const confirmMessage = imageList.length
+    ? imageList.length === 1
+      ? "是否确定删除AI图片？"
+      : `确认删除已选中的 ${imageList.length} 张AI图片吗？`
+    : "确认删除已选中的AI图片吗？";
+
+  ElMessageBox.confirm(confirmMessage, "警告", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning"
+  }).then(
+    () => {
+      defAiImageService.DeleteAiImage({ ids: imageIds }).then(() => {
+        ElMessage.success("删除AI图片成功");
+        refreshTable();
+      });
+    },
+    () => {
+      ElMessage.info("已取消删除AI图片");
+    }
+  );
 }
 
 /** 解析首图地址，供表格图片列展示与预览复用。 */

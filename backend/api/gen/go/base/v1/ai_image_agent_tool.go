@@ -8,8 +8,8 @@ package basev1
 
 import (
 	context "context"
-
 	tools "github.com/go-kratos/blades/tools"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewAiImageServiceAgentTools 创建Base AI 图片服务的 Agent Tool。
@@ -34,6 +34,12 @@ func NewAiImageServiceAgentTools(aiImageServiceServer AiImageServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, createAiImageTool)
+	var deleteAiImageTool tools.Tool
+	deleteAiImageTool, err = NewAiImageServiceDeleteAiImageAgentTool(aiImageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteAiImageTool)
 	var retryAiImageTool tools.Tool
 	retryAiImageTool, err = NewAiImageServiceRetryAiImageAgentTool(aiImageServiceServer)
 	if err != nil {
@@ -87,6 +93,20 @@ func NewAiImageServiceCreateAiImageAgentTool(aiImageServiceServer AiImageService
 				req = &CreateAiImageRequest{}
 			}
 			return aiImageServiceServer.CreateAiImage(ctx, req)
+		},
+	)
+}
+
+// NewAiImageServiceDeleteAiImageAgentTool 创建删除 AI 图片的 Agent Tool。
+func NewAiImageServiceDeleteAiImageAgentTool(aiImageServiceServer AiImageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_image_service_delete_ai_image",
+		"删除 AI 图片",
+		func(ctx context.Context, req *DeleteAiImageRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &DeleteAiImageRequest{}
+			}
+			return aiImageServiceServer.DeleteAiImage(ctx, req)
 		},
 	)
 }

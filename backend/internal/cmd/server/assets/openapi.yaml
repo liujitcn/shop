@@ -5601,6 +5601,22 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PolishAiImagePromptResponse'
+    /api/v1/base/ai/image/{ids}:
+        delete:
+            tags:
+                - AiImageService
+            description: 删除 AI 图片
+            operationId: AiImageService_DeleteAiImage
+            parameters:
+                - name: ids
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/base/ai/image/{id}:
         get:
             tags:
@@ -6060,10 +6076,6 @@ components:
                 createdAt:
                     type: string
                     description: 创建时间
-                    format: date-time
-                updatedAt:
-                    type: string
-                    description: 更新时间
                     format: date-time
             description: AI 图片生成记录
         AiImageResult:
