@@ -16,8 +16,7 @@
           <el-tag v-if="item.saved" size="small" effect="plain" type="success">已保存</el-tag>
         </div>
       </div>
-      <div v-if="item.storage_path || item.request_id" class="ai-image-card__trace">
-        <span v-if="item.request_id">批次：{{ item.request_id }}</span>
+      <div v-if="item.storage_path" class="ai-image-card__trace">
         <span v-if="item.storage_path">目录：{{ item.storage_path }}</span>
       </div>
       <div class="ai-image-card__actions">

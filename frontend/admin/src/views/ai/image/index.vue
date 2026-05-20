@@ -64,7 +64,7 @@ const columns: ColumnProps[] = [
     prop: "keyword",
     label: "提示词",
     minWidth: 260,
-    search: { el: "input", key: "keyword", props: { placeholder: "请输入提示词或批次号" } },
+    search: { el: "input", key: "keyword", props: { placeholder: "请输入提示词" } },
     showOverflowTooltip: true,
     render: scope => {
       const row = scope.row as AiImage;
@@ -83,7 +83,6 @@ const columns: ColumnProps[] = [
   { prop: "size", label: "尺寸", width: 120 },
   { prop: "quality", label: "质量", width: 90 },
   { prop: "n", label: "数量", width: 80, align: "right" },
-  { prop: "request_id", label: "批次", minWidth: 180 },
   {
     prop: "created_at",
     label: "创建时间",

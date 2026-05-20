@@ -30,7 +30,7 @@ export interface PageAiImagesRequest {
   status?:
     | AiImageStatus
     | undefined;
-  /** 关键词，匹配提示词或批次编号 */
+  /** 关键词，匹配提示词 */
   keyword: string;
   /** 终端类型：枚举【Terminal】 */
   terminal: Terminal;
@@ -142,8 +142,6 @@ export interface AiImage {
   error_message: string;
   /** 已重试次数 */
   retry_count: number;
-  /** 生成批次编号 */
-  request_id: string;
   /** 模型生成时间戳 */
   created: number;
   /** 终端类型：枚举【Terminal】 */
@@ -180,8 +178,6 @@ export interface AiImageResult {
   saved: boolean;
   /** 对象存储目录 */
   storage_path: string;
-  /** 生成批次编号 */
-  request_id: string;
 }
 
 /** Base AI 图片服务 */

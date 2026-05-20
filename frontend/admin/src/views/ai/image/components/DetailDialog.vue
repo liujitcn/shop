@@ -34,7 +34,6 @@
 
         <el-descriptions class="ai-image-detail__params" :column="2" border>
           <el-descriptions-item label="模型">{{ image.model || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="批次">{{ image.request_id || "--" }}</el-descriptions-item>
           <el-descriptions-item label="尺寸">{{ image.size || "--" }}</el-descriptions-item>
           <el-descriptions-item label="质量">{{ image.quality || "--" }}</el-descriptions-item>
           <el-descriptions-item label="格式">{{ image.output_format || "--" }}</el-descriptions-item>

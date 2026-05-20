@@ -23,7 +23,6 @@ import (
 	"shop/pkg/queue"
 
 	"github.com/go-kratos/blades"
-	"github.com/google/uuid"
 	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/oss"
@@ -87,7 +86,7 @@ func (c *AiImageCase) PageAiImages(ctx context.Context, req *basev1.PageAiImages
 	if keyword != "" {
 		opts = append(opts, repository.Where(field.Or(
 			query.Prompt.Like("%"+keyword+"%"),
-			query.RequestID.Like("%"+keyword+"%"),
+			query.OriginalPrompt.Like("%"+keyword+"%"),
 		)))
 	}
 	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
@@ -323,7 +322,6 @@ func (c *AiImageCase) generateAiImageResult(ctx context.Context, image *models.A
 		}
 	}
 
-	requestID := newAiImageRequestID()
 	providerOutputFormat := image.OutputFormat
 	if !isGPTImageModel(image.Model) {
 		providerOutputFormat = ""
@@ -350,7 +348,7 @@ func (c *AiImageCase) generateAiImageResult(ctx context.Context, image *models.A
 		return nil, errorsx.Internal("AI图片生成失败").WithCause(err)
 	}
 	var images []*basev1.AiImageResult
-	images, err = c.toAiImages(response, image.OutputFormat, image.SaveOutput, requestID)
+	images, err = c.toAiImages(response, image.OutputFormat, image.SaveOutput)
 	if err != nil {
 		return nil, err
 	}
@@ -363,7 +361,6 @@ func (c *AiImageCase) generateAiImageResult(ctx context.Context, image *models.A
 		OriginalPrompt: image.OriginalPrompt,
 		Model:          image.Model,
 		Images:         images,
-		RequestId:      requestID,
 		Created:        readInt64Metadata(response, "created"),
 	}, nil
 }
@@ -395,7 +392,6 @@ func (c *AiImageCase) markImageSuccess(ctx context.Context, imageID int64, respo
 			query.Status.Value(_const.AI_IMAGE_STATUS_SUCCESS),
 			query.Prompt.Value(response.GetPrompt()),
 			query.ImageUrlsJSON.Value(imageURLsJSON),
-			query.RequestID.Value(response.GetRequestId()),
 			query.Created.Value(int32(response.GetCreated())),
 			query.ErrorMessage.Value(""),
 			query.FinishedAt.Value(now),
@@ -460,7 +456,6 @@ func (c *AiImageCase) toImageDTO(image *models.AiImage) *basev1.AiImage {
 	dto.N = int64(image.ImageCount)
 	dto.Status = basev1.AiImageStatus(image.Status)
 	dto.Images = unmarshalAiImageList(image.ImageUrlsJSON)
-	dto.RequestId = image.RequestID
 	dto.Created = int64(image.Created)
 	dto.Terminal = commonv1.Terminal(image.Terminal)
 	dto.StartedAt = timeToTimestamp(image.StartedAt)
@@ -471,7 +466,7 @@ func (c *AiImageCase) toImageDTO(image *models.AiImage) *basev1.AiImage {
 }
 
 // toAiImages 将 Blades 模型响应转换成接口图片结果。
-func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat string, saveOutput bool, requestID string) ([]*basev1.AiImageResult, error) {
+func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat string, saveOutput bool) ([]*basev1.AiImageResult, error) {
 	if response == nil || response.Message == nil {
 		return nil, nil
 	}
@@ -483,12 +478,11 @@ func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat st
 		case blades.DataPart:
 			imageIndex++
 			var image *basev1.AiImageResult
-			image, err = c.dataPartToAiImage(value, outputFormat, saveOutput, requestID)
+			image, err = c.dataPartToAiImage(value, outputFormat, saveOutput)
 			if err != nil {
 				return nil, err
 			}
 			image.RevisedPrompt = readStringMetadata(response, fmt.Sprintf("image-%d_revised_prompt_%d", imageIndex, imageIndex))
-			image.RequestId = requestID
 			images = append(images, image)
 		case blades.FilePart:
 			imageIndex++
@@ -498,7 +492,6 @@ func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat st
 				MimeType:      string(value.MIMEType),
 				RevisedPrompt: readStringMetadata(response, fmt.Sprintf("image-%d_revised_prompt_%d", imageIndex, imageIndex)),
 				Saved:         false,
-				RequestId:     requestID,
 			})
 		}
 	}
@@ -506,7 +499,7 @@ func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat st
 }
 
 // dataPartToAiImage 将二进制图片结果转换为可展示图片。
-func (c *AiImageCase) dataPartToAiImage(part blades.DataPart, outputFormat string, saveOutput bool, requestID string) (*basev1.AiImageResult, error) {
+func (c *AiImageCase) dataPartToAiImage(part blades.DataPart, outputFormat string, saveOutput bool) (*basev1.AiImageResult, error) {
 	mimeType := strings.TrimSpace(string(part.MIMEType))
 	if mimeType == "" {
 		mimeType = aiImageMimeType(outputFormat)
@@ -525,8 +518,8 @@ func (c *AiImageCase) dataPartToAiImage(part blades.DataPart, outputFormat strin
 		Size:     int64(len(part.Bytes)),
 	}
 	if saveOutput && c.oss != nil {
-		filePath := fmt.Sprintf("/%s/ai/images/%s/%s", _const.BASE_PATH, time.Now().Format("2006/01/02"), requestID)
-		name = withAiImageRequestFileName(name)
+		filePath := fmt.Sprintf("/%s/ai/images/%s", _const.BASE_PATH, time.Now().Format("2006/01/02"))
+		name = withAiImageStorageFileName(name)
 		image.Name = name
 		url, err := c.oss.UploadByByte(name, filePath, part.Bytes)
 		if err != nil {
@@ -655,13 +648,8 @@ func normalizeAiImagePromptText(value string) string {
 	return strings.TrimSpace(value)
 }
 
-// newAiImageRequestID 生成图片批次编号。
-func newAiImageRequestID() string {
-	return strings.ReplaceAll(uuid.NewString(), "-", "")
-}
-
-// withAiImageRequestFileName 为保存文件名补充时间戳，降低同名覆盖概率。
-func withAiImageRequestFileName(name string) string {
+// withAiImageStorageFileName 为保存文件名补充时间戳，降低同名覆盖概率。
+func withAiImageStorageFileName(name string) string {
 	ext := path.Ext(name)
 	baseName := strings.TrimSuffix(name, ext)
 	if strings.TrimSpace(baseName) == "" {

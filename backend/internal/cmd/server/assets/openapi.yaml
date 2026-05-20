@@ -6038,9 +6038,6 @@ components:
                     type: integer
                     description: 已重试次数
                     format: int32
-                requestId:
-                    type: string
-                    description: 生成批次编号
                 created:
                     type: string
                     description: 模型生成时间戳
@@ -6093,9 +6090,6 @@ components:
                 storagePath:
                     type: string
                     description: 对象存储目录
-                requestId:
-                    type: string
-                    description: 生成批次编号
             description: AI 图片结果
         AnalyticsPieItem:
             type: object

@@ -62,7 +62,7 @@ enum AiImageStatus {
 message PageAiImagesRequest {
   optional AiImageStatus status = 1 [(gnostic.openapi.v3.property) = {description: "生成状态：枚举【AiImageStatus】"}]; // 生成状态：枚举【AiImageStatus】
 
-  string keyword = 2 [(gnostic.openapi.v3.property) = {description: "关键词，匹配提示词或批次编号"}]; // 关键词，匹配提示词或批次编号
+  string keyword = 2 [(gnostic.openapi.v3.property) = {description: "关键词，匹配提示词"}]; // 关键词，匹配提示词
 
   .common.v1.Terminal terminal = 3 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 
@@ -173,8 +173,6 @@ message AiImage {
 
   int32 retry_count = 17 [(gnostic.openapi.v3.property) = {description: "已重试次数"}]; // 已重试次数
 
-  string request_id = 18 [(gnostic.openapi.v3.property) = {description: "生成批次编号"}]; // 生成批次编号
-
   int64 created = 19 [(gnostic.openapi.v3.property) = {description: "模型生成时间戳"}]; // 模型生成时间戳
 
   .common.v1.Terminal terminal = 20 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
@@ -204,5 +202,4 @@ message AiImageResult {
 
   string storage_path = 7 [(gnostic.openapi.v3.property) = {description: "对象存储目录"}]; // 对象存储目录
 
-  string request_id = 8 [(gnostic.openapi.v3.property) = {description: "生成批次编号"}]; // 生成批次编号
 }

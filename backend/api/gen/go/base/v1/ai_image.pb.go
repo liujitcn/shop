@@ -7,16 +7,15 @@
 package basev1
 
 import (
-	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -89,7 +88,7 @@ func (AiImageStatus) EnumDescriptor() ([]byte, []int) {
 type PageAiImagesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        *AiImageStatus         `protobuf:"varint,1,opt,name=status,proto3,enum=base.v1.AiImageStatus,oneof" json:"status,omitempty"` // 生成状态：枚举【AiImageStatus】
-	Keyword       string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`                                 // 关键词，匹配提示词或批次编号
+	Keyword       string                 `protobuf:"bytes,2,opt,name=keyword,proto3" json:"keyword,omitempty"`                                 // 关键词，匹配提示词
 	Terminal      v1.Terminal            `protobuf:"varint,3,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"`      // 终端类型：枚举【Terminal】
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`               // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`            // 每一页的行数
@@ -572,7 +571,6 @@ type AiImage struct {
 	Images         []*AiImageResult       `protobuf:"bytes,15,rep,name=images,proto3" json:"images,omitempty"`                                       // 图片列表
 	ErrorMessage   string                 `protobuf:"bytes,16,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`       // 失败或超时原因
 	RetryCount     int32                  `protobuf:"varint,17,opt,name=retry_count,json=retryCount,proto3" json:"retry_count,omitempty"`            // 已重试次数
-	RequestId      string                 `protobuf:"bytes,18,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`                // 生成批次编号
 	Created        int64                  `protobuf:"varint,19,opt,name=created,proto3" json:"created,omitempty"`                                    // 模型生成时间戳
 	Terminal       v1.Terminal            `protobuf:"varint,20,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"`          // 终端类型：枚举【Terminal】
 	StartedAt      *timestamppb.Timestamp `protobuf:"bytes,21,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`                // 开始生成时间
@@ -732,13 +730,6 @@ func (x *AiImage) GetRetryCount() int32 {
 	return 0
 }
 
-func (x *AiImage) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
 func (x *AiImage) GetCreated() int64 {
 	if x != nil {
 		return x.Created
@@ -791,7 +782,6 @@ type AiImageResult struct {
 	RevisedPrompt string                 `protobuf:"bytes,5,opt,name=revised_prompt,json=revisedPrompt,proto3" json:"revised_prompt,omitempty"` // 模型修订后的提示词
 	Saved         bool                   `protobuf:"varint,6,opt,name=saved,proto3" json:"saved,omitempty"`                                     // 是否已保存到对象存储
 	StoragePath   string                 `protobuf:"bytes,7,opt,name=storage_path,json=storagePath,proto3" json:"storage_path,omitempty"`       // 对象存储目录
-	RequestId     string                 `protobuf:"bytes,8,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`             // 生成批次编号
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -875,21 +865,14 @@ func (x *AiImageResult) GetStoragePath() string {
 	return ""
 }
 
-func (x *AiImageResult) GetRequestId() string {
-	if x != nil {
-		return x.RequestId
-	}
-	return ""
-}
-
 var File_base_v1_ai_image_proto protoreflect.FileDescriptor
 
 const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\n" +
-	"\x16base/v1/ai_image.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xab\x03\n" +
+	"\x16base/v1/ai_image.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9c\x03\n" +
 	"\x13PageAiImagesRequest\x12c\n" +
-	"\x06status\x18\x01 \x01(\x0e2\x16.base.v1.AiImageStatusB.\xbaG+\x92\x02(生成状态：枚举【AiImageStatus】H\x00R\x06status\x88\x01\x01\x12J\n" +
-	"\akeyword\x18\x02 \x01(\tB0\xbaG-\x92\x02*关键词，匹配提示词或批次编号R\akeyword\x12Z\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x16.base.v1.AiImageStatusB.\xbaG+\x92\x02(生成状态：枚举【AiImageStatus】H\x00R\x06status\x88\x01\x01\x12;\n" +
+	"\akeyword\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b关键词，匹配提示词R\akeyword\x12Z\n" +
 	"\bterminal\x18\x03 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
@@ -924,7 +907,7 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\x1bPolishAiImagePromptResponse\x129\n" +
 	"\x06prompt\x18\x01 \x01(\tB!\xbaG\x1e\x92\x02\x1b润色后的图片提示词R\x06prompt\x12D\n" +
 	"\x0foriginal_prompt\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15原始图片提示词R\x0eoriginalPrompt\x12.\n" +
-	"\x05model\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12润色模型名称R\x05model\"\xf2\v\n" +
+	"\x05model\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12润色模型名称R\x05model\"\xb9\v\n" +
 	"\aAiImage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b图片IDR\x02id\x123\n" +
 	"\x06prompt\x18\x02 \x01(\tB\x1b\xbaG\x18\x92\x02\x15图片生成提示词R\x06prompt\x12D\n" +
@@ -947,9 +930,7 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\x06images\x18\x0f \x03(\v2\x16.base.v1.AiImageResultB\x12\xbaG\x0f\x92\x02\f图片列表R\x06images\x12@\n" +
 	"\rerror_message\x18\x10 \x01(\tB\x1b\xbaG\x18\x92\x02\x15失败或超时原因R\ferrorMessage\x126\n" +
 	"\vretry_count\x18\x11 \x01(\x05B\x15\xbaG\x12\x92\x02\x0f已重试次数R\n" +
-	"retryCount\x127\n" +
-	"\n" +
-	"request_id\x18\x12 \x01(\tB\x18\xbaG\x15\x92\x02\x12生成批次编号R\trequestId\x125\n" +
+	"retryCount\x125\n" +
 	"\acreated\x18\x13 \x01(\x03B\x1b\xbaG\x18\x92\x02\x15模型生成时间戳R\acreated\x12Z\n" +
 	"\bterminal\x18\x14 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\x12S\n" +
 	"\n" +
@@ -959,7 +940,7 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x17 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x12M\n" +
 	"\n" +
-	"updated_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xbe\x03\n" +
+	"updated_at\x18\x18 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\x85\x03\n" +
 	"\rAiImageResult\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f图片名称R\x04name\x12$\n" +
 	"\x03url\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f图片地址R\x03url\x125\n" +
@@ -967,9 +948,7 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\x04size\x18\x04 \x01(\x03B\x18\xbaG\x15\x92\x02\x12图片字节大小R\x04size\x12H\n" +
 	"\x0erevised_prompt\x18\x05 \x01(\tB!\xbaG\x1e\x92\x02\x1b模型修订后的提示词R\rrevisedPrompt\x12:\n" +
 	"\x05saved\x18\x06 \x01(\bB$\xbaG!\x92\x02\x1e是否已保存到对象存储R\x05saved\x12;\n" +
-	"\fstorage_path\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12对象存储目录R\vstoragePath\x127\n" +
-	"\n" +
-	"request_id\x18\b \x01(\tB\x18\xbaG\x15\x92\x02\x12生成批次编号R\trequestId*`\n" +
+	"\fstorage_path\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12对象存储目录R\vstoragePath*`\n" +
 	"\rAiImageStatus\x12\x0f\n" +
 	"\vUNKNOWN_AIS\x10\x00\x12\v\n" +
 	"\aPENDING\x10\x01\x12\v\n" +
