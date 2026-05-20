@@ -10,31 +10,31 @@ import "google/protobuf/timestamp.proto";
 // Base AI 图片服务
 service AiImageService {
   // 分页查询 AI 图片
-  rpc PageAiImageTasks(PageAiImageTasksRequest) returns (PageAiImageTasksResponse) {
+  rpc PageAiImages(PageAiImagesRequest) returns (PageAiImagesResponse) {
     option (google.api.http) = {
-      get: "/api/v1/base/ai/image/task"
+      get: "/api/v1/base/ai/image"
     };
   }
 
   // 查询 AI 图片
-  rpc GetAiImageTask(GetAiImageTaskRequest) returns (AiImageTask) {
+  rpc GetAiImage(GetAiImageRequest) returns (AiImage) {
     option (google.api.http) = {
-      get: "/api/v1/base/ai/image/task/{id}"
+      get: "/api/v1/base/ai/image/{id}"
     };
   }
 
   // 创建 AI 图片
-  rpc CreateAiImageTask(CreateAiImageTaskRequest) returns (AiImageTask) {
+  rpc CreateAiImage(CreateAiImageRequest) returns (AiImage) {
     option (google.api.http) = {
-      post: "/api/v1/base/ai/image/task"
+      post: "/api/v1/base/ai/image"
       body: "*"
     };
   }
 
   // 重试 AI 图片生成
-  rpc RetryAiImageTask(RetryAiImageTaskRequest) returns (AiImageTask) {
+  rpc RetryAiImage(RetryAiImageRequest) returns (AiImage) {
     option (google.api.http) = {
-      post: "/api/v1/base/ai/image/task/{id}/retry"
+      post: "/api/v1/base/ai/image/{id}/retry"
       body: "*"
     };
   }
@@ -48,9 +48,19 @@ service AiImageService {
   }
 }
 
+// AI 图片生成状态
+enum AiImageStatus {
+  UNKNOWN_AIS = 0; // 未知状态
+  PENDING = 1; // 待处理
+  RUNNING = 2; // 生成中
+  SUCCESS = 3; // 成功
+  FAILED = 4; // 失败
+  TIMEOUT = 5; // 超时
+}
+
 // AI 图片分页查询条件
-message PageAiImageTasksRequest {
-  optional int32 status = 1 [(gnostic.openapi.v3.property) = {description: "生成状态：1待处理，2生成中，3成功，4失败，5超时"}]; // 生成状态：1待处理，2生成中，3成功，4失败，5超时
+message PageAiImagesRequest {
+  optional AiImageStatus status = 1 [(gnostic.openapi.v3.property) = {description: "生成状态：枚举【AiImageStatus】"}]; // 生成状态：枚举【AiImageStatus】
 
   string keyword = 2 [(gnostic.openapi.v3.property) = {description: "关键词，匹配提示词或批次编号"}]; // 关键词，匹配提示词或批次编号
 
@@ -68,19 +78,19 @@ message PageAiImageTasksRequest {
 }
 
 // AI 图片分页响应
-message PageAiImageTasksResponse {
-  repeated AiImageTask tasks = 1 [(gnostic.openapi.v3.property) = {description: "AI 图片列表"}]; // AI 图片列表
+message PageAiImagesResponse {
+  repeated AiImage images = 1 [(gnostic.openapi.v3.property) = {description: "AI 图片列表"}]; // AI 图片列表
 
   int32 total = 2 [(gnostic.openapi.v3.property) = {description: "总数"}]; // 总数
 }
 
 // AI 图片详情查询条件
-message GetAiImageTaskRequest {
+message GetAiImageRequest {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "图片ID"}]; // 图片ID
 }
 
 // AI 图片创建请求
-message CreateAiImageTaskRequest {
+message CreateAiImageRequest {
   string prompt = 1 [(gnostic.openapi.v3.property) = {description: "图片生成提示词"}]; // 图片生成提示词
 
   string model = 2 [(gnostic.openapi.v3.property) = {description: "图片模型名称"}]; // 图片模型名称
@@ -107,7 +117,7 @@ message CreateAiImageTaskRequest {
 }
 
 // AI 图片重试请求
-message RetryAiImageTaskRequest {
+message RetryAiImageRequest {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "图片ID"}]; // 图片ID
 }
 
@@ -128,7 +138,7 @@ message PolishAiImagePromptResponse {
 }
 
 // AI 图片生成记录
-message AiImageTask {
+message AiImage {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "图片ID"}]; // 图片ID
 
   string prompt = 2 [(gnostic.openapi.v3.property) = {description: "图片生成提示词"}]; // 图片生成提示词
@@ -155,9 +165,9 @@ message AiImageTask {
 
   bool polish_prompt = 13 [(gnostic.openapi.v3.property) = {description: "是否先润色提示词再生成"}]; // 是否先润色提示词再生成
 
-  int32 status = 14 [(gnostic.openapi.v3.property) = {description: "生成状态：1待处理，2生成中，3成功，4失败，5超时"}]; // 生成状态：1待处理，2生成中，3成功，4失败，5超时
+  AiImageStatus status = 14 [(gnostic.openapi.v3.property) = {description: "生成状态：枚举【AiImageStatus】"}]; // 生成状态：枚举【AiImageStatus】
 
-  repeated AiImage images = 15 [(gnostic.openapi.v3.property) = {description: "图片列表"}]; // 图片列表
+  repeated AiImageResult images = 15 [(gnostic.openapi.v3.property) = {description: "图片列表"}]; // 图片列表
 
   string error_message = 16 [(gnostic.openapi.v3.property) = {description: "失败或超时原因"}]; // 失败或超时原因
 
@@ -179,7 +189,7 @@ message AiImageTask {
 }
 
 // AI 图片结果
-message AiImage {
+message AiImageResult {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "图片名称"}]; // 图片名称
 
   string url = 2 [(gnostic.openapi.v3.property) = {description: "图片地址"}]; // 图片地址

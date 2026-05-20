@@ -1,6 +1,10 @@
 import service, { handleAuthExpired } from "@/utils/request";
 import type { ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse } from "@/rpc/base/v1/ai_assistant_session";
-import type { SendAiAssistantMessageRequest } from "@/rpc/base/v1/ai_assistant_message";
+import type {
+  AiAssistantMessageService,
+  SendAiAssistantMessageRequest,
+  SendAiAssistantMessageResponse
+} from "@/rpc/base/v1/ai_assistant_message";
 import pinia from "@/stores";
 import { useUserStore } from "@/stores/modules/user";
 
@@ -45,7 +49,7 @@ export async function SendAiAssistantMessageStream(request: SendAiAssistantMessa
 }
 
 /** AI 助手消息服务。 */
-export class AiAssistantMessageServiceImpl {
+export class AiAssistantMessageServiceImpl implements AiAssistantMessageService {
   /** 查询 AI 助手消息列表。 */
   ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse> {
     return service<ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse>({
@@ -55,8 +59,17 @@ export class AiAssistantMessageServiceImpl {
     });
   }
 
+  /** 发送 AI 助手消息并等待完整响应。 */
+  SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
+    return service<SendAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
+      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
+      method: "post",
+      data: request
+    });
+  }
+
   /** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供 useXStream 消费。 */
-  async SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<Response> {
+  async StreamAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<Response> {
     return SendAiAssistantMessageStream(request);
   }
 }

@@ -71,8 +71,8 @@ func NewAiImageCase(baseCase *biz.BaseCase, imageClient *provider.ImageClient, c
 	return c
 }
 
-// PageAiImageTasks 分页查询当前用户的 AI 图片。
-func (c *AiImageCase) PageAiImageTasks(ctx context.Context, req *basev1.PageAiImageTasksRequest) (*basev1.PageAiImageTasksResponse, error) {
+// PageAiImages 分页查询当前用户的 AI 图片。
+func (c *AiImageCase) PageAiImages(ctx context.Context, req *basev1.PageAiImagesRequest) (*basev1.PageAiImagesResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (c *AiImageCase) PageAiImageTasks(ctx context.Context, req *basev1.PageAiIm
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Where(query.Terminal.Eq(assistant.NormalizeTerminal(req.GetTerminal()))))
 	if req.Status != nil {
-		status := req.GetStatus()
+		status := int32(req.GetStatus())
 		if _, ok := c.aiImageStatuses[status]; ok {
 			opts = append(opts, repository.Where(query.Status.Eq(status)))
 		}
@@ -102,57 +102,57 @@ func (c *AiImageCase) PageAiImageTasks(ctx context.Context, req *basev1.PageAiIm
 		return nil, err
 	}
 
-	tasks := make([]*basev1.AiImageTask, 0, len(list))
+	images := make([]*basev1.AiImage, 0, len(list))
 	for _, item := range list {
-		tasks = append(tasks, c.toImageDTO(item))
+		images = append(images, c.toImageDTO(item))
 	}
-	return &basev1.PageAiImageTasksResponse{Tasks: tasks, Total: int32(total)}, nil
+	return &basev1.PageAiImagesResponse{Images: images, Total: int32(total)}, nil
 }
 
-// GetAiImageTask 查询当前用户的 AI 图片详情。
-func (c *AiImageCase) GetAiImageTask(ctx context.Context, req *basev1.GetAiImageTaskRequest) (*basev1.AiImageTask, error) {
-	task, err := c.findCurrentUserImageByRawID(ctx, req.GetId())
+// GetAiImage 查询当前用户的 AI 图片详情。
+func (c *AiImageCase) GetAiImage(ctx context.Context, req *basev1.GetAiImageRequest) (*basev1.AiImage, error) {
+	image, err := c.findCurrentUserImageByRawID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	return c.toImageDTO(task), nil
+	return c.toImageDTO(image), nil
 }
 
-// CreateAiImageTask 创建 AI 图片生成记录并异步投递队列。
-func (c *AiImageCase) CreateAiImageTask(ctx context.Context, req *basev1.CreateAiImageTaskRequest) (*basev1.AiImageTask, error) {
+// CreateAiImage 创建 AI 图片生成记录并异步投递队列。
+func (c *AiImageCase) CreateAiImage(ctx context.Context, req *basev1.CreateAiImageRequest) (*basev1.AiImage, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
-	task, err := c.buildAiImage(authInfo.UserId, req, false)
+	image, err := c.buildAiImage(authInfo.UserId, req, false)
 	if err != nil {
 		return nil, err
 	}
-	if err = c.aiImageRepo.Create(ctx, task); err != nil {
+	if err = c.aiImageRepo.Create(ctx, image); err != nil {
 		return nil, err
 	}
-	queue.DispatchAiImageGenerate(task.ID)
-	return c.toImageDTO(task), nil
+	queue.DispatchAiImageGenerate(image.ID)
+	return c.toImageDTO(image), nil
 }
 
-// RetryAiImageTask 重试失败或超时的 AI 图片生成记录。
-func (c *AiImageCase) RetryAiImageTask(ctx context.Context, req *basev1.RetryAiImageTaskRequest) (*basev1.AiImageTask, error) {
-	task, err := c.findCurrentUserImageByRawID(ctx, req.GetId())
+// RetryAiImage 重试失败或超时的 AI 图片生成记录。
+func (c *AiImageCase) RetryAiImage(ctx context.Context, req *basev1.RetryAiImageRequest) (*basev1.AiImage, error) {
+	image, err := c.findCurrentUserImageByRawID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
-	if task.Status != _const.AI_IMAGE_STATUS_FAILED && task.Status != _const.AI_IMAGE_STATUS_TIMEOUT {
+	if image.Status != _const.AI_IMAGE_STATUS_FAILED && image.Status != _const.AI_IMAGE_STATUS_TIMEOUT {
 		return nil, errorsx.StateConflict(
 			"当前生成状态不允许重试",
 			"ai_image",
-			strconv.FormatInt(int64(task.Status), 10),
+			strconv.FormatInt(int64(image.Status), 10),
 			fmt.Sprintf("%d|%d", _const.AI_IMAGE_STATUS_FAILED, _const.AI_IMAGE_STATUS_TIMEOUT),
 		)
 	}
 	now := time.Now()
 	query := c.aiImageRepo.Query(ctx).AiImage
 	_, err = query.WithContext(ctx).
-		Where(query.ID.Eq(task.ID)).
+		Where(query.ID.Eq(image.ID)).
 		UpdateSimple(
 			query.Status.Value(_const.AI_IMAGE_STATUS_PENDING),
 			query.ErrorMessage.Value(""),
@@ -163,13 +163,13 @@ func (c *AiImageCase) RetryAiImageTask(ctx context.Context, req *basev1.RetryAiI
 	if err != nil {
 		return nil, err
 	}
-	task.Status = _const.AI_IMAGE_STATUS_PENDING
-	task.ErrorMessage = ""
-	task.StartedAt = time.Time{}
-	task.FinishedAt = time.Time{}
-	task.UpdatedAt = now
-	queue.DispatchAiImageGenerate(task.ID)
-	return c.toImageDTO(task), nil
+	image.Status = _const.AI_IMAGE_STATUS_PENDING
+	image.ErrorMessage = ""
+	image.StartedAt = time.Time{}
+	image.FinishedAt = time.Time{}
+	image.UpdatedAt = now
+	queue.DispatchAiImageGenerate(image.ID)
+	return c.toImageDTO(image), nil
 }
 
 // PolishAiImagePrompt 润色图片生成提示词。
@@ -213,27 +213,27 @@ func (c *AiImageCase) PolishAiImagePrompt(ctx context.Context, req *basev1.Polis
 
 // consumeAiImageGenerate 消费 AI 图片生成队列。
 func (c *AiImageCase) consumeAiImageGenerate(message queueData.Message) error {
-	taskID, err := queue.DecodeQueueData[int64](message)
+	imageID, err := queue.DecodeQueueData[int64](message)
 	if err != nil {
 		return err
 	}
-	if taskID == nil || *taskID <= 0 {
+	if imageID == nil || *imageID <= 0 {
 		return nil
 	}
-	return c.generateAiImage(context.TODO(), *taskID)
+	return c.generateAiImage(context.TODO(), *imageID)
 }
 
 // generateAiImage 执行单个 AI 图片生成流程。
-func (c *AiImageCase) generateAiImage(ctx context.Context, taskID int64) error {
-	task, err := c.aiImageRepo.FindByID(ctx, taskID)
+func (c *AiImageCase) generateAiImage(ctx context.Context, imageID int64) error {
+	image, err := c.aiImageRepo.FindByID(ctx, imageID)
 	if err != nil {
 		return err
 	}
-	if task.Status != _const.AI_IMAGE_STATUS_PENDING {
+	if image.Status != _const.AI_IMAGE_STATUS_PENDING {
 		return nil
 	}
 	startedAt := time.Now()
-	err = c.updateTaskRunning(ctx, task.ID, startedAt)
+	err = c.updateImageRunning(ctx, image.ID, startedAt)
 	if err != nil {
 		return err
 	}
@@ -241,15 +241,15 @@ func (c *AiImageCase) generateAiImage(ctx context.Context, taskID int64) error {
 	generateCtx, cancel := context.WithTimeout(context.Background(), aiImageTimeout)
 	defer cancel()
 
-	response, err := c.generateAiImageResult(generateCtx, task)
+	response, err := c.generateAiImageResult(generateCtx, image)
 	if err != nil {
-		return c.markTaskFailed(ctx, task.ID, err)
+		return c.markImageFailed(ctx, image.ID, err)
 	}
-	return c.markTaskSuccess(ctx, task.ID, response)
+	return c.markImageSuccess(ctx, image.ID, response)
 }
 
 // buildAiImage 基于创建请求构建图片模型。
-func (c *AiImageCase) buildAiImage(userID int64, req *basev1.CreateAiImageTaskRequest, retry bool) (*models.AiImage, error) {
+func (c *AiImageCase) buildAiImage(userID int64, req *basev1.CreateAiImageRequest, retry bool) (*models.AiImage, error) {
 	originalPrompt := strings.TrimSpace(req.GetPrompt())
 	if originalPrompt == "" {
 		return nil, errorsx.InvalidArgument("图片提示词不能为空")
@@ -273,7 +273,7 @@ func (c *AiImageCase) buildAiImage(userID int64, req *basev1.CreateAiImageTaskRe
 		return nil, err
 	}
 	now := time.Now()
-	task := &models.AiImage{
+	image := &models.AiImage{
 		UserID:         userID,
 		Terminal:       assistant.NormalizeTerminal(req.GetTerminal()),
 		Prompt:         originalPrompt,
@@ -295,20 +295,20 @@ func (c *AiImageCase) buildAiImage(userID int64, req *basev1.CreateAiImageTaskRe
 		UpdatedAt:      now,
 	}
 	if !retry && !req.GetSaveOutput() {
-		task.SaveOutput = false
+		image.SaveOutput = false
 	}
-	return task, nil
+	return image, nil
 }
 
 // generateAiImageResult 调用图片模型并转换生成结果。
-func (c *AiImageCase) generateAiImageResult(ctx context.Context, task *models.AiImage) (*basev1.AiImageTask, error) {
+func (c *AiImageCase) generateAiImageResult(ctx context.Context, image *models.AiImage) (*basev1.AiImage, error) {
 	if c.imageClient == nil || !c.imageClient.Enabled() {
 		return nil, errorsx.Internal("AI图片客户端未配置")
 	}
-	prompt := strings.TrimSpace(task.Prompt)
-	if task.PolishPrompt {
+	prompt := strings.TrimSpace(image.Prompt)
+	if image.PolishPrompt {
 		polishResponse, err := c.PolishAiImagePrompt(ctx, &basev1.PolishAiImagePromptRequest{
-			Prompt: task.OriginalPrompt,
+			Prompt: image.OriginalPrompt,
 			Scene:  "商城后台图片生成",
 		})
 		if err != nil {
@@ -320,19 +320,19 @@ func (c *AiImageCase) generateAiImageResult(ctx context.Context, task *models.Ai
 	}
 
 	requestID := newAiImageRequestID()
-	providerOutputFormat := task.OutputFormat
-	if !isGPTImageModel(task.Model) {
+	providerOutputFormat := image.OutputFormat
+	if !isGPTImageModel(image.Model) {
 		providerOutputFormat = ""
 	}
 	providerInstance := c.imageClient.Provider(provider.ImageGenerateOptions{
-		Model:          task.Model,
-		Background:     task.Background,
-		Size:           task.Size,
-		Quality:        task.Quality,
-		ResponseFormat: task.ResponseFormat,
+		Model:          image.Model,
+		Background:     image.Background,
+		Size:           image.Size,
+		Quality:        image.Quality,
+		ResponseFormat: image.ResponseFormat,
 		OutputFormat:   providerOutputFormat,
-		Style:          task.Style,
-		N:              int64(task.ImageCount),
+		Style:          image.Style,
+		N:              int64(image.ImageCount),
 	})
 	if providerInstance == nil {
 		return nil, errorsx.Internal("AI图片客户端未配置")
@@ -344,29 +344,29 @@ func (c *AiImageCase) generateAiImageResult(ctx context.Context, task *models.Ai
 	if err != nil {
 		return nil, errorsx.Internal("AI图片生成失败").WithCause(err)
 	}
-	images, err := c.toAiImages(response, task.OutputFormat, task.SaveOutput, requestID)
+	images, err := c.toAiImages(response, image.OutputFormat, image.SaveOutput, requestID)
 	if err != nil {
 		return nil, err
 	}
 	if len(images) == 0 {
 		return nil, errorsx.Internal("AI图片生成结果为空")
 	}
-	return &basev1.AiImageTask{
-		Id:             strconv.FormatInt(task.ID, 10),
+	return &basev1.AiImage{
+		Id:             strconv.FormatInt(image.ID, 10),
 		Prompt:         prompt,
-		OriginalPrompt: task.OriginalPrompt,
-		Model:          task.Model,
+		OriginalPrompt: image.OriginalPrompt,
+		Model:          image.Model,
 		Images:         images,
 		RequestId:      requestID,
 		Created:        readInt64Metadata(response, "created"),
 	}, nil
 }
 
-// updateTaskRunning 将图片标记为生成中。
-func (c *AiImageCase) updateTaskRunning(ctx context.Context, taskID int64, startedAt time.Time) error {
+// updateImageRunning 将图片标记为生成中。
+func (c *AiImageCase) updateImageRunning(ctx context.Context, imageID int64, startedAt time.Time) error {
 	query := c.aiImageRepo.Query(ctx).AiImage
 	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(taskID), query.Status.Eq(_const.AI_IMAGE_STATUS_PENDING)).
+		Where(query.ID.Eq(imageID), query.Status.Eq(_const.AI_IMAGE_STATUS_PENDING)).
 		UpdateSimple(
 			query.Status.Value(_const.AI_IMAGE_STATUS_RUNNING),
 			query.StartedAt.Value(startedAt),
@@ -375,8 +375,8 @@ func (c *AiImageCase) updateTaskRunning(ctx context.Context, taskID int64, start
 	return err
 }
 
-// markTaskSuccess 将生成成功结果写入图片记录。
-func (c *AiImageCase) markTaskSuccess(ctx context.Context, taskID int64, response *basev1.AiImageTask) error {
+// markImageSuccess 将生成成功结果写入图片记录。
+func (c *AiImageCase) markImageSuccess(ctx context.Context, imageID int64, response *basev1.AiImage) error {
 	now := time.Now()
 	imageURLsJSON, err := marshalAiImageList(response.GetImages())
 	if err != nil {
@@ -384,7 +384,7 @@ func (c *AiImageCase) markTaskSuccess(ctx context.Context, taskID int64, respons
 	}
 	query := c.aiImageRepo.Query(ctx).AiImage
 	_, err = query.WithContext(ctx).
-		Where(query.ID.Eq(taskID)).
+		Where(query.ID.Eq(imageID)).
 		UpdateSimple(
 			query.Status.Value(_const.AI_IMAGE_STATUS_SUCCESS),
 			query.Prompt.Value(response.GetPrompt()),
@@ -398,8 +398,8 @@ func (c *AiImageCase) markTaskSuccess(ctx context.Context, taskID int64, respons
 	return err
 }
 
-// markTaskFailed 将生成失败结果写入图片记录。
-func (c *AiImageCase) markTaskFailed(ctx context.Context, taskID int64, generateErr error) error {
+// markImageFailed 将生成失败结果写入图片记录。
+func (c *AiImageCase) markImageFailed(ctx context.Context, imageID int64, generateErr error) error {
 	now := time.Now()
 	status := _const.AI_IMAGE_STATUS_FAILED
 	if errors.Is(generateErr, context.DeadlineExceeded) {
@@ -407,7 +407,7 @@ func (c *AiImageCase) markTaskFailed(ctx context.Context, taskID int64, generate
 	}
 	query := c.aiImageRepo.Query(ctx).AiImage
 	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(taskID)).
+		Where(query.ID.Eq(imageID)).
 		UpdateSimple(
 			query.Status.Value(status),
 			query.ErrorMessage.Value(limitAiImageErrorMessage(generateErr)),
@@ -424,63 +424,63 @@ func (c *AiImageCase) findCurrentUserImageByRawID(ctx context.Context, rawID str
 	if err != nil {
 		return nil, err
 	}
-	taskID, err := strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
-	if err != nil || taskID <= 0 {
+	imageID, err := strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
+	if err != nil || imageID <= 0 {
 		return nil, errorsx.InvalidArgument("图片编号不能为空")
 	}
 	query := c.aiImageRepo.Query(ctx).AiImage
 	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(taskID)))
+	opts = append(opts, repository.Where(query.ID.Eq(imageID)))
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	task, err := c.aiImageRepo.Find(ctx, opts...)
+	image, err := c.aiImageRepo.Find(ctx, opts...)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.ResourceNotFound("AI图片不存在")
 		}
 		return nil, err
 	}
-	return task, nil
+	return image, nil
 }
 
 // toImageDTO 将图片模型转换为接口响应。
-func (c *AiImageCase) toImageDTO(task *models.AiImage) *basev1.AiImageTask {
-	if task == nil {
+func (c *AiImageCase) toImageDTO(image *models.AiImage) *basev1.AiImage {
+	if image == nil {
 		return nil
 	}
-	return &basev1.AiImageTask{
-		Id:             strconv.FormatInt(task.ID, 10),
-		Prompt:         task.Prompt,
-		OriginalPrompt: task.OriginalPrompt,
-		Model:          task.Model,
-		Size:           task.Size,
-		Quality:        task.Quality,
-		Style:          task.Style,
-		Background:     task.Background,
-		OutputFormat:   task.OutputFormat,
-		ResponseFormat: task.ResponseFormat,
-		N:              int64(task.ImageCount),
-		SaveOutput:     task.SaveOutput,
-		PolishPrompt:   task.PolishPrompt,
-		Status:         task.Status,
-		Images:         unmarshalAiImageList(task.ImageUrlsJSON),
-		ErrorMessage:   task.ErrorMessage,
-		RetryCount:     task.RetryCount,
-		RequestId:      task.RequestID,
-		Created:        int64(task.Created),
-		Terminal:       commonv1.Terminal(task.Terminal),
-		StartedAt:      timeToTimestamp(task.StartedAt),
-		FinishedAt:     timeToTimestamp(task.FinishedAt),
-		CreatedAt:      timeToTimestamp(task.CreatedAt),
-		UpdatedAt:      timeToTimestamp(task.UpdatedAt),
+	return &basev1.AiImage{
+		Id:             strconv.FormatInt(image.ID, 10),
+		Prompt:         image.Prompt,
+		OriginalPrompt: image.OriginalPrompt,
+		Model:          image.Model,
+		Size:           image.Size,
+		Quality:        image.Quality,
+		Style:          image.Style,
+		Background:     image.Background,
+		OutputFormat:   image.OutputFormat,
+		ResponseFormat: image.ResponseFormat,
+		N:              int64(image.ImageCount),
+		SaveOutput:     image.SaveOutput,
+		PolishPrompt:   image.PolishPrompt,
+		Status:         basev1.AiImageStatus(image.Status),
+		Images:         unmarshalAiImageList(image.ImageUrlsJSON),
+		ErrorMessage:   image.ErrorMessage,
+		RetryCount:     image.RetryCount,
+		RequestId:      image.RequestID,
+		Created:        int64(image.Created),
+		Terminal:       commonv1.Terminal(image.Terminal),
+		StartedAt:      timeToTimestamp(image.StartedAt),
+		FinishedAt:     timeToTimestamp(image.FinishedAt),
+		CreatedAt:      timeToTimestamp(image.CreatedAt),
+		UpdatedAt:      timeToTimestamp(image.UpdatedAt),
 	}
 }
 
 // toAiImages 将 Blades 模型响应转换成接口图片结果。
-func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat string, saveOutput bool, requestID string) ([]*basev1.AiImage, error) {
+func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat string, saveOutput bool, requestID string) ([]*basev1.AiImageResult, error) {
 	if response == nil || response.Message == nil {
 		return nil, nil
 	}
-	images := make([]*basev1.AiImage, 0, len(response.Message.Parts))
+	images := make([]*basev1.AiImageResult, 0, len(response.Message.Parts))
 	imageIndex := 0
 	for _, part := range response.Message.Parts {
 		switch value := part.(type) {
@@ -495,7 +495,7 @@ func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat st
 			images = append(images, image)
 		case blades.FilePart:
 			imageIndex++
-			images = append(images, &basev1.AiImage{
+			images = append(images, &basev1.AiImageResult{
 				Name:          value.Name,
 				Url:           value.URI,
 				MimeType:      string(value.MIMEType),
@@ -509,7 +509,7 @@ func (c *AiImageCase) toAiImages(response *blades.ModelResponse, outputFormat st
 }
 
 // dataPartToAiImage 将二进制图片结果转换为可展示图片。
-func (c *AiImageCase) dataPartToAiImage(part blades.DataPart, outputFormat string, saveOutput bool, requestID string) (*basev1.AiImage, error) {
+func (c *AiImageCase) dataPartToAiImage(part blades.DataPart, outputFormat string, saveOutput bool, requestID string) (*basev1.AiImageResult, error) {
 	mimeType := strings.TrimSpace(string(part.MIMEType))
 	if mimeType == "" {
 		mimeType = aiImageMimeType(outputFormat)
@@ -522,7 +522,7 @@ func (c *AiImageCase) dataPartToAiImage(part blades.DataPart, outputFormat strin
 		name = fmt.Sprintf("%s.%s", name, aiImageExtension(mimeType, outputFormat))
 	}
 
-	image := &basev1.AiImage{
+	image := &basev1.AiImageResult{
 		Name:     name,
 		MimeType: mimeType,
 		Size:     int64(len(part.Bytes)),
@@ -568,7 +568,7 @@ func buildAiImageParamsJSON(prompt string, model string, size string, quality st
 }
 
 // marshalAiImageList 序列化图片列表。
-func marshalAiImageList(images []*basev1.AiImage) (string, error) {
+func marshalAiImageList(images []*basev1.AiImageResult) (string, error) {
 	if images == nil {
 		return "[]", nil
 	}
@@ -580,12 +580,12 @@ func marshalAiImageList(images []*basev1.AiImage) (string, error) {
 }
 
 // unmarshalAiImageList 反序列化图片列表。
-func unmarshalAiImageList(rawValue string) []*basev1.AiImage {
+func unmarshalAiImageList(rawValue string) []*basev1.AiImageResult {
 	rawValue = strings.TrimSpace(rawValue)
 	if rawValue == "" {
 		return nil
 	}
-	var images []*basev1.AiImage
+	var images []*basev1.AiImageResult
 	if err := json.Unmarshal([]byte(rawValue), &images); err != nil {
 		return nil
 	}

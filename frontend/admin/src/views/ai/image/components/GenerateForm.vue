@@ -1,99 +1,65 @@
 <template>
-  <el-form ref="formRef" :model="model" :rules="rules" label-position="top" class="ai-image-form">
-    <el-form-item label="提示词" prop="prompt">
-      <el-input
-        v-model="model.prompt"
-        type="textarea"
-        :rows="7"
-        maxlength="1200"
-        show-word-limit
-        resize="none"
-        placeholder="例如：一张清爽明亮的有机蔬菜礼盒主图，白色背景，自然光，适合电商商品首图"
-      />
+  <ProForm ref="formRef" class="ai-image-form" :model="model" :fields="formFields" label-position="top" label-width="0">
+    <template #promptActions>
       <div class="ai-image-prompt-actions">
         <el-button text type="primary" :icon="MagicStick" :loading="polishing" @click="handlePolishPrompt">AI 润色</el-button>
         <el-checkbox v-model="model.polish_prompt">生成前自动润色</el-checkbox>
       </div>
-    </el-form-item>
-
-    <div class="ai-image-form__grid">
-      <el-form-item label="尺寸">
-        <el-select v-model="model.size">
-          <el-option v-for="item in sizeOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="质量">
-        <el-select v-model="model.quality">
-          <el-option v-for="item in qualityOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="格式">
-        <el-select v-model="model.output_format">
-          <el-option v-for="item in formatOptions" :key="item.value" :label="item.label" :value="item.value" />
-        </el-select>
-      </el-form-item>
-    </div>
-
-    <div class="ai-image-form__grid ai-image-form__grid--compact">
-      <el-form-item label="数量">
-        <el-input-number v-model="model.n" :min="1" :max="4" controls-position="right" />
-      </el-form-item>
-      <el-form-item label="背景">
-        <el-segmented v-model="model.background" :options="backgroundOptions" />
-      </el-form-item>
-    </div>
-
-    <el-form-item>
-      <el-checkbox v-model="model.save_output">保存到素材目录</el-checkbox>
-    </el-form-item>
-  </el-form>
+    </template>
+  </ProForm>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { ref } from "vue";
+import { ElMessage } from "element-plus";
 import { MagicStick } from "@element-plus/icons-vue";
+import ProForm from "@/components/ProForm/index.vue";
+import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { defAiImageService } from "@/api/base/ai_image";
-import type { GenerateFormModel } from "./types";
+import {
+  imageBackgroundOptions,
+  imageFormatOptions,
+  imageQualityOptions,
+  imageSizeOptions,
+  type GenerateFormModel
+} from "./types";
 
 defineOptions({
   name: "GenerateForm"
 });
 
 const model = defineModel<GenerateFormModel>({ required: true });
-const formRef = ref<FormInstance>();
+const formRef = ref<ProFormInstance>();
 const polishing = ref(false);
 
-const rules = reactive<FormRules<GenerateFormModel>>({
-  prompt: [{ required: true, message: "请输入图片提示词", trigger: "blur" }]
-});
-
-const sizeOptions = [
-  { label: "1024 x 1024", value: "1024x1024" },
-  { label: "1536 x 1024", value: "1536x1024" },
-  { label: "1024 x 1536", value: "1024x1536" },
-  { label: "自动", value: "auto" }
-];
-
-const qualityOptions = [
-  { label: "自动", value: "auto" },
-  { label: "高", value: "high" },
-  { label: "中", value: "medium" },
-  { label: "低", value: "low" },
-  { label: "HD", value: "hd" },
-  { label: "标准", value: "standard" }
-];
-
-const formatOptions = [
-  { label: "PNG", value: "png" },
-  { label: "JPEG", value: "jpeg" },
-  { label: "WEBP", value: "webp" }
-];
-
-const backgroundOptions = [
-  { label: "自动", value: "auto" },
-  { label: "透明", value: "transparent" },
-  { label: "不透明", value: "opaque" }
+const formFields: ProFormField[] = [
+  {
+    prop: "prompt",
+    label: "提示词",
+    component: "textarea",
+    colSpan: 24,
+    rules: [{ required: true, message: "请输入图片提示词", trigger: "blur" }],
+    props: {
+      rows: 7,
+      maxlength: 1200,
+      showWordLimit: true,
+      resize: "none",
+      placeholder: "例如：一张清爽明亮的有机蔬菜礼盒主图，白色背景，自然光，适合电商商品首图"
+    }
+  },
+  { prop: "prompt_actions", label: "", component: "slot", slotName: "promptActions", colSpan: 24 },
+  { prop: "size", label: "尺寸", component: "select", options: imageSizeOptions, colSpan: 8 },
+  { prop: "quality", label: "质量", component: "select", options: imageQualityOptions, colSpan: 8 },
+  { prop: "output_format", label: "格式", component: "select", options: imageFormatOptions, colSpan: 8 },
+  {
+    prop: "n",
+    label: "数量",
+    component: "input-number",
+    colSpan: 8,
+    props: { min: 1, max: 4, controlsPosition: "right" }
+  },
+  { prop: "background", label: "背景", component: "segmented", options: imageBackgroundOptions, colSpan: 16 },
+  { prop: "save_output", label: "", checkboxLabel: "保存到素材目录", component: "checkbox", colSpan: 24 }
 ];
 
 /** 润色当前图片提示词。 */
@@ -134,33 +100,18 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-.ai-image-form {
-  display: grid;
-  gap: 4px;
-}
-
-.ai-image-form__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.ai-image-form__grid--compact {
-  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
-}
-
 .ai-image-prompt-actions {
   display: flex;
   gap: 12px;
   align-items: center;
   justify-content: space-between;
-  margin-top: 8px;
+  margin-top: -12px;
 }
 
 @media (max-width: 720px) {
-  .ai-image-form__grid,
-  .ai-image-form__grid--compact {
-    grid-template-columns: 1fr;
+  .ai-image-prompt-actions {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

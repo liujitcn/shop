@@ -1,51 +1,51 @@
 import service from "@/utils/request";
 import type {
+  AiImage,
   AiImageService,
-  AiImageTask,
-  CreateAiImageTaskRequest,
-  GetAiImageTaskRequest,
-  PageAiImageTasksRequest,
-  PageAiImageTasksResponse,
+  CreateAiImageRequest,
+  GetAiImageRequest,
+  PageAiImagesRequest,
+  PageAiImagesResponse,
   PolishAiImagePromptRequest,
   PolishAiImagePromptResponse,
-  RetryAiImageTaskRequest
+  RetryAiImageRequest
 } from "@/rpc/base/v1/ai_image";
 
-const AI_IMAGE_TASK_URL = "/v1/base/ai/image/task";
+const AI_IMAGE_URL = "/v1/base/ai/image";
 const AI_IMAGE_PROMPT_POLISH_URL = "/v1/base/ai/image/prompt/polish";
 
 /** AI 图片公共服务。 */
 export class AiImageServiceImpl implements AiImageService {
   /** 分页查询 AI 图片。 */
-  PageAiImageTasks(request: PageAiImageTasksRequest): Promise<PageAiImageTasksResponse> {
-    return service<PageAiImageTasksRequest, PageAiImageTasksResponse>({
-      url: AI_IMAGE_TASK_URL,
+  PageAiImages(request: PageAiImagesRequest): Promise<PageAiImagesResponse> {
+    return service<PageAiImagesRequest, PageAiImagesResponse>({
+      url: AI_IMAGE_URL,
       method: "get",
       params: request
     });
   }
 
   /** 查询 AI 图片。 */
-  GetAiImageTask(request: GetAiImageTaskRequest): Promise<AiImageTask> {
-    return service<GetAiImageTaskRequest, AiImageTask>({
-      url: `${AI_IMAGE_TASK_URL}/${request.id}`,
+  GetAiImage(request: GetAiImageRequest): Promise<AiImage> {
+    return service<GetAiImageRequest, AiImage>({
+      url: `${AI_IMAGE_URL}/${request.id}`,
       method: "get"
     });
   }
 
   /** 创建 AI 图片。 */
-  CreateAiImageTask(request: CreateAiImageTaskRequest): Promise<AiImageTask> {
-    return service<CreateAiImageTaskRequest, AiImageTask>({
-      url: AI_IMAGE_TASK_URL,
+  CreateAiImage(request: CreateAiImageRequest): Promise<AiImage> {
+    return service<CreateAiImageRequest, AiImage>({
+      url: AI_IMAGE_URL,
       method: "post",
       data: request
     });
   }
 
   /** 重试 AI 图片生成。 */
-  RetryAiImageTask(request: RetryAiImageTaskRequest): Promise<AiImageTask> {
-    return service<RetryAiImageTaskRequest, AiImageTask>({
-      url: `${AI_IMAGE_TASK_URL}/${request.id}/retry`,
+  RetryAiImage(request: RetryAiImageRequest): Promise<AiImage> {
+    return service<RetryAiImageRequest, AiImage>({
+      url: `${AI_IMAGE_URL}/${request.id}/retry`,
       method: "post",
       data: request
     });

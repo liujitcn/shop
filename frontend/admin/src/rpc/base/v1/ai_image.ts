@@ -8,11 +8,27 @@
 import type { Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 
+/** AI 图片生成状态 */
+export enum AiImageStatus {
+  /** UNKNOWN_AIS - 未知状态 */
+  UNKNOWN_AIS = 0,
+  /** PENDING - 待处理 */
+  PENDING = 1,
+  /** RUNNING - 生成中 */
+  RUNNING = 2,
+  /** SUCCESS - 成功 */
+  SUCCESS = 3,
+  /** FAILED - 失败 */
+  FAILED = 4,
+  /** TIMEOUT - 超时 */
+  TIMEOUT = 5,
+}
+
 /** AI 图片分页查询条件 */
-export interface PageAiImageTasksRequest {
-  /** 生成状态：1待处理，2生成中，3成功，4失败，5超时 */
+export interface PageAiImagesRequest {
+  /** 生成状态：枚举【AiImageStatus】 */
   status?:
-    | number
+    | AiImageStatus
     | undefined;
   /** 关键词，匹配提示词或批次编号 */
   keyword: string;
@@ -25,21 +41,21 @@ export interface PageAiImageTasksRequest {
 }
 
 /** AI 图片分页响应 */
-export interface PageAiImageTasksResponse {
+export interface PageAiImagesResponse {
   /** AI 图片列表 */
-  tasks: AiImageTask[];
+  images: AiImage[];
   /** 总数 */
   total: number;
 }
 
 /** AI 图片详情查询条件 */
-export interface GetAiImageTaskRequest {
+export interface GetAiImageRequest {
   /** 图片ID */
   id: string;
 }
 
 /** AI 图片创建请求 */
-export interface CreateAiImageTaskRequest {
+export interface CreateAiImageRequest {
   /** 图片生成提示词 */
   prompt: string;
   /** 图片模型名称 */
@@ -67,7 +83,7 @@ export interface CreateAiImageTaskRequest {
 }
 
 /** AI 图片重试请求 */
-export interface RetryAiImageTaskRequest {
+export interface RetryAiImageRequest {
   /** 图片ID */
   id: string;
 }
@@ -91,7 +107,7 @@ export interface PolishAiImagePromptResponse {
 }
 
 /** AI 图片生成记录 */
-export interface AiImageTask {
+export interface AiImage {
   /** 图片ID */
   id: string;
   /** 图片生成提示词 */
@@ -118,10 +134,10 @@ export interface AiImageTask {
   save_output: boolean;
   /** 是否先润色提示词再生成 */
   polish_prompt: boolean;
-  /** 生成状态：1待处理，2生成中，3成功，4失败，5超时 */
-  status: number;
+  /** 生成状态：枚举【AiImageStatus】 */
+  status: AiImageStatus;
   /** 图片列表 */
-  images: AiImage[];
+  images: AiImageResult[];
   /** 失败或超时原因 */
   error_message: string;
   /** 已重试次数 */
@@ -149,7 +165,7 @@ export interface AiImageTask {
 }
 
 /** AI 图片结果 */
-export interface AiImage {
+export interface AiImageResult {
   /** 图片名称 */
   name: string;
   /** 图片地址 */
@@ -171,13 +187,13 @@ export interface AiImage {
 /** Base AI 图片服务 */
 export interface AiImageService {
   /** 分页查询 AI 图片 */
-  PageAiImageTasks(request: PageAiImageTasksRequest): Promise<PageAiImageTasksResponse>;
+  PageAiImages(request: PageAiImagesRequest): Promise<PageAiImagesResponse>;
   /** 查询 AI 图片 */
-  GetAiImageTask(request: GetAiImageTaskRequest): Promise<AiImageTask>;
+  GetAiImage(request: GetAiImageRequest): Promise<AiImage>;
   /** 创建 AI 图片 */
-  CreateAiImageTask(request: CreateAiImageTaskRequest): Promise<AiImageTask>;
+  CreateAiImage(request: CreateAiImageRequest): Promise<AiImage>;
   /** 重试 AI 图片生成 */
-  RetryAiImageTask(request: RetryAiImageTaskRequest): Promise<AiImageTask>;
+  RetryAiImage(request: RetryAiImageRequest): Promise<AiImage>;
   /** 润色 AI 图片提示词 */
   PolishAiImagePrompt(request: PolishAiImagePromptRequest): Promise<PolishAiImagePromptResponse>;
 }

@@ -26,41 +26,41 @@ func NewAiImageService(aiImageCase *biz.AiImageCase) *AiImageService {
 	}
 }
 
-// PageAiImageTasks 分页查询 AI 图片。
-func (s *AiImageService) PageAiImageTasks(ctx context.Context, req *basev1.PageAiImageTasksRequest) (*basev1.PageAiImageTasksResponse, error) {
-	res, err := s.aiImageCase.PageAiImageTasks(ctx, req)
+// PageAiImages 分页查询 AI 图片。
+func (s *AiImageService) PageAiImages(ctx context.Context, req *basev1.PageAiImagesRequest) (*basev1.PageAiImagesResponse, error) {
+	res, err := s.aiImageCase.PageAiImages(ctx, req)
 	if err != nil {
-		log.Errorf("PageAiImageTasks %v", err)
+		log.Errorf("PageAiImages %v", err)
 		return nil, errorsx.WrapInternal(err, "查询AI图片失败")
 	}
 	return res, nil
 }
 
-// GetAiImageTask 查询 AI 图片。
-func (s *AiImageService) GetAiImageTask(ctx context.Context, req *basev1.GetAiImageTaskRequest) (*basev1.AiImageTask, error) {
-	res, err := s.aiImageCase.GetAiImageTask(ctx, req)
+// GetAiImage 查询 AI 图片。
+func (s *AiImageService) GetAiImage(ctx context.Context, req *basev1.GetAiImageRequest) (*basev1.AiImage, error) {
+	res, err := s.aiImageCase.GetAiImage(ctx, req)
 	if err != nil {
-		log.Errorf("GetAiImageTask %v", err)
+		log.Errorf("GetAiImage %v", err)
 		return nil, errorsx.WrapInternal(err, "查询AI图片失败")
 	}
 	return res, nil
 }
 
-// CreateAiImageTask 创建 AI 图片。
-func (s *AiImageService) CreateAiImageTask(ctx context.Context, req *basev1.CreateAiImageTaskRequest) (*basev1.AiImageTask, error) {
-	res, err := s.aiImageCase.CreateAiImageTask(ctx, req)
+// CreateAiImage 创建 AI 图片。
+func (s *AiImageService) CreateAiImage(ctx context.Context, req *basev1.CreateAiImageRequest) (*basev1.AiImage, error) {
+	res, err := s.aiImageCase.CreateAiImage(ctx, req)
 	if err != nil {
-		log.Errorf("CreateAiImageTask %v", err)
+		log.Errorf("CreateAiImage %v", err)
 		return nil, errorsx.WrapInternal(err, "创建AI图片失败")
 	}
 	return res, nil
 }
 
-// RetryAiImageTask 重试 AI 图片生成。
-func (s *AiImageService) RetryAiImageTask(ctx context.Context, req *basev1.RetryAiImageTaskRequest) (*basev1.AiImageTask, error) {
-	res, err := s.aiImageCase.RetryAiImageTask(ctx, req)
+// RetryAiImage 重试 AI 图片生成。
+func (s *AiImageService) RetryAiImage(ctx context.Context, req *basev1.RetryAiImageRequest) (*basev1.AiImage, error) {
+	res, err := s.aiImageCase.RetryAiImage(ctx, req)
 	if err != nil {
-		log.Errorf("RetryAiImageTask %v", err)
+		log.Errorf("RetryAiImage %v", err)
 		return nil, errorsx.WrapInternal(err, "重试AI图片失败")
 	}
 	return res, nil

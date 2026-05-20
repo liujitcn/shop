@@ -11,38 +11,38 @@
     @confirm="handleConfirm"
     @closed="handleClosed"
   >
-    <el-skeleton v-if="loading && !task" :rows="8" animated />
-    <template v-else-if="task">
+    <el-skeleton v-if="loading && !image" :rows="8" animated />
+    <template v-else-if="image">
       <div class="ai-image-detail">
         <div class="ai-image-detail__summary">
           <div>
-            <div class="ai-image-detail__title">图片 #{{ task.id }}</div>
-            <div class="ai-image-detail__prompt">{{ task.prompt }}</div>
+            <div class="ai-image-detail__title">图片 #{{ image.id }}</div>
+            <div class="ai-image-detail__prompt">{{ image.prompt }}</div>
           </div>
           <el-tag :type="statusMeta.type" effect="plain">{{ statusMeta.label }}</el-tag>
         </div>
 
         <GeneratingPreview v-if="isGenerating" />
-        <ResultGrid v-else-if="task.status === TaskStatus.Success" :items="images" />
+        <ResultGrid v-else-if="isSuccess" :items="images" />
         <el-alert
-          v-else-if="task.status === TaskStatus.Failed || task.status === TaskStatus.Timeout"
-          :title="task.error_message || 'AI图片生成失败'"
+          v-else-if="canRetry"
+          :title="image.error_message || 'AI图片生成失败'"
           type="error"
           show-icon
           :closable="false"
         />
 
         <el-descriptions class="ai-image-detail__params" :column="2" border>
-          <el-descriptions-item label="模型">{{ task.model || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="批次">{{ task.request_id || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="尺寸">{{ task.size || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="质量">{{ task.quality || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="格式">{{ task.output_format || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="背景">{{ task.background || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="数量">{{ task.n || 1 }}</el-descriptions-item>
-          <el-descriptions-item label="重试次数">{{ task.retry_count || 0 }}</el-descriptions-item>
-          <el-descriptions-item label="创建时间">{{ formatTimestamp(task.created_at) || "--" }}</el-descriptions-item>
-          <el-descriptions-item label="完成时间">{{ formatTimestamp(task.finished_at) || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="模型">{{ image.model || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="批次">{{ image.request_id || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="尺寸">{{ image.size || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="质量">{{ image.quality || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="格式">{{ image.output_format || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="背景">{{ image.background || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="数量">{{ image.n || 1 }}</el-descriptions-item>
+          <el-descriptions-item label="重试次数">{{ image.retry_count || 0 }}</el-descriptions-item>
+          <el-descriptions-item label="创建时间">{{ formatTimestamp(image.created_at) || "--" }}</el-descriptions-item>
+          <el-descriptions-item label="完成时间">{{ formatTimestamp(image.finished_at) || "--" }}</el-descriptions-item>
         </el-descriptions>
       </div>
     </template>
@@ -54,11 +54,10 @@ import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { ElMessage } from "element-plus";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import { defAiImageService } from "@/api/base/ai_image";
-import type { AiImageTask } from "@/rpc/base/v1/ai_image";
+import { AiImageStatus, type AiImage } from "@/rpc/base/v1/ai_image";
 import GeneratingPreview from "./GeneratingPreview.vue";
 import ResultGrid from "./ResultGrid.vue";
-import { TaskStatus } from "./types";
-import { formatTimestamp, normalizeImages } from "./utils";
+import { formatTimestamp, isGeneratingStatus, isRetryableStatus, normalizeImages, resolveAiImageStatusMeta } from "./utils";
 
 defineOptions({
   name: "DetailDialog"
@@ -68,7 +67,7 @@ const props = defineProps<{
   /** 弹窗显示状态。 */
   modelValue: boolean;
   /** 当前图片ID。 */
-  taskId: string;
+  imageId: string;
 }>();
 
 const emit = defineEmits<{
@@ -76,30 +75,23 @@ const emit = defineEmits<{
   refreshed: [];
 }>();
 
-const task = ref<AiImageTask>();
+const image = ref<AiImage>();
 const loading = ref(false);
 const retrying = ref(false);
 let timer: number | undefined;
 
-const images = computed(() => normalizeImages(task.value?.images ?? []));
-const isGenerating = computed(() => task.value?.status === TaskStatus.Pending || task.value?.status === TaskStatus.Running);
-const canRetry = computed(() => task.value?.status === TaskStatus.Failed || task.value?.status === TaskStatus.Timeout);
-const statusMeta = computed(() => statusMap[task.value?.status ?? TaskStatus.Pending] ?? statusMap[TaskStatus.Pending]);
-
-const statusMap: Record<number, { label: string; type: "primary" | "success" | "warning" | "danger" | "info" }> = {
-  [TaskStatus.Pending]: { label: "待处理", type: "info" },
-  [TaskStatus.Running]: { label: "生成中", type: "warning" },
-  [TaskStatus.Success]: { label: "成功", type: "success" },
-  [TaskStatus.Failed]: { label: "失败", type: "danger" },
-  [TaskStatus.Timeout]: { label: "超时", type: "danger" }
-};
+const images = computed(() => normalizeImages(image.value?.images ?? []));
+const isGenerating = computed(() => isGeneratingStatus(image.value?.status));
+const canRetry = computed(() => isRetryableStatus(image.value?.status));
+const isSuccess = computed(() => image.value?.status === AiImageStatus.SUCCESS);
+const statusMeta = computed(() => resolveAiImageStatusMeta(image.value?.status));
 
 watch(
-  () => [props.modelValue, props.taskId] as const,
-  ([visible, taskId]) => {
+  () => [props.modelValue, props.imageId] as const,
+  ([visible, imageId]) => {
     clearPollTimer();
-    if (!visible || !taskId) return;
-    void loadTask();
+    if (!visible || !imageId) return;
+    void loadImage();
   },
   { immediate: true }
 );
@@ -109,14 +101,14 @@ onBeforeUnmount(() => {
 });
 
 /** 加载图片详情，并在生成中继续轮询。 */
-async function loadTask() {
-  if (!props.taskId) return;
+async function loadImage() {
+  if (!props.imageId) return;
   loading.value = true;
   try {
-    task.value = await defAiImageService.GetAiImageTask({ id: props.taskId });
+    image.value = await defAiImageService.GetAiImage({ id: props.imageId });
     emit("refreshed");
     if (isGenerating.value && props.modelValue) {
-      timer = window.setTimeout(() => void loadTask(), 2000);
+      timer = window.setTimeout(() => void loadImage(), 2000);
     }
   } finally {
     loading.value = false;
@@ -125,16 +117,16 @@ async function loadTask() {
 
 /** 处理弹窗确认按钮。 */
 async function handleConfirm() {
-  if (!canRetry.value || !task.value) {
+  if (!canRetry.value || !image.value) {
     emit("update:modelValue", false);
     return;
   }
   retrying.value = true;
   try {
-    task.value = await defAiImageService.RetryAiImageTask({ id: task.value.id });
+    image.value = await defAiImageService.RetryAiImage({ id: image.value.id });
     ElMessage.success("已重新提交生成");
     clearPollTimer();
-    timer = window.setTimeout(() => void loadTask(), 1000);
+    timer = window.setTimeout(() => void loadImage(), 1000);
   } finally {
     retrying.value = false;
   }
@@ -143,7 +135,7 @@ async function handleConfirm() {
 /** 弹窗关闭后清理轮询。 */
 function handleClosed() {
   clearPollTimer();
-  task.value = undefined;
+  image.value = undefined;
 }
 
 /** 清理图片详情轮询。 */

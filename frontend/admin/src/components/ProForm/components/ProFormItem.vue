@@ -13,6 +13,12 @@
 
   <el-input-number v-else-if="field.component === 'input-number'" v-model="fieldValue" v-bind="fieldProps" />
 
+  <el-segmented v-else-if="field.component === 'segmented'" v-model="fieldValue" :options="fieldOptions" v-bind="fieldProps" />
+
+  <el-checkbox v-else-if="field.component === 'checkbox'" v-model="fieldValue" v-bind="fieldProps">
+    {{ field.checkboxLabel ?? field.label }}
+  </el-checkbox>
+
   <el-switch v-else-if="field.component === 'switch'" v-model="fieldValue" v-bind="fieldProps" />
 
   <el-select v-else-if="field.component === 'select'" v-model="fieldValue" v-bind="fieldProps">

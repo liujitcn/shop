@@ -8,6 +8,7 @@ package basev1
 
 import (
 	context "context"
+
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
 )
@@ -19,100 +20,100 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
-const OperationAiImageServiceCreateAiImageTask = "/base.v1.AiImageService/CreateAiImageTask"
-const OperationAiImageServiceGetAiImageTask = "/base.v1.AiImageService/GetAiImageTask"
-const OperationAiImageServicePageAiImageTasks = "/base.v1.AiImageService/PageAiImageTasks"
+const OperationAiImageServiceCreateAiImage = "/base.v1.AiImageService/CreateAiImage"
+const OperationAiImageServiceGetAiImage = "/base.v1.AiImageService/GetAiImage"
+const OperationAiImageServicePageAiImages = "/base.v1.AiImageService/PageAiImages"
 const OperationAiImageServicePolishAiImagePrompt = "/base.v1.AiImageService/PolishAiImagePrompt"
-const OperationAiImageServiceRetryAiImageTask = "/base.v1.AiImageService/RetryAiImageTask"
+const OperationAiImageServiceRetryAiImage = "/base.v1.AiImageService/RetryAiImage"
 
 type AiImageServiceHTTPServer interface {
-	// CreateAiImageTask 创建 AI 图片
-	CreateAiImageTask(context.Context, *CreateAiImageTaskRequest) (*AiImageTask, error)
-	// GetAiImageTask 查询 AI 图片
-	GetAiImageTask(context.Context, *GetAiImageTaskRequest) (*AiImageTask, error)
-	// PageAiImageTasks 分页查询 AI 图片
-	PageAiImageTasks(context.Context, *PageAiImageTasksRequest) (*PageAiImageTasksResponse, error)
+	// CreateAiImage 创建 AI 图片
+	CreateAiImage(context.Context, *CreateAiImageRequest) (*AiImage, error)
+	// GetAiImage 查询 AI 图片
+	GetAiImage(context.Context, *GetAiImageRequest) (*AiImage, error)
+	// PageAiImages 分页查询 AI 图片
+	PageAiImages(context.Context, *PageAiImagesRequest) (*PageAiImagesResponse, error)
 	// PolishAiImagePrompt 润色 AI 图片提示词
 	PolishAiImagePrompt(context.Context, *PolishAiImagePromptRequest) (*PolishAiImagePromptResponse, error)
-	// RetryAiImageTask 重试 AI 图片生成
-	RetryAiImageTask(context.Context, *RetryAiImageTaskRequest) (*AiImageTask, error)
+	// RetryAiImage 重试 AI 图片生成
+	RetryAiImage(context.Context, *RetryAiImageRequest) (*AiImage, error)
 }
 
 func RegisterAiImageServiceHTTPServer(s *http.Server, srv AiImageServiceHTTPServer) {
 	r := s.Route("/")
-	r.GET("/api/v1/base/ai/image/task", _AiImageService_PageAiImageTasks0_HTTP_Handler(srv))
-	r.GET("/api/v1/base/ai/image/task/{id}", _AiImageService_GetAiImageTask0_HTTP_Handler(srv))
-	r.POST("/api/v1/base/ai/image/task", _AiImageService_CreateAiImageTask0_HTTP_Handler(srv))
-	r.POST("/api/v1/base/ai/image/task/{id}/retry", _AiImageService_RetryAiImageTask0_HTTP_Handler(srv))
+	r.GET("/api/v1/base/ai/image", _AiImageService_PageAiImages0_HTTP_Handler(srv))
+	r.GET("/api/v1/base/ai/image/{id}", _AiImageService_GetAiImage0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/image", _AiImageService_CreateAiImage0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/image/{id}/retry", _AiImageService_RetryAiImage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/image/prompt/polish", _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv))
 }
 
-func _AiImageService_PageAiImageTasks0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+func _AiImageService_PageAiImages0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in PageAiImageTasksRequest
+		var in PageAiImagesRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiImageServicePageAiImageTasks)
+		http.SetOperation(ctx, OperationAiImageServicePageAiImages)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.PageAiImageTasks(ctx, req.(*PageAiImageTasksRequest))
+			return srv.PageAiImages(ctx, req.(*PageAiImagesRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*PageAiImageTasksResponse)
+		reply := out.(*PageAiImagesResponse)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AiImageService_GetAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+func _AiImageService_GetAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetAiImageTaskRequest
+		var in GetAiImageRequest
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiImageServiceGetAiImageTask)
+		http.SetOperation(ctx, OperationAiImageServiceGetAiImage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetAiImageTask(ctx, req.(*GetAiImageTaskRequest))
+			return srv.GetAiImage(ctx, req.(*GetAiImageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiImageTask)
+		reply := out.(*AiImage)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AiImageService_CreateAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+func _AiImageService_CreateAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in CreateAiImageTaskRequest
+		var in CreateAiImageRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiImageServiceCreateAiImageTask)
+		http.SetOperation(ctx, OperationAiImageServiceCreateAiImage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.CreateAiImageTask(ctx, req.(*CreateAiImageTaskRequest))
+			return srv.CreateAiImage(ctx, req.(*CreateAiImageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiImageTask)
+		reply := out.(*AiImage)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _AiImageService_RetryAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
+func _AiImageService_RetryAiImage0_HTTP_Handler(srv AiImageServiceHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in RetryAiImageTaskRequest
+		var in RetryAiImageRequest
 		if err := ctx.Bind(&in); err != nil {
 			return err
 		}
@@ -122,15 +123,15 @@ func _AiImageService_RetryAiImageTask0_HTTP_Handler(srv AiImageServiceHTTPServer
 		if err := ctx.BindVars(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationAiImageServiceRetryAiImageTask)
+		http.SetOperation(ctx, OperationAiImageServiceRetryAiImage)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.RetryAiImageTask(ctx, req.(*RetryAiImageTaskRequest))
+			return srv.RetryAiImage(ctx, req.(*RetryAiImageRequest))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiImageTask)
+		reply := out.(*AiImage)
 		return ctx.Result(200, reply)
 	}
 }
@@ -158,16 +159,16 @@ func _AiImageService_PolishAiImagePrompt0_HTTP_Handler(srv AiImageServiceHTTPSer
 }
 
 type AiImageServiceHTTPClient interface {
-	// CreateAiImageTask 创建 AI 图片
-	CreateAiImageTask(ctx context.Context, req *CreateAiImageTaskRequest, opts ...http.CallOption) (rsp *AiImageTask, err error)
-	// GetAiImageTask 查询 AI 图片
-	GetAiImageTask(ctx context.Context, req *GetAiImageTaskRequest, opts ...http.CallOption) (rsp *AiImageTask, err error)
-	// PageAiImageTasks 分页查询 AI 图片
-	PageAiImageTasks(ctx context.Context, req *PageAiImageTasksRequest, opts ...http.CallOption) (rsp *PageAiImageTasksResponse, err error)
+	// CreateAiImage 创建 AI 图片
+	CreateAiImage(ctx context.Context, req *CreateAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
+	// GetAiImage 查询 AI 图片
+	GetAiImage(ctx context.Context, req *GetAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
+	// PageAiImages 分页查询 AI 图片
+	PageAiImages(ctx context.Context, req *PageAiImagesRequest, opts ...http.CallOption) (rsp *PageAiImagesResponse, err error)
 	// PolishAiImagePrompt 润色 AI 图片提示词
 	PolishAiImagePrompt(ctx context.Context, req *PolishAiImagePromptRequest, opts ...http.CallOption) (rsp *PolishAiImagePromptResponse, err error)
-	// RetryAiImageTask 重试 AI 图片生成
-	RetryAiImageTask(ctx context.Context, req *RetryAiImageTaskRequest, opts ...http.CallOption) (rsp *AiImageTask, err error)
+	// RetryAiImage 重试 AI 图片生成
+	RetryAiImage(ctx context.Context, req *RetryAiImageRequest, opts ...http.CallOption) (rsp *AiImage, err error)
 }
 
 type AiImageServiceHTTPClientImpl struct {
@@ -178,12 +179,12 @@ func NewAiImageServiceHTTPClient(client *http.Client) AiImageServiceHTTPClient {
 	return &AiImageServiceHTTPClientImpl{client}
 }
 
-// CreateAiImageTask 创建 AI 图片
-func (c *AiImageServiceHTTPClientImpl) CreateAiImageTask(ctx context.Context, in *CreateAiImageTaskRequest, opts ...http.CallOption) (*AiImageTask, error) {
-	var out AiImageTask
-	pattern := "/api/v1/base/ai/image/task"
+// CreateAiImage 创建 AI 图片
+func (c *AiImageServiceHTTPClientImpl) CreateAiImage(ctx context.Context, in *CreateAiImageRequest, opts ...http.CallOption) (*AiImage, error) {
+	var out AiImage
+	pattern := "/api/v1/base/ai/image"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAiImageServiceCreateAiImageTask))
+	opts = append(opts, http.Operation(OperationAiImageServiceCreateAiImage))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
@@ -192,12 +193,12 @@ func (c *AiImageServiceHTTPClientImpl) CreateAiImageTask(ctx context.Context, in
 	return &out, nil
 }
 
-// GetAiImageTask 查询 AI 图片
-func (c *AiImageServiceHTTPClientImpl) GetAiImageTask(ctx context.Context, in *GetAiImageTaskRequest, opts ...http.CallOption) (*AiImageTask, error) {
-	var out AiImageTask
-	pattern := "/api/v1/base/ai/image/task/{id}"
+// GetAiImage 查询 AI 图片
+func (c *AiImageServiceHTTPClientImpl) GetAiImage(ctx context.Context, in *GetAiImageRequest, opts ...http.CallOption) (*AiImage, error) {
+	var out AiImage
+	pattern := "/api/v1/base/ai/image/{id}"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAiImageServiceGetAiImageTask))
+	opts = append(opts, http.Operation(OperationAiImageServiceGetAiImage))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -206,12 +207,12 @@ func (c *AiImageServiceHTTPClientImpl) GetAiImageTask(ctx context.Context, in *G
 	return &out, nil
 }
 
-// PageAiImageTasks 分页查询 AI 图片
-func (c *AiImageServiceHTTPClientImpl) PageAiImageTasks(ctx context.Context, in *PageAiImageTasksRequest, opts ...http.CallOption) (*PageAiImageTasksResponse, error) {
-	var out PageAiImageTasksResponse
-	pattern := "/api/v1/base/ai/image/task"
+// PageAiImages 分页查询 AI 图片
+func (c *AiImageServiceHTTPClientImpl) PageAiImages(ctx context.Context, in *PageAiImagesRequest, opts ...http.CallOption) (*PageAiImagesResponse, error) {
+	var out PageAiImagesResponse
+	pattern := "/api/v1/base/ai/image"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationAiImageServicePageAiImageTasks))
+	opts = append(opts, http.Operation(OperationAiImageServicePageAiImages))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
@@ -234,12 +235,12 @@ func (c *AiImageServiceHTTPClientImpl) PolishAiImagePrompt(ctx context.Context, 
 	return &out, nil
 }
 
-// RetryAiImageTask 重试 AI 图片生成
-func (c *AiImageServiceHTTPClientImpl) RetryAiImageTask(ctx context.Context, in *RetryAiImageTaskRequest, opts ...http.CallOption) (*AiImageTask, error) {
-	var out AiImageTask
-	pattern := "/api/v1/base/ai/image/task/{id}/retry"
+// RetryAiImage 重试 AI 图片生成
+func (c *AiImageServiceHTTPClientImpl) RetryAiImage(ctx context.Context, in *RetryAiImageRequest, opts ...http.CallOption) (*AiImage, error) {
+	var out AiImage
+	pattern := "/api/v1/base/ai/image/{id}/retry"
 	path := binding.EncodeURL(pattern, in, false)
-	opts = append(opts, http.Operation(OperationAiImageServiceRetryAiImageTask))
+	opts = append(opts, http.Operation(OperationAiImageServiceRetryAiImage))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

@@ -22,6 +22,8 @@ import { defAiImageService } from "@/api/base/ai_image";
 import { Terminal } from "@/rpc/common/v1/enum";
 import GenerateForm from "./GenerateForm.vue";
 import type { GenerateFormModel } from "./types";
+import { AI_IMAGE_MODEL } from "./types";
+import { createDefaultGenerateForm } from "./utils";
 
 defineOptions({
   name: "CreateDialog"
@@ -34,27 +36,12 @@ defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [value: boolean];
-  created: [taskId: string];
+  created: [imageId: string];
 }>();
 
-const currentModel = "gpt-image-2";
 const formRef = ref<InstanceType<typeof GenerateForm>>();
 const submitting = ref(false);
-const form = reactive<GenerateFormModel>(createDefaultForm());
-
-/** 创建默认生成表单。 */
-function createDefaultForm(): GenerateFormModel {
-  return {
-    prompt: "",
-    size: "1024x1024",
-    quality: "auto",
-    background: "auto",
-    output_format: "png",
-    n: 1,
-    save_output: true,
-    polish_prompt: false
-  };
-}
+const form = reactive<GenerateFormModel>(createDefaultGenerateForm());
 
 /** 提交图片生成。 */
 async function handleSubmit() {
@@ -63,9 +50,9 @@ async function handleSubmit() {
 
   submitting.value = true;
   try {
-    const task = await defAiImageService.CreateAiImageTask({
+    const image = await defAiImageService.CreateAiImage({
       prompt: form.prompt.trim(),
-      model: currentModel,
+      model: AI_IMAGE_MODEL,
       size: form.size,
       quality: form.quality,
       style: "",
@@ -79,7 +66,7 @@ async function handleSubmit() {
     });
     ElMessage.success("已提交AI图片生成");
     emit("update:modelValue", false);
-    emit("created", task.id);
+    emit("created", image.id);
   } finally {
     submitting.value = false;
   }
@@ -87,7 +74,7 @@ async function handleSubmit() {
 
 /** 弹窗完全关闭后重置表单。 */
 function handleClosed() {
-  Object.assign(form, createDefaultForm());
+  Object.assign(form, createDefaultGenerateForm());
   formRef.value?.clearValidate();
 }
 </script>

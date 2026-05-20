@@ -5517,37 +5517,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SendAiAssistantMessageResponse'
-    /api/v1/base/ai/image/prompt/polish:
-        post:
-            tags:
-                - AiImageService
-            description: 润色 AI 图片提示词
-            operationId: AiImageService_PolishAiImagePrompt
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/PolishAiImagePromptRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/PolishAiImagePromptResponse'
-    /api/v1/base/ai/image/task:
+    /api/v1/base/ai/image:
         get:
             tags:
                 - AiImageService
             description: 分页查询 AI 图片
-            operationId: AiImageService_PageAiImageTasks
+            operationId: AiImageService_PageAiImages
             parameters:
                 - name: status
                   in: query
                   schema:
-                    type: integer
-                    format: int32
+                    enum:
+                        - UNKNOWN_AIS
+                        - PENDING
+                        - RUNNING
+                        - SUCCESS
+                        - FAILED
+                        - TIMEOUT
+                    type: string
+                    format: enum
                 - name: keyword
                   in: query
                   schema:
@@ -5575,17 +5563,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/PageAiImageTasksResponse'
+                                $ref: '#/components/schemas/PageAiImagesResponse'
         post:
             tags:
                 - AiImageService
             description: 创建 AI 图片
-            operationId: AiImageService_CreateAiImageTask
+            operationId: AiImageService_CreateAiImage
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/CreateAiImageTaskRequest'
+                            $ref: '#/components/schemas/CreateAiImageRequest'
                 required: true
             responses:
                 "200":
@@ -5593,13 +5581,32 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AiImageTask'
-    /api/v1/base/ai/image/task/{id}:
+                                $ref: '#/components/schemas/AiImage'
+    /api/v1/base/ai/image/prompt/polish:
+        post:
+            tags:
+                - AiImageService
+            description: 润色 AI 图片提示词
+            operationId: AiImageService_PolishAiImagePrompt
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/PolishAiImagePromptRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PolishAiImagePromptResponse'
+    /api/v1/base/ai/image/{id}:
         get:
             tags:
                 - AiImageService
             description: 查询 AI 图片
-            operationId: AiImageService_GetAiImageTask
+            operationId: AiImageService_GetAiImage
             parameters:
                 - name: id
                   in: path
@@ -5612,13 +5619,13 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AiImageTask'
-    /api/v1/base/ai/image/task/{id}/retry:
+                                $ref: '#/components/schemas/AiImage'
+    /api/v1/base/ai/image/{id}/retry:
         post:
             tags:
                 - AiImageService
             description: 重试 AI 图片生成
-            operationId: AiImageService_RetryAiImageTask
+            operationId: AiImageService_RetryAiImage
             parameters:
                 - name: id
                   in: path
@@ -5629,7 +5636,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RetryAiImageTaskRequest'
+                            $ref: '#/components/schemas/RetryAiImageRequest'
                 required: true
             responses:
                 "200":
@@ -5637,7 +5644,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AiImageTask'
+                                $ref: '#/components/schemas/AiImage'
     /api/v1/base/captcha:
         get:
             tags:
@@ -5969,34 +5976,6 @@ components:
         AiImage:
             type: object
             properties:
-                name:
-                    type: string
-                    description: 图片名称
-                url:
-                    type: string
-                    description: 图片地址
-                mimeType:
-                    type: string
-                    description: 图片 MIME 类型
-                size:
-                    type: string
-                    description: 图片字节大小
-                revisedPrompt:
-                    type: string
-                    description: 模型修订后的提示词
-                saved:
-                    type: boolean
-                    description: 是否已保存到对象存储
-                storagePath:
-                    type: string
-                    description: 对象存储目录
-                requestId:
-                    type: string
-                    description: 生成批次编号
-            description: AI 图片结果
-        AiImageTask:
-            type: object
-            properties:
                 id:
                     type: string
                     description: 图片ID
@@ -6037,13 +6016,20 @@ components:
                     type: boolean
                     description: 是否先润色提示词再生成
                 status:
-                    type: integer
-                    description: 生成状态：1待处理，2生成中，3成功，4失败，5超时
-                    format: int32
+                    enum:
+                        - UNKNOWN_AIS
+                        - PENDING
+                        - RUNNING
+                        - SUCCESS
+                        - FAILED
+                        - TIMEOUT
+                    type: string
+                    description: 生成状态：枚举【AiImageStatus】
+                    format: enum
                 images:
                     type: array
                     items:
-                        $ref: '#/components/schemas/AiImage'
+                        $ref: '#/components/schemas/AiImageResult'
                     description: 图片列表
                 errorMessage:
                     type: string
@@ -6083,6 +6069,34 @@ components:
                     description: 更新时间
                     format: date-time
             description: AI 图片生成记录
+        AiImageResult:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: 图片名称
+                url:
+                    type: string
+                    description: 图片地址
+                mimeType:
+                    type: string
+                    description: 图片 MIME 类型
+                size:
+                    type: string
+                    description: 图片字节大小
+                revisedPrompt:
+                    type: string
+                    description: 模型修订后的提示词
+                saved:
+                    type: boolean
+                    description: 是否已保存到对象存储
+                storagePath:
+                    type: string
+                    description: 对象存储目录
+                requestId:
+                    type: string
+                    description: 生成批次编号
+            description: AI 图片结果
         AnalyticsPieItem:
             type: object
             properties:
@@ -8039,7 +8053,7 @@ components:
                     description: 终端类型：枚举【Terminal】
                     format: enum
             description: AI 助手会话创建请求
-        CreateAiImageTaskRequest:
+        CreateAiImageRequest:
             type: object
             properties:
                 prompt:
@@ -9752,13 +9766,13 @@ components:
                     type: string
                     description: 商品总数
             description: Order汇总
-        PageAiImageTasksResponse:
+        PageAiImagesResponse:
             type: object
             properties:
-                tasks:
+                images:
                     type: array
                     items:
-                        $ref: '#/components/schemas/AiImageTask'
+                        $ref: '#/components/schemas/AiImage'
                     description: AI 图片列表
                 total:
                     type: integer
@@ -11007,7 +11021,7 @@ components:
                 pwd:
                     $ref: '#/components/schemas/PasswordCrypto'
             description: 重置用户密码请求参数
-        RetryAiImageTaskRequest:
+        RetryAiImageRequest:
             type: object
             properties:
                 id:

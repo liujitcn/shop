@@ -133,7 +133,7 @@ async function handleSubmit(payload: SubmitPayload) {
     consumedStreamItemCount = 0;
     // useXStream 每次 startStream 会重置内部 data；这里提前对齐游标，避免旧数据长度影响本轮消费。
     streamData.value = [];
-    const response = await defAiAssistantMessageService.SendAiAssistantMessage({
+    const response = await defAiAssistantMessageService.StreamAiAssistantMessage({
       session_id: sessionID,
       content: payload.text,
       client_message_id: clientMessageId,
