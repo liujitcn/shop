@@ -8083,9 +8083,6 @@ components:
                 n:
                     type: string
                     description: 生成数量
-                saveOutput:
-                    type: boolean
-                    description: 是否保存生成图片到对象存储
                 polishPrompt:
                     type: boolean
                     description: 是否先润色提示词再生成

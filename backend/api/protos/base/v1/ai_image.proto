@@ -122,11 +122,9 @@ message CreateAiImageRequest {
 
   int64 n = 9 [(gnostic.openapi.v3.property) = {description: "生成数量"}]; // 生成数量
 
-  bool save_output = 10 [(gnostic.openapi.v3.property) = {description: "是否保存生成图片到对象存储"}]; // 是否保存生成图片到对象存储
+  bool polish_prompt = 10 [(gnostic.openapi.v3.property) = {description: "是否先润色提示词再生成"}]; // 是否先润色提示词再生成
 
-  bool polish_prompt = 11 [(gnostic.openapi.v3.property) = {description: "是否先润色提示词再生成"}]; // 是否先润色提示词再生成
-
-  .common.v1.Terminal terminal = 12 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+  .common.v1.Terminal terminal = 11 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
 // AI 图片重试请求

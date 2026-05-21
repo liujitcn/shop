@@ -339,6 +339,8 @@ github.com/liujitcn/go-utils/geoip v0.0.2 h1:LAzcQ4HzQ9xFCEt4da2iZe7p0PNP7JZidDD
 github.com/liujitcn/go-utils/geoip v0.0.2/go.mod h1:m8vD01rqR+3H3aK6taD/pFCLYx5dv50Rqz663yb/UmE=
 github.com/liujitcn/go-utils/http v0.0.2 h1:Ifs2X3EDDXkpL0VQWhA/7nK4lVdzvoeYdIKcbiUSc3I=
 github.com/liujitcn/go-utils/http v0.0.2/go.mod h1:fadu0zopYwVzJC5KM9LuqwgAKlxjvkIU3d9q5BKLpeE=
+github.com/liujitcn/go-utils/http v0.0.3 h1:B44w9dqzM2VWPBIulDnIxP41VviDJgHfoGX507mnbw8=
+github.com/liujitcn/go-utils/http v0.0.3/go.mod h1:fadu0zopYwVzJC5KM9LuqwgAKlxjvkIU3d9q5BKLpeE=
 github.com/liujitcn/go-utils/jwt v0.0.2 h1:xs7Ttrcesv9y+IwiTBGxHNdpoPrGT6N02Ots9dyF2aI=
 github.com/liujitcn/go-utils/jwt v0.0.2/go.mod h1:BRJq3jIGdss3tWOZrNsmmdD8nOxF6P3diKIIe4r1oJs=
 github.com/liujitcn/gorm-kit v0.0.28 h1:BBbVuBbpNu7TWWYBEYwCuucukmAemUbfpOQ/6AZDHn0=

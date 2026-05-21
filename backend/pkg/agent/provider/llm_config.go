@@ -13,15 +13,3 @@ func llmExtraFields(bootstrapCfg *bootstrapConfigv1.Client_Llm) map[string]any {
 	}
 	return extraFields
 }
-
-// cloneExtraFields 复制扩展字段，避免后续参数补充污染原始配置。
-func cloneExtraFields(extraFields map[string]any) map[string]any {
-	if len(extraFields) == 0 {
-		return nil
-	}
-	result := make(map[string]any, len(extraFields))
-	for key, value := range extraFields {
-		result[key] = value
-	}
-	return result
-}

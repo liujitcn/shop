@@ -3,9 +3,10 @@ package provider
 import (
 	"strings"
 
+	"shop/pkg/agent/sub2api"
+
 	"github.com/go-kratos/blades"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
-	"github.com/openai/openai-go/v3/shared"
 )
 
 // ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
@@ -26,14 +27,14 @@ func NewResponsesClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ResponsesCl
 	if baseURL == "" || apiKey == "" || model == "" {
 		return client
 	}
-	client.provider = NewResponsesModel(model, ResponsesConfig{
+	client.provider = sub2api.NewResponses(model, sub2api.ResponsesConfig{
 		BaseURL:         baseURL,
 		APIKey:          apiKey,
 		MaxOutputTokens: bootstrapCfg.GetMaxOutputTokens(),
 		Temperature:     bootstrapCfg.GetTemperature(),
 		TopP:            bootstrapCfg.GetTopP(),
 		ExtraFields:     llmExtraFields(bootstrapCfg),
-		ReasoningEffort: shared.ReasoningEffort(strings.TrimSpace(bootstrapCfg.GetReasoningEffort())),
+		ReasoningEffort: strings.TrimSpace(bootstrapCfg.GetReasoningEffort()),
 	})
 	return client
 }

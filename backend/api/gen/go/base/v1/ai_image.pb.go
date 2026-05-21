@@ -317,7 +317,6 @@ type CreateAiImageRequest struct {
 	OutputFormat   string                 `protobuf:"bytes,7,opt,name=output_format,json=outputFormat,proto3" json:"output_format,omitempty"`       // 输出格式
 	ResponseFormat string                 `protobuf:"bytes,8,opt,name=response_format,json=responseFormat,proto3" json:"response_format,omitempty"` // 响应格式
 	N              int64                  `protobuf:"varint,9,opt,name=n,proto3" json:"n,omitempty"`                                                // 生成数量
-	SaveOutput     bool                   `protobuf:"varint,10,opt,name=save_output,json=saveOutput,proto3" json:"save_output,omitempty"`           // 是否保存生成图片到对象存储
 	PolishPrompt   bool                   `protobuf:"varint,11,opt,name=polish_prompt,json=polishPrompt,proto3" json:"polish_prompt,omitempty"`     // 是否先润色提示词再生成
 	Terminal       v1.Terminal            `protobuf:"varint,12,opt,name=terminal,proto3,enum=common.v1.Terminal" json:"terminal,omitempty"`         // 终端类型：枚举【Terminal】
 	unknownFields  protoimpl.UnknownFields
@@ -415,13 +414,6 @@ func (x *CreateAiImageRequest) GetN() int64 {
 		return x.N
 	}
 	return 0
-}
-
-func (x *CreateAiImageRequest) GetSaveOutput() bool {
-	if x != nil {
-		return x.SaveOutput
-	}
-	return false
 }
 
 func (x *CreateAiImageRequest) GetPolishPrompt() bool {
@@ -921,7 +913,7 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"\x11GetAiImageRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b图片IDR\x02id\"V\n" +
 	"\x14DeleteAiImageRequest\x12>\n" +
-	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&图片ID列表，多个用逗号分隔R\x03ids\"\xc1\x05\n" +
+	"\x03ids\x18\x01 \x01(\tB,\xbaG)\x92\x02&图片ID列表，多个用逗号分隔R\x03ids\"\xf7\x04\n" +
 	"\x14CreateAiImageRequest\x123\n" +
 	"\x06prompt\x18\x01 \x01(\tB\x1b\xbaG\x18\x92\x02\x15图片生成提示词R\x06prompt\x12.\n" +
 	"\x05model\x18\x02 \x01(\tB\x18\xbaG\x15\x92\x02\x12图片模型名称R\x05model\x12&\n" +
@@ -933,12 +925,10 @@ const file_base_v1_ai_image_proto_rawDesc = "" +
 	"background\x127\n" +
 	"\routput_format\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f输出格式R\foutputFormat\x12;\n" +
 	"\x0fresponse_format\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f响应格式R\x0eresponseFormat\x12 \n" +
-	"\x01n\x18\t \x01(\x03B\x12\xbaG\x0f\x92\x02\f生成数量R\x01n\x12N\n" +
-	"\vsave_output\x18\n" +
-	" \x01(\bB-\xbaG*\x92\x02'是否保存生成图片到对象存储R\n" +
-	"saveOutput\x12L\n" +
+	"\x01n\x18\t \x01(\x03B\x12\xbaG\x0f\x92\x02\f生成数量R\x01n\x12L\n" +
 	"\rpolish_prompt\x18\v \x01(\bB'\xbaG$\x92\x02!是否先润色提示词再生成R\fpolishPrompt\x12Z\n" +
-	"\bterminal\x18\f \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"5\n" +
+	"\bterminal\x18\f \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminalJ\x04\b\n" +
+	"\x10\v\"5\n" +
 	"\x13RetryAiImageRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b图片IDR\x02id\"\x81\x01\n" +
 	"\x1aPolishAiImagePromptRequest\x123\n" +

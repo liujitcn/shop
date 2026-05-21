@@ -15,7 +15,7 @@ require (
 	github.com/liujitcn/go-utils v0.0.27
 	github.com/liujitcn/go-utils/crypto v0.0.9
 	github.com/liujitcn/go-utils/geoip v0.0.2
-	github.com/liujitcn/go-utils/http v0.0.2
+	github.com/liujitcn/go-utils/http v0.0.3
 	github.com/liujitcn/gorm-kit v0.0.28
 	github.com/liujitcn/kratos-kit v0.0.31
 	github.com/liujitcn/kratos-kit/api v0.0.13

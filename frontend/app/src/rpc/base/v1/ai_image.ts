@@ -81,8 +81,6 @@ export interface CreateAiImageRequest {
   response_format: string;
   /** 生成数量 */
   n: number;
-  /** 是否保存生成图片到对象存储 */
-  save_output: boolean;
   /** 是否先润色提示词再生成 */
   polish_prompt: boolean;
   /** 终端类型：枚举【Terminal】 */

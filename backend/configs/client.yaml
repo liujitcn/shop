@@ -6,4 +6,11 @@ client:
     model: ''
     maxOutputTokens: 1024
     temperature: 0.2
+    topP: 0
+    seed: 0
+    frequencyPenalty: 0
+    presencePenalty: 0
+    stopSequences: []
     reasoningEffort: xhigh
+    # OpenAI/sub2api 兼容接口新增字段或中转层自定义字段可放这里，provider 会透传到请求体。
+    extraFields: {}
