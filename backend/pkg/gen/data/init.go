@@ -12,7 +12,6 @@ var ProviderSet = wire.NewSet(
 	NewTransaction,
 	NewAiAssistantMessageRepository,
 	NewAiAssistantSessionRepository,
-	NewAiImageRepository,
 	NewBaseAPIRepository,
 	NewBaseAreaRepository,
 	NewBaseConfigRepository,

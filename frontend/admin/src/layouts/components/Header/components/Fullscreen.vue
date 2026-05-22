@@ -1,15 +1,18 @@
 <template>
   <div class="fullscreen">
-    <i :class="['iconfont', isFullscreen ? 'icon-suoxiao' : 'icon-fangda']" class="toolBar-icon" @click="handleFullScreen"></i>
+    <el-tooltip effect="dark" :content="fullscreenTooltip" placement="bottom" :show-after="200">
+      <i :class="['iconfont', isFullscreen ? 'icon-suoxiao' : 'icon-fangda']" class="toolBar-icon" @click="handleFullScreen"></i>
+    </el-tooltip>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import screenfull from "screenfull";
 
 const isFullscreen = ref(screenfull.isFullscreen);
+const fullscreenTooltip = computed(() => (isFullscreen.value ? "退出全屏" : "全屏"));
 
 onMounted(() => {
   screenfull.on("change", () => {

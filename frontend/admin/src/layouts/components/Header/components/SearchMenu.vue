@@ -1,6 +1,8 @@
 <template>
   <div class="search-menu">
-    <i :class="'iconfont icon-sousuo'" class="toolBar-icon" @click="handleOpen"></i>
+    <el-tooltip effect="dark" content="菜单搜索" placement="bottom" :show-after="200">
+      <i :class="'iconfont icon-sousuo'" class="toolBar-icon" @click="handleOpen"></i>
+    </el-tooltip>
     <el-dialog class="search-dialog" v-model="isShowSearch" :width="600" :show-close="false" top="10vh">
       <el-input
         v-model="searchMenu"

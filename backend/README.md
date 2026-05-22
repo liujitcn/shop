@@ -141,10 +141,6 @@ make gen
 
 AI 助手默认使用 `pkg/agent/sub2api` 内的 Responses Provider，并启用 Responses 内置 `web_search` 工具；`pkg/agent/provider` 只负责按配置装配客户端。这类模式适合回答新闻、天气、金价、行情等强实时问题。该能力要求配置的 `baseUrl` 支持 sub2api OpenAI 兼容 Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
 
-AI 图片生成已改为异步队列模式，资源接口位于 `/api/v1/base/ai/image`：列表使用 `GET /api/v1/base/ai/image`，详情使用 `GET /api/v1/base/ai/image/{id}`，创建使用 `POST /api/v1/base/ai/image`，删除使用 `DELETE /api/v1/base/ai/image/{ids}`，失败或超时后可通过 `POST /api/v1/base/ai/image/{id}/retry` 重新投递队列。创建记录会先写入 `ai_image`，再投递 `ai_image_generate_queue` 后台生成；调用模型的参数快照会保存到 `params_json`，不保存密钥等敏感配置。生成状态使用 `base.v1.AiImageStatus` 枚举：`PENDING` 待处理、`RUNNING` 生成中、`SUCCESS` 成功、`FAILED` 失败、`TIMEOUT` 超时。
-
-图片生成通过 `pkg/agent/provider.ImageClient` 装配 `pkg/agent/sub2api` 内的 Images Provider，直接调用 sub2api OpenAI 兼容 `/images/generations` 接口，不再依赖 OpenAI SDK。队列消费会在后台等待单次生成完成，生成成功后回写 `image_urls_json` 图片结果；`params_json` 只保存本次生成参数、响应编号和状态快照，不保存密钥等敏感配置。保存到 OSS 时目录为 `/shop/ai/images/{yyyy/mm/dd}`，图片结果会返回 `storage_path` 便于追溯素材来源。提示词润色接口仍位于 `/api/v1/base/ai/image/prompt/polish`，复用 `client.llm` 对话模型把用户输入整理成更适合文生图的中文提示词。
-
 ## MCP 工具暴露
 
 后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表只保存接口元数据、`mcp_tool_name` 和 `mcp_enabled` 开关；管理后台的“系统管理 / API 管理”页面可查看工具名，并切换接口是否暴露为 MCP 工具。
@@ -195,9 +191,9 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手当前按纯聊天模式读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息；AI 图片生成复用同一组 `baseUrl/apiKey` 并默认使用 `gpt-image-2`。实时问题会由 sub2api Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `xhigh`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，具体参数以 sub2api 中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手当前按纯聊天模式读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。实时问题会由 sub2api Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `xhigh`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，具体参数以 sub2api 中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
-`pkg/agent/provider` 已统一迁移到 `pkg/agent/sub2api`，Chat、Responses、Image 三类 Blades Provider 都直接使用 `go-utils/http` 调用 sub2api OpenAI 兼容接口，不使用 OpenAI SDK。
+`pkg/agent/provider` 已统一迁移到 `pkg/agent/sub2api`，Chat、Responses 两类 Blades Provider 都直接使用 `go-utils/http` 调用 sub2api OpenAI 兼容接口，不使用 OpenAI SDK。
 
 ## 设计文档
 

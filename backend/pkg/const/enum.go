@@ -1,9 +1,6 @@
 package _const
 
-import (
-	basev1 "shop/api/gen/go/base/v1"
-	commonv1 "shop/api/gen/go/common/v1"
-)
+import commonv1 "shop/api/gen/go/common/v1"
 
 const (
 	// STATUS_ENABLE 表示业务记录处于启用状态，允许在前台展示、参与查询或继续被业务流程使用。
@@ -35,19 +32,6 @@ const (
 	BASE_JOB_LOG_STATUS_SUCCESS = int32(commonv1.BaseJobLogStatus_SUCCESS)
 	// BASE_JOB_LOG_STATUS_FAIL 表示定时任务执行失败，需要结合错误信息排查失败原因。
 	BASE_JOB_LOG_STATUS_FAIL = int32(commonv1.BaseJobLogStatus_FAIL)
-)
-
-const (
-	// AI_IMAGE_STATUS_PENDING 表示 AI 图片已创建，等待队列消费。
-	AI_IMAGE_STATUS_PENDING = int32(basev1.AiImageStatus_PENDING)
-	// AI_IMAGE_STATUS_RUNNING 表示 AI 图片正在调用模型生成。
-	AI_IMAGE_STATUS_RUNNING = int32(basev1.AiImageStatus_RUNNING)
-	// AI_IMAGE_STATUS_SUCCESS 表示 AI 图片已成功生成。
-	AI_IMAGE_STATUS_SUCCESS = int32(basev1.AiImageStatus_SUCCESS)
-	// AI_IMAGE_STATUS_FAILED 表示 AI 图片生成失败。
-	AI_IMAGE_STATUS_FAILED = int32(basev1.AiImageStatus_FAILED)
-	// AI_IMAGE_STATUS_TIMEOUT 表示 AI 图片生成超时。
-	AI_IMAGE_STATUS_TIMEOUT = int32(basev1.AiImageStatus_TIMEOUT)
 )
 
 const (

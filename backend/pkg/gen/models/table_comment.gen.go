@@ -15,11 +15,6 @@ func (*AiAssistantSession) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*AiImage) TableComment() string {
-	return "AI图片生成信息"
-}
-
-// TableComment 返回表注释。
 func (*BaseAPI) TableComment() string {
 	return "API信息"
 }

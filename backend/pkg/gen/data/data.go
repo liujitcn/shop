@@ -7,16 +7,16 @@ package data
 import (
 	"context"
 
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"shop/pkg/gen/models"
 	"shop/pkg/gen/query"
+
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 func init() {
 	databaseGorm.RegisterMigrateModels(
 		new(models.AiAssistantMessage),
 		new(models.AiAssistantSession),
-		new(models.AiImage),
 		new(models.BaseAPI),
 		new(models.BaseArea),
 		new(models.BaseConfig),

@@ -19,7 +19,6 @@ import (
 const (
 	endpointChatCompletions = "chat/completions"
 	endpointResponses       = "responses"
-	endpointImageGeneration = "images/generations"
 )
 
 type sseEvent = _http.SSEEvent

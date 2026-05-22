@@ -7,10 +7,11 @@ package data
 import (
 	"context"
 
+	"shop/pkg/gen/models"
+
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	"shop/pkg/gen/models"
 )
 
 // GoodsStatDayRepository 定义 GoodsStatDay 的基础仓储能力。

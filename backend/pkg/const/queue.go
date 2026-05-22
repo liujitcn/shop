@@ -24,6 +24,4 @@ const (
 	COMMENT_AUDIT Queue = "comment_audit_queue"
 	// COMMENT_AI_REFRESH 表示商品评价 AI 摘要刷新队列。
 	COMMENT_AI_REFRESH Queue = "comment_ai_refresh_queue"
-	// AI_IMAGE_GENERATE 表示 AI 图片生成队列。
-	AI_IMAGE_GENERATE Queue = "ai_image_generate_queue"
 )

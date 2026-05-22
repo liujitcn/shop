@@ -1,19 +1,21 @@
 <template>
-  <el-dropdown trigger="click" @command="setAssemblySize">
-    <i :class="'iconfont icon-contentright'" class="toolBar-icon"></i>
-    <template #dropdown>
-      <el-dropdown-menu>
-        <el-dropdown-item
-          v-for="item in assemblySizeList"
-          :key="item.value"
-          :command="item.value"
-          :disabled="assemblySize === item.value"
-        >
-          {{ item.label }}
-        </el-dropdown-item>
-      </el-dropdown-menu>
-    </template>
-  </el-dropdown>
+  <el-tooltip effect="dark" content="组件大小" placement="bottom" :show-after="200">
+    <el-dropdown trigger="click" @command="setAssemblySize">
+      <i :class="'iconfont icon-contentright'" class="toolBar-icon"></i>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item
+            v-for="item in assemblySizeList"
+            :key="item.value"
+            :command="item.value"
+            :disabled="assemblySize === item.value"
+          >
+            {{ item.label }}
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+  </el-tooltip>
 </template>
 
 <script setup lang="ts">

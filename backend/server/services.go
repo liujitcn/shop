@@ -58,7 +58,6 @@ type ServerServices struct {
 
 	aiAssistant        *base.AiAssistantService
 	aiAssistantMessage *base.AiAssistantMessageService
-	aiImage            *base.AiImageService
 	config             *base.ConfigService
 	file               *base.FileService
 	login              *base.LoginService
@@ -116,7 +115,6 @@ func NewServerServices(
 
 	aiAssistant *base.AiAssistantService,
 	aiAssistantMessage *base.AiAssistantMessageService,
-	aiImage *base.AiImageService,
 	config *base.ConfigService,
 	file *base.FileService,
 	login *base.LoginService,
@@ -170,7 +168,6 @@ func NewServerServices(
 		appUserStore:          appUserStore,
 		aiAssistant:           aiAssistant,
 		aiAssistantMessage:    aiAssistantMessage,
-		aiImage:               aiImage,
 		config:                config,
 		file:                  file,
 		login:                 login,

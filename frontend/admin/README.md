@@ -29,7 +29,7 @@ frontend/admin
 
 - `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理等系统管理。
 - `views/dashboard`：工作台与分析页。
-- `views/ai`：AI助手、AI 图片生成等 AI 能力页面。
+- `views/ai`：AI助手等 AI 能力页面。
 - `views/goods`：商品分类、商品信息、属性、SKU。
 - `views/shop`：轮播图、商城服务、热门推荐。
 - `views/order`：订单管理。
@@ -145,9 +145,7 @@ src/rpc
 - `src/api/base/ai_assistant_session.ts`：助手会话查询、创建、重命名和删除接口封装。
 - `src/api/base/ai_assistant_message.ts`：助手消息查询和流式发送接口封装。
 - `src/views/ai/assistant`：基于 `vue-element-plus-x` 组件能力封装的当前系统专用 AI助手页面。
-- `src/views/ai/assistant/index.vue`：AI 菜单下的 AI助手页面入口。
-- `src/api/base/ai_image.ts`：AI 图片生成接口封装。
-- `src/views/ai/image/index.vue`：AI 菜单下的 AI 图片生成页面入口，支持提示词 AI 润色、生成前自动润色、模型、尺寸、质量、格式、数量和保存到素材目录；生成结果会展示批次号和对象存储目录。
+- `src/views/ai/assistant/index.vue`：隐藏的 AI助手页面入口，默认由顶部导航工具栏最左侧图标触发。
 
 当前助手页实现说明：
 

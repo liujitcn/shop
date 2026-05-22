@@ -1,6 +1,7 @@
 <template>
   <div class="tool-bar-ri">
     <div class="header-icon">
+      <AiAssistant id="aiAssistant" />
       <AssemblySize id="assemblySize" />
       <SearchMenu id="searchMenu" />
       <ThemeSetting id="themeSetting" />
@@ -11,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+import AiAssistant from "./components/AiAssistant.vue";
 import AssemblySize from "./components/AssemblySize.vue";
 import SearchMenu from "./components/SearchMenu.vue";
 import ThemeSetting from "./components/ThemeSetting.vue";
