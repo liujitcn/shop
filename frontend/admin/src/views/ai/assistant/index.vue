@@ -67,6 +67,7 @@ const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>();
 const { startStream, cancel: cancelStream, data: streamData, error: streamError } = useXStream();
 let pendingDeltaFrame = 0;
 let consumedStreamItemCount = 0;
+let streamFinished = false;
 
 const filteredSessions = computed(() => {
   const keyword = sessionKeyword.value.trim();
@@ -131,6 +132,7 @@ async function handleSubmit(payload: SubmitPayload) {
   messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
   try {
     consumedStreamItemCount = 0;
+    streamFinished = false;
     // useXStream 每次 startStream 会重置内部 data；这里提前对齐游标，避免旧数据长度影响本轮消费。
     streamData.value = [];
     const response = await defAiAssistantMessageService.StreamAiAssistantMessage({
@@ -154,11 +156,16 @@ async function handleSubmit(payload: SubmitPayload) {
     if (streamError.value) {
       throw streamError.value;
     }
-  } catch {
+    if (!streamFinished) {
+      throw new Error("AI 助手流式响应未完整返回");
+    }
+  } catch (error) {
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
       sessionID,
       clientMessageID: clientMessageId
     });
+    const message = error instanceof Error ? error.message : "AI 助手请求失败";
+    ElMessage.error(message);
   } finally {
     sending.value = false;
   }
@@ -174,6 +181,7 @@ function handleAiAssistantDelta(payload: AiAssistantStreamPayload) {
 function handleAiAssistantFinish(payload: AiAssistantStreamPayload) {
   const sessionID = String(payload.session_id ?? "");
   if (!sessionID) return;
+  streamFinished = true;
   flushAiAssistantDelta();
   const nextMessages = normalizeMessageList(payload.messages as never[]);
   const current = messages.value[sessionID] ?? [];
@@ -191,6 +199,7 @@ function handleAiAssistantFinish(payload: AiAssistantStreamPayload) {
 function handleAiAssistantError(payload: AiAssistantStreamPayload) {
   const sessionID = String(payload.session_id ?? "");
   if (!sessionID || !messages.value[sessionID]) return;
+  streamFinished = true;
   flushAiAssistantDelta();
   messages.value[sessionID] = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
   messages.value[sessionID] = markStreamingError(messages.value[sessionID] ?? [], payload);

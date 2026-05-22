@@ -13,5 +13,6 @@ var ProviderSet = wire.NewSet(
 	task.NewOrderStatDay,
 	task.NewGoodsStatDay,
 	task.NewRecommendSync,
+	task.NewCommentAuditRetry,
 	task.NewTaskList,
 )

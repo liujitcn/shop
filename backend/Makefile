@@ -48,8 +48,10 @@ cli:
 	@go install github.com/google/gnostic@latest
 	@go install github.com/bufbuild/buf/cmd/buf@latest
 	@go install entgo.io/ent/cmd/ent@latest
+	@go install golang.org/x/tools/gopls@latest
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	@go install golang.org/x/tools/cmd/goimports@latest
+	@go install honnef.co/go/tools/cmd/staticcheck@latest
 	@if [ -d ../../gorm-kit/gen ]; then \
 		cd ../../gorm-kit/gen && go install .; \
 	else \
@@ -66,7 +68,7 @@ fmt:
 gorm-gen:
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GEN_BIN)" || (echo "gen not found. Run make cli first." && exit 1)
-	$(GEN_BIN) -base_path=pkg/gen -source='root:112233@tcp(127.0.0.1:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
+	$(GEN_BIN) -base_path=pkg/gen -source='root:112233@tcp(192.168.60.52:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码

@@ -24,6 +24,26 @@ async function getAccessToken(): Promise<string> {
   return userStore.token.trim();
 }
 
+/** 从 direct stream 错误响应中提取后端业务提示。 */
+async function resolveStreamErrorMessage(response: Response): Promise<string> {
+  const fallbackMessage = `AI 助手请求失败（${response.status}）`;
+  const contentType = response.headers.get("Content-Type") ?? "";
+  if (contentType.includes("application/json")) {
+    try {
+      const payload = await response.json();
+      return String(payload?.message || payload?.error || fallbackMessage);
+    } catch {
+      return fallbackMessage;
+    }
+  }
+  try {
+    const text = (await response.text()).trim();
+    return text || fallbackMessage;
+  } catch {
+    return fallbackMessage;
+  }
+}
+
 /** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供 useXStream 消费。 */
 export async function SendAiAssistantMessageStream(request: SendAiAssistantMessageRequest): Promise<Response> {
   const accessToken = await getAccessToken();
@@ -43,6 +63,9 @@ export async function SendAiAssistantMessageStream(request: SendAiAssistantMessa
   if (response.status === 401 || response.status === 403) {
     handleAuthExpired();
     throw new Error("登录状态已失效，请重新登录");
+  }
+  if (!response.ok) {
+    throw new Error(await resolveStreamErrorMessage(response));
   }
 
   return response;

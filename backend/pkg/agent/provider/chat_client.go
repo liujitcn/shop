@@ -3,15 +3,14 @@ package provider
 import (
 	"strings"
 
-	"shop/pkg/agent/sub2api"
-
 	"github.com/go-kratos/blades"
+	bladesopenai "github.com/go-kratos/blades/contrib/openai"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // ChatClient 表示智能体对话模型客户端。
 type ChatClient struct {
-	provider blades.ModelProvider
+	blades.ModelProvider
 }
 
 // NewChatClient 创建智能体对话模型客户端。
@@ -27,7 +26,7 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 	if baseURL == "" || apiKey == "" || model == "" {
 		return client
 	}
-	client.provider = sub2api.NewChat(model, sub2api.ChatConfig{
+	client.ModelProvider = bladesopenai.NewModel(model, bladesopenai.Config{
 		BaseURL:          baseURL,
 		APIKey:           apiKey,
 		Seed:             bootstrapCfg.GetSeed(),
@@ -38,28 +37,7 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 		TopP:             bootstrapCfg.GetTopP(),
 		StopSequences:    bootstrapCfg.GetStopSequences(),
 		ExtraFields:      llmExtraFields(bootstrapCfg),
-		ReasoningEffort:  strings.TrimSpace(bootstrapCfg.GetReasoningEffort()),
+		ReasoningEffort:  llmReasoningEffort(bootstrapCfg),
 	})
 	return client
-}
-
-// Enabled 判断对话模型客户端是否可用。
-func (c *ChatClient) Enabled() bool {
-	return c != nil && c.provider != nil
-}
-
-// Provider 返回底层模型提供者。
-func (c *ChatClient) Provider() blades.ModelProvider {
-	if c == nil {
-		return nil
-	}
-	return c.provider
-}
-
-// Model 返回当前模型名称。
-func (c *ChatClient) Model() string {
-	if !c.Enabled() {
-		return ""
-	}
-	return c.provider.Name()
 }

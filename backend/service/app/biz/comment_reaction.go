@@ -233,7 +233,9 @@ func (c *CommentReactionCase) SaveCommentReaction(
 		return nil, err
 	}
 
-	likeCount, dislikeCount, err := c.getCachedReactionCounts(ctx, int32(req.GetTargetType()), req.GetTargetId())
+	var likeCount int32
+	var dislikeCount int32
+	likeCount, dislikeCount, err = c.getCachedReactionCounts(ctx, int32(req.GetTargetType()), req.GetTargetId())
 	if err != nil {
 		return nil, err
 	}
@@ -253,14 +255,15 @@ func (c *CommentReactionCase) applyReactionCounterChange(ctx context.Context, ta
 	if oldReactionType == newReactionType {
 		return nil
 	}
+	var err error
 	if oldReactionType > 0 {
-		err := c.changeReactionCounter(ctx, targetType, targetID, oldReactionType, -1)
+		err = c.changeReactionCounter(ctx, targetType, targetID, oldReactionType, -1)
 		if err != nil {
 			return err
 		}
 	}
 	if newReactionType > 0 {
-		err := c.changeReactionCounter(ctx, targetType, targetID, newReactionType, 1)
+		err = c.changeReactionCounter(ctx, targetType, targetID, newReactionType, 1)
 		if err != nil {
 			return err
 		}
@@ -275,6 +278,7 @@ func (c *CommentReactionCase) changeReactionCounter(ctx context.Context, targetT
 		return nil
 	}
 
+	var err error
 	switch targetType {
 	case _const.COMMENT_REACTION_TARGET_TYPE_COMMENT:
 		query := c.commentInfoRepo.Query(ctx).CommentInfo
@@ -289,7 +293,7 @@ func (c *CommentReactionCase) changeReactionCounter(ctx context.Context, targetT
 		} else if delta < 0 {
 			conditions = append(conditions, query.LikeCount.Gt(0))
 		}
-		_, err := query.WithContext(ctx).Where(conditions...).UpdateSimple(update)
+		_, err = query.WithContext(ctx).Where(conditions...).UpdateSimple(update)
 		return err
 	case _const.COMMENT_REACTION_TARGET_TYPE_DISCUSSION:
 		query := c.commentDiscussionRepo.Query(ctx).CommentDiscussion
@@ -297,7 +301,7 @@ func (c *CommentReactionCase) changeReactionCounter(ctx context.Context, targetT
 		if delta < 0 {
 			conditions = append(conditions, query.LikeCount.Gt(0))
 		}
-		_, err := query.WithContext(ctx).Where(conditions...).UpdateSimple(query.LikeCount.Add(delta))
+		_, err = query.WithContext(ctx).Where(conditions...).UpdateSimple(query.LikeCount.Add(delta))
 		return err
 	case _const.COMMENT_REACTION_TARGET_TYPE_AI:
 		query := c.commentAiRepo.Query(ctx).CommentAi
@@ -312,7 +316,7 @@ func (c *CommentReactionCase) changeReactionCounter(ctx context.Context, targetT
 		} else if delta < 0 {
 			conditions = append(conditions, query.LikeCount.Gt(0))
 		}
-		_, err := query.WithContext(ctx).Where(conditions...).UpdateSimple(update)
+		_, err = query.WithContext(ctx).Where(conditions...).UpdateSimple(update)
 		return err
 	default:
 		return errorsx.InvalidArgument("互动目标类型不支持")
@@ -321,12 +325,14 @@ func (c *CommentReactionCase) changeReactionCounter(ctx context.Context, targetT
 
 // getCachedReactionCounts 读取互动目标当前缓存数量。
 func (c *CommentReactionCase) getCachedReactionCounts(ctx context.Context, targetType int32, targetID int64) (int32, int32, error) {
+	var err error
 	switch targetType {
 	case _const.COMMENT_REACTION_TARGET_TYPE_COMMENT:
 		query := c.commentInfoRepo.Query(ctx).CommentInfo
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.ID.Eq(targetID)))
-		record, err := c.commentInfoRepo.Find(ctx, opts...)
+		var record *models.CommentInfo
+		record, err = c.commentInfoRepo.Find(ctx, opts...)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -335,7 +341,8 @@ func (c *CommentReactionCase) getCachedReactionCounts(ctx context.Context, targe
 		query := c.commentDiscussionRepo.Query(ctx).CommentDiscussion
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.ID.Eq(targetID)))
-		record, err := c.commentDiscussionRepo.Find(ctx, opts...)
+		var record *models.CommentDiscussion
+		record, err = c.commentDiscussionRepo.Find(ctx, opts...)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -344,7 +351,8 @@ func (c *CommentReactionCase) getCachedReactionCounts(ctx context.Context, targe
 		query := c.commentAiRepo.Query(ctx).CommentAi
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.ID.Eq(targetID)))
-		record, err := c.commentAiRepo.Find(ctx, opts...)
+		var record *models.CommentAi
+		record, err = c.commentAiRepo.Find(ctx, opts...)
 		if err != nil {
 			return 0, 0, err
 		}

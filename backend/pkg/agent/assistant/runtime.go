@@ -20,6 +20,9 @@ const (
 )
 
 // Runtime 封装流式 AI 助手运行时。
+//
+// Runtime 只负责把业务层准备好的输入交给 Blades Agent 执行，不直接处理数据库、
+// OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
 	client *provider.ResponsesClient
 	prompt *configv1.Prompt
@@ -35,18 +38,21 @@ func NewRuntime(client *provider.ResponsesClient, prompt *configv1.Prompt) *Runt
 
 // Enabled 判断 AI 助手运行时是否可用。
 func (r *Runtime) Enabled() bool {
-	return r != nil && r.client != nil && r.client.Enabled()
+	return r != nil && r.client != nil && r.client.ModelProvider != nil
 }
 
 // Model 返回 AI 助手当前使用的模型名称。
 func (r *Runtime) Model() string {
-	if r == nil || r.client == nil {
+	if !r.Enabled() {
 		return ""
 	}
-	return r.client.Model()
+	return r.client.Name()
 }
 
 // Run 使用生成式模式运行助手。
+//
+// 该方法用于普通 RPC 或非流式调用：先构建带历史上下文的 Blades Session，
+// 再创建当前轮用户消息，最后等待模型完整回复。
 func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error) {
 	if !r.Enabled() {
 		return nil, fmt.Errorf("ai assistant client is not configured")
@@ -71,6 +77,9 @@ func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error
 }
 
 // RunStream 使用流式模式运行助手。
+//
+// 该方法用于管理端 direct SSE：模型返回未完成的 assistant 消息时会把文本片段
+// 透传给 onDelta，最终仍返回完整回复供业务层落库。
 func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta func(string)) (*Response, error) {
 	if !r.Enabled() {
 		return nil, fmt.Errorf("ai assistant client is not configured")
@@ -91,10 +100,12 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		if runErr != nil {
 			return nil, runErr
 		}
+		// 只处理 assistant 角色的模型输出，工具或其他角色由后续工具链扩展时再接入。
 		if output == nil || output.Role != blades.RoleAssistant {
 			continue
 		}
 		finalMessage = output
+		// 未完成消息表示流式增量；完成消息用于最终落库，不再重复推送给前端。
 		if output.Status != blades.StatusCompleted && onDelta != nil {
 			text := output.Text()
 			if text != "" {
@@ -114,7 +125,7 @@ func (r *Runtime) buildRunner(input RuntimeInput) (*blades.Runner, error) {
 	var agentInstance blades.Agent
 	agentInstance, err = blades.NewAgent(
 		"shop_ai_assistant",
-		blades.WithModel(r.client.Provider()),
+		blades.WithModel(r.client),
 		blades.WithContext(true),
 		blades.WithOutputKey("assistant_reply"),
 		blades.WithInstruction(r.resolvePromptTemplate(input)),
@@ -129,7 +140,7 @@ func (r *Runtime) buildRunner(input RuntimeInput) (*blades.Runner, error) {
 func (r *Runtime) buildSession(ctx context.Context, input RuntimeInput) (blades.Session, error) {
 	session := blades.NewSession(
 		blades.WithContextCompressor(summaryContext.NewContextCompressor(
-			r.client.Provider(),
+			r.client,
 			summaryContext.WithKeepRecent(8),
 			summaryContext.WithBatchSize(12),
 			summaryContext.WithMaxTokens(1800),
@@ -139,31 +150,33 @@ func (r *Runtime) buildSession(ctx context.Context, input RuntimeInput) (blades.
 	session.SetState(stateUserName, strings.TrimSpace(input.UserName))
 	session.SetState(stateSessionTitle, strings.TrimSpace(input.SessionTitle))
 	session.SetState(stateSummary, strings.TrimSpace(input.Summary))
+
 	var err error
 	for _, item := range input.History {
 		content := strings.TrimSpace(item.Content)
+		// 空历史对模型没有帮助，跳过可减少上下文噪音。
 		if content == "" {
 			continue
 		}
-		switch strings.ToLower(strings.TrimSpace(item.Role)) {
-		case RoleAssistant:
-			err = session.Append(ctx, blades.AssistantMessage(content))
-			if err != nil {
-				return nil, err
-			}
-		case "system":
-			err = session.Append(ctx, blades.SystemMessage(content))
-			if err != nil {
-				return nil, err
-			}
-		default:
-			err = session.Append(ctx, blades.UserMessage(content))
-			if err != nil {
-				return nil, err
-			}
+		err = appendHistoryMessage(ctx, session, item.Role, content)
+		if err != nil {
+			return nil, err
 		}
 	}
 	return session, nil
+}
+
+// appendHistoryMessage 按消息角色追加历史上下文。
+func appendHistoryMessage(ctx context.Context, session blades.Session, role string, content string) error {
+	// 历史角色需要还原到 Blades 原生消息类型，未知角色按用户消息处理以兼容旧数据。
+	switch strings.ToLower(strings.TrimSpace(role)) {
+	case RoleAssistant:
+		return session.Append(ctx, blades.AssistantMessage(content))
+	case RoleSystem:
+		return session.Append(ctx, blades.SystemMessage(content))
+	default:
+		return session.Append(ctx, blades.UserMessage(content))
+	}
 }
 
 // buildUserMessage 构建当前轮次发送给模型的用户消息。
@@ -171,32 +184,17 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *blades.Message {
 	content := strings.TrimSpace(input.Content)
 	attachmentLines := make([]string, 0, len(input.Attachments)*2)
 	imageParts := make([]blades.DataPart, 0, len(input.Attachments))
+
 	for _, item := range input.Attachments {
 		attachmentContent := strings.TrimSpace(item.Content)
-		name := strings.TrimSpace(item.Name)
-		if name == "" {
-			name = "未命名附件"
-		}
-		cleanMIMEType := strings.ToLower(strings.TrimSpace(strings.SplitN(item.MIMEType, ";", 2)[0]))
-		if cleanMIMEType == "image/jpg" {
-			cleanMIMEType = "image/jpeg"
-		}
-		if cleanMIMEType == "" {
-			switch strings.ToLower(pathExt(item.Name)) {
-			case ".png":
-				cleanMIMEType = "image/png"
-			case ".jpg", ".jpeg":
-				cleanMIMEType = "image/jpeg"
-			case ".webp":
-				cleanMIMEType = "image/webp"
-			case ".gif":
-				cleanMIMEType = "image/gif"
-			}
-		}
-		switch cleanMIMEType {
-		case "image/png", "image/jpeg", "image/webp", "image/gif":
+		name := normalizeAttachmentName(item.Name)
+		cleanMIMEType := normalizeRuntimeMIMEType(item)
+
+		// 图片附件走多模态输入，避免把本地 /shop 地址误当成公网图片 URL。
+		if isRuntimeImageMIME(cleanMIMEType) {
+			// 图片必须具备原始字节，才能作为多模态视觉输入传给模型。
 			if len(item.Bytes) == 0 {
-				break
+				continue
 			}
 			attachmentLines = append(attachmentLines, fmt.Sprintf("图片附件《%s》已作为视觉输入提供给模型。", name))
 			imageParts = append(imageParts, blades.DataPart{
@@ -206,40 +204,107 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *blades.Message {
 			})
 			continue
 		}
+
+		// 文本类附件优先拼入正文，保证模型能直接读取附件内容。
 		if attachmentContent != "" {
 			attachmentLines = append(attachmentLines, fmt.Sprintf("附件《%s》内容：\n%s", name, attachmentContent))
 			continue
 		}
-		details := []string{fmt.Sprintf("附件《%s》", name)}
-		if item.MIMEType != "" {
-			details = append(details, fmt.Sprintf("类型：%s", item.MIMEType))
-		}
-		if item.Size > 0 {
-			details = append(details, fmt.Sprintf("大小：%d 字节", item.Size))
-		}
-		if strings.TrimSpace(item.URL) != "" {
-			details = append(details, fmt.Sprintf("地址：%s", strings.TrimSpace(item.URL)))
-		}
-		attachmentLines = append(attachmentLines, strings.Join(details, "，"))
+
+		// 没有可读内容的附件仍保留文件元信息，模型至少能知道用户提供了什么文件。
+		attachmentLines = append(attachmentLines, buildAttachmentDetailLine(name, item))
 	}
+
+	// 没有附件内容时保持普通文本消息，减少对 Blades 消息结构的额外包装。
 	if len(attachmentLines) == 0 && len(imageParts) == 0 {
 		return blades.UserMessage(content)
 	}
+	return blades.UserMessage(buildUserMessageParts(content, attachmentLines, imageParts)...)
+}
+
+// normalizeAttachmentName 规范化模型提示词中展示的附件名称。
+func normalizeAttachmentName(name string) string {
+	trimmed := strings.TrimSpace(name)
+	// 模型提示词里避免出现空附件名，便于用户和模型对齐附件引用。
+	if trimmed == "" {
+		return "未命名附件"
+	}
+	return trimmed
+}
+
+// normalizeRuntimeMIMEType 规范化运行时 MIME 类型。
+func normalizeRuntimeMIMEType(item Attachment) string {
+	cleanMIMEType := strings.ToLower(strings.TrimSpace(strings.SplitN(item.MIMEType, ";", 2)[0]))
+	// image/jpg 不是标准 MIME，统一转成模型更常见支持的 image/jpeg。
+	if cleanMIMEType == "image/jpg" {
+		return "image/jpeg"
+	}
+	// 已有 MIME 时不再从文件名推断，避免后缀与真实内容冲突。
+	if cleanMIMEType != "" {
+		return cleanMIMEType
+	}
+
+	// MIME 缺失时仅对图片后缀兜底推断，其他文件保持普通附件元信息。
+	switch strings.ToLower(pathExt(item.Name)) {
+	case ".png":
+		return "image/png"
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".webp":
+		return "image/webp"
+	case ".gif":
+		return "image/gif"
+	default:
+		return ""
+	}
+}
+
+// isRuntimeImageMIME 判断 MIME 类型是否可作为图片输入。
+func isRuntimeImageMIME(mimeType string) bool {
+	switch mimeType {
+	case "image/png", "image/jpeg", "image/webp", "image/gif":
+		return true
+	default:
+		return false
+	}
+}
+
+// buildAttachmentDetailLine 构造模型无法直接读取附件内容时的元信息说明。
+func buildAttachmentDetailLine(name string, item Attachment) string {
+	details := []string{fmt.Sprintf("附件《%s》", name)}
+	// 类型、大小、地址都是给模型的弱提示，缺失时不强行补默认值。
+	if item.MIMEType != "" {
+		details = append(details, fmt.Sprintf("类型：%s", item.MIMEType))
+	}
+	if item.Size > 0 {
+		details = append(details, fmt.Sprintf("大小：%d 字节", item.Size))
+	}
+	if strings.TrimSpace(item.URL) != "" {
+		details = append(details, fmt.Sprintf("地址：%s", strings.TrimSpace(item.URL)))
+	}
+	return strings.Join(details, "，")
+}
+
+// buildUserMessageParts 合并文本提示和图片输入，形成 Blades 用户消息参数。
+func buildUserMessageParts(content string, attachmentLines []string, imageParts []blades.DataPart) []any {
 	textParts := []string{content}
+	// 附件说明统一追加到用户正文后，避免模型误以为附件内容来自系统指令。
 	if len(attachmentLines) > 0 {
 		textParts = append(textParts, "本轮消息附带以下附件内容，请在回答时按需参考：", strings.Join(attachmentLines, "\n\n"))
 	}
+
 	messageParts := make([]any, 0, 1+len(imageParts))
+	// 用户可能只上传图片不输入文本，空文本不传入 message parts。
 	if text := strings.TrimSpace(strings.Join(textParts, "\n\n")); text != "" {
 		messageParts = append(messageParts, text)
 	}
 	for _, item := range imageParts {
 		messageParts = append(messageParts, item)
 	}
-	return blades.UserMessage(messageParts...)
+	return messageParts
 }
 
-// buildResponse 收敛当前轮次的助手回复。
+// buildResponse 将 Blades 消息收敛为业务层统一回复结构。
 func (r *Runtime) buildResponse(message *blades.Message) *Response {
 	content := ""
 	if message != nil {
@@ -264,6 +329,7 @@ func (r *Runtime) resolvePromptTemplate(input RuntimeInput) string {
 	if promptText == "" {
 		promptText = "你是一个通用 AI 助手，直接、自然、准确地回答用户的问题。"
 	}
+
 	lines := []string{
 		promptText,
 		"",

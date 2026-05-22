@@ -72,7 +72,7 @@ func (c *CommentAiCase) FindByID(ctx context.Context, aiID int64) (*models.Comme
 }
 
 // UpsertGoodsCommentAi 保存商品两个场景的评价 AI 摘要。
-func (c *CommentAiCase) UpsertGoodsCommentAi(ctx context.Context, goodsID int64, result *comment.CommentAiResult) error {
+func (c *CommentAiCase) UpsertGoodsCommentAi(ctx context.Context, goodsID int64, result *comment.AIResult) error {
 	// 摘要结果为空时，不覆盖旧摘要，避免异常降级影响前台展示。
 	if result == nil {
 		return nil
@@ -124,7 +124,7 @@ func (c *CommentAiCase) buildCardByGoodsIDAndScene(ctx context.Context, goodsID 
 }
 
 // upsertSceneContent 保存单个场景的 AI 摘要内容。
-func (c *CommentAiCase) upsertSceneContent(ctx context.Context, goodsID int64, scene int32, content []comment.CommentAiContentItem) error {
+func (c *CommentAiCase) upsertSceneContent(ctx context.Context, goodsID int64, scene int32, content []comment.AIContentItem) error {
 	contentList := make([]*commonv1.CommentAiContentItem, 0, len(content))
 	for _, item := range content {
 		// 摘要内容为空时不进入最终展示内容。

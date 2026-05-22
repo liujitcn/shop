@@ -28,10 +28,6 @@ type RecommendEventItem struct {
 
 // DispatchRecommendEvent 将推荐事件转换为队列消息并投递到本地推荐事件链路。
 func DispatchRecommendEvent(actor *dto.RecommendActor, req *appv1.RecommendEventReportRequest, eventTime time.Time) {
-	// 请求体为空时，无法继续构建事件消息。
-	if req == nil {
-		return
-	}
 	// 主体缺失或主体 ID 非法时，不投递无法归因的行为事件。
 	if actor == nil || !actor.IsValid() {
 		return

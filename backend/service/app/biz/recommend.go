@@ -105,10 +105,6 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, _ *appv
 
 // RecommendGoods 查询推荐商品列表。
 func (c *RecommendCase) RecommendGoods(ctx context.Context, req *appv1.RecommendGoodsRequest) (*appv1.RecommendGoodsResponse, error) {
-	// 推荐请求体为空时，无法继续执行场景兜底。
-	if req == nil {
-		return nil, errorsx.InvalidArgument("推荐请求不能为空")
-	}
 	// 场景未指定时，无法确定推荐兜底口径。
 	if req.GetScene() == commonv1.RecommendScene(_const.RECOMMEND_SCENE_UNKNOWN) {
 		return nil, errorsx.InvalidArgument("推荐场景不能为空")
@@ -185,11 +181,6 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *appv1.Recommend
 
 // RecommendEventReport 上报推荐事件。
 func (c *RecommendCase) RecommendEventReport(ctx context.Context, req *appv1.RecommendEventReportRequest) error {
-	// 空请求直接忽略，避免埋点影响主流程。
-	if req == nil {
-		return nil
-	}
-
 	actor, err := c.resolveRecommendActor(ctx, true)
 	if err != nil {
 		return err

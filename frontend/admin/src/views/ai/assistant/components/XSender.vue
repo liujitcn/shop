@@ -36,7 +36,7 @@
             </template>
             <div class="agent-popover-card">
               <div class="agent-popover-title">上传附件</div>
-              <div class="agent-popover-desc">可补充图片、表格或文档，发送后用于当前问题分析。</div>
+              <div class="agent-popover-desc">可补充图片或文本类附件，发送后用于当前问题分析。</div>
               <button class="agent-popover-action" type="button" :disabled="sending || uploading" @click="handleSelectAttachment">
                 {{ uploading ? "上传中..." : "选择本地文件" }}
               </button>
@@ -132,7 +132,7 @@ const uploading = ref(false);
 const maxAttachmentCount = 6;
 const maxAttachmentSizeMB = 20;
 const maxAttachmentSize = maxAttachmentSizeMB * 1024 * 1024;
-const acceptedAttachmentTypes = [
+const acceptedAttachmentExtensions = [
   ".txt",
   ".md",
   ".markdown",
@@ -140,17 +140,13 @@ const acceptedAttachmentTypes = [
   ".json",
   ".xml",
   ".csv",
-  ".pdf",
-  ".doc",
-  ".docx",
-  ".xls",
-  ".xlsx",
   ".png",
   ".jpg",
   ".jpeg",
   ".gif",
   ".webp"
-].join(",");
+];
+const acceptedAttachmentTypes = acceptedAttachmentExtensions.join(",");
 
 const {
   loading: recording,
@@ -340,6 +336,10 @@ function filterUploadFiles(files: File[]) {
     return [];
   }
   const validFiles = files.filter(file => {
+    if (!isAcceptedAttachmentFile(file)) {
+      ElMessage.warning(`附件「${file.name}」暂不支持，已跳过`);
+      return false;
+    }
     if (file.size > maxAttachmentSize) {
       ElMessage.warning(`附件「${file.name}」超过 ${maxAttachmentSizeMB}MB，已跳过`);
       return false;
@@ -350,6 +350,12 @@ function filterUploadFiles(files: File[]) {
     ElMessage.warning(`最多还能选择 ${remainingCount} 个附件，已自动截取`);
   }
   return validFiles.slice(0, remainingCount);
+}
+
+/** 判断附件类型是否在当前 AI 助手可解析范围内。 */
+function isAcceptedAttachmentFile(file: File) {
+  const fileName = file.name.toLowerCase();
+  return acceptedAttachmentExtensions.some(extension => fileName.endsWith(extension));
 }
 
 /** 根据上传结果构建附件展示项。 */

@@ -360,10 +360,6 @@ func (c *RecommendGorseCase) ExportData(
 	ctx context.Context,
 	req *adminv1.ExportDataRequest,
 ) (*adminv1.ExportDataResponse, error) {
-	// 导出请求为空时，无法判断需要导出的数据类型。
-	if req == nil {
-		return nil, errorsx.InvalidArgument("导出请求不能为空")
-	}
 	// 数据类型非法时，无法确定需要导出的Gorse 推荐数据集。
 	if req.GetDataType() == commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
 		return nil, errorsx.InvalidArgument("导出数据类型不能为空")
@@ -408,10 +404,6 @@ func (c *RecommendGorseCase) ImportData(
 	ctx context.Context,
 	req *adminv1.ImportDataRequest,
 ) (*adminv1.ImportDataResponse, error) {
-	// 导入请求为空时，无法解析 JSONL 文件内容。
-	if req == nil {
-		return nil, errorsx.InvalidArgument("导入请求不能为空")
-	}
 	// 数据类型非法时，无法确定 JSONL 应该写入哪类Gorse 推荐数据。
 	if req.GetDataType() == commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_UNKNOWN) {
 		return nil, errorsx.InvalidArgument("导入数据类型不能为空")
@@ -468,11 +460,6 @@ func (c *RecommendGorseCase) GetConfig(ctx context.Context) (*adminv1.ConfigResp
 
 // SaveConfig 保存 Gorse 推荐配置。
 func (c *RecommendGorseCase) SaveConfig(ctx context.Context, req *adminv1.ConfigResponse) (*adminv1.ConfigResponse, error) {
-	// 配置为空时，无法继续覆盖Gorse 推荐服务当前配置。
-	if req == nil {
-		return nil, errorsx.InvalidArgument("推荐配置不能为空")
-	}
-
 	body, err := marshalGorseConfig(req)
 	if err != nil {
 		return nil, err
@@ -503,9 +490,6 @@ func (c *RecommendGorseCase) ResetConfig(ctx context.Context) error {
 
 // PreviewExternal 预览 Gorse 推荐外部推荐脚本。
 func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *adminv1.PreviewExternalRequest) (*adminv1.PreviewExternalResponse, error) {
-	if req == nil {
-		req = &adminv1.PreviewExternalRequest{}
-	}
 	script := strings.TrimSpace(req.GetScript())
 	// 外部推荐脚本为空时，Gorse 预览接口会执行失败，提前按参数错误拦截。
 	if script == "" {
@@ -535,10 +519,6 @@ func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *adminv1.P
 
 // PreviewRankerPrompt 预览 Gorse 推荐排序提示词。
 func (c *RecommendGorseCase) PreviewRankerPrompt(ctx context.Context, req *adminv1.PreviewRankerPromptRequest) (*adminv1.PreviewRankerPromptResponse, error) {
-	// 请求为空时，按空参数代理预览接口，保持与 Gorse 仪表盘输入行为一致。
-	if req == nil {
-		req = &adminv1.PreviewRankerPromptRequest{}
-	}
 	queryTemplate := strings.TrimSpace(req.GetQueryTemplate())
 	documentTemplate := strings.TrimSpace(req.GetDocumentTemplate())
 	// 排序提示词预览只适用于大语言模型排序器，必须同时提供查询模板与文档模板。

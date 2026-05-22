@@ -28,10 +28,6 @@ func NewGoodsReceiver(gorseChain *gorse.ChainReceiver, localChain *local.ChainRe
 
 // RecommendGoods 按配置选择统一的推荐商品来源。
 func (r *GoodsReceiver) RecommendGoods(ctx context.Context, req *dto.GoodsRequest) (*dto.GoodsResult, error) {
-	// 推荐请求为空时，无法继续查询推荐商品。
-	if req == nil {
-		return nil, errorsx.InvalidArgument("推荐请求不能为空")
-	}
 	// 场景未指定时，当前请求不具备推荐语义。
 	if req.Scene == commonv1.RecommendScene(_const.RECOMMEND_SCENE_UNKNOWN) {
 		return nil, errorsx.InvalidArgument("推荐场景不能为空")

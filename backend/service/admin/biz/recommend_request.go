@@ -47,11 +47,6 @@ func NewRecommendRequestCase(
 
 // PageRecommendRequests 分页查询推荐请求。
 func (c *RecommendRequestCase) PageRecommendRequests(ctx context.Context, req *adminv1.PageRecommendRequestsRequest) (*adminv1.PageRecommendRequestsResponse, error) {
-	// 请求为空时，回退到默认查询条件，避免分页逻辑读取空指针。
-	if req == nil {
-		req = &adminv1.PageRecommendRequestsRequest{}
-	}
-
 	query := c.RecommendRequestRepository.Query(ctx).RecommendRequest
 	opts := make([]repository.QueryOption, 0, 8)
 	opts = append(opts, repository.Order(query.RequestAt.Desc()))

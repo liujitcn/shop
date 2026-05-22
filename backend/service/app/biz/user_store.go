@@ -68,7 +68,9 @@ func (c *UserStoreCase) GetUserStore(ctx context.Context) (*appv1.UserStore, err
 		}
 		return nil, err
 	}
-	return c.convertToProto(ctx, userStore), nil
+	res := c.dtoMapper.ToDTO(userStore)
+	res.AddressName = c.baseAreaCase.getAddressListByCode(ctx, userStore.Address)
+	return res, nil
 }
 
 // CreateUserStore 创建用户门店
@@ -107,13 +109,6 @@ func (c *UserStoreCase) UpdateUserStore(ctx context.Context, form *appv1.UserSto
 	c.multiDeleteFileByString(oldUserStore.Picture, form.GetPicture())
 	c.multiDeleteFileByString(oldUserStore.BusinessLicense, form.GetBusinessLicense())
 	return nil
-}
-
-// 将用户门店模型转换为接口响应
-func (c *UserStoreCase) convertToProto(ctx context.Context, item *models.UserStore) *appv1.UserStore {
-	res := c.dtoMapper.ToDTO(item)
-	res.AddressName = c.baseAreaCase.getAddressListByCode(ctx, item.Address)
-	return res
 }
 
 // 将用户门店表单转换为模型

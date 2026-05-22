@@ -122,7 +122,8 @@ func (c *BaseAPICase) GetBaseAPIDoc(ctx context.Context, id int64) (*adminv1.Bas
 		return nil, err
 	}
 
-	api, err := biz.ParseOpenAPI(assets.OpenAPIData)
+	var api *biz.OpenAPI
+	api, err = biz.ParseOpenAPI(assets.OpenAPIData)
 	if err != nil {
 		return nil, err
 	}

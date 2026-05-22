@@ -16,12 +16,14 @@ func NewTaskList(
 	orderStatDay *OrderStatDay,
 	goodsStatDay *GoodsStatDay,
 	recommendSync *RecommendSync,
+	commentAuditRetry *CommentAuditRetry,
 ) map[string]TaskExec {
 	taskMap := make(map[string]TaskExec, 17)
 	registerTask(taskMap, tradeBill)
 	registerTask(taskMap, orderStatDay)
 	registerTask(taskMap, goodsStatDay)
 	registerTask(taskMap, recommendSync)
+	registerTask(taskMap, commentAuditRetry)
 	return taskMap
 }
 

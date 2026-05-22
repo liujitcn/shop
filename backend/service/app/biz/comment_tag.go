@@ -74,7 +74,6 @@ func (c *CommentTagCase) ListFilterTags(ctx context.Context, goodsID int64) ([]*
 
 // MatchTagIDs 根据评价正文匹配商品下的标签编号。
 func (c *CommentTagCase) MatchTagIDs(ctx context.Context, goodsID int64, content string) ([]int64, error) {
-	content = strings.TrimSpace(content)
 	// 评价正文为空时，不进行标签命中计算。
 	if content == "" {
 		return []int64{}, nil
@@ -88,7 +87,7 @@ func (c *CommentTagCase) MatchTagIDs(ctx context.Context, goodsID int64, content
 	tagIDs := make([]int64, 0)
 	for _, record := range recordList {
 		// 标签名称为空或正文未命中时，不写入当前标签编号。
-		if strings.TrimSpace(record.Name) == "" || !strings.Contains(content, record.Name) {
+		if record.Name == "" || !strings.Contains(content, record.Name) {
 			continue
 		}
 		tagIDs = append(tagIDs, record.ID)
@@ -146,6 +145,26 @@ func (c *CommentTagCase) DecreaseMentionCount(ctx context.Context, tagIDs []int6
 		).
 		UpdateSimple(query.MentionCount.Sub(1))
 	return err
+}
+
+// tagNamesByIDs 根据标签编号查询标签名称，失败时降级为空列表避免影响摘要主流程。
+func (c *CommentTagCase) tagNamesByIDs(ctx context.Context, goodsID int64, tagIDs []int64) []string {
+	if len(tagIDs) == 0 {
+		return []string{}
+	}
+	query := c.Query(ctx).CommentTag
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
+	opts = append(opts, repository.Where(query.ID.In(tagIDs...)))
+	tagList, err := c.List(ctx, opts...)
+	if err != nil {
+		return []string{}
+	}
+	tagNames := make([]string, 0, len(tagList))
+	for _, tag := range tagList {
+		tagNames = append(tagNames, tag.Name)
+	}
+	return tagNames
 }
 
 // listVisibleByGoodsID 查询商品下的全部可展示标签。

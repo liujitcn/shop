@@ -41,6 +41,7 @@ require (
 	github.com/liujitcn/kratos-kit/utils v0.0.12
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
+	github.com/openai/openai-go/v3 v3.8.1
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0
@@ -144,7 +145,6 @@ require (
 	github.com/olekukonko/errors v1.2.0 // indirect
 	github.com/olekukonko/ll v0.1.6 // indirect
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
-	github.com/openai/openai-go/v3 v3.8.1 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect

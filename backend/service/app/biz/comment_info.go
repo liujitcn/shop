@@ -21,6 +21,8 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	"gorm.io/gen"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -326,7 +328,7 @@ func (c *CommentInfoCase) CreateComment(ctx context.Context, user *models.BaseUs
 		GoodsScore:           req.GetGoodsScore(),
 		PackageScore:         req.GetPackageScore(),
 		DeliveryScore:        req.GetDeliveryScore(),
-		Content:              strings.TrimSpace(req.GetContent()),
+		Content:              req.GetContent(),
 		TagID:                _string.ConvertAnyToJsonString([]int64{}),
 		Img:                  _string.ConvertAnyToJsonString(req.GetImg()),
 		Status:               _const.COMMENT_STATUS_PENDING_REVIEW,
@@ -417,7 +419,7 @@ func (c *CommentInfoCase) IsOrderGoodsCommented(ctx context.Context, userID int6
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderID)))
 	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	opts = append(opts, repository.Where(query.SKUCode.Eq(strings.TrimSpace(skuCode))))
+	opts = append(opts, repository.Where(query.SKUCode.Eq(skuCode)))
 	count, err := c.Count(ctx, opts...)
 	if err != nil {
 		return false, err
@@ -448,6 +450,36 @@ func (c *CommentInfoCase) AreAllOrderGoodsCommented(ctx context.Context, userID 
 		}
 	}
 	return true, nil
+}
+
+// changeDiscussionCount 按审核状态调整评价讨论缓存数量。
+func (c *CommentInfoCase) changeDiscussionCount(ctx context.Context, commentID int64, status int32, delta int32) error {
+	if delta == 0 {
+		return nil
+	}
+	query := c.Query(ctx).CommentInfo
+	var update field.AssignExpr
+	conditions := []gen.Condition{query.ID.Eq(commentID)}
+	switch status {
+	case _const.COMMENT_STATUS_PENDING_REVIEW:
+		update = query.PendingDiscussionCount.Add(delta)
+		// 递减待审数量时，增加大于 0 条件避免缓存数量出现负数。
+		if delta < 0 {
+			conditions = append(conditions, query.PendingDiscussionCount.Gt(0))
+		}
+	case _const.COMMENT_STATUS_APPROVED:
+		update = query.DiscussionCount.Add(delta)
+		// 递减通过数量时，增加大于 0 条件避免缓存数量出现负数。
+		if delta < 0 {
+			conditions = append(conditions, query.DiscussionCount.Gt(0))
+		}
+	default:
+		return nil
+	}
+	_, err := query.WithContext(ctx).
+		Where(conditions...).
+		UpdateSimple(update)
+	return err
 }
 
 // listApprovedByGoodsID 查询商品下全部审核通过评价记录。
@@ -618,7 +650,6 @@ func (c *CommentInfoCase) buildCommentItem(
 
 // buildContentSegments 将正文和高亮词转换为文本片段列表。
 func (c *CommentInfoCase) buildContentSegments(content string, highlightWords []string) []*appv1.CommentTextSegment {
-	content = strings.TrimSpace(content)
 	// 评价正文为空时，直接返回空片段列表。
 	if content == "" {
 		return []*appv1.CommentTextSegment{}
@@ -635,7 +666,7 @@ func (c *CommentInfoCase) buildContentSegments(content string, highlightWords []
 		nextWord := ""
 		for _, word := range highlightWords {
 			// 空高亮词不参与正文切分。
-			if strings.TrimSpace(word) == "" {
+			if word == "" {
 				continue
 			}
 			index := strings.Index(remain, word)

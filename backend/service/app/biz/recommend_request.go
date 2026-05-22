@@ -42,7 +42,7 @@ func NewRecommendRequestCase(
 // resolveRecommendRequestID 解析本次推荐请求应使用的请求编号。
 func (c *RecommendRequestCase) resolveRecommendRequestID(ctx context.Context, req *dto.GoodsRequest) (int64, error) {
 	// 推荐主体缺失或主体编号非法时，当前请求无法复用历史推荐会话。
-	if req == nil || !req.Actor.IsValid() {
+	if !req.Actor.IsValid() {
 		return 0, errorsx.InvalidArgument("推荐主体不能为空")
 	}
 
@@ -95,7 +95,7 @@ func (c *RecommendRequestCase) saveRecommendRequest(
 	total int64,
 ) error {
 	// 推荐主体缺失或主体编号非法时，当前请求日志无法归因。
-	if req == nil || !req.Actor.IsValid() {
+	if !req.Actor.IsValid() {
 		return errorsx.InvalidArgument("推荐主体不能为空")
 	}
 	// 推荐上下文缺失时，回退到空上下文，保持日志结构稳定。

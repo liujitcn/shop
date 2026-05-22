@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"strings"
 
 	_const "shop/pkg/const"
 	appDto "shop/service/app/dto"
@@ -54,6 +53,18 @@ func (c *CommentDiscussionCase) FindByID(ctx context.Context, discussionID int64
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.ResourceNotFound("讨论不存在")
 		}
+		return nil, err
+	}
+	return record, nil
+}
+
+// findAnyByID 按编号查询未删除讨论记录。
+func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
+	query := c.Query(ctx).CommentDiscussion
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
 		return nil, err
 	}
 	return record, nil
@@ -120,9 +131,8 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	user *models.BaseUser,
 	req *appv1.CreateCommentDiscussionRequest,
 ) (*models.CommentDiscussion, error) {
-	content := strings.TrimSpace(req.GetContent())
 	// 讨论内容为空时，不允许创建空讨论。
-	if content == "" {
+	if req.GetContent() == "" {
 		return nil, errorsx.InvalidArgument("讨论内容不能为空")
 	}
 
@@ -187,7 +197,7 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 		ReplyToDiscussionID: replyToDiscussionID,
 		ReplyToUserID:       replyToUserID,
 		ReplyToDisplayName:  replyToDisplayName,
-		Content:             content,
+		Content:             req.GetContent(),
 		Status:              _const.COMMENT_STATUS_PENDING_REVIEW,
 	}
 
@@ -196,6 +206,22 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 		return nil, err
 	}
 	return record, nil
+}
+
+// updateStatus 更新讨论审核状态。
+func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID int64, status int32) error {
+	query := c.Query(ctx).CommentDiscussion
+	result, err := query.WithContext(ctx).
+		Where(query.ID.Eq(discussionID)).
+		Update(query.Status, status)
+	if err != nil {
+		return err
+	}
+	// 目标讨论不存在时，无法继续回写状态。
+	if result.RowsAffected == 0 {
+		return errorsx.ResourceNotFound("讨论不存在")
+	}
+	return nil
 }
 
 // buildDiscussionUserReactionTypeMap 查询当前用户对讨论的互动状态。

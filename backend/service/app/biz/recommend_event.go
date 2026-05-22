@@ -88,10 +88,6 @@ func (c *RecommendEventCase) persistRecommendEventReport(
 	req *appv1.RecommendEventReportRequest,
 	eventTime time.Time,
 ) error {
-	// 空请求直接忽略，避免埋点影响主流程。
-	if req == nil {
-		return nil
-	}
 	// 主体缺失或主体编号非法时，当前事件无法归因。
 	if actor == nil || !actor.IsValid() {
 		return errorsx.InvalidArgument("推荐主体不能为空")

@@ -17,6 +17,7 @@ import (
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
@@ -88,11 +89,13 @@ func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, 
 	if err != nil {
 		return err
 	}
-	authInfo, err := c.GetAuthInfo(ctx)
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
 	if err != nil {
 		return err
 	}
-	discussion, err := c.findAnyByID(ctx, req.GetId())
+	var discussion *models.CommentDiscussion
+	discussion, err = c.findAnyByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}

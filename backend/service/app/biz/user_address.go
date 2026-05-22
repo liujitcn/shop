@@ -81,7 +81,9 @@ func (c *UserAddressCase) GetUserAddress(ctx context.Context, id int64) (*appv1.
 	if err != nil {
 		return nil, err
 	}
-	return c.convertToProto(ctx, userAddress), nil
+	res := c.formMapper.ToDTO(userAddress)
+	res.AddressName = c.baseAreaCase.getAddressListByCode(ctx, userAddress.Address)
+	return res, nil
 }
 
 // CreateUserAddress 创建用户地址
@@ -146,13 +148,6 @@ func (c *UserAddressCase) DeleteUserAddress(ctx context.Context, id int64) error
 	opts = append(opts, repository.Where(query.ID.Eq(id)))
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	return c.Delete(ctx, opts...)
-}
-
-// 将用户地址模型转换为表单响应
-func (c *UserAddressCase) convertToProto(ctx context.Context, item *models.UserAddress) *appv1.UserAddressForm {
-	res := c.formMapper.ToDTO(item)
-	res.AddressName = c.baseAreaCase.getAddressListByCode(ctx, item.Address)
-	return res
 }
 
 // 将用户地址表单转换为模型

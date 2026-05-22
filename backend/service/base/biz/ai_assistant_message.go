@@ -249,7 +249,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	emitErr := emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventFinish, dto.AiAssistantStreamPayload{
 		SessionID:       req.GetSessionId(),
 		ClientMessageID: clientMessageID,
-		Messages:        []*basev1.AiAssistantMessage{c.ToDTO(assistantMessage)},
+		Messages:        []*basev1.AiAssistantMessage{c.ToDTO(userMessage), c.ToDTO(assistantMessage)},
 		Session:         c.aiAssistantSessionCase.ToDTO(session),
 	})
 	if emitErr != nil {
