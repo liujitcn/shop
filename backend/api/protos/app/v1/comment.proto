@@ -17,6 +17,13 @@ service CommentService {
     };
   }
 
+  // 查询商品评价标签列表
+  rpc GoodsCommentTags(GoodsCommentTagsRequest) returns (GoodsCommentTagsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/app/comment/goods/{goods_id}/tags"
+    };
+  }
+
   // 查询商品评价分页列表
   rpc PageGoodsComment(PageGoodsCommentRequest) returns (PageGoodsCommentResponse) {
     option (google.api.http) = {
@@ -109,6 +116,15 @@ message CommentFilterItem {
   string label = 3 [(gnostic.openapi.v3.property) = {description: "展示名称"}]; // 展示名称
 
   string value = 4 [(gnostic.openapi.v3.property) = {description: "展示值，可为空"}]; // 展示值，可为空
+}
+
+// 评价标签项
+message CommentTagItem {
+  int64 tag_id = 1 [(gnostic.openapi.v3.property) = {description: "内容标签ID"}]; // 内容标签ID
+
+  string label = 2 [(gnostic.openapi.v3.property) = {description: "展示名称"}]; // 展示名称
+
+  int32 mention_count = 3 [(gnostic.openapi.v3.property) = {description: "提及次数"}]; // 提及次数
 }
 
 // 评价展示项
@@ -223,9 +239,22 @@ message GoodsCommentOverviewResponse {
 
   CommentAi ai_summary = 4 [(gnostic.openapi.v3.property) = {description: "商品详情AI摘要"}]; // 商品详情AI摘要
 
-  repeated CommentFilterItem comment_filters = 5 [(gnostic.openapi.v3.property) = {description: "高频标签列表"}]; // 高频标签列表
-
   repeated CommentItem preview_comments = 6 [(gnostic.openapi.v3.property) = {description: "评价预览列表"}]; // 评价预览列表
+}
+
+// 商品评价标签查询条件
+message GoodsCommentTagsRequest {
+  int64 goods_id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
+
+  int32 limit = 2 [(gnostic.openapi.v3.property) = {
+    description: "标签展示数量"
+    default: {number: 20}
+  }]; // 标签展示数量
+}
+
+// 商品评价标签响应
+message GoodsCommentTagsResponse {
+  repeated CommentTagItem comment_tags = 1 [(gnostic.openapi.v3.property) = {description: "评价标签列表"}]; // 评价标签列表
 }
 
 // 商品评价分页查询条件

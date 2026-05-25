@@ -293,6 +293,7 @@ github.com/jinzhu/copier v0.4.0 h1:w3ciUoD19shMCRargcpm0cm91ytaBhDvuRpz1ODO/U8=
 github.com/jinzhu/copier v0.4.0/go.mod h1:DfbEm0FYsaqBcKcFuvmOZb218JkPGtvSHsKg8S8hyyg=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
+github.com/jinzhu/inflection v1.0.0+incompatible/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.2/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
 github.com/jinzhu/now v1.1.5/go.mod h1:d3SSVoowX0Lcu0IBviAWJpolVfI5UJVZZ7cO71lE/z8=
@@ -375,6 +376,8 @@ github.com/liujitcn/kratos-kit/config v0.0.12 h1:9KmUDBMY1apHeqSCJLAR6UC9z1H01/3
 github.com/liujitcn/kratos-kit/config v0.0.12/go.mod h1:DBIFDFmQ3fLU0Ig41NK8fAyZRCDHj5jc3UudgcgC93A=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.20 h1:j+ALphiirFq+Vb3chIqcRrfowDWLRTyutdpM4lQ79Kc=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.20/go.mod h1:gsSxkSE+E0ENDqSX0tYF2wZRiBsSX9d7PoCMmSQUhbU=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.21 h1:bwLfSR2tWWjxkIL5aCBTPFsHDZWmYwKNu46v14tk+ek=
+github.com/liujitcn/kratos-kit/database/gorm v0.0.21/go.mod h1:gsSxkSE+E0ENDqSX0tYF2wZRiBsSX9d7PoCMmSQUhbU=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.10 h1:U6T6KVemxdkyVdILKx7IYUARkNr373G4w0riYAlNzE0=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.10/go.mod h1:G4im2NEUggOLq3CAX5otJi0LaqxedbXbhazUuaIExvM=
 github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.8 h1:QmIYKuUrsYW7/ZdW3gOCD1FQDS/6cEK94PvWy3qDGjM=
@@ -472,6 +475,7 @@ github.com/paulmach/orb v0.11.1/go.mod h1:5mULz1xQfs3bmQm63QEJA6lNGujuRafwA5S/En
 github.com/paulmach/protoscan v0.2.1/go.mod h1:SpcSwydNLrxUGSDvXvO0P7g7AuhJ7lcKfDlhJCDw2gY=
 github.com/philhofer/fwd v1.2.0 h1:e6DnBTl7vGY+Gz322/ASL4Gyp1FspeMvx1RNDoToZuM=
 github.com/philhofer/fwd v1.2.0/go.mod h1:RqIHx9QI14HlwKwm98g9Re5prTQ6LdeRQn+gXJFxsJM=
+github.com/pierrec/lz4/v4 v4.0.0/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=
 github.com/pierrec/lz4/v4 v4.1.21/go.mod h1:gZWDp/Ze/IJXGXf23ltt2EXimqmTUXEy0GFuRQyBid4=
 github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e/go.mod h1:pJLUxLENpZxwdsKMEsNbx1VGcRFpLqf3715MtcvvzbA=

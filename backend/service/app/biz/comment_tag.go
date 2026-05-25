@@ -3,13 +3,9 @@ package biz
 import (
 	"context"
 	"errors"
-	"strconv"
 	"strings"
 
-	_const "shop/pkg/const"
-
 	appv1 "shop/api/gen/go/app/v1"
-	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -19,6 +15,8 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gorm"
 )
+
+const commentTagDefaultLimit = 20
 
 // CommentTagCase 评价标签业务处理对象。
 type CommentTagCase struct {
@@ -34,39 +32,28 @@ func NewCommentTagCase(baseCase *biz.BaseCase, commentTagRepo *data.CommentTagRe
 	}
 }
 
-// ListOverviewTags 查询商品详情评价标签。
-func (c *CommentTagCase) ListOverviewTags(ctx context.Context, goodsID int64) ([]*appv1.CommentFilterItem, error) {
+// ListTags 查询商品评价标签列表。
+func (c *CommentTagCase) ListTags(ctx context.Context, goodsID int64, limit int32) ([]*appv1.CommentTagItem, error) {
 	recordList, err := c.listVisibleByGoodsID(ctx, goodsID)
 	if err != nil {
 		return nil, err
 	}
-
-	tagList := make([]*appv1.CommentFilterItem, 0, len(recordList))
-	for _, record := range recordList {
-		tagList = append(tagList, &appv1.CommentFilterItem{
-			FilterType: commonv1.CommentFilterType(_const.COMMENT_FILTER_TYPE_TAG),
-			TagId:      record.ID,
-			Label:      record.Name,
-			Value:      strconv.FormatInt(int64(record.MentionCount), 10) + " 人说",
-		})
+	tagLimit := int(limit)
+	// 商品评价标签最多返回前 20 个，两个前端页面按各自展示容量传入更小数量。
+	if tagLimit <= 0 || tagLimit > commentTagDefaultLimit {
+		tagLimit = commentTagDefaultLimit
 	}
-	return tagList, nil
-}
-
-// ListFilterTags 查询评价列表标签筛选项。
-func (c *CommentTagCase) ListFilterTags(ctx context.Context, goodsID int64) ([]*appv1.CommentFilterItem, error) {
-	recordList, err := c.listVisibleByGoodsID(ctx, goodsID)
-	if err != nil {
-		return nil, err
+	// 当前商品标签超过展示数量时，只返回排序靠前的标签。
+	if tagLimit < len(recordList) {
+		recordList = recordList[:tagLimit]
 	}
 
-	tagList := make([]*appv1.CommentFilterItem, 0, len(recordList))
+	tagList := make([]*appv1.CommentTagItem, 0, len(recordList))
 	for _, record := range recordList {
-		tagList = append(tagList, &appv1.CommentFilterItem{
-			FilterType: commonv1.CommentFilterType(_const.COMMENT_FILTER_TYPE_TAG),
-			TagId:      record.ID,
-			Label:      record.Name,
-			Value:      strconv.FormatInt(int64(record.MentionCount), 10),
+		tagList = append(tagList, &appv1.CommentTagItem{
+			TagId:        record.ID,
+			Label:        record.Name,
+			MentionCount: record.MentionCount,
 		})
 	}
 	return tagList, nil

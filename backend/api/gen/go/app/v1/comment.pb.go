@@ -7,16 +7,15 @@
 package appv1
 
 import (
-	reflect "reflect"
-	v1 "shop/api/gen/go/common/v1"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/google/gnostic/openapiv3"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	reflect "reflect"
+	v1 "shop/api/gen/go/common/v1"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -262,6 +261,67 @@ func (x *CommentFilterItem) GetValue() string {
 	return ""
 }
 
+// 评价标签项
+type CommentTagItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	TagId         int64                  `protobuf:"varint,1,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`                      // 内容标签ID
+	Label         string                 `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`                                    // 展示名称
+	MentionCount  int32                  `protobuf:"varint,3,opt,name=mention_count,json=mentionCount,proto3" json:"mention_count,omitempty"` // 提及次数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CommentTagItem) Reset() {
+	*x = CommentTagItem{}
+	mi := &file_app_v1_comment_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CommentTagItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CommentTagItem) ProtoMessage() {}
+
+func (x *CommentTagItem) ProtoReflect() protoreflect.Message {
+	mi := &file_app_v1_comment_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CommentTagItem.ProtoReflect.Descriptor instead.
+func (*CommentTagItem) Descriptor() ([]byte, []int) {
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *CommentTagItem) GetTagId() int64 {
+	if x != nil {
+		return x.TagId
+	}
+	return 0
+}
+
+func (x *CommentTagItem) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *CommentTagItem) GetMentionCount() int32 {
+	if x != nil {
+		return x.MentionCount
+	}
+	return 0
+}
+
 // 评价展示项
 type CommentItem struct {
 	state             protoimpl.MessageState `protogen:"open.v1"`
@@ -289,7 +349,7 @@ type CommentItem struct {
 
 func (x *CommentItem) Reset() {
 	*x = CommentItem{}
-	mi := &file_app_v1_comment_proto_msgTypes[4]
+	mi := &file_app_v1_comment_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -301,7 +361,7 @@ func (x *CommentItem) String() string {
 func (*CommentItem) ProtoMessage() {}
 
 func (x *CommentItem) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[4]
+	mi := &file_app_v1_comment_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -314,7 +374,7 @@ func (x *CommentItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentItem.ProtoReflect.Descriptor instead.
 func (*CommentItem) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{4}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CommentItem) GetId() int64 {
@@ -457,7 +517,7 @@ type CommentAi struct {
 
 func (x *CommentAi) Reset() {
 	*x = CommentAi{}
-	mi := &file_app_v1_comment_proto_msgTypes[5]
+	mi := &file_app_v1_comment_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -469,7 +529,7 @@ func (x *CommentAi) String() string {
 func (*CommentAi) ProtoMessage() {}
 
 func (x *CommentAi) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[5]
+	mi := &file_app_v1_comment_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -482,7 +542,7 @@ func (x *CommentAi) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentAi.ProtoReflect.Descriptor instead.
 func (*CommentAi) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{5}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CommentAi) GetId() int64 {
@@ -539,7 +599,7 @@ type CommentDiscussionItem struct {
 
 func (x *CommentDiscussionItem) Reset() {
 	*x = CommentDiscussionItem{}
-	mi := &file_app_v1_comment_proto_msgTypes[6]
+	mi := &file_app_v1_comment_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -551,7 +611,7 @@ func (x *CommentDiscussionItem) String() string {
 func (*CommentDiscussionItem) ProtoMessage() {}
 
 func (x *CommentDiscussionItem) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[6]
+	mi := &file_app_v1_comment_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -564,7 +624,7 @@ func (x *CommentDiscussionItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CommentDiscussionItem.ProtoReflect.Descriptor instead.
 func (*CommentDiscussionItem) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{6}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CommentDiscussionItem) GetId() int64 {
@@ -653,7 +713,7 @@ type PendingCommentGoodsItem struct {
 
 func (x *PendingCommentGoodsItem) Reset() {
 	*x = PendingCommentGoodsItem{}
-	mi := &file_app_v1_comment_proto_msgTypes[7]
+	mi := &file_app_v1_comment_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -665,7 +725,7 @@ func (x *PendingCommentGoodsItem) String() string {
 func (*PendingCommentGoodsItem) ProtoMessage() {}
 
 func (x *PendingCommentGoodsItem) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[7]
+	mi := &file_app_v1_comment_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -678,7 +738,7 @@ func (x *PendingCommentGoodsItem) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PendingCommentGoodsItem.ProtoReflect.Descriptor instead.
 func (*PendingCommentGoodsItem) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{7}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *PendingCommentGoodsItem) GetOrderId() int64 {
@@ -741,7 +801,7 @@ type GoodsCommentOverviewRequest struct {
 
 func (x *GoodsCommentOverviewRequest) Reset() {
 	*x = GoodsCommentOverviewRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[8]
+	mi := &file_app_v1_comment_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -753,7 +813,7 @@ func (x *GoodsCommentOverviewRequest) String() string {
 func (*GoodsCommentOverviewRequest) ProtoMessage() {}
 
 func (x *GoodsCommentOverviewRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[8]
+	mi := &file_app_v1_comment_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -766,7 +826,7 @@ func (x *GoodsCommentOverviewRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsCommentOverviewRequest.ProtoReflect.Descriptor instead.
 func (*GoodsCommentOverviewRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{8}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GoodsCommentOverviewRequest) GetGoodsId() int64 {
@@ -790,7 +850,6 @@ type GoodsCommentOverviewResponse struct {
 	RecentDays      int32                  `protobuf:"varint,2,opt,name=recent_days,json=recentDays,proto3" json:"recent_days,omitempty"`               // 好评率统计天数
 	RecentGoodRate  int32                  `protobuf:"varint,3,opt,name=recent_good_rate,json=recentGoodRate,proto3" json:"recent_good_rate,omitempty"` // 近N天好评率百分比整数
 	AiSummary       *CommentAi             `protobuf:"bytes,4,opt,name=ai_summary,json=aiSummary,proto3" json:"ai_summary,omitempty"`                   // 商品详情AI摘要
-	CommentFilters  []*CommentFilterItem   `protobuf:"bytes,5,rep,name=comment_filters,json=commentFilters,proto3" json:"comment_filters,omitempty"`    // 高频标签列表
 	PreviewComments []*CommentItem         `protobuf:"bytes,6,rep,name=preview_comments,json=previewComments,proto3" json:"preview_comments,omitempty"` // 评价预览列表
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -798,7 +857,7 @@ type GoodsCommentOverviewResponse struct {
 
 func (x *GoodsCommentOverviewResponse) Reset() {
 	*x = GoodsCommentOverviewResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[9]
+	mi := &file_app_v1_comment_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -810,7 +869,7 @@ func (x *GoodsCommentOverviewResponse) String() string {
 func (*GoodsCommentOverviewResponse) ProtoMessage() {}
 
 func (x *GoodsCommentOverviewResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[9]
+	mi := &file_app_v1_comment_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -823,7 +882,7 @@ func (x *GoodsCommentOverviewResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GoodsCommentOverviewResponse.ProtoReflect.Descriptor instead.
 func (*GoodsCommentOverviewResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{9}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GoodsCommentOverviewResponse) GetTotalCount() int32 {
@@ -854,16 +913,107 @@ func (x *GoodsCommentOverviewResponse) GetAiSummary() *CommentAi {
 	return nil
 }
 
-func (x *GoodsCommentOverviewResponse) GetCommentFilters() []*CommentFilterItem {
+func (x *GoodsCommentOverviewResponse) GetPreviewComments() []*CommentItem {
 	if x != nil {
-		return x.CommentFilters
+		return x.PreviewComments
 	}
 	return nil
 }
 
-func (x *GoodsCommentOverviewResponse) GetPreviewComments() []*CommentItem {
+// 商品评价标签查询条件
+type GoodsCommentTagsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	GoodsId       int64                  `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"` // 商品ID
+	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`                    // 标签展示数量
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoodsCommentTagsRequest) Reset() {
+	*x = GoodsCommentTagsRequest{}
+	mi := &file_app_v1_comment_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCommentTagsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCommentTagsRequest) ProtoMessage() {}
+
+func (x *GoodsCommentTagsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_app_v1_comment_proto_msgTypes[11]
 	if x != nil {
-		return x.PreviewComments
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCommentTagsRequest.ProtoReflect.Descriptor instead.
+func (*GoodsCommentTagsRequest) Descriptor() ([]byte, []int) {
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GoodsCommentTagsRequest) GetGoodsId() int64 {
+	if x != nil {
+		return x.GoodsId
+	}
+	return 0
+}
+
+func (x *GoodsCommentTagsRequest) GetLimit() int32 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+// 商品评价标签响应
+type GoodsCommentTagsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CommentTags   []*CommentTagItem      `protobuf:"bytes,1,rep,name=comment_tags,json=commentTags,proto3" json:"comment_tags,omitempty"` // 评价标签列表
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GoodsCommentTagsResponse) Reset() {
+	*x = GoodsCommentTagsResponse{}
+	mi := &file_app_v1_comment_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GoodsCommentTagsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GoodsCommentTagsResponse) ProtoMessage() {}
+
+func (x *GoodsCommentTagsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_app_v1_comment_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GoodsCommentTagsResponse.ProtoReflect.Descriptor instead.
+func (*GoodsCommentTagsResponse) Descriptor() ([]byte, []int) {
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GoodsCommentTagsResponse) GetCommentTags() []*CommentTagItem {
+	if x != nil {
+		return x.CommentTags
 	}
 	return nil
 }
@@ -885,7 +1035,7 @@ type PageGoodsCommentRequest struct {
 
 func (x *PageGoodsCommentRequest) Reset() {
 	*x = PageGoodsCommentRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[10]
+	mi := &file_app_v1_comment_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -897,7 +1047,7 @@ func (x *PageGoodsCommentRequest) String() string {
 func (*PageGoodsCommentRequest) ProtoMessage() {}
 
 func (x *PageGoodsCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[10]
+	mi := &file_app_v1_comment_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -910,7 +1060,7 @@ func (x *PageGoodsCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageGoodsCommentRequest.ProtoReflect.Descriptor instead.
 func (*PageGoodsCommentRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{10}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *PageGoodsCommentRequest) GetGoodsId() int64 {
@@ -985,7 +1135,7 @@ type PageGoodsCommentResponse struct {
 
 func (x *PageGoodsCommentResponse) Reset() {
 	*x = PageGoodsCommentResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[11]
+	mi := &file_app_v1_comment_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -997,7 +1147,7 @@ func (x *PageGoodsCommentResponse) String() string {
 func (*PageGoodsCommentResponse) ProtoMessage() {}
 
 func (x *PageGoodsCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[11]
+	mi := &file_app_v1_comment_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1010,7 +1160,7 @@ func (x *PageGoodsCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageGoodsCommentResponse.ProtoReflect.Descriptor instead.
 func (*PageGoodsCommentResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{11}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *PageGoodsCommentResponse) GetCommentFilters() []*CommentFilterItem {
@@ -1074,7 +1224,7 @@ type PageCommentDiscussionRequest struct {
 
 func (x *PageCommentDiscussionRequest) Reset() {
 	*x = PageCommentDiscussionRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[12]
+	mi := &file_app_v1_comment_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1086,7 +1236,7 @@ func (x *PageCommentDiscussionRequest) String() string {
 func (*PageCommentDiscussionRequest) ProtoMessage() {}
 
 func (x *PageCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[12]
+	mi := &file_app_v1_comment_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1099,7 +1249,7 @@ func (x *PageCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageCommentDiscussionRequest.ProtoReflect.Descriptor instead.
 func (*PageCommentDiscussionRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{12}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *PageCommentDiscussionRequest) GetCommentId() int64 {
@@ -1138,7 +1288,7 @@ type PageCommentDiscussionResponse struct {
 
 func (x *PageCommentDiscussionResponse) Reset() {
 	*x = PageCommentDiscussionResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[13]
+	mi := &file_app_v1_comment_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1150,7 +1300,7 @@ func (x *PageCommentDiscussionResponse) String() string {
 func (*PageCommentDiscussionResponse) ProtoMessage() {}
 
 func (x *PageCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[13]
+	mi := &file_app_v1_comment_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1163,7 +1313,7 @@ func (x *PageCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageCommentDiscussionResponse.ProtoReflect.Descriptor instead.
 func (*PageCommentDiscussionResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{13}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *PageCommentDiscussionResponse) GetCommentId() int64 {
@@ -1222,7 +1372,7 @@ type CreateCommentDiscussionRequest struct {
 
 func (x *CreateCommentDiscussionRequest) Reset() {
 	*x = CreateCommentDiscussionRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[14]
+	mi := &file_app_v1_comment_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1234,7 +1384,7 @@ func (x *CreateCommentDiscussionRequest) String() string {
 func (*CreateCommentDiscussionRequest) ProtoMessage() {}
 
 func (x *CreateCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[14]
+	mi := &file_app_v1_comment_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1247,7 +1397,7 @@ func (x *CreateCommentDiscussionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCommentDiscussionRequest.ProtoReflect.Descriptor instead.
 func (*CreateCommentDiscussionRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{14}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateCommentDiscussionRequest) GetCommentId() int64 {
@@ -1296,7 +1446,7 @@ type CreateCommentDiscussionResponse struct {
 
 func (x *CreateCommentDiscussionResponse) Reset() {
 	*x = CreateCommentDiscussionResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[15]
+	mi := &file_app_v1_comment_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1308,7 +1458,7 @@ func (x *CreateCommentDiscussionResponse) String() string {
 func (*CreateCommentDiscussionResponse) ProtoMessage() {}
 
 func (x *CreateCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[15]
+	mi := &file_app_v1_comment_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1321,7 +1471,7 @@ func (x *CreateCommentDiscussionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCommentDiscussionResponse.ProtoReflect.Descriptor instead.
 func (*CreateCommentDiscussionResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{15}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CreateCommentDiscussionResponse) GetItem() *CommentDiscussionItem {
@@ -1351,7 +1501,7 @@ type SaveCommentReactionRequest struct {
 
 func (x *SaveCommentReactionRequest) Reset() {
 	*x = SaveCommentReactionRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[16]
+	mi := &file_app_v1_comment_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1363,7 +1513,7 @@ func (x *SaveCommentReactionRequest) String() string {
 func (*SaveCommentReactionRequest) ProtoMessage() {}
 
 func (x *SaveCommentReactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[16]
+	mi := &file_app_v1_comment_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1376,7 +1526,7 @@ func (x *SaveCommentReactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveCommentReactionRequest.ProtoReflect.Descriptor instead.
 func (*SaveCommentReactionRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{16}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SaveCommentReactionRequest) GetTargetType() v1.CommentReactionTargetType {
@@ -1421,7 +1571,7 @@ type SaveCommentReactionResponse struct {
 
 func (x *SaveCommentReactionResponse) Reset() {
 	*x = SaveCommentReactionResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[17]
+	mi := &file_app_v1_comment_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1433,7 +1583,7 @@ func (x *SaveCommentReactionResponse) String() string {
 func (*SaveCommentReactionResponse) ProtoMessage() {}
 
 func (x *SaveCommentReactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[17]
+	mi := &file_app_v1_comment_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1446,7 +1596,7 @@ func (x *SaveCommentReactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SaveCommentReactionResponse.ProtoReflect.Descriptor instead.
 func (*SaveCommentReactionResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{17}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SaveCommentReactionResponse) GetTargetType() v1.CommentReactionTargetType {
@@ -1495,7 +1645,7 @@ type PagePendingCommentGoodsRequest struct {
 
 func (x *PagePendingCommentGoodsRequest) Reset() {
 	*x = PagePendingCommentGoodsRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[18]
+	mi := &file_app_v1_comment_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1507,7 +1657,7 @@ func (x *PagePendingCommentGoodsRequest) String() string {
 func (*PagePendingCommentGoodsRequest) ProtoMessage() {}
 
 func (x *PagePendingCommentGoodsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[18]
+	mi := &file_app_v1_comment_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1520,7 +1670,7 @@ func (x *PagePendingCommentGoodsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PagePendingCommentGoodsRequest.ProtoReflect.Descriptor instead.
 func (*PagePendingCommentGoodsRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{18}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *PagePendingCommentGoodsRequest) GetPageNum() int64 {
@@ -1551,7 +1701,7 @@ type PagePendingCommentGoodsResponse struct {
 
 func (x *PagePendingCommentGoodsResponse) Reset() {
 	*x = PagePendingCommentGoodsResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[19]
+	mi := &file_app_v1_comment_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1563,7 +1713,7 @@ func (x *PagePendingCommentGoodsResponse) String() string {
 func (*PagePendingCommentGoodsResponse) ProtoMessage() {}
 
 func (x *PagePendingCommentGoodsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[19]
+	mi := &file_app_v1_comment_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1576,7 +1726,7 @@ func (x *PagePendingCommentGoodsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PagePendingCommentGoodsResponse.ProtoReflect.Descriptor instead.
 func (*PagePendingCommentGoodsResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{19}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *PagePendingCommentGoodsResponse) GetPendingCommentGoods() []*PendingCommentGoodsItem {
@@ -1632,7 +1782,7 @@ type CreateCommentRequest struct {
 
 func (x *CreateCommentRequest) Reset() {
 	*x = CreateCommentRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[20]
+	mi := &file_app_v1_comment_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1644,7 +1794,7 @@ func (x *CreateCommentRequest) String() string {
 func (*CreateCommentRequest) ProtoMessage() {}
 
 func (x *CreateCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[20]
+	mi := &file_app_v1_comment_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1657,7 +1807,7 @@ func (x *CreateCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCommentRequest.ProtoReflect.Descriptor instead.
 func (*CreateCommentRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{20}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CreateCommentRequest) GetOrderId() int64 {
@@ -1735,7 +1885,7 @@ type CreateCommentResponse struct {
 
 func (x *CreateCommentResponse) Reset() {
 	*x = CreateCommentResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[21]
+	mi := &file_app_v1_comment_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1747,7 +1897,7 @@ func (x *CreateCommentResponse) String() string {
 func (*CreateCommentResponse) ProtoMessage() {}
 
 func (x *CreateCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[21]
+	mi := &file_app_v1_comment_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1760,7 +1910,7 @@ func (x *CreateCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCommentResponse.ProtoReflect.Descriptor instead.
 func (*CreateCommentResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{21}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *CreateCommentResponse) GetCommentId() int64 {
@@ -1795,7 +1945,7 @@ type PageMyCommentRequest struct {
 
 func (x *PageMyCommentRequest) Reset() {
 	*x = PageMyCommentRequest{}
-	mi := &file_app_v1_comment_proto_msgTypes[22]
+	mi := &file_app_v1_comment_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1807,7 +1957,7 @@ func (x *PageMyCommentRequest) String() string {
 func (*PageMyCommentRequest) ProtoMessage() {}
 
 func (x *PageMyCommentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[22]
+	mi := &file_app_v1_comment_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1820,7 +1970,7 @@ func (x *PageMyCommentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageMyCommentRequest.ProtoReflect.Descriptor instead.
 func (*PageMyCommentRequest) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{22}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *PageMyCommentRequest) GetPageNum() int64 {
@@ -1851,7 +2001,7 @@ type PageMyCommentResponse struct {
 
 func (x *PageMyCommentResponse) Reset() {
 	*x = PageMyCommentResponse{}
-	mi := &file_app_v1_comment_proto_msgTypes[23]
+	mi := &file_app_v1_comment_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1863,7 +2013,7 @@ func (x *PageMyCommentResponse) String() string {
 func (*PageMyCommentResponse) ProtoMessage() {}
 
 func (x *PageMyCommentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_app_v1_comment_proto_msgTypes[23]
+	mi := &file_app_v1_comment_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1876,7 +2026,7 @@ func (x *PageMyCommentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageMyCommentResponse.ProtoReflect.Descriptor instead.
 func (*PageMyCommentResponse) Descriptor() ([]byte, []int) {
-	return file_app_v1_comment_proto_rawDescGZIP(), []int{23}
+	return file_app_v1_comment_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *PageMyCommentResponse) GetComments() []*CommentItem {
@@ -1934,7 +2084,11 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"filterType\x12G\n" +
 	"\x06tag_id\x18\x02 \x01(\x03B0\xbaG-\x92\x02*内容标签ID，系统筛选项固定为0R\x05tagId\x12(\n" +
 	"\x05label\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f展示名称R\x05label\x121\n" +
-	"\x05value\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15展示值，可为空R\x05value\"\x9a\t\n" +
+	"\x05value\x18\x04 \x01(\tB\x1b\xbaG\x18\x92\x02\x15展示值，可为空R\x05value\"\xa0\x01\n" +
+	"\x0eCommentTagItem\x12+\n" +
+	"\x06tag_id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e内容标签IDR\x05tagId\x12(\n" +
+	"\x05label\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f展示名称R\x05label\x127\n" +
+	"\rmention_count\x18\x03 \x01(\x05B\x12\xbaG\x0f\x92\x02\f提及次数R\fmentionCount\"\x9a\t\n" +
 	"\vCommentItem\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b评价IDR\x02id\x12)\n" +
 	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x127\n" +
@@ -1992,7 +2146,7 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"\x04desc\x18\a \x01(\tB!\xbaG\x1e\x92\x02\x1b待评价卡片提示文案R\x04desc\"\x93\x01\n" +
 	"\x1bGoodsCommentOverviewRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12I\n" +
-	"\rpreview_limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00@\x92\x02\x12评价预览数量R\fpreviewLimit\"\xe8\x03\n" +
+	"\rpreview_limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\x00@\x92\x02\x12评价预览数量R\fpreviewLimit\"\x8a\x03\n" +
 	"\x1cGoodsCommentOverviewResponse\x123\n" +
 	"\vtotal_count\x18\x01 \x01(\x05B\x12\xbaG\x0f\x92\x02\f评价总数R\n" +
 	"totalCount\x12<\n" +
@@ -2000,9 +2154,13 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"recentDays\x12O\n" +
 	"\x10recent_good_rate\x18\x03 \x01(\x05B%\xbaG\"\x92\x02\x1f近N天好评率百分比整数R\x0erecentGoodRate\x12L\n" +
 	"\n" +
-	"ai_summary\x18\x04 \x01(\v2\x11.app.v1.CommentAiB\x1a\xbaG\x17\x92\x02\x14商品详情AI摘要R\taiSummary\x12\\\n" +
-	"\x0fcomment_filters\x18\x05 \x03(\v2\x19.app.v1.CommentFilterItemB\x18\xbaG\x15\x92\x02\x12高频标签列表R\x0ecommentFilters\x12X\n" +
-	"\x10preview_comments\x18\x06 \x03(\v2\x13.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\xef\x04\n" +
+	"ai_summary\x18\x04 \x01(\v2\x11.app.v1.CommentAiB\x1a\xbaG\x17\x92\x02\x14商品详情AI摘要R\taiSummary\x12X\n" +
+	"\x10preview_comments\x18\x06 \x03(\v2\x13.app.v1.CommentItemB\x18\xbaG\x15\x92\x02\x12评价预览列表R\x0fpreviewComments\"\x80\x01\n" +
+	"\x17GoodsCommentTagsRequest\x12)\n" +
+	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12:\n" +
+	"\x05limit\x18\x02 \x01(\x05B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x004@\x92\x02\x12标签展示数量R\x05limit\"o\n" +
+	"\x18GoodsCommentTagsResponse\x12S\n" +
+	"\fcomment_tags\x18\x01 \x03(\v2\x16.app.v1.CommentTagItemB\x18\xbaG\x15\x92\x02\x12评价标签列表R\vcommentTags\"\xef\x04\n" +
 	"\x17PageGoodsCommentRequest\x12)\n" +
 	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12K\n" +
 	"\bsku_code\x18\x02 \x01(\tB0\xbaG-\x92\x02*SKU编码，仅当前商品筛选时使用R\askuCode\x12h\n" +
@@ -2092,9 +2250,11 @@ const file_app_v1_comment_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\x12-\n" +
 	"\bpage_num\x18\x03 \x01(\x03B\x12\xbaG\x0f\x92\x02\f当前页码R\apageNum\x12/\n" +
 	"\tpage_size\x18\x04 \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSize\x126\n" +
-	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore2\xd3\t\n" +
+	"\bhas_more\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否还有下一页R\ahasMore2\xde\n" +
+	"\n" +
 	"\x0eCommentService\x12\x98\x01\n" +
-	"\x14GoodsCommentOverview\x12#.app.v1.GoodsCommentOverviewRequest\x1a$.app.v1.GoodsCommentOverviewResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/app/comment/goods/{goods_id}/overview\x12\x83\x01\n" +
+	"\x14GoodsCommentOverview\x12#.app.v1.GoodsCommentOverviewRequest\x1a$.app.v1.GoodsCommentOverviewResponse\"5\x82\xd3\xe4\x93\x02/\x12-/api/v1/app/comment/goods/{goods_id}/overview\x12\x88\x01\n" +
+	"\x10GoodsCommentTags\x12\x1f.app.v1.GoodsCommentTagsRequest\x1a .app.v1.GoodsCommentTagsResponse\"1\x82\xd3\xe4\x93\x02+\x12)/api/v1/app/comment/goods/{goods_id}/tags\x12\x83\x01\n" +
 	"\x10PageGoodsComment\x12\x1f.app.v1.PageGoodsCommentRequest\x1a .app.v1.PageGoodsCommentResponse\",\x82\xd3\xe4\x93\x02&\x12$/api/v1/app/comment/goods/{goods_id}\x12\x99\x01\n" +
 	"\x15PageCommentDiscussion\x12$.app.v1.PageCommentDiscussionRequest\x1a%.app.v1.PageCommentDiscussionResponse\"3\x82\xd3\xe4\x93\x02-\x12+/api/v1/app/comment/{comment_id}/discussion\x12\xa2\x01\n" +
 	"\x17CreateCommentDiscussion\x12&.app.v1.CreateCommentDiscussionRequest\x1a'.app.v1.CreateCommentDiscussionResponse\"6\x82\xd3\xe4\x93\x020:\x01*\"+/api/v1/app/comment/{comment_id}/discussion\x12\x87\x01\n" +
@@ -2118,86 +2278,91 @@ func file_app_v1_comment_proto_rawDescGZIP() []byte {
 	return file_app_v1_comment_proto_rawDescData
 }
 
-var file_app_v1_comment_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_app_v1_comment_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_app_v1_comment_proto_goTypes = []any{
 	(*DeleteCommentRequest)(nil),            // 0: app.v1.DeleteCommentRequest
 	(*CommentTextSegment)(nil),              // 1: app.v1.CommentTextSegment
 	(*CommentUserView)(nil),                 // 2: app.v1.CommentUserView
 	(*CommentFilterItem)(nil),               // 3: app.v1.CommentFilterItem
-	(*CommentItem)(nil),                     // 4: app.v1.CommentItem
-	(*CommentAi)(nil),                       // 5: app.v1.CommentAi
-	(*CommentDiscussionItem)(nil),           // 6: app.v1.CommentDiscussionItem
-	(*PendingCommentGoodsItem)(nil),         // 7: app.v1.PendingCommentGoodsItem
-	(*GoodsCommentOverviewRequest)(nil),     // 8: app.v1.GoodsCommentOverviewRequest
-	(*GoodsCommentOverviewResponse)(nil),    // 9: app.v1.GoodsCommentOverviewResponse
-	(*PageGoodsCommentRequest)(nil),         // 10: app.v1.PageGoodsCommentRequest
-	(*PageGoodsCommentResponse)(nil),        // 11: app.v1.PageGoodsCommentResponse
-	(*PageCommentDiscussionRequest)(nil),    // 12: app.v1.PageCommentDiscussionRequest
-	(*PageCommentDiscussionResponse)(nil),   // 13: app.v1.PageCommentDiscussionResponse
-	(*CreateCommentDiscussionRequest)(nil),  // 14: app.v1.CreateCommentDiscussionRequest
-	(*CreateCommentDiscussionResponse)(nil), // 15: app.v1.CreateCommentDiscussionResponse
-	(*SaveCommentReactionRequest)(nil),      // 16: app.v1.SaveCommentReactionRequest
-	(*SaveCommentReactionResponse)(nil),     // 17: app.v1.SaveCommentReactionResponse
-	(*PagePendingCommentGoodsRequest)(nil),  // 18: app.v1.PagePendingCommentGoodsRequest
-	(*PagePendingCommentGoodsResponse)(nil), // 19: app.v1.PagePendingCommentGoodsResponse
-	(*CreateCommentRequest)(nil),            // 20: app.v1.CreateCommentRequest
-	(*CreateCommentResponse)(nil),           // 21: app.v1.CreateCommentResponse
-	(*PageMyCommentRequest)(nil),            // 22: app.v1.PageMyCommentRequest
-	(*PageMyCommentResponse)(nil),           // 23: app.v1.PageMyCommentResponse
-	(v1.CommentFilterType)(0),               // 24: common.v1.CommentFilterType
-	(v1.CommentStatus)(0),                   // 25: common.v1.CommentStatus
-	(v1.CommentReactionType)(0),             // 26: common.v1.CommentReactionType
-	(*v1.CommentAiContentItem)(nil),         // 27: common.v1.CommentAiContentItem
-	(v1.CommentSortType)(0),                 // 28: common.v1.CommentSortType
-	(v1.CommentReactionTargetType)(0),       // 29: common.v1.CommentReactionTargetType
-	(*emptypb.Empty)(nil),                   // 30: google.protobuf.Empty
+	(*CommentTagItem)(nil),                  // 4: app.v1.CommentTagItem
+	(*CommentItem)(nil),                     // 5: app.v1.CommentItem
+	(*CommentAi)(nil),                       // 6: app.v1.CommentAi
+	(*CommentDiscussionItem)(nil),           // 7: app.v1.CommentDiscussionItem
+	(*PendingCommentGoodsItem)(nil),         // 8: app.v1.PendingCommentGoodsItem
+	(*GoodsCommentOverviewRequest)(nil),     // 9: app.v1.GoodsCommentOverviewRequest
+	(*GoodsCommentOverviewResponse)(nil),    // 10: app.v1.GoodsCommentOverviewResponse
+	(*GoodsCommentTagsRequest)(nil),         // 11: app.v1.GoodsCommentTagsRequest
+	(*GoodsCommentTagsResponse)(nil),        // 12: app.v1.GoodsCommentTagsResponse
+	(*PageGoodsCommentRequest)(nil),         // 13: app.v1.PageGoodsCommentRequest
+	(*PageGoodsCommentResponse)(nil),        // 14: app.v1.PageGoodsCommentResponse
+	(*PageCommentDiscussionRequest)(nil),    // 15: app.v1.PageCommentDiscussionRequest
+	(*PageCommentDiscussionResponse)(nil),   // 16: app.v1.PageCommentDiscussionResponse
+	(*CreateCommentDiscussionRequest)(nil),  // 17: app.v1.CreateCommentDiscussionRequest
+	(*CreateCommentDiscussionResponse)(nil), // 18: app.v1.CreateCommentDiscussionResponse
+	(*SaveCommentReactionRequest)(nil),      // 19: app.v1.SaveCommentReactionRequest
+	(*SaveCommentReactionResponse)(nil),     // 20: app.v1.SaveCommentReactionResponse
+	(*PagePendingCommentGoodsRequest)(nil),  // 21: app.v1.PagePendingCommentGoodsRequest
+	(*PagePendingCommentGoodsResponse)(nil), // 22: app.v1.PagePendingCommentGoodsResponse
+	(*CreateCommentRequest)(nil),            // 23: app.v1.CreateCommentRequest
+	(*CreateCommentResponse)(nil),           // 24: app.v1.CreateCommentResponse
+	(*PageMyCommentRequest)(nil),            // 25: app.v1.PageMyCommentRequest
+	(*PageMyCommentResponse)(nil),           // 26: app.v1.PageMyCommentResponse
+	(v1.CommentFilterType)(0),               // 27: common.v1.CommentFilterType
+	(v1.CommentStatus)(0),                   // 28: common.v1.CommentStatus
+	(v1.CommentReactionType)(0),             // 29: common.v1.CommentReactionType
+	(*v1.CommentAiContentItem)(nil),         // 30: common.v1.CommentAiContentItem
+	(v1.CommentSortType)(0),                 // 31: common.v1.CommentSortType
+	(v1.CommentReactionTargetType)(0),       // 32: common.v1.CommentReactionTargetType
+	(*emptypb.Empty)(nil),                   // 33: google.protobuf.Empty
 }
 var file_app_v1_comment_proto_depIdxs = []int32{
-	24, // 0: app.v1.CommentFilterItem.filter_type:type_name -> common.v1.CommentFilterType
+	27, // 0: app.v1.CommentFilterItem.filter_type:type_name -> common.v1.CommentFilterType
 	2,  // 1: app.v1.CommentItem.user:type_name -> app.v1.CommentUserView
 	1,  // 2: app.v1.CommentItem.content_segments:type_name -> app.v1.CommentTextSegment
-	25, // 3: app.v1.CommentItem.status:type_name -> common.v1.CommentStatus
-	26, // 4: app.v1.CommentItem.reaction_type:type_name -> common.v1.CommentReactionType
-	27, // 5: app.v1.CommentAi.content:type_name -> common.v1.CommentAiContentItem
-	26, // 6: app.v1.CommentAi.reaction_type:type_name -> common.v1.CommentReactionType
+	28, // 3: app.v1.CommentItem.status:type_name -> common.v1.CommentStatus
+	29, // 4: app.v1.CommentItem.reaction_type:type_name -> common.v1.CommentReactionType
+	30, // 5: app.v1.CommentAi.content:type_name -> common.v1.CommentAiContentItem
+	29, // 6: app.v1.CommentAi.reaction_type:type_name -> common.v1.CommentReactionType
 	2,  // 7: app.v1.CommentDiscussionItem.user:type_name -> app.v1.CommentUserView
-	26, // 8: app.v1.CommentDiscussionItem.reaction_type:type_name -> common.v1.CommentReactionType
-	5,  // 9: app.v1.GoodsCommentOverviewResponse.ai_summary:type_name -> app.v1.CommentAi
-	3,  // 10: app.v1.GoodsCommentOverviewResponse.comment_filters:type_name -> app.v1.CommentFilterItem
-	4,  // 11: app.v1.GoodsCommentOverviewResponse.preview_comments:type_name -> app.v1.CommentItem
-	24, // 12: app.v1.PageGoodsCommentRequest.filter_type:type_name -> common.v1.CommentFilterType
-	28, // 13: app.v1.PageGoodsCommentRequest.sort_type:type_name -> common.v1.CommentSortType
+	29, // 8: app.v1.CommentDiscussionItem.reaction_type:type_name -> common.v1.CommentReactionType
+	6,  // 9: app.v1.GoodsCommentOverviewResponse.ai_summary:type_name -> app.v1.CommentAi
+	5,  // 10: app.v1.GoodsCommentOverviewResponse.preview_comments:type_name -> app.v1.CommentItem
+	4,  // 11: app.v1.GoodsCommentTagsResponse.comment_tags:type_name -> app.v1.CommentTagItem
+	27, // 12: app.v1.PageGoodsCommentRequest.filter_type:type_name -> common.v1.CommentFilterType
+	31, // 13: app.v1.PageGoodsCommentRequest.sort_type:type_name -> common.v1.CommentSortType
 	3,  // 14: app.v1.PageGoodsCommentResponse.comment_filters:type_name -> app.v1.CommentFilterItem
-	5,  // 15: app.v1.PageGoodsCommentResponse.ai_summary:type_name -> app.v1.CommentAi
-	4,  // 16: app.v1.PageGoodsCommentResponse.comments:type_name -> app.v1.CommentItem
-	6,  // 17: app.v1.PageCommentDiscussionResponse.comment_discussions:type_name -> app.v1.CommentDiscussionItem
-	6,  // 18: app.v1.CreateCommentDiscussionResponse.item:type_name -> app.v1.CommentDiscussionItem
-	29, // 19: app.v1.SaveCommentReactionRequest.target_type:type_name -> common.v1.CommentReactionTargetType
-	26, // 20: app.v1.SaveCommentReactionRequest.reaction_type:type_name -> common.v1.CommentReactionType
-	29, // 21: app.v1.SaveCommentReactionResponse.target_type:type_name -> common.v1.CommentReactionTargetType
-	26, // 22: app.v1.SaveCommentReactionResponse.reaction_type:type_name -> common.v1.CommentReactionType
-	7,  // 23: app.v1.PagePendingCommentGoodsResponse.pending_comment_goods:type_name -> app.v1.PendingCommentGoodsItem
-	4,  // 24: app.v1.PageMyCommentResponse.comments:type_name -> app.v1.CommentItem
-	8,  // 25: app.v1.CommentService.GoodsCommentOverview:input_type -> app.v1.GoodsCommentOverviewRequest
-	10, // 26: app.v1.CommentService.PageGoodsComment:input_type -> app.v1.PageGoodsCommentRequest
-	12, // 27: app.v1.CommentService.PageCommentDiscussion:input_type -> app.v1.PageCommentDiscussionRequest
-	14, // 28: app.v1.CommentService.CreateCommentDiscussion:input_type -> app.v1.CreateCommentDiscussionRequest
-	16, // 29: app.v1.CommentService.SaveCommentReaction:input_type -> app.v1.SaveCommentReactionRequest
-	18, // 30: app.v1.CommentService.PagePendingCommentGoods:input_type -> app.v1.PagePendingCommentGoodsRequest
-	20, // 31: app.v1.CommentService.CreateComment:input_type -> app.v1.CreateCommentRequest
-	0,  // 32: app.v1.CommentService.DeleteComment:input_type -> app.v1.DeleteCommentRequest
-	22, // 33: app.v1.CommentService.PageMyComment:input_type -> app.v1.PageMyCommentRequest
-	9,  // 34: app.v1.CommentService.GoodsCommentOverview:output_type -> app.v1.GoodsCommentOverviewResponse
-	11, // 35: app.v1.CommentService.PageGoodsComment:output_type -> app.v1.PageGoodsCommentResponse
-	13, // 36: app.v1.CommentService.PageCommentDiscussion:output_type -> app.v1.PageCommentDiscussionResponse
-	15, // 37: app.v1.CommentService.CreateCommentDiscussion:output_type -> app.v1.CreateCommentDiscussionResponse
-	17, // 38: app.v1.CommentService.SaveCommentReaction:output_type -> app.v1.SaveCommentReactionResponse
-	19, // 39: app.v1.CommentService.PagePendingCommentGoods:output_type -> app.v1.PagePendingCommentGoodsResponse
-	21, // 40: app.v1.CommentService.CreateComment:output_type -> app.v1.CreateCommentResponse
-	30, // 41: app.v1.CommentService.DeleteComment:output_type -> google.protobuf.Empty
-	23, // 42: app.v1.CommentService.PageMyComment:output_type -> app.v1.PageMyCommentResponse
-	34, // [34:43] is the sub-list for method output_type
-	25, // [25:34] is the sub-list for method input_type
+	6,  // 15: app.v1.PageGoodsCommentResponse.ai_summary:type_name -> app.v1.CommentAi
+	5,  // 16: app.v1.PageGoodsCommentResponse.comments:type_name -> app.v1.CommentItem
+	7,  // 17: app.v1.PageCommentDiscussionResponse.comment_discussions:type_name -> app.v1.CommentDiscussionItem
+	7,  // 18: app.v1.CreateCommentDiscussionResponse.item:type_name -> app.v1.CommentDiscussionItem
+	32, // 19: app.v1.SaveCommentReactionRequest.target_type:type_name -> common.v1.CommentReactionTargetType
+	29, // 20: app.v1.SaveCommentReactionRequest.reaction_type:type_name -> common.v1.CommentReactionType
+	32, // 21: app.v1.SaveCommentReactionResponse.target_type:type_name -> common.v1.CommentReactionTargetType
+	29, // 22: app.v1.SaveCommentReactionResponse.reaction_type:type_name -> common.v1.CommentReactionType
+	8,  // 23: app.v1.PagePendingCommentGoodsResponse.pending_comment_goods:type_name -> app.v1.PendingCommentGoodsItem
+	5,  // 24: app.v1.PageMyCommentResponse.comments:type_name -> app.v1.CommentItem
+	9,  // 25: app.v1.CommentService.GoodsCommentOverview:input_type -> app.v1.GoodsCommentOverviewRequest
+	11, // 26: app.v1.CommentService.GoodsCommentTags:input_type -> app.v1.GoodsCommentTagsRequest
+	13, // 27: app.v1.CommentService.PageGoodsComment:input_type -> app.v1.PageGoodsCommentRequest
+	15, // 28: app.v1.CommentService.PageCommentDiscussion:input_type -> app.v1.PageCommentDiscussionRequest
+	17, // 29: app.v1.CommentService.CreateCommentDiscussion:input_type -> app.v1.CreateCommentDiscussionRequest
+	19, // 30: app.v1.CommentService.SaveCommentReaction:input_type -> app.v1.SaveCommentReactionRequest
+	21, // 31: app.v1.CommentService.PagePendingCommentGoods:input_type -> app.v1.PagePendingCommentGoodsRequest
+	23, // 32: app.v1.CommentService.CreateComment:input_type -> app.v1.CreateCommentRequest
+	0,  // 33: app.v1.CommentService.DeleteComment:input_type -> app.v1.DeleteCommentRequest
+	25, // 34: app.v1.CommentService.PageMyComment:input_type -> app.v1.PageMyCommentRequest
+	10, // 35: app.v1.CommentService.GoodsCommentOverview:output_type -> app.v1.GoodsCommentOverviewResponse
+	12, // 36: app.v1.CommentService.GoodsCommentTags:output_type -> app.v1.GoodsCommentTagsResponse
+	14, // 37: app.v1.CommentService.PageGoodsComment:output_type -> app.v1.PageGoodsCommentResponse
+	16, // 38: app.v1.CommentService.PageCommentDiscussion:output_type -> app.v1.PageCommentDiscussionResponse
+	18, // 39: app.v1.CommentService.CreateCommentDiscussion:output_type -> app.v1.CreateCommentDiscussionResponse
+	20, // 40: app.v1.CommentService.SaveCommentReaction:output_type -> app.v1.SaveCommentReactionResponse
+	22, // 41: app.v1.CommentService.PagePendingCommentGoods:output_type -> app.v1.PagePendingCommentGoodsResponse
+	24, // 42: app.v1.CommentService.CreateComment:output_type -> app.v1.CreateCommentResponse
+	33, // 43: app.v1.CommentService.DeleteComment:output_type -> google.protobuf.Empty
+	26, // 44: app.v1.CommentService.PageMyComment:output_type -> app.v1.PageMyCommentResponse
+	35, // [35:45] is the sub-list for method output_type
+	25, // [25:35] is the sub-list for method input_type
 	25, // [25:25] is the sub-list for extension type_name
 	25, // [25:25] is the sub-list for extension extendee
 	0,  // [0:25] is the sub-list for field type_name
@@ -2214,7 +2379,7 @@ func file_app_v1_comment_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_app_v1_comment_proto_rawDesc), len(file_app_v1_comment_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

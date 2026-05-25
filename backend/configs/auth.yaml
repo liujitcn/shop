@@ -30,6 +30,7 @@ authn:
       path:
       match:
         - "/app.v1.CommentService/GoodsCommentOverview"
+        - "/app.v1.CommentService/GoodsCommentTags"
         - "/app.v1.CommentService/PageGoodsComment"
         - "/app.v1.CommentService/PageCommentDiscussion"
         - "/app.v1.RecommendService/RecommendAnonymousActor"

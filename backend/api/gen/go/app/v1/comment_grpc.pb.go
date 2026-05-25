@@ -8,7 +8,6 @@ package appv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -22,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	CommentService_GoodsCommentOverview_FullMethodName    = "/app.v1.CommentService/GoodsCommentOverview"
+	CommentService_GoodsCommentTags_FullMethodName        = "/app.v1.CommentService/GoodsCommentTags"
 	CommentService_PageGoodsComment_FullMethodName        = "/app.v1.CommentService/PageGoodsComment"
 	CommentService_PageCommentDiscussion_FullMethodName   = "/app.v1.CommentService/PageCommentDiscussion"
 	CommentService_CreateCommentDiscussion_FullMethodName = "/app.v1.CommentService/CreateCommentDiscussion"
@@ -40,6 +40,8 @@ const (
 type CommentServiceClient interface {
 	// 查询商品评价摘要
 	GoodsCommentOverview(ctx context.Context, in *GoodsCommentOverviewRequest, opts ...grpc.CallOption) (*GoodsCommentOverviewResponse, error)
+	// 查询商品评价标签列表
+	GoodsCommentTags(ctx context.Context, in *GoodsCommentTagsRequest, opts ...grpc.CallOption) (*GoodsCommentTagsResponse, error)
 	// 查询商品评价分页列表
 	PageGoodsComment(ctx context.Context, in *PageGoodsCommentRequest, opts ...grpc.CallOption) (*PageGoodsCommentResponse, error)
 	// 查询评价讨论分页列表
@@ -70,6 +72,16 @@ func (c *commentServiceClient) GoodsCommentOverview(ctx context.Context, in *Goo
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GoodsCommentOverviewResponse)
 	err := c.cc.Invoke(ctx, CommentService_GoodsCommentOverview_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *commentServiceClient) GoodsCommentTags(ctx context.Context, in *GoodsCommentTagsRequest, opts ...grpc.CallOption) (*GoodsCommentTagsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GoodsCommentTagsResponse)
+	err := c.cc.Invoke(ctx, CommentService_GoodsCommentTags_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,6 +176,8 @@ func (c *commentServiceClient) PageMyComment(ctx context.Context, in *PageMyComm
 type CommentServiceServer interface {
 	// 查询商品评价摘要
 	GoodsCommentOverview(context.Context, *GoodsCommentOverviewRequest) (*GoodsCommentOverviewResponse, error)
+	// 查询商品评价标签列表
+	GoodsCommentTags(context.Context, *GoodsCommentTagsRequest) (*GoodsCommentTagsResponse, error)
 	// 查询商品评价分页列表
 	PageGoodsComment(context.Context, *PageGoodsCommentRequest) (*PageGoodsCommentResponse, error)
 	// 查询评价讨论分页列表
@@ -192,6 +206,9 @@ type UnimplementedCommentServiceServer struct{}
 
 func (UnimplementedCommentServiceServer) GoodsCommentOverview(context.Context, *GoodsCommentOverviewRequest) (*GoodsCommentOverviewResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GoodsCommentOverview not implemented")
+}
+func (UnimplementedCommentServiceServer) GoodsCommentTags(context.Context, *GoodsCommentTagsRequest) (*GoodsCommentTagsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GoodsCommentTags not implemented")
 }
 func (UnimplementedCommentServiceServer) PageGoodsComment(context.Context, *PageGoodsCommentRequest) (*PageGoodsCommentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PageGoodsComment not implemented")
@@ -252,6 +269,24 @@ func _CommentService_GoodsCommentOverview_Handler(srv interface{}, ctx context.C
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CommentServiceServer).GoodsCommentOverview(ctx, req.(*GoodsCommentOverviewRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CommentService_GoodsCommentTags_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GoodsCommentTagsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommentServiceServer).GoodsCommentTags(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CommentService_GoodsCommentTags_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommentServiceServer).GoodsCommentTags(ctx, req.(*GoodsCommentTagsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -410,6 +445,10 @@ var CommentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GoodsCommentOverview",
 			Handler:    _CommentService_GoodsCommentOverview_Handler,
+		},
+		{
+			MethodName: "GoodsCommentTags",
+			Handler:    _CommentService_GoodsCommentTags_Handler,
 		},
 		{
 			MethodName: "PageGoodsComment",

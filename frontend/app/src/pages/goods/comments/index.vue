@@ -6,6 +6,7 @@ import type {
   CommentAi,
   CommentFilterItem,
   CommentItem,
+  CommentTagItem,
   CommentTextSegment,
 } from '@/rpc/app/v1/comment'
 import {
@@ -52,17 +53,34 @@ const collapsedPinnedThreshold = 72
 const expandedPinnedThreshold = 220
 const collapsedReviewTextLength = 72
 const maxPreviewImageCount = 6
+const COMMENT_TAG_LIMIT = 20
 const ANONYMOUS_USER_NAME = '匿名用户'
 const isLoading = ref(false)
 const isLoadingMore = ref(false)
 const filterList = ref<CommentFilterItem[]>([])
+const commentTags = ref<CommentTagItem[]>([])
 const aiSummary = ref<CommentAi>()
 const buyerReviews = ref<CommentItem[]>([])
 const currentPageNum = ref(1)
 const hasMore = ref(false)
 
 const filters = computed<ReviewFilter[]>(() => {
-  return (filterList.value || []).map((item) => ({
+  const tagFilters = commentTags.value.map((item) => ({
+    filter_type: CommentFilterType.COMMENT_FILTER_TAG,
+    tag_id: item.tag_id,
+    label: item.label,
+    value: `${item.mention_count}`,
+  }))
+  const fixedFilters = filterList.value || []
+  const mediaFilterIndex = fixedFilters.findIndex(
+    (item) => item.filter_type === CommentFilterType.COMMENT_FILTER_MEDIA,
+  )
+  const insertIndex = mediaFilterIndex >= 0 ? mediaFilterIndex + 1 : fixedFilters.length
+  return [
+    ...fixedFilters.slice(0, insertIndex),
+    ...tagFilters,
+    ...fixedFilters.slice(insertIndex),
+  ].map((item) => ({
     ...item,
     key: `${item.filter_type}-${item.tag_id}`,
   }))
@@ -137,25 +155,33 @@ const loadCommentData = async (reset: boolean) => {
 
   const nextPageNum = reset ? 1 : currentPageNum.value + 1
   try {
-    const res = await defCommentService.PageGoodsComment({
-      goods_id: goodsId,
-      sku_code: props.sku_code || '',
-      filter_type: selectedFilter.value.filter_type,
-      tag_id: selectedFilter.value.tag_id,
-      current_goods_only: currentGoodsOnly.value,
-      sort_type: activeSort.value,
-      page_num: nextPageNum,
-      page_size: pageSize,
-    })
+    const [res, tagRes] = await Promise.all([
+      defCommentService.PageGoodsComment({
+        goods_id: goodsId,
+        sku_code: props.sku_code || '',
+        filter_type: selectedFilter.value.filter_type,
+        tag_id: selectedFilter.value.tag_id,
+        current_goods_only: currentGoodsOnly.value,
+        sort_type: activeSort.value,
+        page_num: nextPageNum,
+        page_size: pageSize,
+      }),
+      reset
+        ? defCommentService.GoodsCommentTags({
+            goods_id: goodsId,
+            limit: COMMENT_TAG_LIMIT,
+          })
+        : Promise.resolve({ comment_tags: commentTags.value }),
+    ])
 
     filterList.value = res.comment_filters || []
-    if (filterList.value.length) {
-      const hasCurrentFilter = filterList.value.some(
-        (item) => `${item.filter_type}-${item.tag_id}` === activeFilter.value,
-      )
+    if (reset) {
+      commentTags.value = tagRes.comment_tags || []
+    }
+    if (filters.value.length) {
+      const hasCurrentFilter = filters.value.some((item) => item.key === activeFilter.value)
       if (!hasCurrentFilter) {
-        const firstFilter = filterList.value[0]
-        activeFilter.value = `${firstFilter.filter_type}-${firstFilter.tag_id}`
+        activeFilter.value = filters.value[0].key
       }
     }
 
@@ -168,6 +194,7 @@ const loadCommentData = async (reset: boolean) => {
   } catch (_error) {
     if (reset) {
       filterList.value = []
+      commentTags.value = []
       aiSummary.value = undefined
       buyerReviews.value = []
       currentPageNum.value = 1

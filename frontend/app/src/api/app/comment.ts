@@ -4,6 +4,7 @@ import type {
   CommentDiscussionItem,
   CommentFilterItem,
   CommentItem,
+  CommentTagItem,
   CreateCommentDiscussionRequest,
   CreateCommentDiscussionResponse,
   CreateCommentRequest,
@@ -11,6 +12,8 @@ import type {
   DeleteCommentRequest,
   GoodsCommentOverviewRequest,
   GoodsCommentOverviewResponse,
+  GoodsCommentTagsRequest,
+  GoodsCommentTagsResponse,
   PageCommentDiscussionRequest,
   PageCommentDiscussionResponse,
   PageGoodsCommentRequest,
@@ -29,13 +32,19 @@ const COMMENT_URL = '/v1/app/comment'
 const COMMENT_GOODS_URL = `${COMMENT_URL}/goods`
 
 type GoodsCommentOverviewResponseCompat = GoodsCommentOverviewResponse & {
-  tagList: CommentFilterItem[]
   previewList: CommentItem[]
 }
 
 type GoodsCommentOverviewHTTPResponse = Partial<GoodsCommentOverviewResponse> & {
-  tagList?: CommentFilterItem[]
   previewList?: CommentItem[]
+}
+
+type GoodsCommentTagsResponseCompat = GoodsCommentTagsResponse & {
+  tagList: CommentTagItem[]
+}
+
+type GoodsCommentTagsHTTPResponse = Partial<GoodsCommentTagsResponse> & {
+  tagList?: CommentTagItem[]
 }
 
 type PageGoodsCommentResponseCompat = PageGoodsCommentResponse & {
@@ -83,19 +92,33 @@ export class CommentServiceImpl implements CommentService {
       method: 'GET',
       data: request,
     })
-    // 兼容未生成前的旧字段，同时向新协议的 commentFilters/previewComments 收敛。
-    const commentFilters = response.comment_filters ?? response.tagList ?? []
+    // 兼容未生成前的旧字段，同时向新协议的 previewComments 收敛。
     const previewComments = response.preview_comments ?? response.previewList ?? []
     return {
       ...response,
       ai_summary: response.ai_summary,
-      comment_filters: commentFilters,
       preview_comments: previewComments,
-      tagList: commentFilters,
       previewList: previewComments,
       total_count: response.total_count ?? 0,
       recent_days: response.recent_days ?? 0,
       recent_good_rate: response.recent_good_rate ?? 0,
+    }
+  }
+
+  /** 查询商品评价标签列表 */
+  async GoodsCommentTags(
+    request: GoodsCommentTagsRequest,
+  ): Promise<GoodsCommentTagsResponseCompat> {
+    const response = await http<GoodsCommentTagsHTTPResponse>({
+      url: `${COMMENT_GOODS_URL}/${request.goods_id}/tags`,
+      method: 'GET',
+      data: request,
+    })
+    const commentTags = response.comment_tags ?? response.tagList ?? []
+    return {
+      ...response,
+      comment_tags: commentTags,
+      tagList: commentTags,
     }
   }
 

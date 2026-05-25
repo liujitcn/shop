@@ -1,7 +1,7 @@
 <!-- 评论管理 -->
 <template>
   <div class="table-box comment-page">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestCommentTable" :init-param="commentInitParam">
+    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestCommentTable" :request-auto="false">
       <template #goods_name_snapshot="scope">
         <el-link v-if="BUTTONS['goods:info:detail']" type="primary" @click.stop="handleOpenGoodsDetail(scope.row)">
           {{ scope.row.goods_name_snapshot || "未命名商品" }}
@@ -110,9 +110,6 @@ const router = useRouter();
 /** 工作台跳转评论列表时支持同步的查询参数。 */
 const workspaceQueryKeys = ["status", "has_pending_discussion", "min_goods_score", "max_goods_score", "goods_score"] as const;
 
-/** 评论列表工作台过滤参数，作为 ProTable 首次渲染的初始搜索条件。 */
-const commentInitParam = computed(() => buildCommentQueryParam());
-
 const approveDialog = reactive<ApproveDialogState>({
   visible: false,
   loading: false,
@@ -188,34 +185,44 @@ function getRouteQueryValue(value: unknown) {
  */
 function parsePositiveNumberQuery(value: unknown) {
   const rawValue = getRouteQueryValue(value);
-  const numberValue = Number(rawValue ?? 0);
-  return numberValue > 0 ? numberValue : undefined;
+  if (rawValue === undefined || rawValue === null || rawValue === "") return undefined;
+  const numberValue = Number(rawValue);
+  return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : undefined;
 }
 
 /**
  * 从工作台跳转 query 构建评论列表过滤参数。
  */
 function buildCommentQueryParam() {
-  const numberParam = workspaceQueryKeys.reduce<Record<string, number | boolean | undefined>>((params, key) => {
-    params[key] = parsePositiveNumberQuery(route.query[key]);
-    return params;
-  }, {});
+  const params: Record<string, number | boolean> = {};
+  workspaceQueryKeys.forEach(key => {
+    const numberValue = parsePositiveNumberQuery(route.query[key]);
+    if (numberValue === undefined) return;
 
-  // 后端该字段是 bool，工作台用 1 表示只看存在待审核讨论的评价。
-  if (numberParam.has_pending_discussion !== undefined) {
-    numberParam.has_pending_discussion = Boolean(numberParam.has_pending_discussion);
-  }
+    // 后端该字段是 bool，工作台用 1 表示只看存在待审核讨论的评价。
+    params[key] = key === "has_pending_discussion" ? true : numberValue;
+  });
+  return params;
+}
 
-  return numberParam;
+/**
+ * 清理表格中的工作台查询字段，避免路由变化或手动清空搜索后沿用旧条件。
+ */
+function clearWorkspaceQueryParam(params: Record<string, unknown>) {
+  workspaceQueryKeys.forEach(key => {
+    delete params[key];
+  });
 }
 
 /**
  * 同步工作台 query 到 ProTable 搜索参数，保证初始化和路由变化都能触发表格过滤。
  */
 function syncWorkspaceQuery() {
-  const queryParam = buildCommentQueryParam();
   if (!proTable.value) return;
 
+  const queryParam = buildCommentQueryParam();
+  clearWorkspaceQueryParam(proTable.value.searchParam);
+  clearWorkspaceQueryParam(proTable.value.searchInitParam);
   Object.assign(proTable.value.searchParam, queryParam);
   Object.assign(proTable.value.searchInitParam, queryParam);
 }

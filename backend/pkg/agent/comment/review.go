@@ -73,13 +73,14 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	// 拒绝结果必须能解释给运营和用户看；模型只返回泛化原因时，再带着原始输入追问一次。
 	if reviewNeedsConcreteReason(result) {
 		retryParts := append([]any(nil), parts...)
-		retryParts = append(retryParts, "上一次审核结果缺少具体不通过原因。请重新审核：如果不通过，riskReason 必须说明违规类别、命中的文本片段或图片序号、具体判定依据，例如“图片1疑似色情低俗：出现裸露身体部位，不适合公开展示”。不要只写“内容安全风险”或“审核不通过”。")
+		retryParts = append(retryParts, "上一次审核结果缺少清晰结论或具体不通过原因。请重新审核：如果可以公开展示，approved 必须为 true，textRisk 和 imageRisk 必须为 false，riskReason 必须为空字符串；如果不通过，approved 必须为 false，riskReason 必须说明违规类别、命中的文本片段或图片序号、具体判定依据，例如“图片1疑似色情低俗：出现裸露身体部位，不适合公开展示”。不要只写“内容安全风险”或“审核不通过”。")
 		err = r.generateStructured(ctx, r.commentReviewInstruction, retryParts, schema, result)
 		if err != nil {
 			return nil, err
 		}
 		r.normalizeReviewResult(result)
 	}
+	completeMissingSafeReviewVerdict(result)
 	return result, nil
 }
 
@@ -106,6 +107,18 @@ func reviewNeedsConcreteReason(result *ReviewResult) bool {
 		return false
 	}
 	return !HasConcreteReviewReason(result.RiskReason)
+}
+
+// completeMissingSafeReviewVerdict 补全只返回标签但没有风险信号的审核结论。
+func completeMissingSafeReviewVerdict(result *ReviewResult) {
+	if result == nil || result.Approved || result.TextRisk || result.ImageRisk || result.RiskReason != "" || len(result.Tags) == 0 {
+		return
+	}
+	if result.approvedSet || result.textRiskSet || result.imageRiskSet {
+		return
+	}
+	// 部分兼容模型会只返回 tags 而遗漏 approved，已二次追问后仍无风险证据时按通过处理，避免正常评价被误记为审核异常。
+	result.Approved = true
 }
 
 // cleanReviewImageData 清理评论审核图片字节列表。

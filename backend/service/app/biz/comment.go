@@ -114,11 +114,6 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *appv1.Goods
 	if err != nil {
 		return nil, err
 	}
-	var tagList []*appv1.CommentFilterItem
-	tagList, err = c.commentTagCase.ListOverviewTags(ctx, req.GetGoodsId())
-	if err != nil {
-		return nil, err
-	}
 	var previewList []*appv1.CommentItem
 	previewList, err = c.commentInfoCase.listPreviewByRecordList(ctx, recordList, req.GetPreviewLimit(), userID)
 	if err != nil {
@@ -130,8 +125,23 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *appv1.Goods
 		RecentDays:      90,
 		RecentGoodRate:  summary.RecentGoodRate,
 		AiSummary:       aiSummary,
-		CommentFilters:  tagList,
 		PreviewComments: previewList,
+	}, nil
+}
+
+// GoodsCommentTags 查询商品评价标签列表。
+func (c *CommentCase) GoodsCommentTags(ctx context.Context, req *appv1.GoodsCommentTagsRequest) (*appv1.GoodsCommentTagsResponse, error) {
+	// 商品编号非法时，无法继续查询商品评价标签。
+	if req.GetGoodsId() <= 0 {
+		return nil, errorsx.InvalidArgument("商品编号不能为空")
+	}
+
+	commentTags, err := c.commentTagCase.ListTags(ctx, req.GetGoodsId(), req.GetLimit())
+	if err != nil {
+		return nil, err
+	}
+	return &appv1.GoodsCommentTagsResponse{
+		CommentTags: commentTags,
 	}, nil
 }
 
@@ -158,11 +168,6 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *appv1.PageGoods
 	if err != nil {
 		return nil, err
 	}
-	var tagList []*appv1.CommentFilterItem
-	tagList, err = c.commentTagCase.ListFilterTags(ctx, req.GetGoodsId())
-	if err != nil {
-		return nil, err
-	}
 	var aiSummary *appv1.CommentAi
 	aiSummary, err = c.commentAiCase.PageGoodsComment(ctx, req.GetGoodsId(), userID)
 	if err != nil {
@@ -175,7 +180,7 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *appv1.PageGoods
 		return nil, err
 	}
 
-	filterList := make([]*appv1.CommentFilterItem, 0, len(tagList)+5)
+	filterList := make([]*appv1.CommentFilterItem, 0, 5)
 	filterList = append(filterList, &appv1.CommentFilterItem{
 		FilterType: commonv1.CommentFilterType(_const.COMMENT_FILTER_TYPE_ALL),
 		TagId:      0,
@@ -188,7 +193,6 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *appv1.PageGoods
 		Label:      "有图",
 		Value:      strconv.FormatInt(int64(filterStats.MediaCount), 10),
 	})
-	filterList = append(filterList, tagList...)
 	filterList = append(filterList, &appv1.CommentFilterItem{
 		FilterType: commonv1.CommentFilterType(_const.COMMENT_FILTER_TYPE_GOOD),
 		TagId:      0,

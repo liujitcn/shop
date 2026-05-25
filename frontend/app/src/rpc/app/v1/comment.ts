@@ -53,6 +53,16 @@ export interface CommentFilterItem {
   value: string;
 }
 
+/** 评价标签项 */
+export interface CommentTagItem {
+  /** 内容标签ID */
+  tag_id: number;
+  /** 展示名称 */
+  label: string;
+  /** 提及次数 */
+  mention_count: number;
+}
+
 /** 评价展示项 */
 export interface CommentItem {
   /** 评价ID */
@@ -173,10 +183,22 @@ export interface GoodsCommentOverviewResponse {
   ai_summary:
     | CommentAi
     | undefined;
-  /** 高频标签列表 */
-  comment_filters: CommentFilterItem[];
   /** 评价预览列表 */
   preview_comments: CommentItem[];
+}
+
+/** 商品评价标签查询条件 */
+export interface GoodsCommentTagsRequest {
+  /** 商品ID */
+  goods_id: number;
+  /** 标签展示数量 */
+  limit: number;
+}
+
+/** 商品评价标签响应 */
+export interface GoodsCommentTagsResponse {
+  /** 评价标签列表 */
+  comment_tags: CommentTagItem[];
 }
 
 /** 商品评价分页查询条件 */
@@ -375,6 +397,8 @@ export interface PageMyCommentResponse {
 export interface CommentService {
   /** 查询商品评价摘要 */
   GoodsCommentOverview(request: GoodsCommentOverviewRequest): Promise<GoodsCommentOverviewResponse>;
+  /** 查询商品评价标签列表 */
+  GoodsCommentTags(request: GoodsCommentTagsRequest): Promise<GoodsCommentTagsResponse>;
   /** 查询商品评价分页列表 */
   PageGoodsComment(request: PageGoodsCommentRequest): Promise<PageGoodsCommentResponse>;
   /** 查询评价讨论分页列表 */

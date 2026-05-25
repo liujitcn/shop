@@ -38,6 +38,16 @@ func (s *CommentService) GoodsCommentOverview(ctx context.Context, req *appv1.Go
 	return res, nil
 }
 
+// GoodsCommentTags 查询商品评价标签列表。
+func (s *CommentService) GoodsCommentTags(ctx context.Context, req *appv1.GoodsCommentTagsRequest) (*appv1.GoodsCommentTagsResponse, error) {
+	res, err := s.commentCase.GoodsCommentTags(ctx, req)
+	if err != nil {
+		log.Errorf("GoodsCommentTags %v", err)
+		return nil, errorsx.WrapInternal(err, "查询商品评价标签失败")
+	}
+	return res, nil
+}
+
 // PageGoodsComment 查询商品评价分页列表。
 func (s *CommentService) PageGoodsComment(ctx context.Context, req *appv1.PageGoodsCommentRequest) (*appv1.PageGoodsCommentResponse, error) {
 	res, err := s.commentCase.PageGoodsComment(ctx, req)

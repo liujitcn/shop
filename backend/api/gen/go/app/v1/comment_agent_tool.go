@@ -8,7 +8,6 @@ package appv1
 
 import (
 	context "context"
-
 	tools "github.com/go-kratos/blades/tools"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -23,6 +22,12 @@ func NewCommentServiceAgentTools(commentServiceServer CommentServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, goodsCommentOverviewTool)
+	var goodsCommentTagsTool tools.Tool
+	goodsCommentTagsTool, err = NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, goodsCommentTagsTool)
 	var pageGoodsCommentTool tools.Tool
 	pageGoodsCommentTool, err = NewCommentServicePageGoodsCommentAgentTool(commentServiceServer)
 	if err != nil {
@@ -84,6 +89,20 @@ func NewCommentServiceGoodsCommentOverviewAgentTool(commentServiceServer Comment
 				req = &GoodsCommentOverviewRequest{}
 			}
 			return commentServiceServer.GoodsCommentOverview(ctx, req)
+		},
+	)
+}
+
+// NewCommentServiceGoodsCommentTagsAgentTool 创建查询商品评价标签列表的 Agent Tool。
+func NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"app_v1_comment_service_goods_comment_tags",
+		"查询商品评价标签列表",
+		func(ctx context.Context, req *GoodsCommentTagsRequest) (*GoodsCommentTagsResponse, error) {
+			if req == nil {
+				req = &GoodsCommentTagsRequest{}
+			}
+			return commentServiceServer.GoodsCommentTags(ctx, req)
 		},
 	)
 }

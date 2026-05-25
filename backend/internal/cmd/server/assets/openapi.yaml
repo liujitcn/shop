@@ -4372,6 +4372,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/GoodsCommentOverviewResponse'
+    /api/v1/app/comment/goods/{goodsId}/tags:
+        get:
+            tags:
+                - CommentService
+            description: 查询商品评价标签列表
+            operationId: CommentService_GoodsCommentTags
+            parameters:
+                - name: goodsId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: limit
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GoodsCommentTagsResponse'
     /api/v1/app/comment/my:
         get:
             tags:
@@ -7426,6 +7450,20 @@ components:
                     description: 展示排序
                     format: int32
             description: 评论标签
+        CommentTagItem:
+            type: object
+            properties:
+                tagId:
+                    type: string
+                    description: 内容标签ID
+                label:
+                    type: string
+                    description: 展示名称
+                mentionCount:
+                    type: integer
+                    description: 提及次数
+                    format: int32
+            description: 评价标签项
         CommentTextSegment:
             type: object
             properties:
@@ -8192,17 +8230,21 @@ components:
                     format: int32
                 aiSummary:
                     $ref: '#/components/schemas/CommentAi'
-                commentFilters:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/CommentFilterItem'
-                    description: 高频标签列表
                 previewComments:
                     type: array
                     items:
                         $ref: '#/components/schemas/CommentItem'
                     description: 评价预览列表
             description: 商品评价摘要响应
+        GoodsCommentTagsResponse:
+            type: object
+            properties:
+                commentTags:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CommentTagItem'
+                    description: 评价标签列表
+            description: 商品评价标签响应
         GoodsDayReportItem:
             type: object
             properties:

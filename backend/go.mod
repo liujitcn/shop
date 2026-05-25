@@ -27,7 +27,7 @@ require (
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.10
 	github.com/liujitcn/kratos-kit/cache v0.0.10
 	github.com/liujitcn/kratos-kit/captcha v0.0.6
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.20
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.21
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.8
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.8
 	github.com/liujitcn/kratos-kit/oss v0.0.9

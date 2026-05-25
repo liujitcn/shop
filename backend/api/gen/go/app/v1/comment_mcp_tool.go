@@ -8,7 +8,6 @@ package appv1
 
 import (
 	context "context"
-
 	mcp "github.com/modelcontextprotocol/go-sdk/mcp"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -16,6 +15,7 @@ import (
 // RegisterCommentServiceMCPTools 注册App评价服务的 MCP Tool。
 func RegisterCommentServiceMCPTools(mcpServer *mcp.Server, commentServiceServer CommentServiceServer) {
 	RegisterCommentServiceGoodsCommentOverviewMCPTool(mcpServer, commentServiceServer)
+	RegisterCommentServiceGoodsCommentTagsMCPTool(mcpServer, commentServiceServer)
 	RegisterCommentServicePageGoodsCommentMCPTool(mcpServer, commentServiceServer)
 	RegisterCommentServicePageCommentDiscussionMCPTool(mcpServer, commentServiceServer)
 	RegisterCommentServiceCreateCommentDiscussionMCPTool(mcpServer, commentServiceServer)
@@ -39,6 +39,27 @@ func RegisterCommentServiceGoodsCommentOverviewMCPTool(mcpServer *mcp.Server, co
 				input = &GoodsCommentOverviewRequest{}
 			}
 			reply, err := commentServiceServer.GoodsCommentOverview(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterCommentServiceGoodsCommentTagsMCPTool 注册查询商品评价标签列表的 MCP Tool。
+func RegisterCommentServiceGoodsCommentTagsMCPTool(mcpServer *mcp.Server, commentServiceServer CommentServiceServer) {
+	mcp.AddTool[*GoodsCommentTagsRequest, *GoodsCommentTagsResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "app_v1_comment_service_goods_comment_tags",
+			Description: "查询商品评价标签列表",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *GoodsCommentTagsRequest) (*mcp.CallToolResult, *GoodsCommentTagsResponse, error) {
+			if input == nil {
+				input = &GoodsCommentTagsRequest{}
+			}
+			reply, err := commentServiceServer.GoodsCommentTags(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

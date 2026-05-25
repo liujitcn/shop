@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { defCommentService } from '@/api/app/comment'
-import type { CommentFilterItem, CommentItem } from '@/rpc/app/v1/comment'
+import type { CommentItem, CommentTagItem } from '@/rpc/app/v1/comment'
 import { formatSrc } from '@/utils'
 import { goodsCommentListUrl } from '@/utils/navigation'
 import avatarImage from '@/static/images/avatar.png'
@@ -14,13 +14,14 @@ const props = defineProps<{
 }>()
 
 const ANONYMOUS_USER_NAME = '匿名用户'
+const COMMENT_TAG_LIMIT = 10
 const userStore = useUserStore()
 const isLoading = ref(false)
 const totalCount = ref(0)
 const recentDays = ref(90)
 const recentGoodRateText = ref('0%')
 const aiSummaryContent = ref('')
-const commentTags = ref<CommentFilterItem[]>([])
+const commentTags = ref<CommentTagItem[]>([])
 const previewList = ref<CommentItem[]>([])
 
 const hasCommentStats = computed(() => totalCount.value > 0)
@@ -72,8 +73,12 @@ const loadOverview = async () => {
     recentDays.value = res.recent_days || 90
     recentGoodRateText.value = `${res.recent_good_rate || 0}%`
     aiSummaryContent.value = res.ai_summary?.content?.[0]?.content || ''
-    commentTags.value = res.comment_filters || []
     previewList.value = res.preview_comments || []
+    const tagRes = await defCommentService.GoodsCommentTags({
+      goods_id: props.goods_id,
+      limit: COMMENT_TAG_LIMIT,
+    })
+    commentTags.value = tagRes.comment_tags || []
   } catch (_error) {
     resetOverview()
   } finally {
@@ -146,16 +151,19 @@ const onOpenCommentPage = () => {
       </view>
     </view>
 
-    <view v-if="hasCommentStats && commentTags.length" class="comment-tags">
-      <view
-        v-for="item in commentTags"
-        :key="`${item.filter_type}-${item.tag_id}`"
-        class="comment-tag"
-      >
-        <view class="comment-tag-name">{{ item.label }}</view>
-        <view class="comment-tag-count">{{ item.value }}</view>
+    <scroll-view
+      v-if="hasCommentStats && commentTags.length"
+      class="comment-tags"
+      scroll-x
+      :show-scrollbar="false"
+    >
+      <view class="comment-tags-row">
+        <view v-for="item in commentTags" :key="item.tag_id" class="comment-tag">
+          <view class="comment-tag-name">{{ item.label }}</view>
+          <view class="comment-tag-count">{{ item.mention_count }} 人说</view>
+        </view>
       </view>
-    </view>
+    </scroll-view>
 
     <view class="comment-list">
       <view v-if="isLoading" class="comment-tag-count">评价加载中...</view>
@@ -336,18 +344,25 @@ const onOpenCommentPage = () => {
 }
 
 .comment-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx 10rpx;
+  width: 100%;
   margin: 18rpx 0;
+  white-space: nowrap;
+}
+
+.comment-tags-row {
+  display: inline-flex;
+  gap: 10rpx;
+  min-width: 100%;
 }
 
 .comment-tag {
-  width: calc((100% - 30rpx) / 4);
+  width: 182rpx;
+  flex-shrink: 0;
   padding: 14rpx 4rpx;
   border-radius: 8rpx;
   text-align: center;
   background-color: #f7f7f8;
+  box-sizing: border-box;
 }
 
 .comment-tag-name {
