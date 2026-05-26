@@ -13,6 +13,7 @@ import (
 	"time"
 
 	adminv1 "shop/api/gen/go/admin/v1"
+	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
@@ -39,6 +40,18 @@ type TradeBill struct {
 	orderPaymentRepo *data.OrderPaymentRepository
 	orderRefundRepo  *data.OrderRefundRepository
 	ctx              context.Context
+}
+
+// tradeBillCheckResult 表示单类交易账单核对结果。
+type tradeBillCheckResult struct {
+	name           string
+	localCount     int64
+	thirdCount     int64
+	successCount   int
+	failedCount    int
+	unmatchedCount int
+	localAmount    int64
+	thirdAmount    int64
 }
 
 // NewTradeBill 创建交易账单任务实例
@@ -80,42 +93,40 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 
 	billDate := _time.TimeToDateString(*now)
 
-	ret := make([]string, 0)
+	ret := make([]string, 0, 2)
 	payment, err1 := t.payment(billDate, bill.BILL_TYPE_SUCCESS)
 	// 支付账单核对失败时，记录错误信息并继续处理退款账单。
 	if err1 != nil {
-		ret = append(ret, err1.Error())
+		ret = append(ret, "支付账单核对失败")
 	} else {
-		ret = append(ret, payment...)
+		ret = append(ret, payment.formatMessage())
 	}
 	refund, err2 := t.refund(billDate, bill.BILL_TYPE_REFUND)
 	// 退款账单核对失败时，记录错误信息供任务结果统一返回。
 	if err2 != nil {
-		ret = append(ret, err2.Error())
+		ret = append(ret, "退款账单核对失败")
 	} else {
-		ret = append(ret, refund...)
+		ret = append(ret, refund.formatMessage())
 	}
 	// 任一账单核对失败时，都需要把失败状态返回给任务调度器。
 	return ret, errors.Join(err1, err2)
 }
 
 // payment 核对支付账单
-func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
-	ret := make([]string, 0)
+func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, error) {
+	result := tradeBillCheckResult{name: "支付账单"}
 	payBill, err := t.downloadBill(billDate, billType)
 	// 账单下载失败时，当前账单类型无法继续核对。
 	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
+		return result, err
 	}
 	// 查询全部支付订单
-	paymentList := make([]*models.OrderPayment, 0)
+	var paymentList []*models.OrderPayment
 	var startTime, endTime time.Time
 	startTime, endTime, err = billDateRange(billDate)
 	// 账单日期解析失败时，直接终止本次支付账单核对。
 	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
+		return result, err
 	}
 	query := t.data.Query(t.ctx).OrderPayment
 	opts := make([]repository.QueryOption, 0, 2)
@@ -127,9 +138,9 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	)
 	// 本地支付记录查询失败时，无法继续执行账单比对。
 	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
+		return result, err
 	}
+	result.localCount = int64(len(paymentList))
 	// 转换map
 	paymentMap := make(map[string]*models.OrderPayment)
 	for _, payment := range paymentList {
@@ -141,12 +152,11 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	fileByte, err = t.oss.GetFileByte(payBill.FilePath)
 	// 账单文件读取失败时，无法继续校验与解析。
 	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
+		return result, err
 	}
 	err = t.checkHash(fileByte, payBill.HashValue)
 	if err != nil {
-		return nil, err
+		return result, err
 	}
 
 	reader := csv.NewReader(bytes.NewReader(fileByte))
@@ -185,16 +195,18 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 				orderPaymentAmount, parseErr := parseOrderPaymentAmount(v.Amount)
 				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
 				if parseErr != nil {
-					return ret, parseErr
+					return result, parseErr
 				}
 				// 支付金额和状态一致
 				if v.TradeState == record[9] && orderPaymentAmount.GetPayerTotal() == amount {
-					v.Status = 2
+					v.Status = _const.ORDER_BILL_STATUS_CHECK_SUCCESS
+					result.successCount++
 				} else {
-					v.Status = 3
+					v.Status = _const.ORDER_BILL_STATUS_CHECK_FAIL
+					result.failedCount++
 				}
 			} else {
-				ret = append(ret, fmt.Sprintf("%+v", record))
+				result.unmatchedCount++
 			}
 		default:
 			continue
@@ -225,165 +237,14 @@ func (t *TradeBill) payment(billDate, billType string) ([]string, error) {
 	})
 	// 对账结果事务提交失败时，直接返回错误供任务重试。
 	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
+		return result, err
 	}
 	workspaceevent.Publish(t.ctx, workspaceevent.ReasonPayBillChecked, workspaceevent.AreaRisk)
 
-	return ret, nil
-}
-
-// refund 核对退款账单
-func (t *TradeBill) refund(billDate, billType string) ([]string, error) {
-	ret := make([]string, 0)
-	payBill, err := t.downloadBill(billDate, billType)
-	// 账单下载失败时，当前账单类型无法继续核对。
-	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
-	}
-	// 查询全部退款订单
-	refundList := make([]*models.OrderRefund, 0)
-	var startTime, endTime time.Time
-	startTime, endTime, err = billDateRange(billDate)
-	// 账单日期解析失败时，直接终止本次退款账单核对。
-	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
-	}
-	query := t.data.Query(t.ctx).OrderRefund
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.SuccessTime.Gte(startTime)))
-	opts = append(opts, repository.Where(query.SuccessTime.Lt(endTime)))
-	refundList, err = t.orderRefundRepo.List(
-		t.ctx,
-		opts...,
-	)
-	// 本地退款记录查询失败时，无法继续执行账单比对。
-	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
-	}
-	// 转换map
-	refundMap := make(map[string]*models.OrderRefund)
-	for _, refund := range refundList {
-		refundMap[fmt.Sprintf("%s_%s_%s_%s", refund.OrderNo, refund.ThirdOrderNo, refund.RefundNo, refund.ThirdRefundNo)] = refund
-	}
-
-	// 获取对账单内容
-	var fileByte []byte
-	fileByte, err = t.oss.GetFileByte(payBill.FilePath)
-	// 账单文件读取失败时，无法继续校验与解析。
-	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
-	}
-	err = t.checkHash(fileByte, payBill.HashValue)
-	if err != nil {
-		return nil, err
-	}
-
-	reader := csv.NewReader(bytes.NewReader(fileByte))
-	reader.Comma = ','       // 设置分隔符
-	reader.LazyQuotes = true // 允许非常规引号
-
-	// 跳过标题行
-	_, _ = reader.Read()
-
-	for {
-		var record []string
-		record, err = reader.Read()
-		// 读到文件结尾时，结束当前账单解析循环。
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			continue
-		}
-
-		// 去除每个字段的反引号
-		for i := range record {
-			record[i] = strings.Trim(record[i], "`")
-		}
-		// 仅处理微信退款账单的标准列数记录。
-		switch len(record) {
-		case 29:
-			// 计算金额
-			amount := _string.ConvertYuanStringToFen(record[18])
-			payBill.ThirdTotalCount += 1
-			payBill.ThirdTotalAmount += amount
-			// 交易记录
-			key := fmt.Sprintf("%s_%s_%s_%s", record[6], record[5], record[17], record[16])
-			// 记录在数据库不存在，暂时记录日期，后续在做处理
-			if v, ok := refundMap[key]; ok {
-				orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
-				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
-				if parseErr != nil {
-					return ret, parseErr
-				}
-				// 支付金额和状态一致
-				if v.RefundState == record[21] && orderRefundAmount.GetPayerRefund() == amount {
-					v.Status = 2
-				} else {
-					v.Status = 3
-				}
-			} else {
-				ret = append(ret, fmt.Sprintf("%+v", record))
-			}
-		default:
-			continue
-		}
-	}
-	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
-		for _, v := range refundMap {
-			payBill.TotalCount += 1
-			orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
-			// 金额 JSON 解析失败时，终止当前事务，避免错误金额写入账单汇总。
-			if parseErr != nil {
-				return parseErr
-			}
-			payBill.TotalAmount += orderRefundAmount.GetPayerRefund()
-			err = t.orderRefundRepo.UpdateByID(ctx, v)
-			if err != nil {
-				return err
-			}
-		}
-
-		// 本地与三方统计完全一致时，标记本次退款账单核对成功。
-		if payBill.TotalCount == payBill.ThirdTotalCount && payBill.TotalAmount == payBill.ThirdTotalAmount {
-			payBill.Status = 1
-		} else {
-			payBill.Status = 2
-		}
-		return t.payBillRepo.UpdateByID(ctx, payBill)
-	})
-	// 对账结果事务提交失败时，直接返回错误供任务重试。
-	if err != nil {
-		ret = append(ret, err.Error())
-		return ret, err
-	}
-	workspaceevent.Publish(t.ctx, workspaceevent.ReasonPayBillChecked, workspaceevent.AreaRisk)
-	return ret, nil
-}
-
-// parseOrderPaymentAmount 解析支付金额 JSON。
-func parseOrderPaymentAmount(rawAmount string) (*adminv1.OrderPayment_Amount, error) {
-	var orderPaymentAmount adminv1.OrderPayment_Amount
-	err := json.Unmarshal([]byte(rawAmount), &orderPaymentAmount)
-	if err != nil {
-		return nil, errorsx.Internal("解析支付账单金额失败").WithCause(err)
-	}
-	return &orderPaymentAmount, nil
-}
-
-// parseOrderRefundAmount 解析退款金额 JSON。
-func parseOrderRefundAmount(rawAmount string) (*adminv1.OrderRefund_Amount, error) {
-	var orderRefundAmount adminv1.OrderRefund_Amount
-	err := json.Unmarshal([]byte(rawAmount), &orderRefundAmount)
-	if err != nil {
-		return nil, errorsx.Internal("解析退款账单金额失败").WithCause(err)
-	}
-	return &orderRefundAmount, nil
+	result.localAmount = payBill.TotalAmount
+	result.thirdAmount = payBill.ThirdTotalAmount
+	result.thirdCount = payBill.ThirdTotalCount
+	return result, nil
 }
 
 // downloadBill 下载并初始化对账单记录
@@ -476,4 +337,182 @@ func billDateRange(billDate string) (time.Time, time.Time, error) {
 		return time.Time{}, time.Time{}, err
 	}
 	return startTime, startTime.AddDate(0, 0, 1), nil
+}
+
+// parseOrderPaymentAmount 解析支付金额 JSON。
+func parseOrderPaymentAmount(rawAmount string) (*adminv1.OrderPayment_Amount, error) {
+	var orderPaymentAmount adminv1.OrderPayment_Amount
+	err := json.Unmarshal([]byte(rawAmount), &orderPaymentAmount)
+	if err != nil {
+		return nil, errorsx.Internal("解析支付账单金额失败").WithCause(err)
+	}
+	return &orderPaymentAmount, nil
+}
+
+// refund 核对退款账单
+func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, error) {
+	result := tradeBillCheckResult{name: "退款账单"}
+	payBill, err := t.downloadBill(billDate, billType)
+	// 账单下载失败时，当前账单类型无法继续核对。
+	if err != nil {
+		return result, err
+	}
+	// 查询全部退款订单
+	var refundList []*models.OrderRefund
+	var startTime, endTime time.Time
+	startTime, endTime, err = billDateRange(billDate)
+	// 账单日期解析失败时，直接终止本次退款账单核对。
+	if err != nil {
+		return result, err
+	}
+	query := t.data.Query(t.ctx).OrderRefund
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.SuccessTime.Gte(startTime)))
+	opts = append(opts, repository.Where(query.SuccessTime.Lt(endTime)))
+	refundList, err = t.orderRefundRepo.List(
+		t.ctx,
+		opts...,
+	)
+	// 本地退款记录查询失败时，无法继续执行账单比对。
+	if err != nil {
+		return result, err
+	}
+	result.localCount = int64(len(refundList))
+	// 转换map
+	refundMap := make(map[string]*models.OrderRefund)
+	for _, refund := range refundList {
+		refundMap[fmt.Sprintf("%s_%s_%s_%s", refund.OrderNo, refund.ThirdOrderNo, refund.RefundNo, refund.ThirdRefundNo)] = refund
+	}
+
+	// 获取对账单内容
+	var fileByte []byte
+	fileByte, err = t.oss.GetFileByte(payBill.FilePath)
+	// 账单文件读取失败时，无法继续校验与解析。
+	if err != nil {
+		return result, err
+	}
+	err = t.checkHash(fileByte, payBill.HashValue)
+	if err != nil {
+		return result, err
+	}
+
+	reader := csv.NewReader(bytes.NewReader(fileByte))
+	reader.Comma = ','       // 设置分隔符
+	reader.LazyQuotes = true // 允许非常规引号
+
+	// 跳过标题行
+	_, _ = reader.Read()
+
+	for {
+		var record []string
+		record, err = reader.Read()
+		// 读到文件结尾时，结束当前账单解析循环。
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			continue
+		}
+
+		// 去除每个字段的反引号
+		for i := range record {
+			record[i] = strings.Trim(record[i], "`")
+		}
+		// 仅处理微信退款账单的标准列数记录。
+		switch len(record) {
+		case 29:
+			// 计算金额
+			amount := _string.ConvertYuanStringToFen(record[18])
+			payBill.ThirdTotalCount += 1
+			payBill.ThirdTotalAmount += amount
+			// 交易记录
+			key := fmt.Sprintf("%s_%s_%s_%s", record[6], record[5], record[17], record[16])
+			// 记录在数据库不存在，暂时记录日期，后续在做处理
+			if v, ok := refundMap[key]; ok {
+				orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
+				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
+				if parseErr != nil {
+					return result, parseErr
+				}
+				// 支付金额和状态一致
+				if v.RefundState == record[21] && orderRefundAmount.GetPayerRefund() == amount {
+					v.Status = _const.ORDER_BILL_STATUS_CHECK_SUCCESS
+					result.successCount++
+				} else {
+					v.Status = _const.ORDER_BILL_STATUS_CHECK_FAIL
+					result.failedCount++
+				}
+			} else {
+				result.unmatchedCount++
+			}
+		default:
+			continue
+		}
+	}
+	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
+		for _, v := range refundMap {
+			payBill.TotalCount += 1
+			orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
+			// 金额 JSON 解析失败时，终止当前事务，避免错误金额写入账单汇总。
+			if parseErr != nil {
+				return parseErr
+			}
+			payBill.TotalAmount += orderRefundAmount.GetPayerRefund()
+			err = t.orderRefundRepo.UpdateByID(ctx, v)
+			if err != nil {
+				return err
+			}
+		}
+
+		// 本地与三方统计完全一致时，标记本次退款账单核对成功。
+		if payBill.TotalCount == payBill.ThirdTotalCount && payBill.TotalAmount == payBill.ThirdTotalAmount {
+			payBill.Status = 1
+		} else {
+			payBill.Status = 2
+		}
+		return t.payBillRepo.UpdateByID(ctx, payBill)
+	})
+	// 对账结果事务提交失败时，直接返回错误供任务重试。
+	if err != nil {
+		return result, err
+	}
+	workspaceevent.Publish(t.ctx, workspaceevent.ReasonPayBillChecked, workspaceevent.AreaRisk)
+	result.localAmount = payBill.TotalAmount
+	result.thirdAmount = payBill.ThirdTotalAmount
+	result.thirdCount = payBill.ThirdTotalCount
+	return result, nil
+}
+
+// formatMessage 格式化交易账单核对结果。
+func (r tradeBillCheckResult) formatMessage() string {
+	return fmt.Sprintf(
+		"%s核对完成: 本地 %d 条，三方 %d 条，匹配成功 %d 条，匹配失败 %d 条，三方未匹配 %d 条，本地金额 %d 分，三方金额 %d 分，结果 %s",
+		r.name,
+		r.localCount,
+		r.thirdCount,
+		r.successCount,
+		r.failedCount,
+		r.unmatchedCount,
+		r.localAmount,
+		r.thirdAmount,
+		r.resultName(),
+	)
+}
+
+// resultName 返回交易账单本轮核对结果名称。
+func (r tradeBillCheckResult) resultName() string {
+	if r.localCount == r.thirdCount && r.localAmount == r.thirdAmount && r.failedCount == 0 && r.unmatchedCount == 0 {
+		return "无误差"
+	}
+	return "有误差"
+}
+
+// parseOrderRefundAmount 解析退款金额 JSON。
+func parseOrderRefundAmount(rawAmount string) (*adminv1.OrderRefund_Amount, error) {
+	var orderRefundAmount adminv1.OrderRefund_Amount
+	err := json.Unmarshal([]byte(rawAmount), &orderRefundAmount)
+	if err != nil {
+		return nil, errorsx.Internal("解析退款账单金额失败").WithCause(err)
+	}
+	return &orderRefundAmount, nil
 }

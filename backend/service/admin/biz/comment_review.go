@@ -31,18 +31,6 @@ func NewCommentReviewCase(baseCase *biz.BaseCase, commentReviewRepo *data.Commen
 	}
 }
 
-// CreateReview 创建评论或讨论审核记录。
-func (c *CommentReviewCase) CreateReview(ctx context.Context, review *models.CommentReview) error {
-	// 审核记录为空时，无需写入。
-	if review == nil {
-		return nil
-	}
-	if review.Tags == "" {
-		review.Tags = _string.ConvertAnyToJsonString([]string{})
-	}
-	return c.Create(ctx, review)
-}
-
 // ListByTarget 查询指定评论或讨论的审核记录。
 func (c *CommentReviewCase) ListByTarget(ctx context.Context, targetType int32, targetID int64) ([]*adminv1.CommentReview, error) {
 	query := c.Query(ctx).CommentReview
@@ -60,4 +48,16 @@ func (c *CommentReviewCase) ListByTarget(ctx context.Context, targetType int32, 
 		list = append(list, c.reviewMapper.ToDTO(record))
 	}
 	return list, nil
+}
+
+// CreateReview 创建评论或讨论审核记录。
+func (c *CommentReviewCase) CreateReview(ctx context.Context, review *models.CommentReview) error {
+	// 审核记录为空时，无需写入。
+	if review == nil {
+		return nil
+	}
+	if review.Tags == "" {
+		review.Tags = _string.ConvertAnyToJsonString([]string{})
+	}
+	return c.Create(ctx, review)
 }

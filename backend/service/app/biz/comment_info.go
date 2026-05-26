@@ -55,41 +55,6 @@ func (c *CommentInfoCase) BuildOverviewSummary(ctx context.Context, goodsID int6
 	return c.buildOverviewSummary(recordList), nil
 }
 
-// buildOverviewSummary 基于已查询的评价记录构建摘要统计。
-func (c *CommentInfoCase) buildOverviewSummary(recordList []*models.CommentInfo) *appDto.CommentSummary {
-	totalCount := int32(len(recordList))
-	// 当前商品还没有可展示评价时，直接返回空摘要。
-	if totalCount == 0 {
-		return &appDto.CommentSummary{}
-	}
-
-	recentTime := time.Now().AddDate(0, 0, -90)
-	recentCount := int32(0)
-	recentGoodCount := int32(0)
-	for _, record := range recordList {
-		// 超出近 90 天窗口的评价不参与近期好评率统计。
-		if record.CreatedAt.Before(recentTime) {
-			continue
-		}
-		recentCount++
-		// 商品评分大于等于 4 时，计入近期好评数量。
-		if record.GoodsScore >= 4 {
-			recentGoodCount++
-		}
-	}
-	// 近 90 天没有评价时，仅返回总评价数。
-	if recentCount == 0 {
-		return &appDto.CommentSummary{
-			TotalCount: totalCount,
-		}
-	}
-
-	return &appDto.CommentSummary{
-		TotalCount:     totalCount,
-		RecentGoodRate: recentGoodCount * 100 / recentCount,
-	}
-}
-
 // BuildFilterStats 统计商品评价筛选项数量。
 func (c *CommentInfoCase) BuildFilterStats(ctx context.Context, goodsID int64) (*appDto.CommentFilterStats, error) {
 	recordList, err := c.listByGoodsID(ctx, goodsID)
@@ -127,31 +92,6 @@ func (c *CommentInfoCase) ListPreviewByGoodsID(ctx context.Context, goodsID int6
 		return nil, err
 	}
 	return c.listPreviewByRecordList(ctx, recordList, previewLimit, userID)
-}
-
-// listPreviewByRecordList 基于已查询的评价记录构建商品评价预览列表。
-func (c *CommentInfoCase) listPreviewByRecordList(ctx context.Context, recordList []*models.CommentInfo, previewLimit int32, userID int64) ([]*appv1.CommentItem, error) {
-	c.sortByDefault(recordList)
-
-	// 未传预览条数时，默认返回 2 条摘要预览。
-	if previewLimit <= 0 {
-		previewLimit = 2
-	}
-
-	pageList := make([]*models.CommentInfo, 0)
-	for index, record := range recordList {
-		// 已达到预览条数上限时，停止继续组装列表。
-		if int32(index) >= previewLimit {
-			break
-		}
-		pageList = append(pageList, record)
-	}
-
-	list, err := c.buildCommentItems(ctx, pageList, false, userID)
-	if err != nil {
-		return nil, err
-	}
-	return list, nil
 }
 
 // PageGoodsComment 查询商品评价分页列表。
@@ -452,45 +392,6 @@ func (c *CommentInfoCase) AreAllOrderGoodsCommented(ctx context.Context, userID 
 	return true, nil
 }
 
-// changeDiscussionCount 按审核状态调整评价讨论缓存数量。
-func (c *CommentInfoCase) changeDiscussionCount(ctx context.Context, commentID int64, status int32, delta int32) error {
-	if delta == 0 {
-		return nil
-	}
-	query := c.Query(ctx).CommentInfo
-	var update field.AssignExpr
-	conditions := []gen.Condition{query.ID.Eq(commentID)}
-	switch status {
-	case _const.COMMENT_STATUS_PENDING_REVIEW:
-		update = query.PendingDiscussionCount.Add(delta)
-		// 递减待审数量时，增加大于 0 条件避免缓存数量出现负数。
-		if delta < 0 {
-			conditions = append(conditions, query.PendingDiscussionCount.Gt(0))
-		}
-	case _const.COMMENT_STATUS_APPROVED:
-		update = query.DiscussionCount.Add(delta)
-		// 递减通过数量时，增加大于 0 条件避免缓存数量出现负数。
-		if delta < 0 {
-			conditions = append(conditions, query.DiscussionCount.Gt(0))
-		}
-	default:
-		return nil
-	}
-	_, err := query.WithContext(ctx).
-		Where(conditions...).
-		UpdateSimple(update)
-	return err
-}
-
-// listApprovedByGoodsID 查询商品下全部审核通过评价记录。
-func (c *CommentInfoCase) listApprovedByGoodsID(ctx context.Context, goodsID int64) ([]*models.CommentInfo, error) {
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
-	return c.List(ctx, opts...)
-}
-
 // listByGoodsID 查询商品下的全部可展示评价记录。
 func (c *CommentInfoCase) listByGoodsID(ctx context.Context, goodsID int64) ([]*models.CommentInfo, error) {
 	query := c.Query(ctx).CommentInfo
@@ -502,13 +403,64 @@ func (c *CommentInfoCase) listByGoodsID(ctx context.Context, goodsID int64) ([]*
 	return c.List(ctx, opts...)
 }
 
-// listByUserID 查询用户的全部评价记录。
-func (c *CommentInfoCase) listByUserID(ctx context.Context, userID int64) ([]*models.CommentInfo, error) {
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	opts = append(opts, repository.Where(query.Status.In(_const.COMMENT_STATUS_PENDING_REVIEW, _const.COMMENT_STATUS_APPROVED, _const.COMMENT_STATUS_REJECTED)))
-	return c.List(ctx, opts...)
+// buildOverviewSummary 基于已查询的评价记录构建摘要统计。
+func (c *CommentInfoCase) buildOverviewSummary(recordList []*models.CommentInfo) *appDto.CommentSummary {
+	totalCount := int32(len(recordList))
+	// 当前商品还没有可展示评价时，直接返回空摘要。
+	if totalCount == 0 {
+		return &appDto.CommentSummary{}
+	}
+
+	recentTime := time.Now().AddDate(0, 0, -90)
+	recentCount := int32(0)
+	recentGoodCount := int32(0)
+	for _, record := range recordList {
+		// 超出近 90 天窗口的评价不参与近期好评率统计。
+		if record.CreatedAt.Before(recentTime) {
+			continue
+		}
+		recentCount++
+		// 商品评分大于等于 4 时，计入近期好评数量。
+		if record.GoodsScore >= 4 {
+			recentGoodCount++
+		}
+	}
+	// 近 90 天没有评价时，仅返回总评价数。
+	if recentCount == 0 {
+		return &appDto.CommentSummary{
+			TotalCount: totalCount,
+		}
+	}
+
+	return &appDto.CommentSummary{
+		TotalCount:     totalCount,
+		RecentGoodRate: recentGoodCount * 100 / recentCount,
+	}
+}
+
+// listPreviewByRecordList 基于已查询的评价记录构建商品评价预览列表。
+func (c *CommentInfoCase) listPreviewByRecordList(ctx context.Context, recordList []*models.CommentInfo, previewLimit int32, userID int64) ([]*appv1.CommentItem, error) {
+	c.sortByDefault(recordList)
+
+	// 未传预览条数时，默认返回 2 条摘要预览。
+	if previewLimit <= 0 {
+		previewLimit = 2
+	}
+
+	pageList := make([]*models.CommentInfo, 0)
+	for index, record := range recordList {
+		// 已达到预览条数上限时，停止继续组装列表。
+		if int32(index) >= previewLimit {
+			break
+		}
+		pageList = append(pageList, record)
+	}
+
+	list, err := c.buildCommentItems(ctx, pageList, false, userID)
+	if err != nil {
+		return nil, err
+	}
+	return list, nil
 }
 
 // sortByDefault 按推荐排序对评价记录重新排序。
@@ -536,13 +488,6 @@ func (c *CommentInfoCase) sortByDefault(recordList []*models.CommentInfo) {
 		if leftScore != rightScore {
 			return leftScore > rightScore
 		}
-		return recordList[leftIndex].CreatedAt.After(recordList[rightIndex].CreatedAt)
-	})
-}
-
-// sortByLatest 按创建时间倒序排序评价记录。
-func (c *CommentInfoCase) sortByLatest(recordList []*models.CommentInfo) {
-	sort.SliceStable(recordList, func(leftIndex, rightIndex int) bool {
 		return recordList[leftIndex].CreatedAt.After(recordList[rightIndex].CreatedAt)
 	})
 }
@@ -698,6 +643,13 @@ func (c *CommentInfoCase) buildContentSegments(content string, highlightWords []
 	return result
 }
 
+// sortByLatest 按创建时间倒序排序评价记录。
+func (c *CommentInfoCase) sortByLatest(recordList []*models.CommentInfo) {
+	sort.SliceStable(recordList, func(leftIndex, rightIndex int) bool {
+		return recordList[leftIndex].CreatedAt.After(recordList[rightIndex].CreatedAt)
+	})
+}
+
 // paginateRecordList 按页码和页大小切分评价记录。
 func (c *CommentInfoCase) paginateRecordList(recordList []*models.CommentInfo, pageNum, pageSize int64) []*models.CommentInfo {
 	start := (pageNum - 1) * pageSize
@@ -711,4 +663,58 @@ func (c *CommentInfoCase) paginateRecordList(recordList []*models.CommentInfo, p
 		end = int64(len(recordList))
 	}
 	return append([]*models.CommentInfo(nil), recordList[start:end]...)
+}
+
+// listByUserID 查询用户的全部评价记录。
+func (c *CommentInfoCase) listByUserID(ctx context.Context, userID int64) ([]*models.CommentInfo, error) {
+	query := c.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.Status.In(_const.COMMENT_STATUS_PENDING_REVIEW, _const.COMMENT_STATUS_APPROVED, _const.COMMENT_STATUS_REJECTED)))
+	return c.List(ctx, opts...)
+}
+
+// changeDiscussionCount 按审核状态调整评价讨论缓存数量。
+func (c *CommentInfoCase) changeDiscussionCount(ctx context.Context, commentID int64, status int32, delta int32) error {
+	if delta == 0 {
+		return nil
+	}
+	query := c.Query(ctx).CommentInfo
+	var update field.AssignExpr
+	conditions := []gen.Condition{query.ID.Eq(commentID)}
+	switch status {
+	case _const.COMMENT_STATUS_PENDING_REVIEW:
+		update = query.PendingDiscussionCount.Add(delta)
+		// 递减待审数量时，增加大于 0 条件避免缓存数量出现负数。
+		if delta < 0 {
+			conditions = append(conditions, query.PendingDiscussionCount.Gt(0))
+		}
+	case _const.COMMENT_STATUS_APPROVED:
+		update = query.DiscussionCount.Add(delta)
+		// 递减通过数量时，增加大于 0 条件避免缓存数量出现负数。
+		if delta < 0 {
+			conditions = append(conditions, query.DiscussionCount.Gt(0))
+		}
+	default:
+		return nil
+	}
+	_, err := query.WithContext(ctx).
+		Where(conditions...).
+		UpdateSimple(update)
+	return err
+}
+
+// listSummarySourceByGoodsID 查询商品评价摘要生成所需的审核通过评价。
+func (c *CommentInfoCase) listSummarySourceByGoodsID(ctx context.Context, goodsID int64, limit int) ([]*models.CommentInfo, error) {
+	query := c.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
+	opts = append(opts, repository.Where(query.Content.Neq("")))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	// 摘要只需要最近一批有效评价，避免商品评价越多单次刷新越重。
+	if limit > 0 {
+		opts = append(opts, repository.Limit(limit))
+	}
+	return c.List(ctx, opts...)
 }

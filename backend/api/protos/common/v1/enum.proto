@@ -277,9 +277,9 @@ enum CommentReviewStatus {
   COMMENT_REVIEW_STATUS_EXCEPTION = 3; // 异常
 }
 
-// 评价AI摘要场景
-enum CommentAiScene {
-  UNKNOWN_CAS = 0; // 未知评价AI摘要场景
+// 评价摘要场景
+enum CommentSummaryScene {
+  COMMENT_SUMMARY_SCENE_UNSPECIFIED = 0; // 未知评价摘要场景
   OVERVIEW = 1; // 商品详情摘要
   LIST = 2; // 评价列表摘要
 }
@@ -289,7 +289,7 @@ enum CommentReactionTargetType {
   UNKNOWN_CRTT = 0; // 未知目标
   COMMENT = 1; // 评论
   DISCUSSION = 2; // 讨论
-  AI = 3; // AI摘要
+  SUMMARY = 3; // 评价摘要
 }
 
 // 评价互动类型

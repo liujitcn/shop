@@ -22,7 +22,7 @@ var ProviderSet = wire.NewSet(
 	biz.NewBaseRoleCase,
 	biz.NewBaseUserCase,
 	biz.NewCasbinRuleCase,
-	biz.NewCommentAiCase,
+	biz.NewCommentSummaryCase,
 	biz.NewCommentDiscussionCase,
 	biz.NewCommentReviewCase,
 	biz.NewCommentTagCase,

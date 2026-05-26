@@ -116,7 +116,6 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *appv1.JsapiPayRequest) (*ap
 		})
 	}
 
-	payTimeout := config.ParsePayTimeout()
 	var description = "小程序支付"
 	// 订单存在商品明细时，优先使用首个商品名作为支付描述。
 	if len(goodsDetail) > 0 {
@@ -127,7 +126,7 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *appv1.JsapiPayRequest) (*ap
 	jsapiPayResponse, err = c.wxPayCase.JsapiPay(jsapi.PrepayRequest{
 		Description: &description,
 		OutTradeNo:  &orderInfo.OrderNo,
-		TimeExpire:  new(orderInfo.CreatedAt.Add(payTimeout)),
+		TimeExpire:  trans.Time(orderInfo.CreatedAt.Add(config.ParsePayTimeout())),
 		Amount: &jsapi.Amount{
 			Total: &orderInfo.PayMoney,
 		},

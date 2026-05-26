@@ -26,17 +26,17 @@ func NormalizeAttachments(values []*basev1.AiAssistantAttachment) []*basev1.AiAs
 		if item == nil {
 			continue
 		}
-		name := strings.TrimSpace(item.GetName())
+		name := item.GetName()
 		// 前端或历史数据缺少文件名时，保留一份可读名称供模型提示词和页面展示使用。
 		if name == "" {
 			name = "未命名附件"
 		}
 		result = append(result, &basev1.AiAssistantAttachment{
-			Id:       strings.TrimSpace(item.GetId()),
+			Id:       item.GetId(),
 			Name:     name,
 			Size:     item.GetSize(),
-			Url:      strings.TrimSpace(item.GetUrl()),
-			MimeType: strings.TrimSpace(item.GetMimeType()),
+			Url:      item.GetUrl(),
+			MimeType: item.GetMimeType(),
 		})
 	}
 	return result
@@ -45,8 +45,8 @@ func NormalizeAttachments(values []*basev1.AiAssistantAttachment) []*basev1.AiAs
 // DetectAttachmentMIME 推断附件 MIME 类型。
 func DetectAttachmentMIME(fileName string, rawMIMEType string) string {
 	// 上传接口已提供 MIME 时优先使用原值，避免后缀推断覆盖浏览器识别结果。
-	if strings.TrimSpace(rawMIMEType) != "" {
-		return strings.TrimSpace(rawMIMEType)
+	if rawMIMEType != "" {
+		return rawMIMEType
 	}
 	// markdown 和日志文件在部分系统中无法通过标准库识别，这里明确按文本处理。
 	switch strings.ToLower(pathExt(fileName)) {
@@ -63,12 +63,12 @@ func ExtractAttachmentText(fileBytes []byte, mimeType string) string {
 	if len(fileBytes) == 0 {
 		return ""
 	}
-	cleanMIMEType := strings.ToLower(strings.TrimSpace(mimeType))
+	cleanMIMEType := strings.ToLower(mimeType)
 	// 当前只把文本类内容拼入提示词，二进制文档需要独立解析能力后再放开。
 	if !isTextAttachmentMIME(cleanMIMEType) {
 		return ""
 	}
-	text := strings.TrimSpace(string(bytes.TrimSpace(fileBytes)))
+	text := string(bytes.TrimSpace(fileBytes))
 	runes := []rune(text)
 	// 限制单个附件文本长度，避免长文件挤占主问题和历史上下文窗口。
 	if len(runes) > maxAttachmentTextLength {
@@ -100,7 +100,7 @@ func MarshalAttachments(attachments []*basev1.AiAssistantAttachment) string {
 // ParseAttachments 反序列化消息表中的附件 JSON。
 func ParseAttachments(raw string) []*basev1.AiAssistantAttachment {
 	// 历史消息可能没有附件字段，统一返回空数组方便前端渲染。
-	if strings.TrimSpace(raw) == "" {
+	if raw == "" {
 		return []*basev1.AiAssistantAttachment{}
 	}
 	values := make([]attachmentPayload, 0)
@@ -122,14 +122,6 @@ func ParseAttachments(raw string) []*basev1.AiAssistantAttachment {
 	return result
 }
 
-// isTextAttachmentMIME 判断附件 MIME 是否可以按文本方式读取。
-func isTextAttachmentMIME(mimeType string) bool {
-	return strings.HasPrefix(mimeType, "text/") ||
-		strings.Contains(mimeType, "json") ||
-		strings.Contains(mimeType, "xml") ||
-		strings.Contains(mimeType, "csv")
-}
-
 // pathExt 返回文件扩展名，文件名无扩展名时返回空字符串。
 func pathExt(name string) string {
 	index := strings.LastIndex(name, ".")
@@ -138,4 +130,12 @@ func pathExt(name string) string {
 		return ""
 	}
 	return name[index:]
+}
+
+// isTextAttachmentMIME 判断附件 MIME 是否可以按文本方式读取。
+func isTextAttachmentMIME(mimeType string) bool {
+	return strings.HasPrefix(mimeType, "text/") ||
+		strings.Contains(mimeType, "json") ||
+		strings.Contains(mimeType, "xml") ||
+		strings.Contains(mimeType, "csv")
 }

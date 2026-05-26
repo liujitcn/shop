@@ -184,19 +184,6 @@ func Server(_ log.Logger,
 	}
 }
 
-// normalizeLogField 将日志字段压缩成单行文本。
-func normalizeLogField(value string) string {
-	value = strings.TrimSpace(value)
-	// 空值字段统一输出占位符，避免控制台日志字段缺失。
-	if value == "" {
-		return "-"
-	}
-	value = strings.ReplaceAll(value, "\r\n", " ")
-	value = strings.ReplaceAll(value, "\n", " ")
-	value = strings.ReplaceAll(value, "\r", " ")
-	return strings.Join(strings.Fields(value), " ")
-}
-
 // extractArgs 提取请求体日志内容。
 func extractArgs(req interface{}) string {
 	requestBody, err := marshalRequestBody(req)
@@ -236,9 +223,21 @@ func marshalRequestBody(req interface{}) ([]byte, error) {
 
 // marshalFallbackText 将兜底文本包装成合法 JSON 字符串。
 func marshalFallbackText(text string) string {
-	textBytes, err := json.Marshal(strings.TrimSpace(text))
+	textBytes, err := json.Marshal(text)
 	if err != nil {
-		return strings.TrimSpace(text)
+		return text
 	}
 	return string(textBytes)
+}
+
+// normalizeLogField 将日志字段压缩成单行文本。
+func normalizeLogField(value string) string {
+	// 空值字段统一输出占位符，避免控制台日志字段缺失。
+	if value == "" {
+		return "-"
+	}
+	value = strings.ReplaceAll(value, "\r\n", " ")
+	value = strings.ReplaceAll(value, "\n", " ")
+	value = strings.ReplaceAll(value, "\r", " ")
+	return strings.Join(strings.Fields(value), " ")
 }

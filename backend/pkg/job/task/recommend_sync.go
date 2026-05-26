@@ -78,7 +78,7 @@ func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
 		return []string{err.Error()}, err
 	}
 
-	return []string{fmt.Sprintf("推荐系统主数据同步完成: 用户 %d 条，商品 %d 条，批次 %d 条", syncedUserCount, syncedGoodsCount, batchSize)}, nil
+	return []string{fmt.Sprintf("推荐系统主数据同步完成: 同步用户 %d 条，同步商品 %d 条", syncedUserCount, syncedGoodsCount)}, nil
 }
 
 // syncBaseUser 分批同步后台用户快照到推荐系统。
@@ -97,7 +97,7 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 		opts = append(opts, repository.Offset(offset))
 		opts = append(opts, repository.Limit(batchSize))
 
-		userList := make([]*models.BaseUser, batchSize)
+		var userList []*models.BaseUser
 		userList, err = t.baseUserRepo.List(t.ctx, opts...)
 		if err != nil {
 			return total, fmt.Errorf("查询推荐系统用户同步批次失败: %w", err)
@@ -124,6 +124,14 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 	return total, nil
 }
 
+// cloneIDSet 复制一份编号集合，避免后续清理候选和存在索引互相污染。
+func cloneIDSet(source _set.Set[string]) _set.Set[string] {
+	if source == nil {
+		return _set.NewThreadUnsafeSet[string]()
+	}
+	return source.Clone()
+}
+
 // syncGoodsInfo 分批同步商品快照到推荐系统。
 func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 	query := t.goodsInfoRepo.Query(t.ctx).GoodsInfo
@@ -140,7 +148,7 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 		opts = append(opts, repository.Offset(offset))
 		opts = append(opts, repository.Limit(batchSize))
 
-		goodsList := make([]*models.GoodsInfo, batchSize)
+		var goodsList []*models.GoodsInfo
 		goodsList, err = t.goodsInfoRepo.List(t.ctx, opts...)
 		if err != nil {
 			return total, fmt.Errorf("查询推荐系统商品同步批次失败: %w", err)
@@ -165,12 +173,4 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 		return total, fmt.Errorf("清理推荐系统冗余商品数据失败: %w", err)
 	}
 	return total, nil
-}
-
-// cloneIDSet 复制一份编号集合，避免后续清理候选和存在索引互相污染。
-func cloneIDSet(source _set.Set[string]) _set.Set[string] {
-	if source == nil {
-		return _set.NewThreadUnsafeSet[string]()
-	}
-	return source.Clone()
 }

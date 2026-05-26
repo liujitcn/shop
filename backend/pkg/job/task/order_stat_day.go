@@ -20,6 +20,12 @@ type orderStatDayKey struct {
 	payChannel int32
 }
 
+// orderStatDayResult 表示订单日汇总任务执行结果。
+type orderStatDayResult struct {
+	orderCount int
+	statCount  int
+}
+
 // OrderStatDay 订单日汇总任务。
 type OrderStatDay struct {
 	tx               data.Transaction
@@ -55,6 +61,7 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 	startAt := statDate
 	endAt := statDate.AddDate(0, 0, 1)
 
+	result := orderStatDayResult{}
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		query := t.orderStatDayRepo.Query(ctx).OrderStatDay
 		// 订单日统计表带软删字段，这里必须物理删除旧数据再回灌。
@@ -72,6 +79,7 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+		result.orderCount = len(orderInfoList)
 
 		statMap := make(map[orderStatDayKey]*models.OrderStatDay)
 		paidUserMap := make(map[orderStatDayKey]map[int64]struct{})
@@ -129,6 +137,7 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 		for _, item := range statMap {
 			list = append(list, item)
 		}
+		result.statCount = len(list)
 		// 没有统计结果时只保留清理动作，不再写入空数据。
 		if len(list) == 0 {
 			return nil
@@ -139,5 +148,5 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 		return []string{err.Error()}, err
 	}
 
-	return []string{fmt.Sprintf("订单日汇总完成: %s", statDate.Format("2006-01-02"))}, nil
+	return []string{fmt.Sprintf("订单日汇总完成: 查询订单 %d 条，写入统计 %d 条", result.orderCount, result.statCount)}, nil
 }

@@ -132,7 +132,7 @@ make gen
 
 - `session / state`：每个后台会话在服务端映射为独立的 Blades Session，当前终端、场景、用户名称、会话标题、摘要等状态会注入到 session state。
 - `chat-only`：AI 助手默认按通用纯聊天模式工作，不注册 MCP、业务工具或 Blades Memory 工具，任何主题都可以直接用模型能力回答。
-- `prompts`：AI 助手提示词来自商城配置 `prompt.ai_assistant`，并结合 session state 以模板形式渲染。
+- `prompts`：AI 助手标准提示词内置在代码中，并结合 session state 以模板形式渲染。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮用户消息与助手消息，避免占用工作台共用 `/events` 流。
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
@@ -191,7 +191,7 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核和摘要提示词在 `configs/configs_local.yaml` 的 `shop.prompt` 下。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手当前按纯聊天模式读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。实时问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `high`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手当前按纯聊天模式读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。实时问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `high`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
 `pkg/agent/provider` 中 Chat 模型使用 `github.com/go-kratos/blades/contrib/openai` 装配，AI 助手 Responses 模型使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 provider 装配。
 
@@ -203,9 +203,9 @@ shop:
 | [数据库与初始化数据设计](../docs/数据库与初始化数据设计.md) | 主业务库、推荐库、SQL 初始化、菜单和接口权限数据。 |
 | [订单数据流转设计](../docs/订单数据流转设计.md) | 下单、支付、取消、退款、发货、收货、评价和删除状态流转。 |
 | [推荐系统设计](../docs/推荐系统设计.md) | 推荐场景、Gorse 集成、本地兜底和后台管理能力。 |
-| [推荐数据流转设计](../docs/推荐数据流转设计.md) | 匿名主体、推荐请求、推荐事件、业务事实回写和同步任务。 |
+| [推荐数据流转设计](../docs/推荐数据流转设计.md) | 匿名 ID、推荐请求、推荐事件、业务事实回写和同步任务。 |
 | [统计数据流转设计](../docs/统计数据流转设计.md) | 订单日统计、商品日统计、交易账单和后台分析口径。 |
-| [评价与审核数据流转设计](../docs/评价与审核数据流转设计.md) | 评价、讨论、AI 摘要、审核和互动数据流转。 |
+| [评价与审核数据流转设计](../docs/评价与审核数据流转设计.md) | 评价、讨论、评价摘要、审核和互动数据流转。 |
 
 ## 校验
 

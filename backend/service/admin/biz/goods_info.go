@@ -76,7 +76,7 @@ func (c *GoodsInfoCase) OptionGoodsInfos(ctx context.Context, req *adminv1.Optio
 		return nil, err
 	}
 
-	categoryNames := make(map[int64]string)
+	var categoryNames map[int64]string
 	categoryNames, err = c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		if categoryErr != nil {
 			return nil, categoryErr
 		}
-		goodsIDList := make([]int64, 0)
+		var goodsIDList []int64
 		goodsIDList, categoryErr = c.findGoodsIDsByCategoryIDs(ctx, categoryIDList)
 		if categoryErr != nil {
 			return nil, categoryErr
@@ -153,7 +153,7 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		return nil, err
 	}
 
-	categoryNames := make(map[int64]string)
+	var categoryNames map[int64]string
 	categoryNames, err = c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
@@ -168,74 +168,6 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 	return &adminv1.PageGoodsInfosResponse{GoodsInfos: resList, Total: int32(total)}, nil
 }
 
-// findGoodsIDsByInventoryAlert 查询命中库存预警的商品标识。
-func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
-	// 非支持的库存预警类型不返回商品集合。
-	if inventoryAlert != GOODS_INVENTORY_ALERT_LOW && inventoryAlert != GOODS_INVENTORY_ALERT_ZERO {
-		return nil, nil
-	}
-
-	availableGoodsIDs, err := c.listNonDeletedGoodsIDs(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// 没有可用商品时，库存预警筛选直接返回空结果。
-	if len(availableGoodsIDs) == 0 {
-		return []int64{}, nil
-	}
-
-	query := c.goodsSKUCase.Query(ctx).GoodsSKU
-	dao := query.WithContext(ctx).
-		Where(
-			query.DeletedAt.IsNull(),
-			query.GoodsID.In(availableGoodsIDs...),
-		)
-	// 根据不同预警类型追加库存过滤条件。
-	if inventoryAlert == GOODS_INVENTORY_ALERT_LOW {
-		dao = dao.Where(
-			query.Inventory.Gt(0),
-			query.Inventory.Lte(LOW_INVENTORY_THRESHOLD),
-		)
-	} else {
-		dao = dao.Where(query.Inventory.Eq(0))
-	}
-
-	goodsIDList := make([]int64, 0)
-	err = dao.Distinct(query.GoodsID).Pluck(query.GoodsID, &goodsIDList)
-	return goodsIDList, err
-}
-
-// findGoodsIDsByAbnormalPrice 查询命中异常价格预警的商品标识。
-func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
-	availableGoodsIDs, err := c.listNonDeletedGoodsIDs(ctx)
-	if err != nil {
-		return nil, err
-	}
-	// 没有可用商品时，异常价格筛选直接返回空结果。
-	if len(availableGoodsIDs) == 0 {
-		return []int64{}, nil
-	}
-
-	goodsIDList := make([]int64, 0)
-	query := c.goodsSKUCase.Query(ctx).GoodsSKU
-	err = query.WithContext(ctx).
-		Where(
-			query.DeletedAt.IsNull(),
-			query.GoodsID.In(availableGoodsIDs...),
-			field.Or(
-				query.Price.Lte(0),
-				query.DiscountPrice.Lt(0),
-				field.And(
-					query.DiscountPrice.Gt(0),
-					query.DiscountPrice.GtCol(query.Price),
-				),
-			),
-		).
-		Distinct(query.GoodsID).
-		Pluck(query.GoodsID, &goodsIDList)
-	return goodsIDList, err
-}
-
 // GetGoodsInfo 获取商品
 func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*adminv1.GoodsInfoForm, error) {
 	goodsInfo, err := c.FindByID(ctx, id)
@@ -244,7 +176,7 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*adminv1.Go
 	}
 
 	goodsForm := c.formMapper.ToDTO(goodsInfo)
-	categoryNames := make(map[int64]string)
+	var categoryNames map[int64]string
 	categoryNames, err = c.getCategoryNameMap(ctx)
 	if err != nil {
 		return nil, err
@@ -401,101 +333,70 @@ func (c *GoodsInfoCase) GoodsSKUCaseList(ctx context.Context, goodsID int64) ([]
 	return c.goodsSKUCase.ListGoodsSKUsByGoodsID(ctx, goodsID)
 }
 
-// wrapGoodsInfoDuplicateConflict 把商品及其子表的唯一索引冲突转换成稳定业务错误。
-func (c *GoodsInfoCase) wrapGoodsInfoDuplicateConflict(err error) error {
-	// 非唯一索引冲突时，直接透传原始错误给上层统一处理。
-	if !errorsx.IsMySQLDuplicateKey(err) {
-		return err
+// getCategoryNameMap 查询分类名称映射
+func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
+	query := c.goodsCategoryCase.Query(ctx).GoodsCategory
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	categoryList, err := c.goodsCategoryCase.List(ctx, opts...)
+	if err != nil {
+		return nil, err
 	}
 
-	var mysqlErr *mysql.MySQLError
-	// 无法提取底层 MySQL 错误明细时，退化为通用唯一约束冲突。
-	if !errors.As(err, &mysqlErr) {
-		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
+	nameMap := make(map[int64]string, len(categoryList))
+	parentMap := make(map[int64]int64, len(categoryList))
+	for _, item := range categoryList {
+		nameMap[item.ID] = item.Name
+		parentMap[item.ID] = item.ParentID
 	}
 
-	// 根据唯一索引落在哪张子表上，返回对应的业务冲突错误。
-	switch {
-	case strings.Contains(mysqlErr.Message, models.TableNameGoodsProp):
-		return errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
-	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSKU):
-		return errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
-	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSpec):
-		return errorsx.UniqueConflict("商品规格重复", "goods_spec", "name", "unique_goods_spec").WithCause(err)
-	default:
-		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
+	res := make(map[int64]string, len(categoryList))
+	for id, name := range nameMap {
+		parentID := parentMap[id]
+		// 存在父分类时，优先拼接父子层级名称。
+		if parentID > 0 {
+			// 父分类名称存在时，返回完整的“父/子”展示名称。
+			if parentName, ok := nameMap[parentID]; ok {
+				res[id] = parentName + "/" + name
+				continue
+			}
+		}
+		res[id] = name
 	}
+	return res, nil
 }
 
-// deleteGoodsChildren 删除商品子表数据
-func (c *GoodsInfoCase) deleteGoodsChildren(ctx context.Context, ids []int64) error {
-	query := c.Query(ctx)
-	for _, goodsID := range ids {
-		// 商品编辑会按“删旧建新”重建子表数据，这里必须物理删除，否则唯一索引会与软删除数据冲突。
-		propQuery := query.GoodsProp
-		_, err := propQuery.WithContext(ctx).Unscoped().Where(propQuery.GoodsID.Eq(goodsID)).Delete()
-		if err != nil {
-			return err
-		}
+// buildCategoryNameText 构建商品分类展示文本。
+func (c *GoodsInfoCase) buildCategoryNameText(categoryIDs []int64, categoryNameMap map[int64]string) string {
+	// 商品没有配置分类时，直接返回空展示文本。
+	if len(categoryIDs) == 0 {
+		return ""
+	}
 
-		specQuery := query.GoodsSpec
-		_, err = specQuery.WithContext(ctx).Unscoped().Where(specQuery.GoodsID.Eq(goodsID)).Delete()
-		if err != nil {
-			return err
-		}
-
-		skuQuery := query.GoodsSKU
-		_, err = skuQuery.WithContext(ctx).Unscoped().Where(skuQuery.GoodsID.Eq(goodsID)).Delete()
-		if err != nil {
-			return err
+	nameList := make([]string, 0, len(categoryIDs))
+	for _, categoryID := range categoryIDs {
+		// 分类名称存在时，按商品配置顺序拼接展示文本。
+		if name, ok := categoryNameMap[categoryID]; ok && name != "" {
+			nameList = append(nameList, name)
 		}
 	}
-	return nil
+	return strings.Join(nameList, "、")
 }
 
-// batchCreateGoodsProp 批量创建商品属性
-func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsID int64, list []*adminv1.GoodsProp) error {
-	entities := make([]*models.GoodsProp, 0, len(list))
-	for _, item := range list {
-		entity := c.goodsPropCase.mapper.ToEntity(item)
-		// 商品属性明细为空时，保持旧逻辑的零值入库行为。
-		if entity == nil {
-			entity = &models.GoodsProp{}
-		}
-		entity.GoodsID = goodsID
-		entities = append(entities, entity)
+// parseCategoryIDs 解析商品分类编号列表。
+func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if rawCategoryIDs == "" {
+		return []int64{}
 	}
-	return c.goodsPropCase.BatchCreate(ctx, entities)
-}
 
-// batchCreateGoodsSpec 批量创建商品规格
-func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsID int64, list []*adminv1.GoodsSpec) error {
-	entities := make([]*models.GoodsSpec, 0, len(list))
-	for _, item := range list {
-		entity := c.goodsSpecCase.mapper.ToEntity(item)
-		// 商品规格明细为空时，保持旧逻辑的零值入库行为。
-		if entity == nil {
-			entity = &models.GoodsSpec{}
-		}
-		entity.GoodsID = goodsID
-		entities = append(entities, entity)
+	categoryIDs := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
+	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
+		return []int64{}
 	}
-	return c.goodsSpecCase.BatchCreate(ctx, entities)
-}
-
-// batchCreateGoodsSKU 批量创建商品规格项
-func (c *GoodsInfoCase) batchCreateGoodsSKU(ctx context.Context, goodsID int64, list []*adminv1.GoodsSku) error {
-	entities := make([]*models.GoodsSKU, 0, len(list))
-	for _, item := range list {
-		entity := c.goodsSKUCase.toGoodsSKUModel(item)
-		// 商品 SKU 明细为空时，保持旧逻辑的零值入库行为。
-		if entity == nil {
-			entity = &models.GoodsSKU{}
-		}
-		entity.GoodsID = goodsID
-		entities = append(entities, entity)
-	}
-	return c.goodsSKUCase.BatchCreate(ctx, entities)
+	return categoryIDs
 }
 
 // buildCategoryFilterIDs 构建分类筛选范围。
@@ -579,6 +480,43 @@ func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryI
 	return goodsIDList, nil
 }
 
+// findGoodsIDsByInventoryAlert 查询命中库存预警的商品标识。
+func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
+	// 非支持的库存预警类型不返回商品集合。
+	if inventoryAlert != GOODS_INVENTORY_ALERT_LOW && inventoryAlert != GOODS_INVENTORY_ALERT_ZERO {
+		return nil, nil
+	}
+
+	availableGoodsIDs, err := c.listNonDeletedGoodsIDs(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// 没有可用商品时，库存预警筛选直接返回空结果。
+	if len(availableGoodsIDs) == 0 {
+		return []int64{}, nil
+	}
+
+	query := c.goodsSKUCase.Query(ctx).GoodsSKU
+	dao := query.WithContext(ctx).
+		Where(
+			query.DeletedAt.IsNull(),
+			query.GoodsID.In(availableGoodsIDs...),
+		)
+	// 根据不同预警类型追加库存过滤条件。
+	if inventoryAlert == GOODS_INVENTORY_ALERT_LOW {
+		dao = dao.Where(
+			query.Inventory.Gt(0),
+			query.Inventory.Lte(LOW_INVENTORY_THRESHOLD),
+		)
+	} else {
+		dao = dao.Where(query.Inventory.Eq(0))
+	}
+
+	goodsIDList := make([]int64, 0)
+	err = dao.Distinct(query.GoodsID).Pluck(query.GoodsID, &goodsIDList)
+	return goodsIDList, err
+}
+
 // listNonDeletedGoodsIDs 查询未删除商品编号。
 func (c *GoodsInfoCase) listNonDeletedGoodsIDs(ctx context.Context) ([]int64, error) {
 	query := c.Query(ctx).GoodsInfo
@@ -589,68 +527,130 @@ func (c *GoodsInfoCase) listNonDeletedGoodsIDs(ctx context.Context) ([]int64, er
 	return goodsIDs, err
 }
 
-// parseCategoryIDs 解析商品分类编号列表。
-func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
-	// 分类字段为空时，直接返回空分类列表。
-	if strings.TrimSpace(rawCategoryIDs) == "" {
-		return []int64{}
-	}
-
-	categoryIDs := make([]int64, 0)
-	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
-	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
-		return []int64{}
-	}
-	return categoryIDs
-}
-
-// buildCategoryNameText 构建商品分类展示文本。
-func (c *GoodsInfoCase) buildCategoryNameText(categoryIDs []int64, categoryNameMap map[int64]string) string {
-	// 商品没有配置分类时，直接返回空展示文本。
-	if len(categoryIDs) == 0 {
-		return ""
-	}
-
-	nameList := make([]string, 0, len(categoryIDs))
-	for _, categoryID := range categoryIDs {
-		// 分类名称存在时，按商品配置顺序拼接展示文本。
-		if name, ok := categoryNameMap[categoryID]; ok && name != "" {
-			nameList = append(nameList, name)
-		}
-	}
-	return strings.Join(nameList, "、")
-}
-
-// getCategoryNameMap 查询分类名称映射
-func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
-	query := c.goodsCategoryCase.Query(ctx).GoodsCategory
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	categoryList, err := c.goodsCategoryCase.List(ctx, opts...)
+// findGoodsIDsByAbnormalPrice 查询命中异常价格预警的商品标识。
+func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int64, error) {
+	availableGoodsIDs, err := c.listNonDeletedGoodsIDs(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	nameMap := make(map[int64]string, len(categoryList))
-	parentMap := make(map[int64]int64, len(categoryList))
-	for _, item := range categoryList {
-		nameMap[item.ID] = item.Name
-		parentMap[item.ID] = item.ParentID
+	// 没有可用商品时，异常价格筛选直接返回空结果。
+	if len(availableGoodsIDs) == 0 {
+		return []int64{}, nil
 	}
 
-	res := make(map[int64]string, len(categoryList))
-	for id, name := range nameMap {
-		parentID := parentMap[id]
-		// 存在父分类时，优先拼接父子层级名称。
-		if parentID > 0 {
-			// 父分类名称存在时，返回完整的“父/子”展示名称。
-			if parentName, ok := nameMap[parentID]; ok {
-				res[id] = parentName + "/" + name
-				continue
-			}
+	goodsIDList := make([]int64, 0)
+	query := c.goodsSKUCase.Query(ctx).GoodsSKU
+	err = query.WithContext(ctx).
+		Where(
+			query.DeletedAt.IsNull(),
+			query.GoodsID.In(availableGoodsIDs...),
+			field.Or(
+				query.Price.Lte(0),
+				query.DiscountPrice.Lt(0),
+				field.And(
+					query.DiscountPrice.Gt(0),
+					query.DiscountPrice.GtCol(query.Price),
+				),
+			),
+		).
+		Distinct(query.GoodsID).
+		Pluck(query.GoodsID, &goodsIDList)
+	return goodsIDList, err
+}
+
+// batchCreateGoodsProp 批量创建商品属性
+func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsID int64, list []*adminv1.GoodsProp) error {
+	entities := make([]*models.GoodsProp, 0, len(list))
+	for _, item := range list {
+		entity := c.goodsPropCase.mapper.ToEntity(item)
+		// 商品属性明细为空时，保持旧逻辑的零值入库行为。
+		if entity == nil {
+			entity = &models.GoodsProp{}
 		}
-		res[id] = name
+		entity.GoodsID = goodsID
+		entities = append(entities, entity)
 	}
-	return res, nil
+	return c.goodsPropCase.BatchCreate(ctx, entities)
+}
+
+// batchCreateGoodsSpec 批量创建商品规格
+func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsID int64, list []*adminv1.GoodsSpec) error {
+	entities := make([]*models.GoodsSpec, 0, len(list))
+	for _, item := range list {
+		entity := c.goodsSpecCase.mapper.ToEntity(item)
+		// 商品规格明细为空时，保持旧逻辑的零值入库行为。
+		if entity == nil {
+			entity = &models.GoodsSpec{}
+		}
+		entity.GoodsID = goodsID
+		entities = append(entities, entity)
+	}
+	return c.goodsSpecCase.BatchCreate(ctx, entities)
+}
+
+// batchCreateGoodsSKU 批量创建商品规格项
+func (c *GoodsInfoCase) batchCreateGoodsSKU(ctx context.Context, goodsID int64, list []*adminv1.GoodsSku) error {
+	entities := make([]*models.GoodsSKU, 0, len(list))
+	for _, item := range list {
+		entity := c.goodsSKUCase.toGoodsSKUModel(item)
+		// 商品 SKU 明细为空时，保持旧逻辑的零值入库行为。
+		if entity == nil {
+			entity = &models.GoodsSKU{}
+		}
+		entity.GoodsID = goodsID
+		entities = append(entities, entity)
+	}
+	return c.goodsSKUCase.BatchCreate(ctx, entities)
+}
+
+// wrapGoodsInfoDuplicateConflict 把商品及其子表的唯一索引冲突转换成稳定业务错误。
+func (c *GoodsInfoCase) wrapGoodsInfoDuplicateConflict(err error) error {
+	// 非唯一索引冲突时，直接透传原始错误给上层统一处理。
+	if !errorsx.IsMySQLDuplicateKey(err) {
+		return err
+	}
+
+	var mysqlErr *mysql.MySQLError
+	// 无法提取底层 MySQL 错误明细时，退化为通用唯一约束冲突。
+	if !errors.As(err, &mysqlErr) {
+		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
+	}
+
+	// 根据唯一索引落在哪张子表上，返回对应的业务冲突错误。
+	switch {
+	case strings.Contains(mysqlErr.Message, models.TableNameGoodsProp):
+		return errorsx.UniqueConflict("商品属性重复", "goods_prop", "label", "unique_goods_prop").WithCause(err)
+	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSKU):
+		return errorsx.UniqueConflict("SKU编码重复", "goods_sku", "sku_code", "unique_goods_sku").WithCause(err)
+	case strings.Contains(mysqlErr.Message, models.TableNameGoodsSpec):
+		return errorsx.UniqueConflict("商品规格重复", "goods_spec", "name", "unique_goods_spec").WithCause(err)
+	default:
+		return errorsx.UniqueConflict("商品信息存在重复数据", "goods_info", "", "").WithCause(err)
+	}
+}
+
+// deleteGoodsChildren 删除商品子表数据
+func (c *GoodsInfoCase) deleteGoodsChildren(ctx context.Context, ids []int64) error {
+	query := c.Query(ctx)
+	for _, goodsID := range ids {
+		// 商品编辑会按“删旧建新”重建子表数据，这里必须物理删除，否则唯一索引会与软删除数据冲突。
+		propQuery := query.GoodsProp
+		_, err := propQuery.WithContext(ctx).Unscoped().Where(propQuery.GoodsID.Eq(goodsID)).Delete()
+		if err != nil {
+			return err
+		}
+
+		specQuery := query.GoodsSpec
+		_, err = specQuery.WithContext(ctx).Unscoped().Where(specQuery.GoodsID.Eq(goodsID)).Delete()
+		if err != nil {
+			return err
+		}
+
+		skuQuery := query.GoodsSKU
+		_, err = skuQuery.WithContext(ctx).Unscoped().Where(skuQuery.GoodsID.Eq(goodsID)).Delete()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -1,8 +1,6 @@
 package provider
 
 import (
-	"strings"
-
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	"github.com/openai/openai-go/v3/shared"
 )
@@ -24,7 +22,7 @@ func llmReasoningEffort(bootstrapCfg *bootstrapConfigv1.Client_Llm) shared.Reaso
 	if bootstrapCfg == nil {
 		return ""
 	}
-	switch strings.TrimSpace(bootstrapCfg.GetReasoningEffort()) {
+	switch bootstrapCfg.GetReasoningEffort() {
 	case string(shared.ReasoningEffortMinimal):
 		return shared.ReasoningEffortMinimal
 	case string(shared.ReasoningEffortLow):

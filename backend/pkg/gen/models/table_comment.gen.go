@@ -80,11 +80,6 @@ func (*CasbinRule) TableComment() string {
 }
 
 // TableComment 返回表注释。
-func (*CommentAi) TableComment() string {
-	return "评价AI信息"
-}
-
-// TableComment 返回表注释。
 func (*CommentDiscussion) TableComment() string {
 	return "评价讨论信息"
 }
@@ -102,6 +97,11 @@ func (*CommentReaction) TableComment() string {
 // TableComment 返回表注释。
 func (*CommentReview) TableComment() string {
 	return "评价审核信息"
+}
+
+// TableComment 返回表注释。
+func (*CommentSummary) TableComment() string {
+	return "评价摘要信息"
 }
 
 // TableComment 返回表注释。
@@ -182,11 +182,6 @@ func (*OrderStatDay) TableComment() string {
 // TableComment 返回表注释。
 func (*PayBill) TableComment() string {
 	return "支付对帐单信息"
-}
-
-// TableComment 返回表注释。
-func (*RecommendAnonymousActor) TableComment() string {
-	return "推荐匿名主体信息"
 }
 
 // TableComment 返回表注释。

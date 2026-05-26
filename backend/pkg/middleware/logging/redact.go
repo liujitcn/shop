@@ -103,12 +103,12 @@ func isSensitiveLogKey(key string) bool {
 // normalizeSensitiveLogKey 归一化日志字段名便于识别敏感字段。
 func normalizeSensitiveLogKey(key string) string {
 	replacer := strings.NewReplacer("-", "", "_", "", ".", "", " ", "")
-	return strings.ToLower(replacer.Replace(strings.TrimSpace(key)))
+	return strings.ToLower(replacer.Replace(key))
 }
 
 // isSensitiveLogString 判断字符串值是否疑似包含密钥、令牌或数据库连接信息。
 func isSensitiveLogString(value string) bool {
-	normalizedValue := strings.ToLower(strings.TrimSpace(value))
+	normalizedValue := strings.ToLower(value)
 	if normalizedValue == "" {
 		return false
 	}

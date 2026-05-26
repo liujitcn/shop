@@ -14,7 +14,6 @@ message ShopConfig {
   WxMiniApp wx_mini_app = 1 [(gnostic.openapi.v3.property) = {description: "小程序登录参数"}]; // 小程序登录参数
   WxPay wx_pay = 2 [(gnostic.openapi.v3.property) = {description: "微信支付参数"}]; // 微信支付参数
   Recommend recommend = 3 [(gnostic.openapi.v3.property) = {description: "推荐配置"}]; // 推荐配置
-  Prompt prompt = 4 [(gnostic.openapi.v3.property) = {description: "提示词配置"}]; // 提示词配置
 }
 
 // 微信小程序配置。
@@ -41,14 +40,4 @@ message WxPay {
 message Recommend {
   string entry_point = 1 [(gnostic.openapi.v3.property) = {description: "请求地址"}]; // 请求地址
   string api_key = 2 [(gnostic.openapi.v3.property) = {description: "api 密钥"}]; // api 密钥
-}
-
-
-// Prompt 提示词
-message Prompt {
-  string comment_review = 1 [(gnostic.openapi.v3.property) = {description: "AI评论提示词"}]; // AI评论提示词
-
-  string comment_ai = 2 [(gnostic.openapi.v3.property) = {description: "AI汇总提示词"}]; // AI汇总提示词
-
-  string ai_assistant = 3 [(gnostic.openapi.v3.property) = {description: "AI助手提示词"}]; // AI助手提示词
 }

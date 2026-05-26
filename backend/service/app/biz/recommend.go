@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	_const "shop/pkg/const"
@@ -10,33 +11,40 @@ import (
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
+	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
+	"shop/pkg/queue"
 	"shop/pkg/recommend"
 	"shop/pkg/recommend/dto"
 
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport"
+	"github.com/liujitcn/go-utils/id"
 	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/auth"
 )
 
 const RECOMMEND_RECENT_HISTORY_LIMIT = 20
+const RECOMMEND_ANONYMOUS_ACTOR_HEADER_KEY = "X-Recommend-Anonymous-Id"
 
 // RecommendCase 推荐业务处理对象。
 type RecommendCase struct {
 	*biz.BaseCase
-	recommendAnonymousActorCase *RecommendAnonymousActorCase
-	recommendRequestCase        *RecommendRequestCase
-	recommendEventCase          *RecommendEventCase
-	orderGoodsCase              *OrderGoodsCase
-	userCartCase                *UserCartCase
-	userCollectCase             *UserCollectCase
-	goodsInfoCase               *GoodsInfoCase
-	recommendReceiver           *recommend.GoodsReceiver
+	tx                   data.Transaction
+	recommendRequestCase *RecommendRequestCase
+	recommendEventCase   *RecommendEventCase
+	orderGoodsCase       *OrderGoodsCase
+	userCartCase         *UserCartCase
+	userCollectCase      *UserCollectCase
+	goodsInfoCase        *GoodsInfoCase
+	recommendReceiver    *recommend.GoodsReceiver
 }
 
 // NewRecommendCase 创建推荐业务处理对象。
 func NewRecommendCase(
 	baseCase *biz.BaseCase,
-	recommendAnonymousActorCase *RecommendAnonymousActorCase,
+	tx data.Transaction,
 	recommendRequestCase *RecommendRequestCase,
 	recommendEventCase *RecommendEventCase,
 	orderGoodsCase *OrderGoodsCase,
@@ -46,41 +54,33 @@ func NewRecommendCase(
 	recommendReceiver *recommend.GoodsReceiver,
 ) *RecommendCase {
 	return &RecommendCase{
-		BaseCase:                    baseCase,
-		recommendAnonymousActorCase: recommendAnonymousActorCase,
-		recommendRequestCase:        recommendRequestCase,
-		recommendEventCase:          recommendEventCase,
-		orderGoodsCase:              orderGoodsCase,
-		userCartCase:                userCartCase,
-		userCollectCase:             userCollectCase,
-		goodsInfoCase:               goodsInfoCase,
-		recommendReceiver:           recommendReceiver,
+		BaseCase:             baseCase,
+		tx:                   tx,
+		recommendRequestCase: recommendRequestCase,
+		recommendEventCase:   recommendEventCase,
+		orderGoodsCase:       orderGoodsCase,
+		userCartCase:         userCartCase,
+		userCollectCase:      userCollectCase,
+		goodsInfoCase:        goodsInfoCase,
+		recommendReceiver:    recommendReceiver,
 	}
 }
 
 // RecommendAnonymousActor 获取匿名推荐主体。
 func (c *RecommendCase) RecommendAnonymousActor(ctx context.Context, _ *appv1.RecommendAnonymousActorRequest) (*appv1.RecommendAnonymousActorResponse, error) {
-	anonymousID, err := c.recommendAnonymousActorCase.getRecommendAnonymousIDFromHeader(ctx)
+	anonymousID, err := c.getRecommendAnonymousIDFromHeader(ctx)
 	if err != nil {
 		return nil, err
 	}
-	// 请求头已携带匿名主体时，直接复用并刷新活跃时间。
+	// 请求头已携带匿名主体时，直接复用当前匿名身份。
 	if anonymousID > 0 {
-		err = c.recommendAnonymousActorCase.ensureRecommendAnonymousActor(ctx, anonymousID)
-		if err != nil {
-			return nil, err
-		}
 		return &appv1.RecommendAnonymousActorResponse{
 			AnonymousId: anonymousID,
 		}, nil
 	}
 
-	anonymousID, err = c.recommendAnonymousActorCase.createRecommendAnonymousActor(ctx)
-	if err != nil {
-		return nil, err
-	}
 	return &appv1.RecommendAnonymousActorResponse{
-		AnonymousId: anonymousID,
+		AnonymousId: id.GenSnowflakeID(),
 	}, nil
 }
 
@@ -92,7 +92,7 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, _ *appv
 	}
 
 	anonymousID := int64(0)
-	anonymousID, err = c.recommendAnonymousActorCase.getRecommendAnonymousIDFromHeader(ctx)
+	anonymousID, err = c.getRecommendAnonymousIDFromHeader(ctx)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func (c *RecommendCase) BindRecommendAnonymousActor(ctx context.Context, _ *appv
 	if anonymousID <= 0 {
 		return nil
 	}
-	return c.recommendAnonymousActorCase.bindRecommendAnonymousActor(ctx, authInfo.UserId, anonymousID)
+	return c.bindRecommendAnonymousActor(ctx, authInfo.UserId, anonymousID)
 }
 
 // RecommendGoods 查询推荐商品列表。
@@ -131,7 +131,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *appv1.Recommend
 		PageSize:  pageSize,
 	}
 
-	contextGoodsIDs := make([]int64, 0)
+	var contextGoodsIDs []int64
 	contextGoodsIDs, err = c.listRecommendContextGoodsIDs(ctx, recommendReq)
 	if err != nil {
 		return nil, err
@@ -147,7 +147,7 @@ func (c *RecommendCase) RecommendGoods(ctx context.Context, req *appv1.Recommend
 		recommendReq.RequestID = requestID
 	}
 
-	recommendResult := &dto.GoodsResult{}
+	var recommendResult *dto.GoodsResult
 	recommendResult, err = c.recommendReceiver.RecommendGoods(ctx, recommendReq)
 	if err != nil {
 		return nil, err
@@ -192,6 +192,155 @@ func (c *RecommendCase) RecommendEventReport(ctx context.Context, req *appv1.Rec
 	return c.recommendEventCase.persistRecommendEventReport(ctx, actor, req, time.Now())
 }
 
+// getRecommendAnonymousIDFromHeader 从请求头中解析匿名主体编号。
+func (c *RecommendCase) getRecommendAnonymousIDFromHeader(ctx context.Context) (int64, error) {
+	serverTransport, ok := transport.FromServerContext(ctx)
+	// 非服务端请求上下文时，不存在可读取的请求头。
+	if !ok {
+		return 0, nil
+	}
+
+	headerValue := serverTransport.RequestHeader().Get(RECOMMEND_ANONYMOUS_ACTOR_HEADER_KEY)
+	// 未传入匿名主体请求头时，返回 0 表示当前请求未使用匿名身份。
+	if headerValue == "" {
+		return 0, nil
+	}
+
+	anonymousID, err := strconv.ParseInt(headerValue, 10, 64)
+	if err != nil || anonymousID <= 0 {
+		return 0, errorsx.InvalidArgument("匿名推荐主体无效")
+	}
+	return anonymousID, nil
+}
+
+// bindRecommendAnonymousActor 绑定匿名推荐主体到当前用户。
+func (c *RecommendCase) bindRecommendAnonymousActor(ctx context.Context, userID, anonymousID int64) error {
+	// 当前未携带匿名主体或用户编号非法时，无需继续绑定。
+	if userID <= 0 || anonymousID <= 0 {
+		return nil
+	}
+
+	anonymousEventList, err := c.listRecommendEventsByActor(ctx, commonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_ANONYMOUS), anonymousID)
+	if err != nil {
+		return err
+	}
+
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.rebindRecommendRequestActor(ctx, userID, anonymousID)
+		if err != nil {
+			return err
+		}
+		err = c.rebindRecommendEventActor(ctx, userID, anonymousID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	err = c.syncRecommendActorHistoryToRecommend(userID, anonymousEventList)
+	if err != nil {
+		log.Errorf("syncRecommendActorHistoryToRecommend %v", err)
+	}
+	return nil
+}
+
+// listRecommendEventsByActor 查询指定推荐主体的历史事件列表。
+func (c *RecommendCase) listRecommendEventsByActor(
+	ctx context.Context,
+	actorType commonv1.RecommendActorType,
+	actorID int64,
+) ([]*models.RecommendEvent, error) {
+	// 推荐主体编号非法时，不存在可迁移的历史事件。
+	if actorID <= 0 {
+		return []*models.RecommendEvent{}, nil
+	}
+
+	query := c.recommendEventCase.RecommendEventRepository.Query(ctx).RecommendEvent
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Order(query.EventAt.Desc()))
+	opts = append(opts, repository.Where(query.ActorType.Eq(int32(actorType))))
+	opts = append(opts, repository.Where(query.ActorID.Eq(actorID)))
+	list, err := c.recommendEventCase.RecommendEventRepository.List(ctx, opts...)
+	if err != nil {
+		return nil, errorsx.Internal("查询匿名推荐事件失败").WithCause(err)
+	}
+	return list, nil
+}
+
+// rebindRecommendRequestActor 将匿名主体下的推荐请求记录迁移到登录用户。
+func (c *RecommendCase) rebindRecommendRequestActor(ctx context.Context, userID, anonymousID int64) error {
+	// 用户编号或匿名主体编号非法时，不存在可迁移的推荐请求记录。
+	if userID <= 0 || anonymousID <= 0 {
+		return nil
+	}
+
+	query := c.recommendRequestCase.RecommendRequestRepository.Query(ctx).RecommendRequest
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ActorType.Eq(_const.RECOMMEND_ACTOR_TYPE_ANONYMOUS)))
+	opts = append(opts, repository.Where(query.ActorID.Eq(anonymousID)))
+	err := c.recommendRequestCase.RecommendRequestRepository.Update(ctx, &models.RecommendRequest{
+		ActorType: _const.RECOMMEND_ACTOR_TYPE_USER,
+		ActorID:   userID,
+	}, opts...)
+	if err != nil {
+		return errorsx.Internal("迁移匿名推荐请求失败").WithCause(err)
+	}
+	return nil
+}
+
+// rebindRecommendEventActor 将匿名主体下的推荐事件记录迁移到登录用户。
+func (c *RecommendCase) rebindRecommendEventActor(ctx context.Context, userID, anonymousID int64) error {
+	// 用户编号或匿名主体编号非法时，不存在可迁移的推荐事件记录。
+	if userID <= 0 || anonymousID <= 0 {
+		return nil
+	}
+
+	query := c.recommendEventCase.RecommendEventRepository.Query(ctx).RecommendEvent
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ActorType.Eq(_const.RECOMMEND_ACTOR_TYPE_ANONYMOUS)))
+	opts = append(opts, repository.Where(query.ActorID.Eq(anonymousID)))
+	err := c.recommendEventCase.RecommendEventRepository.Update(ctx, &models.RecommendEvent{
+		ActorType: _const.RECOMMEND_ACTOR_TYPE_USER,
+		ActorID:   userID,
+	}, opts...)
+	if err != nil {
+		return errorsx.Internal("迁移匿名推荐事件失败").WithCause(err)
+	}
+	return nil
+}
+
+// syncRecommendActorHistoryToRecommend 异步回放匿名阶段历史到登录用户。
+func (c *RecommendCase) syncRecommendActorHistoryToRecommend(
+	userID int64,
+	eventList []*models.RecommendEvent,
+) error {
+	// 用户编号非法或历史事件为空时，无需继续回放历史。
+	if userID <= 0 || len(eventList) == 0 {
+		return nil
+	}
+
+	replayEventList := make([]*models.RecommendEvent, 0, len(eventList))
+	for _, item := range eventList {
+		// 匿名历史写入推荐系统前，先改写成登录用户主体，避免匿名身份继续向下游投递。
+		if item == nil {
+			continue
+		}
+		replayEvent := *item
+		replayEvent.ActorType = _const.RECOMMEND_ACTOR_TYPE_USER
+		replayEvent.ActorID = userID
+		replayEventList = append(replayEventList, &replayEvent)
+	}
+	if len(replayEventList) == 0 {
+		return nil
+	}
+
+	queue.DispatchRecommendEventList(replayEventList)
+	return nil
+}
+
 // resolveRecommendActor 解析当前请求使用的推荐主体。
 func (c *RecommendCase) resolveRecommendActor(ctx context.Context, allowAnonymous bool) (*dto.RecommendActor, error) {
 	// 可匿名推荐只需要静默读取认证信息，避免游客请求被记录成认证失败日志。
@@ -209,17 +358,13 @@ func (c *RecommendCase) resolveRecommendActor(ctx context.Context, allowAnonymou
 	}
 
 	anonymousID := int64(0)
-	anonymousID, err = c.recommendAnonymousActorCase.getRecommendAnonymousIDFromHeader(ctx)
+	anonymousID, err = c.getRecommendAnonymousIDFromHeader(ctx)
 	if err != nil {
 		return nil, err
 	}
 	// 未登录且未携带匿名主体时，允许继续走不可归因推荐，但后续不保存链路数据。
 	if anonymousID <= 0 {
 		return nil, nil
-	}
-	err = c.recommendAnonymousActorCase.ensureRecommendAnonymousActor(ctx, anonymousID)
-	if err != nil {
-		return nil, err
 	}
 	return &dto.RecommendActor{
 		ActorType: commonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_ANONYMOUS),

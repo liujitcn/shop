@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"strings"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/biz"
@@ -17,7 +16,6 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
-	"gorm.io/gen"
 )
 
 // CommentInfoCase 评论管理业务实例。
@@ -27,7 +25,7 @@ type CommentInfoCase struct {
 	tx                    data.Transaction
 	commentTagCase        *CommentTagCase
 	commentDiscussionCase *CommentDiscussionCase
-	commentAiCase         *CommentAiCase
+	commentSummaryCase    *CommentSummaryCase
 	commentReviewCase     *CommentReviewCase
 	baseUserCase          *BaseUserCase
 	commentInfoMapper     *mapper.CopierMapper[adminv1.CommentInfo, models.CommentInfo]
@@ -40,7 +38,7 @@ func NewCommentInfoCase(
 	tx data.Transaction,
 	commentTagCase *CommentTagCase,
 	commentDiscussionCase *CommentDiscussionCase,
-	commentAiCase *CommentAiCase,
+	commentSummaryCase *CommentSummaryCase,
 	commentReviewCase *CommentReviewCase,
 	baseUserCase *BaseUserCase,
 ) *CommentInfoCase {
@@ -52,7 +50,7 @@ func NewCommentInfoCase(
 		tx:                    tx,
 		commentTagCase:        commentTagCase,
 		commentDiscussionCase: commentDiscussionCase,
-		commentAiCase:         commentAiCase,
+		commentSummaryCase:    commentSummaryCase,
 		commentReviewCase:     commentReviewCase,
 		baseUserCase:          baseUserCase,
 		commentInfoMapper:     commentInfoMapper,
@@ -68,12 +66,12 @@ func (c *CommentInfoCase) PageCommentInfos(ctx context.Context, req *adminv1.Pag
 		opts = append(opts, repository.Where(query.GoodsID.Eq(req.GetGoodsId())))
 	}
 	// 传入商品名关键字时，按商品名称快照模糊匹配。
-	if strings.TrimSpace(req.GetGoodsName()) != "" {
-		opts = append(opts, repository.Where(query.GoodsNameSnapshot.Like("%"+strings.TrimSpace(req.GetGoodsName())+"%")))
+	if req.GetGoodsName() != "" {
+		opts = append(opts, repository.Where(query.GoodsNameSnapshot.Like("%"+req.GetGoodsName()+"%")))
 	}
 	// 传入用户昵称关键字时，按用户昵称快照模糊匹配。
-	if strings.TrimSpace(req.GetUserName()) != "" {
-		opts = append(opts, repository.Where(query.UserNameSnapshot.Like("%"+strings.TrimSpace(req.GetUserName())+"%")))
+	if req.GetUserName() != "" {
+		opts = append(opts, repository.Where(query.UserNameSnapshot.Like("%"+req.GetUserName()+"%")))
 	}
 	if req.GoodsScore != nil && req.GetGoodsScore() > 0 {
 		opts = append(opts, repository.Where(query.GoodsScore.Eq(req.GetGoodsScore())))
@@ -138,8 +136,8 @@ func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64
 		return nil, err
 	}
 
-	var aiList []*adminv1.CommentAi
-	aiList, err = c.commentAiCase.ListByGoodsID(ctx, goodsID)
+	var summaryList []*adminv1.CommentSummary
+	summaryList, err = c.commentSummaryCase.ListByGoodsID(ctx, goodsID)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +146,7 @@ func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64
 		CommentInfos:       resCommentList,
 		CommentTags:        tagList,
 		CommentDiscussions: discussionList,
-		CommentAis:         aiList,
+		CommentSummaries:   summaryList,
 	}, nil
 }
 
@@ -171,8 +169,8 @@ func (c *CommentInfoCase) GetCommentInfo(ctx context.Context, commentID int64) (
 		return nil, err
 	}
 
-	var aiList []*adminv1.CommentAi
-	aiList, err = c.commentAiCase.ListByGoodsID(ctx, commentInfo.GoodsID)
+	var summaryList []*adminv1.CommentSummary
+	summaryList, err = c.commentSummaryCase.ListByGoodsID(ctx, commentInfo.GoodsID)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +185,7 @@ func (c *CommentInfoCase) GetCommentInfo(ctx context.Context, commentID int64) (
 		Comment:            c.commentInfoMapper.ToDTO(commentInfo),
 		CommentTags:        tagList,
 		CommentDiscussions: discussionList,
-		CommentAis:         aiList,
+		CommentSummaries:   summaryList,
 		CommentReviews:     reviewList,
 	}, nil
 }
@@ -235,7 +233,7 @@ func (c *CommentInfoCase) SetCommentInfoStatus(ctx context.Context, req *adminv1
 			Tags:         _string.ConvertAnyToJsonString([]string{}),
 			OperatorID:   authInfo.UserId,
 			OperatorName: operatorName,
-			Reason:       strings.TrimSpace(req.GetReason()),
+			Reason:       req.GetReason(),
 		})
 	})
 	if err != nil {
@@ -243,7 +241,7 @@ func (c *CommentInfoCase) SetCommentInfoStatus(ctx context.Context, req *adminv1
 	}
 	// 评论进入或离开通过态后异步刷新商品评价摘要，不阻塞后台审核操作。
 	if int32(req.GetStatus()) == _const.COMMENT_STATUS_APPROVED || commentInfo.Status == _const.COMMENT_STATUS_APPROVED {
-		queue.DispatchCommentAiRefresh(commentInfo.GoodsID)
+		queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
 	}
 	workspaceevent.Publish(
 		ctx,
@@ -255,6 +253,23 @@ func (c *CommentInfoCase) SetCommentInfoStatus(ctx context.Context, req *adminv1
 		workspaceevent.AreaPendingComments,
 	)
 	return nil
+}
+
+// operatorName 查询后台操作人展示名称。
+func (c *CommentInfoCase) operatorName(ctx context.Context, userID int64) string {
+	baseUser, err := c.baseUserCase.FindByID(ctx, userID)
+	if err != nil || baseUser == nil {
+		return "管理员"
+	}
+	operatorName := baseUser.NickName
+	// 后台用户昵称为空时，回退到账号名作为操作人名称。
+	if operatorName == "" {
+		operatorName = baseUser.UserName
+	}
+	if operatorName == "" {
+		return "管理员"
+	}
+	return operatorName
 }
 
 // updateTagIDs 更新评论命中的标签编号。
@@ -285,47 +300,4 @@ func (c *CommentInfoCase) updateStatus(ctx context.Context, commentID int64, sta
 		return errorsx.ResourceNotFound("评论不存在")
 	}
 	return nil
-}
-
-// changeDiscussionCount 调整评论讨论缓存数量。
-func (c *CommentInfoCase) changeDiscussionCount(ctx context.Context, commentID int64, status int32, delta int32) error {
-	if delta == 0 {
-		return nil
-	}
-	query := c.Query(ctx).CommentInfo
-	update := query.DiscussionCount.Add(delta)
-	conditions := []gen.Condition{query.ID.Eq(commentID)}
-	switch status {
-	case _const.COMMENT_STATUS_PENDING_REVIEW:
-		update = query.PendingDiscussionCount.Add(delta)
-		if delta < 0 {
-			conditions = append(conditions, query.PendingDiscussionCount.Gt(0))
-		}
-	case _const.COMMENT_STATUS_APPROVED:
-		update = query.DiscussionCount.Add(delta)
-		if delta < 0 {
-			conditions = append(conditions, query.DiscussionCount.Gt(0))
-		}
-	default:
-		return nil
-	}
-	_, err := query.WithContext(ctx).Where(conditions...).UpdateSimple(update)
-	return err
-}
-
-// operatorName 查询后台操作人展示名称。
-func (c *CommentInfoCase) operatorName(ctx context.Context, userID int64) string {
-	baseUser, err := c.baseUserCase.FindByID(ctx, userID)
-	if err != nil || baseUser == nil {
-		return "管理员"
-	}
-	operatorName := strings.TrimSpace(baseUser.NickName)
-	// 后台用户昵称为空时，回退到账号名作为操作人名称。
-	if operatorName == "" {
-		operatorName = strings.TrimSpace(baseUser.UserName)
-	}
-	if operatorName == "" {
-		return "管理员"
-	}
-	return operatorName
 }

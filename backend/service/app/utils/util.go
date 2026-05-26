@@ -3,7 +3,6 @@ package utils
 import (
 	"context"
 	"strconv"
-	"strings"
 
 	_const "shop/pkg/const"
 
@@ -35,5 +34,5 @@ func IsMemberByAuthInfo(authInfo *data.UserTokenPayload) bool {
 
 // BuildOrderGoodsCommentKey 构建订单商品评价关联键。
 func BuildOrderGoodsCommentKey(orderID int64, goodsID int64, skuCode string) string {
-	return strconv.FormatInt(orderID, 10) + "_" + strconv.FormatInt(goodsID, 10) + "_" + strings.TrimSpace(skuCode)
+	return strconv.FormatInt(orderID, 10) + "_" + strconv.FormatInt(goodsID, 10) + "_" + skuCode
 }

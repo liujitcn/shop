@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"strconv"
-	"strings"
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
@@ -54,30 +53,6 @@ func NewAiAssistantMessageCase(
 	}
 }
 
-// ListAiAssistantMessages 查询指定会话的消息列表。
-func (c *AiAssistantMessageCase) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
-	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
-	if err != nil {
-		return nil, err
-	}
-
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
-	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
-	var list []*models.AiAssistantMessage
-	list, err = c.aiAssistantMessageRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	messages := make([]*basev1.AiAssistantMessage, 0, len(list))
-	for _, item := range list {
-		messages = append(messages, c.ToDTO(item))
-	}
-	return &basev1.ListAiAssistantMessagesResponse{Messages: messages}, nil
-}
-
 // SendAiAssistantMessage 发送用户消息并生成 AI 助手回复。
 func (c *AiAssistantMessageCase) SendAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
@@ -85,7 +60,7 @@ func (c *AiAssistantMessageCase) SendAiAssistantMessage(ctx context.Context, req
 		return nil, err
 	}
 
-	content := strings.TrimSpace(req.GetContent())
+	content := req.GetContent()
 	attachments := assistant.NormalizeAttachments(req.GetAttachments())
 	if content == "" && len(attachments) == 0 {
 		return nil, errorsx.InvalidArgument("消息内容不能为空")
@@ -163,7 +138,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 		return err
 	}
 
-	content := strings.TrimSpace(req.GetContent())
+	content := req.GetContent()
 	attachments := assistant.NormalizeAttachments(req.GetAttachments())
 	if content == "" && len(attachments) == 0 {
 		return errorsx.InvalidArgument("消息内容不能为空")
@@ -207,9 +182,9 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 		return err
 	}
 
-	clientMessageID := strings.TrimSpace(req.GetClientMessageId())
+	clientMessageID := req.GetClientMessageId()
 	reply, runErr := c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, func(delta string) {
-		if strings.TrimSpace(delta) == "" {
+		if delta == "" {
 			return
 		}
 		emitErr := emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventDelta, dto.AiAssistantStreamPayload{
@@ -258,93 +233,47 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	return nil
 }
 
-// buildHistory 构造问答历史上下文。
-func (c *AiAssistantMessageCase) buildHistory(ctx context.Context, sessionID int64, historySize int) ([]assistant.Message, error) {
+// ListAiAssistantMessages 查询指定会话的消息列表。
+func (c *AiAssistantMessageCase) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
+	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
+	if err != nil {
+		return nil, err
+	}
+
 	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(historySize))
-	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.SessionID.Eq(session.ID)))
+	opts = append(opts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
+	var list []*models.AiAssistantMessage
+	list, err = c.aiAssistantMessageRepo.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	history := make([]assistant.Message, 0, len(list))
-	for index := len(list) - 1; index >= 0; index-- {
-		item := list[index]
-		if strings.TrimSpace(item.Content) == "" {
-			continue
-		}
-		history = append(history, assistant.Message{
-			Role:    item.Role,
-			Content: assistant.ParseReplyContent(item.Content),
-		})
+	messages := make([]*basev1.AiAssistantMessage, 0, len(list))
+	for _, item := range list {
+		messages = append(messages, c.ToDTO(item))
 	}
-	return history, nil
+	return &basev1.ListAiAssistantMessagesResponse{Messages: messages}, nil
 }
 
-// generateAiAssistantReply 生成当前消息的 AI 助手回复。
-func (c *AiAssistantMessageCase) generateAiAssistantReply(
-	ctx context.Context,
-	session *models.AiAssistantSession,
-	userName string,
-	content string,
-	attachments []*basev1.AiAssistantAttachment,
-	assistantAttachments []assistant.Attachment,
-	history []assistant.Message,
-	onDelta func(string),
-) (*assistant.Response, error) {
-	var err error
-	if c.assistantRuntime != nil {
-		input := assistant.RuntimeInput{
-			Terminal:     assistant.NormalizeTerminalString(session.Terminal),
-			UserName:     userName,
-			SessionTitle: session.Title,
-			SessionID:    strconv.FormatInt(session.ID, 10),
-			Summary:      session.Summary,
-			Content:      strings.TrimSpace(content),
-			History:      history,
-			Attachments:  assistantAttachments,
-		}
-		var response *assistant.Response
-		if onDelta != nil {
-			response, err = c.assistantRuntime.RunStream(ctx, input, onDelta)
-			if err == nil {
-				return response, nil
-			}
-			return c.buildAiAssistantFallbackResponse(content, attachments, err), err
-		}
-		response, err = c.assistantRuntime.Run(ctx, input)
-		if err == nil {
-			return response, nil
-		}
-		return c.buildAiAssistantFallbackResponse(content, attachments, err), nil
+// ToDTO 转换消息模型到接口对象。
+func (c *AiAssistantMessageCase) ToDTO(model *models.AiAssistantMessage) *basev1.AiAssistantMessage {
+	if model == nil {
+		return nil
 	}
 
-	err = errorsx.Internal("AI助手运行时未初始化")
-	return c.buildAiAssistantFallbackResponse(content, attachments, err), err
-}
-
-// createAiAssistantReplyMessage 按回复内容落库助手消息。
-func (c *AiAssistantMessageCase) createAiAssistantReplyMessage(ctx context.Context, session *models.AiAssistantSession, reply *assistant.Response, now time.Time) (*models.AiAssistantMessage, error) {
-	assistantMessage := &models.AiAssistantMessage{
-		SessionID:       session.ID,
-		UserID:          session.UserID,
-		Role:            assistant.RoleAssistant,
-		Kind:            assistant.KindText,
-		Content:         assistant.MarshalReplyContent(reply),
-		AttachmentsJSON: assistant.MarshalAttachments(nil),
-		ToolsJSON:       "[]",
-		TokenUsage:      int32(reply.TokenUsage),
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	}
-	err := c.aiAssistantMessageRepo.Create(ctx, assistantMessage)
-	if err != nil {
-		return nil, err
-	}
-	return assistantMessage, nil
+	meta := assistant.ParseReplyMeta(model.Content)
+	message := c.mapper.ToDTO(model)
+	message.Id = strconv.FormatInt(model.ID, 10)
+	message.Content = assistant.ParseReplyContent(model.Content)
+	message.Attachments = assistant.ParseAttachments(model.AttachmentsJSON)
+	message.CreatedAt = timestamppb.New(model.CreatedAt)
+	message.ReplySource = meta.ReplySource
+	message.Model = meta.Model
+	message.Fallback = meta.Fallback
+	message.FallbackReason = meta.FallbackReason
+	return message
 }
 
 // buildAiAssistantAttachments 读取附件内容，构造 AI 助手输入附件。
@@ -378,7 +307,7 @@ func (c *AiAssistantMessageCase) buildAiAssistantAttachments(ctx context.Context
 			URL:      item.GetUrl(),
 			MIMEType: assistant.DetectAttachmentMIME(item.GetName(), item.GetMimeType()),
 		}
-		if strings.TrimSpace(next.URL) != "" {
+		if next.URL != "" {
 			fileBytes, err := ossClient.GetFileByte(next.URL)
 			if err != nil {
 				return nil, errorsx.Internal("读取 AI 助手附件失败").WithCause(err)
@@ -389,6 +318,74 @@ func (c *AiAssistantMessageCase) buildAiAssistantAttachments(ctx context.Context
 		result = append(result, next)
 	}
 	return result, nil
+}
+
+// buildHistory 构造问答历史上下文。
+func (c *AiAssistantMessageCase) buildHistory(ctx context.Context, sessionID int64, historySize int) ([]assistant.Message, error) {
+	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Limit(historySize))
+	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	history := make([]assistant.Message, 0, len(list))
+	for index := len(list) - 1; index >= 0; index-- {
+		item := list[index]
+		if item.Content == "" {
+			continue
+		}
+		history = append(history, assistant.Message{
+			Role:    item.Role,
+			Content: assistant.ParseReplyContent(item.Content),
+		})
+	}
+	return history, nil
+}
+
+// generateAiAssistantReply 生成当前消息的 AI 助手回复。
+func (c *AiAssistantMessageCase) generateAiAssistantReply(
+	ctx context.Context,
+	session *models.AiAssistantSession,
+	userName string,
+	content string,
+	attachments []*basev1.AiAssistantAttachment,
+	assistantAttachments []assistant.Attachment,
+	history []assistant.Message,
+	onDelta func(string),
+) (*assistant.Response, error) {
+	var err error
+	if c.assistantRuntime != nil {
+		input := assistant.RuntimeInput{
+			Terminal:     assistant.NormalizeTerminalString(session.Terminal),
+			UserName:     userName,
+			SessionTitle: session.Title,
+			SessionID:    strconv.FormatInt(session.ID, 10),
+			Summary:      session.Summary,
+			Content:      content,
+			History:      history,
+			Attachments:  assistantAttachments,
+		}
+		var response *assistant.Response
+		if onDelta != nil {
+			response, err = c.assistantRuntime.RunStream(ctx, input, onDelta)
+			if err == nil {
+				return response, nil
+			}
+			return c.buildAiAssistantFallbackResponse(content, attachments, err), err
+		}
+		response, err = c.assistantRuntime.Run(ctx, input)
+		if err == nil {
+			return response, nil
+		}
+		return c.buildAiAssistantFallbackResponse(content, attachments, err), nil
+	}
+
+	err = errorsx.Internal("AI助手运行时未初始化")
+	return c.buildAiAssistantFallbackResponse(content, attachments, err), err
 }
 
 // buildAiAssistantFallbackResponse 构造 AI 助手降级回复。
@@ -415,21 +412,23 @@ func (c *AiAssistantMessageCase) buildAiAssistantFallbackResponse(
 	}
 }
 
-// ToDTO 转换消息模型到接口对象。
-func (c *AiAssistantMessageCase) ToDTO(model *models.AiAssistantMessage) *basev1.AiAssistantMessage {
-	if model == nil {
-		return nil
+// createAiAssistantReplyMessage 按回复内容落库助手消息。
+func (c *AiAssistantMessageCase) createAiAssistantReplyMessage(ctx context.Context, session *models.AiAssistantSession, reply *assistant.Response, now time.Time) (*models.AiAssistantMessage, error) {
+	assistantMessage := &models.AiAssistantMessage{
+		SessionID:       session.ID,
+		UserID:          session.UserID,
+		Role:            assistant.RoleAssistant,
+		Kind:            assistant.KindText,
+		Content:         assistant.MarshalReplyContent(reply),
+		AttachmentsJSON: assistant.MarshalAttachments(nil),
+		ToolsJSON:       "[]",
+		TokenUsage:      int32(reply.TokenUsage),
+		CreatedAt:       now,
+		UpdatedAt:       now,
 	}
-
-	meta := assistant.ParseReplyMeta(model.Content)
-	message := c.mapper.ToDTO(model)
-	message.Id = strconv.FormatInt(model.ID, 10)
-	message.Content = assistant.ParseReplyContent(model.Content)
-	message.Attachments = assistant.ParseAttachments(model.AttachmentsJSON)
-	message.CreatedAt = timestamppb.New(model.CreatedAt)
-	message.ReplySource = meta.ReplySource
-	message.Model = meta.Model
-	message.Fallback = meta.Fallback
-	message.FallbackReason = meta.FallbackReason
-	return message
+	err := c.aiAssistantMessageRepo.Create(ctx, assistantMessage)
+	if err != nil {
+		return nil, err
+	}
+	return assistantMessage, nil
 }

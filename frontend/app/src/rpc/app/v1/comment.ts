@@ -5,7 +5,7 @@
 // source: app/v1/comment.proto
 
 /* eslint-disable */
-import type { CommentAiContentItem } from "../../common/v1/common";
+import type { CommentSummaryContentItem } from "../../common/v1/common";
 import type {
   CommentFilterType,
   CommentReactionTargetType,
@@ -105,12 +105,12 @@ export interface CommentItem {
   reaction_type: CommentReactionType;
 }
 
-/** AI摘要 */
-export interface CommentAi {
-  /** AI摘要ID */
+/** 评价摘要 */
+export interface CommentSummary {
+  /** 评价摘要ID */
   id: number;
-  /** AI摘要内容列表 */
-  content: CommentAiContentItem[];
+  /** 评价摘要内容列表 */
+  content: CommentSummaryContentItem[];
   /** 点赞数 */
   like_count: number;
   /** 点踩数 */
@@ -179,9 +179,9 @@ export interface GoodsCommentOverviewResponse {
   recent_days: number;
   /** 近N天好评率百分比整数 */
   recent_good_rate: number;
-  /** 商品详情AI摘要 */
-  ai_summary:
-    | CommentAi
+  /** 商品详情评价摘要 */
+  comment_summary:
+    | CommentSummary
     | undefined;
   /** 评价预览列表 */
   preview_comments: CommentItem[];
@@ -225,9 +225,9 @@ export interface PageGoodsCommentRequest {
 export interface PageGoodsCommentResponse {
   /** 顶部筛选项列表 */
   comment_filters: CommentFilterItem[];
-  /** 评价列表AI摘要 */
-  ai_summary:
-    | CommentAi
+  /** 评价列表摘要 */
+  comment_summary:
+    | CommentSummary
     | undefined;
   /** 评价分页数据 */
   comments: CommentItem[];

@@ -10,8 +10,8 @@ type CommentDiscussionCountRow struct {
 	PendingDiscussionCount int64 `gorm:"column:pending_discussion_count"`
 }
 
-// CommentAiContentItem 保存评价 AI 摘要标签和内容。
-type CommentAiContentItem struct {
+// CommentSummaryContentItem 保存评价摘要标签和内容。
+type CommentSummaryContentItem struct {
 	// Label 摘要标签
 	Label string `json:"label"`
 	// Content 摘要内容

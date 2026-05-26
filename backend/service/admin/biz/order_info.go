@@ -134,7 +134,7 @@ func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*adminv1.Or
 
 	res := &adminv1.OrderInfoResponse{
 		Order:     c.mapper.ToDTO(orderInfo),
-		Countdown: float32((orderInfo.CreatedAt.Add(30 * time.Minute)).Sub(time.Now()).Seconds()),
+		Countdown: float32(time.Until(orderInfo.CreatedAt.Add(30 * time.Minute)).Seconds()),
 	}
 
 	var baseUser *models.BaseUser

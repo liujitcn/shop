@@ -23,11 +23,7 @@ export interface ShopConfig {
     | WxPay
     | undefined;
   /** 推荐配置 */
-  recommend:
-    | Recommend
-    | undefined;
-  /** 提示词配置 */
-  prompt: Prompt | undefined;
+  recommend: Recommend | undefined;
 }
 
 /** 微信小程序配置。 */
@@ -60,14 +56,4 @@ export interface Recommend {
   entry_point: string;
   /** api 密钥 */
   api_key: string;
-}
-
-/** Prompt 提示词 */
-export interface Prompt {
-  /** AI评论提示词 */
-  comment_review: string;
-  /** AI汇总提示词 */
-  comment_ai: string;
-  /** AI助手提示词 */
-  ai_assistant: string;
 }

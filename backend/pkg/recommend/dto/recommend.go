@@ -40,7 +40,7 @@ func FormatRecommendStrategyCode(strategy commonv1.RecommendStrategy) string {
 
 // ParseRecommendStrategyCode 根据稳定的策略编码解析推荐策略枚举。
 func ParseRecommendStrategyCode(code string) commonv1.RecommendStrategy {
-	normalizedCode := strings.TrimSpace(strings.ToLower(code))
+	normalizedCode := strings.ToLower(code)
 	switch normalizedCode {
 	case "remote", "remote_strategy":
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_REMOTE)
@@ -49,14 +49,14 @@ func ParseRecommendStrategyCode(code string) commonv1.RecommendStrategy {
 	}
 
 	// 兼容透传 proto 枚举名称的场景，避免大小写差异导致策略丢失。
-	switch strings.TrimSpace(code) {
+	switch code {
 	case commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_REMOTE).String():
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_REMOTE)
 	case commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_LOCAL).String():
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_LOCAL)
 	}
 
-	value, err := strconv.ParseInt(strings.TrimSpace(code), 10, 32)
+	value, err := strconv.ParseInt(code, 10, 32)
 	if err != nil {
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_UNKNOWN)
 	}
@@ -77,7 +77,7 @@ func NormalizeRecommendStrategy(strategy commonv1.RecommendStrategy) commonv1.Re
 
 // ParseRecommendStrategyRaw 兼容历史字符串与当前枚举值两种格式解析推荐策略。
 func ParseRecommendStrategyRaw(raw json.RawMessage) commonv1.RecommendStrategy {
-	normalizedRaw := strings.TrimSpace(string(raw))
+	normalizedRaw := string(raw)
 	if normalizedRaw == "" || normalizedRaw == "null" {
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_UNKNOWN)
 	}

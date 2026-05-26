@@ -20,8 +20,8 @@ type replyPayload struct {
 // BuildUserContent 生成用户消息落库正文。
 func BuildUserContent(content string, attachments []*basev1.AiAssistantAttachment) string {
 	// 有用户文本时保留文本作为主问题，附件内容通过附件字段独立保存。
-	if strings.TrimSpace(content) != "" {
-		return strings.TrimSpace(content)
+	if content != "" {
+		return content
 	}
 	// 文本和附件都为空时交给上层参数校验处理。
 	if len(attachments) == 0 {
@@ -60,7 +60,7 @@ func BuildDynamicSummary(content string, attachments []*basev1.AiAssistantAttach
 
 // NormalizePreview 将用户输入整理为适合会话列表展示的短文本。
 func NormalizePreview(content string) string {
-	trimmed := strings.TrimSpace(strings.ReplaceAll(content, "\n", " "))
+	trimmed := strings.ReplaceAll(content, "\n", " ")
 	// 空输入没有可展示摘要，交给调用方决定默认值。
 	if trimmed == "" {
 		return ""
@@ -80,16 +80,16 @@ func MarshalReplyContent(response *Response) string {
 		return ""
 	}
 	payload := replyPayload{
-		Content:        strings.TrimSpace(response.Content),
-		ReplySource:    strings.TrimSpace(response.Source),
-		Model:          strings.TrimSpace(response.Model),
+		Content:        response.Content,
+		ReplySource:    response.Source,
+		Model:          response.Model,
 		Fallback:       response.Fallback,
-		FallbackReason: strings.TrimSpace(response.FallbackReason),
+		FallbackReason: response.FallbackReason,
 	}
 	raw, err := json.Marshal(payload)
 	// 极端情况下 JSON 序列化失败时保留正文，避免用户完全看不到回复。
 	if err != nil {
-		return strings.TrimSpace(response.Content)
+		return response.Content
 	}
 	return string(raw)
 }
@@ -97,7 +97,7 @@ func MarshalReplyContent(response *Response) string {
 // ParseReplyContent 从落库内容中解析助手回复正文。
 func ParseReplyContent(raw string) string {
 	// 空内容直接返回，兼容历史空消息。
-	if strings.TrimSpace(raw) == "" {
+	if raw == "" {
 		return ""
 	}
 	payload := replyPayload{}
@@ -106,14 +106,14 @@ func ParseReplyContent(raw string) string {
 	if err != nil {
 		return raw
 	}
-	return strings.TrimSpace(payload.Content)
+	return payload.Content
 }
 
 // ParseReplyMeta 从落库内容中解析助手回复元信息。
 func ParseReplyMeta(raw string) ReplyMeta {
 	meta := ReplyMeta{}
 	// 空内容没有元信息，前端按普通助手消息展示。
-	if strings.TrimSpace(raw) == "" {
+	if raw == "" {
 		return meta
 	}
 	payload := replyPayload{}
@@ -122,9 +122,9 @@ func ParseReplyMeta(raw string) ReplyMeta {
 	if err != nil {
 		return meta
 	}
-	meta.ReplySource = strings.TrimSpace(payload.ReplySource)
-	meta.Model = strings.TrimSpace(payload.Model)
+	meta.ReplySource = payload.ReplySource
+	meta.Model = payload.Model
 	meta.Fallback = payload.Fallback
-	meta.FallbackReason = strings.TrimSpace(payload.FallbackReason)
+	meta.FallbackReason = payload.FallbackReason
 	return meta
 }

@@ -13,7 +13,6 @@ import (
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
-	"github.com/liujitcn/kratos-kit/cache"
 )
 
 var tree *commonv1.AppTreeOptionResponse
@@ -24,7 +23,6 @@ var lock sync.RWMutex
 type BaseAreaCase struct {
 	*biz.BaseCase
 	*data.BaseAreaRepository
-	cache  cache.Cache
 	mapper *mapper.CopierMapper[commonv1.AppTreeOptionResponse_Option, models.BaseArea]
 }
 
@@ -58,6 +56,22 @@ func (c *BaseAreaCase) TreeBaseAreas(ctx context.Context) (*commonv1.AppTreeOpti
 	return tree, nil
 }
 
+// 递归构建行政区域树
+func (c *BaseAreaCase) buildTree(list []*models.BaseArea, parentID int64) []*commonv1.AppTreeOptionResponse_Option {
+	var res []*commonv1.AppTreeOptionResponse_Option
+	for _, item := range list {
+		// 仅把当前父节点下的区域挂到本层结果里。
+		if item.ParentID == parentID {
+			option := c.mapper.ToDTO(item)
+			option.Value = strconv.FormatInt(item.ID, 10)
+			option.Text = item.Name
+			option.Children = c.buildTree(list, item.ID)
+			res = append(res, option)
+		}
+	}
+	return res
+}
+
 // 将行政区划编码字符串转成地址名称列表
 func (c *BaseAreaCase) getAddressListByCode(ctx context.Context, code string) []string {
 	lock.RLock()
@@ -82,22 +96,6 @@ func (c *BaseAreaCase) getAddressListByCode(ctx context.Context, code string) []
 			res = append(res, v)
 		} else {
 			res = append(res, item)
-		}
-	}
-	return res
-}
-
-// 递归构建行政区域树
-func (c *BaseAreaCase) buildTree(list []*models.BaseArea, parentID int64) []*commonv1.AppTreeOptionResponse_Option {
-	var res []*commonv1.AppTreeOptionResponse_Option
-	for _, item := range list {
-		// 仅把当前父节点下的区域挂到本层结果里。
-		if item.ParentID == parentID {
-			option := c.mapper.ToDTO(item)
-			option.Value = strconv.FormatInt(item.ID, 10)
-			option.Text = item.Name
-			option.Children = c.buildTree(list, item.ID)
-			res = append(res, option)
 		}
 	}
 	return res

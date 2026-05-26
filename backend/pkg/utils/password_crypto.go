@@ -3,7 +3,6 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/json"
-	"strings"
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
@@ -100,11 +99,11 @@ func DecryptPassword(password *commonv1.PasswordCrypto, scene commonv1.PasswordC
 	if password == nil {
 		return "", errorsx.InvalidArgument("密码不能为空")
 	}
-	if strings.TrimSpace(password.GetKeyId()) == "" ||
-		strings.TrimSpace(password.GetNonce()) == "" ||
-		strings.TrimSpace(password.GetEncryptedKey()) == "" ||
-		strings.TrimSpace(password.GetIv()) == "" ||
-		strings.TrimSpace(password.GetCiphertext()) == "" {
+	if password.GetKeyId() == "" ||
+		password.GetNonce() == "" ||
+		password.GetEncryptedKey() == "" ||
+		password.GetIv() == "" ||
+		password.GetCiphertext() == "" {
 		return "", errorsx.InvalidArgument("密码密文不能为空")
 	}
 	if password.GetAlgorithm() != passwordCryptoAlgorithm {

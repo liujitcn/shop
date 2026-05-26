@@ -46,10 +46,10 @@ func (c *BaseDictCase) OptionBaseDicts(ctx context.Context) (*adminv1.OptionBase
 	}
 
 	baseDictItemQuery := c.baseDictItemCase.Query(ctx).BaseDictItem
-	baseDictItemList := make([]*models.BaseDictItem, 0)
 	itemOpts := make([]repository.QueryOption, 0, 2)
 	itemOpts = append(itemOpts, repository.Order(baseDictItemQuery.Sort.Asc()))
 	itemOpts = append(itemOpts, repository.Order(baseDictItemQuery.CreatedAt.Desc()))
+	var baseDictItemList []*models.BaseDictItem
 	baseDictItemList, err = c.baseDictItemCase.List(ctx, itemOpts...)
 	if err != nil {
 		return nil, err

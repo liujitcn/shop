@@ -166,11 +166,11 @@ message CommentItem {
   .common.v1.CommentReactionType reaction_type = 18 [(gnostic.openapi.v3.property) = {description: "当前用户互动类型：枚举【CommentReactionType】"}]; // 当前用户互动类型：枚举【CommentReactionType】
 }
 
-// AI摘要
-message CommentAi {
-  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "AI摘要ID"}]; // AI摘要ID
+// 评价摘要
+message CommentSummary {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "评价摘要ID"}]; // 评价摘要ID
 
-  repeated .common.v1.CommentAiContentItem content = 2 [(gnostic.openapi.v3.property) = {description: "AI摘要内容列表"}]; // AI摘要内容列表
+  repeated .common.v1.CommentSummaryContentItem content = 2 [(gnostic.openapi.v3.property) = {description: "评价摘要内容列表"}]; // 评价摘要内容列表
 
   int32 like_count = 3 [(gnostic.openapi.v3.property) = {description: "点赞数"}]; // 点赞数
 
@@ -237,7 +237,7 @@ message GoodsCommentOverviewResponse {
 
   int32 recent_good_rate = 3 [(gnostic.openapi.v3.property) = {description: "近N天好评率百分比整数"}]; // 近N天好评率百分比整数
 
-  CommentAi ai_summary = 4 [(gnostic.openapi.v3.property) = {description: "商品详情AI摘要"}]; // 商品详情AI摘要
+  CommentSummary comment_summary = 4 [(gnostic.openapi.v3.property) = {description: "商品详情评价摘要"}]; // 商品详情评价摘要
 
   repeated CommentItem preview_comments = 6 [(gnostic.openapi.v3.property) = {description: "评价预览列表"}]; // 评价预览列表
 }
@@ -292,7 +292,7 @@ message PageGoodsCommentRequest {
 message PageGoodsCommentResponse {
   repeated CommentFilterItem comment_filters = 1 [(gnostic.openapi.v3.property) = {description: "顶部筛选项列表"}]; // 顶部筛选项列表
 
-  CommentAi ai_summary = 2 [(gnostic.openapi.v3.property) = {description: "评价列表AI摘要"}]; // 评价列表AI摘要
+  CommentSummary comment_summary = 2 [(gnostic.openapi.v3.property) = {description: "评价列表摘要"}]; // 评价列表摘要
 
   repeated CommentItem comments = 3 [(gnostic.openapi.v3.property) = {description: "评价分页数据"}]; // 评价分页数据
 

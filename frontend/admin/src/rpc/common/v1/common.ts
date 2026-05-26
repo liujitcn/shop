@@ -6,8 +6,8 @@
 
 /* eslint-disable */
 
-/** 评价AI摘要内容项 */
-export interface CommentAiContentItem {
+/** 评价摘要内容项 */
+export interface CommentSummaryContentItem {
   /** 摘要标签 */
   label: string;
   /** 摘要内容 */

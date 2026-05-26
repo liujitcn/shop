@@ -23,8 +23,8 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// 评价AI摘要内容项
-type CommentAiContentItem struct {
+// 评价摘要内容项
+type CommentSummaryContentItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`     // 摘要标签
 	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"` // 摘要内容
@@ -32,20 +32,20 @@ type CommentAiContentItem struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CommentAiContentItem) Reset() {
-	*x = CommentAiContentItem{}
+func (x *CommentSummaryContentItem) Reset() {
+	*x = CommentSummaryContentItem{}
 	mi := &file_common_v1_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CommentAiContentItem) String() string {
+func (x *CommentSummaryContentItem) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CommentAiContentItem) ProtoMessage() {}
+func (*CommentSummaryContentItem) ProtoMessage() {}
 
-func (x *CommentAiContentItem) ProtoReflect() protoreflect.Message {
+func (x *CommentSummaryContentItem) ProtoReflect() protoreflect.Message {
 	mi := &file_common_v1_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,19 +57,19 @@ func (x *CommentAiContentItem) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CommentAiContentItem.ProtoReflect.Descriptor instead.
-func (*CommentAiContentItem) Descriptor() ([]byte, []int) {
+// Deprecated: Use CommentSummaryContentItem.ProtoReflect.Descriptor instead.
+func (*CommentSummaryContentItem) Descriptor() ([]byte, []int) {
 	return file_common_v1_common_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CommentAiContentItem) GetLabel() string {
+func (x *CommentSummaryContentItem) GetLabel() string {
 	if x != nil {
 		return x.Label
 	}
 	return ""
 }
 
-func (x *CommentAiContentItem) GetContent() string {
+func (x *CommentSummaryContentItem) GetContent() string {
 	if x != nil {
 		return x.Content
 	}
@@ -475,8 +475,8 @@ var File_common_v1_common_proto protoreflect.FileDescriptor
 
 const file_common_v1_common_proto_rawDesc = "" +
 	"\n" +
-	"\x16common/v1/common.proto\x12\tcommon.v1\x1a$gnostic/openapi/v3/annotations.proto\"n\n" +
-	"\x14CommentAiContentItem\x12(\n" +
+	"\x16common/v1/common.proto\x12\tcommon.v1\x1a$gnostic/openapi/v3/annotations.proto\"s\n" +
+	"\x19CommentSummaryContentItem\x12(\n" +
 	"\x05label\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f摘要标签R\x05label\x12,\n" +
 	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f摘要内容R\acontent\"X\n" +
 	"\x10SetStatusRequest\x12\x1e\n" +
@@ -520,7 +520,7 @@ func file_common_v1_common_proto_rawDescGZIP() []byte {
 
 var file_common_v1_common_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_common_v1_common_proto_goTypes = []any{
-	(*CommentAiContentItem)(nil),         // 0: common.v1.CommentAiContentItem
+	(*CommentSummaryContentItem)(nil),    // 0: common.v1.CommentSummaryContentItem
 	(*SetStatusRequest)(nil),             // 1: common.v1.SetStatusRequest
 	(*TreeOptionResponse)(nil),           // 2: common.v1.TreeOptionResponse
 	(*SelectOptionResponse)(nil),         // 3: common.v1.SelectOptionResponse

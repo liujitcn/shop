@@ -74,7 +74,6 @@ type ShopConfig struct {
 	WxMiniApp     *WxMiniApp             `protobuf:"bytes,1,opt,name=wx_mini_app,json=wxMiniApp,proto3" json:"wx_mini_app,omitempty"` // 小程序登录参数
 	WxPay         *WxPay                 `protobuf:"bytes,2,opt,name=wx_pay,json=wxPay,proto3" json:"wx_pay,omitempty"`               // 微信支付参数
 	Recommend     *Recommend             `protobuf:"bytes,3,opt,name=recommend,proto3" json:"recommend,omitempty"`                    // 推荐配置
-	Prompt        *Prompt                `protobuf:"bytes,4,opt,name=prompt,proto3" json:"prompt,omitempty"`                          // 提示词配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -126,13 +125,6 @@ func (x *ShopConfig) GetWxPay() *WxPay {
 func (x *ShopConfig) GetRecommend() *Recommend {
 	if x != nil {
 		return x.Recommend
-	}
-	return nil
-}
-
-func (x *ShopConfig) GetPrompt() *Prompt {
-	if x != nil {
-		return x.Prompt
 	}
 	return nil
 }
@@ -328,80 +320,18 @@ func (x *Recommend) GetApiKey() string {
 	return ""
 }
 
-// Prompt 提示词
-type Prompt struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	CommentReview string                 `protobuf:"bytes,1,opt,name=comment_review,json=commentReview,proto3" json:"comment_review,omitempty"` // AI评论提示词
-	CommentAi     string                 `protobuf:"bytes,2,opt,name=comment_ai,json=commentAi,proto3" json:"comment_ai,omitempty"`             // AI汇总提示词
-	AiAssistant   string                 `protobuf:"bytes,3,opt,name=ai_assistant,json=aiAssistant,proto3" json:"ai_assistant,omitempty"`       // AI助手提示词
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Prompt) Reset() {
-	*x = Prompt{}
-	mi := &file_config_v1_shop_config_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Prompt) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Prompt) ProtoMessage() {}
-
-func (x *Prompt) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_shop_config_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Prompt.ProtoReflect.Descriptor instead.
-func (*Prompt) Descriptor() ([]byte, []int) {
-	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *Prompt) GetCommentReview() string {
-	if x != nil {
-		return x.CommentReview
-	}
-	return ""
-}
-
-func (x *Prompt) GetCommentAi() string {
-	if x != nil {
-		return x.CommentAi
-	}
-	return ""
-}
-
-func (x *Prompt) GetAiAssistant() string {
-	if x != nil {
-		return x.AiAssistant
-	}
-	return ""
-}
-
 var File_config_v1_shop_config_proto protoreflect.FileDescriptor
 
 const file_config_v1_shop_config_proto_rawDesc = "" +
 	"\n" +
 	"\x1bconfig/v1/shop_config.proto\x12\tconfig.v1\x1a$gnostic/openapi/v3/annotations.proto\"R\n" +
 	"\x11ShopConfigWrapper\x12=\n" +
-	"\x04shop\x18\x01 \x01(\v2\x15.config.v1.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\xac\x02\n" +
+	"\x04shop\x18\x01 \x01(\v2\x15.config.v1.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\xea\x01\n" +
 	"\n" +
 	"ShopConfig\x12Q\n" +
 	"\vwx_mini_app\x18\x01 \x01(\v2\x14.config.v1.WxMiniAppB\x1b\xbaG\x18\x92\x02\x15小程序登录参数R\twxMiniApp\x12A\n" +
 	"\x06wx_pay\x18\x02 \x01(\v2\x10.config.v1.WxPayB\x18\xbaG\x15\x92\x02\x12微信支付参数R\x05wxPay\x12F\n" +
-	"\trecommend\x18\x03 \x01(\v2\x14.config.v1.RecommendB\x12\xbaG\x0f\x92\x02\f推荐配置R\trecommend\x12@\n" +
-	"\x06prompt\x18\x04 \x01(\v2\x11.config.v1.PromptB\x15\xbaG\x12\x92\x02\x0f提示词配置R\x06prompt\"g\n" +
+	"\trecommend\x18\x03 \x01(\v2\x14.config.v1.RecommendB\x12\xbaG\x0f\x92\x02\f推荐配置R\trecommend\"g\n" +
 	"\tWxMiniApp\x12+\n" +
 	"\x05appid\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序 AppIDR\x05appid\x12-\n" +
 	"\x06secret\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序密钥R\x06secret\"\xc3\x02\n" +
@@ -418,12 +348,7 @@ const file_config_v1_shop_config_proto_rawDesc = "" +
 	"\ventry_point\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f请求地址R\n" +
 	"entryPoint\x12)\n" +
 	"\aapi_key\x18\x02 \x01(\tB\x10\xbaG\r\x92\x02\n" +
-	"api 密钥R\x06apiKey\"\xbc\x01\n" +
-	"\x06Prompt\x12>\n" +
-	"\x0ecomment_review\x18\x01 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI评论提示词R\rcommentReview\x126\n" +
-	"\n" +
-	"comment_ai\x18\x02 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI汇总提示词R\tcommentAi\x12:\n" +
-	"\fai_assistant\x18\x03 \x01(\tB\x17\xbaG\x14\x92\x02\x11AI助手提示词R\vaiAssistantB\x89\x01\n" +
+	"api 密钥R\x06apiKeyB\x89\x01\n" +
 	"\rcom.config.v1B\x0fShopConfigProtoP\x01Z\"shop/api/gen/go/config/v1;configv1\xa2\x02\x03CXX\xaa\x02\tConfig.V1\xca\x02\tConfig\\V1\xe2\x02\x15Config\\V1\\GPBMetadata\xea\x02\n" +
 	"Config::V1b\x06proto3"
 
@@ -439,26 +364,24 @@ func file_config_v1_shop_config_proto_rawDescGZIP() []byte {
 	return file_config_v1_shop_config_proto_rawDescData
 }
 
-var file_config_v1_shop_config_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_config_v1_shop_config_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_config_v1_shop_config_proto_goTypes = []any{
 	(*ShopConfigWrapper)(nil), // 0: config.v1.ShopConfigWrapper
 	(*ShopConfig)(nil),        // 1: config.v1.ShopConfig
 	(*WxMiniApp)(nil),         // 2: config.v1.WxMiniApp
 	(*WxPay)(nil),             // 3: config.v1.WxPay
 	(*Recommend)(nil),         // 4: config.v1.Recommend
-	(*Prompt)(nil),            // 5: config.v1.Prompt
 }
 var file_config_v1_shop_config_proto_depIdxs = []int32{
 	1, // 0: config.v1.ShopConfigWrapper.shop:type_name -> config.v1.ShopConfig
 	2, // 1: config.v1.ShopConfig.wx_mini_app:type_name -> config.v1.WxMiniApp
 	3, // 2: config.v1.ShopConfig.wx_pay:type_name -> config.v1.WxPay
 	4, // 3: config.v1.ShopConfig.recommend:type_name -> config.v1.Recommend
-	5, // 4: config.v1.ShopConfig.prompt:type_name -> config.v1.Prompt
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_config_v1_shop_config_proto_init() }
@@ -472,7 +395,7 @@ func file_config_v1_shop_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_v1_shop_config_proto_rawDesc), len(file_config_v1_shop_config_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

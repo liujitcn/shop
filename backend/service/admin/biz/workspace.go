@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"encoding/json"
-	"strings"
 	"time"
 
 	_const "shop/pkg/const"
@@ -36,7 +35,7 @@ type WorkspaceCase struct {
 	commentInfoCase       *CommentInfoCase
 	commentDiscussionCase *CommentDiscussionCase
 	commentTagCase        *CommentTagCase
-	commentAiCase         *CommentAiCase
+	commentSummaryCase    *CommentSummaryCase
 }
 
 // NewWorkspaceCase 创建工作台业务实例。
@@ -50,7 +49,7 @@ func NewWorkspaceCase(
 	commentInfoCase *CommentInfoCase,
 	commentDiscussionCase *CommentDiscussionCase,
 	commentTagCase *CommentTagCase,
-	commentAiCase *CommentAiCase,
+	commentSummaryCase *CommentSummaryCase,
 ) *WorkspaceCase {
 	return &WorkspaceCase{
 		orderInfoCase:         orderInfoCase,
@@ -62,7 +61,7 @@ func NewWorkspaceCase(
 		commentInfoCase:       commentInfoCase,
 		commentDiscussionCase: commentDiscussionCase,
 		commentTagCase:        commentTagCase,
-		commentAiCase:         commentAiCase,
+		commentSummaryCase:    commentSummaryCase,
 	}
 }
 
@@ -266,8 +265,8 @@ func (c *WorkspaceCase) SummaryWorkspaceReputation(ctx context.Context, _ *admin
 		return nil, err
 	}
 
-	var aiSummary string
-	aiSummary, err = c.latestCommentAISummary(ctx)
+	var commentSummary string
+	commentSummary, err = c.latestCommentSummary(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -275,7 +274,7 @@ func (c *WorkspaceCase) SummaryWorkspaceReputation(ctx context.Context, _ *admin
 	return &adminv1.SummaryWorkspaceReputationResponse{
 		AverageCommentScore: averageCommentScore,
 		HotTags:             hotTags,
-		AiSummary:           aiSummary,
+		CommentSummary:      commentSummary,
 	}, nil
 }
 
@@ -415,6 +414,20 @@ func (c *WorkspaceCase) countGoodsSaleNum(ctx context.Context, startAt, endAt ti
 	return result.SaleCount, err
 }
 
+// listPaidOrderIDs 查询时间范围内支付成功口径订单编号。
+func (c *WorkspaceCase) listPaidOrderIDs(ctx context.Context, startAt, endAt time.Time) ([]int64, error) {
+	query := c.orderInfoCase.Query(ctx).OrderInfo
+	orderIDs := make([]int64, 0)
+	err := query.WithContext(ctx).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+			query.Status.In(orderUtils.PaidOrderStatuses()...),
+		).
+		Pluck(query.ID, &orderIDs)
+	return orderIDs, err
+}
+
 // countDistinctActiveGoods 统计时间范围内动销商品数。
 func (c *WorkspaceCase) countDistinctActiveGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	orderIDs, err := c.listPaidOrderIDs(ctx, startAt, endAt)
@@ -445,6 +458,42 @@ func (c *WorkspaceCase) countNewGoods(ctx context.Context, startAt, endAt time.T
 		).
 		Count()
 	return count, err
+}
+
+// countCommentCount 统计时间范围内评价数。
+func (c *WorkspaceCase) countCommentCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+	query := c.commentInfoCase.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(
+		query.CreatedAt.Gte(startAt),
+		query.CreatedAt.Lt(endAt),
+	))
+	return c.commentInfoCase.Count(ctx, opts...)
+}
+
+// calcAverageCommentScore 计算时间范围内评价平均分，返回十分位。
+func (c *WorkspaceCase) calcAverageCommentScore(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+	query := c.commentInfoCase.Query(ctx).CommentInfo
+	scores := make([]int32, 0)
+	err := query.WithContext(ctx).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+			query.Status.Eq(_const.COMMENT_STATUS_APPROVED),
+		).
+		Pluck(query.GoodsScore, &scores)
+	if err != nil {
+		return 0, err
+	}
+	if len(scores) == 0 {
+		return 0, nil
+	}
+
+	var total int64
+	for _, score := range scores {
+		total += int64(score)
+	}
+	return total * 10 / int64(len(scores)), nil
 }
 
 // countOrderStatus 统计指定订单状态数量。
@@ -478,6 +527,35 @@ func (c *WorkspaceCase) countLowInventorySKU(ctx context.Context) (int64, error)
 		).
 		Count()
 	return count, err
+}
+
+// listPutOnGoodsIDs 查询当前上架商品编号。
+func (c *WorkspaceCase) listPutOnGoodsIDs(ctx context.Context) ([]int64, error) {
+	query := c.goodsInfoCase.Query(ctx).GoodsInfo
+	goodsIDs := make([]int64, 0)
+	err := query.WithContext(ctx).
+		Where(
+			query.DeletedAt.IsNull(),
+			query.Status.Eq(_const.GOODS_STATUS_PUT_ON),
+		).
+		Pluck(query.ID, &goodsIDs)
+	return goodsIDs, err
+}
+
+// countPendingComments 统计待审核评价数。
+func (c *WorkspaceCase) countPendingComments(ctx context.Context) (int64, error) {
+	query := c.commentInfoCase.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
+	return c.commentInfoCase.Count(ctx, opts...)
+}
+
+// countPendingCommentDiscussions 统计待审核评价讨论数。
+func (c *WorkspaceCase) countPendingCommentDiscussions(ctx context.Context) (int64, error) {
+	query := c.commentDiscussionCase.Query(ctx).CommentDiscussion
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
+	return c.commentDiscussionCase.Count(ctx, opts...)
 }
 
 // countZeroInventoryPutOnSKU 统计零库存仍上架SKU数量。
@@ -521,85 +599,6 @@ func (c *WorkspaceCase) countAbnormalPriceSKU(ctx context.Context) (int64, error
 	return count, err
 }
 
-// listPaidOrderIDs 查询时间范围内支付成功口径订单编号。
-func (c *WorkspaceCase) listPaidOrderIDs(ctx context.Context, startAt, endAt time.Time) ([]int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	orderIDs := make([]int64, 0)
-	err := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-			query.Status.In(orderUtils.PaidOrderStatuses()...),
-		).
-		Pluck(query.ID, &orderIDs)
-	return orderIDs, err
-}
-
-// listPutOnGoodsIDs 查询当前上架商品编号。
-func (c *WorkspaceCase) listPutOnGoodsIDs(ctx context.Context) ([]int64, error) {
-	query := c.goodsInfoCase.Query(ctx).GoodsInfo
-	goodsIDs := make([]int64, 0)
-	err := query.WithContext(ctx).
-		Where(
-			query.DeletedAt.IsNull(),
-			query.Status.Eq(_const.GOODS_STATUS_PUT_ON),
-		).
-		Pluck(query.ID, &goodsIDs)
-	return goodsIDs, err
-}
-
-// countCommentCount 统计时间范围内评价数。
-func (c *WorkspaceCase) countCommentCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
-	query := c.commentInfoCase.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(
-		query.CreatedAt.Gte(startAt),
-		query.CreatedAt.Lt(endAt),
-	))
-	return c.commentInfoCase.Count(ctx, opts...)
-}
-
-// calcAverageCommentScore 计算时间范围内评价平均分，返回十分位。
-func (c *WorkspaceCase) calcAverageCommentScore(ctx context.Context, startAt, endAt time.Time) (int64, error) {
-	query := c.commentInfoCase.Query(ctx).CommentInfo
-	scores := make([]int32, 0)
-	err := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-			query.Status.Eq(_const.COMMENT_STATUS_APPROVED),
-		).
-		Pluck(query.GoodsScore, &scores)
-	if err != nil {
-		return 0, err
-	}
-	if len(scores) == 0 {
-		return 0, nil
-	}
-
-	var total int64
-	for _, score := range scores {
-		total += int64(score)
-	}
-	return total * 10 / int64(len(scores)), nil
-}
-
-// countPendingComments 统计待审核评价数。
-func (c *WorkspaceCase) countPendingComments(ctx context.Context) (int64, error) {
-	query := c.commentInfoCase.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
-	return c.commentInfoCase.Count(ctx, opts...)
-}
-
-// countPendingCommentDiscussions 统计待审核评价讨论数。
-func (c *WorkspaceCase) countPendingCommentDiscussions(ctx context.Context) (int64, error) {
-	query := c.commentDiscussionCase.Query(ctx).CommentDiscussion
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
-	return c.commentDiscussionCase.Count(ctx, opts...)
-}
-
 // countLowScoreComments 统计近期低分评价数。
 func (c *WorkspaceCase) countLowScoreComments(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	query := c.commentInfoCase.Query(ctx).CommentInfo
@@ -635,14 +634,14 @@ func (c *WorkspaceCase) listHotCommentTags(ctx context.Context) ([]*adminv1.Work
 	return tags, nil
 }
 
-// latestCommentAISummary 查询最近的评价 AI 摘要内容。
-func (c *WorkspaceCase) latestCommentAISummary(ctx context.Context) (string, error) {
-	query := c.commentAiCase.Query(ctx).CommentAi
+// latestCommentSummary 查询最近的评价摘要内容。
+func (c *WorkspaceCase) latestCommentSummary(ctx context.Context) (string, error) {
+	query := c.commentSummaryCase.Query(ctx).CommentSummary
 	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.Scene.Eq(_const.COMMENT_AI_SCENE_OVERVIEW)))
+	opts = append(opts, repository.Where(query.Scene.Eq(_const.COMMENT_SUMMARY_SCENE_OVERVIEW)))
 	opts = append(opts, repository.Order(query.UpdatedAt.Desc()))
 	opts = append(opts, repository.Limit(1))
-	list, err := c.commentAiCase.List(ctx, opts...)
+	list, err := c.commentSummaryCase.List(ctx, opts...)
 	if err != nil {
 		return "", err
 	}
@@ -650,7 +649,7 @@ func (c *WorkspaceCase) latestCommentAISummary(ctx context.Context) (string, err
 		return "暂无评价摘要", nil
 	}
 
-	var items []*commonv1.CommentAiContentItem
+	var items []*commonv1.CommentSummaryContentItem
 	err = json.Unmarshal([]byte(list[0].Content), &items)
 	if err != nil || len(items) == 0 {
 		return "暂无评价摘要", nil
@@ -660,7 +659,6 @@ func (c *WorkspaceCase) latestCommentAISummary(ctx context.Context) (string, err
 
 // truncateWorkspaceCommentContent 截断工作台评价摘要。
 func truncateWorkspaceCommentContent(content string) string {
-	content = strings.TrimSpace(content)
 	runes := []rune(content)
 	if len(runes) <= 28 {
 		return content

@@ -252,40 +252,6 @@ func mergeUserIDs(userIDSet map[int64]struct{}, userIDs []int64) {
 	}
 }
 
-// countDistinctBehaviorUsers 统计截止指定时间的行为用户数。
-func (c *UserAnalyticsCase) countDistinctBehaviorUsers(ctx context.Context, behaviorType string, endAt time.Time) (int64, error) {
-	rootQuery := c.baseUserCase.Query(ctx)
-	// 不同行为来自不同业务表，分别使用对应 gorm/gen 查询对象统计去重用户。
-	switch behaviorType {
-	case USER_BEHAVIOR_ADDRESS:
-		query := rootQuery.UserAddress
-		return query.WithContext(ctx).
-			Where(query.CreatedAt.Lt(endAt)).
-			Distinct(query.UserID).
-			Count()
-	case USER_BEHAVIOR_COLLECT:
-		query := rootQuery.UserCollect
-		return query.WithContext(ctx).
-			Where(query.CreatedAt.Lt(endAt)).
-			Distinct(query.UserID).
-			Count()
-	case USER_BEHAVIOR_CART:
-		query := rootQuery.UserCart
-		return query.WithContext(ctx).
-			Where(query.CreatedAt.Lt(endAt)).
-			Distinct(query.UserID).
-			Count()
-	case USER_BEHAVIOR_STORE:
-		query := rootQuery.UserStore
-		return query.WithContext(ctx).
-			Where(query.CreatedAt.Lt(endAt)).
-			Distinct(query.UserID).
-			Count()
-	default:
-		return 0, nil
-	}
-}
-
 // queryUserRegisterSummary 查询用户注册趋势汇总。
 func (c *UserAnalyticsCase) queryUserRegisterSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]int64, []string, error) {
 	type row struct {
@@ -344,4 +310,38 @@ func (c *UserAnalyticsCase) queryOrderUserSummary(ctx context.Context, timeType 
 		res[item.Key] = item.Count
 	}
 	return res, nil
+}
+
+// countDistinctBehaviorUsers 统计截止指定时间的行为用户数。
+func (c *UserAnalyticsCase) countDistinctBehaviorUsers(ctx context.Context, behaviorType string, endAt time.Time) (int64, error) {
+	rootQuery := c.baseUserCase.Query(ctx)
+	// 不同行为来自不同业务表，分别使用对应 gorm/gen 查询对象统计去重用户。
+	switch behaviorType {
+	case USER_BEHAVIOR_ADDRESS:
+		query := rootQuery.UserAddress
+		return query.WithContext(ctx).
+			Where(query.CreatedAt.Lt(endAt)).
+			Distinct(query.UserID).
+			Count()
+	case USER_BEHAVIOR_COLLECT:
+		query := rootQuery.UserCollect
+		return query.WithContext(ctx).
+			Where(query.CreatedAt.Lt(endAt)).
+			Distinct(query.UserID).
+			Count()
+	case USER_BEHAVIOR_CART:
+		query := rootQuery.UserCart
+		return query.WithContext(ctx).
+			Where(query.CreatedAt.Lt(endAt)).
+			Distinct(query.UserID).
+			Count()
+	case USER_BEHAVIOR_STORE:
+		query := rootQuery.UserStore
+		return query.WithContext(ctx).
+			Where(query.CreatedAt.Lt(endAt)).
+			Distinct(query.UserID).
+			Count()
+	default:
+		return 0, nil
+	}
 }

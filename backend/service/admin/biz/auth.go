@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"regexp"
-	"strings"
 	"time"
 
 	adminv1 "shop/api/gen/go/admin/v1"
@@ -326,7 +325,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneFo
 		return errorsx.InvalidArgument("手机号格式错误")
 	}
 	// 验证码为空时，不允许继续修改。
-	if strings.TrimSpace(req.GetCode()) == "" {
+	if req.GetCode() == "" {
 		return errorsx.InvalidArgument("验证码不能为空")
 	}
 
@@ -413,11 +412,6 @@ func (c *AuthCase) UpdateUserPassword(ctx context.Context, req *adminv1.UserPass
 	})
 }
 
-// makeUpdatePhoneCodeCacheKey 生成更新手机号验证码缓存键
-func (c *AuthCase) makeUpdatePhoneCodeCacheKey(userID int64, phone string) string {
-	return fmt.Sprintf("%s%d:%s", UPDATE_PHONE_CODE_CACHE_PREFIX, userID, phone)
-}
-
 // findUserIDByPhone 根据手机号查询用户ID
 func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, error) {
 	query := c.baseUserCase.Query(ctx).BaseUser
@@ -428,4 +422,9 @@ func (c *AuthCase) findUserIDByPhone(ctx context.Context, phone string) (int64, 
 		return 0, err
 	}
 	return baseUser.ID, nil
+}
+
+// makeUpdatePhoneCodeCacheKey 生成更新手机号验证码缓存键
+func (c *AuthCase) makeUpdatePhoneCodeCacheKey(userID int64, phone string) string {
+	return fmt.Sprintf("%s%d:%s", UPDATE_PHONE_CODE_CACHE_PREFIX, userID, phone)
 }

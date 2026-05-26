@@ -11,22 +11,22 @@ type CommentAuditEvent struct {
 }
 
 // DispatchCommentAudit 投递评价或讨论审核消息。
-func DispatchCommentAudit(targetType int32, targetID int64) {
+func DispatchCommentAudit(targetType int32, targetID int64) bool {
 	// 审核目标非法时，不投递无效队列消息。
 	if targetType <= 0 || targetID <= 0 {
-		return
+		return false
 	}
-	AddQueue(_const.COMMENT_AUDIT, &CommentAuditEvent{
+	return AddQueue(_const.COMMENT_AUDIT, &CommentAuditEvent{
 		TargetType: targetType,
 		TargetID:   targetID,
 	})
 }
 
-// DispatchCommentAiRefresh 投递商品评价 AI 摘要刷新消息。
-func DispatchCommentAiRefresh(goodsID int64) {
+// DispatchCommentSummaryRefresh 投递商品评价摘要刷新消息。
+func DispatchCommentSummaryRefresh(goodsID int64) {
 	// 商品编号非法时，不投递无效队列消息。
 	if goodsID <= 0 {
 		return
 	}
-	AddQueue(_const.COMMENT_AI_REFRESH, goodsID)
+	AddQueue(_const.COMMENT_SUMMARY_REFRESH, goodsID)
 }

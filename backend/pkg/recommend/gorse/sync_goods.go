@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
-	"strings"
 	"time"
 
 	_const "shop/pkg/const"
@@ -180,7 +179,7 @@ func (r *GoodsSyncReceiver) sync(ctx context.Context, goods *models.GoodsInfo) e
 func (r *GoodsSyncReceiver) buildPayload(goods *models.GoodsInfo) (client.Item, client.ItemPatch) {
 	categoryIDs := make([]int64, 0)
 	// 分类字段非空时，尝试解析为推荐系统分类维度。
-	if strings.TrimSpace(goods.CategoryID) != "" {
+	if goods.CategoryID != "" {
 		parseErr := json.Unmarshal([]byte(goods.CategoryID), &categoryIDs)
 		// 分类 JSON 解析失败时，回退为空列表，避免单条商品脏数据阻塞整批推荐同步。
 		if parseErr != nil {

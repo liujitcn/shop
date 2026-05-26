@@ -206,21 +206,6 @@ func (c *GoodsReportCase) parseMonth(month string) (time.Time, error) {
 	return time.Date(parsedTime.Year(), parsedTime.Month(), 1, 0, 0, 0, 0, location), nil
 }
 
-// parseDate 解析日期字符串并归一化到当天零点。
-func (c *GoodsReportCase) parseDate(date string) (time.Time, error) {
-	// 日期为空时，无法继续解析日报范围。
-	if date == "" {
-		return time.Time{}, errorsx.InvalidArgument("日期不能为空")
-	}
-
-	location := time.Now().Location()
-	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
-	if err != nil {
-		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("日期格式错误：%s", date))
-	}
-	return time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, location), nil
-}
-
 // queryGoodsMonthReportRows 查询商品月报聚合数据。
 func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, startAt, endAt time.Time) ([]*dto.GoodsMonthReportRow, error) {
 	rows := make([]*dto.GoodsMonthReportRow, 0)
@@ -246,6 +231,42 @@ func (c *GoodsReportCase) queryGoodsMonthReportRows(ctx context.Context, startAt
 		Order(utils.MonthReportAliasField()).
 		Scan(&rows)
 	return rows, err
+}
+
+// toGoodsMonthReportItem 转换商品月报行数据。
+func (c *GoodsReportCase) toGoodsMonthReportItem(row *dto.GoodsMonthReportRow) *adminv1.GoodsMonthReportItem {
+	item := c.monthMapper.ToDTO(row)
+	item.CartConversionRate = utils.CalcRatio(row.CartCount, row.ViewCount)
+	item.OrderConversionRate = utils.CalcRatio(row.OrderCount, row.CartCount)
+	item.PayConversionRate = utils.CalcRatio(row.PayCount, row.ViewCount)
+	item.PayUnitPrice = utils.CalcPerUnit(row.PayAmount, row.PayGoodsNum)
+	return item
+}
+
+// appendMonthReportSummary 累加商品月报区间汇总。
+func (c *GoodsReportCase) appendMonthReportSummary(summary *adminv1.SummaryGoodsMonthReportResponse, item *adminv1.GoodsMonthReportItem) {
+	summary.ViewCount += item.ViewCount
+	summary.CollectCount += item.CollectCount
+	summary.CartCount += item.CartCount
+	summary.OrderCount += item.OrderCount
+	summary.PayCount += item.PayCount
+	summary.PayGoodsNum += item.PayGoodsNum
+	summary.PayAmount += item.PayAmount
+}
+
+// parseDate 解析日期字符串并归一化到当天零点。
+func (c *GoodsReportCase) parseDate(date string) (time.Time, error) {
+	// 日期为空时，无法继续解析日报范围。
+	if date == "" {
+		return time.Time{}, errorsx.InvalidArgument("日期不能为空")
+	}
+
+	location := time.Now().Location()
+	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
+	if err != nil {
+		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("日期格式错误：%s", date))
+	}
+	return time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, location), nil
 }
 
 // queryGoodsDayReportRows 查询商品日报聚合数据。
@@ -275,20 +296,9 @@ func (c *GoodsReportCase) queryGoodsDayReportRows(ctx context.Context, startAt, 
 	return rows, err
 }
 
-// appendMonthReportSummary 累加商品月报区间汇总。
-func (c *GoodsReportCase) appendMonthReportSummary(summary *adminv1.SummaryGoodsMonthReportResponse, item *adminv1.GoodsMonthReportItem) {
-	summary.ViewCount += item.ViewCount
-	summary.CollectCount += item.CollectCount
-	summary.CartCount += item.CartCount
-	summary.OrderCount += item.OrderCount
-	summary.PayCount += item.PayCount
-	summary.PayGoodsNum += item.PayGoodsNum
-	summary.PayAmount += item.PayAmount
-}
-
-// toGoodsMonthReportItem 转换商品月报行数据。
-func (c *GoodsReportCase) toGoodsMonthReportItem(row *dto.GoodsMonthReportRow) *adminv1.GoodsMonthReportItem {
-	item := c.monthMapper.ToDTO(row)
+// toGoodsDayReportItem 转换商品日报行数据。
+func (c *GoodsReportCase) toGoodsDayReportItem(row *dto.GoodsDayReportRow) *adminv1.GoodsDayReportItem {
+	item := c.dayMapper.ToDTO(row)
 	item.CartConversionRate = utils.CalcRatio(row.CartCount, row.ViewCount)
 	item.OrderConversionRate = utils.CalcRatio(row.OrderCount, row.CartCount)
 	item.PayConversionRate = utils.CalcRatio(row.PayCount, row.ViewCount)
@@ -305,14 +315,4 @@ func (c *GoodsReportCase) appendDayReportSummary(summary *adminv1.SummaryGoodsDa
 	summary.PayCount += item.PayCount
 	summary.PayGoodsNum += item.PayGoodsNum
 	summary.PayAmount += item.PayAmount
-}
-
-// toGoodsDayReportItem 转换商品日报行数据。
-func (c *GoodsReportCase) toGoodsDayReportItem(row *dto.GoodsDayReportRow) *adminv1.GoodsDayReportItem {
-	item := c.dayMapper.ToDTO(row)
-	item.CartConversionRate = utils.CalcRatio(row.CartCount, row.ViewCount)
-	item.OrderConversionRate = utils.CalcRatio(row.OrderCount, row.CartCount)
-	item.PayConversionRate = utils.CalcRatio(row.PayCount, row.ViewCount)
-	item.PayUnitPrice = utils.CalcPerUnit(row.PayAmount, row.PayGoodsNum)
-	return item
 }

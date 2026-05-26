@@ -58,8 +58,6 @@ func getClientRealIP(request *http.Request) string {
 		ips := strings.Split(xff, ",")
 
 		for _, ip := range ips {
-			// 去除空格
-			ip = strings.TrimSpace(ip)
 			// 检查是否是合法的IP地址
 			// 命中合法 IP 时，直接作为客户端真实地址返回。
 			if net.ParseIP(ip) != nil {
@@ -98,7 +96,7 @@ func getIPFromRemoteAddr(hostAddress string) string {
 	// RemoteAddr 可能携带端口，需要先拆分 host 部分。
 	if strings.Contains(hostAddress, ":") {
 		// 能正常拆分 host:port 时，优先校验拆分后的 host。
-		host, _, err := net.SplitHostPort(strings.TrimSpace(hostAddress))
+		host, _, err := net.SplitHostPort(hostAddress)
 		// host:port 拆分成功时，继续校验 host 是否为合法 IP。
 		if err == nil {
 			// 只有合法 IP 才允许作为客户端地址返回。

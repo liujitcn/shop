@@ -81,12 +81,12 @@ func (c *RecommendRequestItemCase) ListRecommendRequestItems(
 		positionList = append(positionList, item.Position)
 	}
 
-	goodsMap := make(map[int64]*models.GoodsInfo)
+	var goodsMap map[int64]*models.GoodsInfo
 	goodsMap, err = c.getGoodsInfoMap(ctx, goodsIDs)
 	if err != nil {
 		return nil, err
 	}
-	eventCountMap := make(map[string]int64)
+	var eventCountMap map[string]int64
 	eventCountMap, err = c.recommendEventCase.getRecommendEventCountMap(ctx, requestModel.RequestID, goodsIDs, positionList)
 	if err != nil {
 		return nil, err

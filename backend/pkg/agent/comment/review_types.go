@@ -10,6 +10,8 @@ type ReviewRequest struct {
 	SKUDesc string `json:"skuDesc"`
 	// Content 评价或讨论文本内容。
 	Content string `json:"content"`
+	// ExistingTags 当前商品已有评价标签，用于引导模型优先复用。
+	ExistingTags []string `json:"existingTags"`
 	// ImageURLs 评价图片地址列表，用于多模态审核。
 	ImageURLs []string `json:"imageUrls"`
 	// ImageData 评价图片字节列表，用于审核本地或非公网图片。
@@ -37,7 +39,7 @@ type ReviewResult struct {
 	// RiskReason 不通过原因，通过时为空。
 	RiskReason string `json:"riskReason" jsonschema:"不通过原因，通过时为空；不通过时必须包含违规类别、命中文本片段或图片序号，以及判定依据"`
 	// Tags 商品体验标签，最多保留 5 个。
-	Tags []string `json:"tags" jsonschema:"商品体验标签，最多 5 个，每个不超过 8 个中文字符"`
+	Tags []string `json:"tags" jsonschema:"商品体验标签，最多 5 个，每个不超过 8 个中文字符；有 existingTags 时优先原样复用已有标签，确无合适项才生成新标签"`
 
 	approvedSet  bool
 	textRiskSet  bool

@@ -663,7 +663,7 @@ type SummaryWorkspaceReputationResponse struct {
 	state               protoimpl.MessageState    `protogen:"open.v1"`
 	AverageCommentScore int64                     `protobuf:"varint,1,opt,name=average_comment_score,json=averageCommentScore,proto3" json:"average_comment_score,omitempty"` // 近7日平均评分，十分位，46表示4.6分
 	HotTags             []*WorkspaceReputationTag `protobuf:"bytes,2,rep,name=hot_tags,json=hotTags,proto3" json:"hot_tags,omitempty"`                                        // 高频评价标签
-	AiSummary           string                    `protobuf:"bytes,3,opt,name=ai_summary,json=aiSummary,proto3" json:"ai_summary,omitempty"`                                  // AI评价摘要
+	CommentSummary      string                    `protobuf:"bytes,3,opt,name=comment_summary,json=commentSummary,proto3" json:"comment_summary,omitempty"`                   // 评价摘要
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -712,9 +712,9 @@ func (x *SummaryWorkspaceReputationResponse) GetHotTags() []*WorkspaceReputation
 	return nil
 }
 
-func (x *SummaryWorkspaceReputationResponse) GetAiSummary() string {
+func (x *SummaryWorkspaceReputationResponse) GetCommentSummary() string {
 	if x != nil {
-		return x.AiSummary
+		return x.CommentSummary
 	}
 	return ""
 }
@@ -823,12 +823,11 @@ const file_admin_v1_workspace_proto_rawDesc = "" +
 	"\acontent\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f评论摘要R\acontent\x121\n" +
 	"\n" +
 	"created_at\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f评价时间R\tcreatedAt\"#\n" +
-	"!SummaryWorkspaceReputationRequest\"\x9c\x02\n" +
+	"!SummaryWorkspaceReputationRequest\"\xa4\x02\n" +
 	"\"SummaryWorkspaceReputationResponse\x12j\n" +
 	"\x15average_comment_score\x18\x01 \x01(\x03B6\xbaG3\x92\x020近7日平均评分，十分位，46表示4.6分R\x13averageCommentScore\x12U\n" +
-	"\bhot_tags\x18\x02 \x03(\v2 .admin.v1.WorkspaceReputationTagB\x18\xbaG\x15\x92\x02\x12高频评价标签R\ahotTags\x123\n" +
-	"\n" +
-	"ai_summary\x18\x03 \x01(\tB\x14\xbaG\x11\x92\x02\x0eAI评价摘要R\taiSummary\"y\n" +
+	"\bhot_tags\x18\x02 \x03(\v2 .admin.v1.WorkspaceReputationTagB\x18\xbaG\x15\x92\x02\x12高频评价标签R\ahotTags\x12;\n" +
+	"\x0fcomment_summary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价摘要R\x0ecommentSummary\"y\n" +
 	"\x16WorkspaceReputationTag\x12&\n" +
 	"\x04name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f标签名称R\x04name\x127\n" +
 	"\rmention_count\x18\x02 \x01(\x03B\x12\xbaG\x0f\x92\x02\f提及次数R\fmentionCount2\xbf\x06\n" +

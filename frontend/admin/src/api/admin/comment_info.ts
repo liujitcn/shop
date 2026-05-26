@@ -1,6 +1,5 @@
 import service from "@/utils/request";
 import {
-  type CommentAi,
   type CommentDiscussion,
   type CommentInfo,
   type CommentInfoDetail,
@@ -33,8 +32,6 @@ type CommentInfoDetailHTTPResponse = Partial<CommentInfoDetail> & {
   tagList?: CommentTag[];
   /** 旧协议评论讨论列表字段 */
   discussionList?: CommentDiscussion[];
-  /** 旧协议商品评论 AI 摘要字段 */
-  aiList?: CommentAi[];
   /** 旧协议评论审核记录字段 */
   reviewList?: CommentReview[];
 };
@@ -46,8 +43,6 @@ type GoodsCommentInfoHTTPResponse = Partial<GoodsCommentInfoResponse> & {
   tagList?: CommentTag[];
   /** 旧协议评论讨论列表字段 */
   discussionList?: CommentDiscussion[];
-  /** 旧协议商品评论 AI 摘要字段 */
-  aiList?: CommentAi[];
 };
 
 type PageCommentDiscussionsHTTPResponse = Partial<PageCommentDiscussionsResponse> & {
@@ -84,8 +79,8 @@ export class CommentInfoServiceImpl implements CommentInfoService {
     const comment_infos = response.comment_infos ?? response.commentList ?? [];
     const comment_tags = response.comment_tags ?? response.tagList ?? [];
     const comment_discussions = response.comment_discussions ?? response.discussionList ?? [];
-    const comment_ais = response.comment_ais ?? response.aiList ?? [];
-    return { ...response, comment_infos, comment_tags, comment_discussions, comment_ais } as GoodsCommentInfoResponse;
+    const comment_summaries = response.comment_summaries ?? [];
+    return { ...response, comment_infos, comment_tags, comment_discussions, comment_summaries } as GoodsCommentInfoResponse;
   }
 
   /** 查询评论详情。 */
@@ -97,14 +92,14 @@ export class CommentInfoServiceImpl implements CommentInfoService {
     // 兼容旧详情字段，同时向新协议复数资源字段收敛。
     const comment_tags = response.comment_tags ?? response.tagList ?? [];
     const comment_discussions = response.comment_discussions ?? response.discussionList ?? [];
-    const comment_ais = response.comment_ais ?? response.aiList ?? [];
+    const comment_summaries = response.comment_summaries ?? [];
     const comment_reviews = response.comment_reviews ?? response.reviewList ?? [];
     return {
       ...response,
       comment: response.comment,
       comment_tags,
       comment_discussions,
-      comment_ais,
+      comment_summaries,
       comment_reviews
     } as CommentInfoDetail;
   }

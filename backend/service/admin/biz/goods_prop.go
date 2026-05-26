@@ -95,6 +95,12 @@ func (c *GoodsPropCase) UpdateGoodsProp(ctx context.Context, req *adminv1.GoodsP
 	return nil
 }
 
+// DeleteGoodsProp 删除商品属性
+func (c *GoodsPropCase) DeleteGoodsProp(ctx context.Context, id string) error {
+	goodsIDs := _string.ConvertStringToInt64Array(id)
+	return c.DeleteByIDs(ctx, goodsIDs)
+}
+
 // ListGoodsPropByGoodsID 按商品查询属性列表
 func (c *GoodsPropCase) ListGoodsPropByGoodsID(ctx context.Context, goodsID int64) ([]*adminv1.GoodsProp, error) {
 	query := c.Query(ctx).GoodsProp
@@ -112,10 +118,4 @@ func (c *GoodsPropCase) ListGoodsPropByGoodsID(ctx context.Context, goodsID int6
 		resList = append(resList, goodsProp)
 	}
 	return resList, nil
-}
-
-// DeleteGoodsProp 删除商品属性
-func (c *GoodsPropCase) DeleteGoodsProp(ctx context.Context, id string) error {
-	goodsIDs := _string.ConvertStringToInt64Array(id)
-	return c.DeleteByIDs(ctx, goodsIDs)
 }

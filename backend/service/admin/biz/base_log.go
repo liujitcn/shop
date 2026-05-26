@@ -87,6 +87,15 @@ func (c *BaseLogCase) GetBaseLog(ctx context.Context, id int64) (*adminv1.BaseLo
 	return c.toBaseLog(baseLog), nil
 }
 
+// toBaseLog 转换日志响应数据
+func (c *BaseLogCase) toBaseLog(item *models.BaseLog) *adminv1.BaseLog {
+	costTime := time.Duration(item.CostTime) * time.Millisecond
+	baseLog := c.mapper.ToDTO(item)
+	baseLog.RequestTime = _time.TimeToTimeString(item.RequestTime)
+	baseLog.CostTime = costTime.String()
+	return baseLog
+}
+
 // saveLog 保存日志队列消息
 func (c *BaseLogCase) saveLog(message queueData.Message) error {
 	baseLog, err := queue.DecodeQueueData[models.BaseLog](message)
@@ -98,13 +107,4 @@ func (c *BaseLogCase) saveLog(message queueData.Message) error {
 		return nil
 	}
 	return c.Create(context.TODO(), baseLog)
-}
-
-// toBaseLog 转换日志响应数据
-func (c *BaseLogCase) toBaseLog(item *models.BaseLog) *adminv1.BaseLog {
-	costTime := time.Duration(item.CostTime) * time.Millisecond
-	baseLog := c.mapper.ToDTO(item)
-	baseLog.RequestTime = _time.TimeToTimeString(item.RequestTime)
-	baseLog.CostTime = costTime.String()
-	return baseLog
 }

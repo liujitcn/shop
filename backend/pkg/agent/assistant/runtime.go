@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	configv1 "shop/api/gen/go/config/v1"
 	"shop/pkg/agent/provider"
 
 	"github.com/go-kratos/blades"
@@ -19,20 +18,27 @@ const (
 	stateSummary      = "session_summary"
 )
 
+const aiAssistantInstruction = `你是一个通用 AI 助手，可以自然、友好、准确地回答用户提出的各种问题。
+回复要求：
+1. 优先直接回答当前问题，不因为问题不属于商城系统而拒绝。
+2. 可以处理通用知识、日常问答、写作润色、代码说明、方案整理、思路分析等请求。
+3. 如果用户提供了附件、历史上下文或系统上下文，可以按需参考。
+4. 涉及实时信息、高风险建议或关键事实缺失时，说明不确定性和需要补充的信息。
+5. 不要编造当前上下文没有提供的私有系统数据、精确数值或操作结果。
+6. 用中文回复，保持清晰自然，适合直接展示在聊天窗口。`
+
 // Runtime 封装流式 AI 助手运行时。
 //
 // Runtime 只负责把业务层准备好的输入交给 Blades Agent 执行，不直接处理数据库、
 // OSS、鉴权或前端协议。这样 AI 助手链路可以把“业务准备”和“模型运行”分开维护。
 type Runtime struct {
 	client *provider.ResponsesClient
-	prompt *configv1.Prompt
 }
 
 // NewRuntime 创建 AI 助手运行时。
-func NewRuntime(client *provider.ResponsesClient, prompt *configv1.Prompt) *Runtime {
+func NewRuntime(client *provider.ResponsesClient) *Runtime {
 	return &Runtime{
 		client: client,
-		prompt: prompt,
 	}
 }
 
@@ -119,6 +125,49 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	return r.buildResponse(finalMessage), nil
 }
 
+// buildSession 构建当前轮次的 Blades Session。
+func (r *Runtime) buildSession(ctx context.Context, input RuntimeInput) (blades.Session, error) {
+	session := blades.NewSession(
+		blades.WithContextCompressor(summaryContext.NewContextCompressor(
+			r.client,
+			summaryContext.WithKeepRecent(8),
+			summaryContext.WithBatchSize(12),
+			summaryContext.WithMaxTokens(1800),
+		)),
+	)
+	session.SetState(stateTerminal, input.Terminal)
+	session.SetState(stateUserName, input.UserName)
+	session.SetState(stateSessionTitle, input.SessionTitle)
+	session.SetState(stateSummary, input.Summary)
+
+	var err error
+	for _, item := range input.History {
+		content := item.Content
+		// 空历史对模型没有帮助，跳过可减少上下文噪音。
+		if content == "" {
+			continue
+		}
+		err = appendHistoryMessage(ctx, session, item.Role, content)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return session, nil
+}
+
+// appendHistoryMessage 按消息角色追加历史上下文。
+func appendHistoryMessage(ctx context.Context, session blades.Session, role string, content string) error {
+	// 历史角色需要还原到 Blades 原生消息类型，未知角色按用户消息处理以兼容旧数据。
+	switch strings.ToLower(role) {
+	case RoleAssistant:
+		return session.Append(ctx, blades.AssistantMessage(content))
+	case RoleSystem:
+		return session.Append(ctx, blades.SystemMessage(content))
+	default:
+		return session.Append(ctx, blades.UserMessage(content))
+	}
+}
+
 // buildRunner 构建当前轮次的 AI 助手运行器。
 func (r *Runtime) buildRunner(input RuntimeInput) (*blades.Runner, error) {
 	var err error
@@ -136,57 +185,31 @@ func (r *Runtime) buildRunner(input RuntimeInput) (*blades.Runner, error) {
 	return blades.NewRunner(agentInstance), nil
 }
 
-// buildSession 构建当前轮次的 Blades Session。
-func (r *Runtime) buildSession(ctx context.Context, input RuntimeInput) (blades.Session, error) {
-	session := blades.NewSession(
-		blades.WithContextCompressor(summaryContext.NewContextCompressor(
-			r.client,
-			summaryContext.WithKeepRecent(8),
-			summaryContext.WithBatchSize(12),
-			summaryContext.WithMaxTokens(1800),
-		)),
-	)
-	session.SetState(stateTerminal, strings.TrimSpace(input.Terminal))
-	session.SetState(stateUserName, strings.TrimSpace(input.UserName))
-	session.SetState(stateSessionTitle, strings.TrimSpace(input.SessionTitle))
-	session.SetState(stateSummary, strings.TrimSpace(input.Summary))
-
-	var err error
-	for _, item := range input.History {
-		content := strings.TrimSpace(item.Content)
-		// 空历史对模型没有帮助，跳过可减少上下文噪音。
-		if content == "" {
-			continue
-		}
-		err = appendHistoryMessage(ctx, session, item.Role, content)
-		if err != nil {
-			return nil, err
-		}
+// resolvePromptTemplate 渲染 AI 助手提示词模板。
+func (r *Runtime) resolvePromptTemplate(input RuntimeInput) string {
+	lines := []string{
+		aiAssistantInstruction,
+		"",
+		"当前会话：",
+		"- 终端：{{.terminal}}",
+		"- 用户：{{.user_name}}",
+		"- 标题：{{.session_title}}",
+		"- 摘要：{{.session_summary}}",
 	}
-	return session, nil
-}
-
-// appendHistoryMessage 按消息角色追加历史上下文。
-func appendHistoryMessage(ctx context.Context, session blades.Session, role string, content string) error {
-	// 历史角色需要还原到 Blades 原生消息类型，未知角色按用户消息处理以兼容旧数据。
-	switch strings.ToLower(strings.TrimSpace(role)) {
-	case RoleAssistant:
-		return session.Append(ctx, blades.AssistantMessage(content))
-	case RoleSystem:
-		return session.Append(ctx, blades.SystemMessage(content))
-	default:
-		return session.Append(ctx, blades.UserMessage(content))
+	if len(input.Attachments) > 0 {
+		lines = append(lines, "", "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。")
 	}
+	return strings.Join(lines, "\n")
 }
 
 // buildUserMessage 构建当前轮次发送给模型的用户消息。
 func (r *Runtime) buildUserMessage(input RuntimeInput) *blades.Message {
-	content := strings.TrimSpace(input.Content)
+	content := input.Content
 	attachmentLines := make([]string, 0, len(input.Attachments)*2)
 	imageParts := make([]blades.DataPart, 0, len(input.Attachments))
 
 	for _, item := range input.Attachments {
-		attachmentContent := strings.TrimSpace(item.Content)
+		attachmentContent := item.Content
 		name := normalizeAttachmentName(item.Name)
 		cleanMIMEType := normalizeRuntimeMIMEType(item)
 
@@ -224,7 +247,7 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *blades.Message {
 
 // normalizeAttachmentName 规范化模型提示词中展示的附件名称。
 func normalizeAttachmentName(name string) string {
-	trimmed := strings.TrimSpace(name)
+	trimmed := name
 	// 模型提示词里避免出现空附件名，便于用户和模型对齐附件引用。
 	if trimmed == "" {
 		return "未命名附件"
@@ -234,7 +257,7 @@ func normalizeAttachmentName(name string) string {
 
 // normalizeRuntimeMIMEType 规范化运行时 MIME 类型。
 func normalizeRuntimeMIMEType(item Attachment) string {
-	cleanMIMEType := strings.ToLower(strings.TrimSpace(strings.SplitN(item.MIMEType, ";", 2)[0]))
+	cleanMIMEType := strings.ToLower(strings.SplitN(item.MIMEType, ";", 2)[0])
 	// image/jpg 不是标准 MIME，统一转成模型更常见支持的 image/jpeg。
 	if cleanMIMEType == "image/jpg" {
 		return "image/jpeg"
@@ -279,8 +302,8 @@ func buildAttachmentDetailLine(name string, item Attachment) string {
 	if item.Size > 0 {
 		details = append(details, fmt.Sprintf("大小：%d 字节", item.Size))
 	}
-	if strings.TrimSpace(item.URL) != "" {
-		details = append(details, fmt.Sprintf("地址：%s", strings.TrimSpace(item.URL)))
+	if item.URL != "" {
+		details = append(details, fmt.Sprintf("地址：%s", item.URL))
 	}
 	return strings.Join(details, "，")
 }
@@ -295,7 +318,7 @@ func buildUserMessageParts(content string, attachmentLines []string, imageParts 
 
 	messageParts := make([]any, 0, 1+len(imageParts))
 	// 用户可能只上传图片不输入文本，空文本不传入 message parts。
-	if text := strings.TrimSpace(strings.Join(textParts, "\n\n")); text != "" {
+	if text := strings.Join(textParts, "\n\n"); text != "" {
 		messageParts = append(messageParts, text)
 	}
 	for _, item := range imageParts {
@@ -308,7 +331,7 @@ func buildUserMessageParts(content string, attachmentLines []string, imageParts 
 func (r *Runtime) buildResponse(message *blades.Message) *Response {
 	content := ""
 	if message != nil {
-		content = strings.TrimSpace(message.Text())
+		content = message.Text()
 	}
 	return &Response{
 		Content:        content,
@@ -318,29 +341,4 @@ func (r *Runtime) buildResponse(message *blades.Message) *Response {
 		Fallback:       false,
 		FallbackReason: "",
 	}
-}
-
-// resolvePromptTemplate 渲染 AI 助手提示词模板。
-func (r *Runtime) resolvePromptTemplate(input RuntimeInput) string {
-	promptText := ""
-	if r.prompt != nil {
-		promptText = strings.TrimSpace(r.prompt.GetAiAssistant())
-	}
-	if promptText == "" {
-		promptText = "你是一个通用 AI 助手，直接、自然、准确地回答用户的问题。"
-	}
-
-	lines := []string{
-		promptText,
-		"",
-		"当前会话：",
-		"- 终端：{{.terminal}}",
-		"- 用户：{{.user_name}}",
-		"- 标题：{{.session_title}}",
-		"- 摘要：{{.session_summary}}",
-	}
-	if len(input.Attachments) > 0 {
-		lines = append(lines, "", "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。")
-	}
-	return strings.Join(lines, "\n")
 }

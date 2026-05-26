@@ -20,7 +20,7 @@ const isLoading = ref(false)
 const totalCount = ref(0)
 const recentDays = ref(90)
 const recentGoodRateText = ref('0%')
-const aiSummaryContent = ref('')
+const commentSummaryContent = ref('')
 const commentTags = ref<CommentTagItem[]>([])
 const previewList = ref<CommentItem[]>([])
 
@@ -47,7 +47,7 @@ const resetOverview = () => {
   totalCount.value = 0
   recentDays.value = 90
   recentGoodRateText.value = '0%'
-  aiSummaryContent.value = ''
+  commentSummaryContent.value = ''
   commentTags.value = []
   previewList.value = []
 }
@@ -72,7 +72,7 @@ const loadOverview = async () => {
     totalCount.value = res.total_count || 0
     recentDays.value = res.recent_days || 90
     recentGoodRateText.value = `${res.recent_good_rate || 0}%`
-    aiSummaryContent.value = res.ai_summary?.content?.[0]?.content || ''
+    commentSummaryContent.value = res.comment_summary?.content?.[0]?.content || ''
     previewList.value = res.preview_comments || []
     const tagRes = await defCommentService.GoodsCommentTags({
       goods_id: props.goods_id,
@@ -141,13 +141,17 @@ const onOpenCommentPage = () => {
       </view>
     </view>
 
-    <view v-if="hasCommentStats && aiSummaryContent" class="ai-review" @tap="onOpenCommentPage">
-      <view class="ai-mascot">
-        <text class="ai-mascot-eye">›•</text>
+    <view
+      v-if="hasCommentStats && commentSummaryContent"
+      class="summary-review"
+      @tap="onOpenCommentPage"
+    >
+      <view class="summary-mascot">
+        <text class="summary-mascot-eye">›•</text>
       </view>
-      <view class="ai-bubble">
-        <text class="summary-label">✦ AI 全网评</text>
-        <text class="summary-content">{{ aiSummaryContent }}</text>
+      <view class="summary-bubble">
+        <text class="summary-label">✦ 评价摘要</text>
+        <text class="summary-content">{{ commentSummaryContent }}</text>
       </view>
     </view>
 
@@ -254,13 +258,13 @@ const onOpenCommentPage = () => {
   }
 }
 
-.ai-review {
+.summary-review {
   display: flex;
   align-items: center;
   margin-bottom: 18rpx;
 }
 
-.ai-mascot {
+.summary-mascot {
   position: relative;
   width: 72rpx;
   height: 72rpx;
@@ -293,7 +297,7 @@ const onOpenCommentPage = () => {
   }
 }
 
-.ai-mascot-eye {
+.summary-mascot-eye {
   position: absolute;
   left: 19rpx;
   top: 22rpx;
@@ -303,7 +307,7 @@ const onOpenCommentPage = () => {
   letter-spacing: 2rpx;
 }
 
-.ai-bubble {
+.summary-bubble {
   position: relative;
   flex: 1;
   padding: 18rpx 20rpx;

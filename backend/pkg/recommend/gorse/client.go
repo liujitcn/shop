@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	stdhttp "net/http"
-	"strings"
 
 	configv1 "shop/api/gen/go/config/v1"
 	"shop/pkg/queue"
@@ -28,7 +27,7 @@ func NewRecommend(cfg *configv1.Recommend) *Recommend {
 		return &Recommend{}
 	}
 
-	entryPoint := strings.TrimSpace(cfg.GetEntryPoint())
+	entryPoint := cfg.GetEntryPoint()
 	// 未配置入口地址时，直接关闭推荐系统链路并走本地兜底。
 	if entryPoint == "" {
 		queue.SetRecommendEnabled(false)
@@ -41,7 +40,7 @@ func NewRecommend(cfg *configv1.Recommend) *Recommend {
 		Transport: otelhttp.NewTransport(stdhttp.DefaultTransport),
 	}))
 	// 当前配置了 API Key 时，通过默认请求头统一透传给 Gorse 推荐服务。
-	if strings.TrimSpace(cfg.GetApiKey()) != "" {
+	if cfg.GetApiKey() != "" {
 		httpClientOptions = append(httpClientOptions, _http.WithDefaultHeader("X-API-Key", cfg.GetApiKey()))
 	}
 
@@ -64,7 +63,6 @@ func (r *Recommend) RequestJSON(ctx context.Context, method, path string, querie
 		return nil, fmt.Errorf("gorse recommend client is not enabled")
 	}
 
-	path = strings.TrimSpace(path)
 	// 请求路径为空时，说明调用方未明确指定Gorse 接口。
 	if path == "" {
 		return nil, fmt.Errorf("gorse recommend request path is empty")
@@ -74,13 +72,13 @@ func (r *Recommend) RequestJSON(ctx context.Context, method, path string, querie
 	options = append(options, _http.WithContext(ctx))
 	for key, value := range queries {
 		// 空查询名没有业务意义，直接跳过避免生成异常 query。
-		if strings.TrimSpace(key) == "" {
+		if key == "" {
 			continue
 		}
 		options = append(options, _http.WithQuery(key, value))
 	}
 	// 携带请求体时，按 JSON 透传给 Gorse 推荐引擎。
-	if strings.TrimSpace(body) != "" {
+	if body != "" {
 		options = append(options, _http.WithBodyString(body), _http.WithContentType("application/json"))
 	}
 
@@ -92,7 +90,7 @@ func (r *Recommend) RequestJSON(ctx context.Context, method, path string, querie
 	}
 	// Gorse 返回非 2xx 状态码时，带上响应体方便排查接口与配置问题。
 	if resp.StatusCode < stdhttp.StatusOK || resp.StatusCode >= stdhttp.StatusMultipleChoices {
-		return nil, fmt.Errorf("gorse recommend request failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(resp.String()))
+		return nil, fmt.Errorf("gorse recommend request failed: status=%d body=%s", resp.StatusCode, resp.String())
 	}
 	return resp.Body, nil
 }
@@ -104,7 +102,6 @@ func (r *Recommend) requestScores(ctx context.Context, path string) ([]client.Sc
 		return nil, fmt.Errorf("gorse recommend client is not enabled")
 	}
 
-	path = strings.TrimSpace(path)
 	// 请求路径为空时，说明调用方未明确指定Gorse 接口。
 	if path == "" {
 		return nil, fmt.Errorf("gorse recommend request path is empty")
@@ -118,7 +115,7 @@ func (r *Recommend) requestScores(ctx context.Context, path string) ([]client.Sc
 	}
 	// Gorse 返回非成功状态码时，直接抛出响应体内容，方便业务侧定位配置或路径问题。
 	if resp.StatusCode != stdhttp.StatusOK {
-		return nil, fmt.Errorf("gorse recommend request failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(resp.String()))
+		return nil, fmt.Errorf("gorse recommend request failed: status=%d body=%s", resp.StatusCode, resp.String())
 	}
 
 	var scores []client.Score

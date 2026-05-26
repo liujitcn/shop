@@ -512,7 +512,7 @@ type CommentInfoDetail struct {
 	Comment            *CommentInfo           `protobuf:"bytes,1,opt,name=comment,proto3" json:"comment,omitempty"`                                                 // 评论内容
 	CommentTags        []*CommentTag          `protobuf:"bytes,2,rep,name=comment_tags,json=commentTags,proto3" json:"comment_tags,omitempty"`                      // 商品评论标签
 	CommentDiscussions []*CommentDiscussion   `protobuf:"bytes,3,rep,name=comment_discussions,json=commentDiscussions,proto3" json:"comment_discussions,omitempty"` // 评论讨论列表
-	CommentAis         []*CommentAi           `protobuf:"bytes,4,rep,name=comment_ais,json=commentAis,proto3" json:"comment_ais,omitempty"`                         // 商品评论AI摘要
+	CommentSummaries   []*CommentSummary      `protobuf:"bytes,4,rep,name=comment_summaries,json=commentSummaries,proto3" json:"comment_summaries,omitempty"`       // 商品评论摘要
 	CommentReviews     []*CommentReview       `protobuf:"bytes,5,rep,name=comment_reviews,json=commentReviews,proto3" json:"comment_reviews,omitempty"`             // 评论审核记录
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -569,9 +569,9 @@ func (x *CommentInfoDetail) GetCommentDiscussions() []*CommentDiscussion {
 	return nil
 }
 
-func (x *CommentInfoDetail) GetCommentAis() []*CommentAi {
+func (x *CommentInfoDetail) GetCommentSummaries() []*CommentSummary {
 	if x != nil {
-		return x.CommentAis
+		return x.CommentSummaries
 	}
 	return nil
 }
@@ -589,7 +589,7 @@ type GoodsCommentInfoResponse struct {
 	CommentInfos       []*CommentInfo         `protobuf:"bytes,1,rep,name=comment_infos,json=commentInfos,proto3" json:"comment_infos,omitempty"`                   // 评论列表
 	CommentTags        []*CommentTag          `protobuf:"bytes,2,rep,name=comment_tags,json=commentTags,proto3" json:"comment_tags,omitempty"`                      // 商品评论标签
 	CommentDiscussions []*CommentDiscussion   `protobuf:"bytes,3,rep,name=comment_discussions,json=commentDiscussions,proto3" json:"comment_discussions,omitempty"` // 评论讨论列表
-	CommentAis         []*CommentAi           `protobuf:"bytes,4,rep,name=comment_ais,json=commentAis,proto3" json:"comment_ais,omitempty"`                         // 商品评论AI摘要
+	CommentSummaries   []*CommentSummary      `protobuf:"bytes,4,rep,name=comment_summaries,json=commentSummaries,proto3" json:"comment_summaries,omitempty"`       // 商品评论摘要
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -645,9 +645,9 @@ func (x *GoodsCommentInfoResponse) GetCommentDiscussions() []*CommentDiscussion 
 	return nil
 }
 
-func (x *GoodsCommentInfoResponse) GetCommentAis() []*CommentAi {
+func (x *GoodsCommentInfoResponse) GetCommentSummaries() []*CommentSummary {
 	if x != nil {
-		return x.CommentAis
+		return x.CommentSummaries
 	}
 	return nil
 }
@@ -1269,35 +1269,35 @@ func (x *CommentDiscussion) GetUpdatedAt() string {
 	return ""
 }
 
-// 评论AI摘要
-type CommentAi struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Id            int64                      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // AI摘要主键
-	GoodsId       int64                      `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                // 商品ID
-	Scene         v1.CommentAiScene          `protobuf:"varint,3,opt,name=scene,proto3,enum=common.v1.CommentAiScene" json:"scene,omitempty"`     // 展示场景：枚举【CommentAiScene】
-	Content       []*v1.CommentAiContentItem `protobuf:"bytes,4,rep,name=content,proto3" json:"content,omitempty"`                                // AI摘要内容列表
-	LikeCount     int32                      `protobuf:"varint,5,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`          // 点赞数
-	DislikeCount  int32                      `protobuf:"varint,6,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"` // 点踩数
-	CreatedAt     string                     `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`         // 创建时间
-	UpdatedAt     string                     `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`         // 最后更新时间
+// 评论摘要
+type CommentSummary struct {
+	state         protoimpl.MessageState          `protogen:"open.v1"`
+	Id            int64                           `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                          // 评价摘要主键
+	GoodsId       int64                           `protobuf:"varint,2,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                 // 商品ID
+	Scene         v1.CommentSummaryScene          `protobuf:"varint,3,opt,name=scene,proto3,enum=common.v1.CommentSummaryScene" json:"scene,omitempty"` // 展示场景：枚举【CommentSummaryScene】
+	Content       []*v1.CommentSummaryContentItem `protobuf:"bytes,4,rep,name=content,proto3" json:"content,omitempty"`                                 // 评价摘要内容列表
+	LikeCount     int32                           `protobuf:"varint,5,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`           // 点赞数
+	DislikeCount  int32                           `protobuf:"varint,6,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"`  // 点踩数
+	CreatedAt     string                          `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`          // 创建时间
+	UpdatedAt     string                          `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`          // 最后更新时间
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CommentAi) Reset() {
-	*x = CommentAi{}
+func (x *CommentSummary) Reset() {
+	*x = CommentSummary{}
 	mi := &file_admin_v1_comment_info_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CommentAi) String() string {
+func (x *CommentSummary) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CommentAi) ProtoMessage() {}
+func (*CommentSummary) ProtoMessage() {}
 
-func (x *CommentAi) ProtoReflect() protoreflect.Message {
+func (x *CommentSummary) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_comment_info_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1309,61 +1309,61 @@ func (x *CommentAi) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CommentAi.ProtoReflect.Descriptor instead.
-func (*CommentAi) Descriptor() ([]byte, []int) {
+// Deprecated: Use CommentSummary.ProtoReflect.Descriptor instead.
+func (*CommentSummary) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{15}
 }
 
-func (x *CommentAi) GetId() int64 {
+func (x *CommentSummary) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *CommentAi) GetGoodsId() int64 {
+func (x *CommentSummary) GetGoodsId() int64 {
 	if x != nil {
 		return x.GoodsId
 	}
 	return 0
 }
 
-func (x *CommentAi) GetScene() v1.CommentAiScene {
+func (x *CommentSummary) GetScene() v1.CommentSummaryScene {
 	if x != nil {
 		return x.Scene
 	}
-	return v1.CommentAiScene(0)
+	return v1.CommentSummaryScene(0)
 }
 
-func (x *CommentAi) GetContent() []*v1.CommentAiContentItem {
+func (x *CommentSummary) GetContent() []*v1.CommentSummaryContentItem {
 	if x != nil {
 		return x.Content
 	}
 	return nil
 }
 
-func (x *CommentAi) GetLikeCount() int32 {
+func (x *CommentSummary) GetLikeCount() int32 {
 	if x != nil {
 		return x.LikeCount
 	}
 	return 0
 }
 
-func (x *CommentAi) GetDislikeCount() int32 {
+func (x *CommentSummary) GetDislikeCount() int32 {
 	if x != nil {
 		return x.DislikeCount
 	}
 	return 0
 }
 
-func (x *CommentAi) GetCreatedAt() string {
+func (x *CommentSummary) GetCreatedAt() string {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return ""
 }
 
-func (x *CommentAi) GetUpdatedAt() string {
+func (x *CommentSummary) GetUpdatedAt() string {
 	if x != nil {
 		return x.UpdatedAt
 	}
@@ -1542,20 +1542,18 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"targetType\x121\n" +
 	"\ttarget_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e审核目标IDR\btargetId\"x\n" +
 	"\x1aListCommentReviewsResponse\x12Z\n" +
-	"\x0fcomment_reviews\x18\x01 \x03(\v2\x17.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12审核记录列表R\x0ecommentReviews\"\xc1\x03\n" +
+	"\x0fcomment_reviews\x18\x01 \x03(\v2\x17.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12审核记录列表R\x0ecommentReviews\"\xd0\x03\n" +
 	"\x11CommentInfoDetail\x12C\n" +
 	"\acomment\x18\x01 \x01(\v2\x15.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f评论内容R\acomment\x12Q\n" +
 	"\fcomment_tags\x18\x02 \x03(\v2\x14.admin.v1.CommentTagB\x18\xbaG\x15\x92\x02\x12商品评论标签R\vcommentTags\x12f\n" +
-	"\x13comment_discussions\x18\x03 \x03(\v2\x1b.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12P\n" +
-	"\vcomment_ais\x18\x04 \x03(\v2\x13.admin.v1.CommentAiB\x1a\xbaG\x17\x92\x02\x14商品评论AI摘要R\n" +
-	"commentAis\x12Z\n" +
-	"\x0fcomment_reviews\x18\x05 \x03(\v2\x17.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12评论审核记录R\x0ecommentReviews\"\xf7\x02\n" +
+	"\x13comment_discussions\x18\x03 \x03(\v2\x1b.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12_\n" +
+	"\x11comment_summaries\x18\x04 \x03(\v2\x18.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\x12Z\n" +
+	"\x0fcomment_reviews\x18\x05 \x03(\v2\x17.admin.v1.CommentReviewB\x18\xbaG\x15\x92\x02\x12评论审核记录R\x0ecommentReviews\"\x86\x03\n" +
 	"\x18GoodsCommentInfoResponse\x12N\n" +
 	"\rcomment_infos\x18\x01 \x03(\v2\x15.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f评论列表R\fcommentInfos\x12Q\n" +
 	"\fcomment_tags\x18\x02 \x03(\v2\x14.admin.v1.CommentTagB\x18\xbaG\x15\x92\x02\x12商品评论标签R\vcommentTags\x12f\n" +
-	"\x13comment_discussions\x18\x03 \x03(\v2\x1b.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12P\n" +
-	"\vcomment_ais\x18\x04 \x03(\v2\x13.admin.v1.CommentAiB\x1a\xbaG\x17\x92\x02\x14商品评论AI摘要R\n" +
-	"commentAis\"\xeb\v\n" +
+	"\x13comment_discussions\x18\x03 \x03(\v2\x1b.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12_\n" +
+	"\x11comment_summaries\x18\x04 \x03(\v2\x18.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\"\xeb\v\n" +
 	"\vCommentInfo\x12\"\n" +
 	"\x02id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f评价主键R\x02id\x12)\n" +
 	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
@@ -1631,12 +1629,12 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f发布时间R\tcreatedAt\x128\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\tupdatedAt\"\xe9\x03\n" +
-	"\tCommentAi\x12$\n" +
-	"\x02id\x18\x01 \x01(\x03B\x14\xbaG\x11\x92\x02\x0eAI摘要主键R\x02id\x12)\n" +
-	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12`\n" +
-	"\x05scene\x18\x03 \x01(\x0e2\x19.common.v1.CommentAiSceneB/\xbaG,\x92\x02)展示场景：枚举【CommentAiScene】R\x05scene\x12U\n" +
-	"\acontent\x18\x04 \x03(\v2\x1f.common.v1.CommentAiContentItemB\x1a\xbaG\x17\x92\x02\x14AI摘要内容列表R\acontent\x12.\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12最后更新时间R\tupdatedAt\"\x85\x04\n" +
+	"\x0eCommentSummary\x12(\n" +
+	"\x02id\x18\x01 \x01(\x03B\x18\xbaG\x15\x92\x02\x12评价摘要主键R\x02id\x12)\n" +
+	"\bgoods_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12j\n" +
+	"\x05scene\x18\x03 \x01(\x0e2\x1e.common.v1.CommentSummarySceneB4\xbaG1\x92\x02.展示场景：枚举【CommentSummaryScene】R\x05scene\x12^\n" +
+	"\acontent\x18\x04 \x03(\v2$.common.v1.CommentSummaryContentItemB\x1e\xbaG\x1b\x92\x02\x18评价摘要内容列表R\acontent\x12.\n" +
 	"\n" +
 	"like_count\x18\x05 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
 	"\rdislike_count\x18\x06 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\x122\n" +
@@ -1699,12 +1697,12 @@ var file_admin_v1_comment_info_proto_goTypes = []any{
 	(*PageCommentDiscussionsRequest)(nil),     // 12: admin.v1.PageCommentDiscussionsRequest
 	(*PageCommentDiscussionsResponse)(nil),    // 13: admin.v1.PageCommentDiscussionsResponse
 	(*CommentDiscussion)(nil),                 // 14: admin.v1.CommentDiscussion
-	(*CommentAi)(nil),                         // 15: admin.v1.CommentAi
+	(*CommentSummary)(nil),                    // 15: admin.v1.CommentSummary
 	(*CommentReview)(nil),                     // 16: admin.v1.CommentReview
 	(v1.CommentStatus)(0),                     // 17: common.v1.CommentStatus
 	(v1.CommentReviewTargetType)(0),           // 18: common.v1.CommentReviewTargetType
-	(v1.CommentAiScene)(0),                    // 19: common.v1.CommentAiScene
-	(*v1.CommentAiContentItem)(nil),           // 20: common.v1.CommentAiContentItem
+	(v1.CommentSummaryScene)(0),               // 19: common.v1.CommentSummaryScene
+	(*v1.CommentSummaryContentItem)(nil),      // 20: common.v1.CommentSummaryContentItem
 	(v1.CommentReviewType)(0),                 // 21: common.v1.CommentReviewType
 	(v1.CommentReviewStatus)(0),               // 22: common.v1.CommentReviewStatus
 	(*emptypb.Empty)(nil),                     // 23: google.protobuf.Empty
@@ -1719,18 +1717,18 @@ var file_admin_v1_comment_info_proto_depIdxs = []int32{
 	10, // 6: admin.v1.CommentInfoDetail.comment:type_name -> admin.v1.CommentInfo
 	11, // 7: admin.v1.CommentInfoDetail.comment_tags:type_name -> admin.v1.CommentTag
 	14, // 8: admin.v1.CommentInfoDetail.comment_discussions:type_name -> admin.v1.CommentDiscussion
-	15, // 9: admin.v1.CommentInfoDetail.comment_ais:type_name -> admin.v1.CommentAi
+	15, // 9: admin.v1.CommentInfoDetail.comment_summaries:type_name -> admin.v1.CommentSummary
 	16, // 10: admin.v1.CommentInfoDetail.comment_reviews:type_name -> admin.v1.CommentReview
 	10, // 11: admin.v1.GoodsCommentInfoResponse.comment_infos:type_name -> admin.v1.CommentInfo
 	11, // 12: admin.v1.GoodsCommentInfoResponse.comment_tags:type_name -> admin.v1.CommentTag
 	14, // 13: admin.v1.GoodsCommentInfoResponse.comment_discussions:type_name -> admin.v1.CommentDiscussion
-	15, // 14: admin.v1.GoodsCommentInfoResponse.comment_ais:type_name -> admin.v1.CommentAi
+	15, // 14: admin.v1.GoodsCommentInfoResponse.comment_summaries:type_name -> admin.v1.CommentSummary
 	17, // 15: admin.v1.CommentInfo.status:type_name -> common.v1.CommentStatus
 	17, // 16: admin.v1.PageCommentDiscussionsRequest.status:type_name -> common.v1.CommentStatus
 	14, // 17: admin.v1.PageCommentDiscussionsResponse.comment_discussions:type_name -> admin.v1.CommentDiscussion
 	17, // 18: admin.v1.CommentDiscussion.status:type_name -> common.v1.CommentStatus
-	19, // 19: admin.v1.CommentAi.scene:type_name -> common.v1.CommentAiScene
-	20, // 20: admin.v1.CommentAi.content:type_name -> common.v1.CommentAiContentItem
+	19, // 19: admin.v1.CommentSummary.scene:type_name -> common.v1.CommentSummaryScene
+	20, // 20: admin.v1.CommentSummary.content:type_name -> common.v1.CommentSummaryContentItem
 	18, // 21: admin.v1.CommentReview.target_type:type_name -> common.v1.CommentReviewTargetType
 	21, // 22: admin.v1.CommentReview.type:type_name -> common.v1.CommentReviewType
 	22, // 23: admin.v1.CommentReview.status:type_name -> common.v1.CommentReviewStatus

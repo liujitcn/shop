@@ -129,7 +129,7 @@ message SummaryWorkspaceReputationResponse {
 
   repeated WorkspaceReputationTag hot_tags = 2 [(gnostic.openapi.v3.property) = {description: "高频评价标签"}]; // 高频评价标签
 
-  string ai_summary = 3 [(gnostic.openapi.v3.property) = {description: "AI评价摘要"}]; // AI评价摘要
+  string comment_summary = 3 [(gnostic.openapi.v3.property) = {description: "评价摘要"}]; // 评价摘要
 }
 
 // 工作台口碑高频标签

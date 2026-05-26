@@ -105,30 +105,30 @@
           </div>
         </el-tab-pane>
 
-        <el-tab-pane label="AI 摘要" name="ai">
+        <el-tab-pane label="评价摘要" name="summary">
           <div class="detail-tab-panel">
-            <template v-if="aiSummaryList.length">
-              <div v-for="item in aiSummaryList" :key="`${item.scene}-${item.created_at}`" class="ai-summary-card">
-                <div class="ai-summary-header">
-                  <span class="ai-summary-title">AI摘要</span>
-                  <DictLabel :model-value="item.scene" code="comment_ai_scene" size="default" />
-                  <span class="ai-summary-time">{{ item.updated_at || item.created_at || "-" }}</span>
+            <template v-if="commentSummaryList.length">
+              <div v-for="item in commentSummaryList" :key="`${item.scene}-${item.created_at}`" class="comment-summary-card">
+                <div class="comment-summary-header">
+                  <span class="comment-summary-title">评价摘要</span>
+                  <DictLabel :model-value="item.scene" code="comment_summary_scene" size="default" />
+                  <span class="comment-summary-time">{{ item.updated_at || item.created_at || "-" }}</span>
                 </div>
 
-                <div v-if="item.content?.length" class="ai-content-list">
+                <div v-if="item.content?.length" class="summary-content-list">
                   <div
                     v-for="(contentItem, index) in item.content"
                     :key="`${item.scene}-${index}-${contentItem.label}`"
-                    class="ai-content-item"
+                    class="summary-content-item"
                   >
-                    <span class="ai-content-label">{{ contentItem.label || "摘要" }}</span>
-                    <span class="ai-content-text">{{ contentItem.content || "-" }}</span>
+                    <span class="summary-content-label">{{ contentItem.label || "摘要" }}</span>
+                    <span class="summary-content-text">{{ contentItem.content || "-" }}</span>
                   </div>
                 </div>
                 <div v-else class="detail-text-empty">暂无摘要内容</div>
               </div>
             </template>
-            <div v-else class="detail-text-empty">暂无AI摘要</div>
+            <div v-else class="detail-text-empty">暂无评价摘要</div>
           </div>
         </el-tab-pane>
 
@@ -162,7 +162,7 @@ import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { defCommentInfoService } from "@/api/admin/comment_info";
 import type {
-  CommentAi,
+  CommentSummary,
   CommentDiscussion,
   CommentInfo,
   CommentInfoDetail,
@@ -180,9 +180,9 @@ defineOptions({
 });
 
 /** 评论详情页标签名称。 */
-type CommentDetailTabName = "basic" | "media" | "ai" | "review" | "discussion";
+type CommentDetailTabName = "basic" | "media" | "summary" | "review" | "discussion";
 
-/** 评论详情响应兼容结构，用于迁移期兼容旧字段名。 */
+/** 评论详情响应兼容结构，用于迁移期兼容通用列表字段。 */
 type CommentInfoDetailCompat = Partial<CommentInfoDetail> & {
   /** 旧协议商品评论标签字段 */
   commentTags?: CommentTag[];
@@ -192,10 +192,6 @@ type CommentInfoDetailCompat = Partial<CommentInfoDetail> & {
   commentDiscussions?: CommentDiscussion[];
   /** 旧协议评论讨论列表字段 */
   discussionList?: CommentDiscussion[];
-  /** 旧协议商品评论 AI 摘要字段 */
-  commentAis?: CommentAi[];
-  /** 旧协议商品评论 AI 摘要字段 */
-  aiList?: CommentAi[];
   /** 旧协议评论审核记录字段 */
   reviewList?: CommentReview[];
 };
@@ -236,10 +232,10 @@ const commentImageList = computed<string[]>(() => {
   return imgList.map(item => formatImage(item)).filter(Boolean);
 });
 
-/** 当前评论 AI 摘要列表。 */
-const aiSummaryList = computed<CommentAi[]>(() => {
+/** 当前评论 评价摘要列表。 */
+const commentSummaryList = computed<CommentSummary[]>(() => {
   const detail = commentDetail.value;
-  const list = detail?.comment_ais ?? detail?.commentAis ?? detail?.aiList;
+  const list = detail?.comment_summaries;
   // 兼容接口返回空数组字段被省略的场景。
   if (!Array.isArray(list)) return [];
   return list;
@@ -272,7 +268,7 @@ function syncCommentIdFromRoute() {
 function syncViewStateFromRoute() {
   const tab = String(route.query.tab || "");
   activeTabName.value =
-    tab === "discussion" || tab === "media" || tab === "ai" || tab === "review" ? (tab as CommentDetailTabName) : "basic";
+    tab === "discussion" || tab === "media" || tab === "summary" || tab === "review" ? (tab as CommentDetailTabName) : "basic";
 
   const discussionStatus = Number(route.query.discussionStatus ?? 0);
   // 只有明确携带有效状态时，才默认填充讨论列表搜索条件。
@@ -601,14 +597,14 @@ onActivated(() => {
   display: block;
 }
 
-.ai-summary-card {
+.comment-summary-card {
   padding: 14px;
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
   background: var(--admin-page-card-bg-soft);
 }
 
-.ai-summary-header {
+.comment-summary-header {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -616,37 +612,37 @@ onActivated(() => {
   margin-bottom: 12px;
 }
 
-.ai-summary-title {
+.comment-summary-title {
   font-size: 15px;
   font-weight: 600;
   color: var(--admin-page-text-primary);
 }
 
-.ai-summary-time {
+.comment-summary-time {
   margin-left: auto;
   font-size: 12px;
   color: var(--admin-page-text-placeholder);
 }
 
-.ai-content-list {
+.summary-content-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.ai-content-item {
+.summary-content-item {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr);
   gap: 12px;
   line-height: 1.6;
 }
 
-.ai-content-label {
+.summary-content-label {
   font-weight: 600;
   color: var(--admin-page-text-secondary);
 }
 
-.ai-content-text {
+.summary-content-text {
   min-width: 0;
   color: var(--admin-page-text-primary);
   white-space: pre-wrap;
@@ -666,12 +662,12 @@ onActivated(() => {
     justify-content: flex-start;
   }
 
-  .ai-summary-time {
+  .comment-summary-time {
     width: 100%;
     margin-left: 0;
   }
 
-  .ai-content-item {
+  .summary-content-item {
     grid-template-columns: 1fr;
     gap: 4px;
   }

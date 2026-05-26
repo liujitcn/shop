@@ -49,14 +49,14 @@ type responsesModel struct {
 func NewResponses(model string, config ResponsesConfig) blades.ModelProvider {
 	opts := make([]option.RequestOption, 0, len(config.RequestOptions)+2)
 	opts = append(opts, config.RequestOptions...)
-	if baseURL := strings.TrimSpace(config.BaseURL); baseURL != "" {
+	if baseURL := config.BaseURL; baseURL != "" {
 		opts = append(opts, option.WithBaseURL(baseURL))
 	}
-	if apiKey := strings.TrimSpace(config.APIKey); apiKey != "" {
+	if apiKey := config.APIKey; apiKey != "" {
 		opts = append(opts, option.WithAPIKey(apiKey))
 	}
 	return &responsesModel{
-		model:  strings.TrimSpace(model),
+		model:  model,
 		config: config,
 		client: sdkopenai.NewClient(opts...),
 	}
@@ -92,56 +92,6 @@ func (m *responsesModel) NewStreaming(ctx context.Context, req *blades.ModelRequ
 			yield(response, nil)
 		}
 	}
-}
-
-// streamResponses 将 Responses 流式事件转换成 Blades 响应。
-func (m *responsesModel) streamResponses(ctx context.Context, req *blades.ModelRequest, yield func(*blades.ModelResponse, error) bool) (*blades.ModelResponse, error) {
-	params, err := m.buildResponsesParams(req)
-	if err != nil {
-		return nil, err
-	}
-	stream := m.client.Responses.NewStreaming(ctx, params)
-	defer func() {
-		_ = stream.Close()
-	}()
-
-	var content strings.Builder
-	var finalResponse sdkresponses.Response
-	var hasFinalResponse bool
-	for stream.Next() {
-		event := stream.Current()
-		switch item := event.AsAny().(type) {
-		case sdkresponses.ResponseTextDeltaEvent:
-			if item.Delta == "" {
-				continue
-			}
-			content.WriteString(item.Delta)
-			if yield == nil {
-				continue
-			}
-			message := blades.NewAssistantMessage(blades.StatusIncomplete)
-			message.Parts = append(message.Parts, blades.TextPart{Text: item.Delta})
-			if !yield(&blades.ModelResponse{Message: message}, nil) {
-				return nil, nil
-			}
-		case sdkresponses.ResponseCompletedEvent:
-			finalResponse = item.Response
-			hasFinalResponse = true
-		case sdkresponses.ResponseIncompleteEvent:
-			return nil, responseError(&item.Response)
-		case sdkresponses.ResponseFailedEvent:
-			return nil, responseError(&item.Response)
-		case sdkresponses.ResponseErrorEvent:
-			return nil, responseEventError(item)
-		}
-	}
-	if err = stream.Err(); err != nil {
-		return nil, err
-	}
-	if hasFinalResponse {
-		return responseToModelResponse(&finalResponse, content.String())
-	}
-	return responseToModelResponse(nil, content.String())
 }
 
 // buildResponsesParams 将 Blades 请求转换成 OpenAI Responses 请求参数。
@@ -195,18 +145,6 @@ func (m *responsesModel) buildResponsesParams(req *blades.ModelRequest) (sdkresp
 	return params, nil
 }
 
-// responsesInstructions 返回 Responses 请求的系统提示词。
-func responsesInstructions(req *blades.ModelRequest) string {
-	instructions := "你是一个通用 AI 聊天助手。"
-	if req == nil || req.Instruction == nil {
-		return instructions
-	}
-	if text := strings.TrimSpace(messageText(req.Instruction)); text != "" {
-		return text
-	}
-	return instructions
-}
-
 // responsesInputItems 将 Blades 消息转换为 Responses input。
 func responsesInputItems(req *blades.ModelRequest) sdkresponses.ResponseInputParam {
 	if req == nil {
@@ -222,7 +160,7 @@ func responsesInputItems(req *blades.ModelRequest) sdkresponses.ResponseInputPar
 			continue
 		}
 		if message.Role == blades.RoleAssistant {
-			text := strings.TrimSpace(messageText(message))
+			text := messageText(message)
 			if text == "" {
 				continue
 			}
@@ -253,17 +191,17 @@ func responsesContentParts(message *blades.Message) sdkresponses.ResponseInputMe
 	for _, part := range message.Parts {
 		switch value := part.(type) {
 		case blades.TextPart:
-			if text := strings.TrimSpace(value.Text); text != "" {
+			if text := value.Text; text != "" {
 				parts = append(parts, sdkresponses.ResponseInputContentParamOfInputText(text))
 			}
 		case blades.FilePart:
-			if value.MIMEType.Type() == "image" && strings.TrimSpace(value.URI) != "" {
+			if value.MIMEType.Type() == "image" && value.URI != "" {
 				inputImage := sdkresponses.ResponseInputContentParamOfInputImage(sdkresponses.ResponseInputImageDetailAuto)
-				inputImage.OfInputImage.ImageURL = param.NewOpt(strings.TrimSpace(value.URI))
+				inputImage.OfInputImage.ImageURL = param.NewOpt(value.URI)
 				parts = append(parts, inputImage)
 				continue
 			}
-			if text := strings.TrimSpace(partText(value)); text != "" {
+			if text := partText(value); text != "" {
 				parts = append(parts, sdkresponses.ResponseInputContentParamOfInputText(text))
 			}
 		case blades.DataPart:
@@ -273,7 +211,7 @@ func responsesContentParts(message *blades.Message) sdkresponses.ResponseInputMe
 				parts = append(parts, inputImage)
 				continue
 			}
-			if text := strings.TrimSpace(partText(value)); text != "" {
+			if text := partText(value); text != "" {
 				parts = append(parts, sdkresponses.ResponseInputContentParamOfInputText(text))
 			}
 		case blades.ToolPart:
@@ -287,9 +225,67 @@ func responsesContentParts(message *blades.Message) sdkresponses.ResponseInputMe
 	return parts
 }
 
+// partText 将暂不支持的附件降级成文本描述。
+func partText(part blades.Part) string {
+	switch value := part.(type) {
+	case blades.TextPart:
+		return value.Text
+	case blades.FilePart:
+		return filePartText(value)
+	case blades.DataPart:
+		if len(value.Bytes) == 0 {
+			return ""
+		}
+		return fmt.Sprintf("附件《%s》为 %s 文件，大小约 %d 字节。", value.Name, value.MIMEType, len(value.Bytes))
+	case blades.ToolPart:
+		raw, err := json.Marshal(value)
+		if err != nil {
+			return ""
+		}
+		return string(raw)
+	default:
+		return ""
+	}
+}
+
+// filePartText 将文件引用转成文本描述。
+func filePartText(part blades.FilePart) string {
+	if part.URI == "" {
+		return ""
+	}
+	return fmt.Sprintf("附件《%s》地址：%s，类型：%s。", part.Name, part.URI, part.MIMEType)
+}
+
+// dataURLFromPart 将图片字节转换成 data URL。
+func dataURLFromPart(part blades.DataPart) string {
+	if len(part.Bytes) == 0 {
+		return ""
+	}
+	mimeType := string(part.MIMEType)
+	if mimeType == "" {
+		mimeType = string(blades.MIMEImagePNG)
+	}
+	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(part.Bytes))
+}
+
+// messageText 提取 Blades 消息中的可转发文本内容。
+func messageText(message *blades.Message) string {
+	if message == nil {
+		return ""
+	}
+	parts := make([]string, 0, len(message.Parts))
+	for _, part := range message.Parts {
+		text := partText(part)
+		if text != "" {
+			parts = append(parts, text)
+		}
+	}
+	return strings.Join(parts, "\n")
+}
+
 // normalizedMessageID 返回符合 Responses 历史输出消息格式的 ID。
 func normalizedMessageID(raw string) string {
-	itemID := strings.TrimSpace(raw)
+	itemID := raw
 	if itemID == "" {
 		return "msg_" + blades.NewMessageID()
 	}
@@ -299,6 +295,18 @@ func normalizedMessageID(raw string) string {
 	return "msg_" + strings.ReplaceAll(itemID, "-", "")
 }
 
+// responsesInstructions 返回 Responses 请求的系统提示词。
+func responsesInstructions(req *blades.ModelRequest) string {
+	instructions := "你是一个通用 AI 聊天助手。"
+	if req == nil || req.Instruction == nil {
+		return instructions
+	}
+	if text := messageText(req.Instruction); text != "" {
+		return text
+	}
+	return instructions
+}
+
 // toolsToResponsesTools 将 Blades 工具转换成 Responses 工具。
 func toolsToResponsesTools(toolList []tools.Tool) ([]sdkresponses.ToolUnionParam, error) {
 	if len(toolList) == 0 {
@@ -306,7 +314,7 @@ func toolsToResponsesTools(toolList []tools.Tool) ([]sdkresponses.ToolUnionParam
 	}
 	result := make([]sdkresponses.ToolUnionParam, 0, len(toolList))
 	for _, item := range toolList {
-		if item == nil || strings.TrimSpace(item.Name()) == "" {
+		if item == nil || item.Name() == "" {
 			continue
 		}
 		parameters := map[string]any{}
@@ -322,7 +330,7 @@ func toolsToResponsesTools(toolList []tools.Tool) ([]sdkresponses.ToolUnionParam
 			Parameters: parameters,
 			Strict:     param.NewOpt(false),
 		}
-		if description := strings.TrimSpace(item.Description()); description != "" {
+		if description := item.Description(); description != "" {
 			fn.Description = param.NewOpt(description)
 		}
 		result = append(result, sdkresponses.ToolUnionParam{OfFunction: &fn})
@@ -330,10 +338,26 @@ func toolsToResponsesTools(toolList []tools.Tool) ([]sdkresponses.ToolUnionParam
 	return result, nil
 }
 
+// schemaToMap 将 JSON Schema 转为普通 map，便于写入 SDK 参数。
+func schemaToMap(schema *jsonschema.Schema) (map[string]any, error) {
+	if schema == nil {
+		return nil, nil
+	}
+	raw, err := json.Marshal(schema)
+	if err != nil {
+		return nil, err
+	}
+	var result map[string]any
+	if err = json.Unmarshal(raw, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 // responseFormatFromSchema 将 Blades 输出 Schema 转换为 Responses 文本格式约束。
 func responseFormatFromSchema(schema *jsonschema.Schema, schemaMap map[string]any) sdkresponses.ResponseFormatTextConfigUnionParam {
 	name := "structured_outputs"
-	if title := strings.TrimSpace(schema.Title); title != "" {
+	if title := schema.Title; title != "" {
 		name = title
 	}
 	jsonSchema := sdkresponses.ResponseFormatTextJSONSchemaConfigParam{
@@ -341,7 +365,7 @@ func responseFormatFromSchema(schema *jsonschema.Schema, schemaMap map[string]an
 		Schema: schemaMap,
 		Strict: param.NewOpt(true),
 	}
-	if description := strings.TrimSpace(schema.Description); description != "" {
+	if description := schema.Description; description != "" {
 		jsonSchema.Description = param.NewOpt(description)
 	}
 	return sdkresponses.ResponseFormatTextConfigUnionParam{OfJSONSchema: &jsonSchema}
@@ -349,16 +373,16 @@ func responseFormatFromSchema(schema *jsonschema.Schema, schemaMap map[string]an
 
 // responseToModelResponse 将 Responses 响应转换成 Blades 响应。
 func responseToModelResponse(response *sdkresponses.Response, fallbackText string) (*blades.ModelResponse, error) {
-	if response == nil && strings.TrimSpace(fallbackText) == "" {
+	if response == nil && fallbackText == "" {
 		return nil, errors.New("responses api returned empty response")
 	}
 	if err := responseError(response); err != nil {
 		return nil, err
 	}
 	message := blades.NewAssistantMessage(blades.StatusCompleted)
-	content := strings.TrimSpace(fallbackText)
+	content := fallbackText
 	if response != nil {
-		if text := strings.TrimSpace(response.OutputText()); text != "" {
+		if text := response.OutputText(); text != "" {
 			content = text
 		}
 		message.TokenUsage = blades.TokenUsage{
@@ -376,6 +400,23 @@ func responseToModelResponse(response *sdkresponses.Response, fallbackText strin
 		message.Parts = append(message.Parts, item)
 	}
 	return &blades.ModelResponse{Message: message}, nil
+}
+
+// responseError 收敛 Responses 失败信息。
+func responseError(response *sdkresponses.Response) error {
+	if response == nil {
+		return nil
+	}
+	if message := response.Error.Message; message != "" {
+		return errors.New(message)
+	}
+	if reason := response.IncompleteDetails.Reason; reason != "" && response.Status == sdkresponses.ResponseStatusIncomplete {
+		return fmt.Errorf("responses api incomplete: %s", reason)
+	}
+	if response.Status == sdkresponses.ResponseStatusFailed {
+		return errors.New("responses api failed")
+	}
+	return nil
 }
 
 // responseToolParts 提取 Responses 输出中的工具调用。
@@ -397,105 +438,64 @@ func responseToolParts(response *sdkresponses.Response) []blades.ToolPart {
 	return parts
 }
 
-// responseEventError 将 Responses 流式错误事件转换为普通错误。
-func responseEventError(event sdkresponses.ResponseErrorEvent) error {
-	message := strings.TrimSpace(event.Message)
-	if message == "" {
-		message = "responses api stream error"
-	}
-	if code := strings.TrimSpace(event.Code); code != "" {
-		return fmt.Errorf("%s: %s", code, message)
-	}
-	return errors.New(message)
-}
-
-// responseError 收敛 Responses 失败信息。
-func responseError(response *sdkresponses.Response) error {
-	if response == nil {
-		return nil
-	}
-	if message := strings.TrimSpace(response.Error.Message); message != "" {
-		return errors.New(message)
-	}
-	if reason := strings.TrimSpace(response.IncompleteDetails.Reason); reason != "" && response.Status == sdkresponses.ResponseStatusIncomplete {
-		return fmt.Errorf("responses api incomplete: %s", reason)
-	}
-	if response.Status == sdkresponses.ResponseStatusFailed {
-		return errors.New("responses api failed")
-	}
-	return nil
-}
-
-// messageText 提取 Blades 消息中的可转发文本内容。
-func messageText(message *blades.Message) string {
-	if message == nil {
-		return ""
-	}
-	parts := make([]string, 0, len(message.Parts))
-	for _, part := range message.Parts {
-		text := strings.TrimSpace(partText(part))
-		if text != "" {
-			parts = append(parts, text)
-		}
-	}
-	return strings.Join(parts, "\n")
-}
-
-// partText 将暂不支持的附件降级成文本描述。
-func partText(part blades.Part) string {
-	switch value := part.(type) {
-	case blades.TextPart:
-		return value.Text
-	case blades.FilePart:
-		return filePartText(value)
-	case blades.DataPart:
-		if len(value.Bytes) == 0 {
-			return ""
-		}
-		return fmt.Sprintf("附件《%s》为 %s 文件，大小约 %d 字节。", strings.TrimSpace(value.Name), value.MIMEType, len(value.Bytes))
-	case blades.ToolPart:
-		raw, err := json.Marshal(value)
-		if err != nil {
-			return ""
-		}
-		return string(raw)
-	default:
-		return ""
-	}
-}
-
-// filePartText 将文件引用转成文本描述。
-func filePartText(part blades.FilePart) string {
-	if strings.TrimSpace(part.URI) == "" {
-		return ""
-	}
-	return fmt.Sprintf("附件《%s》地址：%s，类型：%s。", strings.TrimSpace(part.Name), strings.TrimSpace(part.URI), part.MIMEType)
-}
-
-// dataURLFromPart 将图片字节转换成 data URL。
-func dataURLFromPart(part blades.DataPart) string {
-	if len(part.Bytes) == 0 {
-		return ""
-	}
-	mimeType := strings.TrimSpace(string(part.MIMEType))
-	if mimeType == "" {
-		mimeType = string(blades.MIMEImagePNG)
-	}
-	return fmt.Sprintf("data:%s;base64,%s", mimeType, base64.StdEncoding.EncodeToString(part.Bytes))
-}
-
-// schemaToMap 将 JSON Schema 转为普通 map，便于写入 SDK 参数。
-func schemaToMap(schema *jsonschema.Schema) (map[string]any, error) {
-	if schema == nil {
-		return nil, nil
-	}
-	raw, err := json.Marshal(schema)
+// streamResponses 将 Responses 流式事件转换成 Blades 响应。
+func (m *responsesModel) streamResponses(ctx context.Context, req *blades.ModelRequest, yield func(*blades.ModelResponse, error) bool) (*blades.ModelResponse, error) {
+	params, err := m.buildResponsesParams(req)
 	if err != nil {
 		return nil, err
 	}
-	var result map[string]any
-	if err = json.Unmarshal(raw, &result); err != nil {
+	stream := m.client.Responses.NewStreaming(ctx, params)
+	defer func() {
+		_ = stream.Close()
+	}()
+
+	var content strings.Builder
+	var finalResponse sdkresponses.Response
+	var hasFinalResponse bool
+	for stream.Next() {
+		event := stream.Current()
+		switch item := event.AsAny().(type) {
+		case sdkresponses.ResponseTextDeltaEvent:
+			if item.Delta == "" {
+				continue
+			}
+			content.WriteString(item.Delta)
+			if yield == nil {
+				continue
+			}
+			message := blades.NewAssistantMessage(blades.StatusIncomplete)
+			message.Parts = append(message.Parts, blades.TextPart{Text: item.Delta})
+			if !yield(&blades.ModelResponse{Message: message}, nil) {
+				return nil, nil
+			}
+		case sdkresponses.ResponseCompletedEvent:
+			finalResponse = item.Response
+			hasFinalResponse = true
+		case sdkresponses.ResponseIncompleteEvent:
+			return nil, responseError(&item.Response)
+		case sdkresponses.ResponseFailedEvent:
+			return nil, responseError(&item.Response)
+		case sdkresponses.ResponseErrorEvent:
+			return nil, responseEventError(item)
+		}
+	}
+	if err = stream.Err(); err != nil {
 		return nil, err
 	}
-	return result, nil
+	if hasFinalResponse {
+		return responseToModelResponse(&finalResponse, content.String())
+	}
+	return responseToModelResponse(nil, content.String())
+}
+
+// responseEventError 将 Responses 流式错误事件转换为普通错误。
+func responseEventError(event sdkresponses.ResponseErrorEvent) error {
+	message := event.Message
+	if message == "" {
+		message = "responses api stream error"
+	}
+	if code := event.Code; code != "" {
+		return fmt.Errorf("%s: %s", code, message)
+	}
+	return errors.New(message)
 }

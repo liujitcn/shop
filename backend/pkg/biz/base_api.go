@@ -22,6 +22,39 @@ func NewBaseAPICase(baseAPIRepo *data.BaseAPIRepository) *BaseAPICase {
 	return &BaseAPICase{BaseAPIRepository: baseAPIRepo}
 }
 
+// ParseOpenAPI 解析 OpenAPI 文档。
+func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
+	var api OpenAPI
+	err := yaml.Unmarshal(openAPIData, &api)
+	if err != nil {
+		return nil, err
+	}
+	return &api, nil
+}
+
+// Operation 按 path 和 method 获取 OpenAPI 操作定义。
+func (api *OpenAPI) Operation(path, method string) *Operation {
+	if api == nil {
+		return nil
+	}
+	item, ok := api.Paths[path]
+	if !ok {
+		return nil
+	}
+	switch method {
+	case "GET":
+		return item.Get
+	case "POST":
+		return item.Post
+	case "PUT":
+		return item.Put
+	case "DELETE":
+		return item.Delete
+	default:
+		return nil
+	}
+}
+
 // openAPIDataToBaseAPI 将 OpenAPI 文档转换为接口模型。
 func (c *BaseAPICase) openAPIDataToBaseAPI(openAPIData []byte) ([]*models.BaseAPI, error) {
 	api, err := ParseOpenAPI(openAPIData)
@@ -120,39 +153,6 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 		return nil
 	}
 	return c.BatchCreate(ctx, apiList)
-}
-
-// ParseOpenAPI 解析 OpenAPI 文档。
-func ParseOpenAPI(openAPIData []byte) (*OpenAPI, error) {
-	var api OpenAPI
-	err := yaml.Unmarshal(openAPIData, &api)
-	if err != nil {
-		return nil, err
-	}
-	return &api, nil
-}
-
-// Operation 按 path 和 method 获取 OpenAPI 操作定义。
-func (api *OpenAPI) Operation(path, method string) *Operation {
-	if api == nil {
-		return nil
-	}
-	item, ok := api.Paths[path]
-	if !ok {
-		return nil
-	}
-	switch method {
-	case "GET":
-		return item.Get
-	case "POST":
-		return item.Post
-	case "PUT":
-		return item.Put
-	case "DELETE":
-		return item.Delete
-	default:
-		return nil
-	}
 }
 
 // parseOperation 解析单个 OpenAPI 操作项。

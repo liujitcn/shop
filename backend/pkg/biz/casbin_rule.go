@@ -50,8 +50,11 @@ func (c *CasbinRuleCase) rebuildPolicyRule(ctx context.Context) error {
 		})
 	}
 	// 查询 casbin
-	casbinRuleList := make([]*models.CasbinRule, 0)
+	var casbinRuleList []*models.CasbinRule
 	casbinRuleList, err = c.List(ctx)
+	if err != nil {
+		return err
+	}
 	for _, item := range casbinRuleList {
 		policyRule = append(policyRule, casbin.PolicyRule{
 			PType: item.Ptype,

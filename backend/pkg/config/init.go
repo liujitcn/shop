@@ -11,7 +11,6 @@ var ProviderSet = wire.NewSet(
 	ParseWxPay,
 	ParseRecommend,
 	ParseLLM,
-	ParsePrompt,
 	ParseOSS,
 	ParseData,
 	ParseDatabase,

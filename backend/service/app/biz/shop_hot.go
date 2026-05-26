@@ -55,12 +55,3 @@ func (c *ShopHotCase) ListShopHots(ctx context.Context) (*appv1.ListShopHotsResp
 		ShopHots: list,
 	}, nil
 }
-
-// 按编号查询启用中的热门推荐分组
-func (c *ShopHotCase) findByID(ctx context.Context, id int64) (*models.ShopHot, error) {
-	query := c.Query(ctx).ShopHot
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(id)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
-	return c.Find(ctx, opts...)
-}

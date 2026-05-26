@@ -24,7 +24,7 @@ type CommentReactionCase struct {
 	*biz.BaseCase
 	*data.CommentReactionRepository
 	commentInfoRepo       *data.CommentInfoRepository
-	commentAiRepo         *data.CommentAiRepository
+	commentSummaryRepo    *data.CommentSummaryRepository
 	commentDiscussionRepo *data.CommentDiscussionRepository
 	reactionMapper        *mapper.CopierMapper[appv1.SaveCommentReactionRequest, models.CommentReaction]
 }
@@ -34,14 +34,14 @@ func NewCommentReactionCase(
 	baseCase *biz.BaseCase,
 	commentReactionRepo *data.CommentReactionRepository,
 	commentInfoRepo *data.CommentInfoRepository,
-	commentAiRepo *data.CommentAiRepository,
+	commentSummaryRepo *data.CommentSummaryRepository,
 	commentDiscussionRepo *data.CommentDiscussionRepository,
 ) *CommentReactionCase {
 	return &CommentReactionCase{
 		BaseCase:                  baseCase,
 		CommentReactionRepository: commentReactionRepo,
 		commentInfoRepo:           commentInfoRepo,
-		commentAiRepo:             commentAiRepo,
+		commentSummaryRepo:        commentSummaryRepo,
 		commentDiscussionRepo:     commentDiscussionRepo,
 		reactionMapper:            mapper.NewCopierMapper[appv1.SaveCommentReactionRequest, models.CommentReaction](),
 	}
@@ -78,13 +78,13 @@ func (c *CommentReactionCase) SaveCommentReaction(
 
 	// 不同互动目标使用各自的计数回写和状态切换逻辑。
 	switch req.GetTargetType() {
-	case commonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_AI):
-		aiQuery := c.commentAiRepo.Query(ctx).CommentAi
-		aiOpts := make([]repository.QueryOption, 0, 1)
-		aiOpts = append(aiOpts, repository.Where(aiQuery.ID.Eq(req.GetTargetId())))
-		_, err = c.commentAiRepo.Find(ctx, aiOpts...)
+	case commonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_SUMMARY):
+		summaryQuery := c.commentSummaryRepo.Query(ctx).CommentSummary
+		summaryOpts := make([]repository.QueryOption, 0, 1)
+		summaryOpts = append(summaryOpts, repository.Where(summaryQuery.ID.Eq(req.GetTargetId())))
+		_, err = c.commentSummaryRepo.Find(ctx, summaryOpts...)
 		if err != nil {
-			// 互动目标 AI 摘要不存在时，拒绝保存当前互动状态。
+			// 互动目标 评价摘要不存在时，拒绝保存当前互动状态。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, errorsx.ResourceNotFound("评价摘要不存在")
 			}
@@ -303,11 +303,11 @@ func (c *CommentReactionCase) changeReactionCounter(ctx context.Context, targetT
 		}
 		_, err = query.WithContext(ctx).Where(conditions...).UpdateSimple(query.LikeCount.Add(delta))
 		return err
-	case _const.COMMENT_REACTION_TARGET_TYPE_AI:
-		query := c.commentAiRepo.Query(ctx).CommentAi
+	case _const.COMMENT_REACTION_TARGET_TYPE_SUMMARY:
+		query := c.commentSummaryRepo.Query(ctx).CommentSummary
 		update := query.LikeCount.Add(delta)
 		conditions := []gen.Condition{query.ID.Eq(targetID)}
-		// 按互动类型选择 AI 摘要点赞或点踩缓存字段。
+		// 按互动类型选择 评价摘要点赞或点踩缓存字段。
 		if reactionType == _const.COMMENT_REACTION_TYPE_DISLIKE {
 			update = query.DislikeCount.Add(delta)
 			if delta < 0 {
@@ -347,12 +347,12 @@ func (c *CommentReactionCase) getCachedReactionCounts(ctx context.Context, targe
 			return 0, 0, err
 		}
 		return record.LikeCount, 0, nil
-	case _const.COMMENT_REACTION_TARGET_TYPE_AI:
-		query := c.commentAiRepo.Query(ctx).CommentAi
+	case _const.COMMENT_REACTION_TARGET_TYPE_SUMMARY:
+		query := c.commentSummaryRepo.Query(ctx).CommentSummary
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.ID.Eq(targetID)))
-		var record *models.CommentAi
-		record, err = c.commentAiRepo.Find(ctx, opts...)
+		var record *models.CommentSummary
+		record, err = c.commentSummaryRepo.Find(ctx, opts...)
 		if err != nil {
 			return 0, 0, err
 		}

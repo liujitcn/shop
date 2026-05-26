@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"errors"
-	"strings"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/biz"
@@ -19,6 +18,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"gorm.io/gen"
+	"gorm.io/gen/field"
 	"gorm.io/gorm"
 )
 
@@ -60,12 +60,12 @@ func (c *CommentDiscussionCase) PageCommentDiscussions(ctx context.Context, req 
 	opts = append(opts, repository.Where(query.CommentID.Eq(req.GetCommentId())))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	// 传入用户昵称关键字时，按讨论用户昵称快照模糊匹配。
-	if strings.TrimSpace(req.GetUserName()) != "" {
-		opts = append(opts, repository.Where(query.UserNameSnapshot.Like("%"+strings.TrimSpace(req.GetUserName())+"%")))
+	if req.GetUserName() != "" {
+		opts = append(opts, repository.Where(query.UserNameSnapshot.Like("%"+req.GetUserName()+"%")))
 	}
 	// 传入讨论内容关键字时，按讨论正文模糊匹配。
-	if strings.TrimSpace(req.GetContent()) != "" {
-		opts = append(opts, repository.Where(query.Content.Like("%"+strings.TrimSpace(req.GetContent())+"%")))
+	if req.GetContent() != "" {
+		opts = append(opts, repository.Where(query.Content.Like("%"+req.GetContent()+"%")))
 	}
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
@@ -117,17 +117,17 @@ func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, 
 			Tags:         _string.ConvertAnyToJsonString([]string{}),
 			OperatorID:   authInfo.UserId,
 			OperatorName: operatorName,
-			Reason:       strings.TrimSpace(req.GetReason()),
+			Reason:       req.GetReason(),
 		})
 	})
 	if err != nil {
 		return err
 	}
-	// 讨论人工审核通过后，刷新所属商品 AI 摘要。
+	// 讨论人工审核通过后，刷新所属商品 评价摘要。
 	if int32(req.GetStatus()) == _const.COMMENT_STATUS_APPROVED {
 		commentInfo, findErr := c.findCommentInfoByID(ctx, discussion.CommentID)
 		if findErr == nil {
-			queue.DispatchCommentAiRefresh(commentInfo.GoodsID)
+			queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
 		}
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaReputation)
@@ -172,19 +172,21 @@ func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID in
 	return record, nil
 }
 
-// findCommentInfoByID 按编号查询评价主记录。
-func (c *CommentDiscussionCase) findCommentInfoByID(ctx context.Context, commentID int64) (*models.CommentInfo, error) {
-	query := c.commentInfoRepo.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
-	record, err := c.commentInfoRepo.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("评价不存在")
-		}
-		return nil, err
+// operatorName 查询后台操作人展示名称。
+func (c *CommentDiscussionCase) operatorName(ctx context.Context, userID int64) string {
+	baseUser, err := c.baseUserCase.FindByID(ctx, userID)
+	if err != nil || baseUser == nil {
+		return "管理员"
 	}
-	return record, nil
+	operatorName := baseUser.NickName
+	// 后台用户昵称为空时，回退到账号名作为操作人名称。
+	if operatorName == "" {
+		operatorName = baseUser.UserName
+	}
+	if operatorName == "" {
+		return "管理员"
+	}
+	return operatorName
 }
 
 // updateStatus 更新讨论审核状态。
@@ -220,7 +222,7 @@ func (c *CommentDiscussionCase) changeDiscussionCount(ctx context.Context, comme
 		return nil
 	}
 	query := c.commentInfoRepo.Query(ctx).CommentInfo
-	update := query.DiscussionCount.Add(delta)
+	var update field.AssignExpr
 	conditions := []gen.Condition{query.ID.Eq(commentID)}
 	switch status {
 	case _const.COMMENT_STATUS_PENDING_REVIEW:
@@ -240,19 +242,17 @@ func (c *CommentDiscussionCase) changeDiscussionCount(ctx context.Context, comme
 	return err
 }
 
-// operatorName 查询后台操作人展示名称。
-func (c *CommentDiscussionCase) operatorName(ctx context.Context, userID int64) string {
-	baseUser, err := c.baseUserCase.FindByID(ctx, userID)
-	if err != nil || baseUser == nil {
-		return "管理员"
+// findCommentInfoByID 按编号查询评价主记录。
+func (c *CommentDiscussionCase) findCommentInfoByID(ctx context.Context, commentID int64) (*models.CommentInfo, error) {
+	query := c.commentInfoRepo.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(commentID)))
+	record, err := c.commentInfoRepo.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("评价不存在")
+		}
+		return nil, err
 	}
-	operatorName := strings.TrimSpace(baseUser.NickName)
-	// 后台用户昵称为空时，回退到账号名作为操作人名称。
-	if operatorName == "" {
-		operatorName = strings.TrimSpace(baseUser.UserName)
-	}
-	if operatorName == "" {
-		return "管理员"
-	}
-	return operatorName
+	return record, nil
 }

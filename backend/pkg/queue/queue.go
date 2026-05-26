@@ -12,19 +12,19 @@ import (
 )
 
 // AddQueue 向运行时队列追加异步消息。
-func AddQueue(queueName _const.Queue, data any) {
+func AddQueue(queueName _const.Queue, data any) bool {
 	queueID := string(queueName)
 	q := sdk.Runtime.GetQueue()
 	// 运行时队列未初始化时，直接跳过异步投递。
 	if q == nil {
-		return
+		return false
 	}
 
 	rawBody, err := json.Marshal(data)
 	// 队列消息体无法序列化时，只记录日志，不影响主流程。
 	if err != nil {
 		log.Errorf("build queue message data error, %s", err.Error())
-		return
+		return false
 	}
 	messageData := map[string]any{
 		"data": string(rawBody),
@@ -35,14 +35,16 @@ func AddQueue(queueName _const.Queue, data any) {
 	// 底层消息对象构造失败时，只记录日志，不影响主流程。
 	if err != nil {
 		log.Errorf("GetStreamMessage error, %s", err.Error())
-		return
+		return false
 	}
 
 	err = q.Append(queueID, message)
 	// 队列追加失败时，只记录日志，不影响主流程。
 	if err != nil {
 		log.Errorf("Append message error, %s", err.Error())
+		return false
 	}
+	return true
 }
 
 // DecodeQueueData 解析队列消息中的 data 字段，并兼容内存队列与 Redis 队列两种载荷形态。

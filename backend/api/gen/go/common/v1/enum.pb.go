@@ -1804,53 +1804,53 @@ func (CommentReviewStatus) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{32}
 }
 
-// 评价AI摘要场景
-type CommentAiScene int32
+// 评价摘要场景
+type CommentSummaryScene int32
 
 const (
-	CommentAiScene_UNKNOWN_CAS CommentAiScene = 0 // 未知评价AI摘要场景
-	CommentAiScene_OVERVIEW    CommentAiScene = 1 // 商品详情摘要
-	CommentAiScene_LIST        CommentAiScene = 2 // 评价列表摘要
+	CommentSummaryScene_COMMENT_SUMMARY_SCENE_UNSPECIFIED CommentSummaryScene = 0 // 未知评价摘要场景
+	CommentSummaryScene_OVERVIEW                          CommentSummaryScene = 1 // 商品详情摘要
+	CommentSummaryScene_LIST                              CommentSummaryScene = 2 // 评价列表摘要
 )
 
-// Enum value maps for CommentAiScene.
+// Enum value maps for CommentSummaryScene.
 var (
-	CommentAiScene_name = map[int32]string{
-		0: "UNKNOWN_CAS",
+	CommentSummaryScene_name = map[int32]string{
+		0: "COMMENT_SUMMARY_SCENE_UNSPECIFIED",
 		1: "OVERVIEW",
 		2: "LIST",
 	}
-	CommentAiScene_value = map[string]int32{
-		"UNKNOWN_CAS": 0,
-		"OVERVIEW":    1,
-		"LIST":        2,
+	CommentSummaryScene_value = map[string]int32{
+		"COMMENT_SUMMARY_SCENE_UNSPECIFIED": 0,
+		"OVERVIEW":                          1,
+		"LIST":                              2,
 	}
 )
 
-func (x CommentAiScene) Enum() *CommentAiScene {
-	p := new(CommentAiScene)
+func (x CommentSummaryScene) Enum() *CommentSummaryScene {
+	p := new(CommentSummaryScene)
 	*p = x
 	return p
 }
 
-func (x CommentAiScene) String() string {
+func (x CommentSummaryScene) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (CommentAiScene) Descriptor() protoreflect.EnumDescriptor {
+func (CommentSummaryScene) Descriptor() protoreflect.EnumDescriptor {
 	return file_common_v1_enum_proto_enumTypes[33].Descriptor()
 }
 
-func (CommentAiScene) Type() protoreflect.EnumType {
+func (CommentSummaryScene) Type() protoreflect.EnumType {
 	return &file_common_v1_enum_proto_enumTypes[33]
 }
 
-func (x CommentAiScene) Number() protoreflect.EnumNumber {
+func (x CommentSummaryScene) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use CommentAiScene.Descriptor instead.
-func (CommentAiScene) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use CommentSummaryScene.Descriptor instead.
+func (CommentSummaryScene) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_enum_proto_rawDescGZIP(), []int{33}
 }
 
@@ -1861,7 +1861,7 @@ const (
 	CommentReactionTargetType_UNKNOWN_CRTT CommentReactionTargetType = 0 // 未知目标
 	CommentReactionTargetType_COMMENT      CommentReactionTargetType = 1 // 评论
 	CommentReactionTargetType_DISCUSSION   CommentReactionTargetType = 2 // 讨论
-	CommentReactionTargetType_AI           CommentReactionTargetType = 3 // AI摘要
+	CommentReactionTargetType_SUMMARY      CommentReactionTargetType = 3 // 评价摘要
 )
 
 // Enum value maps for CommentReactionTargetType.
@@ -1870,13 +1870,13 @@ var (
 		0: "UNKNOWN_CRTT",
 		1: "COMMENT",
 		2: "DISCUSSION",
-		3: "AI",
+		3: "SUMMARY",
 	}
 	CommentReactionTargetType_value = map[string]int32{
 		"UNKNOWN_CRTT": 0,
 		"COMMENT":      1,
 		"DISCUSSION":   2,
-		"AI":           3,
+		"SUMMARY":      3,
 	}
 )
 
@@ -2359,17 +2359,17 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"!COMMENT_REVIEW_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eCOMMENT_REVIEW_STATUS_APPROVED\x10\x01\x12\"\n" +
 	"\x1eCOMMENT_REVIEW_STATUS_REJECTED\x10\x02\x12#\n" +
-	"\x1fCOMMENT_REVIEW_STATUS_EXCEPTION\x10\x03*9\n" +
-	"\x0eCommentAiScene\x12\x0f\n" +
-	"\vUNKNOWN_CAS\x10\x00\x12\f\n" +
+	"\x1fCOMMENT_REVIEW_STATUS_EXCEPTION\x10\x03*T\n" +
+	"\x13CommentSummaryScene\x12%\n" +
+	"!COMMENT_SUMMARY_SCENE_UNSPECIFIED\x10\x00\x12\f\n" +
 	"\bOVERVIEW\x10\x01\x12\b\n" +
-	"\x04LIST\x10\x02*R\n" +
+	"\x04LIST\x10\x02*W\n" +
 	"\x19CommentReactionTargetType\x12\x10\n" +
 	"\fUNKNOWN_CRTT\x10\x00\x12\v\n" +
 	"\aCOMMENT\x10\x01\x12\x0e\n" +
 	"\n" +
-	"DISCUSSION\x10\x02\x12\x06\n" +
-	"\x02AI\x10\x03*=\n" +
+	"DISCUSSION\x10\x02\x12\v\n" +
+	"\aSUMMARY\x10\x03*=\n" +
 	"\x13CommentReactionType\x12\x0f\n" +
 	"\vUNKNOWN_CRT\x10\x00\x12\b\n" +
 	"\x04LIKE\x10\x01\x12\v\n" +
@@ -2442,7 +2442,7 @@ var file_common_v1_enum_proto_goTypes = []any{
 	(CommentReviewTargetType)(0),   // 30: common.v1.CommentReviewTargetType
 	(CommentReviewType)(0),         // 31: common.v1.CommentReviewType
 	(CommentReviewStatus)(0),       // 32: common.v1.CommentReviewStatus
-	(CommentAiScene)(0),            // 33: common.v1.CommentAiScene
+	(CommentSummaryScene)(0),       // 33: common.v1.CommentSummaryScene
 	(CommentReactionTargetType)(0), // 34: common.v1.CommentReactionTargetType
 	(CommentReactionType)(0),       // 35: common.v1.CommentReactionType
 	(CommentFilterType)(0),         // 36: common.v1.CommentFilterType

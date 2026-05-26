@@ -118,8 +118,8 @@ export interface SummaryWorkspaceReputationResponse {
   average_comment_score: number;
   /** 高频评价标签 */
   hot_tags: WorkspaceReputationTag[];
-  /** AI评价摘要 */
-  ai_summary: string;
+  /** 评价摘要 */
+  comment_summary: string;
 }
 
 /** 工作台口碑高频标签 */

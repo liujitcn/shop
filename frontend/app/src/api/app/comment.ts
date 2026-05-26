@@ -96,7 +96,7 @@ export class CommentServiceImpl implements CommentService {
     const previewComments = response.preview_comments ?? response.previewList ?? []
     return {
       ...response,
-      ai_summary: response.ai_summary,
+      comment_summary: response.comment_summary,
       preview_comments: previewComments,
       previewList: previewComments,
       total_count: response.total_count ?? 0,
@@ -138,7 +138,7 @@ export class CommentServiceImpl implements CommentService {
       ...response,
       comment_filters: commentFilters,
       comments,
-      ai_summary: response.ai_summary,
+      comment_summary: response.comment_summary,
       filterList: commentFilters,
       list: comments,
       total: response.total ?? 0,

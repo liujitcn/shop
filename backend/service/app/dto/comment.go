@@ -14,8 +14,8 @@ type CommentFilterStats struct {
 	BadCount    int32
 }
 
-// CommentAiContentItem 保存评价 AI 摘要标签和内容。
-type CommentAiContentItem struct {
+// CommentSummaryContentItem 保存评价摘要标签和内容。
+type CommentSummaryContentItem struct {
 	Label   string `json:"label"`
 	Content string `json:"content"`
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"strconv"
-	"strings"
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
@@ -70,7 +69,7 @@ func (c *AiAssistantSessionCase) CreateAiAssistantSession(ctx context.Context, r
 		return nil, err
 	}
 
-	title := strings.TrimSpace(req.GetTitle())
+	title := req.GetTitle()
 	if title == "" {
 		title = "新对话"
 	}
@@ -96,7 +95,7 @@ func (c *AiAssistantSessionCase) CreateAiAssistantSession(ctx context.Context, r
 
 // UpdateAiAssistantSession 更新当前用户的会话标题。
 func (c *AiAssistantSessionCase) UpdateAiAssistantSession(ctx context.Context, req *basev1.UpdateAiAssistantSessionRequest) (*basev1.AiAssistantSession, error) {
-	title := strings.TrimSpace(req.GetTitle())
+	title := req.GetTitle()
 	if title == "" {
 		return nil, errorsx.InvalidArgument("会话标题不能为空")
 	}
@@ -143,7 +142,7 @@ func (c *AiAssistantSessionCase) FindCurrentUserSessionByRawID(ctx context.Conte
 		return nil, err
 	}
 	var sessionID int64
-	sessionID, err = strconv.ParseInt(strings.TrimSpace(rawID), 10, 64)
+	sessionID, err = strconv.ParseInt(rawID, 10, 64)
 	if err != nil || sessionID <= 0 {
 		return nil, errorsx.InvalidArgument("会话编号不合法")
 	}

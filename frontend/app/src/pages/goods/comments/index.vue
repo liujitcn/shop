@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { defCommentService } from '@/api/app/comment'
 import type {
-  CommentAi,
+  CommentSummary,
   CommentFilterItem,
   CommentItem,
   CommentTagItem,
@@ -59,7 +59,7 @@ const isLoading = ref(false)
 const isLoadingMore = ref(false)
 const filterList = ref<CommentFilterItem[]>([])
 const commentTags = ref<CommentTagItem[]>([])
-const aiSummary = ref<CommentAi>()
+const commentSummary = ref<CommentSummary>()
 const buyerReviews = ref<CommentItem[]>([])
 const currentPageNum = ref(1)
 const hasMore = ref(false)
@@ -106,8 +106,8 @@ const hasHiddenFilters = computed(() => {
   return filters.value.length > collapsedFilterCount
 })
 
-const aiSummaryList = computed<SummaryItem[]>(() => {
-  return (aiSummary.value?.content || []).filter((item) => item.label || item.content)
+const commentSummaryList = computed<SummaryItem[]>(() => {
+  return (commentSummary.value?.content || []).filter((item) => item.label || item.content)
 })
 
 const hasActiveReviewCondition = computed(() => {
@@ -123,8 +123,8 @@ const reviewEmptyText = computed(() => {
 })
 
 // 评论页允许匿名浏览，但互动和发布讨论需要登录。
-const isAiReactionActive = (reaction_type: CommentReactionType) => {
-  return aiSummary.value?.reaction_type === reaction_type
+const isSummaryReactionActive = (reaction_type: CommentReactionType) => {
+  return commentSummary.value?.reaction_type === reaction_type
 }
 
 const isReviewReactionActive = (item: CommentItem, reaction_type: CommentReactionType) => {
@@ -139,7 +139,7 @@ const ensureLogin = () => {
   return false
 }
 
-// 加载评论分页数据，并同步更新筛选项与 AI 摘要。
+// 加载评论分页数据，并同步更新筛选项与评价摘要。
 const loadCommentData = async (reset: boolean) => {
   if (!Number.isFinite(goodsId) || goodsId <= 0) {
     return
@@ -185,7 +185,7 @@ const loadCommentData = async (reset: boolean) => {
       }
     }
 
-    aiSummary.value = res.ai_summary
+    commentSummary.value = res.comment_summary
     buyerReviews.value = reset
       ? res.comments || []
       : [...buyerReviews.value, ...(res.comments || [])]
@@ -195,7 +195,7 @@ const loadCommentData = async (reset: boolean) => {
     if (reset) {
       filterList.value = []
       commentTags.value = []
-      aiSummary.value = undefined
+      commentSummary.value = undefined
       buyerReviews.value = []
       currentPageNum.value = 1
       hasMore.value = false
@@ -372,21 +372,21 @@ const onDiscussionCountChange = (payload: { comment_id: number; discussion_count
   })
 }
 
-// 保存 AI 总结赞踩状态，并用后端实时统计数量刷新当前卡片。
-const onSaveAiReaction = async (reaction_type: CommentReactionType) => {
-  if (!ensureLogin() || !aiSummary.value?.id) {
+// 保存评价摘要赞踩状态，并用后端实时统计数量刷新当前卡片。
+const onSaveSummaryReaction = async (reaction_type: CommentReactionType) => {
+  if (!ensureLogin() || !commentSummary.value?.id) {
     return
   }
 
-  const active = !isAiReactionActive(reaction_type)
+  const active = !isSummaryReactionActive(reaction_type)
   const res = await defCommentService.SaveCommentReaction({
-    target_type: CommentReactionTargetType.AI,
-    target_id: aiSummary.value.id,
+    target_type: CommentReactionTargetType.SUMMARY,
+    target_id: commentSummary.value.id,
     reaction_type,
     active,
   })
-  aiSummary.value = {
-    ...aiSummary.value,
+  commentSummary.value = {
+    ...commentSummary.value,
     like_count: res.like_count,
     dislike_count: res.dislike_count,
     reaction_type: res.reaction_type,
@@ -511,26 +511,26 @@ onLoad(() => {
           </view>
         </view>
 
-        <view v-if="aiSummaryList.length" class="summary-card">
-          <view v-for="item in aiSummaryList" :key="item.label" class="summary-line">
+        <view v-if="commentSummaryList.length" class="summary-card">
+          <view v-for="item in commentSummaryList" :key="item.label" class="summary-line">
             <text>{{ item.label }}：</text>{{ item.content }}
           </view>
           <view class="summary-actions">
             <view
               class="summary-action action-item"
-              :class="{ active: isAiReactionActive(CommentReactionType.LIKE) }"
-              @tap="onSaveAiReaction(CommentReactionType.LIKE)"
+              :class="{ active: isSummaryReactionActive(CommentReactionType.LIKE) }"
+              @tap="onSaveSummaryReaction(CommentReactionType.LIKE)"
             >
               <view class="action-icon action-icon--like" />
-              <text>赞 {{ aiSummary?.like_count || 0 }}</text>
+              <text>赞 {{ commentSummary?.like_count || 0 }}</text>
             </view>
             <view
               class="summary-action action-item"
-              :class="{ active: isAiReactionActive(CommentReactionType.DISLIKE) }"
-              @tap="onSaveAiReaction(CommentReactionType.DISLIKE)"
+              :class="{ active: isSummaryReactionActive(CommentReactionType.DISLIKE) }"
+              @tap="onSaveSummaryReaction(CommentReactionType.DISLIKE)"
             >
               <view class="action-icon action-icon--dislike" />
-              <text>点踩 {{ aiSummary?.dislike_count || 0 }}</text>
+              <text>点踩 {{ commentSummary?.dislike_count || 0 }}</text>
             </view>
           </view>
         </view>

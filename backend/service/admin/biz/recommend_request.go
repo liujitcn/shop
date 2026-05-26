@@ -93,7 +93,7 @@ func (c *RecommendRequestCase) PageRecommendRequests(ctx context.Context, req *a
 		return nil, err
 	}
 
-	actorNameMap := make(map[int64]string)
+	var actorNameMap map[int64]string
 	actorNameMap, err = c.getRecommendActorNameMap(ctx, list)
 	if err != nil {
 		return nil, err
@@ -122,12 +122,12 @@ func (c *RecommendRequestCase) GetRecommendRequest(ctx context.Context, id int64
 	}
 
 	contextRecord := c.parseRecommendContext(requestModel.ContextJSON)
-	actorNameMap := make(map[int64]string)
+	var actorNameMap map[int64]string
 	actorNameMap, err = c.getRecommendActorNameMap(ctx, []*models.RecommendRequest{requestModel})
 	if err != nil {
 		return nil, err
 	}
-	itemList := make([]*adminv1.RecommendRequestItem, 0)
+	var itemList []*adminv1.RecommendRequestItem
 	itemList, err = c.recommendRequestItemCase.ListRecommendRequestItems(ctx, requestModel)
 	if err != nil {
 		return nil, err
@@ -162,112 +162,6 @@ func (c *RecommendRequestCase) ListRecommendRequestEvents(
 	}
 
 	return c.recommendEventCase.ListRecommendRequestEvents(ctx, requestModel.RequestID, goodsID, position)
-}
-
-// toRecommendRequest 转换推荐请求分页响应数据。
-func (c *RecommendRequestCase) toRecommendRequest(item *models.RecommendRequest, actorName string) *adminv1.RecommendRequest {
-	// 请求实体为空时，回退到空响应结构，避免列表渲染空指针。
-	if item == nil {
-		return &adminv1.RecommendRequest{}
-	}
-
-	contextRecord := c.parseRecommendContext(item.ContextJSON)
-
-	return &adminv1.RecommendRequest{
-		Id:           item.ID,
-		RequestId:    strconv.FormatInt(item.RequestID, 10),
-		ActorType:    commonv1.RecommendActorType(item.ActorType),
-		ActorId:      item.ActorID,
-		Scene:        commonv1.RecommendScene(item.Scene),
-		PageNum:      item.PageNum,
-		PageSize:     item.PageSize,
-		Total:        item.Total,
-		Strategy:     contextRecord.Strategy,
-		ProviderName: c.resolveFinalProviderName(contextRecord),
-		RequestAt:    _time.TimeToTimeString(item.RequestAt),
-		ActorName:    actorName,
-	}
-}
-
-// toRecommendRequestContext 转换推荐上下文响应数据。
-func (c *RecommendRequestCase) toRecommendRequestContext(
-	contextRecord *recommendDto.RecommendContext,
-	rawJSON string,
-) *adminv1.RecommendRequestContext {
-	// 上下文为空时，回退到空结构，避免详情页读取空指针。
-	if contextRecord == nil {
-		contextRecord = &recommendDto.RecommendContext{}
-	}
-
-	finalProviderName := c.resolveFinalProviderName(contextRecord)
-	traceList := make([]*adminv1.RecommendRequestTrace, 0, len(contextRecord.Trace))
-	for _, item := range contextRecord.Trace {
-		// 链路节点为空时，直接跳过无效节点。
-		if item == nil {
-			continue
-		}
-		traceList = append(traceList, &adminv1.RecommendRequestTrace{
-			ProviderName: item.ProviderName,
-			ResultCount:  int32(item.ResultCount),
-			Hit:          item.Hit,
-			ErrorMsg:     item.ErrorMsg,
-			IsFinal:      finalProviderName != "" && item.ProviderName == finalProviderName,
-		})
-	}
-
-	return &adminv1.RecommendRequestContext{
-		GoodsId:           contextRecord.GoodsID,
-		OrderId:           contextRecord.OrderID,
-		ContextGoodsIds:   append([]int64(nil), contextRecord.ContextGoodsIDs...),
-		Strategy:          contextRecord.Strategy,
-		ProviderName:      contextRecord.ProviderName,
-		FinalProviderName: finalProviderName,
-		Trace:             traceList,
-		RawJson:           rawJSON,
-	}
-}
-
-// parseRecommendContext 解析推荐上下文JSON。
-func (c *RecommendRequestCase) parseRecommendContext(rawJSON string) *recommendDto.RecommendContext {
-	contextRecord := &recommendDto.RecommendContext{
-		Trace: make([]*recommendDto.GoodsTrace, 0),
-	}
-	// 原始上下文为空时，直接返回空结构，兼容历史空数据。
-	if rawJSON == "" {
-		return contextRecord
-	}
-	// 上下文解析失败时，保留空结构回退，避免旧数据阻塞管理端查看。
-	if json.Unmarshal([]byte(rawJSON), contextRecord) != nil {
-		return contextRecord
-	}
-	// 解析后的轨迹为空时，统一补齐空切片，避免前端收到 null。
-	if contextRecord.Trace == nil {
-		contextRecord.Trace = make([]*recommendDto.GoodsTrace, 0)
-	}
-	return contextRecord
-}
-
-// resolveFinalProviderName 解析最终命中的推荐器名称。
-func (c *RecommendRequestCase) resolveFinalProviderName(contextRecord *recommendDto.RecommendContext) string {
-	// 上下文为空时，不存在可解析的最终推荐器。
-	if contextRecord == nil {
-		return ""
-	}
-	// 上下文已显式记录推荐器时，优先使用该值作为最终推荐器。
-	if contextRecord.ProviderName != "" {
-		return contextRecord.ProviderName
-	}
-	for _, item := range contextRecord.Trace {
-		// 链路节点为空时，直接跳过无效节点。
-		if item == nil {
-			continue
-		}
-		// 链路命中结果时，将当前节点视为最终命中的推荐器。
-		if item.Hit && item.ProviderName != "" {
-			return item.ProviderName
-		}
-	}
-	return ""
 }
 
 // getRecommendActorNameMap 构建推荐主体名称映射。
@@ -318,4 +212,110 @@ func (c *RecommendRequestCase) getRecommendActorNameMap(
 		actorNameMap[item.ID] = actorName
 	}
 	return actorNameMap, nil
+}
+
+// toRecommendRequest 转换推荐请求分页响应数据。
+func (c *RecommendRequestCase) toRecommendRequest(item *models.RecommendRequest, actorName string) *adminv1.RecommendRequest {
+	// 请求实体为空时，回退到空响应结构，避免列表渲染空指针。
+	if item == nil {
+		return &adminv1.RecommendRequest{}
+	}
+
+	contextRecord := c.parseRecommendContext(item.ContextJSON)
+
+	return &adminv1.RecommendRequest{
+		Id:           item.ID,
+		RequestId:    strconv.FormatInt(item.RequestID, 10),
+		ActorType:    commonv1.RecommendActorType(item.ActorType),
+		ActorId:      item.ActorID,
+		Scene:        commonv1.RecommendScene(item.Scene),
+		PageNum:      item.PageNum,
+		PageSize:     item.PageSize,
+		Total:        item.Total,
+		Strategy:     contextRecord.Strategy,
+		ProviderName: c.resolveFinalProviderName(contextRecord),
+		RequestAt:    _time.TimeToTimeString(item.RequestAt),
+		ActorName:    actorName,
+	}
+}
+
+// parseRecommendContext 解析推荐上下文JSON。
+func (c *RecommendRequestCase) parseRecommendContext(rawJSON string) *recommendDto.RecommendContext {
+	contextRecord := &recommendDto.RecommendContext{
+		Trace: make([]*recommendDto.GoodsTrace, 0),
+	}
+	// 原始上下文为空时，直接返回空结构，兼容历史空数据。
+	if rawJSON == "" {
+		return contextRecord
+	}
+	// 上下文解析失败时，保留空结构回退，避免旧数据阻塞管理端查看。
+	if json.Unmarshal([]byte(rawJSON), contextRecord) != nil {
+		return contextRecord
+	}
+	// 解析后的轨迹为空时，统一补齐空切片，避免前端收到 null。
+	if contextRecord.Trace == nil {
+		contextRecord.Trace = make([]*recommendDto.GoodsTrace, 0)
+	}
+	return contextRecord
+}
+
+// resolveFinalProviderName 解析最终命中的推荐器名称。
+func (c *RecommendRequestCase) resolveFinalProviderName(contextRecord *recommendDto.RecommendContext) string {
+	// 上下文为空时，不存在可解析的最终推荐器。
+	if contextRecord == nil {
+		return ""
+	}
+	// 上下文已显式记录推荐器时，优先使用该值作为最终推荐器。
+	if contextRecord.ProviderName != "" {
+		return contextRecord.ProviderName
+	}
+	for _, item := range contextRecord.Trace {
+		// 链路节点为空时，直接跳过无效节点。
+		if item == nil {
+			continue
+		}
+		// 链路命中结果时，将当前节点视为最终命中的推荐器。
+		if item.Hit && item.ProviderName != "" {
+			return item.ProviderName
+		}
+	}
+	return ""
+}
+
+// toRecommendRequestContext 转换推荐上下文响应数据。
+func (c *RecommendRequestCase) toRecommendRequestContext(
+	contextRecord *recommendDto.RecommendContext,
+	rawJSON string,
+) *adminv1.RecommendRequestContext {
+	// 上下文为空时，回退到空结构，避免详情页读取空指针。
+	if contextRecord == nil {
+		contextRecord = &recommendDto.RecommendContext{}
+	}
+
+	finalProviderName := c.resolveFinalProviderName(contextRecord)
+	traceList := make([]*adminv1.RecommendRequestTrace, 0, len(contextRecord.Trace))
+	for _, item := range contextRecord.Trace {
+		// 链路节点为空时，直接跳过无效节点。
+		if item == nil {
+			continue
+		}
+		traceList = append(traceList, &adminv1.RecommendRequestTrace{
+			ProviderName: item.ProviderName,
+			ResultCount:  int32(item.ResultCount),
+			Hit:          item.Hit,
+			ErrorMsg:     item.ErrorMsg,
+			IsFinal:      finalProviderName != "" && item.ProviderName == finalProviderName,
+		})
+	}
+
+	return &adminv1.RecommendRequestContext{
+		GoodsId:           contextRecord.GoodsID,
+		OrderId:           contextRecord.OrderID,
+		ContextGoodsIds:   append([]int64(nil), contextRecord.ContextGoodsIDs...),
+		Strategy:          contextRecord.Strategy,
+		ProviderName:      contextRecord.ProviderName,
+		FinalProviderName: finalProviderName,
+		Trace:             traceList,
+		RawJson:           rawJSON,
+	}
 }

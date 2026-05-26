@@ -43,7 +43,7 @@ func (d *Dashboard) ResetConfig(ctx context.Context) ([]byte, error) {
 // ExternalPreview 预览 Gorse 推荐外部推荐脚本。
 func (d *Dashboard) ExternalPreview(ctx context.Context, userID, script string) ([]byte, error) {
 	queries := make(map[string]string, 2)
-	queries["user-id"] = strings.TrimSpace(userID)
+	queries["user-id"] = userID
 	// Gorse 原生接口要求脚本通过 base64 查询参数传入，Admin 侧请求体在这里统一转换。
 	queries["script"] = base64.StdEncoding.EncodeToString([]byte(script))
 	return d.recommend.RequestJSON(ctx, stdhttp.MethodGet, "/api/dashboard/external", queries, "")
@@ -52,7 +52,7 @@ func (d *Dashboard) ExternalPreview(ctx context.Context, userID, script string) 
 // RankerPrompt 预览 Gorse 推荐排序提示词。
 func (d *Dashboard) RankerPrompt(ctx context.Context, userID, queryTemplate, documentTemplate string) ([]byte, error) {
 	queries := make(map[string]string, 3)
-	queries["user-id"] = strings.TrimSpace(userID)
+	queries["user-id"] = userID
 	// Gorse 原生接口要求模板通过 base64 查询参数传入，Admin 侧请求体在这里统一转换。
 	queries["query-template"] = base64.StdEncoding.EncodeToString([]byte(queryTemplate))
 	queries["document-template"] = base64.StdEncoding.EncodeToString([]byte(documentTemplate))
@@ -68,11 +68,11 @@ func (d *Dashboard) Tasks(ctx context.Context) ([]byte, error) {
 func (d *Dashboard) TimeSeries(ctx context.Context, name, begin, end string) ([]byte, error) {
 	queries := make(map[string]string, 2)
 	// 调用方传入开始时间时，透传给 Gorse 仪表盘 API 限定统计窗口。
-	if strings.TrimSpace(begin) != "" {
+	if begin != "" {
 		queries["begin"] = begin
 	}
 	// 调用方传入结束时间时，透传给 Gorse 仪表盘 API 限定统计窗口。
-	if strings.TrimSpace(end) != "" {
+	if end != "" {
 		queries["end"] = end
 	}
 	path := "/api/dashboard/timeseries/" + url.PathEscape(name)
@@ -86,7 +86,7 @@ func (d *Dashboard) Categories(ctx context.Context) ([]byte, error) {
 
 // DashboardItems 查询 Gorse 推荐仪表盘推荐商品列表。
 func (d *Dashboard) DashboardItems(ctx context.Context, recommender, category string, end int32) ([]byte, error) {
-	recommender = strings.Trim(strings.TrimSpace(recommender), "/")
+	recommender = strings.Trim(recommender, "/")
 	// 推荐器为空时，默认回退到Gorse 仪表盘 latest 推荐器。
 	if recommender == "" {
 		recommender = "latest"
@@ -94,8 +94,8 @@ func (d *Dashboard) DashboardItems(ctx context.Context, recommender, category st
 
 	queries := make(map[string]string, 2)
 	// 分类不为空时，透传分类筛选条件。
-	if strings.TrimSpace(category) != "" {
-		queries["category"] = strings.TrimSpace(category)
+	if category != "" {
+		queries["category"] = category
 	}
 	// 结束位置大于零时，限制返回数量。
 	if end > 0 {
@@ -111,7 +111,7 @@ func (d *Dashboard) DashboardItems(ctx context.Context, recommender, category st
 // Users 查询 Gorse 推荐仪表盘用户列表。
 func (d *Dashboard) Users(ctx context.Context, cursor string, n int32) ([]byte, error) {
 	queries := make(map[string]string, 2)
-	queries["cursor"] = strings.TrimSpace(cursor)
+	queries["cursor"] = cursor
 	// 请求数量非法时，沿用Gorse 仪表盘列表默认每页 10 条。
 	if n <= 0 {
 		n = 10
@@ -122,7 +122,6 @@ func (d *Dashboard) Users(ctx context.Context, cursor string, n int32) ([]byte, 
 
 // User 查询 Gorse 推荐仪表盘用户详情。
 func (d *Dashboard) User(ctx context.Context, id string) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法拼装Gorse 仪表盘用户详情路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard user id is empty")
@@ -132,7 +131,6 @@ func (d *Dashboard) User(ctx context.Context, id string) ([]byte, error) {
 
 // DeleteUser 删除 Gorse 推荐用户。
 func (d *Dashboard) DeleteUser(ctx context.Context, id string) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法拼装Gorse 推荐删除用户路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard user id is empty")
@@ -142,12 +140,11 @@ func (d *Dashboard) DeleteUser(ctx context.Context, id string) ([]byte, error) {
 
 // UserSimilar 查询 Gorse 推荐相似用户。
 func (d *Dashboard) UserSimilar(ctx context.Context, id, recommender string) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法拼装Gorse 仪表盘相似用户路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard user id is empty")
 	}
-	recommender = strings.Trim(strings.TrimSpace(recommender), "/")
+	recommender = strings.Trim(recommender, "/")
 	// 推荐器为空时，默认使用当前商城配置中的 similar_users。
 	if recommender == "" {
 		recommender = "similar_users"
@@ -162,7 +159,6 @@ func (d *Dashboard) UserSimilar(ctx context.Context, id, recommender string) ([]
 
 // UserFeedback 查询 Gorse 推荐用户反馈。
 func (d *Dashboard) UserFeedback(ctx context.Context, id, feedbackType string, offset, n int32) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法拼装Gorse 仪表盘用户反馈路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard user id is empty")
@@ -179,7 +175,7 @@ func (d *Dashboard) UserFeedback(ctx context.Context, id, feedbackType string, o
 	}
 	queries["n"] = strconv.FormatInt(int64(n), 10)
 
-	feedbackType = strings.Trim(strings.TrimSpace(feedbackType), "/")
+	feedbackType = strings.Trim(feedbackType, "/")
 	// 反馈类型为空时，必须保留尾部斜杠，匹配Gorse 仪表盘原始接口语义。
 	if feedbackType == "" {
 		return d.recommend.RequestJSON(ctx, stdhttp.MethodGet, "/api/dashboard/user/"+url.PathEscape(id)+"/feedback/", queries, "")
@@ -194,7 +190,6 @@ func (d *Dashboard) UserFeedback(ctx context.Context, id, feedbackType string, o
 
 // UserRecommend 查询 Gorse 推荐用户推荐结果。
 func (d *Dashboard) UserRecommend(ctx context.Context, id, recommender, category string, n int32) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法拼装Gorse 仪表盘用户推荐路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard user id is empty")
@@ -206,11 +201,11 @@ func (d *Dashboard) UserRecommend(ctx context.Context, id, recommender, category
 	}
 	queries["n"] = strconv.FormatInt(int64(n), 10)
 	// 分类不为空时，透传分类筛选条件。
-	if strings.TrimSpace(category) != "" {
-		queries["category"] = strings.TrimSpace(category)
+	if category != "" {
+		queries["category"] = category
 	}
 
-	recommender = strings.Trim(strings.TrimSpace(recommender), "/")
+	recommender = strings.Trim(recommender, "/")
 	// 推荐器为空时，必须保留尾部斜杠，匹配Gorse 仪表盘原始接口语义。
 	if recommender == "" {
 		return d.recommend.RequestJSON(ctx, stdhttp.MethodGet, "/api/dashboard/recommend/"+url.PathEscape(id)+"/", queries, "")
@@ -225,7 +220,7 @@ func (d *Dashboard) UserRecommend(ctx context.Context, id, recommender, category
 // Items 查询 Gorse 推荐商品列表。
 func (d *Dashboard) Items(ctx context.Context, cursor string, n int32) ([]byte, error) {
 	queries := make(map[string]string, 2)
-	queries["cursor"] = strings.TrimSpace(cursor)
+	queries["cursor"] = cursor
 	// 请求数量非法时，沿用Gorse 仪表盘列表默认每页 10 条。
 	if n <= 0 {
 		n = 10
@@ -236,7 +231,6 @@ func (d *Dashboard) Items(ctx context.Context, cursor string, n int32) ([]byte, 
 
 // Item 查询 Gorse 推荐商品详情。
 func (d *Dashboard) Item(ctx context.Context, id string) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 商品编号为空时，无法拼装Gorse 推荐商品详情路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard item id is empty")
@@ -246,7 +240,6 @@ func (d *Dashboard) Item(ctx context.Context, id string) ([]byte, error) {
 
 // DeleteItem 删除 Gorse 推荐商品。
 func (d *Dashboard) DeleteItem(ctx context.Context, id string) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 商品编号为空时，无法拼装Gorse 推荐删除商品路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard item id is empty")
@@ -256,12 +249,11 @@ func (d *Dashboard) DeleteItem(ctx context.Context, id string) ([]byte, error) {
 
 // ItemSimilar 查询 Gorse 推荐相似商品。
 func (d *Dashboard) ItemSimilar(ctx context.Context, id, recommender, category string) ([]byte, error) {
-	id = strings.TrimSpace(id)
 	// 商品编号为空时，无法拼装Gorse 仪表盘相似商品路径。
 	if id == "" {
 		return nil, fmt.Errorf("gorse dashboard item id is empty")
 	}
-	recommender = strings.Trim(strings.TrimSpace(recommender), "/")
+	recommender = strings.Trim(recommender, "/")
 	// 推荐器为空时，默认使用当前商城配置中的 goods_relation。
 	if recommender == "" {
 		recommender = "goods_relation"
@@ -272,8 +264,8 @@ func (d *Dashboard) ItemSimilar(ctx context.Context, id, recommender, category s
 	}
 	queries := make(map[string]string, 1)
 	// 分类不为空时，透传分类筛选条件。
-	if strings.TrimSpace(category) != "" {
-		queries["category"] = strings.TrimSpace(category)
+	if category != "" {
+		queries["category"] = category
 	}
 	path := "/api/dashboard/item-to-item/" + url.PathEscape(recommender) + "/" + url.PathEscape(id)
 	return d.recommend.RequestJSON(ctx, stdhttp.MethodGet, path, queries, "")
@@ -290,7 +282,7 @@ func (d *Dashboard) UsersRaw(ctx context.Context, cursor string, n int32) (*clie
 		n = 100
 	}
 
-	result, err := d.recommend.gorseClient.GetUsers(ctx, int(n), strings.TrimSpace(cursor))
+	result, err := d.recommend.gorseClient.GetUsers(ctx, int(n), cursor)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +300,7 @@ func (d *Dashboard) ItemsRaw(ctx context.Context, cursor string, n int32) (*clie
 		n = 100
 	}
 
-	result, err := d.recommend.gorseClient.GetItems(ctx, int(n), strings.TrimSpace(cursor))
+	result, err := d.recommend.gorseClient.GetItems(ctx, int(n), cursor)
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +310,7 @@ func (d *Dashboard) ItemsRaw(ctx context.Context, cursor string, n int32) (*clie
 // Feedbacks 查询 Gorse 推荐反馈列表。
 func (d *Dashboard) Feedbacks(ctx context.Context, cursor string, n int32) (*dto.FeedbackIterator, error) {
 	queries := make(map[string]string, 2)
-	queries["cursor"] = strings.TrimSpace(cursor)
+	queries["cursor"] = cursor
 	// 请求数量非法时，沿用Gorse 推荐反馈列表默认每页 100 条。
 	if n <= 0 {
 		n = 100
@@ -391,7 +383,7 @@ func (d *Dashboard) InsertFeedbacks(ctx context.Context, feedbackList []client.F
 
 // buildDashboardRecommenderPath 构建Gorse 推荐 dashboard 推荐器路径。
 func buildDashboardRecommenderPath(basePath, recommender string, keepTrailingSlash bool) (string, error) {
-	recommender = strings.Trim(strings.TrimSpace(recommender), "/")
+	recommender = strings.Trim(recommender, "/")
 	// 推荐器为空时，根据调用方语义决定是否保留尾部斜杠。
 	if recommender == "" {
 		// 需要兼容Gorse 仪表盘原始接口尾斜杠语义时，保留 basePath 末尾斜杠。
@@ -404,7 +396,6 @@ func buildDashboardRecommenderPath(basePath, recommender string, keepTrailingSla
 	segments := strings.Split(recommender, "/")
 	encodedSegments := make([]string, 0, len(segments))
 	for _, segment := range segments {
-		segment = strings.TrimSpace(segment)
 		// 路径段为空或带有目录穿越语义时，直接拒绝代理请求。
 		if segment == "" || segment == "." || segment == ".." {
 			return "", fmt.Errorf("gorse dashboard recommender is invalid")

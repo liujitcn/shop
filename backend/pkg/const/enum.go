@@ -277,10 +277,10 @@ const (
 )
 
 const (
-	// COMMENT_AI_SCENE_OVERVIEW 表示商品详情页评价 AI 摘要场景，用于聚合展示商品评价概览。
-	COMMENT_AI_SCENE_OVERVIEW = int32(commonv1.CommentAiScene_OVERVIEW)
-	// COMMENT_AI_SCENE_LIST 表示评价列表页 AI 摘要场景，用于在评价列表中展示摘要卡片。
-	COMMENT_AI_SCENE_LIST = int32(commonv1.CommentAiScene_LIST)
+	// COMMENT_SUMMARY_SCENE_OVERVIEW 表示商品详情页评价摘要场景，用于聚合展示商品评价概览。
+	COMMENT_SUMMARY_SCENE_OVERVIEW = int32(commonv1.CommentSummaryScene_OVERVIEW)
+	// COMMENT_SUMMARY_SCENE_LIST 表示评价列表页评价摘要场景，用于在评价列表中展示摘要卡片。
+	COMMENT_SUMMARY_SCENE_LIST = int32(commonv1.CommentSummaryScene_LIST)
 )
 
 const (
@@ -288,14 +288,14 @@ const (
 	COMMENT_REACTION_TARGET_TYPE_COMMENT = int32(commonv1.CommentReactionTargetType_COMMENT)
 	// COMMENT_REACTION_TARGET_TYPE_DISCUSSION 表示互动目标是评价讨论内容。
 	COMMENT_REACTION_TARGET_TYPE_DISCUSSION = int32(commonv1.CommentReactionTargetType_DISCUSSION)
-	// COMMENT_REACTION_TARGET_TYPE_AI 表示互动目标是评价 AI 摘要内容。
-	COMMENT_REACTION_TARGET_TYPE_AI = int32(commonv1.CommentReactionTargetType_AI)
+	// COMMENT_REACTION_TARGET_TYPE_SUMMARY 表示互动目标是评价摘要内容。
+	COMMENT_REACTION_TARGET_TYPE_SUMMARY = int32(commonv1.CommentReactionTargetType_SUMMARY)
 )
 
 const (
-	// COMMENT_REACTION_TYPE_LIKE 表示点赞互动，用于表达用户对评价、讨论或 AI 摘要的正向反馈。
+	// COMMENT_REACTION_TYPE_LIKE 表示点赞互动，用于表达用户对评价、讨论或 评价摘要的正向反馈。
 	COMMENT_REACTION_TYPE_LIKE = int32(commonv1.CommentReactionType_LIKE)
-	// COMMENT_REACTION_TYPE_DISLIKE 表示点踩互动，用于表达用户对评价、讨论或 AI 摘要的负向反馈。
+	// COMMENT_REACTION_TYPE_DISLIKE 表示点踩互动，用于表达用户对评价、讨论或 评价摘要的负向反馈。
 	COMMENT_REACTION_TYPE_DISLIKE = int32(commonv1.CommentReactionType_DISLIKE)
 )
 

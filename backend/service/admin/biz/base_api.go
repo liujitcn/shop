@@ -193,45 +193,6 @@ func buildBaseAPIDocParameters(api *biz.OpenAPI, parameters []biz.Parameter) []*
 	return items
 }
 
-// buildBaseAPIDocRequestBody 构建请求体文档。
-func buildBaseAPIDocRequestBody(api *biz.OpenAPI, requestBody *biz.RequestBody) *adminv1.BaseApiDocSchema {
-	if requestBody == nil {
-		return nil
-	}
-	schema := selectBaseAPIDocContentSchema(requestBody.Content)
-	if schema == nil {
-		return nil
-	}
-	item := buildBaseAPIDocSchema(api, "body", "body", "body", requestBody.Required, *schema, 0)
-	if requestBody.Description != "" {
-		item.Description = requestBody.Description
-	}
-	return item
-}
-
-// buildBaseAPIDocResponses 构建响应文档。
-func buildBaseAPIDocResponses(api *biz.OpenAPI, responses map[string]biz.Response) []*adminv1.BaseApiDocResponse {
-	items := make([]*adminv1.BaseApiDocResponse, 0, len(responses))
-	statuses := make([]string, 0, len(responses))
-	for status := range responses {
-		statuses = append(statuses, status)
-	}
-	sort.Strings(statuses)
-	for _, status := range statuses {
-		response := responses[status]
-		schema := selectBaseAPIDocContentSchema(response.Content)
-		item := &adminv1.BaseApiDocResponse{
-			Status:      status,
-			Description: response.Description,
-		}
-		if schema != nil {
-			item.Body = buildBaseAPIDocSchema(api, "body", "body", "body", false, *schema, 0)
-		}
-		items = append(items, item)
-	}
-	return items
-}
-
 // buildBaseAPIDocSchema 展开 OpenAPI Schema 为前端可直接渲染的字段树。
 func buildBaseAPIDocSchema(api *biz.OpenAPI, name, path, in string, required bool, schema biz.Schema, depth int) *adminv1.BaseApiDocSchema {
 	schema, refName := dereferenceBaseAPIDocSchema(api, schema)
@@ -279,20 +240,6 @@ func buildBaseAPIDocSchema(api *biz.OpenAPI, name, path, in string, required boo
 	return item
 }
 
-// selectBaseAPIDocContentSchema 选择可展示的 JSON Schema。
-func selectBaseAPIDocContentSchema(content map[string]biz.MediaType) *biz.Schema {
-	if len(content) == 0 {
-		return nil
-	}
-	if media, ok := content[baseAPIDocJSONMediaType]; ok {
-		return &media.Schema
-	}
-	for _, media := range content {
-		return &media.Schema
-	}
-	return nil
-}
-
 // dereferenceBaseAPIDocSchema 解析本地组件引用。
 func dereferenceBaseAPIDocSchema(api *biz.OpenAPI, schema biz.Schema) (biz.Schema, string) {
 	refName := strings.TrimPrefix(schema.Ref, "#/components/schemas/")
@@ -321,6 +268,59 @@ func inferBaseAPIDocSchemaType(schema biz.Schema) string {
 		return "object"
 	}
 	return "string"
+}
+
+// buildBaseAPIDocRequestBody 构建请求体文档。
+func buildBaseAPIDocRequestBody(api *biz.OpenAPI, requestBody *biz.RequestBody) *adminv1.BaseApiDocSchema {
+	if requestBody == nil {
+		return nil
+	}
+	schema := selectBaseAPIDocContentSchema(requestBody.Content)
+	if schema == nil {
+		return nil
+	}
+	item := buildBaseAPIDocSchema(api, "body", "body", "body", requestBody.Required, *schema, 0)
+	if requestBody.Description != "" {
+		item.Description = requestBody.Description
+	}
+	return item
+}
+
+// selectBaseAPIDocContentSchema 选择可展示的 JSON Schema。
+func selectBaseAPIDocContentSchema(content map[string]biz.MediaType) *biz.Schema {
+	if len(content) == 0 {
+		return nil
+	}
+	if media, ok := content[baseAPIDocJSONMediaType]; ok {
+		return &media.Schema
+	}
+	for _, media := range content {
+		return &media.Schema
+	}
+	return nil
+}
+
+// buildBaseAPIDocResponses 构建响应文档。
+func buildBaseAPIDocResponses(api *biz.OpenAPI, responses map[string]biz.Response) []*adminv1.BaseApiDocResponse {
+	items := make([]*adminv1.BaseApiDocResponse, 0, len(responses))
+	statuses := make([]string, 0, len(responses))
+	for status := range responses {
+		statuses = append(statuses, status)
+	}
+	sort.Strings(statuses)
+	for _, status := range statuses {
+		response := responses[status]
+		schema := selectBaseAPIDocContentSchema(response.Content)
+		item := &adminv1.BaseApiDocResponse{
+			Status:      status,
+			Description: response.Description,
+		}
+		if schema != nil {
+			item.Body = buildBaseAPIDocSchema(api, "body", "body", "body", false, *schema, 0)
+		}
+		items = append(items, item)
+	}
+	return items
 }
 
 // matchAuthWhiteList 按认证白名单规则匹配当前接口操作名。

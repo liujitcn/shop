@@ -128,8 +128,8 @@
               <p>按评价标签提及次数排序</p>
             </article>
             <article class="reputation-item">
-              <span>AI 摘要</span>
-              <strong>{{ reputationSummary.ai_summary || "暂无评价摘要" }}</strong>
+              <span>评价摘要</span>
+              <strong>{{ reputationSummary.comment_summary || "暂无评价摘要" }}</strong>
               <p>来自商品评价摘要</p>
             </article>
           </div>
@@ -279,7 +279,7 @@ const riskSummary = reactive<SummaryWorkspaceRiskResponse>({
 const reputationSummary = reactive<SummaryWorkspaceReputationResponse>({
   average_comment_score: 0,
   hot_tags: [],
-  ai_summary: ""
+  comment_summary: ""
 });
 
 /** 跳转待审核评价列表时携带固定审核状态。 */

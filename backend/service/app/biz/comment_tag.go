@@ -82,6 +82,23 @@ func (c *CommentTagCase) MatchTagIDs(ctx context.Context, goodsID int64, content
 	return tagIDs, nil
 }
 
+// ExistingTagNames 查询商品已有评价标签名称。
+func (c *CommentTagCase) ExistingTagNames(ctx context.Context, goodsID int64) ([]string, error) {
+	recordList, err := c.listVisibleByGoodsID(ctx, goodsID)
+	if err != nil {
+		return nil, err
+	}
+	tagNames := make([]string, 0, len(recordList))
+	for _, record := range recordList {
+		// 标签名称为空时无法作为模型复用候选项。
+		if record.Name == "" {
+			continue
+		}
+		tagNames = append(tagNames, record.Name)
+	}
+	return tagNames, nil
+}
+
 // IncreaseMentionCount 批量增加标签提及次数。
 func (c *CommentTagCase) IncreaseMentionCount(ctx context.Context, tagIDs []int64) error {
 	// 没有命中的标签编号时，无需执行计数更新。
@@ -134,26 +151,6 @@ func (c *CommentTagCase) DecreaseMentionCount(ctx context.Context, tagIDs []int6
 	return err
 }
 
-// tagNamesByIDs 根据标签编号查询标签名称，失败时降级为空列表避免影响摘要主流程。
-func (c *CommentTagCase) tagNamesByIDs(ctx context.Context, goodsID int64, tagIDs []int64) []string {
-	if len(tagIDs) == 0 {
-		return []string{}
-	}
-	query := c.Query(ctx).CommentTag
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	opts = append(opts, repository.Where(query.ID.In(tagIDs...)))
-	tagList, err := c.List(ctx, opts...)
-	if err != nil {
-		return []string{}
-	}
-	tagNames := make([]string, 0, len(tagList))
-	for _, tag := range tagList {
-		tagNames = append(tagNames, tag.Name)
-	}
-	return tagNames
-}
-
 // listVisibleByGoodsID 查询商品下的全部可展示标签。
 func (c *CommentTagCase) listVisibleByGoodsID(ctx context.Context, goodsID int64) ([]*models.CommentTag, error) {
 	query := c.Query(ctx).CommentTag
@@ -162,6 +159,34 @@ func (c *CommentTagCase) listVisibleByGoodsID(ctx context.Context, goodsID int64
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.MentionCount.Desc()))
 	return c.List(ctx, opts...)
+}
+
+// cleanCommentTagNames 清理 LLM 返回的标签名称。
+func cleanCommentTagNames(tagNames []string) []string {
+	cleanNames := make([]string, 0, len(tagNames))
+	seen := make(map[string]struct{}, len(tagNames))
+	for _, tagName := range tagNames {
+		cleanName := tagName
+		// 空标签不写入标签库。
+		if cleanName == "" {
+			continue
+		}
+		runes := []rune(cleanName)
+		// 标签最长保留 8 个字符，避免模型输出过长短语污染筛选项。
+		if len(runes) > 8 {
+			cleanName = string(runes[:8])
+		}
+		// 重复标签只保留一次。
+		if _, ok := seen[cleanName]; ok {
+			continue
+		}
+		seen[cleanName] = struct{}{}
+		cleanNames = append(cleanNames, cleanName)
+		if len(cleanNames) >= 5 {
+			break
+		}
+	}
+	return cleanNames
 }
 
 // upsertTagByName 根据标签名称创建或复用商品标签。
@@ -210,34 +235,6 @@ func (c *CommentTagCase) upsertTagByName(ctx context.Context, goodsID int64, tag
 		return 0, err
 	}
 	return record.ID, nil
-}
-
-// cleanCommentTagNames 清理 LLM 返回的标签名称。
-func cleanCommentTagNames(tagNames []string) []string {
-	cleanNames := make([]string, 0, len(tagNames))
-	seen := make(map[string]struct{}, len(tagNames))
-	for _, tagName := range tagNames {
-		cleanName := strings.TrimSpace(tagName)
-		// 空标签不写入标签库。
-		if cleanName == "" {
-			continue
-		}
-		runes := []rune(cleanName)
-		// 标签最长保留 8 个字符，避免模型输出过长短语污染筛选项。
-		if len(runes) > 8 {
-			cleanName = string(runes[:8])
-		}
-		// 重复标签只保留一次。
-		if _, ok := seen[cleanName]; ok {
-			continue
-		}
-		seen[cleanName] = struct{}{}
-		cleanNames = append(cleanNames, cleanName)
-		if len(cleanNames) >= 5 {
-			break
-		}
-	}
-	return cleanNames
 }
 
 // jsonStringTagNames 将标签名称转为 JSON 数组字符串。

@@ -7,10 +7,9 @@ package data
 import (
 	"context"
 
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"shop/pkg/gen/models"
 	"shop/pkg/gen/query"
-
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 func init() {
@@ -30,11 +29,11 @@ func init() {
 		new(models.BaseRole),
 		new(models.BaseUser),
 		new(models.CasbinRule),
-		new(models.CommentAi),
 		new(models.CommentDiscussion),
 		new(models.CommentInfo),
 		new(models.CommentReaction),
 		new(models.CommentReview),
+		new(models.CommentSummary),
 		new(models.CommentTag),
 		new(models.GoodsCategory),
 		new(models.GoodsInfo),
@@ -51,7 +50,6 @@ func init() {
 		new(models.OrderRefund),
 		new(models.OrderStatDay),
 		new(models.PayBill),
-		new(models.RecommendAnonymousActor),
 		new(models.RecommendEvent),
 		new(models.RecommendRequest),
 		new(models.RecommendRequestItem),

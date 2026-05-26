@@ -58,18 +58,6 @@ func (c *CommentDiscussionCase) FindByID(ctx context.Context, discussionID int64
 	return record, nil
 }
 
-// findAnyByID 按编号查询未删除讨论记录。
-func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
-	query := c.Query(ctx).CommentDiscussion
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
-	record, err := c.Find(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return record, nil
-}
-
 // PageCommentDiscussion 查询评价讨论分页列表。
 func (c *CommentDiscussionCase) PageCommentDiscussion(
 	ctx context.Context,
@@ -208,22 +196,6 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	return record, nil
 }
 
-// updateStatus 更新讨论审核状态。
-func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID int64, status int32) error {
-	query := c.Query(ctx).CommentDiscussion
-	result, err := query.WithContext(ctx).
-		Where(query.ID.Eq(discussionID)).
-		Update(query.Status, status)
-	if err != nil {
-		return err
-	}
-	// 目标讨论不存在时，无法继续回写状态。
-	if result.RowsAffected == 0 {
-		return errorsx.ResourceNotFound("讨论不存在")
-	}
-	return nil
-}
-
 // buildDiscussionUserReactionTypeMap 查询当前用户对讨论的互动状态。
 func (c *CommentDiscussionCase) buildDiscussionUserReactionTypeMap(ctx context.Context, recordList []*models.CommentDiscussion, userID int64) (map[int64]int32, error) {
 	reactionTypeMap := make(map[int64]int32)
@@ -293,4 +265,32 @@ func (c *CommentDiscussionCase) buildDiscussionItem(
 	reactionType := userReactionTypeMap[record.ID]
 	item.ReactionType = commonv1.CommentReactionType(reactionType)
 	return item
+}
+
+// findAnyByID 按编号查询未删除讨论记录。
+func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
+	query := c.Query(ctx).CommentDiscussion
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return record, nil
+}
+
+// updateStatus 更新讨论审核状态。
+func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID int64, status int32) error {
+	query := c.Query(ctx).CommentDiscussion
+	result, err := query.WithContext(ctx).
+		Where(query.ID.Eq(discussionID)).
+		Update(query.Status, status)
+	if err != nil {
+		return err
+	}
+	// 目标讨论不存在时，无法继续回写状态。
+	if result.RowsAffected == 0 {
+		return errorsx.ResourceNotFound("讨论不存在")
+	}
+	return nil
 }

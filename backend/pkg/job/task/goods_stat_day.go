@@ -15,6 +15,16 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
+// goodsStatDayResult 表示商品日统计任务执行结果。
+type goodsStatDayResult struct {
+	viewEventCount  int
+	collectCount    int
+	cartCount       int
+	orderCount      int
+	orderGoodsCount int
+	statCount       int
+}
+
 // GoodsStatDay 商品日统计任务。
 type GoodsStatDay struct {
 	tx                 data.Transaction
@@ -62,6 +72,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	startAt := statDate
 	endAt := statDate.AddDate(0, 0, 1)
 
+	result := goodsStatDayResult{}
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		statQuery := t.goodsStatDayRepo.Query(ctx).GoodsStatDay
 		// 统计任务按天全量重算，先清掉当天旧数据再回写。
@@ -97,6 +108,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+		result.viewEventCount = len(viewList)
 		for _, item := range viewList {
 			// 非法商品不参与统计。
 			if item.GoodsID <= 0 {
@@ -114,6 +126,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+		result.collectCount = len(collectList)
 		for _, item := range collectList {
 			// 非法商品不参与统计。
 			if item.GoodsID <= 0 {
@@ -131,6 +144,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+		result.cartCount = len(cartList)
 		for _, item := range cartList {
 			// 非法商品不参与统计。
 			if item.GoodsID <= 0 {
@@ -148,6 +162,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		if err != nil {
 			return err
 		}
+		result.orderCount = len(orderInfoList)
 
 		orderIDs := make([]int64, 0, len(orderInfoList))
 		for _, item := range orderInfoList {
@@ -170,6 +185,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			if err != nil {
 				return err
 			}
+			result.orderGoodsCount = len(orderGoodsList)
 			for _, item := range orderGoodsList {
 				// 非法订单或商品不参与统计。
 				if item.OrderID <= 0 || item.GoodsID <= 0 {
@@ -215,6 +231,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		for _, item := range statMap {
 			list = append(list, item)
 		}
+		result.statCount = len(list)
 		// 没有统计结果时只保留清理动作，不再写入空数据。
 		if len(list) == 0 {
 			return nil
@@ -225,5 +242,13 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		return []string{err.Error()}, err
 	}
 
-	return []string{fmt.Sprintf("商品日统计完成: %s", statDate.Format("2006-01-02"))}, nil
+	return []string{fmt.Sprintf(
+		"商品日统计完成: 浏览事件 %d 条，收藏记录 %d 条，购物车记录 %d 条，订单 %d 条，订单商品 %d 条，写入统计 %d 条",
+		result.viewEventCount,
+		result.collectCount,
+		result.cartCount,
+		result.orderCount,
+		result.orderGoodsCount,
+		result.statCount,
+	)}, nil
 }

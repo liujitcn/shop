@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 
 	_const "shop/pkg/const"
 
@@ -19,7 +18,6 @@ import (
 	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
-	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gorm"
 )
@@ -122,7 +120,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 		if categoryErr != nil {
 			return nil, categoryErr
 		}
-		goodsIDs := make([]int64, 0)
+		var goodsIDs []int64
 		goodsIDs, categoryErr = c.findGoodsIDsByCategoryIDs(ctx, categoryIDs)
 		if categoryErr != nil {
 			return nil, categoryErr
@@ -148,97 +146,6 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 		GoodsInfos: list,
 		Total:      int32(count),
 	}, nil
-}
-
-// listAvailableGoodsIDs 按商品 ID 顺序过滤出当前可展示的商品编号。
-func (c *GoodsInfoCase) listAvailableGoodsIDs(ctx context.Context, goodsIDs []int64) ([]int64, error) {
-	result := make([]int64, 0, len(goodsIDs))
-	// 没有候选商品时，无需访问数据库。
-	if len(goodsIDs) == 0 {
-		return result, nil
-	}
-
-	query := c.GoodsInfoRepository.Query(ctx).GoodsInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	goodsIDSet := make(map[int64]struct{}, len(list))
-	for _, item := range list {
-		goodsIDSet[item.ID] = struct{}{}
-	}
-	for _, goodsID := range goodsIDs {
-		// 推荐结果里的商品已下架或不存在时，直接跳过当前无效商品。
-		if _, ok := goodsIDSet[goodsID]; !ok {
-			continue
-		}
-		result = append(result, goodsID)
-	}
-	return result, nil
-}
-
-// listByGoodsIDs 按商品 ID 顺序查询商品信息。
-func (c *GoodsInfoCase) listByGoodsIDs(ctx context.Context, goodsIDs []int64) ([]*appv1.GoodsInfo, error) {
-	// 是否会员
-	member := utils.IsMember(ctx)
-	result := make([]*appv1.GoodsInfo, 0, len(goodsIDs))
-	// 没有候选商品时，无需访问数据库。
-	if len(goodsIDs) == 0 {
-		return result, nil
-	}
-
-	query := c.GoodsInfoRepository.Query(ctx).GoodsInfo
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	goodsMap := make(map[int64]*models.GoodsInfo, len(list))
-	for _, item := range list {
-		goodsMap[item.ID] = item
-	}
-	for _, goodsID := range goodsIDs {
-		item, ok := goodsMap[goodsID]
-		// 查询结果缺少对应商品时，直接跳过无效 ID。
-		if !ok {
-			continue
-		}
-
-		goodsInfo := c.convertToProto(item, member)
-		result = append(result, goodsInfo)
-	}
-	return result, nil
-}
-
-// listCategoryIDsByGoodsIDs 根据商品 ID 列表查询分类 ID 列表。
-func (c *GoodsInfoCase) listCategoryIDsByGoodsIDs(ctx context.Context, goodsIDs []int64) ([]int64, error) {
-	// 没有商品上下文时无需访问数据库查询类目。
-	if len(goodsIDs) == 0 {
-		return []int64{}, nil
-	}
-
-	query := c.GoodsInfoRepository.Query(ctx).GoodsInfo
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
-	list, err := c.GoodsInfoRepository.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	categoryIDs := make([]int64, 0, len(list))
-
-	for _, item := range list {
-		categoryIDs = append(categoryIDs, c.parseCategoryIDs(item.CategoryID)...)
-	}
-	return _slice.Unique(categoryIDs), nil
 }
 
 // buildCategoryFilterIDs 构建分类筛选范围。
@@ -325,7 +232,7 @@ func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryI
 // parseCategoryIDs 解析商品分类编号列表。
 func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
 	// 分类字段为空时，直接返回空分类列表。
-	if strings.TrimSpace(rawCategoryIDs) == "" {
+	if rawCategoryIDs == "" {
 		return []int64{}
 	}
 
@@ -335,6 +242,57 @@ func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
 		return []int64{}
 	}
 	return categoryIDs
+}
+
+// convertToProto 转换单个商品为接口返回结构
+func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *appv1.GoodsInfo {
+	goodsInfo := c.listMapper.ToDTO(item)
+	// 会员使用会员价，普通用户返回标准售价。
+	// 会员访问时，优先返回会员价。
+	if member {
+		goodsInfo.Price = item.DiscountPrice
+	} else {
+		goodsInfo.Price = item.Price
+	}
+	goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
+	return goodsInfo
+}
+
+// listByGoodsIDs 按商品 ID 顺序查询商品信息。
+func (c *GoodsInfoCase) listByGoodsIDs(ctx context.Context, goodsIDs []int64) ([]*appv1.GoodsInfo, error) {
+	// 是否会员
+	member := utils.IsMember(ctx)
+	result := make([]*appv1.GoodsInfo, 0, len(goodsIDs))
+	// 没有候选商品时，无需访问数据库。
+	if len(goodsIDs) == 0 {
+		return result, nil
+	}
+
+	query := c.GoodsInfoRepository.Query(ctx).GoodsInfo
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsMap := make(map[int64]*models.GoodsInfo, len(list))
+	for _, item := range list {
+		goodsMap[item.ID] = item
+	}
+	for _, goodsID := range goodsIDs {
+		item, ok := goodsMap[goodsID]
+		// 查询结果缺少对应商品时，直接跳过无效 ID。
+		if !ok {
+			continue
+		}
+
+		goodsInfo := c.convertToProto(item, member)
+		result = append(result, goodsInfo)
+	}
+	return result, nil
 }
 
 // 按商品编号批量查询并组装映射
@@ -417,18 +375,4 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsID, num int64) erro
 	}
 	return res.Error
 
-}
-
-// convertToProto 转换单个商品为接口返回结构
-func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *appv1.GoodsInfo {
-	goodsInfo := c.listMapper.ToDTO(item)
-	// 会员使用会员价，普通用户返回标准售价。
-	// 会员访问时，优先返回会员价。
-	if member {
-		goodsInfo.Price = item.DiscountPrice
-	} else {
-		goodsInfo.Price = item.Price
-	}
-	goodsInfo.SaleNum = item.InitSaleNum + item.RealSaleNum
-	return goodsInfo
 }

@@ -70,7 +70,7 @@ func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) erro
 		return err
 	}
 
-	argsMap := make(map[string]string)
+	var argsMap map[string]string
 	argsMap, err = parseJobArgs(baseJob.Args)
 	if err != nil {
 		return err
@@ -149,7 +149,7 @@ func (c *CronServer) RunJob(_ context.Context, baseJob *models.BaseJob) error {
 		return err
 	}
 
-	argsMap := make(map[string]string)
+	var argsMap map[string]string
 	argsMap, err = parseJobArgs(baseJob.Args)
 	if err != nil {
 		// 参数解析失败时，保留原始入参到任务日志，便于定位非法配置。
@@ -212,17 +212,6 @@ func (c *CronServer) reloadJobs(ctx context.Context) error {
 	return nil
 }
 
-// updateBaseJobEntryID 更新任务的调度 entryID。
-func (c *CronServer) updateBaseJobEntryID(ctx context.Context, jobID int64, entryID int32) error {
-	query := c.baseJobRepo.Query(ctx).BaseJob
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(jobID)).
-		Updates(map[string]interface{}{
-			"entry_id": entryID,
-		})
-	return err
-}
-
 // lookupTaskExec 按调用目标名称查找任务执行器。
 func (c *CronServer) lookupTaskExec(invokeTarget string) (task.TaskExec, error) {
 	// 调用目标为空时，无法定位实际任务实现。
@@ -260,4 +249,15 @@ func parseJobArgs(rawArgs string) (map[string]string, error) {
 		argsMap[item.GetKey()] = item.GetValue()
 	}
 	return argsMap, nil
+}
+
+// updateBaseJobEntryID 更新任务的调度 entryID。
+func (c *CronServer) updateBaseJobEntryID(ctx context.Context, jobID int64, entryID int32) error {
+	query := c.baseJobRepo.Query(ctx).BaseJob
+	_, err := query.WithContext(ctx).
+		Where(query.ID.Eq(jobID)).
+		Updates(map[string]interface{}{
+			"entry_id": entryID,
+		})
+	return err
 }

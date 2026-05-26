@@ -405,10 +405,10 @@ export enum CommentReviewStatus {
   COMMENT_REVIEW_STATUS_EXCEPTION = 3,
 }
 
-/** 评价AI摘要场景 */
-export enum CommentAiScene {
-  /** UNKNOWN_CAS - 未知评价AI摘要场景 */
-  UNKNOWN_CAS = 0,
+/** 评价摘要场景 */
+export enum CommentSummaryScene {
+  /** COMMENT_SUMMARY_SCENE_UNSPECIFIED - 未知评价摘要场景 */
+  COMMENT_SUMMARY_SCENE_UNSPECIFIED = 0,
   /** OVERVIEW - 商品详情摘要 */
   OVERVIEW = 1,
   /** LIST - 评价列表摘要 */
@@ -423,8 +423,8 @@ export enum CommentReactionTargetType {
   COMMENT = 1,
   /** DISCUSSION - 讨论 */
   DISCUSSION = 2,
-  /** AI - AI摘要 */
-  AI = 3,
+  /** SUMMARY - 评价摘要 */
+  SUMMARY = 3,
 }
 
 /** 评价互动类型 */

@@ -318,6 +318,37 @@ func (c *UserCartCase) SetUserCartSelection(ctx context.Context, isChecked bool)
 	}, opts...)
 }
 
+// dispatchRecommendAddCartEvent 根据购物车落库事实回写推荐加购事件。
+func (c *UserCartCase) dispatchRecommendAddCartEvent(userID, goodsID, goodsNum int64, recommendContext *appv1.RecommendContext) {
+	// 用户编号、商品编号或加购数量非法时，无法构建可归因的推荐加购事件。
+	if userID <= 0 || goodsID <= 0 || goodsNum <= 0 {
+		return
+	}
+	// 加购请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
+	if recommendContext == nil {
+		recommendContext = &appv1.RecommendContext{}
+	}
+
+	// 只在购物车写库成功后回写推荐加购事件，确保推荐链路与后端事实一致。
+	queue.DispatchRecommendEvent(&dto.RecommendActor{
+		ActorType: commonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_USER),
+		ActorID:   userID,
+	}, &appv1.RecommendEventReportRequest{
+		EventType: commonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_ADD_CART),
+		RecommendContext: &appv1.RecommendEventContext{
+			Scene:     recommendContext.GetScene(),
+			RequestId: recommendContext.GetRequestId(),
+		},
+		Items: []*appv1.RecommendEventItem{
+			{
+				GoodsId:  goodsID,
+				GoodsNum: goodsNum,
+				Position: recommendContext.GetPosition(),
+			},
+		},
+	}, time.Time{})
+}
+
 // 按用户编号、商品编号和规格编码删除购物车商品
 func (c *UserCartCase) deleteByUserIDAndGoodsIDAndSKUCode(ctx context.Context, userID, goodsID int64, skuCode string) error {
 	query := c.Query(ctx).UserCart
@@ -348,35 +379,4 @@ func (c *UserCartCase) listGoodsIDsByUserID(ctx context.Context, userID int64) (
 		goodsIDs = append(goodsIDs, item.GoodsID)
 	}
 	return _slice.Unique(goodsIDs), nil
-}
-
-// dispatchRecommendAddCartEvent 根据购物车落库事实回写推荐加购事件。
-func (c *UserCartCase) dispatchRecommendAddCartEvent(userID, goodsID, goodsNum int64, recommendContext *appv1.RecommendContext) {
-	// 用户编号、商品编号或加购数量非法时，无法构建可归因的推荐加购事件。
-	if userID <= 0 || goodsID <= 0 || goodsNum <= 0 {
-		return
-	}
-	// 加购请求未携带推荐上下文时，统一回退到空上下文，避免空指针并保持事件结构稳定。
-	if recommendContext == nil {
-		recommendContext = &appv1.RecommendContext{}
-	}
-
-	// 只在购物车写库成功后回写推荐加购事件，确保推荐链路与后端事实一致。
-	queue.DispatchRecommendEvent(&dto.RecommendActor{
-		ActorType: commonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_USER),
-		ActorID:   userID,
-	}, &appv1.RecommendEventReportRequest{
-		EventType: commonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_ADD_CART),
-		RecommendContext: &appv1.RecommendEventContext{
-			Scene:     recommendContext.GetScene(),
-			RequestId: recommendContext.GetRequestId(),
-		},
-		Items: []*appv1.RecommendEventItem{
-			{
-				GoodsId:  goodsID,
-				GoodsNum: goodsNum,
-				Position: recommendContext.GetPosition(),
-			},
-		},
-	}, time.Time{})
 }

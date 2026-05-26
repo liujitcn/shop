@@ -93,20 +93,6 @@ func ParseLLM(ctx *bootstrap.Context) *bootstrapConfigv1.Client_Llm {
 	return cfg.GetClient().GetLlm()
 }
 
-// ParsePrompt 解析提示词配置。
-func ParsePrompt(cfg *configv1.ShopConfig) *configv1.Prompt {
-	// 商城配置缺失时，返回空提示词配置，由调用方判断是否可用。
-	if cfg == nil {
-		return &configv1.Prompt{}
-	}
-	prompt := cfg.GetPrompt()
-	// 缺少提示词配置时，返回空提示词配置，由调用方判断是否可用。
-	if prompt == nil {
-		return &configv1.Prompt{}
-	}
-	return prompt
-}
-
 // ParsePayTimeout 解析支付超时时间。
 func ParsePayTimeout() time.Duration {
 	cache := sdk.Runtime.GetCache()

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"sort"
-	"strings"
 	"time"
 
 	_const "shop/pkg/const"
@@ -185,7 +184,6 @@ func (r *Recommend) ListExploreGoodsPage(
 	excludedGoodsIDs []int64,
 	seed, pageNum, pageSize int64,
 ) ([]int64, int64, error) {
-	goodsIDs := make([]int64, 0)
 	// 页码或每页条数非法时，不再继续查询探索结果。
 	if pageNum <= 0 || pageSize <= 0 {
 		return []int64{}, 0, nil
@@ -211,11 +209,28 @@ func (r *Recommend) ListExploreGoodsPage(
 	if err != nil {
 		return nil, 0, err
 	}
+	var goodsIDs []int64
 	goodsIDs, err = r.scanSelectedGoodsIDs(dao, query.ID, pageOffset, int(pageSize))
 	if err != nil {
 		return nil, 0, err
 	}
 	return goodsIDs, total, nil
+}
+
+// parseCategoryIDs 解析商品分类编号列表。
+func (r *Recommend) parseCategoryIDs(rawCategoryIDs string) []int64 {
+	categoryIDs := make([]int64, 0)
+	// 分类字段为空时，直接返回空分类列表。
+	if rawCategoryIDs == "" {
+		return categoryIDs
+	}
+
+	err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs)
+	// 分类 JSON 解析失败时，回退为空分类列表，避免单条脏数据影响推荐链路。
+	if err != nil {
+		return []int64{}
+	}
+	return categoryIDs
 }
 
 // loadGoodsStatSummaryMap 查询候选商品在统计窗口内的行为聚合。
@@ -318,20 +333,4 @@ func (r *Recommend) scanSelectedGoodsIDs(dao gen.Dao, goodsIDField field.Int64, 
 		return nil, err
 	}
 	return goodsIDs, nil
-}
-
-// parseCategoryIDs 解析商品分类编号列表。
-func (r *Recommend) parseCategoryIDs(rawCategoryIDs string) []int64 {
-	categoryIDs := make([]int64, 0)
-	// 分类字段为空时，直接返回空分类列表。
-	if strings.TrimSpace(rawCategoryIDs) == "" {
-		return categoryIDs
-	}
-
-	err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs)
-	// 分类 JSON 解析失败时，回退为空分类列表，避免单条脏数据影响推荐链路。
-	if err != nil {
-		return []int64{}
-	}
-	return categoryIDs
 }

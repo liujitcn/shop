@@ -14,10 +14,10 @@ var (
 	reviewResultSchema     *jsonschema.Schema
 	reviewResultSchemaErr  error
 
-	// aiResultSchemaOnce 确保摘要结果 Schema 只生成一次，减少定时摘要刷新时的固定开销。
-	aiResultSchemaOnce sync.Once
-	aiResultSchema     *jsonschema.Schema
-	aiResultSchemaErr  error
+	// summaryResultSchemaOnce 确保摘要结果 Schema 只生成一次，减少定时摘要刷新时的固定开销。
+	summaryResultSchemaOnce sync.Once
+	summaryResultSchema     *jsonschema.Schema
+	summaryResultSchemaErr  error
 )
 
 // cachedReviewResultSchema 返回缓存后的评论审核结构化输出 Schema。
@@ -28,17 +28,17 @@ func cachedReviewResultSchema() (*jsonschema.Schema, error) {
 	return reviewResultSchema, reviewResultSchemaErr
 }
 
-// cachedAIResultSchema 返回缓存后的评价摘要结构化输出 Schema。
-func cachedAIResultSchema() (*jsonschema.Schema, error) {
-	aiResultSchemaOnce.Do(func() {
-		aiResultSchema, aiResultSchemaErr = jsonschema.For[AIResult](nil)
+// cachedSummaryResultSchema 返回缓存后的评价摘要结构化输出 Schema。
+func cachedSummaryResultSchema() (*jsonschema.Schema, error) {
+	summaryResultSchemaOnce.Do(func() {
+		summaryResultSchema, summaryResultSchemaErr = jsonschema.For[SummaryResult](nil)
 	})
-	return aiResultSchema, aiResultSchemaErr
+	return summaryResultSchema, summaryResultSchemaErr
 }
 
 // decodeStructuredContent 解码模型返回的结构化 JSON 文本。
 func decodeStructuredContent(content string, out any) error {
-	cleanContent := strings.TrimSpace(content)
+	cleanContent := content
 	// 大部分模型在配置 JSON Schema 后会直接返回纯 JSON，先走最快路径。
 	err := json.Unmarshal([]byte(cleanContent), out)
 	if err == nil {

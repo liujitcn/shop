@@ -32,20 +32,19 @@ func NewRecommendGorseCase(recommend *gorse.Dashboard) *RecommendGorseCase {
 
 // GetTimeSeries 查询 Gorse 推荐单项时间序列。
 func (c *RecommendGorseCase) GetTimeSeries(ctx context.Context, name, begin, end string) (*adminv1.TimeSeriesResponse, error) {
-	name = strings.TrimSpace(name)
 	// 指标名称为空时，无法拼装Gorse 仪表盘 API 路径。
 	if name == "" {
 		return nil, errorsx.InvalidArgument("指标名称不能为空")
 	}
 
-	data, err := c.dashboard.TimeSeries(ctx, name, strings.TrimSpace(begin), strings.TrimSpace(end))
+	data, err := c.dashboard.TimeSeries(ctx, name, begin, end)
 	if err != nil {
 		return nil, err
 	}
 
 	response := new(adminv1.TimeSeriesResponse)
 	// Gorse 时间序列接口原始返回数组，Proto 响应需要外层字段承载，内部字段通过 json_name 直接对齐原始结构。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+12)
@@ -88,7 +87,7 @@ func (c *RecommendGorseCase) ListDashboardItems(
 
 	response := new(adminv1.ListDashboardItemsResponse)
 	// Gorse 仪表盘推荐商品接口原始返回数组，字段结构通过 json_name 与 Proto 商品结构保持一致。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+11)
@@ -111,7 +110,7 @@ func (c *RecommendGorseCase) ListTasks(ctx context.Context) (*adminv1.ListTasksR
 
 	response := new(adminv1.ListTasksResponse)
 	// Gorse 任务状态接口原始返回数组，任务字段通过 json_name 直接对齐 Tracer、Name 等原始字段。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+11)
@@ -127,7 +126,7 @@ func (c *RecommendGorseCase) ListTasks(ctx context.Context) (*adminv1.ListTasksR
 
 // PageUsers 查询 Gorse 推荐用户列表。
 func (c *RecommendGorseCase) PageUsers(ctx context.Context, cursor string, n int32) (*adminv1.PageUsersResponse, error) {
-	data, err := c.dashboard.Users(ctx, strings.TrimSpace(cursor), n)
+	data, err := c.dashboard.Users(ctx, cursor, n)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +141,6 @@ func (c *RecommendGorseCase) PageUsers(ctx context.Context, cursor string, n int
 
 // GetUser 查询 Gorse 推荐用户。
 func (c *RecommendGorseCase) GetUser(ctx context.Context, id string) (*adminv1.UserResponse, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法继续代理 Gorse用户详情接口。
 	if id == "" {
 		return nil, errorsx.InvalidArgument("用户编号不能为空")
@@ -163,7 +161,6 @@ func (c *RecommendGorseCase) GetUser(ctx context.Context, id string) (*adminv1.U
 
 // DeleteUser 删除 Gorse 推荐用户。
 func (c *RecommendGorseCase) DeleteUser(ctx context.Context, id string) error {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法继续代理 Gorse用户删除接口。
 	if id == "" {
 		return errorsx.InvalidArgument("用户编号不能为空")
@@ -178,20 +175,19 @@ func (c *RecommendGorseCase) DeleteUser(ctx context.Context, id string) error {
 
 // GetUserSimilar 查询 Gorse 推荐相似用户。
 func (c *RecommendGorseCase) GetUserSimilar(ctx context.Context, id, recommender string) (*adminv1.UserSimilarResponse, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法继续代理 Gorse相似用户接口。
 	if id == "" {
 		return nil, errorsx.InvalidArgument("用户编号不能为空")
 	}
 
-	data, err := c.dashboard.UserSimilar(ctx, id, strings.TrimSpace(recommender))
+	data, err := c.dashboard.UserSimilar(ctx, id, recommender)
 	if err != nil {
 		return nil, err
 	}
 
 	response := new(adminv1.UserSimilarResponse)
 	// Gorse 相似用户接口原始返回数组，用户字段通过 json_name 直接对齐原始结构。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+11)
@@ -213,20 +209,19 @@ func (c *RecommendGorseCase) GetUserFeedback(
 	offset int32,
 	n int32,
 ) (*adminv1.FeedbackResponse, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法继续代理 Gorse用户反馈接口。
 	if id == "" {
 		return nil, errorsx.InvalidArgument("用户编号不能为空")
 	}
 
-	data, err := c.dashboard.UserFeedback(ctx, id, strings.TrimSpace(feedbackType), offset, n)
+	data, err := c.dashboard.UserFeedback(ctx, id, feedbackType, offset, n)
 	if err != nil {
 		return nil, err
 	}
 
 	response := new(adminv1.FeedbackResponse)
 	// Gorse 用户反馈接口原始返回数组，反馈字段通过 json_name 直接对齐 FeedbackType、Item 等原始字段。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+14)
@@ -248,20 +243,19 @@ func (c *RecommendGorseCase) GetUserRecommend(
 	category string,
 	n int32,
 ) (*adminv1.ItemListResponse, error) {
-	id = strings.TrimSpace(id)
 	// 用户编号为空时，无法继续代理 Gorse用户推荐接口。
 	if id == "" {
 		return nil, errorsx.InvalidArgument("用户编号不能为空")
 	}
 
-	data, err := c.dashboard.UserRecommend(ctx, id, strings.TrimSpace(recommender), strings.TrimSpace(category), n)
+	data, err := c.dashboard.UserRecommend(ctx, id, recommender, category, n)
 	if err != nil {
 		return nil, err
 	}
 
 	response := new(adminv1.ItemListResponse)
 	// Gorse 用户推荐接口原始返回数组，商品字段通过 json_name 直接对齐原始结构。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+11)
@@ -277,7 +271,7 @@ func (c *RecommendGorseCase) GetUserRecommend(
 
 // PageItems 查询 Gorse 推荐商品列表。
 func (c *RecommendGorseCase) PageItems(ctx context.Context, cursor string, n int32) (*adminv1.PageItemsResponse, error) {
-	data, err := c.dashboard.Items(ctx, strings.TrimSpace(cursor), n)
+	data, err := c.dashboard.Items(ctx, cursor, n)
 	if err != nil {
 		return nil, err
 	}
@@ -292,7 +286,6 @@ func (c *RecommendGorseCase) PageItems(ctx context.Context, cursor string, n int
 
 // GetItem 查询 Gorse 推荐商品。
 func (c *RecommendGorseCase) GetItem(ctx context.Context, id string) (*adminv1.Item, error) {
-	id = strings.TrimSpace(id)
 	// 商品编号为空时，无法继续代理 Gorse商品详情接口。
 	if id == "" {
 		return nil, errorsx.InvalidArgument("商品编号不能为空")
@@ -313,7 +306,6 @@ func (c *RecommendGorseCase) GetItem(ctx context.Context, id string) (*adminv1.I
 
 // DeleteItem 删除 Gorse 推荐商品。
 func (c *RecommendGorseCase) DeleteItem(ctx context.Context, id string) error {
-	id = strings.TrimSpace(id)
 	// 商品编号为空时，无法继续代理 Gorse商品删除接口。
 	if id == "" {
 		return errorsx.InvalidArgument("商品编号不能为空")
@@ -328,20 +320,19 @@ func (c *RecommendGorseCase) DeleteItem(ctx context.Context, id string) error {
 
 // GetItemSimilar 查询 Gorse 推荐相似商品。
 func (c *RecommendGorseCase) GetItemSimilar(ctx context.Context, id, recommender, category string) (*adminv1.ItemListResponse, error) {
-	id = strings.TrimSpace(id)
 	// 商品编号为空时，无法继续代理 Gorse相似商品接口。
 	if id == "" {
 		return nil, errorsx.InvalidArgument("商品编号不能为空")
 	}
 
-	data, err := c.dashboard.ItemSimilar(ctx, id, strings.TrimSpace(recommender), strings.TrimSpace(category))
+	data, err := c.dashboard.ItemSimilar(ctx, id, recommender, category)
 	if err != nil {
 		return nil, err
 	}
 
 	response := new(adminv1.ItemListResponse)
 	// Gorse 相似商品接口原始返回数组，商品字段通过 json_name 直接对齐原始结构。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+11)
@@ -409,7 +400,7 @@ func (c *RecommendGorseCase) ImportData(
 		return nil, errorsx.InvalidArgument("导入数据类型不能为空")
 	}
 	// 文件内容为空时，没有可供导入的Gorse 推荐数据行。
-	if strings.TrimSpace(req.GetContent()) == "" {
+	if req.GetContent() == "" {
 		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
 	}
 
@@ -465,7 +456,7 @@ func (c *RecommendGorseCase) SaveConfig(ctx context.Context, req *adminv1.Config
 		return nil, err
 	}
 
-	data := make([]byte, 0)
+	var data []byte
 	data, err = c.dashboard.SaveConfig(ctx, string(body))
 	if err != nil {
 		return nil, err
@@ -490,7 +481,7 @@ func (c *RecommendGorseCase) ResetConfig(ctx context.Context) error {
 
 // PreviewExternal 预览 Gorse 推荐外部推荐脚本。
 func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *adminv1.PreviewExternalRequest) (*adminv1.PreviewExternalResponse, error) {
-	script := strings.TrimSpace(req.GetScript())
+	script := req.GetScript()
 	// 外部推荐脚本为空时，Gorse 预览接口会执行失败，提前按参数错误拦截。
 	if script == "" {
 		return nil, errorsx.InvalidArgument("外部推荐脚本不能为空")
@@ -503,7 +494,7 @@ func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *adminv1.P
 
 	response := new(adminv1.PreviewExternalResponse)
 	// Gorse 外部推荐预览接口原始返回数组，Proto 响应需要外层 items 字段承载。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	wrappedData := make([]byte, 0, len(data)+10)
@@ -519,8 +510,8 @@ func (c *RecommendGorseCase) PreviewExternal(ctx context.Context, req *adminv1.P
 
 // PreviewRankerPrompt 预览 Gorse 推荐排序提示词。
 func (c *RecommendGorseCase) PreviewRankerPrompt(ctx context.Context, req *adminv1.PreviewRankerPromptRequest) (*adminv1.PreviewRankerPromptResponse, error) {
-	queryTemplate := strings.TrimSpace(req.GetQueryTemplate())
-	documentTemplate := strings.TrimSpace(req.GetDocumentTemplate())
+	queryTemplate := req.GetQueryTemplate()
+	documentTemplate := req.GetDocumentTemplate()
 	// 排序提示词预览只适用于大语言模型排序器，必须同时提供查询模板与文档模板。
 	if queryTemplate == "" || documentTemplate == "" {
 		return nil, errorsx.InvalidArgument("查询模板和文档模板不能为空")
@@ -533,7 +524,7 @@ func (c *RecommendGorseCase) PreviewRankerPrompt(ctx context.Context, req *admin
 
 	response := new(adminv1.PreviewRankerPromptResponse)
 	// Gorse 返回 null 时，Admin 侧使用空响应避免前端出现反序列化错误。
-	if strings.TrimSpace(string(data)) == "null" {
+	if string(data) == "null" {
 		return response, nil
 	}
 	err = (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, response)
@@ -554,12 +545,25 @@ func (c *RecommendGorseCase) exportRecommendGorseUsers(ctx context.Context) (str
 		}
 		userList = append(userList, result.Users...)
 		// 下一页游标为空时，说明当前用户数据集已经全部导出完成。
-		if strings.TrimSpace(result.Cursor) == "" {
+		if result.Cursor == "" {
 			break
 		}
 		cursor = result.Cursor
 	}
 	return marshalRecommendGorseJSONL(userList)
+}
+
+// marshalRecommendGorseJSONL 将对象列表序列化为 JSONL 文本。
+func marshalRecommendGorseJSONL[T any](recordList []T) (string, error) {
+	lineList := make([]string, 0, len(recordList))
+	for _, record := range recordList {
+		data, err := json.Marshal(record)
+		if err != nil {
+			return "", err
+		}
+		lineList = append(lineList, string(data))
+	}
+	return strings.Join(lineList, "\n"), nil
 }
 
 // exportRecommendGorseItems 导出 Gorse 推荐商品 JSONL。
@@ -573,7 +577,7 @@ func (c *RecommendGorseCase) exportRecommendGorseItems(ctx context.Context) (str
 		}
 		itemList = append(itemList, result.Items...)
 		// 下一页游标为空时，说明当前商品数据集已经全部导出完成。
-		if strings.TrimSpace(result.Cursor) == "" {
+		if result.Cursor == "" {
 			break
 		}
 		cursor = result.Cursor
@@ -592,12 +596,57 @@ func (c *RecommendGorseCase) exportRecommendGorseFeedback(ctx context.Context) (
 		}
 		feedbackList = append(feedbackList, result.Feedback...)
 		// 下一页游标为空时，说明当前反馈数据集已经全部导出完成。
-		if strings.TrimSpace(result.Cursor) == "" {
+		if result.Cursor == "" {
 			break
 		}
 		cursor = result.Cursor
 	}
 	return marshalRecommendGorseJSONL(feedbackList)
+}
+
+// parseRecommendGorseJSONRecords 解析Gorse 推荐 JSON 或 JSONL 内容。
+func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
+	content = strings.TrimPrefix(content, "\ufeff")
+	// 处理完 BOM 与首尾空白后内容为空时，不存在任何可解析的数据对象。
+	if content == "" {
+		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
+	}
+
+	// 文件整体是 JSON 数组时，优先按数组结构解析，兼容部分调试工具的批量导出格式。
+	if strings.HasPrefix(content, "[") {
+		recordList := make([]json.RawMessage, 0)
+		decodeErr := json.Unmarshal([]byte(content), &recordList)
+		if decodeErr != nil {
+			return nil, errorsx.InvalidArgument("导入文件不是合法的JSON数组")
+		}
+		return recordList, nil
+	}
+
+	// 文件整体是单个 JSON 对象时，统一包装成一条记录，兼容单对象手工调试导入。
+	if strings.HasPrefix(content, "{") && !strings.Contains(content, "\n") {
+		return []json.RawMessage{json.RawMessage(content)}, nil
+	}
+
+	lineList := strings.Split(content, "\n")
+	recordList := make([]json.RawMessage, 0, len(lineList))
+	for _, line := range lineList {
+		// 空白行对 JSONL 导入没有业务意义，统一跳过。
+		if line == "" {
+			continue
+		}
+		// JSONL 每一行都必须是单个 JSON 对象，避免把半截数据误导入推荐服务。
+		if !strings.HasPrefix(line, "{") {
+			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
+		}
+
+		rawMessage := json.RawMessage{}
+		decodeErr := json.Unmarshal([]byte(line), &rawMessage)
+		if decodeErr != nil {
+			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
+		}
+		recordList = append(recordList, rawMessage)
+	}
+	return recordList, nil
 }
 
 // importRecommendGorseUsers 导入 Gorse 推荐用户 JSONL。
@@ -610,7 +659,7 @@ func (c *RecommendGorseCase) importRecommendGorseUsers(ctx context.Context, reco
 			return 0, errorsx.InvalidArgument("用户数据不是合法的JSON对象")
 		}
 		// 用户编号为空时，当前记录无法作为合法的Gorse 推荐用户导入。
-		if strings.TrimSpace(user.UserId) == "" {
+		if user.UserId == "" {
 			return 0, errorsx.InvalidArgument("用户数据缺少 user_id")
 		}
 		userList = append(userList, user)
@@ -637,7 +686,7 @@ func (c *RecommendGorseCase) importRecommendGorseItems(ctx context.Context, reco
 			return 0, errorsx.InvalidArgument("商品数据不是合法的JSON对象")
 		}
 		// 商品编号为空时，当前记录无法作为合法的Gorse 推荐商品导入。
-		if strings.TrimSpace(item.ItemId) == "" {
+		if item.ItemId == "" {
 			return 0, errorsx.InvalidArgument("商品数据缺少 item_id")
 		}
 		itemList = append(itemList, item)
@@ -664,15 +713,15 @@ func (c *RecommendGorseCase) importRecommendGorseFeedback(ctx context.Context, r
 			return 0, errorsx.InvalidArgument("反馈数据不是合法的JSON对象")
 		}
 		// 反馈类型为空时，当前记录无法作为合法的Gorse 推荐反馈导入。
-		if strings.TrimSpace(feedback.FeedbackType) == "" {
+		if feedback.FeedbackType == "" {
 			return 0, errorsx.InvalidArgument("反馈数据缺少 feedback_type")
 		}
 		// 用户编号为空时，当前反馈无法定位反馈主体。
-		if strings.TrimSpace(feedback.UserId) == "" {
+		if feedback.UserId == "" {
 			return 0, errorsx.InvalidArgument("反馈数据缺少 user_id")
 		}
 		// 商品编号为空时，当前反馈无法定位反馈商品。
-		if strings.TrimSpace(feedback.ItemId) == "" {
+		if feedback.ItemId == "" {
 			return 0, errorsx.InvalidArgument("反馈数据缺少 item_id")
 		}
 		feedbackList = append(feedbackList, feedback)
@@ -687,65 +736,6 @@ func (c *RecommendGorseCase) importRecommendGorseFeedback(ctx context.Context, r
 		return 0, err
 	}
 	return len(feedbackList), nil
-}
-
-// parseRecommendGorseJSONRecords 解析Gorse 推荐 JSON 或 JSONL 内容。
-func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
-	content = strings.TrimSpace(strings.TrimPrefix(content, "\ufeff"))
-	// 处理完 BOM 与首尾空白后内容为空时，不存在任何可解析的数据对象。
-	if content == "" {
-		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
-	}
-
-	// 文件整体是 JSON 数组时，优先按数组结构解析，兼容部分调试工具的批量导出格式。
-	if strings.HasPrefix(content, "[") {
-		recordList := make([]json.RawMessage, 0)
-		decodeErr := json.Unmarshal([]byte(content), &recordList)
-		if decodeErr != nil {
-			return nil, errorsx.InvalidArgument("导入文件不是合法的JSON数组")
-		}
-		return recordList, nil
-	}
-
-	// 文件整体是单个 JSON 对象时，统一包装成一条记录，兼容单对象手工调试导入。
-	if strings.HasPrefix(content, "{") && !strings.Contains(content, "\n") {
-		return []json.RawMessage{json.RawMessage(content)}, nil
-	}
-
-	lineList := strings.Split(content, "\n")
-	recordList := make([]json.RawMessage, 0, len(lineList))
-	for _, line := range lineList {
-		line = strings.TrimSpace(line)
-		// 空白行对 JSONL 导入没有业务意义，统一跳过。
-		if line == "" {
-			continue
-		}
-		// JSONL 每一行都必须是单个 JSON 对象，避免把半截数据误导入推荐服务。
-		if !strings.HasPrefix(line, "{") {
-			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
-		}
-
-		rawMessage := json.RawMessage{}
-		decodeErr := json.Unmarshal([]byte(line), &rawMessage)
-		if decodeErr != nil {
-			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
-		}
-		recordList = append(recordList, rawMessage)
-	}
-	return recordList, nil
-}
-
-// marshalRecommendGorseJSONL 将对象列表序列化为 JSONL 文本。
-func marshalRecommendGorseJSONL[T any](recordList []T) (string, error) {
-	lineList := make([]string, 0, len(recordList))
-	for _, record := range recordList {
-		data, err := json.Marshal(record)
-		if err != nil {
-			return "", err
-		}
-		lineList = append(lineList, string(data))
-	}
-	return strings.Join(lineList, "\n"), nil
 }
 
 // marshalGorseConfig 将 Proto 配置转换为 Gorse 仪表盘接口需要的 JSON 结构。

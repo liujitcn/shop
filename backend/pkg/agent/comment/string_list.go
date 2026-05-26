@@ -1,14 +1,12 @@
 package comment
 
-import "strings"
-
 // cleanStringList 清理字符串列表并去重。
 func cleanStringList(values []string) []string {
 	result := make([]string, 0, len(values))
 	seen := make(map[string]struct{}, len(values))
 	for _, value := range values {
 		// 这里处理的是模型输入或模型输出标签，空白不是业务内容，去掉后再参与去重。
-		cleanValue := strings.TrimSpace(value)
+		cleanValue := value
 		// 清理后为空或已经出现过的值不再保留。
 		if cleanValue == "" {
 			continue
@@ -48,7 +46,7 @@ func limitStringList(values []string, limit int, runeLimit int) []string {
 // trimStringByRunes 按字符数清理并截断字符串。
 func trimStringByRunes(value string, limit int) string {
 	// 摘要输入按 rune 截断，避免中文被 byte 截断造成无效 UTF-8。
-	cleanValue := strings.TrimSpace(value)
+	cleanValue := value
 	if limit <= 0 {
 		return ""
 	}

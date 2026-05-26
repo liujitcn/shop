@@ -19,9 +19,9 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 	if bootstrapCfg == nil {
 		return client
 	}
-	baseURL := strings.TrimRight(strings.TrimSpace(bootstrapCfg.GetBaseUrl()), "/")
-	apiKey := strings.TrimSpace(bootstrapCfg.GetApiKey())
-	model := strings.TrimSpace(bootstrapCfg.GetModel())
+	baseURL := strings.TrimRight(bootstrapCfg.GetBaseUrl(), "/")
+	apiKey := bootstrapCfg.GetApiKey()
+	model := bootstrapCfg.GetModel()
 	// 启动配置不完整时，保持客户端关闭状态。
 	if baseURL == "" || apiKey == "" || model == "" {
 		return client

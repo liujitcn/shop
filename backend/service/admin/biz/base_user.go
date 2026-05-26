@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -50,7 +49,7 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserReposito
 
 // OptionBaseUsers 查询用户选项
 func (c *BaseUserCase) OptionBaseUsers(ctx context.Context, req *adminv1.OptionBaseUsersRequest) (*commonv1.SelectOptionResponse, error) {
-	keyword := strings.TrimSpace(req.GetKeyword())
+	keyword := req.GetKeyword()
 	// 未传关键字时，直接返回空选项集。
 	if keyword == "" {
 		return &commonv1.SelectOptionResponse{List: []*commonv1.SelectOptionResponse_Option{}}, nil

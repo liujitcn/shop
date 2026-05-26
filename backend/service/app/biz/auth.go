@@ -66,6 +66,70 @@ func NewAuthCase(
 	}
 }
 
+// GetUserProfile 获取当前登录用户信息
+func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var user *models.BaseUser
+	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	// 用户被停用时，不允许继续获取个人信息。
+	if user.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("账号已被禁用")
+	}
+
+	res := c.profileMapper.ToDTO(user)
+	res.Phone = _string.DesensitizePhone(user.Phone)
+	return res, nil
+}
+
+// UpdateUserProfile 修改个人中心用户信息
+func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfileForm) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+
+	var oldBaseUser *models.BaseUser
+	oldBaseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
+	if err != nil {
+		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
+	}
+	originalAvatar := oldBaseUser.Avatar
+
+	baseUser := &models.BaseUser{
+		ID:       authInfo.UserId,
+		NickName: req.GetNickName(),
+		Gender:   req.GetGender(),
+		Avatar:   req.GetAvatar(),
+	}
+	// 用户资料更新失败时，直接返回错误交由上层处理。
+	if err = c.baseUserCase.UpdateByID(ctx, baseUser); err != nil {
+		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
+	}
+	// 用户资料写库成功后，再异步同步最新画像到推荐系统。
+	queue.DispatchRecommendSyncBaseUser(authInfo.UserId)
+
+	// 删除被替换的旧头像文件
+	oss := sdk.Runtime.GetOSS()
+	// OSS 可用时，尝试清理被替换掉的历史头像文件。
+	if oss != nil {
+		// 新头像为空或发生变更时，旧头像文件需要尝试删除。
+		if baseUser.Avatar == "" || originalAvatar != baseUser.Avatar {
+			// 头像文件删除失败时，只记录日志不影响主流程。
+			if err = oss.DeleteFile(originalAvatar); err != nil {
+				log.Errorf("DeleteFile %v", err)
+			}
+		}
+	}
+	return nil
+}
+
 // WechatLogin 微信登录
 func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginRequest) (*appv1.WechatLoginResponse, error) {
 	sessionKey, err := utils.GetSessionKey(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret(), req.GetCode())
@@ -151,70 +215,6 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginReques
 		RefreshToken: refreshToken,
 		ExpiresIn:    c.userToken.GetAccessTokenExpires(),
 	}, nil
-}
-
-// GetUserProfile 获取当前登录用户信息
-func (c *AuthCase) GetUserProfile(ctx context.Context) (*appv1.UserProfileForm, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
-	if err != nil {
-		return nil, errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-	// 用户被停用时，不允许继续获取个人信息。
-	if user.Status != _const.STATUS_ENABLE {
-		return nil, errorsx.PermissionDenied("账号已被禁用")
-	}
-
-	res := c.profileMapper.ToDTO(user)
-	res.Phone = _string.DesensitizePhone(user.Phone)
-	return res, nil
-}
-
-// UpdateUserProfile 修改个人中心用户信息
-func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfileForm) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-
-	var oldBaseUser *models.BaseUser
-	oldBaseUser, err = c.baseUserCase.FindByID(ctx, authInfo.UserId)
-	if err != nil {
-		return errorsx.ResourceNotFound("用户不存在").WithCause(err)
-	}
-	originalAvatar := oldBaseUser.Avatar
-
-	baseUser := &models.BaseUser{
-		ID:       authInfo.UserId,
-		NickName: req.GetNickName(),
-		Gender:   req.GetGender(),
-		Avatar:   req.GetAvatar(),
-	}
-	// 用户资料更新失败时，直接返回错误交由上层处理。
-	if err = c.baseUserCase.UpdateByID(ctx, baseUser); err != nil {
-		return errorsx.Internal("修改个人中心用户信息失败").WithCause(err)
-	}
-	// 用户资料写库成功后，再异步同步最新画像到推荐系统。
-	queue.DispatchRecommendSyncBaseUser(authInfo.UserId)
-
-	// 删除被替换的旧头像文件
-	oss := sdk.Runtime.GetOSS()
-	// OSS 可用时，尝试清理被替换掉的历史头像文件。
-	if oss != nil {
-		// 新头像为空或发生变更时，旧头像文件需要尝试删除。
-		if baseUser.Avatar == "" || originalAvatar != baseUser.Avatar {
-			// 头像文件删除失败时，只记录日志不影响主流程。
-			if err = oss.DeleteFile(originalAvatar); err != nil {
-				log.Errorf("DeleteFile %v", err)
-			}
-		}
-	}
-	return nil
 }
 
 // BindUserPhone 手机号授权

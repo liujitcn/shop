@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"strings"
 
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -40,7 +39,7 @@ func (c *BaseUserCase) FindDisplayNameByID(ctx context.Context, userID int64) (s
 		}
 		return "", err
 	}
-	if strings.TrimSpace(user.NickName) != "" {
+	if user.NickName != "" {
 		return user.NickName, nil
 	}
 	return user.UserName, nil

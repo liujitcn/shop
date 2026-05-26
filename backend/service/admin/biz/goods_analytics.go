@@ -72,7 +72,7 @@ func (c *GoodsAnalyticsCase) SummaryGoodsAnalytics(ctx context.Context, req *adm
 	if err != nil {
 		return nil, err
 	}
-	behaviorSummary := &dto.GoodsAnalyticsSummaryRow{}
+	var behaviorSummary *dto.GoodsAnalyticsSummaryRow
 	behaviorSummary, err = c.queryGoodsBehaviorSummary(ctx, startAt, endAt)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (c *GoodsAnalyticsCase) RankGoodsAnalytics(ctx context.Context, req *adminv
 	for _, item := range rows {
 		goodsIDs = append(goodsIDs, item.GoodsID)
 	}
-	nameMap := make(map[int64]string)
+	var nameMap map[int64]string
 	nameMap, err = c.loadGoodsNameMap(ctx, goodsIDs)
 	if err != nil {
 		return nil, err

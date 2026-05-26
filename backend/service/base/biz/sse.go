@@ -99,12 +99,12 @@ func (h *SseCase) authorizeRequest(r *http.Request) (*authData.UserTokenPayload,
 
 // authenticatorFromRequest 从 SSE 请求中解析并校验后台登录用户。
 func (h *SseCase) authenticatorFromRequest(r *http.Request) (*authData.UserTokenPayload, error) {
-	token := strings.TrimSpace(r.Header.Get(authnEngine.HeaderAuthorize))
+	token := r.Header.Get(authnEngine.HeaderAuthorize)
 	if token == "" {
 		return nil, errorsx.Unauthenticated("SSE访问令牌为空")
 	}
 	if len(token) >= len(authnEngine.BearerWord)+1 && strings.EqualFold(token[:len(authnEngine.BearerWord)+1], authnEngine.BearerWord+" ") {
-		token = strings.TrimSpace(token[len(authnEngine.BearerWord)+1:])
+		token = token[len(authnEngine.BearerWord)+1:]
 	}
 
 	authClaims, err := h.authenticator.AuthenticateToken(token)

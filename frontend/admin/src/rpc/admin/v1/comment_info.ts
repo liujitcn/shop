@@ -5,13 +5,13 @@
 // source: admin/v1/comment_info.proto
 
 /* eslint-disable */
-import type { CommentAiContentItem } from "../../common/v1/common";
+import type { CommentSummaryContentItem } from "../../common/v1/common";
 import type {
-  CommentAiScene,
   CommentReviewStatus,
   CommentReviewTargetType,
   CommentReviewType,
   CommentStatus,
+  CommentSummaryScene,
 } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 
@@ -119,8 +119,8 @@ export interface CommentInfoDetail {
   comment_tags: CommentTag[];
   /** 评论讨论列表 */
   comment_discussions: CommentDiscussion[];
-  /** 商品评论AI摘要 */
-  comment_ais: CommentAi[];
+  /** 商品评论摘要 */
+  comment_summaries: CommentSummary[];
   /** 评论审核记录 */
   comment_reviews: CommentReview[];
 }
@@ -133,8 +133,8 @@ export interface GoodsCommentInfoResponse {
   comment_tags: CommentTag[];
   /** 评论讨论列表 */
   comment_discussions: CommentDiscussion[];
-  /** 商品评论AI摘要 */
-  comment_ais: CommentAi[];
+  /** 商品评论摘要 */
+  comment_summaries: CommentSummary[];
 }
 
 /** 评论信息 */
@@ -271,16 +271,16 @@ export interface CommentDiscussion {
   updated_at: string;
 }
 
-/** 评论AI摘要 */
-export interface CommentAi {
-  /** AI摘要主键 */
+/** 评论摘要 */
+export interface CommentSummary {
+  /** 评价摘要主键 */
   id: number;
   /** 商品ID */
   goods_id: number;
-  /** 展示场景：枚举【CommentAiScene】 */
-  scene: CommentAiScene;
-  /** AI摘要内容列表 */
-  content: CommentAiContentItem[];
+  /** 展示场景：枚举【CommentSummaryScene】 */
+  scene: CommentSummaryScene;
+  /** 评价摘要内容列表 */
+  content: CommentSummaryContentItem[];
   /** 点赞数 */
   like_count: number;
   /** 点踩数 */

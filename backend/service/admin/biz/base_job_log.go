@@ -84,6 +84,13 @@ func (c *BaseJobLogCase) GetBaseJobLog(ctx context.Context, id int64) (*adminv1.
 	return c.toBaseJobLog(baseJobLog), nil
 }
 
+// toBaseJobLog 转换任务日志响应
+func (c *BaseJobLogCase) toBaseJobLog(item *models.BaseJobLog) *adminv1.BaseJobLog {
+	baseJobLog := c.mapper.ToDTO(item)
+	baseJobLog.ProcessTime = strconv.FormatInt(int64(item.ProcessTime), 10)
+	return baseJobLog
+}
+
 // saveJobLog 保存任务日志队列消息。
 func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
 	baseJobLog, err := queue.DecodeQueueData[models.BaseJobLog](message)
@@ -95,11 +102,4 @@ func (c *BaseJobLogCase) saveJobLog(message queueData.Message) error {
 		return nil
 	}
 	return c.Create(context.TODO(), baseJobLog)
-}
-
-// toBaseJobLog 转换任务日志响应
-func (c *BaseJobLogCase) toBaseJobLog(item *models.BaseJobLog) *adminv1.BaseJobLog {
-	baseJobLog := c.mapper.ToDTO(item)
-	baseJobLog.ProcessTime = strconv.FormatInt(int64(item.ProcessTime), 10)
-	return baseJobLog
 }

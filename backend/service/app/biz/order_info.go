@@ -141,6 +141,117 @@ func NewOrderInfoCase(
 	return c, nil
 }
 
+// RefundOrderInfo 申请订单退款
+func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOrderInfoRequest) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	var orderInfo *models.OrderInfo
+	orderInfo, err = c.findByUserIDAndID(ctx, authInfo.UserId, req.GetOrderId())
+	if err != nil {
+		return err
+	}
+
+	// 只有已支付订单才能继续申请退款。
+	if orderInfo.Status != _const.ORDER_STATUS_PAID {
+		return errorsx.StateConflict(
+			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderStatus_name[orderInfo.Status]),
+			"order_info",
+			commonv1.OrderStatus(orderInfo.Status).String(),
+			commonv1.OrderStatus(_const.ORDER_STATUS_PAID).String(),
+		)
+	}
+
+	orderRefund := &models.OrderRefund{
+		OrderID:  req.GetOrderId(),
+		RefundNo: orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
+		Reason:   int32(req.GetReason()),
+	}
+	// 只有在线支付订单才会走退款单和微信退款流程
+	if commonv1.OrderPayType(orderInfo.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
+		// 先把退款原因值翻译成字典标签，便于退款记录展示
+		reason := strconv.Itoa(int(orderRefund.Reason))
+		var label string
+		label, err = c.baseDictItemCase.findLabelByCodeAndValue(ctx, ORDER_REFUND_REASON, reason)
+		// 字典标签查询成功时，使用标签替换原始原因值。
+		if err == nil {
+			reason = label
+		}
+		// 仅微信支付订单需要调用微信退款接口
+		if commonv1.OrderPayChannel(orderInfo.PayChannel) == commonv1.OrderPayChannel(_const.ORDER_PAY_CHANNEL_WX_PAY) {
+			var refund *refunddomestic.Refund
+			refund, err = c.wxPayCase.Refund(refunddomestic.CreateRequest{
+				OutTradeNo:  trans.String(orderInfo.OrderNo),
+				OutRefundNo: trans.String(orderRefund.RefundNo),
+				Reason:      trans.String(reason),
+				Amount: &refunddomestic.AmountReq{
+					Total:    trans.Int64(orderInfo.PayMoney),
+					Refund:   trans.Int64(orderInfo.PayMoney),
+					Currency: trans.String("CNY"),
+				},
+			})
+			// 微信退款创建失败时，需要识别“已全额退款”的可恢复场景。
+			if err != nil {
+				// 命中微信 API 错误结构时，再判断是否属于幂等退款场景。
+				if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
+					// 微信明确返回“订单已全额退款”时，补查退款结果并同步本地状态。
+					if apiErr.Code == "INVALID_REQUEST" && apiErr.Message == "订单已全额退款" {
+						// 调用查询退款接口
+						var refundResource *appv1.RefundResource
+						refundResource, err = c.wxPayCase.QueryByOutRefundNo(orderRefund.RefundNo)
+						if err != nil {
+							return err
+						}
+						err = c.payCase.RefundSuccess(ctx, orderInfo, refundResource)
+						if err != nil {
+							return err
+						}
+						return errorsx.StateConflict(
+							"订单已退款，不能重复退款",
+							"order_refund",
+							appv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS).String(),
+							"NONE",
+						)
+					}
+				}
+				return err
+			}
+			orderRefund.OrderNo = trans.StringValue(refund.OutTradeNo)
+			orderRefund.ThirdOrderNo = trans.StringValue(refund.TransactionId)
+			orderRefund.ThirdRefundNo = trans.StringValue(refund.RefundId)
+			orderRefund.Channel = string(*refund.Channel.Ptr())
+			orderRefund.UserReceivedAccount = trans.StringValue(refund.UserReceivedAccount)
+			orderRefund.CreateTime = trans.TimeValue(refund.CreateTime)
+			orderRefund.SuccessTime = trans.TimeValue(refund.SuccessTime)
+			orderRefund.RefundState = string(*refund.Status.Ptr())
+			orderRefund.FundsAccount = string(*refund.FundsAccount)
+			orderRefund.Amount = _string.ConvertAnyToJsonString(refund.Amount)
+		}
+	} else {
+		t := time.Now()
+		orderRefund.CreateTime = t
+		orderRefund.SuccessTime = t
+		orderRefund.Amount = "{}"
+	}
+	orderIDs := []int64{req.GetOrderId()}
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		// 退款成功后保存退款记录
+		err = c.orderRefundCase.Create(ctx, orderRefund)
+		if err != nil {
+			return err
+		}
+		return c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
+			Status: _const.ORDER_STATUS_REFUNDING,
+		})
+	})
+	if err != nil {
+		return err
+	}
+	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
+	return nil
+}
+
 // ConfirmOrderInfo 确认订单
 func (c *OrderInfoCase) ConfirmOrderInfo(ctx context.Context) (*appv1.ConfirmOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -151,10 +262,10 @@ func (c *OrderInfoCase) ConfirmOrderInfo(ctx context.Context) (*appv1.ConfirmOrd
 
 	// 查询购物车列表
 	query := c.userCartCase.Query(ctx).UserCart
-	userCartList := make([]*models.UserCart, 0)
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Where(query.IsChecked.Is(true)))
+	var userCartList []*models.UserCart
 	userCartList, err = c.userCartCase.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -309,12 +420,12 @@ func (c *OrderInfoCase) PageOrderInfo(ctx context.Context, req *appv1.PageOrderI
 		}
 	}
 
-	orderGoodsMap := make(map[int64][]*appv1.OrderGoods)
+	var orderGoodsMap map[int64][]*appv1.OrderGoods
 	orderGoodsMap, err = c.orderGoodsCase.mapByOrderIDs(ctx, orderIDs)
 	if err != nil {
 		return nil, err
 	}
-	refundTimeMap := make(map[int64]string)
+	var refundTimeMap map[int64]string
 	refundTimeMap, err = c.orderRefundCase.mapRefundTimeByOrderIDs(ctx, refundOrderIDs)
 	if err != nil {
 		return nil, err
@@ -460,11 +571,6 @@ func (c *OrderInfoCase) GetOrderInfoByID(ctx context.Context, id int64) (*appv1.
 	return &res, nil
 }
 
-// isAdminRoleCode 判断当前登录角色是否属于后台管理角色。
-func isAdminRoleCode(roleCode string) bool {
-	return roleCode == "super" || roleCode == "admin"
-}
-
 // CreateOrderInfo 创建订单并发起支付准备
 func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *appv1.CreateOrderInfoRequest) (*appv1.CreateOrderInfoResponse, error) {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -605,117 +711,6 @@ func (c *OrderInfoCase) CancelOrderInfo(ctx context.Context, req *appv1.CancelOr
 	return nil
 }
 
-// RefundOrderInfo 申请订单退款
-func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOrderInfoRequest) error {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	var orderInfo *models.OrderInfo
-	orderInfo, err = c.findByUserIDAndID(ctx, authInfo.UserId, req.GetOrderId())
-	if err != nil {
-		return err
-	}
-
-	// 只有已支付订单才能继续申请退款。
-	if orderInfo.Status != _const.ORDER_STATUS_PAID {
-		return errorsx.StateConflict(
-			fmt.Sprintf("订单状态错误：【%s】", commonv1.OrderStatus_name[orderInfo.Status]),
-			"order_info",
-			commonv1.OrderStatus(orderInfo.Status).String(),
-			commonv1.OrderStatus(_const.ORDER_STATUS_PAID).String(),
-		)
-	}
-
-	orderRefund := &models.OrderRefund{
-		OrderID:  req.GetOrderId(),
-		RefundNo: orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
-		Reason:   int32(req.GetReason()),
-	}
-	// 只有在线支付订单才会走退款单和微信退款流程
-	if commonv1.OrderPayType(orderInfo.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
-		// 先把退款原因值翻译成字典标签，便于退款记录展示
-		reason := strconv.Itoa(int(orderRefund.Reason))
-		var label string
-		label, err = c.baseDictItemCase.findLabelByCodeAndValue(ctx, ORDER_REFUND_REASON, reason)
-		// 字典标签查询成功时，使用标签替换原始原因值。
-		if err == nil {
-			reason = label
-		}
-		// 仅微信支付订单需要调用微信退款接口
-		if commonv1.OrderPayChannel(orderInfo.PayChannel) == commonv1.OrderPayChannel(_const.ORDER_PAY_CHANNEL_WX_PAY) {
-			var refund *refunddomestic.Refund
-			refund, err = c.wxPayCase.Refund(refunddomestic.CreateRequest{
-				OutTradeNo:  trans.String(orderInfo.OrderNo),
-				OutRefundNo: trans.String(orderRefund.RefundNo),
-				Reason:      trans.String(reason),
-				Amount: &refunddomestic.AmountReq{
-					Total:    trans.Int64(orderInfo.PayMoney),
-					Refund:   trans.Int64(orderInfo.PayMoney),
-					Currency: trans.String("CNY"),
-				},
-			})
-			// 微信退款创建失败时，需要识别“已全额退款”的可恢复场景。
-			if err != nil {
-				// 命中微信 API 错误结构时，再判断是否属于幂等退款场景。
-				if apiErr, ok := errors.AsType[*wxPayCore.APIError](err); ok {
-					// 微信明确返回“订单已全额退款”时，补查退款结果并同步本地状态。
-					if apiErr.Code == "INVALID_REQUEST" && apiErr.Message == "订单已全额退款" {
-						// 调用查询退款接口
-						var refundResource *appv1.RefundResource
-						refundResource, err = c.wxPayCase.QueryByOutRefundNo(orderRefund.RefundNo)
-						if err != nil {
-							return err
-						}
-						err = c.payCase.RefundSuccess(ctx, orderInfo, refundResource)
-						if err != nil {
-							return err
-						}
-						return errorsx.StateConflict(
-							"订单已退款，不能重复退款",
-							"order_refund",
-							appv1.RefundResource_RefundStatus(_const.REFUND_RESOURCE_STATUS_SUCCESS).String(),
-							"NONE",
-						)
-					}
-				}
-				return err
-			}
-			orderRefund.OrderNo = trans.StringValue(refund.OutTradeNo)
-			orderRefund.ThirdOrderNo = trans.StringValue(refund.TransactionId)
-			orderRefund.ThirdRefundNo = trans.StringValue(refund.RefundId)
-			orderRefund.Channel = string(*refund.Channel.Ptr())
-			orderRefund.UserReceivedAccount = trans.StringValue(refund.UserReceivedAccount)
-			orderRefund.CreateTime = trans.TimeValue(refund.CreateTime)
-			orderRefund.SuccessTime = trans.TimeValue(refund.SuccessTime)
-			orderRefund.RefundState = string(*refund.Status.Ptr())
-			orderRefund.FundsAccount = string(*refund.FundsAccount)
-			orderRefund.Amount = _string.ConvertAnyToJsonString(refund.Amount)
-		}
-	} else {
-		t := time.Now()
-		orderRefund.CreateTime = t
-		orderRefund.SuccessTime = t
-		orderRefund.Amount = "{}"
-	}
-	orderIDs := []int64{req.GetOrderId()}
-	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
-		// 退款成功后保存退款记录
-		err = c.orderRefundCase.Create(ctx, orderRefund)
-		if err != nil {
-			return err
-		}
-		return c.updateByIDs(ctx, authInfo.UserId, orderIDs, &models.OrderInfo{
-			Status: _const.ORDER_STATUS_REFUNDING,
-		})
-	})
-	if err != nil {
-		return err
-	}
-	workspaceevent.Publish(ctx, workspaceevent.ReasonOrderChanged, workspaceevent.AreaTodo, workspaceevent.AreaMetrics)
-	return nil
-}
-
 // ReceiveOrderInfo 确认收货
 func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *appv1.ReceiveOrderInfoRequest) error {
 	authInfo, err := c.GetAuthInfo(ctx)
@@ -749,12 +744,26 @@ func (c *OrderInfoCase) ReceiveOrderInfo(ctx context.Context, req *appv1.Receive
 	return nil
 }
 
-// 将订单模型转换为接口响应
-func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo {
-	res := c.mapper.ToDTO(item)
-	res.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
-	res.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
-	return res
+// 按订单编号和用户编号查询订单
+func (c *OrderInfoCase) findByUserIDAndID(ctx context.Context, userID, orderID int64) (*models.OrderInfo, error) {
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.Eq(orderID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	return c.Find(ctx, opts...)
+}
+
+// 按订单编号批量更新当前用户的订单
+func (c *OrderInfoCase) updateByIDs(ctx context.Context, userID int64, ids []int64, entity *models.OrderInfo) error {
+	// 没有待更新订单时，直接返回避免执行空 SQL。
+	if len(ids) == 0 {
+		return nil
+	}
+	query := c.Query(ctx).OrderInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.In(ids...)))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	return c.Update(ctx, entity, opts...)
 }
 
 // 汇总下单商品信息并生成确认单
@@ -781,6 +790,68 @@ func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGo
 		Goods:   newOrderGoods,
 		Summary: &summary,
 	}, nil
+}
+
+// 将订单模型转换为接口响应
+func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo {
+	res := c.mapper.ToDTO(item)
+	res.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
+	res.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
+	return res
+}
+
+// isAdminRoleCode 判断当前登录角色是否属于后台管理角色。
+func isAdminRoleCode(roleCode string) bool {
+	return roleCode == "super" || roleCode == "admin"
+}
+
+// dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。
+func (c *OrderInfoCase) dispatchRecommendOrderEvent(payType commonv1.OrderPayType, userID int64, goodsList []*appv1.CreateOrderInfoGoods, eventTime time.Time) {
+	// 主体编号非法或订单商品为空时，无法构建可归因的推荐下单事件。
+	if userID <= 0 || len(goodsList) == 0 {
+		return
+	}
+
+	eventTypeList := make([]commonv1.RecommendEventType, 0, 2)
+	eventTypeList = append(eventTypeList, commonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_ORDER_CREATE))
+	// 货到付款订单在创建时同步回写支付行为。
+	if payType == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_CASH_ON_DELIVERY) {
+		eventTypeList = append(eventTypeList, commonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_ORDER_PAY))
+	}
+
+	for _, eventType := range eventTypeList {
+		for _, goodsItem := range goodsList {
+			// 非法商品项直接跳过，避免把脏数据写入推荐链路。
+			if goodsItem == nil || goodsItem.GetGoodsId() <= 0 {
+				continue
+			}
+			recommendContext := goodsItem.GetRecommendContext()
+			// 下单项未携带推荐上下文时，回退到空上下文，避免后续空指针。
+			if recommendContext == nil {
+				recommendContext = &appv1.RecommendContext{}
+			}
+
+			orderEventReport := &appv1.RecommendEventReportRequest{
+				EventType: eventType,
+				RecommendContext: &appv1.RecommendEventContext{
+					Scene:     recommendContext.GetScene(),
+					RequestId: recommendContext.GetRequestId(),
+				},
+				Items: []*appv1.RecommendEventItem{
+					{
+						GoodsId:  goodsItem.GetGoodsId(),
+						GoodsNum: goodsItem.GetNum(),
+						Position: recommendContext.GetPosition(),
+					},
+				},
+			}
+			// 订单创建事务提交成功后，再按落库事实回写推荐下单事件。
+			queue.DispatchRecommendEvent(&dto.RecommendActor{
+				ActorType: commonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_USER),
+				ActorID:   userID,
+			}, orderEventReport, eventTime)
+		}
+	}
 }
 
 // cancelOrder 内部执行订单取消并回退库存销量
@@ -852,75 +923,4 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 			Status: _const.ORDER_STATUS_CANCELED,
 		})
 	})
-}
-
-// 按订单编号和用户编号查询订单
-func (c *OrderInfoCase) findByUserIDAndID(ctx context.Context, userID, orderID int64) (*models.OrderInfo, error) {
-	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.Eq(orderID)))
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	return c.Find(ctx, opts...)
-}
-
-// 按订单编号批量更新当前用户的订单
-func (c *OrderInfoCase) updateByIDs(ctx context.Context, userID int64, ids []int64, entity *models.OrderInfo) error {
-	// 没有待更新订单时，直接返回避免执行空 SQL。
-	if len(ids) == 0 {
-		return nil
-	}
-	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 2)
-	opts = append(opts, repository.Where(query.ID.In(ids...)))
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	return c.Update(ctx, entity, opts...)
-}
-
-// dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。
-func (c *OrderInfoCase) dispatchRecommendOrderEvent(payType commonv1.OrderPayType, userID int64, goodsList []*appv1.CreateOrderInfoGoods, eventTime time.Time) {
-	// 主体编号非法或订单商品为空时，无法构建可归因的推荐下单事件。
-	if userID <= 0 || len(goodsList) == 0 {
-		return
-	}
-
-	eventTypeList := make([]commonv1.RecommendEventType, 0, 2)
-	eventTypeList = append(eventTypeList, commonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_ORDER_CREATE))
-	// 货到付款订单在创建时同步回写支付行为。
-	if payType == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_CASH_ON_DELIVERY) {
-		eventTypeList = append(eventTypeList, commonv1.RecommendEventType(_const.RECOMMEND_EVENT_TYPE_ORDER_PAY))
-	}
-
-	for _, eventType := range eventTypeList {
-		for _, goodsItem := range goodsList {
-			// 非法商品项直接跳过，避免把脏数据写入推荐链路。
-			if goodsItem == nil || goodsItem.GetGoodsId() <= 0 {
-				continue
-			}
-			recommendContext := goodsItem.GetRecommendContext()
-			// 下单项未携带推荐上下文时，回退到空上下文，避免后续空指针。
-			if recommendContext == nil {
-				recommendContext = &appv1.RecommendContext{}
-			}
-
-			orderEventReport := &appv1.RecommendEventReportRequest{
-				EventType: eventType,
-				RecommendContext: &appv1.RecommendEventContext{
-					Scene:     recommendContext.GetScene(),
-					RequestId: recommendContext.GetRequestId(),
-				},
-				Items: []*appv1.RecommendEventItem{
-					{
-						GoodsId:  goodsItem.GetGoodsId(),
-						GoodsNum: goodsItem.GetNum(),
-						Position: recommendContext.GetPosition(),
-					},
-				},
-			}
-			// 订单创建事务提交成功后，再按落库事实回写推荐下单事件。
-			queue.DispatchRecommendEvent(&dto.RecommendActor{
-				ActorType: commonv1.RecommendActorType(_const.RECOMMEND_ACTOR_TYPE_USER),
-				ActorID:   userID,
-			}, orderEventReport, eventTime)
-		}
-	}
 }

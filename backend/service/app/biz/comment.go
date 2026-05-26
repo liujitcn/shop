@@ -23,10 +23,16 @@ import (
 	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 
+	"github.com/go-kratos/kratos/v2/log"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/sdk"
+)
+
+const (
+	// commentSummarySourceLimit 表示单次评价摘要刷新最多读取的评价数量。
+	commentSummarySourceLimit = 50
 )
 
 // CommentCase 评价业务编排对象。
@@ -34,7 +40,7 @@ type CommentCase struct {
 	*biz.BaseCase
 	tx                    data.Transaction
 	commentInfoCase       *CommentInfoCase
-	commentAiCase         *CommentAiCase
+	commentSummaryCase    *CommentSummaryCase
 	commentTagCase        *CommentTagCase
 	commentReviewCase     *CommentReviewCase
 	commentDiscussionCase *CommentDiscussionCase
@@ -50,7 +56,7 @@ func NewCommentCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
 	commentInfoCase *CommentInfoCase,
-	commentAiCase *CommentAiCase,
+	commentSummaryCase *CommentSummaryCase,
 	commentTagCase *CommentTagCase,
 	commentReviewCase *CommentReviewCase,
 	commentDiscussionCase *CommentDiscussionCase,
@@ -64,7 +70,7 @@ func NewCommentCase(
 		BaseCase:              baseCase,
 		tx:                    tx,
 		commentInfoCase:       commentInfoCase,
-		commentAiCase:         commentAiCase,
+		commentSummaryCase:    commentSummaryCase,
 		commentTagCase:        commentTagCase,
 		commentReviewCase:     commentReviewCase,
 		commentDiscussionCase: commentDiscussionCase,
@@ -74,9 +80,9 @@ func NewCommentCase(
 		baseUserCase:          baseUserCase,
 		commentRuntime:        commentRuntime,
 	}
-	// 注册评价审核与 AI 摘要刷新异步消费者，避免提交评价时阻塞用户主流程。
+	// 注册评价审核与 评价摘要刷新异步消费者，避免提交评价时阻塞用户主流程。
 	c.RegisterQueueConsumer(_const.COMMENT_AUDIT, c.consumeCommentAudit)
-	c.RegisterQueueConsumer(_const.COMMENT_AI_REFRESH, c.consumeCommentAiRefresh)
+	c.RegisterQueueConsumer(_const.COMMENT_SUMMARY_REFRESH, c.consumeCommentSummaryRefresh)
 	return c
 }
 
@@ -105,12 +111,12 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *appv1.Goods
 			TotalCount:     summary.TotalCount,
 			RecentDays:     90,
 			RecentGoodRate: summary.RecentGoodRate,
-			AiSummary:      &appv1.CommentAi{},
+			CommentSummary: &appv1.CommentSummary{},
 		}, nil
 	}
 
-	var aiSummary *appv1.CommentAi
-	aiSummary, err = c.commentAiCase.GoodsCommentOverview(ctx, req.GetGoodsId(), userID)
+	var commentSummary *appv1.CommentSummary
+	commentSummary, err = c.commentSummaryCase.GoodsCommentOverview(ctx, req.GetGoodsId(), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +130,7 @@ func (c *CommentCase) GoodsCommentOverview(ctx context.Context, req *appv1.Goods
 		TotalCount:      summary.TotalCount,
 		RecentDays:      90,
 		RecentGoodRate:  summary.RecentGoodRate,
-		AiSummary:       aiSummary,
+		CommentSummary:  commentSummary,
 		PreviewComments: previewList,
 	}, nil
 }
@@ -168,8 +174,8 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *appv1.PageGoods
 	if err != nil {
 		return nil, err
 	}
-	var aiSummary *appv1.CommentAi
-	aiSummary, err = c.commentAiCase.PageGoodsComment(ctx, req.GetGoodsId(), userID)
+	var commentSummary *appv1.CommentSummary
+	commentSummary, err = c.commentSummaryCase.PageGoodsComment(ctx, req.GetGoodsId(), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +222,7 @@ func (c *CommentCase) PageGoodsComment(ctx context.Context, req *appv1.PageGoods
 
 	return &appv1.PageGoodsCommentResponse{
 		CommentFilters: filterList,
-		AiSummary:      aiSummary,
+		CommentSummary: commentSummary,
 		Comments:       list,
 		Total:          total,
 		PageNum:        pageNum,
@@ -330,8 +336,8 @@ func (c *CommentCase) SaveCommentReaction(ctx context.Context, req *appv1.SaveCo
 
 	// 不同互动目标使用各自的存在性校验和行为限制。
 	switch req.GetTargetType() {
-	case commonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_AI):
-		_, err = c.commentAiCase.FindByID(ctx, req.GetTargetId())
+	case commonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_SUMMARY):
+		_, err = c.commentSummaryCase.FindByID(ctx, req.GetTargetId())
 		if err != nil {
 			return nil, err
 		}
@@ -703,13 +709,20 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
+	var existingTags []string
+	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, record.GoodsID)
+	if err != nil {
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+	}
+
 	var result *comment.ReviewResult
 	result, err = c.commentRuntime.ReviewComment(ctx, comment.ReviewRequest{
-		GoodsName: record.GoodsNameSnapshot,
-		SKUDesc:   record.SKUDescSnapshot,
-		Content:   record.Content,
-		ImageURLs: imageURLs,
-		ImageData: imageData,
+		GoodsName:    record.GoodsNameSnapshot,
+		SKUDesc:      record.SKUDescSnapshot,
+		Content:      record.Content,
+		ExistingTags: existingTags,
+		ImageURLs:    imageURLs,
+		ImageData:    imageData,
 	})
 	if err != nil {
 		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
@@ -851,7 +864,7 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 	if err != nil {
 		return err
 	}
-	queue.DispatchCommentAiRefresh(record.GoodsID)
+	queue.DispatchCommentSummaryRefresh(record.GoodsID)
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaRisk, workspaceevent.AreaReputation, workspaceevent.AreaPendingComments)
 	return nil
 }
@@ -893,11 +906,18 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
 	}
 
+	var existingTags []string
+	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, commentInfo.GoodsID)
+	if err != nil {
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+	}
+
 	var result *comment.ReviewResult
 	result, err = c.commentRuntime.ReviewComment(ctx, comment.ReviewRequest{
-		GoodsName: commentInfo.GoodsNameSnapshot,
-		SKUDesc:   commentInfo.SKUDescSnapshot,
-		Content:   record.Content,
+		GoodsName:    commentInfo.GoodsNameSnapshot,
+		SKUDesc:      commentInfo.SKUDescSnapshot,
+		Content:      record.Content,
+		ExistingTags: existingTags,
 	})
 	if err != nil {
 		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
@@ -937,7 +957,7 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 	}
 	commentInfo, findErr := c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
 	if findErr == nil {
-		queue.DispatchCommentAiRefresh(commentInfo.GoodsID)
+		queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaReputation)
 	return nil
@@ -965,8 +985,8 @@ func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.C
 	return nil
 }
 
-// consumeCommentAiRefresh 消费商品评价 AI 摘要刷新队列。
-func (c *CommentCase) consumeCommentAiRefresh(message queueData.Message) error {
+// consumeCommentSummaryRefresh 消费商品评价摘要刷新队列。
+func (c *CommentCase) consumeCommentSummaryRefresh(message queueData.Message) error {
 	goodsID, err := queue.DecodeQueueData[int64](message)
 	if err != nil {
 		return err
@@ -975,52 +995,98 @@ func (c *CommentCase) consumeCommentAiRefresh(message queueData.Message) error {
 	if goodsID == nil || *goodsID <= 0 {
 		return nil
 	}
-	return c.refreshGoodsCommentAi(context.TODO(), *goodsID)
+	return c.refreshGoodsCommentSummary(context.TODO(), *goodsID)
 }
 
-// refreshGoodsCommentAi 基于审核通过评价刷新商品 AI 摘要。
-func (c *CommentCase) refreshGoodsCommentAi(ctx context.Context, goodsID int64) error {
+// refreshGoodsCommentSummary 基于审核通过评价刷新商品评价摘要。
+func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID int64) error {
 	// LLM 未配置时不刷新摘要，前台继续使用旧摘要或空摘要降级。
 	if !c.commentRuntime.Enabled() {
+		log.Warnf("refreshGoodsCommentSummary skip goodsID=%d: comment runtime disabled", goodsID)
 		return nil
 	}
-	commentList, err := c.commentInfoCase.listApprovedByGoodsID(ctx, goodsID)
+	commentList, err := c.commentInfoCase.listSummarySourceByGoodsID(ctx, goodsID, commentSummarySourceLimit)
 	if err != nil {
 		return err
 	}
 	// 当前商品暂无通过评价时，不生成空摘要覆盖旧内容。
 	if len(commentList) == 0 {
+		log.Infof("refreshGoodsCommentSummary skip goodsID=%d: no approved comment", goodsID)
 		return nil
 	}
 
+	tagNameMap := make(map[int64]string)
+	tagList, tagErr := c.commentTagCase.listVisibleByGoodsID(ctx, goodsID)
+	if tagErr != nil {
+		log.Errorf("refreshGoodsCommentSummary load tags goodsID=%d err=%v", goodsID, tagErr)
+	} else {
+		tagNameMap = make(map[int64]string, len(tagList))
+		for _, tag := range tagList {
+			// 标签名称为空时无法作为摘要输入。
+			if tag.Name == "" {
+				continue
+			}
+			tagNameMap[tag.ID] = tag.Name
+		}
+	}
+
 	goodsName := ""
-	comments := make([]comment.AIComment, 0, len(commentList))
+	comments := make([]comment.SummaryComment, 0, len(commentList))
 	for _, item := range commentList {
 		if goodsName == "" {
 			goodsName = item.GoodsNameSnapshot
 		}
-		comments = append(comments, comment.AIComment{
+		comments = append(comments, comment.SummaryComment{
 			Content:       item.Content,
 			GoodsScore:    item.GoodsScore,
 			PackageScore:  item.PackageScore,
 			DeliveryScore: item.DeliveryScore,
-			Tags:          c.commentTagCase.tagNamesByIDs(ctx, item.GoodsID, _string.ConvertJsonStringToInt64Array(item.TagID)),
+			Tags:          summaryTagNamesByIDs(_string.ConvertJsonStringToInt64Array(item.TagID), tagNameMap),
 		})
 	}
-	var result *comment.AIResult
-	result, err = c.commentRuntime.GenerateAI(ctx, comment.AIRequest{
+	var result *comment.SummaryResult
+	result, err = c.commentRuntime.GenerateSummary(ctx, comment.SummaryRequest{
 		GoodsName: goodsName,
 		Comments:  comments,
 	})
 	if err != nil {
 		return err
 	}
-	err = c.commentAiCase.UpsertGoodsCommentAi(ctx, goodsID, result)
+	// 模型返回空摘要时不落库，避免空结果覆盖旧摘要。
+	if result == nil || len(result.Overview.Content) == 0 && len(result.List.Content) == 0 {
+		log.Warnf("refreshGoodsCommentSummary skip goodsID=%d: summary result empty, sourceCount=%d", goodsID, len(commentList))
+		return nil
+	}
+	err = c.commentSummaryCase.UpsertGoodsCommentSummary(ctx, goodsID, result)
 	if err != nil {
 		return err
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaReputation)
 	return nil
+}
+
+// summaryTagNamesByIDs 根据评价记录中的标签编号返回标签名称列表。
+func summaryTagNamesByIDs(tagIDs []int64, tagNameMap map[int64]string) []string {
+	if len(tagIDs) == 0 || len(tagNameMap) == 0 {
+		return []string{}
+	}
+
+	tagNames := make([]string, 0, len(tagIDs))
+	seen := make(map[int64]struct{}, len(tagIDs))
+	for _, tagID := range tagIDs {
+		// 单条评价命中重复标签时，只向模型传入一次。
+		if _, ok := seen[tagID]; ok {
+			continue
+		}
+		tagName := tagNameMap[tagID]
+		// 评价引用的标签已不存在或名称为空时跳过。
+		if tagName == "" {
+			continue
+		}
+		seen[tagID] = struct{}{}
+		tagNames = append(tagNames, tagName)
+	}
+	return tagNames
 }
 
 // commentReviewRejectReason 根据审核结果生成不通过原因。

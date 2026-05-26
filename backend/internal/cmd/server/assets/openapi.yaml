@@ -7006,53 +7006,6 @@ components:
                     type: string
                     description: 验证码base64
             description: 验证码响应
-        CommentAi:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: AI摘要主键
-                goodsId:
-                    type: string
-                    description: 商品ID
-                scene:
-                    enum:
-                        - UNKNOWN_CAS
-                        - OVERVIEW
-                        - LIST
-                    type: string
-                    description: 展示场景：枚举【CommentAiScene】
-                    format: enum
-                content:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/CommentAiContentItem'
-                    description: AI摘要内容列表
-                likeCount:
-                    type: integer
-                    description: 点赞数
-                    format: int32
-                dislikeCount:
-                    type: integer
-                    description: 点踩数
-                    format: int32
-                createdAt:
-                    type: string
-                    description: 创建时间
-                updatedAt:
-                    type: string
-                    description: 最后更新时间
-            description: 评论AI摘要
-        CommentAiContentItem:
-            type: object
-            properties:
-                label:
-                    type: string
-                    description: 摘要标签
-                content:
-                    type: string
-                    description: 摘要内容
-            description: 评价AI摘要内容项
         CommentDiscussion:
             type: object
             properties:
@@ -7286,11 +7239,11 @@ components:
                     items:
                         $ref: '#/components/schemas/CommentDiscussion'
                     description: 评论讨论列表
-                commentAis:
+                commentSummaries:
                     type: array
                     items:
-                        $ref: '#/components/schemas/CommentAi'
-                    description: 商品评论AI摘要
+                        $ref: '#/components/schemas/CommentSummary'
+                    description: 商品评论摘要
                 commentReviews:
                     type: array
                     items:
@@ -7429,6 +7382,53 @@ components:
                     type: string
                     description: 最后更新时间
             description: 评论审核记录
+        CommentSummary:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 评价摘要主键
+                goodsId:
+                    type: string
+                    description: 商品ID
+                scene:
+                    enum:
+                        - COMMENT_SUMMARY_SCENE_UNSPECIFIED
+                        - OVERVIEW
+                        - LIST
+                    type: string
+                    description: 展示场景：枚举【CommentSummaryScene】
+                    format: enum
+                content:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/CommentSummaryContentItem'
+                    description: 评价摘要内容列表
+                likeCount:
+                    type: integer
+                    description: 点赞数
+                    format: int32
+                dislikeCount:
+                    type: integer
+                    description: 点踩数
+                    format: int32
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 最后更新时间
+            description: 评论摘要
+        CommentSummaryContentItem:
+            type: object
+            properties:
+                label:
+                    type: string
+                    description: 摘要标签
+                content:
+                    type: string
+                    description: 摘要内容
+            description: 评价摘要内容项
         CommentTag:
             type: object
             properties:
@@ -8207,11 +8207,11 @@ components:
                     items:
                         $ref: '#/components/schemas/CommentDiscussion'
                     description: 评论讨论列表
-                commentAis:
+                commentSummaries:
                     type: array
                     items:
-                        $ref: '#/components/schemas/CommentAi'
-                    description: 商品评论AI摘要
+                        $ref: '#/components/schemas/CommentSummary'
+                    description: 商品评论摘要
             description: 商品评论聚合响应
         GoodsCommentOverviewResponse:
             type: object
@@ -8228,8 +8228,8 @@ components:
                     type: integer
                     description: 近N天好评率百分比整数
                     format: int32
-                aiSummary:
-                    $ref: '#/components/schemas/CommentAi'
+                commentSummary:
+                    $ref: '#/components/schemas/CommentSummary'
                 previewComments:
                     type: array
                     items:
@@ -9687,8 +9687,8 @@ components:
                     items:
                         $ref: '#/components/schemas/CommentFilterItem'
                     description: 顶部筛选项列表
-                aiSummary:
-                    $ref: '#/components/schemas/CommentAi'
+                commentSummary:
+                    $ref: '#/components/schemas/CommentSummary'
                 comments:
                     type: array
                     items:
@@ -10801,7 +10801,7 @@ components:
                         - UNKNOWN_CRTT
                         - COMMENT
                         - DISCUSSION
-                        - AI
+                        - SUMMARY
                     type: string
                     description: 互动目标类型：枚举【CommentReactionTargetType】
                     format: enum
@@ -10828,7 +10828,7 @@ components:
                         - UNKNOWN_CRTT
                         - COMMENT
                         - DISCUSSION
-                        - AI
+                        - SUMMARY
                     type: string
                     description: 互动目标类型：枚举【CommentReactionTargetType】
                     format: enum
@@ -11760,9 +11760,9 @@ components:
                     items:
                         $ref: '#/components/schemas/WorkspaceReputationTag'
                     description: 高频评价标签
-                aiSummary:
+                commentSummary:
                     type: string
-                    description: AI评价摘要
+                    description: 评价摘要
             description: 工作台口碑洞察响应
         SummaryWorkspaceRiskResponse:
             type: object
