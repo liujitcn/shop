@@ -9,14 +9,12 @@ import (
 	"shop/pkg/config"
 	"shop/pkg/gen/data"
 	"shop/pkg/job"
-	"shop/pkg/job/task"
 	"shop/pkg/middleware"
 	"shop/pkg/recommend"
 	"shop/pkg/wx"
 	"shop/server"
 	"shop/service/admin"
 	"shop/service/app"
-	appbiz "shop/service/app/biz"
 	"shop/service/base"
 
 	"github.com/go-kratos/kratos/v2"
@@ -40,7 +38,6 @@ func initApp(*bootstrap.Context) (*kratos.App, func(), error) {
 		app.ProviderSet,
 		base.ProviderSet,
 		server.ProviderSet,
-		wire.Bind(new(task.CommentAuditExecutor), new(*appbiz.CommentCase)),
 		newApp,
 	))
 }
