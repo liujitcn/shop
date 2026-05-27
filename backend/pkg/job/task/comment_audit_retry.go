@@ -54,7 +54,8 @@ func (t *CommentAuditRetry) Exec(args map[string]string) ([]string, error) {
 	}
 	defer unlock()
 
-	batchSize, err := parsePositiveJobInt(args, "batchSize", commentAuditRetryDefaultBatchSize)
+	var batchSize int
+	batchSize, err = parsePositiveJobInt(args, "batchSize", commentAuditRetryDefaultBatchSize)
 	if err != nil {
 		return []string{err.Error()}, err
 	}
