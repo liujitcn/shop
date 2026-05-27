@@ -89,9 +89,8 @@ defineExpose({
 
 <style scoped lang="scss">
 .gorse-flow-node-form {
-  margin-top: 16px;
   padding-right: 8px;
-
+  margin-top: 16px;
   :deep(.el-input-number) {
     width: 100%;
   }

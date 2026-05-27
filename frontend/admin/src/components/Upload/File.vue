@@ -155,52 +155,45 @@ async function handleDownload() {
 .upload-file-box {
   width: 100%;
 }
-
 .file-card {
   display: flex;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-top: 12px;
   padding: 12px 14px;
+  margin-top: 12px;
   background: var(--el-fill-color-light);
   border: 1px solid var(--el-border-color-light);
   border-radius: 8px;
 }
-
 .file-card__main {
   display: flex;
   flex: 1;
   gap: 12px;
   min-width: 0;
 }
-
 .file-card__icon {
   margin-top: 2px;
   font-size: 18px;
   color: var(--el-color-primary);
 }
-
 .file-card__meta {
   min-width: 0;
 }
-
 .file-card__name {
   font-size: 14px;
   color: var(--el-text-color-primary);
 }
-
 .file-card__url {
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
   color: var(--el-text-color-secondary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .file-card__action {
   display: flex;
-  gap: 8px;
   flex-shrink: 0;
+  gap: 8px;
 }
 </style>

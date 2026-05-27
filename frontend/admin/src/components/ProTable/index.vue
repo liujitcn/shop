@@ -484,7 +484,6 @@ defineExpose({
 .tool-button {
   cursor: pointer;
 }
-
 .tool-button :deep(.el-icon) {
   cursor: pointer;
 }

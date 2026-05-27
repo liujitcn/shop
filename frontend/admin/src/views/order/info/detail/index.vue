@@ -349,104 +349,88 @@ onActivated(() => {
 <style scoped lang="scss">
 .detail-hero-card,
 .detail-section-card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 .detail-hero-card {
   margin-bottom: 18px;
 }
-
 :deep(.detail-hero-card .el-card__body),
 :deep(.detail-section-card .el-card__body) {
   padding: 16px;
 }
-
 .detail-hero {
   display: block;
 }
-
 .detail-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
-
 .detail-metric-card {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 14px;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
 }
-
 .detail-metric-card__label {
   font-size: 13px;
   color: var(--admin-page-text-secondary);
 }
-
 .detail-metric-card__value {
   font-size: 20px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .detail-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }
-
 .detail-section-card {
   overflow: hidden;
 }
-
 .detail-section-card--full {
   margin-bottom: 16px;
 }
-
 .detail-section-card__header {
   display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
   font-size: 16px;
   font-weight: 600;
   color: var(--admin-page-text-primary);
 }
-
 .detail-section-card__extra {
   font-size: 13px;
   font-weight: 500;
   color: var(--admin-page-text-placeholder);
 }
-
 .detail-descriptions :deep(.el-descriptions__label) {
   width: 110px;
   font-weight: 600;
 }
-
 .detail-descriptions :deep(.el-descriptions__cell) {
   padding: 10px 14px;
 }
-
 .order-no-field {
   display: inline-flex;
   gap: 8px;
   align-items: center;
   word-break: break-all;
 }
-
 .detail-timeline {
-  margin-top: 20px;
   padding: 18px 18px 0;
-  border-radius: var(--admin-page-radius);
+  margin-top: 20px;
   background: var(--admin-page-card-bg-soft);
+  border-radius: var(--admin-page-radius);
 }
 
 /* 商品清单按实际行数撑开，避免继承通用表格的固定最小高度。 */
@@ -455,11 +439,9 @@ onActivated(() => {
     height: auto;
     min-height: auto;
   }
-
   :deep(.el-table) {
     flex: initial;
   }
-
   :deep(.el-table__inner-wrapper),
   :deep(.el-table__body-wrapper),
   :deep(.el-scrollbar),

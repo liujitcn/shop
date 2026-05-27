@@ -382,7 +382,6 @@ function handleDelete(selected?: number | string | Array<number | string> | Shop
 :deep(.el-transfer-panel) {
   width: 450px;
 }
-
 :deep(.el-transfer-panel__list) {
   width: 100%;
   height: 400px;

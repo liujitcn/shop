@@ -8,7 +8,7 @@ import { useUserStore } from "@/stores/modules/user";
 
 const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
 const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
-const baseURL = `${apiTargetUrl}${apiBasePath}`;
+export const requestBaseURL = `${apiTargetUrl}${apiBasePath}`;
 const SESSION_URL = "/v1/base/session";
 const TOKEN_URL = "/v1/base/token";
 const CAPTCHA_URL = "/v1/base/captcha";
@@ -36,7 +36,7 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
 
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: baseURL,
+  baseURL: requestBaseURL,
   timeout: 50000,
   headers: { "Content-Type": "application/json;charset=utf-8" },
   paramsSerializer: params => qs.stringify(params)
@@ -44,7 +44,7 @@ const service = axios.create({
 
 // 刷新令牌请求使用独立实例，避免与主请求拦截器互相递归。
 const refreshService = axios.create({
-  baseURL: baseURL,
+  baseURL: requestBaseURL,
   timeout: 50000,
   headers: { "Content-Type": "application/json;charset=utf-8" }
 });
@@ -84,6 +84,17 @@ function getTokenExpiresAt() {
   return getUserStore().tokenExpiresAt;
 }
 
+/** 读取最新可用访问令牌，必要时先串行刷新，供 axios、fetch 与 SSE 共用。 */
+export async function getRequestAccessToken(): Promise<string> {
+  const expiresAt = getTokenExpiresAt();
+  const remainingTime = expiresAt - Date.now();
+  if (expiresAt && remainingTime <= 5 * 60 * 1000) {
+    await handleTokenRefresh();
+  }
+
+  return getUserStore().token.trim();
+}
+
 // 防止并发 401/403 重复弹出认证失效确认框。
 let isHandlingAuthExpired = false;
 
@@ -119,14 +130,7 @@ export function handleAuthExpired() {
 // 请求拦截器
 service.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const now = new Date().getTime();
-    const expiresAt = getTokenExpiresAt();
-    const remainingTime = expiresAt - now;
-    if (!shouldSkipAuth(config) && expiresAt && remainingTime <= 5 * 60 * 1000) {
-      await handleTokenRefresh();
-    }
-
-    const accessToken = getUserStore().token;
+    const accessToken = shouldSkipAuth(config) ? "" : await getRequestAccessToken();
     // 登录、验证码、刷新令牌接口不携带旧 token，避免请求头污染。
     if (!shouldSkipAuth(config) && accessToken) {
       config.headers.Authorization = accessToken;

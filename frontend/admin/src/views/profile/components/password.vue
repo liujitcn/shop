@@ -173,66 +173,55 @@ function validatePasswordStrength(_rule: unknown, value: string, callback: (erro
   border: 1px solid #ebeef5;
   border-radius: 12px;
 }
-
 :deep(.password-card .el-card__header) {
   padding: 18px 20px;
   border-bottom: 1px solid #f0f2f5;
 }
-
 :deep(.password-card .el-card__body) {
   padding: 20px;
 }
-
 .panel-header {
   display: flex;
+  gap: 16px;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
 }
-
 .panel-header h3 {
   margin: 0;
   font-size: 18px;
   color: #303133;
 }
-
 .panel-header p {
   margin: 6px 0 0;
   font-size: 13px;
   color: #909399;
 }
-
 .password-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.9fr);
   gap: 16px;
 }
-
 .password-form-wrap,
 .tip-card {
   padding: 18px;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #f0f2f5;
   border-radius: 10px;
 }
-
 .password-form-wrap__strength {
   margin-top: 16px;
 }
-
 .password-footer {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
+  justify-content: flex-end;
   margin-top: 24px;
 }
-
 .password-tips {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .tip-badge {
   display: inline-flex;
   align-items: center;
@@ -246,14 +235,12 @@ function validatePasswordStrength(_rule: unknown, value: string, callback: (erro
   background: #ecf5ff;
   border-radius: 8px;
 }
-
 .tip-card strong {
   display: block;
   margin-bottom: 8px;
   font-size: 15px;
   color: #303133;
 }
-
 .tip-card p {
   margin: 0;
   font-size: 13px;

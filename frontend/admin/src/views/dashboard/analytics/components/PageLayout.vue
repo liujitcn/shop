@@ -46,20 +46,17 @@ const chartColumns = computed(() => props.contentRatio);
 
 <style scoped lang="scss">
 .analytics-card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 :deep(.analytics-card .el-card__body) {
   padding: 18px;
 }
-
 .analytics-card--summary {
   margin-bottom: 16px;
 }
-
 .analytics-toolbar {
   display: flex;
   gap: 24px;
@@ -67,52 +64,45 @@ const chartColumns = computed(() => props.contentRatio);
   justify-content: space-between;
   margin-bottom: 16px;
 }
-
 .analytics-toolbar__content {
   min-width: 0;
 }
-
 .analytics-title {
   margin: 0;
   font-size: 22px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .analytics-desc {
   max-width: 560px;
   margin: 8px 0 0;
-  color: var(--admin-page-text-secondary);
   line-height: 1.7;
+  color: var(--admin-page-text-secondary);
 }
-
 .analytics-toolbar__tabs {
   min-width: 280px;
 }
-
 .chart-grid {
   display: grid;
   gap: 16px;
   margin-top: 16px;
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .chart-grid {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .analytics-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
-
   .analytics-toolbar__tabs {
     width: 100%;
     min-width: 0;
   }
-
   .chart-grid {
     grid-template-columns: minmax(0, 1fr);
   }

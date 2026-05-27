@@ -152,17 +152,15 @@ defineExpose({
 .gorse-flow-preview-alert {
   margin-bottom: 12px;
 }
-
 .gorse-flow-preview-box {
   display: flex;
   gap: 10px;
   margin-bottom: 12px;
 }
-
 .gorse-flow-preview-result {
-  margin-top: 10px;
   max-height: 320px;
   padding: 12px;
+  margin-top: 10px;
   overflow: auto;
   font-family:
     Consolas, Menlo, Monaco, "Lucida Console", "Liberation Mono", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Courier New",
@@ -170,13 +168,12 @@ defineExpose({
   font-size: 12px;
   line-height: 1.6;
   color: var(--el-text-color-primary);
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
-  word-break: break-word;
   background: var(--el-fill-color-light);
   border: 1px solid var(--el-border-color);
   border-radius: 6px;
 }
-
 .gorse-flow-button-icon {
   font-size: 18px;
   line-height: 1;

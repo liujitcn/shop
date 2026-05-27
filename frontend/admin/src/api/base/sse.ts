@@ -1,8 +1,7 @@
 import { EventStreamContentType, fetchEventSource, type EventSourceMessage } from "@microsoft/fetch-event-source";
 import type { SubscribeSseRequest } from "@/rpc/base/v1/sse";
 import { SseEvent, SseRefreshReason, SseRefreshTarget, SseStream } from "@/rpc/common/v1/enum";
-import pinia from "@/stores";
-import { useUserStore } from "@/stores/modules/user";
+import { getRequestAccessToken, handleAuthExpired } from "@/utils/request";
 
 const SSE_URL = "/events";
 
@@ -106,13 +105,13 @@ export class SseServiceImpl {
     controller: AbortController,
     connection: SharedSseConnection
   ) {
-    const accessToken = this.getAccessToken();
-    if (!accessToken) {
-      this.sharedConnections.delete(connectionKey);
-      return;
-    }
-
     try {
+      const accessToken = await getRequestAccessToken();
+      if (!accessToken) {
+        this.sharedConnections.delete(connectionKey);
+        return;
+      }
+
       await fetchEventSource(url, {
         method: "GET",
         signal: controller.signal,
@@ -155,18 +154,16 @@ export class SseServiceImpl {
           return 1000;
         }
       });
-    } catch {
+    } catch (error) {
       if (controller.signal.aborted) {
         return;
       }
+      // SSE 与常规请求复用同一套登录失效处理，避免页面静默断流后用户无感知。
+      if (error instanceof SseFatalError) {
+        handleAuthExpired();
+      }
       this.sharedConnections.delete(connectionKey);
     }
-  }
-
-  /** 读取请求头使用的访问令牌。 */
-  private getAccessToken() {
-    const userStore = useUserStore(pinia);
-    return userStore.token.trim();
   }
 }
 

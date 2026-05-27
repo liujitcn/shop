@@ -209,68 +209,58 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 20px;
 }
-
 .security-card,
 .status-card {
   border: 1px solid #ebeef5;
   border-radius: 12px;
 }
-
 :deep(.security-card .el-card__body),
 :deep(.status-card .el-card__body) {
   padding: 20px;
 }
-
 :deep(.status-card .el-card__header) {
   padding: 18px 20px;
   border-bottom: 1px solid #f0f2f5;
 }
-
 .security-intro,
 .status-header {
   display: flex;
+  gap: 16px;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
 }
-
 .security-intro h3,
 .status-header h3 {
   margin: 0;
   font-size: 18px;
   color: #303133;
 }
-
 .security-intro p,
 .status-header p {
   margin: 6px 0 0;
   font-size: 13px;
   color: #909399;
 }
-
 .security-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
   margin-top: 16px;
 }
-
 .security-item,
 .status-item {
   display: flex;
+  gap: 18px;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
   padding: 16px;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #f0f2f5;
   border-radius: 10px;
 }
-
 .security-item__content {
   min-width: 0;
 }
-
 .security-item strong,
 .status-item strong {
   display: block;
@@ -278,7 +268,6 @@ onBeforeUnmount(() => {
   font-size: 15px;
   color: #303133;
 }
-
 .security-item p,
 .status-item span {
   margin: 0;
@@ -286,13 +275,11 @@ onBeforeUnmount(() => {
   line-height: 1.6;
   color: #909399;
 }
-
 .status-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
@@ -306,7 +293,6 @@ onBeforeUnmount(() => {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .status-grid {
     grid-template-columns: 1fr;
   }

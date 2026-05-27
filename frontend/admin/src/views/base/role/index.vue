@@ -482,72 +482,63 @@ function handelParentChildLinkedChange(val: CheckboxValueType) {
   border: 1px solid #e4eaf3;
   border-radius: 12px;
 }
-
 .perm-search {
   width: 100%;
 }
-
 .perm-toolbar__actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
 }
-
 .perm-toolbar__group {
   display: inline-flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
   min-height: 38px;
   padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgb(255 255 255 / 94%);
   border: 1px solid #e4eaf3;
   border-radius: 10px;
 }
-
 .perm-toolbar__group--linkage {
   margin-left: auto;
 }
-
 .perm-toolbar__label {
-  color: #6b7280;
   font-size: 12px;
   font-weight: 600;
+  color: #6b7280;
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-
 .perm-toolbar__button {
   min-width: 98px;
+  background: #ffffff;
   border-color: var(--el-color-primary-light-5);
-  background: #fff;
 }
-
 .perm-toolbar__button:hover,
 .perm-toolbar__button:focus-visible {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
   border-color: var(--el-color-primary-light-5);
 }
-
 .perm-linkage__icon {
+  font-size: 14px;
   color: var(--el-color-primary);
   cursor: pointer;
-  font-size: 14px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .perm-toolbar__actions {
-    align-items: stretch;
     flex-direction: column;
+    align-items: stretch;
   }
-
   .perm-toolbar__group,
   .perm-toolbar__group--linkage {
     justify-content: space-between;
-    margin-left: 0;
     width: 100%;
+    margin-left: 0;
   }
 }
 </style>

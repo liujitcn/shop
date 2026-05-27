@@ -61,7 +61,7 @@
 <script setup lang="ts" name="ChatPanel">
 import { computed } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
-import type { FilesCardProps } from "vue-element-plus-x/types/components/FilesCard/types";
+import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import type { AiAssistantAttachment, AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 import XSender from "./XSender.vue";
 import AiMarkdown from "./AiMarkdown.vue";
@@ -129,130 +129,112 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 
 <style scoped lang="scss">
 .agent-chat-panel {
+  position: relative;
   box-sizing: border-box;
   display: flex;
-  position: relative;
-  height: 100%;
+  flex-direction: column;
   min-width: 0;
+  height: 100%;
   min-height: 0;
   padding: 20px 0 24px;
   overflow: hidden;
-  flex-direction: column;
   background: var(--admin-page-card-bg);
 }
-
 .agent-chat-panel.is-empty {
   justify-content: center;
   padding: 0;
 }
-
 .agent-chat-header {
-  flex: 0 0 auto;
   display: flex;
+  flex: 0 0 auto;
   align-items: flex-start;
   justify-content: space-between;
   width: min(960px, calc(100% - 72px));
   margin: 0 auto;
 }
-
 .agent-chat-title {
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
   color: var(--admin-page-text-primary);
 }
-
 .agent-chat-desc {
   margin-top: 4px;
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
-
 .agent-chat-content {
   display: flex;
   flex: 1;
-  min-height: 0;
   width: min(960px, calc(100% - 72px));
+  min-height: 0;
+  padding-bottom: 168px;
   margin: 0 auto;
   overflow: hidden;
-  padding-bottom: 168px;
 }
-
 .agent-chat-empty {
   display: flex;
   flex: 1;
-  width: min(1100px, calc(100% - 96px));
-  margin: 0 auto;
-  min-height: 0;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
+  width: min(1100px, calc(100% - 96px));
+  min-height: 0;
+  margin: 0 auto;
 }
-
 .agent-chat-empty__title {
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 700;
   line-height: 1.25;
-  text-align: center;
   color: var(--admin-page-text-primary);
+  text-align: center;
 }
-
 .agent-chat-empty__desc {
   margin-top: 14px;
   font-size: 14px;
   line-height: 24px;
-  text-align: center;
   color: var(--admin-page-text-secondary);
+  text-align: center;
 }
-
 .agent-chat-empty__sender {
   width: min(980px, 100%);
   margin-top: 28px;
 }
-
 .agent-message-list {
   flex: 1;
   min-height: 0;
-  overflow: auto;
   padding: 8px 0 24px;
-
+  overflow: auto;
   :deep(.elx-bubble__content) {
     border-radius: var(--admin-page-radius);
   }
-
   :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content--corner),
   :deep(.elx-bubble--end .elx-bubble__content-wrapper .elx-bubble__content--corner) {
     border-start-start-radius: var(--admin-page-radius);
     border-start-end-radius: var(--admin-page-radius);
   }
-
   :deep(.elx-bubble-list__boundary-content),
   :deep(.elx-bubble-list__embedded-item) {
     border-radius: var(--admin-page-radius);
   }
 }
-
 .agent-message-content {
-  line-height: 24px;
   min-width: 0;
+  line-height: 24px;
 }
-
 .agent-message-content.is-user {
   white-space: pre-wrap;
 }
-
 .agent-message-content.is-thinking {
   display: inline-flex;
   gap: 8px;
   align-items: center;
 }
-
 .agent-message-body {
   display: flex;
-  gap: 10px;
   flex-direction: column;
+  gap: 10px;
 }
-
 .agent-message-meta {
   display: inline-flex;
   gap: 8px;
@@ -260,104 +242,86 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
-
 .agent-message-meta__tag {
   padding: 2px 8px;
   background: var(--el-fill-color-light);
   border-radius: var(--admin-page-radius);
 }
-
 .agent-message-meta__tag.is-primary {
   color: var(--el-color-primary);
 }
-
 .agent-message-meta__tag.is-success {
   color: var(--el-color-success);
 }
-
 .agent-message-meta__tag.is-warning {
   color: var(--el-color-warning);
 }
-
 .agent-message-meta__tag.is-info {
   color: var(--admin-page-text-secondary);
 }
-
 .agent-message-meta__model {
   opacity: 0.85;
 }
-
 .agent-thinking-dots {
   display: inline-flex;
   gap: 4px;
   align-items: center;
-
   i {
+    display: inline-block;
     width: 6px;
     height: 6px;
-    display: inline-block;
     background: currentcolor;
     border-radius: 50%;
     animation: thinking-bounce 1.2s infinite ease-in-out;
   }
-
   i:nth-child(2) {
     animation-delay: 0.15s;
   }
-
   i:nth-child(3) {
     animation-delay: 0.3s;
   }
 }
-
 .agent-message-attachments {
   :deep(.elx-files-card) {
     border-radius: var(--admin-page-radius);
   }
-
   :deep(.elx-files-card-img),
   :deep(.elx-files-card__image-preview),
   :deep(.elx-files-card-delete-icon) {
     border-radius: var(--admin-page-radius);
   }
 }
-
 .agent-sender-wrap {
   position: absolute;
   right: 0;
   bottom: 24px;
   left: 0;
-  width: min(760px, calc(100% - 72px));
-  margin: 0 auto;
-  padding: 0;
   z-index: 1;
+  width: min(760px, calc(100% - 72px));
+  padding: 0;
+  margin: 0 auto;
   background: var(--admin-page-card-bg);
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (width <= 768px) {
   .agent-chat-panel {
     padding: 0 0 22px;
   }
-
   .agent-chat-panel.is-empty {
-    padding: 24px 0;
     justify-content: center;
+    padding: 24px 0;
   }
-
   .agent-chat-header,
   .agent-chat-content,
   .agent-sender-wrap {
     width: calc(100% - 36px);
   }
-
   .agent-chat-empty {
     width: calc(100% - 36px);
   }
-
   .agent-chat-empty__title {
     font-size: 30px;
   }
-
   .agent-chat-empty__sender {
     width: 100%;
   }

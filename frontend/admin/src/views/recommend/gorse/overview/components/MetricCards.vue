@@ -291,48 +291,43 @@ onMounted(() => {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 16px;
 }
-
 .gorse-overview-metric {
   position: relative;
   min-height: 140px;
   overflow: hidden;
-  border: 1px solid var(--admin-page-card-border);
   background: var(--admin-page-card-bg);
+  border: 1px solid var(--admin-page-card-border);
   box-shadow: var(--admin-page-shadow);
-
   :deep(.el-card__body) {
     position: static;
     display: flex;
-    height: 100%;
-    min-height: 140px;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    height: 100%;
+    min-height: 140px;
     padding: 18px 16px 22px;
   }
-
   &__label {
     position: relative;
     z-index: 1;
-    color: var(--admin-page-text-secondary);
     font-size: 12px;
     font-weight: 700;
-    letter-spacing: 1.5px;
     line-height: 18px;
+    color: var(--admin-page-text-secondary);
     text-align: center;
     text-transform: uppercase;
+    letter-spacing: 1.5px;
   }
-
   &__value {
     position: relative;
     z-index: 1;
     margin-top: 8px;
-    color: var(--admin-page-text-primary);
     font-size: 34px;
     font-weight: 700;
     line-height: 40px;
+    color: var(--admin-page-text-primary);
   }
-
   &__delta {
     position: relative;
     z-index: 1;
@@ -342,29 +337,25 @@ onMounted(() => {
     margin-top: 8px;
     font-size: 12px;
     font-weight: 700;
-
     &.is-up {
       color: var(--el-color-success);
     }
-
     &.is-down {
       color: var(--el-color-danger);
     }
   }
-
   &__sparkline {
     position: absolute;
     inset: 0;
     z-index: 0;
     width: 100%;
+
     // 趋势图铺满整个卡片，文字通过更高层级悬浮在折线上方。
     height: 100%;
     overflow: visible;
-
     &-fill {
       fill: color-mix(in srgb, var(--metric-color) 12%, transparent);
     }
-
     &-line {
       fill: none;
       stroke: var(--metric-color);
@@ -374,19 +365,19 @@ onMounted(() => {
   }
 }
 
-@media (max-width: 1400px) {
+@media (width <= 1400px) {
   .gorse-overview-metrics {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .gorse-overview-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .gorse-overview-metrics {
     grid-template-columns: 1fr;
   }

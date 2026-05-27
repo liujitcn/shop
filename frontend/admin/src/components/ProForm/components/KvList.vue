@@ -62,7 +62,6 @@ function handleRemove(index: number) {
   gap: 12px;
   width: 100%;
 }
-
 .kv-list__item {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;

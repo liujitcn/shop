@@ -58,7 +58,7 @@
 <script setup lang="ts" name="SessionPanel">
 import { computed } from "vue";
 import { Conversations } from "vue-element-plus-x";
-import type { ConversationMenu, ConversationMenuCommand } from "vue-element-plus-x/types/components/Conversations/types";
+import type { ConversationMenu, ConversationMenuCommand } from "vue-element-plus-x/types/Conversations";
 import { DArrowLeft, Delete, EditPen, Plus, Search } from "@element-plus/icons-vue";
 import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 
@@ -134,15 +134,14 @@ function handleCreateSession() {
 
 <style scoped lang="scss">
 .agent-session-panel {
-  min-width: 0;
   display: flex;
+  flex-direction: column;
+  min-width: 0;
   min-height: 0;
   padding: 20px 16px;
   overflow: hidden;
-  flex-direction: column;
   background: var(--admin-page-card-bg);
   border-right: 1px solid var(--admin-page-divider-strong);
-
   :deep(.el-input__wrapper) {
     padding: 10px 14px;
     background: var(--el-fill-color-light);
@@ -150,7 +149,6 @@ function handleCreateSession() {
     box-shadow: none;
   }
 }
-
 .agent-session-brand {
   display: flex;
   align-items: center;
@@ -158,24 +156,20 @@ function handleCreateSession() {
   min-height: 64px;
   padding: 0 6px;
 }
-
 .agent-session-brand__main {
   display: flex;
-  min-width: 0;
   align-items: center;
+  min-width: 0;
 }
-
 .agent-session-brand__copy {
   min-width: 0;
 }
-
 .agent-session-brand__title {
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
   color: var(--admin-page-text-primary);
 }
-
 .agent-session-brand__desc {
   margin-top: 2px;
   font-size: 13px;
@@ -183,48 +177,42 @@ function handleCreateSession() {
   line-height: 20px;
   color: var(--admin-page-text-secondary);
 }
-
 .agent-session-toggle {
   display: inline-flex;
-  width: 32px;
-  height: 32px;
   flex: 0 0 auto;
-  color: var(--admin-page-text-secondary);
-  cursor: pointer;
   align-items: center;
   justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
   background: var(--el-fill-color-light);
   border: 0;
   border-radius: var(--admin-page-radius);
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
-
   &:hover {
     color: var(--el-color-primary);
     background: var(--el-color-primary-light-9);
   }
 }
-
 .agent-session-brand-divider {
   height: 1px;
   margin: 16px 0 20px;
   background: var(--el-border-color-lighter);
 }
-
 .agent-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 18px 0 14px;
 }
-
 .agent-panel-title {
   font-size: 14px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .agent-panel-create {
   display: inline-flex;
   gap: 4px;
@@ -241,27 +229,22 @@ function handleCreateSession() {
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
-
   &:hover {
     color: var(--el-color-primary-dark-2);
     background: var(--el-color-primary-light-8);
   }
 }
-
 .agent-divider {
   height: 1px;
   margin: 20px 0;
   background: var(--el-border-color-lighter);
 }
-
 .agent-conversations {
   flex: 1;
   margin-top: 0;
-
   :deep(.elx-conversations-list) {
     gap: 10px;
   }
-
   :deep(.elx-conversations-item) {
     position: relative;
     padding: 0;
@@ -273,7 +256,6 @@ function handleCreateSession() {
       border-color 0.2s ease,
       box-shadow 0.2s ease;
   }
-
   :deep(.elx-conversations-item:not(:last-child)::after) {
     position: absolute;
     right: 16px;
@@ -283,22 +265,18 @@ function handleCreateSession() {
     content: "";
     background: var(--el-border-color-lighter);
   }
-
   :deep(.elx-conversations-item--active) {
     background: var(--el-color-primary-light-9);
     border-color: var(--el-color-primary-light-5);
     box-shadow: inset 3px 0 0 var(--el-color-primary);
   }
-
   :deep(.elx-conversations-item--active .agent-session-name) {
     color: var(--el-color-primary);
   }
-
   :deep(.elx-conversations-item--active .agent-session-meta) {
     color: var(--admin-page-text-primary);
   }
 }
-
 .agent-session-item {
   display: flex;
   gap: 8px;
@@ -308,33 +286,30 @@ function handleCreateSession() {
   padding: 14px 16px;
   border-radius: var(--admin-page-radius);
 }
-
 .agent-session-main {
-  min-width: 0;
   flex: 1;
+  min-width: 0;
 }
-
 .agent-session-name {
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 14px;
   font-weight: 700;
   line-height: 22px;
   color: var(--admin-page-text-primary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .agent-session-meta {
   margin-top: 4px;
   overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
   line-height: 18px;
   color: var(--admin-page-text-secondary);
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (width <= 768px) {
   .agent-session-panel {
     display: none;
   }

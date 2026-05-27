@@ -507,32 +507,26 @@ function handleOpenBaseJob(id: number, name: string) {
 .job-operation {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
   gap: 4px 10px;
+  align-items: center;
   white-space: nowrap;
 }
-
 .job-action {
   margin-left: 0;
   font-weight: 500;
 }
-
 .job-action:deep(.el-icon) {
   margin-right: 4px;
 }
-
 .job-action--start {
   --el-button-text-color: var(--el-color-primary);
 }
-
 .job-action--stop {
   --el-button-text-color: var(--el-color-warning);
 }
-
 .job-action--exec {
   --el-button-text-color: var(--el-color-success);
 }
-
 .job-action--log {
   --el-button-text-color: var(--el-color-info);
 }

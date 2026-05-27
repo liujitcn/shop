@@ -78,17 +78,14 @@ function reviewTimelineType(status: number) {
 .comment-review-timeline {
   min-height: 36px;
 }
-
 .review-timeline {
   padding-left: 4px;
 }
-
 .review-card {
   padding: 12px;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
-
   &__title,
   &__tags {
     display: flex;
@@ -96,15 +93,12 @@ function reviewTimelineType(status: number) {
     gap: 8px;
     align-items: center;
   }
-
   &__operator {
     color: var(--admin-page-text-secondary);
   }
-
   &__tags {
     margin-top: 10px;
   }
-
   &__reason {
     margin-top: 10px;
     line-height: 1.6;
@@ -112,7 +106,6 @@ function reviewTimelineType(status: number) {
     white-space: pre-wrap;
   }
 }
-
 .review-empty {
   display: flex;
   align-items: center;

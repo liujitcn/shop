@@ -77,20 +77,17 @@ const gridTemplateColumns = computed(() => {
   display: grid;
   gap: 12px;
 }
-
 .summary-card {
   padding: 14px;
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
 }
-
 .summary-card__meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .summary-card__label {
   display: inline-flex;
   gap: 4px;
@@ -98,22 +95,18 @@ const gridTemplateColumns = computed(() => {
   font-size: 14px;
   color: var(--admin-page-text-secondary);
 }
-
 .summary-card__foot-label {
   display: inline-flex;
   gap: 4px;
   align-items: center;
 }
-
 .summary-card__tooltip-icon {
   color: var(--admin-page-text-placeholder);
   cursor: pointer;
 }
-
 .summary-card__tooltip-icon:hover {
   color: var(--card-accent);
 }
-
 .summary-card__icon {
   display: inline-flex;
   align-items: center;
@@ -121,40 +114,37 @@ const gridTemplateColumns = computed(() => {
   width: 36px;
   height: 36px;
   color: var(--el-color-white);
-  border-radius: var(--admin-page-radius);
   background: var(--card-accent);
+  border-radius: var(--admin-page-radius);
 }
-
 .summary-card__value {
   margin-top: 8px;
   font-size: 24px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .summary-card__foot {
   display: flex;
   gap: 8px;
   align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid var(--admin-page-divider);
+  margin-top: 10px;
   font-size: 13px;
   color: var(--admin-page-text-placeholder);
+  border-top: 1px solid var(--admin-page-divider);
 }
-
 .summary-card__foot b {
   color: var(--card-accent);
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .summary-grid {
     grid-template-columns: minmax(0, 1fr);
   }

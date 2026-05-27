@@ -472,44 +472,37 @@ initializePage();
   flex-direction: column;
   gap: 16px;
 }
-
 .report-toolbar {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
+  justify-content: flex-end;
 }
-
 .report-card {
   padding: 18px;
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 .report-card--tabs {
   overflow: hidden;
 }
-
 .report-card__header {
   display: flex;
+  gap: 16px;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
   margin-bottom: 16px;
 }
-
 .report-card__header--tabs {
   margin-bottom: 18px;
 }
-
 .report-card__tabs {
   display: flex;
   gap: 12px;
   align-items: center;
   min-width: 0;
 }
-
 .report-tab {
   min-width: 0;
   padding: 10px 16px;
@@ -524,59 +517,48 @@ initializePage();
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
-
 .report-tab--active {
   color: var(--el-color-primary);
   background: color-mix(in srgb, var(--el-color-primary) 12%, var(--admin-page-card-bg));
   border-color: color-mix(in srgb, var(--el-color-primary) 36%, var(--admin-page-card-border));
   box-shadow: 0 8px 18px rgb(64 158 255 / 12%);
 }
-
 .report-panel {
   min-width: 0;
 }
-
 .report-panel--chart {
   height: 360px;
 }
-
 .report-table {
   width: 100%;
 }
-
 .goods-month-report :deep(.summary-grid) {
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
-
 .goods-month-report :deep(.summary-card__meta) {
   align-items: flex-start;
 }
-
 .goods-month-report :deep(.summary-card__label),
 .goods-month-report :deep(.summary-card__foot-label) {
   line-height: 1.5;
   white-space: normal;
 }
-
 .goods-month-report :deep(.summary-card__value) {
-  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .report-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
-
   .report-card__header--tabs {
     flex-direction: column;
     align-items: stretch;
   }
-
   .report-card__tabs {
     flex-wrap: wrap;
   }
-
   .goods-month-report :deep(.summary-grid) {
     grid-template-columns: minmax(0, 1fr) !important;
   }

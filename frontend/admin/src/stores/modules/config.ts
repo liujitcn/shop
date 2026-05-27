@@ -47,8 +47,7 @@ function normalizeSiteDisplayConfig(configMap: Record<string, string>) {
   } satisfies Partial<SiteDisplayConfig>;
 }
 
-export const useConfigStore = defineStore({
-  id: "shop-config",
+export const useConfigStore = defineStore("shop-config", {
   state: (): SiteConfigState => ({
     display: { ...DEFAULT_SITE_DISPLAY_CONFIG }
   }),

@@ -412,68 +412,61 @@ onBeforeUnmount(() => {
   border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
-
 .ai-assistant-page.is-session-collapsed {
   grid-template-columns: 44px minmax(0, 1fr);
 }
-
 .agent-session-collapsed {
   display: flex;
+  flex-direction: column;
   gap: 12px;
+  align-items: center;
   min-height: 0;
   padding: 16px 8px;
-  align-items: center;
-  flex-direction: column;
   background: var(--admin-page-card-bg);
   border-right: 1px solid var(--admin-page-divider-strong);
 }
-
 .agent-session-collapsed__toggle {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 28px;
   height: 28px;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
-  align-items: center;
-  justify-content: center;
   background: var(--el-fill-color-light);
   border: 0;
   border-radius: var(--admin-page-radius);
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
-
   &:hover {
     color: var(--el-color-primary);
     background: var(--el-color-primary-light-9);
   }
 }
-
 .agent-session-collapsed__label {
   font-size: 12px;
   line-height: 16px;
   color: var(--admin-page-text-secondary);
-  writing-mode: vertical-rl;
   user-select: none;
+  writing-mode: vertical-rl;
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (width <= 1200px) {
   .ai-assistant-page {
     grid-template-columns: 264px minmax(0, 1fr);
   }
-
   .ai-assistant-page.is-session-collapsed {
     grid-template-columns: 44px minmax(0, 1fr);
   }
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (width <= 768px) {
   .ai-assistant-page {
     grid-template-columns: 1fr;
     height: 100%;
     min-height: 0;
   }
-
   .agent-session-collapsed {
     display: none;
   }

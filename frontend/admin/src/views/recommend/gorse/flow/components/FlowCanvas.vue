@@ -31,7 +31,6 @@ onMounted(() => {
   border-radius: var(--admin-page-radius);
   box-shadow: var(--admin-page-shadow);
 }
-
 .logic-flow-view {
   width: 100%;
   height: 75vh;

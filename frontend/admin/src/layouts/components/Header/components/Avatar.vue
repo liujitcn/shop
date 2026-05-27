@@ -107,83 +107,74 @@ const handleGoToProfile = async () => {
   height: 40px;
   overflow: hidden;
   cursor: pointer;
+  border: 2px solid rgb(255 255 255 / 85%);
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
-
+  box-shadow: 0 8px 18px rgb(15 23 42 / 12%);
   img {
+    display: block;
     width: 100%;
     height: 100%;
-    display: block;
     object-fit: cover;
   }
 }
-
 .user-panel {
   width: 280px;
   padding: 16px;
   background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgb(15 23 42 / 8%);
   border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
-
+  box-shadow: 0 16px 40px rgb(15 23 42 / 14%);
   &__summary {
     display: flex;
     align-items: center;
     padding-bottom: 14px;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    border-bottom: 1px solid rgb(15 23 42 / 8%);
   }
-
   &__avatar {
+    flex-shrink: 0;
     width: 48px;
     height: 48px;
     overflow: hidden;
-    flex-shrink: 0;
-    border-radius: 50%;
     background: #edf2f7;
-
+    border-radius: 50%;
     img {
+      display: block;
       width: 100%;
       height: 100%;
-      display: block;
       object-fit: cover;
     }
   }
-
   &__identity {
     min-width: 0;
     margin-left: 12px;
   }
-
   &__name {
     font-size: 16px;
     font-weight: 600;
     line-height: 22px;
     color: #1f2937;
   }
-
   &__meta {
     margin-top: 3px;
     overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 13px;
     line-height: 18px;
     color: #6b7280;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
   &__actions {
     display: flex;
     flex-direction: column;
-    margin-top: 14px;
     gap: 10px;
+    margin-top: 14px;
   }
 }
-
 .action-btn {
   display: flex;
+  gap: 8px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   width: 100%;
   height: 38px;
   cursor: pointer;
@@ -198,32 +189,27 @@ const handleGoToProfile = async () => {
   &:hover {
     transform: translateY(-1px);
   }
-
   &--primary {
     color: #1d4ed8;
-    background: rgba(37, 99, 235, 0.1);
-
+    background: rgb(37 99 235 / 10%);
     &:hover {
-      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.16);
-      background: rgba(37, 99, 235, 0.14);
+      background: rgb(37 99 235 / 14%);
+      box-shadow: 0 8px 18px rgb(37 99 235 / 16%);
     }
   }
-
   &--danger {
     color: #dc2626;
-    background: rgba(220, 38, 38, 0.08);
-
+    background: rgb(220 38 38 / 8%);
     &:hover {
-      box-shadow: 0 8px 18px rgba(220, 38, 38, 0.14);
-      background: rgba(220, 38, 38, 0.12);
+      background: rgb(220 38 38 / 12%);
+      box-shadow: 0 8px 18px rgb(220 38 38 / 14%);
     }
   }
 }
-
 :deep(.header-avatar-dropdown) {
   padding: 0;
+  background: transparent;
   border: none;
   box-shadow: none;
-  background: transparent;
 }
 </style>

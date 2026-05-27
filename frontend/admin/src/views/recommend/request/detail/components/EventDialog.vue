@@ -174,38 +174,32 @@ defineExpose({
   flex-direction: column;
   gap: 16px;
 }
-
 .recommend-request-event-dialog__summary,
 .recommend-request-event-dialog__table {
   padding: 16px;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
 }
-
 .recommend-request-event-dialog__table {
   background: var(--admin-page-card-bg);
 }
-
 .recommend-request-event-dialog__header {
   display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
   margin-bottom: 16px;
   color: var(--admin-page-text-primary);
 }
-
 .recommend-request-event-dialog__header span:first-child {
   font-size: 16px;
   font-weight: 600;
 }
-
 .recommend-request-event-dialog__header-extra {
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
-
 .recommend-request-event-dialog__descriptions {
   :deep(.el-descriptions__label) {
     width: 140px;

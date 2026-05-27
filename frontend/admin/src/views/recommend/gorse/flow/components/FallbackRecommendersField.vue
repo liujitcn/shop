@@ -51,13 +51,11 @@ function moveItem(index: number, offset: -1 | 1) {
 .fallback-recommenders-field {
   width: 100%;
 }
-
 .fallback-recommenders-field__list {
   overflow: hidden;
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
 }
-
 .fallback-recommenders-field__item {
   display: flex;
   gap: 12px;
@@ -66,25 +64,21 @@ function moveItem(index: number, offset: -1 | 1) {
   min-height: 58px;
   padding: 10px 12px 10px 16px;
   background: var(--admin-page-card-bg);
-
   & + & {
     border-top: 1px solid var(--admin-page-card-border-soft);
   }
 }
-
 .fallback-recommenders-field__name {
   min-width: 0;
   color: var(--admin-page-text-primary);
   word-break: break-all;
 }
-
 .fallback-recommenders-field__actions {
   display: inline-flex;
   flex-shrink: 0;
   gap: 8px;
   align-items: center;
 }
-
 .fallback-recommenders-field__arrow {
   display: inline-block;
   min-width: 14px;

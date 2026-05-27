@@ -50,7 +50,6 @@ function handleRemove(index: number) {
   gap: 12px;
   width: 100%;
 }
-
 .dynamic-list__item {
   display: flex;
   gap: 12px;

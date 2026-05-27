@@ -122,24 +122,21 @@ onMounted(async () => {
 .profile-page {
   padding: 20px;
 }
-
 .profile-shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
-
 .profile-nav {
   position: sticky;
   top: 20px;
   padding: 16px;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #ebeef5;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgb(0 0 0 / 4%);
 }
-
 .nav-item {
   display: flex;
   align-items: center;
@@ -149,40 +146,34 @@ onMounted(async () => {
   color: #606266;
   text-align: left;
   cursor: pointer;
-  background: #fff;
+  background: #ffffff;
   border: 1px solid transparent;
   border-radius: 10px;
   transition: all 0.2s ease;
 }
-
 .nav-item + .nav-item {
   margin-top: 8px;
 }
-
 .nav-item__content {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .nav-item strong {
   display: block;
   font-size: 14px;
   font-weight: 600;
 }
-
 .nav-item span {
   font-size: 12px;
   color: #909399;
 }
-
 .nav-item:hover,
 .nav-item--active {
   color: #409eff;
   background: #f5f9ff;
   border-color: #d9ecff;
 }
-
 .profile-content {
   min-width: 0;
 }
@@ -191,7 +182,6 @@ onMounted(async () => {
   .profile-shell {
     grid-template-columns: 1fr;
   }
-
   .profile-nav {
     position: static;
   }

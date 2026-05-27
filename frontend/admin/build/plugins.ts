@@ -6,7 +6,6 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
-import eslintPlugin from "vite-plugin-eslint";
 import AutoImport from "unplugin-auto-import/vite";
 import viteCompression from "vite-plugin-compression";
 import vueSetupExtend from "unplugin-vue-setup-extend-plus/vite";
@@ -26,11 +25,6 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     // 自动导入 Vue、Element Plus API 与图标，减少页面重复 import
     AutoImport({
       dts: "types/generated/auto-imports.d.ts",
-      eslintrc: {
-        enabled: true,
-        filepath: "./types/generated/eslint-auto-import.json",
-        globalsPropValue: true
-      },
       imports: [
         "vue",
         "vue-router",
@@ -92,8 +86,6 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     }),
     // devTools
     VITE_DEVTOOLS && NextDevTools({ launchEditor: "code" }),
-    // esLint 报错信息显示在浏览器界面上
-    eslintPlugin(),
     // name 可以写在 script 标签上
     vueSetupExtend({}),
     // 创建打包压缩配置
@@ -116,9 +108,9 @@ export const createVitePlugins = (viteEnv: ViteEnv): (PluginOption | PluginOptio
     VITE_REPORT && (visualizer({ filename: "stats.html", gzipSize: true, brotliSize: true }) as PluginOption),
     // 自动 IDE 并将光标定位到 DOM 对应的源代码位置。see: https://inspector.fe-dev.cn/guide/start.html
     VITE_CODEINSPECTOR &&
-    codeInspectorPlugin({
-      bundler: "vite"
-    })
+      codeInspectorPlugin({
+        bundler: "vite"
+      })
   ];
 };
 

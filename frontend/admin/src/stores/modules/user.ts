@@ -17,8 +17,7 @@ const defaultUserInfo: UserInfoForm = {
   dept_name: ""
 };
 
-export const useUserStore = defineStore({
-  id: "shop-user",
+export const useUserStore = defineStore("shop-user", {
   state: (): UserState => ({
     token: "",
     refreshToken: "",

@@ -260,37 +260,32 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .gorse-overview-dashboard-card {
-  border-color: var(--admin-page-card-border);
   background: var(--admin-page-card-bg);
+  border-color: var(--admin-page-card-border);
   box-shadow: var(--admin-page-shadow);
-
   &__header {
     display: flex;
     gap: 16px;
     align-items: center;
     justify-content: space-between;
   }
-
   &__title {
-    color: var(--admin-page-text-primary);
     font-size: 16px;
     font-weight: 700;
     line-height: 24px;
+    color: var(--admin-page-text-primary);
   }
-
   &__filters {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     justify-content: flex-end;
   }
-
   &__select {
     width: 260px;
     max-width: 100%;
   }
 }
-
 .gorse-overview-dashboard-table {
   width: 100%;
 
@@ -299,11 +294,9 @@ onMounted(() => {
     height: auto;
     min-height: auto;
   }
-
   :deep(.el-table) {
     flex: initial;
   }
-
   :deep(.el-table__inner-wrapper),
   :deep(.el-table__body-wrapper),
   :deep(.el-scrollbar),
@@ -311,38 +304,34 @@ onMounted(() => {
   :deep(.el-scrollbar__view) {
     height: auto;
   }
-
   &__categories {
     display: inline-block;
     width: 100%;
     overflow: hidden;
-    vertical-align: middle;
     text-overflow: ellipsis;
+    vertical-align: middle;
     white-space: nowrap;
   }
-
   &__empty {
     color: var(--admin-page-text-secondary);
   }
-
   &__score {
     white-space: nowrap;
   }
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .gorse-overview-dashboard-card__header {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
   }
-
   .gorse-overview-dashboard-card__filters {
     justify-content: flex-start;
     width: 100%;
   }
 }
 
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .gorse-overview-dashboard-card__select {
     width: 100%;
   }

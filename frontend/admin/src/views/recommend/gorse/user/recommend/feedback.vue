@@ -266,11 +266,10 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
 }
-
 .gorse-cursor-pagination {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
+  justify-content: flex-end;
   padding-top: 16px;
 }
 </style>

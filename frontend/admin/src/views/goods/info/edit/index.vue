@@ -267,88 +267,74 @@ onMounted(() => {
 <style scoped lang="scss">
 .goods-edit-head-card,
 .goods-edit-steps-card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 .goods-edit-head-card {
   margin-bottom: 14px;
 }
-
 .goods-edit-steps-card {
   margin-bottom: 14px;
 }
-
 :deep(.goods-edit-head-card .el-card__body),
 :deep(.goods-edit-steps-card .el-card__body) {
   padding: 16px 18px;
 }
-
 .goods-edit-head {
   display: flex;
   gap: 16px;
   align-items: center;
   justify-content: space-between;
 }
-
 .goods-edit-head__intro {
   min-width: 0;
 }
-
 .goods-edit-head__title {
   margin: 0;
   font-size: 22px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .goods-edit-head__subtitle {
   margin: 6px 0 0;
   font-size: 13px;
   line-height: 1.6;
   color: var(--admin-page-text-secondary);
 }
-
 .goods-edit-head__metrics {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
-
 .goods-edit-head__metric {
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 88px;
   padding: 10px 12px;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
 }
-
 .goods-edit-head__metric span {
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
-
 .goods-edit-head__metric strong {
   font-size: 18px;
   color: var(--admin-page-text-primary);
 }
-
 .goods-edit-steps-card :deep(.el-steps) {
   background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
 }
-
 .goods-edit-steps-card :deep(.el-step__title) {
   font-size: 14px;
   font-weight: 600;
 }
-
 .goods-edit-stage {
   min-height: 320px;
 }

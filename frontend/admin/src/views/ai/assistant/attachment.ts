@@ -1,6 +1,6 @@
 import type { AiAssistantAttachment } from "@/rpc/base/v1/ai_assistant_session";
 import { formatSrc } from "@/utils/utils";
-import type { FilesCardProps, FilesType } from "vue-element-plus-x/types/components/FilesCard/types";
+import type { FilesCardProps, FilesType } from "vue-element-plus-x/types/FilesCard";
 
 /** AI 助手附件图片判断所需的最小字段。 */
 export type AssistantAttachmentPreviewMeta = Pick<AiAssistantAttachment, "name" | "mime_type">;

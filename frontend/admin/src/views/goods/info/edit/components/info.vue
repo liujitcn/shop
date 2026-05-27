@@ -168,24 +168,20 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .goods-edit-info__card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 :deep(.goods-edit-info__card .el-card__body) {
   padding-top: 18px;
 }
-
 .goods-edit-info__form :deep(.el-form-item) {
   margin-bottom: 16px;
 }
-
 .goods-edit-info__form :deep(.el-textarea__inner) {
   min-height: 88px;
 }
-
 .goods-edit-info__footer {
   display: flex;
   justify-content: flex-end;

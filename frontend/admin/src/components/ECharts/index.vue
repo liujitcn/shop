@@ -10,11 +10,12 @@ import { useDebounceFn } from "@vueuse/core";
 import { useGlobalStore } from "@/stores/modules/global";
 import { storeToRefs } from "pinia";
 
+// ECharts 组件入参，控制图表配置、渲染方式、尺寸和事件回调。
 interface Props {
   option: ECOption;
   renderer?: "canvas" | "svg";
   resize?: boolean;
-  theme?: Object | string;
+  theme?: object | string;
   width?: number | string;
   height?: number | string;
   onClick?: (event: ECElementEvent) => any;

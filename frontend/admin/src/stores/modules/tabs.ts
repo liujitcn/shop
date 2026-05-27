@@ -7,8 +7,7 @@ import piniaPersistConfig from "@/stores/helper/persist";
 
 const keepAliveStore = useKeepAliveStore();
 
-export const useTabsStore = defineStore({
-  id: "shop-tabs",
+export const useTabsStore = defineStore("shop-tabs", {
   state: (): TabsState => ({
     tabsMenuList: []
   }),

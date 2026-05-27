@@ -23,7 +23,7 @@ defineProps<{
   gap: 16px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .goods-side-panels {
     grid-template-columns: minmax(0, 1fr);
   }

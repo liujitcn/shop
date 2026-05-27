@@ -275,7 +275,6 @@ onMounted(() => {
 .gorse-detail-page {
   min-height: 100%;
 }
-
 .gorse-item-similar-table {
   &__categories {
     display: inline-block;

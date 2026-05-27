@@ -40,20 +40,17 @@ function openAiAssistant() {
   transition:
     color 0.16s ease,
     transform 0.16s ease;
-
   .el-icon {
     font-size: 24px;
   }
-
   &:hover {
     color: var(--el-color-primary);
     transform: translateY(-1px);
   }
-
   &:focus-visible {
-    border-radius: 4px;
     outline: 2px solid var(--el-color-primary-light-5);
     outline-offset: 4px;
+    border-radius: 4px;
   }
 }
 </style>

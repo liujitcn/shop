@@ -699,71 +699,58 @@ function formatPreviewValue(value: unknown) {
   flex-direction: column;
   gap: 16px;
 }
-
 .gorse-advance-page__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
-
 .gorse-advance-card,
 .gorse-preview-card {
+  overflow: hidden;
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
-  overflow: hidden;
 }
-
 .gorse-advance-card__header {
   display: flex;
   gap: 16px;
   align-items: center;
   justify-content: space-between;
 }
-
 .gorse-advance-card__title {
-  color: var(--admin-page-text-primary);
   font-size: 18px;
   font-weight: 600;
+  color: var(--admin-page-text-primary);
 }
-
 .gorse-advance-card__body {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
 .gorse-advance-card__tabs {
   width: 100%;
-
   :deep(.el-tabs__header) {
     margin-bottom: 0;
   }
-
   :deep(.el-tabs__nav-wrap::after) {
     background: var(--admin-page-divider);
   }
 }
-
 .gorse-advance-card__tabs--compact {
   width: auto;
-
   :deep(.el-tabs__header) {
     margin-bottom: 0;
   }
-
   :deep(.el-tabs__nav-wrap::after) {
     display: none;
   }
 }
-
 .gorse-advance-card__body--center {
   align-items: flex-start;
   justify-content: center;
   min-height: 132px;
 }
-
 .gorse-export-panel {
   box-sizing: border-box;
   display: flex;
@@ -772,41 +759,35 @@ function formatPreviewValue(value: unknown) {
   width: 100%;
   max-width: 100%;
   padding: 18px;
+  background: linear-gradient(135deg, rgb(20 184 166 / 9%), rgb(20 184 166 / 2%)), var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: linear-gradient(135deg, rgb(20 184 166 / 9%), rgb(20 184 166 / 2%)), var(--admin-page-card-bg-soft);
 }
-
 .gorse-export-panel__meta {
   display: flex;
   flex-direction: column;
   gap: 6px;
-
   strong {
-    color: var(--admin-page-text-primary);
     font-size: 18px;
     line-height: 24px;
+    color: var(--admin-page-text-primary);
   }
-
   p {
     margin: 0;
-    color: var(--admin-page-text-secondary);
     font-size: 13px;
     line-height: 20px;
+    color: var(--admin-page-text-secondary);
   }
 }
-
 .gorse-export-panel__label {
-  color: var(--admin-page-text-secondary);
   font-size: 12px;
+  color: var(--admin-page-text-secondary);
 }
-
 .gorse-export-panel__tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .gorse-upload-panel {
   box-sizing: border-box;
   display: flex;
@@ -817,40 +798,35 @@ function formatPreviewValue(value: unknown) {
   width: 100%;
   max-width: 100%;
   padding: 28px 20px;
+  cursor: pointer;
   background: linear-gradient(180deg, rgb(14 165 233 / 7%), rgb(14 165 233 / 2%)), var(--admin-page-card-bg-soft);
   border: 1px dashed var(--admin-page-card-border-muted);
   border-radius: var(--admin-page-radius);
-  cursor: pointer;
 }
-
 .gorse-upload-panel__icon {
-  color: var(--el-color-primary);
   font-size: 28px;
+  color: var(--el-color-primary);
 }
-
 .gorse-upload-panel__title {
   max-width: 100%;
   overflow: hidden;
-  color: var(--admin-page-text-primary);
+  text-overflow: ellipsis;
   font-size: 15px;
   font-weight: 600;
-  text-overflow: ellipsis;
+  color: var(--admin-page-text-primary);
   white-space: nowrap;
 }
-
 .gorse-upload-panel__text {
-  color: var(--admin-page-text-secondary);
   font-size: 13px;
+  color: var(--admin-page-text-secondary);
   text-align: center;
 }
-
 .gorse-upload-panel__formats {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
 }
-
 .gorse-import-hints {
   box-sizing: border-box;
   display: grid;
@@ -858,33 +834,29 @@ function formatPreviewValue(value: unknown) {
   gap: 10px;
   max-width: 100%;
 }
-
 .gorse-import-hints__item {
   display: flex;
-  min-width: 0;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
   padding: 10px 12px;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
-
   span {
-    color: var(--admin-page-text-secondary);
     font-size: 12px;
     line-height: 18px;
+    color: var(--admin-page-text-secondary);
   }
-
   strong {
     overflow: hidden;
-    color: var(--admin-page-text-primary);
+    text-overflow: ellipsis;
     font-size: 13px;
     line-height: 20px;
-    text-overflow: ellipsis;
+    color: var(--admin-page-text-primary);
     white-space: nowrap;
   }
 }
-
 .gorse-import-actions {
   display: flex;
   flex-wrap: wrap;
@@ -892,11 +864,9 @@ function formatPreviewValue(value: unknown) {
   align-items: center;
   justify-content: flex-end;
 }
-
 .gorse-import-alert {
   margin-bottom: 16px;
 }
-
 .gorse-preview-card__filters {
   display: flex;
   flex-wrap: wrap;
@@ -904,31 +874,25 @@ function formatPreviewValue(value: unknown) {
   align-items: center;
   justify-content: flex-end;
 }
-
 .gorse-preview-card__search {
   width: 260px;
   max-width: 100%;
 }
-
 .gorse-preview-card__toolbar {
   display: flex;
   gap: 12px;
   align-items: center;
   justify-content: space-between;
 }
-
 .gorse-preview-card__table {
   width: 100%;
-
   :deep(.table-main) {
     height: auto;
     min-height: auto;
   }
-
   :deep(.el-table) {
     flex: initial;
   }
-
   :deep(.el-table__inner-wrapper),
   :deep(.el-table__body-wrapper),
   :deep(.el-scrollbar),
@@ -943,7 +907,6 @@ function formatPreviewValue(value: unknown) {
   .gorse-import-hints {
     grid-template-columns: 1fr;
   }
-
   .gorse-advance-card__header,
   .gorse-import-actions,
   .gorse-preview-card__filters,

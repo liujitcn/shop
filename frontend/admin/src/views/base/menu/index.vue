@@ -847,7 +847,6 @@ function handleDeleteMenu(selected?: number | string | Array<number | string> | 
 .table-box {
   height: 100%;
 }
-
 :deep(.menu-form__params .el-form-item__content) {
   align-items: flex-start;
 }

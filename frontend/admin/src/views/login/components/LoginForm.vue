@@ -180,19 +180,17 @@ onMounted(() => {
 
 <style scoped lang="scss">
 @use "../index.scss" as *;
-
 .captcha-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 120px;
   gap: 12px;
   width: 100%;
 }
-
 .captcha-image {
   width: 120px;
   height: 40px;
   cursor: pointer;
-  border-radius: 6px;
   object-fit: cover;
+  border-radius: 6px;
 }
 </style>

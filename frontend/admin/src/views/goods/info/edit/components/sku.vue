@@ -242,22 +242,19 @@ async function submitForm() {
 
 <style scoped lang="scss">
 .goods-edit-stock__card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 :deep(.goods-edit-stock__card .el-card__body) {
   padding-top: 18px;
 }
-
 .goods-edit-stock__footer {
   display: flex;
-  justify-content: space-between;
   gap: 12px;
+  justify-content: space-between;
 }
-
 :deep(.el-form-item__content) {
   display: flex;
   overflow: visible;

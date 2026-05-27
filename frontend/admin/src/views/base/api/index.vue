@@ -254,18 +254,15 @@ async function handleBeforeSetMcpEnabled(row: BaseApi) {
 .api-doc {
   margin-top: 18px;
 }
-
 .api-doc-section {
   margin-top: 20px;
 }
-
 .api-doc-title {
   margin-bottom: 10px;
   font-size: 15px;
   font-weight: 600;
   color: var(--el-text-color-primary);
 }
-
 .api-doc-response-title {
   font-weight: 500;
   color: var(--el-text-color-primary);

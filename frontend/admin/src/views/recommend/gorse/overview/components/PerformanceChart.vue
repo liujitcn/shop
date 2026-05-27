@@ -252,59 +252,52 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .gorse-overview-chart-card {
-  border-color: var(--admin-page-card-border);
   background: var(--admin-page-card-bg);
+  border-color: var(--admin-page-card-border);
   box-shadow: var(--admin-page-shadow);
-
   &__header {
     display: flex;
     gap: 16px;
     align-items: center;
     justify-content: space-between;
   }
-
   &__title {
-    color: var(--admin-page-text-primary);
     font-size: 16px;
     font-weight: 700;
     line-height: 24px;
+    color: var(--admin-page-text-primary);
   }
-
   &__filters {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     justify-content: flex-end;
   }
-
   &__range {
     width: 300px;
     max-width: 100%;
   }
-
   &__select {
     width: 280px;
     max-width: 100%;
   }
 }
-
 .gorse-overview-chart {
   height: 360px;
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .gorse-overview-chart-card__header {
-    align-items: flex-start;
     flex-direction: column;
+    align-items: flex-start;
   }
-
   .gorse-overview-chart-card__filters {
     justify-content: flex-start;
     width: 100%;
   }
 }
 
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .gorse-overview-chart-card__range,
   .gorse-overview-chart-card__select {
     width: 100%;

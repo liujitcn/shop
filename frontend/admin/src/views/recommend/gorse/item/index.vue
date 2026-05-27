@@ -298,11 +298,10 @@ onMounted(() => {
     white-space: nowrap;
   }
 }
-
 .gorse-cursor-pagination {
   display: flex;
-  justify-content: flex-end;
   gap: 12px;
+  justify-content: flex-end;
   padding: 16px 0 0;
 }
 </style>

@@ -95,7 +95,7 @@
 <script setup lang="ts" name="XSender">
 import { computed, ref, watch } from "vue";
 import { Attachments, useRecord, XSender as BaseXSender } from "vue-element-plus-x";
-import type { FilesCardProps } from "vue-element-plus-x/types/components/FilesCard/types";
+import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { defFileService } from "@/api/base/file";
@@ -395,24 +395,20 @@ watch(
 .agent-sender-wrap {
   width: 100%;
 }
-
 .agent-sender {
   :deep(.elx-x-sender) {
     border-radius: var(--admin-page-radius);
     box-shadow: none;
   }
-
   :deep(.elx-x-sender__content) {
     padding: 8px 10px 10px;
     background: var(--admin-page-card-bg);
     border: 1px solid var(--admin-page-card-border);
     border-radius: var(--admin-page-radius);
   }
-
   :deep(.elx-x-sender__content--variant-updown) {
     gap: 10px;
   }
-
   :deep(.chat-rich-text) {
     min-height: 64px;
     max-height: 120px;
@@ -420,60 +416,51 @@ watch(
     font-size: 14px;
     line-height: 22px;
   }
-
   :deep(.chat-placeholder-wrap) {
     padding: 8px 10px;
     font-size: 14px;
     font-weight: 400;
   }
-
   :deep(.elx-x-sender__updown-action-list) {
     align-items: center;
     justify-content: space-between;
   }
-
   :deep(.elx-x-sender__action-list) {
     height: auto;
   }
 }
-
 .agent-attachments {
   padding: 12px 12px 0;
-
   :deep(.elx-files-card) {
     max-width: 220px;
     border-radius: var(--admin-page-radius);
   }
-
   :deep(.elx-files-card-img),
   :deep(.elx-files-card__image-preview),
   :deep(.elx-files-card-delete-icon) {
     border-radius: var(--admin-page-radius);
   }
 }
-
 .agent-prefix-actions {
   display: flex;
   gap: 10px;
   align-items: center;
   min-height: 36px;
 }
-
 .agent-sender-actions {
   display: inline-flex;
   gap: 8px;
   align-items: center;
 }
-
 .agent-icon-button,
 .agent-send-button {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 34px;
   height: 34px;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
-  align-items: center;
-  justify-content: center;
   background: var(--admin-page-card-bg);
   border: 1px solid var(--el-border-color);
   border-radius: var(--admin-page-radius);
@@ -482,67 +469,55 @@ watch(
     border-color 0.2s ease,
     background-color 0.2s ease,
     opacity 0.2s ease;
-
   &:hover {
     color: var(--el-color-primary);
     background: var(--el-color-primary-light-9);
     border-color: var(--el-color-primary-light-5);
   }
-
   &:disabled {
     cursor: not-allowed;
     opacity: 0.55;
   }
 }
-
 .agent-send-button {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
   border-color: var(--el-color-primary-light-5);
 }
-
 .agent-icon-button.is-active {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);
   border-color: var(--el-color-primary-light-5);
 }
-
 .agent-action-text {
   font-size: 12px;
   line-height: 18px;
   color: var(--admin-page-text-secondary);
 }
-
 .is-loading {
   animation: rotating 1s linear infinite;
 }
-
 .agent-file-input {
   display: none;
 }
-
 :global(.agent-sender-popover) {
   padding: 0 !important;
   border-radius: var(--admin-page-radius) !important;
 }
-
 .agent-popover-card {
   padding: 14px;
 }
-
 .agent-popover-title {
   font-size: 14px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .agent-popover-desc {
   margin-top: 6px;
   font-size: 12px;
   line-height: 20px;
   color: var(--admin-page-text-secondary);
 }
-
 .agent-popover-action {
   width: 100%;
   height: 36px;
@@ -554,22 +529,19 @@ watch(
   background: var(--el-color-primary-light-9);
   border: 0;
   border-radius: var(--admin-page-radius);
-
   &:disabled {
     cursor: not-allowed;
     opacity: 0.55;
   }
 }
-
 :global(.agent-sender-popover.el-popover) {
   box-shadow: 0 14px 36px rgb(15 23 42 / 10%);
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (width <= 768px) {
   .agent-prefix-actions {
     gap: 8px;
   }
-
   .agent-action-text {
     display: none;
   }
@@ -579,7 +551,6 @@ watch(
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }

@@ -460,96 +460,83 @@ onMounted(() => {
   flex-direction: column;
   gap: 16px;
 }
-
 .gorse-tabs-card {
-  border-color: var(--admin-page-card-border);
   background: var(--admin-page-card-bg);
+  border-color: var(--admin-page-card-border);
   box-shadow: var(--admin-page-shadow);
 }
-
 .gorse-config-tabs {
   :deep(.el-tabs__header) {
     margin-bottom: 18px;
   }
-
   :deep(.el-tabs__item) {
-    color: var(--admin-page-text-secondary);
     font-weight: 600;
+    color: var(--admin-page-text-secondary);
   }
-
   :deep(.el-tabs__item.is-active) {
     color: var(--el-color-primary);
   }
 }
-
 .gorse-config-groups {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
 .gorse-config-group {
   display: flex;
   flex-direction: column;
   gap: 12px;
-
   &__title {
     padding-left: 10px;
-    border-left: 3px solid var(--el-color-primary);
-    color: var(--admin-page-text-primary);
     font-weight: 600;
     line-height: 20px;
+    color: var(--admin-page-text-primary);
+    border-left: 3px solid var(--el-color-primary);
   }
 }
-
 .gorse-config-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-
 .gorse-config-item {
   display: grid;
   grid-template-columns: 180px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   padding: 12px;
+  background: var(--el-fill-color-lighter);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: 10px;
-  background: var(--el-fill-color-lighter);
-
   label {
-    color: var(--admin-page-text-primary);
     font-weight: 600;
     line-height: 32px;
-    word-break: break-word;
+    color: var(--admin-page-text-primary);
+    overflow-wrap: anywhere;
   }
-
   &__value {
     min-width: 0;
   }
 }
-
 .gorse-config-tags {
   display: flex;
-  min-height: 32px;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  min-height: 32px;
 }
-
 .gorse-config-empty {
-  color: var(--admin-page-text-secondary);
   line-height: 32px;
+  color: var(--admin-page-text-secondary);
 }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .gorse-config-list {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 700px) {
+@media (width <= 700px) {
   .gorse-config-item {
     grid-template-columns: 1fr;
   }

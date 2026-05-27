@@ -369,24 +369,20 @@ async function handleConfirmReject() {
   .comment-section {
     margin-top: 18px;
   }
-
   .image-list {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
   }
-
   .comment-image {
     width: 88px;
     height: 88px;
     border: 1px solid var(--el-border-color-light);
     border-radius: 8px;
   }
-
   .approve-form {
     margin-top: 16px;
   }
-
   .approve-content {
     line-height: 1.6;
     color: var(--el-text-color-primary);

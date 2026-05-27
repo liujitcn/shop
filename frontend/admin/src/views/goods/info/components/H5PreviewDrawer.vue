@@ -75,30 +75,27 @@ function handleOpenPreview() {
   position: relative;
   padding: 18px 14px 14px;
   overflow: hidden;
+  background: linear-gradient(180deg, var(--admin-page-card-bg) 0%, var(--admin-page-card-bg-soft) 100%);
   border: 1px solid var(--admin-page-card-border);
   border-radius: 28px;
-  background: linear-gradient(180deg, var(--admin-page-card-bg) 0%, var(--admin-page-card-bg-soft) 100%);
   box-shadow: var(--admin-page-shadow);
 }
-
 .goods-h5-preview__phone-head {
   display: flex;
   justify-content: center;
   margin-bottom: 12px;
 }
-
 .goods-h5-preview__camera {
   width: 78px;
   height: 8px;
-  border-radius: 999px;
   background: var(--admin-page-card-border-muted);
+  border-radius: 999px;
 }
-
 .goods-h5-preview__frame {
   width: 100%;
   height: 720px;
   overflow: hidden;
-  background: #fff;
+  background: #ffffff;
   border: none;
   border-radius: 18px;
 }

@@ -52,8 +52,7 @@ const gorseRecommenderFallbackLabelMap: Record<string, string> = {
 /** 推荐器字典编码。 */
 const recommendProviderDictCode = "recommend_provider";
 
-export const useRecommendGorseStore = defineStore({
-  id: "shop-recommend-gorse",
+export const useRecommendGorseStore = defineStore("shop-recommend-gorse", {
   state: () => ({
     config: {} as ConfigResponse,
     categoryTreeOptions: [] as GoodsCategoryTreeOption[],

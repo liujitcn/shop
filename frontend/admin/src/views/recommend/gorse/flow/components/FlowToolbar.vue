@@ -48,7 +48,6 @@ const emit = defineEmits<{
   justify-content: space-between;
   width: 100%;
 }
-
 .gorse-flow-palette {
   display: flex;
   flex: 1;
@@ -57,7 +56,6 @@ const emit = defineEmits<{
   align-items: center;
   min-width: 0;
 }
-
 .gorse-flow-palette-node {
   display: inline-flex;
   gap: 8px;
@@ -70,17 +68,14 @@ const emit = defineEmits<{
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
   box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
-
   &:active {
     cursor: grabbing;
   }
 }
-
 .gorse-flow-palette-icon {
-  color: var(--el-color-primary);
   font-size: 20px;
+  color: var(--el-color-primary);
 }
-
 .gorse-flow-actions {
   display: flex;
   flex-shrink: 0;
@@ -88,11 +83,10 @@ const emit = defineEmits<{
   margin-left: 16px;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .gorse-flow-toolbar {
     align-items: flex-start;
   }
-
   .gorse-flow-actions {
     width: 100%;
     margin-left: 0;

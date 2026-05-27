@@ -726,24 +726,20 @@ watch(
   flex-direction: column;
   gap: 20px;
 }
-
 .workspace-card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 .workspace-card--hero {
   overflow: hidden;
 }
-
 :deep(.workspace-card .el-card__header) {
   position: relative;
   padding: 18px 20px 0;
   border-bottom: 0;
 }
-
 :deep(.workspace-card .el-card__header)::after {
   position: absolute;
   right: 20px;
@@ -753,38 +749,32 @@ watch(
   content: "";
   background: var(--admin-page-divider);
 }
-
 :deep(.workspace-card .el-card__body) {
   padding: 18px 20px 20px;
 }
-
 .workspace-hero {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
-
 .workspace-hero__intro {
   display: block;
 }
-
 .workspace-user {
   display: flex;
   gap: 16px;
   align-items: center;
   min-width: 0;
 }
-
 .workspace-avatar {
+  flex-shrink: 0;
   width: 64px;
   height: 64px;
-  flex-shrink: 0;
   overflow: hidden;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border);
   border-radius: 50%;
-  background: var(--admin-page-card-bg-soft);
   box-shadow: 0 8px 18px rgb(15 23 42 / 12%);
-
   img {
     display: block;
     width: 100%;
@@ -792,26 +782,22 @@ watch(
     object-fit: cover;
   }
 }
-
 .workspace-copy h1 {
   margin: 0;
   font-size: 24px;
   line-height: 1.2;
   color: var(--admin-page-text-primary);
 }
-
 .workspace-copy p {
   margin: 8px 0 0;
   font-size: 13px;
   color: var(--admin-page-text-secondary);
 }
-
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
 }
-
 .metric-card__main,
 .todo-item,
 .risk-item {
@@ -819,23 +805,20 @@ watch(
   background: transparent;
   border: 0;
 }
-
 .metric-card {
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
 }
-
 .metric-card:hover,
 .todo-item:hover,
 .risk-item:hover {
   border-color: var(--admin-page-card-border-muted);
   transform: translateY(-1px);
 }
-
 .metric-card__main {
   display: flex;
   flex-direction: column;
@@ -844,7 +827,6 @@ watch(
   padding: 16px 16px 12px;
   text-align: left;
 }
-
 .metric-card__header,
 .metric-card__footer {
   display: flex;
@@ -852,12 +834,10 @@ watch(
   align-items: center;
   justify-content: space-between;
 }
-
 .metric-card__label {
   font-size: 13px;
   color: var(--admin-page-text-secondary);
 }
-
 .metric-card__trend {
   display: inline-flex;
   align-items: center;
@@ -868,35 +848,29 @@ watch(
   font-weight: 600;
   border-radius: 999px;
 }
-
 .metric-card__trend--up {
   color: var(--el-color-success);
   background: rgb(103 194 58 / 12%);
 }
-
 .metric-card__trend--flat {
   color: var(--admin-page-accent-soft-text);
   background: var(--admin-page-accent-soft-bg);
 }
-
 .metric-card__trend--down {
   color: var(--el-color-danger);
   background: rgb(245 108 108 / 12%);
 }
-
 .metric-card__value {
   font-size: 28px;
   line-height: 1.1;
   color: var(--admin-page-text-primary);
 }
-
 .metric-card__footer {
   padding: 12px 16px 16px;
   font-size: 13px;
   color: var(--admin-page-text-secondary);
   border-top: 1px solid var(--admin-page-divider);
 }
-
 .metric-card__link,
 .panel-header__link {
   display: inline-flex;
@@ -910,40 +884,34 @@ watch(
   background: transparent;
   border: 0;
 }
-
 .workspace-main {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
   gap: 20px;
 }
-
 .workspace-primary,
 .workspace-side {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
-
 .panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .panel-header h3 {
   margin: 0;
   font-size: 17px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
 }
-
 .todo-list,
 .risk-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
 .todo-item,
 .risk-item {
   display: flex;
@@ -953,14 +921,13 @@ watch(
   width: 100%;
   padding: 16px 18px;
   text-align: left;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
 }
-
 .todo-item__main,
 .risk-item__main {
   display: flex;
@@ -968,7 +935,6 @@ watch(
   align-items: flex-start;
   min-width: 0;
 }
-
 .todo-item__badge {
   display: inline-flex;
   align-items: center;
@@ -982,35 +948,27 @@ watch(
   background: var(--admin-page-badge-bg);
   border-radius: var(--admin-page-radius);
 }
-
 .todo-item strong,
 .risk-item__title {
   display: block;
-  color: var(--admin-page-text-primary);
-}
-
-.todo-item strong,
-.risk-item__title {
   font-size: 16px;
   line-height: 1.35;
+  color: var(--admin-page-text-primary);
 }
-
 .workspace-item__desc {
   margin: 6px 0 0;
   font-size: 12px;
   line-height: 1.6;
   color: var(--admin-page-text-secondary);
 }
-
 .todo-item__side,
 .risk-item__side {
   display: flex;
+  flex-shrink: 0;
   flex-direction: column;
   gap: 4px;
   align-items: flex-end;
-  flex-shrink: 0;
 }
-
 .todo-item__count,
 .risk-item__count {
   font-size: 28px;
@@ -1018,13 +976,11 @@ watch(
   line-height: 1;
   color: var(--admin-page-text-primary);
 }
-
 .todo-item__unit,
 .risk-item__unit {
   font-size: 12px;
   color: var(--admin-page-text-placeholder);
 }
-
 .risk-item__tag {
   display: inline-flex;
   align-items: center;
@@ -1036,53 +992,43 @@ watch(
   font-weight: 600;
   border-radius: var(--admin-page-radius);
 }
-
 .risk-item__tag--danger {
   color: var(--el-color-danger);
   background: rgb(245 108 108 / 12%);
 }
-
 .risk-item__tag--warning {
   color: var(--el-color-warning);
   background: rgb(230 162 60 / 12%);
 }
-
 .risk-item__tag--info {
   color: var(--admin-page-accent-soft-text);
   background: var(--admin-page-accent-soft-bg);
 }
-
 .risk-item__content {
   min-width: 0;
 }
-
 .pending-comment-table {
   :deep(.el-table) {
     background: transparent;
   }
-
   :deep(.el-table__header-wrapper th.el-table__cell) {
     background: var(--admin-page-card-bg-soft);
   }
 }
-
 .reputation-list {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
 .reputation-item {
   padding: 16px 18px;
+  background: var(--admin-page-card-bg-soft);
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg-soft);
-
   span {
     font-size: 13px;
     color: var(--admin-page-text-secondary);
   }
-
   strong {
     display: block;
     margin-top: 8px;
@@ -1090,7 +1036,6 @@ watch(
     line-height: 1.4;
     color: var(--admin-page-text-primary);
   }
-
   p {
     margin: 6px 0 0;
     font-size: 12px;
@@ -1108,12 +1053,10 @@ watch(
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
   .workspace-main {
     display: flex;
     flex-direction: column;
   }
-
   .workspace-side {
     order: -1;
   }
@@ -1123,13 +1066,11 @@ watch(
   .metric-grid {
     grid-template-columns: 1fr;
   }
-
   .todo-item,
   .risk-item {
     flex-direction: column;
     align-items: stretch;
   }
-
   .todo-item__side,
   .risk-item__side {
     flex-direction: row;

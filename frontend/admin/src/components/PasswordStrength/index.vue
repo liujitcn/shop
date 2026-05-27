@@ -52,48 +52,39 @@ const strength = computed(() => getPasswordStrength(props.password));
   border: 1px solid #ebeef5;
   border-radius: 10px;
 }
-
 .password-strength__header {
   display: flex;
+  gap: 12px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
 }
-
 .password-strength__header span {
   font-size: 13px;
   color: #606266;
 }
-
 .password-strength__label {
   font-size: 13px;
   font-weight: 600;
   transition: color 0.2s ease;
 }
-
 .password-strength__label--empty {
   color: #909399;
 }
-
 .password-strength__label--low {
   color: #f56c6c;
 }
-
 .password-strength__label--medium {
   color: #e6a23c;
 }
-
 .password-strength__label--high {
   color: #67c23a;
 }
-
 .password-strength__bars {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-top: 10px;
 }
-
 .password-strength__bar {
   height: 8px;
   background: #ebeef5;
@@ -105,36 +96,28 @@ const strength = computed(() => getPasswordStrength(props.password));
     transform 0.25s ease,
     box-shadow 0.25s ease;
 }
-
 .password-strength__bar:nth-child(1) {
   transition-delay: 0s;
 }
-
 .password-strength__bar:nth-child(2) {
   transition-delay: 0.08s;
 }
-
 .password-strength__bar:nth-child(3) {
   transition-delay: 0.16s;
 }
-
 .password-strength__bar--active {
-  transform: scaleX(1);
   box-shadow: 0 0 0 1px rgb(255 255 255 / 18%) inset;
+  transform: scaleX(1);
 }
-
 .password-strength__bar--low {
   background: #f56c6c;
 }
-
 .password-strength__bar--medium {
   background: #e6a23c;
 }
-
 .password-strength__bar--high {
   background: #67c23a;
 }
-
 .password-strength__tip {
   margin: 10px 0 0;
   font-size: 12px;

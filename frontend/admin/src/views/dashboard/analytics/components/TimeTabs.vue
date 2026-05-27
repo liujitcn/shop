@@ -47,30 +47,27 @@ function handleUpdate(value: string | number) {
   border: 1px solid var(--admin-page-card-border-soft);
   border-radius: var(--admin-page-radius);
 }
-
 .analytics-tabs__item {
+  box-sizing: border-box;
   min-width: 64px;
   height: 32px;
   padding: 0 14px;
-  border: 1px solid transparent;
-  border-radius: var(--admin-page-radius);
-  background: transparent;
-  box-sizing: border-box;
   font-size: 14px;
   font-weight: 600;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--admin-page-radius);
   transition:
     color 0.2s ease,
     background-color 0.2s ease,
     border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
-
 .analytics-tabs__item:hover {
   color: var(--el-color-primary);
 }
-
 .analytics-tabs__item.is-active {
   color: var(--el-color-primary);
   background: color-mix(in srgb, var(--el-color-primary) 12%, #ffffff);

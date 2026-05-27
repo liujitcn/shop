@@ -272,7 +272,6 @@ async function handleRejectDiscussion(row: CommentDiscussion) {
   display: flex;
   flex-direction: column;
   gap: 16px;
-
   &__content {
     line-height: 1.6;
     color: var(--admin-page-text-primary);

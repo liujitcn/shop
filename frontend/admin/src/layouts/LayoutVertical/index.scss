@@ -19,41 +19,36 @@
         }
       }
       .logo {
+        box-sizing: border-box;
         display: flex;
         align-items: center;
-        box-sizing: border-box;
         height: 55px;
         padding: 0 12px;
         overflow: hidden;
-
         &--text-only {
           justify-content: flex-start;
         }
-
         .logo-img {
           flex-shrink: 0;
           width: 28px;
           object-fit: contain;
         }
-
         .logo-text {
           display: block;
           flex: 1;
           width: 100%;
           min-width: 0;
           overflow: hidden;
+          text-overflow: ellipsis;
           font-size: 18px;
           font-weight: bold;
           line-height: 1;
-          text-overflow: ellipsis;
           color: var(--el-aside-logo-text-color);
           white-space: nowrap;
         }
-
         .logo-text--with-icon {
           margin-left: 8px;
         }
-
         .logo-text--full {
           flex: none;
           width: 100%;

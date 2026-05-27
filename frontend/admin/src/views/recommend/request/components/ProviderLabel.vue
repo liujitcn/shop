@@ -107,17 +107,17 @@ watch(
   min-width: 0;
   max-width: 100%;
   padding: 4px 10px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: inherit;
   font-weight: inherit;
   line-height: inherit;
-  overflow: hidden;
-  text-overflow: ellipsis;
   vertical-align: middle;
+  color: inherit;
   white-space: nowrap;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
   transition:
     color 0.2s ease,
     border-color 0.2s ease,
@@ -125,13 +125,11 @@ watch(
     box-shadow 0.2s ease,
     transform 0.2s ease;
 }
-
 .recommend-provider-label--interactive {
   cursor: pointer;
   background: var(--admin-page-card-bg-soft);
   border-color: var(--admin-page-card-border-soft);
 }
-
 .recommend-provider-label--interactive:hover {
   color: var(--el-color-primary);
   background: var(--el-color-primary-light-9);

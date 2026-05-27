@@ -25,11 +25,9 @@ import Avatar from "./components/Avatar.vue";
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
   .header-icon {
     display: flex;
     align-items: center;
-
     & > * {
       margin-left: 21px;
       color: var(--el-header-text-color);

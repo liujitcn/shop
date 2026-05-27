@@ -1,28 +1,12 @@
-import service, { handleAuthExpired } from "@/utils/request";
+import service, { getRequestAccessToken, handleAuthExpired, requestBaseURL } from "@/utils/request";
 import type { ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse } from "@/rpc/base/v1/ai_assistant_session";
 import type {
   AiAssistantMessageService,
   SendAiAssistantMessageRequest,
   SendAiAssistantMessageResponse
 } from "@/rpc/base/v1/ai_assistant_message";
-import pinia from "@/stores";
-import { useUserStore } from "@/stores/modules/user";
 
 const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
-const apiBasePath = import.meta.env.VITE_APP_BASE_API || "";
-const apiTargetUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_APP_API_URL || "";
-const baseURL = `${apiTargetUrl}${apiBasePath}`;
-
-/** 读取当前访问令牌，必要时先刷新，保持 direct stream 与 axios 请求一致的认证行为。 */
-async function getAccessToken(): Promise<string> {
-  const userStore = useUserStore(pinia);
-  const expiresAt = userStore.tokenExpiresAt;
-  const remainingTime = expiresAt - Date.now();
-  if (expiresAt && remainingTime <= 5 * 60 * 1000) {
-    await userStore.refreshAccessToken();
-  }
-  return userStore.token.trim();
-}
 
 /** 从 direct stream 错误响应中提取后端业务提示。 */
 async function resolveStreamErrorMessage(response: Response): Promise<string> {
@@ -46,14 +30,14 @@ async function resolveStreamErrorMessage(response: Response): Promise<string> {
 
 /** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供 useXStream 消费。 */
 export async function SendAiAssistantMessageStream(request: SendAiAssistantMessageRequest): Promise<Response> {
-  const accessToken = await getAccessToken();
+  const accessToken = await getRequestAccessToken();
   const headers: Record<string, string> = {
     Accept: "text/event-stream",
     "Content-Type": "application/json;charset=utf-8"
   };
   if (accessToken) headers.Authorization = accessToken;
 
-  const response = await fetch(`${baseURL}${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`, {
+  const response = await fetch(`${requestBaseURL}${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`, {
     method: "POST",
     headers,
     body: JSON.stringify(request)

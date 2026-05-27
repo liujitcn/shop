@@ -298,33 +298,29 @@ function handleCloseDialog() {
 
 <style scoped>
 .detail-container {
-  padding: 20px;
-  background: #fff;
-  border-radius: 4px;
   max-height: 70vh;
+  padding: 20px;
   overflow-y: auto;
+  background: #ffffff;
+  border-radius: 4px;
 }
-
 .mt-4 {
   margin-top: 16px;
 }
-
 .code-block {
-  background: #f5f7fa;
-  padding: 12px;
-  border-radius: 4px;
   max-height: 240px;
-  overflow: auto;
+  padding: 12px;
   margin: 0;
+  overflow: auto;
   line-height: 1.6;
-  white-space: pre-wrap;
   word-break: break-all;
+  white-space: pre-wrap;
+  background: #f5f7fa;
+  border-radius: 4px;
 }
-
 :deep(.compact-descriptions .el-descriptions__label) {
   font-weight: 600;
 }
-
 :deep(.compact-descriptions .el-descriptions__content) {
   vertical-align: top;
 }

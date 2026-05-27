@@ -1023,23 +1023,21 @@ function resolveDefaultNodeNamePrefix(type: string) {
 </script>
 
 <style scoped lang="scss">
-@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
-
+@import "https://fonts.googleapis.com/icon?family=Material+Icons";
 :deep(.material-icons) {
-  direction: ltr;
   display: inline-block;
   font-family: "Material Icons";
-  font-feature-settings: "liga";
   font-size: 24px;
   font-style: normal;
   font-weight: normal;
-  letter-spacing: normal;
+  font-feature-settings: "liga";
   line-height: 1;
   text-transform: none;
+  letter-spacing: normal;
+  overflow-wrap: normal;
   white-space: nowrap;
-  word-wrap: normal;
+  direction: ltr;
 }
-
 .gorse-flow-page {
   gap: 12px;
 }

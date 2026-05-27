@@ -67,7 +67,7 @@ export function localGet(key: string) {
   const value = window.localStorage.getItem(key);
   try {
     return JSON.parse(window.localStorage.getItem(key) as string);
-  } catch (error) {
+  } catch {
     return value;
   }
 }

@@ -46,9 +46,10 @@ const breadcrumbList = computed(() => {
   return breadcrumbData;
 });
 
-// Click Breadcrumb
-const onBreadcrumbClick = (item: RouteItem, index: number) => {
-  if (index === breadcrumbList.value.length - 1 || !item.path) return;
+// 处理面包屑点击，兼容模板索引可能被推断为字符串或数字的情况。
+const onBreadcrumbClick = (item: RouteItem, index: string | number) => {
+  const routeIndex = Number(index);
+  if (routeIndex === breadcrumbList.value.length - 1 || !item.path) return;
   if (isExternalPath(item.path)) {
     window.open(item.path, "_blank", "noopener,noreferrer");
     return;
@@ -66,8 +67,8 @@ const onBreadcrumbClick = (item: RouteItem, index: number) => {
     white-space: nowrap;
     .el-breadcrumb__item {
       position: relative;
-      display: inline-block;
       float: none;
+      display: inline-block;
       .item-no-icon {
         transform: translateY(-3px);
       }

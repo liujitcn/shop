@@ -270,7 +270,6 @@ onMounted(() => {
   flex-direction: column;
   gap: 16px;
 }
-
 .gorse-user-recommend-table {
   &__categories {
     display: inline-block;

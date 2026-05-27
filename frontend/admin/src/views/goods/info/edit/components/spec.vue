@@ -351,26 +351,23 @@ function handleNext() {
 
 <style scoped lang="scss">
 .goods-edit-spec__card {
+  background: var(--admin-page-card-bg);
   border: 1px solid var(--admin-page-card-border);
   border-radius: var(--admin-page-radius);
-  background: var(--admin-page-card-bg);
   box-shadow: var(--admin-page-shadow);
 }
-
 :deep(.goods-edit-spec__card .el-card__body) {
   padding-top: 18px;
 }
-
 .goods-edit-spec__actions {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 16px;
 }
-
 .goods-edit-spec__footer {
   display: flex;
-  justify-content: space-between;
   gap: 12px;
+  justify-content: space-between;
 }
 
 @media (width <= 768px) {

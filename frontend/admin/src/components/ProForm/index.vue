@@ -106,7 +106,6 @@ defineExpose({
   gap: 4px;
   align-items: center;
 }
-
 .pro-form__label-icon {
   color: var(--el-color-primary);
   cursor: pointer;

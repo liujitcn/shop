@@ -41,7 +41,7 @@ frontend/admin
 
 ## 环境要求
 
-- `Node.js >= 16.18.0`
+- `Node.js ^20.19.0 || >=22.12.0`
 - `pnpm`
 - 后端服务默认运行在 `http://localhost:7001`
 
@@ -114,7 +114,7 @@ pnpm build
 pnpm build:dev
 pnpm build:test
 pnpm type:check
-pnpm lint:eslint
+pnpm lint:oxlint
 pnpm lint:prettier
 pnpm lint:stylelint
 pnpm preview
@@ -123,7 +123,7 @@ pnpm preview
 说明：
 
 - `pnpm type:check`：执行 `vue-tsc --noEmit --skipLibCheck`。
-- `pnpm lint:eslint`：对 `src` 下 `.js`、`.ts`、`.vue` 执行 ESLint 自动修复。
+- `pnpm lint:oxlint`：对 `src` 下 `.js`、`.ts`、`.vue` 执行 Oxlint 自动修复。
 - `pnpm lint:prettier`：格式化 `src` 下常见前端文件。
 - `pnpm lint:stylelint`：执行样式检查与自动修复。
 - `pnpm preview`：先执行开发模式构建，再启动 Vite 预览。
@@ -164,7 +164,7 @@ src/rpc
 - 图片列、状态列、顶部按钮、行内按钮优先使用 `ProTable` 现有配置能力。
 - 业务页样式优先复用 `src/styles/common.scss`、`src/styles/element-dark.scss` 与主题变量。
 - 新增页面后需要同步检查菜单初始化数据和后端接口权限初始化数据。
-- 修改前端代码后，至少执行 `pnpm lint:eslint`；涉及类型或构建链路时补充 `pnpm type:check` 或构建命令。
+- 修改前端代码后，至少执行 `pnpm lint:oxlint`；涉及类型或构建链路时补充 `pnpm type:check` 或构建命令。
 
 ## 设计文档
 
@@ -183,8 +183,16 @@ src/rpc
 
 ```bash
 cd frontend/admin
-pnpm lint:eslint
+pnpm lint:oxlint
 pnpm type:check
 ```
+
+## GoLand / IDEA 保存格式化
+
+GoLand / IDEA 中建议开启：
+
+- `Settings | Languages & Frameworks | JavaScript | Prettier`：选择 `frontend/admin/node_modules/prettier`，勾选 `On save`，文件范围使用 `{**/*,*}.{js,ts,vue,json,scss,css,html,md}`。
+- `Settings | Tools | Actions on Save`：勾选 `Reformat code`、`Optimize imports`，并确认 `Run Prettier` 已启用。
+- 如已安装 Oxlint 插件，可在插件设置中开启保存时检查；否则使用 `pnpm lint:oxlint` 做提交前自动修复。
 
 若全量检查因历史问题失败，需要在提交或交付说明中记录失败文件、失败原因，以及是否由本次改动引起。

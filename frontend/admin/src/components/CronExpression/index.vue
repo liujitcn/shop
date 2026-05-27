@@ -595,7 +595,6 @@ const CronSegmentEditor = defineComponent({
 .cron-expression {
   width: 100%;
 }
-
 .cron-expression__actions {
   display: flex;
   gap: 8px;
@@ -604,61 +603,51 @@ const CronSegmentEditor = defineComponent({
   height: 100%;
   padding-right: 4px;
 }
-
 .cron-expression__icon {
   font-size: 16px;
   color: var(--el-text-color-secondary);
   cursor: pointer;
   transition: color 0.2s ease;
 }
-
 .cron-expression__icon:hover {
   color: var(--el-color-primary);
 }
-
 .cron-expression__panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .cron-expression__title,
 .cron-editor__section-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--el-text-color-primary);
 }
-
 .cron-expression__list {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-
 .cron-expression__item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-left: 0;
   padding: 4px 0;
+  margin-left: 0;
 }
-
 .cron-expression__item code {
   color: var(--el-color-primary);
 }
-
 .cron-expression__tip {
   font-size: 12px;
   color: var(--el-text-color-secondary);
 }
-
 .cron-editor {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-
 .cron-editor__preset,
 .cron-editor__preview {
   display: flex;
@@ -668,45 +657,37 @@ const CronSegmentEditor = defineComponent({
   background: var(--el-fill-color-light);
   border-radius: 8px;
 }
-
 .cron-editor__preset-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .cron-editor__preset-item {
   cursor: pointer;
 }
-
 .cron-editor__preview-desc {
   font-size: 13px;
   line-height: 1.6;
   color: var(--el-text-color-secondary);
 }
-
 .segment-editor {
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 2px 0 6px;
 }
-
 .segment-editor__row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
-
 .segment-editor__row :deep(.el-input-number) {
   width: 112px;
 }
-
 .segment-editor__row--top {
   align-items: flex-start;
 }
-
 .segment-editor__checkboxes {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
