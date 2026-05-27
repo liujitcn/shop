@@ -211,7 +211,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	chatClient := provider.NewChatClient(client_Llm)
 	runtime := comment.NewRuntime(chatClient)
 	commentCase := biz2.NewCommentCase(baseCase, transaction, commentInfoCase, commentSummaryCase, commentTagCase, commentReviewCase, commentDiscussionCase, commentReactionCase, orderInfoCase, orderGoodsCase, baseUserCase, runtime)
-	commentAuditRetry := task.NewCommentAuditRetry(commentCase)
+	commentAuditRetry := task.NewCommentAuditRetry(commentCase, commentInfoCase, commentDiscussionCase, commentReviewCase)
 	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendSync, commentAuditRetry)
 	cronServer := job.NewCronServer(baseJobRepository, v)
 	authentication_Jwt := config.ParseAuthnJWT(context)
