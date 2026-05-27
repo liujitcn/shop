@@ -323,6 +323,21 @@ func (c *CommentInfoCase) UpdateStatus(ctx context.Context, commentID int64, sta
 	return nil
 }
 
+// UpdatePendingStatus 将待审核评价更新为目标审核状态。
+func (c *CommentInfoCase) UpdatePendingStatus(ctx context.Context, commentID int64, status int32) (bool, error) {
+	query := c.Query(ctx).CommentInfo
+	result, err := query.WithContext(ctx).
+		Where(
+			query.ID.Eq(commentID),
+			query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW),
+		).
+		Update(query.Status, status)
+	if err != nil {
+		return false, err
+	}
+	return result.RowsAffected > 0, nil
+}
+
 // BuildCommentedOrderGoodsMap 按当前用户的订单商品关联键构建已评价集合。
 func (c *CommentInfoCase) BuildCommentedOrderGoodsMap(ctx context.Context, userID int64, orderIDs []int64) (map[string]bool, error) {
 	commentedOrderGoodsMap := make(map[string]bool)

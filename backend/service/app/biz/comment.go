@@ -694,25 +694,31 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 	if err != nil {
 		return err
 	}
+	return c.AuditComment(ctx, record)
+}
+
+// AuditComment 根据评价对象执行 AI 审核流程。
+func (c *CommentCase) AuditComment(ctx context.Context, record *models.CommentInfo) error {
 	// 仅待审核评价进入 AI 审核，避免人工已处理后被异步消息覆盖。
 	if record.Status != _const.COMMENT_STATUS_PENDING_REVIEW {
 		return nil
 	}
 	if !c.commentRuntime.Enabled() {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
 	}
 
+	var err error
 	var imageURLs []string
 	var imageData []comment.ReviewImageData
 	imageURLs, imageData, err = c.buildCommentReviewImages(record.Img)
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	var existingTags []string
 	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, record.GoodsID)
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	var result *comment.ReviewResult
@@ -725,15 +731,15 @@ func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
 		ImageData:    imageData,
 	})
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	if result == nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
 	}
 	if !result.Approved {
 		if !comment.HasConcreteReviewReason(result.RiskReason) {
-			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
+			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
 		}
 		return c.rejectCommentByAI(ctx, record, result)
 	}
@@ -846,16 +852,22 @@ func commentReviewImageMIMEType(imagePath string) string {
 // approveCommentByAI 将评价审核通过结果写入业务表和审核记录。
 func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.CommentInfo, result *comment.ReviewResult) error {
 	cleanTags := cleanCommentTagNames(result.Tags)
+	updated := false
 	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		var updateErr error
+		updated, updateErr = c.commentInfoCase.UpdatePendingStatus(txCtx, record.ID, _const.COMMENT_STATUS_APPROVED)
+		if updateErr != nil {
+			return updateErr
+		}
+		// 审核执行期间评价已被其他流程处理时，当前 AI 结果不再覆盖业务状态。
+		if !updated {
+			return nil
+		}
 		tagIDs, tagNames, upsertErr := c.commentTagCase.UpsertTagsByNames(txCtx, record.GoodsID, cleanTags)
 		if upsertErr != nil {
 			return upsertErr
 		}
-		updateErr := c.commentInfoCase.UpdateTagIDs(txCtx, record.ID, tagIDs)
-		if updateErr != nil {
-			return updateErr
-		}
-		updateErr = c.commentInfoCase.UpdateStatus(txCtx, record.ID, _const.COMMENT_STATUS_APPROVED)
+		updateErr = c.commentInfoCase.UpdateTagIDs(txCtx, record.ID, tagIDs)
 		if updateErr != nil {
 			return updateErr
 		}
@@ -863,6 +875,9 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 	})
 	if err != nil {
 		return err
+	}
+	if !updated {
+		return nil
 	}
 	queue.DispatchCommentSummaryRefresh(record.GoodsID)
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaRisk, workspaceevent.AreaReputation, workspaceevent.AreaPendingComments)
@@ -872,16 +887,24 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 // rejectCommentByAI 将评价审核不通过结果写入业务表和审核记录。
 func (c *CommentCase) rejectCommentByAI(ctx context.Context, record *models.CommentInfo, result *comment.ReviewResult) error {
 	reason := commentReviewRejectReason(result)
+	updated := false
 	var err error
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.commentInfoCase.UpdateStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
+		updated, err = c.commentInfoCase.UpdatePendingStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
 		if err != nil {
 			return err
+		}
+		// 审核执行期间评价已被其他流程处理时，当前 AI 结果不再覆盖业务状态。
+		if !updated {
+			return nil
 		}
 		return c.commentReviewCase.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason, c.commentRuntime.Model())
 	})
 	if err != nil {
 		return err
+	}
+	if !updated {
+		return nil
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaRisk, workspaceevent.AreaPendingComments)
 	return nil
@@ -893,23 +916,29 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 	if err != nil {
 		return err
 	}
+	return c.AuditDiscussion(ctx, record)
+}
+
+// AuditDiscussion 根据讨论对象执行 AI 审核流程。
+func (c *CommentCase) AuditDiscussion(ctx context.Context, record *models.CommentDiscussion) error {
 	// 仅待审核讨论进入 AI 审核，避免人工已处理后被异步消息覆盖。
 	if record.Status != _const.COMMENT_STATUS_PENDING_REVIEW {
 		return nil
 	}
 	var commentInfo *models.CommentInfo
+	var err error
 	commentInfo, err = c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
 	if err != nil {
 		return err
 	}
 	if !c.commentRuntime.Enabled() {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
 	}
 
 	var existingTags []string
 	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, commentInfo.GoodsID)
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	var result *comment.ReviewResult
@@ -920,14 +949,14 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 		ExistingTags: existingTags,
 	})
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 	if result == nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
 	}
 	if !result.Approved {
 		if !comment.HasConcreteReviewReason(result.RiskReason) {
-			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
+			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
 		}
 		return c.rejectDiscussionByAI(ctx, record, result)
 	}
@@ -936,11 +965,16 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 
 // approveDiscussionByAI 将讨论审核通过结果写入业务表和审核记录。
 func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *comment.ReviewResult) error {
+	updated := false
 	var err error
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.commentDiscussionCase.updateStatus(txCtx, record.ID, _const.COMMENT_STATUS_APPROVED)
+		updated, err = c.commentDiscussionCase.updatePendingStatus(txCtx, record.ID, _const.COMMENT_STATUS_APPROVED)
 		if err != nil {
 			return err
+		}
+		// 审核执行期间讨论已被其他流程处理时，当前 AI 结果不再覆盖业务状态和计数。
+		if !updated {
+			return nil
 		}
 		err = c.commentInfoCase.changeDiscussionCount(txCtx, record.CommentID, _const.COMMENT_STATUS_PENDING_REVIEW, -1)
 		if err != nil {
@@ -955,6 +989,9 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 	if err != nil {
 		return err
 	}
+	if !updated {
+		return nil
+	}
 	commentInfo, findErr := c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
 	if findErr == nil {
 		queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
@@ -966,11 +1003,16 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 // rejectDiscussionByAI 将讨论审核不通过结果写入业务表和审核记录。
 func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.CommentDiscussion, result *comment.ReviewResult) error {
 	reason := commentReviewRejectReason(result)
+	updated := false
 	var err error
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.commentDiscussionCase.updateStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
+		updated, err = c.commentDiscussionCase.updatePendingStatus(txCtx, record.ID, _const.COMMENT_STATUS_REJECTED)
 		if err != nil {
 			return err
+		}
+		// 审核执行期间讨论已被其他流程处理时，当前 AI 结果不再覆盖业务状态和计数。
+		if !updated {
+			return nil
 		}
 		err = c.commentInfoCase.changeDiscussionCount(txCtx, record.CommentID, _const.COMMENT_STATUS_PENDING_REVIEW, -1)
 		if err != nil {
@@ -980,6 +1022,9 @@ func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.C
 	})
 	if err != nil {
 		return err
+	}
+	if !updated {
+		return nil
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo)
 	return nil

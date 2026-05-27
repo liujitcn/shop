@@ -4,22 +4,23 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
-	"shop/pkg/queue"
+	"shop/pkg/gen/models"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
 const (
-	// commentAuditRetryDefaultBatchSize 表示单次任务默认最多分别补偿投递的评价数和讨论数。
+	// commentAuditRetryDefaultBatchSize 表示单次任务默认最多分别补偿审核的评价数和讨论数。
 	commentAuditRetryDefaultBatchSize = 50
-	// commentAuditRetryDefaultDelayMinutes 表示待审核数据或最近一次异常审核记录至少沉淀多久后才允许补偿，避免和实时审核队列重复抢同一条数据。
+	// commentAuditRetryDefaultDelayMinutes 表示待审核数据或最近一次异常审核记录至少沉淀多久后才允许补偿，避免和实时审核队列并发处理同一条数据。
 	commentAuditRetryDefaultDelayMinutes = 3
 	// commentAuditRetryDefaultMaxExceptionCount 表示同一目标最多允许出现的 AI 审核异常次数，达到后停止自动补偿并交给人工处理。
 	commentAuditRetryDefaultMaxExceptionCount = 3
@@ -29,7 +30,15 @@ const (
 	commentAuditRetryScanFactor = 10
 	// commentAuditRetryMinScanLimit 表示单次任务最小候选扫描量，避免小批次配置下因为历史异常记录过多导致补偿吞吐过低。
 	commentAuditRetryMinScanLimit = 200
+	// commentAuditRetryFailureDetailLimit 表示任务日志中最多保留的单目标失败明细数量。
+	commentAuditRetryFailureDetailLimit = 10
 )
+
+// CommentAuditExecutor 定义评价与讨论同步审核能力。
+type CommentAuditExecutor interface {
+	AuditComment(ctx context.Context, record *models.CommentInfo) error
+	AuditDiscussion(ctx context.Context, record *models.CommentDiscussion) error
+}
 
 // commentAuditReviewState 表示单个目标的 AI 审核记录摘要。
 type commentAuditReviewState struct {
@@ -39,16 +48,23 @@ type commentAuditReviewState struct {
 	exceptionCount int
 }
 
-// commentAuditRetryTargets 表示单类审核目标的本轮补偿筛选结果。
-type commentAuditRetryTargets struct {
+// commentAuditRetryCommentTargets 表示评价审核目标的本轮补偿筛选结果。
+type commentAuditRetryCommentTargets struct {
 	queryCount int
-	ids        []int64
+	records    []*models.CommentInfo
 }
 
-// commentAuditDispatchStats 表示单类审核目标的队列投递结果。
-type commentAuditDispatchStats struct {
-	successCount int
-	failedCount  int
+// commentAuditRetryDiscussionTargets 表示讨论审核目标的本轮补偿筛选结果。
+type commentAuditRetryDiscussionTargets struct {
+	queryCount int
+	records    []*models.CommentDiscussion
+}
+
+// commentAuditRunStats 表示单类审核目标的同步执行结果。
+type commentAuditRunStats struct {
+	successCount   int
+	failedCount    int
+	failureDetails []string
 }
 
 // CommentAuditRetry 评价与讨论自动审核补偿任务。
@@ -56,6 +72,7 @@ type CommentAuditRetry struct {
 	commentInfoRepo       *data.CommentInfoRepository
 	commentDiscussionRepo *data.CommentDiscussionRepository
 	commentReviewRepo     *data.CommentReviewRepository
+	commentAuditExecutor  CommentAuditExecutor
 	ctx                   context.Context
 	mu                    sync.Mutex
 	runningUntil          time.Time
@@ -66,11 +83,13 @@ func NewCommentAuditRetry(
 	commentInfoRepo *data.CommentInfoRepository,
 	commentDiscussionRepo *data.CommentDiscussionRepository,
 	commentReviewRepo *data.CommentReviewRepository,
+	commentAuditExecutor CommentAuditExecutor,
 ) *CommentAuditRetry {
 	return &CommentAuditRetry{
 		commentInfoRepo:       commentInfoRepo,
 		commentDiscussionRepo: commentDiscussionRepo,
 		commentReviewRepo:     commentReviewRepo,
+		commentAuditExecutor:  commentAuditExecutor,
 		ctx:                   context.Background(),
 	}
 }
@@ -105,45 +124,79 @@ func (t *CommentAuditRetry) Exec(args map[string]string) ([]string, error) {
 	}
 
 	cutoff := time.Now().Add(-time.Duration(retryDelayMinutes) * time.Minute)
-	var commentTargets commentAuditRetryTargets
+	var commentTargets commentAuditRetryCommentTargets
 	commentTargets, err = t.retryCommentTargets(cutoff, batchSize, maxRetry)
 	if err != nil {
 		return []string{err.Error()}, err
 	}
-	var discussionTargets commentAuditRetryTargets
+	var discussionTargets commentAuditRetryDiscussionTargets
 	discussionTargets, err = t.retryDiscussionTargets(cutoff, batchSize, maxRetry)
 	if err != nil {
 		return []string{err.Error()}, err
 	}
 
-	commentDispatchStats := dispatchCommentAuditTargets(_const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, commentTargets.ids)
-	discussionDispatchStats := dispatchCommentAuditTargets(_const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, discussionTargets.ids)
+	commentRunStats := t.auditCommentTargets(commentTargets.records)
+	discussionRunStats := t.auditDiscussionTargets(discussionTargets.records)
 
 	message := fmt.Sprintf(
-		"评价审核补偿投递完成: 评价本轮查询 %d 条，投递成功 %d 条，投递失败 %d 条，未投递 %d 条；讨论本轮查询 %d 条，投递成功 %d 条，投递失败 %d 条，未投递 %d 条",
+		"评价审核补偿执行完成: 评价本轮查询 %d 条，执行 %d 条，成功 %d 条，失败 %d 条，跳过 %d 条；讨论本轮查询 %d 条，执行 %d 条，成功 %d 条，失败 %d 条，跳过 %d 条",
 		commentTargets.queryCount,
-		commentDispatchStats.successCount,
-		commentDispatchStats.failedCount,
-		commentTargets.queryCount-len(commentTargets.ids),
+		len(commentTargets.records),
+		commentRunStats.successCount,
+		commentRunStats.failedCount,
+		commentTargets.queryCount-len(commentTargets.records),
 		discussionTargets.queryCount,
-		discussionDispatchStats.successCount,
-		discussionDispatchStats.failedCount,
-		discussionTargets.queryCount-len(discussionTargets.ids),
+		len(discussionTargets.records),
+		discussionRunStats.successCount,
+		discussionRunStats.failedCount,
+		discussionTargets.queryCount-len(discussionTargets.records),
 	)
-	return []string{message}, nil
+	output := []string{message}
+	failureDetails := append(commentRunStats.failureDetails, discussionRunStats.failureDetails...)
+	if len(failureDetails) > 0 {
+		output = append(output, "失败明细: "+strings.Join(failureDetails, "；"))
+	}
+	return output, nil
 }
 
-// dispatchCommentAuditTargets 投递指定类型的审核目标并统计投递结果。
-func dispatchCommentAuditTargets(targetType int32, targetIDs []int64) commentAuditDispatchStats {
-	stats := commentAuditDispatchStats{}
-	for _, targetID := range targetIDs {
-		if queue.DispatchCommentAudit(targetType, targetID) {
+// auditCommentTargets 同步审核本轮筛选出的评价目标。
+func (t *CommentAuditRetry) auditCommentTargets(records []*models.CommentInfo) commentAuditRunStats {
+	stats := commentAuditRunStats{}
+	for _, record := range records {
+		err := t.commentAuditExecutor.AuditComment(t.ctx, record)
+		if err == nil {
 			stats.successCount++
 			continue
 		}
 		stats.failedCount++
+		stats.addFailureDetail("评价", record.ID, err)
+		log.Errorf("comment audit retry comment failed, commentID=%d err=%v", record.ID, err)
 	}
 	return stats
+}
+
+// auditDiscussionTargets 同步审核本轮筛选出的讨论目标。
+func (t *CommentAuditRetry) auditDiscussionTargets(records []*models.CommentDiscussion) commentAuditRunStats {
+	stats := commentAuditRunStats{}
+	for _, record := range records {
+		err := t.commentAuditExecutor.AuditDiscussion(t.ctx, record)
+		if err == nil {
+			stats.successCount++
+			continue
+		}
+		stats.failedCount++
+		stats.addFailureDetail("讨论", record.ID, err)
+		log.Errorf("comment audit retry discussion failed, discussionID=%d err=%v", record.ID, err)
+	}
+	return stats
+}
+
+// addFailureDetail 追加单目标失败摘要，避免任务日志输出过长。
+func (s *commentAuditRunStats) addFailureDetail(targetName string, targetID int64, err error) {
+	if len(s.failureDetails) >= commentAuditRetryFailureDetailLimit {
+		return
+	}
+	s.failureDetails = append(s.failureDetails, fmt.Sprintf("%s %d: %v", targetName, targetID, err))
 }
 
 // parsePositiveJobInt 解析正整数任务参数。
@@ -175,8 +228,8 @@ func (t *CommentAuditRetry) tryLock(lease time.Duration) (func(), string) {
 	}, ""
 }
 
-// retryCommentTargets 查询需要重新投递自动审核的评价目标。
-func (t *CommentAuditRetry) retryCommentTargets(cutoff time.Time, batchSize int, maxRetry int) (commentAuditRetryTargets, error) {
+// retryCommentTargets 查询需要同步补偿自动审核的评价目标。
+func (t *CommentAuditRetry) retryCommentTargets(cutoff time.Time, batchSize int, maxRetry int) (commentAuditRetryCommentTargets, error) {
 	query := t.commentInfoRepo.Query(t.ctx).CommentInfo
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
@@ -185,7 +238,7 @@ func (t *CommentAuditRetry) retryCommentTargets(cutoff time.Time, batchSize int,
 	opts = append(opts, repository.Limit(commentAuditRetryScanLimit(batchSize)))
 	list, err := t.commentInfoRepo.List(t.ctx, opts...)
 	if err != nil {
-		return commentAuditRetryTargets{}, err
+		return commentAuditRetryCommentTargets{}, err
 	}
 
 	ids := make([]int64, 0, len(list))
@@ -195,11 +248,11 @@ func (t *CommentAuditRetry) retryCommentTargets(cutoff time.Time, batchSize int,
 	var reviewMap map[int64]commentAuditReviewState
 	reviewMap, err = t.loadReviewState(_const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, ids)
 	if err != nil {
-		return commentAuditRetryTargets{}, err
+		return commentAuditRetryCommentTargets{}, err
 	}
-	return commentAuditRetryTargets{
+	return commentAuditRetryCommentTargets{
 		queryCount: len(list),
-		ids:        filterRetryTargetIDs(ids, reviewMap, cutoff, batchSize, maxRetry),
+		records:    filterRetryCommentRecords(list, reviewMap, cutoff, batchSize, maxRetry),
 	}, nil
 }
 
@@ -246,19 +299,14 @@ func (t *CommentAuditRetry) loadReviewState(targetType int32, targetIDs []int64)
 	return result, nil
 }
 
-// filterRetryTargetIDs 按审核记录状态筛选可重新投递的目标。
-func filterRetryTargetIDs(targetIDs []int64, reviewMap map[int64]commentAuditReviewState, cutoff time.Time, batchSize int, maxRetry int) []int64 {
-	result := make([]int64, 0, batchSize)
-	for _, targetID := range targetIDs {
-		state := reviewMap[targetID]
-		// 异常次数达到上限后停止自动补偿，避免配置错误或外部资源永久不可用时无限重试。
-		if state.exceptionCount >= maxRetry {
+// filterRetryCommentRecords 按审核记录状态筛选可重新审核的评价目标。
+func filterRetryCommentRecords(records []*models.CommentInfo, reviewMap map[int64]commentAuditReviewState, cutoff time.Time, batchSize int, maxRetry int) []*models.CommentInfo {
+	result := make([]*models.CommentInfo, 0, batchSize)
+	for _, record := range records {
+		if !shouldRetryAuditTarget(record.ID, reviewMap, cutoff, maxRetry) {
 			continue
 		}
-		// 从未写入 AI 审核记录，或最近一次 AI 审核异常且已过冷却时间，才重新投递队列。
-		if !state.hasLatest || (state.latestStatus == _const.COMMENT_REVIEW_STATUS_EXCEPTION && !state.latestAt.After(cutoff)) {
-			result = append(result, targetID)
-		}
+		result = append(result, record)
 		if len(result) >= batchSize {
 			break
 		}
@@ -266,8 +314,34 @@ func filterRetryTargetIDs(targetIDs []int64, reviewMap map[int64]commentAuditRev
 	return result
 }
 
-// retryDiscussionTargets 查询需要重新投递自动审核的讨论目标。
-func (t *CommentAuditRetry) retryDiscussionTargets(cutoff time.Time, batchSize int, maxRetry int) (commentAuditRetryTargets, error) {
+// filterRetryDiscussionRecords 按审核记录状态筛选可重新审核的讨论目标。
+func filterRetryDiscussionRecords(records []*models.CommentDiscussion, reviewMap map[int64]commentAuditReviewState, cutoff time.Time, batchSize int, maxRetry int) []*models.CommentDiscussion {
+	result := make([]*models.CommentDiscussion, 0, batchSize)
+	for _, record := range records {
+		if !shouldRetryAuditTarget(record.ID, reviewMap, cutoff, maxRetry) {
+			continue
+		}
+		result = append(result, record)
+		if len(result) >= batchSize {
+			break
+		}
+	}
+	return result
+}
+
+// shouldRetryAuditTarget 判断单个目标是否仍允许自动补偿审核。
+func shouldRetryAuditTarget(targetID int64, reviewMap map[int64]commentAuditReviewState, cutoff time.Time, maxRetry int) bool {
+	state := reviewMap[targetID]
+	// 异常次数达到上限后停止自动补偿，避免配置错误或外部资源永久不可用时无限重试。
+	if state.exceptionCount >= maxRetry {
+		return false
+	}
+	// 从未写入 AI 审核记录，或最近一次 AI 审核异常且已过冷却时间，才同步执行补偿审核。
+	return !state.hasLatest || (state.latestStatus == _const.COMMENT_REVIEW_STATUS_EXCEPTION && !state.latestAt.After(cutoff))
+}
+
+// retryDiscussionTargets 查询需要同步补偿自动审核的讨论目标。
+func (t *CommentAuditRetry) retryDiscussionTargets(cutoff time.Time, batchSize int, maxRetry int) (commentAuditRetryDiscussionTargets, error) {
 	query := t.commentDiscussionRepo.Query(t.ctx).CommentDiscussion
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
@@ -276,7 +350,7 @@ func (t *CommentAuditRetry) retryDiscussionTargets(cutoff time.Time, batchSize i
 	opts = append(opts, repository.Limit(commentAuditRetryScanLimit(batchSize)))
 	list, err := t.commentDiscussionRepo.List(t.ctx, opts...)
 	if err != nil {
-		return commentAuditRetryTargets{}, err
+		return commentAuditRetryDiscussionTargets{}, err
 	}
 
 	ids := make([]int64, 0, len(list))
@@ -286,10 +360,10 @@ func (t *CommentAuditRetry) retryDiscussionTargets(cutoff time.Time, batchSize i
 	var reviewMap map[int64]commentAuditReviewState
 	reviewMap, err = t.loadReviewState(_const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, ids)
 	if err != nil {
-		return commentAuditRetryTargets{}, err
+		return commentAuditRetryDiscussionTargets{}, err
 	}
-	return commentAuditRetryTargets{
+	return commentAuditRetryDiscussionTargets{
 		queryCount: len(list),
-		ids:        filterRetryTargetIDs(ids, reviewMap, cutoff, batchSize, maxRetry),
+		records:    filterRetryDiscussionRecords(list, reviewMap, cutoff, batchSize, maxRetry),
 	}, nil
 }

@@ -294,3 +294,18 @@ func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID i
 	}
 	return nil
 }
+
+// updatePendingStatus 将待审核讨论更新为目标审核状态。
+func (c *CommentDiscussionCase) updatePendingStatus(ctx context.Context, discussionID int64, status int32) (bool, error) {
+	query := c.Query(ctx).CommentDiscussion
+	result, err := query.WithContext(ctx).
+		Where(
+			query.ID.Eq(discussionID),
+			query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW),
+		).
+		Update(query.Status, status)
+	if err != nil {
+		return false, err
+	}
+	return result.RowsAffected > 0, nil
+}
