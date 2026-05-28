@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, resolveComponent, type VNode } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { computed, h, reactive, ref, type VNode } from "vue";
+import { ElButton, ElMessage, ElMessageBox, ElTag } from "element-plus";
 import { CirclePlus, Delete, EditPen, Promotion, Tickets, VideoPause, VideoPlay } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
@@ -93,7 +93,7 @@ function renderArgsCell(scope: RenderScope<BaseJob>) {
     null,
     args.map((arg, index) =>
       h(
-        resolveComponent("el-tag"),
+        ElTag,
         {
           key: `${arg.key}-${arg.value}-${index}`,
           class: "mr-5"
@@ -114,7 +114,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
   if (BUTTONS.value["base:job:update"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `edit-${row.id}`,
           type: "primary",
@@ -130,7 +130,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
   if (BUTTONS.value["base:job:delete"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `delete-${row.id}`,
           type: "danger",
@@ -146,7 +146,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
   if (row.status === Status.ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:start"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `start-${row.id}`,
           type: "primary",
@@ -163,7 +163,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
   if (row.status === Status.ENABLE && row.entry_id > 0 && BUTTONS.value["base:job:stop"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `stop-${row.id}`,
           type: "warning",
@@ -180,7 +180,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
   if (row.status === Status.ENABLE && (row.entry_id === undefined || row.entry_id === 0) && BUTTONS.value["base:job:exec"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `exec-${row.id}`,
           type: "success",
@@ -197,7 +197,7 @@ function renderOperationCell(scope: RenderScope<BaseJob>) {
   if (BUTTONS.value["base:job:log"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `log-${row.id}`,
           type: "primary",

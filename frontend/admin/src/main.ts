@@ -18,8 +18,6 @@ import "@/styles/element-dark.scss";
 import "@/styles/element.scss";
 // svg icons
 import "virtual:svg-icons-register";
-// element plus
-import ElementPlus from "element-plus";
 // element icons
 import * as Icons from "@element-plus/icons-vue";
 // custom directives
@@ -44,7 +42,7 @@ async function bootstrap() {
 
   app.config.errorHandler = errorHandler;
 
-  // register the element Icons component
+  // 后端菜单图标以字符串形式返回，需要在运行时全局注册后才能被动态组件解析。
   Object.keys(Icons).forEach(key => {
     app.component(key, Icons[key as keyof typeof Icons]);
   });
@@ -54,7 +52,7 @@ async function bootstrap() {
   app.component("DictLabel", DictLabel);
   app.component("SvgIcon", SvgIcon);
 
-  app.use(ElementPlus).use(directives).use(router).use(pinia);
+  app.use(directives).use(router).use(pinia);
 
   try {
     await useConfigStore().loadDisplayConfig();

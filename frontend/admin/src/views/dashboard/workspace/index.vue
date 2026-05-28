@@ -145,8 +145,9 @@ defineOptions({
   inheritAttrs: false
 });
 
-import { computed, h, onBeforeUnmount, onMounted, reactive, ref, resolveComponent, watch } from "vue";
+import { computed, h, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { useRouter, type RouteLocationRaw } from "vue-router";
+import { ElButton, ElLink, ElRate } from "element-plus";
 import type { ColumnProps, RenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { defWorkspaceService } from "@/api/admin/workspace";
@@ -530,7 +531,7 @@ const pendingCommentColumns: ColumnProps[] = [
     width: 88,
     render: (scope: RenderScope) => {
       return h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           type: "primary",
           link: true,
@@ -546,7 +547,7 @@ const pendingCommentColumns: ColumnProps[] = [
 function renderPendingCommentGoods(scope: RenderScope) {
   const row = scope.row as WorkspacePendingComment;
   return h(
-    resolveComponent("el-link"),
+    ElLink,
     {
       type: "primary",
       onClick: (event: MouseEvent) => {
@@ -561,7 +562,7 @@ function renderPendingCommentGoods(scope: RenderScope) {
 /** 渲染待审核评价评分，保持与评价列表的星级展示一致。 */
 function renderPendingCommentScore(scope: RenderScope) {
   const row = scope.row as WorkspacePendingComment;
-  return h(resolveComponent("el-rate"), { modelValue: row.goods_score, disabled: true, size: "small" });
+  return h(ElRate, { modelValue: row.goods_score, disabled: true, size: "small" });
 }
 
 /** 格式化待审核评价时间，工作台只展示短时间。 */

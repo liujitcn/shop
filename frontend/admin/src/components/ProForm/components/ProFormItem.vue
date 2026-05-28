@@ -81,18 +81,20 @@
 </template>
 
 <script setup lang="ts" name="ProFormItem">
-import { computed } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import type { UploadUserFile } from "element-plus";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
-import CronExpression from "@/components/CronExpression/index.vue";
 import Dict from "@/components/Dict/index.vue";
-import WangEditor from "@/components/WangEditor/index.vue";
-import DynamicList from "@/components/ProForm/components/DynamicList.vue";
-import KvList from "@/components/ProForm/components/KvList.vue";
-import UploadFile from "@/components/Upload/File.vue";
-import UploadFiles from "@/components/Upload/Files.vue";
-import UploadImg from "@/components/Upload/Img.vue";
-import UploadImgs from "@/components/Upload/Imgs.vue";
+
+// 非基础表单控件按需加载，避免 ProForm 基础包携带上传、富文本、Cron 等重组件。
+const CronExpression = defineAsyncComponent(() => import("@/components/CronExpression/index.vue"));
+const WangEditor = defineAsyncComponent(() => import("@/components/WangEditor/index.vue"));
+const DynamicList = defineAsyncComponent(() => import("@/components/ProForm/components/DynamicList.vue"));
+const KvList = defineAsyncComponent(() => import("@/components/ProForm/components/KvList.vue"));
+const UploadFile = defineAsyncComponent(() => import("@/components/Upload/File.vue"));
+const UploadFiles = defineAsyncComponent(() => import("@/components/Upload/Files.vue"));
+const UploadImg = defineAsyncComponent(() => import("@/components/Upload/Img.vue"));
+const UploadImgs = defineAsyncComponent(() => import("@/components/Upload/Imgs.vue"));
 
 interface ProFormItemProps {
   field: ProFormField;

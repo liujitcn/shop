@@ -25,6 +25,9 @@ frontend/admin
 └── vite.config.ts
 ```
 
+`types/generated` 当前包含 `auto-imports.d.ts` 和 `components.d.ts`，分别由 `unplugin-auto-import` 与
+`unplugin-vue-components` 生成，用于 Element Plus API、图标和组件按需导入的类型提示。
+
 ## 页面模块
 
 - `views/base`：用户、角色、部门、菜单、字典、配置、日志、定时任务、API 管理等系统管理。

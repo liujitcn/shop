@@ -3,7 +3,8 @@
 </template>
 
 <script setup lang="ts" name="TableColumn">
-import { h, inject, isProxy, markRaw, ref, resolveComponent, toRaw, useSlots } from "vue";
+import { h, inject, isProxy, markRaw, ref, toRaw, useSlots } from "vue";
+import { ElButton, ElImage, ElSwitch, ElTableColumn, ElTag, ElText } from "element-plus";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { ColumnProps, HeaderRenderScope, RenderScope, TableActionProps } from "@/components/ProTable/interface";
 import { filterEnum, formatValue, handleProp, handleRowAccordingToProp } from "@/utils";
@@ -14,12 +15,6 @@ defineProps<{ column: ColumnProps }>();
 const slots = useSlots();
 
 const enumMap = inject("enumMap", ref(new Map()));
-const ElImage = resolveComponent("el-image");
-const ElSwitch = resolveComponent("el-switch");
-const ElButton = resolveComponent("el-button");
-const ElTableColumn = resolveComponent("el-table-column");
-const ElTag = resolveComponent("el-tag");
-const ElText = resolveComponent("el-text");
 
 /**
  * 透传给 Element Plus 前移除图标组件上的响应式代理，避免 Vue 对组件对象发出性能告警。

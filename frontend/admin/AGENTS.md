@@ -35,7 +35,7 @@
 - 类型导入仍然保持显式导入，例如 `FormRules`、`UploadUserFile`、`CheckboxValueType` 等类型，不通过自动导入隐式处理。
 - 业务模型类型优先从 `src/rpc` 目录下的生成类型中引用，不要在页面、组件、hooks 中重复定义等价的业务类型。
 - 仅当 `src/rpc` 中确实不存在所需结构，且该类型无法通过已有生成类型组合表达时，才允许在本地补充轻量类型；新增前优先评估是否应回到接口定义侧补齐生成类型。
-- 自动生成文件统一放在 `types/generated` 目录，当前包括 `auto-imports.d.ts`。
+- 自动生成文件统一放在 `types/generated` 目录，当前包括 `auto-imports.d.ts` 和 `components.d.ts`。
 - `src/typings` 仅用于维护手写类型声明，不放自动生成文件。
 - 若调整了自动导入配置，必须同步确认 `build/plugins.ts`、`.oxlintrc.json`、`tsconfig.json` 的路径引用保持一致。
 

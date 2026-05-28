@@ -112,8 +112,9 @@
 </template>
 
 <script setup lang="tsx">
-import { computed, defineComponent, h, reactive, ref, resolveComponent, watch } from "vue";
+import { computed, defineComponent, h, reactive, ref, watch } from "vue";
 import type { PropType } from "vue";
+import { ElCheckbox, ElCheckboxGroup, ElInputNumber, ElRadio } from "element-plus";
 import { Operation } from "@element-plus/icons-vue";
 
 type CronSegmentMode = "every" | "unspecified" | "range" | "step" | "specific" | "last" | "weekday";
@@ -430,10 +431,6 @@ const CronSegmentEditor = defineComponent({
   },
   emits: ["change"],
   setup(segmentProps, { emit: segmentEmit }) {
-    const ElRadio = resolveComponent("el-radio");
-    const ElInputNumber = resolveComponent("el-input-number");
-    const ElCheckboxGroup = resolveComponent("el-checkbox-group");
-    const ElCheckbox = resolveComponent("el-checkbox");
     const localState = reactive<CronSegmentState>({ ...segmentProps.state });
 
     watch(
@@ -475,8 +472,8 @@ const CronSegmentEditor = defineComponent({
       emitChange();
     }
 
-    function handleSpecificChange(value: number[]) {
-      localState.specific = value;
+    function handleSpecificChange(value: Array<string | number>) {
+      localState.specific = value.map(Number).filter(item => !Number.isNaN(item));
       emitChange();
     }
 

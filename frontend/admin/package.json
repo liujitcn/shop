@@ -60,7 +60,7 @@
     "sortablejs": "^1.15.2",
     "vue": "^3.5.35",
     "vue-element-plus-x": "^2.0.3",
-    "vue-router": "^4.4.0",
+    "vue-router": "^5.0.7",
     "vuedraggable": "^4.1.0",
     "x-markdown-vue": "^0.0.200"
   },

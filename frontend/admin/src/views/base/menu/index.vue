@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { computed, h, reactive, ref, resolveComponent, resolveDynamicComponent } from "vue";
-import type { FormRules } from "element-plus";
+import { ElIcon, ElTag, type FormRules } from "element-plus";
 import ProTable from "@/components/ProTable/index.vue";
 import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
@@ -146,7 +146,7 @@ function renderMenuIconCell(scope: RenderScope<BaseMenu>) {
   const iconName = resolveElementIcon(icon);
   if (iconName) {
     return h(
-      resolveComponent("el-icon"),
+      ElIcon,
       { size: 18 },
       {
         default: () => [h(resolveDynamicComponent(iconName) as any)]
@@ -162,7 +162,7 @@ function renderMenuIconCell(scope: RenderScope<BaseMenu>) {
  */
 function renderHiddenCell(scope: RenderScope<BaseMenu>) {
   const isHidden = Boolean(scope.row.meta?.hidden);
-  return h(resolveComponent("el-tag"), { type: isHidden ? "info" : "success" }, () => (isHidden ? "隐藏" : "显示"));
+  return h(ElTag, { type: isHidden ? "info" : "success" }, () => (isHidden ? "隐藏" : "显示"));
 }
 
 /** 菜单表格列配置。 */

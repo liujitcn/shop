@@ -41,9 +41,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, resolveComponent, watch } from "vue";
+import { computed, h, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { ElMessage, ElMessageBox, ElTag } from "element-plus";
 import { CirclePlus, Delete, EditPen } from "@element-plus/icons-vue";
 import type { ColumnProps, HeaderActionProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
@@ -131,7 +131,7 @@ function formatTagType(tag_type: string) {
 function renderTagTypeCell(scope: RenderScope<BaseDictItem>) {
   if (!scope.row.tag_type) return "无";
   return h(
-    resolveComponent("el-tag"),
+    ElTag,
     {
       type: formatTagType(scope.row.tag_type),
       effect: "plain"

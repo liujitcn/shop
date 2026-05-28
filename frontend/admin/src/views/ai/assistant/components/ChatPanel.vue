@@ -59,12 +59,14 @@
 </template>
 
 <script setup lang="ts" name="ChatPanel">
-import { computed } from "vue";
+import { computed, defineAsyncComponent } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import type { AiAssistantAttachment, AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 import XSender from "./XSender.vue";
-import AiMarkdown from "./AiMarkdown.vue";
+
+// AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
+const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
 import { buildAssistantAttachmentFileCard } from "../attachment";
 import type { ChatMessageItem, ReplySourceTag } from "../types";
 

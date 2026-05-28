@@ -232,8 +232,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, h, reactive, ref, resolveComponent, type VNode, watch } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { computed, h, reactive, ref, type VNode, watch } from "vue";
+import { ElButton, ElLink, ElMessage, ElMessageBox, ElPopover } from "element-plus";
 import { RefreshLeft, Van, View } from "@element-plus/icons-vue";
 import { useRoute } from "vue-router";
 import type { ColumnProps, ProTableInstance, RenderScope } from "@/components/ProTable/interface";
@@ -540,7 +540,7 @@ const refundColumns: ColumnProps[] = [
 function renderOrderNoCell(scope: RenderScope<OrderInfo>) {
   if (!BUTTONS.value["order:info:detail"]) return scope.row.order_no;
   return h(
-    resolveComponent("el-link"),
+    ElLink,
     {
       type: "primary",
       onClick: () => handleOpenDetail(scope.row)
@@ -561,7 +561,7 @@ function renderUserCell(scope: RenderScope<OrderInfo>) {
  */
 function renderPayMoneyCell(scope: RenderScope<OrderInfo>) {
   return h(
-    resolveComponent("el-popover"),
+    ElPopover,
     {
       effect: "light",
       trigger: "hover",
@@ -590,7 +590,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
   if (canOpenShipped(row) && BUTTONS.value["order:info:shipped"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         { key: `ship-${row.id}`, type: "primary", link: true, icon: Van, onClick: () => handleOpenShippedDialog(row.id, "发货") },
         () => "发货"
       )
@@ -600,7 +600,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
   if (canViewShipped(row) && BUTTONS.value["order:info:shipped"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `ship-detail-${row.id}`,
           type: "primary",
@@ -616,7 +616,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
   if (canRefundCod(row) && BUTTONS.value["order:info:refund"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         { key: `refund-cod-${row.id}`, type: "danger", link: true, icon: RefreshLeft, onClick: () => handleRefund(row) },
         () => "退款"
       )
@@ -626,7 +626,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
   if (canOpenRefund(row) && BUTTONS.value["order:info:refund"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `refund-${row.id}`,
           type: "danger",
@@ -642,7 +642,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
   if (canViewRefund(row) && BUTTONS.value["order:info:refund"]) {
     actionNodes.push(
       h(
-        resolveComponent("el-button"),
+        ElButton,
         {
           key: `refund-detail-${row.id}`,
           type: "danger",
