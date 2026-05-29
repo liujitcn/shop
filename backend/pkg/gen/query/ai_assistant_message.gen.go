@@ -36,6 +36,7 @@ func newAiAssistantMessage(db *gorm.DB, opts ...gen.DOOption) aiAssistantMessage
 	_aiAssistantMessage.AttachmentsJSON = field.NewString(tableName, "attachments_json")
 	_aiAssistantMessage.ToolsJSON = field.NewString(tableName, "tools_json")
 	_aiAssistantMessage.TokenUsage = field.NewInt32(tableName, "token_usage")
+	_aiAssistantMessage.Status = field.NewInt32(tableName, "status")
 	_aiAssistantMessage.CreatedAt = field.NewTime(tableName, "created_at")
 	_aiAssistantMessage.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_aiAssistantMessage.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -59,6 +60,7 @@ type aiAssistantMessage struct {
 	AttachmentsJSON field.String // 附件JSON
 	ToolsJSON       field.String // 工具JSON
 	TokenUsage      field.Int32  // 本次消息token消耗
+	Status          field.Int32  // 消息生成状态：枚举【AiAssistantMessageStatus】
 	CreatedAt       field.Time   // 创建时间
 	UpdatedAt       field.Time   // 更新时间
 	DeletedAt       field.Field  // 删除时间
@@ -87,6 +89,7 @@ func (a *aiAssistantMessage) updateTableName(table string) *aiAssistantMessage {
 	a.AttachmentsJSON = field.NewString(table, "attachments_json")
 	a.ToolsJSON = field.NewString(table, "tools_json")
 	a.TokenUsage = field.NewInt32(table, "token_usage")
+	a.Status = field.NewInt32(table, "status")
 	a.CreatedAt = field.NewTime(table, "created_at")
 	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
@@ -118,7 +121,7 @@ func (a *aiAssistantMessage) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *aiAssistantMessage) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 12)
+	a.fieldMap = make(map[string]field.Expr, 13)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["session_id"] = a.SessionID
 	a.fieldMap["user_id"] = a.UserID
@@ -128,6 +131,7 @@ func (a *aiAssistantMessage) fillFieldMap() {
 	a.fieldMap["attachments_json"] = a.AttachmentsJSON
 	a.fieldMap["tools_json"] = a.ToolsJSON
 	a.fieldMap["token_usage"] = a.TokenUsage
+	a.fieldMap["status"] = a.Status
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt

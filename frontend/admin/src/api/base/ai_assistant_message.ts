@@ -2,6 +2,10 @@ import service, { getRequestAccessToken, handleAuthExpired, requestBaseURL } fro
 import type { ListAiAssistantMessagesRequest, ListAiAssistantMessagesResponse } from "@/rpc/base/v1/ai_assistant_session";
 import type {
   AiAssistantMessageService,
+  DeleteAiAssistantMessageRequest,
+  DeleteAiAssistantMessageResponse,
+  RegenerateAiAssistantMessageRequest,
+  RetryAiAssistantUserMessageRequest,
   SendAiAssistantMessageRequest,
   SendAiAssistantMessageResponse
 } from "@/rpc/base/v1/ai_assistant_message";
@@ -70,6 +74,33 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
   SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
     return service<SendAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
+      method: "post",
+      data: request
+    });
+  }
+
+  /** 删除 AI 助手消息。 */
+  DeleteAiAssistantMessage(request: DeleteAiAssistantMessageRequest): Promise<DeleteAiAssistantMessageResponse> {
+    return service<DeleteAiAssistantMessageRequest, DeleteAiAssistantMessageResponse>({
+      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}`,
+      method: "delete",
+      params: request
+    });
+  }
+
+  /** 重试失败的用户消息。 */
+  RetryAiAssistantUserMessage(request: RetryAiAssistantUserMessageRequest): Promise<SendAiAssistantMessageResponse> {
+    return service<RetryAiAssistantUserMessageRequest, SendAiAssistantMessageResponse>({
+      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}/retry`,
+      method: "post",
+      data: request
+    });
+  }
+
+  /** 重新生成助手回复。 */
+  RegenerateAiAssistantMessage(request: RegenerateAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
+    return service<RegenerateAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
+      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}/regeneration`,
       method: "post",
       data: request
     });

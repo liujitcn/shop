@@ -5436,10 +5436,7 @@ paths:
         post:
             tags:
                 - AiAssistantService
-            description: |-
-                创建 AI 助手会话
-                 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
-                 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+            description: 创建 AI 助手会话
             operationId: AiAssistantService_CreateAiAssistantSession
             requestBody:
                 content:
@@ -5453,14 +5450,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AiAssistantSession'
+                                $ref: '#/components/schemas/CreateAiAssistantSessionResponse'
     /api/v1/base/ai/assistant/session/{id}:
         put:
             tags:
                 - AiAssistantService
-            description: |-
-                更新 AI 助手会话
-                 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+            description: 更新 AI 助手会话
             operationId: AiAssistantService_UpdateAiAssistantSession
             parameters:
                 - name: id
@@ -5480,13 +5475,11 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AiAssistantSession'
+                                $ref: '#/components/schemas/UpdateAiAssistantSessionResponse'
         delete:
             tags:
                 - AiAssistantService
-            description: |-
-                删除 AI 助手会话
-                 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+            description: 删除 AI 助手会话
             operationId: AiAssistantService_DeleteAiAssistantSession
             parameters:
                 - name: id
@@ -5497,7 +5490,10 @@ paths:
             responses:
                 "200":
                     description: OK
-                    content: {}
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteAiAssistantSessionResponse'
     /api/v1/base/ai/assistant/session/{sessionId}/message:
         get:
             tags:
@@ -5541,6 +5537,115 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/SendAiAssistantMessageResponse'
+    /api/v1/base/ai/assistant/session/{sessionId}/message/{messageId}:
+        delete:
+            tags:
+                - AiAssistantMessageService
+            description: 删除 AI 助手消息
+            operationId: AiAssistantMessageService_DeleteAiAssistantMessage
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteAiAssistantMessageResponse'
+    /api/v1/base/ai/assistant/session/{sessionId}/message/{messageId}/regeneration:
+        post:
+            tags:
+                - AiAssistantMessageService
+            description: 重新生成助手回复
+            operationId: AiAssistantMessageService_RegenerateAiAssistantMessage
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegenerateAiAssistantMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendAiAssistantMessageResponse'
+    /api/v1/base/ai/assistant/session/{sessionId}/message/{messageId}/retry:
+        post:
+            tags:
+                - AiAssistantMessageService
+            description: 重试失败的用户消息
+            operationId: AiAssistantMessageService_RetryAiAssistantUserMessage
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RetryAiAssistantUserMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendAiAssistantMessageResponse'
+    /api/v1/base/ai/assistant/session/{sourceSessionId}/branch:
+        post:
+            tags:
+                - AiAssistantService
+            description: 从指定消息创建 AI 助手分支会话
+            operationId: AiAssistantService_CreateAiAssistantSessionBranch
+            parameters:
+                - name: sourceSessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateAiAssistantSessionBranchRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateAiAssistantSessionBranchResponse'
     /api/v1/base/captcha:
         get:
             tags:
@@ -5839,6 +5944,15 @@ components:
                 fallbackReason:
                     type: string
                     description: 降级原因
+                status:
+                    enum:
+                        - UNKNOWN_AAMS
+                        - GENERATING_AAMS
+                        - SUCCESS_AAMS
+                        - FAILED_AAMS
+                    type: string
+                    description: 消息生成状态：枚举【AiAssistantMessageStatus】
+                    format: enum
             description: AI 助手消息
         AiAssistantSession:
             type: object
@@ -7824,6 +7938,38 @@ components:
                     description: 购物车数量
                     format: int32
             description: 用户购物车数量响应
+        CreateAiAssistantSessionBranchRequest:
+            type: object
+            properties:
+                sourceSessionId:
+                    type: string
+                    description: 来源会话ID
+                anchorMessageId:
+                    type: string
+                    description: 分支锚点消息ID
+                title:
+                    type: string
+                    description: 分支会话标题
+                terminal:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    description: 终端类型：枚举【Terminal】
+                    format: enum
+            description: AI 助手分支会话创建请求
+        CreateAiAssistantSessionBranchResponse:
+            type: object
+            properties:
+                session:
+                    $ref: '#/components/schemas/AiAssistantSession'
+                messages:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AiAssistantMessage'
+                    description: 新会话消息列表
+            description: AI 助手分支会话创建响应
         CreateAiAssistantSessionRequest:
             type: object
             properties:
@@ -7839,6 +7985,12 @@ components:
                     description: 终端类型：枚举【Terminal】
                     format: enum
             description: AI 助手会话创建请求
+        CreateAiAssistantSessionResponse:
+            type: object
+            properties:
+                session:
+                    $ref: '#/components/schemas/AiAssistantSession'
+            description: AI 助手会话创建响应
         CreateCommentDiscussionRequest:
             type: object
             properties:
@@ -8038,6 +8190,14 @@ components:
                     description: 最大搜索结果数
                     format: int32
             description: Redis配置
+        DeleteAiAssistantMessageResponse:
+            type: object
+            properties: {}
+            description: AI 助手消息删除响应
+        DeleteAiAssistantSessionResponse:
+            type: object
+            properties: {}
+            description: AI 助手会话删除响应
         ExecuteBaseJobRequest:
             type: object
             properties:
@@ -10700,6 +10860,16 @@ components:
                     type: string
                     description: 退款金额
             description: 订单退款请求参数
+        RegenerateAiAssistantMessageRequest:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                    description: 会话ID
+                messageId:
+                    type: string
+                    description: 助手消息ID
+            description: AI 助手回复重新生成请求
         RepurchaseOrderInfoRequest:
             type: object
             properties:
@@ -10730,6 +10900,16 @@ components:
                 pwd:
                     $ref: '#/components/schemas/PasswordCrypto'
             description: 重置用户密码请求参数
+        RetryAiAssistantUserMessageRequest:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                    description: 会话ID
+                messageId:
+                    type: string
+                    description: 失败用户消息ID
+            description: AI 助手失败用户消息重试请求
         RouteItem:
             type: object
             properties:
@@ -10888,9 +11068,6 @@ components:
                     items:
                         $ref: '#/components/schemas/AiAssistantAttachment'
                     description: 附件列表
-                clientMessageId:
-                    type: string
-                    description: 前端本地消息ID，用于流式回复关联
             description: AI 助手消息发送请求
         SendAiAssistantMessageResponse:
             type: object
@@ -11935,6 +12112,12 @@ components:
                     type: string
                     description: 会话标题
             description: AI 助手会话更新请求
+        UpdateAiAssistantSessionResponse:
+            type: object
+            properties:
+                session:
+                    $ref: '#/components/schemas/AiAssistantSession'
+            description: AI 助手会话更新响应
         UploadFileInfo:
             type: object
             properties:

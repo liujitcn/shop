@@ -3,10 +3,11 @@ import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } fr
 /** 会话菜单动作类型。 */
 export type SessionAction = "rename" | "delete";
 
+/** 聊天消息操作类型。 */
+export type ChatMessageAction = "retry" | "copy" | "delete" | "branch" | "speak";
+
 /** 聊天输入提交内容。 */
 export type SubmitPayload = {
-  /** 前端生成的消息编号，用于关联本轮流式回复。 */
-  clientMessageId?: string;
   /** 用户输入文本。 */
   text: string;
   /** 已上传附件列表。 */
@@ -42,10 +43,10 @@ export type ChatMessageItem = AiAssistantMessage & {
   localOnly?: boolean;
   /** 回复来源标签。 */
   replySourceTag?: ReplySourceTag;
-  /** 本轮用户消息编号，用于直连流式回复分组。 */
-  clientMessageId?: string;
   /** 本地流式消息键，按会话和用户消息拆分。 */
   streamKey?: string;
+  /** 是否正在朗读当前消息。 */
+  speaking?: boolean;
 };
 
 /** AI 助手 direct stream SSE 事件名称。 */
@@ -55,16 +56,14 @@ export type AiAssistantStreamEventName = "delta" | "finish" | "error";
 export type AiAssistantStreamPayload = {
   /** 会话 ID。 */
   session_id: string;
-  /** 前端本地消息 ID，用于关联当前轮次。 */
-  client_message_id: string;
+  /** 后端用户消息 ID，用于关联当前轮次。 */
+  message_id: string;
   /** 本次新增文本分片。 */
   delta?: string;
   /** 流式完成后的最终消息列表。 */
   messages?: AiAssistantMessage[];
   /** 流式完成后的最新会话。 */
   session?: AiAssistantSession;
-  /** 异常提示。 */
-  error_message?: string;
 };
 
 /** AI 助手 direct stream 标准化事件。 */

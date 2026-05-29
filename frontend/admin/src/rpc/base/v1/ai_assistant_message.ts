@@ -15,8 +15,6 @@ export interface SendAiAssistantMessageRequest {
   content: string;
   /** 附件列表 */
   attachments: AiAssistantAttachment[];
-  /** 前端本地消息ID，用于流式回复关联 */
-  client_message_id: string;
 }
 
 /** AI 助手消息发送响应 */
@@ -27,8 +25,42 @@ export interface SendAiAssistantMessageResponse {
   session: AiAssistantSession | undefined;
 }
 
+/** AI 助手消息删除请求 */
+export interface DeleteAiAssistantMessageRequest {
+  /** 会话ID */
+  session_id: string;
+  /** 消息ID */
+  message_id: string;
+}
+
+/** AI 助手消息删除响应 */
+export interface DeleteAiAssistantMessageResponse {
+}
+
+/** AI 助手失败用户消息重试请求 */
+export interface RetryAiAssistantUserMessageRequest {
+  /** 会话ID */
+  session_id: string;
+  /** 失败用户消息ID */
+  message_id: string;
+}
+
+/** AI 助手回复重新生成请求 */
+export interface RegenerateAiAssistantMessageRequest {
+  /** 会话ID */
+  session_id: string;
+  /** 助手消息ID */
+  message_id: string;
+}
+
 /** Base AI 助手消息服务 */
 export interface AiAssistantMessageService {
   /** 发送 AI 助手消息 */
   SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse>;
+  /** 删除 AI 助手消息 */
+  DeleteAiAssistantMessage(request: DeleteAiAssistantMessageRequest): Promise<DeleteAiAssistantMessageResponse>;
+  /** 重试失败的用户消息 */
+  RetryAiAssistantUserMessage(request: RetryAiAssistantUserMessageRequest): Promise<SendAiAssistantMessageResponse>;
+  /** 重新生成助手回复 */
+  RegenerateAiAssistantMessage(request: RegenerateAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse>;
 }

@@ -10,7 +10,6 @@ import (
 	context "context"
 
 	tools "github.com/go-kratos/blades/tools"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewAiAssistantServiceAgentTools 创建Base AI 助手会话服务的 Agent Tool。
@@ -47,6 +46,12 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 		return nil, err
 	}
 	ts = append(ts, listAiAssistantMessagesTool)
+	var createAiAssistantSessionBranchTool tools.Tool
+	createAiAssistantSessionBranchTool, err = NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool(aiAssistantServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, createAiAssistantSessionBranchTool)
 	return ts, nil
 }
 
@@ -64,12 +69,12 @@ func NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceSer
 	)
 }
 
-// NewAiAssistantServiceCreateAiAssistantSessionAgentTool 创建创建 AI 助手会话 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 Agent Tool。
+// NewAiAssistantServiceCreateAiAssistantSessionAgentTool 创建创建 AI 助手会话的 Agent Tool。
 func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
 		"base_v1_ai_assistant_service_create_ai_assistant_session",
-		"创建 AI 助手会话 buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
-		func(ctx context.Context, req *CreateAiAssistantSessionRequest) (*AiAssistantSession, error) {
+		"创建 AI 助手会话",
+		func(ctx context.Context, req *CreateAiAssistantSessionRequest) (*CreateAiAssistantSessionResponse, error) {
 			if req == nil {
 				req = &CreateAiAssistantSessionRequest{}
 			}
@@ -78,12 +83,12 @@ func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceSe
 	)
 }
 
-// NewAiAssistantServiceUpdateAiAssistantSessionAgentTool 创建更新 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 Agent Tool。
+// NewAiAssistantServiceUpdateAiAssistantSessionAgentTool 创建更新 AI 助手会话的 Agent Tool。
 func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
 		"base_v1_ai_assistant_service_update_ai_assistant_session",
-		"更新 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
-		func(ctx context.Context, req *UpdateAiAssistantSessionRequest) (*AiAssistantSession, error) {
+		"更新 AI 助手会话",
+		func(ctx context.Context, req *UpdateAiAssistantSessionRequest) (*UpdateAiAssistantSessionResponse, error) {
 			if req == nil {
 				req = &UpdateAiAssistantSessionRequest{}
 			}
@@ -92,12 +97,12 @@ func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceSe
 	)
 }
 
-// NewAiAssistantServiceDeleteAiAssistantSessionAgentTool 创建删除 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME的 Agent Tool。
+// NewAiAssistantServiceDeleteAiAssistantSessionAgentTool 创建删除 AI 助手会话的 Agent Tool。
 func NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
 	return tools.NewFunc(
 		"base_v1_ai_assistant_service_delete_ai_assistant_session",
-		"删除 AI 助手会话 buf:lint:ignore RPC_RESPONSE_STANDARD_NAME",
-		func(ctx context.Context, req *DeleteAiAssistantSessionRequest) (*emptypb.Empty, error) {
+		"删除 AI 助手会话",
+		func(ctx context.Context, req *DeleteAiAssistantSessionRequest) (*DeleteAiAssistantSessionResponse, error) {
 			if req == nil {
 				req = &DeleteAiAssistantSessionRequest{}
 			}
@@ -116,6 +121,20 @@ func NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceSer
 				req = &ListAiAssistantMessagesRequest{}
 			}
 			return aiAssistantServiceServer.ListAiAssistantMessages(ctx, req)
+		},
+	)
+}
+
+// NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool 创建从指定消息创建 AI 助手分支会话的 Agent Tool。
+func NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_assistant_service_create_ai_assistant_session_branch",
+		"从指定消息创建 AI 助手分支会话",
+		func(ctx context.Context, req *CreateAiAssistantSessionBranchRequest) (*CreateAiAssistantSessionBranchResponse, error) {
+			if req == nil {
+				req = &CreateAiAssistantSessionBranchRequest{}
+			}
+			return aiAssistantServiceServer.CreateAiAssistantSessionBranch(ctx, req)
 		},
 	)
 }

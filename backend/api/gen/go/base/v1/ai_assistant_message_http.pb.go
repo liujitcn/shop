@@ -20,9 +20,18 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationAiAssistantMessageServiceDeleteAiAssistantMessage = "/base.v1.AiAssistantMessageService/DeleteAiAssistantMessage"
+const OperationAiAssistantMessageServiceRegenerateAiAssistantMessage = "/base.v1.AiAssistantMessageService/RegenerateAiAssistantMessage"
+const OperationAiAssistantMessageServiceRetryAiAssistantUserMessage = "/base.v1.AiAssistantMessageService/RetryAiAssistantUserMessage"
 const OperationAiAssistantMessageServiceSendAiAssistantMessage = "/base.v1.AiAssistantMessageService/SendAiAssistantMessage"
 
 type AiAssistantMessageServiceHTTPServer interface {
+	// DeleteAiAssistantMessage 删除 AI 助手消息
+	DeleteAiAssistantMessage(context.Context, *DeleteAiAssistantMessageRequest) (*DeleteAiAssistantMessageResponse, error)
+	// RegenerateAiAssistantMessage 重新生成助手回复
+	RegenerateAiAssistantMessage(context.Context, *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
+	// RetryAiAssistantUserMessage 重试失败的用户消息
+	RetryAiAssistantUserMessage(context.Context, *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
 }
@@ -30,6 +39,9 @@ type AiAssistantMessageServiceHTTPServer interface {
 func RegisterAiAssistantMessageServiceHTTPServer(s *http.Server, srv AiAssistantMessageServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantMessageService_SendAiAssistantMessage0_HTTP_Handler(srv))
+	r.DELETE("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}", _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry", _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regeneration", _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler(srv))
 }
 
 func _AiAssistantMessageService_SendAiAssistantMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx http.Context) error {
@@ -57,7 +69,85 @@ func _AiAssistantMessageService_SendAiAssistantMessage0_HTTP_Handler(srv AiAssis
 	}
 }
 
+func _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteAiAssistantMessageRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAssistantMessageServiceDeleteAiAssistantMessage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteAiAssistantMessage(ctx, req.(*DeleteAiAssistantMessageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteAiAssistantMessageResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RetryAiAssistantUserMessageRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAssistantMessageServiceRetryAiAssistantUserMessage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RetryAiAssistantUserMessage(ctx, req.(*RetryAiAssistantUserMessageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SendAiAssistantMessageResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RegenerateAiAssistantMessageRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAssistantMessageServiceRegenerateAiAssistantMessage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RegenerateAiAssistantMessage(ctx, req.(*RegenerateAiAssistantMessageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SendAiAssistantMessageResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AiAssistantMessageServiceHTTPClient interface {
+	// DeleteAiAssistantMessage 删除 AI 助手消息
+	DeleteAiAssistantMessage(ctx context.Context, req *DeleteAiAssistantMessageRequest, opts ...http.CallOption) (rsp *DeleteAiAssistantMessageResponse, err error)
+	// RegenerateAiAssistantMessage 重新生成助手回复
+	RegenerateAiAssistantMessage(ctx context.Context, req *RegenerateAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
+	// RetryAiAssistantUserMessage 重试失败的用户消息
+	RetryAiAssistantUserMessage(ctx context.Context, req *RetryAiAssistantUserMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(ctx context.Context, req *SendAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
 }
@@ -68,6 +158,48 @@ type AiAssistantMessageServiceHTTPClientImpl struct {
 
 func NewAiAssistantMessageServiceHTTPClient(client *http.Client) AiAssistantMessageServiceHTTPClient {
 	return &AiAssistantMessageServiceHTTPClientImpl{client}
+}
+
+// DeleteAiAssistantMessage 删除 AI 助手消息
+func (c *AiAssistantMessageServiceHTTPClientImpl) DeleteAiAssistantMessage(ctx context.Context, in *DeleteAiAssistantMessageRequest, opts ...http.CallOption) (*DeleteAiAssistantMessageResponse, error) {
+	var out DeleteAiAssistantMessageResponse
+	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAiAssistantMessageServiceDeleteAiAssistantMessage))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RegenerateAiAssistantMessage 重新生成助手回复
+func (c *AiAssistantMessageServiceHTTPClientImpl) RegenerateAiAssistantMessage(ctx context.Context, in *RegenerateAiAssistantMessageRequest, opts ...http.CallOption) (*SendAiAssistantMessageResponse, error) {
+	var out SendAiAssistantMessageResponse
+	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regeneration"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAiAssistantMessageServiceRegenerateAiAssistantMessage))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// RetryAiAssistantUserMessage 重试失败的用户消息
+func (c *AiAssistantMessageServiceHTTPClientImpl) RetryAiAssistantUserMessage(ctx context.Context, in *RetryAiAssistantUserMessageRequest, opts ...http.CallOption) (*SendAiAssistantMessageResponse, error) {
+	var out SendAiAssistantMessageResponse
+	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAiAssistantMessageServiceRetryAiAssistantUserMessage))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // SendAiAssistantMessage 发送 AI 助手消息

@@ -5,7 +5,6 @@ package base.v1;
 import "common/v1/enum.proto";
 import "gnostic/openapi/v3/annotations.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 // Base AI 助手会话服务
@@ -18,9 +17,7 @@ service AiAssistantService {
   }
 
   // 创建 AI 助手会话
-  // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
-  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-  rpc CreateAiAssistantSession(CreateAiAssistantSessionRequest) returns (AiAssistantSession) {
+  rpc CreateAiAssistantSession(CreateAiAssistantSessionRequest) returns (CreateAiAssistantSessionResponse) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/assistant/session"
       body: "*"
@@ -28,8 +25,7 @@ service AiAssistantService {
   }
 
   // 更新 AI 助手会话
-  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-  rpc UpdateAiAssistantSession(UpdateAiAssistantSessionRequest) returns (AiAssistantSession) {
+  rpc UpdateAiAssistantSession(UpdateAiAssistantSessionRequest) returns (UpdateAiAssistantSessionResponse) {
     option (google.api.http) = {
       put: "/api/v1/base/ai/assistant/session/{id}"
       body: "*"
@@ -37,8 +33,7 @@ service AiAssistantService {
   }
 
   // 删除 AI 助手会话
-  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-  rpc DeleteAiAssistantSession(DeleteAiAssistantSessionRequest) returns (google.protobuf.Empty) {
+  rpc DeleteAiAssistantSession(DeleteAiAssistantSessionRequest) returns (DeleteAiAssistantSessionResponse) {
     option (google.api.http) = {
       delete: "/api/v1/base/ai/assistant/session/{id}"
     };
@@ -48,6 +43,14 @@ service AiAssistantService {
   rpc ListAiAssistantMessages(ListAiAssistantMessagesRequest) returns (ListAiAssistantMessagesResponse) {
     option (google.api.http) = {
       get: "/api/v1/base/ai/assistant/session/{session_id}/message"
+    };
+  }
+
+  // 从指定消息创建 AI 助手分支会话
+  rpc CreateAiAssistantSessionBranch(CreateAiAssistantSessionBranchRequest) returns (CreateAiAssistantSessionBranchResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/ai/assistant/session/{source_session_id}/branch"
+      body: "*"
     };
   }
 }
@@ -69,6 +72,11 @@ message CreateAiAssistantSessionRequest {
   .common.v1.Terminal terminal = 2 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
 }
 
+// AI 助手会话创建响应
+message CreateAiAssistantSessionResponse {
+  AiAssistantSession session = 1 [(gnostic.openapi.v3.property) = {description: "会话信息"}]; // 会话信息
+}
+
 // AI 助手会话更新请求
 message UpdateAiAssistantSessionRequest {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
@@ -76,10 +84,18 @@ message UpdateAiAssistantSessionRequest {
   string title = 2 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题
 }
 
+// AI 助手会话更新响应
+message UpdateAiAssistantSessionResponse {
+  AiAssistantSession session = 1 [(gnostic.openapi.v3.property) = {description: "会话信息"}]; // 会话信息
+}
+
 // AI 助手会话删除请求
 message DeleteAiAssistantSessionRequest {
   string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
 }
+
+// AI 助手会话删除响应
+message DeleteAiAssistantSessionResponse {}
 
 // AI 助手消息列表查询条件
 message ListAiAssistantMessagesRequest {
@@ -89,6 +105,24 @@ message ListAiAssistantMessagesRequest {
 // AI 助手消息列表响应
 message ListAiAssistantMessagesResponse {
   repeated AiAssistantMessage messages = 1 [(gnostic.openapi.v3.property) = {description: "消息列表"}]; // 消息列表
+}
+
+// AI 助手分支会话创建请求
+message CreateAiAssistantSessionBranchRequest {
+  string source_session_id = 1 [(gnostic.openapi.v3.property) = {description: "来源会话ID"}]; // 来源会话ID
+
+  string anchor_message_id = 2 [(gnostic.openapi.v3.property) = {description: "分支锚点消息ID"}]; // 分支锚点消息ID
+
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "分支会话标题"}]; // 分支会话标题
+
+  .common.v1.Terminal terminal = 4 [(gnostic.openapi.v3.property) = {description: "终端类型：枚举【Terminal】"}]; // 终端类型：枚举【Terminal】
+}
+
+// AI 助手分支会话创建响应
+message CreateAiAssistantSessionBranchResponse {
+  AiAssistantSession session = 1 [(gnostic.openapi.v3.property) = {description: "新会话信息"}]; // 新会话信息
+
+  repeated AiAssistantMessage messages = 2 [(gnostic.openapi.v3.property) = {description: "新会话消息列表"}]; // 新会话消息列表
 }
 
 // AI 助手会话
@@ -127,6 +161,8 @@ message AiAssistantMessage {
   bool fallback = 9 [(gnostic.openapi.v3.property) = {description: "是否为降级回复"}]; // 是否为降级回复
 
   string fallback_reason = 10 [(gnostic.openapi.v3.property) = {description: "降级原因"}]; // 降级原因
+
+  .common.v1.AiAssistantMessageStatus status = 11 [(gnostic.openapi.v3.property) = {description: "消息生成状态：枚举【AiAssistantMessageStatus】"}]; // 消息生成状态：枚举【AiAssistantMessageStatus】
 }
 
 // AI 助手附件

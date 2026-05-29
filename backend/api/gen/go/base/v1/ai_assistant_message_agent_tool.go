@@ -22,6 +22,24 @@ func NewAiAssistantMessageServiceAgentTools(aiAssistantMessageServiceServer AiAs
 		return nil, err
 	}
 	ts = append(ts, sendAiAssistantMessageTool)
+	var deleteAiAssistantMessageTool tools.Tool
+	deleteAiAssistantMessageTool, err = NewAiAssistantMessageServiceDeleteAiAssistantMessageAgentTool(aiAssistantMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, deleteAiAssistantMessageTool)
+	var retryAiAssistantUserMessageTool tools.Tool
+	retryAiAssistantUserMessageTool, err = NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool(aiAssistantMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, retryAiAssistantUserMessageTool)
+	var regenerateAiAssistantMessageTool tools.Tool
+	regenerateAiAssistantMessageTool, err = NewAiAssistantMessageServiceRegenerateAiAssistantMessageAgentTool(aiAssistantMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, regenerateAiAssistantMessageTool)
 	return ts, nil
 }
 
@@ -35,6 +53,48 @@ func NewAiAssistantMessageServiceSendAiAssistantMessageAgentTool(aiAssistantMess
 				req = &SendAiAssistantMessageRequest{}
 			}
 			return aiAssistantMessageServiceServer.SendAiAssistantMessage(ctx, req)
+		},
+	)
+}
+
+// NewAiAssistantMessageServiceDeleteAiAssistantMessageAgentTool 创建删除 AI 助手消息的 Agent Tool。
+func NewAiAssistantMessageServiceDeleteAiAssistantMessageAgentTool(aiAssistantMessageServiceServer AiAssistantMessageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_assistant_message_service_delete_ai_assistant_message",
+		"删除 AI 助手消息",
+		func(ctx context.Context, req *DeleteAiAssistantMessageRequest) (*DeleteAiAssistantMessageResponse, error) {
+			if req == nil {
+				req = &DeleteAiAssistantMessageRequest{}
+			}
+			return aiAssistantMessageServiceServer.DeleteAiAssistantMessage(ctx, req)
+		},
+	)
+}
+
+// NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool 创建重试失败的用户消息的 Agent Tool。
+func NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool(aiAssistantMessageServiceServer AiAssistantMessageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_assistant_message_service_retry_ai_assistant_user_message",
+		"重试失败的用户消息",
+		func(ctx context.Context, req *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error) {
+			if req == nil {
+				req = &RetryAiAssistantUserMessageRequest{}
+			}
+			return aiAssistantMessageServiceServer.RetryAiAssistantUserMessage(ctx, req)
+		},
+	)
+}
+
+// NewAiAssistantMessageServiceRegenerateAiAssistantMessageAgentTool 创建重新生成助手回复的 Agent Tool。
+func NewAiAssistantMessageServiceRegenerateAiAssistantMessageAgentTool(aiAssistantMessageServiceServer AiAssistantMessageServiceServer) (tools.Tool, error) {
+	return tools.NewFunc(
+		"base_v1_ai_assistant_message_service_regenerate_ai_assistant_message",
+		"重新生成助手回复",
+		func(ctx context.Context, req *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
+			if req == nil {
+				req = &RegenerateAiAssistantMessageRequest{}
+			}
+			return aiAssistantMessageServiceServer.RegenerateAiAssistantMessage(ctx, req)
 		},
 	)
 }

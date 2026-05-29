@@ -27,7 +27,7 @@ export function normalizeAiAssistantStreamItem(item?: XStreamSseOutput): AiAssis
   if (!item || !isAiAssistantStreamEventName(item.event)) return null;
 
   const payload = parseStreamPayload(item.data);
-  if (!payload?.session_id || !payload.client_message_id) return null;
+  if (!payload?.session_id || !payload.message_id) return null;
 
   return {
     event: String(item.event).trim() as AiAssistantStreamEventName,

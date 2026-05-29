@@ -1,16 +1,19 @@
 import service from "@/utils/request";
 import type {
   AiAssistantService,
-  AiAssistantSession,
+  CreateAiAssistantSessionBranchRequest,
+  CreateAiAssistantSessionBranchResponse,
   CreateAiAssistantSessionRequest,
+  CreateAiAssistantSessionResponse,
   DeleteAiAssistantSessionRequest,
+  DeleteAiAssistantSessionResponse,
   ListAiAssistantMessagesRequest,
   ListAiAssistantMessagesResponse,
   ListAiAssistantSessionsRequest,
   ListAiAssistantSessionsResponse,
-  UpdateAiAssistantSessionRequest
+  UpdateAiAssistantSessionRequest,
+  UpdateAiAssistantSessionResponse
 } from "@/rpc/base/v1/ai_assistant_session";
-import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
 
@@ -26,8 +29,8 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 创建 AI 助手会话。 */
-  CreateAiAssistantSession(request: CreateAiAssistantSessionRequest): Promise<AiAssistantSession> {
-    return service<CreateAiAssistantSessionRequest, AiAssistantSession>({
+  CreateAiAssistantSession(request: CreateAiAssistantSessionRequest): Promise<CreateAiAssistantSessionResponse> {
+    return service<CreateAiAssistantSessionRequest, CreateAiAssistantSessionResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}`,
       method: "post",
       data: request
@@ -35,8 +38,8 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 更新 AI 助手会话。 */
-  UpdateAiAssistantSession(request: UpdateAiAssistantSessionRequest): Promise<AiAssistantSession> {
-    return service<UpdateAiAssistantSessionRequest, AiAssistantSession>({
+  UpdateAiAssistantSession(request: UpdateAiAssistantSessionRequest): Promise<UpdateAiAssistantSessionResponse> {
+    return service<UpdateAiAssistantSessionRequest, UpdateAiAssistantSessionResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.id}`,
       method: "put",
       data: request
@@ -44,8 +47,8 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
   }
 
   /** 删除 AI 助手会话。 */
-  DeleteAiAssistantSession(request: DeleteAiAssistantSessionRequest): Promise<Empty> {
-    return service<DeleteAiAssistantSessionRequest, Empty>({
+  DeleteAiAssistantSession(request: DeleteAiAssistantSessionRequest): Promise<DeleteAiAssistantSessionResponse> {
+    return service<DeleteAiAssistantSessionRequest, DeleteAiAssistantSessionResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.id}`,
       method: "delete",
       params: request
@@ -58,6 +61,15 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: "get",
       params: request
+    });
+  }
+
+  /** 从指定消息创建 AI 助手分支会话。 */
+  CreateAiAssistantSessionBranch(request: CreateAiAssistantSessionBranchRequest): Promise<CreateAiAssistantSessionBranchResponse> {
+    return service<CreateAiAssistantSessionBranchRequest, CreateAiAssistantSessionBranchResponse>({
+      url: `${AI_ASSISTANT_SESSION_URL}/${request.source_session_id}/branch`,
+      method: "post",
+      data: request
     });
   }
 }

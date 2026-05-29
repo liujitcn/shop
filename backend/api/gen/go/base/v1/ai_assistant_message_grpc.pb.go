@@ -20,7 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AiAssistantMessageService_SendAiAssistantMessage_FullMethodName = "/base.v1.AiAssistantMessageService/SendAiAssistantMessage"
+	AiAssistantMessageService_SendAiAssistantMessage_FullMethodName       = "/base.v1.AiAssistantMessageService/SendAiAssistantMessage"
+	AiAssistantMessageService_DeleteAiAssistantMessage_FullMethodName     = "/base.v1.AiAssistantMessageService/DeleteAiAssistantMessage"
+	AiAssistantMessageService_RetryAiAssistantUserMessage_FullMethodName  = "/base.v1.AiAssistantMessageService/RetryAiAssistantUserMessage"
+	AiAssistantMessageService_RegenerateAiAssistantMessage_FullMethodName = "/base.v1.AiAssistantMessageService/RegenerateAiAssistantMessage"
 )
 
 // AiAssistantMessageServiceClient is the client API for AiAssistantMessageService service.
@@ -31,6 +34,12 @@ const (
 type AiAssistantMessageServiceClient interface {
 	// 发送 AI 助手消息
 	SendAiAssistantMessage(ctx context.Context, in *SendAiAssistantMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
+	// 删除 AI 助手消息
+	DeleteAiAssistantMessage(ctx context.Context, in *DeleteAiAssistantMessageRequest, opts ...grpc.CallOption) (*DeleteAiAssistantMessageResponse, error)
+	// 重试失败的用户消息
+	RetryAiAssistantUserMessage(ctx context.Context, in *RetryAiAssistantUserMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
+	// 重新生成助手回复
+	RegenerateAiAssistantMessage(ctx context.Context, in *RegenerateAiAssistantMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
 }
 
 type aiAssistantMessageServiceClient struct {
@@ -51,6 +60,36 @@ func (c *aiAssistantMessageServiceClient) SendAiAssistantMessage(ctx context.Con
 	return out, nil
 }
 
+func (c *aiAssistantMessageServiceClient) DeleteAiAssistantMessage(ctx context.Context, in *DeleteAiAssistantMessageRequest, opts ...grpc.CallOption) (*DeleteAiAssistantMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAiAssistantMessageResponse)
+	err := c.cc.Invoke(ctx, AiAssistantMessageService_DeleteAiAssistantMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiAssistantMessageServiceClient) RetryAiAssistantUserMessage(ctx context.Context, in *RetryAiAssistantUserMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendAiAssistantMessageResponse)
+	err := c.cc.Invoke(ctx, AiAssistantMessageService_RetryAiAssistantUserMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aiAssistantMessageServiceClient) RegenerateAiAssistantMessage(ctx context.Context, in *RegenerateAiAssistantMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendAiAssistantMessageResponse)
+	err := c.cc.Invoke(ctx, AiAssistantMessageService_RegenerateAiAssistantMessage_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AiAssistantMessageServiceServer is the server API for AiAssistantMessageService service.
 // All implementations must embed UnimplementedAiAssistantMessageServiceServer
 // for forward compatibility.
@@ -59,6 +98,12 @@ func (c *aiAssistantMessageServiceClient) SendAiAssistantMessage(ctx context.Con
 type AiAssistantMessageServiceServer interface {
 	// 发送 AI 助手消息
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
+	// 删除 AI 助手消息
+	DeleteAiAssistantMessage(context.Context, *DeleteAiAssistantMessageRequest) (*DeleteAiAssistantMessageResponse, error)
+	// 重试失败的用户消息
+	RetryAiAssistantUserMessage(context.Context, *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error)
+	// 重新生成助手回复
+	RegenerateAiAssistantMessage(context.Context, *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
 	mustEmbedUnimplementedAiAssistantMessageServiceServer()
 }
 
@@ -71,6 +116,15 @@ type UnimplementedAiAssistantMessageServiceServer struct{}
 
 func (UnimplementedAiAssistantMessageServiceServer) SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SendAiAssistantMessage not implemented")
+}
+func (UnimplementedAiAssistantMessageServiceServer) DeleteAiAssistantMessage(context.Context, *DeleteAiAssistantMessageRequest) (*DeleteAiAssistantMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteAiAssistantMessage not implemented")
+}
+func (UnimplementedAiAssistantMessageServiceServer) RetryAiAssistantUserMessage(context.Context, *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RetryAiAssistantUserMessage not implemented")
+}
+func (UnimplementedAiAssistantMessageServiceServer) RegenerateAiAssistantMessage(context.Context, *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RegenerateAiAssistantMessage not implemented")
 }
 func (UnimplementedAiAssistantMessageServiceServer) mustEmbedUnimplementedAiAssistantMessageServiceServer() {
 }
@@ -112,6 +166,60 @@ func _AiAssistantMessageService_SendAiAssistantMessage_Handler(srv interface{}, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AiAssistantMessageService_DeleteAiAssistantMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAiAssistantMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiAssistantMessageServiceServer).DeleteAiAssistantMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiAssistantMessageService_DeleteAiAssistantMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiAssistantMessageServiceServer).DeleteAiAssistantMessage(ctx, req.(*DeleteAiAssistantMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiAssistantMessageService_RetryAiAssistantUserMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RetryAiAssistantUserMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiAssistantMessageServiceServer).RetryAiAssistantUserMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiAssistantMessageService_RetryAiAssistantUserMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiAssistantMessageServiceServer).RetryAiAssistantUserMessage(ctx, req.(*RetryAiAssistantUserMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AiAssistantMessageService_RegenerateAiAssistantMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegenerateAiAssistantMessageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiAssistantMessageServiceServer).RegenerateAiAssistantMessage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiAssistantMessageService_RegenerateAiAssistantMessage_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiAssistantMessageServiceServer).RegenerateAiAssistantMessage(ctx, req.(*RegenerateAiAssistantMessageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AiAssistantMessageService_ServiceDesc is the grpc.ServiceDesc for AiAssistantMessageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -122,6 +230,18 @@ var AiAssistantMessageService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendAiAssistantMessage",
 			Handler:    _AiAssistantMessageService_SendAiAssistantMessage_Handler,
+		},
+		{
+			MethodName: "DeleteAiAssistantMessage",
+			Handler:    _AiAssistantMessageService_DeleteAiAssistantMessage_Handler,
+		},
+		{
+			MethodName: "RetryAiAssistantUserMessage",
+			Handler:    _AiAssistantMessageService_RetryAiAssistantUserMessage_Handler,
+		},
+		{
+			MethodName: "RegenerateAiAssistantMessage",
+			Handler:    _AiAssistantMessageService_RegenerateAiAssistantMessage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

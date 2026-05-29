@@ -100,12 +100,8 @@ import { Loading, Microphone, Paperclip, Promotion } from "@element-plus/icons-v
 import { ElMessage } from "element-plus";
 import { defFileService } from "@/api/base/file";
 import type { AiAssistantAttachment } from "@/rpc/base/v1/ai_assistant_session";
+import type { SubmitPayload } from "../types";
 import { buildAssistantAttachmentFileCard } from "../attachment";
-
-type SubmitPayload = {
-  text: string;
-  attachments: AiAssistantAttachment[];
-};
 
 /** 语音识别错误的最小字段，兼容浏览器事件和不支持错误。 */
 type RecordError = {
@@ -389,6 +385,7 @@ watch(
   },
   { deep: true }
 );
+
 </script>
 
 <style scoped lang="scss">

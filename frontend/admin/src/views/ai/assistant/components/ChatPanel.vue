@@ -48,6 +48,21 @@
               </div>
             </div>
           </template>
+          <template #footer="{ item }">
+            <div class="agent-message-actions" :class="{ 'is-user': item.role === 'user' }">
+              <el-tooltip v-for="action in resolveMessageActions(item)" :key="action.key" :content="action.label" placement="top">
+                <button
+                  class="agent-message-action"
+                  type="button"
+                  :disabled="sending || item.progressState === 'streaming'"
+                  :aria-label="action.label"
+                  @click="handleMessageAction(action.key, item)"
+                >
+                  <el-icon><component :is="action.icon" /></el-icon>
+                </button>
+              </el-tooltip>
+            </div>
+          </template>
         </BubbleList>
       </div>
 
@@ -59,21 +74,118 @@
 </template>
 
 <script setup lang="ts" name="ChatPanel">
-import { computed, defineAsyncComponent } from "vue";
+import { computed, defineAsyncComponent, h } from "vue";
+import type { Component } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import type { AiAssistantAttachment, AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
+import { CopyDocument, Delete, Refresh } from "@element-plus/icons-vue";
+import {
+  type AiAssistantAttachment,
+  type AiAssistantSession
+} from "@/rpc/base/v1/ai_assistant_session";
+import { AiAssistantMessageStatus } from "@/rpc/common/v1/enum";
 import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
 import { buildAssistantAttachmentFileCard } from "../attachment";
-import type { ChatMessageItem, ReplySourceTag } from "../types";
+import type { ChatMessageAction, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
-type SubmitPayload = {
-  text: string;
-  attachments: AiAssistantAttachment[];
+/** 消息操作按钮配置。 */
+type MessageActionOption = {
+  /** 操作类型。 */
+  key: ChatMessageAction;
+  /** 悬浮提示和无障碍文案。 */
+  label: string;
+  /** 操作图标组件。 */
+  icon: Component;
 };
+
+/** 朗读图标，按产品示意图绘制为喇叭声波。 */
+const SpeakActionIcon = defineAsyncComponent(() =>
+  Promise.resolve({
+    name: "SpeakActionIcon",
+    render() {
+      return h(
+        "svg",
+        {
+          class: "agent-message-action__custom-icon",
+          xmlns: "http://www.w3.org/2000/svg",
+          viewBox: "80 160 864 704",
+          fill: "none",
+          "aria-hidden": "true"
+        },
+        [
+          h("path", {
+            d: "M128 400h144L512 224v576L272 624H128z",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linejoin": "round"
+          }),
+          h("path", {
+            d: "M640 352a224 224 0 0 1 0 320",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linecap": "round"
+          }),
+          h("path", {
+            d: "M768 224a384 384 0 0 1 0 576",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linecap": "round"
+          })
+        ]
+      );
+    }
+  })
+);
+
+/** 分支图标，按产品示意图绘制为向上分叉箭头。 */
+const BranchActionIcon = defineAsyncComponent(() =>
+  Promise.resolve({
+    name: "BranchActionIcon",
+    render() {
+      return h(
+        "svg",
+        {
+          class: "agent-message-action__custom-icon",
+          xmlns: "http://www.w3.org/2000/svg",
+          viewBox: "96 160 832 704",
+          fill: "none",
+          "aria-hidden": "true"
+        },
+        [
+          h("path", {
+            d: "M256 832V192",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linecap": "round"
+          }),
+          h("path", {
+            d: "M256 192 128 320M256 192l128 128",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round"
+          }),
+          h("path", {
+            d: "M384 640c256 0 384-176 384-448",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linecap": "round"
+          }),
+          h("path", {
+            d: "M768 192 640 320M768 192l128 128",
+            stroke: "currentColor",
+            "stroke-width": "64",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round"
+          })
+        ]
+      );
+    }
+  })
+);
 
 const props = defineProps<{
   /** 当前活动会话。 */
@@ -87,6 +199,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   /** 提交输入框内容。 */
   submit: [payload: SubmitPayload];
+  /** 触发消息级操作。 */
+  messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -114,6 +228,39 @@ function handleSubmit(payload: SubmitPayload) {
   emit("submit", payload);
 }
 
+/** 根据消息角色返回可用操作。 */
+function resolveMessageActions(item: ChatMessageItem) {
+  if (item.progressState === "streaming" || item.status === AiAssistantMessageStatus.GENERATING_AAMS) return [];
+
+  const copyAction: MessageActionOption = { key: "copy" as const, label: "复制", icon: CopyDocument };
+  const deleteAction: MessageActionOption = { key: "delete" as const, label: "删除", icon: Delete };
+  if (item.role === "user") {
+    if (item.status === AiAssistantMessageStatus.FAILED_AAMS) {
+      return [{ key: "retry" as const, label: "重新发送", icon: Refresh }, copyAction, deleteAction];
+    }
+    return [copyAction, deleteAction];
+  }
+
+  const actions: MessageActionOption[] = [{ key: "retry" as const, label: "重新生成", icon: Refresh }];
+  if (item.role !== "user") {
+    if (item.status === AiAssistantMessageStatus.SUCCESS_AAMS) {
+      actions.push({ key: "branch" as const, label: "从此处创建分支会话", icon: BranchActionIcon });
+      actions.push({ key: "speak" as const, label: item.speaking ? "停止朗读" : "朗读", icon: SpeakActionIcon });
+    }
+    return [
+      ...actions,
+      copyAction,
+      deleteAction
+    ];
+  }
+  return [copyAction, deleteAction];
+}
+
+/** 向父组件透传消息操作，由页面层决定是否重发、复制或移除。 */
+function handleMessageAction(action: ChatMessageAction, item: ChatMessageItem) {
+  emit("messageAction", { action, item });
+}
+
 /** 统一回复来源标签配色。 */
 function resolveTagClass(tone?: ReplySourceTag["tone"]) {
   return tone ? `is-${tone}` : "";
@@ -127,6 +274,7 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
     })
   );
 }
+
 </script>
 
 <style scoped lang="scss">
@@ -292,6 +440,55 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   :deep(.elx-files-card-delete-icon) {
     border-radius: var(--admin-page-radius);
   }
+}
+.agent-message-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+}
+.agent-message-actions.is-user {
+  justify-content: flex-end;
+}
+.agent-message-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--admin-page-radius);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+  &:hover {
+    color: var(--el-color-primary);
+    background: var(--el-fill-color-light);
+  }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+}
+.agent-message-action :deep(.el-icon) {
+  width: 1em;
+  height: 1em;
+  font-size: 16px;
+  line-height: 1;
+}
+.agent-message-action :deep(svg) {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+.agent-message-action :deep(.agent-message-action__custom-icon) {
+  width: 16px;
+  height: 16px;
 }
 .agent-sender-wrap {
   position: absolute;

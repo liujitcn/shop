@@ -37,6 +37,36 @@ func (s *AiAssistantMessageService) SendAiAssistantMessage(ctx context.Context, 
 	return res, nil
 }
 
+// DeleteAiAssistantMessage 删除 AI 助手消息。
+func (s *AiAssistantMessageService) DeleteAiAssistantMessage(ctx context.Context, req *basev1.DeleteAiAssistantMessageRequest) (*basev1.DeleteAiAssistantMessageResponse, error) {
+	err := s.aiAssistantMessageCase.DeleteAiAssistantMessage(ctx, req)
+	if err != nil {
+		log.Errorf("DeleteAiAssistantMessage %v", err)
+		return nil, errorsx.WrapInternal(err, "删除AI助手消息失败")
+	}
+	return &basev1.DeleteAiAssistantMessageResponse{}, nil
+}
+
+// RetryAiAssistantUserMessage 重试失败的用户消息。
+func (s *AiAssistantMessageService) RetryAiAssistantUserMessage(ctx context.Context, req *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
+	res, err := s.aiAssistantMessageCase.RetryAiAssistantUserMessage(ctx, req)
+	if err != nil {
+		log.Errorf("RetryAiAssistantUserMessage %v", err)
+		return nil, errorsx.WrapInternal(err, "重试AI助手用户消息失败")
+	}
+	return res, nil
+}
+
+// RegenerateAiAssistantMessage 重新生成助手回复。
+func (s *AiAssistantMessageService) RegenerateAiAssistantMessage(ctx context.Context, req *basev1.RegenerateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
+	res, err := s.aiAssistantMessageCase.RegenerateAiAssistantMessage(ctx, req)
+	if err != nil {
+		log.Errorf("RegenerateAiAssistantMessage %v", err)
+		return nil, errorsx.WrapInternal(err, "重新生成AI助手回复失败")
+	}
+	return res, nil
+}
+
 // StreamAiAssistantMessage 流式发送 AI 助手消息。
 func (s *AiAssistantMessageService) StreamAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest, emitter dto.AiAssistantStreamEmitter) error {
 	err := s.aiAssistantMessageCase.StreamAiAssistantMessage(ctx, req, emitter)

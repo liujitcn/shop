@@ -5,8 +5,7 @@
 // source: base/v1/ai_assistant_session.proto
 
 /* eslint-disable */
-import type { Terminal } from "../../common/v1/enum";
-import type { Empty } from "../../google/protobuf/empty";
+import type { AiAssistantMessageStatus, Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 
 /** AI 助手会话列表查询条件 */
@@ -29,6 +28,12 @@ export interface CreateAiAssistantSessionRequest {
   terminal: Terminal;
 }
 
+/** AI 助手会话创建响应 */
+export interface CreateAiAssistantSessionResponse {
+  /** 会话信息 */
+  session: AiAssistantSession | undefined;
+}
+
 /** AI 助手会话更新请求 */
 export interface UpdateAiAssistantSessionRequest {
   /** 会话ID */
@@ -37,10 +42,20 @@ export interface UpdateAiAssistantSessionRequest {
   title: string;
 }
 
+/** AI 助手会话更新响应 */
+export interface UpdateAiAssistantSessionResponse {
+  /** 会话信息 */
+  session: AiAssistantSession | undefined;
+}
+
 /** AI 助手会话删除请求 */
 export interface DeleteAiAssistantSessionRequest {
   /** 会话ID */
   id: string;
+}
+
+/** AI 助手会话删除响应 */
+export interface DeleteAiAssistantSessionResponse {
 }
 
 /** AI 助手消息列表查询条件 */
@@ -52,6 +67,28 @@ export interface ListAiAssistantMessagesRequest {
 /** AI 助手消息列表响应 */
 export interface ListAiAssistantMessagesResponse {
   /** 消息列表 */
+  messages: AiAssistantMessage[];
+}
+
+/** AI 助手分支会话创建请求 */
+export interface CreateAiAssistantSessionBranchRequest {
+  /** 来源会话ID */
+  source_session_id: string;
+  /** 分支锚点消息ID */
+  anchor_message_id: string;
+  /** 分支会话标题 */
+  title: string;
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
+}
+
+/** AI 助手分支会话创建响应 */
+export interface CreateAiAssistantSessionBranchResponse {
+  /** 新会话信息 */
+  session:
+    | AiAssistantSession
+    | undefined;
+  /** 新会话消息列表 */
   messages: AiAssistantMessage[];
 }
 
@@ -97,6 +134,8 @@ export interface AiAssistantMessage {
   fallback: boolean;
   /** 降级原因 */
   fallback_reason: string;
+  /** 消息生成状态：枚举【AiAssistantMessageStatus】 */
+  status: AiAssistantMessageStatus;
 }
 
 /** AI 助手附件 */
@@ -117,22 +156,16 @@ export interface AiAssistantAttachment {
 export interface AiAssistantService {
   /** 查询 AI 助手会话列表 */
   ListAiAssistantSessions(request: ListAiAssistantSessionsRequest): Promise<ListAiAssistantSessionsResponse>;
-  /**
-   * 创建 AI 助手会话
-   * buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
-   * buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-   */
-  CreateAiAssistantSession(request: CreateAiAssistantSessionRequest): Promise<AiAssistantSession>;
-  /**
-   * 更新 AI 助手会话
-   * buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-   */
-  UpdateAiAssistantSession(request: UpdateAiAssistantSessionRequest): Promise<AiAssistantSession>;
-  /**
-   * 删除 AI 助手会话
-   * buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-   */
-  DeleteAiAssistantSession(request: DeleteAiAssistantSessionRequest): Promise<Empty>;
+  /** 创建 AI 助手会话 */
+  CreateAiAssistantSession(request: CreateAiAssistantSessionRequest): Promise<CreateAiAssistantSessionResponse>;
+  /** 更新 AI 助手会话 */
+  UpdateAiAssistantSession(request: UpdateAiAssistantSessionRequest): Promise<UpdateAiAssistantSessionResponse>;
+  /** 删除 AI 助手会话 */
+  DeleteAiAssistantSession(request: DeleteAiAssistantSessionRequest): Promise<DeleteAiAssistantSessionResponse>;
   /** 查询 AI 助手消息列表 */
   ListAiAssistantMessages(request: ListAiAssistantMessagesRequest): Promise<ListAiAssistantMessagesResponse>;
+  /** 从指定消息创建 AI 助手分支会话 */
+  CreateAiAssistantSessionBranch(
+    request: CreateAiAssistantSessionBranchRequest,
+  ): Promise<CreateAiAssistantSessionBranchResponse>;
 }

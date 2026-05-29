@@ -134,6 +134,8 @@ make gen
 - `chat-only`：AI 助手默认按通用纯聊天模式工作，不注册 MCP、业务工具或 Blades Memory 工具，任何主题都可以直接用模型能力回答。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合 session state 以模板形式渲染。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮用户消息与助手消息，避免占用工作台共用 `/events` 流。
+- `message status`：助手消息使用 `GENERATING / SUCCESS / FAILED` 表达生成中、成功和失败状态，删除统一通过 `deleted_at` 逻辑删除。失败的用户消息可通过 `/retry` 重新发送；助手回复可通过 `/regeneration` 基于上一条用户问题重新生成；单条消息删除会持久化到后端。
+- `branch session`：`/api/v1/base/ai/assistant/session/{sourceSessionId}/branch` 会复制锚点之前的成功消息，创建新的持久化分支会话。
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 

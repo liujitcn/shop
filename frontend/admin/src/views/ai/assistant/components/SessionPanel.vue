@@ -1,19 +1,5 @@
 <template>
   <aside class="agent-session-panel">
-    <div class="agent-session-brand">
-      <div class="agent-session-brand__main">
-        <div class="agent-session-brand__copy">
-          <div class="agent-session-brand__title">AI 助手</div>
-          <div class="agent-session-brand__desc">通用问答与内容处理</div>
-        </div>
-      </div>
-      <el-tooltip content="收起会话栏" placement="top">
-        <button class="agent-session-toggle" type="button" aria-label="收起会话栏" @click="$emit('toggleCollapse')">
-          <el-icon><DArrowLeft /></el-icon>
-        </button>
-      </el-tooltip>
-    </div>
-    <div class="agent-session-brand-divider"></div>
     <el-input
       :model-value="keyword"
       placeholder="搜索对话"
@@ -24,10 +10,17 @@
     <div class="agent-divider"></div>
     <div class="agent-panel-header">
       <div class="agent-panel-title">最近对话</div>
-      <button class="agent-panel-create" type="button" aria-label="新建会话" @click="handleCreateSession">
-        <el-icon><Plus /></el-icon>
-        <span>新建</span>
-      </button>
+      <div class="agent-panel-actions">
+        <el-tooltip content="收起会话栏" placement="top">
+          <button class="agent-panel-icon" type="button" aria-label="收起会话栏" @click="$emit('toggleCollapse')">
+            <el-icon><DArrowLeft /></el-icon>
+          </button>
+        </el-tooltip>
+        <button class="agent-panel-create" type="button" aria-label="新建会话" @click="handleCreateSession">
+          <el-icon><Plus /></el-icon>
+          <span>新建</span>
+        </button>
+      </div>
     </div>
     <Conversations
       v-model:active="activeID"
@@ -149,41 +142,13 @@ function handleCreateSession() {
     box-shadow: none;
   }
 }
-.agent-session-brand {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 64px;
-  padding: 0 6px;
-}
-.agent-session-brand__main {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-}
-.agent-session-brand__copy {
-  min-width: 0;
-}
-.agent-session-brand__title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  color: var(--admin-page-text-primary);
-}
-.agent-session-brand__desc {
-  margin-top: 2px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 20px;
-  color: var(--admin-page-text-secondary);
-}
-.agent-session-toggle {
+.agent-panel-icon {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
   background: var(--el-fill-color-light);
@@ -197,11 +162,6 @@ function handleCreateSession() {
     background: var(--el-color-primary-light-9);
   }
 }
-.agent-session-brand-divider {
-  height: 1px;
-  margin: 16px 0 20px;
-  background: var(--el-border-color-lighter);
-}
 .agent-panel-header {
   display: flex;
   align-items: center;
@@ -212,6 +172,11 @@ function handleCreateSession() {
   font-size: 14px;
   font-weight: 700;
   color: var(--admin-page-text-primary);
+}
+.agent-panel-actions {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
 }
 .agent-panel-create {
   display: inline-flex;

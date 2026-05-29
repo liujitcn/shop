@@ -7,6 +7,7 @@ import (
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
+	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/agent/assistant"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
@@ -24,14 +25,23 @@ import (
 type AiAssistantSessionCase struct {
 	*biz.BaseCase
 	*data.AiAssistantSessionRepository
-	mapper *mapper.CopierMapper[basev1.AiAssistantSession, models.AiAssistantSession]
+	tx                     data.Transaction
+	aiAssistantMessageRepo *data.AiAssistantMessageRepository
+	mapper                 *mapper.CopierMapper[basev1.AiAssistantSession, models.AiAssistantSession]
 }
 
 // NewAiAssistantSessionCase 创建 AI 助手会话业务实例。
-func NewAiAssistantSessionCase(baseCase *biz.BaseCase, aiAssistantSessionRepo *data.AiAssistantSessionRepository) *AiAssistantSessionCase {
+func NewAiAssistantSessionCase(
+	baseCase *biz.BaseCase,
+	tx data.Transaction,
+	aiAssistantSessionRepo *data.AiAssistantSessionRepository,
+	aiAssistantMessageRepo *data.AiAssistantMessageRepository,
+) *AiAssistantSessionCase {
 	return &AiAssistantSessionCase{
 		BaseCase:                     baseCase,
 		AiAssistantSessionRepository: aiAssistantSessionRepo,
+		tx:                           tx,
+		aiAssistantMessageRepo:       aiAssistantMessageRepo,
 		mapper:                       mapper.NewCopierMapper[basev1.AiAssistantSession, models.AiAssistantSession](),
 	}
 }
@@ -133,6 +143,114 @@ func (c *AiAssistantSessionCase) DeleteAiAssistantSession(ctx context.Context, r
 		return nil, err
 	}
 	return &emptypb.Empty{}, nil
+}
+
+// CreateAiAssistantSessionBranch 从指定消息创建当前用户的新分支会话。
+func (c *AiAssistantSessionCase) CreateAiAssistantSessionBranch(ctx context.Context, req *basev1.CreateAiAssistantSessionBranchRequest) (*basev1.CreateAiAssistantSessionBranchResponse, error) {
+	sourceSession, err := c.FindCurrentUserSessionByRawID(ctx, req.GetSourceSessionId())
+	if err != nil {
+		return nil, err
+	}
+	var anchorMessageID int64
+	anchorMessageID, err = strconv.ParseInt(req.GetAnchorMessageId(), 10, 64)
+	if err != nil || anchorMessageID <= 0 {
+		return nil, errorsx.InvalidArgument("分支锚点消息编号不合法")
+	}
+
+	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.ID.Eq(anchorMessageID)))
+	opts = append(opts, repository.Where(query.SessionID.Eq(sourceSession.ID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(sourceSession.UserID)))
+	var anchorMessage *models.AiAssistantMessage
+	anchorMessage, err = c.aiAssistantMessageRepo.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("分支锚点消息不存在")
+		}
+		return nil, err
+	}
+
+	messageOpts := make([]repository.QueryOption, 0, 6)
+	messageOpts = append(messageOpts, repository.Where(query.SessionID.Eq(sourceSession.ID)))
+	messageOpts = append(messageOpts, repository.Where(query.UserID.Eq(sourceSession.UserID)))
+	messageOpts = append(messageOpts, repository.Where(query.Status.Eq(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS))))
+	messageOpts = append(messageOpts, repository.Where(query.CreatedAt.Lte(anchorMessage.CreatedAt)))
+	messageOpts = append(messageOpts, repository.Order(query.CreatedAt.Asc(), query.ID.Asc()))
+	var sourceMessages []*models.AiAssistantMessage
+	sourceMessages, err = c.aiAssistantMessageRepo.List(ctx, messageOpts...)
+	if err != nil {
+		return nil, err
+	}
+	if len(sourceMessages) == 0 {
+		return nil, errorsx.ResourceNotFound("分支消息不存在")
+	}
+
+	now := time.Now()
+	title := req.GetTitle()
+	if title == "" {
+		title = "分支会话"
+	}
+	branchSession := &models.AiAssistantSession{
+		UserID:        sourceSession.UserID,
+		Terminal:      assistant.NormalizeTerminal(req.GetTerminal()),
+		Title:         title,
+		Summary:       sourceSession.Summary,
+		ToolCount:     sourceSession.ToolCount,
+		LastMessageAt: now,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+	branchMessages := make([]*models.AiAssistantMessage, 0, len(sourceMessages))
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if createErr := c.Create(txCtx, branchSession); createErr != nil {
+			return createErr
+		}
+		for _, item := range sourceMessages {
+			branchMessage := &models.AiAssistantMessage{
+				SessionID:       branchSession.ID,
+				UserID:          branchSession.UserID,
+				Role:            item.Role,
+				Kind:            item.Kind,
+				Content:         item.Content,
+				AttachmentsJSON: item.AttachmentsJSON,
+				ToolsJSON:       item.ToolsJSON,
+				TokenUsage:      item.TokenUsage,
+				Status:          item.Status,
+				CreatedAt:       item.CreatedAt,
+				UpdatedAt:       now,
+			}
+			if createErr := c.aiAssistantMessageRepo.Create(txCtx, branchMessage); createErr != nil {
+				return createErr
+			}
+			branchMessages = append(branchMessages, branchMessage)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	messages := make([]*basev1.AiAssistantMessage, 0, len(branchMessages))
+	messageMapper := mapper.NewCopierMapper[basev1.AiAssistantMessage, models.AiAssistantMessage]()
+	for _, item := range branchMessages {
+		meta := assistant.ParseReplyMeta(item.Content)
+		message := messageMapper.ToDTO(item)
+		message.Id = strconv.FormatInt(item.ID, 10)
+		message.Content = assistant.ParseReplyContent(item.Content)
+		message.Attachments = assistant.ParseAttachments(item.AttachmentsJSON)
+		message.CreatedAt = timestamppb.New(item.CreatedAt)
+		message.ReplySource = meta.ReplySource
+		message.Model = meta.Model
+		message.Fallback = meta.Fallback
+		message.FallbackReason = meta.FallbackReason
+		message.Status = commonv1.AiAssistantMessageStatus(item.Status)
+		messages = append(messages, message)
+	}
+	return &basev1.CreateAiAssistantSessionBranchResponse{
+		Session:  c.ToDTO(branchSession),
+		Messages: messages,
+	}, nil
 }
 
 // FindCurrentUserSessionByRawID 按当前用户与字符串会话编号查询会话。

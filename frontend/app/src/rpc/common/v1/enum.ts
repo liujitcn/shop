@@ -4,6 +4,8 @@
 //   protoc               unknown
 // source: common/v1/enum.proto
 
+/* eslint-disable */
+
 /** 状态 */
 export enum Status {
   UNKNOWN = 0,
@@ -401,6 +403,18 @@ export enum CommentReviewStatus {
   COMMENT_REVIEW_STATUS_REJECTED = 2,
   /** COMMENT_REVIEW_STATUS_EXCEPTION - 异常 */
   COMMENT_REVIEW_STATUS_EXCEPTION = 3,
+}
+
+/** AI 助手消息状态 */
+export enum AiAssistantMessageStatus {
+  /** UNKNOWN_AAMS - 未知AI助手消息状态 */
+  UNKNOWN_AAMS = 0,
+  /** GENERATING_AAMS - 生成中 */
+  GENERATING_AAMS = 1,
+  /** SUCCESS_AAMS - 成功 */
+  SUCCESS_AAMS = 2,
+  /** FAILED_AAMS - 失败 */
+  FAILED_AAMS = 3,
 }
 
 /** 评价摘要场景 */

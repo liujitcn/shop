@@ -11,7 +11,6 @@ import (
 
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,6 +21,7 @@ var _ = binding.EncodeURL
 const _ = http.SupportPackageIsVersion1
 
 const OperationAiAssistantServiceCreateAiAssistantSession = "/base.v1.AiAssistantService/CreateAiAssistantSession"
+const OperationAiAssistantServiceCreateAiAssistantSessionBranch = "/base.v1.AiAssistantService/CreateAiAssistantSessionBranch"
 const OperationAiAssistantServiceDeleteAiAssistantSession = "/base.v1.AiAssistantService/DeleteAiAssistantSession"
 const OperationAiAssistantServiceListAiAssistantMessages = "/base.v1.AiAssistantService/ListAiAssistantMessages"
 const OperationAiAssistantServiceListAiAssistantSessions = "/base.v1.AiAssistantService/ListAiAssistantSessions"
@@ -29,19 +29,17 @@ const OperationAiAssistantServiceUpdateAiAssistantSession = "/base.v1.AiAssistan
 
 type AiAssistantServiceHTTPServer interface {
 	// CreateAiAssistantSession 创建 AI 助手会话
-	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
-	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-	CreateAiAssistantSession(context.Context, *CreateAiAssistantSessionRequest) (*AiAssistantSession, error)
+	CreateAiAssistantSession(context.Context, *CreateAiAssistantSessionRequest) (*CreateAiAssistantSessionResponse, error)
+	// CreateAiAssistantSessionBranch 从指定消息创建 AI 助手分支会话
+	CreateAiAssistantSessionBranch(context.Context, *CreateAiAssistantSessionBranchRequest) (*CreateAiAssistantSessionBranchResponse, error)
 	// DeleteAiAssistantSession 删除 AI 助手会话
-	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-	DeleteAiAssistantSession(context.Context, *DeleteAiAssistantSessionRequest) (*emptypb.Empty, error)
+	DeleteAiAssistantSession(context.Context, *DeleteAiAssistantSessionRequest) (*DeleteAiAssistantSessionResponse, error)
 	// ListAiAssistantMessages 查询 AI 助手消息列表
 	ListAiAssistantMessages(context.Context, *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error)
 	// ListAiAssistantSessions 查询 AI 助手会话列表
 	ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error)
 	// UpdateAiAssistantSession 更新 AI 助手会话
-	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-	UpdateAiAssistantSession(context.Context, *UpdateAiAssistantSessionRequest) (*AiAssistantSession, error)
+	UpdateAiAssistantSession(context.Context, *UpdateAiAssistantSessionRequest) (*UpdateAiAssistantSessionResponse, error)
 }
 
 func RegisterAiAssistantServiceHTTPServer(s *http.Server, srv AiAssistantServiceHTTPServer) {
@@ -51,6 +49,7 @@ func RegisterAiAssistantServiceHTTPServer(s *http.Server, srv AiAssistantService
 	r.PUT("/api/v1/base/ai/assistant/session/{id}", _AiAssistantService_UpdateAiAssistantSession0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/ai/assistant/session/{id}", _AiAssistantService_DeleteAiAssistantSession0_HTTP_Handler(srv))
 	r.GET("/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantService_ListAiAssistantMessages0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/ai/assistant/session/{source_session_id}/branch", _AiAssistantService_CreateAiAssistantSessionBranch0_HTTP_Handler(srv))
 }
 
 func _AiAssistantService_ListAiAssistantSessions0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
@@ -89,7 +88,7 @@ func _AiAssistantService_CreateAiAssistantSession0_HTTP_Handler(srv AiAssistantS
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiAssistantSession)
+		reply := out.(*CreateAiAssistantSessionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -114,7 +113,7 @@ func _AiAssistantService_UpdateAiAssistantSession0_HTTP_Handler(srv AiAssistantS
 		if err != nil {
 			return err
 		}
-		reply := out.(*AiAssistantSession)
+		reply := out.(*UpdateAiAssistantSessionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -136,7 +135,7 @@ func _AiAssistantService_DeleteAiAssistantSession0_HTTP_Handler(srv AiAssistantS
 		if err != nil {
 			return err
 		}
-		reply := out.(*emptypb.Empty)
+		reply := out.(*DeleteAiAssistantSessionResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -163,21 +162,44 @@ func _AiAssistantService_ListAiAssistantMessages0_HTTP_Handler(srv AiAssistantSe
 	}
 }
 
+func _AiAssistantService_CreateAiAssistantSessionBranch0_HTTP_Handler(srv AiAssistantServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in CreateAiAssistantSessionBranchRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAssistantServiceCreateAiAssistantSessionBranch)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.CreateAiAssistantSessionBranch(ctx, req.(*CreateAiAssistantSessionBranchRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*CreateAiAssistantSessionBranchResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AiAssistantServiceHTTPClient interface {
 	// CreateAiAssistantSession 创建 AI 助手会话
-	// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
-	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-	CreateAiAssistantSession(ctx context.Context, req *CreateAiAssistantSessionRequest, opts ...http.CallOption) (rsp *AiAssistantSession, err error)
+	CreateAiAssistantSession(ctx context.Context, req *CreateAiAssistantSessionRequest, opts ...http.CallOption) (rsp *CreateAiAssistantSessionResponse, err error)
+	// CreateAiAssistantSessionBranch 从指定消息创建 AI 助手分支会话
+	CreateAiAssistantSessionBranch(ctx context.Context, req *CreateAiAssistantSessionBranchRequest, opts ...http.CallOption) (rsp *CreateAiAssistantSessionBranchResponse, err error)
 	// DeleteAiAssistantSession 删除 AI 助手会话
-	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-	DeleteAiAssistantSession(ctx context.Context, req *DeleteAiAssistantSessionRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	DeleteAiAssistantSession(ctx context.Context, req *DeleteAiAssistantSessionRequest, opts ...http.CallOption) (rsp *DeleteAiAssistantSessionResponse, err error)
 	// ListAiAssistantMessages 查询 AI 助手消息列表
 	ListAiAssistantMessages(ctx context.Context, req *ListAiAssistantMessagesRequest, opts ...http.CallOption) (rsp *ListAiAssistantMessagesResponse, err error)
 	// ListAiAssistantSessions 查询 AI 助手会话列表
 	ListAiAssistantSessions(ctx context.Context, req *ListAiAssistantSessionsRequest, opts ...http.CallOption) (rsp *ListAiAssistantSessionsResponse, err error)
 	// UpdateAiAssistantSession 更新 AI 助手会话
-	// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-	UpdateAiAssistantSession(ctx context.Context, req *UpdateAiAssistantSessionRequest, opts ...http.CallOption) (rsp *AiAssistantSession, err error)
+	UpdateAiAssistantSession(ctx context.Context, req *UpdateAiAssistantSessionRequest, opts ...http.CallOption) (rsp *UpdateAiAssistantSessionResponse, err error)
 }
 
 type AiAssistantServiceHTTPClientImpl struct {
@@ -189,10 +211,8 @@ func NewAiAssistantServiceHTTPClient(client *http.Client) AiAssistantServiceHTTP
 }
 
 // CreateAiAssistantSession 创建 AI 助手会话
-// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
-// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-func (c *AiAssistantServiceHTTPClientImpl) CreateAiAssistantSession(ctx context.Context, in *CreateAiAssistantSessionRequest, opts ...http.CallOption) (*AiAssistantSession, error) {
-	var out AiAssistantSession
+func (c *AiAssistantServiceHTTPClientImpl) CreateAiAssistantSession(ctx context.Context, in *CreateAiAssistantSessionRequest, opts ...http.CallOption) (*CreateAiAssistantSessionResponse, error) {
+	var out CreateAiAssistantSessionResponse
 	pattern := "/api/v1/base/ai/assistant/session"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAiAssistantServiceCreateAiAssistantSession))
@@ -204,10 +224,23 @@ func (c *AiAssistantServiceHTTPClientImpl) CreateAiAssistantSession(ctx context.
 	return &out, nil
 }
 
+// CreateAiAssistantSessionBranch 从指定消息创建 AI 助手分支会话
+func (c *AiAssistantServiceHTTPClientImpl) CreateAiAssistantSessionBranch(ctx context.Context, in *CreateAiAssistantSessionBranchRequest, opts ...http.CallOption) (*CreateAiAssistantSessionBranchResponse, error) {
+	var out CreateAiAssistantSessionBranchResponse
+	pattern := "/api/v1/base/ai/assistant/session/{source_session_id}/branch"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAiAssistantServiceCreateAiAssistantSessionBranch))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 // DeleteAiAssistantSession 删除 AI 助手会话
-// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-func (c *AiAssistantServiceHTTPClientImpl) DeleteAiAssistantSession(ctx context.Context, in *DeleteAiAssistantSessionRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
-	var out emptypb.Empty
+func (c *AiAssistantServiceHTTPClientImpl) DeleteAiAssistantSession(ctx context.Context, in *DeleteAiAssistantSessionRequest, opts ...http.CallOption) (*DeleteAiAssistantSessionResponse, error) {
+	var out DeleteAiAssistantSessionResponse
 	pattern := "/api/v1/base/ai/assistant/session/{id}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAiAssistantServiceDeleteAiAssistantSession))
@@ -248,9 +281,8 @@ func (c *AiAssistantServiceHTTPClientImpl) ListAiAssistantSessions(ctx context.C
 }
 
 // UpdateAiAssistantSession 更新 AI 助手会话
-// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-func (c *AiAssistantServiceHTTPClientImpl) UpdateAiAssistantSession(ctx context.Context, in *UpdateAiAssistantSessionRequest, opts ...http.CallOption) (*AiAssistantSession, error) {
-	var out AiAssistantSession
+func (c *AiAssistantServiceHTTPClientImpl) UpdateAiAssistantSession(ctx context.Context, in *UpdateAiAssistantSessionRequest, opts ...http.CallOption) (*UpdateAiAssistantSessionResponse, error) {
+	var out UpdateAiAssistantSessionResponse
 	pattern := "/api/v1/base/ai/assistant/session/{id}"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAiAssistantServiceUpdateAiAssistantSession))

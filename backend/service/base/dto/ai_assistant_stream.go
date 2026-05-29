@@ -16,12 +16,11 @@ const (
 
 // AiAssistantStreamPayload 表示聊天专用 SSE 事件负载。
 type AiAssistantStreamPayload struct {
-	SessionID       string                       `json:"session_id"`
-	ClientMessageID string                       `json:"client_message_id"`
-	Delta           string                       `json:"delta,omitempty"`
-	Messages        []*basev1.AiAssistantMessage `json:"messages,omitempty"`
-	Session         *basev1.AiAssistantSession   `json:"session,omitempty"`
-	ErrorMessage    string                       `json:"error_message,omitempty"`
+	SessionID string                       `json:"session_id"`
+	MessageID string                       `json:"message_id"`
+	Delta     string                       `json:"delta,omitempty"`
+	Messages  []*basev1.AiAssistantMessage `json:"messages,omitempty"`
+	Session   *basev1.AiAssistantSession   `json:"session,omitempty"`
 }
 
 // AiAssistantStreamEmitter 定义聊天专用 SSE 事件发送能力。

@@ -16,7 +16,13 @@
       </button>
       <span class="agent-session-collapsed__label">最近对话</span>
     </div>
-    <ChatPanel :active-session="activeSession" :messages="currentMessages" :sending="sending" @submit="handleSubmit" />
+    <ChatPanel
+      :active-session="activeSession"
+      :messages="currentMessages"
+      :sending="sending"
+      @submit="handleSubmit"
+      @message-action="handleMessageAction"
+    />
   </div>
 </template>
 
@@ -28,28 +34,29 @@ import { DArrowRight } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { defAiAssistantMessageService } from "@/api/base/ai_assistant_message";
 import { defAiAssistantSessionService } from "@/api/base/ai_assistant_session";
-import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
-import { Terminal } from "@/rpc/common/v1/enum";
+import { type AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
+import { AiAssistantMessageStatus, Terminal } from "@/rpc/common/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
 import {
   appendStreamingDelta,
-  buildStreamMessageKey,
   createLocalUserMessage,
   createThinkingMessage,
   ensureStreamingMessage,
+  findPreviousUserMessage,
   hasStreamingDelta,
   markStreamingError,
   markThinkingMessageFailed,
+  markSpeakingMessage,
   normalizeMessageList,
   normalizeSession,
   normalizeSessionList,
   resolveTimestamp,
   replacePendingMessages,
-  sortMessages
+  sortMessages,
 } from "./message";
 import { normalizeAiAssistantStreamItem } from "./stream";
-import type { AiAssistantStreamEvent, AiAssistantStreamPayload, ChatMessageItem, SessionAction, SubmitPayload } from "./types";
+import type { AiAssistantStreamEvent, AiAssistantStreamPayload, ChatMessageAction, ChatMessageItem, SessionAction, SubmitPayload } from "./types";
 
 defineOptions({
   name: "AiAssistant"
@@ -68,6 +75,7 @@ const { startStream, cancel: cancelStream, data: streamData, error: streamError 
 let pendingDeltaFrame = 0;
 let consumedStreamItemCount = 0;
 let streamFinished = false;
+let speakingMessageID = "";
 
 const filteredSessions = computed(() => {
   const keyword = sessionKeyword.value.trim();
@@ -126,9 +134,8 @@ async function handleSubmit(payload: SubmitPayload) {
     return;
   }
 
-  const clientMessageId = payload.clientMessageId || `assistant-stream-${Date.now()}`;
-  const localUserMessage = createLocalUserMessage({ ...payload, clientMessageId });
-  const thinkingMessage = createThinkingMessage(clientMessageId, { sessionID });
+  const localUserMessage = createLocalUserMessage(payload);
+  const thinkingMessage = createThinkingMessage({ sessionID });
   messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
   try {
     consumedStreamItemCount = 0;
@@ -138,7 +145,6 @@ async function handleSubmit(payload: SubmitPayload) {
     const response = await defAiAssistantMessageService.StreamAiAssistantMessage({
       session_id: sessionID,
       content: payload.text,
-      client_message_id: clientMessageId,
       attachments: payload.attachments.map(item => ({
         id: item.id,
         name: item.name,
@@ -161,14 +167,149 @@ async function handleSubmit(payload: SubmitPayload) {
     }
   } catch (error) {
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
-      sessionID,
-      clientMessageID: clientMessageId
+      sessionID
     });
     const message = error instanceof Error ? error.message : "AI 助手请求失败";
     ElMessage.error(message);
   } finally {
     sending.value = false;
   }
+}
+
+/** 处理聊天气泡上的重试、分支、朗读、复制和删除操作。 */
+async function handleMessageAction(payload: { action: ChatMessageAction; item: ChatMessageItem }) {
+  if (payload.action === "copy") {
+    await handleCopyMessage(payload.item);
+    return;
+  }
+  if (payload.action === "delete") {
+    await handleDeleteMessage(payload.item);
+    return;
+  }
+  if (payload.action === "branch") {
+    await handleBranchMessage(payload.item);
+    return;
+  }
+  if (payload.action === "speak") {
+    handleSpeakMessage(payload.item);
+    return;
+  }
+  await handleRetryMessage(payload.item);
+}
+
+/** 复制当前消息正文，保留用户原始输入或助手 Markdown 文本。 */
+async function handleCopyMessage(item: ChatMessageItem) {
+  try {
+    await navigator.clipboard.writeText(String(item.content ?? ""));
+    ElMessage.success("消息已复制");
+  } catch {
+    ElMessage.error("当前浏览器不支持复制");
+  }
+}
+
+/** 删除当前会话中的消息，并同步后端持久化状态。 */
+async function handleDeleteMessage(item: ChatMessageItem) {
+  const sessionID = activeSessionID.value;
+  if (!sessionID) return;
+  if (speakingMessageID === String(item.id)) {
+    stopSpeaking();
+  }
+  await defAiAssistantMessageService.DeleteAiAssistantMessage({
+    session_id: sessionID,
+    message_id: String(item.id)
+  });
+  messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => String(message.id) !== String(item.id));
+  ElMessage.success("消息已删除");
+}
+
+/** 重试失败的用户消息，或重新生成助手回复。 */
+async function handleRetryMessage(item: ChatMessageItem) {
+  const sessionID = activeSessionID.value;
+  if (!sessionID) return;
+
+  let response;
+  if (item.role === "user") {
+    if (item.status !== AiAssistantMessageStatus.FAILED_AAMS) {
+      ElMessage.warning("只有发送失败的用户消息可以重新发送");
+      return;
+    }
+    response = await defAiAssistantMessageService.RetryAiAssistantUserMessage({
+      session_id: sessionID,
+      message_id: String(item.id)
+    });
+  } else {
+    response = await defAiAssistantMessageService.RegenerateAiAssistantMessage({
+      session_id: sessionID,
+      message_id: String(item.id)
+    });
+  }
+  const current = messages.value[sessionID] ?? [];
+  const stableMessages = item.role === "user" ? current : current.filter(message => String(message.id) !== String(item.id));
+  messages.value[sessionID] = replacePendingMessages(stableMessages, normalizeMessageList(response.messages));
+  if (response.session) upsertSession(normalizeSession(response.session));
+  ElMessage.success(item.role === "user" ? "已重新发送" : "已重新生成");
+}
+
+/** 从当前消息处创建一个新的持久化分支会话。 */
+async function handleBranchMessage(item: ChatMessageItem) {
+  const sourceSessionID = activeSessionID.value;
+  if (!sourceSessionID) return;
+  stopSpeaking();
+  const response = await defAiAssistantSessionService.CreateAiAssistantSessionBranch({
+    source_session_id: sourceSessionID,
+    anchor_message_id: String(item.id),
+    title: buildBranchSessionTitle(item),
+    terminal: Terminal.TERMINAL_ADMIN
+  });
+  const branchSession = normalizeSession(response.session);
+  upsertSession(branchSession);
+  messages.value[branchSession.id] = normalizeMessageList(response.messages);
+  activeSessionID.value = branchSession.id;
+  ElMessage.success("已创建分支会话");
+}
+
+/** 朗读或停止朗读当前助手回复。 */
+function handleSpeakMessage(item: ChatMessageItem) {
+  if (item.role === "user") return;
+  if (!window.speechSynthesis) {
+    ElMessage.warning("当前浏览器不支持朗读");
+    return;
+  }
+  if (speakingMessageID === String(item.id)) {
+    stopSpeaking();
+    return;
+  }
+  stopSpeaking();
+  const utterance = new SpeechSynthesisUtterance(String(item.content ?? ""));
+  utterance.lang = "zh-CN";
+  utterance.onend = () => clearSpeakingState(String(item.id));
+  utterance.onerror = () => clearSpeakingState(String(item.id));
+  speakingMessageID = String(item.id);
+  markAllMessagesSpeaking(speakingMessageID);
+  window.speechSynthesis.speak(utterance);
+}
+
+/** 停止浏览器朗读，并清理气泡朗读态。 */
+function stopSpeaking() {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+  speakingMessageID = "";
+  markAllMessagesSpeaking();
+}
+
+/** 朗读事件结束后，只清理当前朗读消息对应的状态。 */
+function clearSpeakingState(messageID: string) {
+  if (speakingMessageID && speakingMessageID !== messageID) return;
+  speakingMessageID = "";
+  markAllMessagesSpeaking();
+}
+
+/** 同步所有已加载会话中的朗读态，避免切换会话后状态残留。 */
+function markAllMessagesSpeaking(messageID?: string) {
+  Object.keys(messages.value).forEach(sessionID => {
+    messages.value[sessionID] = markSpeakingMessage(messages.value[sessionID] ?? [], messageID);
+  });
 }
 
 /** 处理 AI 助手流式文本增量。 */
@@ -185,8 +326,8 @@ function handleAiAssistantFinish(payload: AiAssistantStreamPayload) {
   flushAiAssistantDelta();
   const nextMessages = normalizeMessageList(payload.messages as never[]);
   const current = messages.value[sessionID] ?? [];
-  const clientMessageID = String(payload.client_message_id ?? "");
-  const streamKey = buildStreamMessageKey(sessionID, clientMessageID);
+  const messageID = String(payload.message_id ?? "");
+  const streamKey = messageID ? `${sessionID}:${messageID}` : "";
   const hasLocalStreamingMessages = current.some(item => item.streamKey === streamKey && item.localOnly);
   messages.value[sessionID] =
     nextMessages.length || !hasLocalStreamingMessages ? replacePendingMessages(current, nextMessages, payload) : current;
@@ -201,8 +342,13 @@ function handleAiAssistantError(payload: AiAssistantStreamPayload) {
   if (!sessionID || !messages.value[sessionID]) return;
   streamFinished = true;
   flushAiAssistantDelta();
-  messages.value[sessionID] = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
-  messages.value[sessionID] = markStreamingError(messages.value[sessionID] ?? [], payload);
+  const nextMessages = normalizeMessageList(payload.messages as never[]);
+  if (nextMessages.length) {
+    messages.value[sessionID] = replacePendingMessages(messages.value[sessionID] ?? [], nextMessages, payload);
+    return;
+  }
+  const streamingMessages = ensureStreamingMessage(messages.value[sessionID] ?? [], payload);
+  messages.value[sessionID] = markStreamingError(streamingMessages, payload);
 }
 
 /** 根据 useXStream 解析结果派发 AI 助手 direct stream 事件。 */
@@ -234,10 +380,10 @@ function consumeStreamItems() {
 /** 合并同一帧内的流式分片，减少频繁重排导致的卡顿。 */
 function queueAiAssistantDelta(payload: AiAssistantStreamPayload) {
   const sessionID = String(payload.session_id ?? "");
-  const clientMessageID = String(payload.client_message_id ?? "");
-  if (!sessionID || !clientMessageID || !messages.value[sessionID]) return;
+  const messageID = String(payload.message_id ?? "");
+  if (!sessionID || !messageID || !messages.value[sessionID]) return;
 
-  const key = buildStreamMessageKey(sessionID, clientMessageID);
+  const key = `${sessionID}:${messageID}`;
   const cachedPayload = pendingDeltaMap.get(key);
   pendingDeltaMap.set(key, {
     ...payload,
@@ -316,8 +462,8 @@ async function handleRenameSession(item: AiAssistantSession) {
     inputErrorMessage: "请输入会话名称"
   });
 
-  const session = await defAiAssistantSessionService.UpdateAiAssistantSession({ id: item.id, title: value.trim() });
-  upsertSession(normalizeSession(session));
+  const response = await defAiAssistantSessionService.UpdateAiAssistantSession({ id: item.id, title: value.trim() });
+  upsertSession(normalizeSession(response.session));
   ElMessage.success("会话已重命名");
 }
 
@@ -354,14 +500,21 @@ async function ensureActiveSession() {
 }
 
 /** 创建新的助手会话，并同步到本地列表。 */
-async function createSession() {
-  const session = await defAiAssistantSessionService.CreateAiAssistantSession({
-    title: "新对话",
+async function createSession(options?: { title?: string }) {
+  const response = await defAiAssistantSessionService.CreateAiAssistantSession({
+    title: options?.title || "新对话",
     terminal: Terminal.TERMINAL_ADMIN
   });
-  const normalizedSession = normalizeSession(session);
+  const normalizedSession = normalizeSession(response.session);
   upsertSession(normalizedSession);
   return normalizedSession.id;
+}
+
+/** 使用当前消息内容生成一个易识别的分支会话标题。 */
+function buildBranchSessionTitle(item: ChatMessageItem) {
+  const sourceMessage = item.role === "user" ? item : findPreviousUserMessage(currentMessages.value, item);
+  const content = String(sourceMessage?.content || item.content || "新对话").replace(/\s+/g, " ").trim();
+  return `分支：${content.slice(0, 18) || "新对话"}`;
 }
 
 /** 更新或插入会话，并按更新时间排序。 */
@@ -390,6 +543,7 @@ watch(
 );
 
 onBeforeUnmount(() => {
+  stopSpeaking();
   cancelStream();
   if (pendingDeltaFrame) {
     window.cancelAnimationFrame(pendingDeltaFrame);

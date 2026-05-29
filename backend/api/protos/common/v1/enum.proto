@@ -277,6 +277,14 @@ enum CommentReviewStatus {
   COMMENT_REVIEW_STATUS_EXCEPTION = 3; // 异常
 }
 
+// AI 助手消息状态
+enum AiAssistantMessageStatus {
+  UNKNOWN_AAMS = 0; // 未知AI助手消息状态
+  GENERATING_AAMS = 1; // 生成中
+  SUCCESS_AAMS = 2; // 成功
+  FAILED_AAMS = 3; // 失败
+}
+
 // 评价摘要场景
 enum CommentSummaryScene {
   COMMENT_SUMMARY_SCENE_UNSPECIFIED = 0; // 未知评价摘要场景
