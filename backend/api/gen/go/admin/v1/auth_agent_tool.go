@@ -88,11 +88,15 @@ func NewAuthServiceTreeUserMenusAgentTool(authServiceServer AuthServiceServer) (
 	return tools.NewFunc(
 		"admin_v1_auth_service_tree_user_menus",
 		"查询已经登录的用户菜单树",
-		func(ctx context.Context, req *TreeUserMenusRequest) (*TreeRouteResponse, error) {
+		func(ctx context.Context, req *TreeUserMenusRequest) (any, error) {
 			if req == nil {
 				req = &TreeUserMenusRequest{}
 			}
-			return authServiceServer.TreeUserMenus(ctx, req)
+			reply, err := authServiceServer.TreeUserMenus(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tools "github.com/go-kratos/blades/tools"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -68,11 +67,15 @@ func NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServ
 	return tools.NewFunc(
 		"admin_v1_base_dept_service_tree_base_depts",
 		"查询部门树形列表",
-		func(ctx context.Context, req *TreeBaseDeptsRequest) (*TreeBaseDeptsResponse, error) {
+		func(ctx context.Context, req *TreeBaseDeptsRequest) (any, error) {
 			if req == nil {
 				req = &TreeBaseDeptsRequest{}
 			}
-			return baseDeptServiceServer.TreeBaseDepts(ctx, req)
+			reply, err := baseDeptServiceServer.TreeBaseDepts(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }
@@ -82,11 +85,15 @@ func NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer BaseDeptSe
 	return tools.NewFunc(
 		"admin_v1_base_dept_service_option_base_depts",
 		"查询部门树形选择",
-		func(ctx context.Context, req *OptionBaseDeptsRequest) (*v1.TreeOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseDeptsRequest) (any, error) {
 			if req == nil {
 				req = &OptionBaseDeptsRequest{}
 			}
-			return baseDeptServiceServer.OptionBaseDepts(ctx, req)
+			reply, err := baseDeptServiceServer.OptionBaseDepts(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

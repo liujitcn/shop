@@ -30,11 +30,15 @@ func NewBaseAreaServiceTreeBaseAreasAgentTool(baseAreaServiceServer BaseAreaServ
 	return tools.NewFunc(
 		"app_v1_base_area_service_tree_base_areas",
 		"查询行政区域树形列表",
-		func(ctx context.Context, req *TreeBaseAreasRequest) (*TreeBaseAreasResponse, error) {
+		func(ctx context.Context, req *TreeBaseAreasRequest) (any, error) {
 			if req == nil {
 				req = &TreeBaseAreasRequest{}
 			}
-			return baseAreaServiceServer.TreeBaseAreas(ctx, req)
+			reply, err := baseAreaServiceServer.TreeBaseAreas(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

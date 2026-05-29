@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tools "github.com/go-kratos/blades/tools"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -68,11 +67,15 @@ func NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceSer
 	return tools.NewFunc(
 		"admin_v1_goods_category_service_tree_goods_categories",
 		"查询商品分类树形列表",
-		func(ctx context.Context, req *TreeGoodsCategoriesRequest) (*TreeGoodsCategoriesResponse, error) {
+		func(ctx context.Context, req *TreeGoodsCategoriesRequest) (any, error) {
 			if req == nil {
 				req = &TreeGoodsCategoriesRequest{}
 			}
-			return goodsCategoryServiceServer.TreeGoodsCategories(ctx, req)
+			reply, err := goodsCategoryServiceServer.TreeGoodsCategories(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }
@@ -82,11 +85,15 @@ func NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceS
 	return tools.NewFunc(
 		"admin_v1_goods_category_service_option_goods_categories",
 		"查询商品分类树形选择",
-		func(ctx context.Context, req *OptionGoodsCategoriesRequest) (*v1.TreeOptionResponse, error) {
+		func(ctx context.Context, req *OptionGoodsCategoriesRequest) (any, error) {
 			if req == nil {
 				req = &OptionGoodsCategoriesRequest{}
 			}
-			return goodsCategoryServiceServer.OptionGoodsCategories(ctx, req)
+			reply, err := goodsCategoryServiceServer.OptionGoodsCategories(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

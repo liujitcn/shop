@@ -8,7 +8,6 @@ package adminv1
 
 import (
 	context "context"
-	v1 "shop/api/gen/go/common/v1"
 
 	tools "github.com/go-kratos/blades/tools"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
@@ -68,11 +67,15 @@ func NewBaseMenuServiceTreeBaseMenusAgentTool(baseMenuServiceServer BaseMenuServ
 	return tools.NewFunc(
 		"admin_v1_base_menu_service_tree_base_menus",
 		"查询菜单树形列表",
-		func(ctx context.Context, req *TreeBaseMenusRequest) (*TreeBaseMenusResponse, error) {
+		func(ctx context.Context, req *TreeBaseMenusRequest) (any, error) {
 			if req == nil {
 				req = &TreeBaseMenusRequest{}
 			}
-			return baseMenuServiceServer.TreeBaseMenus(ctx, req)
+			reply, err := baseMenuServiceServer.TreeBaseMenus(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }
@@ -82,11 +85,15 @@ func NewBaseMenuServiceOptionBaseMenusAgentTool(baseMenuServiceServer BaseMenuSe
 	return tools.NewFunc(
 		"admin_v1_base_menu_service_option_base_menus",
 		"查询菜单树形选择",
-		func(ctx context.Context, req *OptionBaseMenusRequest) (*v1.TreeOptionResponse, error) {
+		func(ctx context.Context, req *OptionBaseMenusRequest) (any, error) {
 			if req == nil {
 				req = &OptionBaseMenusRequest{}
 			}
-			return baseMenuServiceServer.OptionBaseMenus(ctx, req)
+			reply, err := baseMenuServiceServer.OptionBaseMenus(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }

@@ -30,8 +30,6 @@ export enum Edition {
    */
   EDITION_2023 = 1000,
   EDITION_2024 = 1001,
-  /** EDITION_UNSTABLE - A placeholder edition for developing and testing unscheduled features. */
-  EDITION_UNSTABLE = 9999,
   /**
    * EDITION_1_TEST_ONLY - Placeholder editions for testing feature resolution.  These should not be
    * used or relied on outside of tests.
@@ -816,12 +814,7 @@ export interface FieldOptions {
   deprecated?:
     | boolean
     | undefined;
-  /**
-   * DEPRECATED. DO NOT USE!
-   * For Google-internal migration only. Do not use.
-   *
-   * @deprecated
-   */
+  /** For Google-internal migration only. Do not use. */
   weak?:
     | boolean
     | undefined;

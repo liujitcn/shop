@@ -97,11 +97,15 @@ func NewBaseApiServiceGetBaseApiDocAgentTool(baseApiServiceServer BaseApiService
 	return tools.NewFunc(
 		"admin_v1_base_api_service_get_base_api_doc",
 		"查询API文档",
-		func(ctx context.Context, req *GetBaseApiDocRequest) (*BaseApiDoc, error) {
+		func(ctx context.Context, req *GetBaseApiDocRequest) (any, error) {
 			if req == nil {
 				req = &GetBaseApiDocRequest{}
 			}
-			return baseApiServiceServer.GetBaseApiDoc(ctx, req)
+			reply, err := baseApiServiceServer.GetBaseApiDoc(ctx, req)
+			if err != nil {
+				return nil, err
+			}
+			return reply, nil
 		},
 	)
 }
