@@ -16,6 +16,8 @@ export const useTable = (
   requestError?: (error: any) => void
 ) => {
   const state = reactive<Table.StateProps>({
+    // 表格加载状态
+    loading: false,
     // 表格数据
     tableData: [],
     // 分页数据
@@ -56,6 +58,7 @@ export const useTable = (
    * */
   const getTableList = async () => {
     if (!api) return;
+    state.loading = true;
     try {
       // 先把初始化参数和分页参数放到总参数里面
       Object.assign(state.totalParam, initParam, isPageable ? pageParam.value : {});
@@ -68,6 +71,8 @@ export const useTable = (
       }
     } catch (error) {
       requestError && requestError(error);
+    } finally {
+      state.loading = false;
     }
   };
 

@@ -20,6 +20,7 @@ import "@/styles/element.scss";
 import "virtual:svg-icons-register";
 // element icons
 import * as Icons from "@element-plus/icons-vue";
+import { ElLoading } from "element-plus";
 // custom directives
 import directives from "@/directives/index";
 // vue Router
@@ -51,6 +52,9 @@ async function bootstrap() {
   app.component("Dict", Dict);
   app.component("DictLabel", DictLabel);
   app.component("SvgIcon", SvgIcon);
+
+  // 按需加载模式不会自动注册 v-loading 指令，需要显式挂载。
+  app.directive("loading", ElLoading.directive);
 
   app.use(directives).use(router).use(pinia);
 

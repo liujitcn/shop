@@ -10,7 +10,7 @@
   />
   <component
     v-else
-    :is="column.search?.render ?? `el-${column.search?.el}`"
+    :is="searchComponent"
     v-bind="{ ...handleSearchProps, ...placeholder, searchParam: _searchParam, clearable }"
     v-model.trim="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
     :data="column.search?.el === 'tree-select' ? columnEnum : []"
@@ -33,10 +33,23 @@
 </template>
 
 <script setup lang="ts" name="SearchFormItem">
-import { computed, inject, ref } from "vue";
+import { computed, inject, ref, type Component } from "vue";
+import {
+  ElCascader,
+  ElDatePicker,
+  ElInput,
+  ElInputNumber,
+  ElSelect,
+  ElSelectV2,
+  ElSlider,
+  ElSwitch,
+  ElTimePicker,
+  ElTimeSelect,
+  ElTreeSelect
+} from "element-plus";
 import Dict from "@/components/Dict/index.vue";
 import { handleProp } from "@/utils";
-import { ColumnProps } from "@/components/ProTable/interface";
+import { ColumnProps, SearchType } from "@/components/ProTable/interface";
 
 interface SearchFormItem {
   column: ColumnProps;
@@ -46,6 +59,30 @@ const props = defineProps<SearchFormItem>();
 
 // Re receive SearchParam
 const _searchParam = computed(() => props.searchParam);
+
+const searchComponentMap: Record<SearchType, Component> = {
+  input: ElInput,
+  "input-number": ElInputNumber,
+  select: ElSelect,
+  "select-v2": ElSelectV2,
+  "tree-select": ElTreeSelect,
+  cascader: ElCascader,
+  "date-picker": ElDatePicker,
+  "time-picker": ElTimePicker,
+  "time-select": ElTimeSelect,
+  switch: ElSwitch,
+  slider: ElSlider
+};
+
+/**
+ * 获取搜索项实际渲染组件，避免按需加载后动态字符串组件无法解析。
+ */
+const searchComponent = computed(() => {
+  const render = props.column.search?.render;
+  if (render) return render;
+  const searchEl = props.column.search?.el;
+  return searchEl ? searchComponentMap[searchEl] : ElInput;
+});
 
 /**
  * 判断当前搜索项是否应直接使用字典组件渲染。

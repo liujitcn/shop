@@ -53,6 +53,7 @@
     <!-- 表格主体 -->
     <el-table
       ref="tableRef"
+      v-loading="loading"
       v-bind="$attrs"
       :id="uuid"
       :data="processTableData"
@@ -223,7 +224,7 @@ const headerActionScope = computed<HeaderActionScope>(() => ({
 }));
 
 // 表格操作 Hooks
-const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } =
+const { loading, tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } =
   useTable(props.requestApi, props.initParam, props.pagination, props.dataCallback, props.requestError);
 
 // 清空选中数据列表
@@ -459,6 +460,7 @@ const dragSort = () => {
 // 暴露给父组件的参数和方法 (外部需要什么，都可以从这里暴露出去)
 defineExpose({
   element: tableRef,
+  loading,
   tableData: processTableData,
   radio,
   pageable,
