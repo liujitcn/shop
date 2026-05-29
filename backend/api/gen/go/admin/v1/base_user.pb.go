@@ -74,13 +74,14 @@ func (x *OptionBaseUsersRequest) GetKeyword() string {
 // 用户分页查询条件
 type PageBaseUsersRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`            // 用户账号
-	NickName      string                 `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`            // 用户昵称
-	DeptId        *int64                 `protobuf:"varint,5,opt,name=dept_id,json=deptId,proto3,oneof" json:"dept_id,omitempty"`           // 部门ID
-	Phone         string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`                                  // 手机号
-	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
-	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
-	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每一页的行数
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`                  // 用户账号
+	NickName      string                 `protobuf:"bytes,3,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                  // 用户昵称
+	DeptId        *int64                 `protobuf:"varint,5,opt,name=dept_id,json=deptId,proto3,oneof" json:"dept_id,omitempty"`                 // 部门ID
+	Phone         string                 `protobuf:"bytes,6,opt,name=phone,proto3" json:"phone,omitempty"`                                        // 手机号
+	Gender        *v1.BaseUserGender     `protobuf:"varint,7,opt,name=gender,proto3,enum=common.v1.BaseUserGender,oneof" json:"gender,omitempty"` // 性别
+	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`       // 状态
+	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                  // 当前页码
+	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`               // 每一页的行数
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -141,6 +142,13 @@ func (x *PageBaseUsersRequest) GetPhone() string {
 		return x.Phone
 	}
 	return ""
+}
+
+func (x *PageBaseUsersRequest) GetGender() v1.BaseUserGender {
+	if x != nil && x.Gender != nil {
+		return *x.Gender
+	}
+	return v1.BaseUserGender(0)
 }
 
 func (x *PageBaseUsersRequest) GetStatus() v1.Status {
@@ -767,17 +775,19 @@ const file_admin_v1_base_user_proto_rawDesc = "" +
 	"\n" +
 	"\x18admin/v1/base_user.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"C\n" +
 	"\x16OptionBaseUsersRequest\x12)\n" +
-	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\"\xa0\x03\n" +
+	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\"\xf1\x03\n" +
 	"\x14PageBaseUsersRequest\x12/\n" +
 	"\tuser_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12,\n" +
 	"\adept_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDH\x00R\x06deptId\x88\x01\x01\x12%\n" +
-	"\x05phone\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x129\n" +
+	"\x05phone\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\t手机号R\x05phone\x12D\n" +
+	"\x06gender\x18\a \x01(\x0e2\x19.common.v1.BaseUserGenderB\f\xbaG\t\x92\x02\x06性别H\x01R\x06gender\x88\x01\x01\x12<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
 	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\n" +
 	"\n" +
 	"\b_dept_idB\t\n" +
+	"\a_genderB\t\n" +
 	"\a_status\"\x82\x01\n" +
 	"\x15PageBaseUsersResponse\x12E\n" +
 	"\n" +
@@ -866,44 +876,45 @@ var file_admin_v1_base_user_proto_goTypes = []any{
 	(*BaseUser)(nil),                     // 8: admin.v1.BaseUser
 	(*BaseUserForm)(nil),                 // 9: admin.v1.BaseUserForm
 	(*ResetBaseUserPasswordRequest)(nil), // 10: admin.v1.ResetBaseUserPasswordRequest
-	(v1.Status)(0),                       // 11: common.v1.Status
-	(v1.BaseUserGender)(0),               // 12: common.v1.BaseUserGender
+	(v1.BaseUserGender)(0),               // 11: common.v1.BaseUserGender
+	(v1.Status)(0),                       // 12: common.v1.Status
 	(*v1.PasswordCrypto)(nil),            // 13: common.v1.PasswordCrypto
 	(*v1.SelectOptionResponse)(nil),      // 14: common.v1.SelectOptionResponse
 	(*emptypb.Empty)(nil),                // 15: google.protobuf.Empty
 }
 var file_admin_v1_base_user_proto_depIdxs = []int32{
-	11, // 0: admin.v1.PageBaseUsersRequest.status:type_name -> common.v1.Status
-	8,  // 1: admin.v1.PageBaseUsersResponse.base_users:type_name -> admin.v1.BaseUser
-	9,  // 2: admin.v1.CreateBaseUserRequest.base_user:type_name -> admin.v1.BaseUserForm
-	9,  // 3: admin.v1.UpdateBaseUserRequest.base_user:type_name -> admin.v1.BaseUserForm
-	12, // 4: admin.v1.BaseUser.gender:type_name -> common.v1.BaseUserGender
-	11, // 5: admin.v1.BaseUser.status:type_name -> common.v1.Status
-	13, // 6: admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
-	12, // 7: admin.v1.BaseUserForm.gender:type_name -> common.v1.BaseUserGender
-	11, // 8: admin.v1.BaseUserForm.status:type_name -> common.v1.Status
-	13, // 9: admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
-	0,  // 10: admin.v1.BaseUserService.OptionBaseUsers:input_type -> admin.v1.OptionBaseUsersRequest
-	1,  // 11: admin.v1.BaseUserService.PageBaseUsers:input_type -> admin.v1.PageBaseUsersRequest
-	3,  // 12: admin.v1.BaseUserService.GetBaseUser:input_type -> admin.v1.GetBaseUserRequest
-	4,  // 13: admin.v1.BaseUserService.CreateBaseUser:input_type -> admin.v1.CreateBaseUserRequest
-	5,  // 14: admin.v1.BaseUserService.UpdateBaseUser:input_type -> admin.v1.UpdateBaseUserRequest
-	6,  // 15: admin.v1.BaseUserService.DeleteBaseUser:input_type -> admin.v1.DeleteBaseUserRequest
-	7,  // 16: admin.v1.BaseUserService.SetBaseUserStatus:input_type -> admin.v1.SetBaseUserStatusRequest
-	10, // 17: admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> admin.v1.ResetBaseUserPasswordRequest
-	14, // 18: admin.v1.BaseUserService.OptionBaseUsers:output_type -> common.v1.SelectOptionResponse
-	2,  // 19: admin.v1.BaseUserService.PageBaseUsers:output_type -> admin.v1.PageBaseUsersResponse
-	9,  // 20: admin.v1.BaseUserService.GetBaseUser:output_type -> admin.v1.BaseUserForm
-	15, // 21: admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
-	15, // 22: admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
-	15, // 23: admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
-	15, // 24: admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
-	15, // 25: admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
-	18, // [18:26] is the sub-list for method output_type
-	10, // [10:18] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	11, // 0: admin.v1.PageBaseUsersRequest.gender:type_name -> common.v1.BaseUserGender
+	12, // 1: admin.v1.PageBaseUsersRequest.status:type_name -> common.v1.Status
+	8,  // 2: admin.v1.PageBaseUsersResponse.base_users:type_name -> admin.v1.BaseUser
+	9,  // 3: admin.v1.CreateBaseUserRequest.base_user:type_name -> admin.v1.BaseUserForm
+	9,  // 4: admin.v1.UpdateBaseUserRequest.base_user:type_name -> admin.v1.BaseUserForm
+	11, // 5: admin.v1.BaseUser.gender:type_name -> common.v1.BaseUserGender
+	12, // 6: admin.v1.BaseUser.status:type_name -> common.v1.Status
+	13, // 7: admin.v1.BaseUserForm.pwd:type_name -> common.v1.PasswordCrypto
+	11, // 8: admin.v1.BaseUserForm.gender:type_name -> common.v1.BaseUserGender
+	12, // 9: admin.v1.BaseUserForm.status:type_name -> common.v1.Status
+	13, // 10: admin.v1.ResetBaseUserPasswordRequest.pwd:type_name -> common.v1.PasswordCrypto
+	0,  // 11: admin.v1.BaseUserService.OptionBaseUsers:input_type -> admin.v1.OptionBaseUsersRequest
+	1,  // 12: admin.v1.BaseUserService.PageBaseUsers:input_type -> admin.v1.PageBaseUsersRequest
+	3,  // 13: admin.v1.BaseUserService.GetBaseUser:input_type -> admin.v1.GetBaseUserRequest
+	4,  // 14: admin.v1.BaseUserService.CreateBaseUser:input_type -> admin.v1.CreateBaseUserRequest
+	5,  // 15: admin.v1.BaseUserService.UpdateBaseUser:input_type -> admin.v1.UpdateBaseUserRequest
+	6,  // 16: admin.v1.BaseUserService.DeleteBaseUser:input_type -> admin.v1.DeleteBaseUserRequest
+	7,  // 17: admin.v1.BaseUserService.SetBaseUserStatus:input_type -> admin.v1.SetBaseUserStatusRequest
+	10, // 18: admin.v1.BaseUserService.ResetBaseUserPassword:input_type -> admin.v1.ResetBaseUserPasswordRequest
+	14, // 19: admin.v1.BaseUserService.OptionBaseUsers:output_type -> common.v1.SelectOptionResponse
+	2,  // 20: admin.v1.BaseUserService.PageBaseUsers:output_type -> admin.v1.PageBaseUsersResponse
+	9,  // 21: admin.v1.BaseUserService.GetBaseUser:output_type -> admin.v1.BaseUserForm
+	15, // 22: admin.v1.BaseUserService.CreateBaseUser:output_type -> google.protobuf.Empty
+	15, // 23: admin.v1.BaseUserService.UpdateBaseUser:output_type -> google.protobuf.Empty
+	15, // 24: admin.v1.BaseUserService.DeleteBaseUser:output_type -> google.protobuf.Empty
+	15, // 25: admin.v1.BaseUserService.SetBaseUserStatus:output_type -> google.protobuf.Empty
+	15, // 26: admin.v1.BaseUserService.ResetBaseUserPassword:output_type -> google.protobuf.Empty
+	19, // [19:27] is the sub-list for method output_type
+	11, // [11:19] is the sub-list for method input_type
+	11, // [11:11] is the sub-list for extension type_name
+	11, // [11:11] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_admin_v1_base_user_proto_init() }

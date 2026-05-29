@@ -58,16 +58,24 @@ type CategoryFilterNode = {
   children?: CategoryFilterNode[];
 };
 
+/** 商品列表搜索参数，兼容 ProTable 展示字段与接口 snake_case 字段。 */
+type GoodsInfoSearchParams = PageGoodsInfosRequest & {
+  /** 库存预警展示字段。 */
+  inventoryAlert?: number;
+  /** 价格异常展示字段。 */
+  priceAlert?: number;
+};
+
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const router = useRouter();
 const route = useRoute();
 
 const initParam = reactive({
-  categoryId: undefined as number | undefined,
+  category_id: undefined as number | undefined,
   status: undefined as number | undefined,
-  inventoryAlert: undefined as number | undefined,
-  priceAlert: undefined as number | undefined
+  inventory_alert: undefined as number | undefined,
+  price_alert: undefined as number | undefined
 });
 const categoryFilterValue = ref("");
 
@@ -229,7 +237,7 @@ async function requestCategoryTreeFilter() {
  */
 function changeTreeFilter(value: string) {
   categoryFilterValue.value = value ?? "";
-  initParam.categoryId = value ? Number(value) : undefined;
+  initParam.category_id = value ? Number(value) : undefined;
   if (proTable.value) {
     proTable.value.pageable.pageNum = 1;
     proTable.value.search();
@@ -240,13 +248,15 @@ function changeTreeFilter(value: string) {
  * 请求商品分页列表，并统一处理分页参数。
  */
 async function requestGoodsTable(params: PageGoodsInfosRequest) {
+  const searchParams = params as GoodsInfoSearchParams;
   const data = await defGoodsInfoService.PageGoodsInfos(
     buildPageRequest({
       ...params,
-      categoryId: initParam.categoryId,
+      category_id: initParam.category_id,
       status: initParam.status,
-      inventoryAlert: initParam.inventoryAlert,
-      priceAlert: initParam.priceAlert
+      // ProTable 搜索列保留 camelCase 展示字段，这里统一映射为接口 snake_case 查询条件。
+      inventory_alert: initParam.inventory_alert ?? searchParams.inventoryAlert,
+      price_alert: initParam.price_alert ?? searchParams.priceAlert
     })
   );
   const compatData = data as typeof data & { goodsInfos?: typeof data.goods_infos; list?: typeof data.goods_infos };
@@ -261,24 +271,28 @@ function syncWorkspaceQuery() {
   const inventoryAlert = Number(route.query.inventoryAlert ?? 0);
   const priceAlert = Number(route.query.priceAlert ?? 0);
 
-  initParam.categoryId = categoryId > 0 ? categoryId : undefined;
+  initParam.category_id = categoryId > 0 ? categoryId : undefined;
   initParam.status = status > 0 ? status : undefined;
-  initParam.inventoryAlert = inventoryAlert > 0 ? inventoryAlert : undefined;
-  initParam.priceAlert = priceAlert > 0 ? priceAlert : undefined;
-  categoryFilterValue.value = initParam.categoryId ? String(initParam.categoryId) : "";
+  initParam.inventory_alert = inventoryAlert > 0 ? inventoryAlert : undefined;
+  initParam.price_alert = priceAlert > 0 ? priceAlert : undefined;
+  categoryFilterValue.value = initParam.category_id ? String(initParam.category_id) : "";
 
   if (proTable.value) {
     Object.assign(proTable.value.searchParam, {
-      categoryId: initParam.categoryId,
+      category_id: initParam.category_id,
       status: initParam.status,
-      inventoryAlert: initParam.inventoryAlert,
-      priceAlert: initParam.priceAlert
+      inventory_alert: initParam.inventory_alert,
+      price_alert: initParam.price_alert,
+      inventoryAlert: initParam.inventory_alert,
+      priceAlert: initParam.price_alert
     });
     Object.assign(proTable.value.searchInitParam, {
-      categoryId: initParam.categoryId,
+      category_id: initParam.category_id,
       status: initParam.status,
-      inventoryAlert: initParam.inventoryAlert,
-      priceAlert: initParam.priceAlert
+      inventory_alert: initParam.inventory_alert,
+      price_alert: initParam.price_alert,
+      inventoryAlert: initParam.inventory_alert,
+      priceAlert: initParam.price_alert
     });
   }
 }

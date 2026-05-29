@@ -87,6 +87,8 @@ message PageBaseUsersRequest {
 
   string phone = 6 [(gnostic.openapi.v3.property) = {description: "手机号"}]; // 手机号
 
+  optional .common.v1.BaseUserGender gender = 7 [(gnostic.openapi.v3.property) = {description: "性别"}]; // 性别
+
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {

@@ -56,7 +56,7 @@ async function bootstrap() {
   // 按需加载模式不会自动注册 v-loading 指令，需要显式挂载。
   app.directive("loading", ElLoading.directive);
 
-  app.use(directives).use(router).use(pinia);
+  app.use(directives).use(pinia).use(router);
 
   try {
     await useConfigStore().loadDisplayConfig();

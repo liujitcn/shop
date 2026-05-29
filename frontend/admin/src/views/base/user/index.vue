@@ -365,6 +365,7 @@ async function requestBaseUserTable(params: Partial<PageBaseUsersRequest> & { pa
     nick_name: params.nick_name ?? "",
     dept_id: initParam.dept_id,
     phone: params.phone ?? "",
+    gender: params.gender,
     status: params.status,
     page_num: Number(params.page_num ?? params.pageNum ?? 1),
     page_size: Number(params.page_size ?? params.pageSize ?? 10)

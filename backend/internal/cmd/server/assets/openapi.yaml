@@ -1680,6 +1680,16 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: gender
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_BUG
+                        - SECRET
+                        - BOY
+                        - GIRL
+                    type: string
+                    format: enum
                 - name: status
                   in: query
                   schema:

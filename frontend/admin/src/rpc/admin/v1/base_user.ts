@@ -28,6 +28,10 @@ export interface PageBaseUsersRequest {
     | undefined;
   /** 手机号 */
   phone: string;
+  /** 性别 */
+  gender?:
+    | BaseUserGender
+    | undefined;
   /** 状态 */
   status?:
     | Status

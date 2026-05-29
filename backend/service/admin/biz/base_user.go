@@ -108,6 +108,9 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 	if req.Status != nil {
 		opts = append(opts, repository.Where(query.Status.Eq(int32(req.GetStatus()))))
 	}
+	if req.Gender != nil {
+		opts = append(opts, repository.Where(query.Gender.Eq(int32(req.GetGender()))))
+	}
 	// 传入用户名关键字时，按用户名模糊匹配。
 	if req.GetUserName() != "" {
 		opts = append(opts, repository.Where(query.UserName.Like("%"+req.GetUserName()+"%")))
