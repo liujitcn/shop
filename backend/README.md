@@ -131,7 +131,7 @@ make gen
 当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/go-kratos/blades` 的 `Agent + Runner` 机制，并明确使用以下能力：
 
 - `session / state`：每个后台会话在服务端映射为独立的 Blades Session，当前终端、场景、用户名称、会话标题、摘要等状态会注入到 session state。
-- `chat-only`：AI 助手默认按通用纯聊天模式工作，不注册 MCP、业务工具或 Blades Memory 工具，任何主题都可以直接用模型能力回答。
+- `agent tools`：AI 助手启动时直接收集 `api/gen/go` 下 `*_agent_tool.go` 生成的 Agent Tool，并通过 Blades `WithTools` 挂载到助手主链；不再对生成工具做二次业务封装。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合 session state 以模板形式渲染。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮用户消息与助手消息，避免占用工作台共用 `/events` 流。
 - `message status`：助手消息使用 `GENERATING / SUCCESS / FAILED` 表达生成中、成功和失败状态，删除统一通过 `deleted_at` 逻辑删除。失败的用户消息可通过 `/retry` 重新发送；助手回复可通过 `/regeneration` 基于上一条用户问题重新生成；单条消息删除会持久化到后端。
@@ -139,9 +139,9 @@ make gen
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 
-当前阶段助手主流程先聚焦“通用纯聊天”，消息结构以普通文本回复为主；业务工具执行、确认卡动作、MCP 调用等能力已从默认主链移出，后续在主流程稳定后再按场景追加。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
+当前阶段助手主流程使用生成的 Agent Tool 读取系统内数据，并排除 AI 助手会话、消息自身的工具注册，避免助手递归调用自己的对话接口。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
 
-AI 助手默认使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 Responses Provider，并启用 Responses 内置 `web_search` 工具；`pkg/agent/provider` 只负责按配置装配客户端。这类模式适合回答新闻、天气、金价、行情等强实时问题。该能力要求配置的 `baseUrl` 支持 OpenAI 兼容 Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
+AI 助手默认使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 Responses Provider，并启用 Responses 内置 `web_search` 工具；`pkg/agent/provider` 只负责按配置装配客户端。系统内数据会优先尝试内部 Agent Tool，内部工具不匹配、无结果或问题属于公开实时信息时，再继续由 Responses 内置联网搜索补充上下文。该能力要求配置的 `baseUrl` 支持 OpenAI 兼容 Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
 
 ## MCP 工具暴露
 
@@ -193,7 +193,7 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手当前按纯聊天模式读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。实时问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `high`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。系统内问题优先使用生成 Agent Tool，实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `high`，AI 助手通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 仅在 Chat Completions 模型链路完整生效，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
 `pkg/agent/provider` 中 Chat 模型使用 `github.com/go-kratos/blades/contrib/openai` 装配，AI 助手 Responses 模型使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 provider 装配。
 
