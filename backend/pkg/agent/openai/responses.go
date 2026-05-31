@@ -155,6 +155,10 @@ func responsesInputItems(req *blades.ModelRequest) sdkresponses.ResponseInputPar
 		if message == nil {
 			continue
 		}
+		if message.Role == blades.RoleTool {
+			items = append(items, responseToolInputItems(message)...)
+			continue
+		}
 		content := responsesContentParts(message)
 		if len(content) == 0 {
 			continue
@@ -178,6 +182,29 @@ func responsesInputItems(req *blades.ModelRequest) sdkresponses.ResponseInputPar
 			role = "system"
 		}
 		items = append(items, sdkresponses.ResponseInputItemParamOfInputMessage(content, role))
+	}
+	return items
+}
+
+// responseToolInputItems 将已执行工具调用转为 Responses 标准工具上下文。
+func responseToolInputItems(message *blades.Message) sdkresponses.ResponseInputParam {
+	if message == nil {
+		return nil
+	}
+	items := make(sdkresponses.ResponseInputParam, 0, len(message.Parts)*2)
+	for _, part := range message.Parts {
+		value, ok := part.(blades.ToolPart)
+		if !ok || value.ID == "" || value.Name == "" {
+			continue
+		}
+		items = append(items, sdkresponses.ResponseInputItemParamOfFunctionCall(value.Request, value.ID, value.Name))
+		if value.Completed || value.Response != "" {
+			output := value.Response
+			if output == "" {
+				output = "{}"
+			}
+			items = append(items, sdkresponses.ResponseInputItemParamOfFunctionCallOutput(value.ID, output))
+		}
 	}
 	return items
 }

@@ -1,6 +1,8 @@
 package server
 
 import (
+	"strings"
+
 	adminv1 "shop/api/gen/go/admin/v1"
 	appv1 "shop/api/gen/go/app/v1"
 	basev1 "shop/api/gen/go/base/v1"
@@ -11,6 +13,34 @@ import (
 
 	"github.com/go-kratos/blades/tools"
 )
+
+const (
+	// maxAiAssistantAgentTools 限制单次模型请求携带的内部工具数量，避免代理因工具定义过大返回 503。
+	maxAiAssistantAgentTools = 64
+	// maxAiAssistantAgentToolNameLength 对齐 Responses function tool 的工具名长度限制。
+	maxAiAssistantAgentToolNameLength = 64
+)
+
+var aiAssistantReadToolPrefixes = []string{
+	"get_",
+	"list_",
+	"page_",
+	"tree_",
+	"option_",
+	"summary_",
+	"trend_",
+	"rank_",
+	"count_",
+}
+
+var aiAssistantBlockedToolNameParts = []string{
+	"ai_assistant",
+	"auth_service",
+	"file_service",
+	"login_service",
+	"mcp_service",
+	"pay_service",
+}
 
 // ServerServices 汇总 HTTP 与 MCP 需要注册的服务实例。
 type ServerServices struct {
@@ -335,6 +365,72 @@ func NewServerServices(
 	if err := collectAgentTools(basev1.NewLoginServiceAgentTools(services.login)); err != nil {
 		return nil, err
 	}
-	assistantRuntime.SetTools(agentTools)
+	assistantRuntime.SetTools(filterAiAssistantAgentTools(agentTools))
 	return services, nil
+}
+
+// filterAiAssistantAgentTools 筛选 AI 助手可挂载的安全工具集合。
+func filterAiAssistantAgentTools(values []tools.Tool) []tools.Tool {
+	result := make([]tools.Tool, 0, maxAiAssistantAgentTools)
+	seen := make(map[string]struct{}, len(values))
+	for _, item := range values {
+		if !isAiAssistantAgentToolAllowed(item) {
+			continue
+		}
+		name := item.Name()
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		seen[name] = struct{}{}
+		result = append(result, item)
+		if len(result) >= maxAiAssistantAgentTools {
+			return result
+		}
+	}
+	return result
+}
+
+// isAiAssistantAgentToolAllowed 判断工具是否适合作为 AI 助手内部工具。
+func isAiAssistantAgentToolAllowed(item tools.Tool) bool {
+	if item == nil {
+		return false
+	}
+	name := item.Name()
+	if name == "" || len(name) > maxAiAssistantAgentToolNameLength {
+		return false
+	}
+	if isAiAssistantBlockedTool(name) {
+		return false
+	}
+	return hasAiAssistantReadToolPrefix(resolveAiAssistantToolMethod(name))
+}
+
+// isAiAssistantBlockedTool 判断工具是否属于不应暴露给 AI 助手的服务能力。
+func isAiAssistantBlockedTool(name string) bool {
+	for _, part := range aiAssistantBlockedToolNameParts {
+		if strings.Contains(name, part) {
+			return true
+		}
+	}
+	return false
+}
+
+// resolveAiAssistantToolMethod 从生成工具名中提取 RPC 方法语义片段。
+func resolveAiAssistantToolMethod(name string) string {
+	separator := "_service_"
+	index := strings.LastIndex(name, separator)
+	if index < 0 {
+		return name
+	}
+	return name[index+len(separator):]
+}
+
+// hasAiAssistantReadToolPrefix 判断方法名是否是只读类工具。
+func hasAiAssistantReadToolPrefix(method string) bool {
+	for _, prefix := range aiAssistantReadToolPrefixes {
+		if strings.HasPrefix(method, prefix) {
+			return true
+		}
+	}
+	return false
 }

@@ -2204,6 +2204,23 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: inventoryAlert
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_GIA
+                        - LOW_STOCK
+                        - ZERO_STOCK
+                    type: string
+                    format: enum
+                - name: priceAlert
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_GPA
+                        - PRICE_CONFIG_ABNORMAL
+                    type: string
+                    format: enum
                 - name: status
                   in: query
                   schema:
@@ -2221,16 +2238,6 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: inventoryAlert
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
-                - name: priceAlert
-                  in: query
-                  schema:
-                    type: integer
-                    format: int32
             responses:
                 "200":
                     description: OK

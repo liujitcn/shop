@@ -42,9 +42,9 @@ function transformDictValue(dictItem: OptionBaseDictsResponse_BaseDictItem, valu
  */
 export async function buildDictEnum(code: string, valueType: DictValueType = "number") {
   const dictStore = useDictStoreHook();
-  await dictStore.loadDictionaries();
+  const dictList = await dictStore.ensureDictionary(code);
 
-  const data: EnumProps[] = dictStore.getDictionary(code).map(dictItem => ({
+  const data: EnumProps[] = dictList.map(dictItem => ({
     label: dictItem.label,
     value: transformDictValue(dictItem, valueType),
     tagType: dictItem.tag_type

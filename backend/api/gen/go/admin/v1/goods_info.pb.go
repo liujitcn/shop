@@ -118,14 +118,14 @@ func (x *OptionGoodsInfosResponse) GetGoodsInfos() []*OptionGoodsInfosResponse_G
 
 // 商品列表查询条件
 type PageGoodsInfosRequest struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	CategoryId     *int64                 `protobuf:"varint,2,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`               // 分类id
-	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                    // 商品名称
-	Status         *v1.GoodsStatus        `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.GoodsStatus,oneof" json:"status,omitempty"`            // 状态
-	PageNum        int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                            // 当前页码
-	PageSize       int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                         // 每一页的行数
-	InventoryAlert *int32                 `protobuf:"varint,103,opt,name=inventory_alert,json=inventoryAlert,proto3,oneof" json:"inventory_alert,omitempty"` // 库存预警类型：1 低库存，2 零库存
-	PriceAlert     *int32                 `protobuf:"varint,104,opt,name=price_alert,json=priceAlert,proto3,oneof" json:"price_alert,omitempty"`             // 价格异常类型：1 价格配置异常
+	state          protoimpl.MessageState  `protogen:"open.v1"`
+	CategoryId     *int64                  `protobuf:"varint,2,opt,name=category_id,json=categoryId,proto3,oneof" json:"category_id,omitempty"`                                                // 分类id
+	Name           string                  `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                                     // 商品名称
+	InventoryAlert *v1.GoodsInventoryAlert `protobuf:"varint,4,opt,name=inventory_alert,json=inventoryAlert,proto3,enum=common.v1.GoodsInventoryAlert,oneof" json:"inventory_alert,omitempty"` // 库存预警类型：枚举【GoodsInventoryAlert】
+	PriceAlert     *v1.GoodsPriceAlert     `protobuf:"varint,5,opt,name=price_alert,json=priceAlert,proto3,enum=common.v1.GoodsPriceAlert,oneof" json:"price_alert,omitempty"`                 // 价格异常类型：枚举【GoodsPriceAlert】
+	Status         *v1.GoodsStatus         `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.GoodsStatus,oneof" json:"status,omitempty"`                                             // 状态
+	PageNum        int64                   `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                                             // 当前页码
+	PageSize       int64                   `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                                          // 每一页的行数
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -174,6 +174,20 @@ func (x *PageGoodsInfosRequest) GetName() string {
 	return ""
 }
 
+func (x *PageGoodsInfosRequest) GetInventoryAlert() v1.GoodsInventoryAlert {
+	if x != nil && x.InventoryAlert != nil {
+		return *x.InventoryAlert
+	}
+	return v1.GoodsInventoryAlert(0)
+}
+
+func (x *PageGoodsInfosRequest) GetPriceAlert() v1.GoodsPriceAlert {
+	if x != nil && x.PriceAlert != nil {
+		return *x.PriceAlert
+	}
+	return v1.GoodsPriceAlert(0)
+}
+
 func (x *PageGoodsInfosRequest) GetStatus() v1.GoodsStatus {
 	if x != nil && x.Status != nil {
 		return *x.Status
@@ -191,20 +205,6 @@ func (x *PageGoodsInfosRequest) GetPageNum() int64 {
 func (x *PageGoodsInfosRequest) GetPageSize() int64 {
 	if x != nil {
 		return x.PageSize
-	}
-	return 0
-}
-
-func (x *PageGoodsInfosRequest) GetInventoryAlert() int32 {
-	if x != nil && x.InventoryAlert != nil {
-		return *x.InventoryAlert
-	}
-	return 0
-}
-
-func (x *PageGoodsInfosRequest) GetPriceAlert() int32 {
-	if x != nil && x.PriceAlert != nil {
-		return *x.PriceAlert
 	}
 	return 0
 }
@@ -868,21 +868,21 @@ const file_admin_v1_goods_info_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\x02id\x12 \n" +
 	"\x04name\x18\x02 \x01(\tB\f\xbaG\t\x92\x02\x06名称R\x04name\x12-\n" +
 	"\x05price\x18\x03 \x01(\x03B\x17\xbaG\x14\x92\x02\x11当前价格(分)R\x05price\x127\n" +
-	"\rcategory_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xb0\x04\n" +
+	"\rcategory_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f分类名称R\fcategoryName\"\xfa\x04\n" +
 	"\x15PageGoodsInfosRequest\x124\n" +
 	"\vcategory_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b分类idH\x00R\n" +
 	"categoryId\x88\x01\x01\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\x12A\n" +
-	"\x06status\x18d \x01(\x0e2\x16.common.v1.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x129\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称R\x04name\x12\x88\x01\n" +
+	"\x0finventory_alert\x18\x04 \x01(\x0e2\x1e.common.v1.GoodsInventoryAlertB:\xbaG7\x92\x024库存预警类型：枚举【GoodsInventoryAlert】H\x01R\x0einventoryAlert\x88\x01\x01\x12x\n" +
+	"\vprice_alert\x18\x05 \x01(\x0e2\x1a.common.v1.GoodsPriceAlertB6\xbaG3\x92\x020价格异常类型：枚举【GoodsPriceAlert】H\x02R\n" +
+	"priceAlert\x88\x01\x01\x12A\n" +
+	"\x06status\x18d \x01(\x0e2\x16.common.v1.GoodsStatusB\f\xbaG\t\x92\x02\x06状态H\x03R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSize\x12b\n" +
-	"\x0finventory_alert\x18g \x01(\x05B4\xbaG1\x92\x02.库存预警类型：1 低库存，2 零库存H\x02R\x0einventoryAlert\x88\x01\x01\x12U\n" +
-	"\vprice_alert\x18h \x01(\x05B/\xbaG,\x92\x02)价格异常类型：1 价格配置异常H\x03R\n" +
-	"priceAlert\x88\x01\x01B\x0e\n" +
-	"\f_category_idB\t\n" +
-	"\a_statusB\x12\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\x0e\n" +
+	"\f_category_idB\x12\n" +
 	"\x10_inventory_alertB\x0e\n" +
-	"\f_price_alert\"\x86\x01\n" +
+	"\f_price_alertB\t\n" +
+	"\a_status\"\x86\x01\n" +
 	"\x16PageGoodsInfosResponse\x12H\n" +
 	"\vgoods_infos\x18\x01 \x03(\v2\x13.admin.v1.GoodsInfoB\x12\xbaG\x0f\x92\x02\f商品列表R\n" +
 	"goodsInfos\x12\"\n" +
@@ -972,43 +972,47 @@ var file_admin_v1_goods_info_proto_goTypes = []any{
 	(*GoodsInfo)(nil),                          // 9: admin.v1.GoodsInfo
 	(*GoodsInfoForm)(nil),                      // 10: admin.v1.GoodsInfoForm
 	(*OptionGoodsInfosResponse_GoodsInfo)(nil), // 11: admin.v1.OptionGoodsInfosResponse.GoodsInfo
-	(v1.GoodsStatus)(0),                        // 12: common.v1.GoodsStatus
-	(*GoodsProp)(nil),                          // 13: admin.v1.GoodsProp
-	(*GoodsSku)(nil),                           // 14: admin.v1.GoodsSku
-	(*GoodsSpec)(nil),                          // 15: admin.v1.GoodsSpec
-	(*emptypb.Empty)(nil),                      // 16: google.protobuf.Empty
+	(v1.GoodsInventoryAlert)(0),                // 12: common.v1.GoodsInventoryAlert
+	(v1.GoodsPriceAlert)(0),                    // 13: common.v1.GoodsPriceAlert
+	(v1.GoodsStatus)(0),                        // 14: common.v1.GoodsStatus
+	(*GoodsProp)(nil),                          // 15: admin.v1.GoodsProp
+	(*GoodsSku)(nil),                           // 16: admin.v1.GoodsSku
+	(*GoodsSpec)(nil),                          // 17: admin.v1.GoodsSpec
+	(*emptypb.Empty)(nil),                      // 18: google.protobuf.Empty
 }
 var file_admin_v1_goods_info_proto_depIdxs = []int32{
 	11, // 0: admin.v1.OptionGoodsInfosResponse.goods_infos:type_name -> admin.v1.OptionGoodsInfosResponse.GoodsInfo
-	12, // 1: admin.v1.PageGoodsInfosRequest.status:type_name -> common.v1.GoodsStatus
-	9,  // 2: admin.v1.PageGoodsInfosResponse.goods_infos:type_name -> admin.v1.GoodsInfo
-	10, // 3: admin.v1.CreateGoodsInfoRequest.goods_info:type_name -> admin.v1.GoodsInfoForm
-	10, // 4: admin.v1.UpdateGoodsInfoRequest.goods_info:type_name -> admin.v1.GoodsInfoForm
-	12, // 5: admin.v1.SetGoodsInfoStatusRequest.status:type_name -> common.v1.GoodsStatus
-	12, // 6: admin.v1.GoodsInfo.status:type_name -> common.v1.GoodsStatus
-	12, // 7: admin.v1.GoodsInfoForm.status:type_name -> common.v1.GoodsStatus
-	13, // 8: admin.v1.GoodsInfoForm.prop_list:type_name -> admin.v1.GoodsProp
-	14, // 9: admin.v1.GoodsInfoForm.sku_list:type_name -> admin.v1.GoodsSku
-	15, // 10: admin.v1.GoodsInfoForm.spec_list:type_name -> admin.v1.GoodsSpec
-	0,  // 11: admin.v1.GoodsInfoService.OptionGoodsInfos:input_type -> admin.v1.OptionGoodsInfosRequest
-	2,  // 12: admin.v1.GoodsInfoService.PageGoodsInfos:input_type -> admin.v1.PageGoodsInfosRequest
-	4,  // 13: admin.v1.GoodsInfoService.GetGoodsInfo:input_type -> admin.v1.GetGoodsInfoRequest
-	5,  // 14: admin.v1.GoodsInfoService.CreateGoodsInfo:input_type -> admin.v1.CreateGoodsInfoRequest
-	6,  // 15: admin.v1.GoodsInfoService.UpdateGoodsInfo:input_type -> admin.v1.UpdateGoodsInfoRequest
-	7,  // 16: admin.v1.GoodsInfoService.DeleteGoodsInfo:input_type -> admin.v1.DeleteGoodsInfoRequest
-	8,  // 17: admin.v1.GoodsInfoService.SetGoodsInfoStatus:input_type -> admin.v1.SetGoodsInfoStatusRequest
-	1,  // 18: admin.v1.GoodsInfoService.OptionGoodsInfos:output_type -> admin.v1.OptionGoodsInfosResponse
-	3,  // 19: admin.v1.GoodsInfoService.PageGoodsInfos:output_type -> admin.v1.PageGoodsInfosResponse
-	10, // 20: admin.v1.GoodsInfoService.GetGoodsInfo:output_type -> admin.v1.GoodsInfoForm
-	16, // 21: admin.v1.GoodsInfoService.CreateGoodsInfo:output_type -> google.protobuf.Empty
-	16, // 22: admin.v1.GoodsInfoService.UpdateGoodsInfo:output_type -> google.protobuf.Empty
-	16, // 23: admin.v1.GoodsInfoService.DeleteGoodsInfo:output_type -> google.protobuf.Empty
-	16, // 24: admin.v1.GoodsInfoService.SetGoodsInfoStatus:output_type -> google.protobuf.Empty
-	18, // [18:25] is the sub-list for method output_type
-	11, // [11:18] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	12, // 1: admin.v1.PageGoodsInfosRequest.inventory_alert:type_name -> common.v1.GoodsInventoryAlert
+	13, // 2: admin.v1.PageGoodsInfosRequest.price_alert:type_name -> common.v1.GoodsPriceAlert
+	14, // 3: admin.v1.PageGoodsInfosRequest.status:type_name -> common.v1.GoodsStatus
+	9,  // 4: admin.v1.PageGoodsInfosResponse.goods_infos:type_name -> admin.v1.GoodsInfo
+	10, // 5: admin.v1.CreateGoodsInfoRequest.goods_info:type_name -> admin.v1.GoodsInfoForm
+	10, // 6: admin.v1.UpdateGoodsInfoRequest.goods_info:type_name -> admin.v1.GoodsInfoForm
+	14, // 7: admin.v1.SetGoodsInfoStatusRequest.status:type_name -> common.v1.GoodsStatus
+	14, // 8: admin.v1.GoodsInfo.status:type_name -> common.v1.GoodsStatus
+	14, // 9: admin.v1.GoodsInfoForm.status:type_name -> common.v1.GoodsStatus
+	15, // 10: admin.v1.GoodsInfoForm.prop_list:type_name -> admin.v1.GoodsProp
+	16, // 11: admin.v1.GoodsInfoForm.sku_list:type_name -> admin.v1.GoodsSku
+	17, // 12: admin.v1.GoodsInfoForm.spec_list:type_name -> admin.v1.GoodsSpec
+	0,  // 13: admin.v1.GoodsInfoService.OptionGoodsInfos:input_type -> admin.v1.OptionGoodsInfosRequest
+	2,  // 14: admin.v1.GoodsInfoService.PageGoodsInfos:input_type -> admin.v1.PageGoodsInfosRequest
+	4,  // 15: admin.v1.GoodsInfoService.GetGoodsInfo:input_type -> admin.v1.GetGoodsInfoRequest
+	5,  // 16: admin.v1.GoodsInfoService.CreateGoodsInfo:input_type -> admin.v1.CreateGoodsInfoRequest
+	6,  // 17: admin.v1.GoodsInfoService.UpdateGoodsInfo:input_type -> admin.v1.UpdateGoodsInfoRequest
+	7,  // 18: admin.v1.GoodsInfoService.DeleteGoodsInfo:input_type -> admin.v1.DeleteGoodsInfoRequest
+	8,  // 19: admin.v1.GoodsInfoService.SetGoodsInfoStatus:input_type -> admin.v1.SetGoodsInfoStatusRequest
+	1,  // 20: admin.v1.GoodsInfoService.OptionGoodsInfos:output_type -> admin.v1.OptionGoodsInfosResponse
+	3,  // 21: admin.v1.GoodsInfoService.PageGoodsInfos:output_type -> admin.v1.PageGoodsInfosResponse
+	10, // 22: admin.v1.GoodsInfoService.GetGoodsInfo:output_type -> admin.v1.GoodsInfoForm
+	18, // 23: admin.v1.GoodsInfoService.CreateGoodsInfo:output_type -> google.protobuf.Empty
+	18, // 24: admin.v1.GoodsInfoService.UpdateGoodsInfo:output_type -> google.protobuf.Empty
+	18, // 25: admin.v1.GoodsInfoService.DeleteGoodsInfo:output_type -> google.protobuf.Empty
+	18, // 26: admin.v1.GoodsInfoService.SetGoodsInfoStatus:output_type -> google.protobuf.Empty
+	20, // [20:27] is the sub-list for method output_type
+	13, // [13:20] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_admin_v1_goods_info_proto_init() }

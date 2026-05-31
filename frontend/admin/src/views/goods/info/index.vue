@@ -79,16 +79,6 @@ const initParam = reactive({
 });
 const categoryFilterValue = ref("");
 
-const inventoryAlertOptions = [
-  { label: "低库存", value: 1 },
-  { label: "零库存", value: 2 }
-];
-
-const priceAlertOptions = [{ label: "价格异常", value: 1 }];
-const goodsStatusOptions = [
-  { label: "上架", value: GoodsStatus.PUT_ON },
-  { label: "下架", value: GoodsStatus.PULL_OFF }
-];
 // 多分类场景下分类名称会更长，适当放宽列表列宽避免首屏截断过早。
 const goodsCategoryColumnMinWidth = 220;
 
@@ -115,7 +105,7 @@ const columns: ColumnProps[] = [
     prop: "inventoryAlert",
     label: "库存预警",
     minWidth: 120,
-    enum: inventoryAlertOptions,
+    dictCode: "goods_inventory_alert",
     isShow: false,
     search: { el: "select" }
   },
@@ -123,7 +113,7 @@ const columns: ColumnProps[] = [
     prop: "priceAlert",
     label: "价格异常",
     minWidth: 120,
-    enum: priceAlertOptions,
+    dictCode: "goods_price_alert",
     isShow: false,
     search: { el: "select" }
   },
@@ -135,7 +125,7 @@ const columns: ColumnProps[] = [
     prop: "status",
     label: "状态",
     minWidth: 100,
-    enum: goodsStatusOptions,
+    dictCode: "goods_status",
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -253,10 +243,11 @@ async function requestGoodsTable(params: PageGoodsInfosRequest) {
     buildPageRequest({
       ...params,
       category_id: initParam.category_id,
-      status: initParam.status,
+      // 路由状态只作为首屏默认值，用户搜索选择后优先使用搜索表单值。
+      status: searchParams.status ?? initParam.status,
       // ProTable 搜索列保留 camelCase 展示字段，这里统一映射为接口 snake_case 查询条件。
-      inventory_alert: initParam.inventory_alert ?? searchParams.inventoryAlert,
-      price_alert: initParam.price_alert ?? searchParams.priceAlert
+      inventory_alert: searchParams.inventoryAlert ?? initParam.inventory_alert,
+      price_alert: searchParams.priceAlert ?? initParam.price_alert
     })
   );
   const compatData = data as typeof data & { goodsInfos?: typeof data.goods_infos; list?: typeof data.goods_infos };

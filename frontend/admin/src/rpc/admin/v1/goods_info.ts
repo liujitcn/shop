@@ -5,7 +5,7 @@
 // source: admin/v1/goods_info.proto
 
 /* eslint-disable */
-import type { GoodsStatus } from "../../common/v1/enum";
+import type { GoodsInventoryAlert, GoodsPriceAlert, GoodsStatus } from "../../common/v1/enum";
 import type { Empty } from "../../google/protobuf/empty";
 import type { GoodsProp } from "./goods_prop";
 import type { GoodsSku } from "./goods_sku";
@@ -43,6 +43,14 @@ export interface PageGoodsInfosRequest {
     | undefined;
   /** 商品名称 */
   name: string;
+  /** 库存预警类型：枚举【GoodsInventoryAlert】 */
+  inventory_alert?:
+    | GoodsInventoryAlert
+    | undefined;
+  /** 价格异常类型：枚举【GoodsPriceAlert】 */
+  price_alert?:
+    | GoodsPriceAlert
+    | undefined;
   /** 状态 */
   status?:
     | GoodsStatus
@@ -51,12 +59,6 @@ export interface PageGoodsInfosRequest {
   page_num: number;
   /** 每一页的行数 */
   page_size: number;
-  /** 库存预警类型：1 低库存，2 零库存 */
-  inventory_alert?:
-    | number
-    | undefined;
-  /** 价格异常类型：1 价格配置异常 */
-  price_alert?: number | undefined;
 }
 
 /** 商品列表响应 */

@@ -36,10 +36,20 @@
                 class="agent-message-content"
                 :class="{
                   'is-thinking': item.progressState === 'streaming',
+                  'is-failed-assistant': isAssistantFailedMessage(item),
                   'is-user': item.role === 'user'
                 }"
               >
-                <AiMarkdown v-if="item.role !== 'user'" :content="item.content" :streaming="item.progressState === 'streaming'" />
+                <div v-if="isAssistantFailedMessage(item)" class="agent-message-error">
+                  <div class="agent-message-error__title">服务器异常，建议稍后重试</div>
+                  <div class="agent-message-error__content">{{ resolveAssistantErrorMessage(item) }}</div>
+                  <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
+                    <el-collapse-item title="错误详情" :name="String(item.id)">
+                      <pre>{{ item.fallback_reason }}</pre>
+                    </el-collapse-item>
+                  </el-collapse>
+                </div>
+                <AiMarkdown v-else-if="item.role !== 'user'" :content="item.content" :streaming="item.progressState === 'streaming'" />
                 <span v-else>{{ item.content }}</span>
                 <span v-if="item.progressState === 'streaming'" class="agent-thinking-dots"> <i></i><i></i><i></i> </span>
               </div>
@@ -50,17 +60,38 @@
           </template>
           <template #footer="{ item }">
             <div class="agent-message-actions" :class="{ 'is-user': item.role === 'user' }">
-              <el-tooltip v-for="action in resolveMessageActions(item)" :key="action.key" :content="action.label" placement="top">
-                <button
-                  class="agent-message-action"
-                  type="button"
-                  :disabled="sending || item.progressState === 'streaming'"
-                  :aria-label="action.label"
-                  @click="handleMessageAction(action.key, item)"
+              <template v-for="action in resolveMessageActions(item)" :key="action.key">
+                <el-popconfirm
+                  v-if="shouldConfirmMessageAction(action.key)"
+                  :title="resolveActionConfirmTitle(action.key, item)"
+                  confirm-button-text="确定"
+                  cancel-button-text="取消"
+                  width="220"
+                  @confirm="handleMessageAction(action.key, item)"
                 >
-                  <el-icon><component :is="action.icon" /></el-icon>
-                </button>
-              </el-tooltip>
+                  <template #reference>
+                    <button
+                      class="agent-message-action"
+                      type="button"
+                      :disabled="sending || item.progressState === 'streaming'"
+                      :aria-label="action.label"
+                    >
+                      <el-icon><component :is="action.icon" /></el-icon>
+                    </button>
+                  </template>
+                </el-popconfirm>
+                <el-tooltip v-else :content="action.label" placement="top">
+                  <button
+                    class="agent-message-action"
+                    type="button"
+                    :disabled="sending || item.progressState === 'streaming'"
+                    :aria-label="action.label"
+                    @click="handleMessageAction(action.key, item)"
+                  >
+                    <el-icon><component :is="action.icon" /></el-icon>
+                  </button>
+                </el-tooltip>
+              </template>
             </div>
           </template>
         </BubbleList>
@@ -256,9 +287,32 @@ function resolveMessageActions(item: ChatMessageItem) {
   return [copyAction, deleteAction];
 }
 
+/** 判断是否为需要渲染错误卡片的助手失败消息。 */
+function isAssistantFailedMessage(item: ChatMessageItem) {
+  return item.role !== "user" && item.status === AiAssistantMessageStatus.FAILED_AAMS;
+}
+
+/** 返回助手错误摘要，优先展示服务端可读错误。 */
+function resolveAssistantErrorMessage(item: ChatMessageItem) {
+  const content = String(item.content ?? "").trim();
+  return content || "Service temporarily unavailable";
+}
+
 /** 向父组件透传消息操作，由页面层决定是否重发、复制或移除。 */
 function handleMessageAction(action: ChatMessageAction, item: ChatMessageItem) {
   emit("messageAction", { action, item });
+}
+
+/** 判断消息操作是否需要二次确认。 */
+function shouldConfirmMessageAction(action: ChatMessageAction) {
+  return action === "retry" || action === "delete";
+}
+
+/** 返回消息操作确认文案，避免误删或误覆盖当前气泡。 */
+function resolveActionConfirmTitle(action: ChatMessageAction, item: ChatMessageItem) {
+  if (action === "delete") return "确认删除当前消息？";
+  if (item.role === "user") return "确认重新发送当前消息？";
+  return "重新生成会覆盖当前消息";
 }
 
 /** 统一回复来源标签配色。 */
@@ -380,6 +434,9 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   gap: 8px;
   align-items: center;
 }
+.agent-message-content.is-failed-assistant {
+  width: min(460px, 100%);
+}
 .agent-message-body {
   display: flex;
   flex-direction: column;
@@ -411,6 +468,60 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 }
 .agent-message-meta__model {
   opacity: 0.85;
+}
+.agent-message-error {
+  min-width: min(360px, 100%);
+  padding: 12px 14px;
+  color: var(--admin-page-text-primary);
+  background: var(--el-color-danger-light-9);
+  border: 1px solid var(--el-color-danger-light-7);
+  border-radius: var(--admin-page-radius);
+}
+.agent-message-error__title {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--el-color-danger);
+}
+.agent-message-error__content {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--admin-page-text-regular);
+  word-break: break-word;
+}
+.agent-message-error__detail {
+  margin-top: 8px;
+  border: 0;
+  :deep(.el-collapse-item__header) {
+    height: 28px;
+    font-size: 12px;
+    color: var(--admin-page-text-secondary);
+    background: transparent;
+    border: 0;
+  }
+  :deep(.el-collapse-item__wrap) {
+    background: transparent;
+    border: 0;
+  }
+  :deep(.el-collapse-item__content) {
+    padding-bottom: 0;
+  }
+  pre {
+    max-height: 180px;
+    padding: 8px;
+    margin: 0;
+    overflow: auto;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--admin-page-text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--el-fill-color-blank);
+    border: 1px solid var(--el-border-color-light);
+    border-radius: var(--admin-page-radius);
+  }
 }
 .agent-thinking-dots {
   display: inline-flex;

@@ -129,7 +129,7 @@ import { ElTable } from "element-plus";
 import { useTable } from "@/hooks/useTable";
 import { useSelection } from "@/hooks/useSelection";
 import { BreakPoint } from "@/components/Grid/interface";
-import { ColumnProps, HeaderActionProps, HeaderActionScope, TypeProps } from "@/components/ProTable/interface";
+import { ColumnProps, EnumProps, HeaderActionProps, HeaderActionScope, TypeProps } from "@/components/ProTable/interface";
 import { Expand, Fold, Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { generateUUID, handleProp } from "@/utils";
 import SearchForm from "@/components/SearchForm/index.vue";
@@ -280,6 +280,18 @@ const flatColumns = computed(() => flatColumnsFunc(tableColumns.value as any) as
 
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
 const enumMap = ref(new Map<string, { [key: string]: any }[]>());
+
+/**
+ * 根据状态开关配置自动生成搜索下拉枚举，避免状态列只配置开关后搜索框无选项。
+ */
+const buildStatusEnum = (column: ColumnProps): EnumProps[] => {
+  if (column.enum || column.dictCode || column.cellType !== "status" || column.search?.el !== "select" || !column.statusProps) return [];
+  return [
+    { label: column.statusProps.activeText ?? "启用", value: column.statusProps.activeValue },
+    { label: column.statusProps.inactiveText ?? "禁用", value: column.statusProps.inactiveValue }
+  ];
+};
+
 const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (!enumValue) return;
 
@@ -297,6 +309,18 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   enumMap.value.set(prop!, data);
 };
 
+/**
+ * 同步列枚举配置，状态开关列会自动补齐搜索枚举。
+ */
+const syncColumnEnumMap = async (column: ColumnProps) => {
+  const statusEnum = buildStatusEnum(column);
+  if (statusEnum.length && column.prop) {
+    enumMap.value.set(column.prop, statusEnum);
+    return;
+  }
+  await setEnumMap(column);
+};
+
 // 注入 enumMap
 provide("enumMap", enumMap);
 
@@ -312,7 +336,7 @@ const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []) =>
     col.isFilterEnum = col.isFilterEnum ?? true;
 
     // 设置 enumMap
-    await setEnumMap(col);
+    await syncColumnEnumMap(col);
   });
   return flatArr.filter(item => !item._children?.length);
 };

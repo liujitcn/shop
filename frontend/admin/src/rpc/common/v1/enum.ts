@@ -117,6 +117,22 @@ export enum GoodsStatus {
   PULL_OFF = 2,
 }
 
+/** 商品库存预警类型 */
+export enum GoodsInventoryAlert {
+  UNKNOWN_GIA = 0,
+  /** LOW_STOCK - 低库存 */
+  LOW_STOCK = 1,
+  /** ZERO_STOCK - 零库存 */
+  ZERO_STOCK = 2,
+}
+
+/** 商品价格异常类型 */
+export enum GoodsPriceAlert {
+  UNKNOWN_GPA = 0,
+  /** PRICE_CONFIG_ABNORMAL - 价格配置异常 */
+  PRICE_CONFIG_ABNORMAL = 1,
+}
+
 /** 订单状态 */
 export enum OrderStatus {
   UNKNOWN_OS = 0,

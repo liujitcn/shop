@@ -99,12 +99,8 @@ function convertDictValue(dictItem: OptionBaseDictsResponse_BaseDictItem): DictV
  * 加载当前字典选项，若本地无缓存则自动拉取。
  */
 async function loadOptions() {
-  let dictList = dictStore.getDictionary(props.code);
-  if (!dictList.length) {
-    // 首次渲染时如果缓存为空，主动加载全部字典，避免组件下拉为空。
-    await dictStore.loadDictionaries();
-    dictList = dictStore.getDictionary(props.code);
-  }
+  // 按当前字典编码兜底刷新，避免持久化旧缓存里缺少该字典导致下拉无数据。
+  const dictList = await dictStore.ensureDictionary(props.code);
 
   options.value = dictList.map(dictItem => ({
     label: dictItem.label,

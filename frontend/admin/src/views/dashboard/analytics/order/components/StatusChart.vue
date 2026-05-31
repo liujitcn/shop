@@ -61,8 +61,7 @@ function resolveOrderStatusName(statusValue: string, dictList: OptionBaseDictsRe
 
 /** 加载订单状态分布，并在前端完成状态文案转换。 */
 async function loadData(timeType: AnalyticsTimeType) {
-  await dictStore.loadDictionaries();
-  const statusDictList = dictStore.getDictionary("order_status");
+  const statusDictList = await dictStore.ensureDictionary("order_status");
   const data = await defOrderAnalyticsService.PieOrderAnalytics({ time_type: timeType });
   // 兼容后端在空 repeated 字段场景下省略 items，避免空数据图表触发运行时异常。
   const items = Array.isArray(data.items) ? data.items : [];

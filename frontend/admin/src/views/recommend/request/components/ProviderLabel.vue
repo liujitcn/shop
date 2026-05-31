@@ -81,11 +81,7 @@ async function refreshTooltipLabel() {
     return;
   }
 
-  let dictList = dictStore.getDictionary(RECOMMEND_PROVIDER_DICT_CODE);
-  if (!dictList.length) {
-    await dictStore.loadDictionaries();
-    dictList = dictStore.getDictionary(RECOMMEND_PROVIDER_DICT_CODE);
-  }
+  const dictList = await dictStore.ensureDictionary(RECOMMEND_PROVIDER_DICT_CODE);
 
   const matchedItem = matchRecommendProviderDictItem(dictList, props.strategy, providerName);
   tooltipLabel.value = matchedItem?.label ?? "";

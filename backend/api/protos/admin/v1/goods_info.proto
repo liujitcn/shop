@@ -92,6 +92,10 @@ message PageGoodsInfosRequest {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "商品名称"}]; // 商品名称
 
+  optional .common.v1.GoodsInventoryAlert inventory_alert = 4 [(gnostic.openapi.v3.property) = {description: "库存预警类型：枚举【GoodsInventoryAlert】"}]; // 库存预警类型：枚举【GoodsInventoryAlert】
+
+  optional .common.v1.GoodsPriceAlert price_alert = 5 [(gnostic.openapi.v3.property) = {description: "价格异常类型：枚举【GoodsPriceAlert】"}]; // 价格异常类型：枚举【GoodsPriceAlert】
+
   optional .common.v1.GoodsStatus status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
@@ -103,10 +107,6 @@ message PageGoodsInfosRequest {
     description: "每一页的行数"
     default: {number: 10}
   }]; // 每一页的行数
-
-  optional int32 inventory_alert = 103 [(gnostic.openapi.v3.property) = {description: "库存预警类型：1 低库存，2 零库存"}]; // 库存预警类型：1 低库存，2 零库存
-
-  optional int32 price_alert = 104 [(gnostic.openapi.v3.property) = {description: "价格异常类型：1 价格配置异常"}]; // 价格异常类型：1 价格配置异常
 }
 
 // 商品列表响应

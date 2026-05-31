@@ -244,8 +244,7 @@ async function handleRetryMessage(item: ChatMessageItem) {
     });
   }
   const current = messages.value[sessionID] ?? [];
-  const stableMessages = item.role === "user" ? current : current.filter(message => String(message.id) !== String(item.id));
-  messages.value[sessionID] = replacePendingMessages(stableMessages, normalizeMessageList(response.messages));
+  messages.value[sessionID] = replacePendingMessages(current, normalizeMessageList(response.messages));
   if (response.session) upsertSession(normalizeSession(response.session));
   ElMessage.success(item.role === "user" ? "已重新发送" : "已重新生成");
 }

@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts" name="SearchFormItem">
-import { computed, inject, ref, type Component } from "vue";
+import { computed, inject, ref, unref, type Component } from "vue";
 import {
   ElCascader,
   ElDatePicker,
@@ -103,6 +103,9 @@ const fieldNames = computed(() => {
 // 接收 enumMap (el 为 select-v2 需单独处理 enumData)
 const enumMap = inject("enumMap", ref(new Map()));
 const columnEnum = computed(() => {
+  const staticEnum = typeof props.column.enum !== "function" ? unref(props.column.enum) : undefined;
+  if (Array.isArray(staticEnum) && staticEnum.length) return staticEnum;
+
   let enumData = enumMap.value.get(props.column.prop);
   if (!enumData) return [];
   if (props.column.search?.el === "select-v2" && props.column.fieldNames) {

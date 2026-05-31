@@ -42,12 +42,8 @@ async function refreshLabelAndTag() {
     return;
   }
 
-  let dictList = dictStore.getDictionary(props.code);
-  if (!dictList.length) {
-    // 字典缓存可能尚未初始化，组件内部兜底触发一次加载。
-    await dictStore.loadDictionaries();
-    dictList = dictStore.getDictionary(props.code);
-  }
+  // 字典缓存可能来自持久化旧数据，按当前编码兜底刷新一次。
+  const dictList = await dictStore.ensureDictionary(props.code);
 
   const matchedItem = dictList.find(dictItem => dictItem.value == props.modelValue);
   label.value = matchedItem?.label ?? "";

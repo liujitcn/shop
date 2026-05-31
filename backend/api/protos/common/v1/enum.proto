@@ -82,6 +82,19 @@ enum GoodsStatus {
   PULL_OFF = 2; // 已下架
 }
 
+// 商品库存预警类型
+enum GoodsInventoryAlert {
+  UNKNOWN_GIA = 0;
+  LOW_STOCK = 1; // 低库存
+  ZERO_STOCK = 2; // 零库存
+}
+
+// 商品价格异常类型
+enum GoodsPriceAlert {
+  UNKNOWN_GPA = 0;
+  PRICE_CONFIG_ABNORMAL = 1; // 价格配置异常
+}
+
 // 订单状态
 enum OrderStatus {
   UNKNOWN_OS = 0;

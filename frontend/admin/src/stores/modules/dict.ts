@@ -41,6 +41,14 @@ export const useDictStore = defineStore("shop-dict", {
     getDictionary(dictCode: string): OptionBaseDictsResponse_BaseDictItem[] {
       return this.dictionary[dictCode] ?? [];
     },
+    /** 确保指定字典编码已加载，避免持久化旧缓存缺少新增字典时下拉为空 */
+    async ensureDictionary(dictCode: string) {
+      const cachedDict = this.getDictionary(dictCode);
+      if (cachedDict.length) return cachedDict;
+
+      await this.loadDictionaries(true);
+      return this.getDictionary(dictCode);
+    },
     /** 清空字典缓存 */
     clearDictionaryCache() {
       this.dictionary = {};

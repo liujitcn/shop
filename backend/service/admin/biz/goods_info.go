@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/pkg/queue"
 	"shop/pkg/workspaceevent"
@@ -35,9 +36,9 @@ type GoodsInfoCase struct {
 }
 
 const (
-	GOODS_INVENTORY_ALERT_LOW  int32 = 1
-	GOODS_INVENTORY_ALERT_ZERO int32 = 2
-	GOODS_PRICE_ALERT_ABNORMAL int32 = 1
+	GOODS_INVENTORY_ALERT_LOW  = commonv1.GoodsInventoryAlert_LOW_STOCK
+	GOODS_INVENTORY_ALERT_ZERO = commonv1.GoodsInventoryAlert_ZERO_STOCK
+	GOODS_PRICE_ALERT_ABNORMAL = commonv1.GoodsPriceAlert_PRICE_CONFIG_ABNORMAL
 )
 
 // NewGoodsInfoCase 创建商品业务实例
@@ -481,7 +482,7 @@ func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryI
 }
 
 // findGoodsIDsByInventoryAlert 查询命中库存预警的商品标识。
-func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert int32) ([]int64, error) {
+func (c *GoodsInfoCase) findGoodsIDsByInventoryAlert(ctx context.Context, inventoryAlert commonv1.GoodsInventoryAlert) ([]int64, error) {
 	// 非支持的库存预警类型不返回商品集合。
 	if inventoryAlert != GOODS_INVENTORY_ALERT_LOW && inventoryAlert != GOODS_INVENTORY_ALERT_ZERO {
 		return nil, nil
