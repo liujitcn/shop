@@ -3,14 +3,24 @@ package provider
 import (
 	"strings"
 
-	"github.com/go-kratos/blades"
-	bladesopenai "github.com/go-kratos/blades/contrib/openai"
+	agentopenai "shop/pkg/agent/openai"
+
+	"github.com/cloudwego/eino/components/model"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // ChatClient 表示智能体对话模型客户端。
 type ChatClient struct {
-	blades.ModelProvider
+	model.BaseChatModel
+	name string
+}
+
+// Name 返回当前聊天模型名称。
+func (c *ChatClient) Name() string {
+	if c == nil {
+		return ""
+	}
+	return c.name
 }
 
 // NewChatClient 创建智能体对话模型客户端。
@@ -26,18 +36,15 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 	if baseURL == "" || apiKey == "" || model == "" {
 		return client
 	}
-	client.ModelProvider = bladesopenai.NewModel(model, bladesopenai.Config{
-		BaseURL:          baseURL,
-		APIKey:           apiKey,
-		Seed:             bootstrapCfg.GetSeed(),
-		MaxOutputTokens:  bootstrapCfg.GetMaxOutputTokens(),
-		FrequencyPenalty: bootstrapCfg.GetFrequencyPenalty(),
-		PresencePenalty:  bootstrapCfg.GetPresencePenalty(),
-		Temperature:      bootstrapCfg.GetTemperature(),
-		TopP:             bootstrapCfg.GetTopP(),
-		StopSequences:    bootstrapCfg.GetStopSequences(),
-		ExtraFields:      llmExtraFields(bootstrapCfg),
-		ReasoningEffort:  llmReasoningEffort(bootstrapCfg),
+	client.name = model
+	client.BaseChatModel = agentopenai.NewResponses(model, agentopenai.ResponsesConfig{
+		BaseURL:         baseURL,
+		APIKey:          apiKey,
+		MaxOutputTokens: bootstrapCfg.GetMaxOutputTokens(),
+		Temperature:     bootstrapCfg.GetTemperature(),
+		TopP:            bootstrapCfg.GetTopP(),
+		ExtraFields:     llmExtraFields(bootstrapCfg),
+		ReasoningEffort: llmReasoningEffort(bootstrapCfg),
 	})
 	return client
 }

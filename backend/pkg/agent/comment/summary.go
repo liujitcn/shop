@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/cloudwego/eino/schema"
 	"github.com/google/jsonschema-go/jsonschema"
 )
 
@@ -35,8 +36,8 @@ func (r *Runtime) GenerateSummary(ctx context.Context, req SummaryRequest) (*Sum
 		return &SummaryResult{}, nil
 	}
 
-	var schema *jsonschema.Schema
-	schema, err := cachedSummaryResultSchema()
+	var outputSchema *jsonschema.Schema
+	outputSchema, err := cachedSummaryResultSchema()
 	if err != nil {
 		return nil, fmt.Errorf("build comment summary schema: %w", err)
 	}
@@ -48,7 +49,7 @@ func (r *Runtime) GenerateSummary(ctx context.Context, req SummaryRequest) (*Sum
 	if err == nil {
 		commentSummaryPrompt = "请基于已审核通过的商品评价生成评价摘要：\n" + string(rawPayload)
 	}
-	err = r.generateStructured(ctx, commentSummaryInstruction, []any{commentSummaryPrompt}, schema, result)
+	err = r.generateStructured(ctx, commentSummaryInstruction, []schema.MessageInputPart{textInputPart(commentSummaryPrompt)}, outputSchema, result)
 	if err != nil {
 		return nil, err
 	}

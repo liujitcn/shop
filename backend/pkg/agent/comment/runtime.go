@@ -2,11 +2,12 @@ package comment
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"shop/pkg/agent/provider"
 
-	"github.com/go-kratos/blades"
+	"github.com/cloudwego/eino/schema"
 	"github.com/google/jsonschema-go/jsonschema"
 )
 
@@ -38,7 +39,7 @@ func NewRuntime(client *provider.ChatClient) *Runtime {
 
 // Enabled 判断评论智能体是否可用。
 func (r *Runtime) Enabled() bool {
-	return r != nil && r.client != nil && r.client.ModelProvider != nil
+	return r != nil && r.client != nil && r.client.BaseChatModel != nil
 }
 
 // Model 返回评论智能体当前使用的模型名称。
@@ -53,8 +54,8 @@ func (r *Runtime) Model() string {
 func (r *Runtime) generateStructured(
 	ctx context.Context,
 	instruction string,
-	parts []any,
-	schema *jsonschema.Schema,
+	parts []schema.MessageInputPart,
+	outputSchema *jsonschema.Schema,
 	out any,
 ) error {
 	// 模型客户端未初始化时，调用方无法继续发起大模型请求。
@@ -70,21 +71,23 @@ func (r *Runtime) generateStructured(
 		return fmt.Errorf("agent structured output is nil")
 	}
 
-	// 所有评论智能体任务都要求模型按 JSON Schema 输出，减少业务层再猜字段含义的成本。
-	response, err := r.client.Generate(ctx, &blades.ModelRequest{
-		Instruction:  blades.SystemMessage(instruction),
-		Messages:     []*blades.Message{blades.UserMessage(parts...)},
-		OutputSchema: schema,
-	})
+	messages := []*schema.Message{
+		schema.SystemMessage(instruction + "\n\n" + structuredOutputSchemaPrompt(outputSchema)),
+		{
+			Role:                  schema.User,
+			UserInputMultiContent: parts,
+		},
+	}
+	response, err := r.client.Generate(ctx, messages)
 	if err != nil {
 		return fmt.Errorf("request agent structured output: %w", err)
 	}
 	// 服务商返回空消息时，无法解析结构化结果。
-	if response == nil || response.Message == nil {
+	if response == nil {
 		return fmt.Errorf("agent structured response is empty")
 	}
 
-	content := response.Message.Text()
+	content := response.Content
 	// 模型未返回 JSON 文本时，直接返回错误供调用方重试或降级。
 	if content == "" {
 		return fmt.Errorf("agent structured response content is empty")
@@ -94,4 +97,16 @@ func (r *Runtime) generateStructured(
 		return fmt.Errorf("decode agent structured response: %w", err)
 	}
 	return nil
+}
+
+// structuredOutputSchemaPrompt 构造结构化输出的 JSON Schema 文本约束。
+func structuredOutputSchemaPrompt(outputSchema *jsonschema.Schema) string {
+	if outputSchema == nil {
+		return "只返回一个合法 JSON 对象，不要使用 Markdown 代码块。"
+	}
+	raw, err := json.Marshal(outputSchema)
+	if err != nil {
+		return "只返回一个合法 JSON 对象，不要使用 Markdown 代码块。"
+	}
+	return "请严格按以下 JSON Schema 返回一个合法 JSON 对象，不要输出 Markdown 代码块或额外说明：\n" + string(raw)
 }

@@ -4,8 +4,6 @@ go 1.26.0
 
 require (
 	github.com/cloudwego/eino v0.9.2
-	github.com/go-kratos/blades v0.5.0
-	github.com/go-kratos/blades/contrib/openai v0.3.0
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/google/gnostic v0.7.1
@@ -90,7 +88,6 @@ require (
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
-	github.com/go-kratos/kit v0.0.0-20251121083925-65298ad2aa44 // indirect
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect

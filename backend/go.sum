@@ -169,12 +169,6 @@ github.com/go-kit/log v0.2.0/go.mod h1:NwTd00d/i8cPZ3xOwwiv2PO5MOcx78fFErGNcVmBj
 github.com/go-kit/log v0.2.1/go.mod h1:NwTd00d/i8cPZ3xOwwiv2PO5MOcx78fFErGNcVmBjv0=
 github.com/go-kratos/aegis v0.2.0 h1:dObzCDWn3XVjUkgxyBp6ZeWtx/do0DPZ7LY3yNSJLUQ=
 github.com/go-kratos/aegis v0.2.0/go.mod h1:v0R2m73WgEEYB3XYu6aE2WcMwsZkJ/Rzuf5eVccm7bI=
-github.com/go-kratos/blades v0.5.0 h1:n5yNSRV7YgCCVVqrqImb59f4UbalShCJfZxv7EWoDgA=
-github.com/go-kratos/blades v0.5.0/go.mod h1:ZCPoQ0qJ+YoRviQx3kWZQdltil10D6jVONgrptZA8a4=
-github.com/go-kratos/blades/contrib/openai v0.3.0 h1:lZQy3N+KiT0IeB6e9HaXJ6idD8tkzocTryc907BYJLM=
-github.com/go-kratos/blades/contrib/openai v0.3.0/go.mod h1:DrUkaJa5M1Hx+kDoWHJtnhymGJF2VFx/ZPrwhq9ifIw=
-github.com/go-kratos/kit v0.0.0-20251121083925-65298ad2aa44 h1:T2JdBeiSLO+WUmMW4WF32SmS7TtUYGshDlL0+iFoUJg=
-github.com/go-kratos/kit v0.0.0-20251121083925-65298ad2aa44/go.mod h1:TrUs5NEMicK0I4hOGNMp0JQmjF1kWyuKuiueOszGp+o=
 github.com/go-kratos/kratos/v2 v2.9.2 h1:px8GJQBeLpquDKQWQ9zohEWiLA8n4D/pv7aH3asvUvo=
 github.com/go-kratos/kratos/v2 v2.9.2/go.mod h1:Jc7jaeYd4RAPjetun2C+oFAOO7HNMHTT/Z4LxpuEDJM=
 github.com/go-logfmt/logfmt v0.3.0/go.mod h1:Qt1PoO58o5twSAckw1HlFXLmHsOX5/0LbT9GBnD5lWE=
