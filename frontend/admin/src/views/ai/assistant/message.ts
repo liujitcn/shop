@@ -120,6 +120,8 @@ export function createLocalUserMessage(payload: {
   });
   // 本地回显消息只用于等待服务端响应，收到正式消息后需要被替换掉，避免同一问题展示两遍。
   message.localOnly = true;
+  // 用户消息只是本地回显，不参与助手流式动画，避免用户气泡出现思考中的省略点。
+  message.progressState = "idle";
   return message;
 }
 

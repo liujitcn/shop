@@ -131,7 +131,7 @@ make gen
 当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/go-kratos/blades` 的 `Agent + Runner` 机制，并明确使用以下能力：
 
 - `session / state`：每个后台会话在服务端映射为独立的 Blades Session，当前终端、场景、用户名称、会话标题、摘要等状态会注入到 session state。
-- `agent tools`：AI 助手启动时直接收集 `api/gen/go` 下 `*_agent_tool.go` 生成的 Agent Tool，并通过 Blades `WithTools` 挂载到助手主链；不再对生成工具做二次业务封装。
+- `web search`：AI 助手当前仅保留 Responses Provider 默认启用的 `web_search` 工具；当前网关带内部 function tools 会返回上游错误，暂不挂载自定义 Agent Tool。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合 session state 以模板形式渲染。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮用户消息与助手消息，避免占用工作台共用 `/events` 流。
 - `message status`：助手消息使用 `GENERATING / SUCCESS / FAILED` 表达生成中、成功和失败状态，删除统一通过 `deleted_at` 逻辑删除。失败的用户消息可通过 `/retry` 重新发送；助手回复可通过 `/regeneration` 基于上一条用户问题重新生成；单条消息删除会持久化到后端。
@@ -141,7 +141,7 @@ make gen
 
 当前阶段助手主流程使用生成的 Agent Tool 读取系统内数据，并排除 AI 助手会话、消息自身的工具注册，避免助手递归调用自己的对话接口。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
 
-AI 助手默认使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 Responses Provider，并启用 Responses 内置 `web_search` 工具；`pkg/agent/provider` 只负责按配置装配客户端。系统内数据会优先尝试内部 Agent Tool，内部工具不匹配、无结果或问题属于公开实时信息时，再继续由 Responses 内置联网搜索补充上下文。该能力要求配置的 `baseUrl` 支持 OpenAI 兼容 Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
+AI 助手默认使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 Responses Provider，并启用 Responses 内置 `web_search` 工具；`pkg/agent/provider` 只负责按配置装配客户端。当前使用的 Responses 网关在携带内部 function tools 时会返回上游错误，AI 助手暂不挂载系统内部 Agent Tool，只保留 Responses 内置联网搜索补充上下文。该能力要求配置的 `baseUrl` 支持 OpenAI 兼容 Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
 
 ## MCP 工具暴露
 

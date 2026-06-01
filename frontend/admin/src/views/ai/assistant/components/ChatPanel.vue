@@ -49,7 +49,14 @@
                     </el-collapse-item>
                   </el-collapse>
                 </div>
-                <AiMarkdown v-else-if="item.role !== 'user'" :content="item.content" :streaming="item.progressState === 'streaming'" />
+                <template v-else-if="item.role !== 'user'">
+                  <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
+                  <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
+                    <el-collapse-item title="错误详情" :name="String(item.id)">
+                      <pre>{{ item.fallback_reason }}</pre>
+                    </el-collapse-item>
+                  </el-collapse>
+                </template>
                 <span v-else>{{ item.content }}</span>
                 <span v-if="item.progressState === 'streaming'" class="agent-thinking-dots"> <i></i><i></i><i></i> </span>
               </div>

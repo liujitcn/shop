@@ -2,7 +2,6 @@ package assistant
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -102,24 +101,8 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	if !r.Enabled() {
 		return nil, fmt.Errorf("ai assistant client is not configured")
 	}
-	response, hasDelta, err := r.runStream(ctx, input, r.tools, onDelta)
-	if err == nil {
-		return response, nil
-	}
-	// 带内部工具的 Responses 请求可能被兼容代理拒绝；尚未输出正文时，自动退回纯模型调用。
-	if len(r.tools) > 0 && !hasDelta {
-		return r.runStreamWithoutTools(ctx, input, err, onDelta)
-	}
-	return nil, err
-}
-
-// runStreamWithoutTools 在内部工具链路失败后执行纯模型流式重试。
-func (r *Runtime) runStreamWithoutTools(ctx context.Context, input RuntimeInput, cause error, onDelta func(string)) (*Response, error) {
-	response, _, err := r.runStream(ctx, input, nil, onDelta)
-	if err != nil {
-		return nil, errors.Join(cause, err)
-	}
-	return response, nil
+	response, _, err := r.runStream(ctx, input, r.tools, onDelta)
+	return response, err
 }
 
 // runStream 执行一次流式模型调用，并返回是否已经向前端输出过增量。
