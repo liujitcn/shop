@@ -168,6 +168,24 @@ export function ensureStreamingMessage(current: ChatMessageItem[], payload: AiAs
   return sortMessages([...next, createThinkingMessage({ sessionID, messageID })]);
 }
 
+/** 将已有助手消息清空并标记为重新生成中，保留消息 ID 与原位置。 */
+export function markAssistantMessageRegenerating(current: ChatMessageItem[], sessionID: string, messageID: string) {
+  const streamKey = buildStreamMessageKey(sessionID, messageID);
+  return current.map<ChatMessageItem>(item => {
+    if (String(item.id) !== messageID || item.role === "user") return item;
+    return {
+      ...item,
+      content: THINKING_MESSAGE_CONTENT,
+      fallback: false,
+      fallback_reason: "",
+      progressState: "streaming",
+      replySourceTag: { text: "思考中", tone: "info" },
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+      streamKey
+    };
+  });
+}
+
 /** 将消息按创建时间排序。 */
 export function sortMessages(list: ChatMessageItem[]) {
   return [...list].sort((left, right) => {
@@ -242,7 +260,7 @@ export function appendStreamingDelta(current: ChatMessageItem[], payload: AiAssi
   if (!hasStreamingDelta(payload)) return current;
   const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.message_id ?? ""));
   return current.map<ChatMessageItem>(item => {
-    if (item.streamKey !== streamKey || !item.localOnly) return item;
+    if (item.streamKey !== streamKey || (!item.localOnly && item.role === "user")) return item;
     const baseContent = item.content === THINKING_MESSAGE_CONTENT ? "" : item.content;
     const nextContent = `${baseContent}${payload.delta ?? ""}`;
     return {

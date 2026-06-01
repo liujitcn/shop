@@ -245,7 +245,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 				return successErr
 			}
 			var createErr error
-			assistantMessage, createErr = c.createAiAssistantFailedReplyMessage(txCtx, session, reply, runErr, failedAt)
+			assistantMessage, createErr = c.createAiAssistantReplyMessage(txCtx, session, reply, failedAt)
 			if createErr != nil {
 				return createErr
 			}
@@ -258,7 +258,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 		if assistantMessage != nil {
 			responseMessages = append(responseMessages, c.ToDTO(assistantMessage))
 		}
-		_ = emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventError, dto.AiAssistantStreamPayload{
+		_ = emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventFinish, dto.AiAssistantStreamPayload{
 			SessionID: req.GetSessionId(),
 			MessageID: messageID,
 			Messages:  responseMessages,

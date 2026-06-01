@@ -2,6 +2,7 @@ package assistant
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -81,7 +82,7 @@ func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error
 		return nil, err
 	}
 	var runner *blades.Runner
-	runner, err = r.buildRunner(input)
+	runner, err = r.buildRunner(input, r.tools)
 	if err != nil {
 		return nil, err
 	}
@@ -101,21 +102,44 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	if !r.Enabled() {
 		return nil, fmt.Errorf("ai assistant client is not configured")
 	}
+	response, hasDelta, err := r.runStream(ctx, input, r.tools, onDelta)
+	if err == nil {
+		return response, nil
+	}
+	// 带内部工具的 Responses 请求可能被兼容代理拒绝；尚未输出正文时，自动退回纯模型调用。
+	if len(r.tools) > 0 && !hasDelta {
+		return r.runStreamWithoutTools(ctx, input, err, onDelta)
+	}
+	return nil, err
+}
+
+// runStreamWithoutTools 在内部工具链路失败后执行纯模型流式重试。
+func (r *Runtime) runStreamWithoutTools(ctx context.Context, input RuntimeInput, cause error, onDelta func(string)) (*Response, error) {
+	response, _, err := r.runStream(ctx, input, nil, onDelta)
+	if err != nil {
+		return nil, errors.Join(cause, err)
+	}
+	return response, nil
+}
+
+// runStream 执行一次流式模型调用，并返回是否已经向前端输出过增量。
+func (r *Runtime) runStream(ctx context.Context, input RuntimeInput, toolList []tools.Tool, onDelta func(string)) (*Response, bool, error) {
 	var err error
 	var session blades.Session
 	session, err = r.buildSession(ctx, input)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	var runner *blades.Runner
-	runner, err = r.buildRunner(input)
+	runner, err = r.buildRunner(input, toolList)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	var finalMessage *blades.Message
+	hasDelta := false
 	for output, runErr := range runner.RunStream(ctx, r.buildUserMessage(input), blades.WithSession(session)) {
 		if runErr != nil {
-			return nil, runErr
+			return nil, hasDelta, runErr
 		}
 		// 工具调用结果由 Runner 内部继续驱动，这里只把助手文本增量透传给前端。
 		if output == nil || output.Role != blades.RoleAssistant {
@@ -126,14 +150,15 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		if output.Status != blades.StatusCompleted && onDelta != nil {
 			text := output.Text()
 			if text != "" {
+				hasDelta = true
 				onDelta(text)
 			}
 		}
 	}
 	if finalMessage == nil {
-		return nil, fmt.Errorf("ai assistant response is empty")
+		return nil, hasDelta, fmt.Errorf("ai assistant response is empty")
 	}
-	return r.buildResponse(finalMessage), nil
+	return r.buildResponse(finalMessage), hasDelta, nil
 }
 
 // buildSession 构建当前轮次的 Blades Session。
@@ -180,7 +205,7 @@ func appendHistoryMessage(ctx context.Context, session blades.Session, role stri
 }
 
 // buildRunner 构建当前轮次的 AI 助手运行器。
-func (r *Runtime) buildRunner(input RuntimeInput) (*blades.Runner, error) {
+func (r *Runtime) buildRunner(input RuntimeInput, toolList []tools.Tool) (*blades.Runner, error) {
 	var err error
 	var agentInstance blades.Agent
 	options := []blades.AgentOption{
@@ -189,8 +214,8 @@ func (r *Runtime) buildRunner(input RuntimeInput) (*blades.Runner, error) {
 		blades.WithOutputKey("assistant_reply"),
 		blades.WithInstruction(r.resolvePromptTemplate(input)),
 	}
-	if len(r.tools) > 0 {
-		options = append(options, blades.WithTools(r.tools...))
+	if len(toolList) > 0 {
+		options = append(options, blades.WithTools(toolList...))
 	}
 	agentInstance, err = blades.NewAgent(
 		"shop_ai_assistant",

@@ -409,6 +409,10 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   min-height: 0;
   padding: 8px 0 24px;
   overflow: auto;
+  :deep(.elx-bubble__content-wrapper),
+  :deep(.elx-bubble__content) {
+    min-width: 0;
+  }
   :deep(.elx-bubble__content) {
     border-radius: var(--admin-page-radius);
   }
@@ -436,11 +440,14 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 }
 .agent-message-content.is-failed-assistant {
   width: min(460px, 100%);
+  max-width: 100%;
 }
 .agent-message-body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
 }
 .agent-message-meta {
   display: inline-flex;
@@ -470,7 +477,9 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   opacity: 0.85;
 }
 .agent-message-error {
-  min-width: min(360px, 100%);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   padding: 12px 14px;
   color: var(--admin-page-text-primary);
   background: var(--el-color-danger-light-9);

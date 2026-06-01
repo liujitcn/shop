@@ -45,6 +45,7 @@ import {
   ensureStreamingMessage,
   findPreviousUserMessage,
   hasStreamingDelta,
+  markAssistantMessageRegenerating,
   markStreamingError,
   markThinkingMessageFailed,
   markSpeakingMessage,
@@ -225,28 +226,38 @@ async function handleDeleteMessage(item: ChatMessageItem) {
 /** 重试失败的用户消息，或重新生成助手回复。 */
 async function handleRetryMessage(item: ChatMessageItem) {
   const sessionID = activeSessionID.value;
-  if (!sessionID) return;
+  if (!sessionID || sending.value) return;
 
-  let response;
-  if (item.role === "user") {
-    if (item.status !== AiAssistantMessageStatus.FAILED_AAMS) {
-      ElMessage.warning("只有发送失败的用户消息可以重新发送");
-      return;
+  sending.value = true;
+  try {
+    let response;
+    if (item.role === "user") {
+      if (item.status !== AiAssistantMessageStatus.FAILED_AAMS) {
+        ElMessage.warning("只有发送失败的用户消息可以重新发送");
+        return;
+      }
+      response = await defAiAssistantMessageService.RetryAiAssistantUserMessage({
+        session_id: sessionID,
+        message_id: String(item.id)
+      });
+    } else {
+      messages.value[sessionID] = markAssistantMessageRegenerating(messages.value[sessionID] ?? [], sessionID, String(item.id));
+      response = await defAiAssistantMessageService.RegenerateAiAssistantMessage({
+        session_id: sessionID,
+        message_id: String(item.id)
+      });
     }
-    response = await defAiAssistantMessageService.RetryAiAssistantUserMessage({
-      session_id: sessionID,
-      message_id: String(item.id)
-    });
-  } else {
-    response = await defAiAssistantMessageService.RegenerateAiAssistantMessage({
-      session_id: sessionID,
-      message_id: String(item.id)
-    });
+    const current = messages.value[sessionID] ?? [];
+    messages.value[sessionID] = replacePendingMessages(current, normalizeMessageList(response.messages));
+    if (response.session) upsertSession(normalizeSession(response.session));
+    ElMessage.success(item.role === "user" ? "已重新发送" : "已重新生成");
+  } catch (error) {
+    if (item.role !== "user") await loadMessages(sessionID);
+    const message = error instanceof Error ? error.message : "重新生成失败";
+    ElMessage.error(message);
+  } finally {
+    sending.value = false;
   }
-  const current = messages.value[sessionID] ?? [];
-  messages.value[sessionID] = replacePendingMessages(current, normalizeMessageList(response.messages));
-  if (response.session) upsertSession(normalizeSession(response.session));
-  ElMessage.success(item.role === "user" ? "已重新发送" : "已重新生成");
 }
 
 /** 从当前消息处创建一个新的持久化分支会话。 */

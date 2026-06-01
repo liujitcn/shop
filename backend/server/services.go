@@ -16,7 +16,7 @@ import (
 
 const (
 	// maxAiAssistantAgentTools 限制单次模型请求携带的内部工具数量，避免代理因工具定义过大返回 503。
-	maxAiAssistantAgentTools = 64
+	maxAiAssistantAgentTools = 32
 	// maxAiAssistantAgentToolNameLength 对齐 Responses function tool 的工具名长度限制。
 	maxAiAssistantAgentToolNameLength = 64
 )
@@ -36,10 +36,13 @@ var aiAssistantReadToolPrefixes = []string{
 var aiAssistantBlockedToolNameParts = []string{
 	"ai_assistant",
 	"auth_service",
+	"base_api_service",
+	"base_log_service",
 	"file_service",
 	"login_service",
 	"mcp_service",
 	"pay_service",
+	"recommend_gorse_service",
 }
 
 // ServerServices 汇总 HTTP 与 MCP 需要注册的服务实例。
