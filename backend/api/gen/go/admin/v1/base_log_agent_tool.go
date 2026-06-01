@@ -9,20 +9,21 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewBaseLogServiceAgentTools 创建Admin日志服务的 Agent Tool。
-func NewBaseLogServiceAgentTools(baseLogServiceServer BaseLogServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseLogServiceAgentTools(baseLogServiceServer BaseLogServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageBaseLogsTool tools.Tool
+	var pageBaseLogsTool tool.InvokableTool
 	pageBaseLogsTool, err = NewBaseLogServicePageBaseLogsAgentTool(baseLogServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseLogsTool)
-	var getBaseLogTool tools.Tool
+	var getBaseLogTool tool.InvokableTool
 	getBaseLogTool, err = NewBaseLogServiceGetBaseLogAgentTool(baseLogServiceServer)
 	if err != nil {
 		return nil, err
@@ -32,8 +33,8 @@ func NewBaseLogServiceAgentTools(baseLogServiceServer BaseLogServiceServer) ([]t
 }
 
 // NewBaseLogServicePageBaseLogsAgentTool 创建查询日志分页列表的 Agent Tool。
-func NewBaseLogServicePageBaseLogsAgentTool(baseLogServiceServer BaseLogServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseLogServicePageBaseLogsAgentTool(baseLogServiceServer BaseLogServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseLogsRequest, *PageBaseLogsResponse](
 		"admin_v1_base_log_service_page_base_logs",
 		"查询日志分页列表",
 		func(ctx context.Context, req *PageBaseLogsRequest) (*PageBaseLogsResponse, error) {
@@ -46,8 +47,8 @@ func NewBaseLogServicePageBaseLogsAgentTool(baseLogServiceServer BaseLogServiceS
 }
 
 // NewBaseLogServiceGetBaseLogAgentTool 创建查询日志的 Agent Tool。
-func NewBaseLogServiceGetBaseLogAgentTool(baseLogServiceServer BaseLogServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseLogServiceGetBaseLogAgentTool(baseLogServiceServer BaseLogServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseLogRequest, *BaseLog](
 		"admin_v1_base_log_service_get_base_log",
 		"查询日志",
 		func(ctx context.Context, req *GetBaseLogRequest) (*BaseLog, error) {

@@ -9,33 +9,34 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewRecommendServiceAgentTools 创建App推荐服务的 Agent Tool。
-func NewRecommendServiceAgentTools(recommendServiceServer RecommendServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewRecommendServiceAgentTools(recommendServiceServer RecommendServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var recommendAnonymousActorTool tools.Tool
+	var recommendAnonymousActorTool tool.InvokableTool
 	recommendAnonymousActorTool, err = NewRecommendServiceRecommendAnonymousActorAgentTool(recommendServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, recommendAnonymousActorTool)
-	var bindRecommendAnonymousActorTool tools.Tool
+	var bindRecommendAnonymousActorTool tool.InvokableTool
 	bindRecommendAnonymousActorTool, err = NewRecommendServiceBindRecommendAnonymousActorAgentTool(recommendServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, bindRecommendAnonymousActorTool)
-	var recommendGoodsTool tools.Tool
+	var recommendGoodsTool tool.InvokableTool
 	recommendGoodsTool, err = NewRecommendServiceRecommendGoodsAgentTool(recommendServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, recommendGoodsTool)
-	var recommendEventReportTool tools.Tool
+	var recommendEventReportTool tool.InvokableTool
 	recommendEventReportTool, err = NewRecommendServiceRecommendEventReportAgentTool(recommendServiceServer)
 	if err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func NewRecommendServiceAgentTools(recommendServiceServer RecommendServiceServer
 }
 
 // NewRecommendServiceRecommendAnonymousActorAgentTool 创建获取匿名推荐主体的 Agent Tool。
-func NewRecommendServiceRecommendAnonymousActorAgentTool(recommendServiceServer RecommendServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendServiceRecommendAnonymousActorAgentTool(recommendServiceServer RecommendServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RecommendAnonymousActorRequest, *RecommendAnonymousActorResponse](
 		"app_v1_recommend_service_recommend_anonymous_actor",
 		"获取匿名推荐主体",
 		func(ctx context.Context, req *RecommendAnonymousActorRequest) (*RecommendAnonymousActorResponse, error) {
@@ -59,8 +60,8 @@ func NewRecommendServiceRecommendAnonymousActorAgentTool(recommendServiceServer 
 }
 
 // NewRecommendServiceBindRecommendAnonymousActorAgentTool 创建绑定匿名推荐主体到当前登录用户的 Agent Tool。
-func NewRecommendServiceBindRecommendAnonymousActorAgentTool(recommendServiceServer RecommendServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendServiceBindRecommendAnonymousActorAgentTool(recommendServiceServer RecommendServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*BindRecommendAnonymousActorRequest, *emptypb.Empty](
 		"app_v1_recommend_service_bind_recommend_anonymous_actor",
 		"绑定匿名推荐主体到当前登录用户",
 		func(ctx context.Context, req *BindRecommendAnonymousActorRequest) (*emptypb.Empty, error) {
@@ -73,8 +74,8 @@ func NewRecommendServiceBindRecommendAnonymousActorAgentTool(recommendServiceSer
 }
 
 // NewRecommendServiceRecommendGoodsAgentTool 创建查询推荐商品列表的 Agent Tool。
-func NewRecommendServiceRecommendGoodsAgentTool(recommendServiceServer RecommendServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendServiceRecommendGoodsAgentTool(recommendServiceServer RecommendServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RecommendGoodsRequest, *RecommendGoodsResponse](
 		"app_v1_recommend_service_recommend_goods",
 		"查询推荐商品列表",
 		func(ctx context.Context, req *RecommendGoodsRequest) (*RecommendGoodsResponse, error) {
@@ -87,8 +88,8 @@ func NewRecommendServiceRecommendGoodsAgentTool(recommendServiceServer Recommend
 }
 
 // NewRecommendServiceRecommendEventReportAgentTool 创建上报推荐事件的 Agent Tool。
-func NewRecommendServiceRecommendEventReportAgentTool(recommendServiceServer RecommendServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendServiceRecommendEventReportAgentTool(recommendServiceServer RecommendServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RecommendEventReportRequest, *emptypb.Empty](
 		"app_v1_recommend_service_recommend_event_report",
 		"上报推荐事件",
 		func(ctx context.Context, req *RecommendEventReportRequest) (*emptypb.Empty, error) {

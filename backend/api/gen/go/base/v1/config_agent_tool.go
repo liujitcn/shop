@@ -9,14 +9,15 @@ package basev1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewConfigServiceAgentTools 创建Base系统配置公共服务的 Agent Tool。
-func NewConfigServiceAgentTools(configServiceServer ConfigServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewConfigServiceAgentTools(configServiceServer ConfigServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var getConfigTool tools.Tool
+	var getConfigTool tool.InvokableTool
 	getConfigTool, err = NewConfigServiceGetConfigAgentTool(configServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewConfigServiceAgentTools(configServiceServer ConfigServiceServer) ([]tool
 }
 
 // NewConfigServiceGetConfigAgentTool 创建获取系统配置的 Agent Tool。
-func NewConfigServiceGetConfigAgentTool(configServiceServer ConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewConfigServiceGetConfigAgentTool(configServiceServer ConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetConfigRequest, *GetConfigResponse](
 		"base_v1_config_service_get_config",
 		"获取系统配置",
 		func(ctx context.Context, req *GetConfigRequest) (*GetConfigResponse, error) {

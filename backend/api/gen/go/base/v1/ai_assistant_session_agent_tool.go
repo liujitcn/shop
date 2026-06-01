@@ -9,44 +9,45 @@ package basev1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewAiAssistantServiceAgentTools 创建Base AI 助手会话服务的 Agent Tool。
-func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listAiAssistantSessionsTool tools.Tool
+	var listAiAssistantSessionsTool tool.InvokableTool
 	listAiAssistantSessionsTool, err = NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listAiAssistantSessionsTool)
-	var createAiAssistantSessionTool tools.Tool
+	var createAiAssistantSessionTool tool.InvokableTool
 	createAiAssistantSessionTool, err = NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createAiAssistantSessionTool)
-	var updateAiAssistantSessionTool tools.Tool
+	var updateAiAssistantSessionTool tool.InvokableTool
 	updateAiAssistantSessionTool, err = NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateAiAssistantSessionTool)
-	var deleteAiAssistantSessionTool tools.Tool
+	var deleteAiAssistantSessionTool tool.InvokableTool
 	deleteAiAssistantSessionTool, err = NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteAiAssistantSessionTool)
-	var listAiAssistantMessagesTool tools.Tool
+	var listAiAssistantMessagesTool tool.InvokableTool
 	listAiAssistantMessagesTool, err = NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listAiAssistantMessagesTool)
-	var createAiAssistantSessionBranchTool tools.Tool
+	var createAiAssistantSessionBranchTool tool.InvokableTool
 	createAiAssistantSessionBranchTool, err = NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool(aiAssistantServiceServer)
 	if err != nil {
 		return nil, err
@@ -56,8 +57,8 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 }
 
 // NewAiAssistantServiceListAiAssistantSessionsAgentTool 创建查询 AI 助手会话列表的 Agent Tool。
-func NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiAssistantSessionsRequest, *ListAiAssistantSessionsResponse](
 		"base_v1_ai_assistant_service_list_ai_assistant_sessions",
 		"查询 AI 助手会话列表",
 		func(ctx context.Context, req *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error) {
@@ -70,8 +71,8 @@ func NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceSer
 }
 
 // NewAiAssistantServiceCreateAiAssistantSessionAgentTool 创建创建 AI 助手会话的 Agent Tool。
-func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateAiAssistantSessionRequest, *CreateAiAssistantSessionResponse](
 		"base_v1_ai_assistant_service_create_ai_assistant_session",
 		"创建 AI 助手会话",
 		func(ctx context.Context, req *CreateAiAssistantSessionRequest) (*CreateAiAssistantSessionResponse, error) {
@@ -84,8 +85,8 @@ func NewAiAssistantServiceCreateAiAssistantSessionAgentTool(aiAssistantServiceSe
 }
 
 // NewAiAssistantServiceUpdateAiAssistantSessionAgentTool 创建更新 AI 助手会话的 Agent Tool。
-func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateAiAssistantSessionRequest, *UpdateAiAssistantSessionResponse](
 		"base_v1_ai_assistant_service_update_ai_assistant_session",
 		"更新 AI 助手会话",
 		func(ctx context.Context, req *UpdateAiAssistantSessionRequest) (*UpdateAiAssistantSessionResponse, error) {
@@ -98,8 +99,8 @@ func NewAiAssistantServiceUpdateAiAssistantSessionAgentTool(aiAssistantServiceSe
 }
 
 // NewAiAssistantServiceDeleteAiAssistantSessionAgentTool 创建删除 AI 助手会话的 Agent Tool。
-func NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteAiAssistantSessionRequest, *DeleteAiAssistantSessionResponse](
 		"base_v1_ai_assistant_service_delete_ai_assistant_session",
 		"删除 AI 助手会话",
 		func(ctx context.Context, req *DeleteAiAssistantSessionRequest) (*DeleteAiAssistantSessionResponse, error) {
@@ -112,8 +113,8 @@ func NewAiAssistantServiceDeleteAiAssistantSessionAgentTool(aiAssistantServiceSe
 }
 
 // NewAiAssistantServiceListAiAssistantMessagesAgentTool 创建查询 AI 助手消息列表的 Agent Tool。
-func NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiAssistantMessagesRequest, *ListAiAssistantMessagesResponse](
 		"base_v1_ai_assistant_service_list_ai_assistant_messages",
 		"查询 AI 助手消息列表",
 		func(ctx context.Context, req *ListAiAssistantMessagesRequest) (*ListAiAssistantMessagesResponse, error) {
@@ -126,8 +127,8 @@ func NewAiAssistantServiceListAiAssistantMessagesAgentTool(aiAssistantServiceSer
 }
 
 // NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool 创建从指定消息创建 AI 助手分支会话的 Agent Tool。
-func NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAiAssistantServiceCreateAiAssistantSessionBranchAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateAiAssistantSessionBranchRequest, *CreateAiAssistantSessionBranchResponse](
 		"base_v1_ai_assistant_service_create_ai_assistant_session_branch",
 		"从指定消息创建 AI 助手分支会话",
 		func(ctx context.Context, req *CreateAiAssistantSessionBranchRequest) (*CreateAiAssistantSessionBranchResponse, error) {

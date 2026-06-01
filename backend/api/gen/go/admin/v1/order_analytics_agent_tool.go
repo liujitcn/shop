@@ -10,26 +10,27 @@ import (
 	context "context"
 	v1 "shop/api/gen/go/common/v1"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewOrderAnalyticsServiceAgentTools 创建Admin订单分析服务的 Agent Tool。
-func NewOrderAnalyticsServiceAgentTools(orderAnalyticsServiceServer OrderAnalyticsServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewOrderAnalyticsServiceAgentTools(orderAnalyticsServiceServer OrderAnalyticsServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var summaryOrderAnalyticsTool tools.Tool
+	var summaryOrderAnalyticsTool tool.InvokableTool
 	summaryOrderAnalyticsTool, err = NewOrderAnalyticsServiceSummaryOrderAnalyticsAgentTool(orderAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryOrderAnalyticsTool)
-	var trendOrderAnalyticsTool tools.Tool
+	var trendOrderAnalyticsTool tool.InvokableTool
 	trendOrderAnalyticsTool, err = NewOrderAnalyticsServiceTrendOrderAnalyticsAgentTool(orderAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, trendOrderAnalyticsTool)
-	var pieOrderAnalyticsTool tools.Tool
+	var pieOrderAnalyticsTool tool.InvokableTool
 	pieOrderAnalyticsTool, err = NewOrderAnalyticsServicePieOrderAnalyticsAgentTool(orderAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func NewOrderAnalyticsServiceAgentTools(orderAnalyticsServiceServer OrderAnalyti
 }
 
 // NewOrderAnalyticsServiceSummaryOrderAnalyticsAgentTool 创建查询订单摘要指标的 Agent Tool。
-func NewOrderAnalyticsServiceSummaryOrderAnalyticsAgentTool(orderAnalyticsServiceServer OrderAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderAnalyticsServiceSummaryOrderAnalyticsAgentTool(orderAnalyticsServiceServer OrderAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryOrderAnalyticsRequest, *SummaryOrderAnalyticsResponse](
 		"admin_v1_order_analytics_service_summary_order_analytics",
 		"查询订单摘要指标",
 		func(ctx context.Context, req *SummaryOrderAnalyticsRequest) (*SummaryOrderAnalyticsResponse, error) {
@@ -53,8 +54,8 @@ func NewOrderAnalyticsServiceSummaryOrderAnalyticsAgentTool(orderAnalyticsServic
 }
 
 // NewOrderAnalyticsServiceTrendOrderAnalyticsAgentTool 创建查询订单趋势的 Agent Tool。
-func NewOrderAnalyticsServiceTrendOrderAnalyticsAgentTool(orderAnalyticsServiceServer OrderAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderAnalyticsServiceTrendOrderAnalyticsAgentTool(orderAnalyticsServiceServer OrderAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TrendOrderAnalyticsRequest, *v1.AnalyticsTrendResponse](
 		"admin_v1_order_analytics_service_trend_order_analytics",
 		"查询订单趋势",
 		func(ctx context.Context, req *TrendOrderAnalyticsRequest) (*v1.AnalyticsTrendResponse, error) {
@@ -67,8 +68,8 @@ func NewOrderAnalyticsServiceTrendOrderAnalyticsAgentTool(orderAnalyticsServiceS
 }
 
 // NewOrderAnalyticsServicePieOrderAnalyticsAgentTool 创建查询订单状态分布的 Agent Tool。
-func NewOrderAnalyticsServicePieOrderAnalyticsAgentTool(orderAnalyticsServiceServer OrderAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderAnalyticsServicePieOrderAnalyticsAgentTool(orderAnalyticsServiceServer OrderAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PieOrderAnalyticsRequest, *v1.AnalyticsPieResponse](
 		"admin_v1_order_analytics_service_pie_order_analytics",
 		"查询订单状态分布",
 		func(ctx context.Context, req *PieOrderAnalyticsRequest) (*v1.AnalyticsPieResponse, error) {

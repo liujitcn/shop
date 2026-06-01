@@ -10,26 +10,27 @@ import (
 	context "context"
 	v1 "shop/api/gen/go/common/v1"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewUserAnalyticsServiceAgentTools 创建Admin用户分析服务的 Agent Tool。
-func NewUserAnalyticsServiceAgentTools(userAnalyticsServiceServer UserAnalyticsServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewUserAnalyticsServiceAgentTools(userAnalyticsServiceServer UserAnalyticsServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var summaryUserAnalyticsTool tools.Tool
+	var summaryUserAnalyticsTool tool.InvokableTool
 	summaryUserAnalyticsTool, err = NewUserAnalyticsServiceSummaryUserAnalyticsAgentTool(userAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryUserAnalyticsTool)
-	var trendUserAnalyticsTool tools.Tool
+	var trendUserAnalyticsTool tool.InvokableTool
 	trendUserAnalyticsTool, err = NewUserAnalyticsServiceTrendUserAnalyticsAgentTool(userAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, trendUserAnalyticsTool)
-	var rankUserAnalyticsTool tools.Tool
+	var rankUserAnalyticsTool tool.InvokableTool
 	rankUserAnalyticsTool, err = NewUserAnalyticsServiceRankUserAnalyticsAgentTool(userAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func NewUserAnalyticsServiceAgentTools(userAnalyticsServiceServer UserAnalyticsS
 }
 
 // NewUserAnalyticsServiceSummaryUserAnalyticsAgentTool 创建查询用户摘要指标的 Agent Tool。
-func NewUserAnalyticsServiceSummaryUserAnalyticsAgentTool(userAnalyticsServiceServer UserAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAnalyticsServiceSummaryUserAnalyticsAgentTool(userAnalyticsServiceServer UserAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryUserAnalyticsRequest, *SummaryUserAnalyticsResponse](
 		"admin_v1_user_analytics_service_summary_user_analytics",
 		"查询用户摘要指标",
 		func(ctx context.Context, req *SummaryUserAnalyticsRequest) (*SummaryUserAnalyticsResponse, error) {
@@ -53,8 +54,8 @@ func NewUserAnalyticsServiceSummaryUserAnalyticsAgentTool(userAnalyticsServiceSe
 }
 
 // NewUserAnalyticsServiceTrendUserAnalyticsAgentTool 创建查询用户趋势的 Agent Tool。
-func NewUserAnalyticsServiceTrendUserAnalyticsAgentTool(userAnalyticsServiceServer UserAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAnalyticsServiceTrendUserAnalyticsAgentTool(userAnalyticsServiceServer UserAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TrendUserAnalyticsRequest, *v1.AnalyticsTrendResponse](
 		"admin_v1_user_analytics_service_trend_user_analytics",
 		"查询用户趋势",
 		func(ctx context.Context, req *TrendUserAnalyticsRequest) (*v1.AnalyticsTrendResponse, error) {
@@ -67,8 +68,8 @@ func NewUserAnalyticsServiceTrendUserAnalyticsAgentTool(userAnalyticsServiceServ
 }
 
 // NewUserAnalyticsServiceRankUserAnalyticsAgentTool 创建查询用户行为覆盖排行的 Agent Tool。
-func NewUserAnalyticsServiceRankUserAnalyticsAgentTool(userAnalyticsServiceServer UserAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAnalyticsServiceRankUserAnalyticsAgentTool(userAnalyticsServiceServer UserAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RankUserAnalyticsRequest, *v1.AnalyticsRankResponse](
 		"admin_v1_user_analytics_service_rank_user_analytics",
 		"查询用户行为覆盖排行",
 		func(ctx context.Context, req *RankUserAnalyticsRequest) (*v1.AnalyticsRankResponse, error) {

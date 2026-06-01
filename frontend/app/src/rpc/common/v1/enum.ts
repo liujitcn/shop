@@ -4,6 +4,8 @@
 //   protoc               unknown
 // source: common/v1/enum.proto
 
+/* eslint-disable */
+
 /** 状态 */
 export enum Status {
   UNKNOWN = 0,

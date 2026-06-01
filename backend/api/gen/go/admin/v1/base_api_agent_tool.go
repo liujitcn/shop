@@ -9,39 +9,40 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseApiServiceAgentTools 创建AdminAPI服务的 Agent Tool。
-func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageBaseApisTool tools.Tool
+	var pageBaseApisTool tool.InvokableTool
 	pageBaseApisTool, err = NewBaseApiServicePageBaseApisAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseApisTool)
-	var listBaseApisTool tools.Tool
+	var listBaseApisTool tool.InvokableTool
 	listBaseApisTool, err = NewBaseApiServiceListBaseApisAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listBaseApisTool)
-	var getBaseApiTool tools.Tool
+	var getBaseApiTool tool.InvokableTool
 	getBaseApiTool, err = NewBaseApiServiceGetBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseApiTool)
-	var getBaseApiDocTool tools.Tool
+	var getBaseApiDocTool tool.InvokableTool
 	getBaseApiDocTool, err = NewBaseApiServiceGetBaseApiDocAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseApiDocTool)
-	var setBaseApiMcpEnabledTool tools.Tool
+	var setBaseApiMcpEnabledTool tool.InvokableTool
 	setBaseApiMcpEnabledTool, err = NewBaseApiServiceSetBaseApiMcpEnabledAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
@@ -51,8 +52,8 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 }
 
 // NewBaseApiServicePageBaseApisAgentTool 创建分页查询API列表的 Agent Tool。
-func NewBaseApiServicePageBaseApisAgentTool(baseApiServiceServer BaseApiServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseApiServicePageBaseApisAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseApisRequest, *PageBaseApisResponse](
 		"admin_v1_base_api_service_page_base_apis",
 		"分页查询API列表",
 		func(ctx context.Context, req *PageBaseApisRequest) (*PageBaseApisResponse, error) {
@@ -65,8 +66,8 @@ func NewBaseApiServicePageBaseApisAgentTool(baseApiServiceServer BaseApiServiceS
 }
 
 // NewBaseApiServiceListBaseApisAgentTool 创建查询菜单分配API选项列表的 Agent Tool。
-func NewBaseApiServiceListBaseApisAgentTool(baseApiServiceServer BaseApiServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseApiServiceListBaseApisAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListBaseApisRequest, *ListBaseApisResponse](
 		"admin_v1_base_api_service_list_base_apis",
 		"查询菜单分配API选项列表",
 		func(ctx context.Context, req *ListBaseApisRequest) (*ListBaseApisResponse, error) {
@@ -79,8 +80,8 @@ func NewBaseApiServiceListBaseApisAgentTool(baseApiServiceServer BaseApiServiceS
 }
 
 // NewBaseApiServiceGetBaseApiAgentTool 创建查询API详情的 Agent Tool。
-func NewBaseApiServiceGetBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseApiServiceGetBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseApiRequest, *BaseApi](
 		"admin_v1_base_api_service_get_base_api",
 		"查询API详情",
 		func(ctx context.Context, req *GetBaseApiRequest) (*BaseApi, error) {
@@ -93,8 +94,8 @@ func NewBaseApiServiceGetBaseApiAgentTool(baseApiServiceServer BaseApiServiceSer
 }
 
 // NewBaseApiServiceGetBaseApiDocAgentTool 创建查询API文档的 Agent Tool。
-func NewBaseApiServiceGetBaseApiDocAgentTool(baseApiServiceServer BaseApiServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseApiServiceGetBaseApiDocAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseApiDocRequest, any](
 		"admin_v1_base_api_service_get_base_api_doc",
 		"查询API文档",
 		func(ctx context.Context, req *GetBaseApiDocRequest) (any, error) {
@@ -111,8 +112,8 @@ func NewBaseApiServiceGetBaseApiDocAgentTool(baseApiServiceServer BaseApiService
 }
 
 // NewBaseApiServiceSetBaseApiMcpEnabledAgentTool 创建设置API MCP启用状态的 Agent Tool。
-func NewBaseApiServiceSetBaseApiMcpEnabledAgentTool(baseApiServiceServer BaseApiServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseApiServiceSetBaseApiMcpEnabledAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseApiMcpEnabledRequest, *emptypb.Empty](
 		"admin_v1_base_api_service_set_base_api_mcp_enabled",
 		"设置API MCP启用状态",
 		func(ctx context.Context, req *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {

@@ -9,27 +9,28 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewPayServiceAgentTools 创建App支付服务的 Agent Tool。
-func NewPayServiceAgentTools(payServiceServer PayServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewPayServiceAgentTools(payServiceServer PayServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var jsapiPayTool tools.Tool
+	var jsapiPayTool tool.InvokableTool
 	jsapiPayTool, err = NewPayServiceJsapiPayAgentTool(payServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, jsapiPayTool)
-	var h5PayTool tools.Tool
+	var h5PayTool tool.InvokableTool
 	h5PayTool, err = NewPayServiceH5PayAgentTool(payServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, h5PayTool)
-	var payNotifyTool tools.Tool
+	var payNotifyTool tool.InvokableTool
 	payNotifyTool, err = NewPayServicePayNotifyAgentTool(payServiceServer)
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func NewPayServiceAgentTools(payServiceServer PayServiceServer) ([]tools.Tool, e
 }
 
 // NewPayServiceJsapiPayAgentTool 创建小程序支付的 Agent Tool。
-func NewPayServiceJsapiPayAgentTool(payServiceServer PayServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewPayServiceJsapiPayAgentTool(payServiceServer PayServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*JsapiPayRequest, *JsapiPayResponse](
 		"app_v1_pay_service_jsapi_pay",
 		"小程序支付",
 		func(ctx context.Context, req *JsapiPayRequest) (*JsapiPayResponse, error) {
@@ -53,8 +54,8 @@ func NewPayServiceJsapiPayAgentTool(payServiceServer PayServiceServer) (tools.To
 }
 
 // NewPayServiceH5PayAgentTool 创建H5支付的 Agent Tool。
-func NewPayServiceH5PayAgentTool(payServiceServer PayServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewPayServiceH5PayAgentTool(payServiceServer PayServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*H5PayRequest, *H5PayResponse](
 		"app_v1_pay_service_h5_pay",
 		"H5支付",
 		func(ctx context.Context, req *H5PayRequest) (*H5PayResponse, error) {
@@ -67,8 +68,8 @@ func NewPayServiceH5PayAgentTool(payServiceServer PayServiceServer) (tools.Tool,
 }
 
 // NewPayServicePayNotifyAgentTool 创建支付通知的 Agent Tool。
-func NewPayServicePayNotifyAgentTool(payServiceServer PayServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewPayServicePayNotifyAgentTool(payServiceServer PayServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PayNotifyRequest, *emptypb.Empty](
 		"app_v1_pay_service_pay_notify",
 		"支付通知",
 		func(ctx context.Context, req *PayNotifyRequest) (*emptypb.Empty, error) {

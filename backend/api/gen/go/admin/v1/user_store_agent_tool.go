@@ -9,27 +9,28 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewUserStoreServiceAgentTools 创建Admin用户门店管理服务的 Agent Tool。
-func NewUserStoreServiceAgentTools(userStoreServiceServer UserStoreServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewUserStoreServiceAgentTools(userStoreServiceServer UserStoreServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageUserStoresTool tools.Tool
+	var pageUserStoresTool tool.InvokableTool
 	pageUserStoresTool, err = NewUserStoreServicePageUserStoresAgentTool(userStoreServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageUserStoresTool)
-	var getUserStoreTool tools.Tool
+	var getUserStoreTool tool.InvokableTool
 	getUserStoreTool, err = NewUserStoreServiceGetUserStoreAgentTool(userStoreServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getUserStoreTool)
-	var auditUserStoreTool tools.Tool
+	var auditUserStoreTool tool.InvokableTool
 	auditUserStoreTool, err = NewUserStoreServiceAuditUserStoreAgentTool(userStoreServiceServer)
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func NewUserStoreServiceAgentTools(userStoreServiceServer UserStoreServiceServer
 }
 
 // NewUserStoreServicePageUserStoresAgentTool 创建查询用户门店列表的 Agent Tool。
-func NewUserStoreServicePageUserStoresAgentTool(userStoreServiceServer UserStoreServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserStoreServicePageUserStoresAgentTool(userStoreServiceServer UserStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageUserStoresRequest, *PageUserStoresResponse](
 		"admin_v1_user_store_service_page_user_stores",
 		"查询用户门店列表",
 		func(ctx context.Context, req *PageUserStoresRequest) (*PageUserStoresResponse, error) {
@@ -53,8 +54,8 @@ func NewUserStoreServicePageUserStoresAgentTool(userStoreServiceServer UserStore
 }
 
 // NewUserStoreServiceGetUserStoreAgentTool 创建查询用户门店的 Agent Tool。
-func NewUserStoreServiceGetUserStoreAgentTool(userStoreServiceServer UserStoreServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserStoreServiceGetUserStoreAgentTool(userStoreServiceServer UserStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetUserStoreRequest, *UserStore](
 		"admin_v1_user_store_service_get_user_store",
 		"查询用户门店",
 		func(ctx context.Context, req *GetUserStoreRequest) (*UserStore, error) {
@@ -67,8 +68,8 @@ func NewUserStoreServiceGetUserStoreAgentTool(userStoreServiceServer UserStoreSe
 }
 
 // NewUserStoreServiceAuditUserStoreAgentTool 创建门店认证的 Agent Tool。
-func NewUserStoreServiceAuditUserStoreAgentTool(userStoreServiceServer UserStoreServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserStoreServiceAuditUserStoreAgentTool(userStoreServiceServer UserStoreServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*AuditUserStoreRequest, *emptypb.Empty](
 		"admin_v1_user_store_service_audit_user_store",
 		"门店认证",
 		func(ctx context.Context, req *AuditUserStoreRequest) (*emptypb.Empty, error) {

@@ -9,26 +9,27 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewShopHotServiceAgentTools 创建App热门推荐服务的 Agent Tool。
-func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listShopHotsTool tools.Tool
+	var listShopHotsTool tool.InvokableTool
 	listShopHotsTool, err = NewShopHotServiceListShopHotsAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listShopHotsTool)
-	var listShopHotItemsTool tools.Tool
+	var listShopHotItemsTool tool.InvokableTool
 	listShopHotItemsTool, err = NewShopHotServiceListShopHotItemsAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listShopHotItemsTool)
-	var pageShopHotGoodsTool tools.Tool
+	var pageShopHotGoodsTool tool.InvokableTool
 	pageShopHotGoodsTool, err = NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
@@ -38,8 +39,8 @@ func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]t
 }
 
 // NewShopHotServiceListShopHotsAgentTool 创建查询热门推荐列表的 Agent Tool。
-func NewShopHotServiceListShopHotsAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceListShopHotsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopHotsRequest, *ListShopHotsResponse](
 		"app_v1_shop_hot_service_list_shop_hots",
 		"查询热门推荐列表",
 		func(ctx context.Context, req *ListShopHotsRequest) (*ListShopHotsResponse, error) {
@@ -52,8 +53,8 @@ func NewShopHotServiceListShopHotsAgentTool(shopHotServiceServer ShopHotServiceS
 }
 
 // NewShopHotServiceListShopHotItemsAgentTool 创建查询热门推荐选项的 Agent Tool。
-func NewShopHotServiceListShopHotItemsAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceListShopHotItemsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopHotItemsRequest, *ListShopHotItemsResponse](
 		"app_v1_shop_hot_service_list_shop_hot_items",
 		"查询热门推荐选项",
 		func(ctx context.Context, req *ListShopHotItemsRequest) (*ListShopHotItemsResponse, error) {
@@ -66,8 +67,8 @@ func NewShopHotServiceListShopHotItemsAgentTool(shopHotServiceServer ShopHotServ
 }
 
 // NewShopHotServicePageShopHotGoodsAgentTool 创建查询热门推荐商品的 Agent Tool。
-func NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServicePageShopHotGoodsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopHotGoodsRequest, *PageShopHotGoodsResponse](
 		"app_v1_shop_hot_service_page_shop_hot_goods",
 		"查询热门推荐商品",
 		func(ctx context.Context, req *PageShopHotGoodsRequest) (*PageShopHotGoodsResponse, error) {

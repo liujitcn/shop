@@ -9,75 +9,76 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseJobServiceAgentTools 创建Admin定时任务服务的 Agent Tool。
-func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageBaseJobsTool tools.Tool
+	var pageBaseJobsTool tool.InvokableTool
 	pageBaseJobsTool, err = NewBaseJobServicePageBaseJobsAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseJobsTool)
-	var getBaseJobTool tools.Tool
+	var getBaseJobTool tool.InvokableTool
 	getBaseJobTool, err = NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseJobTool)
-	var createBaseJobTool tools.Tool
+	var createBaseJobTool tool.InvokableTool
 	createBaseJobTool, err = NewBaseJobServiceCreateBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseJobTool)
-	var updateBaseJobTool tools.Tool
+	var updateBaseJobTool tool.InvokableTool
 	updateBaseJobTool, err = NewBaseJobServiceUpdateBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseJobTool)
-	var deleteBaseJobTool tools.Tool
+	var deleteBaseJobTool tool.InvokableTool
 	deleteBaseJobTool, err = NewBaseJobServiceDeleteBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteBaseJobTool)
-	var setBaseJobStatusTool tools.Tool
+	var setBaseJobStatusTool tool.InvokableTool
 	setBaseJobStatusTool, err = NewBaseJobServiceSetBaseJobStatusAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setBaseJobStatusTool)
-	var startBaseJobTool tools.Tool
+	var startBaseJobTool tool.InvokableTool
 	startBaseJobTool, err = NewBaseJobServiceStartBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, startBaseJobTool)
-	var stopBaseJobTool tools.Tool
+	var stopBaseJobTool tool.InvokableTool
 	stopBaseJobTool, err = NewBaseJobServiceStopBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, stopBaseJobTool)
-	var executeBaseJobTool tools.Tool
+	var executeBaseJobTool tool.InvokableTool
 	executeBaseJobTool, err = NewBaseJobServiceExecuteBaseJobAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, executeBaseJobTool)
-	var pageBaseJobLogsTool tools.Tool
+	var pageBaseJobLogsTool tool.InvokableTool
 	pageBaseJobLogsTool, err = NewBaseJobServicePageBaseJobLogsAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseJobLogsTool)
-	var getBaseJobLogTool tools.Tool
+	var getBaseJobLogTool tool.InvokableTool
 	getBaseJobLogTool, err = NewBaseJobServiceGetBaseJobLogAgentTool(baseJobServiceServer)
 	if err != nil {
 		return nil, err
@@ -87,8 +88,8 @@ func NewBaseJobServiceAgentTools(baseJobServiceServer BaseJobServiceServer) ([]t
 }
 
 // NewBaseJobServicePageBaseJobsAgentTool 创建查询定时任务分页列表的 Agent Tool。
-func NewBaseJobServicePageBaseJobsAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServicePageBaseJobsAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseJobsRequest, *PageBaseJobsResponse](
 		"admin_v1_base_job_service_page_base_jobs",
 		"查询定时任务分页列表",
 		func(ctx context.Context, req *PageBaseJobsRequest) (*PageBaseJobsResponse, error) {
@@ -101,8 +102,8 @@ func NewBaseJobServicePageBaseJobsAgentTool(baseJobServiceServer BaseJobServiceS
 }
 
 // NewBaseJobServiceGetBaseJobAgentTool 创建查询定时任务的 Agent Tool。
-func NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseJobRequest, *BaseJobForm](
 		"admin_v1_base_job_service_get_base_job",
 		"查询定时任务",
 		func(ctx context.Context, req *GetBaseJobRequest) (*BaseJobForm, error) {
@@ -115,8 +116,8 @@ func NewBaseJobServiceGetBaseJobAgentTool(baseJobServiceServer BaseJobServiceSer
 }
 
 // NewBaseJobServiceCreateBaseJobAgentTool 创建创建定时任务的 Agent Tool。
-func NewBaseJobServiceCreateBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceCreateBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseJobRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_create_base_job",
 		"创建定时任务",
 		func(ctx context.Context, req *CreateBaseJobRequest) (*emptypb.Empty, error) {
@@ -129,8 +130,8 @@ func NewBaseJobServiceCreateBaseJobAgentTool(baseJobServiceServer BaseJobService
 }
 
 // NewBaseJobServiceUpdateBaseJobAgentTool 创建更新定时任务的 Agent Tool。
-func NewBaseJobServiceUpdateBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceUpdateBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseJobRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_update_base_job",
 		"更新定时任务",
 		func(ctx context.Context, req *UpdateBaseJobRequest) (*emptypb.Empty, error) {
@@ -143,8 +144,8 @@ func NewBaseJobServiceUpdateBaseJobAgentTool(baseJobServiceServer BaseJobService
 }
 
 // NewBaseJobServiceDeleteBaseJobAgentTool 创建删除定时任务的 Agent Tool。
-func NewBaseJobServiceDeleteBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceDeleteBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseJobRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_delete_base_job",
 		"删除定时任务",
 		func(ctx context.Context, req *DeleteBaseJobRequest) (*emptypb.Empty, error) {
@@ -157,8 +158,8 @@ func NewBaseJobServiceDeleteBaseJobAgentTool(baseJobServiceServer BaseJobService
 }
 
 // NewBaseJobServiceSetBaseJobStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseJobServiceSetBaseJobStatusAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceSetBaseJobStatusAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseJobStatusRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_set_base_job_status",
 		"设置状态",
 		func(ctx context.Context, req *SetBaseJobStatusRequest) (*emptypb.Empty, error) {
@@ -171,8 +172,8 @@ func NewBaseJobServiceSetBaseJobStatusAgentTool(baseJobServiceServer BaseJobServ
 }
 
 // NewBaseJobServiceStartBaseJobAgentTool 创建启动任务的 Agent Tool。
-func NewBaseJobServiceStartBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceStartBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*StartBaseJobRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_start_base_job",
 		"启动任务",
 		func(ctx context.Context, req *StartBaseJobRequest) (*emptypb.Empty, error) {
@@ -185,8 +186,8 @@ func NewBaseJobServiceStartBaseJobAgentTool(baseJobServiceServer BaseJobServiceS
 }
 
 // NewBaseJobServiceStopBaseJobAgentTool 创建停止任务的 Agent Tool。
-func NewBaseJobServiceStopBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceStopBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*StopBaseJobRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_stop_base_job",
 		"停止任务",
 		func(ctx context.Context, req *StopBaseJobRequest) (*emptypb.Empty, error) {
@@ -199,8 +200,8 @@ func NewBaseJobServiceStopBaseJobAgentTool(baseJobServiceServer BaseJobServiceSe
 }
 
 // NewBaseJobServiceExecuteBaseJobAgentTool 创建执行任务的 Agent Tool。
-func NewBaseJobServiceExecuteBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceExecuteBaseJobAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ExecuteBaseJobRequest, *emptypb.Empty](
 		"admin_v1_base_job_service_execute_base_job",
 		"执行任务",
 		func(ctx context.Context, req *ExecuteBaseJobRequest) (*emptypb.Empty, error) {
@@ -213,8 +214,8 @@ func NewBaseJobServiceExecuteBaseJobAgentTool(baseJobServiceServer BaseJobServic
 }
 
 // NewBaseJobServicePageBaseJobLogsAgentTool 创建查询定时任务日志分页列表的 Agent Tool。
-func NewBaseJobServicePageBaseJobLogsAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServicePageBaseJobLogsAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseJobLogsRequest, *PageBaseJobLogsResponse](
 		"admin_v1_base_job_service_page_base_job_logs",
 		"查询定时任务日志分页列表",
 		func(ctx context.Context, req *PageBaseJobLogsRequest) (*PageBaseJobLogsResponse, error) {
@@ -227,8 +228,8 @@ func NewBaseJobServicePageBaseJobLogsAgentTool(baseJobServiceServer BaseJobServi
 }
 
 // NewBaseJobServiceGetBaseJobLogAgentTool 创建查询定时任务日志的 Agent Tool。
-func NewBaseJobServiceGetBaseJobLogAgentTool(baseJobServiceServer BaseJobServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseJobServiceGetBaseJobLogAgentTool(baseJobServiceServer BaseJobServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseJobLogRequest, *BaseJobLog](
 		"admin_v1_base_job_service_get_base_job_log",
 		"查询定时任务日志",
 		func(ctx context.Context, req *GetBaseJobLogRequest) (*BaseJobLog, error) {

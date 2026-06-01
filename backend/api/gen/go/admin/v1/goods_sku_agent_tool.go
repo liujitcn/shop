@@ -9,27 +9,28 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewGoodsSkuServiceAgentTools 创建Admin商品SKU服务的 Agent Tool。
-func NewGoodsSkuServiceAgentTools(goodsSkuServiceServer GoodsSkuServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsSkuServiceAgentTools(goodsSkuServiceServer GoodsSkuServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageGoodsSkusTool tools.Tool
+	var pageGoodsSkusTool tool.InvokableTool
 	pageGoodsSkusTool, err = NewGoodsSkuServicePageGoodsSkusAgentTool(goodsSkuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageGoodsSkusTool)
-	var getGoodsSkuTool tools.Tool
+	var getGoodsSkuTool tool.InvokableTool
 	getGoodsSkuTool, err = NewGoodsSkuServiceGetGoodsSkuAgentTool(goodsSkuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getGoodsSkuTool)
-	var updateGoodsSkuTool tools.Tool
+	var updateGoodsSkuTool tool.InvokableTool
 	updateGoodsSkuTool, err = NewGoodsSkuServiceUpdateGoodsSkuAgentTool(goodsSkuServiceServer)
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func NewGoodsSkuServiceAgentTools(goodsSkuServiceServer GoodsSkuServiceServer) (
 }
 
 // NewGoodsSkuServicePageGoodsSkusAgentTool 创建查询商品SKU列表的 Agent Tool。
-func NewGoodsSkuServicePageGoodsSkusAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsSkuServicePageGoodsSkusAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsSkusRequest, *PageGoodsSkusResponse](
 		"admin_v1_goods_sku_service_page_goods_skus",
 		"查询商品SKU列表",
 		func(ctx context.Context, req *PageGoodsSkusRequest) (*PageGoodsSkusResponse, error) {
@@ -53,8 +54,8 @@ func NewGoodsSkuServicePageGoodsSkusAgentTool(goodsSkuServiceServer GoodsSkuServ
 }
 
 // NewGoodsSkuServiceGetGoodsSkuAgentTool 创建查询商品SKU的 Agent Tool。
-func NewGoodsSkuServiceGetGoodsSkuAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsSkuServiceGetGoodsSkuAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetGoodsSkuRequest, *GoodsSku](
 		"admin_v1_goods_sku_service_get_goods_sku",
 		"查询商品SKU",
 		func(ctx context.Context, req *GetGoodsSkuRequest) (*GoodsSku, error) {
@@ -67,8 +68,8 @@ func NewGoodsSkuServiceGetGoodsSkuAgentTool(goodsSkuServiceServer GoodsSkuServic
 }
 
 // NewGoodsSkuServiceUpdateGoodsSkuAgentTool 创建更新商品SKU的 Agent Tool。
-func NewGoodsSkuServiceUpdateGoodsSkuAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsSkuServiceUpdateGoodsSkuAgentTool(goodsSkuServiceServer GoodsSkuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateGoodsSkuRequest, *emptypb.Empty](
 		"admin_v1_goods_sku_service_update_goods_sku",
 		"更新商品SKU",
 		func(ctx context.Context, req *UpdateGoodsSkuRequest) (*emptypb.Empty, error) {

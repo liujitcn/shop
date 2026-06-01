@@ -10,57 +10,58 @@ import (
 	context "context"
 	v1 "shop/api/gen/go/common/v1"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseUserServiceAgentTools 创建Admin用户管理服务的 Agent Tool。
-func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var optionBaseUsersTool tools.Tool
+	var optionBaseUsersTool tool.InvokableTool
 	optionBaseUsersTool, err = NewBaseUserServiceOptionBaseUsersAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionBaseUsersTool)
-	var pageBaseUsersTool tools.Tool
+	var pageBaseUsersTool tool.InvokableTool
 	pageBaseUsersTool, err = NewBaseUserServicePageBaseUsersAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseUsersTool)
-	var getBaseUserTool tools.Tool
+	var getBaseUserTool tool.InvokableTool
 	getBaseUserTool, err = NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseUserTool)
-	var createBaseUserTool tools.Tool
+	var createBaseUserTool tool.InvokableTool
 	createBaseUserTool, err = NewBaseUserServiceCreateBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseUserTool)
-	var updateBaseUserTool tools.Tool
+	var updateBaseUserTool tool.InvokableTool
 	updateBaseUserTool, err = NewBaseUserServiceUpdateBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseUserTool)
-	var deleteBaseUserTool tools.Tool
+	var deleteBaseUserTool tool.InvokableTool
 	deleteBaseUserTool, err = NewBaseUserServiceDeleteBaseUserAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteBaseUserTool)
-	var setBaseUserStatusTool tools.Tool
+	var setBaseUserStatusTool tool.InvokableTool
 	setBaseUserStatusTool, err = NewBaseUserServiceSetBaseUserStatusAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setBaseUserStatusTool)
-	var resetBaseUserPasswordTool tools.Tool
+	var resetBaseUserPasswordTool tool.InvokableTool
 	resetBaseUserPasswordTool, err = NewBaseUserServiceResetBaseUserPasswordAgentTool(baseUserServiceServer)
 	if err != nil {
 		return nil, err
@@ -70,8 +71,8 @@ func NewBaseUserServiceAgentTools(baseUserServiceServer BaseUserServiceServer) (
 }
 
 // NewBaseUserServiceOptionBaseUsersAgentTool 创建查询用户下拉选择的 Agent Tool。
-func NewBaseUserServiceOptionBaseUsersAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceOptionBaseUsersAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseUsersRequest, *v1.SelectOptionResponse](
 		"admin_v1_base_user_service_option_base_users",
 		"查询用户下拉选择",
 		func(ctx context.Context, req *OptionBaseUsersRequest) (*v1.SelectOptionResponse, error) {
@@ -84,8 +85,8 @@ func NewBaseUserServiceOptionBaseUsersAgentTool(baseUserServiceServer BaseUserSe
 }
 
 // NewBaseUserServicePageBaseUsersAgentTool 创建查询用户分页列表的 Agent Tool。
-func NewBaseUserServicePageBaseUsersAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServicePageBaseUsersAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseUsersRequest, *PageBaseUsersResponse](
 		"admin_v1_base_user_service_page_base_users",
 		"查询用户分页列表",
 		func(ctx context.Context, req *PageBaseUsersRequest) (*PageBaseUsersResponse, error) {
@@ -98,8 +99,8 @@ func NewBaseUserServicePageBaseUsersAgentTool(baseUserServiceServer BaseUserServ
 }
 
 // NewBaseUserServiceGetBaseUserAgentTool 创建查询用户的 Agent Tool。
-func NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseUserRequest, *BaseUserForm](
 		"admin_v1_base_user_service_get_base_user",
 		"查询用户",
 		func(ctx context.Context, req *GetBaseUserRequest) (*BaseUserForm, error) {
@@ -112,8 +113,8 @@ func NewBaseUserServiceGetBaseUserAgentTool(baseUserServiceServer BaseUserServic
 }
 
 // NewBaseUserServiceCreateBaseUserAgentTool 创建创建用户的 Agent Tool。
-func NewBaseUserServiceCreateBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceCreateBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseUserRequest, *emptypb.Empty](
 		"admin_v1_base_user_service_create_base_user",
 		"创建用户",
 		func(ctx context.Context, req *CreateBaseUserRequest) (*emptypb.Empty, error) {
@@ -126,8 +127,8 @@ func NewBaseUserServiceCreateBaseUserAgentTool(baseUserServiceServer BaseUserSer
 }
 
 // NewBaseUserServiceUpdateBaseUserAgentTool 创建更新用户的 Agent Tool。
-func NewBaseUserServiceUpdateBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceUpdateBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseUserRequest, *emptypb.Empty](
 		"admin_v1_base_user_service_update_base_user",
 		"更新用户",
 		func(ctx context.Context, req *UpdateBaseUserRequest) (*emptypb.Empty, error) {
@@ -140,8 +141,8 @@ func NewBaseUserServiceUpdateBaseUserAgentTool(baseUserServiceServer BaseUserSer
 }
 
 // NewBaseUserServiceDeleteBaseUserAgentTool 创建删除用户的 Agent Tool。
-func NewBaseUserServiceDeleteBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceDeleteBaseUserAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseUserRequest, *emptypb.Empty](
 		"admin_v1_base_user_service_delete_base_user",
 		"删除用户",
 		func(ctx context.Context, req *DeleteBaseUserRequest) (*emptypb.Empty, error) {
@@ -154,8 +155,8 @@ func NewBaseUserServiceDeleteBaseUserAgentTool(baseUserServiceServer BaseUserSer
 }
 
 // NewBaseUserServiceSetBaseUserStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseUserServiceSetBaseUserStatusAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceSetBaseUserStatusAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseUserStatusRequest, *emptypb.Empty](
 		"admin_v1_base_user_service_set_base_user_status",
 		"设置状态",
 		func(ctx context.Context, req *SetBaseUserStatusRequest) (*emptypb.Empty, error) {
@@ -168,8 +169,8 @@ func NewBaseUserServiceSetBaseUserStatusAgentTool(baseUserServiceServer BaseUser
 }
 
 // NewBaseUserServiceResetBaseUserPasswordAgentTool 创建重置密码的 Agent Tool。
-func NewBaseUserServiceResetBaseUserPasswordAgentTool(baseUserServiceServer BaseUserServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseUserServiceResetBaseUserPasswordAgentTool(baseUserServiceServer BaseUserServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ResetBaseUserPasswordRequest, *emptypb.Empty](
 		"admin_v1_base_user_service_reset_base_user_password",
 		"重置密码",
 		func(ctx context.Context, req *ResetBaseUserPasswordRequest) (*emptypb.Empty, error) {

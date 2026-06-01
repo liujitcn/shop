@@ -74,17 +74,17 @@ type Response struct {
 // RuntimeInput 表示 AI 助手运行时输入。
 //
 // 业务层在进入 Runtime 前完成鉴权、会话归属、附件读取、历史消息查询等工作；
-// Runtime 只负责将这些输入组装成 Blades Session 和当前轮用户消息。
+// Runtime 只负责将这些输入组装成 Eino 消息和当前轮用户消息。
 type RuntimeInput struct {
-	// Terminal 终端标识，例如 admin 或 app，会注入到 session state。
+	// Terminal 终端标识，例如 admin 或 app，会注入到系统提示词。
 	Terminal string
-	// UserName 当前用户展示名称，会注入到 session state 供提示词使用。
+	// UserName 当前用户展示名称，会注入到系统提示词供模型理解上下文。
 	UserName string
-	// SessionTitle 当前会话标题，会注入到 session state 供模型理解会话语境。
+	// SessionTitle 当前会话标题，会注入到系统提示词供模型理解会话语境。
 	SessionTitle string
 	// SessionID 当前会话编号，预留给后续追踪、工具调用或日志串联。
 	SessionID string
-	// Summary 当前会话摘要，会注入到 session state 作为压缩后的长期上下文。
+	// Summary 当前会话摘要，会注入到系统提示词作为压缩后的长期上下文。
 	Summary string
 	// Content 本轮用户文本内容。
 	Content string

@@ -9,51 +9,52 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseMenuServiceAgentTools 创建Admin菜单管理服务的 Agent Tool。
-func NewBaseMenuServiceAgentTools(baseMenuServiceServer BaseMenuServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseMenuServiceAgentTools(baseMenuServiceServer BaseMenuServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var treeBaseMenusTool tools.Tool
+	var treeBaseMenusTool tool.InvokableTool
 	treeBaseMenusTool, err = NewBaseMenuServiceTreeBaseMenusAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, treeBaseMenusTool)
-	var optionBaseMenusTool tools.Tool
+	var optionBaseMenusTool tool.InvokableTool
 	optionBaseMenusTool, err = NewBaseMenuServiceOptionBaseMenusAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionBaseMenusTool)
-	var getBaseMenuTool tools.Tool
+	var getBaseMenuTool tool.InvokableTool
 	getBaseMenuTool, err = NewBaseMenuServiceGetBaseMenuAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseMenuTool)
-	var createBaseMenuTool tools.Tool
+	var createBaseMenuTool tool.InvokableTool
 	createBaseMenuTool, err = NewBaseMenuServiceCreateBaseMenuAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseMenuTool)
-	var updateBaseMenuTool tools.Tool
+	var updateBaseMenuTool tool.InvokableTool
 	updateBaseMenuTool, err = NewBaseMenuServiceUpdateBaseMenuAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseMenuTool)
-	var deleteBaseMenuTool tools.Tool
+	var deleteBaseMenuTool tool.InvokableTool
 	deleteBaseMenuTool, err = NewBaseMenuServiceDeleteBaseMenuAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteBaseMenuTool)
-	var setBaseMenuStatusTool tools.Tool
+	var setBaseMenuStatusTool tool.InvokableTool
 	setBaseMenuStatusTool, err = NewBaseMenuServiceSetBaseMenuStatusAgentTool(baseMenuServiceServer)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func NewBaseMenuServiceAgentTools(baseMenuServiceServer BaseMenuServiceServer) (
 }
 
 // NewBaseMenuServiceTreeBaseMenusAgentTool 创建查询菜单树形列表的 Agent Tool。
-func NewBaseMenuServiceTreeBaseMenusAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceTreeBaseMenusAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeBaseMenusRequest, any](
 		"admin_v1_base_menu_service_tree_base_menus",
 		"查询菜单树形列表",
 		func(ctx context.Context, req *TreeBaseMenusRequest) (any, error) {
@@ -81,8 +82,8 @@ func NewBaseMenuServiceTreeBaseMenusAgentTool(baseMenuServiceServer BaseMenuServ
 }
 
 // NewBaseMenuServiceOptionBaseMenusAgentTool 创建查询菜单树形选择的 Agent Tool。
-func NewBaseMenuServiceOptionBaseMenusAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceOptionBaseMenusAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseMenusRequest, any](
 		"admin_v1_base_menu_service_option_base_menus",
 		"查询菜单树形选择",
 		func(ctx context.Context, req *OptionBaseMenusRequest) (any, error) {
@@ -99,8 +100,8 @@ func NewBaseMenuServiceOptionBaseMenusAgentTool(baseMenuServiceServer BaseMenuSe
 }
 
 // NewBaseMenuServiceGetBaseMenuAgentTool 创建查询菜单的 Agent Tool。
-func NewBaseMenuServiceGetBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceGetBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseMenuRequest, *BaseMenuForm](
 		"admin_v1_base_menu_service_get_base_menu",
 		"查询菜单",
 		func(ctx context.Context, req *GetBaseMenuRequest) (*BaseMenuForm, error) {
@@ -113,8 +114,8 @@ func NewBaseMenuServiceGetBaseMenuAgentTool(baseMenuServiceServer BaseMenuServic
 }
 
 // NewBaseMenuServiceCreateBaseMenuAgentTool 创建创建菜单的 Agent Tool。
-func NewBaseMenuServiceCreateBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceCreateBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseMenuRequest, *emptypb.Empty](
 		"admin_v1_base_menu_service_create_base_menu",
 		"创建菜单",
 		func(ctx context.Context, req *CreateBaseMenuRequest) (*emptypb.Empty, error) {
@@ -127,8 +128,8 @@ func NewBaseMenuServiceCreateBaseMenuAgentTool(baseMenuServiceServer BaseMenuSer
 }
 
 // NewBaseMenuServiceUpdateBaseMenuAgentTool 创建更新菜单的 Agent Tool。
-func NewBaseMenuServiceUpdateBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceUpdateBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseMenuRequest, *emptypb.Empty](
 		"admin_v1_base_menu_service_update_base_menu",
 		"更新菜单",
 		func(ctx context.Context, req *UpdateBaseMenuRequest) (*emptypb.Empty, error) {
@@ -141,8 +142,8 @@ func NewBaseMenuServiceUpdateBaseMenuAgentTool(baseMenuServiceServer BaseMenuSer
 }
 
 // NewBaseMenuServiceDeleteBaseMenuAgentTool 创建删除菜单的 Agent Tool。
-func NewBaseMenuServiceDeleteBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceDeleteBaseMenuAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseMenuRequest, *emptypb.Empty](
 		"admin_v1_base_menu_service_delete_base_menu",
 		"删除菜单",
 		func(ctx context.Context, req *DeleteBaseMenuRequest) (*emptypb.Empty, error) {
@@ -155,8 +156,8 @@ func NewBaseMenuServiceDeleteBaseMenuAgentTool(baseMenuServiceServer BaseMenuSer
 }
 
 // NewBaseMenuServiceSetBaseMenuStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseMenuServiceSetBaseMenuStatusAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseMenuServiceSetBaseMenuStatusAgentTool(baseMenuServiceServer BaseMenuServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseMenuStatusRequest, *emptypb.Empty](
 		"admin_v1_base_menu_service_set_base_menu_status",
 		"设置状态",
 		func(ctx context.Context, req *SetBaseMenuStatusRequest) (*emptypb.Empty, error) {

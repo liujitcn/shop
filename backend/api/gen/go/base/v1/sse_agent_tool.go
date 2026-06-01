@@ -9,15 +9,16 @@ package basev1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewSseServiceAgentTools 创建Base SSE服务的 Agent Tool。
-func NewSseServiceAgentTools(sseServiceServer SseServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewSseServiceAgentTools(sseServiceServer SseServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var subscribeSseTool tools.Tool
+	var subscribeSseTool tool.InvokableTool
 	subscribeSseTool, err = NewSseServiceSubscribeSseAgentTool(sseServiceServer)
 	if err != nil {
 		return nil, err
@@ -27,8 +28,8 @@ func NewSseServiceAgentTools(sseServiceServer SseServiceServer) ([]tools.Tool, e
 }
 
 // NewSseServiceSubscribeSseAgentTool 创建订阅SSE事件流的 Agent Tool。
-func NewSseServiceSubscribeSseAgentTool(sseServiceServer SseServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewSseServiceSubscribeSseAgentTool(sseServiceServer SseServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SubscribeSseRequest, *emptypb.Empty](
 		"base_v1_sse_service_subscribe_sse",
 		"订阅SSE事件流",
 		func(ctx context.Context, req *SubscribeSseRequest) (*emptypb.Empty, error) {

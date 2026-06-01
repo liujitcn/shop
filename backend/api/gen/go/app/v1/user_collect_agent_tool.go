@@ -9,33 +9,34 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewUserCollectServiceAgentTools 创建App用户收藏管理服务的 Agent Tool。
-func NewUserCollectServiceAgentTools(userCollectServiceServer UserCollectServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewUserCollectServiceAgentTools(userCollectServiceServer UserCollectServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageUserCollectsTool tools.Tool
+	var pageUserCollectsTool tool.InvokableTool
 	pageUserCollectsTool, err = NewUserCollectServicePageUserCollectsAgentTool(userCollectServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageUserCollectsTool)
-	var getIsCollectTool tools.Tool
+	var getIsCollectTool tool.InvokableTool
 	getIsCollectTool, err = NewUserCollectServiceGetIsCollectAgentTool(userCollectServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getIsCollectTool)
-	var createUserCollectTool tools.Tool
+	var createUserCollectTool tool.InvokableTool
 	createUserCollectTool, err = NewUserCollectServiceCreateUserCollectAgentTool(userCollectServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createUserCollectTool)
-	var deleteUserCollectTool tools.Tool
+	var deleteUserCollectTool tool.InvokableTool
 	deleteUserCollectTool, err = NewUserCollectServiceDeleteUserCollectAgentTool(userCollectServiceServer)
 	if err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func NewUserCollectServiceAgentTools(userCollectServiceServer UserCollectService
 }
 
 // NewUserCollectServicePageUserCollectsAgentTool 创建查询用户收藏列表的 Agent Tool。
-func NewUserCollectServicePageUserCollectsAgentTool(userCollectServiceServer UserCollectServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserCollectServicePageUserCollectsAgentTool(userCollectServiceServer UserCollectServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageUserCollectsRequest, *PageUserCollectsResponse](
 		"app_v1_user_collect_service_page_user_collects",
 		"查询用户收藏列表",
 		func(ctx context.Context, req *PageUserCollectsRequest) (*PageUserCollectsResponse, error) {
@@ -59,8 +60,8 @@ func NewUserCollectServicePageUserCollectsAgentTool(userCollectServiceServer Use
 }
 
 // NewUserCollectServiceGetIsCollectAgentTool 创建查询用户是否收藏的 Agent Tool。
-func NewUserCollectServiceGetIsCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserCollectServiceGetIsCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetIsCollectRequest, *GetIsCollectResponse](
 		"app_v1_user_collect_service_get_is_collect",
 		"查询用户是否收藏",
 		func(ctx context.Context, req *GetIsCollectRequest) (*GetIsCollectResponse, error) {
@@ -73,8 +74,8 @@ func NewUserCollectServiceGetIsCollectAgentTool(userCollectServiceServer UserCol
 }
 
 // NewUserCollectServiceCreateUserCollectAgentTool 创建创建用户收藏的 Agent Tool。
-func NewUserCollectServiceCreateUserCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserCollectServiceCreateUserCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateUserCollectRequest, *emptypb.Empty](
 		"app_v1_user_collect_service_create_user_collect",
 		"创建用户收藏",
 		func(ctx context.Context, req *CreateUserCollectRequest) (*emptypb.Empty, error) {
@@ -87,8 +88,8 @@ func NewUserCollectServiceCreateUserCollectAgentTool(userCollectServiceServer Us
 }
 
 // NewUserCollectServiceDeleteUserCollectAgentTool 创建删除用户收藏的 Agent Tool。
-func NewUserCollectServiceDeleteUserCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserCollectServiceDeleteUserCollectAgentTool(userCollectServiceServer UserCollectServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteUserCollectRequest, *emptypb.Empty](
 		"app_v1_user_collect_service_delete_user_collect",
 		"删除用户收藏",
 		func(ctx context.Context, req *DeleteUserCollectRequest) (*emptypb.Empty, error) {

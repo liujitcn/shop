@@ -9,14 +9,15 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewBaseDictServiceAgentTools 创建App字典服务的 Agent Tool。
-func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var getBaseDictTool tools.Tool
+	var getBaseDictTool tool.InvokableTool
 	getBaseDictTool, err = NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewBaseDictServiceAgentTools(baseDictServiceServer BaseDictServiceServer) (
 }
 
 // NewBaseDictServiceGetBaseDictAgentTool 创建查询字典的 Agent Tool。
-func NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDictServiceGetBaseDictAgentTool(baseDictServiceServer BaseDictServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseDictRequest, *BaseDictForm](
 		"app_v1_base_dict_service_get_base_dict",
 		"查询字典",
 		func(ctx context.Context, req *GetBaseDictRequest) (*BaseDictForm, error) {

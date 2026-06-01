@@ -9,14 +9,15 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewGoodsCategoryServiceAgentTools 创建App商品分类服务的 Agent Tool。
-func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listGoodsCategoriesTool tools.Tool
+	var listGoodsCategoriesTool tool.InvokableTool
 	listGoodsCategoriesTool, err = NewGoodsCategoryServiceListGoodsCategoriesAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryS
 }
 
 // NewGoodsCategoryServiceListGoodsCategoriesAgentTool 创建查询商品分类列表的 Agent Tool。
-func NewGoodsCategoryServiceListGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceListGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListGoodsCategoriesRequest, *ListGoodsCategoriesResponse](
 		"app_v1_goods_category_service_list_goods_categories",
 		"查询商品分类列表",
 		func(ctx context.Context, req *ListGoodsCategoriesRequest) (*ListGoodsCategoriesResponse, error) {

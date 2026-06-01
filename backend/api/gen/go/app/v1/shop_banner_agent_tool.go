@@ -9,14 +9,15 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewShopBannerServiceAgentTools 创建App商城轮播图服务的 Agent Tool。
-func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listShopBannersTool tools.Tool
+	var listShopBannersTool tool.InvokableTool
 	listShopBannersTool, err = NewShopBannerServiceListShopBannersAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceSer
 }
 
 // NewShopBannerServiceListShopBannersAgentTool 创建查询商城轮播图列表的 Agent Tool。
-func NewShopBannerServiceListShopBannersAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServiceListShopBannersAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopBannersRequest, *ListShopBannersResponse](
 		"app_v1_shop_banner_service_list_shop_banners",
 		"查询商城轮播图列表",
 		func(ctx context.Context, req *ListShopBannersRequest) (*ListShopBannersResponse, error) {

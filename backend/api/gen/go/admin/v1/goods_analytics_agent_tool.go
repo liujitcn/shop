@@ -10,32 +10,33 @@ import (
 	context "context"
 	v1 "shop/api/gen/go/common/v1"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewGoodsAnalyticsServiceAgentTools 创建Admin商品分析服务的 Agent Tool。
-func NewGoodsAnalyticsServiceAgentTools(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsAnalyticsServiceAgentTools(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var summaryGoodsAnalyticsTool tools.Tool
+	var summaryGoodsAnalyticsTool tool.InvokableTool
 	summaryGoodsAnalyticsTool, err = NewGoodsAnalyticsServiceSummaryGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryGoodsAnalyticsTool)
-	var trendGoodsAnalyticsTool tools.Tool
+	var trendGoodsAnalyticsTool tool.InvokableTool
 	trendGoodsAnalyticsTool, err = NewGoodsAnalyticsServiceTrendGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, trendGoodsAnalyticsTool)
-	var pieGoodsAnalyticsTool tools.Tool
+	var pieGoodsAnalyticsTool tool.InvokableTool
 	pieGoodsAnalyticsTool, err = NewGoodsAnalyticsServicePieGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pieGoodsAnalyticsTool)
-	var rankGoodsAnalyticsTool tools.Tool
+	var rankGoodsAnalyticsTool tool.InvokableTool
 	rankGoodsAnalyticsTool, err = NewGoodsAnalyticsServiceRankGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer)
 	if err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func NewGoodsAnalyticsServiceAgentTools(goodsAnalyticsServiceServer GoodsAnalyti
 }
 
 // NewGoodsAnalyticsServiceSummaryGoodsAnalyticsAgentTool 创建查询商品摘要指标的 Agent Tool。
-func NewGoodsAnalyticsServiceSummaryGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsAnalyticsServiceSummaryGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryGoodsAnalyticsRequest, *SummaryGoodsAnalyticsResponse](
 		"admin_v1_goods_analytics_service_summary_goods_analytics",
 		"查询商品摘要指标",
 		func(ctx context.Context, req *SummaryGoodsAnalyticsRequest) (*SummaryGoodsAnalyticsResponse, error) {
@@ -59,8 +60,8 @@ func NewGoodsAnalyticsServiceSummaryGoodsAnalyticsAgentTool(goodsAnalyticsServic
 }
 
 // NewGoodsAnalyticsServiceTrendGoodsAnalyticsAgentTool 创建查询商品趋势的 Agent Tool。
-func NewGoodsAnalyticsServiceTrendGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsAnalyticsServiceTrendGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TrendGoodsAnalyticsRequest, *v1.AnalyticsTrendResponse](
 		"admin_v1_goods_analytics_service_trend_goods_analytics",
 		"查询商品趋势",
 		func(ctx context.Context, req *TrendGoodsAnalyticsRequest) (*v1.AnalyticsTrendResponse, error) {
@@ -73,8 +74,8 @@ func NewGoodsAnalyticsServiceTrendGoodsAnalyticsAgentTool(goodsAnalyticsServiceS
 }
 
 // NewGoodsAnalyticsServicePieGoodsAnalyticsAgentTool 创建查询商品分类分布的 Agent Tool。
-func NewGoodsAnalyticsServicePieGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsAnalyticsServicePieGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PieGoodsAnalyticsRequest, *v1.AnalyticsPieResponse](
 		"admin_v1_goods_analytics_service_pie_goods_analytics",
 		"查询商品分类分布",
 		func(ctx context.Context, req *PieGoodsAnalyticsRequest) (*v1.AnalyticsPieResponse, error) {
@@ -87,8 +88,8 @@ func NewGoodsAnalyticsServicePieGoodsAnalyticsAgentTool(goodsAnalyticsServiceSer
 }
 
 // NewGoodsAnalyticsServiceRankGoodsAnalyticsAgentTool 创建查询商品支付排行的 Agent Tool。
-func NewGoodsAnalyticsServiceRankGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsAnalyticsServiceRankGoodsAnalyticsAgentTool(goodsAnalyticsServiceServer GoodsAnalyticsServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RankGoodsAnalyticsRequest, *v1.AnalyticsRankResponse](
 		"admin_v1_goods_analytics_service_rank_goods_analytics",
 		"查询商品支付排行",
 		func(ctx context.Context, req *RankGoodsAnalyticsRequest) (*v1.AnalyticsRankResponse, error) {

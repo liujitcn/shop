@@ -9,39 +9,40 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewUserAddressServiceAgentTools 创建App用户地址管理服务的 Agent Tool。
-func NewUserAddressServiceAgentTools(userAddressServiceServer UserAddressServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewUserAddressServiceAgentTools(userAddressServiceServer UserAddressServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listUserAddressesTool tools.Tool
+	var listUserAddressesTool tool.InvokableTool
 	listUserAddressesTool, err = NewUserAddressServiceListUserAddressesAgentTool(userAddressServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listUserAddressesTool)
-	var getUserAddressTool tools.Tool
+	var getUserAddressTool tool.InvokableTool
 	getUserAddressTool, err = NewUserAddressServiceGetUserAddressAgentTool(userAddressServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getUserAddressTool)
-	var createUserAddressTool tools.Tool
+	var createUserAddressTool tool.InvokableTool
 	createUserAddressTool, err = NewUserAddressServiceCreateUserAddressAgentTool(userAddressServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createUserAddressTool)
-	var updateUserAddressTool tools.Tool
+	var updateUserAddressTool tool.InvokableTool
 	updateUserAddressTool, err = NewUserAddressServiceUpdateUserAddressAgentTool(userAddressServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateUserAddressTool)
-	var deleteUserAddressTool tools.Tool
+	var deleteUserAddressTool tool.InvokableTool
 	deleteUserAddressTool, err = NewUserAddressServiceDeleteUserAddressAgentTool(userAddressServiceServer)
 	if err != nil {
 		return nil, err
@@ -51,8 +52,8 @@ func NewUserAddressServiceAgentTools(userAddressServiceServer UserAddressService
 }
 
 // NewUserAddressServiceListUserAddressesAgentTool 创建查询用户地址列表的 Agent Tool。
-func NewUserAddressServiceListUserAddressesAgentTool(userAddressServiceServer UserAddressServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAddressServiceListUserAddressesAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListUserAddressesRequest, *ListUserAddressesResponse](
 		"app_v1_user_address_service_list_user_addresses",
 		"查询用户地址列表",
 		func(ctx context.Context, req *ListUserAddressesRequest) (*ListUserAddressesResponse, error) {
@@ -65,8 +66,8 @@ func NewUserAddressServiceListUserAddressesAgentTool(userAddressServiceServer Us
 }
 
 // NewUserAddressServiceGetUserAddressAgentTool 创建查询用户地址的 Agent Tool。
-func NewUserAddressServiceGetUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAddressServiceGetUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetUserAddressRequest, *UserAddressForm](
 		"app_v1_user_address_service_get_user_address",
 		"查询用户地址",
 		func(ctx context.Context, req *GetUserAddressRequest) (*UserAddressForm, error) {
@@ -79,8 +80,8 @@ func NewUserAddressServiceGetUserAddressAgentTool(userAddressServiceServer UserA
 }
 
 // NewUserAddressServiceCreateUserAddressAgentTool 创建创建用户地址的 Agent Tool。
-func NewUserAddressServiceCreateUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAddressServiceCreateUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateUserAddressRequest, *emptypb.Empty](
 		"app_v1_user_address_service_create_user_address",
 		"创建用户地址",
 		func(ctx context.Context, req *CreateUserAddressRequest) (*emptypb.Empty, error) {
@@ -93,8 +94,8 @@ func NewUserAddressServiceCreateUserAddressAgentTool(userAddressServiceServer Us
 }
 
 // NewUserAddressServiceUpdateUserAddressAgentTool 创建更新用户地址的 Agent Tool。
-func NewUserAddressServiceUpdateUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAddressServiceUpdateUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserAddressRequest, *emptypb.Empty](
 		"app_v1_user_address_service_update_user_address",
 		"更新用户地址",
 		func(ctx context.Context, req *UpdateUserAddressRequest) (*emptypb.Empty, error) {
@@ -107,8 +108,8 @@ func NewUserAddressServiceUpdateUserAddressAgentTool(userAddressServiceServer Us
 }
 
 // NewUserAddressServiceDeleteUserAddressAgentTool 创建删除用户地址的 Agent Tool。
-func NewUserAddressServiceDeleteUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewUserAddressServiceDeleteUserAddressAgentTool(userAddressServiceServer UserAddressServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteUserAddressRequest, *emptypb.Empty](
 		"app_v1_user_address_service_delete_user_address",
 		"删除用户地址",
 		func(ctx context.Context, req *DeleteUserAddressRequest) (*emptypb.Empty, error) {

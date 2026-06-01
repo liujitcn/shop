@@ -9,51 +9,52 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewGoodsInfoServiceAgentTools 创建Admin商品信息服务的 Agent Tool。
-func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var optionGoodsInfosTool tools.Tool
+	var optionGoodsInfosTool tool.InvokableTool
 	optionGoodsInfosTool, err = NewGoodsInfoServiceOptionGoodsInfosAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionGoodsInfosTool)
-	var pageGoodsInfosTool tools.Tool
+	var pageGoodsInfosTool tool.InvokableTool
 	pageGoodsInfosTool, err = NewGoodsInfoServicePageGoodsInfosAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageGoodsInfosTool)
-	var getGoodsInfoTool tools.Tool
+	var getGoodsInfoTool tool.InvokableTool
 	getGoodsInfoTool, err = NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getGoodsInfoTool)
-	var createGoodsInfoTool tools.Tool
+	var createGoodsInfoTool tool.InvokableTool
 	createGoodsInfoTool, err = NewGoodsInfoServiceCreateGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createGoodsInfoTool)
-	var updateGoodsInfoTool tools.Tool
+	var updateGoodsInfoTool tool.InvokableTool
 	updateGoodsInfoTool, err = NewGoodsInfoServiceUpdateGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateGoodsInfoTool)
-	var deleteGoodsInfoTool tools.Tool
+	var deleteGoodsInfoTool tool.InvokableTool
 	deleteGoodsInfoTool, err = NewGoodsInfoServiceDeleteGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteGoodsInfoTool)
-	var setGoodsInfoStatusTool tools.Tool
+	var setGoodsInfoStatusTool tool.InvokableTool
 	setGoodsInfoStatusTool, err = NewGoodsInfoServiceSetGoodsInfoStatusAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer
 }
 
 // NewGoodsInfoServiceOptionGoodsInfosAgentTool 创建查询商品信息下拉选择的 Agent Tool。
-func NewGoodsInfoServiceOptionGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceOptionGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionGoodsInfosRequest, *OptionGoodsInfosResponse](
 		"admin_v1_goods_info_service_option_goods_infos",
 		"查询商品信息下拉选择",
 		func(ctx context.Context, req *OptionGoodsInfosRequest) (*OptionGoodsInfosResponse, error) {
@@ -77,8 +78,8 @@ func NewGoodsInfoServiceOptionGoodsInfosAgentTool(goodsInfoServiceServer GoodsIn
 }
 
 // NewGoodsInfoServicePageGoodsInfosAgentTool 创建查询商品信息列表的 Agent Tool。
-func NewGoodsInfoServicePageGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServicePageGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsInfosRequest, *PageGoodsInfosResponse](
 		"admin_v1_goods_info_service_page_goods_infos",
 		"查询商品信息列表",
 		func(ctx context.Context, req *PageGoodsInfosRequest) (*PageGoodsInfosResponse, error) {
@@ -91,8 +92,8 @@ func NewGoodsInfoServicePageGoodsInfosAgentTool(goodsInfoServiceServer GoodsInfo
 }
 
 // NewGoodsInfoServiceGetGoodsInfoAgentTool 创建查询商品信息的 Agent Tool。
-func NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetGoodsInfoRequest, *GoodsInfoForm](
 		"admin_v1_goods_info_service_get_goods_info",
 		"查询商品信息",
 		func(ctx context.Context, req *GetGoodsInfoRequest) (*GoodsInfoForm, error) {
@@ -105,8 +106,8 @@ func NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoSe
 }
 
 // NewGoodsInfoServiceCreateGoodsInfoAgentTool 创建创建商品信息的 Agent Tool。
-func NewGoodsInfoServiceCreateGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceCreateGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateGoodsInfoRequest, *emptypb.Empty](
 		"admin_v1_goods_info_service_create_goods_info",
 		"创建商品信息",
 		func(ctx context.Context, req *CreateGoodsInfoRequest) (*emptypb.Empty, error) {
@@ -119,8 +120,8 @@ func NewGoodsInfoServiceCreateGoodsInfoAgentTool(goodsInfoServiceServer GoodsInf
 }
 
 // NewGoodsInfoServiceUpdateGoodsInfoAgentTool 创建更新商品信息的 Agent Tool。
-func NewGoodsInfoServiceUpdateGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceUpdateGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateGoodsInfoRequest, *emptypb.Empty](
 		"admin_v1_goods_info_service_update_goods_info",
 		"更新商品信息",
 		func(ctx context.Context, req *UpdateGoodsInfoRequest) (*emptypb.Empty, error) {
@@ -133,8 +134,8 @@ func NewGoodsInfoServiceUpdateGoodsInfoAgentTool(goodsInfoServiceServer GoodsInf
 }
 
 // NewGoodsInfoServiceDeleteGoodsInfoAgentTool 创建删除商品信息的 Agent Tool。
-func NewGoodsInfoServiceDeleteGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceDeleteGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteGoodsInfoRequest, *emptypb.Empty](
 		"admin_v1_goods_info_service_delete_goods_info",
 		"删除商品信息",
 		func(ctx context.Context, req *DeleteGoodsInfoRequest) (*emptypb.Empty, error) {
@@ -147,8 +148,8 @@ func NewGoodsInfoServiceDeleteGoodsInfoAgentTool(goodsInfoServiceServer GoodsInf
 }
 
 // NewGoodsInfoServiceSetGoodsInfoStatusAgentTool 创建设置状态的 Agent Tool。
-func NewGoodsInfoServiceSetGoodsInfoStatusAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceSetGoodsInfoStatusAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetGoodsInfoStatusRequest, *emptypb.Empty](
 		"admin_v1_goods_info_service_set_goods_info_status",
 		"设置状态",
 		func(ctx context.Context, req *SetGoodsInfoStatusRequest) (*emptypb.Empty, error) {

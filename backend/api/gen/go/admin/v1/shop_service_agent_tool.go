@@ -9,45 +9,46 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewShopServiceServiceAgentTools 创建Admin商城服务的 Agent Tool。
-func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageShopServicesTool tools.Tool
+	var pageShopServicesTool tool.InvokableTool
 	pageShopServicesTool, err = NewShopServiceServicePageShopServicesAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageShopServicesTool)
-	var getShopServiceTool tools.Tool
+	var getShopServiceTool tool.InvokableTool
 	getShopServiceTool, err = NewShopServiceServiceGetShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getShopServiceTool)
-	var createShopServiceTool tools.Tool
+	var createShopServiceTool tool.InvokableTool
 	createShopServiceTool, err = NewShopServiceServiceCreateShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createShopServiceTool)
-	var updateShopServiceTool tools.Tool
+	var updateShopServiceTool tool.InvokableTool
 	updateShopServiceTool, err = NewShopServiceServiceUpdateShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateShopServiceTool)
-	var deleteShopServiceTool tools.Tool
+	var deleteShopServiceTool tool.InvokableTool
 	deleteShopServiceTool, err = NewShopServiceServiceDeleteShopServiceAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteShopServiceTool)
-	var setShopServiceStatusTool tools.Tool
+	var setShopServiceStatusTool tool.InvokableTool
 	setShopServiceStatusTool, err = NewShopServiceServiceSetShopServiceStatusAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
@@ -57,8 +58,8 @@ func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceService
 }
 
 // NewShopServiceServicePageShopServicesAgentTool 创建查询商城服务列表的 Agent Tool。
-func NewShopServiceServicePageShopServicesAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServicePageShopServicesAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopServicesRequest, *PageShopServicesResponse](
 		"admin_v1_shop_service_service_page_shop_services",
 		"查询商城服务列表",
 		func(ctx context.Context, req *PageShopServicesRequest) (*PageShopServicesResponse, error) {
@@ -71,8 +72,8 @@ func NewShopServiceServicePageShopServicesAgentTool(shopServiceServiceServer Sho
 }
 
 // NewShopServiceServiceGetShopServiceAgentTool 创建查询商城服务的 Agent Tool。
-func NewShopServiceServiceGetShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServiceGetShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetShopServiceRequest, *ShopServiceForm](
 		"admin_v1_shop_service_service_get_shop_service",
 		"查询商城服务",
 		func(ctx context.Context, req *GetShopServiceRequest) (*ShopServiceForm, error) {
@@ -85,8 +86,8 @@ func NewShopServiceServiceGetShopServiceAgentTool(shopServiceServiceServer ShopS
 }
 
 // NewShopServiceServiceCreateShopServiceAgentTool 创建创建商城服务的 Agent Tool。
-func NewShopServiceServiceCreateShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServiceCreateShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateShopServiceRequest, *emptypb.Empty](
 		"admin_v1_shop_service_service_create_shop_service",
 		"创建商城服务",
 		func(ctx context.Context, req *CreateShopServiceRequest) (*emptypb.Empty, error) {
@@ -99,8 +100,8 @@ func NewShopServiceServiceCreateShopServiceAgentTool(shopServiceServiceServer Sh
 }
 
 // NewShopServiceServiceUpdateShopServiceAgentTool 创建更新商城服务的 Agent Tool。
-func NewShopServiceServiceUpdateShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServiceUpdateShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateShopServiceRequest, *emptypb.Empty](
 		"admin_v1_shop_service_service_update_shop_service",
 		"更新商城服务",
 		func(ctx context.Context, req *UpdateShopServiceRequest) (*emptypb.Empty, error) {
@@ -113,8 +114,8 @@ func NewShopServiceServiceUpdateShopServiceAgentTool(shopServiceServiceServer Sh
 }
 
 // NewShopServiceServiceDeleteShopServiceAgentTool 创建删除商城服务的 Agent Tool。
-func NewShopServiceServiceDeleteShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServiceDeleteShopServiceAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteShopServiceRequest, *emptypb.Empty](
 		"admin_v1_shop_service_service_delete_shop_service",
 		"删除商城服务",
 		func(ctx context.Context, req *DeleteShopServiceRequest) (*emptypb.Empty, error) {
@@ -127,8 +128,8 @@ func NewShopServiceServiceDeleteShopServiceAgentTool(shopServiceServiceServer Sh
 }
 
 // NewShopServiceServiceSetShopServiceStatusAgentTool 创建设置状态的 Agent Tool。
-func NewShopServiceServiceSetShopServiceStatusAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServiceSetShopServiceStatusAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetShopServiceStatusRequest, *emptypb.Empty](
 		"admin_v1_shop_service_service_set_shop_service_status",
 		"设置状态",
 		func(ctx context.Context, req *SetShopServiceStatusRequest) (*emptypb.Empty, error) {

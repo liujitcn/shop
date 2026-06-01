@@ -9,14 +9,15 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewPayBillServiceAgentTools 创建Admin支付账单服务的 Agent Tool。
-func NewPayBillServiceAgentTools(payBillServiceServer PayBillServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewPayBillServiceAgentTools(payBillServiceServer PayBillServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pagePayBillsTool tools.Tool
+	var pagePayBillsTool tool.InvokableTool
 	pagePayBillsTool, err = NewPayBillServicePagePayBillsAgentTool(payBillServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewPayBillServiceAgentTools(payBillServiceServer PayBillServiceServer) ([]t
 }
 
 // NewPayBillServicePagePayBillsAgentTool 创建查询支付账单列表的 Agent Tool。
-func NewPayBillServicePagePayBillsAgentTool(payBillServiceServer PayBillServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewPayBillServicePagePayBillsAgentTool(payBillServiceServer PayBillServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PagePayBillsRequest, *PagePayBillsResponse](
 		"admin_v1_pay_bill_service_page_pay_bills",
 		"查询支付账单列表",
 		func(ctx context.Context, req *PagePayBillsRequest) (*PagePayBillsResponse, error) {

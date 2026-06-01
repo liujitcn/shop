@@ -9,39 +9,40 @@ package basev1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewLoginServiceAgentTools 创建Base登录公共服务的 Agent Tool。
-func NewLoginServiceAgentTools(loginServiceServer LoginServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewLoginServiceAgentTools(loginServiceServer LoginServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var captchaTool tools.Tool
+	var captchaTool tool.InvokableTool
 	captchaTool, err = NewLoginServiceCaptchaAgentTool(loginServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, captchaTool)
-	var passwordPublicKeyTool tools.Tool
+	var passwordPublicKeyTool tool.InvokableTool
 	passwordPublicKeyTool, err = NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, passwordPublicKeyTool)
-	var logoutTool tools.Tool
+	var logoutTool tool.InvokableTool
 	logoutTool, err = NewLoginServiceLogoutAgentTool(loginServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, logoutTool)
-	var refreshTokenTool tools.Tool
+	var refreshTokenTool tool.InvokableTool
 	refreshTokenTool, err = NewLoginServiceRefreshTokenAgentTool(loginServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, refreshTokenTool)
-	var loginTool tools.Tool
+	var loginTool tool.InvokableTool
 	loginTool, err = NewLoginServiceLoginAgentTool(loginServiceServer)
 	if err != nil {
 		return nil, err
@@ -51,8 +52,8 @@ func NewLoginServiceAgentTools(loginServiceServer LoginServiceServer) ([]tools.T
 }
 
 // NewLoginServiceCaptchaAgentTool 创建验证码的 Agent Tool。
-func NewLoginServiceCaptchaAgentTool(loginServiceServer LoginServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewLoginServiceCaptchaAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CaptchaRequest, *CaptchaResponse](
 		"base_v1_login_service_captcha",
 		"验证码",
 		func(ctx context.Context, req *CaptchaRequest) (*CaptchaResponse, error) {
@@ -65,8 +66,8 @@ func NewLoginServiceCaptchaAgentTool(loginServiceServer LoginServiceServer) (too
 }
 
 // NewLoginServicePasswordPublicKeyAgentTool 创建获取密码临时公钥的 Agent Tool。
-func NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer LoginServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PasswordPublicKeyRequest, *PasswordPublicKeyResponse](
 		"base_v1_login_service_password_public_key",
 		"获取密码临时公钥",
 		func(ctx context.Context, req *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error) {
@@ -79,8 +80,8 @@ func NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer LoginServiceSe
 }
 
 // NewLoginServiceLogoutAgentTool 创建登出的 Agent Tool。
-func NewLoginServiceLogoutAgentTool(loginServiceServer LoginServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewLoginServiceLogoutAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*LogoutRequest, *emptypb.Empty](
 		"base_v1_login_service_logout",
 		"登出",
 		func(ctx context.Context, req *LogoutRequest) (*emptypb.Empty, error) {
@@ -93,8 +94,8 @@ func NewLoginServiceLogoutAgentTool(loginServiceServer LoginServiceServer) (tool
 }
 
 // NewLoginServiceRefreshTokenAgentTool 创建刷新认证令牌的 Agent Tool。
-func NewLoginServiceRefreshTokenAgentTool(loginServiceServer LoginServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewLoginServiceRefreshTokenAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefreshTokenRequest, *RefreshTokenResponse](
 		"base_v1_login_service_refresh_token",
 		"刷新认证令牌",
 		func(ctx context.Context, req *RefreshTokenRequest) (*RefreshTokenResponse, error) {
@@ -107,8 +108,8 @@ func NewLoginServiceRefreshTokenAgentTool(loginServiceServer LoginServiceServer)
 }
 
 // NewLoginServiceLoginAgentTool 创建登录的 Agent Tool。
-func NewLoginServiceLoginAgentTool(loginServiceServer LoginServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewLoginServiceLoginAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*LoginRequest, *LoginResponse](
 		"base_v1_login_service_login",
 		"登录",
 		func(ctx context.Context, req *LoginRequest) (*LoginResponse, error) {

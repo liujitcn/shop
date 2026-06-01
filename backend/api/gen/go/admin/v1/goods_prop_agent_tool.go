@@ -9,39 +9,40 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewGoodsPropServiceAgentTools 创建Admin商品属性服务的 Agent Tool。
-func NewGoodsPropServiceAgentTools(goodsPropServiceServer GoodsPropServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsPropServiceAgentTools(goodsPropServiceServer GoodsPropServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageGoodsPropsTool tools.Tool
+	var pageGoodsPropsTool tool.InvokableTool
 	pageGoodsPropsTool, err = NewGoodsPropServicePageGoodsPropsAgentTool(goodsPropServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageGoodsPropsTool)
-	var getGoodsPropTool tools.Tool
+	var getGoodsPropTool tool.InvokableTool
 	getGoodsPropTool, err = NewGoodsPropServiceGetGoodsPropAgentTool(goodsPropServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getGoodsPropTool)
-	var createGoodsPropTool tools.Tool
+	var createGoodsPropTool tool.InvokableTool
 	createGoodsPropTool, err = NewGoodsPropServiceCreateGoodsPropAgentTool(goodsPropServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createGoodsPropTool)
-	var updateGoodsPropTool tools.Tool
+	var updateGoodsPropTool tool.InvokableTool
 	updateGoodsPropTool, err = NewGoodsPropServiceUpdateGoodsPropAgentTool(goodsPropServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateGoodsPropTool)
-	var deleteGoodsPropTool tools.Tool
+	var deleteGoodsPropTool tool.InvokableTool
 	deleteGoodsPropTool, err = NewGoodsPropServiceDeleteGoodsPropAgentTool(goodsPropServiceServer)
 	if err != nil {
 		return nil, err
@@ -51,8 +52,8 @@ func NewGoodsPropServiceAgentTools(goodsPropServiceServer GoodsPropServiceServer
 }
 
 // NewGoodsPropServicePageGoodsPropsAgentTool 创建查询商品属性列表的 Agent Tool。
-func NewGoodsPropServicePageGoodsPropsAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsPropServicePageGoodsPropsAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsPropsRequest, *PageGoodsPropsResponse](
 		"admin_v1_goods_prop_service_page_goods_props",
 		"查询商品属性列表",
 		func(ctx context.Context, req *PageGoodsPropsRequest) (*PageGoodsPropsResponse, error) {
@@ -65,8 +66,8 @@ func NewGoodsPropServicePageGoodsPropsAgentTool(goodsPropServiceServer GoodsProp
 }
 
 // NewGoodsPropServiceGetGoodsPropAgentTool 创建查询商品属性的 Agent Tool。
-func NewGoodsPropServiceGetGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsPropServiceGetGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetGoodsPropRequest, *GoodsProp](
 		"admin_v1_goods_prop_service_get_goods_prop",
 		"查询商品属性",
 		func(ctx context.Context, req *GetGoodsPropRequest) (*GoodsProp, error) {
@@ -79,8 +80,8 @@ func NewGoodsPropServiceGetGoodsPropAgentTool(goodsPropServiceServer GoodsPropSe
 }
 
 // NewGoodsPropServiceCreateGoodsPropAgentTool 创建创建商品属性的 Agent Tool。
-func NewGoodsPropServiceCreateGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsPropServiceCreateGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateGoodsPropRequest, *emptypb.Empty](
 		"admin_v1_goods_prop_service_create_goods_prop",
 		"创建商品属性",
 		func(ctx context.Context, req *CreateGoodsPropRequest) (*emptypb.Empty, error) {
@@ -93,8 +94,8 @@ func NewGoodsPropServiceCreateGoodsPropAgentTool(goodsPropServiceServer GoodsPro
 }
 
 // NewGoodsPropServiceUpdateGoodsPropAgentTool 创建更新商品属性的 Agent Tool。
-func NewGoodsPropServiceUpdateGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsPropServiceUpdateGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateGoodsPropRequest, *emptypb.Empty](
 		"admin_v1_goods_prop_service_update_goods_prop",
 		"更新商品属性",
 		func(ctx context.Context, req *UpdateGoodsPropRequest) (*emptypb.Empty, error) {
@@ -107,8 +108,8 @@ func NewGoodsPropServiceUpdateGoodsPropAgentTool(goodsPropServiceServer GoodsPro
 }
 
 // NewGoodsPropServiceDeleteGoodsPropAgentTool 创建删除商品属性的 Agent Tool。
-func NewGoodsPropServiceDeleteGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsPropServiceDeleteGoodsPropAgentTool(goodsPropServiceServer GoodsPropServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteGoodsPropRequest, *emptypb.Empty](
 		"admin_v1_goods_prop_service_delete_goods_prop",
 		"删除商品属性",
 		func(ctx context.Context, req *DeleteGoodsPropRequest) (*emptypb.Empty, error) {

@@ -9,32 +9,33 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewGoodsReportServiceAgentTools 创建Admin商品报表服务的 Agent Tool。
-func NewGoodsReportServiceAgentTools(goodsReportServiceServer GoodsReportServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsReportServiceAgentTools(goodsReportServiceServer GoodsReportServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var summaryGoodsMonthReportTool tools.Tool
+	var summaryGoodsMonthReportTool tool.InvokableTool
 	summaryGoodsMonthReportTool, err = NewGoodsReportServiceSummaryGoodsMonthReportAgentTool(goodsReportServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryGoodsMonthReportTool)
-	var listGoodsMonthReportsTool tools.Tool
+	var listGoodsMonthReportsTool tool.InvokableTool
 	listGoodsMonthReportsTool, err = NewGoodsReportServiceListGoodsMonthReportsAgentTool(goodsReportServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listGoodsMonthReportsTool)
-	var summaryGoodsDayReportTool tools.Tool
+	var summaryGoodsDayReportTool tool.InvokableTool
 	summaryGoodsDayReportTool, err = NewGoodsReportServiceSummaryGoodsDayReportAgentTool(goodsReportServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryGoodsDayReportTool)
-	var listGoodsDayReportsTool tools.Tool
+	var listGoodsDayReportsTool tool.InvokableTool
 	listGoodsDayReportsTool, err = NewGoodsReportServiceListGoodsDayReportsAgentTool(goodsReportServiceServer)
 	if err != nil {
 		return nil, err
@@ -44,8 +45,8 @@ func NewGoodsReportServiceAgentTools(goodsReportServiceServer GoodsReportService
 }
 
 // NewGoodsReportServiceSummaryGoodsMonthReportAgentTool 创建查询商品月报汇总的 Agent Tool。
-func NewGoodsReportServiceSummaryGoodsMonthReportAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsReportServiceSummaryGoodsMonthReportAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryGoodsMonthReportRequest, *SummaryGoodsMonthReportResponse](
 		"admin_v1_goods_report_service_summary_goods_month_report",
 		"查询商品月报汇总",
 		func(ctx context.Context, req *SummaryGoodsMonthReportRequest) (*SummaryGoodsMonthReportResponse, error) {
@@ -58,8 +59,8 @@ func NewGoodsReportServiceSummaryGoodsMonthReportAgentTool(goodsReportServiceSer
 }
 
 // NewGoodsReportServiceListGoodsMonthReportsAgentTool 创建查询商品月报名细的 Agent Tool。
-func NewGoodsReportServiceListGoodsMonthReportsAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsReportServiceListGoodsMonthReportsAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListGoodsMonthReportsRequest, *ListGoodsMonthReportsResponse](
 		"admin_v1_goods_report_service_list_goods_month_reports",
 		"查询商品月报名细",
 		func(ctx context.Context, req *ListGoodsMonthReportsRequest) (*ListGoodsMonthReportsResponse, error) {
@@ -72,8 +73,8 @@ func NewGoodsReportServiceListGoodsMonthReportsAgentTool(goodsReportServiceServe
 }
 
 // NewGoodsReportServiceSummaryGoodsDayReportAgentTool 创建查询商品日报汇总的 Agent Tool。
-func NewGoodsReportServiceSummaryGoodsDayReportAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsReportServiceSummaryGoodsDayReportAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryGoodsDayReportRequest, *SummaryGoodsDayReportResponse](
 		"admin_v1_goods_report_service_summary_goods_day_report",
 		"查询商品日报汇总",
 		func(ctx context.Context, req *SummaryGoodsDayReportRequest) (*SummaryGoodsDayReportResponse, error) {
@@ -86,8 +87,8 @@ func NewGoodsReportServiceSummaryGoodsDayReportAgentTool(goodsReportServiceServe
 }
 
 // NewGoodsReportServiceListGoodsDayReportsAgentTool 创建查询商品日报明细的 Agent Tool。
-func NewGoodsReportServiceListGoodsDayReportsAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsReportServiceListGoodsDayReportsAgentTool(goodsReportServiceServer GoodsReportServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListGoodsDayReportsRequest, *ListGoodsDayReportsResponse](
 		"admin_v1_goods_report_service_list_goods_day_reports",
 		"查询商品日报明细",
 		func(ctx context.Context, req *ListGoodsDayReportsRequest) (*ListGoodsDayReportsResponse, error) {

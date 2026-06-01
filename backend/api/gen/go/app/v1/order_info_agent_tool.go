@@ -9,81 +9,82 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewOrderInfoServiceAgentTools 创建App订单信息服务的 Agent Tool。
-func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var confirmOrderInfoTool tools.Tool
+	var confirmOrderInfoTool tool.InvokableTool
 	confirmOrderInfoTool, err = NewOrderInfoServiceConfirmOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, confirmOrderInfoTool)
-	var buyNowOrderInfoTool tools.Tool
+	var buyNowOrderInfoTool tool.InvokableTool
 	buyNowOrderInfoTool, err = NewOrderInfoServiceBuyNowOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, buyNowOrderInfoTool)
-	var repurchaseOrderInfoTool tools.Tool
+	var repurchaseOrderInfoTool tool.InvokableTool
 	repurchaseOrderInfoTool, err = NewOrderInfoServiceRepurchaseOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, repurchaseOrderInfoTool)
-	var countOrderInfoTool tools.Tool
+	var countOrderInfoTool tool.InvokableTool
 	countOrderInfoTool, err = NewOrderInfoServiceCountOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, countOrderInfoTool)
-	var pageOrderInfoTool tools.Tool
+	var pageOrderInfoTool tool.InvokableTool
 	pageOrderInfoTool, err = NewOrderInfoServicePageOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageOrderInfoTool)
-	var getOrderInfoIdByOrderNoTool tools.Tool
+	var getOrderInfoIdByOrderNoTool tool.InvokableTool
 	getOrderInfoIdByOrderNoTool, err = NewOrderInfoServiceGetOrderInfoIdByOrderNoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoIdByOrderNoTool)
-	var getOrderInfoByIdTool tools.Tool
+	var getOrderInfoByIdTool tool.InvokableTool
 	getOrderInfoByIdTool, err = NewOrderInfoServiceGetOrderInfoByIdAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoByIdTool)
-	var createOrderInfoTool tools.Tool
+	var createOrderInfoTool tool.InvokableTool
 	createOrderInfoTool, err = NewOrderInfoServiceCreateOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createOrderInfoTool)
-	var deleteOrderInfoTool tools.Tool
+	var deleteOrderInfoTool tool.InvokableTool
 	deleteOrderInfoTool, err = NewOrderInfoServiceDeleteOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteOrderInfoTool)
-	var cancelOrderInfoTool tools.Tool
+	var cancelOrderInfoTool tool.InvokableTool
 	cancelOrderInfoTool, err = NewOrderInfoServiceCancelOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, cancelOrderInfoTool)
-	var refundOrderInfoTool tools.Tool
+	var refundOrderInfoTool tool.InvokableTool
 	refundOrderInfoTool, err = NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, refundOrderInfoTool)
-	var receiveOrderInfoTool tools.Tool
+	var receiveOrderInfoTool tool.InvokableTool
 	receiveOrderInfoTool, err = NewOrderInfoServiceReceiveOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
@@ -93,8 +94,8 @@ func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer
 }
 
 // NewOrderInfoServiceConfirmOrderInfoAgentTool 创建确认订单信息的 Agent Tool。
-func NewOrderInfoServiceConfirmOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceConfirmOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ConfirmOrderInfoRequest, *ConfirmOrderInfoResponse](
 		"app_v1_order_info_service_confirm_order_info",
 		"确认订单信息",
 		func(ctx context.Context, req *ConfirmOrderInfoRequest) (*ConfirmOrderInfoResponse, error) {
@@ -107,8 +108,8 @@ func NewOrderInfoServiceConfirmOrderInfoAgentTool(orderInfoServiceServer OrderIn
 }
 
 // NewOrderInfoServiceBuyNowOrderInfoAgentTool 创建立即购买订单信息的 Agent Tool。
-func NewOrderInfoServiceBuyNowOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceBuyNowOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*BuyNowOrderInfoRequest, *BuyNowOrderInfoResponse](
 		"app_v1_order_info_service_buy_now_order_info",
 		"立即购买订单信息",
 		func(ctx context.Context, req *BuyNowOrderInfoRequest) (*BuyNowOrderInfoResponse, error) {
@@ -121,8 +122,8 @@ func NewOrderInfoServiceBuyNowOrderInfoAgentTool(orderInfoServiceServer OrderInf
 }
 
 // NewOrderInfoServiceRepurchaseOrderInfoAgentTool 创建再次购买订单信息的 Agent Tool。
-func NewOrderInfoServiceRepurchaseOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceRepurchaseOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RepurchaseOrderInfoRequest, *RepurchaseOrderInfoResponse](
 		"app_v1_order_info_service_repurchase_order_info",
 		"再次购买订单信息",
 		func(ctx context.Context, req *RepurchaseOrderInfoRequest) (*RepurchaseOrderInfoResponse, error) {
@@ -135,8 +136,8 @@ func NewOrderInfoServiceRepurchaseOrderInfoAgentTool(orderInfoServiceServer Orde
 }
 
 // NewOrderInfoServiceCountOrderInfoAgentTool 创建查询订单信息数量汇总的 Agent Tool。
-func NewOrderInfoServiceCountOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceCountOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CountOrderInfoRequest, *CountOrderInfoResponse](
 		"app_v1_order_info_service_count_order_info",
 		"查询订单信息数量汇总",
 		func(ctx context.Context, req *CountOrderInfoRequest) (*CountOrderInfoResponse, error) {
@@ -149,8 +150,8 @@ func NewOrderInfoServiceCountOrderInfoAgentTool(orderInfoServiceServer OrderInfo
 }
 
 // NewOrderInfoServicePageOrderInfoAgentTool 创建查询订单信息分页列表的 Agent Tool。
-func NewOrderInfoServicePageOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServicePageOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageOrderInfoRequest, *PageOrderInfoResponse](
 		"app_v1_order_info_service_page_order_info",
 		"查询订单信息分页列表",
 		func(ctx context.Context, req *PageOrderInfoRequest) (*PageOrderInfoResponse, error) {
@@ -163,8 +164,8 @@ func NewOrderInfoServicePageOrderInfoAgentTool(orderInfoServiceServer OrderInfoS
 }
 
 // NewOrderInfoServiceGetOrderInfoIdByOrderNoAgentTool 创建根据订单信息编号查询订单信息id的 Agent Tool。
-func NewOrderInfoServiceGetOrderInfoIdByOrderNoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceGetOrderInfoIdByOrderNoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetOrderInfoIdByOrderNoRequest, *GetOrderInfoIdByOrderNoResponse](
 		"app_v1_order_info_service_get_order_info_id_by_order_no",
 		"根据订单信息编号查询订单信息id",
 		func(ctx context.Context, req *GetOrderInfoIdByOrderNoRequest) (*GetOrderInfoIdByOrderNoResponse, error) {
@@ -177,8 +178,8 @@ func NewOrderInfoServiceGetOrderInfoIdByOrderNoAgentTool(orderInfoServiceServer 
 }
 
 // NewOrderInfoServiceGetOrderInfoByIdAgentTool 创建根据订单信息id查询订单信息的 Agent Tool。
-func NewOrderInfoServiceGetOrderInfoByIdAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceGetOrderInfoByIdAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetOrderInfoByIdRequest, *OrderInfoResponse](
 		"app_v1_order_info_service_get_order_info_by_id",
 		"根据订单信息id查询订单信息",
 		func(ctx context.Context, req *GetOrderInfoByIdRequest) (*OrderInfoResponse, error) {
@@ -191,8 +192,8 @@ func NewOrderInfoServiceGetOrderInfoByIdAgentTool(orderInfoServiceServer OrderIn
 }
 
 // NewOrderInfoServiceCreateOrderInfoAgentTool 创建创建订单信息的 Agent Tool。
-func NewOrderInfoServiceCreateOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceCreateOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateOrderInfoRequest, *CreateOrderInfoResponse](
 		"app_v1_order_info_service_create_order_info",
 		"创建订单信息",
 		func(ctx context.Context, req *CreateOrderInfoRequest) (*CreateOrderInfoResponse, error) {
@@ -205,8 +206,8 @@ func NewOrderInfoServiceCreateOrderInfoAgentTool(orderInfoServiceServer OrderInf
 }
 
 // NewOrderInfoServiceDeleteOrderInfoAgentTool 创建删除订单信息的 Agent Tool。
-func NewOrderInfoServiceDeleteOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceDeleteOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteOrderInfoRequest, *emptypb.Empty](
 		"app_v1_order_info_service_delete_order_info",
 		"删除订单信息",
 		func(ctx context.Context, req *DeleteOrderInfoRequest) (*emptypb.Empty, error) {
@@ -219,8 +220,8 @@ func NewOrderInfoServiceDeleteOrderInfoAgentTool(orderInfoServiceServer OrderInf
 }
 
 // NewOrderInfoServiceCancelOrderInfoAgentTool 创建取消订单信息的 Agent Tool。
-func NewOrderInfoServiceCancelOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceCancelOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CancelOrderInfoRequest, *emptypb.Empty](
 		"app_v1_order_info_service_cancel_order_info",
 		"取消订单信息",
 		func(ctx context.Context, req *CancelOrderInfoRequest) (*emptypb.Empty, error) {
@@ -233,8 +234,8 @@ func NewOrderInfoServiceCancelOrderInfoAgentTool(orderInfoServiceServer OrderInf
 }
 
 // NewOrderInfoServiceRefundOrderInfoAgentTool 创建订单信息退款的 Agent Tool。
-func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefundOrderInfoRequest, *emptypb.Empty](
 		"app_v1_order_info_service_refund_order_info",
 		"订单信息退款",
 		func(ctx context.Context, req *RefundOrderInfoRequest) (*emptypb.Empty, error) {
@@ -247,8 +248,8 @@ func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInf
 }
 
 // NewOrderInfoServiceReceiveOrderInfoAgentTool 创建确认收货的 Agent Tool。
-func NewOrderInfoServiceReceiveOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceReceiveOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ReceiveOrderInfoRequest, *emptypb.Empty](
 		"app_v1_order_info_service_receive_order_info",
 		"确认收货",
 		func(ctx context.Context, req *ReceiveOrderInfoRequest) (*emptypb.Empty, error) {

@@ -9,51 +9,52 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseConfigServiceAgentTools 创建Admin系统配置服务的 Agent Tool。
-func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var refreshBaseConfigCacheTool tools.Tool
+	var refreshBaseConfigCacheTool tool.InvokableTool
 	refreshBaseConfigCacheTool, err = NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, refreshBaseConfigCacheTool)
-	var pageBaseConfigsTool tools.Tool
+	var pageBaseConfigsTool tool.InvokableTool
 	pageBaseConfigsTool, err = NewBaseConfigServicePageBaseConfigsAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseConfigsTool)
-	var getBaseConfigTool tools.Tool
+	var getBaseConfigTool tool.InvokableTool
 	getBaseConfigTool, err = NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseConfigTool)
-	var createBaseConfigTool tools.Tool
+	var createBaseConfigTool tool.InvokableTool
 	createBaseConfigTool, err = NewBaseConfigServiceCreateBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseConfigTool)
-	var updateBaseConfigTool tools.Tool
+	var updateBaseConfigTool tool.InvokableTool
 	updateBaseConfigTool, err = NewBaseConfigServiceUpdateBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseConfigTool)
-	var deleteBaseConfigTool tools.Tool
+	var deleteBaseConfigTool tool.InvokableTool
 	deleteBaseConfigTool, err = NewBaseConfigServiceDeleteBaseConfigAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteBaseConfigTool)
-	var setBaseConfigStatusTool tools.Tool
+	var setBaseConfigStatusTool tool.InvokableTool
 	setBaseConfigStatusTool, err = NewBaseConfigServiceSetBaseConfigStatusAgentTool(baseConfigServiceServer)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func NewBaseConfigServiceAgentTools(baseConfigServiceServer BaseConfigServiceSer
 }
 
 // NewBaseConfigServiceRefreshBaseConfigCacheAgentTool 创建刷新缓存的 Agent Tool。
-func NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefreshBaseConfigCacheRequest, *emptypb.Empty](
 		"admin_v1_base_config_service_refresh_base_config_cache",
 		"刷新缓存",
 		func(ctx context.Context, req *RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
@@ -77,8 +78,8 @@ func NewBaseConfigServiceRefreshBaseConfigCacheAgentTool(baseConfigServiceServer
 }
 
 // NewBaseConfigServicePageBaseConfigsAgentTool 创建查询系统配置分页列表的 Agent Tool。
-func NewBaseConfigServicePageBaseConfigsAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServicePageBaseConfigsAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseConfigsRequest, *PageBaseConfigsResponse](
 		"admin_v1_base_config_service_page_base_configs",
 		"查询系统配置分页列表",
 		func(ctx context.Context, req *PageBaseConfigsRequest) (*PageBaseConfigsResponse, error) {
@@ -91,8 +92,8 @@ func NewBaseConfigServicePageBaseConfigsAgentTool(baseConfigServiceServer BaseCo
 }
 
 // NewBaseConfigServiceGetBaseConfigAgentTool 创建查询系统配置的 Agent Tool。
-func NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseConfigRequest, *BaseConfigForm](
 		"admin_v1_base_config_service_get_base_config",
 		"查询系统配置",
 		func(ctx context.Context, req *GetBaseConfigRequest) (*BaseConfigForm, error) {
@@ -105,8 +106,8 @@ func NewBaseConfigServiceGetBaseConfigAgentTool(baseConfigServiceServer BaseConf
 }
 
 // NewBaseConfigServiceCreateBaseConfigAgentTool 创建创建系统配置的 Agent Tool。
-func NewBaseConfigServiceCreateBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServiceCreateBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseConfigRequest, *emptypb.Empty](
 		"admin_v1_base_config_service_create_base_config",
 		"创建系统配置",
 		func(ctx context.Context, req *CreateBaseConfigRequest) (*emptypb.Empty, error) {
@@ -119,8 +120,8 @@ func NewBaseConfigServiceCreateBaseConfigAgentTool(baseConfigServiceServer BaseC
 }
 
 // NewBaseConfigServiceUpdateBaseConfigAgentTool 创建更新系统配置的 Agent Tool。
-func NewBaseConfigServiceUpdateBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServiceUpdateBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseConfigRequest, *emptypb.Empty](
 		"admin_v1_base_config_service_update_base_config",
 		"更新系统配置",
 		func(ctx context.Context, req *UpdateBaseConfigRequest) (*emptypb.Empty, error) {
@@ -133,8 +134,8 @@ func NewBaseConfigServiceUpdateBaseConfigAgentTool(baseConfigServiceServer BaseC
 }
 
 // NewBaseConfigServiceDeleteBaseConfigAgentTool 创建删除系统配置的 Agent Tool。
-func NewBaseConfigServiceDeleteBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServiceDeleteBaseConfigAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseConfigRequest, *emptypb.Empty](
 		"admin_v1_base_config_service_delete_base_config",
 		"删除系统配置",
 		func(ctx context.Context, req *DeleteBaseConfigRequest) (*emptypb.Empty, error) {
@@ -147,8 +148,8 @@ func NewBaseConfigServiceDeleteBaseConfigAgentTool(baseConfigServiceServer BaseC
 }
 
 // NewBaseConfigServiceSetBaseConfigStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseConfigServiceSetBaseConfigStatusAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseConfigServiceSetBaseConfigStatusAgentTool(baseConfigServiceServer BaseConfigServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseConfigStatusRequest, *emptypb.Empty](
 		"admin_v1_base_config_service_set_base_config_status",
 		"设置状态",
 		func(ctx context.Context, req *SetBaseConfigStatusRequest) (*emptypb.Empty, error) {

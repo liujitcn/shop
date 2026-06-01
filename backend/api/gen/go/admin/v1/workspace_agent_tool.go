@@ -9,38 +9,39 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewWorkspaceServiceAgentTools 创建Admin工作台服务的 Agent Tool。
-func NewWorkspaceServiceAgentTools(workspaceServiceServer WorkspaceServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewWorkspaceServiceAgentTools(workspaceServiceServer WorkspaceServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var summaryWorkspaceMetricsTool tools.Tool
+	var summaryWorkspaceMetricsTool tool.InvokableTool
 	summaryWorkspaceMetricsTool, err = NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool(workspaceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryWorkspaceMetricsTool)
-	var summaryWorkspaceTodoTool tools.Tool
+	var summaryWorkspaceTodoTool tool.InvokableTool
 	summaryWorkspaceTodoTool, err = NewWorkspaceServiceSummaryWorkspaceTodoAgentTool(workspaceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryWorkspaceTodoTool)
-	var summaryWorkspaceRiskTool tools.Tool
+	var summaryWorkspaceRiskTool tool.InvokableTool
 	summaryWorkspaceRiskTool, err = NewWorkspaceServiceSummaryWorkspaceRiskAgentTool(workspaceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryWorkspaceRiskTool)
-	var summaryWorkspaceReputationTool tools.Tool
+	var summaryWorkspaceReputationTool tool.InvokableTool
 	summaryWorkspaceReputationTool, err = NewWorkspaceServiceSummaryWorkspaceReputationAgentTool(workspaceServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, summaryWorkspaceReputationTool)
-	var listWorkspacePendingCommentsTool tools.Tool
+	var listWorkspacePendingCommentsTool tool.InvokableTool
 	listWorkspacePendingCommentsTool, err = NewWorkspaceServiceListWorkspacePendingCommentsAgentTool(workspaceServiceServer)
 	if err != nil {
 		return nil, err
@@ -50,8 +51,8 @@ func NewWorkspaceServiceAgentTools(workspaceServiceServer WorkspaceServiceServer
 }
 
 // NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool 创建查询工作台顶部指标的 Agent Tool。
-func NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool(workspaceServiceServer WorkspaceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryWorkspaceMetricsRequest, *SummaryWorkspaceMetricsResponse](
 		"admin_v1_workspace_service_summary_workspace_metrics",
 		"查询工作台顶部指标",
 		func(ctx context.Context, req *SummaryWorkspaceMetricsRequest) (*SummaryWorkspaceMetricsResponse, error) {
@@ -64,8 +65,8 @@ func NewWorkspaceServiceSummaryWorkspaceMetricsAgentTool(workspaceServiceServer 
 }
 
 // NewWorkspaceServiceSummaryWorkspaceTodoAgentTool 创建查询工作台待处理事项的 Agent Tool。
-func NewWorkspaceServiceSummaryWorkspaceTodoAgentTool(workspaceServiceServer WorkspaceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewWorkspaceServiceSummaryWorkspaceTodoAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryWorkspaceTodoRequest, *SummaryWorkspaceTodoResponse](
 		"admin_v1_workspace_service_summary_workspace_todo",
 		"查询工作台待处理事项",
 		func(ctx context.Context, req *SummaryWorkspaceTodoRequest) (*SummaryWorkspaceTodoResponse, error) {
@@ -78,8 +79,8 @@ func NewWorkspaceServiceSummaryWorkspaceTodoAgentTool(workspaceServiceServer Wor
 }
 
 // NewWorkspaceServiceSummaryWorkspaceRiskAgentTool 创建查询工作台风险提醒的 Agent Tool。
-func NewWorkspaceServiceSummaryWorkspaceRiskAgentTool(workspaceServiceServer WorkspaceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewWorkspaceServiceSummaryWorkspaceRiskAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryWorkspaceRiskRequest, *SummaryWorkspaceRiskResponse](
 		"admin_v1_workspace_service_summary_workspace_risk",
 		"查询工作台风险提醒",
 		func(ctx context.Context, req *SummaryWorkspaceRiskRequest) (*SummaryWorkspaceRiskResponse, error) {
@@ -92,8 +93,8 @@ func NewWorkspaceServiceSummaryWorkspaceRiskAgentTool(workspaceServiceServer Wor
 }
 
 // NewWorkspaceServiceSummaryWorkspaceReputationAgentTool 创建查询工作台口碑洞察的 Agent Tool。
-func NewWorkspaceServiceSummaryWorkspaceReputationAgentTool(workspaceServiceServer WorkspaceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewWorkspaceServiceSummaryWorkspaceReputationAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SummaryWorkspaceReputationRequest, *SummaryWorkspaceReputationResponse](
 		"admin_v1_workspace_service_summary_workspace_reputation",
 		"查询工作台口碑洞察",
 		func(ctx context.Context, req *SummaryWorkspaceReputationRequest) (*SummaryWorkspaceReputationResponse, error) {
@@ -106,8 +107,8 @@ func NewWorkspaceServiceSummaryWorkspaceReputationAgentTool(workspaceServiceServ
 }
 
 // NewWorkspaceServiceListWorkspacePendingCommentsAgentTool 创建查询工作台待审核评价的 Agent Tool。
-func NewWorkspaceServiceListWorkspacePendingCommentsAgentTool(workspaceServiceServer WorkspaceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewWorkspaceServiceListWorkspacePendingCommentsAgentTool(workspaceServiceServer WorkspaceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListWorkspacePendingCommentsRequest, *ListWorkspacePendingCommentsResponse](
 		"admin_v1_workspace_service_list_workspace_pending_comments",
 		"查询工作台待审核评价",
 		func(ctx context.Context, req *ListWorkspacePendingCommentsRequest) (*ListWorkspacePendingCommentsResponse, error) {

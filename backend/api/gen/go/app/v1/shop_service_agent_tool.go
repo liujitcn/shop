@@ -9,14 +9,15 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewShopServiceServiceAgentTools 创建App商城服务说明服务的 Agent Tool。
-func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listShopServicesTool tools.Tool
+	var listShopServicesTool tool.InvokableTool
 	listShopServicesTool, err = NewShopServiceServiceListShopServicesAgentTool(shopServiceServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewShopServiceServiceAgentTools(shopServiceServiceServer ShopServiceService
 }
 
 // NewShopServiceServiceListShopServicesAgentTool 创建查询商城服务列表的 Agent Tool。
-func NewShopServiceServiceListShopServicesAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopServiceServiceListShopServicesAgentTool(shopServiceServiceServer ShopServiceServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListShopServicesRequest, *ListShopServicesResponse](
 		"app_v1_shop_service_service_list_shop_services",
 		"查询商城服务列表",
 		func(ctx context.Context, req *ListShopServicesRequest) (*ListShopServicesResponse, error) {

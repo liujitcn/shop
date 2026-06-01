@@ -9,33 +9,34 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewAuthServiceAgentTools 创建App用户登录认证服务的 Agent Tool。
-func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var wechatLoginTool tools.Tool
+	var wechatLoginTool tool.InvokableTool
 	wechatLoginTool, err = NewAuthServiceWechatLoginAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, wechatLoginTool)
-	var getUserProfileTool tools.Tool
+	var getUserProfileTool tool.InvokableTool
 	getUserProfileTool, err = NewAuthServiceGetUserProfileAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getUserProfileTool)
-	var updateUserProfileTool tools.Tool
+	var updateUserProfileTool tool.InvokableTool
 	updateUserProfileTool, err = NewAuthServiceUpdateUserProfileAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateUserProfileTool)
-	var bindUserPhoneTool tools.Tool
+	var bindUserPhoneTool tool.InvokableTool
 	bindUserPhoneTool, err = NewAuthServiceBindUserPhoneAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tools.Tool
 }
 
 // NewAuthServiceWechatLoginAgentTool 创建微信登录的 Agent Tool。
-func NewAuthServiceWechatLoginAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceWechatLoginAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*WechatLoginRequest, *WechatLoginResponse](
 		"app_v1_auth_service_wechat_login",
 		"微信登录",
 		func(ctx context.Context, req *WechatLoginRequest) (*WechatLoginResponse, error) {
@@ -59,8 +60,8 @@ func NewAuthServiceWechatLoginAgentTool(authServiceServer AuthServiceServer) (to
 }
 
 // NewAuthServiceGetUserProfileAgentTool 创建获取已经登录的用户的数据的 Agent Tool。
-func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetUserProfileRequest, *UserProfileForm](
 		"app_v1_auth_service_get_user_profile",
 		"获取已经登录的用户的数据",
 		func(ctx context.Context, req *GetUserProfileRequest) (*UserProfileForm, error) {
@@ -73,8 +74,8 @@ func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) 
 }
 
 // NewAuthServiceUpdateUserProfileAgentTool 创建修改个人中心用户信息的 Agent Tool。
-func NewAuthServiceUpdateUserProfileAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceUpdateUserProfileAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserProfileRequest, *emptypb.Empty](
 		"app_v1_auth_service_update_user_profile",
 		"修改个人中心用户信息",
 		func(ctx context.Context, req *UpdateUserProfileRequest) (*emptypb.Empty, error) {
@@ -87,8 +88,8 @@ func NewAuthServiceUpdateUserProfileAgentTool(authServiceServer AuthServiceServe
 }
 
 // NewAuthServiceBindUserPhoneAgentTool 创建手机号授权的 Agent Tool。
-func NewAuthServiceBindUserPhoneAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceBindUserPhoneAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*BindUserPhoneRequest, *BindUserPhoneResponse](
 		"app_v1_auth_service_bind_user_phone",
 		"手机号授权",
 		func(ctx context.Context, req *BindUserPhoneRequest) (*BindUserPhoneResponse, error) {

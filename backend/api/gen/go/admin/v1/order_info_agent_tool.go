@@ -9,45 +9,46 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewOrderInfoServiceAgentTools 创建Admin订单信息服务的 Agent Tool。
-func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageOrderInfosTool tools.Tool
+	var pageOrderInfosTool tool.InvokableTool
 	pageOrderInfosTool, err = NewOrderInfoServicePageOrderInfosAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageOrderInfosTool)
-	var getOrderInfoTool tools.Tool
+	var getOrderInfoTool tool.InvokableTool
 	getOrderInfoTool, err = NewOrderInfoServiceGetOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoTool)
-	var getOrderInfoRefundTool tools.Tool
+	var getOrderInfoRefundTool tool.InvokableTool
 	getOrderInfoRefundTool, err = NewOrderInfoServiceGetOrderInfoRefundAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoRefundTool)
-	var refundOrderInfoTool tools.Tool
+	var refundOrderInfoTool tool.InvokableTool
 	refundOrderInfoTool, err = NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, refundOrderInfoTool)
-	var getOrderInfoShipmentTool tools.Tool
+	var getOrderInfoShipmentTool tool.InvokableTool
 	getOrderInfoShipmentTool, err = NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getOrderInfoShipmentTool)
-	var shipOrderInfoTool tools.Tool
+	var shipOrderInfoTool tool.InvokableTool
 	shipOrderInfoTool, err = NewOrderInfoServiceShipOrderInfoAgentTool(orderInfoServiceServer)
 	if err != nil {
 		return nil, err
@@ -57,8 +58,8 @@ func NewOrderInfoServiceAgentTools(orderInfoServiceServer OrderInfoServiceServer
 }
 
 // NewOrderInfoServicePageOrderInfosAgentTool 创建查询订单信息分页列表的 Agent Tool。
-func NewOrderInfoServicePageOrderInfosAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServicePageOrderInfosAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageOrderInfosRequest, *PageOrderInfosResponse](
 		"admin_v1_order_info_service_page_order_infos",
 		"查询订单信息分页列表",
 		func(ctx context.Context, req *PageOrderInfosRequest) (*PageOrderInfosResponse, error) {
@@ -71,8 +72,8 @@ func NewOrderInfoServicePageOrderInfosAgentTool(orderInfoServiceServer OrderInfo
 }
 
 // NewOrderInfoServiceGetOrderInfoAgentTool 创建查询订单信息的 Agent Tool。
-func NewOrderInfoServiceGetOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceGetOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetOrderInfoRequest, *OrderInfoResponse](
 		"admin_v1_order_info_service_get_order_info",
 		"查询订单信息",
 		func(ctx context.Context, req *GetOrderInfoRequest) (*OrderInfoResponse, error) {
@@ -85,8 +86,8 @@ func NewOrderInfoServiceGetOrderInfoAgentTool(orderInfoServiceServer OrderInfoSe
 }
 
 // NewOrderInfoServiceGetOrderInfoRefundAgentTool 创建查询订单信息退款信息的 Agent Tool。
-func NewOrderInfoServiceGetOrderInfoRefundAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceGetOrderInfoRefundAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetOrderInfoRefundRequest, *OrderInfoRefundResponse](
 		"admin_v1_order_info_service_get_order_info_refund",
 		"查询订单信息退款信息",
 		func(ctx context.Context, req *GetOrderInfoRefundRequest) (*OrderInfoRefundResponse, error) {
@@ -99,8 +100,8 @@ func NewOrderInfoServiceGetOrderInfoRefundAgentTool(orderInfoServiceServer Order
 }
 
 // NewOrderInfoServiceRefundOrderInfoAgentTool 创建订单信息退款的 Agent Tool。
-func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*RefundOrderInfoRequest, *emptypb.Empty](
 		"admin_v1_order_info_service_refund_order_info",
 		"订单信息退款",
 		func(ctx context.Context, req *RefundOrderInfoRequest) (*emptypb.Empty, error) {
@@ -113,8 +114,8 @@ func NewOrderInfoServiceRefundOrderInfoAgentTool(orderInfoServiceServer OrderInf
 }
 
 // NewOrderInfoServiceGetOrderInfoShipmentAgentTool 创建查询订单信息发货信息的 Agent Tool。
-func NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetOrderInfoShipmentRequest, *OrderInfoShipmentForm](
 		"admin_v1_order_info_service_get_order_info_shipment",
 		"查询订单信息发货信息",
 		func(ctx context.Context, req *GetOrderInfoShipmentRequest) (*OrderInfoShipmentForm, error) {
@@ -127,8 +128,8 @@ func NewOrderInfoServiceGetOrderInfoShipmentAgentTool(orderInfoServiceServer Ord
 }
 
 // NewOrderInfoServiceShipOrderInfoAgentTool 创建订单信息发货的 Agent Tool。
-func NewOrderInfoServiceShipOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewOrderInfoServiceShipOrderInfoAgentTool(orderInfoServiceServer OrderInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ShipOrderInfoRequest, *emptypb.Empty](
 		"admin_v1_order_info_service_ship_order_info",
 		"订单信息发货",
 		func(ctx context.Context, req *ShipOrderInfoRequest) (*emptypb.Empty, error) {

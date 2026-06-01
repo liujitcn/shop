@@ -174,7 +174,6 @@ func NewServerServices(
 		file:                  file,
 		login:                 login,
 	}
-	// 当前使用的 Responses 网关带 function tools 会返回上游 502，先只保留 Provider 默认的 web_search。
 	assistantRuntime.SetTools(nil)
 	return services, nil
 }

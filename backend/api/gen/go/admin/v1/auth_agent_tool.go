@@ -10,57 +10,58 @@ import (
 	context "context"
 	v1 "shop/api/gen/go/common/v1"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewAuthServiceAgentTools 创建Admin用户登录认证服务的 Agent Tool。
-func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var getUserInfoTool tools.Tool
+	var getUserInfoTool tool.InvokableTool
 	getUserInfoTool, err = NewAuthServiceGetUserInfoAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getUserInfoTool)
-	var treeUserMenusTool tools.Tool
+	var treeUserMenusTool tool.InvokableTool
 	treeUserMenusTool, err = NewAuthServiceTreeUserMenusAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, treeUserMenusTool)
-	var listUserButtonsTool tools.Tool
+	var listUserButtonsTool tool.InvokableTool
 	listUserButtonsTool, err = NewAuthServiceListUserButtonsAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, listUserButtonsTool)
-	var getUserProfileTool tools.Tool
+	var getUserProfileTool tool.InvokableTool
 	getUserProfileTool, err = NewAuthServiceGetUserProfileAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getUserProfileTool)
-	var updateUserProfileTool tools.Tool
+	var updateUserProfileTool tool.InvokableTool
 	updateUserProfileTool, err = NewAuthServiceUpdateUserProfileAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateUserProfileTool)
-	var sendPhoneCodeTool tools.Tool
+	var sendPhoneCodeTool tool.InvokableTool
 	sendPhoneCodeTool, err = NewAuthServiceSendPhoneCodeAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, sendPhoneCodeTool)
-	var updateUserPhoneTool tools.Tool
+	var updateUserPhoneTool tool.InvokableTool
 	updateUserPhoneTool, err = NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateUserPhoneTool)
-	var updateUserPasswordTool tools.Tool
+	var updateUserPasswordTool tool.InvokableTool
 	updateUserPasswordTool, err = NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer)
 	if err != nil {
 		return nil, err
@@ -70,8 +71,8 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tools.Tool
 }
 
 // NewAuthServiceGetUserInfoAgentTool 创建获取已经登录的用户的数据的 Agent Tool。
-func NewAuthServiceGetUserInfoAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceGetUserInfoAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetUserInfoRequest, *UserInfoForm](
 		"admin_v1_auth_service_get_user_info",
 		"获取已经登录的用户的数据",
 		func(ctx context.Context, req *GetUserInfoRequest) (*UserInfoForm, error) {
@@ -84,8 +85,8 @@ func NewAuthServiceGetUserInfoAgentTool(authServiceServer AuthServiceServer) (to
 }
 
 // NewAuthServiceTreeUserMenusAgentTool 创建查询已经登录的用户菜单树的 Agent Tool。
-func NewAuthServiceTreeUserMenusAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceTreeUserMenusAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeUserMenusRequest, any](
 		"admin_v1_auth_service_tree_user_menus",
 		"查询已经登录的用户菜单树",
 		func(ctx context.Context, req *TreeUserMenusRequest) (any, error) {
@@ -102,8 +103,8 @@ func NewAuthServiceTreeUserMenusAgentTool(authServiceServer AuthServiceServer) (
 }
 
 // NewAuthServiceListUserButtonsAgentTool 创建查询已经登录的用户按钮列表的 Agent Tool。
-func NewAuthServiceListUserButtonsAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceListUserButtonsAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListUserButtonsRequest, *v1.StringValues](
 		"admin_v1_auth_service_list_user_buttons",
 		"查询已经登录的用户按钮列表",
 		func(ctx context.Context, req *ListUserButtonsRequest) (*v1.StringValues, error) {
@@ -116,8 +117,8 @@ func NewAuthServiceListUserButtonsAgentTool(authServiceServer AuthServiceServer)
 }
 
 // NewAuthServiceGetUserProfileAgentTool 创建获取个人中心用户信息的 Agent Tool。
-func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetUserProfileRequest, *UserProfileForm](
 		"admin_v1_auth_service_get_user_profile",
 		"获取个人中心用户信息",
 		func(ctx context.Context, req *GetUserProfileRequest) (*UserProfileForm, error) {
@@ -130,8 +131,8 @@ func NewAuthServiceGetUserProfileAgentTool(authServiceServer AuthServiceServer) 
 }
 
 // NewAuthServiceUpdateUserProfileAgentTool 创建修改个人中心用户信息的 Agent Tool。
-func NewAuthServiceUpdateUserProfileAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceUpdateUserProfileAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserProfileRequest, *emptypb.Empty](
 		"admin_v1_auth_service_update_user_profile",
 		"修改个人中心用户信息",
 		func(ctx context.Context, req *UpdateUserProfileRequest) (*emptypb.Empty, error) {
@@ -144,8 +145,8 @@ func NewAuthServiceUpdateUserProfileAgentTool(authServiceServer AuthServiceServe
 }
 
 // NewAuthServiceSendPhoneCodeAgentTool 创建发送手机号验证码的 Agent Tool。
-func NewAuthServiceSendPhoneCodeAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceSendPhoneCodeAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SendPhoneCodeRequest, *emptypb.Empty](
 		"admin_v1_auth_service_send_phone_code",
 		"发送手机号验证码",
 		func(ctx context.Context, req *SendPhoneCodeRequest) (*emptypb.Empty, error) {
@@ -158,8 +159,8 @@ func NewAuthServiceSendPhoneCodeAgentTool(authServiceServer AuthServiceServer) (
 }
 
 // NewAuthServiceUpdateUserPhoneAgentTool 创建修改个人中心手机号的 Agent Tool。
-func NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserPhoneRequest, *emptypb.Empty](
 		"admin_v1_auth_service_update_user_phone",
 		"修改个人中心手机号",
 		func(ctx context.Context, req *UpdateUserPhoneRequest) (*emptypb.Empty, error) {
@@ -172,8 +173,8 @@ func NewAuthServiceUpdateUserPhoneAgentTool(authServiceServer AuthServiceServer)
 }
 
 // NewAuthServiceUpdateUserPasswordAgentTool 创建修改个人中心密码的 Agent Tool。
-func NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer AuthServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewAuthServiceUpdateUserPasswordAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateUserPasswordRequest, *emptypb.Empty](
 		"admin_v1_auth_service_update_user_password",
 		"修改个人中心密码",
 		func(ctx context.Context, req *UpdateUserPasswordRequest) (*emptypb.Empty, error) {

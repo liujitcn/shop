@@ -9,27 +9,28 @@ package basev1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 // NewFileServiceAgentTools 创建Base文件服务的 Agent Tool。
-func NewFileServiceAgentTools(fileServiceServer FileServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewFileServiceAgentTools(fileServiceServer FileServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var multiUploadFileTool tools.Tool
+	var multiUploadFileTool tool.InvokableTool
 	multiUploadFileTool, err = NewFileServiceMultiUploadFileAgentTool(fileServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, multiUploadFileTool)
-	var uploadFileTool tools.Tool
+	var uploadFileTool tool.InvokableTool
 	uploadFileTool, err = NewFileServiceUploadFileAgentTool(fileServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, uploadFileTool)
-	var downloadFileTool tools.Tool
+	var downloadFileTool tool.InvokableTool
 	downloadFileTool, err = NewFileServiceDownloadFileAgentTool(fileServiceServer)
 	if err != nil {
 		return nil, err
@@ -39,8 +40,8 @@ func NewFileServiceAgentTools(fileServiceServer FileServiceServer) ([]tools.Tool
 }
 
 // NewFileServiceMultiUploadFileAgentTool 创建多个文件上传的 Agent Tool。
-func NewFileServiceMultiUploadFileAgentTool(fileServiceServer FileServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewFileServiceMultiUploadFileAgentTool(fileServiceServer FileServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*MultiUploadFileRequest, *MultiUploadFileResponse](
 		"base_v1_file_service_multi_upload_file",
 		"多个文件上传",
 		func(ctx context.Context, req *MultiUploadFileRequest) (*MultiUploadFileResponse, error) {
@@ -53,8 +54,8 @@ func NewFileServiceMultiUploadFileAgentTool(fileServiceServer FileServiceServer)
 }
 
 // NewFileServiceUploadFileAgentTool 创建单个文件上传的 Agent Tool。
-func NewFileServiceUploadFileAgentTool(fileServiceServer FileServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewFileServiceUploadFileAgentTool(fileServiceServer FileServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UploadFileRequest, *FileInfo](
 		"base_v1_file_service_upload_file",
 		"单个文件上传",
 		func(ctx context.Context, req *UploadFileRequest) (*FileInfo, error) {
@@ -67,8 +68,8 @@ func NewFileServiceUploadFileAgentTool(fileServiceServer FileServiceServer) (too
 }
 
 // NewFileServiceDownloadFileAgentTool 创建下载文件的 Agent Tool。
-func NewFileServiceDownloadFileAgentTool(fileServiceServer FileServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewFileServiceDownloadFileAgentTool(fileServiceServer FileServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DownloadFileRequest, *wrapperspb.BytesValue](
 		"base_v1_file_service_download_file",
 		"下载文件",
 		func(ctx context.Context, req *DownloadFileRequest) (*wrapperspb.BytesValue, error) {

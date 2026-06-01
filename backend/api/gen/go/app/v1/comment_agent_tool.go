@@ -9,69 +9,70 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewCommentServiceAgentTools 创建App评价服务的 Agent Tool。
-func NewCommentServiceAgentTools(commentServiceServer CommentServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewCommentServiceAgentTools(commentServiceServer CommentServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var goodsCommentOverviewTool tools.Tool
+	var goodsCommentOverviewTool tool.InvokableTool
 	goodsCommentOverviewTool, err = NewCommentServiceGoodsCommentOverviewAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, goodsCommentOverviewTool)
-	var goodsCommentTagsTool tools.Tool
+	var goodsCommentTagsTool tool.InvokableTool
 	goodsCommentTagsTool, err = NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, goodsCommentTagsTool)
-	var pageGoodsCommentTool tools.Tool
+	var pageGoodsCommentTool tool.InvokableTool
 	pageGoodsCommentTool, err = NewCommentServicePageGoodsCommentAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageGoodsCommentTool)
-	var pageCommentDiscussionTool tools.Tool
+	var pageCommentDiscussionTool tool.InvokableTool
 	pageCommentDiscussionTool, err = NewCommentServicePageCommentDiscussionAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageCommentDiscussionTool)
-	var createCommentDiscussionTool tools.Tool
+	var createCommentDiscussionTool tool.InvokableTool
 	createCommentDiscussionTool, err = NewCommentServiceCreateCommentDiscussionAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createCommentDiscussionTool)
-	var saveCommentReactionTool tools.Tool
+	var saveCommentReactionTool tool.InvokableTool
 	saveCommentReactionTool, err = NewCommentServiceSaveCommentReactionAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, saveCommentReactionTool)
-	var pagePendingCommentGoodsTool tools.Tool
+	var pagePendingCommentGoodsTool tool.InvokableTool
 	pagePendingCommentGoodsTool, err = NewCommentServicePagePendingCommentGoodsAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pagePendingCommentGoodsTool)
-	var createCommentTool tools.Tool
+	var createCommentTool tool.InvokableTool
 	createCommentTool, err = NewCommentServiceCreateCommentAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createCommentTool)
-	var deleteCommentTool tools.Tool
+	var deleteCommentTool tool.InvokableTool
 	deleteCommentTool, err = NewCommentServiceDeleteCommentAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteCommentTool)
-	var pageMyCommentTool tools.Tool
+	var pageMyCommentTool tool.InvokableTool
 	pageMyCommentTool, err = NewCommentServicePageMyCommentAgentTool(commentServiceServer)
 	if err != nil {
 		return nil, err
@@ -81,8 +82,8 @@ func NewCommentServiceAgentTools(commentServiceServer CommentServiceServer) ([]t
 }
 
 // NewCommentServiceGoodsCommentOverviewAgentTool 创建查询商品评价摘要的 Agent Tool。
-func NewCommentServiceGoodsCommentOverviewAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServiceGoodsCommentOverviewAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GoodsCommentOverviewRequest, *GoodsCommentOverviewResponse](
 		"app_v1_comment_service_goods_comment_overview",
 		"查询商品评价摘要",
 		func(ctx context.Context, req *GoodsCommentOverviewRequest) (*GoodsCommentOverviewResponse, error) {
@@ -95,8 +96,8 @@ func NewCommentServiceGoodsCommentOverviewAgentTool(commentServiceServer Comment
 }
 
 // NewCommentServiceGoodsCommentTagsAgentTool 创建查询商品评价标签列表的 Agent Tool。
-func NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GoodsCommentTagsRequest, *GoodsCommentTagsResponse](
 		"app_v1_comment_service_goods_comment_tags",
 		"查询商品评价标签列表",
 		func(ctx context.Context, req *GoodsCommentTagsRequest) (*GoodsCommentTagsResponse, error) {
@@ -109,8 +110,8 @@ func NewCommentServiceGoodsCommentTagsAgentTool(commentServiceServer CommentServ
 }
 
 // NewCommentServicePageGoodsCommentAgentTool 创建查询商品评价分页列表的 Agent Tool。
-func NewCommentServicePageGoodsCommentAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServicePageGoodsCommentAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsCommentRequest, *PageGoodsCommentResponse](
 		"app_v1_comment_service_page_goods_comment",
 		"查询商品评价分页列表",
 		func(ctx context.Context, req *PageGoodsCommentRequest) (*PageGoodsCommentResponse, error) {
@@ -123,8 +124,8 @@ func NewCommentServicePageGoodsCommentAgentTool(commentServiceServer CommentServ
 }
 
 // NewCommentServicePageCommentDiscussionAgentTool 创建查询评价讨论分页列表的 Agent Tool。
-func NewCommentServicePageCommentDiscussionAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServicePageCommentDiscussionAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageCommentDiscussionRequest, *PageCommentDiscussionResponse](
 		"app_v1_comment_service_page_comment_discussion",
 		"查询评价讨论分页列表",
 		func(ctx context.Context, req *PageCommentDiscussionRequest) (*PageCommentDiscussionResponse, error) {
@@ -137,8 +138,8 @@ func NewCommentServicePageCommentDiscussionAgentTool(commentServiceServer Commen
 }
 
 // NewCommentServiceCreateCommentDiscussionAgentTool 创建发布评价讨论的 Agent Tool。
-func NewCommentServiceCreateCommentDiscussionAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServiceCreateCommentDiscussionAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateCommentDiscussionRequest, *CreateCommentDiscussionResponse](
 		"app_v1_comment_service_create_comment_discussion",
 		"发布评价讨论",
 		func(ctx context.Context, req *CreateCommentDiscussionRequest) (*CreateCommentDiscussionResponse, error) {
@@ -151,8 +152,8 @@ func NewCommentServiceCreateCommentDiscussionAgentTool(commentServiceServer Comm
 }
 
 // NewCommentServiceSaveCommentReactionAgentTool 创建保存评价互动状态的 Agent Tool。
-func NewCommentServiceSaveCommentReactionAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServiceSaveCommentReactionAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SaveCommentReactionRequest, *SaveCommentReactionResponse](
 		"app_v1_comment_service_save_comment_reaction",
 		"保存评价互动状态",
 		func(ctx context.Context, req *SaveCommentReactionRequest) (*SaveCommentReactionResponse, error) {
@@ -165,8 +166,8 @@ func NewCommentServiceSaveCommentReactionAgentTool(commentServiceServer CommentS
 }
 
 // NewCommentServicePagePendingCommentGoodsAgentTool 创建查询待评价商品分页列表的 Agent Tool。
-func NewCommentServicePagePendingCommentGoodsAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServicePagePendingCommentGoodsAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PagePendingCommentGoodsRequest, *PagePendingCommentGoodsResponse](
 		"app_v1_comment_service_page_pending_comment_goods",
 		"查询待评价商品分页列表",
 		func(ctx context.Context, req *PagePendingCommentGoodsRequest) (*PagePendingCommentGoodsResponse, error) {
@@ -179,8 +180,8 @@ func NewCommentServicePagePendingCommentGoodsAgentTool(commentServiceServer Comm
 }
 
 // NewCommentServiceCreateCommentAgentTool 创建发布商品评价的 Agent Tool。
-func NewCommentServiceCreateCommentAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServiceCreateCommentAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateCommentRequest, *CreateCommentResponse](
 		"app_v1_comment_service_create_comment",
 		"发布商品评价",
 		func(ctx context.Context, req *CreateCommentRequest) (*CreateCommentResponse, error) {
@@ -193,8 +194,8 @@ func NewCommentServiceCreateCommentAgentTool(commentServiceServer CommentService
 }
 
 // NewCommentServiceDeleteCommentAgentTool 创建删除商品评价的 Agent Tool。
-func NewCommentServiceDeleteCommentAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServiceDeleteCommentAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteCommentRequest, *emptypb.Empty](
 		"app_v1_comment_service_delete_comment",
 		"删除商品评价",
 		func(ctx context.Context, req *DeleteCommentRequest) (*emptypb.Empty, error) {
@@ -207,8 +208,8 @@ func NewCommentServiceDeleteCommentAgentTool(commentServiceServer CommentService
 }
 
 // NewCommentServicePageMyCommentAgentTool 创建查询我的评价分页列表的 Agent Tool。
-func NewCommentServicePageMyCommentAgentTool(commentServiceServer CommentServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewCommentServicePageMyCommentAgentTool(commentServiceServer CommentServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageMyCommentRequest, *PageMyCommentResponse](
 		"app_v1_comment_service_page_my_comment",
 		"查询我的评价分页列表",
 		func(ctx context.Context, req *PageMyCommentRequest) (*PageMyCommentResponse, error) {

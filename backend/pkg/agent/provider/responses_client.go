@@ -5,13 +5,22 @@ import (
 
 	agentopenai "shop/pkg/agent/openai"
 
-	"github.com/go-kratos/blades"
+	"github.com/cloudwego/eino/components/model"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
 type ResponsesClient struct {
-	blades.ModelProvider
+	model.BaseChatModel
+	name string
+}
+
+// Name 返回当前 Responses 模型名称。
+func (c *ResponsesClient) Name() string {
+	if c == nil {
+		return ""
+	}
+	return c.name
 }
 
 // NewResponsesClient 创建 AI 助手专用 Responses 模型客户端。
@@ -22,12 +31,13 @@ func NewResponsesClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ResponsesCl
 	}
 	baseURL := strings.TrimRight(bootstrapCfg.GetBaseUrl(), "/")
 	apiKey := bootstrapCfg.GetApiKey()
-	model := bootstrapCfg.GetModel()
+	modelName := bootstrapCfg.GetModel()
 	// 启动配置不完整时，保持客户端关闭状态。
-	if baseURL == "" || apiKey == "" || model == "" {
+	if baseURL == "" || apiKey == "" || modelName == "" {
 		return client
 	}
-	client.ModelProvider = agentopenai.NewResponses(model, agentopenai.ResponsesConfig{
+	client.name = modelName
+	client.BaseChatModel = agentopenai.NewResponses(modelName, agentopenai.ResponsesConfig{
 		BaseURL:         baseURL,
 		APIKey:          apiKey,
 		MaxOutputTokens: bootstrapCfg.GetMaxOutputTokens(),

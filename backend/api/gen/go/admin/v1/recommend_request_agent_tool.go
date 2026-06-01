@@ -9,26 +9,27 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewRecommendRequestServiceAgentTools 创建Admin推荐请求服务的 Agent Tool。
-func NewRecommendRequestServiceAgentTools(recommendRequestServiceServer RecommendRequestServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewRecommendRequestServiceAgentTools(recommendRequestServiceServer RecommendRequestServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageRecommendRequestsTool tools.Tool
+	var pageRecommendRequestsTool tool.InvokableTool
 	pageRecommendRequestsTool, err = NewRecommendRequestServicePageRecommendRequestsAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageRecommendRequestsTool)
-	var getRecommendRequestTool tools.Tool
+	var getRecommendRequestTool tool.InvokableTool
 	getRecommendRequestTool, err = NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getRecommendRequestTool)
-	var listRecommendRequestEventsTool tools.Tool
+	var listRecommendRequestEventsTool tool.InvokableTool
 	listRecommendRequestEventsTool, err = NewRecommendRequestServiceListRecommendRequestEventsAgentTool(recommendRequestServiceServer)
 	if err != nil {
 		return nil, err
@@ -38,8 +39,8 @@ func NewRecommendRequestServiceAgentTools(recommendRequestServiceServer Recommen
 }
 
 // NewRecommendRequestServicePageRecommendRequestsAgentTool 创建查询推荐请求分页列表的 Agent Tool。
-func NewRecommendRequestServicePageRecommendRequestsAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendRequestServicePageRecommendRequestsAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageRecommendRequestsRequest, *PageRecommendRequestsResponse](
 		"admin_v1_recommend_request_service_page_recommend_requests",
 		"查询推荐请求分页列表",
 		func(ctx context.Context, req *PageRecommendRequestsRequest) (*PageRecommendRequestsResponse, error) {
@@ -52,8 +53,8 @@ func NewRecommendRequestServicePageRecommendRequestsAgentTool(recommendRequestSe
 }
 
 // NewRecommendRequestServiceGetRecommendRequestAgentTool 创建查询推荐请求详情的 Agent Tool。
-func NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetRecommendRequestRequest, *RecommendRequestDetailResponse](
 		"admin_v1_recommend_request_service_get_recommend_request",
 		"查询推荐请求详情",
 		func(ctx context.Context, req *GetRecommendRequestRequest) (*RecommendRequestDetailResponse, error) {
@@ -66,8 +67,8 @@ func NewRecommendRequestServiceGetRecommendRequestAgentTool(recommendRequestServ
 }
 
 // NewRecommendRequestServiceListRecommendRequestEventsAgentTool 创建查询推荐请求商品关联事件的 Agent Tool。
-func NewRecommendRequestServiceListRecommendRequestEventsAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewRecommendRequestServiceListRecommendRequestEventsAgentTool(recommendRequestServiceServer RecommendRequestServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListRecommendRequestEventsRequest, *ListRecommendRequestEventsResponse](
 		"admin_v1_recommend_request_service_list_recommend_request_events",
 		"查询推荐请求商品关联事件",
 		func(ctx context.Context, req *ListRecommendRequestEventsRequest) (*ListRecommendRequestEventsResponse, error) {

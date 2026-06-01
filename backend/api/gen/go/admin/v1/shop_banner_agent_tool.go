@@ -9,45 +9,46 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewShopBannerServiceAgentTools 创建Admin商城轮播图服务的 Agent Tool。
-func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageShopBannersTool tools.Tool
+	var pageShopBannersTool tool.InvokableTool
 	pageShopBannersTool, err = NewShopBannerServicePageShopBannersAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageShopBannersTool)
-	var getShopBannerTool tools.Tool
+	var getShopBannerTool tool.InvokableTool
 	getShopBannerTool, err = NewShopBannerServiceGetShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getShopBannerTool)
-	var createShopBannerTool tools.Tool
+	var createShopBannerTool tool.InvokableTool
 	createShopBannerTool, err = NewShopBannerServiceCreateShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createShopBannerTool)
-	var updateShopBannerTool tools.Tool
+	var updateShopBannerTool tool.InvokableTool
 	updateShopBannerTool, err = NewShopBannerServiceUpdateShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateShopBannerTool)
-	var deleteShopBannerTool tools.Tool
+	var deleteShopBannerTool tool.InvokableTool
 	deleteShopBannerTool, err = NewShopBannerServiceDeleteShopBannerAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteShopBannerTool)
-	var setShopBannerStatusTool tools.Tool
+	var setShopBannerStatusTool tool.InvokableTool
 	setShopBannerStatusTool, err = NewShopBannerServiceSetShopBannerStatusAgentTool(shopBannerServiceServer)
 	if err != nil {
 		return nil, err
@@ -57,8 +58,8 @@ func NewShopBannerServiceAgentTools(shopBannerServiceServer ShopBannerServiceSer
 }
 
 // NewShopBannerServicePageShopBannersAgentTool 创建查询商城轮播图列表的 Agent Tool。
-func NewShopBannerServicePageShopBannersAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServicePageShopBannersAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopBannersRequest, *PageShopBannersResponse](
 		"admin_v1_shop_banner_service_page_shop_banners",
 		"查询商城轮播图列表",
 		func(ctx context.Context, req *PageShopBannersRequest) (*PageShopBannersResponse, error) {
@@ -71,8 +72,8 @@ func NewShopBannerServicePageShopBannersAgentTool(shopBannerServiceServer ShopBa
 }
 
 // NewShopBannerServiceGetShopBannerAgentTool 创建查询商城轮播图的 Agent Tool。
-func NewShopBannerServiceGetShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServiceGetShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetShopBannerRequest, *ShopBannerForm](
 		"admin_v1_shop_banner_service_get_shop_banner",
 		"查询商城轮播图",
 		func(ctx context.Context, req *GetShopBannerRequest) (*ShopBannerForm, error) {
@@ -85,8 +86,8 @@ func NewShopBannerServiceGetShopBannerAgentTool(shopBannerServiceServer ShopBann
 }
 
 // NewShopBannerServiceCreateShopBannerAgentTool 创建创建商城轮播图的 Agent Tool。
-func NewShopBannerServiceCreateShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServiceCreateShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateShopBannerRequest, *emptypb.Empty](
 		"admin_v1_shop_banner_service_create_shop_banner",
 		"创建商城轮播图",
 		func(ctx context.Context, req *CreateShopBannerRequest) (*emptypb.Empty, error) {
@@ -99,8 +100,8 @@ func NewShopBannerServiceCreateShopBannerAgentTool(shopBannerServiceServer ShopB
 }
 
 // NewShopBannerServiceUpdateShopBannerAgentTool 创建更新商城轮播图的 Agent Tool。
-func NewShopBannerServiceUpdateShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServiceUpdateShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateShopBannerRequest, *emptypb.Empty](
 		"admin_v1_shop_banner_service_update_shop_banner",
 		"更新商城轮播图",
 		func(ctx context.Context, req *UpdateShopBannerRequest) (*emptypb.Empty, error) {
@@ -113,8 +114,8 @@ func NewShopBannerServiceUpdateShopBannerAgentTool(shopBannerServiceServer ShopB
 }
 
 // NewShopBannerServiceDeleteShopBannerAgentTool 创建删除商城轮播图的 Agent Tool。
-func NewShopBannerServiceDeleteShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServiceDeleteShopBannerAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteShopBannerRequest, *emptypb.Empty](
 		"admin_v1_shop_banner_service_delete_shop_banner",
 		"删除商城轮播图",
 		func(ctx context.Context, req *DeleteShopBannerRequest) (*emptypb.Empty, error) {
@@ -127,8 +128,8 @@ func NewShopBannerServiceDeleteShopBannerAgentTool(shopBannerServiceServer ShopB
 }
 
 // NewShopBannerServiceSetShopBannerStatusAgentTool 创建设置状态的 Agent Tool。
-func NewShopBannerServiceSetShopBannerStatusAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopBannerServiceSetShopBannerStatusAgentTool(shopBannerServiceServer ShopBannerServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetShopBannerStatusRequest, *emptypb.Empty](
 		"admin_v1_shop_banner_service_set_shop_banner_status",
 		"设置状态",
 		func(ctx context.Context, req *SetShopBannerStatusRequest) (*emptypb.Empty, error) {

@@ -9,51 +9,52 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewGoodsCategoryServiceAgentTools 创建Admin商品分类服务的 Agent Tool。
-func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var treeGoodsCategoriesTool tools.Tool
+	var treeGoodsCategoriesTool tool.InvokableTool
 	treeGoodsCategoriesTool, err = NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, treeGoodsCategoriesTool)
-	var optionGoodsCategoriesTool tools.Tool
+	var optionGoodsCategoriesTool tool.InvokableTool
 	optionGoodsCategoriesTool, err = NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionGoodsCategoriesTool)
-	var getGoodsCategoryTool tools.Tool
+	var getGoodsCategoryTool tool.InvokableTool
 	getGoodsCategoryTool, err = NewGoodsCategoryServiceGetGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getGoodsCategoryTool)
-	var createGoodsCategoryTool tools.Tool
+	var createGoodsCategoryTool tool.InvokableTool
 	createGoodsCategoryTool, err = NewGoodsCategoryServiceCreateGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createGoodsCategoryTool)
-	var updateGoodsCategoryTool tools.Tool
+	var updateGoodsCategoryTool tool.InvokableTool
 	updateGoodsCategoryTool, err = NewGoodsCategoryServiceUpdateGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateGoodsCategoryTool)
-	var deleteGoodsCategoryTool tools.Tool
+	var deleteGoodsCategoryTool tool.InvokableTool
 	deleteGoodsCategoryTool, err = NewGoodsCategoryServiceDeleteGoodsCategoryAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteGoodsCategoryTool)
-	var setGoodsCategoryStatusTool tools.Tool
+	var setGoodsCategoryStatusTool tool.InvokableTool
 	setGoodsCategoryStatusTool, err = NewGoodsCategoryServiceSetGoodsCategoryStatusAgentTool(goodsCategoryServiceServer)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func NewGoodsCategoryServiceAgentTools(goodsCategoryServiceServer GoodsCategoryS
 }
 
 // NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool 创建查询商品分类树形列表的 Agent Tool。
-func NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeGoodsCategoriesRequest, any](
 		"admin_v1_goods_category_service_tree_goods_categories",
 		"查询商品分类树形列表",
 		func(ctx context.Context, req *TreeGoodsCategoriesRequest) (any, error) {
@@ -81,8 +82,8 @@ func NewGoodsCategoryServiceTreeGoodsCategoriesAgentTool(goodsCategoryServiceSer
 }
 
 // NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool 创建查询商品分类树形选择的 Agent Tool。
-func NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionGoodsCategoriesRequest, any](
 		"admin_v1_goods_category_service_option_goods_categories",
 		"查询商品分类树形选择",
 		func(ctx context.Context, req *OptionGoodsCategoriesRequest) (any, error) {
@@ -99,8 +100,8 @@ func NewGoodsCategoryServiceOptionGoodsCategoriesAgentTool(goodsCategoryServiceS
 }
 
 // NewGoodsCategoryServiceGetGoodsCategoryAgentTool 创建查询商品分类的 Agent Tool。
-func NewGoodsCategoryServiceGetGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceGetGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetGoodsCategoryRequest, *GoodsCategoryForm](
 		"admin_v1_goods_category_service_get_goods_category",
 		"查询商品分类",
 		func(ctx context.Context, req *GetGoodsCategoryRequest) (*GoodsCategoryForm, error) {
@@ -113,8 +114,8 @@ func NewGoodsCategoryServiceGetGoodsCategoryAgentTool(goodsCategoryServiceServer
 }
 
 // NewGoodsCategoryServiceCreateGoodsCategoryAgentTool 创建创建商品分类的 Agent Tool。
-func NewGoodsCategoryServiceCreateGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceCreateGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateGoodsCategoryRequest, *emptypb.Empty](
 		"admin_v1_goods_category_service_create_goods_category",
 		"创建商品分类",
 		func(ctx context.Context, req *CreateGoodsCategoryRequest) (*emptypb.Empty, error) {
@@ -127,8 +128,8 @@ func NewGoodsCategoryServiceCreateGoodsCategoryAgentTool(goodsCategoryServiceSer
 }
 
 // NewGoodsCategoryServiceUpdateGoodsCategoryAgentTool 创建更新商品分类的 Agent Tool。
-func NewGoodsCategoryServiceUpdateGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceUpdateGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateGoodsCategoryRequest, *emptypb.Empty](
 		"admin_v1_goods_category_service_update_goods_category",
 		"更新商品分类",
 		func(ctx context.Context, req *UpdateGoodsCategoryRequest) (*emptypb.Empty, error) {
@@ -141,8 +142,8 @@ func NewGoodsCategoryServiceUpdateGoodsCategoryAgentTool(goodsCategoryServiceSer
 }
 
 // NewGoodsCategoryServiceDeleteGoodsCategoryAgentTool 创建删除商品分类的 Agent Tool。
-func NewGoodsCategoryServiceDeleteGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceDeleteGoodsCategoryAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteGoodsCategoryRequest, *emptypb.Empty](
 		"admin_v1_goods_category_service_delete_goods_category",
 		"删除商品分类",
 		func(ctx context.Context, req *DeleteGoodsCategoryRequest) (*emptypb.Empty, error) {
@@ -155,8 +156,8 @@ func NewGoodsCategoryServiceDeleteGoodsCategoryAgentTool(goodsCategoryServiceSer
 }
 
 // NewGoodsCategoryServiceSetGoodsCategoryStatusAgentTool 创建设置状态的 Agent Tool。
-func NewGoodsCategoryServiceSetGoodsCategoryStatusAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsCategoryServiceSetGoodsCategoryStatusAgentTool(goodsCategoryServiceServer GoodsCategoryServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetGoodsCategoryStatusRequest, *emptypb.Empty](
 		"admin_v1_goods_category_service_set_goods_category_status",
 		"设置状态",
 		func(ctx context.Context, req *SetGoodsCategoryStatusRequest) (*emptypb.Empty, error) {

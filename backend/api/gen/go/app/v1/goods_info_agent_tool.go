@@ -9,20 +9,21 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewGoodsInfoServiceAgentTools 创建App商品信息服务的 Agent Tool。
-func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageGoodsInfoTool tools.Tool
+	var pageGoodsInfoTool tool.InvokableTool
 	pageGoodsInfoTool, err = NewGoodsInfoServicePageGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageGoodsInfoTool)
-	var getGoodsInfoTool tools.Tool
+	var getGoodsInfoTool tool.InvokableTool
 	getGoodsInfoTool, err = NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer)
 	if err != nil {
 		return nil, err
@@ -32,8 +33,8 @@ func NewGoodsInfoServiceAgentTools(goodsInfoServiceServer GoodsInfoServiceServer
 }
 
 // NewGoodsInfoServicePageGoodsInfoAgentTool 创建查询商品信息分页列表的 Agent Tool。
-func NewGoodsInfoServicePageGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServicePageGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageGoodsInfoRequest, *PageGoodsInfoResponse](
 		"app_v1_goods_info_service_page_goods_info",
 		"查询商品信息分页列表",
 		func(ctx context.Context, req *PageGoodsInfoRequest) (*PageGoodsInfoResponse, error) {
@@ -46,8 +47,8 @@ func NewGoodsInfoServicePageGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoS
 }
 
 // NewGoodsInfoServiceGetGoodsInfoAgentTool 创建查询商品信息的 Agent Tool。
-func NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsInfoServiceGetGoodsInfoAgentTool(goodsInfoServiceServer GoodsInfoServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetGoodsInfoRequest, *GoodsInfoResponse](
 		"app_v1_goods_info_service_get_goods_info",
 		"查询商品信息",
 		func(ctx context.Context, req *GetGoodsInfoRequest) (*GoodsInfoResponse, error) {

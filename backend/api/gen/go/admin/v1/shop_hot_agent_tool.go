@@ -9,81 +9,82 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewShopHotServiceAgentTools 创建Admin商城热门推荐服务的 Agent Tool。
-func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var pageShopHotsTool tools.Tool
+	var pageShopHotsTool tool.InvokableTool
 	pageShopHotsTool, err = NewShopHotServicePageShopHotsAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageShopHotsTool)
-	var getShopHotTool tools.Tool
+	var getShopHotTool tool.InvokableTool
 	getShopHotTool, err = NewShopHotServiceGetShopHotAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getShopHotTool)
-	var createShopHotTool tools.Tool
+	var createShopHotTool tool.InvokableTool
 	createShopHotTool, err = NewShopHotServiceCreateShopHotAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createShopHotTool)
-	var updateShopHotTool tools.Tool
+	var updateShopHotTool tool.InvokableTool
 	updateShopHotTool, err = NewShopHotServiceUpdateShopHotAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateShopHotTool)
-	var deleteShopHotTool tools.Tool
+	var deleteShopHotTool tool.InvokableTool
 	deleteShopHotTool, err = NewShopHotServiceDeleteShopHotAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteShopHotTool)
-	var setShopHotStatusTool tools.Tool
+	var setShopHotStatusTool tool.InvokableTool
 	setShopHotStatusTool, err = NewShopHotServiceSetShopHotStatusAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setShopHotStatusTool)
-	var pageShopHotItemsTool tools.Tool
+	var pageShopHotItemsTool tool.InvokableTool
 	pageShopHotItemsTool, err = NewShopHotServicePageShopHotItemsAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageShopHotItemsTool)
-	var getShopHotItemTool tools.Tool
+	var getShopHotItemTool tool.InvokableTool
 	getShopHotItemTool, err = NewShopHotServiceGetShopHotItemAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getShopHotItemTool)
-	var createShopHotItemTool tools.Tool
+	var createShopHotItemTool tool.InvokableTool
 	createShopHotItemTool, err = NewShopHotServiceCreateShopHotItemAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createShopHotItemTool)
-	var updateShopHotItemTool tools.Tool
+	var updateShopHotItemTool tool.InvokableTool
 	updateShopHotItemTool, err = NewShopHotServiceUpdateShopHotItemAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateShopHotItemTool)
-	var deleteShopHotItemTool tools.Tool
+	var deleteShopHotItemTool tool.InvokableTool
 	deleteShopHotItemTool, err = NewShopHotServiceDeleteShopHotItemAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteShopHotItemTool)
-	var setShopHotItemStatusTool tools.Tool
+	var setShopHotItemStatusTool tool.InvokableTool
 	setShopHotItemStatusTool, err = NewShopHotServiceSetShopHotItemStatusAgentTool(shopHotServiceServer)
 	if err != nil {
 		return nil, err
@@ -93,8 +94,8 @@ func NewShopHotServiceAgentTools(shopHotServiceServer ShopHotServiceServer) ([]t
 }
 
 // NewShopHotServicePageShopHotsAgentTool 创建查询商城热门推荐列表的 Agent Tool。
-func NewShopHotServicePageShopHotsAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServicePageShopHotsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopHotsRequest, *PageShopHotsResponse](
 		"admin_v1_shop_hot_service_page_shop_hots",
 		"查询商城热门推荐列表",
 		func(ctx context.Context, req *PageShopHotsRequest) (*PageShopHotsResponse, error) {
@@ -107,8 +108,8 @@ func NewShopHotServicePageShopHotsAgentTool(shopHotServiceServer ShopHotServiceS
 }
 
 // NewShopHotServiceGetShopHotAgentTool 创建查询商城热门推荐的 Agent Tool。
-func NewShopHotServiceGetShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceGetShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetShopHotRequest, *ShopHotForm](
 		"admin_v1_shop_hot_service_get_shop_hot",
 		"查询商城热门推荐",
 		func(ctx context.Context, req *GetShopHotRequest) (*ShopHotForm, error) {
@@ -121,8 +122,8 @@ func NewShopHotServiceGetShopHotAgentTool(shopHotServiceServer ShopHotServiceSer
 }
 
 // NewShopHotServiceCreateShopHotAgentTool 创建创建商城热门推荐的 Agent Tool。
-func NewShopHotServiceCreateShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceCreateShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateShopHotRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_create_shop_hot",
 		"创建商城热门推荐",
 		func(ctx context.Context, req *CreateShopHotRequest) (*emptypb.Empty, error) {
@@ -135,8 +136,8 @@ func NewShopHotServiceCreateShopHotAgentTool(shopHotServiceServer ShopHotService
 }
 
 // NewShopHotServiceUpdateShopHotAgentTool 创建更新商城热门推荐的 Agent Tool。
-func NewShopHotServiceUpdateShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceUpdateShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateShopHotRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_update_shop_hot",
 		"更新商城热门推荐",
 		func(ctx context.Context, req *UpdateShopHotRequest) (*emptypb.Empty, error) {
@@ -149,8 +150,8 @@ func NewShopHotServiceUpdateShopHotAgentTool(shopHotServiceServer ShopHotService
 }
 
 // NewShopHotServiceDeleteShopHotAgentTool 创建删除商城热门推荐的 Agent Tool。
-func NewShopHotServiceDeleteShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceDeleteShopHotAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteShopHotRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_delete_shop_hot",
 		"删除商城热门推荐",
 		func(ctx context.Context, req *DeleteShopHotRequest) (*emptypb.Empty, error) {
@@ -163,8 +164,8 @@ func NewShopHotServiceDeleteShopHotAgentTool(shopHotServiceServer ShopHotService
 }
 
 // NewShopHotServiceSetShopHotStatusAgentTool 创建设置状态的 Agent Tool。
-func NewShopHotServiceSetShopHotStatusAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceSetShopHotStatusAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetShopHotStatusRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_set_shop_hot_status",
 		"设置状态",
 		func(ctx context.Context, req *SetShopHotStatusRequest) (*emptypb.Empty, error) {
@@ -177,8 +178,8 @@ func NewShopHotServiceSetShopHotStatusAgentTool(shopHotServiceServer ShopHotServ
 }
 
 // NewShopHotServicePageShopHotItemsAgentTool 创建查询商城热门推荐属性列表的 Agent Tool。
-func NewShopHotServicePageShopHotItemsAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServicePageShopHotItemsAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageShopHotItemsRequest, *PageShopHotItemsResponse](
 		"admin_v1_shop_hot_service_page_shop_hot_items",
 		"查询商城热门推荐属性列表",
 		func(ctx context.Context, req *PageShopHotItemsRequest) (*PageShopHotItemsResponse, error) {
@@ -191,8 +192,8 @@ func NewShopHotServicePageShopHotItemsAgentTool(shopHotServiceServer ShopHotServ
 }
 
 // NewShopHotServiceGetShopHotItemAgentTool 创建查询商城热门推荐属性的 Agent Tool。
-func NewShopHotServiceGetShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceGetShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetShopHotItemRequest, *ShopHotItemForm](
 		"admin_v1_shop_hot_service_get_shop_hot_item",
 		"查询商城热门推荐属性",
 		func(ctx context.Context, req *GetShopHotItemRequest) (*ShopHotItemForm, error) {
@@ -205,8 +206,8 @@ func NewShopHotServiceGetShopHotItemAgentTool(shopHotServiceServer ShopHotServic
 }
 
 // NewShopHotServiceCreateShopHotItemAgentTool 创建创建商城热门推荐属性的 Agent Tool。
-func NewShopHotServiceCreateShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceCreateShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateShopHotItemRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_create_shop_hot_item",
 		"创建商城热门推荐属性",
 		func(ctx context.Context, req *CreateShopHotItemRequest) (*emptypb.Empty, error) {
@@ -219,8 +220,8 @@ func NewShopHotServiceCreateShopHotItemAgentTool(shopHotServiceServer ShopHotSer
 }
 
 // NewShopHotServiceUpdateShopHotItemAgentTool 创建更新商城热门推荐属性的 Agent Tool。
-func NewShopHotServiceUpdateShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceUpdateShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateShopHotItemRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_update_shop_hot_item",
 		"更新商城热门推荐属性",
 		func(ctx context.Context, req *UpdateShopHotItemRequest) (*emptypb.Empty, error) {
@@ -233,8 +234,8 @@ func NewShopHotServiceUpdateShopHotItemAgentTool(shopHotServiceServer ShopHotSer
 }
 
 // NewShopHotServiceDeleteShopHotItemAgentTool 创建删除商城热门推荐属性的 Agent Tool。
-func NewShopHotServiceDeleteShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceDeleteShopHotItemAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteShopHotItemRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_delete_shop_hot_item",
 		"删除商城热门推荐属性",
 		func(ctx context.Context, req *DeleteShopHotItemRequest) (*emptypb.Empty, error) {
@@ -247,8 +248,8 @@ func NewShopHotServiceDeleteShopHotItemAgentTool(shopHotServiceServer ShopHotSer
 }
 
 // NewShopHotServiceSetShopHotItemStatusAgentTool 创建设置状态的 Agent Tool。
-func NewShopHotServiceSetShopHotItemStatusAgentTool(shopHotServiceServer ShopHotServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewShopHotServiceSetShopHotItemStatusAgentTool(shopHotServiceServer ShopHotServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetShopHotItemStatusRequest, *emptypb.Empty](
 		"admin_v1_shop_hot_service_set_shop_hot_item_status",
 		"设置状态",
 		func(ctx context.Context, req *SetShopHotItemStatusRequest) (*emptypb.Empty, error) {

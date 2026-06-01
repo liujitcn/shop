@@ -10,57 +10,58 @@ import (
 	context "context"
 	v1 "shop/api/gen/go/common/v1"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseRoleServiceAgentTools 创建Admin角色管理服务的 Agent Tool。
-func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var optionBaseRolesTool tools.Tool
+	var optionBaseRolesTool tool.InvokableTool
 	optionBaseRolesTool, err = NewBaseRoleServiceOptionBaseRolesAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionBaseRolesTool)
-	var pageBaseRolesTool tools.Tool
+	var pageBaseRolesTool tool.InvokableTool
 	pageBaseRolesTool, err = NewBaseRoleServicePageBaseRolesAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, pageBaseRolesTool)
-	var getBaseRoleTool tools.Tool
+	var getBaseRoleTool tool.InvokableTool
 	getBaseRoleTool, err = NewBaseRoleServiceGetBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseRoleTool)
-	var createBaseRoleTool tools.Tool
+	var createBaseRoleTool tool.InvokableTool
 	createBaseRoleTool, err = NewBaseRoleServiceCreateBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseRoleTool)
-	var updateBaseRoleTool tools.Tool
+	var updateBaseRoleTool tool.InvokableTool
 	updateBaseRoleTool, err = NewBaseRoleServiceUpdateBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseRoleTool)
-	var deleteBaseRoleTool tools.Tool
+	var deleteBaseRoleTool tool.InvokableTool
 	deleteBaseRoleTool, err = NewBaseRoleServiceDeleteBaseRoleAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteBaseRoleTool)
-	var setBaseRoleStatusTool tools.Tool
+	var setBaseRoleStatusTool tool.InvokableTool
 	setBaseRoleStatusTool, err = NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, setBaseRoleStatusTool)
-	var setBaseRoleMenuTool tools.Tool
+	var setBaseRoleMenuTool tool.InvokableTool
 	setBaseRoleMenuTool, err = NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer)
 	if err != nil {
 		return nil, err
@@ -70,8 +71,8 @@ func NewBaseRoleServiceAgentTools(baseRoleServiceServer BaseRoleServiceServer) (
 }
 
 // NewBaseRoleServiceOptionBaseRolesAgentTool 创建查询角色下拉选择的 Agent Tool。
-func NewBaseRoleServiceOptionBaseRolesAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceOptionBaseRolesAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseRolesRequest, *v1.SelectOptionResponse](
 		"admin_v1_base_role_service_option_base_roles",
 		"查询角色下拉选择",
 		func(ctx context.Context, req *OptionBaseRolesRequest) (*v1.SelectOptionResponse, error) {
@@ -84,8 +85,8 @@ func NewBaseRoleServiceOptionBaseRolesAgentTool(baseRoleServiceServer BaseRoleSe
 }
 
 // NewBaseRoleServicePageBaseRolesAgentTool 创建查询角色分页列表的 Agent Tool。
-func NewBaseRoleServicePageBaseRolesAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServicePageBaseRolesAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*PageBaseRolesRequest, *PageBaseRolesResponse](
 		"admin_v1_base_role_service_page_base_roles",
 		"查询角色分页列表",
 		func(ctx context.Context, req *PageBaseRolesRequest) (*PageBaseRolesResponse, error) {
@@ -98,8 +99,8 @@ func NewBaseRoleServicePageBaseRolesAgentTool(baseRoleServiceServer BaseRoleServ
 }
 
 // NewBaseRoleServiceGetBaseRoleAgentTool 创建查询角色的 Agent Tool。
-func NewBaseRoleServiceGetBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceGetBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseRoleRequest, *BaseRoleForm](
 		"admin_v1_base_role_service_get_base_role",
 		"查询角色",
 		func(ctx context.Context, req *GetBaseRoleRequest) (*BaseRoleForm, error) {
@@ -112,8 +113,8 @@ func NewBaseRoleServiceGetBaseRoleAgentTool(baseRoleServiceServer BaseRoleServic
 }
 
 // NewBaseRoleServiceCreateBaseRoleAgentTool 创建创建角色的 Agent Tool。
-func NewBaseRoleServiceCreateBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceCreateBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseRoleRequest, *emptypb.Empty](
 		"admin_v1_base_role_service_create_base_role",
 		"创建角色",
 		func(ctx context.Context, req *CreateBaseRoleRequest) (*emptypb.Empty, error) {
@@ -126,8 +127,8 @@ func NewBaseRoleServiceCreateBaseRoleAgentTool(baseRoleServiceServer BaseRoleSer
 }
 
 // NewBaseRoleServiceUpdateBaseRoleAgentTool 创建更新角色的 Agent Tool。
-func NewBaseRoleServiceUpdateBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceUpdateBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseRoleRequest, *emptypb.Empty](
 		"admin_v1_base_role_service_update_base_role",
 		"更新角色",
 		func(ctx context.Context, req *UpdateBaseRoleRequest) (*emptypb.Empty, error) {
@@ -140,8 +141,8 @@ func NewBaseRoleServiceUpdateBaseRoleAgentTool(baseRoleServiceServer BaseRoleSer
 }
 
 // NewBaseRoleServiceDeleteBaseRoleAgentTool 创建删除角色的 Agent Tool。
-func NewBaseRoleServiceDeleteBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceDeleteBaseRoleAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseRoleRequest, *emptypb.Empty](
 		"admin_v1_base_role_service_delete_base_role",
 		"删除角色",
 		func(ctx context.Context, req *DeleteBaseRoleRequest) (*emptypb.Empty, error) {
@@ -154,8 +155,8 @@ func NewBaseRoleServiceDeleteBaseRoleAgentTool(baseRoleServiceServer BaseRoleSer
 }
 
 // NewBaseRoleServiceSetBaseRoleStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseRoleStatusRequest, *emptypb.Empty](
 		"admin_v1_base_role_service_set_base_role_status",
 		"设置状态",
 		func(ctx context.Context, req *SetBaseRoleStatusRequest) (*emptypb.Empty, error) {
@@ -168,8 +169,8 @@ func NewBaseRoleServiceSetBaseRoleStatusAgentTool(baseRoleServiceServer BaseRole
 }
 
 // NewBaseRoleServiceSetBaseRoleMenuAgentTool 创建设置角色菜单权限的 Agent Tool。
-func NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseRoleServiceSetBaseRoleMenuAgentTool(baseRoleServiceServer BaseRoleServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseRoleMenuRequest, *emptypb.Empty](
 		"admin_v1_base_role_service_set_base_role_menu",
 		"设置角色菜单权限",
 		func(ctx context.Context, req *SetBaseRoleMenuRequest) (*emptypb.Empty, error) {

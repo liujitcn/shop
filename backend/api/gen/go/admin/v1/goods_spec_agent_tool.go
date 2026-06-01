@@ -9,14 +9,15 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewGoodsSpecServiceAgentTools 创建Admin商品规格服务的 Agent Tool。
-func NewGoodsSpecServiceAgentTools(goodsSpecServiceServer GoodsSpecServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewGoodsSpecServiceAgentTools(goodsSpecServiceServer GoodsSpecServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var listGoodsSpecsTool tools.Tool
+	var listGoodsSpecsTool tool.InvokableTool
 	listGoodsSpecsTool, err = NewGoodsSpecServiceListGoodsSpecsAgentTool(goodsSpecServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewGoodsSpecServiceAgentTools(goodsSpecServiceServer GoodsSpecServiceServer
 }
 
 // NewGoodsSpecServiceListGoodsSpecsAgentTool 创建查询商品规格列表的 Agent Tool。
-func NewGoodsSpecServiceListGoodsSpecsAgentTool(goodsSpecServiceServer GoodsSpecServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewGoodsSpecServiceListGoodsSpecsAgentTool(goodsSpecServiceServer GoodsSpecServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListGoodsSpecsRequest, *ListGoodsSpecsResponse](
 		"admin_v1_goods_spec_service_list_goods_specs",
 		"查询商品规格列表",
 		func(ctx context.Context, req *ListGoodsSpecsRequest) (*ListGoodsSpecsResponse, error) {

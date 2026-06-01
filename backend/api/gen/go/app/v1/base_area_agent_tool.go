@@ -9,14 +9,15 @@ package appv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 )
 
 // NewBaseAreaServiceAgentTools 创建App行政区域服务的 Agent Tool。
-func NewBaseAreaServiceAgentTools(baseAreaServiceServer BaseAreaServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseAreaServiceAgentTools(baseAreaServiceServer BaseAreaServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var treeBaseAreasTool tools.Tool
+	var treeBaseAreasTool tool.InvokableTool
 	treeBaseAreasTool, err = NewBaseAreaServiceTreeBaseAreasAgentTool(baseAreaServiceServer)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,8 @@ func NewBaseAreaServiceAgentTools(baseAreaServiceServer BaseAreaServiceServer) (
 }
 
 // NewBaseAreaServiceTreeBaseAreasAgentTool 创建查询行政区域树形列表的 Agent Tool。
-func NewBaseAreaServiceTreeBaseAreasAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseAreaServiceTreeBaseAreasAgentTool(baseAreaServiceServer BaseAreaServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeBaseAreasRequest, any](
 		"app_v1_base_area_service_tree_base_areas",
 		"查询行政区域树形列表",
 		func(ctx context.Context, req *TreeBaseAreasRequest) (any, error) {

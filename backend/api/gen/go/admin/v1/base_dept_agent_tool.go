@@ -9,51 +9,52 @@ package adminv1
 import (
 	context "context"
 
-	tools "github.com/go-kratos/blades/tools"
+	tool "github.com/cloudwego/eino/components/tool"
+	utils "github.com/cloudwego/eino/components/tool/utils"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // NewBaseDeptServiceAgentTools 创建Admin部门服务的 Agent Tool。
-func NewBaseDeptServiceAgentTools(baseDeptServiceServer BaseDeptServiceServer) ([]tools.Tool, error) {
-	var ts []tools.Tool
+func NewBaseDeptServiceAgentTools(baseDeptServiceServer BaseDeptServiceServer) ([]tool.InvokableTool, error) {
+	var ts []tool.InvokableTool
 	var err error
-	var treeBaseDeptsTool tools.Tool
+	var treeBaseDeptsTool tool.InvokableTool
 	treeBaseDeptsTool, err = NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, treeBaseDeptsTool)
-	var optionBaseDeptsTool tools.Tool
+	var optionBaseDeptsTool tool.InvokableTool
 	optionBaseDeptsTool, err = NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, optionBaseDeptsTool)
-	var getBaseDeptTool tools.Tool
+	var getBaseDeptTool tool.InvokableTool
 	getBaseDeptTool, err = NewBaseDeptServiceGetBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, getBaseDeptTool)
-	var createBaseDeptTool tools.Tool
+	var createBaseDeptTool tool.InvokableTool
 	createBaseDeptTool, err = NewBaseDeptServiceCreateBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, createBaseDeptTool)
-	var updateBaseDeptTool tools.Tool
+	var updateBaseDeptTool tool.InvokableTool
 	updateBaseDeptTool, err = NewBaseDeptServiceUpdateBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, updateBaseDeptTool)
-	var deleteBaseDeptTool tools.Tool
+	var deleteBaseDeptTool tool.InvokableTool
 	deleteBaseDeptTool, err = NewBaseDeptServiceDeleteBaseDeptAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
 	}
 	ts = append(ts, deleteBaseDeptTool)
-	var setBaseDeptStatusTool tools.Tool
+	var setBaseDeptStatusTool tool.InvokableTool
 	setBaseDeptStatusTool, err = NewBaseDeptServiceSetBaseDeptStatusAgentTool(baseDeptServiceServer)
 	if err != nil {
 		return nil, err
@@ -63,8 +64,8 @@ func NewBaseDeptServiceAgentTools(baseDeptServiceServer BaseDeptServiceServer) (
 }
 
 // NewBaseDeptServiceTreeBaseDeptsAgentTool 创建查询部门树形列表的 Agent Tool。
-func NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*TreeBaseDeptsRequest, any](
 		"admin_v1_base_dept_service_tree_base_depts",
 		"查询部门树形列表",
 		func(ctx context.Context, req *TreeBaseDeptsRequest) (any, error) {
@@ -81,8 +82,8 @@ func NewBaseDeptServiceTreeBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServ
 }
 
 // NewBaseDeptServiceOptionBaseDeptsAgentTool 创建查询部门树形选择的 Agent Tool。
-func NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*OptionBaseDeptsRequest, any](
 		"admin_v1_base_dept_service_option_base_depts",
 		"查询部门树形选择",
 		func(ctx context.Context, req *OptionBaseDeptsRequest) (any, error) {
@@ -99,8 +100,8 @@ func NewBaseDeptServiceOptionBaseDeptsAgentTool(baseDeptServiceServer BaseDeptSe
 }
 
 // NewBaseDeptServiceGetBaseDeptAgentTool 创建查询部门的 Agent Tool。
-func NewBaseDeptServiceGetBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceGetBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*GetBaseDeptRequest, *BaseDeptForm](
 		"admin_v1_base_dept_service_get_base_dept",
 		"查询部门",
 		func(ctx context.Context, req *GetBaseDeptRequest) (*BaseDeptForm, error) {
@@ -113,8 +114,8 @@ func NewBaseDeptServiceGetBaseDeptAgentTool(baseDeptServiceServer BaseDeptServic
 }
 
 // NewBaseDeptServiceCreateBaseDeptAgentTool 创建创建部门的 Agent Tool。
-func NewBaseDeptServiceCreateBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceCreateBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*CreateBaseDeptRequest, *emptypb.Empty](
 		"admin_v1_base_dept_service_create_base_dept",
 		"创建部门",
 		func(ctx context.Context, req *CreateBaseDeptRequest) (*emptypb.Empty, error) {
@@ -127,8 +128,8 @@ func NewBaseDeptServiceCreateBaseDeptAgentTool(baseDeptServiceServer BaseDeptSer
 }
 
 // NewBaseDeptServiceUpdateBaseDeptAgentTool 创建更新部门的 Agent Tool。
-func NewBaseDeptServiceUpdateBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceUpdateBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseDeptRequest, *emptypb.Empty](
 		"admin_v1_base_dept_service_update_base_dept",
 		"更新部门",
 		func(ctx context.Context, req *UpdateBaseDeptRequest) (*emptypb.Empty, error) {
@@ -141,8 +142,8 @@ func NewBaseDeptServiceUpdateBaseDeptAgentTool(baseDeptServiceServer BaseDeptSer
 }
 
 // NewBaseDeptServiceDeleteBaseDeptAgentTool 创建删除部门的 Agent Tool。
-func NewBaseDeptServiceDeleteBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceDeleteBaseDeptAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*DeleteBaseDeptRequest, *emptypb.Empty](
 		"admin_v1_base_dept_service_delete_base_dept",
 		"删除部门",
 		func(ctx context.Context, req *DeleteBaseDeptRequest) (*emptypb.Empty, error) {
@@ -155,8 +156,8 @@ func NewBaseDeptServiceDeleteBaseDeptAgentTool(baseDeptServiceServer BaseDeptSer
 }
 
 // NewBaseDeptServiceSetBaseDeptStatusAgentTool 创建设置状态的 Agent Tool。
-func NewBaseDeptServiceSetBaseDeptStatusAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tools.Tool, error) {
-	return tools.NewFunc(
+func NewBaseDeptServiceSetBaseDeptStatusAgentTool(baseDeptServiceServer BaseDeptServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseDeptStatusRequest, *emptypb.Empty](
 		"admin_v1_base_dept_service_set_base_dept_status",
 		"设置状态",
 		func(ctx context.Context, req *SetBaseDeptStatusRequest) (*emptypb.Empty, error) {
