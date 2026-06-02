@@ -1,13 +1,2 @@
-ai:
-  model:
-    # 本地覆盖配置，填入有效模型名和密钥后启用 AI 能力。
-    type: CLOUD_MODEL
-    modelName: ''
-    temperature: 0.2
-    maxTokens: 1024
-    timeoutSeconds: 60
-    maxRetries: 2
-    cloud:
-      baseUrl: https://api.openai.com/v1
-      apiKey: ''
-      organization: ''
+# 本文件保留给本地覆盖配置使用。
+# 不要在已提交文件中写入空的大模型字段，否则会覆盖 ai.yaml 或未提交的本地密钥配置。
