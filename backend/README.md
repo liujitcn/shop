@@ -194,9 +194,9 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文。`client.llm.reasoningEffort` 默认设为 `high`，评价审核、摘要和 AI 助手都会通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给 Responses，`seed`、`frequencyPenalty`、`presencePenalty`、`stopSequences` 目前不再进入 Eino Responses 链路，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，避免评论审核链路触发当前网关的 Responses structured output 503；AI 助手继续使用 Responses API。`client.llm.reasoningEffort` 默认设为 `high`，评价审核、摘要会通过 Chat Completions 的 `reasoning_effort` 传递，AI 助手会通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给对应模型接口，`seed`、`frequencyPenalty`、`presencePenalty` 目前不再进入 Eino 模型链路，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
-`pkg/agent/provider` 中 Chat 模型和 AI 助手 Responses 模型都使用 `pkg/agent/openai` 内基于 Eino 模型接口和 OpenAI 官方 SDK 的 provider 装配。
+`pkg/agent/provider` 中评论 Chat 模型和 AI 助手 Responses 模型都使用 `pkg/agent/openai` 内基于 Eino 模型接口和 OpenAI 官方 SDK 的 provider 装配。
 
 ## 设计文档
 

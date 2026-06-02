@@ -51,7 +51,7 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 		parts = append(parts, textInputPart("标签生成规则：tags 必须优先从 existingTags 中选择并原样返回；只有评价语义确实无法归入任何已有标签时，才允许生成新的短标签。"))
 	}
 	for _, imageURL := range imageURLs {
-		parts = append(parts, imageURLInputPart(imageURL, reviewImageMIMEType(imageURL)))
+		parts = append(parts, imageURLInputPart(imageURL))
 	}
 	for _, image := range imageData {
 		parts = append(parts, imageDataInputPart(image.Bytes, reviewImageDataMIMEType(image.MIMEType, image.Name)))
@@ -91,13 +91,12 @@ func textInputPart(text string) schema.MessageInputPart {
 }
 
 // imageURLInputPart 构造远程图片输入片段。
-func imageURLInputPart(rawURL string, mimeType string) schema.MessageInputPart {
+func imageURLInputPart(rawURL string) schema.MessageInputPart {
 	return schema.MessageInputPart{
 		Type: schema.ChatMessagePartTypeImageURL,
 		Image: &schema.MessageInputImage{
 			MessagePartCommon: schema.MessagePartCommon{
-				URL:      &rawURL,
-				MIMEType: mimeType,
+				URL: &rawURL,
 			},
 			Detail: schema.ImageURLDetailAuto,
 		},

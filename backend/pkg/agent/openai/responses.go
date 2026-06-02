@@ -33,6 +33,8 @@ type ResponsesConfig struct {
 	ExtraFields map[string]any
 	// ReasoningEffort 推理强度。
 	ReasoningEffort shared.ReasoningEffort
+	// EnableWebSearch 是否在没有内部工具时启用 Responses 内置联网搜索。
+	EnableWebSearch bool
 	// RequestOptions 请求级 OpenAI SDK 选项。
 	RequestOptions []option.RequestOption
 }
@@ -111,7 +113,7 @@ func (m *responsesModel) buildResponsesParams(input []*schema.Message, opts ...m
 	if len(params.Tools) > 0 {
 		params.ToolChoice = sdkresponses.ResponseNewParamsToolChoiceUnion{OfToolChoiceMode: param.NewOpt(sdkresponses.ToolChoiceOptionsAuto)}
 	}
-	if len(params.Tools) == 0 && !hasFunctionToolContext(input) {
+	if m.config.EnableWebSearch && len(params.Tools) == 0 && !hasFunctionToolContext(input) {
 		params.Tools = []sdkresponses.ToolUnionParam{sdkresponses.ToolParamOfWebSearch(sdkresponses.WebSearchToolTypeWebSearch)}
 		params.Include = []sdkresponses.ResponseIncludable{sdkresponses.ResponseIncludableWebSearchCallActionSources}
 		params.ToolChoice = sdkresponses.ResponseNewParamsToolChoiceUnion{OfToolChoiceMode: param.NewOpt(sdkresponses.ToolChoiceOptionsAuto)}

@@ -45,6 +45,7 @@ func NewResponsesClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ResponsesCl
 		TopP:            bootstrapCfg.GetTopP(),
 		ExtraFields:     llmExtraFields(bootstrapCfg),
 		ReasoningEffort: llmReasoningEffort(bootstrapCfg),
+		EnableWebSearch: true,
 	})
 	return client
 }

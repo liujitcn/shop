@@ -23,7 +23,7 @@ func (c *ChatClient) Name() string {
 	return c.name
 }
 
-// NewChatClient 创建智能体对话模型客户端。
+// NewChatClient 创建评论审核与摘要专用聊天模型客户端。
 func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 	client := &ChatClient{}
 	if bootstrapCfg == nil {
@@ -31,13 +31,13 @@ func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
 	}
 	baseURL := strings.TrimRight(bootstrapCfg.GetBaseUrl(), "/")
 	apiKey := bootstrapCfg.GetApiKey()
-	model := bootstrapCfg.GetModel()
+	modelName := bootstrapCfg.GetModel()
 	// 启动配置不完整时，保持客户端关闭状态。
-	if baseURL == "" || apiKey == "" || model == "" {
+	if baseURL == "" || apiKey == "" || modelName == "" {
 		return client
 	}
-	client.name = model
-	client.BaseChatModel = agentopenai.NewResponses(model, agentopenai.ResponsesConfig{
+	client.name = modelName
+	client.BaseChatModel = agentopenai.NewChatCompletions(modelName, agentopenai.ChatCompletionsConfig{
 		BaseURL:         baseURL,
 		APIKey:          apiKey,
 		MaxOutputTokens: bootstrapCfg.GetMaxOutputTokens(),
