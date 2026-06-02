@@ -132,7 +132,7 @@ make gen
 当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/cloudwego/eino` 的消息与模型接口，并明确使用以下能力：
 
 - `context`：每轮调用会把当前终端、用户名称、会话标题、摘要和历史消息组装为 Eino 消息列表。
-- `tools`：AI 助手会从当前终端可用工具中挑选相关内部 function tool，并在需要时执行工具调用后回填结果。
+- `tools`：AI 助手启动时会注册 `api/gen/go` 下已生成的 admin / app Agent 工具，并从当前终端可用工具中挑选相关内部 function tool，在需要时执行工具调用后回填结果。
 - `web search`：AI 助手仍保留 Responses Provider 默认启用的 `web_search` 工具，用于补充公开实时信息。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合当前会话上下文渲染为系统消息。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮用户消息与助手消息，避免占用工作台共用 `/events` 流。

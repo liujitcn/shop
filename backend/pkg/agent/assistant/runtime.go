@@ -53,13 +53,13 @@ func NewRuntime(client *provider.ResponsesClient) *Runtime {
 	}
 }
 
-// SetTools 设置默认 AI 助手可执行的 Eino 工具列表。
-func (r *Runtime) SetTools(values []tool.InvokableTool) {
+// SetTerminalTools 设置不同终端 AI 助手可执行的 Eino 工具列表。
+func (r *Runtime) SetTerminalTools(adminValues []tool.InvokableTool, appValues []tool.InvokableTool) {
 	if r == nil {
 		return
 	}
-	r.adminTools = append([]tool.InvokableTool(nil), values...)
-	r.appTools = append([]tool.InvokableTool(nil), values...)
+	r.adminTools = append([]tool.InvokableTool(nil), adminValues...)
+	r.appTools = append([]tool.InvokableTool(nil), appValues...)
 }
 
 // Enabled 判断 AI 助手运行时是否可用。

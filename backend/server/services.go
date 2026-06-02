@@ -5,6 +5,8 @@ import (
 	"shop/service/admin"
 	"shop/service/app"
 	"shop/service/base"
+
+	"github.com/cloudwego/eino/components/tool"
 )
 
 // ServerServices 汇总 HTTP 与 MCP 需要注册的服务实例。
@@ -174,6 +176,17 @@ func NewServerServices(
 		file:                  file,
 		login:                 login,
 	}
-	assistantRuntime.SetTools(nil)
+	var err error
+	var adminTools []tool.InvokableTool
+	adminTools, err = newAdminAgentTools(services)
+	if err != nil {
+		return nil, err
+	}
+	var appTools []tool.InvokableTool
+	appTools, err = newAppAgentTools(services)
+	if err != nil {
+		return nil, err
+	}
+	assistantRuntime.SetTerminalTools(adminTools, appTools)
 	return services, nil
 }
