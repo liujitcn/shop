@@ -83,14 +83,14 @@ func ParseRecommend(cfg *configv1.ShopConfig) (*configv1.Recommend, error) {
 	return recommend, nil
 }
 
-// ParseLLM 解析大模型客户端配置。
-func ParseLLM(ctx *bootstrap.Context) *bootstrapConfigv1.Client_Llm {
+// ParseAIModel 解析大模型配置。
+func ParseAIModel(ctx *bootstrap.Context) *bootstrapConfigv1.AI_Model {
 	cfg := ctx.GetConfig()
-	// 未配置客户端大模型参数时，返回空配置并由客户端保持关闭状态。
-	if cfg == nil || cfg.GetClient() == nil || cfg.GetClient().GetLlm() == nil {
-		return &bootstrapConfigv1.Client_Llm{}
+	// 未配置大模型参数时，返回空配置并由客户端保持关闭状态。
+	if cfg == nil || cfg.GetAi() == nil || cfg.GetAi().GetModel() == nil {
+		return &bootstrapConfigv1.AI_Model{}
 	}
-	return cfg.GetClient().GetLlm()
+	return cfg.GetAi().GetModel()
 }
 
 // ParsePayTimeout 解析支付超时时间。

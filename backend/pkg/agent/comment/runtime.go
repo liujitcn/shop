@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"shop/pkg/agent/provider"
 
@@ -39,7 +40,7 @@ func NewRuntime(client *provider.ChatClient) *Runtime {
 
 // Enabled 判断评论智能体是否可用。
 func (r *Runtime) Enabled() bool {
-	return r != nil && r.client != nil && r.client.BaseChatModel != nil
+	return r != nil && r.client != nil && r.client.AgenticModel != nil
 }
 
 // Model 返回评论智能体当前使用的模型名称。
@@ -54,7 +55,7 @@ func (r *Runtime) Model() string {
 func (r *Runtime) generateStructured(
 	ctx context.Context,
 	instruction string,
-	parts []schema.MessageInputPart,
+	parts []*schema.ContentBlock,
 	outputSchema *jsonschema.Schema,
 	out any,
 ) error {
@@ -71,11 +72,11 @@ func (r *Runtime) generateStructured(
 		return fmt.Errorf("agent structured output is nil")
 	}
 
-	messages := []*schema.Message{
-		schema.SystemMessage(instruction + "\n\n" + structuredOutputSchemaPrompt(outputSchema)),
+	messages := []*schema.AgenticMessage{
+		schema.SystemAgenticMessage(instruction + "\n\n" + structuredOutputSchemaPrompt(outputSchema)),
 		{
-			Role:                  schema.User,
-			UserInputMultiContent: parts,
+			Role:          schema.AgenticRoleTypeUser,
+			ContentBlocks: parts,
 		},
 	}
 	response, err := r.client.Generate(ctx, messages)
@@ -87,7 +88,7 @@ func (r *Runtime) generateStructured(
 		return fmt.Errorf("agent structured response is empty")
 	}
 
-	content := response.Content
+	content := agenticMessageText(response)
 	// 模型未返回 JSON 文本时，直接返回错误供调用方重试或降级。
 	if content == "" {
 		return fmt.Errorf("agent structured response content is empty")
@@ -97,6 +98,21 @@ func (r *Runtime) generateStructured(
 		return fmt.Errorf("decode agent structured response: %w", err)
 	}
 	return nil
+}
+
+// agenticMessageText 提取 Agentic 消息中的文本内容。
+func agenticMessageText(message *schema.AgenticMessage) string {
+	if message == nil {
+		return ""
+	}
+	parts := make([]string, 0, len(message.ContentBlocks))
+	for _, item := range message.ContentBlocks {
+		if item == nil || item.AssistantGenText == nil || item.AssistantGenText.Text == "" {
+			continue
+		}
+		parts = append(parts, item.AssistantGenText.Text)
+	}
+	return strings.Join(parts, "")
 }
 
 // structuredOutputSchemaPrompt 构造结构化输出的 JSON Schema 文本约束。

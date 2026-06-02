@@ -34,7 +34,8 @@ backend
 | `configs/oss.yaml` | 本地文件存储根目录，默认 `./data`。 |
 | `configs/auth.yaml` | 登录认证、JWT、权限等基础配置。 |
 | `configs/configs.yaml` | 通用业务配置。 |
-| `configs/configs_local.yaml` | 本地微信、支付、推荐、大模型等业务配置。 |
+| `configs/configs_local.yaml` | 本地微信、支付、推荐等业务配置。 |
+| `configs/ai.yaml`、`configs/local.yaml` | 大模型默认配置与本地覆盖配置。 |
 | `configs/logger.yaml`、`trace.yaml`、`pprof.yaml`、`registry.yaml` | 日志、链路追踪、性能分析、注册中心相关配置。 |
 
 默认数据库连接在 `configs/data.yaml`：
@@ -131,7 +132,7 @@ make gen
 当前 `base` 公共接口内已包含 AI 助手接口，路径前缀为 `/api/v1/base/ai/assistant`。会话与消息会持久化到 `ai_assistant_session`、`ai_assistant_message` 两张表；对话主链已经切到 `github.com/cloudwego/eino` 的消息与模型接口，并明确使用以下能力：
 
 - `context`：每轮调用会把当前终端、用户名称、会话标题、摘要和历史消息组装为 Eino 消息列表。
-- `tools`：当前 Responses 网关携带内部 function tools 时持续返回 503，AI 助手暂不挂载系统内部工具，先保留普通对话和联网搜索链路。
+- `tools`：AI 助手会从当前终端可用工具中挑选相关内部 function tool，并在需要时执行工具调用后回填结果。
 - `web search`：AI 助手仍保留 Responses Provider 默认启用的 `web_search` 工具，用于补充公开实时信息。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合当前会话上下文渲染为系统消息。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮用户消息与助手消息，避免占用工作台共用 `/events` 流。
@@ -140,9 +141,9 @@ make gen
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。
 
-当前阶段助手主流程暂不向 Responses 请求携带内部 function tools，避免兼容网关返回 503 影响普通对话。消息结构仍会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
+消息结构会返回回复来源、模型名、是否降级和降级原因；未配置模型或模型调用失败时会明确回退为本地兜底回复。管理端附件会先走 `/api/v1/base/file/multi` 上传到 OSS，再由 AI 助手在服务端读取图片附件字节作为多模态视觉输入，文本、JSON、XML、CSV 类附件内容会直接拼入当前用户消息供模型参考。
 
-AI 助手默认使用 `pkg/agent/openai` 内基于 OpenAI 官方 SDK 的 Responses Provider，并启用 Responses 内置 `web_search` 工具；`pkg/agent/provider` 只负责按配置装配客户端。当前使用的 Responses 网关不支持 HTTP `previous_response_id + function_call_output` 回填，且携带内部 function tools 时会返回 503，因此当前助手请求不挂载系统内部工具，只保留普通 Responses 回复和内置联网搜索补充上下文。该能力要求配置的 `baseUrl` 支持 OpenAI 兼容 Responses API，普通 OpenAI-compatible Chat Completions 代理可能不支持 `/responses`。
+AI 助手默认通过 `github.com/liujitcn/kratos-kit/ai/eino` 创建 OpenAI Responses AgenticModel，并启用 Responses 内置 `web_search` 服务端工具；评论审核与摘要通过同一组件创建 OpenAI Chat Completions AgenticModel。该能力要求配置的 `ai.model.cloud.baseUrl` 支持 OpenAI 兼容接口；AI 助手使用 `/responses`，普通只兼容 Chat Completions 的代理可能不支持。
 
 ## MCP 工具暴露
 
@@ -194,9 +195,9 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型连接配置在 `configs/client_local.yaml` 的 `client.llm` 下；评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，避免评论审核链路触发当前网关的 Responses structured output 503；AI 助手继续使用 Responses API。`client.llm.reasoningEffort` 默认设为 `high`，评价审核、摘要会通过 Chat Completions 的 `reasoning_effort` 传递，AI 助手会通过 Responses 原生 `reasoning.effort` 传递；`maxOutputTokens`、`temperature`、`topP` 也会传给对应模型接口，`seed`、`frequencyPenalty`、`presencePenalty` 目前不再进入 Eino 模型链路，具体参数以 OpenAI 兼容中转实际支持为准，可通过 `extraFields` 显式透传兼容字段。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型默认配置在 `configs/ai.yaml` 的顶层 `ai.model` 下，本地覆盖配置放在 `configs/local.yaml`。评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，AI 助手使用 Responses API。`modelName`、`maxTokens`、`temperature`、`timeoutSeconds`、`maxRetries` 会传给对应模型接口。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
-`pkg/agent/provider` 中评论 Chat 模型和 AI 助手 Responses 模型都使用 `pkg/agent/openai` 内基于 Eino 模型接口和 OpenAI 官方 SDK 的 provider 装配。
+`pkg/agent/provider` 只负责读取 `ai.model` 并调用 `github.com/liujitcn/kratos-kit/ai/eino` 装配评论 Chat 模型和 AI 助手 Responses 模型。
 
 ## 设计文档
 

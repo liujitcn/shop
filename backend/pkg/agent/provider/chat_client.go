@@ -1,17 +1,17 @@
 package provider
 
 import (
-	"strings"
-
-	agentopenai "shop/pkg/agent/openai"
+	"context"
+	"fmt"
 
 	"github.com/cloudwego/eino/components/model"
+	aiEino "github.com/liujitcn/kratos-kit/ai/eino"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // ChatClient 表示智能体对话模型客户端。
 type ChatClient struct {
-	model.BaseChatModel
+	model.AgenticModel
 	name string
 }
 
@@ -24,27 +24,16 @@ func (c *ChatClient) Name() string {
 }
 
 // NewChatClient 创建评论审核与摘要专用聊天模型客户端。
-func NewChatClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ChatClient {
+func NewChatClient(modelCfg *bootstrapConfigv1.AI_Model) *ChatClient {
 	client := &ChatClient{}
-	if bootstrapCfg == nil {
+	if !aiModelConfigured(modelCfg) {
 		return client
 	}
-	baseURL := strings.TrimRight(bootstrapCfg.GetBaseUrl(), "/")
-	apiKey := bootstrapCfg.GetApiKey()
-	modelName := bootstrapCfg.GetModel()
-	// 启动配置不完整时，保持客户端关闭状态。
-	if baseURL == "" || apiKey == "" || modelName == "" {
-		return client
+	agenticModel, err := aiEino.NewChatModel(context.Background(), modelCfg)
+	if err != nil {
+		panic(fmt.Errorf("创建评论智能体模型失败: %w", err))
 	}
-	client.name = modelName
-	client.BaseChatModel = agentopenai.NewChatCompletions(modelName, agentopenai.ChatCompletionsConfig{
-		BaseURL:         baseURL,
-		APIKey:          apiKey,
-		MaxOutputTokens: bootstrapCfg.GetMaxOutputTokens(),
-		Temperature:     bootstrapCfg.GetTemperature(),
-		TopP:            bootstrapCfg.GetTopP(),
-		ExtraFields:     llmExtraFields(bootstrapCfg),
-		ReasoningEffort: llmReasoningEffort(bootstrapCfg),
-	})
+	client.name = modelCfg.GetModelName()
+	client.AgenticModel = agenticModel
 	return client
 }

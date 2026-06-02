@@ -1,17 +1,17 @@
 package provider
 
 import (
-	"strings"
-
-	agentopenai "shop/pkg/agent/openai"
+	"context"
+	"fmt"
 
 	"github.com/cloudwego/eino/components/model"
+	aiEino "github.com/liujitcn/kratos-kit/ai/eino"
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 )
 
 // ResponsesClient 表示 AI 助手专用 Responses 模型客户端。
 type ResponsesClient struct {
-	model.BaseChatModel
+	model.AgenticModel
 	name string
 }
 
@@ -24,28 +24,16 @@ func (c *ResponsesClient) Name() string {
 }
 
 // NewResponsesClient 创建 AI 助手专用 Responses 模型客户端。
-func NewResponsesClient(bootstrapCfg *bootstrapConfigv1.Client_Llm) *ResponsesClient {
+func NewResponsesClient(modelCfg *bootstrapConfigv1.AI_Model) *ResponsesClient {
 	client := &ResponsesClient{}
-	if bootstrapCfg == nil {
+	if !aiModelConfigured(modelCfg) {
 		return client
 	}
-	baseURL := strings.TrimRight(bootstrapCfg.GetBaseUrl(), "/")
-	apiKey := bootstrapCfg.GetApiKey()
-	modelName := bootstrapCfg.GetModel()
-	// 启动配置不完整时，保持客户端关闭状态。
-	if baseURL == "" || apiKey == "" || modelName == "" {
-		return client
+	agenticModel, err := aiEino.NewResponsesModel(context.Background(), modelCfg)
+	if err != nil {
+		panic(fmt.Errorf("创建 AI 助手 Responses 模型失败: %w", err))
 	}
-	client.name = modelName
-	client.BaseChatModel = agentopenai.NewResponses(modelName, agentopenai.ResponsesConfig{
-		BaseURL:         baseURL,
-		APIKey:          apiKey,
-		MaxOutputTokens: bootstrapCfg.GetMaxOutputTokens(),
-		Temperature:     bootstrapCfg.GetTemperature(),
-		TopP:            bootstrapCfg.GetTopP(),
-		ExtraFields:     llmExtraFields(bootstrapCfg),
-		ReasoningEffort: llmReasoningEffort(bootstrapCfg),
-		EnableWebSearch: true,
-	})
+	client.name = modelCfg.GetModelName()
+	client.AgenticModel = agenticModel
 	return client
 }

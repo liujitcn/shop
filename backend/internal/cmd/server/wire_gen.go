@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/agent/assistant"
 	"shop/pkg/agent/comment"
 	"shop/pkg/agent/provider"
@@ -27,17 +34,10 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -207,8 +207,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
-	client_Llm := config.ParseLLM(context)
-	chatClient := provider.NewChatClient(client_Llm)
+	ai_Model := config.ParseAIModel(context)
+	chatClient := provider.NewChatClient(ai_Model)
 	runtime := comment.NewRuntime(chatClient)
 	commentCase := biz2.NewCommentCase(baseCase, transaction, commentInfoCase, commentSummaryCase, commentTagCase, commentReviewCase, commentDiscussionCase, commentReactionCase, orderInfoCase, orderGoodsCase, baseUserCase, runtime)
 	commentAuditRetry := task.NewCommentAuditRetry(commentCase, commentInfoCase, commentDiscussionCase, commentReviewCase)
@@ -376,7 +376,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	aiAssistantMessageRepository := data.NewAiAssistantMessageRepository(dataData)
 	aiAssistantSessionCase := biz4.NewAiAssistantSessionCase(baseCase, transaction, aiAssistantSessionRepository, aiAssistantMessageRepository)
 	baseUserCase2 := biz4.NewBaseUserCase(baseUserRepository)
-	responsesClient := provider.NewResponsesClient(client_Llm)
+	responsesClient := provider.NewResponsesClient(ai_Model)
 	assistantRuntime := assistant.NewRuntime(responsesClient)
 	aiAssistantMessageCase := biz4.NewAiAssistantMessageCase(baseCase, transaction, aiAssistantMessageRepository, aiAssistantSessionCase, baseUserCase2, assistantRuntime)
 	aiAssistantService := base.NewAiAssistantService(aiAssistantSessionCase, aiAssistantMessageCase)

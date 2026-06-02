@@ -13,9 +13,11 @@ import (
 
 	"shop/pkg/agent/provider"
 
+	"github.com/cloudwego/eino-ext/components/model/agenticopenai"
 	"github.com/cloudwego/eino/components/model"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
+	"github.com/openai/openai-go/v3/responses"
 )
 
 const (
@@ -62,7 +64,7 @@ func (r *Runtime) SetTools(values []tool.InvokableTool) {
 
 // Enabled 判断 AI 助手运行时是否可用。
 func (r *Runtime) Enabled() bool {
-	return r != nil && r.client != nil && r.client.BaseChatModel != nil
+	return r != nil && r.client != nil && r.client.AgenticModel != nil
 }
 
 // Model 返回 AI 助手当前使用的模型名称。
@@ -118,7 +120,7 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	defer reader.Close()
 
 	var content strings.Builder
-	var finalMessage *schema.Message
+	chunks := make([]*schema.AgenticMessage, 0)
 	for {
 		chunk, recvErr := reader.Recv()
 		if errors.Is(recvErr, io.EOF) {
@@ -130,10 +132,7 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		if chunk == nil {
 			continue
 		}
-		if isStreamFinalMessage(chunk) {
-			finalMessage = chunk
-			continue
-		}
+		chunks = append(chunks, chunk)
 		text := runtimeMessageText(chunk)
 		if text == "" {
 			continue
@@ -143,57 +142,63 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 			onDelta(text)
 		}
 	}
+	finalMessage, err := schema.ConcatAgenticMessages(chunks)
+	if err != nil {
+		return nil, err
+	}
 	if finalMessage == nil {
 		if content.Len() == 0 {
 			return nil, fmt.Errorf("ai assistant response is empty")
 		}
-		finalMessage = schema.AssistantMessage(content.String(), nil)
+		finalMessage = assistantAgenticMessage(content.String())
 	}
-	if finalMessage.Content == "" && content.Len() > 0 {
-		finalMessage.Content = content.String()
+	if runtimeMessageText(finalMessage) == "" && content.Len() > 0 {
+		finalMessage = assistantAgenticMessage(content.String())
 	}
 	return r.buildResponse(finalMessage), nil
 }
 
 // runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
-func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*schema.Message) (*schema.Message, error) {
-	currentMessages := append([]*schema.Message(nil), messages...)
+func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*schema.AgenticMessage) (*schema.AgenticMessage, error) {
+	currentMessages := append([]*schema.AgenticMessage(nil), messages...)
 	output, err := r.client.Generate(ctx, currentMessages, r.modelOptions(ctx, input)...)
 	if err != nil {
 		return nil, err
 	}
-	if output == nil || len(output.ToolCalls) == 0 {
+	toolCalls := agenticToolCalls(output)
+	if len(toolCalls) == 0 {
 		return output, nil
 	}
 	currentMessages = append(currentMessages, output)
-	toolOutputs := r.executeToolCalls(ctx, input, output.ToolCalls)
+	toolOutputs := r.executeToolCalls(ctx, input, toolCalls)
 	currentMessages = append(currentMessages, toolOutputs...)
 	return r.client.Generate(ctx, currentMessages)
 }
 
 // runToolCalls 以 stateless 方式执行模型工具调用。
-func (r *Runtime) runToolCalls(ctx context.Context, input RuntimeInput, messages []*schema.Message) ([]*schema.Message, bool, error) {
-	currentMessages := append([]*schema.Message(nil), messages...)
+func (r *Runtime) runToolCalls(ctx context.Context, input RuntimeInput, messages []*schema.AgenticMessage) ([]*schema.AgenticMessage, bool, error) {
+	currentMessages := append([]*schema.AgenticMessage(nil), messages...)
 	output, err := r.client.Generate(ctx, currentMessages, r.modelOptions(ctx, input)...)
 	if err != nil {
 		return nil, false, err
 	}
-	if output == nil || len(output.ToolCalls) == 0 {
+	toolCalls := agenticToolCalls(output)
+	if len(toolCalls) == 0 {
 		return currentMessages, false, nil
 	}
 	currentMessages = append(currentMessages, output)
-	toolOutputs := r.executeToolCalls(ctx, input, output.ToolCalls)
+	toolOutputs := r.executeToolCalls(ctx, input, toolCalls)
 	currentMessages = append(currentMessages, toolOutputs...)
 	return currentMessages, true, nil
 }
 
 // executeToolCalls 执行一组 Eino 工具调用并构造 tool message。
-func (r *Runtime) executeToolCalls(ctx context.Context, input RuntimeInput, calls []schema.ToolCall) []*schema.Message {
+func (r *Runtime) executeToolCalls(ctx context.Context, input RuntimeInput, calls []schema.ToolCall) []*schema.AgenticMessage {
 	toolMap := r.toolMap(ctx, input)
-	messages := make([]*schema.Message, 0, len(calls))
+	messages := make([]*schema.AgenticMessage, 0, len(calls))
 	for _, call := range calls {
 		content := r.executeToolCall(ctx, toolMap, call)
-		messages = append(messages, schema.ToolMessage(content, call.ID, schema.WithToolName(call.Function.Name)))
+		messages = append(messages, functionToolResultAgenticMessage(call.ID, call.Function.Name, content))
 	}
 	return messages
 }
@@ -218,9 +223,11 @@ func (r *Runtime) executeToolCall(ctx context.Context, toolMap map[string]tool.I
 func (r *Runtime) modelOptions(ctx context.Context, input RuntimeInput) []model.Option {
 	toolInfos := r.toolInfos(ctx, input)
 	if len(toolInfos) == 0 {
-		return nil
+		return responsesServerToolOptions()
 	}
-	return []model.Option{model.WithTools(toolInfos)}
+	options := []model.Option{model.WithTools(toolInfos)}
+	options = append(options, responsesServerToolOptions()...)
+	return options
 }
 
 // toolInfos 收集可传给模型的工具定义。
@@ -439,8 +446,8 @@ func (r *Runtime) terminalTools(terminal string) []tool.InvokableTool {
 }
 
 // buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
-func (r *Runtime) buildMessages(input RuntimeInput) []*schema.Message {
-	messages := []*schema.Message{schema.SystemMessage(r.resolvePrompt(input))}
+func (r *Runtime) buildMessages(input RuntimeInput) []*schema.AgenticMessage {
+	messages := []*schema.AgenticMessage{schema.SystemAgenticMessage(r.resolvePrompt(input))}
 	for _, item := range input.History {
 		if item.Content == "" {
 			continue
@@ -452,15 +459,15 @@ func (r *Runtime) buildMessages(input RuntimeInput) []*schema.Message {
 }
 
 // buildHistoryMessage 按消息角色追加历史上下文。
-func buildHistoryMessage(role string, content string) *schema.Message {
+func buildHistoryMessage(role string, content string) *schema.AgenticMessage {
 	// 历史角色需要还原到 Eino 原生消息类型，未知角色按用户消息处理以兼容旧数据。
 	switch strings.ToLower(role) {
 	case RoleAssistant:
-		return schema.AssistantMessage(content, nil)
+		return assistantAgenticMessage(content)
 	case RoleSystem:
-		return schema.SystemMessage(content)
+		return schema.SystemAgenticMessage(content)
 	default:
-		return schema.UserMessage(content)
+		return schema.UserAgenticMessage(content)
 	}
 }
 
@@ -482,10 +489,10 @@ func (r *Runtime) resolvePrompt(input RuntimeInput) string {
 }
 
 // buildUserMessage 构建当前轮次发送给模型的用户消息。
-func (r *Runtime) buildUserMessage(input RuntimeInput) *schema.Message {
+func (r *Runtime) buildUserMessage(input RuntimeInput) *schema.AgenticMessage {
 	content := input.Content
 	attachmentLines := make([]string, 0, len(input.Attachments)*2)
-	imageParts := make([]schema.MessageInputPart, 0, len(input.Attachments))
+	imageBlocks := make([]*schema.ContentBlock, 0, len(input.Attachments))
 
 	for _, item := range input.Attachments {
 		attachmentContent := item.Content
@@ -499,7 +506,7 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *schema.Message {
 				continue
 			}
 			attachmentLines = append(attachmentLines, fmt.Sprintf("图片附件《%s》已作为视觉输入提供给模型。", name))
-			imageParts = append(imageParts, buildImageInputPart(item.Bytes, cleanMIMEType))
+			imageBlocks = append(imageBlocks, buildImageInputBlock(item.Bytes, cleanMIMEType))
 			continue
 		}
 
@@ -513,25 +520,20 @@ func (r *Runtime) buildUserMessage(input RuntimeInput) *schema.Message {
 		attachmentLines = append(attachmentLines, buildAttachmentDetailLine(name, item))
 	}
 
-	if len(attachmentLines) == 0 && len(imageParts) == 0 {
-		return schema.UserMessage(content)
+	if len(attachmentLines) == 0 && len(imageBlocks) == 0 {
+		return schema.UserAgenticMessage(content)
 	}
-	return buildUserMessageParts(content, attachmentLines, imageParts)
+	return buildUserMessageParts(content, attachmentLines, imageBlocks)
 }
 
-// buildImageInputPart 构造 Eino 图片输入片段。
-func buildImageInputPart(data []byte, mimeType string) schema.MessageInputPart {
+// buildImageInputBlock 构造 Eino 图片输入片段。
+func buildImageInputBlock(data []byte, mimeType string) *schema.ContentBlock {
 	base64Data := base64.StdEncoding.EncodeToString(data)
-	return schema.MessageInputPart{
-		Type: schema.ChatMessagePartTypeImageURL,
-		Image: &schema.MessageInputImage{
-			MessagePartCommon: schema.MessagePartCommon{
-				Base64Data: &base64Data,
-				MIMEType:   mimeType,
-			},
-			Detail: schema.ImageURLDetailAuto,
-		},
-	}
+	return schema.NewContentBlock(&schema.UserInputImage{
+		Base64Data: base64Data,
+		MIMEType:   mimeType,
+		Detail:     schema.ImageURLDetailAuto,
+	})
 }
 
 // normalizeAttachmentName 规范化模型提示词中展示的附件名称。
@@ -598,33 +600,30 @@ func buildAttachmentDetailLine(name string, item Attachment) string {
 }
 
 // buildUserMessageParts 合并文本提示和图片输入，形成 Eino 用户消息。
-func buildUserMessageParts(content string, attachmentLines []string, imageParts []schema.MessageInputPart) *schema.Message {
+func buildUserMessageParts(content string, attachmentLines []string, imageBlocks []*schema.ContentBlock) *schema.AgenticMessage {
 	textParts := []string{content}
 	// 附件说明统一追加到用户正文后，避免模型误以为附件内容来自系统指令。
 	if len(attachmentLines) > 0 {
 		textParts = append(textParts, "本轮消息附带以下附件内容，请在回答时按需参考：", strings.Join(attachmentLines, "\n\n"))
 	}
 
-	messageParts := make([]schema.MessageInputPart, 0, 1+len(imageParts))
+	contentBlocks := make([]*schema.ContentBlock, 0, 1+len(imageBlocks))
 	// 用户可能只上传图片不输入文本，空文本不传入 message parts。
 	if text := strings.Join(textParts, "\n\n"); text != "" {
-		messageParts = append(messageParts, schema.MessageInputPart{
-			Type: schema.ChatMessagePartTypeText,
-			Text: text,
-		})
+		contentBlocks = append(contentBlocks, schema.NewContentBlock(&schema.UserInputText{Text: text}))
 	}
-	messageParts = append(messageParts, imageParts...)
-	return &schema.Message{
-		Role:                  schema.User,
-		UserInputMultiContent: messageParts,
+	contentBlocks = append(contentBlocks, imageBlocks...)
+	return &schema.AgenticMessage{
+		Role:          schema.AgenticRoleTypeUser,
+		ContentBlocks: contentBlocks,
 	}
 }
 
 // buildResponse 将 Eino 消息收敛为业务层统一回复结构。
-func (r *Runtime) buildResponse(message *schema.Message) *Response {
+func (r *Runtime) buildResponse(message *schema.AgenticMessage) *Response {
 	tokenUsage := int64(0)
-	if message != nil && message.ResponseMeta != nil && message.ResponseMeta.Usage != nil {
-		tokenUsage = int64(message.ResponseMeta.Usage.TotalTokens)
+	if message != nil && message.ResponseMeta != nil && message.ResponseMeta.TokenUsage != nil {
+		tokenUsage = int64(message.ResponseMeta.TokenUsage.TotalTokens)
 	}
 	return &Response{
 		Content:        runtimeMessageText(message),
@@ -637,34 +636,23 @@ func (r *Runtime) buildResponse(message *schema.Message) *Response {
 }
 
 // runtimeMessageText 提取 Eino 消息中的文本内容。
-func runtimeMessageText(message *schema.Message) string {
+func runtimeMessageText(message *schema.AgenticMessage) string {
 	if message == nil {
 		return ""
 	}
-	parts := make([]string, 0, 1+len(message.AssistantGenMultiContent)+len(message.UserInputMultiContent))
-	if message.Content != "" {
-		parts = append(parts, message.Content)
-	}
-	for _, item := range message.AssistantGenMultiContent {
-		if item.Type == schema.ChatMessagePartTypeText && item.Text != "" {
-			parts = append(parts, item.Text)
+	parts := make([]string, 0, len(message.ContentBlocks))
+	for _, item := range message.ContentBlocks {
+		if item == nil {
+			continue
 		}
-	}
-	for _, item := range message.UserInputMultiContent {
-		if item.Type == schema.ChatMessagePartTypeText && item.Text != "" {
-			parts = append(parts, item.Text)
+		switch {
+		case item.AssistantGenText != nil && item.AssistantGenText.Text != "":
+			parts = append(parts, item.AssistantGenText.Text)
+		case item.UserInputText != nil && item.UserInputText.Text != "":
+			parts = append(parts, item.UserInputText.Text)
 		}
 	}
 	return strings.Join(parts, "\n")
-}
-
-// isStreamFinalMessage 判断流式消息是否为最终完整消息。
-func isStreamFinalMessage(message *schema.Message) bool {
-	if message == nil || len(message.Extra) == 0 {
-		return false
-	}
-	value, ok := message.Extra["stream_final"].(bool)
-	return ok && value
 }
 
 // marshalToolError 将工具执行错误转换为稳定 JSON 文本。
@@ -674,4 +662,68 @@ func marshalToolError(message string) string {
 		return `{"error":"tool execution failed"}`
 	}
 	return string(raw)
+}
+
+// agenticToolCalls 从 Agentic 消息中提取函数工具调用。
+func agenticToolCalls(message *schema.AgenticMessage) []schema.ToolCall {
+	if message == nil {
+		return nil
+	}
+	calls := make([]schema.ToolCall, 0, len(message.ContentBlocks))
+	for _, item := range message.ContentBlocks {
+		if item == nil || item.FunctionToolCall == nil {
+			continue
+		}
+		call := item.FunctionToolCall
+		calls = append(calls, schema.ToolCall{
+			ID: call.CallID,
+			Function: schema.FunctionCall{
+				Name:      call.Name,
+				Arguments: call.Arguments,
+			},
+		})
+	}
+	return calls
+}
+
+// functionToolResultAgenticMessage 构造函数工具执行结果消息。
+func functionToolResultAgenticMessage(callID string, name string, content string) *schema.AgenticMessage {
+	return &schema.AgenticMessage{
+		Role: schema.AgenticRoleTypeUser,
+		ContentBlocks: []*schema.ContentBlock{
+			schema.NewContentBlock(&schema.FunctionToolResult{
+				CallID: callID,
+				Name:   name,
+				Content: []*schema.FunctionToolResultContentBlock{
+					{
+						Type: schema.FunctionToolResultContentBlockTypeText,
+						Text: &schema.UserInputText{Text: content},
+					},
+				},
+			}),
+		},
+	}
+}
+
+// assistantAgenticMessage 构造助手文本消息。
+func assistantAgenticMessage(content string) *schema.AgenticMessage {
+	return &schema.AgenticMessage{
+		Role: schema.AgenticRoleTypeAssistant,
+		ContentBlocks: []*schema.ContentBlock{
+			schema.NewContentBlock(&schema.AssistantGenText{Text: content}),
+		},
+	}
+}
+
+// responsesServerToolOptions 构造 Responses 内置服务端工具选项。
+func responsesServerToolOptions() []model.Option {
+	return []model.Option{
+		agenticopenai.WithResponsesServerTools([]*agenticopenai.ResponsesServerToolConfig{
+			{
+				WebSearch: &responses.WebSearchToolParam{
+					Type: responses.WebSearchToolTypeWebSearch,
+				},
+			},
+		}),
+	}
 }

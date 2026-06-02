@@ -1,37 +1,19 @@
 package provider
 
-import (
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
-	"github.com/openai/openai-go/v3/shared"
-)
+import bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
-// llmExtraFields 返回大模型配置中需要透传的扩展字段。
-func llmExtraFields(bootstrapCfg *bootstrapConfigv1.Client_Llm) map[string]any {
-	if bootstrapCfg == nil || bootstrapCfg.GetExtraFields() == nil {
-		return nil
+// aiModelConfigured 判断大模型启动配置是否完整。
+func aiModelConfigured(modelCfg *bootstrapConfigv1.AI_Model) bool {
+	if modelCfg == nil || modelCfg.GetModelName() == "" {
+		return false
 	}
-	extraFields := bootstrapCfg.GetExtraFields().AsMap()
-	if len(extraFields) == 0 {
-		return nil
-	}
-	return extraFields
-}
-
-// llmReasoningEffort 返回 OpenAI SDK 支持的推理强度。
-func llmReasoningEffort(bootstrapCfg *bootstrapConfigv1.Client_Llm) shared.ReasoningEffort {
-	if bootstrapCfg == nil {
-		return ""
-	}
-	switch bootstrapCfg.GetReasoningEffort() {
-	case string(shared.ReasoningEffortMinimal):
-		return shared.ReasoningEffortMinimal
-	case string(shared.ReasoningEffortLow):
-		return shared.ReasoningEffortLow
-	case string(shared.ReasoningEffortMedium):
-		return shared.ReasoningEffortMedium
-	case string(shared.ReasoningEffortHigh):
-		return shared.ReasoningEffortHigh
+	switch modelCfg.GetType() {
+	case bootstrapConfigv1.AI_Model_CLOUD_MODEL:
+		cloud := modelCfg.GetCloud()
+		return cloud != nil && cloud.GetApiKey() != ""
+	case bootstrapConfigv1.AI_Model_LOCAL_MODEL:
+		return modelCfg.GetLocal() != nil
 	default:
-		return ""
+		return false
 	}
 }

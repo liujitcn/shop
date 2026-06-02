@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/cloudwego/eino v0.9.2
+	github.com/cloudwego/eino-ext/components/model/agenticopenai v0.2.1
 	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.10.0
 	github.com/google/gnostic v0.7.1
@@ -17,7 +18,8 @@ require (
 	github.com/liujitcn/go-utils/http v0.0.3
 	github.com/liujitcn/gorm-kit v0.0.28
 	github.com/liujitcn/kratos-kit v0.0.31
-	github.com/liujitcn/kratos-kit/api v0.0.13
+	github.com/liujitcn/kratos-kit/ai/eino v0.0.1
+	github.com/liujitcn/kratos-kit/api v0.0.15
 	github.com/liujitcn/kratos-kit/auth v0.0.12
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.11
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.8
@@ -32,7 +34,7 @@ require (
 	github.com/liujitcn/kratos-kit/oss v0.0.9
 	github.com/liujitcn/kratos-kit/pprof v0.0.7
 	github.com/liujitcn/kratos-kit/queue v0.0.15
-	github.com/liujitcn/kratos-kit/rpc v0.0.10
+	github.com/liujitcn/kratos-kit/rpc v0.0.11
 	github.com/liujitcn/kratos-kit/swagger-ui v0.0.4
 	github.com/liujitcn/kratos-kit/transport/cron v0.0.5
 	github.com/liujitcn/kratos-kit/transport/mcp v0.0.7
@@ -40,7 +42,7 @@ require (
 	github.com/liujitcn/kratos-kit/utils v0.0.12
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
-	github.com/openai/openai-go/v3 v3.8.1
+	github.com/openai/openai-go/v3 v3.35.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.21
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0
@@ -59,6 +61,8 @@ require (
 	cel.dev/expr v0.25.1 // indirect
 	dario.cat/mergo v1.0.0 // indirect
 	filippo.io/edwards25519 v1.2.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.17.0 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/internal v1.10.0 // indirect
 	github.com/ClickHouse/ch-go v0.61.5 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.30.0 // indirect
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.2+incompatible // indirect
@@ -79,8 +83,10 @@ require (
 	github.com/clipperhouse/displaywidth v0.10.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260527084435-846f52bd97c6 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
+	github.com/evanphx/json-patch v0.5.2 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -92,6 +98,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/form/v4 v4.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
@@ -142,6 +149,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
+	github.com/meguminnnnnnnnn/go-openai v0.1.2 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.1.0 // indirect
