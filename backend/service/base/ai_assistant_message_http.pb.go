@@ -29,9 +29,9 @@ const OperationAiAssistantMessageServiceSendAiAssistantMessage = "/base.v1.AiAss
 type AiAssistantMessageServiceHTTPServer interface {
 	// DeleteAiAssistantMessage 删除 AI 助手消息。
 	DeleteAiAssistantMessage(context.Context, *basev1.DeleteAiAssistantMessageRequest) (*basev1.DeleteAiAssistantMessageResponse, error)
-	// RegenerateAiAssistantMessage 重新生成助手回复。
+	// RegenerateAiAssistantMessage 重新生成 AI 助手输出。
 	RegenerateAiAssistantMessage(context.Context, *basev1.RegenerateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error)
-	// RetryAiAssistantUserMessage 重试失败的用户消息。
+	// RetryAiAssistantUserMessage 重试失败的 AI 助手消息。
 	RetryAiAssistantUserMessage(context.Context, *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error)
 	// StreamAiAssistantMessage 流式发送 AI 助手消息。
 	StreamAiAssistantMessage(context.Context, *basev1.SendAiAssistantMessageRequest, dto.AiAssistantStreamEmitter) error
@@ -104,7 +104,7 @@ func _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv AiAss
 	}
 }
 
-// _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler 处理失败用户消息重试请求。
+// _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler 处理失败消息重试请求。
 func _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx kratosHTTP.Context) error {
 	return func(ctx kratosHTTP.Context) error {
 		var in basev1.RetryAiAssistantUserMessageRequest
@@ -129,7 +129,7 @@ func _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler(srv Ai
 	}
 }
 
-// _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler 处理助手回复重新生成请求。
+// _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler 处理 AI 助手输出重新生成请求。
 func _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx kratosHTTP.Context) error {
 	return func(ctx kratosHTTP.Context) error {
 		var in basev1.RegenerateAiAssistantMessageRequest

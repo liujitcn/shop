@@ -8,8 +8,15 @@ import (
 	basev1 "shop/api/gen/go/base/v1"
 )
 
-// replyPayload 表示助手回复落库 JSON 结构。
-type replyPayload struct {
+// InputContentPayload 表示 AI 助手用户输入内容 JSON 结构。
+type InputContentPayload struct {
+	Kind    string `json:"kind"`
+	Content string `json:"content"`
+}
+
+// OutputContentPayload 表示 AI 助手输出内容 JSON 结构。
+type OutputContentPayload struct {
+	Kind           string `json:"kind"`
 	Content        string `json:"content"`
 	ReplySource    string `json:"reply_source"`
 	Model          string `json:"model"`
@@ -28,6 +35,72 @@ func BuildUserContent(content string, attachments []*basev1.AiAssistantAttachmen
 		return ""
 	}
 	return "请结合附件内容继续分析"
+}
+
+// MarshalInputContentPayload 序列化 AI 助手输入内容。
+func MarshalInputContentPayload(payload InputContentPayload) string {
+	if payload.Kind == "" {
+		payload.Kind = KindText
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return `{"kind":"text","content":""}`
+	}
+	return string(raw)
+}
+
+// ParseInputContent 解析 AI 助手输入内容。
+func ParseInputContent(raw string) InputContentPayload {
+	payload := InputContentPayload{Kind: KindText}
+	if raw == "" {
+		return payload
+	}
+	err := json.Unmarshal([]byte(raw), &payload)
+	if err != nil {
+		payload.Content = raw
+		return payload
+	}
+	if payload.Kind == "" {
+		payload.Kind = KindText
+	}
+	return payload
+}
+
+// MarshalInputContent 序列化用户输入内容。
+func MarshalInputContent(content string, attachments []*basev1.AiAssistantAttachment) string {
+	return MarshalInputContentPayload(InputContentPayload{
+		Kind:    KindText,
+		Content: BuildUserContent(content, attachments),
+	})
+}
+
+// MarshalOutputContentPayload 序列化 AI 助手输出内容。
+func MarshalOutputContentPayload(payload OutputContentPayload) string {
+	if payload.Kind == "" {
+		payload.Kind = KindText
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return `{"kind":"text","content":""}`
+	}
+	return string(raw)
+}
+
+// ParseOutputContent 解析 AI 助手输出内容。
+func ParseOutputContent(raw string) OutputContentPayload {
+	payload := OutputContentPayload{Kind: KindText}
+	if raw == "" {
+		return payload
+	}
+	err := json.Unmarshal([]byte(raw), &payload)
+	if err != nil {
+		payload.Content = raw
+		return payload
+	}
+	if payload.Kind == "" {
+		payload.Kind = KindText
+	}
+	return payload
 }
 
 // BuildFallbackReply 生成模型不可用时的本地降级回复。
@@ -79,7 +152,8 @@ func MarshalReplyContent(response *Response) string {
 	if response == nil {
 		return ""
 	}
-	payload := replyPayload{
+	payload := OutputContentPayload{
+		Kind:           KindText,
 		Content:        response.Content,
 		ReplySource:    response.Source,
 		Model:          response.Model,
@@ -94,39 +168,9 @@ func MarshalReplyContent(response *Response) string {
 	return string(raw)
 }
 
-// ParseReplyContent 从落库内容中解析助手回复正文。
-func ParseReplyContent(raw string) string {
-	// 空内容直接返回，兼容历史空消息。
-	if raw == "" {
-		return ""
-	}
-	payload := replyPayload{}
-	err := json.Unmarshal([]byte(raw), &payload)
-	// 兼容旧版本直接存纯文本的助手消息。
-	if err != nil {
-		return raw
-	}
-	return payload.Content
-}
-
-// ParseReplyMeta 从落库内容中解析助手回复元信息。
-func ParseReplyMeta(raw string) ReplyMeta {
-	meta := ReplyMeta{}
-	// 空内容没有元信息，前端按普通助手消息展示。
-	if raw == "" {
-		return meta
-	}
-	payload := replyPayload{}
-	err := json.Unmarshal([]byte(raw), &payload)
-	// 纯文本历史消息没有元信息，返回零值即可。
-	if err != nil {
-		return meta
-	}
-	meta.ReplySource = payload.ReplySource
-	meta.Model = payload.Model
-	meta.Fallback = payload.Fallback
-	meta.FallbackReason = payload.FallbackReason
-	return meta
+// MarshalEmptyOutputContent 序列化空助手输出内容。
+func MarshalEmptyOutputContent() string {
+	return MarshalOutputContentPayload(OutputContentPayload{Kind: KindText})
 }
 
 // MarshalTools 序列化 AI 助手工具使用记录。
@@ -159,4 +203,26 @@ func ParseTools(raw string) []ToolUsage {
 		result = append(result, item)
 	}
 	return result
+}
+
+// MarshalTokenUsage 序列化 AI 助手 token 统计。
+func MarshalTokenUsage(token TokenUsage) string {
+	raw, err := json.Marshal(token)
+	if err != nil {
+		return `{"input":0,"output":0,"cache":0,"total":0}`
+	}
+	return string(raw)
+}
+
+// ParseTokenUsage 解析 AI 助手 token 统计。
+func ParseTokenUsage(raw string) TokenUsage {
+	if raw == "" {
+		return TokenUsage{}
+	}
+	token := TokenUsage{}
+	err := json.Unmarshal([]byte(raw), &token)
+	if err != nil {
+		return TokenUsage{}
+	}
+	return token
 }

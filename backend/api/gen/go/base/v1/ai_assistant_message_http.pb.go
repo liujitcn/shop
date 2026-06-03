@@ -28,9 +28,9 @@ const OperationAiAssistantMessageServiceSendAiAssistantMessage = "/base.v1.AiAss
 type AiAssistantMessageServiceHTTPServer interface {
 	// DeleteAiAssistantMessage 删除 AI 助手消息
 	DeleteAiAssistantMessage(context.Context, *DeleteAiAssistantMessageRequest) (*DeleteAiAssistantMessageResponse, error)
-	// RegenerateAiAssistantMessage 重新生成助手回复
+	// RegenerateAiAssistantMessage 重新生成 AI 助手输出
 	RegenerateAiAssistantMessage(context.Context, *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
-	// RetryAiAssistantUserMessage 重试失败的用户消息
+	// RetryAiAssistantUserMessage 重试失败的 AI 助手消息
 	RetryAiAssistantUserMessage(context.Context, *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
@@ -144,9 +144,9 @@ func _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler(srv A
 type AiAssistantMessageServiceHTTPClient interface {
 	// DeleteAiAssistantMessage 删除 AI 助手消息
 	DeleteAiAssistantMessage(ctx context.Context, req *DeleteAiAssistantMessageRequest, opts ...http.CallOption) (rsp *DeleteAiAssistantMessageResponse, err error)
-	// RegenerateAiAssistantMessage 重新生成助手回复
+	// RegenerateAiAssistantMessage 重新生成 AI 助手输出
 	RegenerateAiAssistantMessage(ctx context.Context, req *RegenerateAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
-	// RetryAiAssistantUserMessage 重试失败的用户消息
+	// RetryAiAssistantUserMessage 重试失败的 AI 助手消息
 	RetryAiAssistantUserMessage(ctx context.Context, req *RetryAiAssistantUserMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(ctx context.Context, req *SendAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
@@ -174,7 +174,7 @@ func (c *AiAssistantMessageServiceHTTPClientImpl) DeleteAiAssistantMessage(ctx c
 	return &out, nil
 }
 
-// RegenerateAiAssistantMessage 重新生成助手回复
+// RegenerateAiAssistantMessage 重新生成 AI 助手输出
 func (c *AiAssistantMessageServiceHTTPClientImpl) RegenerateAiAssistantMessage(ctx context.Context, in *RegenerateAiAssistantMessageRequest, opts ...http.CallOption) (*SendAiAssistantMessageResponse, error) {
 	var out SendAiAssistantMessageResponse
 	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regeneration"
@@ -188,7 +188,7 @@ func (c *AiAssistantMessageServiceHTTPClientImpl) RegenerateAiAssistantMessage(c
 	return &out, nil
 }
 
-// RetryAiAssistantUserMessage 重试失败的用户消息
+// RetryAiAssistantUserMessage 重试失败的 AI 助手消息
 func (c *AiAssistantMessageServiceHTTPClientImpl) RetryAiAssistantUserMessage(ctx context.Context, in *RetryAiAssistantUserMessageRequest, opts ...http.CallOption) (*SendAiAssistantMessageResponse, error) {
 	var out SendAiAssistantMessageResponse
 	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry"

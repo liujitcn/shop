@@ -1,4 +1,11 @@
-import { type AiAssistantAttachment, type AiAssistantMessage, type AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
+import {
+  type AiAssistantAttachment,
+  type AiAssistantInputContent,
+  type AiAssistantMessage,
+  type AiAssistantOutputContent,
+  type AiAssistantSession,
+  type AiAssistantToken
+} from "@/rpc/base/v1/ai_assistant_session";
 import { AiAssistantMessageStatus } from "@/rpc/common/v1/enum";
 import { Terminal } from "@/rpc/common/v1/enum";
 import type { AiAssistantStreamPayload, ChatMessageItem, ReplySourceTag } from "./types";
@@ -37,7 +44,6 @@ export function normalizeSession(session?: Partial<AiAssistantSession> | null): 
     id: String(session?.id ?? ""),
     title: String(session?.title ?? "新对话"),
     summary: String(session?.summary ?? ""),
-    tool_count: Number(session?.tool_count ?? 0),
     updated_at: session?.updated_at,
     terminal: Number(session?.terminal ?? Terminal.TERMINAL_ADMIN)
   };
@@ -50,10 +56,10 @@ export function normalizeSessionList(list?: AiAssistantSession[] | null) {
 }
 
 /** 生成回复来源标签。 */
-export function resolveReplySourceTag(message: AiAssistantMessage): ReplySourceTag | undefined {
-  if (message.role === "user") return undefined;
-  if (message.fallback) return { text: "降级回复", tone: "warning" };
-  switch (String(message.reply_source ?? "")) {
+export function resolveReplySourceTag(item: Pick<ChatMessageItem, "role" | "fallback" | "reply_source" | "model">): ReplySourceTag | undefined {
+  if (item.role === "user") return undefined;
+  if (item.fallback) return { text: "降级回复", tone: "warning" };
+  switch (String(item.reply_source ?? "")) {
     case "network":
       return { text: "网络数据", tone: "success" };
     case "llm":
@@ -61,41 +67,79 @@ export function resolveReplySourceTag(message: AiAssistantMessage): ReplySourceT
     case "fallback":
       return { text: "降级回复", tone: "warning" };
     default:
-      return message.model ? { text: "模型回答", tone: "primary" } : undefined;
+      return item.model ? { text: "模型回答", tone: "primary" } : undefined;
   }
 }
 
-/** 将后端消息映射到聊天气泡结构。 */
-export function mapMessageItem(message: AiAssistantMessage): ChatMessageItem {
+/** 归一化输入内容，避免后端空对象影响渲染。 */
+function normalizeInputContent(content?: AiAssistantInputContent): AiAssistantInputContent {
   return {
-    ...message,
-    key: String(message.id),
-    content: String(message.content ?? ""),
-    placement: message.role === "user" ? "end" : "start",
-    reply_source: String(message.reply_source ?? ""),
-    model: String(message.model ?? ""),
-    fallback: Boolean(message.fallback),
-    fallback_reason: String(message.fallback_reason ?? ""),
-    status: Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS),
-    token_usage: Number(message.token_usage ?? 0),
-    tools: Array.isArray(message.tools) ? message.tools : [],
-    variant: message.role === "user" ? "filled" : "outlined",
-    shape: "corner",
-    progressState:
-      message.status === AiAssistantMessageStatus.GENERATING_AAMS
-        ? "streaming"
-        : message.status === AiAssistantMessageStatus.FAILED_AAMS
-          ? "failed"
-          : "idle",
-    replySourceTag: resolveReplySourceTag(message),
-    maxWidth: message.role === "user" ? "380px" : "460px"
+    kind: String(content?.kind || "text"),
+    content: String(content?.content ?? "")
   };
 }
 
-/** 收敛消息数组。 */
+/** 归一化输出内容，避免后端空对象影响渲染。 */
+function normalizeOutputContent(content?: AiAssistantOutputContent): AiAssistantOutputContent {
+  return {
+    kind: String(content?.kind || "text"),
+    content: String(content?.content ?? ""),
+    reply_source: String(content?.reply_source ?? ""),
+    model: String(content?.model ?? ""),
+    fallback: Boolean(content?.fallback),
+    fallback_reason: String(content?.fallback_reason ?? "")
+  };
+}
+
+/** 归一化 token 统计，保证用量展示字段都有默认值。 */
+function normalizeToken(token?: AiAssistantToken): AiAssistantToken {
+  return {
+    input: Number(token?.input ?? 0),
+    output: Number(token?.output ?? 0),
+    cache: Number(token?.cache ?? 0),
+    total: Number(token?.total ?? 0)
+  };
+}
+
+/** 将后端一轮消息映射为单个聊天气泡结构。 */
+export function mapMessageItem(message: AiAssistantMessage, role: "user" | "assistant"): ChatMessageItem {
+  const inputContent = normalizeInputContent(message.input_content);
+  const outputContent = normalizeOutputContent(message.output_content);
+  const content = role === "user" ? inputContent : outputContent;
+  const item: ChatMessageItem = {
+    ...message,
+    role,
+    key: `${message.id}:${role}`,
+    content: content.content,
+    kind: content.kind,
+    placement: role === "user" ? "end" : "start",
+    reply_source: role === "assistant" ? outputContent.reply_source : "",
+    model: role === "assistant" ? outputContent.model : "",
+    fallback: role === "assistant" && outputContent.fallback,
+    fallback_reason: role === "assistant" ? outputContent.fallback_reason : "",
+    status: Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS),
+    token: normalizeToken(message.token),
+    tools: Array.isArray(message.tools) ? message.tools : [],
+    variant: role === "user" ? "filled" : "outlined",
+    shape: "corner",
+    progressState:
+      message.status === AiAssistantMessageStatus.GENERATING_AAMS
+        ? role === "user"
+          ? "idle"
+          : "streaming"
+        : message.status === AiAssistantMessageStatus.FAILED_AAMS
+          ? "failed"
+          : "idle",
+    maxWidth: role === "user" ? "380px" : "460px"
+  };
+  item.replySourceTag = resolveReplySourceTag(item);
+  return item;
+}
+
+/** 收敛消息数组，并把每轮消息拆成用户气泡和助手气泡。 */
 export function normalizeMessageList(list?: AiAssistantMessage[] | null) {
   if (!Array.isArray(list)) return [];
-  return list.filter(Boolean).map(item => mapMessageItem(item));
+  return list.filter(Boolean).flatMap(item => [mapMessageItem(item, "user"), mapMessageItem(item, "assistant")]);
 }
 
 /** 创建本地用户回显消息。 */
@@ -104,24 +148,27 @@ export function createLocalUserMessage(payload: {
   attachments: AiAssistantAttachment[];
 }) {
   const now = new Date();
-  const message = mapMessageItem({
-    id: `${LOCAL_USER_MESSAGE_ID_PREFIX}-${now.getTime()}`,
-    role: "user",
-    kind: "text",
-    content: payload.text,
-    attachments: payload.attachments,
-    created_at: {
-      seconds: Math.floor(now.getTime() / 1000),
-      nanos: (now.getTime() % 1000) * 1_000_000
+  const message = mapMessageItem(
+    {
+      id: `${LOCAL_USER_MESSAGE_ID_PREFIX}-${now.getTime()}`,
+      input_content: {
+        kind: "text",
+        content: payload.text
+      },
+      output_content: undefined,
+      attachments: payload.attachments,
+      created_at: {
+        seconds: Math.floor(now.getTime() / 1000),
+        nanos: (now.getTime() % 1000) * 1_000_000
+      },
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+      token: normalizeToken(),
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0
     },
-    reply_source: "",
-    model: "",
-    fallback: false,
-    fallback_reason: "",
-    status: AiAssistantMessageStatus.GENERATING_AAMS,
-    token_usage: 0,
-    tools: []
-  });
+    "user"
+  );
   // 本地回显消息只用于等待服务端响应，收到正式消息后需要被替换掉，避免同一问题展示两遍。
   message.localOnly = true;
   // 用户消息只是本地回显，不参与助手流式动画，避免用户气泡出现思考中的省略点。
@@ -135,24 +182,31 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
   const streamKey = options?.sessionID
     ? buildStreamMessageKey(options.sessionID, options.messageID || PENDING_STREAM_MESSAGE_ID)
     : undefined;
-  const message = mapMessageItem({
-    id: streamKey || `${THINKING_MESSAGE_ID_PREFIX}-${now.getTime()}`,
-    role: "assistant",
-    kind: "text",
-    content: THINKING_MESSAGE_CONTENT,
-    attachments: [],
-    created_at: {
-      seconds: Math.floor(now.getTime() / 1000),
-      nanos: (now.getTime() % 1000) * 1_000_000
+  const message = mapMessageItem(
+    {
+      id: streamKey || `${THINKING_MESSAGE_ID_PREFIX}-${now.getTime()}`,
+      input_content: undefined,
+      output_content: {
+        kind: "text",
+        content: THINKING_MESSAGE_CONTENT,
+        reply_source: "",
+        model: "",
+        fallback: false,
+        fallback_reason: ""
+      },
+      attachments: [],
+      created_at: {
+        seconds: Math.floor(now.getTime() / 1000),
+        nanos: (now.getTime() % 1000) * 1_000_000
+      },
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+      token: normalizeToken(),
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0
     },
-    reply_source: "",
-    model: "",
-    fallback: false,
-    fallback_reason: "",
-    status: AiAssistantMessageStatus.GENERATING_AAMS,
-    token_usage: 0,
-    tools: []
-  });
+    "assistant"
+  );
   message.progressState = "streaming";
   message.localOnly = true;
   message.streamKey = streamKey;
@@ -170,7 +224,9 @@ export function ensureStreamingMessage(current: ChatMessageItem[], payload: AiAs
   if (current.some(item => item.streamKey === streamKey)) return current;
 
   const pendingStreamKey = buildPendingStreamMessageKey(sessionID);
-  const next = current.map<ChatMessageItem>(item => (item.streamKey === pendingStreamKey ? { ...item, streamKey } : item));
+  const next = current.map<ChatMessageItem>(item =>
+    item.streamKey === pendingStreamKey ? { ...item, id: messageID, key: `${messageID}:assistant`, streamKey } : item
+  );
   if (next.some(item => item.streamKey === streamKey)) return next;
 
   return sortMessages([...next, createThinkingMessage({ sessionID, messageID })]);
@@ -186,8 +242,10 @@ export function markAssistantMessageRegenerating(current: ChatMessageItem[], ses
       content: THINKING_MESSAGE_CONTENT,
       fallback: false,
       fallback_reason: "",
-      token_usage: 0,
+      token: normalizeToken(),
       tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
       progressState: "streaming",
       replySourceTag: { text: "思考中", tone: "info" },
       status: AiAssistantMessageStatus.GENERATING_AAMS,
@@ -222,7 +280,7 @@ export function replacePendingMessages(
   const stableMessages = current.filter(item => {
     if (!item.localOnly) return true;
     if (payload?.message_id && item.role === "user") {
-      return !nextMessages.some(message => message.role === "user");
+      return !nextMessages.some(message => message.role === "user" && String(message.id) === String(payload.message_id));
     }
     if (!streamKey) return false;
     return item.streamKey !== streamKey && item.streamKey !== pendingStreamKey;
@@ -230,10 +288,10 @@ export function replacePendingMessages(
   const messageMap = new Map<string, ChatMessageItem>();
 
   for (const item of stableMessages) {
-    messageMap.set(String(item.id), item);
+    messageMap.set(String(item.key ?? `${item.id}:${item.role}`), item);
   }
   for (const item of nextMessages) {
-    messageMap.set(String(item.id), item);
+    messageMap.set(String(item.key ?? `${item.id}:${item.role}`), item);
   }
 
   return sortMessages(Array.from(messageMap.values()));
@@ -246,14 +304,21 @@ export function markThinkingMessageFailed(
 ) {
   const streamKey =
     options?.sessionID && options.messageID ? buildStreamMessageKey(options.sessionID, options.messageID) : "";
-  const pendingStreamKey = options?.sessionID ? buildPendingStreamMessageKey(options.sessionID) : "";
   return current.map<ChatMessageItem>(item => {
-    if (!item.localOnly || item.progressState !== "streaming") return item;
+    if (!item.localOnly) return item;
     if (streamKey && item.streamKey !== streamKey) return item;
-    if (!streamKey && pendingStreamKey && item.streamKey !== pendingStreamKey) return item;
+    if (item.role === "user" && !streamKey) {
+      return {
+        ...item,
+        progressState: "failed",
+        status: AiAssistantMessageStatus.FAILED_AAMS
+      };
+    }
+    if (item.progressState !== "streaming") return item;
     return {
       ...item,
       progressState: "failed",
+      status: AiAssistantMessageStatus.FAILED_AAMS,
       content: "这次回复没有成功返回，你可以直接重试刚才的问题。",
       replySourceTag: { text: "发送失败", tone: "warning" }
     };
@@ -284,34 +349,25 @@ export function appendStreamingDelta(current: ChatMessageItem[], payload: AiAssi
 
 /** 根据流式异常事件更新本地占位消息。 */
 export function markStreamingError(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
-  const streamKey = buildStreamMessageKey(String(payload.session_id ?? ""), String(payload.message_id ?? ""));
+  const messageID = String(payload.message_id ?? "");
+  const streamKey = messageID ? buildStreamMessageKey(String(payload.session_id ?? ""), messageID) : "";
   return current.map<ChatMessageItem>(item => {
-    if (item.streamKey !== streamKey || !item.localOnly) return item;
+    if (!item.localOnly) return item;
+    if (streamKey && item.streamKey !== streamKey) return item;
     return {
       ...item,
       progressState: "failed",
+      status: AiAssistantMessageStatus.FAILED_AAMS,
       content: "这次回复没有成功返回，你可以直接重试刚才的问题。",
       replySourceTag: { text: "发送失败", tone: "warning" }
     };
   });
 }
 
-/** 按消息位置查找最近一条用户消息，用于重新生成助手回复。 */
-export function findPreviousUserMessage(current: ChatMessageItem[], target: ChatMessageItem) {
-  const sortedList = sortMessages(current);
-  const targetIndex = sortedList.findIndex(item => String(item.id) === String(target.id));
-  const endIndex = targetIndex >= 0 ? targetIndex - 1 : sortedList.length - 1;
-  for (let index = endIndex; index >= 0; index--) {
-    const item = sortedList[index];
-    if (item.role === "user") return item;
-  }
-  return undefined;
-}
-
 /** 标记正在朗读的消息，保证全局只有一个气泡处于朗读态。 */
 export function markSpeakingMessage(current: ChatMessageItem[], messageID?: string) {
   return current.map<ChatMessageItem>(item => ({
     ...item,
-    speaking: Boolean(messageID && String(item.id) === messageID)
+    speaking: Boolean(messageID && String(item.key ?? `${item.id}:${item.role}`) === messageID)
   }));
 }

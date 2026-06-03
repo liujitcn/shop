@@ -30,12 +30,13 @@ func newAiAssistantMessage(db *gorm.DB, opts ...gen.DOOption) aiAssistantMessage
 	_aiAssistantMessage.ID = field.NewInt64(tableName, "id")
 	_aiAssistantMessage.SessionID = field.NewInt64(tableName, "session_id")
 	_aiAssistantMessage.UserID = field.NewInt64(tableName, "user_id")
-	_aiAssistantMessage.Role = field.NewString(tableName, "role")
-	_aiAssistantMessage.Kind = field.NewString(tableName, "kind")
-	_aiAssistantMessage.Content = field.NewString(tableName, "content")
-	_aiAssistantMessage.AttachmentsJSON = field.NewString(tableName, "attachments_json")
-	_aiAssistantMessage.ToolsJSON = field.NewString(tableName, "tools_json")
-	_aiAssistantMessage.TokenUsage = field.NewInt32(tableName, "token_usage")
+	_aiAssistantMessage.InputContent = field.NewString(tableName, "input_content")
+	_aiAssistantMessage.OutputContent = field.NewString(tableName, "output_content")
+	_aiAssistantMessage.Attachments = field.NewString(tableName, "attachments")
+	_aiAssistantMessage.Tools = field.NewString(tableName, "tools")
+	_aiAssistantMessage.Token = field.NewString(tableName, "token")
+	_aiAssistantMessage.FirstTokenMs = field.NewInt32(tableName, "first_token_ms")
+	_aiAssistantMessage.DurationMs = field.NewInt32(tableName, "duration_ms")
 	_aiAssistantMessage.Status = field.NewInt32(tableName, "status")
 	_aiAssistantMessage.CreatedAt = field.NewTime(tableName, "created_at")
 	_aiAssistantMessage.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -50,20 +51,21 @@ func newAiAssistantMessage(db *gorm.DB, opts ...gen.DOOption) aiAssistantMessage
 type aiAssistantMessage struct {
 	aiAssistantMessageDo aiAssistantMessageDo
 
-	ALL             field.Asterisk
-	ID              field.Int64  // 消息ID
-	SessionID       field.Int64  // 会话ID
-	UserID          field.Int64  // 所属用户ID
-	Role            field.String // 消息角色:user/assistant/system
-	Kind            field.String // 消息类型:text/tool/confirm
-	Content         field.String // 消息正文
-	AttachmentsJSON field.String // 附件JSON
-	ToolsJSON       field.String // 工具JSON
-	TokenUsage      field.Int32  // 本次消息token消耗
-	Status          field.Int32  // 消息生成状态：枚举【AiAssistantMessageStatus】
-	CreatedAt       field.Time   // 创建时间
-	UpdatedAt       field.Time   // 更新时间
-	DeletedAt       field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 消息ID
+	SessionID     field.Int64  // 会话ID
+	UserID        field.Int64  // 所属用户ID
+	InputContent  field.String // 输入内容JSON
+	OutputContent field.String // 输出内容JSON
+	Attachments   field.String // 附件JSON
+	Tools         field.String // 工具JSON
+	Token         field.String // Token统计JSON
+	FirstTokenMs  field.Int32  // 首Token耗时毫秒
+	DurationMs    field.Int32  // 总耗时毫秒
+	Status        field.Int32  // 消息生成状态：枚举【AiAssistantMessageStatus】
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -83,12 +85,13 @@ func (a *aiAssistantMessage) updateTableName(table string) *aiAssistantMessage {
 	a.ID = field.NewInt64(table, "id")
 	a.SessionID = field.NewInt64(table, "session_id")
 	a.UserID = field.NewInt64(table, "user_id")
-	a.Role = field.NewString(table, "role")
-	a.Kind = field.NewString(table, "kind")
-	a.Content = field.NewString(table, "content")
-	a.AttachmentsJSON = field.NewString(table, "attachments_json")
-	a.ToolsJSON = field.NewString(table, "tools_json")
-	a.TokenUsage = field.NewInt32(table, "token_usage")
+	a.InputContent = field.NewString(table, "input_content")
+	a.OutputContent = field.NewString(table, "output_content")
+	a.Attachments = field.NewString(table, "attachments")
+	a.Tools = field.NewString(table, "tools")
+	a.Token = field.NewString(table, "token")
+	a.FirstTokenMs = field.NewInt32(table, "first_token_ms")
+	a.DurationMs = field.NewInt32(table, "duration_ms")
 	a.Status = field.NewInt32(table, "status")
 	a.CreatedAt = field.NewTime(table, "created_at")
 	a.UpdatedAt = field.NewTime(table, "updated_at")
@@ -121,16 +124,17 @@ func (a *aiAssistantMessage) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *aiAssistantMessage) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 13)
+	a.fieldMap = make(map[string]field.Expr, 14)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["session_id"] = a.SessionID
 	a.fieldMap["user_id"] = a.UserID
-	a.fieldMap["role"] = a.Role
-	a.fieldMap["kind"] = a.Kind
-	a.fieldMap["content"] = a.Content
-	a.fieldMap["attachments_json"] = a.AttachmentsJSON
-	a.fieldMap["tools_json"] = a.ToolsJSON
-	a.fieldMap["token_usage"] = a.TokenUsage
+	a.fieldMap["input_content"] = a.InputContent
+	a.fieldMap["output_content"] = a.OutputContent
+	a.fieldMap["attachments"] = a.Attachments
+	a.fieldMap["tools"] = a.Tools
+	a.fieldMap["token"] = a.Token
+	a.fieldMap["first_token_ms"] = a.FirstTokenMs
+	a.fieldMap["duration_ms"] = a.DurationMs
 	a.fieldMap["status"] = a.Status
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt

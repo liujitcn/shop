@@ -59,8 +59,8 @@ type Attachment struct {
 type Response struct {
 	// Content 回复正文，面向前端展示。
 	Content string `json:"content"`
-	// TokenUsage 本次调用 token 消耗；当前 Responses 流程暂未稳定回填时保持 0。
-	TokenUsage int64 `json:"tokenUsage"`
+	// Token 本次调用 token 消耗。
+	Token TokenUsage `json:"token"`
 	// Tools 本轮回复实际使用的工具列表。
 	Tools []ToolUsage `json:"tools"`
 	// Source 回复来源，例如 llm 或 fallback。
@@ -73,6 +73,18 @@ type Response struct {
 	FallbackReason string `json:"fallbackReason"`
 }
 
+// TokenUsage 表示 AI 助手单轮真实 token 使用量。
+type TokenUsage struct {
+	// Input 输入 token 数。
+	Input int32 `json:"input"`
+	// Output 输出 token 数。
+	Output int32 `json:"output"`
+	// Cache 命中缓存 token 数。
+	Cache int32 `json:"cache"`
+	// Total 总 token 数。
+	Total int32 `json:"total"`
+}
+
 // ToolUsage 表示 AI 助手单轮回复涉及的工具。
 type ToolUsage struct {
 	// Type 工具类型，例如 function 或 server。
@@ -83,6 +95,10 @@ type ToolUsage struct {
 	Title string `json:"title"`
 	// Status 工具状态，例如 success、error。
 	Status string `json:"status"`
+	// Input 工具原始入参 JSON，用于后台展开排障。
+	Input string `json:"input"`
+	// Output 工具原始出参 JSON，用于后台展开排障。
+	Output string `json:"output"`
 }
 
 // RuntimeInput 表示 AI 助手运行时输入。
@@ -106,18 +122,4 @@ type RuntimeInput struct {
 	Attachments []Attachment
 	// History 会话历史消息，按时间正序传入。
 	History []Message
-}
-
-// ReplyMeta 表示助手消息落库 JSON 中的回复元信息。
-//
-// 前端聊天气泡只展示正文，来源、模型和降级状态通过这些元信息渲染标签。
-type ReplyMeta struct {
-	// ReplySource 回复来源，例如 llm、network 或 fallback。
-	ReplySource string `json:"reply_source"`
-	// Model 回复使用的模型名称。
-	Model string `json:"model"`
-	// Fallback 标记本条回复是否为本地降级回复。
-	Fallback bool `json:"fallback"`
-	// FallbackReason 降级原因，用于后台排障。
-	FallbackReason string `json:"fallback_reason"`
 }

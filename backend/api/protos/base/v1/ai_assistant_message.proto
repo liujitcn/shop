@@ -23,7 +23,7 @@ service AiAssistantMessageService {
     };
   }
 
-  // 重试失败的用户消息
+  // 重试失败的 AI 助手消息
   rpc RetryAiAssistantUserMessage(RetryAiAssistantUserMessageRequest) returns (SendAiAssistantMessageResponse) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry"
@@ -31,7 +31,7 @@ service AiAssistantMessageService {
     };
   }
 
-  // 重新生成助手回复
+  // 重新生成 AI 助手输出
   rpc RegenerateAiAssistantMessage(RegenerateAiAssistantMessageRequest) returns (SendAiAssistantMessageResponse) {
     option (google.api.http) = {
       post: "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regeneration"
@@ -66,16 +66,16 @@ message DeleteAiAssistantMessageRequest {
 // AI 助手消息删除响应
 message DeleteAiAssistantMessageResponse {}
 
-// AI 助手失败用户消息重试请求
+// AI 助手失败消息重试请求
 message RetryAiAssistantUserMessageRequest {
   string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
 
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "失败用户消息ID"}]; // 失败用户消息ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "失败消息ID"}]; // 失败消息ID
 }
 
-// AI 助手回复重新生成请求
+// AI 助手输出重新生成请求
 message RegenerateAiAssistantMessageRequest {
   string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
 
-  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "助手消息ID"}]; // 助手消息ID
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
 }

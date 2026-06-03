@@ -36,9 +36,9 @@ type AiAssistantMessageServiceClient interface {
 	SendAiAssistantMessage(ctx context.Context, in *SendAiAssistantMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
 	// 删除 AI 助手消息
 	DeleteAiAssistantMessage(ctx context.Context, in *DeleteAiAssistantMessageRequest, opts ...grpc.CallOption) (*DeleteAiAssistantMessageResponse, error)
-	// 重试失败的用户消息
+	// 重试失败的 AI 助手消息
 	RetryAiAssistantUserMessage(ctx context.Context, in *RetryAiAssistantUserMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
-	// 重新生成助手回复
+	// 重新生成 AI 助手输出
 	RegenerateAiAssistantMessage(ctx context.Context, in *RegenerateAiAssistantMessageRequest, opts ...grpc.CallOption) (*SendAiAssistantMessageResponse, error)
 }
 
@@ -100,9 +100,9 @@ type AiAssistantMessageServiceServer interface {
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
 	// 删除 AI 助手消息
 	DeleteAiAssistantMessage(context.Context, *DeleteAiAssistantMessageRequest) (*DeleteAiAssistantMessageResponse, error)
-	// 重试失败的用户消息
+	// 重试失败的 AI 助手消息
 	RetryAiAssistantUserMessage(context.Context, *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error)
-	// 重新生成助手回复
+	// 重新生成 AI 助手输出
 	RegenerateAiAssistantMessage(context.Context, *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
 	mustEmbedUnimplementedAiAssistantMessageServiceServer()
 }

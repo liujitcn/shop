@@ -88,7 +88,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     });
   }
 
-  /** 重试失败的用户消息。 */
+  /** 重试失败的 AI 助手消息。 */
   RetryAiAssistantUserMessage(request: RetryAiAssistantUserMessageRequest): Promise<SendAiAssistantMessageResponse> {
     return service<RetryAiAssistantUserMessageRequest, SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}/retry`,
@@ -97,7 +97,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     });
   }
 
-  /** 重新生成助手回复。 */
+  /** 重新生成 AI 助手输出。 */
   RegenerateAiAssistantMessage(request: RegenerateAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
     return service<RegenerateAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}/regeneration`,

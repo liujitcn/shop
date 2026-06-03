@@ -62,13 +62,13 @@ func RegisterAiAssistantMessageServiceDeleteAiAssistantMessageMCPTool(mcpServer 
 	)
 }
 
-// RegisterAiAssistantMessageServiceRetryAiAssistantUserMessageMCPTool 注册重试失败的用户消息的 MCP Tool。
+// RegisterAiAssistantMessageServiceRetryAiAssistantUserMessageMCPTool 注册重试失败的 AI 助手消息的 MCP Tool。
 func RegisterAiAssistantMessageServiceRetryAiAssistantUserMessageMCPTool(mcpServer *mcp.Server, aiAssistantMessageServiceServer AiAssistantMessageServiceServer) {
 	mcp.AddTool[*RetryAiAssistantUserMessageRequest, *SendAiAssistantMessageResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_assistant_message_service_retry_ai_assistant_user_message",
-			Description: "重试失败的用户消息",
+			Description: "重试失败的 AI 助手消息",
 		},
 		func(ctx context.Context, request *mcp.CallToolRequest, input *RetryAiAssistantUserMessageRequest) (*mcp.CallToolResult, *SendAiAssistantMessageResponse, error) {
 			if input == nil {
@@ -83,13 +83,13 @@ func RegisterAiAssistantMessageServiceRetryAiAssistantUserMessageMCPTool(mcpServ
 	)
 }
 
-// RegisterAiAssistantMessageServiceRegenerateAiAssistantMessageMCPTool 注册重新生成助手回复的 MCP Tool。
+// RegisterAiAssistantMessageServiceRegenerateAiAssistantMessageMCPTool 注册重新生成 AI 助手输出的 MCP Tool。
 func RegisterAiAssistantMessageServiceRegenerateAiAssistantMessageMCPTool(mcpServer *mcp.Server, aiAssistantMessageServiceServer AiAssistantMessageServiceServer) {
 	mcp.AddTool[*RegenerateAiAssistantMessageRequest, *SendAiAssistantMessageResponse](
 		mcpServer,
 		&mcp.Tool{
 			Name:        "base_v1_ai_assistant_message_service_regenerate_ai_assistant_message",
-			Description: "重新生成助手回复",
+			Description: "重新生成 AI 助手输出",
 		},
 		func(ctx context.Context, request *mcp.CallToolRequest, input *RegenerateAiAssistantMessageRequest) (*mcp.CallToolResult, *SendAiAssistantMessageResponse, error) {
 			if input == nil {

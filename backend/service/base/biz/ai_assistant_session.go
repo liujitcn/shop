@@ -58,7 +58,7 @@ func (c *AiAssistantSessionCase) ListAiAssistantSessions(ctx context.Context, re
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
 	opts = append(opts, repository.Where(query.Terminal.Eq(terminal)))
-	opts = append(opts, repository.Order(query.LastMessageAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Order(query.UpdatedAt.Desc(), query.ID.Desc()))
 	var list []*models.AiAssistantSession
 	list, err = c.List(ctx, opts...)
 	if err != nil {
@@ -85,14 +85,12 @@ func (c *AiAssistantSessionCase) CreateAiAssistantSession(ctx context.Context, r
 	}
 	now := time.Now()
 	model := &models.AiAssistantSession{
-		UserID:        authInfo.UserId,
-		Terminal:      assistant.NormalizeTerminal(req.GetTerminal()),
-		Title:         title,
-		Summary:       assistant.BuildDefaultSummary(),
-		ToolCount:     0,
-		LastMessageAt: now,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		UserID:    authInfo.UserId,
+		Terminal:  assistant.NormalizeTerminal(req.GetTerminal()),
+		Title:     title,
+		Summary:   assistant.BuildDefaultSummary(),
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	if err = c.Create(ctx, model); err != nil {
 		if errorsx.IsMySQLDuplicateKey(err) {
@@ -192,14 +190,12 @@ func (c *AiAssistantSessionCase) CreateAiAssistantSessionBranch(ctx context.Cont
 		title = "分支会话"
 	}
 	branchSession := &models.AiAssistantSession{
-		UserID:        sourceSession.UserID,
-		Terminal:      assistant.NormalizeTerminal(req.GetTerminal()),
-		Title:         title,
-		Summary:       sourceSession.Summary,
-		ToolCount:     sourceSession.ToolCount,
-		LastMessageAt: now,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		UserID:    sourceSession.UserID,
+		Terminal:  assistant.NormalizeTerminal(req.GetTerminal()),
+		Title:     title,
+		Summary:   sourceSession.Summary,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	branchMessages := make([]*models.AiAssistantMessage, 0, len(sourceMessages))
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
@@ -208,17 +204,18 @@ func (c *AiAssistantSessionCase) CreateAiAssistantSessionBranch(ctx context.Cont
 		}
 		for _, item := range sourceMessages {
 			branchMessage := &models.AiAssistantMessage{
-				SessionID:       branchSession.ID,
-				UserID:          branchSession.UserID,
-				Role:            item.Role,
-				Kind:            item.Kind,
-				Content:         item.Content,
-				AttachmentsJSON: item.AttachmentsJSON,
-				ToolsJSON:       item.ToolsJSON,
-				TokenUsage:      item.TokenUsage,
-				Status:          item.Status,
-				CreatedAt:       item.CreatedAt,
-				UpdatedAt:       now,
+				SessionID:     branchSession.ID,
+				UserID:        branchSession.UserID,
+				InputContent:  item.InputContent,
+				OutputContent: item.OutputContent,
+				Attachments:   item.Attachments,
+				Tools:         item.Tools,
+				Token:         item.Token,
+				FirstTokenMs:  item.FirstTokenMs,
+				DurationMs:    item.DurationMs,
+				Status:        item.Status,
+				CreatedAt:     item.CreatedAt,
+				UpdatedAt:     now,
 			}
 			if createErr := c.aiAssistantMessageRepo.Create(txCtx, branchMessage); createErr != nil {
 				return createErr
@@ -232,20 +229,8 @@ func (c *AiAssistantSessionCase) CreateAiAssistantSessionBranch(ctx context.Cont
 	}
 
 	messages := make([]*basev1.AiAssistantMessage, 0, len(branchMessages))
-	messageMapper := mapper.NewCopierMapper[basev1.AiAssistantMessage, models.AiAssistantMessage]()
 	for _, item := range branchMessages {
-		meta := assistant.ParseReplyMeta(item.Content)
-		message := messageMapper.ToDTO(item)
-		message.Id = strconv.FormatInt(item.ID, 10)
-		message.Content = assistant.ParseReplyContent(item.Content)
-		message.Attachments = assistant.ParseAttachments(item.AttachmentsJSON)
-		message.CreatedAt = timestamppb.New(item.CreatedAt)
-		message.ReplySource = meta.ReplySource
-		message.Model = meta.Model
-		message.Fallback = meta.Fallback
-		message.FallbackReason = meta.FallbackReason
-		message.Status = commonv1.AiAssistantMessageStatus(item.Status)
-		messages = append(messages, message)
+		messages = append(messages, toAiAssistantMessageDTO(item))
 	}
 	return &basev1.CreateAiAssistantSessionBranchResponse{
 		Session:  c.ToDTO(branchSession),
@@ -280,40 +265,34 @@ func (c *AiAssistantSessionCase) FindCurrentUserSessionByRawID(ctx context.Conte
 	return session, nil
 }
 
-// TouchSession 更新会话摘要、工具数与最后消息时间。
-func (c *AiAssistantSessionCase) TouchSession(ctx context.Context, session *models.AiAssistantSession, summary string, toolCount int32, now time.Time) error {
+// UpdateSessionSummary 更新会话摘要与更新时间。
+func (c *AiAssistantSessionCase) UpdateSessionSummary(ctx context.Context, session *models.AiAssistantSession, summary string, now time.Time) error {
 	query := c.Query(ctx).AiAssistantSession
 	_, err := query.WithContext(ctx).
 		Where(query.ID.Eq(session.ID)).
 		UpdateSimple(
 			query.Summary.Value(summary),
-			query.ToolCount.Value(toolCount),
-			query.LastMessageAt.Value(now),
 			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return err
 	}
 	session.Summary = summary
-	session.ToolCount = toolCount
-	session.LastMessageAt = now
 	session.UpdatedAt = now
 	return nil
 }
 
-// RefreshLastMessageAt 更新会话最后消息时间。
-func (c *AiAssistantSessionCase) RefreshLastMessageAt(ctx context.Context, session *models.AiAssistantSession, now time.Time) error {
+// RefreshSessionUpdatedAt 更新会话更新时间。
+func (c *AiAssistantSessionCase) RefreshSessionUpdatedAt(ctx context.Context, session *models.AiAssistantSession, now time.Time) error {
 	query := c.Query(ctx).AiAssistantSession
 	_, err := query.WithContext(ctx).
 		Where(query.ID.Eq(session.ID)).
 		UpdateSimple(
-			query.LastMessageAt.Value(now),
 			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return err
 	}
-	session.LastMessageAt = now
 	session.UpdatedAt = now
 	return nil
 }

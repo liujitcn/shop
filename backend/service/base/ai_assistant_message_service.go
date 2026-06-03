@@ -47,22 +47,22 @@ func (s *AiAssistantMessageService) DeleteAiAssistantMessage(ctx context.Context
 	return &basev1.DeleteAiAssistantMessageResponse{}, nil
 }
 
-// RetryAiAssistantUserMessage 重试失败的用户消息。
+// RetryAiAssistantUserMessage 重试失败的 AI 助手消息。
 func (s *AiAssistantMessageService) RetryAiAssistantUserMessage(ctx context.Context, req *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.RetryAiAssistantUserMessage(ctx, req)
 	if err != nil {
 		log.Errorf("RetryAiAssistantUserMessage %v", err)
-		return nil, errorsx.WrapInternal(err, "重试AI助手用户消息失败")
+		return nil, errorsx.WrapInternal(err, "重试AI助手消息失败")
 	}
 	return res, nil
 }
 
-// RegenerateAiAssistantMessage 重新生成助手回复。
+// RegenerateAiAssistantMessage 重新生成 AI 助手输出。
 func (s *AiAssistantMessageService) RegenerateAiAssistantMessage(ctx context.Context, req *basev1.RegenerateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.RegenerateAiAssistantMessage(ctx, req)
 	if err != nil {
 		log.Errorf("RegenerateAiAssistantMessage %v", err)
-		return nil, errorsx.WrapInternal(err, "重新生成AI助手回复失败")
+		return nil, errorsx.WrapInternal(err, "重新生成AI助手输出失败")
 	}
 	return res, nil
 }

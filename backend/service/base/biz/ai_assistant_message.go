@@ -16,7 +16,6 @@ import (
 	"shop/service/base/dto"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/liujitcn/go-utils/mapper"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -24,11 +23,6 @@ import (
 )
 
 const aiAssistantHistorySize = 12
-
-const (
-	aiAssistantMessageRoleUser      = assistant.RoleUser
-	aiAssistantMessageRoleAssistant = assistant.RoleAssistant
-)
 
 // AiAssistantMessageCase 管理 AI 助手消息数据。
 type AiAssistantMessageCase struct {
@@ -38,7 +32,6 @@ type AiAssistantMessageCase struct {
 	aiAssistantSessionCase *AiAssistantSessionCase
 	baseUserCase           *BaseUserCase
 	assistantRuntime       *assistant.Runtime
-	mapper                 *mapper.CopierMapper[basev1.AiAssistantMessage, models.AiAssistantMessage]
 }
 
 // NewAiAssistantMessageCase 创建 AI 助手消息业务实例。
@@ -57,112 +50,38 @@ func NewAiAssistantMessageCase(
 		aiAssistantSessionCase: aiAssistantSessionCase,
 		baseUserCase:           baseUserCase,
 		assistantRuntime:       assistantRuntime,
-		mapper:                 mapper.NewCopierMapper[basev1.AiAssistantMessage, models.AiAssistantMessage](),
 	}
 }
 
 // SendAiAssistantMessage 发送用户消息并生成 AI 助手回复。
 func (c *AiAssistantMessageCase) SendAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
-	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
+	session, message, content, attachments, assistantAttachments, history, userName, err := c.prepareNewAiAssistantMessage(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	content := req.GetContent()
-	attachments := assistant.NormalizeAttachments(req.GetAttachments())
-	if content == "" && len(attachments) == 0 {
-		return nil, errorsx.InvalidArgument("消息内容不能为空")
-	}
-	var assistantAttachments []assistant.Attachment
-	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
-	if err != nil {
-		return nil, err
-	}
-
-	var userName string
-	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	now := time.Now()
-	userMessage := &models.AiAssistantMessage{
-		SessionID:       session.ID,
-		UserID:          session.UserID,
-		Role:            assistant.RoleUser,
-		Kind:            assistant.KindText,
-		Content:         assistant.BuildUserContent(content, attachments),
-		AttachmentsJSON: assistant.MarshalAttachments(attachments),
-		ToolsJSON:       "[]",
-		Status:          int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS),
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	}
-
-	var history []assistant.Message
-	history, err = c.buildHistory(ctx, session.ID, aiAssistantHistorySize)
-	if err != nil {
-		return nil, err
-	}
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.aiAssistantMessageRepo.Create(txCtx, userMessage)
-		if err != nil {
-			return err
-		}
-		summary := assistant.BuildDynamicSummary(content, attachments)
-		return c.aiAssistantSessionCase.TouchSession(txCtx, session, summary, 0, now)
-	})
-	if err != nil {
-		return nil, err
-	}
-
+	startAt := time.Now()
 	var reply *assistant.Response
 	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, nil)
+	finishAt := time.Now()
+	durationMs := durationMilliseconds(startAt, finishAt)
+	firstTokenMs := durationMs
 	if err != nil {
-		failedAt := time.Now()
-		var assistantMessage *models.AiAssistantMessage
-		updateErr := c.tx.Transaction(ctx, func(txCtx context.Context) error {
-			if successErr := c.markAiAssistantMessageSuccess(txCtx, userMessage, failedAt); successErr != nil {
-				return successErr
-			}
-			var createErr error
-			assistantMessage, createErr = c.createAiAssistantFailedReplyMessage(txCtx, session, reply, err, failedAt)
-			if createErr != nil {
-				return createErr
-			}
-			return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, failedAt)
-		})
-		if updateErr != nil {
+		failedReply := c.buildAiAssistantFailedReply(reply, err)
+		if updateErr := c.finishAiAssistantMessage(ctx, session, message, failedReply, finishAt, firstTokenMs, durationMs, int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)); updateErr != nil {
 			return nil, updateErr
 		}
 		return &basev1.SendAiAssistantMessageResponse{
-			Messages: []*basev1.AiAssistantMessage{c.ToDTO(userMessage), c.ToDTO(assistantMessage)},
+			Messages: []*basev1.AiAssistantMessage{c.ToDTO(message)},
 			Session:  c.aiAssistantSessionCase.ToDTO(session),
 		}, nil
 	}
 
-	responseMessages := make([]*basev1.AiAssistantMessage, 0, 3)
-	var assistantMessage *models.AiAssistantMessage
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.markAiAssistantMessageSuccess(txCtx, userMessage, now)
-		if err != nil {
-			return err
-		}
-		assistantMessage, err = c.createAiAssistantReplyMessage(txCtx, session, reply, now)
-		if err != nil {
-			return err
-		}
-		return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, now)
-	})
-	if err != nil {
+	if err = c.finishAiAssistantMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)); err != nil {
 		return nil, err
 	}
-
-	responseMessages = append(responseMessages, c.ToDTO(userMessage))
-	responseMessages = append(responseMessages, c.ToDTO(assistantMessage))
-
 	return &basev1.SendAiAssistantMessageResponse{
-		Messages: responseMessages,
+		Messages: []*basev1.AiAssistantMessage{c.ToDTO(message)},
 		Session:  c.aiAssistantSessionCase.ToDTO(session),
 	}, nil
 }
@@ -172,60 +91,20 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	if emitter == nil {
 		return errorsx.Internal("AI助手流式响应未初始化")
 	}
-	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
+	session, message, content, attachments, assistantAttachments, history, userName, err := c.prepareNewAiAssistantMessage(ctx, req)
 	if err != nil {
 		return err
 	}
 
-	content := req.GetContent()
-	attachments := assistant.NormalizeAttachments(req.GetAttachments())
-	if content == "" && len(attachments) == 0 {
-		return errorsx.InvalidArgument("消息内容不能为空")
-	}
-	var assistantAttachments []assistant.Attachment
-	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
-	if err != nil {
-		return err
-	}
-	var userName string
-	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
-	if err != nil {
-		return err
-	}
-	var history []assistant.Message
-	history, err = c.buildHistory(ctx, session.ID, aiAssistantHistorySize)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now()
-	userMessage := &models.AiAssistantMessage{
-		SessionID:       session.ID,
-		UserID:          session.UserID,
-		Role:            assistant.RoleUser,
-		Kind:            assistant.KindText,
-		Content:         assistant.BuildUserContent(content, attachments),
-		AttachmentsJSON: assistant.MarshalAttachments(attachments),
-		ToolsJSON:       "[]",
-		Status:          int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS),
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	}
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		if createErr := c.aiAssistantMessageRepo.Create(txCtx, userMessage); createErr != nil {
-			return createErr
-		}
-		summary := assistant.BuildDynamicSummary(content, attachments)
-		return c.aiAssistantSessionCase.TouchSession(txCtx, session, summary, 0, now)
-	})
-	if err != nil {
-		return err
-	}
-
-	messageID := strconv.FormatInt(userMessage.ID, 10)
+	messageID := strconv.FormatInt(message.ID, 10)
+	startAt := time.Now()
+	var firstTokenMs int32
 	reply, runErr := c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, func(delta string) {
 		if delta == "" {
 			return
+		}
+		if firstTokenMs == 0 {
+			firstTokenMs = durationMilliseconds(startAt, time.Now())
 		}
 		emitErr := emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventDelta, dto.AiAssistantStreamPayload{
 			SessionID: req.GetSessionId(),
@@ -236,51 +115,20 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 			log.Errorf("StreamAiAssistantMessage EmitDelta %v", emitErr)
 		}
 	})
+
+	finishAt := time.Now()
+	durationMs := durationMilliseconds(startAt, finishAt)
+	if firstTokenMs == 0 && durationMs > 0 {
+		firstTokenMs = durationMs
+	}
+	status := int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)
 	if runErr != nil {
 		log.Errorf("StreamAiAssistantMessage RunStream %v", runErr)
-		failedAt := time.Now()
-		var assistantMessage *models.AiAssistantMessage
-		saveErr := c.tx.Transaction(ctx, func(txCtx context.Context) error {
-			if successErr := c.markAiAssistantMessageSuccess(txCtx, userMessage, failedAt); successErr != nil {
-				return successErr
-			}
-			var createErr error
-			assistantMessage, createErr = c.createAiAssistantReplyMessage(txCtx, session, reply, failedAt)
-			if createErr != nil {
-				return createErr
-			}
-			return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, failedAt)
-		})
-		if saveErr != nil {
-			log.Errorf("StreamAiAssistantMessage SaveFailedReply %v", saveErr)
-		}
-		responseMessages := []*basev1.AiAssistantMessage{c.ToDTO(userMessage)}
-		if assistantMessage != nil {
-			responseMessages = append(responseMessages, c.ToDTO(assistantMessage))
-		}
-		_ = emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventFinish, dto.AiAssistantStreamPayload{
-			SessionID: req.GetSessionId(),
-			MessageID: messageID,
-			Messages:  responseMessages,
-			Session:   c.aiAssistantSessionCase.ToDTO(session),
-		})
-		return nil
+		reply = c.buildAiAssistantFailedReply(reply, runErr)
+		status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
 	}
 
-	finishTime := time.Now()
-	var assistantMessage *models.AiAssistantMessage
-	saveErr := c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.markAiAssistantMessageSuccess(txCtx, userMessage, finishTime)
-		if err != nil {
-			return err
-		}
-		var createErr error
-		assistantMessage, createErr = c.createAiAssistantReplyMessage(txCtx, session, reply, finishTime)
-		if createErr != nil {
-			return createErr
-		}
-		return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, finishTime)
-	})
+	saveErr := c.finishAiAssistantMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
 	if saveErr != nil {
 		log.Errorf("StreamAiAssistantMessage SaveReply %v", saveErr)
 		_ = emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventError, dto.AiAssistantStreamPayload{
@@ -293,7 +141,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	emitErr := emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventFinish, dto.AiAssistantStreamPayload{
 		SessionID: req.GetSessionId(),
 		MessageID: messageID,
-		Messages:  []*basev1.AiAssistantMessage{c.ToDTO(userMessage), c.ToDTO(assistantMessage)},
+		Messages:  []*basev1.AiAssistantMessage{c.ToDTO(message)},
 		Session:   c.aiAssistantSessionCase.ToDTO(session),
 	})
 	if emitErr != nil {
@@ -302,7 +150,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	return nil
 }
 
-// DeleteAiAssistantMessage 删除当前用户当前会话下的单条消息。
+// DeleteAiAssistantMessage 删除当前用户当前会话下的单轮消息。
 func (c *AiAssistantMessageCase) DeleteAiAssistantMessage(ctx context.Context, req *basev1.DeleteAiAssistantMessageRequest) error {
 	message, _, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
 	if err != nil {
@@ -314,39 +162,28 @@ func (c *AiAssistantMessageCase) DeleteAiAssistantMessage(ctx context.Context, r
 	return c.aiAssistantMessageRepo.Delete(ctx, opts...)
 }
 
-// RetryAiAssistantUserMessage 重试失败的用户消息。
+// RetryAiAssistantUserMessage 重试失败的 AI 助手消息。
 func (c *AiAssistantMessageCase) RetryAiAssistantUserMessage(ctx context.Context, req *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
-	userMessage, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
+	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
 	if err != nil {
 		return nil, err
 	}
-	if userMessage.Role != aiAssistantMessageRoleUser {
-		return nil, errorsx.InvalidArgument("只能重试用户消息")
+	if message.Status != int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS) {
+		return nil, errorsx.StateConflict("只能重试失败的消息", "ai_assistant_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(commonv1.AiAssistantMessageStatus_FAILED_AAMS)))
 	}
-	if userMessage.Status != int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS) {
-		return nil, errorsx.StateConflict("只能重试失败的用户消息", "ai_assistant_message", strconv.Itoa(int(userMessage.Status)), strconv.Itoa(int(commonv1.AiAssistantMessageStatus_FAILED_AAMS)))
-	}
-	return c.retryAiAssistantUserMessage(ctx, session, userMessage)
+	return c.regenerateAiAssistantMessage(ctx, session, message)
 }
 
-// RegenerateAiAssistantMessage 重新生成指定助手回复。
+// RegenerateAiAssistantMessage 重新生成指定 AI 助手消息。
 func (c *AiAssistantMessageCase) RegenerateAiAssistantMessage(ctx context.Context, req *basev1.RegenerateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
-	assistantMessage, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
+	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
 	if err != nil {
 		return nil, err
 	}
-	if assistantMessage.Role != aiAssistantMessageRoleAssistant {
-		return nil, errorsx.InvalidArgument("只能重新生成助手回复")
+	if message.Status == int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS) {
+		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_assistant_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)))
 	}
-	if assistantMessage.Status == int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS) {
-		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_assistant_message", strconv.Itoa(int(assistantMessage.Status)), strconv.Itoa(int(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)))
-	}
-
-	userMessage, err := c.findPreviousUserMessage(ctx, session.ID, assistantMessage)
-	if err != nil {
-		return nil, err
-	}
-	return c.regenerateAiAssistantReplyMessage(ctx, session, userMessage, assistantMessage)
+	return c.regenerateAiAssistantMessage(ctx, session, message)
 }
 
 // ListAiAssistantMessages 查询指定会话的消息列表。
@@ -379,20 +216,59 @@ func (c *AiAssistantMessageCase) ToDTO(model *models.AiAssistantMessage) *basev1
 		return nil
 	}
 
-	meta := assistant.ParseReplyMeta(model.Content)
-	message := c.mapper.ToDTO(model)
-	message.Id = strconv.FormatInt(model.ID, 10)
-	message.Content = assistant.ParseReplyContent(model.Content)
-	message.Attachments = assistant.ParseAttachments(model.AttachmentsJSON)
-	message.CreatedAt = timestamppb.New(model.CreatedAt)
-	message.ReplySource = meta.ReplySource
-	message.Model = meta.Model
-	message.Fallback = meta.Fallback
-	message.FallbackReason = meta.FallbackReason
-	message.Status = commonv1.AiAssistantMessageStatus(model.Status)
-	message.TokenUsage = model.TokenUsage
-	message.Tools = toAiAssistantTools(assistant.ParseTools(model.ToolsJSON))
-	return message
+	return toAiAssistantMessageDTO(model)
+}
+
+// toAiAssistantMessageDTO 转换消息模型到接口对象。
+func toAiAssistantMessageDTO(model *models.AiAssistantMessage) *basev1.AiAssistantMessage {
+	if model == nil {
+		return nil
+	}
+	inputContent := assistant.ParseInputContent(model.InputContent)
+	outputContent := assistant.ParseOutputContent(model.OutputContent)
+	token := assistant.ParseTokenUsage(model.Token)
+	return &basev1.AiAssistantMessage{
+		Id:            strconv.FormatInt(model.ID, 10),
+		InputContent:  toAiAssistantInputContent(inputContent),
+		OutputContent: toAiAssistantOutputContent(outputContent),
+		Attachments:   assistant.ParseAttachments(model.Attachments),
+		CreatedAt:     timestamppb.New(model.CreatedAt),
+		Status:        commonv1.AiAssistantMessageStatus(model.Status),
+		Token:         toAiAssistantToken(token),
+		Tools:         toAiAssistantTools(assistant.ParseTools(model.Tools)),
+		FirstTokenMs:  model.FirstTokenMs,
+		DurationMs:    model.DurationMs,
+	}
+}
+
+// toAiAssistantInputContent 转换输入内容 JSON 为接口对象。
+func toAiAssistantInputContent(value assistant.InputContentPayload) *basev1.AiAssistantInputContent {
+	return &basev1.AiAssistantInputContent{
+		Kind:    value.Kind,
+		Content: value.Content,
+	}
+}
+
+// toAiAssistantOutputContent 转换输出内容 JSON 为接口对象。
+func toAiAssistantOutputContent(value assistant.OutputContentPayload) *basev1.AiAssistantOutputContent {
+	return &basev1.AiAssistantOutputContent{
+		Kind:           value.Kind,
+		Content:        value.Content,
+		ReplySource:    value.ReplySource,
+		Model:          value.Model,
+		Fallback:       value.Fallback,
+		FallbackReason: value.FallbackReason,
+	}
+}
+
+// toAiAssistantToken 转换 token 统计为接口对象。
+func toAiAssistantToken(value assistant.TokenUsage) *basev1.AiAssistantToken {
+	return &basev1.AiAssistantToken{
+		Input:  value.Input,
+		Output: value.Output,
+		Cache:  value.Cache,
+		Total:  value.Total,
+	}
 }
 
 // toAiAssistantTools 转换工具使用记录为接口对象。
@@ -407,9 +283,67 @@ func toAiAssistantTools(values []assistant.ToolUsage) []*basev1.AiAssistantTool 
 			Name:   item.Name,
 			Title:  item.Title,
 			Status: item.Status,
+			Input:  item.Input,
+			Output: item.Output,
 		})
 	}
 	return tools
+}
+
+// prepareNewAiAssistantMessage 校验请求并创建生成中的消息记录。
+func (c *AiAssistantMessageCase) prepareNewAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest) (*models.AiAssistantSession, *models.AiAssistantMessage, string, []*basev1.AiAssistantAttachment, []assistant.Attachment, []assistant.Message, string, error) {
+	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
+	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
+
+	content := req.GetContent()
+	attachments := assistant.NormalizeAttachments(req.GetAttachments())
+	if content == "" && len(attachments) == 0 {
+		return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("消息内容不能为空")
+	}
+	var assistantAttachments []assistant.Attachment
+	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
+	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
+	var userName string
+	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
+	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
+	var history []assistant.Message
+	history, err = c.buildHistory(ctx, session.ID, aiAssistantHistorySize)
+	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
+
+	now := time.Now()
+	message := &models.AiAssistantMessage{
+		SessionID:     session.ID,
+		UserID:        session.UserID,
+		InputContent:  assistant.MarshalInputContent(content, attachments),
+		OutputContent: assistant.MarshalEmptyOutputContent(),
+		Attachments:   assistant.MarshalAttachments(attachments),
+		Tools:         "[]",
+		Token:         assistant.MarshalTokenUsage(assistant.TokenUsage{}),
+		FirstTokenMs:  0,
+		DurationMs:    0,
+		Status:        int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS),
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		if createErr := c.aiAssistantMessageRepo.Create(txCtx, message); createErr != nil {
+			return createErr
+		}
+		summary := assistant.BuildDynamicSummary(content, attachments)
+		return c.aiAssistantSessionCase.UpdateSessionSummary(txCtx, session, summary, now)
+	})
+	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
+	return session, message, content, attachments, assistantAttachments, history, userName, nil
 }
 
 // buildAiAssistantAttachments 读取附件内容，构造 AI 助手输入附件。
@@ -468,19 +402,46 @@ func (c *AiAssistantMessageCase) buildHistory(ctx context.Context, sessionID int
 	if err != nil {
 		return nil, err
 	}
+	return buildHistoryFromMessages(list), nil
+}
 
-	history := make([]assistant.Message, 0, len(list))
+// buildHistoryBeforeMessage 构造指定消息之前的上下文。
+func (c *AiAssistantMessageCase) buildHistoryBeforeMessage(ctx context.Context, sessionID int64, message *models.AiAssistantMessage, historySize int) ([]assistant.Message, error) {
+	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
+	opts := make([]repository.QueryOption, 0, 6)
+	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
+	opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS))))
+	opts = append(opts, repository.Where(query.CreatedAt.Lt(message.CreatedAt)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Limit(historySize))
+	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return buildHistoryFromMessages(list), nil
+}
+
+// buildHistoryFromMessages 将一轮一行消息拆成模型需要的 user/assistant 上下文。
+func buildHistoryFromMessages(list []*models.AiAssistantMessage) []assistant.Message {
+	history := make([]assistant.Message, 0, len(list)*2)
 	for index := len(list) - 1; index >= 0; index-- {
 		item := list[index]
-		if item.Content == "" {
-			continue
+		input := assistant.ParseInputContent(item.InputContent)
+		if input.Content != "" {
+			history = append(history, assistant.Message{
+				Role:    assistant.RoleUser,
+				Content: input.Content,
+			})
 		}
-		history = append(history, assistant.Message{
-			Role:    item.Role,
-			Content: assistant.ParseReplyContent(item.Content),
-		})
+		output := assistant.ParseOutputContent(item.OutputContent)
+		if output.Content != "" {
+			history = append(history, assistant.Message{
+				Role:    assistant.RoleAssistant,
+				Content: output.Content,
+			})
+		}
 	}
-	return history, nil
+	return history
 }
 
 // generateAiAssistantReply 生成当前消息的 AI 助手回复。
@@ -541,58 +502,13 @@ func (c *AiAssistantMessageCase) buildAiAssistantFallbackResponse(
 	}
 	return &assistant.Response{
 		Content:        assistant.BuildFallbackReply(content, attachments),
-		TokenUsage:     0,
+		Token:          assistant.TokenUsage{},
 		Tools:          []assistant.ToolUsage{},
 		Source:         "fallback",
 		Model:          model,
 		Fallback:       true,
 		FallbackReason: fallbackReason,
 	}
-}
-
-// createAiAssistantReplyMessage 按回复内容落库助手消息。
-func (c *AiAssistantMessageCase) createAiAssistantReplyMessage(ctx context.Context, session *models.AiAssistantSession, reply *assistant.Response, now time.Time) (*models.AiAssistantMessage, error) {
-	assistantMessage := &models.AiAssistantMessage{
-		SessionID:       session.ID,
-		UserID:          session.UserID,
-		Role:            assistant.RoleAssistant,
-		Kind:            assistant.KindText,
-		Content:         assistant.MarshalReplyContent(reply),
-		AttachmentsJSON: assistant.MarshalAttachments(nil),
-		ToolsJSON:       assistant.MarshalTools(reply.Tools),
-		TokenUsage:      int32(reply.TokenUsage),
-		Status:          int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS),
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	}
-	err := c.aiAssistantMessageRepo.Create(ctx, assistantMessage)
-	if err != nil {
-		return nil, err
-	}
-	return assistantMessage, nil
-}
-
-// createAiAssistantFailedReplyMessage 按失败原因落库助手异常消息。
-func (c *AiAssistantMessageCase) createAiAssistantFailedReplyMessage(ctx context.Context, session *models.AiAssistantSession, reply *assistant.Response, cause error, now time.Time) (*models.AiAssistantMessage, error) {
-	failedReply := c.buildAiAssistantFailedReply(reply, cause)
-	assistantMessage := &models.AiAssistantMessage{
-		SessionID:       session.ID,
-		UserID:          session.UserID,
-		Role:            assistant.RoleAssistant,
-		Kind:            assistant.KindText,
-		Content:         assistant.MarshalReplyContent(failedReply),
-		AttachmentsJSON: assistant.MarshalAttachments(nil),
-		ToolsJSON:       assistant.MarshalTools(failedReply.Tools),
-		TokenUsage:      int32(failedReply.TokenUsage),
-		Status:          int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS),
-		CreatedAt:       now,
-		UpdatedAt:       now,
-	}
-	err := c.aiAssistantMessageRepo.Create(ctx, assistantMessage)
-	if err != nil {
-		return nil, err
-	}
-	return assistantMessage, nil
 }
 
 // buildAiAssistantFailedReply 构造可展示和可排障的助手异常回复。
@@ -606,14 +522,137 @@ func (c *AiAssistantMessageCase) buildAiAssistantFailedReply(reply *assistant.Re
 		reason = cause.Error()
 	}
 	return &assistant.Response{
-		Content:        "Service temporarily unavailable",
-		TokenUsage:     failedReply.TokenUsage,
+		Content:        failedReply.Content,
+		Token:          failedReply.Token,
 		Tools:          failedReply.Tools,
 		Source:         "fallback",
 		Model:          failedReply.Model,
 		Fallback:       true,
 		FallbackReason: reason,
 	}
+}
+
+// regenerateAiAssistantMessage 使用已有输入重新生成当前轮次输出。
+func (c *AiAssistantMessageCase) regenerateAiAssistantMessage(ctx context.Context, session *models.AiAssistantSession, message *models.AiAssistantMessage) (*basev1.SendAiAssistantMessageResponse, error) {
+	input := assistant.ParseInputContent(message.InputContent)
+	content := input.Content
+	attachments := assistant.ParseAttachments(message.Attachments)
+
+	var err error
+	var assistantAttachments []assistant.Attachment
+	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
+	if err != nil {
+		return nil, err
+	}
+	var userName string
+	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
+	if err != nil {
+		return nil, err
+	}
+	var history []assistant.Message
+	history, err = c.buildHistoryBeforeMessage(ctx, session.ID, message, aiAssistantHistorySize)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	if err = c.markAiAssistantMessageGenerating(ctx, message, now); err != nil {
+		return nil, err
+	}
+	startAt := time.Now()
+	var reply *assistant.Response
+	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, nil)
+	finishAt := time.Now()
+	durationMs := durationMilliseconds(startAt, finishAt)
+	firstTokenMs := durationMs
+	status := int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)
+	if err != nil {
+		reply = c.buildAiAssistantFailedReply(reply, err)
+		status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
+	}
+	if updateErr := c.finishAiAssistantMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status); updateErr != nil {
+		return nil, updateErr
+	}
+	return &basev1.SendAiAssistantMessageResponse{
+		Messages: []*basev1.AiAssistantMessage{c.ToDTO(message)},
+		Session:  c.aiAssistantSessionCase.ToDTO(session),
+	}, nil
+}
+
+// finishAiAssistantMessage 回填当前轮次输出、工具、token 与耗时。
+func (c *AiAssistantMessageCase) finishAiAssistantMessage(
+	ctx context.Context,
+	session *models.AiAssistantSession,
+	message *models.AiAssistantMessage,
+	reply *assistant.Response,
+	now time.Time,
+	firstTokenMs int32,
+	durationMs int32,
+	status int32,
+) error {
+	outputContent := assistant.MarshalReplyContent(reply)
+	tools := assistant.MarshalTools(nil)
+	token := assistant.MarshalTokenUsage(assistant.TokenUsage{})
+	if reply != nil {
+		tools = assistant.MarshalTools(reply.Tools)
+		token = assistant.MarshalTokenUsage(reply.Token)
+	}
+	err := c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		query := c.aiAssistantMessageRepo.Query(txCtx).AiAssistantMessage
+		_, updateErr := query.WithContext(txCtx).
+			Where(query.ID.Eq(message.ID)).
+			UpdateSimple(
+				query.OutputContent.Value(outputContent),
+				query.Tools.Value(tools),
+				query.Token.Value(token),
+				query.FirstTokenMs.Value(firstTokenMs),
+				query.DurationMs.Value(durationMs),
+				query.Status.Value(status),
+				query.UpdatedAt.Value(now),
+			)
+		if updateErr != nil {
+			return updateErr
+		}
+		return c.aiAssistantSessionCase.RefreshSessionUpdatedAt(txCtx, session, now)
+	})
+	if err != nil {
+		return err
+	}
+	message.OutputContent = outputContent
+	message.Tools = tools
+	message.Token = token
+	message.FirstTokenMs = firstTokenMs
+	message.DurationMs = durationMs
+	message.Status = status
+	message.UpdatedAt = now
+	return nil
+}
+
+// markAiAssistantMessageGenerating 标记消息进入生成中。
+func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Context, message *models.AiAssistantMessage, now time.Time) error {
+	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
+	_, err := query.WithContext(ctx).
+		Where(query.ID.Eq(message.ID)).
+		UpdateSimple(
+			query.OutputContent.Value(assistant.MarshalEmptyOutputContent()),
+			query.Tools.Value("[]"),
+			query.Token.Value(assistant.MarshalTokenUsage(assistant.TokenUsage{})),
+			query.FirstTokenMs.Value(0),
+			query.DurationMs.Value(0),
+			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)),
+			query.UpdatedAt.Value(now),
+		)
+	if err != nil {
+		return err
+	}
+	message.OutputContent = assistant.MarshalEmptyOutputContent()
+	message.Tools = "[]"
+	message.Token = assistant.MarshalTokenUsage(assistant.TokenUsage{})
+	message.FirstTokenMs = 0
+	message.DurationMs = 0
+	message.Status = int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)
+	message.UpdatedAt = now
+	return nil
 }
 
 // findCurrentUserMessage 查询当前用户当前会话下的消息。
@@ -644,278 +683,17 @@ func (c *AiAssistantMessageCase) findCurrentUserMessage(ctx context.Context, raw
 	return message, session, nil
 }
 
-// findPreviousUserMessage 查找指定助手消息前最近一条用户消息。
-func (c *AiAssistantMessageCase) findPreviousUserMessage(ctx context.Context, sessionID int64, target *models.AiAssistantMessage) (*models.AiAssistantMessage, error) {
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	opts := make([]repository.QueryOption, 0, 6)
-	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
-	opts = append(opts, repository.Where(query.Role.Eq(aiAssistantMessageRoleUser)))
-	opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS))))
-	opts = append(opts, repository.Where(query.CreatedAt.Lte(target.CreatedAt)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(1))
-	var message *models.AiAssistantMessage
-	var err error
-	message, err = c.aiAssistantMessageRepo.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("未找到可重新生成的问题")
-		}
-		return nil, err
+// durationMilliseconds 计算两个时间点之间的毫秒数。
+func durationMilliseconds(start time.Time, end time.Time) int32 {
+	if start.IsZero() || end.IsZero() || end.Before(start) {
+		return 0
 	}
-	return message, nil
-}
-
-// retryAiAssistantUserMessage 使用已有用户消息重新生成助手回复。
-func (c *AiAssistantMessageCase) retryAiAssistantUserMessage(ctx context.Context, session *models.AiAssistantSession, userMessage *models.AiAssistantMessage) (*basev1.SendAiAssistantMessageResponse, error) {
-	content := assistant.ParseReplyContent(userMessage.Content)
-	attachments := assistant.ParseAttachments(userMessage.AttachmentsJSON)
-
-	var err error
-	var assistantAttachments []assistant.Attachment
-	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
-	if err != nil {
-		return nil, err
+	ms := end.Sub(start).Milliseconds()
+	if ms <= 0 {
+		return 0
 	}
-	var userName string
-	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
-	if err != nil {
-		return nil, err
+	if ms > int64(^uint32(0)>>1) {
+		return int32(^uint32(0) >> 1)
 	}
-	var history []assistant.Message
-	history, err = c.buildHistoryBeforeMessage(ctx, session.ID, userMessage, aiAssistantHistorySize)
-	if err != nil {
-		return nil, err
-	}
-
-	now := time.Now()
-	err = c.markAiAssistantMessageGenerating(ctx, userMessage, now)
-	if err != nil {
-		return nil, err
-	}
-	var reply *assistant.Response
-	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, nil)
-	if err != nil {
-		failedAt := time.Now()
-		var assistantMessage *models.AiAssistantMessage
-		updateErr := c.tx.Transaction(ctx, func(txCtx context.Context) error {
-			if successErr := c.markAiAssistantMessageSuccess(txCtx, userMessage, failedAt); successErr != nil {
-				return successErr
-			}
-			var createErr error
-			assistantMessage, createErr = c.createAiAssistantFailedReplyMessage(txCtx, session, reply, err, failedAt)
-			if createErr != nil {
-				return createErr
-			}
-			return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, failedAt)
-		})
-		if updateErr != nil {
-			return nil, updateErr
-		}
-		return &basev1.SendAiAssistantMessageResponse{
-			Messages: []*basev1.AiAssistantMessage{c.ToDTO(userMessage), c.ToDTO(assistantMessage)},
-			Session:  c.aiAssistantSessionCase.ToDTO(session),
-		}, nil
-	}
-
-	finishTime := time.Now()
-	var assistantMessage *models.AiAssistantMessage
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		err = c.markAiAssistantMessageSuccess(txCtx, userMessage, finishTime)
-		if err != nil {
-			return err
-		}
-		assistantMessage, err = c.createAiAssistantReplyMessage(txCtx, session, reply, finishTime)
-		if err != nil {
-			return err
-		}
-		return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, finishTime)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &basev1.SendAiAssistantMessageResponse{
-		Messages: []*basev1.AiAssistantMessage{c.ToDTO(userMessage), c.ToDTO(assistantMessage)},
-		Session:  c.aiAssistantSessionCase.ToDTO(session),
-	}, nil
-}
-
-// regenerateAiAssistantReplyMessage 使用原用户消息刷新指定助手回复内容。
-func (c *AiAssistantMessageCase) regenerateAiAssistantReplyMessage(ctx context.Context, session *models.AiAssistantSession, userMessage *models.AiAssistantMessage, assistantMessage *models.AiAssistantMessage) (*basev1.SendAiAssistantMessageResponse, error) {
-	content := assistant.ParseReplyContent(userMessage.Content)
-	attachments := assistant.ParseAttachments(userMessage.AttachmentsJSON)
-
-	var err error
-	var assistantAttachments []assistant.Attachment
-	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
-	if err != nil {
-		return nil, err
-	}
-	var userName string
-	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
-	if err != nil {
-		return nil, err
-	}
-	var history []assistant.Message
-	history, err = c.buildHistoryBeforeMessage(ctx, session.ID, userMessage, aiAssistantHistorySize)
-	if err != nil {
-		return nil, err
-	}
-
-	now := time.Now()
-	err = c.markAiAssistantMessageGenerating(ctx, assistantMessage, now)
-	if err != nil {
-		return nil, err
-	}
-	var reply *assistant.Response
-	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, nil)
-	if err != nil {
-		failedAt := time.Now()
-		failedReply := c.buildAiAssistantFailedReply(reply, err)
-		updateErr := c.markAiAssistantReplyMessageFailed(ctx, assistantMessage, failedReply, failedAt)
-		if updateErr != nil {
-			return nil, updateErr
-		}
-		return &basev1.SendAiAssistantMessageResponse{
-			Messages: []*basev1.AiAssistantMessage{c.ToDTO(assistantMessage)},
-			Session:  c.aiAssistantSessionCase.ToDTO(session),
-		}, nil
-	}
-
-	finishTime := time.Now()
-	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		query := c.aiAssistantMessageRepo.Query(txCtx).AiAssistantMessage
-		_, updateErr := query.WithContext(txCtx).
-			Where(query.ID.Eq(assistantMessage.ID)).
-			UpdateSimple(
-				query.Content.Value(assistant.MarshalReplyContent(reply)),
-				query.ToolsJSON.Value(assistant.MarshalTools(reply.Tools)),
-				query.TokenUsage.Value(int32(reply.TokenUsage)),
-				query.Status.Value(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)),
-				query.UpdatedAt.Value(finishTime),
-			)
-		if updateErr != nil {
-			return updateErr
-		}
-		assistantMessage.Content = assistant.MarshalReplyContent(reply)
-		assistantMessage.ToolsJSON = assistant.MarshalTools(reply.Tools)
-		assistantMessage.TokenUsage = int32(reply.TokenUsage)
-		assistantMessage.Status = int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)
-		assistantMessage.UpdatedAt = finishTime
-		return c.aiAssistantSessionCase.RefreshLastMessageAt(txCtx, session, finishTime)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &basev1.SendAiAssistantMessageResponse{
-		Messages: []*basev1.AiAssistantMessage{c.ToDTO(assistantMessage)},
-		Session:  c.aiAssistantSessionCase.ToDTO(session),
-	}, nil
-}
-
-// buildHistoryBeforeMessage 构造指定消息之前的上下文。
-func (c *AiAssistantMessageCase) buildHistoryBeforeMessage(ctx context.Context, sessionID int64, message *models.AiAssistantMessage, historySize int) ([]assistant.Message, error) {
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	opts := make([]repository.QueryOption, 0, 6)
-	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
-	opts = append(opts, repository.Where(query.Status.Eq(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS))))
-	opts = append(opts, repository.Where(query.CreatedAt.Lt(message.CreatedAt)))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
-	opts = append(opts, repository.Limit(historySize))
-	list, err := c.aiAssistantMessageRepo.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	history := make([]assistant.Message, 0, len(list))
-	for index := len(list) - 1; index >= 0; index-- {
-		item := list[index]
-		if item.Content == "" {
-			continue
-		}
-		history = append(history, assistant.Message{
-			Role:    item.Role,
-			Content: assistant.ParseReplyContent(item.Content),
-		})
-	}
-	return history, nil
-}
-
-// markAiAssistantMessageGenerating 标记消息进入生成中。
-func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Context, message *models.AiAssistantMessage, now time.Time) error {
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(message.ID)).
-		UpdateSimple(
-			query.ToolsJSON.Value("[]"),
-			query.TokenUsage.Value(0),
-			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	message.ToolsJSON = "[]"
-	message.TokenUsage = 0
-	message.Status = int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)
-	message.UpdatedAt = now
-	return nil
-}
-
-// markAiAssistantMessageSuccess 标记消息生成成功。
-func (c *AiAssistantMessageCase) markAiAssistantMessageSuccess(ctx context.Context, message *models.AiAssistantMessage, now time.Time) error {
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(message.ID)).
-		UpdateSimple(
-			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	message.Status = int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)
-	message.UpdatedAt = now
-	return nil
-}
-
-// markAiAssistantMessageFailed 标记消息生成失败。
-func (c *AiAssistantMessageCase) markAiAssistantMessageFailed(ctx context.Context, message *models.AiAssistantMessage, cause error, now time.Time) error {
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(message.ID)).
-		UpdateSimple(
-			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	message.Status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
-	message.UpdatedAt = now
-	return nil
-}
-
-// markAiAssistantReplyMessageFailed 标记助手回复失败并刷新异常内容。
-func (c *AiAssistantMessageCase) markAiAssistantReplyMessageFailed(ctx context.Context, message *models.AiAssistantMessage, reply *assistant.Response, now time.Time) error {
-	content := assistant.MarshalReplyContent(reply)
-	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(message.ID)).
-		UpdateSimple(
-			query.Content.Value(content),
-			query.ToolsJSON.Value(assistant.MarshalTools(reply.Tools)),
-			query.TokenUsage.Value(int32(reply.TokenUsage)),
-			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)),
-			query.UpdatedAt.Value(now),
-		)
-	if err != nil {
-		return err
-	}
-	message.Content = content
-	message.ToolsJSON = assistant.MarshalTools(reply.Tools)
-	message.TokenUsage = int32(reply.TokenUsage)
-	message.Status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
-	message.UpdatedAt = now
-	return nil
+	return int32(ms)
 }

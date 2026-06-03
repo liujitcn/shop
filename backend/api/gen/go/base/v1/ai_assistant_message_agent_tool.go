@@ -72,11 +72,11 @@ func NewAiAssistantMessageServiceDeleteAiAssistantMessageAgentTool(aiAssistantMe
 	)
 }
 
-// NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool 创建重试失败的用户消息的 Agent Tool。
+// NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool 创建重试失败的 AI 助手消息的 Agent Tool。
 func NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool(aiAssistantMessageServiceServer AiAssistantMessageServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*RetryAiAssistantUserMessageRequest, *SendAiAssistantMessageResponse](
 		"base_v1_ai_assistant_message_service_retry_ai_assistant_user_message",
-		"重试失败的用户消息",
+		"重试失败的 AI 助手消息",
 		func(ctx context.Context, req *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error) {
 			if req == nil {
 				req = &RetryAiAssistantUserMessageRequest{}
@@ -86,11 +86,11 @@ func NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool(aiAssistan
 	)
 }
 
-// NewAiAssistantMessageServiceRegenerateAiAssistantMessageAgentTool 创建重新生成助手回复的 Agent Tool。
+// NewAiAssistantMessageServiceRegenerateAiAssistantMessageAgentTool 创建重新生成 AI 助手输出的 Agent Tool。
 func NewAiAssistantMessageServiceRegenerateAiAssistantMessageAgentTool(aiAssistantMessageServiceServer AiAssistantMessageServiceServer) (tool.InvokableTool, error) {
 	return utils.InferTool[*RegenerateAiAssistantMessageRequest, *SendAiAssistantMessageResponse](
 		"base_v1_ai_assistant_message_service_regenerate_ai_assistant_message",
-		"重新生成助手回复",
+		"重新生成 AI 助手输出",
 		func(ctx context.Context, req *RegenerateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
 			if req == nil {
 				req = &RegenerateAiAssistantMessageRequest{}

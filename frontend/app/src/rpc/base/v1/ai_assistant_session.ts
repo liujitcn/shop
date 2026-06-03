@@ -100,8 +100,6 @@ export interface AiAssistantSession {
   title: string;
   /** 会话摘要 */
   summary: string;
-  /** 工具数量 */
-  tool_count: number;
   /** 更新时间 */
   updated_at:
     | Timestamp
@@ -114,18 +112,48 @@ export interface AiAssistantSession {
 export interface AiAssistantMessage {
   /** 消息ID */
   id: string;
-  /** 消息角色 */
-  role: string;
-  /** 消息类型 */
-  kind: string;
-  /** 消息内容 */
-  content: string;
+  /** 输入内容 */
+  input_content:
+    | AiAssistantInputContent
+    | undefined;
+  /** 输出内容 */
+  output_content:
+    | AiAssistantOutputContent
+    | undefined;
   /** 附件列表 */
   attachments: AiAssistantAttachment[];
   /** 创建时间 */
   created_at:
     | Timestamp
     | undefined;
+  /** 消息生成状态：枚举【AiAssistantMessageStatus】 */
+  status: AiAssistantMessageStatus;
+  /** Token 统计 */
+  token:
+    | AiAssistantToken
+    | undefined;
+  /** 本次消息使用的工具列表 */
+  tools: AiAssistantTool[];
+  /** 首 Token 耗时毫秒 */
+  first_token_ms: number;
+  /** 总耗时毫秒 */
+  duration_ms: number;
+}
+
+/** AI 助手输入内容 */
+export interface AiAssistantInputContent {
+  /** 内容类型 */
+  kind: string;
+  /** 内容正文 */
+  content: string;
+}
+
+/** AI 助手输出内容 */
+export interface AiAssistantOutputContent {
+  /** 内容类型 */
+  kind: string;
+  /** 内容正文 */
+  content: string;
   /** 回复来源：llm/fallback */
   reply_source: string;
   /** 回复使用的模型名称 */
@@ -134,12 +162,18 @@ export interface AiAssistantMessage {
   fallback: boolean;
   /** 降级原因 */
   fallback_reason: string;
-  /** 消息生成状态：枚举【AiAssistantMessageStatus】 */
-  status: AiAssistantMessageStatus;
-  /** 本次消息 token 消耗 */
-  token_usage: number;
-  /** 本次消息使用的工具列表 */
-  tools: AiAssistantTool[];
+}
+
+/** AI 助手 Token 统计 */
+export interface AiAssistantToken {
+  /** 输入 Token 数 */
+  input: number;
+  /** 输出 Token 数 */
+  output: number;
+  /** 缓存 Token 数 */
+  cache: number;
+  /** 总 Token 数 */
+  total: number;
 }
 
 /** AI 助手附件 */
@@ -166,6 +200,10 @@ export interface AiAssistantTool {
   title: string;
   /** 工具调用状态 */
   status: string;
+  /** 工具原始入参JSON */
+  input: string;
+  /** 工具原始出参JSON */
+  output: string;
 }
 
 /** Base AI 助手会话服务 */

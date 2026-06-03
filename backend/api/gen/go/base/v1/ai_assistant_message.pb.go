@@ -228,11 +228,11 @@ func (*DeleteAiAssistantMessageResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{3}
 }
 
-// AI 助手失败用户消息重试请求
+// AI 助手失败消息重试请求
 type RetryAiAssistantUserMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
-	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 失败用户消息ID
+	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 失败消息ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -281,11 +281,11 @@ func (x *RetryAiAssistantUserMessageRequest) GetMessageId() string {
 	return ""
 }
 
-// AI 助手回复重新生成请求
+// AI 助手输出重新生成请求
 type RegenerateAiAssistantMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
-	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 助手消息ID
+	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 消息ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -352,17 +352,17 @@ const file_base_v1_ai_assistant_message_proto_rawDesc = "" +
 	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
 	"\n" +
 	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\"\"\n" +
-	" DeleteAiAssistantMessageResponse\"\x8e\x01\n" +
+	" DeleteAiAssistantMessageResponse\"\x88\x01\n" +
 	"\"RetryAiAssistantUserMessageRequest\x12-\n" +
-	"\n" +
-	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x129\n" +
-	"\n" +
-	"message_id\x18\x02 \x01(\tB\x1a\xbaG\x17\x92\x02\x14失败用户消息IDR\tmessageId\"\x89\x01\n" +
-	"#RegenerateAiAssistantMessageRequest\x12-\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x123\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e助手消息IDR\tmessageId2\xaa\x06\n" +
+	"message_id\x18\x02 \x01(\tB\x14\xbaG\x11\x92\x02\x0e失败消息IDR\tmessageId\"\x83\x01\n" +
+	"#RegenerateAiAssistantMessageRequest\x12-\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
+	"\n" +
+	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId2\xaa\x06\n" +
 	"\x19AiAssistantMessageService\x12\xac\x01\n" +
 	"\x16SendAiAssistantMessage\x12&.base.v1.SendAiAssistantMessageRequest\x1a'.base.v1.SendAiAssistantMessageResponse\"A\x82\xd3\xe4\x93\x02;:\x01*\"6/api/v1/base/ai/assistant/session/{session_id}/message\x12\xbc\x01\n" +
 	"\x18DeleteAiAssistantMessage\x12(.base.v1.DeleteAiAssistantMessageRequest\x1a).base.v1.DeleteAiAssistantMessageResponse\"K\x82\xd3\xe4\x93\x02E*C/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}\x12\xc9\x01\n" +

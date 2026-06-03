@@ -1,0 +1,212 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2600" viewBox="0 0 1440 2600">
+  <defs>
+    <style>
+      .page { fill: #ffffff; }
+      .line { stroke: #e5e7eb; stroke-width: 1; }
+      .hair { stroke: #eef0f3; stroke-width: 1; }
+      .dash { stroke: #d9dde5; stroke-width: 1; stroke-dasharray: 5 5; }
+      .body { fill: #111827; font: 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .strong { fill: #111827; font: 700 15px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .sub { fill: #6b7280; font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .small { fill: #9ca3af; font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .mono { fill: #334155; font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .user { fill: #f4f4f5; }
+      .tool { fill: #ffffff; stroke: #dedfe3; stroke-width: 1; }
+      .toolOpen { fill: #fbfcfe; stroke: #e5e7eb; stroke-width: 1; }
+      .tableHead { fill: #f3f4f6; }
+      .tableAlt { fill: #fafafa; }
+      .code { fill: #f8fafc; }
+      .ok { fill: #16a34a; font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .fail { fill: #dc2626; font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .run { fill: #2563eb; font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .chip { fill: #f6f7f9; stroke: #e5e7eb; stroke-width: 1; }
+      .chipText { fill: #4b5563; font: 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .error { fill: #fff7f7; stroke: #fecaca; stroke-width: 1; }
+      .quote { fill: #f8fafc; stroke: #e5e7eb; stroke-width: 1; }
+      .skeleton { fill: #f3f4f6; }
+      .skeletonDark { fill: #eef2f7; }
+    </style>
+  </defs>
+
+  <rect class="page" width="1440" height="2600"/>
+
+  <rect x="1052" y="48" width="306" height="48" rx="16" class="user"/>
+  <text x="1074" y="78" class="body">列一下第一页商品列表</text>
+
+  <rect x="56" y="132" width="1328" height="44" rx="8" class="tool"/>
+  <text x="78" y="160" class="body">⌘ app-MCP 服务器：app_v1_goods_info_service_page_goods_info</text>
+  <text x="1184" y="160" class="ok">已完成 ✓</text>
+  <text x="1270" y="160" class="small">⧉</text>
+  <text x="1328" y="160" class="small">›</text>
+
+  <text x="56" y="218" class="body">商品列表如下（共 340 件，当前第 1 页）：</text>
+
+  <rect x="56" y="250" width="1328" height="34" class="tableHead"/>
+  <line x1="56" y1="250" x2="1384" y2="250" class="line"/>
+  <line x1="56" y1="284" x2="1384" y2="284" class="line"/>
+  <text x="72" y="272" class="strong">ID</text>
+  <text x="238" y="272" class="strong">商品名称</text>
+  <text x="1102" y="272" class="strong">价格</text>
+  <text x="1280" y="272" class="strong">销量</text>
+
+  <g class="body">
+    <text x="72" y="314">4034794</text>
+    <text x="238" y="314">极光限定 珠光蓝珐琅球</text>
+    <text x="1102" y="314">¥200.00</text>
+    <text x="1280" y="314">83772</text>
+    <line x1="56" y1="330" x2="1384" y2="330" class="hair"/>
+
+    <rect x="56" y="330" width="1328" height="42" class="tableAlt"/>
+    <text x="72" y="356">4034793</text>
+    <text x="238" y="356">跟灯段丝超好玩碳纤维智能充电里</text>
+    <text x="1102" y="356">¥599.00</text>
+    <text x="1280" y="356">20445</text>
+    <line x1="56" y1="372" x2="1384" y2="372" class="hair"/>
+
+    <text x="72" y="398">4033959</text>
+    <text x="238" y="398">3秒快速拆雾轻松保养 odin 奥丁 12半首阶口琴</text>
+    <text x="1102" y="398">¥329.00</text>
+    <text x="1280" y="398">9176</text>
+    <line x1="56" y1="414" x2="1384" y2="414" class="hair"/>
+
+    <rect x="56" y="414" width="1328" height="42" class="tableAlt"/>
+    <text x="72" y="440">4027998</text>
+    <text x="238" y="440">亮蝶多效合一洗涤块495g</text>
+    <text x="1102" y="440">¥69.90</text>
+    <text x="1280" y="440">9844</text>
+    <line x1="56" y1="456" x2="1384" y2="456" class="hair"/>
+
+    <text x="72" y="482">4027473</text>
+    <text x="238" y="482">新款LOGO印花时尚学步叫叫鞋</text>
+    <text x="1102" y="482">¥279.00</text>
+    <text x="1280" y="482">70855</text>
+    <line x1="56" y1="498" x2="1384" y2="498" class="hair"/>
+  </g>
+
+  <text x="56" y="548" class="body">你可以继续说：</text>
+  <text x="76" y="580" class="body">• “下一页商品列表”</text>
+  <text x="76" y="612" class="body">• “搜索充电里”</text>
+  <text x="76" y="644" class="body">• “查看商品 4034794”</text>
+
+  <line x1="56" y1="682" x2="1384" y2="682" class="hair"/>
+  <text x="56" y="712" class="small">⧉</text>
+  <text x="104" y="712" class="small">↻</text>
+  <text x="152" y="712" class="small">@</text>
+  <text x="200" y="712" class="small">译</text>
+  <text x="248" y="712" class="small">⌫</text>
+  <text x="1218" y="712" class="small">Tokens: 9.8K · 15.73s</text>
+
+  <rect x="1164" y="772" width="194" height="48" rx="16" class="user"/>
+  <text x="1186" y="802" class="body">下一页</text>
+
+  <rect x="56" y="856" width="1328" height="44" rx="8" class="tool"/>
+  <text x="78" y="884" class="body">⌘ app-MCP 服务器：app_v1_goods_info_service_page_goods_info</text>
+  <text x="1184" y="884" class="ok">已完成 ✓</text>
+  <text x="1270" y="884" class="small">⧉</text>
+  <text x="1328" y="884" class="small">›</text>
+
+  <text x="56" y="942" class="body">第 2 页商品如下：</text>
+  <text x="56" y="980" class="body">1. 4027466 儿童气泵软底学步二阶段学步鞋，¥259.00，销量 88101。</text>
+  <text x="56" y="1012" class="body">2. 4026809 亚洲头围城市运动通勤电动车头盔，¥178.00，销量 35966。</text>
+  <text x="56" y="1044" class="body">3. 4026450 趣味小恐龙绣花，男童灯芯绒衬衫，¥99.00，销量 143195。</text>
+  <text x="56" y="1076" class="body">4. 4026198 经典格子元素，男童加绒格子衬衫，¥139.00，销量 234372。</text>
+
+  <line x1="56" y1="1114" x2="1384" y2="1114" class="hair"/>
+  <text x="56" y="1144" class="small">⧉</text>
+  <text x="104" y="1144" class="small">↻</text>
+  <text x="152" y="1144" class="small">@</text>
+  <text x="200" y="1144" class="small">译</text>
+  <text x="248" y="1144" class="small">⌫</text>
+  <text x="1218" y="1144" class="small">Tokens: 6.4K · 9.42s</text>
+
+  <rect x="1016" y="1204" width="342" height="48" rx="16" class="user"/>
+  <text x="1038" y="1234" class="body">展开上一次工具报文</text>
+
+  <rect x="56" y="1288" width="1328" height="44" rx="8" class="toolOpen"/>
+  <text x="78" y="1316" class="body">⌘ app-MCP 服务器：app_v1_goods_info_service_page_goods_info</text>
+  <text x="1092" y="1316" class="ok">已完成 ✓</text>
+  <rect x="1178" y="1298" width="72" height="24" rx="12" class="chip"/>
+  <text x="1193" y="1314" class="chipText">REQUEST</text>
+  <rect x="1258" y="1298" width="78" height="24" rx="12" class="chip"/>
+  <text x="1271" y="1314" class="chipText">RESPONSE</text>
+  <text x="1350" y="1316" class="small">˄</text>
+
+  <line x1="76" y1="1352" x2="1364" y2="1352" class="dash"/>
+
+  <rect x="76" y="1370" width="620" height="132" class="code"/>
+  <text x="96" y="1396" class="mono">REQUEST</text>
+  <text x="96" y="1422" class="mono">{</text>
+  <text x="116" y="1446" class="mono">"page": 2, "page_size": 10,</text>
+  <text x="116" y="1470" class="mono">"cursor": "MTA3NTAxMQ=="</text>
+  <text x="96" y="1494" class="mono">}</text>
+
+  <rect x="724" y="1370" width="640" height="132" class="code"/>
+  <text x="744" y="1396" class="mono">RESPONSE</text>
+  <text x="744" y="1422" class="mono">{</text>
+  <text x="764" y="1446" class="mono">"total": 340, "items": [...],</text>
+  <text x="764" y="1470" class="mono">"next_cursor": "MTA3NTAxMQ=="</text>
+  <text x="744" y="1494" class="mono">}</text>
+
+  <line x1="56" y1="1540" x2="1384" y2="1540" class="hair"/>
+  <text x="56" y="1570" class="small">⧉</text>
+  <text x="104" y="1570" class="small">↻</text>
+  <text x="152" y="1570" class="small">@</text>
+  <text x="200" y="1570" class="small">译</text>
+  <text x="248" y="1570" class="small">⌫</text>
+  <text x="1218" y="1570" class="small">Tokens: 2.3K · 1.88s</text>
+
+  <rect x="934" y="1630" width="424" height="48" rx="16" class="user"/>
+  <text x="956" y="1660" class="body">帮我分析近 30 天销量趋势</text>
+
+  <rect x="56" y="1714" width="1328" height="44" rx="8" class="tool"/>
+  <text x="78" y="1742" class="body">⌘ app-MCP 服务器：order_stats_monthly_summary</text>
+  <text x="1184" y="1742" class="run">运行中 · 1m52s</text>
+  <text x="1328" y="1742" class="small">›</text>
+
+  <rect x="56" y="1788" width="560" height="14" rx="7" class="skeletonDark"/>
+  <rect x="56" y="1816" width="760" height="14" rx="7" class="skeleton"/>
+  <rect x="56" y="1844" width="420" height="14" rx="7" class="skeleton"/>
+
+  <line x1="56" y1="1890" x2="1384" y2="1890" class="hair"/>
+  <text x="56" y="1920" class="small">⧉</text>
+  <text x="104" y="1920" class="small">■</text>
+  <text x="1230" y="1920" class="small">Tokens: 3.2K · 1m52s</text>
+
+  <rect x="934" y="1980" width="424" height="48" rx="16" class="user"/>
+  <text x="956" y="2010" class="body">查询商品 4034794 库存变动</text>
+
+  <rect x="56" y="2064" width="1328" height="44" rx="8" class="tool"/>
+  <text x="78" y="2092" class="body">⌘ app-MCP 服务器：inventory_change_history</text>
+  <text x="1162" y="2092" class="fail">失败</text>
+  <text x="1270" y="2092" class="small">⧉</text>
+  <text x="1328" y="2092" class="small">›</text>
+
+  <rect x="56" y="2130" width="1328" height="76" rx="8" class="error"/>
+  <text x="78" y="2162" class="strong">库存服务暂时不可用。</text>
+  <text x="78" y="2192" class="body">我没有拿到库存变动数据。可以稍后重试，或先查看该商品的基础信息。</text>
+  <rect x="1126" y="2152" width="86" height="30" rx="15" class="chip"/>
+  <text x="1148" y="2172" class="chipText">重试</text>
+  <rect x="1226" y="2152" width="102" height="30" rx="15" class="chip"/>
+  <text x="1247" y="2172" class="chipText">查看商品</text>
+
+  <line x1="56" y1="2244" x2="1384" y2="2244" class="hair"/>
+  <text x="56" y="2274" class="small">⧉</text>
+  <text x="104" y="2274" class="small">↻</text>
+  <text x="152" y="2274" class="small">@</text>
+  <text x="200" y="2274" class="small">译</text>
+  <text x="248" y="2274" class="small">⌫</text>
+  <text x="1240" y="2274" class="small">Tokens: 1.1K · 8.42s</text>
+
+  <rect x="1018" y="2334" width="340" height="48" rx="16" class="user"/>
+  <text x="1040" y="2364" class="body">先看商品基础信息</text>
+
+  <rect x="56" y="2418" width="1328" height="44" rx="8" class="tool"/>
+  <text x="78" y="2446" class="body">⌘ app-MCP 服务器：goods_info_detail</text>
+  <text x="1184" y="2446" class="ok">已完成 ✓</text>
+  <text x="1270" y="2446" class="small">⧉</text>
+  <text x="1328" y="2446" class="small">›</text>
+
+  <rect x="56" y="2492" width="1328" height="72" rx="8" class="quote"/>
+  <text x="78" y="2524" class="strong">极光限定 珠光蓝珐琅球</text>
+  <text x="78" y="2554" class="body">当前售价 ¥200.00，销量 83772。库存变动服务恢复后，我可以继续补充近 7 天入库、出库和售罄风险。</text>
+</svg>

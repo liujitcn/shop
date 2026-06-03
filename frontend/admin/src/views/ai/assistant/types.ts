@@ -15,7 +15,7 @@ export type SubmitPayload = {
 };
 
 /** 消息进度状态，用于控制气泡加载、失败和常规展示。 */
-export type MessageProgressState = "idle" | "pending" | "streaming" | "failed";
+export type MessageProgressState = "idle" | "streaming" | "failed";
 
 /** 回复来源标签配置。 */
 export type ReplySourceTag = {
@@ -27,6 +27,20 @@ export type ReplySourceTag = {
 
 /** 聊天气泡展示项，在后端消息基础上补充 UI 状态。 */
 export type ChatMessageItem = AiAssistantMessage & {
+  /** 当前气泡角色，由一轮消息拆分得到。 */
+  role: "user" | "assistant";
+  /** 当前气泡正文。 */
+  content: string;
+  /** 当前气泡内容类型。 */
+  kind: string;
+  /** 回复来源。 */
+  reply_source?: string;
+  /** 回复模型。 */
+  model?: string;
+  /** 是否降级回复。 */
+  fallback?: boolean;
+  /** 降级原因。 */
+  fallback_reason?: string;
   /** BubbleList 稳定渲染键。 */
   key: string;
   /** 气泡左右位置。 */
@@ -43,7 +57,7 @@ export type ChatMessageItem = AiAssistantMessage & {
   localOnly?: boolean;
   /** 回复来源标签。 */
   replySourceTag?: ReplySourceTag;
-  /** 本地流式消息键，按会话和用户消息拆分。 */
+  /** 本地流式消息键，按会话和单轮消息拆分。 */
   streamKey?: string;
   /** 是否正在朗读当前消息。 */
   speaking?: boolean;
@@ -56,7 +70,7 @@ export type AiAssistantStreamEventName = "delta" | "finish" | "error";
 export type AiAssistantStreamPayload = {
   /** 会话 ID。 */
   session_id: string;
-  /** 后端用户消息 ID，用于关联当前轮次。 */
+  /** 后端单轮消息 ID，用于关联当前轮次。 */
   message_id: string;
   /** 本次新增文本分片。 */
   delta?: string;

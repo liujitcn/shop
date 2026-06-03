@@ -43,7 +43,6 @@ import {
   createLocalUserMessage,
   createThinkingMessage,
   ensureStreamingMessage,
-  findPreviousUserMessage,
   hasStreamingDelta,
   markAssistantMessageRegenerating,
   markStreamingError,
@@ -54,7 +53,7 @@ import {
   normalizeSessionList,
   resolveTimestamp,
   replacePendingMessages,
-  sortMessages,
+  sortMessages
 } from "./message";
 import { normalizeAiAssistantStreamItem } from "./stream";
 import type { AiAssistantStreamEvent, AiAssistantStreamPayload, ChatMessageAction, ChatMessageItem, SessionAction, SubmitPayload } from "./types";
@@ -128,11 +127,18 @@ async function handleSubmit(payload: SubmitPayload) {
   // 已有发送中的请求时，直接忽略重复提交，避免同一轮输入被并发发送多次。
   if (sending.value) return;
   sending.value = true;
+  try {
+    await sendAiAssistantPayload(payload);
+  } finally {
+    sending.value = false;
+  }
+}
 
+/** 执行真实发送流程，复用于输入框提交和本地失败重发。 */
+async function sendAiAssistantPayload(payload: SubmitPayload) {
   const sessionID = await ensureActiveSession();
   if (!sessionID) {
-    sending.value = false;
-    return;
+    return false;
   }
 
   const localUserMessage = createLocalUserMessage(payload);
@@ -166,14 +172,14 @@ async function handleSubmit(payload: SubmitPayload) {
     if (!streamFinished) {
       throw new Error("AI 助手流式响应未完整返回");
     }
+    return true;
   } catch (error) {
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
       sessionID
     });
     const message = error instanceof Error ? error.message : "AI 助手请求失败";
     ElMessage.error(message);
-  } finally {
-    sending.value = false;
+    return false;
   }
 }
 
@@ -212,8 +218,17 @@ async function handleCopyMessage(item: ChatMessageItem) {
 async function handleDeleteMessage(item: ChatMessageItem) {
   const sessionID = activeSessionID.value;
   if (!sessionID) return;
-  if (speakingMessageID === String(item.id)) {
+  if (speakingMessageID === resolveMessageBubbleKey(item)) {
     stopSpeaking();
+  }
+  if (item.localOnly) {
+    const messageKey = resolveMessageBubbleKey(item);
+    messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => {
+      if (item.role === "user") return !message.localOnly;
+      return resolveMessageBubbleKey(message) !== messageKey;
+    });
+    ElMessage.success("消息已删除");
+    return;
   }
   await defAiAssistantMessageService.DeleteAiAssistantMessage({
     session_id: sessionID,
@@ -223,7 +238,7 @@ async function handleDeleteMessage(item: ChatMessageItem) {
   ElMessage.success("消息已删除");
 }
 
-/** 重试失败的用户消息，或重新生成助手回复。 */
+/** 重试失败的一轮消息，或重新生成助手输出。 */
 async function handleRetryMessage(item: ChatMessageItem) {
   const sessionID = activeSessionID.value;
   if (!sessionID || sending.value) return;
@@ -231,9 +246,21 @@ async function handleRetryMessage(item: ChatMessageItem) {
   sending.value = true;
   try {
     let response;
+    if (item.localOnly) {
+      const payload = resolveLocalRetryPayload(item);
+      if (!payload) {
+        ElMessage.warning("未找到可重新发送的本地消息");
+        return;
+      }
+      messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(message => !message.localOnly);
+      if (await sendAiAssistantPayload(payload)) {
+        ElMessage.success("已重新发送");
+      }
+      return;
+    }
     if (item.role === "user") {
       if (item.status !== AiAssistantMessageStatus.FAILED_AAMS) {
-        ElMessage.warning("只有发送失败的用户消息可以重新发送");
+        ElMessage.warning("只有发送失败的消息可以重新发送");
         return;
       }
       response = await defAiAssistantMessageService.RetryAiAssistantUserMessage({
@@ -260,6 +287,30 @@ async function handleRetryMessage(item: ChatMessageItem) {
   }
 }
 
+/** 从本地失败气泡还原可重新提交的输入内容。 */
+function resolveLocalRetryPayload(item: ChatMessageItem): SubmitPayload | undefined {
+  if (item.role === "user") {
+    return {
+      text: String(item.content ?? ""),
+      attachments: item.attachments ?? []
+    };
+  }
+
+  const sortedList = sortMessages(messages.value[activeSessionID.value] ?? []);
+  const targetIndex = sortedList.findIndex(message => resolveMessageBubbleKey(message) === resolveMessageBubbleKey(item));
+  const endIndex = targetIndex >= 0 ? targetIndex - 1 : sortedList.length - 1;
+  for (let index = endIndex; index >= 0; index--) {
+    const message = sortedList[index];
+    if (message.localOnly && message.role === "user") {
+      return {
+        text: String(message.content ?? ""),
+        attachments: message.attachments ?? []
+      };
+    }
+  }
+  return undefined;
+}
+
 /** 从当前消息处创建一个新的持久化分支会话。 */
 async function handleBranchMessage(item: ChatMessageItem) {
   const sourceSessionID = activeSessionID.value;
@@ -278,25 +329,31 @@ async function handleBranchMessage(item: ChatMessageItem) {
   ElMessage.success("已创建分支会话");
 }
 
-/** 朗读或停止朗读当前助手回复。 */
+/** 朗读或停止朗读当前助手输出。 */
 function handleSpeakMessage(item: ChatMessageItem) {
   if (item.role === "user") return;
   if (!window.speechSynthesis) {
     ElMessage.warning("当前浏览器不支持朗读");
     return;
   }
-  if (speakingMessageID === String(item.id)) {
+  const messageKey = resolveMessageBubbleKey(item);
+  if (speakingMessageID === messageKey) {
     stopSpeaking();
     return;
   }
   stopSpeaking();
   const utterance = new SpeechSynthesisUtterance(String(item.content ?? ""));
   utterance.lang = "zh-CN";
-  utterance.onend = () => clearSpeakingState(String(item.id));
-  utterance.onerror = () => clearSpeakingState(String(item.id));
-  speakingMessageID = String(item.id);
+  utterance.onend = () => clearSpeakingState(messageKey);
+  utterance.onerror = () => clearSpeakingState(messageKey);
+  speakingMessageID = messageKey;
   markAllMessagesSpeaking(speakingMessageID);
   window.speechSynthesis.speak(utterance);
+}
+
+/** 生成当前气泡的前端稳定键，用于朗读态和渲染态关联。 */
+function resolveMessageBubbleKey(item: ChatMessageItem) {
+  return String(item.key ?? `${item.id}:${item.role}`);
 }
 
 /** 停止浏览器朗读，并清理气泡朗读态。 */
@@ -522,8 +579,7 @@ async function createSession(options?: { title?: string }) {
 
 /** 使用当前消息内容生成一个易识别的分支会话标题。 */
 function buildBranchSessionTitle(item: ChatMessageItem) {
-  const sourceMessage = item.role === "user" ? item : findPreviousUserMessage(currentMessages.value, item);
-  const content = String(sourceMessage?.content || item.content || "新对话").replace(/\s+/g, " ").trim();
+  const content = String(item.input_content?.content || item.content || "新对话").replace(/\s+/g, " ").trim();
   return `分支：${content.slice(0, 18) || "新对话"}`;
 }
 

@@ -32,8 +32,6 @@ func newAiAssistantSession(db *gorm.DB, opts ...gen.DOOption) aiAssistantSession
 	_aiAssistantSession.Terminal = field.NewInt32(tableName, "terminal")
 	_aiAssistantSession.Title = field.NewString(tableName, "title")
 	_aiAssistantSession.Summary = field.NewString(tableName, "summary")
-	_aiAssistantSession.ToolCount = field.NewInt32(tableName, "tool_count")
-	_aiAssistantSession.LastMessageAt = field.NewTime(tableName, "last_message_at")
 	_aiAssistantSession.CreatedAt = field.NewTime(tableName, "created_at")
 	_aiAssistantSession.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_aiAssistantSession.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -47,17 +45,15 @@ func newAiAssistantSession(db *gorm.DB, opts ...gen.DOOption) aiAssistantSession
 type aiAssistantSession struct {
 	aiAssistantSessionDo aiAssistantSessionDo
 
-	ALL           field.Asterisk
-	ID            field.Int64  // 会话ID
-	UserID        field.Int64  // 所属用户ID
-	Terminal      field.Int32  // 终端类型：枚举【Terminal】
-	Title         field.String // 会话标题
-	Summary       field.String // 会话摘要
-	ToolCount     field.Int32  // 最近一次回复工具数
-	LastMessageAt field.Time   // 最后消息时间
-	CreatedAt     field.Time   // 创建时间
-	UpdatedAt     field.Time   // 更新时间
-	DeletedAt     field.Field  // 删除时间
+	ALL       field.Asterisk
+	ID        field.Int64  // 会话ID
+	UserID    field.Int64  // 所属用户ID
+	Terminal  field.Int32  // 终端类型：枚举【Terminal】
+	Title     field.String // 会话标题
+	Summary   field.String // 会话摘要
+	CreatedAt field.Time   // 创建时间
+	UpdatedAt field.Time   // 更新时间
+	DeletedAt field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -79,8 +75,6 @@ func (a *aiAssistantSession) updateTableName(table string) *aiAssistantSession {
 	a.Terminal = field.NewInt32(table, "terminal")
 	a.Title = field.NewString(table, "title")
 	a.Summary = field.NewString(table, "summary")
-	a.ToolCount = field.NewInt32(table, "tool_count")
-	a.LastMessageAt = field.NewTime(table, "last_message_at")
 	a.CreatedAt = field.NewTime(table, "created_at")
 	a.UpdatedAt = field.NewTime(table, "updated_at")
 	a.DeletedAt = field.NewField(table, "deleted_at")
@@ -112,14 +106,12 @@ func (a *aiAssistantSession) GetFieldByName(fieldName string) (field.OrderExpr, 
 }
 
 func (a *aiAssistantSession) fillFieldMap() {
-	a.fieldMap = make(map[string]field.Expr, 10)
+	a.fieldMap = make(map[string]field.Expr, 8)
 	a.fieldMap["id"] = a.ID
 	a.fieldMap["user_id"] = a.UserID
 	a.fieldMap["terminal"] = a.Terminal
 	a.fieldMap["title"] = a.Title
 	a.fieldMap["summary"] = a.Summary
-	a.fieldMap["tool_count"] = a.ToolCount
-	a.fieldMap["last_message_at"] = a.LastMessageAt
 	a.fieldMap["created_at"] = a.CreatedAt
 	a.fieldMap["updated_at"] = a.UpdatedAt
 	a.fieldMap["deleted_at"] = a.DeletedAt
