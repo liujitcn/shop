@@ -164,7 +164,7 @@ export interface AiAssistantTool {
   name: string;
   /** 工具展示名称 */
   title: string;
-  /** 工具状态 */
+  /** 工具调用状态 */
   status: string;
 }
 

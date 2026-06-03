@@ -61,7 +61,7 @@ type Response struct {
 	Content string `json:"content"`
 	// TokenUsage 本次调用 token 消耗；当前 Responses 流程暂未稳定回填时保持 0。
 	TokenUsage int64 `json:"tokenUsage"`
-	// Tools 本轮回复命中或实际调用的工具列表。
+	// Tools 本轮回复实际使用的工具列表。
 	Tools []ToolUsage `json:"tools"`
 	// Source 回复来源，例如 llm 或 fallback。
 	Source string `json:"source"`
@@ -81,7 +81,7 @@ type ToolUsage struct {
 	Name string `json:"name"`
 	// Title 工具展示名称，优先使用生成工具描述。
 	Title string `json:"title"`
-	// Status 工具状态，例如 matched、success、error。
+	// Status 工具状态，例如 success、error。
 	Status string `json:"status"`
 }
 

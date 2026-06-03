@@ -190,5 +190,5 @@ message AiAssistantTool {
 
   string title = 3 [(gnostic.openapi.v3.property) = {description: "工具展示名称"}]; // 工具展示名称
 
-  string status = 4 [(gnostic.openapi.v3.property) = {description: "工具状态"}]; // 工具状态
+  string status = 4 [(gnostic.openapi.v3.property) = {description: "工具调用状态"}]; // 工具调用状态
 }

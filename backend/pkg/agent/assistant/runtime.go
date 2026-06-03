@@ -22,7 +22,7 @@ import (
 
 const (
 	maxModelToolsPerRequest    = 1
-	minToolMatchScore          = 2
+	minToolMatchScore          = 4
 	maxToolQueryAttachmentText = 800
 )
 
@@ -176,8 +176,7 @@ func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages 
 		return nil, 0, nil, err
 	}
 	tokenUsage := agenticTokenUsage(output)
-	tools := toolInfoUsages(toolInfos, "matched")
-	tools = append(tools, extractServerTools(output)...)
+	tools := extractServerTools(output)
 	toolCalls := agenticToolCalls(output)
 	if len(toolCalls) == 0 {
 		return output, tokenUsage, tools, nil
@@ -208,8 +207,7 @@ func (r *Runtime) runToolCalls(
 		return nil, false, 0, nil, err
 	}
 	tokenUsage := agenticTokenUsage(output)
-	tools := toolInfoUsages(toolInfos, "matched")
-	tools = append(tools, extractServerTools(output)...)
+	tools := extractServerTools(output)
 	toolCalls := agenticToolCalls(output)
 	if len(toolCalls) == 0 {
 		return currentMessages, false, tokenUsage, tools, nil
@@ -432,16 +430,51 @@ func scoreToolInfo(info *schema.ToolInfo, terms []string) int {
 	}
 	text := strings.ToLower(info.Name + " " + info.Desc)
 	score := 0
+	specificScore := 0
+	shortPositions := make([]int, 0, 4)
 	for _, term := range terms {
 		if !strings.Contains(text, term) {
 			continue
 		}
-		score += len([]rune(term))
+		termScore := len([]rune(term))
+		score += termScore
 		if strings.Contains(info.Name, term) {
 			score += 3
 		}
+		if termScore >= 3 {
+			specificScore += termScore
+			continue
+		}
+		if termScore == 2 {
+			shortPositions = append(shortPositions, strings.Index(text, term))
+		}
+	}
+	if specificScore == 0 && !hasNearbyShortToolTerms(shortPositions) {
+		return 0
 	}
 	return score
+}
+
+// hasNearbyShortToolTerms 判断多个短词是否在工具描述中足够接近。
+func hasNearbyShortToolTerms(positions []int) bool {
+	for i, left := range positions {
+		if left < 0 {
+			continue
+		}
+		for _, right := range positions[i+1:] {
+			if right < 0 {
+				continue
+			}
+			distance := left - right
+			if distance < 0 {
+				distance = -distance
+			}
+			if distance <= 18 {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // toolMap 按工具名构造本地执行索引。
@@ -724,26 +757,6 @@ func agenticToolCalls(message *schema.AgenticMessage) []schema.ToolCall {
 	return calls
 }
 
-// toolInfoUsages 按候选函数工具构造工具命中记录。
-func toolInfoUsages(infos []*schema.ToolInfo, status string) []ToolUsage {
-	if len(infos) == 0 {
-		return nil
-	}
-	tools := make([]ToolUsage, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		tools = append(tools, ToolUsage{
-			Type:   "function",
-			Name:   info.Name,
-			Title:  toolInfoTitle(info),
-			Status: status,
-		})
-	}
-	return tools
-}
-
 // functionToolUsages 按实际函数工具调用构造工具使用记录。
 func functionToolUsages(infos []*schema.ToolInfo, calls []schema.ToolCall) []ToolUsage {
 	if len(calls) == 0 {
@@ -859,15 +872,13 @@ func normalizeToolUsages(values []ToolUsage) []ToolUsage {
 	return result
 }
 
-// toolStatusRank 返回工具状态优先级，真实调用优先覆盖命中记录。
+// toolStatusRank 返回工具状态优先级，成功调用优先覆盖异常记录。
 func toolStatusRank(status string) int {
 	switch status {
 	case "success":
 		return 3
 	case "error":
 		return 2
-	case "matched":
-		return 1
 	default:
 		return 0
 	}

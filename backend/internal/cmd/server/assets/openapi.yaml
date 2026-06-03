@@ -6023,7 +6023,7 @@ components:
                     description: 工具展示名称
                 status:
                     type: string
-                    description: 工具状态
+                    description: 工具调用状态
             description: AI 助手工具调用记录
         AnalyticsPieItem:
             type: object
