@@ -77,6 +77,8 @@ export function mapMessageItem(message: AiAssistantMessage): ChatMessageItem {
     fallback: Boolean(message.fallback),
     fallback_reason: String(message.fallback_reason ?? ""),
     status: Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS),
+    token_usage: Number(message.token_usage ?? 0),
+    tools: Array.isArray(message.tools) ? message.tools : [],
     variant: message.role === "user" ? "filled" : "outlined",
     shape: "corner",
     progressState:
@@ -116,7 +118,9 @@ export function createLocalUserMessage(payload: {
     model: "",
     fallback: false,
     fallback_reason: "",
-    status: AiAssistantMessageStatus.GENERATING_AAMS
+    status: AiAssistantMessageStatus.GENERATING_AAMS,
+    token_usage: 0,
+    tools: []
   });
   // 本地回显消息只用于等待服务端响应，收到正式消息后需要被替换掉，避免同一问题展示两遍。
   message.localOnly = true;
@@ -145,7 +149,9 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
     model: "",
     fallback: false,
     fallback_reason: "",
-    status: AiAssistantMessageStatus.GENERATING_AAMS
+    status: AiAssistantMessageStatus.GENERATING_AAMS,
+    token_usage: 0,
+    tools: []
   });
   message.progressState = "streaming";
   message.localOnly = true;
@@ -180,6 +186,8 @@ export function markAssistantMessageRegenerating(current: ChatMessageItem[], ses
       content: THINKING_MESSAGE_CONTENT,
       fallback: false,
       fallback_reason: "",
+      token_usage: 0,
+      tools: [],
       progressState: "streaming",
       replySourceTag: { text: "思考中", tone: "info" },
       status: AiAssistantMessageStatus.GENERATING_AAMS,

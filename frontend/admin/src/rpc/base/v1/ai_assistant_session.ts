@@ -136,6 +136,10 @@ export interface AiAssistantMessage {
   fallback_reason: string;
   /** 消息生成状态：枚举【AiAssistantMessageStatus】 */
   status: AiAssistantMessageStatus;
+  /** 本次消息 token 消耗 */
+  token_usage: number;
+  /** 本次消息使用的工具列表 */
+  tools: AiAssistantTool[];
 }
 
 /** AI 助手附件 */
@@ -150,6 +154,18 @@ export interface AiAssistantAttachment {
   url: string;
   /** 附件 MIME 类型 */
   mime_type: string;
+}
+
+/** AI 助手工具调用记录 */
+export interface AiAssistantTool {
+  /** 工具类型：function/server */
+  type: string;
+  /** 工具名称 */
+  name: string;
+  /** 工具展示名称 */
+  title: string;
+  /** 工具状态 */
+  status: string;
 }
 
 /** Base AI 助手会话服务 */

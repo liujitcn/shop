@@ -163,6 +163,10 @@ message AiAssistantMessage {
   string fallback_reason = 10 [(gnostic.openapi.v3.property) = {description: "降级原因"}]; // 降级原因
 
   .common.v1.AiAssistantMessageStatus status = 11 [(gnostic.openapi.v3.property) = {description: "消息生成状态：枚举【AiAssistantMessageStatus】"}]; // 消息生成状态：枚举【AiAssistantMessageStatus】
+
+  int32 token_usage = 12 [(gnostic.openapi.v3.property) = {description: "本次消息 token 消耗"}]; // 本次消息 token 消耗
+
+  repeated AiAssistantTool tools = 13 [(gnostic.openapi.v3.property) = {description: "本次消息使用的工具列表"}]; // 本次消息使用的工具列表
 }
 
 // AI 助手附件
@@ -176,4 +180,15 @@ message AiAssistantAttachment {
   string url = 4 [(gnostic.openapi.v3.property) = {description: "附件地址"}]; // 附件地址
 
   string mime_type = 5 [(gnostic.openapi.v3.property) = {description: "附件 MIME 类型"}]; // 附件 MIME 类型
+}
+
+// AI 助手工具调用记录
+message AiAssistantTool {
+  string type = 1 [(gnostic.openapi.v3.property) = {description: "工具类型：function/server"}]; // 工具类型：function/server
+
+  string name = 2 [(gnostic.openapi.v3.property) = {description: "工具名称"}]; // 工具名称
+
+  string title = 3 [(gnostic.openapi.v3.property) = {description: "工具展示名称"}]; // 工具展示名称
+
+  string status = 4 [(gnostic.openapi.v3.property) = {description: "工具状态"}]; // 工具状态
 }

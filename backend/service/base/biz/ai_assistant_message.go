@@ -390,7 +390,26 @@ func (c *AiAssistantMessageCase) ToDTO(model *models.AiAssistantMessage) *basev1
 	message.Fallback = meta.Fallback
 	message.FallbackReason = meta.FallbackReason
 	message.Status = commonv1.AiAssistantMessageStatus(model.Status)
+	message.TokenUsage = model.TokenUsage
+	message.Tools = toAiAssistantTools(assistant.ParseTools(model.ToolsJSON))
 	return message
+}
+
+// toAiAssistantTools 转换工具使用记录为接口对象。
+func toAiAssistantTools(values []assistant.ToolUsage) []*basev1.AiAssistantTool {
+	if len(values) == 0 {
+		return []*basev1.AiAssistantTool{}
+	}
+	tools := make([]*basev1.AiAssistantTool, 0, len(values))
+	for _, item := range values {
+		tools = append(tools, &basev1.AiAssistantTool{
+			Type:   item.Type,
+			Name:   item.Name,
+			Title:  item.Title,
+			Status: item.Status,
+		})
+	}
+	return tools
 }
 
 // buildAiAssistantAttachments 读取附件内容，构造 AI 助手输入附件。
@@ -523,6 +542,7 @@ func (c *AiAssistantMessageCase) buildAiAssistantFallbackResponse(
 	return &assistant.Response{
 		Content:        assistant.BuildFallbackReply(content, attachments),
 		TokenUsage:     0,
+		Tools:          []assistant.ToolUsage{},
 		Source:         "fallback",
 		Model:          model,
 		Fallback:       true,
@@ -539,7 +559,7 @@ func (c *AiAssistantMessageCase) createAiAssistantReplyMessage(ctx context.Conte
 		Kind:            assistant.KindText,
 		Content:         assistant.MarshalReplyContent(reply),
 		AttachmentsJSON: assistant.MarshalAttachments(nil),
-		ToolsJSON:       "[]",
+		ToolsJSON:       assistant.MarshalTools(reply.Tools),
 		TokenUsage:      int32(reply.TokenUsage),
 		Status:          int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS),
 		CreatedAt:       now,
@@ -562,7 +582,7 @@ func (c *AiAssistantMessageCase) createAiAssistantFailedReplyMessage(ctx context
 		Kind:            assistant.KindText,
 		Content:         assistant.MarshalReplyContent(failedReply),
 		AttachmentsJSON: assistant.MarshalAttachments(nil),
-		ToolsJSON:       "[]",
+		ToolsJSON:       assistant.MarshalTools(failedReply.Tools),
 		TokenUsage:      int32(failedReply.TokenUsage),
 		Status:          int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS),
 		CreatedAt:       now,
@@ -588,6 +608,7 @@ func (c *AiAssistantMessageCase) buildAiAssistantFailedReply(reply *assistant.Re
 	return &assistant.Response{
 		Content:        "Service temporarily unavailable",
 		TokenUsage:     failedReply.TokenUsage,
+		Tools:          failedReply.Tools,
 		Source:         "fallback",
 		Model:          failedReply.Model,
 		Fallback:       true,
@@ -768,6 +789,7 @@ func (c *AiAssistantMessageCase) regenerateAiAssistantReplyMessage(ctx context.C
 			Where(query.ID.Eq(assistantMessage.ID)).
 			UpdateSimple(
 				query.Content.Value(assistant.MarshalReplyContent(reply)),
+				query.ToolsJSON.Value(assistant.MarshalTools(reply.Tools)),
 				query.TokenUsage.Value(int32(reply.TokenUsage)),
 				query.Status.Value(int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)),
 				query.UpdatedAt.Value(finishTime),
@@ -776,6 +798,7 @@ func (c *AiAssistantMessageCase) regenerateAiAssistantReplyMessage(ctx context.C
 			return updateErr
 		}
 		assistantMessage.Content = assistant.MarshalReplyContent(reply)
+		assistantMessage.ToolsJSON = assistant.MarshalTools(reply.Tools)
 		assistantMessage.TokenUsage = int32(reply.TokenUsage)
 		assistantMessage.Status = int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)
 		assistantMessage.UpdatedAt = finishTime
@@ -824,12 +847,16 @@ func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Co
 	_, err := query.WithContext(ctx).
 		Where(query.ID.Eq(message.ID)).
 		UpdateSimple(
+			query.ToolsJSON.Value("[]"),
+			query.TokenUsage.Value(0),
 			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)),
 			query.UpdatedAt.Value(now),
 		)
 	if err != nil {
 		return err
 	}
+	message.ToolsJSON = "[]"
+	message.TokenUsage = 0
 	message.Status = int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)
 	message.UpdatedAt = now
 	return nil
@@ -877,6 +904,7 @@ func (c *AiAssistantMessageCase) markAiAssistantReplyMessageFailed(ctx context.C
 		Where(query.ID.Eq(message.ID)).
 		UpdateSimple(
 			query.Content.Value(content),
+			query.ToolsJSON.Value(assistant.MarshalTools(reply.Tools)),
 			query.TokenUsage.Value(int32(reply.TokenUsage)),
 			query.Status.Value(int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)),
 			query.UpdatedAt.Value(now),
@@ -885,6 +913,7 @@ func (c *AiAssistantMessageCase) markAiAssistantReplyMessageFailed(ctx context.C
 		return err
 	}
 	message.Content = content
+	message.ToolsJSON = assistant.MarshalTools(reply.Tools)
 	message.TokenUsage = int32(reply.TokenUsage)
 	message.Status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
 	message.UpdatedAt = now

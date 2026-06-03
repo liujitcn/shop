@@ -83,11 +83,11 @@ func (r *Runtime) Run(ctx context.Context, input RuntimeInput) (*Response, error
 	if !r.Enabled() {
 		return nil, fmt.Errorf("ai assistant client is not configured")
 	}
-	output, err := r.runGenerate(ctx, input, r.buildMessages(input))
+	output, tokenUsage, tools, err := r.runGenerate(ctx, input, r.buildMessages(input))
 	if err != nil {
 		return nil, err
 	}
-	return r.buildResponse(output), nil
+	return r.buildResponse(output, tokenUsage, tools), nil
 }
 
 // RunStream 使用流式模式运行助手。
@@ -99,19 +99,26 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		return nil, fmt.Errorf("ai assistant client is not configured")
 	}
 	var streamOptions []model.Option
+	var tokenUsage int64
+	var tools []ToolUsage
 	messages := r.buildMessages(input)
-	if len(r.toolInfos(ctx, input)) > 0 {
+	toolInfos := r.toolInfos(ctx, input)
+	if len(toolInfos) > 0 {
 		var usedTools bool
 		var err error
-		messages, usedTools, err = r.runToolCalls(ctx, input, messages)
+		var toolCallUsage int64
+		var toolCalls []ToolUsage
+		messages, usedTools, toolCallUsage, toolCalls, err = r.runToolCalls(ctx, input, messages, toolInfos)
 		if err != nil {
 			return nil, err
 		}
+		tokenUsage += toolCallUsage
+		tools = append(tools, toolCalls...)
 		if !usedTools {
-			streamOptions = r.modelOptions(ctx, input)
+			streamOptions = r.modelOptionsWithToolInfos(toolInfos)
 		}
 	} else {
-		streamOptions = r.modelOptions(ctx, input)
+		streamOptions = r.modelOptionsWithToolInfos(toolInfos)
 	}
 	reader, err := r.client.Stream(ctx, messages, streamOptions...)
 	if err != nil {
@@ -155,41 +162,63 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	if runtimeMessageText(finalMessage) == "" && content.Len() > 0 {
 		finalMessage = assistantAgenticMessage(content.String())
 	}
-	return r.buildResponse(finalMessage), nil
+	tokenUsage += agenticTokenUsage(finalMessage)
+	tools = append(tools, extractServerTools(finalMessage)...)
+	return r.buildResponse(finalMessage, tokenUsage, tools), nil
 }
 
 // runGenerate 执行非流式模型调用，并在需要时继续执行工具回填。
-func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*schema.AgenticMessage) (*schema.AgenticMessage, error) {
+func (r *Runtime) runGenerate(ctx context.Context, input RuntimeInput, messages []*schema.AgenticMessage) (*schema.AgenticMessage, int64, []ToolUsage, error) {
 	currentMessages := append([]*schema.AgenticMessage(nil), messages...)
-	output, err := r.client.Generate(ctx, currentMessages, r.modelOptions(ctx, input)...)
+	toolInfos := r.toolInfos(ctx, input)
+	output, err := r.client.Generate(ctx, currentMessages, r.modelOptionsWithToolInfos(toolInfos)...)
 	if err != nil {
-		return nil, err
+		return nil, 0, nil, err
 	}
+	tokenUsage := agenticTokenUsage(output)
+	tools := toolInfoUsages(toolInfos, "matched")
+	tools = append(tools, extractServerTools(output)...)
 	toolCalls := agenticToolCalls(output)
 	if len(toolCalls) == 0 {
-		return output, nil
+		return output, tokenUsage, tools, nil
 	}
 	currentMessages = append(currentMessages, output)
 	toolOutputs := r.executeToolCalls(ctx, input, toolCalls)
 	currentMessages = append(currentMessages, toolOutputs...)
-	return r.client.Generate(ctx, currentMessages)
+	tools = append(tools, functionToolUsages(toolInfos, toolCalls)...)
+	output, err = r.client.Generate(ctx, currentMessages)
+	if err != nil {
+		return nil, tokenUsage, tools, err
+	}
+	tokenUsage += agenticTokenUsage(output)
+	tools = append(tools, extractServerTools(output)...)
+	return output, tokenUsage, tools, nil
 }
 
 // runToolCalls 以 stateless 方式执行模型工具调用。
-func (r *Runtime) runToolCalls(ctx context.Context, input RuntimeInput, messages []*schema.AgenticMessage) ([]*schema.AgenticMessage, bool, error) {
+func (r *Runtime) runToolCalls(
+	ctx context.Context,
+	input RuntimeInput,
+	messages []*schema.AgenticMessage,
+	toolInfos []*schema.ToolInfo,
+) ([]*schema.AgenticMessage, bool, int64, []ToolUsage, error) {
 	currentMessages := append([]*schema.AgenticMessage(nil), messages...)
-	output, err := r.client.Generate(ctx, currentMessages, r.modelOptions(ctx, input)...)
+	output, err := r.client.Generate(ctx, currentMessages, r.modelOptionsWithToolInfos(toolInfos)...)
 	if err != nil {
-		return nil, false, err
+		return nil, false, 0, nil, err
 	}
+	tokenUsage := agenticTokenUsage(output)
+	tools := toolInfoUsages(toolInfos, "matched")
+	tools = append(tools, extractServerTools(output)...)
 	toolCalls := agenticToolCalls(output)
 	if len(toolCalls) == 0 {
-		return currentMessages, false, nil
+		return currentMessages, false, tokenUsage, tools, nil
 	}
 	currentMessages = append(currentMessages, output)
 	toolOutputs := r.executeToolCalls(ctx, input, toolCalls)
 	currentMessages = append(currentMessages, toolOutputs...)
-	return currentMessages, true, nil
+	tools = append(tools, functionToolUsages(toolInfos, toolCalls)...)
+	return currentMessages, true, tokenUsage, tools, nil
 }
 
 // executeToolCalls 执行一组 Eino 工具调用并构造 tool message。
@@ -221,7 +250,11 @@ func (r *Runtime) executeToolCall(ctx context.Context, toolMap map[string]tool.I
 
 // modelOptions 构造当前模型调用需要携带的 Eino 工具定义。
 func (r *Runtime) modelOptions(ctx context.Context, input RuntimeInput) []model.Option {
-	toolInfos := r.toolInfos(ctx, input)
+	return r.modelOptionsWithToolInfos(r.toolInfos(ctx, input))
+}
+
+// modelOptionsWithToolInfos 构造携带指定工具定义的 Eino 模型选项。
+func (r *Runtime) modelOptionsWithToolInfos(toolInfos []*schema.ToolInfo) []model.Option {
 	if len(toolInfos) == 0 {
 		return responsesServerToolOptions()
 	}
@@ -620,19 +653,24 @@ func buildUserMessageParts(content string, attachmentLines []string, imageBlocks
 }
 
 // buildResponse 将 Eino 消息收敛为业务层统一回复结构。
-func (r *Runtime) buildResponse(message *schema.AgenticMessage) *Response {
-	tokenUsage := int64(0)
-	if message != nil && message.ResponseMeta != nil && message.ResponseMeta.TokenUsage != nil {
-		tokenUsage = int64(message.ResponseMeta.TokenUsage.TotalTokens)
-	}
+func (r *Runtime) buildResponse(message *schema.AgenticMessage, tokenUsage int64, tools []ToolUsage) *Response {
 	return &Response{
 		Content:        runtimeMessageText(message),
 		TokenUsage:     tokenUsage,
+		Tools:          normalizeToolUsages(tools),
 		Source:         "llm",
 		Model:          r.Model(),
 		Fallback:       false,
 		FallbackReason: "",
 	}
+}
+
+// agenticTokenUsage 提取单次模型响应 token 消耗。
+func agenticTokenUsage(message *schema.AgenticMessage) int64 {
+	if message == nil || message.ResponseMeta == nil || message.ResponseMeta.TokenUsage == nil {
+		return 0
+	}
+	return int64(message.ResponseMeta.TokenUsage.TotalTokens)
 }
 
 // runtimeMessageText 提取 Eino 消息中的文本内容。
@@ -684,6 +722,155 @@ func agenticToolCalls(message *schema.AgenticMessage) []schema.ToolCall {
 		})
 	}
 	return calls
+}
+
+// toolInfoUsages 按候选函数工具构造工具命中记录。
+func toolInfoUsages(infos []*schema.ToolInfo, status string) []ToolUsage {
+	if len(infos) == 0 {
+		return nil
+	}
+	tools := make([]ToolUsage, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		tools = append(tools, ToolUsage{
+			Type:   "function",
+			Name:   info.Name,
+			Title:  toolInfoTitle(info),
+			Status: status,
+		})
+	}
+	return tools
+}
+
+// functionToolUsages 按实际函数工具调用构造工具使用记录。
+func functionToolUsages(infos []*schema.ToolInfo, calls []schema.ToolCall) []ToolUsage {
+	if len(calls) == 0 {
+		return nil
+	}
+	infoMap := make(map[string]*schema.ToolInfo, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		infoMap[info.Name] = info
+	}
+	tools := make([]ToolUsage, 0, len(calls))
+	for _, call := range calls {
+		name := call.Function.Name
+		if name == "" {
+			continue
+		}
+		title := name
+		if info := infoMap[name]; info != nil && info.Desc != "" {
+			title = toolInfoTitle(info)
+		}
+		tools = append(tools, ToolUsage{
+			Type:   "function",
+			Name:   name,
+			Title:  title,
+			Status: "success",
+		})
+	}
+	return tools
+}
+
+// toolInfoTitle 返回函数工具展示名称。
+func toolInfoTitle(info *schema.ToolInfo) string {
+	if info == nil {
+		return ""
+	}
+	if info.Desc != "" {
+		return info.Desc
+	}
+	return info.Name
+}
+
+// extractServerTools 从模型输出中提取服务端工具使用记录。
+func extractServerTools(message *schema.AgenticMessage) []ToolUsage {
+	if message == nil {
+		return nil
+	}
+	tools := make([]ToolUsage, 0, len(message.ContentBlocks))
+	for _, item := range message.ContentBlocks {
+		if item == nil {
+			continue
+		}
+		if item.ServerToolCall != nil && item.ServerToolCall.Name != "" {
+			tools = append(tools, ToolUsage{
+				Type:   "server",
+				Name:   item.ServerToolCall.Name,
+				Title:  serverToolTitle(item.ServerToolCall.Name),
+				Status: "success",
+			})
+		}
+		if item.ServerToolResult != nil && item.ServerToolResult.Name != "" {
+			tools = append(tools, ToolUsage{
+				Type:   "server",
+				Name:   item.ServerToolResult.Name,
+				Title:  serverToolTitle(item.ServerToolResult.Name),
+				Status: "success",
+			})
+		}
+	}
+	return tools
+}
+
+// serverToolTitle 返回服务端内置工具展示名称。
+func serverToolTitle(name string) string {
+	if name == "web_search" {
+		return "联网搜索"
+	}
+	return name
+}
+
+// normalizeToolUsages 去重并补齐工具展示字段。
+func normalizeToolUsages(values []ToolUsage) []ToolUsage {
+	if len(values) == 0 {
+		return []ToolUsage{}
+	}
+	result := make([]ToolUsage, 0, len(values))
+	indexMap := make(map[string]int, len(values))
+	for _, item := range values {
+		if item.Name == "" {
+			continue
+		}
+		if item.Type == "" {
+			item.Type = "function"
+		}
+		if item.Title == "" {
+			item.Title = item.Name
+		}
+		if item.Status == "" {
+			item.Status = "success"
+		}
+		key := item.Type + ":" + item.Name
+		index, ok := indexMap[key]
+		if ok {
+			if toolStatusRank(item.Status) > toolStatusRank(result[index].Status) {
+				result[index] = item
+			}
+			continue
+		}
+		indexMap[key] = len(result)
+		result = append(result, item)
+	}
+	return result
+}
+
+// toolStatusRank 返回工具状态优先级，真实调用优先覆盖命中记录。
+func toolStatusRank(status string) int {
+	switch status {
+	case "success":
+		return 3
+	case "error":
+		return 2
+	case "matched":
+		return 1
+	default:
+		return 0
+	}
 }
 
 // functionToolResultAgenticMessage 构造函数工具执行结果消息。

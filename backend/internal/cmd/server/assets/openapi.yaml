@@ -5970,6 +5970,15 @@ components:
                     type: string
                     description: 消息生成状态：枚举【AiAssistantMessageStatus】
                     format: enum
+                tokenUsage:
+                    type: integer
+                    description: 本次消息 token 消耗
+                    format: int32
+                tools:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AiAssistantTool'
+                    description: 本次消息使用的工具列表
             description: AI 助手消息
         AiAssistantSession:
             type: object
@@ -6000,6 +6009,22 @@ components:
                     description: 终端类型：枚举【Terminal】
                     format: enum
             description: AI 助手会话
+        AiAssistantTool:
+            type: object
+            properties:
+                type:
+                    type: string
+                    description: 工具类型：function/server
+                name:
+                    type: string
+                    description: 工具名称
+                title:
+                    type: string
+                    description: 工具展示名称
+                status:
+                    type: string
+                    description: 工具状态
+            description: AI 助手工具调用记录
         AnalyticsPieItem:
             type: object
             properties:

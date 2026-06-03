@@ -128,3 +128,35 @@ func ParseReplyMeta(raw string) ReplyMeta {
 	meta.FallbackReason = payload.FallbackReason
 	return meta
 }
+
+// MarshalTools 序列化 AI 助手工具使用记录。
+func MarshalTools(tools []ToolUsage) string {
+	if len(tools) == 0 {
+		return "[]"
+	}
+	raw, err := json.Marshal(tools)
+	if err != nil {
+		return "[]"
+	}
+	return string(raw)
+}
+
+// ParseTools 解析 AI 助手工具使用记录。
+func ParseTools(raw string) []ToolUsage {
+	if raw == "" {
+		return []ToolUsage{}
+	}
+	var tools []ToolUsage
+	err := json.Unmarshal([]byte(raw), &tools)
+	if err != nil {
+		return []ToolUsage{}
+	}
+	result := make([]ToolUsage, 0, len(tools))
+	for _, item := range tools {
+		if item.Name == "" {
+			continue
+		}
+		result = append(result, item)
+	}
+	return result
+}

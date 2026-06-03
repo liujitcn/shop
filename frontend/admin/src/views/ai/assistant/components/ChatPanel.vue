@@ -63,6 +63,15 @@
               <div v-if="item.attachments?.length" class="agent-message-attachments">
                 <Attachments :items="buildMessageAttachmentItems(item.attachments)" overflow="wrap" :hide-upload="true" />
               </div>
+              <div v-if="item.role !== 'user' && hasAssistantUsage(item)" class="agent-message-usage">
+                <span v-if="item.token_usage > 0" class="agent-message-usage__token">Tokens: {{ item.token_usage }}</span>
+                <div v-if="item.tools?.length" class="agent-message-tools" aria-label="使用工具">
+                  <span class="agent-message-tools__label">使用工具</span>
+                  <span v-for="tool in item.tools" :key="resolveToolKey(tool)" class="agent-message-tools__tag">
+                    {{ resolveToolTitle(tool) }}
+                  </span>
+                </div>
+              </div>
             </div>
           </template>
           <template #footer="{ item }">
@@ -119,6 +128,7 @@ import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { CopyDocument, Delete, Refresh } from "@element-plus/icons-vue";
 import {
   type AiAssistantAttachment,
+  type AiAssistantTool,
   type AiAssistantSession
 } from "@/rpc/base/v1/ai_assistant_session";
 import { AiAssistantMessageStatus } from "@/rpc/common/v1/enum";
@@ -303,6 +313,21 @@ function isAssistantFailedMessage(item: ChatMessageItem) {
 function resolveAssistantErrorMessage(item: ChatMessageItem) {
   const content = String(item.content ?? "").trim();
   return content || "Service temporarily unavailable";
+}
+
+/** 判断助手消息是否存在最终用量或工具信息。 */
+function hasAssistantUsage(item: ChatMessageItem) {
+  return Number(item.token_usage ?? 0) > 0 || Boolean(item.tools?.length);
+}
+
+/** 生成工具标签稳定键。 */
+function resolveToolKey(tool: AiAssistantTool) {
+  return `${tool.type || "tool"}:${tool.name || tool.title}`;
+}
+
+/** 生成工具展示名称。 */
+function resolveToolTitle(tool: AiAssistantTool) {
+  return tool.title || tool.name || "工具";
 }
 
 /** 向父组件透传消息操作，由页面层决定是否重发、复制或移除。 */
@@ -567,6 +592,38 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   :deep(.elx-files-card-delete-icon) {
     border-radius: var(--admin-page-radius);
   }
+}
+.agent-message-usage {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--admin-page-text-secondary);
+}
+.agent-message-usage__token {
+  white-space: nowrap;
+}
+.agent-message-tools {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.agent-message-tools__label {
+  white-space: nowrap;
+}
+.agent-message-tools__tag {
+  max-width: 180px;
+  padding: 1px 7px;
+  overflow: hidden;
+  color: var(--el-color-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-7);
+  border-radius: var(--admin-page-radius);
 }
 .agent-message-actions {
   display: inline-flex;
