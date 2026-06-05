@@ -14,6 +14,7 @@ import { OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 const COMMENT_CENTER_PENDING_PAGE = '/pagesOrder/comment/center?tab=pending'
 const AFTERSALE_RECORD_PAGE = '/pagesOrder/aftersale/aftersale?tab=record'
+const AI_ASSISTANT_PAGE = '/pagesMember/ai-assistant/index'
 
 /** 我的页面订单入口展示项，合并后端统计和本地图标文案。 */
 type OrderCountEntry = CountOrderInfoResponse_Count & {
@@ -106,6 +107,17 @@ const getOrderEntryUrl = (status: OrderStatus) => {
     return AFTERSALE_RECORD_PAGE
   }
   return orderListUrl(status)
+}
+
+/** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
+const navigateToAiAssistant = () => {
+  if (!userStore.userInfo) {
+    navigateToLogin()
+    return
+  }
+  uni.navigateTo({
+    url: AI_ASSISTANT_PAGE,
+  })
 }
 
 // 初始化调用: 页面显示触发
@@ -210,6 +222,15 @@ onShow(() => {
         </template>
       </view>
     </view>
+    <!-- AI 助手入口 -->
+    <view class="ai-assistant-entry" @tap="navigateToAiAssistant">
+      <view class="ai-assistant-entry__icon">AI</view>
+      <view class="ai-assistant-entry__content">
+        <view class="ai-assistant-entry__title">商城 AI 助手</view>
+        <view class="ai-assistant-entry__desc">帮你找商品、查订单、看售后和整理推荐</view>
+      </view>
+      <view class="ai-assistant-entry__action">去提问</view>
+    </view>
     <!-- 猜你喜欢 -->
     <view class="guess">
       <XtxGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.PROFILE" />
@@ -222,6 +243,65 @@ page {
   height: 100%;
   overflow: hidden;
   background-color: #f7f7f8;
+}
+
+/* AI 助手入口 */
+.ai-assistant-entry {
+  position: relative;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  margin: 20rpx 20rpx 0;
+  padding: 26rpx 24rpx;
+  border-radius: 10rpx;
+  background-color: #fff;
+  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
+}
+
+.ai-assistant-entry__icon {
+  flex-shrink: 0;
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 24rpx;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 92rpx;
+  text-align: center;
+  background-color: #27ba9b;
+}
+
+.ai-assistant-entry__content {
+  flex: 1;
+  min-width: 0;
+  margin-left: 18rpx;
+}
+
+.ai-assistant-entry__title {
+  color: #1e1e1e;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 40rpx;
+}
+
+.ai-assistant-entry__desc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 8rpx;
+  color: #747f7c;
+  font-size: 24rpx;
+  line-height: 32rpx;
+}
+
+.ai-assistant-entry__action {
+  flex-shrink: 0;
+  margin-left: 16rpx;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  color: #16806d;
+  font-size: 24rpx;
+  background-color: #e8f8f4;
 }
 
 .viewport {
