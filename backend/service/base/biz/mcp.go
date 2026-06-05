@@ -119,17 +119,68 @@ func (h *McpCase) filterToolList(ctx context.Context, req mcp.Request, next mcp.
 		return result, nil
 	}
 	terminal := mcpTerminal(ctx, req)
-	tools := make([]*mcp.Tool, 0, len(listResult.Tools))
-	for _, tool := range listResult.Tools {
+	tools := h.filterMcpToolsByTerminal(terminal, listResult.Tools)
+	listResult.Tools = tools
+	err = h.applyMcpToolDescriptions(ctx, tools)
+	if err != nil {
+		log.Errorf("查询 MCP 工具描述失败 err=%v", err)
+		return listResult, nil
+	}
+	return listResult, nil
+}
+
+// filterMcpToolsByTerminal 按当前服务关键字筛选 MCP 工具。
+func (h *McpCase) filterMcpToolsByTerminal(terminal string, values []*mcp.Tool) []*mcp.Tool {
+	tools := make([]*mcp.Tool, 0, len(values))
+	for _, tool := range values {
 		if tool == nil {
 			continue
 		}
-		if matchMcpToolPrefix(terminal, tool.Name) {
-			tools = append(tools, tool)
+		if !matchMcpToolPrefix(terminal, tool.Name) {
+			continue
 		}
+		toolCopy := *tool
+		tools = append(tools, &toolCopy)
 	}
-	listResult.Tools = tools
-	return listResult, nil
+	return tools
+}
+
+// applyMcpToolDescriptions 使用 base_api.tool_desc 覆盖 MCP 工具描述。
+func (h *McpCase) applyMcpToolDescriptions(ctx context.Context, tools []*mcp.Tool) error {
+	if h == nil || h.baseAPIRepo == nil || len(tools) == 0 {
+		return nil
+	}
+	toolNames := make([]string, 0, len(tools))
+	for _, tool := range tools {
+		if tool == nil || tool.Name == "" {
+			continue
+		}
+		toolNames = append(toolNames, tool.Name)
+	}
+	if len(toolNames) == 0 {
+		return nil
+	}
+	query := h.baseAPIRepo.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ToolName.In(toolNames...)))
+	list, err := h.baseAPIRepo.List(ctx, opts...)
+	if err != nil {
+		return err
+	}
+	descByName := make(map[string]string, len(list))
+	for _, item := range list {
+		if item.ToolName == "" || item.ToolDesc == "" || descByName[item.ToolName] != "" {
+			continue
+		}
+		descByName[item.ToolName] = item.ToolDesc
+	}
+	for _, tool := range tools {
+		if tool == nil || descByName[tool.Name] == "" {
+			continue
+		}
+		tool.Description = descByName[tool.Name]
+	}
+	return nil
 }
 
 // filterToolCall 拦截未启用或不属于当前终端的工具调用。

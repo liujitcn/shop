@@ -107,8 +107,16 @@ type ToolUsage struct {
 
 // ToolAccessChecker 判断 Agent 工具是否允许在当前终端暴露。
 type ToolAccessChecker interface {
-	// EnabledToolNames 返回当前终端允许暴露给 Agent 的工具名集合。
-	EnabledToolNames(ctx context.Context, terminal string, names []string) (map[string]bool, error)
+	// ToolConfigs 返回当前终端允许暴露给 Agent 的工具配置。
+	ToolConfigs(ctx context.Context, terminal string, names []string) (map[string]ToolConfig, error)
+}
+
+// ToolConfig 表示 Agent 工具运行时配置。
+type ToolConfig struct {
+	// Enabled 表示工具是否允许暴露给 Agent。
+	Enabled bool
+	// Desc 表示覆盖生成工具描述的业务描述。
+	Desc string
 }
 
 // RuntimeInput 表示 AI 助手运行时输入。

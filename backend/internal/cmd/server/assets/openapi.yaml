@@ -404,6 +404,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: toolDesc
+                  in: query
+                  schema:
+                    type: string
                 - name: pageNum
                   in: query
                   schema:
@@ -6277,6 +6281,9 @@ components:
                 toolName:
                     type: string
                     description: 工具名
+                toolDesc:
+                    type: string
+                    description: 工具描述
             description: API
         BaseApiDoc:
             type: object

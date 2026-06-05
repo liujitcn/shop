@@ -147,9 +147,9 @@ AI 助手默认通过 `github.com/liujitcn/kratos-kit/ai/eino` 创建 OpenAI Res
 
 ## MCP 工具暴露
 
-后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表只保存接口元数据、`tool_name`、`mcp_enabled` 和 `agent_enabled` 开关；管理后台的“系统管理 / API 管理”页面可查看工具名，并分别切换接口是否暴露为 MCP 工具或 Agent 工具。
+后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表保存接口元数据、`tool_name`、`tool_desc`、`mcp_enabled` 和 `agent_enabled` 开关；`tool_desc` 默认由接口 `service_desc` 与 `desc` 组合生成，会作为 MCP 工具和 Agent 工具的运行时描述。管理后台的“系统管理 / API 管理”页面可查看、搜索工具名与工具描述，并分别切换接口是否暴露为 MCP 工具或 Agent 工具。
 
-MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_enabled` 和当前终端归属；未启用或不属于当前终端时不会执行。Agent 工具仍会完整注册加载，候选工具筛选和实际执行前按 `agent_enabled` 过滤；工具目录查询会展示当前终端完整注册工具名，并明确区别于本轮候选工具。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
+MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_enabled` 和当前终端归属；未启用或不属于当前终端时不会执行。MCP 工具列表会用 `base_api.tool_desc` 覆盖生成描述。Agent 工具仍会完整注册加载，候选工具筛选和实际执行前按 `agent_enabled` 过滤，并用 `base_api.tool_desc` 覆盖候选工具和工具目录里的生成描述；工具目录查询会展示当前终端完整注册工具名，并明确区别于本轮候选工具。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
 
 当前后端会按 `server.mcp.transport: TRANSPORT_IN_PROCESS` 把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务，并通过 `/mcp/{terminal}` 按服务关键字过滤工具。例如 `server.http.addr = :7001` 时，管理端 MCP 地址为 `http://127.0.0.1:7001/mcp/admin`。
 

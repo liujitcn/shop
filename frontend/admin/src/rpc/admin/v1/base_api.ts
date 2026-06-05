@@ -45,6 +45,10 @@ export interface PageBaseApisRequest {
   tool_name?:
     | string
     | undefined;
+  /** 工具描述 */
+  tool_desc?:
+    | string
+    | undefined;
   /** 页码 */
   page_num: number;
   /** 每页数量 */
@@ -119,6 +123,8 @@ export interface BaseApi {
   agent_enabled: boolean;
   /** 工具名 */
   tool_name: string;
+  /** 工具描述 */
+  tool_desc: string;
 }
 
 /** API文档 */

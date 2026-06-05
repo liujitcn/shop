@@ -248,9 +248,9 @@ func (c *AiAssistantMessageCase) ToDTO(model *models.AiAssistantMessage) *basev1
 	return toAiAssistantMessageDTO(model)
 }
 
-// EnabledToolNames 查询当前终端允许暴露给 Agent 的工具名。
-func (c *AiAssistantMessageCase) EnabledToolNames(ctx context.Context, terminal string, names []string) (map[string]bool, error) {
-	result := make(map[string]bool)
+// ToolConfigs 查询当前终端允许暴露给 Agent 的工具配置。
+func (c *AiAssistantMessageCase) ToolConfigs(ctx context.Context, terminal string, names []string) (map[string]assistant.ToolConfig, error) {
+	result := make(map[string]assistant.ToolConfig)
 	if c == nil || c.baseAPIRepo == nil || len(names) == 0 {
 		return result, nil
 	}
@@ -273,15 +273,23 @@ func (c *AiAssistantMessageCase) EnabledToolNames(ctx context.Context, terminal 
 	}
 	totalByName := make(map[string]int, len(filteredNames))
 	enabledByName := make(map[string]int, len(filteredNames))
+	descByName := make(map[string]string, len(filteredNames))
 	for _, item := range list {
 		totalByName[item.ToolName]++
 		if item.AgentEnabled {
 			enabledByName[item.ToolName]++
 		}
+		if descByName[item.ToolName] == "" {
+			descByName[item.ToolName] = item.ToolDesc
+		}
 	}
 	for _, name := range filteredNames {
-		if totalByName[name] > 0 && totalByName[name] == enabledByName[name] {
-			result[name] = true
+		if totalByName[name] == 0 {
+			continue
+		}
+		result[name] = assistant.ToolConfig{
+			Enabled: totalByName[name] == enabledByName[name],
+			Desc:    descByName[name],
 		}
 	}
 	return result, nil

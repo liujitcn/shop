@@ -561,7 +561,7 @@ func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, info
 		}
 		names = append(names, info.Name)
 	}
-	enabledNames, err := r.toolGate.EnabledToolNames(ctx, input.Terminal, names)
+	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
 	if err != nil {
 		return nil
 	}
@@ -570,11 +570,49 @@ func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, info
 		if info == nil || info.Name == "" {
 			continue
 		}
-		if enabledNames[info.Name] {
-			result = append(result, info)
+		config := toolConfigs[info.Name]
+		if !config.Enabled {
+			continue
 		}
+		result = append(result, withToolInfoConfig(info, config))
 	}
 	return result
+}
+
+// withToolInfoConfig 使用数据库中的工具配置覆盖生成工具描述。
+func withToolInfoConfig(info *schema.ToolInfo, config ToolConfig) *schema.ToolInfo {
+	if info == nil || config.Desc == "" {
+		return info
+	}
+	copiedInfo := *info
+	copiedInfo.Desc = config.Desc
+	return &copiedInfo
+}
+
+// toolInfoConfigs 查询当前终端完整工具配置。
+func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*schema.ToolInfo) map[string]ToolConfig {
+	result := make(map[string]ToolConfig, len(infos))
+	if len(infos) == 0 || r == nil || r.toolGate == nil {
+		for _, info := range infos {
+			if info == nil || info.Name == "" {
+				continue
+			}
+			result[info.Name] = ToolConfig{Enabled: true}
+		}
+		return result
+	}
+	names := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		names = append(names, info.Name)
+	}
+	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	if err != nil {
+		return result
+	}
+	return toolConfigs
 }
 
 // allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
@@ -598,6 +636,16 @@ func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*schem
 		}
 		seen[info.Name] = struct{}{}
 		infos = append(infos, info)
+	}
+	toolConfigs := r.toolInfoConfigs(ctx, input, infos)
+	if len(toolConfigs) == 0 {
+		return infos
+	}
+	for index, info := range infos {
+		if info == nil {
+			continue
+		}
+		infos[index] = withToolInfoConfig(info, toolConfigs[info.Name])
 	}
 	return infos
 }

@@ -83,6 +83,10 @@ func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApi
 	if req.GetToolName() != "" {
 		opts = append(opts, repository.Where(query.ToolName.Like("%"+req.GetToolName()+"%")))
 	}
+	// 传入工具描述时，按工具描述模糊匹配。
+	if req.GetToolDesc() != "" {
+		opts = append(opts, repository.Where(query.ToolDesc.Like("%"+req.GetToolDesc()+"%")))
+	}
 
 	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {

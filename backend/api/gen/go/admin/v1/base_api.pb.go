@@ -37,6 +37,7 @@ type PageBaseApisRequest struct {
 	McpEnabled    *bool                  `protobuf:"varint,7,opt,name=mcp_enabled,json=mcpEnabled,proto3,oneof" json:"mcp_enabled,omitempty"`       // 是否暴露为MCP工具
 	AgentEnabled  *bool                  `protobuf:"varint,8,opt,name=agent_enabled,json=agentEnabled,proto3,oneof" json:"agent_enabled,omitempty"` // 是否暴露为Agent工具
 	ToolName      *string                `protobuf:"bytes,9,opt,name=tool_name,json=toolName,proto3,oneof" json:"tool_name,omitempty"`              // 工具名
+	ToolDesc      *string                `protobuf:"bytes,10,opt,name=tool_desc,json=toolDesc,proto3,oneof" json:"tool_desc,omitempty"`             // 工具描述
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                    // 页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                 // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -132,6 +133,13 @@ func (x *PageBaseApisRequest) GetAgentEnabled() bool {
 func (x *PageBaseApisRequest) GetToolName() string {
 	if x != nil && x.ToolName != nil {
 		return *x.ToolName
+	}
+	return ""
+}
+
+func (x *PageBaseApisRequest) GetToolDesc() string {
+	if x != nil && x.ToolDesc != nil {
+		return *x.ToolDesc
 	}
 	return ""
 }
@@ -494,6 +502,7 @@ type BaseApi struct {
 	McpEnabled    bool                   `protobuf:"varint,8,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`       // 是否暴露为MCP工具
 	AgentEnabled  bool                   `protobuf:"varint,9,opt,name=agent_enabled,json=agentEnabled,proto3" json:"agent_enabled,omitempty"` // 是否暴露为Agent工具
 	ToolName      string                 `protobuf:"bytes,10,opt,name=tool_name,json=toolName,proto3" json:"tool_name,omitempty"`             // 工具名
+	ToolDesc      string                 `protobuf:"bytes,11,opt,name=tool_desc,json=toolDesc,proto3" json:"tool_desc,omitempty"`             // 工具描述
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -594,6 +603,13 @@ func (x *BaseApi) GetAgentEnabled() bool {
 func (x *BaseApi) GetToolName() string {
 	if x != nil {
 		return x.ToolName
+	}
+	return ""
+}
+
+func (x *BaseApi) GetToolDesc() string {
+	if x != nil {
+		return x.ToolDesc
 	}
 	return ""
 }
@@ -865,7 +881,7 @@ var File_admin_v1_base_api_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x17admin/v1/base_api.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xe2\x05\n" +
+	"\x17admin/v1/base_api.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xa6\x06\n" +
 	"\x13PageBaseApisRequest\x127\n" +
 	"\fservice_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名H\x00R\vserviceName\x88\x01\x01\x12:\n" +
 	"\fservice_desc\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f服务描述H\x01R\vserviceDesc\x88\x01\x01\x12%\n" +
@@ -876,7 +892,9 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\vmcp_enabled\x18\a \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否暴露为MCP工具H\x06R\n" +
 	"mcpEnabled\x88\x01\x01\x12J\n" +
 	"\ragent_enabled\x18\b \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具H\aR\fagentEnabled\x88\x01\x01\x121\n" +
-	"\ttool_name\x18\t \x01(\tB\x0f\xbaG\f\x92\x02\t工具名H\bR\btoolName\x88\x01\x01\x12'\n" +
+	"\ttool_name\x18\t \x01(\tB\x0f\xbaG\f\x92\x02\t工具名H\bR\btoolName\x88\x01\x01\x124\n" +
+	"\ttool_desc\x18\n" +
+	" \x01(\tB\x12\xbaG\x0f\x92\x02\f工具描述H\tR\btoolDesc\x88\x01\x01\x12'\n" +
 	"\bpage_num\x18e \x01(\x03B\f\xbaG\t\x92\x02\x06页码R\apageNum\x12/\n" +
 	"\tpage_size\x18f \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSizeB\x0f\n" +
 	"\r_service_nameB\x0f\n" +
@@ -889,7 +907,9 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\f_mcp_enabledB\x10\n" +
 	"\x0e_agent_enabledB\f\n" +
 	"\n" +
-	"_tool_name\"{\n" +
+	"_tool_nameB\f\n" +
+	"\n" +
+	"_tool_desc\"{\n" +
 	"\x14PageBaseApisResponse\x12?\n" +
 	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\x12\"\n" +
 	"\x05total\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06总数R\x05total\"1\n" +
@@ -906,7 +926,7 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\ragent_enabled\x18\x02 \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具R\fagentEnabled\"\x15\n" +
 	"\x13ListBaseApisRequest\"W\n" +
 	"\x14ListBaseApisResponse\x12?\n" +
-	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xf0\x03\n" +
+	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xa1\x04\n" +
 	"\aBaseApi\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x122\n" +
 	"\fservice_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x125\n" +
@@ -919,7 +939,8 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"mcpEnabled\x12E\n" +
 	"\ragent_enabled\x18\t \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具R\fagentEnabled\x12,\n" +
 	"\ttool_name\x18\n" +
-	" \x01(\tB\x0f\xbaG\f\x92\x02\t工具名R\btoolName\"\xef\x02\n" +
+	" \x01(\tB\x0f\xbaG\f\x92\x02\t工具名R\btoolName\x12/\n" +
+	"\ttool_desc\x18\v \x01(\tB\x12\xbaG\x0f\x92\x02\f工具描述R\btoolDesc\"\xef\x02\n" +
 	"\n" +
 	"BaseApiDoc\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12&\n" +

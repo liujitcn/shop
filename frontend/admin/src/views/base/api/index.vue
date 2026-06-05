@@ -12,6 +12,7 @@
         <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
         <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
         <el-descriptions-item label="工具名">{{ detailData.tool_name }}</el-descriptions-item>
+        <el-descriptions-item label="工具描述">{{ detailData.tool_desc }}</el-descriptions-item>
         <el-descriptions-item label="MCP工具">{{ detailData.mcp_enabled ? "启用" : "禁用" }}</el-descriptions-item>
         <el-descriptions-item label="Agent工具">{{ detailData.agent_enabled ? "启用" : "禁用" }}</el-descriptions-item>
       </el-descriptions>
@@ -131,6 +132,7 @@ const columns: ColumnProps[] = [
   { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
   { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
   { prop: "tool_name", label: "工具名", minWidth: 260, search: { el: "input" } },
+  { prop: "tool_desc", label: "工具描述", minWidth: 180, search: { el: "input" } },
   {
     prop: "mcp_enabled",
     label: "MCP工具",

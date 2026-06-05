@@ -119,6 +119,12 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 				// 同步 OpenAPI 元数据时保留原来的工具开关，避免刷新接口覆盖人工配置。
 				item.McpEnabled = oldAPI.McpEnabled
 				item.AgentEnabled = oldAPI.AgentEnabled
+				// 工具描述允许后台人工维护，刷新接口时只保留真正自定义过的描述。
+				if oldAPI.ToolDesc != "" &&
+					oldAPI.ToolDesc != oldAPI.ServiceDesc &&
+					oldAPI.ToolDesc != defaultToolDesc(oldAPI.ServiceDesc, oldAPI.Desc) {
+					item.ToolDesc = oldAPI.ToolDesc
+				}
 			}
 			err = c.UpdateByID(ctx, item)
 			if err != nil {
@@ -187,17 +193,33 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 		}
 	}
 
+	operationDesc := operationDescription(op)
+
 	return &models.BaseAPI{
 		McpEnabled:   true,
 		AgentEnabled: true,
 		ToolName:     kitutils.ToolNameFromRPCPath(operation),
+		ToolDesc:     defaultToolDesc(serviceDesc, operationDesc),
 		ServiceName:  serviceName,
 		ServiceDesc:  serviceDesc,
-		Desc:         operationDescription(op),
+		Desc:         operationDesc,
 		Operation:    operation,
 		Method:       method,
 		Path:         path,
 	}, nil
+}
+
+// defaultToolDesc 根据 OpenAPI 原始服务描述和接口描述生成默认工具描述。
+func defaultToolDesc(serviceDesc, desc string) string {
+	// 只有接口描述时，直接使用接口描述，避免生成多余分隔符。
+	if serviceDesc == "" {
+		return desc
+	}
+	// 只有服务描述时，直接使用服务描述，保持历史兼容。
+	if desc == "" {
+		return serviceDesc
+	}
+	return serviceDesc + "：" + desc
 }
 
 // operationDescription 获取接口描述。

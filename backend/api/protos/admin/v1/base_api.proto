@@ -73,6 +73,8 @@ message PageBaseApisRequest {
 
   optional string tool_name = 9 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
 
+  optional string tool_desc = 10 [(gnostic.openapi.v3.property) = {description: "工具描述"}]; // 工具描述
+
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
 
   int64 page_size = 102 [(gnostic.openapi.v3.property) = {description: "每页数量"}]; // 每页数量
@@ -138,6 +140,8 @@ message BaseApi {
   bool agent_enabled = 9 [(gnostic.openapi.v3.property) = {description: "是否暴露为Agent工具"}]; // 是否暴露为Agent工具
 
   string tool_name = 10 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
+
+  string tool_desc = 11 [(gnostic.openapi.v3.property) = {description: "工具描述"}]; // 工具描述
 }
 
 // API文档
