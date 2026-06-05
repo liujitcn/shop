@@ -42,10 +42,14 @@ import { ref, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
 import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 
+/** 字典组件支持的控件类型。 */
 type DictType = "select" | "radio" | "checkbox";
+/** 字典值转换后的目标类型。 */
 type DictCodeType = "string" | "number";
+/** 字典组件对外绑定值类型。 */
 type DictValue = string | number;
 
+/** 字典组件属性。 */
 interface DictProps {
   code: string;
   codeType?: DictCodeType;

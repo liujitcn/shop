@@ -158,6 +158,7 @@ pnpm lint
 - Token 读写统一走 `src/utils/auth.ts`。
 - 全局共享状态放在 `src/stores/modules`，并通过 `src/stores/index.ts` 汇总。
 - 后端 proto 生成的 RPC 代码位于 `src/rpc`，由后端 `make ts` 生成，不手工维护等价类型。
+- `src/rpc` 属于生成产物，ESLint 配置默认忽略该目录；协议或生成结果变化应回到后端生成链路处理。
 
 ## 多端兼容
 
@@ -184,5 +185,7 @@ cd frontend/app
 pnpm lint
 pnpm tsc
 ```
+
+`pnpm lint` 不检查 `src/rpc` 生成产物，避免对生成文件中的禁用注释、格式或协议输出做手工修补。
 
 若全量检查因历史问题失败，需要在提交或交付说明中记录失败文件、失败原因，以及是否由本次改动引起。

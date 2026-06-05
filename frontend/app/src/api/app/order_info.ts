@@ -29,26 +29,32 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 const ORDER_INFO_URL = '/v1/app/order/info'
 const ORDER_CONFIRM_URL = '/v1/app/order/confirm'
 
+/** 订单数量汇总响应兼容结构，保留旧版 count 字段。 */
 type CountOrderInfoResponseCompat = CountOrderInfoResponse & {
   count: CountOrderInfoResponse_Count[]
 }
 
+/** 订单数量汇总 HTTP 原始响应，兼容旧版 count 字段。 */
 type CountOrderInfoHTTPResponse = Partial<CountOrderInfoResponse> & {
   count?: CountOrderInfoResponse_Count[]
 }
 
+/** 订单分页响应兼容结构，保留旧版 list 字段。 */
 type PageOrderInfoResponseCompat = PageOrderInfoResponse & {
   list: OrderInfo[]
 }
 
+/** 订单分页 HTTP 原始响应，兼容旧版 list 字段。 */
 type PageOrderInfoHTTPResponse = Partial<PageOrderInfoResponse> & {
   list?: OrderInfo[]
 }
 
+/** 订单编号查询响应兼容结构，保留旧版 value 字段。 */
 type GetOrderInfoIdByOrderNoResponseCompat = GetOrderInfoIdByOrderNoResponse & {
   value: number
 }
 
+/** 订单编号查询 HTTP 原始响应，兼容旧版 value 字段。 */
 type GetOrderInfoIdByOrderNoHTTPResponse = Partial<GetOrderInfoIdByOrderNoResponse> & {
   value?: number
 }

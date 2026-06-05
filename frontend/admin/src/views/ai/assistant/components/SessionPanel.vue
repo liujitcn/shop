@@ -62,6 +62,7 @@
 import { DArrowLeft, Delete, EditPen, MoreFilled, Plus, Search } from "@element-plus/icons-vue";
 import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 
+/** 会话列表支持的菜单操作。 */
 type SessionAction = "rename" | "delete";
 
 const props = defineProps<{

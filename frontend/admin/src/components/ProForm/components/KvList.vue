@@ -13,11 +13,13 @@
 import { computed } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
 
+/** 键值对列表单项。 */
 interface KvItem {
   key: string;
   value: string;
 }
 
+/** 键值对列表组件属性。 */
 interface KvListProps {
   modelValue?: KvItem[];
   keyInputProps?: Record<string, any>;

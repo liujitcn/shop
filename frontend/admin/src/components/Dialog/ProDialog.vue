@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts" name="ProDialog">
+/** 通用弹窗组件属性。 */
 interface ProDialogProps {
   modelValue: boolean;
   title?: string;

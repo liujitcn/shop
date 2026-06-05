@@ -4,8 +4,10 @@ import { TableColumnCtx } from "element-plus/es/components/table/src/table-colum
 import { ProTableProps } from "@/components/ProTable/index.vue";
 import ProTable from "@/components/ProTable/index.vue";
 
+/** ProTable 默认行数据结构。 */
 type DefaultRow = Record<string, any>;
 
+/** 表格枚举选项结构，供搜索项、字典和状态列复用。 */
 export interface EnumProps {
   label?: string; // 选项框显示的文字
   value?: string | number | boolean | any[]; // 选项框值
@@ -15,8 +17,10 @@ export interface EnumProps {
   [key: string]: any;
 }
 
+/** Element Plus 表格内置列类型。 */
 export type TypeProps = "index" | "selection" | "radio" | "expand" | "sort";
 
+/** ProTable 搜索表单支持的控件类型。 */
 export type SearchType =
   | "input"
   | "input-number"
@@ -30,8 +34,10 @@ export type SearchType =
   | "switch"
   | "slider";
 
+/** 字典值在表格枚举中的目标类型。 */
 export type DictValueType = "string" | "number";
 
+/** 自定义搜索控件渲染时暴露的上下文。 */
 export type SearchRenderScope = {
   searchParam: { [key: string]: any };
   placeholder: string;
@@ -40,6 +46,7 @@ export type SearchRenderScope = {
   data: EnumProps[];
 };
 
+/** ProTable 单列搜索配置。 */
 export type SearchProps = {
   el?: SearchType; // 当前项搜索框的类型
   label?: string; // 当前项搜索框的 label
@@ -53,12 +60,14 @@ export type SearchProps = {
   render?: (scope: SearchRenderScope) => VNode; // 自定义搜索内容渲染（tsx语法）
 } & Partial<Record<BreakPoint, Responsive>>;
 
+/** 枚举或树形数据字段映射配置。 */
 export type FieldNamesProps = {
   label: string;
   value: string;
   children?: string;
 };
 
+/** 单元格渲染和行内操作共享的上下文。 */
 export type RenderScope<T extends DefaultRow = DefaultRow> = {
   row: T;
   $index: number;
@@ -66,28 +75,34 @@ export type RenderScope<T extends DefaultRow = DefaultRow> = {
   [key: string]: any;
 };
 
+/** 表头自定义渲染上下文。 */
 export type HeaderRenderScope<T extends DefaultRow = DefaultRow> = {
   $index: number;
   column: TableColumnCtx<T>;
   [key: string]: any;
 };
 
+/** ProTable 预置单元格渲染类型。 */
 export type CellType = "image" | "status" | "actions" | "money";
 
+/** 行内操作附加参数，支持静态对象或按行动态生成。 */
 export type ColumnActionParams<T extends DefaultRow = DefaultRow> =
   | Record<string, any>
   | ((scope: RenderScope<T>) => Record<string, any>);
 
+/** 表头操作按钮渲染和点击时的选择态上下文。 */
 export type HeaderActionScope<T extends DefaultRow = DefaultRow> = {
   selectedList: T[];
   selectedListIds: Array<string | number>;
   isSelected: boolean;
 };
 
+/** 表头操作附加参数，支持静态对象或按选择态动态生成。 */
 export type HeaderActionParams<T extends DefaultRow = DefaultRow> =
   | Record<string, any>
   | ((scope: HeaderActionScope<T>) => Record<string, any>);
 
+/** 图片列预置渲染配置。 */
 export interface ImageCellProps<T extends DefaultRow = DefaultRow> {
   src?: string | ((scope: RenderScope<T>) => string);
   previewSrc?: string | ((scope: RenderScope<T>) => string);
@@ -97,6 +112,7 @@ export interface ImageCellProps<T extends DefaultRow = DefaultRow> {
   previewHeight?: number | string;
 }
 
+/** 状态列预置渲染和变更配置。 */
 export interface StatusCellProps<T extends DefaultRow = DefaultRow> {
   activeValue: string | number | boolean;
   inactiveValue: string | number | boolean;
@@ -108,12 +124,14 @@ export interface StatusCellProps<T extends DefaultRow = DefaultRow> {
   params?: ColumnActionParams<T>;
 }
 
+/** 金额列预置格式化配置。 */
 export interface MoneyCellProps<T extends DefaultRow = DefaultRow> {
   value?: number | string | ((scope: RenderScope<T>) => number | string | undefined | null);
   prefix?: string;
   suffix?: string;
 }
 
+/** 行内操作按钮配置。 */
 export interface TableActionProps<T extends DefaultRow = DefaultRow> {
   label: string;
   icon?: any;
@@ -125,6 +143,7 @@ export interface TableActionProps<T extends DefaultRow = DefaultRow> {
   onClick: (scope: RenderScope<T>, params?: Record<string, any>) => void | Promise<void>;
 }
 
+/** 表头操作按钮配置。 */
 export interface HeaderActionProps<T extends DefaultRow = DefaultRow> {
   label: string;
   icon?: any;
@@ -135,6 +154,7 @@ export interface HeaderActionProps<T extends DefaultRow = DefaultRow> {
   onClick: (scope: HeaderActionScope<T>, params?: Record<string, any>) => void | Promise<void>;
 }
 
+/** ProTable 列配置，扩展 Element Plus 表格列能力。 */
 export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
   Omit<TableColumnCtx<T>, "type" | "children" | "renderCell" | "renderHeader">
 > {
@@ -158,4 +178,5 @@ export interface ColumnProps<T extends DefaultRow = DefaultRow> extends Partial<
   _children?: ColumnProps<T>[]; // 多级表头
 }
 
+/** ProTable 对外暴露的组件实例方法类型。 */
 export type ProTableInstance = Omit<InstanceType<typeof ProTable>, keyof ComponentPublicInstance | keyof ProTableProps>;

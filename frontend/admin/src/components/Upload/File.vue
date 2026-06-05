@@ -39,6 +39,7 @@ import type { UploadProps, UploadRequestOptions, UploadUserFile } from "element-
 import { defFileService } from "@/api/base/file";
 import type { FileInfo } from "@/rpc/base/v1/file";
 
+/** 单文件上传组件属性。 */
 interface UploadFileProps {
   fileInfo?: UploadUserFile;
   api?: (file: File) => Promise<FileInfo>;
@@ -62,6 +63,7 @@ const emit = defineEmits<{
 
 const formContext = inject(formContextKey, void 0);
 const formItemContext = inject(formItemContextKey, void 0);
+/** Element Plus 上传错误回调要求的错误对象类型。 */
 type UploadRequestError = Parameters<NonNullable<UploadRequestOptions["onError"]>>[0];
 
 /** 兼容 Element Plus 上传组件要求的错误对象结构。 */

@@ -33,12 +33,14 @@
 <script setup lang="ts" name="selectFilter">
 import { ref, watch } from "vue";
 
+/** 筛选项候选值。 */
 interface OptionsProps {
   value: string | number;
   label: string;
   icon?: string;
 }
 
+/** 单组筛选配置。 */
 interface SelectDataProps {
   title: string; // 列表标题
   key: string; // 当前筛选项 key 值
@@ -46,6 +48,7 @@ interface SelectDataProps {
   options: OptionsProps[]; // 筛选数据
 }
 
+/** SelectFilter 组件属性。 */
 interface SelectFilterProps {
   data?: SelectDataProps[]; // 选择的列表数据
   defaultValues?: { [key: string]: any }; // 默认值

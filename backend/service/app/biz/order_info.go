@@ -35,6 +35,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// ORDER_REFUND_REASON 表示订单退款原因字典编码。
 const ORDER_REFUND_REASON string = "order_refund_reason" // 退款原因
 
 // OrderInfoCase 订单业务处理对象

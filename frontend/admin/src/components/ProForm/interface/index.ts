@@ -1,5 +1,6 @@
 import type { FormItemRule } from "element-plus";
 
+/** ProForm 支持的字段组件类型。 */
 export type ProFormComponentType =
   | "input"
   | "password"
@@ -25,6 +26,7 @@ export type ProFormComponentType =
   | "kv-list"
   | "slot";
 
+/** ProForm 选择型字段选项。 */
 export interface ProFormOption {
   label: string;
   value: string | number | boolean;
@@ -32,6 +34,7 @@ export interface ProFormOption {
   children?: ProFormOption[];
 }
 
+/** ProForm 字段配置。 */
 export interface ProFormField {
   /** 字段绑定路径，支持点路径访问嵌套对象。 */
   prop: string;
@@ -59,6 +62,7 @@ export interface ProFormField {
   checkboxLabel?: string;
 }
 
+/** ProForm 对外暴露的实例方法。 */
 export interface ProFormInstance {
   validate: () => Promise<boolean | undefined> | undefined;
   resetFields: () => void;

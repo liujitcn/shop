@@ -16,6 +16,8 @@ type TradeBillResponse struct {
 }
 
 const (
+	// BILL_TYPE_SUCCESS 表示成功交易账单。
 	BILL_TYPE_SUCCESS string = "SUCCESS"
-	BILL_TYPE_REFUND  string = "REFUND"
+	// BILL_TYPE_REFUND 表示退款账单。
+	BILL_TYPE_REFUND string = "REFUND"
 )

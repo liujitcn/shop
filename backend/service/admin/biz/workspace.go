@@ -16,12 +16,16 @@ import (
 	"gorm.io/gen/field"
 )
 
+// LOW_INVENTORY_THRESHOLD 表示工作台低库存提醒阈值。
 const LOW_INVENTORY_THRESHOLD = 10
 
+// DEFAULT_PENDING_COMMENT_LIMIT 表示工作台默认待审核评论数量。
 const DEFAULT_PENDING_COMMENT_LIMIT = 5
 
+// MAX_PENDING_COMMENT_LIMIT 表示工作台最大待审核评论数量。
 const MAX_PENDING_COMMENT_LIMIT = 10
 
+// LOW_SCORE_COMMENT_DAYS 表示工作台低分评论统计天数。
 const LOW_SCORE_COMMENT_DAYS = 7
 
 // WorkspaceCase 工作台业务实例。

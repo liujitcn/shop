@@ -82,19 +82,20 @@ func ParseRecommendStrategyRaw(raw json.RawMessage) commonv1.RecommendStrategy {
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_UNKNOWN)
 	}
 
+	var err error
 	// 历史上下文使用字符串编码记录策略，这里优先兼容旧格式数据。
 	if strings.HasPrefix(normalizedRaw, "\"") {
 		code := ""
-		decodeErr := json.Unmarshal(raw, &code)
-		if decodeErr != nil {
+		err = json.Unmarshal(raw, &code)
+		if err != nil {
 			return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_UNKNOWN)
 		}
 		return ParseRecommendStrategyCode(code)
 	}
 
 	value := int32(0)
-	decodeErr := json.Unmarshal(raw, &value)
-	if decodeErr != nil {
+	err = json.Unmarshal(raw, &value)
+	if err != nil {
 		return commonv1.RecommendStrategy(_const.RECOMMEND_STRATEGY_UNKNOWN)
 	}
 	return NormalizeRecommendStrategy(commonv1.RecommendStrategy(value))

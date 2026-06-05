@@ -22,11 +22,13 @@ import type { Empty } from "@/rpc/google/protobuf/empty";
 
 const COMMENT_INFO_URL = "/v1/admin/comment/info";
 
+/** 评论分页 HTTP 原始响应，兼容旧协议 list 字段。 */
 type PageCommentInfosHTTPResponse = Partial<PageCommentInfosResponse> & {
   /** 旧协议评论分页数据字段 */
   list?: CommentInfo[];
 };
 
+/** 评论详情 HTTP 原始响应，兼容旧协议聚合字段。 */
 type CommentInfoDetailHTTPResponse = Partial<CommentInfoDetail> & {
   /** 旧协议商品评论标签字段 */
   tagList?: CommentTag[];
@@ -36,6 +38,7 @@ type CommentInfoDetailHTTPResponse = Partial<CommentInfoDetail> & {
   reviewList?: CommentReview[];
 };
 
+/** 商品评论聚合 HTTP 原始响应，兼容旧协议聚合字段。 */
 type GoodsCommentInfoHTTPResponse = Partial<GoodsCommentInfoResponse> & {
   /** 旧协议评论列表字段 */
   commentList?: CommentInfo[];
@@ -45,11 +48,13 @@ type GoodsCommentInfoHTTPResponse = Partial<GoodsCommentInfoResponse> & {
   discussionList?: CommentDiscussion[];
 };
 
+/** 评论讨论分页 HTTP 原始响应，兼容旧协议 list 字段。 */
 type PageCommentDiscussionsHTTPResponse = Partial<PageCommentDiscussionsResponse> & {
   /** 旧协议讨论分页数据字段 */
   list?: CommentDiscussion[];
 };
 
+/** 评论审核记录 HTTP 原始响应，兼容旧协议 list 字段。 */
 type ListCommentReviewsHTTPResponse = Partial<ListCommentReviewsResponse> & {
   /** 旧协议审核记录字段 */
   list?: CommentReview[];

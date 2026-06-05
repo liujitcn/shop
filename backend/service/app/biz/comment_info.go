@@ -27,6 +27,7 @@ import (
 )
 
 const (
+	// ANONYMOUS_USER_NAME 表示匿名评价用户展示名称。
 	ANONYMOUS_USER_NAME = "匿名用户"
 )
 

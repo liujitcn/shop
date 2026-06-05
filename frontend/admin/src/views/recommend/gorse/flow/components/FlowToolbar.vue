@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import type { PaletteNode } from "../types";
 
+/** 推荐流程画布工具栏属性。 */
 interface FlowToolbarProps {
   /** 组件面板节点列表。 */
   paletteNodes: PaletteNode[];

@@ -8,10 +8,12 @@ import type {
 
 const GOODS_CATEGORY_URL = '/v1/app/goods/category'
 
+/** 商品分类列表响应兼容结构，保留旧版 list 字段给页面过渡使用。 */
 type ListGoodsCategoriesResponseCompat = ListGoodsCategoriesResponse & {
   list: GoodsCategory[]
 }
 
+/** 商品分类 HTTP 原始响应，兼容旧版 list 字段为空的情况。 */
 type ListGoodsCategoriesHTTPResponse = Partial<ListGoodsCategoriesResponse> & {
   list?: GoodsCategory[]
 }

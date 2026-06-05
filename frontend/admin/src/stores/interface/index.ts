@@ -1,8 +1,10 @@
 import type { RouteItem, UserInfoForm } from "@/rpc/admin/v1/auth";
 import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 
+/** 后台整体布局模式。 */
 export type LayoutType = "vertical" | "classic" | "transverse" | "columns";
 
+/** Element Plus 组件默认尺寸。 */
 export type AssemblySizeType = "large" | "default" | "small";
 
 /** 站点展示配置 */
@@ -21,7 +23,7 @@ export interface SiteDisplayConfig {
   background: string;
 }
 
-/* GlobalState */
+/** 全局 UI 偏好和布局状态。 */
 export interface GlobalState {
   layout: LayoutType;
   assemblySize: AssemblySizeType;
@@ -42,7 +44,7 @@ export interface GlobalState {
   footer: boolean;
 }
 
-/* UserState */
+/** 当前登录用户认证状态。 */
 export interface UserState {
   token: string;
   refreshToken: string;
@@ -51,7 +53,7 @@ export interface UserState {
   userInfo: UserInfoForm;
 }
 
-/* tabsMenuProps */
+/** 标签页菜单项状态。 */
 export interface TabsMenuProps {
   icon: string;
   title: string;
@@ -61,12 +63,12 @@ export interface TabsMenuProps {
   isKeepAlive: boolean;
 }
 
-/* TabsState */
+/** 多标签页状态。 */
 export interface TabsState {
   tabsMenuList: TabsMenuProps[];
 }
 
-/* AuthState */
+/** 动态路由和按钮权限状态。 */
 export interface AuthState {
   routeName: string;
   authButtonList: {
@@ -75,12 +77,12 @@ export interface AuthState {
   authMenuList: RouteItem[];
 }
 
-/* KeepAliveState */
+/** 需要缓存的页面组件名称状态。 */
 export interface KeepAliveState {
   keepAliveName: string[];
 }
 
-/* DictState */
+/** 全局字典缓存状态。 */
 export interface DictState {
   dictionary: Record<string, OptionBaseDictsResponse_BaseDictItem[]>;
 }

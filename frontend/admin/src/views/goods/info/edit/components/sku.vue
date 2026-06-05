@@ -67,6 +67,7 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 商品库存编辑表格中的 SKU 结构，包含动态规格项字段。 */
 type SkuItem = Record<string, any> & {
   id: number;
   sku_code: string;

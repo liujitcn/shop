@@ -39,6 +39,7 @@ const expandedDiscussionIds = ref<number[]>([])
 const currentReviewId = computed(() => props.reviewId || 0)
 const discussionCount = computed(() => discussionTotal.value)
 
+/** 商品评价讨论楼层，根评论和回复列表在页面侧组合展示。 */
 interface DiscussionThreadItem {
   root: CommentDiscussionItem
   replies: CommentDiscussionItem[]
@@ -74,6 +75,7 @@ const discussionThreads = computed<DiscussionThreadItem[]>(() => {
   return Array.from(threadMap.values())
 })
 
+/** 校验互动登录态，未登录时跳转登录页。 */
 const ensureLogin = () => {
   if (userStore.userInfo) {
     return true
@@ -160,10 +162,12 @@ watch(
   },
 )
 
+/** 关闭讨论弹层并通知父组件。 */
 const onClose = () => {
   emit('close')
 }
 
+/** 重新聚焦输入框，适配小程序端同值 focus 不触发的问题。 */
 const focusCommentInput = () => {
   commentInputFocus.value = false
   nextTick(() => {
@@ -171,6 +175,7 @@ const focusCommentInput = () => {
   })
 }
 
+/** 进入回复指定讨论的输入状态。 */
 const onReplyTo = (item: CommentDiscussionItem) => {
   const parentDiscussionId = item.parent_id || item.id
   replyParentDiscussionId.value = parentDiscussionId
@@ -183,6 +188,7 @@ const isDiscussionExpanded = (discussionId: number) => {
   return expandedDiscussionIds.value.includes(discussionId)
 }
 
+/** 展开或收起指定讨论的回复列表。 */
 const onToggleDiscussionReplies = (discussionId: number) => {
   if (isDiscussionExpanded(discussionId)) {
     expandedDiscussionIds.value = expandedDiscussionIds.value.filter(
@@ -193,10 +199,12 @@ const onToggleDiscussionReplies = (discussionId: number) => {
   expandedDiscussionIds.value = [...expandedDiscussionIds.value, discussionId]
 }
 
+/** 讨论列表触底时加载下一页。 */
 const onDiscussionToLower = () => {
   void loadDiscussionData(false)
 }
 
+/** 提交新的讨论或回复，并同步父级讨论数量。 */
 const onSubmitDiscussion = async () => {
   if (!ensureLogin()) {
     return
@@ -238,6 +246,7 @@ const onSubmitDiscussion = async () => {
   }
 }
 
+/** 切换讨论点赞状态并回写本地计数。 */
 const onToggleLike = async (item: CommentDiscussionItem) => {
   if (!ensureLogin()) {
     return

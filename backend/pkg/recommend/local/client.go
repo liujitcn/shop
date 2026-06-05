@@ -155,7 +155,8 @@ func (r *Recommend) ListRankedGoodsPage(
 		return []int64{}, 0, nil
 	}
 
-	statSummaryMap, err := r.loadGoodsStatSummaryMap(ctx, candidates, startAt, endAt)
+	var statSummaryMap map[int64]*goodsStatSummaryRow
+	statSummaryMap, err = r.loadGoodsStatSummaryMap(ctx, candidates, startAt, endAt)
 	if err != nil {
 		return nil, 0, err
 	}

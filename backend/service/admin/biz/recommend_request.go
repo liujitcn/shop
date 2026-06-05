@@ -51,12 +51,14 @@ func (c *RecommendRequestCase) PageRecommendRequests(ctx context.Context, req *a
 	opts := make([]repository.QueryOption, 0, 8)
 	opts = append(opts, repository.Order(query.RequestAt.Desc()))
 	opts = append(opts, repository.Order(query.ID.Desc()))
+	var err error
 
 	// 传入推荐请求编号时，仅查询指定推荐会话的请求记录。
 	if req.RequestId != nil && req.GetRequestId() != "" {
-		requestID, parseErr := strconv.ParseInt(req.GetRequestId(), 10, 64)
+		var requestID int64
+		requestID, err = strconv.ParseInt(req.GetRequestId(), 10, 64)
 		// 推荐请求编号解析成功时，才继续按推荐会话筛选请求记录。
-		if parseErr == nil && requestID > 0 {
+		if err == nil && requestID > 0 {
 			opts = append(opts, repository.Where(query.RequestID.Eq(requestID)))
 		}
 	}
@@ -88,7 +90,9 @@ func (c *RecommendRequestCase) PageRecommendRequests(ctx context.Context, req *a
 		}
 	}
 
-	list, total, err := c.RecommendRequestRepository.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.RecommendRequest
+	var total int64
+	list, total, err = c.RecommendRequestRepository.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}

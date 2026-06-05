@@ -9,6 +9,7 @@ const props = defineProps<{
   list: GoodsCategory[]
 }>()
 
+/** 首页分类宫格展示项，兼容真实分类和“全部分类”入口。 */
 type CategoryDisplayItem = Pick<GoodsCategory, 'id' | 'name' | 'picture'> &
   Partial<GoodsCategory> & {
     isMore?: boolean
@@ -60,6 +61,7 @@ const showCategoryName = (name: string) => {
   })
 }
 
+/** 点击分类入口，更多入口切换到分类页，普通分类进入搜索页。 */
 const onTapCategory = (item: CategoryDisplayItem) => {
   if (item.isMore) {
     uni.switchTab({ url: '/pages/category/category' })

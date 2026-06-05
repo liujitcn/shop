@@ -34,6 +34,7 @@ import { buildNodeFormFields } from "../nodeFormFields";
 import type { NodeFormState } from "../types";
 import { fixedNodeTypes, nodeTypeLabelMap } from "../constants";
 
+/** 推荐流程节点编辑弹窗属性。 */
 interface NodeEditDialogProps {
   /** 弹窗显示状态。 */
   modelValue: boolean;

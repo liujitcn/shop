@@ -108,6 +108,7 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 	opts := make([]repository.QueryOption, 0, 5+len(extraOpts))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
+	var err error
 
 	// 传入商品名称时，按名称模糊匹配商品。
 	if req.GetName() != "" {
@@ -116,14 +117,15 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 
 	// 传入分类时，按分类或分类树范围过滤商品。
 	if req.GetCategoryId() > 0 {
-		categoryIDs, categoryErr := c.buildCategoryFilterIDs(ctx, req.GetCategoryId())
-		if categoryErr != nil {
-			return nil, categoryErr
+		var categoryIDs []int64
+		categoryIDs, err = c.buildCategoryFilterIDs(ctx, req.GetCategoryId())
+		if err != nil {
+			return nil, err
 		}
 		var goodsIDs []int64
-		goodsIDs, categoryErr = c.findGoodsIDsByCategoryIDs(ctx, categoryIDs)
-		if categoryErr != nil {
-			return nil, categoryErr
+		goodsIDs, err = c.findGoodsIDsByCategoryIDs(ctx, categoryIDs)
+		if err != nil {
+			return nil, err
 		}
 		// 分类条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDs) == 0 {
@@ -132,7 +134,9 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 		opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
 	}
 	opts = append(opts, extraOpts...)
-	page, count, err := c.GoodsInfoRepository.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var page []*models.GoodsInfo
+	var count int64
+	page, count, err = c.GoodsInfoRepository.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -323,13 +327,14 @@ func (c *GoodsInfoCase) addSaleNum(ctx context.Context, goodsID, num int64) erro
 	}
 	// 未命中更新时，需要把“商品不存在”和“库存不足”区分成可判断的业务错误。
 	if res.RowsAffected == 0 {
-		goodsInfo, findErr := c.FindByID(ctx, goodsID)
+		var goodsInfo *models.GoodsInfo
+		goodsInfo, err = c.FindByID(ctx, goodsID)
 		// 商品已经不存在时，当前下单请求不应继续执行。
-		if findErr != nil {
-			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.ResourceNotFound("商品不存在").WithCause(findErr)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errorsx.ResourceNotFound("商品不存在").WithCause(err)
 			}
-			return findErr
+			return err
 		}
 		return errorsx.StateConflict(
 			"商品库存不足",
@@ -356,13 +361,14 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsID, num int64) erro
 	}
 	// 回退未命中时，说明商品已不存在或销量聚合数据已经异常。
 	if res.RowsAffected == 0 {
-		goodsInfo, findErr := c.FindByID(ctx, goodsID)
+		var goodsInfo *models.GoodsInfo
+		goodsInfo, err = c.FindByID(ctx, goodsID)
 		// 商品记录缺失时，当前库存回退已经无法可靠执行。
-		if findErr != nil {
-			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.Internal("商品库存回退失败，商品不存在").WithCause(findErr)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errorsx.Internal("商品库存回退失败，商品不存在").WithCause(err)
 			}
-			return findErr
+			return err
 		}
 		return errorsx.Internal(
 			fmt.Sprintf(

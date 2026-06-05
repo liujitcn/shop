@@ -261,6 +261,7 @@ type MessageActionOption = {
   icon: Component;
 };
 
+/** 消息底部操作栏宽度同步状态。 */
 type MessageFooterWidthState = {
   /** 监听上方内容卡片宽度变化。 */
   observer: ResizeObserver;

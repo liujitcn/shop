@@ -4,6 +4,7 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const USER_STORE_URL = '/v1/app/user/store'
 
+/** 用户门店表单请求兼容结构，支持包裹表单和扁平表单。 */
 type UserStoreFormRequestCompat = Partial<UserStoreForm> & {
   id?: number
   user_store?: UserStoreForm

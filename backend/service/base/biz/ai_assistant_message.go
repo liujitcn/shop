@@ -76,8 +76,9 @@ func (c *AiAssistantMessageCase) SendAiAssistantMessage(ctx context.Context, req
 	firstTokenMs := durationMs
 	if err != nil {
 		failedReply := c.buildAiAssistantFailedReply(reply, err)
-		if updateErr := c.finishAiAssistantMessage(ctx, session, message, failedReply, finishAt, firstTokenMs, durationMs, int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)); updateErr != nil {
-			return nil, updateErr
+		err = c.finishAiAssistantMessage(ctx, session, message, failedReply, finishAt, firstTokenMs, durationMs, int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS))
+		if err != nil {
+			return nil, err
 		}
 		return &basev1.SendAiAssistantMessageResponse{
 			Messages: []*basev1.AiAssistantMessage{c.ToDTO(message)},
@@ -649,8 +650,9 @@ func (c *AiAssistantMessageCase) regenerateAiAssistantMessageWithContent(ctx con
 		reply = c.buildAiAssistantFailedReply(reply, err)
 		status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
 	}
-	if updateErr := c.finishAiAssistantMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status); updateErr != nil {
-		return nil, updateErr
+	err = c.finishAiAssistantMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
+	if err != nil {
+		return nil, err
 	}
 	return &basev1.SendAiAssistantMessageResponse{
 		Messages: []*basev1.AiAssistantMessage{c.ToDTO(message)},

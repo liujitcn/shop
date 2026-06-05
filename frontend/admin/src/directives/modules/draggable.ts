@@ -11,6 +11,7 @@
 	<div class="dialog-model" v-draggable></div>
 */
 import type { Directive } from "vue";
+/** 拖拽指令需要访问父节点尺寸的元素类型。 */
 interface ElType extends HTMLElement {
   parentNode: any;
 }

@@ -26,6 +26,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// UPDATE_PHONE_CODE_CACHE_PREFIX 表示修改手机号验证码缓存前缀。
 const UPDATE_PHONE_CODE_CACHE_PREFIX = "admin:update:phone:code:"
 
 var phoneRegexp = regexp.MustCompile(`^1[3-9]\d{9}$`)

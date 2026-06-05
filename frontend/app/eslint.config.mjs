@@ -28,6 +28,7 @@ export default defineConfigWithVueTs(
       '.DS_Store',
       '*.local',
       '.eslintrc.cjs',
+      'src/rpc',
     ],
   },
   pluginVue.configs['flat/essential'],

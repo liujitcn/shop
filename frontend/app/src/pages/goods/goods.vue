@@ -43,8 +43,10 @@ const sectionNavFadeDistance = 110
 // 分段切换以悬浮导航栏下沿作为“到顶”基准，保留极小容差避免浮点误差抖动。
 const sectionActiveTolerance = 2
 
+/** 商品详情页锚点分区标识。 */
 type SectionKey = 'goods' | 'comment' | 'detail' | 'recommend'
 
+/** 商品详情页悬浮分段导航配置。 */
 type SectionTab = {
   key: SectionKey
   label: string
@@ -126,6 +128,7 @@ const backButtonStyle = computed(() => {
   return `color: ${progress > 0.55 ? '#111827' : '#ffffff'}; background-color: rgba(17, 24, 39, ${0.38 * (1 - progress)}); border-color: rgba(255, 255, 255, ${0.18 * (1 - progress)});`
 })
 
+/** 加载商品详情和服务标签，并初始化 SKU 弹窗所需数据。 */
 const loadData = async () => {
   // 路由商品编号非法时，不再继续请求详情接口，但保留返回能力。
   if (!Number.isFinite(goodsId) || goodsId <= 0) {
@@ -238,6 +241,7 @@ const popup = ref<{
 
 // 弹出层条件渲染
 const popupName = ref<'address' | 'service'>()
+/** 打开详情页底部信息弹层。 */
 const openPopup = (name: typeof popupName.value) => {
   // 修改弹出层名称
   popupName.value = name

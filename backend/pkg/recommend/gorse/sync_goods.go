@@ -70,6 +70,7 @@ func (r *GoodsSyncReceiver) SyncList(ctx context.Context, goodsList []*models.Go
 	if !r.Enabled() {
 		return nil
 	}
+	var err error
 	// 未传Gorse索引时，回退到单条 upsert 逻辑保证兼容性。
 	if existingItemIDs == nil {
 		for _, goods := range goodsList {
@@ -77,9 +78,9 @@ func (r *GoodsSyncReceiver) SyncList(ctx context.Context, goodsList []*models.Go
 			if goods == nil || goods.ID <= 0 {
 				continue
 			}
-			syncErr := r.sync(ctx, goods)
-			if syncErr != nil {
-				return syncErr
+			err = r.sync(ctx, goods)
+			if err != nil {
+				return err
 			}
 		}
 		return nil
@@ -99,9 +100,9 @@ func (r *GoodsSyncReceiver) SyncList(ctx context.Context, goodsList []*models.Go
 		}
 		// Gorse已经存在时，直接走单条更新，避免重复插入失败后再回退。
 		if existingItemIDs.ContainsOne(recommendItem.ItemId) {
-			_, updateErr := r.recommend.gorseClient.UpdateItem(ctx, recommendItem.ItemId, itemPatch)
-			if updateErr != nil {
-				return updateErr
+			_, err = r.recommend.gorseClient.UpdateItem(ctx, recommendItem.ItemId, itemPatch)
+			if err != nil {
+				return err
 			}
 			continue
 		}
@@ -113,14 +114,14 @@ func (r *GoodsSyncReceiver) SyncList(ctx context.Context, goodsList []*models.Go
 		return nil
 	}
 
-	_, err := r.recommend.gorseClient.InsertItems(ctx, insertItems)
+	_, err = r.recommend.gorseClient.InsertItems(ctx, insertItems)
 	// 批量插入失败时，回退到单条 upsert，避免因为索引陈旧或Gorse部分冲突导致整批失败。
 	if err != nil {
 		var fallbackErr error
 		for _, goods := range insertGoodsList {
-			syncErr := r.sync(ctx, goods)
-			if syncErr != nil {
-				fallbackErr = errors.Join(fallbackErr, syncErr)
+			err = r.sync(ctx, goods)
+			if err != nil {
+				fallbackErr = errors.Join(fallbackErr, err)
 			}
 		}
 		if fallbackErr != nil {
@@ -180,9 +181,9 @@ func (r *GoodsSyncReceiver) buildPayload(goods *models.GoodsInfo) (client.Item, 
 	categoryIDs := make([]int64, 0)
 	// 分类字段非空时，尝试解析为推荐系统分类维度。
 	if goods.CategoryID != "" {
-		parseErr := json.Unmarshal([]byte(goods.CategoryID), &categoryIDs)
+		err := json.Unmarshal([]byte(goods.CategoryID), &categoryIDs)
 		// 分类 JSON 解析失败时，回退为空列表，避免单条商品脏数据阻塞整批推荐同步。
-		if parseErr != nil {
+		if err != nil {
 			categoryIDs = []int64{}
 		}
 	}

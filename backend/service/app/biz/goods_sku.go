@@ -137,13 +137,14 @@ func (c *GoodsSKUCase) addSaleNum(ctx context.Context, skuCode string, num int64
 	if res.RowsAffected == 0 {
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.SKUCode.Eq(skuCode)))
-		goodsSKU, findErr := c.Find(ctx, opts...)
+		var goodsSKU *models.GoodsSKU
+		goodsSKU, err = c.Find(ctx, opts...)
 		// 规格已经不存在时，当前下单请求不应继续执行。
-		if findErr != nil {
-			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.ResourceNotFound("商品规格不存在").WithCause(findErr)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errorsx.ResourceNotFound("商品规格不存在").WithCause(err)
 			}
-			return findErr
+			return err
 		}
 		return errorsx.StateConflict(
 			"商品库存不足",
@@ -172,13 +173,14 @@ func (c *GoodsSKUCase) subSaleNum(ctx context.Context, skuCode string, num int64
 	if res.RowsAffected == 0 {
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.SKUCode.Eq(skuCode)))
-		goodsSKU, findErr := c.Find(ctx, opts...)
+		var goodsSKU *models.GoodsSKU
+		goodsSKU, err = c.Find(ctx, opts...)
 		// 规格记录缺失时，当前库存回退已经无法可靠执行。
-		if findErr != nil {
-			if errors.Is(findErr, gorm.ErrRecordNotFound) {
-				return errorsx.Internal("商品库存回退失败，商品规格不存在").WithCause(findErr)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return errorsx.Internal("商品库存回退失败，商品规格不存在").WithCause(err)
 			}
-			return findErr
+			return err
 		}
 		return errorsx.Internal(
 			fmt.Sprintf(

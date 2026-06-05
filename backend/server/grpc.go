@@ -23,6 +23,7 @@ import (
 	"github.com/liujitcn/kratos-kit/rpc/middleware/requestid"
 )
 
+// GRPCMiddlewares 表示 GRPC 服务中间件链。
 type GRPCMiddlewares []middleware.Middleware
 
 // NewGRPCMiddleware 创建 GRPC 服务统一中间件链。

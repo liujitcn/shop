@@ -32,6 +32,7 @@
 import { ref, computed, watch } from "vue";
 import * as Icons from "@element-plus/icons-vue";
 
+/** 图标选择器组件属性。 */
 interface SelectIconProps {
   iconValue: string;
   title?: string;
@@ -62,12 +63,14 @@ watch(
 
 // open Dialog
 const dialogVisible = ref(false);
+/** 打开图标选择弹窗。 */
 const openDialog = () => (dialogVisible.value = true);
 
 // 选择图标(触发更新父组件数据)
 const emit = defineEmits<{
   "update:iconValue": [value: string];
 }>();
+/** 选择图标并同步到外部绑定值。 */
 const selectIcon = (item: any) => {
   dialogVisible.value = false;
   valueIcon.value = item.name;
@@ -77,6 +80,7 @@ const selectIcon = (item: any) => {
 
 // 清空图标
 const inputRef = ref();
+/** 清空当前已选择图标。 */
 const clearIcon = () => {
   valueIcon.value = "";
   emit("update:iconValue", "");

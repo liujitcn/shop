@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// BaseUserCase 处理基础用户业务。
 type BaseUserCase struct {
 	*data.BaseUserRepository
 }

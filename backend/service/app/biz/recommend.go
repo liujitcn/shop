@@ -25,7 +25,10 @@ import (
 	"github.com/liujitcn/kratos-kit/auth"
 )
 
+// RECOMMEND_RECENT_HISTORY_LIMIT 表示推荐最近行为历史数量上限。
 const RECOMMEND_RECENT_HISTORY_LIMIT = 20
+
+// RECOMMEND_ANONYMOUS_ACTOR_HEADER_KEY 表示匿名推荐主体请求头名称。
 const RECOMMEND_ANONYMOUS_ACTOR_HEADER_KEY = "X-Recommend-Anonymous-Id"
 
 // RecommendCase 推荐业务处理对象。
@@ -379,6 +382,7 @@ func (c *RecommendCase) listRecommendContextGoodsIDs(
 ) ([]int64, error) {
 	goodsIDs := make([]int64, 0)
 	actor := req.Actor
+	var err error
 	// 不同推荐场景使用各自更稳定的上下文商品来源。
 	switch req.Scene {
 	case commonv1.RecommendScene(_const.RECOMMEND_SCENE_GOODS_DETAIL):
@@ -391,9 +395,10 @@ func (c *RecommendCase) listRecommendContextGoodsIDs(
 		// 登录态购物车页优先读取购物车商品做上下文。
 		if actor != nil && actor.IsUser() {
 			// 当前主体是登录用户时，购物车商品更能代表即时搭配意图。
-			list, loadErr := c.userCartCase.listGoodsIDsByUserID(ctx, actor.ActorID)
-			if loadErr != nil {
-				return nil, loadErr
+			var list []int64
+			list, err = c.userCartCase.listGoodsIDsByUserID(ctx, actor.ActorID)
+			if err != nil {
+				return nil, err
 			}
 			goodsIDs = list
 		}
@@ -401,9 +406,10 @@ func (c *RecommendCase) listRecommendContextGoodsIDs(
 		// 个人中心优先读取收藏商品做兴趣上下文。
 		if actor != nil && actor.IsUser() {
 			// 当前主体是登录用户时，收藏商品更能代表长期兴趣偏好。
-			list, loadErr := c.userCollectCase.listGoodsIDsByUserID(ctx, actor.ActorID, RECOMMEND_RECENT_HISTORY_LIMIT)
-			if loadErr != nil {
-				return nil, loadErr
+			var list []int64
+			list, err = c.userCollectCase.listGoodsIDsByUserID(ctx, actor.ActorID, RECOMMEND_RECENT_HISTORY_LIMIT)
+			if err != nil {
+				return nil, err
 			}
 			goodsIDs = list
 		}
@@ -411,9 +417,10 @@ func (c *RecommendCase) listRecommendContextGoodsIDs(
 		// 订单详情与支付成功页优先读取订单商品做上下文。
 		if req.OrderID > 0 {
 			// 当前请求带有订单编号时，优先围绕订单内商品构建上下文。
-			list, loadErr := c.orderGoodsCase.listGoodsIDsByOrderID(ctx, req.OrderID)
-			if loadErr != nil {
-				return nil, loadErr
+			var list []int64
+			list, err = c.orderGoodsCase.listGoodsIDsByOrderID(ctx, req.OrderID)
+			if err != nil {
+				return nil, err
 			}
 			goodsIDs = list
 		}
@@ -421,9 +428,10 @@ func (c *RecommendCase) listRecommendContextGoodsIDs(
 		// 业务场景没有稳定上下文时，再回退到最近推荐行为商品。
 		if actor != nil && actor.IsValid() {
 			// 当前主体可识别时，回放最近推荐行为涉及的商品作为弱上下文。
-			list, loadErr := c.recommendEventCase.listRecentRecommendEventGoodsIDs(ctx, actor)
-			if loadErr != nil {
-				return nil, loadErr
+			var list []int64
+			list, err = c.recommendEventCase.listRecentRecommendEventGoodsIDs(ctx, actor)
+			if err != nil {
+				return nil, err
 			}
 			goodsIDs = list
 		}

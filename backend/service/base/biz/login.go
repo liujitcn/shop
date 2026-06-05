@@ -17,6 +17,7 @@ import (
 	"github.com/liujitcn/kratos-kit/captcha"
 )
 
+// LoginCase 处理基础登录认证业务。
 type LoginCase struct {
 	*biz.BaseCase
 	userToken    *authData.UserToken

@@ -10,10 +10,12 @@ import type {
 
 const GOODS_INFO_URL = '/v1/app/goods/info'
 
+/** 商品分页响应兼容结构，保留旧版 list 字段。 */
 type PageGoodsInfoResponseCompat = PageGoodsInfoResponse & {
   list: GoodsInfo[]
 }
 
+/** 商品分页 HTTP 原始响应，兼容旧版 list 字段。 */
 type PageGoodsInfoHTTPResponse = Partial<PageGoodsInfoResponse> & {
   list?: GoodsInfo[]
 }
@@ -37,6 +39,7 @@ export class GoodsInfoServiceImpl implements GoodsInfoService {
     }
   }
 
+  /** 查询商品详情 */
   GetGoodsInfo(request: GetGoodsInfoRequest): Promise<GoodsInfoResponse> {
     return http<GoodsInfoResponse>({
       url: `${GOODS_INFO_URL}/${request.id}`,

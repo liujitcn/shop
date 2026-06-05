@@ -51,6 +51,7 @@ import type { UploadProps, UploadFile, UploadUserFile, UploadRequestOptions } fr
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 import type { FileInfo } from "@/rpc/base/v1/file";
 
+/** 多图上传组件属性。 */
 interface UploadFileProps {
   fileList: UploadUserFile[];
   api?: (file: File) => Promise<FileInfo>; // 上传图片的 api 方法，默认使用当前文件服务 ==> 非必传
@@ -144,6 +145,7 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
 const emit = defineEmits<{
   "update:fileList": [value: UploadUserFile[]];
 }>();
+/** 处理多图上传成功后的地址回填和表单校验。 */
 const uploadSuccess = (response: FileInfo | undefined, uploadFile: UploadFile) => {
   if (!response) return;
   uploadFile.url = response.url;

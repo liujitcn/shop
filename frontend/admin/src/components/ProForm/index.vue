@@ -34,6 +34,7 @@ import type { FormInstance, FormRules } from "element-plus";
 import type { ProFormField } from "@/components/ProForm/interface";
 import ProFormItem from "./components/ProFormItem.vue";
 
+/** ProForm 组件属性。 */
 interface ProFormProps {
   model: Record<string, any>;
   fields: ProFormField[];

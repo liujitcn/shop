@@ -5,6 +5,7 @@ import { defOrderService } from '@/api/app/order_info'
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
 import type { OrderInfo } from '@/rpc/app/v1/order_info'
 
+/** 退款弹窗只需要订单编号，避免弹窗依赖完整订单结构。 */
 type RefundOrderTarget = Pick<OrderInfo, 'id'>
 
 const emit = defineEmits<{
@@ -16,6 +17,7 @@ const reasonList = ref<BaseDictForm_DictItem[]>([])
 const reason = ref('')
 const currentOrder = ref<RefundOrderTarget>()
 
+/** 懒加载退款原因字典。 */
 const getReasonList = async () => {
   if (reasonList.value.length) {
     return
@@ -24,6 +26,7 @@ const getReasonList = async () => {
   reasonList.value = refundReasonDict.items || []
 }
 
+/** 打开退款弹窗并初始化当前订单。 */
 const open = async (order: RefundOrderTarget) => {
   await getReasonList()
   currentOrder.value = order
@@ -31,12 +34,14 @@ const open = async (order: RefundOrderTarget) => {
   popup.value?.open?.()
 }
 
+/** 关闭退款弹窗并清理临时状态。 */
 const close = () => {
   currentOrder.value = undefined
   reason.value = ''
   popup.value?.close?.()
 }
 
+/** 提交退款申请并通知父组件刷新列表。 */
 const onConfirmRefund = async () => {
   if (!currentOrder.value) {
     void uni.showToast({ icon: 'none', title: '请选择订单' })

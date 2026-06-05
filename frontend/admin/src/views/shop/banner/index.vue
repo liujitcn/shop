@@ -47,6 +47,7 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 轮播图跳转商品分类选项。 */
 interface CategoryOption {
   /** 选项名 */
   label: string;

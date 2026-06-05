@@ -36,8 +36,11 @@ type GoodsInfoCase struct {
 }
 
 const (
-	GOODS_INVENTORY_ALERT_LOW  = commonv1.GoodsInventoryAlert_LOW_STOCK
+	// GOODS_INVENTORY_ALERT_LOW 表示低库存预警。
+	GOODS_INVENTORY_ALERT_LOW = commonv1.GoodsInventoryAlert_LOW_STOCK
+	// GOODS_INVENTORY_ALERT_ZERO 表示零库存预警。
 	GOODS_INVENTORY_ALERT_ZERO = commonv1.GoodsInventoryAlert_ZERO_STOCK
+	// GOODS_PRICE_ALERT_ABNORMAL 表示价格配置异常预警。
 	GOODS_PRICE_ALERT_ABNORMAL = commonv1.GoodsPriceAlert_PRICE_CONFIG_ABNORMAL
 )
 
@@ -100,20 +103,22 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	var err error
 	// 商品名称存在时，按名称模糊过滤。
 	if req.GetName() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
 	}
 	// 指定分类时，按分类层级筛选商品。
 	if req.CategoryId != nil && req.GetCategoryId() > 0 {
-		categoryIDList, categoryErr := c.buildCategoryFilterIDs(ctx, req.GetCategoryId())
-		if categoryErr != nil {
-			return nil, categoryErr
+		var categoryIDList []int64
+		categoryIDList, err = c.buildCategoryFilterIDs(ctx, req.GetCategoryId())
+		if err != nil {
+			return nil, err
 		}
 		var goodsIDList []int64
-		goodsIDList, categoryErr = c.findGoodsIDsByCategoryIDs(ctx, categoryIDList)
-		if categoryErr != nil {
-			return nil, categoryErr
+		goodsIDList, err = c.findGoodsIDsByCategoryIDs(ctx, categoryIDList)
+		if err != nil {
+			return nil, err
 		}
 		// 分类条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDList) == 0 {
@@ -126,9 +131,10 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 	}
 	// 指定库存预警时，先筛出符合预警条件的商品集合。
 	if req.InventoryAlert != nil {
-		goodsIDList, inventoryErr := c.findGoodsIDsByInventoryAlert(ctx, req.GetInventoryAlert())
-		if inventoryErr != nil {
-			return nil, inventoryErr
+		var goodsIDList []int64
+		goodsIDList, err = c.findGoodsIDsByInventoryAlert(ctx, req.GetInventoryAlert())
+		if err != nil {
+			return nil, err
 		}
 		// 预警条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDList) == 0 {
@@ -138,9 +144,10 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 	}
 	// 异常价格预警只在指定预警类型时生效。
 	if req.PriceAlert != nil && req.GetPriceAlert() == GOODS_PRICE_ALERT_ABNORMAL {
-		goodsIDList, priceErr := c.findGoodsIDsByAbnormalPrice(ctx)
-		if priceErr != nil {
-			return nil, priceErr
+		var goodsIDList []int64
+		goodsIDList, err = c.findGoodsIDsByAbnormalPrice(ctx)
+		if err != nil {
+			return nil, err
 		}
 		// 异常价格条件无命中商品时，直接返回空分页结果。
 		if len(goodsIDList) == 0 {
@@ -149,7 +156,9 @@ func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoo
 		opts = append(opts, repository.Where(query.ID.In(goodsIDList...)))
 	}
 
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+	var list []*models.GoodsInfo
+	var total int64
+	list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err
 	}

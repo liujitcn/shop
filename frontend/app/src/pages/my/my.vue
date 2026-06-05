@@ -15,6 +15,7 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 const COMMENT_CENTER_PENDING_PAGE = '/pagesOrder/comment/center?tab=pending'
 const AFTERSALE_RECORD_PAGE = '/pagesOrder/aftersale/aftersale?tab=record'
 
+/** 我的页面订单入口展示项，合并后端统计和本地图标文案。 */
 type OrderCountEntry = CountOrderInfoResponse_Count & {
   icon: string
   text: string
@@ -51,6 +52,7 @@ const orderCount = ref<OrderCountEntry[]>([
 const userStore = useUserStore()
 // 判断当前是否仍具备加载个人订单数据的登录态。
 const canLoadOrderData = () => Boolean(userStore.userInfo && getToken())
+/** 加载我的页面订单数量，并在登录态仍有效时回写入口文案。 */
 const getOrderData = async () => {
   if (!canLoadOrderData()) {
     return

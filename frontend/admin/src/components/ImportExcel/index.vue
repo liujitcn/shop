@@ -45,6 +45,7 @@ import { useDownload } from "@/hooks/useDownload";
 import { Download } from "@element-plus/icons-vue";
 import { ElNotification, UploadRequestOptions, UploadRawFile } from "element-plus";
 
+/** Excel 导入弹窗参数。 */
 export interface ExcelParameterProps {
   title: string; // 标题
   fileSize?: number; // 上传文件的大小

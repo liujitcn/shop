@@ -28,6 +28,7 @@ import { getRouteMetaAlwaysShow, getRouteMetaHidden, getRouteMetaIcon, getRouteM
 defineProps<{ menuList: RouteItem[] }>();
 
 const router = useRouter();
+/** 侧边菜单渲染时必须具备路径的菜单项。 */
 type VisibleRouteItem = RouteItem & { path: string };
 
 const ensureRoutePath = (subItem: RouteItem): VisibleRouteItem => {
@@ -37,6 +38,7 @@ const ensureRoutePath = (subItem: RouteItem): VisibleRouteItem => {
   };
 };
 
+/** 获取当前菜单节点应继续渲染的可见子菜单。 */
 const getSubMenuChildren = (subItem: RouteItem) => {
   const visibleChildren = (subItem.children ?? []).filter(item => !getRouteMetaHidden(item.meta));
   if (getRouteMetaAlwaysShow(subItem.meta) || visibleChildren.length !== 1) return visibleChildren;
@@ -49,12 +51,14 @@ const getMenuItem = (subItem: RouteItem): VisibleRouteItem => {
   return ensureRoutePath(visibleChildren[0]);
 };
 
+/** 判断当前节点是否需要渲染为子菜单容器。 */
 const isSubMenu = (subItem: RouteItem) => {
   const visibleChildren = (subItem.children ?? []).filter(item => !getRouteMetaHidden(item.meta));
   if (!visibleChildren.length) return false;
   return getRouteMetaAlwaysShow(subItem.meta) || visibleChildren.length > 1;
 };
 
+/** 处理侧边菜单点击并跳转内部路由或外链。 */
 const handleClickMenu = (subItem: RouteItem) => {
   const menuItem = getMenuItem(subItem);
   if (!menuItem.path) return;

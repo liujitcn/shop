@@ -170,8 +170,8 @@ func reviewImageMIMEType(rawURL string) string {
 	}
 
 	cleanPath := lowerURL
-	parsedURL, parseErr := url.Parse(lowerURL)
-	if parseErr == nil && parsedURL.Path != "" {
+	parsedURL, err := url.Parse(lowerURL)
+	if err == nil && parsedURL.Path != "" {
 		cleanPath = parsedURL.Path
 	} else {
 		suffixIndex := strings.IndexAny(cleanPath, "?#")

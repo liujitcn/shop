@@ -12,12 +12,14 @@ import type {
 import { RecommendEventType, RecommendScene } from '@/rpc/common/v1/enum'
 import { goodsDetailUrl } from '@/utils/navigation'
 
+/** 猜你喜欢商品项，携带推荐上下文用于曝光和点击上报。 */
 type GuessGoods = GoodsInfo & {
   recommend_request_id: RecommendGoodsResponse['request_id']
   recommendScene: RecommendScene
   recommendIndex: number
 }
 
+/** 单次推荐分页返回后等待曝光上报的批次。 */
 type RecommendExposureBatch = {
   request_id: RecommendGoodsResponse['request_id']
   scene: RecommendScene
@@ -166,6 +168,7 @@ const reportExposure = async () => {
   }
 }
 
+/** 点击推荐商品时先上报推荐点击，再跳转商品详情。 */
 const onTapGoods = async (item: GuessGoods) => {
   try {
     await recommendStore.getAnonymousId()

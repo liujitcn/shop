@@ -138,6 +138,7 @@ import ColSetting from "./components/ColSetting.vue";
 import TableColumn from "./components/TableColumn.vue";
 import Sortable from "sortablejs";
 
+/** ProTable 组件属性。 */
 export interface ProTableProps {
   columns: ColumnProps[]; // 列配置项  ==> 必传
   headerActions?: HeaderActionProps[]; // 顶部操作按钮配置 ==> 非必传
@@ -292,6 +293,7 @@ const buildStatusEnum = (column: ColumnProps): EnumProps[] => {
   ];
 };
 
+/** 初始化指定列的枚举缓存，支持静态枚举和异步枚举。 */
 const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (!enumValue) return;
 
@@ -365,6 +367,7 @@ const colSetting = (tableColumns.value as ColumnProps[]).filter(item => {
   const { type, prop, isSetting } = item;
   return !columnTypes.includes(type!) && prop !== "operation" && isSetting;
 });
+/** 打开列设置弹窗。 */
 const openColSetting = () => colRef.value.openColSetting();
 
 /**
@@ -417,11 +420,13 @@ const emit = defineEmits<{
   dragSort: [{ newIndex?: number; oldIndex?: number }];
 }>();
 
+/** 执行表格搜索并通知外部监听方。 */
 const _search = () => {
   search();
   emit("search");
 };
 
+/** 重置表格搜索条件并通知外部监听方。 */
 const _reset = () => {
   reset();
   emit("reset");
@@ -441,14 +446,17 @@ const handleToolRefresh = () => {
 };
 
 // 切换树形表格展开状态
+/** 切换树形表格展开或折叠状态。 */
 const toggleTreeExpand = () => {
   isTreeExpanded.value = !isTreeExpanded.value;
 };
 
 // 递归收集树形表格的所有行 key
+/** 递归收集树形表格的所有行 key。 */
 const collectTreeRowKeys = (rows: Record<string, any>[], rowKey: string, childrenKey: string) => {
   const keys: string[] = [];
 
+  /** 遍历当前层级并继续处理子节点。 */
   const travel = (list: Record<string, any>[]) => {
     list.forEach(item => {
       const key = item[rowKey];

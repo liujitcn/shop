@@ -12,6 +12,7 @@ import (
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/internal/cmd/server/assets"
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
@@ -132,7 +133,7 @@ func (c *BaseAPICase) GetBaseAPIDoc(ctx context.Context, id int64) (*adminv1.Bas
 	}
 	operation := api.Operation(baseAPI.Path, baseAPI.Method)
 	if operation == nil {
-		return nil, fmt.Errorf("openapi operation not found: %s %s", baseAPI.Method, baseAPI.Path)
+		return nil, errorsx.Internal("查询API文档失败").WithCause(fmt.Errorf("openapi operation not found: %s %s", baseAPI.Method, baseAPI.Path))
 	}
 
 	return &adminv1.BaseApiDoc{

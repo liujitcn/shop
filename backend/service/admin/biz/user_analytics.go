@@ -12,10 +12,14 @@ import (
 )
 
 const (
+	// USER_BEHAVIOR_ADDRESS 表示用户地址行为。
 	USER_BEHAVIOR_ADDRESS = "address"
+	// USER_BEHAVIOR_COLLECT 表示用户收藏行为。
 	USER_BEHAVIOR_COLLECT = "collect"
-	USER_BEHAVIOR_CART    = "cart"
-	USER_BEHAVIOR_STORE   = "store"
+	// USER_BEHAVIOR_CART 表示用户购物车行为。
+	USER_BEHAVIOR_CART = "cart"
+	// USER_BEHAVIOR_STORE 表示用户门店行为。
+	USER_BEHAVIOR_STORE = "store"
 )
 
 // UserAnalyticsCase 用户分析业务

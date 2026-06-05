@@ -2,7 +2,9 @@ import type { EnumProps } from "@/components/ProTable/interface";
 import type { OptionBaseDictsResponse_BaseDictItem } from "@/rpc/admin/v1/base_dict";
 import { useDictStoreHook } from "@/stores/modules/dict";
 
+/** 字典值输出给表格枚举时的目标类型。 */
 type DictValueType = "number" | "string";
+/** 表格批量操作支持的主键类型。 */
 type SelectedId = string | number;
 
 /** 表格分页入参，兼容 ProTable 旧 camelCase 分页字段与新接口 snake_case 字段。 */

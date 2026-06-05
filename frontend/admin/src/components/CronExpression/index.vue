@@ -117,14 +117,18 @@ import type { PropType } from "vue";
 import { ElCheckbox, ElCheckboxGroup, ElInputNumber, ElRadio } from "element-plus";
 import { Operation } from "@element-plus/icons-vue";
 
+/** Cron 单个字段支持的编辑模式。 */
 type CronSegmentMode = "every" | "unspecified" | "range" | "step" | "specific" | "last" | "weekday";
+/** Cron 表达式字段标识。 */
 type CronSegmentKey = "second" | "minute" | "hour" | "day" | "month" | "year";
 
+/** CronExpression 组件属性。 */
 interface CronExpressionProps {
   modelValue?: string;
   placeholder?: string;
 }
 
+/** Cron 单个字段的编辑状态。 */
 interface CronSegmentState {
   mode: CronSegmentMode;
   rangeStart: number;
@@ -135,6 +139,7 @@ interface CronSegmentState {
   weekday: number;
 }
 
+/** Cron 编辑器整体状态。 */
 type CronEditorState = Record<CronSegmentKey, CronSegmentState>;
 
 const props = withDefaults(defineProps<CronExpressionProps>(), {
@@ -160,6 +165,7 @@ const presetOptions = [
   { label: "明年每天零点执行", value: `0 0 0 * * ${currentYear + 1}` }
 ];
 
+/** 创建单个 Cron 字段的默认编辑状态。 */
 function createSegmentState(min = 0): CronSegmentState {
   return {
     mode: "every",
@@ -172,6 +178,7 @@ function createSegmentState(min = 0): CronSegmentState {
   };
 }
 
+/** 创建完整 Cron 编辑器的默认状态。 */
 function createDefaultEditorState(): CronEditorState {
   return {
     second: createSegmentState(),
@@ -213,12 +220,14 @@ const expressionDescription = computed(() => {
   return descriptionList.length ? descriptionList.join("，") : "未配置执行规则";
 });
 
+/** 打开 Cron 编辑弹窗，并按当前表达式回填编辑状态。 */
 function handleOpenEditor(tab?: CronSegmentKey | "preset") {
   applyExpressionToState(props.modelValue || "0 * * * * *");
   dialogVisible.value = true;
   activeTab.value = tab && tab !== "preset" ? tab : "second";
 }
 
+/** 应用常用 Cron 预设表达式。 */
 function handleApplyPreset(value: string) {
   applyExpressionToState(value);
 }
@@ -243,11 +252,13 @@ function handleUpdateSegment(segment: CronSegmentKey, value: CronSegmentState) {
   syncSegmentState(editorState[segment], value);
 }
 
+/** 确认编辑结果并回写外部 v-model。 */
 function handleConfirmEditor() {
   emit("update:modelValue", previewExpression.value);
   dialogVisible.value = false;
 }
 
+/** 将单个字段编辑状态转换为 Cron 片段。 */
 function buildSegmentValue(segment: CronSegmentState) {
   switch (segment.mode) {
     case "every":
@@ -269,6 +280,7 @@ function buildSegmentValue(segment: CronSegmentState) {
   }
 }
 
+/** 将单个字段编辑状态转换为中文预览描述。 */
 function formatSegmentDescription(label: string, segment: CronSegmentState) {
   switch (segment.mode) {
     case "every":
@@ -292,6 +304,7 @@ function formatSegmentDescription(label: string, segment: CronSegmentState) {
   }
 }
 
+/** 获取 Cron 字段在范围描述中的单位后缀。 */
 function formatUnitSuffix(label: string) {
   if (label === "日期") return "日";
   if (label === "月份") return "月";
@@ -299,6 +312,7 @@ function formatUnitSuffix(label: string) {
   return label;
 }
 
+/** 获取 Cron 字段在周期描述中的单位后缀。 */
 function formatCycleSuffix(label: string) {
   if (label === "日期") return "天";
   if (label === "月份") return "个月";
@@ -306,6 +320,7 @@ function formatCycleSuffix(label: string) {
   return label;
 }
 
+/** 格式化指定值模式下的单个展示值。 */
 function formatSpecificLabel(label: string, value: number) {
   if (label === "年份") return `${value}年`;
   return String(value);
@@ -326,6 +341,7 @@ function applyExpressionToState(expression: string) {
   syncSegmentState(editorState.year, parseSegmentValue(normalizedParts[5], currentYear));
 }
 
+/** 将 Cron 片段解析为单个字段编辑状态。 */
 function parseSegmentValue(value: string, min: number) {
   const nextState = createSegmentState(min);
   if (!value || value === "*") {
@@ -458,10 +474,12 @@ const CronSegmentEditor = defineComponent({
       }));
     });
 
+    /** 向父级 Cron 编辑器同步当前字段状态。 */
     function emitChange() {
       segmentEmit("change", { ...localState, specific: [...localState.specific] });
     }
 
+    /** 切换当前字段的编辑模式。 */
     function handleModeChange(mode: CronSegmentMode) {
       localState.mode = mode;
       emitChange();
@@ -472,6 +490,7 @@ const CronSegmentEditor = defineComponent({
       emitChange();
     }
 
+    /** 同步多选指定值到当前字段状态。 */
     function handleSpecificChange(value: Array<string | number>) {
       localState.specific = value.map(Number).filter(item => !Number.isNaN(item));
       emitChange();

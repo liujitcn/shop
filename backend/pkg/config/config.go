@@ -13,10 +13,12 @@ import (
 	"github.com/liujitcn/kratos-kit/sdk"
 )
 
+// WRAPPER_CONFIG_KEY 表示商城业务配置在自定义配置中的包装键。
 const WRAPPER_CONFIG_KEY = "Shop"
 
 var payTimeoutMinutes = 30
 
+// CACHE_KEY_PAY_TIMEOUT 表示支付超时时间缓存键。
 const CACHE_KEY_PAY_TIMEOUT = "payTimeout"
 
 // NewShopConfig 获取商城业务配置。
@@ -174,10 +176,12 @@ func ParseAuthnJWT(ctx *bootstrap.Context) *bootstrapConfigv1.Authentication_Jwt
 
 // resolveFilePath 解析配置中的证书文件路径。
 func resolveFilePath(path string) (string, bool) {
+	var err error
 	// 绝对路径存在时直接返回原路径。
 	if filepath.IsAbs(path) {
 		// 绝对路径对应文件存在时，直接返回原路径。
-		if _, statErr := os.Stat(path); statErr == nil {
+		_, err = os.Stat(path)
+		if err == nil {
 			return path, true
 		}
 		return path, false
@@ -197,7 +201,8 @@ func resolveFilePath(path string) (string, bool) {
 	for _, p := range candidates {
 		cleaned := filepath.Clean(p)
 		// 命中可用文件后，立即返回标准化路径。
-		if _, statErr := os.Stat(cleaned); statErr == nil {
+		_, err = os.Stat(cleaned)
+		if err == nil {
 			return cleaned, true
 		}
 	}

@@ -9,6 +9,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 )
 
+// OrderSchedulerCase 维护订单自动取消调度任务。
 type OrderSchedulerCase struct {
 	*biz.BaseCase
 	timers sync.Map // 存储订单ID和对应的定时器

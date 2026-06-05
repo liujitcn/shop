@@ -64,6 +64,7 @@ const dictStore = useDictStore();
 const tabsStore = useTabsStore();
 const keepAliveStore = useKeepAliveStore();
 
+/** 登录表单实例类型。 */
 type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const captcha_base64 = ref("");
@@ -74,6 +75,7 @@ const loginRules = reactive({
 });
 
 const loading = ref(false);
+/** 登录表单状态。 */
 interface LoginFormState {
   user_name: string;
   password: string;

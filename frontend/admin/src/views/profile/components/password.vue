@@ -61,6 +61,7 @@ import { ElMessage } from "element-plus";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, getPasswordStrength, validatePasswordStrengthValue } from "@/utils/passwordStrength";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 
+/** 修改密码表单状态，明文只在前端校验和加密前短暂保存。 */
 interface UserPasswordFormState {
   /** 原密码明文只保留在前端表单中，提交前转换为密码密文。 */
   old_pwd: string;

@@ -79,11 +79,13 @@ import { normalizeSelectedIds } from "@/utils/proTable";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, validatePasswordStrengthValue } from "@/utils/passwordStrength";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 
+/** 用户表单状态，前端保留明文密码并在提交前加密。 */
 interface BaseUserFormState extends Omit<BaseUserForm, "pwd"> {
   /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
   pwd: string;
 }
 
+/** 重置用户密码表单状态，前端保留明文密码并在提交前加密。 */
 interface ResetBaseUserPasswordFormState extends Omit<ResetBaseUserPasswordRequest, "pwd"> {
   /** 密码明文只保留在前端表单中，提交前转换为密码密文。 */
   pwd: string;
@@ -94,6 +96,7 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 用户管理左侧部门筛选树节点。 */
 type DeptFilterNode = {
   id: string;
   name: string;

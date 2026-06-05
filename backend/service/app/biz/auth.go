@@ -27,6 +27,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// CACHE_KEY_WX_ACCESS_TOKEN 表示微信访问令牌缓存键。
 const CACHE_KEY_WX_ACCESS_TOKEN = "wx_access_token"
 
 // AuthCase 登录认证业务处理对象

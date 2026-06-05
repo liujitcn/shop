@@ -4,6 +4,7 @@ import (
 	"shop/pkg/gen/data"
 )
 
+// BaseDeptCase 处理基础部门业务。
 type BaseDeptCase struct {
 	*data.BaseDeptRepository
 }

@@ -11,8 +11,10 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const AUTH_URL = '/v1/app/auth'
 
+/** 获取用户资料请求兼容空请求结构。 */
 type GetUserProfileRequestCompat = Empty
 
+/** 更新用户资料请求兼容新旧两种表单包裹方式。 */
 type UpdateUserProfileRequestCompat = Partial<UserProfileForm> & {
   user_profile?: UserProfileForm
 }

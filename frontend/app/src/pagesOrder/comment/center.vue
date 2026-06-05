@@ -14,13 +14,16 @@ const query = defineProps<{
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
+/** 评价中心标签标识。 */
 type CommentCenterTab = 'pending' | 'done'
 
+/** 待评价商品在页面侧补充稳定列表 key 和格式化图片。 */
 type PendingCommentItem = PendingCommentGoodsItem & {
   id: string
   goods_picture: string
 }
 
+/** 已评价记录在页面侧补充折叠文本、图片预览和展示日期。 */
 type DoneCommentItem = CommentItem & {
   goods_picture: string
   date: string
@@ -65,6 +68,7 @@ const doneComments = computed<DoneCommentItem[]>(() => {
   }))
 })
 
+/** 返回上一页，无历史栈时回到我的页面。 */
 const onNavigateBack = () => {
   const pages = getCurrentPages()
   if (pages.length > 1) {
@@ -74,6 +78,7 @@ const onNavigateBack = () => {
   uni.switchTab({ url: '/pages/my/my' })
 }
 
+/** 切换评价中心标签。 */
 const onSwitchTab = (tab: CommentCenterTab) => {
   activeTab.value = tab
 }
@@ -82,6 +87,7 @@ const getCommentStatusText = (status: number) => {
   return commentStatusList.value.find((item) => item.value === String(status))?.label || ''
 }
 
+/** 构建待评价商品的评价发布页地址。 */
 const buildWriteUrl = (item: PendingCommentItem) => {
   return orderCommentWriteUrl({
     order_id: item.order_id,
@@ -130,6 +136,7 @@ const getDoneContent = (item: DoneCommentItem) => {
   return `${item.content.slice(0, collapsedContentLength)}...`
 }
 
+/** 展开或收起已评价正文。 */
 const onToggleDoneContent = (id: number) => {
   expandedDoneMap.value = {
     ...expandedDoneMap.value,
@@ -137,6 +144,7 @@ const onToggleDoneContent = (id: number) => {
   }
 }
 
+/** 打开已评价图片预览。 */
 const onPreviewImages = (images: string[], index: number) => {
   if (!images.length) {
     return
@@ -215,11 +223,13 @@ const loadMyCommentList = async (reset: boolean) => {
   }
 }
 
+/** 加载评价状态字典，用于已评价标签展示。 */
 const loadCommentStatusDict = async () => {
   const dict = await defBaseDictService.GetBaseDict({ value: commentStatusDictCode })
   commentStatusList.value = dict.items || []
 }
 
+/** 评价中心列表触底时加载当前标签下一页。 */
 const onCommentCenterToLower = () => {
   if (activeTab.value === 'pending') {
     void loadPendingCommentList(false)
@@ -246,6 +256,7 @@ const getDoneStars = (score: number) => {
   return `${'★'.repeat(normalizedScore)}${'☆'.repeat(5 - normalizedScore)}`
 }
 
+/** 删除已发布评价并刷新已评价列表。 */
 const onDeleteComment = (item: DoneCommentItem) => {
   if (deletingCommentId.value) {
     return

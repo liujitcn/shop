@@ -52,6 +52,7 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 商品列表左侧分类筛选树节点。 */
 type CategoryFilterNode = {
   id: string;
   name: string;
@@ -256,6 +257,7 @@ async function requestGoodsTable(params: PageGoodsInfosRequest) {
   return { data: { ...data, list } };
 }
 
+/** 同步工作台跳转携带的商品列表筛选参数。 */
 function syncWorkspaceQuery() {
   const categoryId = Number(route.query.categoryId ?? 0);
   const status = Number(route.query.status ?? 0);

@@ -76,9 +76,9 @@ func (c *GoodsCategoryCase) ListGoodsCategories(ctx context.Context, req *appv1.
 			goodsInfoList := make([]*models.GoodsInfo, 0, 9)
 			for _, goodsInfo := range categoryGoodsList {
 				categoryIDs := make([]int64, 0)
-				parseErr := json.Unmarshal([]byte(goodsInfo.CategoryID), &categoryIDs)
+				err = json.Unmarshal([]byte(goodsInfo.CategoryID), &categoryIDs)
 				// 分类 JSON 异常时，跳过当前商品，避免脏数据影响分类页整体展示。
-				if parseErr != nil {
+				if err != nil {
 					continue
 				}
 				matchedCategory := false

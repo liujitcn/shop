@@ -7,8 +7,10 @@
 import { ref, watch } from "vue";
 import { useDictStore } from "@/stores/modules/dict";
 
+/** Element Plus 标签支持的展示类型。 */
 type TagType = "success" | "warning" | "info" | "primary" | "danger";
 
+/** 字典标签组件属性。 */
 interface DictLabelProps {
   code: string;
   modelValue?: string | number;

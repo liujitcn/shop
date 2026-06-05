@@ -5,24 +5,29 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const SHOP_HOT_URL = '/v1/app/shop/hot'
 
+/** 热门推荐 ID 请求兼容结构，支持旧版 value 和新版 id。 */
 type IDRequestCompat = {
   id?: number
   value?: number
 }
 
+/** 热门推荐商品分页请求结构。 */
 type PageShopHotGoodsRequestCompat = {
   hot_item_id: number
   page_num: number
   page_size: number
 }
 
+/** 热门推荐列表响应兼容结构，同时保留协议字段和旧版 list。 */
 type ListShopHotsResponseCompat = {
   shop_hots: ShopHot[]
   list: ShopHot[]
 }
 
+/** 热门推荐列表 HTTP 原始响应，允许后端只返回部分字段。 */
 type ListShopHotsHTTPResponse = Partial<ListShopHotsResponseCompat>
 
+/** 热门推荐子项响应兼容结构，同时保留协议字段和旧版 list。 */
 type ListShopHotItemsResponseCompat = {
   id: number
   title: string
@@ -31,14 +36,17 @@ type ListShopHotItemsResponseCompat = {
   list: ShopHotItem[]
 }
 
+/** 热门推荐子项 HTTP 原始响应，允许后端只返回部分字段。 */
 type ListShopHotItemsHTTPResponse = Partial<ListShopHotItemsResponseCompat>
 
+/** 热门推荐商品分页响应兼容结构，同时保留协议字段和旧版 list。 */
 type PageShopHotGoodsResponseCompat = {
   goods_infos: GoodsInfo[]
   list: GoodsInfo[]
   total: number
 }
 
+/** 热门推荐商品分页 HTTP 原始响应，允许后端只返回部分字段。 */
 type PageShopHotGoodsHTTPResponse = Partial<PageShopHotGoodsResponseCompat>
 
 /** 热门推荐服务 */

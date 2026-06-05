@@ -11,6 +11,7 @@ import { getRouteMetaFull } from "@/utils";
 const modules = import.meta.glob("@/views/**/*.vue");
 const pendingComponent = modules["/src/views/migration/pending/index.vue"];
 
+/** 解析后的后端路由项，补齐完整路径和重定向。 */
 type ResolvedRouteItem = {
   item: RouteItem;
   path: string;

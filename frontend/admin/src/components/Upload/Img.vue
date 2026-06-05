@@ -55,6 +55,7 @@ import { ElNotification, formContextKey, formItemContextKey } from "element-plus
 import type { UploadProps, UploadRequestOptions } from "element-plus";
 import type { FileInfo } from "@/rpc/base/v1/file";
 
+/** 单图上传组件属性。 */
 interface UploadFileProps {
   imageUrl: string; // 图片地址 ==> 必传
   api?: (file: File) => Promise<FileInfo>; // 上传图片的 api 方法，默认使用当前文件服务 ==> 非必传
@@ -102,6 +103,7 @@ const self_disabled = computed(() => {
 const emit = defineEmits<{
   "update:imageUrl": [value: string];
 }>();
+/** 执行单图自定义上传并同步图片地址。 */
 const handleHttpUpload = async (options: UploadRequestOptions) => {
   try {
     // 优先使用页面显式传入的业务上传类型，避免不同业务图片都落到同一个 image 分类。

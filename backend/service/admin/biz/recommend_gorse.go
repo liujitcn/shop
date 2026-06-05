@@ -16,6 +16,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
+// RECOMMEND_GORSE_ADVANCE_PAGE_SIZE 表示 Gorse 推荐分页预取大小。
 const RECOMMEND_GORSE_ADVANCE_PAGE_SIZE = 100
 
 // RecommendGorseCase Gorse 推荐管理业务实例。
@@ -356,30 +357,34 @@ func (c *RecommendGorseCase) ExportData(
 		return nil, errorsx.InvalidArgument("导出数据类型不能为空")
 	}
 
+	var err error
 	// 不同高级调试数据类型分别走各自的 JSONL 导出逻辑。
 	switch req.GetDataType() {
 	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_USER):
-		content, exportErr := c.exportRecommendGorseUsers(ctx)
-		if exportErr != nil {
-			return nil, exportErr
+		var content string
+		content, err = c.exportRecommendGorseUsers(ctx)
+		if err != nil {
+			return nil, err
 		}
 		return &adminv1.ExportDataResponse{
 			FileName: "users.jsonl",
 			Content:  content,
 		}, nil
 	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_ITEM):
-		content, exportErr := c.exportRecommendGorseItems(ctx)
-		if exportErr != nil {
-			return nil, exportErr
+		var content string
+		content, err = c.exportRecommendGorseItems(ctx)
+		if err != nil {
+			return nil, err
 		}
 		return &adminv1.ExportDataResponse{
 			FileName: "items.jsonl",
 			Content:  content,
 		}, nil
 	case commonv1.AdvanceDataType(_const.ADVANCE_DATA_TYPE_FEEDBACK):
-		content, exportErr := c.exportRecommendGorseFeedback(ctx)
-		if exportErr != nil {
-			return nil, exportErr
+		var content string
+		content, err = c.exportRecommendGorseFeedback(ctx)
+		if err != nil {
+			return nil, err
 		}
 		return &adminv1.ExportDataResponse{
 			FileName: "feedback.jsonl",
@@ -612,11 +617,12 @@ func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
 		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
 	}
 
+	var err error
 	// 文件整体是 JSON 数组时，优先按数组结构解析，兼容部分调试工具的批量导出格式。
 	if strings.HasPrefix(content, "[") {
 		recordList := make([]json.RawMessage, 0)
-		decodeErr := json.Unmarshal([]byte(content), &recordList)
-		if decodeErr != nil {
+		err = json.Unmarshal([]byte(content), &recordList)
+		if err != nil {
 			return nil, errorsx.InvalidArgument("导入文件不是合法的JSON数组")
 		}
 		return recordList, nil
@@ -640,8 +646,8 @@ func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
 		}
 
 		rawMessage := json.RawMessage{}
-		decodeErr := json.Unmarshal([]byte(line), &rawMessage)
-		if decodeErr != nil {
+		err = json.Unmarshal([]byte(line), &rawMessage)
+		if err != nil {
 			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
 		}
 		recordList = append(recordList, rawMessage)
@@ -652,10 +658,11 @@ func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
 // importRecommendGorseUsers 导入 Gorse 推荐用户 JSONL。
 func (c *RecommendGorseCase) importRecommendGorseUsers(ctx context.Context, recordList []json.RawMessage) (int, error) {
 	userList := make([]client.User, 0, len(recordList))
+	var err error
 	for _, record := range recordList {
 		user := client.User{}
-		decodeErr := json.Unmarshal(record, &user)
-		if decodeErr != nil {
+		err = json.Unmarshal(record, &user)
+		if err != nil {
 			return 0, errorsx.InvalidArgument("用户数据不是合法的JSON对象")
 		}
 		// 用户编号为空时，当前记录无法作为合法的Gorse 推荐用户导入。
@@ -669,7 +676,7 @@ func (c *RecommendGorseCase) importRecommendGorseUsers(ctx context.Context, reco
 		return 0, errorsx.InvalidArgument("导入文件缺少有效用户数据")
 	}
 
-	err := c.dashboard.InsertUsers(ctx, userList)
+	err = c.dashboard.InsertUsers(ctx, userList)
 	if err != nil {
 		return 0, err
 	}
@@ -679,10 +686,11 @@ func (c *RecommendGorseCase) importRecommendGorseUsers(ctx context.Context, reco
 // importRecommendGorseItems 导入 Gorse 推荐商品 JSONL。
 func (c *RecommendGorseCase) importRecommendGorseItems(ctx context.Context, recordList []json.RawMessage) (int, error) {
 	itemList := make([]client.Item, 0, len(recordList))
+	var err error
 	for _, record := range recordList {
 		item := client.Item{}
-		decodeErr := json.Unmarshal(record, &item)
-		if decodeErr != nil {
+		err = json.Unmarshal(record, &item)
+		if err != nil {
 			return 0, errorsx.InvalidArgument("商品数据不是合法的JSON对象")
 		}
 		// 商品编号为空时，当前记录无法作为合法的Gorse 推荐商品导入。
@@ -696,7 +704,7 @@ func (c *RecommendGorseCase) importRecommendGorseItems(ctx context.Context, reco
 		return 0, errorsx.InvalidArgument("导入文件缺少有效商品数据")
 	}
 
-	err := c.dashboard.InsertItems(ctx, itemList)
+	err = c.dashboard.InsertItems(ctx, itemList)
 	if err != nil {
 		return 0, err
 	}
@@ -706,10 +714,11 @@ func (c *RecommendGorseCase) importRecommendGorseItems(ctx context.Context, reco
 // importRecommendGorseFeedback 导入 Gorse 推荐反馈 JSONL。
 func (c *RecommendGorseCase) importRecommendGorseFeedback(ctx context.Context, recordList []json.RawMessage) (int, error) {
 	feedbackList := make([]client.Feedback, 0, len(recordList))
+	var err error
 	for _, record := range recordList {
 		feedback := client.Feedback{}
-		decodeErr := json.Unmarshal(record, &feedback)
-		if decodeErr != nil {
+		err = json.Unmarshal(record, &feedback)
+		if err != nil {
 			return 0, errorsx.InvalidArgument("反馈数据不是合法的JSON对象")
 		}
 		// 反馈类型为空时，当前记录无法作为合法的Gorse 推荐反馈导入。
@@ -731,7 +740,7 @@ func (c *RecommendGorseCase) importRecommendGorseFeedback(ctx context.Context, r
 		return 0, errorsx.InvalidArgument("导入文件缺少有效反馈数据")
 	}
 
-	err := c.dashboard.InsertFeedbacks(ctx, feedbackList)
+	err = c.dashboard.InsertFeedbacks(ctx, feedbackList)
 	if err != nil {
 		return 0, err
 	}

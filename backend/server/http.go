@@ -28,6 +28,7 @@ import (
 	swaggerUI "github.com/liujitcn/kratos-kit/swagger-ui"
 )
 
+// HTTPMiddlewares 表示 HTTP 服务中间件链。
 type HTTPMiddlewares []kratosMiddleware.Middleware
 
 // NewHTTPMiddleware 创建 HTTP 服务统一中间件链。

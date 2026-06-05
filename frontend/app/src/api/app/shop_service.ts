@@ -4,11 +4,13 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const SHOP_SERVICE_URL = '/v1/app/shop/service'
 
+/** 商城服务列表响应兼容结构，同时保留协议字段和旧版 list。 */
 type ListShopServicesResponseCompat = {
   shop_services: ShopService[]
   list: ShopService[]
 }
 
+/** 商城服务列表 HTTP 原始响应，允许后端只返回部分字段。 */
 type ListShopServicesHTTPResponse = Partial<ListShopServicesResponseCompat>
 
 /** 服务列表服务 */

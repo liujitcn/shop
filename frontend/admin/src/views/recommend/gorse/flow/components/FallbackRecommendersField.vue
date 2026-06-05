@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+/** 兜底推荐器排序字段属性。 */
 interface FallbackRecommendersFieldProps {
   /** 当前兜底推荐器排序列表。 */
   modelValue?: string[];

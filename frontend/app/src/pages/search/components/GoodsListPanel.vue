@@ -4,11 +4,13 @@ import { ref } from 'vue'
 import { formatPrice, formatSrc } from '@/utils'
 import { goodsDetailUrl } from '@/utils/navigation'
 
+/** 商品列表卡片中的顶部促销条目。 */
 type PromotionItem = {
   title: string
   desc?: string
 }
 
+/** 搜索结果页商品展示项，扩展列表卡片所需的视觉字段。 */
 type GoodsListItem = GoodsInfo & {
   /** 多图列表，后端列表只有主图时会自动退回 picture。 */
   banner?: string[]
@@ -48,6 +50,7 @@ const getActiveIndex = (item: GoodsListItem, index: number) => {
   return activeIndexMap.value[getItemKey(item, index)] || 0
 }
 
+/** 同步商品卡片轮播图当前下标。 */
 const onSwiperChange = (item: GoodsListItem, index: number, ev: UniHelper.SwiperOnChangeEvent) => {
   activeIndexMap.value = {
     ...activeIndexMap.value,
@@ -91,10 +94,12 @@ const resolveTagList = (item: GoodsListItem) => {
 const resolveShopName = (item: GoodsListItem) => item.shopName || '官方旗舰店'
 const resolveShopDesc = (item: GoodsListItem) => item.shopDesc || '品质保障'
 
+/** 跳转到商品详情页。 */
 const navigateToGoods = (item: GoodsListItem) => {
   uni.navigateTo({ url: goodsDetailUrl(item.id) })
 }
 
+/** 处理商品卡片主操作按钮。 */
 const onTapAction = (item: GoodsListItem) => {
   // 列表接口没有默认 SKU，加入购物车/立即购买统一进入详情页完成规格选择。
   navigateToGoods(item)

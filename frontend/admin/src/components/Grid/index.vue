@@ -21,6 +21,7 @@ import {
 } from "vue";
 import type { BreakPoint } from "./interface/index";
 
+/** Grid 容器属性，控制列数、折叠行数和间距。 */
 type Props = {
   cols?: number | Record<BreakPoint, number>;
   collapsed?: boolean;
@@ -94,6 +95,7 @@ provide("cols", gridCols);
 // 寻找需要开始折叠的字段 index
 const slots = useSlots().default!();
 
+/** 计算折叠模式下从哪个 GridItem 开始隐藏。 */
 const findIndex = () => {
   let fields: VNodeArrayChildren = [];
   let suffix: VNode | null = null;

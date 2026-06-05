@@ -122,8 +122,8 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 		}
 		return r.buildResponse(assistantAgenticMessage(disabledCall.Content), token, []ToolUsage{disabledCall.Usage}), nil
 	}
+	var err error
 	if len(toolInfos) > 0 {
-		var err error
 		var directOutput *schema.AgenticMessage
 		var toolCallToken TokenUsage
 		var toolCalls []ToolUsage
@@ -140,7 +140,8 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 			return r.buildResponse(directOutput, token, tools), nil
 		}
 	}
-	reader, err := r.client.Stream(ctx, messages, streamOptions...)
+	var reader *schema.StreamReader[*schema.AgenticMessage]
+	reader, err = r.client.Stream(ctx, messages, streamOptions...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,12 +150,13 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 	var content strings.Builder
 	chunks := make([]*schema.AgenticMessage, 0)
 	for {
-		chunk, recvErr := reader.Recv()
-		if errors.Is(recvErr, io.EOF) {
+		var chunk *schema.AgenticMessage
+		chunk, err = reader.Recv()
+		if errors.Is(err, io.EOF) {
 			break
 		}
-		if recvErr != nil {
-			return nil, recvErr
+		if err != nil {
+			return nil, err
 		}
 		if chunk == nil {
 			continue
@@ -169,7 +171,8 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 			onDelta(text)
 		}
 	}
-	finalMessage, err := schema.ConcatAgenticMessages(chunks)
+	var finalMessage *schema.AgenticMessage
+	finalMessage, err = schema.ConcatAgenticMessages(chunks)
 	if err != nil {
 		return nil, err
 	}
@@ -860,6 +863,7 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 	enabledNames := toolInfoNameSet(enabledInfos)
 	tools := r.terminalTools(input.Terminal)
 	result := make(map[string]tool.InvokableTool, len(enabledNames)+1)
+	var err error
 	if r == nil {
 		return result
 	}
@@ -867,7 +871,8 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 		if item == nil {
 			continue
 		}
-		info, err := item.Info(ctx)
+		var info *schema.ToolInfo
+		info, err = item.Info(ctx)
 		if err != nil || info == nil || info.Name == "" {
 			continue
 		}
@@ -880,9 +885,10 @@ func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]to
 		result[info.Name] = item
 	}
 	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
-	info, err := catalogTool.Info(ctx)
-	if err == nil && info != nil && info.Name != "" {
-		result[info.Name] = catalogTool
+	var catalogInfo *schema.ToolInfo
+	catalogInfo, err = catalogTool.Info(ctx)
+	if err == nil && catalogInfo != nil && catalogInfo.Name != "" {
+		result[catalogInfo.Name] = catalogTool
 	}
 	return result
 }

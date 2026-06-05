@@ -91,9 +91,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	query := c.Query(ctx).CasbinRule
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.V0.Eq(baseRole.Code)))
-	rebuildErr := c.Delete(ctx, opts...)
-	if rebuildErr != nil {
-		return rebuildErr
+	err := c.Delete(ctx, opts...)
+	if err != nil {
+		return err
 	}
 
 	menuIDs := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
@@ -103,9 +103,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	}
 
 	var baseMenuList []*models.BaseMenu
-	baseMenuList, rebuildErr = c.baseMenuRepo.ListByIDs(ctx, menuIDs)
-	if rebuildErr != nil {
-		return rebuildErr
+	baseMenuList, err = c.baseMenuRepo.ListByIDs(ctx, menuIDs)
+	if err != nil {
+		return err
 	}
 
 	operations := make([]string, 0)
@@ -118,9 +118,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	}
 
 	var allAPIList []*models.BaseAPI
-	allAPIList, rebuildErr = c.baseAPICase.List(ctx)
-	if rebuildErr != nil {
-		return rebuildErr
+	allAPIList, err = c.baseAPICase.List(ctx)
+	if err != nil {
+		return err
 	}
 
 	casbinRuleList := make([]*models.CasbinRule, 0)
@@ -139,9 +139,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 	}
 	// 命中接口规则时，批量写入角色权限规则。
 	if len(casbinRuleList) > 0 {
-		rebuildErr = c.BatchCreate(ctx, casbinRuleList)
-		if rebuildErr != nil {
-			return rebuildErr
+		err = c.BatchCreate(ctx, casbinRuleList)
+		if err != nil {
+			return err
 		}
 	}
 	return c.RebuildPolicyRule(ctx)

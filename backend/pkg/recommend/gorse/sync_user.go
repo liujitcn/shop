@@ -66,6 +66,7 @@ func (r *UserSyncReceiver) SyncList(ctx context.Context, userList []*models.Base
 	if !r.Enabled() {
 		return nil
 	}
+	var err error
 	// 未传Gorse索引时，回退到单条 upsert 逻辑保证兼容性。
 	if existingUserIDs == nil {
 		for _, user := range userList {
@@ -73,9 +74,9 @@ func (r *UserSyncReceiver) SyncList(ctx context.Context, userList []*models.Base
 			if user == nil || user.ID <= 0 {
 				continue
 			}
-			syncErr := r.sync(ctx, user)
-			if syncErr != nil {
-				return syncErr
+			err = r.sync(ctx, user)
+			if err != nil {
+				return err
 			}
 		}
 		return nil
@@ -96,9 +97,9 @@ func (r *UserSyncReceiver) SyncList(ctx context.Context, userList []*models.Base
 		recommendUser, userPatch := r.buildPayload(user)
 		// Gorse已经存在时，直接走单条更新，避免重复插入失败后再回退。
 		if existingUserIDs.ContainsOne(recommendUser.UserId) {
-			_, updateErr := r.recommend.gorseClient.UpdateUser(ctx, recommendUser.UserId, userPatch)
-			if updateErr != nil {
-				return updateErr
+			_, err = r.recommend.gorseClient.UpdateUser(ctx, recommendUser.UserId, userPatch)
+			if err != nil {
+				return err
 			}
 			continue
 		}
@@ -110,14 +111,14 @@ func (r *UserSyncReceiver) SyncList(ctx context.Context, userList []*models.Base
 		return nil
 	}
 
-	_, err := r.recommend.gorseClient.InsertUsers(ctx, insertUsers)
+	_, err = r.recommend.gorseClient.InsertUsers(ctx, insertUsers)
 	// 批量插入失败时，回退到单条 upsert，避免因为索引陈旧或Gorse部分冲突导致整批失败。
 	if err != nil {
 		var fallbackErr error
 		for _, user := range insertUserList {
-			syncErr := r.sync(ctx, user)
-			if syncErr != nil {
-				fallbackErr = errors.Join(fallbackErr, syncErr)
+			err = r.sync(ctx, user)
+			if err != nil {
+				fallbackErr = errors.Join(fallbackErr, err)
 			}
 		}
 		if fallbackErr != nil {

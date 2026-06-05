@@ -45,6 +45,7 @@ import ProDialog from "@/components/Dialog/ProDialog.vue";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 
+/** 表单弹窗组件属性。 */
 interface FormDialogProps {
   modelValue: boolean;
   title?: string;

@@ -9,6 +9,7 @@
   <button v-throttle="debounceClick">节流提交</button>
 */
 import type { Directive, DirectiveBinding } from "vue";
+/** 节流指令挂载点击处理函数和禁用状态的元素类型。 */
 interface ElType extends HTMLElement {
   __handleClick__: () => any;
   disabled: boolean;

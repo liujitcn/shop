@@ -6,6 +6,7 @@
 
 import type { Directive, DirectiveBinding } from "vue";
 import { ElMessage } from "element-plus";
+/** 复制指令绑定后挂载复制内容的元素类型。 */
 interface ElType extends HTMLElement {
   copyData: string | number;
 }
@@ -22,6 +23,7 @@ const copy: Directive = {
   }
 };
 
+/** 处理复制指令点击事件并写入剪贴板。 */
 async function handleClick(this: any) {
   try {
     await navigator.clipboard.writeText(this.copyData);

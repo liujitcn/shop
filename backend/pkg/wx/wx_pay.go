@@ -38,6 +38,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// NOTIFY_URL 表示微信支付回调通知路径。
 const NOTIFY_URL = "/api/v1/app/pay/notify"
 
 // WxPayCase 微信支付业务实例。

@@ -7,6 +7,7 @@
 import { computed, inject, Ref, ref, useAttrs, watch } from "vue";
 import { BreakPoint, Responsive } from "../interface/index";
 
+/** GridItem 属性，控制不同断点下的占位和偏移。 */
 type Props = {
   offset?: number;
   span?: number;

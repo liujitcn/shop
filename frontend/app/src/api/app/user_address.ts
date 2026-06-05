@@ -4,21 +4,25 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const USER_ADDRESS_URL = '/v1/app/user/address'
 
+/** 用户地址 ID 请求兼容结构，支持旧版 value 和新版 id。 */
 type IDRequestCompat = {
   id?: number
   value?: number
 }
 
+/** 用户地址表单请求兼容结构，支持包裹表单和扁平表单。 */
 type UserAddressFormRequestCompat = Partial<UserAddressForm> & {
   id?: number
   user_address?: UserAddressForm
 }
 
+/** 用户地址列表响应兼容结构，同时保留协议字段和旧版 list。 */
 type ListUserAddressesResponseCompat = {
   user_addresses: UserAddress[]
   list: UserAddress[]
 }
 
+/** 用户地址列表 HTTP 原始响应，允许后端只返回部分字段。 */
 type ListUserAddressesHTTPResponse = Partial<ListUserAddressesResponseCompat>
 
 /** 用户地址服务 */

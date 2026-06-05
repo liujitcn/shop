@@ -17,6 +17,7 @@ import (
 	"github.com/liujitcn/kratos-kit/sdk"
 )
 
+// BASE_CONFIG_CACHE_PREFIX 表示基础配置缓存键前缀。
 const BASE_CONFIG_CACHE_PREFIX = "config:"
 
 // BaseConfigCase 配置业务实例

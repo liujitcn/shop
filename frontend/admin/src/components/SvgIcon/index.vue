@@ -7,6 +7,7 @@
 <script setup lang="ts" name="SvgIcon">
 import { computed, CSSProperties } from "vue";
 
+/** SvgIcon 组件属性。 */
 interface SvgProps {
   iconClass: string; // 图标名称
   prefix?: string; // 图标的前缀 ==> 非必传（默认为"icon"）

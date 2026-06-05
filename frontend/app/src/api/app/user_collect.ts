@@ -14,18 +14,23 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const USER_COLLECT_URL = '/v1/app/user/collect'
 
+/** 创建收藏请求兼容结构，支持包裹请求和扁平表单。 */
 type CreateUserCollectRequestCompat = CreateUserCollectRequest | UserCollectForm
 
+/** 收藏状态响应兼容结构，同时保留 is_collected 和旧版 value。 */
 type GetIsCollectResponseCompat = GetIsCollectResponse & {
   value: boolean
 }
 
+/** 收藏状态 HTTP 原始响应，允许任一状态字段为空。 */
 type GetIsCollectHTTPResponse = Partial<GetIsCollectResponseCompat>
 
+/** 收藏分页响应兼容结构，保留旧版 list 字段。 */
 type PageUserCollectsResponseCompat = PageUserCollectsResponse & {
   list: UserCollect[]
 }
 
+/** 收藏分页 HTTP 原始响应，兼容旧版 list 字段。 */
 type PageUserCollectsHTTPResponse = Partial<PageUserCollectsResponseCompat>
 
 /** 收藏服务 */

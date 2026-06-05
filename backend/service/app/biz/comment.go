@@ -778,14 +778,14 @@ func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []co
 func (c *CommentCase) readCommentReviewImage(imagePath string) ([]byte, error) {
 	oss := sdk.Runtime.GetOSS()
 	if oss == nil {
-		return nil, fmt.Errorf("OSS未初始化，无法读取评价图片 %s", imagePath)
+		return nil, errorsx.Internal("读取评价图片失败").WithCause(fmt.Errorf("OSS未初始化: %s", imagePath))
 	}
 	bytes, err := oss.GetFileByte(imagePath)
 	if err != nil {
-		return nil, fmt.Errorf("读取评价图片失败 %s: %w", imagePath, err)
+		return nil, errorsx.Internal("读取评价图片失败").WithCause(fmt.Errorf("%s: %w", imagePath, err))
 	}
 	if len(bytes) == 0 {
-		return nil, fmt.Errorf("评价图片内容为空 %s", imagePath)
+		return nil, errorsx.Internal("读取评价图片失败").WithCause(fmt.Errorf("评价图片内容为空: %s", imagePath))
 	}
 	return bytes, nil
 }
@@ -992,8 +992,8 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 	if !updated {
 		return nil
 	}
-	commentInfo, findErr := c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
-	if findErr == nil {
+	commentInfo, err := c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
+	if err == nil {
 		queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaTodo, workspaceevent.AreaReputation)
@@ -1061,9 +1061,9 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 	}
 
 	tagNameMap := make(map[int64]string)
-	tagList, tagErr := c.commentTagCase.listVisibleByGoodsID(ctx, goodsID)
-	if tagErr != nil {
-		log.Errorf("refreshGoodsCommentSummary load tags goodsID=%d err=%v", goodsID, tagErr)
+	tagList, err := c.commentTagCase.listVisibleByGoodsID(ctx, goodsID)
+	if err != nil {
+		log.Errorf("refreshGoodsCommentSummary load tags goodsID=%d err=%v", goodsID, err)
 	} else {
 		tagNameMap = make(map[int64]string, len(tagList))
 		for _, tag := range tagList {

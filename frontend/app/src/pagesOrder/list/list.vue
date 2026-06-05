@@ -6,6 +6,7 @@ import { useUserStore } from '@/stores'
 import { navigateToLogin } from '@/utils/navigation'
 import { onLoad } from '@dcloudio/uni-app'
 
+/** 订单列表页顶部状态标签配置。 */
 type OrderTab = {
   status: OrderStatus
   title: string
@@ -51,6 +52,7 @@ onLoad(() => {
   }
 })
 
+/** 切换订单状态标签，并标记对应列表允许渲染。 */
 const onChangeActiveIndex = (index: number) => {
   activeIndex.value = index
   orderTabs.value[index].isRender = true

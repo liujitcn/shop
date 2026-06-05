@@ -51,6 +51,7 @@ import Dict from "@/components/Dict/index.vue";
 import { handleProp } from "@/utils";
 import { ColumnProps, SearchType } from "@/components/ProTable/interface";
 
+/** 单个搜索表单项组件属性。 */
 interface SearchFormItem {
   column: ColumnProps;
   searchParam: { [key: string]: any };

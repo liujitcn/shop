@@ -30,6 +30,7 @@ const userStore = useUserStore()
 const cartList = ref<UserCart[]>([])
 // 优化购物车空列表状态，默认展示列表
 const showCartList = ref(false)
+/** 购物车库存同步结果，用于决定是否刷新列表和提示用户。 */
 type CartSyncResult = {
   synced: boolean
   adjustedCount: number
@@ -106,6 +107,7 @@ const showCartSyncToast = async (result: CartSyncResult) => {
   })
 }
 
+/** 拉取购物车列表，并在展示前同步失效库存。 */
 const getUserCartData = async () => {
   const res = await defUserCartService.ListUserCarts({})
   const list = res.user_carts || []

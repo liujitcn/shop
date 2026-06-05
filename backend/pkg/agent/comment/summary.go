@@ -37,7 +37,8 @@ func (r *Runtime) GenerateSummary(ctx context.Context, req SummaryRequest) (*Sum
 	}
 
 	var outputSchema *jsonschema.Schema
-	outputSchema, err := cachedSummaryResultSchema()
+	var err error
+	outputSchema, err = cachedSummaryResultSchema()
 	if err != nil {
 		return nil, fmt.Errorf("build comment summary schema: %w", err)
 	}

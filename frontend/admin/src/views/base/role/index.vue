@@ -99,6 +99,7 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 当前正在分配权限的角色摘要。 */
 interface CheckedBaseRole {
   id?: number;
   name?: string;

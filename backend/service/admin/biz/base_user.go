@@ -80,20 +80,22 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 	query := c.Query(ctx).BaseUser
 	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	var err error
 	// 指定部门时，按部门及其子部门范围筛选用户。
 	if req.DeptId != nil && req.GetDeptId() > 0 {
-		dept, deptErr := c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
-		if deptErr != nil {
-			return nil, deptErr
+		var dept *models.BaseDept
+		dept, err = c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
+		if err != nil {
+			return nil, err
 		}
 
 		deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
 		deptOpts := make([]repository.QueryOption, 0, 1)
 		deptOpts = append(deptOpts, repository.Where(deptQuery.Path.Like(dept.Path+"%")))
 		var deptList []*models.BaseDept
-		deptList, deptErr = c.baseDeptRepo.List(ctx, deptOpts...)
-		if deptErr != nil {
-			return nil, deptErr
+		deptList, err = c.baseDeptRepo.List(ctx, deptOpts...)
+		if err != nil {
+			return nil, err
 		}
 
 		deptIDs := make([]int64, 0, len(deptList))

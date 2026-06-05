@@ -20,6 +20,7 @@ import (
 	"github.com/liujitcn/kratos-kit/sdk"
 )
 
+// BaseCase 承载后端通用业务上下文与基础能力。
 type BaseCase struct {
 	*bootstrap.Context
 	queue          queue.Queue

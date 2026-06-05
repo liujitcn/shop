@@ -48,6 +48,7 @@ import { computed, ref } from "vue";
 import { defRecommendGorseService } from "@/api/admin/recommend_gorse";
 import type { NodeFormState } from "../types";
 
+/** 推荐流程节点预览面板属性。 */
 interface NodePreviewPanelProps {
   /** 当前节点表单状态，用于读取预览接口所需参数。 */
   nodeForm: NodeFormState;

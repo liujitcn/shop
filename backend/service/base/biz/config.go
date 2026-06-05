@@ -10,6 +10,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
+// ConfigCase 处理基础配置查询业务。
 type ConfigCase struct {
 	*data.BaseConfigRepository
 }

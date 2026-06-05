@@ -4,6 +4,7 @@ import (
 	"shop/pkg/gen/data"
 )
 
+// BaseRoleCase 处理基础角色业务。
 type BaseRoleCase struct {
 	*data.BaseRoleRepository
 }

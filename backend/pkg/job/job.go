@@ -15,6 +15,7 @@ import (
 	_string "github.com/liujitcn/go-utils/string"
 )
 
+// ExecJob 表示一次定时任务执行上下文。
 type ExecJob struct {
 	JobID        int64             // 任务ID
 	Args         map[string]string // 任务参数

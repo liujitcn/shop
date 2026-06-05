@@ -27,10 +27,12 @@ const props = defineProps<{
   sku_code?: string
 }>()
 
+/** 评价筛选项在页面侧使用的稳定 key 结构。 */
 type ReviewFilter = CommentFilterItem & {
   key: string
 }
 
+/** 评价摘要中可直接渲染的标签和值。 */
 type SummaryItem = {
   label: string
   content: string
@@ -131,6 +133,7 @@ const isReviewReactionActive = (item: CommentItem, reaction_type: CommentReactio
   return item.reaction_type === reaction_type
 }
 
+/** 校验评价互动登录态，未登录时跳转登录页。 */
 const ensureLogin = () => {
   if (userStore.userInfo) {
     return true
@@ -286,11 +289,13 @@ const isReviewImageMoreMaskVisible = (images: string[], imageIndex: number) => {
   return images.length > maxPreviewImageCount && imageIndex === maxPreviewImageCount - 1
 }
 
+/** 切换评价筛选条件并重新加载列表。 */
 const onSelectFilter = (key: string) => {
   activeFilter.value = key
   void loadCommentData(true)
 }
 
+/** 切换最新排序并重新加载评价列表。 */
 const onSelectSortLatest = () => {
   activeSort.value =
     activeSort.value === CommentSortType.COMMENT_SORT_LATEST
@@ -299,6 +304,7 @@ const onSelectSortLatest = () => {
   void loadCommentData(true)
 }
 
+/** 切换仅看当前规格评价的筛选状态。 */
 const onToggleCurrentGoodsOnly = () => {
   if (!props.sku_code) {
     void uni.showToast({
@@ -311,19 +317,23 @@ const onToggleCurrentGoodsOnly = () => {
   void loadCommentData(true)
 }
 
+/** 展开或收起评价筛选区。 */
 const onToggleFilterExpanded = () => {
   filterExpanded.value = !filterExpanded.value
 }
 
+/** 根据滚动位置切换筛选区吸顶状态。 */
 const onCommentsScroll = (event: { detail: { scrollTop: number } }) => {
   const pinnedThreshold = filterExpanded.value ? expandedPinnedThreshold : collapsedPinnedThreshold
   filterPinned.value = event.detail.scrollTop > pinnedThreshold
 }
 
+/** 评价列表触底时加载下一页。 */
 const onCommentsToLower = () => {
   void loadCommentData(false)
 }
 
+/** 展开或收起单条评价正文。 */
 const onToggleReviewContent = (reviewId: number) => {
   expandedReviewMap.value = {
     ...expandedReviewMap.value,
@@ -331,6 +341,7 @@ const onToggleReviewContent = (reviewId: number) => {
   }
 }
 
+/** 打开评价图片预览。 */
 const onPreviewImage = (images: string[], index: number) => {
   if (!images.length) {
     return
@@ -341,6 +352,7 @@ const onPreviewImage = (images: string[], index: number) => {
   })
 }
 
+/** 返回上一页，无历史栈时回到首页。 */
 const onNavigateBack = () => {
   const pages = getCurrentPages()
   if (pages.length > 1) {
@@ -350,11 +362,13 @@ const onNavigateBack = () => {
   uni.switchTab({ url: '/pages/index/index' })
 }
 
+/** 打开指定评价的讨论弹层。 */
 const onOpenCommentPopup = (reviewId: number) => {
   activeReviewId.value = reviewId
   commentPopupVisible.value = true
 }
 
+/** 关闭评价讨论弹层。 */
 const onCloseCommentPopup = () => {
   commentPopupVisible.value = false
 }
@@ -419,6 +433,7 @@ const onSaveReviewReaction = async (item: CommentItem, reaction_type: CommentRea
   })
 }
 
+/** 展示当前仅支持前端静态反馈的轻提示。 */
 const onStaticToast = (title: string) => {
   void uni.showToast({
     title,

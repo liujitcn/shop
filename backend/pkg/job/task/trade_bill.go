@@ -94,22 +94,22 @@ func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
 	billDate := _time.TimeToDateString(*now)
 
 	ret := make([]string, 0, 2)
-	payment, err1 := t.payment(billDate, bill.BILL_TYPE_SUCCESS)
+	payment, paymentErr := t.payment(billDate, bill.BILL_TYPE_SUCCESS)
 	// 支付账单核对失败时，记录错误信息并继续处理退款账单。
-	if err1 != nil {
+	if paymentErr != nil {
 		ret = append(ret, "支付账单核对失败")
 	} else {
 		ret = append(ret, payment.formatMessage())
 	}
-	refund, err2 := t.refund(billDate, bill.BILL_TYPE_REFUND)
+	refund, refundErr := t.refund(billDate, bill.BILL_TYPE_REFUND)
 	// 退款账单核对失败时，记录错误信息供任务结果统一返回。
-	if err2 != nil {
+	if refundErr != nil {
 		ret = append(ret, "退款账单核对失败")
 	} else {
 		ret = append(ret, refund.formatMessage())
 	}
 	// 任一账单核对失败时，都需要把失败状态返回给任务调度器。
-	return ret, errors.Join(err1, err2)
+	return ret, errors.Join(paymentErr, refundErr)
 }
 
 // payment 核对支付账单
@@ -192,10 +192,11 @@ func (t *TradeBill) payment(billDate, billType string) (tradeBillCheckResult, er
 			key := fmt.Sprintf("%s_%s", record[6], record[5])
 			// 记录在数据库不存在，暂时记录日期，后续在做处理
 			if v, ok := paymentMap[key]; ok {
-				orderPaymentAmount, parseErr := parseOrderPaymentAmount(v.Amount)
+				var orderPaymentAmount *adminv1.OrderPayment_Amount
+				orderPaymentAmount, err = parseOrderPaymentAmount(v.Amount)
 				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
-				if parseErr != nil {
-					return result, parseErr
+				if err != nil {
+					return result, err
 				}
 				// 支付金额和状态一致
 				if v.TradeState == record[9] && orderPaymentAmount.GetPayerTotal() == amount {
@@ -429,10 +430,11 @@ func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, err
 			key := fmt.Sprintf("%s_%s_%s_%s", record[6], record[5], record[17], record[16])
 			// 记录在数据库不存在，暂时记录日期，后续在做处理
 			if v, ok := refundMap[key]; ok {
-				orderRefundAmount, parseErr := parseOrderRefundAmount(v.Amount)
+				var orderRefundAmount *adminv1.OrderRefund_Amount
+				orderRefundAmount, err = parseOrderRefundAmount(v.Amount)
 				// 金额 JSON 解析失败时，直接终止对账，避免把坏数据按 0 金额继续统计。
-				if parseErr != nil {
-					return result, parseErr
+				if err != nil {
+					return result, err
 				}
 				// 支付金额和状态一致
 				if v.RefundState == record[21] && orderRefundAmount.GetPayerRefund() == amount {

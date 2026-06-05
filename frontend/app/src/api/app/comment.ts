@@ -31,52 +31,64 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 const COMMENT_URL = '/v1/app/comment'
 const COMMENT_GOODS_URL = `${COMMENT_URL}/goods`
 
+/** 商品评价摘要响应兼容结构，保留旧版 previewList 字段。 */
 type GoodsCommentOverviewResponseCompat = GoodsCommentOverviewResponse & {
   previewList: CommentItem[]
 }
 
+/** 商品评价摘要 HTTP 原始响应，兼容旧版预览列表字段。 */
 type GoodsCommentOverviewHTTPResponse = Partial<GoodsCommentOverviewResponse> & {
   previewList?: CommentItem[]
 }
 
+/** 商品评价标签响应兼容结构，保留旧版 tagList 字段。 */
 type GoodsCommentTagsResponseCompat = GoodsCommentTagsResponse & {
   tagList: CommentTagItem[]
 }
 
+/** 商品评价标签 HTTP 原始响应，兼容旧版标签列表字段。 */
 type GoodsCommentTagsHTTPResponse = Partial<GoodsCommentTagsResponse> & {
   tagList?: CommentTagItem[]
 }
 
+/** 商品评价分页响应兼容结构，保留旧版 filterList 和 list 字段。 */
 type PageGoodsCommentResponseCompat = PageGoodsCommentResponse & {
   filterList: CommentFilterItem[]
   list: CommentItem[]
 }
 
+/** 商品评价分页 HTTP 原始响应，兼容旧版筛选和列表字段。 */
 type PageGoodsCommentHTTPResponse = Partial<PageGoodsCommentResponse> & {
   filterList?: CommentFilterItem[]
   list?: CommentItem[]
 }
 
+/** 评价讨论分页响应兼容结构，保留旧版 list 字段。 */
 type PageCommentDiscussionResponseCompat = PageCommentDiscussionResponse & {
   list: CommentDiscussionItem[]
 }
 
+/** 评价讨论分页 HTTP 原始响应，兼容旧版 list 字段。 */
 type PageCommentDiscussionHTTPResponse = Partial<PageCommentDiscussionResponse> & {
   list?: CommentDiscussionItem[]
 }
 
+/** 待评价商品分页响应兼容结构，保留旧版 list 字段。 */
 type PagePendingCommentGoodsResponseCompat = PagePendingCommentGoodsResponse & {
   list: PendingCommentGoodsItem[]
 }
 
+/** 待评价商品分页 HTTP 原始响应，兼容旧版 list 字段。 */
 type PagePendingCommentGoodsHTTPResponse = Partial<PagePendingCommentGoodsResponse> & {
   list?: PendingCommentGoodsItem[]
 }
 
+/** 我的评价分页响应兼容结构，保留旧版 list 字段。 */
 type PageMyCommentResponseCompat = PageMyCommentResponse & {
   list: CommentItem[]
 }
 
+/** 我的评价分页 HTTP 原始响应，兼容旧版 list 字段。 */
 type PageMyCommentHTTPResponse = Partial<PageMyCommentResponse> & {
   list?: CommentItem[]
 }

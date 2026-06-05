@@ -18,12 +18,14 @@ import { computed } from "vue";
 import { useGlobalStore } from "@/stores/modules/global";
 const globalStore = useGlobalStore();
 
+/** ProTable 分页状态。 */
 interface Pageable {
   pageNum: number;
   pageSize: number;
   total: number;
 }
 
+/** ProTable 分页组件属性和变更回调。 */
 interface PaginationProps {
   pageable: Pageable;
   handleSizeChange: (size: number) => void;

@@ -44,6 +44,7 @@ import { useDebounceFn } from "@vueuse/core";
 import type { RouteItem } from "@/rpc/admin/v1/auth";
 import { getRouteMetaHidden, getRouteMetaIcon, getRouteMetaTitle, isExternalPath } from "@/utils";
 
+/** 可被菜单搜索展示的路由项。 */
 interface SearchRouteItem extends RouteItem {
   path: string;
 }
@@ -57,6 +58,7 @@ const menuList = computed<SearchRouteItem[]>(() => {
 });
 
 const activePath = ref("");
+/** 鼠标移入菜单项时同步当前高亮路径。 */
 const mouseoverMenuItem = (menu: SearchRouteItem) => {
   activePath.value = menu.path;
 };
@@ -73,6 +75,7 @@ watch(isShowSearch, val => {
   }
 });
 
+/** 打开菜单搜索弹窗并聚焦输入框。 */
 const handleOpen = () => {
   isShowSearch.value = true;
   nextTick(() => {
@@ -83,6 +86,7 @@ const handleOpen = () => {
 };
 
 const searchList = ref<SearchRouteItem[]>([]);
+/** 根据关键词刷新可跳转菜单列表。 */
 const updateSearchList = () => {
   searchList.value = searchMenu.value
     ? menuList.value.filter(
@@ -100,6 +104,7 @@ const debouncedUpdateSearchList = useDebounceFn(updateSearchList, 300);
 watch(searchMenu, debouncedUpdateSearchList);
 
 const menuListRef = ref<Element | null>(null);
+/** 处理键盘上下键切换菜单高亮项。 */
 const keyPressUpOrDown = (direction: number) => {
   const length = searchList.value.length;
   if (length === 0) return;
@@ -113,6 +118,7 @@ const keyPressUpOrDown = (direction: number) => {
   });
 };
 
+/** 处理菜单搜索弹窗内的键盘导航。 */
 const keyboardOperation = (event: KeyboardEvent) => {
   if (event.key === "ArrowUp") {
     event.preventDefault();
@@ -126,6 +132,7 @@ const keyboardOperation = (event: KeyboardEvent) => {
   }
 };
 
+/** 跳转到当前选中的菜单路径。 */
 const handleClickMenu = () => {
   const menu = searchList.value.find(item => item.path === activePath.value);
   if (!menu) return;

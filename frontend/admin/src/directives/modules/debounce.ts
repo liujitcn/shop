@@ -4,6 +4,7 @@
  * 接收参数：function类型
  */
 import type { Directive, DirectiveBinding } from "vue";
+/** 防抖指令挂载点击处理函数的元素类型。 */
 interface ElType extends HTMLElement {
   __handleClick__: () => any;
 }

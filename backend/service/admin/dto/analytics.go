@@ -1,7 +1,6 @@
 package dto
 
-// CountResult 统计结果
-// 用于聚合新增数量和总数量，避免在多个方法中重复定义
+// CountResult 表示聚合新增数量和总数量的统计结果。
 type CountResult struct {
 	// NewNum 指定时间范围内的新增数量
 	NewNum int64 `gorm:"column:new_num"`

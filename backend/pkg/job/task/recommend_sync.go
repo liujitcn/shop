@@ -15,6 +15,7 @@ import (
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
+// RECOMMEND_SYNC_DEFAULT_BATCH_SIZE 表示推荐主数据同步默认批次大小。
 const RECOMMEND_SYNC_DEFAULT_BATCH_SIZE = 200
 
 // RecommendSync 推荐系统主数据同步任务。
@@ -54,10 +55,12 @@ func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
 
 	batchSize := RECOMMEND_SYNC_DEFAULT_BATCH_SIZE
 	rawBatchSize := args["batchSize"]
+	var err error
 	// 传入批次大小时，需要校验为正整数，避免任务进入死循环或空批次。
 	if rawBatchSize != "" {
-		parsedBatchSize, parseErr := strconv.Atoi(rawBatchSize)
-		if parseErr != nil {
+		var parsedBatchSize int
+		parsedBatchSize, err = strconv.Atoi(rawBatchSize)
+		if err != nil {
 			argumentErr := errorsx.InvalidArgument("batchSize 必须是正整数")
 			return []string{argumentErr.Error()}, argumentErr
 		}
@@ -68,7 +71,8 @@ func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
 		batchSize = parsedBatchSize
 	}
 
-	syncedUserCount, err := t.syncBaseUser(batchSize)
+	var syncedUserCount int
+	syncedUserCount, err = t.syncBaseUser(batchSize)
 	if err != nil {
 		return []string{err.Error()}, err
 	}

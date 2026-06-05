@@ -14,8 +14,10 @@ const query = defineProps<{
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
+/** 售后页标签标识。 */
 type AfterSaleTab = 'apply' | 'record'
 
+/** 售后页标签配置，负责绑定对应订单状态。 */
 type AfterSaleTabItem = {
   key: AfterSaleTab
   title: string
@@ -62,6 +64,7 @@ const emptyInfo = computed(() => {
   }
 })
 
+/** 返回上一页，无历史栈时回到我的页面。 */
 const onNavigateBack = () => {
   const pages = getCurrentPages()
   if (pages.length > 1) {
@@ -71,6 +74,7 @@ const onNavigateBack = () => {
   uni.switchTab({ url: '/pages/my/my' })
 }
 
+/** 切换售后标签，并在首次进入时加载对应订单。 */
 const onSwitchTab = (tab: AfterSaleTab) => {
   activeTab.value = tab
   if (!loadedMap.value[tab]) {
@@ -78,6 +82,7 @@ const onSwitchTab = (tab: AfterSaleTab) => {
   }
 }
 
+/** 加载指定售后标签下的订单列表。 */
 const loadOrders = async (tab: AfterSaleTab = activeTab.value) => {
   if (loadingMap.value[tab]) {
     return
@@ -109,10 +114,12 @@ const getRecordStatus = (order: OrderInfo) => {
   return order.refund_time ? '已退款' : '退款/售后处理中'
 }
 
+/** 打开退款原因选择弹窗。 */
 const onOpenRefundPopup = (order: OrderInfo) => {
   refundPopup.value?.open(order)
 }
 
+/** 退款提交成功后从可申请列表移除订单，并标记记录页待刷新。 */
 const onRefundSuccess = (order_id: number) => {
   orderMap.value = {
     ...orderMap.value,

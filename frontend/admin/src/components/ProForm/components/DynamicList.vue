@@ -12,6 +12,7 @@
 import { computed } from "vue";
 import { Delete, Plus } from "@element-plus/icons-vue";
 
+/** 动态字符串列表组件属性。 */
 interface DynamicListProps {
   modelValue?: string[];
   inputProps?: Record<string, any>;

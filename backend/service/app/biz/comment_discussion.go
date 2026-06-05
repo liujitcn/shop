@@ -144,11 +144,13 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	replyToDiscussionID := int64(0)
 	replyToUserID := int64(0)
 	replyToDisplayName := ""
+	var err error
 	// 传入父级讨论编号时，要求父级讨论归属于当前评价。
 	if req.GetParentId() > 0 {
-		parentRecord, findErr := c.FindByID(ctx, req.GetParentId())
-		if findErr != nil {
-			return nil, findErr
+		var parentRecord *models.CommentDiscussion
+		parentRecord, err = c.FindByID(ctx, req.GetParentId())
+		if err != nil {
+			return nil, err
 		}
 		// 父级讨论归属评价不一致时，拒绝当前讨论创建请求。
 		if parentRecord.CommentID != req.GetCommentId() {
@@ -157,9 +159,10 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	}
 	// 传入回复目标讨论编号时，要求回复目标归属于当前评价。
 	if req.GetReplyToDiscussionId() > 0 {
-		replyRecord, findErr := c.FindByID(ctx, req.GetReplyToDiscussionId())
-		if findErr != nil {
-			return nil, findErr
+		var replyRecord *models.CommentDiscussion
+		replyRecord, err = c.FindByID(ctx, req.GetReplyToDiscussionId())
+		if err != nil {
+			return nil, err
 		}
 		// 回复目标归属评价不一致时，拒绝当前讨论创建请求。
 		if replyRecord.CommentID != req.GetCommentId() {
@@ -189,7 +192,7 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 		Status:              _const.COMMENT_STATUS_PENDING_REVIEW,
 	}
 
-	err := c.Create(ctx, record)
+	err = c.Create(ctx, record)
 	if err != nil {
 		return nil, err
 	}

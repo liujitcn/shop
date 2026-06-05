@@ -37,6 +37,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// PayCase 处理商城端支付业务。
 type PayCase struct {
 	*biz.BaseCase
 	tx                 data.Transaction
@@ -322,7 +323,8 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 	orderPaymentQuery := c.orderPaymentRepo.Query(ctx).OrderPayment
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(orderPaymentQuery.OrderID.Eq(orderInfo.ID)))
-	orderPayment, err := c.orderPaymentRepo.Find(ctx, opts...)
+	var err error
+	orderPayment, err = c.orderPaymentRepo.Find(ctx, opts...)
 	// 支付记录查询失败时，仅对“记录不存在”做初始化回退。
 	if err != nil {
 		// 支付记录尚未创建时，初始化空实体供后续写入。
@@ -411,7 +413,8 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 	query := c.orderRefundRepo.Query(ctx).OrderRefund
 	opts := make([]repository.QueryOption, 0, 1)
 	opts = append(opts, repository.Where(query.OrderID.Eq(orderInfo.ID)))
-	orderRefund, err := c.orderRefundRepo.Find(ctx, opts...)
+	var err error
+	orderRefund, err = c.orderRefundRepo.Find(ctx, opts...)
 	successTime := _time.TimestamppbToTime(refundResource.GetSuccessTime())
 	// 微信回调未携带成功时间时，回退到当前时间写入本地记录。
 	if successTime == nil {

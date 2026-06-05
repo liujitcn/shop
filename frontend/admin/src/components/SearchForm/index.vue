@@ -41,6 +41,7 @@ import SearchFormItem from "./components/SearchFormItem.vue";
 import Grid from "@/components/Grid/index.vue";
 import GridItem from "@/components/Grid/components/GridItem.vue";
 
+/** ProTable 搜索表单组件属性。 */
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
   searchParam?: { [key: string]: any }; // 搜索参数

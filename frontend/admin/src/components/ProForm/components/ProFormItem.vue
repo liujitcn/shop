@@ -96,6 +96,7 @@ const UploadFiles = defineAsyncComponent(() => import("@/components/Upload/Files
 const UploadImg = defineAsyncComponent(() => import("@/components/Upload/Img.vue"));
 const UploadImgs = defineAsyncComponent(() => import("@/components/Upload/Imgs.vue"));
 
+/** ProFormItem 组件属性。 */
 interface ProFormItemProps {
   field: ProFormField;
   model: Record<string, any>;

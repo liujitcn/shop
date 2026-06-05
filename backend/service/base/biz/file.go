@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
+// FileCase 处理文件上传下载业务。
 type FileCase struct {
 	oss.OSS
 }

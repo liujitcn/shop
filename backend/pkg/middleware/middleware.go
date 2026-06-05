@@ -30,7 +30,9 @@ func NewAuthzEngine() (authzEngine.Engine, error) {
 // NewUserToken 创建用户令牌管理器。
 func NewUserToken(cfg *bootstrapConfigv1.Authentication_Jwt, cache cache.Cache, authenticator authnEngine.Authenticator) *authData.UserToken {
 	const (
-		USER_ACCESS_TOKEN_KEY_PREFIX  = "uat_"
+		// USER_ACCESS_TOKEN_KEY_PREFIX 表示用户访问令牌缓存前缀。
+		USER_ACCESS_TOKEN_KEY_PREFIX = "uat_"
+		// USER_REFRESH_TOKEN_KEY_PREFIX 表示用户刷新令牌缓存前缀。
 		USER_REFRESH_TOKEN_KEY_PREFIX = "urt_"
 	)
 	return authData.NewUserToken(

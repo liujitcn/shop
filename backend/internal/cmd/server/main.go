@@ -45,7 +45,9 @@ import (
 )
 
 var (
+	// Project 表示当前服务所属项目名称。
 	Project = "shop"
+	// AppID 表示当前服务应用标识。
 	AppID   = "app"
 	version = "1.0.0"
 )

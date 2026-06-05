@@ -51,6 +51,7 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 商品规格编辑时用于同步动态规格项的 SKU 结构。 */
 type SkuItem = Record<string, any> & {
   id: number;
   sku_code: string;

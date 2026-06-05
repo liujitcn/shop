@@ -12,28 +12,34 @@ import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const USER_CART_URL = '/v1/app/user/cart'
 
+/** 购物车 ID 请求兼容结构，支持旧版 value 和新版 id。 */
 type IDRequestCompat = {
   id?: number
   value?: number
 }
 
+/** 更新购物车请求兼容结构，支持包裹表单和扁平表单。 */
 type UpdateUserCartRequestCompat = Partial<UserCartForm> & {
   id: number
   user_cart?: UserCartForm
 }
 
+/** 购物车数量响应兼容结构，同时保留 count 和 value。 */
 type CountUserCartResponseCompat = Int32Value & {
   count: number
   value: number
 }
 
+/** 购物车数量 HTTP 原始响应，允许 count 或 value 为空。 */
 type CountUserCartHTTPResponse = Partial<CountUserCartResponseCompat>
 
+/** 购物车列表响应兼容结构，同时保留协议字段和旧版 list。 */
 type ListUserCartsResponseCompat = {
   user_carts: UserCart[]
   list: UserCart[]
 }
 
+/** 购物车列表 HTTP 原始响应，允许后端只返回部分字段。 */
 type ListUserCartsHTTPResponse = Partial<ListUserCartsResponseCompat>
 
 /** 购物车服务 */

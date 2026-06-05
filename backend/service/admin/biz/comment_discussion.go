@@ -125,8 +125,9 @@ func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, 
 	}
 	// 讨论人工审核通过后，刷新所属商品 评价摘要。
 	if int32(req.GetStatus()) == _const.COMMENT_STATUS_APPROVED {
-		commentInfo, findErr := c.findCommentInfoByID(ctx, discussion.CommentID)
-		if findErr == nil {
+		var commentInfo *models.CommentInfo
+		commentInfo, err = c.findCommentInfoByID(ctx, discussion.CommentID)
+		if err == nil {
 			queue.DispatchCommentSummaryRefresh(commentInfo.GoodsID)
 		}
 	}

@@ -3,6 +3,7 @@ import type { BaseDictForm, BaseDictService } from '@/rpc/app/v1/base_dict'
 
 const BASE_DICT_URL = '/v1/app/base/dict'
 
+/** 字典查询请求兼容结构，支持 code 和旧版 value。 */
 type GetBaseDictRequestCompat = {
   code?: string
   value?: string
