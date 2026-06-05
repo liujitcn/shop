@@ -67,12 +67,31 @@ const wxLogin = async () => {
 
 // #ifdef H5
 const captcha_base64 = ref() // 验证码图片Base64字符串
+const defaultCaptchaImageWidth = 170
+const captchaImageWidth = ref(`${defaultCaptchaImageWidth}rpx`)
+type CaptchaImageLoadDetail = {
+  detail: {
+    width: number
+    height: number
+  }
+}
 // 获取验证码
 const getCaptcha = () => {
-  defLoginService.Captcha({}).then((data) => {
+  defLoginService.Captcha({ type: settingStore.getData('captchaType') || 'digit' }).then((data) => {
     form.value.captcha_id = data.captcha_id
+    captchaImageWidth.value = `${defaultCaptchaImageWidth}rpx`
     captcha_base64.value = data.captcha_base64
   })
+}
+// 根据验证码图片原始比例更新展示宽度。
+const handleCaptchaImageLoad = (event: Event) => {
+  const { width, height } = (event as unknown as CaptchaImageLoadDetail).detail
+  if (!width || !height) {
+    return
+  }
+  // 验证码固定展示高度，宽度按图片比例自适应，避免算术验证码横向内容被裁剪。
+  const imageWidth = Math.round((60 * width) / height)
+  captchaImageWidth.value = `${Math.min(Math.max(imageWidth, defaultCaptchaImageWidth), 300)}rpx`
 }
 // 传统表单登录。
 const form = ref<LoginRequest>({
@@ -180,6 +199,9 @@ const checkedAgreePrivacy = async () => {
 // 获取 code 登录凭证
 onLoad(async () => {
   // #ifdef H5
+  if (!settingStore.getData('captchaType')) {
+    await settingStore.loadData()
+  }
   getCaptcha()
   // #endif
 })
@@ -222,8 +244,14 @@ onLoad(async () => {
             @confirm="onSubmit"
           />
           <view class="captcha-divider"></view>
-          <view class="captcha-trigger" @tap="getCaptcha">
-            <image class="captcha-image" :src="captcha_base64" mode="aspectFit" />
+          <view class="captcha-trigger" :style="{ width: captchaImageWidth }" @tap="getCaptcha">
+            <image
+              class="captcha-image"
+              :style="{ width: captchaImageWidth }"
+              :src="captcha_base64"
+              mode="aspectFit"
+              @load="handleCaptchaImageLoad"
+            />
           </view>
         </view>
         <button @tap="onSubmit" class="button phone">登录</button>
@@ -379,7 +407,7 @@ page {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 260rpx;
+      flex: 0 0 auto;
       height: 72rpx;
       margin-left: 14rpx;
       border-radius: 18rpx;
@@ -389,7 +417,6 @@ page {
 
     .captcha-image {
       flex-shrink: 0;
-      width: 210rpx;
       height: 60rpx;
     }
   }

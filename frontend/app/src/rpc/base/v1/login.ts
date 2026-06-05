@@ -11,6 +11,8 @@ import type { Empty } from "../../google/protobuf/empty";
 
 /** 验证码获取条件 */
 export interface CaptchaRequest {
+  /** 验证码类型 */
+  type: string;
 }
 
 /** 密码临时公钥获取条件 */

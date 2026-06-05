@@ -25,6 +25,8 @@ const (
 	BASE_CONFIG_TYPE_IMAGE = int32(commonv1.BaseConfigType_IMAGE)
 	// BASE_CONFIG_TYPE_RICH_TEXT 表示富文本类型配置，适用于公告、协议、说明等包含格式内容的配置。
 	BASE_CONFIG_TYPE_RICH_TEXT = int32(commonv1.BaseConfigType_RICH_TEXT)
+	// BASE_CONFIG_TYPE_DICT 表示字典类型配置，配置值来自指定字典项。
+	BASE_CONFIG_TYPE_DICT = int32(commonv1.BaseConfigType_DICT)
 )
 
 const (

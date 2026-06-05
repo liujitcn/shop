@@ -421,8 +421,8 @@ github.com/liujitcn/kratos-kit/broker v0.0.3 h1:8a8sziGE1Ryio5ryGxWRsAkMyJP2XAwG
 github.com/liujitcn/kratos-kit/broker v0.0.3/go.mod h1:cP27MKS6nvQtX1UJfyp709sGUVzc7S3IghwiHokjm2c=
 github.com/liujitcn/kratos-kit/cache v0.0.10 h1:ly+IXBAaxtVfv8I/XG9SU+yiWfPxhU7Tdy5z8IM09zE=
 github.com/liujitcn/kratos-kit/cache v0.0.10/go.mod h1:NhMc7x7v/jVVegePDvYEuBvbSi08R3ycgyU/nGvA8IU=
-github.com/liujitcn/kratos-kit/captcha v0.0.6 h1:3ogZOdp6tiRkF2qFQN0q9GP9YwJZ0ATZjIHs3F/H8+s=
-github.com/liujitcn/kratos-kit/captcha v0.0.6/go.mod h1:f7vW5S2BoDDiKKeQBGC5ChC7slubYwFg0DLqlgYR/lQ=
+github.com/liujitcn/kratos-kit/captcha v0.0.7 h1:Yhi6wPlr0/oTQ0TbxRp0CvNIXO/nJGCywB/uste0DkY=
+github.com/liujitcn/kratos-kit/captcha v0.0.7/go.mod h1:+1PvllinCPQfCPPTCAOtoK3MWUkRo9ohOgbyP3M58mk=
 github.com/liujitcn/kratos-kit/config v0.0.12 h1:9KmUDBMY1apHeqSCJLAR6UC9z1H01/3hcXlB1nG+Gy8=
 github.com/liujitcn/kratos-kit/config v0.0.12/go.mod h1:DBIFDFmQ3fLU0Ig41NK8fAyZRCDHj5jc3UudgcgC93A=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.21 h1:bwLfSR2tWWjxkIL5aCBTPFsHDZWmYwKNu46v14tk+ek=
@@ -678,6 +678,8 @@ github.com/vearutop/statigz v1.5.0 h1:FuWwZiT82yBw4xbWdWIawiP2XFTyEPhIo8upRxiKLq
 github.com/vearutop/statigz v1.5.0/go.mod h1:oHmjFf3izfCO804Di1ZjB666P3fAlVzJEx2k6jNt/Gk=
 github.com/wechatpay-apiv3/wechatpay-go v0.2.21 h1:uIyMpzvcaHA33W/QPtHstccw+X52HO1gFdvVL9O6Lfs=
 github.com/wechatpay-apiv3/wechatpay-go v0.2.21/go.mod h1:A254AUBVB6R+EqQFo3yTgeh7HtyqRRtN2w9hQSOrd4Q=
+github.com/wenlng/go-captcha/v2 v2.0.5 h1:+1FpVwJZmLCqEHxOt+HvpUArFGo107nRxOeRVHkZhTc=
+github.com/wenlng/go-captcha/v2 v2.0.5/go.mod h1:5hac1em3uXoyC5ipZ0xFv9umNM/waQvYAQdr0cx/h34=
 github.com/wk8/go-ordered-map/v2 v2.1.8 h1:5h/BUHu93oj4gIdvHHHGsScSTMijfx5PeYkE/fJgbpc=
 github.com/wk8/go-ordered-map/v2 v2.1.8/go.mod h1:5nJHM5DyteebpVlHnWMV0rPz6Zp7+xBAnxjb1X5vnTw=
 github.com/x-cray/logrus-prefixed-formatter v0.5.2 h1:00txxvfBM9muc0jiLIEAkAcIMJzfthRT6usrui8uGmg=

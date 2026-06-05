@@ -29,6 +29,7 @@ const (
 // 验证码获取条件
 type CaptchaRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // 验证码类型
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,6 +62,13 @@ func (x *CaptchaRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CaptchaRequest.ProtoReflect.Descriptor instead.
 func (*CaptchaRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_login_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CaptchaRequest) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
 }
 
 // 密码临时公钥获取条件
@@ -531,8 +539,9 @@ var File_base_v1_login_proto protoreflect.FileDescriptor
 
 const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
-	"\x13base/v1/login.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x10\n" +
-	"\x0eCaptchaRequest\"d\n" +
+	"\x13base/v1/login.proto\x12\abase.v1\x1a\x14common/v1/enum.proto\x1a\x15common/v1/types.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\";\n" +
+	"\x0eCaptchaRequest\x12)\n" +
+	"\x04type\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f验证码类型R\x04type\"d\n" +
 	"\x18PasswordPublicKeyRequest\x12H\n" +
 	"\x05scene\x18\x01 \x01(\x0e2\x1e.common.v1.PasswordCryptoSceneB\x12\xbaG\x0f\x92\x02\f使用场景R\x05scene\"\x0f\n" +
 	"\rLogoutRequest\"\x81\x01\n" +

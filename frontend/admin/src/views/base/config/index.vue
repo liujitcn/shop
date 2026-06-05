@@ -30,6 +30,10 @@
       <template #richTextValue>
         <WangEditor v-model:value="formData.value" />
       </template>
+      <template #dictValue>
+        <Dict v-if="dictValueCode" v-model="formData.value" :code="dictValueCode" code-type="string" placeholder="请选择字典配置值" />
+        <el-input v-else v-model="formData.value" placeholder="请输入配置值" />
+      </template>
     </FormDialog>
   </div>
 </template>
@@ -96,6 +100,14 @@ const statusOptions: ProFormOption[] = [
   { label: "禁用", value: Status.DISABLE }
 ];
 
+/** 字典类系统配置与字典编码的映射关系。 */
+const BASE_CONFIG_DICT_CODE_MAP: Record<string, string> = {
+  captchaType: "captcha_type"
+};
+
+/** 当前字典类配置对应的字典编码，未配置映射时允许退回手动输入。 */
+const dictValueCode = computed(() => BASE_CONFIG_DICT_CODE_MAP[formData.key] ?? "");
+
 /** 系统配置表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
   {
@@ -143,6 +155,13 @@ const formFields = computed<ProFormField[]>(() => [
     slotName: "richTextValue",
     visible: model => model.type == BaseConfigType.RICH_TEXT,
     colSpan: 24
+  },
+  {
+    prop: "value",
+    label: "配置值",
+    component: "slot",
+    slotName: "dictValue",
+    visible: model => model.type == BaseConfigType.DICT
   },
   { prop: "status", label: "状态", component: "radio-group", options: statusOptions }
 ]);

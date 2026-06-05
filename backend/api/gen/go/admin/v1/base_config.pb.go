@@ -557,7 +557,7 @@ type BaseConfigForm struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // 配置ID
 	Site          *v1.BaseConfigSite     `protobuf:"varint,2,opt,name=site,proto3,enum=common.v1.BaseConfigSite,oneof" json:"site,omitempty"` // 位置：枚举【BaseConfigSite】
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                      // 配置名称
-	Type          *v1.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=common.v1.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：1、文本，2、图片。3、富文本
+	Type          *v1.BaseConfigType     `protobuf:"varint,4,opt,name=type,proto3,enum=common.v1.BaseConfigType,oneof" json:"type,omitempty"` // 配置类型：1、文本，2、图片，3、富文本，4、字典
 	Key           string                 `protobuf:"bytes,5,opt,name=key,proto3" json:"key,omitempty"`                                        // 配置key
 	Value         string                 `protobuf:"bytes,6,opt,name=value,proto3" json:"value,omitempty"`                                    // 配置value
 	Status        *v1.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`    // 状态
@@ -691,12 +691,12 @@ const file_admin_v1_base_config_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xd0\x03\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xdd\x03\n" +
 	"\x0eBaseConfigForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b配置IDR\x02id\x12]\n" +
 	"\x04site\x18\x02 \x01(\x0e2\x19.common.v1.BaseConfigSiteB)\xbaG&\x92\x02#位置：枚举【BaseConfigSite】H\x00R\x04site\x88\x01\x01\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称R\x04name\x12p\n" +
-	"\x04type\x18\x04 \x01(\x0e2\x19.common.v1.BaseConfigTypeB<\xbaG9\x92\x026配置类型：1、文本，2、图片。3、富文本H\x01R\x04type\x88\x01\x01\x12!\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f配置名称R\x04name\x12}\n" +
+	"\x04type\x18\x04 \x01(\x0e2\x19.common.v1.BaseConfigTypeBI\xbaGF\x92\x02C配置类型：1、文本，2、图片，3、富文本，4、字典H\x01R\x04type\x88\x01\x01\x12!\n" +
 	"\x03key\x18\x05 \x01(\tB\x0f\xbaG\f\x92\x02\t配置keyR\x03key\x12'\n" +
 	"\x05value\x18\x06 \x01(\tB\x11\xbaG\x0e\x92\x02\v配置valueR\x05value\x12<\n" +
 	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x02R\x06status\x88\x01\x01B\a\n" +

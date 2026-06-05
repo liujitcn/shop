@@ -152,7 +152,7 @@ message BaseConfigForm {
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "配置名称"}]; // 配置名称
 
-  optional .common.v1.BaseConfigType type = 4 [(gnostic.openapi.v3.property) = {description: "配置类型：1、文本，2、图片。3、富文本"}]; // 配置类型：1、文本，2、图片。3、富文本
+  optional .common.v1.BaseConfigType type = 4 [(gnostic.openapi.v3.property) = {description: "配置类型：1、文本，2、图片，3、富文本，4、字典"}]; // 配置类型：1、文本，2、图片，3、富文本，4、字典
 
   string key = 5 [(gnostic.openapi.v3.property) = {description: "配置key"}]; // 配置key
 

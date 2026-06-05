@@ -11,6 +11,7 @@ export class ConfigServiceImpl implements ConfigService {
       url: `${CONFIG_URL}`,
       method: 'GET',
       data: request,
+      header: { Authorization: 'no-auth' },
     })
   }
 }

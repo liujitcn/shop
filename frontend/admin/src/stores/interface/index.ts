@@ -23,6 +23,12 @@ export interface SiteDisplayConfig {
   background: string;
 }
 
+/** 登录验证码配置 */
+export interface LoginCaptchaConfig {
+  /** 验证码类型 */
+  type: string;
+}
+
 /** 全局 UI 偏好和布局状态。 */
 export interface GlobalState {
   layout: LayoutType;
@@ -91,4 +97,6 @@ export interface DictState {
 export interface SiteConfigState {
   /** 当前站点展示配置 */
   display: SiteDisplayConfig;
+  /** 当前登录验证码配置 */
+  captcha: LoginCaptchaConfig;
 }

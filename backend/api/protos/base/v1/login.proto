@@ -49,7 +49,9 @@ service LoginService {
 }
 
 // 验证码获取条件
-message CaptchaRequest {}
+message CaptchaRequest {
+  string type = 1 [(gnostic.openapi.v3.property) = {description: "验证码类型"}]; // 验证码类型
+}
 
 // 密码临时公钥获取条件
 message PasswordPublicKeyRequest {

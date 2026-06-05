@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"strings"
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
@@ -15,7 +16,10 @@ import (
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/captcha"
+	"github.com/liujitcn/kratos-kit/sdk"
 )
+
+const loginCaptchaKeyPrefix = "login_captcha"
 
 // LoginCase 处理基础登录认证业务。
 type LoginCase struct {
@@ -45,14 +49,28 @@ func NewLoginCase(
 
 // Captcha 生成验证码。
 func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*basev1.CaptchaResponse, error) {
-	id, b64s, _, err := captcha.DriverDigitFunc()
+	cache := sdk.Runtime.GetCache()
+	if cache == nil {
+		return nil, errorsx.Internal("验证码缓存不可用")
+	}
+
+	driverType, ok := captchaDriverType(req.GetType())
+	// 请求的验证码类型不在系统字典支持范围内时，直接拒绝生成。
+	if !ok {
+		return nil, errorsx.InvalidArgument("验证码类型不支持")
+	}
+
+	challenge, err := captcha.NewCaptcha(cache,
+		captcha.WithDriverType(driverType),
+		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
+	).Generate(ctx)
 	if err != nil {
-		return nil, err
+		return nil, errorsx.Internal("生成验证码失败").WithCause(err)
 	}
 	return &basev1.CaptchaResponse{
-		CaptchaId:     id,
-		CaptchaBase64: b64s,
-	}, err
+		CaptchaId:     challenge.ID,
+		CaptchaBase64: challenge.Payload,
+	}, nil
 }
 
 // PasswordPublicKey 生成密码加密临时公钥。
@@ -110,12 +128,26 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
 		return nil, errorsx.InvalidArgument("验证码不能为空")
 	}
+
+	cache := sdk.Runtime.GetCache()
+	if cache == nil {
+		return nil, errorsx.Internal("验证码缓存不可用")
+	}
+
+	matched, err := captcha.NewCaptcha(cache,
+		captcha.WithDriverType(captchaDriverTypeByID(req.GetCaptchaId())),
+		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
+	).Verify(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
+	if err != nil {
+		return nil, errorsx.Internal("验证码校验失败").WithCause(err)
+	}
 	// 验证码校验失败时，直接拒绝登录请求。
-	if !captcha.Verify(req.GetCaptchaId(), req.GetCaptchaCode(), true) {
+	if !matched {
 		return nil, errorsx.InvalidArgument("验证码错误")
 	}
 
-	user, err := c.baseUserCase.FindByUserName(ctx, req.GetUserName())
+	var user *models.BaseUser
+	user, err = c.baseUserCase.FindByUserName(ctx, req.GetUserName())
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
@@ -171,4 +203,40 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		RefreshToken: refreshToken,
 		ExpiresIn:    expiresIn,
 	}, nil
+}
+
+// captchaDriverType 根据配置值解析验证码驱动类型。
+func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
+	// 兼容未配置验证码类型的历史场景，默认继续使用数字验证码。
+	switch captchaType {
+	case "", string(captcha.DriverDigit):
+		return captcha.DriverDigit, true
+	case string(captcha.DriverString):
+		return captcha.DriverString, true
+	case string(captcha.DriverMath):
+		return captcha.DriverMath, true
+	case string(captcha.DriverSlide):
+		return captcha.DriverSlide, true
+	case string(captcha.DriverClick):
+		return captcha.DriverClick, true
+	case string(captcha.DriverRotate):
+		return captcha.DriverRotate, true
+	default:
+		return captcha.DriverDigit, false
+	}
+}
+
+// captchaDriverTypeByID 根据验证码 ID 前缀推断校验驱动类型。
+func captchaDriverTypeByID(captchaID string) captcha.DriverType {
+	// 行为验证码的 ID 带稳定前缀；普通图形验证码统一使用文本答案比对逻辑。
+	switch {
+	case strings.HasPrefix(captchaID, string(captcha.DriverSlide)+"_"):
+		return captcha.DriverSlide
+	case strings.HasPrefix(captchaID, string(captcha.DriverClick)+"_"):
+		return captcha.DriverClick
+	case strings.HasPrefix(captchaID, string(captcha.DriverRotate)+"_"):
+		return captcha.DriverRotate
+	default:
+		return captcha.DriverDigit
+	}
 }

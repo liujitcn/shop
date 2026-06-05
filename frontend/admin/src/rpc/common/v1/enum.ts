@@ -35,6 +35,8 @@ export enum BaseConfigType {
   IMAGE = 2,
   /** RICH_TEXT - 富文本 */
   RICH_TEXT = 3,
+  /** DICT - 字典 */
+  DICT = 4,
 }
 
 /** 定时任务日志状态 */

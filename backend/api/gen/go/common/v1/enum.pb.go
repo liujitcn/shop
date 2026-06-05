@@ -133,6 +133,7 @@ const (
 	BaseConfigType_TEXT        BaseConfigType = 1 // 文本
 	BaseConfigType_IMAGE       BaseConfigType = 2 // 图片
 	BaseConfigType_RICH_TEXT   BaseConfigType = 3 // 富文本
+	BaseConfigType_DICT        BaseConfigType = 4 // 字典
 )
 
 // Enum value maps for BaseConfigType.
@@ -142,12 +143,14 @@ var (
 		1: "TEXT",
 		2: "IMAGE",
 		3: "RICH_TEXT",
+		4: "DICT",
 	}
 	BaseConfigType_value = map[string]int32{
 		"UNKNOWN_BCT": 0,
 		"TEXT":        1,
 		"IMAGE":       2,
 		"RICH_TEXT":   3,
+		"DICT":        4,
 	}
 )
 
@@ -2325,12 +2328,13 @@ const file_common_v1_enum_proto_rawDesc = "" +
 	"\n" +
 	"\x06SYSTEM\x10\x01\x12\t\n" +
 	"\x05ADMIN\x10\x02\x12\a\n" +
-	"\x03APP\x10\x03*E\n" +
+	"\x03APP\x10\x03*O\n" +
 	"\x0eBaseConfigType\x12\x0f\n" +
 	"\vUNKNOWN_BCT\x10\x00\x12\b\n" +
 	"\x04TEXT\x10\x01\x12\t\n" +
 	"\x05IMAGE\x10\x02\x12\r\n" +
-	"\tRICH_TEXT\x10\x03*;\n" +
+	"\tRICH_TEXT\x10\x03\x12\b\n" +
+	"\x04DICT\x10\x04*;\n" +
 	"\x10BaseJobLogStatus\x12\x10\n" +
 	"\fUNKNOWN_BJLS\x10\x00\x12\v\n" +
 	"\aSUCCESS\x10\x01\x12\b\n" +

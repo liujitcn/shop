@@ -547,6 +547,7 @@ paths:
                         - TEXT
                         - IMAGE
                         - RICH_TEXT
+                        - DICT
                     type: string
                     format: enum
                 - name: key
@@ -5728,6 +5729,11 @@ paths:
                 - LoginService
             description: 验证码
             operationId: LoginService_Captcha
+            parameters:
+                - name: type
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -6384,6 +6390,7 @@ components:
                         - TEXT
                         - IMAGE
                         - RICH_TEXT
+                        - DICT
                     type: string
                     description: 配置类型：枚举【BaseConfigType】
                     format: enum
@@ -6432,8 +6439,9 @@ components:
                         - TEXT
                         - IMAGE
                         - RICH_TEXT
+                        - DICT
                     type: string
-                    description: 配置类型：1、文本，2、图片。3、富文本
+                    description: 配置类型：1、文本，2、图片，3、富文本，4、字典
                     format: enum
                 key:
                     type: string

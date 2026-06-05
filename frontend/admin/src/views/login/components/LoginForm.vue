@@ -27,7 +27,15 @@
             </el-icon>
           </template>
         </el-input>
-        <img v-if="captcha_base64" class="captcha-image" :src="captcha_base64" alt="验证码" @click="getCaptcha" />
+        <img
+          v-if="captcha_base64"
+          class="captcha-image"
+          :style="{ width: captchaImageWidth }"
+          :src="captcha_base64"
+          alt="验证码"
+          @load="handleCaptchaImageLoad"
+          @click="getCaptcha"
+        />
       </div>
     </el-form-item>
   </el-form>
@@ -56,10 +64,12 @@ import { isUnmatchedRoute, navigateTo } from "@/utils/router";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
+import { useConfigStore } from "@/stores/modules/config";
 
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
+const configStore = useConfigStore();
 const dictStore = useDictStore();
 const tabsStore = useTabsStore();
 const keepAliveStore = useKeepAliveStore();
@@ -68,6 +78,8 @@ const keepAliveStore = useKeepAliveStore();
 type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const captcha_base64 = ref("");
+const defaultCaptchaImageWidth = 96;
+const captchaImageWidth = ref(`${defaultCaptchaImageWidth}px`);
 const loginRules = reactive({
   user_name: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
@@ -114,10 +126,21 @@ const getLoginRedirectPath = () => {
 
 /** 获取验证码 */
 const getCaptcha = async () => {
-  const data = await defLoginService.Captcha({});
+  const data = await defLoginService.Captcha({ type: configStore.captcha.type });
   loginForm.captcha_id = data.captcha_id;
   loginForm.captcha_code = "";
+  captchaImageWidth.value = `${defaultCaptchaImageWidth}px`;
   captcha_base64.value = data.captcha_base64;
+};
+
+/** 根据验证码图片原始比例更新展示宽度。 */
+const handleCaptchaImageLoad = (event: Event) => {
+  const image = event.target as HTMLImageElement;
+  if (!image.naturalWidth || !image.naturalHeight) return;
+
+  // 验证码固定展示高度，宽度按图片比例自适应，避免算术验证码横向内容被裁剪。
+  const width = Math.round((40 * image.naturalWidth) / image.naturalHeight);
+  captchaImageWidth.value = `${Math.min(Math.max(width, defaultCaptchaImageWidth), 180)}px`;
 };
 
 /** 登录 */
@@ -183,16 +206,21 @@ onMounted(() => {
 <style scoped lang="scss">
 @use "../index.scss" as *;
 .captcha-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px;
+  display: flex;
+  align-items: center;
   gap: 12px;
   width: 100%;
+
+  .el-input {
+    flex: 1;
+    min-width: 0;
+  }
 }
 .captcha-image {
-  width: 120px;
+  flex: 0 0 auto;
   height: 40px;
   cursor: pointer;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 6px;
 }
 </style>
