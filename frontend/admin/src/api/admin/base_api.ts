@@ -9,6 +9,7 @@ import {
   type ListBaseApisResponse,
   type PageBaseApisRequest,
   type PageBaseApisResponse,
+  type SetBaseApiAgentEnabledRequest,
   type SetBaseApiMcpEnabledRequest
 } from "@/rpc/admin/v1/base_api";
 import type { Empty } from "@/rpc/google/protobuf/empty";
@@ -55,6 +56,15 @@ export class BaseApiServiceImpl implements BaseApiService {
   SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty> {
     return service<SetBaseApiMcpEnabledRequest, Empty>({
       url: `${BASE_API_URL}/${request.id}/mcp-enabled`,
+      method: "put",
+      data: request
+    });
+  }
+
+  /** 设置API是否暴露为Agent工具 */
+  SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty> {
+    return service<SetBaseApiAgentEnabledRequest, Empty>({
+      url: `${BASE_API_URL}/${request.id}/agent-enabled`,
       method: "put",
       data: request
     });

@@ -75,9 +75,12 @@ func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApi
 	if req.McpEnabled != nil {
 		opts = append(opts, repository.Where(query.McpEnabled.Is(req.GetMcpEnabled())))
 	}
-	// 传入 MCP 工具名时，按工具名模糊匹配。
-	if req.GetMcpToolName() != "" {
-		opts = append(opts, repository.Where(query.McpToolName.Like("%"+req.GetMcpToolName()+"%")))
+	if req.AgentEnabled != nil {
+		opts = append(opts, repository.Where(query.AgentEnabled.Is(req.GetAgentEnabled())))
+	}
+	// 传入工具名时，按工具名模糊匹配。
+	if req.GetToolName() != "" {
+		opts = append(opts, repository.Where(query.ToolName.Like("%"+req.GetToolName()+"%")))
 	}
 
 	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
@@ -150,6 +153,26 @@ func (c *BaseAPICase) SetBaseAPIMcpEnabled(ctx context.Context, req *adminv1.Set
 	_, err := query.WithContext(ctx).
 		Where(conditions...).
 		UpdateSimple(query.McpEnabled.Value(req.GetMcpEnabled()))
+	return err
+}
+
+// SetBaseAPIAgentEnabled 设置接口 Agent 启用状态
+func (c *BaseAPICase) SetBaseAPIAgentEnabled(ctx context.Context, req *adminv1.SetBaseApiAgentEnabledRequest) error {
+	query := c.Query(ctx).BaseAPI
+	conditions := make([]gen.Condition, 0, 2)
+	baseAPI, err := c.Find(ctx, repository.Where(query.ID.Eq(req.GetId())))
+	if err != nil {
+		return err
+	}
+	// 同名工具可能来自历史重复 API 记录，开关需要同步到同一个 Agent Tool 名称。
+	if baseAPI.ToolName != "" {
+		conditions = append(conditions, query.ToolName.Eq(baseAPI.ToolName))
+	} else {
+		conditions = append(conditions, query.ID.Eq(req.GetId()))
+	}
+	_, err = query.WithContext(ctx).
+		Where(conditions...).
+		UpdateSimple(query.AgentEnabled.Value(req.GetAgentEnabled()))
 	return err
 }
 

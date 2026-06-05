@@ -158,7 +158,7 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 	query := h.baseAPIRepo.Query(ctx).BaseAPI
 	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Where(query.McpEnabled.Is(true)))
-	opts = append(opts, repository.Where(query.McpToolName.Eq(toolName)))
+	opts = append(opts, repository.Where(query.ToolName.Eq(toolName)))
 	opts = append(opts, repository.Limit(1))
 	list, err := h.baseAPIRepo.List(ctx, opts...)
 	if err != nil || len(list) == 0 {
@@ -169,7 +169,7 @@ func (h *McpCase) findEnabledBaseAPI(ctx context.Context, req mcp.Request, toolN
 
 // matchMcpToolPrefix 判断工具名是否匹配当前服务前缀。
 func matchMcpToolPrefix(terminal, toolName string) bool {
-	return terminal == "" || strings.HasPrefix(toolName, terminal+"_")
+	return toolName != "" && (terminal == "" || strings.HasPrefix(toolName, terminal+"_") || strings.HasPrefix(toolName, "base_"))
 }
 
 // mcpTerminal 获取当前 MCP 请求的服务筛选关键字。

@@ -7,7 +7,8 @@ import type {
   RegenerateAiAssistantMessageRequest,
   RetryAiAssistantUserMessageRequest,
   SendAiAssistantMessageRequest,
-  SendAiAssistantMessageResponse
+  SendAiAssistantMessageResponse,
+  UpdateAiAssistantMessageRequest
 } from "@/rpc/base/v1/ai_assistant_message";
 
 const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
@@ -85,6 +86,15 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}`,
       method: "delete",
       params: request
+    });
+  }
+
+  /** 更新 AI 助手消息文本并重新生成输出。 */
+  UpdateAiAssistantMessage(request: UpdateAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse> {
+    return service<UpdateAiAssistantMessageRequest, SendAiAssistantMessageResponse>({
+      url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}`,
+      method: "put",
+      data: request
     });
   }
 

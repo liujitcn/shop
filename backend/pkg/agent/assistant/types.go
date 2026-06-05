@@ -1,5 +1,7 @@
 package assistant
 
+import "context"
+
 const (
 	// TerminalApp 表示商城端终端值。
 	TerminalApp int32 = 1
@@ -31,6 +33,8 @@ type Message struct {
 	Role string `json:"role"`
 	// Content 消息正文，进入模型前会再次过滤空白内容。
 	Content string `json:"content"`
+	// Tools 当前历史轮次实际使用过的工具，仅用于短追问时延续候选工具。
+	Tools []ToolUsage `json:"tools"`
 }
 
 // Attachment 表示 AI 助手运行时可消费的附件。
@@ -99,6 +103,12 @@ type ToolUsage struct {
 	Input string `json:"input"`
 	// Output 工具原始出参 JSON，用于后台展开排障。
 	Output string `json:"output"`
+}
+
+// ToolAccessChecker 判断 Agent 工具是否允许在当前终端暴露。
+type ToolAccessChecker interface {
+	// EnabledToolNames 返回当前终端允许暴露给 Agent 的工具名集合。
+	EnabledToolNames(ctx context.Context, terminal string, names []string) (map[string]bool, error)
 }
 
 // RuntimeInput 表示 AI 助手运行时输入。

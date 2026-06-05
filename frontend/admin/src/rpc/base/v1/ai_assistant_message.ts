@@ -37,6 +37,16 @@ export interface DeleteAiAssistantMessageRequest {
 export interface DeleteAiAssistantMessageResponse {
 }
 
+/** AI 助手消息更新请求 */
+export interface UpdateAiAssistantMessageRequest {
+  /** 会话ID */
+  session_id: string;
+  /** 消息ID */
+  message_id: string;
+  /** 更新后的消息内容 */
+  content: string;
+}
+
 /** AI 助手失败消息重试请求 */
 export interface RetryAiAssistantUserMessageRequest {
   /** 会话ID */
@@ -59,6 +69,8 @@ export interface AiAssistantMessageService {
   SendAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse>;
   /** 删除 AI 助手消息 */
   DeleteAiAssistantMessage(request: DeleteAiAssistantMessageRequest): Promise<DeleteAiAssistantMessageResponse>;
+  /** 更新 AI 助手消息并重新生成输出 */
+  UpdateAiAssistantMessage(request: UpdateAiAssistantMessageRequest): Promise<SendAiAssistantMessageResponse>;
   /** 重试失败的 AI 助手消息 */
   RetryAiAssistantUserMessage(request: RetryAiAssistantUserMessageRequest): Promise<SendAiAssistantMessageResponse>;
   /** 重新生成 AI 助手输出 */

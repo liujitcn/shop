@@ -14,6 +14,7 @@
     :sticky-code-block-header="false"
     :enable-code-line-number="false"
     code-max-height="360px"
+    :style="markdownRootStyle"
   />
 </template>
 
@@ -35,23 +36,41 @@ withDefaults(defineProps<AiMarkdownProps>(), {
 });
 
 const globalStore = useGlobalStore();
+/** 覆盖 MarkdownRenderer 默认根样式，避免内置 16px padding 破坏消息列对齐。 */
+const markdownRootStyle = {
+  padding: "0",
+  color: "inherit",
+  backgroundColor: "transparent"
+};
 </script>
 
 <style scoped lang="scss">
 .agent-markdown {
+  box-sizing: border-box;
+  width: 100%;
   min-width: 0;
   max-width: 100%;
-  line-height: 24px;
+  line-height: 28px;
   color: inherit;
   overflow-wrap: anywhere;
-  :deep(.x-md-renderer) {
+  margin: 0;
+  padding: 0;
+  :deep(.x-md-core) {
+    box-sizing: border-box;
+    width: 100%;
     max-width: 100%;
+    margin: 0;
+    padding: 0;
     overflow-wrap: anywhere;
   }
-  :deep(.x-md-renderer > :first-child) {
+  :deep(.x-md-core > *) {
+    margin-left: 0;
+    padding-left: 0;
+  }
+  :deep(.x-md-core > :first-child) {
     margin-top: 0;
   }
-  :deep(.x-md-renderer > :last-child) {
+  :deep(.x-md-core > :last-child) {
     margin-bottom: 0;
   }
   :deep(p),
@@ -60,7 +79,7 @@ const globalStore = useGlobalStore();
   :deep(blockquote),
   :deep(table),
   :deep(pre) {
-    margin: 8px 0;
+    margin: 6px 0;
   }
   :deep(h1),
   :deep(h2),
@@ -68,7 +87,7 @@ const globalStore = useGlobalStore();
   :deep(h4),
   :deep(h5),
   :deep(h6) {
-    margin: 14px 0 8px;
+    margin: 8px 0 4px;
     font-weight: 700;
     line-height: 1.4;
     color: var(--admin-page-text-primary);
@@ -89,7 +108,7 @@ const globalStore = useGlobalStore();
   }
   :deep(ul),
   :deep(ol) {
-    padding-left: 20px;
+    padding-left: 16px;
   }
   :deep(li + li) {
     margin-top: 4px;
@@ -108,6 +127,7 @@ const globalStore = useGlobalStore();
   }
   :deep(table) {
     display: block;
+    width: 100%;
     max-width: 100%;
     overflow: auto;
     border-collapse: collapse;

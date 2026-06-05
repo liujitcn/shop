@@ -37,8 +37,12 @@ export interface PageBaseApisRequest {
   mcp_enabled?:
     | boolean
     | undefined;
-  /** MCP工具名 */
-  mcp_tool_name?:
+  /** 是否暴露为Agent工具 */
+  agent_enabled?:
+    | boolean
+    | undefined;
+  /** 工具名 */
+  tool_name?:
     | string
     | undefined;
   /** 页码 */
@@ -75,6 +79,14 @@ export interface SetBaseApiMcpEnabledRequest {
   mcp_enabled: boolean;
 }
 
+/** API Agent启用状态设置条件 */
+export interface SetBaseApiAgentEnabledRequest {
+  /** API ID */
+  id: number;
+  /** 是否暴露为Agent工具 */
+  agent_enabled: boolean;
+}
+
 /** API列表查询条件 */
 export interface ListBaseApisRequest {
 }
@@ -103,8 +115,10 @@ export interface BaseApi {
   path: string;
   /** 是否暴露为MCP工具 */
   mcp_enabled: boolean;
-  /** MCP工具名 */
-  mcp_tool_name: string;
+  /** 是否暴露为Agent工具 */
+  agent_enabled: boolean;
+  /** 工具名 */
+  tool_name: string;
 }
 
 /** API文档 */
@@ -171,4 +185,6 @@ export interface BaseApiService {
   GetBaseApiDoc(request: GetBaseApiDocRequest): Promise<BaseApiDoc>;
   /** 设置API MCP启用状态 */
   SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty>;
+  /** 设置API Agent启用状态 */
+  SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty>;
 }

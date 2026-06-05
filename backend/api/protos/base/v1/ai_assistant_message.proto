@@ -23,6 +23,14 @@ service AiAssistantMessageService {
     };
   }
 
+  // 更新 AI 助手消息并重新生成输出
+  rpc UpdateAiAssistantMessage(UpdateAiAssistantMessageRequest) returns (SendAiAssistantMessageResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}"
+      body: "*"
+    };
+  }
+
   // 重试失败的 AI 助手消息
   rpc RetryAiAssistantUserMessage(RetryAiAssistantUserMessageRequest) returns (SendAiAssistantMessageResponse) {
     option (google.api.http) = {
@@ -65,6 +73,15 @@ message DeleteAiAssistantMessageRequest {
 
 // AI 助手消息删除响应
 message DeleteAiAssistantMessageResponse {}
+
+// AI 助手消息更新请求
+message UpdateAiAssistantMessageRequest {
+  string session_id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
+
+  string message_id = 2 [(gnostic.openapi.v3.property) = {description: "消息ID"}]; // 消息ID
+
+  string content = 3 [(gnostic.openapi.v3.property) = {description: "更新后的消息内容"}]; // 更新后的消息内容
+}
 
 // AI 助手失败消息重试请求
 message RetryAiAssistantUserMessageRequest {

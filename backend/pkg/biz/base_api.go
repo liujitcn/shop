@@ -116,8 +116,9 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 		if ids, ok := oldAPIIDMap[item.Operation]; ok && len(ids) > 0 {
 			item.ID = ids[0]
 			if oldAPI := oldAPIByOperation[item.Operation]; oldAPI != nil {
-				// 同步 OpenAPI 元数据时保留原来的 MCP 开关，避免刷新接口覆盖人工配置。
+				// 同步 OpenAPI 元数据时保留原来的工具开关，避免刷新接口覆盖人工配置。
 				item.McpEnabled = oldAPI.McpEnabled
+				item.AgentEnabled = oldAPI.AgentEnabled
 			}
 			err = c.UpdateByID(ctx, item)
 			if err != nil {
@@ -187,14 +188,15 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 	}
 
 	return &models.BaseAPI{
-		McpEnabled:  true,
-		McpToolName: kitutils.ToolNameFromRPCPath(operation),
-		ServiceName: serviceName,
-		ServiceDesc: serviceDesc,
-		Desc:        operationDescription(op),
-		Operation:   operation,
-		Method:      method,
-		Path:        path,
+		McpEnabled:   true,
+		AgentEnabled: true,
+		ToolName:     kitutils.ToolNameFromRPCPath(operation),
+		ServiceName:  serviceName,
+		ServiceDesc:  serviceDesc,
+		Desc:         operationDescription(op),
+		Operation:    operation,
+		Method:       method,
+		Path:         path,
 	}, nil
 }
 

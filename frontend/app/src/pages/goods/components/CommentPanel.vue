@@ -5,7 +5,6 @@ import type { CommentItem, CommentTagItem } from '@/rpc/app/v1/comment'
 import { formatSrc } from '@/utils'
 import { goodsCommentListUrl } from '@/utils/navigation'
 import avatarImage from '@/static/images/avatar.png'
-import { useUserStore } from '@/stores'
 
 const props = defineProps<{
   goods_id: number
@@ -15,7 +14,6 @@ const props = defineProps<{
 
 const ANONYMOUS_USER_NAME = '匿名用户'
 const COMMENT_TAG_LIMIT = 10
-const userStore = useUserStore()
 const isLoading = ref(false)
 const totalCount = ref(0)
 const recentDays = ref(90)
@@ -42,7 +40,7 @@ const commentList = computed(() => {
   }))
 })
 
-/** 重置评价摘要，未登录或请求失败时保持商品详情页可正常浏览。 */
+/** 重置评价摘要，请求失败时保持商品详情页可正常浏览。 */
 const resetOverview = () => {
   totalCount.value = 0
   recentDays.value = 90
@@ -57,12 +55,6 @@ const loadOverview = async () => {
   if (!props.goods_id || props.goods_id <= 0) {
     return
   }
-  if (!userStore.userInfo) {
-    // 当前评价摘要接口需要登录态，游客访问商品详情时不发起请求，避免触发重新登录弹窗。
-    resetOverview()
-    return
-  }
-
   isLoading.value = true
   try {
     const res = await defCommentService.GoodsCommentOverview({
@@ -87,7 +79,7 @@ const loadOverview = async () => {
 }
 
 watch(
-  [() => props.goods_id, () => userStore.userInfo],
+  () => props.goods_id,
   () => {
     void loadOverview()
   },

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
@@ -30,6 +31,7 @@ type AiAssistantMessageCase struct {
 	tx                     data.Transaction
 	aiAssistantMessageRepo *data.AiAssistantMessageRepository
 	aiAssistantSessionCase *AiAssistantSessionCase
+	baseAPIRepo            *data.BaseAPIRepository
 	baseUserCase           *BaseUserCase
 	assistantRuntime       *assistant.Runtime
 }
@@ -40,17 +42,23 @@ func NewAiAssistantMessageCase(
 	tx data.Transaction,
 	aiAssistantMessageRepo *data.AiAssistantMessageRepository,
 	aiAssistantSessionCase *AiAssistantSessionCase,
+	baseAPIRepo *data.BaseAPIRepository,
 	baseUserCase *BaseUserCase,
 	assistantRuntime *assistant.Runtime,
 ) *AiAssistantMessageCase {
-	return &AiAssistantMessageCase{
+	c := &AiAssistantMessageCase{
 		BaseCase:               baseCase,
 		tx:                     tx,
 		aiAssistantMessageRepo: aiAssistantMessageRepo,
 		aiAssistantSessionCase: aiAssistantSessionCase,
+		baseAPIRepo:            baseAPIRepo,
 		baseUserCase:           baseUserCase,
 		assistantRuntime:       assistantRuntime,
 	}
+	if assistantRuntime != nil {
+		assistantRuntime.SetToolAccessChecker(c)
+	}
+	return c
 }
 
 // SendAiAssistantMessage 发送用户消息并生成 AI 助手回复。
@@ -162,6 +170,26 @@ func (c *AiAssistantMessageCase) DeleteAiAssistantMessage(ctx context.Context, r
 	return c.aiAssistantMessageRepo.Delete(ctx, opts...)
 }
 
+// UpdateAiAssistantMessage 更新当前用户消息文本并重新生成同一轮助手输出。
+func (c *AiAssistantMessageCase) UpdateAiAssistantMessage(ctx context.Context, req *basev1.UpdateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
+	content := req.GetContent()
+	if content == "" {
+		return nil, errorsx.InvalidArgument("消息内容不能为空")
+	}
+	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
+	if err != nil {
+		return nil, err
+	}
+	err = c.ensureLastAiAssistantMessage(ctx, session.ID, message.ID)
+	if err != nil {
+		return nil, err
+	}
+	if message.Status == int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS) {
+		return nil, errorsx.StateConflict("助手回复仍在生成中", "ai_assistant_message", strconv.Itoa(int(message.Status)), strconv.Itoa(int(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)))
+	}
+	return c.regenerateAiAssistantMessageWithContent(ctx, session, message, content)
+}
+
 // RetryAiAssistantUserMessage 重试失败的 AI 助手消息。
 func (c *AiAssistantMessageCase) RetryAiAssistantUserMessage(ctx context.Context, req *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	message, session, err := c.findCurrentUserMessage(ctx, req.GetSessionId(), req.GetMessageId())
@@ -217,6 +245,50 @@ func (c *AiAssistantMessageCase) ToDTO(model *models.AiAssistantMessage) *basev1
 	}
 
 	return toAiAssistantMessageDTO(model)
+}
+
+// EnabledToolNames 查询当前终端允许暴露给 Agent 的工具名。
+func (c *AiAssistantMessageCase) EnabledToolNames(ctx context.Context, terminal string, names []string) (map[string]bool, error) {
+	result := make(map[string]bool)
+	if c == nil || c.baseAPIRepo == nil || len(names) == 0 {
+		return result, nil
+	}
+	filteredNames := make([]string, 0, len(names))
+	for _, name := range names {
+		if !matchAgentToolPrefix(terminal, name) {
+			continue
+		}
+		filteredNames = append(filteredNames, name)
+	}
+	if len(filteredNames) == 0 {
+		return result, nil
+	}
+	query := c.baseAPIRepo.Query(ctx).BaseAPI
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.ToolName.In(filteredNames...)))
+	list, err := c.baseAPIRepo.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+	totalByName := make(map[string]int, len(filteredNames))
+	enabledByName := make(map[string]int, len(filteredNames))
+	for _, item := range list {
+		totalByName[item.ToolName]++
+		if item.AgentEnabled {
+			enabledByName[item.ToolName]++
+		}
+	}
+	for _, name := range filteredNames {
+		if totalByName[name] > 0 && totalByName[name] == enabledByName[name] {
+			result[name] = true
+		}
+	}
+	return result, nil
+}
+
+// matchAgentToolPrefix 判断工具名是否属于当前终端或公共 Base 工具。
+func matchAgentToolPrefix(terminal, toolName string) bool {
+	return toolName != "" && (terminal == "" || strings.HasPrefix(toolName, terminal+"_") || strings.HasPrefix(toolName, "base_"))
 }
 
 // toAiAssistantMessageDTO 转换消息模型到接口对象。
@@ -435,9 +507,11 @@ func buildHistoryFromMessages(list []*models.AiAssistantMessage) []assistant.Mes
 		}
 		output := assistant.ParseOutputContent(item.OutputContent)
 		if output.Content != "" {
+			tools := assistant.ParseTools(item.Tools)
 			history = append(history, assistant.Message{
 				Role:    assistant.RoleAssistant,
 				Content: output.Content,
+				Tools:   tools,
 			})
 		}
 	}
@@ -536,6 +610,11 @@ func (c *AiAssistantMessageCase) buildAiAssistantFailedReply(reply *assistant.Re
 func (c *AiAssistantMessageCase) regenerateAiAssistantMessage(ctx context.Context, session *models.AiAssistantSession, message *models.AiAssistantMessage) (*basev1.SendAiAssistantMessageResponse, error) {
 	input := assistant.ParseInputContent(message.InputContent)
 	content := input.Content
+	return c.regenerateAiAssistantMessageWithContent(ctx, session, message, content)
+}
+
+// regenerateAiAssistantMessageWithContent 使用指定输入内容重新生成当前轮次输出。
+func (c *AiAssistantMessageCase) regenerateAiAssistantMessageWithContent(ctx context.Context, session *models.AiAssistantSession, message *models.AiAssistantMessage, content string) (*basev1.SendAiAssistantMessageResponse, error) {
 	attachments := assistant.ParseAttachments(message.Attachments)
 
 	var err error
@@ -556,7 +635,7 @@ func (c *AiAssistantMessageCase) regenerateAiAssistantMessage(ctx context.Contex
 	}
 
 	now := time.Now()
-	if err = c.markAiAssistantMessageGenerating(ctx, message, now); err != nil {
+	if err = c.markAiAssistantMessageGenerating(ctx, message, content, attachments, now); err != nil {
 		return nil, err
 	}
 	startAt := time.Now()
@@ -629,11 +708,13 @@ func (c *AiAssistantMessageCase) finishAiAssistantMessage(
 }
 
 // markAiAssistantMessageGenerating 标记消息进入生成中。
-func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Context, message *models.AiAssistantMessage, now time.Time) error {
+func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Context, message *models.AiAssistantMessage, content string, attachments []*basev1.AiAssistantAttachment, now time.Time) error {
+	inputContent := assistant.MarshalInputContent(content, attachments)
 	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
 	_, err := query.WithContext(ctx).
 		Where(query.ID.Eq(message.ID)).
 		UpdateSimple(
+			query.InputContent.Value(inputContent),
 			query.OutputContent.Value(assistant.MarshalEmptyOutputContent()),
 			query.Tools.Value("[]"),
 			query.Token.Value(assistant.MarshalTokenUsage(assistant.TokenUsage{})),
@@ -645,6 +726,7 @@ func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Co
 	if err != nil {
 		return err
 	}
+	message.InputContent = inputContent
 	message.OutputContent = assistant.MarshalEmptyOutputContent()
 	message.Tools = "[]"
 	message.Token = assistant.MarshalTokenUsage(assistant.TokenUsage{})
@@ -681,6 +763,26 @@ func (c *AiAssistantMessageCase) findCurrentUserMessage(ctx context.Context, raw
 		return nil, nil, err
 	}
 	return message, session, nil
+}
+
+// ensureLastAiAssistantMessage 确认当前消息是会话最后一轮消息。
+func (c *AiAssistantMessageCase) ensureLastAiAssistantMessage(ctx context.Context, sessionID int64, messageID int64) error {
+	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Limit(1))
+	lastMessage, err := c.aiAssistantMessageRepo.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errorsx.ResourceNotFound("消息不存在")
+		}
+		return err
+	}
+	if lastMessage.ID != messageID {
+		return errorsx.StateConflict("只能编辑最后一条消息", "ai_assistant_message", strconv.FormatInt(messageID, 10), strconv.FormatInt(lastMessage.ID, 10))
+	}
+	return nil
 }
 
 // durationMilliseconds 计算两个时间点之间的毫秒数。

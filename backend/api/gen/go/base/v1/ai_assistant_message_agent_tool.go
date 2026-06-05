@@ -29,6 +29,12 @@ func NewAiAssistantMessageServiceAgentTools(aiAssistantMessageServiceServer AiAs
 		return nil, err
 	}
 	ts = append(ts, deleteAiAssistantMessageTool)
+	var updateAiAssistantMessageTool tool.InvokableTool
+	updateAiAssistantMessageTool, err = NewAiAssistantMessageServiceUpdateAiAssistantMessageAgentTool(aiAssistantMessageServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, updateAiAssistantMessageTool)
 	var retryAiAssistantUserMessageTool tool.InvokableTool
 	retryAiAssistantUserMessageTool, err = NewAiAssistantMessageServiceRetryAiAssistantUserMessageAgentTool(aiAssistantMessageServiceServer)
 	if err != nil {
@@ -68,6 +74,20 @@ func NewAiAssistantMessageServiceDeleteAiAssistantMessageAgentTool(aiAssistantMe
 				req = &DeleteAiAssistantMessageRequest{}
 			}
 			return aiAssistantMessageServiceServer.DeleteAiAssistantMessage(ctx, req)
+		},
+	)
+}
+
+// NewAiAssistantMessageServiceUpdateAiAssistantMessageAgentTool 创建更新 AI 助手消息并重新生成输出的 Agent Tool。
+func NewAiAssistantMessageServiceUpdateAiAssistantMessageAgentTool(aiAssistantMessageServiceServer AiAssistantMessageServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateAiAssistantMessageRequest, *SendAiAssistantMessageResponse](
+		"base_v1_ai_assistant_message_service_update_ai_assistant_message",
+		"更新 AI 助手消息并重新生成输出",
+		func(ctx context.Context, req *UpdateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error) {
+			if req == nil {
+				req = &UpdateAiAssistantMessageRequest{}
+			}
+			return aiAssistantMessageServiceServer.UpdateAiAssistantMessage(ctx, req)
 		},
 	)
 }

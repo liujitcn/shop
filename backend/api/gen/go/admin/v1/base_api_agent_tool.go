@@ -48,6 +48,12 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, setBaseApiMcpEnabledTool)
+	var setBaseApiAgentEnabledTool tool.InvokableTool
+	setBaseApiAgentEnabledTool, err = NewBaseApiServiceSetBaseApiAgentEnabledAgentTool(baseApiServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseApiAgentEnabledTool)
 	return ts, nil
 }
 
@@ -121,6 +127,20 @@ func NewBaseApiServiceSetBaseApiMcpEnabledAgentTool(baseApiServiceServer BaseApi
 				req = &SetBaseApiMcpEnabledRequest{}
 			}
 			return baseApiServiceServer.SetBaseApiMcpEnabled(ctx, req)
+		},
+	)
+}
+
+// NewBaseApiServiceSetBaseApiAgentEnabledAgentTool 创建设置API Agent启用状态的 Agent Tool。
+func NewBaseApiServiceSetBaseApiAgentEnabledAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseApiAgentEnabledRequest, *emptypb.Empty](
+		"admin_v1_base_api_service_set_base_api_agent_enabled",
+		"设置API Agent启用状态",
+		func(ctx context.Context, req *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseApiAgentEnabledRequest{}
+			}
+			return baseApiServiceServer.SetBaseApiAgentEnabled(ctx, req)
 		},
 	)
 }

@@ -47,6 +47,16 @@ func (s *AiAssistantMessageService) DeleteAiAssistantMessage(ctx context.Context
 	return &basev1.DeleteAiAssistantMessageResponse{}, nil
 }
 
+// UpdateAiAssistantMessage 更新 AI 助手消息并重新生成输出。
+func (s *AiAssistantMessageService) UpdateAiAssistantMessage(ctx context.Context, req *basev1.UpdateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
+	res, err := s.aiAssistantMessageCase.UpdateAiAssistantMessage(ctx, req)
+	if err != nil {
+		log.Errorf("UpdateAiAssistantMessage %v", err)
+		return nil, errorsx.WrapInternal(err, "更新AI助手消息失败")
+	}
+	return res, nil
+}
+
 // RetryAiAssistantUserMessage 重试失败的 AI 助手消息。
 func (s *AiAssistantMessageService) RetryAiAssistantUserMessage(ctx context.Context, req *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.RetryAiAssistantUserMessage(ctx, req)

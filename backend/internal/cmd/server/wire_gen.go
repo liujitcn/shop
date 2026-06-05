@@ -378,7 +378,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseUserCase2 := biz4.NewBaseUserCase(baseUserRepository)
 	responsesClient := provider.NewResponsesClient(ai_Model)
 	assistantRuntime := assistant.NewRuntime(responsesClient)
-	aiAssistantMessageCase := biz4.NewAiAssistantMessageCase(baseCase, transaction, aiAssistantMessageRepository, aiAssistantSessionCase, baseUserCase2, assistantRuntime)
+	aiAssistantMessageCase := biz4.NewAiAssistantMessageCase(baseCase, transaction, aiAssistantMessageRepository, aiAssistantSessionCase, baseAPIRepository, baseUserCase2, assistantRuntime)
 	aiAssistantService := base.NewAiAssistantService(aiAssistantSessionCase, aiAssistantMessageCase)
 	aiAssistantMessageService := base.NewAiAssistantMessageService(aiAssistantMessageCase)
 	configCase := biz4.NewConfigCase(baseConfigRepository)

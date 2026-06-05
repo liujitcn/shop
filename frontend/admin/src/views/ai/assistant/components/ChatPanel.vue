@@ -11,18 +11,14 @@
     </template>
 
     <template v-else>
-      <div class="agent-chat-header">
-        <div>
-          <div class="agent-chat-title">{{ activeSession?.title }}</div>
-          <div class="agent-chat-desc">{{ activeSession?.summary }}</div>
-        </div>
-      </div>
-
       <div class="agent-chat-content">
         <BubbleList class="agent-message-list" :list="bubbleList" max-height="100%" :auto-scroll="true">
           <template #content="{ item }">
-            <div class="agent-message-body">
-              <div v-if="item.role !== 'user' && (item.replySourceTag || item.model || item.fallback)" class="agent-message-meta">
+            <div class="agent-message-body" :class="{ 'is-user': item.role === 'user' }">
+              <div
+                v-if="item.role !== 'user' && (item.replySourceTag || item.model || item.fallback || resolveMessageReplyTime(item))"
+                class="agent-message-meta"
+              >
                 <span
                   v-if="item.replySourceTag"
                   class="agent-message-meta__tag"
@@ -31,7 +27,56 @@
                   {{ item.replySourceTag.text }}
                 </span>
                 <span v-if="item.model" class="agent-message-meta__model">{{ item.model }}</span>
+                <span v-if="resolveMessageReplyTime(item)" class="agent-message-meta__time">{{ resolveMessageReplyTime(item) }}</span>
               </div>
+              <el-collapse
+                v-if="item.role !== 'user' && resolveVisibleTools(item).length"
+                class="agent-message-tools"
+                :model-value="resolveActiveToolKeys(item)"
+                @update:model-value="value => handleToolCollapseUpdate(item, value)"
+              >
+                <el-collapse-item
+                  v-for="(tool, toolIndex) in resolveVisibleTools(item)"
+                  :key="resolveToolKey(tool, toolIndex)"
+                  :name="resolveToolKey(tool, toolIndex)"
+                >
+                  <template #title>
+                    <span class="agent-message-tool-title">
+                      <span class="agent-message-tool-title__main">
+                        <span class="agent-message-tool-title__icon">
+                          <el-icon><Link /></el-icon>
+                        </span>
+                        <span class="agent-message-tool-title__text">
+                          <span class="agent-message-tool-title__label">{{ resolveToolTitle(tool) }}</span>
+                          <span v-if="resolveToolName(tool)" class="agent-message-tool-title__name">{{ resolveToolName(tool) }}</span>
+                        </span>
+                      </span>
+                      <span class="agent-message-tool-title__status" :class="resolveToolStatusClass(tool.status)">
+                        {{ resolveToolStatusText(tool.status) }}
+                        <el-icon v-if="!isToolFailed(tool.status)"><Check /></el-icon>
+                      </span>
+                      <button
+                        class="agent-message-tool-copy"
+                        type="button"
+                        aria-label="复制请求报文"
+                        @click.stop="handleCopyToolRequest(tool)"
+                      >
+                        <el-icon><CopyDocument /></el-icon>
+                      </button>
+                    </span>
+                  </template>
+                  <div class="agent-message-tool-payload">
+                    <section class="agent-message-tool-payload__section">
+                      <div class="agent-message-tool-payload__label">REQUEST</div>
+                      <pre>{{ formatToolRequest(tool) }}</pre>
+                    </section>
+                    <section class="agent-message-tool-payload__section">
+                      <div class="agent-message-tool-payload__label">RESPONSE</div>
+                      <pre>{{ formatToolResponse(tool) }}</pre>
+                    </section>
+                  </div>
+                </el-collapse-item>
+              </el-collapse>
               <div
                 class="agent-message-content"
                 :class="{
@@ -66,7 +111,11 @@
             </div>
           </template>
           <template #footer="{ item }">
-            <div v-message-footer-width class="agent-message-footer" :class="{ 'is-user': item.role === 'user' }">
+            <div
+              v-message-footer-width
+              class="agent-message-footer"
+              :class="{ 'is-user': item.role === 'user', 'is-editing': isEditingMessage(item) }"
+            >
               <div class="agent-message-actions" :class="{ 'is-user': item.role === 'user' }">
                 <template v-for="action in resolveMessageActions(item)" :key="action.key">
                   <el-popconfirm
@@ -101,6 +150,22 @@
                   </el-tooltip>
                 </template>
               </div>
+              <div v-if="isEditingMessage(item)" class="agent-message-edit">
+                <el-input
+                  v-model="editingContent"
+                  class="agent-message-edit__input"
+                  type="textarea"
+                  resize="none"
+                  :autosize="{ minRows: 3, maxRows: 8 }"
+                  :disabled="sending"
+                  @keydown.ctrl.enter.prevent="submitMessageEdit(item)"
+                  @keydown.meta.enter.prevent="submitMessageEdit(item)"
+                />
+                <div class="agent-message-edit__footer">
+                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">取消</el-button>
+                  <el-button size="small" type="primary" :loading="sending" @click="submitMessageEdit(item)">发送</el-button>
+                </div>
+              </div>
               <div v-if="item.role !== 'user' && hasAssistantUsage(item)" class="agent-message-runtime">
                 <el-popover popper-class="agent-message-runtime-popover" placement="top-end" trigger="hover" width="260">
                   <template #reference>
@@ -108,9 +173,6 @@
                       <el-icon><DataAnalysis /></el-icon>
                       <span v-if="resolveTokenTotal(item) > 0">{{ formatCompactNumber(resolveTokenTotal(item)) }}</span>
                       <span v-if="item.duration_ms > 0">{{ formatDurationMs(item.duration_ms) }}</span>
-                      <span v-if="resolveTokenTotal(item) <= 0 && item.duration_ms <= 0 && item.tools?.length">
-                        {{ item.tools.length }}
-                      </span>
                     </button>
                   </template>
                   <div class="agent-runtime-detail">
@@ -145,31 +207,6 @@
                         <strong>{{ formatDurationMs(item.duration_ms) }}</strong>
                       </div>
                     </div>
-                    <div v-if="item.tools?.length" class="agent-runtime-detail__section">
-                      <div class="agent-runtime-detail__section-title">工具</div>
-                      <el-collapse class="agent-runtime-tools">
-                        <el-collapse-item
-                          v-for="(tool, toolIndex) in item.tools"
-                          :key="resolveToolKey(tool, toolIndex)"
-                          :name="resolveToolKey(tool, toolIndex)"
-                        >
-                          <template #title>
-                            <span class="agent-runtime-tools__title">
-                              <span>{{ resolveToolTitle(tool) }}</span>
-                              <span class="agent-runtime-tools__status" :class="resolveToolStatusClass(tool.status)">
-                                {{ resolveToolStatusText(tool.status) }}
-                              </span>
-                            </span>
-                          </template>
-                          <div class="agent-runtime-payload">
-                            <div class="agent-runtime-payload__label">REQUEST</div>
-                            <pre>{{ formatToolPayload(tool.input) }}</pre>
-                            <div class="agent-runtime-payload__label">RESPONSE</div>
-                            <pre>{{ formatToolPayload(tool.output) }}</pre>
-                          </div>
-                        </el-collapse-item>
-                      </el-collapse>
-                    </div>
                   </div>
                 </el-popover>
               </div>
@@ -186,15 +223,16 @@
 </template>
 
 <script setup lang="ts" name="ChatPanel">
-import { computed, defineAsyncComponent, h, nextTick } from "vue";
+import { computed, defineAsyncComponent, h, nextTick, ref } from "vue";
 import type { Component, ObjectDirective } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { CopyDocument, DataAnalysis, Delete, Refresh } from "@element-plus/icons-vue";
+import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Refresh } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 import {
   type AiAssistantAttachment,
-  type AiAssistantTool,
-  type AiAssistantSession
+  type AiAssistantSession,
+  type AiAssistantTool
 } from "@/rpc/base/v1/ai_assistant_session";
 import { AiAssistantMessageStatus } from "@/rpc/common/v1/enum";
 import XSender from "./XSender.vue";
@@ -202,7 +240,7 @@ import XSender from "./XSender.vue";
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
 import { buildAssistantAttachmentFileCard } from "../attachment";
-import type { ChatMessageAction, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
+import type { ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
 /** 消息操作按钮配置。 */
 type MessageActionOption = {
@@ -221,7 +259,15 @@ type MessageFooterWidthState = {
   contentEl: HTMLElement;
 };
 
+/** 工具折叠面板的 Element Plus 受控值类型。 */
+type ToolCollapseValue = string | number | Array<string | number>;
+
 const messageFooterWidthStateMap = new WeakMap<HTMLElement, MessageFooterWidthState>();
+const activeToolKeyMap = ref<Record<string, string[]>>({});
+const editingMessageKey = ref("");
+const editingContent = ref("");
+/** 助手消息最小阅读宽度，保证底部操作和运行信息不互相遮挡。 */
+const ASSISTANT_MESSAGE_MIN_WIDTH = 360;
 
 /** 朗读图标，按产品示意图绘制为喇叭声波。 */
 const SpeakActionIcon = defineAsyncComponent(() =>
@@ -310,7 +356,7 @@ const BranchActionIcon = defineAsyncComponent(() =>
 );
 
 const props = defineProps<{
-  /** 当前活动会话。 */
+  /** 当前活动会话，用于输入框按会话重建。 */
   activeSession?: AiAssistantSession;
   /** 当前会话消息列表。 */
   messages: ChatMessageItem[];
@@ -323,6 +369,8 @@ const emit = defineEmits<{
   submit: [payload: SubmitPayload];
   /** 触发消息级操作。 */
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
+  /** 提交当前用户消息的文本编辑。 */
+  messageEdit: [payload: ChatMessageEditPayload];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -338,6 +386,16 @@ const bubbleList = computed<ChatMessageItem[]>(() =>
   }))
 );
 
+const lastEditableUserMessageKey = computed(() => {
+  for (let index = props.messages.length - 1; index >= 0; index--) {
+    const item = props.messages[index];
+    if (item.role === "user" && !item.localOnly) {
+      return resolveMessageEditKey(item);
+    }
+  }
+  return "";
+});
+
 const welcomeTitle = computed(() => {
   const hour = new Date().getHours();
   if (hour < 12) return "上午好，我是通用 AI 助手";
@@ -345,23 +403,25 @@ const welcomeTitle = computed(() => {
   return "晚上好，我是通用 AI 助手";
 });
 
-/** 查找 footer 所属气泡里的内容卡片元素。 */
+/** 查找 footer 所属气泡里的消息内容元素。 */
 function findMessageContentElement(el: HTMLElement) {
-  return el.closest(".elx-bubble__content-wrapper")?.querySelector<HTMLElement>(".elx-bubble__content") ?? null;
+  const wrapper = el.closest(".elx-bubble__content-wrapper");
+  return wrapper?.querySelector<HTMLElement>(".agent-message-body") ?? wrapper?.querySelector<HTMLElement>(".elx-bubble__content") ?? null;
 }
 
-/** 把消息 footer 宽度同步为上方内容卡片宽度，避免右侧耗时信息越出卡片边界。 */
+/** 把消息 footer 宽度同步为上方内容宽度，避免底部按钮越出正文边界。 */
 function syncMessageFooterWidth(el: HTMLElement) {
   const contentEl = findMessageContentElement(el);
   if (!contentEl) return;
 
-  const width = contentEl.getBoundingClientRect().width;
+  const isAssistantMessage = !el.classList.contains("is-user");
+  const width = Math.max(contentEl.getBoundingClientRect().width, isAssistantMessage ? ASSISTANT_MESSAGE_MIN_WIDTH : 0);
   if (width <= 0) return;
 
   el.style.setProperty("--agent-message-footer-width", `${Math.ceil(width)}px`);
 }
 
-/** 绑定内容卡片尺寸监听，覆盖流式内容、Markdown 渲染和窗口变化后的重新对齐。 */
+/** 绑定内容尺寸监听，覆盖流式内容、Markdown 渲染和窗口变化后的重新对齐。 */
 function bindMessageFooterWidth(el: HTMLElement) {
   const contentEl = findMessageContentElement(el);
   const existingState = messageFooterWidthStateMap.get(el);
@@ -408,11 +468,15 @@ function resolveMessageActions(item: ChatMessageItem) {
 
   const copyAction: MessageActionOption = { key: "copy" as const, label: "复制", icon: CopyDocument };
   const deleteAction: MessageActionOption = { key: "delete" as const, label: "删除", icon: Delete };
+  const editAction: MessageActionOption = { key: "edit" as const, label: "编辑", icon: EditPen };
   if (item.role === "user") {
+    const actions = isLastEditableUserMessage(item) ? [editAction, copyAction, deleteAction] : [copyAction, deleteAction];
     if (item.status === AiAssistantMessageStatus.FAILED_AAMS) {
-      return [{ key: "retry" as const, label: "重新发送", icon: Refresh }, copyAction, deleteAction];
+      return item.localOnly
+        ? [{ key: "retry" as const, label: "重新发送", icon: Refresh }, copyAction, deleteAction]
+        : [{ key: "retry" as const, label: "重新发送", icon: Refresh }, ...actions];
     }
-    return [copyAction, deleteAction];
+    return item.localOnly ? [copyAction, deleteAction] : actions;
   }
 
   const actions: MessageActionOption[] = [{ key: "retry" as const, label: "重新生成", icon: Refresh }];
@@ -438,9 +502,9 @@ function resolveAssistantErrorMessage(item: ChatMessageItem) {
   return content || "这次回复没有成功返回，你可以直接重试刚才的问题。";
 }
 
-/** 判断助手消息是否存在最终用量或工具信息。 */
+/** 判断助手消息是否存在最终用量信息。 */
 function hasAssistantUsage(item: ChatMessageItem) {
-  return resolveTokenTotal(item) > 0 || item.first_token_ms > 0 || item.duration_ms > 0 || Boolean(item.tools?.length);
+  return resolveTokenTotal(item) > 0 || item.first_token_ms > 0 || item.duration_ms > 0;
 }
 
 /** 返回当前气泡总 token 数。 */
@@ -453,6 +517,29 @@ function formatDurationMs(value?: number) {
   const ms = Number(value ?? 0);
   if (ms <= 0) return "0s";
   return `${(ms / 1000).toFixed(2)}s`;
+}
+
+/** 返回助手消息回复时间，优先展示后端消息创建时间。 */
+function resolveMessageReplyTime(item: ChatMessageItem) {
+  const timestamp = resolveMessageCreatedAt(item);
+  if (!timestamp) return "";
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  }).format(new Date(timestamp));
+}
+
+/** 解析消息创建时间戳，兼容 protobuf Timestamp 结构。 */
+function resolveMessageCreatedAt(item: ChatMessageItem) {
+  const seconds = Number(item.created_at?.seconds ?? 0);
+  const nanos = Number(item.created_at?.nanos ?? 0);
+  if (seconds <= 0 && nanos <= 0) return 0;
+  return seconds * 1000 + Math.floor(nanos / 1_000_000);
 }
 
 /** 将较大的数字压缩成适合 footer 展示的短格式。 */
@@ -473,19 +560,59 @@ function resolveToolKey(tool: AiAssistantTool, index?: number) {
   return `${tool.type || "tool"}:${tool.name || tool.title}:${index ?? 0}`;
 }
 
+/** 生成消息维度的工具展开状态键，避免不同气泡之间互相影响。 */
+function resolveToolCollapseMessageKey(item: ChatMessageItem) {
+  return String(item.key ?? item.id ?? "");
+}
+
+/** 返回当前消息已展开的工具面板，默认保持全部收起。 */
+function resolveActiveToolKeys(item: ChatMessageItem) {
+  return activeToolKeyMap.value[resolveToolCollapseMessageKey(item)] ?? [];
+}
+
+/** 更新工具面板展开状态，兼容 Element Plus 单值和数组两类返回值。 */
+function handleToolCollapseUpdate(item: ChatMessageItem, value: ToolCollapseValue) {
+  activeToolKeyMap.value = {
+    ...activeToolKeyMap.value,
+    [resolveToolCollapseMessageKey(item)]: Array.isArray(value) ? value.map(String) : [String(value)].filter(Boolean)
+  };
+}
+
+/** 返回需要展示在消息内容区的工具记录，避免非 function 工具被静默隐藏。 */
+function resolveVisibleTools(item: ChatMessageItem) {
+  return (item.tools ?? []).filter(tool => String(tool.name || tool.title || tool.type).trim());
+}
+
 /** 生成工具展示名称。 */
 function resolveToolTitle(tool: AiAssistantTool) {
   return tool.title || tool.name || "工具";
 }
 
+/** 返回工具真实名称，用于排障时识别具体 Agent Tool。 */
+function resolveToolName(tool: AiAssistantTool) {
+  return String(tool.name ?? "").trim();
+}
+
 /** 生成工具状态样式名。 */
 function resolveToolStatusClass(status?: string) {
-  return status === "error" ? "is-error" : "is-success";
+  return isToolFailed(status) ? "is-error" : "is-success";
 }
 
 /** 生成工具状态展示文案。 */
 function resolveToolStatusText(status?: string) {
-  return status === "error" ? "异常" : "完成";
+  return isToolFailed(status) ? "失败" : "已完成";
+}
+
+/** 判断工具调用是否失败，兼容后端历史状态值。 */
+function isToolFailed(status?: string) {
+  return ["error", "failed", "fail"].includes(String(status ?? "").toLowerCase());
+}
+
+/** 判断原始报文是否有实际内容，避免空对象撑出无意义区块。 */
+function hasToolPayloadValue(payload?: string) {
+  const value = String(payload ?? "").trim();
+  if (!value || value === "{}") return false;
+  return true;
 }
 
 /** 格式化工具原始报文，JSON 内容优先缩进展示。 */
@@ -499,9 +626,116 @@ function formatToolPayload(payload?: string) {
   }
 }
 
+/** 格式化工具请求报文，展开态始终保留稳定内容区。 */
+function formatToolRequest(tool: AiAssistantTool) {
+  const input = String(tool.input ?? "");
+  if (!hasToolPayloadValue(input)) return "{}";
+  if (!isJSONLikeText(input) && !hasToolPayloadValue(tool.output)) return "{}";
+  return formatToolArguments(input);
+}
+
+/** 格式化工具出参，兼容历史结果落在 input 的消息。 */
+function formatToolResponse(tool: AiAssistantTool) {
+  if (hasToolPayloadValue(tool.output)) return formatToolPayload(tool.output);
+  if (hasToolPayloadValue(tool.input) && !isJSONLikeText(tool.input)) return formatToolPayload(tool.input);
+  return "{}";
+}
+
+/** 判断文本是否像 JSON，工具请求报文正常应由模型参数 JSON 构成。 */
+function isJSONLikeText(payload?: string) {
+  const value = String(payload ?? "");
+  if (!value) return false;
+  const first = value[0];
+  return first === "{" || first === "[";
+}
+
+/** 格式化工具入参，简单对象按字段行展示，贴近工具调用详情的阅读习惯。 */
+function formatToolArguments(payload?: string) {
+  const value = String(payload ?? "");
+  if (!value) return "";
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!isPlainRecord(parsed)) return JSON.stringify(parsed, null, 2);
+    return Object.entries(parsed)
+      .map(([key, item]) => `${key} ${formatToolArgumentValue(item)}`)
+      .join("\n");
+  } catch {
+    return value;
+  }
+}
+
+/** 判断值是否为普通对象，避免把数组按入参表展示。 */
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+/** 格式化单个工具入参值，复杂值保留 JSON 结构。 */
+function formatToolArgumentValue(value: unknown) {
+  if (isPlainRecord(value) || Array.isArray(value)) return JSON.stringify(value);
+  return String(value ?? "");
+}
+
+/** 复制工具请求报文，点击时不触发展开收起。 */
+async function handleCopyToolRequest(tool: AiAssistantTool) {
+  try {
+    await navigator.clipboard.writeText(formatToolRequest(tool));
+    ElMessage.success("请求报文已复制");
+  } catch {
+    ElMessage.error("当前浏览器不支持复制");
+  }
+}
+
 /** 向父组件透传消息操作，由页面层决定是否重发、复制或移除。 */
 function handleMessageAction(action: ChatMessageAction, item: ChatMessageItem) {
+  if (action === "edit") {
+    startMessageEdit(item);
+    return;
+  }
   emit("messageAction", { action, item });
+}
+
+/** 生成编辑态稳定键，用于只展开当前用户消息下方的编辑框。 */
+function resolveMessageEditKey(item: ChatMessageItem) {
+  return String(item.key ?? `${item.id}:${item.role}`);
+}
+
+/** 判断当前消息是否正在编辑。 */
+function isEditingMessage(item: ChatMessageItem) {
+  return editingMessageKey.value === resolveMessageEditKey(item);
+}
+
+/** 判断用户消息是否为当前会话最后一轮可编辑消息。 */
+function isLastEditableUserMessage(item: ChatMessageItem) {
+  return item.role === "user" && !item.localOnly && lastEditableUserMessageKey.value === resolveMessageEditKey(item);
+}
+
+/** 开始编辑用户消息正文，附件保持原样不进入编辑区。 */
+function startMessageEdit(item: ChatMessageItem) {
+  if (!isLastEditableUserMessage(item)) return;
+  editingMessageKey.value = resolveMessageEditKey(item);
+  editingContent.value = String(item.content ?? "");
+}
+
+/** 取消当前消息文本编辑。 */
+function cancelMessageEdit() {
+  editingMessageKey.value = "";
+  editingContent.value = "";
+}
+
+/** 提交当前消息文本编辑，并交给页面层重新生成同一轮输出。 */
+function submitMessageEdit(item: ChatMessageItem) {
+  if (props.sending) return;
+  const content = editingContent.value;
+  if (content === "") {
+    ElMessage.warning("消息内容不能为空");
+    return;
+  }
+  if (content === String(item.content ?? "")) {
+    ElMessage.info("消息内容没有变化");
+    return;
+  }
+  emit("messageEdit", { item, content });
+  cancelMessageEdit();
 }
 
 /** 判断消息操作是否需要二次确认。 */
@@ -549,29 +783,10 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   justify-content: center;
   padding: 0;
 }
-.agent-chat-header {
-  display: flex;
-  flex: 0 0 auto;
-  align-items: flex-start;
-  justify-content: space-between;
-  width: min(960px, calc(100% - 72px));
-  margin: 0 auto;
-}
-.agent-chat-title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  color: var(--admin-page-text-primary);
-}
-.agent-chat-desc {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--admin-page-text-secondary);
-}
 .agent-chat-content {
   display: flex;
   flex: 1;
-  width: min(960px, calc(100% - 72px));
+  width: min(1180px, calc(100% - 72px));
   min-height: 0;
   padding-bottom: 168px;
   margin: 0 auto;
@@ -597,7 +812,7 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 .agent-chat-empty__desc {
   margin-top: 14px;
   font-size: 14px;
-  line-height: 24px;
+  line-height: 28px;
   color: var(--admin-page-text-secondary);
   text-align: center;
 }
@@ -616,15 +831,25 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   }
   :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__footer) {
     box-sizing: border-box;
+    width: fit-content;
     max-width: 100%;
+    margin-top: 2px;
   }
   :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content) {
-    min-width: min(360px, 100%);
+    box-sizing: border-box;
+    width: min(720px, 100%);
+    max-width: 100%;
+    min-width: min(520px, 100%);
   }
-  :deep(.elx-bubble__content) {
+  :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content) {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+  :deep(.elx-bubble--end .elx-bubble__content-wrapper .elx-bubble__content) {
     border-radius: var(--admin-page-radius);
   }
-  :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content--corner),
   :deep(.elx-bubble--end .elx-bubble__content-wrapper .elx-bubble__content--corner) {
     border-start-start-radius: var(--admin-page-radius);
     border-start-end-radius: var(--admin-page-radius);
@@ -635,32 +860,61 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   }
 }
 .agent-message-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   line-height: 24px;
+  margin: 6px 0 0;
+  overflow-wrap: anywhere;
+}
+.agent-message-content:first-child {
+  margin-top: 0;
 }
 .agent-message-content.is-user {
+  width: fit-content;
+  min-width: 0;
   white-space: pre-wrap;
 }
 .agent-message-content.is-thinking {
   display: inline-flex;
   gap: 8px;
   align-items: center;
+  :deep(.agent-markdown) {
+    flex: 0 1 auto;
+    width: auto;
+  }
+  :deep(.agent-markdown .x-md-core) {
+    width: auto;
+  }
+  :deep(.agent-markdown p) {
+    display: inline;
+    margin: 0;
+  }
 }
 .agent-message-content.is-failed-assistant {
-  width: min(460px, 100%);
+  width: min(720px, 100%);
   max-width: 100%;
 }
 .agent-message-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 0;
+  align-items: flex-start;
+  gap: 0;
+  width: 100%;
+  min-width: min(360px, 100%);
   max-width: 100%;
+}
+.agent-message-body.is-user {
+  width: fit-content;
+  min-width: 0;
 }
 .agent-message-meta {
   display: inline-flex;
   gap: 8px;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
   font-size: 12px;
   color: var(--admin-page-text-secondary);
 }
@@ -682,6 +936,9 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   color: var(--admin-page-text-secondary);
 }
 .agent-message-meta__model {
+  opacity: 0.85;
+}
+.agent-message-meta__time {
   opacity: 0.85;
 }
 .agent-message-error {
@@ -742,8 +999,10 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 }
 .agent-thinking-dots {
   display: inline-flex;
+  flex: 0 0 auto;
   gap: 4px;
   align-items: center;
+  color: var(--admin-page-text-secondary);
   i {
     display: inline-block;
     width: 6px;
@@ -769,6 +1028,180 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
     border-radius: var(--admin-page-radius);
   }
 }
+.agent-message-tools {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 8px;
+  border: 0;
+  :deep(.el-collapse-item + .el-collapse-item) {
+    margin-top: 8px;
+  }
+  :deep(.el-collapse-item) {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--el-border-color-lighter);
+    border-radius: var(--admin-page-radius);
+  }
+  :deep(.el-collapse-item::after) {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 2;
+    height: 1px;
+    pointer-events: none;
+    content: "";
+    background: var(--el-border-color-lighter);
+  }
+  :deep(.el-collapse-item__header) {
+    box-sizing: border-box;
+    display: flex;
+    min-width: 0;
+    min-height: 44px;
+    height: auto;
+    padding: 0 12px;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: normal;
+    color: var(--admin-page-text-regular);
+    background: transparent;
+    border: 0;
+  }
+  :deep(.el-collapse-item__arrow) {
+    flex: 0 0 auto;
+    margin-left: 10px;
+    color: var(--admin-page-text-secondary);
+  }
+  :deep(.el-collapse-item__wrap) {
+    overflow: hidden;
+    background: transparent;
+    border: 0;
+  }
+  :deep(.el-collapse-item__content) {
+    padding: 0;
+  }
+}
+.agent-message-tool-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content max-content;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.agent-message-tool-title__main {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+.agent-message-tool-title__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.agent-message-tool-title__label {
+  min-width: 0;
+  overflow: hidden;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agent-message-tool-title__name {
+  min-width: 0;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--admin-page-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agent-message-tool-title__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  font-size: 14px;
+  color: var(--admin-page-text-secondary);
+}
+.agent-message-tool-title__status {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--el-color-success);
+}
+.agent-message-tool-title__status.is-error {
+  color: var(--el-color-danger);
+}
+.agent-message-tool-copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--admin-page-radius);
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+  &:hover {
+    color: var(--el-color-primary);
+    background: var(--el-fill-color-light);
+  }
+  .el-icon {
+    font-size: 15px;
+  }
+}
+.agent-message-tool-payload {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  max-height: 220px;
+  padding: 0 0 1px;
+  overflow: auto;
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+.agent-message-tool-payload__section {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 10px 12px;
+}
+.agent-message-tool-payload__section + .agent-message-tool-payload__section {
+  border-top: 1px solid var(--el-border-color-lighter);
+}
+.agent-message-tool-payload__label {
+  margin-bottom: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  color: var(--admin-page-text-secondary);
+}
+.agent-message-tool-payload pre {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--admin-page-text-regular);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: transparent;
+  border: 0;
+}
 .agent-message-footer {
   box-sizing: border-box;
   display: grid;
@@ -777,14 +1210,26 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   align-items: center;
   width: var(--agent-message-footer-width, fit-content);
   max-width: 100%;
-  min-width: 0;
-  padding: 0 16px;
-  margin-top: 8px;
+  min-width: min(360px, 100%);
+  padding: 0;
+  margin-top: 0;
+}
+.agent-message-footer.is-editing {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 6px;
 }
 .agent-message-footer.is-user {
   grid-template-columns: auto;
   justify-content: flex-end;
+  min-width: 0;
   padding: 0;
+}
+.agent-message-footer.is-user.is-editing {
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: stretch;
+  justify-self: end;
+  width: min(380px, 100%);
+  min-width: min(320px, 100%);
 }
 .agent-message-runtime {
   display: flex;
@@ -835,6 +1280,34 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 }
 .agent-message-actions.is-user {
   justify-content: flex-end;
+}
+.agent-message-edit {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: min(320px, 100%);
+  padding: 10px;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-light);
+  border-radius: var(--admin-page-radius);
+}
+.agent-message-edit__input {
+  width: 100%;
+  :deep(.el-textarea__inner) {
+    min-height: 82px !important;
+    padding: 8px 10px;
+    font-size: 14px;
+    line-height: 24px;
+    color: var(--admin-page-text-primary);
+    background: var(--admin-page-card-bg);
+    border-radius: var(--admin-page-radius);
+    box-shadow: 0 0 0 1px var(--el-border-color-light) inset;
+  }
+}
+.agent-message-edit__footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 8px;
 }
 .agent-message-action {
   display: inline-flex;
@@ -895,7 +1368,6 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
     justify-content: center;
     padding: 24px 0;
   }
-  .agent-chat-header,
   .agent-chat-content,
   .agent-sender-wrap {
     width: calc(100% - 36px);
@@ -965,75 +1437,6 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   }
   .agent-runtime-detail__row.is-total strong {
     color: var(--el-color-primary);
-  }
-  .agent-runtime-tools {
-    min-width: 0;
-    border: 0;
-  }
-  .agent-runtime-tools .el-collapse-item__header {
-    height: 30px;
-    min-width: 0;
-    font-size: 12px;
-    background: transparent;
-    border: 0;
-  }
-  .agent-runtime-tools .el-collapse-item__wrap {
-    background: transparent;
-    border: 0;
-  }
-  .agent-runtime-tools .el-collapse-item__content {
-    padding-bottom: 8px;
-  }
-  .agent-runtime-tools__title {
-    display: inline-flex;
-    gap: 8px;
-    align-items: center;
-    min-width: 0;
-  }
-  .agent-runtime-tools__title > span:first-child {
-    max-width: 180px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .agent-runtime-tools__status {
-    flex: 0 0 auto;
-    padding: 1px 6px;
-    line-height: 16px;
-    color: var(--el-color-success);
-    background: var(--el-color-success-light-9);
-    border-radius: var(--admin-page-radius);
-  }
-  .agent-runtime-tools__status.is-error {
-    color: var(--el-color-danger);
-    background: var(--el-color-danger-light-9);
-  }
-  .agent-runtime-payload {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-  }
-  .agent-runtime-payload__label {
-    font-size: 11px;
-    font-weight: 700;
-    line-height: 16px;
-    color: var(--admin-page-text-secondary);
-  }
-  .agent-runtime-payload pre {
-    max-height: 180px;
-    padding: 8px;
-    margin: 0;
-    overflow: auto;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    font-size: 11px;
-    line-height: 17px;
-    color: var(--admin-page-text-regular);
-    white-space: pre-wrap;
-    word-break: break-word;
-    background: var(--el-fill-color-light);
-    border: 1px solid var(--el-border-color-lighter);
-    border-radius: var(--admin-page-radius);
   }
 }
 </style>

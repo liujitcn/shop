@@ -147,9 +147,9 @@ AI 助手默认通过 `github.com/liujitcn/kratos-kit/ai/eino` 创建 OpenAI Res
 
 ## MCP 工具暴露
 
-后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表只保存接口元数据、`mcp_tool_name` 和 `mcp_enabled` 开关；管理后台的“系统管理 / API 管理”页面可查看工具名，并切换接口是否暴露为 MCP 工具。
+后端通过 `protoc-gen-go-mcp-tool` 生成 MCP 工具注册代码，服务启动时按本地服务实例注册工具。`base_api` 表只保存接口元数据、`tool_name`、`mcp_enabled` 和 `agent_enabled` 开关；管理后台的“系统管理 / API 管理”页面可查看工具名，并分别切换接口是否暴露为 MCP 工具或 Agent 工具。
 
-MCP 工具调用时会按工具名查询 `base_api.mcp_tool_name`，再检查 `mcp_enabled` 和当前终端归属；未启用或不属于当前终端时不会执行。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
+MCP 工具调用时会按工具名查询 `base_api.tool_name`，再检查 `mcp_enabled` 和当前终端归属；未启用或不属于当前终端时不会执行。Agent 工具仍会完整注册加载，候选工具筛选和实际执行前按 `agent_enabled` 过滤；工具目录查询会展示当前终端完整注册工具名，并明确区别于本轮候选工具。工具调用链路直接走当前进程内服务实例，不再转发 HTTP，也不再依赖 `input_schema`、`arg_mapping`、`output_schema`。
 
 当前后端会按 `server.mcp.transport: TRANSPORT_IN_PROCESS` 把 Streamable HTTP MCP 处理器挂载到现有 HTTP 服务，并通过 `/mcp/{terminal}` 按服务关键字过滤工具。例如 `server.http.addr = :7001` 时，管理端 MCP 地址为 `http://127.0.0.1:7001/mcp/admin`。
 
@@ -195,7 +195,7 @@ shop:
 
 `entryPoint` 需要指向 Gorse HTTP API 端口。Gorse 本地服务说明见 [../gorse/README.md](../gorse/README.md)。
 
-大模型默认配置在 `configs/ai.yaml` 的顶层 `ai.model` 下，本地覆盖配置放在 `configs/local.yaml`。评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，AI 助手使用 Responses API。`modelName`、`maxTokens`、`temperature`、`timeoutSeconds`、`maxRetries` 会传给对应模型接口。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
+大模型默认配置在 `configs/ai.yaml` 的顶层 `ai.model` 下，本地覆盖配置放在 `configs/local.yaml`。评价审核、摘要和 AI 助手的标准提示词内置在代码中，不再通过商城配置覆盖。默认未配置有效密钥和模型时不会启用相关能力。评价图片审核会将本地 `/shop/*` 图片读取为多模态图片字节传给模型，避免把相对路径直接作为远端 `image_url` 使用；AI 助手会读取已上传附件中的图片字节作为视觉输入，文本类内容会拼入用户消息供模型参考。AI 助手的实时公开问题会由 OpenAI Responses API 的内置联网搜索工具补充上下文，评价审核和摘要不会启用联网搜索。评价审核和摘要使用 OpenAI 兼容 Chat Completions API，AI 助手使用 Responses API。`modelName`、`maxTokens`、`temperature`、`timeoutSeconds`、`maxRetries` 会传给对应模型接口；评论 Chat Completions 会省略 `temperature`，避免触发部分模型固定采样参数限制。模型判定不通过时必须返回具体违规类别、命中文本片段或图片序号和判定依据，缺少具体原因时会记录为审核异常等待人工复核。
 
 `pkg/agent/provider` 只负责读取 `ai.model` 并调用 `github.com/liujitcn/kratos-kit/ai/eino` 装配评论 Chat 模型和 AI 助手 Responses 模型。
 

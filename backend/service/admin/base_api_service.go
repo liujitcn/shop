@@ -79,6 +79,17 @@ func (s *BaseApiService) SetBaseApiMcpEnabled(ctx context.Context, req *adminv1.
 	return &emptypb.Empty{}, nil
 }
 
+// SetBaseApiAgentEnabled 设置API Agent启用状态
+func (s *BaseApiService) SetBaseApiAgentEnabled(ctx context.Context, req *adminv1.SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.SetBaseAPIAgentEnabled(ctx, req)
+	if err != nil {
+		log.Errorf("SetBaseApiAgentEnabled %v", err)
+		return nil, errorsx.WrapInternal(err, "设置API Agent启用状态失败")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 // ListBaseApis 查询菜单分配API选项列表
 func (s *BaseApiService) ListBaseApis(ctx context.Context, req *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
 	list, err := s.baseAPICase.ListBaseAPIs(ctx, req)

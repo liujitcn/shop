@@ -22,37 +22,44 @@
         </button>
       </div>
     </div>
-    <Conversations
-      v-model:active="activeID"
-      class="agent-conversations"
-      :items="sessions"
-      row-key="id"
-      label-key="title"
-      :menu="sessionMenus"
-      :show-tooltip="true"
-      :show-built-in-menu="true"
-      show-built-in-menu-type="hover"
-      :label-height="72"
-      @change="handleSessionChange"
-      @menu-command="handleMenuCommand"
-    >
-      <template #label="{ item }">
-        <div class="agent-session-item">
+    <ul class="agent-session-list">
+      <li
+        v-for="item in sessions"
+        :key="item.id"
+        class="agent-session-row"
+        :class="{ 'is-active': item.id === active }"
+        @click="handleSessionChange(item)"
+      >
+        <button class="agent-session-item" type="button" :title="item.title" :aria-current="item.id === active ? 'page' : undefined">
           <div class="agent-session-main">
             <div class="agent-session-name">{{ item.title }}</div>
             <div class="agent-session-meta">{{ item.summary }}</div>
           </div>
-        </div>
-      </template>
-    </Conversations>
+        </button>
+        <el-dropdown
+          class="agent-session-menu"
+          trigger="click"
+          placement="bottom-end"
+          @click.stop
+          @command="command => handleMenuCommand(command, item)"
+        >
+          <button class="agent-session-more" type="button" aria-label="会话操作">
+            <el-icon><MoreFilled /></el-icon>
+          </button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="rename" :icon="EditPen">重命名</el-dropdown-item>
+              <el-dropdown-item command="delete" :icon="Delete" divided>删除</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </li>
+    </ul>
   </aside>
 </template>
 
 <script setup lang="ts" name="SessionPanel">
-import { computed } from "vue";
-import { Conversations } from "vue-element-plus-x";
-import type { ConversationMenu, ConversationMenuCommand } from "vue-element-plus-x/types/Conversations";
-import { DArrowLeft, Delete, EditPen, Plus, Search } from "@element-plus/icons-vue";
+import { DArrowLeft, Delete, EditPen, MoreFilled, Plus, Search } from "@element-plus/icons-vue";
 import type { AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 
 type SessionAction = "rename" | "delete";
@@ -81,39 +88,19 @@ const emit = defineEmits<{
   toggleCollapse: [];
 }>();
 
-const activeID = computed({
-  get: () => props.active,
-  set: value => emit("update:active", value)
-});
-
-const sessionMenus: ConversationMenu[] = [
-  {
-    label: "重命名",
-    key: "rename",
-    icon: EditPen,
-    command: "rename"
-  },
-  {
-    label: "删除",
-    key: "delete",
-    icon: Delete,
-    divided: true,
-    command: "delete"
-  }
-];
-
 /** 同步搜索关键词。 */
 function handleKeywordUpdate(value: string) {
   emit("update:keyword", value);
 }
 
-/** 同步当前会话，并保留 Conversations 的完整变更对象。 */
+/** 同步当前会话，并通知父组件加载对应消息。 */
 function handleSessionChange(item: AiAssistantSession) {
+  emit("update:active", item.id);
   emit("change", item);
 }
 
-/** 透传 Conversations 内置菜单操作，后续由父组件接入真实重命名和删除。 */
-function handleMenuCommand(command: ConversationMenuCommand, item: AiAssistantSession) {
+/** 透传当前会话菜单操作，后续由父组件接入真实重命名和删除。 */
+function handleMenuCommand(command: string | number | object, item: AiAssistantSession) {
   const action = String(command ?? "") as SessionAction;
   if (action !== "rename" && action !== "delete") return;
   emit("action", { action, item });
@@ -131,15 +118,19 @@ function handleCreateSession() {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding: 20px 16px;
+  padding: 16px 0;
   overflow: hidden;
   background: var(--admin-page-card-bg);
   border-right: 1px solid var(--admin-page-divider-strong);
   :deep(.el-input__wrapper) {
-    padding: 10px 14px;
+    padding: 7px 12px;
     background: var(--el-fill-color-light);
     border-radius: var(--admin-page-radius);
     box-shadow: none;
+  }
+  :deep(.el-input) {
+    width: calc(100% - 28px);
+    margin: 0 14px;
   }
 }
 .agent-panel-icon {
@@ -147,8 +138,8 @@ function handleCreateSession() {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   color: var(--admin-page-text-secondary);
   cursor: pointer;
   background: var(--el-fill-color-light);
@@ -166,7 +157,8 @@ function handleCreateSession() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 18px 0 14px;
+  padding: 0 14px;
+  margin: 16px 0 10px;
 }
 .agent-panel-title {
   font-size: 14px;
@@ -175,15 +167,15 @@ function handleCreateSession() {
 }
 .agent-panel-actions {
   display: inline-flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .agent-panel-create {
   display: inline-flex;
   gap: 4px;
   align-items: center;
-  height: 28px;
-  padding: 0 10px;
+  height: 26px;
+  padding: 0 9px;
   font-size: 12px;
   font-weight: 600;
   color: var(--el-color-primary);
@@ -201,55 +193,63 @@ function handleCreateSession() {
 }
 .agent-divider {
   height: 1px;
-  margin: 20px 0;
+  margin: 16px 0 0;
   background: var(--el-border-color-lighter);
 }
-.agent-conversations {
+.agent-session-list {
   flex: 1;
-  margin-top: 0;
-  :deep(.elx-conversations-list) {
-    gap: 10px;
-  }
-  :deep(.elx-conversations-item) {
-    position: relative;
-    padding: 0;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: var(--admin-page-radius);
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-  :deep(.elx-conversations-item:not(:last-child)::after) {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  overflow: auto;
+  list-style: none;
+}
+.agent-session-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  transition: background-color 0.2s ease;
+  &::after {
     position: absolute;
-    right: 16px;
-    bottom: -6px;
-    left: 16px;
+    right: 14px;
+    bottom: 0;
+    left: 32px;
     height: 1px;
     content: "";
     background: var(--el-border-color-lighter);
   }
-  :deep(.elx-conversations-item--active) {
+  &:hover {
+    background: var(--el-fill-color-extra-light);
+  }
+  &.is-active {
     background: var(--el-color-primary-light-9);
-    border-color: var(--el-color-primary-light-5);
     box-shadow: inset 3px 0 0 var(--el-color-primary);
   }
-  :deep(.elx-conversations-item--active .agent-session-name) {
+  &.is-active .agent-session-name {
     color: var(--el-color-primary);
   }
-  :deep(.elx-conversations-item--active .agent-session-meta) {
+  &.is-active .agent-session-meta {
     color: var(--admin-page-text-primary);
+  }
+  &.is-active .agent-session-more,
+  &:hover .agent-session-more {
+    opacity: 1;
   }
 }
 .agent-session-item {
   display: flex;
+  flex: 1;
   gap: 8px;
   align-items: center;
   min-width: 0;
-  min-height: 76px;
-  padding: 14px 16px;
-  border-radius: var(--admin-page-radius);
+  min-height: 66px;
+  padding: 11px 14px 11px 32px;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 .agent-session-main {
   flex: 1;
@@ -272,6 +272,34 @@ function handleCreateSession() {
   line-height: 18px;
   color: var(--admin-page-text-secondary);
   white-space: nowrap;
+}
+.agent-session-menu {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  z-index: 1;
+  transform: translateY(-50%);
+}
+.agent-session-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--admin-page-text-secondary);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  opacity: 0;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+  &:hover {
+    color: var(--admin-page-text-primary);
+    background: var(--el-fill-color-light);
+  }
 }
 
 @media screen and (width <= 768px) {

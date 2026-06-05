@@ -13,7 +13,7 @@ import type { AiAssistantStreamPayload, ChatMessageItem, ReplySourceTag } from "
 const THINKING_MESSAGE_ID_PREFIX = "assistant-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "assistant-user-local";
 const PENDING_STREAM_MESSAGE_ID = "pending";
-const THINKING_MESSAGE_CONTENT = "正在整理回复...";
+const THINKING_MESSAGE_CONTENT = "正在整理回复";
 
 /** 生成流式消息分组键，确保同一轮回复只更新当前占位气泡。 */
 export function buildStreamMessageKey(sessionID: string, messageID: string) {
@@ -120,7 +120,7 @@ export function mapMessageItem(message: AiAssistantMessage, role: "user" | "assi
     status: Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS),
     token: normalizeToken(message.token),
     tools: Array.isArray(message.tools) ? message.tools : [],
-    variant: role === "user" ? "filled" : "outlined",
+    variant: role === "user" ? "filled" : "borderless",
     shape: "corner",
     progressState:
       message.status === AiAssistantMessageStatus.GENERATING_AAMS
@@ -130,7 +130,7 @@ export function mapMessageItem(message: AiAssistantMessage, role: "user" | "assi
         : message.status === AiAssistantMessageStatus.FAILED_AAMS
           ? "failed"
           : "idle",
-    maxWidth: role === "user" ? "380px" : "460px"
+    maxWidth: role === "user" ? "380px" : "100%"
   };
   item.replySourceTag = resolveReplySourceTag(item);
   return item;

@@ -4,7 +4,15 @@ import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } fr
 export type SessionAction = "rename" | "delete";
 
 /** 聊天消息操作类型。 */
-export type ChatMessageAction = "retry" | "copy" | "delete" | "branch" | "speak";
+export type ChatMessageAction = "retry" | "copy" | "delete" | "branch" | "speak" | "edit";
+
+/** 聊天消息文本编辑提交内容。 */
+export type ChatMessageEditPayload = {
+  /** 被编辑的用户消息。 */
+  item: ChatMessageItem;
+  /** 更新后的纯文本内容。 */
+  content: string;
+};
 
 /** 聊天输入提交内容。 */
 export type SubmitPayload = {

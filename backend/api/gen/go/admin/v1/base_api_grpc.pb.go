@@ -21,11 +21,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BaseApiService_PageBaseApis_FullMethodName         = "/admin.v1.BaseApiService/PageBaseApis"
-	BaseApiService_ListBaseApis_FullMethodName         = "/admin.v1.BaseApiService/ListBaseApis"
-	BaseApiService_GetBaseApi_FullMethodName           = "/admin.v1.BaseApiService/GetBaseApi"
-	BaseApiService_GetBaseApiDoc_FullMethodName        = "/admin.v1.BaseApiService/GetBaseApiDoc"
-	BaseApiService_SetBaseApiMcpEnabled_FullMethodName = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
+	BaseApiService_PageBaseApis_FullMethodName           = "/admin.v1.BaseApiService/PageBaseApis"
+	BaseApiService_ListBaseApis_FullMethodName           = "/admin.v1.BaseApiService/ListBaseApis"
+	BaseApiService_GetBaseApi_FullMethodName             = "/admin.v1.BaseApiService/GetBaseApi"
+	BaseApiService_GetBaseApiDoc_FullMethodName          = "/admin.v1.BaseApiService/GetBaseApiDoc"
+	BaseApiService_SetBaseApiMcpEnabled_FullMethodName   = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
+	BaseApiService_SetBaseApiAgentEnabled_FullMethodName = "/admin.v1.BaseApiService/SetBaseApiAgentEnabled"
 )
 
 // BaseApiServiceClient is the client API for BaseApiService service.
@@ -44,6 +45,8 @@ type BaseApiServiceClient interface {
 	GetBaseApiDoc(ctx context.Context, in *GetBaseApiDocRequest, opts ...grpc.CallOption) (*BaseApiDoc, error)
 	// 设置API MCP启用状态
 	SetBaseApiMcpEnabled(ctx context.Context, in *SetBaseApiMcpEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 设置API Agent启用状态
+	SetBaseApiAgentEnabled(ctx context.Context, in *SetBaseApiAgentEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseApiServiceClient struct {
@@ -104,6 +107,16 @@ func (c *baseApiServiceClient) SetBaseApiMcpEnabled(ctx context.Context, in *Set
 	return out, nil
 }
 
+func (c *baseApiServiceClient) SetBaseApiAgentEnabled(ctx context.Context, in *SetBaseApiAgentEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, BaseApiService_SetBaseApiAgentEnabled_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // BaseApiServiceServer is the server API for BaseApiService service.
 // All implementations must embed UnimplementedBaseApiServiceServer
 // for forward compatibility.
@@ -120,6 +133,8 @@ type BaseApiServiceServer interface {
 	GetBaseApiDoc(context.Context, *GetBaseApiDocRequest) (*BaseApiDoc, error)
 	// 设置API MCP启用状态
 	SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error)
+	// 设置API Agent启用状态
+	SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseApiServiceServer()
 }
 
@@ -144,6 +159,9 @@ func (UnimplementedBaseApiServiceServer) GetBaseApiDoc(context.Context, *GetBase
 }
 func (UnimplementedBaseApiServiceServer) SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseApiMcpEnabled not implemented")
+}
+func (UnimplementedBaseApiServiceServer) SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetBaseApiAgentEnabled not implemented")
 }
 func (UnimplementedBaseApiServiceServer) mustEmbedUnimplementedBaseApiServiceServer() {}
 func (UnimplementedBaseApiServiceServer) testEmbeddedByValue()                        {}
@@ -256,6 +274,24 @@ func _BaseApiService_SetBaseApiMcpEnabled_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _BaseApiService_SetBaseApiAgentEnabled_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetBaseApiAgentEnabledRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(BaseApiServiceServer).SetBaseApiAgentEnabled(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: BaseApiService_SetBaseApiAgentEnabled_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(BaseApiServiceServer).SetBaseApiAgentEnabled(ctx, req.(*SetBaseApiAgentEnabledRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // BaseApiService_ServiceDesc is the grpc.ServiceDesc for BaseApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +318,10 @@ var BaseApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetBaseApiMcpEnabled",
 			Handler:    _BaseApiService_SetBaseApiMcpEnabled_Handler,
+		},
+		{
+			MethodName: "SetBaseApiAgentEnabled",
+			Handler:    _BaseApiService_SetBaseApiAgentEnabled_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -11,8 +11,9 @@
         <el-descriptions-item label="操作方法">{{ detailData.operation }}</el-descriptions-item>
         <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
         <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
-        <el-descriptions-item label="MCP工具名">{{ detailData.mcp_tool_name }}</el-descriptions-item>
+        <el-descriptions-item label="工具名">{{ detailData.tool_name }}</el-descriptions-item>
         <el-descriptions-item label="MCP工具">{{ detailData.mcp_enabled ? "启用" : "禁用" }}</el-descriptions-item>
+        <el-descriptions-item label="Agent工具">{{ detailData.agent_enabled ? "启用" : "禁用" }}</el-descriptions-item>
       </el-descriptions>
 
       <div v-if="detailDoc" class="api-doc">
@@ -116,7 +117,7 @@ const detailDrawer = reactive({
 
 const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
 
-const mcpEnabledOptions = [
+const enabledOptions = [
   { label: "启用", value: true },
   { label: "禁用", value: false }
 ];
@@ -129,12 +130,12 @@ const columns: ColumnProps[] = [
   { prop: "operation", label: "操作方法", minWidth: 260, search: { el: "input" } },
   { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
   { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
-  { prop: "mcp_tool_name", label: "MCP工具名", minWidth: 260, search: { el: "input" } },
+  { prop: "tool_name", label: "工具名", minWidth: 260, search: { el: "input" } },
   {
     prop: "mcp_enabled",
     label: "MCP工具",
     width: 120,
-    enum: mcpEnabledOptions,
+    enum: enabledOptions,
     search: { el: "select" },
     cellType: "status",
     statusProps: {
@@ -144,6 +145,22 @@ const columns: ColumnProps[] = [
       inactiveText: "禁用",
       disabled: () => !BUTTONS.value["base:api:mcp-enabled"],
       beforeChange: scope => handleBeforeSetMcpEnabled(scope.row as BaseApi)
+    }
+  },
+  {
+    prop: "agent_enabled",
+    label: "Agent工具",
+    width: 130,
+    enum: enabledOptions,
+    search: { el: "select" },
+    cellType: "status",
+    statusProps: {
+      activeValue: true,
+      inactiveValue: false,
+      activeText: "启用",
+      inactiveText: "禁用",
+      disabled: () => !BUTTONS.value["base:api:agent-enabled"],
+      beforeChange: scope => handleBeforeSetAgentEnabled(scope.row as BaseApi)
     }
   },
   {
@@ -241,6 +258,28 @@ async function handleBeforeSetMcpEnabled(row: BaseApi) {
       type: "warning"
     });
     await defBaseApiService.SetBaseApiMcpEnabled({ id: row.id, mcp_enabled: nextEnabled });
+    ElMessage.success(`${text}成功`);
+    refreshTable();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Agent 启用状态切换前进行二次确认，并调用启用状态接口完成持久化。
+ */
+async function handleBeforeSetAgentEnabled(row: BaseApi) {
+  const nextEnabled = !row.agent_enabled;
+  const text = nextEnabled ? "启用" : "禁用";
+  const apiName = row.desc || row.operation || `ID:${row.id}`;
+  try {
+    await ElMessageBox.confirm(`是否确定${text}该 API 的 Agent 工具能力？\nAPI：${apiName}`, "提示", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    });
+    await defBaseApiService.SetBaseApiAgentEnabled({ id: row.id, agent_enabled: nextEnabled });
     ElMessage.success(`${text}成功`);
     refreshTable();
     return true;

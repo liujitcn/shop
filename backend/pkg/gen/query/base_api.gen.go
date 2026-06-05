@@ -29,7 +29,8 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 	_baseAPI.ALL = field.NewAsterisk(tableName)
 	_baseAPI.ID = field.NewInt64(tableName, "id")
 	_baseAPI.McpEnabled = field.NewBool(tableName, "mcp_enabled")
-	_baseAPI.McpToolName = field.NewString(tableName, "mcp_tool_name")
+	_baseAPI.AgentEnabled = field.NewBool(tableName, "agent_enabled")
+	_baseAPI.ToolName = field.NewString(tableName, "tool_name")
 	_baseAPI.ServiceName = field.NewString(tableName, "service_name")
 	_baseAPI.ServiceDesc = field.NewString(tableName, "service_desc")
 	_baseAPI.Desc = field.NewString(tableName, "desc")
@@ -47,17 +48,18 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 type baseAPI struct {
 	baseAPIDo baseAPIDo
 
-	ALL         field.Asterisk
-	ID          field.Int64  // API ID
-	McpEnabled  field.Bool   // 是否暴露为MCP工具
-	McpToolName field.String // MCP工具名
-	ServiceName field.String // 服务名
-	ServiceDesc field.String // 服务描述
-	Desc        field.String // 描述
-	Operation   field.String // 操作方法
-	Method      field.String // 请求方式
-	Path        field.String // 请求地址
-	DeletedAt   field.Field  // 删除时间
+	ALL          field.Asterisk
+	ID           field.Int64  // API ID
+	McpEnabled   field.Bool   // 是否暴露为MCP工具
+	AgentEnabled field.Bool   // 是否暴露为Agent工具
+	ToolName     field.String // 工具名
+	ServiceName  field.String // 服务名
+	ServiceDesc  field.String // 服务描述
+	Desc         field.String // 描述
+	Operation    field.String // 操作方法
+	Method       field.String // 请求方式
+	Path         field.String // 请求地址
+	DeletedAt    field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -76,7 +78,8 @@ func (b *baseAPI) updateTableName(table string) *baseAPI {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
 	b.McpEnabled = field.NewBool(table, "mcp_enabled")
-	b.McpToolName = field.NewString(table, "mcp_tool_name")
+	b.AgentEnabled = field.NewBool(table, "agent_enabled")
+	b.ToolName = field.NewString(table, "tool_name")
 	b.ServiceName = field.NewString(table, "service_name")
 	b.ServiceDesc = field.NewString(table, "service_desc")
 	b.Desc = field.NewString(table, "desc")
@@ -108,10 +111,11 @@ func (b *baseAPI) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseAPI) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 10)
+	b.fieldMap = make(map[string]field.Expr, 11)
 	b.fieldMap["id"] = b.ID
 	b.fieldMap["mcp_enabled"] = b.McpEnabled
-	b.fieldMap["mcp_tool_name"] = b.McpToolName
+	b.fieldMap["agent_enabled"] = b.AgentEnabled
+	b.fieldMap["tool_name"] = b.ToolName
 	b.fieldMap["service_name"] = b.ServiceName
 	b.fieldMap["service_desc"] = b.ServiceDesc
 	b.fieldMap["desc"] = b.Desc

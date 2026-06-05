@@ -24,6 +24,7 @@ const OperationAiAssistantMessageServiceDeleteAiAssistantMessage = "/base.v1.AiA
 const OperationAiAssistantMessageServiceRegenerateAiAssistantMessage = "/base.v1.AiAssistantMessageService/RegenerateAiAssistantMessage"
 const OperationAiAssistantMessageServiceRetryAiAssistantUserMessage = "/base.v1.AiAssistantMessageService/RetryAiAssistantUserMessage"
 const OperationAiAssistantMessageServiceSendAiAssistantMessage = "/base.v1.AiAssistantMessageService/SendAiAssistantMessage"
+const OperationAiAssistantMessageServiceUpdateAiAssistantMessage = "/base.v1.AiAssistantMessageService/UpdateAiAssistantMessage"
 
 type AiAssistantMessageServiceHTTPServer interface {
 	// DeleteAiAssistantMessage 删除 AI 助手消息
@@ -34,12 +35,15 @@ type AiAssistantMessageServiceHTTPServer interface {
 	RetryAiAssistantUserMessage(context.Context, *RetryAiAssistantUserMessageRequest) (*SendAiAssistantMessageResponse, error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(context.Context, *SendAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
+	// UpdateAiAssistantMessage 更新 AI 助手消息并重新生成输出
+	UpdateAiAssistantMessage(context.Context, *UpdateAiAssistantMessageRequest) (*SendAiAssistantMessageResponse, error)
 }
 
 func RegisterAiAssistantMessageServiceHTTPServer(s *http.Server, srv AiAssistantMessageServiceHTTPServer) {
 	r := s.Route("/")
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantMessageService_SendAiAssistantMessage0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}", _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv))
+	r.PUT("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}", _AiAssistantMessageService_UpdateAiAssistantMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry", _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regeneration", _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler(srv))
 }
@@ -87,6 +91,31 @@ func _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv AiAss
 			return err
 		}
 		reply := out.(*DeleteAiAssistantMessageResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _AiAssistantMessageService_UpdateAiAssistantMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdateAiAssistantMessageRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAiAssistantMessageServiceUpdateAiAssistantMessage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateAiAssistantMessage(ctx, req.(*UpdateAiAssistantMessageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SendAiAssistantMessageResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -150,6 +179,8 @@ type AiAssistantMessageServiceHTTPClient interface {
 	RetryAiAssistantUserMessage(ctx context.Context, req *RetryAiAssistantUserMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
 	// SendAiAssistantMessage 发送 AI 助手消息
 	SendAiAssistantMessage(ctx context.Context, req *SendAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
+	// UpdateAiAssistantMessage 更新 AI 助手消息并重新生成输出
+	UpdateAiAssistantMessage(ctx context.Context, req *UpdateAiAssistantMessageRequest, opts ...http.CallOption) (rsp *SendAiAssistantMessageResponse, err error)
 }
 
 type AiAssistantMessageServiceHTTPClientImpl struct {
@@ -210,6 +241,20 @@ func (c *AiAssistantMessageServiceHTTPClientImpl) SendAiAssistantMessage(ctx con
 	opts = append(opts, http.Operation(OperationAiAssistantMessageServiceSendAiAssistantMessage))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// UpdateAiAssistantMessage 更新 AI 助手消息并重新生成输出
+func (c *AiAssistantMessageServiceHTTPClientImpl) UpdateAiAssistantMessage(ctx context.Context, in *UpdateAiAssistantMessageRequest, opts ...http.CallOption) (*SendAiAssistantMessageResponse, error) {
+	var out SendAiAssistantMessageResponse
+	pattern := "/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAiAssistantMessageServiceUpdateAiAssistantMessage))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

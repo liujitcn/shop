@@ -22,6 +22,7 @@
       :sending="sending"
       @submit="handleSubmit"
       @message-action="handleMessageAction"
+      @message-edit="handleEditMessage"
     />
   </div>
 </template>
@@ -56,7 +57,15 @@ import {
   sortMessages
 } from "./message";
 import { normalizeAiAssistantStreamItem } from "./stream";
-import type { AiAssistantStreamEvent, AiAssistantStreamPayload, ChatMessageAction, ChatMessageItem, SessionAction, SubmitPayload } from "./types";
+import type {
+  AiAssistantStreamEvent,
+  AiAssistantStreamPayload,
+  ChatMessageAction,
+  ChatMessageEditPayload,
+  ChatMessageItem,
+  SessionAction,
+  SubmitPayload
+} from "./types";
 
 defineOptions({
   name: "AiAssistant"
@@ -202,6 +211,47 @@ async function handleMessageAction(payload: { action: ChatMessageAction; item: C
     return;
   }
   await handleRetryMessage(payload.item);
+}
+
+/** 编辑当前用户消息文本，并重新生成同一轮助手输出。 */
+async function handleEditMessage(payload: ChatMessageEditPayload) {
+  const sessionID = activeSessionID.value;
+  const messageID = String(payload.item.id ?? "");
+  if (!sessionID || sending.value || !messageID || payload.item.role !== "user" || payload.item.localOnly) return;
+
+  sending.value = true;
+  stopSpeaking();
+  try {
+    const current = messages.value[sessionID] ?? [];
+    const updatedUserMessages = current.map<ChatMessageItem>(message => {
+      if (String(message.id) !== messageID || message.role !== "user") return message;
+      return {
+        ...message,
+        content: payload.content,
+        input_content: {
+          kind: message.input_content?.kind || "text",
+          content: payload.content
+        }
+      };
+    });
+    messages.value[sessionID] = markAssistantMessageRegenerating(updatedUserMessages, sessionID, messageID);
+
+    const response = await defAiAssistantMessageService.UpdateAiAssistantMessage({
+      session_id: sessionID,
+      message_id: messageID,
+      content: payload.content
+    });
+    const currentMessages = messages.value[sessionID] ?? [];
+    messages.value[sessionID] = replacePendingMessages(currentMessages, normalizeMessageList(response.messages));
+    if (response.session) upsertSession(normalizeSession(response.session));
+    ElMessage.success("已更新并重新生成");
+  } catch (error) {
+    await loadMessages(sessionID);
+    const message = error instanceof Error ? error.message : "更新消息失败";
+    ElMessage.error(message);
+  } finally {
+    sending.value = false;
+  }
 }
 
 /** 复制当前消息正文，保留用户原始输入或助手 Markdown 文本。 */

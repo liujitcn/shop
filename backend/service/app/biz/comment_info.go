@@ -85,15 +85,6 @@ func (c *CommentInfoCase) BuildFilterStats(ctx context.Context, goodsID int64) (
 	return stats, nil
 }
 
-// ListPreviewByGoodsID 查询商品评价预览列表。
-func (c *CommentInfoCase) ListPreviewByGoodsID(ctx context.Context, goodsID int64, previewLimit int32, userID int64) ([]*appv1.CommentItem, error) {
-	recordList, err := c.listByGoodsID(ctx, goodsID)
-	if err != nil {
-		return nil, err
-	}
-	return c.listPreviewByRecordList(ctx, recordList, previewLimit, userID)
-}
-
 // PageGoodsComment 查询商品评价分页列表。
 func (c *CommentInfoCase) PageGoodsComment(ctx context.Context, req *appv1.PageGoodsCommentRequest, userID int64) ([]*appv1.CommentItem, int32, error) {
 	recordList, err := c.listByGoodsID(ctx, req.GetGoodsId())

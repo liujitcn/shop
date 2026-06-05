@@ -24,6 +24,7 @@ const OperationAiAssistantMessageServiceDeleteAiAssistantMessage = "/base.v1.AiA
 const OperationAiAssistantMessageServiceRegenerateAiAssistantMessage = "/base.v1.AiAssistantMessageService/RegenerateAiAssistantMessage"
 const OperationAiAssistantMessageServiceRetryAiAssistantUserMessage = "/base.v1.AiAssistantMessageService/RetryAiAssistantUserMessage"
 const OperationAiAssistantMessageServiceSendAiAssistantMessage = "/base.v1.AiAssistantMessageService/SendAiAssistantMessage"
+const OperationAiAssistantMessageServiceUpdateAiAssistantMessage = "/base.v1.AiAssistantMessageService/UpdateAiAssistantMessage"
 
 // AiAssistantMessageServiceHTTPServer 定义 AI 助手消息发送 HTTP 服务。
 type AiAssistantMessageServiceHTTPServer interface {
@@ -35,6 +36,8 @@ type AiAssistantMessageServiceHTTPServer interface {
 	RetryAiAssistantUserMessage(context.Context, *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error)
 	// StreamAiAssistantMessage 流式发送 AI 助手消息。
 	StreamAiAssistantMessage(context.Context, *basev1.SendAiAssistantMessageRequest, dto.AiAssistantStreamEmitter) error
+	// UpdateAiAssistantMessage 更新 AI 助手消息并重新生成输出。
+	UpdateAiAssistantMessage(context.Context, *basev1.UpdateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error)
 }
 
 // RegisterAiAssistantMessageServiceHTTPServer 注册 AI 助手消息发送 HTTP 接口。
@@ -42,6 +45,7 @@ func RegisterAiAssistantMessageServiceHTTPServer(s *kratosHTTP.Server, srv AiAss
 	r := s.Route("/")
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message", _AiAssistantMessageService_SendAiAssistantMessage0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}", _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv))
+	r.PUT("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}", _AiAssistantMessageService_UpdateAiAssistantMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry", _AiAssistantMessageService_RetryAiAssistantUserMessage0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regeneration", _AiAssistantMessageService_RegenerateAiAssistantMessage0_HTTP_Handler(srv))
 }
@@ -101,6 +105,31 @@ func _AiAssistantMessageService_DeleteAiAssistantMessage0_HTTP_Handler(srv AiAss
 			return err
 		}
 		return ctx.Result(200, out.(*basev1.DeleteAiAssistantMessageResponse))
+	}
+}
+
+// _AiAssistantMessageService_UpdateAiAssistantMessage0_HTTP_Handler 处理 AI 助手消息文本更新请求。
+func _AiAssistantMessageService_UpdateAiAssistantMessage0_HTTP_Handler(srv AiAssistantMessageServiceHTTPServer) func(ctx kratosHTTP.Context) error {
+	return func(ctx kratosHTTP.Context) error {
+		var in basev1.UpdateAiAssistantMessageRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		kratosHTTP.SetOperation(ctx, OperationAiAssistantMessageServiceUpdateAiAssistantMessage)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdateAiAssistantMessage(ctx, req.(*basev1.UpdateAiAssistantMessageRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		return ctx.Result(200, out.(*basev1.SendAiAssistantMessageResponse))
 	}
 }
 

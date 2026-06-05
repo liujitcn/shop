@@ -228,6 +228,67 @@ func (*DeleteAiAssistantMessageResponse) Descriptor() ([]byte, []int) {
 	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{3}
 }
 
+// AI 助手消息更新请求
+type UpdateAiAssistantMessageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // 会话ID
+	MessageId     string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"` // 消息ID
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`                      // 更新后的消息内容
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateAiAssistantMessageRequest) Reset() {
+	*x = UpdateAiAssistantMessageRequest{}
+	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateAiAssistantMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateAiAssistantMessageRequest) ProtoMessage() {}
+
+func (x *UpdateAiAssistantMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateAiAssistantMessageRequest.ProtoReflect.Descriptor instead.
+func (*UpdateAiAssistantMessageRequest) Descriptor() ([]byte, []int) {
+	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdateAiAssistantMessageRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+func (x *UpdateAiAssistantMessageRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *UpdateAiAssistantMessageRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
 // AI 助手失败消息重试请求
 type RetryAiAssistantUserMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -239,7 +300,7 @@ type RetryAiAssistantUserMessageRequest struct {
 
 func (x *RetryAiAssistantUserMessageRequest) Reset() {
 	*x = RetryAiAssistantUserMessageRequest{}
-	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[4]
+	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -251,7 +312,7 @@ func (x *RetryAiAssistantUserMessageRequest) String() string {
 func (*RetryAiAssistantUserMessageRequest) ProtoMessage() {}
 
 func (x *RetryAiAssistantUserMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[4]
+	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -264,7 +325,7 @@ func (x *RetryAiAssistantUserMessageRequest) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use RetryAiAssistantUserMessageRequest.ProtoReflect.Descriptor instead.
 func (*RetryAiAssistantUserMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{4}
+	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RetryAiAssistantUserMessageRequest) GetSessionId() string {
@@ -292,7 +353,7 @@ type RegenerateAiAssistantMessageRequest struct {
 
 func (x *RegenerateAiAssistantMessageRequest) Reset() {
 	*x = RegenerateAiAssistantMessageRequest{}
-	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[5]
+	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -304,7 +365,7 @@ func (x *RegenerateAiAssistantMessageRequest) String() string {
 func (*RegenerateAiAssistantMessageRequest) ProtoMessage() {}
 
 func (x *RegenerateAiAssistantMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[5]
+	mi := &file_base_v1_ai_assistant_message_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -317,7 +378,7 @@ func (x *RegenerateAiAssistantMessageRequest) ProtoReflect() protoreflect.Messag
 
 // Deprecated: Use RegenerateAiAssistantMessageRequest.ProtoReflect.Descriptor instead.
 func (*RegenerateAiAssistantMessageRequest) Descriptor() ([]byte, []int) {
-	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{5}
+	return file_base_v1_ai_assistant_message_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RegenerateAiAssistantMessageRequest) GetSessionId() string {
@@ -352,7 +413,13 @@ const file_base_v1_ai_assistant_message_proto_rawDesc = "" +
 	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
 	"\n" +
 	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\"\"\n" +
-	" DeleteAiAssistantMessageResponse\"\x88\x01\n" +
+	" DeleteAiAssistantMessageResponse\"\xb9\x01\n" +
+	"\x1fUpdateAiAssistantMessageRequest\x12-\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
+	"\n" +
+	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId\x128\n" +
+	"\acontent\x18\x03 \x01(\tB\x1e\xbaG\x1b\x92\x02\x18更新后的消息内容R\acontent\"\x88\x01\n" +
 	"\"RetryAiAssistantUserMessageRequest\x12-\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x123\n" +
@@ -362,10 +429,11 @@ const file_base_v1_ai_assistant_message_proto_rawDesc = "" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +
 	"\n" +
-	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId2\xaa\x06\n" +
+	"message_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\tmessageId2\xea\a\n" +
 	"\x19AiAssistantMessageService\x12\xac\x01\n" +
 	"\x16SendAiAssistantMessage\x12&.base.v1.SendAiAssistantMessageRequest\x1a'.base.v1.SendAiAssistantMessageResponse\"A\x82\xd3\xe4\x93\x02;:\x01*\"6/api/v1/base/ai/assistant/session/{session_id}/message\x12\xbc\x01\n" +
-	"\x18DeleteAiAssistantMessage\x12(.base.v1.DeleteAiAssistantMessageRequest\x1a).base.v1.DeleteAiAssistantMessageResponse\"K\x82\xd3\xe4\x93\x02E*C/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}\x12\xc9\x01\n" +
+	"\x18DeleteAiAssistantMessage\x12(.base.v1.DeleteAiAssistantMessageRequest\x1a).base.v1.DeleteAiAssistantMessageResponse\"K\x82\xd3\xe4\x93\x02E*C/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}\x12\xbd\x01\n" +
+	"\x18UpdateAiAssistantMessage\x12(.base.v1.UpdateAiAssistantMessageRequest\x1a'.base.v1.SendAiAssistantMessageResponse\"N\x82\xd3\xe4\x93\x02H:\x01*\x1aC/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}\x12\xc9\x01\n" +
 	"\x1bRetryAiAssistantUserMessage\x12+.base.v1.RetryAiAssistantUserMessageRequest\x1a'.base.v1.SendAiAssistantMessageResponse\"T\x82\xd3\xe4\x93\x02N:\x01*\"I/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/retry\x12\xd2\x01\n" +
 	"\x1cRegenerateAiAssistantMessage\x12,.base.v1.RegenerateAiAssistantMessageRequest\x1a'.base.v1.SendAiAssistantMessageResponse\"[\x82\xd3\xe4\x93\x02U:\x01*\"P/api/v1/base/ai/assistant/session/{session_id}/message/{message_id}/regenerationB\x83\x01\n" +
 	"\vcom.base.v1B\x17AiAssistantMessageProtoP\x01Z\x1eshop/api/gen/go/base/v1;basev1\xa2\x02\x03BXX\xaa\x02\aBase.V1\xca\x02\aBase\\V1\xe2\x02\x13Base\\V1\\GPBMetadata\xea\x02\bBase::V1b\x06proto3"
@@ -382,32 +450,35 @@ func file_base_v1_ai_assistant_message_proto_rawDescGZIP() []byte {
 	return file_base_v1_ai_assistant_message_proto_rawDescData
 }
 
-var file_base_v1_ai_assistant_message_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_base_v1_ai_assistant_message_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_base_v1_ai_assistant_message_proto_goTypes = []any{
 	(*SendAiAssistantMessageRequest)(nil),       // 0: base.v1.SendAiAssistantMessageRequest
 	(*SendAiAssistantMessageResponse)(nil),      // 1: base.v1.SendAiAssistantMessageResponse
 	(*DeleteAiAssistantMessageRequest)(nil),     // 2: base.v1.DeleteAiAssistantMessageRequest
 	(*DeleteAiAssistantMessageResponse)(nil),    // 3: base.v1.DeleteAiAssistantMessageResponse
-	(*RetryAiAssistantUserMessageRequest)(nil),  // 4: base.v1.RetryAiAssistantUserMessageRequest
-	(*RegenerateAiAssistantMessageRequest)(nil), // 5: base.v1.RegenerateAiAssistantMessageRequest
-	(*AiAssistantAttachment)(nil),               // 6: base.v1.AiAssistantAttachment
-	(*AiAssistantMessage)(nil),                  // 7: base.v1.AiAssistantMessage
-	(*AiAssistantSession)(nil),                  // 8: base.v1.AiAssistantSession
+	(*UpdateAiAssistantMessageRequest)(nil),     // 4: base.v1.UpdateAiAssistantMessageRequest
+	(*RetryAiAssistantUserMessageRequest)(nil),  // 5: base.v1.RetryAiAssistantUserMessageRequest
+	(*RegenerateAiAssistantMessageRequest)(nil), // 6: base.v1.RegenerateAiAssistantMessageRequest
+	(*AiAssistantAttachment)(nil),               // 7: base.v1.AiAssistantAttachment
+	(*AiAssistantMessage)(nil),                  // 8: base.v1.AiAssistantMessage
+	(*AiAssistantSession)(nil),                  // 9: base.v1.AiAssistantSession
 }
 var file_base_v1_ai_assistant_message_proto_depIdxs = []int32{
-	6, // 0: base.v1.SendAiAssistantMessageRequest.attachments:type_name -> base.v1.AiAssistantAttachment
-	7, // 1: base.v1.SendAiAssistantMessageResponse.messages:type_name -> base.v1.AiAssistantMessage
-	8, // 2: base.v1.SendAiAssistantMessageResponse.session:type_name -> base.v1.AiAssistantSession
+	7, // 0: base.v1.SendAiAssistantMessageRequest.attachments:type_name -> base.v1.AiAssistantAttachment
+	8, // 1: base.v1.SendAiAssistantMessageResponse.messages:type_name -> base.v1.AiAssistantMessage
+	9, // 2: base.v1.SendAiAssistantMessageResponse.session:type_name -> base.v1.AiAssistantSession
 	0, // 3: base.v1.AiAssistantMessageService.SendAiAssistantMessage:input_type -> base.v1.SendAiAssistantMessageRequest
 	2, // 4: base.v1.AiAssistantMessageService.DeleteAiAssistantMessage:input_type -> base.v1.DeleteAiAssistantMessageRequest
-	4, // 5: base.v1.AiAssistantMessageService.RetryAiAssistantUserMessage:input_type -> base.v1.RetryAiAssistantUserMessageRequest
-	5, // 6: base.v1.AiAssistantMessageService.RegenerateAiAssistantMessage:input_type -> base.v1.RegenerateAiAssistantMessageRequest
-	1, // 7: base.v1.AiAssistantMessageService.SendAiAssistantMessage:output_type -> base.v1.SendAiAssistantMessageResponse
-	3, // 8: base.v1.AiAssistantMessageService.DeleteAiAssistantMessage:output_type -> base.v1.DeleteAiAssistantMessageResponse
-	1, // 9: base.v1.AiAssistantMessageService.RetryAiAssistantUserMessage:output_type -> base.v1.SendAiAssistantMessageResponse
-	1, // 10: base.v1.AiAssistantMessageService.RegenerateAiAssistantMessage:output_type -> base.v1.SendAiAssistantMessageResponse
-	7, // [7:11] is the sub-list for method output_type
-	3, // [3:7] is the sub-list for method input_type
+	4, // 5: base.v1.AiAssistantMessageService.UpdateAiAssistantMessage:input_type -> base.v1.UpdateAiAssistantMessageRequest
+	5, // 6: base.v1.AiAssistantMessageService.RetryAiAssistantUserMessage:input_type -> base.v1.RetryAiAssistantUserMessageRequest
+	6, // 7: base.v1.AiAssistantMessageService.RegenerateAiAssistantMessage:input_type -> base.v1.RegenerateAiAssistantMessageRequest
+	1, // 8: base.v1.AiAssistantMessageService.SendAiAssistantMessage:output_type -> base.v1.SendAiAssistantMessageResponse
+	3, // 9: base.v1.AiAssistantMessageService.DeleteAiAssistantMessage:output_type -> base.v1.DeleteAiAssistantMessageResponse
+	1, // 10: base.v1.AiAssistantMessageService.UpdateAiAssistantMessage:output_type -> base.v1.SendAiAssistantMessageResponse
+	1, // 11: base.v1.AiAssistantMessageService.RetryAiAssistantUserMessage:output_type -> base.v1.SendAiAssistantMessageResponse
+	1, // 12: base.v1.AiAssistantMessageService.RegenerateAiAssistantMessage:output_type -> base.v1.SendAiAssistantMessageResponse
+	8, // [8:13] is the sub-list for method output_type
+	3, // [3:8] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -425,7 +496,7 @@ func file_base_v1_ai_assistant_message_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_base_v1_ai_assistant_message_proto_rawDesc), len(file_base_v1_ai_assistant_message_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

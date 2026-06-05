@@ -396,7 +396,11 @@ paths:
                   in: query
                   schema:
                     type: boolean
-                - name: mcpToolName
+                - name: agentEnabled
+                  in: query
+                  schema:
+                    type: boolean
+                - name: toolName
                   in: query
                   schema:
                     type: string
@@ -447,6 +451,28 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/BaseApi'
+    /api/v1/admin/base/api/{id}/agent-enabled:
+        put:
+            tags:
+                - BaseApiService
+            description: 设置API Agent启用状态
+            operationId: BaseApiService_SetBaseApiAgentEnabled
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetBaseApiAgentEnabledRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api/{id}/doc:
         get:
             tags:
@@ -5555,6 +5581,35 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/SendAiAssistantMessageResponse'
     /api/v1/base/ai/assistant/session/{sessionId}/message/{messageId}:
+        put:
+            tags:
+                - AiAssistantMessageService
+            description: 更新 AI 助手消息并重新生成输出
+            operationId: AiAssistantMessageService_UpdateAiAssistantMessage
+            parameters:
+                - name: sessionId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: messageId
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateAiAssistantMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SendAiAssistantMessageResponse'
         delete:
             tags:
                 - AiAssistantMessageService
@@ -6216,9 +6271,12 @@ components:
                 mcpEnabled:
                     type: boolean
                     description: 是否暴露为MCP工具
-                mcpToolName:
+                agentEnabled:
+                    type: boolean
+                    description: 是否暴露为Agent工具
+                toolName:
                     type: string
-                    description: MCP工具名
+                    description: 工具名
             description: API
         BaseApiDoc:
             type: object
@@ -11172,6 +11230,16 @@ components:
                     type: string
                     description: 手机号
             description: 发送手机号验证码请求参数
+        SetBaseApiAgentEnabledRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: API ID
+                agentEnabled:
+                    type: boolean
+                    description: 是否暴露为Agent工具
+            description: API Agent启用状态设置条件
         SetBaseApiMcpEnabledRequest:
             type: object
             properties:
@@ -12187,6 +12255,19 @@ components:
                         $ref: '#/components/schemas/RouteItem'
                     description: 路由列表
             description: Route树响应
+        UpdateAiAssistantMessageRequest:
+            type: object
+            properties:
+                sessionId:
+                    type: string
+                    description: 会话ID
+                messageId:
+                    type: string
+                    description: 消息ID
+                content:
+                    type: string
+                    description: 更新后的消息内容
+            description: AI 助手消息更新请求
         UpdateAiAssistantSessionRequest:
             type: object
             properties:

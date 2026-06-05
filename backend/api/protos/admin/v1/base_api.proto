@@ -43,6 +43,14 @@ service BaseApiService {
       body: "*"
     };
   }
+
+  // 设置API Agent启用状态
+  rpc SetBaseApiAgentEnabled(SetBaseApiAgentEnabledRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/api/{id}/agent-enabled"
+      body: "*"
+    };
+  }
 }
 
 // API分页查询条件
@@ -61,7 +69,9 @@ message PageBaseApisRequest {
 
   optional bool mcp_enabled = 7 [(gnostic.openapi.v3.property) = {description: "是否暴露为MCP工具"}]; // 是否暴露为MCP工具
 
-  optional string mcp_tool_name = 8 [(gnostic.openapi.v3.property) = {description: "MCP工具名"}]; // MCP工具名
+  optional bool agent_enabled = 8 [(gnostic.openapi.v3.property) = {description: "是否暴露为Agent工具"}]; // 是否暴露为Agent工具
+
+  optional string tool_name = 9 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
 
@@ -92,6 +102,13 @@ message SetBaseApiMcpEnabledRequest {
   bool mcp_enabled = 2 [(gnostic.openapi.v3.property) = {description: "是否暴露为MCP工具"}]; // 是否暴露为MCP工具
 }
 
+// API Agent启用状态设置条件
+message SetBaseApiAgentEnabledRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  bool agent_enabled = 2 [(gnostic.openapi.v3.property) = {description: "是否暴露为Agent工具"}]; // 是否暴露为Agent工具
+}
+
 // API列表查询条件
 message ListBaseApisRequest {}
 
@@ -118,7 +135,9 @@ message BaseApi {
 
   bool mcp_enabled = 8 [(gnostic.openapi.v3.property) = {description: "是否暴露为MCP工具"}]; // 是否暴露为MCP工具
 
-  string mcp_tool_name = 9 [(gnostic.openapi.v3.property) = {description: "MCP工具名"}]; // MCP工具名
+  bool agent_enabled = 9 [(gnostic.openapi.v3.property) = {description: "是否暴露为Agent工具"}]; // 是否暴露为Agent工具
+
+  string tool_name = 10 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
 }
 
 // API文档
