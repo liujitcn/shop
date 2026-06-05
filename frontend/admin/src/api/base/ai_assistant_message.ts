@@ -13,6 +13,12 @@ import type {
 
 const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
 
+/** direct stream 请求控制选项。 */
+export type AiAssistantMessageStreamOptions = {
+  /** 外部取消信号，用于页面卸载或会话删除时终止流式请求。 */
+  signal?: AbortSignal;
+};
+
 /** 从 direct stream 错误响应中提取后端业务提示。 */
 async function resolveStreamErrorMessage(response: Response): Promise<string> {
   const fallbackMessage = `AI 助手请求失败（${response.status}）`;
@@ -33,8 +39,11 @@ async function resolveStreamErrorMessage(response: Response): Promise<string> {
   }
 }
 
-/** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供 useXStream 消费。 */
-export async function SendAiAssistantMessageStream(request: SendAiAssistantMessageRequest): Promise<Response> {
+/** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供调用方消费。 */
+export async function SendAiAssistantMessageStream(
+  request: SendAiAssistantMessageRequest,
+  options?: AiAssistantMessageStreamOptions
+): Promise<Response> {
   const accessToken = await getRequestAccessToken();
   const headers: Record<string, string> = {
     Accept: "text/event-stream",
@@ -45,7 +54,8 @@ export async function SendAiAssistantMessageStream(request: SendAiAssistantMessa
   const response = await fetch(`${requestBaseURL}${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`, {
     method: "POST",
     headers,
-    body: JSON.stringify(request)
+    body: JSON.stringify(request),
+    signal: options?.signal
   });
 
   // direct stream 不经过 axios 响应拦截器，需要在这里补齐登录失效处理。
@@ -116,9 +126,12 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     });
   }
 
-  /** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供 useXStream 消费。 */
-  async StreamAiAssistantMessage(request: SendAiAssistantMessageRequest): Promise<Response> {
-    return SendAiAssistantMessageStream(request);
+  /** 使用 direct stream 发送 AI 助手消息，并返回原始 Fetch Response 供调用方消费。 */
+  async StreamAiAssistantMessage(
+    request: SendAiAssistantMessageRequest,
+    options?: AiAssistantMessageStreamOptions
+  ): Promise<Response> {
+    return SendAiAssistantMessageStream(request, options);
   }
 }
 

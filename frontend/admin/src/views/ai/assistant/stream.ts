@@ -2,15 +2,18 @@ import type { AiAssistantStreamEvent, AiAssistantStreamEventName, AiAssistantStr
 
 const STREAM_EVENT_NAMES = new Set<AiAssistantStreamEventName>(["delta", "finish", "error"]);
 
-/** useXStream 解析后的 SSE 字段结构。 */
-type XStreamSseOutput = Partial<Record<"data" | "event" | "id" | "retry", unknown>>;
+/** 读取到的原始 SSE 字段结构。 */
+type SseOutput = Partial<Record<"data" | "event" | "id" | "retry", unknown>>;
+
+/** AI 助手事件流消费回调。 */
+type AiAssistantStreamEventHandler = (event: AiAssistantStreamEvent) => void;
 
 /** 判断 SSE 事件名称是否为 AI 助手 direct stream 支持的事件。 */
 function isAiAssistantStreamEventName(event?: unknown): event is AiAssistantStreamEventName {
   return STREAM_EVENT_NAMES.has(String(event ?? "").trim() as AiAssistantStreamEventName);
 }
 
-/** 解析 useXStream 产出的 SSE data 字段，兼容前导空格和空消息。 */
+/** 解析 SSE data 字段，兼容前导空格和空消息。 */
 function parseStreamPayload(data?: unknown): AiAssistantStreamPayload | null {
   const rawData = String(data ?? "").trimStart();
   if (!rawData) return null;
@@ -22,8 +25,8 @@ function parseStreamPayload(data?: unknown): AiAssistantStreamPayload | null {
   }
 }
 
-/** 将 useXStream 的原始 SSE 项收敛为业务事件，避免页面直接处理字符串 JSON。 */
-export function normalizeAiAssistantStreamItem(item?: XStreamSseOutput): AiAssistantStreamEvent | null {
+/** 将原始 SSE 项收敛为业务事件，避免页面直接处理字符串 JSON。 */
+export function normalizeAiAssistantStreamItem(item?: SseOutput): AiAssistantStreamEvent | null {
   if (!item || !isAiAssistantStreamEventName(item.event)) return null;
 
   const payload = parseStreamPayload(item.data);
@@ -33,4 +36,80 @@ export function normalizeAiAssistantStreamItem(item?: XStreamSseOutput): AiAssis
     event: String(item.event).trim() as AiAssistantStreamEventName,
     payload
   };
+}
+
+/** 读取并解析 AI 助手 direct stream，支持同一页面同时消费多条会话流。 */
+export async function readAiAssistantEventStream(
+  readableStream: ReadableStream<Uint8Array>,
+  handler: AiAssistantStreamEventHandler,
+  signal?: AbortSignal
+) {
+  const reader = readableStream.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let currentItem: SseOutput = {};
+
+  /** 分发当前累计的 SSE 事件。 */
+  function dispatchCurrentItem() {
+    const event = normalizeAiAssistantStreamItem(currentItem);
+    currentItem = {};
+    if (event) handler(event);
+  }
+
+  /** 按 SSE 行协议累积字段，空行代表一条事件结束。 */
+  function handleLine(line: string) {
+    if (line === "") {
+      dispatchCurrentItem();
+      return;
+    }
+    if (line.startsWith(":")) return;
+
+    const separatorIndex = line.indexOf(":");
+    const field = separatorIndex >= 0 ? line.slice(0, separatorIndex) : line;
+    let value = separatorIndex >= 0 ? line.slice(separatorIndex + 1) : "";
+    if (value.startsWith(" ")) value = value.slice(1);
+
+    if (field === "data") {
+      currentItem.data = currentItem.data === undefined ? value : `${currentItem.data}\n${value}`;
+      return;
+    }
+    if (field === "event" || field === "id" || field === "retry") {
+      currentItem[field] = value;
+    }
+  }
+
+  /** 消费缓冲区里的完整行，保留最后一个未结束的半行。 */
+  function consumeBuffer(flush = false) {
+    let lineBreakIndex = buffer.indexOf("\n");
+    while (lineBreakIndex >= 0) {
+      const line = buffer.slice(0, lineBreakIndex).replace(/\r$/, "");
+      buffer = buffer.slice(lineBreakIndex + 1);
+      handleLine(line);
+      lineBreakIndex = buffer.indexOf("\n");
+    }
+    if (flush && buffer) {
+      handleLine(buffer.replace(/\r$/, ""));
+      buffer = "";
+    }
+  }
+
+  const abortReader = () => {
+    void reader.cancel();
+  };
+  signal?.addEventListener("abort", abortReader, { once: true });
+  try {
+    while (true) {
+      if (signal?.aborted) break;
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      consumeBuffer();
+    }
+    buffer += decoder.decode();
+    consumeBuffer(true);
+    dispatchCurrentItem();
+  } finally {
+    signal?.removeEventListener("abort", abortReader);
+    reader.releaseLock();
+  }
 }

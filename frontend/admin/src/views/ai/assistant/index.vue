@@ -19,7 +19,7 @@
     <ChatPanel
       :active-session="activeSession"
       :messages="currentMessages"
-      :sending="sending"
+      :sending="currentSessionSending"
       @submit="handleSubmit"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
@@ -29,8 +29,7 @@
 
 <script setup lang="ts">
 import "vue-element-plus-x/styles/index.css";
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useXStream } from "vue-element-plus-x";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { DArrowRight } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { defAiAssistantMessageService } from "@/api/base/ai_assistant_message";
@@ -56,7 +55,7 @@ import {
   replacePendingMessages,
   sortMessages
 } from "./message";
-import { normalizeAiAssistantStreamItem } from "./stream";
+import { readAiAssistantEventStream } from "./stream";
 import type {
   AiAssistantStreamEvent,
   AiAssistantStreamPayload,
@@ -74,17 +73,23 @@ defineOptions({
 const sessionKeyword = ref("");
 const activeSessionID = ref("");
 const sessionPanelCollapsed = ref(false);
-const sending = ref(false);
+const sendingSessionMap = ref<Record<string, boolean>>({});
 const loadingSessions = ref(false);
 const loadingSessionID = ref("");
 const sessions = ref<AiAssistantSession[]>([]);
 const messages = ref<Record<string, ChatMessageItem[]>>({});
 const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>();
-const { startStream, cancel: cancelStream, data: streamData, error: streamError } = useXStream();
+const runningStreamTaskMap = new Map<string, AiAssistantStreamTask>();
 let pendingDeltaFrame = 0;
-let consumedStreamItemCount = 0;
-let streamFinished = false;
 let speakingMessageID = "";
+
+/** 当前会话的流式任务状态。 */
+type AiAssistantStreamTask = {
+  /** 用于取消当前 Fetch 与 ReadableStream 读取。 */
+  controller: AbortController;
+  /** 是否已收到 finish 或 error 事件。 */
+  finished: boolean;
+};
 
 const filteredSessions = computed(() => {
   const keyword = sessionKeyword.value.trim();
@@ -96,9 +101,12 @@ const activeSession = computed(() => sessions.value.find(item => item.id === act
 
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? []);
 
+const currentSessionSending = computed(() => isSessionSending(activeSessionID.value));
+
 /** 切换会话时同步当前活动会话。 */
 function handleSessionChange(item: AiAssistantSession) {
   activeSessionID.value = item.id;
+  if (isSessionSending(item.id) && messages.value[item.id]?.length) return;
   void loadMessages(item.id);
 }
 
@@ -133,14 +141,7 @@ async function handleCreateSession() {
 
 /** 提交用户输入并同步消息流。 */
 async function handleSubmit(payload: SubmitPayload) {
-  // 已有发送中的请求时，直接忽略重复提交，避免同一轮输入被并发发送多次。
-  if (sending.value) return;
-  sending.value = true;
-  try {
-    await sendAiAssistantPayload(payload);
-  } finally {
-    sending.value = false;
-  }
+  void sendAiAssistantPayload(payload);
 }
 
 /** 执行真实发送流程，复用于输入框提交和本地失败重发。 */
@@ -149,15 +150,26 @@ async function sendAiAssistantPayload(payload: SubmitPayload) {
   if (!sessionID) {
     return false;
   }
+  // 同一个会话内仍然串行发送，避免历史上下文和消息顺序被并发请求打乱。
+  if (isSessionSending(sessionID)) return false;
 
   const localUserMessage = createLocalUserMessage(payload);
   const thinkingMessage = createThinkingMessage({ sessionID });
   messages.value[sessionID] = sortMessages([...(messages.value[sessionID] ?? []), localUserMessage, thinkingMessage]);
+  setSessionSending(sessionID, true);
+  void runAiAssistantStreamTask(sessionID, payload);
+  return true;
+}
+
+/** 后台消费单个会话的 direct stream，不阻塞其他会话输入。 */
+async function runAiAssistantStreamTask(sessionID: string, payload: SubmitPayload) {
+  const controller = new AbortController();
+  const task: AiAssistantStreamTask = {
+    controller,
+    finished: false
+  };
+  runningStreamTaskMap.set(sessionID, task);
   try {
-    consumedStreamItemCount = 0;
-    streamFinished = false;
-    // useXStream 每次 startStream 会重置内部 data；这里提前对齐游标，避免旧数据长度影响本轮消费。
-    streamData.value = [];
     const response = await defAiAssistantMessageService.StreamAiAssistantMessage({
       session_id: sessionID,
       content: payload.text,
@@ -168,27 +180,31 @@ async function sendAiAssistantPayload(payload: SubmitPayload) {
         url: item.url,
         mime_type: item.mime_type
       }))
+    }, {
+      signal: controller.signal
     });
 
     if (!response.body) {
       throw new Error("AI 助手流式响应为空");
     }
-    await startStream({ readableStream: response.body });
-    consumeStreamItems();
-    if (streamError.value) {
-      throw streamError.value;
-    }
-    if (!streamFinished) {
+    await readAiAssistantEventStream(response.body, event => {
+      handleAiAssistantStreamEvent(event, task);
+    }, controller.signal);
+    if (!task.finished && !controller.signal.aborted) {
       throw new Error("AI 助手流式响应未完整返回");
     }
-    return true;
   } catch (error) {
+    if (controller.signal.aborted) return;
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
       sessionID
     });
     const message = error instanceof Error ? error.message : "AI 助手请求失败";
     ElMessage.error(message);
-    return false;
+  } finally {
+    if (runningStreamTaskMap.get(sessionID) === task) {
+      runningStreamTaskMap.delete(sessionID);
+      setSessionSending(sessionID, false);
+    }
   }
 }
 
@@ -217,9 +233,9 @@ async function handleMessageAction(payload: { action: ChatMessageAction; item: C
 async function handleEditMessage(payload: ChatMessageEditPayload) {
   const sessionID = activeSessionID.value;
   const messageID = String(payload.item.id ?? "");
-  if (!sessionID || sending.value || !messageID || payload.item.role !== "user" || payload.item.localOnly) return;
+  if (!sessionID || isSessionSending(sessionID) || !messageID || payload.item.role !== "user" || payload.item.localOnly) return;
 
-  sending.value = true;
+  setSessionSending(sessionID, true);
   stopSpeaking();
   try {
     const current = messages.value[sessionID] ?? [];
@@ -246,11 +262,11 @@ async function handleEditMessage(payload: ChatMessageEditPayload) {
     if (response.session) upsertSession(normalizeSession(response.session));
     ElMessage.success("已更新并重新生成");
   } catch (error) {
-    await loadMessages(sessionID);
+    await loadMessages(sessionID, { force: true });
     const message = error instanceof Error ? error.message : "更新消息失败";
     ElMessage.error(message);
   } finally {
-    sending.value = false;
+    setSessionSending(sessionID, false);
   }
 }
 
@@ -291,9 +307,8 @@ async function handleDeleteMessage(item: ChatMessageItem) {
 /** 重试失败的一轮消息，或重新生成助手输出。 */
 async function handleRetryMessage(item: ChatMessageItem) {
   const sessionID = activeSessionID.value;
-  if (!sessionID || sending.value) return;
+  if (!sessionID || isSessionSending(sessionID)) return;
 
-  sending.value = true;
   try {
     let response;
     if (item.localOnly) {
@@ -308,6 +323,7 @@ async function handleRetryMessage(item: ChatMessageItem) {
       }
       return;
     }
+    setSessionSending(sessionID, true);
     if (item.role === "user") {
       if (item.status !== AiAssistantMessageStatus.FAILED_AAMS) {
         ElMessage.warning("只有发送失败的消息可以重新发送");
@@ -329,11 +345,13 @@ async function handleRetryMessage(item: ChatMessageItem) {
     if (response.session) upsertSession(normalizeSession(response.session));
     ElMessage.success(item.role === "user" ? "已重新发送" : "已重新生成");
   } catch (error) {
-    if (item.role !== "user") await loadMessages(sessionID);
+    if (item.role !== "user") await loadMessages(sessionID, { force: true });
     const message = error instanceof Error ? error.message : "重新生成失败";
     ElMessage.error(message);
   } finally {
-    sending.value = false;
+    if (!item.localOnly) {
+      setSessionSending(sessionID, false);
+    }
   }
 }
 
@@ -429,6 +447,38 @@ function markAllMessagesSpeaking(messageID?: string) {
   });
 }
 
+/** 判断指定会话是否存在未完成的发送任务。 */
+function isSessionSending(sessionID: string) {
+  return Boolean(sessionID && sendingSessionMap.value[sessionID]);
+}
+
+/** 更新单个会话的发送状态，避免后台会话阻塞当前会话输入。 */
+function setSessionSending(sessionID: string, sending: boolean) {
+  if (!sessionID) return;
+  const nextMap = { ...sendingSessionMap.value };
+  if (sending) {
+    nextMap[sessionID] = true;
+  } else {
+    delete nextMap[sessionID];
+  }
+  sendingSessionMap.value = nextMap;
+}
+
+/** 取消指定会话仍在后台读取的流式任务。 */
+function cancelSessionStreamTask(sessionID: string) {
+  const task = runningStreamTaskMap.get(sessionID);
+  if (!task) return;
+  task.finished = true;
+  task.controller.abort();
+  runningStreamTaskMap.delete(sessionID);
+  setSessionSending(sessionID, false);
+}
+
+/** 取消页面内所有后台流式任务。 */
+function cancelAllStreamTasks() {
+  Array.from(runningStreamTaskMap.keys()).forEach(sessionID => cancelSessionStreamTask(sessionID));
+}
+
 /** 处理 AI 助手流式文本增量。 */
 function handleAiAssistantDelta(payload: AiAssistantStreamPayload) {
   if (!hasStreamingDelta(payload)) return;
@@ -436,10 +486,10 @@ function handleAiAssistantDelta(payload: AiAssistantStreamPayload) {
 }
 
 /** 处理 AI 助手流式结束事件。 */
-function handleAiAssistantFinish(payload: AiAssistantStreamPayload) {
+function handleAiAssistantFinish(payload: AiAssistantStreamPayload, task?: AiAssistantStreamTask) {
   const sessionID = String(payload.session_id ?? "");
   if (!sessionID) return;
-  streamFinished = true;
+  if (task) task.finished = true;
   flushAiAssistantDelta();
   const nextMessages = normalizeMessageList(payload.messages as never[]);
   const current = messages.value[sessionID] ?? [];
@@ -454,10 +504,10 @@ function handleAiAssistantFinish(payload: AiAssistantStreamPayload) {
 }
 
 /** 处理 AI 助手流式异常事件。 */
-function handleAiAssistantError(payload: AiAssistantStreamPayload) {
+function handleAiAssistantError(payload: AiAssistantStreamPayload, task?: AiAssistantStreamTask) {
   const sessionID = String(payload.session_id ?? "");
   if (!sessionID || !messages.value[sessionID]) return;
-  streamFinished = true;
+  if (task) task.finished = true;
   flushAiAssistantDelta();
   const nextMessages = normalizeMessageList(payload.messages as never[]);
   if (nextMessages.length) {
@@ -468,29 +518,18 @@ function handleAiAssistantError(payload: AiAssistantStreamPayload) {
   messages.value[sessionID] = markStreamingError(streamingMessages, payload);
 }
 
-/** 根据 useXStream 解析结果派发 AI 助手 direct stream 事件。 */
-function handleAiAssistantStreamEvent(event: AiAssistantStreamEvent) {
+/** 根据解析结果派发 AI 助手 direct stream 事件。 */
+function handleAiAssistantStreamEvent(event: AiAssistantStreamEvent, task?: AiAssistantStreamTask) {
   switch (event.event) {
     case "delta":
       handleAiAssistantDelta(event.payload);
       break;
     case "finish":
-      handleAiAssistantFinish(event.payload);
+      handleAiAssistantFinish(event.payload, task);
       break;
     case "error":
-      handleAiAssistantError(event.payload);
+      handleAiAssistantError(event.payload, task);
       break;
-  }
-}
-
-/** 消费 useXStream 追加的数据项，避免同一个 SSE 片段被重复处理。 */
-function consumeStreamItems() {
-  const items = streamData.value.slice(consumedStreamItemCount);
-  consumedStreamItemCount = streamData.value.length;
-  for (const item of items) {
-    const event = normalizeAiAssistantStreamItem(item);
-    if (!event) continue;
-    handleAiAssistantStreamEvent(event);
   }
 }
 
@@ -550,8 +589,9 @@ async function ensureSessionsLoaded() {
 }
 
 /** 加载指定会话的消息记录。 */
-async function loadMessages(sessionID: string) {
+async function loadMessages(sessionID: string, options?: { force?: boolean }) {
   if (!sessionID) return;
+  if (!options?.force && isSessionSending(sessionID) && messages.value[sessionID]?.length) return;
 
   loadingSessionID.value = sessionID;
   try {
@@ -593,6 +633,7 @@ async function handleDeleteSession(item: AiAssistantSession) {
   });
 
   await defAiAssistantSessionService.DeleteAiAssistantSession({ id: item.id });
+  cancelSessionStreamTask(item.id);
   sessions.value = sessions.value.filter(session => session.id !== item.id);
   delete messages.value[item.id];
 
@@ -649,18 +690,9 @@ onMounted(() => {
   void ensureSessionsLoaded();
 });
 
-/** 监听 useXStream 数据长度变化，逐条处理 direct stream SSE 事件。 */
-watch(
-  () => streamData.value.length,
-  () => {
-    consumeStreamItems();
-  },
-  { flush: "sync" }
-);
-
 onBeforeUnmount(() => {
   stopSpeaking();
-  cancelStream();
+  cancelAllStreamTasks();
   if (pendingDeltaFrame) {
     window.cancelAnimationFrame(pendingDeltaFrame);
     pendingDeltaFrame = 0;

@@ -149,27 +149,20 @@
                     </button>
                   </el-tooltip>
                 </template>
-              </div>
-              <div v-if="isEditingMessage(item)" class="agent-message-edit">
-                <el-input
-                  v-model="editingContent"
-                  class="agent-message-edit__input"
-                  type="textarea"
-                  resize="none"
-                  :autosize="{ minRows: 3, maxRows: 8 }"
-                  :disabled="sending"
-                  @keydown.ctrl.enter.prevent="submitMessageEdit(item)"
-                  @keydown.meta.enter.prevent="submitMessageEdit(item)"
-                />
-                <div class="agent-message-edit__footer">
-                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">取消</el-button>
-                  <el-button size="small" type="primary" :loading="sending" @click="submitMessageEdit(item)">发送</el-button>
-                </div>
-              </div>
-              <div v-if="item.role !== 'user' && hasAssistantUsage(item)" class="agent-message-runtime">
-                <el-popover popper-class="agent-message-runtime-popover" placement="top-end" trigger="hover" width="260">
+                <el-popover
+                  v-if="item.role !== 'user' && hasAssistantUsage(item)"
+                  popper-class="agent-message-runtime-popover"
+                  placement="top"
+                  trigger="hover"
+                  width="260"
+                >
                   <template #reference>
-                    <button class="agent-message-runtime-trigger" type="button" aria-label="查看运行明细">
+                    <button
+                      class="agent-message-action agent-message-runtime-trigger"
+                      type="button"
+                      aria-label="查看运行明细"
+                      :disabled="item.progressState === 'streaming'"
+                    >
                       <el-icon><DataAnalysis /></el-icon>
                       <span v-if="resolveTokenTotal(item) > 0">{{ formatCompactNumber(resolveTokenTotal(item)) }}</span>
                       <span v-if="item.duration_ms > 0">{{ formatDurationMs(item.duration_ms) }}</span>
@@ -209,6 +202,22 @@
                     </div>
                   </div>
                 </el-popover>
+              </div>
+              <div v-if="isEditingMessage(item)" class="agent-message-edit">
+                <el-input
+                  v-model="editingContent"
+                  class="agent-message-edit__input"
+                  type="textarea"
+                  resize="none"
+                  :autosize="{ minRows: 3, maxRows: 8 }"
+                  :disabled="sending"
+                  @keydown.ctrl.enter.prevent="submitMessageEdit(item)"
+                  @keydown.meta.enter.prevent="submitMessageEdit(item)"
+                />
+                <div class="agent-message-edit__footer">
+                  <el-button size="small" :disabled="sending" @click="cancelMessageEdit">取消</el-button>
+                  <el-button size="small" type="primary" :loading="sending" @click="submitMessageEdit(item)">发送</el-button>
+                </div>
               </div>
             </div>
           </template>
@@ -578,9 +587,9 @@ function handleToolCollapseUpdate(item: ChatMessageItem, value: ToolCollapseValu
   };
 }
 
-/** 返回需要展示在消息内容区的工具记录，避免非 function 工具被静默隐藏。 */
+/** 返回需要展示在消息内容区的 function 工具记录，过滤联网搜索等 server 工具。 */
 function resolveVisibleTools(item: ChatMessageItem) {
-  return (item.tools ?? []).filter(tool => String(tool.name || tool.title || tool.type).trim());
+  return (item.tools ?? []).filter(tool => tool.type === "function" && String(tool.name || tool.title).trim());
 }
 
 /** 生成工具展示名称。 */
@@ -834,6 +843,17 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
     width: fit-content;
     max-width: 100%;
     margin-top: 2px;
+  }
+  :deep(.elx-bubble__content-wrapper:hover .elx-bubble__footer),
+  :deep(.elx-bubble__content-wrapper:focus-within .elx-bubble__footer) {
+    pointer-events: auto;
+    opacity: 1;
+  }
+  :deep(.elx-bubble__content-wrapper:hover .agent-message-footer),
+  :deep(.elx-bubble__content-wrapper:focus-within .agent-message-footer) {
+    pointer-events: auto;
+    opacity: 1;
+    visibility: visible;
   }
   :deep(.elx-bubble--start .elx-bubble__content-wrapper .elx-bubble__content) {
     box-sizing: border-box;
@@ -1205,7 +1225,7 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 .agent-message-footer {
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   width: var(--agent-message-footer-width, fit-content);
@@ -1213,6 +1233,19 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   min-width: min(360px, 100%);
   padding: 0;
   margin-top: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 0.16s ease,
+    visibility 0.16s ease;
+  visibility: hidden;
+}
+.agent-message-footer:hover,
+.agent-message-footer:focus-within,
+.agent-message-footer.is-editing {
+  pointer-events: auto;
+  opacity: 1;
+  visibility: visible;
 }
 .agent-message-footer.is-editing {
   grid-template-columns: minmax(0, 1fr);
@@ -1230,46 +1263,6 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   justify-self: end;
   width: min(380px, 100%);
   min-width: min(320px, 100%);
-}
-.agent-message-runtime {
-  display: flex;
-  justify-self: end;
-  justify-content: flex-end;
-  min-width: 0;
-}
-.agent-message-runtime-trigger {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  max-width: 100%;
-  height: 28px;
-  gap: 6px;
-  padding: 0 0 0 8px;
-  overflow: hidden;
-  font-size: 12px;
-  line-height: 1;
-  color: var(--admin-page-text-secondary);
-  cursor: pointer;
-  background: transparent;
-  border: 0;
-  border-radius: var(--admin-page-radius);
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
-  &:hover {
-    color: var(--el-color-primary);
-    background: var(--el-fill-color-light);
-  }
-  .el-icon {
-    flex: 0 0 auto;
-    font-size: 15px;
-  }
-  span {
-    max-width: 70px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 .agent-message-actions {
   display: inline-flex;
@@ -1347,6 +1340,26 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 .agent-message-action :deep(.agent-message-action__custom-icon) {
   width: 16px;
   height: 16px;
+}
+.agent-message-action.agent-message-runtime-trigger {
+  flex: 0 0 auto;
+  gap: 6px;
+  width: fit-content;
+  min-width: 0;
+  max-width: 150px;
+  padding: 0 6px;
+  overflow: hidden;
+  font-size: 12px;
+  :deep(.el-icon) {
+    flex: 0 0 auto;
+    font-size: 15px;
+  }
+  span {
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 .agent-sender-wrap {
   position: absolute;
