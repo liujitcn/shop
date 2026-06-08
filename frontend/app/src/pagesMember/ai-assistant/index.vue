@@ -1,20 +1,24 @@
 <script setup lang="ts">
+import { onLoad } from '@dcloudio/uni-app'
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { defAiAssistantMessageService } from '@/api/base/ai_assistant_message'
+import { defAiAssistantSessionService } from '@/api/base/ai_assistant_session'
 import type {
+  AiAssistantAttachment,
   AiAssistantMessage,
   AiAssistantSession,
   AiAssistantTool,
 } from '@/rpc/base/v1/ai_assistant_session'
 import { AiAssistantMessageStatus, Terminal } from '@/rpc/common/v1/enum'
-import { computed, ref } from 'vue'
+import { uploadFileList } from '@/utils/file'
+import { formatSrc } from '@/utils/index'
+import {
+  type AiAssistantStreamEvent,
+  type AiAssistantStreamPayload,
+  readAiAssistantEventStream,
+} from './stream'
 
 type ChatRole = 'user' | 'assistant'
-
-type ProductCard = {
-  id: string
-  name: string
-  tag: string
-  price: string
-}
 
 type MessageActionKey = 'retry' | 'speak' | 'copy' | 'delete' | 'edit' | 'branch'
 type SessionActionKey = 'rename' | 'delete'
@@ -51,8 +55,8 @@ type PressEvent = {
   changedTouches?: PressPoint[]
 }
 
-type ChatMessageItem = {
-  id: string
+type ChatMessageItem = AiAssistantMessage & {
+  key: string
   messageID: string
   role: ChatRole
   content: string
@@ -60,11 +64,31 @@ type ChatMessageItem = {
   tools: AiAssistantTool[]
   model: string
   replySource: string
+  fallback: boolean
+  fallbackReason: string
   tokenTotal: number
   firstTokenMs: number
   durationMs: number
-  products: ProductCard[]
+  localOnly?: boolean
+  streamKey?: string
+  speaking?: boolean
 }
+
+type SubmitPayload = {
+  text: string
+  attachments: AiAssistantAttachment[]
+}
+
+type StreamTask = {
+  controller: AbortController
+  finished: boolean
+}
+
+const THINKING_MESSAGE_CONTENT = '正在整理回复'
+const LOCAL_USER_MESSAGE_PREFIX = 'assistant-user-local'
+const PENDING_MESSAGE_ID = 'pending'
+const MAX_ATTACHMENT_COUNT = 6
+const AI_ASSISTANT_TERMINAL = Terminal.TERMINAL_APP
 
 const systemInfo = uni.getSystemInfoSync()
 const { safeAreaInsets } = systemInfo
@@ -73,7 +97,7 @@ const drawerTopPadding = `${(safeAreaInsets?.top || 0) + 12}px`
 const windowWidth = systemInfo.windowWidth || systemInfo.screenWidth || 375
 const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight || 667
 const showSessionDrawer = ref(false)
-const activeSessionID = ref('1001')
+const activeSessionID = ref('')
 const inputText = ref('')
 const isRecording = ref(false)
 const sessionKeyword = ref('')
@@ -85,277 +109,62 @@ const editingContent = ref('')
 const actionMessageKey = ref('')
 const actionSessionID = ref('')
 const ignoredTapSessionID = ref('')
+const loadingSessions = ref(false)
+const loadingSessionID = ref('')
+const uploadingAttachment = ref(false)
+const sendingSessionMap = ref<Record<string, boolean>>({})
+const sessions = ref<AiAssistantSession[]>([])
+const messages = ref<Record<string, ChatMessageItem[]>>({})
+const selectedAttachments = ref<AiAssistantAttachment[]>([])
+const runningStreamTaskMap = new Map<string, StreamTask>()
+const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>()
+let speakingMessageKey = ''
+let pendingDeltaTimer = 0
 const operationPoint = ref({
   x: Math.round(windowWidth / 2),
   y: Math.round(windowHeight / 2),
 })
 
-const mockSessions = ref<AiAssistantSession[]>([
-  {
-    id: '1001',
-    title: '618 送礼选品',
-    summary: '围绕预算、时效和评价筛选',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1002',
-    title: '订单和售后咨询',
-    summary: '查物流、退款进度',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1003',
-    title: '商品对比',
-    summary: '规格、价格、服务',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1004',
-    title: '水果礼盒配送',
-    summary: '确认同城仓、次日达和收货时间',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1005',
-    title: '售后政策整理',
-    summary: '退换货条件、服务承诺和凭证准备',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1006',
-    title: '购物车凑单',
-    summary: '满减门槛、优惠券和组合推荐',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1007',
-    title: '评价摘要',
-    summary: '提炼近期好评、差评和风险点',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1008',
-    title: '订单物流查询',
-    summary: '跟进发货节点和配送异常',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-  {
-    id: '1009',
-    title: '家用小电器推荐',
-    summary: '按预算、品牌、售后筛选',
-    updated_at: undefined,
-    terminal: Terminal.TERMINAL_APP,
-  },
-])
-
-const recommendedProducts: ProductCard[] = [
-  {
-    id: 'goods-1',
-    name: '时令水果礼盒',
-    tag: '次日达 · 评价稳定',
-    price: '¥199',
-  },
-  {
-    id: 'goods-2',
-    name: '便携按摩仪',
-    tag: '售后无忧',
-    price: '¥269',
-  },
-]
-
-const mockMessages = ref<Record<string, AiAssistantMessage[]>>({
-  '1001': [
-    {
-      id: '5001',
-      input_content: {
-        kind: 'text',
-        content: '预算 300 元以内，适合送长辈的礼物？',
-      },
-      output_content: {
-        kind: 'markdown',
-        content: '优先看库存稳定、售后简单、评价波动小的商品。下面这两类更适合送长辈：',
-        reply_source: 'llm',
-        model: 'gpt-4.1-mini',
-        fallback: false,
-        fallback_reason: '',
-      },
-      attachments: [],
-      created_at: undefined,
-      status: AiAssistantMessageStatus.SUCCESS_AAMS,
-      token: {
-        input: 1280,
-        output: 462,
-        cache: 256,
-        total: 1998,
-      },
-      tools: [
-        {
-          type: 'function',
-          name: 'app_v1_recommend_service_recommend_goods',
-          title: '商品推荐',
-          status: 'success',
-          input: '{"scene":"PROFILE","page_size":3}',
-          output: '{"goods_infos":[{"name":"时令水果礼盒"},{"name":"便携按摩仪"}]}',
-        },
-        {
-          type: 'function',
-          name: 'app_v1_goods_info_service_page_goods_info',
-          title: '商品检索',
-          status: 'success',
-          input: '{"keyword":"礼盒","page_size":5}',
-          output: '{"total":24}',
-        },
-      ],
-      first_token_ms: 680,
-      duration_ms: 3200,
-    },
-    {
-      id: '5002',
-      input_content: {
-        kind: 'text',
-        content: '如果对方更看重配送速度和售后，应该怎么排序？',
-      },
-      output_content: {
-        kind: 'markdown',
-        content:
-          '建议把筛选优先级调整为：本地仓库存、服务标签、近期评价、退换政策。价格只作为最后一层约束，避免为了低价牺牲履约稳定性。',
-        reply_source: 'llm',
-        model: 'gpt-4.1-mini',
-        fallback: false,
-        fallback_reason: '',
-      },
-      attachments: [],
-      created_at: undefined,
-      status: AiAssistantMessageStatus.SUCCESS_AAMS,
-      token: {
-        input: 820,
-        output: 214,
-        cache: 0,
-        total: 1034,
-      },
-      tools: [
-        {
-          type: 'function',
-          name: 'app_v1_goods_info_service_page_goods_info',
-          title: '商品检索',
-          status: 'success',
-          input: '{"delivery":"next_day","service":"after_sale"}',
-          output: '{"total":12}',
-        },
-      ],
-      first_token_ms: 430,
-      duration_ms: 1800,
-    },
-    {
-      id: '5003',
-      input_content: {
-        kind: 'text',
-        content: '帮我总结成下单前确认清单。',
-      },
-      output_content: {
-        kind: 'markdown',
-        content:
-          '下单前建议确认：\n1. 商品是否支持次日达或预约配送；\n2. 是否有明确退换说明；\n3. 近 30 天评价是否集中出现包装、破损、延迟问题；\n4. 收货地址是否在服务范围内；\n5. 礼盒类商品是否需要备注祝福卡或发票。',
-        reply_source: 'llm',
-        model: 'gpt-4.1-mini',
-        fallback: false,
-        fallback_reason: '',
-      },
-      attachments: [],
-      created_at: undefined,
-      status: AiAssistantMessageStatus.SUCCESS_AAMS,
-      token: {
-        input: 940,
-        output: 310,
-        cache: 0,
-        total: 1250,
-      },
-      tools: [],
-      first_token_ms: 520,
-      duration_ms: 0,
-    },
-  ],
-  '1002': [],
-  '1003': [],
-  '1004': [],
-  '1005': [],
-  '1006': [],
-  '1007': [],
-  '1008': [],
-  '1009': [],
-})
-
 const filteredSessions = computed(() => {
-  if (!sessionKeyword.value) {
-    return mockSessions.value
+  const keyword = sessionKeyword.value
+  if (!keyword) {
+    return sessions.value
   }
-  return mockSessions.value.filter(
-    (item) =>
-      item.title.includes(sessionKeyword.value) || item.summary.includes(sessionKeyword.value),
+  return sessions.value.filter(
+    (item) => item.title.includes(keyword) || item.summary.includes(keyword),
   )
 })
 
-const currentMessages = computed(() => mockMessages.value[activeSessionID.value] ?? [])
-
-const chatMessages = computed<ChatMessageItem[]>(() => {
-  return currentMessages.value.flatMap((item) => [
-    {
-      id: `${item.id}:user`,
-      messageID: item.id,
-      role: 'user',
-      content: item.input_content?.content ?? '',
-      status: item.status,
-      tools: [],
-      model: '',
-      replySource: '',
-      tokenTotal: 0,
-      firstTokenMs: 0,
-      durationMs: 0,
-      products: [],
-    },
-    {
-      id: `${item.id}:assistant`,
-      messageID: item.id,
-      role: 'assistant',
-      content: item.output_content?.content ?? '',
-      status: item.status,
-      tools: item.tools,
-      model: item.output_content?.model ?? '',
-      replySource: item.output_content?.reply_source ?? '',
-      tokenTotal: item.token?.total ?? 0,
-      firstTokenMs: item.first_token_ms,
-      durationMs: item.duration_ms,
-      products: item.id === '5001' ? recommendedProducts : [],
-    },
-  ])
-})
-
-const hasMessages = computed(() => chatMessages.value.length > 0)
+const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
+const hasMessages = computed(() => currentMessages.value.length > 0)
+const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
 
 const actionMessage = computed(() => {
-  return chatMessages.value.find((item) => item.id === actionMessageKey.value)
+  return currentMessages.value.find((item) => item.key === actionMessageKey.value)
 })
 
 const actionSession = computed(() => {
-  return mockSessions.value.find((item) => item.id === actionSessionID.value)
+  return sessions.value.find((item) => item.id === actionSessionID.value)
 })
 
 const composerPlaceholder = computed(() => {
   if (isRecording.value) {
     return '正在听...'
   }
+  if (uploadingAttachment.value) {
+    return '附件上传中...'
+  }
   return hasMessages.value ? '继续追问或补充预算' : '问问商城 AI 助手'
 })
 
-const isSubmitDisabled = computed(() => inputText.value.length === 0 || isRecording.value)
+const isSubmitDisabled = computed(() => {
+  return (
+    uploadingAttachment.value ||
+    currentSessionSending.value ||
+    isRecording.value ||
+    (!inputText.value && selectedAttachments.value.length === 0)
+  )
+})
 
 const messageOperationActions = computed(() => {
   if (!actionMessage.value) {
@@ -373,7 +182,7 @@ const operationMenuCount = computed(() => {
 
 const operationSheetStyle = computed(() => {
   const menuWidth = Math.min(224, windowWidth - 32)
-  const titleHeight = actionSession.value ? 30 : 0
+  const titleHeight = actionMessage.value || actionSession.value ? 30 : 0
   const itemHeight = 40
   const menuHeight = titleHeight + operationMenuCount.value * itemHeight + 12
   const horizontalInset = 12
@@ -396,12 +205,25 @@ const operationSheetStyle = computed(() => {
   }
 })
 
-const lastEditableUserMessageID = computed(() => {
-  const lastMessage = currentMessages.value[currentMessages.value.length - 1]
+const lastEditableUserMessageKey = computed(() => {
+  const list = currentMessages.value
+    .filter((item) => item.role === 'user' && !item.localOnly)
+    .sort((left, right) => resolveTimestamp(left.created_at) - resolveTimestamp(right.created_at))
+  const lastMessage = list[list.length - 1]
   if (!lastMessage || lastMessage.status === AiAssistantMessageStatus.GENERATING_AAMS) {
     return ''
   }
-  return lastMessage.id
+  return lastMessage.key
+})
+
+/** 首次打开时加载移动端会话列表。 */
+onLoad(() => {
+  void ensureSessionsLoaded()
+})
+
+onBeforeUnmount(() => {
+  cancelAllStreamTasks()
+  clearPendingDelta()
 })
 
 /** 打开或收起历史会话抽屉。 */
@@ -409,7 +231,7 @@ const toggleSessionDrawer = () => {
   showSessionDrawer.value = !showSessionDrawer.value
 }
 
-/** 切换当前静态会话，用于验证对话态和空态。 */
+/** 切换当前会话并加载消息。 */
 const selectSession = (sessionID: string) => {
   if (ignoredTapSessionID.value === sessionID) {
     ignoredTapSessionID.value = ''
@@ -420,29 +242,26 @@ const selectSession = (sessionID: string) => {
   editingMessageKey.value = ''
   editingContent.value = ''
   closeOperationSheet()
+  if (!messages.value[sessionID]?.length || !isSessionSending(sessionID)) {
+    void loadMessages(sessionID)
+  }
 }
 
-/** 新建静态会话，并切换到新会话。 */
-const createSession = () => {
-  const id = `new-${Date.now()}`
-  mockSessions.value = [
-    {
-      id,
-      title: '新对话',
-      summary: '还没有消息',
-      updated_at: undefined,
-      terminal: Terminal.TERMINAL_APP,
-    },
-    ...mockSessions.value,
-  ]
-  mockMessages.value[id] = []
-  activeSessionID.value = id
-  sessionKeyword.value = ''
-  showSessionDrawer.value = false
-  uni.showToast({
-    icon: 'none',
-    title: '已创建新会话',
-  })
+/** 新建会话，并切换到新会话。 */
+const createSession = async () => {
+  try {
+    const sessionID = await createRemoteSession()
+    if (!sessionID) {
+      return
+    }
+    activeSessionID.value = sessionID
+    messages.value[sessionID] = []
+    sessionKeyword.value = ''
+    showSessionDrawer.value = false
+    uni.showToast({ icon: 'none', title: '已创建新会话' })
+  } catch (error) {
+    showError(error, '创建会话失败')
+  }
 }
 
 /** 打开会话重命名弹窗。 */
@@ -459,48 +278,55 @@ const cancelRenameSession = () => {
   renamingTitle.value = ''
 }
 
-/** 保存会话名称，静态页仅更新本地会话列表。 */
-const confirmRenameSession = () => {
+/** 保存会话名称，并同步后端。 */
+const confirmRenameSession = async () => {
   if (!renamingTitle.value) {
-    uni.showToast({
-      icon: 'none',
-      title: '请输入会话名称',
-    })
+    uni.showToast({ icon: 'none', title: '请输入会话名称' })
     return
   }
 
-  mockSessions.value = mockSessions.value.map((item) =>
-    item.id === renamingSessionID.value ? { ...item, title: renamingTitle.value } : item,
-  )
-  cancelRenameSession()
-  uni.showToast({
-    icon: 'none',
-    title: '会话已重命名',
-  })
+  try {
+    const response = await defAiAssistantSessionService.UpdateAiAssistantSession({
+      id: renamingSessionID.value,
+      title: renamingTitle.value,
+    })
+    upsertSession(normalizeSession(response.session))
+    cancelRenameSession()
+    uni.showToast({ icon: 'none', title: '会话已重命名' })
+  } catch (error) {
+    showError(error, '重命名失败')
+  }
 }
 
-/** 删除静态会话，保留至少一条会话用于页面展示。 */
-const deleteSession = (sessionID: string) => {
-  if (mockSessions.value.length <= 1) {
-    uni.showToast({
-      icon: 'none',
-      title: '至少保留一个会话',
-    })
+/** 删除会话，并自动切换到剩余会话。 */
+const deleteSession = async (sessionID: string) => {
+  const session = sessions.value.find((item) => item.id === sessionID)
+  const result = await uni.showModal({
+    title: '删除会话',
+    content: `是否删除「${session?.title || '当前会话'}」？`,
+    confirmText: '删除',
+    confirmColor: '#cf4444',
+  })
+  if (!result.confirm) {
     return
   }
 
-  const nextSessions = mockSessions.value.filter((item) => item.id !== sessionID)
-  mockSessions.value = nextSessions
-  delete mockMessages.value[sessionID]
-
-  if (activeSessionID.value === sessionID) {
-    activeSessionID.value = nextSessions[0].id
+  try {
+    await defAiAssistantSessionService.DeleteAiAssistantSession({ id: sessionID })
+    cancelSessionStreamTask(sessionID)
+    sessions.value = sessions.value.filter((item) => item.id !== sessionID)
+    delete messages.value[sessionID]
+    if (activeSessionID.value === sessionID) {
+      activeSessionID.value = sessions.value[0]?.id ?? ''
+    }
+    const nextSessionID = await ensureActiveSession()
+    if (nextSessionID) {
+      await loadMessages(nextSessionID)
+    }
+    uni.showToast({ icon: 'none', title: '已删除会话' })
+  } catch (error) {
+    showError(error, '删除会话失败')
   }
-
-  uni.showToast({
-    icon: 'none',
-    title: '已删除会话',
-  })
 }
 
 /** 复制当前消息正文。 */
@@ -508,26 +334,49 @@ const copyMessage = (item: ChatMessageItem) => {
   uni.setClipboardData({
     data: item.content,
     success: () => {
-      uni.showToast({
-        icon: 'none',
-        title: '消息已复制',
-      })
+      uni.showToast({ icon: 'none', title: '消息已复制' })
     },
   })
 }
 
-/** 删除当前轮消息。 */
-const deleteMessage = (item: ChatMessageItem) => {
-  mockMessages.value[activeSessionID.value] = currentMessages.value.filter(
-    (message) => message.id !== item.messageID,
-  )
-  editingMessageKey.value = ''
-  editingContent.value = ''
-  closeOperationSheet()
-  uni.showToast({
-    icon: 'none',
-    title: '消息已删除',
-  })
+/** 删除当前轮消息，并同步后端。 */
+const deleteMessage = async (item: ChatMessageItem) => {
+  const sessionID = activeSessionID.value
+  if (!sessionID) {
+    return
+  }
+
+  try {
+    if (item.localOnly) {
+      messages.value[sessionID] = (messages.value[sessionID] ?? []).filter((message) => {
+        if (item.role === 'user') {
+          return !message.localOnly
+        }
+        return message.key !== item.key
+      })
+      editingMessageKey.value = ''
+      editingContent.value = ''
+      closeOperationSheet()
+      uni.showToast({ icon: 'none', title: '消息已删除' })
+      return
+    }
+
+    if (!item.localOnly) {
+      await defAiAssistantMessageService.DeleteAiAssistantMessage({
+        session_id: sessionID,
+        message_id: item.messageID,
+      })
+    }
+    messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(
+      (message) => message.messageID !== item.messageID,
+    )
+    editingMessageKey.value = ''
+    editingContent.value = ''
+    closeOperationSheet()
+    uni.showToast({ icon: 'none', title: '消息已删除' })
+  } catch (error) {
+    showError(error, '删除消息失败')
+  }
 }
 
 /** 开始编辑用户消息正文。 */
@@ -535,7 +384,7 @@ const startEditMessage = (item: ChatMessageItem) => {
   if (!isLastEditableUserMessage(item)) {
     return
   }
-  editingMessageKey.value = item.id
+  editingMessageKey.value = item.key
   editingContent.value = item.content
 }
 
@@ -545,42 +394,60 @@ const cancelEditMessage = () => {
   editingContent.value = ''
 }
 
-/** 保存用户消息编辑，并模拟重新生成助手输出。 */
-const saveEditMessage = (item: ChatMessageItem) => {
+/** 保存用户消息编辑，并重新生成助手输出。 */
+const saveEditMessage = async (item: ChatMessageItem) => {
   if (!editingContent.value) {
-    uni.showToast({
-      icon: 'none',
-      title: '请输入消息内容',
-    })
+    uni.showToast({ icon: 'none', title: '请输入消息内容' })
     return
   }
 
-  mockMessages.value[activeSessionID.value] = currentMessages.value.map((message) => {
-    if (message.id !== item.messageID) {
-      return message
-    }
-    return {
-      ...message,
-      input_content: {
-        kind: message.input_content?.kind || 'text',
+  const sessionID = activeSessionID.value
+  if (!sessionID || currentSessionSending.value || item.role !== 'user' || item.localOnly) {
+    return
+  }
+
+  setSessionSending(sessionID, true)
+  try {
+    const updatedList = currentMessages.value.map((message) => {
+      if (message.messageID !== item.messageID || message.role !== 'user') {
+        return message
+      }
+      return {
+        ...message,
         content: editingContent.value,
-      },
-      output_content: message.output_content
-        ? {
-            ...message.output_content,
-            content:
-              '已根据修改后的问题重新整理结果。静态页先展示编辑后的消息流，后续接入接口后会重新生成真实回复。',
-          }
-        : message.output_content,
-      status: AiAssistantMessageStatus.SUCCESS_AAMS,
+        input_content: {
+          kind: message.input_content?.kind || 'text',
+          content: editingContent.value,
+        },
+      }
+    })
+    messages.value[sessionID] = markAssistantMessageRegenerating(
+      updatedList,
+      sessionID,
+      item.messageID,
+    )
+
+    const response = await defAiAssistantMessageService.UpdateAiAssistantMessage({
+      session_id: sessionID,
+      message_id: item.messageID,
+      content: editingContent.value,
+    })
+    messages.value[sessionID] = replacePendingMessages(
+      messages.value[sessionID] ?? [],
+      normalizeMessageList(response.messages),
+    )
+    if (response.session) {
+      upsertSession(normalizeSession(response.session))
     }
-  })
-  cancelEditMessage()
-  closeOperationSheet()
-  uni.showToast({
-    icon: 'none',
-    title: '消息已更新',
-  })
+    cancelEditMessage()
+    closeOperationSheet()
+    uni.showToast({ icon: 'none', title: '消息已更新' })
+  } catch (error) {
+    await loadMessages(sessionID, { force: true })
+    showError(error, '更新消息失败')
+  } finally {
+    setSessionSending(sessionID, false)
+  }
 }
 
 /** 长按气泡后展示移动端消息操作菜单。 */
@@ -599,14 +466,14 @@ const resolvePressPoint = (event?: PressEvent) => {
 }
 
 const openMessageActionSheet = (item: ChatMessageItem, event?: PressEvent) => {
-  if (editingMessageKey.value === item.id) {
+  if (editingMessageKey.value === item.key) {
     return
   }
   if (!resolveMessageActions(item).length && !hasRuntimeBrief(item)) {
     return
   }
   resolvePressPoint(event)
-  actionMessageKey.value = item.id
+  actionMessageKey.value = item.key
   actionSessionID.value = ''
 }
 
@@ -619,7 +486,7 @@ const openSessionActionSheet = (session: AiAssistantSession, event?: PressEvent)
 }
 
 const isLastEditableUserMessage = (item: ChatMessageItem) => {
-  return item.role === 'user' && item.messageID === lastEditableUserMessageID.value
+  return item.role === 'user' && !item.localOnly && item.key === lastEditableUserMessageKey.value
 }
 
 const formatTokenBrief = (item: ChatMessageItem) => {
@@ -653,53 +520,57 @@ const resolveMessageActions = (item: ChatMessageItem): MessageAction[] => {
   const editAction: MessageAction = { key: 'edit', icon: 'edit-pen', label: '编辑' }
 
   if (item.role === 'user') {
-    const actions = isLastEditableUserMessage(item) ? [editAction, copyAction] : [copyAction]
+    const actions = isLastEditableUserMessage(item)
+      ? [editAction, copyAction, deleteAction]
+      : [copyAction, deleteAction]
     if (item.status === AiAssistantMessageStatus.FAILED_AAMS) {
-      return [{ key: 'retry', icon: 'refresh', label: '重新发送' }, ...actions, deleteAction]
+      return [{ key: 'retry', icon: 'refresh', label: '重新发送' }, ...actions]
     }
-    return [...actions, deleteAction]
+    return item.localOnly ? [copyAction, deleteAction] : actions
   }
 
   const assistantActions: MessageAction[] = [{ key: 'retry', icon: 'refresh', label: '重新生成' }]
   if (item.status === AiAssistantMessageStatus.SUCCESS_AAMS) {
     assistantActions.push({ key: 'branch', icon: 'branch-action', label: '创建分支' })
-    assistantActions.push({ key: 'speak', icon: 'speak-action', label: '朗读' })
+    assistantActions.push({
+      key: 'speak',
+      icon: 'speak-action',
+      label: item.speaking ? '停止朗读' : '朗读',
+    })
   }
   return [...assistantActions, copyAction, deleteAction]
 }
 
-const handleMessageAction = (action: MessageActionKey, item: ChatMessageItem) => {
+const handleMessageAction = async (action: MessageActionKey, item: ChatMessageItem) => {
   if (action === 'copy') {
     copyMessage(item)
     return
   }
   if (action === 'delete') {
-    deleteMessage(item)
+    await deleteMessage(item)
     return
   }
   if (action === 'edit') {
     startEditMessage(item)
     return
   }
-
-  const actionTitle: Record<MessageActionKey, string> = {
-    retry: item.role === 'user' ? '后续接入重新发送' : '后续接入重新生成',
-    speak: '后续接入语音朗读',
-    copy: '消息已复制',
-    delete: '消息已删除',
-    edit: '编辑消息',
-    branch: '后续接入分支会话',
+  if (action === 'branch') {
+    await branchMessage(item)
+    return
   }
-  uni.showToast({
-    icon: 'none',
-    title: actionTitle[action],
-  })
+  if (action === 'speak') {
+    toggleSpeakMessage(item)
+    return
+  }
+  await retryMessage(item)
 }
 
 const showRuntimeDetail = (item: ChatMessageItem) => {
-  uni.showToast({
-    icon: 'none',
-    title: formatRuntime(item),
+  uni.showModal({
+    title: '运行明细',
+    content: formatRuntime(item),
+    showCancel: false,
+    confirmText: '知道了',
   })
 }
 
@@ -709,9 +580,9 @@ const closeOperationSheet = () => {
   ignoredTapSessionID.value = ''
 }
 
-const handleMessageOperation = (action: MessageActionKey, item: ChatMessageItem) => {
+const handleMessageOperation = async (action: MessageActionKey, item: ChatMessageItem) => {
   closeOperationSheet()
-  handleMessageAction(action, item)
+  await handleMessageAction(action, item)
 }
 
 const handleRuntimeOperation = (item: ChatMessageItem) => {
@@ -723,7 +594,7 @@ const handleSelectedMessageOperation = (action: MessageActionKey) => {
   if (!actionMessage.value) {
     return
   }
-  handleMessageOperation(action, actionMessage.value)
+  void handleMessageOperation(action, actionMessage.value)
 }
 
 const handleSelectedRuntimeOperation = () => {
@@ -744,18 +615,58 @@ const handleSessionOperation = (action: SessionActionKey) => {
     openRenameSession(session)
     return
   }
-  deleteSession(session.id)
+  void deleteSession(session.id)
 }
 
-/** 附件入口先保留静态交互，后续接入上传服务。 */
-const handleAttachment = () => {
-  uni.showToast({
-    icon: 'none',
-    title: '后续接入附件上传',
-  })
+/** 上传图片附件，发送时随消息一起提交。 */
+const handleAttachment = async () => {
+  if (uploadingAttachment.value || currentSessionSending.value) {
+    return
+  }
+  if (selectedAttachments.value.length >= MAX_ATTACHMENT_COUNT) {
+    uni.showToast({ icon: 'none', title: `最多上传 ${MAX_ATTACHMENT_COUNT} 个附件` })
+    return
+  }
+
+  try {
+    const result = await uni.chooseImage({
+      count: MAX_ATTACHMENT_COUNT - selectedAttachments.value.length,
+      sizeType: ['compressed'],
+      sourceType: ['album', 'camera'],
+    })
+    const filePaths = Array.isArray(result.tempFilePaths)
+      ? result.tempFilePaths
+      : [result.tempFilePaths].filter(Boolean)
+    if (!filePaths.length) {
+      return
+    }
+    uploadingAttachment.value = true
+    const files = await uploadFileList('assistant', filePaths)
+    const nextAttachments = files.map<AiAssistantAttachment>((file, index) => ({
+      id: file.url || `${file.name}-${index}`,
+      name: file.name,
+      size: 0,
+      url: file.url,
+      mime_type: resolveMimeType(file.name),
+    }))
+    selectedAttachments.value = [...selectedAttachments.value, ...nextAttachments].slice(
+      0,
+      MAX_ATTACHMENT_COUNT,
+    )
+    if (nextAttachments.length) {
+      uni.showToast({ icon: 'none', title: `已上传 ${nextAttachments.length} 个附件` })
+    }
+  } catch (error) {
+    if (isUserCancelError(error)) {
+      return
+    }
+    showError(error, '附件上传失败')
+  } finally {
+    uploadingAttachment.value = false
+  }
 }
 
-/** 语音入口先提供移动端状态反馈，后续接入语音识别。 */
+/** 语音入口先保留移动端状态反馈。 */
 const handleToggleRecord = () => {
   isRecording.value = !isRecording.value
   uni.showToast({
@@ -764,16 +675,19 @@ const handleToggleRecord = () => {
   })
 }
 
-/** 静态发送入口，保留后续接入真实消息接口的位置。 */
-const handleSend = () => {
+/** 发送消息并同步服务端回复。 */
+const handleSend = async () => {
   if (isSubmitDisabled.value) {
     return
   }
-  uni.showToast({
-    icon: 'none',
-    title: '静态页面，后续接入发送接口',
-  })
+  const text = inputText.value || (selectedAttachments.value.length ? '请结合附件内容继续分析' : '')
+  const payload = {
+    text,
+    attachments: [...selectedAttachments.value],
+  }
   inputText.value = ''
+  selectedAttachments.value = []
+  await sendAiAssistantPayload(payload)
 }
 
 const formatTools = (tools: AiAssistantTool[]) => {
@@ -785,6 +699,23 @@ const formatRuntime = (item: ChatMessageItem) => {
   return `${item.tokenTotal} Token · 首字 ${item.firstTokenMs}ms · 总耗时 ${duration}`
 }
 
+/** 预览消息附件图片，二期附件统一按图片附件处理。 */
+const previewAttachment = (
+  attachment: AiAssistantAttachment,
+  attachments: AiAssistantAttachment[],
+) => {
+  const urls = attachments.map((item) => formatSrc(item.url)).filter(Boolean)
+  const current = formatSrc(attachment.url)
+  if (!current || !urls.length) {
+    uni.showToast({ icon: 'none', title: '附件地址为空' })
+    return
+  }
+  uni.previewImage({
+    current,
+    urls,
+  })
+}
+
 /** 返回上一页，无历史栈时回到我的页面。 */
 const onNavigateBack = () => {
   const pages = getCurrentPages()
@@ -793,6 +724,793 @@ const onNavigateBack = () => {
     return
   }
   uni.switchTab({ url: '/pages/my/my' })
+}
+
+/** 加载移动端 AI 助手会话列表。 */
+async function ensureSessionsLoaded() {
+  if (loadingSessions.value || sessions.value.length > 0) {
+    return
+  }
+
+  loadingSessions.value = true
+  try {
+    const response = await defAiAssistantSessionService.ListAiAssistantSessions({
+      terminal: AI_ASSISTANT_TERMINAL,
+    })
+    sessions.value = normalizeSessionList(response.sessions)
+    const sessionID = await ensureActiveSession()
+    if (sessionID) {
+      await loadMessages(sessionID)
+    }
+  } catch (error) {
+    showError(error, '加载会话失败')
+  } finally {
+    loadingSessions.value = false
+  }
+}
+
+/** 加载指定会话消息记录。 */
+async function loadMessages(sessionID: string, options?: { force?: boolean }) {
+  if (!sessionID) {
+    return
+  }
+  if (!options?.force && isSessionSending(sessionID) && messages.value[sessionID]?.length) {
+    return
+  }
+
+  loadingSessionID.value = sessionID
+  try {
+    const response = await defAiAssistantMessageService.ListAiAssistantMessages({
+      session_id: sessionID,
+    })
+    if (loadingSessionID.value !== sessionID) {
+      return
+    }
+    messages.value[sessionID] = normalizeMessageList(response.messages)
+  } catch (error) {
+    if (loadingSessionID.value === sessionID) {
+      messages.value[sessionID] = []
+    }
+    showError(error, '加载消息失败')
+  } finally {
+    if (loadingSessionID.value === sessionID) {
+      loadingSessionID.value = ''
+    }
+  }
+}
+
+/** 保证当前存在可用会话。 */
+async function ensureActiveSession() {
+  if (!activeSessionID.value && sessions.value.length > 0) {
+    activeSessionID.value = sessions.value[0].id
+  }
+  if (activeSessionID.value) {
+    return activeSessionID.value
+  }
+
+  activeSessionID.value = (await createRemoteSession()) ?? ''
+  return activeSessionID.value
+}
+
+/** 创建新的远端会话。 */
+async function createRemoteSession(options?: { title?: string }) {
+  const response = await defAiAssistantSessionService.CreateAiAssistantSession({
+    title: options?.title || '新对话',
+    terminal: AI_ASSISTANT_TERMINAL,
+  })
+  const session = normalizeSession(response.session)
+  upsertSession(session)
+  return session.id
+}
+
+/** 发送消息，H5 优先流式，其他端不支持流式时退回完整响应。 */
+async function sendAiAssistantPayload(payload: SubmitPayload) {
+  const sessionID = await ensureActiveSession()
+  if (!sessionID || isSessionSending(sessionID)) {
+    return false
+  }
+
+  const localUserMessage = createLocalUserMessage(payload)
+  const thinkingMessage = createThinkingMessage({ sessionID })
+  messages.value[sessionID] = sortMessages([
+    ...(messages.value[sessionID] ?? []),
+    localUserMessage,
+    thinkingMessage,
+  ])
+  setSessionSending(sessionID, true)
+  await runAiAssistantTask(sessionID, payload)
+  return true
+}
+
+/** 后台执行 AI 助手消息请求。 */
+async function runAiAssistantTask(sessionID: string, payload: SubmitPayload) {
+  let task: StreamTask | undefined
+  try {
+    const canStream =
+      typeof fetch === 'function' &&
+      typeof ReadableStream !== 'undefined' &&
+      typeof AbortController !== 'undefined'
+    if (!canStream) {
+      const response = await defAiAssistantMessageService.SendAiAssistantMessage({
+        session_id: sessionID,
+        content: payload.text,
+        attachments: payload.attachments,
+      })
+      messages.value[sessionID] = replacePendingMessages(
+        messages.value[sessionID] ?? [],
+        normalizeMessageList(response.messages),
+      )
+      if (response.session) {
+        upsertSession(normalizeSession(response.session))
+      }
+      return
+    }
+
+    const controller = new AbortController()
+    task = { controller, finished: false }
+    runningStreamTaskMap.set(sessionID, task)
+    const response = await defAiAssistantMessageService.StreamAiAssistantMessage(
+      {
+        session_id: sessionID,
+        content: payload.text,
+        attachments: payload.attachments,
+      },
+      { signal: controller.signal },
+    )
+    if (!response.body) {
+      throw new Error('AI 助手流式响应为空')
+    }
+    await readAiAssistantEventStream(
+      response.body,
+      (event) => handleAiAssistantStreamEvent(event, task),
+      controller.signal,
+    )
+    if (!task.finished && !controller.signal.aborted) {
+      throw new Error('AI 助手流式响应未完整返回')
+    }
+  } catch (error) {
+    if (task?.controller.signal.aborted) {
+      return
+    }
+    messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
+      sessionID,
+    })
+    showError(error, 'AI 助手请求失败')
+  } finally {
+    if (task && runningStreamTaskMap.get(sessionID) === task) {
+      runningStreamTaskMap.delete(sessionID)
+    }
+    setSessionSending(sessionID, false)
+  }
+}
+
+/** 重试失败消息或重新生成助手输出。 */
+async function retryMessage(item: ChatMessageItem) {
+  const sessionID = activeSessionID.value
+  if (!sessionID || isSessionSending(sessionID)) {
+    return
+  }
+
+  try {
+    if (item.localOnly) {
+      const payload = resolveLocalRetryPayload(item)
+      if (!payload) {
+        uni.showToast({ icon: 'none', title: '未找到可重新发送的消息' })
+        return
+      }
+      messages.value[sessionID] = (messages.value[sessionID] ?? []).filter(
+        (message) => !message.localOnly,
+      )
+      await sendAiAssistantPayload(payload)
+      return
+    }
+
+    setSessionSending(sessionID, true)
+    let response
+    if (item.role === 'user') {
+      if (item.status !== AiAssistantMessageStatus.FAILED_AAMS) {
+        uni.showToast({ icon: 'none', title: '只有发送失败的消息可以重新发送' })
+        return
+      }
+      response = await defAiAssistantMessageService.RetryAiAssistantUserMessage({
+        session_id: sessionID,
+        message_id: item.messageID,
+      })
+    } else {
+      messages.value[sessionID] = markAssistantMessageRegenerating(
+        messages.value[sessionID] ?? [],
+        sessionID,
+        item.messageID,
+      )
+      response = await defAiAssistantMessageService.RegenerateAiAssistantMessage({
+        session_id: sessionID,
+        message_id: item.messageID,
+      })
+    }
+    messages.value[sessionID] = replacePendingMessages(
+      messages.value[sessionID] ?? [],
+      normalizeMessageList(response.messages),
+    )
+    if (response.session) {
+      upsertSession(normalizeSession(response.session))
+    }
+    uni.showToast({ icon: 'none', title: item.role === 'user' ? '已重新发送' : '已重新生成' })
+  } catch (error) {
+    if (item.role !== 'user') {
+      await loadMessages(sessionID, { force: true })
+    }
+    showError(error, '重新生成失败')
+  } finally {
+    if (!item.localOnly) {
+      setSessionSending(sessionID, false)
+    }
+  }
+}
+
+/** 从当前消息创建分支会话。 */
+async function branchMessage(item: ChatMessageItem) {
+  const sourceSessionID = activeSessionID.value
+  if (!sourceSessionID || item.localOnly) {
+    return
+  }
+  try {
+    const response = await defAiAssistantSessionService.CreateAiAssistantSessionBranch({
+      source_session_id: sourceSessionID,
+      anchor_message_id: item.messageID,
+      title: buildBranchSessionTitle(item),
+      terminal: AI_ASSISTANT_TERMINAL,
+    })
+    const branchSession = normalizeSession(response.session)
+    upsertSession(branchSession)
+    messages.value[branchSession.id] = normalizeMessageList(response.messages)
+    activeSessionID.value = branchSession.id
+    showSessionDrawer.value = false
+    uni.showToast({ icon: 'none', title: '已创建分支会话' })
+  } catch (error) {
+    showError(error, '创建分支失败')
+  }
+}
+
+/** 朗读入口，移动端先保持与管理端一致的操作态反馈。 */
+function toggleSpeakMessage(item: ChatMessageItem) {
+  if (item.role === 'user') {
+    return
+  }
+  const key = item.key
+  speakingMessageKey = speakingMessageKey === key ? '' : key
+  markAllMessagesSpeaking(speakingMessageKey)
+  uni.showToast({ icon: 'none', title: speakingMessageKey ? '开始朗读' : '已停止朗读' })
+}
+
+/** 移除已选择但尚未发送的附件。 */
+function removeSelectedAttachment(attachment: AiAssistantAttachment) {
+  selectedAttachments.value = selectedAttachments.value.filter(
+    (item) =>
+      (item.id || item.url || item.name) !== (attachment.id || attachment.url || attachment.name),
+  )
+}
+
+/** 处理 AI 助手流式事件。 */
+function handleAiAssistantStreamEvent(event: AiAssistantStreamEvent, task?: StreamTask) {
+  if (event.event === 'delta') {
+    handleAiAssistantDelta(event.payload)
+    return
+  }
+  if (event.event === 'finish') {
+    handleAiAssistantFinish(event.payload, task)
+    return
+  }
+  handleAiAssistantError(event.payload, task)
+}
+
+function handleAiAssistantDelta(payload: AiAssistantStreamPayload) {
+  if (!payload.delta) {
+    return
+  }
+  queueAiAssistantDelta(payload)
+}
+
+function handleAiAssistantFinish(payload: AiAssistantStreamPayload, task?: StreamTask) {
+  const sessionID = payload.session_id
+  if (!sessionID) {
+    return
+  }
+  if (task) {
+    task.finished = true
+  }
+  flushAiAssistantDelta()
+  const nextMessages = normalizeMessageList(payload.messages)
+  const current = messages.value[sessionID] ?? []
+  const streamKey = payload.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
+  const hasLocalStreamingMessages = current.some(
+    (item) => item.localOnly && item.streamKey === streamKey,
+  )
+  messages.value[sessionID] =
+    nextMessages.length || !hasLocalStreamingMessages
+      ? replacePendingMessages(current, nextMessages, payload)
+      : current
+  if (payload.session) {
+    upsertSession(normalizeSession(payload.session))
+  }
+}
+
+function handleAiAssistantError(payload: AiAssistantStreamPayload, task?: StreamTask) {
+  const sessionID = payload.session_id
+  if (!sessionID) {
+    return
+  }
+  if (task) {
+    task.finished = true
+  }
+  flushAiAssistantDelta()
+  const nextMessages = normalizeMessageList(payload.messages)
+  if (nextMessages.length) {
+    messages.value[sessionID] = replacePendingMessages(
+      messages.value[sessionID] ?? [],
+      nextMessages,
+      payload,
+    )
+    return
+  }
+  messages.value[sessionID] = markStreamingError(
+    ensureStreamingMessage(messages.value[sessionID] ?? [], payload),
+    payload,
+  )
+}
+
+/** 合并同一时刻的流式分片，降低移动端频繁渲染压力。 */
+function queueAiAssistantDelta(payload: AiAssistantStreamPayload) {
+  const sessionID = payload.session_id
+  const messageID = payload.message_id
+  if (!sessionID || !messageID || !messages.value[sessionID]) {
+    return
+  }
+
+  const key = buildStreamMessageKey(sessionID, messageID)
+  const cachedPayload = pendingDeltaMap.get(key)
+  pendingDeltaMap.set(key, {
+    ...payload,
+    delta: `${cachedPayload?.delta ?? ''}${payload.delta ?? ''}`,
+  })
+
+  if (pendingDeltaTimer) {
+    return
+  }
+  pendingDeltaTimer = setTimeout(() => {
+    pendingDeltaTimer = 0
+    flushAiAssistantDelta()
+  }, 32) as unknown as number
+}
+
+function flushAiAssistantDelta() {
+  if (pendingDeltaTimer) {
+    clearTimeout(pendingDeltaTimer)
+    pendingDeltaTimer = 0
+  }
+  if (!pendingDeltaMap.size) {
+    return
+  }
+  const payloadList = Array.from(pendingDeltaMap.values())
+  pendingDeltaMap.clear()
+  for (const payload of payloadList) {
+    const sessionID = payload.session_id
+    if (!sessionID || !messages.value[sessionID]) {
+      continue
+    }
+    messages.value[sessionID] = appendStreamingDelta(
+      ensureStreamingMessage(messages.value[sessionID] ?? [], payload),
+      payload,
+    )
+  }
+}
+
+function clearPendingDelta() {
+  if (pendingDeltaTimer) {
+    clearTimeout(pendingDeltaTimer)
+    pendingDeltaTimer = 0
+  }
+  pendingDeltaMap.clear()
+}
+
+function normalizeSession(session?: Partial<AiAssistantSession> | null): AiAssistantSession {
+  return {
+    id: String(session?.id ?? ''),
+    title: String(session?.title ?? '新对话'),
+    summary: String(session?.summary ?? ''),
+    updated_at: session?.updated_at,
+    terminal: Number(session?.terminal ?? AI_ASSISTANT_TERMINAL),
+  }
+}
+
+function normalizeSessionList(list?: AiAssistantSession[] | null) {
+  if (!Array.isArray(list)) {
+    return []
+  }
+  return list.map((item) => normalizeSession(item)).filter((item) => item.id)
+}
+
+function normalizeMessageList(list?: AiAssistantMessage[] | null) {
+  if (!Array.isArray(list)) {
+    return []
+  }
+  return sortMessages(
+    list
+      .filter(Boolean)
+      .flatMap((item) => [mapMessageItem(item, 'user'), mapMessageItem(item, 'assistant')]),
+  )
+}
+
+function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessageItem {
+  const inputContent = {
+    kind: message.input_content?.kind || 'text',
+    content: message.input_content?.content ?? '',
+  }
+  const outputContent = {
+    kind: message.output_content?.kind || 'text',
+    content: message.output_content?.content ?? '',
+    reply_source: message.output_content?.reply_source ?? '',
+    model: message.output_content?.model ?? '',
+    fallback: Boolean(message.output_content?.fallback),
+    fallback_reason: message.output_content?.fallback_reason ?? '',
+  }
+  const status = Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS)
+  return {
+    ...message,
+    key: `${message.id}:${role}`,
+    messageID: message.id,
+    role,
+    content: role === 'user' ? inputContent.content : outputContent.content,
+    input_content: inputContent,
+    output_content: outputContent,
+    attachments: Array.isArray(message.attachments) ? message.attachments : [],
+    status,
+    token: {
+      input: Number(message.token?.input ?? 0),
+      output: Number(message.token?.output ?? 0),
+      cache: Number(message.token?.cache ?? 0),
+      total: Number(message.token?.total ?? 0),
+    },
+    tools: Array.isArray(message.tools) ? message.tools : [],
+    model: role === 'assistant' ? outputContent.model : '',
+    replySource: role === 'assistant' ? outputContent.reply_source : '',
+    fallback: role === 'assistant' && outputContent.fallback,
+    fallbackReason: role === 'assistant' ? outputContent.fallback_reason : '',
+    tokenTotal: Number(message.token?.total ?? 0),
+    firstTokenMs: Number(message.first_token_ms ?? 0),
+    durationMs: Number(message.duration_ms ?? 0),
+  }
+}
+
+function createLocalUserMessage(payload: SubmitPayload): ChatMessageItem {
+  const now = Date.now()
+  const message = mapMessageItem(
+    {
+      id: `${LOCAL_USER_MESSAGE_PREFIX}-${now}`,
+      input_content: { kind: 'text', content: payload.text },
+      output_content: undefined,
+      attachments: payload.attachments,
+      created_at: {
+        seconds: Math.floor(now / 1000),
+        nanos: (now % 1000) * 1_000_000,
+      },
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
+    },
+    'user',
+  )
+  message.localOnly = true
+  message.status = AiAssistantMessageStatus.GENERATING_AAMS
+  return message
+}
+
+function createThinkingMessage(options?: {
+  sessionID?: string
+  messageID?: string
+}): ChatMessageItem {
+  const now = Date.now()
+  const streamKey = options?.sessionID
+    ? buildStreamMessageKey(options.sessionID, options.messageID || PENDING_MESSAGE_ID)
+    : undefined
+  const message = mapMessageItem(
+    {
+      id: streamKey || `assistant-thinking-${now}`,
+      input_content: undefined,
+      output_content: {
+        kind: 'text',
+        content: THINKING_MESSAGE_CONTENT,
+        reply_source: '',
+        model: '',
+        fallback: false,
+        fallback_reason: '',
+      },
+      attachments: [],
+      created_at: {
+        seconds: Math.floor(now / 1000),
+        nanos: (now % 1000) * 1_000_000,
+      },
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tools: [],
+      first_token_ms: 0,
+      duration_ms: 0,
+    },
+    'assistant',
+  )
+  message.localOnly = true
+  message.streamKey = streamKey
+  return message
+}
+
+function buildStreamMessageKey(sessionID: string, messageID: string) {
+  return `${sessionID}:${messageID}`
+}
+
+function buildPendingStreamMessageKey(sessionID: string) {
+  return buildStreamMessageKey(sessionID, PENDING_MESSAGE_ID)
+}
+
+function ensureStreamingMessage(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
+  const sessionID = payload.session_id
+  const messageID = payload.message_id
+  if (!sessionID || !messageID) {
+    return current
+  }
+
+  const streamKey = buildStreamMessageKey(sessionID, messageID)
+  if (current.some((item) => item.streamKey === streamKey)) {
+    return current
+  }
+
+  const pendingStreamKey = buildPendingStreamMessageKey(sessionID)
+  const next = current.map((item) =>
+    item.streamKey === pendingStreamKey
+      ? { ...item, id: messageID, messageID, key: `${messageID}:assistant`, streamKey }
+      : item,
+  )
+  if (next.some((item) => item.streamKey === streamKey)) {
+    return next
+  }
+
+  return sortMessages([...next, createThinkingMessage({ sessionID, messageID })])
+}
+
+function appendStreamingDelta(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
+  if (!payload.delta) {
+    return current
+  }
+  const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
+  return current.map((item) => {
+    if (item.streamKey !== streamKey || item.role === 'user') {
+      return item
+    }
+    const baseContent = item.content === THINKING_MESSAGE_CONTENT ? '' : item.content
+    return {
+      ...item,
+      content: `${baseContent}${payload.delta}`,
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+    }
+  })
+}
+
+function replacePendingMessages(
+  current: ChatMessageItem[],
+  nextMessages: ChatMessageItem[],
+  payload?: AiAssistantStreamPayload,
+) {
+  const sessionID = payload?.session_id ?? ''
+  const streamKey = payload?.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
+  const pendingStreamKey = sessionID ? buildPendingStreamMessageKey(sessionID) : ''
+  const stableMessages = current.filter((item) => {
+    if (!item.localOnly) {
+      return true
+    }
+    if (payload?.message_id && item.role === 'user') {
+      return !nextMessages.some(
+        (message) => message.role === 'user' && message.messageID === payload.message_id,
+      )
+    }
+    if (!streamKey) {
+      return false
+    }
+    return item.streamKey !== streamKey && item.streamKey !== pendingStreamKey
+  })
+  const messageMap = new Map<string, ChatMessageItem>()
+  for (const item of stableMessages) {
+    messageMap.set(item.key, item)
+  }
+  for (const item of nextMessages) {
+    messageMap.set(item.key, item)
+  }
+  return sortMessages(Array.from(messageMap.values()))
+}
+
+function markThinkingMessageFailed(
+  current: ChatMessageItem[],
+  options?: { sessionID?: string; messageID?: string },
+) {
+  const streamKey =
+    options?.sessionID && options.messageID
+      ? buildStreamMessageKey(options.sessionID, options.messageID)
+      : ''
+  return current.map((item) => {
+    if (!item.localOnly) {
+      return item
+    }
+    if (streamKey && item.streamKey !== streamKey) {
+      return item
+    }
+    return {
+      ...item,
+      status: AiAssistantMessageStatus.FAILED_AAMS,
+      content:
+        item.role === 'assistant'
+          ? '这次回复没有成功返回，你可以直接重试刚才的问题。'
+          : item.content,
+    }
+  })
+}
+
+function markStreamingError(current: ChatMessageItem[], payload: AiAssistantStreamPayload) {
+  const streamKey = buildStreamMessageKey(payload.session_id, payload.message_id)
+  return current.map((item) => {
+    if (!item.localOnly || item.streamKey !== streamKey) {
+      return item
+    }
+    return {
+      ...item,
+      status: AiAssistantMessageStatus.FAILED_AAMS,
+      content: '这次回复没有成功返回，你可以直接重试刚才的问题。',
+    }
+  })
+}
+
+function markAssistantMessageRegenerating(
+  current: ChatMessageItem[],
+  sessionID: string,
+  messageID: string,
+) {
+  const streamKey = buildStreamMessageKey(sessionID, messageID)
+  return current.map((item) => {
+    if (item.messageID !== messageID || item.role === 'user') {
+      return item
+    }
+    return {
+      ...item,
+      content: THINKING_MESSAGE_CONTENT,
+      fallback: false,
+      fallbackReason: '',
+      token: { input: 0, output: 0, cache: 0, total: 0 },
+      tokenTotal: 0,
+      tools: [],
+      firstTokenMs: 0,
+      durationMs: 0,
+      status: AiAssistantMessageStatus.GENERATING_AAMS,
+      streamKey,
+    }
+  })
+}
+
+function sortMessages(list: ChatMessageItem[]) {
+  return [...list].sort((left, right) => {
+    const leftTime = resolveTimestamp(left.created_at)
+    const rightTime = resolveTimestamp(right.created_at)
+    if (leftTime === rightTime) {
+      if (left.role !== right.role) {
+        return left.role === 'user' ? -1 : 1
+      }
+      return left.messageID.localeCompare(right.messageID, 'zh-Hans-CN', { numeric: true })
+    }
+    return leftTime - rightTime
+  })
+}
+
+function resolveTimestamp(timestamp?: { seconds?: number; nanos?: number }) {
+  if (!timestamp) {
+    return 0
+  }
+  const seconds = Number(timestamp.seconds ?? 0)
+  const nanos = Number(timestamp.nanos ?? 0)
+  return seconds * 1000 + Math.floor(nanos / 1_000_000)
+}
+
+function resolveLocalRetryPayload(item: ChatMessageItem): SubmitPayload | undefined {
+  if (item.role === 'user') {
+    return { text: item.content, attachments: item.attachments ?? [] }
+  }
+  const list = sortMessages(messages.value[activeSessionID.value] ?? [])
+  const targetIndex = list.findIndex((message) => message.key === item.key)
+  const endIndex = targetIndex >= 0 ? targetIndex - 1 : list.length - 1
+  for (let index = endIndex; index >= 0; index--) {
+    const message = list[index]
+    if (message.localOnly && message.role === 'user') {
+      return { text: message.content, attachments: message.attachments ?? [] }
+    }
+  }
+  return undefined
+}
+
+function buildBranchSessionTitle(item: ChatMessageItem) {
+  const content = String(item.input_content?.content || item.content || '新对话').replace(
+    /\s+/g,
+    ' ',
+  )
+  return `分支：${content.slice(0, 18) || '新对话'}`
+}
+
+function upsertSession(session: AiAssistantSession) {
+  if (!session.id) {
+    return
+  }
+  const nextList = sessions.value.filter((item) => item.id !== session.id)
+  nextList.unshift(session)
+  sessions.value = nextList.sort((left, right) => {
+    return resolveTimestamp(right.updated_at) - resolveTimestamp(left.updated_at)
+  })
+}
+
+function isSessionSending(sessionID: string) {
+  return Boolean(sessionID && sendingSessionMap.value[sessionID])
+}
+
+function setSessionSending(sessionID: string, sending: boolean) {
+  if (!sessionID) {
+    return
+  }
+  const nextMap = { ...sendingSessionMap.value }
+  if (sending) {
+    nextMap[sessionID] = true
+  } else {
+    delete nextMap[sessionID]
+  }
+  sendingSessionMap.value = nextMap
+}
+
+function cancelSessionStreamTask(sessionID: string) {
+  const task = runningStreamTaskMap.get(sessionID)
+  if (!task) {
+    return
+  }
+  task.finished = true
+  task.controller.abort()
+  runningStreamTaskMap.delete(sessionID)
+  setSessionSending(sessionID, false)
+}
+
+function cancelAllStreamTasks() {
+  Array.from(runningStreamTaskMap.keys()).forEach((sessionID) => cancelSessionStreamTask(sessionID))
+}
+
+function markAllMessagesSpeaking(messageKey?: string) {
+  Object.keys(messages.value).forEach((sessionID) => {
+    messages.value[sessionID] = (messages.value[sessionID] ?? []).map((item) => ({
+      ...item,
+      speaking: Boolean(messageKey && item.key === messageKey),
+    }))
+  })
+}
+
+function resolveMimeType(name: string) {
+  const extension = name.split('.').pop()?.toLowerCase() ?? ''
+  if (['jpg', 'jpeg'].includes(extension)) {
+    return 'image/jpeg'
+  }
+  if (['png', 'gif', 'webp'].includes(extension)) {
+    return `image/${extension}`
+  }
+  return ''
+}
+
+function isUserCancelError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error ?? '')
+  return message.includes('cancel') || message.includes('取消')
+}
+
+function showError(error: unknown, fallback: string) {
+  const message = error instanceof Error ? error.message : fallback
+  uni.showToast({ icon: 'none', title: message || fallback })
 }
 </script>
 
@@ -814,14 +1532,16 @@ const onNavigateBack = () => {
         </view>
 
         <view class="empty-note">
-          对话内容会在接入接口后按当前用户会话保存；这里先用于确认页面结构和输入方式。
+          {{
+            loadingSessions ? '正在加载会话...' : '对话会按当前用户保存，可在历史会话中继续追问。'
+          }}
         </view>
       </template>
 
       <view v-else class="chat-list">
         <view
-          v-for="item in chatMessages"
-          :key="item.id"
+          v-for="item in currentMessages"
+          :key="item.key"
           class="message-row"
           :class="item.role === 'user' ? 'is-user' : 'is-assistant'"
         >
@@ -836,23 +1556,24 @@ const onNavigateBack = () => {
             >
               <view v-if="item.role === 'assistant'" class="reply-meta">
                 <text class="reply-tag">{{
-                  item.replySource === 'llm' ? '模型回复' : '系统回复'
+                  item.fallback ? '降级回复' : item.replySource === 'llm' ? '模型回复' : '系统回复'
                 }}</text>
                 <text v-if="item.model" class="reply-model">{{ item.model }}</text>
               </view>
 
               <text class="bubble-content">{{ item.content }}</text>
 
-              <view v-if="item.products.length" class="product-list">
-                <view v-for="product in item.products" :key="product.id" class="product-card">
-                  <view class="product-img"></view>
-                  <view class="product-info">
-                    <view class="product-name">{{ product.name }}</view>
-                    <view class="product-tag">{{ product.tag }}</view>
-                    <view class="product-footer">
-                      <text class="price">{{ product.price }}</text>
-                      <text class="view-product">查看</text>
-                    </view>
+              <view v-if="item.attachments.length" class="attachment-list">
+                <view
+                  v-for="attachment in item.attachments"
+                  :key="attachment.id || attachment.url || attachment.name"
+                  class="attachment-card"
+                  @tap="previewAttachment(attachment, item.attachments)"
+                >
+                  <view class="attachment-icon">📎</view>
+                  <view class="attachment-info">
+                    <view class="attachment-name">{{ attachment.name }}</view>
+                    <view class="attachment-meta">{{ attachment.mime_type || '附件' }}</view>
                   </view>
                 </view>
               </view>
@@ -861,7 +1582,7 @@ const onNavigateBack = () => {
                 >已调用：{{ formatTools(item.tools) }}</view
               >
             </view>
-            <view v-if="editingMessageKey === item.id" class="message-edit">
+            <view v-if="editingMessageKey === item.key" class="message-edit">
               <textarea
                 v-model="editingContent"
                 class="message-edit-input"
@@ -894,6 +1615,16 @@ const onNavigateBack = () => {
           <uni-icons type="plusempty" size="30" color="#111" />
         </button>
         <view class="composer-card">
+          <view v-if="selectedAttachments.length" class="composer-attachments">
+            <view
+              v-for="attachment in selectedAttachments"
+              :key="attachment.id || attachment.url || attachment.name"
+              class="composer-attachment"
+              @tap="removeSelectedAttachment(attachment)"
+            >
+              {{ attachment.name }} ×
+            </view>
+          </view>
           <textarea
             v-model="inputText"
             class="composer-input"
@@ -912,7 +1643,7 @@ const onNavigateBack = () => {
           </button>
           <button
             class="send-button"
-            :class="{ 'is-disabled': isSubmitDisabled }"
+            :class="{ 'is-disabled': isSubmitDisabled, 'is-sending': currentSessionSending }"
             :disabled="isSubmitDisabled"
             hover-class="none"
             @tap="handleSend"
@@ -947,6 +1678,7 @@ const onNavigateBack = () => {
         />
       </view>
       <scroll-view class="session-list" scroll-y :show-scrollbar="false">
+        <view v-if="loadingSessions" class="session-empty">正在加载会话...</view>
         <view
           v-for="session in filteredSessions"
           :key="session.id"
@@ -960,7 +1692,9 @@ const onNavigateBack = () => {
             <view class="session-summary">{{ session.summary }}</view>
           </view>
         </view>
-        <view v-if="!filteredSessions.length" class="session-empty">没有匹配的会话</view>
+        <view v-if="!loadingSessions && !filteredSessions.length" class="session-empty"
+          >没有匹配的会话</view
+        >
       </scroll-view>
     </view>
 
@@ -1236,81 +1970,58 @@ page {
   word-break: break-word;
 }
 
-.product-list {
+.attachment-list {
   margin-top: 22rpx;
 }
 
-.product-card {
+.attachment-card {
   display: flex;
-  gap: 20rpx;
+  align-items: center;
+  gap: 16rpx;
   padding: 18rpx;
   border-radius: 10rpx;
   background-color: #f6f7f9;
 }
 
-.product-card + .product-card {
+.attachment-card + .attachment-card {
   margin-top: 16rpx;
 }
 
-.product-img {
+.attachment-icon {
   flex-shrink: 0;
-  width: 116rpx;
-  height: 116rpx;
+  width: 56rpx;
+  height: 56rpx;
   border-radius: 8rpx;
-  background-color: #ececec;
+  color: #27ba9b;
+  font-size: 28rpx;
+  line-height: 56rpx;
+  text-align: center;
+  background-color: #e8f8f4;
 }
 
-.product-info {
+.attachment-info {
   flex: 1;
   min-width: 0;
 }
 
-.product-name {
+.attachment-name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #333;
-  font-size: 26rpx;
+  font-size: 24rpx;
   font-weight: 600;
-  line-height: 34rpx;
-}
-
-.product-tag {
-  display: inline-block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  margin-top: 12rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 18rpx;
-  color: #ad7a12;
-  font-size: 20rpx;
-  line-height: 28rpx;
-  background-color: #fff7e8;
-}
-
-.product-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 14rpx;
-}
-
-.price {
-  color: #cf4444;
-  font-size: 26rpx;
-  font-weight: 700;
   line-height: 32rpx;
 }
 
-.view-product {
-  padding: 6rpx 16rpx;
-  border-radius: 8rpx;
-  color: #27ba9b;
+.attachment-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 4rpx;
+  color: #898b94;
   font-size: 20rpx;
   line-height: 28rpx;
-  background-color: #e8f8f4;
 }
 
 .tool-row {
@@ -1393,6 +2104,7 @@ page {
   min-width: 0;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12rpx;
   min-height: 92rpx;
   padding: 10rpx 12rpx 10rpx 28rpx;
@@ -1400,6 +2112,27 @@ page {
   background-color: #fff;
   box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.08);
   box-sizing: border-box;
+}
+
+.composer-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  width: 100%;
+  padding-top: 4rpx;
+}
+
+.composer-attachment {
+  max-width: 240rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  color: #16806d;
+  font-size: 20rpx;
+  line-height: 28rpx;
+  background-color: #e8f8f4;
 }
 
 .composer-main {

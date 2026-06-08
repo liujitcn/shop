@@ -29,6 +29,7 @@ const requestOrigin =
     ? ''
     : apiTargetUrl.replace(/\/$/, '')
 const baseURL = `${requestOrigin}${normalizedApiBasePath}`
+export const requestBaseURL = baseURL
 const SESSION_URL = '/v1/base/session'
 const REFRESH_TOKEN_URL = '/v1/base/token'
 const CAPTCHA_URL = '/v1/base/captcha'
@@ -227,6 +228,17 @@ async function ensureValidToken() {
     return
   }
   await handleTokenRefresh()
+}
+
+/** 获取请求可用访问令牌，供 direct stream 等非 uni.request 场景复用。 */
+export async function getRequestAccessToken() {
+  await ensureValidToken()
+  return getToken()
+}
+
+/** 触发登录失效处理，供 direct stream 等非 uni.request 场景复用。 */
+export function handleAuthExpired() {
+  void promptRelogin()
 }
 
 // 刷新 Token 处理
