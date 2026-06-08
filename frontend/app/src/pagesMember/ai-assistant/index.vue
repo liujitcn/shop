@@ -18,10 +18,17 @@ type ProductCard = {
 
 type MessageActionKey = 'retry' | 'speak' | 'copy' | 'delete' | 'edit' | 'branch'
 type SessionActionKey = 'rename' | 'delete'
+type OperationIcon =
+  | 'refresh'
+  | 'copy-document'
+  | 'delete'
+  | 'edit-pen'
+  | 'branch-action'
+  | 'speak-action'
 
 type MessageAction = {
   key: MessageActionKey
-  icon: string
+  icon: OperationIcon
   label: string
   danger?: boolean
 }
@@ -641,9 +648,9 @@ const resolveMessageActions = (item: ChatMessageItem): MessageAction[] => {
     return []
   }
 
-  const copyAction: MessageAction = { key: 'copy', icon: 'copy', label: '复制' }
-  const deleteAction: MessageAction = { key: 'delete', icon: 'trash', label: '删除', danger: true }
-  const editAction: MessageAction = { key: 'edit', icon: 'compose', label: '编辑' }
+  const copyAction: MessageAction = { key: 'copy', icon: 'copy-document', label: '复制' }
+  const deleteAction: MessageAction = { key: 'delete', icon: 'delete', label: '删除', danger: true }
+  const editAction: MessageAction = { key: 'edit', icon: 'edit-pen', label: '编辑' }
 
   if (item.role === 'user') {
     const actions = isLastEditableUserMessage(item) ? [editAction, copyAction] : [copyAction]
@@ -655,8 +662,8 @@ const resolveMessageActions = (item: ChatMessageItem): MessageAction[] => {
 
   const assistantActions: MessageAction[] = [{ key: 'retry', icon: 'refresh', label: '重新生成' }]
   if (item.status === AiAssistantMessageStatus.SUCCESS_AAMS) {
-    assistantActions.push({ key: 'branch', icon: 'branch', label: '创建分支' })
-    assistantActions.push({ key: 'speak', icon: 'sound', label: '朗读' })
+    assistantActions.push({ key: 'branch', icon: 'branch-action', label: '创建分支' })
+    assistantActions.push({ key: 'speak', icon: 'speak-action', label: '朗读' })
   }
   return [...assistantActions, copyAction, deleteAction]
 }
@@ -972,17 +979,12 @@ const onNavigateBack = () => {
             @tap="handleSelectedMessageOperation(action.key)"
           >
             <view
-              v-if="action.icon === 'copy' || action.icon === 'branch'"
               class="operation-icon-symbol"
-              :class="`is-${action.icon}`"
-            ></view>
-            <uni-icons
-              v-else
-              :type="action.icon"
-              size="22"
-              :color="action.danger ? '#cf4444' : '#5f6673'"
-            />
-            <text>{{ action.label }}</text>
+              :class="[`is-${action.icon}`, { 'is-danger': action.danger }]"
+            >
+              <view class="operation-icon-core"></view>
+            </view>
+            <text class="operation-label">{{ action.label }}</text>
           </button>
           <button
             v-if="hasRuntimeBrief(actionMessage)"
@@ -990,8 +992,10 @@ const onNavigateBack = () => {
             hover-class="none"
             @tap="handleSelectedRuntimeOperation"
           >
-            <view class="operation-icon-symbol is-runtime"></view>
-            <text>运行明细</text>
+            <view class="operation-icon-symbol is-data-analysis">
+              <view class="operation-icon-core"></view>
+            </view>
+            <text class="operation-label">运行明细</text>
             <text class="operation-runtime">
               {{ formatTokenBrief(actionMessage) }} {{ formatDurationBrief(actionMessage) }}
             </text>
@@ -1000,16 +1004,20 @@ const onNavigateBack = () => {
         <template v-else-if="actionSession">
           <view class="operation-title">{{ actionSession.title }}</view>
           <button class="operation-item" hover-class="none" @tap="handleSessionOperation('rename')">
-            <uni-icons type="compose" size="22" color="#5f6673" />
-            <text>重命名</text>
+            <view class="operation-icon-symbol is-edit-pen">
+              <view class="operation-icon-core"></view>
+            </view>
+            <text class="operation-label">重命名</text>
           </button>
           <button
             class="operation-item is-danger"
             hover-class="none"
             @tap="handleSessionOperation('delete')"
           >
-            <uni-icons type="trash" size="22" color="#cf4444" />
-            <text>删除会话</text>
+            <view class="operation-icon-symbol is-delete is-danger">
+              <view class="operation-icon-core"></view>
+            </view>
+            <text class="operation-label">删除会话</text>
           </button>
         </template>
       </view>
@@ -1623,6 +1631,10 @@ page {
   color: #cf4444;
 }
 
+.operation-label {
+  min-width: 0;
+}
+
 .operation-runtime {
   flex: 1;
   min-width: 0;
@@ -1632,83 +1644,52 @@ page {
 }
 
 .operation-icon-symbol {
-  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   width: 42rpx;
   height: 42rpx;
-  color: #5f6673;
 }
 
-.operation-icon-symbol.is-copy::before,
-.operation-icon-symbol.is-copy::after {
-  position: absolute;
-  width: 22rpx;
-  height: 22rpx;
-  border: 4rpx solid currentColor;
-  border-radius: 6rpx;
-  content: '';
-}
-
-.operation-icon-symbol.is-copy::before {
-  top: 15rpx;
-  left: 7rpx;
-}
-
-.operation-icon-symbol.is-copy::after {
-  top: 7rpx;
-  left: 15rpx;
-  background-color: #fff;
-}
-
-.operation-icon-symbol.is-branch::before,
-.operation-icon-symbol.is-branch::after {
-  position: absolute;
-  content: '';
-}
-
-.operation-icon-symbol.is-branch::before {
-  top: 22rpx;
-  left: 8rpx;
-  width: 26rpx;
-  height: 4rpx;
-  background-color: currentColor;
-  transform: rotate(-38deg);
-  transform-origin: right center;
-}
-
-.operation-icon-symbol.is-branch::after {
-  top: 7rpx;
-  right: 5rpx;
-  width: 15rpx;
-  height: 15rpx;
-  border-top: 4rpx solid currentColor;
-  border-right: 4rpx solid currentColor;
-  transform: rotate(-8deg);
-}
-
-.operation-icon-symbol.is-runtime::before {
-  position: absolute;
-  top: 10rpx;
-  left: 6rpx;
+.operation-icon-core {
   width: 32rpx;
-  height: 24rpx;
-  border: 4rpx solid currentColor;
-  border-radius: 4rpx;
-  content: '';
+  height: 32rpx;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
 }
 
-.operation-icon-symbol.is-runtime::after {
-  position: absolute;
-  top: 17rpx;
-  left: 15rpx;
-  width: 5rpx;
-  height: 13rpx;
-  border-radius: 4rpx;
-  background-color: currentColor;
-  box-shadow:
-    8rpx -5rpx 0 currentColor,
-    16rpx -9rpx 0 currentColor;
-  content: '';
+.operation-icon-symbol.is-refresh .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2364748b' d='M771.776 794.88A384 384 0 0 1 128 512h64a320 320 0 0 0 555.712 216.448H654.72a32 32 0 1 1 0-64h149.056a32 32 0 0 1 32 32v148.928a32 32 0 1 1-64 0v-50.56zM276.288 295.616h92.992a32 32 0 0 1 0 64H220.16a32 32 0 0 1-32-32V178.56a32 32 0 0 1 64 0v50.56A384 384 0 0 1 896.128 512h-64a320 320 0 0 0-555.776-216.384z'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-copy-document .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2364748b' d='M768 832a128 128 0 0 1-128 128H192A128 128 0 0 1 64 832V384a128 128 0 0 1 128-128v64a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64z'/%3E%3Cpath fill='%2364748b' d='M384 128a64 64 0 0 0-64 64v448a64 64 0 0 0 64 64h448a64 64 0 0 0 64-64V192a64 64 0 0 0-64-64zm0-64h448a128 128 0 0 1 128 128v448a128 128 0 0 1-128 128H384a128 128 0 0 1-128-128V192A128 128 0 0 1 384 64'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-delete .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2364748b' d='M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-delete.is-danger .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23cf4444' d='M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32zm448-64v-64H416v64zM224 896h576V256H224zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32m192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-edit-pen .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2364748b' d='m199.04 672.64 193.984 112 224-387.968-193.92-112-224 388.032zm-23.872 60.16 32.896 148.288 144.896-45.696zM455.04 229.248l193.92 112 56.704-98.112-193.984-112zM104.32 708.8l384-665.024 304.768 175.936L409.152 884.8h.064l-248.448 78.336zm384 254.272v-64h448v64z'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-data-analysis .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%2364748b' d='m665.216 768 110.848 192h-73.856L591.36 768H433.024L322.176 960H248.32l110.848-192H160a32 32 0 0 1-32-32V192H64a32 32 0 0 1 0-64h896a32 32 0 1 1 0 64h-64v544a32 32 0 0 1-32 32zM832 192H192v512h640zM352 448a32 32 0 0 1 32 32v64a32 32 0 0 1-64 0v-64a32 32 0 0 1 32-32m160-64a32 32 0 0 1 32 32v128a32 32 0 0 1-64 0V416a32 32 0 0 1 32-32m160-64a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V352a32 32 0 0 1 32-32'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-branch-action .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='96 160 832 704' xmlns='http://www.w3.org/2000/svg' fill='none'%3E%3Cpath d='M256 832V192' stroke='%2364748b' stroke-width='64' stroke-linecap='round'/%3E%3Cpath d='M256 192 128 320M256 192l128 128' stroke='%2364748b' stroke-width='64' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M384 640c256 0 384-176 384-448' stroke='%2364748b' stroke-width='64' stroke-linecap='round'/%3E%3Cpath d='M768 192 640 320M768 192l128 128' stroke='%2364748b' stroke-width='64' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.operation-icon-symbol.is-speak-action .operation-icon-core {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='80 160 864 704' xmlns='http://www.w3.org/2000/svg' fill='none'%3E%3Cpath d='M128 400h144L512 224v576L272 624H128z' stroke='%2364748b' stroke-width='64' stroke-linejoin='round'/%3E%3Cpath d='M640 352a224 224 0 0 1 0 320' stroke='%2364748b' stroke-width='64' stroke-linecap='round'/%3E%3Cpath d='M768 224a384 384 0 0 1 0 576' stroke='%2364748b' stroke-width='64' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 .rename-mask {
