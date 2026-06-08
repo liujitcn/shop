@@ -10,6 +10,7 @@ authn:
       match:
         - "/base.v1.ConfigService/GetConfig"
         - "/base.v1.LoginService/Captcha"
+        - "/base.v1.LoginService/VerifyCaptcha"
         - "/base.v1.LoginService/PasswordPublicKey"
         - "/base.v1.LoginService/Login"
         - "/base.v1.McpService/HandleMcp"

@@ -2,7 +2,9 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
@@ -12,6 +14,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/utils"
 
+	"github.com/google/uuid"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -20,6 +23,8 @@ import (
 )
 
 const loginCaptchaKeyPrefix = "login_captcha"
+const loginCaptchaTokenKeyPrefix = "login_captcha_token"
+const loginCaptchaTokenExpire = 2 * time.Minute
 
 // LoginCase 处理基础登录认证业务。
 type LoginCase struct {
@@ -70,6 +75,41 @@ func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*b
 	return &basev1.CaptchaResponse{
 		CaptchaId:     challenge.ID,
 		CaptchaBase64: challenge.Payload,
+	}, nil
+}
+
+// VerifyCaptcha 预校验验证码并签发一次性登录令牌。
+func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptchaRequest) (*basev1.VerifyCaptchaResponse, error) {
+	// 验证码标识或答案缺失时，不允许继续签发登录令牌。
+	if req.GetCaptchaId() == "" || req.GetCaptchaCode() == "" {
+		return nil, errorsx.InvalidArgument("验证码不能为空")
+	}
+
+	cache := sdk.Runtime.GetCache()
+	if cache == nil {
+		return nil, errorsx.Internal("验证码缓存不可用")
+	}
+
+	matched, err := captcha.NewCaptcha(cache,
+		captcha.WithDriverType(captchaDriverTypeByID(req.GetCaptchaId())),
+		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
+	).Verify(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
+	if err != nil {
+		return nil, errorsx.Internal("验证码校验失败").WithCause(err)
+	}
+	// 验证码校验失败时，不签发可用于登录的一次性令牌。
+	if !matched {
+		return nil, errorsx.InvalidArgument("验证码错误")
+	}
+
+	token := uuid.NewString()
+	err = cache.Set(loginCaptchaTokenKey(req.GetCaptchaId(), token), req.GetCaptchaId(), loginCaptchaTokenExpire)
+	if err != nil {
+		return nil, errorsx.Internal("验证码令牌保存失败").WithCause(err)
+	}
+	return &basev1.VerifyCaptchaResponse{
+		CaptchaToken: token,
+		ExpiresIn:    int64(loginCaptchaTokenExpire / time.Second),
 	}, nil
 }
 
@@ -134,16 +174,9 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		return nil, errorsx.Internal("验证码缓存不可用")
 	}
 
-	matched, err := captcha.NewCaptcha(cache,
-		captcha.WithDriverType(captchaDriverTypeByID(req.GetCaptchaId())),
-		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
-	).Verify(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
+	err := consumeLoginCaptchaToken(cache, req.GetCaptchaId(), req.GetCaptchaCode())
 	if err != nil {
-		return nil, errorsx.Internal("验证码校验失败").WithCause(err)
-	}
-	// 验证码校验失败时，直接拒绝登录请求。
-	if !matched {
-		return nil, errorsx.InvalidArgument("验证码错误")
+		return nil, err
 	}
 
 	var user *models.BaseUser
@@ -224,6 +257,28 @@ func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
 	default:
 		return captcha.DriverDigit, false
 	}
+}
+
+// consumeLoginCaptchaToken 校验并消费验证码预校验签发的一次性令牌。
+func consumeLoginCaptchaToken(cache interface {
+	Get(key string) (string, error)
+	Del(key string) error
+}, captchaID, token string) error {
+	key := loginCaptchaTokenKey(captchaID, token)
+	value, err := cache.Get(key)
+	if err != nil || value != captchaID {
+		return errorsx.InvalidArgument("验证码错误")
+	}
+	err = cache.Del(key)
+	if err != nil {
+		return errorsx.Internal("验证码令牌消费失败").WithCause(err)
+	}
+	return nil
+}
+
+// loginCaptchaTokenKey 生成验证码预校验令牌缓存键。
+func loginCaptchaTokenKey(captchaID, token string) string {
+	return fmt.Sprintf("%s:%s:%s", loginCaptchaTokenKeyPrefix, captchaID, token)
 }
 
 // captchaDriverTypeByID 根据验证码 ID 前缀推断校验驱动类型。

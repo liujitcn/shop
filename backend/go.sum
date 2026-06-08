@@ -421,8 +421,8 @@ github.com/liujitcn/kratos-kit/broker v0.0.3 h1:8a8sziGE1Ryio5ryGxWRsAkMyJP2XAwG
 github.com/liujitcn/kratos-kit/broker v0.0.3/go.mod h1:cP27MKS6nvQtX1UJfyp709sGUVzc7S3IghwiHokjm2c=
 github.com/liujitcn/kratos-kit/cache v0.0.10 h1:ly+IXBAaxtVfv8I/XG9SU+yiWfPxhU7Tdy5z8IM09zE=
 github.com/liujitcn/kratos-kit/cache v0.0.10/go.mod h1:NhMc7x7v/jVVegePDvYEuBvbSi08R3ycgyU/nGvA8IU=
-github.com/liujitcn/kratos-kit/captcha v0.0.7 h1:Yhi6wPlr0/oTQ0TbxRp0CvNIXO/nJGCywB/uste0DkY=
-github.com/liujitcn/kratos-kit/captcha v0.0.7/go.mod h1:+1PvllinCPQfCPPTCAOtoK3MWUkRo9ohOgbyP3M58mk=
+github.com/liujitcn/kratos-kit/captcha v0.0.8 h1:UgyZdTbP20aMfFN84ruQI9CsK+O4ve6pBqYAYgNWozc=
+github.com/liujitcn/kratos-kit/captcha v0.0.8/go.mod h1:fW3/33ACMhuyH3HnUjN+uUB3scKFDKDFixfpD7Wd5tA=
 github.com/liujitcn/kratos-kit/config v0.0.12 h1:9KmUDBMY1apHeqSCJLAR6UC9z1H01/3hcXlB1nG+Gy8=
 github.com/liujitcn/kratos-kit/config v0.0.12/go.mod h1:DBIFDFmQ3fLU0Ig41NK8fAyZRCDHj5jc3UudgcgC93A=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.21 h1:bwLfSR2tWWjxkIL5aCBTPFsHDZWmYwKNu46v14tk+ek=
@@ -678,6 +678,8 @@ github.com/vearutop/statigz v1.5.0 h1:FuWwZiT82yBw4xbWdWIawiP2XFTyEPhIo8upRxiKLq
 github.com/vearutop/statigz v1.5.0/go.mod h1:oHmjFf3izfCO804Di1ZjB666P3fAlVzJEx2k6jNt/Gk=
 github.com/wechatpay-apiv3/wechatpay-go v0.2.21 h1:uIyMpzvcaHA33W/QPtHstccw+X52HO1gFdvVL9O6Lfs=
 github.com/wechatpay-apiv3/wechatpay-go v0.2.21/go.mod h1:A254AUBVB6R+EqQFo3yTgeh7HtyqRRtN2w9hQSOrd4Q=
+github.com/wenlng/go-captcha-assets v1.0.7 h1:tfF84A4un/i4p+TbRVHDqDPeQeatvddOfB2xbKvLVq8=
+github.com/wenlng/go-captcha-assets v1.0.7/go.mod h1:zinRACsdYcL/S6pHgI9Iv7FKTU41d00+43pNX+b9+MM=
 github.com/wenlng/go-captcha/v2 v2.0.5 h1:+1FpVwJZmLCqEHxOt+HvpUArFGo107nRxOeRVHkZhTc=
 github.com/wenlng/go-captcha/v2 v2.0.5/go.mod h1:5hac1em3uXoyC5ipZ0xFv9umNM/waQvYAQdr0cx/h34=
 github.com/wk8/go-ordered-map/v2 v2.1.8 h1:5h/BUHu93oj4gIdvHHHGsScSTMijfx5PeYkE/fJgbpc=
@@ -784,6 +786,7 @@ golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f h1:W3F4c+6OLc6H2lb//N1q4WpJk
 golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f/go.mod h1:J1xhfL/vlindoeF/aINzNzt2Bket5bjo9sdOYzOsU80=
 golang.org/x/image v0.0.0-20190227222117-0694c2d4d067/go.mod h1:kZ7UVZpmo3dzQBMxlp+ypCbDeSB+sBbTgSJuh5dn5js=
 golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
+golang.org/x/image v0.16.0/go.mod h1:ugSZItdV4nOxyqp56HmXwH0Ry0nBCpjnZdpDaIHdoPs=
 golang.org/x/image v0.23.0 h1:HseQ7c2OpPKTPVzNjG5fwJsOTCiiwS4QdsYi5XU6H68=
 golang.org/x/image v0.23.0/go.mod h1:wJJBTdLfCCf3tiHa1fNxpZmUI4mmoZvwMCPP0ddoNKY=
 golang.org/x/lint v0.0.0-20181026193005-c67002cb31c3/go.mod h1:UVdnD1Gm6xHRNCYTkRU2/jEulfH38KcIWyp/GAMgvoE=

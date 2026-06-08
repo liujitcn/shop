@@ -46,6 +46,16 @@ func (s *LoginService) Captcha(ctx context.Context, req *basev1.CaptchaRequest) 
 	return res, nil
 }
 
+// VerifyCaptcha 验证码预校验
+func (s *LoginService) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptchaRequest) (*basev1.VerifyCaptchaResponse, error) {
+	res, err := s.loginCase.VerifyCaptcha(ctx, req)
+	if err != nil {
+		log.Errorf("VerifyCaptcha %v", err)
+		return nil, errorsx.WrapInternal(err, "验证码预校验失败")
+	}
+	return res, nil
+}
+
 // PasswordPublicKey 获取密码临时公钥
 func (s *LoginService) PasswordPublicKey(ctx context.Context, req *basev1.PasswordPublicKeyRequest) (*basev1.PasswordPublicKeyResponse, error) {
 	res, err := s.loginCase.PasswordPublicKey(ctx, req)

@@ -9,11 +9,14 @@ import type {
   PasswordPublicKeyResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
+  VerifyCaptchaRequest,
+  VerifyCaptchaResponse,
   LoginService,
 } from '@/rpc/base/v1/login'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
 const CAPTCHA_URL = '/v1/base/captcha'
+const CAPTCHA_VERIFY_URL = '/v1/base/captcha/verify'
 const PASSWORD_PUBLIC_KEY_URL = '/v1/base/password-public-key'
 const SESSION_URL = '/v1/base/session'
 const TOKEN_URL = '/v1/base/token'
@@ -25,6 +28,15 @@ export class LoginServiceImpl implements LoginService {
     return http<CaptchaResponse>({
       url: `${CAPTCHA_URL}`,
       method: 'GET',
+      data: request,
+      header: { Authorization: 'no-auth' },
+    })
+  }
+  /** 验证码预校验 */
+  VerifyCaptcha(request: VerifyCaptchaRequest): Promise<VerifyCaptchaResponse> {
+    return http<VerifyCaptchaResponse>({
+      url: `${CAPTCHA_VERIFY_URL}`,
+      method: 'POST',
       data: request,
       header: { Authorization: 'no-auth' },
     })

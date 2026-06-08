@@ -24,6 +24,12 @@ func NewLoginServiceAgentTools(loginServiceServer LoginServiceServer) ([]tool.In
 		return nil, err
 	}
 	ts = append(ts, captchaTool)
+	var verifyCaptchaTool tool.InvokableTool
+	verifyCaptchaTool, err = NewLoginServiceVerifyCaptchaAgentTool(loginServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, verifyCaptchaTool)
 	var passwordPublicKeyTool tool.InvokableTool
 	passwordPublicKeyTool, err = NewLoginServicePasswordPublicKeyAgentTool(loginServiceServer)
 	if err != nil {
@@ -61,6 +67,20 @@ func NewLoginServiceCaptchaAgentTool(loginServiceServer LoginServiceServer) (too
 				req = &CaptchaRequest{}
 			}
 			return loginServiceServer.Captcha(ctx, req)
+		},
+	)
+}
+
+// NewLoginServiceVerifyCaptchaAgentTool 创建验证码预校验的 Agent Tool。
+func NewLoginServiceVerifyCaptchaAgentTool(loginServiceServer LoginServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*VerifyCaptchaRequest, *VerifyCaptchaResponse](
+		"base_v1_login_service_verify_captcha",
+		"验证码预校验",
+		func(ctx context.Context, req *VerifyCaptchaRequest) (*VerifyCaptchaResponse, error) {
+			if req == nil {
+				req = &VerifyCaptchaRequest{}
+			}
+			return loginServiceServer.VerifyCaptcha(ctx, req)
 		},
 	)
 }

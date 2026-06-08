@@ -16,6 +16,7 @@ import (
 // RegisterLoginServiceMCPTools 注册Base登录公共服务的 MCP Tool。
 func RegisterLoginServiceMCPTools(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
 	RegisterLoginServiceCaptchaMCPTool(mcpServer, loginServiceServer)
+	RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServicePasswordPublicKeyMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceLogoutMCPTool(mcpServer, loginServiceServer)
 	RegisterLoginServiceRefreshTokenMCPTool(mcpServer, loginServiceServer)
@@ -35,6 +36,27 @@ func RegisterLoginServiceCaptchaMCPTool(mcpServer *mcp.Server, loginServiceServe
 				input = &CaptchaRequest{}
 			}
 			reply, err := loginServiceServer.Captcha(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterLoginServiceVerifyCaptchaMCPTool 注册验证码预校验的 MCP Tool。
+func RegisterLoginServiceVerifyCaptchaMCPTool(mcpServer *mcp.Server, loginServiceServer LoginServiceServer) {
+	mcp.AddTool[*VerifyCaptchaRequest, *VerifyCaptchaResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_login_service_verify_captcha",
+			Description: "验证码预校验",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *VerifyCaptchaRequest) (*mcp.CallToolResult, *VerifyCaptchaResponse, error) {
+			if input == nil {
+				input = &VerifyCaptchaRequest{}
+			}
+			reply, err := loginServiceServer.VerifyCaptcha(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

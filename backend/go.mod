@@ -27,7 +27,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.10
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.10
 	github.com/liujitcn/kratos-kit/cache v0.0.10
-	github.com/liujitcn/kratos-kit/captcha v0.0.7
+	github.com/liujitcn/kratos-kit/captcha v0.0.8
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.21
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.8
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.8
@@ -195,6 +195,7 @@ require (
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/vearutop/statigz v1.5.0 // indirect
+	github.com/wenlng/go-captcha-assets v1.0.7 // indirect
 	github.com/wenlng/go-captcha/v2 v2.0.5 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/yargevad/filepathx v1.0.0 // indirect

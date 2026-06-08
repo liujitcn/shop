@@ -18,7 +18,7 @@
         </template>
       </el-input>
     </el-form-item>
-    <el-form-item prop="captcha_code">
+    <el-form-item v-if="!isBehaviorCaptcha" prop="captcha_code">
       <div class="captcha-row">
         <el-input v-model="loginForm.captcha_code" placeholder="请输入验证码" @keyup.enter="handleLogin(loginFormRef)">
           <template #prefix>
@@ -45,15 +45,44 @@
       登录
     </el-button>
   </div>
+  <el-dialog
+    v-model="behaviorDialogVisible"
+    width="324px"
+    top="18vh"
+    :show-close="false"
+    append-to-body
+    class="behavior-captcha-dialog"
+  >
+    <div v-loading="behaviorLoading" class="behavior-captcha-body">
+      <GoCaptchaSlide
+        v-if="currentCaptchaType === 'slide'"
+        :config="slideCaptchaConfig"
+        :data="behaviorCaptchaData"
+        :events="slideCaptchaEvents"
+      />
+      <GoCaptchaClick
+        v-else-if="currentCaptchaType === 'click'"
+        :config="clickCaptchaConfig"
+        :data="behaviorCaptchaData"
+        :events="clickCaptchaEvents"
+      />
+      <GoCaptchaRotate
+        v-else-if="currentCaptchaType === 'rotate'"
+        :config="rotateCaptchaConfig"
+        :data="behaviorCaptchaData"
+        :events="rotateCaptchaEvents"
+      />
+    </div>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { computed, ref, reactive, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { defLoginService } from "@/api/base/login";
-import { ElNotification } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 import type { LoginRequest } from "@/rpc/base/v1/login";
 import { useUserStore } from "@/stores/modules/user";
 import { useDictStore } from "@/stores/modules/dict";
@@ -65,6 +94,8 @@ import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
 import { useConfigStore } from "@/stores/modules/config";
+import { Click as GoCaptchaClick, Rotate as GoCaptchaRotate, Slide as GoCaptchaSlide } from "go-captcha-vue";
+import "go-captcha-vue/dist/style.css";
 
 const router = useRouter();
 const route = useRoute();
@@ -80,6 +111,8 @@ const loginFormRef = ref<FormInstance>();
 const captcha_base64 = ref("");
 const defaultCaptchaImageWidth = 96;
 const captchaImageWidth = ref(`${defaultCaptchaImageWidth}px`);
+const behaviorDialogVisible = ref(false);
+const behaviorLoading = ref(false);
 const loginRules = reactive({
   user_name: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
@@ -101,6 +134,100 @@ const loginForm = reactive<LoginFormState>({
   captcha_code: "",
   captcha_id: ""
 });
+
+/** 行为验证码类型集合。 */
+const behaviorCaptchaTypeSet = new Set(["slide", "click", "rotate"]);
+
+/** 行为验证码服务端返回的图片载荷。 */
+interface BehaviorCaptchaPayload {
+  image: string;
+  thumb: string;
+  thumbX?: number;
+  thumbY?: number;
+  thumbWidth?: number;
+  thumbHeight?: number;
+}
+
+/** 行为验证码组件使用的坐标点。 */
+interface CaptchaPoint {
+  x: number;
+  y: number;
+}
+
+/** 点击验证码组件提交的坐标点。 */
+interface ClickCaptchaPoint extends CaptchaPoint {
+  key?: number;
+  index?: number;
+}
+
+/** 行为验证码组件数据。 */
+interface BehaviorCaptchaData {
+  image: string;
+  thumb: string;
+  thumbX?: number;
+  thumbY?: number;
+  thumbWidth?: number;
+  thumbHeight?: number;
+  thumbSize?: number;
+  angle?: number;
+}
+
+const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
+  image: "",
+  thumb: ""
+});
+const currentCaptchaType = computed(() => configStore.captcha.type || "digit");
+const isBehaviorCaptcha = computed(() => behaviorCaptchaTypeSet.has(currentCaptchaType.value));
+const slideCaptchaConfig = {
+  width: 300,
+  height: 220,
+  thumbWidth: 60,
+  thumbHeight: 60,
+  showTheme: false,
+  verticalPadding: 0,
+  horizontalPadding: 0,
+  iconSize: 20,
+  title: "请拖动滑块完成拼图"
+};
+const clickCaptchaConfig = {
+  width: 300,
+  height: 220,
+  thumbWidth: 150,
+  thumbHeight: 40,
+  showTheme: false,
+  verticalPadding: 0,
+  horizontalPadding: 0,
+  buttonText: "确认",
+  iconSize: 20,
+  dotSize: 24,
+  title: "请按顺序点击文字"
+};
+const rotateCaptchaConfig = {
+  width: 300,
+  height: 220,
+  size: 220,
+  showTheme: false,
+  verticalPadding: 0,
+  horizontalPadding: 0,
+  iconSize: 20,
+  title: "请拖动滑块转正图片"
+};
+const slideCaptchaEvents = {
+  refresh: () => getCaptcha(),
+  close: () => closeBehaviorCaptcha(),
+  confirm: (point: CaptchaPoint, reset: () => void) => verifyBehaviorCaptcha(String(Math.round(point.x)), reset)
+};
+const clickCaptchaEvents = {
+  refresh: () => getCaptcha(),
+  close: () => closeBehaviorCaptcha(),
+  confirm: (dots: ClickCaptchaPoint[], reset: () => void) =>
+    verifyBehaviorCaptcha(JSON.stringify(dots.map(dot => ({ x: dot.x, y: dot.y }))), reset)
+};
+const rotateCaptchaEvents = {
+  refresh: () => getCaptcha(),
+  close: () => closeBehaviorCaptcha(),
+  confirm: (angle: number, reset: () => void) => verifyBehaviorCaptcha(String(Math.round(angle)), reset)
+};
 
 /** 获取登录后的首个可访问路由 */
 const getFirstAccessibleRoutePath = () => {
@@ -126,11 +253,38 @@ const getLoginRedirectPath = () => {
 
 /** 获取验证码 */
 const getCaptcha = async () => {
-  const data = await defLoginService.Captcha({ type: configStore.captcha.type });
+  const data = await defLoginService.Captcha({ type: currentCaptchaType.value });
   loginForm.captcha_id = data.captcha_id;
   loginForm.captcha_code = "";
   captchaImageWidth.value = `${defaultCaptchaImageWidth}px`;
-  captcha_base64.value = data.captcha_base64;
+  captcha_base64.value = isBehaviorCaptcha.value ? "" : data.captcha_base64;
+  if (isBehaviorCaptcha.value) {
+    applyBehaviorCaptchaPayload(data.captcha_base64);
+  }
+};
+
+/** 页面加载或普通表单刷新验证码，行为验证码延迟到登录弹窗打开时再请求。 */
+const loadPageCaptcha = async () => {
+  if (isBehaviorCaptcha.value) {
+    loginForm.captcha_id = "";
+    loginForm.captcha_code = "";
+    captcha_base64.value = "";
+    return;
+  }
+  await getCaptcha();
+};
+
+/** 解析行为验证码图片载荷并映射为官方组件数据。 */
+const applyBehaviorCaptchaPayload = (payloadText: string) => {
+  const payload = JSON.parse(payloadText || "{}") as BehaviorCaptchaPayload;
+  behaviorCaptchaData.image = payload.image || "";
+  behaviorCaptchaData.thumb = payload.thumb || "";
+  behaviorCaptchaData.thumbX = payload.thumbX ?? 0;
+  behaviorCaptchaData.thumbY = payload.thumbY ?? 0;
+  behaviorCaptchaData.thumbWidth = payload.thumbWidth ?? 60;
+  behaviorCaptchaData.thumbHeight = payload.thumbHeight ?? 60;
+  behaviorCaptchaData.thumbSize = 220;
+  behaviorCaptchaData.angle = 0;
 };
 
 /** 根据验证码图片原始比例更新展示宽度。 */
@@ -143,50 +297,107 @@ const handleCaptchaImageLoad = (event: Event) => {
   captchaImageWidth.value = `${Math.min(Math.max(width, defaultCaptchaImageWidth), 180)}px`;
 };
 
+/** 预校验验证码并返回可用于登录的一次性令牌。 */
+const verifyCaptchaToken = async (captchaCode: string) => {
+  const result = await defLoginService.VerifyCaptcha({
+    captcha_id: loginForm.captcha_id,
+    captcha_code: captchaCode
+  });
+  return result.captcha_token;
+};
+
+/** 执行真正的账号登录流程。 */
+const submitLogin = async (captchaToken: string) => {
+  loading.value = true;
+  try {
+    const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.LOGIN);
+    const loginRequest: LoginRequest = {
+      user_name: loginForm.user_name,
+      password,
+      captcha_code: captchaToken,
+      captcha_id: loginForm.captcha_id
+    };
+    // 1.执行登录接口
+    await userStore.login(loginRequest);
+
+    // 2.获取用户信息
+    await userStore.getUserInfo();
+
+    // 3.预加载字典缓存，避免页面首次渲染时字典值为空
+    await dictStore.loadDictionaries();
+
+    // 4.添加动态路由
+    await initDynamicRouter();
+
+    // 5.清空 tabs、keepAlive 数据
+    tabsStore.setTabs([]);
+    keepAliveStore.setKeepAliveName([]);
+
+    // 6.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
+    // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
+    await navigateTo(router, getLoginRedirectPath());
+    ElNotification({
+      title: getTimeState(),
+      message: "欢迎登录管理后台",
+      type: "success",
+      duration: 3000
+    });
+  } catch (_error) {
+    await loadPageCaptcha();
+  } finally {
+    loading.value = false;
+  }
+};
+
+/** 验证行为验证码并继续登录。 */
+const verifyBehaviorCaptcha = async (captchaCode: string, reset: () => void) => {
+  if (behaviorLoading.value) return;
+  behaviorLoading.value = true;
+  try {
+    const captchaToken = await verifyCaptchaToken(captchaCode);
+    behaviorDialogVisible.value = false;
+    await submitLogin(captchaToken);
+  } catch (_error) {
+    reset();
+    ElMessage.error("验证码错误，请重试");
+    await getCaptcha();
+  } finally {
+    behaviorLoading.value = false;
+  }
+};
+
+/** 关闭行为验证码弹窗。 */
+const closeBehaviorCaptcha = () => {
+  behaviorDialogVisible.value = false;
+};
+
+/** 打开行为验证码弹窗。 */
+const openBehaviorCaptcha = async () => {
+  behaviorDialogVisible.value = true;
+  behaviorLoading.value = true;
+  try {
+    await getCaptcha();
+  } finally {
+    behaviorLoading.value = false;
+  }
+};
+
 /** 登录 */
 const handleLogin = (formEl: FormInstance | undefined) => {
   // 登录请求执行期间直接拦截重复提交，避免回车或连续点击导致重复登录。
   if (!formEl || loading.value) return;
   formEl.validate(async valid => {
     if (!valid) return;
-    loading.value = true;
+    if (isBehaviorCaptcha.value) {
+      await openBehaviorCaptcha();
+      return;
+    }
     try {
-      const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.LOGIN);
-      const loginRequest: LoginRequest = {
-        user_name: loginForm.user_name,
-        password,
-        captcha_code: loginForm.captcha_code,
-        captcha_id: loginForm.captcha_id
-      };
-      // 1.执行登录接口
-      await userStore.login(loginRequest);
-
-      // 2.获取用户信息
-      await userStore.getUserInfo();
-
-      // 3.预加载字典缓存，避免页面首次渲染时字典值为空
-      await dictStore.loadDictionaries();
-
-      // 4.添加动态路由
-      await initDynamicRouter();
-
-      // 5.清空 tabs、keepAlive 数据
-      tabsStore.setTabs([]);
-      keepAliveStore.setKeepAliveName([]);
-
-      // 6.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
-      // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
-      await navigateTo(router, getLoginRedirectPath());
-      ElNotification({
-        title: getTimeState(),
-        message: "欢迎登录管理后台",
-        type: "success",
-        duration: 3000
-      });
+      const captchaToken = await verifyCaptchaToken(loginForm.captcha_code);
+      await submitLogin(captchaToken);
     } catch (_error) {
-      await getCaptcha();
-    } finally {
-      loading.value = false;
+      ElMessage.error("验证码错误，请重试");
+      await loadPageCaptcha();
     }
   });
 };
@@ -195,11 +406,11 @@ const handleLogin = (formEl: FormInstance | undefined) => {
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
-  getCaptcha();
+  void loadPageCaptcha();
 };
 
 onMounted(() => {
-  getCaptcha();
+  void loadPageCaptcha();
 });
 </script>
 
@@ -222,5 +433,71 @@ onMounted(() => {
   cursor: pointer;
   object-fit: contain;
   border-radius: 6px;
+}
+.behavior-captcha-body {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.behavior-captcha-dialog) {
+  --go-captcha-theme-text-color: var(--el-text-color-primary);
+  --go-captcha-theme-bg-color: var(--el-bg-color);
+  --go-captcha-theme-btn-bg-color: var(--el-color-primary);
+  --go-captcha-theme-btn-border-color: var(--el-color-primary);
+  --go-captcha-theme-btn-disabled-color: var(--el-color-primary-light-5);
+  --go-captcha-theme-active-color: var(--el-color-primary);
+  --go-captcha-theme-border-color: var(--el-border-color-light);
+  --go-captcha-theme-icon-color: var(--el-text-color-regular);
+  --go-captcha-theme-drag-bar-color: var(--el-fill-color);
+  --go-captcha-theme-drag-bg-color: var(--el-color-primary);
+  --go-captcha-theme-drag-icon-color: #ffffff;
+  --go-captcha-theme-round-color: var(--el-fill-color);
+  --go-captcha-theme-loading-icon-color: var(--el-color-primary);
+  --go-captcha-theme-body-bg-color: var(--el-fill-color-light);
+  --go-captcha-theme-dot-bg-color: var(--el-color-primary);
+  --go-captcha-theme-dot-border-color: var(--el-bg-color);
+  border-radius: 10px;
+  box-shadow: rgb(0 0 0 / 10%) 0 2px 10px 2px;
+}
+
+:global(.behavior-captcha-dialog .el-dialog__header) {
+  display: none;
+}
+
+:global(.behavior-captcha-dialog .el-dialog__body) {
+  padding: 10px 12px 12px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-header) {
+  height: 22px;
+  margin-bottom: 4px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-body) {
+  margin-top: 0;
+  border-radius: 6px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-footer) {
+  height: 38px;
+  padding-top: 8px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-drag-line) {
+  height: 12px;
+  margin-top: -6px;
+  border-radius: 999px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-drag-block) {
+  background: linear-gradient(135deg, var(--el-color-primary-light-3) 0%, var(--el-color-primary) 100%);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--el-color-primary) 28%, transparent);
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-drag-block.disabled) {
+  background: var(--el-color-primary-light-5);
+  box-shadow: none;
 }
 </style>

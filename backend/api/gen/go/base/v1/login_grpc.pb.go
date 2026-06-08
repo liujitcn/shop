@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	LoginService_Captcha_FullMethodName           = "/base.v1.LoginService/Captcha"
+	LoginService_VerifyCaptcha_FullMethodName     = "/base.v1.LoginService/VerifyCaptcha"
 	LoginService_PasswordPublicKey_FullMethodName = "/base.v1.LoginService/PasswordPublicKey"
 	LoginService_Logout_FullMethodName            = "/base.v1.LoginService/Logout"
 	LoginService_RefreshToken_FullMethodName      = "/base.v1.LoginService/RefreshToken"
@@ -36,6 +37,8 @@ const (
 type LoginServiceClient interface {
 	// 验证码
 	Captcha(ctx context.Context, in *CaptchaRequest, opts ...grpc.CallOption) (*CaptchaResponse, error)
+	// 验证码预校验
+	VerifyCaptcha(ctx context.Context, in *VerifyCaptchaRequest, opts ...grpc.CallOption) (*VerifyCaptchaResponse, error)
 	// 获取密码临时公钥
 	PasswordPublicKey(ctx context.Context, in *PasswordPublicKeyRequest, opts ...grpc.CallOption) (*PasswordPublicKeyResponse, error)
 	// 登出
@@ -58,6 +61,16 @@ func (c *loginServiceClient) Captcha(ctx context.Context, in *CaptchaRequest, op
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(CaptchaResponse)
 	err := c.cc.Invoke(ctx, LoginService_Captcha_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginServiceClient) VerifyCaptcha(ctx context.Context, in *VerifyCaptchaRequest, opts ...grpc.CallOption) (*VerifyCaptchaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(VerifyCaptchaResponse)
+	err := c.cc.Invoke(ctx, LoginService_VerifyCaptcha_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,6 +125,8 @@ func (c *loginServiceClient) Login(ctx context.Context, in *LoginRequest, opts .
 type LoginServiceServer interface {
 	// 验证码
 	Captcha(context.Context, *CaptchaRequest) (*CaptchaResponse, error)
+	// 验证码预校验
+	VerifyCaptcha(context.Context, *VerifyCaptchaRequest) (*VerifyCaptchaResponse, error)
 	// 获取密码临时公钥
 	PasswordPublicKey(context.Context, *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error)
 	// 登出
@@ -132,6 +147,9 @@ type UnimplementedLoginServiceServer struct{}
 
 func (UnimplementedLoginServiceServer) Captcha(context.Context, *CaptchaRequest) (*CaptchaResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Captcha not implemented")
+}
+func (UnimplementedLoginServiceServer) VerifyCaptcha(context.Context, *VerifyCaptchaRequest) (*VerifyCaptchaResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method VerifyCaptcha not implemented")
 }
 func (UnimplementedLoginServiceServer) PasswordPublicKey(context.Context, *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PasswordPublicKey not implemented")
@@ -180,6 +198,24 @@ func _LoginService_Captcha_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(LoginServiceServer).Captcha(ctx, req.(*CaptchaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LoginService_VerifyCaptcha_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyCaptchaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).VerifyCaptcha(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_VerifyCaptcha_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).VerifyCaptcha(ctx, req.(*VerifyCaptchaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -266,6 +302,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Captcha",
 			Handler:    _LoginService_Captcha_Handler,
+		},
+		{
+			MethodName: "VerifyCaptcha",
+			Handler:    _LoginService_VerifyCaptcha_Handler,
 		},
 		{
 			MethodName: "PasswordPublicKey",

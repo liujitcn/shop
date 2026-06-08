@@ -26,6 +26,7 @@ const OperationLoginServiceLogin = "/base.v1.LoginService/Login"
 const OperationLoginServiceLogout = "/base.v1.LoginService/Logout"
 const OperationLoginServicePasswordPublicKey = "/base.v1.LoginService/PasswordPublicKey"
 const OperationLoginServiceRefreshToken = "/base.v1.LoginService/RefreshToken"
+const OperationLoginServiceVerifyCaptcha = "/base.v1.LoginService/VerifyCaptcha"
 
 type LoginServiceHTTPServer interface {
 	// Captcha 验证码
@@ -38,11 +39,14 @@ type LoginServiceHTTPServer interface {
 	PasswordPublicKey(context.Context, *PasswordPublicKeyRequest) (*PasswordPublicKeyResponse, error)
 	// RefreshToken 刷新认证令牌
 	RefreshToken(context.Context, *RefreshTokenRequest) (*RefreshTokenResponse, error)
+	// VerifyCaptcha 验证码预校验
+	VerifyCaptcha(context.Context, *VerifyCaptchaRequest) (*VerifyCaptchaResponse, error)
 }
 
 func RegisterLoginServiceHTTPServer(s *http.Server, srv LoginServiceHTTPServer) {
 	r := s.Route("/")
 	r.GET("/api/v1/base/captcha", _LoginService_Captcha0_HTTP_Handler(srv))
+	r.POST("/api/v1/base/captcha/verify", _LoginService_VerifyCaptcha0_HTTP_Handler(srv))
 	r.GET("/api/v1/base/password-public-key", _LoginService_PasswordPublicKey0_HTTP_Handler(srv))
 	r.DELETE("/api/v1/base/session", _LoginService_Logout0_HTTP_Handler(srv))
 	r.POST("/api/v1/base/token", _LoginService_RefreshToken0_HTTP_Handler(srv))
@@ -64,6 +68,28 @@ func _LoginService_Captcha0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx ht
 			return err
 		}
 		reply := out.(*CaptchaResponse)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _LoginService_VerifyCaptcha0_HTTP_Handler(srv LoginServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in VerifyCaptchaRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationLoginServiceVerifyCaptcha)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.VerifyCaptcha(ctx, req.(*VerifyCaptchaRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*VerifyCaptchaResponse)
 		return ctx.Result(200, reply)
 	}
 }
@@ -161,6 +187,8 @@ type LoginServiceHTTPClient interface {
 	PasswordPublicKey(ctx context.Context, req *PasswordPublicKeyRequest, opts ...http.CallOption) (rsp *PasswordPublicKeyResponse, err error)
 	// RefreshToken 刷新认证令牌
 	RefreshToken(ctx context.Context, req *RefreshTokenRequest, opts ...http.CallOption) (rsp *RefreshTokenResponse, err error)
+	// VerifyCaptcha 验证码预校验
+	VerifyCaptcha(ctx context.Context, req *VerifyCaptchaRequest, opts ...http.CallOption) (rsp *VerifyCaptchaResponse, err error)
 }
 
 type LoginServiceHTTPClientImpl struct {
@@ -233,6 +261,20 @@ func (c *LoginServiceHTTPClientImpl) RefreshToken(ctx context.Context, in *Refre
 	pattern := "/api/v1/base/token"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationLoginServiceRefreshToken))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// VerifyCaptcha 验证码预校验
+func (c *LoginServiceHTTPClientImpl) VerifyCaptcha(ctx context.Context, in *VerifyCaptchaRequest, opts ...http.CallOption) (*VerifyCaptchaResponse, error) {
+	var out VerifyCaptchaResponse
+	pattern := "/api/v1/base/captcha/verify"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationLoginServiceVerifyCaptcha))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {

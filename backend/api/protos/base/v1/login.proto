@@ -17,6 +17,14 @@ service LoginService {
     };
   }
 
+  // 验证码预校验
+  rpc VerifyCaptcha(VerifyCaptchaRequest) returns (VerifyCaptchaResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/base/captcha/verify"
+      body: "*"
+    };
+  }
+
   // 获取密码临时公钥
   rpc PasswordPublicKey(PasswordPublicKeyRequest) returns (PasswordPublicKeyResponse) {
     option (google.api.http) = {
@@ -66,6 +74,20 @@ message CaptchaResponse {
   string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}]; // 验证码ID。
 
   string captcha_base64 = 2 [(gnostic.openapi.v3.property) = {description: "验证码base64"}]; // 验证码base64
+}
+
+// 验证码预校验请求
+message VerifyCaptchaRequest {
+  string captcha_id = 1 [(gnostic.openapi.v3.property) = {description: "验证码ID"}]; // 验证码ID
+
+  string captcha_code = 2 [(gnostic.openapi.v3.property) = {description: "验证码答案"}]; // 验证码答案
+}
+
+// 验证码预校验响应
+message VerifyCaptchaResponse {
+  string captcha_token = 1 [(gnostic.openapi.v3.property) = {description: "验证码通过令牌"}]; // 验证码通过令牌
+
+  int64 expires_in = 2 [(gnostic.openapi.v3.property) = {description: "有效时间，单位秒"}]; // 有效时间，单位秒
 }
 
 // 密码临时公钥响应

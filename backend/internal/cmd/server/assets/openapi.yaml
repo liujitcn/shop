@@ -5741,6 +5741,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/CaptchaResponse'
+    /api/v1/base/captcha/verify:
+        post:
+            tags:
+                - LoginService
+            description: 验证码预校验
+            operationId: LoginService_VerifyCaptcha
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/VerifyCaptchaRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/VerifyCaptchaResponse'
     /api/v1/base/config:
         get:
             tags:
@@ -12663,6 +12682,26 @@ components:
                         type: string
                     description: 省市区
             description: 用户门店表单
+        VerifyCaptchaRequest:
+            type: object
+            properties:
+                captchaId:
+                    type: string
+                    description: 验证码ID
+                captchaCode:
+                    type: string
+                    description: 验证码答案
+            description: 验证码预校验请求
+        VerifyCaptchaResponse:
+            type: object
+            properties:
+                captchaToken:
+                    type: string
+                    description: 验证码通过令牌
+                expiresIn:
+                    type: string
+                    description: 有效时间，单位秒
+            description: 验证码预校验响应
         WechatLoginRequest:
             type: object
             properties:

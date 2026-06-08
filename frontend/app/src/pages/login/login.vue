@@ -3,11 +3,12 @@ import { useSettingStore, useUserStore } from '@/stores'
 import type { WechatLoginRequest } from '@/rpc/app/v1/auth'
 import type { LoginRequest } from '@/rpc/base/v1/login'
 import { onLoad } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { defLoginService } from '@/api/base/login'
 import defaultLogo from '@/static/images/logo_icon.png'
 import { homeTabPage } from '@/utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '@/utils/passwordCrypto'
+import GoCaptchaUni from 'go-captcha-uni'
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
@@ -69,19 +70,104 @@ const wxLogin = async () => {
 const captcha_base64 = ref() // 验证码图片Base64字符串
 const defaultCaptchaImageWidth = 170
 const captchaImageWidth = ref(`${defaultCaptchaImageWidth}rpx`)
+const behaviorDialogVisible = ref(false)
+const behaviorLoading = ref(false)
 type CaptchaImageLoadDetail = {
   detail: {
     width: number
     height: number
   }
 }
+type BehaviorCaptchaPayload = {
+  image: string
+  thumb: string
+  thumbX?: number
+  thumbY?: number
+  thumbWidth?: number
+  thumbHeight?: number
+}
+type CaptchaPoint = {
+  x: number
+  y: number
+}
+type ClickCaptchaPoint = CaptchaPoint & {
+  key?: number
+  index?: number
+}
+type BehaviorCaptchaData = {
+  image: string
+  thumb: string
+  thumbX?: number
+  thumbY?: number
+  thumbWidth?: number
+  thumbHeight?: number
+  thumbSize?: number
+  angle?: number
+}
+const behaviorCaptchaTypeSet = new Set(['slide', 'click', 'rotate'])
+const currentCaptchaType = computed(() => settingStore.getData('captchaType') || 'digit')
+const isBehaviorCaptcha = computed(() => behaviorCaptchaTypeSet.has(currentCaptchaType.value))
+const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
+  image: '',
+  thumb: '',
+})
+const behaviorCaptchaConfig = {
+  width: 280,
+  height: 204,
+  thumbWidth: 60,
+  thumbHeight: 60,
+  showTheme: false,
+  verticalPadding: 0,
+  horizontalPadding: 0,
+  buttonText: '确认',
+  iconSize: 20,
+  dotSize: 24,
+  title: '请完成安全验证',
+}
+const behaviorCaptchaTheme = {
+  textColor: '#1f2937',
+  iconColor: '#4b5563',
+  btnBgColor: '#28bb9c',
+  btnBorderColor: '#28bb9c',
+  activeColor: '#28bb9c',
+  dragBarColor: '#dbe7e3',
+  dragBgColor: '#28bb9c',
+  dragIconColor: '#ffffff',
+  loadingIconColor: '#28bb9c',
+  bodyBgColor: '#f1f5f9',
+}
 // 获取验证码
-const getCaptcha = () => {
-  defLoginService.Captcha({ type: settingStore.getData('captchaType') || 'digit' }).then((data) => {
-    form.value.captcha_id = data.captcha_id
-    captchaImageWidth.value = `${defaultCaptchaImageWidth}rpx`
-    captcha_base64.value = data.captcha_base64
-  })
+const getCaptcha = async () => {
+  const data = await defLoginService.Captcha({ type: currentCaptchaType.value })
+  form.value.captcha_id = data.captcha_id
+  form.value.captcha_code = ''
+  captchaImageWidth.value = `${defaultCaptchaImageWidth}rpx`
+  captcha_base64.value = isBehaviorCaptcha.value ? '' : data.captcha_base64
+  if (isBehaviorCaptcha.value) {
+    applyBehaviorCaptchaPayload(data.captcha_base64)
+  }
+}
+// 页面加载或普通表单刷新验证码，行为验证码延迟到登录弹窗打开时再请求。
+const loadPageCaptcha = async () => {
+  if (isBehaviorCaptcha.value) {
+    form.value.captcha_id = ''
+    form.value.captcha_code = ''
+    captcha_base64.value = ''
+    return
+  }
+  await getCaptcha()
+}
+// 解析行为验证码图片载荷并映射为官方组件数据。
+const applyBehaviorCaptchaPayload = (payloadText: string) => {
+  const payload = JSON.parse(payloadText || '{}') as BehaviorCaptchaPayload
+  behaviorCaptchaData.image = payload.image || ''
+  behaviorCaptchaData.thumb = payload.thumb || ''
+  behaviorCaptchaData.thumbX = payload.thumbX ?? 0
+  behaviorCaptchaData.thumbY = payload.thumbY ?? 0
+  behaviorCaptchaData.thumbWidth = payload.thumbWidth ?? 60
+  behaviorCaptchaData.thumbHeight = payload.thumbHeight ?? 60
+  behaviorCaptchaData.thumbSize = 220
+  behaviorCaptchaData.angle = 0
 }
 // 根据验证码图片原始比例更新展示宽度。
 const handleCaptchaImageLoad = (event: Event) => {
@@ -101,46 +187,121 @@ const form = ref<LoginRequest>({
   captcha_code: '',
 })
 const passwordValue = ref('')
-// 表单提交
-const onSubmit = async () => {
+// 校验账号密码与协议勾选状态。
+const validateLoginForm = async () => {
   if (!form.value.user_name) {
     await uni.showToast({
       icon: 'none',
       title: '请输入用户名或手机号',
     })
-    return
+    return false
   }
   if (!passwordValue.value) {
     await uni.showToast({
       icon: 'none',
       title: '请输入密码',
     })
-    return
+    return false
   }
-  if (!form.value.captcha_code) {
+  if (!isBehaviorCaptcha.value && !form.value.captcha_code) {
     await uni.showToast({
       icon: 'none',
       title: '请输入验证码',
     })
-    return
+    return false
   }
-  const isAgreed = await checkedAgreePrivacy()
-  if (!isAgreed) {
-    return
-  }
+  return checkedAgreePrivacy()
+}
+// 预校验验证码并返回可用于登录的一次性令牌。
+const verifyCaptchaToken = async (captchaCode: string) => {
+  const result = await defLoginService.VerifyCaptcha({
+    captcha_id: form.value.captcha_id,
+    captcha_code: captchaCode,
+  })
+  return result.captcha_token
+}
+// 执行真正的账号登录流程。
+const submitLogin = async (captchaToken: string) => {
   const password = await encryptPassword(passwordValue.value, PASSWORD_CRYPTO_SCENE.LOGIN)
-  userStore
-    .login({
-      ...form.value,
-      password,
-    })
-    .then(() => {
-      void loginSuccess()
-    })
-    .catch(() => {
-      form.value.captcha_code = ''
-      getCaptcha()
-    })
+  return userStore.login({
+    ...form.value,
+    password,
+    captcha_code: captchaToken,
+  })
+}
+// 打开行为验证码弹窗。
+const openBehaviorCaptcha = async () => {
+  behaviorDialogVisible.value = true
+  behaviorLoading.value = true
+  try {
+    await getCaptcha()
+  } finally {
+    behaviorLoading.value = false
+  }
+}
+// 关闭行为验证码弹窗。
+const closeBehaviorCaptcha = () => {
+  behaviorDialogVisible.value = false
+}
+// 验证行为验证码并继续登录。
+const verifyBehaviorCaptcha = async (captchaCode: string, reset: () => void) => {
+  if (behaviorLoading.value) {
+    return
+  }
+  behaviorLoading.value = true
+  try {
+    const captchaToken = await verifyCaptchaToken(captchaCode)
+    behaviorDialogVisible.value = false
+    await submitLogin(captchaToken)
+    await loginSuccess()
+  } catch {
+    reset()
+    await uni.showToast({ icon: 'none', title: '验证码错误，请重试' })
+    await getCaptcha()
+  } finally {
+    behaviorLoading.value = false
+  }
+}
+// 行为验证码确认回调。
+const onBehaviorConfirm = (
+  value: CaptchaPoint | ClickCaptchaPoint[] | number,
+  reset: () => void,
+) => {
+  if (currentCaptchaType.value === 'click') {
+    const dots = value as ClickCaptchaPoint[]
+    void verifyBehaviorCaptcha(JSON.stringify(dots.map((dot) => ({ x: dot.x, y: dot.y }))), reset)
+    return
+  }
+  if (currentCaptchaType.value === 'slide') {
+    const point = value as CaptchaPoint
+    void verifyBehaviorCaptcha(String(Math.round(point.x)), reset)
+    return
+  }
+  void verifyBehaviorCaptcha(String(Math.round(value as number)), reset)
+}
+// 刷新行为验证码。
+const onBehaviorRefresh = () => {
+  void getCaptcha()
+}
+// 表单提交
+const onSubmit = async () => {
+  const valid = await validateLoginForm()
+  if (!valid) {
+    return
+  }
+  if (isBehaviorCaptcha.value) {
+    await openBehaviorCaptcha()
+    return
+  }
+  try {
+    const captchaToken = await verifyCaptchaToken(form.value.captcha_code)
+    await submitLogin(captchaToken)
+    await loginSuccess()
+  } catch {
+    form.value.captcha_code = ''
+    await uni.showToast({ icon: 'none', title: '验证码错误，请重试' })
+    await loadPageCaptcha()
+  }
 }
 // #endif
 const loginSuccess = async () => {
@@ -202,7 +363,7 @@ onLoad(async () => {
   if (!settingStore.getData('captchaType')) {
     await settingStore.loadData()
   }
-  getCaptcha()
+  await loadPageCaptcha()
   // #endif
 })
 </script>
@@ -225,16 +386,20 @@ onLoad(async () => {
           v-model="form.user_name"
           class="input"
           type="text"
+          confirm-type="next"
           placeholder="请输入用户名/手机号码"
+          @confirm="onSubmit"
         />
         <input
           v-model="passwordValue"
           class="input"
           type="text"
           password
+          confirm-type="done"
           placeholder="请输入密码"
+          @confirm="onSubmit"
         />
-        <view class="captcha-row">
+        <view v-if="!isBehaviorCaptcha" class="captcha-row">
           <input
             v-model="form.captcha_code"
             class="input captcha-input"
@@ -255,6 +420,20 @@ onLoad(async () => {
           </view>
         </view>
         <button @tap="onSubmit" class="button phone">登录</button>
+        <view v-if="behaviorDialogVisible" class="behavior-mask">
+          <view class="behavior-panel">
+            <view v-if="behaviorLoading" class="behavior-loading">加载中...</view>
+            <go-captcha-uni
+              :type="currentCaptchaType"
+              :data="behaviorCaptchaData"
+              :config="behaviorCaptchaConfig"
+              :theme="behaviorCaptchaTheme"
+              @event-confirm="onBehaviorConfirm"
+              @event-refresh="onBehaviorRefresh"
+              @event-close="closeBehaviorCaptcha"
+            />
+          </view>
+        </view>
         <!-- #endif -->
 
         <!-- 小程序端授权登录 -->
@@ -420,6 +599,97 @@ page {
       height: 60rpx;
     }
   }
+}
+
+.behavior-mask {
+  position: fixed;
+  z-index: 99;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  background: rgba(15, 23, 42, 0.38);
+  box-sizing: border-box;
+}
+
+.behavior-panel {
+  position: relative;
+  width: auto;
+  max-width: 100%;
+  padding: 32rpx;
+  border-radius: 28rpx;
+  background: #fff;
+  box-shadow: 0 24rpx 70rpx rgba(15, 23, 42, 0.18);
+  box-sizing: border-box;
+}
+
+.behavior-loading {
+  position: absolute;
+  z-index: 2;
+  top: 32rpx;
+  right: 32rpx;
+  left: 32rpx;
+  height: 44rpx;
+  font-size: 24rpx;
+  line-height: 44rpx;
+  text-align: center;
+  color: #28bb9c;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999rpx;
+}
+
+.behavior-panel .go-captcha .gc-header {
+  height: 40rpx;
+  margin-bottom: 18rpx;
+}
+
+.behavior-panel .go-captcha .gc-header .gc-text {
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.behavior-panel .go-captcha .gc-body {
+  margin-top: 0;
+  border-radius: 18rpx;
+}
+
+.behavior-panel .go-captcha .gc-footer {
+  padding-top: 22rpx;
+}
+
+.behavior-panel .go-captcha .gc-drag-slide-bar {
+  height: 56rpx;
+}
+
+.behavior-panel .go-captcha .gc-drag-line {
+  height: 18rpx;
+  background: #dbe7e3;
+  border-radius: 999rpx;
+}
+
+.behavior-panel .go-captcha .gc-drag-block {
+  width: 92rpx;
+  height: 56rpx;
+  margin-top: -28rpx;
+  background: linear-gradient(135deg, #36d6b4 0%, #20aa8f 100%);
+  border-radius: 999rpx;
+  box-shadow: 0 14rpx 28rpx rgba(40, 187, 156, 0.28);
+  color: #fff;
+  fill: #fff;
+}
+
+.behavior-panel .go-captcha .gc-drag-block.disabled {
+  background: #9adfce;
+  box-shadow: none;
+}
+
+.behavior-panel .go-captcha .gc-drag-block .gc-icon {
+  color: #fff;
+  font-size: 42rpx;
 }
 
 .tips {

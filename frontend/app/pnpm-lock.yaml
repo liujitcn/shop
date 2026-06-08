@@ -59,6 +59,9 @@ importers:
       '@dcloudio/uni-ui':
         specifier: ^1.4.28
         version: 1.5.12
+      go-captcha-uni:
+        specifier: 1.0.6
+        version: 1.0.6
       pinia:
         specifier: 2.0.27
         version: 2.0.27(typescript@5.4.5)(vue@3.4.21(typescript@5.4.5))
@@ -2643,7 +2646,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+    deprecated: Glob versions prior to v9 are no longer supported
 
   global@4.4.0:
     resolution: {integrity: sha512-wv/LAoHdRE3BeTGz53FAamhGlPLhlssK45usmGFThIi4XqnBmjKQ16u+RNbP7WvigRZDxUsM0J3gcQ5yicaL0w==}
@@ -2651,6 +2654,10 @@ packages:
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
+
+  go-captcha-uni@1.0.6:
+    resolution: {integrity: sha512-fyW4g0qqelyalu5wibY11Cqlj57c3y4jQ7eaC7NiKDfAZqG7KmDqedVw2C6fScVh3PEhBo1dvIjRD1h+W4KZeA==}
+    engines: {HBuilderX: ^3.91}
 
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
@@ -4165,7 +4172,6 @@ packages:
 
   whatwg-encoding@1.0.5:
     resolution: {integrity: sha512-b5lim54JOPN9HtzvK9HFXvBma/rnfFeqsic0hSpjtDbVxR3dJKLc+KB4V6GgiGOvl7CY/KNh8rxSo9DKQrnUEw==}
-    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@2.3.0:
     resolution: {integrity: sha512-M4yMwr6mAnQz76TbJm914+gPpB/nCwvZbJU28cUD6dR004SAxDLOOSUaB1JDRqLtaOV/vi0IC5lEAGFgrjGv/g==}
@@ -7750,6 +7756,8 @@ snapshots:
       process: 0.11.10
 
   globals@14.0.0: {}
+
+  go-captcha-uni@1.0.6: {}
 
   gopd@1.2.0: {}
 

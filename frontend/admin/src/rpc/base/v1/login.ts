@@ -33,6 +33,22 @@ export interface CaptchaResponse {
   captcha_base64: string;
 }
 
+/** 验证码预校验请求 */
+export interface VerifyCaptchaRequest {
+  /** 验证码ID */
+  captcha_id: string;
+  /** 验证码答案 */
+  captcha_code: string;
+}
+
+/** 验证码预校验响应 */
+export interface VerifyCaptchaResponse {
+  /** 验证码通过令牌 */
+  captcha_token: string;
+  /** 有效时间，单位秒 */
+  expires_in: number;
+}
+
 /** 密码临时公钥响应 */
 export interface PasswordPublicKeyResponse {
   /** 临时密钥ID */
@@ -95,6 +111,8 @@ export interface LoginResponse {
 export interface LoginService {
   /** 验证码 */
   Captcha(request: CaptchaRequest): Promise<CaptchaResponse>;
+  /** 验证码预校验 */
+  VerifyCaptcha(request: VerifyCaptchaRequest): Promise<VerifyCaptchaResponse>;
   /** 获取密码临时公钥 */
   PasswordPublicKey(request: PasswordPublicKeyRequest): Promise<PasswordPublicKeyResponse>;
   /** 登出 */
