@@ -27,7 +27,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.10
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.10
 	github.com/liujitcn/kratos-kit/cache v0.0.10
-	github.com/liujitcn/kratos-kit/captcha v0.0.8
+	github.com/liujitcn/kratos-kit/captcha v0.0.11
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.21
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.8
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.8
@@ -220,13 +220,13 @@ require (
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/image v0.23.0 // indirect
+	golang.org/x/image v0.41.0 // indirect
 	golang.org/x/mod v0.35.0 // indirect
 	golang.org/x/net v0.53.0 // indirect
 	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478 // indirect

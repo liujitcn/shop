@@ -248,6 +248,8 @@ func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
 		return captcha.DriverString, true
 	case string(captcha.DriverMath):
 		return captcha.DriverMath, true
+	case string(captcha.DriverChinese):
+		return captcha.DriverChinese, true
 	case string(captcha.DriverSlide):
 		return captcha.DriverSlide, true
 	case string(captcha.DriverClick):

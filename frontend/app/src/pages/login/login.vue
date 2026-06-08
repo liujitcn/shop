@@ -3,12 +3,13 @@ import { useSettingStore, useUserStore } from '@/stores'
 import type { WechatLoginRequest } from '@/rpc/app/v1/auth'
 import type { LoginRequest } from '@/rpc/base/v1/login'
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, reactive, ref } from 'vue'
+import { computed, defineAsyncComponent, reactive, ref } from 'vue'
 import { defLoginService } from '@/api/base/login'
 import defaultLogo from '@/static/images/logo_icon.png'
 import { homeTabPage } from '@/utils/navigation'
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from '@/utils/passwordCrypto'
-import GoCaptchaUni from 'go-captcha-uni'
+
+const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
@@ -79,12 +80,16 @@ type CaptchaImageLoadDetail = {
   }
 }
 type BehaviorCaptchaPayload = {
+  type?: string
   image: string
   thumb: string
+  width?: number
+  height?: number
   thumbX?: number
   thumbY?: number
   thumbWidth?: number
   thumbHeight?: number
+  thumbSize?: number
 }
 type CaptchaPoint = {
   x: number
@@ -111,19 +116,72 @@ const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
   image: '',
   thumb: '',
 })
-const behaviorCaptchaConfig = {
-  width: 280,
-  height: 204,
+const behaviorCaptchaWindowWidth = uni.getSystemInfoSync().windowWidth || 375
+const behaviorCaptchaImageWidth = Math.round(
+  Math.min(320, Math.max(280, behaviorCaptchaWindowWidth * 0.86)),
+)
+const rotateCaptchaImageSize = Math.round(Math.min(300, behaviorCaptchaImageWidth * 0.94))
+const behaviorCaptchaSource = reactive({
+  width: 300,
+  height: 220,
   thumbWidth: 60,
   thumbHeight: 60,
-  showTheme: false,
-  verticalPadding: 0,
-  horizontalPadding: 0,
-  buttonText: '确认',
-  iconSize: 20,
-  dotSize: 24,
-  title: '请完成安全验证',
-}
+  thumbSize: 150,
+})
+const behaviorCaptchaImageHeight = computed(() =>
+  Math.round(
+    (behaviorCaptchaSource.height * behaviorCaptchaImageWidth) / behaviorCaptchaSource.width,
+  ),
+)
+const behaviorCaptchaScaleX = computed(
+  () => behaviorCaptchaImageWidth / behaviorCaptchaSource.width,
+)
+const behaviorCaptchaScaleY = computed(
+  () => behaviorCaptchaImageHeight.value / behaviorCaptchaSource.height,
+)
+const rotateCaptchaScale = computed(() => rotateCaptchaImageSize / behaviorCaptchaSource.width)
+
+// 行为验证码按展示尺寸渲染，提交前再换算回服务端原始坐标。
+const toDisplayCaptchaX = (value: number) => Math.round(value * behaviorCaptchaScaleX.value)
+const toDisplayCaptchaY = (value: number) => Math.round(value * behaviorCaptchaScaleY.value)
+const toDisplayRotateSize = (value: number) => Math.round(value * rotateCaptchaScale.value)
+const toOriginalCaptchaX = (value: number) =>
+  Math.min(
+    behaviorCaptchaSource.width,
+    Math.max(0, Math.round(value / behaviorCaptchaScaleX.value)),
+  )
+const toOriginalCaptchaY = (value: number) =>
+  Math.min(
+    behaviorCaptchaSource.height,
+    Math.max(0, Math.round(value / behaviorCaptchaScaleY.value)),
+  )
+const behaviorCaptchaConfig = computed(() => {
+  if (currentCaptchaType.value === 'rotate') {
+    return {
+      width: behaviorCaptchaImageWidth,
+      height: rotateCaptchaImageSize,
+      size: rotateCaptchaImageSize,
+      showTheme: false,
+      verticalPadding: 0,
+      horizontalPadding: 0,
+      iconSize: 20,
+      title: '拖动滑块，将内圈图片转正',
+    }
+  }
+  return {
+    width: behaviorCaptchaImageWidth,
+    height: behaviorCaptchaImageHeight.value,
+    thumbWidth: toDisplayCaptchaX(behaviorCaptchaSource.thumbWidth),
+    thumbHeight: toDisplayCaptchaY(behaviorCaptchaSource.thumbHeight),
+    showTheme: false,
+    verticalPadding: 0,
+    horizontalPadding: 0,
+    buttonText: '确认',
+    iconSize: 20,
+    dotSize: 20,
+    title: currentCaptchaType.value === 'click' ? '请按顺序点击文字' : '请拖动滑块完成拼图',
+  }
+})
 const behaviorCaptchaTheme = {
   textColor: '#1f2937',
   iconColor: '#4b5563',
@@ -135,6 +193,9 @@ const behaviorCaptchaTheme = {
   dragIconColor: '#ffffff',
   loadingIconColor: '#28bb9c',
   bodyBgColor: '#f1f5f9',
+  dotColor: '#ffffff',
+  dotBgColor: 'rgba(40, 187, 156, 0.68)',
+  dotBorderColor: 'rgba(255, 255, 255, 0.92)',
 }
 // 获取验证码
 const getCaptcha = async () => {
@@ -160,13 +221,19 @@ const loadPageCaptcha = async () => {
 // 解析行为验证码图片载荷并映射为官方组件数据。
 const applyBehaviorCaptchaPayload = (payloadText: string) => {
   const payload = JSON.parse(payloadText || '{}') as BehaviorCaptchaPayload
+  const payloadType = payload.type || currentCaptchaType.value
+  behaviorCaptchaSource.width = payload.width || 300
+  behaviorCaptchaSource.height = payload.height || (payloadType === 'rotate' ? 300 : 220)
+  behaviorCaptchaSource.thumbWidth = payload.thumbWidth || (payloadType === 'click' ? 180 : 60)
+  behaviorCaptchaSource.thumbHeight = payload.thumbHeight || (payloadType === 'click' ? 48 : 60)
+  behaviorCaptchaSource.thumbSize = payload.thumbSize || 150
   behaviorCaptchaData.image = payload.image || ''
   behaviorCaptchaData.thumb = payload.thumb || ''
-  behaviorCaptchaData.thumbX = payload.thumbX ?? 0
-  behaviorCaptchaData.thumbY = payload.thumbY ?? 0
-  behaviorCaptchaData.thumbWidth = payload.thumbWidth ?? 60
-  behaviorCaptchaData.thumbHeight = payload.thumbHeight ?? 60
-  behaviorCaptchaData.thumbSize = 220
+  behaviorCaptchaData.thumbX = toDisplayCaptchaX(payload.thumbX ?? 0)
+  behaviorCaptchaData.thumbY = toDisplayCaptchaY(payload.thumbY ?? 0)
+  behaviorCaptchaData.thumbWidth = toDisplayCaptchaX(behaviorCaptchaSource.thumbWidth)
+  behaviorCaptchaData.thumbHeight = toDisplayCaptchaY(behaviorCaptchaSource.thumbHeight)
+  behaviorCaptchaData.thumbSize = toDisplayRotateSize(behaviorCaptchaSource.thumbSize)
   behaviorCaptchaData.angle = 0
 }
 // 根据验证码图片原始比例更新展示宽度。
@@ -256,7 +323,6 @@ const verifyBehaviorCaptcha = async (captchaCode: string, reset: () => void) => 
     await loginSuccess()
   } catch {
     reset()
-    await uni.showToast({ icon: 'none', title: '验证码错误，请重试' })
     await getCaptcha()
   } finally {
     behaviorLoading.value = false
@@ -269,12 +335,17 @@ const onBehaviorConfirm = (
 ) => {
   if (currentCaptchaType.value === 'click') {
     const dots = value as ClickCaptchaPoint[]
-    void verifyBehaviorCaptcha(JSON.stringify(dots.map((dot) => ({ x: dot.x, y: dot.y }))), reset)
+    void verifyBehaviorCaptcha(
+      JSON.stringify(
+        dots.map((dot) => ({ x: toOriginalCaptchaX(dot.x), y: toOriginalCaptchaY(dot.y) })),
+      ),
+      reset,
+    )
     return
   }
   if (currentCaptchaType.value === 'slide') {
     const point = value as CaptchaPoint
-    void verifyBehaviorCaptcha(String(Math.round(point.x)), reset)
+    void verifyBehaviorCaptcha(String(toOriginalCaptchaX(point.x)), reset)
     return
   }
   void verifyBehaviorCaptcha(String(Math.round(value as number)), reset)
@@ -299,7 +370,6 @@ const onSubmit = async () => {
     await loginSuccess()
   } catch {
     form.value.captcha_code = ''
-    await uni.showToast({ icon: 'none', title: '验证码错误，请重试' })
     await loadPageCaptcha()
   }
 }
@@ -369,22 +439,22 @@ onLoad(async () => {
 </script>
 
 <template>
-  <view class="viewport">
-    <view class="hero">
-      <view class="logo-shell">
+  <view class="login-page">
+    <view class="login-hero">
+      <view class="login-logo-shell">
         <image :src="settingStore.getData('sysLogo') || defaultLogo" />
       </view>
-      <view class="hero-copy">
-        <text class="title">欢迎登录</text>
+      <view class="login-hero-copy">
+        <text class="login-title">欢迎登录</text>
       </view>
     </view>
     <view class="login-panel">
-      <view class="login">
+      <view class="login-form">
         <!-- 网页端表单登录 -->
         <!-- #ifdef H5 -->
         <input
           v-model="form.user_name"
-          class="input"
+          class="login-input"
           type="text"
           confirm-type="next"
           placeholder="请输入用户名/手机号码"
@@ -392,7 +462,7 @@ onLoad(async () => {
         />
         <input
           v-model="passwordValue"
-          class="input"
+          class="login-input"
           type="text"
           password
           confirm-type="done"
@@ -402,7 +472,7 @@ onLoad(async () => {
         <view v-if="!isBehaviorCaptcha" class="captcha-row">
           <input
             v-model="form.captcha_code"
-            class="input captcha-input"
+            class="login-input captcha-input"
             type="text"
             confirm-type="done"
             placeholder="请输入验证码"
@@ -419,11 +489,11 @@ onLoad(async () => {
             />
           </view>
         </view>
-        <button @tap="onSubmit" class="button phone">登录</button>
-        <view v-if="behaviorDialogVisible" class="behavior-mask">
-          <view class="behavior-panel">
-            <view v-if="behaviorLoading" class="behavior-loading">加载中...</view>
-            <go-captcha-uni
+        <button @tap="onSubmit" class="login-button login-button-primary">登录</button>
+        <view v-if="behaviorDialogVisible" class="login-behavior-mask">
+          <view class="login-behavior-panel">
+            <view v-if="behaviorLoading" class="login-behavior-loading">加载中...</view>
+            <GoCaptchaUni
               :type="currentCaptchaType"
               :data="behaviorCaptchaData"
               :config="behaviorCaptchaConfig"
@@ -438,19 +508,19 @@ onLoad(async () => {
 
         <!-- 小程序端授权登录 -->
         <!-- #ifdef MP-WEIXIN -->
-        <button class="button phone" @tap="wxLogin">
+        <button class="login-button login-button-primary" @tap="wxLogin">
           <text class="icon icon-phone"></text>
           微信一键登录
         </button>
         <!-- #endif -->
       </view>
-      <view class="tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
-        <view class="label" @tap="toggleAgreePrivacy">
-          <view class="agree-icon" :class="{ checked: isAgreePrivacy }"></view>
-          <text class="desc">我已阅读并同意</text>
-          <text class="link" @tap="onOpenServiceProtocol">《服务条款》</text>
-          <text class="separator">和</text>
-          <text class="link" @tap="onOpenPrivacyContract">《隐私协议》</text>
+      <view class="login-tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
+        <view class="login-agreement" @tap="toggleAgreePrivacy">
+          <view class="login-agree-icon" :class="{ checked: isAgreePrivacy }"></view>
+          <text class="login-agree-desc">我已阅读并同意</text>
+          <text class="login-agree-link" @tap="onOpenServiceProtocol">《服务条款》</text>
+          <text class="login-agree-separator">和</text>
+          <text class="login-agree-link" @tap="onOpenPrivacyContract">《隐私协议》</text>
         </view>
       </view>
     </view>
@@ -458,24 +528,21 @@ onLoad(async () => {
 </template>
 
 <style lang="scss">
-page {
-  height: 100%;
-  background: linear-gradient(180deg, #f4fbf8 0%, #ffffff 45%, #ffffff 100%);
-}
-
-.viewport {
+.login-page {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100%;
+  min-height: 100vh;
   padding: 48rpx 40rpx 56rpx;
+  background: linear-gradient(180deg, #f4fbf8 0%, #ffffff 45%, #ffffff 100%);
+  box-sizing: border-box;
 }
 
-.hero {
+.login-hero {
   margin-bottom: 40rpx;
   text-align: center;
 
-  .logo-shell {
+  .login-logo-shell {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -492,12 +559,12 @@ page {
     height: 120rpx;
   }
 
-  .hero-copy {
+  .login-hero-copy {
     display: flex;
     flex-direction: column;
   }
 
-  .title {
+  .login-title {
     font-size: 44rpx;
     font-weight: 600;
     color: #1f2937;
@@ -511,11 +578,11 @@ page {
   box-shadow: 0 24rpx 60rpx rgba(15, 23, 42, 0.08);
 }
 
-.login {
+.login-form {
   display: flex;
   flex-direction: column;
 
-  .input {
+  .login-input {
     width: 100%;
     height: 88rpx;
     font-size: 28rpx;
@@ -528,7 +595,7 @@ page {
     box-sizing: border-box;
   }
 
-  .button {
+  .login-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -551,7 +618,7 @@ page {
     }
   }
 
-  .phone {
+  .login-button-primary {
     background: linear-gradient(135deg, #34c8aa 0%, #28bb9c 100%);
   }
 
@@ -601,7 +668,7 @@ page {
   }
 }
 
-.behavior-mask {
+.login-behavior-mask {
   position: fixed;
   z-index: 99;
   top: 0;
@@ -611,28 +678,28 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40rpx;
+  padding: 24rpx;
   background: rgba(15, 23, 42, 0.38);
   box-sizing: border-box;
 }
 
-.behavior-panel {
+.login-behavior-panel {
   position: relative;
   width: auto;
   max-width: 100%;
-  padding: 32rpx;
+  padding: 24rpx;
   border-radius: 28rpx;
   background: #fff;
   box-shadow: 0 24rpx 70rpx rgba(15, 23, 42, 0.18);
   box-sizing: border-box;
 }
 
-.behavior-loading {
+.login-behavior-loading {
   position: absolute;
   z-index: 2;
-  top: 32rpx;
-  right: 32rpx;
-  left: 32rpx;
+  top: 24rpx;
+  right: 24rpx;
+  left: 24rpx;
   height: 44rpx;
   font-size: 24rpx;
   line-height: 44rpx;
@@ -642,36 +709,39 @@ page {
   border-radius: 999rpx;
 }
 
-.behavior-panel .go-captcha .gc-header {
-  height: 40rpx;
-  margin-bottom: 18rpx;
+.login-behavior-panel .go-captcha .gc-header {
+  height: auto;
+  min-height: 40rpx;
+  margin-bottom: 12rpx;
 }
 
-.behavior-panel .go-captcha .gc-header .gc-text {
-  font-size: 28rpx;
+.login-behavior-panel .go-captcha .gc-header .gc-text {
+  font-size: 24rpx;
   font-weight: 500;
+  line-height: 34rpx;
+  white-space: nowrap;
 }
 
-.behavior-panel .go-captcha .gc-body {
+.login-behavior-panel .go-captcha .gc-body {
   margin-top: 0;
   border-radius: 18rpx;
 }
 
-.behavior-panel .go-captcha .gc-footer {
+.login-behavior-panel .go-captcha .gc-footer {
   padding-top: 22rpx;
 }
 
-.behavior-panel .go-captcha .gc-drag-slide-bar {
+.login-behavior-panel .go-captcha .gc-drag-slide-bar {
   height: 56rpx;
 }
 
-.behavior-panel .go-captcha .gc-drag-line {
+.login-behavior-panel .go-captcha .gc-drag-line {
   height: 18rpx;
   background: #dbe7e3;
   border-radius: 999rpx;
 }
 
-.behavior-panel .go-captcha .gc-drag-block {
+.login-behavior-panel .go-captcha .gc-drag-block {
   width: 92rpx;
   height: 56rpx;
   margin-top: -28rpx;
@@ -682,23 +752,48 @@ page {
   fill: #fff;
 }
 
-.behavior-panel .go-captcha .gc-drag-block.disabled {
+.login-behavior-panel .go-captcha .gc-drag-block.disabled {
   background: #9adfce;
   box-shadow: none;
 }
 
-.behavior-panel .go-captcha .gc-drag-block .gc-icon {
+.login-behavior-panel .go-captcha .gc-drag-block .gc-icon {
   color: #fff;
   font-size: 42rpx;
 }
 
-.tips {
+.login-behavior-panel .go-captcha .gc-rotate-picture .gc-round {
+  border-width: 8rpx;
+  box-shadow: inset 0 0 0 2rpx rgba(255, 255, 255, 0.78);
+}
+
+.login-behavior-panel .go-captcha .gc-rotate-thumb-block {
+  overflow: hidden;
+  border: 4rpx solid rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  box-shadow:
+    0 14rpx 30rpx rgba(15, 23, 42, 0.2),
+    0 0 0 2rpx rgba(15, 23, 42, 0.08);
+}
+
+.login-behavior-panel .go-captcha .gc-rotate-thumb-block .gc-img {
+  border-radius: 50%;
+}
+
+.login-behavior-panel .go-captcha .gc-dots .gc-dot {
+  font-size: 20rpx;
+  font-weight: 600;
+  border-width: 3rpx;
+  box-shadow: 0 6rpx 14rpx rgba(15, 23, 42, 0.18);
+}
+
+.login-tips {
   margin-top: 26rpx;
   font-size: 22rpx;
   color: #999;
   line-height: 1.6;
 
-  .label {
+  .login-agreement {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -706,11 +801,11 @@ page {
     white-space: nowrap;
   }
 
-  .separator {
+  .login-agree-separator {
     white-space: nowrap;
   }
 
-  .agree-icon {
+  .login-agree-icon {
     width: 26rpx;
     height: 26rpx;
     margin-right: 2rpx;
@@ -720,18 +815,18 @@ page {
     box-sizing: border-box;
   }
 
-  .agree-icon.checked {
+  .login-agree-icon.checked {
     border-color: #28bb9c;
     background-color: #28bb9c;
     box-shadow: inset 0 0 0 6rpx #fff;
   }
 
-  .link {
+  .login-agree-link {
     white-space: nowrap;
     color: #28bb9c;
   }
 
-  .desc {
+  .login-agree-desc {
     color: #9ca3af;
     white-space: nowrap;
   }

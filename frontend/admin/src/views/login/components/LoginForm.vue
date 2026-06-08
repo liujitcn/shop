@@ -47,8 +47,8 @@
   </div>
   <el-dialog
     v-model="behaviorDialogVisible"
-    width="324px"
-    top="18vh"
+    width="364px"
+    top="16vh"
     :show-close="false"
     append-to-body
     class="behavior-captcha-dialog"
@@ -82,7 +82,7 @@ import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { defLoginService } from "@/api/base/login";
-import { ElMessage, ElNotification } from "element-plus";
+import { ElNotification } from "element-plus";
 import type { LoginRequest } from "@/rpc/base/v1/login";
 import { useUserStore } from "@/stores/modules/user";
 import { useDictStore } from "@/stores/modules/dict";
@@ -140,12 +140,16 @@ const behaviorCaptchaTypeSet = new Set(["slide", "click", "rotate"]);
 
 /** 行为验证码服务端返回的图片载荷。 */
 interface BehaviorCaptchaPayload {
+  type?: string;
   image: string;
   thumb: string;
+  width?: number;
+  height?: number;
   thumbX?: number;
   thumbY?: number;
   thumbWidth?: number;
   thumbHeight?: number;
+  thumbSize?: number;
 }
 
 /** 行为验证码组件使用的坐标点。 */
@@ -178,50 +182,78 @@ const behaviorCaptchaData = reactive<BehaviorCaptchaData>({
 });
 const currentCaptchaType = computed(() => configStore.captcha.type || "digit");
 const isBehaviorCaptcha = computed(() => behaviorCaptchaTypeSet.has(currentCaptchaType.value));
-const slideCaptchaConfig = {
+const behaviorCaptchaDisplayWidth = 340;
+const rotateCaptchaDisplaySize = 300;
+const behaviorCaptchaSource = reactive({
   width: 300,
   height: 220,
   thumbWidth: 60,
   thumbHeight: 60,
+  thumbSize: 150
+});
+const behaviorCaptchaDisplayHeight = computed(() => Math.round((behaviorCaptchaSource.height * behaviorCaptchaDisplayWidth) / behaviorCaptchaSource.width));
+const behaviorCaptchaScaleX = computed(() => behaviorCaptchaDisplayWidth / behaviorCaptchaSource.width);
+const behaviorCaptchaScaleY = computed(() => behaviorCaptchaDisplayHeight.value / behaviorCaptchaSource.height);
+const rotateCaptchaScale = computed(() => rotateCaptchaDisplaySize / behaviorCaptchaSource.width);
+
+/** 将服务端原始 X 坐标换算为前端展示坐标。 */
+const toDisplayCaptchaX = (value: number) => Math.round(value * behaviorCaptchaScaleX.value);
+
+/** 将服务端原始 Y 坐标换算为前端展示坐标。 */
+const toDisplayCaptchaY = (value: number) => Math.round(value * behaviorCaptchaScaleY.value);
+
+/** 将服务端原始旋转内圈尺寸换算为前端展示尺寸。 */
+const toDisplayRotateSize = (value: number) => Math.round(value * rotateCaptchaScale.value);
+
+/** 将前端展示 X 坐标换算回服务端原始坐标。 */
+const toOriginalCaptchaX = (value: number) => Math.min(behaviorCaptchaSource.width, Math.max(0, Math.round(value / behaviorCaptchaScaleX.value)));
+
+/** 将前端展示 Y 坐标换算回服务端原始坐标。 */
+const toOriginalCaptchaY = (value: number) => Math.min(behaviorCaptchaSource.height, Math.max(0, Math.round(value / behaviorCaptchaScaleY.value)));
+const slideCaptchaConfig = computed(() => ({
+  width: behaviorCaptchaDisplayWidth,
+  height: behaviorCaptchaDisplayHeight.value,
+  thumbWidth: toDisplayCaptchaX(behaviorCaptchaSource.thumbWidth),
+  thumbHeight: toDisplayCaptchaY(behaviorCaptchaSource.thumbHeight),
   showTheme: false,
   verticalPadding: 0,
   horizontalPadding: 0,
   iconSize: 20,
   title: "请拖动滑块完成拼图"
-};
-const clickCaptchaConfig = {
-  width: 300,
-  height: 220,
-  thumbWidth: 150,
-  thumbHeight: 40,
+}));
+const clickCaptchaConfig = computed(() => ({
+  width: behaviorCaptchaDisplayWidth,
+  height: behaviorCaptchaDisplayHeight.value,
+  thumbWidth: toDisplayCaptchaX(behaviorCaptchaSource.thumbWidth),
+  thumbHeight: toDisplayCaptchaY(behaviorCaptchaSource.thumbHeight),
   showTheme: false,
   verticalPadding: 0,
   horizontalPadding: 0,
   buttonText: "确认",
   iconSize: 20,
-  dotSize: 24,
+  dotSize: 20,
   title: "请按顺序点击文字"
-};
-const rotateCaptchaConfig = {
-  width: 300,
-  height: 220,
-  size: 220,
+}));
+const rotateCaptchaConfig = computed(() => ({
+  width: behaviorCaptchaDisplayWidth,
+  height: rotateCaptchaDisplaySize,
+  size: rotateCaptchaDisplaySize,
   showTheme: false,
   verticalPadding: 0,
   horizontalPadding: 0,
   iconSize: 20,
-  title: "请拖动滑块转正图片"
-};
+  title: "拖动滑块，将内圈图片转正"
+}));
 const slideCaptchaEvents = {
   refresh: () => getCaptcha(),
   close: () => closeBehaviorCaptcha(),
-  confirm: (point: CaptchaPoint, reset: () => void) => verifyBehaviorCaptcha(String(Math.round(point.x)), reset)
+  confirm: (point: CaptchaPoint, reset: () => void) => verifyBehaviorCaptcha(String(toOriginalCaptchaX(point.x)), reset)
 };
 const clickCaptchaEvents = {
   refresh: () => getCaptcha(),
   close: () => closeBehaviorCaptcha(),
   confirm: (dots: ClickCaptchaPoint[], reset: () => void) =>
-    verifyBehaviorCaptcha(JSON.stringify(dots.map(dot => ({ x: dot.x, y: dot.y }))), reset)
+    verifyBehaviorCaptcha(JSON.stringify(dots.map(dot => ({ x: toOriginalCaptchaX(dot.x), y: toOriginalCaptchaY(dot.y) }))), reset)
 };
 const rotateCaptchaEvents = {
   refresh: () => getCaptcha(),
@@ -277,13 +309,19 @@ const loadPageCaptcha = async () => {
 /** 解析行为验证码图片载荷并映射为官方组件数据。 */
 const applyBehaviorCaptchaPayload = (payloadText: string) => {
   const payload = JSON.parse(payloadText || "{}") as BehaviorCaptchaPayload;
+  const payloadType = payload.type || currentCaptchaType.value;
+  behaviorCaptchaSource.width = payload.width || 300;
+  behaviorCaptchaSource.height = payload.height || (payloadType === "rotate" ? 300 : 220);
+  behaviorCaptchaSource.thumbWidth = payload.thumbWidth || (payloadType === "click" ? 180 : 60);
+  behaviorCaptchaSource.thumbHeight = payload.thumbHeight || (payloadType === "click" ? 48 : 60);
+  behaviorCaptchaSource.thumbSize = payload.thumbSize || 150;
   behaviorCaptchaData.image = payload.image || "";
   behaviorCaptchaData.thumb = payload.thumb || "";
-  behaviorCaptchaData.thumbX = payload.thumbX ?? 0;
-  behaviorCaptchaData.thumbY = payload.thumbY ?? 0;
-  behaviorCaptchaData.thumbWidth = payload.thumbWidth ?? 60;
-  behaviorCaptchaData.thumbHeight = payload.thumbHeight ?? 60;
-  behaviorCaptchaData.thumbSize = 220;
+  behaviorCaptchaData.thumbX = toDisplayCaptchaX(payload.thumbX ?? 0);
+  behaviorCaptchaData.thumbY = toDisplayCaptchaY(payload.thumbY ?? 0);
+  behaviorCaptchaData.thumbWidth = toDisplayCaptchaX(behaviorCaptchaSource.thumbWidth);
+  behaviorCaptchaData.thumbHeight = toDisplayCaptchaY(behaviorCaptchaSource.thumbHeight);
+  behaviorCaptchaData.thumbSize = toDisplayRotateSize(behaviorCaptchaSource.thumbSize);
   behaviorCaptchaData.angle = 0;
 };
 
@@ -359,7 +397,6 @@ const verifyBehaviorCaptcha = async (captchaCode: string, reset: () => void) => 
     await submitLogin(captchaToken);
   } catch (_error) {
     reset();
-    ElMessage.error("验证码错误，请重试");
     await getCaptcha();
   } finally {
     behaviorLoading.value = false;
@@ -396,7 +433,6 @@ const handleLogin = (formEl: FormInstance | undefined) => {
       const captchaToken = await verifyCaptchaToken(loginForm.captcha_code);
       await submitLogin(captchaToken);
     } catch (_error) {
-      ElMessage.error("验证码错误，请重试");
       await loadPageCaptcha();
     }
   });
@@ -456,7 +492,8 @@ onMounted(() => {
   --go-captcha-theme-round-color: var(--el-fill-color);
   --go-captcha-theme-loading-icon-color: var(--el-color-primary);
   --go-captcha-theme-body-bg-color: var(--el-fill-color-light);
-  --go-captcha-theme-dot-bg-color: var(--el-color-primary);
+  --go-captcha-theme-dot-color-color: #ffffff;
+  --go-captcha-theme-dot-bg-color: color-mix(in srgb, var(--el-color-primary) 68%, transparent);
   --go-captcha-theme-dot-border-color: var(--el-bg-color);
   border-radius: 10px;
   box-shadow: rgb(0 0 0 / 10%) 0 2px 10px 2px;
@@ -471,8 +508,16 @@ onMounted(() => {
 }
 
 :global(.behavior-captcha-dialog .go-captcha .gc-header) {
-  height: 22px;
-  margin-bottom: 4px;
+  height: auto;
+  min-height: 24px;
+  margin-bottom: 6px;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-header span),
+:global(.behavior-captcha-dialog .go-captcha .gc-header .gc-text) {
+  font-size: 14px;
+  line-height: 22px;
+  white-space: nowrap;
 }
 
 :global(.behavior-captcha-dialog .go-captcha .gc-body) {
@@ -499,5 +544,30 @@ onMounted(() => {
 :global(.behavior-captcha-dialog .go-captcha .gc-drag-block.disabled) {
   background: var(--el-color-primary-light-5);
   box-shadow: none;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-rotate-picture .gc-round) {
+  border-width: 4px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--el-bg-color) 80%, transparent);
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-rotate-thumb-block) {
+  overflow: hidden;
+  border: 2px solid var(--el-bg-color);
+  border-radius: 50%;
+  box-shadow:
+    0 8px 18px rgb(0 0 0 / 18%),
+    0 0 0 1px color-mix(in srgb, var(--el-border-color) 80%, transparent);
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-rotate-thumb-block img) {
+  border-radius: 50%;
+}
+
+:global(.behavior-captcha-dialog .go-captcha .gc-dots .gc-dot) {
+  font-size: 12px;
+  font-weight: 600;
+  border-width: 2px;
+  box-shadow: 0 3px 9px rgb(0 0 0 / 16%);
 }
 </style>
