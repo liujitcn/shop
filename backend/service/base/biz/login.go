@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"shop/pkg/biz"
@@ -14,16 +13,16 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/utils"
 
-	"github.com/google/uuid"
 	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/captcha"
-	"github.com/liujitcn/kratos-kit/sdk"
 )
 
 const loginCaptchaKeyPrefix = "login_captcha"
 const loginCaptchaTokenKeyPrefix = "login_captcha_token"
+const loginCaptchaTypeKeyPrefix = "login_captcha_type"
 const loginCaptchaTokenExpire = 2 * time.Minute
 
 // LoginCase 处理基础登录认证业务。
@@ -54,23 +53,22 @@ func NewLoginCase(
 
 // Captcha 生成验证码。
 func (c *LoginCase) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*basev1.CaptchaResponse, error) {
-	cache := sdk.Runtime.GetCache()
-	if cache == nil {
-		return nil, errorsx.Internal("验证码缓存不可用")
-	}
-
 	driverType, ok := captchaDriverType(req.GetType())
 	// 请求的验证码类型不在系统字典支持范围内时，直接拒绝生成。
 	if !ok {
 		return nil, errorsx.InvalidArgument("验证码类型不支持")
 	}
 
-	challenge, err := captcha.NewCaptcha(cache,
+	challenge, err := captcha.NewCaptcha(c.Cache,
 		captcha.WithDriverType(driverType),
 		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
 	).Generate(ctx)
 	if err != nil {
 		return nil, errorsx.Internal("生成验证码失败").WithCause(err)
+	}
+	err = c.Cache.Set(loginCaptchaTypeKey(challenge.ID), string(driverType), captcha.DefaultConfig().Expire)
+	if err != nil {
+		return nil, errorsx.Internal("验证码类型保存失败").WithCause(err)
 	}
 	return &basev1.CaptchaResponse{
 		CaptchaId:     challenge.ID,
@@ -85,13 +83,13 @@ func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptcha
 		return nil, errorsx.InvalidArgument("验证码不能为空")
 	}
 
-	cache := sdk.Runtime.GetCache()
-	if cache == nil {
-		return nil, errorsx.Internal("验证码缓存不可用")
+	driverType, ok := c.captchaDriverTypeByID(req.GetCaptchaId())
+	// 验证码类型缺失时，说明验证码已过期或不是当前系统签发。
+	if !ok {
+		return nil, errorsx.InvalidArgument("验证码错误")
 	}
-
-	matched, err := captcha.NewCaptcha(cache,
-		captcha.WithDriverType(captchaDriverTypeByID(req.GetCaptchaId())),
+	matched, err := captcha.NewCaptcha(c.Cache,
+		captcha.WithDriverType(driverType),
 		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
 	).Verify(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
 	if err != nil {
@@ -102,8 +100,8 @@ func (c *LoginCase) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptcha
 		return nil, errorsx.InvalidArgument("验证码错误")
 	}
 
-	token := uuid.NewString()
-	err = cache.Set(loginCaptchaTokenKey(req.GetCaptchaId(), token), req.GetCaptchaId(), loginCaptchaTokenExpire)
+	token := id.NewGUIDv4NoHyphen()
+	err = c.Cache.Set(loginCaptchaTokenKey(req.GetCaptchaId(), token), req.GetCaptchaId(), loginCaptchaTokenExpire)
 	if err != nil {
 		return nil, errorsx.Internal("验证码令牌保存失败").WithCause(err)
 	}
@@ -169,12 +167,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		return nil, errorsx.InvalidArgument("验证码不能为空")
 	}
 
-	cache := sdk.Runtime.GetCache()
-	if cache == nil {
-		return nil, errorsx.Internal("验证码缓存不可用")
-	}
-
-	err := consumeLoginCaptchaToken(cache, req.GetCaptchaId(), req.GetCaptchaCode())
+	err := c.verifyLoginCaptcha(ctx, req.GetCaptchaId(), req.GetCaptchaCode())
 	if err != nil {
 		return nil, err
 	}
@@ -261,21 +254,46 @@ func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
 	}
 }
 
-// consumeLoginCaptchaToken 校验并消费验证码预校验签发的一次性令牌。
-func consumeLoginCaptchaToken(cache interface {
-	Get(key string) (string, error)
-	Del(key string) error
-}, captchaID, token string) error {
-	key := loginCaptchaTokenKey(captchaID, token)
-	value, err := cache.Get(key)
-	if err != nil || value != captchaID {
+// verifyLoginCaptcha 校验登录请求携带的验证码或行为验证码令牌。
+func (c *LoginCase) verifyLoginCaptcha(ctx context.Context, captchaID, captchaCode string) error {
+	driverType, ok := c.captchaDriverTypeByID(captchaID)
+	// 登录阶段先通过 captcha_id 取回类型，避免依赖验证码 ID 命名格式。
+	if !ok {
 		return errorsx.InvalidArgument("验证码错误")
 	}
-	err = cache.Del(key)
+	matched, err := captcha.NewCaptcha(c.Cache,
+		captcha.WithDriverType(driverType),
+		captcha.WithKeyPrefix(loginCaptchaKeyPrefix),
+	).Verify(ctx, captchaID, captchaCode)
 	if err != nil {
-		return errorsx.Internal("验证码令牌消费失败").WithCause(err)
+		return errorsx.Internal("验证码校验失败").WithCause(err)
 	}
-	return nil
+	if matched {
+		return nil
+	}
+	// 预校验会删除原始答案并签发 token，原始 code 未命中时再兼容 token 登录。
+	consumed, err := c.consumeLoginCaptchaToken(captchaID, captchaCode)
+	if err != nil {
+		return err
+	}
+	if consumed {
+		return nil
+	}
+	return errorsx.InvalidArgument("验证码错误")
+}
+
+// consumeLoginCaptchaToken 校验并消费验证码预校验签发的一次性令牌。
+func (c *LoginCase) consumeLoginCaptchaToken(captchaID, token string) (bool, error) {
+	key := loginCaptchaTokenKey(captchaID, token)
+	value, err := c.Cache.Get(key)
+	if err != nil || value != captchaID {
+		return false, nil
+	}
+	err = c.Cache.Del(key)
+	if err != nil {
+		return false, errorsx.Internal("验证码令牌消费失败").WithCause(err)
+	}
+	return true, nil
 }
 
 // loginCaptchaTokenKey 生成验证码预校验令牌缓存键。
@@ -283,17 +301,18 @@ func loginCaptchaTokenKey(captchaID, token string) string {
 	return fmt.Sprintf("%s:%s:%s", loginCaptchaTokenKeyPrefix, captchaID, token)
 }
 
-// captchaDriverTypeByID 根据验证码 ID 前缀推断校验驱动类型。
-func captchaDriverTypeByID(captchaID string) captcha.DriverType {
-	// 行为验证码的 ID 带稳定前缀；普通图形验证码统一使用文本答案比对逻辑。
-	switch {
-	case strings.HasPrefix(captchaID, string(captcha.DriverSlide)+"_"):
-		return captcha.DriverSlide
-	case strings.HasPrefix(captchaID, string(captcha.DriverClick)+"_"):
-		return captcha.DriverClick
-	case strings.HasPrefix(captchaID, string(captcha.DriverRotate)+"_"):
-		return captcha.DriverRotate
-	default:
-		return captcha.DriverDigit
+// loginCaptchaTypeKey 生成验证码类型缓存键。
+func loginCaptchaTypeKey(captchaID string) string {
+	return fmt.Sprintf("%s:%s", loginCaptchaTypeKeyPrefix, captchaID)
+}
+
+// captchaDriverTypeByID 根据验证码 ID 查询生成时保存的校验驱动类型。
+func (c *LoginCase) captchaDriverTypeByID(captchaID string) (captcha.DriverType, bool) {
+	captchaType, err := c.Cache.Get(loginCaptchaTypeKey(captchaID))
+	if err != nil {
+		return captcha.DriverDigit, false
 	}
+	driverType, ok := captchaDriverType(captchaType)
+	// 验证码 ID 不承载类型语义，需要回读生成时保存的类型。
+	return driverType, ok
 }

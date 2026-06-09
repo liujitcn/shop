@@ -27,7 +27,7 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.10
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.10
 	github.com/liujitcn/kratos-kit/cache v0.0.10
-	github.com/liujitcn/kratos-kit/captcha v0.0.11
+	github.com/liujitcn/kratos-kit/captcha v0.0.12
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.21
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.8
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.8

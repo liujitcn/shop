@@ -23,6 +23,7 @@ import (
 // BaseCase 承载后端通用业务上下文与基础能力。
 type BaseCase struct {
 	*bootstrap.Context
+	Cache          cache.Cache // Cache 提供后端业务缓存能力。
 	queue          queue.Queue
 	casbinRuleCase *CasbinRuleCase
 	baseAPICase    *BaseAPICase
@@ -56,6 +57,7 @@ func NewBaseCase(
 
 	s := BaseCase{
 		Context:        ctx,
+		Cache:          cache,
 		queue:          queue,
 		casbinRuleCase: casbinRuleCase,
 		baseAPICase:    baseAPICase,

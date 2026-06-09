@@ -421,8 +421,8 @@ github.com/liujitcn/kratos-kit/broker v0.0.3 h1:8a8sziGE1Ryio5ryGxWRsAkMyJP2XAwG
 github.com/liujitcn/kratos-kit/broker v0.0.3/go.mod h1:cP27MKS6nvQtX1UJfyp709sGUVzc7S3IghwiHokjm2c=
 github.com/liujitcn/kratos-kit/cache v0.0.10 h1:ly+IXBAaxtVfv8I/XG9SU+yiWfPxhU7Tdy5z8IM09zE=
 github.com/liujitcn/kratos-kit/cache v0.0.10/go.mod h1:NhMc7x7v/jVVegePDvYEuBvbSi08R3ycgyU/nGvA8IU=
-github.com/liujitcn/kratos-kit/captcha v0.0.11 h1:0HFdfH+HpcMpAEBubP69OYveAGWrdBea0BOnNoY7kZM=
-github.com/liujitcn/kratos-kit/captcha v0.0.11/go.mod h1:OKp3UKDHdMKmruYO/ye3uQYiEf1vEGXqKO/0TU/A/hY=
+github.com/liujitcn/kratos-kit/captcha v0.0.12 h1:wXKsLXeUaZn3Ec238ThGsw+udosmXwiE7Et10belk5Y=
+github.com/liujitcn/kratos-kit/captcha v0.0.12/go.mod h1:gCZ1LZGEDnzFSqeYXZKcNXDPI8ZzP5ZIWVBJTUF3iVY=
 github.com/liujitcn/kratos-kit/config v0.0.12 h1:9KmUDBMY1apHeqSCJLAR6UC9z1H01/3hcXlB1nG+Gy8=
 github.com/liujitcn/kratos-kit/config v0.0.12/go.mod h1:DBIFDFmQ3fLU0Ig41NK8fAyZRCDHj5jc3UudgcgC93A=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.21 h1:bwLfSR2tWWjxkIL5aCBTPFsHDZWmYwKNu46v14tk+ek=
