@@ -16,6 +16,12 @@ scroll-view {
   overflow: hidden;
 }
 
+.uni-data-tree .selected-area,
+.uni-data-pickerview .selected-area {
+  flex: 0 1 auto;
+  height: auto;
+}
+
 image {
   width: 100%;
   height: 100%;

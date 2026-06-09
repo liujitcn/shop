@@ -115,9 +115,16 @@ const FLOW_REVEAL_CLEANUP_MS = 240
 const systemInfo = uni.getSystemInfoSync()
 const { safeAreaInsets } = systemInfo
 const composerBottom = `${Math.max(safeAreaInsets?.bottom || 0, 9)}px`
-const drawerTopPadding = `${(safeAreaInsets?.top || 0) + 12}px`
 const windowWidth = systemInfo.windowWidth || systemInfo.screenWidth || 375
 const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight || 667
+const drawerTopPadding = `${(safeAreaInsets?.top || 0) + 12}px`
+let navRightSafeWidth = '24rpx'
+// #ifdef MP-WEIXIN
+const menuButtonRect = (uni as any).getMenuButtonBoundingClientRect?.()
+if (menuButtonRect) {
+  navRightSafeWidth = `${Math.max(windowWidth - menuButtonRect.left + 8, 96)}px`
+}
+// #endif
 const showSessionDrawer = ref(false)
 const activeSessionID = ref('')
 const inputText = ref('')
@@ -165,6 +172,9 @@ const filteredSessions = computed(() => {
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
+const currentSessionTitle = computed(() => {
+  return sessions.value.find((item) => item.id === activeSessionID.value)?.title || 'AI 助手'
+})
 
 const actionMessage = computed(() => {
   return currentMessages.value.find((item) => item.key === actionMessageKey.value)
@@ -260,6 +270,7 @@ onBeforeUnmount(() => {
 
 /** 打开或收起历史会话抽屉。 */
 const toggleSessionDrawer = () => {
+  closeOperationSheet()
   showSessionDrawer.value = !showSessionDrawer.value
 }
 
@@ -830,6 +841,28 @@ const formatTools = (tools: AiAssistantTool[]) => {
 const formatRuntime = (item: ChatMessageItem) => {
   const duration = item.durationMs ? `${(item.durationMs / 1000).toFixed(1)}s` : '生成中'
   return `${item.tokenTotal} Token · 首字 ${item.firstTokenMs}ms · 总耗时 ${duration}`
+}
+
+const formatSessionTime = (session: AiAssistantSession) => {
+  const timestamp = resolveTimestamp(session.updated_at)
+  if (!timestamp) {
+    return ''
+  }
+  const date = new Date(timestamp)
+  const now = new Date()
+  const isToday =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  const hour = `${date.getHours()}`.padStart(2, '0')
+  const minute = `${date.getMinutes()}`.padStart(2, '0')
+
+  if (isToday) {
+    return `${hour}:${minute}`
+  }
+  return `${month}-${day}`
 }
 
 /** 预览消息附件图片，二期附件统一按图片附件处理。 */
@@ -2218,10 +2251,24 @@ function showError(error: unknown, fallback: string) {
 <template>
   <view class="assistant-page">
     <view class="assistant-header" :style="{ paddingTop: `${safeAreaInsets?.top || 0}px` }">
-      <view class="assistant-nav">
-        <view class="back-button icon-left" @tap="onNavigateBack"></view>
-        <view class="page-title">AI 助手</view>
-        <button class="history-button" hover-class="none" @tap="toggleSessionDrawer">会话</button>
+      <view class="assistant-nav" :style="{ paddingRight: navRightSafeWidth }">
+        <view class="nav-left">
+          <view class="back-button icon-left" @tap="onNavigateBack"></view>
+          <button
+            class="history-button"
+            hover-class="none"
+            aria-label="会话列表"
+            @tap="toggleSessionDrawer"
+          >
+            <view class="history-icon">
+              <view></view>
+              <view></view>
+              <view></view>
+            </view>
+          </button>
+        </view>
+        <view class="page-title">{{ currentSessionTitle }}</view>
+        <view class="nav-right-spacer"></view>
       </view>
     </view>
 
@@ -2791,9 +2838,21 @@ function showError(error: unknown, fallback: string) {
           @longpress="openSessionActionSheet(session, $event)"
         >
           <view class="session-content">
-            <view class="session-title">{{ session.title }}</view>
-            <view class="session-summary">{{ session.summary }}</view>
+            <view class="session-row">
+              <view class="session-title">{{ session.title }}</view>
+              <view class="session-time">{{ formatSessionTime(session) }}</view>
+            </view>
+            <view class="session-summary">{{ session.summary || '暂无摘要' }}</view>
           </view>
+          <button
+            class="session-more"
+            hover-class="none"
+            @tap.stop="openSessionActionSheet(session, $event)"
+          >
+            <view></view>
+            <view></view>
+            <view></view>
+          </button>
         </view>
         <view v-if="!loadingSessions && !filteredSessions.length" class="session-empty"
           >没有匹配的会话</view
@@ -2914,24 +2973,45 @@ page {
   height: 88rpx;
   padding: 0 24rpx;
   border-bottom: 1rpx solid #eee;
+  box-sizing: border-box;
+}
+
+.nav-left {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.nav-right-spacer {
+  flex-shrink: 0;
+  width: 24rpx;
 }
 
 .back-button {
-  width: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
   height: 64rpx;
   color: #333;
-  font-size: 44rpx;
+  font-size: 42rpx;
   line-height: 64rpx;
 }
 
 .page-title {
   position: absolute;
-  left: 50%;
+  left: 180rpx;
+  right: 180rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: #333;
   font-size: 32rpx;
   font-weight: 600;
   line-height: 88rpx;
-  transform: translateX(-50%);
+  text-align: center;
 }
 
 .history-button,
@@ -2939,6 +3019,7 @@ page {
 .voice-button,
 .send-button,
 .session-create,
+.session-more,
 .operation-item,
 .message-edit-button,
 .rename-button {
@@ -2954,14 +3035,30 @@ page {
 }
 
 .history-button {
-  width: 108rpx;
-  height: 60rpx;
-  border-radius: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60rpx;
+  height: 64rpx;
+  border-radius: 8rpx;
   color: #27ba9b;
-  font-size: 26rpx;
-  line-height: 60rpx;
-  text-align: center;
-  background-color: #e8f8f4;
+  background-color: transparent;
+}
+
+.history-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6rpx;
+  width: 30rpx;
+  height: 32rpx;
+}
+
+.history-icon view {
+  width: 30rpx;
+  height: 4rpx;
+  border-radius: 4rpx;
+  background-color: #333;
 }
 
 .assistant-body {
@@ -3729,9 +3826,9 @@ page {
 .session-mask {
   position: absolute;
   top: 0;
-  right: 560rpx;
+  right: 0;
   bottom: 0;
-  left: 0;
+  left: 560rpx;
   z-index: 20;
   background-color: rgba(0, 0, 0, 0.18);
 }
@@ -3741,7 +3838,7 @@ page {
   flex-direction: column;
   position: absolute;
   top: 0;
-  right: 0;
+  left: 0;
   bottom: 0;
   z-index: 21;
   width: 560rpx;
@@ -3749,12 +3846,12 @@ page {
   background-color: #fff;
   box-shadow: none;
   box-sizing: border-box;
-  transform: translateX(100%);
+  transform: translateX(-100%);
   transition: transform 0.2s ease;
 }
 
 .session-drawer.is-open {
-  box-shadow: -24rpx 0 60rpx rgba(0, 0, 0, 0.12);
+  box-shadow: 24rpx 0 60rpx rgba(0, 0, 0, 0.12);
   transform: translateX(0);
 }
 
@@ -3821,7 +3918,7 @@ page {
   display: flex;
   align-items: center;
   gap: 12rpx;
-  padding: 24rpx;
+  padding: 22rpx 16rpx 22rpx 22rpx;
   border: 1rpx solid #eee;
   border-radius: 10rpx;
   background-color: #fff;
@@ -3841,7 +3938,15 @@ page {
   min-width: 0;
 }
 
+.session-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
 .session-title {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -3851,11 +3956,40 @@ page {
   line-height: 34rpx;
 }
 
+.session-time {
+  flex-shrink: 0;
+  color: #a6abb3;
+  font-size: 20rpx;
+  line-height: 30rpx;
+}
+
 .session-summary {
   margin-top: 10rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: #777;
   font-size: 22rpx;
   line-height: 32rpx;
+}
+
+.session-more {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5rpx;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background-color: transparent;
+}
+
+.session-more view {
+  width: 6rpx;
+  height: 6rpx;
+  border-radius: 50%;
+  background-color: #9ca3af;
 }
 
 .session-empty {

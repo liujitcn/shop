@@ -262,8 +262,10 @@ const onSubmit = async () => {
 // #ifdef H5 || APP-PLUS
 const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
   const address = ev.detail.value.map((item) => item.value)
+  const addressName = ev.detail.value.map((item) => item.text || '')
   // 收集后端所需的 code 数据
   Object.assign(form.value, { address: address })
+  form.value.address_name = addressName
 }
 // #endif
 </script>
@@ -298,7 +300,7 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
         <picker
           class="picker"
           mode="region"
-          :value="form.address"
+          :value="form.address_name"
           :disabled="detail.status === UserStoreStatus.PENDING_REVIEW"
           @change="onRegionChange"
         >

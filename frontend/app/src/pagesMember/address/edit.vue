@@ -110,8 +110,10 @@ const onSubmit = async () => {
 // #ifdef H5 || APP-PLUS
 const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
   const address = ev.detail.value.map((item) => item.value)
+  const addressName = ev.detail.value.map((item) => item.text || '')
   // 收集后端所需的 code 数据
   Object.assign(form.value, { address: address })
+  form.value.address_name = addressName
 }
 // #endif
 </script>
@@ -136,7 +138,7 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
       <uni-forms-item name="address" class="form-item">
         <text class="label"><text class="is-required">*</text>所在地区</text>
         <!-- #ifdef MP-WEIXIN -->
-        <picker @change="onRegionChange" class="picker" mode="region" :value="form.address">
+        <picker @change="onRegionChange" class="picker" mode="region" :value="form.address_name">
           <view v-if="form.address_name.length">{{ form.address_name.join('-') }}</view>
           <view v-else class="placeholder">请选择省/市/区(县)</view>
         </picker>
