@@ -140,7 +140,6 @@
         {
           "path": "ai-assistant/index",
           "style": {
-            "navigationStyle": "custom",
             "navigationBarTitleText": "AI 助手"
           }
         },

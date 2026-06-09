@@ -118,13 +118,6 @@ const composerBottom = `${Math.max(safeAreaInsets?.bottom || 0, 9)}px`
 const windowWidth = systemInfo.windowWidth || systemInfo.screenWidth || 375
 const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight || 667
 const drawerTopPadding = `${(safeAreaInsets?.top || 0) + 12}px`
-let navRightSafeWidth = '24rpx'
-// #ifdef MP-WEIXIN
-const menuButtonRect = (uni as any).getMenuButtonBoundingClientRect?.()
-if (menuButtonRect) {
-  navRightSafeWidth = `${Math.max(windowWidth - menuButtonRect.left + 8, 96)}px`
-}
-// #endif
 const showSessionDrawer = ref(false)
 const activeSessionID = ref('')
 const inputText = ref('')
@@ -172,9 +165,6 @@ const filteredSessions = computed(() => {
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
-const currentSessionTitle = computed(() => {
-  return sessions.value.find((item) => item.id === activeSessionID.value)?.title || 'AI 助手'
-})
 
 const actionMessage = computed(() => {
   return currentMessages.value.find((item) => item.key === actionMessageKey.value)
@@ -880,16 +870,6 @@ const previewAttachment = (
     current,
     urls,
   })
-}
-
-/** 返回上一页，无历史栈时回到我的页面。 */
-const onNavigateBack = () => {
-  const pages = getCurrentPages()
-  if (pages.length > 1) {
-    uni.navigateBack()
-    return
-  }
-  uni.switchTab({ url: '/pages/my/my' })
 }
 
 /** 加载移动端 AI 助手会话列表。 */
@@ -2250,28 +2230,6 @@ function showError(error: unknown, fallback: string) {
 
 <template>
   <view class="assistant-page">
-    <view class="assistant-header" :style="{ paddingTop: `${safeAreaInsets?.top || 0}px` }">
-      <view class="assistant-nav" :style="{ paddingRight: navRightSafeWidth }">
-        <view class="nav-left">
-          <view class="back-button icon-left" @tap="onNavigateBack"></view>
-          <button
-            class="history-button"
-            hover-class="none"
-            aria-label="会话列表"
-            @tap="toggleSessionDrawer"
-          >
-            <view class="history-icon">
-              <view></view>
-              <view></view>
-              <view></view>
-            </view>
-          </button>
-        </view>
-        <view class="page-title">{{ currentSessionTitle }}</view>
-        <view class="nav-right-spacer"></view>
-      </view>
-    </view>
-
     <scroll-view
       class="assistant-body"
       scroll-y
@@ -2279,6 +2237,21 @@ function showError(error: unknown, fallback: string) {
       :scroll-into-view="chatBottomAnchor"
       :show-scrollbar="false"
     >
+      <view class="assistant-tools">
+        <button
+          class="history-button assistant-session-button"
+          hover-class="none"
+          @tap="toggleSessionDrawer"
+        >
+          <view class="history-icon">
+            <view></view>
+            <view></view>
+            <view></view>
+          </view>
+          <text>历史会话</text>
+        </button>
+      </view>
+
       <template v-if="!hasMessages">
         <view class="empty-panel">
           <view class="empty-title">AI 助手</view>
@@ -2959,61 +2932,6 @@ page {
   box-sizing: border-box;
 }
 
-.assistant-header {
-  flex-shrink: 0;
-  width: 100%;
-  background-color: #fff;
-}
-
-.assistant-nav {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 88rpx;
-  padding: 0 24rpx;
-  border-bottom: 1rpx solid #eee;
-  box-sizing: border-box;
-}
-
-.nav-left {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 2rpx;
-}
-
-.nav-right-spacer {
-  flex-shrink: 0;
-  width: 24rpx;
-}
-
-.back-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60rpx;
-  height: 64rpx;
-  color: #333;
-  font-size: 42rpx;
-  line-height: 64rpx;
-}
-
-.page-title {
-  position: absolute;
-  left: 180rpx;
-  right: 180rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #333;
-  font-size: 32rpx;
-  font-weight: 600;
-  line-height: 88rpx;
-  text-align: center;
-}
-
 .history-button,
 .attach-button,
 .voice-button,
@@ -3038,10 +2956,13 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60rpx;
-  height: 64rpx;
+  gap: 10rpx;
+  height: 56rpx;
+  padding: 0 18rpx;
   border-radius: 8rpx;
   color: #27ba9b;
+  font-size: 24rpx;
+  line-height: 56rpx;
   background-color: transparent;
 }
 
@@ -3059,6 +2980,16 @@ page {
   height: 4rpx;
   border-radius: 4rpx;
   background-color: #333;
+}
+
+.assistant-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16rpx;
+}
+
+.assistant-session-button {
+  background-color: #fff;
 }
 
 .assistant-body {
