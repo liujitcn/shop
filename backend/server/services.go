@@ -178,12 +178,12 @@ func NewServerServices(
 	}
 	var err error
 	var adminTools []tool.InvokableTool
-	adminTools, err = newAdminAgentTools(services)
+	adminTools, err = newAdminFlowAgentTools(services)
 	if err != nil {
 		return nil, err
 	}
 	var appTools []tool.InvokableTool
-	appTools, err = newAppAgentTools(services)
+	appTools, err = newAppFlowAgentTools(services)
 	if err != nil {
 		return nil, err
 	}

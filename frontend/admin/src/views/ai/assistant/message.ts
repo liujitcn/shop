@@ -87,7 +87,10 @@ function normalizeOutputContent(content?: AiAssistantOutputContent): AiAssistant
     reply_source: String(content?.reply_source ?? ""),
     model: String(content?.model ?? ""),
     fallback: Boolean(content?.fallback),
-    fallback_reason: String(content?.fallback_reason ?? "")
+    fallback_reason: String(content?.fallback_reason ?? ""),
+    flow: String(content?.flow ?? ""),
+    step: String(content?.step ?? ""),
+    blocks_json: String(content?.blocks_json ?? "")
   };
 }
 
@@ -192,7 +195,10 @@ export function createThinkingMessage(options?: { sessionID?: string; messageID?
         reply_source: "",
         model: "",
         fallback: false,
-        fallback_reason: ""
+        fallback_reason: "",
+        flow: "",
+        step: "",
+        blocks_json: ""
       },
       attachments: [],
       created_at: {

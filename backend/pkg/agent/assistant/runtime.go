@@ -75,6 +75,28 @@ func (r *Runtime) SetToolAccessChecker(checker ToolAccessChecker) {
 	r.toolGate = checker
 }
 
+// InvokeTool 按工具名直接调用当前终端已启用的 Agent 工具。
+func (r *Runtime) InvokeTool(ctx context.Context, terminal string, name string, arguments string) (*ToolInvokeResult, error) {
+	if r == nil {
+		return nil, errors.New("AI助手运行时未初始化")
+	}
+	input := RuntimeInput{Terminal: terminal, Content: name}
+	infos := r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input))
+	call := schema.ToolCall{
+		ID:   "direct_" + name,
+		Type: "function",
+		Function: schema.FunctionCall{
+			Name:      name,
+			Arguments: arguments,
+		},
+	}
+	result := r.executeToolCall(ctx, r.toolMap(ctx, input), infos, call)
+	if result.Usage.Status != "success" {
+		return &ToolInvokeResult{Output: result.Content, Usage: result.Usage}, errors.New(result.Content)
+	}
+	return &ToolInvokeResult{Output: result.Content, Usage: result.Usage}, nil
+}
+
 // Enabled 判断 AI 助手运行时是否可用。
 func (r *Runtime) Enabled() bool {
 	return r != nil && r.client != nil && r.client.AgenticModel != nil
@@ -194,6 +216,14 @@ func (r *Runtime) RunStream(ctx context.Context, input RuntimeInput, onDelta fun
 type executedToolCall struct {
 	// Content 给模型继续推理使用的工具结果文本。
 	Content string
+	// Usage 本次工具调用的后台展示记录。
+	Usage ToolUsage
+}
+
+// ToolInvokeResult 表示直接调用 Agent 工具后的结果。
+type ToolInvokeResult struct {
+	// Output 工具原始输出 JSON。
+	Output string
 	// Usage 本次工具调用的后台展示记录。
 	Usage ToolUsage
 }

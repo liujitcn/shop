@@ -179,7 +179,8 @@ async function runAiAssistantStreamTask(sessionID: string, payload: SubmitPayloa
         size: item.size,
         url: item.url,
         mime_type: item.mime_type
-      }))
+      })),
+      action: undefined
     }, {
       signal: controller.signal
     });

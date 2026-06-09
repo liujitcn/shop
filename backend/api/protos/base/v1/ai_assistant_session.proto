@@ -184,6 +184,12 @@ message AiAssistantOutputContent {
   bool fallback = 5 [(gnostic.openapi.v3.property) = {description: "是否为降级回复"}]; // 是否为降级回复
 
   string fallback_reason = 6 [(gnostic.openapi.v3.property) = {description: "降级原因"}]; // 降级原因
+
+  string flow = 7 [(gnostic.openapi.v3.property) = {description: "流程标识"}]; // 流程标识
+
+  string step = 8 [(gnostic.openapi.v3.property) = {description: "流程步骤"}]; // 流程步骤
+
+  string blocks_json = 9 [(gnostic.openapi.v3.property) = {description: "移动端结构化内容JSON"}]; // 移动端结构化内容JSON
 }
 
 // AI 助手 Token 统计

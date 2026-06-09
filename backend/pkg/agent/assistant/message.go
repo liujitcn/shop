@@ -22,6 +22,9 @@ type OutputContentPayload struct {
 	Model          string `json:"model"`
 	Fallback       bool   `json:"fallback"`
 	FallbackReason string `json:"fallback_reason"`
+	Flow           string `json:"flow"`
+	Step           string `json:"step"`
+	BlocksJSON     string `json:"blocks_json"`
 }
 
 // BuildUserContent 生成用户消息落库正文。
@@ -159,6 +162,9 @@ func MarshalReplyContent(response *Response) string {
 		Model:          response.Model,
 		Fallback:       response.Fallback,
 		FallbackReason: response.FallbackReason,
+		Flow:           response.Flow,
+		Step:           response.Step,
+		BlocksJSON:     response.BlocksJSON,
 	}
 	raw, err := json.Marshal(payload)
 	// 极端情况下 JSON 序列化失败时保留正文，避免用户完全看不到回复。

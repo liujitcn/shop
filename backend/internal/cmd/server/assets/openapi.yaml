@@ -5990,6 +5990,22 @@ paths:
                     content: {}
 components:
     schemas:
+        AiAssistantAction:
+            type: object
+            properties:
+                flow:
+                    type: string
+                    description: 流程标识
+                step:
+                    type: string
+                    description: 流程步骤
+                type:
+                    type: string
+                    description: 动作类型
+                payloadJson:
+                    type: string
+                    description: 动作负载JSON
+            description: AI 助手动作
         AiAssistantAttachment:
             type: object
             properties:
@@ -6084,6 +6100,15 @@ components:
                 fallbackReason:
                     type: string
                     description: 降级原因
+                flow:
+                    type: string
+                    description: 流程标识
+                step:
+                    type: string
+                    description: 流程步骤
+                blocksJson:
+                    type: string
+                    description: 移动端结构化内容JSON
             description: AI 助手输出内容
         AiAssistantSession:
             type: object
@@ -11245,6 +11270,8 @@ components:
                     items:
                         $ref: '#/components/schemas/AiAssistantAttachment'
                     description: 附件列表
+                action:
+                    $ref: '#/components/schemas/AiAssistantAction'
             description: AI 助手消息发送请求
         SendAiAssistantMessageResponse:
             type: object

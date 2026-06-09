@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { defAiAssistantMessageService } from '@/api/base/ai_assistant_message'
+import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
+import { defBaseAreaService } from '@/api/app/base_area'
+import {
+  defAiAssistantMessageService,
+  StreamAiAssistantMessageByChunkedRequest,
+} from '@/api/base/ai_assistant_message'
 import { defAiAssistantSessionService } from '@/api/base/ai_assistant_session'
+import type { AiAssistantAction } from '@/rpc/base/v1/ai_assistant_message'
+import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
 import type {
   AiAssistantAttachment,
   AiAssistantMessage,
@@ -11,10 +17,12 @@ import type {
 } from '@/rpc/base/v1/ai_assistant_session'
 import { AiAssistantMessageStatus, Terminal } from '@/rpc/common/v1/enum'
 import { uploadFileList } from '@/utils/file'
-import { formatSrc } from '@/utils/index'
+import { formatPrice, formatSrc } from '@/utils/index'
 import {
   type AiAssistantStreamEvent,
   type AiAssistantStreamPayload,
+  createAiAssistantEventStreamTextParser,
+  parseAiAssistantEventStreamText,
   readAiAssistantEventStream,
 } from './stream'
 
@@ -66,29 +74,43 @@ type ChatMessageItem = AiAssistantMessage & {
   replySource: string
   fallback: boolean
   fallbackReason: string
+  flow: string
+  step: string
+  blocksJson: string
+  blocks: AssistantFlowBlock[]
   tokenTotal: number
   firstTokenMs: number
   durationMs: number
   localOnly?: boolean
   streamKey?: string
+  flowReveal?: Record<string, number>
   speaking?: boolean
 }
 
 type SubmitPayload = {
   text: string
   attachments: AiAssistantAttachment[]
+  action?: AiAssistantAction
+}
+
+type AssistantFlowBlock = {
+  type: string
+  [key: string]: any
 }
 
 type StreamTask = {
-  controller: AbortController
+  abort: () => void
+  aborted: boolean
   finished: boolean
 }
 
-const THINKING_MESSAGE_CONTENT = '正在整理回复'
+const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'assistant-user-local'
 const PENDING_MESSAGE_ID = 'pending'
 const MAX_ATTACHMENT_COUNT = 6
 const AI_ASSISTANT_TERMINAL = Terminal.TERMINAL_APP
+const FLOW_REVEAL_INTERVAL_MS = 90
+const FLOW_REVEAL_CLEANUP_MS = 240
 
 const systemInfo = uni.getSystemInfoSync()
 const { safeAreaInsets } = systemInfo
@@ -111,15 +133,20 @@ const actionSessionID = ref('')
 const ignoredTapSessionID = ref('')
 const loadingSessions = ref(false)
 const loadingSessionID = ref('')
+const chatBottomAnchor = ref('')
 const uploadingAttachment = ref(false)
 const sendingSessionMap = ref<Record<string, boolean>>({})
 const sessions = ref<AiAssistantSession[]>([])
 const messages = ref<Record<string, ChatMessageItem[]>>({})
 const selectedAttachments = ref<AiAssistantAttachment[]>([])
+const addressAreaTree = ref<AppTreeOptionResponse_Option[]>([])
 const runningStreamTaskMap = new Map<string, StreamTask>()
 const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>()
+const handledPaymentBlockSet = new Set<string>()
+const flowRevealTimerMap = new Map<string, number>()
 let speakingMessageKey = ''
 let pendingDeltaTimer = 0
+let loadingAddressAreaTree = false
 const operationPoint = ref({
   x: Math.round(windowWidth / 2),
   y: Math.round(windowHeight / 2),
@@ -205,6 +232,10 @@ const operationSheetStyle = computed(() => {
   }
 })
 
+const isThinkingMessage = (item: ChatMessageItem) => {
+  return item.role === 'assistant' && item.status === AiAssistantMessageStatus.GENERATING_AAMS
+}
+
 const lastEditableUserMessageKey = computed(() => {
   const list = currentMessages.value
     .filter((item) => item.role === 'user' && !item.localOnly)
@@ -223,6 +254,7 @@ onLoad(() => {
 
 onBeforeUnmount(() => {
   cancelAllStreamTasks()
+  cancelAllFlowRevealTimers()
   clearPendingDelta()
 })
 
@@ -244,7 +276,9 @@ const selectSession = (sessionID: string) => {
   closeOperationSheet()
   if (!messages.value[sessionID]?.length || !isSessionSending(sessionID)) {
     void loadMessages(sessionID)
+    return
   }
+  scrollChatToBottom()
 }
 
 /** 新建会话，并切换到新会话。 */
@@ -314,6 +348,7 @@ const deleteSession = async (sessionID: string) => {
   try {
     await defAiAssistantSessionService.DeleteAiAssistantSession({ id: sessionID })
     cancelSessionStreamTask(sessionID)
+    cancelSessionFlowRevealTimers(sessionID)
     sessions.value = sessions.value.filter((item) => item.id !== sessionID)
     delete messages.value[sessionID]
     if (activeSessionID.value === sessionID) {
@@ -681,6 +716,12 @@ const handleSend = async () => {
     return
   }
   const text = inputText.value || (selectedAttachments.value.length ? '请结合附件内容继续分析' : '')
+  if (!selectedAttachments.value.length && (await fillActiveAddressFormFromText(text))) {
+    inputText.value = ''
+    scrollChatToBottom()
+    uni.showToast({ icon: 'none', title: '已填入地址表单，请确认后保存' })
+    return
+  }
   const payload = {
     text,
     attachments: [...selectedAttachments.value],
@@ -688,6 +729,98 @@ const handleSend = async () => {
   inputText.value = ''
   selectedAttachments.value = []
   await sendAiAssistantPayload(payload)
+}
+
+/** 提交助手流程动作，保持流程在聊天内闭环。 */
+const handleFlowAction = async (action?: AiAssistantAction, label?: string) => {
+  if (!action || currentSessionSending.value) {
+    return
+  }
+  const nextAction = enrichFlowAction(action)
+  await sendAiAssistantPayload({
+    text: label || resolveFlowActionLabel(nextAction),
+    attachments: [],
+    action: nextAction,
+  })
+}
+
+/** 提交规格选择动作。 */
+const submitSkuSelection = (block: AssistantFlowBlock, sku: AssistantFlowBlock) => {
+  const payload = parseActionPayload(block.action?.payload_json)
+  payload.sku_code = sku.sku_code
+  payload.num = Number(sku.num || 1)
+  const action = buildFlowAction(block.action, payload)
+  void handleFlowAction(action, `选择规格：${sku.spec_text || sku.sku_code}`)
+}
+
+/** 调整规格数量。 */
+const changeSkuNum = (sku: AssistantFlowBlock, delta: number) => {
+  const current = Number(sku.num || 1)
+  const inventory = Number(sku.inventory || 0)
+  const next = Math.max(1, current + delta)
+  sku.num = inventory > 0 ? Math.min(next, inventory) : next
+}
+
+/** 提交新增地址表单。 */
+const submitAddressForm = (block: AssistantFlowBlock) => {
+  const form = block.form || {}
+  if (!form.receiver || !form.contact || !form.address?.length || !form.detail) {
+    uni.showToast({ icon: 'none', title: '请补全收货地址' })
+    return
+  }
+  const payload = parseActionPayload(block.action?.payload_json)
+  payload.user_address = {
+    receiver: form.receiver,
+    contact: form.contact,
+    address: form.address,
+    address_name: form.address_name || form.address,
+    detail: form.detail,
+    is_default: Boolean(form.is_default),
+  }
+  const action = buildFlowAction(block.action, payload)
+  void handleFlowAction(action, '新增收货地址')
+}
+
+/** 提交评价表单。 */
+const submitReviewForm = (block: AssistantFlowBlock) => {
+  const form = block.form || {}
+  if (!form.content) {
+    uni.showToast({ icon: 'none', title: '请输入评价内容' })
+    return
+  }
+  const payload = parseActionPayload(block.action?.payload_json)
+  payload.content = form.content
+  payload.goods_score = Number(form.goods_score || 5)
+  payload.package_score = Number(form.package_score || 5)
+  payload.delivery_score = Number(form.delivery_score || 5)
+  payload.is_anonymous = Boolean(form.is_anonymous)
+  payload.img = []
+  const action = buildFlowAction(block.action, payload)
+  void handleFlowAction(action, '提交评价')
+}
+
+/** 调整评价分数。 */
+const changeReviewScore = (form: AssistantFlowBlock, key: string, delta: number) => {
+  form[key] = Math.min(5, Math.max(1, Number(form[key] || 5) + delta))
+}
+
+/** 选择省市区，微信使用系统区域选择器，其他端使用项目行政区域树。 */
+const onAddressRegionChange = (
+  block: AssistantFlowBlock,
+  ev: Parameters<UniHelper.RegionPickerOnChange>[0],
+) => {
+  block.form.address_name = ev.detail.value
+  block.form.address = ev.detail.code
+}
+
+/** 选择 H5/App 行政区域树。 */
+const onAddressCityChange = (
+  block: AssistantFlowBlock,
+  ev: Parameters<UniHelper.UniDataPickerOnChange>[0],
+) => {
+  const values = ev.detail.value || []
+  block.form.address = values.map((item) => String(item.value))
+  block.form.address_name = values.map((item) => String(item.text))
 }
 
 const formatTools = (tools: AiAssistantTool[]) => {
@@ -767,6 +900,9 @@ async function loadMessages(sessionID: string, options?: { force?: boolean }) {
       return
     }
     messages.value[sessionID] = normalizeMessageList(response.messages)
+    if (activeSessionID.value === sessionID) {
+      scrollChatToBottom()
+    }
   } catch (error) {
     if (loadingSessionID.value === sessionID) {
       messages.value[sessionID] = []
@@ -817,6 +953,7 @@ async function sendAiAssistantPayload(payload: SubmitPayload) {
     localUserMessage,
     thinkingMessage,
   ])
+  scrollChatToBottom()
   setSessionSending(sessionID, true)
   await runAiAssistantTask(sessionID, payload)
   return true
@@ -825,56 +962,98 @@ async function sendAiAssistantPayload(payload: SubmitPayload) {
 /** 后台执行 AI 助手消息请求。 */
 async function runAiAssistantTask(sessionID: string, payload: SubmitPayload) {
   let task: StreamTask | undefined
+  const request = {
+    session_id: sessionID,
+    content: payload.text,
+    attachments: payload.attachments,
+    action: payload.action,
+  }
   try {
-    const canStream =
+    let handledByStream = false
+
+    // #ifdef MP-WEIXIN
+    const parser = createAiAssistantEventStreamTextParser((event) =>
+      handleAiAssistantStreamEvent(event, task),
+    )
+    const chunkedTask = StreamAiAssistantMessageByChunkedRequest(request, {
+      onChunk: (chunkText) => parser.push(chunkText),
+    })
+    task = {
+      aborted: false,
+      finished: false,
+      abort() {
+        task!.aborted = true
+        chunkedTask.abort()
+      },
+    }
+    runningStreamTaskMap.set(sessionID, task)
+    handledByStream = true
+    await chunkedTask.promise
+    parser.flush()
+    if (!task.finished && !task.aborted) {
+      throw new Error('AI 助手流式响应未完整返回')
+    }
+    // #endif
+
+    // #ifdef H5
+    if (
+      !handledByStream &&
       typeof fetch === 'function' &&
       typeof ReadableStream !== 'undefined' &&
       typeof AbortController !== 'undefined'
-    if (!canStream) {
-      const response = await defAiAssistantMessageService.SendAiAssistantMessage({
-        session_id: sessionID,
-        content: payload.text,
-        attachments: payload.attachments,
+    ) {
+      const controller = new AbortController()
+      task = {
+        aborted: false,
+        finished: false,
+        abort() {
+          task!.aborted = true
+          controller.abort()
+        },
+      }
+      runningStreamTaskMap.set(sessionID, task)
+      const response = await defAiAssistantMessageService.StreamAiAssistantMessage(request, {
+        signal: controller.signal,
       })
+      if (!response.body) {
+        throw new Error('AI 助手流式响应为空')
+      }
+      await readAiAssistantEventStream(
+        response.body,
+        (event) => handleAiAssistantStreamEvent(event, task),
+        controller.signal,
+      )
+      if (!task.finished && !task.aborted) {
+        throw new Error('AI 助手流式响应未完整返回')
+      }
+      handledByStream = true
+    }
+    // #endif
+
+    if (!handledByStream) {
+      const response = await defAiAssistantMessageService.SendAiAssistantMessage(request)
+      const nextMessages = normalizeNonStreamMessages(response)
+      if (!nextMessages.length) {
+        throw new Error('AI 助手响应为空')
+      }
       messages.value[sessionID] = replacePendingMessages(
         messages.value[sessionID] ?? [],
-        normalizeMessageList(response.messages),
+        nextMessages,
       )
+      scrollChatToBottom()
       if (response.session) {
         upsertSession(normalizeSession(response.session))
       }
-      return
-    }
-
-    const controller = new AbortController()
-    task = { controller, finished: false }
-    runningStreamTaskMap.set(sessionID, task)
-    const response = await defAiAssistantMessageService.StreamAiAssistantMessage(
-      {
-        session_id: sessionID,
-        content: payload.text,
-        attachments: payload.attachments,
-      },
-      { signal: controller.signal },
-    )
-    if (!response.body) {
-      throw new Error('AI 助手流式响应为空')
-    }
-    await readAiAssistantEventStream(
-      response.body,
-      (event) => handleAiAssistantStreamEvent(event, task),
-      controller.signal,
-    )
-    if (!task.finished && !controller.signal.aborted) {
-      throw new Error('AI 助手流式响应未完整返回')
+      handlePaymentBlocks(nextMessages)
     }
   } catch (error) {
-    if (task?.controller.signal.aborted) {
+    if (task?.aborted) {
       return
     }
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
       sessionID,
     })
+    scrollChatToBottom()
     showError(error, 'AI 助手请求失败')
   } finally {
     if (task && runningStreamTaskMap.get(sessionID) === task) {
@@ -965,6 +1144,7 @@ async function branchMessage(item: ChatMessageItem) {
     messages.value[branchSession.id] = normalizeMessageList(response.messages)
     activeSessionID.value = branchSession.id
     showSessionDrawer.value = false
+    scrollChatToBottom()
     uni.showToast({ icon: 'none', title: '已创建分支会话' })
   } catch (error) {
     showError(error, '创建分支失败')
@@ -1029,9 +1209,17 @@ function handleAiAssistantFinish(payload: AiAssistantStreamPayload, task?: Strea
     nextMessages.length || !hasLocalStreamingMessages
       ? replacePendingMessages(current, nextMessages, payload)
       : current
+  const revealMessageKey = nextMessages.find(
+    (item) => item.role === 'assistant' && item.messageID === payload.message_id,
+  )?.key
+  if (revealMessageKey) {
+    startFlowReveal(sessionID, revealMessageKey)
+  }
+  scrollChatToBottom()
   if (payload.session) {
     upsertSession(normalizeSession(payload.session))
   }
+  handlePaymentBlocks(nextMessages)
 }
 
 function handleAiAssistantError(payload: AiAssistantStreamPayload, task?: StreamTask) {
@@ -1050,12 +1238,14 @@ function handleAiAssistantError(payload: AiAssistantStreamPayload, task?: Stream
       nextMessages,
       payload,
     )
+    scrollChatToBottom()
     return
   }
   messages.value[sessionID] = markStreamingError(
     ensureStreamingMessage(messages.value[sessionID] ?? [], payload),
     payload,
   )
+  scrollChatToBottom()
 }
 
 /** 合并同一时刻的流式分片，降低移动端频繁渲染压力。 */
@@ -1101,6 +1291,7 @@ function flushAiAssistantDelta() {
       ensureStreamingMessage(messages.value[sessionID] ?? [], payload),
       payload,
     )
+    scrollChatToBottom()
   }
 }
 
@@ -1140,6 +1331,74 @@ function normalizeMessageList(list?: AiAssistantMessage[] | null) {
   )
 }
 
+function normalizeNonStreamMessages(response: unknown) {
+  const jsonResponse = response as { messages?: AiAssistantMessage[] }
+  if (Array.isArray(jsonResponse?.messages)) {
+    return normalizeMessageList(jsonResponse.messages)
+  }
+
+  const events = parseAiAssistantEventStreamText(response)
+  const finishEvent = [...events].reverse().find((item) => item.event === 'finish')
+  if (finishEvent) {
+    return normalizeMessageList(finishEvent.payload.messages)
+  }
+  const errorEvent = [...events].reverse().find((item) => item.event === 'error')
+  if (errorEvent) {
+    throw new Error('AI 助手请求失败')
+  }
+  return []
+}
+
+function parseFlowBlocks(raw?: string) {
+  if (!raw) {
+    return []
+  }
+  try {
+    const blocks = JSON.parse(raw)
+    if (!Array.isArray(blocks)) {
+      return []
+    }
+    return blocks
+      .filter((item): item is AssistantFlowBlock => Boolean(item?.type))
+      .map((item) => normalizeFlowBlock(item))
+  } catch {
+    return []
+  }
+}
+
+function normalizeFlowBlock(block: AssistantFlowBlock) {
+  if (block.type === 'sku_selector') {
+    block.skus = Array.isArray(block.skus)
+      ? block.skus.map((item: AssistantFlowBlock) => ({ ...item, num: Number(item.num || 1) }))
+      : []
+  }
+  if (block.type === 'address_form' && !block.form) {
+    block.form = {
+      receiver: '',
+      contact: '',
+      address: [],
+      address_name: [],
+      detail: '',
+      is_default: true,
+    }
+  }
+  if (block.type === 'address_form') {
+    block.form.address = Array.isArray(block.form.address) ? block.form.address : []
+    block.form.address_name = Array.isArray(block.form.address_name) ? block.form.address_name : []
+    void ensureAddressAreaTreeLoaded()
+  }
+  if (block.type === 'review_form' && !block.form) {
+    block.form = {
+      content: '',
+      goods_score: 5,
+      package_score: 5,
+      delivery_score: 5,
+      is_anonymous: false,
+    }
+  }
+  return block
+}
+
 function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessageItem {
   const inputContent = {
     kind: message.input_content?.kind || 'text',
@@ -1152,6 +1411,9 @@ function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessag
     model: message.output_content?.model ?? '',
     fallback: Boolean(message.output_content?.fallback),
     fallback_reason: message.output_content?.fallback_reason ?? '',
+    flow: message.output_content?.flow ?? '',
+    step: message.output_content?.step ?? '',
+    blocks_json: message.output_content?.blocks_json ?? '',
   }
   const status = Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS)
   return {
@@ -1175,6 +1437,10 @@ function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessag
     replySource: role === 'assistant' ? outputContent.reply_source : '',
     fallback: role === 'assistant' && outputContent.fallback,
     fallbackReason: role === 'assistant' ? outputContent.fallback_reason : '',
+    flow: role === 'assistant' ? outputContent.flow : '',
+    step: role === 'assistant' ? outputContent.step : '',
+    blocksJson: role === 'assistant' ? outputContent.blocks_json : '',
+    blocks: role === 'assistant' ? parseFlowBlocks(outputContent.blocks_json) : [],
     tokenTotal: Number(message.token?.total ?? 0),
     firstTokenMs: Number(message.first_token_ms ?? 0),
     durationMs: Number(message.duration_ms ?? 0),
@@ -1225,6 +1491,9 @@ function createThinkingMessage(options?: {
         model: '',
         fallback: false,
         fallback_reason: '',
+        flow: '',
+        step: '',
+        blocks_json: '',
       },
       attachments: [],
       created_at: {
@@ -1440,6 +1709,392 @@ function buildBranchSessionTitle(item: ChatMessageItem) {
   return `分支：${content.slice(0, 18) || '新对话'}`
 }
 
+function parseActionPayload(raw?: string) {
+  if (!raw) {
+    return {} as Record<string, any>
+  }
+  try {
+    return JSON.parse(raw) as Record<string, any>
+  } catch {
+    return {} as Record<string, any>
+  }
+}
+
+function buildFlowAction(action?: Partial<AiAssistantAction>, payload?: Record<string, any>) {
+  if (!action?.type) {
+    return undefined
+  }
+  return {
+    flow: action.flow || '',
+    step: action.step || '',
+    type: action.type,
+    payload_json: JSON.stringify(payload || {}),
+  }
+}
+
+function enrichFlowAction(action: AiAssistantAction) {
+  if (action.type !== 'start_payment') {
+    return action
+  }
+  const payload = parseActionPayload(action.payload_json)
+  let platform = 'jsapi'
+  // #ifdef H5
+  platform = 'h5'
+  // #endif
+  // #ifdef APP-PLUS
+  platform = 'app'
+  // #endif
+  // #ifdef MP-WEIXIN
+  platform = 'jsapi'
+  // #endif
+  payload.platform = platform
+  return buildFlowAction(action, payload) || action
+}
+
+function resolveFlowActionLabel(action: AiAssistantAction) {
+  const labelMap: Record<string, string> = {
+    select_goods: '选择商品',
+    select_sku: '确认规格',
+    create_address: '新增收货地址',
+    select_address: '选择收货地址',
+    confirm_order: '确认下单',
+    start_payment: '发起支付',
+    open_review_form: '写评价',
+    submit_review: '提交评价',
+    view_order: '查看订单',
+    receive_order: '确认收货',
+  }
+  return labelMap[action.type] || '继续'
+}
+
+function resolveFlowScrollHeight(values: unknown, maxHeight: number, rowHeight: number) {
+  const count = Array.isArray(values) ? values.length : 0
+  if (count <= 0) {
+    return '0rpx'
+  }
+  const gapHeight = Math.max(0, count - 1) * 14
+  return `${Math.min(maxHeight, count * rowHeight + gapHeight)}rpx`
+}
+
+async function fillActiveAddressFormFromText(text: string) {
+  const content = text.replace(/\s+/g, ' ').trim()
+  if (!content) {
+    return false
+  }
+
+  const target = findActiveAddressFormBlock()
+  if (!target) {
+    return false
+  }
+
+  const form = target.block.form
+  const phone = content.match(/1[3-9]\d{9}/)?.[0] ?? ''
+  if (phone) {
+    form.contact = phone
+  }
+
+  const receiver = extractAddressField(content, ['收货人', '联系人', '姓名'])
+  if (receiver) {
+    form.receiver = receiver
+  }
+
+  const withoutPhone = phone ? content.replace(phone, ' ') : content
+  const region = await matchAddressRegionFromText(withoutPhone)
+  if (region) {
+    form.address = region.codes
+    form.address_name = region.names
+  }
+
+  const detailSource = extractAddressField(content, ['详细地址', '地址'], 80) || withoutPhone
+  const detailText = region
+    ? removeRegionNames(detailSource, region.names)
+    : detailSource.replace(/[，,]/g, ' ')
+  const parts = detailText
+    .replace(receiver || '', ' ')
+    .replace(/收货人|联系人|姓名|手机号码|手机号|电话|联系方式|详细地址|地址/g, ' ')
+    .split(/\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+  if (!form.receiver && parts.length > 1 && parts[0].length <= 8) {
+    form.receiver = parts.shift()
+  }
+  if (!form.detail && parts.length) {
+    form.detail = parts.join(' ')
+  }
+
+  return Boolean(form.receiver || form.contact || form.address?.length || form.detail)
+}
+
+function extractAddressField(text: string, labels: string[], maxLength = 12) {
+  for (const label of labels) {
+    const pattern = new RegExp(`${label}[:：\\s]*([^，,\\s]+)`)
+    const matched = text.match(pattern)?.[1]?.trim() ?? ''
+    if (matched) {
+      return matched.slice(0, maxLength)
+    }
+  }
+  return ''
+}
+
+function findActiveAddressFormBlock() {
+  const sessionID = activeSessionID.value
+  const list = messages.value[sessionID] ?? []
+  for (let index = list.length - 1; index >= 0; index--) {
+    const message = list[index]
+    if (message.role !== 'assistant') {
+      continue
+    }
+    const block = [...message.blocks].reverse().find((item) => item.type === 'address_form')
+    if (block) {
+      return { message, block }
+    }
+  }
+  return undefined
+}
+
+async function matchAddressRegionFromText(text: string) {
+  await ensureAddressAreaTreeLoaded()
+  const normalizedText = normalizeAddressText(text)
+  for (const province of addressAreaTree.value) {
+    for (const city of province.children || []) {
+      for (const area of city.children || []) {
+        const names = [province.text, city.text, area.text].filter(Boolean)
+        if (names.every((name) => normalizedText.includes(normalizeAddressText(name)))) {
+          return {
+            codes: [province.value, city.value, area.value].map((item) => String(item)),
+            names,
+          }
+        }
+      }
+    }
+  }
+  return undefined
+}
+
+async function ensureAddressAreaTreeLoaded() {
+  if (addressAreaTree.value.length || loadingAddressAreaTree) {
+    return
+  }
+  loadingAddressAreaTree = true
+  try {
+    const response = await defBaseAreaService.TreeBaseAreas({})
+    addressAreaTree.value = response.areas || []
+  } catch {
+    addressAreaTree.value = []
+  } finally {
+    loadingAddressAreaTree = false
+  }
+}
+
+function removeRegionNames(text: string, names: string[]) {
+  return names
+    .reduce((result, name) => result.split(name).join(' '), text)
+    .replace(/[，,]/g, ' ')
+    .trim()
+}
+
+function normalizeAddressText(value: string) {
+  return value.replace(/\s+/g, '').replace(/特别行政区|自治区|省|市|区|县/g, '')
+}
+
+function visibleFlowList(
+  item: ChatMessageItem,
+  block: AssistantFlowBlock,
+  blockIndex: number,
+  field: string,
+) {
+  const list = Array.isArray(block[field]) ? block[field] : []
+  if (!item.flowReveal) {
+    return list
+  }
+  const count = item.flowReveal[buildFlowRevealKey(blockIndex, field)] ?? list.length
+  return list.slice(0, count)
+}
+
+function startFlowReveal(sessionID: string, messageKey: string) {
+  cancelFlowRevealTimer(sessionID, messageKey)
+
+  const message = (messages.value[sessionID] ?? []).find((item) => item.key === messageKey)
+  const targets = message ? resolveFlowRevealTargets(message) : []
+  if (!message || !targets.length) {
+    return
+  }
+
+  const initialReveal = targets.reduce<Record<string, number>>((result, target) => {
+    result[buildFlowRevealKey(target.blockIndex, target.field)] = Math.min(1, target.total)
+    return result
+  }, {})
+  updateMessageFlowReveal(sessionID, messageKey, initialReveal)
+
+  const tick = () => {
+    const current = (messages.value[sessionID] ?? []).find((item) => item.key === messageKey)
+    const currentTargets = current ? resolveFlowRevealTargets(current) : []
+    if (!current || !currentTargets.length) {
+      flowRevealTimerMap.delete(buildFlowRevealTaskKey(sessionID, messageKey))
+      return
+    }
+
+    const nextReveal = { ...(current.flowReveal ?? {}) }
+    let hasMore = false
+    for (const target of currentTargets) {
+      const key = buildFlowRevealKey(target.blockIndex, target.field)
+      const currentCount = Number(nextReveal[key] ?? 0)
+      if (currentCount < target.total) {
+        nextReveal[key] = currentCount + 1
+        hasMore = true
+      } else {
+        nextReveal[key] = target.total
+      }
+    }
+    updateMessageFlowReveal(sessionID, messageKey, nextReveal)
+    scrollChatToBottom()
+
+    const taskKey = buildFlowRevealTaskKey(sessionID, messageKey)
+    if (hasMore) {
+      flowRevealTimerMap.set(
+        taskKey,
+        setTimeout(tick, FLOW_REVEAL_INTERVAL_MS) as unknown as number,
+      )
+      return
+    }
+
+    flowRevealTimerMap.set(
+      taskKey,
+      setTimeout(() => {
+        updateMessageFlowReveal(sessionID, messageKey, undefined)
+        flowRevealTimerMap.delete(taskKey)
+      }, FLOW_REVEAL_CLEANUP_MS) as unknown as number,
+    )
+  }
+
+  flowRevealTimerMap.set(
+    buildFlowRevealTaskKey(sessionID, messageKey),
+    setTimeout(tick, FLOW_REVEAL_INTERVAL_MS) as unknown as number,
+  )
+}
+
+function resolveFlowRevealTargets(item: ChatMessageItem) {
+  const targets: { blockIndex: number; field: string; total: number }[] = []
+  item.blocks.forEach((block, blockIndex) => {
+    const field = resolveFlowRevealField(block)
+    const total = field && Array.isArray(block[field]) ? block[field].length : 0
+    if (field && total > 1) {
+      targets.push({ blockIndex, field, total })
+    }
+  })
+  return targets
+}
+
+function resolveFlowRevealField(block: AssistantFlowBlock) {
+  if (block.type === 'goods_list' || block.type === 'pending_review_list') {
+    return 'goods'
+  }
+  if (block.type === 'sku_selector') {
+    return 'skus'
+  }
+  if (block.type === 'address_selector') {
+    return 'addresses'
+  }
+  if (block.type === 'order_list') {
+    return 'orders'
+  }
+  return ''
+}
+
+function updateMessageFlowReveal(
+  sessionID: string,
+  messageKey: string,
+  flowReveal?: Record<string, number>,
+) {
+  const list = messages.value[sessionID]
+  if (!list?.length) {
+    return
+  }
+  messages.value[sessionID] = list.map((item) => {
+    if (item.key !== messageKey) {
+      return item
+    }
+    return { ...item, flowReveal }
+  })
+}
+
+function buildFlowRevealKey(blockIndex: number, field: string) {
+  return `${blockIndex}:${field}`
+}
+
+function buildFlowRevealTaskKey(sessionID: string, messageKey: string) {
+  return `${sessionID}:${messageKey}`
+}
+
+function splitAddressText(value: string) {
+  return String(value)
+    .split(/[\s/，,]+/)
+    .filter(Boolean)
+}
+
+function handlePaymentBlocks(list: ChatMessageItem[]) {
+  for (const item of list) {
+    if (item.role !== 'assistant') {
+      continue
+    }
+    for (const block of item.blocks) {
+      if (block.type === 'payment_result') {
+        executePaymentBlock(block)
+      }
+    }
+  }
+}
+
+function executePaymentBlock(block: AssistantFlowBlock) {
+  const payData = block.pay_data || {}
+  const orderID = Number(block.order_id || 0)
+  const platform = String(block.platform || 'jsapi')
+  const paymentKey = `${orderID}:${platform}:${payData.time_stamp || payData.h5_url || ''}`
+  if (!orderID || handledPaymentBlockSet.has(paymentKey)) {
+    return
+  }
+  handledPaymentBlockSet.add(paymentKey)
+
+  if (platform === 'h5' || platform === 'app') {
+    openFlowH5PayUrl(String(payData.h5_url || ''))
+    return
+  }
+
+  // #ifdef MP-WEIXIN
+  uni.requestPayment({
+    provider: 'wxpay',
+    nonceStr: String(payData.nonce_str || ''),
+    package: String(payData.package || ''),
+    paySign: String(payData.pay_sign || ''),
+    timeStamp: String(payData.time_stamp || ''),
+    signType: 'RSA',
+    success: () => {
+      uni.showToast({ icon: 'success', title: '支付完成' })
+    },
+    fail: () => {
+      uni.showToast({ icon: 'none', title: '支付未完成' })
+    },
+  })
+  // #endif
+
+  // #ifndef MP-WEIXIN
+  uni.showToast({ icon: 'none', title: '当前端暂不支持该支付方式' })
+  // #endif
+}
+
+function openFlowH5PayUrl(url: string) {
+  if (!url) {
+    uni.showToast({ icon: 'none', title: '支付链接为空' })
+    return
+  }
+  // #ifdef H5
+  window.location.href = url
+  // #endif
+  // #ifdef APP-PLUS
+  plus.runtime.openURL(url)
+  // #endif
+}
+
 function upsertSession(session: AiAssistantSession) {
   if (!session.id) {
     return
@@ -1474,13 +2129,59 @@ function cancelSessionStreamTask(sessionID: string) {
     return
   }
   task.finished = true
-  task.controller.abort()
+  task.abort()
   runningStreamTaskMap.delete(sessionID)
   setSessionSending(sessionID, false)
 }
 
+function cancelFlowRevealTimer(sessionID: string, messageKey: string) {
+  const taskKey = buildFlowRevealTaskKey(sessionID, messageKey)
+  const timer = flowRevealTimerMap.get(taskKey)
+  if (!timer) {
+    return
+  }
+  clearTimeout(timer)
+  flowRevealTimerMap.delete(taskKey)
+}
+
+function cancelSessionFlowRevealTimers(sessionID: string) {
+  Array.from(flowRevealTimerMap.keys()).forEach((taskKey) => {
+    if (!taskKey.startsWith(`${sessionID}:`)) {
+      return
+    }
+    const timer = flowRevealTimerMap.get(taskKey)
+    if (timer) {
+      clearTimeout(timer)
+    }
+    flowRevealTimerMap.delete(taskKey)
+  })
+}
+
+function cancelAllFlowRevealTimers() {
+  Array.from(flowRevealTimerMap.values()).forEach((timer) => clearTimeout(timer))
+  flowRevealTimerMap.clear()
+}
+
 function cancelAllStreamTasks() {
   Array.from(runningStreamTaskMap.keys()).forEach((sessionID) => cancelSessionStreamTask(sessionID))
+}
+
+function scrollChatToBottom() {
+  if (!activeSessionID.value) {
+    return
+  }
+  void nextTick(() => {
+    chatBottomAnchor.value = ''
+    void nextTick(() => {
+      chatBottomAnchor.value = 'chat-bottom-anchor'
+      setTimeout(() => {
+        chatBottomAnchor.value = ''
+        void nextTick(() => {
+          chatBottomAnchor.value = 'chat-bottom-anchor'
+        })
+      }, 80)
+    })
+  })
 }
 
 function markAllMessagesSpeaking(messageKey?: string) {
@@ -1524,7 +2225,13 @@ function showError(error: unknown, fallback: string) {
       </view>
     </view>
 
-    <scroll-view class="assistant-body" scroll-y :show-scrollbar="false">
+    <scroll-view
+      class="assistant-body"
+      scroll-y
+      scroll-with-animation
+      :scroll-into-view="chatBottomAnchor"
+      :show-scrollbar="false"
+    >
       <template v-if="!hasMessages">
         <view class="empty-panel">
           <view class="empty-title">AI 助手</view>
@@ -1561,7 +2268,402 @@ function showError(error: unknown, fallback: string) {
                 <text v-if="item.model" class="reply-model">{{ item.model }}</text>
               </view>
 
-              <text class="bubble-content">{{ item.content }}</text>
+              <view
+                v-if="isThinkingMessage(item) && item.content === THINKING_MESSAGE_CONTENT"
+                class="typing-content"
+              >
+                <text>{{ item.content }}</text>
+                <view class="typing-dots">
+                  <view class="typing-dot"></view>
+                  <view class="typing-dot"></view>
+                  <view class="typing-dot"></view>
+                </view>
+              </view>
+              <view v-else class="bubble-content">{{ item.content }}</view>
+
+              <view v-if="item.blocks.length" class="flow-block-list">
+                <view
+                  v-for="(block, blockIndex) in item.blocks"
+                  :key="blockIndex"
+                  class="flow-block"
+                >
+                  <view v-if="block.title" class="flow-title">{{ block.title }}</view>
+
+                  <view v-if="block.type === 'goods_list'" class="flow-goods-list">
+                    <view v-if="!block.goods?.length" class="flow-empty">暂时没有推荐商品</view>
+                    <scroll-view
+                      v-else
+                      class="flow-scroll-list flow-goods-scroll"
+                      scroll-y
+                      :show-scrollbar="false"
+                      :style="{ height: resolveFlowScrollHeight(block.goods, 500, 150) }"
+                    >
+                      <view
+                        v-for="goods in visibleFlowList(item, block, blockIndex, 'goods')"
+                        :key="goods.id"
+                        class="flow-goods-card"
+                        :class="{ 'flow-reveal-item': item.flowReveal }"
+                        @tap="handleFlowAction(goods.action, `选择商品：${goods.name || ''}`)"
+                      >
+                        <image
+                          v-if="goods.picture"
+                          class="flow-goods-image"
+                          mode="aspectFill"
+                          :src="formatSrc(goods.picture)"
+                        />
+                        <view class="flow-goods-info">
+                          <view class="flow-goods-name">{{ goods.name }}</view>
+                          <view class="flow-goods-desc">{{ goods.desc || '精选推荐商品' }}</view>
+                          <view class="flow-price"
+                            >¥{{ formatPrice(Number(goods.price || 0)) }}</view
+                          >
+                        </view>
+                        <button class="flow-mini-button" hover-class="none">选规格</button>
+                      </view>
+                    </scroll-view>
+                  </view>
+
+                  <view v-else-if="block.type === 'sku_selector'" class="flow-sku-panel">
+                    <view class="flow-goods-card is-static">
+                      <image
+                        v-if="block.goods?.picture"
+                        class="flow-goods-image"
+                        mode="aspectFill"
+                        :src="formatSrc(block.goods.picture)"
+                      />
+                      <view class="flow-goods-info">
+                        <view class="flow-goods-name">{{ block.goods?.name }}</view>
+                        <view class="flow-goods-desc">{{ block.goods?.desc }}</view>
+                      </view>
+                    </view>
+                    <view v-if="!block.skus?.length" class="flow-empty">暂时没有可选规格</view>
+                    <scroll-view
+                      v-else
+                      class="flow-scroll-list flow-sku-scroll"
+                      scroll-y
+                      :show-scrollbar="false"
+                      :style="{ height: resolveFlowScrollHeight(block.skus, 430, 100) }"
+                    >
+                      <view
+                        v-for="sku in visibleFlowList(item, block, blockIndex, 'skus')"
+                        :key="sku.sku_code"
+                        class="flow-sku-row"
+                        :class="{ 'flow-reveal-item': item.flowReveal }"
+                      >
+                        <view class="flow-sku-info">
+                          <view class="flow-sku-name">{{ sku.spec_text || sku.sku_code }}</view>
+                          <view class="flow-price">¥{{ formatPrice(Number(sku.price || 0)) }}</view>
+                        </view>
+                        <view class="flow-stepper">
+                          <button
+                            class="flow-stepper-button"
+                            hover-class="none"
+                            @tap="changeSkuNum(sku, -1)"
+                          >
+                            -
+                          </button>
+                          <text class="flow-stepper-value">{{ sku.num }}</text>
+                          <button
+                            class="flow-stepper-button"
+                            hover-class="none"
+                            @tap="changeSkuNum(sku, 1)"
+                          >
+                            +
+                          </button>
+                        </view>
+                        <button
+                          class="flow-primary-button"
+                          hover-class="none"
+                          @tap="submitSkuSelection(block, sku)"
+                        >
+                          确认
+                        </button>
+                      </view>
+                    </scroll-view>
+                  </view>
+
+                  <view v-else-if="block.type === 'order_preview'" class="flow-order-preview">
+                    <view v-for="goods in block.goods" :key="goods.sku_code" class="flow-line">
+                      <text class="flow-line-main">{{ goods.name }}</text>
+                      <text class="flow-line-sub">x{{ goods.num }}</text>
+                    </view>
+                    <view class="flow-summary">
+                      <view class="flow-line">
+                        <text>商品金额</text>
+                        <text>¥{{ formatPrice(Number(block.summary?.total_money || 0)) }}</text>
+                      </view>
+                      <view class="flow-line is-strong">
+                        <text>应付</text>
+                        <text>¥{{ formatPrice(Number(block.summary?.pay_money || 0)) }}</text>
+                      </view>
+                    </view>
+                  </view>
+
+                  <view v-else-if="block.type === 'address_selector'" class="flow-address-list">
+                    <view v-if="!block.addresses?.length" class="flow-empty">还没有收货地址</view>
+                    <view
+                      v-for="address in visibleFlowList(item, block, blockIndex, 'addresses')"
+                      :key="address.id"
+                      class="flow-address-card is-selectable"
+                      :class="{ 'flow-reveal-item': item.flowReveal }"
+                      @tap="handleFlowAction(address.action, `选择地址：${address.receiver || ''}`)"
+                    >
+                      <view class="flow-address-check"></view>
+                      <view class="flow-address-main">
+                        <view class="flow-line is-strong">
+                          <text>{{ address.receiver }}</text>
+                          <text>{{ address.contact }}</text>
+                        </view>
+                        <view class="flow-address-text">
+                          {{ (address.address || []).join(' ') }} {{ address.detail }}
+                        </view>
+                      </view>
+                      <view class="flow-address-select">选择</view>
+                    </view>
+                  </view>
+
+                  <view v-else-if="block.type === 'address_form'" class="flow-form">
+                    <view class="flow-form-hint">可直接发送完整收货信息，我会先填入表单。</view>
+                    <input
+                      v-model="block.form.receiver"
+                      class="flow-input"
+                      placeholder="收货人"
+                      placeholder-class="flow-placeholder"
+                    />
+                    <input
+                      v-model="block.form.contact"
+                      class="flow-input"
+                      placeholder="手机号"
+                      placeholder-class="flow-placeholder"
+                    />
+                    <!-- #ifdef MP-WEIXIN -->
+                    <picker
+                      class="flow-picker"
+                      mode="region"
+                      :value="block.form.address_name"
+                      @change="onAddressRegionChange(block, $event)"
+                    >
+                      <view v-if="block.form.address_name?.length" class="flow-picker-text">
+                        {{ block.form.address_name.join('-') }}
+                      </view>
+                      <view v-else class="flow-placeholder">请选择省/市/区</view>
+                    </picker>
+                    <!-- #endif -->
+                    <!-- #ifdef H5 || APP-PLUS -->
+                    <view class="flow-picker is-data-picker">
+                      <uni-data-picker
+                        v-model="block.form.address"
+                        :localdata="addressAreaTree"
+                        placeholder="请选择省/市/区"
+                        popup-title="请选择城市"
+                        :clear-icon="false"
+                        @change="onAddressCityChange(block, $event)"
+                      />
+                    </view>
+                    <!-- #endif -->
+                    <input
+                      v-model="block.form.detail"
+                      class="flow-input"
+                      placeholder="详细地址"
+                      placeholder-class="flow-placeholder"
+                    />
+                    <button
+                      class="flow-primary-button is-wide"
+                      hover-class="none"
+                      @tap="submitAddressForm(block)"
+                    >
+                      保存地址
+                    </button>
+                  </view>
+
+                  <view
+                    v-else-if="block.type === 'selected_address'"
+                    class="flow-address-card is-static is-selected"
+                  >
+                    <view class="flow-address-check is-active"></view>
+                    <view class="flow-address-main">
+                      <view class="flow-address-badge">已选地址</view>
+                      <view class="flow-line is-strong">
+                        <text>{{ block.address?.receiver }}</text>
+                        <text>{{ block.address?.contact }}</text>
+                      </view>
+                      <view class="flow-address-text">
+                        {{ (block.address?.address || []).join(' ') }} {{ block.address?.detail }}
+                      </view>
+                    </view>
+                  </view>
+
+                  <view v-else-if="block.type === 'confirm_order'" class="flow-action-panel">
+                    <view class="flow-desc">{{ block.desc }}</view>
+                    <button
+                      class="flow-primary-button is-wide"
+                      hover-class="none"
+                      @tap="handleFlowAction(block.action, '确认下单')"
+                    >
+                      确认下单
+                    </button>
+                  </view>
+
+                  <view v-else-if="block.type === 'payment_panel'" class="flow-action-panel">
+                    <view class="flow-desc">订单号：{{ block.order_id }}</view>
+                    <button
+                      class="flow-primary-button is-wide"
+                      hover-class="none"
+                      @tap="handleFlowAction(block.action, '发起支付')"
+                    >
+                      发起支付
+                    </button>
+                  </view>
+
+                  <view v-else-if="block.type === 'payment_result'" class="flow-action-panel">
+                    <view class="flow-desc">支付已发起，请按系统提示完成支付。</view>
+                  </view>
+
+                  <view v-else-if="block.type === 'order_list'" class="flow-order-list">
+                    <view v-if="!block.orders?.length" class="flow-empty">暂时没有相关订单</view>
+                    <view
+                      v-for="order in visibleFlowList(item, block, blockIndex, 'orders')"
+                      :key="order.id"
+                      class="flow-order-card"
+                      :class="{ 'flow-reveal-item': item.flowReveal }"
+                    >
+                      <view class="flow-line is-strong">
+                        <text>订单 {{ order.order_no || order.id }}</text>
+                        <text>¥{{ formatPrice(Number(order.pay_money || 0)) }}</text>
+                      </view>
+                      <view
+                        v-for="goods in order.goods || []"
+                        :key="goods.sku_code"
+                        class="flow-line"
+                      >
+                        <text class="flow-line-main">{{ goods.name }}</text>
+                        <text class="flow-line-sub">x{{ goods.num }}</text>
+                      </view>
+                      <button
+                        class="flow-primary-button is-wide"
+                        hover-class="none"
+                        @tap="handleFlowAction(order.action, resolveFlowActionLabel(order.action))"
+                      >
+                        {{ order.action?.type === 'start_payment' ? '继续支付' : '查看详情' }}
+                      </button>
+                    </view>
+                  </view>
+
+                  <view v-else-if="block.type === 'pending_review_list'" class="flow-goods-list">
+                    <view v-if="!block.goods?.length" class="flow-empty">暂时没有待评价商品</view>
+                    <view
+                      v-for="goods in visibleFlowList(item, block, blockIndex, 'goods')"
+                      :key="`${goods.order_id}:${goods.goods_id}:${goods.sku_code}`"
+                      class="flow-goods-card"
+                      :class="{ 'flow-reveal-item': item.flowReveal }"
+                    >
+                      <image
+                        v-if="goods.goods_picture"
+                        class="flow-goods-image"
+                        mode="aspectFill"
+                        :src="formatSrc(goods.goods_picture)"
+                      />
+                      <view class="flow-goods-info">
+                        <view class="flow-goods-name">{{ goods.goods_name }}</view>
+                        <view class="flow-goods-desc">{{ goods.sku_desc || goods.desc }}</view>
+                      </view>
+                      <button
+                        class="flow-mini-button"
+                        hover-class="none"
+                        @tap="handleFlowAction(goods.action, `评价：${goods.goods_name || ''}`)"
+                      >
+                        评价
+                      </button>
+                    </view>
+                  </view>
+
+                  <view v-else-if="block.type === 'review_form'" class="flow-form">
+                    <view class="flow-goods-name">{{ block.goods?.goods_name }}</view>
+                    <textarea
+                      v-model="block.form.content"
+                      class="flow-textarea"
+                      auto-height
+                      maxlength="300"
+                      placeholder="写下真实使用感受"
+                      placeholder-class="flow-placeholder"
+                    />
+                    <view
+                      v-for="score in [
+                        ['goods_score', '商品'],
+                        ['package_score', '包装'],
+                        ['delivery_score', '配送'],
+                      ]"
+                      :key="score[0]"
+                      class="flow-score-row"
+                    >
+                      <text>{{ score[1] }}</text>
+                      <view class="flow-stepper">
+                        <button
+                          class="flow-stepper-button"
+                          hover-class="none"
+                          @tap="changeReviewScore(block.form, score[0], -1)"
+                        >
+                          -
+                        </button>
+                        <text class="flow-stepper-value">{{ block.form[score[0]] }}</text>
+                        <button
+                          class="flow-stepper-button"
+                          hover-class="none"
+                          @tap="changeReviewScore(block.form, score[0], 1)"
+                        >
+                          +
+                        </button>
+                      </view>
+                    </view>
+                    <button
+                      class="flow-primary-button is-wide"
+                      hover-class="none"
+                      @tap="submitReviewForm(block)"
+                    >
+                      提交评价
+                    </button>
+                  </view>
+
+                  <view v-else-if="block.type === 'order_logistics'" class="flow-logistics">
+                    <view class="flow-line is-strong">
+                      <text>订单 {{ block.order?.order_no || block.order?.id }}</text>
+                      <text>¥{{ formatPrice(Number(block.order?.pay_money || 0)) }}</text>
+                    </view>
+                    <view v-if="block.address" class="flow-address-text">
+                      {{ block.address.receiver }} {{ block.address.contact }}
+                      {{ (block.address.address || []).join(' ') }} {{ block.address.detail }}
+                    </view>
+                    <view v-if="block.logistics" class="flow-logistics-box">
+                      <view class="flow-desc">
+                        {{ block.logistics.name || '物流信息' }} {{ block.logistics.no || '' }}
+                      </view>
+                      <view
+                        v-for="detail in block.logistics.detail || []"
+                        :key="`${detail.time}-${detail.text}`"
+                        class="flow-timeline"
+                      >
+                        <view class="flow-timeline-time">{{ detail.time }}</view>
+                        <view class="flow-timeline-text">{{ detail.text }}</view>
+                      </view>
+                    </view>
+                    <button
+                      v-if="block.action"
+                      class="flow-primary-button is-wide"
+                      hover-class="none"
+                      @tap="handleFlowAction(block.action, '确认收货')"
+                    >
+                      确认收货
+                    </button>
+                  </view>
+
+                  <view
+                    v-else-if="block.type === 'success' || block.type === 'notice'"
+                    class="flow-action-panel"
+                  >
+                    <view class="flow-desc">{{ block.desc }}</view>
+                  </view>
+                </view>
+              </view>
 
               <view v-if="item.attachments.length" class="attachment-list">
                 <view
@@ -1606,6 +2708,7 @@ function showError(error: unknown, fallback: string) {
             </view>
           </view>
         </view>
+        <view id="chat-bottom-anchor" class="chat-bottom-anchor"></view>
       </view>
     </scroll-view>
 
@@ -1908,6 +3011,10 @@ page {
   padding-bottom: 36rpx;
 }
 
+.chat-bottom-anchor {
+  height: 1rpx;
+}
+
 .message-row {
   display: flex;
   margin-bottom: 28rpx;
@@ -1930,6 +3037,7 @@ page {
   line-height: 42rpx;
   background-color: #27ba9b;
   box-sizing: border-box;
+  overflow: visible;
 }
 
 .assistant-bubble {
@@ -1966,8 +3074,445 @@ page {
 }
 
 .bubble-content {
+  display: block;
+  min-height: 42rpx;
+  max-width: 100%;
+  overflow: visible;
+  line-height: 42rpx;
   white-space: pre-wrap;
+  overflow-wrap: break-word;
   word-break: break-word;
+  word-wrap: break-word;
+}
+
+.typing-content {
+  display: flex;
+  align-items: center;
+  min-height: 42rpx;
+  color: #333;
+  font-size: 28rpx;
+  line-height: 42rpx;
+}
+
+.typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 7rpx;
+  margin-left: 12rpx;
+}
+
+.typing-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background-color: #27ba9b;
+  animation: typing-dot-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+@keyframes typing-dot-bounce {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  40% {
+    opacity: 1;
+    transform: translateY(-5rpx);
+  }
+}
+
+.flow-block-list {
+  margin-top: 20rpx;
+}
+
+.flow-block {
+  padding: 18rpx;
+  border-radius: 10rpx;
+  background-color: #f6f7f9;
+}
+
+.flow-block + .flow-block {
+  margin-top: 16rpx;
+}
+
+.flow-title {
+  margin-bottom: 14rpx;
+  color: #333;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 34rpx;
+}
+
+.flow-empty,
+.flow-desc {
+  color: #898b94;
+  font-size: 24rpx;
+  line-height: 36rpx;
+}
+
+.flow-scroll-list {
+  box-sizing: border-box;
+}
+
+.flow-goods-scroll,
+.flow-sku-scroll {
+  padding-right: 4rpx;
+}
+
+.flow-goods-card,
+.flow-address-card,
+.flow-order-card {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx;
+  border-radius: 10rpx;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.flow-reveal-item {
+  animation: flow-reveal-in 180ms ease-out both;
+}
+
+@keyframes flow-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10rpx);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flow-goods-card + .flow-goods-card,
+.flow-address-card + .flow-address-card,
+.flow-order-card + .flow-order-card,
+.flow-sku-row + .flow-sku-row {
+  margin-top: 14rpx;
+}
+
+.flow-goods-card.is-static,
+.flow-address-card.is-static {
+  align-items: flex-start;
+}
+
+.flow-address-card {
+  border: 2rpx solid transparent;
+}
+
+.flow-address-card.is-selectable {
+  padding: 18rpx;
+  border-color: rgba(39, 186, 155, 0.28);
+  background-color: #f8fffd;
+}
+
+.flow-address-card.is-selected {
+  border-color: #27ba9b;
+  background-color: #f3fffb;
+}
+
+.flow-address-check {
+  flex-shrink: 0;
+  width: 30rpx;
+  height: 30rpx;
+  border: 3rpx solid #27ba9b;
+  border-radius: 50%;
+  box-sizing: border-box;
+  background-color: #fff;
+}
+
+.flow-address-check.is-active {
+  border-width: 8rpx;
+  background-color: #27ba9b;
+}
+
+.flow-address-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.flow-address-select {
+  flex-shrink: 0;
+  min-width: 76rpx;
+  height: 48rpx;
+  padding: 0 18rpx;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 48rpx;
+  text-align: center;
+  background-color: #27ba9b;
+}
+
+.flow-address-badge {
+  display: inline-flex;
+  height: 34rpx;
+  padding: 0 12rpx;
+  margin-bottom: 10rpx;
+  border-radius: 6rpx;
+  color: #13876f;
+  font-size: 21rpx;
+  line-height: 34rpx;
+  background-color: rgba(39, 186, 155, 0.12);
+}
+
+.flow-goods-image {
+  flex-shrink: 0;
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 8rpx;
+  background-color: #eef0f3;
+}
+
+.flow-goods-info,
+.flow-sku-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.flow-goods-name,
+.flow-sku-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+  font-size: 25rpx;
+  font-weight: 600;
+  line-height: 34rpx;
+}
+
+.flow-goods-desc,
+.flow-address-text {
+  margin-top: 6rpx;
+  color: #777;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.flow-price {
+  margin-top: 8rpx;
+  color: #cf4444;
+  font-size: 25rpx;
+  font-weight: 600;
+  line-height: 34rpx;
+}
+
+.flow-mini-button,
+.flow-primary-button,
+.flow-stepper-button {
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: normal;
+
+  &::after {
+    border: none;
+  }
+}
+
+.flow-mini-button {
+  flex-shrink: 0;
+  width: 104rpx;
+  height: 52rpx;
+  border-radius: 8rpx;
+  color: #fff;
+  font-size: 23rpx;
+  line-height: 52rpx;
+  background-color: #27ba9b;
+}
+
+.flow-primary-button {
+  flex-shrink: 0;
+  width: 112rpx;
+  height: 56rpx;
+  border-radius: 8rpx;
+  color: #fff;
+  font-size: 24rpx;
+  line-height: 56rpx;
+  background-color: #27ba9b;
+}
+
+.flow-primary-button.is-wide {
+  width: 100%;
+  margin-top: 18rpx;
+}
+
+.flow-sku-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx;
+  border-radius: 10rpx;
+  background-color: #fff;
+}
+
+.flow-stepper {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 52rpx;
+  border-radius: 8rpx;
+  background-color: #f0f2f5;
+}
+
+.flow-stepper-button {
+  width: 48rpx;
+  height: 52rpx;
+  color: #333;
+  font-size: 28rpx;
+  line-height: 52rpx;
+}
+
+.flow-stepper-value {
+  min-width: 42rpx;
+  color: #333;
+  font-size: 24rpx;
+  line-height: 52rpx;
+  text-align: center;
+}
+
+.flow-order-preview,
+.flow-action-panel,
+.flow-form,
+.flow-logistics {
+  padding: 16rpx;
+  border-radius: 10rpx;
+  background-color: #fff;
+}
+
+.flow-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  color: #666;
+  font-size: 23rpx;
+  line-height: 34rpx;
+}
+
+.flow-line + .flow-line {
+  margin-top: 10rpx;
+}
+
+.flow-line.is-strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.flow-line-main {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-line-sub {
+  flex-shrink: 0;
+  color: #898b94;
+}
+
+.flow-summary {
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #edf0f2;
+}
+
+.flow-input,
+.flow-textarea,
+.flow-picker {
+  width: 100%;
+  padding: 16rpx;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  color: #333;
+  font-size: 24rpx;
+  line-height: 36rpx;
+  background-color: #f6f7f9;
+}
+
+.flow-input + .flow-input,
+.flow-input + .flow-picker,
+.flow-picker + .flow-input,
+.flow-textarea {
+  margin-top: 12rpx;
+}
+
+.flow-form-hint {
+  margin-bottom: 12rpx;
+  color: #898b94;
+  font-size: 22rpx;
+  line-height: 32rpx;
+}
+
+.flow-picker {
+  min-height: 68rpx;
+}
+
+.flow-picker.is-data-picker {
+  padding: 0;
+  background-color: transparent;
+}
+
+.flow-picker-text {
+  color: #333;
+}
+
+.flow-textarea {
+  min-height: 132rpx;
+}
+
+.flow-placeholder {
+  color: #b8bcc5;
+}
+
+.flow-score-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14rpx;
+  color: #333;
+  font-size: 24rpx;
+  line-height: 36rpx;
+}
+
+.flow-logistics-box {
+  margin-top: 16rpx;
+  padding-top: 14rpx;
+  border-top: 1rpx solid #edf0f2;
+}
+
+.flow-timeline {
+  margin-top: 12rpx;
+}
+
+.flow-timeline-time {
+  color: #898b94;
+  font-size: 21rpx;
+  line-height: 30rpx;
+}
+
+.flow-timeline-text {
+  margin-top: 4rpx;
+  color: #333;
+  font-size: 23rpx;
+  line-height: 34rpx;
 }
 
 .attachment-list {
@@ -2145,12 +3690,14 @@ page {
 .composer-input {
   flex: 1;
   min-width: 0;
-  max-height: 118rpx;
+  min-height: 46rpx;
+  max-height: 138rpx;
   padding: 15rpx 0;
   box-sizing: border-box;
   color: #333;
   font-size: 32rpx;
   line-height: 46rpx;
+  overflow-y: auto;
   background-color: transparent;
 }
 

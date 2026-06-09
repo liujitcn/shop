@@ -862,6 +862,9 @@ type AiAssistantOutputContent struct {
 	Model          string                 `protobuf:"bytes,4,opt,name=model,proto3" json:"model,omitempty"`                                         // 回复使用的模型名称
 	Fallback       bool                   `protobuf:"varint,5,opt,name=fallback,proto3" json:"fallback,omitempty"`                                  // 是否为降级回复
 	FallbackReason string                 `protobuf:"bytes,6,opt,name=fallback_reason,json=fallbackReason,proto3" json:"fallback_reason,omitempty"` // 降级原因
+	Flow           string                 `protobuf:"bytes,7,opt,name=flow,proto3" json:"flow,omitempty"`                                           // 流程标识
+	Step           string                 `protobuf:"bytes,8,opt,name=step,proto3" json:"step,omitempty"`                                           // 流程步骤
+	BlocksJson     string                 `protobuf:"bytes,9,opt,name=blocks_json,json=blocksJson,proto3" json:"blocks_json,omitempty"`             // 移动端结构化内容JSON
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -934,6 +937,27 @@ func (x *AiAssistantOutputContent) GetFallback() bool {
 func (x *AiAssistantOutputContent) GetFallbackReason() string {
 	if x != nil {
 		return x.FallbackReason
+	}
+	return ""
+}
+
+func (x *AiAssistantOutputContent) GetFlow() string {
+	if x != nil {
+		return x.Flow
+	}
+	return ""
+}
+
+func (x *AiAssistantOutputContent) GetStep() string {
+	if x != nil {
+		return x.Step
+	}
+	return ""
+}
+
+func (x *AiAssistantOutputContent) GetBlocksJson() string {
+	if x != nil {
+		return x.BlocksJson
 	}
 	return ""
 }
@@ -1228,14 +1252,18 @@ const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"durationMs\"o\n" +
 	"\x17AiAssistantInputContent\x12&\n" +
 	"\x04kind\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容类型R\x04kind\x12,\n" +
-	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容正文R\acontent\"\xe5\x02\n" +
+	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容正文R\acontent\"\xfa\x03\n" +
 	"\x18AiAssistantOutputContent\x12&\n" +
 	"\x04kind\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容类型R\x04kind\x12,\n" +
 	"\acontent\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f内容正文R\acontent\x12D\n" +
 	"\freply_source\x18\x03 \x01(\tB!\xbaG\x1e\x92\x02\x1b回复来源：llm/fallbackR\vreplySource\x127\n" +
 	"\x05model\x18\x04 \x01(\tB!\xbaG\x1e\x92\x02\x1b回复使用的模型名称R\x05model\x127\n" +
 	"\bfallback\x18\x05 \x01(\bB\x1b\xbaG\x18\x92\x02\x15是否为降级回复R\bfallback\x12;\n" +
-	"\x0ffallback_reason\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f降级原因R\x0efallbackReason\"\xc9\x01\n" +
+	"\x0ffallback_reason\x18\x06 \x01(\tB\x12\xbaG\x0f\x92\x02\f降级原因R\x0efallbackReason\x12&\n" +
+	"\x04flow\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
+	"\x04step\x18\b \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12C\n" +
+	"\vblocks_json\x18\t \x01(\tB\"\xbaG\x1f\x92\x02\x1c移动端结构化内容JSONR\n" +
+	"blocksJson\"\xc9\x01\n" +
 	"\x10AiAssistantToken\x12,\n" +
 	"\x05input\x18\x01 \x01(\x05B\x16\xbaG\x13\x92\x02\x10输入 Token 数R\x05input\x12.\n" +
 	"\x06output\x18\x02 \x01(\x05B\x16\xbaG\x13\x92\x02\x10输出 Token 数R\x06output\x12,\n" +

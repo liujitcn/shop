@@ -66,8 +66,8 @@ const httpInterceptor = {
     if (!options.url.startsWith('http')) {
       options.url = baseURL + options.url
     }
-    // 2. 请求超时, 默认 60s
-    options.timeout = 10000
+    // 2. 请求超时，普通请求默认 10s；流式等长连接可自行传入更长超时。
+    options.timeout = options.timeout || 10000
     // 3. 添加小程序端请求头标识
     options.header = {
       ...options.header,

@@ -162,6 +162,12 @@ export interface AiAssistantOutputContent {
   fallback: boolean;
   /** 降级原因 */
   fallback_reason: string;
+  /** 流程标识 */
+  flow: string;
+  /** 流程步骤 */
+  step: string;
+  /** 移动端结构化内容JSON */
+  blocks_json: string;
 }
 
 /** AI 助手 Token 统计 */

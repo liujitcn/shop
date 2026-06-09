@@ -15,6 +15,8 @@ export interface SendAiAssistantMessageRequest {
   content: string;
   /** 附件列表 */
   attachments: AiAssistantAttachment[];
+  /** 助手动作 */
+  action: AiAssistantAction | undefined;
 }
 
 /** AI 助手消息发送响应 */
@@ -23,6 +25,18 @@ export interface SendAiAssistantMessageResponse {
   messages: AiAssistantMessage[];
   /** 最新会话信息 */
   session: AiAssistantSession | undefined;
+}
+
+/** AI 助手动作 */
+export interface AiAssistantAction {
+  /** 流程标识 */
+  flow: string;
+  /** 流程步骤 */
+  step: string;
+  /** 动作类型 */
+  type: string;
+  /** 动作负载JSON */
+  payload_json: string;
 }
 
 /** AI 助手消息删除请求 */

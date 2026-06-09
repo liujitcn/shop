@@ -10,6 +10,7 @@ import (
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/agent/assistant"
+	assistantflow "shop/pkg/agent/assistant/flow"
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
@@ -70,7 +71,7 @@ func (c *AiAssistantMessageCase) SendAiAssistantMessage(ctx context.Context, req
 
 	startAt := time.Now()
 	var reply *assistant.Response
-	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, nil)
+	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, req.GetAction(), attachments, assistantAttachments, history, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs
@@ -108,7 +109,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	messageID := strconv.FormatInt(message.ID, 10)
 	startAt := time.Now()
 	var firstTokenMs int32
-	reply, runErr := c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, func(delta string) {
+	reply, runErr := c.generateAiAssistantReply(ctx, session, userName, content, req.GetAction(), attachments, assistantAttachments, history, func(delta string) {
 		if delta == "" {
 			return
 		}
@@ -339,6 +340,9 @@ func toAiAssistantOutputContent(value assistant.OutputContentPayload) *basev1.Ai
 		Model:          value.Model,
 		Fallback:       value.Fallback,
 		FallbackReason: value.FallbackReason,
+		Flow:           value.Flow,
+		Step:           value.Step,
+		BlocksJson:     value.BlocksJSON,
 	}
 }
 
@@ -380,7 +384,7 @@ func (c *AiAssistantMessageCase) prepareNewAiAssistantMessage(ctx context.Contex
 
 	content := req.GetContent()
 	attachments := assistant.NormalizeAttachments(req.GetAttachments())
-	if content == "" && len(attachments) == 0 {
+	if content == "" && len(attachments) == 0 && req.GetAction() == nil {
 		return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("消息内容不能为空")
 	}
 	var assistantAttachments []assistant.Attachment
@@ -533,12 +537,23 @@ func (c *AiAssistantMessageCase) generateAiAssistantReply(
 	session *models.AiAssistantSession,
 	userName string,
 	content string,
+	action *basev1.AiAssistantAction,
 	attachments []*basev1.AiAssistantAttachment,
 	assistantAttachments []assistant.Attachment,
 	history []assistant.Message,
 	onDelta func(string),
 ) (*assistant.Response, error) {
 	var err error
+	var handled bool
+	var flowReply *assistant.Response
+	flowReply, handled, err = assistantflow.GenerateReply(ctx, c.assistantRuntime, session.Terminal, content, action)
+	if handled {
+		// 移动端闭环流程由本地 flow 直接生成结构化回复，先透出正文让前端有流式反馈。
+		if err == nil && flowReply != nil && flowReply.Content != "" && onDelta != nil {
+			onDelta(flowReply.Content)
+		}
+		return flowReply, err
+	}
 	if c.assistantRuntime != nil {
 		input := assistant.RuntimeInput{
 			Terminal:     assistant.NormalizeTerminalString(session.Terminal),
@@ -649,7 +664,7 @@ func (c *AiAssistantMessageCase) regenerateAiAssistantMessageWithContent(ctx con
 	}
 	startAt := time.Now()
 	var reply *assistant.Response
-	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, attachments, assistantAttachments, history, nil)
+	reply, err = c.generateAiAssistantReply(ctx, session, userName, content, nil, attachments, assistantAttachments, history, nil)
 	finishAt := time.Now()
 	durationMs := durationMilliseconds(startAt, finishAt)
 	firstTokenMs := durationMs

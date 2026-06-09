@@ -29,9 +29,87 @@ export type AiAssistantStreamEvent = {
 type SseOutput = Partial<Record<'data' | 'event' | 'id' | 'retry', unknown>>
 
 /** AI 助手事件流消费回调。 */
-type AiAssistantStreamEventHandler = (event: AiAssistantStreamEvent) => void
+export type AiAssistantStreamEventHandler = (event: AiAssistantStreamEvent) => void
+
+/** 增量 SSE 文本解析器。 */
+export type AiAssistantEventStreamTextParser = {
+  push: (value: unknown) => void
+  flush: () => void
+}
 
 const STREAM_EVENT_NAMES = new Set<AiAssistantStreamEventName>(['delta', 'finish', 'error'])
+
+function createSseTextParser(handler: AiAssistantStreamEventHandler) {
+  let currentItem: SseOutput = {}
+
+  const dispatchCurrentItem = () => {
+    const event = normalizeAiAssistantStreamItem(currentItem)
+    currentItem = {}
+    if (event) {
+      handler(event)
+    }
+  }
+
+  const handleLine = (line: string) => {
+    if (line === '') {
+      dispatchCurrentItem()
+      return
+    }
+    if (line.startsWith(':')) {
+      return
+    }
+
+    const separatorIndex = line.indexOf(':')
+    const field = separatorIndex >= 0 ? line.slice(0, separatorIndex) : line
+    let value = separatorIndex >= 0 ? line.slice(separatorIndex + 1) : ''
+    if (value.startsWith(' ')) {
+      value = value.slice(1)
+    }
+
+    if (field === 'data') {
+      currentItem.data = currentItem.data === undefined ? value : `${currentItem.data}\n${value}`
+      return
+    }
+    if (field === 'event' || field === 'id' || field === 'retry') {
+      currentItem[field] = value
+    }
+  }
+
+  return { dispatchCurrentItem, handleLine }
+}
+
+/** 创建可增量消费的 AI 助手 SSE 文本解析器。 */
+export function createAiAssistantEventStreamTextParser(
+  handler: AiAssistantStreamEventHandler,
+): AiAssistantEventStreamTextParser {
+  const parser = createSseTextParser(handler)
+  let buffer = ''
+
+  const consumeBuffer = (flush = false) => {
+    let lineBreakIndex = buffer.indexOf('\n')
+    while (lineBreakIndex >= 0) {
+      const line = buffer.slice(0, lineBreakIndex).replace(/\r$/, '')
+      buffer = buffer.slice(lineBreakIndex + 1)
+      parser.handleLine(line)
+      lineBreakIndex = buffer.indexOf('\n')
+    }
+    if (flush && buffer) {
+      parser.handleLine(buffer.replace(/\r$/, ''))
+      buffer = ''
+    }
+  }
+
+  return {
+    push(value: unknown) {
+      buffer += String(value ?? '')
+      consumeBuffer()
+    },
+    flush() {
+      consumeBuffer(true)
+      parser.dispatchCurrentItem()
+    },
+  }
+}
 
 /** 判断 SSE 事件名称是否为 AI 助手 direct stream 支持的事件。 */
 function isAiAssistantStreamEventName(event?: unknown): event is AiAssistantStreamEventName {
@@ -69,6 +147,15 @@ export function normalizeAiAssistantStreamItem(item?: SseOutput): AiAssistantStr
   }
 }
 
+/** 解析非流式客户端一次性拿到的 SSE 文本。 */
+export function parseAiAssistantEventStreamText(value: unknown) {
+  const events: AiAssistantStreamEvent[] = []
+  const parser = createAiAssistantEventStreamTextParser((event) => events.push(event))
+  parser.push(value)
+  parser.flush()
+  return events
+}
+
 /** 读取并解析 AI 助手 direct stream，支持同一页面同时消费多条会话流。 */
 export async function readAiAssistantEventStream(
   readableStream: ReadableStream<Uint8Array>,
@@ -77,55 +164,7 @@ export async function readAiAssistantEventStream(
 ) {
   const reader = readableStream.getReader()
   const decoder = new TextDecoder()
-  let buffer = ''
-  let currentItem: SseOutput = {}
-
-  const dispatchCurrentItem = () => {
-    const event = normalizeAiAssistantStreamItem(currentItem)
-    currentItem = {}
-    if (event) {
-      handler(event)
-    }
-  }
-
-  const handleLine = (line: string) => {
-    if (line === '') {
-      dispatchCurrentItem()
-      return
-    }
-    if (line.startsWith(':')) {
-      return
-    }
-
-    const separatorIndex = line.indexOf(':')
-    const field = separatorIndex >= 0 ? line.slice(0, separatorIndex) : line
-    let value = separatorIndex >= 0 ? line.slice(separatorIndex + 1) : ''
-    if (value.startsWith(' ')) {
-      value = value.slice(1)
-    }
-
-    if (field === 'data') {
-      currentItem.data = currentItem.data === undefined ? value : `${currentItem.data}\n${value}`
-      return
-    }
-    if (field === 'event' || field === 'id' || field === 'retry') {
-      currentItem[field] = value
-    }
-  }
-
-  const consumeBuffer = (flush = false) => {
-    let lineBreakIndex = buffer.indexOf('\n')
-    while (lineBreakIndex >= 0) {
-      const line = buffer.slice(0, lineBreakIndex).replace(/\r$/, '')
-      buffer = buffer.slice(lineBreakIndex + 1)
-      handleLine(line)
-      lineBreakIndex = buffer.indexOf('\n')
-    }
-    if (flush && buffer) {
-      handleLine(buffer.replace(/\r$/, ''))
-      buffer = ''
-    }
-  }
+  const parser = createAiAssistantEventStreamTextParser(handler)
 
   const abortReader = () => {
     void reader.cancel()
@@ -140,12 +179,10 @@ export async function readAiAssistantEventStream(
       if (done) {
         break
       }
-      buffer += decoder.decode(value, { stream: true })
-      consumeBuffer()
+      parser.push(decoder.decode(value, { stream: true }))
     }
-    buffer += decoder.decode()
-    consumeBuffer(true)
-    dispatchCurrentItem()
+    parser.push(decoder.decode())
+    parser.flush()
   } finally {
     signal?.removeEventListener('abort', abortReader)
     reader.releaseLock()
