@@ -279,7 +279,7 @@ const validateLoginForm = async () => {
   }
   return checkedAgreePrivacy()
 }
-// 预校验验证码并返回可用于登录的一次性令牌。
+// 预校验行为验证码并返回可用于登录的一次性令牌。
 const verifyCaptchaToken = async (captchaCode: string) => {
   const result = await defLoginService.VerifyCaptcha({
     captcha_id: form.value.captcha_id,
@@ -288,12 +288,12 @@ const verifyCaptchaToken = async (captchaCode: string) => {
   return result.captcha_token
 }
 // 执行真正的账号登录流程。
-const submitLogin = async (captchaToken: string) => {
+const submitLogin = async (captchaCode: string) => {
   const password = await encryptPassword(passwordValue.value, PASSWORD_CRYPTO_SCENE.LOGIN)
   return userStore.login({
     ...form.value,
     password,
-    captcha_code: captchaToken,
+    captcha_code: captchaCode,
   })
 }
 // 打开行为验证码弹窗。
@@ -365,8 +365,7 @@ const onSubmit = async () => {
     return
   }
   try {
-    const captchaToken = await verifyCaptchaToken(form.value.captcha_code)
-    await submitLogin(captchaToken)
+    await submitLogin(form.value.captcha_code)
     await loginSuccess()
   } catch {
     form.value.captcha_code = ''
