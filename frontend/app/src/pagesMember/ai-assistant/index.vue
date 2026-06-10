@@ -112,6 +112,8 @@ type AttachmentFileCandidate = {
   mimeType: string
 }
 
+type AddressFormStepKey = 'receiver' | 'contact' | 'address' | 'detail'
+
 type MenuButtonRect = {
   top: number
   bottom: number
@@ -131,6 +133,42 @@ const FLOW_REVEAL_CLEANUP_MS = 240
 const starterPromptGroups = [
   ['帮我推荐商品', '查看待付款订单', '我的物流到哪了', '收到商品后怎么评价'],
   ['帮我找热销商品', '查询最近订单', '帮我看看售后进度', '怎么修改收货地址'],
+]
+const addressFormSteps: {
+  key: AddressFormStepKey
+  label: string
+  shortLabel: string
+  hint: string
+  placeholder: string
+}[] = [
+  {
+    key: 'receiver',
+    label: '收货人',
+    shortLabel: '姓名',
+    hint: '先填写收货人姓名',
+    placeholder: '请输入收货人姓名',
+  },
+  {
+    key: 'contact',
+    label: '手机号',
+    shortLabel: '电话',
+    hint: '再填写收货人手机号',
+    placeholder: '请输入手机号',
+  },
+  {
+    key: 'address',
+    label: '所在地区',
+    shortLabel: '地区',
+    hint: '选择省市区',
+    placeholder: '请选择省/市/区',
+  },
+  {
+    key: 'detail',
+    label: '详细地址',
+    shortLabel: '门牌',
+    hint: '最后填写街道、楼栋和门牌号',
+    placeholder: '例如：海淀路 1 号 2 单元 301',
+  },
 ]
 const imageAttachmentExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
 const documentAttachmentExtensions = [
@@ -900,6 +938,58 @@ const submitAddressForm = (block: AssistantFlowBlock) => {
   }
   const action = buildFlowAction(block.action, payload)
   void handleFlowAction(action, '新增收货地址')
+}
+
+/** 从无地址状态进入新增地址流程。 */
+const handleCreateAddressGuide = async (block: AssistantFlowBlock) => {
+  if (currentSessionSending.value) {
+    return
+  }
+  if (block.action) {
+    await handleFlowAction(block.action, '新增收货地址')
+    return
+  }
+  await sendAiAssistantPayload({ text: '新增收货地址', attachments: [] })
+}
+
+const isAddressFormFieldFilled = (block: AssistantFlowBlock, key: AddressFormStepKey) => {
+  const form = block.form || {}
+  if (key === 'address') {
+    return Boolean(form.address?.length || form.address_name?.length)
+  }
+  return Boolean(form[key])
+}
+
+const resolveAddressActiveStepKey = (block: AssistantFlowBlock) => {
+  return addressFormSteps.find((item) => !isAddressFormFieldFilled(block, item.key))?.key ?? ''
+}
+
+const resolveAddressStepIndex = (block: AssistantFlowBlock) => {
+  const activeStepKey = resolveAddressActiveStepKey(block)
+  if (!activeStepKey) {
+    return addressFormSteps.length
+  }
+  return addressFormSteps.findIndex((item) => item.key === activeStepKey) + 1
+}
+
+const resolveAddressStepClass = (block: AssistantFlowBlock, key: AddressFormStepKey) => {
+  if (isAddressFormFieldFilled(block, key)) {
+    return 'is-done'
+  }
+  return resolveAddressActiveStepKey(block) === key ? 'is-active' : ''
+}
+
+const resolveAddressGuideHint = (block: AssistantFlowBlock) => {
+  const activeStepKey = resolveAddressActiveStepKey(block)
+  if (!activeStepKey) {
+    return '信息已填完，确认无误后保存地址。'
+  }
+  const step = addressFormSteps.find((item) => item.key === activeStepKey)
+  return step ? `第 ${resolveAddressStepIndex(block)} 步：${step.hint}` : ''
+}
+
+const isAddressFormReady = (block: AssistantFlowBlock) => {
+  return addressFormSteps.every((item) => isAddressFormFieldFilled(block, item.key))
 }
 
 /** 提交评价表单。 */
@@ -2843,7 +2933,19 @@ function showError(error: unknown, fallback: string) {
                   </view>
 
                   <view v-else-if="block.type === 'address_selector'" class="flow-address-list">
-                    <view v-if="!block.addresses?.length" class="flow-empty">还没有收货地址</view>
+                    <view v-if="!block.addresses?.length" class="flow-address-empty-guide">
+                      <view class="flow-address-empty-title">还没有收货地址</view>
+                      <view class="flow-address-empty-desc">
+                        我可以带你一步一步新增，先填收货人，再选地区和详细地址。
+                      </view>
+                      <button
+                        class="flow-primary-button is-wide"
+                        hover-class="none"
+                        @tap="handleCreateAddressGuide(block)"
+                      >
+                        开始新增地址
+                      </button>
+                    </view>
                     <view
                       v-for="address in visibleFlowList(item, block, blockIndex, 'addresses')"
                       :key="address.id"
@@ -2865,53 +2967,104 @@ function showError(error: unknown, fallback: string) {
                     </view>
                   </view>
 
-                  <view v-else-if="block.type === 'address_form'" class="flow-form">
-                    <view class="flow-form-hint">可直接发送完整收货信息，我会先填入表单。</view>
-                    <input
-                      v-model="block.form.receiver"
-                      class="flow-input"
-                      placeholder="收货人"
-                      placeholder-class="flow-placeholder"
-                    />
-                    <input
-                      v-model="block.form.contact"
-                      class="flow-input"
-                      placeholder="手机号"
-                      placeholder-class="flow-placeholder"
-                    />
-                    <!-- #ifdef MP-WEIXIN -->
-                    <picker
-                      class="flow-picker"
-                      mode="region"
-                      :value="block.form.address_name"
-                      @change="onAddressRegionChange(block, $event)"
-                    >
-                      <view v-if="block.form.address_name?.length" class="flow-picker-text">
-                        {{ block.form.address_name.join('-') }}
+                  <view v-else-if="block.type === 'address_form'" class="flow-form is-address">
+                    <view class="flow-address-guide-head">
+                      <view>
+                        <view class="flow-address-guide-title">新增收货地址</view>
+                        <view class="flow-address-guide-hint">{{
+                          resolveAddressGuideHint(block)
+                        }}</view>
                       </view>
-                      <view v-else class="flow-placeholder">请选择省/市/区</view>
-                    </picker>
-                    <!-- #endif -->
-                    <!-- #ifdef H5 || APP-PLUS -->
-                    <view class="flow-picker is-data-picker">
-                      <uni-data-picker
-                        v-model="block.form.address"
-                        :localdata="addressAreaTree"
-                        placeholder="请选择省/市/区"
-                        popup-title="请选择城市"
-                        :clear-icon="false"
-                        @change="onAddressCityChange(block, $event)"
+                      <view class="flow-address-guide-step">
+                        {{ resolveAddressStepIndex(block) }}/{{ addressFormSteps.length }}
+                      </view>
+                    </view>
+                    <view class="flow-address-steps">
+                      <view
+                        v-for="(step, stepIndex) in addressFormSteps"
+                        :key="step.key"
+                        class="flow-address-step"
+                        :class="resolveAddressStepClass(block, step.key)"
+                      >
+                        <view class="flow-address-step-dot">{{ stepIndex + 1 }}</view>
+                        <view class="flow-address-step-label">{{ step.shortLabel }}</view>
+                      </view>
+                    </view>
+                    <view class="flow-form-hint">
+                      也可以直接把完整收货信息发给我，我会自动帮你填入。
+                    </view>
+                    <view
+                      class="flow-address-field"
+                      :class="resolveAddressStepClass(block, 'receiver')"
+                    >
+                      <view class="flow-address-field-label">1. 收货人</view>
+                      <input
+                        v-model="block.form.receiver"
+                        class="flow-input is-large"
+                        :placeholder="addressFormSteps[0].placeholder"
+                        placeholder-class="flow-placeholder"
                       />
                     </view>
-                    <!-- #endif -->
-                    <input
-                      v-model="block.form.detail"
-                      class="flow-input"
-                      placeholder="详细地址"
-                      placeholder-class="flow-placeholder"
-                    />
+                    <view
+                      class="flow-address-field"
+                      :class="resolveAddressStepClass(block, 'contact')"
+                    >
+                      <view class="flow-address-field-label">2. 手机号</view>
+                      <input
+                        v-model="block.form.contact"
+                        class="flow-input is-large"
+                        :placeholder="addressFormSteps[1].placeholder"
+                        placeholder-class="flow-placeholder"
+                      />
+                    </view>
+                    <view
+                      class="flow-address-field"
+                      :class="resolveAddressStepClass(block, 'address')"
+                    >
+                      <view class="flow-address-field-label">3. 所在地区</view>
+                      <!-- #ifdef MP-WEIXIN -->
+                      <picker
+                        class="flow-picker is-large"
+                        mode="region"
+                        :value="block.form.address_name"
+                        @change="onAddressRegionChange(block, $event)"
+                      >
+                        <view v-if="block.form.address_name?.length" class="flow-picker-text">
+                          {{ block.form.address_name.join('-') }}
+                        </view>
+                        <view v-else class="flow-placeholder">{{
+                          addressFormSteps[2].placeholder
+                        }}</view>
+                      </picker>
+                      <!-- #endif -->
+                      <!-- #ifdef H5 || APP-PLUS -->
+                      <view class="flow-picker is-data-picker is-large">
+                        <uni-data-picker
+                          v-model="block.form.address"
+                          :localdata="addressAreaTree"
+                          :placeholder="addressFormSteps[2].placeholder"
+                          popup-title="请选择城市"
+                          :clear-icon="false"
+                          @change="onAddressCityChange(block, $event)"
+                        />
+                      </view>
+                      <!-- #endif -->
+                    </view>
+                    <view
+                      class="flow-address-field"
+                      :class="resolveAddressStepClass(block, 'detail')"
+                    >
+                      <view class="flow-address-field-label">4. 详细地址</view>
+                      <input
+                        v-model="block.form.detail"
+                        class="flow-input is-large"
+                        :placeholder="addressFormSteps[3].placeholder"
+                        placeholder-class="flow-placeholder"
+                      />
+                    </view>
                     <button
                       class="flow-primary-button is-wide"
+                      :class="{ 'is-disabled': !isAddressFormReady(block) }"
                       hover-class="none"
                       @tap="submitAddressForm(block)"
                     >
@@ -4166,6 +4319,10 @@ page {
   margin-top: 18rpx;
 }
 
+.flow-primary-button.is-disabled {
+  background-color: #9ddfcc;
+}
+
 .flow-sku-row {
   display: flex;
   align-items: center;
@@ -4207,6 +4364,10 @@ page {
   padding: 16rpx;
   border-radius: 10rpx;
   background-color: #fff;
+}
+
+.flow-form.is-address {
+  padding: 20rpx;
 }
 
 .flow-line {
@@ -4260,6 +4421,23 @@ page {
   background-color: #f6f7f9;
 }
 
+.flow-input.is-large,
+.flow-picker.is-large {
+  min-height: 84rpx;
+  padding: 20rpx 22rpx;
+  border: 2rpx solid #edf0f2;
+  border-radius: 12rpx;
+  color: #111;
+  font-size: 29rpx;
+  line-height: 44rpx;
+  background-color: #fff;
+}
+
+.flow-picker.is-large {
+  display: flex;
+  align-items: center;
+}
+
 .flow-input + .flow-input,
 .flow-input + .flow-picker,
 .flow-picker + .flow-input,
@@ -4274,6 +4452,148 @@ page {
   line-height: 32rpx;
 }
 
+.flow-address-guide-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.flow-address-guide-title {
+  color: #222;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 38rpx;
+}
+
+.flow-address-guide-hint {
+  margin-top: 6rpx;
+  color: #666;
+  font-size: 23rpx;
+  line-height: 34rpx;
+}
+
+.flow-address-guide-step {
+  flex-shrink: 0;
+  min-width: 72rpx;
+  height: 44rpx;
+  padding: 0 14rpx;
+  border-radius: 22rpx;
+  color: #16806d;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 44rpx;
+  text-align: center;
+  background-color: #e8f8f4;
+  box-sizing: border-box;
+}
+
+.flow-address-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10rpx;
+  margin-bottom: 18rpx;
+}
+
+.flow-address-step {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  color: #9aa0aa;
+}
+
+.flow-address-step-dot {
+  width: 42rpx;
+  height: 42rpx;
+  border: 2rpx solid #dde2e8;
+  border-radius: 50%;
+  box-sizing: border-box;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 38rpx;
+  text-align: center;
+  background-color: #fff;
+}
+
+.flow-address-step-label {
+  font-size: 21rpx;
+  line-height: 28rpx;
+}
+
+.flow-address-step.is-active {
+  color: #16806d;
+}
+
+.flow-address-step.is-active .flow-address-step-dot {
+  border-color: #27ba9b;
+  color: #27ba9b;
+  background-color: #e8f8f4;
+}
+
+.flow-address-step.is-done {
+  color: #27ba9b;
+}
+
+.flow-address-step.is-done .flow-address-step-dot {
+  border-color: #27ba9b;
+  color: #fff;
+  background-color: #27ba9b;
+}
+
+.flow-address-field {
+  padding: 16rpx;
+  border: 2rpx solid #edf0f2;
+  border-radius: 14rpx;
+  background-color: #f9fafb;
+}
+
+.flow-address-field + .flow-address-field {
+  margin-top: 14rpx;
+}
+
+.flow-address-field.is-active {
+  border-color: rgba(39, 186, 155, 0.55);
+  background-color: #f7fffc;
+}
+
+.flow-address-field.is-done {
+  border-color: rgba(39, 186, 155, 0.22);
+}
+
+.flow-address-field-label {
+  margin-bottom: 12rpx;
+  color: #333;
+  font-size: 25rpx;
+  font-weight: 600;
+  line-height: 34rpx;
+}
+
+.flow-address-empty-guide {
+  padding: 22rpx;
+  border: 2rpx dashed rgba(39, 186, 155, 0.38);
+  border-radius: 14rpx;
+  background-color: #f8fffd;
+}
+
+.flow-address-empty-title {
+  color: #222;
+  font-size: 27rpx;
+  font-weight: 700;
+  line-height: 38rpx;
+}
+
+.flow-address-empty-desc {
+  margin-top: 8rpx;
+  color: #666;
+  font-size: 24rpx;
+  line-height: 36rpx;
+}
+
 .flow-picker {
   min-height: 68rpx;
 }
@@ -4281,6 +4601,14 @@ page {
 .flow-picker.is-data-picker {
   padding: 0;
   background-color: transparent;
+}
+
+.flow-picker.is-data-picker.is-large {
+  min-height: 84rpx;
+  padding: 0 22rpx;
+  border: 2rpx solid #edf0f2;
+  border-radius: 12rpx;
+  background-color: #fff;
 }
 
 .flow-picker-text {
