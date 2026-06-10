@@ -16,7 +16,7 @@ import type {
   AiAssistantTool,
 } from '@/rpc/base/v1/ai_assistant_session'
 import { AiAssistantMessageStatus, Terminal } from '@/rpc/common/v1/enum'
-import { uploadFileList } from '@/utils/file'
+import { uploadFile } from '@/utils/file'
 import { formatPrice, formatSrc } from '@/utils/index'
 import {
   type AiAssistantStreamEvent,
@@ -104,6 +104,14 @@ type StreamTask = {
   finished: boolean
 }
 
+type AttachmentFileCandidate = {
+  name: string
+  path: string
+  size: number
+  extension: string
+  mimeType: string
+}
+
 const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'assistant-user-local'
 const PENDING_MESSAGE_ID = 'pending'
@@ -111,9 +119,51 @@ const MAX_ATTACHMENT_COUNT = 6
 const AI_ASSISTANT_TERMINAL = Terminal.TERMINAL_APP
 const FLOW_REVEAL_INTERVAL_MS = 90
 const FLOW_REVEAL_CLEANUP_MS = 240
+const starterPrompts = ['帮我推荐商品']
+const imageAttachmentExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
+const documentAttachmentExtensions = [
+  'pdf',
+  'doc',
+  'docx',
+  'xls',
+  'xlsx',
+  'ppt',
+  'pptx',
+  'txt',
+  'json',
+  'csv',
+  'xml',
+  'md',
+  'markdown',
+]
+const supportedAttachmentExtensions = [
+  ...imageAttachmentExtensions,
+  ...documentAttachmentExtensions,
+]
+const attachmentMimeMap: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  pdf: 'application/pdf',
+  doc: 'application/msword',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xls: 'application/vnd.ms-excel',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ppt: 'application/vnd.ms-powerpoint',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  txt: 'text/plain',
+  json: 'application/json',
+  csv: 'text/csv',
+  xml: 'application/xml',
+  md: 'text/plain',
+  markdown: 'text/plain',
+}
 
 const systemInfo = uni.getSystemInfoSync()
 const { safeAreaInsets } = systemInfo
+const navTopPadding = `${safeAreaInsets?.top || 0}px`
 const composerBottom = `${Math.max(safeAreaInsets?.bottom || 0, 9)}px`
 const windowWidth = systemInfo.windowWidth || systemInfo.screenWidth || 375
 const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight || 667
@@ -135,6 +185,10 @@ const loadingSessions = ref(false)
 const loadingSessionID = ref('')
 const chatBottomAnchor = ref('')
 const uploadingAttachment = ref(false)
+const showTextPreview = ref(false)
+const loadingTextPreview = ref(false)
+const textPreviewTitle = ref('')
+const textPreviewContent = ref('')
 const sendingSessionMap = ref<Record<string, boolean>>({})
 const sessions = ref<AiAssistantSession[]>([])
 const messages = ref<Record<string, ChatMessageItem[]>>({})
@@ -654,7 +708,17 @@ const handleSessionOperation = (action: SessionActionKey) => {
   void deleteSession(session.id)
 }
 
-/** 上传图片附件，发送时随消息一起提交。 */
+/** 返回上一页，缺少页面栈时回到首页。 */
+const navigateBack = () => {
+  const pages = getCurrentPages()
+  if (pages.length > 1) {
+    uni.navigateBack()
+    return
+  }
+  uni.switchTab({ url: '/pages/index/index' })
+}
+
+/** 上传助手附件，H5 与微信小程序共用同一套类型白名单。 */
 const handleAttachment = async () => {
   if (uploadingAttachment.value || currentSessionSending.value) {
     return
@@ -665,25 +729,22 @@ const handleAttachment = async () => {
   }
 
   try {
-    const result = await uni.chooseImage({
-      count: MAX_ATTACHMENT_COUNT - selectedAttachments.value.length,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-    })
-    const filePaths = Array.isArray(result.tempFilePaths)
-      ? result.tempFilePaths
-      : [result.tempFilePaths].filter(Boolean)
-    if (!filePaths.length) {
+    const attachmentFiles = await chooseAttachmentFiles(
+      MAX_ATTACHMENT_COUNT - selectedAttachments.value.length,
+    )
+    if (!attachmentFiles.length) {
       return
     }
     uploadingAttachment.value = true
-    const files = await uploadFileList('assistant', filePaths)
+    const files = await Promise.all(
+      attachmentFiles.map((item) => uploadFile('assistant', item.path)),
+    )
     const nextAttachments = files.map<AiAssistantAttachment>((file, index) => ({
       id: file.url || `${file.name}-${index}`,
-      name: file.name,
-      size: 0,
+      name: attachmentFiles[index]?.name || file.name,
+      size: attachmentFiles[index]?.size || 0,
       url: file.url,
-      mime_type: resolveMimeType(file.name),
+      mime_type: attachmentFiles[index]?.mimeType || resolveMimeType(file.name),
     }))
     selectedAttachments.value = [...selectedAttachments.value, ...nextAttachments].slice(
       0,
@@ -730,6 +791,21 @@ const handleSend = async () => {
   inputText.value = ''
   selectedAttachments.value = []
   await sendAiAssistantPayload(payload)
+}
+
+/** 使用空态快捷提示直接开始对话。 */
+const handleStarterPrompt = async (text: string) => {
+  if (
+    loadingSessions.value ||
+    uploadingAttachment.value ||
+    currentSessionSending.value ||
+    isRecording.value
+  ) {
+    return
+  }
+  inputText.value = ''
+  selectedAttachments.value = []
+  await sendAiAssistantPayload({ text, attachments: [] })
 }
 
 /** 提交助手流程动作，保持流程在聊天内闭环。 */
@@ -855,21 +931,28 @@ const formatSessionTime = (session: AiAssistantSession) => {
   return `${month}-${day}`
 }
 
-/** 预览消息附件图片，二期附件统一按图片附件处理。 */
-const previewAttachment = (
+/** 预览消息附件，图片走图片预览，文档走平台文档预览。 */
+const previewAttachment = async (
   attachment: AiAssistantAttachment,
   attachments: AiAssistantAttachment[],
 ) => {
-  const urls = attachments.map((item) => formatSrc(item.url)).filter(Boolean)
   const current = formatSrc(attachment.url)
-  if (!current || !urls.length) {
+  if (!current) {
     uni.showToast({ icon: 'none', title: '附件地址为空' })
     return
   }
-  uni.previewImage({
-    current,
-    urls,
-  })
+  if (isImageAttachment(attachment)) {
+    const urls = attachments
+      .filter((item) => isImageAttachment(item))
+      .map((item) => formatSrc(item.url))
+      .filter(Boolean)
+    uni.previewImage({
+      current,
+      urls: urls.length ? urls : [current],
+    })
+    return
+  }
+  await openDocumentAttachment(attachment, current)
 }
 
 /** 加载移动端 AI 助手会话列表。 */
@@ -1181,6 +1264,62 @@ function removeSelectedAttachment(attachment: AiAssistantAttachment) {
     (item) =>
       (item.id || item.url || item.name) !== (attachment.id || attachment.url || attachment.name),
   )
+}
+
+async function chooseAttachmentFiles(limit: number) {
+  let selectedFiles: AttachmentFileCandidate[] = []
+  // #ifdef MP-WEIXIN
+  selectedFiles = await chooseWechatAttachmentFiles(limit)
+  // #endif
+  // #ifdef H5
+  selectedFiles = await chooseH5AttachmentFiles(limit)
+  // #endif
+  // #ifndef MP-WEIXIN
+  // #ifndef H5
+  uni.showToast({ icon: 'none', title: '当前端暂不支持附件' })
+  // #endif
+  // #endif
+  const supportedFiles = selectedFiles.filter((item) =>
+    isSupportedAttachmentExtension(item.extension),
+  )
+  if (selectedFiles.length && !supportedFiles.length) {
+    uni.showToast({ icon: 'none', title: '请选择支持的文件类型' })
+  }
+  return supportedFiles.slice(0, limit)
+}
+
+async function chooseWechatAttachmentFiles(limit: number) {
+  const result = await wx.chooseMessageFile({
+    count: limit,
+    type: 'all',
+    extension: supportedAttachmentExtensions,
+  })
+  return result.tempFiles.map((item) =>
+    normalizeAttachmentFile(item.path, item.name, Number(item.size || 0)),
+  )
+}
+
+async function chooseH5AttachmentFiles(limit: number) {
+  const result = await uni.chooseFile({
+    count: limit,
+    type: 'all',
+    extension: supportedAttachmentExtensions.map((item) => `.${item}`),
+  })
+  const tempFilePaths = Array.isArray(result.tempFilePaths)
+    ? result.tempFilePaths
+    : [result.tempFilePaths].filter(Boolean)
+  const tempFiles = Array.isArray(result.tempFiles) ? result.tempFiles : [result.tempFiles]
+  return tempFilePaths
+    .map((path, index) => {
+      const item = tempFiles[index]
+      const file = item as File & { path?: string; name?: string; size?: number }
+      return normalizeAttachmentFile(
+        path || file.path || '',
+        file.name || '',
+        Number(file.size || 0),
+      )
+    })
+    .filter((item) => item.path)
 }
 
 /** 处理 AI 助手流式事件。 */
@@ -2206,15 +2345,178 @@ function markAllMessagesSpeaking(messageKey?: string) {
   })
 }
 
+function normalizeAttachmentFile(
+  path: string,
+  name: string,
+  size: number,
+): AttachmentFileCandidate {
+  const fileName = name || resolveFileName(path)
+  const extension = resolveFileExtension(fileName || path)
+  return {
+    name: fileName || '未命名附件',
+    path,
+    size,
+    extension,
+    mimeType: resolveMimeType(fileName || path),
+  }
+}
+
+function resolveFileName(path: string) {
+  return path.split(/[\\/]/).pop()?.split('?')[0] || ''
+}
+
+function resolveFileExtension(name: string) {
+  const cleanName = name.split('?')[0].split('#')[0]
+  const index = cleanName.lastIndexOf('.')
+  if (index < 0 || index === cleanName.length - 1) {
+    return ''
+  }
+  return cleanName.slice(index + 1).toLowerCase()
+}
+
+function isSupportedAttachmentExtension(extension: string) {
+  return supportedAttachmentExtensions.includes(extension)
+}
+
+function isImageAttachment(attachment: AiAssistantAttachment) {
+  const mimeType = attachment.mime_type || resolveMimeType(attachment.name || attachment.url)
+  return mimeType.startsWith('image/')
+}
+
+function isDocumentPreviewAttachment(attachment: AiAssistantAttachment) {
+  const extension = resolveFileExtension(attachment.name || attachment.url)
+  return ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(extension)
+}
+
+function isTextPreviewAttachment(attachment: AiAssistantAttachment) {
+  const extension = resolveFileExtension(attachment.name || attachment.url)
+  return ['txt', 'json', 'csv', 'xml', 'md', 'markdown'].includes(extension)
+}
+
+function resolveAttachmentIcon(attachment: AiAssistantAttachment) {
+  const extension = resolveFileExtension(attachment.name || attachment.url)
+  if (imageAttachmentExtensions.includes(extension)) {
+    return '图'
+  }
+  if (extension === 'pdf') {
+    return 'PDF'
+  }
+  if (['doc', 'docx'].includes(extension)) {
+    return 'W'
+  }
+  if (['xls', 'xlsx'].includes(extension)) {
+    return 'X'
+  }
+  if (['ppt', 'pptx'].includes(extension)) {
+    return 'P'
+  }
+  return '文'
+}
+
+function formatAttachmentMeta(attachment: AiAssistantAttachment) {
+  const extension = resolveFileExtension(attachment.name || attachment.url)
+  const labelMap: Record<string, string> = {
+    jpg: '图片',
+    jpeg: '图片',
+    png: '图片',
+    gif: '图片',
+    webp: '图片',
+    pdf: 'PDF 文档',
+    doc: 'Word 文档',
+    docx: 'Word 文档',
+    xls: 'Excel 表格',
+    xlsx: 'Excel 表格',
+    ppt: 'PPT 文档',
+    pptx: 'PPT 文档',
+    txt: '文本',
+    json: 'JSON',
+    csv: 'CSV',
+    xml: 'XML',
+    md: 'Markdown',
+    markdown: 'Markdown',
+  }
+  const typeLabel = labelMap[extension] || attachment.mime_type || '附件'
+  return attachment.size ? `${typeLabel} · ${formatAttachmentSize(attachment.size)}` : typeLabel
+}
+
+function formatAttachmentSize(size: number) {
+  if (size >= 1024 * 1024) {
+    return `${(size / 1024 / 1024).toFixed(1)}MB`
+  }
+  if (size >= 1024) {
+    return `${Math.ceil(size / 1024)}KB`
+  }
+  return `${size}B`
+}
+
+async function openDocumentAttachment(attachment: AiAssistantAttachment, url: string) {
+  if (isTextPreviewAttachment(attachment)) {
+    await openTextAttachmentPreview(attachment, url)
+    return
+  }
+  if (!isDocumentPreviewAttachment(attachment)) {
+    uni.showToast({ icon: 'none', title: '该文件暂不支持预览' })
+    return
+  }
+  // #ifdef MP-WEIXIN
+  const downloadResult = await uni.downloadFile({ url })
+  if (downloadResult.statusCode !== 200) {
+    uni.showToast({ icon: 'none', title: '文件下载失败' })
+    return
+  }
+  await wx.openDocument({
+    filePath: downloadResult.tempFilePath,
+    fileType: resolveFileExtension(
+      attachment.name || attachment.url,
+    ) as WechatMiniprogram.OpenDocumentOption['fileType'],
+    showMenu: true,
+  })
+  // #endif
+  // #ifdef H5
+  window.open(url, '_blank')
+  // #endif
+}
+
+async function openTextAttachmentPreview(attachment: AiAssistantAttachment, url: string) {
+  loadingTextPreview.value = true
+  showTextPreview.value = true
+  textPreviewTitle.value = attachment.name || '文本附件'
+  textPreviewContent.value = '正在加载...'
+  try {
+    // #ifdef MP-WEIXIN
+    const downloadResult = await uni.downloadFile({ url })
+    if (downloadResult.statusCode !== 200) {
+      throw new Error('文件下载失败')
+    }
+    const fileSystemManager = wx.getFileSystemManager()
+    textPreviewContent.value = fileSystemManager.readFileSync(
+      downloadResult.tempFilePath,
+      'utf-8',
+    ) as string
+    // #endif
+    // #ifdef H5
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error('文件加载失败')
+    }
+    textPreviewContent.value = await response.text()
+    // #endif
+  } catch (error) {
+    textPreviewContent.value = error instanceof Error ? error.message : '文件加载失败'
+  } finally {
+    loadingTextPreview.value = false
+  }
+}
+
+function closeTextPreview() {
+  showTextPreview.value = false
+  loadingTextPreview.value = false
+  textPreviewTitle.value = ''
+  textPreviewContent.value = ''
+}
+
 function resolveMimeType(name: string) {
-  const extension = name.split('.').pop()?.toLowerCase() ?? ''
-  if (['jpg', 'jpeg'].includes(extension)) {
-    return 'image/jpeg'
-  }
-  if (['png', 'gif', 'webp'].includes(extension)) {
-    return `image/${extension}`
-  }
-  return ''
+  return attachmentMimeMap[resolveFileExtension(name)] || ''
 }
 
 function isUserCancelError(error: unknown) {
@@ -2230,14 +2532,11 @@ function showError(error: unknown, fallback: string) {
 
 <template>
   <view class="assistant-page">
-    <scroll-view
-      class="assistant-body"
-      scroll-y
-      scroll-with-animation
-      :scroll-into-view="chatBottomAnchor"
-      :show-scrollbar="false"
-    >
-      <view class="assistant-tools">
+    <view class="assistant-navbar" :style="{ paddingTop: navTopPadding }">
+      <view class="assistant-navbar__left">
+        <button class="nav-back-button" hover-class="none" @tap="navigateBack">
+          <view class="nav-back-icon"></view>
+        </button>
         <button
           class="history-button assistant-session-button"
           hover-class="none"
@@ -2248,14 +2547,34 @@ function showError(error: unknown, fallback: string) {
             <view></view>
             <view></view>
           </view>
-          <text>历史会话</text>
         </button>
       </view>
-
+      <view class="assistant-navbar__title">AI 助手</view>
+      <view class="assistant-navbar__right"></view>
+    </view>
+    <scroll-view
+      class="assistant-body"
+      scroll-y
+      scroll-with-animation
+      :scroll-into-view="chatBottomAnchor"
+      :show-scrollbar="false"
+    >
       <template v-if="!hasMessages">
         <view class="empty-panel">
           <view class="empty-title">AI 助手</view>
           <view class="empty-desc">输入文字，或使用语音说出你的问题。</view>
+          <view v-if="!loadingSessions" class="starter-prompts">
+            <button
+              v-for="starterPrompt in starterPrompts"
+              :key="starterPrompt"
+              class="starter-prompt"
+              hover-class="none"
+              @tap="handleStarterPrompt(starterPrompt)"
+            >
+              <text>{{ starterPrompt }}</text>
+              <uni-icons type="paperplane" size="16" color="#27ba9b" />
+            </button>
+          </view>
         </view>
 
         <view class="empty-note">
@@ -2692,10 +3011,10 @@ function showError(error: unknown, fallback: string) {
                   class="attachment-card"
                   @tap="previewAttachment(attachment, item.attachments)"
                 >
-                  <view class="attachment-icon">📎</view>
+                  <view class="attachment-icon">{{ resolveAttachmentIcon(attachment) }}</view>
                   <view class="attachment-info">
                     <view class="attachment-name">{{ attachment.name }}</view>
-                    <view class="attachment-meta">{{ attachment.mime_type || '附件' }}</view>
+                    <view class="attachment-meta">{{ formatAttachmentMeta(attachment) }}</view>
                   </view>
                 </view>
               </view>
@@ -2910,6 +3229,22 @@ function showError(error: unknown, fallback: string) {
         </view>
       </view>
     </view>
+
+    <view v-if="showTextPreview" class="text-preview-mask" @tap="closeTextPreview">
+      <view class="text-preview-dialog" @tap.stop>
+        <view class="text-preview-head">
+          <view class="text-preview-title">{{ textPreviewTitle }}</view>
+          <button class="text-preview-close" hover-class="none" @tap="closeTextPreview">
+            关闭
+          </button>
+        </view>
+        <scroll-view class="text-preview-body" scroll-y :show-scrollbar="false">
+          <text class="text-preview-content">
+            {{ loadingTextPreview ? '正在加载...' : textPreviewContent }}
+          </text>
+        </scroll-view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -2933,6 +3268,7 @@ page {
 }
 
 .history-button,
+.nav-back-button,
 .attach-button,
 .voice-button,
 .send-button,
@@ -2940,7 +3276,9 @@ page {
 .session-more,
 .operation-item,
 .message-edit-button,
-.rename-button {
+.rename-button,
+.text-preview-close,
+.starter-prompt {
   padding: 0;
   margin: 0;
   border-radius: 0;
@@ -2952,13 +3290,74 @@ page {
   }
 }
 
+.assistant-navbar {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  padding-right: 20rpx;
+  padding-left: 20rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+.assistant-navbar__left,
+.assistant-navbar__right {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-width: 230rpx;
+}
+
+.assistant-navbar__left {
+  justify-content: flex-start;
+  gap: 8rpx;
+}
+
+.assistant-navbar__right {
+  justify-content: flex-end;
+}
+
+.assistant-navbar__title {
+  position: absolute;
+  left: 230rpx;
+  right: 230rpx;
+  bottom: 0;
+  height: 88rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #111;
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 88rpx;
+  text-align: center;
+}
+
+.nav-back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.nav-back-icon {
+  width: 18rpx;
+  height: 18rpx;
+  border-bottom: 3rpx solid #111;
+  border-left: 3rpx solid #111;
+  transform: rotate(45deg);
+}
+
 .history-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10rpx;
+  width: 56rpx;
   height: 56rpx;
-  padding: 0 18rpx;
   border-radius: 8rpx;
   color: #27ba9b;
   font-size: 24rpx;
@@ -2980,12 +3379,6 @@ page {
   height: 4rpx;
   border-radius: 4rpx;
   background-color: #333;
-}
-
-.assistant-tools {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 16rpx;
 }
 
 .assistant-session-button {
@@ -3025,6 +3418,29 @@ page {
   color: #898b94;
   font-size: 26rpx;
   line-height: 40rpx;
+}
+
+.starter-prompts {
+  display: flex;
+  justify-content: center;
+  margin-top: 30rpx;
+}
+
+.starter-prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  max-width: 100%;
+  min-height: 64rpx;
+  padding: 0 24rpx;
+  border: 1rpx solid #d9f1ec;
+  border-radius: 8rpx;
+  color: #16806d;
+  font-size: 26rpx;
+  line-height: 36rpx;
+  background-color: #f2fbf8;
+  box-sizing: border-box;
 }
 
 .empty-note {
@@ -4100,5 +4516,72 @@ page {
 .rename-button.is-primary {
   color: #fff;
   background-color: #27ba9b;
+}
+
+.text-preview-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 42rpx;
+  background-color: rgba(0, 0, 0, 0.32);
+  box-sizing: border-box;
+}
+
+.text-preview-dialog {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 78%;
+  border-radius: 10rpx;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.text-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 24rpx 26rpx;
+  border-bottom: 1rpx solid #eef0f3;
+}
+
+.text-preview-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #333;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 40rpx;
+}
+
+.text-preview-close {
+  width: 96rpx;
+  height: 52rpx;
+  border-radius: 8rpx;
+  color: #27ba9b;
+  font-size: 24rpx;
+  line-height: 52rpx;
+  background-color: #e8f8f4;
+}
+
+.text-preview-body {
+  min-height: 260rpx;
+  max-height: 760rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.text-preview-content {
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #333;
+  font-size: 24rpx;
+  line-height: 38rpx;
 }
 </style>
