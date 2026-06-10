@@ -215,7 +215,6 @@
         {
           "path": "comment/center",
           "style": {
-            "navigationStyle": "custom",
             "navigationBarTitleText": "我的评价"
           }
         },

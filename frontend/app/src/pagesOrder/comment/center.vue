@@ -12,8 +12,6 @@ const query = defineProps<{
   tab?: string
 }>()
 
-const { safeAreaInsets } = uni.getSystemInfoSync()
-
 /** 评价中心标签标识。 */
 type CommentCenterTab = 'pending' | 'done'
 
@@ -67,16 +65,6 @@ const doneComments = computed<DoneCommentItem[]>(() => {
     images: (item.img || []).map((image) => formatSrc(image)),
   }))
 })
-
-/** 返回上一页，无历史栈时回到我的页面。 */
-const onNavigateBack = () => {
-  const pages = getCurrentPages()
-  if (pages.length > 1) {
-    uni.navigateBack()
-    return
-  }
-  uni.switchTab({ url: '/pages/my/my' })
-}
 
 /** 切换评价中心标签。 */
 const onSwitchTab = (tab: CommentCenterTab) => {
@@ -296,11 +284,7 @@ onShow(() => {
 
 <template>
   <view class="comment-center-page">
-    <view class="comment-center-header" :style="{ paddingTop: `${safeAreaInsets?.top || 0}px` }">
-      <view class="comment-center-nav">
-        <view class="back-button icon-left" @tap="onNavigateBack"></view>
-        <view class="page-title">我的评价</view>
-      </view>
+    <view class="comment-center-header">
       <view class="comment-tabs">
         <view
           class="comment-tab"
@@ -442,31 +426,6 @@ page {
   z-index: 2;
   flex-shrink: 0;
   background-color: #fff;
-}
-
-.comment-center-nav {
-  height: 96rpx;
-  display: flex;
-  align-items: center;
-  padding: 0 28rpx;
-  box-sizing: border-box;
-}
-
-.back-button {
-  width: 56rpx;
-  height: 56rpx;
-  display: flex;
-  align-items: center;
-  font-size: 42rpx;
-  color: #333;
-}
-
-.page-title {
-  flex: 1;
-  margin-left: 16rpx;
-  font-size: 36rpx;
-  color: #111827;
-  font-weight: 700;
 }
 
 .comment-tabs {
