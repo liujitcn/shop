@@ -1,8 +1,8 @@
 authn:
   jwt:
     secret: Shop@Server
-    accessTokenExpires: 3600000s
-    refreshTokenExpires: 36000s
+    accessTokenExpires: 3600s
+    refreshTokenExpires: 2592000s
     whiteList:
       prefix:
       regex:
@@ -12,6 +12,7 @@ authn:
         - "/base.v1.LoginService/Captcha"
         - "/base.v1.LoginService/VerifyCaptcha"
         - "/base.v1.LoginService/PasswordPublicKey"
+        - "/base.v1.LoginService/RefreshToken"
         - "/base.v1.LoginService/Login"
         - "/base.v1.McpService/HandleMcp"
         - "/base.v1.SseService/SubscribeSse"
@@ -37,3 +38,4 @@ authn:
         - "/app.v1.RecommendService/RecommendAnonymousActor"
         - "/app.v1.RecommendService/RecommendGoods"
         - "/app.v1.RecommendService/RecommendEventReport"
+        - "/app.v1.UserCollectService/GetIsCollect"

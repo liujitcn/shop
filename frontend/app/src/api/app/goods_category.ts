@@ -25,6 +25,7 @@ export class GoodsCategoryServiceImpl implements GoodsCategoryService {
     const response = await http<ListGoodsCategoriesHTTPResponse>({
       url: `${GOODS_CATEGORY_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
     })
     // 兼容未生成前的旧响应 list，同时向新协议的 goodsCategories 字段收敛。

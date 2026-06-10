@@ -29,12 +29,12 @@ const onChangeAddress = (item: UserAddress) => {
 
 // 初始化调用(页面显示)
 onShow(() => {
-  if (userStore.userInfo) {
+  if (userStore.isAuthenticated()) {
     getUserAddressData()
   }
 })
 onMounted(() => {
-  if (userStore.userInfo) {
+  if (userStore.isAuthenticated()) {
     getUserAddressData()
   }
 })
@@ -65,7 +65,7 @@ const emit = defineEmits<{
       </view>
     </view>
     <view class="footer">
-      <view v-if="userStore.userInfo" class="button primary">
+      <view v-if="userStore.isAuthenticated()" class="button primary">
         <navigator hover-class="none" url="/pagesMember/address/edit">新建地址</navigator>
       </view>
       <view v-else class="button primary" @tap="navigateToLogin">新建地址</view>

@@ -89,7 +89,7 @@ export async function SendAiAssistantMessageStream(
 
   // direct stream 不经过 uni.request 拦截器，需要在这里补齐登录失效处理。
   if (response.status === 401 || response.status === 403) {
-    handleAuthExpired()
+    handleAuthExpired('required')
     throw new Error('登录状态已失效，请重新登录')
   }
   if (!response.ok) {
@@ -136,7 +136,7 @@ export function StreamAiAssistantMessageByChunkedRequest(
             return
           }
           if (res.statusCode === 401 || res.statusCode === 403) {
-            handleAuthExpired()
+            handleAuthExpired('required')
             reject(new Error('登录状态已失效，请重新登录'))
             return
           }
@@ -203,6 +203,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     return http<ListAiAssistantMessagesResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
   }
@@ -214,6 +215,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     return http<SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -225,6 +227,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     return http<DeleteAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}`,
       method: 'DELETE',
+      authMode: 'required',
       data: request,
     })
   }
@@ -236,6 +239,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     return http<SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }
@@ -247,6 +251,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     return http<SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}/retry`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -258,6 +263,7 @@ export class AiAssistantMessageServiceImpl implements AiAssistantMessageService 
     return http<SendAiAssistantMessageResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message/${request.message_id}/regeneration`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }

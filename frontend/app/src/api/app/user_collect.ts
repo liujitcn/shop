@@ -42,6 +42,7 @@ export class UserCollectServiceImpl implements UserCollectService {
     const response = await http<PageUserCollectsHTTPResponse>({
       url: `${USER_COLLECT_URL}`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     const userCollects = response.user_collects ?? response.list ?? []
@@ -58,6 +59,7 @@ export class UserCollectServiceImpl implements UserCollectService {
     const response = await http<GetIsCollectHTTPResponse>({
       url: `${USER_COLLECT_URL}/status`,
       method: 'GET',
+      authMode: 'optional',
       data: request,
     })
     const isCollected = response.is_collected ?? response.value ?? false
@@ -74,6 +76,7 @@ export class UserCollectServiceImpl implements UserCollectService {
     return http<Empty>({
       url: `${USER_COLLECT_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: userCollect,
     })
   }
@@ -83,6 +86,7 @@ export class UserCollectServiceImpl implements UserCollectService {
     return http<Empty>({
       url: `${USER_COLLECT_URL}/${request.ids}`,
       method: 'DELETE',
+      authMode: 'required',
     })
   }
 }

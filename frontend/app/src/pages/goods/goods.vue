@@ -203,7 +203,7 @@ onLoad(() => {
       console.error(error)
     }
   })()
-  if (userStore.userInfo) {
+  if (userStore.isAuthenticated()) {
     defUserCartService.CountUserCart({}).then((res) => {
       cartNum.value = res.count
     })
@@ -277,7 +277,7 @@ const selectArrText = computed(() => {
 
 // 加入购物车事件
 const onAddCart = async (ev: SkuPopupEvent) => {
-  if (!userStore.userInfo) {
+  if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
@@ -297,7 +297,7 @@ const onAddCart = async (ev: SkuPopupEvent) => {
 }
 // 立即购买
 const onBuyNow = (ev: SkuPopupEvent) => {
-  if (!userStore.userInfo) {
+  if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
@@ -313,7 +313,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 }
 // 收藏
 const onCollect = async () => {
-  if (!userStore.userInfo) {
+  if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }

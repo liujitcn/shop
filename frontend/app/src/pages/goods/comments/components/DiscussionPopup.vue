@@ -77,7 +77,7 @@ const discussionThreads = computed<DiscussionThreadItem[]>(() => {
 
 /** 校验互动登录态，未登录时跳转登录页。 */
 const ensureLogin = () => {
-  if (userStore.userInfo) {
+  if (userStore.ensureAuthenticated()) {
     return true
   }
   navigateToLogin()

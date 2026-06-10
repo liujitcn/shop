@@ -7,7 +7,6 @@ import { defBaseDictService } from '@/api/app/base_dict'
 import { computed, ref } from 'vue'
 import type { CountOrderInfoResponse_Count } from '@/rpc/app/v1/order_info'
 import { formatSrc } from '@/utils'
-import { getToken } from '@/utils/auth'
 import { navigateToLogin, orderListUrl } from '@/utils/navigation'
 import { OrderStatus, RecommendScene } from '@/rpc/common/v1/enum'
 // 获取屏幕边界到安全区域距离
@@ -51,8 +50,10 @@ const orderCount = ref<OrderCountEntry[]>([
 ])
 // 获取会员信息
 const userStore = useUserStore()
+const isLoggedIn = computed(() => userStore.isAuthenticated())
+const profile = computed(() => userStore.userInfo)
 // 判断当前是否仍具备加载个人订单数据的登录态。
-const canLoadOrderData = () => Boolean(userStore.userInfo && getToken())
+const canLoadOrderData = () => userStore.isAuthenticated()
 /** 加载我的页面订单数量，并在登录态仍有效时回写入口文案。 */
 const getOrderData = async () => {
   if (!canLoadOrderData()) {
@@ -93,7 +94,7 @@ const getOrderData = async () => {
 
 const { guessRef, onScrollToLower } = useGuessList()
 const guessTitle = computed(() => {
-  if (userStore.userInfo) {
+  if (isLoggedIn.value) {
     return '根据你的偏好推荐'
   }
   return '热门好物推荐'
@@ -111,7 +112,7 @@ const getOrderEntryUrl = (status: OrderStatus) => {
 
 /** 打开移动端 AI 助手静态页，未登录时先进入登录流程。 */
 const navigateToAiAssistant = () => {
-  if (!userStore.userInfo) {
+  if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
@@ -133,19 +134,19 @@ onShow(() => {
     <!-- 个人资料 -->
     <view class="profile" :style="{ paddingTop: safeAreaInsets!.top + 'px' }">
       <!-- 情况1：已登录 -->
-      <view class="overview" v-if="userStore.userInfo">
+      <view class="overview" v-if="isLoggedIn && profile">
         <navigator url="/pagesMember/profile/profile" hover-class="none">
           <image
-            v-if="userStore.userInfo.avatar"
+            v-if="profile.avatar"
             class="avatar"
-            :src="formatSrc(userStore.userInfo.avatar)"
+            :src="formatSrc(profile.avatar)"
             mode="aspectFill"
           ></image>
           <image v-else class="avatar" src="@/static/images/avatar.png" mode="aspectFill"></image>
         </navigator>
         <view class="meta">
           <view class="nickname">
-            {{ userStore.userInfo.nick_name }}
+            {{ profile.nick_name }}
           </view>
           <navigator class="extra" url="/pagesMember/profile/profile" hover-class="none">
             <text class="update">更新头像昵称</text>
@@ -172,12 +173,7 @@ onShow(() => {
     <view class="orders">
       <view class="title">
         我的订单
-        <navigator
-          v-if="userStore.userInfo"
-          class="navigator"
-          :url="orderListUrl(0)"
-          hover-class="none"
-        >
+        <navigator v-if="isLoggedIn" class="navigator" :url="orderListUrl(0)" hover-class="none">
           查看全部订单<text class="icon-right"></text>
         </navigator>
         <view v-else class="navigator" @tap="navigateToLogin"
@@ -186,7 +182,7 @@ onShow(() => {
       </view>
       <view class="section">
         <!-- 订单 -->
-        <template v-if="userStore.userInfo">
+        <template v-if="isLoggedIn">
           <navigator
             v-for="item in orderCount"
             :key="item.status"

@@ -9,10 +9,11 @@ import {
   clearToken,
   getRefreshToken,
   getToken,
-  getTokenExpiresIn,
+  hasValidToken,
   setRefreshToken,
   setToken,
   setTokenExpiresIn,
+  shouldRefreshToken,
 } from '@/utils/auth'
 import { saveCurrentRoute } from '@/utils/navigation'
 
@@ -58,10 +59,20 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   LEGACY_CAPTCHA_URL,
 ])
 
+const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'
+
+export type AuthMode = 'none' | 'optional' | 'required'
+
+type HttpRequestOptions = UniApp.RequestOptions & {
+  /** none: 游客接口；optional: 可选登录；required: 必须登录。 */
+  authMode?: AuthMode
+}
+
 // 添加拦截器
 const httpInterceptor = {
   // 拦截前触发
   invoke(options: UniApp.RequestOptions) {
+    const authMode = (options as HttpRequestOptions).authMode
     // 1. 非 http 开头需拼接地址
     if (!options.url.startsWith('http')) {
       options.url = baseURL + options.url
@@ -75,7 +86,7 @@ const httpInterceptor = {
     }
     // 4. 添加 token 请求头标识
     const accessToken = getToken()
-    if (options.header.Authorization !== 'no-auth' && accessToken) {
+    if (authMode !== 'none' && options.header.Authorization !== 'no-auth' && accessToken) {
       options.header.Authorization = accessToken
     } else {
       delete options.header.Authorization
@@ -132,25 +143,45 @@ function shouldSkipAuthExpiredPrompt(url: string) {
   return AUTH_EXPIRED_EXCLUDED_URL_SET.has(url)
 }
 
+function resolveAuthMode(options: HttpRequestOptions, url: string): AuthMode {
+  if (options.authMode) {
+    return options.authMode
+  }
+  if (options.header?.Authorization === 'no-auth' || isNoAuthRequest(url)) {
+    return 'none'
+  }
+  return 'required'
+}
+
 // 2.2 添加类型，支持泛型
-export const http = <T>(options: UniApp.RequestOptions) => {
+export const http = <T>(options: HttpRequestOptions) => {
   // 1. 返回 Promise 对象
   return new Promise<T>((resolve, reject) => {
-    const sendRequest = async () => {
+    const sendRequest = async (retriedAsAnonymous = false) => {
       try {
         const requestOptions = { ...options, header: { ...options.header } }
         const requestUrl = String(requestOptions.url)
-        const skipAuthRequest =
-          requestOptions.header?.Authorization === 'no-auth' || isNoAuthRequest(requestUrl)
-        if (!skipAuthRequest) {
-          await ensureValidToken()
-          const accessToken = getToken()
-          if (accessToken) {
-            requestOptions.header = {
-              ...requestOptions.header,
-              Authorization: accessToken,
-            }
+        const authMode = resolveAuthMode(requestOptions, requestUrl)
+        let accessToken = ''
+        try {
+          accessToken = await getAccessTokenByMode(
+            retriedAsAnonymous && authMode === 'optional' ? 'none' : authMode,
+          )
+        } catch (error) {
+          if (authMode === 'optional' && !retriedAsAnonymous) {
+            silentClearAuthData()
+            void sendRequest(true)
+            return
           }
+          throw error
+        }
+        if (accessToken) {
+          requestOptions.header = {
+            ...requestOptions.header,
+            Authorization: accessToken,
+          }
+        } else {
+          delete requestOptions.header.Authorization
         }
         uni.request({
           ...requestOptions,
@@ -160,14 +191,12 @@ export const http = <T>(options: UniApp.RequestOptions) => {
             // 状态码 2xx， axios 就是这样设计的
             if (res.statusCode >= 200 && res.statusCode < 300) {
               if (isAuthErrorResponse(responseData)) {
-                if (shouldSkipAuthExpiredPrompt(requestUrl)) {
-                  void uni.showToast({
-                    icon: 'none',
-                    title: responseData.message || '请求错误',
-                  })
-                } else {
-                  void promptRelogin()
+                if (authMode === 'optional' && !retriedAsAnonymous) {
+                  silentClearAuthData()
+                  void sendRequest(true)
+                  return
                 }
+                handleAuthExpiredByMode(authMode, requestUrl, responseData)
                 reject(res)
                 return
               }
@@ -175,14 +204,12 @@ export const http = <T>(options: UniApp.RequestOptions) => {
               resolve(res.data as T)
             } else if (res.statusCode === 401 || res.statusCode === 403) {
               // 401/403 错误 -> 清理用户信息，跳转到登录页
-              if (shouldSkipAuthExpiredPrompt(requestUrl)) {
-                void uni.showToast({
-                  icon: 'none',
-                  title: responseData.message || '请求错误',
-                })
-              } else {
-                void promptRelogin()
+              if (authMode === 'optional' && !retriedAsAnonymous) {
+                silentClearAuthData()
+                void sendRequest(true)
+                return
               }
+              handleAuthExpiredByMode(authMode, requestUrl, responseData)
               reject(res)
             } else {
               // 其他错误 -> 根据后端错误信息轻提示
@@ -216,40 +243,33 @@ let isRefreshing = false
 let refreshTokenPromise: Promise<void> | null = null
 let isPromptingRelogin = false
 
-function shouldRefreshToken() {
-  const now = new Date().getTime()
-  const expiresIn = getTokenExpiresIn()
-  const remain = expiresIn - now
-  return Boolean(expiresIn && remain <= 5 * 60 * 1000)
-}
-
-async function ensureValidToken() {
-  if (!shouldRefreshToken()) {
-    return
-  }
-  await handleTokenRefresh()
-}
-
 /** 获取请求可用访问令牌，供 direct stream 等非 uni.request 场景复用。 */
-export async function getRequestAccessToken() {
-  await ensureValidToken()
-  return getToken()
+export async function getRequestAccessToken(authMode: AuthMode = 'required') {
+  return getAccessTokenByMode(authMode)
 }
 
 /** 触发登录失效处理，供 direct stream 等非 uni.request 场景复用。 */
-export function handleAuthExpired() {
-  void promptRelogin()
+export function handleAuthExpired(authMode: AuthMode = 'required') {
+  if (authMode === 'required') {
+    void promptRelogin()
+    return
+  }
+  silentClearAuthData()
 }
 
 // 刷新 Token 处理
-function handleTokenRefresh() {
+function handleTokenRefresh(authMode: AuthMode) {
   if (refreshTokenPromise) {
     return refreshTokenPromise
   }
   isRefreshing = true
   refreshTokenPromise = refreshAccessToken()
     .catch(async (error) => {
-      await promptRelogin()
+      if (authMode === 'required') {
+        await promptRelogin()
+      } else {
+        silentClearAuthData()
+      }
       throw error
     })
     .finally(() => {
@@ -257,6 +277,36 @@ function handleTokenRefresh() {
       refreshTokenPromise = null
     })
   return refreshTokenPromise
+}
+
+async function getAccessTokenByMode(authMode: AuthMode) {
+  if (authMode === 'none') {
+    return ''
+  }
+
+  if (!getToken()) {
+    if (authMode === 'required') {
+      await promptRelogin()
+      throw new Error('auth required')
+    }
+    return ''
+  }
+
+  if (shouldRefreshToken()) {
+    await handleTokenRefresh(authMode)
+  }
+
+  if (hasValidToken()) {
+    return getToken()
+  }
+
+  if (authMode === 'required') {
+    await promptRelogin()
+    throw new Error('auth expired')
+  }
+
+  silentClearAuthData()
+  return ''
 }
 
 async function refreshAccessToken() {
@@ -267,7 +317,7 @@ async function refreshAccessToken() {
 
   const response = await new Promise<UniApp.RequestSuccessCallbackResult>((resolve, reject) => {
     uni.request({
-      url: `${baseURL}${REFRESH_TOKEN_URL}`,
+      url: REFRESH_TOKEN_URL,
       method: 'POST',
       data: { refresh_token: refreshToken },
       header: {
@@ -339,6 +389,27 @@ async function promptRelogin() {
   } finally {
     isPromptingRelogin = false
   }
+}
+
+function handleAuthExpiredByMode(authMode: AuthMode, url: string, responseData: Data) {
+  if (authMode === 'required' && !shouldSkipAuthExpiredPrompt(url)) {
+    void promptRelogin()
+    return
+  }
+
+  silentClearAuthData()
+  if (authMode !== 'optional') {
+    void uni.showToast({
+      icon: 'none',
+      title: responseData.message || '请求错误',
+    })
+  }
+}
+
+function silentClearAuthData() {
+  clearToken()
+  uni.removeStorageSync('user')
+  uni.$emit(AUTH_SILENT_LOGOUT_EVENT)
 }
 
 async function clearUserData() {

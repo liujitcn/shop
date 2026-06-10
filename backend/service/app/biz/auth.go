@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	baseBiz "shop/service/base/biz"
+
 	_const "shop/pkg/const"
 
 	"shop/pkg/biz"
@@ -37,6 +39,7 @@ type AuthCase struct {
 	baseUserCase  *BaseUserCase
 	baseRoleCase  *BaseRoleCase
 	baseDeptCase  *BaseDeptCase
+	loginCase     *baseBiz.LoginCase
 	wxMiniApp     *configv1.WxMiniApp
 	profileMapper *mapper.CopierMapper[
 		appv1.UserProfileForm,
@@ -51,6 +54,7 @@ func NewAuthCase(
 	baseUserCase *BaseUserCase,
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
+	loginCase *baseBiz.LoginCase,
 	wxMiniApp *configv1.WxMiniApp,
 ) *AuthCase {
 	return &AuthCase{
@@ -59,6 +63,7 @@ func NewAuthCase(
 		baseUserCase: baseUserCase,
 		baseRoleCase: baseRoleCase,
 		baseDeptCase: baseDeptCase,
+		loginCase:    loginCase,
 		wxMiniApp:    wxMiniApp,
 		profileMapper: mapper.NewCopierMapper[
 			appv1.UserProfileForm,
@@ -195,8 +200,7 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginReques
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
 
-	var accessToken, refreshToken string
-	accessToken, refreshToken, err = c.userToken.GenerateToken(&authData.UserTokenPayload{
+	authInfo := &authData.UserTokenPayload{
 		UserId:   user.ID,
 		UserName: user.UserName,
 		RoleId:   user.RoleID,
@@ -205,7 +209,13 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginReques
 		DeptId:   dept.ID,
 		DeptName: dept.Name,
 		OpenId:   user.Openid,
-	})
+	}
+	var accessToken, refreshToken string
+	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)
+	if err != nil {
+		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
+	err = c.loginCase.SetRefreshTokenAuth(refreshToken, authInfo)
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}

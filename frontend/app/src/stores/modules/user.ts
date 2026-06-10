@@ -11,7 +11,11 @@ import {
   getRefreshToken,
   clearToken,
   setTokenExpiresIn,
+  hasValidToken,
 } from '@/utils/auth'
+
+const AUTH_SILENT_LOGOUT_EVENT = 'auth:silent-logout'
+let silentLogoutEventHandler: (() => void) | undefined
 
 // 定义 Store
 export const useUserStore = defineStore(
@@ -19,6 +23,11 @@ export const useUserStore = defineStore(
   () => {
     // 会员信息
     const userInfo = ref<UserProfileForm>()
+
+    /** 判断当前本地登录态是否仍然可用。 */
+    function isAuthenticated() {
+      return Boolean(userInfo.value && hasValidToken())
+    }
 
     /**
      * 登录
@@ -157,13 +166,43 @@ export const useUserStore = defineStore(
         resolve()
       })
     }
+
+    /** 静默清理登录态，用于 token 失效后降级为游客，不主动跳登录页。 */
+    function silentLogout() {
+      clearToken()
+      userInfo.value = undefined
+      uni.removeStorageSync('user')
+      useRecommendStore().resetAnonymousId()
+    }
+
+    /** 确认必须登录的操作是否可继续，不可继续时交给调用方跳登录。 */
+    function ensureAuthenticated() {
+      if (isAuthenticated()) {
+        return true
+      }
+      silentLogout()
+      return false
+    }
+
+    if (silentLogoutEventHandler) {
+      uni.$off(AUTH_SILENT_LOGOUT_EVENT, silentLogoutEventHandler)
+    }
+    silentLogoutEventHandler = () => {
+      userInfo.value = undefined
+      useRecommendStore().resetAnonymousId()
+    }
+    uni.$on(AUTH_SILENT_LOGOUT_EVENT, silentLogoutEventHandler)
+
     return {
       userInfo,
+      isAuthenticated,
       getUserProfile,
       login,
       wechatLogin,
       logout,
       clearUserData,
+      silentLogout,
+      ensureAuthenticated,
       refreshToken,
     }
   },

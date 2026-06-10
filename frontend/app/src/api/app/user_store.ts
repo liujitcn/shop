@@ -17,6 +17,7 @@ export class UserStoreServiceImpl implements UserStoreService {
     return http<UserStore>({
       url: `${USER_STORE_URL}`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
   }
@@ -27,6 +28,7 @@ export class UserStoreServiceImpl implements UserStoreService {
     return http<Empty>({
       url: `${USER_STORE_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: userStore,
     })
   }
@@ -38,6 +40,7 @@ export class UserStoreServiceImpl implements UserStoreService {
     return http<Empty>({
       url: `${USER_STORE_URL}/${id}`,
       method: 'PUT',
+      authMode: 'required',
       data: userStore,
     })
   }

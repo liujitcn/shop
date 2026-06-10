@@ -15,6 +15,7 @@ export class FileServiceImpl {
     return http<MultiUploadFileResponse>({
       url: `${FILE_URL}/multi`,
       method: 'POST',
+      authMode: 'required',
       data: formData,
       header: {
         'Content-Type': 'multipart/form-data',
@@ -29,6 +30,7 @@ export class FileServiceImpl {
     return http<FileInfo>({
       url: `${FILE_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: formData,
       header: {
         'Content-Type': 'multipart/form-data',
@@ -42,6 +44,7 @@ export class FileServiceImpl {
       const response = await http<any>({
         url: `${FILE_URL}`,
         method: 'GET',
+        authMode: 'required',
         data: {
           name: fileName,
           path: file,

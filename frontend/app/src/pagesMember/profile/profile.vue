@@ -7,6 +7,7 @@ import { ref } from 'vue'
 import type { BaseDictForm_DictItem } from '@/rpc/app/v1/base_dict'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc } from '@/utils'
+import { navigateToLogin } from '@/utils/navigation'
 
 const userStore = useUserStore()
 
@@ -17,15 +18,23 @@ const imgMaxSize = ref(1024 * 1024)
 
 // 获取个人信息，修改个人信息需提供初始值
 const userInfo = ref({} as UserProfileForm)
+const syncUserStoreProfile = (profile: UserProfileForm) => {
+  if (!userStore.userInfo) {
+    return
+  }
+
+  userStore.userInfo.user_name = profile.user_name
+  userStore.userInfo.nick_name = profile.nick_name
+  userStore.userInfo.gender = profile.gender
+  userStore.userInfo.phone = profile.phone
+  userStore.userInfo.avatar = profile.avatar
+}
+
 const getUserData = async () => {
   const res = await defAuthService.GetUserProfile({})
   userInfo.value = res
   // 同步 Store 的头像和昵称，用于我的页面展示
-  userStore.userInfo!.user_name = res.user_name
-  userStore.userInfo!.nick_name = res.nick_name
-  userStore.userInfo!.gender = res.gender
-  userStore.userInfo!.phone = res.phone
-  userStore.userInfo!.avatar = res.avatar
+  syncUserStoreProfile(res)
 }
 
 const genderList = ref<BaseDictForm_DictItem[]>([])
@@ -39,10 +48,20 @@ const getDictData = async () => {
 }
 
 onLoad(() => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+
   Promise.all([getUserData(), getDictData()])
 })
 // 修改头像
 const onAvatarChange = async () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+
   // 调用拍照/选择图片
   // 选择图片条件编译
   // #ifdef H5 || APP-PLUS
@@ -91,6 +110,11 @@ const onAvatarChange = async () => {
 
 // 文件上传-兼容小程序端、H5端、App端
 const uploadFile = async (file: string) => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+
   // 文件上传
   uni.uploadFile({
     url: '/v1/base/file',
@@ -106,7 +130,7 @@ const uploadFile = async (file: string) => {
         userInfo.value.avatar = fileInfo.url
         // 更新用户信息
         await defAuthService.UpdateUserProfile(userInfo.value)
-        userStore.userInfo!.avatar = userInfo.value.avatar
+        syncUserStoreProfile(userInfo.value)
         await uni.showToast({ icon: 'success', title: '更新成功' })
       } else {
         await uni.showToast({ icon: 'error', title: '上传头像失败' })
@@ -124,9 +148,14 @@ const onGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
 // 新增授权手机号处理
 const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
   if (e.detail.errMsg !== 'getPhoneNumber:ok') return
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+
   const res = await defAuthService.BindUserPhone({ code: e.detail.code || '' })
   userInfo.value.phone = res.phone
-  userStore.userInfo!.phone = res.phone
+  syncUserStoreProfile(userInfo.value)
   await uni.showToast({ icon: 'success', title: '授权成功' })
 }
 
@@ -134,6 +163,11 @@ const onGetPhoneNumber: UniHelper.ButtonOnGetphonenumber = async (e) => {
 
 // 点击保存提交表单
 const onSubmit = async () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
+
   const { nick_name, gender } = userInfo.value
   await defAuthService.UpdateUserProfile({
     nick_name: nick_name,
@@ -143,8 +177,7 @@ const onSubmit = async () => {
     user_name: userInfo.value.user_name,
   })
   // 更新Store昵称
-  userStore.userInfo!.nick_name = nick_name
-  userStore.userInfo!.gender = gender
+  syncUserStoreProfile(userInfo.value)
   await uni.showToast({ icon: 'success', title: '保存成功' })
   setTimeout(() => {
     uni.navigateBack()

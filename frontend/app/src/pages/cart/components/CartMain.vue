@@ -123,7 +123,7 @@ const getUserCartData = async () => {
 
 // 初始化调用: 页面显示触发
 onShow(() => {
-  if (userStore.userInfo) {
+  if (userStore.isAuthenticated()) {
     getUserCartData()
   }
 })
@@ -205,7 +205,7 @@ const selectedCartListMoney = computed(() => {
 
 // 结算按钮
 const gotoPayment = async () => {
-  if (!userStore.userInfo) {
+  if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
@@ -233,7 +233,7 @@ const goIndex = () => {
 // 猜你喜欢
 const { guessRef, onScrollToLower } = useGuessList()
 const guessTitle = computed(() => {
-  if (userStore.userInfo) {
+  if (userStore.isAuthenticated()) {
     return '搭配着买'
   }
   return '大家都在买'
@@ -243,7 +243,7 @@ const guessTitle = computed(() => {
 <template>
   <scroll-view enable-back-to-top scroll-y class="scroll-view" @scrolltolower="onScrollToLower">
     <!-- 已登录: 显示购物车 -->
-    <template v-if="userStore.userInfo">
+    <template v-if="userStore.isAuthenticated()">
       <!-- 购物车列表 -->
       <view class="cart-list" v-if="showCartList">
         <!-- 优惠提示 -->

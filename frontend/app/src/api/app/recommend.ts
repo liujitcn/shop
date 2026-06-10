@@ -20,6 +20,7 @@ export class RecommendServiceImpl implements RecommendService {
     return http<RecommendAnonymousActorResponse>({
       url: `${RECOMMEND_URL}/actor/anonymous`,
       method: 'GET',
+      authMode: 'none',
     })
   }
 
@@ -31,6 +32,7 @@ export class RecommendServiceImpl implements RecommendService {
     return http<Empty>({
       url: `${RECOMMEND_URL}/actor/binding`,
       method: 'POST',
+      authMode: 'required',
       header,
       data: {},
     })
@@ -41,6 +43,7 @@ export class RecommendServiceImpl implements RecommendService {
     return http<RecommendGoodsResponse>({
       url: `${RECOMMEND_URL}/goods`,
       method: 'GET',
+      authMode: 'optional',
       header,
       data: request,
     })
@@ -54,6 +57,7 @@ export class RecommendServiceImpl implements RecommendService {
     return http<Empty>({
       url: `${RECOMMEND_URL}/event`,
       method: 'POST',
+      authMode: 'optional',
       header,
       data: request,
     })

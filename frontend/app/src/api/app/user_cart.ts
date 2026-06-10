@@ -49,6 +49,7 @@ export class UserCartServiceImpl implements UserCartService {
     const response = await http<CountUserCartHTTPResponse>({
       url: `${USER_CART_URL}/count`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     const count = response.count ?? response.value ?? 0
@@ -64,6 +65,7 @@ export class UserCartServiceImpl implements UserCartService {
     const response = await http<ListUserCartsHTTPResponse>({
       url: `${USER_CART_URL}`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     const userCarts = response.user_carts ?? response.list ?? []
@@ -84,6 +86,7 @@ export class UserCartServiceImpl implements UserCartService {
     return http<Empty>({
       url: `${USER_CART_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -94,6 +97,7 @@ export class UserCartServiceImpl implements UserCartService {
     return http<Empty>({
       url: `${USER_CART_URL}/${request.id}`,
       method: 'PUT',
+      authMode: 'required',
       data: userCart,
     })
   }
@@ -104,6 +108,7 @@ export class UserCartServiceImpl implements UserCartService {
     return http<Empty>({
       url: `${USER_CART_URL}/${id}`,
       method: 'DELETE',
+      authMode: 'required',
     })
   }
 
@@ -112,6 +117,7 @@ export class UserCartServiceImpl implements UserCartService {
     return http<Empty>({
       url: `${USER_CART_URL}/${request.id}/status`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }
@@ -121,6 +127,7 @@ export class UserCartServiceImpl implements UserCartService {
     return http<Empty>({
       url: `${USER_CART_URL}/selection`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }

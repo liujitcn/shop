@@ -18,7 +18,7 @@ const query = defineProps<{
   status?: string
 }>()
 const userStore = useUserStore()
-const canRenderOrderList = computed(() => Boolean(userStore.userInfo))
+const canRenderOrderList = computed(() => userStore.isAuthenticated())
 
 // tabs 数据
 const orderTabs = ref<OrderTab[]>([
@@ -46,7 +46,7 @@ const activeIndex = ref(defaultActiveIndex >= 0 ? defaultActiveIndex : 0)
 orderTabs.value[activeIndex.value].isRender = true
 
 onLoad(() => {
-  if (!canRenderOrderList.value) {
+  if (!userStore.ensureAuthenticated()) {
     // 订单列表需要登录态，未登录时不渲染子列表，避免直接请求订单接口产生 401 噪声。
     navigateToLogin()
   }

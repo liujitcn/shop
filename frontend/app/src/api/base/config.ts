@@ -10,6 +10,7 @@ export class ConfigServiceImpl implements ConfigService {
     return http<GetConfigResponse>({
       url: `${CONFIG_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },
     })

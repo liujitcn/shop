@@ -28,6 +28,7 @@ export class LoginServiceImpl implements LoginService {
     return http<CaptchaResponse>({
       url: `${CAPTCHA_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },
     })
@@ -37,6 +38,7 @@ export class LoginServiceImpl implements LoginService {
     return http<VerifyCaptchaResponse>({
       url: `${CAPTCHA_VERIFY_URL}`,
       method: 'POST',
+      authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },
     })
@@ -46,6 +48,7 @@ export class LoginServiceImpl implements LoginService {
     return http<PasswordPublicKeyResponse>({
       url: `${PASSWORD_PUBLIC_KEY_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },
     })
@@ -55,6 +58,7 @@ export class LoginServiceImpl implements LoginService {
     return http<Empty>({
       url: `${SESSION_URL}`,
       method: 'DELETE',
+      authMode: 'required',
       data: request,
     })
   }
@@ -63,6 +67,7 @@ export class LoginServiceImpl implements LoginService {
     return http<RefreshTokenResponse>({
       url: `${TOKEN_URL}`,
       method: 'POST',
+      authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },
     })
@@ -72,6 +77,7 @@ export class LoginServiceImpl implements LoginService {
     return http<LoginResponse>({
       url: `${SESSION_URL}`,
       method: 'POST',
+      authMode: 'none',
       data: request,
       header: { Authorization: 'no-auth' },
     })

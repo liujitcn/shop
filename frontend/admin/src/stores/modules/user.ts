@@ -57,6 +57,10 @@ export const useUserStore = defineStore("shop-user", {
       this.setTokenType(tokenType ?? "");
       this.setTokenExpiresAt(expiresAt);
     },
+    /** 判断当前访问令牌是否仍然可用 */
+    isAuthenticated() {
+      return Boolean(this.token.trim() && this.tokenExpiresAt > Date.now());
+    },
     /** 登录 */
     async login(loginRequest: LoginRequest) {
       const data = await defLoginService.Login(loginRequest);

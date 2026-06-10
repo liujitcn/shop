@@ -32,6 +32,7 @@ export class UserAddressServiceImpl implements UserAddressService {
     const response = await http<ListUserAddressesHTTPResponse>({
       url: `${USER_ADDRESS_URL}`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     const userAddresses = response.user_addresses ?? response.list ?? []
@@ -53,6 +54,7 @@ export class UserAddressServiceImpl implements UserAddressService {
     return http<UserAddressForm>({
       url: `${USER_ADDRESS_URL}/${id}`,
       method: 'GET',
+      authMode: 'required',
     })
   }
 
@@ -62,6 +64,7 @@ export class UserAddressServiceImpl implements UserAddressService {
     return http<Empty>({
       url: `${USER_ADDRESS_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: userAddress,
     })
   }
@@ -73,6 +76,7 @@ export class UserAddressServiceImpl implements UserAddressService {
     return http<Empty>({
       url: `${USER_ADDRESS_URL}/${id}`,
       method: 'PUT',
+      authMode: 'required',
       data: userAddress,
     })
   }
@@ -83,6 +87,7 @@ export class UserAddressServiceImpl implements UserAddressService {
     return http<Empty>({
       url: `${USER_ADDRESS_URL}/${id}`,
       method: 'DELETE',
+      authMode: 'required',
     })
   }
 }

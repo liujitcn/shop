@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -23,6 +24,7 @@ import (
 const loginCaptchaKeyPrefix = "login_captcha"
 const loginCaptchaTokenKeyPrefix = "login_captcha_token"
 const loginCaptchaTypeKeyPrefix = "login_captcha_type"
+const refreshTokenAuthKeyPrefix = "refresh_token_auth"
 const loginCaptchaTokenExpire = 2 * time.Minute
 
 // LoginCase 处理基础登录认证业务。
@@ -122,25 +124,30 @@ func (c *LoginCase) Logout(ctx context.Context, req *basev1.LogoutRequest) error
 	if err != nil {
 		return err
 	}
+	refreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
 	err = c.userToken.RemoveToken(authInfo.UserId)
 	if err != nil {
 		return errorsx.Internal("退出登录失败").WithCause(err)
+	}
+	if refreshToken != "" {
+		err = c.deleteRefreshTokenAuth(refreshToken)
+		if err != nil {
+			return errorsx.Internal("退出登录失败").WithCause(err)
+		}
 	}
 	return nil
 }
 
 // RefreshToken 刷新认证令牌。
 func (c *LoginCase) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRequest) (*basev1.RefreshTokenResponse, error) {
-	authInfo, err := c.GetAuthInfo(ctx)
-	if err != nil {
-		return nil, err
+	refreshToken := req.GetRefreshToken()
+	if refreshToken == "" {
+		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
 	}
 
-	// 校验刷新令牌
-	refreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
-	// 客户端刷新令牌与缓存不一致时，拒绝刷新访问令牌。
-	if refreshToken != req.GetRefreshToken() {
-		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
+	authInfo, err := c.getAuthInfoByRefreshToken(refreshToken)
+	if err != nil {
+		return nil, err
 	}
 
 	// 生成新的访问令牌
@@ -206,8 +213,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	}
 
 	// 生成访问令牌
-	var accessToken, refreshToken string
-	accessToken, refreshToken, err = c.userToken.GenerateToken(&authData.UserTokenPayload{
+	authInfo := &authData.UserTokenPayload{
 		UserId:   user.ID,
 		UserName: user.UserName,
 		RoleId:   user.RoleID,
@@ -215,7 +221,13 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		RoleName: role.Name,
 		DeptId:   user.DeptID,
 		DeptName: dept.Name,
-	})
+	}
+	var accessToken, refreshToken string
+	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)
+	if err != nil {
+		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
+	err = c.setRefreshTokenAuth(refreshToken, authInfo)
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
@@ -229,6 +241,49 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		RefreshToken: refreshToken,
 		ExpiresIn:    expiresIn,
 	}, nil
+}
+
+// SetRefreshTokenAuth 保存刷新令牌关联的认证信息，供刷新接口在访问令牌过期后独立续期。
+func (c *LoginCase) SetRefreshTokenAuth(refreshToken string, authInfo *authData.UserTokenPayload) error {
+	return c.setRefreshTokenAuth(refreshToken, authInfo)
+}
+
+// setRefreshTokenAuth 保存刷新令牌关联的认证信息。
+func (c *LoginCase) setRefreshTokenAuth(refreshToken string, authInfo *authData.UserTokenPayload) error {
+	if refreshToken == "" || authInfo == nil {
+		return errorsx.Unauthenticated("刷新认证令牌失败")
+	}
+
+	payload, err := json.Marshal(authInfo)
+	if err != nil {
+		return errorsx.Internal("保存刷新认证信息失败").WithCause(err)
+	}
+	return c.Cache.Set(refreshTokenAuthKey(refreshToken), string(payload), time.Duration(c.userToken.GetRefreshTokenExpires())*time.Second)
+}
+
+// getAuthInfoByRefreshToken 根据刷新令牌读取认证信息。
+func (c *LoginCase) getAuthInfoByRefreshToken(refreshToken string) (*authData.UserTokenPayload, error) {
+	payload, err := c.Cache.Get(refreshTokenAuthKey(refreshToken))
+	if err != nil {
+		return nil, errorsx.Unauthenticated("刷新认证令牌失败").WithCause(err)
+	}
+
+	authInfo := &authData.UserTokenPayload{}
+	err = json.Unmarshal([]byte(payload), authInfo)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("刷新认证令牌失败").WithCause(err)
+	}
+
+	cachedRefreshToken := c.userToken.GetRefreshToken(authInfo.UserId)
+	if cachedRefreshToken != refreshToken {
+		return nil, errorsx.Unauthenticated("刷新认证令牌失败")
+	}
+	return authInfo, nil
+}
+
+// deleteRefreshTokenAuth 删除刷新令牌关联的认证信息。
+func (c *LoginCase) deleteRefreshTokenAuth(refreshToken string) error {
+	return c.Cache.Del(refreshTokenAuthKey(refreshToken))
 }
 
 // captchaDriverType 根据配置值解析验证码驱动类型。
@@ -304,6 +359,11 @@ func loginCaptchaTokenKey(captchaID, token string) string {
 // loginCaptchaTypeKey 生成验证码类型缓存键。
 func loginCaptchaTypeKey(captchaID string) string {
 	return fmt.Sprintf("%s:%s", loginCaptchaTypeKeyPrefix, captchaID)
+}
+
+// refreshTokenAuthKey 生成刷新令牌认证信息缓存键。
+func refreshTokenAuthKey(refreshToken string) string {
+	return fmt.Sprintf("%s:%s", refreshTokenAuthKeyPrefix, refreshToken)
 }
 
 // captchaDriverTypeByID 根据验证码 ID 查询生成时保存的校验驱动类型。

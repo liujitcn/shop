@@ -56,6 +56,7 @@ export class ShopHotServiceImpl implements ShopHotService {
     const response = await http<ListShopHotsHTTPResponse>({
       url: `${SHOP_HOT_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
     })
     const shopHots = response.shop_hots ?? response.list ?? []
@@ -77,6 +78,7 @@ export class ShopHotServiceImpl implements ShopHotService {
     const response = await http<ListShopHotItemsHTTPResponse>({
       url: `${SHOP_HOT_URL}/${id}/item`,
       method: 'GET',
+      authMode: 'none',
     })
     const shopHotItems = response.shop_hot_items ?? response.list ?? []
     return {
@@ -100,6 +102,7 @@ export class ShopHotServiceImpl implements ShopHotService {
     const response = await http<PageShopHotGoodsHTTPResponse>({
       url: `${SHOP_HOT_URL}/item/${request.hot_item_id}/goods`,
       method: 'GET',
+      authMode: 'none',
       data: request,
     })
     const goodsInfos = response.goods_infos ?? response.list ?? []

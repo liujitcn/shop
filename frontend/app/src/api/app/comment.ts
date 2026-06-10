@@ -102,6 +102,7 @@ export class CommentServiceImpl implements CommentService {
     const response = await http<GoodsCommentOverviewHTTPResponse>({
       url: `${COMMENT_GOODS_URL}/${request.goods_id}/overview`,
       method: 'GET',
+      authMode: 'optional',
       data: request,
     })
     // 兼容未生成前的旧字段，同时向新协议的 previewComments 收敛。
@@ -124,6 +125,7 @@ export class CommentServiceImpl implements CommentService {
     const response = await http<GoodsCommentTagsHTTPResponse>({
       url: `${COMMENT_GOODS_URL}/${request.goods_id}/tags`,
       method: 'GET',
+      authMode: 'optional',
       data: request,
     })
     const commentTags = response.comment_tags ?? response.tagList ?? []
@@ -141,6 +143,7 @@ export class CommentServiceImpl implements CommentService {
     const response = await http<PageGoodsCommentHTTPResponse>({
       url: `${COMMENT_GOODS_URL}/${request.goods_id}`,
       method: 'GET',
+      authMode: 'optional',
       data: request,
     })
     // 兼容未生成前的旧字段，同时向新协议的 commentFilters/comments 收敛。
@@ -167,6 +170,7 @@ export class CommentServiceImpl implements CommentService {
     const response = await http<PageCommentDiscussionHTTPResponse>({
       url: `${COMMENT_URL}/${request.comment_id}/discussion`,
       method: 'GET',
+      authMode: 'optional',
       data: request,
     })
     // 兼容未生成前的旧响应 list，同时向新协议的 commentDiscussions 字段收敛。
@@ -190,6 +194,7 @@ export class CommentServiceImpl implements CommentService {
     return http<CreateCommentDiscussionResponse>({
       url: `${COMMENT_URL}/${request.comment_id}/discussion`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -199,6 +204,7 @@ export class CommentServiceImpl implements CommentService {
     return http<SaveCommentReactionResponse>({
       url: `${COMMENT_URL}/reaction`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }
@@ -210,6 +216,7 @@ export class CommentServiceImpl implements CommentService {
     const response = await http<PagePendingCommentGoodsHTTPResponse>({
       url: `${COMMENT_URL}/pending`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     // 兼容未生成前的旧响应 list，同时向新协议的 pendingCommentGoods 字段收敛。
@@ -230,6 +237,7 @@ export class CommentServiceImpl implements CommentService {
     return http<CreateCommentResponse>({
       url: `${COMMENT_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -239,6 +247,7 @@ export class CommentServiceImpl implements CommentService {
     return http<Empty>({
       url: `${COMMENT_URL}/${request.id}`,
       method: 'DELETE',
+      authMode: 'required',
     })
   }
 
@@ -247,6 +256,7 @@ export class CommentServiceImpl implements CommentService {
     const response = await http<PageMyCommentHTTPResponse>({
       url: `${COMMENT_URL}/my`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     // 兼容未生成前的旧响应 list，同时向新协议的 comments 字段收敛。

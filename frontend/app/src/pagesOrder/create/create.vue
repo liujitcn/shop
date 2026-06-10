@@ -18,7 +18,6 @@ import type { UserAddress } from '@/rpc/app/v1/user_address'
 import { defUserAddressService } from '@/api/app/user_address'
 import { defBaseDictService } from '@/api/app/base_dict'
 import { formatSrc, formatPrice } from '@/utils'
-import { getToken } from '@/utils/auth'
 import { RecommendScene } from '@/rpc/common/v1/enum'
 import {
   goodsDetailUrl,
@@ -143,7 +142,7 @@ const getDictData = async () => {
 
 // 页面初始化前先校验登录态，避免匿名直达时并发请求多个强登录接口。
 onLoad(() => {
-  if (!userStore.userInfo || !getToken()) {
+  if (!userStore.ensureAuthenticated()) {
     navigateToLogin()
     return
   }
@@ -168,6 +167,10 @@ const selectAddress = computed(() => {
 
 // 提交订单
 const onOrderSubmit = async () => {
+  if (!userStore.ensureAuthenticated()) {
+    navigateToLogin()
+    return
+  }
   // 没有收货地址提醒
   if (!selectAddress.value) {
     return uni.showToast({ icon: 'none', title: '请选择收货地址' })

@@ -26,6 +26,7 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
     return http<ListAiAssistantSessionsResponse>({
       url: AI_ASSISTANT_SESSION_URL,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
   }
@@ -37,6 +38,7 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
     return http<CreateAiAssistantSessionResponse>({
       url: AI_ASSISTANT_SESSION_URL,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -48,6 +50,7 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
     return http<UpdateAiAssistantSessionResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.id}`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }
@@ -59,6 +62,7 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
     return http<DeleteAiAssistantSessionResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.id}`,
       method: 'DELETE',
+      authMode: 'required',
       data: request,
     })
   }
@@ -70,6 +74,7 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
     return http<ListAiAssistantMessagesResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.session_id}/message`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
   }
@@ -81,6 +86,7 @@ export class AiAssistantSessionServiceImpl implements AiAssistantService {
     return http<CreateAiAssistantSessionBranchResponse>({
       url: `${AI_ASSISTANT_SESSION_URL}/${request.source_session_id}/branch`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }

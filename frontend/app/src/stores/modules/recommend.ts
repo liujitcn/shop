@@ -1,7 +1,7 @@
 import { defRecommendService } from '@/api/app/recommend'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { getToken } from '@/utils/auth'
+import { hasValidToken } from '@/utils/auth'
 
 const RECOMMEND_ANONYMOUS_ID_HEADER = 'X-Recommend-Anonymous-Id'
 
@@ -14,7 +14,7 @@ export const useRecommendStore = defineStore(
 
     /** 获取匿名推荐主体，已登录用户直接返回 0 表示不使用匿名身份。 */
     const getAnonymousId = async (): Promise<number> => {
-      if (getToken()) {
+      if (hasValidToken()) {
         return 0
       }
 
@@ -40,7 +40,7 @@ export const useRecommendStore = defineStore(
 
     /** 统一生成推荐请求头，避免业务侧重复拼接 header。 */
     const buildAnonymousHeader = (force = false): Record<string, string> => {
-      if (!force && getToken()) {
+      if (!force && hasValidToken()) {
         return {}
       }
 

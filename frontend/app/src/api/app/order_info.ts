@@ -66,6 +66,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<ConfirmOrderInfoResponse>({
       url: `${ORDER_CONFIRM_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -74,6 +75,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<BuyNowOrderInfoResponse>({
       url: `${ORDER_CONFIRM_URL}/buy-now`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -82,6 +84,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<RepurchaseOrderInfoResponse>({
       url: `${ORDER_CONFIRM_URL}/repurchase`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -90,6 +93,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     const response = await http<CountOrderInfoHTTPResponse>({
       url: `${ORDER_INFO_URL}/count`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     // 兼容未生成前的旧响应 count，同时向新协议的 counts 字段收敛。
@@ -105,6 +109,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     const response = await http<PageOrderInfoHTTPResponse>({
       url: `${ORDER_INFO_URL}`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
     // 兼容未生成前的旧响应 list，同时向新协议的 orderInfos 字段收敛。
@@ -124,6 +129,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     const response = await http<GetOrderInfoIdByOrderNoHTTPResponse>({
       url: `${ORDER_INFO_URL}/no/${request.order_no}`,
       method: 'GET',
+      authMode: 'required',
     })
     // 兼容未生成前的旧包装响应 value，同时向新协议的 orderId 字段收敛。
     const orderId = response.order_id ?? response.value ?? 0
@@ -138,6 +144,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<OrderInfoResponse>({
       url: `${ORDER_INFO_URL}/${request.id}`,
       method: 'GET',
+      authMode: 'required',
     })
   }
   /** 创建订单 */
@@ -145,6 +152,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<CreateOrderInfoResponse>({
       url: `${ORDER_INFO_URL}`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -153,6 +161,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<Empty>({
       url: `${ORDER_INFO_URL}/${request.id}`,
       method: 'DELETE',
+      authMode: 'required',
     })
   }
   /** 取消订单 */
@@ -160,6 +169,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<Empty>({
       url: `${ORDER_INFO_URL}/${request.order_id}/cancellation`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }
@@ -168,6 +178,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<Empty>({
       url: `${ORDER_INFO_URL}/${request.order_id}/refund`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }
@@ -176,6 +187,7 @@ export class OrderInfoServiceImpl implements OrderInfoService {
     return http<Empty>({
       url: `${ORDER_INFO_URL}/${request.order_id}/receipt`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }

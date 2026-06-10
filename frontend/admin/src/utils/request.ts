@@ -1,4 +1,4 @@
-import axios, { type InternalAxiosRequestConfig, type AxiosResponse } from "axios";
+import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError } from "axios";
 import qs from "qs";
 import { ElMessage, ElMessageBox } from "element-plus";
 import router from "@/routers";
@@ -30,12 +30,20 @@ const NO_AUTH_URL_SET = new Set([
 ]);
 const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   SESSION_URL,
+  TOKEN_URL,
   CAPTCHA_URL,
   CONFIG_URL,
   PASSWORD_PUBLIC_KEY_URL,
   LEGACY_AUTH_URL,
+  LEGACY_REFRESH_TOKEN_URL,
   LEGACY_CAPTCHA_URL
 ]);
+
+/** 支持自动重试的 Axios 请求配置。 */
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  /** 标记当前请求已经因认证失败重试过，避免刷新失败时递归重放。 */
+  _authRetried?: boolean;
+};
 
 // 创建 axios 实例
 const service = axios.create({
@@ -87,15 +95,46 @@ function getTokenExpiresAt() {
   return getUserStore().tokenExpiresAt;
 }
 
+/** 判断当前访问令牌是否仍在有效期内。 */
+export function hasValidAccessToken() {
+  const userStore = getUserStore();
+  return Boolean(userStore.token.trim() && userStore.tokenExpiresAt > Date.now());
+}
+
 /** 读取最新可用访问令牌，必要时先串行刷新，供 axios、fetch 与 SSE 共用。 */
 export async function getRequestAccessToken(): Promise<string> {
+  const userStore = getUserStore();
+  if (!userStore.token && userStore.refreshToken) {
+    await handleTokenRefresh(false);
+  }
+
   const expiresAt = getTokenExpiresAt();
   const remainingTime = expiresAt - Date.now();
   if (expiresAt && remainingTime <= 5 * 60 * 1000) {
-    await handleTokenRefresh();
+    await handleTokenRefresh(false);
   }
 
   return getUserStore().token.trim();
+}
+
+/** 尝试通过刷新令牌恢复访问令牌，供路由守卫进入页面前调用。 */
+export async function ensureAccessToken() {
+  if (hasValidAccessToken()) {
+    return true;
+  }
+
+  const userStore = getUserStore();
+  if (!userStore.refreshToken) {
+    return false;
+  }
+
+  try {
+    await handleTokenRefresh(false);
+    return hasValidAccessToken();
+  } catch {
+    userStore.clearAuthData();
+    return false;
+  }
 }
 
 // 防止并发 401/403 重复弹出认证失效确认框。
@@ -133,9 +172,10 @@ export function handleAuthExpired() {
 // 请求拦截器
 service.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const accessToken = shouldSkipAuth(config) ? "" : await getRequestAccessToken();
+    const skipAuth = shouldSkipAuth(config);
+    const accessToken = skipAuth ? "" : await getRequestAccessToken();
     // 登录、验证码、刷新令牌接口不携带旧 token，避免请求头污染。
-    if (!shouldSkipAuth(config) && accessToken) {
+    if (!skipAuth && accessToken) {
       config.headers.Authorization = accessToken;
     } else {
       delete config.headers.Authorization;
@@ -161,16 +201,27 @@ service.interceptors.response.use(
     ElMessage.error(message || "系统出错");
     return Promise.reject(new Error(message || "Error"));
   },
-  (error: any) => {
+  async (error: AxiosError) => {
     const status = error.response?.status;
-    const code = error.response?.data?.code;
-    const message = error.response?.data?.message;
-    const requestConfig = error.config as InternalAxiosRequestConfig | undefined;
+    const data = error.response?.data as { code?: string | number; message?: string } | undefined;
+    const code = data?.code;
+    const message = data?.message;
+    const requestConfig = error.config as RetryableRequestConfig | undefined;
 
-    // 登录与验证码接口上的 401/403 属于当前请求失败，不应触发“登录失效”流程。
+    // 业务请求 401/403 时先尝试刷新并重放一次，只有刷新失败才引导重新登录。
     if ((status === 401 || status === 403 || code === 401 || code === 403) && !shouldSkipAuthExpiredPrompt(requestConfig)) {
+      if (requestConfig && !requestConfig._authRetried && getUserStore().refreshToken) {
+        requestConfig._authRetried = true;
+        try {
+          await handleTokenRefresh(false);
+          requestConfig.headers.Authorization = getUserStore().token.trim();
+          return service(requestConfig);
+        } catch (refreshError) {
+          console.log("token 刷新失败", refreshError);
+        }
+      }
       handleAuthExpired();
-    } else if (error.response?.data) {
+    } else if (data) {
       if (!shouldSkipErrorMessage(requestConfig)) {
         if (message) {
           ElMessage.error(message);
@@ -192,13 +243,15 @@ let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 
 /** 刷新 Token 处理 */
-async function handleTokenRefresh() {
+async function handleTokenRefresh(promptOnFailure = true) {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshPromise = refreshAccessToken()
       .catch(error => {
-        console.log("token 刷新失败", error);
-        handleAuthExpired();
+        if (promptOnFailure) {
+          console.log("token 刷新失败", error);
+          handleAuthExpired();
+        }
         throw error;
       })
       .finally(() => {

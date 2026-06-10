@@ -17,6 +17,7 @@ export class PayServiceImpl implements PayService {
     return http<JsapiPayResponse>({
       url: `${PAY_URL}/${request.order_id}/jsapi`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -25,6 +26,7 @@ export class PayServiceImpl implements PayService {
     return http<H5PayResponse>({
       url: `${PAY_URL}/${request.order_id}/h5`,
       method: 'POST',
+      authMode: 'required',
       data: request,
     })
   }
@@ -33,6 +35,7 @@ export class PayServiceImpl implements PayService {
     return http<Empty>({
       url: `${PAY_URL}/notify`,
       method: 'POST',
+      authMode: 'none',
       data: request,
     })
   }

@@ -26,6 +26,7 @@ export class AuthServiceImpl implements AuthService {
     return http<WechatLoginResponse>({
       url: `${AUTH_URL}/wechat`,
       method: 'POST',
+      authMode: 'none',
       data: request,
     })
   }
@@ -35,6 +36,7 @@ export class AuthServiceImpl implements AuthService {
     return http<UserProfileForm>({
       url: `${AUTH_URL}/profile`,
       method: 'GET',
+      authMode: 'required',
       data: request,
     })
   }
@@ -45,6 +47,7 @@ export class AuthServiceImpl implements AuthService {
     return http<Empty>({
       url: `${AUTH_URL}/profile`,
       method: 'PUT',
+      authMode: 'required',
       data: userProfile,
     })
   }
@@ -54,6 +57,7 @@ export class AuthServiceImpl implements AuthService {
     return http<BindUserPhoneResponse>({
       url: `${AUTH_URL}/phone`,
       method: 'PUT',
+      authMode: 'required',
       data: request,
     })
   }

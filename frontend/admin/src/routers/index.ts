@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory, createWebHistory } from "vue-router";
-import { useUserStore } from "@/stores/modules/user";
 import { useAuthStore } from "@/stores/modules/auth";
 import { LOGIN_URL, ROUTER_WHITE_LIST } from "@/config";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 import { staticRouter, errorRouter } from "@/routers/modules/staticRouter";
 import NProgress from "@/config/nprogress";
 import { isUnmatchedRoute } from "@/utils/router";
+import { ensureAccessToken } from "@/utils/request";
 
 const mode = import.meta.env.VITE_ROUTER_MODE;
 
@@ -40,7 +40,6 @@ const router = createRouter({
  * @description 路由拦截 beforeEach
  * */
 router.beforeEach(async (to, from, next) => {
-  const userStore = useUserStore();
   const authStore = useAuthStore();
   const redirectQuery = typeof to.query.redirect === "string" ? to.query.redirect : "";
 
@@ -51,9 +50,11 @@ router.beforeEach(async (to, from, next) => {
   const title = import.meta.env.VITE_GLOB_APP_TITLE;
   document.title = to.meta.title ? `${to.meta.title} - ${title}` : title;
 
+  const hasAccessToken = await ensureAccessToken();
+
   // 3.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由到登陆页
   if (to.path.toLocaleLowerCase() === LOGIN_URL) {
-    if (userStore.token) return next(redirectQuery || from.fullPath);
+    if (hasAccessToken) return next(redirectQuery || from.fullPath);
     resetRouter();
     return next();
   }
@@ -61,8 +62,8 @@ router.beforeEach(async (to, from, next) => {
   // 4.判断访问页面是否在路由白名单地址(静态路由)中，如果存在直接放行
   if (ROUTER_WHITE_LIST.includes(to.path)) return next();
 
-  // 5.判断是否有 Token，没有重定向到 login 页面
-  if (!userStore.token) {
+  // 5.判断是否有可用 Token，没有重定向到 login 页面
+  if (!hasAccessToken) {
     const redirect = to.path === LOGIN_URL ? undefined : to.fullPath;
     return next({
       path: LOGIN_URL,

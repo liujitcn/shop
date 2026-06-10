@@ -40,7 +40,7 @@ const onLogout = () => {
 <template>
   <view class="viewport">
     <!-- 列表1 -->
-    <view class="list" v-if="userStore.userInfo">
+    <view class="list" v-if="userStore.isAuthenticated()">
       <navigator url="/pagesMember/address/address" hover-class="none" class="item arrow">
         我的收货地址
       </navigator>
@@ -65,7 +65,7 @@ const onLogout = () => {
       <button hover-class="none" class="item arrow">关于海沃丰</button>
     </view>
     <!-- 操作按钮 -->
-    <view class="action" v-if="userStore.userInfo">
+    <view class="action" v-if="userStore.isAuthenticated()">
       <view @tap="onLogout" class="button">退出登录</view>
     </view>
   </view>

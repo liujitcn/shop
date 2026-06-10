@@ -20,6 +20,7 @@ export class ShopServiceServiceImpl implements ShopServiceService {
     const response = await http<ListShopServicesHTTPResponse>({
       url: `${SHOP_SERVICE_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
     })
     const shopServices = response.shop_services ?? response.list ?? []

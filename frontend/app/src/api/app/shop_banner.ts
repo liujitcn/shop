@@ -26,6 +26,7 @@ export class ShopBannerServiceImpl implements ShopBannerService {
     const response = await http<ListShopBannersHTTPResponse>({
       url: `${SHOP_BANNER_URL}`,
       method: 'GET',
+      authMode: 'none',
       data: request,
     })
     const shopBanners = response.shop_banners ?? response.list ?? []
