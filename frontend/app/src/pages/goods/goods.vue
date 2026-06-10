@@ -182,20 +182,23 @@ onLoad(() => {
   void (async () => {
     try {
       await recommendStore.getAnonymousId()
-      await defRecommendService.RecommendEventReport({
-        event_type: RecommendEventType.VIEW,
-        recommend_context: {
-          scene: recommend_context.scene,
-          request_id: recommend_context.request_id,
-        },
-        items: [
-          {
-            goods_id: goodsId,
-            goods_num: 1,
-            position: recommend_context.position,
+      await defRecommendService.RecommendEventReport(
+        {
+          event_type: RecommendEventType.VIEW,
+          recommend_context: {
+            scene: recommend_context.scene,
+            request_id: recommend_context.request_id,
           },
-        ],
-      })
+          items: [
+            {
+              goods_id: goodsId,
+              goods_num: 1,
+              position: recommend_context.position,
+            },
+          ],
+        },
+        recommendStore.buildAnonymousHeader(),
+      )
     } catch (error) {
       console.error(error)
     }

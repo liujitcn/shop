@@ -1,7 +1,7 @@
 import { defRecommendService } from '@/api/app/recommend'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { useUserStore } from './user'
+import { getToken } from '@/utils/auth'
 
 const RECOMMEND_ANONYMOUS_ID_HEADER = 'X-Recommend-Anonymous-Id'
 
@@ -14,8 +14,7 @@ export const useRecommendStore = defineStore(
 
     /** 获取匿名推荐主体，已登录用户直接返回 0 表示不使用匿名身份。 */
     const getAnonymousId = async (): Promise<number> => {
-      const userStore = useUserStore()
-      if (userStore.userInfo) {
+      if (getToken()) {
         return 0
       }
 
@@ -34,15 +33,14 @@ export const useRecommendStore = defineStore(
         return
       }
 
-      await defRecommendService.BindRecommendAnonymousActor({})
+      await defRecommendService.BindRecommendAnonymousActor({}, buildAnonymousHeader(true))
       // 匿名历史完成绑定后，立即清空本地匿名主体，避免后续游客会话继续复用已绑定账号的标识。
       anonymousId.value = 0
     }
 
     /** 统一生成推荐请求头，避免业务侧重复拼接 header。 */
-    const buildAnonymousHeader = (): Record<string, string> => {
-      const userStore = useUserStore()
-      if (userStore.userInfo) {
+    const buildAnonymousHeader = (force = false): Record<string, string> => {
+      if (!force && getToken()) {
         return {}
       }
 

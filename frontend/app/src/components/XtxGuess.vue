@@ -91,7 +91,10 @@ const getHomeGoodsGuessLikeData = async () => {
   pageParams.order_id = props.order_id
   pageParams.goods_id = props.goods_id
   await recommendStore.getAnonymousId()
-  const res = await defRecommendService.RecommendGoods(pageParams)
+  const res = await defRecommendService.RecommendGoods(
+    pageParams,
+    recommendStore.buildAnonymousHeader(),
+  )
   const sceneValue = props.scene
   const list = (res.goods_infos || []).map((item, index) => ({
     ...item,
@@ -153,14 +156,17 @@ const reportExposure = async () => {
     batch.exposed = true
     try {
       await recommendStore.getAnonymousId()
-      await defRecommendService.RecommendEventReport({
-        event_type: RecommendEventType.EXPOSURE,
-        recommend_context: {
-          request_id: batch.request_id,
-          scene: batch.scene,
+      await defRecommendService.RecommendEventReport(
+        {
+          event_type: RecommendEventType.EXPOSURE,
+          recommend_context: {
+            request_id: batch.request_id,
+            scene: batch.scene,
+          },
+          items: batch.items,
         },
-        items: batch.items,
-      })
+        recommendStore.buildAnonymousHeader(),
+      )
     } catch (error) {
       batch.exposed = false
       console.error(error)
@@ -172,20 +178,23 @@ const reportExposure = async () => {
 const onTapGoods = async (item: GuessGoods) => {
   try {
     await recommendStore.getAnonymousId()
-    await defRecommendService.RecommendEventReport({
-      event_type: RecommendEventType.CLICK,
-      recommend_context: {
-        scene: item.recommendScene,
-        request_id: item.recommend_request_id,
-      },
-      items: [
-        {
-          goods_id: item.id,
-          goods_num: 1,
-          position: item.recommendIndex,
+    await defRecommendService.RecommendEventReport(
+      {
+        event_type: RecommendEventType.CLICK,
+        recommend_context: {
+          scene: item.recommendScene,
+          request_id: item.recommend_request_id,
         },
-      ],
-    })
+        items: [
+          {
+            goods_id: item.id,
+            goods_num: 1,
+            position: item.recommendIndex,
+          },
+        ],
+      },
+      recommendStore.buildAnonymousHeader(),
+    )
   } catch (error) {
     console.error(error)
   }

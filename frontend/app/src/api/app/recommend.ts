@@ -9,9 +9,9 @@ import type {
   RecommendService,
 } from '@/rpc/app/v1/recommend'
 import type { Empty } from '@/rpc/google/protobuf/empty'
-import { useRecommendStore } from '@/stores/modules/recommend'
 
 const RECOMMEND_URL = '/v1/app/recommend'
+type RecommendRequestHeader = UniApp.RequestOptions['header']
 
 /** 推荐服务 */
 export class RecommendServiceImpl implements RecommendService {
@@ -24,34 +24,37 @@ export class RecommendServiceImpl implements RecommendService {
   }
 
   /** 绑定匿名推荐主体到当前登录用户 */
-  BindRecommendAnonymousActor(_: BindRecommendAnonymousActorRequest): Promise<Empty> {
+  BindRecommendAnonymousActor(
+    _: BindRecommendAnonymousActorRequest,
+    header?: RecommendRequestHeader,
+  ): Promise<Empty> {
     return http<Empty>({
       url: `${RECOMMEND_URL}/actor/binding`,
       method: 'POST',
-      // 推荐匿名标识统一由 store 维护，API 层只负责透传到请求头。
-      header: useRecommendStore().buildAnonymousHeader(),
+      header,
       data: {},
     })
   }
 
   /** 查询推荐商品列表 */
-  RecommendGoods(request: RecommendGoodsRequest) {
+  RecommendGoods(request: RecommendGoodsRequest, header?: RecommendRequestHeader) {
     return http<RecommendGoodsResponse>({
       url: `${RECOMMEND_URL}/goods`,
       method: 'GET',
-      // 商品推荐请求依赖匿名标识命中未登录用户画像。
-      header: useRecommendStore().buildAnonymousHeader(),
+      header,
       data: request,
     })
   }
 
   /** 上报推荐事件 */
-  RecommendEventReport(request: RecommendEventReportRequest): Promise<Empty> {
+  RecommendEventReport(
+    request: RecommendEventReportRequest,
+    header?: RecommendRequestHeader,
+  ): Promise<Empty> {
     return http<Empty>({
       url: `${RECOMMEND_URL}/event`,
       method: 'POST',
-      // 埋点接口和推荐查询共用同一份匿名标识。
-      header: useRecommendStore().buildAnonymousHeader(),
+      header,
       data: request,
     })
   }
