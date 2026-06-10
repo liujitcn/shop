@@ -112,6 +112,15 @@ type AttachmentFileCandidate = {
   mimeType: string
 }
 
+type MenuButtonRect = {
+  top: number
+  bottom: number
+  left: number
+  right: number
+  width: number
+  height: number
+}
+
 const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'assistant-user-local'
 const PENDING_MESSAGE_ID = 'pending'
@@ -119,7 +128,10 @@ const MAX_ATTACHMENT_COUNT = 6
 const AI_ASSISTANT_TERMINAL = Terminal.TERMINAL_APP
 const FLOW_REVEAL_INTERVAL_MS = 90
 const FLOW_REVEAL_CLEANUP_MS = 240
-const starterPrompts = ['帮我推荐商品']
+const starterPromptGroups = [
+  ['帮我推荐商品', '查看待付款订单', '我的物流到哪了', '收到商品后怎么评价'],
+  ['帮我找热销商品', '查询最近订单', '帮我看看售后进度', '怎么修改收货地址'],
+]
 const imageAttachmentExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp']
 const documentAttachmentExtensions = [
   'pdf',
@@ -163,15 +175,25 @@ const attachmentMimeMap: Record<string, string> = {
 
 const systemInfo = uni.getSystemInfoSync()
 const { safeAreaInsets } = systemInfo
-const navTopPadding = `${safeAreaInsets?.top || 0}px`
 const composerBottom = `${Math.max(safeAreaInsets?.bottom || 0, 9)}px`
 const windowWidth = systemInfo.windowWidth || systemInfo.screenWidth || 375
 const windowHeight = systemInfo.windowHeight || systemInfo.screenHeight || 667
-const drawerTopPadding = `${(safeAreaInsets?.top || 0) + 12}px`
+const menuButtonRect = resolveMenuButtonRect()
+const statusBarHeight = systemInfo.statusBarHeight || safeAreaInsets?.top || 0
+const navRowHeightValue = menuButtonRect
+  ? menuButtonRect.height + Math.max(menuButtonRect.top - statusBarHeight, 0) * 2
+  : 44
+const navTopPadding = `${statusBarHeight}px`
+const navHeight = `${statusBarHeight + navRowHeightValue}px`
+const navRowHeight = `${navRowHeightValue}px`
+const navButtonSize = `${menuButtonRect?.height || 32}px`
+const navSideWidth = `${Math.max(menuButtonRect ? windowWidth - menuButtonRect.left : 88, 88)}px`
+const drawerTopPadding = `${statusBarHeight + 12}px`
 const showSessionDrawer = ref(false)
 const activeSessionID = ref('')
 const inputText = ref('')
 const isRecording = ref(false)
+const starterPromptGroupIndex = ref(0)
 const sessionKeyword = ref('')
 const showRenameDialog = ref(false)
 const renamingSessionID = ref('')
@@ -219,6 +241,23 @@ const filteredSessions = computed(() => {
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
+const starterPrompts = computed(() => starterPromptGroups[starterPromptGroupIndex.value] ?? [])
+const assistantGreetingPeriod = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 11) {
+    return '上午'
+  }
+  if (hour < 14) {
+    return '中午'
+  }
+  if (hour < 18) {
+    return '下午'
+  }
+  return '晚上'
+})
+const assistantGreetingMessage = computed(() => {
+  return `尊敬的用户您好：❤️${assistantGreetingPeriod.value}浪漫时光别有风味，请问有什么可以帮您的~🐥`
+})
 
 const actionMessage = computed(() => {
   return currentMessages.value.find((item) => item.key === actionMessageKey.value)
@@ -808,6 +847,11 @@ const handleStarterPrompt = async (text: string) => {
   await sendAiAssistantPayload({ text, attachments: [] })
 }
 
+/** 轮换空态快捷问题。 */
+const refreshStarterPrompts = () => {
+  starterPromptGroupIndex.value = (starterPromptGroupIndex.value + 1) % starterPromptGroups.length
+}
+
 /** 提交助手流程动作，保持流程在聊天内闭环。 */
 const handleFlowAction = async (action?: AiAssistantAction, label?: string) => {
   if (!action || currentSessionSending.value) {
@@ -1033,6 +1077,23 @@ async function createRemoteSession(options?: { title?: string }) {
   const session = normalizeSession(response.session)
   upsertSession(session)
   return session.id
+}
+
+function resolveMenuButtonRect() {
+  const wechatRuntime = globalThis as typeof globalThis & {
+    wx?: {
+      getMenuButtonBoundingClientRect?: () => MenuButtonRect
+    }
+  }
+  try {
+    const rect = wechatRuntime.wx?.getMenuButtonBoundingClientRect?.()
+    if (!rect?.width || !rect.height) {
+      return null
+    }
+    return rect
+  } catch {
+    return null
+  }
 }
 
 /** 发送消息，H5 优先流式，其他端不支持流式时退回完整响应。 */
@@ -2532,13 +2593,19 @@ function showError(error: unknown, fallback: string) {
 
 <template>
   <view class="assistant-page">
-    <view class="assistant-navbar" :style="{ paddingTop: navTopPadding }">
-      <view class="assistant-navbar__left">
-        <button class="nav-back-button" hover-class="none" @tap="navigateBack">
+    <view class="assistant-navbar" :style="{ paddingTop: navTopPadding, height: navHeight }">
+      <view class="assistant-navbar__left" :style="{ width: navSideWidth }">
+        <button
+          class="nav-back-button"
+          :style="{ width: navButtonSize, height: navButtonSize }"
+          hover-class="none"
+          @tap="navigateBack"
+        >
           <view class="nav-back-icon"></view>
         </button>
         <button
           class="history-button assistant-session-button"
+          :style="{ width: navButtonSize, height: navButtonSize }"
           hover-class="none"
           @tap="toggleSessionDrawer"
         >
@@ -2549,8 +2616,18 @@ function showError(error: unknown, fallback: string) {
           </view>
         </button>
       </view>
-      <view class="assistant-navbar__title">AI 助手</view>
-      <view class="assistant-navbar__right"></view>
+      <view
+        class="assistant-navbar__title"
+        :style="{
+          left: navSideWidth,
+          right: navSideWidth,
+          height: navRowHeight,
+          lineHeight: navRowHeight,
+        }"
+      >
+        AI 助手
+      </view>
+      <view class="assistant-navbar__right" :style="{ width: navSideWidth }"></view>
     </view>
     <scroll-view
       class="assistant-body"
@@ -2560,27 +2637,54 @@ function showError(error: unknown, fallback: string) {
       :show-scrollbar="false"
     >
       <template v-if="!hasMessages">
-        <view class="empty-panel">
-          <view class="empty-title">AI 助手</view>
-          <view class="empty-desc">输入文字，或使用语音说出你的问题。</view>
-          <view v-if="!loadingSessions" class="starter-prompts">
-            <button
-              v-for="starterPrompt in starterPrompts"
-              :key="starterPrompt"
-              class="starter-prompt"
-              hover-class="none"
-              @tap="handleStarterPrompt(starterPrompt)"
-            >
-              <text>{{ starterPrompt }}</text>
-              <uni-icons type="paperplane" size="16" color="#27ba9b" />
-            </button>
+        <view class="welcome-panel">
+          <view class="welcome-row is-hello">
+            <view class="assistant-avatar">
+              <view class="assistant-avatar__halo"></view>
+              <view class="assistant-avatar__hair-back"></view>
+              <view class="assistant-avatar__face">
+                <view class="assistant-avatar__bang"></view>
+                <view class="assistant-avatar__eyes">
+                  <view></view>
+                  <view></view>
+                </view>
+                <view class="assistant-avatar__blush is-left"></view>
+                <view class="assistant-avatar__blush is-right"></view>
+                <view class="assistant-avatar__smile"></view>
+              </view>
+              <view class="assistant-avatar__hair-side is-left"></view>
+              <view class="assistant-avatar__hair-side is-right"></view>
+              <view class="assistant-avatar__body"></view>
+              <view class="assistant-avatar__bow"></view>
+              <view class="assistant-avatar__spark"></view>
+            </view>
+            <view class="welcome-bubble is-hello">您好，AI助手为您服务！</view>
           </view>
-        </view>
+          <view class="welcome-bubble is-intro">{{ assistantGreetingMessage }}</view>
 
-        <view class="empty-note">
-          {{
-            loadingSessions ? '正在加载会话...' : '对话会按当前用户保存，可在历史会话中继续追问。'
-          }}
+          <view class="prompt-card">
+            <view class="prompt-card__head">
+              <view class="prompt-card__title">可以这样问</view>
+              <button class="prompt-refresh" hover-class="none" @tap="refreshStarterPrompts">
+                <text>换一换</text>
+                <uni-icons type="refresh" size="25" color="#00a96b" />
+              </button>
+            </view>
+            <view v-if="loadingSessions" class="prompt-loading">正在加载会话...</view>
+            <template v-else>
+              <button
+                v-for="(starterPrompt, starterPromptIndex) in starterPrompts"
+                :key="starterPrompt"
+                class="prompt-item"
+                hover-class="none"
+                @tap="handleStarterPrompt(starterPrompt)"
+              >
+                <text class="prompt-index">{{ starterPromptIndex + 1 }}</text>
+                <text class="prompt-text">{{ starterPrompt }}</text>
+                <uni-icons type="right" size="20" color="#9aa0aa" />
+              </button>
+            </template>
+          </view>
         </view>
       </template>
 
@@ -3081,18 +3185,18 @@ function showError(error: unknown, fallback: string) {
             hover-class="none"
             @tap="handleToggleRecord"
           >
-            <uni-icons type="mic" size="27" :color="isRecording ? '#27ba9b' : '#666'" />
-          </button>
-          <button
-            class="send-button"
-            :class="{ 'is-disabled': isSubmitDisabled, 'is-sending': currentSessionSending }"
-            :disabled="isSubmitDisabled"
-            hover-class="none"
-            @tap="handleSend"
-          >
-            <uni-icons type="paperplane" size="27" :color="isSubmitDisabled ? '#666' : '#27ba9b'" />
+            <uni-icons type="mic" size="28" :color="isRecording ? '#00a96b' : '#111'" />
           </button>
         </view>
+        <button
+          class="send-button"
+          :class="{ 'is-disabled': isSubmitDisabled, 'is-sending': currentSessionSending }"
+          :disabled="isSubmitDisabled"
+          hover-class="none"
+          @tap="handleSend"
+        >
+          <uni-icons type="paperplane" size="28" :color="isSubmitDisabled ? '#111' : '#00a96b'" />
+        </button>
       </view>
     </view>
 
@@ -3252,7 +3356,7 @@ function showError(error: unknown, fallback: string) {
 page {
   height: 100%;
   overflow: hidden;
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
 }
 
 .assistant-page {
@@ -3263,7 +3367,7 @@ page {
   height: 100%;
   overflow: hidden;
   color: #333;
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
   box-sizing: border-box;
 }
 
@@ -3278,7 +3382,8 @@ page {
 .message-edit-button,
 .rename-button,
 .text-preview-close,
-.starter-prompt {
+.prompt-refresh,
+.prompt-item {
   padding: 0;
   margin: 0;
   border-radius: 0;
@@ -3295,10 +3400,9 @@ page {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  min-height: 88rpx;
-  padding-right: 20rpx;
-  padding-left: 20rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding-right: 18rpx;
+  padding-left: 18rpx;
+  border-bottom: 1rpx solid #e9e9e9;
   background-color: #fff;
   box-sizing: border-box;
 }
@@ -3308,12 +3412,13 @@ page {
   z-index: 1;
   display: flex;
   align-items: center;
-  min-width: 230rpx;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .assistant-navbar__left {
   justify-content: flex-start;
-  gap: 8rpx;
+  gap: 18rpx;
 }
 
 .assistant-navbar__right {
@@ -3322,17 +3427,13 @@ page {
 
 .assistant-navbar__title {
   position: absolute;
-  left: 230rpx;
-  right: 230rpx;
   bottom: 0;
-  height: 88rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #111;
   font-size: 32rpx;
   font-weight: 600;
-  line-height: 88rpx;
   text-align: center;
 }
 
@@ -3340,15 +3441,13 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
 }
 
 .nav-back-icon {
-  width: 18rpx;
-  height: 18rpx;
-  border-bottom: 3rpx solid #111;
-  border-left: 3rpx solid #111;
+  width: 22rpx;
+  height: 22rpx;
+  border-bottom: 4rpx solid #111;
+  border-left: 4rpx solid #111;
   transform: rotate(45deg);
 }
 
@@ -3356,12 +3455,9 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56rpx;
-  height: 56rpx;
   border-radius: 8rpx;
   color: #27ba9b;
   font-size: 24rpx;
-  line-height: 56rpx;
   background-color: transparent;
 }
 
@@ -3389,66 +3485,339 @@ page {
   flex: 1;
   width: 100%;
   min-height: 0;
-  padding: 20rpx;
+  padding: 44rpx 28rpx 24rpx;
   box-sizing: border-box;
-  background-color: #f4f4f4;
+  background-color: #f6f6f6;
 }
 
-.empty-panel,
-.empty-note {
-  border-radius: 10rpx;
+.welcome-panel {
+  padding-bottom: 32rpx;
+}
+
+.welcome-row {
+  display: flex;
+  align-items: center;
+}
+
+.welcome-row.is-hello {
+  margin-left: 6rpx;
+}
+
+.assistant-avatar {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  width: 114rpx;
+  height: 114rpx;
+  margin-right: -42rpx;
+  overflow: hidden;
+  border-radius: 34rpx;
+  background: linear-gradient(180deg, #fff 0%, #f5f8fb 100%);
+  box-shadow: 0 10rpx 26rpx rgba(15, 23, 42, 0.08);
+  box-sizing: border-box;
+  animation: assistant-avatar-float 3.8s ease-in-out infinite;
+}
+
+.assistant-avatar__halo {
+  position: absolute;
+  top: 8rpx;
+  left: 16rpx;
+  width: 82rpx;
+  height: 82rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 226, 218, 0.82) 0%, rgba(255, 255, 255, 0) 66%);
+  animation: assistant-avatar-glow 2.8s ease-in-out infinite;
+}
+
+.assistant-avatar__hair-back {
+  position: absolute;
+  top: 15rpx;
+  left: 28rpx;
+  width: 58rpx;
+  height: 66rpx;
+  border-radius: 34rpx 34rpx 26rpx 26rpx;
+  background: linear-gradient(160deg, #6b3a33 0%, #281c22 88%);
+}
+
+.assistant-avatar__face {
+  position: absolute;
+  top: 27rpx;
+  left: 31rpx;
+  z-index: 2;
+  width: 52rpx;
+  height: 55rpx;
+  border-radius: 24rpx 24rpx 26rpx 26rpx;
+  background: linear-gradient(180deg, #ffe5d6 0%, #ffd3c2 100%);
+  box-shadow: inset 0 -3rpx 0 rgba(219, 119, 103, 0.12);
+}
+
+.assistant-avatar__bang {
+  position: absolute;
+  top: -12rpx;
+  left: 0;
+  width: 56rpx;
+  height: 25rpx;
+  border-radius: 28rpx 26rpx 18rpx 12rpx;
+  background: linear-gradient(145deg, #5b342f 0%, #2a1f27 100%);
+  transform: rotate(-5deg);
+}
+
+.assistant-avatar__eyes {
+  display: flex;
+  justify-content: space-between;
+  width: 26rpx;
+  margin: 22rpx auto 0;
+}
+
+.assistant-avatar__eyes view {
+  width: 6rpx;
+  height: 9rpx;
+  border-radius: 50%;
+  background-color: #38262b;
+  animation: assistant-avatar-blink 4.6s ease-in-out infinite;
+}
+
+.assistant-avatar__blush {
+  position: absolute;
+  top: 34rpx;
+  width: 10rpx;
+  height: 5rpx;
+  border-radius: 50%;
+  background-color: rgba(246, 121, 118, 0.32);
+}
+
+.assistant-avatar__blush.is-left {
+  left: 9rpx;
+}
+
+.assistant-avatar__blush.is-right {
+  right: 9rpx;
+}
+
+.assistant-avatar__smile {
+  width: 18rpx;
+  height: 9rpx;
+  margin: 8rpx auto 0;
+  border-bottom: 3rpx solid #d56f62;
+  border-radius: 0 0 18rpx 18rpx;
+}
+
+.assistant-avatar__hair-side {
+  position: absolute;
+  top: 42rpx;
+  z-index: 1;
+  width: 15rpx;
+  height: 39rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(180deg, #4d2d2b 0%, #231b23 100%);
+}
+
+.assistant-avatar__hair-side.is-left {
+  left: 22rpx;
+  transform: rotate(9deg);
+}
+
+.assistant-avatar__hair-side.is-right {
+  right: 22rpx;
+  transform: rotate(-9deg);
+}
+
+.assistant-avatar__body {
+  position: absolute;
+  left: 29rpx;
+  bottom: 4rpx;
+  z-index: 1;
+  width: 56rpx;
+  height: 34rpx;
+  border-radius: 26rpx 26rpx 10rpx 10rpx;
+  background: linear-gradient(180deg, #ff5d58 0%, #df292d 100%);
+}
+
+.assistant-avatar__bow {
+  position: absolute;
+  left: 46rpx;
+  bottom: 24rpx;
+  z-index: 3;
+  width: 22rpx;
+  height: 12rpx;
+  border-radius: 12rpx;
+  background: linear-gradient(90deg, #fff 0 40%, #f7dde0 40% 60%, #fff 60% 100%);
+}
+
+.assistant-avatar__spark {
+  position: absolute;
+  top: 14rpx;
+  right: 18rpx;
+  z-index: 3;
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background-color: #ffd35a;
+  opacity: 0.9;
+  animation: assistant-avatar-spark 1.8s ease-in-out infinite;
+}
+
+@keyframes assistant-avatar-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4rpx);
+  }
+}
+
+@keyframes assistant-avatar-glow {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes assistant-avatar-blink {
+  0%,
+  88%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  92%,
+  95% {
+    transform: scaleY(0.18);
+  }
+}
+
+@keyframes assistant-avatar-spark {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+.welcome-bubble {
+  color: #111;
   background-color: #fff;
-  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.03);
+  box-shadow: 0 10rpx 32rpx rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
 }
 
-.empty-panel {
-  padding: 56rpx 36rpx 48rpx;
-  text-align: center;
+.welcome-bubble.is-hello {
+  min-width: 350rpx;
+  height: 96rpx;
+  padding: 0 34rpx 0 78rpx;
+  border-radius: 18rpx;
+  font-size: 30rpx;
+  line-height: 96rpx;
 }
 
-.empty-title {
-  color: #333;
-  font-size: 34rpx;
-  font-weight: 600;
+.welcome-bubble.is-intro {
+  display: flex;
+  align-items: center;
+  min-height: 96rpx;
+  margin-top: 30rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 18rpx;
+  font-size: 29rpx;
   line-height: 44rpx;
 }
 
-.empty-desc {
-  margin-top: 14rpx;
-  color: #898b94;
-  font-size: 26rpx;
-  line-height: 40rpx;
-}
-
-.starter-prompts {
-  display: flex;
-  justify-content: center;
-  margin-top: 30rpx;
-}
-
-.starter-prompt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  max-width: 100%;
-  min-height: 64rpx;
-  padding: 0 24rpx;
-  border: 1rpx solid #d9f1ec;
-  border-radius: 8rpx;
-  color: #16806d;
-  font-size: 26rpx;
-  line-height: 36rpx;
-  background-color: #f2fbf8;
+.prompt-card {
+  margin-top: 34rpx;
+  padding: 36rpx 34rpx 24rpx;
+  border-radius: 18rpx;
+  background-color: #fff;
+  box-shadow: 0 10rpx 34rpx rgba(15, 23, 42, 0.04);
   box-sizing: border-box;
 }
 
-.empty-note {
-  margin-top: 20rpx;
-  padding: 26rpx 24rpx;
-  color: #898b94;
-  font-size: 24rpx;
+.prompt-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.prompt-card__title {
+  color: #111;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 42rpx;
+}
+
+.prompt-refresh {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  height: 50rpx;
+  color: #00a96b;
+  font-size: 25rpx;
+  line-height: 50rpx;
+}
+
+.prompt-loading {
+  padding: 32rpx 0;
+  color: #8d929c;
+  font-size: 26rpx;
   line-height: 38rpx;
+}
+
+.prompt-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 104rpx;
+  border-bottom: 1rpx solid #e8e8e8;
+  color: #111;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.prompt-item:last-child {
+  border-bottom: none;
+}
+
+.prompt-index {
+  flex-shrink: 0;
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 24rpx;
+  border: 2rpx solid #20bf7d;
+  border-radius: 9rpx;
+  color: #20bf7d;
+  font-size: 27rpx;
+  line-height: 34rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.prompt-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #111;
+  font-size: 30rpx;
+  line-height: 42rpx;
+}
+
+.prompt-item .uni-icons {
+  flex-shrink: 0;
 }
 
 .chat-list {
@@ -4070,9 +4439,21 @@ page {
 .composer {
   flex-shrink: 0;
   width: 100%;
-  padding: 18rpx 22rpx 20rpx;
+  padding: 14rpx 24rpx 18rpx;
   overflow: hidden;
   background-color: transparent;
+  box-sizing: border-box;
+}
+
+.composer-main {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 124rpx;
+  padding: 22rpx 18rpx;
+  border-radius: 24rpx;
+  background-color: #fff;
+  box-shadow: 0 12rpx 34rpx rgba(15, 23, 42, 0.08);
   box-sizing: border-box;
 }
 
@@ -4081,11 +4462,13 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 92rpx;
-  height: 92rpx;
+  width: 72rpx;
+  height: 72rpx;
+  border: 2rpx solid #d6dae2;
   border-radius: 50%;
   background-color: #fff;
-  box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.08);
+  box-shadow: none;
+  box-sizing: border-box;
 }
 
 .composer-card {
@@ -4094,12 +4477,13 @@ page {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12rpx;
-  min-height: 92rpx;
-  padding: 10rpx 12rpx 10rpx 28rpx;
-  border-radius: 46rpx;
+  gap: 10rpx;
+  min-height: 72rpx;
+  padding: 0 12rpx 0 28rpx;
+  border: 2rpx solid #d6dae2;
+  border-radius: 38rpx;
   background-color: #fff;
-  box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.08);
+  box-shadow: none;
   box-sizing: border-box;
 }
 
@@ -4124,30 +4508,23 @@ page {
   background-color: #e8f8f4;
 }
 
-.composer-main {
-  display: flex;
-  align-items: center;
-  gap: 18rpx;
-  box-sizing: border-box;
-}
-
 .composer-input {
   flex: 1;
   min-width: 0;
-  min-height: 46rpx;
-  max-height: 138rpx;
-  padding: 15rpx 0;
+  min-height: 42rpx;
+  max-height: 126rpx;
+  padding: 14rpx 0;
   box-sizing: border-box;
   color: #333;
-  font-size: 32rpx;
-  line-height: 46rpx;
+  font-size: 29rpx;
+  line-height: 42rpx;
   overflow-y: auto;
   background-color: transparent;
 }
 
 .composer-placeholder {
-  color: #8a8a8a;
-  font-size: 32rpx;
+  color: #8d929c;
+  font-size: 29rpx;
 }
 
 .voice-button,
@@ -4156,9 +4533,12 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
   border-radius: 50%;
+}
+
+.voice-button {
+  width: 60rpx;
+  height: 60rpx;
   background-color: transparent;
 }
 
@@ -4166,8 +4546,18 @@ page {
   background-color: #e8f8f4;
 }
 
+.send-button {
+  width: 74rpx;
+  height: 74rpx;
+  background-color: #f2f2f2;
+}
+
 .send-button.is-disabled {
-  background-color: transparent;
+  background-color: #f2f2f2;
+}
+
+.send-button:not(.is-disabled) {
+  background-color: #e7f7f2;
 }
 
 .session-mask {
