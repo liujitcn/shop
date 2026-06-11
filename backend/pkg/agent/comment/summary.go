@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/cloudwego/eino/schema"
-	"github.com/google/jsonschema-go/jsonschema"
+	einoStructured "shop/pkg/agent/eino/structured"
 )
 
 const (
@@ -36,7 +35,7 @@ func (r *Runtime) GenerateSummary(ctx context.Context, req SummaryRequest) (*Sum
 		return &SummaryResult{}, nil
 	}
 
-	var outputSchema *jsonschema.Schema
+	var outputSchema *einoStructured.Schema
 	var err error
 	outputSchema, err = cachedSummaryResultSchema()
 	if err != nil {
@@ -50,7 +49,7 @@ func (r *Runtime) GenerateSummary(ctx context.Context, req SummaryRequest) (*Sum
 	if err == nil {
 		commentSummaryPrompt = "请基于已审核通过的商品评价生成评价摘要：\n" + string(rawPayload)
 	}
-	err = r.generateStructured(ctx, commentSummaryInstruction, []*schema.ContentBlock{textInputPart(commentSummaryPrompt)}, outputSchema, result)
+	err = r.generateStructured(ctx, commentSummaryInstruction, []*einoStructured.Part{textInputPart(commentSummaryPrompt)}, outputSchema, result)
 	if err != nil {
 		return nil, err
 	}

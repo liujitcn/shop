@@ -87,6 +87,13 @@
       "style": {
         "navigationBarTitleText": "搜索结果"
       }
+    },
+    {
+      "path": "pages/search/single",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "单品直购"
+      }
     }
   ],
   "globalStyle": {

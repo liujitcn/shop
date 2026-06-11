@@ -2,15 +2,13 @@ package comment
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"path"
 	"strings"
 
-	"github.com/cloudwego/eino/schema"
-	"github.com/google/jsonschema-go/jsonschema"
+	einoStructured "shop/pkg/agent/eino/structured"
 )
 
 const (
@@ -32,7 +30,7 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	}
 
 	// 审核输入同时支持公网图片地址和本地图片字节；文本 payload 放在第一段，图片作为多模态附件追加。
-	parts := make([]*schema.ContentBlock, 0, len(imageURLs)+len(imageData)+2)
+	parts := make([]*einoStructured.Part, 0, len(imageURLs)+len(imageData)+2)
 	payload := map[string]any{
 		"goodsName":    req.GoodsName,
 		"skuDesc":      req.SKUDesc,
@@ -57,7 +55,7 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 		parts = append(parts, imageDataInputPart(image.Bytes, reviewImageDataMIMEType(image.MIMEType, image.Name)))
 	}
 
-	var outputSchema *jsonschema.Schema
+	var outputSchema *einoStructured.Schema
 	outputSchema, err = cachedReviewResultSchema()
 	if err != nil {
 		return nil, fmt.Errorf("build comment review schema: %w", err)
@@ -70,7 +68,7 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 	r.normalizeReviewResult(result)
 	// 拒绝结果必须能解释给运营和用户看；模型只返回泛化原因时，再带着原始输入追问一次。
 	if reviewNeedsConcreteReason(result) {
-		retryParts := append([]*schema.ContentBlock(nil), parts...)
+		retryParts := append([]*einoStructured.Part(nil), parts...)
 		retryParts = append(retryParts, textInputPart("上一次审核结果缺少清晰结论或具体不通过原因。请重新审核：如果可以公开展示，approved 必须为 true，textRisk 和 imageRisk 必须为 false，riskReason 必须为空字符串；如果不通过，approved 必须为 false，riskReason 必须说明违规类别、命中的文本片段或图片序号、具体判定依据，例如“图片1疑似色情低俗：出现裸露身体部位，不适合公开展示”。不要只写“内容安全风险”或“审核不通过”。"))
 		err = r.generateStructured(ctx, commentReviewInstruction, retryParts, outputSchema, result)
 		if err != nil {
@@ -83,8 +81,8 @@ func (r *Runtime) ReviewComment(ctx context.Context, req ReviewRequest) (*Review
 }
 
 // textInputPart 构造文本输入片段。
-func textInputPart(text string) *schema.ContentBlock {
-	return schema.NewContentBlock(&schema.UserInputText{Text: text})
+func textInputPart(text string) *einoStructured.Part {
+	return einoStructured.TextPart(text)
 }
 
 // HasConcreteReviewReason 判断审核原因是否包含具体违规线索。
@@ -138,21 +136,13 @@ func (r *Runtime) normalizeReviewResult(result *ReviewResult) {
 }
 
 // imageURLInputPart 构造远程图片输入片段。
-func imageURLInputPart(rawURL string) *schema.ContentBlock {
-	return schema.NewContentBlock(&schema.UserInputImage{
-		URL:    rawURL,
-		Detail: schema.ImageURLDetailAuto,
-	})
+func imageURLInputPart(rawURL string) *einoStructured.Part {
+	return einoStructured.ImageURLPart(rawURL)
 }
 
 // imageDataInputPart 构造图片字节输入片段。
-func imageDataInputPart(data []byte, mimeType string) *schema.ContentBlock {
-	base64Data := base64.StdEncoding.EncodeToString(data)
-	return schema.NewContentBlock(&schema.UserInputImage{
-		Base64Data: base64Data,
-		MIMEType:   mimeType,
-		Detail:     schema.ImageURLDetailAuto,
-	})
+func imageDataInputPart(data []byte, mimeType string) *einoStructured.Part {
+	return einoStructured.ImageDataPart(data, mimeType)
 }
 
 // cleanReviewImageData 清理评论审核图片字节列表。

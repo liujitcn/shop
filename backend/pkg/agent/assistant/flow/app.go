@@ -9,14 +9,15 @@ import (
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/agent/assistant"
+	einoWorkflow "shop/pkg/agent/eino/workflow"
 	"shop/pkg/errorsx"
 )
 
 const (
-	aiAssistantFlowShopping       = "shopping"
-	aiAssistantFlowPendingPayment = "pending_payment"
-	aiAssistantFlowPendingReview  = "pending_review"
-	aiAssistantFlowOrderLogistics = "order_logistics"
+	aiAssistantFlowShopping       = string(einoWorkflow.FlowShopping)
+	aiAssistantFlowPendingPayment = string(einoWorkflow.FlowPendingPayment)
+	aiAssistantFlowPendingReview  = string(einoWorkflow.FlowPendingReview)
+	aiAssistantFlowOrderLogistics = string(einoWorkflow.FlowOrderLogistics)
 
 	aiAssistantToolRecommendGoods     = "app_v1_recommend_service_recommend_goods"
 	aiAssistantToolPageGoodsInfo      = "app_v1_goods_info_service_page_goods_info"
@@ -33,6 +34,8 @@ const (
 	aiAssistantToolJSAPIPay           = "app_v1_pay_service_jsapi_pay"
 	aiAssistantToolH5Pay              = "app_v1_pay_service_h5_pay"
 )
+
+var aiAssistantFlowRegistry = einoWorkflow.MustNewAppRegistry[*assistant.Response]()
 
 // Runner 编排移动端助手闭环流程。
 type Runner struct {
@@ -71,9 +74,29 @@ func (r *Runner) handleAiAssistantFlowAction(ctx context.Context, action *basev1
 	if err != nil {
 		return nil, err
 	}
+	var result einoWorkflow.ActionResult[*assistant.Response]
+	result, err = aiAssistantFlowRegistry.Run(ctx, einoWorkflow.ActionRequest{
+		Flow:       einoWorkflow.FlowName(action.GetFlow()),
+		ActionType: action.GetType(),
+		Payload:    payload,
+	}, r.ExecuteWorkflowAction)
+	if err != nil {
+		return nil, err
+	}
+	// 固定流程动作先经过 Eino Graph 路由，避免前端传入未注册动作直接进入业务分支。
+	if action.GetType() != "" && !result.Found {
+		return nil, errorsx.InvalidArgument("助手动作不支持")
+	}
+	if result.Output == nil {
+		return nil, errorsx.Internal("助手动作结果无效")
+	}
+	return result.Output, nil
+}
 
-	// 按前端按钮提交的动作类型进入对应流程步骤。
-	switch action.GetType() {
+// ExecuteWorkflowAction 执行 Eino Graph 路由后的移动端流程动作。
+func (r *Runner) ExecuteWorkflowAction(ctx context.Context, action einoWorkflow.Action, payload map[string]any) (*assistant.Response, error) {
+	// 按前端按钮提交的动作类型进入对应流程步骤；动作合法性由 eino/workflow 的 Graph 分支负责。
+	switch action.Type {
 	case "open_shopping":
 		return r.openAiAssistantShoppingFlow(ctx)
 	case "select_goods":
@@ -674,16 +697,10 @@ func matchAiAssistantFlowIntent(content string) string {
 
 // openAiAssistantFlowActionType 返回流程入口动作。
 func openAiAssistantFlowActionType(flow string) string {
-	switch flow {
-	case aiAssistantFlowPendingPayment:
-		return "open_pending_payment"
-	case aiAssistantFlowPendingReview:
-		return "open_pending_review"
-	case aiAssistantFlowOrderLogistics:
-		return "open_order_logistics"
-	default:
-		return "open_shopping"
+	if actionType := aiAssistantFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)); actionType != "" {
+		return actionType
 	}
+	return aiAssistantFlowRegistry.EntryAction(einoWorkflow.FlowShopping)
 }
 
 // parseAiAssistantActionPayload 解析前端动作负载。

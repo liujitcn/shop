@@ -2,11 +2,10 @@ package server
 
 import (
 	"shop/pkg/agent/assistant"
+	einoTool "shop/pkg/agent/eino/tool"
 	"shop/service/admin"
 	"shop/service/app"
 	"shop/service/base"
-
-	"github.com/cloudwego/eino/components/tool"
 )
 
 // ServerServices 汇总 HTTP 与 MCP 需要注册的服务实例。
@@ -177,12 +176,12 @@ func NewServerServices(
 		login:                 login,
 	}
 	var err error
-	var adminTools []tool.InvokableTool
+	var adminTools []einoTool.Invokable
 	adminTools, err = newAdminFlowAgentTools(services)
 	if err != nil {
 		return nil, err
 	}
-	var appTools []tool.InvokableTool
+	var appTools []einoTool.Invokable
 	appTools, err = newAppFlowAgentTools(services)
 	if err != nil {
 		return nil, err

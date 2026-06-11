@@ -7,9 +7,17 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v2"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/agent/assistant"
 	"shop/pkg/agent/comment"
-	"shop/pkg/agent/provider"
+	"shop/pkg/agent/eino/model"
+	"shop/pkg/agent/eino/structured"
 	"shop/pkg/biz"
 	"shop/pkg/config"
 	"shop/pkg/gen/data"
@@ -27,17 +35,10 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -208,8 +209,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	}
 	baseUserCase := biz2.NewBaseUserCase(baseCase, baseUserRepository)
 	ai_Model := config.ParseAIModel(context)
-	chatClient := provider.NewChatClient(ai_Model)
-	runtime := comment.NewRuntime(chatClient)
+	chatClient := model.NewChatClient(ai_Model)
+	runner := structured.NewRunner(chatClient)
+	runtime := comment.NewRuntime(runner)
 	commentCase := biz2.NewCommentCase(baseCase, transaction, commentInfoCase, commentSummaryCase, commentTagCase, commentReviewCase, commentDiscussionCase, commentReactionCase, orderInfoCase, orderGoodsCase, baseUserCase, runtime)
 	commentAuditRetry := task.NewCommentAuditRetry(commentCase, commentInfoCase, commentDiscussionCase, commentReviewCase)
 	v := task.NewTaskList(tradeBill, orderStatDay, goodsStatDay, recommendSync, commentAuditRetry)
@@ -379,7 +381,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	aiAssistantSessionRepository := data.NewAiAssistantSessionRepository(dataData)
 	aiAssistantMessageRepository := data.NewAiAssistantMessageRepository(dataData)
 	aiAssistantSessionCase := biz4.NewAiAssistantSessionCase(baseCase, transaction, aiAssistantSessionRepository, aiAssistantMessageRepository)
-	responsesClient := provider.NewResponsesClient(ai_Model)
+	responsesClient := model.NewResponsesClient(ai_Model)
 	assistantRuntime := assistant.NewRuntime(responsesClient)
 	aiAssistantMessageCase := biz4.NewAiAssistantMessageCase(baseCase, transaction, aiAssistantMessageRepository, aiAssistantSessionCase, baseAPIRepository, baseUserCase2, assistantRuntime)
 	aiAssistantService := base.NewAiAssistantService(aiAssistantSessionCase, aiAssistantMessageCase)

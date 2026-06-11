@@ -2,17 +2,16 @@ package server
 
 import (
 	appv1 "shop/api/gen/go/app/v1"
-
-	"github.com/cloudwego/eino/components/tool"
+	einoTool "shop/pkg/agent/eino/tool"
 )
 
 // newAdminFlowAgentTools 创建管理端 AI 助手流程工具列表。
-func newAdminFlowAgentTools(_ *ServerServices) ([]tool.InvokableTool, error) {
+func newAdminFlowAgentTools(_ *ServerServices) ([]einoTool.Invokable, error) {
 	return nil, nil
 }
 
 // newAppFlowAgentTools 创建商城端 AI 助手流程工具列表。
-func newAppFlowAgentTools(services *ServerServices) ([]tool.InvokableTool, error) {
+func newAppFlowAgentTools(services *ServerServices) ([]einoTool.Invokable, error) {
 	var err error
 	var builder agentToolBuilder
 	if err = builder.appendTool(appv1.NewRecommendServiceRecommendGoodsAgentTool(services.appRecommend)); err != nil {
@@ -62,11 +61,11 @@ func newAppFlowAgentTools(services *ServerServices) ([]tool.InvokableTool, error
 
 // agentToolBuilder 负责合并各服务生成的 Agent 工具。
 type agentToolBuilder struct {
-	tools []tool.InvokableTool
+	tools []einoTool.Invokable
 }
 
 // appendTool 合并单个生成的 Agent 工具。
-func (b *agentToolBuilder) appendTool(value tool.InvokableTool, err error) error {
+func (b *agentToolBuilder) appendTool(value einoTool.Invokable, err error) error {
 	if err != nil {
 		return err
 	}
