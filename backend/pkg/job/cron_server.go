@@ -227,6 +227,17 @@ func (c *CronServer) lookupTaskExec(invokeTarget string) (task.TaskExec, error) 
 	return invokeTargetExec, nil
 }
 
+// updateBaseJobEntryID 更新任务的调度 entryID。
+func (c *CronServer) updateBaseJobEntryID(ctx context.Context, jobID int64, entryID int32) error {
+	query := c.baseJobRepo.Query(ctx).BaseJob
+	_, err := query.WithContext(ctx).
+		Where(query.ID.Eq(jobID)).
+		Updates(map[string]interface{}{
+			"entry_id": entryID,
+		})
+	return err
+}
+
 // parseJobArgs 解析任务参数 JSON 为执行参数 map。
 func parseJobArgs(rawArgs string) (map[string]string, error) {
 	// 空参数直接返回空 map，避免上层判空分支过多。
@@ -249,15 +260,4 @@ func parseJobArgs(rawArgs string) (map[string]string, error) {
 		argsMap[item.GetKey()] = item.GetValue()
 	}
 	return argsMap, nil
-}
-
-// updateBaseJobEntryID 更新任务的调度 entryID。
-func (c *CronServer) updateBaseJobEntryID(ctx context.Context, jobID int64, entryID int32) error {
-	query := c.baseJobRepo.Query(ctx).BaseJob
-	_, err := query.WithContext(ctx).
-		Where(query.ID.Eq(jobID)).
-		Updates(map[string]interface{}{
-			"entry_id": entryID,
-		})
-	return err
 }

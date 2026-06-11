@@ -128,14 +128,6 @@ func (t *RecommendSync) syncBaseUser(batchSize int) (int, error) {
 	return total, nil
 }
 
-// cloneIDSet 复制一份编号集合，避免后续清理候选和存在索引互相污染。
-func cloneIDSet(source _set.Set[string]) _set.Set[string] {
-	if source == nil {
-		return _set.NewThreadUnsafeSet[string]()
-	}
-	return source.Clone()
-}
-
 // syncGoodsInfo 分批同步商品快照到推荐系统。
 func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 	query := t.goodsInfoRepo.Query(t.ctx).GoodsInfo
@@ -177,4 +169,12 @@ func (t *RecommendSync) syncGoodsInfo(batchSize int) (int, error) {
 		return total, fmt.Errorf("清理推荐系统冗余商品数据失败: %w", err)
 	}
 	return total, nil
+}
+
+// cloneIDSet 复制一份编号集合，避免后续清理候选和存在索引互相污染。
+func cloneIDSet(source _set.Set[string]) _set.Set[string] {
+	if source == nil {
+		return _set.NewThreadUnsafeSet[string]()
+	}
+	return source.Clone()
 }

@@ -331,25 +331,6 @@ func (t *TradeBill) checkHash(fileBytes []byte, hashValue string) error {
 	return nil
 }
 
-// billDateRange 计算账单日期对应的时间范围
-func billDateRange(billDate string) (time.Time, time.Time, error) {
-	startTime, err := time.ParseInLocation("2006-01-02", billDate, time.Local)
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	return startTime, startTime.AddDate(0, 0, 1), nil
-}
-
-// parseOrderPaymentAmount 解析支付金额 JSON。
-func parseOrderPaymentAmount(rawAmount string) (*adminv1.OrderPayment_Amount, error) {
-	var orderPaymentAmount adminv1.OrderPayment_Amount
-	err := json.Unmarshal([]byte(rawAmount), &orderPaymentAmount)
-	if err != nil {
-		return nil, errorsx.Internal("解析支付账单金额失败").WithCause(err)
-	}
-	return &orderPaymentAmount, nil
-}
-
 // refund 核对退款账单
 func (t *TradeBill) refund(billDate, billType string) (tradeBillCheckResult, error) {
 	result := tradeBillCheckResult{name: "退款账单"}
@@ -507,6 +488,25 @@ func (r tradeBillCheckResult) resultName() string {
 		return "无误差"
 	}
 	return "有误差"
+}
+
+// billDateRange 计算账单日期对应的时间范围
+func billDateRange(billDate string) (time.Time, time.Time, error) {
+	startTime, err := time.ParseInLocation("2006-01-02", billDate, time.Local)
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	return startTime, startTime.AddDate(0, 0, 1), nil
+}
+
+// parseOrderPaymentAmount 解析支付金额 JSON。
+func parseOrderPaymentAmount(rawAmount string) (*adminv1.OrderPayment_Amount, error) {
+	var orderPaymentAmount adminv1.OrderPayment_Amount
+	err := json.Unmarshal([]byte(rawAmount), &orderPaymentAmount)
+	if err != nil {
+		return nil, errorsx.Internal("解析支付账单金额失败").WithCause(err)
+	}
+	return &orderPaymentAmount, nil
 }
 
 // parseOrderRefundAmount 解析退款金额 JSON。

@@ -98,11 +98,6 @@ func (c *GoodsSKUCase) ListGoodsSKUsByGoodsID(ctx context.Context, goodsID int64
 	return resList, nil
 }
 
-// toGoodsSKU 转换商品规格项响应数据
-func (c *GoodsSKUCase) toGoodsSKU(item *models.GoodsSKU) *adminv1.GoodsSku {
-	return c.mapper.ToDTO(item)
-}
-
 // toGoodsSKUModel 转换商品规格项模型数据
 func (c *GoodsSKUCase) toGoodsSKUModel(item *adminv1.GoodsSku) *models.GoodsSKU {
 	// 商品规格项为空时返回零值模型，保持批量转换流程兼容。
@@ -110,4 +105,9 @@ func (c *GoodsSKUCase) toGoodsSKUModel(item *adminv1.GoodsSku) *models.GoodsSKU 
 		return &models.GoodsSKU{}
 	}
 	return c.mapper.ToEntity(item)
+}
+
+// toGoodsSKU 转换商品规格项响应数据
+func (c *GoodsSKUCase) toGoodsSKU(item *models.GoodsSKU) *adminv1.GoodsSku {
+	return c.mapper.ToDTO(item)
 }

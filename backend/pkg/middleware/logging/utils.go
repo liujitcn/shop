@@ -91,28 +91,6 @@ func getClientRealIP(request *http.Request) string {
 	return getIPFromRemoteAddr(request.RemoteAddr)
 }
 
-// getIPFromRemoteAddr 从 RemoteAddr 中提取客户端 IP。
-func getIPFromRemoteAddr(hostAddress string) string {
-	// RemoteAddr 可能携带端口，需要先拆分 host 部分。
-	if strings.Contains(hostAddress, ":") {
-		// 能正常拆分 host:port 时，优先校验拆分后的 host。
-		host, _, err := net.SplitHostPort(hostAddress)
-		// host:port 拆分成功时，继续校验 host 是否为合法 IP。
-		if err == nil {
-			// 只有合法 IP 才允许作为客户端地址返回。
-			if net.ParseIP(host) != nil {
-				return host
-			}
-		}
-	}
-	// 未携带端口时，直接校验原始地址是否为合法 IP。
-	// 原始地址本身就是合法 IP 时，直接返回。
-	if net.ParseIP(hostAddress) != nil {
-		return hostAddress
-	}
-	return ""
-}
-
 // getRequestID 获取请求 ID
 func getRequestID(ctx context.Context, request *http.Request) string {
 	// 先读取请求上下文中的 request_id，优先复用统一中间件生成的值。
@@ -169,4 +147,26 @@ func clientIPToLocation(ip string) string {
 		return ""
 	}
 	return res.City
+}
+
+// getIPFromRemoteAddr 从 RemoteAddr 中提取客户端 IP。
+func getIPFromRemoteAddr(hostAddress string) string {
+	// RemoteAddr 可能携带端口，需要先拆分 host 部分。
+	if strings.Contains(hostAddress, ":") {
+		// 能正常拆分 host:port 时，优先校验拆分后的 host。
+		host, _, err := net.SplitHostPort(hostAddress)
+		// host:port 拆分成功时，继续校验 host 是否为合法 IP。
+		if err == nil {
+			// 只有合法 IP 才允许作为客户端地址返回。
+			if net.ParseIP(host) != nil {
+				return host
+			}
+		}
+	}
+	// 未携带端口时，直接校验原始地址是否为合法 IP。
+	// 原始地址本身就是合法 IP 时，直接返回。
+	if net.ParseIP(hostAddress) != nil {
+		return hostAddress
+	}
+	return ""
 }

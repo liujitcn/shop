@@ -249,13 +249,6 @@ func (c *UserAnalyticsCase) countDistinctActiveUsers(ctx context.Context, startA
 	return int64(len(userIDSet)), nil
 }
 
-// mergeUserIDs 将查询到的用户编号合并到去重集合。
-func mergeUserIDs(userIDSet map[int64]struct{}, userIDs []int64) {
-	for _, userID := range userIDs {
-		userIDSet[userID] = struct{}{}
-	}
-}
-
 // queryUserRegisterSummary 查询用户注册趋势汇总。
 func (c *UserAnalyticsCase) queryUserRegisterSummary(ctx context.Context, timeType commonv1.AnalyticsTimeType, startAt, endAt time.Time) (map[int64]int64, []string, error) {
 	type row struct {
@@ -347,5 +340,12 @@ func (c *UserAnalyticsCase) countDistinctBehaviorUsers(ctx context.Context, beha
 			Count()
 	default:
 		return 0, nil
+	}
+}
+
+// mergeUserIDs 将查询到的用户编号合并到去重集合。
+func mergeUserIDs(userIDSet map[int64]struct{}, userIDs []int64) {
+	for _, userID := range userIDs {
+		userIDSet[userID] = struct{}{}
 	}
 }

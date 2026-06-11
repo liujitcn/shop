@@ -184,6 +184,15 @@ func Server(_ log.Logger,
 	}
 }
 
+// marshalFallbackText 将兜底文本包装成合法 JSON 字符串。
+func marshalFallbackText(text string) string {
+	textBytes, err := json.Marshal(text)
+	if err != nil {
+		return text
+	}
+	return string(textBytes)
+}
+
 // extractArgs 提取请求体日志内容。
 func extractArgs(req interface{}) string {
 	requestBody, err := marshalRequestBody(req)
@@ -219,15 +228,6 @@ func marshalRequestBody(req interface{}) ([]byte, error) {
 	}
 
 	return json.Marshal(req)
-}
-
-// marshalFallbackText 将兜底文本包装成合法 JSON 字符串。
-func marshalFallbackText(text string) string {
-	textBytes, err := json.Marshal(text)
-	if err != nil {
-		return text
-	}
-	return string(textBytes)
 }
 
 // normalizeLogField 将日志字段压缩成单行文本。

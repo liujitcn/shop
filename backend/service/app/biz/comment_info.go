@@ -470,6 +470,51 @@ func (c *CommentInfoCase) listPreviewByRecordList(ctx context.Context, recordLis
 	return list, nil
 }
 
+// changeDiscussionCount 按审核状态调整评价讨论缓存数量。
+func (c *CommentInfoCase) changeDiscussionCount(ctx context.Context, commentID int64, status int32, delta int32) error {
+	if delta == 0 {
+		return nil
+	}
+	query := c.Query(ctx).CommentInfo
+	var update field.AssignExpr
+	conditions := []gen.Condition{query.ID.Eq(commentID)}
+	switch status {
+	case _const.COMMENT_STATUS_PENDING_REVIEW:
+		update = query.PendingDiscussionCount.Add(delta)
+		// 递减待审数量时，增加大于 0 条件避免缓存数量出现负数。
+		if delta < 0 {
+			conditions = append(conditions, query.PendingDiscussionCount.Gt(0))
+		}
+	case _const.COMMENT_STATUS_APPROVED:
+		update = query.DiscussionCount.Add(delta)
+		// 递减通过数量时，增加大于 0 条件避免缓存数量出现负数。
+		if delta < 0 {
+			conditions = append(conditions, query.DiscussionCount.Gt(0))
+		}
+	default:
+		return nil
+	}
+	_, err := query.WithContext(ctx).
+		Where(conditions...).
+		UpdateSimple(update)
+	return err
+}
+
+// listSummarySourceByGoodsID 查询商品评价摘要生成所需的审核通过评价。
+func (c *CommentInfoCase) listSummarySourceByGoodsID(ctx context.Context, goodsID int64, limit int) ([]*models.CommentInfo, error) {
+	query := c.Query(ctx).CommentInfo
+	opts := make([]repository.QueryOption, 0, 5)
+	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
+	opts = append(opts, repository.Where(query.Content.Neq("")))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	// 摘要只需要最近一批有效评价，避免商品评价越多单次刷新越重。
+	if limit > 0 {
+		opts = append(opts, repository.Limit(limit))
+	}
+	return c.List(ctx, opts...)
+}
+
 // sortByDefault 按推荐排序对评价记录重新排序。
 func (c *CommentInfoCase) sortByDefault(recordList []*models.CommentInfo) {
 	sort.SliceStable(recordList, func(leftIndex, rightIndex int) bool {
@@ -678,50 +723,5 @@ func (c *CommentInfoCase) listByUserID(ctx context.Context, userID int64) ([]*mo
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
 	opts = append(opts, repository.Where(query.Status.In(_const.COMMENT_STATUS_PENDING_REVIEW, _const.COMMENT_STATUS_APPROVED, _const.COMMENT_STATUS_REJECTED)))
-	return c.List(ctx, opts...)
-}
-
-// changeDiscussionCount 按审核状态调整评价讨论缓存数量。
-func (c *CommentInfoCase) changeDiscussionCount(ctx context.Context, commentID int64, status int32, delta int32) error {
-	if delta == 0 {
-		return nil
-	}
-	query := c.Query(ctx).CommentInfo
-	var update field.AssignExpr
-	conditions := []gen.Condition{query.ID.Eq(commentID)}
-	switch status {
-	case _const.COMMENT_STATUS_PENDING_REVIEW:
-		update = query.PendingDiscussionCount.Add(delta)
-		// 递减待审数量时，增加大于 0 条件避免缓存数量出现负数。
-		if delta < 0 {
-			conditions = append(conditions, query.PendingDiscussionCount.Gt(0))
-		}
-	case _const.COMMENT_STATUS_APPROVED:
-		update = query.DiscussionCount.Add(delta)
-		// 递减通过数量时，增加大于 0 条件避免缓存数量出现负数。
-		if delta < 0 {
-			conditions = append(conditions, query.DiscussionCount.Gt(0))
-		}
-	default:
-		return nil
-	}
-	_, err := query.WithContext(ctx).
-		Where(conditions...).
-		UpdateSimple(update)
-	return err
-}
-
-// listSummarySourceByGoodsID 查询商品评价摘要生成所需的审核通过评价。
-func (c *CommentInfoCase) listSummarySourceByGoodsID(ctx context.Context, goodsID int64, limit int) ([]*models.CommentInfo, error) {
-	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 5)
-	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_APPROVED)))
-	opts = append(opts, repository.Where(query.Content.Neq("")))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	// 摘要只需要最近一批有效评价，避免商品评价越多单次刷新越重。
-	if limit > 0 {
-		opts = append(opts, repository.Limit(limit))
-	}
 	return c.List(ctx, opts...)
 }

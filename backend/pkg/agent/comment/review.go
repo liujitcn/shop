@@ -87,24 +87,6 @@ func textInputPart(text string) *schema.ContentBlock {
 	return schema.NewContentBlock(&schema.UserInputText{Text: text})
 }
 
-// imageURLInputPart 构造远程图片输入片段。
-func imageURLInputPart(rawURL string) *schema.ContentBlock {
-	return schema.NewContentBlock(&schema.UserInputImage{
-		URL:    rawURL,
-		Detail: schema.ImageURLDetailAuto,
-	})
-}
-
-// imageDataInputPart 构造图片字节输入片段。
-func imageDataInputPart(data []byte, mimeType string) *schema.ContentBlock {
-	base64Data := base64.StdEncoding.EncodeToString(data)
-	return schema.NewContentBlock(&schema.UserInputImage{
-		Base64Data: base64Data,
-		MIMEType:   mimeType,
-		Detail:     schema.ImageURLDetailAuto,
-	})
-}
-
 // HasConcreteReviewReason 判断审核原因是否包含具体违规线索。
 func HasConcreteReviewReason(reason string) bool {
 	if reason == "" {
@@ -137,6 +119,40 @@ func HasConcreteReviewReason(reason string) bool {
 	}
 	// 较长的非泛化原因通常已包含一定解释信息，避免过度要求固定关键词导致正常拒绝结论被反复重试。
 	return len([]rune(reason)) >= 12
+}
+
+// normalizeReviewResult 规范化评论审核结果。
+func (r *Runtime) normalizeReviewResult(result *ReviewResult) {
+	if result == nil {
+		return
+	}
+	result.Tags = cleanStringList(result.Tags)
+	// 模型可能返回过多标签，最多保留固定数量用于前台展示。
+	if len(result.Tags) > commentReviewTagLimit {
+		result.Tags = append([]string(nil), result.Tags[:commentReviewTagLimit]...)
+	}
+	// 任一风险命中时，强制将公开展示结果置为不通过，避免模型字段互相矛盾。
+	if result.TextRisk || result.ImageRisk {
+		result.Approved = false
+	}
+}
+
+// imageURLInputPart 构造远程图片输入片段。
+func imageURLInputPart(rawURL string) *schema.ContentBlock {
+	return schema.NewContentBlock(&schema.UserInputImage{
+		URL:    rawURL,
+		Detail: schema.ImageURLDetailAuto,
+	})
+}
+
+// imageDataInputPart 构造图片字节输入片段。
+func imageDataInputPart(data []byte, mimeType string) *schema.ContentBlock {
+	base64Data := base64.StdEncoding.EncodeToString(data)
+	return schema.NewContentBlock(&schema.UserInputImage{
+		Base64Data: base64Data,
+		MIMEType:   mimeType,
+		Detail:     schema.ImageURLDetailAuto,
+	})
 }
 
 // cleanReviewImageData 清理评论审核图片字节列表。
@@ -204,22 +220,6 @@ func reviewImageDataMIMEType(rawMIMEType string, name string) string {
 		return "image/jpeg"
 	}
 	return reviewImageMIMEType(name)
-}
-
-// normalizeReviewResult 规范化评论审核结果。
-func (r *Runtime) normalizeReviewResult(result *ReviewResult) {
-	if result == nil {
-		return
-	}
-	result.Tags = cleanStringList(result.Tags)
-	// 模型可能返回过多标签，最多保留固定数量用于前台展示。
-	if len(result.Tags) > commentReviewTagLimit {
-		result.Tags = append([]string(nil), result.Tags[:commentReviewTagLimit]...)
-	}
-	// 任一风险命中时，强制将公开展示结果置为不通过，避免模型字段互相矛盾。
-	if result.TextRisk || result.ImageRisk {
-		result.Approved = false
-	}
 }
 
 // reviewNeedsConcreteReason 判断拒绝结果是否缺少具体原因。

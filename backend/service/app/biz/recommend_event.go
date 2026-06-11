@@ -42,45 +42,6 @@ func NewRecommendEventCase(
 	return c
 }
 
-// saveRecommendEventReport 消费推荐事件队列并持久化到本地。
-func (c *RecommendEventCase) saveRecommendEventReport(message queueData.Message) error {
-	recommendEvent, err := queue.DecodeQueueData[queue.RecommendEventReportEvent](message)
-	if err != nil {
-		return err
-	}
-	// 队列消息里没有推荐事件主体时，直接忽略当前消息。
-	if recommendEvent == nil {
-		return nil
-	}
-
-	items := make([]*appv1.RecommendEventItem, 0, len(recommendEvent.Items))
-	for _, item := range recommendEvent.Items {
-		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
-		if item == nil || item.GoodsID <= 0 {
-			continue
-		}
-		items = append(items, &appv1.RecommendEventItem{
-			GoodsId:  item.GoodsID,
-			GoodsNum: item.GoodsNum,
-			Position: item.Position,
-		})
-	}
-	// 队列事件里没有有效商品项时，不再继续落库。
-	if len(items) == 0 {
-		return nil
-	}
-
-	recommendEventReport := &appv1.RecommendEventReportRequest{
-		EventType: recommendEvent.EventType,
-		RecommendContext: &appv1.RecommendEventContext{
-			Scene:     commonv1.RecommendScene(recommendEvent.Scene),
-			RequestId: recommendEvent.RequestID,
-		},
-		Items: items,
-	}
-	return c.persistRecommendEventReport(context.TODO(), recommendEvent.RecommendActor, recommendEventReport, recommendEvent.EventTime)
-}
-
 // persistRecommendEventReport 持久化推荐事件。
 func (c *RecommendEventCase) persistRecommendEventReport(
 	ctx context.Context,
@@ -191,4 +152,43 @@ func (c *RecommendEventCase) listRecentRecommendEventGoodsIDs(ctx context.Contex
 		goodsIDs = append(goodsIDs, item.GoodsID)
 	}
 	return goodsIDs, nil
+}
+
+// saveRecommendEventReport 消费推荐事件队列并持久化到本地。
+func (c *RecommendEventCase) saveRecommendEventReport(message queueData.Message) error {
+	recommendEvent, err := queue.DecodeQueueData[queue.RecommendEventReportEvent](message)
+	if err != nil {
+		return err
+	}
+	// 队列消息里没有推荐事件主体时，直接忽略当前消息。
+	if recommendEvent == nil {
+		return nil
+	}
+
+	items := make([]*appv1.RecommendEventItem, 0, len(recommendEvent.Items))
+	for _, item := range recommendEvent.Items {
+		// 非法商品项直接跳过，避免把脏数据写入推荐链路。
+		if item == nil || item.GoodsID <= 0 {
+			continue
+		}
+		items = append(items, &appv1.RecommendEventItem{
+			GoodsId:  item.GoodsID,
+			GoodsNum: item.GoodsNum,
+			Position: item.Position,
+		})
+	}
+	// 队列事件里没有有效商品项时，不再继续落库。
+	if len(items) == 0 {
+		return nil
+	}
+
+	recommendEventReport := &appv1.RecommendEventReportRequest{
+		EventType: recommendEvent.EventType,
+		RecommendContext: &appv1.RecommendEventContext{
+			Scene:     commonv1.RecommendScene(recommendEvent.Scene),
+			RequestId: recommendEvent.RequestID,
+		},
+		Items: items,
+	}
+	return c.persistRecommendEventReport(context.TODO(), recommendEvent.RecommendActor, recommendEventReport, recommendEvent.EventTime)
 }

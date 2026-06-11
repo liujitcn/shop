@@ -272,12 +272,12 @@ func (c *CommentInfoCase) operatorName(ctx context.Context, userID int64) string
 	return operatorName
 }
 
-// updateTagIDs 更新评论命中的标签编号。
-func (c *CommentInfoCase) updateTagIDs(ctx context.Context, commentID int64, tagIDs []int64) error {
+// updateStatus 更新评论审核状态。
+func (c *CommentInfoCase) updateStatus(ctx context.Context, commentID int64, status int32) error {
 	query := c.Query(ctx).CommentInfo
 	result, err := query.WithContext(ctx).
 		Where(query.ID.Eq(commentID)).
-		Update(query.TagID, _string.ConvertAnyToJsonString(tagIDs))
+		Update(query.Status, status)
 	if err != nil {
 		return err
 	}
@@ -287,12 +287,12 @@ func (c *CommentInfoCase) updateTagIDs(ctx context.Context, commentID int64, tag
 	return nil
 }
 
-// updateStatus 更新评论审核状态。
-func (c *CommentInfoCase) updateStatus(ctx context.Context, commentID int64, status int32) error {
+// updateTagIDs 更新评论命中的标签编号。
+func (c *CommentInfoCase) updateTagIDs(ctx context.Context, commentID int64, tagIDs []int64) error {
 	query := c.Query(ctx).CommentInfo
 	result, err := query.WithContext(ctx).
 		Where(query.ID.Eq(commentID)).
-		Update(query.Status, status)
+		Update(query.TagID, _string.ConvertAnyToJsonString(tagIDs))
 	if err != nil {
 		return err
 	}

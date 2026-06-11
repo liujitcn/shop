@@ -152,102 +152,6 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 	}, nil
 }
 
-// buildCategoryFilterIDs 构建分类筛选范围。
-func (c *GoodsInfoCase) buildCategoryFilterIDs(ctx context.Context, categoryID int64) ([]int64, error) {
-	// 先校验分类存在，避免按无效分类编号继续查询商品。
-	_, err := c.goodsCategoryRepo.FindByID(ctx, categoryID)
-	if err != nil {
-		return nil, err
-	}
-
-	var categoryList []*models.GoodsCategory
-	categoryList, err = c.goodsCategoryRepo.List(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	childMap := make(map[int64][]int64, len(categoryList))
-	for _, item := range categoryList {
-		childMap[item.ParentID] = append(childMap[item.ParentID], item.ID)
-	}
-
-	categoryIDs := []int64{categoryID}
-	queue := []int64{categoryID}
-	for len(queue) > 0 {
-		currentID := queue[0]
-		queue = queue[1:]
-
-		childIDs := childMap[currentID]
-		// 当前分类没有子分类时，继续展开下一项待处理分类。
-		if len(childIDs) == 0 {
-			continue
-		}
-		categoryIDs = append(categoryIDs, childIDs...)
-		queue = append(queue, childIDs...)
-	}
-	return categoryIDs, nil
-}
-
-// findGoodsIDsByCategoryIDs 查询命中分类集合的商品编号。
-func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryIDs []int64) ([]int64, error) {
-	// 没有分类编号时，不需要继续访问数据库查询商品。
-	if len(categoryIDs) == 0 {
-		return []int64{}, nil
-	}
-
-	type goodsCategoryRow struct {
-		ID         int64  `gorm:"column:id"`
-		CategoryID string `gorm:"column:category_id"`
-	}
-
-	query := c.Query(ctx).GoodsInfo
-	rows := make([]*goodsCategoryRow, 0)
-	err := query.WithContext(ctx).
-		Select(query.ID, query.CategoryID).
-		Where(query.DeletedAt.IsNull()).
-		Scan(&rows)
-	if err != nil {
-		return nil, err
-	}
-
-	categoryIDSet := make(map[int64]struct{}, len(categoryIDs))
-	for _, categoryID := range categoryIDs {
-		categoryIDSet[categoryID] = struct{}{}
-	}
-
-	goodsIDs := make([]int64, 0)
-	for _, row := range rows {
-		matchedCategory := false
-		for _, categoryID := range c.parseCategoryIDs(row.CategoryID) {
-			// 命中任一分类时即可认为商品满足分类筛选。
-			if _, ok := categoryIDSet[categoryID]; ok {
-				matchedCategory = true
-				break
-			}
-		}
-		// 商品分类列表命中任一筛选分类时，加入候选商品集合。
-		if matchedCategory {
-			goodsIDs = append(goodsIDs, row.ID)
-		}
-	}
-	return goodsIDs, nil
-}
-
-// parseCategoryIDs 解析商品分类编号列表。
-func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
-	// 分类字段为空时，直接返回空分类列表。
-	if rawCategoryIDs == "" {
-		return []int64{}
-	}
-
-	categoryIDs := make([]int64, 0)
-	// 分类 JSON 解析失败时，回退为空列表，避免单条脏数据影响推荐与分类查询。
-	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
-		return []int64{}
-	}
-	return categoryIDs
-}
-
 // convertToProto 转换单个商品为接口返回结构
 func (c *GoodsInfoCase) convertToProto(item *models.GoodsInfo, member bool) *appv1.GoodsInfo {
 	goodsInfo := c.listMapper.ToDTO(item)
@@ -381,4 +285,100 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsID, num int64) erro
 	}
 	return res.Error
 
+}
+
+// buildCategoryFilterIDs 构建分类筛选范围。
+func (c *GoodsInfoCase) buildCategoryFilterIDs(ctx context.Context, categoryID int64) ([]int64, error) {
+	// 先校验分类存在，避免按无效分类编号继续查询商品。
+	_, err := c.goodsCategoryRepo.FindByID(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	var categoryList []*models.GoodsCategory
+	categoryList, err = c.goodsCategoryRepo.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	childMap := make(map[int64][]int64, len(categoryList))
+	for _, item := range categoryList {
+		childMap[item.ParentID] = append(childMap[item.ParentID], item.ID)
+	}
+
+	categoryIDs := []int64{categoryID}
+	queue := []int64{categoryID}
+	for len(queue) > 0 {
+		currentID := queue[0]
+		queue = queue[1:]
+
+		childIDs := childMap[currentID]
+		// 当前分类没有子分类时，继续展开下一项待处理分类。
+		if len(childIDs) == 0 {
+			continue
+		}
+		categoryIDs = append(categoryIDs, childIDs...)
+		queue = append(queue, childIDs...)
+	}
+	return categoryIDs, nil
+}
+
+// findGoodsIDsByCategoryIDs 查询命中分类集合的商品编号。
+func (c *GoodsInfoCase) findGoodsIDsByCategoryIDs(ctx context.Context, categoryIDs []int64) ([]int64, error) {
+	// 没有分类编号时，不需要继续访问数据库查询商品。
+	if len(categoryIDs) == 0 {
+		return []int64{}, nil
+	}
+
+	type goodsCategoryRow struct {
+		ID         int64  `gorm:"column:id"`
+		CategoryID string `gorm:"column:category_id"`
+	}
+
+	query := c.Query(ctx).GoodsInfo
+	rows := make([]*goodsCategoryRow, 0)
+	err := query.WithContext(ctx).
+		Select(query.ID, query.CategoryID).
+		Where(query.DeletedAt.IsNull()).
+		Scan(&rows)
+	if err != nil {
+		return nil, err
+	}
+
+	categoryIDSet := make(map[int64]struct{}, len(categoryIDs))
+	for _, categoryID := range categoryIDs {
+		categoryIDSet[categoryID] = struct{}{}
+	}
+
+	goodsIDs := make([]int64, 0)
+	for _, row := range rows {
+		matchedCategory := false
+		for _, categoryID := range c.parseCategoryIDs(row.CategoryID) {
+			// 命中任一分类时即可认为商品满足分类筛选。
+			if _, ok := categoryIDSet[categoryID]; ok {
+				matchedCategory = true
+				break
+			}
+		}
+		// 商品分类列表命中任一筛选分类时，加入候选商品集合。
+		if matchedCategory {
+			goodsIDs = append(goodsIDs, row.ID)
+		}
+	}
+	return goodsIDs, nil
+}
+
+// parseCategoryIDs 解析商品分类编号列表。
+func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if rawCategoryIDs == "" {
+		return []int64{}
+	}
+
+	categoryIDs := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免单条脏数据影响推荐与分类查询。
+	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
+		return []int64{}
+	}
+	return categoryIDs
 }

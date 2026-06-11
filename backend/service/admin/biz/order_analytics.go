@@ -102,27 +102,6 @@ func (c *OrderAnalyticsCase) PieOrderAnalytics(ctx context.Context, req *adminv1
 	return &commonv1.AnalyticsPieResponse{Items: items}, nil
 }
 
-// countOrderBaseSummary 统计时间范围内订单数和销售额。
-func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt, endAt time.Time) (int64, int64, error) {
-	type row struct {
-		OrderCount int64 `gorm:"column:order_count"`
-		SaleAmount int64 `gorm:"column:sale_amount"`
-	}
-	var result row
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	err := query.WithContext(ctx).
-		Select(
-			query.ID.Count().As("order_count"),
-			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
-		).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-		).
-		Scan(&result)
-	return result.OrderCount, result.SaleAmount, err
-}
-
 // countDistinctOrderUsers 统计时间范围内下单用户数。
 func (c *OrderAnalyticsCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	query := c.orderInfoCase.Query(ctx).OrderInfo
@@ -150,6 +129,27 @@ func (c *OrderAnalyticsCase) countRepurchaseUsers(ctx context.Context, startAt, 
 		return 0, err
 	}
 	return utils.CountAtLeastOccurrences(userIDs, 2), nil
+}
+
+// countOrderBaseSummary 统计时间范围内订单数和销售额。
+func (c *OrderAnalyticsCase) countOrderBaseSummary(ctx context.Context, startAt, endAt time.Time) (int64, int64, error) {
+	type row struct {
+		OrderCount int64 `gorm:"column:order_count"`
+		SaleAmount int64 `gorm:"column:sale_amount"`
+	}
+	var result row
+	query := c.orderInfoCase.Query(ctx).OrderInfo
+	err := query.WithContext(ctx).
+		Select(
+			query.ID.Count().As("order_count"),
+			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
+		).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+		).
+		Scan(&result)
+	return result.OrderCount, result.SaleAmount, err
 }
 
 // queryOrderSummary 查询订单趋势汇总。

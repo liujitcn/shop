@@ -296,11 +296,6 @@ func (c *AiAssistantMessageCase) ToolConfigs(ctx context.Context, terminal strin
 	return result, nil
 }
 
-// matchAgentToolPrefix 判断工具名是否属于当前终端或公共 Base 工具。
-func matchAgentToolPrefix(terminal, toolName string) bool {
-	return toolName != "" && (terminal == "" || strings.HasPrefix(toolName, terminal+"_") || strings.HasPrefix(toolName, "base_"))
-}
-
 // toAiAssistantMessageDTO 转换消息模型到接口对象。
 func toAiAssistantMessageDTO(model *models.AiAssistantMessage) *basev1.AiAssistantMessage {
 	if model == nil {
@@ -321,58 +316,6 @@ func toAiAssistantMessageDTO(model *models.AiAssistantMessage) *basev1.AiAssista
 		FirstTokenMs:  model.FirstTokenMs,
 		DurationMs:    model.DurationMs,
 	}
-}
-
-// toAiAssistantInputContent 转换输入内容 JSON 为接口对象。
-func toAiAssistantInputContent(value assistant.InputContentPayload) *basev1.AiAssistantInputContent {
-	return &basev1.AiAssistantInputContent{
-		Kind:    value.Kind,
-		Content: value.Content,
-	}
-}
-
-// toAiAssistantOutputContent 转换输出内容 JSON 为接口对象。
-func toAiAssistantOutputContent(value assistant.OutputContentPayload) *basev1.AiAssistantOutputContent {
-	return &basev1.AiAssistantOutputContent{
-		Kind:           value.Kind,
-		Content:        value.Content,
-		ReplySource:    value.ReplySource,
-		Model:          value.Model,
-		Fallback:       value.Fallback,
-		FallbackReason: value.FallbackReason,
-		Flow:           value.Flow,
-		Step:           value.Step,
-		BlocksJson:     value.BlocksJSON,
-	}
-}
-
-// toAiAssistantToken 转换 token 统计为接口对象。
-func toAiAssistantToken(value assistant.TokenUsage) *basev1.AiAssistantToken {
-	return &basev1.AiAssistantToken{
-		Input:  value.Input,
-		Output: value.Output,
-		Cache:  value.Cache,
-		Total:  value.Total,
-	}
-}
-
-// toAiAssistantTools 转换工具使用记录为接口对象。
-func toAiAssistantTools(values []assistant.ToolUsage) []*basev1.AiAssistantTool {
-	if len(values) == 0 {
-		return []*basev1.AiAssistantTool{}
-	}
-	tools := make([]*basev1.AiAssistantTool, 0, len(values))
-	for _, item := range values {
-		tools = append(tools, &basev1.AiAssistantTool{
-			Type:   item.Type,
-			Name:   item.Name,
-			Title:  item.Title,
-			Status: item.Status,
-			Input:  item.Input,
-			Output: item.Output,
-		})
-	}
-	return tools
 }
 
 // prepareNewAiAssistantMessage 校验请求并创建生成中的消息记录。
@@ -504,31 +447,6 @@ func (c *AiAssistantMessageCase) buildHistoryBeforeMessage(ctx context.Context, 
 		return nil, err
 	}
 	return buildHistoryFromMessages(list), nil
-}
-
-// buildHistoryFromMessages 将一轮一行消息拆成模型需要的 user/assistant 上下文。
-func buildHistoryFromMessages(list []*models.AiAssistantMessage) []assistant.Message {
-	history := make([]assistant.Message, 0, len(list)*2)
-	for index := len(list) - 1; index >= 0; index-- {
-		item := list[index]
-		input := assistant.ParseInputContent(item.InputContent)
-		if input.Content != "" {
-			history = append(history, assistant.Message{
-				Role:    assistant.RoleUser,
-				Content: input.Content,
-			})
-		}
-		output := assistant.ParseOutputContent(item.OutputContent)
-		if output.Content != "" {
-			tools := assistant.ParseTools(item.Tools)
-			history = append(history, assistant.Message{
-				Role:    assistant.RoleAssistant,
-				Content: output.Content,
-				Tools:   tools,
-			})
-		}
-	}
-	return history
 }
 
 // generateAiAssistantReply 生成当前消息的 AI 助手回复。
@@ -808,6 +726,88 @@ func (c *AiAssistantMessageCase) ensureLastAiAssistantMessage(ctx context.Contex
 		return errorsx.StateConflict("只能编辑最后一条消息", "ai_assistant_message", strconv.FormatInt(messageID, 10), strconv.FormatInt(lastMessage.ID, 10))
 	}
 	return nil
+}
+
+// matchAgentToolPrefix 判断工具名是否属于当前终端或公共 Base 工具。
+func matchAgentToolPrefix(terminal, toolName string) bool {
+	return toolName != "" && (terminal == "" || strings.HasPrefix(toolName, terminal+"_") || strings.HasPrefix(toolName, "base_"))
+}
+
+// toAiAssistantInputContent 转换输入内容 JSON 为接口对象。
+func toAiAssistantInputContent(value assistant.InputContentPayload) *basev1.AiAssistantInputContent {
+	return &basev1.AiAssistantInputContent{
+		Kind:    value.Kind,
+		Content: value.Content,
+	}
+}
+
+// toAiAssistantOutputContent 转换输出内容 JSON 为接口对象。
+func toAiAssistantOutputContent(value assistant.OutputContentPayload) *basev1.AiAssistantOutputContent {
+	return &basev1.AiAssistantOutputContent{
+		Kind:           value.Kind,
+		Content:        value.Content,
+		ReplySource:    value.ReplySource,
+		Model:          value.Model,
+		Fallback:       value.Fallback,
+		FallbackReason: value.FallbackReason,
+		Flow:           value.Flow,
+		Step:           value.Step,
+		BlocksJson:     value.BlocksJSON,
+	}
+}
+
+// toAiAssistantToken 转换 token 统计为接口对象。
+func toAiAssistantToken(value assistant.TokenUsage) *basev1.AiAssistantToken {
+	return &basev1.AiAssistantToken{
+		Input:  value.Input,
+		Output: value.Output,
+		Cache:  value.Cache,
+		Total:  value.Total,
+	}
+}
+
+// toAiAssistantTools 转换工具使用记录为接口对象。
+func toAiAssistantTools(values []assistant.ToolUsage) []*basev1.AiAssistantTool {
+	if len(values) == 0 {
+		return []*basev1.AiAssistantTool{}
+	}
+	tools := make([]*basev1.AiAssistantTool, 0, len(values))
+	for _, item := range values {
+		tools = append(tools, &basev1.AiAssistantTool{
+			Type:   item.Type,
+			Name:   item.Name,
+			Title:  item.Title,
+			Status: item.Status,
+			Input:  item.Input,
+			Output: item.Output,
+		})
+	}
+	return tools
+}
+
+// buildHistoryFromMessages 将一轮一行消息拆成模型需要的 user/assistant 上下文。
+func buildHistoryFromMessages(list []*models.AiAssistantMessage) []assistant.Message {
+	history := make([]assistant.Message, 0, len(list)*2)
+	for index := len(list) - 1; index >= 0; index-- {
+		item := list[index]
+		input := assistant.ParseInputContent(item.InputContent)
+		if input.Content != "" {
+			history = append(history, assistant.Message{
+				Role:    assistant.RoleUser,
+				Content: input.Content,
+			})
+		}
+		output := assistant.ParseOutputContent(item.OutputContent)
+		if output.Content != "" {
+			tools := assistant.ParseTools(item.Tools)
+			history = append(history, assistant.Message{
+				Role:    assistant.RoleAssistant,
+				Content: output.Content,
+				Tools:   tools,
+			})
+		}
+	}
+	return history
 }
 
 // durationMilliseconds 计算两个时间点之间的毫秒数。

@@ -130,6 +130,23 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBa
 	})
 }
 
+// buildRouteTree 构建菜单路由树
+func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int64) []*adminv1.RouteItem {
+	list := make([]*adminv1.RouteItem, 0)
+	for _, menu := range menuList {
+		// 非当前父节点的菜单不参与当前层级路由构建。
+		if menu.ParentID != parentID {
+			continue
+		}
+
+		route := c.routerMapper.ToDTO(menu)
+
+		route.Children = c.buildRouteTree(menuList, menu.ID)
+		list = append(list, route)
+	}
+	return list
+}
+
 // buildBaseMenuTree 构建菜单树
 func (c *BaseMenuCase) buildBaseMenuTree(menuList []*models.BaseMenu, parentID int64) []*adminv1.BaseMenu {
 	res := make([]*adminv1.BaseMenu, 0)
@@ -169,21 +186,4 @@ func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentID
 		res = append(res, menu)
 	}
 	return res
-}
-
-// buildRouteTree 构建菜单路由树
-func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int64) []*adminv1.RouteItem {
-	list := make([]*adminv1.RouteItem, 0)
-	for _, menu := range menuList {
-		// 非当前父节点的菜单不参与当前层级路由构建。
-		if menu.ParentID != parentID {
-			continue
-		}
-
-		route := c.routerMapper.ToDTO(menu)
-
-		route.Children = c.buildRouteTree(menuList, menu.ID)
-		list = append(list, route)
-	}
-	return list
 }

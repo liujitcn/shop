@@ -208,6 +208,41 @@ func (c *OrderReportCase) parseMonth(month string) (time.Time, error) {
 	return time.Date(parsedTime.Year(), parsedTime.Month(), 1, 0, 0, 0, 0, location), nil
 }
 
+// appendMonthReportSummary 累加月报区间汇总。
+func (c *OrderReportCase) appendMonthReportSummary(summary *adminv1.SummaryOrderMonthReportResponse, item *adminv1.OrderMonthReportItem) {
+	summary.PaidOrderCount += item.PaidOrderCount
+	summary.PaidOrderAmount += item.PaidOrderAmount
+	summary.RefundOrderCount += item.RefundOrderCount
+	summary.RefundOrderAmount += item.RefundOrderAmount
+	summary.PaidUserCount += item.PaidUserCount
+	summary.GoodsCount += item.GoodsCount
+}
+
+// parseDate 解析日期字符串并归一化到当天零点。
+func (c *OrderReportCase) parseDate(date string) (time.Time, error) {
+	// 日期为空时，无法继续解析日报范围。
+	if date == "" {
+		return time.Time{}, errorsx.InvalidArgument("日期不能为空")
+	}
+
+	location := time.Now().Location()
+	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
+	if err != nil {
+		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("日期格式错误：%s", date))
+	}
+	return time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, location), nil
+}
+
+// appendDayReportSummary 累加日报区间汇总。
+func (c *OrderReportCase) appendDayReportSummary(summary *adminv1.SummaryOrderDayReportResponse, item *adminv1.OrderDayReportItem) {
+	summary.PaidOrderCount += item.PaidOrderCount
+	summary.PaidOrderAmount += item.PaidOrderAmount
+	summary.RefundOrderCount += item.RefundOrderCount
+	summary.RefundOrderAmount += item.RefundOrderAmount
+	summary.PaidUserCount += item.PaidUserCount
+	summary.GoodsCount += item.GoodsCount
+}
+
 // queryOrderMonthReportRows 查询月报聚合数据。
 func (c *OrderReportCase) queryOrderMonthReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderMonthReportRow, error) {
 	rows := make([]*dto.OrderMonthReportRow, 0)
@@ -248,31 +283,6 @@ func (c *OrderReportCase) toOrderMonthReportItem(row *dto.OrderMonthReportRow) *
 	return item
 }
 
-// appendMonthReportSummary 累加月报区间汇总。
-func (c *OrderReportCase) appendMonthReportSummary(summary *adminv1.SummaryOrderMonthReportResponse, item *adminv1.OrderMonthReportItem) {
-	summary.PaidOrderCount += item.PaidOrderCount
-	summary.PaidOrderAmount += item.PaidOrderAmount
-	summary.RefundOrderCount += item.RefundOrderCount
-	summary.RefundOrderAmount += item.RefundOrderAmount
-	summary.PaidUserCount += item.PaidUserCount
-	summary.GoodsCount += item.GoodsCount
-}
-
-// parseDate 解析日期字符串并归一化到当天零点。
-func (c *OrderReportCase) parseDate(date string) (time.Time, error) {
-	// 日期为空时，无法继续解析日报范围。
-	if date == "" {
-		return time.Time{}, errorsx.InvalidArgument("日期不能为空")
-	}
-
-	location := time.Now().Location()
-	parsedTime, err := time.ParseInLocation("2006-01-02", date, location)
-	if err != nil {
-		return time.Time{}, errorsx.InvalidArgument(fmt.Sprintf("日期格式错误：%s", date))
-	}
-	return time.Date(parsedTime.Year(), parsedTime.Month(), parsedTime.Day(), 0, 0, 0, 0, location), nil
-}
-
 // queryOrderDayReportRows 查询日报聚合数据。
 func (c *OrderReportCase) queryOrderDayReportRows(ctx context.Context, payType, payChannel int32, startAt, endAt time.Time) ([]*dto.OrderDayReportRow, error) {
 	rows := make([]*dto.OrderDayReportRow, 0)
@@ -311,14 +321,4 @@ func (c *OrderReportCase) toOrderDayReportItem(row *dto.OrderDayReportRow) *admi
 	item.NetOrderAmount = row.PaidOrderAmount - row.RefundOrderAmount
 	item.CustomerUnitPrice = utils.CalcPerUnit(row.PaidOrderAmount, row.PaidOrderCount)
 	return item
-}
-
-// appendDayReportSummary 累加日报区间汇总。
-func (c *OrderReportCase) appendDayReportSummary(summary *adminv1.SummaryOrderDayReportResponse, item *adminv1.OrderDayReportItem) {
-	summary.PaidOrderCount += item.PaidOrderCount
-	summary.PaidOrderAmount += item.PaidOrderAmount
-	summary.RefundOrderCount += item.RefundOrderCount
-	summary.RefundOrderAmount += item.RefundOrderAmount
-	summary.PaidUserCount += item.PaidUserCount
-	summary.GoodsCount += item.GoodsCount
 }

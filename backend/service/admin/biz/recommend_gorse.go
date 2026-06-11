@@ -558,19 +558,6 @@ func (c *RecommendGorseCase) exportRecommendGorseUsers(ctx context.Context) (str
 	return marshalRecommendGorseJSONL(userList)
 }
 
-// marshalRecommendGorseJSONL 将对象列表序列化为 JSONL 文本。
-func marshalRecommendGorseJSONL[T any](recordList []T) (string, error) {
-	lineList := make([]string, 0, len(recordList))
-	for _, record := range recordList {
-		data, err := json.Marshal(record)
-		if err != nil {
-			return "", err
-		}
-		lineList = append(lineList, string(data))
-	}
-	return strings.Join(lineList, "\n"), nil
-}
-
 // exportRecommendGorseItems 导出 Gorse 推荐商品 JSONL。
 func (c *RecommendGorseCase) exportRecommendGorseItems(ctx context.Context) (string, error) {
 	itemList := make([]client.Item, 0)
@@ -607,52 +594,6 @@ func (c *RecommendGorseCase) exportRecommendGorseFeedback(ctx context.Context) (
 		cursor = result.Cursor
 	}
 	return marshalRecommendGorseJSONL(feedbackList)
-}
-
-// parseRecommendGorseJSONRecords 解析Gorse 推荐 JSON 或 JSONL 内容。
-func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
-	content = strings.TrimPrefix(content, "\ufeff")
-	// 处理完 BOM 与首尾空白后内容为空时，不存在任何可解析的数据对象。
-	if content == "" {
-		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
-	}
-
-	var err error
-	// 文件整体是 JSON 数组时，优先按数组结构解析，兼容部分调试工具的批量导出格式。
-	if strings.HasPrefix(content, "[") {
-		recordList := make([]json.RawMessage, 0)
-		err = json.Unmarshal([]byte(content), &recordList)
-		if err != nil {
-			return nil, errorsx.InvalidArgument("导入文件不是合法的JSON数组")
-		}
-		return recordList, nil
-	}
-
-	// 文件整体是单个 JSON 对象时，统一包装成一条记录，兼容单对象手工调试导入。
-	if strings.HasPrefix(content, "{") && !strings.Contains(content, "\n") {
-		return []json.RawMessage{json.RawMessage(content)}, nil
-	}
-
-	lineList := strings.Split(content, "\n")
-	recordList := make([]json.RawMessage, 0, len(lineList))
-	for _, line := range lineList {
-		// 空白行对 JSONL 导入没有业务意义，统一跳过。
-		if line == "" {
-			continue
-		}
-		// JSONL 每一行都必须是单个 JSON 对象，避免把半截数据误导入推荐服务。
-		if !strings.HasPrefix(line, "{") {
-			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
-		}
-
-		rawMessage := json.RawMessage{}
-		err = json.Unmarshal([]byte(line), &rawMessage)
-		if err != nil {
-			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
-		}
-		recordList = append(recordList, rawMessage)
-	}
-	return recordList, nil
 }
 
 // importRecommendGorseUsers 导入 Gorse 推荐用户 JSONL。
@@ -745,6 +686,65 @@ func (c *RecommendGorseCase) importRecommendGorseFeedback(ctx context.Context, r
 		return 0, err
 	}
 	return len(feedbackList), nil
+}
+
+// marshalRecommendGorseJSONL 将对象列表序列化为 JSONL 文本。
+func marshalRecommendGorseJSONL[T any](recordList []T) (string, error) {
+	lineList := make([]string, 0, len(recordList))
+	for _, record := range recordList {
+		data, err := json.Marshal(record)
+		if err != nil {
+			return "", err
+		}
+		lineList = append(lineList, string(data))
+	}
+	return strings.Join(lineList, "\n"), nil
+}
+
+// parseRecommendGorseJSONRecords 解析Gorse 推荐 JSON 或 JSONL 内容。
+func parseRecommendGorseJSONRecords(content string) ([]json.RawMessage, error) {
+	content = strings.TrimPrefix(content, "\ufeff")
+	// 处理完 BOM 与首尾空白后内容为空时，不存在任何可解析的数据对象。
+	if content == "" {
+		return nil, errorsx.InvalidArgument("导入文件内容不能为空")
+	}
+
+	var err error
+	// 文件整体是 JSON 数组时，优先按数组结构解析，兼容部分调试工具的批量导出格式。
+	if strings.HasPrefix(content, "[") {
+		recordList := make([]json.RawMessage, 0)
+		err = json.Unmarshal([]byte(content), &recordList)
+		if err != nil {
+			return nil, errorsx.InvalidArgument("导入文件不是合法的JSON数组")
+		}
+		return recordList, nil
+	}
+
+	// 文件整体是单个 JSON 对象时，统一包装成一条记录，兼容单对象手工调试导入。
+	if strings.HasPrefix(content, "{") && !strings.Contains(content, "\n") {
+		return []json.RawMessage{json.RawMessage(content)}, nil
+	}
+
+	lineList := strings.Split(content, "\n")
+	recordList := make([]json.RawMessage, 0, len(lineList))
+	for _, line := range lineList {
+		// 空白行对 JSONL 导入没有业务意义，统一跳过。
+		if line == "" {
+			continue
+		}
+		// JSONL 每一行都必须是单个 JSON 对象，避免把半截数据误导入推荐服务。
+		if !strings.HasPrefix(line, "{") {
+			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
+		}
+
+		rawMessage := json.RawMessage{}
+		err = json.Unmarshal([]byte(line), &rawMessage)
+		if err != nil {
+			return nil, errorsx.InvalidArgument("导入文件不是合法的JSONL格式")
+		}
+		recordList = append(recordList, rawMessage)
+	}
+	return recordList, nil
 }
 
 // marshalGorseConfig 将 Proto 配置转换为 Gorse 仪表盘接口需要的 JSON 结构。

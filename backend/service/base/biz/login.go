@@ -286,29 +286,6 @@ func (c *LoginCase) deleteRefreshTokenAuth(refreshToken string) error {
 	return c.Cache.Del(refreshTokenAuthKey(refreshToken))
 }
 
-// captchaDriverType 根据配置值解析验证码驱动类型。
-func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
-	// 兼容未配置验证码类型的历史场景，默认继续使用数字验证码。
-	switch captchaType {
-	case "", string(captcha.DriverDigit):
-		return captcha.DriverDigit, true
-	case string(captcha.DriverString):
-		return captcha.DriverString, true
-	case string(captcha.DriverMath):
-		return captcha.DriverMath, true
-	case string(captcha.DriverChinese):
-		return captcha.DriverChinese, true
-	case string(captcha.DriverSlide):
-		return captcha.DriverSlide, true
-	case string(captcha.DriverClick):
-		return captcha.DriverClick, true
-	case string(captcha.DriverRotate):
-		return captcha.DriverRotate, true
-	default:
-		return captcha.DriverDigit, false
-	}
-}
-
 // verifyLoginCaptcha 校验登录请求携带的验证码或行为验证码令牌。
 func (c *LoginCase) verifyLoginCaptcha(ctx context.Context, captchaID, captchaCode string) error {
 	driverType, ok := c.captchaDriverTypeByID(captchaID)
@@ -351,6 +328,40 @@ func (c *LoginCase) consumeLoginCaptchaToken(captchaID, token string) (bool, err
 	return true, nil
 }
 
+// captchaDriverTypeByID 根据验证码 ID 查询生成时保存的校验驱动类型。
+func (c *LoginCase) captchaDriverTypeByID(captchaID string) (captcha.DriverType, bool) {
+	captchaType, err := c.Cache.Get(loginCaptchaTypeKey(captchaID))
+	if err != nil {
+		return captcha.DriverDigit, false
+	}
+	driverType, ok := captchaDriverType(captchaType)
+	// 验证码 ID 不承载类型语义，需要回读生成时保存的类型。
+	return driverType, ok
+}
+
+// captchaDriverType 根据配置值解析验证码驱动类型。
+func captchaDriverType(captchaType string) (captcha.DriverType, bool) {
+	// 兼容未配置验证码类型的历史场景，默认继续使用数字验证码。
+	switch captchaType {
+	case "", string(captcha.DriverDigit):
+		return captcha.DriverDigit, true
+	case string(captcha.DriverString):
+		return captcha.DriverString, true
+	case string(captcha.DriverMath):
+		return captcha.DriverMath, true
+	case string(captcha.DriverChinese):
+		return captcha.DriverChinese, true
+	case string(captcha.DriverSlide):
+		return captcha.DriverSlide, true
+	case string(captcha.DriverClick):
+		return captcha.DriverClick, true
+	case string(captcha.DriverRotate):
+		return captcha.DriverRotate, true
+	default:
+		return captcha.DriverDigit, false
+	}
+}
+
 // loginCaptchaTokenKey 生成验证码预校验令牌缓存键。
 func loginCaptchaTokenKey(captchaID, token string) string {
 	return fmt.Sprintf("%s:%s:%s", loginCaptchaTokenKeyPrefix, captchaID, token)
@@ -364,15 +375,4 @@ func loginCaptchaTypeKey(captchaID string) string {
 // refreshTokenAuthKey 生成刷新令牌认证信息缓存键。
 func refreshTokenAuthKey(refreshToken string) string {
 	return fmt.Sprintf("%s:%s", refreshTokenAuthKeyPrefix, refreshToken)
-}
-
-// captchaDriverTypeByID 根据验证码 ID 查询生成时保存的校验驱动类型。
-func (c *LoginCase) captchaDriverTypeByID(captchaID string) (captcha.DriverType, bool) {
-	captchaType, err := c.Cache.Get(loginCaptchaTypeKey(captchaID))
-	if err != nil {
-		return captcha.DriverDigit, false
-	}
-	driverType, ok := captchaDriverType(captchaType)
-	// 验证码 ID 不承载类型语义，需要回读生成时保存的类型。
-	return driverType, ok
 }

@@ -343,6 +343,21 @@ func (c *GoodsInfoCase) GoodsSKUCaseList(ctx context.Context, goodsID int64) ([]
 	return c.goodsSKUCase.ListGoodsSKUsByGoodsID(ctx, goodsID)
 }
 
+// parseCategoryIDs 解析商品分类编号列表。
+func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
+	// 分类字段为空时，直接返回空分类列表。
+	if rawCategoryIDs == "" {
+		return []int64{}
+	}
+
+	categoryIDs := make([]int64, 0)
+	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
+	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
+		return []int64{}
+	}
+	return categoryIDs
+}
+
 // getCategoryNameMap 查询分类名称映射
 func (c *GoodsInfoCase) getCategoryNameMap(ctx context.Context) (map[int64]string, error) {
 	query := c.goodsCategoryCase.Query(ctx).GoodsCategory
@@ -392,21 +407,6 @@ func (c *GoodsInfoCase) buildCategoryNameText(categoryIDs []int64, categoryNameM
 		}
 	}
 	return strings.Join(nameList, "、")
-}
-
-// parseCategoryIDs 解析商品分类编号列表。
-func (c *GoodsInfoCase) parseCategoryIDs(rawCategoryIDs string) []int64 {
-	// 分类字段为空时，直接返回空分类列表。
-	if rawCategoryIDs == "" {
-		return []int64{}
-	}
-
-	categoryIDs := make([]int64, 0)
-	// 分类 JSON 解析失败时，回退为空列表，避免后台列表因单条脏数据整体失败。
-	if err := json.Unmarshal([]byte(rawCategoryIDs), &categoryIDs); err != nil {
-		return []int64{}
-	}
-	return categoryIDs
 }
 
 // buildCategoryFilterIDs 构建分类筛选范围。

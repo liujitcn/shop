@@ -189,6 +189,11 @@ func cleanCommentTagNames(tagNames []string) []string {
 	return cleanNames
 }
 
+// jsonStringTagNames 将标签名称转为 JSON 数组字符串。
+func jsonStringTagNames(tagNames []string) string {
+	return _string.ConvertAnyToJsonString(cleanCommentTagNames(tagNames))
+}
+
 // upsertTagByName 根据标签名称创建或复用商品标签。
 func (c *CommentTagCase) upsertTagByName(ctx context.Context, goodsID int64, tagName string) (int64, error) {
 	query := c.Query(ctx).CommentTag
@@ -235,9 +240,4 @@ func (c *CommentTagCase) upsertTagByName(ctx context.Context, goodsID int64, tag
 		return 0, err
 	}
 	return record.ID, nil
-}
-
-// jsonStringTagNames 将标签名称转为 JSON 数组字符串。
-func jsonStringTagNames(tagNames []string) string {
-	return _string.ConvertAnyToJsonString(cleanCommentTagNames(tagNames))
 }

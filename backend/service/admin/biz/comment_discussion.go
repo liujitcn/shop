@@ -158,21 +158,6 @@ func (c *CommentDiscussionCase) ListByCommentIDs(ctx context.Context, commentIDs
 	return resList, nil
 }
 
-// findAnyByID 按编号查询未删除讨论。
-func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
-	query := c.Query(ctx).CommentDiscussion
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
-	record, err := c.Find(ctx, opts...)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.ResourceNotFound("讨论不存在")
-		}
-		return nil, err
-	}
-	return record, nil
-}
-
 // operatorName 查询后台操作人展示名称。
 func (c *CommentDiscussionCase) operatorName(ctx context.Context, userID int64) string {
 	baseUser, err := c.baseUserCase.FindByID(ctx, userID)
@@ -203,6 +188,21 @@ func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID i
 		return errorsx.ResourceNotFound("讨论不存在")
 	}
 	return nil
+}
+
+// findAnyByID 按编号查询未删除讨论。
+func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID int64) (*models.CommentDiscussion, error) {
+	query := c.Query(ctx).CommentDiscussion
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.Eq(discussionID)))
+	record, err := c.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.ResourceNotFound("讨论不存在")
+		}
+		return nil, err
+	}
+	return record, nil
 }
 
 // applyDiscussionCountChange 根据讨论状态变化同步评价主表缓存数量。

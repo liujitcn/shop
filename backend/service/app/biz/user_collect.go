@@ -182,6 +182,33 @@ func (c *UserCollectCase) DeleteUserCollect(ctx context.Context, ids string) err
 	return c.Delete(ctx, opts...)
 }
 
+// listGoodsIDsByUserID 查询用户收藏商品 ID 列表。
+func (c *UserCollectCase) listGoodsIDsByUserID(ctx context.Context, userID int64, limit int) ([]int64, error) {
+	// 用户编号非法时，不存在可用收藏上下文。
+	if userID <= 0 {
+		return []int64{}, nil
+	}
+
+	query := c.Query(ctx).UserCollect
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	// 仅在传入正数限制时，按条数裁剪最近收藏上下文。
+	if limit > 0 {
+		opts = append(opts, repository.Limit(limit))
+	}
+	list, err := c.List(ctx, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	goodsIDs := make([]int64, 0, len(list))
+	for _, item := range list {
+		goodsIDs = append(goodsIDs, item.GoodsID)
+	}
+	return _slice.Unique(goodsIDs), nil
+}
+
 // 按用户编号和商品编号判断是否已收藏
 func (c *UserCollectCase) findByUserIDAndGoodsID(ctx context.Context, userID, goodsID int64) (bool, error) {
 	query := c.Query(ctx).UserCollect
@@ -224,31 +251,4 @@ func (c *UserCollectCase) dispatchRecommendCollectEvent(userID, goodsID int64, r
 			},
 		},
 	}, time.Time{})
-}
-
-// listGoodsIDsByUserID 查询用户收藏商品 ID 列表。
-func (c *UserCollectCase) listGoodsIDsByUserID(ctx context.Context, userID int64, limit int) ([]int64, error) {
-	// 用户编号非法时，不存在可用收藏上下文。
-	if userID <= 0 {
-		return []int64{}, nil
-	}
-
-	query := c.Query(ctx).UserCollect
-	opts := make([]repository.QueryOption, 0, 3)
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
-	// 仅在传入正数限制时，按条数裁剪最近收藏上下文。
-	if limit > 0 {
-		opts = append(opts, repository.Limit(limit))
-	}
-	list, err := c.List(ctx, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	goodsIDs := make([]int64, 0, len(list))
-	for _, item := range list {
-		goodsIDs = append(goodsIDs, item.GoodsID)
-	}
-	return _slice.Unique(goodsIDs), nil
 }

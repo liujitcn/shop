@@ -244,16 +244,6 @@ type agentToolCatalogTool struct {
 	modelToolsPerTurn int
 }
 
-// newAgentToolCatalogTool 创建工具目录查询工具。
-func newAgentToolCatalogTool(terminal string, infos []*schema.ToolInfo, enabledInfos []*schema.ToolInfo, modelToolsPerTurn int) tool.InvokableTool {
-	return &agentToolCatalogTool{
-		terminal:          terminal,
-		infos:             append([]*schema.ToolInfo(nil), infos...),
-		enabledNames:      toolInfoNameSet(enabledInfos),
-		modelToolsPerTurn: modelToolsPerTurn,
-	}
-}
-
 // Info 返回工具目录查询工具定义。
 func (t *agentToolCatalogTool) Info(context.Context) (*schema.ToolInfo, error) {
 	return &schema.ToolInfo{
@@ -437,6 +427,263 @@ func (r *Runtime) disabledToolCall(ctx context.Context, input RuntimeInput, enab
 	return newDisabledToolCall(matchedInfos[0])
 }
 
+// modelOptionsWithToolInfos 构造携带指定工具定义的 Eino 模型选项。
+func (r *Runtime) modelOptionsWithToolInfos(toolInfos []*schema.ToolInfo) []model.Option {
+	if len(toolInfos) == 0 {
+		return responsesServerToolOptions()
+	}
+	options := []model.Option{model.WithTools(toolInfos)}
+	options = append(options, responsesServerToolOptions()...)
+	return options
+}
+
+// toolInfos 收集可传给模型的工具定义。
+func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*schema.ToolInfo {
+	registeredInfos := r.allToolInfos(ctx, input)
+	infos := r.enabledToolInfos(ctx, input, registeredInfos)
+	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
+	catalogInfo, err := catalogTool.Info(ctx)
+	if err == nil && catalogInfo != nil {
+		infos = append(infos, catalogInfo)
+	}
+	return selectToolInfos(input, infos)
+}
+
+// enabledToolInfos 按 base_api.agent_enabled 过滤当前终端可暴露给 Agent 的工具。
+func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*schema.ToolInfo) []*schema.ToolInfo {
+	if len(infos) == 0 || r == nil || r.toolGate == nil {
+		return infos
+	}
+	names := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		names = append(names, info.Name)
+	}
+	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	if err != nil {
+		return nil
+	}
+	result := make([]*schema.ToolInfo, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		config := toolConfigs[info.Name]
+		if !config.Enabled {
+			continue
+		}
+		result = append(result, withToolInfoConfig(info, config))
+	}
+	return result
+}
+
+// toolInfoConfigs 查询当前终端完整工具配置。
+func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*schema.ToolInfo) map[string]ToolConfig {
+	result := make(map[string]ToolConfig, len(infos))
+	if len(infos) == 0 || r == nil || r.toolGate == nil {
+		for _, info := range infos {
+			if info == nil || info.Name == "" {
+				continue
+			}
+			result[info.Name] = ToolConfig{Enabled: true}
+		}
+		return result
+	}
+	names := make([]string, 0, len(infos))
+	for _, info := range infos {
+		if info == nil || info.Name == "" {
+			continue
+		}
+		names = append(names, info.Name)
+	}
+	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
+	if err != nil {
+		return result
+	}
+	return toolConfigs
+}
+
+// allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
+func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*schema.ToolInfo {
+	tools := r.terminalTools(input.Terminal)
+	if len(tools) == 0 {
+		return nil
+	}
+	infos := make([]*schema.ToolInfo, 0, len(tools))
+	seen := make(map[string]struct{}, len(tools))
+	for _, item := range tools {
+		if item == nil {
+			continue
+		}
+		info, err := item.Info(ctx)
+		if err != nil || info == nil || info.Name == "" {
+			continue
+		}
+		if _, ok := seen[info.Name]; ok {
+			continue
+		}
+		seen[info.Name] = struct{}{}
+		infos = append(infos, info)
+	}
+	toolConfigs := r.toolInfoConfigs(ctx, input, infos)
+	if len(toolConfigs) == 0 {
+		return infos
+	}
+	for index, info := range infos {
+		if info == nil {
+			continue
+		}
+		infos[index] = withToolInfoConfig(info, toolConfigs[info.Name])
+	}
+	return infos
+}
+
+// toolMap 按工具名构造本地执行索引。
+func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]tool.InvokableTool {
+	registeredInfos := r.allToolInfos(ctx, input)
+	enabledInfos := r.enabledToolInfos(ctx, input, registeredInfos)
+	enabledNames := toolInfoNameSet(enabledInfos)
+	tools := r.terminalTools(input.Terminal)
+	result := make(map[string]tool.InvokableTool, len(enabledNames)+1)
+	var err error
+	if r == nil {
+		return result
+	}
+	for _, item := range tools {
+		if item == nil {
+			continue
+		}
+		var info *schema.ToolInfo
+		info, err = item.Info(ctx)
+		if err != nil || info == nil || info.Name == "" {
+			continue
+		}
+		if _, ok := result[info.Name]; ok {
+			continue
+		}
+		if !enabledNames[info.Name] {
+			continue
+		}
+		result[info.Name] = item
+	}
+	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
+	var catalogInfo *schema.ToolInfo
+	catalogInfo, err = catalogTool.Info(ctx)
+	if err == nil && catalogInfo != nil && catalogInfo.Name != "" {
+		result[catalogInfo.Name] = catalogTool
+	}
+	return result
+}
+
+// terminalTools 按终端选择当前智能体可用工具。
+func (r *Runtime) terminalTools(terminal string) []tool.InvokableTool {
+	if r == nil {
+		return nil
+	}
+	if terminal == "app" {
+		return r.appTools
+	}
+	return r.adminTools
+}
+
+// buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
+func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*schema.AgenticMessage {
+	messages := []*schema.AgenticMessage{schema.SystemAgenticMessage(r.resolvePrompt(input))}
+	enabledNames := toolInfoNameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
+	for _, item := range input.History {
+		if item.Content == "" {
+			continue
+		}
+		messages = append(messages, buildHistoryMessage(item.Role, item.Content))
+		toolContext := buildHistoryToolContext(item.Tools, enabledNames)
+		if toolContext != "" {
+			messages = append(messages, schema.SystemAgenticMessage(toolContext))
+		}
+	}
+	messages = append(messages, r.buildUserMessage(input))
+	return messages
+}
+
+// resolvePrompt 渲染 AI 助手提示词。
+func (r *Runtime) resolvePrompt(input RuntimeInput) string {
+	lines := []string{
+		aiAssistantInstruction,
+		"",
+		"当前会话：",
+		fmt.Sprintf("- 终端：%s", input.Terminal),
+		fmt.Sprintf("- 用户：%s", input.UserName),
+		fmt.Sprintf("- 标题：%s", input.SessionTitle),
+		fmt.Sprintf("- 摘要：%s", input.Summary),
+	}
+	if len(input.Attachments) > 0 {
+		lines = append(lines, "", "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。")
+	}
+	return strings.Join(lines, "\n")
+}
+
+// buildUserMessage 构建当前轮次发送给模型的用户消息。
+func (r *Runtime) buildUserMessage(input RuntimeInput) *schema.AgenticMessage {
+	content := input.Content
+	attachmentLines := make([]string, 0, len(input.Attachments)*2)
+	imageBlocks := make([]*schema.ContentBlock, 0, len(input.Attachments))
+
+	for _, item := range input.Attachments {
+		attachmentContent := item.Content
+		name := normalizeAttachmentName(item.Name)
+		cleanMIMEType := normalizeRuntimeMIMEType(item)
+
+		// 图片附件走多模态输入，避免把本地 /shop 地址误当成公网图片 URL。
+		if isRuntimeImageMIME(cleanMIMEType) {
+			// 图片必须具备原始字节，才能作为多模态视觉输入传给模型。
+			if len(item.Bytes) == 0 {
+				continue
+			}
+			attachmentLines = append(attachmentLines, fmt.Sprintf("图片附件《%s》已作为视觉输入提供给模型。", name))
+			imageBlocks = append(imageBlocks, buildImageInputBlock(item.Bytes, cleanMIMEType))
+			continue
+		}
+
+		// 文本类附件优先拼入正文，保证模型能直接读取附件内容。
+		if attachmentContent != "" {
+			attachmentLines = append(attachmentLines, fmt.Sprintf("附件《%s》内容：\n%s", name, attachmentContent))
+			continue
+		}
+
+		// 没有可读内容的附件仍保留文件元信息，模型至少能知道用户提供了什么文件。
+		attachmentLines = append(attachmentLines, buildAttachmentDetailLine(name, item))
+	}
+
+	if len(attachmentLines) == 0 && len(imageBlocks) == 0 {
+		return schema.UserAgenticMessage(content)
+	}
+	return buildUserMessageParts(content, attachmentLines, imageBlocks)
+}
+
+// buildResponse 将 Eino 消息收敛为业务层统一回复结构。
+func (r *Runtime) buildResponse(message *schema.AgenticMessage, token TokenUsage, tools []ToolUsage) *Response {
+	return &Response{
+		Content:        runtimeMessageText(message),
+		Token:          token,
+		Tools:          normalizeToolUsages(tools),
+		Source:         "llm",
+		Model:          r.Model(),
+		Fallback:       false,
+		FallbackReason: "",
+	}
+}
+
+// newAgentToolCatalogTool 创建工具目录查询工具。
+func newAgentToolCatalogTool(terminal string, infos []*schema.ToolInfo, enabledInfos []*schema.ToolInfo, modelToolsPerTurn int) tool.InvokableTool {
+	return &agentToolCatalogTool{
+		terminal:          terminal,
+		infos:             append([]*schema.ToolInfo(nil), infos...),
+		enabledNames:      toolInfoNameSet(enabledInfos),
+		modelToolsPerTurn: modelToolsPerTurn,
+	}
+}
+
 // newDisabledToolCall 构造禁用工具对应的错误回复与工具卡。
 func newDisabledToolCall(info *schema.ToolInfo) *disabledToolCall {
 	content := disabledToolMessage(info.Name)
@@ -557,58 +804,6 @@ func toolInfoNameSet(infos []*schema.ToolInfo) map[string]bool {
 	return result
 }
 
-// modelOptionsWithToolInfos 构造携带指定工具定义的 Eino 模型选项。
-func (r *Runtime) modelOptionsWithToolInfos(toolInfos []*schema.ToolInfo) []model.Option {
-	if len(toolInfos) == 0 {
-		return responsesServerToolOptions()
-	}
-	options := []model.Option{model.WithTools(toolInfos)}
-	options = append(options, responsesServerToolOptions()...)
-	return options
-}
-
-// toolInfos 收集可传给模型的工具定义。
-func (r *Runtime) toolInfos(ctx context.Context, input RuntimeInput) []*schema.ToolInfo {
-	registeredInfos := r.allToolInfos(ctx, input)
-	infos := r.enabledToolInfos(ctx, input, registeredInfos)
-	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, infos, maxModelToolsPerRequest)
-	catalogInfo, err := catalogTool.Info(ctx)
-	if err == nil && catalogInfo != nil {
-		infos = append(infos, catalogInfo)
-	}
-	return selectToolInfos(input, infos)
-}
-
-// enabledToolInfos 按 base_api.agent_enabled 过滤当前终端可暴露给 Agent 的工具。
-func (r *Runtime) enabledToolInfos(ctx context.Context, input RuntimeInput, infos []*schema.ToolInfo) []*schema.ToolInfo {
-	if len(infos) == 0 || r == nil || r.toolGate == nil {
-		return infos
-	}
-	names := make([]string, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		names = append(names, info.Name)
-	}
-	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
-	if err != nil {
-		return nil
-	}
-	result := make([]*schema.ToolInfo, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		config := toolConfigs[info.Name]
-		if !config.Enabled {
-			continue
-		}
-		result = append(result, withToolInfoConfig(info, config))
-	}
-	return result
-}
-
 // withToolInfoConfig 使用数据库中的工具配置覆盖生成工具描述。
 func withToolInfoConfig(info *schema.ToolInfo, config ToolConfig) *schema.ToolInfo {
 	if info == nil || config.Desc == "" {
@@ -617,67 +812,6 @@ func withToolInfoConfig(info *schema.ToolInfo, config ToolConfig) *schema.ToolIn
 	copiedInfo := *info
 	copiedInfo.Desc = config.Desc
 	return &copiedInfo
-}
-
-// toolInfoConfigs 查询当前终端完整工具配置。
-func (r *Runtime) toolInfoConfigs(ctx context.Context, input RuntimeInput, infos []*schema.ToolInfo) map[string]ToolConfig {
-	result := make(map[string]ToolConfig, len(infos))
-	if len(infos) == 0 || r == nil || r.toolGate == nil {
-		for _, info := range infos {
-			if info == nil || info.Name == "" {
-				continue
-			}
-			result[info.Name] = ToolConfig{Enabled: true}
-		}
-		return result
-	}
-	names := make([]string, 0, len(infos))
-	for _, info := range infos {
-		if info == nil || info.Name == "" {
-			continue
-		}
-		names = append(names, info.Name)
-	}
-	toolConfigs, err := r.toolGate.ToolConfigs(ctx, input.Terminal, names)
-	if err != nil {
-		return result
-	}
-	return toolConfigs
-}
-
-// allToolInfos 收集当前终端完整工具定义，不做本轮相关性筛选。
-func (r *Runtime) allToolInfos(ctx context.Context, input RuntimeInput) []*schema.ToolInfo {
-	tools := r.terminalTools(input.Terminal)
-	if len(tools) == 0 {
-		return nil
-	}
-	infos := make([]*schema.ToolInfo, 0, len(tools))
-	seen := make(map[string]struct{}, len(tools))
-	for _, item := range tools {
-		if item == nil {
-			continue
-		}
-		info, err := item.Info(ctx)
-		if err != nil || info == nil || info.Name == "" {
-			continue
-		}
-		if _, ok := seen[info.Name]; ok {
-			continue
-		}
-		seen[info.Name] = struct{}{}
-		infos = append(infos, info)
-	}
-	toolConfigs := r.toolInfoConfigs(ctx, input, infos)
-	if len(toolConfigs) == 0 {
-		return infos
-	}
-	for index, info := range infos {
-		if info == nil {
-			continue
-		}
-		infos[index] = withToolInfoConfig(info, toolConfigs[info.Name])
-	}
-	return infos
 }
 
 // selectToolInfos 从当前终端完整工具池中挑选本轮请求相关工具。
@@ -934,72 +1068,6 @@ func hasNearbyShortToolTerms(positions []int) bool {
 	return false
 }
 
-// toolMap 按工具名构造本地执行索引。
-func (r *Runtime) toolMap(ctx context.Context, input RuntimeInput) map[string]tool.InvokableTool {
-	registeredInfos := r.allToolInfos(ctx, input)
-	enabledInfos := r.enabledToolInfos(ctx, input, registeredInfos)
-	enabledNames := toolInfoNameSet(enabledInfos)
-	tools := r.terminalTools(input.Terminal)
-	result := make(map[string]tool.InvokableTool, len(enabledNames)+1)
-	var err error
-	if r == nil {
-		return result
-	}
-	for _, item := range tools {
-		if item == nil {
-			continue
-		}
-		var info *schema.ToolInfo
-		info, err = item.Info(ctx)
-		if err != nil || info == nil || info.Name == "" {
-			continue
-		}
-		if _, ok := result[info.Name]; ok {
-			continue
-		}
-		if !enabledNames[info.Name] {
-			continue
-		}
-		result[info.Name] = item
-	}
-	catalogTool := newAgentToolCatalogTool(input.Terminal, registeredInfos, enabledInfos, maxModelToolsPerRequest)
-	var catalogInfo *schema.ToolInfo
-	catalogInfo, err = catalogTool.Info(ctx)
-	if err == nil && catalogInfo != nil && catalogInfo.Name != "" {
-		result[catalogInfo.Name] = catalogTool
-	}
-	return result
-}
-
-// terminalTools 按终端选择当前智能体可用工具。
-func (r *Runtime) terminalTools(terminal string) []tool.InvokableTool {
-	if r == nil {
-		return nil
-	}
-	if terminal == "app" {
-		return r.appTools
-	}
-	return r.adminTools
-}
-
-// buildMessages 构建当前轮次发送给 Eino 模型的消息列表。
-func (r *Runtime) buildMessages(ctx context.Context, input RuntimeInput) []*schema.AgenticMessage {
-	messages := []*schema.AgenticMessage{schema.SystemAgenticMessage(r.resolvePrompt(input))}
-	enabledNames := toolInfoNameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
-	for _, item := range input.History {
-		if item.Content == "" {
-			continue
-		}
-		messages = append(messages, buildHistoryMessage(item.Role, item.Content))
-		toolContext := buildHistoryToolContext(item.Tools, enabledNames)
-		if toolContext != "" {
-			messages = append(messages, schema.SystemAgenticMessage(toolContext))
-		}
-	}
-	messages = append(messages, r.buildUserMessage(input))
-	return messages
-}
-
 // buildHistoryToolContext 构造当前仍启用工具的历史调用上下文。
 func buildHistoryToolContext(tools []ToolUsage, enabledNames map[string]bool) string {
 	if len(tools) == 0 {
@@ -1048,61 +1116,6 @@ func buildHistoryMessage(role string, content string) *schema.AgenticMessage {
 	default:
 		return schema.UserAgenticMessage(content)
 	}
-}
-
-// resolvePrompt 渲染 AI 助手提示词。
-func (r *Runtime) resolvePrompt(input RuntimeInput) string {
-	lines := []string{
-		aiAssistantInstruction,
-		"",
-		"当前会话：",
-		fmt.Sprintf("- 终端：%s", input.Terminal),
-		fmt.Sprintf("- 用户：%s", input.UserName),
-		fmt.Sprintf("- 标题：%s", input.SessionTitle),
-		fmt.Sprintf("- 摘要：%s", input.Summary),
-	}
-	if len(input.Attachments) > 0 {
-		lines = append(lines, "", "用户本轮提供了附件，附件内容会出现在消息中，回答时按需参考。")
-	}
-	return strings.Join(lines, "\n")
-}
-
-// buildUserMessage 构建当前轮次发送给模型的用户消息。
-func (r *Runtime) buildUserMessage(input RuntimeInput) *schema.AgenticMessage {
-	content := input.Content
-	attachmentLines := make([]string, 0, len(input.Attachments)*2)
-	imageBlocks := make([]*schema.ContentBlock, 0, len(input.Attachments))
-
-	for _, item := range input.Attachments {
-		attachmentContent := item.Content
-		name := normalizeAttachmentName(item.Name)
-		cleanMIMEType := normalizeRuntimeMIMEType(item)
-
-		// 图片附件走多模态输入，避免把本地 /shop 地址误当成公网图片 URL。
-		if isRuntimeImageMIME(cleanMIMEType) {
-			// 图片必须具备原始字节，才能作为多模态视觉输入传给模型。
-			if len(item.Bytes) == 0 {
-				continue
-			}
-			attachmentLines = append(attachmentLines, fmt.Sprintf("图片附件《%s》已作为视觉输入提供给模型。", name))
-			imageBlocks = append(imageBlocks, buildImageInputBlock(item.Bytes, cleanMIMEType))
-			continue
-		}
-
-		// 文本类附件优先拼入正文，保证模型能直接读取附件内容。
-		if attachmentContent != "" {
-			attachmentLines = append(attachmentLines, fmt.Sprintf("附件《%s》内容：\n%s", name, attachmentContent))
-			continue
-		}
-
-		// 没有可读内容的附件仍保留文件元信息，模型至少能知道用户提供了什么文件。
-		attachmentLines = append(attachmentLines, buildAttachmentDetailLine(name, item))
-	}
-
-	if len(attachmentLines) == 0 && len(imageBlocks) == 0 {
-		return schema.UserAgenticMessage(content)
-	}
-	return buildUserMessageParts(content, attachmentLines, imageBlocks)
 }
 
 // buildImageInputBlock 构造 Eino 图片输入片段。
@@ -1195,19 +1208,6 @@ func buildUserMessageParts(content string, attachmentLines []string, imageBlocks
 	return &schema.AgenticMessage{
 		Role:          schema.AgenticRoleTypeUser,
 		ContentBlocks: contentBlocks,
-	}
-}
-
-// buildResponse 将 Eino 消息收敛为业务层统一回复结构。
-func (r *Runtime) buildResponse(message *schema.AgenticMessage, token TokenUsage, tools []ToolUsage) *Response {
-	return &Response{
-		Content:        runtimeMessageText(message),
-		Token:          token,
-		Tools:          normalizeToolUsages(tools),
-		Source:         "llm",
-		Model:          r.Model(),
-		Fallback:       false,
-		FallbackReason: "",
 	}
 }
 

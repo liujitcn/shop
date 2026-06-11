@@ -317,42 +317,6 @@ func (c *WorkspaceCase) ListWorkspacePendingComments(ctx context.Context, req *a
 	return &adminv1.ListWorkspacePendingCommentsResponse{PendingComments: pendingComments}, nil
 }
 
-// countOrderCount 统计时间范围内订单数。
-func (c *WorkspaceCase) countOrderCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	count, err := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-		).
-		Count()
-	return count, err
-}
-
-// countPaidOrderSummary 统计时间范围内已支付订单数与成交额。
-func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endAt time.Time) (int64, int64, error) {
-	type row struct {
-		OrderCount int64 `gorm:"column:order_count"`
-		SaleAmount int64 `gorm:"column:sale_amount"`
-	}
-
-	var result row
-	statuses := orderUtils.PaidOrderStatuses()
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	err := query.WithContext(ctx).
-		Select(
-			query.ID.Count().As("order_count"),
-			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
-		).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-			query.Status.In(statuses...),
-		).
-		Scan(&result)
-	return result.OrderCount, result.SaleAmount, err
-}
-
 // countDistinctOrderUsers 统计时间范围内下单用户数。
 func (c *WorkspaceCase) countDistinctOrderUsers(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	query := c.orderInfoCase.Query(ctx).OrderInfo
@@ -418,20 +382,6 @@ func (c *WorkspaceCase) countGoodsSaleNum(ctx context.Context, startAt, endAt ti
 	return result.SaleCount, err
 }
 
-// listPaidOrderIDs 查询时间范围内支付成功口径订单编号。
-func (c *WorkspaceCase) listPaidOrderIDs(ctx context.Context, startAt, endAt time.Time) ([]int64, error) {
-	query := c.orderInfoCase.Query(ctx).OrderInfo
-	orderIDs := make([]int64, 0)
-	err := query.WithContext(ctx).
-		Where(
-			query.CreatedAt.Gte(startAt),
-			query.CreatedAt.Lt(endAt),
-			query.Status.In(orderUtils.PaidOrderStatuses()...),
-		).
-		Pluck(query.ID, &orderIDs)
-	return orderIDs, err
-}
-
 // countDistinctActiveGoods 统计时间范围内动销商品数。
 func (c *WorkspaceCase) countDistinctActiveGoods(ctx context.Context, startAt, endAt time.Time) (int64, error) {
 	orderIDs, err := c.listPaidOrderIDs(ctx, startAt, endAt)
@@ -462,6 +412,56 @@ func (c *WorkspaceCase) countNewGoods(ctx context.Context, startAt, endAt time.T
 		).
 		Count()
 	return count, err
+}
+
+// countOrderCount 统计时间范围内订单数。
+func (c *WorkspaceCase) countOrderCount(ctx context.Context, startAt, endAt time.Time) (int64, error) {
+	query := c.orderInfoCase.Query(ctx).OrderInfo
+	count, err := query.WithContext(ctx).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+		).
+		Count()
+	return count, err
+}
+
+// countPaidOrderSummary 统计时间范围内已支付订单数与成交额。
+func (c *WorkspaceCase) countPaidOrderSummary(ctx context.Context, startAt, endAt time.Time) (int64, int64, error) {
+	type row struct {
+		OrderCount int64 `gorm:"column:order_count"`
+		SaleAmount int64 `gorm:"column:sale_amount"`
+	}
+
+	var result row
+	statuses := orderUtils.PaidOrderStatuses()
+	query := c.orderInfoCase.Query(ctx).OrderInfo
+	err := query.WithContext(ctx).
+		Select(
+			query.ID.Count().As("order_count"),
+			query.PayMoney.Sum().FloorDiv(1).IfNull(0).As("sale_amount"),
+		).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+			query.Status.In(statuses...),
+		).
+		Scan(&result)
+	return result.OrderCount, result.SaleAmount, err
+}
+
+// listPaidOrderIDs 查询时间范围内支付成功口径订单编号。
+func (c *WorkspaceCase) listPaidOrderIDs(ctx context.Context, startAt, endAt time.Time) ([]int64, error) {
+	query := c.orderInfoCase.Query(ctx).OrderInfo
+	orderIDs := make([]int64, 0)
+	err := query.WithContext(ctx).
+		Where(
+			query.CreatedAt.Gte(startAt),
+			query.CreatedAt.Lt(endAt),
+			query.Status.In(orderUtils.PaidOrderStatuses()...),
+		).
+		Pluck(query.ID, &orderIDs)
+	return orderIDs, err
 }
 
 // countCommentCount 统计时间范围内评价数。

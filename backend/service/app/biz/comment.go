@@ -666,37 +666,6 @@ func (c *CommentCase) PageMyComment(ctx context.Context, req *appv1.PageMyCommen
 	}, nil
 }
 
-// consumeCommentAudit 消费评价与讨论审核队列。
-func (c *CommentCase) consumeCommentAudit(message queueData.Message) error {
-	event, err := queue.DecodeQueueData[queue.CommentAuditEvent](message)
-	if err != nil {
-		return err
-	}
-	// 队列消息缺失目标时直接忽略，避免无效消息反复重试。
-	if event == nil || event.TargetID <= 0 {
-		return nil
-	}
-
-	ctx := context.TODO()
-	switch event.TargetType {
-	case _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT:
-		return c.auditComment(ctx, event.TargetID)
-	case _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION:
-		return c.auditDiscussion(ctx, event.TargetID)
-	default:
-		return nil
-	}
-}
-
-// auditComment 执行单条评价的 AI 审核流程。
-func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
-	record, err := c.commentInfoCase.FindAnyByID(ctx, commentID)
-	if err != nil {
-		return err
-	}
-	return c.AuditComment(ctx, record)
-}
-
 // AuditComment 根据评价对象执行 AI 审核流程。
 func (c *CommentCase) AuditComment(ctx context.Context, record *models.CommentInfo) error {
 	// 仅待审核评价进入 AI 审核，避免人工已处理后被异步消息覆盖。
@@ -746,6 +715,81 @@ func (c *CommentCase) AuditComment(ctx context.Context, record *models.CommentIn
 	return c.approveCommentByAI(ctx, record, result)
 }
 
+// AuditDiscussion 根据讨论对象执行 AI 审核流程。
+func (c *CommentCase) AuditDiscussion(ctx context.Context, record *models.CommentDiscussion) error {
+	// 仅待审核讨论进入 AI 审核，避免人工已处理后被异步消息覆盖。
+	if record.Status != _const.COMMENT_STATUS_PENDING_REVIEW {
+		return nil
+	}
+	var commentInfo *models.CommentInfo
+	var err error
+	commentInfo, err = c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
+	if err != nil {
+		return err
+	}
+	if !c.commentRuntime.Enabled() {
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
+	}
+
+	var existingTags []string
+	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, commentInfo.GoodsID)
+	if err != nil {
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+	}
+
+	var result *comment.ReviewResult
+	result, err = c.commentRuntime.ReviewComment(ctx, comment.ReviewRequest{
+		GoodsName:    commentInfo.GoodsNameSnapshot,
+		SKUDesc:      commentInfo.SKUDescSnapshot,
+		Content:      record.Content,
+		ExistingTags: existingTags,
+	})
+	if err != nil {
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+	}
+	if result == nil {
+		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
+	}
+	if !result.Approved {
+		if !comment.HasConcreteReviewReason(result.RiskReason) {
+			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
+		}
+		return c.rejectDiscussionByAI(ctx, record, result)
+	}
+	return c.approveDiscussionByAI(ctx, record, result)
+}
+
+// consumeCommentAudit 消费评价与讨论审核队列。
+func (c *CommentCase) consumeCommentAudit(message queueData.Message) error {
+	event, err := queue.DecodeQueueData[queue.CommentAuditEvent](message)
+	if err != nil {
+		return err
+	}
+	// 队列消息缺失目标时直接忽略，避免无效消息反复重试。
+	if event == nil || event.TargetID <= 0 {
+		return nil
+	}
+
+	ctx := context.TODO()
+	switch event.TargetType {
+	case _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT:
+		return c.auditComment(ctx, event.TargetID)
+	case _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION:
+		return c.auditDiscussion(ctx, event.TargetID)
+	default:
+		return nil
+	}
+}
+
+// auditComment 执行单条评价的 AI 审核流程。
+func (c *CommentCase) auditComment(ctx context.Context, commentID int64) error {
+	record, err := c.commentInfoCase.FindAnyByID(ctx, commentID)
+	if err != nil {
+		return err
+	}
+	return c.AuditComment(ctx, record)
+}
+
 // buildCommentReviewImages 构建评价审核使用的图片输入。
 func (c *CommentCase) buildCommentReviewImages(rawImages string) ([]string, []comment.ReviewImageData, error) {
 	images := _string.ConvertJsonStringToStringArray(rawImages)
@@ -788,65 +832,6 @@ func (c *CommentCase) readCommentReviewImage(imagePath string) ([]byte, error) {
 		return nil, errorsx.Internal("读取评价图片失败").WithCause(fmt.Errorf("评价图片内容为空: %s", imagePath))
 	}
 	return bytes, nil
-}
-
-// isLLMImageURL 判断图片地址是否可直接作为多模态 URL 输入。
-func isLLMImageURL(imageURL string) bool {
-	parsedURL, err := url.Parse(imageURL)
-	if err != nil {
-		return false
-	}
-	// HTTP(S) 绝对地址和 data URL 是 OpenAI 兼容 image_url 接口可识别的格式。
-	switch strings.ToLower(parsedURL.Scheme) {
-	case "http", "https":
-		return parsedURL.Host != "" && !isLocalShopImageURL(parsedURL)
-	case "data":
-		return strings.HasPrefix(strings.ToLower(imageURL), "data:image/")
-	default:
-		return false
-	}
-}
-
-// commentReviewImagePath 提取评价图片在 OSS 中的对象路径。
-func commentReviewImagePath(imagePath string) string {
-	parsedURL, err := url.Parse(imagePath)
-	if err != nil || parsedURL.Scheme == "" {
-		return imagePath
-	}
-	return parsedURL.Path
-}
-
-// isLocalShopImageURL 判断图片是否为本服务托管的本地静态资源。
-func isLocalShopImageURL(parsedURL *url.URL) bool {
-	if parsedURL == nil || !strings.HasPrefix(parsedURL.Path, "/shop/") {
-		return false
-	}
-	host := parsedURL.Hostname()
-	ip := net.ParseIP(host)
-	// 本机或内网地址无法被远端模型服务访问，需要转为图片字节输入。
-	if ip != nil {
-		return ip.IsLoopback() || ip.IsPrivate()
-	}
-	return strings.EqualFold(host, "localhost")
-}
-
-// commentReviewImageMIMEType 按图片路径推断审核图片 MIME 类型。
-func commentReviewImageMIMEType(imagePath string) string {
-	lowerPath := strings.ToLower(imagePath)
-	queryIndex := strings.Index(lowerPath, "?")
-	// 图片路径携带查询参数时，先剔除查询部分再判断扩展名。
-	if queryIndex >= 0 {
-		lowerPath = lowerPath[:queryIndex]
-	}
-	// 按常见图片扩展名推断 MIME 类型，未知格式默认按 JPEG 处理。
-	switch {
-	case strings.HasSuffix(lowerPath, ".png"):
-		return "image/png"
-	case strings.HasSuffix(lowerPath, ".webp"):
-		return "image/webp"
-	default:
-		return "image/jpeg"
-	}
 }
 
 // approveCommentByAI 将评价审核通过结果写入业务表和审核记录。
@@ -917,50 +902,6 @@ func (c *CommentCase) auditDiscussion(ctx context.Context, discussionID int64) e
 		return err
 	}
 	return c.AuditDiscussion(ctx, record)
-}
-
-// AuditDiscussion 根据讨论对象执行 AI 审核流程。
-func (c *CommentCase) AuditDiscussion(ctx context.Context, record *models.CommentDiscussion) error {
-	// 仅待审核讨论进入 AI 审核，避免人工已处理后被异步消息覆盖。
-	if record.Status != _const.COMMENT_STATUS_PENDING_REVIEW {
-		return nil
-	}
-	var commentInfo *models.CommentInfo
-	var err error
-	commentInfo, err = c.commentInfoCase.FindAnyByID(ctx, record.CommentID)
-	if err != nil {
-		return err
-	}
-	if !c.commentRuntime.Enabled() {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
-	}
-
-	var existingTags []string
-	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, commentInfo.GoodsID)
-	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
-	}
-
-	var result *comment.ReviewResult
-	result, err = c.commentRuntime.ReviewComment(ctx, comment.ReviewRequest{
-		GoodsName:    commentInfo.GoodsNameSnapshot,
-		SKUDesc:      commentInfo.SKUDescSnapshot,
-		Content:      record.Content,
-		ExistingTags: existingTags,
-	})
-	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
-	}
-	if result == nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
-	}
-	if !result.Approved {
-		if !comment.HasConcreteReviewReason(result.RiskReason) {
-			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
-		}
-		return c.rejectDiscussionByAI(ctx, record, result)
-	}
-	return c.approveDiscussionByAI(ctx, record, result)
 }
 
 // approveDiscussionByAI 将讨论审核通过结果写入业务表和审核记录。
@@ -1108,6 +1049,65 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 	}
 	workspaceevent.Publish(ctx, workspaceevent.ReasonCommentChanged, workspaceevent.AreaReputation)
 	return nil
+}
+
+// isLLMImageURL 判断图片地址是否可直接作为多模态 URL 输入。
+func isLLMImageURL(imageURL string) bool {
+	parsedURL, err := url.Parse(imageURL)
+	if err != nil {
+		return false
+	}
+	// HTTP(S) 绝对地址和 data URL 是 OpenAI 兼容 image_url 接口可识别的格式。
+	switch strings.ToLower(parsedURL.Scheme) {
+	case "http", "https":
+		return parsedURL.Host != "" && !isLocalShopImageURL(parsedURL)
+	case "data":
+		return strings.HasPrefix(strings.ToLower(imageURL), "data:image/")
+	default:
+		return false
+	}
+}
+
+// commentReviewImagePath 提取评价图片在 OSS 中的对象路径。
+func commentReviewImagePath(imagePath string) string {
+	parsedURL, err := url.Parse(imagePath)
+	if err != nil || parsedURL.Scheme == "" {
+		return imagePath
+	}
+	return parsedURL.Path
+}
+
+// isLocalShopImageURL 判断图片是否为本服务托管的本地静态资源。
+func isLocalShopImageURL(parsedURL *url.URL) bool {
+	if parsedURL == nil || !strings.HasPrefix(parsedURL.Path, "/shop/") {
+		return false
+	}
+	host := parsedURL.Hostname()
+	ip := net.ParseIP(host)
+	// 本机或内网地址无法被远端模型服务访问，需要转为图片字节输入。
+	if ip != nil {
+		return ip.IsLoopback() || ip.IsPrivate()
+	}
+	return strings.EqualFold(host, "localhost")
+}
+
+// commentReviewImageMIMEType 按图片路径推断审核图片 MIME 类型。
+func commentReviewImageMIMEType(imagePath string) string {
+	lowerPath := strings.ToLower(imagePath)
+	queryIndex := strings.Index(lowerPath, "?")
+	// 图片路径携带查询参数时，先剔除查询部分再判断扩展名。
+	if queryIndex >= 0 {
+		lowerPath = lowerPath[:queryIndex]
+	}
+	// 按常见图片扩展名推断 MIME 类型，未知格式默认按 JPEG 处理。
+	switch {
+	case strings.HasSuffix(lowerPath, ".png"):
+		return "image/png"
+	case strings.HasSuffix(lowerPath, ".webp"):
+		return "image/webp"
+	default:
+		return "image/jpeg"
+	}
 }
 
 // summaryTagNamesByIDs 根据评价记录中的标签编号返回标签名称列表。

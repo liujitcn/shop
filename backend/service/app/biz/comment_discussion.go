@@ -199,39 +199,6 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	return record, nil
 }
 
-// buildDiscussionUserReactionTypeMap 查询当前用户对讨论的互动状态。
-func (c *CommentDiscussionCase) buildDiscussionUserReactionTypeMap(ctx context.Context, recordList []*models.CommentDiscussion, userID int64) (map[int64]int32, error) {
-	reactionTypeMap := make(map[int64]int32)
-	// 未登录或讨论列表为空时，无需查询当前用户互动状态。
-	if userID <= 0 || len(recordList) == 0 {
-		return reactionTypeMap, nil
-	}
-
-	discussionIDs := make([]int64, 0, len(recordList))
-	for _, record := range recordList {
-		discussionIDs = append(discussionIDs, record.ID)
-	}
-
-	query := c.commentReactionRepo.Query(ctx).CommentReaction
-	rows := make([]*appDto.CommentTargetReactionRow, 0)
-	err := query.WithContext(ctx).
-		Select(query.TargetID, query.ReactionType).
-		Where(
-			query.TargetType.Eq(_const.COMMENT_REACTION_TARGET_TYPE_DISCUSSION),
-			query.TargetID.In(discussionIDs...),
-			query.UserID.Eq(userID),
-		).
-		Scan(&rows)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, row := range rows {
-		reactionTypeMap[row.TargetID] = row.ReactionType
-	}
-	return reactionTypeMap, nil
-}
-
 // buildDiscussionItem 构造讨论展示项。
 func (c *CommentDiscussionCase) buildDiscussionItem(
 	record *models.CommentDiscussion,
@@ -282,6 +249,54 @@ func (c *CommentDiscussionCase) findAnyByID(ctx context.Context, discussionID in
 	return record, nil
 }
 
+// updatePendingStatus 将待审核讨论更新为目标审核状态。
+func (c *CommentDiscussionCase) updatePendingStatus(ctx context.Context, discussionID int64, status int32) (bool, error) {
+	query := c.Query(ctx).CommentDiscussion
+	result, err := query.WithContext(ctx).
+		Where(
+			query.ID.Eq(discussionID),
+			query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW),
+		).
+		Update(query.Status, status)
+	if err != nil {
+		return false, err
+	}
+	return result.RowsAffected > 0, nil
+}
+
+// buildDiscussionUserReactionTypeMap 查询当前用户对讨论的互动状态。
+func (c *CommentDiscussionCase) buildDiscussionUserReactionTypeMap(ctx context.Context, recordList []*models.CommentDiscussion, userID int64) (map[int64]int32, error) {
+	reactionTypeMap := make(map[int64]int32)
+	// 未登录或讨论列表为空时，无需查询当前用户互动状态。
+	if userID <= 0 || len(recordList) == 0 {
+		return reactionTypeMap, nil
+	}
+
+	discussionIDs := make([]int64, 0, len(recordList))
+	for _, record := range recordList {
+		discussionIDs = append(discussionIDs, record.ID)
+	}
+
+	query := c.commentReactionRepo.Query(ctx).CommentReaction
+	rows := make([]*appDto.CommentTargetReactionRow, 0)
+	err := query.WithContext(ctx).
+		Select(query.TargetID, query.ReactionType).
+		Where(
+			query.TargetType.Eq(_const.COMMENT_REACTION_TARGET_TYPE_DISCUSSION),
+			query.TargetID.In(discussionIDs...),
+			query.UserID.Eq(userID),
+		).
+		Scan(&rows)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, row := range rows {
+		reactionTypeMap[row.TargetID] = row.ReactionType
+	}
+	return reactionTypeMap, nil
+}
+
 // updateStatus 更新讨论审核状态。
 func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID int64, status int32) error {
 	query := c.Query(ctx).CommentDiscussion
@@ -296,19 +311,4 @@ func (c *CommentDiscussionCase) updateStatus(ctx context.Context, discussionID i
 		return errorsx.ResourceNotFound("讨论不存在")
 	}
 	return nil
-}
-
-// updatePendingStatus 将待审核讨论更新为目标审核状态。
-func (c *CommentDiscussionCase) updatePendingStatus(ctx context.Context, discussionID int64, status int32) (bool, error) {
-	query := c.Query(ctx).CommentDiscussion
-	result, err := query.WithContext(ctx).
-		Where(
-			query.ID.Eq(discussionID),
-			query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW),
-		).
-		Update(query.Status, status)
-	if err != nil {
-		return false, err
-	}
-	return result.RowsAffected > 0, nil
 }

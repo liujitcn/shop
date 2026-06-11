@@ -52,17 +52,6 @@ func (c *ShopBannerCase) ListShopBanners(ctx context.Context, req *appv1.ListSho
 	}, nil
 }
 
-// 查询指定站点下启用中的商城轮播图
-func (c *ShopBannerCase) listBySite(ctx context.Context, site int32) ([]*models.ShopBanner, error) {
-	query := c.Query(ctx).ShopBanner
-	opts := make([]repository.QueryOption, 0, 4)
-	opts = append(opts, repository.Order(query.Sort.Asc()))
-	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
-	opts = append(opts, repository.Where(query.Site.Eq(site)))
-	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
-	return c.List(ctx, opts...)
-}
-
 // 将商城轮播图模型转换为接口响应
 func (c *ShopBannerCase) convertToProto(ctx context.Context, item *models.ShopBanner) *appv1.ShopBanner {
 	res := c.mapper.ToDTO(item)
@@ -91,4 +80,15 @@ func (c *ShopBannerCase) convertToProto(ctx context.Context, item *models.ShopBa
 	}
 	res.Href = href
 	return res
+}
+
+// 查询指定站点下启用中的商城轮播图
+func (c *ShopBannerCase) listBySite(ctx context.Context, site int32) ([]*models.ShopBanner, error) {
+	query := c.Query(ctx).ShopBanner
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Order(query.Sort.Asc()))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	opts = append(opts, repository.Where(query.Site.Eq(site)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
+	return c.List(ctx, opts...)
 }

@@ -72,27 +72,6 @@ func (c *RecommendEventCase) ListRecommendRequestEvents(
 	}, nil
 }
 
-// toRecommendEvent 转换推荐事件响应数据。
-func (c *RecommendEventCase) toRecommendEvent(item *models.RecommendEvent) *adminv1.RecommendEvent {
-	// 事件实体为空时，回退到空响应结构，避免事件列表渲染空指针。
-	if item == nil {
-		return &adminv1.RecommendEvent{}
-	}
-
-	return &adminv1.RecommendEvent{
-		Id:        item.ID,
-		ActorType: commonv1.RecommendActorType(item.ActorType),
-		ActorId:   item.ActorID,
-		Scene:     commonv1.RecommendScene(item.Scene),
-		EventType: commonv1.RecommendEventType(item.EventType),
-		GoodsId:   item.GoodsID,
-		GoodsNum:  item.GoodsNum,
-		RequestId: strconv.FormatInt(item.RequestID, 10),
-		Position:  item.Position,
-		EventAt:   _time.TimeToTimeString(item.EventAt),
-	}
-}
-
 // getRecommendEventCountMap 构建推荐商品事件数量映射。
 func (c *RecommendEventCase) getRecommendEventCountMap(
 	ctx context.Context,
@@ -142,4 +121,25 @@ func (c *RecommendEventCase) getRecommendEventCountMap(
 // buildRecommendItemEventKey 构建推荐商品事件映射键。
 func (c *RecommendEventCase) buildRecommendItemEventKey(goodsID int64, position int32) string {
 	return fmt.Sprintf("%d#%d", goodsID, position)
+}
+
+// toRecommendEvent 转换推荐事件响应数据。
+func (c *RecommendEventCase) toRecommendEvent(item *models.RecommendEvent) *adminv1.RecommendEvent {
+	// 事件实体为空时，回退到空响应结构，避免事件列表渲染空指针。
+	if item == nil {
+		return &adminv1.RecommendEvent{}
+	}
+
+	return &adminv1.RecommendEvent{
+		Id:        item.ID,
+		ActorType: commonv1.RecommendActorType(item.ActorType),
+		ActorId:   item.ActorID,
+		Scene:     commonv1.RecommendScene(item.Scene),
+		EventType: commonv1.RecommendEventType(item.EventType),
+		GoodsId:   item.GoodsID,
+		GoodsNum:  item.GoodsNum,
+		RequestId: strconv.FormatInt(item.RequestID, 10),
+		Position:  item.Position,
+		EventAt:   _time.TimeToTimeString(item.EventAt),
+	}
 }

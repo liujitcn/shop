@@ -767,6 +767,14 @@ func (c *OrderInfoCase) updateByIDs(ctx context.Context, userID int64, ids []int
 	return c.Update(ctx, entity, opts...)
 }
 
+// 将订单模型转换为接口响应
+func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo {
+	res := c.mapper.ToDTO(item)
+	res.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
+	res.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
+	return res
+}
+
 // 汇总下单商品信息并生成确认单
 func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGoods []*appv1.CreateOrderInfoGoods) (*appv1.ConfirmOrderInfoResponse, error) {
 	newOrderGoods := make([]*appv1.OrderGoods, 0)
@@ -791,19 +799,6 @@ func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGo
 		Goods:   newOrderGoods,
 		Summary: &summary,
 	}, nil
-}
-
-// 将订单模型转换为接口响应
-func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo {
-	res := c.mapper.ToDTO(item)
-	res.CreatedAt = _time.TimeToTimeString(item.CreatedAt)
-	res.UpdatedAt = _time.TimeToTimeString(item.UpdatedAt)
-	return res
-}
-
-// isAdminRoleCode 判断当前登录角色是否属于后台管理角色。
-func isAdminRoleCode(roleCode string) bool {
-	return roleCode == "super" || roleCode == "admin"
 }
 
 // dispatchRecommendOrderEvent 根据已落库订单事实回写推荐下单事件。
@@ -924,4 +919,9 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 			Status: _const.ORDER_STATUS_CANCELED,
 		})
 	})
+}
+
+// isAdminRoleCode 判断当前登录角色是否属于后台管理角色。
+func isAdminRoleCode(roleCode string) bool {
+	return roleCode == "super" || roleCode == "admin"
 }
