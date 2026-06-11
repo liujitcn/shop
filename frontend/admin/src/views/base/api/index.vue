@@ -12,7 +12,11 @@
         <el-descriptions-item label="请求方法">{{ detailData.method }}</el-descriptions-item>
         <el-descriptions-item label="请求地址">{{ detailData.path }}</el-descriptions-item>
         <el-descriptions-item label="工具名">{{ detailData.tool_name }}</el-descriptions-item>
-        <el-descriptions-item label="工具描述">{{ detailData.tool_desc }}</el-descriptions-item>
+        <el-descriptions-item label="工具提示词">
+          <div class="tool-prompts">
+            <el-tag v-for="prompt in detailData.tool_prompts" :key="prompt" effect="plain">{{ prompt }}</el-tag>
+          </div>
+        </el-descriptions-item>
         <el-descriptions-item label="MCP工具">{{ detailData.mcp_enabled ? "启用" : "禁用" }}</el-descriptions-item>
         <el-descriptions-item label="Agent工具">{{ detailData.agent_enabled ? "启用" : "禁用" }}</el-descriptions-item>
       </el-descriptions>
@@ -88,15 +92,29 @@
         </section>
       </div>
     </el-drawer>
+
+    <FormDialog
+      v-model="toolPromptDialog.visible"
+      ref="toolPromptDialogRef"
+      title="编辑工具提示词"
+      width="640px"
+      :model="toolPromptForm"
+      :fields="toolPromptFields"
+      label-width="110px"
+      @confirm="handleSubmitToolPrompts"
+      @close="handleCloseToolPromptDialog"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { View } from "@element-plus/icons-vue";
+import { EditPen, View } from "@element-plus/icons-vue";
 import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
+import FormDialog from "@/components/Dialog/FormDialog.vue";
+import type { ProFormField } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseApiService } from "@/api/admin/base_api";
 import type { BaseApi, BaseApiDoc, BaseApiDocResponse, BaseApiDocSchema, PageBaseApisRequest } from "@/rpc/admin/v1/base_api";
@@ -109,6 +127,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
+const toolPromptDialogRef = ref<InstanceType<typeof FormDialog>>();
 const detailData = ref<BaseApi>();
 const detailDoc = ref<BaseApiDoc>();
 
@@ -116,7 +135,26 @@ const detailDrawer = reactive({
   visible: false
 });
 
+const toolPromptDialog = reactive({
+  visible: false
+});
+
+const toolPromptForm = reactive({
+  id: 0,
+  tool_prompts: [] as string[]
+});
+
 const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
+
+/** 工具提示词编辑表单字段配置。 */
+const toolPromptFields: ProFormField[] = [
+  {
+    prop: "tool_prompts",
+    label: "工具提示词",
+    component: "dynamic-list",
+    props: { inputProps: { placeholder: "请输入工具提示词" } }
+  }
+];
 
 const enabledOptions = [
   { label: "启用", value: true },
@@ -132,7 +170,13 @@ const columns: ColumnProps[] = [
   { prop: "method", label: "请求方法", width: 110, search: { el: "input" } },
   { prop: "path", label: "请求地址", minWidth: 260, search: { el: "input" } },
   { prop: "tool_name", label: "工具名", minWidth: 260, search: { el: "input" } },
-  { prop: "tool_desc", label: "工具描述", minWidth: 180, search: { el: "input" } },
+  {
+    prop: "tool_prompts",
+    label: "工具提示词",
+    minWidth: 240,
+    search: { el: "input", key: "tool_prompt" },
+    render: scope => formatToolPrompts((scope.row as BaseApi).tool_prompts)
+  },
   {
     prop: "mcp_enabled",
     label: "MCP工具",
@@ -168,10 +212,18 @@ const columns: ColumnProps[] = [
   {
     prop: "operation",
     label: "操作",
-    width: 110,
+    width: 210,
     fixed: "right",
     cellType: "actions",
     actions: [
+      {
+        label: "编辑提示词",
+        type: "primary",
+        link: true,
+        icon: EditPen,
+        hidden: () => !BUTTONS.value["base:api:tool-prompts"],
+        onClick: scope => handleOpenToolPromptDialog(scope.row as BaseApi)
+      },
       {
         label: "详情",
         type: "primary",
@@ -200,6 +252,14 @@ function refreshTable() {
 }
 
 /**
+ * 格式化工具提示词列表。
+ */
+function formatToolPrompts(prompts: string[]) {
+  if (!prompts?.length) return "--";
+  return prompts.filter(Boolean).join("；");
+}
+
+/**
  * 打开 API 详情抽屉。
  */
 async function handleOpenDetail(apiId: number) {
@@ -219,6 +279,39 @@ function handleCloseDetail() {
   detailDrawer.visible = false;
   detailData.value = undefined;
   detailDoc.value = undefined;
+}
+
+/**
+ * 打开工具提示词编辑弹窗并回填当前行数据。
+ */
+function handleOpenToolPromptDialog(row: BaseApi) {
+  toolPromptForm.id = row.id;
+  toolPromptForm.tool_prompts = [...(row.tool_prompts ?? [])];
+  toolPromptDialog.visible = true;
+}
+
+/**
+ * 关闭工具提示词弹窗并清空表单状态。
+ */
+function handleCloseToolPromptDialog() {
+  toolPromptDialog.visible = false;
+  toolPromptForm.id = 0;
+  toolPromptForm.tool_prompts = [];
+  toolPromptDialogRef.value?.clearValidate();
+}
+
+/**
+ * 提交工具提示词配置。
+ */
+async function handleSubmitToolPrompts() {
+  await toolPromptDialogRef.value?.validate();
+  await defBaseApiService.SetBaseApiToolPrompts({
+    id: toolPromptForm.id,
+    tool_prompts: toolPromptForm.tool_prompts.filter(Boolean)
+  });
+  ElMessage.success("保存成功");
+  handleCloseToolPromptDialog();
+  refreshTable();
 }
 
 /**
@@ -307,5 +400,10 @@ async function handleBeforeSetAgentEnabled(row: BaseApi) {
 .api-doc-response-title {
   font-weight: 500;
   color: var(--el-text-color-primary);
+}
+.tool-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 </style>

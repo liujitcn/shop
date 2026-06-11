@@ -121,8 +121,8 @@ type ToolAccessChecker interface {
 type ToolConfig struct {
 	// Enabled 表示工具是否允许暴露给 Agent。
 	Enabled bool
-	// Desc 表示覆盖生成工具描述的业务描述。
-	Desc string
+	// Prompts 表示覆盖生成工具描述和命中判断的业务提示词。
+	Prompts []string
 }
 
 // RuntimeInput 表示 AI 助手运行时输入。

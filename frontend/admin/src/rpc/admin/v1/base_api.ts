@@ -45,8 +45,8 @@ export interface PageBaseApisRequest {
   tool_name?:
     | string
     | undefined;
-  /** 工具描述 */
-  tool_desc?:
+  /** 工具提示词 */
+  tool_prompt?:
     | string
     | undefined;
   /** 页码 */
@@ -91,6 +91,14 @@ export interface SetBaseApiAgentEnabledRequest {
   agent_enabled: boolean;
 }
 
+/** API工具提示词设置条件 */
+export interface SetBaseApiToolPromptsRequest {
+  /** API ID */
+  id: number;
+  /** 工具提示词 */
+  tool_prompts: string[];
+}
+
 /** API列表查询条件 */
 export interface ListBaseApisRequest {
 }
@@ -123,8 +131,8 @@ export interface BaseApi {
   agent_enabled: boolean;
   /** 工具名 */
   tool_name: string;
-  /** 工具描述 */
-  tool_desc: string;
+  /** 工具提示词 */
+  tool_prompts: string[];
 }
 
 /** API文档 */
@@ -193,4 +201,6 @@ export interface BaseApiService {
   SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty>;
   /** 设置API Agent启用状态 */
   SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty>;
+  /** 设置API工具提示词 */
+  SetBaseApiToolPrompts(request: SetBaseApiToolPromptsRequest): Promise<Empty>;
 }

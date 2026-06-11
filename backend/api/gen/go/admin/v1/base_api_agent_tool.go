@@ -54,6 +54,12 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, setBaseApiAgentEnabledTool)
+	var setBaseApiToolPromptsTool tool.InvokableTool
+	setBaseApiToolPromptsTool, err = NewBaseApiServiceSetBaseApiToolPromptsAgentTool(baseApiServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, setBaseApiToolPromptsTool)
 	return ts, nil
 }
 
@@ -141,6 +147,20 @@ func NewBaseApiServiceSetBaseApiAgentEnabledAgentTool(baseApiServiceServer BaseA
 				req = &SetBaseApiAgentEnabledRequest{}
 			}
 			return baseApiServiceServer.SetBaseApiAgentEnabled(ctx, req)
+		},
+	)
+}
+
+// NewBaseApiServiceSetBaseApiToolPromptsAgentTool 创建设置API工具提示词的 Agent Tool。
+func NewBaseApiServiceSetBaseApiToolPromptsAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*SetBaseApiToolPromptsRequest, *emptypb.Empty](
+		"admin_v1_base_api_service_set_base_api_tool_prompts",
+		"设置API工具提示词",
+		func(ctx context.Context, req *SetBaseApiToolPromptsRequest) (*emptypb.Empty, error) {
+			if req == nil {
+				req = &SetBaseApiToolPromptsRequest{}
+			}
+			return baseApiServiceServer.SetBaseApiToolPrompts(ctx, req)
 		},
 	)
 }

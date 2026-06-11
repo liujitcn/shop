@@ -90,6 +90,17 @@ func (s *BaseApiService) SetBaseApiAgentEnabled(ctx context.Context, req *adminv
 	return &emptypb.Empty{}, nil
 }
 
+// SetBaseApiToolPrompts 设置API工具提示词
+func (s *BaseApiService) SetBaseApiToolPrompts(ctx context.Context, req *adminv1.SetBaseApiToolPromptsRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.SetBaseAPIToolPrompts(ctx, req)
+	if err != nil {
+		log.Errorf("SetBaseApiToolPrompts %v", err)
+		return nil, errorsx.WrapInternal(err, "设置API工具提示词失败")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 // ListBaseApis 查询菜单分配API选项列表
 func (s *BaseApiService) ListBaseApis(ctx context.Context, req *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
 	list, err := s.baseAPICase.ListBaseAPIs(ctx, req)

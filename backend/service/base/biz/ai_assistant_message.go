@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strconv"
 	"strings"
@@ -282,14 +283,14 @@ func (c *AiAssistantMessageCase) ToolConfigs(ctx context.Context, terminal strin
 	}
 	totalByName := make(map[string]int, len(filteredNames))
 	enabledByName := make(map[string]int, len(filteredNames))
-	descByName := make(map[string]string, len(filteredNames))
+	promptsByName := make(map[string][]string, len(filteredNames))
 	for _, item := range list {
 		totalByName[item.ToolName]++
 		if item.AgentEnabled {
 			enabledByName[item.ToolName]++
 		}
-		if descByName[item.ToolName] == "" {
-			descByName[item.ToolName] = item.ToolDesc
+		if len(promptsByName[item.ToolName]) == 0 {
+			promptsByName[item.ToolName] = parseToolPrompts(item.ToolPrompts)
 		}
 	}
 	for _, name := range filteredNames {
@@ -298,10 +299,30 @@ func (c *AiAssistantMessageCase) ToolConfigs(ctx context.Context, terminal strin
 		}
 		result[name] = assistant.ToolConfig{
 			Enabled: totalByName[name] == enabledByName[name],
-			Desc:    descByName[name],
+			Prompts: promptsByName[name],
 		}
 	}
 	return result, nil
+}
+
+// parseToolPrompts 解析工具提示词 JSON。
+func parseToolPrompts(value string) []string {
+	if value == "" {
+		return nil
+	}
+	var prompts []string
+	err := json.Unmarshal([]byte(value), &prompts)
+	if err != nil {
+		return nil
+	}
+	values := make([]string, 0, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		values = append(values, item)
+	}
+	return values
 }
 
 // toAiAssistantMessageDTO 转换消息模型到接口对象。

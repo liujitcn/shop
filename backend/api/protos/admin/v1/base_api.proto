@@ -51,6 +51,14 @@ service BaseApiService {
       body: "*"
     };
   }
+
+  // 设置API工具提示词
+  rpc SetBaseApiToolPrompts(SetBaseApiToolPromptsRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/api/v1/admin/base/api/{id}/tool-prompts"
+      body: "*"
+    };
+  }
 }
 
 // API分页查询条件
@@ -73,7 +81,7 @@ message PageBaseApisRequest {
 
   optional string tool_name = 9 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
 
-  optional string tool_desc = 10 [(gnostic.openapi.v3.property) = {description: "工具描述"}]; // 工具描述
+  optional string tool_prompt = 10 [(gnostic.openapi.v3.property) = {description: "工具提示词"}]; // 工具提示词
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {description: "页码"}]; // 页码
 
@@ -111,6 +119,13 @@ message SetBaseApiAgentEnabledRequest {
   bool agent_enabled = 2 [(gnostic.openapi.v3.property) = {description: "是否暴露为Agent工具"}]; // 是否暴露为Agent工具
 }
 
+// API工具提示词设置条件
+message SetBaseApiToolPromptsRequest {
+  int64 id = 1 [(gnostic.openapi.v3.property) = {description: "API ID"}]; // API ID
+
+  repeated string tool_prompts = 2 [(gnostic.openapi.v3.property) = {description: "工具提示词"}]; // 工具提示词
+}
+
 // API列表查询条件
 message ListBaseApisRequest {}
 
@@ -141,7 +156,7 @@ message BaseApi {
 
   string tool_name = 10 [(gnostic.openapi.v3.property) = {description: "工具名"}]; // 工具名
 
-  string tool_desc = 11 [(gnostic.openapi.v3.property) = {description: "工具描述"}]; // 工具描述
+  repeated string tool_prompts = 11 [(gnostic.openapi.v3.property) = {description: "工具提示词"}]; // 工具提示词
 }
 
 // API文档

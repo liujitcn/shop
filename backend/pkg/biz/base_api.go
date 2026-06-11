@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
@@ -119,11 +120,10 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 				// 同步 OpenAPI 元数据时保留原来的工具开关，避免刷新接口覆盖人工配置。
 				item.McpEnabled = oldAPI.McpEnabled
 				item.AgentEnabled = oldAPI.AgentEnabled
-				// 工具描述允许后台人工维护，刷新接口时只保留真正自定义过的描述。
-				if oldAPI.ToolDesc != "" &&
-					oldAPI.ToolDesc != oldAPI.ServiceDesc &&
-					oldAPI.ToolDesc != defaultToolDesc(oldAPI.ServiceDesc, oldAPI.Desc) {
-					item.ToolDesc = oldAPI.ToolDesc
+				// 工具提示词允许后台人工维护，刷新接口时只保留真正自定义过的提示词。
+				oldPrompts := decodeToolPrompts(oldAPI.ToolPrompts)
+				if len(oldPrompts) > 0 && !sameToolPrompts(oldPrompts, defaultToolPrompts(oldAPI.ServiceDesc, oldAPI.Desc)) {
+					item.ToolPrompts = oldAPI.ToolPrompts
 				}
 			}
 			err = c.UpdateByID(ctx, item)
@@ -199,7 +199,7 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 		McpEnabled:   true,
 		AgentEnabled: true,
 		ToolName:     kitutils.ToolNameFromRPCPath(operation),
-		ToolDesc:     defaultToolDesc(serviceDesc, operationDesc),
+		ToolPrompts:  encodeToolPrompts(defaultToolPrompts(serviceDesc, operationDesc)),
 		ServiceName:  serviceName,
 		ServiceDesc:  serviceDesc,
 		Desc:         operationDesc,
@@ -209,17 +209,55 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 	}, nil
 }
 
-// defaultToolDesc 根据 OpenAPI 原始服务描述和接口描述生成默认工具描述。
-func defaultToolDesc(serviceDesc, desc string) string {
-	// 只有接口描述时，直接使用接口描述，避免生成多余分隔符。
-	if serviceDesc == "" {
-		return desc
+// defaultToolPrompts 根据 OpenAPI 原始服务描述和接口描述生成默认工具提示词。
+func defaultToolPrompts(serviceDesc, desc string) []string {
+	values := make([]string, 0, 2)
+	// 服务描述与接口描述同时存在时，保留组合提示，增强完整语义命中。
+	if serviceDesc != "" && desc != "" {
+		values = append(values, serviceDesc+"："+desc)
 	}
-	// 只有服务描述时，直接使用服务描述，保持历史兼容。
-	if desc == "" {
-		return serviceDesc
+	if desc != "" {
+		values = append(values, desc)
 	}
-	return serviceDesc + "：" + desc
+	if serviceDesc != "" && desc == "" {
+		values = append(values, serviceDesc)
+	}
+	return values
+}
+
+// encodeToolPrompts 将工具提示词编码为数据库 JSON 字段。
+func encodeToolPrompts(prompts []string) string {
+	raw, err := json.Marshal(prompts)
+	if err != nil {
+		return "[]"
+	}
+	return string(raw)
+}
+
+// decodeToolPrompts 将数据库 JSON 字段解析为工具提示词。
+func decodeToolPrompts(value string) []string {
+	if value == "" {
+		return nil
+	}
+	var prompts []string
+	err := json.Unmarshal([]byte(value), &prompts)
+	if err != nil {
+		return nil
+	}
+	return prompts
+}
+
+// sameToolPrompts 判断两组工具提示词是否完全一致。
+func sameToolPrompts(left, right []string) bool {
+	if len(left) != len(right) {
+		return false
+	}
+	for index, item := range left {
+		if item != right[index] {
+			return false
+		}
+	}
+	return true
 }
 
 // operationDescription 获取接口描述。

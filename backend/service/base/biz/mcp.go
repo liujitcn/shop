@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -121,9 +122,9 @@ func (h *McpCase) filterToolList(ctx context.Context, req mcp.Request, next mcp.
 	terminal := mcpTerminal(ctx, req)
 	tools := h.filterMcpToolsByTerminal(terminal, listResult.Tools)
 	listResult.Tools = tools
-	err = h.applyMcpToolDescriptions(ctx, tools)
+	err = h.applyMcpToolPrompts(ctx, tools)
 	if err != nil {
-		log.Errorf("查询 MCP 工具描述失败 err=%v", err)
+		log.Errorf("查询 MCP 工具提示词失败 err=%v", err)
 		return listResult, nil
 	}
 	return listResult, nil
@@ -145,8 +146,8 @@ func (h *McpCase) filterMcpToolsByTerminal(terminal string, values []*mcp.Tool) 
 	return tools
 }
 
-// applyMcpToolDescriptions 使用 base_api.tool_desc 覆盖 MCP 工具描述。
-func (h *McpCase) applyMcpToolDescriptions(ctx context.Context, tools []*mcp.Tool) error {
+// applyMcpToolPrompts 使用 base_api.tool_prompts 覆盖 MCP 工具描述。
+func (h *McpCase) applyMcpToolPrompts(ctx context.Context, tools []*mcp.Tool) error {
 	if h == nil || h.baseAPIRepo == nil || len(tools) == 0 {
 		return nil
 	}
@@ -167,20 +168,40 @@ func (h *McpCase) applyMcpToolDescriptions(ctx context.Context, tools []*mcp.Too
 	if err != nil {
 		return err
 	}
-	descByName := make(map[string]string, len(list))
+	promptDescByName := make(map[string]string, len(list))
 	for _, item := range list {
-		if item.ToolName == "" || item.ToolDesc == "" || descByName[item.ToolName] != "" {
+		if item.ToolName == "" || promptDescByName[item.ToolName] != "" {
 			continue
 		}
-		descByName[item.ToolName] = item.ToolDesc
+		promptDescByName[item.ToolName] = toolPromptsDescription(item.ToolPrompts)
 	}
 	for _, tool := range tools {
-		if tool == nil || descByName[tool.Name] == "" {
+		if tool == nil || promptDescByName[tool.Name] == "" {
 			continue
 		}
-		tool.Description = descByName[tool.Name]
+		tool.Description = promptDescByName[tool.Name]
 	}
 	return nil
+}
+
+// toolPromptsDescription 将多条工具提示词合并为运行时工具描述。
+func toolPromptsDescription(value string) string {
+	if value == "" {
+		return ""
+	}
+	var prompts []string
+	err := json.Unmarshal([]byte(value), &prompts)
+	if err != nil {
+		return ""
+	}
+	values := make([]string, 0, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		values = append(values, item)
+	}
+	return strings.Join(values, "\n")
 }
 
 // filterToolCall 拦截未启用或不属于当前终端的工具调用。

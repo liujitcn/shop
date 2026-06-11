@@ -815,12 +815,24 @@ func toolInfoNameSet(infos []*schema.ToolInfo) map[string]bool {
 
 // withToolInfoConfig 使用数据库中的工具配置覆盖生成工具描述。
 func withToolInfoConfig(info *schema.ToolInfo, config ToolConfig) *schema.ToolInfo {
-	if info == nil || config.Desc == "" {
+	if info == nil || len(config.Prompts) == 0 {
 		return info
 	}
 	copiedInfo := *info
-	copiedInfo.Desc = config.Desc
+	copiedInfo.Desc = toolPromptsDescription(config.Prompts)
 	return &copiedInfo
+}
+
+// toolPromptsDescription 将多条工具提示词合并为模型可读的工具描述。
+func toolPromptsDescription(prompts []string) string {
+	values := make([]string, 0, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		values = append(values, item)
+	}
+	return strings.Join(values, "\n")
 }
 
 // selectToolInfos 从当前终端完整工具池中挑选本轮请求相关工具。

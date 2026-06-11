@@ -10,7 +10,8 @@ import {
   type PageBaseApisRequest,
   type PageBaseApisResponse,
   type SetBaseApiAgentEnabledRequest,
-  type SetBaseApiMcpEnabledRequest
+  type SetBaseApiMcpEnabledRequest,
+  type SetBaseApiToolPromptsRequest
 } from "@/rpc/admin/v1/base_api";
 import type { Empty } from "@/rpc/google/protobuf/empty";
 
@@ -65,6 +66,15 @@ export class BaseApiServiceImpl implements BaseApiService {
   SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty> {
     return service<SetBaseApiAgentEnabledRequest, Empty>({
       url: `${BASE_API_URL}/${request.id}/agent-enabled`,
+      method: "put",
+      data: request
+    });
+  }
+
+  /** 设置API工具提示词 */
+  SetBaseApiToolPrompts(request: SetBaseApiToolPromptsRequest): Promise<Empty> {
+    return service<SetBaseApiToolPromptsRequest, Empty>({
+      url: `${BASE_API_URL}/${request.id}/tool-prompts`,
       method: "put",
       data: request
     });

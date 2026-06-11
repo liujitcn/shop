@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"sort"
@@ -36,10 +37,12 @@ type BaseAPICase struct {
 
 // NewBaseAPICase 创建接口业务实例
 func NewBaseAPICase(baseCase *biz.BaseCase, baseAPIRepo *data.BaseAPIRepository, jwtCfg *bootstrapConfigv1.Authentication_Jwt) *BaseAPICase {
+	baseAPIMapper := mapper.NewCopierMapper[adminv1.BaseApi, models.BaseAPI]()
+	baseAPIMapper.AppendConverters(mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
 	return &BaseAPICase{
 		BaseCase:          baseCase,
 		BaseAPIRepository: baseAPIRepo,
-		mapper:            mapper.NewCopierMapper[adminv1.BaseApi, models.BaseAPI](),
+		mapper:            baseAPIMapper,
 		jwtCfg:            jwtCfg,
 	}
 }
@@ -83,14 +86,22 @@ func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApi
 	if req.GetToolName() != "" {
 		opts = append(opts, repository.Where(query.ToolName.Like("%"+req.GetToolName()+"%")))
 	}
-	// 传入工具描述时，按工具描述模糊匹配。
-	if req.GetToolDesc() != "" {
-		opts = append(opts, repository.Where(query.ToolDesc.Like("%"+req.GetToolDesc()+"%")))
-	}
-
-	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
-	if err != nil {
-		return nil, err
+	var list []*models.BaseAPI
+	var total int64
+	var err error
+	if req.GetToolPrompt() != "" {
+		list, err = c.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+		list = filterBaseAPIsByToolPrompt(list, req.GetToolPrompt())
+		total = int64(len(list))
+		list = pageBaseAPIRecords(list, req.GetPageNum(), req.GetPageSize())
+	} else {
+		list, total, err = c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	baseAPIs := make([]*adminv1.BaseApi, 0, len(list))
@@ -103,6 +114,47 @@ func (c *BaseAPICase) PageBaseAPIs(ctx context.Context, req *adminv1.PageBaseApi
 		BaseApis: baseAPIs,
 		Total:    int32(total),
 	}, nil
+}
+
+// filterBaseAPIsByToolPrompt 按工具提示词内容过滤接口列表。
+func filterBaseAPIsByToolPrompt(list []*models.BaseAPI, keyword string) []*models.BaseAPI {
+	if keyword == "" {
+		return list
+	}
+	values := make([]*models.BaseAPI, 0, len(list))
+	for _, item := range list {
+		if item == nil {
+			continue
+		}
+		prompts := parseToolPrompts(item.ToolPrompts)
+		for _, prompt := range prompts {
+			if !strings.Contains(prompt, keyword) {
+				continue
+			}
+			values = append(values, item)
+			break
+		}
+	}
+	return values
+}
+
+// pageBaseAPIRecords 对 Go 侧过滤后的接口列表进行分页。
+func pageBaseAPIRecords(list []*models.BaseAPI, pageNum, pageSize int64) []*models.BaseAPI {
+	if pageSize <= 0 {
+		return list
+	}
+	if pageNum <= 0 {
+		pageNum = 1
+	}
+	start := (pageNum - 1) * pageSize
+	if start >= int64(len(list)) {
+		return []*models.BaseAPI{}
+	}
+	end := start + pageSize
+	if end > int64(len(list)) {
+		end = int64(len(list))
+	}
+	return list[start:end]
 }
 
 // GetBaseAPI 根据主键查询接口详情
@@ -179,6 +231,61 @@ func (c *BaseAPICase) SetBaseAPIAgentEnabled(ctx context.Context, req *adminv1.S
 		Where(conditions...).
 		UpdateSimple(query.AgentEnabled.Value(req.GetAgentEnabled()))
 	return err
+}
+
+// SetBaseAPIToolPrompts 设置接口工具提示词
+func (c *BaseAPICase) SetBaseAPIToolPrompts(ctx context.Context, req *adminv1.SetBaseApiToolPromptsRequest) error {
+	query := c.Query(ctx).BaseAPI
+	conditions := make([]gen.Condition, 0, 2)
+	baseAPI, err := c.Find(ctx, repository.Where(query.ID.Eq(req.GetId())))
+	if err != nil {
+		return err
+	}
+	// 同名工具可能来自历史重复 API 记录，提示词需要同步到同一个 Agent Tool 名称。
+	if baseAPI.ToolName != "" {
+		conditions = append(conditions, query.ToolName.Eq(baseAPI.ToolName))
+	} else {
+		conditions = append(conditions, query.ID.Eq(req.GetId()))
+	}
+	toolPrompts := normalizeToolPrompts(req.GetToolPrompts())
+	_, err = query.WithContext(ctx).
+		Where(conditions...).
+		UpdateSimple(query.ToolPrompts.Value(encodeToolPrompts(toolPrompts)))
+	return err
+}
+
+// normalizeToolPrompts 清理空工具提示词，保留非空提示词的原始内容。
+func normalizeToolPrompts(prompts []string) []string {
+	values := make([]string, 0, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		values = append(values, item)
+	}
+	return values
+}
+
+// encodeToolPrompts 将工具提示词编码为数据库 JSON 字段。
+func encodeToolPrompts(prompts []string) string {
+	raw, err := json.Marshal(prompts)
+	if err != nil {
+		return "[]"
+	}
+	return string(raw)
+}
+
+// parseToolPrompts 解析数据库中的工具提示词 JSON。
+func parseToolPrompts(value string) []string {
+	if value == "" {
+		return nil
+	}
+	var prompts []string
+	err := json.Unmarshal([]byte(value), &prompts)
+	if err != nil {
+		return nil
+	}
+	return prompts
 }
 
 // ListBaseAPIs 查询菜单分配接口选项列表

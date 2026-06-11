@@ -31,7 +31,7 @@ func newBaseAPI(db *gorm.DB, opts ...gen.DOOption) baseAPI {
 	_baseAPI.McpEnabled = field.NewBool(tableName, "mcp_enabled")
 	_baseAPI.AgentEnabled = field.NewBool(tableName, "agent_enabled")
 	_baseAPI.ToolName = field.NewString(tableName, "tool_name")
-	_baseAPI.ToolDesc = field.NewString(tableName, "tool_desc")
+	_baseAPI.ToolPrompts = field.NewString(tableName, "tool_prompts")
 	_baseAPI.ServiceName = field.NewString(tableName, "service_name")
 	_baseAPI.ServiceDesc = field.NewString(tableName, "service_desc")
 	_baseAPI.Desc = field.NewString(tableName, "desc")
@@ -54,7 +54,7 @@ type baseAPI struct {
 	McpEnabled   field.Bool   // 是否暴露为MCP工具
 	AgentEnabled field.Bool   // 是否暴露为Agent工具
 	ToolName     field.String // 工具名
-	ToolDesc     field.String // 工具描述
+	ToolPrompts  field.String // 工具提示词
 	ServiceName  field.String // 服务名
 	ServiceDesc  field.String // 服务描述
 	Desc         field.String // 描述
@@ -82,7 +82,7 @@ func (b *baseAPI) updateTableName(table string) *baseAPI {
 	b.McpEnabled = field.NewBool(table, "mcp_enabled")
 	b.AgentEnabled = field.NewBool(table, "agent_enabled")
 	b.ToolName = field.NewString(table, "tool_name")
-	b.ToolDesc = field.NewString(table, "tool_desc")
+	b.ToolPrompts = field.NewString(table, "tool_prompts")
 	b.ServiceName = field.NewString(table, "service_name")
 	b.ServiceDesc = field.NewString(table, "service_desc")
 	b.Desc = field.NewString(table, "desc")
@@ -119,7 +119,7 @@ func (b *baseAPI) fillFieldMap() {
 	b.fieldMap["mcp_enabled"] = b.McpEnabled
 	b.fieldMap["agent_enabled"] = b.AgentEnabled
 	b.fieldMap["tool_name"] = b.ToolName
-	b.fieldMap["tool_desc"] = b.ToolDesc
+	b.fieldMap["tool_prompts"] = b.ToolPrompts
 	b.fieldMap["service_name"] = b.ServiceName
 	b.fieldMap["service_desc"] = b.ServiceDesc
 	b.fieldMap["desc"] = b.Desc

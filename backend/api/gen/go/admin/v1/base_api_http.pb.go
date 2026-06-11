@@ -27,6 +27,7 @@ const OperationBaseApiServiceListBaseApis = "/admin.v1.BaseApiService/ListBaseAp
 const OperationBaseApiServicePageBaseApis = "/admin.v1.BaseApiService/PageBaseApis"
 const OperationBaseApiServiceSetBaseApiAgentEnabled = "/admin.v1.BaseApiService/SetBaseApiAgentEnabled"
 const OperationBaseApiServiceSetBaseApiMcpEnabled = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
+const OperationBaseApiServiceSetBaseApiToolPrompts = "/admin.v1.BaseApiService/SetBaseApiToolPrompts"
 
 type BaseApiServiceHTTPServer interface {
 	// GetBaseApi 查询API详情
@@ -41,6 +42,8 @@ type BaseApiServiceHTTPServer interface {
 	SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error)
 	// SetBaseApiMcpEnabled 设置API MCP启用状态
 	SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error)
+	// SetBaseApiToolPrompts 设置API工具提示词
+	SetBaseApiToolPrompts(context.Context, *SetBaseApiToolPromptsRequest) (*emptypb.Empty, error)
 }
 
 func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServer) {
@@ -51,6 +54,7 @@ func RegisterBaseApiServiceHTTPServer(s *http.Server, srv BaseApiServiceHTTPServ
 	r.GET("/api/v1/admin/base/api/{id}/doc", _BaseApiService_GetBaseApiDoc0_HTTP_Handler(srv))
 	r.PUT("/api/v1/admin/base/api/{id}/mcp-enabled", _BaseApiService_SetBaseApiMcpEnabled0_HTTP_Handler(srv))
 	r.PUT("/api/v1/admin/base/api/{id}/agent-enabled", _BaseApiService_SetBaseApiAgentEnabled0_HTTP_Handler(srv))
+	r.PUT("/api/v1/admin/base/api/{id}/tool-prompts", _BaseApiService_SetBaseApiToolPrompts0_HTTP_Handler(srv))
 }
 
 func _BaseApiService_PageBaseApis0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
@@ -185,6 +189,31 @@ func _BaseApiService_SetBaseApiAgentEnabled0_HTTP_Handler(srv BaseApiServiceHTTP
 	}
 }
 
+func _BaseApiService_SetBaseApiToolPrompts0_HTTP_Handler(srv BaseApiServiceHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetBaseApiToolPromptsRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationBaseApiServiceSetBaseApiToolPrompts)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetBaseApiToolPrompts(ctx, req.(*SetBaseApiToolPromptsRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
 type BaseApiServiceHTTPClient interface {
 	// GetBaseApi 查询API详情
 	GetBaseApi(ctx context.Context, req *GetBaseApiRequest, opts ...http.CallOption) (rsp *BaseApi, err error)
@@ -198,6 +227,8 @@ type BaseApiServiceHTTPClient interface {
 	SetBaseApiAgentEnabled(ctx context.Context, req *SetBaseApiAgentEnabledRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 	// SetBaseApiMcpEnabled 设置API MCP启用状态
 	SetBaseApiMcpEnabled(ctx context.Context, req *SetBaseApiMcpEnabledRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
+	// SetBaseApiToolPrompts 设置API工具提示词
+	SetBaseApiToolPrompts(ctx context.Context, req *SetBaseApiToolPromptsRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type BaseApiServiceHTTPClientImpl struct {
@@ -284,6 +315,20 @@ func (c *BaseApiServiceHTTPClientImpl) SetBaseApiMcpEnabled(ctx context.Context,
 	pattern := "/api/v1/admin/base/api/{id}/mcp-enabled"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationBaseApiServiceSetBaseApiMcpEnabled))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// SetBaseApiToolPrompts 设置API工具提示词
+func (c *BaseApiServiceHTTPClientImpl) SetBaseApiToolPrompts(ctx context.Context, in *SetBaseApiToolPromptsRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/api/v1/admin/base/api/{id}/tool-prompts"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationBaseApiServiceSetBaseApiToolPrompts))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
