@@ -73,8 +73,8 @@ const resolvePageHeight = () => {
 
 const pageHeight = resolvePageHeight()
 const previewHeight = Math.min(Math.max(Math.round(pageHeight * 0.46), 330), 400)
-const cardGap = 16
-const estimatedCardHeight = previewHeight + 230
+const cardGap = 12
+const estimatedCardHeight = previewHeight + 180
 const adjacentMargin = Math.max(24, Math.round((pageHeight - estimatedCardHeight - cardGap) / 2))
 const pagerPreviousMargin = adjacentMargin
 const pagerNextMargin = adjacentMargin
@@ -109,9 +109,6 @@ const emptyText = computed(() => {
   if (decodedCategoryName) return `暂无${decodedCategoryName}商品`
   return '暂无可购买商品'
 })
-
-const priceInteger = (price: number) => formatPrice(price).split('.')[0]
-const priceDecimal = (price: number) => formatPrice(price).split('.')[1] || '00'
 
 const trimZeroDecimal = (value: string) => value.replace(/\.0$/, '')
 
@@ -462,17 +459,12 @@ onBeforeUnmount(() => {
             </view>
           </view>
 
-          <view class="price-panel">
-            <view class="price-main">
-              <text class="symbol">¥</text>
-              <text class="price-int">{{ priceInteger(item.price) }}</text>
-              <text class="price-decimal">.{{ priceDecimal(item.price) }}</text>
-              <text class="price-label">到手价</text>
-            </view>
-            <text class="sales">{{ formatSaleText(item) }}</text>
-          </view>
-
           <view class="meta">
+            <view class="price">
+              <text class="symbol">¥</text>
+              <text class="number">{{ formatPrice(item.price) }}</text>
+              <text class="sales">{{ formatSaleText(item) }}</text>
+            </view>
             <view class="name ellipsis" @tap="navigateToGoods(item)">{{ item.name }}</view>
             <view v-if="item.desc" class="desc">{{ item.desc }}</view>
           </view>
@@ -576,11 +568,12 @@ page {
 }
 
 .goods-card {
-  width: calc(100% - 24rpx);
+  width: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 18rpx;
+  border-radius: 0;
+  border-bottom: 20rpx solid #f4f4f4;
   background-color: #fff;
 }
 
@@ -629,56 +622,37 @@ page {
   }
 }
 
-.price-panel {
-  height: 88rpx;
-  padding: 0 28rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  background-color: #1f1f1f;
-}
-
-.price-main {
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  color: #ff3434;
-}
-
-.symbol {
-  font-size: 36rpx;
-  font-weight: 800;
-}
-
-.price-int {
-  font-size: 62rpx;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.price-decimal {
-  font-size: 34rpx;
-  font-weight: 800;
-}
-
-.price-label {
-  margin-left: 12rpx;
-  color: #ff4b4b;
-  font-size: 28rpx;
-}
-
-.sales {
-  flex-shrink: 0;
-  margin-left: 20rpx;
-  color: #9b9ba1;
-  font-size: 28rpx;
-}
-
 .meta {
   position: relative;
   flex-shrink: 0;
   border-bottom: 1rpx solid #eaeaea;
+
+  .price {
+    height: 104rpx;
+    padding: 0 30rpx;
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: #fff;
+    font-size: 30rpx;
+    box-sizing: border-box;
+    background-color: #35c8a9;
+  }
+
+  .symbol {
+  }
+
+  .number {
+    font-size: 48rpx;
+  }
+
+  .sales {
+    position: absolute;
+    top: 40rpx;
+    right: 30rpx;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 22rpx;
+  }
 
   .name {
     max-height: 88rpx;
@@ -697,13 +671,17 @@ page {
 }
 
 .toolbar-slot {
-  min-height: 100rpx;
   border-top: 1rpx solid #eaeaea;
-  box-sizing: content-box;
+  box-sizing: border-box;
   background-color: #fff;
 }
 
 .toolbar {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
   height: 100rpx;
   padding: 0 20rpx;
   display: flex;

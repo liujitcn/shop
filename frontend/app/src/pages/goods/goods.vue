@@ -96,6 +96,14 @@ const sectionOffsetMap = ref<Record<SectionKey, number>>({
 })
 let measureTimer: ReturnType<typeof setTimeout> | undefined
 
+const trimZeroDecimal = (value: string) => value.replace(/\.0$/, '')
+
+const formatSaleText = (saleNum: number) => {
+  if (!saleNum) return '销量 0'
+  if (saleNum >= 10000) return `销量 ${trimZeroDecimal((saleNum / 10000).toFixed(1))}万+`
+  return `销量 ${saleNum}`
+}
+
 const clampProgress = (value: number) => {
   return Math.min(1, Math.max(0, value))
 }
@@ -109,7 +117,7 @@ const sectionNavProgress = computed(() => {
 })
 
 const headerStyle = computed(() => {
-  const progress = headerProgress.value
+  const progress = sectionNavProgress.value
   return `background-color: rgba(255, 255, 255, ${progress}); box-shadow: 0 6rpx 18rpx rgba(15, 23, 42, ${0.05 * progress});`
 })
 
@@ -124,7 +132,7 @@ const sectionNavStyle = computed(() => {
 })
 
 const backButtonStyle = computed(() => {
-  const progress = headerProgress.value
+  const progress = sectionNavProgress.value
   return `color: ${progress > 0.55 ? '#111827' : '#ffffff'}; background-color: rgba(17, 24, 39, ${0.38 * (1 - progress)}); border-color: rgba(255, 255, 255, ${0.18 * (1 - progress)});`
 })
 
@@ -527,6 +535,7 @@ onBeforeUnmount(() => {
         <view class="price">
           <text class="symbol">¥</text>
           <text class="number">{{ formatPrice(goodsInfo!.price) }}</text>
+          <text class="sales">{{ formatSaleText(goodsInfo!.sale_num) }}</text>
         </view>
         <view class="name ellipsis">{{ goodsInfo!.name }}</view>
         <view class="desc"> {{ goodsInfo!.desc }} </view>
@@ -818,15 +827,25 @@ page {
     position: relative;
     border-bottom: 1rpx solid #eaeaea;
     .price {
-      height: 130rpx;
-      padding: 25rpx 30rpx 0;
+      height: 104rpx;
+      padding: 0 30rpx;
+      position: relative;
+      display: flex;
+      align-items: center;
       color: #fff;
-      font-size: 34rpx;
+      font-size: 30rpx;
       box-sizing: border-box;
       background-color: #35c8a9;
     }
     .number {
-      font-size: 56rpx;
+      font-size: 48rpx;
+    }
+    .sales {
+      position: absolute;
+      top: 40rpx;
+      right: 30rpx;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 22rpx;
     }
     .brand {
       width: 160rpx;
