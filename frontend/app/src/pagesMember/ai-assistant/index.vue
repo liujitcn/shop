@@ -19,10 +19,10 @@ import type {
 import { AiAssistantMessageStatus, Terminal } from '@/rpc/common/v1/enum'
 import { uploadFile } from '@/utils/file'
 import { formatSrc } from '@/utils/index'
-import AssistantComposer from './components/AssistantComposer.vue'
-import AssistantFlowBlocks from './components/AssistantFlowBlocks.vue'
-import AssistantSessionDrawer from './components/AssistantSessionDrawer.vue'
-import AssistantWelcomePanel from './components/AssistantWelcomePanel.vue'
+import Composer from './components/Composer.vue'
+import FlowBlocks from './components/FlowBlocks.vue'
+import SessionDrawer from './components/SessionDrawer.vue'
+import WelcomePanel from './components/WelcomePanel.vue'
 import {
   type AiAssistantStreamEvent,
   type AiAssistantStreamPayload,
@@ -2831,7 +2831,7 @@ function showError(error: unknown, fallback: string) {
       :show-scrollbar="false"
     >
       <template v-if="!hasMessages">
-        <AssistantWelcomePanel
+        <WelcomePanel
           :greeting-message="assistantGreetingMessage"
           :loading="loadingSessions || loadingShortcuts"
           :shortcuts="starterPrompts"
@@ -2877,7 +2877,7 @@ function showError(error: unknown, fallback: string) {
               </view>
               <view v-else class="bubble-content">{{ item.content }}</view>
 
-              <AssistantFlowBlocks
+              <FlowBlocks
                 :message="item"
                 :address-form-steps="addressFormSteps"
                 :address-area-tree="addressAreaTree"
@@ -2939,7 +2939,7 @@ function showError(error: unknown, fallback: string) {
       </view>
     </scroll-view>
 
-    <AssistantComposer
+    <Composer
       v-model="inputText"
       :attachments="selectedAttachments"
       :placeholder="composerPlaceholder"
@@ -2953,7 +2953,7 @@ function showError(error: unknown, fallback: string) {
       @remove-attachment="removeSelectedAttachment"
     />
 
-    <AssistantSessionDrawer
+    <SessionDrawer
       v-model:keyword="sessionKeyword"
       :open="showSessionDrawer"
       :top-padding="drawerTopPadding"

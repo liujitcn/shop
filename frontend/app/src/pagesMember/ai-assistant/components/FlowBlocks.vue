@@ -2,7 +2,7 @@
 import type { AiAssistantAction } from '@/rpc/base/v1/ai_assistant_message'
 import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
 import { formatPrice, formatSrc } from '@/utils/index'
-import AssistantOrderListBlock from './AssistantOrderListBlock.vue'
+import OrderListBlock from './OrderListBlock.vue'
 
 type AssistantFlowBlock = {
   type: string
@@ -405,7 +405,7 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
         <view class="flow-desc">支付已发起，请按系统提示完成支付。</view>
       </view>
 
-      <AssistantOrderListBlock
+      <OrderListBlock
         v-else-if="block.type === 'order_list'"
         :orders="visibleFlowList(block, blockIndex, 'orders')"
         :reveal="Boolean(message.flowReveal)"
