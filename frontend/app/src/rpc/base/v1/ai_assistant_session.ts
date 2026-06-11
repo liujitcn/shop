@@ -8,6 +8,48 @@
 import type { AiAssistantMessageStatus, Terminal } from "../../common/v1/enum";
 import type { Timestamp } from "../../google/protobuf/timestamp";
 
+/** AI 助手快捷入口列表查询条件 */
+export interface ListAiAssistantShortcutsRequest {
+  /** 终端类型：枚举【Terminal】 */
+  terminal: Terminal;
+}
+
+/** AI 助手快捷入口列表响应 */
+export interface ListAiAssistantShortcutsResponse {
+  /** 快捷入口列表 */
+  shortcuts: AiAssistantShortcut[];
+}
+
+/** AI 助手快捷入口 */
+export interface AiAssistantShortcut {
+  /** 快捷入口标识 */
+  key: string;
+  /** 展示标题 */
+  title: string;
+  /** 发送给助手的提示词 */
+  prompt: string;
+  /** 快捷入口动作 */
+  action:
+    | AiAssistantShortcutAction
+    | undefined;
+  /** 依赖工具列表 */
+  required_tools: string[];
+  /** 排序值 */
+  sort: number;
+}
+
+/** AI 助手快捷入口动作 */
+export interface AiAssistantShortcutAction {
+  /** 流程标识 */
+  flow: string;
+  /** 流程步骤 */
+  step: string;
+  /** 动作类型 */
+  type: string;
+  /** 动作负载JSON */
+  payload_json: string;
+}
+
 /** AI 助手会话列表查询条件 */
 export interface ListAiAssistantSessionsRequest {
   /** 终端类型：枚举【Terminal】 */
@@ -214,6 +256,8 @@ export interface AiAssistantTool {
 
 /** Base AI 助手会话服务 */
 export interface AiAssistantService {
+  /** 查询 AI 助手快捷入口列表 */
+  ListAiAssistantShortcuts(request: ListAiAssistantShortcutsRequest): Promise<ListAiAssistantShortcutsResponse>;
   /** 查询 AI 助手会话列表 */
   ListAiAssistantSessions(request: ListAiAssistantSessionsRequest): Promise<ListAiAssistantSessionsResponse>;
   /** 创建 AI 助手会话 */

@@ -110,6 +110,15 @@ func (r *Runtime) Model() string {
 	return r.client.Name()
 }
 
+// EnabledToolNames 返回当前终端实际启用的 Agent 工具名集合。
+func (r *Runtime) EnabledToolNames(ctx context.Context, terminal string) map[string]bool {
+	if r == nil {
+		return map[string]bool{}
+	}
+	input := RuntimeInput{Terminal: terminal}
+	return toolInfoNameSet(r.enabledToolInfos(ctx, input, r.allToolInfos(ctx, input)))
+}
+
 // Run 使用生成式模式运行助手。
 //
 // 该方法用于普通 RPC 或非流式调用：先构建带历史上下文的 Eino 消息列表，

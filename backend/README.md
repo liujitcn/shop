@@ -135,6 +135,7 @@ make gen
 - `tools`：AI 助手启动时会注册 `api/gen/go` 下已生成的 admin / app Agent 工具，并从当前终端可用工具中挑选相关内部 function tool，在需要时执行工具调用后回填结果；消息完成后会保存工具名称、状态、原始入参与原始出参，便于后台排查。
 - `web search`：AI 助手仍保留 Responses Provider 默认启用的 `web_search` 工具，用于补充公开实时信息。
 - `prompts`：AI 助手标准提示词内置在代码中，并结合当前会话上下文渲染为系统消息。
+- `shortcuts`：`/api/v1/base/ai/assistant/shortcut` 按 `terminal` 和当前实际启用的 Agent 工具一次性返回快捷入口，前端只做本地切换展示，不再维护固定快捷问题数组。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮消息，避免占用工作台共用 `/events` 流。
 - `message status`：每轮消息使用 `GENERATING / SUCCESS / FAILED` 表达生成中、成功和失败状态，删除统一通过 `deleted_at` 逻辑删除。失败消息可通过 `/retry` 基于同一轮输入重新发送；助手输出可通过 `/regeneration` 基于同一轮输入重新生成；单轮消息删除会持久化到后端，回复完成后会同步刷新会话 `updated_at`。
 - `branch session`：`/api/v1/base/ai/assistant/session/{sourceSessionId}/branch` 会复制锚点之前的成功消息，创建新的持久化分支会话。

@@ -9,16 +9,28 @@ import type {
   DeleteAiAssistantSessionResponse,
   ListAiAssistantMessagesRequest,
   ListAiAssistantMessagesResponse,
+  ListAiAssistantShortcutsRequest,
+  ListAiAssistantShortcutsResponse,
   ListAiAssistantSessionsRequest,
   ListAiAssistantSessionsResponse,
   UpdateAiAssistantSessionRequest,
   UpdateAiAssistantSessionResponse
 } from "@/rpc/base/v1/ai_assistant_session";
 
+const AI_ASSISTANT_SHORTCUT_URL = "/v1/base/ai/assistant/shortcut";
 const AI_ASSISTANT_SESSION_URL = "/v1/base/ai/assistant/session";
 
 /** AI 助手会话服务。 */
 export class AiAssistantSessionServiceImpl implements AiAssistantService {
+  /** 查询 AI 助手快捷入口列表。 */
+  ListAiAssistantShortcuts(request: ListAiAssistantShortcutsRequest): Promise<ListAiAssistantShortcutsResponse> {
+    return service<ListAiAssistantShortcutsRequest, ListAiAssistantShortcutsResponse>({
+      url: `${AI_ASSISTANT_SHORTCUT_URL}`,
+      method: "get",
+      params: request
+    });
+  }
+
   /** 查询 AI 助手会话列表。 */
   ListAiAssistantSessions(request: ListAiAssistantSessionsRequest): Promise<ListAiAssistantSessionsResponse> {
     return service<ListAiAssistantSessionsRequest, ListAiAssistantSessionsResponse>({

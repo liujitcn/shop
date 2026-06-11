@@ -28,6 +28,16 @@ func NewAiAssistantService(aiAssistantSessionCase *biz.AiAssistantSessionCase, a
 	}
 }
 
+// ListAiAssistantShortcuts 查询 AI 助手快捷入口列表。
+func (s *AiAssistantService) ListAiAssistantShortcuts(ctx context.Context, req *basev1.ListAiAssistantShortcutsRequest) (*basev1.ListAiAssistantShortcutsResponse, error) {
+	res, err := s.aiAssistantMessageCase.ListAiAssistantShortcuts(ctx, req)
+	if err != nil {
+		log.Errorf("ListAiAssistantShortcuts %v", err)
+		return nil, errorsx.WrapInternal(err, "查询AI助手快捷入口失败")
+	}
+	return res, nil
+}
+
 // ListAiAssistantSessions 查询 AI 助手会话列表。
 func (s *AiAssistantService) ListAiAssistantSessions(ctx context.Context, req *basev1.ListAiAssistantSessionsRequest) (*basev1.ListAiAssistantSessionsResponse, error) {
 	res, err := s.aiAssistantSessionCase.ListAiAssistantSessions(ctx, req)

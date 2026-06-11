@@ -190,6 +190,7 @@ INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES (
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.AiAssistantService/CreateAiAssistantSessionBranch', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.AiAssistantService/DeleteAiAssistantSession', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.AiAssistantService/ListAiAssistantMessages', 'ANY', '*', '', '');
+INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.AiAssistantService/ListAiAssistantShortcuts', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.AiAssistantService/ListAiAssistantSessions', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.AiAssistantService/UpdateAiAssistantSession', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'admin', '/base.v1.FileService/DownloadFile', 'ANY', '*', '', '');
@@ -257,6 +258,7 @@ INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES (
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.AiAssistantService/CreateAiAssistantSessionBranch', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.AiAssistantService/DeleteAiAssistantSession', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.AiAssistantService/ListAiAssistantMessages', 'ANY', '*', '', '');
+INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.AiAssistantService/ListAiAssistantShortcuts', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.AiAssistantService/ListAiAssistantSessions', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.AiAssistantService/UpdateAiAssistantSession', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'user', '/base.v1.FileService/DownloadFile', 'ANY', '*', '', '');
@@ -324,6 +326,7 @@ INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES (
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.AiAssistantService/CreateAiAssistantSessionBranch', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.AiAssistantService/DeleteAiAssistantSession', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.AiAssistantService/ListAiAssistantMessages', 'ANY', '*', '', '');
+INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.AiAssistantService/ListAiAssistantShortcuts', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.AiAssistantService/ListAiAssistantSessions', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.AiAssistantService/UpdateAiAssistantSession', 'ANY', '*', '', '');
 INSERT INTO `casbin_rule` (`ptype`, `v0`, `v1`, `v2`, `v3`, `v4`, `v5`) VALUES ('p', 'guest', '/base.v1.FileService/DownloadFile', 'ANY', '*', '', '');

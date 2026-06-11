@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	AiAssistantService_ListAiAssistantShortcuts_FullMethodName       = "/base.v1.AiAssistantService/ListAiAssistantShortcuts"
 	AiAssistantService_ListAiAssistantSessions_FullMethodName        = "/base.v1.AiAssistantService/ListAiAssistantSessions"
 	AiAssistantService_CreateAiAssistantSession_FullMethodName       = "/base.v1.AiAssistantService/CreateAiAssistantSession"
 	AiAssistantService_UpdateAiAssistantSession_FullMethodName       = "/base.v1.AiAssistantService/UpdateAiAssistantSession"
@@ -34,6 +35,8 @@ const (
 //
 // Base AI 助手会话服务
 type AiAssistantServiceClient interface {
+	// 查询 AI 助手快捷入口列表
+	ListAiAssistantShortcuts(ctx context.Context, in *ListAiAssistantShortcutsRequest, opts ...grpc.CallOption) (*ListAiAssistantShortcutsResponse, error)
 	// 查询 AI 助手会话列表
 	ListAiAssistantSessions(ctx context.Context, in *ListAiAssistantSessionsRequest, opts ...grpc.CallOption) (*ListAiAssistantSessionsResponse, error)
 	// 创建 AI 助手会话
@@ -54,6 +57,16 @@ type aiAssistantServiceClient struct {
 
 func NewAiAssistantServiceClient(cc grpc.ClientConnInterface) AiAssistantServiceClient {
 	return &aiAssistantServiceClient{cc}
+}
+
+func (c *aiAssistantServiceClient) ListAiAssistantShortcuts(ctx context.Context, in *ListAiAssistantShortcutsRequest, opts ...grpc.CallOption) (*ListAiAssistantShortcutsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAiAssistantShortcutsResponse)
+	err := c.cc.Invoke(ctx, AiAssistantService_ListAiAssistantShortcuts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *aiAssistantServiceClient) ListAiAssistantSessions(ctx context.Context, in *ListAiAssistantSessionsRequest, opts ...grpc.CallOption) (*ListAiAssistantSessionsResponse, error) {
@@ -122,6 +135,8 @@ func (c *aiAssistantServiceClient) CreateAiAssistantSessionBranch(ctx context.Co
 //
 // Base AI 助手会话服务
 type AiAssistantServiceServer interface {
+	// 查询 AI 助手快捷入口列表
+	ListAiAssistantShortcuts(context.Context, *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error)
 	// 查询 AI 助手会话列表
 	ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error)
 	// 创建 AI 助手会话
@@ -144,6 +159,9 @@ type AiAssistantServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAiAssistantServiceServer struct{}
 
+func (UnimplementedAiAssistantServiceServer) ListAiAssistantShortcuts(context.Context, *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantShortcuts not implemented")
+}
 func (UnimplementedAiAssistantServiceServer) ListAiAssistantSessions(context.Context, *ListAiAssistantSessionsRequest) (*ListAiAssistantSessionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAiAssistantSessions not implemented")
 }
@@ -181,6 +199,24 @@ func RegisterAiAssistantServiceServer(s grpc.ServiceRegistrar, srv AiAssistantSe
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AiAssistantService_ServiceDesc, srv)
+}
+
+func _AiAssistantService_ListAiAssistantShortcuts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAiAssistantShortcutsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AiAssistantServiceServer).ListAiAssistantShortcuts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AiAssistantService_ListAiAssistantShortcuts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AiAssistantServiceServer).ListAiAssistantShortcuts(ctx, req.(*ListAiAssistantShortcutsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AiAssistantService_ListAiAssistantSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -298,6 +334,10 @@ var AiAssistantService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "base.v1.AiAssistantService",
 	HandlerType: (*AiAssistantServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListAiAssistantShortcuts",
+			Handler:    _AiAssistantService_ListAiAssistantShortcuts_Handler,
+		},
 		{
 			MethodName: "ListAiAssistantSessions",
 			Handler:    _AiAssistantService_ListAiAssistantSessions_Handler,

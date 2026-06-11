@@ -5723,6 +5723,29 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/CreateAiAssistantSessionBranchResponse'
+    /api/v1/base/ai/assistant/shortcut:
+        get:
+            tags:
+                - AiAssistantService
+            description: 查询 AI 助手快捷入口列表
+            operationId: AiAssistantService_ListAiAssistantShortcuts
+            parameters:
+                - name: terminal
+                  in: query
+                  schema:
+                    enum:
+                        - TERMINAL_UNSPECIFIED
+                        - TERMINAL_APP
+                        - TERMINAL_ADMIN
+                    type: string
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAiAssistantShortcutsResponse'
     /api/v1/base/captcha:
         get:
             tags:
@@ -6135,6 +6158,46 @@ components:
                     description: 终端类型：枚举【Terminal】
                     format: enum
             description: AI 助手会话
+        AiAssistantShortcut:
+            type: object
+            properties:
+                key:
+                    type: string
+                    description: 快捷入口标识
+                title:
+                    type: string
+                    description: 展示标题
+                prompt:
+                    type: string
+                    description: 发送给助手的提示词
+                action:
+                    $ref: '#/components/schemas/AiAssistantShortcutAction'
+                requiredTools:
+                    type: array
+                    items:
+                        type: string
+                    description: 依赖工具列表
+                sort:
+                    type: integer
+                    description: 排序值
+                    format: int32
+            description: AI 助手快捷入口
+        AiAssistantShortcutAction:
+            type: object
+            properties:
+                flow:
+                    type: string
+                    description: 流程标识
+                step:
+                    type: string
+                    description: 流程步骤
+                type:
+                    type: string
+                    description: 动作类型
+                payloadJson:
+                    type: string
+                    description: 动作负载JSON
+            description: AI 助手快捷入口动作
         AiAssistantToken:
             type: object
             properties:
@@ -9121,6 +9184,15 @@ components:
                         $ref: '#/components/schemas/AiAssistantSession'
                     description: 会话列表
             description: AI 助手会话列表响应
+        ListAiAssistantShortcutsResponse:
+            type: object
+            properties:
+                shortcuts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AiAssistantShortcut'
+                    description: 快捷入口列表
+            description: AI 助手快捷入口列表响应
         ListBaseApisResponse:
             type: object
             properties:

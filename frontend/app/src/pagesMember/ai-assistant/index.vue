@@ -12,6 +12,7 @@ import type { AppTreeOptionResponse_Option } from '@/rpc/common/v1/common'
 import type {
   AiAssistantAttachment,
   AiAssistantMessage,
+  AiAssistantShortcut,
   AiAssistantSession,
   AiAssistantTool,
 } from '@/rpc/base/v1/ai_assistant_session'
@@ -102,6 +103,7 @@ type StreamTask = {
   abort: () => void
   aborted: boolean
   finished: boolean
+  success?: boolean
 }
 
 type AttachmentFileCandidate = {
@@ -126,14 +128,14 @@ type MenuButtonRect = {
 const THINKING_MESSAGE_CONTENT = '正在回复'
 const LOCAL_USER_MESSAGE_PREFIX = 'assistant-user-local'
 const PENDING_MESSAGE_ID = 'pending'
+const SUBMITTED_ADDRESS_FORM_BLOCKS_KEY = 'ai_assistant_submitted_address_form_blocks'
+const SUBMITTED_ADDRESS_FORM_BLOCK_LIMIT = 200
 const MAX_ATTACHMENT_COUNT = 6
+const STARTER_PROMPT_PAGE_SIZE = 4
 const AI_ASSISTANT_TERMINAL = Terminal.TERMINAL_APP
 const FLOW_REVEAL_INTERVAL_MS = 90
 const FLOW_REVEAL_CLEANUP_MS = 240
-const starterPromptGroups = [
-  ['帮我推荐商品', '查看待付款订单', '我的物流到哪了', '收到商品后怎么评价'],
-  ['帮我找热销商品', '查询最近订单', '帮我看看售后进度', '怎么修改收货地址'],
-]
+const MOBILE_PHONE_PATTERN = /^1[3-9]\d{9}$/
 const addressFormSteps: {
   key: AddressFormStepKey
   label: string
@@ -243,6 +245,7 @@ const actionSessionID = ref('')
 const ignoredTapSessionID = ref('')
 const loadingSessions = ref(false)
 const loadingSessionID = ref('')
+const loadingShortcuts = ref(false)
 const chatBottomAnchor = ref('')
 const uploadingAttachment = ref(false)
 const showTextPreview = ref(false)
@@ -251,6 +254,7 @@ const textPreviewTitle = ref('')
 const textPreviewContent = ref('')
 const sendingSessionMap = ref<Record<string, boolean>>({})
 const sessions = ref<AiAssistantSession[]>([])
+const starterShortcuts = ref<AiAssistantShortcut[]>([])
 const messages = ref<Record<string, ChatMessageItem[]>>({})
 const selectedAttachments = ref<AiAssistantAttachment[]>([])
 const addressAreaTree = ref<AppTreeOptionResponse_Option[]>([])
@@ -258,6 +262,7 @@ const runningStreamTaskMap = new Map<string, StreamTask>()
 const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>()
 const handledPaymentBlockSet = new Set<string>()
 const flowRevealTimerMap = new Map<string, number>()
+const submittedAddressFormBlockSet = new Set(readSubmittedAddressFormBlockKeys())
 let speakingMessageKey = ''
 let pendingDeltaTimer = 0
 let loadingAddressAreaTree = false
@@ -279,7 +284,17 @@ const filteredSessions = computed(() => {
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
-const starterPrompts = computed(() => starterPromptGroups[starterPromptGroupIndex.value] ?? [])
+const starterPromptPageCount = computed(() => {
+  return Math.max(1, Math.ceil(starterShortcuts.value.length / STARTER_PROMPT_PAGE_SIZE))
+})
+const canRefreshStarterPrompts = computed(
+  () => starterShortcuts.value.length > STARTER_PROMPT_PAGE_SIZE,
+)
+const starterPrompts = computed(() => {
+  const pageIndex = starterPromptGroupIndex.value % starterPromptPageCount.value
+  const start = pageIndex * STARTER_PROMPT_PAGE_SIZE
+  return starterShortcuts.value.slice(start, start + STARTER_PROMPT_PAGE_SIZE)
+})
 const assistantGreetingPeriod = computed(() => {
   const hour = new Date().getHours()
   if (hour < 11) {
@@ -380,6 +395,7 @@ const lastEditableUserMessageKey = computed(() => {
 
 /** 首次打开时加载移动端会话列表。 */
 onLoad(() => {
+  void loadAiAssistantShortcuts()
   void ensureSessionsLoaded()
 })
 
@@ -870,8 +886,8 @@ const handleSend = async () => {
   await sendAiAssistantPayload(payload)
 }
 
-/** 使用空态快捷提示直接开始对话。 */
-const handleStarterPrompt = async (text: string) => {
+/** 使用空态快捷入口直接开始对话。 */
+const handleStarterPrompt = async (shortcut: AiAssistantShortcut) => {
   if (
     loadingSessions.value ||
     uploadingAttachment.value ||
@@ -882,21 +898,28 @@ const handleStarterPrompt = async (text: string) => {
   }
   inputText.value = ''
   selectedAttachments.value = []
-  await sendAiAssistantPayload({ text, attachments: [] })
+  await sendAiAssistantPayload({
+    text: shortcut.prompt || shortcut.title,
+    attachments: [],
+    action: buildStarterPromptAction(shortcut),
+  })
 }
 
-/** 轮换空态快捷问题。 */
+/** 轮换本地已加载的空态快捷入口。 */
 const refreshStarterPrompts = () => {
-  starterPromptGroupIndex.value = (starterPromptGroupIndex.value + 1) % starterPromptGroups.length
+  if (!canRefreshStarterPrompts.value) {
+    return
+  }
+  starterPromptGroupIndex.value = (starterPromptGroupIndex.value + 1) % starterPromptPageCount.value
 }
 
 /** 提交助手流程动作，保持流程在聊天内闭环。 */
 const handleFlowAction = async (action?: AiAssistantAction, label?: string) => {
   if (!action || currentSessionSending.value) {
-    return
+    return false
   }
   const nextAction = enrichFlowAction(action)
-  await sendAiAssistantPayload({
+  return sendAiAssistantPayload({
     text: label || resolveFlowActionLabel(nextAction),
     attachments: [],
     action: nextAction,
@@ -921,10 +944,14 @@ const changeSkuNum = (sku: AssistantFlowBlock, delta: number) => {
 }
 
 /** 提交新增地址表单。 */
-const submitAddressForm = (block: AssistantFlowBlock) => {
+const submitAddressForm = async (block: AssistantFlowBlock) => {
   const form = block.form || {}
   if (!form.receiver || !form.contact || !form.address?.length || !form.detail) {
     uni.showToast({ icon: 'none', title: '请补全收货地址' })
+    return
+  }
+  if (!isValidMobilePhone(form.contact)) {
+    uni.showToast({ icon: 'none', title: '手机号格式不正确' })
     return
   }
   const payload = parseActionPayload(block.action?.payload_json)
@@ -937,7 +964,9 @@ const submitAddressForm = (block: AssistantFlowBlock) => {
     is_default: Boolean(form.is_default),
   }
   const action = buildFlowAction(block.action, payload)
-  void handleFlowAction(action, '新增收货地址')
+  if (await handleFlowAction(action, '新增收货地址')) {
+    removeAddressFormBlock(block)
+  }
 }
 
 /** 从无地址状态进入新增地址流程。 */
@@ -954,6 +983,9 @@ const handleCreateAddressGuide = async (block: AssistantFlowBlock) => {
 
 const isAddressFormFieldFilled = (block: AssistantFlowBlock, key: AddressFormStepKey) => {
   const form = block.form || {}
+  if (key === 'contact') {
+    return isValidMobilePhone(form.contact)
+  }
   if (key === 'address') {
     return Boolean(form.address?.length || form.address_name?.length)
   }
@@ -1089,6 +1121,27 @@ const previewAttachment = async (
   await openDocumentAttachment(attachment, current)
 }
 
+/** 一次性加载当前终端可用的快捷助手入口。 */
+async function loadAiAssistantShortcuts() {
+  if (loadingShortcuts.value) {
+    return
+  }
+
+  loadingShortcuts.value = true
+  try {
+    const response = await defAiAssistantSessionService.ListAiAssistantShortcuts({
+      terminal: AI_ASSISTANT_TERMINAL,
+    })
+    starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts)
+    starterPromptGroupIndex.value = 0
+  } catch (error) {
+    starterShortcuts.value = []
+    showError(error, '加载快捷助手失败')
+  } finally {
+    loadingShortcuts.value = false
+  }
+}
+
 /** 加载移动端 AI 助手会话列表。 */
 async function ensureSessionsLoaded() {
   if (loadingSessions.value || sessions.value.length > 0) {
@@ -1202,8 +1255,7 @@ async function sendAiAssistantPayload(payload: SubmitPayload) {
   ])
   scrollChatToBottom()
   setSessionSending(sessionID, true)
-  await runAiAssistantTask(sessionID, payload)
-  return true
+  return runAiAssistantTask(sessionID, payload)
 }
 
 /** 后台执行 AI 助手消息请求。 */
@@ -1283,6 +1335,7 @@ async function runAiAssistantTask(sessionID: string, payload: SubmitPayload) {
       if (!nextMessages.length) {
         throw new Error('AI 助手响应为空')
       }
+      const success = hasSuccessfulAiAssistantMessages(nextMessages)
       messages.value[sessionID] = replacePendingMessages(
         messages.value[sessionID] ?? [],
         nextMessages,
@@ -1292,16 +1345,19 @@ async function runAiAssistantTask(sessionID: string, payload: SubmitPayload) {
         upsertSession(normalizeSession(response.session))
       }
       handlePaymentBlocks(nextMessages)
+      return success
     }
+    return Boolean(task?.success)
   } catch (error) {
     if (task?.aborted) {
-      return
+      return false
     }
     messages.value[sessionID] = markThinkingMessageFailed(messages.value[sessionID] ?? [], {
       sessionID,
     })
     scrollChatToBottom()
     showError(error, 'AI 助手请求失败')
+    return false
   } finally {
     if (task && runningStreamTaskMap.get(sessionID) === task) {
       runningStreamTaskMap.delete(sessionID)
@@ -1503,6 +1559,9 @@ function handleAiAssistantFinish(payload: AiAssistantStreamPayload, task?: Strea
   }
   flushAiAssistantDelta()
   const nextMessages = normalizeMessageList(payload.messages)
+  if (task) {
+    task.success = hasSuccessfulAiAssistantMessages(nextMessages)
+  }
   const current = messages.value[sessionID] ?? []
   const streamKey = payload.message_id ? buildStreamMessageKey(sessionID, payload.message_id) : ''
   const hasLocalStreamingMessages = current.some(
@@ -1532,6 +1591,7 @@ function handleAiAssistantError(payload: AiAssistantStreamPayload, task?: Stream
   }
   if (task) {
     task.finished = true
+    task.success = false
   }
   flushAiAssistantDelta()
   const nextMessages = normalizeMessageList(payload.messages)
@@ -1634,6 +1694,99 @@ function normalizeMessageList(list?: AiAssistantMessage[] | null) {
   )
 }
 
+function hasSuccessfulAiAssistantMessages(list: ChatMessageItem[]) {
+  return list.some((item) => item.status === AiAssistantMessageStatus.SUCCESS_AAMS)
+}
+
+function removeAddressFormBlock(block: AssistantFlowBlock) {
+  const sessionID = activeSessionID.value
+  const list = messages.value[sessionID] ?? []
+  const message = list.find((item) => item.blocks.includes(block))
+  if (!sessionID || !message) {
+    return
+  }
+
+  const blockIndex = message.blocks.findIndex((item) => item === block)
+  if (blockIndex < 0) {
+    return
+  }
+
+  markAddressFormBlockSubmitted(message.messageID, blockIndex, block)
+  messages.value[sessionID] = list.map((item) => {
+    if (item.key !== message.key) {
+      return item
+    }
+    return {
+      ...item,
+      blocks: item.blocks.filter((_, index) => index !== blockIndex),
+    }
+  })
+  scrollChatToBottom()
+}
+
+function isValidMobilePhone(value: unknown) {
+  return MOBILE_PHONE_PATTERN.test(String(value ?? ''))
+}
+
+function isSubmittedAddressFormBlock(
+  messageID: string,
+  blockIndex: number,
+  block: AssistantFlowBlock,
+) {
+  return (
+    block.type === 'address_form' &&
+    submittedAddressFormBlockSet.has(buildAddressFormBlockKey(messageID, blockIndex, block))
+  )
+}
+
+function markAddressFormBlockSubmitted(
+  messageID: string,
+  blockIndex: number,
+  block: AssistantFlowBlock,
+) {
+  if (!messageID) {
+    return
+  }
+  submittedAddressFormBlockSet.add(buildAddressFormBlockKey(messageID, blockIndex, block))
+  writeSubmittedAddressFormBlockKeys(Array.from(submittedAddressFormBlockSet))
+}
+
+function buildAddressFormBlockKey(
+  messageID: string,
+  blockIndex: number,
+  block: AssistantFlowBlock,
+) {
+  const action = block.action || {}
+  return [
+    messageID,
+    blockIndex,
+    action.flow || '',
+    action.step || '',
+    action.type || '',
+    action.payload_json || '',
+  ].join('|')
+}
+
+function readSubmittedAddressFormBlockKeys() {
+  try {
+    const value = uni.getStorageSync(SUBMITTED_ADDRESS_FORM_BLOCKS_KEY)
+    return Array.isArray(value) ? value.map((item) => String(item)).filter(Boolean) : []
+  } catch {
+    return []
+  }
+}
+
+function writeSubmittedAddressFormBlockKeys(keys: string[]) {
+  try {
+    uni.setStorageSync(
+      SUBMITTED_ADDRESS_FORM_BLOCKS_KEY,
+      keys.slice(-SUBMITTED_ADDRESS_FORM_BLOCK_LIMIT),
+    )
+  } catch {
+    // 本地记录失败只影响旧表单隐藏，不影响地址新增主流程。
+  }
+}
+
 function normalizeNonStreamMessages(response: unknown) {
   const jsonResponse = response as { messages?: AiAssistantMessage[] }
   if (Array.isArray(jsonResponse?.messages)) {
@@ -1652,7 +1805,7 @@ function normalizeNonStreamMessages(response: unknown) {
   return []
 }
 
-function parseFlowBlocks(raw?: string) {
+function parseFlowBlocks(raw?: string, messageID?: string) {
   if (!raw) {
     return []
   }
@@ -1663,6 +1816,7 @@ function parseFlowBlocks(raw?: string) {
     }
     return blocks
       .filter((item): item is AssistantFlowBlock => Boolean(item?.type))
+      .filter((item, index) => !isSubmittedAddressFormBlock(messageID || '', index, item))
       .map((item) => normalizeFlowBlock(item))
   } catch {
     return []
@@ -1743,7 +1897,7 @@ function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessag
     flow: role === 'assistant' ? outputContent.flow : '',
     step: role === 'assistant' ? outputContent.step : '',
     blocksJson: role === 'assistant' ? outputContent.blocks_json : '',
-    blocks: role === 'assistant' ? parseFlowBlocks(outputContent.blocks_json) : [],
+    blocks: role === 'assistant' ? parseFlowBlocks(outputContent.blocks_json, message.id) : [],
     tokenTotal: Number(message.token?.total ?? 0),
     firstTokenMs: Number(message.first_token_ms ?? 0),
     durationMs: Number(message.duration_ms ?? 0),
@@ -2021,6 +2175,40 @@ function parseActionPayload(raw?: string) {
   } catch {
     return {} as Record<string, any>
   }
+}
+
+function normalizeStarterShortcuts(list?: AiAssistantShortcut[] | null) {
+  return [...(list || [])]
+    .filter((item) => Boolean(item?.key && (item.title || item.prompt)))
+    .map((item) => ({
+      ...item,
+      title: item.title || item.prompt,
+      prompt: item.prompt || item.title,
+      action: normalizeStarterShortcutAction(item.action),
+      required_tools: Array.isArray(item.required_tools) ? item.required_tools : [],
+      sort: Number(item.sort || 0),
+    }))
+    .sort((prev, next) => prev.sort - next.sort)
+}
+
+function normalizeStarterShortcutAction(action?: AiAssistantShortcut['action']) {
+  if (!action?.type) {
+    return undefined
+  }
+  return {
+    flow: action.flow || '',
+    step: action.step || '',
+    type: action.type,
+    payload_json: action.payload_json || '{}',
+  }
+}
+
+function buildStarterPromptAction(shortcut: AiAssistantShortcut) {
+  const action = normalizeStarterShortcutAction(shortcut.action)
+  if (!action) {
+    return undefined
+  }
+  return buildFlowAction(action, parseActionPayload(action.payload_json))
 }
 
 function buildFlowAction(action?: Partial<AiAssistantAction>, payload?: Record<string, any>) {
@@ -2754,23 +2942,31 @@ function showError(error: unknown, fallback: string) {
 
           <view class="prompt-card">
             <view class="prompt-card__head">
-              <view class="prompt-card__title">可以这样问</view>
-              <button class="prompt-refresh" hover-class="none" @tap="refreshStarterPrompts">
+              <view class="prompt-card__title">您可以这样问</view>
+              <button
+                v-if="canRefreshStarterPrompts"
+                class="prompt-refresh"
+                hover-class="none"
+                @tap="refreshStarterPrompts"
+              >
                 <text>换一换</text>
                 <uni-icons type="refresh" size="25" color="#00a96b" />
               </button>
             </view>
-            <view v-if="loadingSessions" class="prompt-loading">正在加载会话...</view>
+            <view v-if="loadingSessions || loadingShortcuts" class="prompt-loading"
+              >正在加载...</view
+            >
+            <view v-else-if="!starterPrompts.length" class="prompt-loading">暂无可用快捷助手</view>
             <template v-else>
               <button
                 v-for="(starterPrompt, starterPromptIndex) in starterPrompts"
-                :key="starterPrompt"
+                :key="starterPrompt.key || starterPrompt.title"
                 class="prompt-item"
                 hover-class="none"
                 @tap="handleStarterPrompt(starterPrompt)"
               >
                 <text class="prompt-index">{{ starterPromptIndex + 1 }}</text>
-                <text class="prompt-text">{{ starterPrompt }}</text>
+                <text class="prompt-text">{{ starterPrompt.title }}</text>
                 <uni-icons type="right" size="20" color="#9aa0aa" />
               </button>
             </template>
@@ -3013,6 +3209,7 @@ function showError(error: unknown, fallback: string) {
                       <input
                         v-model="block.form.contact"
                         class="flow-input is-large"
+                        :maxlength="11"
                         :placeholder="addressFormSteps[1].placeholder"
                         placeholder-class="flow-placeholder"
                       />

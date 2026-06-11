@@ -17,6 +17,12 @@ import (
 func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
+	var listAiAssistantShortcutsTool tool.InvokableTool
+	listAiAssistantShortcutsTool, err = NewAiAssistantServiceListAiAssistantShortcutsAgentTool(aiAssistantServiceServer)
+	if err != nil {
+		return nil, err
+	}
+	ts = append(ts, listAiAssistantShortcutsTool)
 	var listAiAssistantSessionsTool tool.InvokableTool
 	listAiAssistantSessionsTool, err = NewAiAssistantServiceListAiAssistantSessionsAgentTool(aiAssistantServiceServer)
 	if err != nil {
@@ -54,6 +60,20 @@ func NewAiAssistantServiceAgentTools(aiAssistantServiceServer AiAssistantService
 	}
 	ts = append(ts, createAiAssistantSessionBranchTool)
 	return ts, nil
+}
+
+// NewAiAssistantServiceListAiAssistantShortcutsAgentTool 创建查询 AI 助手快捷入口列表的 Agent Tool。
+func NewAiAssistantServiceListAiAssistantShortcutsAgentTool(aiAssistantServiceServer AiAssistantServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*ListAiAssistantShortcutsRequest, *ListAiAssistantShortcutsResponse](
+		"base_v1_ai_assistant_service_list_ai_assistant_shortcuts",
+		"查询 AI 助手快捷入口列表",
+		func(ctx context.Context, req *ListAiAssistantShortcutsRequest) (*ListAiAssistantShortcutsResponse, error) {
+			if req == nil {
+				req = &ListAiAssistantShortcutsRequest{}
+			}
+			return aiAssistantServiceServer.ListAiAssistantShortcuts(ctx, req)
+		},
+	)
 }
 
 // NewAiAssistantServiceListAiAssistantSessionsAgentTool 创建查询 AI 助手会话列表的 Agent Tool。

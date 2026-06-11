@@ -216,6 +216,14 @@ func (c *AiAssistantMessageCase) RegenerateAiAssistantMessage(ctx context.Contex
 	return c.regenerateAiAssistantMessage(ctx, session, message)
 }
 
+// ListAiAssistantShortcuts 查询当前终端可用的 AI 助手快捷入口。
+func (c *AiAssistantMessageCase) ListAiAssistantShortcuts(ctx context.Context, req *basev1.ListAiAssistantShortcutsRequest) (*basev1.ListAiAssistantShortcutsResponse, error) {
+	terminal := assistant.NormalizeTerminal(req.GetTerminal())
+	terminalName := assistant.NormalizeTerminalString(terminal)
+	enabledTools := c.assistantRuntime.EnabledToolNames(ctx, terminalName)
+	return &basev1.ListAiAssistantShortcutsResponse{Shortcuts: assistant.BuildShortcuts(terminal, enabledTools)}, nil
+}
+
 // ListAiAssistantMessages 查询指定会话的消息列表。
 func (c *AiAssistantMessageCase) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
 	session, err := c.aiAssistantSessionCase.FindCurrentUserSessionByRawID(ctx, req.GetSessionId())
