@@ -41,43 +41,32 @@ const cartBadgeText = computed(() => {
 
 <template>
   <view
-    class="xtx-goods-action-bar"
-    :class="{ 'xtx-goods-action-bar--fixed': props.fixed }"
+    class="goods-action-bar"
+    :class="{ 'goods-action-bar--fixed': props.fixed }"
     :style="rootStyle"
   >
-    <view class="xtx-goods-action-bar__icons">
-      <button class="xtx-goods-action-bar__icons-button" @tap="emit('collect')">
-        <text
-          class="icon-heart"
-          :class="{ 'xtx-goods-action-bar__heart--active': props.collected }"
-        />
+    <view class="goods-action-bar__icons">
+      <button class="goods-action-bar__icons-button" @tap="emit('collect')">
+        <text class="icon-heart" :class="{ 'goods-action-bar__heart--active': props.collected }" />
         {{ props.collected ? '已收藏' : '收藏' }}
       </button>
       <!-- #ifdef MP-WEIXIN -->
-      <button
-        v-if="props.showContact"
-        class="xtx-goods-action-bar__icons-button"
-        open-type="contact"
-      >
+      <button v-if="props.showContact" class="goods-action-bar__icons-button" open-type="contact">
         <text class="icon-handset" />客服
       </button>
       <!-- #endif -->
-      <navigator
-        class="xtx-goods-action-bar__icons-button"
-        :url="props.cartUrl"
-        open-type="navigate"
-      >
+      <navigator class="goods-action-bar__icons-button" :url="props.cartUrl" open-type="navigate">
         <text class="icon-cart" />购物车
-        <view v-if="props.cartNum > 0" class="xtx-goods-action-bar__cart-badge">
+        <view v-if="props.cartNum > 0" class="goods-action-bar__cart-badge">
           {{ cartBadgeText }}
         </view>
       </navigator>
     </view>
-    <view class="xtx-goods-action-bar__buttons">
-      <view class="xtx-goods-action-bar__addcart" @tap="emit('addCart')">加入购物车</view>
+    <view class="goods-action-bar__buttons">
+      <view class="goods-action-bar__addcart" @tap="emit('addCart')">加入购物车</view>
       <view
-        class="xtx-goods-action-bar__payment"
-        :class="{ 'xtx-goods-action-bar__payment--loading': props.buyLoading }"
+        class="goods-action-bar__payment"
+        :class="{ 'goods-action-bar__payment--loading': props.buyLoading }"
         @tap="emit('buyNow')"
       >
         {{ props.buyLoading ? '加载中' : '立即购买' }}
@@ -87,7 +76,7 @@ const cartBadgeText = computed(() => {
 </template>
 
 <style lang="scss">
-.xtx-goods-action-bar {
+.goods-action-bar {
   height: 100rpx;
   padding: 0 20rpx;
   display: flex;
@@ -98,7 +87,7 @@ const cartBadgeText = computed(() => {
   background-color: #fff;
 }
 
-.xtx-goods-action-bar--fixed {
+.goods-action-bar--fixed {
   position: fixed;
   left: 0;
   right: 0;
@@ -106,7 +95,7 @@ const cartBadgeText = computed(() => {
   z-index: 1;
 }
 
-.xtx-goods-action-bar__icons {
+.goods-action-bar__icons {
   position: relative;
   flex: 1;
   display: flex;
@@ -114,7 +103,7 @@ const cartBadgeText = computed(() => {
   padding-right: 20rpx;
 }
 
-.xtx-goods-action-bar__icons-button {
+.goods-action-bar__icons-button {
   position: relative;
   flex: 1;
   margin: 0;
@@ -131,21 +120,21 @@ const cartBadgeText = computed(() => {
   }
 }
 
-.xtx-goods-action-bar__icons-button text {
+.goods-action-bar__icons-button text {
   display: block;
   font-size: 34rpx;
   transition: color 0.3s ease;
 }
 
-.xtx-goods-action-bar__heart--active::before {
+.goods-action-bar__heart--active::before {
   color: #ff0000 !important;
 }
 
-.xtx-goods-action-bar__buttons {
+.goods-action-bar__buttons {
   display: flex;
 }
 
-.xtx-goods-action-bar__buttons > view {
+.goods-action-bar__buttons > view {
   width: 220rpx;
   border-radius: 72rpx;
   color: #fff;
@@ -154,20 +143,20 @@ const cartBadgeText = computed(() => {
   text-align: center;
 }
 
-.xtx-goods-action-bar__addcart {
+.goods-action-bar__addcart {
   background-color: #ffa868;
 }
 
-.xtx-goods-action-bar__payment {
+.goods-action-bar__payment {
   margin-left: 20rpx;
   background-color: #27ba9b;
 }
 
-.xtx-goods-action-bar__payment--loading {
+.goods-action-bar__payment--loading {
   opacity: 0.72;
 }
 
-.xtx-goods-action-bar__cart-badge {
+.goods-action-bar__cart-badge {
   position: absolute;
   top: -5rpx;
   right: -5rpx;

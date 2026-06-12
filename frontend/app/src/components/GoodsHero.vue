@@ -54,61 +54,61 @@ const onTapImage = () => {
 </script>
 
 <template>
-  <view class="xtx-goods-hero">
-    <view class="xtx-goods-hero__preview" :style="{ height: props.imageHeight }">
+  <view class="goods-hero">
+    <view class="goods-hero__preview" :style="{ height: props.imageHeight }">
       <swiper
         v-if="pictureList.length"
-        class="xtx-goods-hero__swiper"
+        class="goods-hero__swiper"
         :circular="pictureList.length > 1"
         @change="onChange"
       >
         <swiper-item v-for="picture in pictureList" :key="picture">
           <image
-            class="xtx-goods-hero__image"
+            class="goods-hero__image"
             :mode="props.imageMode"
             :src="formatSrc(picture)"
             @tap="onTapImage"
           />
         </swiper-item>
       </swiper>
-      <view v-else class="xtx-goods-hero__placeholder">暂无图片</view>
-      <view v-if="pictureList.length" class="xtx-goods-hero__indicator">
-        <text class="xtx-goods-hero__current">{{ activeIndex + 1 }}</text>
-        <text class="xtx-goods-hero__split">/</text>
-        <text class="xtx-goods-hero__total">{{ pictureList.length }}</text>
+      <view v-else class="goods-hero__placeholder">暂无图片</view>
+      <view v-if="pictureList.length" class="goods-hero__indicator">
+        <text class="goods-hero__current">{{ activeIndex + 1 }}</text>
+        <text class="goods-hero__split">/</text>
+        <text class="goods-hero__total">{{ pictureList.length }}</text>
       </view>
     </view>
 
-    <view class="xtx-goods-hero__meta">
-      <view class="xtx-goods-hero__price">
-        <text class="xtx-goods-hero__symbol">¥</text>
-        <text class="xtx-goods-hero__number">{{ formatPrice(props.price) }}</text>
-        <text class="xtx-goods-hero__sales">{{ saleText }}</text>
+    <view class="goods-hero__meta">
+      <view class="goods-hero__price">
+        <text class="goods-hero__symbol">¥</text>
+        <text class="goods-hero__number">{{ formatPrice(props.price) }}</text>
+        <text class="goods-hero__sales">{{ saleText }}</text>
       </view>
-      <view class="xtx-goods-hero__name ellipsis" @tap="emit('nameTap')">{{ props.name }}</view>
-      <view v-if="props.desc" class="xtx-goods-hero__desc">{{ props.desc }}</view>
+      <view class="goods-hero__name ellipsis" @tap="emit('nameTap')">{{ props.name }}</view>
+      <view v-if="props.desc" class="goods-hero__desc">{{ props.desc }}</view>
     </view>
   </view>
 </template>
 
 <style lang="scss">
-.xtx-goods-hero {
+.goods-hero {
   background-color: #fff;
 }
 
-.xtx-goods-hero__preview {
+.goods-hero__preview {
   position: relative;
   background-color: #f7f7f7;
 }
 
-.xtx-goods-hero__swiper,
-.xtx-goods-hero__image,
-.xtx-goods-hero__placeholder {
+.goods-hero__swiper,
+.goods-hero__image,
+.goods-hero__placeholder {
   width: 100%;
   height: 100%;
 }
 
-.xtx-goods-hero__placeholder {
+.goods-hero__placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +116,7 @@ const onTapImage = () => {
   font-size: 28rpx;
 }
 
-.xtx-goods-hero__indicator {
+.goods-hero__indicator {
   position: absolute;
   right: 30rpx;
   bottom: 30rpx;
@@ -129,25 +129,25 @@ const onTapImage = () => {
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-.xtx-goods-hero__current {
+.goods-hero__current {
   font-size: 26rpx;
 }
 
-.xtx-goods-hero__split {
+.goods-hero__split {
   margin: 0 1rpx 0 2rpx;
   font-size: 24rpx;
 }
 
-.xtx-goods-hero__total {
+.goods-hero__total {
   font-size: 24rpx;
 }
 
-.xtx-goods-hero__meta {
+.goods-hero__meta {
   position: relative;
   border-bottom: 1rpx solid #eaeaea;
 }
 
-.xtx-goods-hero__price {
+.goods-hero__price {
   position: relative;
   display: flex;
   align-items: center;
@@ -159,11 +159,11 @@ const onTapImage = () => {
   background-color: #35c8a9;
 }
 
-.xtx-goods-hero__number {
+.goods-hero__number {
   font-size: 48rpx;
 }
 
-.xtx-goods-hero__sales {
+.goods-hero__sales {
   position: absolute;
   top: 45rpx;
   right: 30rpx;
@@ -171,7 +171,7 @@ const onTapImage = () => {
   font-size: 22rpx;
 }
 
-.xtx-goods-hero__name {
+.goods-hero__name {
   max-height: 88rpx;
   margin: 20rpx;
   color: #333;
@@ -179,7 +179,7 @@ const onTapImage = () => {
   line-height: 1.4;
 }
 
-.xtx-goods-hero__desc {
+.goods-hero__desc {
   padding: 0 20rpx 30rpx;
   color: #cf4444;
   font-size: 24rpx;

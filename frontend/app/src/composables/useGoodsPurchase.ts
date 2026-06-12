@@ -1,7 +1,4 @@
-import type {
-  SkuPopupEvent,
-  SkuPopupLocalData,
-} from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
+import type { SkuPopupEvent, SkuPopupLocalData } from '@/components/goods-sku-popup/goods-sku-popup'
 import { defGoodsInfoService } from '@/api/app/goods_info'
 import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'

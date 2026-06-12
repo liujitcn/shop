@@ -411,7 +411,7 @@ const onRefresherRefresh = async () => {
       </view>
     </view>
     <!-- 当前状态无订单时展示空状态，不再使用分页结束提示代替。 -->
-    <XtxEmptyState
+    <EmptyState
       v-if="isEmpty"
       :image="emptyImage"
       :text="emptyText"

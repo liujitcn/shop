@@ -200,7 +200,7 @@ onLoad(async () => {
     class="single-list-page"
     @scrolltolower="onScrollToLower"
   >
-    <vk-data-goods-sku-popup
+    <goods-sku-popup
       v-model="isShowSku"
       :localData="localData"
       :mode="skuMode"
@@ -218,7 +218,7 @@ onLoad(async () => {
     <view v-if="goodsInfoList.length" class="goods-list">
       <view v-for="item in goodsInfoList" :key="item.id" class="goods-item">
         <view @tap="navigateToGoods(item)">
-          <XtxGoodsHero
+          <GoodsHero
             :pictures="getPictureList(item)"
             :price="item.price"
             :sale-num="resolveSaleNum(item)"
@@ -228,7 +228,7 @@ onLoad(async () => {
           />
         </view>
 
-        <XtxGoodsActionBar
+        <GoodsActionBar
           :collected="isCollected(item)"
           :cart-num="cartNum"
           :buy-loading="buyingGoodsId === item.id"
@@ -239,7 +239,7 @@ onLoad(async () => {
       </view>
     </view>
 
-    <XtxEmptyState
+    <EmptyState
       v-else-if="finish && !loading"
       image="/static/images/empty_search.png"
       :text="emptyText"

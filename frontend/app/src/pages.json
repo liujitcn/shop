@@ -3,7 +3,13 @@
     "autoscan": true,
     "custom": {
       "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue",
-      "^Xtx(.*)": "@/components/Xtx$1.vue"
+      "^ShopSwiper$": "@/components/ShopSwiper.vue",
+      "^GoodsGuess$": "@/components/GoodsGuess.vue",
+      "^EmptyState$": "@/components/EmptyState.vue",
+      "^GoodsHero$": "@/components/GoodsHero.vue",
+      "^GoodsActionBar$": "@/components/GoodsActionBar.vue",
+      "^goods-sku-popup$": "@/components/goods-sku-popup/goods-sku-popup.vue",
+      "^input-number-box$": "@/components/input-number-box/input-number-box.vue"
     }
   },
   "pages": [
@@ -92,7 +98,7 @@
       "path": "pages/search/single",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTitleText": "单品直购"
+        "navigationBarTitleText": "搜索结果"
       }
     }
   ],

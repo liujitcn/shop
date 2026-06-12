@@ -163,7 +163,7 @@ const onOpenCommentPage = () => {
 
     <view class="comment-list">
       <view v-if="isLoading" class="comment-tag-count">评价加载中...</view>
-      <XtxEmptyState
+      <EmptyState
         v-else-if="!commentList.length"
         image="/static/images/empty_comment.png"
         text="暂无评价"

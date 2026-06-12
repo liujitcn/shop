@@ -39,7 +39,7 @@ const { guessRef, onScrollToLower } = useGuessList()
     </view>
 
     <!-- 猜你喜欢 -->
-    <XtxGuess
+    <GoodsGuess
       ref="guessRef"
       title="顺手再带两件"
       :scene="RecommendScene.ORDER_PAID"

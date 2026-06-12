@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SkuPopupInstance } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
+import type { SkuPopupInstance } from '@/components/goods-sku-popup/goods-sku-popup'
 import { defGoodsInfoService } from '@/api/app/goods_info.ts'
 import { defRecommendService } from '@/api/app/recommend'
 import type { GoodsInfoResponse } from '@/rpc/app/v1/goods_info'
@@ -349,7 +349,7 @@ onBeforeUnmount(() => {
 
 <template>
   <!-- SKU弹窗组件 -->
-  <vk-data-goods-sku-popup
+  <goods-sku-popup
     ref="skuPopupRef"
     v-model="isShowSku"
     :localData="localData"
@@ -399,7 +399,7 @@ onBeforeUnmount(() => {
     <view id="goods-section" class="section-anchor" />
     <!-- 基本信息 -->
     <view class="goods">
-      <XtxGoodsHero
+      <GoodsHero
         :pictures="goodsInfo!.banner"
         :price="goodsInfo!.price"
         :sale-num="goodsInfo!.sale_num"
@@ -459,7 +459,7 @@ onBeforeUnmount(() => {
 
     <view id="recommend-section" class="section-anchor" />
     <!-- 商品详情推荐 -->
-    <XtxGuess
+    <GoodsGuess
       ref="guessRef"
       title="看了又看"
       :scene="RecommendScene.GOODS_DETAIL"
@@ -468,7 +468,7 @@ onBeforeUnmount(() => {
   </scroll-view>
 
   <!-- 用户操作 -->
-  <XtxGoodsActionBar
+  <GoodsActionBar
     v-if="goodsInfo"
     fixed
     show-contact
@@ -760,7 +760,7 @@ page {
   }
 }
 
-.xtx-goods-action-bar__heart--active::before {
+.goods-action-bar__heart--active::before {
   animation: heartBeat 0.3s ease;
 }
 </style>

@@ -484,7 +484,7 @@ const onRefundSuccess = async () => {
       </view>
 
       <!-- 猜你喜欢 -->
-      <XtxGuess
+      <GoodsGuess
         ref="guessRef"
         title="买过这单的人还会买"
         :scene="RecommendScene.ORDER_DETAIL"

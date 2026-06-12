@@ -1,13 +1,13 @@
 <template name="skeleton">
-  <view is="components/XtxSwiper">
-    <view class="carousel XtxSwiper--carousel">
+  <view is="components/ShopSwiper">
+    <view class="carousel ShopSwiper--carousel">
       <!-- App 端控制台未知报错，删除 swiper 错误消失？ -->
-      <view class="indicator XtxSwiper--indicator">
-        <text class="dot XtxSwiper--dot active XtxSwiper--active"></text>
-        <text class="dot XtxSwiper--dot"></text>
-        <text class="dot XtxSwiper--dot"></text>
-        <text class="dot XtxSwiper--dot"></text>
-        <text class="dot XtxSwiper--dot"></text>
+      <view class="indicator ShopSwiper--indicator">
+        <text class="dot ShopSwiper--dot active ShopSwiper--active"></text>
+        <text class="dot ShopSwiper--dot"></text>
+        <text class="dot ShopSwiper--dot"></text>
+        <text class="dot ShopSwiper--dot"></text>
+        <text class="dot ShopSwiper--dot"></text>
       </view>
     </view>
   </view>
@@ -141,7 +141,7 @@
 /* 原因：H5 端样式自动开启 scoped 隔离，导致骨架屏的基础样式被隔离 */
 @use '../styles/category.scss';
 @use '../styles/hot.scss';
-@use '@/components/styles/XtxSwiper.scss';
+@use '@/components/styles/ShopSwiper.scss';
 /* #endif */
 
 .sk-transparent {

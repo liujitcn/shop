@@ -379,7 +379,7 @@ const onToggleLike = async (item: CommentDiscussionItem) => {
         </view>
 
         <view v-else-if="isLoading" class="discussion-loading-more">讨论加载中...</view>
-        <XtxEmptyState
+        <EmptyState
           v-else
           image="/static/images/empty_discussion.png"
           text="暂无讨论"

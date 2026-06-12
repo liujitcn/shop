@@ -105,7 +105,7 @@ const goIndex = () => {
       </uni-swipe-action>
     </view>
     <!-- 收藏空状态 -->
-    <XtxEmptyState
+    <EmptyState
       v-else
       image="/static/images/empty_collect.png"
       text="还没有收藏商品哦"

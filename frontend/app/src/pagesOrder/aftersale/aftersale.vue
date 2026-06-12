@@ -155,7 +155,7 @@ onShow(() => {
 
     <scroll-view scroll-y class="after-sale-body">
       <view v-if="isLoading" class="state-card">售后订单加载中...</view>
-      <XtxEmptyState
+      <EmptyState
         v-else-if="activeOrders.length === 0"
         :image="emptyInfo.image"
         :text="emptyInfo.text"

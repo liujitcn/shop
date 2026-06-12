@@ -1,6 +1,6 @@
 <!-- 步进器 -->
 <template>
-  <view class="vk-data-input-number-box">
+  <view class="input-number-box">
     <view
       class="u-icon-minus"
       :class="{ 'u-icon-disabled': disabled || inputVal <= min }"
@@ -77,10 +77,10 @@
  * @event {Function} blur 输入框失去焦点时触发，对象形式
  * @event {Function} minus 点击减少按钮时触发(按钮可点击情况下)，对象形式
  * @event {Function} plus 点击增加按钮时触发(按钮可点击情况下)，对象形式
- * @example <vk-data-input-number-box :min="1" :max="100"></vk-data-input-number-box>
+ * @example <input-number-box :min="1" :max="100"></input-number-box>
  */
 export default {
-  name: 'vk-data-input-number-box',
+  name: 'input-number-box',
   emits: ['update:modelValue', 'input', 'change', 'blur', 'plus', 'minus'],
   props: {
     // 预显示的数字
@@ -410,7 +410,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.vk-data-input-number-box {
+.input-number-box {
   display: inline-flex;
   align-items: center;
 }

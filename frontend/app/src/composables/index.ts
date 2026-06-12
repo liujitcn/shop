@@ -1,4 +1,4 @@
-import type { XtxGuessInstance } from '@/types/components'
+import type { GoodsGuessInstance } from '@/types/components'
 import { ref } from 'vue'
 
 export * from './useGoodsPurchase'
@@ -8,7 +8,7 @@ export * from './useGoodsPurchase'
  */
 export const useGuessList = () => {
   // 获取猜你喜欢组件实例
-  const guessRef = ref<XtxGuessInstance>()
+  const guessRef = ref<GoodsGuessInstance>()
 
   // 滚动触底事件
   const onScrollToLower = () => {

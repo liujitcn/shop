@@ -70,5 +70,5 @@ const handleClick = (item: ShopBanner) => {
 </template>
 
 <style lang="scss">
-@use './styles/XtxSwiper.scss';
+@use './styles/ShopSwiper.scss';
 </style>

@@ -118,7 +118,7 @@ const onScrollToLower = async () => {
         </view>
       </navigator>
     </view>
-    <XtxEmptyState
+    <EmptyState
       v-else-if="isEmpty"
       image="/static/images/empty_search.png"
       :text="searchEmptyText"

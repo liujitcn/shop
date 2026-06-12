@@ -80,7 +80,7 @@ const onChangeAddress = (item: UserAddress) => {
           </uni-swipe-action-item>
         </uni-swipe-action>
       </view>
-      <XtxEmptyState
+      <EmptyState
         v-else
         image="/static/images/empty_address.png"
         text="暂无收货地址"

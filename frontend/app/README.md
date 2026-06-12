@@ -9,7 +9,7 @@ frontend/app
 ├── public                 # H5 静态资源
 ├── src
 │   ├── api                # app / base 接口 service 封装
-│   ├── components         # Xtx 前缀通用组件与 SKU 等业务组件
+│   ├── components         # 通用组件与 SKU 等业务组件
 │   ├── composables        # 组合式逻辑
 │   ├── pages              # 主包页面
 │   ├── pagesMember        # 会员分包

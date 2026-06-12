@@ -1,6 +1,6 @@
 <template>
   <view
-    class="vk-data-goods-sku-popup"
+    class="goods-sku-popup"
     catchtouchmove="true"
     :class="valueCom && complete ? 'show' : 'none'"
     @touchmove.stop.prevent="moveHandle"
@@ -72,7 +72,7 @@
             <view class="number-box-view">
               <view style="flex: 1">数量</view>
               <view style="flex: 4; text-align: right">
-                <vk-data-input-number-box
+                <input-number-box
                   v-model="selectNum"
                   :min="minBuyNum || 1"
                   :max="maxBuyNumCom"
@@ -80,7 +80,7 @@
                   :step-strictly="stepStrictly"
                   :positive-integer="true"
                   @change="numChange"
-                ></vk-data-input-number-box>
+                ></input-number-box>
               </view>
             </view>
           </view>
@@ -156,7 +156,7 @@ import {formatSrc, formatPrice} from "@/utils";
 var vk // vk依赖
 var goodsCache = {} // 本地商品缓存
 export default {
-  name: 'vk-data-goods-sku-popup',
+  name: 'goods-sku-popup',
   emits: [
     'update:modelValue',
     'input',
@@ -1156,7 +1156,7 @@ export default {
 
 <style lang="scss" scoped>
 /*  sku弹出层 */
-.vk-data-goods-sku-popup {
+.goods-sku-popup {
   position: fixed;
   left: 0;
   top: 0;

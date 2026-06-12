@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
+import type { InputNumberBoxEvent } from '@/components/input-number-box/input-number-box'
 import { useGuessList } from '@/composables'
 import { defUserCartService } from '@/api/app/user_cart'
 import type { UserCart } from '@/rpc/app/v1/user_cart'
@@ -278,7 +278,7 @@ const guessTitle = computed(() => {
               </navigator>
               <!-- 商品数量 -->
               <view class="count">
-                <vk-data-input-number-box
+                <input-number-box
                   v-model="item.num"
                   :min="1"
                   :max="item.inventory"
@@ -297,7 +297,7 @@ const guessTitle = computed(() => {
         </uni-swipe-action>
       </view>
       <!-- 购物车空状态 -->
-      <XtxEmptyState
+      <EmptyState
         v-else
         image="/static/images/blank_cart.png"
         text="购物车还是空的，快来挑选好货吧"
@@ -328,7 +328,7 @@ const guessTitle = computed(() => {
       </view>
     </template>
     <!-- 未登录: 提示登录 -->
-    <XtxEmptyState
+    <EmptyState
       v-else
       image="/static/images/blank_cart.png"
       text="登录后可查看购物车中的商品"
@@ -339,7 +339,7 @@ const guessTitle = computed(() => {
       @action="navigateToLogin"
     />
     <!-- 猜你喜欢 -->
-    <XtxGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.CART" />
+    <GoodsGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.CART" />
     <!-- 底部占位空盒子 -->
     <view class="toolbar-height"></view>
   </scroll-view>

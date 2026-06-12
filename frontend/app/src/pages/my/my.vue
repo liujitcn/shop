@@ -229,7 +229,7 @@ onShow(() => {
     </view>
     <!-- 猜你喜欢 -->
     <view class="guess">
-      <XtxGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.PROFILE" />
+      <GoodsGuess ref="guessRef" :title="guessTitle" :scene="RecommendScene.PROFILE" />
     </view>
   </scroll-view>
 </template>

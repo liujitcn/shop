@@ -133,7 +133,7 @@ const onScrollToLower = async () => {
           </view>
         </navigator>
       </view>
-      <XtxEmptyState
+      <EmptyState
         v-else-if="item.finish"
         image="/static/images/empty_search.png"
         text="当前推荐暂无商品"

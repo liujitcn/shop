@@ -31,14 +31,14 @@ const hasAction = computed(() => Boolean(props.buttonText || slots.default))
 
 <template>
   <view
-    class="xtx-empty-state"
+    class="empty-state"
     :style="{
       minHeight: props.minHeight,
       padding: props.padding,
     }"
   >
     <image
-      class="xtx-empty-state__image"
+      class="empty-state__image"
       :src="props.image"
       :mode="props.mode"
       :style="{
@@ -46,9 +46,9 @@ const hasAction = computed(() => Boolean(props.buttonText || slots.default))
         height: props.imageHeight,
       }"
     />
-    <view class="xtx-empty-state__text">{{ props.text }}</view>
-    <view v-if="hasAction" class="xtx-empty-state__action">
-      <button v-if="props.buttonText" class="xtx-empty-state__button" @tap="emit('action')">
+    <view class="empty-state__text">{{ props.text }}</view>
+    <view v-if="hasAction" class="empty-state__action">
+      <button v-if="props.buttonText" class="empty-state__button" @tap="emit('action')">
         {{ props.buttonText }}
       </button>
       <slot v-else />
@@ -61,7 +61,7 @@ const hasAction = computed(() => Boolean(props.buttonText || slots.default))
   display: block;
 }
 
-.xtx-empty-state {
+.empty-state {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -70,11 +70,11 @@ const hasAction = computed(() => Boolean(props.buttonText || slots.default))
   text-align: center;
 }
 
-.xtx-empty-state__image {
+.empty-state__image {
   flex-shrink: 0;
 }
 
-.xtx-empty-state__text {
+.empty-state__text {
   max-width: 100%;
   margin-top: 18rpx;
   overflow: hidden;
@@ -85,11 +85,11 @@ const hasAction = computed(() => Boolean(props.buttonText || slots.default))
   color: #666;
 }
 
-.xtx-empty-state__action {
+.empty-state__action {
   margin-top: 24rpx;
 }
 
-.xtx-empty-state__button {
+.empty-state__button {
   min-width: 240rpx;
   height: 60rpx;
   padding: 0 32rpx;

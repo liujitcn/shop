@@ -122,13 +122,13 @@ const onShareTimeline = () => {
       <PageSkeleton v-if="isLoading" />
       <template v-else>
         <!-- 自定义轮播图 -->
-        <XtxSwiper v-if="bannerList.length" :list="bannerList" />
+        <ShopSwiper v-if="bannerList.length" :list="bannerList" />
         <!-- 分类面板 -->
         <CategoryPanel v-if="categoryList.length" :list="categoryList" />
         <!-- 热门推荐 -->
         <HotPanel v-if="hotList.length" :list="hotList" />
         <!-- 猜你喜欢 -->
-        <XtxGuess ref="guessRef" title="为你推荐" :scene="RecommendScene.HOME" />
+        <GoodsGuess ref="guessRef" title="为你推荐" :scene="RecommendScene.HOME" />
       </template>
     </scroll-view>
   </view>

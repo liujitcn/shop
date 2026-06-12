@@ -555,7 +555,7 @@ onLoad(() => {
         <view v-if="isLoading" class="review-item">
           <view class="review-sort-trust">评价加载中...</view>
         </view>
-        <XtxEmptyState
+        <EmptyState
           v-else-if="!buyerReviews.length"
           image="/static/images/empty_comment.png"
           :text="reviewEmptyText"

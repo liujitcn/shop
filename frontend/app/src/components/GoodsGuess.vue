@@ -258,7 +258,7 @@ defineExpose({
         </view>
       </view>
     </view>
-    <XtxEmptyState
+    <EmptyState
       v-else-if="isEmpty"
       image="/static/images/empty_search.png"
       :text="emptyText"

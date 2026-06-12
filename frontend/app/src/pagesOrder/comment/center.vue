@@ -306,7 +306,7 @@ onShow(() => {
     <scroll-view scroll-y class="comment-center-body" @scrolltolower="onCommentCenterToLower">
       <template v-if="activeTab === 'pending'">
         <view v-if="pendingLoading" class="loading-card">评价商品加载中...</view>
-        <XtxEmptyState
+        <EmptyState
           v-else-if="!pendingItems.length"
           image="/static/images/empty_comment.png"
           text="暂无待评价商品"
@@ -342,7 +342,7 @@ onShow(() => {
 
       <template v-else>
         <view v-if="doneLoading" class="loading-card">评价记录加载中...</view>
-        <XtxEmptyState
+        <EmptyState
           v-else-if="!doneComments.length"
           image="/static/images/empty_comment.png"
           text="暂无已评价内容"
