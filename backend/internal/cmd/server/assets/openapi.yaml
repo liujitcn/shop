@@ -6049,6 +6049,15 @@ components:
                 payloadJson:
                     type: string
                     description: 动作负载JSON
+                sourceMessageId:
+                    type: string
+                    description: 动作来源消息ID
+                actionId:
+                    type: string
+                    description: 动作唯一ID
+                flowVersion:
+                    type: string
+                    description: 流程状态版本
             description: AI 助手动作
         AiAssistantAttachment:
             type: object

@@ -37,6 +37,12 @@ export interface AiAssistantAction {
   type: string;
   /** 动作负载JSON */
   payload_json: string;
+  /** 动作来源消息ID */
+  source_message_id: string;
+  /** 动作唯一ID */
+  action_id: string;
+  /** 流程状态版本 */
+  flow_version: number;
 }
 
 /** AI 助手消息删除请求 */

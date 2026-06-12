@@ -93,6 +93,11 @@ func GenerateReply(
 	return reply, true, err
 }
 
+// IsEntryAction 判断动作是否为固定流程入口。
+func IsEntryAction(flow string, actionType string) bool {
+	return actionType != "" && aiAssistantFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)) == actionType
+}
+
 // handleAiAssistantFlowAction 推进移动端闭环流程。
 func (r *Runner) handleAiAssistantFlowAction(ctx context.Context, action *basev1.AiAssistantAction) (*assistant.Response, error) {
 	payload, err := parseAiAssistantActionPayload(action.GetPayloadJson())

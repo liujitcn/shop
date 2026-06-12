@@ -288,6 +288,15 @@ const filteredSessions = computed(() => {
 const currentMessages = computed(() => messages.value[activeSessionID.value] ?? [])
 const hasMessages = computed(() => currentMessages.value.length > 0)
 const currentSessionSending = computed(() => isSessionSending(activeSessionID.value))
+const activeFlowMessageID = computed(() => {
+  const list = currentMessages.value.filter(
+    (item) =>
+      item.role === 'assistant' &&
+      !item.localOnly &&
+      item.status !== AiAssistantMessageStatus.GENERATING_AAMS,
+  )
+  return list[list.length - 1]?.messageID ?? ''
+})
 const starterPromptPageCount = computed(() => {
   return Math.max(1, Math.ceil(starterShortcuts.value.length / STARTER_PROMPT_PAGE_SIZE))
 })
@@ -922,6 +931,10 @@ const handleFlowAction = async (action?: AiAssistantAction, label?: string) => {
   if (!action || currentSessionSending.value) {
     return false
   }
+  if (!isCurrentFlowAction(action)) {
+    showExpiredFlowActionToast()
+    return false
+  }
   const nextAction = enrichFlowAction(action)
   return sendAiAssistantPayload({
     text: label || resolveFlowActionLabel(nextAction),
@@ -949,6 +962,10 @@ const changeSkuNum = (sku: AssistantFlowBlock, delta: number) => {
 
 /** 提交新增地址表单。 */
 const submitAddressForm = async (block: AssistantFlowBlock) => {
+  if (!isCurrentFlowAction(block.action)) {
+    showExpiredFlowActionToast()
+    return
+  }
   const form = block.form || {}
   if (!form.receiver || !form.contact || !form.address?.length || !form.detail) {
     uni.showToast({ icon: 'none', title: '请补全收货地址' })
@@ -978,15 +995,19 @@ const handleCreateAddressGuide = async (block: AssistantFlowBlock) => {
   if (currentSessionSending.value) {
     return
   }
-  if (block.action) {
-    await handleFlowAction(block.action, '新增收货地址')
+  if (!isCurrentFlowAction(block.action)) {
+    showExpiredFlowActionToast()
     return
   }
-  await sendAiAssistantPayload({ text: '新增收货地址', attachments: [] })
+  await handleFlowAction(block.action, '新增收货地址')
 }
 
 /** 提交评价表单。 */
 const submitReviewForm = (block: AssistantFlowBlock) => {
+  if (!isCurrentFlowAction(block.action)) {
+    showExpiredFlowActionToast()
+    return
+  }
   const form = block.form || {}
   if (!form.content) {
     uni.showToast({ icon: 'none', title: '请输入评价内容' })
@@ -1795,6 +1816,26 @@ function normalizeFlowBlock(block: AssistantFlowBlock) {
   return block
 }
 
+function markFlowBlocksDisabled(blocks: AssistantFlowBlock[], messageID: string) {
+  return blocks.map((block) => markFlowValueDisabled(block, messageID)) as AssistantFlowBlock[]
+}
+
+function markFlowValueDisabled(value: unknown, messageID: string): unknown {
+  if (Array.isArray(value)) {
+    value.forEach((item) => markFlowValueDisabled(item, messageID))
+    return value
+  }
+  if (!value || typeof value !== 'object') {
+    return value
+  }
+  const current = value as Record<string, any>
+  if (current.action?.type) {
+    current.disabled = !isFlowActionFromMessage(current.action, messageID)
+  }
+  Object.values(current).forEach((item) => markFlowValueDisabled(item, messageID))
+  return current
+}
+
 function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessageItem {
   const inputContent = {
     kind: message.input_content?.kind || 'text',
@@ -1836,7 +1877,10 @@ function mapMessageItem(message: AiAssistantMessage, role: ChatRole): ChatMessag
     flow: role === 'assistant' ? outputContent.flow : '',
     step: role === 'assistant' ? outputContent.step : '',
     blocksJson: role === 'assistant' ? outputContent.blocks_json : '',
-    blocks: role === 'assistant' ? parseFlowBlocks(outputContent.blocks_json, message.id) : [],
+    blocks:
+      role === 'assistant'
+        ? markFlowBlocksDisabled(parseFlowBlocks(outputContent.blocks_json, message.id), message.id)
+        : [],
     tokenTotal: Number(message.token?.total ?? 0),
     firstTokenMs: Number(message.first_token_ms ?? 0),
     durationMs: Number(message.duration_ms ?? 0),
@@ -2159,7 +2203,28 @@ function buildFlowAction(action?: Partial<AiAssistantAction>, payload?: Record<s
     step: action.step || '',
     type: action.type,
     payload_json: JSON.stringify(payload || {}),
+    source_message_id: action.source_message_id || '',
+    action_id: action.action_id || '',
+    flow_version: Number(action.flow_version || 0),
   }
+}
+
+function isCurrentFlowAction(action?: Partial<AiAssistantAction>) {
+  if (!action?.type) {
+    return false
+  }
+  return isFlowActionFromMessage(action, activeFlowMessageID.value)
+}
+
+function isFlowActionFromMessage(action: Partial<AiAssistantAction>, messageID: string) {
+  if (!messageID || !action.source_message_id || !action.action_id) {
+    return false
+  }
+  return action.source_message_id === messageID && String(action.flow_version || '') === messageID
+}
+
+function showExpiredFlowActionToast() {
+  uni.showToast({ icon: 'none', title: '这一步已过期，请从最新消息继续操作' })
 }
 
 function enrichFlowAction(action: AiAssistantAction) {
@@ -2264,10 +2329,12 @@ function findActiveAddressFormBlock() {
   const list = messages.value[sessionID] ?? []
   for (let index = list.length - 1; index >= 0; index--) {
     const message = list[index]
-    if (message.role !== 'assistant') {
+    if (message.role !== 'assistant' || message.messageID !== activeFlowMessageID.value) {
       continue
     }
-    const block = [...message.blocks].reverse().find((item) => item.type === 'address_form')
+    const block = [...message.blocks]
+      .reverse()
+      .find((item) => item.type === 'address_form' && isCurrentFlowAction(item.action))
     if (block) {
       return { message, block }
     }
@@ -2887,6 +2954,7 @@ function showError(error: unknown, fallback: string) {
 
               <FlowBlocks
                 :message="item"
+                :active-flow-message-id="activeFlowMessageID"
                 :address-form-steps="addressFormSteps"
                 :address-area-tree="addressAreaTree"
                 @flow-action="handleFlowAction"

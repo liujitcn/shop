@@ -359,6 +359,10 @@ func (c *AiAssistantMessageCase) prepareNewAiAssistantMessage(ctx context.Contex
 	if content == "" && len(attachments) == 0 && req.GetAction() == nil {
 		return nil, nil, "", nil, nil, nil, "", errorsx.InvalidArgument("消息内容不能为空")
 	}
+	err = c.ensureAiAssistantActionCurrent(ctx, session, req.GetAction())
+	if err != nil {
+		return nil, nil, "", nil, nil, nil, "", err
+	}
 	var assistantAttachments []assistant.Attachment
 	assistantAttachments, err = c.buildAiAssistantAttachments(ctx, attachments)
 	if err != nil {
@@ -641,6 +645,7 @@ func (c *AiAssistantMessageCase) finishAiAssistantMessage(
 	durationMs int32,
 	status int32,
 ) error {
+	injectAiAssistantActionState(reply, message.ID)
 	outputContent := assistant.MarshalReplyContent(reply)
 	tools := assistant.MarshalTools(nil)
 	token := assistant.MarshalTokenUsage(assistant.TokenUsage{})
@@ -679,6 +684,60 @@ func (c *AiAssistantMessageCase) finishAiAssistantMessage(
 	return nil
 }
 
+// ensureAiAssistantActionCurrent 确认流程动作来自当前会话最新消息。
+func (c *AiAssistantMessageCase) ensureAiAssistantActionCurrent(ctx context.Context, session *models.AiAssistantSession, action *basev1.AiAssistantAction) error {
+	if action == nil || action.GetType() == "" {
+		return nil
+	}
+	if action.GetSourceMessageId() == "" && action.GetActionId() == "" && action.GetFlowVersion() == 0 {
+		if assistantflow.IsEntryAction(action.GetFlow(), action.GetType()) {
+			return nil
+		}
+		return aiAssistantExpiredActionError("", "")
+	}
+	sourceMessageID, err := strconv.ParseInt(action.GetSourceMessageId(), 10, 64)
+	if err != nil || sourceMessageID <= 0 {
+		return aiAssistantExpiredActionError(action.GetSourceMessageId(), "")
+	}
+	if action.GetActionId() == "" || action.GetFlowVersion() != sourceMessageID {
+		return aiAssistantExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(sourceMessageID, 10))
+	}
+	var message *models.AiAssistantMessage
+	message, err = c.findLatestAiAssistantMessage(ctx, session.ID, session.UserID)
+	if err != nil {
+		return err
+	}
+	if message.ID != sourceMessageID {
+		return aiAssistantExpiredActionError(action.GetSourceMessageId(), strconv.FormatInt(message.ID, 10))
+	}
+	if message.Status != int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS) {
+		return aiAssistantExpiredActionError(action.GetSourceMessageId(), strconv.Itoa(int(message.Status)))
+	}
+	outputContent := assistant.ParseOutputContent(message.OutputContent)
+	if !aiAssistantBlocksContainAction(outputContent.BlocksJSON, action) {
+		return aiAssistantExpiredActionError(action.GetActionId(), "latest")
+	}
+	return nil
+}
+
+// findLatestAiAssistantMessage 查询会话中最后一轮消息。
+func (c *AiAssistantMessageCase) findLatestAiAssistantMessage(ctx context.Context, sessionID int64, userID int64) (*models.AiAssistantMessage, error) {
+	query := c.aiAssistantMessageRepo.Query(ctx).AiAssistantMessage
+	opts := make([]repository.QueryOption, 0, 4)
+	opts = append(opts, repository.Where(query.SessionID.Eq(sessionID)))
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Order(query.CreatedAt.Desc(), query.ID.Desc()))
+	opts = append(opts, repository.Limit(1))
+	message, err := c.aiAssistantMessageRepo.Find(ctx, opts...)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, aiAssistantExpiredActionError("", "")
+		}
+		return nil, err
+	}
+	return message, nil
+}
+
 // markAiAssistantMessageGenerating 标记消息进入生成中。
 func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Context, message *models.AiAssistantMessage, content string, attachments []*basev1.AiAssistantAttachment, now time.Time) error {
 	inputContent := assistant.MarshalInputContent(content, attachments)
@@ -707,6 +766,134 @@ func (c *AiAssistantMessageCase) markAiAssistantMessageGenerating(ctx context.Co
 	message.Status = int32(commonv1.AiAssistantMessageStatus_GENERATING_AAMS)
 	message.UpdatedAt = now
 	return nil
+}
+
+// injectAiAssistantActionState 为流程动作补充来源消息和状态版本。
+func injectAiAssistantActionState(response *assistant.Response, messageID int64) {
+	if response == nil || response.BlocksJSON == "" || messageID <= 0 {
+		return
+	}
+	var blocks []any
+	err := json.Unmarshal([]byte(response.BlocksJSON), &blocks)
+	if err != nil {
+		return
+	}
+	sourceMessageID := strconv.FormatInt(messageID, 10)
+	actionIndex := 0
+	if !injectAiAssistantActionStateValue(blocks, sourceMessageID, messageID, &actionIndex) {
+		return
+	}
+	var raw []byte
+	raw, err = json.Marshal(blocks)
+	if err != nil {
+		return
+	}
+	response.BlocksJSON = string(raw)
+}
+
+// injectAiAssistantActionStateValue 递归补齐 blocks 内所有 action 的状态字段。
+func injectAiAssistantActionStateValue(value any, sourceMessageID string, flowVersion int64, actionIndex *int) bool {
+	changed := false
+	switch current := value.(type) {
+	case []any:
+		for _, item := range current {
+			if injectAiAssistantActionStateValue(item, sourceMessageID, flowVersion, actionIndex) {
+				changed = true
+			}
+		}
+	case map[string]any:
+		if action, ok := current["action"].(map[string]any); ok && aiAssistantActionStringValue(action["type"]) != "" {
+			action["source_message_id"] = sourceMessageID
+			action["action_id"] = sourceMessageID + ":" + strconv.Itoa(*actionIndex)
+			action["flow_version"] = flowVersion
+			(*actionIndex)++
+			changed = true
+		}
+		for _, item := range current {
+			if injectAiAssistantActionStateValue(item, sourceMessageID, flowVersion, actionIndex) {
+				changed = true
+			}
+		}
+	}
+	return changed
+}
+
+// aiAssistantBlocksContainAction 判断指定 blocks 中是否存在同一个流程动作。
+func aiAssistantBlocksContainAction(raw string, action *basev1.AiAssistantAction) bool {
+	if raw == "" || action == nil {
+		return false
+	}
+	var blocks []any
+	err := json.Unmarshal([]byte(raw), &blocks)
+	if err != nil {
+		return false
+	}
+	return aiAssistantValueContainsAction(blocks, action)
+}
+
+// aiAssistantValueContainsAction 递归查找 blocks 内的动作定义。
+func aiAssistantValueContainsAction(value any, action *basev1.AiAssistantAction) bool {
+	switch current := value.(type) {
+	case []any:
+		for _, item := range current {
+			if aiAssistantValueContainsAction(item, action) {
+				return true
+			}
+		}
+	case map[string]any:
+		if candidate, ok := current["action"].(map[string]any); ok && matchAiAssistantAction(candidate, action) {
+			return true
+		}
+		for _, item := range current {
+			if aiAssistantValueContainsAction(item, action) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// matchAiAssistantAction 判断前端回传动作是否命中服务端生成的动作定义。
+func matchAiAssistantAction(candidate map[string]any, action *basev1.AiAssistantAction) bool {
+	return aiAssistantActionStringValue(candidate["source_message_id"]) == action.GetSourceMessageId() &&
+		aiAssistantActionStringValue(candidate["action_id"]) == action.GetActionId() &&
+		aiAssistantActionInt64Value(candidate["flow_version"]) == action.GetFlowVersion() &&
+		aiAssistantActionStringValue(candidate["flow"]) == action.GetFlow() &&
+		aiAssistantActionStringValue(candidate["step"]) == action.GetStep() &&
+		aiAssistantActionStringValue(candidate["type"]) == action.GetType()
+}
+
+// aiAssistantExpiredActionError 构造流程动作过期错误。
+func aiAssistantExpiredActionError(currentState string, expectedState string) error {
+	return errorsx.StateConflict("该步骤已过期，请从最新消息继续操作", "ai_assistant_action", currentState, expectedState)
+}
+
+// aiAssistantActionStringValue 将 JSON 值转成字符串。
+func aiAssistantActionStringValue(value any) string {
+	if result, ok := value.(string); ok {
+		return result
+	}
+	return ""
+}
+
+// aiAssistantActionInt64Value 将 JSON 数值转成 int64。
+func aiAssistantActionInt64Value(value any) int64 {
+	switch item := value.(type) {
+	case float64:
+		return int64(item)
+	case int64:
+		return item
+	case int:
+		return int64(item)
+	case json.Number:
+		result, err := item.Int64()
+		if err != nil {
+			return 0
+		}
+		return result
+	default:
+		return 0
+	}
 }
 
 // findCurrentUserMessage 查询当前用户当前会话下的消息。

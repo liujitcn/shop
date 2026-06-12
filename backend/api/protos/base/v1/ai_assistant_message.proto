@@ -75,6 +75,12 @@ message AiAssistantAction {
   string type = 3 [(gnostic.openapi.v3.property) = {description: "动作类型"}]; // 动作类型
 
   string payload_json = 4 [(gnostic.openapi.v3.property) = {description: "动作负载JSON"}]; // 动作负载JSON
+
+  string source_message_id = 5 [(gnostic.openapi.v3.property) = {description: "动作来源消息ID"}]; // 动作来源消息ID
+
+  string action_id = 6 [(gnostic.openapi.v3.property) = {description: "动作唯一ID"}]; // 动作唯一ID
+
+  int64 flow_version = 7 [(gnostic.openapi.v3.property) = {description: "流程状态版本"}]; // 流程状态版本
 }
 
 // AI 助手消息删除请求

@@ -7,13 +7,14 @@ type AssistantFlowBlock = {
   [key: string]: any
 }
 
-defineProps<{
-  orders: AssistantFlowBlock[]
-  reveal?: boolean
-}>()
-
 const emit = defineEmits<{
   'flow-action': [action?: AiAssistantAction, label?: string]
+}>()
+
+const props = defineProps<{
+  orders: AssistantFlowBlock[]
+  reveal?: boolean
+  activeFlowMessageId: string
 }>()
 
 function resolveFlowActionLabel(action?: AiAssistantAction) {
@@ -24,6 +25,24 @@ function resolveFlowActionLabel(action?: AiAssistantAction) {
   }
   return action?.type ? labelMap[action.type] || '继续' : '继续'
 }
+
+function isActionEnabled(action?: Partial<AiAssistantAction>) {
+  if (!action?.type || !props.activeFlowMessageId) {
+    return false
+  }
+  return (
+    action.source_message_id === props.activeFlowMessageId &&
+    Boolean(action.action_id) &&
+    String(action.flow_version || '') === props.activeFlowMessageId
+  )
+}
+
+function handleFlowAction(action?: AiAssistantAction) {
+  if (!isActionEnabled(action)) {
+    return
+  }
+  emit('flow-action', action, resolveFlowActionLabel(action))
+}
 </script>
 
 <template>
@@ -33,7 +52,7 @@ function resolveFlowActionLabel(action?: AiAssistantAction) {
       v-for="order in orders"
       :key="order.id"
       class="flow-order-card"
-      :class="{ 'flow-reveal-item': reveal }"
+      :class="{ 'flow-reveal-item': reveal, 'is-disabled': !isActionEnabled(order.action) }"
     >
       <view class="flow-order-head">
         <view class="flow-order-title">
@@ -48,8 +67,9 @@ function resolveFlowActionLabel(action?: AiAssistantAction) {
       </view>
       <button
         class="flow-primary-button is-wide"
+        :class="{ 'is-disabled': !isActionEnabled(order.action) }"
         hover-class="none"
-        @tap="emit('flow-action', order.action, resolveFlowActionLabel(order.action))"
+        @tap="handleFlowAction(order.action)"
       >
         {{ order.action?.type === 'start_payment' ? '继续支付' : '查看详情' }}
       </button>
@@ -75,6 +95,10 @@ function resolveFlowActionLabel(action?: AiAssistantAction) {
 
 .flow-order-card + .flow-order-card {
   margin-top: 14rpx;
+}
+
+.flow-order-card.is-disabled {
+  opacity: 0.58;
 }
 
 .flow-reveal-item {
@@ -175,5 +199,10 @@ function resolveFlowActionLabel(action?: AiAssistantAction) {
 .flow-primary-button.is-wide {
   width: 100%;
   margin-top: 18rpx;
+}
+
+.flow-primary-button.is-disabled {
+  color: #eef6f3;
+  background-color: #9ddfcc;
 }
 </style>

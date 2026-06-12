@@ -148,13 +148,16 @@ func (x *SendAiAssistantMessageResponse) GetSession() *AiAssistantSession {
 
 // AI 助手动作
 type AiAssistantAction struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Flow          string                 `protobuf:"bytes,1,opt,name=flow,proto3" json:"flow,omitempty"`                                  // 流程标识
-	Step          string                 `protobuf:"bytes,2,opt,name=step,proto3" json:"step,omitempty"`                                  // 流程步骤
-	Type          string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                                  // 动作类型
-	PayloadJson   string                 `protobuf:"bytes,4,opt,name=payload_json,json=payloadJson,proto3" json:"payload_json,omitempty"` // 动作负载JSON
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Flow            string                 `protobuf:"bytes,1,opt,name=flow,proto3" json:"flow,omitempty"`                                                // 流程标识
+	Step            string                 `protobuf:"bytes,2,opt,name=step,proto3" json:"step,omitempty"`                                                // 流程步骤
+	Type            string                 `protobuf:"bytes,3,opt,name=type,proto3" json:"type,omitempty"`                                                // 动作类型
+	PayloadJson     string                 `protobuf:"bytes,4,opt,name=payload_json,json=payloadJson,proto3" json:"payload_json,omitempty"`               // 动作负载JSON
+	SourceMessageId string                 `protobuf:"bytes,5,opt,name=source_message_id,json=sourceMessageId,proto3" json:"source_message_id,omitempty"` // 动作来源消息ID
+	ActionId        string                 `protobuf:"bytes,6,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`                        // 动作唯一ID
+	FlowVersion     int64                  `protobuf:"varint,7,opt,name=flow_version,json=flowVersion,proto3" json:"flow_version,omitempty"`              // 流程状态版本
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *AiAssistantAction) Reset() {
@@ -213,6 +216,27 @@ func (x *AiAssistantAction) GetPayloadJson() string {
 		return x.PayloadJson
 	}
 	return ""
+}
+
+func (x *AiAssistantAction) GetSourceMessageId() string {
+	if x != nil {
+		return x.SourceMessageId
+	}
+	return ""
+}
+
+func (x *AiAssistantAction) GetActionId() string {
+	if x != nil {
+		return x.ActionId
+	}
+	return ""
+}
+
+func (x *AiAssistantAction) GetFlowVersion() int64 {
+	if x != nil {
+		return x.FlowVersion
+	}
+	return 0
 }
 
 // AI 助手消息删除请求
@@ -485,12 +509,15 @@ const file_base_v1_ai_assistant_message_proto_rawDesc = "" +
 	"\x06action\x18\x04 \x01(\v2\x1a.base.v1.AiAssistantActionB\x12\xbaG\x0f\x92\x02\f助手动作R\x06action\"\xc4\x01\n" +
 	"\x1eSendAiAssistantMessageResponse\x12Q\n" +
 	"\bmessages\x18\x01 \x03(\v2\x1b.base.v1.AiAssistantMessageB\x18\xbaG\x15\x92\x02\x12新增消息列表R\bmessages\x12O\n" +
-	"\asession\x18\x02 \x01(\v2\x1b.base.v1.AiAssistantSessionB\x18\xbaG\x15\x92\x02\x12最新会话信息R\asession\"\xc6\x01\n" +
+	"\asession\x18\x02 \x01(\v2\x1b.base.v1.AiAssistantSessionB\x18\xbaG\x15\x92\x02\x12最新会话信息R\asession\"\xfe\x02\n" +
 	"\x11AiAssistantAction\x12&\n" +
 	"\x04flow\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
 	"\x04step\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12&\n" +
 	"\x04type\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f动作类型R\x04type\x129\n" +
-	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\"\x7f\n" +
+	"\fpayload_json\x18\x04 \x01(\tB\x16\xbaG\x13\x92\x02\x10动作负载JSONR\vpayloadJson\x12F\n" +
+	"\x11source_message_id\x18\x05 \x01(\tB\x1a\xbaG\x17\x92\x02\x14动作来源消息IDR\x0fsourceMessageId\x121\n" +
+	"\taction_id\x18\x06 \x01(\tB\x14\xbaG\x11\x92\x02\x0e动作唯一IDR\bactionId\x12;\n" +
+	"\fflow_version\x18\a \x01(\x03B\x18\xbaG\x15\x92\x02\x12流程状态版本R\vflowVersion\"\x7f\n" +
 	"\x1fDeleteAiAssistantMessageRequest\x12-\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\tsessionId\x12-\n" +

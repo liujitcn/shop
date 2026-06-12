@@ -138,6 +138,7 @@ make gen
 - `shortcuts`：`/api/v1/base/ai/assistant/shortcut` 按 `terminal` 和当前实际启用的 Agent 工具一次性返回快捷入口，前端只做本地切换展示，不再维护固定快捷问题数组。
 - `direct stream`：管理端 AI 助手通过 `/api/v1/base/ai/assistant/session/{sessionId}/message` 直连 SSE 推送增量文本，发送接口会在完成事件中返回本轮消息，避免占用工作台共用 `/events` 流。
 - `message status`：每轮消息使用 `GENERATING / SUCCESS / FAILED` 表达生成中、成功和失败状态，删除统一通过 `deleted_at` 逻辑删除。失败消息可通过 `/retry` 基于同一轮输入重新发送；助手输出可通过 `/regeneration` 基于同一轮输入重新生成；单轮消息删除会持久化到后端，回复完成后会同步刷新会话 `updated_at`。
+- `flow action state`：商城端闭环流程生成的按钮、表单和卡片动作会写入 `source_message_id`、`action_id` 与 `flow_version`，后端只接受来自当前会话最新成功消息且仍存在于 `blocks_json` 的动作，防止历史消息里的上一步操作被重复触发。
 - `branch session`：`/api/v1/base/ai/assistant/session/{sourceSessionId}/branch` 会复制锚点之前的成功消息，创建新的持久化分支会话。
 
 其中 `ai_assistant_session.terminal` 已统一为终端枚举整型字段：`1` 表示商城端，`2` 表示管理端；对应的 proto 字段使用 `common.v1.Terminal`。

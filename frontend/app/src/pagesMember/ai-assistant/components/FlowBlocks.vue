@@ -26,6 +26,7 @@ type FlowMessage = {
 
 const props = defineProps<{
   message: FlowMessage
+  activeFlowMessageId: string
   addressFormSteps: AddressFormStep[]
   addressAreaTree: AppTreeOptionResponse_Option[]
 }>()
@@ -118,7 +119,90 @@ function isAddressFormReady(block: AssistantFlowBlock) {
 }
 
 function forwardFlowAction(action?: AiAssistantAction, label?: string) {
+  if (!isActionEnabled(action)) {
+    return
+  }
   emit('flow-action', action, label)
+}
+
+function isActionEnabled(action?: Partial<AiAssistantAction>) {
+  if (!action?.type || !props.activeFlowMessageId) {
+    return false
+  }
+  return (
+    action.source_message_id === props.activeFlowMessageId &&
+    Boolean(action.action_id) &&
+    String(action.flow_version || '') === props.activeFlowMessageId
+  )
+}
+
+function emitFlowAction(action?: AiAssistantAction, label?: string) {
+  if (!isActionEnabled(action)) {
+    return
+  }
+  emit('flow-action', action, label)
+}
+
+function emitSkuSubmit(block: AssistantFlowBlock, sku: AssistantFlowBlock) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('sku-submit', block, sku)
+}
+
+function emitSkuNumChange(block: AssistantFlowBlock, sku: AssistantFlowBlock, delta: number) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('sku-num-change', sku, delta)
+}
+
+function emitCreateAddressGuide(block: AssistantFlowBlock) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('create-address-guide', block)
+}
+
+function emitAddressSubmit(block: AssistantFlowBlock) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('address-submit', block)
+}
+
+function emitAddressRegionChange(
+  block: AssistantFlowBlock,
+  event: Parameters<UniHelper.RegionPickerOnChange>[0],
+) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('address-region-change', block, event)
+}
+
+function emitAddressCityChange(
+  block: AssistantFlowBlock,
+  event: Parameters<UniHelper.UniDataPickerOnChange>[0],
+) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('address-city-change', block, event)
+}
+
+function emitReviewSubmit(block: AssistantFlowBlock) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('review-submit', block)
+}
+
+function emitReviewScoreChange(block: AssistantFlowBlock, key: string, delta: number) {
+  if (!isActionEnabled(block.action)) {
+    return
+  }
+  emit('review-score-change', block.form, key, delta)
 }
 
 function buildFlowRevealKey(blockIndex: number, field: string) {
@@ -154,8 +238,11 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
             v-for="goods in visibleFlowList(block, blockIndex, 'goods')"
             :key="goods.id"
             class="flow-goods-card"
-            :class="{ 'flow-reveal-item': message.flowReveal }"
-            @tap="emit('flow-action', goods.action, `选择商品：${goods.name || ''}`)"
+            :class="{
+              'flow-reveal-item': message.flowReveal,
+              'is-disabled': !isActionEnabled(goods.action),
+            }"
+            @tap="emitFlowAction(goods.action, `选择商品：${goods.name || ''}`)"
           >
             <image
               v-if="goods.picture"
@@ -168,7 +255,13 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
               <view class="flow-goods-desc">{{ goods.desc || '精选推荐商品' }}</view>
               <view class="flow-price">¥{{ formatPrice(Number(goods.price || 0)) }}</view>
             </view>
-            <button class="flow-mini-button" hover-class="none">选规格</button>
+            <button
+              class="flow-mini-button"
+              :class="{ 'is-disabled': !isActionEnabled(goods.action) }"
+              hover-class="none"
+            >
+              选规格
+            </button>
           </view>
         </scroll-view>
       </view>
@@ -207,24 +300,27 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
             <view class="flow-stepper">
               <button
                 class="flow-stepper-button"
+                :class="{ 'is-disabled': !isActionEnabled(block.action) }"
                 hover-class="none"
-                @tap="emit('sku-num-change', sku, -1)"
+                @tap="emitSkuNumChange(block, sku, -1)"
               >
                 -
               </button>
               <text class="flow-stepper-value">{{ sku.num }}</text>
               <button
                 class="flow-stepper-button"
+                :class="{ 'is-disabled': !isActionEnabled(block.action) }"
                 hover-class="none"
-                @tap="emit('sku-num-change', sku, 1)"
+                @tap="emitSkuNumChange(block, sku, 1)"
               >
                 +
               </button>
             </view>
             <button
               class="flow-primary-button"
+              :class="{ 'is-disabled': !isActionEnabled(block.action) }"
               hover-class="none"
-              @tap="emit('sku-submit', block, sku)"
+              @tap="emitSkuSubmit(block, sku)"
             >
               确认
             </button>
@@ -281,9 +377,10 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
             class="flow-simple-item"
             :class="{
               'is-clickable': item.action,
+              'is-disabled': item.action && !isActionEnabled(item.action),
               'flow-reveal-item': message.flowReveal,
             }"
-            @tap="item.action && emit('flow-action', item.action, item.title || '继续')"
+            @tap="item.action && emitFlowAction(item.action, item.title || '继续')"
           >
             <image
               v-if="resolveSimpleItemImage(item)"
@@ -295,7 +392,14 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
               <view class="flow-simple-title">{{ item.title }}</view>
               <view v-if="item.desc" class="flow-simple-desc">{{ item.desc }}</view>
             </view>
-            <button v-if="item.action" class="flow-mini-button" hover-class="none">查看</button>
+            <button
+              v-if="item.action"
+              class="flow-mini-button"
+              :class="{ 'is-disabled': !isActionEnabled(item.action) }"
+              hover-class="none"
+            >
+              查看
+            </button>
           </view>
         </template>
       </view>
@@ -339,8 +443,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           </view>
           <button
             class="flow-primary-button is-wide"
+            :class="{ 'is-disabled': !isActionEnabled(block.action) }"
             hover-class="none"
-            @tap="emit('create-address-guide', block)"
+            @tap="emitCreateAddressGuide(block)"
           >
             开始新增地址
           </button>
@@ -351,11 +456,11 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           class="flow-address-card"
           :class="{
             'is-selectable': address.action,
+            'is-disabled': address.action && !isActionEnabled(address.action),
             'flow-reveal-item': message.flowReveal,
           }"
           @tap="
-            address.action &&
-            emit('flow-action', address.action, `选择地址：${address.receiver || ''}`)
+            address.action && emitFlowAction(address.action, `选择地址：${address.receiver || ''}`)
           "
         >
           <view class="flow-address-main">
@@ -367,7 +472,13 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
               {{ (address.address || []).join(' ') }} {{ address.detail }}
             </view>
           </view>
-          <view v-if="address.action" class="flow-address-select">选择</view>
+          <view
+            v-if="address.action"
+            class="flow-address-select"
+            :class="{ 'is-disabled': !isActionEnabled(address.action) }"
+          >
+            选择
+          </view>
         </view>
       </view>
 
@@ -398,6 +509,7 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           <input
             v-model="block.form.receiver"
             class="flow-input is-large"
+            :disabled="!isActionEnabled(block.action)"
             :placeholder="addressFormSteps[0].placeholder"
             placeholder-class="flow-placeholder"
           />
@@ -407,6 +519,7 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           <input
             v-model="block.form.contact"
             class="flow-input is-large"
+            :disabled="!isActionEnabled(block.action)"
             :maxlength="11"
             :placeholder="addressFormSteps[1].placeholder"
             placeholder-class="flow-placeholder"
@@ -418,8 +531,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           <picker
             class="flow-picker is-large"
             mode="region"
+            :disabled="!isActionEnabled(block.action)"
             :value="block.form.address_name"
-            @change="emit('address-region-change', block, $event)"
+            @change="emitAddressRegionChange(block, $event)"
           >
             <view v-if="block.form.address_name?.length" class="flow-picker-text">
               {{ block.form.address_name.join('-') }}
@@ -432,10 +546,11 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
             <uni-data-picker
               v-model="block.form.address"
               :localdata="addressAreaTree"
+              :disabled="!isActionEnabled(block.action)"
               :placeholder="addressFormSteps[2].placeholder"
               popup-title="请选择城市"
               :clear-icon="false"
-              @change="emit('address-city-change', block, $event)"
+              @change="emitAddressCityChange(block, $event)"
             />
           </view>
           <!-- #endif -->
@@ -445,15 +560,16 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           <input
             v-model="block.form.detail"
             class="flow-input is-large"
+            :disabled="!isActionEnabled(block.action)"
             :placeholder="addressFormSteps[3].placeholder"
             placeholder-class="flow-placeholder"
           />
         </view>
         <button
           class="flow-primary-button is-wide"
-          :class="{ 'is-disabled': !isAddressFormReady(block) }"
+          :class="{ 'is-disabled': !isAddressFormReady(block) || !isActionEnabled(block.action) }"
           hover-class="none"
-          @tap="emit('address-submit', block)"
+          @tap="emitAddressSubmit(block)"
         >
           保存地址
         </button>
@@ -479,8 +595,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
         <view class="flow-desc">{{ block.desc }}</view>
         <button
           class="flow-primary-button is-wide"
+          :class="{ 'is-disabled': !isActionEnabled(block.action) }"
           hover-class="none"
-          @tap="emit('flow-action', block.action, '确认下单')"
+          @tap="emitFlowAction(block.action, '确认下单')"
         >
           确认下单
         </button>
@@ -490,8 +607,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
         <view class="flow-desc">订单号：{{ block.order_id }}</view>
         <button
           class="flow-primary-button is-wide"
+          :class="{ 'is-disabled': !isActionEnabled(block.action) }"
           hover-class="none"
-          @tap="emit('flow-action', block.action, '发起支付')"
+          @tap="emitFlowAction(block.action, '发起支付')"
         >
           发起支付
         </button>
@@ -505,6 +623,7 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
         v-else-if="block.type === 'order_list'"
         :orders="visibleFlowList(block, blockIndex, 'orders')"
         :reveal="Boolean(message.flowReveal)"
+        :active-flow-message-id="activeFlowMessageId"
         @flow-action="forwardFlowAction"
       />
 
@@ -514,7 +633,10 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           v-for="goods in visibleFlowList(block, blockIndex, 'goods')"
           :key="`${goods.order_id}:${goods.goods_id}:${goods.sku_code}`"
           class="flow-goods-card"
-          :class="{ 'flow-reveal-item': message.flowReveal }"
+          :class="{
+            'flow-reveal-item': message.flowReveal,
+            'is-disabled': !isActionEnabled(goods.action),
+          }"
         >
           <image
             v-if="goods.goods_picture"
@@ -528,8 +650,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           </view>
           <button
             class="flow-mini-button"
+            :class="{ 'is-disabled': !isActionEnabled(goods.action) }"
             hover-class="none"
-            @tap="emit('flow-action', goods.action, `评价：${goods.goods_name || ''}`)"
+            @tap="emitFlowAction(goods.action, `评价：${goods.goods_name || ''}`)"
           >
             评价
           </button>
@@ -541,6 +664,7 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
         <textarea
           v-model="block.form.content"
           class="flow-textarea"
+          :disabled="!isActionEnabled(block.action)"
           auto-height
           maxlength="300"
           placeholder="写下真实使用感受"
@@ -551,16 +675,18 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
           <view class="flow-stepper">
             <button
               class="flow-stepper-button"
+              :class="{ 'is-disabled': !isActionEnabled(block.action) }"
               hover-class="none"
-              @tap="emit('review-score-change', block.form, score[0], -1)"
+              @tap="emitReviewScoreChange(block, score[0], -1)"
             >
               -
             </button>
             <text class="flow-stepper-value">{{ block.form[score[0]] }}</text>
             <button
               class="flow-stepper-button"
+              :class="{ 'is-disabled': !isActionEnabled(block.action) }"
               hover-class="none"
-              @tap="emit('review-score-change', block.form, score[0], 1)"
+              @tap="emitReviewScoreChange(block, score[0], 1)"
             >
               +
             </button>
@@ -568,8 +694,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
         </view>
         <button
           class="flow-primary-button is-wide"
+          :class="{ 'is-disabled': !isActionEnabled(block.action) }"
           hover-class="none"
-          @tap="emit('review-submit', block)"
+          @tap="emitReviewSubmit(block)"
         >
           提交评价
         </button>
@@ -600,8 +727,9 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
         <button
           v-if="block.action"
           class="flow-primary-button is-wide"
+          :class="{ 'is-disabled': !isActionEnabled(block.action) }"
           hover-class="none"
-          @tap="emit('flow-action', block.action, '确认收货')"
+          @tap="emitFlowAction(block.action, '确认收货')"
         >
           确认收货
         </button>
@@ -702,6 +830,12 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
   align-items: flex-start;
 }
 
+.flow-goods-card.is-disabled,
+.flow-address-card.is-disabled,
+.flow-simple-item.is-disabled {
+  opacity: 0.58;
+}
+
 .flow-address-card {
   border: 2rpx solid transparent;
 }
@@ -735,6 +869,11 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
   line-height: 48rpx;
   text-align: center;
   background-color: #27ba9b;
+}
+
+.flow-address-select.is-disabled {
+  color: #8b949e;
+  background-color: #edf0f2;
 }
 
 .flow-address-badge {
@@ -913,6 +1052,12 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
   background-color: #9ddfcc;
 }
 
+.flow-mini-button.is-disabled,
+.flow-primary-button.is-disabled {
+  color: #eef6f3;
+  background-color: #9ddfcc;
+}
+
 .flow-sku-row {
   display: flex;
   align-items: center;
@@ -937,6 +1082,10 @@ function resolveSimpleItemImage(item: AssistantFlowBlock) {
   color: #333;
   font-size: 28rpx;
   line-height: 52rpx;
+}
+
+.flow-stepper-button.is-disabled {
+  color: #b8c0c8;
 }
 
 .flow-stepper-value {
