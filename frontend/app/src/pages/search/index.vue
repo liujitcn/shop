@@ -54,23 +54,30 @@ const pageParams: Required<PageGoodsInfoRequest> = {
 const goodsInfoList = ref<GoodsInfo[]>([])
 // 已结束标记
 const finish = ref(false)
+const loading = ref(false)
 const isEmpty = computed(() => finish.value && goodsInfoList.value.length === 0)
 // 获取数据
 const getGoodsData = async () => {
+  if (loading.value) return
   // 退出分页判断
   if (finish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
-  const res = await defGoodsInfoService.PageGoodsInfo(pageParams)
-  // 数组追加
-  const list = res.goods_infos || []
-  goodsInfoList.value.push(...list)
-  // 分页条件
-  if (goodsInfoList.value.length < res.total) {
-    // 页码累加
-    pageParams.page_num++
-  } else {
-    finish.value = true
+  loading.value = true
+  try {
+    const res = await defGoodsInfoService.PageGoodsInfo(pageParams)
+    // 数组追加
+    const list = res.goods_infos || []
+    goodsInfoList.value.push(...list)
+    // 分页条件
+    if (goodsInfoList.value.length < res.total) {
+      // 页码累加
+      pageParams.page_num++
+    } else {
+      finish.value = true
+    }
+  } finally {
+    loading.value = false
   }
 }
 

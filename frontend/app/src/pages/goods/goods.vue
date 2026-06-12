@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import type {
-  SkuPopupEvent,
-  SkuPopupInstance,
-  SkuPopupLocalData,
-} from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
-import { defUserCartService } from '@/api/app/user_cart'
-import { defUserCollectService } from '@/api/app/user_collect'
+import type { SkuPopupInstance } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 import { defGoodsInfoService } from '@/api/app/goods_info.ts'
 import { defRecommendService } from '@/api/app/recommend'
 import type { GoodsInfoResponse } from '@/rpc/app/v1/goods_info'
 import type { RecommendContext } from '@/rpc/app/v1/recommend'
 import { onLoad } from '@dcloudio/uni-app'
-import { useGuessList } from '@/composables'
-import { useRecommendStore, useUserStore } from '@/stores'
+import { SkuMode, useGoodsPurchase, useGuessList } from '@/composables'
+import { useRecommendStore } from '@/stores'
 import { computed, getCurrentInstance, nextTick, onBeforeUnmount, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
 import CommentPanel from './components/CommentPanel.vue'
@@ -21,15 +15,7 @@ import { formatPrice, formatSrc } from '@/utils'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/v1/shop_service.ts'
 import { RecommendEventType, RecommendScene } from '@/rpc/common/v1/enum'
-import {
-  goodsDetailUrl,
-  homeTabPage,
-  navigateToLogin,
-  navigateToOrderCreate,
-  parseRecommendRouteQuery,
-} from '@/utils/navigation'
-// 获取会员信息
-const userStore = useUserStore()
+import { goodsDetailUrl, homeTabPage, parseRecommendRouteQuery } from '@/utils/navigation'
 const recommendStore = useRecommendStore()
 const pageInstance = getCurrentInstance()
 // 获取屏幕边界到安全区域距离
@@ -80,11 +66,29 @@ const recommend_context: RecommendContext = {
 // 获取商品详情信息
 const goodsInfo = ref<GoodsInfoResponse>()
 const loadErrorMessage = ref('')
-const isCollect = ref<boolean>(false)
-const cartNum = ref<number>(0)
 const serviceList = ref<ShopService[]>([])
 const serviceLabelList = computed(() => serviceList.value.map((item) => item.label))
 const { guessRef, onScrollToLower } = useGuessList()
+const {
+  addCart: onAddCart,
+  buyNow: onBuyNow,
+  cartNum,
+  isCollected,
+  isShowSku,
+  localData,
+  openSkuPopup,
+  refreshGoodsState,
+  skuMode,
+  toggleCollect,
+} = useGoodsPurchase<GoodsInfoResponse>({
+  ensureGoodsDetail: async (item) => item,
+  getRecommendContext: () => recommend_context,
+  getOrderRouteQuery: () => ({
+    scene: routeScene,
+    request_id: routeRecommendQuery.request_id,
+    index: routeRecommendQuery.index,
+  }),
+})
 const scrollTop = ref(0)
 const scrollIntoView = ref('')
 const activeSection = ref<SectionKey>('goods')
@@ -145,29 +149,7 @@ const loadData = async () => {
       id: goodsId,
     })
     goodsInfo.value = res
-    // SKU组件所需格式
-    localData.value = {
-      _id: res.id,
-      name: res.name,
-      goods_thumb: res.picture,
-      spec_list: res.spec_list.map((v) => {
-        return {
-          name: v.name,
-          list: v.item,
-        }
-      }),
-      sku_list: res.sku_list.map((v) => {
-        return {
-          _id: v.sku_code,
-          goods_id: res.id,
-          goods_name: res.name,
-          image: v.picture,
-          price: v.price, // 注意：需要乘以 100
-          stock: v.inventory,
-          sku_name_arr: v.spec_item,
-        }
-      }),
-    }
+    void refreshGoodsState(res)
     scheduleMeasureSections()
   } catch (error) {
     goodsInfo.value = undefined
@@ -203,18 +185,6 @@ onLoad(() => {
       console.error(error)
     }
   })()
-  if (userStore.isAuthenticated()) {
-    defUserCartService.CountUserCart({}).then((res) => {
-      cartNum.value = res.count
-    })
-    defUserCollectService
-      .GetIsCollect({
-        goods_id: goodsId,
-      })
-      .then((res) => {
-        isCollect.value = res.is_collected
-      })
-  }
 })
 
 // uni-ui 弹出层组件 ref
@@ -231,24 +201,6 @@ const openPopup = (name: typeof popupName.value) => {
   popupName.value = name
   popup.value?.open()
 }
-// 是否显示SKU组件
-const isShowSku = ref(false)
-// 商品信息
-const localData = ref({} as SkuPopupLocalData)
-// 按钮模式
-enum SkuMode {
-  Both = 1,
-  Cart = 2,
-  Buy = 3,
-}
-const mode = ref<SkuMode>(SkuMode.Cart)
-// 打开SKU弹窗修改按钮模式
-const openSkuPopup = (val: SkuMode) => {
-  // 显示SKU弹窗
-  isShowSku.value = true
-  // 修改按钮模式
-  mode.value = val
-}
 // SKU组件实例
 const skuPopupRef = ref<SkuPopupInstance>()
 // 计算被选中的值
@@ -256,54 +208,12 @@ const selectArrText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
 
-// 加入购物车事件
-const onAddCart = async (ev: SkuPopupEvent) => {
-  if (!userStore.ensureAuthenticated()) {
-    navigateToLogin()
-    return
-  }
-  await defUserCartService.CreateUserCart({
-    /** 商品id */
-    goods_id: ev.goods_id,
-    /** 规格id */
-    sku_code: ev._id,
-    /** 数量 */
-    num: ev.buy_num,
-    recommend_context,
-  })
-  const res = await defUserCartService.CountUserCart({})
-  cartNum.value = res.count
-  await uni.showToast({ title: '添加成功' })
-  isShowSku.value = false
+const openCurrentSkuPopup = (mode: SkuMode) => {
+  void openSkuPopup(goodsInfo.value, mode)
 }
-// 立即购买
-const onBuyNow = (ev: SkuPopupEvent) => {
-  if (!userStore.ensureAuthenticated()) {
-    navigateToLogin()
-    return
-  }
-  isShowSku.value = false
-  void navigateToOrderCreate({
-    goods_id: ev.goods_id,
-    sku_code: ev._id,
-    num: ev.buy_num,
-    scene: routeScene,
-    request_id: routeRecommendQuery.request_id,
-    index: routeRecommendQuery.index,
-  })
-}
-// 收藏
-const onCollect = async () => {
-  if (!userStore.ensureAuthenticated()) {
-    navigateToLogin()
-    return
-  }
-  await defUserCollectService.CreateUserCollect({
-    goods_id: goodsId,
-    recommend_context,
-  })
-  isCollect.value = !isCollect.value
-  await uni.showToast({ title: isCollect.value ? '收藏成功' : '取消成功' })
+
+const onCollect = () => {
+  void toggleCollect(goodsInfo.value)
 }
 
 // 定义分享配置
@@ -443,7 +353,7 @@ onBeforeUnmount(() => {
     ref="skuPopupRef"
     v-model="isShowSku"
     :localData="localData"
-    :mode="mode"
+    :mode="skuMode"
     add-cart-background-color="#FFA868"
     buy-now-background-color="#27BA9B"
     :actived-style="{
@@ -499,7 +409,7 @@ onBeforeUnmount(() => {
 
       <!-- 操作面板 -->
       <view class="action">
-        <view class="item arrow" @tap="openSkuPopup(SkuMode.Both)">
+        <view class="item arrow" @tap="openCurrentSkuPopup(SkuMode.Both)">
           <text class="label">选择</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
@@ -563,11 +473,11 @@ onBeforeUnmount(() => {
     fixed
     show-contact
     :safe-bottom="safeAreaInsets?.bottom || 0"
-    :collected="isCollect"
+    :collected="isCollected(goodsInfo)"
     :cart-num="cartNum"
     @collect="onCollect()"
-    @add-cart="openSkuPopup(SkuMode.Cart)"
-    @buy-now="openSkuPopup(SkuMode.Buy)"
+    @add-cart="openCurrentSkuPopup(SkuMode.Cart)"
+    @buy-now="openCurrentSkuPopup(SkuMode.Buy)"
   />
 
   <!-- uni-ui 弹出层 -->

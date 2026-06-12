@@ -69,6 +69,8 @@ const HOME_TAB_PAGE = '/pages/index/index'
 const GOODS_PAGE = '/pages/goods/goods'
 /** 搜索结果页路径。 */
 const SEARCH_PAGE = '/pages/search/index'
+/** 单品直购搜索页路径。 */
+const SEARCH_SINGLE_PAGE = '/pages/search/single'
 /** 下单页路径。 */
 const ORDER_CREATE_PAGE = '/pagesOrder/create/create'
 /** 订单详情页路径。 */
@@ -231,6 +233,11 @@ export const searchPageUrl = (query: SearchQuery = {}) => {
   return buildPageUrl(SEARCH_PAGE, query, encodeSearchQueryValue)
 }
 
+/** 构建单品直购搜索页 URL。 */
+export const searchSinglePageUrl = (query: SearchQuery = {}) => {
+  return buildPageUrl(SEARCH_SINGLE_PAGE, query, encodeSearchQueryValue)
+}
+
 /** 获取当前页面的完整路由，包含 query，供登录前回跳使用。 */
 const getCurrentRouteUrl = () => {
   const pages = getCurrentPages()
@@ -287,6 +294,11 @@ export const switchTabToHome = () => {
 /** 跳转到搜索页。 */
 export const navigateToSearch = (query: SearchQuery = {}) => {
   return uni.navigateTo({ url: searchPageUrl(query) })
+}
+
+/** 跳转到单品直购搜索页。 */
+export const navigateToSearchSingle = (query: SearchQuery = {}) => {
+  return uni.navigateTo({ url: searchSinglePageUrl(query) })
 }
 
 /** 跳转到下单页。 */
