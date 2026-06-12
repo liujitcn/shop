@@ -7,7 +7,6 @@ import { defGoodsInfoService } from '@/api/app/goods_info'
 import { defUserCartService } from '@/api/app/user_cart'
 import { defUserCollectService } from '@/api/app/user_collect'
 import { useUserStore } from '@/stores'
-import { formatPrice, formatSrc } from '@/utils'
 import {
   goodsDetailUrl,
   homeTabPage,
@@ -98,7 +97,6 @@ const isShowSku = ref(false)
 const skuMode = ref<SkuMode>(SkuMode.Cart)
 const localData = ref({} as SkuPopupLocalData)
 const collectMap = ref<Record<number, boolean>>({})
-const pictureIndexMap = ref<Record<number, number>>({})
 const detailInfoMap = ref<Record<number, GoodsInfoResponse>>({})
 const detailCache = new Map<number, GoodsInfoResponse>()
 let wheelTimer: ReturnType<typeof setTimeout> | undefined
@@ -109,8 +107,6 @@ const emptyText = computed(() => {
   if (decodedCategoryName) return `暂无${decodedCategoryName}商品`
   return '暂无可购买商品'
 })
-
-const trimZeroDecimal = (value: string) => value.replace(/\.0$/, '')
 
 const resolveSaleNum = (item: GoodsInfo) => {
   const goods = item as GoodsInfoExtra
@@ -128,13 +124,6 @@ const resolveSaleNum = (item: GoodsInfo) => {
   return item.sale_num || 0
 }
 
-const formatSaleText = (item: GoodsInfo) => {
-  const saleNum = resolveSaleNum(item)
-  if (!saleNum) return '销量 0'
-  if (saleNum >= 10000) return `销量 ${trimZeroDecimal((saleNum / 10000).toFixed(1))}万+`
-  return `销量 ${saleNum}`
-}
-
 const getPictureList = (item: GoodsInfo) => {
   const goods = item as GoodsInfoExtra
   const list = detailInfoMap.value[item.id]?.banner?.length
@@ -143,10 +132,6 @@ const getPictureList = (item: GoodsInfo) => {
       ? goods.banner
       : [item.picture]
   return list.filter(Boolean)
-}
-
-const getActivePictureIndex = (item: GoodsInfo) => {
-  return Math.min(pictureIndexMap.value[item.id] || 0, Math.max(getPictureList(item).length - 1, 0))
 }
 
 const buildRecommendContext = (position = activeIndex.value) => {
@@ -246,13 +231,6 @@ const onSwiperChange: UniHelper.SwiperOnChange = (event) => {
   void preloadNearEnd()
 }
 
-const onPictureChange = (item: GoodsInfo, event: UniHelper.SwiperOnChangeEvent) => {
-  pictureIndexMap.value = {
-    ...pictureIndexMap.value,
-    [item.id]: event.detail.current,
-  }
-}
-
 const onWheelFeed = (event: WheelLikeEvent) => {
   event.preventDefault?.()
   if (wheelTimer || goodsInfoList.value.length <= 1 || Math.abs(event.deltaY || 0) < 10) return
@@ -288,15 +266,6 @@ const onNavigateBack = () => {
     return
   }
   void uni.switchTab({ url: homeTabPage })
-}
-
-const previewImage = (item: GoodsInfo) => {
-  const pictureList = getPictureList(item).map((url) => formatSrc(url))
-  const url = pictureList[getActivePictureIndex(item)] || formatSrc(item.picture)
-  uni.previewImage({
-    current: url,
-    urls: pictureList.length ? pictureList : [url],
-  })
 }
 
 const openSkuPopup = async (item: GoodsInfo | undefined, mode: SkuMode) => {
@@ -437,64 +406,25 @@ onBeforeUnmount(() => {
     >
       <swiper-item v-for="item in goodsInfoList" :key="item.id" class="goods-slide">
         <view class="goods-card">
-          <view class="preview">
-            <swiper
-              class="picture-swiper"
-              :circular="getPictureList(item).length > 1"
-              @change="onPictureChange(item, $event)"
-            >
-              <swiper-item v-for="picture in getPictureList(item)" :key="picture">
-                <image
-                  class="image"
-                  mode="aspectFill"
-                  :src="formatSrc(picture)"
-                  @tap="previewImage(item)"
-                />
-              </swiper-item>
-            </swiper>
-            <view class="indicator">
-              <text class="current">{{ getActivePictureIndex(item) + 1 }}</text>
-              <text class="split">/</text>
-              <text class="total">{{ getPictureList(item).length || 1 }}</text>
-            </view>
-          </view>
-
-          <view class="meta">
-            <view class="price">
-              <text class="symbol">¥</text>
-              <text class="number">{{ formatPrice(item.price) }}</text>
-              <text class="sales">{{ formatSaleText(item) }}</text>
-            </view>
-            <view class="name ellipsis" @tap="navigateToGoods(item)">{{ item.name }}</view>
-            <view v-if="item.desc" class="desc">{{ item.desc }}</view>
-          </view>
+          <XtxGoodsHero
+            :pictures="getPictureList(item)"
+            :price="item.price"
+            :sale-num="resolveSaleNum(item)"
+            :name="item.name"
+            :desc="item.desc"
+            :image-height="`${previewHeight}px`"
+            @name-tap="navigateToGoods(item)"
+          />
 
           <view class="toolbar-slot" :style="{ paddingBottom: `${safeAreaInsets?.bottom || 0}px` }">
-            <view class="toolbar">
-              <view class="icons">
-                <button class="icons-button" @tap="onCollect(item)">
-                  <text class="icon-heart" :class="{ active: collectMap[item.id] === true }" />{{
-                    collectMap[item.id] === true ? '已收藏' : '收藏'
-                  }}
-                </button>
-                <navigator class="icons-button" url="/pages/cart/cart2" open-type="navigate">
-                  <text class="icon-cart" />购物车
-                  <view v-if="cartNum > 0" class="cart-badge">{{
-                    cartNum > 99 ? '99+' : cartNum
-                  }}</view>
-                </navigator>
-              </view>
-              <view class="buttons">
-                <view class="addcart" @tap="openSkuPopup(item, SkuMode.Cart)">加入购物车</view>
-                <view
-                  class="payment"
-                  :class="{ 'payment--loading': buyingGoodsId === item.id }"
-                  @tap="openSkuPopup(item, SkuMode.Buy)"
-                >
-                  {{ buyingGoodsId === item.id ? '加载中' : '立即购买' }}
-                </view>
-              </view>
-            </view>
+            <XtxGoodsActionBar
+              :collected="collectMap[item.id] === true"
+              :cart-num="cartNum"
+              :buy-loading="buyingGoodsId === item.id"
+              @collect="onCollect(item)"
+              @add-cart="openSkuPopup(item, SkuMode.Cart)"
+              @buy-now="openSkuPopup(item, SkuMode.Buy)"
+            />
           </view>
         </view>
       </swiper-item>
@@ -577,194 +507,9 @@ page {
   background-color: #fff;
 }
 
-.preview {
-  height: v-bind('`${previewHeight}px`');
-  position: relative;
-  flex-shrink: 0;
-  background-color: #f7f7f7;
-
-  .picture-swiper {
-    width: 100%;
-    height: 100%;
-  }
-
-  .image {
-    width: 100%;
-    height: 100%;
-  }
-
-  .indicator {
-    position: absolute;
-    right: 30rpx;
-    bottom: 30rpx;
-    height: 56rpx;
-    min-width: 86rpx;
-    padding: 0 20rpx;
-    border-radius: 32rpx 0 0 32rpx;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 56rpx;
-    text-align: center;
-    background-color: rgba(0, 0, 0, 0.42);
-  }
-
-  .current {
-    font-size: 34rpx;
-  }
-
-  .split {
-    margin: 0 1rpx 0 2rpx;
-    font-size: 30rpx;
-  }
-
-  .total {
-    font-size: 30rpx;
-  }
-}
-
-.meta {
-  position: relative;
-  flex-shrink: 0;
-  border-bottom: 1rpx solid #eaeaea;
-
-  .price {
-    height: 104rpx;
-    padding: 0 30rpx;
-    position: relative;
-    display: flex;
-    align-items: center;
-    color: #fff;
-    font-size: 30rpx;
-    box-sizing: border-box;
-    background-color: #35c8a9;
-  }
-
-  .symbol {
-  }
-
-  .number {
-    font-size: 48rpx;
-  }
-
-  .sales {
-    position: absolute;
-    top: 40rpx;
-    right: 30rpx;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 22rpx;
-  }
-
-  .name {
-    max-height: 88rpx;
-    margin: 20rpx 20rpx 12rpx;
-    color: #333;
-    font-size: 32rpx;
-    line-height: 1.4;
-  }
-
-  .desc {
-    padding: 0 20rpx 24rpx;
-    color: #cf4444;
-    font-size: 24rpx;
-    line-height: 1;
-  }
-}
-
 .toolbar-slot {
-  border-top: 1rpx solid #eaeaea;
   box-sizing: border-box;
   background-color: #fff;
-}
-
-.toolbar {
-  position: static;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  z-index: auto;
-  height: 100rpx;
-  padding: 0 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  background-color: #fff;
-
-  .icons {
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    padding-right: 20rpx;
-  }
-
-  .icons-button {
-    position: relative;
-    flex: 1;
-    margin: 0;
-    padding: 0;
-    border-radius: 0;
-    color: #333;
-    font-size: 20rpx;
-    line-height: 1.4;
-    text-align: center;
-    background-color: #fff;
-
-    &::after {
-      border: none;
-    }
-  }
-
-  .icons-button text {
-    display: block;
-    font-size: 34rpx;
-    transition: color 0.3s ease;
-  }
-
-  .icon-heart.active::before {
-    color: #ff0000 !important;
-  }
-
-  .buttons {
-    display: flex;
-  }
-
-  .buttons > view {
-    width: 220rpx;
-    border-radius: 72rpx;
-    color: #fff;
-    font-size: 26rpx;
-    line-height: 72rpx;
-    text-align: center;
-  }
-
-  .addcart {
-    background-color: #ffa868;
-  }
-
-  .payment {
-    margin-left: 20rpx;
-    background-color: #27ba9b;
-  }
-
-  .payment--loading {
-    opacity: 0.72;
-  }
-}
-
-.cart-badge {
-  position: absolute;
-  top: -5rpx;
-  right: -5rpx;
-  min-width: 36rpx;
-  height: 36rpx;
-  padding: 0 8rpx;
-  border-radius: 100rpx;
-  color: #fff;
-  font-size: 20rpx;
-  line-height: 36rpx;
-  text-align: center;
-  background-color: #ff4444;
 }
 
 .loading-state {

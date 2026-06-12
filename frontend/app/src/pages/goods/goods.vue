@@ -17,7 +17,7 @@ import { computed, getCurrentInstance, nextTick, onBeforeUnmount, ref } from 'vu
 import AddressPanel from './components/AddressPanel.vue'
 import CommentPanel from './components/CommentPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
-import { formatSrc, formatPrice } from '@/utils'
+import { formatPrice, formatSrc } from '@/utils'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/v1/shop_service.ts'
 import { RecommendEventType, RecommendScene } from '@/rpc/common/v1/enum'
@@ -95,14 +95,6 @@ const sectionOffsetMap = ref<Record<SectionKey, number>>({
   recommend: 0,
 })
 let measureTimer: ReturnType<typeof setTimeout> | undefined
-
-const trimZeroDecimal = (value: string) => value.replace(/\.0$/, '')
-
-const formatSaleText = (saleNum: number) => {
-  if (!saleNum) return '销量 0'
-  if (saleNum >= 10000) return `销量 ${trimZeroDecimal((saleNum / 10000).toFixed(1))}万+`
-  return `销量 ${saleNum}`
-}
 
 const clampProgress = (value: number) => {
   return Math.min(1, Math.max(0, value))
@@ -224,25 +216,6 @@ onLoad(() => {
       })
   }
 })
-
-// 轮播图变化时
-const currentIndex = ref(0)
-const onChange: UniHelper.SwiperOnChange = (ev) => {
-  currentIndex.value = ev.detail.current
-}
-
-// 点击图片时
-const onTapImage = (url: string) => {
-  // 大图预览
-  const urls: string[] = []
-  goodsInfo.value!.banner.map((item) => {
-    urls.push(formatSrc(item))
-  })
-  uni.previewImage({
-    current: formatSrc(url),
-    urls: urls,
-  })
-}
 
 // uni-ui 弹出层组件 ref
 const popup = ref<{
@@ -516,30 +489,13 @@ onBeforeUnmount(() => {
     <view id="goods-section" class="section-anchor" />
     <!-- 基本信息 -->
     <view class="goods">
-      <!-- 商品主图 -->
-      <view class="preview">
-        <swiper circular @change="onChange">
-          <swiper-item v-for="item in goodsInfo!.banner" :key="item">
-            <image class="image" mode="aspectFill" :src="formatSrc(item)" @tap="onTapImage(item)" />
-          </swiper-item>
-        </swiper>
-        <view class="indicator">
-          <text class="current">{{ currentIndex + 1 }}</text>
-          <text class="split">/</text>
-          <text class="total">{{ goodsInfo!.banner.length }}</text>
-        </view>
-      </view>
-
-      <!-- 商品简介 -->
-      <view class="meta">
-        <view class="price">
-          <text class="symbol">¥</text>
-          <text class="number">{{ formatPrice(goodsInfo!.price) }}</text>
-          <text class="sales">{{ formatSaleText(goodsInfo!.sale_num) }}</text>
-        </view>
-        <view class="name ellipsis">{{ goodsInfo!.name }}</view>
-        <view class="desc"> {{ goodsInfo!.desc }} </view>
-      </view>
+      <XtxGoodsHero
+        :pictures="goodsInfo!.banner"
+        :price="goodsInfo!.price"
+        :sale-num="goodsInfo!.sale_num"
+        :name="goodsInfo!.name"
+        :desc="goodsInfo!.desc"
+      />
 
       <!-- 操作面板 -->
       <view class="action">
@@ -602,26 +558,17 @@ onBeforeUnmount(() => {
   </scroll-view>
 
   <!-- 用户操作 -->
-  <view v-if="goodsInfo" class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
-    <view class="icons">
-      <button class="icons-button" @tap="onCollect()">
-        <text class="icon-heart" :class="{ active: isCollect }" />{{
-          isCollect ? '已收藏' : '收藏'
-        }}
-      </button>
-      <!-- #ifdef MP-WEIXIN -->
-      <button class="icons-button" open-type="contact"><text class="icon-handset" />客服</button>
-      <!-- #endif -->
-      <navigator class="icons-button" url="/pages/cart/cart2" open-type="navigate">
-        <text class="icon-cart" />购物车
-        <view v-if="cartNum! > 0" class="cart-badge">{{ cartNum > 99 ? '99+' : cartNum }}</view>
-      </navigator>
-    </view>
-    <view class="buttons">
-      <view class="addcart" @tap="openSkuPopup(SkuMode.Cart)"> 加入购物车 </view>
-      <view class="payment" @tap="openSkuPopup(SkuMode.Buy)"> 立即购买 </view>
-    </view>
-  </view>
+  <XtxGoodsActionBar
+    v-if="goodsInfo"
+    fixed
+    show-contact
+    :safe-bottom="safeAreaInsets?.bottom || 0"
+    :collected="isCollect"
+    :cart-num="cartNum"
+    @collect="onCollect()"
+    @add-cart="openSkuPopup(SkuMode.Cart)"
+    @buy-now="openSkuPopup(SkuMode.Buy)"
+  />
 
   <!-- uni-ui 弹出层 -->
   <uni-popup ref="popup" type="bottom" background-color="#fff">
@@ -793,82 +740,6 @@ page {
 /* 商品信息 */
 .goods {
   background-color: #fff;
-  .preview {
-    height: 750rpx;
-    position: relative;
-    .image {
-      width: 750rpx;
-      height: 750rpx;
-    }
-    .indicator {
-      height: 40rpx;
-      padding: 0 24rpx;
-      line-height: 40rpx;
-      border-radius: 30rpx;
-      color: #fff;
-      font-family: Arial, Helvetica, sans-serif;
-      background-color: rgba(0, 0, 0, 0.3);
-      position: absolute;
-      bottom: 30rpx;
-      right: 30rpx;
-      .current {
-        font-size: 26rpx;
-      }
-      .split {
-        font-size: 24rpx;
-        margin: 0 1rpx 0 2rpx;
-      }
-      .total {
-        font-size: 24rpx;
-      }
-    }
-  }
-  .meta {
-    position: relative;
-    border-bottom: 1rpx solid #eaeaea;
-    .price {
-      height: 104rpx;
-      padding: 0 30rpx;
-      position: relative;
-      display: flex;
-      align-items: center;
-      color: #fff;
-      font-size: 30rpx;
-      box-sizing: border-box;
-      background-color: #35c8a9;
-    }
-    .number {
-      font-size: 48rpx;
-    }
-    .sales {
-      position: absolute;
-      top: 40rpx;
-      right: 30rpx;
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 22rpx;
-    }
-    .brand {
-      width: 160rpx;
-      height: 80rpx;
-      overflow: hidden;
-      position: absolute;
-      top: 26rpx;
-      right: 30rpx;
-    }
-    .name {
-      max-height: 88rpx;
-      line-height: 1.4;
-      margin: 20rpx;
-      font-size: 32rpx;
-      color: #333;
-    }
-    .desc {
-      line-height: 1;
-      padding: 0 20rpx 30rpx;
-      font-size: 24rpx;
-      color: #cf4444;
-    }
-  }
   .action {
     padding-left: 20rpx;
     .item {
@@ -966,106 +837,6 @@ page {
   }
 }
 
-/* 底部工具栏 */
-.toolbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: calc((var(--window-bottom)));
-  z-index: 1;
-  background-color: #fff;
-  height: 100rpx;
-  padding: 0 20rpx;
-  border-top: 1rpx solid #eaeaea;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: content-box;
-  .buttons {
-    display: flex;
-    & > view {
-      width: 220rpx;
-      text-align: center;
-      line-height: 72rpx;
-      font-size: 26rpx;
-      color: #fff;
-      border-radius: 72rpx;
-    }
-    .addcart {
-      background-color: #ffa868;
-    }
-    .payment {
-      background-color: #27ba9b;
-      margin-left: 20rpx;
-    }
-  }
-  .icons {
-    padding-right: 20rpx;
-    display: flex;
-    align-items: center;
-    flex: 1;
-    // 兼容 H5 端和 App 端的导航链接样式
-    .navigator-wrap,
-    .icons-button {
-      flex: 1;
-      text-align: center;
-      line-height: 1.4;
-      padding: 0;
-      margin: 0;
-      border-radius: 0;
-      font-size: 20rpx;
-      color: #333;
-      background-color: #fff;
-      &::after {
-        border: none;
-      }
-    }
-    text {
-      display: block;
-      font-size: 34rpx;
-      transition: color 0.3s ease;
-    }
-    // 收藏按钮文字颜色变化
-    &.active {
-      color: #ff0000;
-    }
-  }
-}
-
-// 新增收藏激活样式
-.icon-heart {
-  position: relative;
-  &::before {
-    transition: color 0.3s ease;
-  }
-  &.active::before {
-    color: #ff0000 !important;
-  }
-}
-
-// 购物车角标样式
-.cart-badge {
-  position: absolute;
-  top: -5rpx;
-  right: -5rpx;
-  min-width: 36rpx;
-  height: 36rpx;
-  line-height: 36rpx;
-  text-align: center;
-  background-color: #ff4444;
-  color: #fff;
-  border-radius: 100rpx;
-  font-size: 20rpx;
-  padding: 0 8rpx;
-  transform: scale(0.8);
-  box-shadow: 0 2rpx 8rpx rgba(255, 68, 68, 0.2);
-}
-
-// 确保按钮容器有相对定位
-.icons-button {
-  position: relative;
-}
-
 // 新增收藏动画
 @keyframes heartBeat {
   0% {
@@ -1079,7 +850,7 @@ page {
   }
 }
 
-.icon-heart.active::before {
+.xtx-goods-action-bar__heart--active::before {
   animation: heartBeat 0.3s ease;
 }
 </style>
