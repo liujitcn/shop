@@ -233,15 +233,15 @@ func (c *BaseAPICase) SetBaseAPIAgentEnabled(ctx context.Context, req *adminv1.S
 	return err
 }
 
-// SetBaseAPIToolPrompts 设置接口工具提示词
-func (c *BaseAPICase) SetBaseAPIToolPrompts(ctx context.Context, req *adminv1.SetBaseApiToolPromptsRequest) error {
+// UpdateBaseAPI 更新接口 MCP、Agent 与工具提示词配置。
+func (c *BaseAPICase) UpdateBaseAPI(ctx context.Context, req *adminv1.UpdateBaseApiRequest) error {
 	query := c.Query(ctx).BaseAPI
 	conditions := make([]gen.Condition, 0, 2)
 	baseAPI, err := c.Find(ctx, repository.Where(query.ID.Eq(req.GetId())))
 	if err != nil {
 		return err
 	}
-	// 同名工具可能来自历史重复 API 记录，提示词需要同步到同一个 Agent Tool 名称。
+	// 同名工具可能来自历史重复 API 记录，运行时配置需要同步到同一个工具名称。
 	if baseAPI.ToolName != "" {
 		conditions = append(conditions, query.ToolName.Eq(baseAPI.ToolName))
 	} else {
@@ -250,7 +250,11 @@ func (c *BaseAPICase) SetBaseAPIToolPrompts(ctx context.Context, req *adminv1.Se
 	toolPrompts := normalizeToolPrompts(req.GetToolPrompts())
 	_, err = query.WithContext(ctx).
 		Where(conditions...).
-		UpdateSimple(query.ToolPrompts.Value(encodeToolPrompts(toolPrompts)))
+		UpdateSimple(
+			query.McpEnabled.Value(req.GetMcpEnabled()),
+			query.AgentEnabled.Value(req.GetAgentEnabled()),
+			query.ToolPrompts.Value(encodeToolPrompts(toolPrompts)),
+		)
 	return err
 }
 

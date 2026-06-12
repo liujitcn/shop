@@ -90,12 +90,12 @@ func (s *BaseApiService) SetBaseApiAgentEnabled(ctx context.Context, req *adminv
 	return &emptypb.Empty{}, nil
 }
 
-// SetBaseApiToolPrompts 设置API工具提示词
-func (s *BaseApiService) SetBaseApiToolPrompts(ctx context.Context, req *adminv1.SetBaseApiToolPromptsRequest) (*emptypb.Empty, error) {
-	err := s.baseAPICase.SetBaseAPIToolPrompts(ctx, req)
+// UpdateBaseApi 更新API配置
+func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *adminv1.UpdateBaseApiRequest) (*emptypb.Empty, error) {
+	err := s.baseAPICase.UpdateBaseAPI(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseApiToolPrompts %v", err)
-		return nil, errorsx.WrapInternal(err, "设置API工具提示词失败")
+		log.Errorf("UpdateBaseApi %v", err)
+		return nil, errorsx.WrapInternal(err, "更新API配置失败")
 	}
 
 	return &emptypb.Empty{}, nil

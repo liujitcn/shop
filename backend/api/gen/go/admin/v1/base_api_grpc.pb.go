@@ -27,7 +27,7 @@ const (
 	BaseApiService_GetBaseApiDoc_FullMethodName          = "/admin.v1.BaseApiService/GetBaseApiDoc"
 	BaseApiService_SetBaseApiMcpEnabled_FullMethodName   = "/admin.v1.BaseApiService/SetBaseApiMcpEnabled"
 	BaseApiService_SetBaseApiAgentEnabled_FullMethodName = "/admin.v1.BaseApiService/SetBaseApiAgentEnabled"
-	BaseApiService_SetBaseApiToolPrompts_FullMethodName  = "/admin.v1.BaseApiService/SetBaseApiToolPrompts"
+	BaseApiService_UpdateBaseApi_FullMethodName          = "/admin.v1.BaseApiService/UpdateBaseApi"
 )
 
 // BaseApiServiceClient is the client API for BaseApiService service.
@@ -48,8 +48,8 @@ type BaseApiServiceClient interface {
 	SetBaseApiMcpEnabled(ctx context.Context, in *SetBaseApiMcpEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 设置API Agent启用状态
 	SetBaseApiAgentEnabled(ctx context.Context, in *SetBaseApiAgentEnabledRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 设置API工具提示词
-	SetBaseApiToolPrompts(ctx context.Context, in *SetBaseApiToolPromptsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新API配置
+	UpdateBaseApi(ctx context.Context, in *UpdateBaseApiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type baseApiServiceClient struct {
@@ -120,10 +120,10 @@ func (c *baseApiServiceClient) SetBaseApiAgentEnabled(ctx context.Context, in *S
 	return out, nil
 }
 
-func (c *baseApiServiceClient) SetBaseApiToolPrompts(ctx context.Context, in *SetBaseApiToolPromptsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *baseApiServiceClient) UpdateBaseApi(ctx context.Context, in *UpdateBaseApiRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, BaseApiService_SetBaseApiToolPrompts_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, BaseApiService_UpdateBaseApi_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -148,8 +148,8 @@ type BaseApiServiceServer interface {
 	SetBaseApiMcpEnabled(context.Context, *SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error)
 	// 设置API Agent启用状态
 	SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error)
-	// 设置API工具提示词
-	SetBaseApiToolPrompts(context.Context, *SetBaseApiToolPromptsRequest) (*emptypb.Empty, error)
+	// 更新API配置
+	UpdateBaseApi(context.Context, *UpdateBaseApiRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBaseApiServiceServer()
 }
 
@@ -178,8 +178,8 @@ func (UnimplementedBaseApiServiceServer) SetBaseApiMcpEnabled(context.Context, *
 func (UnimplementedBaseApiServiceServer) SetBaseApiAgentEnabled(context.Context, *SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method SetBaseApiAgentEnabled not implemented")
 }
-func (UnimplementedBaseApiServiceServer) SetBaseApiToolPrompts(context.Context, *SetBaseApiToolPromptsRequest) (*emptypb.Empty, error) {
-	return nil, status.Error(codes.Unimplemented, "method SetBaseApiToolPrompts not implemented")
+func (UnimplementedBaseApiServiceServer) UpdateBaseApi(context.Context, *UpdateBaseApiRequest) (*emptypb.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateBaseApi not implemented")
 }
 func (UnimplementedBaseApiServiceServer) mustEmbedUnimplementedBaseApiServiceServer() {}
 func (UnimplementedBaseApiServiceServer) testEmbeddedByValue()                        {}
@@ -310,20 +310,20 @@ func _BaseApiService_SetBaseApiAgentEnabled_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BaseApiService_SetBaseApiToolPrompts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetBaseApiToolPromptsRequest)
+func _BaseApiService_UpdateBaseApi_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateBaseApiRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BaseApiServiceServer).SetBaseApiToolPrompts(ctx, in)
+		return srv.(BaseApiServiceServer).UpdateBaseApi(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BaseApiService_SetBaseApiToolPrompts_FullMethodName,
+		FullMethod: BaseApiService_UpdateBaseApi_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BaseApiServiceServer).SetBaseApiToolPrompts(ctx, req.(*SetBaseApiToolPromptsRequest))
+		return srv.(BaseApiServiceServer).UpdateBaseApi(ctx, req.(*UpdateBaseApiRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -360,8 +360,8 @@ var BaseApiService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _BaseApiService_SetBaseApiAgentEnabled_Handler,
 		},
 		{
-			MethodName: "SetBaseApiToolPrompts",
-			Handler:    _BaseApiService_SetBaseApiToolPrompts_Handler,
+			MethodName: "UpdateBaseApi",
+			Handler:    _BaseApiService_UpdateBaseApi_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

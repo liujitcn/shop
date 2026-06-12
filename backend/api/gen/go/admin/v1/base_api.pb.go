@@ -37,7 +37,7 @@ type PageBaseApisRequest struct {
 	McpEnabled    *bool                  `protobuf:"varint,7,opt,name=mcp_enabled,json=mcpEnabled,proto3,oneof" json:"mcp_enabled,omitempty"`       // 是否暴露为MCP工具
 	AgentEnabled  *bool                  `protobuf:"varint,8,opt,name=agent_enabled,json=agentEnabled,proto3,oneof" json:"agent_enabled,omitempty"` // 是否暴露为Agent工具
 	ToolName      *string                `protobuf:"bytes,9,opt,name=tool_name,json=toolName,proto3,oneof" json:"tool_name,omitempty"`              // 工具名
-	ToolPrompt    *string                `protobuf:"bytes,10,opt,name=tool_prompt,json=toolPrompt,proto3,oneof" json:"tool_prompt,omitempty"`       // 工具提示词
+	ToolPrompt    *string                `protobuf:"bytes,10,opt,name=tool_prompt,json=toolPrompt,proto3,oneof" json:"tool_prompt,omitempty"`       // Agent/MCP工具提示词搜索关键字
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                    // 页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                 // 每页数量
 	unknownFields protoimpl.UnknownFields
@@ -407,29 +407,31 @@ func (x *SetBaseApiAgentEnabledRequest) GetAgentEnabled() bool {
 	return false
 }
 
-// API工具提示词设置条件
-type SetBaseApiToolPromptsRequest struct {
+// API更新条件
+type UpdateBaseApiRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                     // API ID
-	ToolPrompts   []string               `protobuf:"bytes,2,rep,name=tool_prompts,json=toolPrompts,proto3" json:"tool_prompts,omitempty"` // 工具提示词
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                         // API ID
+	McpEnabled    bool                   `protobuf:"varint,2,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`       // 是否暴露为MCP工具
+	AgentEnabled  bool                   `protobuf:"varint,3,opt,name=agent_enabled,json=agentEnabled,proto3" json:"agent_enabled,omitempty"` // 是否暴露为Agent工具
+	ToolPrompts   []string               `protobuf:"bytes,4,rep,name=tool_prompts,json=toolPrompts,proto3" json:"tool_prompts,omitempty"`     // Agent/MCP工具提示词
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *SetBaseApiToolPromptsRequest) Reset() {
-	*x = SetBaseApiToolPromptsRequest{}
+func (x *UpdateBaseApiRequest) Reset() {
+	*x = UpdateBaseApiRequest{}
 	mi := &file_admin_v1_base_api_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *SetBaseApiToolPromptsRequest) String() string {
+func (x *UpdateBaseApiRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*SetBaseApiToolPromptsRequest) ProtoMessage() {}
+func (*UpdateBaseApiRequest) ProtoMessage() {}
 
-func (x *SetBaseApiToolPromptsRequest) ProtoReflect() protoreflect.Message {
+func (x *UpdateBaseApiRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_admin_v1_base_api_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -441,19 +443,33 @@ func (x *SetBaseApiToolPromptsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use SetBaseApiToolPromptsRequest.ProtoReflect.Descriptor instead.
-func (*SetBaseApiToolPromptsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use UpdateBaseApiRequest.ProtoReflect.Descriptor instead.
+func (*UpdateBaseApiRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_api_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *SetBaseApiToolPromptsRequest) GetId() int64 {
+func (x *UpdateBaseApiRequest) GetId() int64 {
 	if x != nil {
 		return x.Id
 	}
 	return 0
 }
 
-func (x *SetBaseApiToolPromptsRequest) GetToolPrompts() []string {
+func (x *UpdateBaseApiRequest) GetMcpEnabled() bool {
+	if x != nil {
+		return x.McpEnabled
+	}
+	return false
+}
+
+func (x *UpdateBaseApiRequest) GetAgentEnabled() bool {
+	if x != nil {
+		return x.AgentEnabled
+	}
+	return false
+}
+
+func (x *UpdateBaseApiRequest) GetToolPrompts() []string {
 	if x != nil {
 		return x.ToolPrompts
 	}
@@ -555,7 +571,7 @@ type BaseApi struct {
 	McpEnabled    bool                   `protobuf:"varint,8,opt,name=mcp_enabled,json=mcpEnabled,proto3" json:"mcp_enabled,omitempty"`       // 是否暴露为MCP工具
 	AgentEnabled  bool                   `protobuf:"varint,9,opt,name=agent_enabled,json=agentEnabled,proto3" json:"agent_enabled,omitempty"` // 是否暴露为Agent工具
 	ToolName      string                 `protobuf:"bytes,10,opt,name=tool_name,json=toolName,proto3" json:"tool_name,omitempty"`             // 工具名
-	ToolPrompts   []string               `protobuf:"bytes,11,rep,name=tool_prompts,json=toolPrompts,proto3" json:"tool_prompts,omitempty"`    // 工具提示词
+	ToolPrompts   []string               `protobuf:"bytes,11,rep,name=tool_prompts,json=toolPrompts,proto3" json:"tool_prompts,omitempty"`    // Agent/MCP工具提示词
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -934,7 +950,7 @@ var File_admin_v1_base_api_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\n" +
-	"\x17admin/v1/base_api.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xaf\x06\n" +
+	"\x17admin/v1/base_api.proto\x12\badmin.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc7\x06\n" +
 	"\x13PageBaseApisRequest\x127\n" +
 	"\fservice_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名H\x00R\vserviceName\x88\x01\x01\x12:\n" +
 	"\fservice_desc\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f服务描述H\x01R\vserviceDesc\x88\x01\x01\x12%\n" +
@@ -945,9 +961,9 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\vmcp_enabled\x18\a \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否暴露为MCP工具H\x06R\n" +
 	"mcpEnabled\x88\x01\x01\x12J\n" +
 	"\ragent_enabled\x18\b \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具H\aR\fagentEnabled\x88\x01\x01\x121\n" +
-	"\ttool_name\x18\t \x01(\tB\x0f\xbaG\f\x92\x02\t工具名H\bR\btoolName\x88\x01\x01\x12;\n" +
+	"\ttool_name\x18\t \x01(\tB\x0f\xbaG\f\x92\x02\t工具名H\bR\btoolName\x88\x01\x01\x12S\n" +
 	"\vtool_prompt\x18\n" +
-	" \x01(\tB\x15\xbaG\x12\x92\x02\x0f工具提示词H\tR\n" +
+	" \x01(\tB-\xbaG*\x92\x02'Agent/MCP工具提示词搜索关键字H\tR\n" +
 	"toolPrompt\x88\x01\x01\x12'\n" +
 	"\bpage_num\x18e \x01(\x03B\f\xbaG\t\x92\x02\x06页码R\apageNum\x12/\n" +
 	"\tpage_size\x18f \x01(\x03B\x12\xbaG\x0f\x92\x02\f每页数量R\bpageSizeB\x0f\n" +
@@ -976,13 +992,16 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"mcpEnabled\"\x84\x01\n" +
 	"\x1dSetBaseApiAgentEnabledRequest\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12E\n" +
-	"\ragent_enabled\x18\x02 \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具R\fagentEnabled\"v\n" +
-	"\x1cSetBaseApiToolPromptsRequest\x12\x1c\n" +
-	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x128\n" +
-	"\ftool_prompts\x18\x02 \x03(\tB\x15\xbaG\x12\x92\x02\x0f工具提示词R\vtoolPrompts\"\x15\n" +
+	"\ragent_enabled\x18\x02 \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具R\fagentEnabled\"\xbf\x02\n" +
+	"\x14UpdateBaseApiRequest\x12\x1c\n" +
+	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12?\n" +
+	"\vmcp_enabled\x18\x02 \x01(\bB\x1e\xbaG\x1b\x92\x02\x18是否暴露为MCP工具R\n" +
+	"mcpEnabled\x12E\n" +
+	"\ragent_enabled\x18\x03 \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具R\fagentEnabled\x12\x80\x01\n" +
+	"\ftool_prompts\x18\x04 \x03(\tB]\xbaGZ\x92\x02WAgent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据R\vtoolPrompts\"\x15\n" +
 	"\x13ListBaseApisRequest\"W\n" +
 	"\x14ListBaseApisResponse\x12?\n" +
-	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xaa\x04\n" +
+	"\tbase_apis\x18\x01 \x03(\v2\x11.admin.v1.BaseApiB\x0f\xbaG\f\x92\x02\tAPI列表R\bbaseApis\"\xf3\x04\n" +
 	"\aBaseApi\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x122\n" +
 	"\fservice_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t服务名R\vserviceName\x125\n" +
@@ -995,8 +1014,8 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"mcpEnabled\x12E\n" +
 	"\ragent_enabled\x18\t \x01(\bB \xbaG\x1d\x92\x02\x1a是否暴露为Agent工具R\fagentEnabled\x12,\n" +
 	"\ttool_name\x18\n" +
-	" \x01(\tB\x0f\xbaG\f\x92\x02\t工具名R\btoolName\x128\n" +
-	"\ftool_prompts\x18\v \x03(\tB\x15\xbaG\x12\x92\x02\x0f工具提示词R\vtoolPrompts\"\xef\x02\n" +
+	" \x01(\tB\x0f\xbaG\f\x92\x02\t工具名R\btoolName\x12\x80\x01\n" +
+	"\ftool_prompts\x18\v \x03(\tB]\xbaGZ\x92\x02WAgent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据R\vtoolPrompts\"\xef\x02\n" +
 	"\n" +
 	"BaseApiDoc\x12\x1c\n" +
 	"\x02id\x18\x01 \x01(\x03B\f\xbaG\t\x92\x02\x06API IDR\x02id\x12&\n" +
@@ -1022,7 +1041,7 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"\x12BaseApiDocResponse\x12'\n" +
 	"\x06status\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t状态码R\x06status\x124\n" +
 	"\vdescription\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f响应描述R\vdescription\x12?\n" +
-	"\x04body\x18\x03 \x01(\v2\x1a.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t响应体R\x04body2\xf5\x06\n" +
+	"\x04body\x18\x03 \x01(\v2\x1a.admin.v1.BaseApiDocSchemaB\x0f\xbaG\f\x92\x02\t响应体R\x04body2\xd7\x06\n" +
 	"\x0eBaseApiService\x12m\n" +
 	"\fPageBaseApis\x12\x1d.admin.v1.PageBaseApisRequest\x1a\x1e.admin.v1.PageBaseApisResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/api/v1/admin/base/api\x12t\n" +
 	"\fListBaseApis\x12\x1d.admin.v1.ListBaseApisRequest\x1a\x1e.admin.v1.ListBaseApisResponse\"%\x82\xd3\xe4\x93\x02\x1f\x12\x1d/api/v1/admin/base/api/option\x12a\n" +
@@ -1030,8 +1049,8 @@ const file_admin_v1_base_api_proto_rawDesc = "" +
 	"GetBaseApi\x12\x1b.admin.v1.GetBaseApiRequest\x1a\x11.admin.v1.BaseApi\"#\x82\xd3\xe4\x93\x02\x1d\x12\x1b/api/v1/admin/base/api/{id}\x12n\n" +
 	"\rGetBaseApiDoc\x12\x1e.admin.v1.GetBaseApiDocRequest\x1a\x14.admin.v1.BaseApiDoc\"'\x82\xd3\xe4\x93\x02!\x12\x1f/api/v1/admin/base/api/{id}/doc\x12\x89\x01\n" +
 	"\x14SetBaseApiMcpEnabled\x12%.admin.v1.SetBaseApiMcpEnabledRequest\x1a\x16.google.protobuf.Empty\"2\x82\xd3\xe4\x93\x02,:\x01*\x1a'/api/v1/admin/base/api/{id}/mcp-enabled\x12\x8f\x01\n" +
-	"\x16SetBaseApiAgentEnabled\x12'.admin.v1.SetBaseApiAgentEnabledRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x01*\x1a)/api/v1/admin/base/api/{id}/agent-enabled\x12\x8c\x01\n" +
-	"\x15SetBaseApiToolPrompts\x12&.admin.v1.SetBaseApiToolPromptsRequest\x1a\x16.google.protobuf.Empty\"3\x82\xd3\xe4\x93\x02-:\x01*\x1a(/api/v1/admin/base/api/{id}/tool-promptsB\x7f\n" +
+	"\x16SetBaseApiAgentEnabled\x12'.admin.v1.SetBaseApiAgentEnabledRequest\x1a\x16.google.protobuf.Empty\"4\x82\xd3\xe4\x93\x02.:\x01*\x1a)/api/v1/admin/base/api/{id}/agent-enabled\x12o\n" +
+	"\rUpdateBaseApi\x12\x1e.admin.v1.UpdateBaseApiRequest\x1a\x16.google.protobuf.Empty\"&\x82\xd3\xe4\x93\x02 :\x01*\x1a\x1b/api/v1/admin/base/api/{id}B\x7f\n" +
 	"\fcom.admin.v1B\fBaseApiProtoP\x01Z shop/api/gen/go/admin/v1;adminv1\xa2\x02\x03AXX\xaa\x02\bAdmin.V1\xca\x02\bAdmin\\V1\xe2\x02\x14Admin\\V1\\GPBMetadata\xea\x02\tAdmin::V1b\x06proto3"
 
 var (
@@ -1054,7 +1073,7 @@ var file_admin_v1_base_api_proto_goTypes = []any{
 	(*GetBaseApiDocRequest)(nil),          // 3: admin.v1.GetBaseApiDocRequest
 	(*SetBaseApiMcpEnabledRequest)(nil),   // 4: admin.v1.SetBaseApiMcpEnabledRequest
 	(*SetBaseApiAgentEnabledRequest)(nil), // 5: admin.v1.SetBaseApiAgentEnabledRequest
-	(*SetBaseApiToolPromptsRequest)(nil),  // 6: admin.v1.SetBaseApiToolPromptsRequest
+	(*UpdateBaseApiRequest)(nil),          // 6: admin.v1.UpdateBaseApiRequest
 	(*ListBaseApisRequest)(nil),           // 7: admin.v1.ListBaseApisRequest
 	(*ListBaseApisResponse)(nil),          // 8: admin.v1.ListBaseApisResponse
 	(*BaseApi)(nil),                       // 9: admin.v1.BaseApi
@@ -1077,14 +1096,14 @@ var file_admin_v1_base_api_proto_depIdxs = []int32{
 	3,  // 10: admin.v1.BaseApiService.GetBaseApiDoc:input_type -> admin.v1.GetBaseApiDocRequest
 	4,  // 11: admin.v1.BaseApiService.SetBaseApiMcpEnabled:input_type -> admin.v1.SetBaseApiMcpEnabledRequest
 	5,  // 12: admin.v1.BaseApiService.SetBaseApiAgentEnabled:input_type -> admin.v1.SetBaseApiAgentEnabledRequest
-	6,  // 13: admin.v1.BaseApiService.SetBaseApiToolPrompts:input_type -> admin.v1.SetBaseApiToolPromptsRequest
+	6,  // 13: admin.v1.BaseApiService.UpdateBaseApi:input_type -> admin.v1.UpdateBaseApiRequest
 	1,  // 14: admin.v1.BaseApiService.PageBaseApis:output_type -> admin.v1.PageBaseApisResponse
 	8,  // 15: admin.v1.BaseApiService.ListBaseApis:output_type -> admin.v1.ListBaseApisResponse
 	9,  // 16: admin.v1.BaseApiService.GetBaseApi:output_type -> admin.v1.BaseApi
 	10, // 17: admin.v1.BaseApiService.GetBaseApiDoc:output_type -> admin.v1.BaseApiDoc
 	13, // 18: admin.v1.BaseApiService.SetBaseApiMcpEnabled:output_type -> google.protobuf.Empty
 	13, // 19: admin.v1.BaseApiService.SetBaseApiAgentEnabled:output_type -> google.protobuf.Empty
-	13, // 20: admin.v1.BaseApiService.SetBaseApiToolPrompts:output_type -> google.protobuf.Empty
+	13, // 20: admin.v1.BaseApiService.UpdateBaseApi:output_type -> google.protobuf.Empty
 	14, // [14:21] is the sub-list for method output_type
 	7,  // [7:14] is the sub-list for method input_type
 	7,  // [7:7] is the sub-list for extension type_name

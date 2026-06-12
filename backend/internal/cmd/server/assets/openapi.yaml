@@ -455,6 +455,27 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/BaseApi'
+        put:
+            tags:
+                - BaseApiService
+            description: 更新API配置
+            operationId: BaseApiService_UpdateBaseApi
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateBaseApiRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/api/{id}/agent-enabled:
         put:
             tags:
@@ -513,28 +534,6 @@ paths:
                     application/json:
                         schema:
                             $ref: '#/components/schemas/SetBaseApiMcpEnabledRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content: {}
-    /api/v1/admin/base/api/{id}/tool-prompts:
-        put:
-            tags:
-                - BaseApiService
-            description: 设置API工具提示词
-            operationId: BaseApiService_SetBaseApiToolPrompts
-            parameters:
-                - name: id
-                  in: path
-                  required: true
-                  schema:
-                    type: string
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/SetBaseApiToolPromptsRequest'
                 required: true
             responses:
                 "200":
@@ -6420,7 +6419,7 @@ components:
                     type: array
                     items:
                         type: string
-                    description: 工具提示词
+                    description: Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据
             description: API
         BaseApiDoc:
             type: object
@@ -11407,18 +11406,6 @@ components:
                     type: boolean
                     description: 是否暴露为MCP工具
             description: API MCP启用状态设置条件
-        SetBaseApiToolPromptsRequest:
-            type: object
-            properties:
-                id:
-                    type: string
-                    description: API ID
-                toolPrompts:
-                    type: array
-                    items:
-                        type: string
-                    description: 工具提示词
-            description: API工具提示词设置条件
         SetBaseConfigStatusRequest:
             type: object
             properties:
@@ -12453,6 +12440,24 @@ components:
                 session:
                     $ref: '#/components/schemas/AiAssistantSession'
             description: AI 助手会话更新响应
+        UpdateBaseApiRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: API ID
+                mcpEnabled:
+                    type: boolean
+                    description: 是否暴露为MCP工具
+                agentEnabled:
+                    type: boolean
+                    description: 是否暴露为Agent工具
+                toolPrompts:
+                    type: array
+                    items:
+                        type: string
+                    description: Agent/MCP工具提示词，作为工具描述覆盖、候选命中和目录展示依据
+            description: API更新条件
         UploadFileInfo:
             type: object
             properties:

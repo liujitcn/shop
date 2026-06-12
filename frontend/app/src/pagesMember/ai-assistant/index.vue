@@ -2193,6 +2193,8 @@ function resolveFlowActionLabel(action: AiAssistantAction) {
     submit_review: '提交评价',
     view_order: '查看订单',
     receive_order: '确认收货',
+    view_goods_category: '查看分类商品',
+    view_shop_hot_item: '查看热门专区',
   }
   return labelMap[action.type] || '继续'
 }
@@ -2404,6 +2406,12 @@ function resolveFlowRevealField(block: AssistantFlowBlock) {
   }
   if (block.type === 'order_list') {
     return 'orders'
+  }
+  if (block.type === 'cart_list') {
+    return 'carts'
+  }
+  if (block.type === 'simple_list') {
+    return 'items'
   }
   return ''
 }

@@ -3,6 +3,7 @@ package flow
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -18,17 +19,34 @@ const (
 	aiAssistantFlowPendingPayment = string(einoWorkflow.FlowPendingPayment)
 	aiAssistantFlowPendingReview  = string(einoWorkflow.FlowPendingReview)
 	aiAssistantFlowOrderLogistics = string(einoWorkflow.FlowOrderLogistics)
+	aiAssistantFlowUserCart       = string(einoWorkflow.FlowUserCart)
+	aiAssistantFlowUserCollect    = string(einoWorkflow.FlowUserCollect)
+	aiAssistantFlowUserAddress    = string(einoWorkflow.FlowUserAddress)
+	aiAssistantFlowUserProfile    = string(einoWorkflow.FlowUserProfile)
+	aiAssistantFlowUserStore      = string(einoWorkflow.FlowUserStore)
+	aiAssistantFlowGoodsCategory  = string(einoWorkflow.FlowGoodsCategory)
+	aiAssistantFlowShopHot        = string(einoWorkflow.FlowShopHot)
+	aiAssistantFlowShopService    = string(einoWorkflow.FlowShopService)
 
+	aiAssistantToolGetUserProfile     = "app_v1_auth_service_get_user_profile"
 	aiAssistantToolRecommendGoods     = "app_v1_recommend_service_recommend_goods"
 	aiAssistantToolPageGoodsInfo      = "app_v1_goods_info_service_page_goods_info"
 	aiAssistantToolGetGoodsInfo       = "app_v1_goods_info_service_get_goods_info"
+	aiAssistantToolListGoodsCategory  = "app_v1_goods_category_service_list_goods_categories"
 	aiAssistantToolBuyNowOrderInfo    = "app_v1_order_info_service_buy_now_order_info"
 	aiAssistantToolCreateOrderInfo    = "app_v1_order_info_service_create_order_info"
 	aiAssistantToolPageOrderInfo      = "app_v1_order_info_service_page_order_info"
 	aiAssistantToolGetOrderInfoByID   = "app_v1_order_info_service_get_order_info_by_id"
 	aiAssistantToolReceiveOrderInfo   = "app_v1_order_info_service_receive_order_info"
+	aiAssistantToolListShopHots       = "app_v1_shop_hot_service_list_shop_hots"
+	aiAssistantToolListShopHotItems   = "app_v1_shop_hot_service_list_shop_hot_items"
+	aiAssistantToolPageShopHotGoods   = "app_v1_shop_hot_service_page_shop_hot_goods"
+	aiAssistantToolListShopServices   = "app_v1_shop_service_service_list_shop_services"
 	aiAssistantToolListUserAddresses  = "app_v1_user_address_service_list_user_addresses"
 	aiAssistantToolCreateUserAddress  = "app_v1_user_address_service_create_user_address"
+	aiAssistantToolListUserCarts      = "app_v1_user_cart_service_list_user_carts"
+	aiAssistantToolPageUserCollects   = "app_v1_user_collect_service_page_user_collects"
+	aiAssistantToolGetUserStore       = "app_v1_user_store_service_get_user_store"
 	aiAssistantToolPagePendingComment = "app_v1_comment_service_page_pending_comment_goods"
 	aiAssistantToolCreateComment      = "app_v1_comment_service_create_comment"
 	aiAssistantToolJSAPIPay           = "app_v1_pay_service_jsapi_pay"
@@ -41,6 +59,13 @@ var aiAssistantFlowRegistry = einoWorkflow.MustNewAppRegistry[*assistant.Respons
 type Runner struct {
 	runtime  *assistant.Runtime
 	terminal int32
+}
+
+// aiAssistantProfileField 表示资料面板中的字段展示规则。
+type aiAssistantProfileField struct {
+	label  string
+	key    string
+	format func(any) string
 }
 
 // GenerateReply 生成移动端闭环流程回复。
@@ -125,6 +150,26 @@ func (r *Runner) ExecuteWorkflowAction(ctx context.Context, action einoWorkflow.
 		return r.viewAiAssistantOrder(ctx, payload)
 	case "receive_order":
 		return r.receiveAiAssistantOrder(ctx, payload)
+	case "open_user_cart":
+		return r.openAiAssistantUserCartFlow(ctx)
+	case "open_user_collect":
+		return r.openAiAssistantUserCollectFlow(ctx)
+	case "open_user_address":
+		return r.openAiAssistantUserAddressFlow(ctx)
+	case "open_user_profile":
+		return r.openAiAssistantUserProfileFlow(ctx)
+	case "open_user_store":
+		return r.openAiAssistantUserStoreFlow(ctx)
+	case "open_goods_category":
+		return r.openAiAssistantGoodsCategoryFlow(ctx)
+	case "view_goods_category":
+		return r.viewAiAssistantGoodsCategory(ctx, payload)
+	case "open_shop_hot":
+		return r.openAiAssistantShopHotFlow(ctx)
+	case "view_shop_hot_item":
+		return r.viewAiAssistantShopHotItem(ctx, payload)
+	case "open_shop_service":
+		return r.openAiAssistantShopServiceFlow(ctx)
 	default:
 		return nil, errorsx.InvalidArgument("助手动作不支持")
 	}
@@ -214,19 +259,32 @@ func (r *Runner) createAiAssistantAddress(ctx context.Context, payload map[strin
 	if len(userAddress) == 0 {
 		return nil, errorsx.InvalidArgument("收货地址不能为空")
 	}
+	orderPayload := mapValue(payload["order_payload"])
+	flowName := aiAssistantFlowUserAddress
+	if len(orderPayload) > 0 {
+		flowName = aiAssistantFlowShopping
+	}
 	_, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolCreateUserAddress, map[string]any{"user_address": userAddress})
 	tools := appendAiAssistantFlowTool(nil, usage)
 	if err != nil {
-		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "address", tools), nil
+		return r.aiAssistantFlowErrorResponse(flowName, "address", tools), nil
 	}
 	addressOutput, addressUsage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
 	tools = appendAiAssistantFlowTool(tools, addressUsage)
 	if err != nil {
-		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopping, "address", tools), nil
+		return r.aiAssistantFlowErrorResponse(flowName, "address", tools), nil
+	}
+	if len(orderPayload) == 0 {
+		blocks := []map[string]any{
+			{"type": "success", "title": "地址已保存", "desc": "新的收货地址已经加入地址列表。"},
+			buildAiAssistantAddressSelectorBlock(addressOutput, nil),
+			buildAiAssistantAddressFormBlock(nil, aiAssistantFlowUserAddress),
+		}
+		return r.aiAssistantFlowResponse(aiAssistantFlowUserAddress, "address", "地址已经保存好了。", blocks, tools), nil
 	}
 	blocks := []map[string]any{
 		{"type": "success", "title": "地址已保存", "desc": "可以继续选择这个地址下单。"},
-		buildAiAssistantAddressSelectorBlock(addressOutput, mapValue(payload["order_payload"])),
+		buildAiAssistantAddressSelectorBlock(addressOutput, orderPayload),
 	}
 	return r.aiAssistantFlowResponse(aiAssistantFlowShopping, "address", "地址已经加好了，选择一个地址继续确认订单。", blocks, tools), nil
 }
@@ -401,6 +459,181 @@ func (r *Runner) receiveAiAssistantOrder(ctx context.Context, payload map[string
 	return r.aiAssistantFlowResponse(aiAssistantFlowOrderLogistics, "detail", "已经确认收货。", blocks, tools), nil
 }
 
+// openAiAssistantUserCartFlow 打开购物车查询流程。
+func (r *Runner) openAiAssistantUserCartFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserCarts, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserCart, "list", tools), nil
+	}
+	block := buildAiAssistantCartListBlock(output)
+	return r.aiAssistantFlowResponse(aiAssistantFlowUserCart, "list", "购物车里的商品在这里。", []map[string]any{block}, tools), nil
+}
+
+// openAiAssistantUserCollectFlow 打开收藏商品查询流程。
+func (r *Runner) openAiAssistantUserCollectFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolPageUserCollects, map[string]any{
+		"page_num":  1,
+		"page_size": 6,
+	})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserCollect, "list", tools), nil
+	}
+	block := buildAiAssistantGoodsListBlockFromItems("收藏商品", sliceMapValue(output["user_collects"]), 0)
+	block["total"] = output["total"]
+	return r.aiAssistantFlowResponse(aiAssistantFlowUserCollect, "list", "这些是你收藏过的商品，可以继续查看规格。", []map[string]any{block}, tools), nil
+}
+
+// openAiAssistantUserAddressFlow 打开收货地址管理流程。
+func (r *Runner) openAiAssistantUserAddressFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListUserAddresses, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserAddress, "list", tools), nil
+	}
+	blocks := []map[string]any{
+		buildAiAssistantAddressSelectorBlock(output, nil),
+		buildAiAssistantAddressFormBlock(nil, aiAssistantFlowUserAddress),
+	}
+	return r.aiAssistantFlowResponse(aiAssistantFlowUserAddress, "list", "你的收货地址在这里，也可以继续新增一个地址。", blocks, tools), nil
+}
+
+// openAiAssistantUserProfileFlow 打开用户资料查询流程。
+func (r *Runner) openAiAssistantUserProfileFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolGetUserProfile, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserProfile, "detail", tools), nil
+	}
+	block := buildAiAssistantProfilePanelBlock("个人资料", output, []aiAssistantProfileField{
+		{label: "账号", key: "user_name"},
+		{label: "昵称", key: "nick_name"},
+		{label: "性别", key: "gender", format: aiAssistantGenderLabel},
+		{label: "手机号", key: "phone"},
+	})
+	block["avatar"] = output["avatar"]
+	return r.aiAssistantFlowResponse(aiAssistantFlowUserProfile, "detail", "你的个人资料在这里。", []map[string]any{block}, tools), nil
+}
+
+// openAiAssistantUserStoreFlow 打开用户门店查询流程。
+func (r *Runner) openAiAssistantUserStoreFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolGetUserStore, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowUserStore, "detail", tools), nil
+	}
+	if int64Value(output["id"]) <= 0 {
+		block := map[string]any{
+			"type":  "notice",
+			"title": "暂无门店入驻信息",
+			"desc":  "当前账号还没有提交门店入驻资料。",
+		}
+		return r.aiAssistantFlowResponse(aiAssistantFlowUserStore, "detail", "当前还没有门店入驻信息。", []map[string]any{block}, tools), nil
+	}
+	block := buildAiAssistantProfilePanelBlock("门店入驻", output, []aiAssistantProfileField{
+		{label: "门店名称", key: "name"},
+		{label: "所在地区", key: "address_name", format: joinAnyStringList},
+		{label: "详细地址", key: "detail"},
+		{label: "审核状态", key: "status", format: aiAssistantUserStoreStatusLabel},
+		{label: "备注", key: "remark"},
+	})
+	block["pictures"] = output["picture"]
+	return r.aiAssistantFlowResponse(aiAssistantFlowUserStore, "detail", "你的门店入驻信息在这里。", []map[string]any{block}, tools), nil
+}
+
+// openAiAssistantGoodsCategoryFlow 打开商品分类查询流程。
+func (r *Runner) openAiAssistantGoodsCategoryFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListGoodsCategory, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowGoodsCategory, "list", tools), nil
+	}
+	block := buildAiAssistantCategoryListBlock(output)
+	return r.aiAssistantFlowResponse(aiAssistantFlowGoodsCategory, "list", "这些分类可以继续点进去逛商品。", []map[string]any{block}, tools), nil
+}
+
+// viewAiAssistantGoodsCategory 查询指定分类下的商品。
+func (r *Runner) viewAiAssistantGoodsCategory(ctx context.Context, payload map[string]any) (*assistant.Response, error) {
+	categoryID := int64Value(payload["category_id"])
+	if categoryID <= 0 {
+		return nil, errorsx.InvalidArgument("商品分类参数不合法")
+	}
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolPageGoodsInfo, map[string]any{
+		"category_id": categoryID,
+		"page_num":    1,
+		"page_size":   6,
+	})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowGoodsCategory, "goods", tools), nil
+	}
+	title := stringValue(payload["category_name"])
+	if title == "" {
+		title = "分类商品"
+	}
+	block := buildAiAssistantGoodsListBlockFromItems(title, sliceMapValue(output["goods_infos"]), 0)
+	block["total"] = output["total"]
+	return r.aiAssistantFlowResponse(aiAssistantFlowGoodsCategory, "goods", "这个分类下有这些商品。", []map[string]any{block}, tools), nil
+}
+
+// openAiAssistantShopHotFlow 打开热门专区查询流程。
+func (r *Runner) openAiAssistantShopHotFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopHots, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopHot, "list", tools), nil
+	}
+	block := buildAiAssistantShopHotListBlock(output)
+	return r.aiAssistantFlowResponse(aiAssistantFlowShopHot, "list", "这些热门专区可以继续查看。", []map[string]any{block}, tools), nil
+}
+
+// viewAiAssistantShopHotItem 查询热门专区选项或选项下商品。
+func (r *Runner) viewAiAssistantShopHotItem(ctx context.Context, payload map[string]any) (*assistant.Response, error) {
+	hotItemID := int64Value(payload["hot_item_id"])
+	if hotItemID > 0 {
+		return r.viewAiAssistantShopHotGoods(ctx, hotItemID)
+	}
+	hotID := int64Value(payload["hot_id"])
+	if hotID <= 0 {
+		return nil, errorsx.InvalidArgument("热门专区参数不合法")
+	}
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopHotItems, map[string]any{"id": hotID})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopHot, "item", tools), nil
+	}
+	block := buildAiAssistantShopHotItemListBlock(output)
+	return r.aiAssistantFlowResponse(aiAssistantFlowShopHot, "item", "这个专区下面还有这些热门选项。", []map[string]any{block}, tools), nil
+}
+
+// viewAiAssistantShopHotGoods 查询热门专区选项下商品。
+func (r *Runner) viewAiAssistantShopHotGoods(ctx context.Context, hotItemID int64) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolPageShopHotGoods, map[string]any{
+		"hot_item_id": hotItemID,
+		"page_num":    1,
+		"page_size":   6,
+	})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopHot, "goods", tools), nil
+	}
+	block := buildAiAssistantGoodsListBlockFromItems("热门商品", sliceMapValue(output["goods_infos"]), 0)
+	block["total"] = output["total"]
+	return r.aiAssistantFlowResponse(aiAssistantFlowShopHot, "goods", "这个热门选项下有这些商品。", []map[string]any{block}, tools), nil
+}
+
+// openAiAssistantShopServiceFlow 打开商城服务说明流程。
+func (r *Runner) openAiAssistantShopServiceFlow(ctx context.Context) (*assistant.Response, error) {
+	output, usage, err := r.invokeAiAssistantFlowTool(ctx, aiAssistantToolListShopServices, map[string]any{})
+	tools := appendAiAssistantFlowTool(nil, usage)
+	if err != nil {
+		return r.aiAssistantFlowErrorResponse(aiAssistantFlowShopService, "list", tools), nil
+	}
+	block := buildAiAssistantShopServiceListBlock(output)
+	return r.aiAssistantFlowResponse(aiAssistantFlowShopService, "list", "商城服务说明在这里。", []map[string]any{block}, tools), nil
+}
+
 // invokeAiAssistantFlowTool 通过生成的 Agent Tool 调用业务能力。
 func (r *Runner) invokeAiAssistantFlowTool(ctx context.Context, name string, input map[string]any) (map[string]any, assistant.ToolUsage, error) {
 	if r == nil || r.runtime == nil {
@@ -456,9 +689,17 @@ func (r *Runner) aiAssistantFlowErrorResponse(flow string, step string, tools []
 func buildAiAssistantGoodsListBlock(output map[string]any) map[string]any {
 	goods := sliceMapValue(output["goods_infos"])
 	requestID := int64Value(output["request_id"])
+	return buildAiAssistantGoodsListBlockFromItems("推荐商品", goods, requestID)
+}
+
+// buildAiAssistantGoodsListBlockFromItems 按通用商品数组构造商品卡片。
+func buildAiAssistantGoodsListBlockFromItems(title string, goods []map[string]any, requestID int64) map[string]any {
 	items := make([]map[string]any, 0, len(goods))
 	for index, item := range goods {
-		goodsID := int64Value(item["id"])
+		goodsID := int64Value(item["goods_id"])
+		if goodsID <= 0 {
+			goodsID = int64Value(item["id"])
+		}
 		payload := map[string]any{
 			"goods_id": goodsID,
 			"recommend_context": map[string]any{
@@ -479,7 +720,7 @@ func buildAiAssistantGoodsListBlock(output map[string]any) map[string]any {
 	}
 	return map[string]any{
 		"type":  "goods_list",
-		"title": "推荐商品",
+		"title": title,
 		"goods": items,
 	}
 }
@@ -528,7 +769,7 @@ func buildAiAssistantCheckoutBlocks(orderOutput map[string]any, addressOutput ma
 	addressBlock := buildAiAssistantAddressSelectorBlock(addressOutput, orderPayload)
 	blocks = append(blocks, addressBlock)
 	if len(sliceMapValue(addressOutput["user_addresses"])) == 0 {
-		blocks = append(blocks, buildAiAssistantAddressFormBlock(orderPayload))
+		blocks = append(blocks, buildAiAssistantAddressFormBlock(orderPayload, aiAssistantFlowShopping))
 	}
 	return blocks
 }
@@ -536,6 +777,10 @@ func buildAiAssistantCheckoutBlocks(orderOutput map[string]any, addressOutput ma
 // buildAiAssistantAddressSelectorBlock 构造地址选择卡片。
 func buildAiAssistantAddressSelectorBlock(output map[string]any, orderPayload map[string]any) map[string]any {
 	addresses := sliceMapValue(output["user_addresses"])
+	flowName := aiAssistantFlowUserAddress
+	if len(orderPayload) > 0 {
+		flowName = aiAssistantFlowShopping
+	}
 	items := make([]map[string]any, 0, len(addresses))
 	for _, item := range addresses {
 		addressID := int64Value(item["id"])
@@ -551,8 +796,10 @@ func buildAiAssistantAddressSelectorBlock(output map[string]any, orderPayload ma
 			"address":    item["address"],
 			"detail":     item["detail"],
 			"is_default": item["is_default"],
-			"action":     aiAssistantAction(aiAssistantFlowShopping, "confirm", "select_address", payload),
 		})
+		if len(orderPayload) > 0 {
+			items[len(items)-1]["action"] = aiAssistantAction(flowName, "confirm", "select_address", payload)
+		}
 	}
 	return map[string]any{
 		"type":      "address_selector",
@@ -562,12 +809,15 @@ func buildAiAssistantAddressSelectorBlock(output map[string]any, orderPayload ma
 }
 
 // buildAiAssistantAddressFormBlock 构造新增地址表单卡片。
-func buildAiAssistantAddressFormBlock(orderPayload map[string]any) map[string]any {
+func buildAiAssistantAddressFormBlock(orderPayload map[string]any, flowName string) map[string]any {
+	if flowName == "" {
+		flowName = aiAssistantFlowUserAddress
+	}
 	return map[string]any{
 		"type":          "address_form",
 		"title":         "新增收货地址",
 		"order_payload": orderPayload,
-		"action":        aiAssistantAction(aiAssistantFlowShopping, "address", "create_address", map[string]any{"order_payload": orderPayload}),
+		"action":        aiAssistantAction(flowName, "address", "create_address", map[string]any{"order_payload": orderPayload}),
 	}
 }
 
@@ -677,6 +927,149 @@ func buildAiAssistantOrderDetailBlock(output map[string]any) map[string]any {
 	return block
 }
 
+// buildAiAssistantCartListBlock 构造购物车列表卡片。
+func buildAiAssistantCartListBlock(output map[string]any) map[string]any {
+	carts := sliceMapValue(output["user_carts"])
+	items := make([]map[string]any, 0, len(carts))
+	for _, item := range carts {
+		items = append(items, map[string]any{
+			"id":        item["id"],
+			"goods_id":  item["goods_id"],
+			"name":      item["name"],
+			"picture":   item["picture"],
+			"sku_code":  item["sku_code"],
+			"spec_text": strings.Join(stringListValue(item["spec_item"]), " / "),
+			"num":       item["num"],
+			"price":     item["price"],
+			"checked":   item["is_checked"],
+		})
+	}
+	return map[string]any{
+		"type":  "cart_list",
+		"title": "购物车",
+		"carts": items,
+	}
+}
+
+// buildAiAssistantCategoryListBlock 构造商品分类列表卡片。
+func buildAiAssistantCategoryListBlock(output map[string]any) map[string]any {
+	categories := sliceMapValue(output["goods_categories"])
+	items := make([]map[string]any, 0, len(categories))
+	for _, item := range categories {
+		categoryID := int64Value(item["id"])
+		items = append(items, map[string]any{
+			"id":      categoryID,
+			"title":   item["name"],
+			"picture": item["picture"],
+			"desc":    buildAiAssistantCategoryDesc(item),
+			"action": aiAssistantAction(aiAssistantFlowGoodsCategory, "goods", "view_goods_category", map[string]any{
+				"category_id":   categoryID,
+				"category_name": item["name"],
+			}),
+		})
+	}
+	return map[string]any{
+		"type":  "simple_list",
+		"title": "商品分类",
+		"items": items,
+	}
+}
+
+// buildAiAssistantCategoryDesc 构造分类辅助描述。
+func buildAiAssistantCategoryDesc(item map[string]any) string {
+	goods := sliceMapValue(item["goods"])
+	if len(goods) == 0 {
+		return "点击查看分类商品"
+	}
+	return fmt.Sprintf("%d 个精选商品", len(goods))
+}
+
+// buildAiAssistantShopHotListBlock 构造热门专区列表卡片。
+func buildAiAssistantShopHotListBlock(output map[string]any) map[string]any {
+	values := sliceMapValue(output["shop_hots"])
+	items := make([]map[string]any, 0, len(values))
+	for _, item := range values {
+		hotID := int64Value(item["id"])
+		items = append(items, map[string]any{
+			"id":      hotID,
+			"title":   item["title"],
+			"desc":    item["desc"],
+			"picture": firstStringValue(item["picture"]),
+			"action":  aiAssistantAction(aiAssistantFlowShopHot, "item", "view_shop_hot_item", map[string]any{"hot_id": hotID}),
+		})
+	}
+	return map[string]any{
+		"type":  "simple_list",
+		"title": "热门专区",
+		"items": items,
+	}
+}
+
+// buildAiAssistantShopHotItemListBlock 构造热门专区选项列表卡片。
+func buildAiAssistantShopHotItemListBlock(output map[string]any) map[string]any {
+	values := sliceMapValue(output["shop_hot_items"])
+	items := make([]map[string]any, 0, len(values))
+	for _, item := range values {
+		hotItemID := int64Value(item["id"])
+		items = append(items, map[string]any{
+			"id":     hotItemID,
+			"title":  item["title"],
+			"desc":   "点击查看商品",
+			"action": aiAssistantAction(aiAssistantFlowShopHot, "goods", "view_shop_hot_item", map[string]any{"hot_item_id": hotItemID}),
+		})
+	}
+	title := stringValue(output["title"])
+	if title == "" {
+		title = "热门选项"
+	}
+	return map[string]any{
+		"type":   "simple_list",
+		"title":  title,
+		"banner": output["banner"],
+		"items":  items,
+	}
+}
+
+// buildAiAssistantShopServiceListBlock 构造商城服务说明列表卡片。
+func buildAiAssistantShopServiceListBlock(output map[string]any) map[string]any {
+	values := sliceMapValue(output["shop_services"])
+	items := make([]map[string]any, 0, len(values))
+	for _, item := range values {
+		items = append(items, map[string]any{
+			"title": item["label"],
+			"desc":  item["value"],
+		})
+	}
+	return map[string]any{
+		"type":  "simple_list",
+		"title": "商城服务",
+		"items": items,
+	}
+}
+
+// buildAiAssistantProfilePanelBlock 构造资料详情卡片。
+func buildAiAssistantProfilePanelBlock(title string, output map[string]any, fields []aiAssistantProfileField) map[string]any {
+	items := make([]map[string]any, 0, len(fields))
+	for _, field := range fields {
+		value := stringValue(output[field.key])
+		if field.format != nil {
+			value = field.format(output[field.key])
+		}
+		if value == "" {
+			value = "未填写"
+		}
+		items = append(items, map[string]any{
+			"label": field.label,
+			"value": value,
+		})
+	}
+	return map[string]any{
+		"type":   "profile_panel",
+		"title":  title,
+		"fields": items,
+	}
+}
+
 // matchAiAssistantFlowIntent 根据用户文本识别移动端闭环流程。
 func matchAiAssistantFlowIntent(content string) string {
 	// 优先识别状态类流程，避免“待支付订单”被商品购买意图截走。
@@ -688,6 +1081,30 @@ func matchAiAssistantFlowIntent(content string) string {
 	}
 	if strings.Contains(content, "物流") || strings.Contains(content, "查订单") || strings.Contains(content, "订单") || strings.Contains(content, "收货") || strings.Contains(content, "到哪") {
 		return aiAssistantFlowOrderLogistics
+	}
+	if strings.Contains(content, "购物车") || strings.Contains(content, "加购") {
+		return aiAssistantFlowUserCart
+	}
+	if strings.Contains(content, "收藏") {
+		return aiAssistantFlowUserCollect
+	}
+	if strings.Contains(content, "地址") {
+		return aiAssistantFlowUserAddress
+	}
+	if strings.Contains(content, "个人资料") || strings.Contains(content, "个人信息") || strings.Contains(content, "昵称") || strings.Contains(content, "头像") || strings.Contains(content, "手机号") {
+		return aiAssistantFlowUserProfile
+	}
+	if strings.Contains(content, "门店") || strings.Contains(content, "入驻") || strings.Contains(content, "开店") {
+		return aiAssistantFlowUserStore
+	}
+	if strings.Contains(content, "分类") || strings.Contains(content, "类目") {
+		return aiAssistantFlowGoodsCategory
+	}
+	if strings.Contains(content, "热门") || strings.Contains(content, "热销") || strings.Contains(content, "专区") || strings.Contains(content, "榜") {
+		return aiAssistantFlowShopHot
+	}
+	if strings.Contains(content, "服务") || strings.Contains(content, "保障") || strings.Contains(content, "说明") {
+		return aiAssistantFlowShopService
 	}
 	if strings.Contains(content, "推荐") || strings.Contains(content, "下单") || strings.Contains(content, "购买") || strings.Contains(content, "买") || strings.Contains(content, "商品") {
 		return aiAssistantFlowShopping
@@ -772,6 +1189,61 @@ func stringListValue(value any) []string {
 		result = append(result, stringValue(item))
 	}
 	return result
+}
+
+// joinAnyStringList 将任意字符串数组拼接成展示文本。
+func joinAnyStringList(value any) string {
+	return strings.Join(stringListValue(value), " ")
+}
+
+// firstStringValue 返回字符串或字符串数组中的第一个非空值。
+func firstStringValue(value any) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	case []any:
+		for _, item := range v {
+			text := stringValue(item)
+			if text != "" {
+				return text
+			}
+		}
+	case []string:
+		for _, item := range v {
+			if item != "" {
+				return item
+			}
+		}
+	}
+	return ""
+}
+
+// aiAssistantGenderLabel 转换用户性别枚举展示。
+func aiAssistantGenderLabel(value any) string {
+	switch int64Value(value) {
+	case int64(commonv1.BaseUserGender_SECRET):
+		return "保密"
+	case int64(commonv1.BaseUserGender_BOY):
+		return "男"
+	case int64(commonv1.BaseUserGender_GIRL):
+		return "女"
+	default:
+		return "未填写"
+	}
+}
+
+// aiAssistantUserStoreStatusLabel 转换门店审核状态展示。
+func aiAssistantUserStoreStatusLabel(value any) string {
+	switch int64Value(value) {
+	case int64(commonv1.UserStoreStatus_PENDING_REVIEW):
+		return "待审核"
+	case int64(commonv1.UserStoreStatus_FAILED_REVIEW):
+		return "审核失败"
+	case int64(commonv1.UserStoreStatus_APPROVED):
+		return "审核通过"
+	default:
+		return "未提交"
+	}
 }
 
 // stringValue 将任意 JSON 标量收敛为字符串。

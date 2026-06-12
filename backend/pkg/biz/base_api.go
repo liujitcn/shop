@@ -122,7 +122,9 @@ func (c *BaseAPICase) batchCreateBaseAPI(ctx context.Context, apis []*models.Bas
 				item.AgentEnabled = oldAPI.AgentEnabled
 				// 工具提示词允许后台人工维护，刷新接口时只保留真正自定义过的提示词。
 				oldPrompts := decodeToolPrompts(oldAPI.ToolPrompts)
-				if len(oldPrompts) > 0 && !sameToolPrompts(oldPrompts, defaultToolPrompts(oldAPI.ServiceDesc, oldAPI.Desc)) {
+				oldDefaultPrompts := oldDefaultToolPrompts(oldAPI.ServiceDesc, oldAPI.Desc)
+				newDefaultPrompts := defaultToolPrompts(oldAPI.ToolName, oldAPI.ServiceName, oldAPI.ServiceDesc, oldAPI.Desc, oldAPI.Operation, oldAPI.Method, oldAPI.Path)
+				if len(oldPrompts) > 0 && !sameToolPrompts(oldPrompts, oldDefaultPrompts) && !sameToolPrompts(oldPrompts, newDefaultPrompts) {
 					item.ToolPrompts = oldAPI.ToolPrompts
 				}
 			}
@@ -195,23 +197,39 @@ func parseOperation(path, method string, op *Operation, tagsMap map[string]strin
 
 	operationDesc := operationDescription(op)
 
-	return &models.BaseAPI{
+	baseAPI := &models.BaseAPI{
 		McpEnabled:   true,
 		AgentEnabled: true,
 		ToolName:     kitutils.ToolNameFromRPCPath(operation),
-		ToolPrompts:  encodeToolPrompts(defaultToolPrompts(serviceDesc, operationDesc)),
 		ServiceName:  serviceName,
 		ServiceDesc:  serviceDesc,
 		Desc:         operationDesc,
 		Operation:    operation,
 		Method:       method,
 		Path:         path,
-	}, nil
+	}
+	baseAPI.ToolPrompts = encodeToolPrompts(defaultToolPrompts(baseAPI.ToolName, baseAPI.ServiceName, baseAPI.ServiceDesc, baseAPI.Desc, baseAPI.Operation, baseAPI.Method, baseAPI.Path))
+	return baseAPI, nil
 }
 
-// defaultToolPrompts 根据 OpenAPI 原始服务描述和接口描述生成默认工具提示词。
-func defaultToolPrompts(serviceDesc, desc string) []string {
+// oldDefaultToolPrompts 生成旧版默认提示词，用于判断历史默认值能否自动升级。
+func oldDefaultToolPrompts(serviceDesc, desc string) []string {
 	values := make([]string, 0, 2)
+	if serviceDesc != "" && desc != "" {
+		values = append(values, serviceDesc+"："+desc)
+	}
+	if desc != "" {
+		values = append(values, desc)
+	}
+	if serviceDesc != "" && desc == "" {
+		values = append(values, serviceDesc)
+	}
+	return values
+}
+
+// defaultToolPrompts 根据 OpenAPI 元数据生成默认工具提示词。
+func defaultToolPrompts(toolName, serviceName, serviceDesc, desc, operation, method, path string) []string {
+	values := make([]string, 0, 6)
 	// 服务描述与接口描述同时存在时，保留组合提示，增强完整语义命中。
 	if serviceDesc != "" && desc != "" {
 		values = append(values, serviceDesc+"："+desc)
@@ -221,6 +239,50 @@ func defaultToolPrompts(serviceDesc, desc string) []string {
 	}
 	if serviceDesc != "" && desc == "" {
 		values = append(values, serviceDesc)
+	}
+	terminal := terminalToolPrompt(serviceName)
+	if terminal != "" && desc != "" {
+		values = append(values, terminal+"："+desc)
+	}
+	if toolName != "" {
+		values = append(values, "工具名："+toolName)
+	}
+	if operation != "" {
+		values = append(values, "RPC："+operation)
+	}
+	if method != "" || path != "" {
+		values = append(values, strings.TrimSpace("HTTP："+method+" "+path))
+	}
+	return uniqueToolPrompts(values)
+}
+
+// terminalToolPrompt 根据服务名生成终端提示词。
+func terminalToolPrompt(serviceName string) string {
+	switch {
+	case strings.HasPrefix(serviceName, "admin.v1."):
+		return "管理后台"
+	case strings.HasPrefix(serviceName, "app.v1."):
+		return "商城移动端"
+	case strings.HasPrefix(serviceName, "base.v1."):
+		return "公共基础"
+	default:
+		return ""
+	}
+}
+
+// uniqueToolPrompts 去除空提示词和重复提示词。
+func uniqueToolPrompts(prompts []string) []string {
+	values := make([]string, 0, len(prompts))
+	seen := make(map[string]struct{}, len(prompts))
+	for _, item := range prompts {
+		if item == "" {
+			continue
+		}
+		if _, ok := seen[item]; ok {
+			continue
+		}
+		seen[item] = struct{}{}
+		values = append(values, item)
 	}
 	return values
 }

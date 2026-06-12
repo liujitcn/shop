@@ -21,7 +21,7 @@ func RegisterBaseApiServiceMCPTools(mcpServer *mcp.Server, baseApiServiceServer 
 	RegisterBaseApiServiceGetBaseApiDocMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceSetBaseApiMcpEnabledMCPTool(mcpServer, baseApiServiceServer)
 	RegisterBaseApiServiceSetBaseApiAgentEnabledMCPTool(mcpServer, baseApiServiceServer)
-	RegisterBaseApiServiceSetBaseApiToolPromptsMCPTool(mcpServer, baseApiServiceServer)
+	RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer, baseApiServiceServer)
 }
 
 // RegisterBaseApiServicePageBaseApisMCPTool 注册分页查询API列表的 MCP Tool。
@@ -150,19 +150,19 @@ func RegisterBaseApiServiceSetBaseApiAgentEnabledMCPTool(mcpServer *mcp.Server, 
 	)
 }
 
-// RegisterBaseApiServiceSetBaseApiToolPromptsMCPTool 注册设置API工具提示词的 MCP Tool。
-func RegisterBaseApiServiceSetBaseApiToolPromptsMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
-	mcp.AddTool[*SetBaseApiToolPromptsRequest, *emptypb.Empty](
+// RegisterBaseApiServiceUpdateBaseApiMCPTool 注册更新API配置的 MCP Tool。
+func RegisterBaseApiServiceUpdateBaseApiMCPTool(mcpServer *mcp.Server, baseApiServiceServer BaseApiServiceServer) {
+	mcp.AddTool[*UpdateBaseApiRequest, *emptypb.Empty](
 		mcpServer,
 		&mcp.Tool{
-			Name:        "admin_v1_base_api_service_set_base_api_tool_prompts",
-			Description: "设置API工具提示词",
+			Name:        "admin_v1_base_api_service_update_base_api",
+			Description: "更新API配置",
 		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *SetBaseApiToolPromptsRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
+		func(ctx context.Context, request *mcp.CallToolRequest, input *UpdateBaseApiRequest) (*mcp.CallToolResult, *emptypb.Empty, error) {
 			if input == nil {
-				input = &SetBaseApiToolPromptsRequest{}
+				input = &UpdateBaseApiRequest{}
 			}
-			reply, err := baseApiServiceServer.SetBaseApiToolPrompts(ctx, input)
+			reply, err := baseApiServiceServer.UpdateBaseApi(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

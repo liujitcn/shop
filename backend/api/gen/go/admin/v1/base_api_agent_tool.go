@@ -54,12 +54,12 @@ func NewBaseApiServiceAgentTools(baseApiServiceServer BaseApiServiceServer) ([]t
 		return nil, err
 	}
 	ts = append(ts, setBaseApiAgentEnabledTool)
-	var setBaseApiToolPromptsTool tool.InvokableTool
-	setBaseApiToolPromptsTool, err = NewBaseApiServiceSetBaseApiToolPromptsAgentTool(baseApiServiceServer)
+	var updateBaseApiTool tool.InvokableTool
+	updateBaseApiTool, err = NewBaseApiServiceUpdateBaseApiAgentTool(baseApiServiceServer)
 	if err != nil {
 		return nil, err
 	}
-	ts = append(ts, setBaseApiToolPromptsTool)
+	ts = append(ts, updateBaseApiTool)
 	return ts, nil
 }
 
@@ -151,16 +151,16 @@ func NewBaseApiServiceSetBaseApiAgentEnabledAgentTool(baseApiServiceServer BaseA
 	)
 }
 
-// NewBaseApiServiceSetBaseApiToolPromptsAgentTool 创建设置API工具提示词的 Agent Tool。
-func NewBaseApiServiceSetBaseApiToolPromptsAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*SetBaseApiToolPromptsRequest, *emptypb.Empty](
-		"admin_v1_base_api_service_set_base_api_tool_prompts",
-		"设置API工具提示词",
-		func(ctx context.Context, req *SetBaseApiToolPromptsRequest) (*emptypb.Empty, error) {
+// NewBaseApiServiceUpdateBaseApiAgentTool 创建更新API配置的 Agent Tool。
+func NewBaseApiServiceUpdateBaseApiAgentTool(baseApiServiceServer BaseApiServiceServer) (tool.InvokableTool, error) {
+	return utils.InferTool[*UpdateBaseApiRequest, *emptypb.Empty](
+		"admin_v1_base_api_service_update_base_api",
+		"更新API配置",
+		func(ctx context.Context, req *UpdateBaseApiRequest) (*emptypb.Empty, error) {
 			if req == nil {
-				req = &SetBaseApiToolPromptsRequest{}
+				req = &UpdateBaseApiRequest{}
 			}
-			return baseApiServiceServer.SetBaseApiToolPrompts(ctx, req)
+			return baseApiServiceServer.UpdateBaseApi(ctx, req)
 		},
 	)
 }

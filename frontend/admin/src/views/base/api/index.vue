@@ -94,15 +94,15 @@
     </el-drawer>
 
     <FormDialog
-      v-model="toolPromptDialog.visible"
-      ref="toolPromptDialogRef"
-      title="编辑工具提示词"
-      width="640px"
-      :model="toolPromptForm"
-      :fields="toolPromptFields"
-      label-width="110px"
-      @confirm="handleSubmitToolPrompts"
-      @close="handleCloseToolPromptDialog"
+      v-model="editDialog.visible"
+      ref="editDialogRef"
+      title="编辑API"
+      width="760px"
+      :model="editForm"
+      :fields="editFields"
+      label-width="120px"
+      @confirm="handleSubmitEdit"
+      @close="handleCloseEditDialog"
     />
   </div>
 </template>
@@ -127,7 +127,7 @@ defineOptions({
 
 const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
-const toolPromptDialogRef = ref<InstanceType<typeof FormDialog>>();
+const editDialogRef = ref<InstanceType<typeof FormDialog>>();
 const detailData = ref<BaseApi>();
 const detailDoc = ref<BaseApiDoc>();
 
@@ -135,19 +135,82 @@ const detailDrawer = reactive({
   visible: false
 });
 
-const toolPromptDialog = reactive({
+const editDialog = reactive({
   visible: false
 });
 
-const toolPromptForm = reactive({
+const editForm = reactive({
   id: 0,
+  service_name: "",
+  service_desc: "",
+  desc: "",
+  operation: "",
+  method: "",
+  path: "",
+  tool_name: "",
+  mcp_enabled: false,
+  agent_enabled: false,
   tool_prompts: [] as string[]
 });
 
 const requestBodyRows = computed(() => schemaRows(detailDoc.value?.request_body));
 
-/** 工具提示词编辑表单字段配置。 */
-const toolPromptFields: ProFormField[] = [
+/** API 编辑表单字段配置。 */
+const editFields: ProFormField[] = [
+  {
+    prop: "service_name",
+    label: "服务名",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "service_desc",
+    label: "服务描述",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "desc",
+    label: "描述",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "operation",
+    label: "操作方法",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "method",
+    label: "请求方法",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "path",
+    label: "请求地址",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "tool_name",
+    label: "工具名",
+    component: "input",
+    props: { disabled: true }
+  },
+  {
+    prop: "mcp_enabled",
+    label: "MCP工具",
+    component: "switch",
+    props: { activeText: "启用", inactiveText: "禁用" }
+  },
+  {
+    prop: "agent_enabled",
+    label: "Agent工具",
+    component: "switch",
+    props: { activeText: "启用", inactiveText: "禁用" }
+  },
   {
     prop: "tool_prompts",
     label: "工具提示词",
@@ -217,12 +280,12 @@ const columns: ColumnProps[] = [
     cellType: "actions",
     actions: [
       {
-        label: "编辑提示词",
+        label: "编辑",
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !BUTTONS.value["base:api:tool-prompts"],
-        onClick: scope => handleOpenToolPromptDialog(scope.row as BaseApi)
+        hidden: () => !BUTTONS.value["base:api:update"],
+        onClick: scope => handleOpenEditDialog(scope.row as BaseApi)
       },
       {
         label: "详情",
@@ -282,35 +345,55 @@ function handleCloseDetail() {
 }
 
 /**
- * 打开工具提示词编辑弹窗并回填当前行数据。
+ * 打开 API 编辑弹窗并回填当前行数据。
  */
-function handleOpenToolPromptDialog(row: BaseApi) {
-  toolPromptForm.id = row.id;
-  toolPromptForm.tool_prompts = [...(row.tool_prompts ?? [])];
-  toolPromptDialog.visible = true;
+function handleOpenEditDialog(row: BaseApi) {
+  editForm.id = row.id;
+  editForm.service_name = row.service_name;
+  editForm.service_desc = row.service_desc;
+  editForm.desc = row.desc;
+  editForm.operation = row.operation;
+  editForm.method = row.method;
+  editForm.path = row.path;
+  editForm.tool_name = row.tool_name;
+  editForm.mcp_enabled = row.mcp_enabled;
+  editForm.agent_enabled = row.agent_enabled;
+  editForm.tool_prompts = [...(row.tool_prompts ?? [])];
+  editDialog.visible = true;
 }
 
 /**
- * 关闭工具提示词弹窗并清空表单状态。
+ * 关闭 API 编辑弹窗并清空表单状态。
  */
-function handleCloseToolPromptDialog() {
-  toolPromptDialog.visible = false;
-  toolPromptForm.id = 0;
-  toolPromptForm.tool_prompts = [];
-  toolPromptDialogRef.value?.clearValidate();
+function handleCloseEditDialog() {
+  editDialog.visible = false;
+  editForm.id = 0;
+  editForm.service_name = "";
+  editForm.service_desc = "";
+  editForm.desc = "";
+  editForm.operation = "";
+  editForm.method = "";
+  editForm.path = "";
+  editForm.tool_name = "";
+  editForm.mcp_enabled = false;
+  editForm.agent_enabled = false;
+  editForm.tool_prompts = [];
+  editDialogRef.value?.clearValidate();
 }
 
 /**
- * 提交工具提示词配置。
+ * 提交 API 编辑配置。
  */
-async function handleSubmitToolPrompts() {
-  await toolPromptDialogRef.value?.validate();
-  await defBaseApiService.SetBaseApiToolPrompts({
-    id: toolPromptForm.id,
-    tool_prompts: toolPromptForm.tool_prompts.filter(Boolean)
+async function handleSubmitEdit() {
+  await editDialogRef.value?.validate();
+  await defBaseApiService.UpdateBaseApi({
+    id: editForm.id,
+    mcp_enabled: editForm.mcp_enabled,
+    agent_enabled: editForm.agent_enabled,
+    tool_prompts: editForm.tool_prompts.filter(Boolean)
   });
   ElMessage.success("保存成功");
-  handleCloseToolPromptDialog();
+  handleCloseEditDialog();
   refreshTable();
 }
 

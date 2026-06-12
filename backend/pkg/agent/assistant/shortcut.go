@@ -7,20 +7,47 @@ const (
 	shortcutFlowPendingPayment = "pending_payment"
 	shortcutFlowPendingReview  = "pending_review"
 	shortcutFlowOrderLogistics = "order_logistics"
+	shortcutFlowUserCart       = "user_cart"
+	shortcutFlowUserCollect    = "user_collect"
+	shortcutFlowUserAddress    = "user_address"
+	shortcutFlowUserProfile    = "user_profile"
+	shortcutFlowUserStore      = "user_store"
+	shortcutFlowGoodsCategory  = "goods_category"
+	shortcutFlowShopHot        = "shop_hot"
+	shortcutFlowShopService    = "shop_service"
 
 	shortcutActionOpenShopping       = "open_shopping"
 	shortcutActionOpenPendingPayment = "open_pending_payment"
 	shortcutActionOpenPendingReview  = "open_pending_review"
 	shortcutActionOpenOrderLogistics = "open_order_logistics"
+	shortcutActionOpenUserCart       = "open_user_cart"
+	shortcutActionOpenUserCollect    = "open_user_collect"
+	shortcutActionOpenUserAddress    = "open_user_address"
+	shortcutActionOpenUserProfile    = "open_user_profile"
+	shortcutActionOpenUserStore      = "open_user_store"
+	shortcutActionOpenGoodsCategory  = "open_goods_category"
+	shortcutActionOpenShopHot        = "open_shop_hot"
+	shortcutActionOpenShopService    = "open_shop_service"
 
+	toolGetUserProfile     = "app_v1_auth_service_get_user_profile"
+	toolListBaseAreas      = "app_v1_base_area_service_tree_base_areas"
 	toolPageGoodsInfo      = "app_v1_goods_info_service_page_goods_info"
 	toolGetGoodsInfo       = "app_v1_goods_info_service_get_goods_info"
+	toolListGoodsCategory  = "app_v1_goods_category_service_list_goods_categories"
 	toolBuyNowOrderInfo    = "app_v1_order_info_service_buy_now_order_info"
 	toolCreateOrderInfo    = "app_v1_order_info_service_create_order_info"
+	toolCountOrderInfo     = "app_v1_order_info_service_count_order_info"
 	toolPageOrderInfo      = "app_v1_order_info_service_page_order_info"
 	toolGetOrderInfoByID   = "app_v1_order_info_service_get_order_info_by_id"
+	toolListShopHots       = "app_v1_shop_hot_service_list_shop_hots"
+	toolListShopHotItems   = "app_v1_shop_hot_service_list_shop_hot_items"
+	toolPageShopHotGoods   = "app_v1_shop_hot_service_page_shop_hot_goods"
+	toolListShopServices   = "app_v1_shop_service_service_list_shop_services"
 	toolListUserAddresses  = "app_v1_user_address_service_list_user_addresses"
 	toolCreateUserAddress  = "app_v1_user_address_service_create_user_address"
+	toolListUserCarts      = "app_v1_user_cart_service_list_user_carts"
+	toolPageUserCollects   = "app_v1_user_collect_service_page_user_collects"
+	toolGetUserStore       = "app_v1_user_store_service_get_user_store"
 	toolPagePendingComment = "app_v1_comment_service_page_pending_comment_goods"
 	toolCreateComment      = "app_v1_comment_service_create_comment"
 	toolJSAPIPay           = "app_v1_pay_service_jsapi_pay"
@@ -135,6 +162,130 @@ var shortcutCatalog = []shortcutItem{
 		requiredTools: []string{
 			toolPagePendingComment,
 			toolCreateComment,
+		},
+	},
+	{
+		key:      "user_cart",
+		title:    "看看购物车里有什么",
+		prompt:   "看看购物车里有什么",
+		terminal: TerminalApp,
+		sort:     70,
+		action: shortcutAction{
+			flow: shortcutFlowUserCart,
+			step: "list",
+			typ:  shortcutActionOpenUserCart,
+		},
+		requiredTools: []string{
+			toolListUserCarts,
+		},
+	},
+	{
+		key:      "user_collect",
+		title:    "查看我的收藏商品",
+		prompt:   "查看我的收藏商品",
+		terminal: TerminalApp,
+		sort:     80,
+		action: shortcutAction{
+			flow: shortcutFlowUserCollect,
+			step: "list",
+			typ:  shortcutActionOpenUserCollect,
+		},
+		requiredTools: []string{
+			toolPageUserCollects,
+		},
+	},
+	{
+		key:      "user_address",
+		title:    "管理我的收货地址",
+		prompt:   "管理我的收货地址",
+		terminal: TerminalApp,
+		sort:     90,
+		action: shortcutAction{
+			flow: shortcutFlowUserAddress,
+			step: "list",
+			typ:  shortcutActionOpenUserAddress,
+		},
+		requiredTools: []string{
+			toolListUserAddresses,
+			toolCreateUserAddress,
+			toolListBaseAreas,
+		},
+	},
+	{
+		key:      "user_profile",
+		title:    "查看我的个人资料",
+		prompt:   "查看我的个人资料",
+		terminal: TerminalApp,
+		sort:     100,
+		action: shortcutAction{
+			flow: shortcutFlowUserProfile,
+			step: "detail",
+			typ:  shortcutActionOpenUserProfile,
+		},
+		requiredTools: []string{
+			toolGetUserProfile,
+		},
+	},
+	{
+		key:      "user_store",
+		title:    "查看我的门店入驻",
+		prompt:   "查看我的门店入驻",
+		terminal: TerminalApp,
+		sort:     110,
+		action: shortcutAction{
+			flow: shortcutFlowUserStore,
+			step: "detail",
+			typ:  shortcutActionOpenUserStore,
+		},
+		requiredTools: []string{
+			toolGetUserStore,
+		},
+	},
+	{
+		key:      "goods_category",
+		title:    "按分类逛商品",
+		prompt:   "按分类逛商品",
+		terminal: TerminalApp,
+		sort:     120,
+		action: shortcutAction{
+			flow: shortcutFlowGoodsCategory,
+			step: "list",
+			typ:  shortcutActionOpenGoodsCategory,
+		},
+		requiredTools: []string{
+			toolListGoodsCategory,
+		},
+	},
+	{
+		key:      "shop_hot",
+		title:    "看看热门专区",
+		prompt:   "看看热门专区",
+		terminal: TerminalApp,
+		sort:     130,
+		action: shortcutAction{
+			flow: shortcutFlowShopHot,
+			step: "list",
+			typ:  shortcutActionOpenShopHot,
+		},
+		requiredTools: []string{
+			toolListShopHots,
+			toolListShopHotItems,
+			toolPageShopHotGoods,
+		},
+	},
+	{
+		key:      "shop_service",
+		title:    "商城服务说明有哪些",
+		prompt:   "商城服务说明有哪些",
+		terminal: TerminalApp,
+		sort:     140,
+		action: shortcutAction{
+			flow: shortcutFlowShopService,
+			step: "list",
+			typ:  shortcutActionOpenShopService,
+		},
+		requiredTools: []string{
+			toolListShopServices,
 		},
 	},
 }

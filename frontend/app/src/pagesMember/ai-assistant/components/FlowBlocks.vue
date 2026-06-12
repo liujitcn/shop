@@ -124,6 +124,16 @@ function forwardFlowAction(action?: AiAssistantAction, label?: string) {
 function buildFlowRevealKey(blockIndex: number, field: string) {
   return `${blockIndex}:${field}`
 }
+
+function resolveSimpleItemImage(item: AssistantFlowBlock) {
+  if (item.picture) {
+    return item.picture
+  }
+  if (Array.isArray(item.pictures)) {
+    return item.pictures.find(Boolean) || ''
+  }
+  return ''
+}
 </script>
 
 <template>
@@ -222,6 +232,88 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
         </scroll-view>
       </view>
 
+      <view v-else-if="block.type === 'cart_list'" class="flow-cart-list">
+        <view v-if="!block.carts?.length" class="flow-empty">购物车里暂时没有商品</view>
+        <scroll-view
+          v-else
+          class="flow-scroll-list flow-goods-scroll"
+          scroll-y
+          :show-scrollbar="false"
+          :style="{ height: resolveFlowScrollHeight(block.carts, 500, 136) }"
+        >
+          <view
+            v-for="cart in visibleFlowList(block, blockIndex, 'carts')"
+            :key="cart.id"
+            class="flow-goods-card"
+            :class="{ 'flow-reveal-item': message.flowReveal }"
+          >
+            <image
+              v-if="cart.picture"
+              class="flow-goods-image"
+              mode="aspectFill"
+              :src="formatSrc(cart.picture)"
+            />
+            <view class="flow-goods-info">
+              <view class="flow-goods-name">{{ cart.name }}</view>
+              <view class="flow-goods-desc">{{ cart.spec_text || cart.sku_code }}</view>
+              <view class="flow-price">¥{{ formatPrice(Number(cart.price || 0)) }}</view>
+            </view>
+            <view class="flow-cart-meta">
+              <view class="flow-cart-num">x{{ cart.num || 1 }}</view>
+              <view v-if="cart.checked" class="flow-status-pill">已选</view>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view v-else-if="block.type === 'simple_list'" class="flow-simple-list">
+        <image
+          v-if="block.banner"
+          class="flow-simple-banner"
+          mode="aspectFill"
+          :src="formatSrc(block.banner)"
+        />
+        <view v-if="!block.items?.length" class="flow-empty">暂时没有可展示内容</view>
+        <template v-else>
+          <view
+            v-for="item in visibleFlowList(block, blockIndex, 'items')"
+            :key="item.id || item.title"
+            class="flow-simple-item"
+            :class="{
+              'is-clickable': item.action,
+              'flow-reveal-item': message.flowReveal,
+            }"
+            @tap="item.action && emit('flow-action', item.action, item.title || '继续')"
+          >
+            <image
+              v-if="resolveSimpleItemImage(item)"
+              class="flow-simple-image"
+              mode="aspectFill"
+              :src="formatSrc(resolveSimpleItemImage(item))"
+            />
+            <view class="flow-simple-main">
+              <view class="flow-simple-title">{{ item.title }}</view>
+              <view v-if="item.desc" class="flow-simple-desc">{{ item.desc }}</view>
+            </view>
+            <button v-if="item.action" class="flow-mini-button" hover-class="none">查看</button>
+          </view>
+        </template>
+      </view>
+
+      <view v-else-if="block.type === 'profile_panel'" class="flow-profile-panel">
+        <view class="flow-profile-head" v-if="block.avatar || block.pictures?.[0]">
+          <image
+            class="flow-profile-avatar"
+            mode="aspectFill"
+            :src="formatSrc(block.avatar || block.pictures?.[0])"
+          />
+        </view>
+        <view v-for="field in block.fields || []" :key="field.label" class="flow-line">
+          <text class="flow-line-sub">{{ field.label }}</text>
+          <text class="flow-line-main is-right">{{ field.value }}</text>
+        </view>
+      </view>
+
       <view v-else-if="block.type === 'order_preview'" class="flow-order-preview">
         <view v-for="goods in block.goods" :key="goods.sku_code" class="flow-line">
           <text class="flow-line-main">{{ goods.name }}</text>
@@ -256,11 +348,16 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
         <view
           v-for="address in visibleFlowList(block, blockIndex, 'addresses')"
           :key="address.id"
-          class="flow-address-card is-selectable"
-          :class="{ 'flow-reveal-item': message.flowReveal }"
-          @tap="emit('flow-action', address.action, `选择地址：${address.receiver || ''}`)"
+          class="flow-address-card"
+          :class="{
+            'is-selectable': address.action,
+            'flow-reveal-item': message.flowReveal,
+          }"
+          @tap="
+            address.action &&
+            emit('flow-action', address.action, `选择地址：${address.receiver || ''}`)
+          "
         >
-          <view class="flow-address-check"></view>
           <view class="flow-address-main">
             <view class="flow-line is-strong">
               <text>{{ address.receiver }}</text>
@@ -270,7 +367,7 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
               {{ (address.address || []).join(' ') }} {{ address.detail }}
             </view>
           </view>
-          <view class="flow-address-select">选择</view>
+          <view v-if="address.action" class="flow-address-select">选择</view>
         </view>
       </view>
 
@@ -366,7 +463,6 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
         v-else-if="block.type === 'selected_address'"
         class="flow-address-card is-static is-selected"
       >
-        <view class="flow-address-check is-active"></view>
         <view class="flow-address-main">
           <view class="flow-address-badge">已选地址</view>
           <view class="flow-line is-strong">
@@ -564,7 +660,9 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
 }
 
 .flow-goods-card,
-.flow-address-card {
+.flow-address-card,
+.flow-simple-item,
+.flow-profile-panel {
   display: flex;
   align-items: center;
   gap: 16rpx;
@@ -594,7 +692,8 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
 
 .flow-goods-card + .flow-goods-card,
 .flow-address-card + .flow-address-card,
-.flow-sku-row + .flow-sku-row {
+.flow-sku-row + .flow-sku-row,
+.flow-simple-item + .flow-simple-item {
   margin-top: 14rpx;
 }
 
@@ -616,21 +715,6 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
 .flow-address-card.is-selected {
   border-color: #27ba9b;
   background-color: #f3fffb;
-}
-
-.flow-address-check {
-  flex-shrink: 0;
-  width: 30rpx;
-  height: 30rpx;
-  border: 3rpx solid #27ba9b;
-  border-radius: 50%;
-  box-sizing: border-box;
-  background-color: #fff;
-}
-
-.flow-address-check.is-active {
-  border-width: 8rpx;
-  background-color: #27ba9b;
 }
 
 .flow-address-main {
@@ -674,13 +758,15 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
 }
 
 .flow-goods-info,
-.flow-sku-info {
+.flow-sku-info,
+.flow-simple-main {
   flex: 1;
   min-width: 0;
 }
 
 .flow-goods-name,
-.flow-sku-name {
+.flow-sku-name,
+.flow-simple-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -691,7 +777,8 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
 }
 
 .flow-goods-desc,
-.flow-address-text {
+.flow-address-text,
+.flow-simple-desc {
   margin-top: 6rpx;
   color: #777;
   font-size: 22rpx;
@@ -704,6 +791,81 @@ function buildFlowRevealKey(blockIndex: number, field: string) {
   font-size: 25rpx;
   font-weight: 600;
   line-height: 34rpx;
+}
+
+.flow-cart-meta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+}
+
+.flow-cart-num {
+  color: #333;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 32rpx;
+}
+
+.flow-status-pill {
+  height: 34rpx;
+  padding: 0 12rpx;
+  border-radius: 6rpx;
+  color: #16806d;
+  font-size: 21rpx;
+  line-height: 34rpx;
+  background-color: #e8f8f4;
+}
+
+.flow-simple-list,
+.flow-cart-list {
+  min-width: 0;
+}
+
+.flow-simple-banner {
+  width: 100%;
+  height: 180rpx;
+  margin-bottom: 14rpx;
+  border-radius: 10rpx;
+  background-color: #eef0f3;
+}
+
+.flow-simple-item {
+  background-color: #fff;
+}
+
+.flow-simple-item.is-clickable {
+  border: 2rpx solid rgba(39, 186, 155, 0.2);
+  background-color: #f8fffd;
+}
+
+.flow-simple-image {
+  flex-shrink: 0;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 8rpx;
+  background-color: #eef0f3;
+}
+
+.flow-profile-panel {
+  flex-direction: column;
+  align-items: stretch;
+  background-color: #fff;
+}
+
+.flow-profile-head {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 14rpx;
+  margin-bottom: 4rpx;
+}
+
+.flow-profile-avatar {
+  width: 108rpx;
+  height: 108rpx;
+  border-radius: 54rpx;
+  background-color: #eef0f3;
 }
 
 .flow-mini-button,

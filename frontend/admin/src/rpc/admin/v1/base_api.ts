@@ -45,7 +45,7 @@ export interface PageBaseApisRequest {
   tool_name?:
     | string
     | undefined;
-  /** 工具提示词 */
+  /** Agent/MCP工具提示词搜索关键字 */
   tool_prompt?:
     | string
     | undefined;
@@ -91,11 +91,15 @@ export interface SetBaseApiAgentEnabledRequest {
   agent_enabled: boolean;
 }
 
-/** API工具提示词设置条件 */
-export interface SetBaseApiToolPromptsRequest {
+/** API更新条件 */
+export interface UpdateBaseApiRequest {
   /** API ID */
   id: number;
-  /** 工具提示词 */
+  /** 是否暴露为MCP工具 */
+  mcp_enabled: boolean;
+  /** 是否暴露为Agent工具 */
+  agent_enabled: boolean;
+  /** Agent/MCP工具提示词 */
   tool_prompts: string[];
 }
 
@@ -131,7 +135,7 @@ export interface BaseApi {
   agent_enabled: boolean;
   /** 工具名 */
   tool_name: string;
-  /** 工具提示词 */
+  /** Agent/MCP工具提示词 */
   tool_prompts: string[];
 }
 
@@ -201,6 +205,6 @@ export interface BaseApiService {
   SetBaseApiMcpEnabled(request: SetBaseApiMcpEnabledRequest): Promise<Empty>;
   /** 设置API Agent启用状态 */
   SetBaseApiAgentEnabled(request: SetBaseApiAgentEnabledRequest): Promise<Empty>;
-  /** 设置API工具提示词 */
-  SetBaseApiToolPrompts(request: SetBaseApiToolPromptsRequest): Promise<Empty>;
+  /** 更新API配置 */
+  UpdateBaseApi(request: UpdateBaseApiRequest): Promise<Empty>;
 }

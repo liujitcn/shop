@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	maxModelToolsPerRequest    = 1
+	maxModelToolsPerRequest    = 6
 	minToolMatchScore          = 4
 	maxToolQueryAttachmentText = 800
 	maxHistoryToolText         = 2000

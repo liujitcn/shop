@@ -21,6 +21,22 @@ const (
 	FlowPendingReview FlowName = "pending_review"
 	// FlowOrderLogistics 表示订单物流流程。
 	FlowOrderLogistics FlowName = "order_logistics"
+	// FlowUserCart 表示购物车查询流程。
+	FlowUserCart FlowName = "user_cart"
+	// FlowUserCollect 表示收藏商品查询流程。
+	FlowUserCollect FlowName = "user_collect"
+	// FlowUserAddress 表示收货地址管理流程。
+	FlowUserAddress FlowName = "user_address"
+	// FlowUserProfile 表示用户资料查询流程。
+	FlowUserProfile FlowName = "user_profile"
+	// FlowUserStore 表示用户门店查询流程。
+	FlowUserStore FlowName = "user_store"
+	// FlowGoodsCategory 表示商品分类查询流程。
+	FlowGoodsCategory FlowName = "goods_category"
+	// FlowShopHot 表示热门专区查询流程。
+	FlowShopHot FlowName = "shop_hot"
+	// FlowShopService 表示商城服务说明查询流程。
+	FlowShopService FlowName = "shop_service"
 )
 
 // Action 表示流程动作定义。
@@ -135,6 +151,66 @@ func NewAppRegistry[T any]() (*Registry[T], error) {
 				{Flow: FlowOrderLogistics, Step: "list", Type: "open_order_logistics"},
 				{Flow: FlowOrderLogistics, Step: "detail", Type: "view_order"},
 				{Flow: FlowOrderLogistics, Step: "receipt", Type: "receive_order"},
+			},
+		},
+		{
+			Name:        FlowUserCart,
+			EntryAction: "open_user_cart",
+			Actions: []Action{
+				{Flow: FlowUserCart, Step: "list", Type: "open_user_cart"},
+			},
+		},
+		{
+			Name:        FlowUserCollect,
+			EntryAction: "open_user_collect",
+			Actions: []Action{
+				{Flow: FlowUserCollect, Step: "list", Type: "open_user_collect"},
+			},
+		},
+		{
+			Name:        FlowUserAddress,
+			EntryAction: "open_user_address",
+			Actions: []Action{
+				{Flow: FlowUserAddress, Step: "list", Type: "open_user_address"},
+				{Flow: FlowUserAddress, Step: "address", Type: "create_address"},
+			},
+		},
+		{
+			Name:        FlowUserProfile,
+			EntryAction: "open_user_profile",
+			Actions: []Action{
+				{Flow: FlowUserProfile, Step: "detail", Type: "open_user_profile"},
+			},
+		},
+		{
+			Name:        FlowUserStore,
+			EntryAction: "open_user_store",
+			Actions: []Action{
+				{Flow: FlowUserStore, Step: "detail", Type: "open_user_store"},
+			},
+		},
+		{
+			Name:        FlowGoodsCategory,
+			EntryAction: "open_goods_category",
+			Actions: []Action{
+				{Flow: FlowGoodsCategory, Step: "list", Type: "open_goods_category"},
+				{Flow: FlowGoodsCategory, Step: "goods", Type: "view_goods_category"},
+			},
+		},
+		{
+			Name:        FlowShopHot,
+			EntryAction: "open_shop_hot",
+			Actions: []Action{
+				{Flow: FlowShopHot, Step: "list", Type: "open_shop_hot"},
+				{Flow: FlowShopHot, Step: "goods", Type: "view_shop_hot_item"},
+				{Flow: FlowShopHot, Step: "sku", Type: "select_goods"},
+			},
+		},
+		{
+			Name:        FlowShopService,
+			EntryAction: "open_shop_service",
+			Actions: []Action{
+				{Flow: FlowShopService, Step: "list", Type: "open_shop_service"},
 			},
 		},
 	}
