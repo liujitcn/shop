@@ -8,6 +8,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"time"
 
 	_const "shop/pkg/const"
 
@@ -21,7 +22,6 @@ import (
 	"shop/pkg/queue"
 	"shop/pkg/workspaceevent"
 	appDto "shop/service/app/dto"
-	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v2/log"
 	_string "github.com/liujitcn/go-utils/string"
@@ -33,6 +33,8 @@ import (
 const (
 	// commentSummarySourceLimit 表示单次评价摘要刷新最多读取的评价数量。
 	commentSummarySourceLimit = 50
+	// commentConsumerTimeout 表示单条评价异步任务允许占用的最长时间。
+	commentConsumerTimeout = 60 * time.Second
 )
 
 // CommentCase 评价业务编排对象。
@@ -379,100 +381,54 @@ func (c *CommentCase) PagePendingCommentGoods(ctx context.Context, req *appv1.Pa
 	}
 
 	pageNum, pageSize := repository.PageDefault(req.GetPageNum(), req.GetPageSize())
-
-	orderQuery := c.orderInfoCase.Query(ctx).OrderInfo
-	orderOpts := make([]repository.QueryOption, 0, 3)
-	orderOpts = append(orderOpts, repository.Where(orderQuery.UserID.Eq(authInfo.UserId)))
-	orderOpts = append(orderOpts, repository.Where(orderQuery.Status.Eq(_const.ORDER_STATUS_WAIT_REVIEW)))
-	orderOpts = append(orderOpts, repository.Order(orderQuery.CreatedAt.Desc()))
-	var orderList []*models.OrderInfo
-	orderList, err = c.orderInfoCase.List(ctx, orderOpts...)
-	if err != nil {
-		return nil, err
-	}
-
-	orderIDs := make([]int64, 0, len(orderList))
-	for _, orderInfo := range orderList {
-		orderIDs = append(orderIDs, orderInfo.ID)
-	}
-	// 当前用户不存在待评价订单时，直接返回空分页结果。
-	if len(orderIDs) == 0 {
-		return &appv1.PagePendingCommentGoodsResponse{
-			PendingCommentGoods: []*appv1.PendingCommentGoodsItem{},
-			Total:               0,
-			PageNum:             pageNum,
-			PageSize:            pageSize,
-			HasMore:             false,
-		}, nil
-	}
-
-	orderGoodsQuery := c.orderGoodsCase.Query(ctx).OrderGoods
-	orderGoodsOpts := make([]repository.QueryOption, 0, 2)
-	orderGoodsOpts = append(orderGoodsOpts, repository.Where(orderGoodsQuery.OrderID.In(orderIDs...)))
-	orderGoodsOpts = append(orderGoodsOpts, repository.Order(orderGoodsQuery.ID.Desc()))
+	query := c.orderGoodsCase.Query(ctx)
+	orderGoodsQuery := query.OrderGoods
+	orderInfoQuery := query.OrderInfo
+	commentInfoQuery := query.CommentInfo
+	dao := orderGoodsQuery.WithContext(ctx).
+		Select(orderGoodsQuery.ALL).
+		Join(orderInfoQuery, orderGoodsQuery.OrderID.EqCol(orderInfoQuery.ID)).
+		LeftJoin(
+			commentInfoQuery,
+			orderGoodsQuery.OrderID.EqCol(commentInfoQuery.OrderID),
+			orderGoodsQuery.GoodsID.EqCol(commentInfoQuery.GoodsID),
+			orderGoodsQuery.SKUCode.EqCol(commentInfoQuery.SKUCode),
+			commentInfoQuery.UserID.Eq(authInfo.UserId),
+		).
+		Where(
+			orderInfoQuery.UserID.Eq(authInfo.UserId),
+			orderInfoQuery.Status.Eq(_const.ORDER_STATUS_WAIT_REVIEW),
+			orderInfoQuery.DeletedAt.IsNull(),
+			orderGoodsQuery.DeletedAt.IsNull(),
+			commentInfoQuery.ID.IsNull(),
+		).
+		Order(orderInfoQuery.CreatedAt.Desc(), orderGoodsQuery.ID.Desc())
 	var orderGoodsList []*models.OrderGoods
-	orderGoodsList, err = c.orderGoodsCase.List(ctx, orderGoodsOpts...)
+	var total int64
+	orderGoodsList, total, err = dao.FindByPage(int((pageNum-1)*pageSize), int(pageSize))
 	if err != nil {
 		return nil, err
 	}
 
-	commentedOrderGoodsMap := make(map[string]bool)
-	// 当前批次存在待评价订单时，预先批量查询已评价商品关联键集合。
-	if len(orderIDs) > 0 {
-		commentedOrderGoodsMap, err = c.commentInfoCase.BuildCommentedOrderGoodsMap(ctx, authInfo.UserId, orderIDs)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	orderGoodsMap := make(map[int64][]*models.OrderGoods)
+	pendingList := make([]*appv1.PendingCommentGoodsItem, 0, len(orderGoodsList))
 	for _, orderGoods := range orderGoodsList {
-		// 当前订单商品已经完成评价时，不再进入待评价列表。
-		if commentedOrderGoodsMap[utils.BuildOrderGoodsCommentKey(orderGoods.OrderID, orderGoods.GoodsID, orderGoods.SKUCode)] {
-			continue
-		}
-		orderGoodsMap[orderGoods.OrderID] = append(orderGoodsMap[orderGoods.OrderID], orderGoods)
-	}
-
-	pendingList := make([]*appv1.PendingCommentGoodsItem, 0)
-	for _, orderInfo := range orderList {
-		for _, orderGoods := range orderGoodsMap[orderInfo.ID] {
-			pendingList = append(pendingList, &appv1.PendingCommentGoodsItem{
-				OrderId:      orderInfo.ID,
-				GoodsId:      orderGoods.GoodsID,
-				GoodsName:    orderGoods.Name,
-				GoodsPicture: orderGoods.Picture,
-				SkuCode:      orderGoods.SKUCode,
-				SkuDesc:      strings.Join(_string.ConvertJsonStringToStringArray(orderGoods.SpecItem), " / "),
-				Desc:         "分享你的使用体验，帮助其他买家更好选择",
-			})
-		}
-	}
-
-	total := int32(len(pendingList))
-	start := (pageNum - 1) * pageSize
-	// 起始下标越界时，直接返回空分页结果。
-	if start >= int64(len(pendingList)) {
-		return &appv1.PagePendingCommentGoodsResponse{
-			PendingCommentGoods: []*appv1.PendingCommentGoodsItem{},
-			Total:               total,
-			PageNum:             pageNum,
-			PageSize:            pageSize,
-			HasMore:             false,
-		}, nil
-	}
-	end := start + pageSize
-	// 结束下标超过列表长度时，回退到列表末尾。
-	if end > int64(len(pendingList)) {
-		end = int64(len(pendingList))
+		pendingList = append(pendingList, &appv1.PendingCommentGoodsItem{
+			OrderId:      orderGoods.OrderID,
+			GoodsId:      orderGoods.GoodsID,
+			GoodsName:    orderGoods.Name,
+			GoodsPicture: orderGoods.Picture,
+			SkuCode:      orderGoods.SKUCode,
+			SkuDesc:      strings.Join(_string.ConvertJsonStringToStringArray(orderGoods.SpecItem), " / "),
+			Desc:         "分享你的使用体验，帮助其他买家更好选择",
+		})
 	}
 
 	return &appv1.PagePendingCommentGoodsResponse{
-		PendingCommentGoods: append([]*appv1.PendingCommentGoodsItem(nil), pendingList[start:end]...),
-		Total:               total,
+		PendingCommentGoods: pendingList,
+		Total:               int32(total),
 		PageNum:             pageNum,
 		PageSize:            pageSize,
-		HasMore:             end < int64(total),
+		HasMore:             pageNum*pageSize < total,
 	}, nil
 }
 
@@ -770,7 +726,8 @@ func (c *CommentCase) consumeCommentAudit(message queueData.Message) error {
 		return nil
 	}
 
-	ctx := context.TODO()
+	ctx, cancel := newCommentConsumerContext()
+	defer cancel()
 	switch event.TargetType {
 	case _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT:
 		return c.auditComment(ctx, event.TargetID)
@@ -981,7 +938,9 @@ func (c *CommentCase) consumeCommentSummaryRefresh(message queueData.Message) er
 	if goodsID == nil || *goodsID <= 0 {
 		return nil
 	}
-	return c.refreshGoodsCommentSummary(context.TODO(), *goodsID)
+	ctx, cancel := newCommentConsumerContext()
+	defer cancel()
+	return c.refreshGoodsCommentSummary(ctx, *goodsID)
 }
 
 // refreshGoodsCommentSummary 基于审核通过评价刷新商品评价摘要。
@@ -1132,6 +1091,11 @@ func summaryTagNamesByIDs(tagIDs []int64, tagNameMap map[int64]string) []string 
 		tagNames = append(tagNames, tagName)
 	}
 	return tagNames
+}
+
+// newCommentConsumerContext 创建带统一超时的评价队列消费上下文。
+func newCommentConsumerContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), commentConsumerTimeout)
 }
 
 // commentReviewRejectReason 根据审核结果生成不通过原因。

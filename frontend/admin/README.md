@@ -41,6 +41,7 @@ frontend/admin
 - `views/pay`：交易账单。
 - `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
 - `views/user`：门店管理。
+- `views/migration/pending`：动态菜单组件无法匹配时的统一降级提示页。
 
 ## 环境要求
 

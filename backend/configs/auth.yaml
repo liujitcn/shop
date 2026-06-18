@@ -14,7 +14,6 @@ authn:
         - "/base.v1.LoginService/PasswordPublicKey"
         - "/base.v1.LoginService/RefreshToken"
         - "/base.v1.LoginService/Login"
-        - "/base.v1.McpService/HandleMcp"
         - "/base.v1.SseService/SubscribeSse"
         - "/app.v1.AuthService/WechatLogin"
         - "/app.v1.GoodsCategoryService/ListGoodsCategories"

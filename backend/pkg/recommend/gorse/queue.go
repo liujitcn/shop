@@ -18,6 +18,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const queueConsumerTimeout = 60 * time.Second
+
 // QueueReceiver 表示推荐系统队列消费接收器。
 type QueueReceiver struct {
 	recommend     *Recommend
@@ -82,8 +84,10 @@ func (r *QueueReceiver) consumeSyncBaseUser(message queueData.Message) error {
 		return nil
 	}
 
+	ctx, cancel := newQueueConsumerContext()
+	defer cancel()
 	var baseUser *models.BaseUser
-	baseUser, err = r.baseUserRepo.FindByID(context.TODO(), *userID)
+	baseUser, err = r.baseUserRepo.FindByID(ctx, *userID)
 	// 当前用户在消息消费前已被删除时，直接跳过即可，避免把删除后的空数据再次推送到推荐系统。
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -95,7 +99,7 @@ func (r *QueueReceiver) consumeSyncBaseUser(message queueData.Message) error {
 	if baseUser == nil || baseUser.ID <= 0 {
 		return nil
 	}
-	return r.userSync.sync(context.TODO(), baseUser)
+	return r.userSync.sync(ctx, baseUser)
 }
 
 // consumeDeleteBaseUser 消费用户删除队列并发送到推荐系统。
@@ -109,10 +113,12 @@ func (r *QueueReceiver) consumeDeleteBaseUser(message queueData.Message) error {
 		return nil
 	}
 
+	ctx, cancel := newQueueConsumerContext()
+	defer cancel()
 	// 推荐系统接口会在删除用户主体时一并级联删除该用户下的反馈数据。
 	var deleteErr error
 	for _, userID := range *userIDs {
-		_, err = r.recommend.gorseClient.DeleteUser(context.TODO(), strconv.FormatInt(userID, 10))
+		_, err = r.recommend.gorseClient.DeleteUser(ctx, strconv.FormatInt(userID, 10))
 		if err != nil {
 			deleteErr = errors.Join(deleteErr, err)
 		}
@@ -131,8 +137,10 @@ func (r *QueueReceiver) consumeSyncGoodsInfo(message queueData.Message) error {
 		return nil
 	}
 
+	ctx, cancel := newQueueConsumerContext()
+	defer cancel()
 	var goodsInfo *models.GoodsInfo
-	goodsInfo, err = r.goodsInfoRepo.FindByID(context.TODO(), *goodsID)
+	goodsInfo, err = r.goodsInfoRepo.FindByID(ctx, *goodsID)
 	// 当前商品在消息消费前已被删除时，直接跳过即可，避免把删除后的空数据再次推送到推荐系统。
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil
@@ -144,7 +152,7 @@ func (r *QueueReceiver) consumeSyncGoodsInfo(message queueData.Message) error {
 	if goodsInfo == nil || goodsInfo.ID <= 0 {
 		return nil
 	}
-	return r.goodsSync.sync(context.TODO(), goodsInfo)
+	return r.goodsSync.sync(ctx, goodsInfo)
 }
 
 // consumeDeleteGoodsInfo 消费商品删除队列并发送到推荐系统。
@@ -158,10 +166,12 @@ func (r *QueueReceiver) consumeDeleteGoodsInfo(message queueData.Message) error 
 		return nil
 	}
 
+	ctx, cancel := newQueueConsumerContext()
+	defer cancel()
 	// 推荐系统接口会在删除商品主体时一并级联删除该商品下的反馈数据。
 	var deleteErr error
 	for _, goodsID := range *goodsIDs {
-		_, err = r.recommend.gorseClient.DeleteItem(context.TODO(), strconv.FormatInt(goodsID, 10))
+		_, err = r.recommend.gorseClient.DeleteItem(ctx, strconv.FormatInt(goodsID, 10))
 		if err != nil {
 			deleteErr = errors.Join(deleteErr, err)
 		}
@@ -180,7 +190,8 @@ func (r *QueueReceiver) consumeRecommendEvent(message queueData.Message) error {
 		return nil
 	}
 
-	ctx := context.TODO()
+	ctx, cancel := newQueueConsumerContext()
+	defer cancel()
 	feedbacks := make([]client.Feedback, 0, len(*eventList))
 	for _, item := range *eventList {
 		// 历史事件为空、商品编号非法或事件类型未知时，直接跳过当前无效事件。
@@ -216,4 +227,9 @@ func (r *QueueReceiver) consumeRecommendEvent(message queueData.Message) error {
 
 	_, err = r.recommend.gorseClient.InsertFeedback(ctx, feedbacks)
 	return err
+}
+
+// newQueueConsumerContext 创建带统一超时的推荐队列消费上下文。
+func newQueueConsumerContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), queueConsumerTimeout)
 }

@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
+	"shop/pkg/config"
 	_const "shop/pkg/const"
 
 	adminv1 "shop/api/gen/go/admin/v1"
@@ -134,7 +134,7 @@ func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*adminv1.Or
 
 	res := &adminv1.OrderInfoResponse{
 		Order:     c.mapper.ToDTO(orderInfo),
-		Countdown: float32(time.Until(orderInfo.CreatedAt.Add(30 * time.Minute)).Seconds()),
+		Countdown: float32(time.Until(orderInfo.CreatedAt.Add(config.ParsePayTimeout())).Seconds()),
 	}
 
 	var baseUser *models.BaseUser
@@ -208,7 +208,7 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *adminv1.Refund
 
 	orderRefund := &models.OrderRefund{
 		OrderID:  req.GetOrderId(),
-		RefundNo: strconv.FormatInt(time.Now().UnixNano(), 10),
+		RefundNo: orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
 		Reason:   int32(req.GetReason()),
 	}
 

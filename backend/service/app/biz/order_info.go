@@ -21,6 +21,7 @@ import (
 	"shop/pkg/recommend/dto"
 	"shop/pkg/workspaceevent"
 	"shop/pkg/wx"
+	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -367,22 +368,20 @@ func (c *OrderInfoCase) CountOrderInfo(ctx context.Context) (*appv1.CountOrderIn
 		return nil, err
 	}
 	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.UserID.Eq(authInfo.UserId)))
-	var list []*models.OrderInfo
-	list, err = c.List(ctx, opts...)
+	rows := make([]*appDto.OrderStatusCountRow, 0)
+	err = query.WithContext(ctx).
+		Select(query.Status, query.ID.Count().As("total")).
+		Where(query.UserID.Eq(authInfo.UserId), query.DeletedAt.IsNull()).
+		Group(query.Status).
+		Scan(&rows)
 	if err != nil {
 		return nil, err
 	}
-	res := make(map[int32]int32)
-	for _, item := range list {
-		res[item.Status]++
-	}
-	count := make([]*appv1.CountOrderInfoResponse_Count, 0)
-	for k, v := range res {
+	count := make([]*appv1.CountOrderInfoResponse_Count, 0, len(rows))
+	for _, row := range rows {
 		count = append(count, &appv1.CountOrderInfoResponse_Count{
-			Status: commonv1.OrderStatus(k),
-			Num:    v,
+			Status: commonv1.OrderStatus(row.Status),
+			Num:    int32(row.Total),
 		})
 	}
 	return &appv1.CountOrderInfoResponse{
@@ -896,6 +895,9 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 		opts := make([]repository.QueryOption, 0, 1)
 		opts = append(opts, repository.Where(query.OrderID.In(orderIDs...)))
 		orderGoodsList, err = c.orderGoodsCase.List(ctx, opts...)
+		if err != nil {
+			return err
+		}
 		for _, orderGoods := range orderGoodsList {
 			// 订单取消后恢复库存并回退销量
 			err = c.goodsInfoCase.subSaleNum(ctx, orderGoods.GoodsID, orderGoods.Num)

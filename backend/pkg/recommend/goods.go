@@ -33,9 +33,11 @@ func (r *GoodsReceiver) RecommendGoods(ctx context.Context, req *dto.GoodsReques
 		return nil, errorsx.InvalidArgument("推荐场景不能为空")
 	}
 
-	// 当前配置了 Gorse 推荐链路时，统一只走 Gorse 推荐，不再混入本地来源。
+	// 当前配置了 Gorse 推荐链路时优先使用远端结果，未命中或调用失败时回退本地推荐。
 	if r.gorseChain != nil && r.gorseChain.Enabled() {
-		return r.gorseChain.ExecutePlan(
+		var result *dto.GoodsResult
+		var err error
+		result, err = r.gorseChain.ExecutePlan(
 			ctx,
 			req.Scene,
 			req.Actor,
@@ -44,6 +46,9 @@ func (r *GoodsReceiver) RecommendGoods(ctx context.Context, req *dto.GoodsReques
 			req.PageNum,
 			req.PageSize,
 		)
+		if err == nil && result != nil && len(result.GoodsIDs) > 0 {
+			return result, nil
+		}
 	}
 	return r.localChain.ExecutePlan(
 		ctx,
