@@ -1,3 +1,4 @@
+import type { AiAssistantAction } from "@/rpc/base/v1/ai_assistant_message";
 import type { AiAssistantAttachment, AiAssistantMessage, AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
 
 /** 会话菜单动作类型。 */
@@ -20,6 +21,26 @@ export type SubmitPayload = {
   text: string;
   /** 已上传附件列表。 */
   attachments: AiAssistantAttachment[];
+  /** 点击结构化卡片或快捷入口时携带的流程动作。 */
+  action?: AiAssistantAction;
+};
+
+/** AI 助手结构化流程卡片。 */
+export type AssistantFlowBlock = {
+  /** 卡片类型，由后端 Flow 输出。 */
+  type: string;
+  /** 卡片标题。 */
+  title?: string;
+  /** 卡片说明。 */
+  desc?: string;
+  /** 单一可执行动作。 */
+  action?: AiAssistantAction;
+  /** 多个可执行动作。 */
+  actions?: AiAssistantAction[];
+  /** 前端是否禁用当前块内动作。 */
+  disabled?: boolean;
+  /** 兼容后端按不同业务卡片返回的扩展字段。 */
+  [key: string]: any;
 };
 
 /** 消息进度状态，用于控制气泡加载、失败和常规展示。 */
@@ -49,6 +70,14 @@ export type ChatMessageItem = AiAssistantMessage & {
   fallback?: boolean;
   /** 降级原因。 */
   fallback_reason?: string;
+  /** 固定流程标识。 */
+  flow?: string;
+  /** 固定流程步骤。 */
+  step?: string;
+  /** 原始结构化卡片 JSON。 */
+  blocksJson?: string;
+  /** 已解析的结构化卡片。 */
+  blocks?: AssistantFlowBlock[];
   /** BubbleList 稳定渲染键。 */
   key: string;
   /** 气泡左右位置。 */

@@ -66,3 +66,4 @@ service_tmp/
 /gorse/data/
 
 .pnpm-store/
+.workbuddy/

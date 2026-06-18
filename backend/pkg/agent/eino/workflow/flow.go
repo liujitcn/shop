@@ -215,7 +215,7 @@ func NewAppRegistry[T any]() (*Registry[T], error) {
 		},
 	}
 	var err error
-	err = validateDefinitions(definitions)
+	err = validateDefinitions(definitions, "商城")
 	if err != nil {
 		return nil, err
 	}
@@ -232,11 +232,11 @@ func NewAppRegistry[T any]() (*Registry[T], error) {
 			registry.actionsByFlowAndType[actionKey(action.Flow, action.Type)] = action
 		}
 	}
-	registry.lookupRunnable, err = compileLookupWorkflow(registry)
+	registry.lookupRunnable, err = compileLookupWorkflow(registry, "shop_app_fixed_flow")
 	if err != nil {
 		return nil, err
 	}
-	registry.actionRunnable, err = compileActionGraph(registry)
+	registry.actionRunnable, err = compileActionGraph(registry, "shop_app_fixed_flow_action_graph")
 	if err != nil {
 		return nil, err
 	}
@@ -361,44 +361,44 @@ func (r *Registry[T]) lookup(request LookupRequest) LookupResult {
 }
 
 // validateDefinitions 校验固定流程定义，避免运行期才发现路由配置错误。
-func validateDefinitions(definitions []Definition) error {
+func validateDefinitions(definitions []Definition, scope string) error {
 	flows := make(map[FlowName]bool, len(definitions))
 	actions := make(map[string]bool, len(definitions)*4)
 	for _, definition := range definitions {
 		// 流程名是前端 action 协议的一部分，不能为空也不能重复。
 		if definition.Name == "" {
-			return fmt.Errorf("商城固定流程名称不能为空")
+			return fmt.Errorf("%s固定流程名称不能为空", scope)
 		}
 		if flows[definition.Name] {
-			return fmt.Errorf("商城固定流程重复定义: %s", definition.Name)
+			return fmt.Errorf("%s固定流程重复定义: %s", scope, definition.Name)
 		}
 		flows[definition.Name] = true
 		if definition.EntryAction == "" {
-			return fmt.Errorf("商城固定流程 %s 缺少入口动作", definition.Name)
+			return fmt.Errorf("%s固定流程 %s 缺少入口动作", scope, definition.Name)
 		}
 		for _, action := range definition.Actions {
 			// 动作必须归属当前流程，否则 flow + action_type 路由会指向错误流程。
 			if action.Flow != definition.Name {
-				return fmt.Errorf("商城固定流程 %s 包含跨流程动作 %s", definition.Name, action.Type)
+				return fmt.Errorf("%s固定流程 %s 包含跨流程动作 %s", scope, definition.Name, action.Type)
 			}
 			if action.Step == "" || action.Type == "" {
-				return fmt.Errorf("商城固定流程 %s 包含无效动作", definition.Name)
+				return fmt.Errorf("%s固定流程 %s 包含无效动作", scope, definition.Name)
 			}
 			key := actionKey(action.Flow, action.Type)
 			if actions[key] {
-				return fmt.Errorf("商城固定流程动作重复定义: %s/%s", action.Flow, action.Type)
+				return fmt.Errorf("%s固定流程动作重复定义: %s/%s", scope, action.Flow, action.Type)
 			}
 			actions[key] = true
 		}
 		if !actions[actionKey(definition.Name, definition.EntryAction)] {
-			return fmt.Errorf("商城固定流程 %s 入口动作未注册: %s", definition.Name, definition.EntryAction)
+			return fmt.Errorf("%s固定流程 %s 入口动作未注册: %s", scope, definition.Name, definition.EntryAction)
 		}
 	}
 	return nil
 }
 
 // compileLookupWorkflow 编译固定流程查询 Workflow。
-func compileLookupWorkflow[T any](registry *Registry[T]) (compose.Runnable[LookupRequest, LookupResult], error) {
+func compileLookupWorkflow[T any](registry *Registry[T], graphName string) (compose.Runnable[LookupRequest, LookupResult], error) {
 	workflow := compose.NewWorkflow[LookupRequest, LookupResult]()
 	workflow.AddLambdaNode("lookup_action", compose.InvokableLambda(func(_ context.Context, input LookupRequest) (LookupResult, error) {
 		if registry == nil {
@@ -407,15 +407,15 @@ func compileLookupWorkflow[T any](registry *Registry[T]) (compose.Runnable[Looku
 		return registry.lookup(input), nil
 	}, compose.WithLambdaType("shop.workflow.lookup_action"))).AddDependency(compose.START)
 	workflow.End().AddDependency("lookup_action")
-	runnable, err := workflow.Compile(context.Background(), compose.WithGraphName("shop_app_fixed_flow"))
+	runnable, err := workflow.Compile(context.Background(), compose.WithGraphName(graphName))
 	if err != nil {
-		return nil, fmt.Errorf("编译商城固定流程 Workflow 失败: %w", err)
+		return nil, fmt.Errorf("编译固定流程 Workflow 失败: %w", err)
 	}
 	return runnable, nil
 }
 
 // compileActionGraph 编译固定流程动作 Graph。
-func compileActionGraph[T any](registry *Registry[T]) (compose.Runnable[ActionRequest, LookupResult], error) {
+func compileActionGraph[T any](registry *Registry[T], graphName string) (compose.Runnable[ActionRequest, LookupResult], error) {
 	graph := compose.NewGraph[ActionRequest, LookupResult]()
 	endNodes := make(map[string]bool, len(registry.actionsByFlowAndType)+1)
 	for _, actions := range registry.actionsByType {
@@ -431,11 +431,11 @@ func compileActionGraph[T any](registry *Registry[T]) (compose.Runnable[ActionRe
 				return LookupResult{Definition: lookup.Definition, Action: currentAction, Found: true}, nil
 			}, compose.WithLambdaType("shop.workflow."+nodeKey)))
 			if err != nil {
-				return nil, fmt.Errorf("注册商城固定流程动作节点失败: %w", err)
+				return nil, fmt.Errorf("注册固定流程动作节点失败: %w", err)
 			}
 			err = graph.AddEdge(nodeKey, compose.END)
 			if err != nil {
-				return nil, fmt.Errorf("连接商城固定流程动作节点失败: %w", err)
+				return nil, fmt.Errorf("连接固定流程动作节点失败: %w", err)
 			}
 		}
 	}
@@ -445,11 +445,11 @@ func compileActionGraph[T any](registry *Registry[T]) (compose.Runnable[ActionRe
 		return LookupResult{}, nil
 	}, compose.WithLambdaType("shop.workflow.unsupported_action")))
 	if err != nil {
-		return nil, fmt.Errorf("注册商城固定流程兜底节点失败: %w", err)
+		return nil, fmt.Errorf("注册固定流程兜底节点失败: %w", err)
 	}
 	err = graph.AddEdge(unsupportedActionNode, compose.END)
 	if err != nil {
-		return nil, fmt.Errorf("连接商城固定流程兜底节点失败: %w", err)
+		return nil, fmt.Errorf("连接固定流程兜底节点失败: %w", err)
 	}
 
 	err = graph.AddBranch(compose.START, compose.NewGraphBranch(func(_ context.Context, input ActionRequest) (string, error) {
@@ -461,12 +461,12 @@ func compileActionGraph[T any](registry *Registry[T]) (compose.Runnable[ActionRe
 		return actionNodeKey(lookup.Action), nil
 	}, endNodes))
 	if err != nil {
-		return nil, fmt.Errorf("注册商城固定流程路由分支失败: %w", err)
+		return nil, fmt.Errorf("注册固定流程路由分支失败: %w", err)
 	}
 
-	runnable, err := graph.Compile(context.Background(), compose.WithGraphName("shop_app_fixed_flow_action_graph"))
+	runnable, err := graph.Compile(context.Background(), compose.WithGraphName(graphName))
 	if err != nil {
-		return nil, fmt.Errorf("编译商城固定流程 Action Graph 失败: %w", err)
+		return nil, fmt.Errorf("编译固定流程 Action Graph 失败: %w", err)
 	}
 	return runnable, nil
 }
@@ -491,4 +491,168 @@ func actionKey(flow FlowName, actionType string) string {
 // actionNodeKey 返回 Eino Graph 中对应动作的节点名称。
 func actionNodeKey(action Action) string {
 	return fmt.Sprintf("%s_%s", action.Flow, action.Type)
+}
+
+// AdminFlowName 表示管理端固定流程名称。
+type AdminFlowName string
+
+const (
+	// AdminFlowWorkspaceOverview 表示经营总览流程。
+	AdminFlowWorkspaceOverview AdminFlowName = "workspace_overview"
+	// AdminFlowPendingShipment 表示待发货流程。
+	AdminFlowPendingShipment AdminFlowName = "pending_shipment"
+	// AdminFlowCommentReview 表示评价审核流程。
+	AdminFlowCommentReview AdminFlowName = "comment_review"
+	// AdminFlowGoodsInventoryAlert 表示库存预警流程。
+	AdminFlowGoodsInventoryAlert AdminFlowName = "goods_inventory_alert"
+	// AdminFlowOrderRefund 表示退款处理流程。
+	AdminFlowOrderRefund AdminFlowName = "order_refund"
+	// AdminFlowGoodsAnalytics 表示商品分析流程。
+	AdminFlowGoodsAnalytics AdminFlowName = "goods_analytics"
+	// AdminFlowOrderAnalytics 表示订单分析流程。
+	AdminFlowOrderAnalytics AdminFlowName = "order_analytics"
+	// AdminFlowStoreAudit 表示门店审核流程。
+	AdminFlowStoreAudit AdminFlowName = "store_audit"
+	// AdminFlowRecommendDashboard 表示推荐看板流程。
+	AdminFlowRecommendDashboard AdminFlowName = "recommend_dashboard"
+	// AdminFlowReputationInsight 表示口碑洞察流程。
+	AdminFlowReputationInsight AdminFlowName = "reputation_insight"
+	// AdminFlowPayBillCheck 表示对账检查流程。
+	AdminFlowPayBillCheck AdminFlowName = "pay_bill_check"
+	// AdminFlowReportOverview 表示报表总览流程。
+	AdminFlowReportOverview AdminFlowName = "report_overview"
+)
+
+// NewAdminRegistry 创建管理端固定流程注册表。
+func NewAdminRegistry[T any]() (*Registry[T], error) {
+	definitions := []Definition{
+		{
+			Name:        FlowName(AdminFlowWorkspaceOverview),
+			EntryAction: "open_workspace_overview",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowWorkspaceOverview), Step: "overview", Type: "open_workspace_overview"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowPendingShipment),
+			EntryAction: "open_pending_shipment",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowPendingShipment), Step: "list", Type: "open_pending_shipment"},
+				{Flow: FlowName(AdminFlowPendingShipment), Step: "detail", Type: "view_shipment_detail"},
+				{Flow: FlowName(AdminFlowPendingShipment), Step: "confirm", Type: "confirm_shipment"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowCommentReview),
+			EntryAction: "open_comment_review",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowCommentReview), Step: "list", Type: "open_comment_review"},
+				{Flow: FlowName(AdminFlowCommentReview), Step: "detail", Type: "view_comment_detail"},
+				{Flow: FlowName(AdminFlowCommentReview), Step: "confirm", Type: "confirm_comment_review"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowGoodsInventoryAlert),
+			EntryAction: "open_goods_inventory_alert",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowGoodsInventoryAlert), Step: "list", Type: "open_goods_inventory_alert"},
+				{Flow: FlowName(AdminFlowGoodsInventoryAlert), Step: "detail", Type: "view_goods_detail"},
+				{Flow: FlowName(AdminFlowGoodsInventoryAlert), Step: "confirm", Type: "confirm_goods_status"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowOrderRefund),
+			EntryAction: "open_order_refund",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowOrderRefund), Step: "list", Type: "open_order_refund"},
+				{Flow: FlowName(AdminFlowOrderRefund), Step: "detail", Type: "view_refund_detail"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowGoodsAnalytics),
+			EntryAction: "open_goods_analytics",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowGoodsAnalytics), Step: "overview", Type: "open_goods_analytics"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowOrderAnalytics),
+			EntryAction: "open_order_analytics",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowOrderAnalytics), Step: "overview", Type: "open_order_analytics"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowStoreAudit),
+			EntryAction: "open_store_audit",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowStoreAudit), Step: "list", Type: "open_store_audit"},
+				{Flow: FlowName(AdminFlowStoreAudit), Step: "detail", Type: "view_store_detail"},
+				{Flow: FlowName(AdminFlowStoreAudit), Step: "confirm", Type: "confirm_store_audit"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowRecommendDashboard),
+			EntryAction: "open_recommend_dashboard",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowRecommendDashboard), Step: "overview", Type: "open_recommend_dashboard"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowReputationInsight),
+			EntryAction: "open_reputation_insight",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowReputationInsight), Step: "overview", Type: "open_reputation_insight"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowPayBillCheck),
+			EntryAction: "open_pay_bill_check",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowPayBillCheck), Step: "list", Type: "open_pay_bill_check"},
+			},
+		},
+		{
+			Name:        FlowName(AdminFlowReportOverview),
+			EntryAction: "open_report_overview",
+			Actions: []Action{
+				{Flow: FlowName(AdminFlowReportOverview), Step: "overview", Type: "open_report_overview"},
+			},
+		},
+	}
+	var err error
+	err = validateDefinitions(definitions, "管理端")
+	if err != nil {
+		return nil, err
+	}
+	registry := &Registry[T]{
+		definitions:          make(map[FlowName]Definition, len(definitions)),
+		actionsByType:        make(map[string][]Action, 16),
+		actionsByFlowAndType: make(map[string]Action, 16),
+	}
+	for _, definition := range definitions {
+		registry.definitions[definition.Name] = definition
+		for _, action := range definition.Actions {
+			registry.actionsByType[action.Type] = append(registry.actionsByType[action.Type], action)
+			registry.actionsByFlowAndType[actionKey(action.Flow, action.Type)] = action
+		}
+	}
+	registry.lookupRunnable, err = compileLookupWorkflow(registry, "shop_admin_fixed_flow")
+	if err != nil {
+		return nil, err
+	}
+	registry.actionRunnable, err = compileActionGraph(registry, "shop_admin_fixed_flow_action_graph")
+	if err != nil {
+		return nil, err
+	}
+	return registry, nil
+}
+
+// MustNewAdminRegistry 创建管理端固定流程注册表，编排定义错误时直接失败。
+func MustNewAdminRegistry[T any]() *Registry[T] {
+	registry, err := NewAdminRegistry[T]()
+	if err != nil {
+		panic(err)
+	}
+	return registry
 }

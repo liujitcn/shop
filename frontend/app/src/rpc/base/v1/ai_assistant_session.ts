@@ -36,6 +36,8 @@ export interface AiAssistantShortcut {
   required_tools: string[];
   /** 排序值 */
   sort: number;
+  /** 分组名称 */
+  group: string;
 }
 
 /** AI 助手快捷入口动作 */

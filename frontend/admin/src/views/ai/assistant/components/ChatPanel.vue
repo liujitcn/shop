@@ -4,6 +4,23 @@
       <div class="agent-chat-empty">
         <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
         <div class="agent-chat-empty__desc">可直接提问，也可以上传附件一起分析。</div>
+        <div v-if="shortcutVisibleList.length || loadingShortcuts" class="agent-shortcuts">
+          <div class="agent-shortcuts__title">可以这样开始</div>
+          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
+          <div v-else class="agent-shortcuts__grid">
+            <button
+              v-for="shortcut in shortcutVisibleList"
+              :key="shortcut.key"
+              class="agent-shortcut"
+              type="button"
+              :disabled="sending"
+              @click="handleShortcutClick(shortcut)"
+            >
+              <span class="agent-shortcut__title">{{ shortcut.title }}</span>
+              <span v-if="shortcut.group" class="agent-shortcut__group">{{ shortcut.group }}</span>
+            </button>
+          </div>
+        </div>
         <div class="agent-chat-empty__sender">
           <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
         </div>
@@ -96,6 +113,12 @@
                 </div>
                 <template v-else-if="item.role !== 'user'">
                   <AiMarkdown :content="item.content" :streaming="item.progressState === 'streaming'" />
+                  <FlowBlocks
+                    v-if="item.blocks?.length"
+                    :message="item"
+                    :active-flow-message-id="activeFlowMessageID"
+                    @flow-action="handleFlowAction"
+                  />
                   <el-collapse v-if="item.fallback_reason" class="agent-message-error__detail" accordion>
                     <el-collapse-item title="错误详情" :name="String(item.id)">
                       <pre>{{ item.fallback_reason }}</pre>
@@ -239,15 +262,18 @@ import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
 import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Refresh } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import {
+  type AiAssistantShortcut,
   type AiAssistantAttachment,
   type AiAssistantSession,
   type AiAssistantTool
 } from "@/rpc/base/v1/ai_assistant_session";
+import type { AiAssistantAction } from "@/rpc/base/v1/ai_assistant_message";
 import { AiAssistantMessageStatus } from "@/rpc/common/v1/enum";
 import XSender from "./XSender.vue";
 
 // AI Markdown 渲染器依赖较重，仅在真正出现助手消息时再加载。
 const AiMarkdown = defineAsyncComponent(() => import("./AiMarkdown.vue"));
+const FlowBlocks = defineAsyncComponent(() => import("./FlowBlocks.vue"));
 import { buildAssistantAttachmentFileCard } from "../attachment";
 import type { ChatMessageAction, ChatMessageEditPayload, ChatMessageItem, ReplySourceTag, SubmitPayload } from "../types";
 
@@ -372,6 +398,10 @@ const props = defineProps<{
   messages: ChatMessageItem[];
   /** 消息发送加载状态。 */
   sending: boolean;
+  /** 空态快捷入口加载状态。 */
+  loadingShortcuts?: boolean;
+  /** 当前终端可用快捷入口。 */
+  shortcuts?: AiAssistantShortcut[];
 }>();
 
 const emit = defineEmits<{
@@ -381,6 +411,8 @@ const emit = defineEmits<{
   messageAction: [payload: { action: ChatMessageAction; item: ChatMessageItem }];
   /** 提交当前用户消息的文本编辑。 */
   messageEdit: [payload: ChatMessageEditPayload];
+  /** 点击结构化流程动作。 */
+  flowAction: [payload: { action: AiAssistantAction; label?: string }];
 }>();
 
 const isEmptyState = computed(() => props.messages.length === 0);
@@ -406,12 +438,26 @@ const lastEditableUserMessageKey = computed(() => {
   return "";
 });
 
+const activeFlowMessageID = computed(() => {
+  for (let index = props.messages.length - 1; index >= 0; index--) {
+    const item = props.messages[index];
+    if (item.role !== "user" && item.blocks?.length) return String(item.id ?? "");
+  }
+  return "";
+});
+
 const welcomeTitle = computed(() => {
   const hour = new Date().getHours();
   if (hour < 12) return "上午好，我是通用 AI 助手";
   if (hour < 18) return "下午好，我是通用 AI 助手";
   return "晚上好，我是通用 AI 助手";
 });
+
+const shortcutVisibleList = computed(() =>
+  [...(props.shortcuts ?? [])]
+    .filter(item => Boolean(item?.key && (item.title || item.prompt)))
+    .sort((left, right) => Number(left.sort ?? 0) - Number(right.sort ?? 0))
+);
 
 /** 查找 footer 所属气泡里的消息内容元素。 */
 function findMessageContentElement(el: HTMLElement) {
@@ -470,6 +516,49 @@ const vMessageFooterWidth: ObjectDirective<HTMLElement> = {
 /** 读取输入框内容并提交给父组件。 */
 function handleSubmit(payload: SubmitPayload) {
   emit("submit", payload);
+}
+
+/** 点击空态快捷入口时提交对应入口动作。 */
+function handleShortcutClick(shortcut: AiAssistantShortcut) {
+  emit("submit", {
+    text: shortcut.prompt || shortcut.title,
+    attachments: [],
+    action: buildShortcutAction(shortcut)
+  });
+}
+
+/** 生成快捷入口对应的流程动作。 */
+function buildShortcutAction(shortcut: AiAssistantShortcut) {
+  if (!shortcut.action?.type) return undefined;
+  return buildFlowAction(shortcut.action, parseActionPayload(shortcut.action.payload_json));
+}
+
+/** 点击结构化卡片按钮时上抛给页面执行。 */
+function handleFlowAction(action: AiAssistantAction, label?: string) {
+  emit("flowAction", { action, label });
+}
+
+/** 构造发送给后端的流程动作，统一补齐 payload JSON 默认值。 */
+function buildFlowAction(action?: Partial<AiAssistantAction>, payload?: Record<string, unknown>): AiAssistantAction | undefined {
+  if (!action?.type) return undefined;
+  return {
+    flow: action.flow || "",
+    step: action.step || "",
+    type: action.type,
+    payload_json: JSON.stringify(payload || {}),
+    source_message_id: action.source_message_id || "",
+    action_id: action.action_id || "",
+    flow_version: Number(action.flow_version || 0)
+  };
+}
+
+/** 解析流程动作负载，兼容空字符串和异常 JSON。 */
+function parseActionPayload(payload?: string) {
+  try {
+    return JSON.parse(payload || "{}") as Record<string, unknown>;
+  } catch {
+    return {};
+  }
 }
 
 /** 根据消息角色返回可用操作。 */

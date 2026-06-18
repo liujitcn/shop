@@ -85,6 +85,8 @@ message AiAssistantShortcut {
   repeated string required_tools = 5 [(gnostic.openapi.v3.property) = {description: "依赖工具列表"}]; // 依赖工具列表
 
   int32 sort = 6 [(gnostic.openapi.v3.property) = {description: "排序值"}]; // 排序值
+
+  string group = 7 [(gnostic.openapi.v3.property) = {description: "分组名称"}]; // 分组名称
 }
 
 // AI 助手快捷入口动作

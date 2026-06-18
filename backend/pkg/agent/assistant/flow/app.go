@@ -68,8 +68,22 @@ type aiAssistantProfileField struct {
 	format func(any) string
 }
 
-// GenerateReply 生成移动端闭环流程回复。
+// GenerateReply 按终端分发 AI 助手闭环流程回复。
 func GenerateReply(
+	ctx context.Context,
+	runtime *assistant.Runtime,
+	terminal int32,
+	content string,
+	action *basev1.AiAssistantAction,
+) (*assistant.Response, bool, error) {
+	if terminal == assistant.TerminalAdmin {
+		return GenerateAdminReply(ctx, runtime, terminal, content, action)
+	}
+	return GenerateAppReply(ctx, runtime, terminal, content, action)
+}
+
+// GenerateAppReply 生成移动端闭环流程回复。
+func GenerateAppReply(
 	ctx context.Context,
 	runtime *assistant.Runtime,
 	terminal int32,
@@ -94,8 +108,14 @@ func GenerateReply(
 }
 
 // IsEntryAction 判断动作是否为固定流程入口。
-func IsEntryAction(flow string, actionType string) bool {
-	return actionType != "" && aiAssistantFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)) == actionType
+func IsEntryAction(terminal int32, flow string, actionType string) bool {
+	if actionType == "" {
+		return false
+	}
+	if terminal == assistant.TerminalAdmin {
+		return adminFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)) == actionType
+	}
+	return aiAssistantFlowRegistry.EntryAction(einoWorkflow.FlowName(flow)) == actionType
 }
 
 // handleAiAssistantFlowAction 推进移动端闭环流程。

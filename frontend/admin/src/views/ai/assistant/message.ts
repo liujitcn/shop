@@ -6,9 +6,10 @@ import {
   type AiAssistantSession,
   type AiAssistantToken
 } from "@/rpc/base/v1/ai_assistant_session";
+import type { AiAssistantAction } from "@/rpc/base/v1/ai_assistant_message";
 import { AiAssistantMessageStatus } from "@/rpc/common/v1/enum";
 import { Terminal } from "@/rpc/common/v1/enum";
-import type { AiAssistantStreamPayload, ChatMessageItem, ReplySourceTag } from "./types";
+import type { AiAssistantStreamPayload, AssistantFlowBlock, ChatMessageItem, ReplySourceTag } from "./types";
 
 const THINKING_MESSAGE_ID_PREFIX = "assistant-thinking";
 const LOCAL_USER_MESSAGE_ID_PREFIX = "assistant-user-local";
@@ -94,6 +95,48 @@ function normalizeOutputContent(content?: AiAssistantOutputContent): AiAssistant
   };
 }
 
+/** 解析结构化 Flow 卡片，非法 JSON 直接降级为空数组。 */
+export function parseFlowBlocks(raw?: string) {
+  if (!raw) return [];
+  try {
+    const blocks = JSON.parse(raw) as unknown;
+    if (!Array.isArray(blocks)) return [];
+    return blocks.filter((item): item is AssistantFlowBlock => Boolean(item && typeof item === "object" && String(item.type ?? "")));
+  } catch {
+    return [];
+  }
+}
+
+/** 根据消息状态禁用过期结构化动作，减少用户误点旧步骤。 */
+export function markFlowBlocksDisabled(blocks: AssistantFlowBlock[], messageID: string) {
+  return blocks.map(block => markFlowValueDisabled(block, messageID)) as AssistantFlowBlock[];
+}
+
+/** 递归标记结构化卡片中的 action 是否仍属于当前消息。 */
+function markFlowValueDisabled(value: unknown, messageID: string): unknown {
+  if (Array.isArray(value)) {
+    value.forEach(item => markFlowValueDisabled(item, messageID));
+    return value;
+  }
+  if (!value || typeof value !== "object") return value;
+
+  const current = value as Record<string, any>;
+  if (current.type && current.flow) {
+    current.disabled = !isFlowActionFromMessage(current, messageID);
+  }
+  if (current.action?.type) {
+    current.disabled = !isFlowActionFromMessage(current.action, messageID);
+  }
+  Object.values(current).forEach(item => markFlowValueDisabled(item, messageID));
+  return current;
+}
+
+/** 判断结构化动作是否来自指定助手消息。 */
+export function isFlowActionFromMessage(action: Partial<AiAssistantAction> | undefined, messageID: string) {
+  if (!messageID || !action?.source_message_id || !action.action_id) return false;
+  return action.source_message_id === messageID && String(action.flow_version || "") === messageID;
+}
+
 /** 归一化 token 统计，保证用量展示字段都有默认值。 */
 function normalizeToken(token?: AiAssistantToken): AiAssistantToken {
   return {
@@ -120,6 +163,13 @@ export function mapMessageItem(message: AiAssistantMessage, role: "user" | "assi
     model: role === "assistant" ? outputContent.model : "",
     fallback: role === "assistant" && outputContent.fallback,
     fallback_reason: role === "assistant" ? outputContent.fallback_reason : "",
+    flow: role === "assistant" ? outputContent.flow : "",
+    step: role === "assistant" ? outputContent.step : "",
+    blocksJson: role === "assistant" ? outputContent.blocks_json : "",
+    blocks:
+      role === "assistant"
+        ? markFlowBlocksDisabled(parseFlowBlocks(outputContent.blocks_json), String(message.id ?? ""))
+        : [],
     status: Number(message.status ?? AiAssistantMessageStatus.SUCCESS_AAMS),
     token: normalizeToken(message.token),
     tools: Array.isArray(message.tools) ? message.tools : [],

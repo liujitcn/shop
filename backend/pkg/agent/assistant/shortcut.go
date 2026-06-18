@@ -52,6 +52,47 @@ const (
 	toolCreateComment      = "app_v1_comment_service_create_comment"
 	toolJSAPIPay           = "app_v1_pay_service_jsapi_pay"
 	toolH5Pay              = "app_v1_pay_service_h5_pay"
+
+	// 管理端流程名称
+	shortcutAdminFlowWorkspaceOverview   = "workspace_overview"
+	shortcutAdminFlowPendingShipment     = "pending_shipment"
+	shortcutAdminFlowCommentReview       = "comment_review"
+	shortcutAdminFlowGoodsInventoryAlert = "goods_inventory_alert"
+	shortcutAdminFlowOrderRefund         = "order_refund"
+	shortcutAdminFlowGoodsAnalytics      = "goods_analytics"
+	shortcutAdminFlowOrderAnalytics      = "order_analytics"
+	shortcutAdminFlowStoreAudit          = "store_audit"
+	shortcutAdminFlowRecommendDashboard  = "recommend_dashboard"
+	shortcutAdminFlowReputationInsight   = "reputation_insight"
+	shortcutAdminFlowPayBillCheck        = "pay_bill_check"
+	shortcutAdminFlowReportOverview      = "report_overview"
+
+	// 管理端入口动作
+	shortcutAdminActionOpenWorkspaceOverview   = "open_workspace_overview"
+	shortcutAdminActionOpenPendingShipment     = "open_pending_shipment"
+	shortcutAdminActionOpenCommentReview       = "open_comment_review"
+	shortcutAdminActionOpenGoodsInventoryAlert = "open_goods_inventory_alert"
+	shortcutAdminActionOpenOrderRefund         = "open_order_refund"
+	shortcutAdminActionOpenGoodsAnalytics      = "open_goods_analytics"
+	shortcutAdminActionOpenOrderAnalytics      = "open_order_analytics"
+	shortcutAdminActionOpenStoreAudit          = "open_store_audit"
+	shortcutAdminActionOpenRecommendDashboard  = "open_recommend_dashboard"
+	shortcutAdminActionOpenReputationInsight   = "open_reputation_insight"
+	shortcutAdminActionOpenPayBillCheck        = "open_pay_bill_check"
+	shortcutAdminActionOpenReportOverview      = "open_report_overview"
+
+	// 管理端工具
+	toolAdminSummaryWorkspaceMetrics    = "admin_v1_workspace_service_summary_workspace_metrics"
+	toolAdminPageOrderInfos             = "admin_v1_order_info_service_page_order_infos"
+	toolAdminPageCommentInfos           = "admin_v1_comment_info_service_page_comment_infos"
+	toolAdminPageGoodsInfos             = "admin_v1_goods_info_service_page_goods_infos"
+	toolAdminSummaryGoodsAnalytics      = "admin_v1_goods_analytics_service_summary_goods_analytics"
+	toolAdminSummaryOrderAnalytics      = "admin_v1_order_analytics_service_summary_order_analytics"
+	toolAdminPageUserStores             = "admin_v1_user_store_service_page_user_stores"
+	toolAdminListDashboardItems         = "admin_v1_recommend_gorse_service_list_dashboard_items"
+	toolAdminSummaryWorkspaceReputation = "admin_v1_workspace_service_summary_workspace_reputation"
+	toolAdminPagePayBills               = "admin_v1_pay_bill_service_page_pay_bills"
+	toolAdminSummaryOrderMonthReport    = "admin_v1_order_report_service_summary_order_month_report"
 )
 
 var shortcutCatalog = []shortcutItem{
@@ -288,6 +329,199 @@ var shortcutCatalog = []shortcutItem{
 			toolListShopServices,
 		},
 	},
+	// ===== 管理端快捷入口 =====
+	{
+		key:      "admin_workspace_overview",
+		title:    "经营总览",
+		prompt:   "查看经营总览",
+		terminal: TerminalAdmin,
+		sort:     10,
+		group:    "订单运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowWorkspaceOverview,
+			step: "overview",
+			typ:  shortcutAdminActionOpenWorkspaceOverview,
+		},
+		requiredTools: []string{
+			toolAdminSummaryWorkspaceMetrics,
+		},
+	},
+	{
+		key:      "admin_pending_shipment",
+		title:    "待发货订单",
+		prompt:   "查看待发货订单",
+		terminal: TerminalAdmin,
+		sort:     20,
+		group:    "订单运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowPendingShipment,
+			step: "list",
+			typ:  shortcutAdminActionOpenPendingShipment,
+		},
+		requiredTools: []string{
+			toolAdminPageOrderInfos,
+		},
+	},
+	{
+		key:      "admin_comment_review",
+		title:    "评价审核",
+		prompt:   "查看待审核评价",
+		terminal: TerminalAdmin,
+		sort:     30,
+		group:    "商品运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowCommentReview,
+			step: "list",
+			typ:  shortcutAdminActionOpenCommentReview,
+		},
+		requiredTools: []string{
+			toolAdminPageCommentInfos,
+		},
+	},
+	{
+		key:      "admin_goods_inventory_alert",
+		title:    "库存预警",
+		prompt:   "查看库存预警商品",
+		terminal: TerminalAdmin,
+		sort:     40,
+		group:    "商品运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowGoodsInventoryAlert,
+			step: "list",
+			typ:  shortcutAdminActionOpenGoodsInventoryAlert,
+		},
+		requiredTools: []string{
+			toolAdminPageGoodsInfos,
+		},
+	},
+	{
+		key:      "admin_order_refund",
+		title:    "退款记录",
+		prompt:   "查看退款记录",
+		terminal: TerminalAdmin,
+		sort:     50,
+		group:    "订单运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowOrderRefund,
+			step: "list",
+			typ:  shortcutAdminActionOpenOrderRefund,
+		},
+		requiredTools: []string{
+			toolAdminPageOrderInfos,
+		},
+	},
+	{
+		key:      "admin_goods_analytics",
+		title:    "商品分析",
+		prompt:   "查看商品分析",
+		terminal: TerminalAdmin,
+		sort:     60,
+		group:    "商品运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowGoodsAnalytics,
+			step: "overview",
+			typ:  shortcutAdminActionOpenGoodsAnalytics,
+		},
+		requiredTools: []string{
+			toolAdminSummaryGoodsAnalytics,
+		},
+	},
+	{
+		key:      "admin_order_analytics",
+		title:    "订单分析",
+		prompt:   "查看订单分析",
+		terminal: TerminalAdmin,
+		sort:     70,
+		group:    "订单运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowOrderAnalytics,
+			step: "overview",
+			typ:  shortcutAdminActionOpenOrderAnalytics,
+		},
+		requiredTools: []string{
+			toolAdminSummaryOrderAnalytics,
+		},
+	},
+	{
+		key:      "admin_store_audit",
+		title:    "门店审核",
+		prompt:   "查看待审核门店",
+		terminal: TerminalAdmin,
+		sort:     80,
+		group:    "商品运营",
+		action: shortcutAction{
+			flow: shortcutAdminFlowStoreAudit,
+			step: "list",
+			typ:  shortcutAdminActionOpenStoreAudit,
+		},
+		requiredTools: []string{
+			toolAdminPageUserStores,
+		},
+	},
+	{
+		key:      "admin_recommend_dashboard",
+		title:    "推荐看板",
+		prompt:   "查看推荐效果看板",
+		terminal: TerminalAdmin,
+		sort:     90,
+		group:    "数据分析",
+		action: shortcutAction{
+			flow: shortcutAdminFlowRecommendDashboard,
+			step: "overview",
+			typ:  shortcutAdminActionOpenRecommendDashboard,
+		},
+		requiredTools: []string{
+			toolAdminListDashboardItems,
+		},
+	},
+	{
+		key:      "admin_reputation_insight",
+		title:    "口碑洞察",
+		prompt:   "查看口碑洞察",
+		terminal: TerminalAdmin,
+		sort:     100,
+		group:    "数据分析",
+		action: shortcutAction{
+			flow: shortcutAdminFlowReputationInsight,
+			step: "overview",
+			typ:  shortcutAdminActionOpenReputationInsight,
+		},
+		requiredTools: []string{
+			toolAdminSummaryWorkspaceReputation,
+		},
+	},
+	{
+		key:      "admin_pay_bill_check",
+		title:    "对账检查",
+		prompt:   "查看对账异常",
+		terminal: TerminalAdmin,
+		sort:     110,
+		group:    "系统管理",
+		action: shortcutAction{
+			flow: shortcutAdminFlowPayBillCheck,
+			step: "list",
+			typ:  shortcutAdminActionOpenPayBillCheck,
+		},
+		requiredTools: []string{
+			toolAdminPagePayBills,
+		},
+	},
+	{
+		key:      "admin_report_overview",
+		title:    "经营报表",
+		prompt:   "查看经营报表",
+		terminal: TerminalAdmin,
+		sort:     120,
+		group:    "数据分析",
+		action: shortcutAction{
+			flow: shortcutAdminFlowReportOverview,
+			step: "overview",
+			typ:  shortcutAdminActionOpenReportOverview,
+		},
+		requiredTools: []string{
+			toolAdminSummaryOrderMonthReport,
+		},
+	},
 }
 
 // shortcutItem 表示一个快捷助手入口的静态配置项。
@@ -302,6 +536,8 @@ type shortcutItem struct {
 	terminal int32
 	// sort 快捷入口排序值，数值越小越靠前。
 	sort int32
+	// group 快捷入口分组名称，用于前端按分组展示。
+	group string
 	// action 快捷入口触发的前端流程动作。
 	action shortcutAction
 	// requiredTools 快捷入口依赖的后台 Agent 工具名，全部启用时才返回。
@@ -342,6 +578,7 @@ func (i shortcutItem) toDTO() *basev1.AiAssistantShortcut {
 		Action:        i.action.toDTO(),
 		RequiredTools: append([]string(nil), i.requiredTools...),
 		Sort:          i.sort,
+		Group:         i.group,
 	}
 }
 

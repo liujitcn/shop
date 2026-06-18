@@ -125,6 +125,7 @@ type AiAssistantShortcut struct {
 	Action        *AiAssistantShortcutAction `protobuf:"bytes,4,opt,name=action,proto3" json:"action,omitempty"`                                    // 快捷入口动作
 	RequiredTools []string                   `protobuf:"bytes,5,rep,name=required_tools,json=requiredTools,proto3" json:"required_tools,omitempty"` // 依赖工具列表
 	Sort          int32                      `protobuf:"varint,6,opt,name=sort,proto3" json:"sort,omitempty"`                                       // 排序值
+	Group         string                     `protobuf:"bytes,7,opt,name=group,proto3" json:"group,omitempty"`                                      // 分组名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -199,6 +200,13 @@ func (x *AiAssistantShortcut) GetSort() int32 {
 		return x.Sort
 	}
 	return 0
+}
+
+func (x *AiAssistantShortcut) GetGroup() string {
+	if x != nil {
+		return x.Group
+	}
+	return ""
 }
 
 // AI 助手快捷入口动作
@@ -1445,14 +1453,15 @@ const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"\x1fListAiAssistantShortcutsRequest\x12Z\n" +
 	"\bterminal\x18\x01 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"x\n" +
 	" ListAiAssistantShortcutsResponse\x12T\n" +
-	"\tshortcuts\x18\x01 \x03(\v2\x1c.base.v1.AiAssistantShortcutB\x18\xbaG\x15\x92\x02\x12快捷入口列表R\tshortcuts\"\xe2\x02\n" +
+	"\tshortcuts\x18\x01 \x03(\v2\x1c.base.v1.AiAssistantShortcutB\x18\xbaG\x15\x92\x02\x12快捷入口列表R\tshortcuts\"\x8c\x03\n" +
 	"\x13AiAssistantShortcut\x12*\n" +
 	"\x03key\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12快捷入口标识R\x03key\x12(\n" +
 	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f展示标题R\x05title\x129\n" +
 	"\x06prompt\x18\x03 \x01(\tB!\xbaG\x1e\x92\x02\x1b发送给助手的提示词R\x06prompt\x12T\n" +
 	"\x06action\x18\x04 \x01(\v2\".base.v1.AiAssistantShortcutActionB\x18\xbaG\x15\x92\x02\x12快捷入口动作R\x06action\x12?\n" +
 	"\x0erequired_tools\x18\x05 \x03(\tB\x18\xbaG\x15\x92\x02\x12依赖工具列表R\rrequiredTools\x12#\n" +
-	"\x04sort\x18\x06 \x01(\x05B\x0f\xbaG\f\x92\x02\t排序值R\x04sort\"\xce\x01\n" +
+	"\x04sort\x18\x06 \x01(\x05B\x0f\xbaG\f\x92\x02\t排序值R\x04sort\x12(\n" +
+	"\x05group\x18\a \x01(\tB\x12\xbaG\x0f\x92\x02\f分组名称R\x05group\"\xce\x01\n" +
 	"\x19AiAssistantShortcutAction\x12&\n" +
 	"\x04flow\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程标识R\x04flow\x12&\n" +
 	"\x04step\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f流程步骤R\x04step\x12&\n" +

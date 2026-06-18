@@ -690,7 +690,7 @@ func (c *AiAssistantMessageCase) ensureAiAssistantActionCurrent(ctx context.Cont
 		return nil
 	}
 	if action.GetSourceMessageId() == "" && action.GetActionId() == "" && action.GetFlowVersion() == 0 {
-		if assistantflow.IsEntryAction(action.GetFlow(), action.GetType()) {
+		if assistantflow.IsEntryAction(session.Terminal, action.GetFlow(), action.GetType()) {
 			return nil
 		}
 		return aiAssistantExpiredActionError("", "")
@@ -802,10 +802,10 @@ func injectAiAssistantActionStateValue(value any, sourceMessageID string, flowVe
 			}
 		}
 	case map[string]any:
-		if action, ok := current["action"].(map[string]any); ok && aiAssistantActionStringValue(action["type"]) != "" {
-			action["source_message_id"] = sourceMessageID
-			action["action_id"] = sourceMessageID + ":" + strconv.Itoa(*actionIndex)
-			action["flow_version"] = flowVersion
+		if aiAssistantActionStringValue(current["type"]) != "" && aiAssistantActionStringValue(current["flow"]) != "" {
+			current["source_message_id"] = sourceMessageID
+			current["action_id"] = sourceMessageID + ":" + strconv.Itoa(*actionIndex)
+			current["flow_version"] = flowVersion
 			(*actionIndex)++
 			changed = true
 		}
@@ -841,7 +841,7 @@ func aiAssistantValueContainsAction(value any, action *basev1.AiAssistantAction)
 			}
 		}
 	case map[string]any:
-		if candidate, ok := current["action"].(map[string]any); ok && matchAiAssistantAction(candidate, action) {
+		if matchAiAssistantAction(current, action) {
 			return true
 		}
 		for _, item := range current {

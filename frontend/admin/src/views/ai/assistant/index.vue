@@ -20,9 +20,12 @@
       :active-session="activeSession"
       :messages="currentMessages"
       :sending="currentSessionSending"
+      :shortcuts="starterShortcuts"
+      :loading-shortcuts="loadingShortcuts"
       @submit="handleSubmit"
       @message-action="handleMessageAction"
       @message-edit="handleEditMessage"
+      @flow-action="handleFlowAction"
     />
   </div>
 </template>
@@ -34,7 +37,8 @@ import { DArrowRight } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { defAiAssistantMessageService } from "@/api/base/ai_assistant_message";
 import { defAiAssistantSessionService } from "@/api/base/ai_assistant_session";
-import { type AiAssistantSession } from "@/rpc/base/v1/ai_assistant_session";
+import { type AiAssistantSession, type AiAssistantShortcut } from "@/rpc/base/v1/ai_assistant_session";
+import type { AiAssistantAction } from "@/rpc/base/v1/ai_assistant_message";
 import { AiAssistantMessageStatus, Terminal } from "@/rpc/common/v1/enum";
 import ChatPanel from "./components/ChatPanel.vue";
 import SessionPanel from "./components/SessionPanel.vue";
@@ -76,7 +80,9 @@ const sessionPanelCollapsed = ref(false);
 const sendingSessionMap = ref<Record<string, boolean>>({});
 const loadingSessions = ref(false);
 const loadingSessionID = ref("");
+const loadingShortcuts = ref(false);
 const sessions = ref<AiAssistantSession[]>([]);
+const starterShortcuts = ref<AiAssistantShortcut[]>([]);
 const messages = ref<Record<string, ChatMessageItem[]>>({});
 const pendingDeltaMap = new Map<string, AiAssistantStreamPayload>();
 const runningStreamTaskMap = new Map<string, AiAssistantStreamTask>();
@@ -180,7 +186,7 @@ async function runAiAssistantStreamTask(sessionID: string, payload: SubmitPayloa
         url: item.url,
         mime_type: item.mime_type
       })),
-      action: undefined
+      action: payload.action
     }, {
       signal: controller.signal
     });
@@ -207,6 +213,18 @@ async function runAiAssistantStreamTask(sessionID: string, payload: SubmitPayloa
       setSessionSending(sessionID, false);
     }
   }
+}
+
+/** 点击结构化卡片动作，继续推进固定流程。 */
+async function handleFlowAction(payload: { action: AiAssistantAction; label?: string }) {
+  const sessionID = activeSessionID.value;
+  if (!sessionID || isSessionSending(sessionID)) return;
+  const content = payload.label || resolveFlowActionLabel(payload.action);
+  await sendAiAssistantPayload({
+    text: content,
+    attachments: [],
+    action: payload.action
+  });
 }
 
 /** 处理聊天气泡上的重试、分支、朗读、复制和删除操作。 */
@@ -578,6 +596,7 @@ async function ensureSessionsLoaded() {
 
   loadingSessions.value = true;
   try {
+    void loadAiAssistantShortcuts();
     const response = await defAiAssistantSessionService.ListAiAssistantSessions({ terminal: Terminal.TERMINAL_ADMIN });
     sessions.value = normalizeSessionList(response?.sessions);
     const sessionID = await ensureActiveSession();
@@ -586,6 +605,20 @@ async function ensureSessionsLoaded() {
     sessions.value = [];
   } finally {
     loadingSessions.value = false;
+  }
+}
+
+/** 加载当前管理端可用快捷入口。 */
+async function loadAiAssistantShortcuts() {
+  if (loadingShortcuts.value) return;
+  loadingShortcuts.value = true;
+  try {
+    const response = await defAiAssistantSessionService.ListAiAssistantShortcuts({ terminal: Terminal.TERMINAL_ADMIN });
+    starterShortcuts.value = normalizeStarterShortcuts(response.shortcuts);
+  } catch {
+    starterShortcuts.value = [];
+  } finally {
+    loadingShortcuts.value = false;
   }
 }
 
@@ -675,6 +708,49 @@ function buildBranchSessionTitle(item: ChatMessageItem) {
   return `分支：${content.slice(0, 18) || "新对话"}`;
 }
 
+/** 归一化快捷入口，保证空态展示稳定排序。 */
+function normalizeStarterShortcuts(list?: AiAssistantShortcut[] | null) {
+  return [...(list ?? [])]
+    .filter(item => Boolean(item?.key && (item.title || item.prompt)))
+    .map(item => ({
+      ...item,
+      title: item.title || item.prompt,
+      prompt: item.prompt || item.title,
+      required_tools: Array.isArray(item.required_tools) ? item.required_tools : [],
+      sort: Number(item.sort || 0),
+      group: String((item as AiAssistantShortcut & { group?: string }).group ?? "")
+    }))
+    .sort((left, right) => left.sort - right.sort);
+}
+
+/** 生成流程动作作为本地用户气泡展示文本。 */
+function resolveFlowActionLabel(action: AiAssistantAction) {
+  const labelMap: Record<string, string> = {
+    open_workspace_overview: "查看经营总览",
+    open_pending_shipment: "查看待发货订单",
+    view_shipment_detail: "查看发货详情",
+    confirm_shipment: "确认发货",
+    open_comment_review: "查看待审核评价",
+    view_comment_detail: "查看评价详情",
+    confirm_comment_review: "提交评价审核",
+    open_goods_inventory_alert: "查看库存预警",
+    view_goods_detail: "查看商品详情",
+    confirm_goods_status: "确认商品状态变更",
+    open_order_refund: "查看退款记录",
+    view_refund_detail: "查看退款详情",
+    open_goods_analytics: "查看商品分析",
+    open_order_analytics: "查看订单分析",
+    open_store_audit: "查看门店审核",
+    view_store_detail: "查看门店详情",
+    confirm_store_audit: "提交门店审核",
+    open_recommend_dashboard: "查看推荐看板",
+    open_reputation_insight: "查看口碑洞察",
+    open_pay_bill_check: "查看对账异常",
+    open_report_overview: "查看经营报表"
+  };
+  return labelMap[action.type] || "继续";
+}
+
 /** 更新或插入会话，并按更新时间排序。 */
 function upsertSession(session: AiAssistantSession) {
   const nextList = sessions.value.filter(item => item.id !== session.id);
@@ -688,6 +764,7 @@ function upsertSession(session: AiAssistantSession) {
 
 /** 页面加载后主动准备首个会话，避免进入菜单后仍需额外点击。 */
 onMounted(() => {
+  void loadAiAssistantShortcuts();
   void ensureSessionsLoaded();
 });
 
