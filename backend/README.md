@@ -70,14 +70,15 @@ go run ./internal/cmd/server -conf ./configs
 - Swagger UI：`http://localhost:7001/docs/`
 - OpenAPI：`http://localhost:7001/docs/openapi.yaml`
 
-当前 `backend/Makefile` 的 `make run` 仍指向旧入口 `./cmd/server`，本地调试请优先使用上面的 `go run ./internal/cmd/server -conf ./configs`。
+也可以使用 `make run` 生成接口产物并启动服务。
 
 ## 初始化数据
 
-后端完成自动建表后，在仓库根目录导入基础数据：
+后端完成自动建表后，先停止服务，再在仓库根目录依次导入基础数据和角色接口权限策略：
 
 ```bash
 mysql -uroot -p shop_test < sql/default-data.sql
+mysql -uroot -p shop_test < sql/casbin_rule.sql
 mysql -uroot -p shop_test < sql/base_area.sql
 ```
 
@@ -87,12 +88,12 @@ mysql -uroot -p shop_test < sql/base_area.sql
 mysql -uroot -p shop_test < sql/shop.sql
 ```
 
-默认后台账号：
+导入完成后重新启动后端，使 Casbin 加载最新权限策略。默认后台账号：
 
 - `super / 112233`
 - `admin / 112233`
 
-说明：`sql/casbin_rule.sql` 当前为空文件，权限、菜单、接口、角色和用户初始化主要维护在 `sql/default-data.sql`。
+说明：`sql/default-data.sql` 维护接口、菜单、角色和用户等基础数据，`sql/casbin_rule.sql` 维护 `admin`、`user`、`guest` 的角色接口权限策略。
 
 ## 接口与生成
 
@@ -182,7 +183,7 @@ cd backend
 make docker-build
 ```
 
-`Dockerfile` 会复制 `bin/server`、`configs`、`certs`，并暴露 `6001`、`7001`。容器内默认工作目录为 `/app`，`data`、`configs`、`certs` 都声明为卷。
+`Dockerfile` 会复制 `bin/server` 与 `configs`，创建可挂载的 `certs` 目录，并暴露 `6001`、`7001`。容器内默认工作目录为 `/app`，`data`、`configs`、`certs` 都声明为卷。
 
 ## 推荐与 AI 配置
 

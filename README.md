@@ -42,11 +42,12 @@
 
 推荐按以下顺序启动，具体命令见模块文档：
 
-1. 创建 `shop_test` 数据库，启动后端并导入 `sql/default-data.sql`、`sql/base_area.sql`，演示数据可导入 `sql/shop.sql`。
-2. 启动 [后端服务](backend/README.md)，默认 HTTP 地址为 `http://localhost:7001`。
-3. 启动 [管理后台](frontend/admin/README.md)，默认地址为 `http://localhost:8848`。
-4. 启动 [商城端](frontend/app/README.md)，H5 默认地址为 `http://localhost:5002`，微信小程序需用微信开发者工具导入构建目录。
-5. 需要 Gorse 推荐联调时，再启动 [gorse](gorse/README.md)。
+1. 创建 `shop_test` 数据库，首次启动后端完成自动建表，然后停止后端。
+2. 依次导入 `sql/default-data.sql`、`sql/casbin_rule.sql`、`sql/base_area.sql`，演示数据可继续导入 `sql/shop.sql`。
+3. 重新启动 [后端服务](backend/README.md) 以加载初始化后的权限策略，默认 HTTP 地址为 `http://localhost:7001`。
+4. 启动 [管理后台](frontend/admin/README.md)，默认地址为 `http://localhost:8848`。
+5. 启动 [商城端](frontend/app/README.md)，H5 默认地址为 `http://localhost:5002`，微信小程序需用微信开发者工具导入构建目录。
+6. 需要 Gorse 推荐联调时，再启动 [gorse](gorse/README.md)。
 
 默认后台账号来自 `sql/default-data.sql`：
 
@@ -55,6 +56,6 @@
 
 ## 共享说明
 
-- 初始化 SQL 位于 `sql`，其中 `casbin_rule.sql` 当前为空文件，权限和菜单初始化主要维护在 `default-data.sql`。
+- 初始化 SQL 位于 `sql`：菜单、角色和接口元数据维护在 `default-data.sql`，角色接口权限策略维护在 `casbin_rule.sql`。
 - 后端会托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，分别对应 `/admin` 和 `/app`。
 - 推荐服务为可选联调模块；未启动 Gorse 时，推荐链路应依赖后端本地兜底策略保证页面可用。

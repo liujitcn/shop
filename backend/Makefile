@@ -107,7 +107,7 @@ gen: api openapi ts fmt
 
 # 启动应用
 run: api openapi
-	@go run ./cmd/server -conf ./configs
+	@go run ./internal/cmd/server -conf ./configs
 
 # 构建 Linux 可执行文件，供 Docker 镜像直接打包
 build:

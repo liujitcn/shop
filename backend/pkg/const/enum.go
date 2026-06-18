@@ -37,6 +37,8 @@ const (
 )
 
 const (
+	// BASE_MENU_HIDDEN_ROOT_ID 表示只承载非后台终端权限、不参与后台动态路由的隐藏目录根节点。
+	BASE_MENU_HIDDEN_ROOT_ID = int64(900)
 	// BASE_MENU_TYPE_FOLDER 表示目录节点，仅用于组织菜单层级，不直接承载具体页面。
 	BASE_MENU_TYPE_FOLDER = int32(commonv1.BaseMenuType_FOLDER)
 	// BASE_MENU_TYPE_MENU 表示菜单节点，通常对应一个可访问的后台页面或路由。

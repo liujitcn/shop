@@ -15,7 +15,6 @@ VOLUME ["/app/data", "/app/configs", "/app/certs"]
 
 COPY bin/server /app/server
 COPY configs /app/configs
-COPY certs /app/certs
 
 EXPOSE 6001 7001
 

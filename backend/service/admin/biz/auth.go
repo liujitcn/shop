@@ -132,13 +132,21 @@ func (c *AuthCase) TreeUserMenus(ctx context.Context) (*adminv1.TreeRouteRespons
 	}
 
 	query := c.baseMenuCase.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 4)
+	var hiddenMenuIDs []int64
+	hiddenMenuIDs, err = c.baseMenuCase.listSubtreeIDs(ctx, _const.BASE_MENU_HIDDEN_ROOT_ID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户菜单失败").WithCause(err)
+	}
+
+	opts := make([]repository.QueryOption, 0, 5)
 	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
 	opts = append(opts, repository.Where(query.Type.In(
 		_const.BASE_MENU_TYPE_FOLDER,
 		_const.BASE_MENU_TYPE_MENU,
 		_const.BASE_MENU_TYPE_EXT_LINK,
 	)))
+	// 隐藏目录只承载移动端接口权限，不参与管理后台动态路由。
+	opts = append(opts, repository.Where(query.ID.NotIn(hiddenMenuIDs...)))
 	// 非超级管理员仅允许查看角色菜单里配置过的菜单。
 	if baseRole.Code != _const.BASE_ROLE_CODE_SUPER {
 		ids := _string.ConvertJsonStringToInt64Array(baseRole.Menus)

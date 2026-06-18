@@ -130,6 +130,36 @@ func (c *BaseMenuCase) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBa
 	})
 }
 
+// listSubtreeIDs 从指定根菜单开始按层查询完整子树 ID。
+func (c *BaseMenuCase) listSubtreeIDs(ctx context.Context, rootID int64) ([]int64, error) {
+	ids := []int64{rootID}
+	parentIDs := []int64{rootID}
+	visited := map[int64]struct{}{rootID: {}}
+	query := c.Query(ctx).BaseMenu
+	var err error
+	for len(parentIDs) > 0 {
+		opts := make([]repository.QueryOption, 0, 1)
+		opts = append(opts, repository.Where(query.ParentID.In(parentIDs...)))
+		var children []*models.BaseMenu
+		children, err = c.List(ctx, opts...)
+		if err != nil {
+			return nil, err
+		}
+
+		parentIDs = make([]int64, 0, len(children))
+		for _, child := range children {
+			// 已访问节点不再重复入队，避免异常菜单环导致查询无法结束。
+			if _, exists := visited[child.ID]; exists {
+				continue
+			}
+			visited[child.ID] = struct{}{}
+			ids = append(ids, child.ID)
+			parentIDs = append(parentIDs, child.ID)
+		}
+	}
+	return ids, nil
+}
+
 // buildRouteTree 构建菜单路由树
 func (c *BaseMenuCase) buildRouteTree(menuList []*models.BaseMenu, parentID int64) []*adminv1.RouteItem {
 	list := make([]*adminv1.RouteItem, 0)
