@@ -3015,6 +3015,46 @@ function showError(error: unknown, fallback: string) {
       </view>
     </scroll-view>
 
+    <view
+      v-if="hasMessages && (starterPrompts.length || loadingShortcuts)"
+      class="thread-prompt-panel"
+    >
+      <view class="thread-prompt-head">
+        <view class="thread-prompt-title">快捷操作</view>
+        <button
+          v-if="canRefreshStarterPrompts"
+          class="thread-prompt-refresh"
+          hover-class="none"
+          @tap="refreshStarterPrompts"
+        >
+          <text>换一换</text>
+          <uni-icons type="refresh" size="22" color="#00a96b" />
+        </button>
+      </view>
+      <view v-if="loadingShortcuts" class="thread-prompt-empty">正在加载快捷助手...</view>
+      <scroll-view v-else class="thread-prompt-scroll" scroll-x :show-scrollbar="false">
+        <view class="thread-prompt-list">
+          <button
+            v-for="(shortcut, shortcutIndex) in starterPrompts"
+            :key="shortcut.key || shortcut.title"
+            class="thread-prompt-item"
+            :class="{
+              'is-disabled':
+                loadingSessions || currentSessionSending || uploadingAttachment || isRecording,
+            }"
+            :disabled="
+              loadingSessions || currentSessionSending || uploadingAttachment || isRecording
+            "
+            hover-class="none"
+            @tap="handleStarterPrompt(shortcut)"
+          >
+            <text class="thread-prompt-mark">{{ shortcutIndex + 1 }}</text>
+            <text class="thread-prompt-text">{{ shortcut.title }}</text>
+          </button>
+        </view>
+      </scroll-view>
+    </view>
+
     <Composer
       v-model="inputText"
       :attachments="selectedAttachments"
@@ -3159,6 +3199,8 @@ page {
 
 .history-button,
 .nav-back-button,
+.thread-prompt-refresh,
+.thread-prompt-item,
 .operation-item,
 .message-edit-button,
 .rename-button,
@@ -3271,6 +3313,103 @@ page {
 
 .chat-list {
   padding-bottom: 36rpx;
+}
+
+.thread-prompt-panel {
+  flex-shrink: 0;
+  padding: 24rpx 24rpx 20rpx;
+  margin: 0 28rpx 10rpx;
+  border: 1rpx solid #e7ecef;
+  border-radius: 10rpx;
+  background-color: #fff;
+  box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
+}
+
+.thread-prompt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 18rpx;
+}
+
+.thread-prompt-title {
+  color: #111;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 38rpx;
+}
+
+.thread-prompt-refresh {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  height: 46rpx;
+  color: #00a96b;
+  font-size: 24rpx;
+  line-height: 46rpx;
+}
+
+.thread-prompt-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.thread-prompt-list {
+  display: inline-flex;
+  gap: 14rpx;
+  min-width: 100%;
+}
+
+.thread-prompt-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  max-width: 360rpx;
+  height: 70rpx;
+  padding: 0 18rpx 0 14rpx;
+  border: 1rpx solid #dbe9e5;
+  border-radius: 8rpx;
+  color: #111;
+  text-align: left;
+  background-color: #f8fcfb;
+  box-sizing: border-box;
+  vertical-align: top;
+}
+
+.thread-prompt-item.is-disabled {
+  opacity: 0.55;
+}
+
+.thread-prompt-mark {
+  flex-shrink: 0;
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 8rpx;
+  color: #00a96b;
+  font-size: 20rpx;
+  font-weight: 700;
+  line-height: 34rpx;
+  text-align: center;
+  background-color: #e7f7f2;
+}
+
+.thread-prompt-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 25rpx;
+  line-height: 34rpx;
+}
+
+.thread-prompt-empty {
+  padding: 12rpx 0;
+  color: #8d929c;
+  font-size: 24rpx;
+  line-height: 34rpx;
 }
 
 .chat-bottom-anchor {

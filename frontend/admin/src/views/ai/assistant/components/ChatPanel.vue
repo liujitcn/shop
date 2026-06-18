@@ -1,11 +1,17 @@
 <template>
-  <main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState }">
+  <main class="agent-chat-panel" :class="{ 'is-empty': isEmptyState, 'has-shortcuts': hasShortcutPanel }">
     <template v-if="isEmptyState">
       <div class="agent-chat-empty">
         <div class="agent-chat-empty__title">{{ welcomeTitle }}</div>
         <div class="agent-chat-empty__desc">可直接提问，也可以上传附件一起分析。</div>
-        <div v-if="shortcutVisibleList.length || loadingShortcuts" class="agent-shortcuts">
-          <div class="agent-shortcuts__title">可以这样开始</div>
+        <section v-if="hasShortcutPanel" class="agent-shortcuts">
+          <div class="agent-shortcuts__head">
+            <div>
+              <div class="agent-shortcuts__eyebrow">快捷操作</div>
+              <div class="agent-shortcuts__title">从常用工作流开始</div>
+            </div>
+            <span class="agent-shortcuts__count">{{ shortcutVisibleList.length }} 项</span>
+          </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
           <div v-else class="agent-shortcuts__grid">
             <button
@@ -16,11 +22,16 @@
               :disabled="sending"
               @click="handleShortcutClick(shortcut)"
             >
-              <span class="agent-shortcut__title">{{ shortcut.title }}</span>
-              <span v-if="shortcut.group" class="agent-shortcut__group">{{ shortcut.group }}</span>
+              <span class="agent-shortcut__icon">
+                <el-icon><component :is="resolveShortcutIcon(shortcut)" /></el-icon>
+              </span>
+              <span class="agent-shortcut__content">
+                <span class="agent-shortcut__title">{{ shortcut.title }}</span>
+                <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
+              </span>
             </button>
           </div>
-        </div>
+        </section>
         <div class="agent-chat-empty__sender">
           <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
         </div>
@@ -248,6 +259,34 @@
       </div>
 
       <div class="agent-sender-wrap">
+        <section v-if="hasShortcutPanel" class="agent-shortcuts agent-shortcuts--compact">
+          <div class="agent-shortcuts__head">
+            <div>
+              <div class="agent-shortcuts__eyebrow">快捷操作</div>
+              <div class="agent-shortcuts__title">继续调用常用流程</div>
+            </div>
+            <span class="agent-shortcuts__count">{{ shortcutVisibleList.length }} 项</span>
+          </div>
+          <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
+          <div v-else class="agent-shortcuts__grid">
+            <button
+              v-for="shortcut in shortcutVisibleList"
+              :key="shortcut.key"
+              class="agent-shortcut"
+              type="button"
+              :disabled="sending"
+              @click="handleShortcutClick(shortcut)"
+            >
+              <span class="agent-shortcut__icon">
+                <el-icon><component :is="resolveShortcutIcon(shortcut)" /></el-icon>
+              </span>
+              <span class="agent-shortcut__content">
+                <span class="agent-shortcut__title">{{ shortcut.title }}</span>
+                <span class="agent-shortcut__meta">{{ resolveShortcutMeta(shortcut) }}</span>
+              </span>
+            </button>
+          </div>
+        </section>
         <XSender :key="senderKey" :sending="sending" @submit="handleSubmit" />
       </div>
     </template>
@@ -259,7 +298,7 @@ import { computed, defineAsyncComponent, h, nextTick, ref } from "vue";
 import type { Component, ObjectDirective } from "vue";
 import { Attachments, BubbleList } from "vue-element-plus-x";
 import type { FilesCardProps } from "vue-element-plus-x/types/FilesCard";
-import { Check, CopyDocument, DataAnalysis, Delete, EditPen, Link, Refresh } from "@element-plus/icons-vue";
+import { ChatDotRound, Check, CopyDocument, DataAnalysis, Delete, EditPen, Goods, Link, Memo, PieChart, Refresh, Sell, ShoppingCart, User } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import {
   type AiAssistantShortcut,
@@ -459,6 +498,8 @@ const shortcutVisibleList = computed(() =>
     .sort((left, right) => Number(left.sort ?? 0) - Number(right.sort ?? 0))
 );
 
+const hasShortcutPanel = computed(() => props.loadingShortcuts || shortcutVisibleList.value.length > 0);
+
 /** 查找 footer 所属气泡里的消息内容元素。 */
 function findMessageContentElement(el: HTMLElement) {
   const wrapper = el.closest(".elx-bubble__content-wrapper");
@@ -518,13 +559,32 @@ function handleSubmit(payload: SubmitPayload) {
   emit("submit", payload);
 }
 
-/** 点击空态快捷入口时提交对应入口动作。 */
+/** 点击快捷入口时提交对应入口动作。 */
 function handleShortcutClick(shortcut: AiAssistantShortcut) {
   emit("submit", {
     text: shortcut.prompt || shortcut.title,
     attachments: [],
     action: buildShortcutAction(shortcut)
   });
+}
+
+/** 根据快捷入口所属业务给出稳定的轻量图标，不额外依赖后端配置。 */
+function resolveShortcutIcon(shortcut: AiAssistantShortcut) {
+  const text = `${shortcut.group || ""} ${shortcut.title || ""} ${shortcut.key || ""}`.toLowerCase();
+  if (text.includes("order") || text.includes("订单")) return ShoppingCart;
+  if (text.includes("goods") || text.includes("商品")) return Goods;
+  if (text.includes("comment") || text.includes("评价")) return ChatDotRound;
+  if (text.includes("recommend") || text.includes("推荐")) return Sell;
+  if (text.includes("user") || text.includes("用户")) return User;
+  if (text.includes("report") || text.includes("统计") || text.includes("分析")) return PieChart;
+  return Memo;
+}
+
+/** 展示快捷入口的分组和工具依赖摘要，帮助运营判断动作上下文。 */
+function resolveShortcutMeta(shortcut: AiAssistantShortcut) {
+  const group = shortcut.group || "通用助手";
+  const toolCount = shortcut.required_tools?.length ?? 0;
+  return toolCount > 0 ? `${group} · ${toolCount} 个工具` : group;
 }
 
 /** 生成快捷入口对应的流程动作。 */
@@ -891,6 +951,9 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   margin: 0 auto;
   overflow: hidden;
 }
+.agent-chat-panel.has-shortcuts .agent-chat-content {
+  padding-bottom: 262px;
+}
 .agent-chat-empty {
   display: flex;
   flex: 1;
@@ -918,6 +981,134 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
 .agent-chat-empty__sender {
   width: min(980px, 100%);
   margin-top: 28px;
+}
+.agent-shortcuts {
+  box-sizing: border-box;
+  width: min(760px, 100%);
+  padding: 14px;
+  margin-top: 26px;
+  background:
+    linear-gradient(180deg, rgba(64, 158, 255, 0.06), rgba(255, 255, 255, 0)),
+    var(--admin-page-card-bg);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--admin-page-radius);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+.agent-shortcuts__head {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+  margin-bottom: 12px;
+}
+.agent-shortcuts__eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--el-color-primary);
+}
+.agent-shortcuts__title {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--admin-page-text-primary);
+}
+.agent-shortcuts__count {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: 12px;
+  line-height: 20px;
+  color: var(--admin-page-text-secondary);
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--admin-page-radius);
+}
+.agent-shortcuts__loading {
+  box-sizing: border-box;
+  min-height: 70px;
+  padding: 23px 12px;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--admin-page-text-secondary);
+  text-align: center;
+  background: var(--el-fill-color-lighter);
+  border-radius: var(--admin-page-radius);
+}
+.agent-shortcuts__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+.agent-shortcut {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  min-height: 70px;
+  padding: 12px;
+  color: var(--admin-page-text-primary);
+  text-align: left;
+  cursor: pointer;
+  background: var(--admin-page-card-bg);
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--admin-page-radius);
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+.agent-shortcut:hover {
+  border-color: var(--el-color-primary-light-5);
+  box-shadow: 0 8px 18px rgba(64, 158, 255, 0.12);
+  transform: translateY(-1px);
+}
+.agent-shortcut:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+.agent-shortcut__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-7);
+  border-radius: var(--admin-page-radius);
+}
+.agent-shortcut__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.agent-shortcut__title {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agent-shortcut__meta {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--admin-page-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .agent-message-list {
   flex: 1;
@@ -1462,6 +1653,57 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   margin: 0 auto;
   background: var(--admin-page-card-bg);
 }
+.agent-shortcuts--compact {
+  width: 100%;
+  padding: 10px;
+  margin: 0 0 10px;
+  background:
+    linear-gradient(180deg, rgba(64, 158, 255, 0.05), rgba(255, 255, 255, 0)),
+    var(--admin-page-card-bg);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+.agent-shortcuts--compact .agent-shortcuts__head {
+  align-items: center;
+  margin-bottom: 8px;
+}
+.agent-shortcuts--compact .agent-shortcuts__eyebrow {
+  display: none;
+}
+.agent-shortcuts--compact .agent-shortcuts__title {
+  margin-top: 0;
+  font-size: 13px;
+  line-height: 20px;
+}
+.agent-shortcuts--compact .agent-shortcuts__grid {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.agent-shortcuts--compact .agent-shortcuts__grid::-webkit-scrollbar {
+  display: none;
+}
+.agent-shortcuts--compact .agent-shortcut {
+  flex: 0 0 178px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  min-height: 56px;
+  padding: 8px 10px;
+}
+.agent-shortcuts--compact .agent-shortcut__icon {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+.agent-shortcuts--compact .agent-shortcut__title {
+  font-size: 13px;
+  line-height: 18px;
+}
+.agent-shortcuts--compact .agent-shortcut__meta {
+  font-size: 11px;
+  line-height: 16px;
+}
 
 @media screen and (width <= 768px) {
   .agent-chat-panel {
@@ -1477,6 +1719,12 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   }
   .agent-chat-empty {
     width: calc(100% - 36px);
+  }
+  .agent-shortcuts__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .agent-shortcuts--compact .agent-shortcut {
+    flex-basis: 168px;
   }
   .agent-chat-empty__title {
     font-size: 30px;

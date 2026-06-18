@@ -42,7 +42,10 @@ const emit = defineEmits<{
 
     <view class="prompt-card">
       <view class="prompt-card__head">
-        <view class="prompt-card__title">您可以这样问</view>
+        <view>
+          <view class="prompt-card__eyebrow">快捷操作</view>
+          <view class="prompt-card__title">您可以这样问</view>
+        </view>
         <button v-if="canRefresh" class="prompt-refresh" hover-class="none" @tap="emit('refresh')">
           <text>换一换</text>
           <uni-icons type="refresh" size="25" color="#00a96b" />
@@ -59,7 +62,10 @@ const emit = defineEmits<{
           @tap="emit('shortcut-tap', shortcut)"
         >
           <text class="prompt-index">{{ shortcutIndex + 1 }}</text>
-          <text class="prompt-text">{{ shortcut.title }}</text>
+          <view class="prompt-content">
+            <text class="prompt-text">{{ shortcut.title }}</text>
+            <text class="prompt-meta">{{ shortcut.group || '通用助手' }}</text>
+          </view>
           <uni-icons type="right" size="20" color="#9aa0aa" />
         </button>
       </template>
@@ -327,10 +333,11 @@ const emit = defineEmits<{
 
 .prompt-card {
   margin-top: 34rpx;
-  padding: 36rpx 34rpx 24rpx;
-  border-radius: 18rpx;
-  background-color: #fff;
-  box-shadow: 0 10rpx 34rpx rgba(15, 23, 42, 0.04);
+  padding: 30rpx 28rpx 24rpx;
+  border: 1rpx solid #e7ecef;
+  border-radius: 10rpx;
+  background: linear-gradient(180deg, rgba(0, 169, 107, 0.05), rgba(255, 255, 255, 0) 38%), #fff;
+  box-shadow: 0 10rpx 34rpx rgba(15, 23, 42, 0.05);
   box-sizing: border-box;
 }
 
@@ -339,12 +346,19 @@ const emit = defineEmits<{
   align-items: center;
   justify-content: space-between;
   gap: 24rpx;
-  margin-bottom: 20rpx;
+  margin-bottom: 18rpx;
+}
+
+.prompt-card__eyebrow {
+  color: #00a96b;
+  font-size: 22rpx;
+  font-weight: 600;
+  line-height: 30rpx;
 }
 
 .prompt-card__title {
   color: #111;
-  font-size: 32rpx;
+  font-size: 31rpx;
   font-weight: 700;
   line-height: 42rpx;
 }
@@ -371,15 +385,16 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   width: 100%;
-  height: 104rpx;
-  border-bottom: 1rpx solid #e8e8e8;
+  min-height: 96rpx;
+  padding: 16rpx 16rpx 16rpx 0;
+  border-top: 1rpx solid #edf0f2;
   color: #111;
   text-align: left;
   box-sizing: border-box;
 }
 
-.prompt-item:last-child {
-  border-bottom: none;
+.prompt-item:first-of-type {
+  border-top: none;
 }
 
 .prompt-index {
@@ -387,24 +402,42 @@ const emit = defineEmits<{
   width: 36rpx;
   height: 36rpx;
   margin-right: 24rpx;
-  border: 2rpx solid #20bf7d;
-  border-radius: 9rpx;
-  color: #20bf7d;
-  font-size: 27rpx;
+  border-radius: 8rpx;
+  color: #00a96b;
+  font-size: 24rpx;
+  font-weight: 700;
   line-height: 34rpx;
   text-align: center;
+  background-color: #e7f7f2;
   box-sizing: border-box;
 }
 
-.prompt-text {
+.prompt-content {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.prompt-text {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #111;
-  font-size: 30rpx;
-  line-height: 42rpx;
+  font-size: 29rpx;
+  line-height: 40rpx;
+}
+
+.prompt-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #8d929c;
+  font-size: 22rpx;
+  line-height: 30rpx;
 }
 
 .prompt-item .uni-icons {
