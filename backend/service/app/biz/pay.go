@@ -276,7 +276,7 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 	resource := request.Resource
 	// 回调缺少业务资源体时，无法继续处理通知。
 	if resource == nil {
-		return errorsx.Internal("支付通知缺少资源体")
+		return errorsx.InvalidArgument("支付通知缺少资源体")
 	}
 
 	log.Infof("PayNotify EventType=%s，Plaintext=%s", request.EventType, resource.Plaintext)

@@ -27,7 +27,7 @@ export class GoodsInfoServiceImpl implements GoodsInfoService {
     const response = await http<PageGoodsInfoHTTPResponse>({
       url: `${GOODS_INFO_URL}`,
       method: 'GET',
-      authMode: 'none',
+      authMode: 'optional',
       data: request,
     })
     // 兼容未生成前的旧响应 list，同时向新协议的 goodsInfos 字段收敛。
@@ -45,7 +45,7 @@ export class GoodsInfoServiceImpl implements GoodsInfoService {
     return http<GoodsInfoResponse>({
       url: `${GOODS_INFO_URL}/${request.id}`,
       method: 'GET',
-      authMode: 'none',
+      authMode: 'optional',
     })
   }
 }

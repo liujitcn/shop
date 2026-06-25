@@ -144,7 +144,7 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginReques
 	}
 	// 微信侧返回业务错误时，直接透传错误信息。
 	if sessionKey.ErrCode != 0 {
-		return nil, errorsx.Internal("登录失败").WithMetadata(map[string]string{
+		return nil, errorsx.InvalidArgument("微信登录凭据无效").WithMetadata(map[string]string{
 			"provider":      "wechat",
 			"provider_code": fmt.Sprintf("%d", sessionKey.ErrCode),
 		})
@@ -267,7 +267,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 	}
 	// 微信侧返回手机号授权错误时，直接返回授权失败。
 	if phone.ErrCode != 0 {
-		return nil, errorsx.Internal("手机号授权失败").WithMetadata(map[string]string{
+		return nil, errorsx.InvalidArgument("手机号授权凭据无效").WithMetadata(map[string]string{
 			"provider":      "wechat",
 			"provider_code": fmt.Sprintf("%d", phone.ErrCode),
 		})

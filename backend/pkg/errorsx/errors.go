@@ -9,6 +9,7 @@ import (
 
 	kratosErrors "github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 )
 
 const (
@@ -147,6 +148,10 @@ func WrapIfNeeded(err error, fallback *kratosErrors.Error) error {
 
 // WrapInternal 在错误尚未完成分类时，包装成内部错误。
 func WrapInternal(err error, message string) error {
+	// 仓储层统一返回 gorm.ErrRecordNotFound，这类可预期查询空结果应对外表现为资源不存在。
+	if stderrs.Is(err, gorm.ErrRecordNotFound) {
+		return ResourceNotFound(message).WithCause(err)
+	}
 	return WrapIfNeeded(err, Internal(message))
 }
 
