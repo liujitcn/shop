@@ -10,7 +10,19 @@
               <div class="agent-shortcuts__eyebrow">快捷操作</div>
               <div class="agent-shortcuts__title">从常用工作流开始</div>
             </div>
-            <span class="agent-shortcuts__count">{{ shortcutVisibleList.length }} 项</span>
+            <div class="agent-shortcuts__actions">
+              <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
+              <button
+                v-if="canRefreshShortcutBatch"
+                class="agent-shortcuts__refresh"
+                type="button"
+                :disabled="sending"
+                @click="refreshShortcutBatch"
+              >
+                <span>换一批</span>
+                <el-icon><Refresh /></el-icon>
+              </button>
+            </div>
           </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
           <div v-else class="agent-shortcuts__grid">
@@ -258,14 +270,26 @@
         </BubbleList>
       </div>
 
-      <div class="agent-sender-wrap">
+      <div class="agent-composer-dock">
         <section v-if="hasShortcutPanel" class="agent-shortcuts agent-shortcuts--compact">
           <div class="agent-shortcuts__head">
             <div>
               <div class="agent-shortcuts__eyebrow">快捷操作</div>
               <div class="agent-shortcuts__title">继续调用常用流程</div>
             </div>
-            <span class="agent-shortcuts__count">{{ shortcutVisibleList.length }} 项</span>
+            <div class="agent-shortcuts__actions">
+              <span class="agent-shortcuts__count">{{ shortcutBatchLabel }}</span>
+              <button
+                v-if="canRefreshShortcutBatch"
+                class="agent-shortcuts__refresh"
+                type="button"
+                :disabled="sending"
+                @click="refreshShortcutBatch"
+              >
+                <span>换一批</span>
+                <el-icon><Refresh /></el-icon>
+              </button>
+            </div>
           </div>
           <div v-if="loadingShortcuts" class="agent-shortcuts__loading">正在加载快捷入口...</div>
           <div v-else class="agent-shortcuts__grid">
@@ -343,6 +367,9 @@ const editingMessageKey = ref("");
 const editingContent = ref("");
 /** 助手消息最小阅读宽度，保证底部操作和运行信息不互相遮挡。 */
 const ASSISTANT_MESSAGE_MIN_WIDTH = 360;
+/** 快捷入口每批展示数量，和移动端保持一致，避免大量入口挤压输入区。 */
+const SHORTCUT_BATCH_SIZE = 4;
+const shortcutBatchIndex = ref(0);
 
 /** 朗读图标，按产品示意图绘制为喇叭声波。 */
 const SpeakActionIcon = defineAsyncComponent(() =>
@@ -492,13 +519,33 @@ const welcomeTitle = computed(() => {
   return "晚上好，我是通用 AI 助手";
 });
 
-const shortcutVisibleList = computed(() =>
+const shortcutAllList = computed(() =>
   [...(props.shortcuts ?? [])]
     .filter(item => Boolean(item?.key && (item.title || item.prompt)))
     .sort((left, right) => Number(left.sort ?? 0) - Number(right.sort ?? 0))
 );
 
+const shortcutBatchCount = computed(() => Math.max(1, Math.ceil(shortcutAllList.value.length / SHORTCUT_BATCH_SIZE)));
+
+const shortcutVisibleList = computed(() => {
+  const pageIndex = shortcutBatchIndex.value % shortcutBatchCount.value;
+  const start = pageIndex * SHORTCUT_BATCH_SIZE;
+  return shortcutAllList.value.slice(start, start + SHORTCUT_BATCH_SIZE);
+});
+
 const hasShortcutPanel = computed(() => props.loadingShortcuts || shortcutVisibleList.value.length > 0);
+
+const canRefreshShortcutBatch = computed(() => shortcutAllList.value.length > SHORTCUT_BATCH_SIZE);
+
+const shortcutBatchLabel = computed(() => {
+  const total = shortcutAllList.value.length;
+  if (props.loadingShortcuts && total === 0) return "加载中";
+  if (total <= SHORTCUT_BATCH_SIZE) return `${total} 项`;
+  const pageIndex = shortcutBatchIndex.value % shortcutBatchCount.value;
+  const start = pageIndex * SHORTCUT_BATCH_SIZE + 1;
+  const end = Math.min(start + SHORTCUT_BATCH_SIZE - 1, total);
+  return `${start}-${end} / ${total}`;
+});
 
 /** 查找 footer 所属气泡里的消息内容元素。 */
 function findMessageContentElement(el: HTMLElement) {
@@ -566,6 +613,12 @@ function handleShortcutClick(shortcut: AiAssistantShortcut) {
     attachments: [],
     action: buildShortcutAction(shortcut)
   });
+}
+
+/** 轮换下一批快捷入口，保持大量入口也能被逐批访问。 */
+function refreshShortcutBatch() {
+  if (!canRefreshShortcutBatch.value) return;
+  shortcutBatchIndex.value = (shortcutBatchIndex.value + 1) % shortcutBatchCount.value;
 }
 
 /** 根据快捷入口所属业务给出稳定的轻量图标，不额外依赖后端配置。 */
@@ -1002,6 +1055,12 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   min-width: 0;
   margin-bottom: 12px;
 }
+.agent-shortcuts__actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  align-items: center;
+}
 .agent-shortcuts__eyebrow {
   font-size: 12px;
   font-weight: 600;
@@ -1024,6 +1083,30 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   background: var(--el-fill-color-light);
   border: 1px solid var(--el-border-color-lighter);
   border-radius: var(--admin-page-radius);
+}
+.agent-shortcuts__refresh {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  height: 26px;
+  padding: 0 8px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--el-color-primary);
+  cursor: pointer;
+  background: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-7);
+  border-radius: var(--admin-page-radius);
+}
+.agent-shortcuts__refresh:hover {
+  border-color: var(--el-color-primary-light-5);
+}
+.agent-shortcuts__refresh:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.agent-shortcuts__refresh .el-icon {
+  font-size: 13px;
 }
 .agent-shortcuts__loading {
   box-sizing: border-box;
@@ -1642,7 +1725,7 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
     white-space: nowrap;
   }
 }
-.agent-sender-wrap {
+.agent-composer-dock {
   position: absolute;
   right: 0;
   bottom: 24px;
@@ -1674,19 +1757,16 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   font-size: 13px;
   line-height: 20px;
 }
+.agent-shortcuts--compact .agent-shortcuts__actions {
+  gap: 6px;
+}
 .agent-shortcuts--compact .agent-shortcuts__grid {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   min-width: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: none;
-}
-.agent-shortcuts--compact .agent-shortcuts__grid::-webkit-scrollbar {
-  display: none;
 }
 .agent-shortcuts--compact .agent-shortcut {
-  flex: 0 0 178px;
   grid-template-columns: 28px minmax(0, 1fr);
   min-height: 56px;
   padding: 8px 10px;
@@ -1714,7 +1794,7 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
     padding: 24px 0;
   }
   .agent-chat-content,
-  .agent-sender-wrap {
+  .agent-composer-dock {
     width: calc(100% - 36px);
   }
   .agent-chat-empty {
@@ -1723,8 +1803,16 @@ function buildMessageAttachmentItems(attachments: AiAssistantAttachment[]): File
   .agent-shortcuts__grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .agent-shortcuts--compact .agent-shortcut {
-    flex-basis: 168px;
+  .agent-shortcuts__head {
+    align-items: stretch;
+  }
+  .agent-shortcuts__actions {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .agent-shortcuts--compact .agent-shortcuts__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .agent-chat-empty__title {
     font-size: 30px;

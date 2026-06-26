@@ -48,7 +48,53 @@
         </template>
       </div>
 
-      <div v-if="resolveActions(block).length" class="assistant-flow-actions">
+      <div v-if="isShipmentFormBlock(block)" class="assistant-flow-shipment">
+        <div class="assistant-flow-shipment__grid">
+          <label class="assistant-flow-shipment__field">
+            <span>物流公司</span>
+            <el-input
+              :model-value="resolveShipmentFormState(block, resolveBlockKey(block, blockIndex)).name"
+              size="small"
+              placeholder="请输入物流公司"
+              :disabled="Boolean(block.disabled)"
+              @update:model-value="value => updateShipmentFormField(block, resolveBlockKey(block, blockIndex), 'name', value)"
+            />
+          </label>
+          <label class="assistant-flow-shipment__field">
+            <span>物流单号</span>
+            <el-input
+              :model-value="resolveShipmentFormState(block, resolveBlockKey(block, blockIndex)).no"
+              size="small"
+              placeholder="请输入物流单号"
+              :disabled="Boolean(block.disabled)"
+              @update:model-value="value => updateShipmentFormField(block, resolveBlockKey(block, blockIndex), 'no', value)"
+            />
+          </label>
+          <label class="assistant-flow-shipment__field">
+            <span>联系电话</span>
+            <el-input
+              :model-value="resolveShipmentFormState(block, resolveBlockKey(block, blockIndex)).contact"
+              size="small"
+              placeholder="请输入联系电话"
+              :disabled="Boolean(block.disabled)"
+              @update:model-value="value => updateShipmentFormField(block, resolveBlockKey(block, blockIndex), 'contact', value)"
+            />
+          </label>
+        </div>
+        <div class="assistant-flow-actions">
+          <el-button
+            v-if="resolveShipmentAction(block)"
+            size="small"
+            type="primary"
+            :disabled="isShipmentSubmitDisabled(block, resolveBlockKey(block, blockIndex))"
+            @click="emitShipmentAction(block, resolveBlockKey(block, blockIndex))"
+          >
+            {{ resolveShipmentActionLabel(block) }}
+          </el-button>
+        </div>
+      </div>
+
+      <div v-else-if="resolveActions(block).length" class="assistant-flow-actions">
         <el-button
           v-for="(action, actionIndex) in resolveActions(block)"
           :key="action.action_id || action.type || actionIndex"
@@ -65,6 +111,7 @@
 </template>
 
 <script setup lang="ts">
+import { reactive } from "vue";
 import type { AiAssistantAction } from "@/rpc/base/v1/ai_assistant_message";
 import type { AssistantFlowBlock, ChatMessageItem } from "../types";
 
@@ -101,6 +148,16 @@ type DisplaySection =
       fields: DisplayField[];
     };
 
+/** 发货表单本地输入状态。 */
+type ShipmentFormState = {
+  /** 物流公司名。 */
+  name: string;
+  /** 物流单号。 */
+  no: string;
+  /** 联系方式。 */
+  contact: string;
+};
+
 const props = defineProps<{
   /** 当前助手气泡，包含已解析的结构化卡片。 */
   message: ChatMessageItem;
@@ -116,6 +173,7 @@ const emit = defineEmits<{
 const listFieldKeys = new Set(["items", "orders", "comments", "goods", "stores", "bills", "tasks", "hot_tags"]);
 const objectFieldKeys = new Set(["order", "refund", "comment", "store", "config", "form"]);
 const ignoredFieldKeys = new Set(["type", "title", "desc", "action", "actions", "disabled"]);
+const shipmentFormStateMap = reactive<Record<string, ShipmentFormState>>({});
 const fieldLabels: Record<string, string> = {
   label: "名称",
   value: "数值",
@@ -224,6 +282,22 @@ function resolveActions(block: AssistantFlowBlock) {
   return [block.action, ...actions].filter(isFlowAction);
 }
 
+/** 判断当前卡片是否为后台发货表单。 */
+function isShipmentFormBlock(block: AssistantFlowBlock) {
+  return block.type === "shipment_form";
+}
+
+/** 返回发货表单的确认动作。 */
+function resolveShipmentAction(block: AssistantFlowBlock) {
+  return resolveActions(block).find(action => action.type === "confirm_shipment");
+}
+
+/** 生成发货表单确认按钮文案。 */
+function resolveShipmentActionLabel(block: AssistantFlowBlock) {
+  const action = resolveShipmentAction(block);
+  return action ? resolveActionLabel(action, block) : "确认发货";
+}
+
 /** 判断动作是否可作为按钮渲染。 */
 function isFlowAction(action?: AiAssistantAction): action is AiAssistantAction {
   return Boolean(action?.type);
@@ -233,6 +307,55 @@ function isFlowAction(action?: AiAssistantAction): action is AiAssistantAction {
 function emitFlowAction(action: AiAssistantAction, label?: string) {
   if ((action as any).disabled || !isActionEnabled(action)) return;
   emit("flow-action", action, label);
+}
+
+/** 触发发货动作前把本地物流表单写入 action payload。 */
+function emitShipmentAction(block: AssistantFlowBlock, blockKey: string) {
+  const action = resolveShipmentAction(block);
+  if (!action || isShipmentSubmitDisabled(block, blockKey)) return;
+  const form = resolveShipmentFormState(block, blockKey);
+  const nextAction: AiAssistantAction = {
+    ...action,
+    payload_json: JSON.stringify({
+      ...readActionPayload(action),
+      name: form.name,
+      no: form.no,
+      contact: form.contact
+    })
+  };
+  emitFlowAction(nextAction, resolveActionLabel(action, block));
+}
+
+/** 返回发货表单本地状态，首次渲染时尝试使用已有物流信息回填。 */
+function resolveShipmentFormState(block: AssistantFlowBlock, blockKey: string) {
+  if (!shipmentFormStateMap[blockKey]) {
+    const logistics = resolveShipmentLogistics(block);
+    shipmentFormStateMap[blockKey] = {
+      name: stringValue(logistics.name),
+      no: stringValue(logistics.no),
+      contact: stringValue(logistics.contact)
+    };
+  }
+  return shipmentFormStateMap[blockKey];
+}
+
+/** 更新发货表单单字段。 */
+function updateShipmentFormField(block: AssistantFlowBlock, blockKey: string, field: keyof ShipmentFormState, value: string | number) {
+  resolveShipmentFormState(block, blockKey)[field] = String(value ?? "");
+}
+
+/** 判断发货表单当前是否可提交。 */
+function isShipmentSubmitDisabled(block: AssistantFlowBlock, blockKey: string) {
+  const action = resolveShipmentAction(block);
+  const form = resolveShipmentFormState(block, blockKey);
+  return Boolean(block.disabled || !action || (action as any).disabled || !isActionEnabled(action) || !form.name || !form.no);
+}
+
+/** 从发货卡片中读取已有物流数据。 */
+function resolveShipmentLogistics(block: AssistantFlowBlock) {
+  const order = isRecord(block.order) ? block.order : {};
+  const logistics = isRecord(block.logistics) ? block.logistics : isRecord(order.logistics) ? order.logistics : {};
+  return logistics;
 }
 
 /** 生成动作按钮文案。 */
@@ -277,6 +400,12 @@ function formatValue(value: unknown) {
   if (value === false) return "否";
   if (value === null || value === undefined) return "";
   if (typeof value === "object") return JSON.stringify(value);
+  return String(value);
+}
+
+/** 将字段值转成表单字符串。 */
+function stringValue(value: unknown) {
+  if (value === null || value === undefined) return "";
   return String(value);
 }
 </script>
@@ -415,10 +544,31 @@ function formatValue(value: unknown) {
   gap: 8px;
   margin-top: 12px;
 }
+.assistant-flow-shipment {
+  margin-top: 12px;
+}
+.assistant-flow-shipment__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.assistant-flow-shipment__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  color: var(--admin-page-text-secondary);
+}
 @media screen and (width <= 768px) {
   .assistant-flow-list__item {
     align-items: stretch;
     flex-direction: column;
+  }
+  .assistant-flow-shipment__grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 </style>

@@ -330,7 +330,7 @@ func (r *AdminRunner) viewAdminShipmentDetail(ctx context.Context, payload map[s
 	if err != nil {
 		return r.adminFlowErrorResponse(adminFlowPendingShipment, "detail", tools), nil
 	}
-	block := buildAdminShipmentFormBlock(output)
+	block := buildAdminShipmentFormBlock(output, orderID)
 	return r.adminFlowResponse(adminFlowPendingShipment, "detail", "订单详情已加载，填写物流信息后确认发货。", []map[string]any{block}, tools), nil
 }
 
@@ -955,12 +955,11 @@ func buildAdminOrderListBlock(flow string, title string, output map[string]any, 
 }
 
 // buildAdminShipmentFormBlock 构造发货表单卡片。
-func buildAdminShipmentFormBlock(output map[string]any) map[string]any {
+func buildAdminShipmentFormBlock(output map[string]any, orderID int64) map[string]any {
 	order := mapValue(output["order"])
 	if len(order) == 0 {
 		order = output
 	}
-	orderID := int64Value(order["id"])
 	return map[string]any{
 		"type":  "shipment_form",
 		"title": "确认发货",
