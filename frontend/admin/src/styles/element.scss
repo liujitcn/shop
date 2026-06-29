@@ -183,6 +183,17 @@
       flex-direction: column;
       height: 100%;
     }
+    .el-table__body-wrapper:has(.el-table__empty-block) {
+      // 空数据时让 Element Plus 内层滚动容器继承表格主体高度，空态才能在完整主体区域居中。
+      .el-scrollbar,
+      .el-scrollbar__wrap,
+      .el-scrollbar__view {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 100%;
+      }
+    }
     .el-table__empty-block {
       display: flex;
       flex: 1;
@@ -196,6 +207,14 @@
       &::before,
       &::after {
         display: none;
+      }
+      .el-table__empty-text {
+        // 表格存在横向滚动或固定列时，空状态按当前可视区中心展示。
+        position: sticky;
+        left: 50%;
+        width: max-content;
+        max-width: 100%;
+        transform: translateX(-50%);
       }
       .table-empty {
         display: flex;
