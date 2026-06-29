@@ -55,8 +55,6 @@ require (
 	gorm.io/plugin/dbresolver v1.6.2
 )
 
-require github.com/gorilla/websocket v1.5.3 // indirect
-
 require (
 	buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.11-20260415201107-50325440f8f2.1 // indirect
 	buf.build/go/protovalidate v1.2.0 // indirect
@@ -107,6 +105,7 @@ require (
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grafana/pyroscope-go v1.2.8 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.9 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
@@ -131,15 +130,15 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.10 // indirect
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.10 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/config v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.12 // indirect
+	github.com/liujitcn/kratos-kit/config v0.0.14 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.11 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.9 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.8 // indirect
-	github.com/liujitcn/kratos-kit/registry v0.0.15 // indirect
+	github.com/liujitcn/kratos-kit/registry v0.0.14 // indirect
 	github.com/liujitcn/kratos-kit/tracer v0.0.10 // indirect
 	github.com/liujitcn/kratos-kit/tracing v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.16 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.15 // indirect
 	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
@@ -181,7 +180,7 @@ require (
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/swaggest/swgui v1.8.7 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
-	github.com/tidwall/match v1.2.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/tinylib/msgp v1.6.1 // indirect
@@ -223,7 +222,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260511170946-3700d4141b60 // indirect
 	gopkg.in/cenkalti/backoff.v1 v1.1.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
+	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
 	gorm.io/driver/postgres v1.5.11 // indirect
