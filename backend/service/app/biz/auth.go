@@ -19,7 +19,7 @@ import (
 	configv1 "shop/api/gen/go/config/v1"
 	"shop/service/app/utils"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -129,7 +129,7 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 		if baseUser.Avatar == "" || originalAvatar != baseUser.Avatar {
 			// 头像文件删除失败时，只记录日志不影响主流程。
 			if err = oss.DeleteFile(originalAvatar); err != nil {
-				log.Errorf("DeleteFile %v", err)
+				log.Error(fmt.Sprintf("DeleteFile %v", err))
 			}
 		}
 	}
@@ -256,7 +256,7 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 		// 新 access token 缓存失败时，只记录日志不影响主流程。
 		err = sdk.Runtime.GetCache().Set(CACHE_KEY_WX_ACCESS_TOKEN, accessToken, time.Duration(token.ExpiresIn-300))
 		if err != nil {
-			log.Errorf("SetWxAccessTokenCache %v", err)
+			log.Error(fmt.Sprintf("SetWxAccessTokenCache %v", err))
 		}
 	}
 

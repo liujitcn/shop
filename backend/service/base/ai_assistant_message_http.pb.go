@@ -11,14 +11,12 @@ import (
 	"shop/pkg/errorsx"
 	"shop/service/base/dto"
 
-	kratosHTTP "github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/go-kratos/kratos/v2/transport/http/binding"
+	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 )
 
 var _ = new(context.Context)
-var _ = binding.EncodeURL
 
-const _ = kratosHTTP.SupportPackageIsVersion1
+const _ = kratosHTTP.SupportPackageIsVersion3
 
 const OperationAiAssistantMessageServiceDeleteAiAssistantMessage = "/base.v1.AiAssistantMessageService/DeleteAiAssistantMessage"
 const OperationAiAssistantMessageServiceRegenerateAiAssistantMessage = "/base.v1.AiAssistantMessageService/RegenerateAiAssistantMessage"

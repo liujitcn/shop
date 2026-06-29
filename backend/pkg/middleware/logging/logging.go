@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/url"
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/gen/data"
@@ -14,12 +15,12 @@ import (
 	_const "shop/pkg/const"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/errors"
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/go-kratos/kratos/v2/transport/http/status"
+	"github.com/go-kratos/kratos/v3/errors"
+	"github.com/go-kratos/kratos/v3/log"
+	"github.com/go-kratos/kratos/v3/middleware"
+	"github.com/go-kratos/kratos/v3/transport"
+	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http/status"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repository"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
@@ -35,7 +36,7 @@ type Redacter interface {
 }
 
 // Server 创建服务端访问日志中间件。
-func Server(_ log.Logger,
+func Server(_ *slog.Logger,
 	baseUserRepo *data.BaseUserRepository,
 	authenticator authnEngine.Authenticator,
 ) middleware.Middleware {

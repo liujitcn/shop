@@ -21,7 +21,7 @@ import (
 	"shop/pkg/wx"
 	"shop/pkg/wx/bill"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	_string "github.com/liujitcn/go-utils/string"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
@@ -78,7 +78,7 @@ func NewTradeBill(
 
 // Exec 执行交易账单下载与核对任务
 func (t *TradeBill) Exec(args map[string]string) ([]string, error) {
-	log.Infof("Job TradeBill Exec %+v", args)
+	log.Info(fmt.Sprintf("Job TradeBill Exec %+v", args))
 	v, ok := args["billDate"]
 	var now *time.Time
 	// 任务参数显式指定账单日期时，优先按指定日期执行。

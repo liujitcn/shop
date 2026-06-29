@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewUserAddressService(
 func (s *UserAddressService) ListUserAddresses(ctx context.Context, req *appv1.ListUserAddressesRequest) (*appv1.ListUserAddressesResponse, error) {
 	res, err := s.userAddressCase.ListUserAddresses(ctx)
 	if err != nil {
-		log.Errorf("ListUserAddresses %v", err)
+		log.Error(fmt.Sprintf("ListUserAddresses %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户地址列表失败")
 	}
 
@@ -51,7 +52,7 @@ func (s *UserAddressService) ListUserAddresses(ctx context.Context, req *appv1.L
 func (s *UserAddressService) GetUserAddress(ctx context.Context, req *appv1.GetUserAddressRequest) (*appv1.UserAddressForm, error) {
 	userAddress, err := s.userAddressCase.GetUserAddress(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetUserAddress %v", err)
+		log.Error(fmt.Sprintf("GetUserAddress %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户地址失败")
 	}
 
@@ -67,7 +68,7 @@ func (s *UserAddressService) CreateUserAddress(ctx context.Context, req *appv1.C
 	}
 	err := s.userAddressCase.CreateUserAddress(ctx, userAddress)
 	if err != nil {
-		log.Errorf("CreateUserAddress %v", err)
+		log.Error(fmt.Sprintf("CreateUserAddress %v", err))
 		return nil, errorsx.WrapInternal(err, "创建用户地址失败")
 	}
 	return new(emptypb.Empty), nil
@@ -86,7 +87,7 @@ func (s *UserAddressService) UpdateUserAddress(ctx context.Context, req *appv1.U
 	}
 	err := s.userAddressCase.UpdateUserAddress(ctx, userAddress)
 	if err != nil {
-		log.Errorf("UpdateUserAddress %v", err)
+		log.Error(fmt.Sprintf("UpdateUserAddress %v", err))
 		return nil, errorsx.WrapInternal(err, "更新用户地址失败")
 	}
 	return new(emptypb.Empty), nil
@@ -96,7 +97,7 @@ func (s *UserAddressService) UpdateUserAddress(ctx context.Context, req *appv1.U
 func (s *UserAddressService) DeleteUserAddress(ctx context.Context, req *appv1.DeleteUserAddressRequest) (*emptypb.Empty, error) {
 	err := s.userAddressCase.DeleteUserAddress(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteUserAddress %v", err)
+		log.Error(fmt.Sprintf("DeleteUserAddress %v", err))
 		return nil, errorsx.WrapInternal(err, "删除用户地址失败")
 	}
 	return new(emptypb.Empty), nil

@@ -4,17 +4,15 @@ import (
 	context "context"
 	basev1 "shop/api/gen/go/base/v1"
 
-	http "github.com/go-kratos/kratos/v2/transport/http"
-	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	http "github.com/go-kratos/kratos/v3/transport/http"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the kratos package it is being compiled against.
 var _ = new(context.Context)
-var _ = binding.EncodeURL
 
-const _ = http.SupportPackageIsVersion1
+const _ = http.SupportPackageIsVersion3
 
 const OperationSseServiceSubscribeSse = "/base.v1.SseService/SubscribeSse"
 

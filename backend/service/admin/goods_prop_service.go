@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewGoodsPropService(
 func (s *GoodsPropService) PageGoodsProps(ctx context.Context, req *adminv1.PageGoodsPropsRequest) (*adminv1.PageGoodsPropsResponse, error) {
 	page, err := s.goodsPropCase.PageGoodsProps(ctx, req)
 	if err != nil {
-		log.Errorf("PageGoodsProps %v", err)
+		log.Error(fmt.Sprintf("PageGoodsProps %v", err))
 		return nil, errorsx.WrapInternal(err, "查询属性列表失败")
 	}
 
@@ -50,7 +51,7 @@ func (s *GoodsPropService) PageGoodsProps(ctx context.Context, req *adminv1.Page
 func (s *GoodsPropService) GetGoodsProp(ctx context.Context, req *adminv1.GetGoodsPropRequest) (*adminv1.GoodsProp, error) {
 	goodsProp, err := s.goodsPropCase.GetGoodsProp(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetGoodsProp %v", err)
+		log.Error(fmt.Sprintf("GetGoodsProp %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品属性失败")
 	}
 	return goodsProp, nil
@@ -60,7 +61,7 @@ func (s *GoodsPropService) GetGoodsProp(ctx context.Context, req *adminv1.GetGoo
 func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *adminv1.CreateGoodsPropRequest) (*emptypb.Empty, error) {
 	err := s.goodsPropCase.CreateGoodsProp(ctx, req.GetGoodsProp())
 	if err != nil {
-		log.Errorf("CreateGoodsProp %v", err)
+		log.Error(fmt.Sprintf("CreateGoodsProp %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商品属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -70,7 +71,7 @@ func (s *GoodsPropService) CreateGoodsProp(ctx context.Context, req *adminv1.Cre
 func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *adminv1.UpdateGoodsPropRequest) (*emptypb.Empty, error) {
 	err := s.goodsPropCase.UpdateGoodsProp(ctx, req.GetGoodsProp())
 	if err != nil {
-		log.Errorf("UpdateGoodsProp %v", err)
+		log.Error(fmt.Sprintf("UpdateGoodsProp %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商品属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -80,7 +81,7 @@ func (s *GoodsPropService) UpdateGoodsProp(ctx context.Context, req *adminv1.Upd
 func (s *GoodsPropService) DeleteGoodsProp(ctx context.Context, req *adminv1.DeleteGoodsPropRequest) (*emptypb.Empty, error) {
 	err := s.goodsPropCase.DeleteGoodsProp(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteGoodsProp %v", err)
+		log.Error(fmt.Sprintf("DeleteGoodsProp %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商品属性失败")
 	}
 	return new(emptypb.Empty), nil

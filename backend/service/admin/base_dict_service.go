@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -42,7 +43,7 @@ func NewBaseDictService(
 func (s *BaseDictService) OptionBaseDicts(ctx context.Context, req *adminv1.OptionBaseDictsRequest) (*adminv1.OptionBaseDictsResponse, error) {
 	res, err := s.baseDictCase.OptionBaseDicts(ctx)
 	if err != nil {
-		log.Errorf("OptionBaseDicts %v", err)
+		log.Error(fmt.Sprintf("OptionBaseDicts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询失败")
 	}
 	return res, nil
@@ -52,7 +53,7 @@ func (s *BaseDictService) OptionBaseDicts(ctx context.Context, req *adminv1.Opti
 func (s *BaseDictService) PageBaseDicts(ctx context.Context, req *adminv1.PageBaseDictsRequest) (*adminv1.PageBaseDictsResponse, error) {
 	page, err := s.baseDictCase.PageBaseDicts(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseDicts %v", err)
+		log.Error(fmt.Sprintf("PageBaseDicts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询字典分页列表失败")
 	}
 
@@ -63,7 +64,7 @@ func (s *BaseDictService) PageBaseDicts(ctx context.Context, req *adminv1.PageBa
 func (s *BaseDictService) GetBaseDict(ctx context.Context, req *adminv1.GetBaseDictRequest) (*adminv1.BaseDictForm, error) {
 	baseDict, err := s.baseDictCase.GetBaseDict(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseDict %v", err)
+		log.Error(fmt.Sprintf("GetBaseDict %v", err))
 		return nil, errorsx.WrapInternal(err, "查询字典失败")
 	}
 
@@ -74,7 +75,7 @@ func (s *BaseDictService) GetBaseDict(ctx context.Context, req *adminv1.GetBaseD
 func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *adminv1.CreateBaseDictRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.CreateBaseDict(ctx, req.GetBaseDict())
 	if err != nil {
-		log.Errorf("CreateBaseDict %v", err)
+		log.Error(fmt.Sprintf("CreateBaseDict %v", err))
 		return nil, errorsx.WrapInternal(err, "创建字典失败")
 	}
 	return new(emptypb.Empty), nil
@@ -84,7 +85,7 @@ func (s *BaseDictService) CreateBaseDict(ctx context.Context, req *adminv1.Creat
 func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *adminv1.UpdateBaseDictRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.UpdateBaseDict(ctx, req.GetBaseDict())
 	if err != nil {
-		log.Errorf("UpdateBaseDict %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseDict %v", err))
 		return nil, errorsx.WrapInternal(err, "更新字典失败")
 	}
 	return new(emptypb.Empty), nil
@@ -94,7 +95,7 @@ func (s *BaseDictService) UpdateBaseDict(ctx context.Context, req *adminv1.Updat
 func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *adminv1.DeleteBaseDictRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.DeleteBaseDict(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseDict %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseDict %v", err))
 		return nil, errorsx.WrapInternal(err, "删除字典失败")
 	}
 	return new(emptypb.Empty), nil
@@ -104,7 +105,7 @@ func (s *BaseDictService) DeleteBaseDict(ctx context.Context, req *adminv1.Delet
 func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *adminv1.SetBaseDictStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDictCase.SetBaseDictStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseDictStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseDictStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -114,7 +115,7 @@ func (s *BaseDictService) SetBaseDictStatus(ctx context.Context, req *adminv1.Se
 func (s *BaseDictService) PageBaseDictItems(ctx context.Context, req *adminv1.PageBaseDictItemsRequest) (*adminv1.PageBaseDictItemsResponse, error) {
 	page, err := s.baseDictItemCase.PageBaseDictItems(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseDictItems %v", err)
+		log.Error(fmt.Sprintf("PageBaseDictItems %v", err))
 		return nil, errorsx.WrapInternal(err, "查询字典属性分页列表失败")
 	}
 	return page, nil
@@ -124,7 +125,7 @@ func (s *BaseDictService) PageBaseDictItems(ctx context.Context, req *adminv1.Pa
 func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *adminv1.GetBaseDictItemRequest) (*adminv1.BaseDictItemForm, error) {
 	baseDictItem, err := s.baseDictItemCase.GetBaseDictItem(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseDictItem %v", err)
+		log.Error(fmt.Sprintf("GetBaseDictItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询字典属性失败")
 	}
 	return baseDictItem, nil
@@ -134,7 +135,7 @@ func (s *BaseDictService) GetBaseDictItem(ctx context.Context, req *adminv1.GetB
 func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *adminv1.CreateBaseDictItemRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.CreateBaseDictItem(ctx, req.GetBaseDictItem())
 	if err != nil {
-		log.Errorf("CreateBaseDictItem %v", err)
+		log.Error(fmt.Sprintf("CreateBaseDictItem %v", err))
 		return nil, errorsx.WrapInternal(err, "创建字典属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -144,7 +145,7 @@ func (s *BaseDictService) CreateBaseDictItem(ctx context.Context, req *adminv1.C
 func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *adminv1.UpdateBaseDictItemRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.UpdateBaseDictItem(ctx, req.GetBaseDictItem())
 	if err != nil {
-		log.Errorf("UpdateBaseDictItem %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseDictItem %v", err))
 		return nil, errorsx.WrapInternal(err, "更新字典属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -154,7 +155,7 @@ func (s *BaseDictService) UpdateBaseDictItem(ctx context.Context, req *adminv1.U
 func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *adminv1.DeleteBaseDictItemRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.DeleteBaseDictItem(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseDictItem %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseDictItem %v", err))
 		return nil, errorsx.WrapInternal(err, "删除字典属性失败")
 	}
 	return new(emptypb.Empty), nil
@@ -164,7 +165,7 @@ func (s *BaseDictService) DeleteBaseDictItem(ctx context.Context, req *adminv1.D
 func (s *BaseDictService) SetBaseDictItemStatus(ctx context.Context, req *adminv1.SetBaseDictItemStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDictItemCase.SetBaseDictItemStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseDictItemStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseDictItemStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

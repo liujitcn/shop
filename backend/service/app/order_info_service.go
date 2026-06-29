@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewOrderInfoService(
 func (s *OrderInfoService) ConfirmOrderInfo(ctx context.Context, req *appv1.ConfirmOrderInfoRequest) (*appv1.ConfirmOrderInfoResponse, error) {
 	res, err := s.orderInfoCase.ConfirmOrderInfo(ctx)
 	if err != nil {
-		log.Errorf("ConfirmOrderInfo %v", err)
+		log.Error(fmt.Sprintf("ConfirmOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "预付订单失败")
 	}
 	// 预付订单来自购物车结算，前端确认后需要清空购物车勾选项
@@ -52,7 +53,7 @@ func (s *OrderInfoService) ConfirmOrderInfo(ctx context.Context, req *appv1.Conf
 func (s *OrderInfoService) BuyNowOrderInfo(ctx context.Context, req *appv1.BuyNowOrderInfoRequest) (*appv1.BuyNowOrderInfoResponse, error) {
 	res, err := s.orderInfoCase.BuyNowOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("BuyNowOrderInfo %v", err)
+		log.Error(fmt.Sprintf("BuyNowOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "立即购买失败")
 	}
 	return res, nil
@@ -62,7 +63,7 @@ func (s *OrderInfoService) BuyNowOrderInfo(ctx context.Context, req *appv1.BuyNo
 func (s *OrderInfoService) RepurchaseOrderInfo(ctx context.Context, req *appv1.RepurchaseOrderInfoRequest) (*appv1.RepurchaseOrderInfoResponse, error) {
 	res, err := s.orderInfoCase.RepurchaseOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("RepurchaseOrderInfo %v", err)
+		log.Error(fmt.Sprintf("RepurchaseOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "再次购买订单失败")
 	}
 	return res, nil
@@ -72,7 +73,7 @@ func (s *OrderInfoService) RepurchaseOrderInfo(ctx context.Context, req *appv1.R
 func (s *OrderInfoService) CountOrderInfo(ctx context.Context, req *appv1.CountOrderInfoRequest) (*appv1.CountOrderInfoResponse, error) {
 	res, err := s.orderInfoCase.CountOrderInfo(ctx)
 	if err != nil {
-		log.Errorf("CountOrderInfo %v", err)
+		log.Error(fmt.Sprintf("CountOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单数量汇总失败")
 	}
 	return res, nil
@@ -82,7 +83,7 @@ func (s *OrderInfoService) CountOrderInfo(ctx context.Context, req *appv1.CountO
 func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *appv1.PageOrderInfoRequest) (*appv1.PageOrderInfoResponse, error) {
 	page, err := s.orderInfoCase.PageOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("PageOrderInfo %v", err)
+		log.Error(fmt.Sprintf("PageOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单分页列表失败")
 	}
 	return page, nil
@@ -92,7 +93,7 @@ func (s *OrderInfoService) PageOrderInfo(ctx context.Context, req *appv1.PageOrd
 func (s *OrderInfoService) GetOrderInfoIdByOrderNo(ctx context.Context, req *appv1.GetOrderInfoIdByOrderNoRequest) (*appv1.GetOrderInfoIdByOrderNoResponse, error) {
 	res, err := s.orderInfoCase.GetOrderInfoIDByOrderNo(ctx, req.GetOrderNo())
 	if err != nil {
-		log.Errorf("GetOrderInfoIdByOrderNo %v", err)
+		log.Error(fmt.Sprintf("GetOrderInfoIdByOrderNo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单失败")
 	}
 
@@ -105,7 +106,7 @@ func (s *OrderInfoService) GetOrderInfoIdByOrderNo(ctx context.Context, req *app
 func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *appv1.GetOrderInfoByIdRequest) (*appv1.OrderInfoResponse, error) {
 	res, err := s.orderInfoCase.GetOrderInfoByID(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetOrderInfoById %v", err)
+		log.Error(fmt.Sprintf("GetOrderInfoById %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单失败")
 	}
 
@@ -116,7 +117,7 @@ func (s *OrderInfoService) GetOrderInfoById(ctx context.Context, req *appv1.GetO
 func (s *OrderInfoService) CreateOrderInfo(ctx context.Context, req *appv1.CreateOrderInfoRequest) (*appv1.CreateOrderInfoResponse, error) {
 	res, err := s.orderInfoCase.CreateOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("CreateOrderInfo %v", err)
+		log.Error(fmt.Sprintf("CreateOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "创建订单失败")
 	}
 	return res, nil
@@ -126,7 +127,7 @@ func (s *OrderInfoService) CreateOrderInfo(ctx context.Context, req *appv1.Creat
 func (s *OrderInfoService) DeleteOrderInfo(ctx context.Context, req *appv1.DeleteOrderInfoRequest) (*emptypb.Empty, error) {
 	err := s.orderInfoCase.DeleteOrderInfo(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteOrderInfo %v", err)
+		log.Error(fmt.Sprintf("DeleteOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "删除订单失败")
 	}
 	return new(emptypb.Empty), nil
@@ -136,7 +137,7 @@ func (s *OrderInfoService) DeleteOrderInfo(ctx context.Context, req *appv1.Delet
 func (s *OrderInfoService) CancelOrderInfo(ctx context.Context, req *appv1.CancelOrderInfoRequest) (*emptypb.Empty, error) {
 	err := s.orderInfoCase.CancelOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("CancelOrderInfo %v", err)
+		log.Error(fmt.Sprintf("CancelOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "取消订单失败")
 	}
 	return new(emptypb.Empty), nil
@@ -146,7 +147,7 @@ func (s *OrderInfoService) CancelOrderInfo(ctx context.Context, req *appv1.Cance
 func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *appv1.RefundOrderInfoRequest) (*emptypb.Empty, error) {
 	err := s.orderInfoCase.RefundOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("RefundOrderInfo %v", err)
+		log.Error(fmt.Sprintf("RefundOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "订单退款失败")
 	}
 	return new(emptypb.Empty), nil
@@ -156,7 +157,7 @@ func (s *OrderInfoService) RefundOrderInfo(ctx context.Context, req *appv1.Refun
 func (s *OrderInfoService) ReceiveOrderInfo(ctx context.Context, req *appv1.ReceiveOrderInfoRequest) (*emptypb.Empty, error) {
 	err := s.orderInfoCase.ReceiveOrderInfo(ctx, req)
 	if err != nil {
-		log.Errorf("ReceiveOrderInfo %v", err)
+		log.Error(fmt.Sprintf("ReceiveOrderInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "确认收货失败")
 	}
 	return new(emptypb.Empty), nil

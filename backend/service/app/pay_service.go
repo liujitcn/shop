@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewPayService(
 func (s *PayService) JsapiPay(ctx context.Context, req *appv1.JsapiPayRequest) (*appv1.JsapiPayResponse, error) {
 	res, err := s.payCase.JSAPIPay(ctx, req)
 	if err != nil {
-		log.Errorf("JsapiPay %v", err)
+		log.Error(fmt.Sprintf("JsapiPay %v", err))
 		return nil, errorsx.WrapInternal(err, "支付失败")
 	}
 	return res, nil
@@ -50,7 +51,7 @@ func (s *PayService) JsapiPay(ctx context.Context, req *appv1.JsapiPayRequest) (
 func (s *PayService) H5Pay(ctx context.Context, req *appv1.H5PayRequest) (*appv1.H5PayResponse, error) {
 	res, err := s.payCase.H5Pay(ctx, req)
 	if err != nil {
-		log.Errorf("H5Pay %v", err)
+		log.Error(fmt.Sprintf("H5Pay %v", err))
 		return nil, errorsx.WrapInternal(err, "支付失败")
 	}
 	return res, nil
@@ -60,7 +61,7 @@ func (s *PayService) H5Pay(ctx context.Context, req *appv1.H5PayRequest) (*appv1
 func (s *PayService) PayNotify(ctx context.Context, req *appv1.PayNotifyRequest) (*emptypb.Empty, error) {
 	err := s.payCase.PayNotify(ctx)
 	if err != nil {
-		log.Errorf("PayNotify %v", err)
+		log.Error(fmt.Sprintf("PayNotify %v", err))
 		return nil, errorsx.WrapInternal(err, "通知失败")
 	}
 	return new(emptypb.Empty), nil

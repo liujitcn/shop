@@ -29,7 +29,7 @@ import (
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
 
-	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v3"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"

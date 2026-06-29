@@ -24,7 +24,7 @@ import (
 	appDto "shop/service/app/dto"
 	"shop/service/app/utils"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -124,7 +124,7 @@ func NewOrderInfoCase(
 			})
 			// 自动取消执行失败时，仅记录日志继续恢复其余任务。
 			if err != nil {
-				log.Errorf("CancelOrder order %d failed: %v", item.ID, err)
+				log.Error(fmt.Sprintf("CancelOrder order %d failed: %v", item.ID, err))
 			}
 		} else {
 			// 添加自动取消定时任务
@@ -134,7 +134,7 @@ func NewOrderInfoCase(
 				})
 				// 定时任务取消失败时，仅记录日志避免影响调度器运行。
 				if err != nil {
-					log.Errorf("CancelOrder order %d failed: %v", item.ID, err)
+					log.Error(fmt.Sprintf("CancelOrder order %d failed: %v", item.ID, err))
 				}
 			})
 		}
@@ -660,7 +660,7 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *appv1.Crea
 			})
 			// 定时取消执行失败时，仅记录日志避免影响后续调度。
 			if err != nil {
-				log.Errorf("CancelOrder order %d failed: %v", orderInfo.ID, err)
+				log.Error(fmt.Sprintf("CancelOrder order %d failed: %v", orderInfo.ID, err))
 			}
 		})
 	}

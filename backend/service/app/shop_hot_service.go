@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -42,7 +43,7 @@ func NewShopHotService(
 func (s *ShopHotService) ListShopHots(ctx context.Context, req *appv1.ListShopHotsRequest) (*appv1.ListShopHotsResponse, error) {
 	res, err := s.shopHotCase.ListShopHots(ctx)
 	if err != nil {
-		log.Errorf("ListShopHots %v", err)
+		log.Error(fmt.Sprintf("ListShopHots %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐列表失败")
 	}
 	return res, nil
@@ -52,7 +53,7 @@ func (s *ShopHotService) ListShopHots(ctx context.Context, req *appv1.ListShopHo
 func (s *ShopHotService) ListShopHotItems(ctx context.Context, req *appv1.ListShopHotItemsRequest) (*appv1.ListShopHotItemsResponse, error) {
 	res, err := s.shopHotItemCase.ListShopHotItems(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("ListShopHotItems %v", err)
+		log.Error(fmt.Sprintf("ListShopHotItems %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
 	}
 	return res, nil
@@ -62,7 +63,7 @@ func (s *ShopHotService) ListShopHotItems(ctx context.Context, req *appv1.ListSh
 func (s *ShopHotService) PageShopHotGoods(ctx context.Context, req *appv1.PageShopHotGoodsRequest) (*appv1.PageShopHotGoodsResponse, error) {
 	page, err := s.shopHotItemCase.PageShopHotGoods(ctx, req)
 	if err != nil {
-		log.Errorf("PageShopHotGoods %v", err)
+		log.Error(fmt.Sprintf("PageShopHotGoods %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐商品失败")
 	}
 	return page, nil

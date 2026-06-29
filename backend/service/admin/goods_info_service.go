@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewGoodsInfoService(
 func (s *GoodsInfoService) OptionGoodsInfos(ctx context.Context, req *adminv1.OptionGoodsInfosRequest) (*adminv1.OptionGoodsInfosResponse, error) {
 	list, err := s.goodsInfoCase.OptionGoodsInfos(ctx, req)
 	if err != nil {
-		log.Errorf("OptionGoodsInfos %v", err)
+		log.Error(fmt.Sprintf("OptionGoodsInfos %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品列表失败")
 	}
 	return list, nil
@@ -49,7 +50,7 @@ func (s *GoodsInfoService) OptionGoodsInfos(ctx context.Context, req *adminv1.Op
 func (s *GoodsInfoService) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoodsInfosRequest) (*adminv1.PageGoodsInfosResponse, error) {
 	page, err := s.goodsInfoCase.PageGoodsInfos(ctx, req)
 	if err != nil {
-		log.Errorf("PageGoodsInfos %v", err)
+		log.Error(fmt.Sprintf("PageGoodsInfos %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品列表失败")
 	}
 
@@ -60,7 +61,7 @@ func (s *GoodsInfoService) PageGoodsInfos(ctx context.Context, req *adminv1.Page
 func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *adminv1.GetGoodsInfoRequest) (*adminv1.GoodsInfoForm, error) {
 	goodsInfo, err := s.goodsInfoCase.GetGoodsInfo(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetGoodsInfo %v", err)
+		log.Error(fmt.Sprintf("GetGoodsInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品失败")
 	}
 
@@ -71,7 +72,7 @@ func (s *GoodsInfoService) GetGoodsInfo(ctx context.Context, req *adminv1.GetGoo
 func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *adminv1.CreateGoodsInfoRequest) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.CreateGoodsInfo(ctx, req.GetGoodsInfo())
 	if err != nil {
-		log.Errorf("CreateGoodsInfo %v", err)
+		log.Error(fmt.Sprintf("CreateGoodsInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商品失败")
 	}
 	return new(emptypb.Empty), nil
@@ -81,7 +82,7 @@ func (s *GoodsInfoService) CreateGoodsInfo(ctx context.Context, req *adminv1.Cre
 func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *adminv1.UpdateGoodsInfoRequest) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.UpdateGoodsInfo(ctx, req.GetGoodsInfo())
 	if err != nil {
-		log.Errorf("UpdateGoodsInfo %v", err)
+		log.Error(fmt.Sprintf("UpdateGoodsInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商品失败")
 	}
 	return new(emptypb.Empty), nil
@@ -91,7 +92,7 @@ func (s *GoodsInfoService) UpdateGoodsInfo(ctx context.Context, req *adminv1.Upd
 func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *adminv1.DeleteGoodsInfoRequest) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.DeleteGoodsInfo(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteGoodsInfo %v", err)
+		log.Error(fmt.Sprintf("DeleteGoodsInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商品失败")
 	}
 	return new(emptypb.Empty), nil
@@ -101,7 +102,7 @@ func (s *GoodsInfoService) DeleteGoodsInfo(ctx context.Context, req *adminv1.Del
 func (s *GoodsInfoService) SetGoodsInfoStatus(ctx context.Context, req *adminv1.SetGoodsInfoStatusRequest) (*emptypb.Empty, error) {
 	err := s.goodsInfoCase.SetGoodsInfoStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetGoodsInfoStatus %v", err)
+		log.Error(fmt.Sprintf("SetGoodsInfoStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

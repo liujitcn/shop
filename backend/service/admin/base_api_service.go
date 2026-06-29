@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewBaseApiService(
 func (s *BaseApiService) PageBaseApis(ctx context.Context, req *adminv1.PageBaseApisRequest) (*adminv1.PageBaseApisResponse, error) {
 	list, err := s.baseAPICase.PageBaseAPIs(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseApis %v", err)
+		log.Error(fmt.Sprintf("PageBaseApis %v", err))
 		return nil, errorsx.WrapInternal(err, "分页查询API列表失败")
 	}
 
@@ -50,7 +51,7 @@ func (s *BaseApiService) PageBaseApis(ctx context.Context, req *adminv1.PageBase
 func (s *BaseApiService) GetBaseApi(ctx context.Context, req *adminv1.GetBaseApiRequest) (*adminv1.BaseApi, error) {
 	baseAPI, err := s.baseAPICase.GetBaseAPI(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseApi %v", err)
+		log.Error(fmt.Sprintf("GetBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "查询API详情失败")
 	}
 
@@ -61,7 +62,7 @@ func (s *BaseApiService) GetBaseApi(ctx context.Context, req *adminv1.GetBaseApi
 func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *adminv1.GetBaseApiDocRequest) (*adminv1.BaseApiDoc, error) {
 	baseAPIDoc, err := s.baseAPICase.GetBaseAPIDoc(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseApiDoc %v", err)
+		log.Error(fmt.Sprintf("GetBaseApiDoc %v", err))
 		return nil, errorsx.WrapInternal(err, "查询API文档失败")
 	}
 
@@ -72,7 +73,7 @@ func (s *BaseApiService) GetBaseApiDoc(ctx context.Context, req *adminv1.GetBase
 func (s *BaseApiService) SetBaseApiMcpEnabled(ctx context.Context, req *adminv1.SetBaseApiMcpEnabledRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.SetBaseAPIMcpEnabled(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseApiMcpEnabled %v", err)
+		log.Error(fmt.Sprintf("SetBaseApiMcpEnabled %v", err))
 		return nil, errorsx.WrapInternal(err, "设置API MCP启用状态失败")
 	}
 
@@ -83,7 +84,7 @@ func (s *BaseApiService) SetBaseApiMcpEnabled(ctx context.Context, req *adminv1.
 func (s *BaseApiService) SetBaseApiAgentEnabled(ctx context.Context, req *adminv1.SetBaseApiAgentEnabledRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.SetBaseAPIAgentEnabled(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseApiAgentEnabled %v", err)
+		log.Error(fmt.Sprintf("SetBaseApiAgentEnabled %v", err))
 		return nil, errorsx.WrapInternal(err, "设置API Agent启用状态失败")
 	}
 
@@ -94,7 +95,7 @@ func (s *BaseApiService) SetBaseApiAgentEnabled(ctx context.Context, req *adminv
 func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *adminv1.UpdateBaseApiRequest) (*emptypb.Empty, error) {
 	err := s.baseAPICase.UpdateBaseAPI(ctx, req)
 	if err != nil {
-		log.Errorf("UpdateBaseApi %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseApi %v", err))
 		return nil, errorsx.WrapInternal(err, "更新API配置失败")
 	}
 
@@ -105,7 +106,7 @@ func (s *BaseApiService) UpdateBaseApi(ctx context.Context, req *adminv1.UpdateB
 func (s *BaseApiService) ListBaseApis(ctx context.Context, req *adminv1.ListBaseApisRequest) (*adminv1.ListBaseApisResponse, error) {
 	list, err := s.baseAPICase.ListBaseAPIs(ctx, req)
 	if err != nil {
-		log.Errorf("ListBaseApis %v", err)
+		log.Error(fmt.Sprintf("ListBaseApis %v", err))
 		return nil, errorsx.WrapInternal(err, "查询API选项列表失败")
 	}
 

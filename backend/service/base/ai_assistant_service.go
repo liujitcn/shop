@@ -2,12 +2,13 @@ package base
 
 import (
 	"context"
+	"fmt"
 
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/errorsx"
 	"shop/service/base/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -32,7 +33,7 @@ func NewAiAssistantService(aiAssistantSessionCase *biz.AiAssistantSessionCase, a
 func (s *AiAssistantService) ListAiAssistantShortcuts(ctx context.Context, req *basev1.ListAiAssistantShortcutsRequest) (*basev1.ListAiAssistantShortcutsResponse, error) {
 	res, err := s.aiAssistantMessageCase.ListAiAssistantShortcuts(ctx, req)
 	if err != nil {
-		log.Errorf("ListAiAssistantShortcuts %v", err)
+		log.Error(fmt.Sprintf("ListAiAssistantShortcuts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询AI助手快捷入口失败")
 	}
 	return res, nil
@@ -42,7 +43,7 @@ func (s *AiAssistantService) ListAiAssistantShortcuts(ctx context.Context, req *
 func (s *AiAssistantService) ListAiAssistantSessions(ctx context.Context, req *basev1.ListAiAssistantSessionsRequest) (*basev1.ListAiAssistantSessionsResponse, error) {
 	res, err := s.aiAssistantSessionCase.ListAiAssistantSessions(ctx, req)
 	if err != nil {
-		log.Errorf("ListAiAssistantSessions %v", err)
+		log.Error(fmt.Sprintf("ListAiAssistantSessions %v", err))
 		return nil, errorsx.WrapInternal(err, "查询AI助手会话失败")
 	}
 	return res, nil
@@ -52,7 +53,7 @@ func (s *AiAssistantService) ListAiAssistantSessions(ctx context.Context, req *b
 func (s *AiAssistantService) CreateAiAssistantSession(ctx context.Context, req *basev1.CreateAiAssistantSessionRequest) (*basev1.CreateAiAssistantSessionResponse, error) {
 	res, err := s.aiAssistantSessionCase.CreateAiAssistantSession(ctx, req)
 	if err != nil {
-		log.Errorf("CreateAiAssistantSession %v", err)
+		log.Error(fmt.Sprintf("CreateAiAssistantSession %v", err))
 		return nil, errorsx.WrapInternal(err, "创建AI助手会话失败")
 	}
 	return &basev1.CreateAiAssistantSessionResponse{Session: res}, nil
@@ -62,7 +63,7 @@ func (s *AiAssistantService) CreateAiAssistantSession(ctx context.Context, req *
 func (s *AiAssistantService) UpdateAiAssistantSession(ctx context.Context, req *basev1.UpdateAiAssistantSessionRequest) (*basev1.UpdateAiAssistantSessionResponse, error) {
 	res, err := s.aiAssistantSessionCase.UpdateAiAssistantSession(ctx, req)
 	if err != nil {
-		log.Errorf("UpdateAiAssistantSession %v", err)
+		log.Error(fmt.Sprintf("UpdateAiAssistantSession %v", err))
 		return nil, errorsx.WrapInternal(err, "更新AI助手会话失败")
 	}
 	return &basev1.UpdateAiAssistantSessionResponse{Session: res}, nil
@@ -72,7 +73,7 @@ func (s *AiAssistantService) UpdateAiAssistantSession(ctx context.Context, req *
 func (s *AiAssistantService) DeleteAiAssistantSession(ctx context.Context, req *basev1.DeleteAiAssistantSessionRequest) (*basev1.DeleteAiAssistantSessionResponse, error) {
 	_, err := s.aiAssistantSessionCase.DeleteAiAssistantSession(ctx, req)
 	if err != nil {
-		log.Errorf("DeleteAiAssistantSession %v", err)
+		log.Error(fmt.Sprintf("DeleteAiAssistantSession %v", err))
 		return nil, errorsx.WrapInternal(err, "删除AI助手会话失败")
 	}
 	return &basev1.DeleteAiAssistantSessionResponse{}, nil
@@ -82,7 +83,7 @@ func (s *AiAssistantService) DeleteAiAssistantSession(ctx context.Context, req *
 func (s *AiAssistantService) ListAiAssistantMessages(ctx context.Context, req *basev1.ListAiAssistantMessagesRequest) (*basev1.ListAiAssistantMessagesResponse, error) {
 	res, err := s.aiAssistantMessageCase.ListAiAssistantMessages(ctx, req)
 	if err != nil {
-		log.Errorf("ListAiAssistantMessages %v", err)
+		log.Error(fmt.Sprintf("ListAiAssistantMessages %v", err))
 		return nil, errorsx.WrapInternal(err, "查询AI助手消息失败")
 	}
 	return res, nil
@@ -92,7 +93,7 @@ func (s *AiAssistantService) ListAiAssistantMessages(ctx context.Context, req *b
 func (s *AiAssistantService) CreateAiAssistantSessionBranch(ctx context.Context, req *basev1.CreateAiAssistantSessionBranchRequest) (*basev1.CreateAiAssistantSessionBranchResponse, error) {
 	res, err := s.aiAssistantSessionCase.CreateAiAssistantSessionBranch(ctx, req)
 	if err != nil {
-		log.Errorf("CreateAiAssistantSessionBranch %v", err)
+		log.Error(fmt.Sprintf("CreateAiAssistantSessionBranch %v", err))
 		return nil, errorsx.WrapInternal(err, "创建AI助手分支会话失败")
 	}
 	return res, nil

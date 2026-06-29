@@ -8,12 +8,13 @@ package base
 
 import (
 	"context"
+	"fmt"
 	"shop/pkg/errorsx"
 	"shop/service/base/biz"
 
 	basev1 "shop/api/gen/go/base/v1"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -38,7 +39,7 @@ func NewConfigService(
 func (s *ConfigService) GetConfig(ctx context.Context, req *basev1.GetConfigRequest) (*basev1.GetConfigResponse, error) {
 	resp, err := s.configCase.GetConfig(ctx, req)
 	if err != nil {
-		log.Errorf("GetConfig %v", err)
+		log.Error(fmt.Sprintf("GetConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "获取系统配置失败")
 	}
 

@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -38,7 +39,7 @@ func NewPayBillService(
 func (s *PayBillService) PagePayBills(ctx context.Context, req *adminv1.PagePayBillsRequest) (*adminv1.PagePayBillsResponse, error) {
 	page, err := s.payBillCase.PagePayBills(ctx, req)
 	if err != nil {
-		log.Errorf("PagePayBills %v", err)
+		log.Error(fmt.Sprintf("PagePayBills %v", err))
 		return nil, errorsx.WrapInternal(err, "查询支付账单列表失败")
 	}
 	return page, nil

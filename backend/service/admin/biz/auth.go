@@ -17,7 +17,7 @@ import (
 	"shop/pkg/utils"
 	baseBiz "shop/service/base/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
@@ -318,8 +318,8 @@ func (c *AuthCase) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCode
 		return errorsx.Internal("发送验证码失败").WithCause(err)
 	}
 
-	// 当前先将验证码写入日志，后续接入短信渠道时替换这里
-	log.Infof("send update phone code userID=%d phone=%s code=%s", authInfo.UserId, req.GetPhone(), code)
+	// 当前先将验证码写入日志，后续接入短信渠道时替换这里。
+	log.Info(fmt.Sprintf("send update phone code userID=%d phone=%s code=%s", authInfo.UserId, req.GetPhone(), code))
 	return nil
 }
 
@@ -376,7 +376,7 @@ func (c *AuthCase) UpdateUserPhone(ctx context.Context, req *adminv1.UserPhoneFo
 	err = sdk.Runtime.GetCache().Del(cacheKey)
 	// 验证码缓存删除失败时，只记录日志不影响主流程。
 	if err != nil {
-		log.Errorf("删除修改手机号验证码缓存失败 %v", err)
+		log.Error(fmt.Sprintf("删除修改手机号验证码缓存失败 %v", err))
 	}
 	return nil
 }

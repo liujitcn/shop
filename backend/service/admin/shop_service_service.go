@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewShopServiceService(
 func (s *ShopServiceService) PageShopServices(ctx context.Context, req *adminv1.PageShopServicesRequest) (*adminv1.PageShopServicesResponse, error) {
 	page, err := s.serviceCase.PageShopServices(ctx, req)
 	if err != nil {
-		log.Errorf("PageShopServices %v", err)
+		log.Error(fmt.Sprintf("PageShopServices %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城服务列表失败")
 	}
 
@@ -50,7 +51,7 @@ func (s *ShopServiceService) PageShopServices(ctx context.Context, req *adminv1.
 func (s *ShopServiceService) GetShopService(ctx context.Context, req *adminv1.GetShopServiceRequest) (*adminv1.ShopServiceForm, error) {
 	shopService, err := s.serviceCase.GetShopService(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetShopService %v", err)
+		log.Error(fmt.Sprintf("GetShopService %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城服务失败")
 	}
 	return shopService, nil
@@ -60,7 +61,7 @@ func (s *ShopServiceService) GetShopService(ctx context.Context, req *adminv1.Ge
 func (s *ShopServiceService) CreateShopService(ctx context.Context, req *adminv1.CreateShopServiceRequest) (*emptypb.Empty, error) {
 	err := s.serviceCase.CreateShopService(ctx, req.GetShopService())
 	if err != nil {
-		log.Errorf("CreateShopService %v", err)
+		log.Error(fmt.Sprintf("CreateShopService %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商城服务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -70,7 +71,7 @@ func (s *ShopServiceService) CreateShopService(ctx context.Context, req *adminv1
 func (s *ShopServiceService) UpdateShopService(ctx context.Context, req *adminv1.UpdateShopServiceRequest) (*emptypb.Empty, error) {
 	err := s.serviceCase.UpdateShopService(ctx, req.GetShopService())
 	if err != nil {
-		log.Errorf("UpdateShopService %v", err)
+		log.Error(fmt.Sprintf("UpdateShopService %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商城服务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -80,7 +81,7 @@ func (s *ShopServiceService) UpdateShopService(ctx context.Context, req *adminv1
 func (s *ShopServiceService) DeleteShopService(ctx context.Context, req *adminv1.DeleteShopServiceRequest) (*emptypb.Empty, error) {
 	err := s.serviceCase.DeleteShopService(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteShopService %v", err)
+		log.Error(fmt.Sprintf("DeleteShopService %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商城服务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -90,7 +91,7 @@ func (s *ShopServiceService) DeleteShopService(ctx context.Context, req *adminv1
 func (s *ShopServiceService) SetShopServiceStatus(ctx context.Context, req *adminv1.SetShopServiceStatusRequest) (*emptypb.Empty, error) {
 	err := s.serviceCase.SetShopServiceStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetShopServiceStatus %v", err)
+		log.Error(fmt.Sprintf("SetShopServiceStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

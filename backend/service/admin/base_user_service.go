@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewBaseUserService(
 func (s *BaseUserService) OptionBaseUsers(ctx context.Context, req *adminv1.OptionBaseUsersRequest) (*commonv1.SelectOptionResponse, error) {
 	list, err := s.baseUserCase.OptionBaseUsers(ctx, req)
 	if err != nil {
-		log.Errorf("OptionBaseUsers %v", err)
+		log.Error(fmt.Sprintf("OptionBaseUsers %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户下拉选择失败")
 	}
 	return list, nil
@@ -50,7 +51,7 @@ func (s *BaseUserService) OptionBaseUsers(ctx context.Context, req *adminv1.Opti
 func (s *BaseUserService) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseUsersRequest) (*adminv1.PageBaseUsersResponse, error) {
 	page, err := s.baseUserCase.PageBaseUsers(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseUsers %v", err)
+		log.Error(fmt.Sprintf("PageBaseUsers %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户分页列表失败")
 	}
 	return page, nil
@@ -60,7 +61,7 @@ func (s *BaseUserService) PageBaseUsers(ctx context.Context, req *adminv1.PageBa
 func (s *BaseUserService) GetBaseUser(ctx context.Context, req *adminv1.GetBaseUserRequest) (*adminv1.BaseUserForm, error) {
 	baseUser, err := s.baseUserCase.GetBaseUser(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseUser %v", err)
+		log.Error(fmt.Sprintf("GetBaseUser %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户失败")
 	}
 	return baseUser, nil
@@ -70,7 +71,7 @@ func (s *BaseUserService) GetBaseUser(ctx context.Context, req *adminv1.GetBaseU
 func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *adminv1.CreateBaseUserRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.CreateBaseUser(ctx, req.GetBaseUser())
 	if err != nil {
-		log.Errorf("CreateBaseUser %v", err)
+		log.Error(fmt.Sprintf("CreateBaseUser %v", err))
 		return nil, errorsx.WrapInternal(err, "创建用户失败")
 	}
 	return new(emptypb.Empty), nil
@@ -80,7 +81,7 @@ func (s *BaseUserService) CreateBaseUser(ctx context.Context, req *adminv1.Creat
 func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *adminv1.UpdateBaseUserRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.UpdateBaseUser(ctx, req.GetBaseUser())
 	if err != nil {
-		log.Errorf("UpdateBaseUser %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseUser %v", err))
 		return nil, errorsx.WrapInternal(err, "更新用户失败")
 	}
 	return new(emptypb.Empty), nil
@@ -90,7 +91,7 @@ func (s *BaseUserService) UpdateBaseUser(ctx context.Context, req *adminv1.Updat
 func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *adminv1.DeleteBaseUserRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.DeleteBaseUser(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseUser %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseUser %v", err))
 		return nil, errorsx.WrapInternal(err, "删除用户失败")
 	}
 	return new(emptypb.Empty), nil
@@ -100,7 +101,7 @@ func (s *BaseUserService) DeleteBaseUser(ctx context.Context, req *adminv1.Delet
 func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *adminv1.SetBaseUserStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.SetBaseUserStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseUserStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseUserStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -110,7 +111,7 @@ func (s *BaseUserService) SetBaseUserStatus(ctx context.Context, req *adminv1.Se
 func (s *BaseUserService) ResetBaseUserPassword(ctx context.Context, req *adminv1.ResetBaseUserPasswordRequest) (*emptypb.Empty, error) {
 	err := s.baseUserCase.ResetBaseUserPassword(ctx, req)
 	if err != nil {
-		log.Errorf("ResetBaseUserPassword %v", err)
+		log.Error(fmt.Sprintf("ResetBaseUserPassword %v", err))
 		return nil, errorsx.WrapInternal(err, "重置密码失败")
 	}
 	return new(emptypb.Empty), nil

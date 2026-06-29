@@ -2,12 +2,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -30,7 +31,7 @@ func NewWorkspaceService(workspaceCase *biz.WorkspaceCase) *WorkspaceService {
 func (s *WorkspaceService) SummaryWorkspaceMetrics(ctx context.Context, req *adminv1.SummaryWorkspaceMetricsRequest) (*adminv1.SummaryWorkspaceMetricsResponse, error) {
 	res, err := s.workspaceCase.SummaryWorkspaceMetrics(ctx, req)
 	if err != nil {
-		log.Errorf("SummaryWorkspaceMetrics %v", err)
+		log.Error(fmt.Sprintf("SummaryWorkspaceMetrics %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台顶部指标失败")
 	}
 	return res, nil
@@ -40,7 +41,7 @@ func (s *WorkspaceService) SummaryWorkspaceMetrics(ctx context.Context, req *adm
 func (s *WorkspaceService) SummaryWorkspaceTodo(ctx context.Context, req *adminv1.SummaryWorkspaceTodoRequest) (*adminv1.SummaryWorkspaceTodoResponse, error) {
 	res, err := s.workspaceCase.SummaryWorkspaceTodo(ctx, req)
 	if err != nil {
-		log.Errorf("SummaryWorkspaceTodo %v", err)
+		log.Error(fmt.Sprintf("SummaryWorkspaceTodo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台待处理事项失败")
 	}
 	return res, nil
@@ -50,7 +51,7 @@ func (s *WorkspaceService) SummaryWorkspaceTodo(ctx context.Context, req *adminv
 func (s *WorkspaceService) SummaryWorkspaceRisk(ctx context.Context, req *adminv1.SummaryWorkspaceRiskRequest) (*adminv1.SummaryWorkspaceRiskResponse, error) {
 	res, err := s.workspaceCase.SummaryWorkspaceRisk(ctx, req)
 	if err != nil {
-		log.Errorf("SummaryWorkspaceRisk %v", err)
+		log.Error(fmt.Sprintf("SummaryWorkspaceRisk %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台风险提醒失败")
 	}
 	return res, nil
@@ -60,7 +61,7 @@ func (s *WorkspaceService) SummaryWorkspaceRisk(ctx context.Context, req *adminv
 func (s *WorkspaceService) SummaryWorkspaceReputation(ctx context.Context, req *adminv1.SummaryWorkspaceReputationRequest) (*adminv1.SummaryWorkspaceReputationResponse, error) {
 	res, err := s.workspaceCase.SummaryWorkspaceReputation(ctx, req)
 	if err != nil {
-		log.Errorf("SummaryWorkspaceReputation %v", err)
+		log.Error(fmt.Sprintf("SummaryWorkspaceReputation %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台口碑洞察失败")
 	}
 	return res, nil
@@ -70,7 +71,7 @@ func (s *WorkspaceService) SummaryWorkspaceReputation(ctx context.Context, req *
 func (s *WorkspaceService) ListWorkspacePendingComments(ctx context.Context, req *adminv1.ListWorkspacePendingCommentsRequest) (*adminv1.ListWorkspacePendingCommentsResponse, error) {
 	res, err := s.workspaceCase.ListWorkspacePendingComments(ctx, req)
 	if err != nil {
-		log.Errorf("ListWorkspacePendingComments %v", err)
+		log.Error(fmt.Sprintf("ListWorkspacePendingComments %v", err))
 		return nil, errorsx.WrapInternal(err, "查询工作台待审核评价失败")
 	}
 	return res, nil

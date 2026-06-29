@@ -13,9 +13,8 @@ import (
 
 	basev1 "shop/api/gen/go/base/v1"
 
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/go-kratos/kratos/v2/transport/http/binding"
+	"github.com/go-kratos/kratos/v3/log"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 )
@@ -23,9 +22,8 @@ import (
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the Nms package it is being compiled against.
 var _ = new(context.Context)
-var _ = binding.EncodeURL
 
-const _ = http.SupportPackageIsVersion1
+const _ = http.SupportPackageIsVersion3
 
 const OperationFileServiceDownloadFile = "/base.v1.FileService/DownloadFile"
 const OperationFileServiceMultiUploadFile = "/base.v1.FileService/MultiUploadFile"
@@ -153,7 +151,7 @@ func convertUploadFileInfo(multipartFile multipart.File, fileType, contentType, 
 	defer func(multipartFile multipart.File) {
 		err := multipartFile.Close()
 		if err != nil {
-			log.Errorf("form file close err: %v", err)
+			log.Error(fmt.Sprintf("form file close err: %v", err))
 		}
 	}(multipartFile)
 

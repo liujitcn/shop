@@ -2,12 +2,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -32,7 +33,7 @@ func NewCommentService(commentCase *biz.CommentCase) *CommentService {
 func (s *CommentService) GoodsCommentOverview(ctx context.Context, req *appv1.GoodsCommentOverviewRequest) (*appv1.GoodsCommentOverviewResponse, error) {
 	res, err := s.commentCase.GoodsCommentOverview(ctx, req)
 	if err != nil {
-		log.Errorf("GoodsCommentOverview %v", err)
+		log.Error(fmt.Sprintf("GoodsCommentOverview %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品评价摘要失败")
 	}
 	return res, nil
@@ -42,7 +43,7 @@ func (s *CommentService) GoodsCommentOverview(ctx context.Context, req *appv1.Go
 func (s *CommentService) GoodsCommentTags(ctx context.Context, req *appv1.GoodsCommentTagsRequest) (*appv1.GoodsCommentTagsResponse, error) {
 	res, err := s.commentCase.GoodsCommentTags(ctx, req)
 	if err != nil {
-		log.Errorf("GoodsCommentTags %v", err)
+		log.Error(fmt.Sprintf("GoodsCommentTags %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品评价标签失败")
 	}
 	return res, nil
@@ -52,7 +53,7 @@ func (s *CommentService) GoodsCommentTags(ctx context.Context, req *appv1.GoodsC
 func (s *CommentService) PageGoodsComment(ctx context.Context, req *appv1.PageGoodsCommentRequest) (*appv1.PageGoodsCommentResponse, error) {
 	res, err := s.commentCase.PageGoodsComment(ctx, req)
 	if err != nil {
-		log.Errorf("PageGoodsComment %v", err)
+		log.Error(fmt.Sprintf("PageGoodsComment %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品评价列表失败")
 	}
 	return res, nil
@@ -62,7 +63,7 @@ func (s *CommentService) PageGoodsComment(ctx context.Context, req *appv1.PageGo
 func (s *CommentService) PageCommentDiscussion(ctx context.Context, req *appv1.PageCommentDiscussionRequest) (*appv1.PageCommentDiscussionResponse, error) {
 	res, err := s.commentCase.PageCommentDiscussion(ctx, req)
 	if err != nil {
-		log.Errorf("PageCommentDiscussion %v", err)
+		log.Error(fmt.Sprintf("PageCommentDiscussion %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评价讨论失败")
 	}
 	return res, nil
@@ -72,7 +73,7 @@ func (s *CommentService) PageCommentDiscussion(ctx context.Context, req *appv1.P
 func (s *CommentService) CreateCommentDiscussion(ctx context.Context, req *appv1.CreateCommentDiscussionRequest) (*appv1.CreateCommentDiscussionResponse, error) {
 	res, err := s.commentCase.CreateCommentDiscussion(ctx, req)
 	if err != nil {
-		log.Errorf("CreateCommentDiscussion %v", err)
+		log.Error(fmt.Sprintf("CreateCommentDiscussion %v", err))
 		return nil, errorsx.WrapInternal(err, "发布评价讨论失败")
 	}
 	return res, nil
@@ -82,7 +83,7 @@ func (s *CommentService) CreateCommentDiscussion(ctx context.Context, req *appv1
 func (s *CommentService) SaveCommentReaction(ctx context.Context, req *appv1.SaveCommentReactionRequest) (*appv1.SaveCommentReactionResponse, error) {
 	res, err := s.commentCase.SaveCommentReaction(ctx, req)
 	if err != nil {
-		log.Errorf("SaveCommentReaction %v", err)
+		log.Error(fmt.Sprintf("SaveCommentReaction %v", err))
 		return nil, errorsx.WrapInternal(err, "保存评价互动状态失败")
 	}
 	return res, nil
@@ -92,7 +93,7 @@ func (s *CommentService) SaveCommentReaction(ctx context.Context, req *appv1.Sav
 func (s *CommentService) PagePendingCommentGoods(ctx context.Context, req *appv1.PagePendingCommentGoodsRequest) (*appv1.PagePendingCommentGoodsResponse, error) {
 	res, err := s.commentCase.PagePendingCommentGoods(ctx, req)
 	if err != nil {
-		log.Errorf("PagePendingCommentGoods %v", err)
+		log.Error(fmt.Sprintf("PagePendingCommentGoods %v", err))
 		return nil, errorsx.WrapInternal(err, "查询待评价商品失败")
 	}
 	return res, nil
@@ -102,7 +103,7 @@ func (s *CommentService) PagePendingCommentGoods(ctx context.Context, req *appv1
 func (s *CommentService) CreateComment(ctx context.Context, req *appv1.CreateCommentRequest) (*appv1.CreateCommentResponse, error) {
 	res, err := s.commentCase.CreateComment(ctx, req)
 	if err != nil {
-		log.Errorf("CreateComment %v", err)
+		log.Error(fmt.Sprintf("CreateComment %v", err))
 		return nil, errorsx.WrapInternal(err, "发布商品评价失败")
 	}
 	return res, nil
@@ -112,7 +113,7 @@ func (s *CommentService) CreateComment(ctx context.Context, req *appv1.CreateCom
 func (s *CommentService) DeleteComment(ctx context.Context, req *appv1.DeleteCommentRequest) (*emptypb.Empty, error) {
 	err := s.commentCase.DeleteComment(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteComment %v", err)
+		log.Error(fmt.Sprintf("DeleteComment %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商品评价失败")
 	}
 	return &emptypb.Empty{}, nil
@@ -122,7 +123,7 @@ func (s *CommentService) DeleteComment(ctx context.Context, req *appv1.DeleteCom
 func (s *CommentService) PageMyComment(ctx context.Context, req *appv1.PageMyCommentRequest) (*appv1.PageMyCommentResponse, error) {
 	res, err := s.commentCase.PageMyComment(ctx, req)
 	if err != nil {
-		log.Errorf("PageMyComment %v", err)
+		log.Error(fmt.Sprintf("PageMyComment %v", err))
 		return nil, errorsx.WrapInternal(err, "查询我的评价失败")
 	}
 	return res, nil

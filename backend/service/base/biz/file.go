@@ -1,12 +1,13 @@
 package biz
 
 import (
+	"fmt"
 	"slices"
 
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/errorsx"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/kratos-kit/oss"
 	"github.com/liujitcn/kratos-kit/sdk"
@@ -90,7 +91,7 @@ func (c *FileCase) MultiDeleteFile(oldFile, newFile []string) {
 			err := c.OSS.DeleteFile(item)
 			// 单个旧文件删除失败时，只记录日志继续处理剩余文件。
 			if err != nil {
-				log.Errorf("MultiDeleteFile %v", err)
+				log.Error(fmt.Sprintf("MultiDeleteFile %v", err))
 			}
 		}
 	}
@@ -104,7 +105,7 @@ func (c *FileCase) DeleteFile(oldFile string, newFile string) {
 		err := c.OSS.DeleteFile(oldFile)
 		// 删除单个旧文件失败时，只记录日志不阻断调用方流程。
 		if err != nil {
-			log.Errorf("DeleteFile %v", err)
+			log.Error(fmt.Sprintf("DeleteFile %v", err))
 		}
 	}
 }

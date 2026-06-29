@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -42,7 +43,7 @@ func NewShopHotService(
 func (s *ShopHotService) PageShopHots(ctx context.Context, req *adminv1.PageShopHotsRequest) (*adminv1.PageShopHotsResponse, error) {
 	page, err := s.hotCase.PageShopHots(ctx, req)
 	if err != nil {
-		log.Errorf("PageShopHots %v", err)
+		log.Error(fmt.Sprintf("PageShopHots %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城热门推荐列表失败")
 	}
 
@@ -53,7 +54,7 @@ func (s *ShopHotService) PageShopHots(ctx context.Context, req *adminv1.PageShop
 func (s *ShopHotService) GetShopHot(ctx context.Context, req *adminv1.GetShopHotRequest) (*adminv1.ShopHotForm, error) {
 	shopHot, err := s.hotCase.GetShopHot(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetShopHot %v", err)
+		log.Error(fmt.Sprintf("GetShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城热门推荐失败")
 	}
 	return shopHot, nil
@@ -63,7 +64,7 @@ func (s *ShopHotService) GetShopHot(ctx context.Context, req *adminv1.GetShopHot
 func (s *ShopHotService) CreateShopHot(ctx context.Context, req *adminv1.CreateShopHotRequest) (*emptypb.Empty, error) {
 	err := s.hotCase.CreateShopHot(ctx, req.GetShopHot())
 	if err != nil {
-		log.Errorf("CreateShopHot %v", err)
+		log.Error(fmt.Sprintf("CreateShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商城热门推荐失败")
 	}
 	return new(emptypb.Empty), nil
@@ -73,7 +74,7 @@ func (s *ShopHotService) CreateShopHot(ctx context.Context, req *adminv1.CreateS
 func (s *ShopHotService) UpdateShopHot(ctx context.Context, req *adminv1.UpdateShopHotRequest) (*emptypb.Empty, error) {
 	err := s.hotCase.UpdateShopHot(ctx, req.GetShopHot())
 	if err != nil {
-		log.Errorf("UpdateShopHot %v", err)
+		log.Error(fmt.Sprintf("UpdateShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商城热门推荐失败")
 	}
 	return new(emptypb.Empty), nil
@@ -83,7 +84,7 @@ func (s *ShopHotService) UpdateShopHot(ctx context.Context, req *adminv1.UpdateS
 func (s *ShopHotService) DeleteShopHot(ctx context.Context, req *adminv1.DeleteShopHotRequest) (*emptypb.Empty, error) {
 	err := s.hotCase.DeleteShopHot(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteShopHot %v", err)
+		log.Error(fmt.Sprintf("DeleteShopHot %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商城热门推荐失败")
 	}
 	return new(emptypb.Empty), nil
@@ -93,7 +94,7 @@ func (s *ShopHotService) DeleteShopHot(ctx context.Context, req *adminv1.DeleteS
 func (s *ShopHotService) SetShopHotStatus(ctx context.Context, req *adminv1.SetShopHotStatusRequest) (*emptypb.Empty, error) {
 	err := s.hotCase.SetShopHotStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetShopHotStatus %v", err)
+		log.Error(fmt.Sprintf("SetShopHotStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -103,7 +104,7 @@ func (s *ShopHotService) SetShopHotStatus(ctx context.Context, req *adminv1.SetS
 func (s *ShopHotService) PageShopHotItems(ctx context.Context, req *adminv1.PageShopHotItemsRequest) (*adminv1.PageShopHotItemsResponse, error) {
 	page, err := s.hotItemCase.PageShopHotItems(ctx, req)
 	if err != nil {
-		log.Errorf("PageShopHotItems %v", err)
+		log.Error(fmt.Sprintf("PageShopHotItems %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐选项列表失败")
 	}
 	return page, nil
@@ -113,7 +114,7 @@ func (s *ShopHotService) PageShopHotItems(ctx context.Context, req *adminv1.Page
 func (s *ShopHotService) GetShopHotItem(ctx context.Context, req *adminv1.GetShopHotItemRequest) (*adminv1.ShopHotItemForm, error) {
 	shopHotItem, err := s.hotItemCase.GetShopHotItem(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetShopHotItem %v", err)
+		log.Error(fmt.Sprintf("GetShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "查询热门推荐选项失败")
 	}
 	return shopHotItem, nil
@@ -123,7 +124,7 @@ func (s *ShopHotService) GetShopHotItem(ctx context.Context, req *adminv1.GetSho
 func (s *ShopHotService) CreateShopHotItem(ctx context.Context, req *adminv1.CreateShopHotItemRequest) (*emptypb.Empty, error) {
 	err := s.hotItemCase.CreateShopHotItem(ctx, req.GetShopHotItem())
 	if err != nil {
-		log.Errorf("CreateShopHotItem %v", err)
+		log.Error(fmt.Sprintf("CreateShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "创建热门推荐选项失败")
 	}
 	return new(emptypb.Empty), nil
@@ -133,7 +134,7 @@ func (s *ShopHotService) CreateShopHotItem(ctx context.Context, req *adminv1.Cre
 func (s *ShopHotService) UpdateShopHotItem(ctx context.Context, req *adminv1.UpdateShopHotItemRequest) (*emptypb.Empty, error) {
 	err := s.hotItemCase.UpdateShopHotItem(ctx, req.GetShopHotItem())
 	if err != nil {
-		log.Errorf("UpdateShopHotItem %v", err)
+		log.Error(fmt.Sprintf("UpdateShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "更新热门推荐选项失败")
 	}
 	return new(emptypb.Empty), nil
@@ -143,7 +144,7 @@ func (s *ShopHotService) UpdateShopHotItem(ctx context.Context, req *adminv1.Upd
 func (s *ShopHotService) DeleteShopHotItem(ctx context.Context, req *adminv1.DeleteShopHotItemRequest) (*emptypb.Empty, error) {
 	err := s.hotItemCase.DeleteShopHotItem(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteShopHotItem %v", err)
+		log.Error(fmt.Sprintf("DeleteShopHotItem %v", err))
 		return nil, errorsx.WrapInternal(err, "删除热门推荐选项失败")
 	}
 	return new(emptypb.Empty), nil
@@ -153,7 +154,7 @@ func (s *ShopHotService) DeleteShopHotItem(ctx context.Context, req *adminv1.Del
 func (s *ShopHotService) SetShopHotItemStatus(ctx context.Context, req *adminv1.SetShopHotItemStatusRequest) (*emptypb.Empty, error) {
 	err := s.hotItemCase.SetShopHotItemStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetShopHotItemStatus %v", err)
+		log.Error(fmt.Sprintf("SetShopHotItemStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

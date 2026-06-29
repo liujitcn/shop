@@ -17,7 +17,7 @@ import (
 	"shop/service/app"
 	"shop/service/base"
 
-	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v3"
 	"github.com/google/wire"
 
 	"github.com/liujitcn/kratos-kit/bootstrap"

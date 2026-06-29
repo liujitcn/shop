@@ -2,13 +2,14 @@ package bill
 
 import (
 	"context"
+	"fmt"
 	"io"
 	nethttp "net/http"
 	neturl "net/url"
 
 	"shop/pkg/errorsx"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/validators"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/consts"
@@ -66,7 +67,7 @@ func (a *BillService) DownloadBill(ctx context.Context, downloadURL string) ([]b
 		// 关闭响应体失败时，仅记录日志，不覆盖主流程错误。
 		closeErr := body.Close()
 		if closeErr != nil {
-			log.Errorf("failed to close body: %v", closeErr)
+			log.Error(fmt.Sprintf("failed to close body: %v", closeErr))
 		}
 	}(httpResp.Body)
 	if err != nil {

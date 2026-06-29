@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewBaseMenuService(
 func (s *BaseMenuService) TreeBaseMenus(ctx context.Context, req *adminv1.TreeBaseMenusRequest) (*adminv1.TreeBaseMenusResponse, error) {
 	tree, err := s.baseMenuCase.TreeBaseMenus(ctx)
 	if err != nil {
-		log.Errorf("TreeBaseMenus %v", err)
+		log.Error(fmt.Sprintf("TreeBaseMenus %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单树形列表失败")
 	}
 	return tree, nil
@@ -50,7 +51,7 @@ func (s *BaseMenuService) TreeBaseMenus(ctx context.Context, req *adminv1.TreeBa
 func (s *BaseMenuService) OptionBaseMenus(ctx context.Context, req *adminv1.OptionBaseMenusRequest) (*commonv1.TreeOptionResponse, error) {
 	tree, err := s.baseMenuCase.OptionBaseMenus(ctx, req)
 	if err != nil {
-		log.Errorf("OptionBaseMenus %v", err)
+		log.Error(fmt.Sprintf("OptionBaseMenus %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单树形选择失败")
 	}
 	return tree, nil
@@ -60,7 +61,7 @@ func (s *BaseMenuService) OptionBaseMenus(ctx context.Context, req *adminv1.Opti
 func (s *BaseMenuService) GetBaseMenu(ctx context.Context, req *adminv1.GetBaseMenuRequest) (*adminv1.BaseMenuForm, error) {
 	baseMenu, err := s.baseMenuCase.GetBaseMenu(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseMenu %v", err)
+		log.Error(fmt.Sprintf("GetBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "查询菜单失败")
 	}
 	return baseMenu, nil
@@ -70,7 +71,7 @@ func (s *BaseMenuService) GetBaseMenu(ctx context.Context, req *adminv1.GetBaseM
 func (s *BaseMenuService) CreateBaseMenu(ctx context.Context, req *adminv1.CreateBaseMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.CreateBaseMenu(ctx, req.GetBaseMenu())
 	if err != nil {
-		log.Errorf("CreateBaseMenu %v", err)
+		log.Error(fmt.Sprintf("CreateBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "创建菜单失败")
 	}
 	return new(emptypb.Empty), nil
@@ -80,7 +81,7 @@ func (s *BaseMenuService) CreateBaseMenu(ctx context.Context, req *adminv1.Creat
 func (s *BaseMenuService) UpdateBaseMenu(ctx context.Context, req *adminv1.UpdateBaseMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.UpdateBaseMenu(ctx, req.GetBaseMenu())
 	if err != nil {
-		log.Errorf("UpdateBaseMenu %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "更新菜单失败")
 	}
 	return new(emptypb.Empty), nil
@@ -90,7 +91,7 @@ func (s *BaseMenuService) UpdateBaseMenu(ctx context.Context, req *adminv1.Updat
 func (s *BaseMenuService) DeleteBaseMenu(ctx context.Context, req *adminv1.DeleteBaseMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.DeleteBaseMenu(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseMenu %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "删除菜单失败")
 	}
 	return new(emptypb.Empty), nil
@@ -100,7 +101,7 @@ func (s *BaseMenuService) DeleteBaseMenu(ctx context.Context, req *adminv1.Delet
 func (s *BaseMenuService) SetBaseMenuStatus(ctx context.Context, req *adminv1.SetBaseMenuStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseMenuCase.SetBaseMenuStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseMenuStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseMenuStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

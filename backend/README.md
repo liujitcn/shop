@@ -59,7 +59,7 @@ CREATE DATABASE shop_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 ```bash
 cd backend
-go run ./internal/cmd/server -conf ./configs
+go run ./internal/cmd/server --conf ./configs
 ```
 
 默认地址：

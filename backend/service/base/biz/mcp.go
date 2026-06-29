@@ -13,8 +13,8 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/log"
-	kratosHTTP "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/log"
+	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 	mcpserver "github.com/liujitcn/kratos-kit/transport/mcp"
@@ -124,7 +124,7 @@ func (h *McpCase) filterToolList(ctx context.Context, req mcp.Request, next mcp.
 	listResult.Tools = tools
 	err = h.applyMcpToolPrompts(ctx, tools)
 	if err != nil {
-		log.Errorf("查询 MCP 工具提示词失败 err=%v", err)
+		log.Error(fmt.Sprintf("查询 MCP 工具提示词失败 err=%v", err))
 		return listResult, nil
 	}
 	return listResult, nil
@@ -212,7 +212,7 @@ func (h *McpCase) filterToolCall(ctx context.Context, req mcp.Request, next mcp.
 	}
 	baseAPI, err := h.findEnabledBaseAPI(ctx, req, callReq.Params.Name)
 	if err != nil {
-		log.Errorf("查询 MCP 工具状态失败 err=%v", err)
+		log.Error(fmt.Sprintf("查询 MCP 工具状态失败 err=%v", err))
 		return newMcpToolResultError(fmt.Errorf("查询 MCP 工具状态失败: %w", err).Error()), nil
 	}
 	if baseAPI == nil {

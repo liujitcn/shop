@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewAuthService(
 func (s *AuthService) GetUserInfo(ctx context.Context, req *adminv1.GetUserInfoRequest) (*adminv1.UserInfoForm, error) {
 	res, err := s.authCase.GetUserInfo(ctx)
 	if err != nil {
-		log.Errorf("GetUserInfo %v", err)
+		log.Error(fmt.Sprintf("GetUserInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "获取用户信息失败")
 	}
 	return res, nil
@@ -50,7 +51,7 @@ func (s *AuthService) GetUserInfo(ctx context.Context, req *adminv1.GetUserInfoR
 func (s *AuthService) TreeUserMenus(ctx context.Context, req *adminv1.TreeUserMenusRequest) (*adminv1.TreeRouteResponse, error) {
 	res, err := s.authCase.TreeUserMenus(ctx)
 	if err != nil {
-		log.Errorf("TreeUserMenus %v", err)
+		log.Error(fmt.Sprintf("TreeUserMenus %v", err))
 		return nil, errorsx.WrapInternal(err, "获取用户菜单失败")
 	}
 	return res, nil
@@ -60,7 +61,7 @@ func (s *AuthService) TreeUserMenus(ctx context.Context, req *adminv1.TreeUserMe
 func (s *AuthService) ListUserButtons(ctx context.Context, req *adminv1.ListUserButtonsRequest) (*commonv1.StringValues, error) {
 	res, err := s.authCase.ListUserButtons(ctx)
 	if err != nil {
-		log.Errorf("ListUserButtons %v", err)
+		log.Error(fmt.Sprintf("ListUserButtons %v", err))
 		return nil, errorsx.WrapInternal(err, "获取用户按钮权限失败")
 	}
 	return res, nil
@@ -70,7 +71,7 @@ func (s *AuthService) ListUserButtons(ctx context.Context, req *adminv1.ListUser
 func (s *AuthService) GetUserProfile(ctx context.Context, req *adminv1.GetUserProfileRequest) (*adminv1.UserProfileForm, error) {
 	res, err := s.authCase.GetUserProfile(ctx)
 	if err != nil {
-		log.Errorf("GetUserProfile %v", err)
+		log.Error(fmt.Sprintf("GetUserProfile %v", err))
 		return nil, errorsx.WrapInternal(err, "获取个人资料失败")
 	}
 	return res, nil
@@ -80,7 +81,7 @@ func (s *AuthService) GetUserProfile(ctx context.Context, req *adminv1.GetUserPr
 func (s *AuthService) UpdateUserProfile(ctx context.Context, req *adminv1.UpdateUserProfileRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserProfile(ctx, req.GetUserProfile())
 	if err != nil {
-		log.Errorf("UpdateUserProfile %v", err)
+		log.Error(fmt.Sprintf("UpdateUserProfile %v", err))
 		return nil, errorsx.WrapInternal(err, "修改个人中心用户信息失败")
 	}
 	return new(emptypb.Empty), nil
@@ -90,7 +91,7 @@ func (s *AuthService) UpdateUserProfile(ctx context.Context, req *adminv1.Update
 func (s *AuthService) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneCodeRequest) (*emptypb.Empty, error) {
 	err := s.authCase.SendPhoneCode(ctx, req)
 	if err != nil {
-		log.Errorf("SendPhoneCode %v", err)
+		log.Error(fmt.Sprintf("SendPhoneCode %v", err))
 		return nil, errorsx.WrapInternal(err, "发送手机号验证码失败")
 	}
 	return new(emptypb.Empty), nil
@@ -100,7 +101,7 @@ func (s *AuthService) SendPhoneCode(ctx context.Context, req *adminv1.SendPhoneC
 func (s *AuthService) UpdateUserPhone(ctx context.Context, req *adminv1.UpdateUserPhoneRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserPhone(ctx, req.GetUserPhone())
 	if err != nil {
-		log.Errorf("UpdateUserPhone %v", err)
+		log.Error(fmt.Sprintf("UpdateUserPhone %v", err))
 		return nil, errorsx.WrapInternal(err, "修改个人中心手机号失败")
 	}
 
@@ -111,7 +112,7 @@ func (s *AuthService) UpdateUserPhone(ctx context.Context, req *adminv1.UpdateUs
 func (s *AuthService) UpdateUserPassword(ctx context.Context, req *adminv1.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
 	err := s.authCase.UpdateUserPassword(ctx, req.GetUserPassword())
 	if err != nil {
-		log.Errorf("UpdateUserPassword %v", err)
+		log.Error(fmt.Sprintf("UpdateUserPassword %v", err))
 		return nil, errorsx.WrapInternal(err, "重置密码失败")
 	}
 	return new(emptypb.Empty), nil

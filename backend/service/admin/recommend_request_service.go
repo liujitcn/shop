@@ -2,12 +2,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -33,7 +34,7 @@ func (s *RecommendRequestService) PageRecommendRequests(
 ) (*adminv1.PageRecommendRequestsResponse, error) {
 	page, err := s.recommendRequestCase.PageRecommendRequests(ctx, req)
 	if err != nil {
-		log.Errorf("PageRecommendRequests %v", err)
+		log.Error(fmt.Sprintf("PageRecommendRequests %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐请求分页列表失败")
 	}
 	return page, nil
@@ -46,7 +47,7 @@ func (s *RecommendRequestService) GetRecommendRequest(
 ) (*adminv1.RecommendRequestDetailResponse, error) {
 	res, err := s.recommendRequestCase.GetRecommendRequest(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetRecommendRequest %v", err)
+		log.Error(fmt.Sprintf("GetRecommendRequest %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐请求详情失败")
 	}
 	return res, nil
@@ -59,7 +60,7 @@ func (s *RecommendRequestService) ListRecommendRequestEvents(
 ) (*adminv1.ListRecommendRequestEventsResponse, error) {
 	res, err := s.recommendRequestCase.ListRecommendRequestEvents(ctx, req.GetRequestRecordId(), req.GetGoodsId(), req.GetPosition())
 	if err != nil {
-		log.Errorf("ListRecommendRequestEvents %v", err)
+		log.Error(fmt.Sprintf("ListRecommendRequestEvents %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐请求事件失败")
 	}
 	return res, nil

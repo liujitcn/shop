@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -39,7 +40,7 @@ func NewShopBannerService(
 func (s *ShopBannerService) ListShopBanners(ctx context.Context, req *appv1.ListShopBannersRequest) (*appv1.ListShopBannersResponse, error) {
 	res, err := s.shopBannerCase.ListShopBanners(ctx, req)
 	if err != nil {
-		log.Errorf("ListShopBanners %v", err)
+		log.Error(fmt.Sprintf("ListShopBanners %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城轮播图列表失败")
 	}
 	return res, nil

@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -42,7 +43,7 @@ func NewBaseJobService(
 func (s *BaseJobService) PageBaseJobs(ctx context.Context, req *adminv1.PageBaseJobsRequest) (*adminv1.PageBaseJobsResponse, error) {
 	page, err := s.baseJobCase.PageBaseJobs(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseJobs %v", err)
+		log.Error(fmt.Sprintf("PageBaseJobs %v", err))
 		return nil, errorsx.WrapInternal(err, "查询定时任务分页列表失败")
 	}
 	return page, nil
@@ -52,7 +53,7 @@ func (s *BaseJobService) PageBaseJobs(ctx context.Context, req *adminv1.PageBase
 func (s *BaseJobService) GetBaseJob(ctx context.Context, req *adminv1.GetBaseJobRequest) (*adminv1.BaseJobForm, error) {
 	baseJob, err := s.baseJobCase.GetBaseJob(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseJob %v", err)
+		log.Error(fmt.Sprintf("GetBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "查询定时任务失败")
 	}
 	return baseJob, nil
@@ -62,7 +63,7 @@ func (s *BaseJobService) GetBaseJob(ctx context.Context, req *adminv1.GetBaseJob
 func (s *BaseJobService) CreateBaseJob(ctx context.Context, req *adminv1.CreateBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.CreateBaseJob(ctx, req.GetBaseJob())
 	if err != nil {
-		log.Errorf("CreateBaseJob %v", err)
+		log.Error(fmt.Sprintf("CreateBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "创建定时任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -72,7 +73,7 @@ func (s *BaseJobService) CreateBaseJob(ctx context.Context, req *adminv1.CreateB
 func (s *BaseJobService) UpdateBaseJob(ctx context.Context, req *adminv1.UpdateBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.UpdateBaseJob(ctx, req.GetBaseJob())
 	if err != nil {
-		log.Errorf("UpdateBaseJob %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "更新定时任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -82,7 +83,7 @@ func (s *BaseJobService) UpdateBaseJob(ctx context.Context, req *adminv1.UpdateB
 func (s *BaseJobService) DeleteBaseJob(ctx context.Context, req *adminv1.DeleteBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.DeleteBaseJob(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseJob %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "删除定时任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -92,7 +93,7 @@ func (s *BaseJobService) DeleteBaseJob(ctx context.Context, req *adminv1.DeleteB
 func (s *BaseJobService) SetBaseJobStatus(ctx context.Context, req *adminv1.SetBaseJobStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.SetBaseJobStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseJobStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseJobStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -102,7 +103,7 @@ func (s *BaseJobService) SetBaseJobStatus(ctx context.Context, req *adminv1.SetB
 func (s *BaseJobService) StartBaseJob(ctx context.Context, req *adminv1.StartBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.StartBaseJob(ctx, req)
 	if err != nil {
-		log.Errorf("StartBaseJob %v", err)
+		log.Error(fmt.Sprintf("StartBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "启动任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -112,7 +113,7 @@ func (s *BaseJobService) StartBaseJob(ctx context.Context, req *adminv1.StartBas
 func (s *BaseJobService) StopBaseJob(ctx context.Context, req *adminv1.StopBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.StopBaseJob(ctx, req)
 	if err != nil {
-		log.Errorf("StopBaseJob %v", err)
+		log.Error(fmt.Sprintf("StopBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "停止任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -122,7 +123,7 @@ func (s *BaseJobService) StopBaseJob(ctx context.Context, req *adminv1.StopBaseJ
 func (s *BaseJobService) ExecuteBaseJob(ctx context.Context, req *adminv1.ExecuteBaseJobRequest) (*emptypb.Empty, error) {
 	err := s.baseJobCase.ExecuteBaseJob(ctx, req)
 	if err != nil {
-		log.Errorf("ExecuteBaseJob %v", err)
+		log.Error(fmt.Sprintf("ExecuteBaseJob %v", err))
 		return nil, errorsx.WrapInternal(err, "执行任务失败")
 	}
 	return new(emptypb.Empty), nil
@@ -132,7 +133,7 @@ func (s *BaseJobService) ExecuteBaseJob(ctx context.Context, req *adminv1.Execut
 func (s *BaseJobService) PageBaseJobLogs(ctx context.Context, req *adminv1.PageBaseJobLogsRequest) (*adminv1.PageBaseJobLogsResponse, error) {
 	page, err := s.baseJobLogCase.PageBaseJobLogs(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseJobLogs %v", err)
+		log.Error(fmt.Sprintf("PageBaseJobLogs %v", err))
 		return nil, errorsx.WrapInternal(err, "查询定时任务日志分页列表失败")
 	}
 
@@ -143,7 +144,7 @@ func (s *BaseJobService) PageBaseJobLogs(ctx context.Context, req *adminv1.PageB
 func (s *BaseJobService) GetBaseJobLog(ctx context.Context, req *adminv1.GetBaseJobLogRequest) (*adminv1.BaseJobLog, error) {
 	baseLog, err := s.baseJobLogCase.GetBaseJobLog(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseJobLog %v", err)
+		log.Error(fmt.Sprintf("GetBaseJobLog %v", err))
 		return nil, errorsx.WrapInternal(err, "查询定时任务日志失败")
 	}
 	return baseLog, nil

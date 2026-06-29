@@ -21,9 +21,9 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/wx/bill"
 
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/log"
+	"github.com/go-kratos/kratos/v3/transport"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/google/uuid"
 	"github.com/liujitcn/go-utils/trans"
 	wxPayCore "github.com/wechatpay-apiv3/wechatpay-go/core"
@@ -87,12 +87,12 @@ func (c *WxPayCase) JsapiPay(req jsapi.PrepayRequest) (*appv1.JsapiPayResponse, 
 	svc := jsapi.JsapiApiService{Client: c.client}
 	resp, result, err := svc.Prepay(c.ctx, req)
 	if err != nil {
-		log.Errorf("支付失败[%s]", err.Error())
+		log.Error(fmt.Sprintf("支付失败[%s]", err.Error()))
 		return nil, err
 	}
 	// 微信支付返回非成功状态码时，统一按支付失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Errorf("支付失败[%s]", result.Response.Status)
+		log.Error(fmt.Sprintf("支付失败[%s]", result.Response.Status))
 		return nil, errorsx.Internal("支付失败")
 	}
 
@@ -120,12 +120,12 @@ func (c *WxPayCase) H5Pay(req h5.PrepayRequest) (*appv1.H5PayResponse, error) {
 	svc := h5.H5ApiService{Client: c.client}
 	resp, result, err := svc.Prepay(c.ctx, req)
 	if err != nil {
-		log.Errorf("支付失败[%s]", err.Error())
+		log.Error(fmt.Sprintf("支付失败[%s]", err.Error()))
 		return nil, err
 	}
 	// 微信支付返回非成功状态码时，统一按支付失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Errorf("支付失败[%s]", result.Response.Status)
+		log.Error(fmt.Sprintf("支付失败[%s]", result.Response.Status))
 		return nil, errorsx.Internal("支付失败")
 	}
 
@@ -139,12 +139,12 @@ func (c *WxPayCase) TradeBill(req bill.TradeBillRequest) (*bill.TradeBillRespons
 	svc := bill.BillService{Client: c.client}
 	resp, result, err := svc.TradeBill(c.ctx, req)
 	if err != nil {
-		log.Errorf("申请交易账单失败[%s]", err.Error())
+		log.Error(fmt.Sprintf("申请交易账单失败[%s]", err.Error()))
 		return nil, errorsx.Internal("申请交易账单失败")
 	}
 	// 微信账单接口返回非成功状态码时，统一按申请失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Errorf("申请交易账单失败[%s]", result.Response.Status)
+		log.Error(fmt.Sprintf("申请交易账单失败[%s]", result.Response.Status))
 		return nil, errorsx.Internal("申请交易账单失败")
 	}
 	return resp, nil
@@ -177,12 +177,12 @@ func (c *WxPayCase) QueryOrderByOutTradeNo(orderNo string) (*appv1.PaymentResour
 				}, nil
 			}
 		}
-		log.Errorf("查询支付失败[%s]", err.Error())
+		log.Error(fmt.Sprintf("查询支付失败[%s]", err.Error()))
 		return nil, errorsx.Internal("查询支付失败")
 	}
 	// 微信支付返回非成功状态码时，统一按查询失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Errorf("查询支付失败[%s]", result.Response.Status)
+		log.Error(fmt.Sprintf("查询支付失败[%s]", result.Response.Status))
 		return nil, errorsx.Internal("查询支付失败")
 	}
 
@@ -279,12 +279,12 @@ func (c *WxPayCase) Refund(req refunddomestic.CreateRequest) (*refunddomestic.Re
 	svc := refunddomestic.RefundsApiService{Client: c.client}
 	resp, result, err := svc.Create(c.ctx, req)
 	if err != nil {
-		log.Errorf("支付失败[%s]", err.Error())
+		log.Error(fmt.Sprintf("支付失败[%s]", err.Error()))
 		return nil, err
 	}
 	// 微信退款接口返回非成功状态码时，统一按退款失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Errorf("支付失败[%s]", result.Response.Status)
+		log.Error(fmt.Sprintf("支付失败[%s]", result.Response.Status))
 		return nil, errorsx.Internal("支付失败")
 	}
 
@@ -300,12 +300,12 @@ func (c *WxPayCase) QueryByOutRefundNo(refundOrderNo string) (*appv1.RefundResou
 	svc := refunddomestic.RefundsApiService{Client: c.client}
 	resp, result, err := svc.QueryByOutRefundNo(c.ctx, req)
 	if err != nil {
-		log.Errorf("查询退款失败[%s]", err.Error())
+		log.Error(fmt.Sprintf("查询退款失败[%s]", err.Error()))
 		return nil, errorsx.Internal("查询退款失败")
 	}
 	// 微信退款查询接口返回非成功状态码时，统一按查询失败处理。
 	if result.Response.StatusCode != nethttp.StatusOK {
-		log.Errorf("查询退款失败[%s]", result.Response.Status)
+		log.Error(fmt.Sprintf("查询退款失败[%s]", result.Response.Status))
 		return nil, errorsx.Internal("查询退款失败")
 	}
 

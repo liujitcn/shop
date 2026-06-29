@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewBaseRoleService(
 func (s *BaseRoleService) OptionBaseRoles(ctx context.Context, req *adminv1.OptionBaseRolesRequest) (*commonv1.SelectOptionResponse, error) {
 	list, err := s.baseRoleCase.OptionBaseRoles(ctx)
 	if err != nil {
-		log.Errorf("OptionBaseRoles %v", err)
+		log.Error(fmt.Sprintf("OptionBaseRoles %v", err))
 		return nil, errorsx.WrapInternal(err, "查询角色下拉列表失败")
 	}
 	return list, nil
@@ -50,7 +51,7 @@ func (s *BaseRoleService) OptionBaseRoles(ctx context.Context, req *adminv1.Opti
 func (s *BaseRoleService) PageBaseRoles(ctx context.Context, req *adminv1.PageBaseRolesRequest) (*adminv1.PageBaseRolesResponse, error) {
 	page, err := s.baseRoleCase.PageBaseRoles(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseRoles %v", err)
+		log.Error(fmt.Sprintf("PageBaseRoles %v", err))
 		return nil, errorsx.WrapInternal(err, "查询角色分页列表失败")
 	}
 	return page, nil
@@ -60,7 +61,7 @@ func (s *BaseRoleService) PageBaseRoles(ctx context.Context, req *adminv1.PageBa
 func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *adminv1.GetBaseRoleRequest) (*adminv1.BaseRoleForm, error) {
 	baseRole, err := s.baseRoleCase.GetBaseRole(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseRole %v", err)
+		log.Error(fmt.Sprintf("GetBaseRole %v", err))
 		return nil, errorsx.WrapInternal(err, "查询角色失败")
 	}
 	return baseRole, nil
@@ -70,7 +71,7 @@ func (s *BaseRoleService) GetBaseRole(ctx context.Context, req *adminv1.GetBaseR
 func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *adminv1.CreateBaseRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.CreateBaseRole(ctx, req.GetBaseRole())
 	if err != nil {
-		log.Errorf("CreateBaseRole %v", err)
+		log.Error(fmt.Sprintf("CreateBaseRole %v", err))
 		return nil, errorsx.WrapInternal(err, "创建角色失败")
 	}
 	return new(emptypb.Empty), nil
@@ -80,7 +81,7 @@ func (s *BaseRoleService) CreateBaseRole(ctx context.Context, req *adminv1.Creat
 func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *adminv1.UpdateBaseRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.UpdateBaseRole(ctx, req.GetBaseRole())
 	if err != nil {
-		log.Errorf("UpdateBaseRole %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseRole %v", err))
 		return nil, errorsx.WrapInternal(err, "更新角色失败")
 	}
 	return new(emptypb.Empty), nil
@@ -90,7 +91,7 @@ func (s *BaseRoleService) UpdateBaseRole(ctx context.Context, req *adminv1.Updat
 func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *adminv1.DeleteBaseRoleRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.DeleteBaseRole(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseRole %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseRole %v", err))
 		return nil, errorsx.WrapInternal(err, "删除角色失败")
 	}
 	return new(emptypb.Empty), nil
@@ -100,7 +101,7 @@ func (s *BaseRoleService) DeleteBaseRole(ctx context.Context, req *adminv1.Delet
 func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *adminv1.SetBaseRoleStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseRoleStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseRoleStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -110,7 +111,7 @@ func (s *BaseRoleService) SetBaseRoleStatus(ctx context.Context, req *adminv1.Se
 func (s *BaseRoleService) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBaseRoleMenuRequest) (*emptypb.Empty, error) {
 	err := s.baseRoleCase.SetBaseRoleMenu(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseRoleMenu %v", err)
+		log.Error(fmt.Sprintf("SetBaseRoleMenu %v", err))
 		return nil, errorsx.WrapInternal(err, "设置角色菜单权限失败")
 	}
 	return new(emptypb.Empty), nil

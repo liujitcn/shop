@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewUserCartService(
 func (s *UserCartService) CountUserCart(ctx context.Context, req *appv1.CountUserCartRequest) (*appv1.CountUserCartResponse, error) {
 	count, err := s.userCartCase.CountUserCart(ctx)
 	if err != nil {
-		log.Errorf("CountUserCart %v", err)
+		log.Error(fmt.Sprintf("CountUserCart %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户购物车数量失败")
 	}
 	return &appv1.CountUserCartResponse{
@@ -52,7 +53,7 @@ func (s *UserCartService) CountUserCart(ctx context.Context, req *appv1.CountUse
 func (s *UserCartService) ListUserCarts(ctx context.Context, req *appv1.ListUserCartsRequest) (*appv1.ListUserCartsResponse, error) {
 	res, err := s.userCartCase.ListUserCarts(ctx)
 	if err != nil {
-		log.Errorf("ListUserCarts %v", err)
+		log.Error(fmt.Sprintf("ListUserCarts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户购物车列表失败")
 	}
 	return res, nil
@@ -62,7 +63,7 @@ func (s *UserCartService) ListUserCarts(ctx context.Context, req *appv1.ListUser
 func (s *UserCartService) CreateUserCart(ctx context.Context, req *appv1.CreateUserCartRequest) (*emptypb.Empty, error) {
 	err := s.userCartCase.CreateUserCart(ctx, req)
 	if err != nil {
-		log.Errorf("CreateUserCart %v", err)
+		log.Error(fmt.Sprintf("CreateUserCart %v", err))
 		return nil, errorsx.WrapInternal(err, "加入购物车失败")
 	}
 	return new(emptypb.Empty), nil
@@ -81,7 +82,7 @@ func (s *UserCartService) UpdateUserCart(ctx context.Context, req *appv1.UpdateU
 	}
 	err := s.userCartCase.UpdateUserCart(ctx, userCart)
 	if err != nil {
-		log.Errorf("UpdateUserCart %v", err)
+		log.Error(fmt.Sprintf("UpdateUserCart %v", err))
 		return nil, errorsx.WrapInternal(err, "更新购物车失败")
 	}
 	return new(emptypb.Empty), nil
@@ -91,7 +92,7 @@ func (s *UserCartService) UpdateUserCart(ctx context.Context, req *appv1.UpdateU
 func (s *UserCartService) DeleteUserCart(ctx context.Context, req *appv1.DeleteUserCartRequest) (*emptypb.Empty, error) {
 	err := s.userCartCase.DeleteUserCart(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteUserCart %v", err)
+		log.Error(fmt.Sprintf("DeleteUserCart %v", err))
 		return nil, errorsx.WrapInternal(err, "删除用户购物车失败")
 	}
 	return new(emptypb.Empty), nil
@@ -101,7 +102,7 @@ func (s *UserCartService) DeleteUserCart(ctx context.Context, req *appv1.DeleteU
 func (s *UserCartService) SetUserCartStatus(ctx context.Context, req *appv1.SetUserCartStatusRequest) (*emptypb.Empty, error) {
 	err := s.userCartCase.SetUserCartStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetUserCartStatus %v", err)
+		log.Error(fmt.Sprintf("SetUserCartStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "更新购物车失败")
 	}
 	return new(emptypb.Empty), nil
@@ -111,7 +112,7 @@ func (s *UserCartService) SetUserCartStatus(ctx context.Context, req *appv1.SetU
 func (s *UserCartService) SetUserCartSelection(ctx context.Context, req *appv1.SetUserCartSelectionRequest) (*emptypb.Empty, error) {
 	err := s.userCartCase.SetUserCartSelection(ctx, req.GetIsChecked())
 	if err != nil {
-		log.Errorf("SetUserCartSelection %v", err)
+		log.Error(fmt.Sprintf("SetUserCartSelection %v", err))
 		return nil, errorsx.WrapInternal(err, "设置全选失败")
 	}
 	return new(emptypb.Empty), nil

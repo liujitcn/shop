@@ -3,6 +3,7 @@ package job
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	_const "shop/pkg/const"
@@ -11,7 +12,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/job/task"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	cronTransport "github.com/liujitcn/kratos-kit/transport/cron"
 	"github.com/robfig/cron/v3"
 )
@@ -36,7 +37,7 @@ func NewCronServer(baseJobRepo *data.BaseJobRepository, task map[string]task.Tas
 func (c *CronServer) Start(ctx context.Context) error {
 	err := c.Server.Start(ctx)
 	if err != nil {
-		log.Errorf("cron server start failed, err=%v", err)
+		log.Error(fmt.Sprintf("cron server start failed, err=%v", err))
 		return err
 	}
 
@@ -46,7 +47,7 @@ func (c *CronServer) Start(ctx context.Context) error {
 		// 停服失败只记录日志，原始重载错误仍然优先返回。
 		stopErr := c.Stop(ctx)
 		if stopErr != nil {
-			log.Errorf("cron server stop failed, err=%v", stopErr)
+			log.Error(fmt.Sprintf("cron server stop failed, err=%v", stopErr))
 		}
 		return err
 	}
@@ -96,7 +97,7 @@ func (c *CronServer) StartJob(ctx context.Context, baseJob *models.BaseJob) erro
 		// 单次调度执行失败时，仅记录错误日志，不影响后续调度。
 		execErr := execJob.Execute()
 		if execErr != nil {
-			log.Errorf("cron job execute failed, jobID=%d err=%v", jobID, execErr)
+			log.Error(fmt.Sprintf("cron job execute failed, jobID=%d err=%v", jobID, execErr))
 		}
 	})
 	if err != nil {
@@ -201,7 +202,7 @@ func (c *CronServer) reloadJobs(ctx context.Context) error {
 				}
 				rollbackErr := c.StopJob(ctx, startedJob)
 				if rollbackErr != nil {
-					log.Errorf("cron rollback started jobs failed, err=%v", rollbackErr)
+					log.Error(fmt.Sprintf("cron rollback started jobs failed, err=%v", rollbackErr))
 					break
 				}
 			}

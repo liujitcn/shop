@@ -2,12 +2,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -32,7 +33,7 @@ func NewRecommendService(recommendCase *biz.RecommendCase) *RecommendService {
 func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *appv1.RecommendAnonymousActorRequest) (*appv1.RecommendAnonymousActorResponse, error) {
 	res, err := s.recommendCase.RecommendAnonymousActor(ctx, req)
 	if err != nil {
-		log.Errorf("RecommendAnonymousActor %v", err)
+		log.Error(fmt.Sprintf("RecommendAnonymousActor %v", err))
 		return nil, errorsx.WrapInternal(err, "获取匿名推荐主体失败")
 	}
 	return res, nil
@@ -42,7 +43,7 @@ func (s *RecommendService) RecommendAnonymousActor(ctx context.Context, req *app
 func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req *appv1.BindRecommendAnonymousActorRequest) (*emptypb.Empty, error) {
 	err := s.recommendCase.BindRecommendAnonymousActor(ctx, req)
 	if err != nil {
-		log.Errorf("BindRecommendAnonymousActor %v", err)
+		log.Error(fmt.Sprintf("BindRecommendAnonymousActor %v", err))
 		return nil, errorsx.WrapInternal(err, "绑定匿名推荐主体失败")
 	}
 	return &emptypb.Empty{}, nil
@@ -52,7 +53,7 @@ func (s *RecommendService) BindRecommendAnonymousActor(ctx context.Context, req 
 func (s *RecommendService) RecommendGoods(ctx context.Context, req *appv1.RecommendGoodsRequest) (*appv1.RecommendGoodsResponse, error) {
 	res, err := s.recommendCase.RecommendGoods(ctx, req)
 	if err != nil {
-		log.Errorf("RecommendGoods %v", err)
+		log.Error(fmt.Sprintf("RecommendGoods %v", err))
 		return nil, errorsx.WrapInternal(err, "查询推荐商品失败")
 	}
 	return res, nil
@@ -62,7 +63,7 @@ func (s *RecommendService) RecommendGoods(ctx context.Context, req *appv1.Recomm
 func (s *RecommendService) RecommendEventReport(ctx context.Context, req *appv1.RecommendEventReportRequest) (*emptypb.Empty, error) {
 	err := s.recommendCase.RecommendEventReport(ctx, req)
 	if err != nil {
-		log.Errorf("RecommendEventReport %v", err)
+		log.Error(fmt.Sprintf("RecommendEventReport %v", err))
 		return nil, errorsx.WrapInternal(err, "上报推荐事件失败")
 	}
 	return &emptypb.Empty{}, nil

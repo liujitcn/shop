@@ -16,8 +16,8 @@ import (
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
-	kratosMiddleware "github.com/go-kratos/kratos/v2/middleware"
-	kratosHTTP "github.com/go-kratos/kratos/v2/transport/http"
+	kratosMiddleware "github.com/go-kratos/kratos/v3/middleware"
+	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-kit/auth"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"

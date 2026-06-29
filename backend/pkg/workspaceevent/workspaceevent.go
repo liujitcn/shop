@@ -2,13 +2,14 @@ package workspaceevent
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"sync"
 	"time"
 
 	commonv1 "shop/api/gen/go/common/v1"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 )
 
 const (
@@ -90,7 +91,7 @@ func Publish(ctx context.Context, reason commonv1.SseRefreshReason, targets ...c
 		OccurredAt: time.Now().Format(time.RFC3339),
 	})
 	if err != nil {
-		log.Errorf("publish workspace refresh event: %v", err.Error())
+		log.Error(fmt.Sprintf("publish workspace refresh event: %v", err.Error()))
 	}
 }
 

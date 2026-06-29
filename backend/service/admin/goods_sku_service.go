@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -37,7 +38,7 @@ func NewGoodsSkuService(goodsSKUCase *biz.GoodsSKUCase) *GoodsSkuService {
 func (s *GoodsSkuService) PageGoodsSkus(ctx context.Context, req *adminv1.PageGoodsSkusRequest) (*adminv1.PageGoodsSkusResponse, error) {
 	page, err := s.goodsSKUCase.ListGoodsSKUs(ctx, req)
 	if err != nil {
-		log.Errorf("PageGoodsSkus %v", err)
+		log.Error(fmt.Sprintf("PageGoodsSkus %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品SKU列表失败")
 	}
 	return page, nil
@@ -47,7 +48,7 @@ func (s *GoodsSkuService) PageGoodsSkus(ctx context.Context, req *adminv1.PageGo
 func (s *GoodsSkuService) GetGoodsSku(ctx context.Context, req *adminv1.GetGoodsSkuRequest) (*adminv1.GoodsSku, error) {
 	goodsSKU, err := s.goodsSKUCase.GetGoodsSKU(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetGoodsSku %v", err)
+		log.Error(fmt.Sprintf("GetGoodsSku %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品SKU失败")
 	}
 	return goodsSKU, nil
@@ -57,7 +58,7 @@ func (s *GoodsSkuService) GetGoodsSku(ctx context.Context, req *adminv1.GetGoods
 func (s *GoodsSkuService) UpdateGoodsSku(ctx context.Context, req *adminv1.UpdateGoodsSkuRequest) (*emptypb.Empty, error) {
 	err := s.goodsSKUCase.UpdateGoodsSKU(ctx, req.GetGoodsSku())
 	if err != nil {
-		log.Errorf("UpdateGoodsSku %v", err)
+		log.Error(fmt.Sprintf("UpdateGoodsSku %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商品SKU失败")
 	}
 	return new(emptypb.Empty), nil

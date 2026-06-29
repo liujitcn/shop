@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"fmt"
 	"slices"
 
 	_const "shop/pkg/const"
@@ -12,7 +13,7 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -130,7 +131,7 @@ func (c *UserStoreCase) multiDeleteFileByString(oldFile string, newFile []string
 			if len(newFile) == 0 || !slices.Contains(newFile, item) {
 				// 单个旧文件删除失败时，仅记录日志不影响主流程。
 				if err := oss.DeleteFile(item); err != nil {
-					log.Errorf("MultiDeleteFile %v", err)
+					log.Error(fmt.Sprintf("MultiDeleteFile %v", err))
 				}
 			}
 		}

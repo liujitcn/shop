@@ -8,11 +8,12 @@ package base
 
 import (
 	"context"
+	"fmt"
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/errorsx"
 	"shop/service/base/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewLoginService(
 func (s *LoginService) Captcha(ctx context.Context, req *basev1.CaptchaRequest) (*basev1.CaptchaResponse, error) {
 	res, err := s.loginCase.Captcha(ctx, req)
 	if err != nil {
-		log.Errorf("Captcha %v", err)
+		log.Error(fmt.Sprintf("Captcha %v", err))
 		return nil, errorsx.WrapInternal(err, "获取验证码失败")
 	}
 	return res, nil
@@ -50,7 +51,7 @@ func (s *LoginService) Captcha(ctx context.Context, req *basev1.CaptchaRequest) 
 func (s *LoginService) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCaptchaRequest) (*basev1.VerifyCaptchaResponse, error) {
 	res, err := s.loginCase.VerifyCaptcha(ctx, req)
 	if err != nil {
-		log.Errorf("VerifyCaptcha %v", err)
+		log.Error(fmt.Sprintf("VerifyCaptcha %v", err))
 		return nil, errorsx.WrapInternal(err, "验证码预校验失败")
 	}
 	return res, nil
@@ -60,7 +61,7 @@ func (s *LoginService) VerifyCaptcha(ctx context.Context, req *basev1.VerifyCapt
 func (s *LoginService) PasswordPublicKey(ctx context.Context, req *basev1.PasswordPublicKeyRequest) (*basev1.PasswordPublicKeyResponse, error) {
 	res, err := s.loginCase.PasswordPublicKey(ctx, req)
 	if err != nil {
-		log.Errorf("PasswordPublicKey %v", err)
+		log.Error(fmt.Sprintf("PasswordPublicKey %v", err))
 		return nil, errorsx.WrapInternal(err, "获取密码临时公钥失败")
 	}
 	return res, nil
@@ -70,7 +71,7 @@ func (s *LoginService) PasswordPublicKey(ctx context.Context, req *basev1.Passwo
 func (s *LoginService) Logout(ctx context.Context, req *basev1.LogoutRequest) (*emptypb.Empty, error) {
 	err := s.loginCase.Logout(ctx, req)
 	if err != nil {
-		log.Errorf("Logout %v", err)
+		log.Error(fmt.Sprintf("Logout %v", err))
 		return nil, errorsx.WrapInternal(err, "退出登录失败")
 	}
 	return &emptypb.Empty{}, nil
@@ -80,7 +81,7 @@ func (s *LoginService) Logout(ctx context.Context, req *basev1.LogoutRequest) (*
 func (s *LoginService) RefreshToken(ctx context.Context, req *basev1.RefreshTokenRequest) (*basev1.RefreshTokenResponse, error) {
 	res, err := s.loginCase.RefreshToken(ctx, req)
 	if err != nil {
-		log.Errorf("RefreshToken %v", err)
+		log.Error(fmt.Sprintf("RefreshToken %v", err))
 		return nil, errorsx.WrapInternal(err, "刷新认证令牌失败")
 	}
 	return res, nil
@@ -90,7 +91,7 @@ func (s *LoginService) RefreshToken(ctx context.Context, req *basev1.RefreshToke
 func (s *LoginService) Login(ctx context.Context, req *basev1.LoginRequest) (*basev1.LoginResponse, error) {
 	res, err := s.loginCase.Login(ctx, req)
 	if err != nil {
-		log.Errorf("Login %v", err)
+		log.Error(fmt.Sprintf("Login %v", err))
 		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
 	return res, nil

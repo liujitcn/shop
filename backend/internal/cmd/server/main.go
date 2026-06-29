@@ -8,10 +8,10 @@ import (
 
 	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 
-	"github.com/go-kratos/kratos/v2"
-	kratosTransport "github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3"
+	kratosTransport "github.com/go-kratos/kratos/v3/transport"
+	"github.com/go-kratos/kratos/v3/transport/grpc"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/kratos-kit/bootstrap"
 
 	//_ "github.com/liujitcn/kratos-kit/database/gorm/driver/bigquery"

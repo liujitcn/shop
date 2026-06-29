@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +19,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/service/base/dto"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -123,7 +124,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 			Delta:     delta,
 		})
 		if emitErr != nil {
-			log.Errorf("StreamAiAssistantMessage EmitDelta %v", emitErr)
+			log.Error(fmt.Sprintf("StreamAiAssistantMessage EmitDelta %v", emitErr))
 		}
 	})
 
@@ -134,14 +135,14 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 	}
 	status := int32(commonv1.AiAssistantMessageStatus_SUCCESS_AAMS)
 	if runErr != nil {
-		log.Errorf("StreamAiAssistantMessage RunStream %v", runErr)
+		log.Error(fmt.Sprintf("StreamAiAssistantMessage RunStream %v", runErr))
 		reply = c.buildAiAssistantFailedReply(reply, runErr)
 		status = int32(commonv1.AiAssistantMessageStatus_FAILED_AAMS)
 	}
 
 	saveErr := c.finishAiAssistantMessage(ctx, session, message, reply, finishAt, firstTokenMs, durationMs, status)
 	if saveErr != nil {
-		log.Errorf("StreamAiAssistantMessage SaveReply %v", saveErr)
+		log.Error(fmt.Sprintf("StreamAiAssistantMessage SaveReply %v", saveErr))
 		_ = emitter.EmitAiAssistantStream(dto.AiAssistantStreamEventError, dto.AiAssistantStreamPayload{
 			SessionID: req.GetSessionId(),
 			MessageID: messageID,
@@ -156,7 +157,7 @@ func (c *AiAssistantMessageCase) StreamAiAssistantMessage(ctx context.Context, r
 		Session:   c.aiAssistantSessionCase.ToDTO(session),
 	})
 	if emitErr != nil {
-		log.Errorf("StreamAiAssistantMessage EmitFinish %v", emitErr)
+		log.Error(fmt.Sprintf("StreamAiAssistantMessage EmitFinish %v", emitErr))
 	}
 	return nil
 }

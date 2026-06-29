@@ -13,7 +13,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/workspaceevent"
 
-	kratosHTTP "github.com/go-kratos/kratos/v2/transport/http"
+	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/bootstrap"

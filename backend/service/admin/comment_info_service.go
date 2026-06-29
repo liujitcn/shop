@@ -2,12 +2,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewCommentInfoService(
 func (s *CommentInfoService) PageCommentInfos(ctx context.Context, req *adminv1.PageCommentInfosRequest) (*adminv1.PageCommentInfosResponse, error) {
 	page, err := s.commentInfoCase.PageCommentInfos(ctx, req)
 	if err != nil {
-		log.Errorf("PageCommentInfos %v", err)
+		log.Error(fmt.Sprintf("PageCommentInfos %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论分页列表失败")
 	}
 	return page, nil
@@ -49,7 +50,7 @@ func (s *CommentInfoService) PageCommentInfos(ctx context.Context, req *adminv1.
 func (s *CommentInfoService) GetGoodsCommentInfo(ctx context.Context, req *adminv1.GetGoodsCommentInfoRequest) (*adminv1.GoodsCommentInfoResponse, error) {
 	res, err := s.commentInfoCase.GetGoodsCommentInfo(ctx, req.GetGoodsId())
 	if err != nil {
-		log.Errorf("GetGoodsCommentInfo %v", err)
+		log.Error(fmt.Sprintf("GetGoodsCommentInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "按商品查询评论聚合信息失败")
 	}
 	return res, nil
@@ -59,7 +60,7 @@ func (s *CommentInfoService) GetGoodsCommentInfo(ctx context.Context, req *admin
 func (s *CommentInfoService) GetCommentInfo(ctx context.Context, req *adminv1.GetCommentInfoRequest) (*adminv1.CommentInfoDetail, error) {
 	res, err := s.commentInfoCase.GetCommentInfo(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetCommentInfo %v", err)
+		log.Error(fmt.Sprintf("GetCommentInfo %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论详情失败")
 	}
 	return res, nil
@@ -69,7 +70,7 @@ func (s *CommentInfoService) GetCommentInfo(ctx context.Context, req *adminv1.Ge
 func (s *CommentInfoService) SetCommentInfoStatus(ctx context.Context, req *adminv1.SetCommentInfoStatusRequest) (*emptypb.Empty, error) {
 	err := s.commentInfoCase.SetCommentInfoStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetCommentInfoStatus %v", err)
+		log.Error(fmt.Sprintf("SetCommentInfoStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置评论审核状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -79,7 +80,7 @@ func (s *CommentInfoService) SetCommentInfoStatus(ctx context.Context, req *admi
 func (s *CommentInfoService) PageCommentDiscussions(ctx context.Context, req *adminv1.PageCommentDiscussionsRequest) (*adminv1.PageCommentDiscussionsResponse, error) {
 	page, err := s.commentDiscussionCase.PageCommentDiscussions(ctx, req)
 	if err != nil {
-		log.Errorf("PageCommentDiscussions %v", err)
+		log.Error(fmt.Sprintf("PageCommentDiscussions %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论讨论分页列表失败")
 	}
 	return page, nil
@@ -89,7 +90,7 @@ func (s *CommentInfoService) PageCommentDiscussions(ctx context.Context, req *ad
 func (s *CommentInfoService) SetCommentDiscussionStatus(ctx context.Context, req *adminv1.SetCommentDiscussionStatusRequest) (*emptypb.Empty, error) {
 	err := s.commentDiscussionCase.SetCommentDiscussionStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetCommentDiscussionStatus %v", err)
+		log.Error(fmt.Sprintf("SetCommentDiscussionStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置评论讨论审核状态失败")
 	}
 	return new(emptypb.Empty), nil
@@ -99,7 +100,7 @@ func (s *CommentInfoService) SetCommentDiscussionStatus(ctx context.Context, req
 func (s *CommentInfoService) ListCommentReviews(ctx context.Context, req *adminv1.ListCommentReviewsRequest) (*adminv1.ListCommentReviewsResponse, error) {
 	list, err := s.commentReviewCase.ListByTarget(ctx, int32(req.GetTargetType()), req.GetTargetId())
 	if err != nil {
-		log.Errorf("ListCommentReviews %v", err)
+		log.Error(fmt.Sprintf("ListCommentReviews %v", err))
 		return nil, errorsx.WrapInternal(err, "查询评论审核记录列表失败")
 	}
 	return &adminv1.ListCommentReviewsResponse{CommentReviews: list}, nil

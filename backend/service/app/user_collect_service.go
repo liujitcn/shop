@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewUserCollectService(
 func (s *UserCollectService) PageUserCollects(ctx context.Context, req *appv1.PageUserCollectsRequest) (*appv1.PageUserCollectsResponse, error) {
 	page, err := s.userCollectCase.PageUserCollects(ctx, req)
 	if err != nil {
-		log.Errorf("PageUserCollects %v", err)
+		log.Error(fmt.Sprintf("PageUserCollects %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户收藏列表失败")
 	}
 	return page, nil
@@ -50,7 +51,7 @@ func (s *UserCollectService) PageUserCollects(ctx context.Context, req *appv1.Pa
 func (s *UserCollectService) GetIsCollect(ctx context.Context, req *appv1.GetIsCollectRequest) (*appv1.GetIsCollectResponse, error) {
 	res, err := s.userCollectCase.GetIsCollect(ctx, req)
 	if err != nil {
-		log.Errorf("GetIsCollect %v", err)
+		log.Error(fmt.Sprintf("GetIsCollect %v", err))
 		// 收藏状态查询失败时按未收藏返回，避免影响详情页主流程
 		return &appv1.GetIsCollectResponse{IsCollected: false}, nil
 	}
@@ -68,7 +69,7 @@ func (s *UserCollectService) CreateUserCollect(ctx context.Context, req *appv1.C
 	}
 	err := s.userCollectCase.CreateUserCollect(ctx, userCollect)
 	if err != nil {
-		log.Errorf("CreateUserCollect %v", err)
+		log.Error(fmt.Sprintf("CreateUserCollect %v", err))
 		return nil, errorsx.WrapInternal(err, "创建用户收藏失败")
 	}
 	return new(emptypb.Empty), nil
@@ -78,7 +79,7 @@ func (s *UserCollectService) CreateUserCollect(ctx context.Context, req *appv1.C
 func (s *UserCollectService) DeleteUserCollect(ctx context.Context, req *appv1.DeleteUserCollectRequest) (*emptypb.Empty, error) {
 	err := s.userCollectCase.DeleteUserCollect(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteUserCollect %v", err)
+		log.Error(fmt.Sprintf("DeleteUserCollect %v", err))
 		return nil, errorsx.WrapInternal(err, "删除用户收藏失败")
 	}
 	return new(emptypb.Empty), nil

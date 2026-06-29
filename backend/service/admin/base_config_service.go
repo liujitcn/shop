@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -36,7 +37,7 @@ func NewBaseConfigService(
 	// 服务启动，刷新缓存
 	_, err := ss.RefreshBaseConfigCache(context.Background(), new(adminv1.RefreshBaseConfigCacheRequest))
 	if err != nil {
-		log.Errorf("NewBaseConfigService %v", err)
+		log.Error(fmt.Sprintf("NewBaseConfigService %v", err))
 		return nil, errorsx.WrapInternal(err, "初始化系统配置缓存失败")
 	}
 	return &ss, nil
@@ -46,7 +47,7 @@ func NewBaseConfigService(
 func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *adminv1.RefreshBaseConfigCacheRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.RefreshBaseConfig(ctx)
 	if err != nil {
-		log.Errorf("RefreshBaseConfig %v", err)
+		log.Error(fmt.Sprintf("RefreshBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "刷新缓存失败")
 	}
 	return new(emptypb.Empty), nil
@@ -56,7 +57,7 @@ func (s *BaseConfigService) RefreshBaseConfigCache(ctx context.Context, req *adm
 func (s *BaseConfigService) PageBaseConfigs(ctx context.Context, req *adminv1.PageBaseConfigsRequest) (*adminv1.PageBaseConfigsResponse, error) {
 	page, err := s.baseConfigCase.PageBaseConfigs(ctx, req)
 	if err != nil {
-		log.Errorf("PageBaseConfigs %v", err)
+		log.Error(fmt.Sprintf("PageBaseConfigs %v", err))
 		return nil, errorsx.WrapInternal(err, "查询系统配置分页列表失败")
 	}
 
@@ -67,7 +68,7 @@ func (s *BaseConfigService) PageBaseConfigs(ctx context.Context, req *adminv1.Pa
 func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *adminv1.GetBaseConfigRequest) (*adminv1.BaseConfigForm, error) {
 	config, err := s.baseConfigCase.GetBaseConfig(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseConfig %v", err)
+		log.Error(fmt.Sprintf("GetBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "查询系统配置失败")
 	}
 	return config, nil
@@ -77,7 +78,7 @@ func (s *BaseConfigService) GetBaseConfig(ctx context.Context, req *adminv1.GetB
 func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *adminv1.CreateBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.CreateBaseConfig(ctx, req.GetBaseConfig())
 	if err != nil {
-		log.Errorf("CreateBaseConfig %v", err)
+		log.Error(fmt.Sprintf("CreateBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "创建系统配置失败")
 	}
 	return new(emptypb.Empty), nil
@@ -87,7 +88,7 @@ func (s *BaseConfigService) CreateBaseConfig(ctx context.Context, req *adminv1.C
 func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *adminv1.UpdateBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.UpdateBaseConfig(ctx, req.GetBaseConfig())
 	if err != nil {
-		log.Errorf("UpdateBaseConfig %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "更新系统配置失败")
 	}
 	return new(emptypb.Empty), nil
@@ -97,7 +98,7 @@ func (s *BaseConfigService) UpdateBaseConfig(ctx context.Context, req *adminv1.U
 func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *adminv1.DeleteBaseConfigRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.DeleteBaseConfig(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseConfig %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseConfig %v", err))
 		return nil, errorsx.WrapInternal(err, "删除系统配置失败")
 	}
 	return new(emptypb.Empty), nil
@@ -107,7 +108,7 @@ func (s *BaseConfigService) DeleteBaseConfig(ctx context.Context, req *adminv1.D
 func (s *BaseConfigService) SetBaseConfigStatus(ctx context.Context, req *adminv1.SetBaseConfigStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseConfigCase.SetBaseConfigStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseConfigStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseConfigStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

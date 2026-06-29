@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewAuthService(
 func (s *AuthService) WechatLogin(ctx context.Context, req *appv1.WechatLoginRequest) (*appv1.WechatLoginResponse, error) {
 	res, err := s.authCase.WechatLogin(ctx, req)
 	if err != nil {
-		log.Errorf("WechatLogin %v", err)
+		log.Error(fmt.Sprintf("WechatLogin %v", err))
 		return nil, errorsx.WrapInternal(err, "登录失败")
 	}
 	return res, nil
@@ -50,7 +51,7 @@ func (s *AuthService) WechatLogin(ctx context.Context, req *appv1.WechatLoginReq
 func (s *AuthService) GetUserProfile(ctx context.Context, req *appv1.GetUserProfileRequest) (*appv1.UserProfileForm, error) {
 	res, err := s.authCase.GetUserProfile(ctx)
 	if err != nil {
-		log.Errorf("GetUserProfile %v", err)
+		log.Error(fmt.Sprintf("GetUserProfile %v", err))
 		return nil, errorsx.WrapInternal(err, "获取用户信息失败")
 	}
 	return res, nil
@@ -65,7 +66,7 @@ func (s *AuthService) UpdateUserProfile(ctx context.Context, req *appv1.UpdateUs
 	}
 	err := s.authCase.UpdateUserProfile(ctx, userProfile)
 	if err != nil {
-		log.Errorf("UpdateUserProfile %v", err)
+		log.Error(fmt.Sprintf("UpdateUserProfile %v", err))
 		return nil, errorsx.WrapInternal(err, "修改个人中心用户信息失败")
 	}
 	return new(emptypb.Empty), nil
@@ -75,7 +76,7 @@ func (s *AuthService) UpdateUserProfile(ctx context.Context, req *appv1.UpdateUs
 func (s *AuthService) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRequest) (*appv1.BindUserPhoneResponse, error) {
 	res, err := s.authCase.BindUserPhone(ctx, req)
 	if err != nil {
-		log.Errorf("BindUserPhone %v", err)
+		log.Error(fmt.Sprintf("BindUserPhone %v", err))
 		return nil, errorsx.WrapInternal(err, "手机号授权失败")
 	}
 	return res, nil

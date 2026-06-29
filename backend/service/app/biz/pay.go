@@ -22,9 +22,9 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport"
-	kratosHTTP "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/log"
+	"github.com/go-kratos/kratos/v3/transport"
+	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/ip"
 	_string "github.com/liujitcn/go-utils/string"
 	_time "github.com/liujitcn/go-utils/time"
@@ -279,7 +279,7 @@ func (c *PayCase) PayNotify(ctx context.Context) error {
 		return errorsx.InvalidArgument("支付通知缺少资源体")
 	}
 
-	log.Infof("PayNotify EventType=%s，Plaintext=%s", request.EventType, resource.Plaintext)
+	log.Info(fmt.Sprintf("PayNotify EventType=%s，Plaintext=%s", request.EventType, resource.Plaintext))
 	// 判断通知类型
 	if strings.HasPrefix(request.EventType, commonv1.ResourceType(_const.RESOURCE_TYPE_TRANSACTION).String()) {
 		// 转换

@@ -11,7 +11,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/utils"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
@@ -61,7 +61,7 @@ func NewGoodsStatDay(
 
 // Exec 执行商品日统计。
 func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
-	log.Infof("Job GoodsStatDay Exec %+v", args)
+	log.Info(fmt.Sprintf("Job GoodsStatDay Exec %+v", args))
 
 	statTime, err := parseStatDateArg(args["statDate"])
 	if err != nil {

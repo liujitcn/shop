@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewShopBannerService(
 func (s *ShopBannerService) PageShopBanners(ctx context.Context, req *adminv1.PageShopBannersRequest) (*adminv1.PageShopBannersResponse, error) {
 	page, err := s.bannerCase.PageShopBanners(ctx, req)
 	if err != nil {
-		log.Errorf("PageShopBanners %v", err)
+		log.Error(fmt.Sprintf("PageShopBanners %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城轮播图列表失败")
 	}
 
@@ -50,7 +51,7 @@ func (s *ShopBannerService) PageShopBanners(ctx context.Context, req *adminv1.Pa
 func (s *ShopBannerService) GetShopBanner(ctx context.Context, req *adminv1.GetShopBannerRequest) (*adminv1.ShopBannerForm, error) {
 	shopBanner, err := s.bannerCase.GetShopBanner(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetShopBanner %v", err)
+		log.Error(fmt.Sprintf("GetShopBanner %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商城轮播图失败")
 	}
 	return shopBanner, nil
@@ -60,7 +61,7 @@ func (s *ShopBannerService) GetShopBanner(ctx context.Context, req *adminv1.GetS
 func (s *ShopBannerService) CreateShopBanner(ctx context.Context, req *adminv1.CreateShopBannerRequest) (*emptypb.Empty, error) {
 	err := s.bannerCase.CreateShopBanner(ctx, req.GetShopBanner())
 	if err != nil {
-		log.Errorf("CreateShopBanner %v", err)
+		log.Error(fmt.Sprintf("CreateShopBanner %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商城轮播图失败")
 	}
 	return new(emptypb.Empty), nil
@@ -70,7 +71,7 @@ func (s *ShopBannerService) CreateShopBanner(ctx context.Context, req *adminv1.C
 func (s *ShopBannerService) UpdateShopBanner(ctx context.Context, req *adminv1.UpdateShopBannerRequest) (*emptypb.Empty, error) {
 	err := s.bannerCase.UpdateShopBanner(ctx, req.GetShopBanner())
 	if err != nil {
-		log.Errorf("UpdateShopBanner %v", err)
+		log.Error(fmt.Sprintf("UpdateShopBanner %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商城轮播图失败")
 	}
 	return new(emptypb.Empty), nil
@@ -80,7 +81,7 @@ func (s *ShopBannerService) UpdateShopBanner(ctx context.Context, req *adminv1.U
 func (s *ShopBannerService) DeleteShopBanner(ctx context.Context, req *adminv1.DeleteShopBannerRequest) (*emptypb.Empty, error) {
 	err := s.bannerCase.DeleteShopBanner(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteShopBanner %v", err)
+		log.Error(fmt.Sprintf("DeleteShopBanner %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商城轮播图失败")
 	}
 	return new(emptypb.Empty), nil
@@ -90,7 +91,7 @@ func (s *ShopBannerService) DeleteShopBanner(ctx context.Context, req *adminv1.D
 func (s *ShopBannerService) SetShopBannerStatus(ctx context.Context, req *adminv1.SetShopBannerStatusRequest) (*emptypb.Empty, error) {
 	err := s.bannerCase.SetShopBannerStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetShopBannerStatus %v", err)
+		log.Error(fmt.Sprintf("SetShopBannerStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

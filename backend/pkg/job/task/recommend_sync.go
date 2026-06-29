@@ -10,7 +10,7 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/recommend/gorse"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	_set "github.com/liujitcn/go-utils/set"
 	"github.com/liujitcn/gorm-kit/repository"
 )
@@ -46,7 +46,7 @@ func NewRecommendSync(
 
 // Exec 执行推荐系统主数据同步。
 func (t *RecommendSync) Exec(args map[string]string) ([]string, error) {
-	log.Infof("Job RecommendSync Exec %+v", args)
+	log.Info(fmt.Sprintf("Job RecommendSync Exec %+v", args))
 
 	// 推荐系统未启用时，只记录跳过结果，避免空配置导致任务报错。
 	if !t.userSync.Enabled() || !t.goodsSync.Enabled() {

@@ -7,7 +7,7 @@ import (
 
 	commonv1 "shop/api/gen/go/common/v1"
 
-	kratosErrors "github.com/go-kratos/kratos/v2/errors"
+	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	"github.com/go-sql-driver/mysql"
 	"gorm.io/gorm"
 )

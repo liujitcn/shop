@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewBaseDeptService(
 func (s *BaseDeptService) TreeBaseDepts(ctx context.Context, req *adminv1.TreeBaseDeptsRequest) (*adminv1.TreeBaseDeptsResponse, error) {
 	tree, err := s.baseDeptCase.TreeBaseDepts(ctx)
 	if err != nil {
-		log.Errorf("TreeBaseDepts %v", err)
+		log.Error(fmt.Sprintf("TreeBaseDepts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询部门树形列表失败")
 	}
 
@@ -51,7 +52,7 @@ func (s *BaseDeptService) TreeBaseDepts(ctx context.Context, req *adminv1.TreeBa
 func (s *BaseDeptService) OptionBaseDepts(ctx context.Context, req *adminv1.OptionBaseDeptsRequest) (*commonv1.TreeOptionResponse, error) {
 	tree, err := s.baseDeptCase.OptionBaseDepts(ctx, req)
 	if err != nil {
-		log.Errorf("OptionBaseDepts %v", err)
+		log.Error(fmt.Sprintf("OptionBaseDepts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询部门树形选择失败")
 	}
 	return tree, nil
@@ -61,7 +62,7 @@ func (s *BaseDeptService) OptionBaseDepts(ctx context.Context, req *adminv1.Opti
 func (s *BaseDeptService) GetBaseDept(ctx context.Context, req *adminv1.GetBaseDeptRequest) (*adminv1.BaseDeptForm, error) {
 	baseDept, err := s.baseDeptCase.GetBaseDept(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetBaseDept %v", err)
+		log.Error(fmt.Sprintf("GetBaseDept %v", err))
 		return nil, errorsx.WrapInternal(err, "查询部门失败")
 	}
 	return baseDept, nil
@@ -71,7 +72,7 @@ func (s *BaseDeptService) GetBaseDept(ctx context.Context, req *adminv1.GetBaseD
 func (s *BaseDeptService) CreateBaseDept(ctx context.Context, req *adminv1.CreateBaseDeptRequest) (*emptypb.Empty, error) {
 	err := s.baseDeptCase.CreateBaseDept(ctx, req.GetBaseDept())
 	if err != nil {
-		log.Errorf("CreateBaseDept %v", err)
+		log.Error(fmt.Sprintf("CreateBaseDept %v", err))
 		return nil, errorsx.WrapInternal(err, "创建部门失败")
 	}
 	return new(emptypb.Empty), nil
@@ -81,7 +82,7 @@ func (s *BaseDeptService) CreateBaseDept(ctx context.Context, req *adminv1.Creat
 func (s *BaseDeptService) UpdateBaseDept(ctx context.Context, req *adminv1.UpdateBaseDeptRequest) (*emptypb.Empty, error) {
 	err := s.baseDeptCase.UpdateBaseDept(ctx, req.GetBaseDept())
 	if err != nil {
-		log.Errorf("UpdateBaseDept %v", err)
+		log.Error(fmt.Sprintf("UpdateBaseDept %v", err))
 		return nil, errorsx.WrapInternal(err, "更新部门失败")
 	}
 	return new(emptypb.Empty), nil
@@ -91,7 +92,7 @@ func (s *BaseDeptService) UpdateBaseDept(ctx context.Context, req *adminv1.Updat
 func (s *BaseDeptService) DeleteBaseDept(ctx context.Context, req *adminv1.DeleteBaseDeptRequest) (*emptypb.Empty, error) {
 	err := s.baseDeptCase.DeleteBaseDept(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("DeleteBaseDept %v", err)
+		log.Error(fmt.Sprintf("DeleteBaseDept %v", err))
 		return nil, errorsx.WrapInternal(err, "删除部门失败")
 	}
 	return new(emptypb.Empty), nil
@@ -101,7 +102,7 @@ func (s *BaseDeptService) DeleteBaseDept(ctx context.Context, req *adminv1.Delet
 func (s *BaseDeptService) SetBaseDeptStatus(ctx context.Context, req *adminv1.SetBaseDeptStatusRequest) (*emptypb.Empty, error) {
 	err := s.baseDeptCase.SetBaseDeptStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetBaseDeptStatus %v", err)
+		log.Error(fmt.Sprintf("SetBaseDeptStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

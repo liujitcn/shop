@@ -8,13 +8,14 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewGoodsCategoryService(
 func (s *GoodsCategoryService) TreeGoodsCategories(ctx context.Context, req *adminv1.TreeGoodsCategoriesRequest) (*adminv1.TreeGoodsCategoriesResponse, error) {
 	tree, err := s.goodsCategoryCase.TreeGoodsCategories(ctx, req)
 	if err != nil {
-		log.Errorf("TreeGoodsCategories %v", err)
+		log.Error(fmt.Sprintf("TreeGoodsCategories %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品分类树形列表失败")
 	}
 
@@ -51,7 +52,7 @@ func (s *GoodsCategoryService) TreeGoodsCategories(ctx context.Context, req *adm
 func (s *GoodsCategoryService) OptionGoodsCategories(ctx context.Context, req *adminv1.OptionGoodsCategoriesRequest) (*commonv1.TreeOptionResponse, error) {
 	tree, err := s.goodsCategoryCase.OptionGoodsCategories(ctx, req)
 	if err != nil {
-		log.Errorf("OptionGoodsCategories %v", err)
+		log.Error(fmt.Sprintf("OptionGoodsCategories %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品分类树形选择失败")
 	}
 	return tree, nil
@@ -61,7 +62,7 @@ func (s *GoodsCategoryService) OptionGoodsCategories(ctx context.Context, req *a
 func (s *GoodsCategoryService) GetGoodsCategory(ctx context.Context, req *adminv1.GetGoodsCategoryRequest) (*adminv1.GoodsCategoryForm, error) {
 	goodsCategory, err := s.goodsCategoryCase.GetGoodsCategory(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetGoodsCategory %v", err)
+		log.Error(fmt.Sprintf("GetGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "查询商品分类失败")
 	}
 	return goodsCategory, nil
@@ -71,7 +72,7 @@ func (s *GoodsCategoryService) GetGoodsCategory(ctx context.Context, req *adminv
 func (s *GoodsCategoryService) CreateGoodsCategory(ctx context.Context, req *adminv1.CreateGoodsCategoryRequest) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.CreateGoodsCategory(ctx, req.GetGoodsCategory())
 	if err != nil {
-		log.Errorf("CreateGoodsCategory %v", err)
+		log.Error(fmt.Sprintf("CreateGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "创建商品分类失败")
 	}
 	return new(emptypb.Empty), nil
@@ -81,7 +82,7 @@ func (s *GoodsCategoryService) CreateGoodsCategory(ctx context.Context, req *adm
 func (s *GoodsCategoryService) UpdateGoodsCategory(ctx context.Context, req *adminv1.UpdateGoodsCategoryRequest) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.UpdateGoodsCategory(ctx, req.GetGoodsCategory())
 	if err != nil {
-		log.Errorf("UpdateGoodsCategory %v", err)
+		log.Error(fmt.Sprintf("UpdateGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "更新商品分类失败")
 	}
 	return new(emptypb.Empty), nil
@@ -91,7 +92,7 @@ func (s *GoodsCategoryService) UpdateGoodsCategory(ctx context.Context, req *adm
 func (s *GoodsCategoryService) DeleteGoodsCategory(ctx context.Context, req *adminv1.DeleteGoodsCategoryRequest) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.DeleteGoodsCategory(ctx, req.GetIds())
 	if err != nil {
-		log.Errorf("DeleteGoodsCategory %v", err)
+		log.Error(fmt.Sprintf("DeleteGoodsCategory %v", err))
 		return nil, errorsx.WrapInternal(err, "删除商品分类失败")
 	}
 	return new(emptypb.Empty), nil
@@ -101,7 +102,7 @@ func (s *GoodsCategoryService) DeleteGoodsCategory(ctx context.Context, req *adm
 func (s *GoodsCategoryService) SetGoodsCategoryStatus(ctx context.Context, req *adminv1.SetGoodsCategoryStatusRequest) (*emptypb.Empty, error) {
 	err := s.goodsCategoryCase.SetGoodsCategoryStatus(ctx, req)
 	if err != nil {
-		log.Errorf("SetGoodsCategoryStatus %v", err)
+		log.Error(fmt.Sprintf("SetGoodsCategoryStatus %v", err))
 		return nil, errorsx.WrapInternal(err, "设置状态失败")
 	}
 	return new(emptypb.Empty), nil

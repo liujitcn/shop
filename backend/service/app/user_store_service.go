@@ -8,12 +8,13 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	appv1 "shop/api/gen/go/app/v1"
 	"shop/pkg/errorsx"
 	"shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -40,7 +41,7 @@ func NewUserStoreService(
 func (s *UserStoreService) GetUserStore(ctx context.Context, req *appv1.GetUserStoreRequest) (*appv1.UserStore, error) {
 	res, err := s.userStoreCase.GetUserStore(ctx)
 	if err != nil {
-		log.Errorf("GetUserStore %v", err)
+		log.Error(fmt.Sprintf("GetUserStore %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户门店失败")
 	}
 	return res, nil
@@ -55,7 +56,7 @@ func (s *UserStoreService) CreateUserStore(ctx context.Context, req *appv1.Creat
 	}
 	err := s.userStoreCase.CreateUserStore(ctx, userStore)
 	if err != nil {
-		log.Errorf("CreateUserStore %v", err)
+		log.Error(fmt.Sprintf("CreateUserStore %v", err))
 		return nil, errorsx.WrapInternal(err, "创建用户门店失败")
 	}
 	return new(emptypb.Empty), nil
@@ -74,7 +75,7 @@ func (s *UserStoreService) UpdateUserStore(ctx context.Context, req *appv1.Updat
 	}
 	err := s.userStoreCase.UpdateUserStore(ctx, userStore)
 	if err != nil {
-		log.Errorf("UpdateUserStore %v", err)
+		log.Error(fmt.Sprintf("UpdateUserStore %v", err))
 		return nil, errorsx.WrapInternal(err, "更新用户门店失败")
 	}
 	return new(emptypb.Empty), nil

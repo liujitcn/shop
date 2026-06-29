@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -17,8 +18,8 @@ import (
 	"shop/pkg/recommend"
 	"shop/pkg/recommend/dto"
 
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport"
+	"github.com/go-kratos/kratos/v3/log"
+	"github.com/go-kratos/kratos/v3/transport"
 	"github.com/liujitcn/go-utils/id"
 	_slice "github.com/liujitcn/go-utils/slice"
 	"github.com/liujitcn/gorm-kit/repository"
@@ -245,7 +246,7 @@ func (c *RecommendCase) bindRecommendAnonymousActor(ctx context.Context, userID,
 
 	err = c.syncRecommendActorHistoryToRecommend(userID, anonymousEventList)
 	if err != nil {
-		log.Errorf("syncRecommendActorHistoryToRecommend %v", err)
+		log.Error(fmt.Sprintf("syncRecommendActorHistoryToRecommend %v", err))
 	}
 	return nil
 }

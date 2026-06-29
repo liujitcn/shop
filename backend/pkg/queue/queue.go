@@ -3,10 +3,11 @@ package queue
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	_const "shop/pkg/const"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
 	"github.com/liujitcn/kratos-kit/sdk"
 )
@@ -23,7 +24,7 @@ func AddQueue(queueName _const.Queue, data any) bool {
 	rawBody, err := json.Marshal(data)
 	// 队列消息体无法序列化时，只记录日志，不影响主流程。
 	if err != nil {
-		log.Errorf("build queue message data error, %s", err.Error())
+		log.Error(fmt.Sprintf("build queue message data error, %s", err.Error()))
 		return false
 	}
 	messageData := map[string]any{
@@ -34,14 +35,14 @@ func AddQueue(queueName _const.Queue, data any) bool {
 	message, err = sdk.Runtime.GetStreamMessage("", messageData)
 	// 底层消息对象构造失败时，只记录日志，不影响主流程。
 	if err != nil {
-		log.Errorf("GetStreamMessage error, %s", err.Error())
+		log.Error(fmt.Sprintf("GetStreamMessage error, %s", err.Error()))
 		return false
 	}
 
 	err = q.Append(queueID, message)
 	// 队列追加失败时，只记录日志，不影响主流程。
 	if err != nil {
-		log.Errorf("Append message error, %s", err.Error())
+		log.Error(fmt.Sprintf("Append message error, %s", err.Error()))
 		return false
 	}
 	return true

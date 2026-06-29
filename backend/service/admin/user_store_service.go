@@ -8,12 +8,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -39,7 +40,7 @@ func NewUserStoreService(
 func (s *UserStoreService) PageUserStores(ctx context.Context, req *adminv1.PageUserStoresRequest) (*adminv1.PageUserStoresResponse, error) {
 	page, err := s.userStoreCase.PageUserStores(ctx, req)
 	if err != nil {
-		log.Errorf("PageUserStores %v", err)
+		log.Error(fmt.Sprintf("PageUserStores %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户门店列表失败")
 	}
 
@@ -50,7 +51,7 @@ func (s *UserStoreService) PageUserStores(ctx context.Context, req *adminv1.Page
 func (s *UserStoreService) GetUserStore(ctx context.Context, req *adminv1.GetUserStoreRequest) (*adminv1.UserStore, error) {
 	userStore, err := s.userStoreCase.GetUserStore(ctx, req.GetId())
 	if err != nil {
-		log.Errorf("GetUserStore %v", err)
+		log.Error(fmt.Sprintf("GetUserStore %v", err))
 		return nil, errorsx.WrapInternal(err, "查询用户门店失败")
 	}
 
@@ -61,7 +62,7 @@ func (s *UserStoreService) GetUserStore(ctx context.Context, req *adminv1.GetUse
 func (s *UserStoreService) AuditUserStore(ctx context.Context, req *adminv1.AuditUserStoreRequest) (*emptypb.Empty, error) {
 	err := s.userStoreCase.AuditUserStore(ctx, req)
 	if err != nil {
-		log.Errorf("AuditUserStore %v", err)
+		log.Error(fmt.Sprintf("AuditUserStore %v", err))
 		return nil, errorsx.WrapInternal(err, "门店认证失败")
 	}
 	return new(emptypb.Empty), nil

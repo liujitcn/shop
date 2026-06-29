@@ -13,7 +13,7 @@ import (
 	"shop/pkg/gen/models"
 	appBiz "shop/service/app/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/gorm-kit/repository"
 )
 
@@ -90,7 +90,7 @@ func NewCommentAuditRetry(
 
 // Exec 执行评价与讨论自动审核补偿。
 func (t *CommentAuditRetry) Exec(args map[string]string) ([]string, error) {
-	log.Infof("Job CommentAuditRetry Exec %+v", args)
+	log.Info(fmt.Sprintf("Job CommentAuditRetry Exec %+v", args))
 
 	lockLeaseMinutes, err := parsePositiveJobInt(args, "lockLeaseMinutes", commentAuditRetryDefaultLockLeaseMinutes)
 	if err != nil {
@@ -259,7 +259,7 @@ func (t *CommentAuditRetry) auditCommentTargets(records []*models.CommentInfo) c
 		}
 		stats.failedCount++
 		stats.addFailureDetail("评价", record.ID, err)
-		log.Errorf("comment audit retry comment failed, commentID=%d err=%v", record.ID, err)
+		log.Error(fmt.Sprintf("comment audit retry comment failed, commentID=%d err=%v", record.ID, err))
 	}
 	return stats
 }
@@ -275,7 +275,7 @@ func (t *CommentAuditRetry) auditDiscussionTargets(records []*models.CommentDisc
 		}
 		stats.failedCount++
 		stats.addFailureDetail("讨论", record.ID, err)
-		log.Errorf("comment audit retry discussion failed, discussionID=%d err=%v", record.ID, err)
+		log.Error(fmt.Sprintf("comment audit retry discussion failed, discussionID=%d err=%v", record.ID, err))
 	}
 	return stats
 }

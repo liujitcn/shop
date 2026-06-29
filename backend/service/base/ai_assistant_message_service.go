@@ -2,13 +2,14 @@ package base
 
 import (
 	"context"
+	"fmt"
 
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/errorsx"
 	"shop/service/base/biz"
 	"shop/service/base/dto"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -31,7 +32,7 @@ func NewAiAssistantMessageService(aiAssistantMessageCase *biz.AiAssistantMessage
 func (s *AiAssistantMessageService) SendAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.SendAiAssistantMessage(ctx, req)
 	if err != nil {
-		log.Errorf("SendAiAssistantMessage %v", err)
+		log.Error(fmt.Sprintf("SendAiAssistantMessage %v", err))
 		return nil, errorsx.WrapInternal(err, "发送AI助手消息失败")
 	}
 	return res, nil
@@ -41,7 +42,7 @@ func (s *AiAssistantMessageService) SendAiAssistantMessage(ctx context.Context, 
 func (s *AiAssistantMessageService) DeleteAiAssistantMessage(ctx context.Context, req *basev1.DeleteAiAssistantMessageRequest) (*basev1.DeleteAiAssistantMessageResponse, error) {
 	err := s.aiAssistantMessageCase.DeleteAiAssistantMessage(ctx, req)
 	if err != nil {
-		log.Errorf("DeleteAiAssistantMessage %v", err)
+		log.Error(fmt.Sprintf("DeleteAiAssistantMessage %v", err))
 		return nil, errorsx.WrapInternal(err, "删除AI助手消息失败")
 	}
 	return &basev1.DeleteAiAssistantMessageResponse{}, nil
@@ -51,7 +52,7 @@ func (s *AiAssistantMessageService) DeleteAiAssistantMessage(ctx context.Context
 func (s *AiAssistantMessageService) UpdateAiAssistantMessage(ctx context.Context, req *basev1.UpdateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.UpdateAiAssistantMessage(ctx, req)
 	if err != nil {
-		log.Errorf("UpdateAiAssistantMessage %v", err)
+		log.Error(fmt.Sprintf("UpdateAiAssistantMessage %v", err))
 		return nil, errorsx.WrapInternal(err, "更新AI助手消息失败")
 	}
 	return res, nil
@@ -61,7 +62,7 @@ func (s *AiAssistantMessageService) UpdateAiAssistantMessage(ctx context.Context
 func (s *AiAssistantMessageService) RetryAiAssistantUserMessage(ctx context.Context, req *basev1.RetryAiAssistantUserMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.RetryAiAssistantUserMessage(ctx, req)
 	if err != nil {
-		log.Errorf("RetryAiAssistantUserMessage %v", err)
+		log.Error(fmt.Sprintf("RetryAiAssistantUserMessage %v", err))
 		return nil, errorsx.WrapInternal(err, "重试AI助手消息失败")
 	}
 	return res, nil
@@ -71,7 +72,7 @@ func (s *AiAssistantMessageService) RetryAiAssistantUserMessage(ctx context.Cont
 func (s *AiAssistantMessageService) RegenerateAiAssistantMessage(ctx context.Context, req *basev1.RegenerateAiAssistantMessageRequest) (*basev1.SendAiAssistantMessageResponse, error) {
 	res, err := s.aiAssistantMessageCase.RegenerateAiAssistantMessage(ctx, req)
 	if err != nil {
-		log.Errorf("RegenerateAiAssistantMessage %v", err)
+		log.Error(fmt.Sprintf("RegenerateAiAssistantMessage %v", err))
 		return nil, errorsx.WrapInternal(err, "重新生成AI助手输出失败")
 	}
 	return res, nil
@@ -81,7 +82,7 @@ func (s *AiAssistantMessageService) RegenerateAiAssistantMessage(ctx context.Con
 func (s *AiAssistantMessageService) StreamAiAssistantMessage(ctx context.Context, req *basev1.SendAiAssistantMessageRequest, emitter dto.AiAssistantStreamEmitter) error {
 	err := s.aiAssistantMessageCase.StreamAiAssistantMessage(ctx, req, emitter)
 	if err != nil {
-		log.Errorf("StreamAiAssistantMessage %v", err)
+		log.Error(fmt.Sprintf("StreamAiAssistantMessage %v", err))
 		return errorsx.WrapInternal(err, "流式发送AI助手消息失败")
 	}
 	return nil

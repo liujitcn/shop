@@ -18,4 +18,4 @@ COPY configs /app/configs
 
 EXPOSE 6001 7001
 
-ENTRYPOINT ["/app/server", "-conf", "./configs"]
+ENTRYPOINT ["/app/server", "--conf", "./configs"]

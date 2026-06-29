@@ -22,7 +22,9 @@ plugins:
   #- plugin: buf.build/protocolbuffers/go
   - local: protoc-gen-go
     out: gen/go
-    opt: paths=source_relative # use relative paths
+    opt:
+      - paths=source_relative # use relative paths
+      - Merrors/errors.proto=github.com/go-kratos/kratos/v3/errors
 
   # generate grpc service code
   #- plugin: buf.build/grpc/go

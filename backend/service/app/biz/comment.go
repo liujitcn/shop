@@ -23,7 +23,7 @@ import (
 	"shop/pkg/workspaceevent"
 	appDto "shop/service/app/dto"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	queueData "github.com/liujitcn/kratos-kit/queue/data"
@@ -947,7 +947,7 @@ func (c *CommentCase) consumeCommentSummaryRefresh(message queueData.Message) er
 func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID int64) error {
 	// LLM 未配置时不刷新摘要，前台继续使用旧摘要或空摘要降级。
 	if !c.commentRuntime.Enabled() {
-		log.Warnf("refreshGoodsCommentSummary skip goodsID=%d: comment runtime disabled", goodsID)
+		log.Warn(fmt.Sprintf("refreshGoodsCommentSummary skip goodsID=%d: comment runtime disabled", goodsID))
 		return nil
 	}
 	commentList, err := c.commentInfoCase.listSummarySourceByGoodsID(ctx, goodsID, commentSummarySourceLimit)
@@ -956,14 +956,14 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 	}
 	// 当前商品暂无通过评价时，不生成空摘要覆盖旧内容。
 	if len(commentList) == 0 {
-		log.Infof("refreshGoodsCommentSummary skip goodsID=%d: no approved comment", goodsID)
+		log.Info(fmt.Sprintf("refreshGoodsCommentSummary skip goodsID=%d: no approved comment", goodsID))
 		return nil
 	}
 
 	tagNameMap := make(map[int64]string)
 	tagList, err := c.commentTagCase.listVisibleByGoodsID(ctx, goodsID)
 	if err != nil {
-		log.Errorf("refreshGoodsCommentSummary load tags goodsID=%d err=%v", goodsID, err)
+		log.Error(fmt.Sprintf("refreshGoodsCommentSummary load tags goodsID=%d err=%v", goodsID, err))
 	} else {
 		tagNameMap = make(map[int64]string, len(tagList))
 		for _, tag := range tagList {
@@ -999,7 +999,7 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 	}
 	// 模型返回空摘要时不落库，避免空结果覆盖旧摘要。
 	if result == nil || len(result.Overview.Content) == 0 && len(result.List.Content) == 0 {
-		log.Warnf("refreshGoodsCommentSummary skip goodsID=%d: summary result empty, sourceCount=%d", goodsID, len(commentList))
+		log.Warn(fmt.Sprintf("refreshGoodsCommentSummary skip goodsID=%d: summary result empty, sourceCount=%d", goodsID, len(commentList)))
 		return nil
 	}
 	err = c.commentSummaryCase.UpsertGoodsCommentSummary(ctx, goodsID, result)

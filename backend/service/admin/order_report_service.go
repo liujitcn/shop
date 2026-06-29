@@ -2,12 +2,13 @@ package admin
 
 import (
 	"context"
+	"fmt"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	"shop/pkg/errorsx"
 	"shop/service/admin/biz"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v3/log"
 	"google.golang.org/grpc"
 )
 
@@ -30,7 +31,7 @@ func NewOrderReportService(orderReportCase *biz.OrderReportCase) *OrderReportSer
 func (s *OrderReportService) SummaryOrderMonthReport(ctx context.Context, req *adminv1.SummaryOrderMonthReportRequest) (*adminv1.SummaryOrderMonthReportResponse, error) {
 	res, err := s.orderReportCase.SummaryOrderMonthReport(ctx, req)
 	if err != nil {
-		log.Errorf("SummaryOrderMonthReport %v", err)
+		log.Error(fmt.Sprintf("SummaryOrderMonthReport %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单月报汇总失败")
 	}
 	return res, nil
@@ -40,7 +41,7 @@ func (s *OrderReportService) SummaryOrderMonthReport(ctx context.Context, req *a
 func (s *OrderReportService) ListOrderMonthReports(ctx context.Context, req *adminv1.ListOrderMonthReportsRequest) (*adminv1.ListOrderMonthReportsResponse, error) {
 	res, err := s.orderReportCase.ListOrderMonthReports(ctx, req)
 	if err != nil {
-		log.Errorf("ListOrderMonthReports %v", err)
+		log.Error(fmt.Sprintf("ListOrderMonthReports %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单月报名细失败")
 	}
 	return res, nil
@@ -50,7 +51,7 @@ func (s *OrderReportService) ListOrderMonthReports(ctx context.Context, req *adm
 func (s *OrderReportService) SummaryOrderDayReport(ctx context.Context, req *adminv1.SummaryOrderDayReportRequest) (*adminv1.SummaryOrderDayReportResponse, error) {
 	res, err := s.orderReportCase.SummaryOrderDayReport(ctx, req)
 	if err != nil {
-		log.Errorf("SummaryOrderDayReport %v", err)
+		log.Error(fmt.Sprintf("SummaryOrderDayReport %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单日报汇总失败")
 	}
 	return res, nil
@@ -60,7 +61,7 @@ func (s *OrderReportService) SummaryOrderDayReport(ctx context.Context, req *adm
 func (s *OrderReportService) ListOrderDayReports(ctx context.Context, req *adminv1.ListOrderDayReportsRequest) (*adminv1.ListOrderDayReportsResponse, error) {
 	res, err := s.orderReportCase.ListOrderDayReports(ctx, req)
 	if err != nil {
-		log.Errorf("ListOrderDayReports %v", err)
+		log.Error(fmt.Sprintf("ListOrderDayReports %v", err))
 		return nil, errorsx.WrapInternal(err, "查询订单日报明细失败")
 	}
 	return res, nil
