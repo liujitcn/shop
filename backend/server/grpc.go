@@ -5,6 +5,7 @@ import (
 	appv1 "shop/api/gen/go/app/v1"
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/pkg/gen/data"
+	appMiddleware "shop/pkg/middleware"
 	"shop/pkg/middleware/logging"
 	"shop/service/admin"
 	"shop/service/app"
@@ -14,7 +15,6 @@ import (
 
 	"github.com/go-kratos/kratos/v3/middleware"
 	"github.com/go-kratos/kratos/v3/transport/grpc"
-	"github.com/liujitcn/kratos-kit/auth"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -43,7 +43,7 @@ func NewGRPCMiddleware(
 	if cfg != nil && cfg.Server != nil && cfg.Server.Grpc != nil && cfg.Server.Grpc.Middleware != nil && cfg.Server.Grpc.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))
 	}
-	ms = append(ms, auth.NewAuthMiddleware(authenticator, authorizer, userToken, jwtCfg))
+	ms = append(ms, appMiddleware.NewAuthMiddleware(authenticator, authorizer, userToken, jwtCfg))
 	return ms
 }
 
@@ -61,6 +61,7 @@ func NewGRPCServer(
 	adminBaseLog *admin.BaseLogService,
 	adminBaseMenu *admin.BaseMenuService,
 	adminBaseRole *admin.BaseRoleService,
+	adminBaseTenant *admin.BaseTenantService,
 	adminBaseUser *admin.BaseUserService,
 	adminCommentInfo *admin.CommentInfoService,
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
@@ -127,6 +128,7 @@ func NewGRPCServer(
 	adminv1.RegisterBaseLogServiceServer(srv, adminBaseLog)
 	adminv1.RegisterBaseMenuServiceServer(srv, adminBaseMenu)
 	adminv1.RegisterBaseRoleServiceServer(srv, adminBaseRole)
+	adminv1.RegisterBaseTenantServiceServer(srv, adminBaseTenant)
 	adminv1.RegisterBaseUserServiceServer(srv, adminBaseUser)
 	adminv1.RegisterCommentInfoServiceServer(srv, adminCommentInfo)
 	adminv1.RegisterGoodsAnalyticsServiceServer(srv, adminGoodsAnalytics)

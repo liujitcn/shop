@@ -219,10 +219,7 @@ func (c *WorkspaceCase) SummaryWorkspaceTodo(ctx context.Context, _ *adminv1.Sum
 
 // SummaryWorkspaceRisk 查询工作台风险提醒。
 func (c *WorkspaceCase) SummaryWorkspaceRisk(ctx context.Context, _ *adminv1.SummaryWorkspaceRiskRequest) (*adminv1.SummaryWorkspaceRiskResponse, error) {
-	query := c.payBillCase.Query(ctx).PayBill
-	abnormalPayBillCount, err := query.WithContext(ctx).
-		Where(query.Status.Eq(_const.PAY_BILL_STATUS_HAS_ERROR)).
-		Count()
+	abnormalPayBillCount, err := c.countWorkspaceAbnormalPayBills(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -252,6 +249,23 @@ func (c *WorkspaceCase) SummaryWorkspaceRisk(ctx context.Context, _ *adminv1.Sum
 		AbnormalPriceSkuCount:      abnormalPriceSKUCount,
 		LowScoreCommentCount:       lowScoreCommentCount,
 	}, nil
+}
+
+// countWorkspaceAbnormalPayBills 统计平台账单异常，租户管理员不展示平台账单风险。
+func (c *WorkspaceCase) countWorkspaceAbnormalPayBills(ctx context.Context) (int64, error) {
+	authInfo, err := c.payBillCase.GetAuthInfo(ctx)
+	if err != nil {
+		return 0, err
+	}
+	// 租户管理员不维护平台支付账单，工作台不展示账单异常入口。
+	if authInfo.RoleCode == _const.BASE_ROLE_CODE_TENANT {
+		return 0, nil
+	}
+
+	query := c.payBillCase.Query(ctx).PayBill
+	return query.WithContext(ctx).
+		Where(query.Status.Eq(_const.PAY_BILL_STATUS_HAS_ERROR)).
+		Count()
 }
 
 // SummaryWorkspaceReputation 查询工作台口碑洞察。
@@ -556,10 +570,17 @@ func (c *WorkspaceCase) countPendingComments(ctx context.Context) (int64, error)
 
 // countPendingCommentDiscussions 统计待审核评价讨论数。
 func (c *WorkspaceCase) countPendingCommentDiscussions(ctx context.Context) (int64, error) {
-	query := c.commentDiscussionCase.Query(ctx).CommentDiscussion
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Status.Eq(_const.COMMENT_STATUS_PENDING_REVIEW)))
-	return c.commentDiscussionCase.Count(ctx, opts...)
+	type row struct {
+		PendingCount int64 `gorm:"column:pending_count"`
+	}
+
+	var result row
+	query := c.commentInfoCase.Query(ctx).CommentInfo
+	err := query.WithContext(ctx).
+		Select(query.PendingDiscussionCount.Sum().FloorDiv(1).IfNull(0).As("pending_count")).
+		Where(query.PendingDiscussionCount.Gt(0)).
+		Scan(&result)
+	return result.PendingCount, err
 }
 
 // countZeroInventoryPutOnSKU 统计零库存仍上架SKU数量。

@@ -83,6 +83,8 @@ export interface RefreshTokenResponse {
 
 /** 登录请求参数 */
 export interface LoginRequest {
+  /** 租户编码 */
+  tenant_code: string;
   /** 用户名，必选项。 */
   user_name: string;
   /** 用户的密码，必选项。 */

@@ -123,9 +123,9 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *adminv1.BaseRole
 	if err != nil {
 		return err
 	}
-	// 超级管理员角色不允许被修改。
-	if oldBaseRole.Code == _const.BASE_ROLE_CODE_SUPER {
-		return errorsx.PermissionDenied("更新角色失败，不能操作超级管理员角色")
+	// 内置角色不允许被修改，避免破坏平台和租户的固定权限边界。
+	if isProtectedBaseRole(oldBaseRole.Code) {
+		return errorsx.ProtectedResourceConflict("更新角色失败，不能操作内置角色", "base_role")
 	}
 
 	baseRole := c.formMapper.ToEntity(req)
@@ -150,14 +150,14 @@ func (c *BaseRoleCase) DeleteBaseRole(ctx context.Context, id string) error {
 
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.In(ids...)))
-	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_SUPER)))
+	opts = append(opts, repository.Where(query.Code.In(_const.BASE_ROLE_CODE_SUPER, _const.BASE_ROLE_CODE_TENANT)))
 	count, err := c.Count(ctx, opts...)
 	if err != nil {
 		return errorsx.Internal("删除角色失败").WithCause(err)
 	}
-	// 命中超级管理员角色时，禁止继续删除。
+	// 命中内置角色时，禁止继续删除。
 	if count > 0 {
-		return errorsx.PermissionDenied("删除角色失败，不能操作超级管理员角色")
+		return errorsx.ProtectedResourceConflict("删除角色失败，不能操作内置角色", "base_role")
 	}
 
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
@@ -175,9 +175,9 @@ func (c *BaseRoleCase) SetBaseRoleStatus(ctx context.Context, req *adminv1.SetBa
 	if err != nil {
 		return err
 	}
-	// 超级管理员角色不允许修改状态。
-	if baseRole.Code == _const.BASE_ROLE_CODE_SUPER {
-		return errorsx.PermissionDenied("设置状态失败，不能操作超级管理员角色")
+	// 内置角色不允许修改状态，避免管理员身份被禁用后无法维护租户。
+	if isProtectedBaseRole(baseRole.Code) {
+		return errorsx.ProtectedResourceConflict("设置状态失败，不能操作内置角色", "base_role")
 	}
 	return c.UpdateByID(ctx, &models.BaseRole{
 		ID:     req.GetId(),
@@ -191,9 +191,9 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBase
 	if err != nil {
 		return err
 	}
-	// 超级管理员角色不允许调整菜单权限。
-	if oldBaseRole.Code == _const.BASE_ROLE_CODE_SUPER {
-		return errorsx.PermissionDenied("更新角色失败，不能操作超级管理员角色")
+	// 内置角色菜单固定，不允许通过角色管理页面调整。
+	if isProtectedBaseRole(oldBaseRole.Code) {
+		return errorsx.ProtectedResourceConflict("更新角色失败，不能操作内置角色", "base_role")
 	}
 
 	baseRole := &models.BaseRole{
@@ -208,4 +208,9 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBase
 		baseRole.Code = oldBaseRole.Code
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
 	})
+}
+
+// isProtectedBaseRole 判断角色是否为不可修改的系统内置角色。
+func isProtectedBaseRole(roleCode string) bool {
+	return roleCode == _const.BASE_ROLE_CODE_SUPER || roleCode == _const.BASE_ROLE_CODE_TENANT
 }

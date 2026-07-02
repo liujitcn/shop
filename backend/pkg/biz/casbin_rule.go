@@ -7,9 +7,9 @@ import (
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
-	"github.com/liujitcn/kratos-kit/auth"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
 	"github.com/liujitcn/kratos-kit/auth/authz/engine/casbin"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 // CasbinRuleCase 权限规则业务实例
@@ -43,10 +43,11 @@ func (c *CasbinRuleCase) rebuildPolicyRule(ctx context.Context) error {
 	for _, item := range baseAPIList {
 		policyRule = append(policyRule, casbin.PolicyRule{
 			PType: "p",
-			V0:    _const.BASE_ROLE_CODE_SUPER,
-			V1:    item.Operation,
-			V2:    string(auth.Action),
-			V3:    "*",
+			V0:    databaseGorm.DefaultTenantCode,
+			V1:    _const.BASE_ROLE_CODE_SUPER,
+			V2:    item.Operation,
+			V3:    item.Method,
+			V4:    "*",
 		})
 	}
 	// 查询 casbin
@@ -56,6 +57,10 @@ func (c *CasbinRuleCase) rebuildPolicyRule(ctx context.Context) error {
 		return err
 	}
 	for _, item := range casbinRuleList {
+		// 旧版本策略缺少租户或项目占位字段时会被 Casbin 识别为 4 段规则，启动阶段直接跳过等待角色权限重建修复。
+		if item.Ptype == "" || item.V0 == "" || item.V1 == "" || item.V2 == "" || item.V3 == "" || item.V4 == "" {
+			continue
+		}
 		policyRule = append(policyRule, casbin.PolicyRule{
 			PType: item.Ptype,
 			V0:    item.V0,
@@ -63,7 +68,6 @@ func (c *CasbinRuleCase) rebuildPolicyRule(ctx context.Context) error {
 			V2:    item.V2,
 			V3:    item.V3,
 			V4:    item.V4,
-			V5:    item.V5,
 		})
 	}
 	policyMap := make(authzEngine.PolicyMap)

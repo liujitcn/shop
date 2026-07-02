@@ -28,6 +28,7 @@ func newBaseDept(db *gorm.DB, opts ...gen.DOOption) baseDept {
 	tableName := _baseDept.baseDeptDo.TableName()
 	_baseDept.ALL = field.NewAsterisk(tableName)
 	_baseDept.ID = field.NewInt64(tableName, "id")
+	_baseDept.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseDept.ParentID = field.NewInt64(tableName, "parent_id")
 	_baseDept.Path = field.NewString(tableName, "path")
 	_baseDept.Name = field.NewString(tableName, "name")
@@ -51,6 +52,7 @@ type baseDept struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64  // 部门ID
+	TenantID  field.Int64  // 租户ID
 	ParentID  field.Int64  // 父菜单ID
 	Path      field.String // 部门路径
 	Name      field.String // 名字
@@ -79,6 +81,7 @@ func (b baseDept) As(alias string) *baseDept {
 func (b *baseDept) updateTableName(table string) *baseDept {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.ParentID = field.NewInt64(table, "parent_id")
 	b.Path = field.NewString(table, "path")
 	b.Name = field.NewString(table, "name")
@@ -114,8 +117,9 @@ func (b *baseDept) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseDept) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["parent_id"] = b.ParentID
 	b.fieldMap["path"] = b.Path
 	b.fieldMap["name"] = b.Name

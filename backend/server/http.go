@@ -10,6 +10,7 @@ import (
 	basev1 "shop/api/gen/go/base/v1"
 	"shop/internal/cmd/server/assets"
 	"shop/pkg/gen/data"
+	appMiddleware "shop/pkg/middleware"
 	"shop/pkg/middleware/logging"
 	"shop/service/base"
 	"strings"
@@ -18,7 +19,6 @@ import (
 
 	kratosMiddleware "github.com/go-kratos/kratos/v3/middleware"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
-	"github.com/liujitcn/kratos-kit/auth"
 	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
@@ -48,7 +48,7 @@ func NewHTTPMiddleware(
 	if cfg != nil && cfg.Server != nil && cfg.Server.Http != nil && cfg.Server.Http.Middleware != nil && cfg.Server.Http.Middleware.EnableLogging {
 		ms = append(ms, logging.Server(ctx.GetLogger(), baseUserRepo, authenticator))
 	}
-	ms = append(ms, auth.NewAuthMiddleware(authenticator, authorizer, userToken, jwtCfg))
+	ms = append(ms, appMiddleware.NewAuthMiddleware(authenticator, authorizer, userToken, jwtCfg))
 	return ms
 }
 
@@ -80,6 +80,7 @@ func NewHTTPServer(
 	adminv1.RegisterBaseLogServiceHTTPServer(srv, services.adminBaseLog)
 	adminv1.RegisterBaseMenuServiceHTTPServer(srv, services.adminBaseMenu)
 	adminv1.RegisterBaseRoleServiceHTTPServer(srv, services.adminBaseRole)
+	adminv1.RegisterBaseTenantServiceHTTPServer(srv, services.adminBaseTenant)
 	adminv1.RegisterBaseUserServiceHTTPServer(srv, services.adminBaseUser)
 	adminv1.RegisterCommentInfoServiceHTTPServer(srv, services.adminCommentInfo)
 	adminv1.RegisterGoodsAnalyticsServiceHTTPServer(srv, services.adminGoodsAnalytics)

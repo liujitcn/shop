@@ -12,6 +12,7 @@ import (
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
+	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
 
@@ -35,13 +36,14 @@ const CACHE_KEY_WX_ACCESS_TOKEN = "wx_access_token"
 // AuthCase 登录认证业务处理对象
 type AuthCase struct {
 	*biz.BaseCase
-	userToken     *authData.UserToken
-	baseUserCase  *BaseUserCase
-	baseRoleCase  *BaseRoleCase
-	baseDeptCase  *BaseDeptCase
-	loginCase     *baseBiz.LoginCase
-	wxMiniApp     *configv1.WxMiniApp
-	profileMapper *mapper.CopierMapper[
+	userToken      *authData.UserToken
+	baseUserCase   *BaseUserCase
+	baseRoleCase   *BaseRoleCase
+	baseDeptCase   *BaseDeptCase
+	loginCase      *baseBiz.LoginCase
+	baseTenantRepo *data.BaseTenantRepository
+	wxMiniApp      *configv1.WxMiniApp
+	profileMapper  *mapper.CopierMapper[
 		appv1.UserProfileForm,
 		models.BaseUser,
 	]
@@ -55,16 +57,18 @@ func NewAuthCase(
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
 	loginCase *baseBiz.LoginCase,
+	baseTenantRepo *data.BaseTenantRepository,
 	wxMiniApp *configv1.WxMiniApp,
 ) *AuthCase {
 	return &AuthCase{
-		BaseCase:     baseCase,
-		userToken:    userToken,
-		baseUserCase: baseUserCase,
-		baseRoleCase: baseRoleCase,
-		baseDeptCase: baseDeptCase,
-		loginCase:    loginCase,
-		wxMiniApp:    wxMiniApp,
+		BaseCase:       baseCase,
+		userToken:      userToken,
+		baseUserCase:   baseUserCase,
+		baseRoleCase:   baseRoleCase,
+		baseDeptCase:   baseDeptCase,
+		loginCase:      loginCase,
+		baseTenantRepo: baseTenantRepo,
+		wxMiniApp:      wxMiniApp,
 		profileMapper: mapper.NewCopierMapper[
 			appv1.UserProfileForm,
 			models.BaseUser,
@@ -199,16 +203,23 @@ func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginReques
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.baseTenantRepo.FindByID(ctx, user.TenantID)
+	if err != nil {
+		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
 
 	authInfo := &authData.UserTokenPayload{
-		UserId:   user.ID,
-		UserName: user.UserName,
-		RoleId:   user.RoleID,
-		RoleCode: role.Code,
-		RoleName: role.Name,
-		DeptId:   dept.ID,
-		DeptName: dept.Name,
-		OpenId:   user.Openid,
+		UserId:     user.ID,
+		UserName:   user.UserName,
+		RoleId:     user.RoleID,
+		RoleCode:   role.Code,
+		RoleName:   role.Name,
+		TenantId:   user.TenantID,
+		TenantCode: baseTenant.Code,
+		DeptId:     dept.ID,
+		DeptName:   dept.Name,
+		OpenId:     user.Openid,
 	}
 	var accessToken, refreshToken string
 	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)

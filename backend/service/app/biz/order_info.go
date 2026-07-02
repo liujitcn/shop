@@ -925,5 +925,7 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 
 // isAdminRoleCode 判断当前登录角色是否属于后台管理角色。
 func isAdminRoleCode(roleCode string) bool {
-	return roleCode == "super" || roleCode == "admin"
+	return roleCode == _const.BASE_ROLE_CODE_SUPER ||
+		roleCode == _const.BASE_ROLE_CODE_ADMIN ||
+		roleCode == _const.BASE_ROLE_CODE_TENANT
 }

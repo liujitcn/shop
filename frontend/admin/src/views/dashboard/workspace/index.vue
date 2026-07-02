@@ -244,6 +244,9 @@ let stopWorkspaceSse: SseStop | null = null;
 let workspaceRefreshTimer: ReturnType<typeof setTimeout> | null = null;
 let queuedRefreshTargets = new Set<SseRefreshTarget>();
 
+// 租户管理员角色编码固定，用于收敛工作台入口和平台账单风险。
+const TENANT_ROLE_CODE = "tenant";
+
 const metrics = reactive<SummaryWorkspaceMetricsResponse>({
   today_order_count: 0,
   today_order_growth_rate: 0,
@@ -297,6 +300,11 @@ const hotTagText = computed(() => {
 /** 当前显示名称，优先取昵称。 */
 const displayName = computed(() => {
   return userStore.userInfo.nick_name || userStore.userInfo.user_name || "管理员";
+});
+
+/** 判断当前用户是否为租户管理员。 */
+const isTenantAdmin = computed(() => {
+  return userStore.userInfo.role_code === TENANT_ROLE_CODE;
 });
 
 /** 同步工作台头像展示，优先使用用户头像，为空时回退默认头像。 */
@@ -368,8 +376,8 @@ const metricCards = computed<WorkspaceMetricCard[]>(() => {
       trendTone: "flat",
       subLabel: "新增用户",
       subValue: `${metrics.today_new_user_count} 人`,
-      analysisPath: "/dashboard/analytics/user",
-      actionPath: "/dashboard/analytics/user"
+      analysisPath: isTenantAdmin.value ? "/dashboard/analytics/order" : "/dashboard/analytics/user",
+      actionPath: isTenantAdmin.value ? "/order/info" : "/dashboard/analytics/user"
     },
     {
       key: "today-goods",
@@ -379,7 +387,7 @@ const metricCards = computed<WorkspaceMetricCard[]>(() => {
       trendTone: "flat",
       subLabel: "新增商品",
       subValue: `${metrics.today_new_goods_count} 个`,
-      analysisPath: "/dashboard/analytics/goods",
+      analysisPath: isTenantAdmin.value ? { path: "/goods/info" } : "/dashboard/analytics/goods",
       actionPath: { path: "/goods/info" }
     },
     {
@@ -458,7 +466,7 @@ const todoItems = computed<WorkspaceTodoItem[]>(() => {
 
 /** 工作台风险提醒。 */
 const riskItems = computed<WorkspaceRiskItem[]>(() => {
-  return [
+  const items: WorkspaceRiskItem[] = [
     {
       key: "risk-bill",
       title: "对账单异常",
@@ -500,6 +508,11 @@ const riskItems = computed<WorkspaceRiskItem[]>(() => {
       path: { path: "/admin/comment/info", query: { max_goods_score: "2" } }
     }
   ];
+  // 租户不维护平台支付账单，避免从工作台进入平台账单页面。
+  if (isTenantAdmin.value) {
+    return items.filter(item => item.key !== "risk-bill");
+  }
+  return items;
 });
 
 /** 待审核评价表格列配置。 */

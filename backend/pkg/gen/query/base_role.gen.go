@@ -28,6 +28,7 @@ func newBaseRole(db *gorm.DB, opts ...gen.DOOption) baseRole {
 	tableName := _baseRole.baseRoleDo.TableName()
 	_baseRole.ALL = field.NewAsterisk(tableName)
 	_baseRole.ID = field.NewInt64(tableName, "id")
+	_baseRole.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseRole.Name = field.NewString(tableName, "name")
 	_baseRole.Code = field.NewString(tableName, "code")
 	_baseRole.DataScope = field.NewInt32(tableName, "data_scope")
@@ -51,6 +52,7 @@ type baseRole struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64  // 角色ID
+	TenantID  field.Int64  // 租户ID
 	Name      field.String // 角色名称
 	Code      field.String // 角色代码
 	DataScope field.Int32  // 数据权限：枚举【BaseRoleDataScope】
@@ -79,6 +81,7 @@ func (b baseRole) As(alias string) *baseRole {
 func (b *baseRole) updateTableName(table string) *baseRole {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.Name = field.NewString(table, "name")
 	b.Code = field.NewString(table, "code")
 	b.DataScope = field.NewInt32(table, "data_scope")
@@ -114,8 +117,9 @@ func (b *baseRole) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseRole) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 12)
+	b.fieldMap = make(map[string]field.Expr, 13)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["name"] = b.Name
 	b.fieldMap["code"] = b.Code
 	b.fieldMap["data_scope"] = b.DataScope

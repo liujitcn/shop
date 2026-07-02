@@ -18,7 +18,7 @@
 | 分类 | 文档 |
 | --- | --- |
 | 总体设计 | [系统总体设计](docs/系统总体设计.md) |
-| 模块设计 | [后端服务设计](docs/后端服务设计.md)、[管理后台设计](docs/管理后台设计.md)、[商城端设计](docs/商城端设计.md)、[数据库与初始化数据设计](docs/数据库与初始化数据设计.md) |
+| 模块设计 | [后端服务设计](docs/后端服务设计.md)、[管理后台设计](docs/管理后台设计.md)、[商城端设计](docs/商城端设计.md)、[数据库与初始化数据设计](docs/数据库与初始化数据设计.md)、[租户体系改造说明](docs/租户体系改造说明.md) |
 | 订单链路 | [订单数据流转设计](docs/订单数据流转设计.md) |
 | 推荐链路 | [推荐系统设计](docs/推荐系统设计.md)、[推荐数据流转设计](docs/推荐数据流转设计.md) |
 | 统计报表 | [统计数据流转设计](docs/统计数据流转设计.md) |
@@ -54,8 +54,12 @@
 - `super / 112233`
 - `admin / 112233`
 
+登录页租户编码默认填充为 `default`。`tenant` 是系统内置的租户管理员角色编码，不是默认后台登录账号。
+
 ## 共享说明
 
-- 初始化 SQL 位于 `sql`：菜单、角色和接口元数据维护在 `default-data.sql`，角色接口权限策略维护在 `casbin_rule.sql`。
+- 初始化 SQL 位于 `sql`：默认租户、菜单、固定角色和接口元数据维护在 `default-data.sql`，角色接口权限策略维护在 `casbin_rule.sql`。
+- 默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`；`tenant` 角色用于租户管理员，不能在角色管理中修改。
+- `casbin_rule.sql` 使用租户化策略字段，并按真实 HTTP Method 初始化 `default/admin`、`default/tenant`、`default/user`、`default/guest` 权限。
 - 后端会托管 `backend/data/admin` 与 `backend/data/app` 下的前端构建产物，分别对应 `/admin` 和 `/app`。
 - 推荐服务为可选联调模块；未启动 Gorse 时，推荐链路应依赖后端本地兜底策略保证页面可用。

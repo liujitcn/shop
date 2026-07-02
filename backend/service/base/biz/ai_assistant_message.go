@@ -370,7 +370,7 @@ func (c *AiAssistantMessageCase) prepareNewAiAssistantMessage(ctx context.Contex
 		return nil, nil, "", nil, nil, nil, "", err
 	}
 	var userName string
-	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
+	userName, err = c.baseUserCase.FindUserNameByID(ctx, session.UserID)
 	if err != nil {
 		return nil, nil, "", nil, nil, nil, "", err
 	}
@@ -600,7 +600,7 @@ func (c *AiAssistantMessageCase) regenerateAiAssistantMessageWithContent(ctx con
 		return nil, err
 	}
 	var userName string
-	userName, err = c.baseUserCase.FindDisplayNameByID(ctx, session.UserID)
+	userName, err = c.baseUserCase.FindUserNameByID(ctx, session.UserID)
 	if err != nil {
 		return nil, err
 	}

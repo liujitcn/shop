@@ -28,6 +28,7 @@ func newBaseUser(db *gorm.DB, opts ...gen.DOOption) baseUser {
 	tableName := _baseUser.baseUserDo.TableName()
 	_baseUser.ALL = field.NewAsterisk(tableName)
 	_baseUser.ID = field.NewInt64(tableName, "id")
+	_baseUser.TenantID = field.NewInt64(tableName, "tenant_id")
 	_baseUser.UserName = field.NewString(tableName, "user_name")
 	_baseUser.NickName = field.NewString(tableName, "nick_name")
 	_baseUser.Openid = field.NewString(tableName, "openid")
@@ -56,6 +57,7 @@ type baseUser struct {
 
 	ALL       field.Asterisk
 	ID        field.Int64  // 用户ID
+	TenantID  field.Int64  // 租户ID
 	UserName  field.String // 用户账号
 	NickName  field.String // 用户昵称
 	Openid    field.String // 微信openid
@@ -89,6 +91,7 @@ func (b baseUser) As(alias string) *baseUser {
 func (b *baseUser) updateTableName(table string) *baseUser {
 	b.ALL = field.NewAsterisk(table)
 	b.ID = field.NewInt64(table, "id")
+	b.TenantID = field.NewInt64(table, "tenant_id")
 	b.UserName = field.NewString(table, "user_name")
 	b.NickName = field.NewString(table, "nick_name")
 	b.Openid = field.NewString(table, "openid")
@@ -129,8 +132,9 @@ func (b *baseUser) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (b *baseUser) fillFieldMap() {
-	b.fieldMap = make(map[string]field.Expr, 17)
+	b.fieldMap = make(map[string]field.Expr, 18)
 	b.fieldMap["id"] = b.ID
+	b.fieldMap["tenant_id"] = b.TenantID
 	b.fieldMap["user_name"] = b.UserName
 	b.fieldMap["nick_name"] = b.NickName
 	b.fieldMap["openid"] = b.Openid

@@ -20,16 +20,18 @@ require (
 	github.com/liujitcn/kratos-kit v0.0.43
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.1
 	github.com/liujitcn/kratos-kit/api v0.0.15
-	github.com/liujitcn/kratos-kit/auth v0.0.14
-	github.com/liujitcn/kratos-kit/auth/authn v0.0.14
-	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.9
-	github.com/liujitcn/kratos-kit/auth/authz v0.0.13
-	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.11
+	github.com/liujitcn/kratos-kit/auth v0.0.16
+	github.com/liujitcn/kratos-kit/auth/authn v0.0.16
+	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.11
+	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.12
+	github.com/liujitcn/kratos-kit/auth/authz v0.0.15
+	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.13
+	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.12
 	github.com/liujitcn/kratos-kit/bootstrap v0.0.12
 	github.com/liujitcn/kratos-kit/cache v0.0.12
 	github.com/liujitcn/kratos-kit/captcha v0.0.14
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.25
-	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.10
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.26
+	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.11
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.10
 	github.com/liujitcn/kratos-kit/oss v0.0.10
 	github.com/liujitcn/kratos-kit/pprof v0.0.8
@@ -48,7 +50,7 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.68.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260511170946-3700d4141b60
 	google.golang.org/grpc v1.81.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gen v0.3.27
 	gorm.io/gorm v1.31.1
@@ -98,14 +100,13 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/cel-go v0.28.0 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/subcommands v1.2.0 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/gorilla/websocket v1.5.3 // indirect
+	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/grafana/pyroscope-go v1.2.8 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.9 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
@@ -115,9 +116,9 @@ require (
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
-	github.com/jackc/pgx/v5 v5.5.5 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
+	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
+	github.com/jackc/pgx/v5 v5.7.6 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
@@ -127,11 +128,9 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.11 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
-	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.10 // indirect
-	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.10 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.4 // indirect
 	github.com/liujitcn/kratos-kit/config v0.0.14 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.13 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.9 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.23 // indirect
 	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.8 // indirect
@@ -144,7 +143,6 @@ require (
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.19 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/meguminnnnnnnnn/go-openai v0.1.2 // indirect
 	github.com/minio/crc64nvme v1.1.1 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -152,6 +150,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
 	github.com/olekukonko/cat v0.0.0-20250911104152-50322a0618f6 // indirect
 	github.com/olekukonko/errors v1.2.0 // indirect
@@ -161,12 +160,12 @@ require (
 	github.com/paulmach/orb v0.11.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
-	github.com/pierrec/lz4/v4 v4.1.21 // indirect
+	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_golang v1.17.0 // indirect
-	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
-	github.com/prometheus/common v0.44.0 // indirect
-	github.com/prometheus/procfs v0.11.1 // indirect
+	github.com/prometheus/client_golang v1.20.5 // indirect
+	github.com/prometheus/client_model v0.6.2 // indirect
+	github.com/prometheus/common v0.62.0 // indirect
+	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.19.0 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.19.0 // indirect
 	github.com/redis/go-redis/v9 v9.19.0 // indirect
@@ -225,7 +224,7 @@ require (
 	gorm.io/datatypes v1.2.4 // indirect
 	gorm.io/driver/clickhouse v0.7.0 // indirect
 	gorm.io/driver/mysql v1.6.0 // indirect
-	gorm.io/driver/postgres v1.5.11 // indirect
+	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/hints v1.1.0 // indirect
 	gorm.io/plugin/opentelemetry v0.1.16 // indirect
 	gorm.io/plugin/prometheus v0.1.0 // indirect

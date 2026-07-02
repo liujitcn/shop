@@ -1,0 +1,28 @@
+oauth:
+  providers:
+    github:
+      clientId: ""
+      clientSecret: ""
+      redirectUri: http://localhost:7001/api/v1/base/oauth/github/callback
+      scopes:
+        - user:email
+    gitee:
+      clientId: ""
+      clientSecret: ""
+      redirectUri: http://localhost:7001/api/v1/base/oauth/gitee/callback
+      scopes:
+        - user_info
+    google:
+      clientId: ""
+      clientSecret: ""
+      redirectUri: http://localhost:7001/api/v1/base/oauth/google/callback
+      scopes:
+        - openid
+        - profile
+        - email
+    local:
+      clientId: local
+      clientSecret: local
+      redirectUri: http://localhost:7001/api/v1/base/oauth/local/callback
+      scopes:
+        - profile

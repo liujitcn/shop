@@ -1,5 +1,14 @@
 <template>
   <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" size="large">
+    <el-form-item prop="tenant_code">
+      <el-input v-model="loginForm.tenant_code" placeholder="请输入租户编码">
+        <template #prefix>
+          <el-icon class="el-input__icon">
+            <office-building />
+          </el-icon>
+        </template>
+      </el-input>
+    </el-form-item>
     <el-form-item prop="user_name">
       <el-input v-model="loginForm.user_name" placeholder="请输入用户名">
         <template #prefix>
@@ -114,6 +123,7 @@ const captchaImageWidth = ref(`${defaultCaptchaImageWidth}px`);
 const behaviorDialogVisible = ref(false);
 const behaviorLoading = ref(false);
 const loginRules = reactive({
+  tenant_code: [{ required: true, message: "请输入租户编码", trigger: "blur" }],
   user_name: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
   captcha_code: [{ required: true, message: "请输入验证码", trigger: "blur" }]
@@ -122,13 +132,20 @@ const loginRules = reactive({
 const loading = ref(false);
 /** 登录表单状态。 */
 interface LoginFormState {
+  /** 租户编码。 */
+  tenant_code: string;
+  /** 用户名。 */
   user_name: string;
+  /** 密码。 */
   password: string;
+  /** 验证码。 */
   captcha_code: string;
+  /** 验证码 ID。 */
   captcha_id: string;
 }
 
 const loginForm = reactive<LoginFormState>({
+  tenant_code: "default",
   user_name: "",
   password: "",
   captcha_code: "",
@@ -350,6 +367,7 @@ const submitLogin = async (captchaToken: string) => {
   try {
     const password = await encryptPassword(loginForm.password, PASSWORD_CRYPTO_SCENE.LOGIN);
     const loginRequest: LoginRequest = {
+      tenant_code: loginForm.tenant_code,
       user_name: loginForm.user_name,
       password,
       captcha_code: captchaToken,

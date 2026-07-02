@@ -1709,6 +1709,156 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/base/tenant:
+        get:
+            tags:
+                - BaseTenantService
+            description: 查询租户分页列表
+            operationId: BaseTenantService_PageBaseTenants
+            parameters:
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    format: enum
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PageBaseTenantsResponse'
+        post:
+            tags:
+                - BaseTenantService
+            description: 创建租户
+            operationId: BaseTenantService_CreateBaseTenant
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BaseTenantForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/option:
+        get:
+            tags:
+                - BaseTenantService
+            description: 查询租户下拉选择
+            operationId: BaseTenantService_OptionBaseTenants
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SelectOptionResponse'
+    /api/v1/admin/base/tenant/{base_tenant.id}:
+        put:
+            tags:
+                - BaseTenantService
+            description: 更新租户
+            operationId: BaseTenantService_UpdateBaseTenant
+            parameters:
+                - name: base_tenant.id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/BaseTenantForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/{id}:
+        get:
+            tags:
+                - BaseTenantService
+            description: 查询租户
+            operationId: BaseTenantService_GetBaseTenant
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BaseTenantForm'
+        delete:
+            tags:
+                - BaseTenantService
+            description: 删除租户
+            operationId: BaseTenantService_DeleteBaseTenant
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/base/tenant/{id}/status:
+        put:
+            tags:
+                - BaseTenantService
+            description: 设置状态
+            operationId: BaseTenantService_SetBaseTenantStatus
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetBaseTenantStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/base/user:
         get:
             tags:
@@ -7210,6 +7360,72 @@ components:
                     type: string
                     description: 备注
             description: 角色表单
+        BaseTenant:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 租户ID
+                code:
+                    type: string
+                    description: 租户编码
+                name:
+                    type: string
+                    description: 租户名称
+                contactName:
+                    type: string
+                    description: 联系人
+                contactPhone:
+                    type: string
+                    description: 联系电话
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+            description: 租户
+        BaseTenantForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 租户ID
+                code:
+                    type: string
+                    description: 租户编码
+                name:
+                    type: string
+                    description: 租户名称
+                contactName:
+                    type: string
+                    description: 联系人
+                contactPhone:
+                    type: string
+                    description: 联系电话
+                status:
+                    enum:
+                        - UNKNOWN
+                        - ENABLE
+                        - DISABLE
+                    type: string
+                    description: 状态
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+            description: 租户表单
         BaseUser:
             type: object
             properties:
@@ -9409,6 +9625,9 @@ components:
         LoginRequest:
             type: object
             properties:
+                tenantCode:
+                    type: string
+                    description: 租户编码
                 userName:
                     type: string
                     description: 用户名
@@ -10084,6 +10303,19 @@ components:
                     description: 总数
                     format: int32
             description: 角色分页响应
+        PageBaseTenantsResponse:
+            type: object
+            properties:
+                baseTenants:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/BaseTenant'
+                    description: 分页数据
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 租户分页响应
         PageBaseUsersResponse:
             type: object
             properties:
@@ -11507,6 +11739,17 @@ components:
                     description: 状态
                     format: int32
             description: 设置角色状态请求参数
+        SetBaseTenantStatusRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 租户ID
+                status:
+                    type: integer
+                    description: 状态
+                    format: int32
+            description: 设置租户状态请求参数
         SetBaseUserStatusRequest:
             type: object
             properties:
@@ -12943,6 +13186,8 @@ tags:
       description: Admin菜单管理服务
     - name: BaseRoleService
       description: Admin角色管理服务
+    - name: BaseTenantService
+      description: Admin租户管理服务
     - name: BaseUserService
       description: Admin用户管理服务
     - name: CommentInfoService
@@ -12998,13 +13243,13 @@ tags:
     - name: ShopBannerService
       description: Admin商城轮播图服务
     - name: ShopHotService
-      description: App热门推荐服务
-    - name: ShopHotService
       description: Admin商城热门推荐服务
-    - name: ShopServiceService
-      description: App商城服务说明服务
+    - name: ShopHotService
+      description: App热门推荐服务
     - name: ShopServiceService
       description: Admin商城服务
+    - name: ShopServiceService
+      description: App商城服务说明服务
     - name: SseService
       description: Base SSE服务
     - name: UserAddressService
@@ -13016,8 +13261,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: Admin用户门店管理服务
-    - name: UserStoreService
       description: App用户门店管理服务
+    - name: UserStoreService
+      description: Admin用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

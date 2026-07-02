@@ -248,6 +248,7 @@ const handleCaptchaImageLoad = (event: Event) => {
 }
 // 传统表单登录。
 const form = ref<LoginRequest>({
+  tenant_code: 'default',
   user_name: '',
   password: undefined,
   captcha_id: '',

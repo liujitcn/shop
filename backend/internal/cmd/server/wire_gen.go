@@ -7,6 +7,13 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v3"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
 	"shop/pkg/agent/assistant"
 	"shop/pkg/agent/comment"
 	"shop/pkg/agent/eino/model"
@@ -28,17 +35,10 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
+)
 
-	"github.com/go-kratos/kratos/v3"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
-
+import (
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
-
 	_ "github.com/liujitcn/kratos-kit/logger/zap"
 )
 
@@ -263,6 +263,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseLogService := admin.NewBaseLogService(baseLogCase)
 	baseMenuService := admin.NewBaseMenuService(baseMenuCase)
 	baseRoleService := admin.NewBaseRoleService(baseRoleCase)
+	baseTenantRepository := data.NewBaseTenantRepository(dataData)
+	baseTenantCase := biz3.NewBaseTenantCase(baseCase, transaction, baseTenantRepository, baseDeptRepository, baseRoleRepository, baseUserRepository, baseMenuRepository, bizCasbinRuleCase)
+	baseTenantService := admin.NewBaseTenantService(baseTenantCase)
 	baseUserService := admin.NewBaseUserService(bizBaseUserCase)
 	bizCommentTagCase := biz3.NewCommentTagCase(baseCase, commentTagRepository)
 	bizCommentReviewCase := biz3.NewCommentReviewCase(baseCase, commentReviewRepository)
@@ -331,7 +334,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseDeptCase2 := biz4.NewBaseDeptCase(baseDeptRepository)
 	baseRoleCase2 := biz4.NewBaseRoleCase(baseRoleRepository)
 	baseUserCase2 := biz4.NewBaseUserCase(baseUserRepository)
-	loginCase := biz4.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2)
+	loginCase := biz4.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2, baseTenantRepository)
 	wxMiniApp, err := config.ParseWxMiniApp(shopConfig)
 	if err != nil {
 		cleanup4()
@@ -340,7 +343,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	bizAuthCase := biz2.NewAuthCase(baseCase, userToken, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, wxMiniApp)
+	bizAuthCase := biz2.NewAuthCase(baseCase, userToken, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, baseTenantRepository, wxMiniApp)
 	appAuthService := app.NewAuthService(bizAuthCase)
 	baseAreaService := app.NewBaseAreaService(baseAreaCase)
 	bizBaseDictCase := biz2.NewBaseDictCase(baseCase, baseDictRepository, baseDictItemCase)
@@ -390,7 +393,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	configService := base.NewConfigService(configCase)
 	fileService := base.NewFileService(fileCase)
 	loginService := base.NewLoginService(loginCase)
-	serverServices, err := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, assistantRuntime, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService)
+	serverServices, err := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, assistantRuntime, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -432,7 +435,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		return nil, nil, err
 	}
 	sseService := base.NewSseService(sseCase)
-	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, mcpService, sseService)
+	grpcServer, err := server.NewGRPCServer(context, grpcMiddlewares, authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, mcpService, sseService)
 	if err != nil {
 		cleanup4()
 		cleanup3()

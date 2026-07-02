@@ -93,7 +93,7 @@ mysql -uroot -p shop_test < sql/shop.sql
 - `super / 112233`
 - `admin / 112233`
 
-说明：`sql/default-data.sql` 维护接口、菜单、角色和用户等基础数据，`sql/casbin_rule.sql` 维护 `admin`、`user`、`guest` 的角色接口权限策略。
+登录页租户编码默认填充为 `default`。`sql/default-data.sql` 维护默认租户、接口、菜单、固定角色和用户等基础数据；默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`，其中 `tenant` 是租户管理员内置角色，不能通过角色管理修改。`sql/casbin_rule.sql` 维护 `admin`、`tenant`、`user`、`guest` 的租户化接口权限策略，策略动作使用真实 HTTP Method。
 
 ## 接口与生成
 

@@ -8,6 +8,7 @@ import (
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
+	"shop/pkg/gen/data"
 
 	basev1 "shop/api/gen/go/base/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -16,9 +17,11 @@ import (
 
 	"github.com/liujitcn/go-utils/crypto"
 	"github.com/liujitcn/go-utils/id"
+	"github.com/liujitcn/gorm-kit/repository"
 	"github.com/liujitcn/kratos-kit/auth/authn/engine"
 	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/captcha"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 )
 
 const loginCaptchaKeyPrefix = "login_captcha"
@@ -30,10 +33,11 @@ const loginCaptchaTokenExpire = 2 * time.Minute
 // LoginCase 处理基础登录认证业务。
 type LoginCase struct {
 	*biz.BaseCase
-	userToken    *authData.UserToken
-	baseDeptCase *BaseDeptCase
-	baseRoleCase *BaseRoleCase
-	baseUserCase *BaseUserCase
+	userToken      *authData.UserToken
+	baseDeptCase   *BaseDeptCase
+	baseRoleCase   *BaseRoleCase
+	baseUserCase   *BaseUserCase
+	baseTenantRepo *data.BaseTenantRepository
 }
 
 // NewLoginCase 创建登录业务实例。
@@ -43,13 +47,15 @@ func NewLoginCase(
 	baseDeptRepo *BaseDeptCase,
 	baseRoleRepo *BaseRoleCase,
 	baseUserRepo *BaseUserCase,
+	baseTenantRepo *data.BaseTenantRepository,
 ) *LoginCase {
 	return &LoginCase{
-		BaseCase:     baseCase,
-		userToken:    userToken,
-		baseDeptCase: baseDeptRepo,
-		baseRoleCase: baseRoleRepo,
-		baseUserCase: baseUserRepo,
+		BaseCase:       baseCase,
+		userToken:      userToken,
+		baseDeptCase:   baseDeptRepo,
+		baseRoleCase:   baseRoleRepo,
+		baseUserCase:   baseUserRepo,
+		baseTenantRepo: baseTenantRepo,
 	}
 }
 
@@ -179,8 +185,25 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		return nil, err
 	}
 
+	tenantCode := req.GetTenantCode()
+	if tenantCode == "" {
+		tenantCode = databaseGorm.DefaultTenantCode
+	}
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.findTenantByCode(ctx, tenantCode)
+	if err != nil {
+		return nil, errorsx.Unauthenticated("用户名或密码错误")
+	}
+	if baseTenant.Status != 1 {
+		return nil, errorsx.PermissionDenied("租户已被禁用")
+	}
+
 	var user *models.BaseUser
-	user, err = c.baseUserCase.FindByUserName(ctx, req.GetUserName())
+	userQuery := c.baseUserCase.Query(ctx).BaseUser
+	userOpts := make([]repository.QueryOption, 0, 2)
+	userOpts = append(userOpts, repository.Where(userQuery.TenantID.Eq(baseTenant.ID)))
+	userOpts = append(userOpts, repository.Where(userQuery.UserName.Eq(req.GetUserName())))
+	user, err = c.baseUserCase.Find(ctx, userOpts...)
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
@@ -214,13 +237,15 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 
 	// 生成访问令牌
 	authInfo := &authData.UserTokenPayload{
-		UserId:   user.ID,
-		UserName: user.UserName,
-		RoleId:   user.RoleID,
-		RoleCode: role.Code,
-		RoleName: role.Name,
-		DeptId:   user.DeptID,
-		DeptName: dept.Name,
+		UserId:     user.ID,
+		UserName:   user.UserName,
+		RoleId:     user.RoleID,
+		RoleCode:   role.Code,
+		RoleName:   role.Name,
+		TenantId:   baseTenant.ID,
+		TenantCode: baseTenant.Code,
+		DeptId:     user.DeptID,
+		DeptName:   dept.Name,
 	}
 	var accessToken, refreshToken string
 	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)
@@ -231,7 +256,6 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
-
 	// Token 有效期
 	expiresIn := c.userToken.GetAccessTokenExpires()
 
@@ -241,6 +265,14 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		RefreshToken: refreshToken,
 		ExpiresIn:    expiresIn,
 	}, nil
+}
+
+// findTenantByCode 按编码查询租户。
+func (c *LoginCase) findTenantByCode(ctx context.Context, code string) (*models.BaseTenant, error) {
+	query := c.baseTenantRepo.Query(ctx).BaseTenant
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Code.Eq(code)))
+	return c.baseTenantRepo.Find(ctx, opts...)
 }
 
 // SetRefreshTokenAuth 保存刷新令牌关联的认证信息，供刷新接口在访问令牌过期后独立续期。

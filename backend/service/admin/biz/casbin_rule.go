@@ -2,16 +2,18 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"shop/pkg/biz"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
-	"github.com/liujitcn/kratos-kit/auth"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
+	authData "github.com/liujitcn/kratos-kit/auth/data"
 )
 
 // CasbinRuleCase 权限规则业务实例
@@ -88,9 +90,23 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByMenuIDs(ctx context.Context, menuIDs 
 
 // RebuildCasbinRuleByRole 按角色重建权限规则
 func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *models.BaseRole) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	return c.RebuildCasbinRuleByTenantRole(ctx, authInfo.TenantCode, baseRole)
+}
+
+// RebuildCasbinRuleByTenantRole 按指定租户和角色重建权限规则
+func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tenantCode string, baseRole *models.BaseRole) error {
+	if tenantCode == "" {
+		return errorsx.Internal("重建角色权限失败").WithCause(fmt.Errorf("tenant code is required"))
+	}
+
 	query := c.Query(ctx).CasbinRule
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.V0.Eq(baseRole.Code)))
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.V0.Eq(tenantCode)))
+	opts = append(opts, repository.Where(query.V1.Eq(baseRole.Code)))
 	err := c.Delete(ctx, opts...)
 	if err != nil {
 		return err
@@ -131,10 +147,11 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *
 		}
 		casbinRuleList = append(casbinRuleList, &models.CasbinRule{
 			Ptype: "p",
-			V0:    baseRole.Code,
-			V1:    item.Operation,
-			V2:    string(auth.Action),
-			V3:    "*",
+			V0:    tenantCode,
+			V1:    baseRole.Code,
+			V2:    item.Operation,
+			V3:    item.Method,
+			V4:    "*",
 		})
 	}
 	// 命中接口规则时，批量写入角色权限规则。
@@ -164,8 +181,14 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByRoleIDs(ctx context.Context, roleIDs 
 	}
 
 	query := c.Query(ctx).CasbinRule
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.V0.In(roleKeys...)))
+	opts := make([]repository.QueryOption, 0, 2)
+	var authInfo *authData.UserTokenPayload
+	authInfo, err = c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	opts = append(opts, repository.Where(query.V0.Eq(authInfo.TenantCode)))
+	opts = append(opts, repository.Where(query.V1.In(roleKeys...)))
 	err = c.Delete(ctx, opts...)
 	if err != nil {
 		return err

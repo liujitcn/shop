@@ -28,6 +28,7 @@ func newGoodsInfo(db *gorm.DB, opts ...gen.DOOption) goodsInfo {
 	tableName := _goodsInfo.goodsInfoDo.TableName()
 	_goodsInfo.ALL = field.NewAsterisk(tableName)
 	_goodsInfo.ID = field.NewInt64(tableName, "id")
+	_goodsInfo.TenantID = field.NewInt64(tableName, "tenant_id")
 	_goodsInfo.CategoryID = field.NewString(tableName, "category_id")
 	_goodsInfo.Name = field.NewString(tableName, "name")
 	_goodsInfo.Desc = field.NewString(tableName, "desc")
@@ -57,6 +58,7 @@ type goodsInfo struct {
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 商品ID
+	TenantID      field.Int64  // 租户ID
 	CategoryID    field.String // 商品分类ID列表
 	Name          field.String // 商品名称
 	Desc          field.String // 商品描述
@@ -91,6 +93,7 @@ func (g goodsInfo) As(alias string) *goodsInfo {
 func (g *goodsInfo) updateTableName(table string) *goodsInfo {
 	g.ALL = field.NewAsterisk(table)
 	g.ID = field.NewInt64(table, "id")
+	g.TenantID = field.NewInt64(table, "tenant_id")
 	g.CategoryID = field.NewString(table, "category_id")
 	g.Name = field.NewString(table, "name")
 	g.Desc = field.NewString(table, "desc")
@@ -134,8 +137,9 @@ func (g *goodsInfo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *goodsInfo) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 18)
+	g.fieldMap = make(map[string]field.Expr, 19)
 	g.fieldMap["id"] = g.ID
+	g.fieldMap["tenant_id"] = g.TenantID
 	g.fieldMap["category_id"] = g.CategoryID
 	g.fieldMap["name"] = g.Name
 	g.fieldMap["desc"] = g.Desc

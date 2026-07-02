@@ -506,10 +506,11 @@ func (x *RefreshTokenResponse) GetExpiresIn() int64 {
 // 登录请求参数
 type LoginRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
-	Password      *v1.PasswordCrypto     `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
-	CaptchaCode   string                 `protobuf:"bytes,3,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
-	CaptchaId     string                 `protobuf:"bytes,4,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
+	TenantCode    string                 `protobuf:"bytes,1,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"`    // 租户编码
+	UserName      string                 `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`          // 用户名，必选项。
+	Password      *v1.PasswordCrypto     `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`                          // 用户的密码，必选项。
+	CaptchaCode   string                 `protobuf:"bytes,4,opt,name=captcha_code,json=captchaCode,proto3" json:"captcha_code,omitempty"` // 验证码
+	CaptchaId     string                 `protobuf:"bytes,5,opt,name=captcha_id,json=captchaId,proto3" json:"captcha_id,omitempty"`       // 验证码Id
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -542,6 +543,13 @@ func (x *LoginRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
 func (*LoginRequest) Descriptor() ([]byte, []int) {
 	return file_base_v1_login_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *LoginRequest) GetTenantCode() string {
+	if x != nil {
+		return x.TenantCode
+	}
+	return ""
 }
 
 func (x *LoginRequest) GetUserName() string {
@@ -679,13 +687,15 @@ const file_base_v1_login_proto_rawDesc = "" +
 	"\n" +
 	"token_type\x18\x03 \x01(\tB\x94\x01\xbaG\x90\x01\x8a\x02\b\x1a\x06Bearer\x92\x02\x81\x01令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。R\ttokenType\x12\xdc\x01\n" +
 	"\n" +
-	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xed\x01\n" +
-	"\fLoginRequest\x12,\n" +
-	"\tuser_name\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\buserName\x12I\n" +
-	"\bpassword\x18\x02 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x122\n" +
-	"\fcaptcha_code\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\vcaptchaCode\x120\n" +
+	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\xa2\x02\n" +
+	"\fLoginRequest\x123\n" +
+	"\vtenant_code\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
+	"tenantCode\x12,\n" +
+	"\tuser_name\x18\x02 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\buserName\x12I\n" +
+	"\bpassword\x18\x03 \x01(\v2\x19.common.v1.PasswordCryptoB\x12\xbaG\x0f\x92\x02\f用户密码R\bpassword\x122\n" +
+	"\fcaptcha_code\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t验证码R\vcaptchaCode\x120\n" +
 	"\n" +
-	"captcha_id\x18\x04 \x01(\tB\x11\xbaG\x0e\x92\x02\v验证码IdR\tcaptchaId\"\xda\x06\n" +
+	"captcha_id\x18\x05 \x01(\tB\x11\xbaG\x0e\x92\x02\v验证码IdR\tcaptchaId\"\xda\x06\n" +
 	"\rLoginResponse\x12t\n" +
 	"\faccess_token\x18\x01 \x01(\tBQ\xbaGN\x92\x02K访问令牌，必选项。授权服务器颁发的访问令牌字符串。R\vaccessToken\x12\xbc\x02\n" +
 	"\rrefresh_token\x18\x02 \x01(\tB\x96\x02\xbaG\x92\x02\x92\x02\x8e\x02更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。R\frefreshToken\x12\xb4\x01\n" +

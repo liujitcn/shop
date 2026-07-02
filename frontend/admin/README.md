@@ -1,6 +1,6 @@
 # frontend/admin
 
-`frontend/admin` 是商城管理后台，基于 `Vue 3 + Vite + TypeScript + Element Plus + Pinia` 开发，负责系统管理、商品、订单、评价、报表、支付和推荐相关后台页面。
+`frontend/admin` 是商城管理后台，基于 `Vue 3 + Vite + TypeScript + Element Plus + Pinia` 开发，负责平台系统管理、租户经营后台、商品、订单、评价、报表、支付和推荐相关后台页面。
 
 ## 目录职责
 
@@ -42,6 +42,8 @@ frontend/admin
 - `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
 - `views/user`：门店管理。
 - `views/migration/pending`：动态菜单组件无法匹配时的统一降级提示页。
+
+租户管理员使用固定 `tenant` 角色。该角色菜单只包含工作台、订单分析、个人资料、组织权限、商品、评价和订单等租户经营能力，不包含租户管理、定时任务、API 管理、商城服务、推荐、支付账单和报表分析等平台公共页面。工作台租户视角会隐藏平台账单风险入口。
 
 ## 环境要求
 
@@ -170,6 +172,7 @@ src/rpc
 - 图片列、状态列、顶部按钮、行内按钮优先使用 `ProTable` 现有配置能力。
 - 业务页样式优先复用 `src/styles/common.scss`、`src/styles/element-dark.scss` 与主题变量。
 - 新增页面后需要同步检查菜单初始化数据和后端接口权限初始化数据。
+- 新增租户可见页面时，需要同步检查 `tenant` 固定角色菜单白名单和 `sql/casbin_rule.sql` 中的租户接口权限。
 - 修改前端代码后，至少执行 `pnpm lint:oxlint`；涉及类型或构建链路时补充 `pnpm type:check` 或构建命令。
 
 ## 设计文档

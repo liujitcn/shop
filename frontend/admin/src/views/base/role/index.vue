@@ -110,6 +110,9 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const permTreeRef = ref<InstanceType<typeof ElTree>>();
 
+// 内置角色编码固定，前端提前保护，后端仍会做最终校验。
+const PROTECTED_ROLE_CODES = ["super", "tenant"];
+
 const dialog = reactive({
   title: "",
   visible: false
@@ -194,7 +197,7 @@ const columns: ColumnProps[] = [
       inactiveValue: Status.DISABLE,
       activeText: "启用",
       inactiveText: "禁用",
-      disabled: () => !BUTTONS.value["base:role:status"],
+      disabled: scope => isProtectedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:status"],
       beforeChange: scope => handleBeforeSetStatus(scope.row as BaseRole)
     }
   },
@@ -212,7 +215,7 @@ const columns: ColumnProps[] = [
         type: "primary",
         link: true,
         icon: Position,
-        hidden: () => !BUTTONS.value["base:role:menus"],
+        hidden: scope => isProtectedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:menus"],
         onClick: scope => handleOpenAssignPermDialog(scope.row as BaseRole)
       },
       {
@@ -220,7 +223,7 @@ const columns: ColumnProps[] = [
         type: "primary",
         link: true,
         icon: EditPen,
-        hidden: () => !BUTTONS.value["base:role:update"],
+        hidden: scope => isProtectedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:update"],
         params: scope => ({ roleId: scope.row.id }),
         onClick: (scope, params) => handleOpenDialog((params?.roleId as number | undefined) ?? (scope.row as BaseRole).id)
       },
@@ -229,7 +232,7 @@ const columns: ColumnProps[] = [
         type: "danger",
         link: true,
         icon: Delete,
-        hidden: () => !BUTTONS.value["base:role:delete"],
+        hidden: scope => isProtectedRole(scope.row as BaseRole) || !BUTTONS.value["base:role:delete"],
         onClick: scope => handleDelete(scope.row as BaseRole)
       }
     ]
@@ -274,6 +277,13 @@ async function requestBaseRoleTable(params: Partial<PageBaseRolesRequest> & { pa
  */
 function refreshTable() {
   proTable.value?.getTableList();
+}
+
+/**
+ * 判断角色是否为固定内置角色。
+ */
+function isProtectedRole(row?: BaseRole) {
+  return Boolean(row?.code && PROTECTED_ROLE_CODES.includes(row.code));
 }
 
 /**
@@ -352,6 +362,11 @@ function resetForm() {
  * 在角色状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
  */
 async function handleBeforeSetStatus(row: BaseRole) {
+  if (isProtectedRole(row)) {
+    ElMessage.warning("内置角色不能修改状态");
+    return false;
+  }
+
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   const roleName = row.name || row.code || `ID:${row.id}`;
@@ -379,6 +394,11 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
     : selected && typeof selected === "object"
       ? [selected as BaseRole]
       : [];
+  if (roleList.some(isProtectedRole)) {
+    ElMessage.warning("内置角色不能删除");
+    return;
+  }
+
   const roleIds = (
     roleList.length ? roleList.map(item => item.id) : normalizeSelectedIds(selected as number | string | Array<number | string>)
   ).join(",");
@@ -415,6 +435,10 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
  */
 async function handleOpenAssignPermDialog(row: BaseRole) {
   if (!row.id) return;
+  if (isProtectedRole(row)) {
+    ElMessage.warning("内置角色不能分配权限");
+    return;
+  }
 
   assignPermDialogVisible.value = true;
   checkedBaseRole.value = { id: row.id, name: row.name };
