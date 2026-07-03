@@ -39,6 +39,7 @@ defineOptions({
 });
 
 import { onMounted, reactive, ref } from "vue";
+import { useRoute } from "vue-router";
 import { defAuthService } from "@/api/admin/auth";
 import type { UserProfileForm } from "@/rpc/admin/v1/auth";
 import { useUserStore } from "@/stores/modules/user";
@@ -61,6 +62,7 @@ interface ProfileTabOption {
 }
 
 const userStore = useUserStore();
+const route = useRoute();
 const activeTab = ref<ProfileTab>("account");
 const profileTabs: ProfileTabOption[] = [
   {
@@ -109,11 +111,13 @@ async function loadUserProfile() {
     role_name: profile.role_name,
     dept_name: profile.dept_name
   });
-  // 无论从哪个入口进入个人中心，默认都展示账号信息模块。
-  activeTab.value = "account";
 }
 
 onMounted(async () => {
+  // OAuth 绑定回跳时优先打开安全设置，让子组件消费绑定结果并刷新状态。
+  if (route.query.oauth_bind_success || route.query.oauth_bind_error) {
+    activeTab.value = "security";
+  }
   await loadUserProfile();
 });
 </script>

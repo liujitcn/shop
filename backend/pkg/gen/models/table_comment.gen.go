@@ -70,6 +70,16 @@ func (*BaseRole) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*BaseTenant) TableComment() string {
+	return "租户信息表"
+}
+
+// TableComment 返回表注释。
+func (*BaseThirdAccount) TableComment() string {
+	return "用户三方登录账号"
+}
+
+// TableComment 返回表注释。
 func (*BaseUser) TableComment() string {
 	return "用户信息"
 }

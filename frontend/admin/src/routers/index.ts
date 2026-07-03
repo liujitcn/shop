@@ -54,6 +54,11 @@ router.beforeEach(async (to, from, next) => {
 
   // 3.判断是访问登陆页，有 Token 就在当前页面，没有 Token 重置路由到登陆页
   if (to.path.toLocaleLowerCase() === LOGIN_URL) {
+    const hasOauthCallback = typeof to.query.oauth_ticket === "string" || typeof to.query.oauth_error === "string";
+    if (hasOauthCallback) {
+      resetRouter();
+      return next();
+    }
     if (hasAccessToken) {
       // 登录态访问登录页时优先回到显式 redirect，避免 from 为根路径时触发重复重定向。
       const targetPath = redirectQuery && redirectQuery !== LOGIN_URL ? redirectQuery : HOME_URL;

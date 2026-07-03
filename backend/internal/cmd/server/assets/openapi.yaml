@@ -6038,6 +6038,175 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/MultiUploadFileResponse'
+    /api/v1/base/oauth/authorization:
+        post:
+            tags:
+                - OauthService
+            description: 创建三方登录授权地址
+            operationId: OauthService_CreateOauthAuthorization
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOauthAuthorizationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateOauthAuthorizationResponse'
+    /api/v1/base/oauth/binding:
+        get:
+            tags:
+                - OauthService
+            description: 查询个人中心三方账号绑定列表
+            operationId: OauthService_ListOauthBindings
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOauthBindingsResponse'
+    /api/v1/base/oauth/binding/authorization:
+        post:
+            tags:
+                - OauthService
+            description: 创建个人中心三方账号绑定授权地址
+            operationId: OauthService_CreateOauthBindingAuthorization
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOauthBindingAuthorizationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateOauthBindingAuthorizationResponse'
+    /api/v1/base/oauth/binding/{provider}:
+        delete:
+            tags:
+                - OauthService
+            description: 解绑个人中心三方账号
+            operationId: OauthService_UnbindOauthAccount
+            parameters:
+                - name: provider
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/base/oauth/provider:
+        get:
+            tags:
+                - OauthService
+            description: 查询三方登录方式
+            operationId: OauthService_ListOauthProviders
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListOauthProvidersResponse'
+    /api/v1/base/oauth/ticket:
+        post:
+            tags:
+                - OauthService
+            description: 兑换三方登录票据
+            operationId: OauthService_ExchangeOauthTicket
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/ExchangeOauthTicketRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ExchangeOauthTicketResponse'
+    /api/v1/base/oauth/{provider}/binding/callback:
+        get:
+            tags:
+                - OauthService
+            description: 处理个人中心三方账号绑定回调
+            operationId: OauthService_HandleOauthBindingCallback
+            parameters:
+                - name: provider
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: error
+                  in: query
+                  schema:
+                    type: string
+                - name: errorDescription
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HandleOauthBindingCallbackResponse'
+    /api/v1/base/oauth/{provider}/callback:
+        get:
+            tags:
+                - OauthService
+            description: 处理三方登录回调
+            operationId: OauthService_HandleOauthCallback
+            parameters:
+                - name: provider
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+                - name: code
+                  in: query
+                  schema:
+                    type: string
+                - name: state
+                  in: query
+                  schema:
+                    type: string
+                - name: error
+                  in: query
+                  schema:
+                    type: string
+                - name: errorDescription
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/HandleOauthCallbackResponse'
     /api/v1/base/password-public-key:
         get:
             tags:
@@ -8585,6 +8754,40 @@ components:
                     type: boolean
                     description: 订单是否已因全部评价完成而流转为已完成
             description: 发布商品评价响应
+        CreateOauthAuthorizationRequest:
+            type: object
+            properties:
+                provider:
+                    type: string
+                    description: 登录方式标识
+                redirectUrl:
+                    type: string
+                    description: 三方登录完成后的前端接收地址
+            description: 三方登录授权地址创建条件
+        CreateOauthAuthorizationResponse:
+            type: object
+            properties:
+                authorizationUrl:
+                    type: string
+                    description: 三方授权地址
+            description: 三方登录授权地址创建结果
+        CreateOauthBindingAuthorizationRequest:
+            type: object
+            properties:
+                provider:
+                    type: string
+                    description: 登录方式标识
+                redirectUrl:
+                    type: string
+                    description: 绑定完成后回跳地址
+            description: 个人中心三方账号绑定授权地址创建条件
+        CreateOauthBindingAuthorizationResponse:
+            type: object
+            properties:
+                authorizationUrl:
+                    type: string
+                    description: 三方授权地址
+            description: 个人中心三方账号绑定授权地址创建响应
         CreateOrderInfoGoods:
             type: object
             properties:
@@ -8714,6 +8917,30 @@ components:
             type: object
             properties: {}
             description: AI 助手会话删除响应
+        ExchangeOauthTicketRequest:
+            type: object
+            properties:
+                ticket:
+                    type: string
+                    description: 三方登录票据
+            description: 三方登录票据兑换请求
+        ExchangeOauthTicketResponse:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                    description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
+                refreshToken:
+                    type: string
+                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
+                tokenType:
+                    type: string
+                    default: Bearer
+                    description: 令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。
+                expiresIn:
+                    type: string
+                    description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+            description: 三方登录票据兑换结果
         ExecuteBaseJobRequest:
             type: object
             properties:
@@ -9308,6 +9535,14 @@ components:
                     type: string
                     description: 服务筛选关键字，必填，支持 app、admin 或任意服务关键字
             description: MCP请求参数
+        HandleOauthBindingCallbackResponse:
+            type: object
+            properties: {}
+            description: 个人中心三方账号绑定回调响应
+        HandleOauthCallbackResponse:
+            type: object
+            properties: {}
+            description: 三方登录回调结果
         ImportDataRequest:
             type: object
             properties:
@@ -9510,6 +9745,24 @@ components:
                         $ref: '#/components/schemas/GoodsSpec'
                     description: 商品规格列表
             description: 商品规格列表响应
+        ListOauthBindingsResponse:
+            type: object
+            properties:
+                bindings:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OauthBinding'
+                    description: 三方账号绑定列表
+            description: 个人中心三方账号绑定列表响应
+        ListOauthProvidersResponse:
+            type: object
+            properties:
+                providers:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OauthProvider'
+                    description: 三方登录方式列表
+            description: 三方登录方式查询结果
         ListOrderDayReportsResponse:
             type: object
             properties:
@@ -9675,6 +9928,23 @@ components:
                         $ref: '#/components/schemas/FileInfo'
                     description: 文件上传结果
             description: 批量上传文件响应
+        OauthBinding:
+            type: object
+            properties:
+                provider:
+                    type: string
+                    description: 登录方式标识
+                bound:
+                    type: boolean
+                    description: 是否已绑定
+            description: 个人中心三方账号绑定信息
+        OauthProvider:
+            type: object
+            properties:
+                provider:
+                    type: string
+                    description: 登录方式标识
+            description: 三方登录方式信息
         OptionBaseDictsResponse:
             type: object
             properties:
@@ -13163,9 +13433,9 @@ tags:
     - name: AiAssistantService
       description: Base AI 助手会话服务
     - name: AuthService
-      description: Admin用户登录认证服务
-    - name: AuthService
       description: App用户登录认证服务
+    - name: AuthService
+      description: Admin用户登录认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -13175,9 +13445,9 @@ tags:
     - name: BaseDeptService
       description: Admin部门服务
     - name: BaseDictService
-      description: App字典服务
-    - name: BaseDictService
       description: Admin字典服务
+    - name: BaseDictService
+      description: App字典服务
     - name: BaseJobService
       description: Admin定时任务服务
     - name: BaseLogService
@@ -13205,9 +13475,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: Admin商品信息服务
-    - name: GoodsInfoService
       description: App商品信息服务
+    - name: GoodsInfoService
+      description: Admin商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsReportService
@@ -13220,12 +13490,14 @@ tags:
       description: Base登录公共服务
     - name: McpService
       description: Base MCP服务
+    - name: OauthService
+      description: Base三方登录公共服务
     - name: OrderAnalyticsService
       description: Admin订单分析服务
     - name: OrderInfoService
-      description: Admin订单信息服务
-    - name: OrderInfoService
       description: App订单信息服务
+    - name: OrderInfoService
+      description: Admin订单信息服务
     - name: OrderReportService
       description: Admin订单报表服务
     - name: PayBillService
@@ -13247,9 +13519,9 @@ tags:
     - name: ShopHotService
       description: App热门推荐服务
     - name: ShopServiceService
-      description: Admin商城服务
-    - name: ShopServiceService
       description: App商城服务说明服务
+    - name: ShopServiceService
+      description: Admin商城服务
     - name: SseService
       description: Base SSE服务
     - name: UserAddressService

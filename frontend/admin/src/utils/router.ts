@@ -1,4 +1,4 @@
-import type { Router } from "vue-router";
+import type { RouteLocationRaw, Router } from "vue-router";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
 
 /**
@@ -8,6 +8,18 @@ export function isUnmatchedRoute(router: Router, path: string) {
   const resolved = router.resolve(path);
   if (!resolved.matched.length) return true;
   return resolved.matched.some(item => item.path === "/:pathMatch(.*)*");
+}
+
+/**
+ * 将前端路由地址转换为当前站点的绝对 URL，供后端 OAuth 回调重定向使用。
+ */
+export function resolveFrontendRouteURL(router: Router, location: RouteLocationRaw) {
+  const href = router.resolve(location).href;
+  if (href.startsWith("#")) {
+    return `${window.location.origin}${window.location.pathname}${window.location.search}${href}`;
+  }
+  const frontendHref = href.startsWith("/") ? href : `${window.location.pathname}${window.location.search}${href}`;
+  return new URL(frontendHref, window.location.origin).toString();
 }
 
 /**

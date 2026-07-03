@@ -64,6 +64,7 @@ type ServerServices struct {
 	config             *base.ConfigService
 	file               *base.FileService
 	login              *base.LoginService
+	oauth              *base.OauthService
 }
 
 // NewServerServices 创建 HTTP 与 MCP 服务注册表。
@@ -123,6 +124,7 @@ func NewServerServices(
 	config *base.ConfigService,
 	file *base.FileService,
 	login *base.LoginService,
+	oauth *base.OauthService,
 ) (*ServerServices, error) {
 	services := &ServerServices{
 		adminAuth:             adminAuth,
@@ -177,6 +179,7 @@ func NewServerServices(
 		config:                config,
 		file:                  file,
 		login:                 login,
+		oauth:                 oauth,
 	}
 	var err error
 	var adminTools []einoTool.Invokable

@@ -50,9 +50,34 @@
   </el-form>
   <div class="login-btn">
     <el-button :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)"> 重置 </el-button>
-    <el-button :icon="UserFilled" round size="large" type="primary" :loading="loading" @click="handleLogin(loginFormRef)">
+    <el-button :icon="UserFilled" round size="large" type="primary" :loading="loading || oauthTicketLoading" @click="handleLogin(loginFormRef)">
       登录
     </el-button>
+  </div>
+  <div v-if="oauthProviders.length" class="oauth-login">
+    <div class="oauth-divider">
+      <span>其他登录方式</span>
+    </div>
+    <div class="oauth-provider-list">
+      <el-tooltip
+        v-for="provider in oauthProviders"
+        :key="provider.provider"
+        :content="provider.name"
+        placement="top"
+        :trigger="['hover', 'focus']"
+      >
+        <button
+          class="oauth-provider-button"
+          type="button"
+          :aria-label="provider.name"
+          :title="provider.name"
+          :disabled="oauthTicketLoading || oauthLoadingProvider === provider.provider"
+          @click="handleOauthLogin(provider)"
+        >
+          <component :is="getOauthProviderIcon(provider)" />
+        </button>
+      </el-tooltip>
+    </div>
   </div>
   <el-dialog
     v-model="behaviorDialogVisible"
@@ -86,19 +111,22 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive, onMounted } from "vue";
+import { computed, ref, reactive, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { defLoginService } from "@/api/base/login";
-import { ElNotification } from "element-plus";
+import { defOauthService } from "@/api/base/oauth";
+import { ElMessage, ElNotification } from "element-plus";
 import type { LoginRequest } from "@/rpc/base/v1/login";
+import type { OauthProvider } from "@/rpc/base/v1/oauth";
+import { getOauthProviderIcon, withOauthProviderDisplay, type OauthProviderDisplay } from "@/utils/oauthProvider";
 import { useUserStore } from "@/stores/modules/user";
 import { useDictStore } from "@/stores/modules/dict";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
-import { isUnmatchedRoute, navigateTo } from "@/utils/router";
+import { isUnmatchedRoute, navigateTo, resolveFrontendRouteURL } from "@/utils/router";
 import { CircleClose, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
@@ -130,6 +158,14 @@ const loginRules = reactive({
 });
 
 const loading = ref(false);
+const oauthLoadingProvider = ref("");
+const oauthTicketLoading = ref(false);
+
+/** 登录页三方登录展示项。 */
+type LoginOauthProvider = OauthProvider & OauthProviderDisplay;
+
+const oauthProviders = ref<LoginOauthProvider[]>([]);
+
 /** 登录表单状态。 */
 interface LoginFormState {
   /** 租户编码。 */
@@ -295,9 +331,102 @@ const getFirstAccessibleRoutePath = () => {
 const getLoginRedirectPath = () => {
   const redirect = route.query.redirect;
   if (typeof redirect === "string" && redirect && redirect !== HOME_URL) {
-    return redirect;
+    return normalizeFrontendRedirectPath(redirect);
   }
   return getFirstAccessibleRoutePath();
+};
+
+/** 将 OAuth 回调带回的同源绝对地址还原为 Vue Router 可识别的站内路径。 */
+const normalizeFrontendRedirectPath = (redirect: string) => {
+  try {
+    const redirectURL = new URL(redirect, window.location.origin);
+    if (redirectURL.origin !== window.location.origin) return HOME_URL;
+    if (redirectURL.hash.startsWith("#/")) return redirectURL.hash.slice(1);
+    return `${redirectURL.pathname}${redirectURL.search}`;
+  } catch {
+    return HOME_URL;
+  }
+};
+
+/** 获取 OAuth 登录完成后的前端接收地址，并携带账号登录一致的业务回跳目标。 */
+const getOauthLoginRedirectURL = () => {
+  const query = { ...route.query };
+  delete query.oauth_ticket;
+  delete query.oauth_error;
+  query.redirect = getLoginRedirectPath();
+  return resolveFrontendRouteURL(router, { path: route.path, query });
+};
+
+/** 查询配置启用的三方登录方式。 */
+const loadOauthProviders = async () => {
+  const result = await defOauthService.ListOauthProviders({});
+  oauthProviders.value = result.providers.map(withOauthProviderDisplay);
+};
+
+/** 发起三方登录授权跳转。 */
+const handleOauthLogin = async (provider: LoginOauthProvider) => {
+  // 授权地址创建期间锁定当前按钮，避免同一个 provider 重复创建 state。
+  if (oauthLoadingProvider.value) return;
+  oauthLoadingProvider.value = provider.provider;
+  try {
+    const result = await defOauthService.CreateOauthAuthorization({
+      provider: provider.provider,
+      redirect_url: getOauthLoginRedirectURL()
+    });
+    if (result.authorization_url) {
+      window.location.href = result.authorization_url;
+    }
+  } finally {
+    oauthLoadingProvider.value = "";
+  }
+};
+
+/** 完成登录后的用户信息、字典与动态路由初始化。 */
+const finishLogin = async () => {
+  // 1.获取用户信息
+  await userStore.getUserInfo();
+
+  // 2.预加载字典缓存，避免页面首次渲染时字典值为空
+  await dictStore.loadDictionaries();
+
+  // 3.添加动态路由
+  await initDynamicRouter();
+
+  // 4.清空 tabs、keepAlive 数据
+  tabsStore.setTabs([]);
+  keepAliveStore.setKeepAliveName([]);
+
+  // 5.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
+  // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
+  await navigateTo(router, getLoginRedirectPath());
+  ElNotification({
+    title: getTimeState(),
+    message: "欢迎登录管理后台",
+    type: "success",
+    duration: 3000
+  });
+};
+
+/** 消费 OAuth 回调携带的一次性票据。 */
+const consumeOauthTicket = async () => {
+  const oauthError = route.query.oauth_error;
+  if (typeof oauthError === "string" && oauthError) {
+    ElMessage.error(oauthError);
+    await router.replace({ path: route.path, query: { ...route.query, oauth_error: undefined, oauth_ticket: undefined } });
+    return;
+  }
+
+  const ticket = route.query.oauth_ticket;
+  if (typeof ticket !== "string" || !ticket) return;
+
+  oauthTicketLoading.value = true;
+  try {
+    const result = await defOauthService.ExchangeOauthTicket({ ticket });
+    userStore.updateTokenAuth(result.access_token, result.refresh_token ?? "", result.token_type ?? "", result.expires_in);
+    await finishLogin();
+  } finally {
+    oauthTicketLoading.value = false;
+  }
 };
 
 /** 获取验证码 */
@@ -376,28 +505,7 @@ const submitLogin = async (captchaToken: string) => {
     // 1.执行登录接口
     await userStore.login(loginRequest);
 
-    // 2.获取用户信息
-    await userStore.getUserInfo();
-
-    // 3.预加载字典缓存，避免页面首次渲染时字典值为空
-    await dictStore.loadDictionaries();
-
-    // 4.添加动态路由
-    await initDynamicRouter();
-
-    // 5.清空 tabs、keepAlive 数据
-    tabsStore.setTabs([]);
-    keepAliveStore.setKeepAliveName([]);
-
-    // 6.优先跳回登录失效前页面，没有记录时再进入首个可访问页面。
-    // 统一走动态路由感知跳转，避免首次登录后目标页面尚未完成挂载时直接进入 404。
-    await navigateTo(router, getLoginRedirectPath());
-    ElNotification({
-      title: getTimeState(),
-      message: "欢迎登录管理后台",
-      type: "success",
-      duration: 3000
-    });
+    await finishLogin();
   } catch (_error) {
     await loadPageCaptcha();
   } finally {
@@ -465,7 +573,16 @@ const resetForm = (formEl: FormInstance | undefined) => {
 
 onMounted(() => {
   void loadPageCaptcha();
+  void loadOauthProviders();
 });
+
+watch(
+  () => [route.query.oauth_ticket, route.query.oauth_error],
+  () => {
+    void consumeOauthTicket();
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped lang="scss">
@@ -493,6 +610,89 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.oauth-login {
+  margin-top: 22px;
+}
+
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--el-text-color-primary);
+  white-space: nowrap;
+
+  &::before,
+  &::after {
+    flex: 1;
+    height: 1px;
+    content: "";
+    background-color: var(--el-border-color-lighter);
+  }
+}
+
+.oauth-provider-list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding-bottom: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.oauth-provider-button {
+  display: inline-flex;
+  flex: 0 0 36px;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: var(--el-fill-color-light);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  svg,
+  img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+  }
+}
+
+.oauth-provider-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--el-color-primary);
 }
 
 :global(.behavior-captcha-dialog) {

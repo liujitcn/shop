@@ -18,4 +18,5 @@ var ProviderSet = wire.NewSet(
 	ParseQueue,
 	ParsePprof,
 	ParseAuthnJWT,
+	ParseOAuth,
 )

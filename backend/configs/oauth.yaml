@@ -1,28 +1,50 @@
 oauth:
   providers:
     github:
-      clientId: ""
-      clientSecret: ""
+      clientId: mock-github-client-id
+      clientSecret: mock-github-client-secret
       redirectUri: http://localhost:7001/api/v1/base/oauth/github/callback
       scopes:
         - user:email
     gitee:
-      clientId: ""
-      clientSecret: ""
+      clientId: mock-gitee-client-id
+      clientSecret: mock-gitee-client-secret
       redirectUri: http://localhost:7001/api/v1/base/oauth/gitee/callback
       scopes:
         - user_info
     google:
-      clientId: ""
-      clientSecret: ""
+      clientId: mock-google-client-id
+      clientSecret: mock-google-client-secret
       redirectUri: http://localhost:7001/api/v1/base/oauth/google/callback
       scopes:
         - openid
         - profile
         - email
-    local:
-      clientId: local
-      clientSecret: local
-      redirectUri: http://localhost:7001/api/v1/base/oauth/local/callback
+    wechat:
+      clientId: mock-wechat-client-id
+      clientSecret: mock-wechat-client-secret
+      redirectUri: http://localhost:7001/api/v1/base/oauth/wechat/callback
       scopes:
-        - profile
+        - snsapi_login
+    wechatmp:
+      clientId: mock-wechatmp-client-id
+      clientSecret: mock-wechatmp-client-secret
+      redirectUri: http://localhost:7001/api/v1/base/oauth/wechatmp/callback
+      scopes:
+        - snsapi_userinfo
+    wechatwork:
+      clientId: mock-wechatwork-client-id
+      clientSecret: mock-wechatwork-client-secret
+      redirectUri: http://localhost:7001/api/v1/base/oauth/wechatwork/callback
+      scopes: []
+    dingtalk:
+      clientId: mock-dingtalk-client-id
+      clientSecret: mock-dingtalk-client-secret
+      redirectUri: http://localhost:7001/api/v1/base/oauth/dingtalk/callback
+      scopes:
+        - openid
+    feishu:
+      clientId: mock-feishu-client-id
+      clientSecret: mock-feishu-client-secret
+      redirectUri: http://localhost:7001/api/v1/base/oauth/feishu/callback
+      scopes: []

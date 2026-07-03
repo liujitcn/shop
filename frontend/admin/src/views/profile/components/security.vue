@@ -23,6 +23,29 @@
           </div>
           <el-button plain @click="openPhoneDialog">{{ profile.phone ? "更换手机号" : "立即绑定" }}</el-button>
         </div>
+        <div v-for="item in oauthBindings" :key="item.provider" class="security-item">
+          <div class="security-item__content security-item__content--oauth">
+            <el-tooltip :content="item.name" placement="top" :trigger="['hover', 'focus']">
+              <span class="oauth-icon" :aria-label="item.name" :title="item.name">
+                <component :is="getOauthProviderIcon(item)" />
+              </span>
+            </el-tooltip>
+            <div>
+              <strong>{{ item.name }}</strong>
+              <p>{{ item.bound ? "已绑定，可用于登录管理后台。" : "未绑定，绑定成功后可用于登录管理后台。" }}</p>
+            </div>
+          </div>
+          <el-button
+            v-if="item.bound"
+            plain
+            type="danger"
+            :loading="oauthLoadingProvider === item.provider"
+            @click="handleUnbindOauth(item)"
+          >
+            解绑
+          </el-button>
+          <el-button v-else plain :loading="oauthLoadingProvider === item.provider" @click="handleBindOauth(item)">绑定</el-button>
+        </div>
       </div>
     </el-card>
 
@@ -70,13 +93,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { defAuthService } from "@/api/admin/auth";
+import { defOauthService } from "@/api/base/oauth";
 import ProForm from "@/components/ProForm/index.vue";
 import ProDialog from "@/components/Dialog/ProDialog.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import type { SendPhoneCodeRequest, UserPhoneForm, UserProfileForm } from "@/rpc/admin/v1/auth";
-import { ElMessage } from "element-plus";
+import type { OauthBinding } from "@/rpc/base/v1/oauth";
+import { getOauthProviderIcon, withOauthProviderDisplay, type OauthProviderDisplay } from "@/utils/oauthProvider";
+import { resolveFrontendRouteURL } from "@/utils/router";
+import { ElMessage, ElMessageBox } from "element-plus";
 
 /** 安全中心组件属性。 */
 interface ProfileSecurityProps {
@@ -91,9 +119,16 @@ const emit = defineEmits<{
   switchTab: [tab: "account" | "security" | "password"];
 }>();
 
+const route = useRoute();
+const router = useRouter();
 const phoneFormRef = ref<ProFormInstance>();
 const phoneDialogVisible = ref(false);
 const submitLoading = ref(false);
+/** 安全中心三方账号绑定展示项。 */
+type SecurityOauthBinding = OauthBinding & OauthProviderDisplay;
+
+const oauthBindings = ref<SecurityOauthBinding[]>([]);
+const oauthLoadingProvider = ref("");
 const countdown = ref(0);
 const phoneTimer = ref<number | null>(null);
 const phoneForm = reactive<UserPhoneForm>({
@@ -128,6 +163,77 @@ const profileCompletion = computed(() => {
   const completedCount = fieldList.filter(item => Boolean(item)).length;
   return `${Math.round((completedCount / fieldList.length) * 100)}%`;
 });
+
+/** 获取当前安全设置页绝对地址，供 OAuth 绑定完成后回跳到前端页面。 */
+function getCurrentSecurityPath() {
+  const query = { ...route.query };
+  delete query.oauth_bind_provider;
+  delete query.oauth_bind_success;
+  delete query.oauth_bind_error;
+  return resolveFrontendRouteURL(router, { path: route.path, query });
+}
+
+/** 拉取当前用户三方账号绑定状态。 */
+async function loadOauthBindings() {
+  const result = await defOauthService.ListOauthBindings({});
+  oauthBindings.value = result.bindings.map(withOauthProviderDisplay);
+}
+
+/** 处理 OAuth 绑定回跳结果。 */
+async function consumeOauthBindingResult() {
+  const bindError = route.query.oauth_bind_error;
+  const bindSuccess = route.query.oauth_bind_success;
+  if (typeof bindError === "string" && bindError) {
+    ElMessage.error(bindError);
+  } else if (bindSuccess === "1") {
+    ElMessage.success("三方账号绑定成功");
+  } else {
+    return;
+  }
+  await router.replace({
+    path: route.path,
+    query: {
+      ...route.query,
+      oauth_bind_provider: undefined,
+      oauth_bind_success: undefined,
+      oauth_bind_error: undefined
+    }
+  });
+}
+
+/** 发起三方账号绑定授权。 */
+async function handleBindOauth(binding: SecurityOauthBinding) {
+  if (oauthLoadingProvider.value) return;
+  oauthLoadingProvider.value = binding.provider;
+  try {
+    const result = await defOauthService.CreateOauthBindingAuthorization({
+      provider: binding.provider,
+      redirect_url: getCurrentSecurityPath()
+    });
+    if (result.authorization_url) {
+      window.location.href = result.authorization_url;
+    }
+  } finally {
+    oauthLoadingProvider.value = "";
+  }
+}
+
+/** 解绑三方账号并刷新绑定状态。 */
+async function handleUnbindOauth(binding: SecurityOauthBinding) {
+  await ElMessageBox.confirm(`是否确定解绑该登录方式？\n登录方式：${binding.name}`, "提示", {
+    type: "warning",
+    confirmButtonText: "解绑",
+    cancelButtonText: "取消"
+  });
+  oauthLoadingProvider.value = binding.provider;
+  try {
+    await defOauthService.UnbindOauthAccount({ provider: binding.provider });
+    ElMessage.success("三方账号已解绑");
+    await loadOauthBindings();
+  } finally {
+    oauthLoadingProvider.value = "";
+  }
+}
 
 /** 打开手机号绑定弹窗，并回填当前手机号。 */
 function openPhoneDialog() {
@@ -201,6 +307,11 @@ function handleDialogClosed() {
 onBeforeUnmount(() => {
   clearCountdown();
 });
+
+onMounted(async () => {
+  await consumeOauthBindingResult();
+  await loadOauthBindings();
+});
 </script>
 
 <style scoped lang="scss">
@@ -260,6 +371,28 @@ onBeforeUnmount(() => {
 }
 .security-item__content {
   min-width: 0;
+}
+.security-item__content--oauth {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.oauth-icon {
+  display: inline-flex;
+  flex: 0 0 36px;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border-radius: 50%;
+
+  svg,
+  img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
 }
 .security-item strong,
 .status-item strong {

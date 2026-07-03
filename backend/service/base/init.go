@@ -12,11 +12,13 @@ var ProviderSet = wire.NewSet(
 	biz.NewAiAssistantMessageCase,
 	biz.NewBaseDeptCase,
 	biz.NewBaseRoleCase,
+	biz.NewBaseThirdAccountCase,
 	biz.NewBaseUserCase,
 	biz.NewConfigCase,
 	biz.NewFileCase,
 	biz.NewLoginCase,
 	biz.NewMcpCase,
+	biz.NewOauthCase,
 	biz.NewSseCase,
 
 	NewAiAssistantService,
@@ -25,5 +27,6 @@ var ProviderSet = wire.NewSet(
 	NewFileService,
 	NewLoginService,
 	NewMcpService,
+	NewOauthService,
 	NewSseService,
 )

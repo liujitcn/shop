@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"shop/pkg/biz"
+	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 
@@ -194,7 +195,7 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
-	if baseTenant.Status != 1 {
+	if baseTenant.Status != _const.STATUS_ENABLE {
 		return nil, errorsx.PermissionDenied("租户已被禁用")
 	}
 
@@ -207,10 +208,6 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	if err != nil {
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
-	// 用户被停用时，不允许签发新的登录令牌。
-	if user.Status != 1 {
-		return nil, errorsx.PermissionDenied("账号已被禁用")
-	}
 	var password string
 	password, err = utils.DecryptPassword(req.GetPassword(), commonv1.PasswordCryptoScene_LOGIN)
 	if err != nil {
@@ -221,11 +218,25 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		return nil, errorsx.Unauthenticated("用户名或密码错误")
 	}
 
+	return c.IssueUserToken(ctx, user)
+}
+
+// IssueUserToken 校验用户关联状态并签发后台访问令牌。
+func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (*basev1.LoginResponse, error) {
+	// 用户被停用时，不允许签发新的登录令牌。
+	if user.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("账号已被禁用")
+	}
+
 	// 查询角色信息
 	var role *models.BaseRole
-	role, err = c.baseRoleCase.FindByID(ctx, user.RoleID)
+	role, err := c.baseRoleCase.FindByID(ctx, user.RoleID)
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
+	// 角色被停用时，不允许继续登录后台。
+	if role.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("角色已被禁用")
 	}
 
 	// 查询部门信息
@@ -233,6 +244,20 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 	dept, err = c.baseDeptCase.FindByID(ctx, user.DeptID)
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
+	// 部门被停用时，不允许继续登录后台。
+	if dept.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("部门已被禁用")
+	}
+
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.baseTenantRepo.FindByID(ctx, user.TenantID)
+	if err != nil {
+		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
+	// 租户被停用时，不允许继续登录后台。
+	if baseTenant.Status != _const.STATUS_ENABLE {
+		return nil, errorsx.PermissionDenied("租户已被禁用")
 	}
 
 	// 生成访问令牌
@@ -242,10 +267,11 @@ func (c *LoginCase) Login(ctx context.Context, req *basev1.LoginRequest) (*basev
 		RoleId:     user.RoleID,
 		RoleCode:   role.Code,
 		RoleName:   role.Name,
-		TenantId:   baseTenant.ID,
+		TenantId:   user.TenantID,
 		TenantCode: baseTenant.Code,
 		DeptId:     user.DeptID,
 		DeptName:   dept.Name,
+		OpenId:     user.Openid,
 	}
 	var accessToken, refreshToken string
 	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)

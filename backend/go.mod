@@ -17,9 +17,9 @@ require (
 	github.com/liujitcn/go-utils/geoip v0.0.3
 	github.com/liujitcn/go-utils/http v0.0.4
 	github.com/liujitcn/gorm-kit v0.0.28
-	github.com/liujitcn/kratos-kit v0.0.43
+	github.com/liujitcn/kratos-kit v0.0.46
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.1
-	github.com/liujitcn/kratos-kit/api v0.0.15
+	github.com/liujitcn/kratos-kit/api v0.0.18
 	github.com/liujitcn/kratos-kit/auth v0.0.16
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.16
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.11
@@ -33,6 +33,7 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.26
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.11
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.10
+	github.com/liujitcn/kratos-kit/oauth v0.0.4
 	github.com/liujitcn/kratos-kit/oss v0.0.10
 	github.com/liujitcn/kratos-kit/pprof v0.0.8
 	github.com/liujitcn/kratos-kit/queue v0.0.17
@@ -129,7 +130,7 @@ require (
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
 	github.com/liujitcn/kratos-kit/broker v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/config v0.0.14 // indirect
+	github.com/liujitcn/kratos-kit/config v0.0.17 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.13 // indirect
 	github.com/liujitcn/kratos-kit/locker v0.0.9 // indirect
 	github.com/liujitcn/kratos-kit/logger v0.0.23 // indirect

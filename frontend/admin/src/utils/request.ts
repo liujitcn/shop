@@ -14,6 +14,9 @@ const TOKEN_URL = "/v1/base/token";
 const CAPTCHA_URL = "/v1/base/captcha";
 const CONFIG_URL = "/v1/base/config";
 const PASSWORD_PUBLIC_KEY_URL = "/v1/base/password-public-key";
+const OAUTH_PROVIDER_URL = "/v1/base/oauth/provider";
+const OAUTH_AUTHORIZATION_URL = "/v1/base/oauth/authorization";
+const OAUTH_TICKET_URL = "/v1/base/oauth/ticket";
 const LEGACY_AUTH_URL = "/auth";
 const LEGACY_REFRESH_TOKEN_URL = `${LEGACY_AUTH_URL}/token`;
 const LEGACY_CAPTCHA_URL = "/login/captcha";
@@ -24,6 +27,9 @@ const NO_AUTH_URL_SET = new Set([
   CAPTCHA_URL,
   CONFIG_URL,
   PASSWORD_PUBLIC_KEY_URL,
+  OAUTH_PROVIDER_URL,
+  OAUTH_AUTHORIZATION_URL,
+  OAUTH_TICKET_URL,
   LEGACY_AUTH_URL,
   LEGACY_CAPTCHA_URL,
   LEGACY_REFRESH_TOKEN_URL
@@ -34,6 +40,9 @@ const AUTH_EXPIRED_EXCLUDED_URL_SET = new Set([
   CAPTCHA_URL,
   CONFIG_URL,
   PASSWORD_PUBLIC_KEY_URL,
+  OAUTH_PROVIDER_URL,
+  OAUTH_AUTHORIZATION_URL,
+  OAUTH_TICKET_URL,
   LEGACY_AUTH_URL,
   LEGACY_REFRESH_TOKEN_URL,
   LEGACY_CAPTCHA_URL

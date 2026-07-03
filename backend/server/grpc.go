@@ -106,6 +106,7 @@ func NewGRPCServer(
 	config *base.ConfigService,
 	file *base.FileService,
 	login *base.LoginService,
+	oauth *base.OauthService,
 	mcp *base.McpService,
 	sse *base.SseService,
 ) (*grpc.Server, error) {
@@ -173,6 +174,7 @@ func NewGRPCServer(
 	basev1.RegisterConfigServiceServer(srv, config)
 	basev1.RegisterFileServiceServer(srv, file)
 	basev1.RegisterLoginServiceServer(srv, login)
+	basev1.RegisterOauthServiceServer(srv, oauth)
 	basev1.RegisterMcpServiceServer(srv, mcp)
 	basev1.RegisterSseServiceServer(srv, sse)
 

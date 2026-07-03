@@ -1,0 +1,77 @@
+package biz
+
+import (
+	"context"
+
+	"shop/pkg/errorsx"
+	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
+
+	"github.com/liujitcn/gorm-kit/repository"
+)
+
+// BaseThirdAccountCase 处理用户三方登录账号绑定业务。
+type BaseThirdAccountCase struct {
+	*data.BaseThirdAccountRepository
+}
+
+// NewBaseThirdAccountCase 创建用户三方登录账号绑定业务实例。
+func NewBaseThirdAccountCase(baseThirdAccountRepo *data.BaseThirdAccountRepository) *BaseThirdAccountCase {
+	return &BaseThirdAccountCase{
+		BaseThirdAccountRepository: baseThirdAccountRepo,
+	}
+}
+
+// FindByProviderIdentifier 按三方登录方式与唯一标识查询绑定关系。
+func (c *BaseThirdAccountCase) FindByProviderIdentifier(ctx context.Context, provider string, identifier string) (*models.BaseThirdAccount, error) {
+	query := c.Query(ctx).BaseThirdAccount
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.Provider.Eq(provider)))
+	opts = append(opts, repository.Where(query.Identifier.Eq(identifier)))
+	return c.Find(ctx, opts...)
+}
+
+// FindByUserProvider 按用户与三方登录方式查询绑定关系。
+func (c *BaseThirdAccountCase) FindByUserProvider(ctx context.Context, userID int64, provider string) (*models.BaseThirdAccount, error) {
+	query := c.Query(ctx).BaseThirdAccount
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.Provider.Eq(provider)))
+	return c.Find(ctx, opts...)
+}
+
+// ListByUserID 查询指定用户已绑定的三方账号。
+func (c *BaseThirdAccountCase) ListByUserID(ctx context.Context, userID int64) ([]*models.BaseThirdAccount, error) {
+	query := c.Query(ctx).BaseThirdAccount
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	return c.List(ctx, opts...)
+}
+
+// CreateBinding 创建三方账号绑定关系。
+func (c *BaseThirdAccountCase) CreateBinding(ctx context.Context, userID int64, provider string, identifier string) error {
+	err := c.Create(ctx, &models.BaseThirdAccount{
+		UserID:     userID,
+		Provider:   provider,
+		Identifier: identifier,
+	})
+	if err != nil {
+		// 唯一键冲突表示该三方账号或该用户同 provider 已绑定。
+		if errorsx.IsMySQLDuplicateKey(err) {
+			return errorsx.UniqueConflict("三方账号已绑定", "base_third_account", "provider", "unique_base_third_account").WithCause(err)
+		}
+		return err
+	}
+	return nil
+}
+
+// DeleteByUserProvider 删除指定用户的三方账号绑定关系。
+func (c *BaseThirdAccountCase) DeleteByUserProvider(ctx context.Context, userID int64, provider string) error {
+	query := c.Query(ctx).BaseThirdAccount
+	opts := make([]repository.QueryOption, 0, 3)
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.Provider.Eq(provider)))
+	// 绑定关系解绑后允许同一个三方账号再次绑定，必须硬删除释放唯一键。
+	opts = append(opts, repository.Unscoped())
+	return c.Delete(ctx, opts...)
+}

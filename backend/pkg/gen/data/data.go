@@ -14,12 +14,7 @@ import (
 )
 
 func init() {
-	databaseGorm.RegisterMigrateModels(MigrateModels()...)
-}
-
-// MigrateModels 返回需要参与自动迁移和模型解析的数据模型列表。
-func MigrateModels() []interface{} {
-	return []interface{}{
+	databaseGorm.RegisterMigrateModels(
 		new(models.AiAssistantMessage),
 		new(models.AiAssistantSession),
 		new(models.BaseAPI),
@@ -34,6 +29,7 @@ func MigrateModels() []interface{} {
 		new(models.BaseMenu),
 		new(models.BaseRole),
 		new(models.BaseTenant),
+		new(models.BaseThirdAccount),
 		new(models.BaseUser),
 		new(models.CasbinRule),
 		new(models.CommentDiscussion),
@@ -69,7 +65,7 @@ func MigrateModels() []interface{} {
 		new(models.UserCart),
 		new(models.UserCollect),
 		new(models.UserStore),
-	}
+	)
 }
 
 type contextTxKey struct{}

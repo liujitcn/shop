@@ -24,6 +24,7 @@ var ProviderSet = wire.NewSet(
 	NewBaseMenuRepository,
 	NewBaseRoleRepository,
 	NewBaseTenantRepository,
+	NewBaseThirdAccountRepository,
 	NewBaseUserRepository,
 	NewCasbinRuleRepository,
 	NewCommentDiscussionRepository,

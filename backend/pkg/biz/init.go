@@ -4,6 +4,7 @@ import (
 	"github.com/google/wire"
 	"github.com/liujitcn/kratos-kit/cache"
 	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oss"
 	"github.com/liujitcn/kratos-kit/pprof"
 	"github.com/liujitcn/kratos-kit/queue"
@@ -19,4 +20,5 @@ var ProviderSet = wire.NewSet(
 	queue.NewQueue,
 	cache.NewCache,
 	pprof.NewPprof,
+	oauth.NewManager,
 )

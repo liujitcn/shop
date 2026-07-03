@@ -390,12 +390,12 @@ github.com/liujitcn/go-utils/http v0.0.4 h1:d/vlOz6BFHupqnqaWaJ8xj7fDHzun/mHy4Jt
 github.com/liujitcn/go-utils/http v0.0.4/go.mod h1:F5CzA57eRJwS7TTM5I5igdhu4nynpP8cm+O6Nk/GVRc=
 github.com/liujitcn/gorm-kit v0.0.28 h1:BBbVuBbpNu7TWWYBEYwCuucukmAemUbfpOQ/6AZDHn0=
 github.com/liujitcn/gorm-kit v0.0.28/go.mod h1:PaVfftsXRJp4CU0Hb80YWU/V4/WayzTh6iH9SxeT5SE=
-github.com/liujitcn/kratos-kit v0.0.43 h1:0HgGqbxVf0BpKRNgf3qKTatXuh1YbpeYYN8kmN1gfBQ=
-github.com/liujitcn/kratos-kit v0.0.43/go.mod h1:PCVhgQP/l6rSvPpJqiQ6juvhW/NZk7vd1vbeawKlovI=
+github.com/liujitcn/kratos-kit v0.0.46 h1:yGeApjcehW7MMUZdw2y8/rrNkd3goh/vLYVxlaZH+eg=
+github.com/liujitcn/kratos-kit v0.0.46/go.mod h1:s8fR+fi3fv4mnB+RD+zLcGknl0qAlqKMfVn/AmyVsVM=
 github.com/liujitcn/kratos-kit/ai/eino v0.0.1 h1:jUqHlBhYYzF92Z6GX+w5/bezitPUvrch4TrtVOlJHpA=
 github.com/liujitcn/kratos-kit/ai/eino v0.0.1/go.mod h1:pZQUoNrwHKSv+KpR/ODX/66ep9e1J+XpJYmyAjf4x78=
-github.com/liujitcn/kratos-kit/api v0.0.15 h1:T932p8Syeq1QIXAlW8H1vXZAkfrt5dgKlll+ZirXiII=
-github.com/liujitcn/kratos-kit/api v0.0.15/go.mod h1:vEdhTflQEXTq8F7hzC1UxENeJXAQ8ws1IwCNTwsGNMU=
+github.com/liujitcn/kratos-kit/api v0.0.18 h1:xenLL0KX5FpRFsPwK2xK3PYRijEOIwmntAnHzqcLam8=
+github.com/liujitcn/kratos-kit/api v0.0.18/go.mod h1:sz7G4l7CQuW+RiLHp2xvM8v1TyrpWVj4tf0wtrZhaPE=
 github.com/liujitcn/kratos-kit/auth v0.0.16 h1:JlW7yTHW8bs95XvMrud1Xrj+y+GoQfQ7MrhOWYbXYN8=
 github.com/liujitcn/kratos-kit/auth v0.0.16/go.mod h1:d/M+YbxKEddQUdIO0nh0F4PQmdRP9Q3GdkTAHJqeWIo=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.16 h1:lMtIICRrOGagSp4i3dYJJI5xJI5+3vaeoBf2E25CiZc=
@@ -418,8 +418,8 @@ github.com/liujitcn/kratos-kit/cache v0.0.12 h1:k+Yx7xQXX4vNEOux72PZq9p+DdPs+C/h
 github.com/liujitcn/kratos-kit/cache v0.0.12/go.mod h1:+POHWQl6nRoWdazEssyvuHjeJ8Z2c1uwo0ykt7OEE/8=
 github.com/liujitcn/kratos-kit/captcha v0.0.14 h1:0WDsuCH9R7GRkrK/3pzWxGChUto2fWj9rTPgksfyNnI=
 github.com/liujitcn/kratos-kit/captcha v0.0.14/go.mod h1:fn0jaZdFu2TCT6qDOs90YCcGixwMoIVosSTKlWO7c64=
-github.com/liujitcn/kratos-kit/config v0.0.14 h1:N15OWzXHRnSK5GHiiVIjt3SydcFRiWBkaMySsTf2fVM=
-github.com/liujitcn/kratos-kit/config v0.0.14/go.mod h1:RzHdXvOs6uBaHRRV5bt1ZwrdiWqU4E4kdoKAjtIhMh8=
+github.com/liujitcn/kratos-kit/config v0.0.17 h1:V5pk1EwE0W2r7HhjD8ZeVV9f2+Xw01y7AhScAzFaOrw=
+github.com/liujitcn/kratos-kit/config v0.0.17/go.mod h1:sKCJUt6YWXGSNd98WYD1orJZSSE1vrxjpQE8INSj2aw=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.26 h1:/sf8CGbHonPH5ELML2sPHrE7oY6lUWc8Cq4DNrjQuwc=
 github.com/liujitcn/kratos-kit/database/gorm v0.0.26/go.mod h1:L7k59zOey1go27AalnaQDmScDvcM/h2JL+GfRiOZwuY=
 github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.13 h1:O1DGHohN1FGmqWuhlREoy8pXGIOSV7jHsSZOaeSXNbE=
@@ -432,6 +432,8 @@ github.com/liujitcn/kratos-kit/logger v0.0.23 h1:JkL6IIog+VYlDK1dQMA2ca30nyHV5nu
 github.com/liujitcn/kratos-kit/logger v0.0.23/go.mod h1:iNg7U22TxKkJVwEEVGJuS+nw1w6kRg2bFV7aN1yZdxI=
 github.com/liujitcn/kratos-kit/logger/zap v0.0.10 h1:cRMnM4+O6bqiddmZ0/vKY+PPkcpB/Jva5zKkSaQAMk8=
 github.com/liujitcn/kratos-kit/logger/zap v0.0.10/go.mod h1:eQ5rw5ZYg3HHZeJlTwVsVTucJZOkoXzDyENjQ2xTAXQ=
+github.com/liujitcn/kratos-kit/oauth v0.0.4 h1:/xF61Q6tBfthIB0ZU8McQW6QWGWq4qT8HU95sN42tfs=
+github.com/liujitcn/kratos-kit/oauth v0.0.4/go.mod h1:srN4RcsPs6qaaUnnBG7e63klK/Vsw9lO0Id5CMeiNL0=
 github.com/liujitcn/kratos-kit/oss v0.0.10 h1:YRrSeLCnow8FvsUEOmsXHtQJHvQuFr1ZowVqDoA5ays=
 github.com/liujitcn/kratos-kit/oss v0.0.10/go.mod h1:Z1mFZ2jCnqyObUsI3wKEtWYB99QR8V9y4VoucHDCcjg=
 github.com/liujitcn/kratos-kit/pprof v0.0.8 h1:KFlvwpgU3kNUGiHWzzqFH8G6bPPs6XiF0cOhy/HGhyw=

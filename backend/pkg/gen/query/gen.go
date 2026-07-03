@@ -32,6 +32,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		BaseMenu:             newBaseMenu(db, opts...),
 		BaseRole:             newBaseRole(db, opts...),
 		BaseTenant:           newBaseTenant(db, opts...),
+		BaseThirdAccount:     newBaseThirdAccount(db, opts...),
 		BaseUser:             newBaseUser(db, opts...),
 		CasbinRule:           newCasbinRule(db, opts...),
 		CommentDiscussion:    newCommentDiscussion(db, opts...),
@@ -87,6 +88,7 @@ type Query struct {
 	BaseMenu             baseMenu
 	BaseRole             baseRole
 	BaseTenant           baseTenant
+	BaseThirdAccount     baseThirdAccount
 	BaseUser             baseUser
 	CasbinRule           casbinRule
 	CommentDiscussion    commentDiscussion
@@ -143,6 +145,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		BaseMenu:             q.BaseMenu.clone(db),
 		BaseRole:             q.BaseRole.clone(db),
 		BaseTenant:           q.BaseTenant.clone(db),
+		BaseThirdAccount:     q.BaseThirdAccount.clone(db),
 		BaseUser:             q.BaseUser.clone(db),
 		CasbinRule:           q.CasbinRule.clone(db),
 		CommentDiscussion:    q.CommentDiscussion.clone(db),
@@ -206,6 +209,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		BaseMenu:             q.BaseMenu.replaceDB(db),
 		BaseRole:             q.BaseRole.replaceDB(db),
 		BaseTenant:           q.BaseTenant.replaceDB(db),
+		BaseThirdAccount:     q.BaseThirdAccount.replaceDB(db),
 		BaseUser:             q.BaseUser.replaceDB(db),
 		CasbinRule:           q.CasbinRule.replaceDB(db),
 		CommentDiscussion:    q.CommentDiscussion.replaceDB(db),
@@ -259,6 +263,7 @@ type queryCtx struct {
 	BaseMenu             *baseMenuDo
 	BaseRole             *baseRoleDo
 	BaseTenant           *baseTenantDo
+	BaseThirdAccount     *baseThirdAccountDo
 	BaseUser             *baseUserDo
 	CasbinRule           *casbinRuleDo
 	CommentDiscussion    *commentDiscussionDo
@@ -312,6 +317,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		BaseMenu:             q.BaseMenu.WithContext(ctx),
 		BaseRole:             q.BaseRole.WithContext(ctx),
 		BaseTenant:           q.BaseTenant.WithContext(ctx),
+		BaseThirdAccount:     q.BaseThirdAccount.WithContext(ctx),
 		BaseUser:             q.BaseUser.WithContext(ctx),
 		CasbinRule:           q.CasbinRule.WithContext(ctx),
 		CommentDiscussion:    q.CommentDiscussion.WithContext(ctx),

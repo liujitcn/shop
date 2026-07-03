@@ -174,6 +174,16 @@ func ParseAuthnJWT(ctx *bootstrap.Context) *bootstrapConfigv1.Authentication_Jwt
 	return cfg.GetAuthn().GetJwt()
 }
 
+// ParseOAuth 解析 OAuth 配置。
+func ParseOAuth(ctx *bootstrap.Context) *bootstrapConfigv1.OAuth {
+	cfg := ctx.GetConfig()
+	// 未配置 OAuth 时，回退为空配置，避免影响账号密码登录。
+	if cfg == nil || cfg.GetOauth() == nil {
+		return &bootstrapConfigv1.OAuth{}
+	}
+	return cfg.GetOauth()
+}
+
 // resolveFilePath 解析配置中的证书文件路径。
 func resolveFilePath(path string) (string, bool) {
 	var err error
