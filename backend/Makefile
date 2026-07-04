@@ -76,6 +76,7 @@ wire: fmt
 	@echo "==> 生成 wire 依赖注入代码"
 	@cd internal/cmd/server && \
 	wire
+	@goimports -local shop/ -w internal/cmd/server/wire.go internal/cmd/server/wire_gen.go
 	@echo "==> wire 依赖注入代码生成完成"
 
 # 生成 protobuf 的 Go 代码

@@ -4,6 +4,10 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v3"
+	"github.com/google/wire"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+
 	"shop/pkg/agent"
 	"shop/pkg/biz"
 	"shop/pkg/config"
@@ -16,11 +20,6 @@ import (
 	"shop/service/admin"
 	"shop/service/app"
 	"shop/service/base"
-
-	"github.com/go-kratos/kratos/v3"
-	"github.com/google/wire"
-
-	"github.com/liujitcn/kratos-kit/bootstrap"
 )
 
 // initApp 初始化 Kratos 应用实例。

@@ -7,6 +7,15 @@
 package main
 
 import (
+	"github.com/go-kratos/kratos/v3"
+	"github.com/liujitcn/kratos-kit/bootstrap"
+	"github.com/liujitcn/kratos-kit/cache"
+	"github.com/liujitcn/kratos-kit/database/gorm"
+	"github.com/liujitcn/kratos-kit/oauth"
+	"github.com/liujitcn/kratos-kit/oss"
+	"github.com/liujitcn/kratos-kit/pprof"
+	"github.com/liujitcn/kratos-kit/queue"
+
 	"shop/pkg/agent/assistant"
 	"shop/pkg/agent/comment"
 	"shop/pkg/agent/eino/model"
@@ -28,15 +37,6 @@ import (
 	biz2 "shop/service/app/biz"
 	"shop/service/base"
 	biz4 "shop/service/base/biz"
-
-	"github.com/go-kratos/kratos/v3"
-	"github.com/liujitcn/kratos-kit/bootstrap"
-	"github.com/liujitcn/kratos-kit/cache"
-	"github.com/liujitcn/kratos-kit/database/gorm"
-	"github.com/liujitcn/kratos-kit/oauth"
-	"github.com/liujitcn/kratos-kit/oss"
-	"github.com/liujitcn/kratos-kit/pprof"
-	"github.com/liujitcn/kratos-kit/queue"
 
 	_ "github.com/liujitcn/kratos-kit/database/gorm/driver/mysql"
 

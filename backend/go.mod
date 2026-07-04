@@ -12,13 +12,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/gorse-io/gorse-go v0.5.0-alpha.3
-	github.com/liujitcn/go-utils v0.0.28
+	github.com/liujitcn/go-utils v0.0.30
 	github.com/liujitcn/go-utils/crypto v0.0.9
 	github.com/liujitcn/go-utils/geoip v0.0.3
 	github.com/liujitcn/go-utils/http v0.0.4
-	github.com/liujitcn/gorm-kit v0.0.28
+	github.com/liujitcn/gorm-kit v0.0.30
 	github.com/liujitcn/kratos-kit v0.0.46
-	github.com/liujitcn/kratos-kit/ai/eino v0.0.1
+	github.com/liujitcn/kratos-kit/ai/eino v0.0.2
 	github.com/liujitcn/kratos-kit/api v0.0.18
 	github.com/liujitcn/kratos-kit/auth v0.0.16
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.16
@@ -27,22 +27,22 @@ require (
 	github.com/liujitcn/kratos-kit/auth/authz v0.0.15
 	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.13
 	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.12
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.12
-	github.com/liujitcn/kratos-kit/cache v0.0.12
-	github.com/liujitcn/kratos-kit/captcha v0.0.14
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.13
+	github.com/liujitcn/kratos-kit/cache v0.0.13
+	github.com/liujitcn/kratos-kit/captcha v0.0.15
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.26
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.11
-	github.com/liujitcn/kratos-kit/logger/zap v0.0.10
+	github.com/liujitcn/kratos-kit/logger/zap v0.0.11
 	github.com/liujitcn/kratos-kit/oauth v0.0.4
-	github.com/liujitcn/kratos-kit/oss v0.0.10
-	github.com/liujitcn/kratos-kit/pprof v0.0.8
-	github.com/liujitcn/kratos-kit/queue v0.0.17
-	github.com/liujitcn/kratos-kit/rpc v0.0.13
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.5
-	github.com/liujitcn/kratos-kit/transport/cron v0.0.6
-	github.com/liujitcn/kratos-kit/transport/mcp v0.0.8
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.5
-	github.com/liujitcn/kratos-kit/utils v0.0.13
+	github.com/liujitcn/kratos-kit/oss v0.0.11
+	github.com/liujitcn/kratos-kit/pprof v0.0.9
+	github.com/liujitcn/kratos-kit/queue v0.0.18
+	github.com/liujitcn/kratos-kit/rpc v0.0.14
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.6
+	github.com/liujitcn/kratos-kit/transport/cron v0.0.7
+	github.com/liujitcn/kratos-kit/transport/mcp v0.0.9
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.6
+	github.com/liujitcn/kratos-kit/utils v0.0.14
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
 	github.com/openai/openai-go/v3 v3.35.0
@@ -88,7 +88,7 @@ require (
 	github.com/cloudwego/eino-ext/libs/acl/openai v0.1.18-0.20260527084435-846f52bd97c6 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/eino-contrib/jsonschema v1.0.3 // indirect
-	github.com/evanphx/json-patch v0.5.2 // indirect
+	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
@@ -129,17 +129,17 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.11 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
-	github.com/liujitcn/kratos-kit/broker v0.0.4 // indirect
+	github.com/liujitcn/kratos-kit/broker v0.0.5 // indirect
 	github.com/liujitcn/kratos-kit/config v0.0.17 // indirect
 	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.13 // indirect
-	github.com/liujitcn/kratos-kit/locker v0.0.9 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.23 // indirect
-	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.8 // indirect
-	github.com/liujitcn/kratos-kit/registry v0.0.14 // indirect
-	github.com/liujitcn/kratos-kit/tracer v0.0.10 // indirect
-	github.com/liujitcn/kratos-kit/tracing v0.0.4 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.15 // indirect
-	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/locker v0.0.10 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.24 // indirect
+	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.9 // indirect
+	github.com/liujitcn/kratos-kit/registry v0.0.16 // indirect
+	github.com/liujitcn/kratos-kit/tracer v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/tracing v0.0.5 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.17 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.7 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -149,7 +149,7 @@ require (
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/minio-go/v7 v7.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/modern-go/reflect2 v1.0.3-0.20250322232337-35a7c28c31ee // indirect
 	github.com/mojocn/base64Captcha v1.3.8 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nikolalohinski/gonja v1.5.3 // indirect
@@ -159,7 +159,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
 	github.com/paulmach/orb v0.11.1 // indirect
-	github.com/pelletier/go-toml/v2 v2.0.9 // indirect
+	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -174,10 +174,10 @@ require (
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/segmentio/encoding v0.5.4 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/slongfield/pyfmt v0.0.0-20220222012616-ea85ff4c361f // indirect
 	github.com/spf13/cobra v1.10.2 // indirect
-	github.com/spf13/pflag v1.0.9 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/swgui v1.8.7 // indirect
 	github.com/tidwall/gjson v1.18.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect

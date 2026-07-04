@@ -277,9 +277,29 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 		return nil, errorsx.InvalidArgument("三方授权码不能为空")
 	}
 
+	user, err := c.findOrCreateWechatMiniUser(ctx, req.GetCode())
+	if err != nil {
+		return nil, err
+	}
+	var loginRes *basev1.LoginResponse
+	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	queue.DispatchRecommendSyncBaseUser(user.ID)
+	return &basev1.CreateOauthSessionResponse{
+		AccessToken:  loginRes.GetAccessToken(),
+		RefreshToken: loginRes.GetRefreshToken(),
+		TokenType:    loginRes.GetTokenType(),
+		ExpiresIn:    loginRes.GetExpiresIn(),
+	}, nil
+}
+
+// findOrCreateWechatMiniUser 按微信小程序授权码查找或自动创建本地用户。
+func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string) (*models.BaseUser, error) {
 	var err error
 	var oauthToken *provider.Token
-	oauthToken, err = c.wechatMiniProvider.GetToken(ctx, req.GetCode())
+	oauthToken, err = c.wechatMiniProvider.GetToken(ctx, code)
 	if err != nil {
 		return nil, errorsx.InvalidArgument("微信登录凭据无效").WithCause(err)
 	}
@@ -300,43 +320,7 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 		if !stderrors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errorsx.Internal("登录失败").WithCause(err)
 		}
-		user := &models.BaseUser{
-			UserName: id.NewXID(),
-			RoleID:   4,
-			DeptID:   5,
-			Phone:    "",
-			Password: "",
-			Gender:   3,
-			Avatar:   "",
-			Status:   _const.STATUS_ENABLE,
-			Remark:   "自动注册用户",
-		}
-		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-			err = c.baseUserCase.Create(txCtx, user)
-			if err != nil {
-				return errorsx.Internal("登录失败").WithCause(err)
-			}
-			err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(kitOauth.WechatMini), oauthUser.OpenID)
-			if err != nil {
-				return errorsx.Internal("登录失败").WithCause(err)
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
-		var loginRes *basev1.LoginResponse
-		loginRes, err = c.loginCase.IssueUserToken(ctx, user)
-		if err != nil {
-			return nil, err
-		}
-		queue.DispatchRecommendSyncBaseUser(user.ID)
-		return &basev1.CreateOauthSessionResponse{
-			AccessToken:  loginRes.GetAccessToken(),
-			RefreshToken: loginRes.GetRefreshToken(),
-			TokenType:    loginRes.GetTokenType(),
-			ExpiresIn:    loginRes.GetExpiresIn(),
-		}, nil
+		return c.createWechatMiniUser(ctx, oauthUser.OpenID)
 	}
 
 	var user *models.BaseUser
@@ -344,18 +328,38 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
 	}
-	var loginRes *basev1.LoginResponse
-	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	return user, nil
+}
+
+// createWechatMiniUser 自动创建微信小程序用户并绑定三方账号。
+func (c *OauthCase) createWechatMiniUser(ctx context.Context, openID string) (*models.BaseUser, error) {
+	user := &models.BaseUser{
+		UserName: id.NewXID(),
+		RoleID:   4,
+		DeptID:   5,
+		Phone:    "",
+		Password: "",
+		Gender:   3,
+		Avatar:   "",
+		Status:   _const.STATUS_ENABLE,
+		Remark:   "自动注册用户",
+	}
+	var err error
+	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+		err = c.baseUserCase.Create(txCtx, user)
+		if err != nil {
+			return errorsx.Internal("登录失败").WithCause(err)
+		}
+		err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(kitOauth.WechatMini), openID)
+		if err != nil {
+			return errorsx.Internal("登录失败").WithCause(err)
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
-	queue.DispatchRecommendSyncBaseUser(user.ID)
-	return &basev1.CreateOauthSessionResponse{
-		AccessToken:  loginRes.GetAccessToken(),
-		RefreshToken: loginRes.GetRefreshToken(),
-		TokenType:    loginRes.GetTokenType(),
-		ExpiresIn:    loginRes.GetExpiresIn(),
-	}, nil
+	return user, nil
 }
 
 // consumeOauthLoginTicket 串行消费三方登录一次性票据，避免同一票据被并发重复兑换。
