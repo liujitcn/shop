@@ -1,7 +1,9 @@
-import type { UserProfileForm, WechatLoginRequest } from '@/rpc/app/v1/auth'
-import type { LoginRequest } from '@/rpc/base/v1/login'
+import type { UserProfileForm } from '@/rpc/app/v1/auth'
+import type { CreateOauthSessionRequest, CreateOauthSessionResponse } from '@/rpc/base/v1/oauth'
+import type { LoginRequest, LoginResponse } from '@/rpc/base/v1/login'
 import { defAuthService } from '@/api/app/auth'
 import { defLoginService } from '@/api/base/login'
+import { defOauthService } from '@/api/base/oauth'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRecommendStore } from './recommend'
@@ -29,6 +31,19 @@ export const useUserStore = defineStore(
       return Boolean(userInfo.value && hasValidToken())
     }
 
+    /** 保存登录接口返回的认证令牌并绑定匿名推荐主体。 */
+    function applyLoginToken(data: LoginResponse | CreateOauthSessionResponse) {
+      const { token_type, access_token, refresh_token, expires_in } = data
+      setToken(token_type + ' ' + access_token)
+      setRefreshToken(refresh_token)
+      setTokenExpiresIn(expires_in)
+      return useRecommendStore()
+        .bindAnonymousActor()
+        .catch((error) => {
+          console.warn('bindAnonymousActor failed', error)
+        })
+    }
+
     /**
      * 登录
      *
@@ -40,18 +55,9 @@ export const useUserStore = defineStore(
         defLoginService
           .Login(request)
           .then((data) => {
-            const { token_type, access_token, refresh_token, expires_in } = data
-            setToken(token_type + ' ' + access_token) // Bearer eyJhbGciOiJIUzI1NiJ9.xxx.xxx
-            setRefreshToken(refresh_token)
-            setTokenExpiresIn(expires_in)
-            useRecommendStore()
-              .bindAnonymousActor()
-              .catch((error) => {
-                console.warn('bindAnonymousActor failed', error)
-              })
-              .finally(() => {
-                resolve()
-              })
+            applyLoginToken(data).finally(() => {
+              resolve()
+            })
           })
           .catch((error) => {
             reject(error)
@@ -60,28 +66,19 @@ export const useUserStore = defineStore(
     }
 
     /**
-     * 微信登录
+     * 创建三方登录会话
      *
      * @param request
      * @returns
      */
-    function wechatLogin(request: WechatLoginRequest) {
+    function createOauthSession(request: CreateOauthSessionRequest) {
       return new Promise<void>((resolve, reject) => {
-        defAuthService
-          .WechatLogin(request)
+        defOauthService
+          .CreateOauthSession(request)
           .then((data) => {
-            const { token_type, access_token, refresh_token, expires_in } = data
-            setToken(token_type + ' ' + access_token)
-            setRefreshToken(refresh_token)
-            setTokenExpiresIn(expires_in)
-            useRecommendStore()
-              .bindAnonymousActor()
-              .catch((error) => {
-                console.warn('bindAnonymousActor failed', error)
-              })
-              .finally(() => {
-                resolve()
-              })
+            applyLoginToken(data).finally(() => {
+              resolve()
+            })
           })
           .catch((error) => {
             reject(error)
@@ -198,7 +195,7 @@ export const useUserStore = defineStore(
       isAuthenticated,
       getUserProfile,
       login,
-      wechatLogin,
+      createOauthSession,
       logout,
       clearUserData,
       silentLogout,

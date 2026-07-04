@@ -19,6 +19,7 @@ func RegisterOauthServiceMCPTools(mcpServer *mcp.Server, oauthServiceServer Oaut
 	RegisterOauthServiceCreateOauthAuthorizationMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceHandleOauthCallbackMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceExchangeOauthTicketMCPTool(mcpServer, oauthServiceServer)
+	RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceListOauthBindingsMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceCreateOauthBindingAuthorizationMCPTool(mcpServer, oauthServiceServer)
 	RegisterOauthServiceHandleOauthBindingCallbackMCPTool(mcpServer, oauthServiceServer)
@@ -101,6 +102,27 @@ func RegisterOauthServiceExchangeOauthTicketMCPTool(mcpServer *mcp.Server, oauth
 				input = &ExchangeOauthTicketRequest{}
 			}
 			reply, err := oauthServiceServer.ExchangeOauthTicket(ctx, input)
+			if err != nil {
+				return nil, nil, err
+			}
+			return nil, reply, nil
+		},
+	)
+}
+
+// RegisterOauthServiceCreateOauthSessionMCPTool 注册创建三方登录会话的 MCP Tool。
+func RegisterOauthServiceCreateOauthSessionMCPTool(mcpServer *mcp.Server, oauthServiceServer OauthServiceServer) {
+	mcp.AddTool[*CreateOauthSessionRequest, *CreateOauthSessionResponse](
+		mcpServer,
+		&mcp.Tool{
+			Name:        "base_v1_oauth_service_create_oauth_session",
+			Description: "创建三方登录会话",
+		},
+		func(ctx context.Context, request *mcp.CallToolRequest, input *CreateOauthSessionRequest) (*mcp.CallToolResult, *CreateOauthSessionResponse, error) {
+			if input == nil {
+				input = &CreateOauthSessionRequest{}
+			}
+			reply, err := oauthServiceServer.CreateOauthSession(ctx, input)
 			if err != nil {
 				return nil, nil, err
 			}

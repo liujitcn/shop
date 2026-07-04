@@ -73,6 +73,26 @@ export interface ExchangeOauthTicketResponse {
   expires_in: number;
 }
 
+/** 三方登录会话创建请求 */
+export interface CreateOauthSessionRequest {
+  /** 登录方式标识 */
+  provider: string;
+  /** 三方授权码 */
+  code: string;
+}
+
+/** 三方登录会话创建响应 */
+export interface CreateOauthSessionResponse {
+  /** 访问令牌，必选项。 */
+  access_token: string;
+  /** 更新令牌，用来获取下一次的访问令牌，可选项。 */
+  refresh_token: string;
+  /** 令牌类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型。 */
+  token_type: string;
+  /** 令牌有效时间，单位为秒。 */
+  expires_in: number;
+}
+
 /** 个人中心三方账号绑定列表查询条件 */
 export interface ListOauthBindingsRequest {
 }
@@ -139,6 +159,8 @@ export interface OauthService {
   HandleOauthCallback(request: HandleOauthCallbackRequest): Promise<HandleOauthCallbackResponse>;
   /** 兑换三方登录票据 */
   ExchangeOauthTicket(request: ExchangeOauthTicketRequest): Promise<ExchangeOauthTicketResponse>;
+  /** 创建三方登录会话 */
+  CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse>;
   /** 查询个人中心三方账号绑定列表 */
   ListOauthBindings(request: ListOauthBindingsRequest): Promise<ListOauthBindingsResponse>;
   /** 创建个人中心三方账号绑定授权地址 */

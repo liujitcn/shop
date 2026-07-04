@@ -25,6 +25,7 @@ const (
 	OauthService_CreateOauthAuthorization_FullMethodName        = "/base.v1.OauthService/CreateOauthAuthorization"
 	OauthService_HandleOauthCallback_FullMethodName             = "/base.v1.OauthService/HandleOauthCallback"
 	OauthService_ExchangeOauthTicket_FullMethodName             = "/base.v1.OauthService/ExchangeOauthTicket"
+	OauthService_CreateOauthSession_FullMethodName              = "/base.v1.OauthService/CreateOauthSession"
 	OauthService_ListOauthBindings_FullMethodName               = "/base.v1.OauthService/ListOauthBindings"
 	OauthService_CreateOauthBindingAuthorization_FullMethodName = "/base.v1.OauthService/CreateOauthBindingAuthorization"
 	OauthService_HandleOauthBindingCallback_FullMethodName      = "/base.v1.OauthService/HandleOauthBindingCallback"
@@ -45,6 +46,8 @@ type OauthServiceClient interface {
 	HandleOauthCallback(ctx context.Context, in *HandleOauthCallbackRequest, opts ...grpc.CallOption) (*HandleOauthCallbackResponse, error)
 	// 兑换三方登录票据
 	ExchangeOauthTicket(ctx context.Context, in *ExchangeOauthTicketRequest, opts ...grpc.CallOption) (*ExchangeOauthTicketResponse, error)
+	// 创建三方登录会话
+	CreateOauthSession(ctx context.Context, in *CreateOauthSessionRequest, opts ...grpc.CallOption) (*CreateOauthSessionResponse, error)
 	// 查询个人中心三方账号绑定列表
 	ListOauthBindings(ctx context.Context, in *ListOauthBindingsRequest, opts ...grpc.CallOption) (*ListOauthBindingsResponse, error)
 	// 创建个人中心三方账号绑定授权地址
@@ -97,6 +100,16 @@ func (c *oauthServiceClient) ExchangeOauthTicket(ctx context.Context, in *Exchan
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ExchangeOauthTicketResponse)
 	err := c.cc.Invoke(ctx, OauthService_ExchangeOauthTicket_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *oauthServiceClient) CreateOauthSession(ctx context.Context, in *CreateOauthSessionRequest, opts ...grpc.CallOption) (*CreateOauthSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateOauthSessionResponse)
+	err := c.cc.Invoke(ctx, OauthService_CreateOauthSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,6 +170,8 @@ type OauthServiceServer interface {
 	HandleOauthCallback(context.Context, *HandleOauthCallbackRequest) (*HandleOauthCallbackResponse, error)
 	// 兑换三方登录票据
 	ExchangeOauthTicket(context.Context, *ExchangeOauthTicketRequest) (*ExchangeOauthTicketResponse, error)
+	// 创建三方登录会话
+	CreateOauthSession(context.Context, *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error)
 	// 查询个人中心三方账号绑定列表
 	ListOauthBindings(context.Context, *ListOauthBindingsRequest) (*ListOauthBindingsResponse, error)
 	// 创建个人中心三方账号绑定授权地址
@@ -186,6 +201,9 @@ func (UnimplementedOauthServiceServer) HandleOauthCallback(context.Context, *Han
 }
 func (UnimplementedOauthServiceServer) ExchangeOauthTicket(context.Context, *ExchangeOauthTicketRequest) (*ExchangeOauthTicketResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ExchangeOauthTicket not implemented")
+}
+func (UnimplementedOauthServiceServer) CreateOauthSession(context.Context, *CreateOauthSessionRequest) (*CreateOauthSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateOauthSession not implemented")
 }
 func (UnimplementedOauthServiceServer) ListOauthBindings(context.Context, *ListOauthBindingsRequest) (*ListOauthBindingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListOauthBindings not implemented")
@@ -292,6 +310,24 @@ func _OauthService_ExchangeOauthTicket_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OauthService_CreateOauthSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateOauthSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OauthServiceServer).CreateOauthSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OauthService_CreateOauthSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OauthServiceServer).CreateOauthSession(ctx, req.(*CreateOauthSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OauthService_ListOauthBindings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListOauthBindingsRequest)
 	if err := dec(in); err != nil {
@@ -386,6 +422,10 @@ var OauthService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExchangeOauthTicket",
 			Handler:    _OauthService_ExchangeOauthTicket_Handler,
+		},
+		{
+			MethodName: "CreateOauthSession",
+			Handler:    _OauthService_CreateOauthSession_Handler,
 		},
 		{
 			MethodName: "ListOauthBindings",

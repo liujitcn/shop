@@ -15,15 +15,21 @@ import (
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
+	shopconfigv1 "shop/api/gen/go/config/v1"
 	"shop/pkg/biz"
+	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
+	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/queue"
 
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
+	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	kitOauth "github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
+	"github.com/liujitcn/kratos-kit/oauth/wechatmini"
 	"gorm.io/gorm"
 )
 
@@ -38,7 +44,9 @@ var oauthLoginTicketLocks [oauthLoginTicketLockShardCount]sync.Mutex
 // OauthCase 处理三方登录授权业务。
 type OauthCase struct {
 	*biz.BaseCase
+	tx                   data.Transaction
 	oauthManager         *kitOauth.Manager
+	wechatMiniProvider   provider.OAuth
 	baseThirdAccountCase *BaseThirdAccountCase
 	baseUserCase         *BaseUserCase
 	loginCase            *LoginCase
@@ -55,14 +63,21 @@ type oauthLoginTicketPayload struct {
 // NewOauthCase 创建三方登录授权业务实例。
 func NewOauthCase(
 	baseCase *biz.BaseCase,
+	tx data.Transaction,
 	oauthManager *kitOauth.Manager,
 	baseThirdAccountCase *BaseThirdAccountCase,
 	baseUserCase *BaseUserCase,
 	loginCase *LoginCase,
+	wxMiniApp *shopconfigv1.WxMiniApp,
 ) *OauthCase {
 	return &OauthCase{
-		BaseCase:             baseCase,
-		oauthManager:         oauthManager,
+		BaseCase:     baseCase,
+		tx:           tx,
+		oauthManager: oauthManager,
+		wechatMiniProvider: wechatmini.New(&bootstrapConfigv1.Provider{
+			ClientId:     wxMiniApp.GetAppid(),
+			ClientSecret: wxMiniApp.GetSecret(),
+		}),
 		baseThirdAccountCase: baseThirdAccountCase,
 		baseUserCase:         baseUserCase,
 		loginCase:            loginCase,
@@ -249,6 +264,97 @@ func (c *OauthCase) ExchangeOauthTicket(ctx context.Context, req *basev1.Exchang
 		RefreshToken: payload.RefreshToken,
 		TokenType:    payload.TokenType,
 		ExpiresIn:    payload.ExpiresIn,
+	}, nil
+}
+
+// CreateOauthSession 使用非跳转型 OAuth 授权码创建登录会话。
+func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
+	// 当前非跳转登录只开放微信小程序，其他 Provider 继续走授权地址回调流程。
+	if req.GetProvider() != string(kitOauth.WechatMini) {
+		return nil, errorsx.InvalidArgument("登录方式不支持")
+	}
+	if req.GetCode() == "" {
+		return nil, errorsx.InvalidArgument("三方授权码不能为空")
+	}
+
+	var err error
+	var oauthToken *provider.Token
+	oauthToken, err = c.wechatMiniProvider.GetToken(ctx, req.GetCode())
+	if err != nil {
+		return nil, errorsx.InvalidArgument("微信登录凭据无效").WithCause(err)
+	}
+	var oauthUser *provider.User
+	oauthUser, err = c.wechatMiniProvider.GetUser(ctx, oauthToken)
+	if err != nil {
+		return nil, errorsx.InvalidArgument("获取微信用户失败").WithCause(err)
+	}
+	// 微信未返回 OpenID 时无法建立本地登录身份。
+	if oauthUser.OpenID == "" {
+		return nil, errorsx.Internal("登录失败")
+	}
+
+	var thirdAccount *models.BaseThirdAccount
+	thirdAccount, err = c.baseThirdAccountCase.FindByProviderIdentifier(ctx, string(kitOauth.WechatMini), oauthUser.OpenID)
+	if err != nil {
+		// 查询异常直接中断，只有未注册用户允许走自动注册流程。
+		if !stderrors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errorsx.Internal("登录失败").WithCause(err)
+		}
+		user := &models.BaseUser{
+			UserName: id.NewXID(),
+			RoleID:   4,
+			DeptID:   5,
+			Phone:    "",
+			Password: "",
+			Gender:   3,
+			Avatar:   "",
+			Status:   _const.STATUS_ENABLE,
+			Remark:   "自动注册用户",
+		}
+		err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
+			err = c.baseUserCase.Create(txCtx, user)
+			if err != nil {
+				return errorsx.Internal("登录失败").WithCause(err)
+			}
+			err = c.baseThirdAccountCase.CreateBinding(txCtx, user.ID, string(kitOauth.WechatMini), oauthUser.OpenID)
+			if err != nil {
+				return errorsx.Internal("登录失败").WithCause(err)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+		var loginRes *basev1.LoginResponse
+		loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+		if err != nil {
+			return nil, err
+		}
+		queue.DispatchRecommendSyncBaseUser(user.ID)
+		return &basev1.CreateOauthSessionResponse{
+			AccessToken:  loginRes.GetAccessToken(),
+			RefreshToken: loginRes.GetRefreshToken(),
+			TokenType:    loginRes.GetTokenType(),
+			ExpiresIn:    loginRes.GetExpiresIn(),
+		}, nil
+	}
+
+	var user *models.BaseUser
+	user, err = c.baseUserCase.FindByID(ctx, thirdAccount.UserID)
+	if err != nil {
+		return nil, errorsx.Internal("登录失败").WithCause(err)
+	}
+	var loginRes *basev1.LoginResponse
+	loginRes, err = c.loginCase.IssueUserToken(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	queue.DispatchRecommendSyncBaseUser(user.ID)
+	return &basev1.CreateOauthSessionResponse{
+		AccessToken:  loginRes.GetAccessToken(),
+		RefreshToken: loginRes.GetRefreshToken(),
+		TokenType:    loginRes.GetTokenType(),
+		ExpiresIn:    loginRes.GetExpiresIn(),
 	}, nil
 }
 

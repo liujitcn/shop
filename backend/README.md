@@ -48,7 +48,7 @@ enable_migrate: true
 
 首次启动会按当前模型自动建表。生产或共享环境应按实际情况调整账号、密码、库名和 `enable_migrate`。
 
-管理后台三方登录配置在 `configs/oauth.yaml`。启用某个 Provider 时，需要填写对应平台分配的 `clientId`、`clientSecret`、`redirectUri` 和 `scopes`；`redirectUri` 应配置为后端 OAuth callback 地址，前端创建授权地址时只传 `redirect_url` 作为登录或绑定完成后的前端接收地址。登录页会按已配置且后端组件支持的 Provider 动态展示三方登录入口。微信小程序登录使用独立小程序流程，不作为管理后台跳转授权入口展示。
+管理后台三方登录配置在 `configs/oauth.yaml`。启用某个 Provider 时，需要填写对应平台分配的 `clientId`、`clientSecret`、`redirectUri` 和 `scopes`；`redirectUri` 应配置为后端 OAuth callback 地址，前端创建授权地址时只传 `redirect_url` 作为登录或绑定完成后的前端接收地址。登录页会按已配置且后端组件支持的 Provider 动态展示三方登录入口。微信小程序登录使用小程序端 `wx.login()` 获取 code 后调用 `base.v1.OauthService/CreateOauthSession` 创建会话，不作为管理后台跳转授权入口展示。
 
 ## 本地启动
 

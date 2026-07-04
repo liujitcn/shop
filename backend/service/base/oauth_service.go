@@ -72,6 +72,16 @@ func (s *OauthService) ExchangeOauthTicket(ctx context.Context, req *basev1.Exch
 	return res, nil
 }
 
+// CreateOauthSession 创建三方登录会话。
+func (s *OauthService) CreateOauthSession(ctx context.Context, req *basev1.CreateOauthSessionRequest) (*basev1.CreateOauthSessionResponse, error) {
+	res, err := s.oauthCase.CreateOauthSession(ctx, req)
+	if err != nil {
+		log.Error(fmt.Sprintf("CreateOauthSession %v", err))
+		return nil, errorsx.WrapInternal(err, "创建三方登录会话失败")
+	}
+	return res, nil
+}
+
 // ListOauthBindings 查询个人中心三方账号绑定列表。
 func (s *OauthService) ListOauthBindings(ctx context.Context, req *basev1.ListOauthBindingsRequest) (*basev1.ListOauthBindingsResponse, error) {
 	res, err := s.oauthCase.ListOauthBindings(ctx, req)

@@ -30,6 +30,7 @@ import (
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repository"
+	kitOauth "github.com/liujitcn/kratos-kit/oauth"
 	wxPayCore "github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/h5"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
@@ -40,19 +41,21 @@ import (
 // PayCase 处理商城端支付业务。
 type PayCase struct {
 	*biz.BaseCase
-	tx                 data.Transaction
-	orderInfoRepo      *data.OrderInfoRepository
-	orderGoodsRepo     *data.OrderGoodsRepository
-	orderPaymentRepo   *data.OrderPaymentRepository
-	orderRefundRepo    *data.OrderRefundRepository
-	orderSchedulerCase *OrderSchedulerCase
-	wxPayCase          *wx.WxPayCase
+	tx                   data.Transaction
+	baseThirdAccountRepo *data.BaseThirdAccountRepository
+	orderInfoRepo        *data.OrderInfoRepository
+	orderGoodsRepo       *data.OrderGoodsRepository
+	orderPaymentRepo     *data.OrderPaymentRepository
+	orderRefundRepo      *data.OrderRefundRepository
+	orderSchedulerCase   *OrderSchedulerCase
+	wxPayCase            *wx.WxPayCase
 }
 
 // NewPayCase 创建支付业务处理对象
 func NewPayCase(
 	baseCase *biz.BaseCase,
 	tx data.Transaction,
+	baseThirdAccountRepo *data.BaseThirdAccountRepository,
 	orderInfoRepo *data.OrderInfoRepository,
 	orderGoodsRepo *data.OrderGoodsRepository,
 	orderPaymentRepo *data.OrderPaymentRepository,
@@ -61,14 +64,15 @@ func NewPayCase(
 	wxPayCase *wx.WxPayCase,
 ) *PayCase {
 	return &PayCase{
-		BaseCase:           baseCase,
-		tx:                 tx,
-		orderInfoRepo:      orderInfoRepo,
-		orderGoodsRepo:     orderGoodsRepo,
-		orderPaymentRepo:   orderPaymentRepo,
-		orderRefundRepo:    orderRefundRepo,
-		orderSchedulerCase: orderSchedulerCase,
-		wxPayCase:          wxPayCase,
+		BaseCase:             baseCase,
+		tx:                   tx,
+		baseThirdAccountRepo: baseThirdAccountRepo,
+		orderInfoRepo:        orderInfoRepo,
+		orderGoodsRepo:       orderGoodsRepo,
+		orderPaymentRepo:     orderPaymentRepo,
+		orderRefundRepo:      orderRefundRepo,
+		orderSchedulerCase:   orderSchedulerCase,
+		wxPayCase:            wxPayCase,
 	}
 }
 
@@ -123,6 +127,11 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *appv1.JsapiPayRequest) (*ap
 		description = trans.StringValue(goodsDetail[0].GoodsName)
 	}
 
+	var openID string
+	openID, err = c.findWechatMiniOpenID(ctx, authInfo.UserId)
+	if err != nil {
+		return nil, err
+	}
 	var jsapiPayResponse *appv1.JsapiPayResponse
 	jsapiPayResponse, err = c.wxPayCase.JsapiPay(jsapi.PrepayRequest{
 		Description: &description,
@@ -132,7 +141,7 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *appv1.JsapiPayRequest) (*ap
 			Total: &orderInfo.PayMoney,
 		},
 		Payer: &jsapi.Payer{
-			Openid: &authInfo.OpenId,
+			Openid: &openID,
 		},
 		Detail: &jsapi.Detail{
 			GoodsDetail: goodsDetail,
@@ -165,6 +174,26 @@ func (c *PayCase) JSAPIPay(ctx context.Context, req *appv1.JsapiPayRequest) (*ap
 		return nil, err
 	}
 	return jsapiPayResponse, nil
+}
+
+// findWechatMiniOpenID 查询当前用户绑定的微信小程序 OpenID。
+func (c *PayCase) findWechatMiniOpenID(ctx context.Context, userID int64) (string, error) {
+	query := c.baseThirdAccountRepo.Query(ctx).BaseThirdAccount
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.UserID.Eq(userID)))
+	opts = append(opts, repository.Where(query.Provider.Eq(string(kitOauth.WechatMini))))
+	account, err := c.baseThirdAccountRepo.Find(ctx, opts...)
+	if err != nil {
+		// 用户未绑定微信小程序时，无法创建 JSAPI 支付预下单。
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return "", errorsx.PermissionDenied("用户未绑定微信小程序")
+		}
+		return "", errorsx.Internal("小程序支付失败").WithCause(err)
+	}
+	if account.Identifier == "" {
+		return "", errorsx.Internal("小程序支付失败")
+	}
+	return account.Identifier, nil
 }
 
 // H5Pay 创建 H5 支付预下单信息

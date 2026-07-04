@@ -18,7 +18,6 @@ type BaseUser struct {
 	TenantID  int64          `gorm:"column:tenant_id;type:bigint;not null;uniqueIndex:unique_base_user,priority:1;index:idx_base_user_tenant_id,priority:1;default:1;comment:租户ID" json:"tenant_id"` // 租户ID
 	UserName  string         `gorm:"column:user_name;type:varchar(50);uniqueIndex:unique_base_user,priority:2;comment:用户账号" json:"user_name"`                                                        // 用户账号
 	NickName  string         `gorm:"column:nick_name;type:varchar(30);comment:用户昵称" json:"nick_name"`                                                                                                // 用户昵称
-	Openid    string         `gorm:"column:openid;type:varchar(30);comment:微信openid" json:"openid"`                                                                                                  // 微信openid
 	RoleID    int64          `gorm:"column:role_id;type:bigint;comment:角色ID" json:"role_id"`                                                                                                         // 角色ID
 	DeptID    int64          `gorm:"column:dept_id;type:bigint;comment:部门ID" json:"dept_id"`                                                                                                         // 部门ID
 	Phone     string         `gorm:"column:phone;type:varchar(20);comment:手机号码" json:"phone"`                                                                                                        // 手机号码

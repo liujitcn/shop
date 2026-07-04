@@ -4,6 +4,8 @@ import type {
   CreateOauthAuthorizationResponse,
   CreateOauthBindingAuthorizationRequest,
   CreateOauthBindingAuthorizationResponse,
+  CreateOauthSessionRequest,
+  CreateOauthSessionResponse,
   ExchangeOauthTicketRequest,
   ExchangeOauthTicketResponse,
   HandleOauthBindingCallbackRequest,
@@ -23,6 +25,7 @@ const OAUTH_PROVIDER_URL = "/v1/base/oauth/provider";
 const OAUTH_AUTHORIZATION_URL = "/v1/base/oauth/authorization";
 const OAUTH_CALLBACK_URL = "/v1/base/oauth";
 const OAUTH_TICKET_URL = "/v1/base/oauth/ticket";
+const OAUTH_SESSION_URL = "/v1/base/oauth/session";
 const OAUTH_BINDING_URL = "/v1/base/oauth/binding";
 const OAUTH_BINDING_AUTHORIZATION_URL = "/v1/base/oauth/binding/authorization";
 
@@ -62,6 +65,16 @@ export class OauthServiceImpl implements OauthService {
   ExchangeOauthTicket(request: ExchangeOauthTicketRequest): Promise<ExchangeOauthTicketResponse> {
     return service<ExchangeOauthTicketRequest, ExchangeOauthTicketResponse>({
       url: `${OAUTH_TICKET_URL}`,
+      method: "post",
+      data: request,
+      headers: { Authorization: "no-auth" }
+    });
+  }
+
+  /** 创建三方登录会话 */
+  CreateOauthSession(request: CreateOauthSessionRequest): Promise<CreateOauthSessionResponse> {
+    return service<CreateOauthSessionRequest, CreateOauthSessionResponse>({
+      url: `${OAUTH_SESSION_URL}`,
       method: "post",
       data: request,
       headers: { Authorization: "no-auth" }

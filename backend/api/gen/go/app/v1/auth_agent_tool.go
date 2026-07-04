@@ -14,16 +14,10 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// NewAuthServiceAgentTools 创建App用户登录认证服务的 Agent Tool。
+// NewAuthServiceAgentTools 创建App用户认证服务的 Agent Tool。
 func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.InvokableTool, error) {
 	var ts []tool.InvokableTool
 	var err error
-	var wechatLoginTool tool.InvokableTool
-	wechatLoginTool, err = NewAuthServiceWechatLoginAgentTool(authServiceServer)
-	if err != nil {
-		return nil, err
-	}
-	ts = append(ts, wechatLoginTool)
 	var getUserProfileTool tool.InvokableTool
 	getUserProfileTool, err = NewAuthServiceGetUserProfileAgentTool(authServiceServer)
 	if err != nil {
@@ -43,20 +37,6 @@ func NewAuthServiceAgentTools(authServiceServer AuthServiceServer) ([]tool.Invok
 	}
 	ts = append(ts, bindUserPhoneTool)
 	return ts, nil
-}
-
-// NewAuthServiceWechatLoginAgentTool 创建微信登录的 Agent Tool。
-func NewAuthServiceWechatLoginAgentTool(authServiceServer AuthServiceServer) (tool.InvokableTool, error) {
-	return utils.InferTool[*WechatLoginRequest, *WechatLoginResponse](
-		"app_v1_auth_service_wechat_login",
-		"微信登录",
-		func(ctx context.Context, req *WechatLoginRequest) (*WechatLoginResponse, error) {
-			if req == nil {
-				req = &WechatLoginRequest{}
-			}
-			return authServiceServer.WechatLogin(ctx, req)
-		},
-	)
 }
 
 // NewAuthServiceGetUserProfileAgentTool 创建获取已经登录的用户的数据的 Agent Tool。

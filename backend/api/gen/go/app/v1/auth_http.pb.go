@@ -22,7 +22,6 @@ const _ = http.SupportPackageIsVersion3
 const OperationAuthServiceBindUserPhone = "/app.v1.AuthService/BindUserPhone"
 const OperationAuthServiceGetUserProfile = "/app.v1.AuthService/GetUserProfile"
 const OperationAuthServiceUpdateUserProfile = "/app.v1.AuthService/UpdateUserProfile"
-const OperationAuthServiceWechatLogin = "/app.v1.AuthService/WechatLogin"
 
 type AuthServiceHTTPServer interface {
 	// BindUserPhone 手机号授权
@@ -31,35 +30,13 @@ type AuthServiceHTTPServer interface {
 	GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error)
 	// UpdateUserProfile 修改个人中心用户信息
 	UpdateUserProfile(context.Context, *UpdateUserProfileRequest) (*emptypb.Empty, error)
-	// WechatLogin 微信登录
-	WechatLogin(context.Context, *WechatLoginRequest) (*WechatLoginResponse, error)
 }
 
 func RegisterAuthServiceHTTPServer(s *http.Server, srv AuthServiceHTTPServer) {
 	r := s.Route("/")
-	r.Handle("POST", "/api/v1/app/auth/wechat", _AuthService_WechatLogin0_HTTP_Handler(srv))
 	r.Handle("GET", "/api/v1/app/auth/profile", _AuthService_GetUserProfile0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/auth/profile", _AuthService_UpdateUserProfile0_HTTP_Handler(srv))
 	r.Handle("PUT", "/api/v1/app/auth/phone", _AuthService_BindUserPhone0_HTTP_Handler(srv))
-}
-
-func _AuthService_WechatLogin0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
-	return func(ctx http.Context) error {
-		var in WechatLoginRequest
-		if err := ctx.Bind(&in); err != nil {
-			return err
-		}
-		http.SetOperation(ctx, OperationAuthServiceWechatLogin)
-		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.WechatLogin(ctx, req.(*WechatLoginRequest))
-		})
-		out, err := h(ctx, &in)
-		if err != nil {
-			return err
-		}
-		reply := out.(*WechatLoginResponse)
-		return ctx.Result(200, reply)
-	}
 }
 
 func _AuthService_GetUserProfile0_HTTP_Handler(srv AuthServiceHTTPServer) func(ctx http.Context) error {
@@ -129,8 +106,6 @@ type AuthServiceHTTPClient interface {
 	GetUserProfile(ctx context.Context, req *GetUserProfileRequest, opts ...http.CallOption) (rsp *UserProfileForm, err error)
 	// UpdateUserProfile 修改个人中心用户信息
 	UpdateUserProfile(ctx context.Context, req *UpdateUserProfileRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
-	// WechatLogin 微信登录
-	WechatLogin(ctx context.Context, req *WechatLoginRequest, opts ...http.CallOption) (rsp *WechatLoginResponse, err error)
 }
 
 type AuthServiceHTTPClientImpl struct {
@@ -188,24 +163,6 @@ func (c *AuthServiceHTTPClientImpl) UpdateUserProfile(ctx context.Context, in *U
 		http.PathTemplate(pattern),
 	}, opts...)
 	err := c.cc.Invoke(ctx, "PUT", path, in.UserProfile, &out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
-// WechatLogin 微信登录
-func (c *AuthServiceHTTPClientImpl) WechatLogin(ctx context.Context, in *WechatLoginRequest, opts ...http.CallOption) (*WechatLoginResponse, error) {
-	var out WechatLoginResponse
-	pattern := "/api/v1/app/auth/wechat"
-	path := http.BuildPath(pattern, in)
-	opts = append([]http.CallOption{
-		http.Accept("application/protojson"),
-		http.ContentType("application/protojson"),
-		http.Operation(OperationAuthServiceWechatLogin),
-		http.PathTemplate(pattern),
-	}, opts...)
-	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

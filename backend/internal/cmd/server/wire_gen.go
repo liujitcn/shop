@@ -199,7 +199,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	baseDictItemRepository := data.NewBaseDictItemRepository(dataData)
 	baseDictItemCase := biz2.NewBaseDictItemCase(baseCase, baseDictRepository, baseDictItemRepository)
 	orderSchedulerCase := biz2.NewOrderSchedulerCase(baseCase)
-	payCase := biz2.NewPayCase(baseCase, transaction, orderInfoRepository, orderGoodsRepository, orderPaymentRepository, orderRefundRepository, orderSchedulerCase, wxPayCase)
+	baseThirdAccountRepository := data.NewBaseThirdAccountRepository(dataData)
+	payCase := biz2.NewPayCase(baseCase, transaction, baseThirdAccountRepository, orderInfoRepository, orderGoodsRepository, orderPaymentRepository, orderRefundRepository, orderSchedulerCase, wxPayCase)
 	orderInfoCase, err := biz2.NewOrderInfoCase(baseCase, transaction, orderInfoRepository, orderCancelCase, orderGoodsCase, orderAddressCase, orderLogisticsCase, orderPaymentCase, orderRefundCase, goodsInfoCase, goodsSKUCase, userAddressCase, userCartCase, baseDictItemCase, orderSchedulerCase, payCase, wxPayCase)
 	if err != nil {
 		cleanup4()
@@ -330,12 +331,6 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	userStoreService := admin.NewUserStoreService(userStoreCase)
 	workspaceCase := biz3.NewWorkspaceCase(bizOrderInfoCase, bizBaseUserCase, bizOrderGoodsCase, bizGoodsInfoCase, bizGoodsSKUCase, payBillCase, bizCommentInfoCase, bizCommentDiscussionCase, bizCommentTagCase, bizCommentSummaryCase)
 	workspaceService := admin.NewWorkspaceService(workspaceCase)
-	bizBaseRoleCase := biz2.NewBaseRoleCase(baseCase, baseRoleRepository)
-	bizBaseDeptCase := biz2.NewBaseDeptCase(baseCase, baseDeptRepository)
-	baseDeptCase2 := biz4.NewBaseDeptCase(baseDeptRepository)
-	baseRoleCase2 := biz4.NewBaseRoleCase(baseRoleRepository)
-	baseUserCase2 := biz4.NewBaseUserCase(baseUserRepository)
-	loginCase := biz4.NewLoginCase(baseCase, userToken, baseDeptCase2, baseRoleCase2, baseUserCase2, baseTenantRepository)
 	wxMiniApp, err := config.ParseWxMiniApp(shopConfig)
 	if err != nil {
 		cleanup4()
@@ -344,7 +339,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	bizAuthCase := biz2.NewAuthCase(baseCase, userToken, baseUserCase, bizBaseRoleCase, bizBaseDeptCase, loginCase, baseTenantRepository, wxMiniApp)
+	bizAuthCase := biz2.NewAuthCase(baseCase, baseUserCase, wxMiniApp)
 	appAuthService := app.NewAuthService(bizAuthCase)
 	baseAreaService := app.NewBaseAreaService(baseAreaCase)
 	bizBaseDictCase := biz2.NewBaseDictCase(baseCase, baseDictRepository, baseDictItemCase)
@@ -385,6 +380,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	aiAssistantSessionRepository := data.NewAiAssistantSessionRepository(dataData)
 	aiAssistantMessageRepository := data.NewAiAssistantMessageRepository(dataData)
 	aiAssistantSessionCase := biz4.NewAiAssistantSessionCase(baseCase, transaction, aiAssistantSessionRepository, aiAssistantMessageRepository)
+	baseUserCase2 := biz4.NewBaseUserCase(baseUserRepository)
 	responsesClient := model.NewResponsesClient(ai_Model)
 	assistantRuntime := assistant.NewRuntime(responsesClient)
 	aiAssistantMessageCase := biz4.NewAiAssistantMessageCase(baseCase, transaction, aiAssistantMessageRepository, aiAssistantSessionCase, baseAPIRepository, baseUserCase2, assistantRuntime)
@@ -393,6 +389,9 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	configCase := biz4.NewConfigCase(baseConfigRepository)
 	configService := base.NewConfigService(configCase)
 	fileService := base.NewFileService(fileCase)
+	bizBaseDeptCase := biz4.NewBaseDeptCase(baseDeptRepository)
+	bizBaseRoleCase := biz4.NewBaseRoleCase(baseRoleRepository)
+	loginCase := biz4.NewLoginCase(baseCase, userToken, bizBaseDeptCase, bizBaseRoleCase, baseUserCase2, baseTenantRepository)
 	loginService := base.NewLoginService(loginCase)
 	oAuth := config.ParseOAuth(context)
 	manager, err := oauth.NewManager(oAuth)
@@ -403,9 +402,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	baseThirdAccountRepository := data.NewBaseThirdAccountRepository(dataData)
 	baseThirdAccountCase := biz4.NewBaseThirdAccountCase(baseThirdAccountRepository)
-	oauthCase := biz4.NewOauthCase(baseCase, manager, baseThirdAccountCase, baseUserCase2, loginCase)
+	oauthCase := biz4.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase2, loginCase, wxMiniApp)
 	oauthService := base.NewOauthService(oauthCase)
 	serverServices, err := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, commentInfoService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, assistantRuntime, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, oauthService)
 	if err != nil {

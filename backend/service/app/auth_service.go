@@ -21,13 +21,13 @@ import (
 
 const _ = grpc.SupportPackageIsVersion7
 
-// AuthService 用户登录认证服务
+// AuthService 处理商城端用户认证资料服务。
 type AuthService struct {
 	appv1.UnimplementedAuthServiceServer
 	authCase *biz.AuthCase
 }
 
-// NewAuthService 创建用户登录认证服务
+// NewAuthService 创建商城端用户认证资料服务。
 func NewAuthService(
 	authCase *biz.AuthCase,
 ) *AuthService {
@@ -35,16 +35,6 @@ func NewAuthService(
 		authCase: authCase,
 	}
 	return &ss
-}
-
-// WechatLogin 微信登录
-func (s *AuthService) WechatLogin(ctx context.Context, req *appv1.WechatLoginRequest) (*appv1.WechatLoginResponse, error) {
-	res, err := s.authCase.WechatLogin(ctx, req)
-	if err != nil {
-		log.Error(fmt.Sprintf("WechatLogin %v", err))
-		return nil, errorsx.WrapInternal(err, "登录失败")
-	}
-	return res, nil
 }
 
 // GetUserProfile 获取已经登录的用户数据

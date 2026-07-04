@@ -24,14 +24,6 @@ func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserReposito
 	}
 }
 
-// 按微信唯一标识查询用户
-func (c *BaseUserCase) findByOpenID(ctx context.Context, openID string) (*models.BaseUser, error) {
-	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Openid.Eq(openID)))
-	return c.Find(ctx, opts...)
-}
-
 // 按手机号查询用户
 func (c *BaseUserCase) findByPhone(ctx context.Context, phone string) (*models.BaseUser, error) {
 	query := c.Query(ctx).BaseUser

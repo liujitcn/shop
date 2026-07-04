@@ -229,7 +229,6 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 	}
 
 	// 查询角色信息
-	var role *models.BaseRole
 	role, err := c.baseRoleCase.FindByID(ctx, user.RoleID)
 	if err != nil {
 		return nil, errorsx.Internal("登录失败").WithCause(err)
@@ -271,7 +270,6 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 		TenantCode: baseTenant.Code,
 		DeptId:     user.DeptID,
 		DeptName:   dept.Name,
-		OpenId:     user.Openid,
 	}
 	var accessToken, refreshToken string
 	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)

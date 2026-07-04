@@ -13,33 +13,11 @@ import (
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
-// RegisterAuthServiceMCPTools 注册App用户登录认证服务的 MCP Tool。
+// RegisterAuthServiceMCPTools 注册App用户认证服务的 MCP Tool。
 func RegisterAuthServiceMCPTools(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	RegisterAuthServiceWechatLoginMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceGetUserProfileMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceUpdateUserProfileMCPTool(mcpServer, authServiceServer)
 	RegisterAuthServiceBindUserPhoneMCPTool(mcpServer, authServiceServer)
-}
-
-// RegisterAuthServiceWechatLoginMCPTool 注册微信登录的 MCP Tool。
-func RegisterAuthServiceWechatLoginMCPTool(mcpServer *mcp.Server, authServiceServer AuthServiceServer) {
-	mcp.AddTool[*WechatLoginRequest, *WechatLoginResponse](
-		mcpServer,
-		&mcp.Tool{
-			Name:        "app_v1_auth_service_wechat_login",
-			Description: "微信登录",
-		},
-		func(ctx context.Context, request *mcp.CallToolRequest, input *WechatLoginRequest) (*mcp.CallToolResult, *WechatLoginResponse, error) {
-			if input == nil {
-				input = &WechatLoginRequest{}
-			}
-			reply, err := authServiceServer.WechatLogin(ctx, input)
-			if err != nil {
-				return nil, nil, err
-			}
-			return nil, reply, nil
-		},
-	)
 }
 
 // RegisterAuthServiceGetUserProfileMCPTool 注册获取已经登录的用户的数据的 MCP Tool。

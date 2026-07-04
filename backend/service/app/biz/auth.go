@@ -6,13 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	baseBiz "shop/service/base/biz"
-
 	_const "shop/pkg/const"
 
 	"shop/pkg/biz"
 	"shop/pkg/errorsx"
-	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
 
@@ -21,11 +18,8 @@ import (
 	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v3/log"
-	"github.com/liujitcn/go-utils/id"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
-	"github.com/liujitcn/kratos-kit/auth/authn/engine"
-	authData "github.com/liujitcn/kratos-kit/auth/data"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gorm"
 )
@@ -33,42 +27,27 @@ import (
 // CACHE_KEY_WX_ACCESS_TOKEN 表示微信访问令牌缓存键。
 const CACHE_KEY_WX_ACCESS_TOKEN = "wx_access_token"
 
-// AuthCase 登录认证业务处理对象
+// AuthCase 处理商城端用户认证资料业务。
 type AuthCase struct {
 	*biz.BaseCase
-	userToken      *authData.UserToken
-	baseUserCase   *BaseUserCase
-	baseRoleCase   *BaseRoleCase
-	baseDeptCase   *BaseDeptCase
-	loginCase      *baseBiz.LoginCase
-	baseTenantRepo *data.BaseTenantRepository
-	wxMiniApp      *configv1.WxMiniApp
-	profileMapper  *mapper.CopierMapper[
+	baseUserCase  *BaseUserCase
+	wxMiniApp     *configv1.WxMiniApp
+	profileMapper *mapper.CopierMapper[
 		appv1.UserProfileForm,
 		models.BaseUser,
 	]
 }
 
-// NewAuthCase 创建登录认证业务处理对象
+// NewAuthCase 创建商城端用户认证资料业务实例。
 func NewAuthCase(
 	baseCase *biz.BaseCase,
-	userToken *authData.UserToken,
 	baseUserCase *BaseUserCase,
-	baseRoleCase *BaseRoleCase,
-	baseDeptCase *BaseDeptCase,
-	loginCase *baseBiz.LoginCase,
-	baseTenantRepo *data.BaseTenantRepository,
 	wxMiniApp *configv1.WxMiniApp,
 ) *AuthCase {
 	return &AuthCase{
-		BaseCase:       baseCase,
-		userToken:      userToken,
-		baseUserCase:   baseUserCase,
-		baseRoleCase:   baseRoleCase,
-		baseDeptCase:   baseDeptCase,
-		loginCase:      loginCase,
-		baseTenantRepo: baseTenantRepo,
-		wxMiniApp:      wxMiniApp,
+		BaseCase:     baseCase,
+		baseUserCase: baseUserCase,
+		wxMiniApp:    wxMiniApp,
 		profileMapper: mapper.NewCopierMapper[
 			appv1.UserProfileForm,
 			models.BaseUser,
@@ -138,105 +117,6 @@ func (c *AuthCase) UpdateUserProfile(ctx context.Context, req *appv1.UserProfile
 		}
 	}
 	return nil
-}
-
-// WechatLogin 微信登录
-func (c *AuthCase) WechatLogin(ctx context.Context, req *appv1.WechatLoginRequest) (*appv1.WechatLoginResponse, error) {
-	sessionKey, err := utils.GetSessionKey(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret(), req.GetCode())
-	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
-	}
-	// 微信侧返回业务错误时，直接透传错误信息。
-	if sessionKey.ErrCode != 0 {
-		return nil, errorsx.InvalidArgument("微信登录凭据无效").WithMetadata(map[string]string{
-			"provider":      "wechat",
-			"provider_code": fmt.Sprintf("%d", sessionKey.ErrCode),
-		})
-	}
-	// 未返回 OpenID 时，当前登录请求无效。
-	if sessionKey.OpenID == "" {
-		return nil, errorsx.Internal("登录失败")
-	}
-
-	var user *models.BaseUser
-	user, err = c.baseUserCase.findByOpenID(ctx, sessionKey.OpenID)
-	// 按 OpenID 查询用户失败时，仅对“未注册”场景继续自动注册。
-	if err != nil {
-		// 非“未注册”错误说明查询本身异常，直接返回登录失败。
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errorsx.Internal("登录失败").WithCause(err)
-		}
-
-		// 用户不存在时自动注册一个小程序账号
-		user = &models.BaseUser{
-			Openid:   sessionKey.OpenID,
-			UserName: id.NewXID(),
-			RoleID:   4,
-			DeptID:   5,
-			Phone:    "",
-			Password: "",
-			Gender:   3,
-			Avatar:   "",
-			Status:   _const.STATUS_ENABLE,
-			Remark:   "自动注册用户",
-		}
-		// 自动注册用户失败时，直接返回登录失败。
-		if err = c.baseUserCase.Create(ctx, user); err != nil {
-			return nil, errorsx.Internal("登录失败").WithCause(err)
-		}
-	}
-	// 用户被停用时，不允许继续登录。
-	if user.Status != _const.STATUS_ENABLE {
-		return nil, errorsx.PermissionDenied("账号已被禁用")
-	}
-	// 登录成功前，异步同步用户画像到推荐系统，保证推荐主体随登录链路逐步补齐。
-	queue.DispatchRecommendSyncBaseUser(user.ID)
-
-	// 登录凭证需要补齐角色和部门信息
-	var role *models.BaseRole
-	role, err = c.baseRoleCase.FindByID(ctx, user.RoleID)
-	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
-	}
-	var dept *models.BaseDept
-	dept, err = c.baseDeptCase.FindByID(ctx, user.DeptID)
-	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
-	}
-	var baseTenant *models.BaseTenant
-	baseTenant, err = c.baseTenantRepo.FindByID(ctx, user.TenantID)
-	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
-	}
-
-	authInfo := &authData.UserTokenPayload{
-		UserId:     user.ID,
-		UserName:   user.UserName,
-		RoleId:     user.RoleID,
-		RoleCode:   role.Code,
-		RoleName:   role.Name,
-		TenantId:   user.TenantID,
-		TenantCode: baseTenant.Code,
-		DeptId:     dept.ID,
-		DeptName:   dept.Name,
-		OpenId:     user.Openid,
-	}
-	var accessToken, refreshToken string
-	accessToken, refreshToken, err = c.userToken.GenerateToken(authInfo)
-	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
-	}
-	err = c.loginCase.SetRefreshTokenAuth(refreshToken, authInfo)
-	if err != nil {
-		return nil, errorsx.Internal("登录失败").WithCause(err)
-	}
-
-	return &appv1.WechatLoginResponse{
-		TokenType:    engine.BearerWord,
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-		ExpiresIn:    c.userToken.GetAccessTokenExpires(),
-	}, nil
 }
 
 // BindUserPhone 手机号授权

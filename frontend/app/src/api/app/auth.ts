@@ -4,8 +4,6 @@ import {
   type BindUserPhoneRequest,
   type BindUserPhoneResponse,
   type UserProfileForm,
-  type WechatLoginRequest,
-  type WechatLoginResponse,
 } from '@/rpc/app/v1/auth'
 import type { Empty } from '@/rpc/google/protobuf/empty'
 
@@ -19,18 +17,8 @@ type UpdateUserProfileRequestCompat = Partial<UserProfileForm> & {
   user_profile?: UserProfileForm
 }
 
-/** 用户登录认证服务 */
+/** 用户认证资料服务 */
 export class AuthServiceImpl implements AuthService {
-  /** 微信登录 */
-  WechatLogin(request: WechatLoginRequest): Promise<WechatLoginResponse> {
-    return http<WechatLoginResponse>({
-      url: `${AUTH_URL}/wechat`,
-      method: 'POST',
-      authMode: 'none',
-      data: request,
-    })
-  }
-
   /** 获取已登录用户资料 */
   GetUserProfile(request: GetUserProfileRequestCompat): Promise<UserProfileForm> {
     return http<UserProfileForm>({

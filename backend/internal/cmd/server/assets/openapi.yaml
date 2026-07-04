@@ -4438,25 +4438,6 @@ paths:
                 "200":
                     description: OK
                     content: {}
-    /api/v1/app/auth/wechat:
-        post:
-            tags:
-                - AuthService
-            description: 微信登录
-            operationId: AuthService_WechatLogin
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/WechatLoginRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/WechatLoginResponse'
     /api/v1/app/base/area/tree:
         get:
             tags:
@@ -6118,6 +6099,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListOauthProvidersResponse'
+    /api/v1/base/oauth/session:
+        post:
+            tags:
+                - OauthService
+            description: 创建三方登录会话
+            operationId: OauthService_CreateOauthSession
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateOauthSessionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/CreateOauthSessionResponse'
     /api/v1/base/oauth/ticket:
         post:
             tags:
@@ -8788,6 +8788,33 @@ components:
                     type: string
                     description: 三方授权地址
             description: 个人中心三方账号绑定授权地址创建响应
+        CreateOauthSessionRequest:
+            type: object
+            properties:
+                provider:
+                    type: string
+                    description: 登录方式标识
+                code:
+                    type: string
+                    description: 三方授权码
+            description: 三方登录会话创建请求
+        CreateOauthSessionResponse:
+            type: object
+            properties:
+                accessToken:
+                    type: string
+                    description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
+                refreshToken:
+                    type: string
+                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
+                tokenType:
+                    type: string
+                    default: Bearer
+                    description: 令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。
+                expiresIn:
+                    type: string
+                    description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
+            description: 三方登录会话创建响应
         CreateOrderInfoGoods:
             type: object
             properties:
@@ -13367,30 +13394,6 @@ components:
                     type: string
                     description: 有效时间，单位秒
             description: 验证码预校验响应
-        WechatLoginRequest:
-            type: object
-            properties:
-                code:
-                    type: string
-                    description: 用户登录凭据
-            description: 微信登录请求参数
-        WechatLoginResponse:
-            type: object
-            properties:
-                accessToken:
-                    type: string
-                    description: 访问令牌，必选项。授权服务器颁发的访问令牌字符串。
-                refreshToken:
-                    type: string
-                    description: 更新令牌，用来获取下一次的访问令牌，可选项。如果访问令牌将过期，则返回刷新令牌很有用，应用程序可以使用该刷新令牌来获取另一个访问令牌。但是，通过隐式授予颁发的令牌不能颁发刷新令牌。
-                tokenType:
-                    type: string
-                    default: Bearer
-                    description: 令牌的类型，该值大小写不敏感，必选项，可以是bearer类型或mac类型，通常只是字符串“Bearer”。
-                expiresIn:
-                    type: string
-                    description: 令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。
-            description: 微信登录响应
         WorkspacePendingComment:
             type: object
             properties:
@@ -13433,7 +13436,7 @@ tags:
     - name: AiAssistantService
       description: Base AI 助手会话服务
     - name: AuthService
-      description: App用户登录认证服务
+      description: App用户认证服务
     - name: AuthService
       description: Admin用户登录认证服务
     - name: BaseApiService

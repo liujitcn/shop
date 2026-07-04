@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useSettingStore, useUserStore } from '@/stores'
-import type { WechatLoginRequest } from '@/rpc/app/v1/auth'
 import type { LoginRequest } from '@/rpc/base/v1/login'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, defineAsyncComponent, reactive, ref } from 'vue'
@@ -13,11 +12,7 @@ const GoCaptchaUni = defineAsyncComponent(() => import('go-captcha-uni'))
 
 const userStore = useUserStore()
 const settingStore = useSettingStore()
-
-// 微信登录表单
-const wechatLoginForm = ref<WechatLoginRequest>({
-  code: '',
-})
+const wechatMiniProvider = 'wechatmini'
 
 // 是否同意协议
 const isAgreePrivacy = ref(false)
@@ -50,17 +45,18 @@ const wxLogin = async () => {
   if (!isAgreed) {
     return
   }
-  const res = await wx.login()
-  wechatLoginForm.value.code = res.code
+  const loginRes = await wx.login()
   // 显示确认弹窗
   uni.showModal({
     title: '提示',
     content: '确定要使用微信登录吗？',
-    success: (res) => {
-      if (res.confirm) {
-        userStore.wechatLogin(wechatLoginForm.value).then(() => {
-          void loginSuccess()
-        })
+    success: (modalRes) => {
+      if (modalRes.confirm) {
+        userStore
+          .createOauthSession({ provider: wechatMiniProvider, code: loginRes.code })
+          .then(() => {
+            void loginSuccess()
+          })
       }
     },
   })

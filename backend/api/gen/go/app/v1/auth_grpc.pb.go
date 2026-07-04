@@ -21,7 +21,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthService_WechatLogin_FullMethodName       = "/app.v1.AuthService/WechatLogin"
 	AuthService_GetUserProfile_FullMethodName    = "/app.v1.AuthService/GetUserProfile"
 	AuthService_UpdateUserProfile_FullMethodName = "/app.v1.AuthService/UpdateUserProfile"
 	AuthService_BindUserPhone_FullMethodName     = "/app.v1.AuthService/BindUserPhone"
@@ -31,10 +30,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// App用户登录认证服务
+// App用户认证服务
 type AuthServiceClient interface {
-	// 微信登录
-	WechatLogin(ctx context.Context, in *WechatLoginRequest, opts ...grpc.CallOption) (*WechatLoginResponse, error)
 	// 获取已经登录的用户的数据
 	GetUserProfile(ctx context.Context, in *GetUserProfileRequest, opts ...grpc.CallOption) (*UserProfileForm, error)
 	// 修改个人中心用户信息
@@ -49,16 +46,6 @@ type authServiceClient struct {
 
 func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
-}
-
-func (c *authServiceClient) WechatLogin(ctx context.Context, in *WechatLoginRequest, opts ...grpc.CallOption) (*WechatLoginResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(WechatLoginResponse)
-	err := c.cc.Invoke(ctx, AuthService_WechatLogin_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *authServiceClient) GetUserProfile(ctx context.Context, in *GetUserProfileRequest, opts ...grpc.CallOption) (*UserProfileForm, error) {
@@ -95,10 +82,8 @@ func (c *authServiceClient) BindUserPhone(ctx context.Context, in *BindUserPhone
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility.
 //
-// App用户登录认证服务
+// App用户认证服务
 type AuthServiceServer interface {
-	// 微信登录
-	WechatLogin(context.Context, *WechatLoginRequest) (*WechatLoginResponse, error)
 	// 获取已经登录的用户的数据
 	GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error)
 	// 修改个人中心用户信息
@@ -115,9 +100,6 @@ type AuthServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAuthServiceServer struct{}
 
-func (UnimplementedAuthServiceServer) WechatLogin(context.Context, *WechatLoginRequest) (*WechatLoginResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method WechatLogin not implemented")
-}
 func (UnimplementedAuthServiceServer) GetUserProfile(context.Context, *GetUserProfileRequest) (*UserProfileForm, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetUserProfile not implemented")
 }
@@ -146,24 +128,6 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AuthService_ServiceDesc, srv)
-}
-
-func _AuthService_WechatLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WechatLoginRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServiceServer).WechatLogin(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AuthService_WechatLogin_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).WechatLogin(ctx, req.(*WechatLoginRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _AuthService_GetUserProfile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -227,10 +191,6 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "app.v1.AuthService",
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "WechatLogin",
-			Handler:    _AuthService_WechatLogin_Handler,
-		},
 		{
 			MethodName: "GetUserProfile",
 			Handler:    _AuthService_GetUserProfile_Handler,
