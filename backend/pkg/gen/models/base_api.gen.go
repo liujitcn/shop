@@ -12,18 +12,18 @@ const TableNameBaseAPI = "base_api"
 
 // BaseAPI API信息
 type BaseAPI struct {
-	ID           int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:API ID" json:"id"`                                                                  // API ID
-	McpEnabled   bool           `gorm:"column:mcp_enabled;type:tinyint(1);not null;index:idx_base_api_mcp_enabled,priority:1;comment:是否暴露为MCP工具" json:"mcp_enabled"`                   // 是否暴露为MCP工具
-	AgentEnabled bool           `gorm:"column:agent_enabled;type:tinyint(1);not null;index:idx_base_api_agent_enabled,priority:1;default:1;comment:是否暴露为Agent工具" json:"agent_enabled"` // 是否暴露为Agent工具
-	ToolName     string         `gorm:"column:tool_name;type:varchar(150);index:idx_base_api_tool_name,priority:1;comment:工具名" json:"tool_name"`                                       // 工具名
-	ToolPrompts  string         `gorm:"column:tool_prompts;type:json;comment:工具提示词" json:"tool_prompts"`                                                                               // 工具提示词
-	ServiceName  string         `gorm:"column:service_name;type:varchar(50);comment:服务名" json:"service_name"`                                                                          // 服务名
-	ServiceDesc  string         `gorm:"column:service_desc;type:varchar(50);comment:服务描述" json:"service_desc"`                                                                         // 服务描述
-	Desc         string         `gorm:"column:desc;type:varchar(100);comment:描述" json:"desc"`                                                                                          // 描述
-	Operation    string         `gorm:"column:operation;type:varchar(100);comment:操作方法" json:"operation"`                                                                              // 操作方法
-	Method       string         `gorm:"column:method;type:varchar(10);comment:请求方式" json:"method"`                                                                                     // 请求方式
-	Path         string         `gorm:"column:path;type:varchar(100);comment:请求地址" json:"path"`                                                                                        // 请求地址
-	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                // 删除时间
+	ID           int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:API ID" json:"id"`                                                         // API ID
+	McpEnabled   bool           `gorm:"column:mcp_enabled;type:tinyint(1);index:idx_base_api_mcp_enabled,priority:1;comment:是否暴露为MCP工具" json:"mcp_enabled"`                   // 是否暴露为MCP工具
+	AgentEnabled bool           `gorm:"column:agent_enabled;type:tinyint(1);index:idx_base_api_agent_enabled,priority:1;default:1;comment:是否暴露为Agent工具" json:"agent_enabled"` // 是否暴露为Agent工具
+	ToolName     string         `gorm:"column:tool_name;type:varchar(150);index:idx_base_api_tool_name,priority:1;comment:工具名" json:"tool_name"`                              // 工具名
+	ToolPrompts  string         `gorm:"column:tool_prompts;type:json;comment:工具提示词" json:"tool_prompts"`                                                                      // 工具提示词
+	ServiceName  string         `gorm:"column:service_name;type:varchar(50);comment:服务名" json:"service_name"`                                                                 // 服务名
+	ServiceDesc  string         `gorm:"column:service_desc;type:varchar(50);comment:服务描述" json:"service_desc"`                                                                // 服务描述
+	Desc         string         `gorm:"column:desc;type:varchar(100);comment:描述" json:"desc"`                                                                                 // 描述
+	Operation    string         `gorm:"column:operation;type:varchar(100);comment:操作方法" json:"operation"`                                                                     // 操作方法
+	Method       string         `gorm:"column:method;type:varchar(10);comment:请求方式" json:"method"`                                                                            // 请求方式
+	Path         string         `gorm:"column:path;type:varchar(100);comment:请求地址" json:"path"`                                                                               // 请求地址
+	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                       // 删除时间
 }
 
 // TableName BaseAPI's table name

@@ -56,6 +56,7 @@ var ProviderSet = wire.NewSet(
 	NewShopHotGoodsRepository,
 	NewShopHotItemRepository,
 	NewShopServiceRepository,
+	NewTenantStoreRepository,
 	NewUserAddressRepository,
 	NewUserCartRepository,
 	NewUserCollectRepository,

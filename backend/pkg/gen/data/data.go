@@ -61,6 +61,7 @@ func init() {
 		new(models.ShopHotGoods),
 		new(models.ShopHotItem),
 		new(models.ShopService),
+		new(models.TenantStore),
 		new(models.UserAddress),
 		new(models.UserCart),
 		new(models.UserCollect),

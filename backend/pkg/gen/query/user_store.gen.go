@@ -36,6 +36,8 @@ func newUserStore(db *gorm.DB, opts ...gen.DOOption) userStore {
 	_userStore.BusinessLicense = field.NewString(tableName, "business_license")
 	_userStore.Remark = field.NewString(tableName, "remark")
 	_userStore.Status = field.NewInt32(tableName, "status")
+	_userStore.CreatedBy = field.NewInt64(tableName, "created_by")
+	_userStore.UpdatedBy = field.NewInt64(tableName, "updated_by")
 	_userStore.CreatedAt = field.NewTime(tableName, "created_at")
 	_userStore.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_userStore.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -59,6 +61,8 @@ type userStore struct {
 	BusinessLicense field.String // 营业执照
 	Remark          field.String // 备注
 	Status          field.Int32  // 状态：枚举【UserStoreStatus】
+	CreatedBy       field.Int64  // 创建者ID
+	UpdatedBy       field.Int64  // 更新者ID
 	CreatedAt       field.Time   // 创建时间
 	UpdatedAt       field.Time   // 更新时间
 	DeletedAt       field.Field  // 删除时间
@@ -87,6 +91,8 @@ func (u *userStore) updateTableName(table string) *userStore {
 	u.BusinessLicense = field.NewString(table, "business_license")
 	u.Remark = field.NewString(table, "remark")
 	u.Status = field.NewInt32(table, "status")
+	u.CreatedBy = field.NewInt64(table, "created_by")
+	u.UpdatedBy = field.NewInt64(table, "updated_by")
 	u.CreatedAt = field.NewTime(table, "created_at")
 	u.UpdatedAt = field.NewTime(table, "updated_at")
 	u.DeletedAt = field.NewField(table, "deleted_at")
@@ -116,7 +122,7 @@ func (u *userStore) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (u *userStore) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 12)
+	u.fieldMap = make(map[string]field.Expr, 14)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["user_id"] = u.UserID
 	u.fieldMap["name"] = u.Name
@@ -126,6 +132,8 @@ func (u *userStore) fillFieldMap() {
 	u.fieldMap["business_license"] = u.BusinessLicense
 	u.fieldMap["remark"] = u.Remark
 	u.fieldMap["status"] = u.Status
+	u.fieldMap["created_by"] = u.CreatedBy
+	u.fieldMap["updated_by"] = u.UpdatedBy
 	u.fieldMap["created_at"] = u.CreatedAt
 	u.fieldMap["updated_at"] = u.UpdatedAt
 	u.fieldMap["deleted_at"] = u.DeletedAt

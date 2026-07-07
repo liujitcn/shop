@@ -235,6 +235,11 @@ func (*ShopService) TableComment() string {
 }
 
 // TableComment 返回表注释。
+func (*TenantStore) TableComment() string {
+	return "租户门店信息"
+}
+
+// TableComment 返回表注释。
 func (*UserAddress) TableComment() string {
 	return "用户地址信息"
 }

@@ -64,6 +64,7 @@ func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 		ShopHotGoods:         newShopHotGoods(db, opts...),
 		ShopHotItem:          newShopHotItem(db, opts...),
 		ShopService:          newShopService(db, opts...),
+		TenantStore:          newTenantStore(db, opts...),
 		UserAddress:          newUserAddress(db, opts...),
 		UserCart:             newUserCart(db, opts...),
 		UserCollect:          newUserCollect(db, opts...),
@@ -120,6 +121,7 @@ type Query struct {
 	ShopHotGoods         shopHotGoods
 	ShopHotItem          shopHotItem
 	ShopService          shopService
+	TenantStore          tenantStore
 	UserAddress          userAddress
 	UserCart             userCart
 	UserCollect          userCollect
@@ -177,6 +179,7 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		ShopHotGoods:         q.ShopHotGoods.clone(db),
 		ShopHotItem:          q.ShopHotItem.clone(db),
 		ShopService:          q.ShopService.clone(db),
+		TenantStore:          q.TenantStore.clone(db),
 		UserAddress:          q.UserAddress.clone(db),
 		UserCart:             q.UserCart.clone(db),
 		UserCollect:          q.UserCollect.clone(db),
@@ -241,6 +244,7 @@ func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 		ShopHotGoods:         q.ShopHotGoods.replaceDB(db),
 		ShopHotItem:          q.ShopHotItem.replaceDB(db),
 		ShopService:          q.ShopService.replaceDB(db),
+		TenantStore:          q.TenantStore.replaceDB(db),
 		UserAddress:          q.UserAddress.replaceDB(db),
 		UserCart:             q.UserCart.replaceDB(db),
 		UserCollect:          q.UserCollect.replaceDB(db),
@@ -295,6 +299,7 @@ type queryCtx struct {
 	ShopHotGoods         *shopHotGoodsDo
 	ShopHotItem          *shopHotItemDo
 	ShopService          *shopServiceDo
+	TenantStore          *tenantStoreDo
 	UserAddress          *userAddressDo
 	UserCart             *userCartDo
 	UserCollect          *userCollectDo
@@ -349,6 +354,7 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		ShopHotGoods:         q.ShopHotGoods.WithContext(ctx),
 		ShopHotItem:          q.ShopHotItem.WithContext(ctx),
 		ShopService:          q.ShopService.WithContext(ctx),
+		TenantStore:          q.TenantStore.WithContext(ctx),
 		UserAddress:          q.UserAddress.WithContext(ctx),
 		UserCart:             q.UserCart.WithContext(ctx),
 		UserCollect:          q.UserCollect.WithContext(ctx),
