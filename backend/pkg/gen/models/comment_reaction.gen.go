@@ -17,8 +17,8 @@ type CommentReaction struct {
 	TargetID     int64     `gorm:"column:target_id;type:bigint;uniqueIndex:uk_comment_reaction_target_user,priority:2;comment:目标ID" json:"target_id"`                                                        // 目标ID
 	UserID       int64     `gorm:"column:user_id;type:bigint;uniqueIndex:uk_comment_reaction_target_user,priority:3;index:idx_comment_reaction_user_id_created_at,priority:1;comment:操作用户ID" json:"user_id"` // 操作用户ID
 	ReactionType int32     `gorm:"column:reaction_type;type:tinyint;comment:互动类型：枚举【CommentReactionType】" json:"reaction_type"`                                                                              // 互动类型：枚举【CommentReactionType】
-	CreatedAt    time.Time `gorm:"column:created_at;type:datetime;index:idx_comment_reaction_user_id_created_at,priority:2;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                        // 创建时间
-	UpdatedAt    time.Time `gorm:"column:updated_at;type:datetime;default:CURRENT_TIMESTAMP;comment:最后更新时间" json:"updated_at"`                                                                               // 最后更新时间
+	CreatedAt    time.Time `gorm:"column:created_at;type:datetime;index:idx_comment_reaction_user_id_created_at,priority:2;comment:创建时间" json:"created_at"`                                                  // 创建时间
+	UpdatedAt    time.Time `gorm:"column:updated_at;type:datetime;comment:最后更新时间" json:"updated_at"`                                                                                                         // 最后更新时间
 }
 
 // TableName CommentReaction's table name

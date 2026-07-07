@@ -20,8 +20,8 @@ type CommentSummary struct {
 	Content      string         `gorm:"column:content;type:json;comment:评价摘要内容JSON：数组项包含label、content" json:"content"`                                                                                                         // 评价摘要内容JSON：数组项包含label、content
 	LikeCount    int32          `gorm:"column:like_count;type:int;comment:点赞数展示缓存" json:"like_count"`                                                                                                                          // 点赞数展示缓存
 	DislikeCount int32          `gorm:"column:dislike_count;type:int;comment:点踩数展示缓存" json:"dislike_count"`                                                                                                                    // 点踩数展示缓存
-	CreatedAt    time.Time      `gorm:"column:created_at;type:datetime;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                                                                              // 创建时间
-	UpdatedAt    time.Time      `gorm:"column:updated_at;type:datetime;default:CURRENT_TIMESTAMP;comment:最后更新时间" json:"updated_at"`                                                                                            // 最后更新时间
+	CreatedAt    time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                                                                        // 创建时间
+	UpdatedAt    time.Time      `gorm:"column:updated_at;type:datetime;comment:最后更新时间" json:"updated_at"`                                                                                                                      // 最后更新时间
 	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                                                        // 删除时间
 }
 

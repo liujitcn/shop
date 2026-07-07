@@ -14,14 +14,14 @@ const TableNameAiAssistantSession = "ai_assistant_session"
 
 // AiAssistantSession AI助手会话表
 type AiAssistantSession struct {
-	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:会话ID" json:"id"`                                                                                     // 会话ID
-	UserID    int64          `gorm:"column:user_id;type:bigint;index:idx_ai_assistant_session_user_id_terminal_updated_at,priority:1;comment:所属用户ID" json:"user_id"`                                 // 所属用户ID
-	Terminal  int32          `gorm:"column:terminal;type:tinyint;index:idx_ai_assistant_session_user_id_terminal_updated_at,priority:2;default:2;comment:终端类型：枚举【Terminal】" json:"terminal"`         // 终端类型：枚举【Terminal】
-	Title     string         `gorm:"column:title;type:varchar(100);comment:会话标题" json:"title"`                                                                                                       // 会话标题
-	Summary   string         `gorm:"column:summary;type:varchar(255);comment:会话摘要" json:"summary"`                                                                                                   // 会话摘要
-	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                                                       // 创建时间
-	UpdatedAt time.Time      `gorm:"column:updated_at;type:datetime;index:idx_ai_assistant_session_user_id_terminal_updated_at,priority:3;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"` // 更新时间
-	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                                 // 删除时间
+	ID        int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:会话ID" json:"id"`                                                                   // 会话ID
+	UserID    int64          `gorm:"column:user_id;type:bigint;index:idx_ai_assistant_session_user_id_terminal_updated_at,priority:1;comment:所属用户ID" json:"user_id"`               // 所属用户ID
+	Terminal  int32          `gorm:"column:terminal;type:tinyint;index:idx_ai_assistant_session_user_id_terminal_updated_at,priority:2;comment:终端类型：枚举【Terminal】" json:"terminal"` // 终端类型：枚举【Terminal】
+	Title     string         `gorm:"column:title;type:varchar(100);comment:会话标题" json:"title"`                                                                                     // 会话标题
+	Summary   string         `gorm:"column:summary;type:varchar(255);comment:会话摘要" json:"summary"`                                                                                 // 会话摘要
+	CreatedAt time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                               // 创建时间
+	UpdatedAt time.Time      `gorm:"column:updated_at;type:datetime;index:idx_ai_assistant_session_user_id_terminal_updated_at,priority:3;comment:更新时间" json:"updated_at"`         // 更新时间
+	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                               // 删除时间
 }
 
 // TableName AiAssistantSession's table name

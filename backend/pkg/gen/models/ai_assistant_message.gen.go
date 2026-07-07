@@ -24,9 +24,9 @@ type AiAssistantMessage struct {
 	Token         string         `gorm:"column:token;type:json;comment:Token统计JSON" json:"token"`                                                                                                                                   // Token统计JSON
 	FirstTokenMs  int32          `gorm:"column:first_token_ms;type:int;comment:首Token耗时毫秒" json:"first_token_ms"`                                                                                                                   // 首Token耗时毫秒
 	DurationMs    int32          `gorm:"column:duration_ms;type:int;comment:总耗时毫秒" json:"duration_ms"`                                                                                                                              // 总耗时毫秒
-	Status        int32          `gorm:"column:status;type:tinyint;default:2;comment:消息生成状态：枚举【AiAssistantMessageStatus】" json:"status"`                                                                                            // 消息生成状态：枚举【AiAssistantMessageStatus】
-	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;index:idx_ai_assistant_message_session_id_created_at,priority:2;default:CURRENT_TIMESTAMP;comment:创建时间" json:"created_at"`                                  // 创建时间
-	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updated_at"`                                                                                                  // 更新时间
+	Status        int32          `gorm:"column:status;type:tinyint;comment:消息生成状态：枚举【AiAssistantMessageStatus】" json:"status"`                                                                                                      // 消息生成状态：枚举【AiAssistantMessageStatus】
+	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;index:idx_ai_assistant_message_session_id_created_at,priority:2;comment:创建时间" json:"created_at"`                                                            // 创建时间
+	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;comment:更新时间" json:"updated_at"`                                                                                                                            // 更新时间
 	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                                                            // 删除时间
 }
 

@@ -15,7 +15,7 @@ const TableNameGoodsInfo = "goods_info"
 // GoodsInfo 商品信息
 type GoodsInfo struct {
 	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:商品ID" json:"id"`                                               // 商品ID
-	TenantID      int64          `gorm:"column:tenant_id;type:bigint;index:idx_goods_info_tenant_id,priority:1;default:1;comment:租户ID" json:"tenant_id"`           // 租户ID
+	TenantID      int64          `gorm:"column:tenant_id;type:bigint;index:idx_goods_info_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                     // 租户ID
 	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;index:idx_goods_info_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"` // 租户门店ID
 	CategoryID    string         `gorm:"column:category_id;type:json;comment:商品分类ID列表" json:"category_id"`                                                         // 商品分类ID列表
 	Name          string         `gorm:"column:name;type:varchar(255);comment:商品名称" json:"name"`                                                                   // 商品名称
