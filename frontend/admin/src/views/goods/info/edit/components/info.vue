@@ -26,6 +26,8 @@ import { ElMessage } from "element-plus";
 import ProForm from "@/components/ProForm/index.vue";
 import type { ProFormField, ProFormInstance } from "@/components/ProForm/interface";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
+import type { OptionTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { GoodsStatus } from "@/rpc/common/v1/enum";
 
@@ -53,7 +55,9 @@ const formData: any = computed({
 
 const state = reactive({
   goodsCategoryOptions: [] as Array<TreeOptionResponse_Option>,
+  tenantStoreOptions: [] as Array<OptionTenantStoresResponse_Option>,
   rules: {
+    tenant_store_id: [{ required: true, message: "请选择所属门店", trigger: "change" }],
     category_id: [{ required: true, message: "请选择商品分类", trigger: "change" }],
     name: [{ required: true, message: "请输入商品名称", trigger: "blur" }],
     desc: [{ required: true, message: "请输入商品描述", trigger: "blur" }],
@@ -63,10 +67,22 @@ const state = reactive({
   }
 });
 
-const { goodsCategoryOptions, rules } = toRefs(state);
+const { goodsCategoryOptions, tenantStoreOptions, rules } = toRefs(state);
 
 /** 商品信息表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "tenant_store_id",
+    label: "门店",
+    component: "select",
+    options: tenantStoreOptions.value,
+    colSpan: 8,
+    props: {
+      placeholder: "请选择门店",
+      filterable: true,
+      style: { width: "100%" }
+    }
+  },
   {
     prop: "category_id",
     label: "分类",
@@ -91,7 +107,7 @@ const formFields = computed<ProFormField[]>(() => [
     prop: "name",
     label: "标题",
     component: "input",
-    colSpan: 16,
+    colSpan: 8,
     props: { placeholder: "请输入商品标题" }
   },
   {
@@ -154,11 +170,14 @@ async function handleNext() {
   }
 }
 
-/** 查询分类树数据，作为商品分类下拉选项。 */
-function handleQuery() {
-  defGoodsCategoryService.OptionGoodsCategories({}).then(res => {
-    state.goodsCategoryOptions = res.list;
-  });
+/** 查询商品基础选项，作为门店和分类下拉数据。 */
+async function handleQuery() {
+  const [tenantStoreResponse, goodsCategoryResponse] = await Promise.all([
+    defTenantStoreService.OptionTenantStores({ keyword: "" }),
+    defGoodsCategoryService.OptionGoodsCategories({})
+  ]);
+  state.tenantStoreOptions = tenantStoreResponse.list;
+  state.goodsCategoryOptions = goodsCategoryResponse.list;
 }
 
 onMounted(() => {

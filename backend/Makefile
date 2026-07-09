@@ -16,6 +16,7 @@ GEN_BIN ?= $(or \
 	$(shell command -v gen 2>/dev/null), \
 	$(shell GOBIN=$$(go env GOBIN); GOPATH=$$(go env GOPATH); if [ -n "$$GOBIN" ]; then printf '%s' "$$GOBIN/gen"; else printf '%s' "$$GOPATH/bin/gen"; fi) \
 )
+GORM_GEN_SOURCE ?= root:112233@tcp(192.168.60.52:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms
 
 # 初始化开发环境
 init: plugin cli
@@ -65,10 +66,10 @@ fmt:
 	@echo "==> Go 代码格式化完成"
 
 # 生成 GORM 代码
-gorm-gen:
+gorm-gen: fmt
 	@echo "==> 生成 GORM 代码"
 	@test -x "$(GEN_BIN)" || (echo "gen not found. Run make cli first." && exit 1)
-	$(GEN_BIN) -base_path=pkg/gen -source='root:112233@tcp(192.168.60.52:3306)/shop_test?charset=utf8&parseTime=True&loc=Local&timeout=1000ms'
+	$(GEN_BIN) -base_path=pkg/gen -source='$(GORM_GEN_SOURCE)'
 	@echo "==> GORM 代码生成完成"
 
 # 生成 wire 依赖注入代码

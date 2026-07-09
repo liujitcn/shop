@@ -72,13 +72,17 @@ service BaseRoleService {
 }
 
 // 角色选项查询条件
-message OptionBaseRolesRequest {}
+message OptionBaseRolesRequest {
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
+}
 
 // 角色分页查询条件
 message PageBaseRolesRequest {
   string name = 2 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
 
   string code = 3 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
+
+  optional int64 tenant_id = 4 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
   optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -131,13 +135,15 @@ message SetBaseRoleStatusRequest {
 message BaseRole {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
 
-  string name = 2 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string code = 3 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
 
-  .common.v1.BaseRoleDataScope data_scope = 4 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+  string code = 4 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
 
-  repeated int64 menus = 5 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}]; // 分配的菜单列表
+  .common.v1.BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+
+  repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}]; // 分配的菜单列表
 
   .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -152,15 +158,17 @@ message BaseRole {
 message BaseRoleForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "角色ID"}]; // 角色ID
 
-  string name = 2 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string code = 3 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
+  string name = 3 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
 
-  optional .common.v1.BaseRoleDataScope data_scope = 4 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+  string code = 4 [(gnostic.openapi.v3.property) = {description: "角色编号"}]; // 角色编号
 
-  repeated int64 menus = 5 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}]; // 分配的菜单列表
+  optional .common.v1.BaseRoleDataScope data_scope = 5 [(gnostic.openapi.v3.property) = {description: "数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据"}]; // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
 
-  optional .common.v1.Status status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  repeated int64 menus = 6 [(gnostic.openapi.v3.property) = {description: "分配的菜单列表"}]; // 分配的菜单列表
+
+  optional .common.v1.Status status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
   string remark = 101 [(gnostic.openapi.v3.property) = {description: "备注"}]; // 备注
 }

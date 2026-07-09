@@ -997,14 +997,14 @@ var File_base_v1_oauth_proto protoreflect.FileDescriptor
 const file_base_v1_oauth_proto_rawDesc = "" +
 	"\n" +
 	"\x13base/v1/oauth.proto\x12\abase.v1\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1b\n" +
-	"\x19ListOauthProvidersRequest\"Q\n" +
+	"\x19ListOauthProvidersRequest\"E\n" +
 	"\rOauthProvider\x124\n" +
-	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bproviderJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04\"r\n" +
+	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\"r\n" +
 	"\x1aListOauthProvidersResponse\x12T\n" +
-	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\xbd\x01\n" +
+	"\tproviders\x18\x01 \x03(\v2\x16.base.v1.OauthProviderB\x1e\xbaG\x1b\x92\x02\x18三方登录方式列表R\tproviders\"\xac\x01\n" +
 	"\x1fCreateOauthAuthorizationRequest\x124\n" +
 	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12S\n" +
-	"\fredirect_url\x18\x02 \x01(\tB0\xbaG-\x92\x02*三方登录完成后的前端接收地址R\vredirectUrlJ\x04\b\x03\x10\x04R\tlogin_url\"i\n" +
+	"\fredirect_url\x18\x02 \x01(\tB0\xbaG-\x92\x02*三方登录完成后的前端接收地址R\vredirectUrl\"i\n" +
 	" CreateOauthAuthorizationResponse\x12E\n" +
 	"\x11authorization_url\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12三方授权地址R\x10authorizationUrl\"\x9e\x02\n" +
 	"\x1aHandleOauthCallbackRequest\x124\n" +
@@ -1035,10 +1035,10 @@ const file_base_v1_oauth_proto_rawDesc = "" +
 	"expires_in\x18\x04 \x01(\x03B\xbc\x01\xbaG\xb8\x01\x92\x02\xb4\x01令牌有效时间，单位为秒。如果访问令牌过期，服务器应回复授予访问令牌的持续时间。如果省略该参数，必须其他方式设置过期时间。R\texpiresIn\"\x1a\n" +
 	"\x18ListOauthBindingsRequest\"n\n" +
 	"\x19ListOauthBindingsResponse\x12Q\n" +
-	"\bbindings\x18\x01 \x03(\v2\x15.base.v1.OauthBindingB\x1e\xbaG\x1b\x92\x02\x18三方账号绑定列表R\bbindings\"}\n" +
+	"\bbindings\x18\x01 \x03(\v2\x15.base.v1.OauthBindingB\x1e\xbaG\x1b\x92\x02\x18三方账号绑定列表R\bbindings\"q\n" +
 	"\fOauthBinding\x124\n" +
 	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12+\n" +
-	"\x05bound\x18\x04 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已绑定R\x05boundJ\x04\b\x02\x10\x03J\x04\b\x03\x10\x04\"\xa4\x01\n" +
+	"\x05bound\x18\x04 \x01(\bB\x15\xbaG\x12\x92\x02\x0f是否已绑定R\x05bound\"\xa4\x01\n" +
 	"&CreateOauthBindingAuthorizationRequest\x124\n" +
 	"\bprovider\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12登录方式标识R\bprovider\x12D\n" +
 	"\fredirect_url\x18\x02 \x01(\tB!\xbaG\x1e\x92\x02\x1b绑定完成后回跳地址R\vredirectUrl\"p\n" +

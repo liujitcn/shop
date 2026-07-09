@@ -18,6 +18,14 @@ import type { Empty } from "../../google/protobuf/empty";
 
 /** 订单分页查询条件 */
 export interface PageOrderInfosRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 订单编号 */
   order_no: string;
   /** 用户id */
@@ -148,6 +156,10 @@ export interface ShipOrderInfoRequest {
 export interface OrderInfo {
   /** 订单ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
+  /** 租户门店ID */
+  tenant_store_id: number;
   /** 订单编号 */
   order_no: string;
   /** 用户ID */

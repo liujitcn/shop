@@ -39,7 +39,7 @@ func NewBaseDeptService(
 
 // TreeBaseDepts 查询部门树形列表
 func (s *BaseDeptService) TreeBaseDepts(ctx context.Context, req *adminv1.TreeBaseDeptsRequest) (*adminv1.TreeBaseDeptsResponse, error) {
-	tree, err := s.baseDeptCase.TreeBaseDepts(ctx)
+	tree, err := s.baseDeptCase.TreeBaseDepts(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("TreeBaseDepts %v", err))
 		return nil, errorsx.WrapInternal(err, "查询部门树形列表失败")

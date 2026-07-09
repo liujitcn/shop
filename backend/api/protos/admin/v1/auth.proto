@@ -112,6 +112,10 @@ message UserInfoForm {
   string role_name = 101 [(gnostic.openapi.v3.property) = {description: "角色名称"}]; // 角色名称
 
   string dept_name = 102 [(gnostic.openapi.v3.property) = {description: "部门名称"}]; // 部门名称
+
+  string tenant_code = 104 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+
+  string tenant_name = 105 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
 }
 
 // Route树响应

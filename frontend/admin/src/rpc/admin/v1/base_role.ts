@@ -11,6 +11,8 @@ import type { Empty } from "../../google/protobuf/empty";
 
 /** 角色选项查询条件 */
 export interface OptionBaseRolesRequest {
+  /** 租户ID */
+  tenant_id?: number | undefined;
 }
 
 /** 角色分页查询条件 */
@@ -19,6 +21,10 @@ export interface PageBaseRolesRequest {
   name: string;
   /** 角色编号 */
   code: string;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
   /** 状态 */
   status?:
     | Status
@@ -73,6 +79,8 @@ export interface SetBaseRoleStatusRequest {
 export interface BaseRole {
   /** 角色ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 角色名称 */
   name: string;
   /** 角色编号 */
@@ -95,6 +103,8 @@ export interface BaseRole {
 export interface BaseRoleForm {
   /** 角色ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 角色名称 */
   name: string;
   /** 角色编号 */

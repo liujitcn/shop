@@ -227,7 +227,7 @@ func (c *CommentInfoCase) FindAnyByID(ctx context.Context, commentID int64) (*mo
 }
 
 // CreateComment 创建商品评价。
-func (c *CommentInfoCase) CreateComment(ctx context.Context, tenantID int64, user *models.BaseUser, req *appv1.CreateCommentRequest, orderGoods *models.OrderGoods) (*models.CommentInfo, error) {
+func (c *CommentInfoCase) CreateComment(ctx context.Context, tenantID int64, tenantStoreID int64, user *models.BaseUser, req *appv1.CreateCommentRequest, orderGoods *models.OrderGoods) (*models.CommentInfo, error) {
 	userID := int64(0)
 	userName := ANONYMOUS_USER_NAME
 	userAvatar := ""
@@ -247,6 +247,7 @@ func (c *CommentInfoCase) CreateComment(ctx context.Context, tenantID int64, use
 
 	record := &models.CommentInfo{
 		TenantID:             tenantID,
+		TenantStoreID:        tenantStoreID,
 		OrderID:              req.GetOrderId(),
 		GoodsID:              orderGoods.GoodsID,
 		GoodsNameSnapshot:    orderGoods.Name,

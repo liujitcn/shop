@@ -37,6 +37,14 @@ export interface OptionGoodsInfosResponse_GoodsInfo {
 
 /** 商品列表查询条件 */
 export interface PageGoodsInfosRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 分类id */
   category_id?:
     | number
@@ -107,6 +115,10 @@ export interface SetGoodsInfoStatusRequest {
 export interface GoodsInfo {
   /** 商品ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
+  /** 租户门店ID */
+  tenant_store_id: number;
   /** 分类ID列表 */
   category_id: number[];
   /** 名称 */
@@ -139,6 +151,10 @@ export interface GoodsInfo {
 export interface GoodsInfoForm {
   /** 商品ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
+  /** 租户门店ID */
+  tenant_store_id: number;
   /** 分类ID列表 */
   category_id: number[];
   /** 名称 */

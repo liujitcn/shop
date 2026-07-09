@@ -64,6 +64,7 @@ func NewGRPCServer(
 	adminBaseTenant *admin.BaseTenantService,
 	adminBaseUser *admin.BaseUserService,
 	adminCommentInfo *admin.CommentInfoService,
+	adminTenantStore *admin.TenantStoreService,
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
 	adminGoodsReport *admin.GoodsReportService,
 	adminGoodsCategory *admin.GoodsCategoryService,
@@ -90,6 +91,7 @@ func NewGRPCServer(
 	appComment *app.CommentService,
 	appGoodsCategory *app.GoodsCategoryService,
 	appGoods *app.GoodsInfoService,
+	appTenantStore *app.TenantStoreService,
 	appOrder *app.OrderInfoService,
 	appPay *app.PayService,
 	appRecommend *app.RecommendService,
@@ -132,6 +134,7 @@ func NewGRPCServer(
 	adminv1.RegisterBaseTenantServiceServer(srv, adminBaseTenant)
 	adminv1.RegisterBaseUserServiceServer(srv, adminBaseUser)
 	adminv1.RegisterCommentInfoServiceServer(srv, adminCommentInfo)
+	adminv1.RegisterTenantStoreServiceServer(srv, adminTenantStore)
 	adminv1.RegisterGoodsAnalyticsServiceServer(srv, adminGoodsAnalytics)
 	adminv1.RegisterGoodsReportServiceServer(srv, adminGoodsReport)
 	adminv1.RegisterGoodsCategoryServiceServer(srv, adminGoodsCategory)
@@ -158,6 +161,7 @@ func NewGRPCServer(
 	appv1.RegisterCommentServiceServer(srv, appComment)
 	appv1.RegisterGoodsCategoryServiceServer(srv, appGoodsCategory)
 	appv1.RegisterGoodsInfoServiceServer(srv, appGoods)
+	appv1.RegisterTenantStoreServiceServer(srv, appTenantStore)
 	appv1.RegisterOrderInfoServiceServer(srv, appOrder)
 	appv1.RegisterPayServiceServer(srv, appPay)
 	appv1.RegisterRecommendServiceServer(srv, appRecommend)

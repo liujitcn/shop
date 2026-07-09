@@ -17,6 +17,14 @@ import type { Empty } from "../../google/protobuf/empty";
 
 /** 评论分页查询条件 */
 export interface PageCommentInfosRequest {
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
+  /** 租户门店ID */
+  tenant_store_id?:
+    | number
+    | undefined;
   /** 商品ID */
   goods_id?:
     | number
@@ -141,6 +149,10 @@ export interface GoodsCommentInfoResponse {
 export interface CommentInfo {
   /** 评价主键 */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
+  /** 租户门店ID */
+  tenant_store_id: number;
   /** 订单ID */
   order_id: number;
   /** 商品ID */

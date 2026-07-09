@@ -29,6 +29,7 @@ func newOrderInfo(db *gorm.DB, opts ...gen.DOOption) orderInfo {
 	_orderInfo.ALL = field.NewAsterisk(tableName)
 	_orderInfo.ID = field.NewInt64(tableName, "id")
 	_orderInfo.TenantID = field.NewInt64(tableName, "tenant_id")
+	_orderInfo.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderInfo.OrderNo = field.NewString(tableName, "order_no")
 	_orderInfo.UserID = field.NewInt64(tableName, "user_id")
 	_orderInfo.PayMoney = field.NewInt64(tableName, "pay_money")
@@ -53,23 +54,24 @@ func newOrderInfo(db *gorm.DB, opts ...gen.DOOption) orderInfo {
 type orderInfo struct {
 	orderInfoDo orderInfoDo
 
-	ALL          field.Asterisk
-	ID           field.Int64  // 订单ID
-	TenantID     field.Int64  // 租户ID
-	OrderNo      field.String // 订单编号
-	UserID       field.Int64  // 用户id
-	PayMoney     field.Int64  // 实际支付金额
-	TotalMoney   field.Int64  // 总价
-	PostFee      field.Int64  // 优惠金额
-	GoodsNum     field.Int64  // 商品总数
-	PayType      field.Int32  // 支付方式：枚举【OrderPayType】
-	PayChannel   field.Int32  // 支付渠道：枚举【OrderPayChannel】
-	DeliveryTime field.Int32  // 配送时间：枚举【OrderDeliveryTime】
-	Status       field.Int32  // 状态：枚举【OrderStatus】
-	Remark       field.String // 订单备注
-	CreatedAt    field.Time   // 创建时间
-	UpdatedAt    field.Time   // 更新时间
-	DeletedAt    field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 订单ID
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
+	OrderNo       field.String // 订单编号
+	UserID        field.Int64  // 用户id
+	PayMoney      field.Int64  // 实际支付金额
+	TotalMoney    field.Int64  // 总价
+	PostFee       field.Int64  // 优惠金额
+	GoodsNum      field.Int64  // 商品总数
+	PayType       field.Int32  // 支付方式：枚举【OrderPayType】
+	PayChannel    field.Int32  // 支付渠道：枚举【OrderPayChannel】
+	DeliveryTime  field.Int32  // 配送时间：枚举【OrderDeliveryTime】
+	Status        field.Int32  // 状态：枚举【OrderStatus】
+	Remark        field.String // 订单备注
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -88,6 +90,7 @@ func (o *orderInfo) updateTableName(table string) *orderInfo {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
 	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderNo = field.NewString(table, "order_no")
 	o.UserID = field.NewInt64(table, "user_id")
 	o.PayMoney = field.NewInt64(table, "pay_money")
@@ -128,9 +131,10 @@ func (o *orderInfo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderInfo) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 16)
+	o.fieldMap = make(map[string]field.Expr, 17)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_no"] = o.OrderNo
 	o.fieldMap["user_id"] = o.UserID
 	o.fieldMap["pay_money"] = o.PayMoney

@@ -88,13 +88,17 @@ message OptionGoodsInfosResponse {
 
 // 商品列表查询条件
 message PageGoodsInfosRequest {
-  optional int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类id"}]; // 分类id
+  optional int64 tenant_id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "商品名称"}]; // 商品名称
+  optional int64 tenant_store_id = 2 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 
-  optional .common.v1.GoodsInventoryAlert inventory_alert = 4 [(gnostic.openapi.v3.property) = {description: "库存预警类型：枚举【GoodsInventoryAlert】"}]; // 库存预警类型：枚举【GoodsInventoryAlert】
+  optional int64 category_id = 3 [(gnostic.openapi.v3.property) = {description: "分类id"}]; // 分类id
 
-  optional .common.v1.GoodsPriceAlert price_alert = 5 [(gnostic.openapi.v3.property) = {description: "价格异常类型：枚举【GoodsPriceAlert】"}]; // 价格异常类型：枚举【GoodsPriceAlert】
+  string name = 4 [(gnostic.openapi.v3.property) = {description: "商品名称"}]; // 商品名称
+
+  optional .common.v1.GoodsInventoryAlert inventory_alert = 5 [(gnostic.openapi.v3.property) = {description: "库存预警类型：枚举【GoodsInventoryAlert】"}]; // 库存预警类型：枚举【GoodsInventoryAlert】
+
+  optional .common.v1.GoodsPriceAlert price_alert = 6 [(gnostic.openapi.v3.property) = {description: "价格异常类型：枚举【GoodsPriceAlert】"}]; // 价格异常类型：枚举【GoodsPriceAlert】
 
   optional .common.v1.GoodsStatus status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
@@ -149,13 +153,17 @@ message SetGoodsInfoStatusRequest {
 message GoodsInfo {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
 
-  repeated int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  int64 tenant_store_id = 3 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 
-  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+  repeated int64 category_id = 4 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
 
-  string picture = 5 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+
+  string desc = 6 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+
+  string picture = 7 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
 
   int64 price = 40 [(gnostic.openapi.v3.property) = {description: "当前价格(分)"}]; // 当前价格(分)
 
@@ -180,25 +188,29 @@ message GoodsInfo {
 message GoodsInfoForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "商品ID"}]; // 商品ID
 
-  repeated int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
+  int64 tenant_id = 2 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string name = 3 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
+  int64 tenant_store_id = 3 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 
-  string desc = 4 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
+  repeated int64 category_id = 4 [(gnostic.openapi.v3.property) = {description: "分类ID列表"}]; // 分类ID列表
 
-  string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+  string name = 5 [(gnostic.openapi.v3.property) = {description: "名称"}]; // 名称
 
-  repeated string banner = 31 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
+  string desc = 6 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
 
-  repeated string detail = 32 [(gnostic.openapi.v3.property) = {description: "商品详情"}]; // 商品详情
+  string picture = 7 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
 
-  optional .common.v1.GoodsStatus status = 51 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
+  repeated string banner = 8 [(gnostic.openapi.v3.property) = {description: "轮播图"}]; // 轮播图
 
-  repeated GoodsProp prop_list = 100 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
+  repeated string detail = 9 [(gnostic.openapi.v3.property) = {description: "商品详情"}]; // 商品详情
 
-  repeated GoodsSku sku_list = 101 [(gnostic.openapi.v3.property) = {description: "商品SKU"}]; // 商品SKU
+  optional .common.v1.GoodsStatus status = 100 [(gnostic.openapi.v3.property) = {description: "状态"}]; // 状态
 
-  repeated GoodsSpec spec_list = 102 [(gnostic.openapi.v3.property) = {description: "商品规格"}]; // 商品规格
+  repeated GoodsProp prop_list = 200 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
+
+  repeated GoodsSku sku_list = 201 [(gnostic.openapi.v3.property) = {description: "商品SKU"}]; // 商品SKU
+
+  repeated GoodsSpec spec_list = 202 [(gnostic.openapi.v3.property) = {description: "商品规格"}]; // 商品规格
 
   string category_name = 300 [(gnostic.openapi.v3.property) = {description: "分类名称"}]; // 分类名称
 }

@@ -18,6 +18,8 @@ export interface PageGoodsInfoRequest {
   name: string;
   /** 分类id */
   category_id: number;
+  /** 租户门店ID */
+  tenant_store_id: number;
   /** 当前页码 */
   page_num: number;
   /** 每一页的行数 */
@@ -52,6 +54,12 @@ export interface GoodsInfoResponse {
   banner: string[];
   /** 商品详情 */
   detail: string[];
+  /** 租户门店ID */
+  tenant_store_id: number;
+  /** 租户门店名称 */
+  tenant_store_name: string;
+  /** 租户门店LOGO */
+  tenant_store_logo: string;
   /** 商品属性 */
   prop_list: GoodsInfoResponse_Prop[];
   /** 商品SKU */
@@ -110,6 +118,10 @@ export interface GoodsInfo {
   desc: string;
   /** 商品图片 */
   picture: string;
+  /** 租户门店ID */
+  tenant_store_id: number;
+  /** 租户门店名称 */
+  tenant_store_name: string;
   /** 销量 */
   sale_num: number;
   /** 价格 */

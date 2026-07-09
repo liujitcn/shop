@@ -57,6 +57,8 @@
               <el-descriptions-item label="商品规格" :span="2">{{
                 comment.sku_desc_snapshot || "暂无规格"
               }}</el-descriptions-item>
+              <el-descriptions-item v-if="isDefaultTenant" label="租户">{{ tenantNameText }}</el-descriptions-item>
+              <el-descriptions-item label="门店">{{ tenantStoreNameText }}</el-descriptions-item>
               <el-descriptions-item label="用户昵称">{{ comment.user_name_snapshot || "-" }}</el-descriptions-item>
               <el-descriptions-item label="匿名展示">{{ comment.is_anonymous ? "是" : "否" }}</el-descriptions-item>
               <el-descriptions-item label="商品评分">{{ formatScore(comment.goods_score) }}</el-descriptions-item>
@@ -160,7 +162,9 @@ import { useRoute } from "vue-router";
 import DictLabel from "@/components/Dict/DictLabel.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { useTabsStore } from "@/stores/modules/tabs";
+import { useUserStore } from "@/stores/modules/user";
 import { defCommentInfoService } from "@/api/admin/comment_info";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type {
   CommentSummary,
   CommentDiscussion,
@@ -171,6 +175,7 @@ import type {
 } from "@/rpc/admin/v1/comment_info";
 import { CommentStatus } from "@/rpc/common/v1/enum";
 import { formatSrc } from "@/utils/utils";
+import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/utils/tenant";
 import DiscussionList from "../components/discussion/index.vue";
 import ReviewTimeline from "../components/review/ReviewTimeline.vue";
 
@@ -198,6 +203,7 @@ type CommentInfoDetailCompat = Partial<CommentInfoDetail> & {
 
 const route = useRoute();
 const tabsStore = useTabsStore();
+const userStore = useUserStore();
 const { BUTTONS } = useAuthButtons();
 const loading = ref(false);
 const approveLoading = ref(false);
@@ -206,10 +212,27 @@ const detailRequestId = ref(0);
 const activeTabName = ref<CommentDetailTabName>("basic");
 const defaultDiscussionStatus = ref<CommentStatus | undefined>();
 const commentDetail = ref<CommentInfoDetailCompat>();
+const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 const workspaceTitle = "评论详情";
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
 
 /** 当前评论内容。 */
 const comment = computed<CommentInfo | undefined>(() => commentDetail.value?.comment);
+
+/** 当前评论所属租户名称，默认租户通过门店树选项反查。 */
+const tenantNameText = computed(() => tenantStoreDisplayMap.value.get(comment.value?.tenant_store_id ?? 0)?.tenantName || "-");
+
+/** 当前评论所属门店名称，通过门店树选项反查。 */
+const tenantStoreNameText = computed(() => tenantStoreDisplayMap.value.get(comment.value?.tenant_store_id ?? 0)?.storeName || "-");
+
+/** 加载租户门店映射，供详情页展示租户与门店名称。 */
+async function loadTenantStoreDisplayMap() {
+  if (tenantStoreDisplayMap.value.size) return;
+  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
+}
 
 /** 当前评论命中的标签列表。 */
 const matchedTagList = computed<CommentTag[]>(() => {
@@ -319,6 +342,7 @@ function handleQuery(targetCommentId = commentId.value) {
     .then(data => {
       if (requestId !== detailRequestId.value) return;
       commentDetail.value = data;
+      void loadTenantStoreDisplayMap();
     })
     .catch(() => {
       if (requestId !== detailRequestId.value) return;

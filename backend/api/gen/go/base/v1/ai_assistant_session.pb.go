@@ -1496,15 +1496,14 @@ const file_base_v1_ai_assistant_session_proto_rawDesc = "" +
 	"\bterminal\x18\x04 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xcc\x01\n" +
 	"&CreateAiAssistantSessionBranchResponse\x12L\n" +
 	"\asession\x18\x01 \x01(\v2\x1b.base.v1.AiAssistantSessionB\x15\xbaG\x12\x92\x02\x0f新会话信息R\asession\x12T\n" +
-	"\bmessages\x18\x02 \x03(\v2\x1b.base.v1.AiAssistantMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\xc9\x02\n" +
+	"\bmessages\x18\x02 \x03(\v2\x1b.base.v1.AiAssistantMessageB\x1b\xbaG\x18\x92\x02\x15新会话消息列表R\bmessages\"\xb7\x02\n" +
 	"\x12AiAssistantSession\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b会话IDR\x02id\x12(\n" +
 	"\x05title\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话标题R\x05title\x12,\n" +
 	"\asummary\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f会话摘要R\asummary\x12M\n" +
 	"\n" +
 	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12Z\n" +
-	"\bterminal\x18\x06 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminalJ\x04\b\x04\x10\x05R\n" +
-	"tool_count\"\xaa\x06\n" +
+	"\bterminal\x18\x06 \x01(\x0e2\x13.common.v1.TerminalB)\xbaG&\x92\x02#终端类型：枚举【Terminal】R\bterminal\"\xaa\x06\n" +
 	"\x12AiAssistantMessage\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\tB\x0e\xbaG\v\x92\x02\b消息IDR\x02id\x12Y\n" +
 	"\rinput_content\x18\x02 \x01(\v2 .base.v1.AiAssistantInputContentB\x12\xbaG\x0f\x92\x02\f输入内容R\finputContent\x12\\\n" +

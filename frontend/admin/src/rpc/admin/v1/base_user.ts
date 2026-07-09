@@ -14,6 +14,8 @@ import type { Empty } from "../../google/protobuf/empty";
 export interface OptionBaseUsersRequest {
   /** 关键字 */
   keyword: string;
+  /** 租户ID */
+  tenant_id?: number | undefined;
 }
 
 /** 用户分页查询条件 */
@@ -22,6 +24,10 @@ export interface PageBaseUsersRequest {
   user_name: string;
   /** 用户昵称 */
   nick_name: string;
+  /** 租户ID */
+  tenant_id?:
+    | number
+    | undefined;
   /** 部门ID */
   dept_id?:
     | number
@@ -86,6 +92,8 @@ export interface SetBaseUserStatusRequest {
 export interface BaseUser {
   /** 用户ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 用户账号 */
   user_name: string;
   /** 用户昵称 */
@@ -114,6 +122,8 @@ export interface BaseUser {
 export interface BaseUserForm {
   /** 用户ID */
   id: number;
+  /** 租户ID */
+  tenant_id: number;
   /** 用户账号 */
   user_name: string;
   /** 用户昵称 */
@@ -128,16 +138,16 @@ export interface BaseUserForm {
     | undefined;
   /** 手机号 */
   phone: string;
-  /** 密码 */
-  pwd:
-    | PasswordCrypto
-    | undefined;
+  /** 头像 */
+  avatar: string;
   /** 性别 */
   gender?:
     | BaseUserGender
     | undefined;
-  /** 头像 */
-  avatar: string;
+  /** 密码 */
+  pwd:
+    | PasswordCrypto
+    | undefined;
   /** 用户状态 */
   status?:
     | Status

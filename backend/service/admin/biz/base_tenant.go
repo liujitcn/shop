@@ -3,6 +3,13 @@ package biz
 import (
 	"context"
 	"fmt"
+	"strconv"
+
+	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -11,42 +18,19 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-
-	"github.com/liujitcn/go-utils/crypto"
-	"github.com/liujitcn/go-utils/mapper"
-	_string "github.com/liujitcn/go-utils/string"
-	"github.com/liujitcn/gorm-kit/repository"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"shop/pkg/utils"
 )
 
 const (
-	baseTenantAdminRoleCode    = _const.BASE_ROLE_CODE_TENANT
-	baseTenantAdminRoleName    = "租户管理员"
-	baseTenantAdminUserName    = "admin"
-	baseTenantAdminNickName    = "管理员"
-	baseTenantAdminPassword    = "112233"
-	baseTenantDefaultDeptName  = "默认部门"
-	baseTenantDefaultDeptPath  = "/0/%d"
-	baseTenantDefaultDeptSort  = int32(0)
-	baseTenantDefaultRoleScope = _const.BASE_ROLE_DATA_SCOPE_ALL
+	baseTenantAdminUserName   = "admin"
+	baseTenantAdminNickName   = "管理员"
+	baseTenantDefaultDeptName = "默认部门"
+	baseTenantDefaultDeptPath = "/0/%d"
+	baseTenantDefaultDeptSort = int32(0)
+	baseTenantInitialCode     = int64(1000)
+	baseTenantMaxCode         = int64(9999)
+	baseTenantNumericCodeExpr = "^[0-9]+$"
 )
-
-// baseTenantAdminMenuIDs 表示普通租户管理员默认可见的后台菜单，明确排除平台公共管理、账单、商城服务和推荐等能力。
-var baseTenantAdminMenuIDs = []int64{
-	10, 20, 90,
-	50, 53,
-	200, 2000, 2001, 2002, 2003, 2004, 2005,
-	2100, 2101, 2102, 2103, 2104, 2105,
-	2200, 2201, 2202, 2203, 2204,
-	300, 3000, 3001, 3002, 3003, 3004,
-	3100, 3101, 3102, 3103, 3104,
-	3200, 3201, 3202,
-	3300, 3301,
-	3400, 3401, 3402, 3403,
-	3500, 3501,
-	3600, 3601, 3602, 3603,
-	400, 4000, 4001, 4002, 4003, 4100, 4200,
-}
 
 // BaseTenantCase 租户业务实例。
 type BaseTenantCase struct {
@@ -56,7 +40,6 @@ type BaseTenantCase struct {
 	baseDeptRepo   *data.BaseDeptRepository
 	baseRoleRepo   *data.BaseRoleRepository
 	baseUserRepo   *data.BaseUserRepository
-	baseMenuRepo   *data.BaseMenuRepository
 	casbinRuleCase *CasbinRuleCase
 	formMapper     *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
 	mapper         *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
@@ -70,7 +53,6 @@ func NewBaseTenantCase(
 	baseDeptRepo *data.BaseDeptRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseUserRepo *data.BaseUserRepository,
-	baseMenuRepo *data.BaseMenuRepository,
 	casbinRuleCase *CasbinRuleCase,
 ) *BaseTenantCase {
 	return &BaseTenantCase{
@@ -80,7 +62,6 @@ func NewBaseTenantCase(
 		baseDeptRepo:         baseDeptRepo,
 		baseRoleRepo:         baseRoleRepo,
 		baseUserRepo:         baseUserRepo,
-		baseMenuRepo:         baseMenuRepo,
 		casbinRuleCase:       casbinRuleCase,
 		formMapper:           mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:               mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
@@ -152,24 +133,22 @@ func (c *BaseTenantCase) GetBaseTenant(ctx context.Context, id int64) (*adminv1.
 	return c.formMapper.ToDTO(baseTenant), nil
 }
 
-// FindByCode 按编码查询租户。
-func (c *BaseTenantCase) FindByCode(ctx context.Context, code string) (*models.BaseTenant, error) {
-	query := c.Query(ctx).BaseTenant
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.Code.Eq(code)))
-	return c.Find(ctx, opts...)
-}
-
 // CreateBaseTenant 创建租户。
 func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.BaseTenantForm) error {
 	baseTenant := c.formMapper.ToEntity(req)
-	// 未指定状态时，新租户默认启用，便于创建后直接登录验证。
-	if baseTenant.Status == 0 {
-		baseTenant.Status = _const.STATUS_ENABLE
-	}
-
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.Create(ctx, baseTenant)
+		code, err := c.getNextBaseTenantCode(ctx)
+		if err != nil {
+			return err
+		}
+
+		// 租户编码只允许后端生成，避免客户端绕过前端禁用态传入自定义编码。
+		baseTenant.Code = code
+		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
+		if baseTenant.Status == 0 {
+			baseTenant.Status = _const.STATUS_ENABLE
+		}
+		err = c.Create(ctx, baseTenant)
 		if err != nil {
 			// 命中租户编码唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsMySQLDuplicateKey(err) {
@@ -187,11 +166,10 @@ func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *adminv1.Base
 	if err != nil {
 		return err
 	}
-	if oldBaseTenant.Code == databaseGorm.DefaultTenantCode && req.GetCode() != databaseGorm.DefaultTenantCode {
-		return errorsx.ProtectedResourceConflict("默认租户编码不能修改", "base_tenant")
-	}
 
 	baseTenant := c.formMapper.ToEntity(req)
+	// 更新租户时沿用数据库中的原始编码，忽略客户端传入的 code。
+	baseTenant.Code = oldBaseTenant.Code
 	err = c.UpdateByID(ctx, baseTenant)
 	if err != nil {
 		if errorsx.IsMySQLDuplicateKey(err) {
@@ -232,32 +210,36 @@ func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *adminv1.S
 	})
 }
 
-// initTenantDefaults 初始化租户默认组织、角色和管理员账号。
-func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *models.BaseTenant) error {
-	baseDept, err := c.createTenantDefaultDept(ctx, baseTenant)
+// getNextBaseTenantCode 获取下一个可用租户编码。
+func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, error) {
+	query := c.Query(ctx).BaseTenant
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Unscoped())
+	opts = append(opts, repository.Where(query.Code.Regexp(baseTenantNumericCodeExpr)))
+	list, err := c.List(ctx, opts...)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	var baseRole *models.BaseRole
-	baseRole, err = c.createTenantAdminRole(ctx, baseTenant)
-	if err != nil {
-		return err
+	maxCode := baseTenantInitialCode - 1
+	for _, item := range list {
+		var code int64
+		code, err = strconv.ParseInt(item.Code, 10, 64)
+		if err != nil {
+			return "", errorsx.Internal("解析租户编码失败").WithCause(err)
+		}
+		if code > maxCode {
+			maxCode = code
+		}
 	}
-
-	err = c.createTenantAdminUser(ctx, baseTenant, baseDept, baseRole)
-	if err != nil {
-		return err
+	if maxCode >= baseTenantMaxCode {
+		return "", errorsx.StateConflict("租户编码已用完", "base_tenant", strconv.FormatInt(maxCode, 10), strconv.FormatInt(baseTenantMaxCode, 10))
 	}
-	err = c.casbinRuleCase.RebuildCasbinRuleByTenantRole(ctx, baseTenant.Code, baseRole)
-	if err != nil {
-		return errorsx.Internal("初始化租户管理员角色权限失败").WithCause(err)
-	}
-	return nil
+	return fmt.Sprintf("%04d", maxCode+1), nil
 }
 
-// createTenantDefaultDept 创建租户默认部门。
-func (c *BaseTenantCase) createTenantDefaultDept(ctx context.Context, baseTenant *models.BaseTenant) (*models.BaseDept, error) {
+// initTenantDefaults 初始化租户默认组织、角色和管理员账号。
+func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *models.BaseTenant) error {
 	baseDept := &models.BaseDept{
 		TenantID: baseTenant.ID,
 		ParentID: 0,
@@ -266,51 +248,56 @@ func (c *BaseTenantCase) createTenantDefaultDept(ctx context.Context, baseTenant
 		Status:   _const.STATUS_ENABLE,
 		Remark:   "租户默认部门",
 	}
-
 	err := c.baseDeptRepo.Create(ctx, baseDept)
 	if err != nil {
-		return nil, errorsx.Internal("初始化租户默认部门失败").WithCause(err)
+		return errorsx.Internal("初始化租户默认部门失败").WithCause(err)
 	}
 
 	baseDept.Path = fmt.Sprintf(baseTenantDefaultDeptPath, baseDept.ID)
 	err = c.baseDeptRepo.UpdateByID(ctx, baseDept)
 	if err != nil {
-		return nil, errorsx.Internal("初始化租户默认部门失败").WithCause(err)
+		return errorsx.Internal("初始化租户默认部门失败").WithCause(err)
 	}
-	return baseDept, nil
-}
 
-// createTenantAdminRole 创建租户管理员角色。
-func (c *BaseTenantCase) createTenantAdminRole(ctx context.Context, baseTenant *models.BaseTenant) (*models.BaseRole, error) {
-	menuIDs, err := c.tenantAdminMenuIDs(ctx)
+	query := c.Query(ctx).BaseTenant
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.Code.Eq(databaseGorm.DefaultTenantCode)))
+	var defaultTenant *models.BaseTenant
+	defaultTenant, err = c.Find(ctx, opts...)
 	if err != nil {
-		return nil, errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
+		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
+	}
+
+	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
+	opts = make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(roleQuery.TenantID.Eq(defaultTenant.ID)))
+	opts = append(opts, repository.Where(roleQuery.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+	var defaultRole *models.BaseRole
+	defaultRole, err = c.baseRoleRepo.Find(ctx, opts...)
+	if err != nil {
+		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
 	}
 
 	baseRole := &models.BaseRole{
 		TenantID:  baseTenant.ID,
-		Name:      baseTenantAdminRoleName,
-		Code:      baseTenantAdminRoleCode,
-		DataScope: baseTenantDefaultRoleScope,
-		Menus:     _string.ConvertInt64ArrayToString(menuIDs),
-		Status:    _const.STATUS_ENABLE,
-		Remark:    "租户内置管理员角色，不允许修改",
+		Name:      defaultRole.Name,
+		Code:      defaultRole.Code,
+		DataScope: defaultRole.DataScope,
+		Menus:     defaultRole.Menus,
+		Status:    defaultRole.Status,
+		Remark:    defaultRole.Remark,
 	}
-
 	err = c.baseRoleRepo.Create(ctx, baseRole)
 	if err != nil {
 		// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return nil, errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
+			return errorsx.UniqueConflict("角色编码重复", "base_role", "code", "unique_base_role").WithCause(err)
 		}
-		return nil, errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
+		return errorsx.Internal("初始化租户管理员角色失败").WithCause(err)
 	}
-	return baseRole, nil
-}
 
-// createTenantAdminUser 创建租户管理员账号。
-func (c *BaseTenantCase) createTenantAdminUser(ctx context.Context, baseTenant *models.BaseTenant, baseDept *models.BaseDept, baseRole *models.BaseRole) error {
-	password, err := crypto.Encrypt(baseTenantAdminPassword)
+	var password string
+	password, err = crypto.Encrypt(utils.GetDefaultPassword(baseTenantAdminUserName, baseTenant.ContactPhone))
 	if err != nil {
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}
@@ -335,31 +322,9 @@ func (c *BaseTenantCase) createTenantAdminUser(ctx context.Context, baseTenant *
 		}
 		return errorsx.Internal("初始化租户管理员账号失败").WithCause(err)
 	}
-	return nil
-}
-
-// tenantAdminMenuIDs 查询租户管理员默认菜单，按固定白名单收敛可见能力。
-func (c *BaseTenantCase) tenantAdminMenuIDs(ctx context.Context) ([]int64, error) {
-	query := c.baseMenuRepo.Query(ctx).BaseMenu
-	opts := make([]repository.QueryOption, 0, 1)
-	opts = append(opts, repository.Where(query.ID.In(baseTenantAdminMenuIDs...)))
-	list, err := c.baseMenuRepo.List(ctx, opts...)
+	err = c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
 	if err != nil {
-		return nil, err
+		return errorsx.Internal("初始化租户管理员角色权限失败").WithCause(err)
 	}
-
-	existingSet := make(map[int64]struct{}, len(list))
-	for _, item := range list {
-		existingSet[item.ID] = struct{}{}
-	}
-
-	menuIDs := make([]int64, 0, len(baseTenantAdminMenuIDs))
-	for _, menuID := range baseTenantAdminMenuIDs {
-		// 菜单脚本尚未初始化对应节点时跳过，避免租户创建被历史库数据阻断。
-		if _, exists := existingSet[menuID]; !exists {
-			continue
-		}
-		menuIDs = append(menuIDs, menuID)
-	}
-	return menuIDs, nil
+	return nil
 }

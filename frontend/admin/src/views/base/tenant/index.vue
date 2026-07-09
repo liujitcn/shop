@@ -48,7 +48,7 @@ const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 // 默认租户编码固定，前端作为隐藏展示后的兜底保护。
-const DEFAULT_TENANT_CODE = "default";
+const DEFAULT_TENANT_CODE = "0000";
 
 const dialog = reactive({
   title: "",
@@ -72,9 +72,10 @@ const formData = reactive<BaseTenantForm>({
   remark: ""
 });
 
+/** 租户表单校验规则。 */
 const rules = reactive({
-  code: [{ required: true, message: "请输入租户编码", trigger: "blur" }],
   name: [{ required: true, message: "请输入租户名称", trigger: "blur" }],
+  contact_phone: [{ pattern: /^1[3-9]\d{9}$/, message: "请输入正确的联系电话", trigger: "blur" }],
   status: [{ required: true, message: "请选择状态", trigger: "change" }]
 });
 
@@ -87,9 +88,10 @@ const statusOptions: ProFormOption[] = [
 const formFields: ProFormField[] = [
   {
     prop: "code",
-    label: "租户编码",
+    label: "租户编号",
     component: "input",
-    props: model => ({ placeholder: "请输入租户编码", disabled: isDefaultTenant(model as BaseTenantForm) })
+    props: { disabled: true },
+    visible: model => Boolean(model.id)
   },
   { prop: "name", label: "租户名称", component: "input", props: { placeholder: "请输入租户名称" } },
   { prop: "contact_name", label: "联系人", component: "input", props: { placeholder: "请输入联系人" } },
@@ -101,7 +103,7 @@ const formFields: ProFormField[] = [
 /** 租户表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "code", label: "租户编码", minWidth: 140, search: { el: "input" } },
+  { prop: "code", label: "租户编号", minWidth: 140, search: { el: "input" } },
   { prop: "name", label: "租户名称", minWidth: 160, search: { el: "input" } },
   { prop: "contact_name", label: "联系人", minWidth: 120 },
   { prop: "contact_phone", label: "联系电话", minWidth: 140 },
@@ -213,17 +215,16 @@ function resetForm() {
 }
 
 /**
- * 打开租户弹窗。
+ * 打开租户弹窗，并按新增或编辑场景回填表单数据。
  */
-function handleOpenDialog(tenantId?: number) {
+async function handleOpenDialog(tenantId?: number) {
   resetForm();
   dialog.title = tenantId ? "修改租户" : "新增租户";
   dialog.visible = true;
   if (!tenantId) return;
 
-  defBaseTenantService.GetBaseTenant({ id: tenantId }).then(data => {
-    Object.assign(formData, data);
-  });
+  const data = await defBaseTenantService.GetBaseTenant({ id: tenantId });
+  Object.assign(formData, data);
 }
 
 /**
@@ -265,7 +266,7 @@ async function handleBeforeSetStatus(row: BaseTenant) {
   const nextStatus = row.status === Status.ENABLE ? Status.DISABLE : Status.ENABLE;
   const text = nextStatus === Status.ENABLE ? "启用" : "禁用";
   try {
-    await ElMessageBox.confirm(`是否确定${text}租户？\n租户名称：${row.name || row.code || `ID:${row.id}`}`, "提示", {
+    await ElMessageBox.confirm(`是否确定${text}租户？\n租户名称：${row.name || `ID:${row.id}`}`, "提示", {
       confirmButtonText: "确认",
       cancelButtonText: "取消",
       type: "warning"
@@ -305,7 +306,7 @@ function handleDelete(selected?: number | string | Array<number | string> | Base
 
   const confirmMessage = tenantList.length
     ? tenantList.length === 1
-      ? `是否确定删除租户？\n租户名称：${tenantList[0].name || tenantList[0].code || `ID:${tenantList[0].id}`}`
+      ? `是否确定删除租户？\n租户名称：${tenantList[0].name || `ID:${tenantList[0].id}`}`
       : `确认删除已选中的 ${tenantList.length} 项租户吗？`
     : "确认删除已选中的租户吗？";
 

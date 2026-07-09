@@ -39,7 +39,7 @@ func NewBaseRoleService(
 
 // OptionBaseRoles 查询角色下拉选择
 func (s *BaseRoleService) OptionBaseRoles(ctx context.Context, req *adminv1.OptionBaseRolesRequest) (*commonv1.SelectOptionResponse, error) {
-	list, err := s.baseRoleCase.OptionBaseRoles(ctx)
+	list, err := s.baseRoleCase.OptionBaseRoles(ctx, req)
 	if err != nil {
 		log.Error(fmt.Sprintf("OptionBaseRoles %v", err))
 		return nil, errorsx.WrapInternal(err, "查询角色下拉列表失败")

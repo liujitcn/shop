@@ -67,6 +67,14 @@ enum UserStoreStatus {
   APPROVED = 3; // 审核通过
 }
 
+// 租户门店审核状态
+enum TenantStoreStatus {
+  UNKNOWN_TSS = 0;
+  PENDING_REVIEW_TSS = 1; // 待审核
+  FAILED_REVIEW_TSS = 2; // 审核失败
+  APPROVED_TSS = 3; // 审核通过
+}
+
 // 密码加密场景枚举
 enum PasswordCryptoScene {
   UNKNOWN_PCS = 0; // 未指定密码加密场景
@@ -81,6 +89,7 @@ enum GoodsStatus {
   UNKNOWN_GS = 0;
   PUT_ON = 1; // 已上架
   PULL_OFF = 2; // 已下架
+  DISABLED_BY_STORE = 3; // 门店禁用
 }
 
 // 商品库存预警类型

@@ -598,9 +598,22 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *appv1.Crea
 		orderGoodsList := make([]*models.OrderGoods, 0)
 		for _, item := range request.GetGoods() {
 			var orderGoods *models.OrderGoods
-			orderGoods, err = c.orderGoodsCase.convertToModel(ctx, member, item)
+			var goodsInfo *models.GoodsInfo
+			orderGoods, goodsInfo, err = c.orderGoodsCase.convertToModel(ctx, member, item)
 			if err != nil {
 				return err
+			}
+			// 下单商品必须归属明确门店，订单主表按该门店沉淀筛选字段。
+			if goodsInfo.TenantStoreID <= 0 {
+				return errorsx.InvalidArgument("商品未绑定门店，无法下单")
+			}
+			if orderInfo.TenantStoreID == 0 {
+				orderInfo.TenantID = goodsInfo.TenantID
+				orderInfo.TenantStoreID = goodsInfo.TenantStoreID
+			}
+			// 当前订单主表只保存一个门店编号，同一订单不能混合多个门店商品。
+			if orderInfo.TenantStoreID != goodsInfo.TenantStoreID {
+				return errorsx.InvalidArgument("同一订单只能购买同一门店商品")
 			}
 			orderGoodsList = append(orderGoodsList, orderGoods)
 		}
@@ -777,10 +790,24 @@ func (c *OrderInfoCase) convertToProto(item *models.OrderInfo) *appv1.OrderInfo 
 // 汇总下单商品信息并生成确认单
 func (c *OrderInfoCase) orderBuy(ctx context.Context, member bool, createOrderGoods []*appv1.CreateOrderInfoGoods) (*appv1.ConfirmOrderInfoResponse, error) {
 	newOrderGoods := make([]*appv1.OrderGoods, 0)
+	tenantStoreID := int64(0)
 	for _, item := range createOrderGoods {
-		model, err := c.orderGoodsCase.convertToModel(ctx, member, item)
+		var model *models.OrderGoods
+		var goodsInfo *models.GoodsInfo
+		var err error
+		model, goodsInfo, err = c.orderGoodsCase.convertToModel(ctx, member, item)
 		if err != nil {
 			return nil, err
+		}
+		// 确认单阶段提前拦截跨门店商品，和最终创建订单的主表字段保持一致。
+		if goodsInfo.TenantStoreID <= 0 {
+			return nil, errorsx.InvalidArgument("商品未绑定门店，无法下单")
+		}
+		if tenantStoreID == 0 {
+			tenantStoreID = goodsInfo.TenantStoreID
+		}
+		if tenantStoreID != goodsInfo.TenantStoreID {
+			return nil, errorsx.InvalidArgument("同一订单只能购买同一门店商品")
 		}
 		newGoods := c.orderGoodsCase.toOrderGoods(model)
 		newOrderGoods = append(newOrderGoods, newGoods)

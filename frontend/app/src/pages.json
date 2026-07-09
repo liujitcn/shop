@@ -89,6 +89,12 @@
       }
     },
     {
+      "path": "pages/store/store",
+      "style": {
+        "navigationBarTitleText": "店铺"
+      }
+    },
+    {
       "path": "pages/search/index",
       "style": {
         "navigationBarTitleText": "搜索结果"

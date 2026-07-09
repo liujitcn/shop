@@ -15,7 +15,12 @@ import { formatPrice, formatSrc } from '@/utils'
 import { defShopServiceService } from '@/api/app/shop_service.ts'
 import type { ShopService } from '@/rpc/app/v1/shop_service.ts'
 import { RecommendEventType, RecommendScene } from '@/rpc/common/v1/enum'
-import { goodsDetailUrl, homeTabPage, parseRecommendRouteQuery } from '@/utils/navigation'
+import {
+  goodsDetailUrl,
+  homeTabPage,
+  parseRecommendRouteQuery,
+  tenantStoreUrl,
+} from '@/utils/navigation'
 const recommendStore = useRecommendStore()
 const pageInstance = getCurrentInstance()
 // 获取屏幕边界到安全区域距离
@@ -216,6 +221,13 @@ const onCollect = () => {
   void toggleCollect(goodsInfo.value)
 }
 
+/** 跳转到当前商品所属门店首页。 */
+const onEnterStore = () => {
+  const storeId = goodsInfo.value?.tenant_store_id || 0
+  if (storeId <= 0) return
+  uni.navigateTo({ url: tenantStoreUrl(storeId) })
+}
+
 // 定义分享配置
 const shareConfig = computed(() => {
   if (!goodsInfo.value) return {}
@@ -406,6 +418,31 @@ onBeforeUnmount(() => {
         :name="goodsInfo!.name"
         :desc="goodsInfo!.desc"
       />
+
+      <view v-if="goodsInfo!.tenant_store_id" class="store-entry" @tap="onEnterStore">
+        <view class="store-entry__main">
+          <image
+            v-if="goodsInfo!.tenant_store_logo"
+            class="store-entry__logo"
+            mode="aspectFill"
+            :src="formatSrc(goodsInfo!.tenant_store_logo)"
+          />
+          <view v-else class="store-entry__logo store-entry__logo--text">店</view>
+          <view class="store-entry__body">
+            <view class="store-entry__name-row">
+              <text class="store-entry__name">{{ goodsInfo!.tenant_store_name || '店铺' }}</text>
+              <text class="store-entry__badge">官方店</text>
+            </view>
+            <view class="store-entry__meta">综合评分 4.9 · 在售 128 件 · 48小时发货</view>
+          </view>
+          <view class="store-entry__button">进店</view>
+        </view>
+        <view class="store-entry__service">
+          <text>七天无理由</text>
+          <text>退换无忧</text>
+          <text>正品保障</text>
+        </view>
+      </view>
 
       <!-- 操作面板 -->
       <view class="action">
@@ -650,6 +687,101 @@ page {
 /* 商品信息 */
 .goods {
   background-color: #fff;
+  .store-entry {
+    min-height: 112rpx;
+    margin: 0 20rpx 18rpx;
+    padding: 18rpx 20rpx 16rpx;
+    border-radius: 12rpx;
+    box-sizing: border-box;
+    background-color: #f7fbfa;
+  }
+  .store-entry__main {
+    display: flex;
+    align-items: center;
+  }
+  .store-entry__logo {
+    width: 72rpx;
+    height: 72rpx;
+    flex-shrink: 0;
+    border-radius: 10rpx;
+    background-color: #e8f6f2;
+  }
+  .store-entry__logo--text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #27ba9b;
+    font-size: 28rpx;
+    font-weight: 600;
+  }
+  .store-entry__body {
+    min-width: 0;
+    flex: 1;
+    padding: 0 18rpx;
+  }
+  .store-entry__name-row {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .store-entry__name {
+    min-width: 0;
+    max-width: 300rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #1f2937;
+    font-size: 28rpx;
+    font-weight: 600;
+  }
+  .store-entry__badge {
+    height: 32rpx;
+    margin-left: 10rpx;
+    padding: 0 8rpx;
+    border: 1rpx solid #27ba9b;
+    border-radius: 5rpx;
+    flex-shrink: 0;
+    color: #0f9f86;
+    font-size: 20rpx;
+    line-height: 32rpx;
+  }
+  .store-entry__meta {
+    margin-top: 8rpx;
+    color: #8a8f99;
+    font-size: 24rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .store-entry__button {
+    min-width: 96rpx;
+    height: 48rpx;
+    padding: 0 18rpx;
+    border-radius: 48rpx;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 24rpx;
+    line-height: 48rpx;
+    text-align: center;
+    background-color: #27ba9b;
+  }
+  .store-entry__service {
+    display: flex;
+    gap: 12rpx;
+    margin-top: 16rpx;
+    padding-top: 14rpx;
+    border-top: 1rpx solid #edf2f1;
+
+    text {
+      height: 34rpx;
+      padding: 0 10rpx;
+      border-radius: 5rpx;
+      color: #5f6670;
+      font-size: 22rpx;
+      line-height: 34rpx;
+      background-color: #fff;
+    }
+  }
   .action {
     padding-left: 20rpx;
     .item {

@@ -31,6 +31,7 @@ message GetGoodsInfoRequest {
 message PageGoodsInfoRequest {
   string name = 1 [(gnostic.openapi.v3.property) = {description: "商品名"}]; // 商品名
   int64 category_id = 2 [(gnostic.openapi.v3.property) = {description: "分类id"}]; // 分类id
+  int64 tenant_store_id = 3 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
 
   int64 page_num = 101 [(gnostic.openapi.v3.property) = {
     description: "当前页码"
@@ -102,6 +103,12 @@ message GoodsInfoResponse {
 
   repeated string detail = 32 [(gnostic.openapi.v3.property) = {description: "商品详情"}]; // 商品详情
 
+  int64 tenant_store_id = 50 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+
+  string tenant_store_name = 51 [(gnostic.openapi.v3.property) = {description: "租户门店名称"}]; // 租户门店名称
+
+  string tenant_store_logo = 52 [(gnostic.openapi.v3.property) = {description: "租户门店LOGO"}]; // 租户门店LOGO
+
   repeated Prop prop_list = 100 [(gnostic.openapi.v3.property) = {description: "商品属性"}]; // 商品属性
 
   repeated Sku sku_list = 101 [(gnostic.openapi.v3.property) = {description: "商品SKU"}]; // 商品SKU
@@ -120,6 +127,10 @@ message GoodsInfo {
   string desc = 5 [(gnostic.openapi.v3.property) = {description: "描述"}]; // 描述
 
   string picture = 30 [(gnostic.openapi.v3.property) = {description: "商品图片"}]; // 商品图片
+
+  int64 tenant_store_id = 31 [(gnostic.openapi.v3.property) = {description: "租户门店ID"}]; // 租户门店ID
+
+  string tenant_store_name = 32 [(gnostic.openapi.v3.property) = {description: "租户门店名称"}]; // 租户门店名称
 
   int64 sale_num = 40 [(gnostic.openapi.v3.property) = {description: "初始销量"}]; // 销量
 

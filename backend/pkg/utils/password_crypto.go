@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
@@ -168,4 +169,16 @@ func DecryptPassword(password *commonv1.PasswordCrypto, scene commonv1.PasswordC
 // makePasswordCryptoCacheKey 生成临时密码密钥缓存键。
 func makePasswordCryptoCacheKey(keyID string) string {
 	return passwordCryptoKeyPrefix + keyID
+}
+
+// GetDefaultPassword 生成默认密码
+func GetDefaultPassword(userName, phone string) string {
+	prefix := phone
+	// 取手机号后4位
+	if len(phone) > 4 {
+		prefix = phone[len(phone)-4:]
+	}
+	// 不足4位左补0
+	prefix = ("0000" + prefix)[len(prefix):]
+	return fmt.Sprintf("%s@%s", userName, prefix)
 }

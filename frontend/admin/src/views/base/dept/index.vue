@@ -2,6 +2,7 @@
   <div class="table-box">
     <ProTable
       ref="proTable"
+      :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
       row-key="id"
       :indent="20"
       :columns="columns"
@@ -37,10 +38,13 @@ import FormDialog from "@/components/Dialog/FormDialog.vue";
 import type { ProFormField, ProFormOption } from "@/components/ProForm/interface";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defBaseDeptService } from "@/api/admin/base_dept";
+import { defBaseTenantService } from "@/api/admin/base_tenant";
+import { useUserStore } from "@/stores/modules/user";
 import type { BaseDept, BaseDeptForm } from "@/rpc/admin/v1/base_dept";
-import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
+import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { Status } from "@/rpc/common/v1/enum";
 import { normalizeSelectedIds } from "@/utils/proTable";
+import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
 
 defineOptions({
   name: "BaseDept",
@@ -48,6 +52,7 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 
@@ -57,6 +62,8 @@ const dialog = reactive({
 });
 
 const deptOptions = ref<TreeOptionResponse_Option[]>([]);
+const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
+const currentTenantId = ref<number | undefined>();
 const statusOptions: ProFormOption[] = [
   { label: "启用", value: Status.ENABLE },
   { label: "禁用", value: Status.DISABLE }
@@ -65,6 +72,8 @@ const statusOptions: ProFormOption[] = [
 const formData = reactive<BaseDeptForm>({
   /** 部门ID */
   id: 0,
+  /** 租户ID */
+  tenant_id: 0,
   /** 父节点ID */
   parent_id: 0,
   /** 部门名称 */
@@ -78,14 +87,31 @@ const formData = reactive<BaseDeptForm>({
 });
 
 const rules = reactive({
+  tenant_id: [{ required: true, message: "所属租户不能为空", trigger: "change" }],
   parent_id: [{ required: true, message: "上级部门不能为空", trigger: "change" }],
   name: [{ required: true, message: "部门名称不能为空", trigger: "blur" }],
   sort: [{ required: true, message: "排序不能为空", trigger: "blur" }],
   status: [{ required: true, message: "状态不能为空", trigger: "change" }]
 });
 
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
 /** 部门表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "tenant_id",
+    label: "所属租户",
+    component: "select",
+    props: {
+      placeholder: "请选择所属租户",
+      filterable: true,
+      disabled: Boolean(formData.id),
+      onChange: handleFormTenantChange
+    },
+    visible: () => isDefaultTenant.value,
+    options: tenantOptions.value
+  },
   {
     prop: "parent_id",
     label: "上级部门",
@@ -111,9 +137,21 @@ const formFields = computed<ProFormField[]>(() => [
 ]);
 
 /** 部门树表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   { prop: "name", label: "部门名称", minWidth: 140, align: "left", search: { el: "input" } },
+  ...(isDefaultTenant.value
+    ? ([
+        {
+          prop: "tenant_id",
+          label: "租户",
+          minWidth: 140,
+          showOverflowTooltip: true,
+          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 10 },
+          enum: requestTenantOptions
+        }
+      ] satisfies ColumnProps[])
+    : []),
   { prop: "remark", label: "备注", minWidth: 160, search: { el: "input" } },
   { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {
@@ -172,7 +210,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 部门顶部按钮配置。 */
 const headerActions: HeaderActionProps[] = [
@@ -225,7 +263,8 @@ function filterDeptTree(deptList: BaseDept[], keywordMap: { name: string; remark
  * 请求部门树数据，并按搜索条件过滤树形结构。
  */
 async function requestBaseDeptTable(params: Record<string, string>) {
-  const data = await defBaseDeptService.TreeBaseDepts({});
+  currentTenantId.value = params.tenant_id ? Number(params.tenant_id) : undefined;
+  const data = await defBaseDeptService.TreeBaseDepts({ tenant_id: currentTenantId.value });
   const keywordMap = {
     name: params.name ?? "",
     remark: params.remark ?? "",
@@ -245,7 +284,7 @@ function refreshTable() {
  * 加载部门下拉树数据，供弹窗选择上级部门。
  */
 async function loadDeptOptions() {
-  const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDepts({});
+  const optionBaseDeptResponse = await defBaseDeptService.OptionBaseDepts({ tenant_id: formData.tenant_id || currentTenantId.value });
   deptOptions.value = [
     {
       value: 0,
@@ -257,12 +296,30 @@ async function loadDeptOptions() {
 }
 
 /**
+ * 加载租户下拉选项。
+ */
+async function loadTenantOptions() {
+  if (!isDefaultTenant.value || tenantOptions.value.length) return;
+  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  tenantOptions.value = response.list ?? [];
+}
+
+/**
+ * 切换表单租户时重新加载对应租户的上级部门树。
+ */
+async function handleFormTenantChange() {
+  formData.parent_id = 0;
+  await loadDeptOptions();
+}
+
+/**
  * 重置部门表单。
  */
 function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
+  formData.tenant_id = isDefaultTenant.value ? (currentTenantId.value ?? 0) : 0;
   formData.parent_id = 0;
   formData.name = "";
   formData.sort = 1;
@@ -275,16 +332,20 @@ function resetForm() {
  */
 async function handleOpenDialog(parent_id?: number, deptId?: number) {
   resetForm();
-  await loadDeptOptions();
-  dialog.title = deptId ? "修改部门" : "新增部门";
-  dialog.visible = true;
+  await loadTenantOptions();
   if (deptId) {
-    defBaseDeptService.GetBaseDept({ id: deptId }).then(data => {
+    dialog.title = "修改部门";
+    dialog.visible = true;
+    defBaseDeptService.GetBaseDept({ id: deptId }).then(async data => {
       Object.assign(formData, data);
+      await loadDeptOptions();
     });
     return;
   }
 
+  await loadDeptOptions();
+  dialog.title = "新增部门";
+  dialog.visible = true;
   formData.parent_id = parent_id ?? 0;
 }
 

@@ -43,6 +43,11 @@ func newAdminFlowAgentTools(services *ServerServices) ([]einoTool.Invokable, err
 		return nil, err
 	}
 
+	// 租户门店服务（8 个工具）
+	if err = builder.appendTools(adminv1.NewTenantStoreServiceAgentTools(services.adminTenantStore)); err != nil {
+		return nil, err
+	}
+
 	// 商品分析服务（4 个工具）
 	if err = builder.appendTools(adminv1.NewGoodsAnalyticsServiceAgentTools(services.adminGoodsAnalytics)); err != nil {
 		return nil, err
@@ -114,6 +119,9 @@ func newAppFlowAgentTools(services *ServerServices) ([]einoTool.Invokable, error
 		return nil, err
 	}
 	if err = builder.appendTools(appv1.NewGoodsInfoServiceAgentTools(services.appGoods)); err != nil {
+		return nil, err
+	}
+	if err = builder.appendTools(appv1.NewTenantStoreServiceAgentTools(services.appTenantStore)); err != nil {
 		return nil, err
 	}
 	if err = builder.appendTools(appv1.NewOrderInfoServiceAgentTools(services.appOrder)); err != nil {

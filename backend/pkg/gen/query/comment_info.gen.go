@@ -29,6 +29,7 @@ func newCommentInfo(db *gorm.DB, opts ...gen.DOOption) commentInfo {
 	_commentInfo.ALL = field.NewAsterisk(tableName)
 	_commentInfo.ID = field.NewInt64(tableName, "id")
 	_commentInfo.TenantID = field.NewInt64(tableName, "tenant_id")
+	_commentInfo.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_commentInfo.OrderID = field.NewInt64(tableName, "order_id")
 	_commentInfo.GoodsID = field.NewInt64(tableName, "goods_id")
 	_commentInfo.GoodsNameSnapshot = field.NewString(tableName, "goods_name_snapshot")
@@ -67,6 +68,7 @@ type commentInfo struct {
 	ALL                    field.Asterisk
 	ID                     field.Int64  // 评价主键
 	TenantID               field.Int64  // 租户ID
+	TenantStoreID          field.Int64  // 租户门店ID
 	OrderID                field.Int64  // 订单ID
 	GoodsID                field.Int64  // 商品ID
 	GoodsNameSnapshot      field.String // 商品名称快照
@@ -110,6 +112,7 @@ func (c *commentInfo) updateTableName(table string) *commentInfo {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
 	c.TenantID = field.NewInt64(table, "tenant_id")
+	c.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	c.OrderID = field.NewInt64(table, "order_id")
 	c.GoodsID = field.NewInt64(table, "goods_id")
 	c.GoodsNameSnapshot = field.NewString(table, "goods_name_snapshot")
@@ -161,9 +164,10 @@ func (c *commentInfo) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *commentInfo) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 27)
+	c.fieldMap = make(map[string]field.Expr, 28)
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["tenant_id"] = c.TenantID
+	c.fieldMap["tenant_store_id"] = c.TenantStoreID
 	c.fieldMap["order_id"] = c.OrderID
 	c.fieldMap["goods_id"] = c.GoodsID
 	c.fieldMap["goods_name_snapshot"] = c.GoodsNameSnapshot

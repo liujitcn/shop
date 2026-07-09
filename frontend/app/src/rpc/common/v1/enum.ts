@@ -96,6 +96,17 @@ export enum UserStoreStatus {
   APPROVED = 3,
 }
 
+/** 租户门店审核状态 */
+export enum TenantStoreStatus {
+  UNKNOWN_TSS = 0,
+  /** PENDING_REVIEW_TSS - 待审核 */
+  PENDING_REVIEW_TSS = 1,
+  /** FAILED_REVIEW_TSS - 审核失败 */
+  FAILED_REVIEW_TSS = 2,
+  /** APPROVED_TSS - 审核通过 */
+  APPROVED_TSS = 3,
+}
+
 /** 密码加密场景枚举 */
 export enum PasswordCryptoScene {
   /** UNKNOWN_PCS - 未指定密码加密场景 */
@@ -117,6 +128,8 @@ export enum GoodsStatus {
   PUT_ON = 1,
   /** PULL_OFF - 已下架 */
   PULL_OFF = 2,
+  /** DISABLED_BY_STORE - 门店禁用 */
+  DISABLED_BY_STORE = 3,
 }
 
 /** 商品库存预警类型 */

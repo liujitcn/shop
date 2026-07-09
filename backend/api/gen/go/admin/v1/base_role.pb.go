@@ -29,6 +29,7 @@ const (
 // 角色选项查询条件
 type OptionBaseRolesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,11 +64,19 @@ func (*OptionBaseRolesRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_role_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *OptionBaseRolesRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
 // 角色分页查询条件
 type PageBaseRolesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                    // 角色名称
 	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                    // 角色编号
+	TenantId      *int64                 `protobuf:"varint,4,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`     // 租户ID
 	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
 	PageSize      int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`         // 每一页的行数
@@ -117,6 +126,13 @@ func (x *PageBaseRolesRequest) GetCode() string {
 		return x.Code
 	}
 	return ""
+}
+
+func (x *PageBaseRolesRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
 }
 
 func (x *PageBaseRolesRequest) GetStatus() v1.Status {
@@ -430,10 +446,11 @@ func (x *SetBaseRoleStatusRequest) GetStatus() int32 {
 type BaseRole struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                 // 角色ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                              // 角色名称
-	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                                              // 角色编号
-	DataScope     v1.BaseRoleDataScope   `protobuf:"varint,4,opt,name=data_scope,json=dataScope,proto3,enum=common.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
-	Menus         []int64                `protobuf:"varint,5,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                    // 分配的菜单列表
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                     // 租户ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                              // 角色名称
+	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                              // 角色编号
+	DataScope     v1.BaseRoleDataScope   `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=common.v1.BaseRoleDataScope" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                    // 分配的菜单列表
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"`                                 // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                        // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                 // 创建时间
@@ -475,6 +492,13 @@ func (*BaseRole) Descriptor() ([]byte, []int) {
 func (x *BaseRole) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseRole) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -539,11 +563,12 @@ func (x *BaseRole) GetUpdatedAt() string {
 type BaseRoleForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                       // 角色ID
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`                                                                    // 角色名称
-	Code          string                 `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`                                                                    // 角色编号
-	DataScope     *v1.BaseRoleDataScope  `protobuf:"varint,4,opt,name=data_scope,json=dataScope,proto3,enum=common.v1.BaseRoleDataScope,oneof" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
-	Menus         []int64                `protobuf:"varint,5,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                          // 分配的菜单列表
-	Status        *v1.Status             `protobuf:"varint,51,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                  // 状态
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                           // 租户ID
+	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                                                    // 角色名称
+	Code          string                 `protobuf:"bytes,4,opt,name=code,proto3" json:"code,omitempty"`                                                                    // 角色编号
+	DataScope     *v1.BaseRoleDataScope  `protobuf:"varint,5,opt,name=data_scope,json=dataScope,proto3,enum=common.v1.BaseRoleDataScope,oneof" json:"data_scope,omitempty"` // 数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据
+	Menus         []int64                `protobuf:"varint,6,rep,packed,name=menus,proto3" json:"menus,omitempty"`                                                          // 分配的菜单列表
+	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"`                                 // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                                                              // 备注
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -582,6 +607,13 @@ func (*BaseRoleForm) Descriptor() ([]byte, []int) {
 func (x *BaseRoleForm) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseRoleForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -685,14 +717,20 @@ var File_admin_v1_base_role_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_role_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/base_role.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x18\n" +
-	"\x16OptionBaseRolesRequest\"\xad\x02\n" +
+	"\x18admin/v1/base_role.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"X\n" +
+	"\x16OptionBaseRolesRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_id\"\xed\x02\n" +
 	"\x14PageBaseRolesRequest\x12&\n" +
 	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
-	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12<\n" +
-	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
+	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x120\n" +
+	"\ttenant_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
+	"\n" +
+	"_tenant_idB\t\n" +
 	"\a_status\"\x82\x01\n" +
 	"\x15PageBaseRolesResponse\x12E\n" +
 	"\n" +
@@ -708,28 +746,30 @@ const file_admin_v1_base_role_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e角色ID列表R\x02id\"`\n" +
 	"\x18SetBaseRoleStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\x8c\x04\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xb9\x04\n" +
 	"\bBaseRole\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
-	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12\x95\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12&\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
+	"\x04code\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12\x95\x01\n" +
 	"\n" +
-	"data_scope\x18\x04 \x01(\x0e2\x1c.common.v1.BaseRoleDataScopeBX\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据R\tdataScope\x121\n" +
-	"\x05menus\x18\x05 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus\x127\n" +
+	"data_scope\x18\x05 \x01(\x0e2\x1c.common.v1.BaseRoleDataScopeBX\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据R\tdataScope\x121\n" +
+	"\x05menus\x18\x06 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
-	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xcc\x03\n" +
+	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xf9\x03\n" +
 	"\fBaseRoleForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12&\n" +
-	"\x04name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
-	"\x04code\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12\x9a\x01\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b角色IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12&\n" +
+	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\x04name\x12&\n" +
+	"\x04code\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\x04code\x12\x9a\x01\n" +
 	"\n" +
-	"data_scope\x18\x04 \x01(\x0e2\x1c.common.v1.BaseRoleDataScopeBX\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据H\x00R\tdataScope\x88\x01\x01\x121\n" +
-	"\x05menus\x18\x05 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus\x12<\n" +
-	"\x06status\x183 \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12$\n" +
+	"data_scope\x18\x05 \x01(\x0e2\x1c.common.v1.BaseRoleDataScopeBX\xbaGU\x92\x02R数据权限：0全部数据1部门及子部门数据2本部门数据3本人数据H\x00R\tdataScope\x88\x01\x01\x121\n" +
+	"\x05menus\x18\x06 \x03(\x03B\x1b\xbaG\x18\x92\x02\x15分配的菜单列表R\x05menus\x12<\n" +
+	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remarkB\r\n" +
 	"\v_data_scopeB\t\n" +
 	"\a_status\"k\n" +
@@ -814,6 +854,7 @@ func file_admin_v1_base_role_proto_init() {
 	if File_admin_v1_base_role_proto != nil {
 		return
 	}
+	file_admin_v1_base_role_proto_msgTypes[0].OneofWrappers = []any{}
 	file_admin_v1_base_role_proto_msgTypes[1].OneofWrappers = []any{}
 	file_admin_v1_base_role_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}

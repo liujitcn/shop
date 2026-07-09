@@ -4,16 +4,18 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	commonv1 "shop/api/gen/go/common/v1"
-	"shop/pkg/errorsx"
-	"shop/pkg/queue"
-	"shop/pkg/workspaceevent"
+	"strconv"
 	"strings"
 
 	adminv1 "shop/api/gen/go/admin/v1"
+	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/biz"
+	_const "shop/pkg/const"
+	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/queue"
+	"shop/pkg/workspaceevent"
 
 	"github.com/go-sql-driver/mysql"
 	_mapper "github.com/liujitcn/go-utils/mapper"
@@ -31,6 +33,7 @@ type GoodsInfoCase struct {
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSKUCase      *GoodsSKUCase
+	tenantStoreCase   *TenantStoreCase
 	formMapper        *_mapper.CopierMapper[adminv1.GoodsInfoForm, models.GoodsInfo]
 	mapper            *_mapper.CopierMapper[adminv1.GoodsInfo, models.GoodsInfo]
 }
@@ -45,7 +48,7 @@ const (
 )
 
 // NewGoodsInfoCase 创建商品业务实例
-func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo *data.GoodsInfoRepository, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSKUCase *GoodsSKUCase,
+func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo *data.GoodsInfoRepository, goodsCategoryCase *GoodsCategoryCase, goodsPropCase *GoodsPropCase, goodsSpecCase *GoodsSpecCase, goodsSKUCase *GoodsSKUCase, tenantStoreCase *TenantStoreCase,
 ) *GoodsInfoCase {
 	formMapper := _mapper.NewCopierMapper[adminv1.GoodsInfoForm, models.GoodsInfo]()
 	formMapper.AppendConverters(_mapper.NewJSONTypeConverter[[]string]().NewConverterPair())
@@ -60,6 +63,7 @@ func NewGoodsInfoCase(baseCase *biz.BaseCase, tx data.Transaction, goodsInfoRepo
 		goodsPropCase:       goodsPropCase,
 		goodsSpecCase:       goodsSpecCase,
 		goodsSKUCase:        goodsSKUCase,
+		tenantStoreCase:     tenantStoreCase,
 		formMapper:          formMapper,
 		mapper:              mapper,
 	}
@@ -101,12 +105,18 @@ func (c *GoodsInfoCase) OptionGoodsInfos(ctx context.Context, req *adminv1.Optio
 // PageGoodsInfos 查询商品列表
 func (c *GoodsInfoCase) PageGoodsInfos(ctx context.Context, req *adminv1.PageGoodsInfosRequest) (*adminv1.PageGoodsInfosResponse, error) {
 	query := c.Query(ctx).GoodsInfo
-	opts := make([]repository.QueryOption, 0, 4)
+	opts := make([]repository.QueryOption, 0, 6)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	var err error
 	// 商品名称存在时，按名称模糊过滤。
 	if req.GetName() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetName()+"%")))
+	}
+	if req.TenantId != nil && req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
+	if req.TenantStoreId != nil && req.GetTenantStoreId() > 0 {
+		opts = append(opts, repository.Where(query.TenantStoreID.Eq(req.GetTenantStoreId())))
 	}
 	// 指定分类时，按分类层级筛选商品。
 	if req.CategoryId != nil && req.GetCategoryId() > 0 {
@@ -213,7 +223,11 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*adminv1.Go
 // CreateGoodsInfo 创建商品
 func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *adminv1.GoodsInfoForm) error {
 	goodsInfo := c.formMapper.ToEntity(req)
-	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err := c.fillGoodsTenantByStore(ctx, goodsInfo)
+	if err != nil {
+		return err
+	}
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			// 首个 SKU 的价格作为商品主价格展示。
@@ -251,8 +265,17 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 
 // UpdateGoodsInfo 更新商品
 func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *adminv1.GoodsInfoForm) error {
+	_, err := c.FindByID(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
+
 	goodsInfo := c.formMapper.ToEntity(req)
-	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
+	err = c.fillGoodsTenantByStore(ctx, goodsInfo)
+	if err != nil {
+		return err
+	}
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		skuList := req.GetSkuList()
 		for idx, sku := range skuList {
 			// 首个 SKU 的价格作为商品主价格展示。
@@ -296,27 +319,40 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 // DeleteGoodsInfo 删除商品
 func (c *GoodsInfoCase) DeleteGoodsInfo(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
-	err := c.tx.Transaction(ctx, func(ctx context.Context) error {
-		txErr := c.DeleteByIDs(ctx, ids)
+	goodsList, err := c.ListByIDs(ctx, ids)
+	if err != nil {
+		return err
+	}
+	visibleIDs := make([]int64, 0, len(goodsList))
+	for _, item := range goodsList {
+		visibleIDs = append(visibleIDs, item.ID)
+	}
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		txErr := c.DeleteByIDs(ctx, visibleIDs)
 		if txErr != nil {
 			return txErr
 		}
 
 		// 删除商品后需要同步清理属性、规格和 SKU 等子数据
-		return c.deleteGoodsChildren(ctx, ids)
+		return c.deleteGoodsChildren(ctx, visibleIDs)
 	})
 	if err != nil {
 		return err
 	}
 	// 商品删除成功后，再异步清理推荐系统中的商品主体。
-	queue.DispatchRecommendDeleteGoodsInfo(ids)
+	queue.DispatchRecommendDeleteGoodsInfo(visibleIDs)
 	workspaceevent.Publish(ctx, workspaceevent.ReasonGoodsChanged, workspaceevent.AreaMetrics, workspaceevent.AreaTodo, workspaceevent.AreaRisk)
 	return nil
 }
 
 // SetGoodsInfoStatus 设置商品状态
 func (c *GoodsInfoCase) SetGoodsInfoStatus(ctx context.Context, req *adminv1.SetGoodsInfoStatusRequest) error {
-	err := c.UpdateByID(ctx, &models.GoodsInfo{
+	_, err := c.FindByID(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
+
+	err = c.UpdateByID(ctx, &models.GoodsInfo{
 		ID:     req.GetId(),
 		Status: int32(req.GetStatus()),
 	})
@@ -341,6 +377,25 @@ func (c *GoodsInfoCase) GoodsPropCaseList(ctx context.Context, goodsID int64) ([
 // GoodsSKUCaseList 查询商品规格项列表
 func (c *GoodsInfoCase) GoodsSKUCaseList(ctx context.Context, goodsID int64) ([]*adminv1.GoodsSku, error) {
 	return c.goodsSKUCase.ListGoodsSKUsByGoodsID(ctx, goodsID)
+}
+
+// fillGoodsTenantByStore 根据门店归属补齐商品租户，并校验门店审核状态。
+func (c *GoodsInfoCase) fillGoodsTenantByStore(ctx context.Context, goodsInfo *models.GoodsInfo) error {
+	if goodsInfo.TenantStoreID <= 0 {
+		return errorsx.InvalidArgument("请选择所属门店")
+	}
+	tenantStore, err := c.tenantStoreCase.FindByID(ctx, goodsInfo.TenantStoreID)
+	if err != nil {
+		return err
+	}
+	// 只有审核通过的门店允许绑定商品，避免绕过前端下拉提前上架未审核门店商品。
+	if tenantStore.Status != _const.TENANT_STORE_STATUS_APPROVED {
+		currentStatus := strconv.FormatInt(int64(tenantStore.Status), 10)
+		expectedStatus := strconv.FormatInt(int64(_const.TENANT_STORE_STATUS_APPROVED), 10)
+		return errorsx.StateConflict("所属门店未审核通过，暂不能绑定商品", "tenant_store", currentStatus, expectedStatus)
+	}
+	goodsInfo.TenantID = tenantStore.TenantID
+	return nil
 }
 
 // parseCategoryIDs 解析商品分类编号列表。

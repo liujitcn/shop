@@ -9,7 +9,14 @@
       :title="`当前正在查看 ${reportSourceLabel} 的订单明细`"
     />
 
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestOrderTable" :init-param="reportInitParam" />
+    <ProTable
+      ref="proTable"
+      :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
+      row-key="id"
+      :columns="columns"
+      :request-api="requestOrderTable"
+      :init-param="reportInitParam"
+    />
 
     <ProDialog v-model="dialogShipped.visible" :title="dialogShipped.title" width="1080px" @close="handleCloseShippedDialog">
       <div v-loading="dialogShipped.loading">
@@ -244,6 +251,7 @@ import type { ProFormField, ProFormInstance } from "@/components/ProForm/interfa
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defOrderInfoService } from "@/api/admin/order_info";
 import { defBaseUserService } from "@/api/admin/base_user";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type {
   OrderInfo,
   OrderInfoRefundResponse,
@@ -258,6 +266,14 @@ import { OrderPayType, OrderStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
 import { formatPrice } from "@/utils/utils";
+import { useUserStore } from "@/stores/modules/user";
+import {
+  buildTenantStoreDisplayMap,
+  DEFAULT_TENANT_CODE,
+  parseTenantStoreTreeValue,
+  transformTenantStoreTreeOptions,
+  type TenantStoreDisplayInfo
+} from "@/utils/tenant";
 
 defineOptions({
   name: "OrderInfo",
@@ -274,10 +290,21 @@ const props = defineProps({
 
 const { BUTTONS } = useAuthButtons();
 const route = useRoute();
+const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const dataFormRefShipped = ref<ProFormInstance>();
 const dataFormRefRefund = ref<ProFormInstance>();
 const userOptions = ref<SelectOptionResponse_Option[]>([]);
+const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
+
+/** 订单列表搜索参数，兼容租户门店树筛选展示值。 */
+type OrderInfoSearchParams = PageOrderInfosRequest & {
+  /** 租户门店树筛选值。 */
+  tenant_store_tree_value?: string;
+};
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
 
 const reportInitParam = computed(() => {
   const startDate = String(route.query.startDate ?? "");
@@ -660,7 +687,7 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
 }
 
 /** 订单表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   {
     prop: "user_id",
     label: "用户",
@@ -684,6 +711,37 @@ const columns: ColumnProps[] = [
     minWidth: 190,
     search: { el: "input" },
     render: scope => renderOrderNoCell(scope as unknown as RenderScope<OrderInfo>)
+  },
+  ...(isDefaultTenant.value
+    ? [
+        {
+          prop: "tenant_id",
+          label: "租户",
+          minWidth: 150,
+          showOverflowTooltip: true,
+          render: scope => getTenantNameText(scope.row as OrderInfo)
+        }
+      ]
+    : []),
+  {
+    prop: "tenant_store_id",
+    label: "门店",
+    minWidth: 150,
+    showOverflowTooltip: true,
+    render: scope => getTenantStoreNameText(scope.row as OrderInfo),
+    search: {
+      el: "tree-select",
+      key: "tenant_store_tree_value",
+      props: {
+        clearable: true,
+        filterable: true,
+        checkStrictly: true,
+        renderAfterExpand: false,
+        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
+        style: { width: "100%" }
+      }
+    },
+    enum: requestTenantStoreTreeOptions
   },
   {
     prop: "pay_money",
@@ -726,7 +784,7 @@ const columns: ColumnProps[] = [
     fixed: "right",
     render: scope => renderOperationCell(scope as unknown as RenderScope<OrderInfo>)
   }
-];
+]);
 
 /**
  * 按关键字远程加载用户下拉项；空关键字直接清空，避免查询全量用户。
@@ -744,6 +802,29 @@ async function loadUserOptionsByKeyword(keyword: string) {
 }
 
 /**
+ * 请求租户门店树筛选数据。
+ */
+async function requestTenantStoreTreeOptions() {
+  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
+  return { data: transformTenantStoreTreeOptions(response.list ?? []) };
+}
+
+/**
+ * 读取订单列表租户展示文本，统一通过门店树选项反查。
+ */
+function getTenantNameText(row: OrderInfo) {
+  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.tenantName || "-";
+}
+
+/**
+ * 读取订单列表门店展示文本，统一通过门店树选项反查。
+ */
+function getTenantStoreNameText(row: OrderInfo) {
+  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.storeName || "-";
+}
+
+/**
  * 处理用户远程搜索。
  */
 function handleUserSearch(keyword: string) {
@@ -754,9 +835,14 @@ function handleUserSearch(keyword: string) {
  * 请求订单分页列表，并补齐固定筛选参数。
  */
 async function requestOrderTable(params: PageOrderInfosRequest) {
+  const searchParams = params as OrderInfoSearchParams;
+  const treeSelection = parseTenantStoreTreeValue(searchParams.tenant_store_tree_value);
+  const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
   const data = await defOrderInfoService.PageOrderInfos(
     buildPageRequest({
-      ...params,
+      ...requestParams,
+      tenant_id: treeSelection.tenant_id,
+      tenant_store_id: treeSelection.tenant_store_id,
       user_id: Number(params.user_id ?? 0),
       status: props.status || params.status,
       created_at: params.created_at ?? ["", ""]

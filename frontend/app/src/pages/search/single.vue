@@ -43,6 +43,7 @@ const decodedCategoryName = decodeQueryText(query.categoryName)
 const pageParams: Required<PageGoodsInfoRequest> = {
   name: decodedName,
   category_id: query.category_id ? Number(query.category_id) : 0,
+  tenant_store_id: 0,
   page_num: 1,
   page_size: 10,
 }

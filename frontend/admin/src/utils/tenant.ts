@@ -1,0 +1,72 @@
+import type { EnumProps } from "@/components/ProTable/interface";
+import { defBaseTenantService } from "@/api/admin/base_tenant";
+import type { TreeTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
+
+/** 默认租户编码。 */
+export const DEFAULT_TENANT_CODE = "0000";
+
+/** 租户门店树筛选解析结果。 */
+export type TenantStoreTreeSelection = {
+  /** 租户ID，选中一级租户节点时传入。 */
+  tenant_id?: number;
+  /** 门店ID，选中二级门店节点时传入。 */
+  tenant_store_id?: number;
+};
+
+/** 商品、订单、评论列表门店反查展示信息。 */
+export type TenantStoreDisplayInfo = {
+  /** 所属租户名称。 */
+  tenantName: string;
+  /** 门店名称。 */
+  storeName: string;
+};
+
+/** 读取租户列表筛选选项。 */
+export async function requestTenantOptions() {
+  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  return { data: response.list ?? [] };
+}
+
+/** 递归转换租户门店树筛选选项，适配 ProTable 搜索枚举结构。 */
+export function transformTenantStoreTreeOptions(options: TreeTenantStoresResponse_Option[] = []): EnumProps[] {
+  return options.map(option => ({
+    label: option.label,
+    value: option.value,
+    children: transformTenantStoreTreeOptions(option.children ?? [])
+  }));
+}
+
+/** 从租户门店树构建门店展示映射，列表可按门店编号反查租户和门店名称。 */
+export function buildTenantStoreDisplayMap(options: TreeTenantStoresResponse_Option[] = []) {
+  const displayMap = new Map<number, TenantStoreDisplayInfo>();
+  options.forEach(option => {
+    if (option.type === "store") {
+      displayMap.set(option.id, {
+        tenantName: "",
+        storeName: option.label
+      });
+      return;
+    }
+
+    const tenantName = option.label;
+    option.children?.forEach(storeOption => {
+      if (storeOption.type !== "store") return;
+      displayMap.set(storeOption.id, {
+        tenantName,
+        storeName: storeOption.label
+      });
+    });
+  });
+  return displayMap;
+}
+
+/** 解析租户门店树选中值，一级租户查租户数据，二级门店查门店数据。 */
+export function parseTenantStoreTreeValue(value?: string): TenantStoreTreeSelection {
+  if (!value) return {};
+  const [type, rawId] = value.split(":");
+  const id = Number(rawId);
+  if (!Number.isFinite(id) || id <= 0) return {};
+  if (type === "tenant") return { tenant_id: id };
+  if (type === "store") return { tenant_store_id: id };
+  return {};
+}

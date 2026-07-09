@@ -79,10 +79,21 @@ const (
 )
 
 const (
+	// TENANT_STORE_STATUS_PENDING_REVIEW 表示租户门店资料已提交但尚未完成审核。
+	TENANT_STORE_STATUS_PENDING_REVIEW = int32(commonv1.TenantStoreStatus_PENDING_REVIEW_TSS)
+	// TENANT_STORE_STATUS_FAILED_REVIEW 表示租户门店审核未通过，需要租户补充或修正资料后重新提交。
+	TENANT_STORE_STATUS_FAILED_REVIEW = int32(commonv1.TenantStoreStatus_FAILED_REVIEW_TSS)
+	// TENANT_STORE_STATUS_APPROVED 表示租户门店审核已通过，允许进入商品绑定与商城展示流程。
+	TENANT_STORE_STATUS_APPROVED = int32(commonv1.TenantStoreStatus_APPROVED_TSS)
+)
+
+const (
 	// GOODS_STATUS_PUT_ON 表示商品已上架，可在商城端展示并参与购买流程。
 	GOODS_STATUS_PUT_ON = int32(commonv1.GoodsStatus_PUT_ON)
 	// GOODS_STATUS_PULL_OFF 表示商品已下架，通常不再对用户展示或允许下单。
 	GOODS_STATUS_PULL_OFF = int32(commonv1.GoodsStatus_PULL_OFF)
+	// GOODS_STATUS_DISABLED_BY_STORE 表示商品因门店未审核通过被系统下架，区别于商家主动下架。
+	GOODS_STATUS_DISABLED_BY_STORE = int32(commonv1.GoodsStatus_DISABLED_BY_STORE)
 )
 
 const (

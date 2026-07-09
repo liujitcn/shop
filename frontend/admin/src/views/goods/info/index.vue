@@ -13,6 +13,7 @@
     <div class="table-box">
       <ProTable
         ref="proTable"
+        :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
         row-key="id"
         :columns="columns"
         :header-actions="headerActions"
@@ -31,21 +32,31 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CirclePlus, Delete, EditPen, List, Tickets } from "@element-plus/icons-vue";
-import type { ColumnProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, EnumProps, HeaderActionProps, ProTableInstance } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import TreeFilter from "@/components/TreeFilter/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { defGoodsCategoryService } from "@/api/admin/goods_category";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { GoodsInfo, PageGoodsInfosRequest } from "@/rpc/admin/v1/goods_info";
+import type { TreeTenantStoresResponse_Option } from "@/rpc/admin/v1/tenant_store";
 import type { TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { GoodsStatus } from "@/rpc/common/v1/enum";
+import { useUserStore } from "@/stores/modules/user";
 import { buildPageRequest, normalizeSelectedIds } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
+import {
+  buildTenantStoreDisplayMap,
+  DEFAULT_TENANT_CODE,
+  parseTenantStoreTreeValue,
+  transformTenantStoreTreeOptions,
+  type TenantStoreDisplayInfo
+} from "@/utils/tenant";
 
 defineOptions({
   name: "GoodsInfo",
@@ -61,6 +72,8 @@ type CategoryFilterNode = {
 
 /** 商品列表搜索参数，兼容 ProTable 展示字段与接口 snake_case 字段。 */
 type GoodsInfoSearchParams = PageGoodsInfosRequest & {
+  /** 租户门店树筛选值。 */
+  tenant_store_tree_value?: string;
   /** 库存预警展示字段。 */
   inventoryAlert?: number;
   /** 价格异常展示字段。 */
@@ -71,8 +84,13 @@ const { BUTTONS } = useAuthButtons();
 const proTable = ref<ProTableInstance>();
 const router = useRouter();
 const route = useRoute();
+const userStore = useUserStore();
+const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 
 const initParam = reactive({
+  tenant_id: undefined as number | undefined,
+  tenant_store_id: undefined as number | undefined,
+  tenant_store_tree_value: undefined as string | undefined,
   category_id: undefined as number | undefined,
   status: undefined as number | undefined,
   inventory_alert: undefined as number | undefined,
@@ -83,8 +101,18 @@ const categoryFilterValue = ref("");
 // 多分类场景下分类名称会更长，适当放宽列表列宽避免首屏截断过早。
 const goodsCategoryColumnMinWidth = 220;
 
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
+/** 商品状态枚举，补齐系统门店禁用状态的后台展示。 */
+const goodsStatusOptions: EnumProps[] = [
+  { label: "上架", value: GoodsStatus.PUT_ON, tagType: "success" },
+  { label: "下架", value: GoodsStatus.PULL_OFF, tagType: "info" },
+  { label: "门店禁用", value: GoodsStatus.DISABLED_BY_STORE, tagType: "warning" }
+];
+
 /** 商品表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   {
     prop: "picture",
@@ -99,7 +127,38 @@ const columns: ColumnProps[] = [
     }
   },
   { prop: "name", label: "商品名称", minWidth: 200, search: { el: "input" } },
-  { prop: "categoryName", label: "分类", minWidth: goodsCategoryColumnMinWidth, showOverflowTooltip: true },
+  { prop: "category_name", label: "分类", minWidth: goodsCategoryColumnMinWidth, showOverflowTooltip: true },
+  ...(isDefaultTenant.value
+    ? [
+        {
+          prop: "tenant_id",
+          label: "租户",
+          minWidth: 150,
+          showOverflowTooltip: true,
+          render: scope => getTenantNameText(scope.row as GoodsInfo)
+        }
+      ]
+    : []),
+  {
+    prop: "tenant_store_id",
+    label: "门店",
+    minWidth: 160,
+    showOverflowTooltip: true,
+    render: scope => getTenantStoreNameText(scope.row as GoodsInfo),
+    search: {
+      el: "tree-select",
+      key: "tenant_store_tree_value",
+      props: {
+        clearable: true,
+        filterable: true,
+        checkStrictly: true,
+        renderAfterExpand: false,
+        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
+        style: { width: "100%" }
+      }
+    },
+    enum: requestTenantStoreTreeOptions
+  },
   { prop: "desc", label: "商品描述", minWidth: 200 },
   { prop: "inventory", label: "总库存", minWidth: 100, align: "right" },
   {
@@ -118,28 +177,20 @@ const columns: ColumnProps[] = [
     isShow: false,
     search: { el: "select" }
   },
-  { prop: "initSaleNum", label: "初始销量", minWidth: 100, align: "right" },
-  { prop: "realSaleNum", label: "真实销量", minWidth: 100, align: "right" },
+  { prop: "init_sale_num", label: "初始销量", minWidth: 100, align: "right" },
+  { prop: "real_sale_num", label: "真实销量", minWidth: 100, align: "right" },
   { prop: "price", label: "价格（元）", minWidth: 110, align: "right", cellType: "money" },
-  { prop: "discountPrice", label: "折扣价格（元）", minWidth: 130, align: "right", cellType: "money" },
+  { prop: "discount_price", label: "折扣价格（元）", minWidth: 130, align: "right", cellType: "money" },
   {
     prop: "status",
     label: "状态",
     minWidth: 100,
-    dictCode: "goods_status",
+    enum: goodsStatusOptions,
     search: { el: "select" },
-    cellType: "status",
-    statusProps: {
-      activeValue: GoodsStatus.PUT_ON,
-      inactiveValue: GoodsStatus.PULL_OFF,
-      activeText: "上架",
-      inactiveText: "下架",
-      disabled: () => !BUTTONS.value["goods:info:status"],
-      beforeChange: scope => handleBeforeSetStatus(scope.row as GoodsInfo)
-    }
+    tag: true
   },
-  { prop: "createdAt", label: "创建时间", minWidth: 180 },
-  { prop: "updatedAt", label: "更新时间", minWidth: 180 },
+  { prop: "created_at", label: "创建时间", minWidth: 180 },
+  { prop: "updated_at", label: "更新时间", minWidth: 180 },
   {
     prop: "operation",
     label: "操作",
@@ -172,6 +223,20 @@ const columns: ColumnProps[] = [
         onClick: scope => handleOpenDialog(scope.row as GoodsInfo)
       },
       {
+        label: "上架",
+        type: "success",
+        link: true,
+        hidden: scope => !canManualSetStatus(scope.row as GoodsInfo, GoodsStatus.PUT_ON),
+        onClick: scope => handleSetStatus(scope.row as GoodsInfo, GoodsStatus.PUT_ON)
+      },
+      {
+        label: "下架",
+        type: "warning",
+        link: true,
+        hidden: scope => !canManualSetStatus(scope.row as GoodsInfo, GoodsStatus.PULL_OFF),
+        onClick: scope => handleSetStatus(scope.row as GoodsInfo, GoodsStatus.PULL_OFF)
+      },
+      {
         label: "删除",
         type: "danger",
         link: true,
@@ -181,7 +246,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 商品顶部按钮配置。 */
 const headerActions: HeaderActionProps[] = [
@@ -224,6 +289,29 @@ async function requestCategoryTreeFilter() {
 }
 
 /**
+ * 请求租户门店树筛选数据。
+ */
+async function requestTenantStoreTreeOptions() {
+  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
+  return { data: transformTenantStoreTreeOptions(response.list ?? []) };
+}
+
+/**
+ * 读取商品列表租户展示文本，默认租户通过树筛选数据按门店反查。
+ */
+function getTenantNameText(row: GoodsInfo) {
+  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.tenantName || "-";
+}
+
+/**
+ * 读取商品列表门店展示文本，统一通过门店树选项反查。
+ */
+function getTenantStoreNameText(row: GoodsInfo) {
+  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.storeName || "-";
+}
+
+/**
  * 切换分类树筛选时同步更新表格查询参数。
  */
 function changeTreeFilter(value: string) {
@@ -240,9 +328,13 @@ function changeTreeFilter(value: string) {
  */
 async function requestGoodsTable(params: PageGoodsInfosRequest) {
   const searchParams = params as GoodsInfoSearchParams;
+  const treeSelection = parseTenantStoreTreeValue(searchParams.tenant_store_tree_value ?? initParam.tenant_store_tree_value);
+  const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...requestParams } = searchParams;
   const data = await defGoodsInfoService.PageGoodsInfos(
     buildPageRequest({
-      ...params,
+      ...requestParams,
+      tenant_id: treeSelection.tenant_id ?? initParam.tenant_id,
+      tenant_store_id: treeSelection.tenant_store_id ?? initParam.tenant_store_id,
       category_id: initParam.category_id,
       // 路由状态只作为首屏默认值，用户搜索选择后优先使用搜索表单值。
       status: searchParams.status ?? initParam.status,
@@ -273,6 +365,9 @@ function syncWorkspaceQuery() {
   if (proTable.value) {
     Object.assign(proTable.value.searchParam, {
       category_id: initParam.category_id,
+      tenant_id: initParam.tenant_id,
+      tenant_store_id: initParam.tenant_store_id,
+      tenant_store_tree_value: initParam.tenant_store_tree_value,
       status: initParam.status,
       inventory_alert: initParam.inventory_alert,
       price_alert: initParam.price_alert,
@@ -281,6 +376,9 @@ function syncWorkspaceQuery() {
     });
     Object.assign(proTable.value.searchInitParam, {
       category_id: initParam.category_id,
+      tenant_id: initParam.tenant_id,
+      tenant_store_id: initParam.tenant_store_id,
+      tenant_store_tree_value: initParam.tenant_store_tree_value,
       status: initParam.status,
       inventory_alert: initParam.inventory_alert,
       price_alert: initParam.price_alert,
@@ -324,12 +422,16 @@ function handleOpenDialog(row?: GoodsInfo) {
   navigateTo(router, "/goods/edit");
 }
 
-/**
- * 在商品状态切换前先完成确认与接口调用，避免首屏渲染触发误操作。
- */
-async function handleBeforeSetStatus(row: GoodsInfo) {
-  const nextStatus = row.status === GoodsStatus.PUT_ON ? GoodsStatus.PULL_OFF : GoodsStatus.PUT_ON;
-  const text = nextStatus === GoodsStatus.PUT_ON ? "上架" : "下架";
+/** 判断当前商品是否允许通过人工入口切换为指定状态。 */
+function canManualSetStatus(row: GoodsInfo, status: GoodsStatus) {
+  if (!BUTTONS.value["goods:info:status"]) return false;
+  if (row.status === GoodsStatus.DISABLED_BY_STORE) return false;
+  return row.status !== status;
+}
+
+/** 人工切换商品上下架状态，门店禁用状态只由审核流程维护。 */
+async function handleSetStatus(row: GoodsInfo, status: GoodsStatus) {
+  const text = status === GoodsStatus.PUT_ON ? "上架" : "下架";
   const goodsName = row.name || `ID:${row.id}`;
   try {
     await ElMessageBox.confirm(`是否确定${text}商品？\n商品名称：${goodsName}`, "提示", {
@@ -337,12 +439,11 @@ async function handleBeforeSetStatus(row: GoodsInfo) {
       cancelButtonText: "取消",
       type: "warning"
     });
-    await defGoodsInfoService.SetGoodsInfoStatus({ id: row.id, status: nextStatus });
+    await defGoodsInfoService.SetGoodsInfoStatus({ id: row.id, status });
     ElMessage.success(`${text}成功`);
     proTable.value?.getTableList();
-    return true;
   } catch {
-    return false;
+    // 用户取消确认时不需要额外提示。
   }
 }
 

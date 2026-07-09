@@ -81,8 +81,6 @@ message ListOauthProvidersRequest {}
 
 // 三方登录方式信息
 message OauthProvider {
-  reserved 2, 3;
-
   string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
 }
 
@@ -93,9 +91,6 @@ message ListOauthProvidersResponse {
 
 // 三方登录授权地址创建条件
 message CreateOauthAuthorizationRequest {
-  reserved 3;
-  reserved "login_url";
-
   string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
 
   string redirect_url = 2 [(gnostic.openapi.v3.property) = {description: "三方登录完成后的前端接收地址"}]; // 三方登录完成后的前端接收地址
@@ -172,8 +167,6 @@ message ListOauthBindingsResponse {
 
 // 个人中心三方账号绑定信息
 message OauthBinding {
-  reserved 2, 3;
-
   string provider = 1 [(gnostic.openapi.v3.property) = {description: "登录方式标识"}]; // 登录方式标识
 
   bool bound = 4 [(gnostic.openapi.v3.property) = {description: "是否已绑定"}]; // 是否已绑定

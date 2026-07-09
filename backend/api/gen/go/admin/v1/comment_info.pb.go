@@ -29,13 +29,15 @@ const (
 // 评论分页查询条件
 type PageCommentInfosRequest struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
-	GoodsId              *int64                 `protobuf:"varint,1,opt,name=goods_id,json=goodsId,proto3,oneof" json:"goods_id,omitempty"`                                          // 商品ID
-	GoodsName            *string                `protobuf:"bytes,2,opt,name=goods_name,json=goodsName,proto3,oneof" json:"goods_name,omitempty"`                                     // 商品名称
-	UserName             *string                `protobuf:"bytes,3,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`                                        // 评价用户昵称
-	GoodsScore           *int32                 `protobuf:"varint,4,opt,name=goods_score,json=goodsScore,proto3,oneof" json:"goods_score,omitempty"`                                 // 商品评分
-	MinGoodsScore        *int32                 `protobuf:"varint,5,opt,name=min_goods_score,json=minGoodsScore,proto3,oneof" json:"min_goods_score,omitempty"`                      // 最低商品评分
-	MaxGoodsScore        *int32                 `protobuf:"varint,6,opt,name=max_goods_score,json=maxGoodsScore,proto3,oneof" json:"max_goods_score,omitempty"`                      // 最高商品评分
-	HasPendingDiscussion *bool                  `protobuf:"varint,7,opt,name=has_pending_discussion,json=hasPendingDiscussion,proto3,oneof" json:"has_pending_discussion,omitempty"` // 是否存在待审核讨论
+	TenantId             *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                                       // 租户ID
+	TenantStoreId        *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`                      // 租户门店ID
+	GoodsId              *int64                 `protobuf:"varint,3,opt,name=goods_id,json=goodsId,proto3,oneof" json:"goods_id,omitempty"`                                          // 商品ID
+	GoodsName            *string                `protobuf:"bytes,4,opt,name=goods_name,json=goodsName,proto3,oneof" json:"goods_name,omitempty"`                                     // 商品名称
+	UserName             *string                `protobuf:"bytes,5,opt,name=user_name,json=userName,proto3,oneof" json:"user_name,omitempty"`                                        // 评价用户昵称
+	GoodsScore           *int32                 `protobuf:"varint,6,opt,name=goods_score,json=goodsScore,proto3,oneof" json:"goods_score,omitempty"`                                 // 商品评分
+	MinGoodsScore        *int32                 `protobuf:"varint,7,opt,name=min_goods_score,json=minGoodsScore,proto3,oneof" json:"min_goods_score,omitempty"`                      // 最低商品评分
+	MaxGoodsScore        *int32                 `protobuf:"varint,8,opt,name=max_goods_score,json=maxGoodsScore,proto3,oneof" json:"max_goods_score,omitempty"`                      // 最高商品评分
+	HasPendingDiscussion *bool                  `protobuf:"varint,9,opt,name=has_pending_discussion,json=hasPendingDiscussion,proto3,oneof" json:"has_pending_discussion,omitempty"` // 是否存在待审核讨论
 	Status               *v1.CommentStatus      `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.CommentStatus,oneof" json:"status,omitempty"`                            // 审核状态：枚举【CommentStatus】
 	PageNum              int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`                                              // 当前页码
 	PageSize             int64                  `protobuf:"varint,102,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`                                           // 每一页的行数
@@ -71,6 +73,20 @@ func (x *PageCommentInfosRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PageCommentInfosRequest.ProtoReflect.Descriptor instead.
 func (*PageCommentInfosRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_comment_info_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PageCommentInfosRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *PageCommentInfosRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 func (x *PageCommentInfosRequest) GetGoodsId() int64 {
@@ -656,27 +672,29 @@ func (x *GoodsCommentInfoResponse) GetCommentSummaries() []*CommentSummary {
 type CommentInfo struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	Id                     int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                          // 评价主键
-	OrderId                int64                  `protobuf:"varint,2,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                                 // 订单ID
-	GoodsId                int64                  `protobuf:"varint,3,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                                 // 商品ID
-	GoodsNameSnapshot      string                 `protobuf:"bytes,4,opt,name=goods_name_snapshot,json=goodsNameSnapshot,proto3" json:"goods_name_snapshot,omitempty"`                  // 商品名称快照
-	GoodsPictureSnapshot   string                 `protobuf:"bytes,5,opt,name=goods_picture_snapshot,json=goodsPictureSnapshot,proto3" json:"goods_picture_snapshot,omitempty"`         // 商品主图快照
-	SkuCode                string                 `protobuf:"bytes,6,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                                                  // SKU编码
-	SkuDescSnapshot        string                 `protobuf:"bytes,7,opt,name=sku_desc_snapshot,json=skuDescSnapshot,proto3" json:"sku_desc_snapshot,omitempty"`                        // 规格描述快照
-	UserId                 int64                  `protobuf:"varint,8,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                    // 评价用户ID
-	UserNameSnapshot       string                 `protobuf:"bytes,9,opt,name=user_name_snapshot,json=userNameSnapshot,proto3" json:"user_name_snapshot,omitempty"`                     // 评价用户昵称快照
-	UserAvatarSnapshot     string                 `protobuf:"bytes,10,opt,name=user_avatar_snapshot,json=userAvatarSnapshot,proto3" json:"user_avatar_snapshot,omitempty"`              // 评价用户头像快照
-	UserTagText            string                 `protobuf:"bytes,11,opt,name=user_tag_text,json=userTagText,proto3" json:"user_tag_text,omitempty"`                                   // 用户展示标签
-	IsAnonymous            bool                   `protobuf:"varint,12,opt,name=is_anonymous,json=isAnonymous,proto3" json:"is_anonymous,omitempty"`                                    // 是否匿名展示
-	GoodsScore             int32                  `protobuf:"varint,13,opt,name=goods_score,json=goodsScore,proto3" json:"goods_score,omitempty"`                                       // 商品评分
-	PackageScore           int32                  `protobuf:"varint,14,opt,name=package_score,json=packageScore,proto3" json:"package_score,omitempty"`                                 // 包装评分
-	DeliveryScore          int32                  `protobuf:"varint,15,opt,name=delivery_score,json=deliveryScore,proto3" json:"delivery_score,omitempty"`                              // 配送评分
-	Content                string                 `protobuf:"bytes,16,opt,name=content,proto3" json:"content,omitempty"`                                                                // 评价正文
-	TagId                  []int64                `protobuf:"varint,18,rep,packed,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`                                               // 命中的标签ID数组
-	Img                    []string               `protobuf:"bytes,19,rep,name=img,proto3" json:"img,omitempty"`                                                                        // 评价图片数组
-	LikeCount              int32                  `protobuf:"varint,20,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`                                          // 点赞数
-	DislikeCount           int32                  `protobuf:"varint,21,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"`                                 // 点踩数
-	DiscussionCount        int32                  `protobuf:"varint,22,opt,name=discussion_count,json=discussionCount,proto3" json:"discussion_count,omitempty"`                        // 已审核通过讨论数
-	PendingDiscussionCount int32                  `protobuf:"varint,23,opt,name=pending_discussion_count,json=pendingDiscussionCount,proto3" json:"pending_discussion_count,omitempty"` // 待审核讨论数
+	TenantId               int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                              // 租户ID
+	TenantStoreId          int64                  `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`                             // 租户门店ID
+	OrderId                int64                  `protobuf:"varint,4,opt,name=order_id,json=orderId,proto3" json:"order_id,omitempty"`                                                 // 订单ID
+	GoodsId                int64                  `protobuf:"varint,5,opt,name=goods_id,json=goodsId,proto3" json:"goods_id,omitempty"`                                                 // 商品ID
+	GoodsNameSnapshot      string                 `protobuf:"bytes,6,opt,name=goods_name_snapshot,json=goodsNameSnapshot,proto3" json:"goods_name_snapshot,omitempty"`                  // 商品名称快照
+	GoodsPictureSnapshot   string                 `protobuf:"bytes,7,opt,name=goods_picture_snapshot,json=goodsPictureSnapshot,proto3" json:"goods_picture_snapshot,omitempty"`         // 商品主图快照
+	SkuCode                string                 `protobuf:"bytes,8,opt,name=sku_code,json=skuCode,proto3" json:"sku_code,omitempty"`                                                  // SKU编码
+	SkuDescSnapshot        string                 `protobuf:"bytes,9,opt,name=sku_desc_snapshot,json=skuDescSnapshot,proto3" json:"sku_desc_snapshot,omitempty"`                        // 规格描述快照
+	UserId                 int64                  `protobuf:"varint,10,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                   // 评价用户ID
+	UserNameSnapshot       string                 `protobuf:"bytes,11,opt,name=user_name_snapshot,json=userNameSnapshot,proto3" json:"user_name_snapshot,omitempty"`                    // 评价用户昵称快照
+	UserAvatarSnapshot     string                 `protobuf:"bytes,12,opt,name=user_avatar_snapshot,json=userAvatarSnapshot,proto3" json:"user_avatar_snapshot,omitempty"`              // 评价用户头像快照
+	UserTagText            string                 `protobuf:"bytes,13,opt,name=user_tag_text,json=userTagText,proto3" json:"user_tag_text,omitempty"`                                   // 用户展示标签
+	IsAnonymous            bool                   `protobuf:"varint,14,opt,name=is_anonymous,json=isAnonymous,proto3" json:"is_anonymous,omitempty"`                                    // 是否匿名展示
+	GoodsScore             int32                  `protobuf:"varint,15,opt,name=goods_score,json=goodsScore,proto3" json:"goods_score,omitempty"`                                       // 商品评分
+	PackageScore           int32                  `protobuf:"varint,16,opt,name=package_score,json=packageScore,proto3" json:"package_score,omitempty"`                                 // 包装评分
+	DeliveryScore          int32                  `protobuf:"varint,17,opt,name=delivery_score,json=deliveryScore,proto3" json:"delivery_score,omitempty"`                              // 配送评分
+	Content                string                 `protobuf:"bytes,18,opt,name=content,proto3" json:"content,omitempty"`                                                                // 评价正文
+	TagId                  []int64                `protobuf:"varint,19,rep,packed,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`                                               // 命中的标签ID数组
+	Img                    []string               `protobuf:"bytes,20,rep,name=img,proto3" json:"img,omitempty"`                                                                        // 评价图片数组
+	LikeCount              int32                  `protobuf:"varint,21,opt,name=like_count,json=likeCount,proto3" json:"like_count,omitempty"`                                          // 点赞数
+	DislikeCount           int32                  `protobuf:"varint,22,opt,name=dislike_count,json=dislikeCount,proto3" json:"dislike_count,omitempty"`                                 // 点踩数
+	DiscussionCount        int32                  `protobuf:"varint,23,opt,name=discussion_count,json=discussionCount,proto3" json:"discussion_count,omitempty"`                        // 已审核通过讨论数
+	PendingDiscussionCount int32                  `protobuf:"varint,24,opt,name=pending_discussion_count,json=pendingDiscussionCount,proto3" json:"pending_discussion_count,omitempty"` // 待审核讨论数
 	Status                 v1.CommentStatus       `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.CommentStatus" json:"status,omitempty"`                                   // 审核状态：枚举【CommentStatus】
 	CreatedAt              string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                          // 评价时间
 	UpdatedAt              string                 `protobuf:"bytes,201,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                          // 最后更新时间
@@ -717,6 +735,20 @@ func (*CommentInfo) Descriptor() ([]byte, []int) {
 func (x *CommentInfo) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *CommentInfo) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *CommentInfo) GetTenantStoreId() int64 {
+	if x != nil {
+		return x.TenantStoreId
 	}
 	return 0
 }
@@ -1499,20 +1531,25 @@ var File_admin_v1_comment_info_proto protoreflect.FileDescriptor
 
 const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\n" +
-	"\x1badmin/v1/comment_info.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd0\x06\n" +
-	"\x17PageCommentInfosRequest\x12.\n" +
-	"\bgoods_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDH\x00R\agoodsId\x88\x01\x01\x126\n" +
+	"\x1badmin/v1/comment_info.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xe7\a\n" +
+	"\x17PageCommentInfosRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12.\n" +
+	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDH\x02R\agoodsId\x88\x01\x01\x126\n" +
 	"\n" +
-	"goods_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称H\x01R\tgoodsName\x88\x01\x01\x12:\n" +
-	"\tuser_name\x18\x03 \x01(\tB\x18\xbaG\x15\x92\x02\x12评价用户昵称H\x02R\buserName\x88\x01\x01\x128\n" +
-	"\vgoods_score\x18\x04 \x01(\x05B\x12\xbaG\x0f\x92\x02\f商品评分H\x03R\n" +
+	"goods_name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f商品名称H\x03R\tgoodsName\x88\x01\x01\x12:\n" +
+	"\tuser_name\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12评价用户昵称H\x04R\buserName\x88\x01\x01\x128\n" +
+	"\vgoods_score\x18\x06 \x01(\x05B\x12\xbaG\x0f\x92\x02\f商品评分H\x05R\n" +
 	"goodsScore\x88\x01\x01\x12E\n" +
-	"\x0fmin_goods_score\x18\x05 \x01(\x05B\x18\xbaG\x15\x92\x02\x12最低商品评分H\x04R\rminGoodsScore\x88\x01\x01\x12E\n" +
-	"\x0fmax_goods_score\x18\x06 \x01(\x05B\x18\xbaG\x15\x92\x02\x12最高商品评分H\x05R\rmaxGoodsScore\x88\x01\x01\x12\\\n" +
-	"\x16has_pending_discussion\x18\a \x01(\bB!\xbaG\x1e\x92\x02\x1b是否存在待审核讨论H\x06R\x14hasPendingDiscussion\x88\x01\x01\x12e\n" +
-	"\x06status\x18d \x01(\x0e2\x18.common.v1.CommentStatusB.\xbaG+\x92\x02(审核状态：枚举【CommentStatus】H\aR\x06status\x88\x01\x01\x129\n" +
+	"\x0fmin_goods_score\x18\a \x01(\x05B\x18\xbaG\x15\x92\x02\x12最低商品评分H\x06R\rminGoodsScore\x88\x01\x01\x12E\n" +
+	"\x0fmax_goods_score\x18\b \x01(\x05B\x18\xbaG\x15\x92\x02\x12最高商品评分H\aR\rmaxGoodsScore\x88\x01\x01\x12\\\n" +
+	"\x16has_pending_discussion\x18\t \x01(\bB!\xbaG\x1e\x92\x02\x1b是否存在待审核讨论H\bR\x14hasPendingDiscussion\x88\x01\x01\x12e\n" +
+	"\x06status\x18d \x01(\x0e2\x18.common.v1.CommentStatusB.\xbaG+\x92\x02(审核状态：枚举【CommentStatus】H\tR\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\v\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_idB\v\n" +
 	"\t_goods_idB\r\n" +
 	"\v_goods_nameB\f\n" +
 	"\n" +
@@ -1553,33 +1590,35 @@ const file_admin_v1_comment_info_proto_rawDesc = "" +
 	"\rcomment_infos\x18\x01 \x03(\v2\x15.admin.v1.CommentInfoB\x12\xbaG\x0f\x92\x02\f评论列表R\fcommentInfos\x12Q\n" +
 	"\fcomment_tags\x18\x02 \x03(\v2\x14.admin.v1.CommentTagB\x18\xbaG\x15\x92\x02\x12商品评论标签R\vcommentTags\x12f\n" +
 	"\x13comment_discussions\x18\x03 \x03(\v2\x1b.admin.v1.CommentDiscussionB\x18\xbaG\x15\x92\x02\x12评论讨论列表R\x12commentDiscussions\x12_\n" +
-	"\x11comment_summaries\x18\x04 \x03(\v2\x18.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\"\xeb\v\n" +
+	"\x11comment_summaries\x18\x04 \x03(\v2\x18.admin.v1.CommentSummaryB\x18\xbaG\x15\x92\x02\x12商品评论摘要R\x10commentSummaries\"\xd6\f\n" +
 	"\vCommentInfo\x12\"\n" +
-	"\x02id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f评价主键R\x02id\x12)\n" +
-	"\border_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
-	"\bgoods_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12H\n" +
-	"\x13goods_name_snapshot\x18\x04 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品名称快照R\x11goodsNameSnapshot\x12N\n" +
-	"\x16goods_picture_snapshot\x18\x05 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品主图快照R\x14goodsPictureSnapshot\x12*\n" +
-	"\bsku_code\x18\x06 \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x12D\n" +
-	"\x11sku_desc_snapshot\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12规格描述快照R\x0fskuDescSnapshot\x12-\n" +
-	"\auser_id\x18\b \x01(\x03B\x14\xbaG\x11\x92\x02\x0e评价用户IDR\x06userId\x12L\n" +
-	"\x12user_name_snapshot\x18\t \x01(\tB\x1e\xbaG\x1b\x92\x02\x18评价用户昵称快照R\x10userNameSnapshot\x12P\n" +
-	"\x14user_avatar_snapshot\x18\n" +
-	" \x01(\tB\x1e\xbaG\x1b\x92\x02\x18评价用户头像快照R\x12userAvatarSnapshot\x12<\n" +
-	"\ruser_tag_text\x18\v \x01(\tB\x18\xbaG\x15\x92\x02\x12用户展示标签R\vuserTagText\x12;\n" +
-	"\fis_anonymous\x18\f \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名展示R\visAnonymous\x123\n" +
-	"\vgoods_score\x18\r \x01(\x05B\x12\xbaG\x0f\x92\x02\f商品评分R\n" +
+	"\x02id\x18\x01 \x01(\x03B\x12\xbaG\x0f\x92\x02\f评价主键R\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12<\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12)\n" +
+	"\border_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单IDR\aorderId\x12)\n" +
+	"\bgoods_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b商品IDR\agoodsId\x12H\n" +
+	"\x13goods_name_snapshot\x18\x06 \x01(\tB\x18\xbaG\x15\x92\x02\x12商品名称快照R\x11goodsNameSnapshot\x12N\n" +
+	"\x16goods_picture_snapshot\x18\a \x01(\tB\x18\xbaG\x15\x92\x02\x12商品主图快照R\x14goodsPictureSnapshot\x12*\n" +
+	"\bsku_code\x18\b \x01(\tB\x0f\xbaG\f\x92\x02\tSKU编码R\askuCode\x12D\n" +
+	"\x11sku_desc_snapshot\x18\t \x01(\tB\x18\xbaG\x15\x92\x02\x12规格描述快照R\x0fskuDescSnapshot\x12-\n" +
+	"\auser_id\x18\n" +
+	" \x01(\x03B\x14\xbaG\x11\x92\x02\x0e评价用户IDR\x06userId\x12L\n" +
+	"\x12user_name_snapshot\x18\v \x01(\tB\x1e\xbaG\x1b\x92\x02\x18评价用户昵称快照R\x10userNameSnapshot\x12P\n" +
+	"\x14user_avatar_snapshot\x18\f \x01(\tB\x1e\xbaG\x1b\x92\x02\x18评价用户头像快照R\x12userAvatarSnapshot\x12<\n" +
+	"\ruser_tag_text\x18\r \x01(\tB\x18\xbaG\x15\x92\x02\x12用户展示标签R\vuserTagText\x12;\n" +
+	"\fis_anonymous\x18\x0e \x01(\bB\x18\xbaG\x15\x92\x02\x12是否匿名展示R\visAnonymous\x123\n" +
+	"\vgoods_score\x18\x0f \x01(\x05B\x12\xbaG\x0f\x92\x02\f商品评分R\n" +
 	"goodsScore\x127\n" +
-	"\rpackage_score\x18\x0e \x01(\x05B\x12\xbaG\x0f\x92\x02\f包装评分R\fpackageScore\x129\n" +
-	"\x0edelivery_score\x18\x0f \x01(\x05B\x12\xbaG\x0f\x92\x02\f配送评分R\rdeliveryScore\x12,\n" +
-	"\acontent\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价正文R\acontent\x124\n" +
-	"\x06tag_id\x18\x12 \x03(\x03B\x1d\xbaG\x1a\x92\x02\x17命中的标签ID数组R\x05tagId\x12*\n" +
-	"\x03img\x18\x13 \x03(\tB\x18\xbaG\x15\x92\x02\x12评价图片数组R\x03img\x12.\n" +
+	"\rpackage_score\x18\x10 \x01(\x05B\x12\xbaG\x0f\x92\x02\f包装评分R\fpackageScore\x129\n" +
+	"\x0edelivery_score\x18\x11 \x01(\x05B\x12\xbaG\x0f\x92\x02\f配送评分R\rdeliveryScore\x12,\n" +
+	"\acontent\x18\x12 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价正文R\acontent\x124\n" +
+	"\x06tag_id\x18\x13 \x03(\x03B\x1d\xbaG\x1a\x92\x02\x17命中的标签ID数组R\x05tagId\x12*\n" +
+	"\x03img\x18\x14 \x03(\tB\x18\xbaG\x15\x92\x02\x12评价图片数组R\x03img\x12.\n" +
 	"\n" +
-	"like_count\x18\x14 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
-	"\rdislike_count\x18\x15 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\x12I\n" +
-	"\x10discussion_count\x18\x16 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18已审核通过讨论数R\x0fdiscussionCount\x12R\n" +
-	"\x18pending_discussion_count\x18\x17 \x01(\x05B\x18\xbaG\x15\x92\x02\x12待审核讨论数R\x16pendingDiscussionCount\x12`\n" +
+	"like_count\x18\x15 \x01(\x05B\x0f\xbaG\f\x92\x02\t点赞数R\tlikeCount\x124\n" +
+	"\rdislike_count\x18\x16 \x01(\x05B\x0f\xbaG\f\x92\x02\t点踩数R\fdislikeCount\x12I\n" +
+	"\x10discussion_count\x18\x17 \x01(\x05B\x1e\xbaG\x1b\x92\x02\x18已审核通过讨论数R\x0fdiscussionCount\x12R\n" +
+	"\x18pending_discussion_count\x18\x18 \x01(\x05B\x18\xbaG\x15\x92\x02\x12待审核讨论数R\x16pendingDiscussionCount\x12`\n" +
 	"\x06status\x18d \x01(\x0e2\x18.common.v1.CommentStatusB.\xbaG+\x92\x02(审核状态：枚举【CommentStatus】R\x06status\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f评价时间R\tcreatedAt\x128\n" +

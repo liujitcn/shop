@@ -60,10 +60,16 @@ func NewCommentInfoCase(
 // PageCommentInfos 分页查询评论审核列表。
 func (c *CommentInfoCase) PageCommentInfos(ctx context.Context, req *adminv1.PageCommentInfosRequest) (*adminv1.PageCommentInfosResponse, error) {
 	query := c.Query(ctx).CommentInfo
-	opts := make([]repository.QueryOption, 0, 7)
+	opts := make([]repository.QueryOption, 0, 9)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.TenantId != nil && req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 	if req.GoodsId != nil && req.GetGoodsId() > 0 {
 		opts = append(opts, repository.Where(query.GoodsID.Eq(req.GetGoodsId())))
+	}
+	if req.TenantStoreId != nil && req.GetTenantStoreId() > 0 {
+		opts = append(opts, repository.Where(query.TenantStoreID.Eq(req.GetTenantStoreId())))
 	}
 	// 传入商品名关键字时，按商品名称快照模糊匹配。
 	if req.GetGoodsName() != "" {
@@ -180,7 +186,6 @@ func (c *CommentInfoCase) GetCommentInfo(ctx context.Context, commentID int64) (
 	if err != nil {
 		return nil, err
 	}
-
 	return &adminv1.CommentInfoDetail{
 		Comment:            c.commentInfoMapper.ToDTO(commentInfo),
 		CommentTags:        tagList,

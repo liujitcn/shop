@@ -312,13 +312,15 @@ func (x *UpdateUserPasswordRequest) GetUserPassword() *UserPasswordForm {
 // 用户信息表单
 type UserInfoForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`   // 用户账号
-	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`   // 用户昵称
-	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`                         // 手机号
-	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`                       // 头像
-	RoleCode      string                 `protobuf:"bytes,100,opt,name=role_code,json=roleCode,proto3" json:"role_code,omitempty"` // 角色编号
-	RoleName      string                 `protobuf:"bytes,101,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"` // 角色名称
-	DeptName      string                 `protobuf:"bytes,102,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"` // 部门名称
+	UserName      string                 `protobuf:"bytes,1,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`         // 用户账号
+	NickName      string                 `protobuf:"bytes,2,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`         // 用户昵称
+	Phone         string                 `protobuf:"bytes,3,opt,name=phone,proto3" json:"phone,omitempty"`                               // 手机号
+	Avatar        string                 `protobuf:"bytes,4,opt,name=avatar,proto3" json:"avatar,omitempty"`                             // 头像
+	RoleCode      string                 `protobuf:"bytes,100,opt,name=role_code,json=roleCode,proto3" json:"role_code,omitempty"`       // 角色编号
+	RoleName      string                 `protobuf:"bytes,101,opt,name=role_name,json=roleName,proto3" json:"role_name,omitempty"`       // 角色名称
+	DeptName      string                 `protobuf:"bytes,102,opt,name=dept_name,json=deptName,proto3" json:"dept_name,omitempty"`       // 部门名称
+	TenantCode    string                 `protobuf:"bytes,104,opt,name=tenant_code,json=tenantCode,proto3" json:"tenant_code,omitempty"` // 租户编码
+	TenantName    string                 `protobuf:"bytes,105,opt,name=tenant_name,json=tenantName,proto3" json:"tenant_name,omitempty"` // 租户名称
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -398,6 +400,20 @@ func (x *UserInfoForm) GetRoleName() string {
 func (x *UserInfoForm) GetDeptName() string {
 	if x != nil {
 		return x.DeptName
+	}
+	return ""
+}
+
+func (x *UserInfoForm) GetTenantCode() string {
+	if x != nil {
+		return x.TenantCode
+	}
+	return ""
+}
+
+func (x *UserInfoForm) GetTenantName() string {
+	if x != nil {
+		return x.TenantName
 	}
 	return ""
 }
@@ -953,7 +969,7 @@ const file_admin_v1_auth_proto_rawDesc = "" +
 	"\n" +
 	"user_phone\x18\x01 \x01(\v2\x17.admin.v1.UserPhoneFormB\x1b\xbaG\x18\x92\x02\x15个人中心手机号R\tuserPhone\"v\n" +
 	"\x19UpdateUserPasswordRequest\x12Y\n" +
-	"\ruser_password\x18\x01 \x01(\v2\x1a.admin.v1.UserPasswordFormB\x18\xbaG\x15\x92\x02\x12个人中心密码R\fuserPassword\"\xd0\x02\n" +
+	"\ruser_password\x18\x01 \x01(\v2\x1a.admin.v1.UserPasswordFormB\x18\xbaG\x15\x92\x02\x12个人中心密码R\fuserPassword\"\xba\x03\n" +
 	"\fUserInfoForm\x12/\n" +
 	"\tuser_name\x18\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户账号R\buserName\x12/\n" +
 	"\tnick_name\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f用户昵称R\bnickName\x12%\n" +
@@ -961,7 +977,11 @@ const file_admin_v1_auth_proto_rawDesc = "" +
 	"\x06avatar\x18\x04 \x01(\tB\f\xbaG\t\x92\x02\x06头像R\x06avatar\x12/\n" +
 	"\trole_code\x18d \x01(\tB\x12\xbaG\x0f\x92\x02\f角色编号R\broleCode\x12/\n" +
 	"\trole_name\x18e \x01(\tB\x12\xbaG\x0f\x92\x02\f角色名称R\broleName\x12/\n" +
-	"\tdept_name\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\bdeptName\"T\n" +
+	"\tdept_name\x18f \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\bdeptName\x123\n" +
+	"\vtenant_code\x18h \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\n" +
+	"tenantCode\x123\n" +
+	"\vtenant_name\x18i \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\n" +
+	"tenantName\"T\n" +
 	"\x11TreeRouteResponse\x12?\n" +
 	"\x06routes\x18\x01 \x03(\v2\x13.admin.v1.RouteItemB\x12\xbaG\x0f\x92\x02\f路由列表R\x06routes\"\xef\x03\n" +
 	"\tRouteItem\x12+\n" +

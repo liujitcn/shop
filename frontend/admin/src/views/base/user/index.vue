@@ -2,6 +2,7 @@
 <template>
   <div class="main-box">
     <TreeFilter
+      :key="`dept-filter-${initParam.tenant_id ?? 0}`"
       label="name"
       title="部门列表"
       :request-api="requestDeptTreeFilter"
@@ -13,6 +14,7 @@
     <div class="table-box">
       <ProTable
         ref="proTable"
+        :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
         row-key="id"
         :columns="columns"
         :header-actions="headerActions"
@@ -73,11 +75,14 @@ import { defBaseUserService } from "@/api/admin/base_user";
 import type { BaseUser, BaseUserForm, PageBaseUsersRequest, ResetBaseUserPasswordRequest } from "@/rpc/admin/v1/base_user";
 import { defBaseDeptService } from "@/api/admin/base_dept";
 import { defBaseRoleService } from "@/api/admin/base_role";
+import { defBaseTenantService } from "@/api/admin/base_tenant";
 import type { SelectOptionResponse_Option, TreeOptionResponse_Option } from "@/rpc/common/v1/common";
 import { Status } from "@/rpc/common/v1/enum";
 import { normalizeSelectedIds } from "@/utils/proTable";
 import { PASSWORD_STRENGTH_ERROR_MESSAGE, validatePasswordStrengthValue } from "@/utils/passwordStrength";
 import { PASSWORD_CRYPTO_SCENE, encryptPassword } from "@/utils/passwordCrypto";
+import { DEFAULT_TENANT_CODE, requestTenantOptions } from "@/utils/tenant";
+import { useUserStore } from "@/stores/modules/user";
 
 /** 用户表单状态，前端保留明文密码并在提交前加密。 */
 interface BaseUserFormState extends Omit<BaseUserForm, "pwd"> {
@@ -104,11 +109,13 @@ type DeptFilterNode = {
 };
 
 const { BUTTONS } = useAuthButtons();
+const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const formDialogRef = ref<InstanceType<typeof FormDialog>>();
 const resetPwdFormDialogRef = ref<InstanceType<typeof FormDialog>>();
 
 const initParam = reactive({
+  tenant_id: undefined as number | undefined,
   dept_id: undefined as number | undefined
 });
 const deptFilterValue = ref("");
@@ -125,6 +132,8 @@ const resetPwdDialog = reactive({
 const formData = reactive<BaseUserFormState>({
   /** 用户ID */
   id: 0,
+  /** 租户ID */
+  tenant_id: 0,
   /** 用户账号 */
   user_name: "",
   /** 用户昵称 */
@@ -153,6 +162,7 @@ const resetPwdForm = reactive<ResetBaseUserPasswordFormState>({
 const resetPwdTargetName = ref("");
 
 const rules = reactive({
+  tenant_id: [{ required: true, message: "所属租户不能为空", trigger: "change" }],
   user_name: [{ required: true, message: "用户账号不能为空", trigger: "blur" }],
   nick_name: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
   dept_id: [{ required: true, message: "用户部门不能为空", trigger: "change" }],
@@ -179,6 +189,7 @@ const resetPwdRules = reactive({
 
 const basedDeptOptions = ref<TreeOptionResponse_Option[]>([]);
 const baseRoleOptions = ref<SelectOptionResponse_Option[]>([]);
+const tenantOptions = ref<SelectOptionResponse_Option[]>([]);
 const statusOptions: ProFormOption[] = [
   { label: "启用", value: Status.ENABLE },
   { label: "禁用", value: Status.DISABLE }
@@ -198,8 +209,24 @@ const resetPwdFields: ProFormField[] = [
   }
 ];
 
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
 /** 用户表单字段配置。 */
 const formFields = computed<ProFormField[]>(() => [
+  {
+    prop: "tenant_id",
+    label: "所属租户",
+    component: "select",
+    props: {
+      placeholder: "请选择所属租户",
+      filterable: true,
+      disabled: Boolean(formData.id),
+      onChange: handleFormTenantChange
+    },
+    visible: () => isDefaultTenant.value,
+    options: tenantOptions.value
+  },
   {
     prop: "user_name",
     label: "用户账号",
@@ -248,10 +275,22 @@ const formFields = computed<ProFormField[]>(() => [
 ]);
 
 /** 用户表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
   { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
   { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
+  ...(isDefaultTenant.value
+    ? ([
+        {
+          prop: "tenant_id",
+          label: "租户",
+          minWidth: 140,
+          showOverflowTooltip: true,
+          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 10 },
+          enum: requestTenantOptions
+        }
+      ] satisfies ColumnProps[])
+    : []),
   { prop: "phone", label: "手机号码", minWidth: 130, align: "center", search: { el: "input" } },
   { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
   {
@@ -306,7 +345,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /** 用户顶部按钮配置。 */
 const headerActions: HeaderActionProps[] = [
@@ -342,7 +381,7 @@ function transformDeptFilterNodes(options: TreeOptionResponse_Option[] = []): De
  * 请求部门树筛选数据。
  */
 async function requestDeptTreeFilter() {
-  const response = await defBaseDeptService.OptionBaseDepts({});
+  const response = await defBaseDeptService.OptionBaseDepts({ tenant_id: initParam.tenant_id });
   return {
     data: transformDeptFilterNodes(response.list ?? [])
   };
@@ -363,9 +402,16 @@ function changeTreeFilter(value: string) {
  * 请求用户分页列表，并统一处理分页参数。
  */
 async function requestBaseUserTable(params: Partial<PageBaseUsersRequest> & { pageNum?: number; pageSize?: number }) {
+  const tenantId = isDefaultTenant.value ? (params.tenant_id ?? initParam.tenant_id) : undefined;
+  if (tenantId !== initParam.tenant_id) {
+    initParam.tenant_id = tenantId;
+    initParam.dept_id = undefined;
+    deptFilterValue.value = "";
+  }
   const data = await defBaseUserService.PageBaseUsers({
     user_name: params.user_name ?? "",
     nick_name: params.nick_name ?? "",
+    tenant_id: tenantId,
     dept_id: initParam.dept_id,
     phone: params.phone ?? "",
     gender: params.gender,
@@ -423,19 +469,17 @@ function handleResetPassword(row: BaseUser) {
  */
 async function handleOpenDialog(id?: number) {
   resetForm();
-  const [optionBaseRoleResponse, optionBaseDeptResponse] = await Promise.all([
-    defBaseRoleService.OptionBaseRoles({}),
-    defBaseDeptService.OptionBaseDepts({})
-  ]);
-  baseRoleOptions.value = optionBaseRoleResponse.list || [];
-  basedDeptOptions.value = optionBaseDeptResponse.list || [];
-
+  await loadTenantOptions();
   dialog.title = id ? "修改用户" : "新增用户";
   dialog.visible = true;
-  if (!id) return;
+  if (!id) {
+    await loadFormOptions();
+    return;
+  }
 
-  defBaseUserService.GetBaseUser({ id }).then(data => {
+  defBaseUserService.GetBaseUser({ id }).then(async data => {
     Object.assign(formData, data);
+    await loadFormOptions();
   });
 }
 
@@ -466,6 +510,7 @@ function resetForm() {
   formDialogRef.value?.resetFields();
   formDialogRef.value?.clearValidate();
   formData.id = 0;
+  formData.tenant_id = isDefaultTenant.value ? (initParam.tenant_id ?? 0) : 0;
   formData.user_name = "";
   formData.nick_name = "";
   formData.role_id = undefined;
@@ -476,6 +521,37 @@ function resetForm() {
   formData.avatar = "";
   formData.status = Status.ENABLE;
   formData.remark = "";
+}
+
+/**
+ * 加载用户表单依赖的角色和部门选项。
+ */
+async function loadFormOptions() {
+  const tenantId = formData.tenant_id || initParam.tenant_id;
+  const [optionBaseRoleResponse, optionBaseDeptResponse] = await Promise.all([
+    defBaseRoleService.OptionBaseRoles({ tenant_id: tenantId }),
+    defBaseDeptService.OptionBaseDepts({ tenant_id: tenantId })
+  ]);
+  baseRoleOptions.value = optionBaseRoleResponse.list || [];
+  basedDeptOptions.value = optionBaseDeptResponse.list || [];
+}
+
+/**
+ * 加载租户下拉选项。
+ */
+async function loadTenantOptions() {
+  if (!isDefaultTenant.value || tenantOptions.value.length) return;
+  const response = await defBaseTenantService.OptionBaseTenants({ keyword: "" });
+  tenantOptions.value = response.list ?? [];
+}
+
+/**
+ * 切换用户表单租户时，清空角色和部门并重新加载选项。
+ */
+async function handleFormTenantChange() {
+  formData.role_id = undefined;
+  formData.dept_id = undefined;
+  await loadFormOptions();
 }
 
 /**

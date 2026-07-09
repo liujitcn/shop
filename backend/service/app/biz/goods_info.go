@@ -18,6 +18,7 @@ import (
 	"shop/service/app/utils"
 
 	"github.com/liujitcn/go-utils/mapper"
+	_set "github.com/liujitcn/go-utils/set"
 	"github.com/liujitcn/gorm-kit/repository"
 	"gorm.io/gorm"
 )
@@ -26,7 +27,8 @@ import (
 type GoodsInfoCase struct {
 	*biz.BaseCase
 	*data.GoodsInfoRepository
-	goodsCategoryRepo *data.GoodsCategoryRepository
+	goodsCategoryCase *GoodsCategoryCase
+	tenantStoreCase   *TenantStoreCase
 	goodsPropCase     *GoodsPropCase
 	goodsSpecCase     *GoodsSpecCase
 	goodsSKUCase      *GoodsSKUCase
@@ -38,7 +40,8 @@ type GoodsInfoCase struct {
 func NewGoodsInfoCase(
 	baseCase *biz.BaseCase,
 	goodsInfoRepo *data.GoodsInfoRepository,
-	goodsCategoryRepo *data.GoodsCategoryRepository,
+	goodsCategoryCase *GoodsCategoryCase,
+	tenantStoreCase *TenantStoreCase,
 	goodsPropCase *GoodsPropCase,
 	goodsSpecCase *GoodsSpecCase,
 	goodsSKUCase *GoodsSKUCase,
@@ -51,7 +54,8 @@ func NewGoodsInfoCase(
 	return &GoodsInfoCase{
 		BaseCase:            baseCase,
 		GoodsInfoRepository: goodsInfoRepo,
-		goodsCategoryRepo:   goodsCategoryRepo,
+		goodsCategoryCase:   goodsCategoryCase,
+		tenantStoreCase:     tenantStoreCase,
 		goodsPropCase:       goodsPropCase,
 		goodsSpecCase:       goodsSpecCase,
 		goodsSKUCase:        goodsSKUCase,
@@ -73,6 +77,12 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*appv1.Good
 	if err != nil {
 		return nil, err
 	}
+	var tenantStore *models.TenantStore
+	tenantStore, err = c.tenantStoreCase.FindByID(ctx, info.TenantStoreID)
+	if err != nil {
+		return nil, err
+	}
+
 	price := info.Price
 	// 会员访问时，详情页优先展示会员价。
 	if member {
@@ -82,6 +92,8 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*appv1.Good
 	goodsInfo := c.responseMapper.ToDTO(info)
 	goodsInfo.Price = price
 	goodsInfo.SaleNum = info.InitSaleNum + info.RealSaleNum
+	goodsInfo.TenantStoreName = tenantStore.Name
+	goodsInfo.TenantStoreLogo = tenantStore.Logo
 	// 属性
 	goodsInfo.PropList, err = c.goodsPropCase.listByGoodsID(ctx, goodsInfo.Id)
 	if err != nil {
@@ -102,13 +114,16 @@ func (c *GoodsInfoCase) GetGoodsInfo(ctx context.Context, id int64) (*appv1.Good
 
 // PageGoodsInfo 查询商品分页列表。
 func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsInfoRequest, extraOpts ...repository.QueryOption) (*appv1.PageGoodsInfoResponse, error) {
+	var err error
 	// 是否会员
 	member := utils.IsMember(ctx)
 	query := c.Query(ctx).GoodsInfo
 	opts := make([]repository.QueryOption, 0, 5+len(extraOpts))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
-	var err error
+	if req.GetTenantStoreId() > 0 {
+		opts = append(opts, repository.Where(query.TenantStoreID.Eq(req.GetTenantStoreId())))
+	}
 
 	// 传入商品名称时，按名称模糊匹配商品。
 	if req.GetName() != "" {
@@ -141,8 +156,21 @@ func (c *GoodsInfoCase) PageGoodsInfo(ctx context.Context, req *appv1.PageGoodsI
 		return nil, err
 	}
 	list := make([]*appv1.GoodsInfo, 0)
+	tenantStoreIds := _set.NewSet[int64]()
+	for _, goodsInfo := range page {
+		tenantStoreIds.Add(goodsInfo.TenantStoreID)
+	}
+
+	var tenantStoreMap map[int64]*models.TenantStore
+	tenantStoreMap, err = c.tenantStoreCase.GetTenantStoreMapByIDs(ctx, tenantStoreIds.ToSlice())
+	if err != nil {
+		return nil, err
+	}
 	for _, item := range page {
 		goodsInfo := c.convertToProto(item, member)
+		if tenantStore, ok := tenantStoreMap[item.TenantStoreID]; ok {
+			goodsInfo.TenantStoreName = tenantStore.Name
+		}
 		list = append(list, goodsInfo)
 	}
 
@@ -177,7 +205,7 @@ func (c *GoodsInfoCase) listByGoodsIDs(ctx context.Context, goodsIDs []int64) ([
 	}
 
 	query := c.GoodsInfoRepository.Query(ctx).GoodsInfo
-	opts := make([]repository.QueryOption, 0, 3)
+	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
@@ -203,13 +231,17 @@ func (c *GoodsInfoCase) listByGoodsIDs(ctx context.Context, goodsIDs []int64) ([
 	return result, nil
 }
 
-// 按商品编号批量查询并组装映射
+// mapByGoodsIDs 按商品编号批量查询可展示商品并组装映射。
 func (c *GoodsInfoCase) mapByGoodsIDs(ctx context.Context, goodsIDs []int64) (map[int64]*models.GoodsInfo, error) {
-	all, err := c.ListByIDs(ctx, goodsIDs)
+	query := c.Query(ctx).GoodsInfo
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.ID.In(goodsIDs...)))
+	opts = append(opts, repository.Where(query.Status.Eq(_const.GOODS_STATUS_PUT_ON)))
+	all, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
 	}
-	res := make(map[int64]*models.GoodsInfo)
+	res := make(map[int64]*models.GoodsInfo, len(all))
 	for _, item := range all {
 		res[item.ID] = item
 	}
@@ -290,13 +322,13 @@ func (c *GoodsInfoCase) subSaleNum(ctx context.Context, goodsID, num int64) erro
 // buildCategoryFilterIDs 构建分类筛选范围。
 func (c *GoodsInfoCase) buildCategoryFilterIDs(ctx context.Context, categoryID int64) ([]int64, error) {
 	// 先校验分类存在，避免按无效分类编号继续查询商品。
-	_, err := c.goodsCategoryRepo.FindByID(ctx, categoryID)
+	_, err := c.goodsCategoryCase.FindByID(ctx, categoryID)
 	if err != nil {
 		return nil, err
 	}
 
 	var categoryList []*models.GoodsCategory
-	categoryList, err = c.goodsCategoryRepo.List(ctx)
+	categoryList, err = c.goodsCategoryCase.List(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -37,6 +37,7 @@ type AuthCase struct {
 	baseUserCase   *BaseUserCase
 	baseRoleCase   *BaseRoleCase
 	baseDeptCase   *BaseDeptCase
+	baseTenantCase *BaseTenantCase
 	baseMenuCase   *BaseMenuCase
 	fileCase       *baseBiz.FileCase
 	userInfoMapper *mapper.CopierMapper[
@@ -55,16 +56,18 @@ func NewAuthCase(
 	baseUserCase *BaseUserCase,
 	baseRoleCase *BaseRoleCase,
 	baseDeptCase *BaseDeptCase,
+	baseTenantCase *BaseTenantCase,
 	baseMenuCase *BaseMenuCase,
 	fileCase *baseBiz.FileCase,
 ) *AuthCase {
 	return &AuthCase{
-		BaseCase:     baseCase,
-		baseUserCase: baseUserCase,
-		baseRoleCase: baseRoleCase,
-		baseDeptCase: baseDeptCase,
-		baseMenuCase: baseMenuCase,
-		fileCase:     fileCase,
+		BaseCase:       baseCase,
+		baseUserCase:   baseUserCase,
+		baseRoleCase:   baseRoleCase,
+		baseDeptCase:   baseDeptCase,
+		baseTenantCase: baseTenantCase,
+		baseMenuCase:   baseMenuCase,
+		fileCase:       fileCase,
 		userInfoMapper: mapper.NewCopierMapper[
 			adminv1.UserInfoForm,
 			models.BaseUser,
@@ -107,10 +110,19 @@ func (c *AuthCase) GetUserInfo(ctx context.Context) (*adminv1.UserInfoForm, erro
 		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
 	}
 
+	// 查询租户信息，用于前端区分默认租户与普通租户展示范围。
+	var baseTenant *models.BaseTenant
+	baseTenant, err = c.baseTenantCase.FindByID(ctx, baseUser.TenantID)
+	if err != nil {
+		return nil, errorsx.Internal("获取用户信息失败").WithCause(err)
+	}
+
 	res := c.userInfoMapper.ToDTO(baseUser)
 	res.RoleCode = baseRole.Code
 	res.RoleName = baseRole.Name
 	res.DeptName = baseDept.Name
+	res.TenantCode = baseTenant.Code
+	res.TenantName = baseTenant.Name
 	return res, nil
 }
 

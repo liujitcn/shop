@@ -29,6 +29,7 @@ const (
 // 部门树查询条件
 type TreeBaseDeptsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -61,6 +62,13 @@ func (x *TreeBaseDeptsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use TreeBaseDeptsRequest.ProtoReflect.Descriptor instead.
 func (*TreeBaseDeptsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_dept_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *TreeBaseDeptsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
 }
 
 // 部门树响应
@@ -111,6 +119,7 @@ func (x *TreeBaseDeptsResponse) GetBaseDepts() []*BaseDept {
 // 部门选项查询条件
 type OptionBaseDeptsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"` // 租户ID
 	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"` // 父级部门ID
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -144,6 +153,13 @@ func (x *OptionBaseDeptsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use OptionBaseDeptsRequest.ProtoReflect.Descriptor instead.
 func (*OptionBaseDeptsRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_base_dept_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *OptionBaseDeptsRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
 }
 
 func (x *OptionBaseDeptsRequest) GetParentId() int64 {
@@ -390,9 +406,10 @@ func (x *SetBaseDeptStatusRequest) GetStatus() int32 {
 type BaseDept struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                 // 部门ID
-	ParentId      int64                  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`     // 父级部门ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                              // 部门名称
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`     // 租户ID
+	ParentId      int64                  `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`     // 父级部门ID
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                              // 部门名称
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                             // 排序
 	Status        v1.Status              `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                        // 备注
 	CreatedAt     string                 `protobuf:"bytes,200,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"` // 创建时间
@@ -435,6 +452,13 @@ func (*BaseDept) Descriptor() ([]byte, []int) {
 func (x *BaseDept) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *BaseDept) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
 	}
 	return 0
 }
@@ -499,9 +523,10 @@ func (x *BaseDept) GetChildren() []*BaseDept {
 type BaseDeptForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                       // 部门ID
-	ParentId      *int64                 `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`     // 父级部门ID
-	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                    // 部门名称
-	Sort          int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`           // 租户ID
+	ParentId      *int64                 `protobuf:"varint,3,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`     // 父级部门ID
+	Name          string                 `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`                                    // 部门名称
+	Sort          int32                  `protobuf:"varint,5,opt,name=sort,proto3" json:"sort,omitempty"`                                   // 排序
 	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	Remark        string                 `protobuf:"bytes,101,opt,name=remark,proto3" json:"remark,omitempty"`                              // 备注
 	unknownFields protoimpl.UnknownFields
@@ -545,6 +570,13 @@ func (x *BaseDeptForm) GetId() int64 {
 	return 0
 }
 
+func (x *BaseDeptForm) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
 func (x *BaseDeptForm) GetParentId() int64 {
 	if x != nil && x.ParentId != nil {
 		return *x.ParentId
@@ -584,13 +616,19 @@ var File_admin_v1_base_dept_proto protoreflect.FileDescriptor
 
 const file_admin_v1_base_dept_proto_rawDesc = "" +
 	"\n" +
-	"\x18admin/v1/base_dept.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x16\n" +
-	"\x14TreeBaseDeptsRequest\"[\n" +
+	"\x18admin/v1/base_dept.proto\x12\badmin.v1\x1a\x16common/v1/common.proto\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"V\n" +
+	"\x14TreeBaseDeptsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_id\"[\n" +
 	"\x15TreeBaseDeptsResponse\x12B\n" +
 	"\n" +
-	"base_depts\x18\x01 \x03(\v2\x12.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"^\n" +
-	"\x16OptionBaseDeptsRequest\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x00R\bparentId\x88\x01\x01B\f\n" +
+	"base_depts\x18\x01 \x03(\v2\x12.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t部门树R\tbaseDepts\"\x9e\x01\n" +
+	"\x16OptionBaseDeptsRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x126\n" +
+	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x01R\bparentId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_tenant_idB\f\n" +
 	"\n" +
 	"_parent_id\"4\n" +
 	"\x12GetBaseDeptRequest\x12\x1e\n" +
@@ -603,24 +641,26 @@ const file_admin_v1_base_dept_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tB\x14\xbaG\x11\x92\x02\x0e部门ID列表R\x02id\"`\n" +
 	"\x18SetBaseDeptStatusRequest\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12$\n" +
-	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xb0\x03\n" +
+	"\x06status\x18\x02 \x01(\x05B\f\xbaG\t\x92\x02\x06状态R\x06status\"\xdd\x03\n" +
 	"\bBaseDept\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x121\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDR\bparentId\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\x04name\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x121\n" +
+	"\tparent_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDR\bparentId\x12&\n" +
+	"\x04name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\x04name\x12 \n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x127\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态R\x06status\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remark\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x122\n" +
 	"\n" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12@\n" +
-	"\bchildren\x18\xac\x02 \x03(\v2\x12.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t子部门R\bchildren\"\xad\x02\n" +
+	"\bchildren\x18\xac\x02 \x03(\v2\x12.admin.v1.BaseDeptB\x0f\xbaG\f\x92\x02\t子部门R\bchildren\"\xda\x02\n" +
 	"\fBaseDeptForm\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x126\n" +
-	"\tparent_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x00R\bparentId\x88\x01\x01\x12&\n" +
-	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\x04name\x12 \n" +
-	"\x04sort\x18\x04 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12<\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b部门IDR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x126\n" +
+	"\tparent_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e父级部门IDH\x00R\bparentId\x88\x01\x01\x12&\n" +
+	"\x04name\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f部门名称R\x04name\x12 \n" +
+	"\x04sort\x18\x05 \x01(\x05B\f\xbaG\t\x92\x02\x06排序R\x04sort\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x01R\x06status\x88\x01\x01\x12$\n" +
 	"\x06remark\x18e \x01(\tB\f\xbaG\t\x92\x02\x06备注R\x06remarkB\f\n" +
 	"\n" +
@@ -697,6 +737,7 @@ func file_admin_v1_base_dept_proto_init() {
 	if File_admin_v1_base_dept_proto != nil {
 		return
 	}
+	file_admin_v1_base_dept_proto_msgTypes[0].OneofWrappers = []any{}
 	file_admin_v1_base_dept_proto_msgTypes[2].OneofWrappers = []any{}
 	file_admin_v1_base_dept_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}

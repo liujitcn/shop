@@ -38,11 +38,14 @@ func NewBaseDeptCase(
 }
 
 // TreeBaseDepts 查询部门树
-func (c *BaseDeptCase) TreeBaseDepts(ctx context.Context) (*adminv1.TreeBaseDeptsResponse, error) {
+func (c *BaseDeptCase) TreeBaseDepts(ctx context.Context, req *adminv1.TreeBaseDeptsRequest) (*adminv1.TreeBaseDeptsResponse, error) {
 	query := c.Query(ctx).BaseDept
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.TenantId != nil && req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -53,9 +56,12 @@ func (c *BaseDeptCase) TreeBaseDepts(ctx context.Context) (*adminv1.TreeBaseDept
 // OptionBaseDepts 查询部门选项
 func (c *BaseDeptCase) OptionBaseDepts(ctx context.Context, req *adminv1.OptionBaseDeptsRequest) (*commonv1.TreeOptionResponse, error) {
 	query := c.Query(ctx).BaseDept
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.Sort.Asc()))
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.TenantId != nil && req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 	list, err := c.List(ctx, opts...)
 	if err != nil {
 		return nil, err
@@ -69,38 +75,62 @@ func (c *BaseDeptCase) GetBaseDept(ctx context.Context, id int64) (*adminv1.Base
 	if err != nil {
 		return nil, err
 	}
-	res := c.formMapper.ToDTO(baseDept)
-	return res, nil
+	return c.formMapper.ToDTO(baseDept), nil
 }
 
 // CreateBaseDept 创建部门
 func (c *BaseDeptCase) CreateBaseDept(ctx context.Context, req *adminv1.BaseDeptForm) error {
 	baseDept := c.formMapper.ToEntity(req)
 
-	err := c.Create(ctx, baseDept)
-	if err != nil {
-		return err
-	}
-
-	path := fmt.Sprintf("/0/%d", baseDept.ID)
 	parentID := req.GetParentId()
 	// 存在父部门时，继承父部门路径并追加当前节点。
+	var parentPath string
+	var err error
 	if parentID != 0 {
 		var parentDept *models.BaseDept
 		parentDept, err = c.FindByID(ctx, parentID)
 		if err != nil {
 			return errorsx.Internal("创建部门失败，更新路径错误").WithCause(err)
 		}
-		path = fmt.Sprintf("%s/%d", parentDept.Path, baseDept.ID)
+		if baseDept.TenantID > 0 && baseDept.TenantID != parentDept.TenantID {
+			return errorsx.InvalidArgument("上级部门与所属租户不一致")
+		}
+		baseDept.TenantID = parentDept.TenantID
+		parentPath = parentDept.Path
 	}
 
-	baseDept.Path = path
+	err = c.Create(ctx, baseDept)
+	if err != nil {
+		return err
+	}
+	if parentPath != "" {
+		baseDept.Path = fmt.Sprintf("%s/%d", parentPath, baseDept.ID)
+	} else {
+		baseDept.Path = fmt.Sprintf("/0/%d", baseDept.ID)
+	}
 	return c.UpdateByID(ctx, baseDept)
 }
 
 // UpdateBaseDept 更新部门
 func (c *BaseDeptCase) UpdateBaseDept(ctx context.Context, req *adminv1.BaseDeptForm) error {
+	oldBaseDept, err := c.FindByID(ctx, req.GetId())
+	if err != nil {
+		return err
+	}
 	baseDept := c.formMapper.ToEntity(req)
+	baseDept.TenantID = oldBaseDept.TenantID
+	baseDept.Path = oldBaseDept.Path
+	parentID := req.GetParentId()
+	if parentID != 0 {
+		var parentDept *models.BaseDept
+		parentDept, err = c.FindByID(ctx, parentID)
+		if err != nil {
+			return err
+		}
+		if parentDept.TenantID != oldBaseDept.TenantID {
+			return errorsx.InvalidArgument("上级部门与所属租户不一致")
+		}
+	}
 	return c.UpdateByID(ctx, baseDept)
 }
 

@@ -14,7 +14,9 @@ const defaultUserInfo: UserInfoForm = {
   avatar: "",
   role_code: "",
   role_name: "",
-  dept_name: ""
+  dept_name: "",
+  tenant_code: "",
+  tenant_name: ""
 };
 
 export const useUserStore = defineStore("shop-user", {

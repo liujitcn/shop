@@ -59,6 +59,12 @@ defineOptions({
   inheritAttrs: false
 });
 
+/** 商品编辑页表单状态，新增态门店未选择前允许为空以显示占位文案。 */
+type GoodsInfoEditForm = Omit<GoodsInfoForm, "tenant_store_id"> & {
+  /** 租户门店ID */
+  tenant_store_id: number | undefined;
+};
+
 const route = useRoute();
 const tabsStore = useTabsStore();
 const loading = ref(false);
@@ -78,6 +84,10 @@ const state = reactive({
     id: 0,
     /** 分类ID列表 */
     category_id: [],
+    /** 租户门店ID */
+    tenant_store_id: undefined,
+    /** 租户ID */
+    tenant_id: 0,
     /** 名称 */
     name: "",
     /** 描述 */
@@ -98,7 +108,7 @@ const state = reactive({
     sku_list,
     /** 商品规格 */
     spec_list
-  } as GoodsInfoForm
+  } as GoodsInfoEditForm
 });
 
 const { loaded, active, formData } = toRefs(state);
@@ -122,12 +132,16 @@ const totalInventory = computed(() =>
 );
 
 /** 创建商品表单默认值，确保数组字段始终可用。 */
-function createDefaultFormData(): GoodsInfoForm {
+function createDefaultFormData(): GoodsInfoEditForm {
   return {
     /** 商品ID */
     id: 0,
     /** 分类ID列表 */
     category_id: [],
+    /** 租户门店ID */
+    tenant_store_id: undefined,
+    /** 租户ID */
+    tenant_id: 0,
     /** 名称 */
     name: "",
     /** 描述 */
@@ -152,10 +166,11 @@ function createDefaultFormData(): GoodsInfoForm {
 }
 
 /** 规范化商品表单响应，避免属性、规格、SKU 为空时页面报错。 */
-function normalizeGoodsInfoForm(data?: Partial<GoodsInfoForm>): GoodsInfoForm {
+function normalizeGoodsInfoForm(data?: Partial<GoodsInfoForm>): GoodsInfoEditForm {
   return {
     ...createDefaultFormData(),
     ...data,
+    tenant_store_id: data?.tenant_store_id || undefined,
     category_id: Array.isArray(data?.category_id) ? data.category_id : [],
     banner: Array.isArray(data?.banner) ? data.banner : [],
     detail: Array.isArray(data?.detail) ? data.detail : [],

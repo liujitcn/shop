@@ -519,7 +519,7 @@ func (c *CommentCase) CreateComment(ctx context.Context, req *appv1.CreateCommen
 	var record *models.CommentInfo
 	orderCompleted := false
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		record, err = c.commentInfoCase.CreateComment(txCtx, orderInfo.TenantID, user, req, orderGoods)
+		record, err = c.commentInfoCase.CreateComment(txCtx, orderInfo.TenantID, orderInfo.TenantStoreID, user, req, orderGoods)
 		if err != nil {
 			return err
 		}

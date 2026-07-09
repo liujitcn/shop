@@ -2,37 +2,44 @@ package biz
 
 import (
 	"context"
-	"fmt"
-	"slices"
 
 	"shop/pkg/biz"
-	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
 
+	_set "github.com/liujitcn/go-utils/set"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	authzEngine "github.com/liujitcn/kratos-kit/auth/authz/engine"
-	authData "github.com/liujitcn/kratos-kit/auth/data"
 )
 
 // CasbinRuleCase 权限规则业务实例
 type CasbinRuleCase struct {
 	*biz.BaseCase
 	*data.CasbinRuleRepository
-	baseMenuRepo *data.BaseMenuRepository
-	baseRoleRepo *data.BaseRoleRepository
-	baseAPICase  *BaseAPICase
-	authzEngine  authzEngine.Engine
+	baseMenuRepo   *data.BaseMenuRepository
+	baseRoleRepo   *data.BaseRoleRepository
+	baseTenantRepo *data.BaseTenantRepository
+	baseAPICase    *BaseAPICase
+	authzEngine    authzEngine.Engine
 }
 
 // NewCasbinRuleCase 创建权限规则业务实例
-func NewCasbinRuleCase(baseCase *biz.BaseCase, casbinRuleRepo *data.CasbinRuleRepository, baseMenuRepo *data.BaseMenuRepository, baseRoleRepo *data.BaseRoleRepository, baseAPICase *BaseAPICase, authzEngine authzEngine.Engine) (*CasbinRuleCase, error) {
+func NewCasbinRuleCase(
+	baseCase *biz.BaseCase,
+	casbinRuleRepo *data.CasbinRuleRepository,
+	baseMenuRepo *data.BaseMenuRepository,
+	baseRoleRepo *data.BaseRoleRepository,
+	baseTenantRepo *data.BaseTenantRepository,
+	baseAPICase *BaseAPICase,
+	authzEngine authzEngine.Engine,
+) (*CasbinRuleCase, error) {
 	return &CasbinRuleCase{
 		BaseCase:             baseCase,
 		CasbinRuleRepository: casbinRuleRepo,
 		baseMenuRepo:         baseMenuRepo,
 		baseRoleRepo:         baseRoleRepo,
+		baseTenantRepo:       baseTenantRepo,
 		baseAPICase:          baseAPICase,
 		authzEngine:          authzEngine,
 	}, nil
@@ -48,10 +55,10 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByMenuID(ctx context.Context, menuID i
 	for _, item := range baseRoleList {
 		menus := _string.ConvertJsonStringToInt64Array(item.Menus)
 		// 当前角色未配置目标菜单时，无需重建该角色权限。
-		if !slices.Contains(menus, menuID) {
+		if !_set.NewThreadUnsafeSet(menus...).ContainsOne(menuID) {
 			continue
 		}
-		err = c.RebuildCasbinRuleByRole(ctx, item)
+		err = c.rebuildCasbinRuleByRole(ctx, item)
 		if err != nil {
 			return err
 		}
@@ -66,21 +73,14 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByMenuIDs(ctx context.Context, menuIDs 
 		return err
 	}
 
+	menuIDSet := _set.NewThreadUnsafeSet(menuIDs...)
 	for _, item := range baseRoleList {
-		oldMenus := _string.ConvertJsonStringToInt64Array(item.Menus)
-		newMenus := make([]int64, 0, len(oldMenus))
-		for _, menuID := range oldMenus {
-			// 命中待删除菜单时，从新的菜单集合中剔除该菜单。
-			if slices.Contains(menuIDs, menuID) {
-				continue
-			}
-			newMenus = append(newMenus, menuID)
-		}
-		// 菜单集合未发生变化时，无需重建该角色权限。
-		if len(oldMenus) == len(newMenus) {
+		menus := _string.ConvertJsonStringToInt64Array(item.Menus)
+		// 角色菜单未命中待删除菜单时，无需重建该角色权限。
+		if !menuIDSet.ContainsAny(menus...) {
 			continue
 		}
-		err = c.RebuildCasbinRuleByRole(ctx, item)
+		err = c.rebuildCasbinRuleByRole(ctx, item)
 		if err != nil {
 			return err
 		}
@@ -90,19 +90,63 @@ func (c *CasbinRuleCase) DeleteCasbinRuleByMenuIDs(ctx context.Context, menuIDs 
 
 // RebuildCasbinRuleByRole 按角色重建权限规则
 func (c *CasbinRuleCase) RebuildCasbinRuleByRole(ctx context.Context, baseRole *models.BaseRole) error {
-	authInfo, err := c.GetAuthInfo(ctx)
+	err := c.rebuildCasbinRuleByRole(ctx, baseRole)
 	if err != nil {
 		return err
 	}
-	return c.RebuildCasbinRuleByTenantRole(ctx, authInfo.TenantCode, baseRole)
+	return c.RebuildPolicyRule(ctx)
 }
 
-// RebuildCasbinRuleByTenantRole 按指定租户和角色重建权限规则
+// RebuildCasbinRuleByTenantRole 按指定租户和角色模板重建权限规则。
 func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tenantCode string, baseRole *models.BaseRole) error {
-	if tenantCode == "" {
-		return errorsx.Internal("重建角色权限失败").WithCause(fmt.Errorf("tenant code is required"))
+	err := c.rebuildCasbinRuleByTenantRole(ctx, tenantCode, baseRole)
+	if err != nil {
+		return err
+	}
+	return c.RebuildPolicyRule(ctx)
+}
+
+// DeleteCasbinRuleByRoleIDs 按角色批量删除权限规则
+func (c *CasbinRuleCase) DeleteCasbinRuleByRoleIDs(ctx context.Context, roleIDs []int64) error {
+	baseRoleList, err := c.baseRoleRepo.ListByIDs(ctx, roleIDs)
+	if err != nil {
+		return err
 	}
 
+	// 角色集合为空时，只需要刷新内存权限策略。
+	if len(baseRoleList) == 0 {
+		return c.RebuildPolicyRule(ctx)
+	}
+
+	query := c.Query(ctx).CasbinRule
+	for _, item := range baseRoleList {
+		var baseTenant *models.BaseTenant
+		baseTenant, err = c.baseTenantRepo.FindByID(ctx, item.TenantID)
+		if err != nil {
+			return err
+		}
+		opts := make([]repository.QueryOption, 0, 2)
+		opts = append(opts, repository.Where(query.V0.Eq(baseTenant.Code)))
+		opts = append(opts, repository.Where(query.V1.Eq(item.Code)))
+		err = c.Delete(ctx, opts...)
+		if err != nil {
+			return err
+		}
+	}
+	return c.RebuildPolicyRule(ctx)
+}
+
+// rebuildCasbinRuleByRole 按角色重建数据库权限规则。
+func (c *CasbinRuleCase) rebuildCasbinRuleByRole(ctx context.Context, baseRole *models.BaseRole) error {
+	baseTenant, err := c.baseTenantRepo.FindByID(ctx, baseRole.TenantID)
+	if err != nil {
+		return err
+	}
+	return c.rebuildCasbinRuleByTenantRole(ctx, baseTenant.Code, baseRole)
+}
+
+// rebuildCasbinRuleByTenantRole 按指定租户编码和角色模板重建数据库权限规则。
+func (c *CasbinRuleCase) rebuildCasbinRuleByTenantRole(ctx context.Context, tenantCode string, baseRole *models.BaseRole) error {
 	query := c.Query(ctx).CasbinRule
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.V0.Eq(tenantCode)))
@@ -113,9 +157,9 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tena
 	}
 
 	menuIDs := _string.ConvertJsonStringToInt64Array(baseRole.Menus)
-	// 角色未配置菜单时，只需要刷新内存权限策略。
+	// 角色未配置菜单时，只清理数据库权限规则。
 	if len(menuIDs) == 0 {
-		return c.RebuildPolicyRule(ctx)
+		return nil
 	}
 
 	var baseMenuList []*models.BaseMenu
@@ -128,11 +172,12 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tena
 	for _, item := range baseMenuList {
 		operations = append(operations, _string.ConvertJsonStringToStringArray(item.API)...)
 	}
-	// 菜单未配置接口权限时，只需要刷新内存权限策略。
+	// 菜单未配置接口权限时，只清理数据库权限规则。
 	if len(operations) == 0 {
-		return c.RebuildPolicyRule(ctx)
+		return nil
 	}
 
+	operationSet := _set.NewThreadUnsafeSet(operations...)
 	var allAPIList []*models.BaseAPI
 	allAPIList, err = c.baseAPICase.List(ctx)
 	if err != nil {
@@ -142,7 +187,7 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tena
 	casbinRuleList := make([]*models.CasbinRule, 0)
 	for _, item := range allAPIList {
 		// 非当前角色菜单命中的接口不参与规则生成。
-		if !slices.Contains(operations, item.Operation) {
+		if !operationSet.ContainsOne(item.Operation) {
 			continue
 		}
 		casbinRuleList = append(casbinRuleList, &models.CasbinRule{
@@ -161,37 +206,5 @@ func (c *CasbinRuleCase) RebuildCasbinRuleByTenantRole(ctx context.Context, tena
 			return err
 		}
 	}
-	return c.RebuildPolicyRule(ctx)
-}
-
-// DeleteCasbinRuleByRoleIDs 按角色批量删除权限规则
-func (c *CasbinRuleCase) DeleteCasbinRuleByRoleIDs(ctx context.Context, roleIDs []int64) error {
-	baseRoleList, err := c.baseRoleRepo.ListByIDs(ctx, roleIDs)
-	if err != nil {
-		return err
-	}
-
-	roleKeys := make([]string, 0, len(baseRoleList))
-	for _, item := range baseRoleList {
-		roleKeys = append(roleKeys, item.Code)
-	}
-	// 角色集合为空时，只需要刷新内存权限策略。
-	if len(roleKeys) == 0 {
-		return c.RebuildPolicyRule(ctx)
-	}
-
-	query := c.Query(ctx).CasbinRule
-	opts := make([]repository.QueryOption, 0, 2)
-	var authInfo *authData.UserTokenPayload
-	authInfo, err = c.GetAuthInfo(ctx)
-	if err != nil {
-		return err
-	}
-	opts = append(opts, repository.Where(query.V0.Eq(authInfo.TenantCode)))
-	opts = append(opts, repository.Where(query.V1.In(roleKeys...)))
-	err = c.Delete(ctx, opts...)
-	if err != nil {
-		return err
-	}
-	return c.RebuildPolicyRule(ctx)
+	return nil
 }

@@ -77,6 +77,8 @@
                 <el-descriptions-item label="上架状态">
                   <DictLabel :model-value="formData.status" code="goods_status" size="default" />
                 </el-descriptions-item>
+                <el-descriptions-item v-if="isDefaultTenant" label="租户">{{ tenantNameText }}</el-descriptions-item>
+                <el-descriptions-item label="门店">{{ tenantStoreNameText }}</el-descriptions-item>
                 <el-descriptions-item label="标题" :span="2">{{ formData.name || "-" }}</el-descriptions-item>
                 <el-descriptions-item label="描述" :span="2">{{ formData.desc || "-" }}</el-descriptions-item>
                 <el-descriptions-item label="轮播图" :span="2">
@@ -250,13 +252,16 @@ import { type GoodsInfoForm } from "@/rpc/admin/v1/goods_info";
 import { type GoodsSku } from "@/rpc/admin/v1/goods_sku";
 import { defGoodsInfoService } from "@/api/admin/goods_info";
 import { defCommentInfoService } from "@/api/admin/comment_info";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { CommentInfo, PageCommentInfosRequest } from "@/rpc/admin/v1/comment_info";
 import { CommentStatus, GoodsStatus } from "@/rpc/common/v1/enum";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
+import { useUserStore } from "@/stores/modules/user";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { formatPrice } from "@/utils/utils";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
+import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/utils/tenant";
 
 defineOptions({
   name: "GoodsDetail",
@@ -285,17 +290,20 @@ type ApproveDialogState = {
 const route = useRoute();
 const router = useRouter();
 const tabsStore = useTabsStore();
+const userStore = useUserStore();
 const { BUTTONS } = useAuthButtons();
 const loading = ref(false);
 const goodsId = ref(0);
 const activeTabName = ref<GoodsDetailTabName>("basic");
 const commentTableRef = ref<ProTableInstance>();
 const goodsDetailRequestId = ref(0);
+const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 const approveDialog = reactive<ApproveDialogState>({
   visible: false,
   loading: false,
   row: undefined
 });
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
 
 /** 商品详情工作区标题固定为“商品详情”，避免跨页面跳转时沿用旧标题。 */
 const workspaceTitle = "商品详情";
@@ -312,6 +320,8 @@ function createDefaultGoodsDetailForm(): GoodsInfoForm {
     id: 0,
     /** 分类ID列表 */
     category_id: [],
+    /** 租户门店ID */
+    tenant_store_id: 0,
     /** 名称 */
     name: "",
     /** 描述 */
@@ -326,6 +336,8 @@ function createDefaultGoodsDetailForm(): GoodsInfoForm {
     status: GoodsStatus.PUT_ON,
     /** 分类名称 */
     category_name: "",
+    /** 租户ID */
+    tenant_id: 0,
     /** 商品属性 */
     prop_list: [],
     /** 商品SKU */
@@ -336,6 +348,19 @@ function createDefaultGoodsDetailForm(): GoodsInfoForm {
 }
 
 const formData = reactive<GoodsInfoForm>(createDefaultGoodsDetailForm());
+
+/** 当前商品所属租户名称，默认租户通过门店树选项反查。 */
+const tenantNameText = computed(() => tenantStoreDisplayMap.value.get(formData.tenant_store_id)?.tenantName || "-");
+
+/** 当前商品所属门店名称，通过门店树选项反查。 */
+const tenantStoreNameText = computed(() => tenantStoreDisplayMap.value.get(formData.tenant_store_id)?.storeName || "-");
+
+/** 加载租户门店映射，供详情页展示租户与门店名称。 */
+async function loadTenantStoreDisplayMap() {
+  if (tenantStoreDisplayMap.value.size) return;
+  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
+}
 
 /** 将任意图片项提取为可渲染的地址字符串。 */
 function extractImageValue(image: unknown) {
@@ -734,6 +759,7 @@ function handleQuery(targetGoodsId: number = goodsId.value) {
       });
       resetGoodsDetailForm();
       Object.assign(formData, normalizedData);
+      void loadTenantStoreDisplayMap();
     })
     .finally(() => {
       if (requestId !== goodsDetailRequestId.value) return;

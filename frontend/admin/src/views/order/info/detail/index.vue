@@ -41,6 +41,8 @@
             </div>
           </el-descriptions-item>
           <el-descriptions-item label="用户">{{ formData.order.nick_name }}</el-descriptions-item>
+          <el-descriptions-item v-if="isDefaultTenant" label="租户">{{ tenantNameText }}</el-descriptions-item>
+          <el-descriptions-item label="门店">{{ tenantStoreNameText }}</el-descriptions-item>
           <el-descriptions-item label="支付方式">
             <DictLabel v-model="formData.order.pay_type" code="order_pay_type" />
           </el-descriptions-item>
@@ -159,8 +161,11 @@ import type { ColumnProps } from "@/components/ProTable/interface";
 import ProTable from "@/components/ProTable/index.vue";
 import { type OrderInfoResponse } from "@/rpc/admin/v1/order_info";
 import { defOrderInfoService } from "@/api/admin/order_info";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import { useTabsStore } from "@/stores/modules/tabs";
+import { useUserStore } from "@/stores/modules/user";
 import { formatPrice } from "@/utils/utils";
+import { buildTenantStoreDisplayMap, DEFAULT_TENANT_CODE, type TenantStoreDisplayInfo } from "@/utils/tenant";
 
 defineOptions({
   name: "OrderDetail",
@@ -169,10 +174,12 @@ defineOptions({
 
 const route = useRoute();
 const tabsStore = useTabsStore();
+const userStore = useUserStore();
 const loading = ref(false);
 
 const orderId = ref(0);
 const orderDetailRequestId = ref(0);
+const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
 const formData = reactive<OrderInfoResponse>({
   /** 订单信息 */
   order: undefined,
@@ -191,6 +198,22 @@ const formData = reactive<OrderInfoResponse>({
   /** 退款信息 */
   refund: []
 });
+
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
+/** 当前订单所属租户名称，默认租户通过门店树选项反查。 */
+const tenantNameText = computed(() => tenantStoreDisplayMap.value.get(formData.order?.tenant_store_id ?? 0)?.tenantName || "-");
+
+/** 当前订单所属门店名称，通过门店树选项反查。 */
+const tenantStoreNameText = computed(() => tenantStoreDisplayMap.value.get(formData.order?.tenant_store_id ?? 0)?.storeName || "-");
+
+/** 加载租户门店映射，供详情页展示租户与门店名称。 */
+async function loadTenantStoreDisplayMap() {
+  if (tenantStoreDisplayMap.value.size) return;
+  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
+}
 
 /** 重置订单详情数据，避免切换订单时短暂显示旧内容。 */
 function resetOrderDetailForm() {
@@ -314,6 +337,7 @@ function handleQuery(targetOrderId: number = orderId.value) {
       if (requestId !== orderDetailRequestId.value) return;
       resetOrderDetailForm();
       Object.assign(formData, data);
+      void loadTenantStoreDisplayMap();
     })
     .finally(() => {
       if (requestId !== orderDetailRequestId.value) return;

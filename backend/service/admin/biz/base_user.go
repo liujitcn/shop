@@ -2,8 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
-
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/biz"
@@ -56,10 +54,14 @@ func (c *BaseUserCase) OptionBaseUsers(ctx context.Context, req *adminv1.OptionB
 	}
 
 	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 2)
+	opts := make([]repository.QueryOption, 0, 3)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.NickName.Like("%"+keyword+"%")))
+	if req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 
+	var list []*models.BaseUser
 	list, _, err := c.Page(ctx, 1, 100, opts...)
 	if err != nil {
 		return nil, err
@@ -78,9 +80,12 @@ func (c *BaseUserCase) OptionBaseUsers(ctx context.Context, req *adminv1.OptionB
 // PageBaseUsers 分页查询用户
 func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseUsersRequest) (*adminv1.PageBaseUsersResponse, error) {
 	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 6)
+	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	var err error
+	if req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
 	// 指定部门时，按部门及其子部门范围筛选用户。
 	if req.DeptId != nil && req.GetDeptId() > 0 {
 		var dept *models.BaseDept
@@ -88,10 +93,14 @@ func (c *BaseUserCase) PageBaseUsers(ctx context.Context, req *adminv1.PageBaseU
 		if err != nil {
 			return nil, err
 		}
+		if req.GetTenantId() > 0 && dept.TenantID != req.GetTenantId() {
+			return &adminv1.PageBaseUsersResponse{BaseUsers: []*adminv1.BaseUser{}, Total: 0}, nil
+		}
 
 		deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
-		deptOpts := make([]repository.QueryOption, 0, 1)
+		deptOpts := make([]repository.QueryOption, 0, 2)
 		deptOpts = append(deptOpts, repository.Where(deptQuery.Path.Like(dept.Path+"%")))
+		deptOpts = append(deptOpts, repository.Where(deptQuery.TenantID.Eq(dept.TenantID)))
 		var deptList []*models.BaseDept
 		deptList, err = c.baseDeptRepo.List(ctx, deptOpts...)
 		if err != nil {
@@ -145,17 +154,34 @@ func (c *BaseUserCase) GetBaseUser(ctx context.Context, id int64) (*adminv1.Base
 	if err != nil {
 		return nil, err
 	}
-	res := c.formMapper.ToDTO(baseUser)
-	return res, nil
+	return c.formMapper.ToDTO(baseUser), nil
 }
 
 // CreateBaseUser 创建用户
 func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUserForm) error {
+	baseRole, err := c.baseRoleCase.FindByID(ctx, req.GetRoleId())
+	if err != nil {
+		return errorsx.Internal("校验用户角色失败").WithCause(err)
+	}
+	if _const.IsDefaultBaseRole(baseRole.Code) {
+		return errorsx.ProtectedResourceConflict("创建用户失败，不能选择内置角色", "base_user")
+	}
+	var baseDept *models.BaseDept
+	baseDept, err = c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
+	if err != nil {
+		return errorsx.Internal("校验用户部门失败").WithCause(err)
+	}
+	if baseRole.TenantID != baseDept.TenantID {
+		return errorsx.InvalidArgument("用户角色与部门所属租户不一致")
+	}
+	if req.GetTenantId() > 0 && req.GetTenantId() != baseDept.TenantID {
+		return errorsx.InvalidArgument("用户所属租户与部门不一致")
+	}
+
 	var passwordStr string
-	var err error
 	// 未显式传入密码时，回退到系统默认密码规则。
 	if req.GetPwd() == nil {
-		passwordStr = c.getDefaultPassword(req.GetUserName(), req.GetPhone())
+		passwordStr = utils.GetDefaultPassword(req.GetUserName(), req.GetPhone())
 	} else {
 		passwordStr, err = utils.DecryptPassword(req.GetPwd(), commonv1.PasswordCryptoScene_CREATE_BASE_USER)
 		if err != nil {
@@ -170,6 +196,7 @@ func (c *BaseUserCase) CreateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	}
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = password
+	baseUser.TenantID = baseDept.TenantID
 	err = c.Create(ctx, baseUser)
 	if err != nil {
 		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
@@ -193,8 +220,40 @@ func (c *BaseUserCase) UpdateBaseUser(ctx context.Context, req *adminv1.BaseUser
 	if oldBaseUser.UserName == _const.BASE_USER_NAME_SUPER {
 		return errorsx.PermissionDenied("更新用户失败，不能操作超级管理员")
 	}
+	var oldBaseRole *models.BaseRole
+	oldBaseRole, err = c.baseRoleCase.FindByID(ctx, oldBaseUser.RoleID)
+	if err != nil {
+		return errorsx.Internal("校验用户角色失败").WithCause(err)
+	}
+	if !_const.IsDefaultBaseRole(oldBaseRole.Code) {
+		var newBaseRole *models.BaseRole
+		newBaseRole, err = c.baseRoleCase.FindByID(ctx, req.GetRoleId())
+		if err != nil {
+			return errorsx.Internal("校验用户角色失败").WithCause(err)
+		}
+		if _const.IsDefaultBaseRole(newBaseRole.Code) {
+			return errorsx.ProtectedResourceConflict("更新用户失败，不能选择内置角色", "base_user")
+		}
+		if newBaseRole.TenantID != oldBaseUser.TenantID {
+			return errorsx.InvalidArgument("用户角色与所属租户不一致")
+		}
+	}
+	var newBaseDept *models.BaseDept
+	newBaseDept, err = c.baseDeptRepo.FindByID(ctx, req.GetDeptId())
+	if err != nil {
+		return errorsx.Internal("校验用户部门失败").WithCause(err)
+	}
+	if newBaseDept.TenantID != oldBaseUser.TenantID {
+		return errorsx.InvalidArgument("用户部门与所属租户不一致")
+	}
+
 	baseUser := c.formMapper.ToEntity(req)
 	baseUser.Password = oldBaseUser.Password
+	baseUser.TenantID = oldBaseUser.TenantID
+	// 内置角色用户只能改基础资料，角色保持不变。
+	if _const.IsDefaultBaseRole(oldBaseRole.Code) {
+		baseUser.RoleID = oldBaseUser.RoleID
+	}
 	err = c.UpdateByID(ctx, baseUser)
 	if err != nil {
 		// 命中用户账号唯一索引冲突时，返回稳定的业务冲突错误。
@@ -215,18 +274,20 @@ func (c *BaseUserCase) DeleteBaseUser(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
+	visibleIDs := make([]int64, 0, len(baseUserList))
 	for _, baseUser := range baseUserList {
+		visibleIDs = append(visibleIDs, baseUser.ID)
 		// 超级管理员账号不允许被删除。
 		if baseUser.UserName == _const.BASE_USER_NAME_SUPER {
 			return errorsx.PermissionDenied("删除用户失败，不能操作超级管理员")
 		}
 	}
-	err = c.DeleteByIDs(ctx, ids)
+	err = c.DeleteByIDs(ctx, visibleIDs)
 	if err != nil {
 		return err
 	}
 	// 用户删除成功后，再异步清理推荐系统中的用户主体。
-	queue.DispatchRecommendDeleteBaseUser(ids)
+	queue.DispatchRecommendDeleteBaseUser(visibleIDs)
 	return nil
 }
 
@@ -264,7 +325,7 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 	var passwordStr string
 	// 未显式传入密码时，回退到系统默认密码规则。
 	if req.GetPwd() == nil {
-		passwordStr = c.getDefaultPassword(baseUser.UserName, baseUser.Phone)
+		passwordStr = utils.GetDefaultPassword(baseUser.UserName, baseUser.Phone)
 	} else {
 		passwordStr, err = utils.DecryptPassword(req.GetPwd(), commonv1.PasswordCryptoScene_RESET_BASE_USER_PASSWORD)
 		if err != nil {
@@ -281,15 +342,4 @@ func (c *BaseUserCase) ResetBaseUserPassword(ctx context.Context, req *adminv1.R
 		ID:       req.GetId(),
 		Password: password,
 	})
-}
-
-// getDefaultPassword 生成默认密码
-func (c *BaseUserCase) getDefaultPassword(userName, phone string) string {
-	prefix := phone
-	// 手机号长度充足时，仅截取前 4 位作为默认密码前缀。
-	if len(phone) > 4 {
-		prefix = phone[:4]
-	}
-	prefix = fmt.Sprintf("%-4s", prefix)
-	return fmt.Sprintf("%s@%s", userName, prefix)
 }

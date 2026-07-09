@@ -36,6 +36,7 @@ frontend/app
 - 我的：`pages/my/my`
 - 登录与协议：`pages/login`
 - 商品详情与评价：`pages/goods`
+- 店铺首页：`pages/store`
 - 热门推荐：`pages/hot/hot`
 - 搜索：`pages/search/index`
 - WebView：`pages/webview/webview`

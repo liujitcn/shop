@@ -172,9 +172,6 @@ message CreateAiAssistantSessionBranchResponse {
 
 // AI 助手会话
 message AiAssistantSession {
-  reserved 4;
-  reserved "tool_count";
-
   string id = 1 [(gnostic.openapi.v3.property) = {description: "会话ID"}]; // 会话ID
 
   string title = 2 [(gnostic.openapi.v3.property) = {description: "会话标题"}]; // 会话标题

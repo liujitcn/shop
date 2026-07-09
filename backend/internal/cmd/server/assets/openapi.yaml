@@ -731,6 +731,10 @@ paths:
             description: 查询部门树形选择
             operationId: BaseDeptService_OptionBaseDepts
             parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
                 - name: parentId
                   in: query
                   schema:
@@ -748,6 +752,11 @@ paths:
                 - BaseDeptService
             description: 查询部门树形列表
             operationId: BaseDeptService_TreeBaseDepts
+            parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1557,6 +1566,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
                 - name: status
                   in: query
                   schema:
@@ -1602,6 +1615,11 @@ paths:
                 - BaseRoleService
             description: 查询角色下拉选择
             operationId: BaseRoleService_OptionBaseRoles
+            parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1874,6 +1892,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
                 - name: deptId
                   in: query
                   schema:
@@ -1939,6 +1961,10 @@ paths:
             operationId: BaseUserService_OptionBaseUsers
             parameters:
                 - name: keyword
+                  in: query
+                  schema:
+                    type: string
+                - name: tenantId
                   in: query
                   schema:
                     type: string
@@ -2056,6 +2082,14 @@ paths:
             description: 查询评论分页列表
             operationId: CommentInfoService_PageCommentInfos
             parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: tenantStoreId
+                  in: query
+                  schema:
+                    type: string
                 - name: goodsId
                   in: query
                   schema:
@@ -2398,6 +2432,14 @@ paths:
             description: 查询商品信息列表
             operationId: GoodsInfoService_PageGoodsInfos
             parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: tenantStoreId
+                  in: query
+                  schema:
+                    type: string
                 - name: categoryId
                   in: query
                   schema:
@@ -2430,6 +2472,7 @@ paths:
                         - UNKNOWN_GS
                         - PUT_ON
                         - PULL_OFF
+                        - DISABLED_BY_STORE
                     type: string
                     format: enum
                 - name: pageNum
@@ -2754,6 +2797,14 @@ paths:
             description: 查询订单信息分页列表
             operationId: OrderInfoService_PageOrderInfos
             parameters:
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: tenantStoreId
+                  in: query
+                  schema:
+                    type: string
                 - name: orderNo
                   in: query
                   schema:
@@ -4244,6 +4295,175 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /api/v1/admin/tenant/store:
+        get:
+            tags:
+                - TenantStoreService
+            description: 查询租户门店列表
+            operationId: TenantStoreService_PageTenantStores
+            parameters:
+                - name: name
+                  in: query
+                  schema:
+                    type: string
+                - name: tenantId
+                  in: query
+                  schema:
+                    type: string
+                - name: status
+                  in: query
+                  schema:
+                    enum:
+                        - UNKNOWN_TSS
+                        - PENDING_REVIEW_TSS
+                        - FAILED_REVIEW_TSS
+                        - APPROVED_TSS
+                    type: string
+                    format: enum
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/PageTenantStoresResponse'
+        post:
+            tags:
+                - TenantStoreService
+            description: 创建租户门店
+            operationId: TenantStoreService_CreateTenantStore
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TenantStoreForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/tenant/store/option:
+        get:
+            tags:
+                - TenantStoreService
+            description: 查询租户门店下拉选项
+            operationId: TenantStoreService_OptionTenantStores
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/OptionTenantStoresResponse'
+    /api/v1/admin/tenant/store/tree:
+        get:
+            tags:
+                - TenantStoreService
+            description: 查询租户门店树形选项
+            operationId: TenantStoreService_TreeTenantStores
+            parameters:
+                - name: keyword
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TreeTenantStoresResponse'
+    /api/v1/admin/tenant/store/{ids}:
+        delete:
+            tags:
+                - TenantStoreService
+            description: 删除租户门店
+            operationId: TenantStoreService_DeleteTenantStore
+            parameters:
+                - name: ids
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/tenant/store/{id}:
+        get:
+            tags:
+                - TenantStoreService
+            description: 查询租户门店
+            operationId: TenantStoreService_GetTenantStore
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TenantStoreForm'
+        put:
+            tags:
+                - TenantStoreService
+            description: 更新租户门店
+            operationId: TenantStoreService_UpdateTenantStore
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/TenantStoreForm'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+    /api/v1/admin/tenant/store/{id}/audit:
+        put:
+            tags:
+                - TenantStoreService
+            description: 审核租户门店
+            operationId: TenantStoreService_AuditTenantStore
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuditTenantStoreRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /api/v1/admin/user/store:
         get:
             tags:
@@ -4756,6 +4976,10 @@ paths:
                   schema:
                     type: string
                 - name: categoryId
+                  in: query
+                  schema:
+                    type: string
+                - name: tenantStoreId
                   in: query
                   schema:
                     type: string
@@ -5290,6 +5514,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/ListShopServicesResponse'
+    /api/v1/app/tenant/store/{id}:
+        get:
+            tags:
+                - TenantStoreService
+            description: 查询租户门店首页
+            operationId: TenantStoreService_GetTenantStore
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/TenantStore'
     /api/v1/app/user/address:
         get:
             tags:
@@ -6694,6 +6937,25 @@ components:
                         $ref: '#/components/schemas/AppTreeOptionResponse_Option'
                     description: 子节点树
             description: 应用树形选项
+        AuditTenantStoreRequest:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 门店ID
+                status:
+                    enum:
+                        - UNKNOWN_TSS
+                        - PENDING_REVIEW_TSS
+                        - FAILED_REVIEW_TSS
+                        - APPROVED_TSS
+                    type: string
+                    description: 审核状态：枚举【TenantStoreStatus】
+                    format: enum
+                remark:
+                    type: string
+                    description: 审核备注
+            description: 租户门店审核条件
         AuditUserStoreRequest:
             type: object
             properties:
@@ -6925,6 +7187,9 @@ components:
                 id:
                     type: string
                     description: 部门ID
+                tenantId:
+                    type: string
+                    description: 租户ID
                 parentId:
                     type: string
                     description: 父级部门ID
@@ -6964,6 +7229,9 @@ components:
                 id:
                     type: string
                     description: 部门ID
+                tenantId:
+                    type: string
+                    description: 租户ID
                 parentId:
                     type: string
                     description: 父级部门ID
@@ -7451,6 +7719,9 @@ components:
                 id:
                     type: string
                     description: 角色ID
+                tenantId:
+                    type: string
+                    description: 租户ID
                 name:
                     type: string
                     description: 角色名称
@@ -7496,6 +7767,9 @@ components:
                 id:
                     type: string
                     description: 角色ID
+                tenantId:
+                    type: string
+                    description: 租户ID
                 name:
                     type: string
                     description: 角色名称
@@ -7601,6 +7875,9 @@ components:
                 id:
                     type: string
                     description: 用户ID
+                tenantId:
+                    type: string
+                    description: 租户ID
                 userName:
                     type: string
                     description: 用户账号
@@ -7652,6 +7929,9 @@ components:
                 id:
                     type: string
                     description: 用户ID
+                tenantId:
+                    type: string
+                    description: 租户ID
                 userName:
                     type: string
                     description: 用户账号
@@ -7667,8 +7947,9 @@ components:
                 phone:
                     type: string
                     description: 手机号
-                pwd:
-                    $ref: '#/components/schemas/PasswordCrypto'
+                avatar:
+                    type: string
+                    description: 头像
                 gender:
                     enum:
                         - UNKNOWN_BUG
@@ -7678,9 +7959,8 @@ components:
                     type: string
                     description: 性别
                     format: enum
-                avatar:
-                    type: string
-                    description: 头像
+                pwd:
+                    $ref: '#/components/schemas/PasswordCrypto'
                 status:
                     enum:
                         - UNKNOWN
@@ -7933,6 +8213,12 @@ components:
                 id:
                     type: string
                     description: 评价主键
+                tenantId:
+                    type: string
+                    description: 租户ID
+                tenantStoreId:
+                    type: string
+                    description: 租户门店ID
                 orderId:
                     type: string
                     description: 订单ID
@@ -9221,6 +9507,12 @@ components:
                 id:
                     type: string
                     description: 商品ID
+                tenantId:
+                    type: string
+                    description: 租户ID
+                tenantStoreId:
+                    type: string
+                    description: 租户门店ID
                 categoryId:
                     type: array
                     items:
@@ -9255,6 +9547,7 @@ components:
                         - UNKNOWN_GS
                         - PUT_ON
                         - PULL_OFF
+                        - DISABLED_BY_STORE
                     type: string
                     description: 状态
                     format: enum
@@ -9274,6 +9567,12 @@ components:
                 id:
                     type: string
                     description: 商品ID
+                tenantId:
+                    type: string
+                    description: 租户ID
+                tenantStoreId:
+                    type: string
+                    description: 租户门店ID
                 categoryId:
                     type: array
                     items:
@@ -9303,6 +9602,7 @@ components:
                         - UNKNOWN_GS
                         - PUT_ON
                         - PULL_OFF
+                        - DISABLED_BY_STORE
                     type: string
                     description: 状态
                     format: enum
@@ -9361,6 +9661,15 @@ components:
                     items:
                         type: string
                     description: 商品详情
+                tenantStoreId:
+                    type: string
+                    description: 租户门店ID
+                tenantStoreName:
+                    type: string
+                    description: 租户门店名称
+                tenantStoreLogo:
+                    type: string
+                    description: 租户门店LOGO
                 propList:
                     type: array
                     items:
@@ -10043,6 +10352,25 @@ components:
                     type: string
                     description: 分类名称
             description: 商品选项
+        OptionTenantStoresResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/OptionTenantStoresResponse_Option'
+                    description: 门店选项列表
+            description: 租户门店下拉选项响应
+        OptionTenantStoresResponse_Option:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: 门店ID
+                label:
+                    type: string
+                    description: 门店名称
+            description: 租户门店选项
         OrderAddress:
             type: object
             properties:
@@ -10153,6 +10481,12 @@ components:
                 id:
                     type: string
                     description: 订单id
+                tenantId:
+                    type: string
+                    description: 租户ID
+                tenantStoreId:
+                    type: string
+                    description: 租户门店ID
                 orderNo:
                     type: string
                     description: 订单编号
@@ -10931,6 +11265,19 @@ components:
                     description: 总数
                     format: int32
             description: 商城服务列表响应
+        PageTenantStoresResponse:
+            type: object
+            properties:
+                tenantStores:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TenantStore'
+                    description: 租户门店列表
+                total:
+                    type: integer
+                    description: 总数
+                    format: int32
+            description: 租户门店列表响应
         PageUserCollectsResponse:
             type: object
             properties:
@@ -11448,6 +11795,7 @@ components:
                         - UNKNOWN_GS
                         - PUT_ON
                         - PULL_OFF
+                        - DISABLED_BY_STORE
                     type: string
                     description: 商品状态：枚举【GoodsStatus】
                     format: enum
@@ -12122,6 +12470,7 @@ components:
                         - UNKNOWN_GS
                         - PUT_ON
                         - PULL_OFF
+                        - DISABLED_BY_STORE
                     type: string
                     description: 状态：枚举【GoodsStatus】
                     format: enum
@@ -12868,6 +13217,93 @@ components:
                     type: string
                     description: 结束时间
             description: Gorse 推荐任务状态
+        TenantStore:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 门店ID
+                tenantId:
+                    type: string
+                    description: 租户ID
+                name:
+                    type: string
+                    description: 门店名称
+                logo:
+                    type: string
+                    description: 门店LOGO
+                cover:
+                    type: string
+                    description: 门店封面
+                intro:
+                    type: string
+                    description: 门店简介
+                notice:
+                    type: string
+                    description: 门店公告
+                businessLicense:
+                    type: array
+                    items:
+                        type: string
+                    description: 营业执照
+                status:
+                    enum:
+                        - UNKNOWN_TSS
+                        - PENDING_REVIEW_TSS
+                        - FAILED_REVIEW_TSS
+                        - APPROVED_TSS
+                    type: string
+                    description: 审核状态：枚举【TenantStoreStatus】
+                    format: enum
+                remark:
+                    type: string
+                    description: 备注
+                createdAt:
+                    type: string
+                    description: 创建时间
+                updatedAt:
+                    type: string
+                    description: 更新时间
+            description: 租户门店
+        TenantStoreForm:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: 门店ID
+                name:
+                    type: string
+                    description: 门店名称
+                logo:
+                    type: string
+                    description: 门店LOGO
+                cover:
+                    type: string
+                    description: 门店封面
+                intro:
+                    type: string
+                    description: 门店简介
+                notice:
+                    type: string
+                    description: 门店公告
+                businessLicense:
+                    type: array
+                    items:
+                        type: string
+                    description: 营业执照
+                remark:
+                    type: string
+                    description: 备注
+                status:
+                    enum:
+                        - UNKNOWN_TSS
+                        - PENDING_REVIEW_TSS
+                        - FAILED_REVIEW_TSS
+                        - APPROVED_TSS
+                    type: string
+                    description: 审核状态：枚举【TenantStoreStatus】
+                    format: enum
+            description: 租户门店表单
         TimeSeriesPoint:
             type: object
             properties:
@@ -12963,6 +13399,39 @@ components:
                         $ref: '#/components/schemas/RouteItem'
                     description: 路由列表
             description: Route树响应
+        TreeTenantStoresResponse:
+            type: object
+            properties:
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TreeTenantStoresResponse_Option'
+                    description: 租户门店树形选项列表
+            description: 租户门店树形选项响应
+        TreeTenantStoresResponse_Option:
+            type: object
+            properties:
+                value:
+                    type: string
+                    description: 选项值，tenant:{id} 或 store:{id}
+                label:
+                    type: string
+                    description: 选项名称
+                type:
+                    type: string
+                    description: 节点类型：tenant 或 store
+                id:
+                    type: string
+                    description: 节点业务ID
+                tenantId:
+                    type: string
+                    description: 租户ID
+                children:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/TreeTenantStoresResponse_Option'
+                    description: 子节点树
+            description: 租户门店树形选项
         UpdateAiAssistantMessageRequest:
             type: object
             properties:
@@ -13198,6 +13667,12 @@ components:
                 deptName:
                     type: string
                     description: 部门名称
+                tenantCode:
+                    type: string
+                    description: 租户编码
+                tenantName:
+                    type: string
+                    description: 租户名称
             description: 用户信息表单
         UserLabel:
             type: object
@@ -13436,9 +13911,9 @@ tags:
     - name: AiAssistantService
       description: Base AI 助手会话服务
     - name: AuthService
-      description: App用户认证服务
-    - name: AuthService
       description: Admin用户登录认证服务
+    - name: AuthService
+      description: App用户认证服务
     - name: BaseApiService
       description: AdminAPI服务
     - name: BaseAreaService
@@ -13478,9 +13953,9 @@ tags:
     - name: GoodsCategoryService
       description: Admin商品分类服务
     - name: GoodsInfoService
-      description: App商品信息服务
-    - name: GoodsInfoService
       description: Admin商品信息服务
+    - name: GoodsInfoService
+      description: App商品信息服务
     - name: GoodsPropService
       description: Admin商品属性服务
     - name: GoodsReportService
@@ -13518,15 +13993,19 @@ tags:
     - name: ShopBannerService
       description: Admin商城轮播图服务
     - name: ShopHotService
-      description: Admin商城热门推荐服务
-    - name: ShopHotService
       description: App热门推荐服务
+    - name: ShopHotService
+      description: Admin商城热门推荐服务
     - name: ShopServiceService
       description: App商城服务说明服务
     - name: ShopServiceService
       description: Admin商城服务
     - name: SseService
       description: Base SSE服务
+    - name: TenantStoreService
+      description: Admin租户门店服务
+    - name: TenantStoreService
+      description: App租户门店服务
     - name: UserAddressService
       description: App用户地址管理服务
     - name: UserAnalyticsService
@@ -13536,8 +14015,8 @@ tags:
     - name: UserCollectService
       description: App用户收藏管理服务
     - name: UserStoreService
-      description: App用户门店管理服务
-    - name: UserStoreService
       description: Admin用户门店管理服务
+    - name: UserStoreService
+      description: App用户门店管理服务
     - name: WorkspaceService
       description: Admin工作台服务

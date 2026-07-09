@@ -186,6 +186,12 @@ async function submitForm() {
   }
 
   const submitsData = JSON.parse(JSON.stringify(formData.value));
+  const tenantStoreId = Number(submitsData.tenant_store_id ?? 0);
+  if (!Number.isInteger(tenantStoreId) || tenantStoreId <= 0) {
+    ElMessage.warning("请选择所属门店");
+    return;
+  }
+  submitsData.tenant_store_id = tenantStoreId;
   delete submitsData.propList;
   delete submitsData.specList;
   delete submitsData.skuList;

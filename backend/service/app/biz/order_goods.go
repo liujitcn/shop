@@ -124,15 +124,15 @@ func (c *OrderGoodsCase) toOrderGoods(item *models.OrderGoods) *appv1.OrderGoods
 	return orderGoods
 }
 
-// 将下单商品请求转换为订单商品模型
-func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods *appv1.CreateOrderInfoGoods) (*models.OrderGoods, error) {
+// convertToModel 将下单商品请求转换为订单商品模型。
+func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods *appv1.CreateOrderInfoGoods) (*models.OrderGoods, *models.GoodsInfo, error) {
 	// 下单商品明细为空时，无法继续生成订单快照。
 	if goods == nil {
-		return nil, errorsx.InvalidArgument("订单商品信息不能为空")
+		return nil, nil, errorsx.InvalidArgument("订单商品信息不能为空")
 	}
 	// 购买数量非法时，直接拦截当前下单请求。
 	if goods.Num <= 0 {
-		return nil, errorsx.InvalidArgument("商品购买数量必须大于0")
+		return nil, nil, errorsx.InvalidArgument("商品购买数量必须大于0")
 	}
 
 	// 查询商品信息和规格信息
@@ -142,7 +142,7 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 	goodsOpts = append(goodsOpts, repository.Where(goodsQuery.Status.Eq(_const.STATUS_ENABLE)))
 	goodsInfo, err := c.goodsInfoCase.Find(ctx, goodsOpts...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	skuQuery := c.goodsSKUCase.Query(ctx).GoodsSKU
 	var goodsSKU *models.GoodsSKU
@@ -151,12 +151,12 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 	skuOpts = append(skuOpts, repository.Where(skuQuery.GoodsID.Eq(goods.GoodsId)))
 	goodsSKU, err = c.goodsSKUCase.Find(ctx, skuOpts...)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	// 当前规格库存不足时，直接阻止继续创建订单。
 	err = c.goodsSKUCase.ensureEnoughInventory(goodsSKU, goods.Num)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	picture := goodsInfo.Picture
 	// 规格图存在时，优先使用规格图作为订单商品展示图。
@@ -192,5 +192,5 @@ func (c *OrderGoodsCase) convertToModel(ctx context.Context, member bool, goods 
 		RequestID:     recommendContext.GetRequestId(),
 		Position:      recommendContext.GetPosition(),
 	}
-	return res, nil
+	return res, goodsInfo, nil
 }

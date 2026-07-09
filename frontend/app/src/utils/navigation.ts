@@ -25,6 +25,11 @@ type GoodsCommentListQuery = {
   sku_code?: string
 }
 
+/** 租户门店页支持的入参。 */
+type TenantStoreQuery = {
+  id: string | number
+}
+
 /** 搜索结果页支持的入参。 */
 type SearchQuery = {
   name?: string
@@ -81,6 +86,8 @@ const ORDER_LIST_PAGE = '/pagesOrder/list/list'
 const ORDER_COMMENT_WRITE_PAGE = '/pagesOrder/comment/comment'
 /** 商品评价列表页路径。 */
 const GOODS_COMMENT_LIST_PAGE = '/pages/goods/comments/index'
+/** 租户门店首页路径。 */
+const TENANT_STORE_PAGE = '/pages/store/store'
 /** 首页 tab 页面路径。 */
 export const homeTabPage = HOME_TAB_PAGE
 
@@ -216,6 +223,14 @@ export const orderDetailUrl = (query: OrderDetailQuery) => {
 /** 构建商品评价列表页 URL。 */
 export const goodsCommentListUrl = (query: GoodsCommentListQuery) => {
   return buildPageUrl(GOODS_COMMENT_LIST_PAGE, query)
+}
+
+/** 构建租户门店首页 URL。 */
+export const tenantStoreUrl = (query: TenantStoreQuery | string | number) => {
+  if (typeof query === 'string' || typeof query === 'number') {
+    return buildPageUrl(TENANT_STORE_PAGE, { id: query })
+  }
+  return buildPageUrl(TENANT_STORE_PAGE, query)
 }
 
 /** 构建订单列表页 URL。 */

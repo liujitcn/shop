@@ -68,8 +68,14 @@ func NewOrderInfoCase(baseCase *biz.BaseCase, tx data.Transaction, orderAddressC
 // PageOrderInfos 分页查询订单
 func (c *OrderInfoCase) PageOrderInfos(ctx context.Context, req *adminv1.PageOrderInfosRequest) (*adminv1.PageOrderInfosResponse, error) {
 	query := c.Query(ctx).OrderInfo
-	opts := make([]repository.QueryOption, 0, 7)
+	opts := make([]repository.QueryOption, 0, 9)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
+	if req.TenantId != nil && req.GetTenantId() > 0 {
+		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
+	}
+	if req.TenantStoreId != nil && req.GetTenantStoreId() > 0 {
+		opts = append(opts, repository.Where(query.TenantStoreID.Eq(req.GetTenantStoreId())))
+	}
 	// 传入用户编号时，按用户过滤订单。
 	if req.GetUserId() > 0 {
 		opts = append(opts, repository.Where(query.UserID.Eq(req.GetUserId())))
@@ -101,7 +107,6 @@ func (c *OrderInfoCase) PageOrderInfos(ctx context.Context, req *adminv1.PageOrd
 			opts = append(opts, repository.Where(query.CreatedAt.Lt(endAt)))
 		}
 	}
-
 	list, total, err := c.Page(ctx, req.GetPageNum(), req.GetPageSize(), opts...)
 	if err != nil {
 		return nil, err

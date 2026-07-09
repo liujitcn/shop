@@ -58,6 +58,10 @@ export interface UserInfoForm {
   role_name: string;
   /** 部门名称 */
   dept_name: string;
+  /** 租户编码 */
+  tenant_code: string;
+  /** 租户名称 */
+  tenant_name: string;
 }
 
 /** Route树响应 */

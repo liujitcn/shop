@@ -1,7 +1,14 @@
 <!-- 评论管理 -->
 <template>
   <div class="table-box comment-page">
-    <ProTable ref="proTable" row-key="id" :columns="columns" :request-api="requestCommentTable" :request-auto="false">
+    <ProTable
+      ref="proTable"
+      :key="isDefaultTenant ? 'default-tenant' : 'normal-tenant'"
+      row-key="id"
+      :columns="columns"
+      :request-api="requestCommentTable"
+      :request-auto="false"
+    >
       <template #goods_name_snapshot="scope">
         <el-link v-if="BUTTONS['goods:info:detail']" type="primary" @click.stop="handleOpenGoodsDetail(scope.row)">
           {{ scope.row.goods_name_snapshot || "未命名商品" }}
@@ -80,10 +87,19 @@ import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interf
 import ProTable from "@/components/ProTable/index.vue";
 import { useAuthButtons } from "@/hooks/useAuthButtons";
 import { defCommentInfoService } from "@/api/admin/comment_info";
+import { defTenantStoreService } from "@/api/admin/tenant_store";
 import type { CommentInfo, PageCommentInfosRequest } from "@/rpc/admin/v1/comment_info";
 import { CommentStatus } from "@/rpc/common/v1/enum";
 import { buildPageRequest } from "@/utils/proTable";
 import { navigateTo } from "@/utils/router";
+import { useUserStore } from "@/stores/modules/user";
+import {
+  buildTenantStoreDisplayMap,
+  DEFAULT_TENANT_CODE,
+  parseTenantStoreTreeValue,
+  transformTenantStoreTreeOptions,
+  type TenantStoreDisplayInfo
+} from "@/utils/tenant";
 
 /** 评论审核确认弹窗状态。 */
 type ApproveDialogState = {
@@ -103,9 +119,17 @@ defineOptions({
 });
 
 const { BUTTONS } = useAuthButtons();
+const userStore = useUserStore();
 const proTable = ref<ProTableInstance>();
 const route = useRoute();
 const router = useRouter();
+const tenantStoreDisplayMap = ref(new Map<number, TenantStoreDisplayInfo>());
+
+/** 评论列表搜索参数，兼容租户门店树筛选展示值。 */
+type CommentInfoSearchParams = PageCommentInfosRequest & {
+  /** 租户门店树筛选值。 */
+  tenant_store_tree_value?: string;
+};
 
 /** 工作台跳转评论列表时支持同步的查询参数。 */
 const workspaceQueryKeys = ["status", "has_pending_discussion", "min_goods_score", "max_goods_score", "goods_score"] as const;
@@ -117,6 +141,9 @@ const approveDialog = reactive<ApproveDialogState>({
   reason: ""
 });
 
+/** 当前登录账号是否默认租户。 */
+const isDefaultTenant = computed(() => userStore.userInfo.tenant_code === DEFAULT_TENANT_CODE);
+
 /** 当前审核弹窗图片列表。 */
 const approveImageList = computed<string[]>(() => {
   const imgList = approveDialog.row?.img;
@@ -126,9 +153,40 @@ const approveImageList = computed<string[]>(() => {
 });
 
 /** 评论审核表格列配置。 */
-const columns: ColumnProps[] = [
+const columns = computed<ColumnProps[]>(() => [
   { prop: "goods_picture_snapshot", label: "商品图", width: 90, cellType: "image", imageProps: { width: 48, height: 48 } },
   { prop: "goods_name_snapshot", label: "商品名称", minWidth: 220, search: { el: "input", key: "goods_name" } },
+  ...(isDefaultTenant.value
+    ? [
+        {
+          prop: "tenant_id",
+          label: "租户",
+          minWidth: 150,
+          showOverflowTooltip: true,
+          render: scope => getTenantNameText(scope.row as CommentInfo)
+        }
+      ]
+    : []),
+  {
+    prop: "tenant_store_id",
+    label: "门店",
+    minWidth: 150,
+    showOverflowTooltip: true,
+    render: scope => getTenantStoreNameText(scope.row as CommentInfo),
+    search: {
+      el: "tree-select",
+      key: "tenant_store_tree_value",
+      props: {
+        clearable: true,
+        filterable: true,
+        checkStrictly: true,
+        renderAfterExpand: false,
+        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
+        style: { width: "100%" }
+      }
+    },
+    enum: requestTenantStoreTreeOptions
+  },
   { prop: "user_name_snapshot", label: "用户昵称", minWidth: 120, search: { el: "input", key: "user_name" } },
   { prop: "goods_score", label: "评分", width: 90, search: { el: "input-number", props: { min: 1, max: 5, precision: 0 } } },
   { prop: "content", label: "评论内容", minWidth: 260, showOverflowTooltip: true },
@@ -170,7 +228,7 @@ const columns: ColumnProps[] = [
       }
     ]
   }
-];
+]);
 
 /**
  * 将路由 query 单值化，兼容 vue-router 数组参数。
@@ -242,9 +300,14 @@ watch(
 
 /** 请求评论列表，并由 ProTable 统一维护分页与搜索参数。 */
 async function requestCommentTable(params: Record<string, any>) {
-  const { pageNum, pageSize, ...requestParams } = buildPageRequest(params);
+  const searchParams = params as CommentInfoSearchParams;
+  const treeSelection = parseTenantStoreTreeValue(searchParams.tenant_store_tree_value);
+  const { tenant_store_tree_value: _tenantStoreTreeValue, tenant_id: _tenantId, tenant_store_id: _tenantStoreId, ...rawParams } = searchParams;
+  const { pageNum, pageSize, ...requestParams } = buildPageRequest(rawParams);
   const data = await defCommentInfoService.PageCommentInfos({
     ...requestParams,
+    tenant_id: treeSelection.tenant_id,
+    tenant_store_id: treeSelection.tenant_store_id,
     page_num: Number(pageNum),
     page_size: Number(pageSize)
   } as PageCommentInfosRequest);
@@ -252,6 +315,29 @@ async function requestCommentTable(params: Record<string, any>) {
   // ProTable 固定消费 list，优先使用新 snake_case 字段并兼容历史响应。
   const list = compatData.comment_infos ?? compatData.commentInfos ?? compatData.list ?? [];
   return { data: { ...data, list } };
+}
+
+/**
+ * 请求租户门店树筛选数据。
+ */
+async function requestTenantStoreTreeOptions() {
+  const response = await defTenantStoreService.TreeTenantStores({ keyword: "" });
+  tenantStoreDisplayMap.value = buildTenantStoreDisplayMap(response.list ?? []);
+  return { data: transformTenantStoreTreeOptions(response.list ?? []) };
+}
+
+/**
+ * 读取评论列表租户展示文本，统一通过门店树选项反查。
+ */
+function getTenantNameText(row: CommentInfo) {
+  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.tenantName || "-";
+}
+
+/**
+ * 读取评论列表门店展示文本，统一通过门店树选项反查。
+ */
+function getTenantStoreNameText(row: CommentInfo) {
+  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.storeName || "-";
 }
 
 /** 刷新评论审核列表。 */

@@ -29,8 +29,10 @@ const (
 // 订单分页查询条件
 type PageOrderInfosRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	OrderNo       string                 `protobuf:"bytes,2,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                // 订单编号
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                  // 用户id
+	TenantId      *int64                 `protobuf:"varint,1,opt,name=tenant_id,json=tenantId,proto3,oneof" json:"tenant_id,omitempty"`                                      // 租户ID
+	TenantStoreId *int64                 `protobuf:"varint,2,opt,name=tenant_store_id,json=tenantStoreId,proto3,oneof" json:"tenant_store_id,omitempty"`                     // 租户门店ID
+	OrderNo       string                 `protobuf:"bytes,3,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                // 订单编号
+	UserId        int64                  `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                  // 用户id
 	Status        *v1.OrderStatus        `protobuf:"varint,5,opt,name=status,proto3,enum=common.v1.OrderStatus,oneof" json:"status,omitempty"`                               // 订单状态
 	PayType       *v1.OrderPayType       `protobuf:"varint,8,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType,oneof" json:"pay_type,omitempty"`             // 支付方式：枚举【OrderPayType】
 	PayChannel    *v1.OrderPayChannel    `protobuf:"varint,9,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel,oneof" json:"pay_channel,omitempty"` // 支付渠道：枚举【OrderPayChannel】
@@ -69,6 +71,20 @@ func (x *PageOrderInfosRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use PageOrderInfosRequest.ProtoReflect.Descriptor instead.
 func (*PageOrderInfosRequest) Descriptor() ([]byte, []int) {
 	return file_admin_v1_order_info_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *PageOrderInfosRequest) GetTenantId() int64 {
+	if x != nil && x.TenantId != nil {
+		return *x.TenantId
+	}
+	return 0
+}
+
+func (x *PageOrderInfosRequest) GetTenantStoreId() int64 {
+	if x != nil && x.TenantStoreId != nil {
+		return *x.TenantStoreId
+	}
+	return 0
 }
 
 func (x *PageOrderInfosRequest) GetOrderNo() string {
@@ -664,19 +680,21 @@ func (x *ShipOrderInfoRequest) GetContact() string {
 type OrderInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                                                           // 订单ID
-	OrderNo       string                 `protobuf:"bytes,2,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                   // 订单编号
-	UserId        int64                  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                     // 用户ID
-	PayMoney      int64                  `protobuf:"varint,4,opt,name=pay_money,json=payMoney,proto3" json:"pay_money,omitempty"`                                               // 实际支付金额（单位：分）
-	TotalMoney    int64                  `protobuf:"varint,5,opt,name=total_money,json=totalMoney,proto3" json:"total_money,omitempty"`                                         // 总价（单位：分）
-	PostFee       int64                  `protobuf:"varint,6,opt,name=post_fee,json=postFee,proto3" json:"post_fee,omitempty"`                                                  // 优惠金额（单位：分）
-	GoodsNum      int64                  `protobuf:"varint,7,opt,name=goods_num,json=goodsNum,proto3" json:"goods_num,omitempty"`                                               // 商品总数
-	PayType       v1.OrderPayType        `protobuf:"varint,8,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType" json:"pay_type,omitempty"`                      // 支付方式：枚举【OrderPayType】
-	PayChannel    v1.OrderPayChannel     `protobuf:"varint,9,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel" json:"pay_channel,omitempty"`          // 支付渠道：枚举【OrderPayChannel】
-	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,10,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
-	Status        v1.OrderStatus         `protobuf:"varint,11,opt,name=status,proto3,enum=common.v1.OrderStatus" json:"status,omitempty"`                                       // 状态：枚举【OrderStatus】
-	Remark        string                 `protobuf:"bytes,12,opt,name=remark,proto3" json:"remark,omitempty"`                                                                   // 订单备注
-	CreatedAt     string                 `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                            // 创建时间
-	UpdatedAt     string                 `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                            // 更新时间
+	TenantId      int64                  `protobuf:"varint,2,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`                                               // 租户ID
+	TenantStoreId int64                  `protobuf:"varint,3,opt,name=tenant_store_id,json=tenantStoreId,proto3" json:"tenant_store_id,omitempty"`                              // 租户门店ID
+	OrderNo       string                 `protobuf:"bytes,4,opt,name=order_no,json=orderNo,proto3" json:"order_no,omitempty"`                                                   // 订单编号
+	UserId        int64                  `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`                                                     // 用户ID
+	PayMoney      int64                  `protobuf:"varint,6,opt,name=pay_money,json=payMoney,proto3" json:"pay_money,omitempty"`                                               // 实际支付金额（单位：分）
+	TotalMoney    int64                  `protobuf:"varint,7,opt,name=total_money,json=totalMoney,proto3" json:"total_money,omitempty"`                                         // 总价（单位：分）
+	PostFee       int64                  `protobuf:"varint,8,opt,name=post_fee,json=postFee,proto3" json:"post_fee,omitempty"`                                                  // 优惠金额（单位：分）
+	GoodsNum      int64                  `protobuf:"varint,9,opt,name=goods_num,json=goodsNum,proto3" json:"goods_num,omitempty"`                                               // 商品总数
+	PayType       v1.OrderPayType        `protobuf:"varint,10,opt,name=pay_type,json=payType,proto3,enum=common.v1.OrderPayType" json:"pay_type,omitempty"`                     // 支付方式：枚举【OrderPayType】
+	PayChannel    v1.OrderPayChannel     `protobuf:"varint,11,opt,name=pay_channel,json=payChannel,proto3,enum=common.v1.OrderPayChannel" json:"pay_channel,omitempty"`         // 支付渠道：枚举【OrderPayChannel】
+	DeliveryTime  v1.OrderDeliveryTime   `protobuf:"varint,12,opt,name=delivery_time,json=deliveryTime,proto3,enum=common.v1.OrderDeliveryTime" json:"delivery_time,omitempty"` // 配送时间：枚举【OrderDeliveryTime】
+	Status        v1.OrderStatus         `protobuf:"varint,13,opt,name=status,proto3,enum=common.v1.OrderStatus" json:"status,omitempty"`                                       // 状态：枚举【OrderStatus】
+	Remark        string                 `protobuf:"bytes,14,opt,name=remark,proto3" json:"remark,omitempty"`                                                                   // 订单备注
+	CreatedAt     string                 `protobuf:"bytes,15,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`                                            // 创建时间
+	UpdatedAt     string                 `protobuf:"bytes,16,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`                                            // 更新时间
 	NickName      string                 `protobuf:"bytes,52,opt,name=nick_name,json=nickName,proto3" json:"nick_name,omitempty"`                                               // 用户名
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -715,6 +733,20 @@ func (*OrderInfo) Descriptor() ([]byte, []int) {
 func (x *OrderInfo) GetId() int64 {
 	if x != nil {
 		return x.Id
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetTenantId() int64 {
+	if x != nil {
+		return x.TenantId
+	}
+	return 0
+}
+
+func (x *OrderInfo) GetTenantStoreId() int64 {
+	if x != nil {
+		return x.TenantStoreId
 	}
 	return 0
 }
@@ -1684,18 +1716,23 @@ var File_admin_v1_order_info_proto protoreflect.FileDescriptor
 
 const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\n" +
-	"\x19admin/v1/order_info.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xee\x04\n" +
-	"\x15PageOrderInfosRequest\x12-\n" +
-	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
-	"\auser_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
-	"\x06status\x18\x05 \x01(\x0e2\x16.common.v1.OrderStatusB\x12\xbaG\x0f\x92\x02\f订单状态H\x00R\x06status\x88\x01\x01\x12f\n" +
-	"\bpay_type\x18\b \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】H\x01R\apayType\x88\x01\x01\x12r\n" +
-	"\vpay_channel\x18\t \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】H\x02R\n" +
+	"\x19admin/v1/order_info.proto\x12\badmin.v1\x1a\x14common/v1/enum.proto\x1a$gnostic/openapi/v3/annotations.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x85\x06\n" +
+	"\x15PageOrderInfosRequest\x120\n" +
+	"\ttenant_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDH\x00R\btenantId\x88\x01\x01\x12A\n" +
+	"\x0ftenant_store_id\x18\x02 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDH\x01R\rtenantStoreId\x88\x01\x01\x12-\n" +
+	"\border_no\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
+	"\auser_id\x18\x04 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
+	"\x06status\x18\x05 \x01(\x0e2\x16.common.v1.OrderStatusB\x12\xbaG\x0f\x92\x02\f订单状态H\x02R\x06status\x88\x01\x01\x12f\n" +
+	"\bpay_type\x18\b \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】H\x03R\apayType\x88\x01\x01\x12r\n" +
+	"\vpay_channel\x18\t \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】H\x04R\n" +
 	"payChannel\x88\x01\x01\x122\n" +
 	"\n" +
 	"created_at\x18\xc8\x01 \x03(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
-	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\t\n" +
+	"\tpage_size\x18f \x01(\x03B$\xbaG!\x8a\x02\t\t\x00\x00\x00\x00\x00\x00$@\x92\x02\x12每一页的行数R\bpageSizeB\f\n" +
+	"\n" +
+	"_tenant_idB\x12\n" +
+	"\x10_tenant_store_idB\t\n" +
 	"\a_statusB\v\n" +
 	"\t_pay_typeB\x0e\n" +
 	"\f_pay_channel\"\x8c\x01\n" +
@@ -1734,27 +1771,29 @@ const file_admin_v1_order_info_proto_rawDesc = "" +
 	"\border_id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\aorderId\x12)\n" +
 	"\x04name\x18\x03 \x01(\tB\x15\xbaG\x12\x92\x02\x0f物流公司名R\x04name\x12\"\n" +
 	"\x02no\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f物流单号R\x02no\x12,\n" +
-	"\acontact\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\"\xe0\a\n" +
+	"\acontact\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系方式R\acontact\"\xcb\b\n" +
 	"\tOrderInfo\x12\x1e\n" +
-	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12-\n" +
-	"\border_no\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
-	"\auser_id\x18\x03 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
-	"\tpay_money\x18\x04 \x01(\x03B*\xbaG'\x92\x02$实际支付金额（单位：分）R\bpayMoney\x12?\n" +
-	"\vtotal_money\x18\x05 \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18总价（单位：分）R\n" +
+	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b订单idR\x02id\x12+\n" +
+	"\ttenant_id\x18\x02 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\btenantId\x12<\n" +
+	"\x0ftenant_store_id\x18\x03 \x01(\x03B\x14\xbaG\x11\x92\x02\x0e租户门店IDR\rtenantStoreId\x12-\n" +
+	"\border_no\x18\x04 \x01(\tB\x12\xbaG\x0f\x92\x02\f订单编号R\aorderNo\x12'\n" +
+	"\auser_id\x18\x05 \x01(\x03B\x0e\xbaG\v\x92\x02\b用户idR\x06userId\x12G\n" +
+	"\tpay_money\x18\x06 \x01(\x03B*\xbaG'\x92\x02$实际支付金额（单位：分）R\bpayMoney\x12?\n" +
+	"\vtotal_money\x18\a \x01(\x03B\x1e\xbaG\x1b\x92\x02\x18总价（单位：分）R\n" +
 	"totalMoney\x12?\n" +
-	"\bpost_fee\x18\x06 \x01(\x03B$\xbaG!\x92\x02\x1e优惠金额（单位：分）R\apostFee\x12/\n" +
-	"\tgoods_num\x18\a \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品总数R\bgoodsNum\x12a\n" +
-	"\bpay_type\x18\b \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】R\apayType\x12m\n" +
-	"\vpay_channel\x18\t \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】R\n" +
+	"\bpost_fee\x18\b \x01(\x03B$\xbaG!\x92\x02\x1e优惠金额（单位：分）R\apostFee\x12/\n" +
+	"\tgoods_num\x18\t \x01(\x03B\x12\xbaG\x0f\x92\x02\f商品总数R\bgoodsNum\x12a\n" +
+	"\bpay_type\x18\n" +
+	" \x01(\x0e2\x17.common.v1.OrderPayTypeB-\xbaG*\x92\x02'支付方式：枚举【OrderPayType】R\apayType\x12m\n" +
+	"\vpay_channel\x18\v \x01(\x0e2\x1a.common.v1.OrderPayChannelB0\xbaG-\x92\x02*支付渠道：枚举【OrderPayChannel】R\n" +
 	"payChannel\x12u\n" +
-	"\rdelivery_time\x18\n" +
-	" \x01(\x0e2\x1c.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12V\n" +
-	"\x06status\x18\v \x01(\x0e2\x16.common.v1.OrderStatusB&\xbaG#\x92\x02 状态：枚举【OrderStatus】R\x06status\x12*\n" +
-	"\x06remark\x18\f \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\x121\n" +
+	"\rdelivery_time\x18\f \x01(\x0e2\x1c.common.v1.OrderDeliveryTimeB2\xbaG/\x92\x02,配送时间：枚举【OrderDeliveryTime】R\fdeliveryTime\x12V\n" +
+	"\x06status\x18\r \x01(\x0e2\x16.common.v1.OrderStatusB&\xbaG#\x92\x02 状态：枚举【OrderStatus】R\x06status\x12*\n" +
+	"\x06remark\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f订单备注R\x06remark\x121\n" +
 	"\n" +
-	"created_at\x18\r \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
+	"created_at\x18\x0f \x01(\tB\x12\xbaG\x0f\x92\x02\f创建时间R\tcreatedAt\x121\n" +
 	"\n" +
-	"updated_at\x18\x0e \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12,\n" +
+	"updated_at\x18\x10 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\x12,\n" +
 	"\tnick_name\x184 \x01(\tB\x0f\xbaG\f\x92\x02\t用户名R\bnickName\"\xd0\x01\n" +
 	"\fOrderAddress\x12+\n" +
 	"\breceiver\x18\x03 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\breceiver\x12,\n" +

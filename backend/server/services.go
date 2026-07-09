@@ -22,6 +22,7 @@ type ServerServices struct {
 	adminBaseTenant       *admin.BaseTenantService
 	adminBaseUser         *admin.BaseUserService
 	adminCommentInfo      *admin.CommentInfoService
+	adminTenantStore      *admin.TenantStoreService
 	adminGoodsAnalytics   *admin.GoodsAnalyticsService
 	adminGoodsReport      *admin.GoodsReportService
 	adminGoodsCategory    *admin.GoodsCategoryService
@@ -48,6 +49,7 @@ type ServerServices struct {
 	appComment       *app.CommentService
 	appGoodsCategory *app.GoodsCategoryService
 	appGoods         *app.GoodsInfoService
+	appTenantStore   *app.TenantStoreService
 	appOrder         *app.OrderInfoService
 	appPay           *app.PayService
 	appRecommend     *app.RecommendService
@@ -81,6 +83,7 @@ func NewServerServices(
 	adminBaseTenant *admin.BaseTenantService,
 	adminBaseUser *admin.BaseUserService,
 	adminCommentInfo *admin.CommentInfoService,
+	adminTenantStore *admin.TenantStoreService,
 	adminGoodsAnalytics *admin.GoodsAnalyticsService,
 	adminGoodsReport *admin.GoodsReportService,
 	adminGoodsCategory *admin.GoodsCategoryService,
@@ -107,6 +110,7 @@ func NewServerServices(
 	appComment *app.CommentService,
 	appGoodsCategory *app.GoodsCategoryService,
 	appGoods *app.GoodsInfoService,
+	appTenantStore *app.TenantStoreService,
 	appOrder *app.OrderInfoService,
 	appPay *app.PayService,
 	appRecommend *app.RecommendService,
@@ -139,6 +143,7 @@ func NewServerServices(
 		adminBaseTenant:       adminBaseTenant,
 		adminBaseUser:         adminBaseUser,
 		adminCommentInfo:      adminCommentInfo,
+		adminTenantStore:      adminTenantStore,
 		adminGoodsAnalytics:   adminGoodsAnalytics,
 		adminGoodsReport:      adminGoodsReport,
 		adminGoodsCategory:    adminGoodsCategory,
@@ -164,6 +169,7 @@ func NewServerServices(
 		appComment:            appComment,
 		appGoodsCategory:      appGoodsCategory,
 		appGoods:              appGoods,
+		appTenantStore:        appTenantStore,
 		appOrder:              appOrder,
 		appPay:                appPay,
 		appRecommend:          appRecommend,

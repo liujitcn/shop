@@ -34,13 +34,13 @@ frontend/admin
 - `views/dashboard`：工作台与分析页。
 - `views/ai`：AI助手等 AI 能力页面。
 - `views/goods`：商品分类、商品信息、属性、SKU。
-- `views/shop`：轮播图、商城服务、热门推荐。
+- `views/shop`：租户门店管理、轮播图、商城服务、热门推荐。
 - `views/order`：订单管理。
 - `views/comment`：评价审核、评价详情、讨论审核。
 - `views/report`：商品月报、订单月报。
 - `views/pay`：交易账单。
 - `views/recommend`：推荐请求、热门推荐、Gorse 推荐概览、任务、用户、商品、相似内容、反馈、高级调试、推荐编排、推荐配置。
-- `views/user`：门店管理。
+- `views/user`：用户相关历史页面。
 - `views/migration/pending`：动态菜单组件无法匹配时的统一降级提示页。
 
 租户管理员使用固定 `tenant` 角色。该角色菜单只包含工作台、订单分析、个人资料、组织权限、商品、评价和订单等租户经营能力，不包含租户管理、定时任务、API 管理、商城服务、推荐、支付账单和报表分析等平台公共页面。工作台租户视角会隐藏平台账单风险入口。
@@ -172,7 +172,7 @@ src/rpc
 - 图片列、状态列、顶部按钮、行内按钮优先使用 `ProTable` 现有配置能力。
 - 业务页样式优先复用 `src/styles/common.scss`、`src/styles/element-dark.scss` 与主题变量。
 - 新增页面后需要同步检查菜单初始化数据和后端接口权限初始化数据。
-- 新增租户可见页面时，需要同步检查 `tenant` 固定角色菜单白名单和 `sql/casbin_rule.sql` 中的租户接口权限。
+- 新增租户可见页面时，需要同步更新 `sql/default-data.sql` 中默认租户 `tenant` 角色菜单模板，并刷新对应租户的接口权限策略。
 - 修改前端代码后，至少执行 `pnpm lint:oxlint`；涉及类型或构建链路时补充 `pnpm type:check` 或构建命令。
 
 ## 设计文档
