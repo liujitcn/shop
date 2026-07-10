@@ -32,22 +32,6 @@ func NewShopConfig(ctx *bootstrap.Context) *configv1.ShopConfig {
 	return &configv1.ShopConfig{}
 }
 
-// ParseWxMiniApp 解析微信小程序配置。
-func ParseWxMiniApp(cfg *configv1.ShopConfig) (*configv1.WxMiniApp, error) {
-	wxMiniApp := cfg.GetWxMiniApp()
-	// 缺少微信小程序配置时，直接返回配置错误。
-	if wxMiniApp == nil {
-		return nil, errorsx.Internal("微信登录配置信息错误")
-	}
-	appID := wxMiniApp.GetAppid()
-	secret := wxMiniApp.GetSecret()
-	// 小程序关键字段缺失时，视为配置不可用。
-	if appID == "" || secret == "" {
-		return nil, errorsx.Internal("微信登录配置信息错误")
-	}
-	return wxMiniApp, nil
-}
-
 // ParseWxPay 解析微信支付配置。
 func ParseWxPay(cfg *configv1.ShopConfig) (*configv1.WxPay, error) {
 	wxPay := cfg.GetWxPay()

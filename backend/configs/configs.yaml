@@ -1,7 +1,4 @@
 shop:
-  wxMiniApp:
-    appid: xxx
-    secret: xxx
   wxPay:
     appid: xxx
     mchId: 'xxxx'

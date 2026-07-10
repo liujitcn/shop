@@ -14,12 +14,13 @@ import (
 	"shop/pkg/queue"
 
 	appv1 "shop/api/gen/go/app/v1"
-	configv1 "shop/api/gen/go/config/v1"
 	"shop/service/app/utils"
 
 	"github.com/go-kratos/kratos/v3/log"
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
+	kitOauth "github.com/liujitcn/kratos-kit/oauth"
+	"github.com/liujitcn/kratos-kit/oauth/provider"
 	"github.com/liujitcn/kratos-kit/sdk"
 	"gorm.io/gorm"
 )
@@ -31,7 +32,7 @@ const CACHE_KEY_WX_ACCESS_TOKEN = "wx_access_token"
 type AuthCase struct {
 	*biz.BaseCase
 	baseUserCase  *BaseUserCase
-	wxMiniApp     *configv1.WxMiniApp
+	oauthManager  *kitOauth.Manager
 	profileMapper *mapper.CopierMapper[
 		appv1.UserProfileForm,
 		models.BaseUser,
@@ -42,12 +43,12 @@ type AuthCase struct {
 func NewAuthCase(
 	baseCase *biz.BaseCase,
 	baseUserCase *BaseUserCase,
-	wxMiniApp *configv1.WxMiniApp,
+	oauthManager *kitOauth.Manager,
 ) *AuthCase {
 	return &AuthCase{
 		BaseCase:     baseCase,
 		baseUserCase: baseUserCase,
-		wxMiniApp:    wxMiniApp,
+		oauthManager: oauthManager,
 		profileMapper: mapper.NewCopierMapper[
 			appv1.UserProfileForm,
 			models.BaseUser,
@@ -130,22 +131,25 @@ func (c *AuthCase) BindUserPhone(ctx context.Context, req *appv1.BindUserPhoneRe
 	accessToken, err = sdk.Runtime.GetCache().Get(CACHE_KEY_WX_ACCESS_TOKEN)
 	// 本地缓存未命中 access token 时，回源微信重新获取。
 	if err != nil {
-		var token *utils.WxAccessToken
-		token, err = utils.GetAccessToken(c.wxMiniApp.GetAppid(), c.wxMiniApp.GetSecret())
+		var oauthProvider provider.OAuth
+		oauthProvider, err = c.oauthManager.Get(kitOauth.WechatMini)
+		if err != nil {
+			return nil, errorsx.Internal("微信登录配置信息错误").WithCause(err)
+		}
+		var token *provider.Token
+		token, err = oauthProvider.GetToken(ctx, "", provider.WithGrantType(provider.GrantTypeClientCredentials))
 		// 微信 access token 获取失败时，直接返回授权失败。
 		if err != nil {
 			return nil, errorsx.Internal("手机号授权失败").WithCause(err)
 		}
-		// 微信侧返回 access token 业务错误时，直接返回授权失败。
-		if token.ErrCode != 0 {
-			return nil, errorsx.Internal("手机号授权失败").WithMetadata(map[string]string{
-				"provider":      "wechat",
-				"provider_code": fmt.Sprintf("%d", token.ErrCode),
-			})
-		}
 		accessToken = token.AccessToken
+		cacheTTL := time.Duration(token.ExpiresIn-300) * time.Second
+		// 有效期不足 300 秒时不再预留刷新缓冲，避免生成非正缓存时长。
+		if token.ExpiresIn <= 300 {
+			cacheTTL = time.Duration(token.ExpiresIn) * time.Second
+		}
 		// 新 access token 缓存失败时，只记录日志不影响主流程。
-		err = sdk.Runtime.GetCache().Set(CACHE_KEY_WX_ACCESS_TOKEN, accessToken, time.Duration(token.ExpiresIn-300))
+		err = sdk.Runtime.GetCache().Set(CACHE_KEY_WX_ACCESS_TOKEN, accessToken, cacheTTL)
 		if err != nil {
 			log.Error(fmt.Sprintf("SetWxAccessTokenCache %v", err))
 		}

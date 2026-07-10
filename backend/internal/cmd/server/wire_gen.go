@@ -339,7 +339,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	userStoreService := admin.NewUserStoreService(userStoreCase)
 	workspaceCase := biz2.NewWorkspaceCase(bizOrderInfoCase, bizBaseUserCase, bizOrderGoodsCase, bizGoodsInfoCase, bizGoodsSKUCase, payBillCase, bizCommentInfoCase, bizCommentDiscussionCase, bizCommentTagCase, bizCommentSummaryCase)
 	workspaceService := admin.NewWorkspaceService(workspaceCase)
-	wxMiniApp, err := config.ParseWxMiniApp(shopConfig)
+	oAuth := config.ParseOAuth(context)
+	manager, err := oauth.NewManager(oAuth)
 	if err != nil {
 		cleanup4()
 		cleanup3()
@@ -347,7 +348,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 		cleanup()
 		return nil, nil, err
 	}
-	bizAuthCase := biz3.NewAuthCase(baseCase, baseUserCase, wxMiniApp)
+	bizAuthCase := biz3.NewAuthCase(baseCase, baseUserCase, manager)
 	appAuthService := app.NewAuthService(bizAuthCase)
 	baseAreaService := app.NewBaseAreaService(baseAreaCase)
 	bizBaseDictCase := biz3.NewBaseDictCase(baseCase, baseDictRepository, baseDictItemCase)
@@ -401,17 +402,8 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizBaseRoleCase := biz4.NewBaseRoleCase(baseRoleRepository)
 	loginCase := biz4.NewLoginCase(baseCase, userToken, bizBaseDeptCase, bizBaseRoleCase, baseUserCase2, baseTenantRepository)
 	loginService := base.NewLoginService(loginCase)
-	oAuth := config.ParseOAuth(context)
-	manager, err := oauth.NewManager(oAuth)
-	if err != nil {
-		cleanup4()
-		cleanup3()
-		cleanup2()
-		cleanup()
-		return nil, nil, err
-	}
 	baseThirdAccountCase := biz4.NewBaseThirdAccountCase(baseThirdAccountRepository)
-	oauthCase := biz4.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase2, loginCase, wxMiniApp)
+	oauthCase := biz4.NewOauthCase(baseCase, transaction, manager, baseThirdAccountCase, baseUserCase2, loginCase)
 	oauthService := base.NewOauthService(oauthCase)
 	serverServices, err := server.NewServerServices(authService, baseApiService, baseConfigService, baseDeptService, baseDictService, baseJobService, baseLogService, baseMenuService, baseRoleService, baseTenantService, baseUserService, commentInfoService, tenantStoreService, goodsAnalyticsService, goodsReportService, goodsCategoryService, goodsPropService, goodsInfoService, goodsSkuService, goodsSpecService, orderAnalyticsService, orderReportService, orderInfoService, payBillService, recommendRequestService, recommendGorseService, shopBannerService, shopHotService, shopServiceService, userAnalyticsService, userStoreService, workspaceService, appAuthService, baseAreaService, appBaseDictService, commentService, appGoodsCategoryService, appGoodsInfoService, appTenantStoreService, appOrderInfoService, payService, recommendService, appShopBannerService, appShopHotService, appShopServiceService, userAddressService, userCartService, userCollectService, appUserStoreService, assistantRuntime, aiAssistantService, aiAssistantMessageService, configService, fileService, loginService, oauthService)
 	if err != nil {

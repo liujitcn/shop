@@ -11,15 +11,8 @@ message ShopConfigWrapper {
 
 // 商城业务配置。
 message ShopConfig {
-  WxMiniApp wx_mini_app = 1 [(gnostic.openapi.v3.property) = {description: "小程序登录参数"}]; // 小程序登录参数
-  WxPay wx_pay = 2 [(gnostic.openapi.v3.property) = {description: "微信支付参数"}]; // 微信支付参数
-  Recommend recommend = 3 [(gnostic.openapi.v3.property) = {description: "推荐配置"}]; // 推荐配置
-}
-
-// 微信小程序配置。
-message WxMiniApp {
-  string appid = 1 [(gnostic.openapi.v3.property) = {description: "小程序 AppID"}]; // 小程序 AppID
-  string secret = 2 [(gnostic.openapi.v3.property) = {description: "小程序密钥"}]; // 小程序密钥
+  WxPay wx_pay = 1 [(gnostic.openapi.v3.property) = {description: "微信支付参数"}]; // 微信支付参数
+  Recommend recommend = 2 [(gnostic.openapi.v3.property) = {description: "推荐配置"}]; // 推荐配置
 }
 
 // 微信支付配置。

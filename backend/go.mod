@@ -20,7 +20,7 @@ require (
 	github.com/liujitcn/kratos-kit v0.0.46
 	github.com/liujitcn/kratos-kit/ai/eino v0.0.2
 	github.com/liujitcn/kratos-kit/api v0.0.18
-	github.com/liujitcn/kratos-kit/auth v0.0.16
+	github.com/liujitcn/kratos-kit/auth v0.0.17
 	github.com/liujitcn/kratos-kit/auth/authn v0.0.16
 	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.11
 	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.12
@@ -33,7 +33,7 @@ require (
 	github.com/liujitcn/kratos-kit/database/gorm v0.0.27
 	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.11
 	github.com/liujitcn/kratos-kit/logger/zap v0.0.11
-	github.com/liujitcn/kratos-kit/oauth v0.0.4
+	github.com/liujitcn/kratos-kit/oauth v0.0.5
 	github.com/liujitcn/kratos-kit/oss v0.0.11
 	github.com/liujitcn/kratos-kit/pprof v0.0.9
 	github.com/liujitcn/kratos-kit/queue v0.0.18

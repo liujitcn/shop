@@ -71,9 +71,8 @@ func (x *ShopConfigWrapper) GetShop() *ShopConfig {
 // 商城业务配置。
 type ShopConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	WxMiniApp     *WxMiniApp             `protobuf:"bytes,1,opt,name=wx_mini_app,json=wxMiniApp,proto3" json:"wx_mini_app,omitempty"` // 小程序登录参数
-	WxPay         *WxPay                 `protobuf:"bytes,2,opt,name=wx_pay,json=wxPay,proto3" json:"wx_pay,omitempty"`               // 微信支付参数
-	Recommend     *Recommend             `protobuf:"bytes,3,opt,name=recommend,proto3" json:"recommend,omitempty"`                    // 推荐配置
+	WxPay         *WxPay                 `protobuf:"bytes,1,opt,name=wx_pay,json=wxPay,proto3" json:"wx_pay,omitempty"` // 微信支付参数
+	Recommend     *Recommend             `protobuf:"bytes,2,opt,name=recommend,proto3" json:"recommend,omitempty"`      // 推荐配置
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -108,13 +107,6 @@ func (*ShopConfig) Descriptor() ([]byte, []int) {
 	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ShopConfig) GetWxMiniApp() *WxMiniApp {
-	if x != nil {
-		return x.WxMiniApp
-	}
-	return nil
-}
-
 func (x *ShopConfig) GetWxPay() *WxPay {
 	if x != nil {
 		return x.WxPay
@@ -127,59 +119,6 @@ func (x *ShopConfig) GetRecommend() *Recommend {
 		return x.Recommend
 	}
 	return nil
-}
-
-// 微信小程序配置。
-type WxMiniApp struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Appid         string                 `protobuf:"bytes,1,opt,name=appid,proto3" json:"appid,omitempty"`   // 小程序 AppID
-	Secret        string                 `protobuf:"bytes,2,opt,name=secret,proto3" json:"secret,omitempty"` // 小程序密钥
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WxMiniApp) Reset() {
-	*x = WxMiniApp{}
-	mi := &file_config_v1_shop_config_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WxMiniApp) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WxMiniApp) ProtoMessage() {}
-
-func (x *WxMiniApp) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_shop_config_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WxMiniApp.ProtoReflect.Descriptor instead.
-func (*WxMiniApp) Descriptor() ([]byte, []int) {
-	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *WxMiniApp) GetAppid() string {
-	if x != nil {
-		return x.Appid
-	}
-	return ""
-}
-
-func (x *WxMiniApp) GetSecret() string {
-	if x != nil {
-		return x.Secret
-	}
-	return ""
 }
 
 // 微信支付配置。
@@ -197,7 +136,7 @@ type WxPay struct {
 
 func (x *WxPay) Reset() {
 	*x = WxPay{}
-	mi := &file_config_v1_shop_config_proto_msgTypes[3]
+	mi := &file_config_v1_shop_config_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -209,7 +148,7 @@ func (x *WxPay) String() string {
 func (*WxPay) ProtoMessage() {}
 
 func (x *WxPay) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_shop_config_proto_msgTypes[3]
+	mi := &file_config_v1_shop_config_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -222,7 +161,7 @@ func (x *WxPay) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WxPay.ProtoReflect.Descriptor instead.
 func (*WxPay) Descriptor() ([]byte, []int) {
-	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{3}
+	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *WxPay) GetAppid() string {
@@ -278,7 +217,7 @@ type Recommend struct {
 
 func (x *Recommend) Reset() {
 	*x = Recommend{}
-	mi := &file_config_v1_shop_config_proto_msgTypes[4]
+	mi := &file_config_v1_shop_config_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -290,7 +229,7 @@ func (x *Recommend) String() string {
 func (*Recommend) ProtoMessage() {}
 
 func (x *Recommend) ProtoReflect() protoreflect.Message {
-	mi := &file_config_v1_shop_config_proto_msgTypes[4]
+	mi := &file_config_v1_shop_config_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -303,7 +242,7 @@ func (x *Recommend) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Recommend.ProtoReflect.Descriptor instead.
 func (*Recommend) Descriptor() ([]byte, []int) {
-	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{4}
+	return file_config_v1_shop_config_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Recommend) GetEntryPoint() string {
@@ -326,15 +265,11 @@ const file_config_v1_shop_config_proto_rawDesc = "" +
 	"\n" +
 	"\x1bconfig/v1/shop_config.proto\x12\tconfig.v1\x1a$gnostic/openapi/v3/annotations.proto\"R\n" +
 	"\x11ShopConfigWrapper\x12=\n" +
-	"\x04shop\x18\x01 \x01(\v2\x15.config.v1.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\xea\x01\n" +
+	"\x04shop\x18\x01 \x01(\v2\x15.config.v1.ShopConfigB\x12\xbaG\x0f\x92\x02\f商城配置R\x04shop\"\x97\x01\n" +
 	"\n" +
-	"ShopConfig\x12Q\n" +
-	"\vwx_mini_app\x18\x01 \x01(\v2\x14.config.v1.WxMiniAppB\x1b\xbaG\x18\x92\x02\x15小程序登录参数R\twxMiniApp\x12A\n" +
-	"\x06wx_pay\x18\x02 \x01(\v2\x10.config.v1.WxPayB\x18\xbaG\x15\x92\x02\x12微信支付参数R\x05wxPay\x12F\n" +
-	"\trecommend\x18\x03 \x01(\v2\x14.config.v1.RecommendB\x12\xbaG\x0f\x92\x02\f推荐配置R\trecommend\"g\n" +
-	"\tWxMiniApp\x12+\n" +
-	"\x05appid\x18\x01 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序 AppIDR\x05appid\x12-\n" +
-	"\x06secret\x18\x02 \x01(\tB\x15\xbaG\x12\x92\x02\x0f小程序密钥R\x06secret\"\xc3\x02\n" +
+	"ShopConfig\x12A\n" +
+	"\x06wx_pay\x18\x01 \x01(\v2\x10.config.v1.WxPayB\x18\xbaG\x15\x92\x02\x12微信支付参数R\x05wxPay\x12F\n" +
+	"\trecommend\x18\x02 \x01(\v2\x14.config.v1.RecommendB\x12\xbaG\x0f\x92\x02\f推荐配置R\trecommend\"\xc3\x02\n" +
 	"\x05WxPay\x12.\n" +
 	"\x05appid\x18\x01 \x01(\tB\x18\xbaG\x15\x92\x02\x12微信支付 AppIDR\x05appid\x12%\n" +
 	"\x06mch_id\x18\x02 \x01(\tB\x0e\xbaG\v\x92\x02\b商户idR\x05mchId\x121\n" +
@@ -364,24 +299,22 @@ func file_config_v1_shop_config_proto_rawDescGZIP() []byte {
 	return file_config_v1_shop_config_proto_rawDescData
 }
 
-var file_config_v1_shop_config_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_config_v1_shop_config_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_config_v1_shop_config_proto_goTypes = []any{
 	(*ShopConfigWrapper)(nil), // 0: config.v1.ShopConfigWrapper
 	(*ShopConfig)(nil),        // 1: config.v1.ShopConfig
-	(*WxMiniApp)(nil),         // 2: config.v1.WxMiniApp
-	(*WxPay)(nil),             // 3: config.v1.WxPay
-	(*Recommend)(nil),         // 4: config.v1.Recommend
+	(*WxPay)(nil),             // 2: config.v1.WxPay
+	(*Recommend)(nil),         // 3: config.v1.Recommend
 }
 var file_config_v1_shop_config_proto_depIdxs = []int32{
 	1, // 0: config.v1.ShopConfigWrapper.shop:type_name -> config.v1.ShopConfig
-	2, // 1: config.v1.ShopConfig.wx_mini_app:type_name -> config.v1.WxMiniApp
-	3, // 2: config.v1.ShopConfig.wx_pay:type_name -> config.v1.WxPay
-	4, // 3: config.v1.ShopConfig.recommend:type_name -> config.v1.Recommend
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2, // 1: config.v1.ShopConfig.wx_pay:type_name -> config.v1.WxPay
+	3, // 2: config.v1.ShopConfig.recommend:type_name -> config.v1.Recommend
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_config_v1_shop_config_proto_init() }
@@ -395,7 +328,7 @@ func file_config_v1_shop_config_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_config_v1_shop_config_proto_rawDesc), len(file_config_v1_shop_config_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

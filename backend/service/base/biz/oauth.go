@@ -15,7 +15,6 @@ import (
 	"time"
 
 	basev1 "shop/api/gen/go/base/v1"
-	shopconfigv1 "shop/api/gen/go/config/v1"
 	"shop/pkg/biz"
 	_const "shop/pkg/const"
 	"shop/pkg/errorsx"
@@ -26,10 +25,8 @@ import (
 	kratosErrors "github.com/go-kratos/kratos/v3/errors"
 	kratosHTTP "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/liujitcn/go-utils/id"
-	bootstrapConfigv1 "github.com/liujitcn/kratos-kit/api/gen/go/config/v1"
 	kitOauth "github.com/liujitcn/kratos-kit/oauth"
 	"github.com/liujitcn/kratos-kit/oauth/provider"
-	"github.com/liujitcn/kratos-kit/oauth/wechatmini"
 	"gorm.io/gorm"
 )
 
@@ -46,7 +43,6 @@ type OauthCase struct {
 	*biz.BaseCase
 	tx                   data.Transaction
 	oauthManager         *kitOauth.Manager
-	wechatMiniProvider   provider.OAuth
 	baseThirdAccountCase *BaseThirdAccountCase
 	baseUserCase         *BaseUserCase
 	loginCase            *LoginCase
@@ -68,16 +64,11 @@ func NewOauthCase(
 	baseThirdAccountCase *BaseThirdAccountCase,
 	baseUserCase *BaseUserCase,
 	loginCase *LoginCase,
-	wxMiniApp *shopconfigv1.WxMiniApp,
 ) *OauthCase {
 	return &OauthCase{
-		BaseCase:     baseCase,
-		tx:           tx,
-		oauthManager: oauthManager,
-		wechatMiniProvider: wechatmini.New(&bootstrapConfigv1.Provider{
-			ClientId:     wxMiniApp.GetAppid(),
-			ClientSecret: wxMiniApp.GetSecret(),
-		}),
+		BaseCase:             baseCase,
+		tx:                   tx,
+		oauthManager:         oauthManager,
 		baseThirdAccountCase: baseThirdAccountCase,
 		baseUserCase:         baseUserCase,
 		loginCase:            loginCase,
@@ -298,13 +289,18 @@ func (c *OauthCase) CreateOauthSession(ctx context.Context, req *basev1.CreateOa
 // findOrCreateWechatMiniUser 按微信小程序授权码查找或自动创建本地用户。
 func (c *OauthCase) findOrCreateWechatMiniUser(ctx context.Context, code string) (*models.BaseUser, error) {
 	var err error
+	var wechatMiniProvider provider.OAuth
+	wechatMiniProvider, err = c.oauthManager.Get(kitOauth.WechatMini)
+	if err != nil {
+		return nil, errorsx.Internal("微信登录配置信息错误").WithCause(err)
+	}
 	var oauthToken *provider.Token
-	oauthToken, err = c.wechatMiniProvider.GetToken(ctx, code)
+	oauthToken, err = wechatMiniProvider.GetToken(ctx, code, provider.WithGrantType(provider.GrantTypeAuthorizationCode))
 	if err != nil {
 		return nil, errorsx.InvalidArgument("微信登录凭据无效").WithCause(err)
 	}
 	var oauthUser *provider.User
-	oauthUser, err = c.wechatMiniProvider.GetUser(ctx, oauthToken)
+	oauthUser, err = wechatMiniProvider.GetUser(ctx, oauthToken)
 	if err != nil {
 		return nil, errorsx.InvalidArgument("获取微信用户失败").WithCause(err)
 	}
@@ -511,11 +507,13 @@ func (c *OauthCase) fetchOauthIdentifier(ctx context.Context, oauthType kitOauth
 	if err != nil {
 		return "", errorsx.InvalidArgument("登录方式不支持").WithCause(err)
 	}
-	oauthToken, err := oauthProvider.GetToken(ctx, code, provider.WithPKCE(pkce))
+	var oauthToken *provider.Token
+	oauthToken, err = oauthProvider.GetToken(ctx, code, provider.WithGrantType(provider.GrantTypeAuthorizationCode), provider.WithPKCE(pkce))
 	if err != nil {
 		return "", errorsx.InvalidArgument("三方授权失败").WithCause(err)
 	}
-	oauthUser, err := oauthProvider.GetUser(ctx, oauthToken)
+	var oauthUser *provider.User
+	oauthUser, err = oauthProvider.GetUser(ctx, oauthToken)
 	if err != nil {
 		return "", errorsx.InvalidArgument("获取三方用户失败").WithCause(err)
 	}

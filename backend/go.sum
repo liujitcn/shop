@@ -395,8 +395,8 @@ github.com/liujitcn/kratos-kit/ai/eino v0.0.2 h1:CLAwbUSTW27H2B/bbCvviuUyW2RZY2W
 github.com/liujitcn/kratos-kit/ai/eino v0.0.2/go.mod h1:lZefpEmwZ+HskVd9kQgckMkLqXKoxnY7dqmkWZWziRc=
 github.com/liujitcn/kratos-kit/api v0.0.18 h1:xenLL0KX5FpRFsPwK2xK3PYRijEOIwmntAnHzqcLam8=
 github.com/liujitcn/kratos-kit/api v0.0.18/go.mod h1:sz7G4l7CQuW+RiLHp2xvM8v1TyrpWVj4tf0wtrZhaPE=
-github.com/liujitcn/kratos-kit/auth v0.0.16 h1:JlW7yTHW8bs95XvMrud1Xrj+y+GoQfQ7MrhOWYbXYN8=
-github.com/liujitcn/kratos-kit/auth v0.0.16/go.mod h1:d/M+YbxKEddQUdIO0nh0F4PQmdRP9Q3GdkTAHJqeWIo=
+github.com/liujitcn/kratos-kit/auth v0.0.17 h1:76G+fzbsA2DCmlO4w1AmNopKnz/w7/ycTdnsZD4GXeU=
+github.com/liujitcn/kratos-kit/auth v0.0.17/go.mod h1:d/M+YbxKEddQUdIO0nh0F4PQmdRP9Q3GdkTAHJqeWIo=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.16 h1:lMtIICRrOGagSp4i3dYJJI5xJI5+3vaeoBf2E25CiZc=
 github.com/liujitcn/kratos-kit/auth/authn v0.0.16/go.mod h1:FjxTiMbr4QgR9MYnSTOMtZU7scfzOhXRXuFf8xOugJY=
 github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.11 h1:zmcBxJEkksPk1G/cB03HC4zVH22Cpjgqe7N5j4Cmdic=
@@ -433,8 +433,8 @@ github.com/liujitcn/kratos-kit/logger v0.0.24 h1:N77qbM2i5q64Te/JwOKB4LUUIujP3nn
 github.com/liujitcn/kratos-kit/logger v0.0.24/go.mod h1:waMP6SyttFah52AHR+jNs+XLOUCT5rMnZNYUvTVOPB8=
 github.com/liujitcn/kratos-kit/logger/zap v0.0.11 h1:84BBtV5+wPq0EmpT0b2yePocSWV1cyPJW0BpDTMVD1Q=
 github.com/liujitcn/kratos-kit/logger/zap v0.0.11/go.mod h1:ep54JvMJhG/Q2/MM3E3qbhGxJGW5y05Dy5e6e037sY4=
-github.com/liujitcn/kratos-kit/oauth v0.0.4 h1:/xF61Q6tBfthIB0ZU8McQW6QWGWq4qT8HU95sN42tfs=
-github.com/liujitcn/kratos-kit/oauth v0.0.4/go.mod h1:srN4RcsPs6qaaUnnBG7e63klK/Vsw9lO0Id5CMeiNL0=
+github.com/liujitcn/kratos-kit/oauth v0.0.5 h1:4YS3jDzZ5j8kC1yI2tdhSPqVqyn2BGZ15seRhArWHCA=
+github.com/liujitcn/kratos-kit/oauth v0.0.5/go.mod h1:srN4RcsPs6qaaUnnBG7e63klK/Vsw9lO0Id5CMeiNL0=
 github.com/liujitcn/kratos-kit/oss v0.0.11 h1:NW45gZ0eUBbGB3YbQc1KvKzWUI/BwoAT2jeDj5YxXes=
 github.com/liujitcn/kratos-kit/oss v0.0.11/go.mod h1:MZ0zOzjzTtUJvRUTrLoZCuxKOjAZWfnNvvnt+feeUKg=
 github.com/liujitcn/kratos-kit/pprof v0.0.9 h1:vFf7XHFH6V4UFkG18jqHIpWlElW86z/6T2ITc5FGLqU=

@@ -14,24 +14,12 @@ export interface ShopConfigWrapper {
 
 /** 商城业务配置。 */
 export interface ShopConfig {
-  /** 小程序登录参数 */
-  wx_mini_app:
-    | WxMiniApp
-    | undefined;
   /** 微信支付参数 */
   wx_pay:
     | WxPay
     | undefined;
   /** 推荐配置 */
   recommend: Recommend | undefined;
-}
-
-/** 微信小程序配置。 */
-export interface WxMiniApp {
-  /** 小程序 AppID */
-  appid: string;
-  /** 小程序密钥 */
-  secret: string;
 }
 
 /** 微信支付配置。 */

@@ -266,6 +266,7 @@ func (c *LoginCase) IssueUserToken(ctx context.Context, user *models.BaseUser) (
 		RoleId:     user.RoleID,
 		RoleCode:   role.Code,
 		RoleName:   role.Name,
+		DataScope:  role.DataScope,
 		TenantId:   user.TenantID,
 		TenantCode: baseTenant.Code,
 		DeptId:     user.DeptID,

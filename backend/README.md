@@ -33,9 +33,9 @@ backend
 | `configs/data.yaml` | MySQL 连接、自动迁移、连接池、Redis 预留配置。 |
 | `configs/oss.yaml` | 本地文件存储根目录，默认 `./data`。 |
 | `configs/auth.yaml` | 登录认证、JWT、权限等基础配置。 |
-| `configs/oauth.yaml` | 管理后台三方登录 Provider、应用密钥、回调地址与授权范围配置。 |
+| `configs/oauth.yaml`、`configs/oauth_local.yaml` | 三方登录与微信小程序 OAuth Provider 默认示例及本地应用密钥、回调地址与授权范围配置。 |
 | `configs/configs.yaml` | 通用业务配置。 |
-| `configs/configs_local.yaml` | 本地微信、支付、推荐等业务配置。 |
+| `configs/configs_local.yaml` | 本地微信支付、推荐等业务配置。 |
 | `configs/ai.yaml`、`configs/local.yaml` | 大模型默认配置与本地覆盖配置。 |
 | `configs/logger.yaml`、`trace.yaml`、`pprof.yaml`、`registry.yaml` | 日志、链路追踪、性能分析、注册中心相关配置。 |
 
@@ -48,7 +48,7 @@ enable_migrate: true
 
 首次启动会按当前模型自动建表。生产或共享环境应按实际情况调整账号、密码、库名和 `enable_migrate`。
 
-管理后台三方登录配置在 `configs/oauth.yaml`。启用某个 Provider 时，需要填写对应平台分配的 `clientId`、`clientSecret`、`redirectUri` 和 `scopes`；`redirectUri` 应配置为后端 OAuth callback 地址，前端创建授权地址时只传 `redirect_url` 作为登录或绑定完成后的前端接收地址。登录页会按已配置且后端组件支持的 Provider 动态展示三方登录入口。微信小程序登录使用小程序端 `wx.login()` 获取 code 后调用 `base.v1.OauthService/CreateOauthSession` 创建会话，不作为管理后台跳转授权入口展示。
+三方登录与微信小程序登录的默认示例配置在 `configs/oauth.yaml`，本地应用密钥通过 `configs/oauth_local.yaml` 覆盖。启用跳转型 Provider 时，需要填写对应平台分配的 `clientId`、`clientSecret`、`redirectUri` 和 `scopes`；`redirectUri` 应配置为后端 OAuth callback 地址，前端创建授权地址时只传 `redirect_url` 作为登录或绑定完成后的前端接收地址。登录页会按已配置且后端组件支持的 Provider 动态展示三方登录入口。微信小程序登录使用 `wechatmini` Provider 的 `clientId` 和 `clientSecret`，由小程序端 `wx.login()` 获取 code 后调用 `base.v1.OauthService/CreateOauthSession` 创建会话，手机号授权也复用该 Provider 配置。
 
 ## 本地启动
 
