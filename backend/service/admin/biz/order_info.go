@@ -6,27 +6,28 @@ import (
 	"fmt"
 	"time"
 
-	"shop/pkg/config"
-	_const "shop/pkg/const"
-
-	adminv1 "shop/api/gen/go/admin/v1"
-	appv1 "shop/api/gen/go/app/v1"
-	commonv1 "shop/api/gen/go/common/v1"
-	"shop/pkg/biz"
-	"shop/pkg/errorsx"
-	"shop/pkg/gen/data"
-	"shop/pkg/gen/models"
-	"shop/pkg/workspaceevent"
-	"shop/pkg/wx"
-
 	"github.com/liujitcn/go-utils/mapper"
 	_slice "github.com/liujitcn/go-utils/slice"
 	_string "github.com/liujitcn/go-utils/string"
 	_time "github.com/liujitcn/go-utils/time"
 	"github.com/liujitcn/go-utils/trans"
 	"github.com/liujitcn/gorm-kit/repository"
+	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/refunddomestic"
 	"gorm.io/gorm"
+
+	adminv1 "shop/api/gen/go/admin/v1"
+	appv1 "shop/api/gen/go/app/v1"
+	commonv1 "shop/api/gen/go/common/v1"
+	"shop/pkg/biz"
+	"shop/pkg/config"
+	_const "shop/pkg/const"
+	"shop/pkg/errorsx"
+	"shop/pkg/gen/data"
+	"shop/pkg/gen/models"
+	"shop/pkg/workspaceevent"
+	"shop/pkg/wx"
 )
 
 // OrderInfoCase 订单业务实例
@@ -142,8 +143,13 @@ func (c *OrderInfoCase) GetOrderInfo(ctx context.Context, id int64) (*adminv1.Or
 		Countdown: float32(time.Until(orderInfo.CreatedAt.Add(config.ParsePayTimeout())).Seconds()),
 	}
 
+	var queryCtx context.Context
+	queryCtx, err = c.orderUserQueryContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	var baseUser *models.BaseUser
-	baseUser, err = c.baseUserCase.FindByID(ctx, orderInfo.UserID)
+	baseUser, err = c.baseUserCase.FindByID(queryCtx, orderInfo.UserID)
 	// 用户存在时，补齐订单上的下单用户昵称。
 	if err == nil {
 		res.Order.NickName = baseUser.NickName
@@ -418,7 +424,13 @@ func (c *OrderInfoCase) getOrderUserMap(ctx context.Context, list []*models.Orde
 
 	userIDs = _slice.Unique(userIDs)
 
-	userList, err := c.baseUserCase.ListByIDs(ctx, userIDs)
+	// 订单用户属于全员范围，按订单已记录的用户 ID 跨租户回查昵称。
+	queryCtx, err := c.orderUserQueryContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var userList []*models.BaseUser
+	userList, err = c.baseUserCase.ListByIDs(queryCtx, userIDs)
 	if err != nil {
 		return nil, err
 	}
@@ -426,4 +438,15 @@ func (c *OrderInfoCase) getOrderUserMap(ctx context.Context, list []*models.Orde
 		userMap[item.ID] = item
 	}
 	return userMap, nil
+}
+
+// orderUserQueryContext 构建保留请求链路的跨租户订单用户查询上下文。
+func (c *OrderInfoCase) orderUserQueryContext(ctx context.Context) (context.Context, error) {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	unscopedAuthInfo := *authInfo
+	unscopedAuthInfo.TenantCode = databaseGorm.DefaultTenantCode
+	return authnEngine.ContextWithAuthClaims(ctx, unscopedAuthInfo.MakeAuthClaims()), nil
 }

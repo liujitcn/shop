@@ -2,6 +2,14 @@ package biz
 
 import (
 	"context"
+
+	"github.com/liujitcn/go-utils/crypto"
+	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
+	authnEngine "github.com/liujitcn/kratos-kit/auth/authn/engine"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/biz"
@@ -11,32 +19,36 @@ import (
 	"shop/pkg/gen/models"
 	"shop/pkg/queue"
 	"shop/pkg/utils"
-
-	"github.com/liujitcn/go-utils/crypto"
-	"github.com/liujitcn/go-utils/mapper"
-	_string "github.com/liujitcn/go-utils/string"
-	"github.com/liujitcn/gorm-kit/repository"
 )
 
 // BaseUserCase 用户业务实例
 type BaseUserCase struct {
 	*biz.BaseCase
 	*data.BaseUserRepository
-	baseDeptRepo *data.BaseDeptRepository
-	baseRoleCase *BaseRoleCase
-	baseDeptCase *BaseDeptCase
-	baseMenuCase *BaseMenuCase
-	formMapper   *mapper.CopierMapper[adminv1.BaseUserForm, models.BaseUser]
-	mapper       *mapper.CopierMapper[adminv1.BaseUser, models.BaseUser]
+	baseDeptRepo  *data.BaseDeptRepository
+	orderInfoRepo *data.OrderInfoRepository
+	baseRoleCase  *BaseRoleCase
+	baseDeptCase  *BaseDeptCase
+	baseMenuCase  *BaseMenuCase
+	formMapper    *mapper.CopierMapper[adminv1.BaseUserForm, models.BaseUser]
+	mapper        *mapper.CopierMapper[adminv1.BaseUser, models.BaseUser]
 }
 
 // NewBaseUserCase 创建用户业务实例
-func NewBaseUserCase(baseCase *biz.BaseCase, baseUserRepo *data.BaseUserRepository, baseDeptRepo *data.BaseDeptRepository, baseRoleCase *BaseRoleCase, baseDeptCase *BaseDeptCase, baseMenuCase *BaseMenuCase,
+func NewBaseUserCase(
+	baseCase *biz.BaseCase,
+	baseUserRepo *data.BaseUserRepository,
+	baseDeptRepo *data.BaseDeptRepository,
+	orderInfoRepo *data.OrderInfoRepository,
+	baseRoleCase *BaseRoleCase,
+	baseDeptCase *BaseDeptCase,
+	baseMenuCase *BaseMenuCase,
 ) *BaseUserCase {
 	return &BaseUserCase{
 		BaseCase:           baseCase,
 		BaseUserRepository: baseUserRepo,
 		baseDeptRepo:       baseDeptRepo,
+		orderInfoRepo:      orderInfoRepo,
 		baseRoleCase:       baseRoleCase,
 		baseDeptCase:       baseDeptCase,
 		baseMenuCase:       baseMenuCase,
@@ -53,16 +65,37 @@ func (c *BaseUserCase) OptionBaseUsers(ctx context.Context, req *adminv1.OptionB
 		return &commonv1.SelectOptionResponse{List: []*commonv1.SelectOptionResponse_Option{}}, nil
 	}
 
-	query := c.Query(ctx).BaseUser
-	opts := make([]repository.QueryOption, 0, 3)
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return nil, err
+	}
+	queryCtx := ctx
+	isOrderUserSearch := req.GetTenantId() == 0 && authInfo.TenantCode != databaseGorm.DefaultTenantCode
+	// 普通租户需要跨租户读取订单中的商城用户，订单范围在联表条件中单独收敛。
+	if isOrderUserSearch {
+		unscopedAuthInfo := *authInfo
+		unscopedAuthInfo.TenantCode = databaseGorm.DefaultTenantCode
+		queryCtx = authnEngine.ContextWithAuthClaims(ctx, unscopedAuthInfo.MakeAuthClaims())
+	}
+
+	query := c.Query(queryCtx).BaseUser
+	opts := make([]repository.QueryOption, 0, 7)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.NickName.Like("%"+keyword+"%")))
+	if isOrderUserSearch {
+		orderQuery := c.orderInfoRepo.Query(ctx).OrderInfo
+		opts = append(opts, repository.Join(orderQuery, query.ID.EqCol(orderQuery.UserID)))
+		opts = append(opts, repository.Where(orderQuery.TenantID.Eq(authInfo.TenantId)))
+		opts = append(opts, repository.Where(orderQuery.DeletedAt.IsNull()))
+		opts = append(opts, repository.Distinct(query.ALL))
+	}
 	if req.GetTenantId() > 0 {
 		opts = append(opts, repository.Where(query.TenantID.Eq(req.GetTenantId())))
 	}
+	opts = append(opts, repository.Limit(100))
 
 	var list []*models.BaseUser
-	list, _, err := c.Page(ctx, 1, 100, opts...)
+	list, err = c.List(queryCtx, opts...)
 	if err != nil {
 		return nil, err
 	}

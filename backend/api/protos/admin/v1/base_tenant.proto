@@ -70,7 +70,7 @@ message OptionBaseTenantsRequest {
 
 // 租户分页查询条件
 message PageBaseTenantsRequest {
-  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
 
@@ -125,7 +125,7 @@ message SetBaseTenantStatusRequest {
 message BaseTenant {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
 
@@ -146,7 +146,7 @@ message BaseTenant {
 message BaseTenantForm {
   int64 id = 1 [(gnostic.openapi.v3.property) = {description: "租户ID"}]; // 租户ID
 
-  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编码"}]; // 租户编码
+  string code = 2 [(gnostic.openapi.v3.property) = {description: "租户编号"}]; // 租户编号
 
   string name = 3 [(gnostic.openapi.v3.property) = {description: "租户名称"}]; // 租户名称
 

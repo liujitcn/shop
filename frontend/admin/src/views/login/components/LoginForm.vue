@@ -181,7 +181,7 @@ interface LoginFormState {
 }
 
 const loginForm = reactive<LoginFormState>({
-  tenant_code: "0000",
+  tenant_code: "",
   user_name: "",
   password: "",
   captcha_code: "",

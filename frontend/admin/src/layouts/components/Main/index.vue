@@ -16,8 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeUnmount, provide, watch, h, nextTick } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onBeforeUnmount, provide, watch, h } from "vue";
 import { storeToRefs } from "pinia";
 import { useDebounceFn } from "@vueuse/core";
 import { useGlobalStore } from "@/stores/modules/global";
@@ -28,7 +27,6 @@ import Footer from "@/layouts/components/Footer/index.vue";
 
 const globalStore = useGlobalStore();
 const { maximize, isCollapse, layout, tabs, footer } = storeToRefs(globalStore);
-const currentRoute = useRoute();
 
 const keepAliveStore = useKeepAliveStore();
 const { keepAliveName } = storeToRefs(keepAliveStore);
@@ -37,16 +35,6 @@ const { keepAliveName } = storeToRefs(keepAliveStore);
 const isRouterShow = ref(true);
 const refreshCurrentPage = (val: boolean) => (isRouterShow.value = val);
 provide("refresh", refreshCurrentPage);
-
-// 路由完整路径变化时主动重挂载内容区，避免标签页和地址栏已切换但主体仍停留在旧页面。
-watch(
-  () => currentRoute.fullPath,
-  async () => {
-    isRouterShow.value = false;
-    await nextTick();
-    isRouterShow.value = true;
-  }
-);
 
 // 解决详情页 keep-alive 问题
 const wrapperMap = new Map();

@@ -96,6 +96,7 @@ import { useUserStore } from "@/stores/modules/user";
 import {
   buildTenantStoreDisplayMap,
   DEFAULT_TENANT_CODE,
+  formatTenantStoreDisplay,
   parseTenantStoreTreeValue,
   transformTenantStoreTreeOptions,
   type TenantStoreDisplayInfo
@@ -154,28 +155,16 @@ const approveImageList = computed<string[]>(() => {
 
 /** 评论审核表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
-  { prop: "goods_picture_snapshot", label: "商品图", width: 90, cellType: "image", imageProps: { width: 48, height: 48 } },
-  { prop: "goods_name_snapshot", label: "商品名称", minWidth: 220, search: { el: "input", key: "goods_name" } },
-  ...(isDefaultTenant.value
-    ? [
-        {
-          prop: "tenant_id",
-          label: "租户",
-          minWidth: 150,
-          showOverflowTooltip: true,
-          render: scope => getTenantNameText(scope.row as CommentInfo)
-        }
-      ]
-    : []),
   {
     prop: "tenant_store_id",
-    label: "门店",
-    minWidth: 150,
+    label: isDefaultTenant.value ? "租户/门店" : "门店",
+    minWidth: isDefaultTenant.value ? 220 : 150,
     showOverflowTooltip: true,
-    render: scope => getTenantStoreNameText(scope.row as CommentInfo),
+    render: scope => getTenantStoreText(scope.row as CommentInfo),
     search: {
       el: "tree-select",
       key: "tenant_store_tree_value",
+      order: 1,
       props: {
         clearable: true,
         filterable: true,
@@ -187,6 +176,8 @@ const columns = computed<ColumnProps[]>(() => [
     },
     enum: requestTenantStoreTreeOptions
   },
+  { prop: "goods_picture_snapshot", label: "商品图", width: 90, cellType: "image", imageProps: { width: 48, height: 48 } },
+  { prop: "goods_name_snapshot", label: "商品名称", minWidth: 220, search: { el: "input", key: "goods_name" } },
   { prop: "user_name_snapshot", label: "用户昵称", minWidth: 120, search: { el: "input", key: "user_name" } },
   { prop: "goods_score", label: "评分", width: 90, search: { el: "input-number", props: { min: 1, max: 5, precision: 0 } } },
   { prop: "content", label: "评论内容", minWidth: 260, showOverflowTooltip: true },
@@ -327,17 +318,10 @@ async function requestTenantStoreTreeOptions() {
 }
 
 /**
- * 读取评论列表租户展示文本，统一通过门店树选项反查。
+ * 读取评论列表租户门店展示文本，默认租户显示租户/门店。
  */
-function getTenantNameText(row: CommentInfo) {
-  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.tenantName || "-";
-}
-
-/**
- * 读取评论列表门店展示文本，统一通过门店树选项反查。
- */
-function getTenantStoreNameText(row: CommentInfo) {
-  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.storeName || "-";
+function getTenantStoreText(row: CommentInfo) {
+  return formatTenantStoreDisplay(row.tenant_store_id, tenantStoreDisplayMap.value);
 }
 
 /** 刷新评论审核列表。 */

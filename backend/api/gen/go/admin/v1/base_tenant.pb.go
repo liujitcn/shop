@@ -74,7 +74,7 @@ func (x *OptionBaseTenantsRequest) GetKeyword() string {
 // 租户分页查询条件
 type PageBaseTenantsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                    // 租户编码
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                    // 租户编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                    // 租户名称
 	Status        *v1.Status             `protobuf:"varint,100,opt,name=status,proto3,enum=common.v1.Status,oneof" json:"status,omitempty"` // 状态
 	PageNum       int64                  `protobuf:"varint,101,opt,name=page_num,json=pageNum,proto3" json:"page_num,omitempty"`            // 当前页码
@@ -438,7 +438,7 @@ func (x *SetBaseTenantStatusRequest) GetStatus() int32 {
 type BaseTenant struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 租户ID
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                     // 租户编码
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                     // 租户编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 租户名称
 	ContactName   string                 `protobuf:"bytes,4,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`    // 联系人
 	ContactPhone  string                 `protobuf:"bytes,5,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"` // 联系电话
@@ -547,7 +547,7 @@ func (x *BaseTenant) GetUpdatedAt() string {
 type BaseTenantForm struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                        // 租户ID
-	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                     // 租户编码
+	Code          string                 `protobuf:"bytes,2,opt,name=code,proto3" json:"code,omitempty"`                                     // 租户编号
 	Name          string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`                                     // 租户名称
 	ContactName   string                 `protobuf:"bytes,4,opt,name=contact_name,json=contactName,proto3" json:"contact_name,omitempty"`    // 联系人
 	ContactPhone  string                 `protobuf:"bytes,5,opt,name=contact_phone,json=contactPhone,proto3" json:"contact_phone,omitempty"` // 联系电话
@@ -644,7 +644,7 @@ const file_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\x18OptionBaseTenantsRequest\x12)\n" +
 	"\akeyword\x18\x01 \x01(\tB\x0f\xbaG\f\x92\x02\t关键字R\akeyword\"\xaf\x02\n" +
 	"\x16PageBaseTenantsRequest\x12&\n" +
-	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\x04code\x12&\n" +
+	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\x04name\x12<\n" +
 	"\x06status\x18d \x01(\x0e2\x11.common.v1.StatusB\f\xbaG\t\x92\x02\x06状态H\x00R\x06status\x88\x01\x01\x129\n" +
 	"\bpage_num\x18e \x01(\x03B\x1e\xbaG\x1b\x8a\x02\t\t\x00\x00\x00\x00\x00\x00\xf0?\x92\x02\f当前页码R\apageNum\x12A\n" +
@@ -669,7 +669,7 @@ const file_admin_v1_base_tenant_proto_rawDesc = "" +
 	"\n" +
 	"BaseTenant\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12&\n" +
-	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\x04code\x12&\n" +
+	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\x04name\x122\n" +
 	"\fcontact_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\vcontactName\x127\n" +
 	"\rcontact_phone\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系电话R\fcontactPhone\x127\n" +
@@ -681,7 +681,7 @@ const file_admin_v1_base_tenant_proto_rawDesc = "" +
 	"updated_at\x18\xc9\x01 \x01(\tB\x12\xbaG\x0f\x92\x02\f更新时间R\tupdatedAt\"\xdc\x02\n" +
 	"\x0eBaseTenantForm\x12\x1e\n" +
 	"\x02id\x18\x01 \x01(\x03B\x0e\xbaG\v\x92\x02\b租户IDR\x02id\x12&\n" +
-	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编码R\x04code\x12&\n" +
+	"\x04code\x18\x02 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户编号R\x04code\x12&\n" +
 	"\x04name\x18\x03 \x01(\tB\x12\xbaG\x0f\x92\x02\f租户名称R\x04name\x122\n" +
 	"\fcontact_name\x18\x04 \x01(\tB\x0f\xbaG\f\x92\x02\t联系人R\vcontactName\x127\n" +
 	"\rcontact_phone\x18\x05 \x01(\tB\x12\xbaG\x0f\x92\x02\f联系电话R\fcontactPhone\x12<\n" +

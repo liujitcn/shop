@@ -8,6 +8,14 @@
     v-bind="handleSearchProps"
     :style="handleSearchStyle"
   />
+  <ElSelect
+    v-else-if="column.search?.el === 'select' && !column.search?.render"
+    v-bind="{ ...handleSearchProps, ...placeholder, searchParam: _searchParam, clearable }"
+    v-model="_searchParam[column.search?.key ?? handleProp(column.prop!)]"
+    :style="handleSearchStyle"
+  >
+    <el-option v-for="(col, index) in columnEnum" :key="index" :label="col[fieldNames.label]" :value="col[fieldNames.value]" />
+  </ElSelect>
   <component
     v-else
     :is="searchComponent"
@@ -19,16 +27,7 @@
     <template v-if="column.search?.el === 'cascader'" #default="{ data }">
       <span>{{ data[fieldNames.label] }}</span>
     </template>
-    <template v-if="column.search?.el === 'select'">
-      <component
-        :is="`el-option`"
-        v-for="(col, index) in columnEnum"
-        :key="index"
-        :label="col[fieldNames.label]"
-        :value="col[fieldNames.value]"
-      ></component>
-    </template>
-    <slot v-else></slot>
+    <slot v-if="column.search?.el !== 'cascader'"></slot>
   </component>
 </template>
 
@@ -103,6 +102,7 @@ const fieldNames = computed(() => {
 
 // 接收 enumMap (el 为 select-v2 需单独处理 enumData)
 const enumMap = inject("enumMap", ref(new Map()));
+
 const columnEnum = computed(() => {
   const staticEnum = typeof props.column.enum !== "function" ? unref(props.column.enum) : undefined;
   if (Array.isArray(staticEnum) && staticEnum.length) return staticEnum;

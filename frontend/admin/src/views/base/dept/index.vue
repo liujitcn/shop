@@ -139,7 +139,6 @@ const formFields = computed<ProFormField[]>(() => [
 /** 部门树表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: "部门名称", minWidth: 140, align: "left", search: { el: "input" } },
   ...(isDefaultTenant.value
     ? ([
         {
@@ -147,11 +146,12 @@ const columns = computed<ColumnProps[]>(() => [
           label: "租户",
           minWidth: 140,
           showOverflowTooltip: true,
-          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 10 },
+          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
           enum: requestTenantOptions
         }
       ] satisfies ColumnProps[])
     : []),
+  { prop: "name", label: "部门名称", minWidth: 140, align: "left", search: { el: "input" } },
   { prop: "remark", label: "备注", minWidth: 160, search: { el: "input" } },
   { prop: "sort", label: "排序", minWidth: 90, align: "right" },
   {

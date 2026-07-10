@@ -17,7 +17,7 @@ export interface OptionBaseTenantsRequest {
 
 /** 租户分页查询条件 */
 export interface PageBaseTenantsRequest {
-  /** 租户编码 */
+  /** 租户编号 */
   code: string;
   /** 租户名称 */
   name: string;
@@ -75,7 +75,7 @@ export interface SetBaseTenantStatusRequest {
 export interface BaseTenant {
   /** 租户ID */
   id: number;
-  /** 租户编码 */
+  /** 租户编号 */
   code: string;
   /** 租户名称 */
   name: string;
@@ -97,7 +97,7 @@ export interface BaseTenant {
 export interface BaseTenantForm {
   /** 租户ID */
   id: number;
-  /** 租户编码 */
+  /** 租户编号 */
   code: string;
   /** 租户名称 */
   name: string;

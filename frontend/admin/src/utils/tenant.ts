@@ -60,6 +60,14 @@ export function buildTenantStoreDisplayMap(options: TreeTenantStoresResponse_Opt
   return displayMap;
 }
 
+/** 格式化租户门店展示文案，默认租户显示“租户/门店”，普通租户显示门店。 */
+export function formatTenantStoreDisplay(tenantStoreId: number | undefined, displayMap: Map<number, TenantStoreDisplayInfo>) {
+  if (!tenantStoreId) return "-";
+  const displayInfo = displayMap.get(tenantStoreId);
+  if (!displayInfo) return "-";
+  return [displayInfo.tenantName, displayInfo.storeName].filter(Boolean).join("/") || "-";
+}
+
 /** 解析租户门店树选中值，一级租户查租户数据，二级门店查门店数据。 */
 export function parseTenantStoreTreeValue(value?: string): TenantStoreTreeSelection {
   if (!value) return {};

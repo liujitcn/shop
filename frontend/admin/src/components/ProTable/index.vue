@@ -282,6 +282,14 @@ const flatColumns = computed(() => flatColumnsFunc(tableColumns.value as any) as
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
 const enumMap = ref(new Map<string, { [key: string]: any }[]>());
 
+/** 更新枚举缓存时替换 Map 引用，确保搜索下拉能响应异步枚举结果。 */
+const setEnumMapValue = (prop: string | undefined, data: { [key: string]: any }[]) => {
+  if (!prop) return;
+  const nextEnumMap = new Map(enumMap.value);
+  nextEnumMap.set(prop, data);
+  enumMap.value = nextEnumMap;
+};
+
 /**
  * 根据状态开关配置自动生成搜索下拉枚举，避免状态列只配置开关后搜索框无选项。
  */
@@ -295,20 +303,31 @@ const buildStatusEnum = (column: ColumnProps): EnumProps[] => {
 
 /** 初始化指定列的枚举缓存，支持静态枚举和异步枚举。 */
 const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
-  if (!enumValue) return;
+  if (!prop || !enumValue) return;
 
   // 如果当前 enumMap 存在相同的值 return
-  if (enumMap.value.has(prop!) && (typeof enumValue === "function" || enumMap.value.get(prop!) === enumValue)) return;
+  if (enumMap.value.has(prop) && (typeof enumValue === "function" || enumMap.value.get(prop) === enumValue)) return;
 
   // 当前 enum 为静态数据，则直接存储到 enumMap
-  if (typeof enumValue !== "function") return enumMap.value.set(prop!, unref(enumValue!));
+  if (typeof enumValue !== "function") {
+    setEnumMapValue(prop, unref(enumValue!));
+    return;
+  }
 
   // 为了防止接口执行慢，而存储慢，导致重复请求，所以预先存储为[]，接口返回后再二次存储
-  enumMap.value.set(prop!, []);
+  setEnumMapValue(prop, []);
 
   // 当前 enum 为后台数据需要请求数据，则调用该请求接口，并存储到 enumMap
-  const { data } = await enumValue();
-  enumMap.value.set(prop!, data);
+  try {
+    const response = await enumValue();
+    const data = Array.isArray(response) ? response : (response?.data ?? response?.list ?? []);
+    setEnumMapValue(prop, data);
+  } catch {
+    // 请求层负责展示接口错误；删除占位缓存，允许列配置再次同步时重试。
+    const nextEnumMap = new Map(enumMap.value);
+    nextEnumMap.delete(prop);
+    enumMap.value = nextEnumMap;
+  }
 };
 
 /**
@@ -317,7 +336,7 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
 const syncColumnEnumMap = async (column: ColumnProps) => {
   const statusEnum = buildStatusEnum(column);
   if (statusEnum.length && column.prop) {
-    enumMap.value.set(column.prop, statusEnum);
+    setEnumMapValue(column.prop, statusEnum);
     return;
   }
   await setEnumMap(column);
@@ -328,7 +347,7 @@ provide("enumMap", enumMap);
 
 // 扁平化 columns 的方法
 const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []) => {
-  columns.forEach(async col => {
+  columns.forEach(col => {
     if (col._children?.length) flatArr.push(...flatColumnsFunc(col._children));
     flatArr.push(col);
 
@@ -336,12 +355,20 @@ const flatColumnsFunc = (columns: ColumnProps[], flatArr: ColumnProps[] = []) =>
     col.isShow = col.isShow ?? true;
     col.isSetting = col.isSetting ?? true;
     col.isFilterEnum = col.isFilterEnum ?? true;
-
-    // 设置 enumMap
-    await syncColumnEnumMap(col);
   });
   return flatArr.filter(item => !item._children?.length);
 };
+
+// 监听扁平列配置并同步枚举，避免在 computed 中执行异步副作用导致搜索下拉不刷新。
+watch(
+  flatColumns,
+  columns => {
+    columns.forEach(column => {
+      void syncColumnEnumMap(column);
+    });
+  },
+  { deep: true, immediate: true }
+);
 
 // 过滤需要搜索的配置项 && 排序
 const searchColumns = computed(() => {

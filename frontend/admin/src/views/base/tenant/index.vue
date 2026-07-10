@@ -58,7 +58,7 @@ const dialog = reactive({
 const formData = reactive<BaseTenantForm>({
   /** 租户ID */
   id: 0,
-  /** 租户编码 */
+  /** 租户编号 */
   code: "",
   /** 租户名称 */
   name: "",
@@ -103,8 +103,8 @@ const formFields: ProFormField[] = [
 /** 租户表格列配置。 */
 const columns: ColumnProps[] = [
   { type: "selection", width: 55 },
-  { prop: "code", label: "租户编号", minWidth: 140, search: { el: "input" } },
-  { prop: "name", label: "租户名称", minWidth: 160, search: { el: "input" } },
+  { prop: "code", label: "租户编号", minWidth: 140, search: { el: "input", order: 1 } },
+  { prop: "name", label: "租户名称", minWidth: 160, search: { el: "input", order: 2 } },
   { prop: "contact_name", label: "联系人", minWidth: 120 },
   { prop: "contact_phone", label: "联系电话", minWidth: 140 },
   {

@@ -18,6 +18,7 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
+	"shop/pkg/queue"
 	"shop/pkg/utils"
 )
 
@@ -37,12 +38,17 @@ type BaseTenantCase struct {
 	*biz.BaseCase
 	tx data.Transaction
 	*data.BaseTenantRepository
-	baseDeptRepo   *data.BaseDeptRepository
-	baseRoleRepo   *data.BaseRoleRepository
-	baseUserRepo   *data.BaseUserRepository
-	casbinRuleCase *CasbinRuleCase
-	formMapper     *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
-	mapper         *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
+	baseDeptRepo    *data.BaseDeptRepository
+	baseRoleRepo    *data.BaseRoleRepository
+	baseUserRepo    *data.BaseUserRepository
+	tenantStoreRepo *data.TenantStoreRepository
+	goodsInfoRepo   *data.GoodsInfoRepository
+	orderInfoRepo   *data.OrderInfoRepository
+	commentInfoRepo *data.CommentInfoRepository
+	casbinRuleRepo  *data.CasbinRuleRepository
+	casbinRuleCase  *CasbinRuleCase
+	formMapper      *mapper.CopierMapper[adminv1.BaseTenantForm, models.BaseTenant]
+	mapper          *mapper.CopierMapper[adminv1.BaseTenant, models.BaseTenant]
 }
 
 // NewBaseTenantCase 创建租户业务实例。
@@ -53,6 +59,11 @@ func NewBaseTenantCase(
 	baseDeptRepo *data.BaseDeptRepository,
 	baseRoleRepo *data.BaseRoleRepository,
 	baseUserRepo *data.BaseUserRepository,
+	tenantStoreRepo *data.TenantStoreRepository,
+	goodsInfoRepo *data.GoodsInfoRepository,
+	orderInfoRepo *data.OrderInfoRepository,
+	commentInfoRepo *data.CommentInfoRepository,
+	casbinRuleRepo *data.CasbinRuleRepository,
 	casbinRuleCase *CasbinRuleCase,
 ) *BaseTenantCase {
 	return &BaseTenantCase{
@@ -62,6 +73,11 @@ func NewBaseTenantCase(
 		baseDeptRepo:         baseDeptRepo,
 		baseRoleRepo:         baseRoleRepo,
 		baseUserRepo:         baseUserRepo,
+		tenantStoreRepo:      tenantStoreRepo,
+		goodsInfoRepo:        goodsInfoRepo,
+		orderInfoRepo:        orderInfoRepo,
+		commentInfoRepo:      commentInfoRepo,
+		casbinRuleRepo:       casbinRuleRepo,
 		casbinRuleCase:       casbinRuleCase,
 		formMapper:           mapper.NewCopierMapper[adminv1.BaseTenantForm, models.BaseTenant](),
 		mapper:               mapper.NewCopierMapper[adminv1.BaseTenant, models.BaseTenant](),
@@ -74,8 +90,6 @@ func (c *BaseTenantCase) OptionBaseTenants(ctx context.Context, req *adminv1.Opt
 	opts := make([]repository.QueryOption, 0, 4)
 	opts = append(opts, repository.Order(query.CreatedAt.Desc()))
 	opts = append(opts, repository.Where(query.Status.Eq(_const.STATUS_ENABLE)))
-	// 默认租户是系统内置租户，不在租户选择中展示。
-	opts = append(opts, repository.Where(query.Code.Neq(databaseGorm.DefaultTenantCode)))
 	if req.GetKeyword() != "" {
 		opts = append(opts, repository.Where(query.Name.Like("%"+req.GetKeyword()+"%")))
 	}
@@ -142,7 +156,7 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.Base
 			return err
 		}
 
-		// 租户编码只允许后端生成，避免客户端绕过前端禁用态传入自定义编码。
+		// 租户编号只允许后端生成，避免客户端传入自定义编号。
 		baseTenant.Code = code
 		// 未指定状态时，新租户默认启用，避免初始化完成后仍无法登录。
 		if baseTenant.Status == 0 {
@@ -150,9 +164,9 @@ func (c *BaseTenantCase) CreateBaseTenant(ctx context.Context, req *adminv1.Base
 		}
 		err = c.Create(ctx, baseTenant)
 		if err != nil {
-			// 命中租户编码唯一索引冲突时，返回稳定的业务冲突错误。
+			// 命中租户编号唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsMySQLDuplicateKey(err) {
-				return errorsx.UniqueConflict("租户编码重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
+				return errorsx.UniqueConflict("租户编号重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
 			}
 			return err
 		}
@@ -173,7 +187,7 @@ func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *adminv1.Base
 	err = c.UpdateByID(ctx, baseTenant)
 	if err != nil {
 		if errorsx.IsMySQLDuplicateKey(err) {
-			return errorsx.UniqueConflict("租户编码重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
+			return errorsx.UniqueConflict("租户编号重复", "base_tenant", "code", "unique_base_tenant").WithCause(err)
 		}
 		return err
 	}
@@ -183,16 +197,46 @@ func (c *BaseTenantCase) UpdateBaseTenant(ctx context.Context, req *adminv1.Base
 // DeleteBaseTenant 删除租户。
 func (c *BaseTenantCase) DeleteBaseTenant(ctx context.Context, id string) error {
 	ids := _string.ConvertStringToInt64Array(id)
-	baseTenants, err := c.List(ctx, repository.Where(c.Query(ctx).BaseTenant.ID.In(ids...)))
+	query := c.Query(ctx).BaseTenant
+	opts := make([]repository.QueryOption, 0, 1)
+	opts = append(opts, repository.Where(query.ID.In(ids...)))
+	baseTenants, err := c.List(ctx, opts...)
 	if err != nil {
 		return err
 	}
+	// 上次删除可能已提交但权限重载失败，幂等重试仍需修复内存策略。
+	if len(baseTenants) == 0 {
+		return c.RebuildPolicyRule(ctx)
+	}
+
+	tenantIDs := make([]int64, 0, len(baseTenants))
+	tenantCodes := make([]string, 0, len(baseTenants))
 	for _, item := range baseTenants {
 		if item.Code == databaseGorm.DefaultTenantCode {
 			return errorsx.ProtectedResourceConflict("默认租户不能删除", "base_tenant")
 		}
+		tenantIDs = append(tenantIDs, item.ID)
+		tenantCodes = append(tenantCodes, item.Code)
 	}
-	return c.DeleteByIDs(ctx, ids)
+
+	var deletedUserIDs []int64
+	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
+		err = c.getBusinessData(ctx, tenantIDs)
+		if err != nil {
+			return err
+		}
+		deletedUserIDs, err = c.deleteTenantData(ctx, tenantIDs, tenantCodes)
+		if err != nil {
+			return err
+		}
+		return c.DeleteByIDs(ctx, tenantIDs)
+	})
+	if err != nil {
+		return err
+	}
+	// 数据库事务提交后，异步清理推荐系统中的租户用户主体。
+	queue.DispatchRecommendDeleteBaseUser(deletedUserIDs)
+	return c.RebuildPolicyRule(ctx)
 }
 
 // SetBaseTenantStatus 设置租户状态。
@@ -210,7 +254,7 @@ func (c *BaseTenantCase) SetBaseTenantStatus(ctx context.Context, req *adminv1.S
 	})
 }
 
-// getNextBaseTenantCode 获取下一个可用租户编码。
+// getNextBaseTenantCode 获取下一个可用租户编号。
 func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, error) {
 	query := c.Query(ctx).BaseTenant
 	opts := make([]repository.QueryOption, 0, 2)
@@ -226,14 +270,15 @@ func (c *BaseTenantCase) getNextBaseTenantCode(ctx context.Context) (string, err
 		var code int64
 		code, err = strconv.ParseInt(item.Code, 10, 64)
 		if err != nil {
-			return "", errorsx.Internal("解析租户编码失败").WithCause(err)
+			return "", errorsx.Internal("解析租户编号失败").WithCause(err)
 		}
 		if code > maxCode {
 			maxCode = code
 		}
 	}
+	// 四位自定义租户编号已全部使用时，拒绝继续创建。
 	if maxCode >= baseTenantMaxCode {
-		return "", errorsx.StateConflict("租户编码已用完", "base_tenant", strconv.FormatInt(maxCode, 10), strconv.FormatInt(baseTenantMaxCode, 10))
+		return "", errorsx.StateConflict("租户编号已用完", "base_tenant", strconv.FormatInt(maxCode, 10), strconv.FormatInt(baseTenantMaxCode, 10))
 	}
 	return fmt.Sprintf("%04d", maxCode+1), nil
 }
@@ -327,4 +372,101 @@ func (c *BaseTenantCase) initTenantDefaults(ctx context.Context, baseTenant *mod
 		return errorsx.Internal("初始化租户管理员角色权限失败").WithCause(err)
 	}
 	return nil
+}
+
+// getBusinessData 确认租户没有业务数据，包含门店，商品，订单。评论等。
+func (c *BaseTenantCase) getBusinessData(ctx context.Context, tenantIDs []int64) error {
+	tenantStoreQuery := c.tenantStoreRepo.Query(ctx).TenantStore
+	tenantStoreOpts := make([]repository.QueryOption, 0, 1)
+	tenantStoreOpts = append(tenantStoreOpts, repository.Where(tenantStoreQuery.TenantID.In(tenantIDs...)))
+	count, err := c.tenantStoreRepo.Count(ctx, tenantStoreOpts...)
+	if err != nil {
+		return err
+	}
+	// 租户存在门店时，保留经营数据并拒绝删除租户。
+	if count > 0 {
+		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "tenant_store")
+	}
+
+	goodsInfoQuery := c.goodsInfoRepo.Query(ctx).GoodsInfo
+	goodsInfoOpts := make([]repository.QueryOption, 0, 1)
+	goodsInfoOpts = append(goodsInfoOpts, repository.Where(goodsInfoQuery.TenantID.In(tenantIDs...)))
+	count, err = c.goodsInfoRepo.Count(ctx, goodsInfoOpts...)
+	if err != nil {
+		return err
+	}
+	// 租户存在商品时，保留经营数据并拒绝删除租户。
+	if count > 0 {
+		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "goods_info")
+	}
+
+	orderInfoQuery := c.orderInfoRepo.Query(ctx).OrderInfo
+	orderInfoOpts := make([]repository.QueryOption, 0, 1)
+	orderInfoOpts = append(orderInfoOpts, repository.Where(orderInfoQuery.TenantID.In(tenantIDs...)))
+	count, err = c.orderInfoRepo.Count(ctx, orderInfoOpts...)
+	if err != nil {
+		return err
+	}
+	// 租户存在订单时，保留经营数据并拒绝删除租户。
+	if count > 0 {
+		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "order_info")
+	}
+
+	commentInfoQuery := c.commentInfoRepo.Query(ctx).CommentInfo
+	commentInfoOpts := make([]repository.QueryOption, 0, 1)
+	commentInfoOpts = append(commentInfoOpts, repository.Where(commentInfoQuery.TenantID.In(tenantIDs...)))
+	count, err = c.commentInfoRepo.Count(ctx, commentInfoOpts...)
+	if err != nil {
+		return err
+	}
+	// 租户存在评论时，保留经营数据并拒绝删除租户。
+	if count > 0 {
+		return errorsx.HasChildrenConflict("删除租户失败，租户下存在关联数据", "base_tenant", "comment_info")
+	}
+	return nil
+}
+
+// deleteTenantData 清理租户下全部用户、角色、部门和权限规则。
+func (c *BaseTenantCase) deleteTenantData(ctx context.Context, tenantIDs []int64, tenantCodes []string) ([]int64, error) {
+	casbinRuleQuery := c.casbinRuleRepo.Query(ctx).CasbinRule
+	casbinRuleOpts := make([]repository.QueryOption, 0, 1)
+	casbinRuleOpts = append(casbinRuleOpts, repository.Where(casbinRuleQuery.V0.In(tenantCodes...)))
+	err := c.casbinRuleRepo.Delete(ctx, casbinRuleOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	userQuery := c.baseUserRepo.Query(ctx).BaseUser
+	userOpts := make([]repository.QueryOption, 0, 1)
+	userOpts = append(userOpts, repository.Where(userQuery.TenantID.In(tenantIDs...)))
+	var users []*models.BaseUser
+	users, err = c.baseUserRepo.List(ctx, userOpts...)
+	if err != nil {
+		return nil, err
+	}
+	userIDs := make([]int64, 0, len(users))
+	for _, item := range users {
+		userIDs = append(userIDs, item.ID)
+	}
+	err = c.baseUserRepo.DeleteByIDs(ctx, userIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	roleQuery := c.baseRoleRepo.Query(ctx).BaseRole
+	roleOpts := make([]repository.QueryOption, 0, 1)
+	roleOpts = append(roleOpts, repository.Where(roleQuery.TenantID.In(tenantIDs...)))
+	err = c.baseRoleRepo.Delete(ctx, roleOpts...)
+	if err != nil {
+		return nil, err
+	}
+
+	deptQuery := c.baseDeptRepo.Query(ctx).BaseDept
+	deptOpts := make([]repository.QueryOption, 0, 1)
+	deptOpts = append(deptOpts, repository.Where(deptQuery.TenantID.In(tenantIDs...)))
+	err = c.baseDeptRepo.Delete(ctx, deptOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return userIDs, nil
 }

@@ -7811,7 +7811,7 @@ components:
                     description: 租户ID
                 code:
                     type: string
-                    description: 租户编码
+                    description: 租户编号
                 name:
                     type: string
                     description: 租户名称
@@ -7847,7 +7847,7 @@ components:
                     description: 租户ID
                 code:
                     type: string
-                    description: 租户编码
+                    description: 租户编号
                 name:
                     type: string
                     description: 租户名称

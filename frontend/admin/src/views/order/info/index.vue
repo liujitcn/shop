@@ -270,6 +270,7 @@ import { useUserStore } from "@/stores/modules/user";
 import {
   buildTenantStoreDisplayMap,
   DEFAULT_TENANT_CODE,
+  formatTenantStoreDisplay,
   parseTenantStoreTreeValue,
   transformTenantStoreTreeOptions,
   type TenantStoreDisplayInfo
@@ -689,6 +690,27 @@ function renderOperationCell(scope: RenderScope<OrderInfo>) {
 /** 订单表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   {
+    prop: "tenant_store_id",
+    label: isDefaultTenant.value ? "租户/门店" : "门店",
+    minWidth: isDefaultTenant.value ? 220 : 150,
+    showOverflowTooltip: true,
+    render: scope => getTenantStoreText(scope.row as OrderInfo),
+    search: {
+      el: "tree-select",
+      key: "tenant_store_tree_value",
+      order: 1,
+      props: {
+        clearable: true,
+        filterable: true,
+        checkStrictly: true,
+        renderAfterExpand: false,
+        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
+        style: { width: "100%" }
+      }
+    },
+    enum: requestTenantStoreTreeOptions
+  },
+  {
     prop: "user_id",
     label: "用户",
     minWidth: 180,
@@ -702,7 +724,8 @@ const columns = computed<ColumnProps[]>(() => [
         remote: true,
         remoteMethod: handleUserSearch,
         reserveKeyword: false
-      }
+      },
+      order: 2
     }
   },
   {
@@ -711,37 +734,6 @@ const columns = computed<ColumnProps[]>(() => [
     minWidth: 190,
     search: { el: "input" },
     render: scope => renderOrderNoCell(scope as unknown as RenderScope<OrderInfo>)
-  },
-  ...(isDefaultTenant.value
-    ? [
-        {
-          prop: "tenant_id",
-          label: "租户",
-          minWidth: 150,
-          showOverflowTooltip: true,
-          render: scope => getTenantNameText(scope.row as OrderInfo)
-        }
-      ]
-    : []),
-  {
-    prop: "tenant_store_id",
-    label: "门店",
-    minWidth: 150,
-    showOverflowTooltip: true,
-    render: scope => getTenantStoreNameText(scope.row as OrderInfo),
-    search: {
-      el: "tree-select",
-      key: "tenant_store_tree_value",
-      props: {
-        clearable: true,
-        filterable: true,
-        checkStrictly: true,
-        renderAfterExpand: false,
-        placeholder: isDefaultTenant.value ? "请选择租户/门店" : "请选择门店",
-        style: { width: "100%" }
-      }
-    },
-    enum: requestTenantStoreTreeOptions
   },
   {
     prop: "pay_money",
@@ -811,17 +803,10 @@ async function requestTenantStoreTreeOptions() {
 }
 
 /**
- * 读取订单列表租户展示文本，统一通过门店树选项反查。
+ * 读取订单列表租户门店展示文本，默认租户显示租户/门店。
  */
-function getTenantNameText(row: OrderInfo) {
-  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.tenantName || "-";
-}
-
-/**
- * 读取订单列表门店展示文本，统一通过门店树选项反查。
- */
-function getTenantStoreNameText(row: OrderInfo) {
-  return tenantStoreDisplayMap.value.get(row.tenant_store_id)?.storeName || "-";
+function getTenantStoreText(row: OrderInfo) {
+  return formatTenantStoreDisplay(row.tenant_store_id, tenantStoreDisplayMap.value);
 }
 
 /**

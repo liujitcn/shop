@@ -230,7 +230,6 @@ const auditFields = computed<ProFormField[]>(() => [
 /** 租户门店表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "name", label: "门店名称", minWidth: 160, search: { el: "input" }, showOverflowTooltip: true },
   ...(isDefaultTenant.value
     ? ([
         {
@@ -238,11 +237,12 @@ const columns = computed<ColumnProps[]>(() => [
           label: "租户",
           minWidth: 140,
           showOverflowTooltip: true,
-          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 10 },
+          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
           enum: requestTenantOptions
         }
       ] satisfies ColumnProps[])
     : []),
+  { prop: "name", label: "门店名称", minWidth: 160, search: { el: "input" }, showOverflowTooltip: true },
   {
     prop: "logo",
     label: "LOGO",

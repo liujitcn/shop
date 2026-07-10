@@ -277,8 +277,6 @@ const formFields = computed<ProFormField[]>(() => [
 /** 用户表格列配置。 */
 const columns = computed<ColumnProps[]>(() => [
   { type: "selection", width: 55 },
-  { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
-  { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
   ...(isDefaultTenant.value
     ? ([
         {
@@ -286,11 +284,13 @@ const columns = computed<ColumnProps[]>(() => [
           label: "租户",
           minWidth: 140,
           showOverflowTooltip: true,
-          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 10 },
+          search: { el: "select", key: "tenant_id", props: { filterable: true }, order: 1 },
           enum: requestTenantOptions
         }
       ] satisfies ColumnProps[])
     : []),
+  { prop: "user_name", label: "用户账号", minWidth: 140, search: { el: "input" } },
+  { prop: "nick_name", label: "昵称", minWidth: 100, search: { el: "input" } },
   { prop: "phone", label: "手机号码", minWidth: 130, align: "center", search: { el: "input" } },
   { prop: "gender", label: "性别", minWidth: 90, align: "center", dictCode: "base_user_gender", search: { el: "select" } },
   {

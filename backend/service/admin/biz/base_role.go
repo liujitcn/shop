@@ -3,6 +3,12 @@ package biz
 import (
 	"context"
 
+	"github.com/liujitcn/go-utils/mapper"
+	_string "github.com/liujitcn/go-utils/string"
+	"github.com/liujitcn/gorm-kit/repository"
+	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
+	"gorm.io/gen/field"
+
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
 	"shop/pkg/biz"
@@ -10,12 +16,6 @@ import (
 	"shop/pkg/errorsx"
 	"shop/pkg/gen/data"
 	"shop/pkg/gen/models"
-
-	"github.com/liujitcn/go-utils/mapper"
-	_string "github.com/liujitcn/go-utils/string"
-	"github.com/liujitcn/gorm-kit/repository"
-	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
-	"gorm.io/gen/field"
 )
 
 // BaseRoleCase 角色业务实例
@@ -134,9 +134,13 @@ func (c *BaseRoleCase) CreateBaseRole(ctx context.Context, req *adminv1.BaseRole
 	if _const.IsDefaultBaseRole(baseRole.Code) {
 		return errorsx.ProtectedResourceConflict("创建角色失败，不能使用内置角色编码", "base_role")
 	}
+	err := c.validateAssignableMenus(ctx, req.GetMenus())
+	if err != nil {
+		return err
+	}
 	baseRole.Menus = _string.ConvertInt64ArrayToString(req.GetMenus())
 	return c.tx.Transaction(ctx, func(ctx context.Context) error {
-		err := c.Create(ctx, baseRole)
+		err = c.Create(ctx, baseRole)
 		if err != nil {
 			// 命中角色编码唯一索引冲突时，返回稳定的业务冲突错误。
 			if errorsx.IsMySQLDuplicateKey(err) {
@@ -160,6 +164,10 @@ func (c *BaseRoleCase) UpdateBaseRole(ctx context.Context, req *adminv1.BaseRole
 	}
 	if _const.IsDefaultBaseRole(req.GetCode()) {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能使用内置角色编码", "base_role")
+	}
+	err = c.validateAssignableMenus(ctx, req.GetMenus())
+	if err != nil {
+		return err
 	}
 
 	baseRole := c.formMapper.ToEntity(req)
@@ -237,6 +245,10 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBase
 	if oldBaseRole.Code == _const.BASE_ROLE_CODE_TENANT && oldBaseRole.TenantID != defaultTenant.ID {
 		return errorsx.ProtectedResourceConflict("更新角色失败，不能操作租户内置角色", "base_role")
 	}
+	err = c.validateAssignableMenus(ctx, req.GetMenus())
+	if err != nil {
+		return err
+	}
 
 	baseRole := &models.BaseRole{
 		ID:       req.GetId(),
@@ -255,6 +267,41 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBase
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
 	})
+}
+
+// validateAssignableMenus 校验待保存菜单不超过当前登录角色的权限范围。
+func (c *BaseRoleCase) validateAssignableMenus(ctx context.Context, menus []int64) error {
+	authInfo, err := c.GetAuthInfo(ctx)
+	if err != nil {
+		return err
+	}
+	// 超级管理员拥有完整菜单分配权限，不需要做菜单上限校验。
+	if authInfo.RoleCode == _const.BASE_ROLE_CODE_SUPER {
+		return nil
+	}
+
+	var currentBaseRole *models.BaseRole
+	currentBaseRole, err = c.FindByID(ctx, authInfo.RoleId)
+	if err != nil {
+		return errorsx.Internal("查询当前角色权限失败").WithCause(err)
+	}
+	// 当前角色已停用时，不允许继续分配其他角色权限。
+	if currentBaseRole.Status != _const.STATUS_ENABLE {
+		return errorsx.PermissionDenied("角色已被禁用")
+	}
+
+	allowedMenuIDs := _string.ConvertJsonStringToInt64Array(currentBaseRole.Menus)
+	allowedMenuIDSet := make(map[int64]struct{}, len(allowedMenuIDs))
+	for _, menuID := range allowedMenuIDs {
+		allowedMenuIDSet[menuID] = struct{}{}
+	}
+	for _, menuID := range menus {
+		// 提交菜单不在当前角色权限范围内时，直接拒绝保存。
+		if _, ok := allowedMenuIDSet[menuID]; !ok {
+			return errorsx.PermissionDenied("设置角色菜单权限失败，不能分配超出当前角色的菜单权限")
+		}
+	}
+	return nil
 }
 
 // getDefaultTenant 查询系统默认租户。
