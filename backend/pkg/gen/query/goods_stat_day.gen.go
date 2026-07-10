@@ -28,6 +28,7 @@ func newGoodsStatDay(db *gorm.DB, opts ...gen.DOOption) goodsStatDay {
 	tableName := _goodsStatDay.goodsStatDayDo.TableName()
 	_goodsStatDay.ALL = field.NewAsterisk(tableName)
 	_goodsStatDay.ID = field.NewInt64(tableName, "id")
+	_goodsStatDay.TenantID = field.NewInt64(tableName, "tenant_id")
 	_goodsStatDay.StatDate = field.NewTime(tableName, "stat_date")
 	_goodsStatDay.GoodsID = field.NewInt64(tableName, "goods_id")
 	_goodsStatDay.ViewCount = field.NewInt64(tableName, "view_count")
@@ -50,6 +51,7 @@ type goodsStatDay struct {
 
 	ALL          field.Asterisk
 	ID           field.Int64 // 主键ID
+	TenantID     field.Int64 // 租户ID
 	StatDate     field.Time  // 统计日期
 	GoodsID      field.Int64 // 商品ID
 	ViewCount    field.Int64 // 浏览次数
@@ -77,6 +79,7 @@ func (g goodsStatDay) As(alias string) *goodsStatDay {
 func (g *goodsStatDay) updateTableName(table string) *goodsStatDay {
 	g.ALL = field.NewAsterisk(table)
 	g.ID = field.NewInt64(table, "id")
+	g.TenantID = field.NewInt64(table, "tenant_id")
 	g.StatDate = field.NewTime(table, "stat_date")
 	g.GoodsID = field.NewInt64(table, "goods_id")
 	g.ViewCount = field.NewInt64(table, "view_count")
@@ -115,8 +118,9 @@ func (g *goodsStatDay) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (g *goodsStatDay) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 11)
+	g.fieldMap = make(map[string]field.Expr, 12)
 	g.fieldMap["id"] = g.ID
+	g.fieldMap["tenant_id"] = g.TenantID
 	g.fieldMap["stat_date"] = g.StatDate
 	g.fieldMap["goods_id"] = g.GoodsID
 	g.fieldMap["view_count"] = g.ViewCount

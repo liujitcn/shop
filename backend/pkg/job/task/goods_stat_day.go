@@ -25,10 +25,17 @@ type goodsStatDayResult struct {
 	statCount       int
 }
 
+// goodsStatDayKey 表示商品日统计的租户与商品聚合键。
+type goodsStatDayKey struct {
+	tenantID int64
+	goodsID  int64
+}
+
 // GoodsStatDay 商品日统计任务。
 type GoodsStatDay struct {
 	tx                 data.Transaction
 	goodsStatDayRepo   *data.GoodsStatDayRepository
+	goodsInfoRepo      *data.GoodsInfoRepository
 	recommendEventRepo *data.RecommendEventRepository
 	userCollectRepo    *data.UserCollectRepository
 	userCartRepo       *data.UserCartRepository
@@ -41,6 +48,7 @@ type GoodsStatDay struct {
 func NewGoodsStatDay(
 	tx data.Transaction,
 	goodsStatDayRepo *data.GoodsStatDayRepository,
+	goodsInfoRepo *data.GoodsInfoRepository,
 	recommendEventRepo *data.RecommendEventRepository,
 	userCollectRepo *data.UserCollectRepository,
 	userCartRepo *data.UserCartRepository,
@@ -50,6 +58,7 @@ func NewGoodsStatDay(
 	return &GoodsStatDay{
 		tx:                 tx,
 		goodsStatDayRepo:   goodsStatDayRepo,
+		goodsInfoRepo:      goodsInfoRepo,
 		recommendEventRepo: recommendEventRepo,
 		userCollectRepo:    userCollectRepo,
 		userCartRepo:       userCartRepo,
@@ -75,30 +84,14 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 	result := goodsStatDayResult{}
 	err = t.tx.Transaction(t.ctx, func(ctx context.Context) error {
 		statQuery := t.goodsStatDayRepo.Query(ctx).GoodsStatDay
-		// 统计任务按天全量重算，先清掉当天旧数据再回写。
-		opts := make([]repository.QueryOption, 0, 1)
-		opts = append(opts, repository.Where(statQuery.StatDate.Eq(statDate)))
-		err = t.goodsStatDayRepo.Delete(ctx, opts...)
+		// 统计任务按天全量重算，物理清掉当天所有租户的旧数据再回写。
+		_, err = statQuery.WithContext(ctx).Unscoped().Where(statQuery.StatDate.Eq(statDate)).Delete()
 		if err != nil {
 			return err
 		}
 
-		statMap := make(map[int64]*models.GoodsStatDay)
-		ensureStat := func(goodsID int64) *models.GoodsStatDay {
-			item, ok := statMap[goodsID]
-			// 首次出现的商品需要先初始化统计对象。
-			if !ok {
-				item = &models.GoodsStatDay{
-					StatDate: statDate,
-					GoodsID:  goodsID,
-				}
-				statMap[goodsID] = item
-			}
-			return item
-		}
-
 		actionQuery := t.recommendEventRepo.Query(ctx).RecommendEvent
-		opts = make([]repository.QueryOption, 0, 3)
+		opts := make([]repository.QueryOption, 0, 3)
 		opts = append(opts, repository.Where(actionQuery.EventAt.Gte(startAt)))
 		opts = append(opts, repository.Where(actionQuery.EventAt.Lt(endAt)))
 		// 浏览数统一从推荐事件表里的 VIEW 事件口径汇总。
@@ -109,13 +102,6 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 		result.viewEventCount = len(viewList)
-		for _, item := range viewList {
-			// 非法商品不参与统计。
-			if item.GoodsID <= 0 {
-				continue
-			}
-			ensureStat(item.GoodsID).ViewCount++
-		}
 
 		collectQuery := t.userCollectRepo.Query(ctx).UserCollect
 		opts = make([]repository.QueryOption, 0, 2)
@@ -127,13 +113,6 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 		result.collectCount = len(collectList)
-		for _, item := range collectList {
-			// 非法商品不参与统计。
-			if item.GoodsID <= 0 {
-				continue
-			}
-			ensureStat(item.GoodsID).CollectCount++
-		}
 
 		cartQuery := t.userCartRepo.Query(ctx).UserCart
 		opts = make([]repository.QueryOption, 0, 2)
@@ -145,12 +124,87 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			return err
 		}
 		result.cartCount = len(cartList)
+
+		goodsIDSet := make(map[int64]struct{}, len(viewList)+len(collectList)+len(cartList))
+		for _, item := range viewList {
+			// 非法商品不参与租户归属查询。
+			if item.GoodsID > 0 {
+				goodsIDSet[item.GoodsID] = struct{}{}
+			}
+		}
+		for _, item := range collectList {
+			// 非法商品不参与租户归属查询。
+			if item.GoodsID > 0 {
+				goodsIDSet[item.GoodsID] = struct{}{}
+			}
+		}
 		for _, item := range cartList {
-			// 非法商品不参与统计。
-			if item.GoodsID <= 0 {
+			// 非法商品不参与租户归属查询。
+			if item.GoodsID > 0 {
+				goodsIDSet[item.GoodsID] = struct{}{}
+			}
+		}
+
+		goodsTenantIDMap := make(map[int64]int64, len(goodsIDSet))
+		// 行为明细不带租户，统一通过商品主表批量解析租户归属。
+		if len(goodsIDSet) > 0 {
+			goodsIDs := make([]int64, 0, len(goodsIDSet))
+			for goodsID := range goodsIDSet {
+				goodsIDs = append(goodsIDs, goodsID)
+			}
+			goodsQuery := t.goodsInfoRepo.Query(ctx).GoodsInfo
+			opts = make([]repository.QueryOption, 0, 2)
+			opts = append(opts, repository.Where(goodsQuery.ID.In(goodsIDs...)))
+			opts = append(opts, repository.Unscoped())
+			var goodsInfoList []*models.GoodsInfo
+			goodsInfoList, err = t.goodsInfoRepo.List(ctx, opts...)
+			if err != nil {
+				return err
+			}
+			for _, item := range goodsInfoList {
+				goodsTenantIDMap[item.ID] = item.TenantID
+			}
+		}
+
+		statMap := make(map[goodsStatDayKey]*models.GoodsStatDay)
+		ensureStat := func(tenantID, goodsID int64) *models.GoodsStatDay {
+			key := goodsStatDayKey{tenantID: tenantID, goodsID: goodsID}
+			item, ok := statMap[key]
+			// 首次出现的租户商品需要先初始化统计对象。
+			if !ok {
+				item = &models.GoodsStatDay{
+					TenantID: tenantID,
+					StatDate: statDate,
+					GoodsID:  goodsID,
+				}
+				statMap[key] = item
+			}
+			return item
+		}
+
+		for _, item := range viewList {
+			tenantID := goodsTenantIDMap[item.GoodsID]
+			// 无法确认租户归属的商品行为不进入租户统计。
+			if tenantID <= 0 {
 				continue
 			}
-			ensureStat(item.GoodsID).CartCount += item.Num
+			ensureStat(tenantID, item.GoodsID).ViewCount++
+		}
+		for _, item := range collectList {
+			tenantID := goodsTenantIDMap[item.GoodsID]
+			// 无法确认租户归属的商品行为不进入租户统计。
+			if tenantID <= 0 {
+				continue
+			}
+			ensureStat(tenantID, item.GoodsID).CollectCount++
+		}
+		for _, item := range cartList {
+			tenantID := goodsTenantIDMap[item.GoodsID]
+			// 无法确认租户归属的商品行为不进入租户统计。
+			if tenantID <= 0 {
+				continue
+			}
+			ensureStat(tenantID, item.GoodsID).CartCount += item.Num
 		}
 
 		orderQuery := t.orderInfoRepo.Query(ctx).OrderInfo
@@ -173,7 +227,6 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			orderIDs = append(orderIDs, item.ID)
 		}
 
-		// 存在订单数据时，才继续回查订单商品明细。
 		orderGoodsByOrderID := make(map[int64][]*models.OrderGoods)
 		// 只有命中订单时，才需要继续回查订单商品明细。
 		if len(orderIDs) > 0 {
@@ -199,7 +252,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			goodsList := orderGoodsByOrderID[orderInfo.ID]
 			seenGoodsIDs := make(map[int64]struct{}, len(goodsList))
 			for _, item := range goodsList {
-				stat := ensureStat(item.GoodsID)
+				stat := ensureStat(orderInfo.TenantID, item.GoodsID)
 				// 同一订单下同一商品可能有多条明细，这里只按订单去重累计下单次数。
 				if _, ok := seenGoodsIDs[item.GoodsID]; !ok {
 					seenGoodsIDs[item.GoodsID] = struct{}{}
@@ -216,7 +269,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			goodsList := orderGoodsByOrderID[orderInfo.ID]
 			seenGoodsIDs := make(map[int64]struct{}, len(goodsList))
 			for _, item := range goodsList {
-				stat := ensureStat(item.GoodsID)
+				stat := ensureStat(orderInfo.TenantID, item.GoodsID)
 				// 同一支付订单下同一商品只记一次支付订单数。
 				if _, ok := seenGoodsIDs[item.GoodsID]; !ok {
 					seenGoodsIDs[item.GoodsID] = struct{}{}

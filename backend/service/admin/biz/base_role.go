@@ -2,12 +2,14 @@ package biz
 
 import (
 	"context"
+	"errors"
 
 	"github.com/liujitcn/go-utils/mapper"
 	_string "github.com/liujitcn/go-utils/string"
 	"github.com/liujitcn/gorm-kit/repository"
 	databaseGorm "github.com/liujitcn/kratos-kit/database/gorm"
 	"gorm.io/gen/field"
+	"gorm.io/gorm"
 
 	adminv1 "shop/api/gen/go/admin/v1"
 	commonv1 "shop/api/gen/go/common/v1"
@@ -266,6 +268,36 @@ func (c *BaseRoleCase) SetBaseRoleMenu(ctx context.Context, req *adminv1.SetBase
 			return c.syncTenantRoleMenus(ctx, baseRole)
 		}
 		return c.casbinRuleCase.RebuildCasbinRuleByRole(ctx, baseRole)
+	})
+}
+
+// SyncTenantRoleMenus 将默认租户管理员角色菜单同步到所有普通租户并重建权限。
+func (c *BaseRoleCase) SyncTenantRoleMenus(ctx context.Context) error {
+	defaultTenant, err := c.getDefaultTenant(ctx)
+	// 首次启动尚未导入初始化数据时没有默认租户，等待后续启动再同步。
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	query := c.Query(ctx).BaseRole
+	opts := make([]repository.QueryOption, 0, 2)
+	opts = append(opts, repository.Where(query.TenantID.Eq(defaultTenant.ID)))
+	opts = append(opts, repository.Where(query.Code.Eq(_const.BASE_ROLE_CODE_TENANT)))
+	var templateRole *models.BaseRole
+	templateRole, err = c.Find(ctx, opts...)
+	// 初始化数据尚未写入租户角色模板时无需执行同步。
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	return c.tx.Transaction(ctx, func(ctx context.Context) error {
+		return c.syncTenantRoleMenus(ctx, templateRole)
 	})
 }
 

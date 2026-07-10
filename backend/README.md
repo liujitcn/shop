@@ -96,7 +96,7 @@ mysql -uroot -p shop_test < sql/shop.sql
 - `super / 112233`
 - `admin / 112233`
 
-管理后台登录页不默认填充租户编码，需要用户手动输入；默认租户编码为 `0000`。`sql/default-data.sql` 维护默认租户、接口、菜单、固定角色和用户等基础数据；默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`，其中 `tenant` 是租户管理员内置角色，不能通过角色管理修改。`sql/casbin_rule.sql` 维护 `admin`、`tenant`、`user`、`guest` 的租户化接口权限策略，策略动作使用真实 HTTP Method。
+管理后台登录页不默认填充租户编码，需要用户手动输入；默认租户编码为 `0000`。`sql/default-data.sql` 维护默认租户、接口、菜单、固定角色、用户和统计表结构升级段；默认角色固定为 `super(1)`、`tenant(2)`、`admin(3)`、`user(4)`、`guest(5)`，其中 `tenant` 是租户管理员内置角色，拥有商品 / 订单分析和报表权限，但不能通过角色管理修改。后端每次启动会将默认租户的 `tenant` 角色菜单同步到所有普通租户，并重建对应 Casbin 权限。`sql/casbin_rule.sql` 维护 `admin`、`tenant`、`user`、`guest` 的租户化接口权限策略，策略动作使用真实 HTTP Method。存量库升级统计租户字段后，需要按历史统计日期重跑 `GoodsStatDay` 和 `OrderStatDay` 任务。
 
 ## 接口与生成
 
