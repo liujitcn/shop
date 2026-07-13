@@ -218,9 +218,11 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *adminv1.Refund
 	}
 
 	orderRefund := &models.OrderRefund{
-		OrderID:  req.GetOrderId(),
-		RefundNo: orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
-		Reason:   int32(req.GetReason()),
+		TenantID:      orderInfo.TenantID,
+		TenantStoreID: orderInfo.TenantStoreID,
+		OrderID:       req.GetOrderId(),
+		RefundNo:      orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
+		Reason:        int32(req.GetReason()),
 	}
 
 	// 微信在线支付订单需要先走微信退款单创建流程。
@@ -368,6 +370,8 @@ func (c *OrderInfoCase) ShipOrderInfo(ctx context.Context, req *adminv1.ShipOrde
 			orderPayment.SuccessTime = successTime.AsTime()
 		}
 		orderPayment.OrderID = orderInfo.ID
+		orderPayment.TenantID = orderInfo.TenantID
+		orderPayment.TenantStoreID = orderInfo.TenantStoreID
 		orderPayment.OrderNo = paymentResource.GetOutTradeNo()
 		orderPayment.ThirdOrderNo = paymentResource.GetTransactionId()
 		orderPayment.TradeType = paymentResource.GetTradeType().String()
@@ -389,11 +393,13 @@ func (c *OrderInfoCase) ShipOrderInfo(ctx context.Context, req *adminv1.ShipOrde
 
 	err = c.tx.Transaction(ctx, func(ctx context.Context) error {
 		err = c.orderLogisticsCase.Create(ctx, &models.OrderLogistics{
-			OrderID: orderInfo.ID,
-			Name:    req.GetName(),
-			No:      req.GetNo(),
-			Contact: req.GetContact(),
-			Detail:  "[]",
+			TenantID:      orderInfo.TenantID,
+			TenantStoreID: orderInfo.TenantStoreID,
+			OrderID:       orderInfo.ID,
+			Name:          req.GetName(),
+			No:            req.GetNo(),
+			Contact:       req.GetContact(),
+			Detail:        "[]",
 		})
 		if err != nil {
 			return err

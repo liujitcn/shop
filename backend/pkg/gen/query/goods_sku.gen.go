@@ -28,6 +28,8 @@ func newGoodsSKU(db *gorm.DB, opts ...gen.DOOption) goodsSKU {
 	tableName := _goodsSKU.goodsSKUDo.TableName()
 	_goodsSKU.ALL = field.NewAsterisk(tableName)
 	_goodsSKU.ID = field.NewInt64(tableName, "id")
+	_goodsSKU.TenantID = field.NewInt64(tableName, "tenant_id")
+	_goodsSKU.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_goodsSKU.GoodsID = field.NewInt64(tableName, "goods_id")
 	_goodsSKU.Picture = field.NewString(tableName, "picture")
 	_goodsSKU.SKUCode = field.NewString(tableName, "sku_code")
@@ -37,6 +39,10 @@ func newGoodsSKU(db *gorm.DB, opts ...gen.DOOption) goodsSKU {
 	_goodsSKU.InitSaleNum = field.NewInt64(tableName, "init_sale_num")
 	_goodsSKU.RealSaleNum = field.NewInt64(tableName, "real_sale_num")
 	_goodsSKU.Inventory = field.NewInt64(tableName, "inventory")
+	_goodsSKU.CreatedBy = field.NewInt64(tableName, "created_by")
+	_goodsSKU.UpdatedBy = field.NewInt64(tableName, "updated_by")
+	_goodsSKU.CreatedAt = field.NewTime(tableName, "created_at")
+	_goodsSKU.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_goodsSKU.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_goodsSKU.fillFieldMap()
@@ -50,6 +56,8 @@ type goodsSKU struct {
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 商品SKUID
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
 	GoodsID       field.Int64  // 商品ID
 	Picture       field.String // SKU图片
 	SKUCode       field.String // SKU编码
@@ -59,6 +67,10 @@ type goodsSKU struct {
 	InitSaleNum   field.Int64  // 初始销量
 	RealSaleNum   field.Int64  // 真实销售数量
 	Inventory     field.Int64  // 库存数量
+	CreatedBy     field.Int64  // 创建人ID
+	UpdatedBy     field.Int64  // 更新人ID
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
 	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
@@ -77,6 +89,8 @@ func (g goodsSKU) As(alias string) *goodsSKU {
 func (g *goodsSKU) updateTableName(table string) *goodsSKU {
 	g.ALL = field.NewAsterisk(table)
 	g.ID = field.NewInt64(table, "id")
+	g.TenantID = field.NewInt64(table, "tenant_id")
+	g.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	g.GoodsID = field.NewInt64(table, "goods_id")
 	g.Picture = field.NewString(table, "picture")
 	g.SKUCode = field.NewString(table, "sku_code")
@@ -86,6 +100,10 @@ func (g *goodsSKU) updateTableName(table string) *goodsSKU {
 	g.InitSaleNum = field.NewInt64(table, "init_sale_num")
 	g.RealSaleNum = field.NewInt64(table, "real_sale_num")
 	g.Inventory = field.NewInt64(table, "inventory")
+	g.CreatedBy = field.NewInt64(table, "created_by")
+	g.UpdatedBy = field.NewInt64(table, "updated_by")
+	g.CreatedAt = field.NewTime(table, "created_at")
+	g.UpdatedAt = field.NewTime(table, "updated_at")
 	g.DeletedAt = field.NewField(table, "deleted_at")
 
 	g.fillFieldMap()
@@ -111,8 +129,10 @@ func (g *goodsSKU) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *goodsSKU) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 11)
+	g.fieldMap = make(map[string]field.Expr, 17)
 	g.fieldMap["id"] = g.ID
+	g.fieldMap["tenant_id"] = g.TenantID
+	g.fieldMap["tenant_store_id"] = g.TenantStoreID
 	g.fieldMap["goods_id"] = g.GoodsID
 	g.fieldMap["picture"] = g.Picture
 	g.fieldMap["sku_code"] = g.SKUCode
@@ -122,6 +142,10 @@ func (g *goodsSKU) fillFieldMap() {
 	g.fieldMap["init_sale_num"] = g.InitSaleNum
 	g.fieldMap["real_sale_num"] = g.RealSaleNum
 	g.fieldMap["inventory"] = g.Inventory
+	g.fieldMap["created_by"] = g.CreatedBy
+	g.fieldMap["updated_by"] = g.UpdatedBy
+	g.fieldMap["created_at"] = g.CreatedAt
+	g.fieldMap["updated_at"] = g.UpdatedAt
 	g.fieldMap["deleted_at"] = g.DeletedAt
 }
 

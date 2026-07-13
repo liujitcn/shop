@@ -28,6 +28,8 @@ func newCommentSummary(db *gorm.DB, opts ...gen.DOOption) commentSummary {
 	tableName := _commentSummary.commentSummaryDo.TableName()
 	_commentSummary.ALL = field.NewAsterisk(tableName)
 	_commentSummary.ID = field.NewInt64(tableName, "id")
+	_commentSummary.TenantID = field.NewInt64(tableName, "tenant_id")
+	_commentSummary.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_commentSummary.GoodsID = field.NewInt64(tableName, "goods_id")
 	_commentSummary.Scene = field.NewInt32(tableName, "scene")
 	_commentSummary.Content = field.NewString(tableName, "content")
@@ -46,16 +48,18 @@ func newCommentSummary(db *gorm.DB, opts ...gen.DOOption) commentSummary {
 type commentSummary struct {
 	commentSummaryDo commentSummaryDo
 
-	ALL          field.Asterisk
-	ID           field.Int64  // 评价摘要主键
-	GoodsID      field.Int64  // 商品ID
-	Scene        field.Int32  // 展示场景：枚举【CommentSummaryScene】
-	Content      field.String // 评价摘要内容JSON：数组项包含label、content
-	LikeCount    field.Int32  // 点赞数展示缓存
-	DislikeCount field.Int32  // 点踩数展示缓存
-	CreatedAt    field.Time   // 创建时间
-	UpdatedAt    field.Time   // 最后更新时间
-	DeletedAt    field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 评价摘要主键
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
+	GoodsID       field.Int64  // 商品ID
+	Scene         field.Int32  // 展示场景：枚举【CommentSummaryScene】
+	Content       field.String // 评价摘要内容JSON：数组项包含label、content
+	LikeCount     field.Int32  // 点赞数展示缓存
+	DislikeCount  field.Int32  // 点踩数展示缓存
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 最后更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -73,6 +77,8 @@ func (c commentSummary) As(alias string) *commentSummary {
 func (c *commentSummary) updateTableName(table string) *commentSummary {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
+	c.TenantID = field.NewInt64(table, "tenant_id")
+	c.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	c.GoodsID = field.NewInt64(table, "goods_id")
 	c.Scene = field.NewInt32(table, "scene")
 	c.Content = field.NewString(table, "content")
@@ -109,8 +115,10 @@ func (c *commentSummary) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (c *commentSummary) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 9)
+	c.fieldMap = make(map[string]field.Expr, 11)
 	c.fieldMap["id"] = c.ID
+	c.fieldMap["tenant_id"] = c.TenantID
+	c.fieldMap["tenant_store_id"] = c.TenantStoreID
 	c.fieldMap["goods_id"] = c.GoodsID
 	c.fieldMap["scene"] = c.Scene
 	c.fieldMap["content"] = c.Content

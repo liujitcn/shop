@@ -166,9 +166,11 @@ func (c *OrderInfoCase) RefundOrderInfo(ctx context.Context, req *appv1.RefundOr
 	}
 
 	orderRefund := &models.OrderRefund{
-		OrderID:  req.GetOrderId(),
-		RefundNo: orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
-		Reason:   int32(req.GetReason()),
+		TenantID:      orderInfo.TenantID,
+		TenantStoreID: orderInfo.TenantStoreID,
+		OrderID:       req.GetOrderId(),
+		RefundNo:      orderInfo.OrderNo, // 退款单号，和订单号使用一个方便查询退款
+		Reason:        int32(req.GetReason()),
 	}
 	// 只有在线支付订单才会走退款单和微信退款流程
 	if commonv1.OrderPayType(orderInfo.PayType) == commonv1.OrderPayType(_const.ORDER_PAY_TYPE_ONLINE_PAY) {
@@ -644,12 +646,12 @@ func (c *OrderInfoCase) CreateOrderInfo(ctx context.Context, request *appv1.Crea
 		}
 
 		// 保存订单商品快照
-		err = c.orderGoodsCase.createByOrder(ctx, orderInfo.ID, orderGoodsList)
+		err = c.orderGoodsCase.createByOrder(ctx, orderInfo, orderGoodsList)
 		if err != nil {
 			return err
 		}
 		// 保存订单地址快照
-		err = c.orderAddressCase.createByOrder(ctx, authInfo.UserId, orderInfo.ID, request.GetAddressId())
+		err = c.orderAddressCase.createByOrder(ctx, authInfo.UserId, orderInfo, request.GetAddressId())
 		if err != nil {
 			return err
 		}
@@ -938,8 +940,10 @@ func (c *OrderInfoCase) cancelOrder(ctx context.Context, userID int64, req *appv
 		}
 		// 保存订单取消记录，便于订单详情展示取消时间
 		err = c.orderCancelCase.Create(ctx, &models.OrderCancel{
-			OrderID: req.GetOrderId(),
-			Reason:  int32(req.GetReason()),
+			TenantID:      orderInfo.TenantID,
+			TenantStoreID: orderInfo.TenantStoreID,
+			OrderID:       req.GetOrderId(),
+			Reason:        int32(req.GetReason()),
 		})
 		if err != nil {
 			return err

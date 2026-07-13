@@ -18,14 +18,16 @@ import (
 type GoodsPropCase struct {
 	*biz.BaseCase
 	*data.GoodsPropRepository
-	mapper *mapper.CopierMapper[adminv1.GoodsProp, models.GoodsProp]
+	goodsInfoRepo *data.GoodsInfoRepository
+	mapper        *mapper.CopierMapper[adminv1.GoodsProp, models.GoodsProp]
 }
 
 // NewGoodsPropCase 创建商品属性业务实例
-func NewGoodsPropCase(baseCase *biz.BaseCase, goodsPropRepo *data.GoodsPropRepository) *GoodsPropCase {
+func NewGoodsPropCase(baseCase *biz.BaseCase, goodsPropRepo *data.GoodsPropRepository, goodsInfoRepo *data.GoodsInfoRepository) *GoodsPropCase {
 	return &GoodsPropCase{
 		BaseCase:            baseCase,
 		GoodsPropRepository: goodsPropRepo,
+		goodsInfoRepo:       goodsInfoRepo,
 		mapper:              mapper.NewCopierMapper[adminv1.GoodsProp, models.GoodsProp](),
 	}
 }
@@ -70,7 +72,14 @@ func (c *GoodsPropCase) GetGoodsProp(ctx context.Context, id int64) (*adminv1.Go
 // CreateGoodsProp 创建商品属性
 func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *adminv1.GoodsProp) error {
 	goodsProp := c.mapper.ToEntity(req)
-	err := c.Create(ctx, goodsProp)
+	goodsInfo, err := c.goodsInfoRepo.FindByID(ctx, req.GetGoodsId())
+	if err != nil {
+		return err
+	}
+	goodsProp.TenantID = goodsInfo.TenantID
+	goodsProp.TenantStoreID = goodsInfo.TenantStoreID
+	goodsProp.CreatedBy = goodsInfo.CreatedBy
+	err = c.Create(ctx, goodsProp)
 	if err != nil {
 		// 命中商品属性唯一索引冲突时，返回稳定的业务冲突错误。
 		if errorsx.IsMySQLDuplicateKey(err) {

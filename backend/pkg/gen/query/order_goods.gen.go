@@ -28,6 +28,8 @@ func newOrderGoods(db *gorm.DB, opts ...gen.DOOption) orderGoods {
 	tableName := _orderGoods.orderGoodsDo.TableName()
 	_orderGoods.ALL = field.NewAsterisk(tableName)
 	_orderGoods.ID = field.NewInt64(tableName, "id")
+	_orderGoods.TenantID = field.NewInt64(tableName, "tenant_id")
+	_orderGoods.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderGoods.OrderID = field.NewInt64(tableName, "order_id")
 	_orderGoods.GoodsID = field.NewInt64(tableName, "goods_id")
 	_orderGoods.SKUCode = field.NewString(tableName, "sku_code")
@@ -55,6 +57,8 @@ type orderGoods struct {
 
 	ALL           field.Asterisk
 	ID            field.Int64  // 订单商品ID
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
 	OrderID       field.Int64  // 订单ID
 	GoodsID       field.Int64  // 商品ID
 	SKUCode       field.String // 规格编号
@@ -87,6 +91,8 @@ func (o orderGoods) As(alias string) *orderGoods {
 func (o *orderGoods) updateTableName(table string) *orderGoods {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderID = field.NewInt64(table, "order_id")
 	o.GoodsID = field.NewInt64(table, "goods_id")
 	o.SKUCode = field.NewString(table, "sku_code")
@@ -128,8 +134,10 @@ func (o *orderGoods) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderGoods) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 16)
+	o.fieldMap = make(map[string]field.Expr, 18)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["goods_id"] = o.GoodsID
 	o.fieldMap["sku_code"] = o.SKUCode

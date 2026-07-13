@@ -284,7 +284,7 @@ func initApp(context *bootstrap.Context) (*kratos.App, func(), error) {
 	bizTenantStoreCase := biz2.NewTenantStoreCase(baseCase, transaction, tenantStoreRepository, goodsInfoRepository, baseTenantCase)
 	tenantStoreService := admin.NewTenantStoreService(bizTenantStoreCase)
 	bizGoodsCategoryCase := biz2.NewGoodsCategoryCase(baseCase, goodsCategoryRepository)
-	bizGoodsPropCase := biz2.NewGoodsPropCase(baseCase, goodsPropRepository)
+	bizGoodsPropCase := biz2.NewGoodsPropCase(baseCase, goodsPropRepository, goodsInfoRepository)
 	bizGoodsSpecCase := biz2.NewGoodsSpecCase(baseCase, goodsSpecRepository)
 	bizGoodsSKUCase := biz2.NewGoodsSKUCase(baseCase, goodsSKURepository)
 	bizGoodsInfoCase := biz2.NewGoodsInfoCase(baseCase, transaction, goodsInfoRepository, bizGoodsCategoryCase, bizGoodsPropCase, bizGoodsSpecCase, bizGoodsSKUCase, bizTenantStoreCase)

@@ -116,6 +116,7 @@ func (c *CommentDiscussionCase) PageCommentDiscussion(
 // CreateDiscussion 创建评价讨论。
 func (c *CommentDiscussionCase) CreateDiscussion(
 	ctx context.Context,
+	commentInfo *models.CommentInfo,
 	user *models.BaseUser,
 	req *appv1.CreateCommentDiscussionRequest,
 ) (*models.CommentDiscussion, error) {
@@ -178,6 +179,8 @@ func (c *CommentDiscussionCase) CreateDiscussion(
 	}
 
 	record := &models.CommentDiscussion{
+		TenantID:            commentInfo.TenantID,
+		TenantStoreID:       commentInfo.TenantStoreID,
 		CommentID:           req.GetCommentId(),
 		UserID:              userID,
 		UserNameSnapshot:    userName,

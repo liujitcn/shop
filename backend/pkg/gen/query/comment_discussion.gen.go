@@ -28,6 +28,8 @@ func newCommentDiscussion(db *gorm.DB, opts ...gen.DOOption) commentDiscussion {
 	tableName := _commentDiscussion.commentDiscussionDo.TableName()
 	_commentDiscussion.ALL = field.NewAsterisk(tableName)
 	_commentDiscussion.ID = field.NewInt64(tableName, "id")
+	_commentDiscussion.TenantID = field.NewInt64(tableName, "tenant_id")
+	_commentDiscussion.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_commentDiscussion.CommentID = field.NewInt64(tableName, "comment_id")
 	_commentDiscussion.UserID = field.NewInt64(tableName, "user_id")
 	_commentDiscussion.UserNameSnapshot = field.NewString(tableName, "user_name_snapshot")
@@ -56,6 +58,8 @@ type commentDiscussion struct {
 
 	ALL                 field.Asterisk
 	ID                  field.Int64  // 讨论主键
+	TenantID            field.Int64  // 租户ID
+	TenantStoreID       field.Int64  // 租户门店ID
 	CommentID           field.Int64  // 所属评价ID
 	UserID              field.Int64  // 讨论用户ID
 	UserNameSnapshot    field.String // 讨论用户昵称快照
@@ -89,6 +93,8 @@ func (c commentDiscussion) As(alias string) *commentDiscussion {
 func (c *commentDiscussion) updateTableName(table string) *commentDiscussion {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
+	c.TenantID = field.NewInt64(table, "tenant_id")
+	c.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	c.CommentID = field.NewInt64(table, "comment_id")
 	c.UserID = field.NewInt64(table, "user_id")
 	c.UserNameSnapshot = field.NewString(table, "user_name_snapshot")
@@ -133,8 +139,10 @@ func (c *commentDiscussion) GetFieldByName(fieldName string) (field.OrderExpr, b
 }
 
 func (c *commentDiscussion) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 17)
+	c.fieldMap = make(map[string]field.Expr, 19)
 	c.fieldMap["id"] = c.ID
+	c.fieldMap["tenant_id"] = c.TenantID
+	c.fieldMap["tenant_store_id"] = c.TenantStoreID
 	c.fieldMap["comment_id"] = c.CommentID
 	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["user_name_snapshot"] = c.UserNameSnapshot

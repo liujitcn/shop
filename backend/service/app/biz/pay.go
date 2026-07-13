@@ -369,6 +369,8 @@ func (c *PayCase) PaySuccess(ctx context.Context, orderInfo *models.OrderInfo, p
 		successTime = trans.Time(time.Now())
 	}
 	orderPayment.OrderID = orderInfo.ID
+	orderPayment.TenantID = orderInfo.TenantID
+	orderPayment.TenantStoreID = orderInfo.TenantStoreID
 	orderPayment.OrderNo = paymentResource.GetOutTradeNo()
 	orderPayment.ThirdOrderNo = paymentResource.GetTransactionId()
 	orderPayment.TradeType = paymentResource.GetTradeType().String()
@@ -454,14 +456,18 @@ func (c *PayCase) RefundSuccess(ctx context.Context, orderInfo *models.OrderInfo
 		// 退款记录尚未创建时，初始化空实体供后续写入。
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			orderRefund = &models.OrderRefund{
-				OrderID:    orderInfo.ID,
-				RefundNo:   refundResource.GetOutRefundNo(),
-				CreateTime: time.Now(),
+				TenantID:      orderInfo.TenantID,
+				TenantStoreID: orderInfo.TenantStoreID,
+				OrderID:       orderInfo.ID,
+				RefundNo:      refundResource.GetOutRefundNo(),
+				CreateTime:    time.Now(),
 			}
 		} else {
 			return err
 		}
 	}
+	orderRefund.TenantID = orderInfo.TenantID
+	orderRefund.TenantStoreID = orderInfo.TenantStoreID
 	orderRefund.OrderNo = refundResource.GetOutTradeNo()
 	orderRefund.ThirdOrderNo = refundResource.GetTransactionId()
 	orderRefund.ThirdRefundNo = refundResource.GetRefundId()

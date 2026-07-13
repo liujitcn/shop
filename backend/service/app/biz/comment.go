@@ -296,7 +296,7 @@ func (c *CommentCase) CreateCommentDiscussion(ctx context.Context, req *appv1.Cr
 
 	var record *models.CommentDiscussion
 	err = c.tx.Transaction(ctx, func(txCtx context.Context) error {
-		record, err = c.commentDiscussionCase.CreateDiscussion(txCtx, user, req)
+		record, err = c.commentDiscussionCase.CreateDiscussion(txCtx, commentInfo, user, req)
 		if err != nil {
 			return err
 		}
@@ -629,7 +629,7 @@ func (c *CommentCase) AuditComment(ctx context.Context, record *models.CommentIn
 		return nil
 	}
 	if !c.commentRuntime.Enabled() {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
 	}
 
 	var err error
@@ -637,13 +637,13 @@ func (c *CommentCase) AuditComment(ctx context.Context, record *models.CommentIn
 	var imageData []comment.ReviewImageData
 	imageURLs, imageData, err = c.buildCommentReviewImages(record.Img)
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	var existingTags []string
 	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, record.GoodsID)
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	var result *comment.ReviewResult
@@ -656,15 +656,15 @@ func (c *CommentCase) AuditComment(ctx context.Context, record *models.CommentIn
 		ImageData:    imageData,
 	})
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	if result == nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
 	}
 	if !result.Approved {
 		if !comment.HasConcreteReviewReason(result.RiskReason) {
-			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
+			return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
 		}
 		return c.rejectCommentByAI(ctx, record, result)
 	}
@@ -684,13 +684,13 @@ func (c *CommentCase) AuditDiscussion(ctx context.Context, record *models.Commen
 		return err
 	}
 	if !c.commentRuntime.Enabled() {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM客户端未配置", c.commentRuntime.Model())
 	}
 
 	var existingTags []string
 	existingTags, err = c.commentTagCase.ExistingTagNames(ctx, commentInfo.GoodsID)
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 
 	var result *comment.ReviewResult
@@ -701,14 +701,14 @@ func (c *CommentCase) AuditDiscussion(ctx context.Context, record *models.Commen
 		ExistingTags: existingTags,
 	})
 	if err != nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, err.Error(), c.commentRuntime.Model())
 	}
 	if result == nil {
-		return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, nil, "LLM审核结果为空", c.commentRuntime.Model())
 	}
 	if !result.Approved {
 		if !comment.HasConcreteReviewReason(result.RiskReason) {
-			return c.commentReviewCase.createAIReview(ctx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
+			return c.commentReviewCase.createAIReview(ctx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_EXCEPTION, result.Tags, commentReviewMissingReason(result), c.commentRuntime.Model())
 		}
 		return c.rejectDiscussionByAI(ctx, record, result)
 	}
@@ -805,7 +805,7 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 		if !updated {
 			return nil
 		}
-		tagIDs, tagNames, upsertErr := c.commentTagCase.UpsertTagsByNames(txCtx, record.GoodsID, cleanTags)
+		tagIDs, tagNames, upsertErr := c.commentTagCase.UpsertTagsByNames(txCtx, record.TenantID, record.TenantStoreID, record.GoodsID, cleanTags)
 		if upsertErr != nil {
 			return upsertErr
 		}
@@ -813,7 +813,7 @@ func (c *CommentCase) approveCommentByAI(ctx context.Context, record *models.Com
 		if updateErr != nil {
 			return updateErr
 		}
-		return c.commentReviewCase.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_APPROVED, tagNames, "", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(txCtx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_APPROVED, tagNames, "", c.commentRuntime.Model())
 	})
 	if err != nil {
 		return err
@@ -840,7 +840,7 @@ func (c *CommentCase) rejectCommentByAI(ctx context.Context, record *models.Comm
 		if !updated {
 			return nil
 		}
-		return c.commentReviewCase.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason, c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(txCtx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason, c.commentRuntime.Model())
 	})
 	if err != nil {
 		return err
@@ -882,7 +882,7 @@ func (c *CommentCase) approveDiscussionByAI(ctx context.Context, record *models.
 		if err != nil {
 			return err
 		}
-		return c.commentReviewCase.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_APPROVED, result.Tags, "", c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(txCtx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_APPROVED, result.Tags, "", c.commentRuntime.Model())
 	})
 	if err != nil {
 		return err
@@ -916,7 +916,7 @@ func (c *CommentCase) rejectDiscussionByAI(ctx context.Context, record *models.C
 		if err != nil {
 			return err
 		}
-		return c.commentReviewCase.createAIReview(txCtx, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason, c.commentRuntime.Model())
+		return c.commentReviewCase.createAIReview(txCtx, record.TenantID, record.TenantStoreID, _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION, record.ID, _const.COMMENT_REVIEW_STATUS_REJECTED, result.Tags, reason, c.commentRuntime.Model())
 	})
 	if err != nil {
 		return err
@@ -1002,7 +1002,7 @@ func (c *CommentCase) refreshGoodsCommentSummary(ctx context.Context, goodsID in
 		log.Warn(fmt.Sprintf("refreshGoodsCommentSummary skip goodsID=%d: summary result empty, sourceCount=%d", goodsID, len(commentList)))
 		return nil
 	}
-	err = c.commentSummaryCase.UpsertGoodsCommentSummary(ctx, goodsID, result)
+	err = c.commentSummaryCase.UpsertGoodsCommentSummary(ctx, commentList[0].TenantID, commentList[0].TenantStoreID, goodsID, result)
 	if err != nil {
 		return err
 	}

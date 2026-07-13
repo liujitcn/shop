@@ -28,6 +28,8 @@ func newOrderPayment(db *gorm.DB, opts ...gen.DOOption) orderPayment {
 	tableName := _orderPayment.orderPaymentDo.TableName()
 	_orderPayment.ALL = field.NewAsterisk(tableName)
 	_orderPayment.ID = field.NewInt64(tableName, "id")
+	_orderPayment.TenantID = field.NewInt64(tableName, "tenant_id")
+	_orderPayment.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderPayment.OrderID = field.NewInt64(tableName, "order_id")
 	_orderPayment.OrderNo = field.NewString(tableName, "order_no")
 	_orderPayment.ThirdOrderNo = field.NewString(tableName, "third_order_no")
@@ -53,6 +55,8 @@ type orderPayment struct {
 
 	ALL            field.Asterisk
 	ID             field.Int64  // 订单支付ID
+	TenantID       field.Int64  // 租户ID
+	TenantStoreID  field.Int64  // 租户门店ID
 	OrderID        field.Int64  // 订单ID
 	OrderNo        field.String // 订单编号
 	ThirdOrderNo   field.String // 三方订单编号
@@ -83,6 +87,8 @@ func (o orderPayment) As(alias string) *orderPayment {
 func (o *orderPayment) updateTableName(table string) *orderPayment {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderID = field.NewInt64(table, "order_id")
 	o.OrderNo = field.NewString(table, "order_no")
 	o.ThirdOrderNo = field.NewString(table, "third_order_no")
@@ -124,8 +130,10 @@ func (o *orderPayment) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *orderPayment) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 14)
+	o.fieldMap = make(map[string]field.Expr, 16)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["order_no"] = o.OrderNo
 	o.fieldMap["third_order_no"] = o.ThirdOrderNo

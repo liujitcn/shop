@@ -107,6 +107,7 @@ func (d *Data) Transaction(ctx context.Context, fn func(ctx context.Context) err
 // Query 返回当前上下文对应的查询入口；若存在事务则优先返回事务查询对象。
 func (d *Data) Query(ctx context.Context) *query.Query {
 	if ctx == nil {
+		// 允许定时任务、启动期初始化等非请求链路直接复用默认查询入口。
 		return d.query
 	}
 	tx, ok := ctx.Value(txQueryKey).(*query.Query)

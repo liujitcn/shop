@@ -13,6 +13,8 @@ const TableNameOrderGoods = "order_goods"
 // OrderGoods 订单商品信息
 type OrderGoods struct {
 	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单商品ID" json:"id"`                                                                          // 订单商品ID
+	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_goods_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                        // 租户ID
+	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_goods_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                    // 租户门店ID
 	OrderID       int64          `gorm:"column:order_id;type:bigint;index:idx_order_goods_order_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:1;comment:订单ID" json:"order_id"` // 订单ID
 	GoodsID       int64          `gorm:"column:goods_id;type:bigint;index:idx_order_goods_goods_id,priority:1;index:idx_order_goods_order_id_goods_id,priority:2;comment:商品ID" json:"goods_id"` // 商品ID
 	SKUCode       string         `gorm:"column:sku_code;type:varchar(50);comment:规格编号" json:"sku_code"`                                                                                         // 规格编号

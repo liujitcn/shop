@@ -244,15 +244,15 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 		if txErr != nil {
 			return txErr
 		}
-		txErr = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
+		txErr = c.batchCreateGoodsProp(ctx, goodsInfo, req.GetPropList())
 		if txErr != nil {
 			return txErr
 		}
-		txErr = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
+		txErr = c.batchCreateGoodsSpec(ctx, goodsInfo, req.GetSpecList())
 		if txErr != nil {
 			return txErr
 		}
-		return c.batchCreateGoodsSKU(ctx, goodsInfo.ID, skuList)
+		return c.batchCreateGoodsSKU(ctx, goodsInfo, skuList)
 	})
 	if err != nil {
 		return c.wrapGoodsInfoDuplicateConflict(err)
@@ -265,12 +265,13 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 
 // UpdateGoodsInfo 更新商品
 func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *adminv1.GoodsInfoForm) error {
-	_, err := c.FindByID(ctx, req.GetId())
+	oldGoodsInfo, err := c.FindByID(ctx, req.GetId())
 	if err != nil {
 		return err
 	}
 
 	goodsInfo := c.formMapper.ToEntity(req)
+	goodsInfo.CreatedBy = oldGoodsInfo.CreatedBy
 	err = c.fillGoodsTenantByStore(ctx, goodsInfo)
 	if err != nil {
 		return err
@@ -297,15 +298,15 @@ func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 		if txErr != nil {
 			return txErr
 		}
-		txErr = c.batchCreateGoodsProp(ctx, goodsInfo.ID, req.GetPropList())
+		txErr = c.batchCreateGoodsProp(ctx, goodsInfo, req.GetPropList())
 		if txErr != nil {
 			return txErr
 		}
-		txErr = c.batchCreateGoodsSpec(ctx, goodsInfo.ID, req.GetSpecList())
+		txErr = c.batchCreateGoodsSpec(ctx, goodsInfo, req.GetSpecList())
 		if txErr != nil {
 			return txErr
 		}
-		return c.batchCreateGoodsSKU(ctx, goodsInfo.ID, skuList)
+		return c.batchCreateGoodsSKU(ctx, goodsInfo, skuList)
 	})
 	if err != nil {
 		return c.wrapGoodsInfoDuplicateConflict(err)
@@ -624,7 +625,7 @@ func (c *GoodsInfoCase) findGoodsIDsByAbnormalPrice(ctx context.Context) ([]int6
 }
 
 // batchCreateGoodsProp 批量创建商品属性
-func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsID int64, list []*adminv1.GoodsProp) error {
+func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsInfo *models.GoodsInfo, list []*adminv1.GoodsProp) error {
 	entities := make([]*models.GoodsProp, 0, len(list))
 	for _, item := range list {
 		entity := c.goodsPropCase.mapper.ToEntity(item)
@@ -632,14 +633,17 @@ func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsID int64,
 		if entity == nil {
 			entity = &models.GoodsProp{}
 		}
-		entity.GoodsID = goodsID
+		entity.TenantID = goodsInfo.TenantID
+		entity.TenantStoreID = goodsInfo.TenantStoreID
+		entity.GoodsID = goodsInfo.ID
+		entity.CreatedBy = goodsInfo.CreatedBy
 		entities = append(entities, entity)
 	}
 	return c.goodsPropCase.BatchCreate(ctx, entities)
 }
 
 // batchCreateGoodsSpec 批量创建商品规格
-func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsID int64, list []*adminv1.GoodsSpec) error {
+func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsInfo *models.GoodsInfo, list []*adminv1.GoodsSpec) error {
 	entities := make([]*models.GoodsSpec, 0, len(list))
 	for _, item := range list {
 		entity := c.goodsSpecCase.mapper.ToEntity(item)
@@ -647,14 +651,17 @@ func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsID int64,
 		if entity == nil {
 			entity = &models.GoodsSpec{}
 		}
-		entity.GoodsID = goodsID
+		entity.TenantID = goodsInfo.TenantID
+		entity.TenantStoreID = goodsInfo.TenantStoreID
+		entity.GoodsID = goodsInfo.ID
+		entity.CreatedBy = goodsInfo.CreatedBy
 		entities = append(entities, entity)
 	}
 	return c.goodsSpecCase.BatchCreate(ctx, entities)
 }
 
 // batchCreateGoodsSKU 批量创建商品规格项
-func (c *GoodsInfoCase) batchCreateGoodsSKU(ctx context.Context, goodsID int64, list []*adminv1.GoodsSku) error {
+func (c *GoodsInfoCase) batchCreateGoodsSKU(ctx context.Context, goodsInfo *models.GoodsInfo, list []*adminv1.GoodsSku) error {
 	entities := make([]*models.GoodsSKU, 0, len(list))
 	for _, item := range list {
 		entity := c.goodsSKUCase.toGoodsSKUModel(item)
@@ -662,7 +669,10 @@ func (c *GoodsInfoCase) batchCreateGoodsSKU(ctx context.Context, goodsID int64, 
 		if entity == nil {
 			entity = &models.GoodsSKU{}
 		}
-		entity.GoodsID = goodsID
+		entity.TenantID = goodsInfo.TenantID
+		entity.TenantStoreID = goodsInfo.TenantStoreID
+		entity.GoodsID = goodsInfo.ID
+		entity.CreatedBy = goodsInfo.CreatedBy
 		entities = append(entities, entity)
 	}
 	return c.goodsSKUCase.BatchCreate(ctx, entities)

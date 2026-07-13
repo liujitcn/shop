@@ -28,10 +28,16 @@ func newGoodsProp(db *gorm.DB, opts ...gen.DOOption) goodsProp {
 	tableName := _goodsProp.goodsPropDo.TableName()
 	_goodsProp.ALL = field.NewAsterisk(tableName)
 	_goodsProp.ID = field.NewInt64(tableName, "id")
+	_goodsProp.TenantID = field.NewInt64(tableName, "tenant_id")
+	_goodsProp.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_goodsProp.GoodsID = field.NewInt64(tableName, "goods_id")
 	_goodsProp.Label = field.NewString(tableName, "label")
 	_goodsProp.Value = field.NewString(tableName, "value")
 	_goodsProp.Sort = field.NewInt32(tableName, "sort")
+	_goodsProp.CreatedBy = field.NewInt64(tableName, "created_by")
+	_goodsProp.UpdatedBy = field.NewInt64(tableName, "updated_by")
+	_goodsProp.CreatedAt = field.NewTime(tableName, "created_at")
+	_goodsProp.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_goodsProp.DeletedAt = field.NewField(tableName, "deleted_at")
 
 	_goodsProp.fillFieldMap()
@@ -43,13 +49,19 @@ func newGoodsProp(db *gorm.DB, opts ...gen.DOOption) goodsProp {
 type goodsProp struct {
 	goodsPropDo goodsPropDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 商品属性ID
-	GoodsID   field.Int64  // 商品ID
-	Label     field.String // 属性标题
-	Value     field.String // 属性内容
-	Sort      field.Int32  // 排序
-	DeletedAt field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 商品属性ID
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
+	GoodsID       field.Int64  // 商品ID
+	Label         field.String // 属性标题
+	Value         field.String // 属性内容
+	Sort          field.Int32  // 排序
+	CreatedBy     field.Int64  // 创建人ID
+	UpdatedBy     field.Int64  // 更新人ID
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -67,10 +79,16 @@ func (g goodsProp) As(alias string) *goodsProp {
 func (g *goodsProp) updateTableName(table string) *goodsProp {
 	g.ALL = field.NewAsterisk(table)
 	g.ID = field.NewInt64(table, "id")
+	g.TenantID = field.NewInt64(table, "tenant_id")
+	g.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	g.GoodsID = field.NewInt64(table, "goods_id")
 	g.Label = field.NewString(table, "label")
 	g.Value = field.NewString(table, "value")
 	g.Sort = field.NewInt32(table, "sort")
+	g.CreatedBy = field.NewInt64(table, "created_by")
+	g.UpdatedBy = field.NewInt64(table, "updated_by")
+	g.CreatedAt = field.NewTime(table, "created_at")
+	g.UpdatedAt = field.NewTime(table, "updated_at")
 	g.DeletedAt = field.NewField(table, "deleted_at")
 
 	g.fillFieldMap()
@@ -98,12 +116,18 @@ func (g *goodsProp) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (g *goodsProp) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 6)
+	g.fieldMap = make(map[string]field.Expr, 12)
 	g.fieldMap["id"] = g.ID
+	g.fieldMap["tenant_id"] = g.TenantID
+	g.fieldMap["tenant_store_id"] = g.TenantStoreID
 	g.fieldMap["goods_id"] = g.GoodsID
 	g.fieldMap["label"] = g.Label
 	g.fieldMap["value"] = g.Value
 	g.fieldMap["sort"] = g.Sort
+	g.fieldMap["created_by"] = g.CreatedBy
+	g.fieldMap["updated_by"] = g.UpdatedBy
+	g.fieldMap["created_at"] = g.CreatedAt
+	g.fieldMap["updated_at"] = g.UpdatedAt
 	g.fieldMap["deleted_at"] = g.DeletedAt
 }
 

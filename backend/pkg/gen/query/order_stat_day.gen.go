@@ -29,6 +29,7 @@ func newOrderStatDay(db *gorm.DB, opts ...gen.DOOption) orderStatDay {
 	_orderStatDay.ALL = field.NewAsterisk(tableName)
 	_orderStatDay.ID = field.NewInt64(tableName, "id")
 	_orderStatDay.TenantID = field.NewInt64(tableName, "tenant_id")
+	_orderStatDay.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderStatDay.StatDate = field.NewTime(tableName, "stat_date")
 	_orderStatDay.PayType = field.NewInt32(tableName, "pay_type")
 	_orderStatDay.PayChannel = field.NewInt32(tableName, "pay_channel")
@@ -54,6 +55,7 @@ type orderStatDay struct {
 	ALL                 field.Asterisk
 	ID                  field.Int64 // 订单统计ID
 	TenantID            field.Int64 // 租户ID
+	TenantStoreID       field.Int64 // 租户门店ID
 	StatDate            field.Time  // 统计日期
 	PayType             field.Int32 // 支付方式：枚举【OrderPayType】
 	PayChannel          field.Int32 // 支付渠道：枚举【OrderPayChannel】
@@ -84,6 +86,7 @@ func (o *orderStatDay) updateTableName(table string) *orderStatDay {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
 	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.StatDate = field.NewTime(table, "stat_date")
 	o.PayType = field.NewInt32(table, "pay_type")
 	o.PayChannel = field.NewInt32(table, "pay_channel")
@@ -124,9 +127,10 @@ func (o *orderStatDay) GetFieldByName(fieldName string) (field.OrderExpr, bool) 
 }
 
 func (o *orderStatDay) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 14)
+	o.fieldMap = make(map[string]field.Expr, 15)
 	o.fieldMap["id"] = o.ID
 	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["stat_date"] = o.StatDate
 	o.fieldMap["pay_type"] = o.PayType
 	o.fieldMap["pay_channel"] = o.PayChannel

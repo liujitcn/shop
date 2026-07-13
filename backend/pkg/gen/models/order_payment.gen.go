@@ -15,6 +15,8 @@ const TableNameOrderPayment = "order_payment"
 // OrderPayment 订单支付信息
 type OrderPayment struct {
 	ID             int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单支付ID" json:"id"`                                                                                                                 // 订单支付ID
+	TenantID       int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_payment_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                                             // 租户ID
+	TenantStoreID  int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_payment_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                                                         // 租户门店ID
 	OrderID        int64          `gorm:"column:order_id;type:bigint;uniqueIndex:unique_order_payment,priority:1;comment:订单ID" json:"order_id"`                                                                                         // 订单ID
 	OrderNo        string         `gorm:"column:order_no;type:varchar(32);comment:订单编号" json:"order_no"`                                                                                                                                // 订单编号
 	ThirdOrderNo   string         `gorm:"column:third_order_no;type:varchar(32);comment:三方订单编号" json:"third_order_no"`                                                                                                                  // 三方订单编号

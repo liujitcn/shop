@@ -64,20 +64,22 @@ func (c *CommentReviewCase) CreateReview(ctx context.Context, review *models.Com
 }
 
 // createAIReview 创建 AI 审核记录。
-func (c *CommentReviewCase) createAIReview(ctx context.Context, targetType int32, targetID int64, status int32, tags []string, reason string, model string) error {
+func (c *CommentReviewCase) createAIReview(ctx context.Context, tenantID, tenantStoreID int64, targetType int32, targetID int64, status int32, tags []string, reason string, model string) error {
 	operatorName := model
 	// 模型名称为空时，使用统一名称区分 AI 审核来源。
 	if operatorName == "" {
 		operatorName = "LLM"
 	}
 	return c.CreateReview(ctx, &models.CommentReview{
-		TargetType:   targetType,
-		TargetID:     targetID,
-		Type:         _const.COMMENT_REVIEW_TYPE_AI,
-		Status:       status,
-		Tags:         jsonStringTagNames(tags),
-		OperatorID:   0,
-		OperatorName: operatorName,
-		Reason:       reason,
+		TenantID:      tenantID,
+		TenantStoreID: tenantStoreID,
+		TargetType:    targetType,
+		TargetID:      targetID,
+		Type:          _const.COMMENT_REVIEW_TYPE_AI,
+		Status:        status,
+		Tags:          jsonStringTagNames(tags),
+		OperatorID:    0,
+		OperatorName:  operatorName,
+		Reason:        reason,
 	})
 }

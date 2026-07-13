@@ -72,6 +72,8 @@ func (c *CommentReactionCase) SaveCommentReaction(
 	currentReactionType := int32(0)
 	hasCurrentReaction := false
 	oldReactionType := int32(0)
+	targetTenantID := int64(0)
+	targetTenantStoreID := int64(0)
 	if hasOldReaction {
 		oldReactionType = reaction.ReactionType
 	}
@@ -82,7 +84,8 @@ func (c *CommentReactionCase) SaveCommentReaction(
 		summaryQuery := c.commentSummaryRepo.Query(ctx).CommentSummary
 		summaryOpts := make([]repository.QueryOption, 0, 1)
 		summaryOpts = append(summaryOpts, repository.Where(summaryQuery.ID.Eq(req.GetTargetId())))
-		_, err = c.commentSummaryRepo.Find(ctx, summaryOpts...)
+		var summary *models.CommentSummary
+		summary, err = c.commentSummaryRepo.Find(ctx, summaryOpts...)
 		if err != nil {
 			// 互动目标 评价摘要不存在时，拒绝保存当前互动状态。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -90,11 +93,15 @@ func (c *CommentReactionCase) SaveCommentReaction(
 			}
 			return nil, err
 		}
+		targetTenantID = summary.TenantID
+		targetTenantStoreID = summary.TenantStoreID
 
 		// 当前请求需要开启某个互动状态时，按最新状态覆盖旧值。
 		if req.GetActive() {
 			if !hasOldReaction {
 				reaction = c.reactionMapper.ToEntity(req)
+				reaction.TenantID = targetTenantID
+				reaction.TenantStoreID = targetTenantStoreID
 				reaction.UserID = userID
 				err = c.Create(ctx, reaction)
 				if err != nil {
@@ -129,7 +136,8 @@ func (c *CommentReactionCase) SaveCommentReaction(
 		discussionQuery := c.commentDiscussionRepo.Query(ctx).CommentDiscussion
 		discussionOpts := make([]repository.QueryOption, 0, 1)
 		discussionOpts = append(discussionOpts, repository.Where(discussionQuery.ID.Eq(req.GetTargetId())))
-		_, err = c.commentDiscussionRepo.Find(ctx, discussionOpts...)
+		var discussion *models.CommentDiscussion
+		discussion, err = c.commentDiscussionRepo.Find(ctx, discussionOpts...)
 		if err != nil {
 			// 互动目标讨论不存在时，拒绝保存当前互动状态。
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -137,11 +145,15 @@ func (c *CommentReactionCase) SaveCommentReaction(
 			}
 			return nil, err
 		}
+		targetTenantID = discussion.TenantID
+		targetTenantStoreID = discussion.TenantStoreID
 
 		// 当前请求需要开启讨论点赞状态时，仅在状态首次命中时增加计数。
 		if req.GetActive() {
 			if !hasOldReaction {
 				reaction = c.reactionMapper.ToEntity(req)
+				reaction.TenantID = targetTenantID
+				reaction.TenantStoreID = targetTenantStoreID
 				reaction.UserID = userID
 				err = c.Create(ctx, reaction)
 				if err != nil {
@@ -175,7 +187,8 @@ func (c *CommentReactionCase) SaveCommentReaction(
 	case commonv1.CommentReactionTargetType(_const.COMMENT_REACTION_TARGET_TYPE_COMMENT):
 		commentQuery := c.Query(ctx).CommentInfo
 		// 评价互动需要校验目标评价已审核通过，避免对待审核或不存在评价写入互动状态。
-		_, err = commentQuery.WithContext(ctx).
+		var commentInfo *models.CommentInfo
+		commentInfo, err = commentQuery.WithContext(ctx).
 			Where(commentQuery.ID.Eq(req.GetTargetId()), commentQuery.Status.Eq(_const.COMMENT_STATUS_APPROVED)).
 			First()
 		if err != nil {
@@ -185,11 +198,15 @@ func (c *CommentReactionCase) SaveCommentReaction(
 			}
 			return nil, err
 		}
+		targetTenantID = commentInfo.TenantID
+		targetTenantStoreID = commentInfo.TenantStoreID
 
 		// 当前请求需要开启评价互动状态时，首次互动创建记录，已有状态按本次互动类型覆盖。
 		if req.GetActive() {
 			if !hasOldReaction {
 				reaction = c.reactionMapper.ToEntity(req)
+				reaction.TenantID = targetTenantID
+				reaction.TenantStoreID = targetTenantStoreID
 				reaction.UserID = userID
 				err = c.Create(ctx, reaction)
 				if err != nil {

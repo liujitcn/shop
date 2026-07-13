@@ -72,16 +72,16 @@ func (c *CommentSummaryCase) FindByID(ctx context.Context, summaryID int64) (*mo
 }
 
 // UpsertGoodsCommentSummary 保存商品两个场景的评价摘要。
-func (c *CommentSummaryCase) UpsertGoodsCommentSummary(ctx context.Context, goodsID int64, result *comment.SummaryResult) error {
+func (c *CommentSummaryCase) UpsertGoodsCommentSummary(ctx context.Context, tenantID, tenantStoreID, goodsID int64, result *comment.SummaryResult) error {
 	// 摘要结果为空时，不覆盖旧摘要，避免异常降级影响前台展示。
 	if result == nil {
 		return nil
 	}
-	err := c.upsertSceneContent(ctx, goodsID, _const.COMMENT_SUMMARY_SCENE_OVERVIEW, result.Overview.Content)
+	err := c.upsertSceneContent(ctx, tenantID, tenantStoreID, goodsID, _const.COMMENT_SUMMARY_SCENE_OVERVIEW, result.Overview.Content)
 	if err != nil {
 		return err
 	}
-	return c.upsertSceneContent(ctx, goodsID, _const.COMMENT_SUMMARY_SCENE_LIST, result.List.Content)
+	return c.upsertSceneContent(ctx, tenantID, tenantStoreID, goodsID, _const.COMMENT_SUMMARY_SCENE_LIST, result.List.Content)
 }
 
 // buildCardByGoodsIDAndScene 按商品和场景查询评价摘要卡片。
@@ -124,7 +124,7 @@ func (c *CommentSummaryCase) buildCardByGoodsIDAndScene(ctx context.Context, goo
 }
 
 // upsertSceneContent 保存单个场景的评价摘要内容。
-func (c *CommentSummaryCase) upsertSceneContent(ctx context.Context, goodsID int64, scene int32, content []comment.SummaryContentItem) error {
+func (c *CommentSummaryCase) upsertSceneContent(ctx context.Context, tenantID, tenantStoreID, goodsID int64, scene int32, content []comment.SummaryContentItem) error {
 	contentList := make([]*commonv1.CommentSummaryContentItem, 0, len(content))
 	for _, item := range content {
 		// 摘要内容为空时不进入最终展示内容。
@@ -161,8 +161,10 @@ func (c *CommentSummaryCase) upsertSceneContent(ctx context.Context, goodsID int
 	}
 
 	return c.Create(ctx, &models.CommentSummary{
-		GoodsID: goodsID,
-		Scene:   scene,
-		Content: contentJSON,
+		TenantID:      tenantID,
+		TenantStoreID: tenantStoreID,
+		GoodsID:       goodsID,
+		Scene:         scene,
+		Content:       contentJSON,
 	})
 }

@@ -27,8 +27,9 @@ type goodsStatDayResult struct {
 
 // goodsStatDayKey 表示商品日统计的租户与商品聚合键。
 type goodsStatDayKey struct {
-	tenantID int64
-	goodsID  int64
+	tenantID      int64
+	tenantStoreID int64
+	goodsID       int64
 }
 
 // GoodsStatDay 商品日统计任务。
@@ -145,7 +146,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			}
 		}
 
-		goodsTenantIDMap := make(map[int64]int64, len(goodsIDSet))
+		goodsInfoMap := make(map[int64]*models.GoodsInfo, len(goodsIDSet))
 		// 行为明细不带租户，统一通过商品主表批量解析租户归属。
 		if len(goodsIDSet) > 0 {
 			goodsIDs := make([]int64, 0, len(goodsIDSet))
@@ -162,20 +163,21 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 				return err
 			}
 			for _, item := range goodsInfoList {
-				goodsTenantIDMap[item.ID] = item.TenantID
+				goodsInfoMap[item.ID] = item
 			}
 		}
 
 		statMap := make(map[goodsStatDayKey]*models.GoodsStatDay)
-		ensureStat := func(tenantID, goodsID int64) *models.GoodsStatDay {
-			key := goodsStatDayKey{tenantID: tenantID, goodsID: goodsID}
+		ensureStat := func(tenantID, tenantStoreID, goodsID int64) *models.GoodsStatDay {
+			key := goodsStatDayKey{tenantID: tenantID, tenantStoreID: tenantStoreID, goodsID: goodsID}
 			item, ok := statMap[key]
 			// 首次出现的租户商品需要先初始化统计对象。
 			if !ok {
 				item = &models.GoodsStatDay{
-					TenantID: tenantID,
-					StatDate: statDate,
-					GoodsID:  goodsID,
+					TenantID:      tenantID,
+					TenantStoreID: tenantStoreID,
+					StatDate:      statDate,
+					GoodsID:       goodsID,
 				}
 				statMap[key] = item
 			}
@@ -183,28 +185,28 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 		}
 
 		for _, item := range viewList {
-			tenantID := goodsTenantIDMap[item.GoodsID]
+			goodsInfo := goodsInfoMap[item.GoodsID]
 			// 无法确认租户归属的商品行为不进入租户统计。
-			if tenantID <= 0 {
+			if goodsInfo == nil || goodsInfo.TenantID <= 0 || goodsInfo.TenantStoreID <= 0 {
 				continue
 			}
-			ensureStat(tenantID, item.GoodsID).ViewCount++
+			ensureStat(goodsInfo.TenantID, goodsInfo.TenantStoreID, item.GoodsID).ViewCount++
 		}
 		for _, item := range collectList {
-			tenantID := goodsTenantIDMap[item.GoodsID]
+			goodsInfo := goodsInfoMap[item.GoodsID]
 			// 无法确认租户归属的商品行为不进入租户统计。
-			if tenantID <= 0 {
+			if goodsInfo == nil || goodsInfo.TenantID <= 0 || goodsInfo.TenantStoreID <= 0 {
 				continue
 			}
-			ensureStat(tenantID, item.GoodsID).CollectCount++
+			ensureStat(goodsInfo.TenantID, goodsInfo.TenantStoreID, item.GoodsID).CollectCount++
 		}
 		for _, item := range cartList {
-			tenantID := goodsTenantIDMap[item.GoodsID]
+			goodsInfo := goodsInfoMap[item.GoodsID]
 			// 无法确认租户归属的商品行为不进入租户统计。
-			if tenantID <= 0 {
+			if goodsInfo == nil || goodsInfo.TenantID <= 0 || goodsInfo.TenantStoreID <= 0 {
 				continue
 			}
-			ensureStat(tenantID, item.GoodsID).CartCount += item.Num
+			ensureStat(goodsInfo.TenantID, goodsInfo.TenantStoreID, item.GoodsID).CartCount += item.Num
 		}
 
 		orderQuery := t.orderInfoRepo.Query(ctx).OrderInfo
@@ -252,7 +254,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			goodsList := orderGoodsByOrderID[orderInfo.ID]
 			seenGoodsIDs := make(map[int64]struct{}, len(goodsList))
 			for _, item := range goodsList {
-				stat := ensureStat(orderInfo.TenantID, item.GoodsID)
+				stat := ensureStat(orderInfo.TenantID, orderInfo.TenantStoreID, item.GoodsID)
 				// 同一订单下同一商品可能有多条明细，这里只按订单去重累计下单次数。
 				if _, ok := seenGoodsIDs[item.GoodsID]; !ok {
 					seenGoodsIDs[item.GoodsID] = struct{}{}
@@ -269,7 +271,7 @@ func (t *GoodsStatDay) Exec(args map[string]string) ([]string, error) {
 			goodsList := orderGoodsByOrderID[orderInfo.ID]
 			seenGoodsIDs := make(map[int64]struct{}, len(goodsList))
 			for _, item := range goodsList {
-				stat := ensureStat(orderInfo.TenantID, item.GoodsID)
+				stat := ensureStat(orderInfo.TenantID, orderInfo.TenantStoreID, item.GoodsID)
 				// 同一支付订单下同一商品只记一次支付订单数。
 				if _, ok := seenGoodsIDs[item.GoodsID]; !ok {
 					seenGoodsIDs[item.GoodsID] = struct{}{}

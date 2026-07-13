@@ -55,7 +55,7 @@ func (c *OrderAddressCase) findByOrderID(ctx context.Context, orderID int64) (*a
 }
 
 // createByOrder 按用户地址创建订单地址快照
-func (c *OrderAddressCase) createByOrder(ctx context.Context, userID, orderID, addressID int64) error {
+func (c *OrderAddressCase) createByOrder(ctx context.Context, userID int64, orderInfo *models.OrderInfo, addressID int64) error {
 	query := c.userAddressRepo.Query(ctx).UserAddress
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.ID.Eq(addressID)))
@@ -66,10 +66,12 @@ func (c *OrderAddressCase) createByOrder(ctx context.Context, userID, orderID, a
 	}
 	// 下单时复制一份地址快照，避免用户后续修改地址影响历史订单展示
 	return c.Create(ctx, &models.OrderAddress{
-		OrderID:  orderID,
-		Receiver: userAddress.Receiver,
-		Contact:  userAddress.Contact,
-		Address:  _string.ConvertStringArrayToString(c.baseAreaCase.getAddressListByCode(ctx, userAddress.Address)),
-		Detail:   userAddress.Detail,
+		TenantID:      orderInfo.TenantID,
+		TenantStoreID: orderInfo.TenantStoreID,
+		OrderID:       orderInfo.ID,
+		Receiver:      userAddress.Receiver,
+		Contact:       userAddress.Contact,
+		Address:       _string.ConvertStringArrayToString(c.baseAreaCase.getAddressListByCode(ctx, userAddress.Address)),
+		Detail:        userAddress.Detail,
 	})
 }

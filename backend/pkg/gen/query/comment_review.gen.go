@@ -28,6 +28,8 @@ func newCommentReview(db *gorm.DB, opts ...gen.DOOption) commentReview {
 	tableName := _commentReview.commentReviewDo.TableName()
 	_commentReview.ALL = field.NewAsterisk(tableName)
 	_commentReview.ID = field.NewInt64(tableName, "id")
+	_commentReview.TenantID = field.NewInt64(tableName, "tenant_id")
+	_commentReview.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_commentReview.TargetType = field.NewInt32(tableName, "target_type")
 	_commentReview.TargetID = field.NewInt64(tableName, "target_id")
 	_commentReview.Type = field.NewInt32(tableName, "type")
@@ -49,19 +51,21 @@ func newCommentReview(db *gorm.DB, opts ...gen.DOOption) commentReview {
 type commentReview struct {
 	commentReviewDo commentReviewDo
 
-	ALL          field.Asterisk
-	ID           field.Int64  // 审核记录ID
-	TargetType   field.Int32  // 审核目标类型：枚举【CommentReviewTargetType】
-	TargetID     field.Int64  // 审核目标ID
-	Type         field.Int32  // 审核类型：枚举【CommentReviewType】
-	Status       field.Int32  // 审核结果：枚举【CommentReviewStatus】
-	Tags         field.String // 本次审核提取出的标签名称数组
-	OperatorID   field.Int64  // 操作人ID，AI审核为0
-	OperatorName field.String // 操作人名称或AI模型名
-	Reason       field.String // 原因说明、异常信息或人工备注
-	CreatedAt    field.Time   // 创建时间
-	UpdatedAt    field.Time   // 更新时间
-	DeletedAt    field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 审核记录ID
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
+	TargetType    field.Int32  // 审核目标类型：枚举【CommentReviewTargetType】
+	TargetID      field.Int64  // 审核目标ID
+	Type          field.Int32  // 审核类型：枚举【CommentReviewType】
+	Status        field.Int32  // 审核结果：枚举【CommentReviewStatus】
+	Tags          field.String // 本次审核提取出的标签名称数组
+	OperatorID    field.Int64  // 操作人ID，AI审核为0
+	OperatorName  field.String // 操作人名称或AI模型名
+	Reason        field.String // 原因说明、异常信息或人工备注
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -79,6 +83,8 @@ func (c commentReview) As(alias string) *commentReview {
 func (c *commentReview) updateTableName(table string) *commentReview {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
+	c.TenantID = field.NewInt64(table, "tenant_id")
+	c.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	c.TargetType = field.NewInt32(table, "target_type")
 	c.TargetID = field.NewInt64(table, "target_id")
 	c.Type = field.NewInt32(table, "type")
@@ -118,8 +124,10 @@ func (c *commentReview) GetFieldByName(fieldName string) (field.OrderExpr, bool)
 }
 
 func (c *commentReview) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 12)
+	c.fieldMap = make(map[string]field.Expr, 14)
 	c.fieldMap["id"] = c.ID
+	c.fieldMap["tenant_id"] = c.TenantID
+	c.fieldMap["tenant_store_id"] = c.TenantStoreID
 	c.fieldMap["target_type"] = c.TargetType
 	c.fieldMap["target_id"] = c.TargetID
 	c.fieldMap["type"] = c.Type

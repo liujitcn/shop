@@ -110,14 +110,16 @@ func (c *CommentDiscussionCase) SetCommentDiscussionStatus(ctx context.Context, 
 			return updateErr
 		}
 		return c.commentReviewCase.CreateReview(txCtx, &models.CommentReview{
-			TargetType:   _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION,
-			TargetID:     discussion.ID,
-			Type:         _const.COMMENT_REVIEW_TYPE_MANUAL,
-			Status:       commentReviewStatusByCommentStatus(int32(req.GetStatus())),
-			Tags:         _string.ConvertAnyToJsonString([]string{}),
-			OperatorID:   authInfo.UserId,
-			OperatorName: operatorName,
-			Reason:       req.GetReason(),
+			TenantID:      discussion.TenantID,
+			TenantStoreID: discussion.TenantStoreID,
+			TargetType:    _const.COMMENT_REVIEW_TARGET_TYPE_DISCUSSION,
+			TargetID:      discussion.ID,
+			Type:          _const.COMMENT_REVIEW_TYPE_MANUAL,
+			Status:        commentReviewStatusByCommentStatus(int32(req.GetStatus())),
+			Tags:          _string.ConvertAnyToJsonString([]string{}),
+			OperatorID:    authInfo.UserId,
+			OperatorName:  operatorName,
+			Reason:        req.GetReason(),
 		})
 	})
 	if err != nil {

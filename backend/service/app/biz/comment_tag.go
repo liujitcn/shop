@@ -115,7 +115,7 @@ func (c *CommentTagCase) IncreaseMentionCount(ctx context.Context, tagIDs []int6
 }
 
 // UpsertTagsByNames 根据标签名称创建或复用商品标签，并增加提及次数。
-func (c *CommentTagCase) UpsertTagsByNames(ctx context.Context, goodsID int64, tagNames []string) ([]int64, []string, error) {
+func (c *CommentTagCase) UpsertTagsByNames(ctx context.Context, tenantID, tenantStoreID, goodsID int64, tagNames []string) ([]int64, []string, error) {
 	cleanNames := cleanCommentTagNames(tagNames)
 	// 没有可用标签名称时，直接返回空结果。
 	if len(cleanNames) == 0 {
@@ -124,7 +124,7 @@ func (c *CommentTagCase) UpsertTagsByNames(ctx context.Context, goodsID int64, t
 
 	tagIDs := make([]int64, 0, len(cleanNames))
 	for _, tagName := range cleanNames {
-		tagID, err := c.upsertTagByName(ctx, goodsID, tagName)
+		tagID, err := c.upsertTagByName(ctx, tenantID, tenantStoreID, goodsID, tagName)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -195,7 +195,7 @@ func jsonStringTagNames(tagNames []string) string {
 }
 
 // upsertTagByName 根据标签名称创建或复用商品标签。
-func (c *CommentTagCase) upsertTagByName(ctx context.Context, goodsID int64, tagName string) (int64, error) {
+func (c *CommentTagCase) upsertTagByName(ctx context.Context, tenantID, tenantStoreID, goodsID int64, tagName string) (int64, error) {
 	query := c.Query(ctx).CommentTag
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
@@ -215,10 +215,12 @@ func (c *CommentTagCase) upsertTagByName(ctx context.Context, goodsID int64, tag
 	}
 
 	record = &models.CommentTag{
-		GoodsID:      goodsID,
-		Name:         tagName,
-		MentionCount: 1,
-		Sort:         0,
+		TenantID:      tenantID,
+		TenantStoreID: tenantStoreID,
+		GoodsID:       goodsID,
+		Name:          tagName,
+		MentionCount:  1,
+		Sort:          0,
 	}
 	err = c.Create(ctx, record)
 	if err != nil {

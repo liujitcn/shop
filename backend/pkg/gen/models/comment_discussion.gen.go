@@ -15,6 +15,8 @@ const TableNameCommentDiscussion = "comment_discussion"
 // CommentDiscussion 评价讨论信息
 type CommentDiscussion struct {
 	ID                  int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:讨论主键" json:"id"`                                                                                                              // 讨论主键
+	TenantID            int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_comment_discussion_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                                                   // 租户ID
+	TenantStoreID       int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_comment_discussion_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                                               // 租户门店ID
 	CommentID           int64          `gorm:"column:comment_id;type:bigint;index:idx_comment_discussion_comment_id_created_at,priority:1;comment:所属评价ID" json:"comment_id"`                                                            // 所属评价ID
 	UserID              int64          `gorm:"column:user_id;type:bigint;index:idx_comment_discussion_user_id_created_at,priority:1;comment:讨论用户ID" json:"user_id"`                                                                     // 讨论用户ID
 	UserNameSnapshot    string         `gorm:"column:user_name_snapshot;type:varchar(64);comment:讨论用户昵称快照" json:"user_name_snapshot"`                                                                                                   // 讨论用户昵称快照

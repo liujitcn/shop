@@ -14,14 +14,16 @@ const TableNameCommentTag = "comment_tag"
 
 // CommentTag 评价标签信息
 type CommentTag struct {
-	ID           int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:标签主键" json:"id"`                                                                            // 标签主键
-	GoodsID      int64          `gorm:"column:goods_id;type:bigint;uniqueIndex:uk_comment_tag_goods_name,priority:1;index:idx_comment_tag_goods_sort,priority:1;comment:商品ID" json:"goods_id"` // 商品ID
-	Name         string         `gorm:"column:name;type:varchar(64);uniqueIndex:uk_comment_tag_goods_name,priority:2;comment:标签名称" json:"name"`                                                // 标签名称
-	MentionCount int32          `gorm:"column:mention_count;type:int;comment:提及次数" json:"mention_count"`                                                                                       // 提及次数
-	Sort         int32          `gorm:"column:sort;type:int;index:idx_comment_tag_goods_sort,priority:2;comment:展示排序" json:"sort"`                                                             // 展示排序
-	CreatedAt    time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                                        // 创建时间
-	UpdatedAt    time.Time      `gorm:"column:updated_at;type:datetime;comment:最后更新时间" json:"updated_at"`                                                                                      // 最后更新时间
-	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                        // 删除时间
+	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:标签主键" json:"id"`                                                                            // 标签主键
+	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_comment_tag_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                        // 租户ID
+	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_comment_tag_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                    // 租户门店ID
+	GoodsID       int64          `gorm:"column:goods_id;type:bigint;uniqueIndex:uk_comment_tag_goods_name,priority:1;index:idx_comment_tag_goods_sort,priority:1;comment:商品ID" json:"goods_id"` // 商品ID
+	Name          string         `gorm:"column:name;type:varchar(64);uniqueIndex:uk_comment_tag_goods_name,priority:2;comment:标签名称" json:"name"`                                                // 标签名称
+	MentionCount  int32          `gorm:"column:mention_count;type:int;comment:提及次数" json:"mention_count"`                                                                                       // 提及次数
+	Sort          int32          `gorm:"column:sort;type:int;index:idx_comment_tag_goods_sort,priority:2;comment:展示排序" json:"sort"`                                                             // 展示排序
+	CreatedAt     time.Time      `gorm:"column:created_at;type:datetime;comment:创建时间" json:"created_at"`                                                                                        // 创建时间
+	UpdatedAt     time.Time      `gorm:"column:updated_at;type:datetime;comment:最后更新时间" json:"updated_at"`                                                                                      // 最后更新时间
+	DeletedAt     gorm.DeletedAt `gorm:"column:deleted_at;type:datetime;comment:删除时间" json:"deleted_at"`                                                                                        // 删除时间
 }
 
 // TableName CommentTag's table name

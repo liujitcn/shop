@@ -28,6 +28,8 @@ func newOrderLogistics(db *gorm.DB, opts ...gen.DOOption) orderLogistics {
 	tableName := _orderLogistics.orderLogisticsDo.TableName()
 	_orderLogistics.ALL = field.NewAsterisk(tableName)
 	_orderLogistics.ID = field.NewInt64(tableName, "id")
+	_orderLogistics.TenantID = field.NewInt64(tableName, "tenant_id")
+	_orderLogistics.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderLogistics.OrderID = field.NewInt64(tableName, "order_id")
 	_orderLogistics.Name = field.NewString(tableName, "name")
 	_orderLogistics.No = field.NewString(tableName, "no")
@@ -45,15 +47,17 @@ func newOrderLogistics(db *gorm.DB, opts ...gen.DOOption) orderLogistics {
 type orderLogistics struct {
 	orderLogisticsDo orderLogisticsDo
 
-	ALL       field.Asterisk
-	ID        field.Int64  // 订单物流ID
-	OrderID   field.Int64  // 订单ID
-	Name      field.String // 物流公司名
-	No        field.String // 单号
-	Contact   field.String // 联系方式
-	Detail    field.String // 物流详情
-	CreatedAt field.Time   // 创建时间
-	DeletedAt field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 订单物流ID
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
+	OrderID       field.Int64  // 订单ID
+	Name          field.String // 物流公司名
+	No            field.String // 单号
+	Contact       field.String // 联系方式
+	Detail        field.String // 物流详情
+	CreatedAt     field.Time   // 创建时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -71,6 +75,8 @@ func (o orderLogistics) As(alias string) *orderLogistics {
 func (o *orderLogistics) updateTableName(table string) *orderLogistics {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderID = field.NewInt64(table, "order_id")
 	o.Name = field.NewString(table, "name")
 	o.No = field.NewString(table, "no")
@@ -106,8 +112,10 @@ func (o *orderLogistics) GetFieldByName(fieldName string) (field.OrderExpr, bool
 }
 
 func (o *orderLogistics) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 8)
+	o.fieldMap = make(map[string]field.Expr, 10)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["name"] = o.Name
 	o.fieldMap["no"] = o.No

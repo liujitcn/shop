@@ -28,6 +28,8 @@ func newOrderRefund(db *gorm.DB, opts ...gen.DOOption) orderRefund {
 	tableName := _orderRefund.orderRefundDo.TableName()
 	_orderRefund.ALL = field.NewAsterisk(tableName)
 	_orderRefund.ID = field.NewInt64(tableName, "id")
+	_orderRefund.TenantID = field.NewInt64(tableName, "tenant_id")
+	_orderRefund.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_orderRefund.OrderID = field.NewInt64(tableName, "order_id")
 	_orderRefund.OrderNo = field.NewString(tableName, "order_no")
 	_orderRefund.ThirdOrderNo = field.NewString(tableName, "third_order_no")
@@ -55,6 +57,8 @@ type orderRefund struct {
 
 	ALL                 field.Asterisk
 	ID                  field.Int64  // 订单退款ID
+	TenantID            field.Int64  // 租户ID
+	TenantStoreID       field.Int64  // 租户门店ID
 	OrderID             field.Int64  // 订单ID
 	OrderNo             field.String // 支付订单编号
 	ThirdOrderNo        field.String // 三方支付订单编号
@@ -87,6 +91,8 @@ func (o orderRefund) As(alias string) *orderRefund {
 func (o *orderRefund) updateTableName(table string) *orderRefund {
 	o.ALL = field.NewAsterisk(table)
 	o.ID = field.NewInt64(table, "id")
+	o.TenantID = field.NewInt64(table, "tenant_id")
+	o.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	o.OrderID = field.NewInt64(table, "order_id")
 	o.OrderNo = field.NewString(table, "order_no")
 	o.ThirdOrderNo = field.NewString(table, "third_order_no")
@@ -128,8 +134,10 @@ func (o *orderRefund) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (o *orderRefund) fillFieldMap() {
-	o.fieldMap = make(map[string]field.Expr, 16)
+	o.fieldMap = make(map[string]field.Expr, 18)
 	o.fieldMap["id"] = o.ID
+	o.fieldMap["tenant_id"] = o.TenantID
+	o.fieldMap["tenant_store_id"] = o.TenantStoreID
 	o.fieldMap["order_id"] = o.OrderID
 	o.fieldMap["order_no"] = o.OrderNo
 	o.fieldMap["third_order_no"] = o.ThirdOrderNo

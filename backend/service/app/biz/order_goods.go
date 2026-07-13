@@ -85,13 +85,15 @@ func (c *OrderGoodsCase) listByOrderID(ctx context.Context, orderID int64) ([]*a
 }
 
 // createByOrder 批量创建订单商品记录
-func (c *OrderGoodsCase) createByOrder(ctx context.Context, orderID int64, goods []*models.OrderGoods) error {
+func (c *OrderGoodsCase) createByOrder(ctx context.Context, orderInfo *models.OrderInfo, goods []*models.OrderGoods) error {
 	// 订单商品为空时，禁止继续创建订单明细。
 	if len(goods) == 0 {
 		return errorsx.InvalidArgument("订单商品信息不能为空")
 	}
 	for _, item := range goods {
-		item.OrderID = orderID
+		item.TenantID = orderInfo.TenantID
+		item.TenantStoreID = orderInfo.TenantStoreID
+		item.OrderID = orderInfo.ID
 	}
 	return c.BatchCreate(ctx, goods)
 }

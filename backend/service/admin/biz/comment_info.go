@@ -113,7 +113,6 @@ func (c *CommentInfoCase) GetGoodsCommentInfo(ctx context.Context, goodsID int64
 	if goodsID <= 0 {
 		return nil, errorsx.InvalidArgument("商品ID不能为空")
 	}
-
 	query := c.Query(ctx).CommentInfo
 	opts := make([]repository.QueryOption, 0, 2)
 	opts = append(opts, repository.Where(query.GoodsID.Eq(goodsID)))
@@ -231,14 +230,16 @@ func (c *CommentInfoCase) SetCommentInfoStatus(ctx context.Context, req *adminv1
 			return updateErr
 		}
 		return c.commentReviewCase.CreateReview(txCtx, &models.CommentReview{
-			TargetType:   _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT,
-			TargetID:     req.GetId(),
-			Type:         _const.COMMENT_REVIEW_TYPE_MANUAL,
-			Status:       commentReviewStatusByCommentStatus(int32(req.GetStatus())),
-			Tags:         _string.ConvertAnyToJsonString([]string{}),
-			OperatorID:   authInfo.UserId,
-			OperatorName: operatorName,
-			Reason:       req.GetReason(),
+			TenantID:      commentInfo.TenantID,
+			TenantStoreID: commentInfo.TenantStoreID,
+			TargetType:    _const.COMMENT_REVIEW_TARGET_TYPE_COMMENT,
+			TargetID:      req.GetId(),
+			Type:          _const.COMMENT_REVIEW_TYPE_MANUAL,
+			Status:        commentReviewStatusByCommentStatus(int32(req.GetStatus())),
+			Tags:          _string.ConvertAnyToJsonString([]string{}),
+			OperatorID:    authInfo.UserId,
+			OperatorName:  operatorName,
+			Reason:        req.GetReason(),
 		})
 	})
 	if err != nil {

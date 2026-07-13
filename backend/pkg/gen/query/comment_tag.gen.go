@@ -28,6 +28,8 @@ func newCommentTag(db *gorm.DB, opts ...gen.DOOption) commentTag {
 	tableName := _commentTag.commentTagDo.TableName()
 	_commentTag.ALL = field.NewAsterisk(tableName)
 	_commentTag.ID = field.NewInt64(tableName, "id")
+	_commentTag.TenantID = field.NewInt64(tableName, "tenant_id")
+	_commentTag.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_commentTag.GoodsID = field.NewInt64(tableName, "goods_id")
 	_commentTag.Name = field.NewString(tableName, "name")
 	_commentTag.MentionCount = field.NewInt32(tableName, "mention_count")
@@ -45,15 +47,17 @@ func newCommentTag(db *gorm.DB, opts ...gen.DOOption) commentTag {
 type commentTag struct {
 	commentTagDo commentTagDo
 
-	ALL          field.Asterisk
-	ID           field.Int64  // 标签主键
-	GoodsID      field.Int64  // 商品ID
-	Name         field.String // 标签名称
-	MentionCount field.Int32  // 提及次数
-	Sort         field.Int32  // 展示排序
-	CreatedAt    field.Time   // 创建时间
-	UpdatedAt    field.Time   // 最后更新时间
-	DeletedAt    field.Field  // 删除时间
+	ALL           field.Asterisk
+	ID            field.Int64  // 标签主键
+	TenantID      field.Int64  // 租户ID
+	TenantStoreID field.Int64  // 租户门店ID
+	GoodsID       field.Int64  // 商品ID
+	Name          field.String // 标签名称
+	MentionCount  field.Int32  // 提及次数
+	Sort          field.Int32  // 展示排序
+	CreatedAt     field.Time   // 创建时间
+	UpdatedAt     field.Time   // 最后更新时间
+	DeletedAt     field.Field  // 删除时间
 
 	fieldMap map[string]field.Expr
 }
@@ -71,6 +75,8 @@ func (c commentTag) As(alias string) *commentTag {
 func (c *commentTag) updateTableName(table string) *commentTag {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
+	c.TenantID = field.NewInt64(table, "tenant_id")
+	c.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	c.GoodsID = field.NewInt64(table, "goods_id")
 	c.Name = field.NewString(table, "name")
 	c.MentionCount = field.NewInt32(table, "mention_count")
@@ -104,8 +110,10 @@ func (c *commentTag) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (c *commentTag) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 8)
+	c.fieldMap = make(map[string]field.Expr, 10)
 	c.fieldMap["id"] = c.ID
+	c.fieldMap["tenant_id"] = c.TenantID
+	c.fieldMap["tenant_store_id"] = c.TenantStoreID
 	c.fieldMap["goods_id"] = c.GoodsID
 	c.fieldMap["name"] = c.Name
 	c.fieldMap["mention_count"] = c.MentionCount

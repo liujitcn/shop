@@ -17,9 +17,10 @@ import (
 
 // orderStatDayKey 表示订单日统计的租户与支付维度聚合键。
 type orderStatDayKey struct {
-	tenantID   int64
-	payType    int32
-	payChannel int32
+	tenantID      int64
+	tenantStoreID int64
+	payType       int32
+	payChannel    int32
 }
 
 // orderStatDayResult 表示订单日汇总任务执行结果。
@@ -85,16 +86,17 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 
 		statMap := make(map[orderStatDayKey]*models.OrderStatDay)
 		paidUserMap := make(map[orderStatDayKey]map[int64]struct{})
-		ensureStat := func(tenantID int64, payType, payChannel int32) *models.OrderStatDay {
-			key := orderStatDayKey{tenantID: tenantID, payType: payType, payChannel: payChannel}
+		ensureStat := func(tenantID, tenantStoreID int64, payType, payChannel int32) *models.OrderStatDay {
+			key := orderStatDayKey{tenantID: tenantID, tenantStoreID: tenantStoreID, payType: payType, payChannel: payChannel}
 			item, ok := statMap[key]
 			// 首次出现的租户支付维度需要先初始化统计对象。
 			if !ok {
 				item = &models.OrderStatDay{
-					TenantID:   tenantID,
-					StatDate:   statDate,
-					PayType:    payType,
-					PayChannel: payChannel,
+					TenantID:      tenantID,
+					TenantStoreID: tenantStoreID,
+					StatDate:      statDate,
+					PayType:       payType,
+					PayChannel:    payChannel,
 				}
 				statMap[key] = item
 			}
@@ -106,13 +108,13 @@ func (t *OrderStatDay) Exec(args map[string]string) ([]string, error) {
 			if item == nil || item.ID <= 0 {
 				continue
 			}
-			stat := ensureStat(item.TenantID, item.PayType, item.PayChannel)
+			stat := ensureStat(item.TenantID, item.TenantStoreID, item.PayType, item.PayChannel)
 			// 已支付口径的订单按主表状态直接累计。
 			if utils.IsPaidOrderStatus(item.Status) {
 				stat.PaidOrderCount++
 				stat.PaidOrderAmount += item.PayMoney
 				stat.GoodsCount += int32(item.GoodsNum)
-				key := orderStatDayKey{tenantID: item.TenantID, payType: item.PayType, payChannel: item.PayChannel}
+				key := orderStatDayKey{tenantID: item.TenantID, tenantStoreID: item.TenantStoreID, payType: item.PayType, payChannel: item.PayChannel}
 				// 当前租户支付维度首次出现用户集合时，先初始化去重容器。
 				if _, ok := paidUserMap[key]; !ok {
 					paidUserMap[key] = make(map[int64]struct{}, 1)

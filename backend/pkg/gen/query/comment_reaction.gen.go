@@ -28,6 +28,8 @@ func newCommentReaction(db *gorm.DB, opts ...gen.DOOption) commentReaction {
 	tableName := _commentReaction.commentReactionDo.TableName()
 	_commentReaction.ALL = field.NewAsterisk(tableName)
 	_commentReaction.ID = field.NewInt64(tableName, "id")
+	_commentReaction.TenantID = field.NewInt64(tableName, "tenant_id")
+	_commentReaction.TenantStoreID = field.NewInt64(tableName, "tenant_store_id")
 	_commentReaction.TargetType = field.NewInt32(tableName, "target_type")
 	_commentReaction.TargetID = field.NewInt64(tableName, "target_id")
 	_commentReaction.UserID = field.NewInt64(tableName, "user_id")
@@ -44,14 +46,16 @@ func newCommentReaction(db *gorm.DB, opts ...gen.DOOption) commentReaction {
 type commentReaction struct {
 	commentReactionDo commentReactionDo
 
-	ALL          field.Asterisk
-	ID           field.Int64 // 互动主键
-	TargetType   field.Int32 // 目标类型：枚举【CommentReactionTargetType】
-	TargetID     field.Int64 // 目标ID
-	UserID       field.Int64 // 操作用户ID
-	ReactionType field.Int32 // 互动类型：枚举【CommentReactionType】
-	CreatedAt    field.Time  // 创建时间
-	UpdatedAt    field.Time  // 最后更新时间
+	ALL           field.Asterisk
+	ID            field.Int64 // 互动主键
+	TenantID      field.Int64 // 租户ID
+	TenantStoreID field.Int64 // 租户门店ID
+	TargetType    field.Int32 // 目标类型：枚举【CommentReactionTargetType】
+	TargetID      field.Int64 // 目标ID
+	UserID        field.Int64 // 操作用户ID
+	ReactionType  field.Int32 // 互动类型：枚举【CommentReactionType】
+	CreatedAt     field.Time  // 创建时间
+	UpdatedAt     field.Time  // 最后更新时间
 
 	fieldMap map[string]field.Expr
 }
@@ -69,6 +73,8 @@ func (c commentReaction) As(alias string) *commentReaction {
 func (c *commentReaction) updateTableName(table string) *commentReaction {
 	c.ALL = field.NewAsterisk(table)
 	c.ID = field.NewInt64(table, "id")
+	c.TenantID = field.NewInt64(table, "tenant_id")
+	c.TenantStoreID = field.NewInt64(table, "tenant_store_id")
 	c.TargetType = field.NewInt32(table, "target_type")
 	c.TargetID = field.NewInt64(table, "target_id")
 	c.UserID = field.NewInt64(table, "user_id")
@@ -103,8 +109,10 @@ func (c *commentReaction) GetFieldByName(fieldName string) (field.OrderExpr, boo
 }
 
 func (c *commentReaction) fillFieldMap() {
-	c.fieldMap = make(map[string]field.Expr, 7)
+	c.fieldMap = make(map[string]field.Expr, 9)
 	c.fieldMap["id"] = c.ID
+	c.fieldMap["tenant_id"] = c.TenantID
+	c.fieldMap["tenant_store_id"] = c.TenantStoreID
 	c.fieldMap["target_type"] = c.TargetType
 	c.fieldMap["target_id"] = c.TargetID
 	c.fieldMap["user_id"] = c.UserID
