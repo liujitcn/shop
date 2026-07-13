@@ -78,7 +78,6 @@ func (c *GoodsPropCase) CreateGoodsProp(ctx context.Context, req *adminv1.GoodsP
 	}
 	goodsProp.TenantID = goodsInfo.TenantID
 	goodsProp.TenantStoreID = goodsInfo.TenantStoreID
-	goodsProp.CreatedBy = goodsInfo.CreatedBy
 	err = c.Create(ctx, goodsProp)
 	if err != nil {
 		// 命中商品属性唯一索引冲突时，返回稳定的业务冲突错误。

@@ -265,14 +265,8 @@ func (c *GoodsInfoCase) CreateGoodsInfo(ctx context.Context, req *adminv1.GoodsI
 
 // UpdateGoodsInfo 更新商品
 func (c *GoodsInfoCase) UpdateGoodsInfo(ctx context.Context, req *adminv1.GoodsInfoForm) error {
-	oldGoodsInfo, err := c.FindByID(ctx, req.GetId())
-	if err != nil {
-		return err
-	}
-
 	goodsInfo := c.formMapper.ToEntity(req)
-	goodsInfo.CreatedBy = oldGoodsInfo.CreatedBy
-	err = c.fillGoodsTenantByStore(ctx, goodsInfo)
+	err := c.fillGoodsTenantByStore(ctx, goodsInfo)
 	if err != nil {
 		return err
 	}
@@ -636,7 +630,6 @@ func (c *GoodsInfoCase) batchCreateGoodsProp(ctx context.Context, goodsInfo *mod
 		entity.TenantID = goodsInfo.TenantID
 		entity.TenantStoreID = goodsInfo.TenantStoreID
 		entity.GoodsID = goodsInfo.ID
-		entity.CreatedBy = goodsInfo.CreatedBy
 		entities = append(entities, entity)
 	}
 	return c.goodsPropCase.BatchCreate(ctx, entities)
@@ -654,7 +647,6 @@ func (c *GoodsInfoCase) batchCreateGoodsSpec(ctx context.Context, goodsInfo *mod
 		entity.TenantID = goodsInfo.TenantID
 		entity.TenantStoreID = goodsInfo.TenantStoreID
 		entity.GoodsID = goodsInfo.ID
-		entity.CreatedBy = goodsInfo.CreatedBy
 		entities = append(entities, entity)
 	}
 	return c.goodsSpecCase.BatchCreate(ctx, entities)
@@ -672,7 +664,6 @@ func (c *GoodsInfoCase) batchCreateGoodsSKU(ctx context.Context, goodsInfo *mode
 		entity.TenantID = goodsInfo.TenantID
 		entity.TenantStoreID = goodsInfo.TenantStoreID
 		entity.GoodsID = goodsInfo.ID
-		entity.CreatedBy = goodsInfo.CreatedBy
 		entities = append(entities, entity)
 	}
 	return c.goodsSKUCase.BatchCreate(ctx, entities)

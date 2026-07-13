@@ -12,37 +12,37 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/gorse-io/gorse-go v0.5.0-alpha.3
-	github.com/liujitcn/go-utils v0.0.30
-	github.com/liujitcn/go-utils/crypto v0.0.9
+	github.com/liujitcn/go-utils v0.0.31
+	github.com/liujitcn/go-utils/crypto v0.0.10
 	github.com/liujitcn/go-utils/geoip v0.0.3
 	github.com/liujitcn/go-utils/http v0.0.4
-	github.com/liujitcn/gorm-kit v0.0.30
-	github.com/liujitcn/kratos-kit v0.0.46
-	github.com/liujitcn/kratos-kit/ai/eino v0.0.2
-	github.com/liujitcn/kratos-kit/api v0.0.18
-	github.com/liujitcn/kratos-kit/auth v0.0.17
-	github.com/liujitcn/kratos-kit/auth/authn v0.0.16
-	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.11
-	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.12
-	github.com/liujitcn/kratos-kit/auth/authz v0.0.15
-	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.13
-	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.12
-	github.com/liujitcn/kratos-kit/bootstrap v0.0.13
-	github.com/liujitcn/kratos-kit/cache v0.0.13
-	github.com/liujitcn/kratos-kit/captcha v0.0.15
-	github.com/liujitcn/kratos-kit/database/gorm v0.0.29
-	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.11
-	github.com/liujitcn/kratos-kit/logger/zap v0.0.11
-	github.com/liujitcn/kratos-kit/oauth v0.0.5
-	github.com/liujitcn/kratos-kit/oss v0.0.11
-	github.com/liujitcn/kratos-kit/pprof v0.0.9
-	github.com/liujitcn/kratos-kit/queue v0.0.18
-	github.com/liujitcn/kratos-kit/rpc v0.0.14
-	github.com/liujitcn/kratos-kit/swagger-ui v0.0.6
-	github.com/liujitcn/kratos-kit/transport/cron v0.0.7
-	github.com/liujitcn/kratos-kit/transport/mcp v0.0.9
-	github.com/liujitcn/kratos-kit/transport/sse v0.0.6
-	github.com/liujitcn/kratos-kit/utils v0.0.14
+	github.com/liujitcn/gorm-kit v0.0.31
+	github.com/liujitcn/kratos-kit v0.0.53
+	github.com/liujitcn/kratos-kit/ai/eino v0.0.4
+	github.com/liujitcn/kratos-kit/api v0.0.20
+	github.com/liujitcn/kratos-kit/auth v0.0.19
+	github.com/liujitcn/kratos-kit/auth/authn v0.0.18
+	github.com/liujitcn/kratos-kit/auth/authn/engine/jwt v0.0.13
+	github.com/liujitcn/kratos-kit/auth/authn/middleware v0.0.14
+	github.com/liujitcn/kratos-kit/auth/authz v0.0.17
+	github.com/liujitcn/kratos-kit/auth/authz/engine/casbin v0.0.15
+	github.com/liujitcn/kratos-kit/auth/authz/middleware v0.0.13
+	github.com/liujitcn/kratos-kit/bootstrap v0.0.14
+	github.com/liujitcn/kratos-kit/cache v0.0.14
+	github.com/liujitcn/kratos-kit/captcha v0.0.16
+	github.com/liujitcn/kratos-kit/database/gorm v0.0.30
+	github.com/liujitcn/kratos-kit/database/gorm/driver/mysql v0.0.12
+	github.com/liujitcn/kratos-kit/logger/zap v0.0.12
+	github.com/liujitcn/kratos-kit/oauth v0.0.6
+	github.com/liujitcn/kratos-kit/oss v0.0.12
+	github.com/liujitcn/kratos-kit/pprof v0.0.10
+	github.com/liujitcn/kratos-kit/queue v0.0.20
+	github.com/liujitcn/kratos-kit/rpc v0.0.16
+	github.com/liujitcn/kratos-kit/swagger-ui v0.0.7
+	github.com/liujitcn/kratos-kit/transport/cron v0.0.9
+	github.com/liujitcn/kratos-kit/transport/mcp v0.0.10
+	github.com/liujitcn/kratos-kit/transport/sse v0.0.7
+	github.com/liujitcn/kratos-kit/utils v0.0.15
 	github.com/mileusna/useragent v1.3.5
 	github.com/modelcontextprotocol/go-sdk v1.6.0
 	github.com/openai/openai-go/v3 v3.35.0
@@ -111,7 +111,7 @@ require (
 	github.com/grafana/pyroscope-go v1.2.8 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.9 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
-	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
@@ -129,17 +129,17 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.11 // indirect
 	github.com/klauspost/crc32 v1.3.0 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
-	github.com/liujitcn/kratos-kit/broker v0.0.5 // indirect
-	github.com/liujitcn/kratos-kit/config v0.0.17 // indirect
-	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.13 // indirect
-	github.com/liujitcn/kratos-kit/locker v0.0.10 // indirect
-	github.com/liujitcn/kratos-kit/logger v0.0.24 // indirect
-	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.9 // indirect
-	github.com/liujitcn/kratos-kit/registry v0.0.16 // indirect
-	github.com/liujitcn/kratos-kit/tracer v0.0.11 // indirect
-	github.com/liujitcn/kratos-kit/tracing v0.0.5 // indirect
-	github.com/liujitcn/kratos-kit/transport v0.0.17 // indirect
-	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.7 // indirect
+	github.com/liujitcn/kratos-kit/broker v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/config v0.0.19 // indirect
+	github.com/liujitcn/kratos-kit/database/gorm/driver v0.0.14 // indirect
+	github.com/liujitcn/kratos-kit/locker v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/logger v0.0.25 // indirect
+	github.com/liujitcn/kratos-kit/queue/redisqueue v0.0.11 // indirect
+	github.com/liujitcn/kratos-kit/registry v0.0.18 // indirect
+	github.com/liujitcn/kratos-kit/tracer v0.0.12 // indirect
+	github.com/liujitcn/kratos-kit/tracing v0.0.6 // indirect
+	github.com/liujitcn/kratos-kit/transport v0.0.19 // indirect
+	github.com/liujitcn/kratos-kit/transport/keepalive v0.0.8 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -163,10 +163,10 @@ require (
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/prometheus/client_golang v1.20.5 // indirect
+	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.62.0 // indirect
-	github.com/prometheus/procfs v0.15.1 // indirect
+	github.com/prometheus/common v0.67.5 // indirect
+	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.19.0 // indirect
 	github.com/redis/go-redis/extra/redisotel/v9 v9.19.0 // indirect
 	github.com/redis/go-redis/v9 v9.19.0 // indirect
@@ -206,6 +206,7 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/crypto v0.51.0 // indirect
