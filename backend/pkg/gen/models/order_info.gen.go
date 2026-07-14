@@ -15,8 +15,8 @@ const TableNameOrderInfo = "order_info"
 // OrderInfo 订单信息表
 type OrderInfo struct {
 	ID            int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:订单ID" json:"id"`                                                                         // 订单ID
-	TenantID      int64          `gorm:"column:tenant_id;type:bigint;index:idx_order_info_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                               // 租户ID
-	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;index:idx_order_info_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                           // 租户门店ID
+	TenantID      int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_order_info_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`                                      // 租户ID
+	TenantStoreID int64          `gorm:"column:tenant_store_id;type:bigint;not null;index:idx_order_info_tenant_store_id,priority:1;comment:租户门店ID" json:"tenant_store_id"`                  // 租户门店ID
 	OrderNo       string         `gorm:"column:order_no;type:varchar(20);uniqueIndex:unique_order_no,priority:1;comment:订单编号" json:"order_no"`                                               // 订单编号
 	UserID        int64          `gorm:"column:user_id;type:bigint;index:idx_order_user_id_created_at,priority:1;comment:用户id" json:"user_id"`                                               // 用户id
 	PayMoney      int64          `gorm:"column:pay_money;type:bigint;comment:实际支付金额" json:"pay_money"`                                                                                       // 实际支付金额

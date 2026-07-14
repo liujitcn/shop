@@ -15,7 +15,7 @@ const TableNameTenantStore = "tenant_store"
 // TenantStore 租户门店信息
 type TenantStore struct {
 	ID              int64          `gorm:"column:id;type:bigint;primaryKey;autoIncrement:true;comment:租户门店ID" json:"id"`                                       // 租户门店ID
-	TenantID        int64          `gorm:"column:tenant_id;type:bigint;index:idx_tenant_store_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`             // 租户ID
+	TenantID        int64          `gorm:"column:tenant_id;type:bigint;not null;index:idx_tenant_store_tenant_id,priority:1;comment:租户ID" json:"tenant_id"`    // 租户ID
 	Name            string         `gorm:"column:name;type:varchar(100);comment:门店名称" json:"name"`                                                             // 门店名称
 	Logo            string         `gorm:"column:logo;type:varchar(1024);comment:门店LOGO" json:"logo"`                                                          // 门店LOGO
 	Cover           string         `gorm:"column:cover;type:varchar(1024);comment:门店封面" json:"cover"`                                                          // 门店封面
