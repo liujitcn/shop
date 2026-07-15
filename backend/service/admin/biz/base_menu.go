@@ -259,6 +259,10 @@ func (c *BaseMenuCase) buildBaseMenuOption(menuList []*models.BaseMenu, parentID
 		if item.ParentID != parentID {
 			continue
 		}
+		// 按钮和外链不能承载子菜单，不提供为父级菜单选项。
+		if item.Type != int32(commonv1.BaseMenuType_FOLDER) && item.Type != int32(commonv1.BaseMenuType_MENU) {
+			continue
+		}
 
 		label := item.Name
 		route := c.routerMapper.ToDTO(item)
